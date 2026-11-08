@@ -1,0 +1,4 @@
+{
+  "summary": "A valid 32-character username of repeated w characters overflowed the primary profile heading (479px content inside 358px on phone) and was truncated. The main identity now wraps inside the heading; the LongName browser story checks content dimensions in each viewport.",
+  "regressionTest": "libs/friends-client-ts/tests/friend-profile-identity.test.tsx"
+}

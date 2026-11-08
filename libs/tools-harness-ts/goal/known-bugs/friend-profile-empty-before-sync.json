@@ -1,0 +1,4 @@
+{
+  "summary": "An empty local profile was reported deleted before its own server query completed. First-sync loading and offline/error recovery now remain distinct from a confirmed missing profile, and stale query completions are ignored.",
+  "regressionTest": "libs/friends-client-ts/tests/friend-profile-sync.test.tsx"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "Find checked the absent offline notice before the multiplayer route mounted; its auto-waiting tap then issued an offline command. Observe Find before checking connection readiness.",
+  "regressionTest": "libs/runtime-harness-ts/tests/multiplayer-find-connection.test.ts"
+}

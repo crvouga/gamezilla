@@ -282,6 +282,8 @@
     "@libs/spaces-server-ts": "workspace:*",
     "@libs/spaces-shared-ts": "workspace:*",
     "@libs/test-ids-shared-ts": "workspace:*",
+    "@lingui/core": "catalog:",
+    "@lingui/solid": "catalog:",
     "@pkgs/alloy-shared-ts": "workspace:*",
     "@pkgs/bun-test-solid-client-ts": "workspace:*",
     "@pkgs/chess-rules-shared-ts": "workspace:*",

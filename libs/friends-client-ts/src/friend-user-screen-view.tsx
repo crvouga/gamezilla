@@ -47,9 +47,9 @@ export type FriendUserScreenViewProps = {
   readonly onRequestRemove: () => void;
   readonly onRequestBlock: () => void;
   readonly onCancelConfirm: () => void;
-  /** Removes the friend and leaves; rejects to keep the confirm open. */
+  /** Removes the friend; the dialog shows dismissible success or a retryable error. */
   readonly onRemove: () => Promise<void>;
-  /** Blocks the person and leaves; rejects to keep the confirm open. */
+  /** Blocks the person; the dialog shows dismissible success or a retryable error. */
   readonly onBlock: () => Promise<void>;
 };
 
@@ -77,14 +77,20 @@ function useHeaderActions(props: FriendUserScreenViewProps) {
 function FriendUserProfileView(props: FriendUserScreenViewProps): JSX.Element {
   const moderation = useModeration();
   const headerActions = useHeaderActions(props);
+  const heading = () => {
+    if (props.presence === 'deleted') return <Trans>Account deleted</Trans>;
+    if (props.presence === 'unavailable')
+      return <Trans>Profile unavailable</Trans>;
+    return friendUserBreadcrumbName(
+      moderation(),
+      props.profile,
+      props.profile.userId
+    );
+  };
   const breadcrumbs = createMemo(() => [
     { name: <Trans>Profile</Trans>, href: '/profile' },
     {
-      name: friendUserBreadcrumbName(
-        moderation(),
-        props.profile,
-        props.profile.userId
-      ),
+      name: heading(),
     },
   ]);
   return (

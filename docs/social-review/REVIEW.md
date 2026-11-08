@@ -1,0 +1,544 @@
+# Social feature review
+
+Target: 10/10 for polish, correctness, completeness and user expectations,
+independently rated by the social critic. Each scored round is recorded in
+pull-request comments with revision-specific automated evidence.
+
+## Baseline
+
+Revision: 27bc00adc604a4323ae139076e418e77eacf07f3.
+
+| Dimension | Source-audit score |
+| --- | --- |
+| Polish | 7/10 |
+| Correctness | 6/10 |
+| Completeness | 7/10 |
+| User expectations | 6/10 |
+
+Reviewed scope: people search, friend lists and live-space entry, other-person
+profiles, friend requests (send, accept, decline, cancel), blocking/unblocking,
+removal and friend-request inbox decisions.
+
+Findings: uncached profiles can be labeled deleted before remote hydration;
+remove/block navigate away without success feedback; opposite request decisions
+can run concurrently; underscores are SQL search wildcards; rate-limited searches
+return false empty results. Current automated screenshots and full verification
+are required before any final score. Profile editing and broader space management
+are not comprehensively reviewed by this baseline.
+
+## Evidence policy
+
+Use the [Storybook workflow](../../pkgs/ui-root-harness-ts/README.md#agent-workflow)
+and [CI stage policy](../CI_STAGE_POLICY.md). Checked-in baseline screenshots
+illustrate the starting UI but do not prove current behavior. No manual testing
+is release evidence. No round passes with missing checks or a score below 10.
+
+## Existing screenshot reconciliation
+
+The independent critic inspected all 160 differing captures from the automated
+83d751c run, across phone/desktop and light/dark. It approved 152 for deliberate
+reconciliation: 32 friends-list, 8 notification, 72 friend-profile and 40 search
+captures. The starting checked-in images predate the current source compositions:
+for example, the friends-list populated baseline has five plain rows, while the
+unchanged starting source groups live players and provides request access.
+Changes in this PR additionally replace remove/block confirmation lifecycles.
+This is a reviewed baseline update, not a claim that prior comparisons passed.
+
+Eight captures are excluded: four profile long-name fixtures were unrealistic
+(46 characters against a 32-character limit), and four long-query search captures
+include a real mobile overflow. Those require fresh evidence after correction.
+The 24 new success/recovery captures passed a separate no-update comparison.
+
+## Round three corrections
+
+Success fixtures now adopt the resulting relationship and separately exercise
+Done dismissal. A valid 32-character wide username reproduced primary-heading
+clipping in all four browser variants (479px content in a 358px phone region).
+The primary identity now wraps through existing typography components; the compact
+navigation header retains truncation. The literal long search query is preserved
+in its input while the empty heading reads "No people found".
+
+Full verification of round two failed cache hygiene: adding a source file made the
+shared sync hub exceed its 45-file cap. Retryable query definitions now live in the
+existing query-definition module; the separate file and all old imports are gone.
+Cache hygiene and affected checks pass after the correction. Final full verification
+and final screenshot comparison remain required.
+
+## Inherited gate repairs
+
+The next full gate stopped at three bot-start journeys without statechart owners.
+The product map now links those existing contracts and the existing Troubleshooting
+route; its gate and pinned regression pass. Product scenarios are unchanged.
+
+Missing visual coverage was inherited too. The independent critic reviewed 265
+newly captured images: 259 were approved initially or after full-resolution
+reconsideration; two breadcrumb captures required a real shrinking fix; four phone
+captures of the documented desktop-only header were removed by correcting story
+viewport metadata. The corrected breadcrumb captures are approved, making 261
+accepted additions. StepTrack needed no product change: rendered glyph-range and
+box containment assertions proved its labels fit the phone viewport.
+
+Existing Word Tiles screenshot differences observed during broad authoring were
+not accepted or overwritten. The combined no-update comparison passed all 447
+cases. Full verification remains the completion criterion. Coverage also identified
+obsolete phone header goldens and desktop captures required by explicit tests but absent from the
+canonical matrix; these are reconciled through supported viewport metadata, not
+by disabling assertions or deleting valid desktop evidence.
+
+The existing blank-assignment context now has a production-component story with
+visible-content assertions. Its four phone/desktop, light/dark captures were
+independently approved; the focused responsive comparison passed all 28 cases.
+The product preview annotation uses the established `.example.tsx` convention
+so preview infrastructure is classified correctly without weakening the boundary.
+The rebuilt coverage gate reports 990 UI exports, 262 story files and zero
+violations; owning artifact tests and all 28 responsive comparisons pass.
+The critic retains 10/9/9/10 until full verification completes successfully.
+
+## Round five regression proof
+
+Full verification next stopped at five inherited regression registrations that
+only supplied loop-generated tests. Each now has a marked module-scope literal
+reproduction, sharing unchanged assertions with the retained viewport/theme
+matrices. Running those matrices also exposed the old 46-character friend-name
+expectation; it now matches the valid 32-character wide-name fixture, with heading
+containment and header non-overlap assertions preserved.
+
+All 71 affected browser cases pass, along with goals, lint and typecheck. The
+independent critic found no weakened assertions or new product blockers; scores
+remain 10/9/9/10 pending the complete gate.
+
+## Round six coordinate clearance
+
+Hosted verification is green. The next full local run completed 596 tasks before
+an inherited native-browser contract found nine overlapping ink pixels between
+file b and the b1 white knight at 358px. Boards with internal coordinates now
+use an 80% piece footprint; other boards retain 84%, including frames that move
+coordinates outside the squares. Labels, hitboxes and game rules are unchanged.
+The existing zero-overlap matrix and all 31 native browser contracts pass. The
+critic found no assertion weakening; full verification remains required.
+
+The critic approved all ten compact-board captures. Their previous goldens date
+from a 100% piece footprint and older coordinate styling; accepting these images
+also reconciles that inherited drift. The production change in this round is
+84% to 80% only where coordinates remain inside squares. Promotion captures show
+the pre-choice board, not an open chooser; native contracts cover that behavior.
+
+## Round seven publication readiness
+
+The full gate next found a publication timeout. A pinned cold-screen River
+regression reproduced it: the harness waited for Publish to exist, then clicked
+while the saved-copy read still disabled it. The harness now waits for an enabled
+control before its single click, retaining the bounded result wait. Product and
+sync code are unchanged. All 13 package tests and 170 tests across the four
+puzzle spec shards pass, including "A valid draft becomes discoverable". The
+critic approved the correction without weakened assertions and retains
+10/9/9/10 pending full verification.
+
+## Round eight deletion receipt readiness
+
+The next full run stopped while reopening Privacy after account deletion. The
+harness incorrectly waited for the permission-gated Delete account action after
+the person had been signed out. A paid-account regression reproduced the timeout.
+Opening Privacy now waits for the privacy section; reviewing deletion still taps
+the actual gated control. Product code is unchanged. The regression and all six
+deleted-account payment scenarios pass, including the pending cancellation case;
+lint, typechecks and goals pass. The critic found no weakened assertion and
+retains 10/9/9/10 until full verification succeeds.
+
+## Round nine overdue export proof
+
+The overdue-export scenario expected an immediate request button after 24 hours,
+contradicting the existing ten-minute proof requirement. Its assertion now checks
+the overdue explanation and concrete Sign in action. A registered regression
+also proves that renewing account proof permits a new export and clears the late
+status; it asserts that the direct request is absent before proof is renewed.
+Product and permission policy are unchanged. The regression, all six cases in
+the affected profile shard, lint, typechecks and goals pass. The independent
+critic approved the correction; scores remain 10/9/9/10 pending the full gate.
+
+## Round ten current permission denials
+
+Old-proof deletion exposed the same hidden-control assumption in action helpers.
+Privacy actions now wait for either their actual visible control or their specific
+visible policy refusal, and only click an available control. Refusal observations
+accept the current-access or post-submit surface while retaining required copy
+and rejecting notices obscured by a modal. A registered old-proof regression
+requires unchanged identity, an Active server account and no erasure deadline.
+All 121 tests across 22 profile spec shards, all 14 package tests and the six
+owning checks pass. No product or policy change was needed. The critic found
+no weakened assertion; scores remain 10/9/9/10 pending full verification.
+
+## Round eleven deleted profiles and recovery
+
+Full verification found a regression introduced here: generic unavailability
+removed the deleted-account explanation. The profile read now distinguishes a
+synced tombstone from an absent row. Only a tombstone after the profile's first
+answer yields the deletion message; old identity fields are suppressed.
+
+The critic first held an inaccurate fixture, then identified a raw-ID heading
+and missing Friends action in the corrected captures, lowering scores to 9/9/9/9.
+Deleted and unavailable profiles now have readable headings and a direct Friends
+link. Browser assertions pin the heading, destination, identity redaction and
+absence of an Add friend action. The critic approved all eight final captures
+and returned to 10/9/9/10 pending full verification. The initial held captures
+were not accepted as baselines.
+
+Final round-eleven checks: 36 friends-client tests, 14 affected spec cases,
+17 browser comparisons and owning lint/typechecks/goals pass. Coverage reports
+zero violations. Full verification is still required.
+
+## Round twelve catalog synchronization
+
+The full gate caught missing committed catalog entries for round eleven's
+profile headings, explanation and Friends link. Canonical extraction now
+matches the reviewed source, including its source references and removal of
+the obsolete combined explanation. The catalog freshness gate and strict
+compilation pass. The independent critic approved the correction with no new
+findings; scores remain 10/9/9/10 pending full verification. Round eleven's
+approved automated captures still show the current interface.
+
+## Round thirteen visible Light Cycles results
+
+The next full gate reached a Light Cycles scenario whose recorded screen
+already showed Nova winning round three. Its harness read only the empty
+arena overlay; result text now lives in the status line. The read follows the
+visible result when present and otherwise retains the countdown overlay.
+Product rules, scenario wording and winner assertions are unchanged.
+
+A registered seed-one reproduction failed on the original empty read, then
+passed with the correction. It uses the package's integration-test outer
+budget while keeping the two-second virtual result deadline. All 15 package
+tests, 115 scenarios, lint, typechecks and the regression registry gate pass.
+The critic approved the guarded read after rejecting an initial unguarded
+lookup of a conditionally rendered element. Full verification remains pending.
+
+Eight result-screen comparisons exposed older goldens. The critic inspected
+each current capture against its golden and approved both result states in
+both themes at phone and desktop widths. Only those eight were replaced;
+all eight then passed without snapshot updates. Ratings remain 10/9/9/10.
+
+## Round fourteen spectator move refusals
+
+Full verification next found a Quoridor harness action clicking a player-only
+tool on a spectator's read-only board. Pawn and wall actions now check whether
+their mode selector is visible before using it. Missing tools reach the
+existing acknowledged product-command path, so the product still decides and
+reports the refusal. No game rule or scenario assertion changes.
+
+The seed-one reproduction pins Eve's e2 pawn attempt and d2 horizontal wall
+attempt, requiring the non-player denial and unchanged game state after each.
+The package test command now loads the shared product-harness preload needed
+by this integration test. With that setup in place, the new test reproduced
+the missing-selector failure before the action correction.
+
+The broader suite then exposed a visible-but-disabled wall tool at zero
+inventory. A second seed-one regression reproduced the missing explanation
+(only generic move guidance was shown). The board now uses its existing
+no-walls explanation with a next action, preserving finished, spectator and
+mandatory-pass messages. Disabled wall attempts follow the acknowledged
+refusal path. The new NoWallsLeft story asserts disabled wall selectors,
+an enabled pawn selector and the recovery text.
+
+All 58 Quoridor scenarios and 20 package tests, both packages' lint and
+typechecks, goals and localization pass. Coverage reports zero violations.
+The critic approved all eight new/existing spectator and no-walls captures
+across themes and widths; eight comparisons then passed without snapshot
+updates. Scores remain 10/9/9/10 pending the full gate.
+
+## Round fifteen named Hearts winners
+
+The full gate found a Hearts assertion expecting the accessibility seat label
+North inside a result correctly naming Carol. The observation now resolves
+the visible participant, checks the played winning card and requires the
+winner's announcement prefix. The critic caught the viewer's own perspective:
+the product correctly says You. The exact seeded diamond trick now covers
+both perspectives, their live announcements and rejection of a wrong winner.
+
+Two accessibility assertions had the same seat-label assumption. They now
+require the validated result in the live region while retaining winning-card,
+rank/suit, next-leader and score checks. Both the original label mismatch and
+the own-winner mismatch were reproduced before their corrections. Product
+copy, rules and specification text are unchanged.
+
+All 58 Hearts scenarios, nine package tests, lint, typechecks and goals pass.
+Cache synchronization required no derived changes. The critic approved eight
+current result captures against older goldens; all eight then passed without
+snapshot updates. Ratings remain 10/9/9/10 pending full verification.
+
+## Round sixteen puzzle board translation context
+
+The full gate reached 70 successful tasks before two puzzle board contracts
+threw while rendering translated guidance. The conformance mount omitted
+I18nProvider. Each driver now owns an isolated English translation context,
+matching the providers its board reads in the app. Direct test dependencies
+are declared; product behavior and existing assertions are unchanged.
+
+The literal puzzle 01Xbe regression pins the original position, setup g3h4
+and solution g6g5. It reproduced the same missing-provider error before the
+correction, then passed readable-guidance and exact emitted-move assertions.
+All 241 package tests, 197 puzzle contracts, lint, typechecks and goals pass.
+Cache synchronization required no derived changes.
+
+The critic independently approved eight solving/hint captures against stale
+goldens. All eight comparisons then passed without snapshot updates. The
+screenshots document the current translated guidance and matching hint
+highlight; this round changes test setup, not the product screen. Scores
+remain 10/9/9/10 pending full verification.
+
+## Round seventeen Storybook observations
+
+The full catalog passed the repaired puzzle contracts, then failed Storybook
+with 15 functional observations and 96 pixel comparisons. The observations
+assumed older component structure: controls outside their scrollport counted
+as covered, header eligibility ignored the compact tab counterpart, mandatory
+Hill pass required the old command-bar ancestor, and tile details were sought
+inside the grid rather than beside it.
+
+The corrected checks additionally reveal and hit-test every builder control,
+exercise compact Search navigation, require the sole legal Pass command and
+81 disabled squares, and select the exact committed C 3 at g8. Four literal
+regressions register these inputs. The red run had 15 failures and two passes;
+the corrected run has 21 passes. Harness lint, types, tests and goals pass.
+The critic approved all three diffs and 21 captures without finding weakened
+requirements. Product behavior and fixtures are unchanged.
+
+The broader Storybook run passed 278 checks and failed 96 pixel comparisons.
+An independent critic reviewed all 96 pairs individually: 82 approved and
+14 rejected. Rejections identify avatar gallery misuse, detached badge
+positioning, on-primary examples on pale surfaces, and clipped/low-contrast
+image fixtures. An idle sign-in example also falsely claimed loading coverage.
+Only the 82 explicitly approved captures were adopted. The visual review rates
+polish 8/10, design-contract fidelity 9/10 and displayed-content completeness
+8/10; functional and whole-product readiness remain unscored by that review.
+The rejected examples must be corrected in the next round.
+
+All 82 approved-only screenshot comparisons passed without updates.
+
+## Round eighteen gallery and badge corrections
+
+BadgedIcon now retains intrinsic width under stretching parents, keeping its
+count attached to the icon. Account examples use Avatar placeholders. Icon,
+sparkline and text examples give on-primary content a primary-filled backing.
+Round image sizes wrap inside the phone viewport, and opaque artwork remains
+visible in both themes. The sign-in example now actually renders loading.
+
+Six registered literal regressions cover 18 theme/story cases, including
+badge geometry, foreground contrast, image bounds/artwork, avatar appearance
+and disabled/busy sign-in state. Red evidence precedes the changes; all six
+regressions now pass. Both packages' lint and typechecks, 139 client tests,
+783 harness tests and goals pass. The badge readiness row is updated.
+
+The independent critic approved all 16 before/after pairs, with bounded
+gallery scores of 10/10 for polish, design contract and displayed-state
+completeness. Overall social scores remain 10/9/9/10 until full verification.
+Only these 16 approved baseline reconciliations were adopted.
+
+The full ci:storybook task then passed all 380 checks without snapshot updates.
+The complete local catalog remains pending.
+
+## Round nineteen release registration fixture
+
+Full verification cleared Storybook (380 checks) and recorded 428 executed
+successes before a release-entry registration test failed. Its fixture supplied
+web and API origins but omitted idpOrigins.google, throwing before registration
+assertions ran. A literal module-scope regression reproduced the same error.
+
+The fixture now supplies typed Google and Apple origins. Separate live and
+release examples retain all 13 exact journey/health bindings, rejection of a
+local DOM harness and the successful child-process assertion. Product behavior
+and specs are unchanged. The critic found no weakened assertion; overall
+scores remain 10/9/9/10 pending full verification.
+
+All 87 tests in the affected product shard, lint, typechecks and goals pass.
+Cache sync changed no derived files. Four current Quoridor captures pass
+without updates; they are unchanged visual context for the bound journeys,
+not proof of the fixture correction. That proof is the red/green regression.
+
+## Round twenty publication confirmation
+
+The release journey opened the still-available previous edition after local
+Publication saved, before confirmation identified the current draft's edition.
+The harness now waits for exact Published before opening it. Existing final
+title, changed endpoint, revision identity and unchanged earlier-pack checks
+remain intact. Product behavior and UI are unchanged.
+
+The literal mw6tcjre ordering regression first received Valley instead of
+Canyon. It now passes and explicitly requires exact status matching. This is
+a harness ordering contract, not a simulated delayed-network test; the real
+release journey supplies integration evidence. All 12 release scenarios pass,
+including republication and offline recovery, along with 14 package tests,
+lint, typechecks and goals. The critic approved the source correction; overall
+scores remain 10/9/9/10 until full verification.
+
+The supplied trace belonged to the peer's ensureProfile call, not publication.
+The original request log records the host's saves and publication responses.
+
+The critic approved eight fresh pending/published captures against stale
+goldens. All eight then passed without snapshot updates. They show unchanged
+product states whose distinct meanings the harness now observes.
+
+## Round twenty-one mounted matchmaking readiness
+
+The failed Pong release journey left Alice searching and Bob with a connection
+refusal. The trace confirms Alice's persisted search. Source inspection found
+that an absent offline notice could satisfy the harness before the multiplayer
+screen mounted; the subsequent auto-waiting tap could then issue Find offline.
+This timing is inferred, not established by the original server trace.
+
+The harness now waits for Find to be visible before checking the offline
+notice. Its existing refusal handling, attempt limit, timeouts and downstream
+match assertions are unchanged. The literal driver-order regression failed
+before the fix (97 pass, one fail) and passes after it (98 pass). It is an
+ordering contract, not a simulation of the original network timing.
+
+Lint, typechecks, goals and all 10 real release scenarios pass, including
+Pong's original victory/rematch assertions. The critic approved the correction
+and retained overall scores of 10/9/9/10 pending full verification. Four
+request-received social screenshot comparisons also pass without updates;
+they are unchanged visual context, not evidence of the harness fix.
+
+## Round twenty-two Word Tiles disclosure automation
+
+Full verification passed all three release-journey partitions before the
+shared Word Tiles turn scenario waited for an unmounted Pass control. Pass
+and Exchange are secondary actions behind the board's tools disclosure.
+Automation now waits for the enabled disclosure and opens it only when it
+is not already expanded; placement and blank paths are unchanged.
+
+The actual Solid DOM board regression pins the archived seed-one Alice rack
+and covers collapsed/open tools, reopening after Pass, Exchange, ordinary
+placement and blank assignment. Red was 31 passes and two failures; corrected
+client tests pass 33/33. Shared tests pass 46/46, Word Tiles specs 30/30, and
+all 27 shared partition-115 tests pass, including the original failure. Owning
+lint/typechecks, goals and cache sync pass. The critic approved the source
+without finding weakened assertions. Overall ratings remain 10/9/9/10 until
+the full catalog passes.
+
+An initial visualization command triggered an extra build and exhausted Node
+heap. The parent restored the successful fresh build and ran the browser
+task without rebuilding. No failed build was counted as verification.
+
+The critic inspected and approved all 12 unique Your turn, Accepted pass and
+Accepted exchange capture pairs. All 21 browser checks then passed without
+snapshot updates. Existing UI behavior is unchanged; automation now reaches
+its secondary actions through the disclosure.
+
+## Round twenty-three Battleship spoken selection
+
+The full catalog found that the ship picker's field-only name hid its visible
+selected ship from assistive technology. The picker now derives purpose and
+full selection from the same reactive options, including placed coordinates,
+orientation and the final repositioning prompt. Its literal regression failed
+before the fix and passes through all six selection states. All 45 client
+tests and 69 Battleship specs pass, along with owning lint/typechecks, goals
+and localization checks. Existing geometry, placement and locking checks stay.
+
+The critic approved the fix and individually reviewed all 32 unique reference
+comparisons represented by 39 screenshot failures. Only those approved
+references were adopted. Four enlarged-placement before/after captures are
+byte-identical; the before build was existing static output, not a verified
+base-commit build. Overall ratings remain 10/9/9/10 pending full verification.
+
+## Round twenty-four Word Tiles spoken locator
+
+The same accessibility partition exposed a second label-in-name violation:
+visible “Find a square” was overridden by “Board map: locate a square.”
+Removing that override gives the native button its visible name and preserves
+its dialog behavior. A literal CAT/TOE regression proved red (33 pass, one
+fail) and green (34 pass). The existing map, retained-rack, keyboard-focus
+and geometry assertions remain intact. The shared UI client passes 139 tests.
+Both packages' lint/typechecks pass; the original partition, goals and i18n
+checks also pass. The obsolete translation entry was removed.
+
+The critic approved the source changes and retained overall ratings of
+10/9/9/10. The fresh build passed, followed by all 60 focused browser checks without
+snapshot updates: 46 Battleship and 14 Word Tiles checks. Four Word Tiles
+reference screenshots matched the new run unchanged. Full verification
+remains required; focused results alone do not establish full readiness.
+
+The critic approved all four matched Word Tiles references individually,
+with readable locator text, visible focus and intact board navigation. Both
+rounds are approved within scope; overall ratings remain 10/9/9/10.
+
+## Round twenty-five shared locator harness
+
+The full local run stopped at a shared UI harness test that still queried the
+retired “Board map: locate a square” name. Its literal committed-c3 fixture
+now queries “Find a square” and asserts that exact visible text. All existing
+locator, dialog dismissal, focus and rack-preservation assertions remain.
+The failure is registered as `word-tiles-map-stale-harness-name`.
+
+All 783 harness tests, lint/typechecks and goals pass. Four unchanged Word
+Tiles reference screenshots pass in a fresh 14-check browser run against
+the existing build; no product UI or baseline changed. The independent
+critic approved the fix and retained ratings 10/9/9/10 pending full verification.
+The preceding full run had 875 cached tasks, 382 fresh passes, one failure
+and 282 unexecuted tasks. Hosted verify:end separately rejects three
+unregistered CodeQL checks; that registration defect still needs repair.
+
+## Round twenty-six CodeQL registration
+
+Hosted verification passed its seven shards but rejected CodeQL default
+setup's three successful checks because their exact names and producers
+were absent from the required-checks registry. Provenance is GitHub's
+`dynamic/github-code-scanning/codeql` run 42427272789. The registry now
+requires CodeQL (app 57789) and both Analyze checks (app 15368). The strict
+gate itself is unchanged; no check is ignored and no fifth workflow added.
+
+The literal regression reproduces all three original rejections, then passes
+with the registrations. Missing, failing, pending, neutral and impersonated
+checks still fail. The focused suite passes 10 tests; tooling passes 1,141
+and infrastructure 155. Owning lint/typechecks, goals and all 25 offline
+infrastructure policy checks pass. No infrastructure was applied.
+
+No UI changed. Round twenty-five's 14 browser checks and unchanged matched
+references remain visual context only. Full local verification, fresh hosted
+PR verification and hosted Release rehearsal are still outstanding.
+
+The independent critic approved the registrations and negative coverage,
+retaining overall ratings 10/9/9/10 pending those complete gates.
+
+## Round twenty-seven repository-policy check set
+
+The next full run found the infrastructure server's repository-policy test
+still required two checks. Direct reproduction confirms expected 2 versus
+received 5 (102 pass, one fail). The assertion now pins all five check
+names and producer IDs with exact equality. All existing repository
+protection and context-uniqueness assertions remain. A registered literal
+regression guards the corrected set. All 103 infrastructure server tests,
+lint and typechecks pass.
+
+The independent critic approved the stronger explicit assertion and kept
+overall ratings 10/9/9/10 pending complete verification and hosted gates.
+No product UI or infrastructure configuration changed in this round; earlier
+matched screenshots are unchanged context only.
+
+The previously failing `verify:rebrand` gate and `ci:goals` both pass on
+the corrected tree. Full-catalog completion remains outstanding.
+
+## Round twenty-eight hosted check readiness
+
+The complete catalog at e1512ef44 passed all 1,540 tasks (1,002 cached and
+538 fresh, zero failures or unexecuted tasks). The critic rated that audited
+social candidate 10/10 in all four dimensions. Native platforms were excluded;
+39 zero-test logs do not add test coverage. Main was merged externally during
+that run, so the newer candidate still requires its own verification.
+
+The hosted gate observed CodeQL neutral while its same-head default-setup
+producer was active; analysis succeeded two minutes later. Readiness now
+observes unfinished producers within five minutes using injected time. Only
+the original successful snapshot can pass; terminal failure, untrusted apps,
+metadata failure and expired missing evidence fail closed. Neutral CodeQL is
+deferred only for the exact active default-setup producer on the same SHA.
+No workflow budget or strict gate was weakened.
+
+The literal lifecycle regression and negative cases pass; tooling passes
+1,149 tests plus lint/types/goals. The critic approved this scope, retaining
+current-candidate ratings 10/9/9/10 pending complete and hosted verification.
+No UI changed; prior matched social images remain context, not fresh captures.
+
+Release rehearsal 42430377904 successfully planned repository policy, alerting
+and fleet. Its later dev-foundation plan failed to acquire a pre-existing lock.
+A possible interrupted Health owner was identified but not proven; no unlock,
+state deletion or infrastructure apply was attempted. The affected repository
+policy plan passed; the overall rehearsal remains failed.
