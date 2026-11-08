@@ -1,4 +1,6 @@
-export const previewAnnotations = ['apps/product-ts/src/storybook-preview.example.tsx'];
+export const previewAnnotations = [
+  'apps/product-ts/src/storybook-preview.example.tsx',
+];
 
 export function isStorybookSource(path: string): boolean {
   return (
