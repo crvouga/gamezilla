@@ -401,10 +401,15 @@
   white-space: nowrap;
 }
 
-/* A short landscape window (a phone on its side): open keyboard help
-   floats above its summary over the board, so the board column never
-   grows past the window and the help is read where it was opened. */
+/* A short landscape window (a phone on its side): the guidance keeps to
+   two lines and open keyboard help floats above its summary over the
+   board, so the board column never grows past the window. */
 @media (orientation: landscape) and (max-height: 560px) {
+  /* The tap hint would wrap the guidance to a third line and push the board
+     column past the window; the side, check and keyboard help remain. */
+  .guidanceRow > :first-child {
+    display: none;
+  }
   .keyboardHelp {
     position: relative;
   }

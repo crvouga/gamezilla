@@ -50,7 +50,7 @@ export function ChessBoardGuidance(props: {
       </P>
       {/* Keep the board anchored when a wrong move temporarily disables input. */}
       <div
-        class="box flex-row flex-wrap items-baseline gap-2"
+        class={`box flex-row flex-wrap items-baseline gap-2 ${styles['guidanceRow']}`}
         classList={{ invisible: !props.ctrl.model.interaction().interactive }}
         aria-hidden={!props.ctrl.model.interaction().interactive}
         inert={!props.ctrl.model.interaction().interactive}

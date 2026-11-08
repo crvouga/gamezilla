@@ -63,4 +63,7 @@ test('open keyboard help floats over the board in a short landscape window', () 
   )?.[1];
   expect(rule).toContain('position: absolute');
   expect(rule).toContain('var(--ui-color-surface)');
+  expect(landscape).toMatch(
+    /guidanceRow > :first-child\s*\{[^}]*display: none/
+  );
 });
