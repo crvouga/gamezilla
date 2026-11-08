@@ -1,7 +1,7 @@
 import type { EndpointId } from '@pkgs/harness-root-shared-ts/network-state';
 import type { EdgeFaultController, HarnessHttpFault } from './edge-faults';
-import type { HarnessHttpResponse } from './http-bridge-types';
 import { CAPTIVE_PORTAL_HTML } from './hostile-responses';
+import type { HarnessHttpResponse } from './http-bridge-types';
 import type { SyncNetwork } from './network';
 
 type Route = 'mutations' | 'query';

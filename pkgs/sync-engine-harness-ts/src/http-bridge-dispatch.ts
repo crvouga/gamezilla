@@ -1,13 +1,13 @@
 import type { EndpointId } from '@pkgs/harness-root-shared-ts/network-state';
 import { corruptJsonString } from './corruption-faults';
 import type { EdgeFaultController, HarnessHttpFault } from './edge-faults';
+import { corruptVerdicts } from './hostile-responses';
+import { applyHostileNetworkFaults } from './http-bridge-hostile';
 import type {
   HarnessHttpRequest,
   HarnessHttpResponse,
   HarnessHttpServerHandlers,
 } from './http-bridge-types';
-import { applyHostileNetworkFaults } from './http-bridge-hostile';
-import { corruptVerdicts } from './hostile-responses';
 import type { SyncNetwork } from './network';
 import { classifyEndpoint } from './traffic';
 

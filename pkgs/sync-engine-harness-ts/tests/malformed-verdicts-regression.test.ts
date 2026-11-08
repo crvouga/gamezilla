@@ -3,11 +3,15 @@ import { FAULT_PROFILES } from '@pkgs/sync-engine-harness-ts/fault-profiles';
 import { runUnderFaultProfile } from '@pkgs/sync-engine-harness-ts/fault-sweep';
 import type { VerdictCorruption } from '@pkgs/sync-engine-harness-ts/hostile-responses';
 import { VERDICT_CORRUPTIONS } from '@pkgs/sync-engine-harness-ts/hostile-responses';
+import {
+  DEVICES,
+  openDevices,
+  sweepOnce,
+} from '@pkgs/sync-engine-harness-ts/offline-sweep';
 import type { WorkloadStep } from '@pkgs/sync-engine-harness-ts/offline-workload';
 import { performWorkloadStep } from '@pkgs/sync-engine-harness-ts/offline-workload';
 import { online } from '@pkgs/sync-engine-harness-ts/regression-actions';
 import { httpFault } from '@pkgs/sync-engine-harness-ts/regression-random-faults-actions';
-import { DEVICES, openDevices, sweepOnce } from '@pkgs/sync-engine-harness-ts/offline-sweep';
 
 // regression: malformed-verdict-misread-as-outcome
 test('a garbled "rejected" verdict does not mark a saved write as refused', async () => {

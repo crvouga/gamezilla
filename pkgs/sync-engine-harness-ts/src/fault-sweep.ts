@@ -7,11 +7,11 @@
  */
 
 import type { Run } from '@pkgs/harness-root-shared-ts/run-types';
-import { faultProfileRuntime, exampleSystem } from './example-app-system';
+import type { SyncArgs } from './args';
+import { exampleSystem, faultProfileRuntime } from './example-app-system';
 import type { FaultAdversary, FaultMove } from './fault-adversary';
 import { createFaultAdversary } from './fault-adversary';
 import type { FaultProfile } from './fault-profiles';
-import type { SyncArgs } from './args';
 import type { SyncHarness } from './scenario-system';
 import { inSync } from './sync-observations';
 import type { LedgerWrite } from './write-ledger';

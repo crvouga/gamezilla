@@ -1,8 +1,11 @@
 import { afterAll, beforeAll, expect, test } from 'bun:test';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import { FAULT_PROFILE_NAMES } from '@pkgs/sync-engine-harness-ts/fault-profiles';
+import {
+  arbSteps,
+  sweepOnce,
+} from '@pkgs/sync-engine-harness-ts/offline-sweep';
 import fc from 'fast-check';
-import { arbSteps, sweepOnce } from '@pkgs/sync-engine-harness-ts/offline-sweep';
 
 const unhandled: string[] = [];
 const onUnhandled = (reason: unknown) => {
