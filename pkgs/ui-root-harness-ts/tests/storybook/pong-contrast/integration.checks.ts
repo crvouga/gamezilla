@@ -43,3 +43,72 @@ test('storybook integration: pong-overhaul spectator paddle boundaries remain vi
     }
   }
 });
+
+// axe leaves Pong's court text "incomplete" (bgOverlap): the drag hint ignores
+// pointers, so hit testing reaches the lane drawn beneath it. Check that text
+// against its real backgrounds instead, the lane taken fully opaque.
+test('storybook integration: pong-overhaul court and scoreboard text meet 4.5:1 on their backgrounds', async ({
+  page,
+}, info) => {
+  for (const theme of ['light', 'dark']) {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await openPong(page, 'paddle-movement', theme);
+    const pairs = await page.evaluate(() => {
+      const opaque = (element: Element | null): string => {
+        for (let at = element; at; at = at.parentElement) {
+          const color = getComputedStyle(at).backgroundColor;
+          if (!/rgba\(.*,\s*0\)$|transparent/.test(color)) return color;
+        }
+        return getComputedStyle(document.body).backgroundColor;
+      };
+      const court = document.querySelector('[data-component="PaddleCourt"]');
+      if (!court) throw new Error('Missing Pong court');
+      const lane = court.querySelector('rect:not([data-side])');
+      const canvas = getComputedStyle(court).backgroundColor;
+      const result: { text: string; fg: string; bg: string }[] = [];
+      for (const hint of court.querySelectorAll('[data-testid$="-gesture"]')) {
+        const fg = getComputedStyle(hint).color;
+        result.push({ text: hint.textContent, fg, bg: canvas });
+        if (lane)
+          result.push({
+            text: `${hint.textContent} over lane`,
+            fg,
+            bg: getComputedStyle(lane).fill,
+          });
+      }
+      const status = court.querySelector('[role="status"], [aria-live]');
+      if (status?.textContent)
+        result.push({
+          text: status.textContent,
+          fg: getComputedStyle(status).color,
+          bg: opaque(status),
+        });
+      for (const label of document.querySelectorAll(
+        '[data-testid$="-scoreboard"] span span'
+      ))
+        result.push({
+          text: label.textContent,
+          fg: getComputedStyle(label).color,
+          bg: opaque(label),
+        });
+      return result;
+    });
+    await info.attach(`court-text-contrast-${theme}`, {
+      body: JSON.stringify(pairs, null, 2),
+      contentType: 'application/json',
+    });
+    expect(pairs.length).toBeGreaterThanOrEqual(5);
+    for (const pair of pairs) {
+      const fg = parseColor(pair.fg);
+      const bg = parseColor(pair.bg);
+      if (!fg || !bg)
+        throw new Error(
+          `Unreadable colors for ${pair.text}: ${pair.fg} on ${pair.bg}`
+        );
+      expect({ text: pair.text, ratio: contrastRatio(fg, bg) >= 4.5 }).toEqual({
+        text: pair.text,
+        ratio: true,
+      });
+    }
+  }
+});
