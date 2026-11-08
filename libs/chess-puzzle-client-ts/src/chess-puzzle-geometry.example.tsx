@@ -10,22 +10,38 @@ export function puzzleRectangle(canvas: HTMLElement) {
   const bounds = cells.map((cell) => cell.getBoundingClientRect());
   const left = Math.min(...bounds.map((rect) => rect.left));
   const top = Math.min(...bounds.map((rect) => rect.top));
+  let scrollTop = 0;
+  let scrollLeft = 0;
+  for (
+    let parent = cells[0]?.parentElement;
+    parent;
+    parent = parent.parentElement
+  ) {
+    scrollTop += parent.scrollTop;
+    scrollLeft += parent.scrollLeft;
+  }
   return {
     left,
     top,
     width: Math.max(...bounds.map((rect) => rect.right)) - left,
     height: Math.max(...bounds.map((rect) => rect.bottom)) - top,
+    scrollTop,
+    scrollLeft,
   };
 }
 
 // regression: chess-puzzle-board-shifts-on-outcome
 export async function assertStablePuzzleRectangle(
   canvas: HTMLElement,
-  before: ReturnType<typeof puzzleRectangle>
+  before: ReturnType<typeof puzzleRectangle>,
+  step: 'solved' | 'wrong-move' | 'retry' | 'keyboard-help'
 ) {
   const after = puzzleRectangle(canvas);
   for (const edge of ['left', 'top', 'width', 'height'] as const)
-    await expect(Math.abs(after[edge] - before[edge])).toBeLessThanOrEqual(1);
+    await expect(
+      Math.abs(after[edge] - before[edge]),
+      `${step} ${edge}: ${JSON.stringify({ before, after })}`
+    ).toBeLessThanOrEqual(1);
 }
 
 // regression: chess-puzzle-phone-board-too-small

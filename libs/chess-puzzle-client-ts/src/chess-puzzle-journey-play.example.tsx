@@ -30,7 +30,7 @@ export async function completeChessPuzzle(canvasElement: HTMLElement) {
     canvas.getByRole('button', { name: /^e7, Black king/ })
   ).toBeVisible();
   await move(/^c3, White knight/, '{ArrowUp}{ArrowUp}{ArrowRight}');
-  await assertStablePuzzleRectangle(canvasElement, initial);
+  await assertStablePuzzleRectangle(canvasElement, initial, 'solved');
   await expect(canvas.getByText('Checkmate. Puzzle solved.')).toBeVisible();
   await expect(
     canvas.getByRole('button', { name: /^d5, White knight/ })
@@ -43,7 +43,7 @@ export async function recoverChessPuzzle(canvasElement: HTMLElement) {
   const canvas = within(canvasElement);
   canvas.getByRole('button', { name: /^c3, White knight/ }).focus();
   await userEvent.keyboard('{Enter}{ArrowUp}{ArrowUp}{ArrowRight}{Enter}');
-  await assertStablePuzzleRectangle(canvasElement, initial);
+  await assertStablePuzzleRectangle(canvasElement, initial, 'wrong-move');
   await expect(
     canvas.getByText(
       'That knight move misses the tactic. Retry from the same position.'
@@ -53,7 +53,7 @@ export async function recoverChessPuzzle(canvasElement: HTMLElement) {
     canvas.getByRole('button', { name: /^d5, White knight/ })
   ).toBeVisible();
   await userEvent.click(canvas.getByRole('button', { name: /Retry/i }));
-  await assertStablePuzzleRectangle(canvasElement, initial);
+  await assertStablePuzzleRectangle(canvasElement, initial, 'retry');
   await expect(
     canvas.getByRole('button', { name: /^c3, White knight/ })
   ).toBeVisible();

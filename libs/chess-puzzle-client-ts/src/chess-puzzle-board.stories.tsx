@@ -140,7 +140,7 @@ export const KeyboardHelp: Story = {
     const canvas = within(canvasElement);
     const initial = puzzleRectangle(canvasElement);
     await userEvent.click(canvas.getByText('Keyboard controls'));
-    await assertStablePuzzleRectangle(canvasElement, initial);
+    await assertStablePuzzleRectangle(canvasElement, initial, 'keyboard-help');
     await assertPuzzleBounds(canvasElement);
     await expect(
       canvas.getByText('Arrows to move, Enter to choose, Escape to cancel.')
