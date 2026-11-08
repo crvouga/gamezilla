@@ -81,17 +81,23 @@
    allows: a narrow label column, hairline gaps and slim padding give the
    room to the targets, each about 32px instead of 30px. */
 @container game-column (max-width: 879px) {
-  /* Use the phone column for the spatial task. Concise controls preserve
-     room for confirmation; the precise picker retains 44px alternatives. */
-  .board[data-fill="true"][data-board-theme="quoridor"] {
-    max-width: calc(var(--ui-control-size-lg) * 7);
-  }
   .board[data-fill="true"][data-board-theme="battleship"] {
     grid-template-columns:
       minmax(1rem, 0.5fr)
       repeat(var(--cell-grid-columns), minmax(0, 1fr));
     gap: 1px;
     padding: var(--ui-space-1);
+  }
+}
+/* In a game column the board is at least the phone measure (seven large
+   controls) and otherwise grows, centred, to the column while its tools,
+   picker, status and wall confirmation still fit the first view. The
+   height allowance is fixed, so choosing a wall never resizes the board. */
+@container game-column (min-width: 0) {
+  .board[data-fill="true"][data-board-theme="quoridor"] {
+    --fit: calc(100dvh - 500px - var(--ui-host-chrome-block-size, 0px));
+    max-width: max(calc(var(--ui-control-size-lg) * 7), min(100%, var(--fit)));
+    margin-inline: auto;
   }
 }
 .header {

@@ -18,6 +18,7 @@ import { quoridorJourney } from './quoridor-journey.example';
 import { cancelQuoridorWallWithKeyboard } from './quoridor-keyboard.example';
 import {
   chooseQuoridorCoordinate,
+  expectQuoridorBoardUsesColumn,
   expectQuoridorCellHierarchy,
   expectQuoridorGoalMarker,
   expectQuoridorPawnInk,
@@ -70,6 +71,7 @@ export const Opening: Story = {
     await expectQuoridorActionsFit(canvasElement);
     await expectQuoridorCellHierarchy(canvasElement);
     await expectQuoridorSpatialArea(canvasElement);
+    await expectQuoridorBoardUsesColumn(canvasElement);
   },
 };
 
