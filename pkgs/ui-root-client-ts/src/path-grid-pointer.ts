@@ -1,4 +1,7 @@
-import type { PathGridBoardProps } from './path-grid-types';
+import type {
+  PathGridBoardProps,
+  PathGridTraceCancellation,
+} from './path-grid-types';
 
 type Point = { readonly x: number; readonly y: number };
 type Grid = { readonly columns: number; readonly rows: number };
@@ -56,20 +59,20 @@ export function createPathGridPointer(
       ? { x, y }
       : null;
   };
-  const cancel = (): void => {
+  const cancel = (reason: PathGridTraceCancellation = 'interrupted'): void => {
     if (active === null) return;
     const pointer = active;
     active = null;
     previous = null;
     element()?.releasePointerCapture(pointer);
-    props.onTraceCancel?.();
+    props.onTraceCancel?.(reason);
   };
   const move = (event: PointerEvent): void => {
     if (active !== event.pointerId || props.disabled === true) return;
     event.preventDefault();
     const next = point(event);
     if (next === null) {
-      cancel();
+      cancel('boundary');
       return;
     }
     if (previous === null) return;
@@ -110,7 +113,7 @@ export function createPathGridPointer(
       const pointer = capturedPointer();
       if (pointer === null) return;
       if (!traced) {
-        cancel();
+        cancel('stationary');
         return;
       }
       active = null;

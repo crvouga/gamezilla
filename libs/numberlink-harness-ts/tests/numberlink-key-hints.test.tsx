@@ -38,7 +38,11 @@ test('wide, the keyboard hint is key caps beside short labels, not a paragraph',
       (key) => key.textContent
     );
     expect(keys).toEqual(['Enter', 'Arrows', 'Esc', 'Del']);
-    expect(view.getByText('Drag from a number to its match.')).toBeDefined();
+    expect(
+      view.getByText(
+        'Drag from a number to its match, or use Enter and arrow keys.'
+      )
+    ).toBeDefined();
     expect(hint.textContent).not.toContain('press Enter again');
   } finally {
     view.unmount();
@@ -48,12 +52,16 @@ test('wide, the keyboard hint is key caps beside short labels, not a paragraph',
 // regression: numberlink-hint-wording-differs — wide, the hint read "Drag a
 // number to its match." while a phone said "Drag from a number to its match
 // to draw a path.": two wordings for one gesture. Both now say "Drag from a
-// number to its match."; wide adds only the keys.
-test('on a phone the hint is the drag alone, in the words a wide screen uses', () => {
+// number to its match.". The visible keyboard entry cue also stays identical.
+test('phone and wide layouts use the same compact drawing instruction', () => {
   const view = mount(390);
   try {
     expect(view.queryByTestId('numberlink-key-hints')).toBeNull();
-    expect(view.getByText('Drag from a number to its match.')).toBeDefined();
+    expect(
+      view.getByText(
+        'Drag from a number to its match, or use Enter and arrow keys.'
+      )
+    ).toBeDefined();
     // regression: numberlink-secondary-help-overwhelms-first-use
     fireEvent.click(
       view.getByRole('button', { name: 'Drawing and keyboard help' })

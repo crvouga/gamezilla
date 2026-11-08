@@ -7,6 +7,7 @@ import type {
 } from '@libs/numberlink-shared-ts/numberlink-types';
 import { sameCell } from '@libs/numberlink-shared-ts/numberlink-types';
 import { useLingui } from '@lingui/solid/macro';
+import type { PathGridTraceCancellation } from '@pkgs/ui-root-client-ts/path-grid-board';
 import {
   type Accessor,
   createEffect,
@@ -87,6 +88,23 @@ function previewDrawing(
   return next.valid ? next.value : ports.state();
 }
 
+function createDrawingFeedback(
+  gesture: Accessor<NumberlinkAction | null>,
+  cancel: () => void
+) {
+  const { t } = useLingui();
+  const [feedback, setFeedback] = createSignal<string | null>(null);
+  const cancelTrace = (reason: PathGridTraceCancellation): void => {
+    const wasDrawing = gesture() !== null;
+    cancel();
+    if (wasDrawing && reason !== 'stationary')
+      setFeedback(
+        t`Drawing canceled. Saved paths are unchanged. Start again from a number.`
+      );
+  };
+  return { feedback, cancelTrace, clear: () => setFeedback(null) };
+}
+
 /** A drawing is provisional until it finishes; only the game rules can accept its cells. */
 export function createNumberlinkDrawing(ports: DrawingPorts) {
   const { t } = useLingui();
@@ -98,6 +116,7 @@ export function createNumberlinkDrawing(ports: DrawingPorts) {
     setGesture(null);
     refused = false;
   };
+  const status = createDrawingFeedback(gesture, cancel);
   createEffect(() => {
     void ports.definition();
     void ports.state();
@@ -114,6 +133,7 @@ export function createNumberlinkDrawing(ports: DrawingPorts) {
     }
     refused = false;
     setError(null);
+    status.clear();
     setGesture(action);
   };
   const extend = (index: number): void => {
@@ -157,11 +177,13 @@ export function createNumberlinkDrawing(ports: DrawingPorts) {
   return {
     gesture,
     error,
+    feedback: status.feedback,
     preview,
     begin,
     extend,
     finish,
     cancel,
+    cancelTrace: status.cancelTrace,
     activate,
     key,
   };

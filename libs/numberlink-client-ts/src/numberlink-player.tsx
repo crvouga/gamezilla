@@ -58,7 +58,7 @@ function Drawing(props: {
         onTraceStart={drawing.begin}
         onTraceMove={drawing.extend}
         onTraceEnd={drawing.finish}
-        onTraceCancel={drawing.cancel}
+        onTraceCancel={drawing.cancelTrace}
         onActivate={drawing.activate}
         onNavigate={drawing.extend}
         onCellKey={drawing.key}
@@ -68,6 +68,7 @@ function Drawing(props: {
         aria-live="polite"
         dataSet={{ testid: 'numberlink-progress' }}
       >
+        <Trans>Saved:</Trans>{' '}
         <Trans>
           {connectedPairs(props.definition, props.state).length}/
           {props.definition.pairs.length} pairs connected
@@ -89,8 +90,17 @@ function Drawing(props: {
         </Notice>
       </Show>
       <Show when={!solved() && !props.disabled}>
-        <P variant="caption" tone="secondary">
-          <Trans>Drag from a number to its match.</Trans>
+        <P
+          variant="caption"
+          tone="secondary"
+          aria-live="polite"
+          dataSet={{ testid: 'numberlink-drawing-status' }}
+        >
+          {drawing.feedback() ?? (
+            <Trans>
+              Drag from a number to its match, or use Enter and arrow keys.
+            </Trans>
+          )}
         </P>
         <NumberlinkRecovery
           definition={props.definition}

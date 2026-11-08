@@ -19,6 +19,7 @@ export type {
   PathGridEndpoint,
   PathGridLine,
   PathGridTone,
+  PathGridTraceCancellation,
 } from '../path-grid-types';
 
 function PathCell(props: {

@@ -20,6 +20,11 @@ export type PathGridLine = {
   readonly connected: boolean;
 };
 
+export type PathGridTraceCancellation =
+  | 'boundary'
+  | 'interrupted'
+  | 'stationary';
+
 export type PathGridBoardProps = {
   readonly columns: number;
   readonly rows: number;
@@ -38,5 +43,7 @@ export type PathGridBoardProps = {
   readonly onTraceStart?: ((index: number) => void) | undefined;
   readonly onTraceMove?: ((index: number) => void) | undefined;
   readonly onTraceEnd?: (() => void) | undefined;
-  readonly onTraceCancel?: (() => void) | undefined;
+  readonly onTraceCancel?:
+    | ((reason: PathGridTraceCancellation) => void)
+    | undefined;
 };
