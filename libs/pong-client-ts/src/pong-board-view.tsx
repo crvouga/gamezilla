@@ -30,31 +30,9 @@ import {
   Match,
   Show,
   Switch,
-  untrack,
 } from 'solid-js';
 
 const config = pongConfig();
-
-/** What the court's status says: it is reworded only when one of these changes. */
-type StatusInput = {
-  readonly phase: PongState['phase'];
-  readonly winner: PongState['winner'];
-  readonly paused: boolean;
-  readonly stale: boolean;
-  readonly seconds: number;
-};
-const sameStatusInput = (
-  a: StatusInput | undefined,
-  b: StatusInput | undefined
-): boolean =>
-  a === b ||
-  (a !== undefined &&
-    b !== undefined &&
-    a.phase === b.phase &&
-    a.winner === b.winner &&
-    a.paused === b.paused &&
-    a.stale === b.stale &&
-    a.seconds === b.seconds);
 const seat = (side: CourtSide) =>
   side === 'first' ? ('white' as const) : ('black' as const);
 const paddleName = (side: GameSide) =>
@@ -246,43 +224,6 @@ function sideLabels(
   return { first: label('first'), second: label('second') };
 }
 
-/**
- * The court's status words, formatted only when what they say changes: every
- * frame brings a new court, but the words change at most once a countdown
- * second.
- */
-function useCourtStatus(props: {
-  state: PongState;
-  board: PongBoardViewProps;
-}): () => string | undefined {
-  const statusInput = createMemo(
-    (): StatusInput | undefined => {
-      const controls = props.board.simulation;
-      if (
-        props.state.phase === 'playing' &&
-        !controls?.paused &&
-        !controls?.stale
-      )
-        return undefined;
-      return {
-        phase: props.state.phase,
-        winner: props.state.winner,
-        paused: controls?.paused === true,
-        stale: controls?.stale === true,
-        seconds: Math.ceil(props.state.countdown / config.tickRate),
-      };
-    },
-    undefined,
-    { equals: sameStatusInput }
-  );
-  const status = createMemo(() =>
-    statusInput()
-      ? untrack(() => pongStatus(props.state, props.board.simulation))
-      : undefined
-  );
-  return status;
-}
-
 function PongScene(props: {
   state: PongState;
   board: PongBoardViewProps;
@@ -298,7 +239,6 @@ function PongScene(props: {
     !props.board.simulation.paused &&
     !props.board.simulation.stale &&
     props.state.phase !== 'completed';
-  const status = useCourtStatus(props);
   return (
     <StackVertical gap="md">
       <CourtSummary
@@ -310,7 +250,13 @@ function PongScene(props: {
       {/* On a phone each controlled half holds its own slider, so the
           court (its shape fixed) takes the whole width. */}
       <PaddleCourt
-        status={status()}
+        status={
+          props.state.phase !== 'playing' ||
+          props.board.simulation?.paused ||
+          props.board.simulation?.stale
+            ? pongStatus(props.state, props.board.simulation)
+            : undefined
+        }
         touchHint={mode() !== 'wide' ? t`Drag` : undefined}
         sideLabels={sideLabels(props.board, controlled())}
         halfControl={(side) => (
