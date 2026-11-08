@@ -15,6 +15,13 @@ export async function openBattleStory(
       ? route.continue()
       : route.abort()
   );
+  // Storybook overhead, not the board: the highlight addon rescans the root
+  // (querySelectorAll('*') + getComputedStyle) on every DOM mutation.
+  await page.addInitScript(() => {
+    (
+      globalThis as { __STORYBOOK_HIGHLIGHT_INITIALIZED?: boolean }
+    ).__STORYBOOK_HIGHLIGHT_INITIALIZED = true;
+  });
   await page.goto(
     // `motion:system`: the browser decides, so videos and timings include the
     // board's real transitions instead of the preview's forced reduced motion.
@@ -36,6 +43,10 @@ export async function openBattleStory(
     'error'
   );
   await page.evaluate(() => document.fonts.ready);
+  // The preview forwards every keydown to the manager; the iframe has none.
+  await page.evaluate(() => {
+    window.onkeydown = null;
+  });
   expect(errors).toEqual([]);
   return errors;
 }
