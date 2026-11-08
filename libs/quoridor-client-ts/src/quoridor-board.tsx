@@ -85,6 +85,8 @@ function createBoardSelection(props: BoardViewProps) {
       return t`This board is read-only. Follow the game or review earlier moves.`;
     if (quoridorMustPass(game()))
       return t`No legal move or wall. Pass to continue.`;
+    if ((game().remaining[game().turn] ?? 0) === 0)
+      return quoridorWallMessage('no-walls');
     const action = previewAction();
     return action === null
       ? props.state.refusal()

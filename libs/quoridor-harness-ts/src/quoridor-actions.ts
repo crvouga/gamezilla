@@ -47,8 +47,9 @@ export const moveQuoridorPawn = scenarioAction({
     const ui = await actorUi(s, actor);
     const screen = await readCustomGameScreen(s, actor);
     if (screen?.current == null) throw new Error('No Quoridor game');
-    if (screen.current.status === 'active')
-      await ui.get(`${CUSTOM_GAME_BOARD}-mode-move`).key('enter');
+    const moveMode = ui.get(`${CUSTOM_GAME_BOARD}-mode-move`);
+    if (screen.current.status === 'active' && (await moveMode.isVisible()))
+      await moveMode.key('enter');
     const target = ui.get(`${CUSTOM_GAME_BOARD}-action-${cell}`);
     if (
       (await customGameBoardTakes(s, actor, cell)) &&
@@ -85,7 +86,12 @@ export const placeQuoridorWall = scenarioAction({
     const action = `${cell}${suffix}`;
     const screen = await readCustomGameScreen(s, actor);
     if (screen?.current == null) throw new Error('No Quoridor game');
-    if (screen.current.status !== 'active') {
+    const wallMode = ui.get(`${CUSTOM_GAME_BOARD}-mode-${suffix}`);
+    if (
+      screen.current.status !== 'active' ||
+      !(await wallMode.isVisible()) ||
+      (await wallMode.attribute('disabled')) !== null
+    ) {
       await chooseCustomGame(s, actor, {
         operation: 'move',
         uci: action,
@@ -93,7 +99,7 @@ export const placeQuoridorWall = scenarioAction({
       });
       return;
     }
-    await ui.get(`${CUSTOM_GAME_BOARD}-mode-${suffix}`).key('enter');
+    await wallMode.key('enter');
     const target = ui.get(`${CUSTOM_GAME_BOARD}-action-${action}`);
     if (await customGameBoardTakes(s, actor, action)) {
       await playOnCustomGameBoard(s, actor, async () => {

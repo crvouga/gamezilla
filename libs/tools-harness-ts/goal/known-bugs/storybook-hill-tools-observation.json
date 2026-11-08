@@ -1,0 +1,4 @@
+{
+  "summary": "Hill MustPass at 390/768/1440 in both themes moved its sole legal command to board-local tools; the observer still required GameActionBar and obsolete disabled tools. Verify pass geometry, sole command and disabled board.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/quoridor-actions/integration.checks.ts"
+}
