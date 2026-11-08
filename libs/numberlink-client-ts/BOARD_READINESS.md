@@ -9,6 +9,6 @@ Product rules remain in [Numberlink specifications](../../specs/numberlink/).
 | Endpoint editing | A dashed board marker and live coordinate identify the selected endpoint independently of color and keyboard focus. The literal DOM regression checks switching endpoints and selection after placement. | Phone/tablet/desktop screenshots and browser accessibility are pending. |
 | Input responsiveness | The game-owned Storybook browser suite records mouse, trusted touch and keyboard journeys, videos, accessibility results, input-to-frame samples and long tasks at normal and 4× CPU throttling. | Instrumentation is not a measurement result. Frame timing excludes paint completion and display latency; emulation is not a physical mobile device. |
 
-Review rounds and immutable evidence are recorded on [PR 286](https://github.com/crvouga/gamezilla/pull/286).
+Review rounds and immutable evidence are recorded on PR 286.
 Both initial independent reviews are incomplete because inherited references differ from the candidate and fresh video/performance evidence is missing.
 Scoped diagnostics do not replace the full verification gate.
