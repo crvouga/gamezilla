@@ -21,8 +21,16 @@ const variants = ['duel-steering', 'steer-up', 'quad-steering'] as const;
 // Evidence runs with motion as a person without a reduced-motion preference
 // sees it: the config defaults every page to reduced motion for stable
 // screenshots, and each story URL sets the `motion` global to `system`.
+// Storybook's highlight addon is harness, not product: on every DOM change
+// it rescans every element's computed style, so it is kept from starting
+// and its cost never counts as the board's.
 test.beforeEach(async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.addInitScript(() => {
+    (
+      globalThis as { __STORYBOOK_HIGHLIGHT_INITIALIZED?: boolean }
+    ).__STORYBOOK_HIGHLIGHT_INITIALIZED = true;
+  });
 });
 
 async function openArena(page: Page, story: string, theme: string) {
