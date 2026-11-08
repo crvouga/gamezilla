@@ -29,6 +29,9 @@ export const sokobanGameClient = defineGameClient({
     frame: {
       stats: { moves: () => t`Moves`, pushes: () => t`Pushes` },
       turnStatus: () => null,
+      // A board stops at its largest tiles; on one column it sits centred
+      // rather than leaving a strip beside it.
+      stageAlign: 'center',
     },
     authoring: {
       Editor: SokobanEditor,
