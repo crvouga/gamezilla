@@ -12,8 +12,9 @@ import { exampleSystem, faultProfileRuntime } from './example-app-system';
 import type { FaultAdversary, FaultMove } from './fault-adversary';
 import { createFaultAdversary } from './fault-adversary';
 import type { FaultProfile } from './fault-profiles';
+import { liveNotes } from './reads';
 import type { SyncHarness } from './scenario-system';
-import { inSync } from './sync-observations';
+import { clientIds, inSync } from './sync-observations';
 import type { LedgerWrite } from './write-ledger';
 import { ledgerViolations, statusViolations } from './write-ledger';
 
@@ -41,7 +42,20 @@ export type FaultSweepOutcome = {
   readonly violations: readonly string[];
   /** Virtual ms from heal until the devices agreed (null: never). */
   readonly convergedAfterMs: number | null;
+  /** Live note bodies by id on the server and on every device, after heal. */
+  readonly notes: Readonly<Record<string, Readonly<Record<string, string>>>>;
 };
+
+async function notesByNode(
+  s: Run<SyncHarness>
+): Promise<Record<string, Record<string, string>>> {
+  const out: Record<string, Record<string, string>> = {};
+  for (const node of ['server', ...(await s.read(clientIds))]) {
+    const rows = await s.read(liveNotes, node);
+    out[node] = Object.fromEntries(rows.map((row) => [row.id, row.body]));
+  }
+  return out;
+}
 
 async function settledViolations(
   scenario: FaultScenario
@@ -106,5 +120,6 @@ export async function runUnderFaultProfile(args: {
       ...settled.violations,
     ],
     convergedAfterMs: settled.after,
+    notes: await notesByNode(s),
   };
 }
