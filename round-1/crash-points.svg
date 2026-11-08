@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="446" viewBox="0 0 1120 446">
+<style>text{font-family:DejaVu Sans,Arial,sans-serif;fill:#1b2333}.t{font-size:19px;font-weight:700}.s{font-size:13px;fill:#4a5568}.l{font-size:14px}.v{font-size:13px;font-weight:700;fill:#1a7f37}</style>
+<rect width="100%" height="100%" fill="#fff"/>
+<text x="24" y="36" class="t">Client killed at every durable boundary — 510 crash runs, 0 writes lost or doubled</text>
+<text x="24" y="62" class="s">Each run kills the client at one local-storage commit, reopens the same storage, syncs, and checks every write landed exactly once or was refused.</text>
+<text x="24" y="80" class="s">Bar length ∝ √(crash runs) per durable step · source: pkgs/sync-engine-harness-ts/tests/durable-crash-points.test.ts (seed 1)</text>
+<text x="368" y="118" text-anchor="end" class="l">local schema reconcile, migration or cache wipe</text>
+<rect x="380" y="104" width="225.0" height="22" rx="3" fill="#2f6fd6"/>
+<rect x="605.0" y="104" width="225.0" height="22" rx="3" fill="#93b5ee"/>
+<text x="840.0" y="120" class="v">410 runs · 0 lost/doubled</text>
+<text x="368" y="158" text-anchor="end" class="l">snapshot merged + pending writes rebased</text>
+<rect x="380" y="144" width="72.0" height="22" rx="3" fill="#2f6fd6"/>
+<rect x="452.0" y="144" width="72.0" height="22" rx="3" fill="#93b5ee"/>
+<text x="534.0" y="160" class="v">42 runs · 0 lost/doubled</text>
+<text x="368" y="198" text-anchor="end" class="l">push checkpoint</text>
+<rect x="380" y="184" width="54.4" height="22" rx="3" fill="#2f6fd6"/>
+<rect x="434.4" y="184" width="54.4" height="22" rx="3" fill="#93b5ee"/>
+<text x="498.9" y="200" class="v">24 runs · 0 lost/doubled</text>
+<text x="368" y="238" text-anchor="end" class="l">upload acknowledged + retired</text>
+<rect x="380" y="224" width="35.1" height="22" rx="3" fill="#2f6fd6"/>
+<rect x="415.1" y="224" width="35.1" height="22" rx="3" fill="#93b5ee"/>
+<text x="460.3" y="240" class="v">10 runs · 0 lost/doubled</text>
+<text x="368" y="278" text-anchor="end" class="l">write applied + queued for upload</text>
+<rect x="380" y="264" width="35.1" height="22" rx="3" fill="#2f6fd6"/>
+<rect x="415.1" y="264" width="35.1" height="22" rx="3" fill="#93b5ee"/>
+<text x="460.3" y="280" class="v">10 runs · 0 lost/doubled</text>
+<text x="368" y="318" text-anchor="end" class="l">pushed row applied</text>
+<rect x="380" y="304" width="31.4" height="22" rx="3" fill="#2f6fd6"/>
+<rect x="411.4" y="304" width="31.4" height="22" rx="3" fill="#93b5ee"/>
+<text x="452.9" y="320" class="v">8 runs · 0 lost/doubled</text>
+<text x="368" y="358" text-anchor="end" class="l">scope bookkeeping</text>
+<rect x="380" y="344" width="27.2" height="22" rx="3" fill="#2f6fd6"/>
+<rect x="407.2" y="344" width="27.2" height="22" rx="3" fill="#93b5ee"/>
+<text x="444.4" y="360" class="v">6 runs · 0 lost/doubled</text>
+<rect x="380" y="404" width="14" height="14" fill="#2f6fd6"/><text x="400" y="416" class="s">killed just before the commit (rolled back)</text>
+<rect x="700" y="404" width="14" height="14" fill="#93b5ee"/><text x="720" y="416" class="s">killed just after the commit</text>
+</svg>

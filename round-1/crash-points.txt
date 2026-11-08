@@ -1,0 +1,14 @@
+crash-points | local schema reconcile, migration or cache wipe | beforeCommit | 205 | 0
+crash-points | local schema reconcile, migration or cache wipe | afterCommit | 205 | 0
+crash-points | upload acknowledged + retired | beforeCommit | 5 | 0
+crash-points | upload acknowledged + retired | afterCommit | 5 | 0
+crash-points | scope bookkeeping | beforeCommit | 3 | 0
+crash-points | scope bookkeeping | afterCommit | 3 | 0
+crash-points | snapshot merged + pending writes rebased | beforeCommit | 21 | 0
+crash-points | snapshot merged + pending writes rebased | afterCommit | 21 | 0
+crash-points | push checkpoint | beforeCommit | 12 | 0
+crash-points | push checkpoint | afterCommit | 12 | 0
+crash-points | write applied + queued for upload | beforeCommit | 5 | 0
+crash-points | write applied + queued for upload | afterCommit | 5 | 0
+crash-points | pushed row applied | beforeCommit | 4 | 0
+crash-points | pushed row applied | afterCommit | 4 | 0
