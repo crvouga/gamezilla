@@ -76,6 +76,14 @@ export function SokobanHistory(props: {
               setCursor(0);
             }}
           />
+          {/* As the production screen offers a pack puzzle's way on. */}
+          <Button
+            title="Pack overview"
+            intent="neutral"
+            variant="outline"
+            size="sm"
+            onClick={props.onOpenLibrary}
+          />
         </StackHorizontal>
       }
     />
