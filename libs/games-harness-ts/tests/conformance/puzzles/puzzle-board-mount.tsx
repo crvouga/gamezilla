@@ -1,7 +1,7 @@
 /** @jsxImportSource solid-js */
 /**
  * A game's puzzle board mounted alone inside the app's providers a board
- * may read (the clock, the theme, audio and the sounds preference), as the
+ * may read (translations, clock, theme, audio and sounds preference), as the
  * platform's puzzle screens mount it, driven by a DOM driver. A suite module
  * of its own because the conformance planner loads suites without the JSX
  * transform.
@@ -12,6 +12,8 @@ import type {
   PuzzleBoardProps,
 } from '@libs/game-puzzle-client-ts/puzzle-client';
 import type { TurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
+import { setupI18n } from '@lingui/core';
+import { I18nProvider } from '@lingui/solid';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import {
@@ -43,6 +45,7 @@ export function puzzleBoardDriver(
   const part = game.client.puzzles;
   if (part === undefined) throw new Error(`${game.label} has no puzzle board`);
   const time = createHarnessClock();
+  const i18n = setupI18n({ locale: 'en', messages: { en: {} } });
   return createSolidDomDriver({
     clock: time.clock,
     pump: async () => {
@@ -51,33 +54,35 @@ export function puzzleBoardDriver(
     },
     harness: {
       createRoot: () => () => (
-        <ClockProvider clock={time.clock} timers={time.timers}>
-          <ThemeProvider colorScheme="light">
-            <AudioPlaybackProvider value={createInMemoryAudioPlaybackPort()}>
-              <SoundsPreferenceProvider>
-                <part.Board
-                  testId={PUZZLE_BOARD}
-                  orientation="white"
-                  interactive
-                  sound={false}
-                  setup={null}
-                  hand={null}
-                  committed={[]}
-                  commitment={null}
-                  syncKey={0}
-                  size={320}
-                  mode="play"
-                  animated={false}
-                  moveMs={0}
-                  marks={UNMARKED}
-                  suggestions={[]}
-                  onAction={(action) => played.push(action)}
-                  {...props}
-                />
-              </SoundsPreferenceProvider>
-            </AudioPlaybackProvider>
-          </ThemeProvider>
-        </ClockProvider>
+        <I18nProvider i18n={i18n}>
+          <ClockProvider clock={time.clock} timers={time.timers}>
+            <ThemeProvider colorScheme="light">
+              <AudioPlaybackProvider value={createInMemoryAudioPlaybackPort()}>
+                <SoundsPreferenceProvider>
+                  <part.Board
+                    testId={PUZZLE_BOARD}
+                    orientation="white"
+                    interactive
+                    sound={false}
+                    setup={null}
+                    hand={null}
+                    committed={[]}
+                    commitment={null}
+                    syncKey={0}
+                    size={320}
+                    mode="play"
+                    animated={false}
+                    moveMs={0}
+                    marks={UNMARKED}
+                    suggestions={[]}
+                    onAction={(action) => played.push(action)}
+                    {...props}
+                  />
+                </SoundsPreferenceProvider>
+              </AudioPlaybackProvider>
+            </ThemeProvider>
+          </ClockProvider>
+        </I18nProvider>
       ),
     },
   });

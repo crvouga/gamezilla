@@ -122,6 +122,7 @@ export async function lightCyclesBoard(
       );
   }
   const round = ui.get(`${board}-round`);
+  const result = ui.get(`${board}-result`);
   return {
     board,
     riders,
@@ -130,7 +131,11 @@ export async function lightCyclesBoard(
     targetScore: Number(await round.attribute('data-target')),
     steering:
       (await ui.get(`${board}-status`).attribute('data-steering')) ?? '',
-    overlay: (await ui.get(`${board}-arena-overlay`).text()) ?? '',
+    // Countdown covers the arena; round and game results live in its status line.
+    overlay:
+      ((await result.isVisible())
+        ? await result.text()
+        : await ui.get(`${board}-arena-overlay`).text()) ?? '',
     crashes,
   };
 }

@@ -1,0 +1,4 @@
+{
+  "summary": "The puzzle board conformance mount omitted I18nProvider, so puzzle 01Xbe failed while rendering translated guidance before move and mark assertions could execute.",
+  "regressionTest": "libs/games-harness-ts/tests/puzzle-board-provider-regression.test.ts"
+}

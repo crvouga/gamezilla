@@ -1,0 +1,4 @@
+{
+  "summary": "At seed fc527d55f5afd7c5 the authoring harness clicked Publish as soon as the button existed, while the saved-copy state still disabled it. The click did nothing and publication timed out. Wait for the actual enabled control before clicking.",
+  "regressionTest": "libs/game-puzzle-harness-ts/tests/publication-screen-readiness.test.ts"
+}

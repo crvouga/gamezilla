@@ -7,6 +7,7 @@ import {
   storySections,
 } from '@libs/notifications-client-ts/notifications-story.example';
 import type { Notification } from '@libs/notifications-shared-ts/notification';
+import type { NotificationCardActions } from '@libs/notifications-shared-ts/notification-action';
 import { serializeDefaultAvatarConfig } from '@libs/profile-shared-ts/avatar-config';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import type { JSX } from 'solid-js';
@@ -60,12 +61,15 @@ const ACTIONS = storyCardActions();
 const defaultCard = storyDefaultCard(ACTIONS);
 
 /** Friends draws its own two cards; anything else gets the default card. */
-function renderCard(interaction: Notification): JSX.Element {
+function renderCard(
+  interaction: Notification,
+  actions: NotificationCardActions
+): JSX.Element {
   if (interaction.sourceType === 'friend-request') {
     return (
       <FriendRequestNotificationCard
         interaction={interaction}
-        actions={ACTIONS}
+        actions={actions}
       />
     );
   }
@@ -73,7 +77,7 @@ function renderCard(interaction: Notification): JSX.Element {
     return (
       <FriendAcceptedNotificationCard
         interaction={interaction}
-        actions={ACTIONS}
+        actions={actions}
       />
     );
   }
@@ -100,14 +104,14 @@ const meta = {
     controls: { exclude: ['interaction', 'actions'] },
   },
   args: { interaction: REQUEST, actions: ACTIONS },
-  render: () => (
+  render: (args) => (
     <NotificationsScreenView
       sections={SECTIONS}
       isLoading={false}
       filter="all"
       failure={null}
       markingAllRead={false}
-      renderCard={renderCard}
+      renderCard={(interaction) => renderCard(interaction, args.actions)}
       onFilterChange={fn()}
       onMarkAllRead={fn()}
     />
@@ -129,5 +133,29 @@ export const FriendRequestDecision: Story = {
     const body = within(canvasElement.ownerDocument.body);
     await expect(await body.findByText('Friend request')).toBeVisible();
     await expect(ACTIONS.markRead).toHaveBeenCalledWith(REQUEST.id);
+  },
+};
+
+/** A pending answer disables the other choice until the server operation settles. */
+export const AnswerPending: Story = {
+  args: {
+    actions: {
+      ...storyCardActions(),
+      performAction: fn(() => new Promise<void>(() => {})),
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      await canvas.findByTestId(Handles.notificationsFriendRequestCard('avery'))
+    );
+    const body = within(canvasElement.ownerDocument.body);
+    await userEvent.click(await body.findByRole('button', { name: 'Accept' }));
+    await expect(
+      await body.findByRole('button', { name: 'Decline' })
+    ).toBeDisabled();
+    await expect(
+      await body.findByRole('button', { name: 'Accepting…' })
+    ).toBeDisabled();
   },
 };
