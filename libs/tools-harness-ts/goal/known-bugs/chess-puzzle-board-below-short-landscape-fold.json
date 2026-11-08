@@ -1,0 +1,4 @@
+{
+  "summary": "Chess puzzles sized the board by width alone: at 844x390 a 588px board sat under the title in a 337px scroller, so lower ranks started off screen, and at 768x900 the board pushed Hint, Retry and Next below the fold.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/chess/integration.checks.ts"
+}

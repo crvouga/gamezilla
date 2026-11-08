@@ -26,6 +26,45 @@ test('storybook integration: chess tablet recovery keeps every square anchored',
   await captureChessState(page, info, 'tablet-recovery');
 });
 
+// regression: chess-puzzle-board-below-short-landscape-fold
+test('storybook integration: chess puzzle 844x390 shows every square beside its actions', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 844, height: 390 });
+  await openChessStory(page, 'screens-puzzles-chess-play--solving', 'light');
+  const board = await page
+    .locator('[data-component="ChessBoard"]')
+    .boundingBox();
+  if (!board) throw new Error('Missing board');
+  for (const square of ['a1', 'h1', 'a8', 'h8']) {
+    const cell = await page.locator(`[data-square="${square}"]`).boundingBox();
+    if (!cell) throw new Error(`Missing ${square}`);
+    expect(cell.width).toBeGreaterThanOrEqual(32);
+    expect(cell.y).toBeGreaterThanOrEqual(0);
+    expect(cell.y + cell.height).toBeLessThanOrEqual(390);
+  }
+  const hint = await page.getByRole('button', { name: /^Hint/ }).boundingBox();
+  if (!hint) throw new Error('Missing Hint');
+  expect(hint.x).toBeGreaterThanOrEqual(board.x + board.width);
+  expect(hint.y + hint.height).toBeLessThanOrEqual(390);
+});
+
+// regression: chess-puzzle-board-below-short-landscape-fold
+test('storybook integration: chess puzzle 768x900 keeps Hint and Skip in the first view', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 768, height: 900 });
+  await openChessStory(page, 'screens-puzzles-chess-play--solving', 'light');
+  for (const name of [/^Hint/, /^Skip puzzle/]) {
+    const action = await page.getByRole('button', { name }).boundingBox();
+    if (!action) throw new Error(`Missing action ${String(name)}`);
+    expect(action.y + action.height).toBeLessThanOrEqual(900);
+  }
+  const cell = await page.locator('[data-square="a1"]').boundingBox();
+  if (!cell) throw new Error('Missing a1');
+  expect(cell.width).toBeGreaterThanOrEqual(40);
+});
+
 /** Keyboard, mouse drag and touch moves, with the timing samples first. */
 async function inputJourney(
   page: Page,
