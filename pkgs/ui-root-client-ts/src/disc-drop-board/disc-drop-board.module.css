@@ -69,8 +69,7 @@
   cursor: default;
 }
 /* On the narrowest phones, spend the board's own spacing on the seven hit
-   areas. (The board cannot reach into the page gutter: the shared board
-   wrapper clips, so wider targets there need a page inset below 360px.) */
+   areas; the game's `narrowest` page inset supplies the rest. */
 @media (max-width: 359px) {
   .board {
     padding-inline: var(--ui-space-hairline);
