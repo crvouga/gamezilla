@@ -9,6 +9,13 @@ export async function openStory(
   theme: string,
   story = 'screens-games-numberlink-puzzle--draw-paths'
 ) {
+  // Measure the board, not Storybook: the highlight addon rescans every
+  // element's computed style on each canvas mutation.
+  await page.addInitScript(() => {
+    (
+      globalThis as { __STORYBOOK_HIGHLIGHT_INITIALIZED?: boolean }
+    ).__STORYBOOK_HIGHLIGHT_INITIALIZED = true;
+  });
   await page.goto(
     `/iframe.html?id=${story}&viewMode=story&globals=theme:${theme}`
   );
@@ -17,6 +24,10 @@ export async function openStory(
     'true'
   );
   await page.evaluate(() => document.fonts.ready);
+  // The preview forwards every key press to the Storybook manager.
+  await page.evaluate(() => {
+    window.onkeydown = null;
+  });
 }
 
 /**
@@ -74,6 +85,27 @@ export async function accessibility(page: Page, info: TestInfo) {
     return scanner.run(root);
   });
   await attachJson(info, 'accessibility', results.violations);
+  // Undecided checks, such as contrast over overlapping backgrounds, are not
+  // passes: keep each rule's reasons so the gap stays visible.
+  await attachJson(
+    info,
+    'accessibility-incomplete',
+    results.incomplete.map((rule) => ({
+      id: rule.id,
+      nodes: rule.nodes.length,
+      reasons: [
+        ...new Set(
+          rule.nodes.flatMap((node) =>
+            [...node.any, ...node.all, ...node.none].map(
+              (check) =>
+                (check.data as { messageKey?: string } | null)?.messageKey ??
+                check.id
+            )
+          )
+        ),
+      ],
+    }))
+  );
   expect(
     results.violations.filter(
       (item) => item.impact === 'serious' || item.impact === 'critical'
