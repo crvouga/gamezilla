@@ -38,14 +38,73 @@ export async function captureChessState(
     const report = await (window as unknown as { axe: typeof axe }).axe.run(
       root
     );
-    return report.violations;
+    // Incomplete results are retained: zero violations is not coverage.
+    const summarize = (results: typeof report.incomplete) =>
+      results.map((rule) => ({
+        id: rule.id,
+        impact: rule.impact,
+        nodeCount: rule.nodes.length,
+        messageKeys: [
+          ...new Set(
+            rule.nodes.flatMap((node) =>
+              [...node.any, ...node.all, ...node.none].map(
+                (check) =>
+                  (check.data as { messageKey?: string } | null)?.messageKey ??
+                  check.id
+              )
+            )
+          ),
+        ],
+        targets: rule.nodes.slice(0, 20).map((node) => node.target),
+      }));
+    // Bounded diagnostic for undecided contrast: what sits under each node.
+    const contrast = report.incomplete
+      .filter((rule) => rule.id === 'color-contrast')
+      .flatMap((rule) => rule.nodes)
+      .slice(0, 12)
+      .map((node) => {
+        const selector = String(node.target[0] ?? '');
+        const element = document.querySelector<HTMLElement>(selector);
+        if (!element) return { selector, missing: true };
+        const box = element.getBoundingClientRect();
+        const style = getComputedStyle(element);
+        const stack = document
+          .elementsFromPoint(box.x + box.width / 2, box.y + box.height / 2)
+          .slice(0, 6)
+          .map((under) => {
+            const look = getComputedStyle(under);
+            return {
+              tag: under.tagName.toLowerCase(),
+              component: (under as HTMLElement).dataset['component'] ?? null,
+              background: look.backgroundColor,
+              backgroundImage: look.backgroundImage === 'none' ? null : 'set',
+              opacity: look.opacity,
+            };
+          });
+        return {
+          selector,
+          messageKey: (node.any[0]?.data as { messageKey?: string } | null)
+            ?.messageKey,
+          color: style.color,
+          background: style.backgroundColor,
+          stack,
+        };
+      });
+    return {
+      violations: report.violations,
+      incomplete: summarize(report.incomplete),
+      contrast,
+      passes: report.passes.map((rule) => rule.id),
+    };
   });
   await info.attach(`${name}-accessibility`, {
     body: JSON.stringify(result, null, 2),
     contentType: 'application/json',
   });
   expect(
-    result.filter((v) => v.impact === 'serious' || v.impact === 'critical')
+    result.violations.filter(
+      (v) => v.impact === 'serious' || v.impact === 'critical'
+    )
   ).toEqual([]);
 }
 
@@ -59,36 +118,57 @@ export async function measureChessInput(page: Page, info: TestInfo) {
   const session = await page.context().newCDPSession(page);
   await session.send('Emulation.setCPUThrottlingRate', { rate: 4 });
   const measurements = await page.evaluate(async () => {
-    const longTasks: number[] = [];
-    const observer = new PerformanceObserver((list) => {
-      longTasks.push(...list.getEntries().map((entry) => entry.duration));
-    });
-    observer.observe({ type: 'longtask', buffered: false });
     const source = document.querySelector<HTMLElement>('[data-square="e2"]');
     if (!source) throw new Error('Missing e2');
+    const press = (key: string) =>
+      source.dispatchEvent(
+        new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true })
+      );
+    const frames = () =>
+      new Promise<void>((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+      );
+    const samples: {
+      synchronousMs: number;
+      inputThroughTwoFramesMs: number;
+      longTasks: number[];
+      selected: string | null;
+    }[] = [];
     source.focus();
-    const start = performance.now();
-    source.dispatchEvent(
-      new KeyboardEvent('keydown', {
-        key: 'Enter',
-        bubbles: true,
-        cancelable: true,
-      })
-    );
-    const synchronousMs = performance.now() - start;
-    await new Promise<void>((resolve) =>
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => resolve());
-      })
-    );
-    const inputThroughTwoFramesMs = performance.now() - start;
-    longTasks.push(...observer.takeRecords().map((entry) => entry.duration));
-    observer.disconnect();
+    // Sample 0 is cold; later samples repeat select after Escape cancels.
+    for (let index = 0; index < 8; index += 1) {
+      const longTasks: number[] = [];
+      const observer = new PerformanceObserver((list) => {
+        longTasks.push(...list.getEntries().map((entry) => entry.duration));
+      });
+      observer.observe({ type: 'longtask', buffered: false });
+      const start = performance.now();
+      press('Enter');
+      const synchronousMs = performance.now() - start;
+      await frames();
+      const inputThroughTwoFramesMs = performance.now() - start;
+      longTasks.push(...observer.takeRecords().map((entry) => entry.duration));
+      observer.disconnect();
+      samples.push({
+        synchronousMs,
+        inputThroughTwoFramesMs,
+        longTasks,
+        selected: source.getAttribute('aria-pressed'),
+      });
+      press('Escape');
+      await frames();
+    }
+    const sorted = samples
+      .map((sample) => sample.inputThroughTwoFramesMs)
+      .sort((a, b) => a - b);
     return {
-      synchronousMs,
-      inputThroughTwoFramesMs,
-      longTasks,
-      selected: source.getAttribute('aria-pressed'),
+      samples,
+      coldTwoFramesMs: samples[0]?.inputThroughTwoFramesMs ?? null,
+      medianTwoFramesMs: sorted[Math.floor(sorted.length / 2)] ?? null,
+      maxTwoFramesMs: sorted.at(-1) ?? null,
+      selected: samples.every((sample) => sample.selected === 'true')
+        ? 'true'
+        : 'false',
     };
   });
   await info.attach('input-performance', {
@@ -97,7 +177,7 @@ export async function measureChessInput(page: Page, info: TestInfo) {
         ...measurements,
         cpuThrottle: 4,
         limits:
-          'Synthetic keyboard event through two animation frames; desktop CPU emulation, not a physical mobile device or field INP. One cold selection sample per viewport/theme.',
+          'Synthetic keyboard event through two animation frames; desktop CPU emulation, not a physical mobile device or field INP. Eight selection samples per viewport/theme (first cold), each cancelled with Escape; two-frame time includes frame alignment.',
       },
       null,
       2
