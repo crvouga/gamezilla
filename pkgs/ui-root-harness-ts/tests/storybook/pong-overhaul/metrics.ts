@@ -1,5 +1,6 @@
 // @io-wall-ok — wall timings are measured only in this browser evidence adapter.
 import { expect, type Page, type TestInfo } from '@playwright/test';
+import { logSummary } from './log-evidence';
 
 type Samples = {
   frames: number[];
@@ -116,6 +117,28 @@ export async function finishPongMetrics(
     return stop();
   });
   expect(samples.inputs.length).toBeGreaterThanOrEqual(24);
+  const percentile = (values: number[], p: number) => {
+    const sorted = [...values].sort((a, b) => a - b);
+    return sorted[Math.max(0, Math.ceil(sorted.length * p) - 1)];
+  };
+  const summary = {
+    test: info.title,
+    viewport: page.viewportSize(),
+    cpuRate,
+    inputs: samples.inputs.length,
+    inputToPaddleP50: percentile(samples.inputToPaddle, 0.5),
+    inputToPaddleP95: percentile(samples.inputToPaddle, 0.95),
+    handlerP50: percentile(samples.handlers, 0.5),
+    handlerP95: percentile(samples.handlers, 0.95),
+    twoFrameP95: percentile(samples.inputs, 0.95),
+    frameP50: percentile(samples.frames, 0.5),
+    frameP95: percentile(samples.frames, 0.95),
+    longTasks: samples.longTasks,
+    courtNodesAdded: samples.addedNodes,
+    courtNodesRemoved: samples.removedNodes,
+  };
+  // Readable from the hosted run's own log.
+  logSummary('PONG_TIMING', summary);
   await info.attach('pong-responsiveness', {
     contentType: 'application/json',
     body: JSON.stringify(
@@ -131,4 +154,14 @@ export async function finishPongMetrics(
       2
     ),
   });
+  // Budgets: a paddle follows input within two frames (three under 4x CPU
+  // throttling), no long task blocks play, and frames move the existing court
+  // drawings instead of rebuilding them.
+  const frames = cpuRate === 1 ? 2 : 3;
+  expect(samples.inputToPaddle.length).toBeGreaterThanOrEqual(24);
+  expect(summary.inputToPaddleP95 ?? Infinity).toBeLessThanOrEqual(
+    frames * 16.7
+  );
+  expect(samples.longTasks).toEqual([]);
+  expect([samples.addedNodes, samples.removedNodes]).toEqual([0, 0]);
 }

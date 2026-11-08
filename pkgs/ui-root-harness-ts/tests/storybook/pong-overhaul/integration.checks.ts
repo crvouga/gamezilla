@@ -1,6 +1,7 @@
 // @io-wall-ok — automated Pong capture, never a manual playthrough.
 import { expect, test } from '@playwright/test';
 import { openPong, recordPong } from './evidence';
+import { logVideo } from './log-evidence';
 import { finishPongMetrics, startPongMetrics } from './metrics';
 
 test.use({ video: 'on', trace: 'on' });
@@ -80,6 +81,7 @@ for (const viewport of [
       await recordPong(page, info, `keyboard-mouse-${viewport.width}-${theme}`);
       await cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 });
       await cdp.detach();
+      await logVideo(page, `keyboard-mouse-${viewport.width}-${theme}`);
     });
   }
 }

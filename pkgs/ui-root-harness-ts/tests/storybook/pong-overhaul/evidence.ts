@@ -2,6 +2,7 @@
 import { expect, type Page, type TestInfo } from '@playwright/test';
 import axe from 'axe-core';
 import { contrastDiagnostic } from './contrast-diagnostic';
+import { logScreenshot, logSummary } from './log-evidence';
 
 export async function openPong(page: Page, state: string, theme: string) {
   const errors: string[] = [];
@@ -34,6 +35,7 @@ export async function recordPong(page: Page, info: TestInfo, name: string) {
     path: info.outputPath(`${name}.png`),
     fullPage: true,
   });
+  await logScreenshot(page, name);
   await page.addScriptTag({ content: axe.source });
   const audit = await page.evaluate(async () => {
     const result = await (window as unknown as { axe: typeof axe }).axe.run(
@@ -50,6 +52,27 @@ export async function recordPong(page: Page, info: TestInfo, name: string) {
   await info.attach(`${name}-accessibility`, {
     body: JSON.stringify(audit, null, 2),
     contentType: 'application/json',
+  });
+  logSummary('PONG_AXE', {
+    name,
+    violations: audit.violations.map((rule) => [
+      rule.id,
+      rule.impact,
+      rule.nodes.length,
+    ]),
+    incomplete: audit.incomplete.map((rule) => [rule.id, rule.nodes.length]),
+    contrastReasons: [
+      ...new Set(
+        audit.incomplete
+          .filter((rule) => rule.id === 'color-contrast')
+          .flatMap((rule) => rule.nodes.flatMap((node) => node.any))
+          .map(
+            (check) =>
+              (check.data as { messageKey?: string } | null)?.messageKey ?? ''
+          )
+      ),
+    ],
+    passes: audit.passes.length,
   });
   const unresolved = audit.incomplete.filter(
     (rule) => rule.id === 'color-contrast'

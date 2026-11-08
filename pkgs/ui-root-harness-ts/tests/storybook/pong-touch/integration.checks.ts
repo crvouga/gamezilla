@@ -1,6 +1,7 @@
 // @io-wall-ok — Chromium's native touch protocol drives the production court.
 import { expect, test } from '@playwright/test';
 import { openPong, recordPong } from '../pong-overhaul/evidence';
+import { logVideo } from '../pong-overhaul/log-evidence';
 
 test.use({ video: 'on', trace: 'on', hasTouch: true });
 
@@ -71,5 +72,6 @@ for (const theme of ['light', 'dark']) {
       contentType: 'application/json',
     });
     await cdp.detach();
+    await logVideo(page, `simultaneous-touch-${theme}`);
   });
 }

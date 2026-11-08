@@ -1,6 +1,7 @@
 import { contrastRatio, parseColor } from '@pkgs/ui-root-shared-ts/contrast';
 import { expect, test } from '@playwright/test';
 import { openPong, recordPong } from '../pong-overhaul/evidence';
+import { logVideo } from '../pong-overhaul/log-evidence';
 
 test.use({ video: 'on', trace: 'on' });
 
@@ -42,6 +43,7 @@ test('storybook integration: pong-overhaul spectator paddle boundaries remain vi
       expect(Math.max(fillContrast, edgeContrast)).toBeGreaterThanOrEqual(3);
     }
   }
+  await logVideo(page, 'spectator-contrast');
 });
 
 // axe leaves Pong's court text "incomplete" (bgOverlap): the drag hint ignores

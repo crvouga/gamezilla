@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { openPong, recordPong } from '../pong-overhaul/evidence';
+import { logSummary, logVideo } from '../pong-overhaul/log-evidence';
 
 test.use({ video: 'on', trace: 'on' });
 
@@ -38,6 +39,7 @@ test('storybook integration: pong-overhaul landscape court and scoreboard fit af
       body: JSON.stringify(fit, null, 2),
       contentType: 'application/json',
     });
+    logSummary('PONG_FIT', { theme, ...fit });
     await recordPong(page, info, `landscape-focus-${theme}`);
     expect(fit.scoreboard.top).toBeGreaterThanOrEqual(0);
     expect(fit.scoreboardUnobstructed).toBe(true);
@@ -45,4 +47,5 @@ test('storybook integration: pong-overhaul landscape court and scoreboard fit af
     // Still a usable court: at least three fifths of the window height.
     expect(fit.court.height).toBeGreaterThanOrEqual(fit.viewport.height * 0.6);
   }
+  await logVideo(page, 'landscape-focus');
 });
