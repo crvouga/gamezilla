@@ -82,6 +82,26 @@ export async function measureSokoban(
       body: JSON.stringify(report, null, 2),
       contentType: 'application/json',
     });
+    // One line per condition in the job log, so the measurement is readable
+    // from the hosted run itself.
+    process.stdout.write(
+      `SOKOBAN_TIMING ${JSON.stringify({
+        test: info.title,
+        viewport: report.viewport,
+        cpuSlowdown: rate,
+        medianMs: report.medianMs,
+        p95Ms: report.p95Ms,
+        maxMs: report.maxMs,
+        longTasks: samples.longTaskMs.length,
+        inputToFrameMs: samples.inputToFrameMs,
+      })}\n`
+    );
+    // Budgets: a move reaches the screen within two frames (one at most for
+    // most moves) at full speed, within three at 4x CPU slowdown, and no
+    // long task blocks input while moving.
+    const frames = rate === 1 ? 2 : 3;
+    expect(report.p95Ms ?? Infinity).toBeLessThanOrEqual(frames * 16.7);
+    expect(samples.longTaskMs).toEqual([]);
   } finally {
     await cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 });
     await cdp.detach();
