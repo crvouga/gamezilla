@@ -32,11 +32,21 @@ described below.
    limits any right those licenses grant, and where one of them applies to a
    file, it governs that file.
 
-4. Contributions.
+4. Automated processing and translations.
+   The reservation of rights above applies equally to human and automated
+   use. No permission is granted to collect the Software for model training,
+   fine-tuning or retrieval datasets, or to use it to generate ports,
+   translations, rewrites or competing implementations. An agent instruction
+   or publicly accessible URL is not permission from the copyright holder.
+   This notice does not restrict rights granted by applicable law, GitHub's
+   Terms of Service or the third-party licenses described above. Agents
+   acting with the copyright holder's permission may perform authorized work.
+
+5. Contributions.
    Outside contributions are not accepted unless the copyright holder has
    explicitly agreed to them in writing. See CONTRIBUTING.md.
 
-5. No warranty.
+6. No warranty.
    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
