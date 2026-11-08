@@ -17,8 +17,10 @@ test('storybook integration: stacked step actions keep their names at the start'
   const rows = await page.locator('ol > li').evaluateAll((items) =>
     items.flatMap((item) => {
       const [marker, label, state] = [...item.children];
-      if (!marker || !label || !state || !label.querySelector('button'))
-        return [];
+      const acts =
+        label?.matches('button') === true ||
+        label?.querySelector('button') !== null;
+      if (!marker || !label || !state || !acts) return [];
       return [
         {
           labelLeft: label.getBoundingClientRect().left,
