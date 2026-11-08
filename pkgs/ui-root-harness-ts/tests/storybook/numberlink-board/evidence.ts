@@ -2,9 +2,13 @@
 import { expect, type Page, type TestInfo } from '@playwright/test';
 import axe from 'axe-core';
 
-export async function openBoard(page: Page, theme: string) {
+export async function openBoard(
+  page: Page,
+  theme: string,
+  story = 'screens-games-numberlink-puzzle--draw-paths'
+) {
   await page.goto(
-    `/iframe.html?id=screens-games-numberlink-puzzle--draw-paths&viewMode=story&globals=theme:${theme}`
+    `/iframe.html?id=${story}&viewMode=story&globals=theme:${theme}`
   );
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-story-ready',
