@@ -43,6 +43,15 @@ export async function accessibility(page: Page, info: TestInfo) {
     body: JSON.stringify(result, null, 2),
     contentType: 'application/json',
   });
+  // A summary in the job log, readable from the hosted run itself.
+  process.stdout.write(
+    `SOKOBAN_AXE ${JSON.stringify({
+      test: info.title,
+      violations: result.violations.map((item) => [item.id, item.nodes.length]),
+      incomplete: result.incomplete.map((item) => [item.id, item.nodes.length]),
+      passes: result.passes.length,
+    })}\n`
+  );
   expect(
     result.violations.filter(
       (item) => item.impact === 'serious' || item.impact === 'critical'
