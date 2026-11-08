@@ -1,4 +1,5 @@
 import { expect, type Page, test } from '@playwright/test';
+import { builderControlsUncovered } from './builder-control-visibility';
 
 test.use({ viewport: { width: 1440, height: 900 } });
 
@@ -125,51 +126,6 @@ test('storybook integration: native banner Controls update the portal and visibi
   await expect(bottom.getByText('A new version is ready')).toBeVisible();
 });
 
-/**
- * Every control on a builder's stage that is in the window is the topmost
- * thing at its centre, at the first scroll position and at the last; and
- * the last scroll position shows the whole publish step.
- */
-async function builderControlsUncovered(page: Page) {
-  return await page.evaluate(() => {
-    const scroller = document.querySelector<HTMLElement>(
-      '[data-screen="puzzle-content-author"]'
-    );
-    const publish = document.querySelector(
-      '[data-testid="content-author-publish"]'
-    );
-    if (scroller === null || publish === null)
-      return ['the builder or its publish step is missing'];
-    const covered: string[] = [];
-    const check = (at: string): void => {
-      const controls = document.querySelectorAll<HTMLElement>(
-        '[data-testid="content-author-stage"] :is(button, input)'
-      );
-      for (const control of controls) {
-        const box = control.getBoundingClientRect();
-        const x = box.left + box.width / 2;
-        const y = box.top + box.height / 2;
-        if (y < 0 || y >= window.innerHeight) continue;
-        if (x < 0 || x >= window.innerWidth) continue;
-        const top = document.elementFromPoint(x, y);
-        if (top !== null && control.contains(top)) continue;
-        const name =
-          control.getAttribute('data-testid') ??
-          control.getAttribute('aria-label') ??
-          control.textContent.trim();
-        covered.push(`${at}: ${name}`);
-      }
-    };
-    check('top');
-    scroller.scrollTop = scroller.scrollHeight;
-    check('bottom');
-    const step = publish.getBoundingClientRect();
-    if (step.top < 0 || step.bottom > window.innerHeight)
-      covered.push('bottom: the publish step is not wholly in view');
-    return covered;
-  });
-}
-
 // regression: builder-publish-strip-clips-stage — the publish step was a
 // strip pinned under the scroll area, so in the first view of the pack
 // builder "Create puzzle in this pack" was cut in half by it, and on a
@@ -196,7 +152,7 @@ for (const story of [
         )
         .toBe('true');
       await page.evaluate(() => document.fonts.ready);
-      expect(await builderControlsUncovered(page)).toEqual([]);
+      expect(await page.evaluate(builderControlsUncovered)).toEqual([]);
     });
 
 /**
