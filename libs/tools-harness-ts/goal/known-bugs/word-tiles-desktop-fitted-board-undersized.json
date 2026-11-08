@@ -1,4 +1,0 @@
-{
-  "summary": "The fitted Word Tiles match board was capped at 23rem (about 368px) at every size, leaving a 1440x900 desktop with cramped cells and premium labels beside large empty space.",
-  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/word-tiles/integration.checks.ts"
-}

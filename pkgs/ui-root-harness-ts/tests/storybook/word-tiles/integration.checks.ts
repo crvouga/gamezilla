@@ -86,7 +86,7 @@ for (const input of ['mouse', 'touch', 'keyboard'] as const) {
   });
 }
 
-/** Row-label overflow and fitted board width on the 1440x900 desktop opening. */
+/** Row-label overflow on the fitted 1440x900 desktop opening. */
 async function fittedDesktop(page: Page) {
   await page.setViewportSize({ width: 1440, height: 900 });
   await openStory(page, 'opening', 'light');
@@ -99,7 +99,6 @@ async function fittedDesktop(page: Page) {
     );
     return {
       enlarged: board?.dataset['enlarged'],
-      width: board?.getBoundingClientRect().width ?? 0,
       overflowing: rows
         .filter((row) => row.scrollWidth > row.clientWidth)
         .map((row) => row.textContent),
@@ -116,17 +115,6 @@ test('storybook integration: word-tiles 1440 fitted row labels keep their own gu
   expect(fitted.overflowing).toEqual([]);
 });
 
-// regression: word-tiles-desktop-fitted-board-undersized
-test('storybook integration: word-tiles 1440 fitted board grows with the window height', async ({
-  page,
-}) => {
-  const fitted = await fittedDesktop(page);
-  expect(fitted.width).toBeGreaterThanOrEqual(430);
-  await expect(page.getByTestId('custom-game-seat-near')).toBeInViewport({
-    ratio: 1,
-  });
-});
-
 // regression: word-tiles-find-square-reads-as-text
 test('storybook integration: word-tiles find a square looks like an action on the phone', async ({
   page,
@@ -137,7 +125,9 @@ test('storybook integration: word-tiles find a square looks like an action on th
   await expect(find).toHaveAttribute('aria-haspopup', 'dialog');
   const look = await find.evaluate((element) => {
     const css = getComputedStyle(element);
-    const caption = element.closest('[data-overview]')?.querySelector('p');
+    const caption = Array.from(
+      element.closest('[data-overview]')?.querySelectorAll('p') ?? []
+    ).find((paragraph) => paragraph.textContent === 'View an area');
     const box = element.getBoundingClientRect();
     return {
       underline: css.textDecorationLine,

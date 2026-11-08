@@ -208,11 +208,9 @@
   flex: none;
 }
 
-/* A complete fitted board alongside its rack, actions and both score rows. It
-   grows with the window's height, leaving room for the chrome above the board
-   and the viewer's own score row below it. */
+/* A complete fitted puzzle board alongside its rack and target at desktop height. */
 .board[data-measure="compact"][data-enlarged="false"] {
-  max-width: clamp(23rem, calc(100dvh - 29rem), 32rem);
+  max-width: 23rem;
   margin-inline: auto;
 }
 
