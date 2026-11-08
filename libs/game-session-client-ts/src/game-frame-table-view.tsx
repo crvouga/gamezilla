@@ -27,7 +27,6 @@ import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Text } from '@pkgs/ui-root-client-ts/text';
 import { For, Index, type JSX, Match, Show, Switch } from 'solid-js';
 import { FrameHolderAvatar, FrameHolderName } from './game-frame-people';
-import { frameUsesRail } from './game-frame-table';
 import type {
   FrameClock,
   FramePeople,
@@ -204,20 +203,13 @@ function chipStat(seat: FramePlaySeat): GameSeatStat | null {
  * them.
  */
 export function FrameSeatChipView(
-  props: Omit<SeatProps, 'onChoose'> & {
-    readonly own?: boolean | undefined;
-    readonly near?: boolean | undefined;
-  }
+  props: Omit<SeatProps, 'onChoose'> & { readonly own?: boolean | undefined }
 ): JSX.Element {
   return (
     <GameSessionParticipant name={props.seat.plainName}>
       <GamePlayerChip
         dataSet={{ testid: `custom-game-${props.seat.side}` }}
-        placeTestId={
-          props.own === true || props.near === true
-            ? 'custom-game-seat-near'
-            : undefined
-        }
+        placeTestId={props.own === true ? 'custom-game-seat-near' : undefined}
         name={props.seat.plainName}
         avatar={
           <FrameHolderAvatar
@@ -267,7 +259,7 @@ type TableProps = {
 function nearInRail(props: TableProps): FramePlaySeat | null {
   const near = props.table.near;
   return props.compact === true &&
-    frameUsesRail(props.table.shape, props.compact, props.table.seatLayout) &&
+    props.table.shape === 'rail' &&
     near !== null &&
     !near.reclaim
     ? near
@@ -292,9 +284,7 @@ export function tableShowsTurn(
     nearInRail({ table, compact, onChoose: async () => undefined }) === null;
   return (
     (nearStrip && seatShowsTurn(table.near)) ||
-    (table.shape === 'strip' &&
-      !frameUsesRail(table.shape, compact, table.seatLayout) &&
-      seatShowsTurn(table.others[0]))
+    (table.shape === 'strip' && seatShowsTurn(table.others[0]))
   );
 }
 
@@ -316,17 +306,7 @@ export function FrameOthersView(props: TableProps): JSX.Element {
     <Switch>
       {/* A phone's board that names its players: nothing above it. */}
       <Match when={namedOnBoard(props)}>{null}</Match>
-      <Match
-        when={
-          props.table.shape === 'strip' &&
-          !frameUsesRail(
-            props.table.shape,
-            props.compact,
-            props.table.seatLayout
-          ) &&
-          props.table.others[0]
-        }
-      >
+      <Match when={props.table.shape === 'strip' && props.table.others[0]}>
         {(seat) => (
           <FrameSeatStripView
             seat={seat()}
@@ -337,13 +317,7 @@ export function FrameOthersView(props: TableProps): JSX.Element {
           />
         )}
       </Match>
-      <Match
-        when={frameUsesRail(
-          props.table.shape,
-          props.compact,
-          props.table.seatLayout
-        )}
-      >
+      <Match when={props.table.shape === 'rail'}>
         <GameSessionParticipants>
           <GamePlayerRail
             aria-label={
@@ -352,12 +326,7 @@ export function FrameOthersView(props: TableProps): JSX.Element {
           >
             <Show when={nearInRail(props)}>
               {(near) => (
-                <FrameSeatChipView
-                  seat={near()}
-                  people={props.people}
-                  near
-                  own={props.viewerSide === near().side}
-                />
+                <FrameSeatChipView seat={near()} people={props.people} own />
               )}
             </Show>
             <Index each={props.table.others}>

@@ -68,14 +68,6 @@
 .column[aria-disabled="true"] {
   cursor: default;
 }
-/* On the narrowest phones, spend horizontal space on the seven hit areas.
-   The shared frame supplies its explicit compact inset; no overflow/overlap. */
-@media (max-width: 359px) {
-  .board {
-    padding-inline: var(--ui-space-hairline);
-    column-gap: 0;
-  }
-}
 /* The column pointed at or focused while the board takes a drop: one
    quiet wash down its whole height, under its cells. It is the column's
    only mark; the disc waiting in its landing cell is the other signal. */
@@ -111,18 +103,6 @@
   padding-block: var(--ui-space-1) 0;
   color: var(--ui-color-text);
   text-align: center;
-}
-.keyboardHelp {
-  display: none;
-  grid-column: 1 / -1;
-  grid-row: 3;
-  margin: 0;
-  padding-block: var(--ui-space-1) 0;
-  color: var(--ui-color-text);
-  text-align: center;
-}
-.board:has(.column:focus-visible) .keyboardHelp {
-  display: block;
 }
 /* A column's number, quiet; the column pointed at rings it in the dropping
    side's colour, a hollow disc waiting in the drop slot above the column:

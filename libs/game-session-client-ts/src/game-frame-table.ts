@@ -1,17 +1,4 @@
-import type { GameFrameSeatLayout } from '@pkgs/turn-game-shared-ts/game-frame';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
-
-/** A compact rail is chosen by the game's closed policy, never by its name. */
-export function frameUsesRail(
-  shape: FrameTable['shape'] | 'board',
-  compact: boolean | undefined,
-  layout: GameFrameSeatLayout | undefined
-): boolean {
-  return (
-    shape === 'rail' ||
-    (shape === 'strip' && compact === true && layout === 'compact-rail')
-  );
-}
 
 /**
  * How the seats sit around the board while a game is played.

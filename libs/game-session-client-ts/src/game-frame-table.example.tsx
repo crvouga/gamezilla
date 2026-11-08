@@ -259,8 +259,6 @@ function GameFrameTable(props: TableProps): JSX.Element {
       table={{
         shape: tableShape(props),
         named: props.presentation.frame.boardNames === true,
-        seatLayout: props.presentation.frame.seatLayout,
-        compactInset: props.presentation.frame.compactInset,
         near: playSeat(props, near()),
         others: props.sides
           .filter((side) => side !== near())

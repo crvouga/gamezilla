@@ -45,11 +45,6 @@ export function ConnectFourBoard(props: {
       fullColumnPrompt={(column) =>
         t`Column ${column + 1} is full. Choose another column.`
       }
-      keyboardHelp={
-        props.interactive && game().result === 0
-          ? t`Arrow keys choose a column. Home and End go to the edges. Enter or Space drops.`
-          : t`Arrow keys inspect columns. Home and End go to the edges.`
-      }
       cellLabel={(column, row, disc) => {
         const identity =
           disc === 1

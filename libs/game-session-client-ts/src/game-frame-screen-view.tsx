@@ -697,7 +697,6 @@ export function GameFrameScreenView(props: Props): JSX.Element {
     <GameScreen
       screenId="custom-game"
       title={props.title}
-      compactInset={props.table.compactInset}
       facts={
         <Show when={props.denial === undefined && props.phase !== 'none'}>
           <FrameFacts {...props} />
