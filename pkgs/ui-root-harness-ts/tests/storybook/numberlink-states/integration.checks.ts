@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, type Page, test } from '@playwright/test';
 import {
   accessibility,
   capture,
@@ -22,6 +22,42 @@ function routeKey(previous: number | undefined, current: number | undefined) {
   return key;
 }
 
+/** Each board cell's size and whether its endpoint label stays inside it. */
+function cellGeometry(page: Page) {
+  return page.getByTestId('numberlink-board').evaluate((board) => {
+    const cells = [...board.querySelectorAll('button')];
+    return cells.map((cell) => {
+      const box = cell.getBoundingClientRect();
+      const label = cell.querySelector('span');
+      const range = document.createRange();
+      if (label) range.selectNodeContents(label);
+      const text = label ? range.getBoundingClientRect() : null;
+      return {
+        name: cell.getAttribute('aria-label'),
+        width: box.width,
+        height: box.height,
+        labelFits:
+          text === null || (text.left >= box.left && text.right <= box.right),
+      };
+    });
+  });
+}
+
+// regression: numberlink-endpoint-labels-overflow-cells
+test('storybook integration: numberlink-states labels fit narrow cells', async ({
+  page,
+}, info) => {
+  await page.setViewportSize({ width: 320, height: 844 });
+  for (const story of ['dense-board', 'long-labels']) {
+    await openBoard(page, 'dark', `screens-games-numberlink-puzzle--${story}`);
+    await capture(page, info, `${story}-narrow`);
+    const overflowing = (await cellGeometry(page))
+      .filter((cell) => !cell.labelFits)
+      .map((cell) => cell.name);
+    expect(overflowing).toEqual([]);
+  }
+});
+
 test.use({
   video: { mode: 'on', size: { width: 1440, height: 1024 } },
   trace: 'on',
@@ -44,26 +80,7 @@ for (const width of [320, 768, 1440])
             `screens-games-numberlink-puzzle--${story}`
           );
           await capture(page, info, 'fresh');
-          const geometry = await page
-            .getByTestId('numberlink-board')
-            .evaluate((board) => {
-              const cells = [...board.querySelectorAll('button')];
-              return cells.map((cell) => {
-                const box = cell.getBoundingClientRect();
-                const label = cell.querySelector('span');
-                const range = document.createRange();
-                if (label) range.selectNodeContents(label);
-                const text = label ? range.getBoundingClientRect() : null;
-                return {
-                  name: cell.getAttribute('aria-label'),
-                  width: box.width,
-                  height: box.height,
-                  labelFits:
-                    text === null ||
-                    (text.left >= box.left && text.right <= box.right),
-                };
-              });
-            });
+          const geometry = await cellGeometry(page);
           await info.attach('cell-geometry', {
             body: JSON.stringify(geometry),
             contentType: 'application/json',
@@ -78,7 +95,6 @@ for (const width of [320, 768, 1440])
             `1/${columns} pairs connected`
           );
           await accessibility(page, info);
-          // regression: numberlink-endpoint-labels-overflow-cells
           expect(geometry.every((cell) => cell.labelFits)).toBe(true);
         });
 

@@ -193,12 +193,12 @@ function movementKey(
 }
 
 /** Actual rule application feeds each committed gesture back into the player. */
-export const DrawPaths: Story = {
-  render: (args) => {
+function drawPaths(puzzle: StoryPackPuzzle): NonNullable<Story['render']> {
+  return (args) => {
     const [state, setState] = createSignal(progress([]));
     return (
       <StoryPackAttempt
-        puzzle={PUZZLE}
+        puzzle={puzzle}
         figures={figures(args.definition, state())}
         figuresPlacement={numberlinkContentFrame.figuresPlacement}
         player={
@@ -218,18 +218,29 @@ export const DrawPaths: Story = {
         }
       />
     );
-  },
-};
+  };
+}
+
+export const DrawPaths: Story = { render: drawPaths(PUZZLE) };
 
 /** Maximum dimensions retain the same real rules and interaction handlers. */
 export const DenseBoard: Story = {
-  ...DrawPaths,
+  render: drawPaths({
+    ...PUZZLE,
+    title: 'Twenty rows',
+    difficulty: 'Hard',
+    description: 'Join each pair of numbers across the widest board.',
+  }),
   args: { definition: JSON.stringify(DENSE_NUMBERLINK) },
 };
 
 /** Long matching labels remain meaningful without distinct pair colors. */
 export const LongLabels: Story = {
-  ...DrawPaths,
+  render: drawPaths({
+    ...PUZZLE,
+    title: 'Weather words',
+    description: 'Join each pair of matching words and fill every square.',
+  }),
   args: { definition: JSON.stringify(LONG_LABEL_NUMBERLINK) },
 };
 
