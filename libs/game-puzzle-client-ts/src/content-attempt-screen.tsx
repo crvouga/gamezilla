@@ -100,6 +100,7 @@ function AttemptBody(props: {
       attempt={summaryOf(props.attempt, props.source)}
       pack={packPlace(props.attempt, data)}
       playtest={props.attempt.mode === 'playtest'}
+      stageAlign={game.client.frame.stageAlign}
       saving={writer.pending()}
       changeError={writer.change.error()?.message ?? null}
       complete={progress()?.complete ?? false}

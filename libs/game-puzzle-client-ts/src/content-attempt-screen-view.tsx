@@ -59,6 +59,8 @@ export type ContentAttemptScreenViewProps = {
   readonly player?: JSX.Element;
   /** Undo / redo, restart and next. */
   readonly controls?: JSX.Element;
+  /** Where the board sits on a one-column screen. */
+  readonly stageAlign?: 'start' | 'center' | undefined;
   /** Earlier kept continuations to choose from. */
   readonly keptPositions?: JSX.Element;
   /**
@@ -259,6 +261,7 @@ function AttemptBody(props: ContentAttemptScreenViewProps): JSX.Element {
         }
         actions={props.controls}
         actionsBeside
+        stageAlign={props.stageAlign}
         aside={<AttemptPanel {...props} />}
       >
         <Show
