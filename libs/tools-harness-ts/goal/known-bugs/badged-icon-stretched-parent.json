@@ -1,0 +1,4 @@
+{
+  "summary": "A 24px mail icon with badge 1 in the stretching vertical Destructive intent section detached its count.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/gallery-round-eighteen.checks.ts"
+}

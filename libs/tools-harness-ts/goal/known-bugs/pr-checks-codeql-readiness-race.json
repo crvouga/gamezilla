@@ -1,0 +1,4 @@
+{
+  "summary": "PR 292 run 42444456910 rejected CodeQL's neutral placeholder while its same-head dynamic analysis producer 42444454937 was still running and later succeeded.",
+  "regressionTest": "libs/tools-harness-ts/scripts/pr-check-readiness.test.ts"
+}

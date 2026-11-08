@@ -1,0 +1,4 @@
+{
+  "summary": "The existing troubleshooting route had no product chart owner.",
+  "regressionTest": "libs/tools-harness-ts/scripts/statechart-contracts.test.ts"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "Opening privacy after confirmed account deletion waited for the Delete account action, which is correctly denied after sign-out, instead of the privacy screen. This prevented the pending cancellation receipt from being read.",
+  "regressionTest": "libs/billing-harness-ts/tests/deletion-outcome-readiness.test.ts"
+}

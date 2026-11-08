@@ -14,6 +14,7 @@ export default meta;
 
 /** Long recovery feedback wraps below the turn action at every viewport width. */
 export const Recovery: StoryObj = {
+  tags: ['viewport-responsive'],
   render: () => (
     <WordTileWorkbench>
       <Button title="Play word" />
@@ -27,6 +28,7 @@ export const Recovery: StoryObj = {
 
 /** The primary stays visible while secondary commands disclose in normal flow. */
 export const SecondaryTools: StoryObj = {
+  tags: ['viewport-responsive'],
   render: () => (
     <WordTileWorkbench>
       <WordTileActions

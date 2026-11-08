@@ -8,13 +8,14 @@ import type {
 import { Image } from '@pkgs/ui-root-client-ts/image';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
+import { COLOR_PALETTE } from '@pkgs/ui-root-shared-ts/color-palette';
 import { For, type JSX } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { ExampleSection } from '../../storybook/fixtures/example-section';
 
 /** A 4:3 picture that needs no network. */
 const PICTURE = `data:image/svg+xml,${encodeURIComponent(
-  "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 3'><rect width='4' height='3' opacity='0.2'/><circle cx='2' cy='1.5' r='1' opacity='0.5'/></svg>"
+  `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 3'><rect width='4' height='3' fill='${COLOR_PALETTE.light.surface}'/><circle cx='2' cy='1.5' r='1' fill='${COLOR_PALETTE.light.text}'/></svg>`
 )}`;
 /** Not a decodable image, so it fails without a request. */
 const MISSING = 'data:image/png;base64,AAAA';
@@ -61,7 +62,7 @@ export default function ImageExample(): JSX.Element {
         </StackHorizontal>
       </ExampleSection>
       <ExampleSection title="Sizes, round">
-        <StackHorizontal gap="md" align="center">
+        <StackHorizontal gap="md" align="center" wrap>
           <For each={SIZES}>
             {(size) => (
               <Image

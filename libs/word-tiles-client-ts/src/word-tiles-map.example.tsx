@@ -9,7 +9,7 @@ export async function expectBoardMap(
   // regression: word-tiles-overview-unreadable-context
   const canvas = within(canvasElement);
   const trigger = canvas.getByRole('button', {
-    name: 'Board map: locate a square',
+    name: 'Find a square',
   });
   await assertClear(trigger);
   const original = canvas.getByTestId(`${testId}-cell-h8`);

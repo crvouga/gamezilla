@@ -1,0 +1,4 @@
+{
+  "summary": "At seed 1, North's Carol wins TD/KD/AS/JD with KD. The harness expected the accessibility seat label North in a result correctly naming carol. Winner observation resolves the visible participant or local You, checks the winning card and live announcement, and rejects a different player.",
+  "regressionTest": "libs/hearts-harness-ts/tests/hearts-trick-winner-reading.test.ts"
+}
