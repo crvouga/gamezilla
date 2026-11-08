@@ -2,6 +2,7 @@
 import { expect, type Locator, test } from '@playwright/test';
 import { auditHearts, captureHearts, openHearts } from '../evidence';
 import { saveHeartsMetrics, startHeartsMetrics } from '../metrics';
+import { pressRefusedCard } from '../refused-input';
 
 test.use({
   video: { mode: 'on', size: { width: 1440, height: 1024 } },
@@ -46,7 +47,11 @@ for (const width of [320, 390, 768, 1440]) {
         await expect(cards).toHaveCount(13);
         await captureHearts(page, info, 'pass-accepted');
         const before = await board.getAttribute('data-position');
-        await activate(hand.locator('[data-refused="true"]').first(), touch);
+        await pressRefusedCard(
+          page,
+          hand.locator('[data-refused="true"]').first(),
+          touch
+        );
         await expect(board).toHaveAttribute('data-position', before ?? '');
         await expect(
           page.getByTestId('custom-game-board-refusal')

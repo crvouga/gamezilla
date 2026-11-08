@@ -337,6 +337,12 @@
     --card-w: min(48px, (100cqw - 4 * var(--hand-gap)) / 5);
     flex: 0 0 var(--card-w);
     margin: 0;
+    height: var(--card-w);
+  }
+  /* Three rows must also fit a short phone. Keep the rank and the large
+     suit pip in opposite corners; the repeated small pip is redundant. */
+  .hand > .card .index::after {
+    display: none;
   }
 }
 /* A small card (a phone's hand): the large pip moves to the bottom corner,
