@@ -51,6 +51,15 @@ Feature: Learn why people cancel Plus
       When Alice shares cancellation feedback with reason "other" and comment "Taking a break from games."
       Then Alice sees their cancellation feedback with reason "other" and comment "Taking a break from games."
 
+    @regression:billing-feedback-lost-after-canceled-period
+    Scenario: Feedback saved offline is shared even after the canceled membership ends
+      Given Alice is offline
+      And Alice has shared cancellation feedback with reason "low usage" and comment "Less time to play."
+      And Alice's billing period has ended
+      When the connection comes back
+      Then the team can see Alice's cancellation feedback with reason "low usage" and comment "Less time to play."
+      And Alice sees their cancellation feedback with reason "low usage" and comment "Less time to play."
+
   Rule: Cancellation feedback is private from other people
 
     Scenario: The team can see cancellation feedback to understand why people cancel
