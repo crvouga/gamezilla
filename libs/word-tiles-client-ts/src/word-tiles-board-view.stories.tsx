@@ -57,7 +57,7 @@ const MID_GAME = table({
  * app's random.
  */
 function renderTable(
-  args: WordTilesBoardViewProps,
+  args: WordTilesBoardViewProps & { readonly moves?: readonly string[] },
   context: { readonly parameters: Readonly<Record<string, unknown>> }
 ) {
   const seats = decodePosition(args.position)?.seats ?? 2;
@@ -82,6 +82,13 @@ function renderTable(
         ...(context.parameters['table'] as GameTableStory),
         get turn() {
           return seatSides(seats)[decodePosition(args.position)?.turn ?? 0];
+        },
+        // A live journey records each accepted move; fixed stories keep theirs.
+        get moves() {
+          return (
+            args.moves ??
+            (context.parameters['table'] as GameTableStory | undefined)?.moves
+          );
         },
       },
     },

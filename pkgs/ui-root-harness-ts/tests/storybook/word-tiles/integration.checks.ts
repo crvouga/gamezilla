@@ -148,3 +148,18 @@ test('storybook integration: word-tiles find a square looks like a button on the
   expect(look.height).toBeGreaterThanOrEqual(44);
   expect(look.width).toBeGreaterThanOrEqual(44);
 });
+
+// regression: word-tiles-accepted-move-missing-from-record
+test('storybook integration: word-tiles an accepted word appears in the move record', async ({
+  page,
+}) => {
+  await openStory(page, 'two-player-match', 'light');
+  await expect(page.getByTestId('custom-game-move-strip')).toContainText(
+    'No moves yet.'
+  );
+  await playWord(page, 'mouse');
+  const strip = page.getByTestId('custom-game-move-strip');
+  await expect(strip).toContainText('CAT');
+  await expect(strip).toContainText('10');
+  await expect(strip).not.toContainText('No moves yet.');
+});
