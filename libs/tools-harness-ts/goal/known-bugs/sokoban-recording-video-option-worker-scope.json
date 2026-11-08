@@ -1,0 +1,4 @@
+{
+  "summary": "Sokoban's matching video dimensions were configured inside describe groups, which Playwright rejects before collecting tests. Each viewport now has a test file with worker-scoped recording options at module scope and shares the same solve/recover journey.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/sokoban-overhaul-desktop/integration.checks.ts"
+}
