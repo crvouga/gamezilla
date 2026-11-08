@@ -1,0 +1,4 @@
+{
+  "summary": "Translucent black image fixture artwork disappeared against the dark canvas.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/gallery-round-eighteen.checks.ts"
+}

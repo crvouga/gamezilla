@@ -37,6 +37,7 @@ import {
   selectSpecs,
   targetEnv,
 } from './health';
+import type { StackManifest } from './manifest';
 import { RELEASE_ENVIRONMENT, releaseSpecs } from './release-selection';
 
 const REPO_ROOT = resolve(import.meta.dir, '../../..');
@@ -108,58 +109,68 @@ test('the live entry binds the literal Connect Four journey steps', () => {
   expect(result.status, result.stdout + result.stderr).toBe(0);
 });
 
-// regression: live-quoridor-journey-unbound
-test.each(['live', 'release'])(
-  'the %s entry binds the Battleship and Quoridor journey and health steps',
-  (entry) => {
-    const dir = mkdtempSync(join(tmpdir(), 'release-step-registration-'));
-    const manifest = join(dir, 'manifest.json');
-    writeFileSync(
-      manifest,
-      JSON.stringify({
-        webOrigin: 'https://web.example.invalid',
-        apiOrigin: 'https://api.example.invalid',
-      })
+function assertJourneyBindings(entry: 'live' | 'release'): void {
+  const dir = mkdtempSync(join(tmpdir(), 'release-step-registration-'));
+  const manifest = join(dir, 'manifest.json');
+  writeFileSync(
+    manifest,
+    JSON.stringify({
+      webOrigin: 'https://web.example.invalid',
+      apiOrigin: 'https://api.example.invalid',
+      idpOrigins: {
+        google: 'https://google.example.invalid',
+        apple: 'https://apple.example.invalid',
+      },
+    } satisfies Pick<StackManifest, 'webOrigin' | 'apiOrigin' | 'idpOrigins'>)
+  );
+  try {
+    const result = spawnSync(
+      process.execPath,
+      [
+        '-e',
+        `
+  await import('./tests/steps/${entry}-index.ts');
+  if (typeof document !== 'undefined') throw new Error('local DOM harness loaded');
+  const { matchStep } = await import('@pkgs/gherkin-shared-ts/registry');
+  const missing = [
+    'Alice and Bob play Battleship from fresh devices',
+    'Alice and Bob see the same completed Battleship game',
+    'the team checks Battleship in this environment',
+    'two people can find each other and play Battleship to a victory they both see',
+    "neither person saw the other's fleet beyond what their shots showed",
+    'Alice and Bob play Classic Quoridor from fresh devices',
+    'Alice and Bob see the same completed Classic Quoridor game',
+    'Alice and Bob play Four-Player King of the Hill with two bots from fresh devices',
+    'Alice and Bob see the same completed Four-Player King of the Hill game',
+    'the team checks Classic Quoridor in this environment',
+    'two people can find each other and complete Classic Quoridor with the same result',
+    'the team checks Four-Player King of the Hill in this environment',
+    'two people and two bots can complete Four-Player King of the Hill with the same result'
+  ].filter((text) => matchStep(text).kind !== 'match');
+  if (missing.length > 0) throw new Error('unbound: ' + missing.join('\\n'));
+`,
+      ],
+      {
+        cwd: resolve(import.meta.dir, '..'),
+        encoding: 'utf8',
+        env: { ...process.env, LOCALHOST_STACK_MANIFEST: manifest },
+      }
     );
-    try {
-      const result = spawnSync(
-        process.execPath,
-        [
-          '-e',
-          `
-    await import('./tests/steps/${entry}-index.ts');
-    if (typeof document !== 'undefined') throw new Error('local DOM harness loaded');
-    const { matchStep } = await import('@pkgs/gherkin-shared-ts/registry');
-    const missing = [
-      'Alice and Bob play Battleship from fresh devices',
-      'Alice and Bob see the same completed Battleship game',
-      'the team checks Battleship in this environment',
-      'two people can find each other and play Battleship to a victory they both see',
-      "neither person saw the other's fleet beyond what their shots showed",
-      'Alice and Bob play Classic Quoridor from fresh devices',
-      'Alice and Bob see the same completed Classic Quoridor game',
-      'Alice and Bob play Four-Player King of the Hill with two bots from fresh devices',
-      'Alice and Bob see the same completed Four-Player King of the Hill game',
-      'the team checks Classic Quoridor in this environment',
-      'two people can find each other and complete Classic Quoridor with the same result',
-      'the team checks Four-Player King of the Hill in this environment',
-      'two people and two bots can complete Four-Player King of the Hill with the same result'
-    ].filter((text) => matchStep(text).kind !== 'match');
-    if (missing.length > 0) throw new Error('unbound: ' + missing.join('\\n'));
-  `,
-        ],
-        {
-          cwd: resolve(import.meta.dir, '..'),
-          encoding: 'utf8',
-          env: { ...process.env, LOCALHOST_STACK_MANIFEST: manifest },
-        }
-      );
-      expect(result.status, result.stdout + result.stderr).toBe(0);
-    } finally {
-      removeTree(dir, { whenLocked: 'leave' });
-    }
+    expect(result.status, result.stdout + result.stderr).toBe(0);
+  } finally {
+    removeTree(dir, { whenLocked: 'leave' });
   }
-);
+}
+
+// regression: live-quoridor-journey-unbound
+test('the live entry binds the Battleship and Quoridor journey and health steps', () => {
+  assertJourneyBindings('live');
+});
+
+// regression: release-step-manifest-missing-idp
+test('the release entry binds the Battleship and Quoridor journey and health steps', () => {
+  assertJourneyBindings('release');
+});
 
 // regression: deploy-health-stale-foundation-secrets
 test('health uses the post-foundation database and monitor credentials', () => {

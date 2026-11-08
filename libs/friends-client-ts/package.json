@@ -47,6 +47,8 @@
     "@pkgs/bun-test-solid-client-ts": "workspace:*",
     "@pkgs/clock-client-ts": "workspace:*",
     "@pkgs/clock-shared-ts": "workspace:*",
+    "@pkgs/secure-storage-root-client-ts": "workspace:*",
+    "@pkgs/secure-storage-root-shared-ts": "workspace:*",
     "@solidjs/testing-library": "catalog:",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",

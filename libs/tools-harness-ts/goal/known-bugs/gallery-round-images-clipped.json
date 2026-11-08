@@ -1,0 +1,4 @@
+{
+  "summary": "The sm/md/lg round image row overflowed the 390px gallery.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/gallery-round-eighteen.checks.ts"
+}

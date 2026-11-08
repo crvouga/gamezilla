@@ -147,13 +147,14 @@ test('enlargement retains all squares in an overview and announces the chosen mo
 });
 
 // regression: word-tiles-overview-unreadable-context
+// regression: word-tiles-map-stale-harness-name
 test('board map locates a committed intersection without placing the selected rack tile', () => {
   const view = example();
   fireEvent.click(view.getByRole('button', { name: 'S, 1 point' }));
   fireEvent.click(view.getByRole('button', { name: 'Enlarge board' }));
-  fireEvent.click(
-    view.getByRole('button', { name: 'Board map: locate a square' })
-  );
+  const find = view.getByRole('button', { name: 'Find a square' });
+  expect(find.textContent).toBe('Find a square');
+  fireEvent.click(find);
   const locator = view.getByRole('group', { name: 'Whole board locator' });
   const cell = locator.querySelector<HTMLButtonElement>('[data-cell="c3"]');
   expect(cell?.getAttribute('aria-disabled')).toBe('false');

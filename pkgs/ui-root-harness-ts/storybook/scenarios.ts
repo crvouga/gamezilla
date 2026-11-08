@@ -29,9 +29,10 @@ export function visualScenarios(story: StoryEntry) {
   const phone = Number.parseInt(viewports.phone.styles.width, 10);
   const desktop = Number.parseInt(viewports.desktop.styles.width, 10);
   const tablet = Number.parseInt(viewports.tablet.styles.width, 10);
-  const widths = /^(templates|layouts|screens)-/.test(story.id)
-    ? [phone, desktop]
-    : [phone];
+  const responsive =
+    /^(templates|layouts|screens)-/.test(story.id) ||
+    story.tags?.includes('viewport-responsive');
+  const widths = responsive ? [phone, desktop] : [phone];
   if (story.id.startsWith('layouts-appframe')) widths.push(tablet);
   return widths
     .filter((width) => supportsStoryViewport(story, width))

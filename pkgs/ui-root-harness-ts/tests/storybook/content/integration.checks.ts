@@ -106,73 +106,14 @@ for (const width of [390, 768, 1440])
     test(`storybook integration: account retry label stays readable at ${width}/${theme}`, async ({
       page,
     }) => {
-      await open(page, 'screens-account--connect-failed', width, theme);
-      const retry = page.getByTestId('account-link-provider-apple');
-      await expect(retry).toBeVisible();
-      await expect(page.getByRole('alert')).toContainText(
-        "Couldn't reach Apple"
-      );
-      const label = retry.locator('p:not([aria-hidden="true"] p)');
-      expect(await textBounds(label)).toEqual([]);
-      await expect(retry).toHaveAccessibleName('Try again');
+      await assertAccountRetry(page, width, theme);
     });
 
     // regression: friend-long-name-escapes-profile
     test(`storybook integration: a long friend name stays inside its profile at ${width}/${theme}`, async ({
       page,
     }) => {
-      await open(page, 'screens-friends-user--long-name', width, theme);
-      const name = page.getByTestId('friend-user-username');
-      await expect(name).toHaveText(
-        '@a_really_long_username_that_keeps_going_and_going'
-      );
-      const headings = page.getByRole('heading');
-      const failures = await headings.evaluateAll((elements) =>
-        elements.flatMap((element) => {
-          const rect = element.getBoundingClientRect();
-          const style = getComputedStyle(element);
-          const fits = rect.left >= 0 && rect.right <= innerWidth;
-          const overflowIsReadable =
-            element.scrollWidth <= element.clientWidth ||
-            (style.overflowX === 'hidden' && style.textOverflow === 'ellipsis');
-          return fits && overflowIsReadable ? [] : [element.textContent];
-        })
-      );
-      expect(failures).toEqual([]);
-      const title = await page.getByRole('heading', { level: 1 }).boundingBox();
-      const block = await page
-        .getByRole('button', { name: 'Block', exact: true })
-        .boundingBox();
-      expect(title).not.toBeNull();
-      expect(block).not.toBeNull();
-      if (title === null || block === null)
-        throw new Error('Profile header controls are missing');
-      const headerGeometry = await page
-        .locator('header')
-        .first()
-        .evaluate((header) =>
-          Array.from(
-            header.querySelectorAll(
-              '[data-component="ActionBar"], [data-component="ActionBar"] > div, h1, button'
-            )
-          ).map((element) => {
-            const rect = element.getBoundingClientRect();
-            const css = getComputedStyle(element);
-            return {
-              name: element.getAttribute('aria-label') ?? element.textContent,
-              component: element.getAttribute('data-component'),
-              left: rect.left,
-              right: rect.right,
-              width: rect.width,
-              minWidth: css.minWidth,
-              shrink: css.flexShrink,
-            };
-          })
-        );
-      expect(
-        title.x + title.width,
-        JSON.stringify(headerGeometry)
-      ).toBeLessThanOrEqual(block.x);
+      await assertFriendName(page, width, theme);
     });
   }
 
@@ -287,4 +228,109 @@ test('storybook integration: literal won Connect Four retains its move record', 
   await open(page, 'screens-games-connect-four-board--won', 390, 'light');
   await expect(page.getByText('No moves yet.', { exact: true })).toHaveCount(0);
   await expect(page.getByTestId('custom-game-move-strip-place')).toBeVisible();
+});
+
+async function assertAccountRetry(page: Page, width: number, theme: string) {
+  await open(page, 'screens-account--connect-failed', width, theme);
+  const retry = page.getByTestId('account-link-provider-apple');
+  await expect(retry).toBeVisible();
+  await expect(page.getByRole('alert')).toContainText("Couldn't reach Apple");
+  const label = retry.locator('p:not([aria-hidden="true"] p)');
+  expect(await textBounds(label)).toEqual([]);
+  await expect(retry).toHaveAccessibleName('Try again');
+}
+
+// regression: account-connect-error-label-clipped
+test('storybook integration: literal account retry label stays readable on a light phone', async ({
+  page,
+}) => {
+  await assertAccountRetry(page, 390, 'light');
+});
+
+async function assertFriendName(page: Page, width: number, theme: string) {
+  await open(page, 'screens-friends-user--long-name', width, theme);
+  const name = page.getByTestId('friend-user-username');
+  await expect(name).toHaveText('@wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww');
+  const headings = page.getByRole('heading');
+  const failures = await headings.evaluateAll((elements) =>
+    elements.flatMap((element) => {
+      const rect = element.getBoundingClientRect();
+      const style = getComputedStyle(element);
+      const fits = rect.left >= 0 && rect.right <= innerWidth;
+      const overflowIsReadable =
+        element.scrollWidth <= element.clientWidth ||
+        (style.overflowX === 'hidden' && style.textOverflow === 'ellipsis');
+      return fits && overflowIsReadable ? [] : [element.textContent];
+    })
+  );
+  expect(failures).toEqual([]);
+  const title = await page.getByRole('heading', { level: 1 }).boundingBox();
+  const block = await page
+    .getByRole('button', { name: 'Block', exact: true })
+    .boundingBox();
+  expect(title).not.toBeNull();
+  expect(block).not.toBeNull();
+  if (title === null || block === null)
+    throw new Error('Profile header controls are missing');
+  const headerGeometry = await page
+    .locator('header')
+    .first()
+    .evaluate((header) =>
+      Array.from(
+        header.querySelectorAll(
+          '[data-component="ActionBar"], [data-component="ActionBar"] > div, h1, button'
+        )
+      ).map((element) => {
+        const rect = element.getBoundingClientRect();
+        const css = getComputedStyle(element);
+        return {
+          name: element.getAttribute('aria-label') ?? element.textContent,
+          component: element.getAttribute('data-component'),
+          left: rect.left,
+          right: rect.right,
+          width: rect.width,
+          minWidth: css.minWidth,
+          shrink: css.flexShrink,
+        };
+      })
+    );
+  expect(
+    title.x + title.width,
+    JSON.stringify(headerGeometry)
+  ).toBeLessThanOrEqual(block.x);
+}
+
+// regression: friend-long-name-escapes-profile
+test('storybook integration: literal a long friend name stays inside its profile on a light phone', async ({
+  page,
+}) => {
+  await assertFriendName(page, 390, 'light');
+});
+
+// regression: synthetic-population-initial-state-fixture-saveable
+test('storybook integration: literal initial loading cannot save unknown configuration', async ({
+  page,
+}) => {
+  await open(page, 'screens-admin-synthetic-population--loading', 390, 'light');
+  await expect(
+    page.getByRole('button', {
+      name: 'Save synthetic population',
+      exact: true,
+    })
+  ).toBeDisabled();
+});
+
+// regression: friend-profile-unavailable-recovery-missing
+test('storybook integration: a deleted profile has a readable heading and direct Friends recovery', async ({
+  page,
+}) => {
+  await open(page, 'screens-friends-user--deleted', 390, 'light');
+  await expect(
+    page.getByRole('heading', { level: 1, name: 'Account deleted' })
+  ).toBeVisible();
+  await expect(page.getByText(/morgan|5a1e0000/i)).toHaveCount(0);
+  await expect(
+    page.getByRole('link', { name: 'Return to Friends' })
+  ).toHaveAttribute('href', '/profile/friends');
+  await expect(page.getByRole('button', { name: 'Add friend' })).toHaveCount(0);
 });
