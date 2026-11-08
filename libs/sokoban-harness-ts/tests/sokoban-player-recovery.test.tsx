@@ -72,7 +72,7 @@ test('Undo, Redo and Restart positions invalidate a refusal from the previous po
 // regression: sokoban-unreadable-library-action
 test('an unreadable puzzle invokes its library navigation callback', () => {
   const { view, destinations } = fixture('{}');
-  fireEvent.click(view.getByRole('button', { name: 'Return to puzzles' }));
+  fireEvent.click(view.getByRole('button', { name: 'More puzzles' }));
   expect(destinations).toEqual(['library']);
 });
 

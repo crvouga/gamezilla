@@ -118,14 +118,8 @@ export function SokobanPlayerView(
       when={input()}
       fallback={
         <Notice tone="error">
-          <Trans>
-            This puzzle cannot be opened. Choose a saved puzzle from your
-            library.
-          </Trans>
-          <Button
-            title={t`Return to puzzles`}
-            onClick={props.onReturnToLibrary}
-          />
+          <Trans>This puzzle cannot be opened. Choose another puzzle.</Trans>
+          <Button title={t`More puzzles`} onClick={props.onReturnToLibrary} />
         </Notice>
       }
     >

@@ -159,10 +159,11 @@ export function SokobanPlayBoard(props: Props): JSX.Element {
           onClick={() => setCloser((value) => !value)}
         />
         <Show when={closeView()}>
+          {/* Not a live region: the board's own label says it is the close
+              view, and these counts change on many moves. */}
           <P
             variant="caption"
             tone="secondary"
-            role="status"
             dataSet={{
               testid: 'sokoban-outside-view',
               crates: String(view.outside().crates),

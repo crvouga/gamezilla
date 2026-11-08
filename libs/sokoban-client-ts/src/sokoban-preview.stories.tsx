@@ -1,3 +1,4 @@
+import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { SokobanPreview } from './sokoban-player';
 import { TWO_CRATES } from './sokoban-player.example';
@@ -9,6 +10,12 @@ const meta = {
   tags: ['autodocs'],
   parameters: { appRouter: true },
   args: { definition: TWO_CRATES },
+  // As a builder shows it: in the page's own gutter, not against the bar.
+  render: (args) => (
+    <StackVertical padding="md">
+      <SokobanPreview {...args} />
+    </StackVertical>
+  ),
 } satisfies Meta<typeof SokobanPreview>;
 export default meta;
 type Story = StoryObj<typeof meta>;

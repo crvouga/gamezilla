@@ -459,3 +459,22 @@ test('when the screen offers a way on, solving says so once and adds none of its
   expect(view.getByTestId('sokoban-solved').textContent).toContain('Solved.');
   expect(view.queryByRole('button', { name: 'More puzzles' })).toBeNull();
 });
+
+// regression: sokoban-close-view-caption-announces-every-move
+test('the close view caption is read on demand, not announced on every move', () => {
+  const start = sokobanPuzzleContent.rules.initial(DENSE_MAXIMUM_BOARD);
+  if (!start.accepted) throw new Error('Fixture board refused');
+  const view = render(() => (
+    <SokobanPlayer
+      definition={DENSE_MAXIMUM_BOARD}
+      state={start.state}
+      disabled={false}
+      onAction={() => undefined}
+      onReturnToLibrary={() => undefined}
+    />
+  ));
+  fireEvent.click(view.getByRole('button', { name: 'Look closer' }));
+  const caption = view.getByTestId('sokoban-outside-view');
+  expect(caption.getAttribute('role')).toBeNull();
+  expect(caption.closest('[aria-live]')).toBeNull();
+});

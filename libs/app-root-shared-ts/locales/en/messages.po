@@ -4331,6 +4331,7 @@ msgid "More for {0}"
 msgstr "More for {0}"
 
 #: libs/sokoban-client-ts/src/sokoban-feedback.tsx
+#: libs/sokoban-client-ts/src/sokoban-player.tsx
 msgid "More puzzles"
 msgstr "More puzzles"
 
@@ -6345,7 +6346,6 @@ msgstr "Return to Friends"
 #: libs/game-puzzle-client-ts/src/content-attempt-screen-view.tsx
 #: libs/game-puzzle-client-ts/src/content-author-screen-view.tsx
 #: libs/game-puzzle-client-ts/src/content-edition-screen-view.tsx
-#: libs/sokoban-client-ts/src/sokoban-player.tsx
 msgid "Return to puzzles"
 msgstr "Return to puzzles"
 
@@ -8211,8 +8211,8 @@ msgid "This puzzle cannot be opened."
 msgstr "This puzzle cannot be opened."
 
 #: libs/sokoban-client-ts/src/sokoban-player.tsx
-msgid "This puzzle cannot be opened. Choose a saved puzzle from your library."
-msgstr "This puzzle cannot be opened. Choose a saved puzzle from your library."
+msgid "This puzzle cannot be opened. Choose another puzzle."
+msgstr "This puzzle cannot be opened. Choose another puzzle."
 
 #: libs/numberlink-client-ts/src/numberlink-player.tsx
 msgid "This puzzle cannot be opened. Return to its overview and choose a saved edition."

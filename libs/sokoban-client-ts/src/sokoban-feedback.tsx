@@ -64,7 +64,7 @@ function Message(props: {
       <Match when={props.feedback?.kind === 'overflow'}>
         <P
           role="status"
-          variant="caption"
+          variant="label"
           tone="warning"
           lines={props.wide ? undefined : 2}
           dataSet={{ testid: 'sokoban-saving', state: 'full' }}
@@ -76,7 +76,7 @@ function Message(props: {
         {(refused) => (
           <P
             role="status"
-            variant="caption"
+            variant="label"
             tone="warning"
             lines={props.wide ? undefined : 2}
             dataSet={{ testid: 'sokoban-refusal', code: refused().code }}

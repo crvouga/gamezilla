@@ -111,7 +111,7 @@ export const Unreadable: Story = {
   play: async ({ canvasElement }) => {
     // regression: sokoban-unreadable-library-action
     const canvas = within(canvasElement);
-    const button = canvas.getByRole('button', { name: 'Return to puzzles' });
+    const button = canvas.getByRole('button', { name: 'More puzzles' });
     const rect = button.getBoundingClientRect();
     await expect(rect.height).toBeGreaterThanOrEqual(44);
     await expect(rect.top).toBeGreaterThanOrEqual(0);
