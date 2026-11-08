@@ -21,10 +21,6 @@
         "@pkgs/sql-root-shared-ts#src",
         "@pkgs/uuid-shared-ts#src"
       ]
-    },
-    "billing:feedback": {
-      "cache": false,
-      "env": ["DATABASE_URL"]
     }
   }
 }
