@@ -79,7 +79,12 @@ async function accessibility(page: Page, info: TestInfo) {
       [
         ...new Set(
           item.nodes.flatMap((node) =>
-            node.any.map((check) => String(check.data?.messageKey ?? check.id))
+            node.any.map((check) => {
+              const data = check.data as { messageKey?: unknown } | null;
+              return typeof data?.messageKey === 'string'
+                ? data.messageKey
+                : check.id;
+            })
           )
         ),
       ],
