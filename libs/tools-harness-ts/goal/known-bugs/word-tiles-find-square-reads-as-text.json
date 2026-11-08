@@ -1,0 +1,4 @@
+{
+  "summary": "The phone board overview's Find a square control was a borderless extra-small text button, so players read it as a caption rather than the way to jump to a square.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/word-tiles/integration.checks.ts"
+}

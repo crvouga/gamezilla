@@ -1,15 +1,17 @@
+/* Reads as the outline button it is, beside Fit and Enlarge; a native button
+   so it can announce the dialog it opens. */
 .locator {
-  display: grid;
-  justify-items: center;
-  gap: var(--ui-space-1);
-
+  display: inline-grid;
+  place-items: center;
   min-width: var(--ui-control-size-md);
   min-height: var(--ui-control-size-md);
-  padding: 0;
-  border: 0;
+  padding: 0 var(--ui-space-3);
+  border: 1px solid var(--ui-color-outline);
+  border-radius: var(--ui-radius-full);
   background: transparent;
   color: var(--ui-color-text);
-  font-size: var(--ui-font-size-xs);
+  font-size: var(--ui-font-size-sm);
+  font-weight: 600;
   cursor: pointer;
 }
 .locator:focus-visible {

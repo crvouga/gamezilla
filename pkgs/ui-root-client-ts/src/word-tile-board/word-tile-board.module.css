@@ -49,8 +49,9 @@
 }
 .board {
   display: grid;
+  /* Row labels 10 to 15 keep their own gutter instead of running into column a. */
   grid-template-columns:
-    minmax(0.75rem, 0.5fr)
+    minmax(1.5rem, 0.6fr)
     repeat(var(--word-tile-columns), minmax(0, 1fr));
   width: 100%;
   max-width: 40rem;
@@ -207,9 +208,11 @@
   flex: none;
 }
 
-/* A complete fitted puzzle board alongside its rack and target at desktop height. */
+/* A complete fitted board alongside its rack, actions and both score rows. It
+   grows with the window's height, leaving room for the chrome above the board
+   and the viewer's own score row below it. */
 .board[data-measure="compact"][data-enlarged="false"] {
-  max-width: 23rem;
+  max-width: clamp(23rem, calc(100dvh - 28.5rem), 32rem);
   margin-inline: auto;
 }
 

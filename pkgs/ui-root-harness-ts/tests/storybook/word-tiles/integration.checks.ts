@@ -1,5 +1,5 @@
 // @io-wall-ok — canonical browser evidence for the Word Tiles board.
-import { test } from '@playwright/test';
+import { expect, type Page, test } from '@playwright/test';
 import {
   auditAccessibility,
   observeInput,
@@ -85,3 +85,66 @@ for (const input of ['mouse', 'touch', 'keyboard'] as const) {
     }
   });
 }
+
+/** Row-label overflow and fitted board width on the 1440x900 desktop opening. */
+async function fittedDesktop(page: Page) {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await openStory(page, 'opening', 'light');
+  return page.evaluate(() => {
+    const board = document.querySelector<HTMLElement>(
+      '[data-testid="custom-game-board"]'
+    );
+    const rows = Array.from(
+      board?.querySelectorAll<HTMLElement>('[data-axis="row"]') ?? []
+    );
+    return {
+      enlarged: board?.dataset['enlarged'],
+      width: board?.getBoundingClientRect().width ?? 0,
+      overflowing: rows
+        .filter((row) => row.scrollWidth > row.clientWidth)
+        .map((row) => row.textContent),
+    };
+  });
+}
+
+// regression: word-tiles-fitted-row-label-overflow
+test('storybook integration: word-tiles 1440 fitted row labels keep their own gutter', async ({
+  page,
+}) => {
+  const fitted = await fittedDesktop(page);
+  expect(fitted.enlarged).toBe('false');
+  expect(fitted.overflowing).toEqual([]);
+});
+
+// regression: word-tiles-desktop-fitted-board-undersized
+test('storybook integration: word-tiles 1440 fitted board grows with the window height', async ({
+  page,
+}) => {
+  const fitted = await fittedDesktop(page);
+  expect(fitted.width).toBeGreaterThanOrEqual(430);
+  await expect(page.getByTestId('custom-game-seat-near')).toBeInViewport({
+    ratio: 1,
+  });
+});
+
+// regression: word-tiles-find-square-reads-as-text
+test('storybook integration: word-tiles find a square looks like a button on the phone', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openStory(page, 'opening', 'light');
+  const find = page.getByRole('button', { name: 'Find a square', exact: true });
+  await expect(find).toHaveAttribute('aria-haspopup', 'dialog');
+  const look = await find.evaluate((element) => {
+    const css = getComputedStyle(element);
+    const box = element.getBoundingClientRect();
+    return {
+      border: Number.parseFloat(css.borderTopWidth),
+      width: box.width,
+      height: box.height,
+    };
+  });
+  expect(look.border).toBeGreaterThan(0);
+  expect(look.height).toBeGreaterThanOrEqual(44);
+  expect(look.width).toBeGreaterThanOrEqual(44);
+});
