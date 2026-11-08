@@ -16,7 +16,9 @@ export async function openBattleStory(
       : route.abort()
   );
   await page.goto(
-    `/iframe.html?id=${id}&viewMode=story&globals=theme:${theme}`
+    // `motion:system`: the browser decides, so videos and timings include the
+    // board's real transitions instead of the preview's forced reduced motion.
+    `/iframe.html?id=${id}&viewMode=story&globals=theme:${theme};motion:system`
   );
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-story-ready',
