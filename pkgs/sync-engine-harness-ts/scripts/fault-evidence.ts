@@ -14,7 +14,6 @@ import { FAULT_PROFILE_NAMES } from '@pkgs/sync-engine-harness-ts/fault-profiles
 import { DEVICES, sweepOnce } from '@pkgs/sync-engine-harness-ts/offline-sweep';
 import { seededWorkload } from '@pkgs/sync-engine-harness-ts/offline-workload';
 
-const MAX_STEPS = 14;
 
 type ProfileSummary = {
   readonly profile: FaultProfileName;
@@ -25,11 +24,14 @@ type ProfileSummary = {
   readonly maxConvergedAfterMs: number;
 };
 
-function seedsArg(): number {
-  const at = process.argv.indexOf('--seeds');
-  const raw = at >= 0 ? Number(process.argv[at + 1]) : 200;
-  return Number.isInteger(raw) && raw > 0 ? raw : 200;
+function intArg(name: string, fallback: number): number {
+  const at = process.argv.indexOf(name);
+  const raw = at >= 0 ? Number(process.argv[at + 1]) : fallback;
+  return Number.isInteger(raw) && raw > 0 ? raw : fallback;
 }
+
+/** `--seeds N` runs per profile; `--steps N` longest workload. */
+const MAX_STEPS = intArg('--steps', 14);
 
 async function summarize(
   profile: FaultProfileName,
@@ -93,7 +95,7 @@ ${body}
 </svg>`;
 }
 
-const seeds = seedsArg();
+const seeds = intArg('--seeds', 200);
 const rows: ProfileSummary[] = [];
 for (const profile of FAULT_PROFILE_NAMES) {
   rows.push(await summarize(profile, seeds));
