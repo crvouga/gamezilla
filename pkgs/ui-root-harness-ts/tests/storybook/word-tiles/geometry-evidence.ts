@@ -93,8 +93,8 @@ export async function recordGeometry(
   });
   // Hosted attachments travel through a relay; a failed fit also prints its measurements.
   if (info.status !== info.expectedStatus)
-    console.log(
-      `[word-tiles-geometry] ${info.title} ${JSON.stringify(geometry)}`
+    process.stdout.write(
+      `[word-tiles-geometry] ${info.title} ${JSON.stringify(geometry)}\n`
     );
   await retainEvidence(info, 'geometry.json', {
     body: JSON.stringify(geometry, null, 2),
