@@ -1,0 +1,4 @@
+{
+  "summary": "A library choice can disappear while a reopened space restores its library, before the new device has painted that destination. A single visibility read rejected this delayed destination. Observe the destination within the existing wait budget, without clicking again, and preserve the original gesture error if it never appears.",
+  "regressionTest": "libs/runtime-harness-ts/tests/content-library-delayed-restoration.test.ts"
+}
