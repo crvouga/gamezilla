@@ -73,6 +73,15 @@ export async function recordQuoridorState(
   });
 }
 
+/** Loads a story once before measurement so later captures start from a warm bundle. */
+export async function warmQuoridorStory(
+  page: Page,
+  story: string,
+  theme: string
+): Promise<void> {
+  await testStoryReady(page, story, theme);
+}
+
 async function testStoryReady(
   page: Page,
   story: string,

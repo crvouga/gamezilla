@@ -1,6 +1,10 @@
 // @io-wall-ok — Playwright owns browser, recordings and cleanup.
 import { expect, test } from '@playwright/test';
-import { observeQuoridorInput, recordQuoridorState } from './evidence';
+import {
+  observeQuoridorInput,
+  recordQuoridorState,
+  warmQuoridorStory,
+} from './evidence';
 import { exerciseQuoridorNativeInput } from './native-input';
 
 test.use({ video: 'on', trace: 'on', hasTouch: true });
@@ -42,10 +46,6 @@ for (const variant of ['classic', 'hill'] as const)
           width,
           height: width === 390 ? 844 : 1024,
         });
-        const cdp = await page.context().newCDPSession(page);
-        await cdp.send('Emulation.setCPUThrottlingRate', {
-          rate: width === 390 ? 4 : 1,
-        });
         const errors: string[] = [];
         page.on('pageerror', (error) => errors.push(error.message));
         await page.route('**/*', (route) =>
@@ -54,6 +54,17 @@ for (const variant of ['classic', 'hill'] as const)
             : route.abort()
         );
         await observeQuoridorInput(page);
+        // Unmeasured warm-up: the first cold Storybook boot under 4x throttling
+        // is bundle start-up, not board work. Every recorded journey runs warm.
+        await warmQuoridorStory(
+          page,
+          `screens-games-quoridor-${variant}--opening`,
+          theme
+        );
+        const cdp = await page.context().newCDPSession(page);
+        await cdp.send('Emulation.setCPUThrottlingRate', {
+          rate: width === 390 ? 4 : 1,
+        });
         for (const journey of journeys[variant])
           await test.step(`${variant}: ${journey}`, async () => {
             await recordQuoridorState(
