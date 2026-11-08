@@ -1,8 +1,9 @@
 // @io-wall-ok — Playwright owns browser, recordings and cleanup.
 import { expect, test } from '@playwright/test';
 import { observeQuoridorInput, recordQuoridorState } from './evidence';
+import { exerciseQuoridorNativeInput } from './native-input';
 
-test.use({ video: 'on', trace: 'on' });
+test.use({ video: 'on', trace: 'on', hasTouch: true });
 
 const journeys = {
   classic: [
@@ -58,6 +59,8 @@ for (const variant of ['classic', 'hill'] as const)
               `screens-games-quoridor-${variant}--${journey}`,
               theme
             );
+            if (journey === 'opening')
+              await exerciseQuoridorNativeInput(page, info);
           });
         expect(errors).toEqual([]);
       });
