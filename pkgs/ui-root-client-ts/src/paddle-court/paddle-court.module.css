@@ -141,10 +141,12 @@
   margin-inline: auto;
 }
 /* Focusing the court or a paddle's slider scrolls only as far as keeps the
-   scoreboard above it in view. */
+   scoreboard above it in view, and leaves the court's lower edge clear of
+   the window's (a scroll stops on a whole pixel, the court may not). */
 .court,
 .half * {
   scroll-margin-block-start: var(--paddle-court-score-block);
+  scroll-margin-block-end: var(--ui-space-2);
 }
 /* Over the court, outside the play: each side's points at its own end. */
 .scoreboard {
