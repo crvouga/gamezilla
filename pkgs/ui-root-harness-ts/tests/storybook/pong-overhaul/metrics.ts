@@ -77,7 +77,8 @@ export async function startPongMetrics(page: Page) {
     });
     for (const type of ['keydown', 'pointermove']) {
       window.addEventListener(type, handlerBegin, { capture: true });
-      window.addEventListener(type, handlerEnd);
+      // Solid delegates to document; Storybook's own window key handler follows.
+      document.addEventListener(type, handlerEnd);
     }
     court.addEventListener('keydown', input);
     court.addEventListener('pointermove', input);
@@ -94,7 +95,7 @@ export async function startPongMetrics(page: Page) {
       court.removeEventListener('pointermove', input);
       for (const type of ['keydown', 'pointermove']) {
         window.removeEventListener(type, handlerBegin, { capture: true });
-        window.removeEventListener(type, handlerEnd);
+        document.removeEventListener(type, handlerEnd);
       }
       return samples;
     };
@@ -124,7 +125,7 @@ export async function finishPongMetrics(
         browser: page.context().browser()?.version(),
         samples,
         limits:
-          'Chromium component fixture. handlers brackets page input handling between window capture and bubble listeners (Solid delegates to document). inputToPaddle is input to the first controlled-paddle position mutation, before paint. Two-animation-frame proxy excludes hardware touch latency, display scanout, continuous production simulation and network latency. CPU throttling is not a physical low-end device.',
+          'Chromium component fixture. handlers brackets page input handling from a window capture listener to a document bubble listener after the delegated Solid handler, excluding the Storybook window key forwarding; the Storybook highlight addon is disabled because production pages never run it. inputToPaddle is input to the first controlled-paddle position mutation, before paint. Two-animation-frame proxy excludes hardware touch latency, display scanout, continuous production simulation and network latency. CPU throttling is not a physical low-end device.',
       },
       null,
       2

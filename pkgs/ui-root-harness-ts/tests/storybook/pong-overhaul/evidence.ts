@@ -6,6 +6,13 @@ import { contrastDiagnostic } from './contrast-diagnostic';
 export async function openPong(page: Page, state: string, theme: string) {
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
+  // Storybook's highlight addon rescans every element's computed style on each
+  // DOM change in the story; no player's page runs it, so it stays off here.
+  await page.addInitScript(() => {
+    (
+      globalThis as { __STORYBOOK_HIGHLIGHT_INITIALIZED?: boolean }
+    ).__STORYBOOK_HIGHLIGHT_INITIALIZED = true;
+  });
   await page.route('**/*', (route) =>
     new URL(route.request().url()).hostname === '127.0.0.1'
       ? route.continue()
