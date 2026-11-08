@@ -1,14 +1,16 @@
 // @io-wall-ok — hosted evidence written to the job log, read back from the run itself.
 import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
-import type { Page } from '@playwright/test';
+import { type Page, test } from '@playwright/test';
 
 /**
- * A focused Storybook diagnostic run (the workflow sets a story pattern):
- * only then does media go to the log. The PR gate logs summaries alone.
+ * A diagnostic run that authors references (`--update-snapshots`, used only
+ * by the focused Storybook diagnostic job): only then does media go to the
+ * log, once per run. The PR gate compares and logs summaries alone. (Turbo
+ * does not pass the job's story pattern through to the tests.)
  */
 export const diagnosticRun = (): boolean =>
-  (process.env['STORYBOOK_PATTERN'] ?? '') !== '';
+  test.info().config.updateSnapshots !== 'none';
 
 /**
  * One compact JSON summary line, e.g. `PONG_TIMING {...}`. Hosted logs mask a
