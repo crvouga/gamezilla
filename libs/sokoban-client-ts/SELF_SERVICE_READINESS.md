@@ -18,4 +18,4 @@ covered by the Sokoban harness. Serial Sokoban tests passed; no manual
 correctness testing was used. This document does not claim passing full
 verification or live persistence evidence. Current revision, actual hosted
 results, independent ratings and captured artifacts belong to
-[PR 287](https://github.com/crvouga/gamezilla/pull/287).
+PR #287 in this repository.
