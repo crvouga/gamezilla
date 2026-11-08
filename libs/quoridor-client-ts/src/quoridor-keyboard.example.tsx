@@ -24,7 +24,11 @@ export async function cancelQuoridorWallWithKeyboard(
   await expect(
     canvas.getByTestId('custom-game-board-wall-commit')
   ).toBeEnabled();
-  await userEvent.click(canvas.getByTestId('custom-game-board-mode-v'));
+  const vertical = canvas.getByTestId('custom-game-board-mode-v');
+  vertical.focus();
+  await userEvent.keyboard('{Enter}');
+  await expect(vertical).toHaveFocus();
+  await expect(vertical).toHaveAttribute('aria-pressed', 'true');
   await expect(
     canvas.getByTestId('custom-game-board-action-d4v')
   ).toHaveAttribute('data-preview-edge-right', 'true');

@@ -4,7 +4,7 @@ import { Button } from '@pkgs/ui-root-client-ts/button';
 import type { CellGridCell } from '@pkgs/ui-root-client-ts/cell-grid-board';
 import { Select } from '@pkgs/ui-root-client-ts/select';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
-import { For, type JSX } from 'solid-js';
+import { Index, type JSX } from 'solid-js';
 import { type QuoridorTool, quoridorBoundary } from './quoridor-board-cells';
 
 /** The same tools in every host, directly beside the working board. */
@@ -18,23 +18,23 @@ export function QuoridorBoardTools(props: {
       wrap
       dataSet={{ testid: `${props.testId}-tools` }}
     >
-      <For each={props.actions}>
+      <Index each={props.actions}>
         {(action) => (
           <Button
-            title={action.id === 'mode-move' ? t`Move` : action.label}
-            aria-label={action.label}
-            disabled={!action.enabled}
-            aria-pressed={action.pressed}
+            title={action().id === 'mode-move' ? t`Move` : action().label}
+            aria-label={action().label}
+            disabled={!action().enabled}
+            aria-pressed={action().pressed}
             variant={
-              action.pressed || action.emphasis === 'primary'
+              action().pressed || action().emphasis === 'primary'
                 ? 'solid'
                 : 'ghost'
             }
-            dataSet={{ testid: `${props.testId}-${action.id}` }}
-            onClick={action.run}
+            dataSet={{ testid: `${props.testId}-${action().id}` }}
+            onClick={action().run}
           />
         )}
-      </For>
+      </Index>
     </StackHorizontal>
   );
 }

@@ -89,3 +89,22 @@ test('a host reset clears the proposed wall even when the position is unchanged'
     view.unmount();
   }
 });
+
+// regression: quoridor-mode-switch-loses-keyboard-focus
+test('changing wall orientation preserves the focused tool button in both variants', () => {
+  for (const mode of ['classic', 'hill'] as const) {
+    const { view } = mountBoard(mode);
+    const vertical = view.getByTestId('lifecycle-mode-v');
+    vertical.focus();
+    fireEvent.click(vertical);
+    expect(view.getByTestId('lifecycle-mode-v')).toBe(vertical);
+    expect(vertical.ownerDocument.activeElement).toBe(vertical);
+    expect(vertical.getAttribute('aria-pressed')).toBe('true');
+    expect(
+      view
+        .getByTestId('lifecycle-action-d4v')
+        .getAttribute('data-preview-edge-right')
+    ).toBe('true');
+    view.unmount();
+  }
+});
