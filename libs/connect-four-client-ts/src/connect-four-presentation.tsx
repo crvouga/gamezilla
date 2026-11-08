@@ -33,6 +33,7 @@ export const connectFourPresentation: GameClientPresentation = {
   // A move is its column's number: the record says so beside it.
   moveHeading: () => t`Column`,
   frame: {
+    compactInset: 'narrow',
     drawOffers: true,
     players: fixedPlayers(2),
     options: [],
