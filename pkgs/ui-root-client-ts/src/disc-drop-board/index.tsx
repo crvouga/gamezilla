@@ -71,11 +71,7 @@ export function DiscDropBoard(props: DiscDropBoardProps): JSX.Element {
   // The prompt is kept while someone is to move, never on a preview.
   const promptLine = (): boolean => props.prompt !== undefined && !thumbnail();
   const [preview, setPreview] = createSignal<number | null>(null);
-  const [focused, setFocused] = createSignal<number | null>(null);
-  const focus = (column: number | null): void => {
-    setFocused(column);
-    if (column !== null) setPreview(null);
-  };
+  const { focused, focus, tabStop } = createColumnFocus(() => setPreview(null));
   const columns = createMemo(() =>
     Array.from({ length: props.columns }, (_, n) => n)
   );
@@ -112,7 +108,10 @@ export function DiscDropBoard(props: DiscDropBoardProps): JSX.Element {
       {...dataAttrs({ component: 'DiscDropBoard' })}
       role="group"
       aria-label={props.label}
-      aria-describedby={prompting() && promptLine() ? promptId : undefined}
+      aria-describedby={describedBy(
+        prompting() && promptLine() ? promptId : undefined,
+        !thumbnail() && props.keyboardHelp ? keyboardHelpId : undefined
+      )}
       data-testid={props.testId}
       data-preview-cell={target() ?? -1}
       data-cells={JSON.stringify(props.cells)}
@@ -128,15 +127,11 @@ export function DiscDropBoard(props: DiscDropBoardProps): JSX.Element {
           {promptText()}
         </p>
       </Show>
-      <Show when={!thumbnail() && props.keyboardHelp}>
-        <p
-          id={keyboardHelpId}
-          class={`${styles['keyboardHelp']} text textCaption`}
-          data-testid={`${props.testId}-keyboard-help`}
-        >
-          {props.keyboardHelp}
-        </p>
-      </Show>
+      <KeyboardHelp
+        id={keyboardHelpId}
+        text={thumbnail() ? undefined : props.keyboardHelp}
+        testId={props.testId}
+      />
       <For each={columns()}>
         {(column) => (
           <Column
@@ -147,12 +142,50 @@ export function DiscDropBoard(props: DiscDropBoardProps): JSX.Element {
             preview={setPreview}
             focus={focus}
             navigate={navigate}
-            keyboardHelpId={
-              !thumbnail() && props.keyboardHelp ? keyboardHelpId : undefined
-            }
+            tabStop={tabStop() === column}
           />
         )}
       </For>
     </div>
   );
+}
+
+/** The board's keyboard controls, on a line whose space is always kept. */
+function KeyboardHelp(props: {
+  id: string;
+  text: string | undefined;
+  testId: string;
+}): JSX.Element {
+  return (
+    <Show when={props.text}>
+      <p
+        id={props.id}
+        class={`${styles['keyboardHelp']} text textCaption`}
+        data-testid={`${props.testId}-keyboard-help`}
+      >
+        {props.text}
+      </p>
+    </Show>
+  );
+}
+
+function describedBy(...ids: (string | undefined)[]): string | undefined {
+  return ids.filter(Boolean).join(' ') || undefined;
+}
+
+/**
+ * The column with keyboard focus, and the board's one Tab stop: the column
+ * last focused keeps it, and the arrows, Home and End move between columns.
+ */
+function createColumnFocus(clearPreview: () => void) {
+  const [focused, setFocused] = createSignal<number | null>(null);
+  const [tabStop, setTabStop] = createSignal(0);
+  const focus = (column: number | null): void => {
+    setFocused(column);
+    if (column !== null) {
+      clearPreview();
+      setTabStop(column);
+    }
+  };
+  return { focused, focus, tabStop };
 }

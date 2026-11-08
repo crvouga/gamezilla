@@ -1,0 +1,4 @@
+{
+  "summary": "The Connect Four narrow page inset applied across the whole compact layout, so at 390 px the page lost its 16 px edge without any target-size gain. Only widths below 360 px now give the board more room, and only the board reaches into the gutter.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/connect-four/inset-390/integration.checks.ts"
+}

@@ -56,13 +56,9 @@ type Story = StoryObj<typeof meta>;
 /** A new game: Red moves first, so the person playing Red can drop anywhere. */
 export const Opening: Story = {
   play: async ({ canvasElement }) => {
-    const column = within(canvasElement).getByTestId(
-      'custom-game-board-column-1'
-    );
-    await expect(column).toHaveAccessibleDescription(
-      /Arrow keys choose a column/
-    );
-    await expect(column).toHaveAccessibleDescription(/Enter or Space drops/);
+    const board = within(canvasElement).getByTestId('custom-game-board');
+    await expect(board).toHaveAccessibleDescription(/← → Home End choose/);
+    await expect(board).toHaveAccessibleDescription(/Enter or Space drops/);
   },
 };
 

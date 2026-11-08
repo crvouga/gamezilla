@@ -665,6 +665,14 @@ msgstr "{winner} wins by {reason}."
 msgid "{winners} win by {reason}."
 msgstr "{winners} win by {reason}."
 
+#: libs/connect-four-client-ts/src/connect-four-board.tsx
+msgid "← → Home End choose · Enter or Space drops"
+msgstr "← → Home End choose · Enter or Space drops"
+
+#: libs/connect-four-client-ts/src/connect-four-board.tsx
+msgid "← → Home End inspect columns"
+msgstr "← → Home End inspect columns"
+
 #: pkgs/ui-root-client-ts/src/command-palette-hint/index.tsx
 msgid "↑ ↓ navigate · ↵ run · Esc close · Tab next"
 msgstr "↑ ↓ navigate · ↵ run · Esc close · Tab next"
@@ -1992,6 +2000,11 @@ msgstr "Color {0}"
 #: libs/connect-four-client-ts/src/connect-four-presentation.tsx
 msgid "Column"
 msgstr "Column"
+
+#. placeholder {0}: column + 1
+#: libs/connect-four-client-ts/src/connect-four-board.tsx
+msgid "Column {0} is full. Choose another column."
+msgstr "Column {0} is full. Choose another column."
 
 #. placeholder {0}: column + 1
 #: libs/connect-four-client-ts/src/connect-four-board.tsx

@@ -68,10 +68,14 @@
 .column[aria-disabled="true"] {
   cursor: default;
 }
-/* On the narrowest phones, spend horizontal space on the seven hit areas.
-   The shared frame supplies its explicit compact inset; no overflow/overlap. */
+/* On the narrowest phones, spend horizontal space on the seven hit areas:
+   only the board reaches into the page gutter (16px down to 4px each side),
+   so the rest of the page keeps its edge at every width. */
 @media (max-width: 359px) {
   .board {
+    margin-inline: calc(var(--ui-space-xs) - var(--ui-space-lg));
+    width: calc(100% + 2 * (var(--ui-space-lg) - var(--ui-space-xs)));
+    max-width: none;
     padding-inline: var(--ui-space-hairline);
     column-gap: 0;
   }
@@ -112,17 +116,23 @@
   color: var(--ui-color-text);
   text-align: center;
 }
+/* Keyboard controls, shown while a column has keyboard focus. Its one line
+   is always reserved, so showing it never moves the board or what is below. */
 .keyboardHelp {
-  display: none;
+  visibility: hidden;
   grid-column: 1 / -1;
   grid-row: 3;
+  min-height: 1lh;
   margin: 0;
   padding-block: var(--ui-space-1) 0;
+  overflow: hidden;
   color: var(--ui-color-text);
   text-align: center;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 .board:has(.column:focus-visible) .keyboardHelp {
-  display: block;
+  visibility: visible;
 }
 /* A column's number, quiet; the column pointed at rings it in the dropping
    side's colour, a hollow disc waiting in the drop slot above the column:
@@ -206,9 +216,11 @@
   --disc-preview: var(--ui-color-warning);
 }
 /* Winning rings emphasize the connected four without fading the final position. */
+/* Drawn inside the cell, so the rings never touch a neighbouring disc or
+   the focused column's outline. */
 .cell[data-winning="true"] {
   outline: 3px solid var(--ui-color-text);
-  outline-offset: 2px;
+  outline-offset: -3px;
 }
 /* The last disc played falls the column's height under gravity: slow at
    the top, fastest as it lands. */

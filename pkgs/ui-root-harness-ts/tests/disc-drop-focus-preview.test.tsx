@@ -16,7 +16,7 @@ function setup(cells = Array.from({ length: 42 }, () => 0)) {
       interactive
       label="Connect Four"
       prompt="Choose a column"
-      keyboardHelp="Arrow keys choose a column. Home and End go to the edges. Enter or Space drops."
+      keyboardHelp="← → Home End choose · Enter or Space drops"
       fullColumnPrompt={(column) =>
         `Column ${column + 1} is full. Choose another column.`
       }
@@ -30,13 +30,13 @@ function setup(cells = Array.from({ length: 42 }, () => 0)) {
 }
 
 // regression: connect-four-keyboard-controls-undiscoverable
-test('focused columns describe their keyboard controls alongside their contents', () => {
+test('the board describes its keyboard controls and each column declares them', () => {
   const view = setup();
   const column = view.getByTestId('column-0');
   column.focus();
-  expect(column).toHaveAccessibleDescription(/Arrow keys choose a column/);
-  expect(column).toHaveAccessibleDescription(/Home and End/);
-  expect(column).toHaveAccessibleDescription(/Enter or Space drops/);
+  expect(view.getByTestId('board')).toHaveAccessibleDescription(
+    /← → Home End choose · Enter or Space drops/
+  );
   expect(column).toHaveAttribute(
     'aria-keyshortcuts',
     'ArrowLeft ArrowRight Home End Enter Space'
@@ -120,4 +120,32 @@ test('the landing preview restores any focused column after hover or cancellatio
       }
     )
   );
+});
+
+// regression: connect-four-keyboard-help-repeated-per-column
+test('keyboard help is described once on the board, not on every column', () => {
+  const view = setup();
+  for (let column = 0; column < 7; column++) {
+    const button = view.getByTestId(`column-${column}`);
+    expect(button).not.toHaveAccessibleDescription(/Enter or Space drops/);
+  }
+  expect(view.getByTestId('board')).toHaveAccessibleDescription(
+    /Enter or Space drops/
+  );
+  view.unmount();
+});
+
+// regression: connect-four-seven-tab-stops
+test('the board is one Tab stop that follows the column last focused', () => {
+  const view = setup();
+  const stops = () =>
+    Array.from({ length: 7 }, (_, column) =>
+      view.getByTestId(`column-${column}`).getAttribute('tabindex')
+    );
+  expect(stops()).toEqual(['0', '-1', '-1', '-1', '-1', '-1', '-1']);
+  view.getByTestId('column-0').focus();
+  fireEvent.keyDown(view.getByTestId('column-0'), { key: 'End' });
+  expect(document.activeElement).toBe(view.getByTestId('column-6'));
+  expect(stops()).toEqual(['-1', '-1', '-1', '-1', '-1', '-1', '0']);
+  view.unmount();
 });
