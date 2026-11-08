@@ -1,11 +1,12 @@
 // @io-wall-ok — canonical browser evidence for the Word Tiles board.
-import { expect, test } from '@playwright/test';
+import { test } from '@playwright/test';
 import {
   auditAccessibility,
   observeInput,
   openStory,
   recordEvidence,
 } from './evidence';
+import { playWord } from './native-input';
 
 test.use({ video: 'on', trace: 'on' });
 test.beforeEach(async ({ page }) => observeInput(page));
@@ -59,38 +60,26 @@ for (const theme of ['light', 'dark']) {
 for (const input of ['mouse', 'touch', 'keyboard'] as const) {
   test.describe(`native ${input}`, () => {
     test.use({ hasTouch: input === 'touch' });
-    test(`storybook integration: word-tiles native ${input} placement`, async ({
-      page,
-    }, info) => {
-      const session = await page.context().newCDPSession(page);
-      await session.send('Emulation.setCPUThrottlingRate', { rate: 4 });
-      await openStory(page, 'opening', 'light');
-      for (const [tile, cell] of [
-        ['11', 'g8'],
-        ['0', 'h8'],
-        ['82', 'i8'],
-      ] as const) {
-        const rack = page.getByTestId(`custom-game-board-rack-${tile}`);
-        const target = page.getByTestId(`custom-game-board-cell-${cell}`);
-        if (input === 'keyboard') {
-          await rack.focus();
-          await rack.press('Enter');
-          await target.focus();
-          await target.press('Enter');
-        } else if (input === 'touch') {
-          await rack.tap();
-          await target.tap();
-        } else {
-          await rack.click();
-          await target.click();
-        }
-        await expect(target).toHaveAttribute('data-state', 'tentative');
-      }
-      await expect(page.getByTestId('custom-game-board-submit')).toBeEnabled();
-      await expect(page.getByTestId('custom-game-board-status')).toContainText(
-        '10'
-      );
-      await auditAccessibility(page, info);
-    });
+    for (const players of ['two', 'three', 'four']) {
+      test(`storybook integration: word-tiles native ${input} ${players} players`, async ({
+        page,
+      }, info) => {
+        const session = await page.context().newCDPSession(page);
+        await session.send('Emulation.setCPUThrottlingRate', { rate: 4 });
+        await info.attach('conditions.json', {
+          body: JSON.stringify({
+            cpuRate: 4,
+            input,
+            players,
+            viewport: page.viewportSize(),
+            theme: 'light',
+          }),
+          contentType: 'application/json',
+        });
+        await openStory(page, `${players}-player-match`, 'light');
+        await playWord(page, input);
+        await auditAccessibility(page, info);
+      });
+    }
   });
 }

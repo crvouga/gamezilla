@@ -14,7 +14,8 @@ export async function observeInput(page: Page): Promise<void> {
     for (const kind of ['pointerup', 'keydown']) {
       document.addEventListener(
         kind,
-        () => {
+        (event) => {
+          if (!event.isTrusted) return;
           const start = performance.now();
           requestAnimationFrame(() => {
             samples.push({

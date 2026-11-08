@@ -119,6 +119,23 @@ export const Opening: Story = {
   },
 };
 
+/** A live authority fixture for native input, scoring and turn settlement. */
+export const TwoPlayerMatch: Story = {
+  render: (args, context) => renderTable(matchJourney(args), context),
+};
+
+/** Three players use the same production board and authority as two players. */
+export const ThreePlayerMatch: Story = {
+  args: { position: encodePosition(newPosition(3, STORY_LEXICON_KEY)) },
+  render: (args, context) => renderTable(matchJourney(args), context),
+};
+
+/** Four players retain private racks while the accepted move updates every score. */
+export const FourPlayerMatch: Story = {
+  args: { position: encodePosition(newPosition(4, STORY_LEXICON_KEY)) },
+  render: (args, context) => renderTable(matchJourney(args), context),
+};
+
 /** Mid-game on the person's turn: words on the board, a fresh rack. */
 export const YourTurn: Story = {
   args: { position: MID_GAME, hand: LATER_RACK },
