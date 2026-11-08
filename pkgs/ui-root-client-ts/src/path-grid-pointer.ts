@@ -44,6 +44,7 @@ export function createPathGridPointer(
   element: () => HTMLDivElement | undefined
 ) {
   let active: number | null = null;
+  const capturedPointer = (): number | null => active;
   let previous: Point | null = null;
   let traced = false;
   const point = (event: PointerEvent): Point | null => {
@@ -67,7 +68,10 @@ export function createPathGridPointer(
     if (active !== event.pointerId || props.disabled === true) return;
     event.preventDefault();
     const next = point(event);
-    if (next === null) return cancel();
+    if (next === null) {
+      cancel();
+      return;
+    }
     if (previous === null) return;
     for (const cell of pathGridSegment(previous, next, props)) {
       traced = true;
@@ -103,9 +107,12 @@ export function createPathGridPointer(
     up(event: PointerEvent): void {
       if (active !== event.pointerId) return;
       move(event);
-      if (active === null) return;
-      if (!traced) return cancel();
-      const pointer = active;
+      const pointer = capturedPointer();
+      if (pointer === null) return;
+      if (!traced) {
+        cancel();
+        return;
+      }
       active = null;
       previous = null;
       element()?.releasePointerCapture(pointer);
