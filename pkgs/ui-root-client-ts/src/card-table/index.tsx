@@ -542,6 +542,11 @@ export function CardTable(props: CardTableProps): JSX.Element {
   );
   // Why the last card pressed was refused, until the table moves on.
   const [refusal, setRefusal] = createSignal('');
+  const reasons = createMemo(() => [
+    ...new Set(
+      props.hand.flatMap((card) => (card.refusal ? [card.refusal] : []))
+    ),
+  ]);
   createEffect(
     on(
       () => props.center,
@@ -602,19 +607,23 @@ export function CardTable(props: CardTableProps): JSX.Element {
       >
         <p class={styles['guidance']}>{props.handInstruction}</p>
       </Show>
-      <For
-        each={[
-          ...new Set(
-            props.hand.flatMap((card) => (card.refusal ? [card.refusal] : []))
-          ),
-        ]}
-      >
-        {(reason) => <p class={styles['guidance']}>× {reason}</p>}
+      <For each={reasons()}>
+        {(reason) => (
+          <p
+            class={styles['guidance']}
+            data-emphasis={String(reason === refusal())}
+          >
+            × {reason}
+          </p>
+        )}
       </For>
       <Hand {...props} onRefused={setRefusal} />
+      {/* A refused press is always announced, but a reason already shown
+          above the hand is emphasised there rather than printed twice. */}
       <p
         class={styles['refusal']}
         role="status"
+        data-spoken-only={String(reasons().includes(refusal()))}
         data-testid={`${props.testId}-refusal`}
       >
         {refusal()}

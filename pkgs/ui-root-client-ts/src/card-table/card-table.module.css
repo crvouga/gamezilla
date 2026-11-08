@@ -427,8 +427,26 @@ button.card:focus-visible {
   font-size: var(--ui-font-size-sm);
 }
 /* Empty until a card is refused: it takes no row of its own then. */
-.refusal:empty {
+.refusal:empty,
+.refusal[data-spoken-only="true"] {
   margin-top: calc(-1 * var(--ui-space-3));
+}
+.refusal[data-spoken-only="true"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+/* The rule the person just ran into, shown once and made prominent. */
+.guidance[data-emphasis="true"] {
+  font-weight: var(--ui-font-weight-semibold);
+  text-decoration: underline;
+  text-decoration-color: var(--ui-color-warning);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
 }
 @media (prefers-reduced-motion: reduce) {
   .card {
