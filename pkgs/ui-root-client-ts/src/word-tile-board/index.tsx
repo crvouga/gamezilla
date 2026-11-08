@@ -7,6 +7,7 @@ import {
   type JSX,
   onCleanup,
   Show,
+  untrack,
 } from 'solid-js';
 import { cellGridStep } from '../cell-grid-board/index';
 import { createMediaQuery } from '../media-query';
@@ -73,30 +74,50 @@ function focusCell(root: HTMLDivElement | undefined, index: number): void {
   });
 }
 
+function boardKeyboard(
+  board: WordTileBoardProps,
+  onFocus: (index: number) => void
+): (event: KeyboardEvent, index: number) => void {
+  return (event, index) => {
+    const next = cellGridStep(event, index, {
+      columns: board.columnLabels.length,
+      rows: board.rowLabels.length,
+    });
+    if (next === null) return;
+    event.preventDefault();
+    onFocus(next);
+  };
+}
+
 function createPrecisionCenter(
   viewport: () => HTMLDivElement | undefined,
   root: () => HTMLDivElement | undefined,
   enlarged: () => boolean,
   focusIndex: () => number
-): void {
+): () => void {
+  const center = () => {
+    const element = viewport();
+    if (!element || !enlarged()) return;
+    const cell = root()?.querySelector<HTMLElement>(
+      `[data-index="${focusIndex()}"]`
+    );
+    if (!cell) return;
+    const bounds = cell.getBoundingClientRect();
+    const clip = element.getBoundingClientRect();
+    element.scrollLeft +=
+      bounds.left - clip.left - (clip.width - bounds.width) / 2;
+    element.scrollTop +=
+      bounds.top - clip.top - (clip.height - bounds.height) / 2;
+  };
   createEffect(() => {
     const element = viewport();
     if (!element || !enlarged()) return;
-    const center = () => {
-      const cell = root()?.querySelector<HTMLElement>(
-        `[data-index="${focusIndex()}"]`
-      );
-      if (!cell) return;
-      const bounds = cell.getBoundingClientRect();
-      const clip = element.getBoundingClientRect();
-      element.scrollLeft +=
-        bounds.left - clip.left - (clip.width - bounds.width) / 2;
-      element.scrollTop +=
-        bounds.top - clip.top - (clip.height - bounds.height) / 2;
-    };
-    center();
+    // Center on zoom or resize, never when a pointer focuses a visible cell.
+    // Moving that cell between press and release can change the hit target.
+    untrack(center);
     onCleanup(observeElementResize(element, center));
   });
+  return center;
 }
 
 /**
@@ -122,17 +143,16 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
   const cells = createMemo(() => props.cells);
   let root: HTMLDivElement | undefined;
   const [viewport, setViewport] = createSignal<HTMLDivElement>();
-  createPrecisionCenter(viewport, () => root, enlarged, focusIndex);
-  const onKey = (event: KeyboardEvent, index: number): void => {
-    const next = cellGridStep(event, index, {
-      columns: props.columnLabels.length,
-      rows: props.rowLabels.length,
-    });
-    if (next === null) return;
-    event.preventDefault();
+  const center = createPrecisionCenter(
+    viewport,
+    () => root,
+    enlarged,
+    focusIndex
+  );
+  const onKey = boardKeyboard(props, (next) => {
     setFocusIndex(next);
     focusCell(root, next);
-  };
+  });
   const resize = (value: boolean): void => {
     setEnlarged(value);
     focusCell(root, focusIndex());
@@ -198,6 +218,7 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
               if (index < 0) return;
               setFocusIndex(index);
               focusCell(root, index);
+              center();
             }}
           />
         </Show>
