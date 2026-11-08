@@ -23,7 +23,12 @@ export async function openBattleStory(
     'true'
   );
   // Recorded before the play verdict, so an overflow failure shows its boxes.
-  if (info) await captureBattleLayout(page, info);
+  if (info) {
+    const layout = await captureBattleLayout(page, info);
+    // The log carries the boxes too: retained artifacts need bucket access.
+    if (layout.storyError !== null)
+      throw new Error(`${layout.storyError}\n${JSON.stringify(layout)}`);
+  }
   await expect(page.locator('#storybook-root')).not.toHaveAttribute(
     'data-story-status',
     'error'
@@ -93,6 +98,7 @@ export async function captureBattleLayout(page: Page, info: TestInfo) {
     body: JSON.stringify(layout),
     contentType: 'application/json',
   });
+  return layout;
 }
 
 /**
