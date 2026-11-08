@@ -22,6 +22,16 @@ export type {
   PathGridTraceCancellation,
 } from '../path-grid-types';
 
+/**
+ * Splits a label into at most two balanced lines, so the longest allowed
+ * label stays large enough to read inside one cell.
+ */
+export function endpointLines(label: string): readonly string[] {
+  if (label.length <= 4) return [label];
+  const split = Math.ceil(label.length / 2);
+  return [label.slice(0, split), label.slice(split)];
+}
+
 function PathCell(props: {
   board: PathGridBoardProps;
   index: number;
@@ -56,11 +66,27 @@ function PathCell(props: {
       }}
     >
       <Show when={props.endpoint}>
-        {(endpoint) => (
-          <span class={styles['endpoint']} aria-hidden="true">
-            {endpoint().label}
-          </span>
-        )}
+        {(endpoint) => {
+          const lines = createMemo(() => endpointLines(endpoint().label));
+          return (
+            <span
+              class={styles['endpoint']}
+              aria-hidden="true"
+              data-shape={endpoint().label.length > 2 ? 'tag' : 'ring'}
+              style={{
+                '--endpoint-lines': lines().length,
+                '--endpoint-columns': Math.max(
+                  ...lines().map((line) => line.length)
+                ),
+                '--endpoint-glyph': /^\d+$/.test(endpoint().label) ? 0.6 : 0.74,
+              }}
+            >
+              <For each={lines()}>
+                {(line) => <span class={styles['endpoint-line']}>{line}</span>}
+              </For>
+            </span>
+          );
+        }}
       </Show>
     </button>
   );

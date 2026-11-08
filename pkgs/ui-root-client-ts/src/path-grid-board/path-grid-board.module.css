@@ -96,23 +96,47 @@
   outline-offset: calc(-1 * calc(2 * var(--ui-space-hairline)));
   z-index: 1;
 }
-/* Paints over the paths, which paint over the grid lines (`.lines`). */
+/* Paints over the paths, which paint over the grid lines (`.lines`).
+   Every size follows the cell (`--path-cell`), so a 20 × 20 board on a
+   phone keeps its labels inside their cells. A label sizes to whichever
+   is tightest: its preferred reading size, its longest line's width or
+   its line count. Labels up to two characters are rings; longer ones are tags,
+   which give their text the cell's full width. */
 .endpoint {
+  --path-cell: calc(100cqw / var(--path-columns));
+  --endpoint-border: min(var(--ui-space-1), calc(var(--path-cell) * 0.07));
+  --endpoint-text-width: calc(var(--path-cell) * 0.62);
   position: relative;
   z-index: 2;
   display: grid;
-  place-items: center;
-  width: 72%;
-  height: 72%;
-  border: var(--ui-space-1) solid var(--path-color);
+  place-content: center;
+  justify-items: center;
+  width: 84%;
+  height: 84%;
+  box-sizing: border-box;
+  border: var(--endpoint-border) solid var(--path-color);
   border-radius: var(--ui-radius-full);
   background: var(--ui-color-background);
   color: var(--ui-color-text);
-  /* The number grows with its cell, so a big board's endpoints read. */
-  font-size: max(var(--ui-font-size-sm), calc(30cqw / var(--path-columns)));
-  line-height: var(--ui-line-height-tight);
+  font-size: min(
+    max(var(--ui-font-size-sm), calc(var(--path-cell) * 0.3)),
+    calc(
+      var(--endpoint-text-width) /
+      (var(--endpoint-columns) * var(--endpoint-glyph))
+    ),
+    calc(var(--path-cell) * 0.6 / (var(--endpoint-lines) * 1.1))
+  );
+  line-height: 1.1;
   font-weight: var(--ui-font-weight-semibold);
+  font-variant-numeric: tabular-nums;
   pointer-events: none;
+}
+.endpoint[data-shape="tag"] {
+  --endpoint-text-width: calc(var(--path-cell) * 0.72);
+  border-radius: var(--ui-radius-control);
+}
+.endpoint-line {
+  white-space: nowrap;
 }
 /* A joined pair fills its endpoints with the path's colour: done reads as
    more solid than open, by fill and not by colour alone. */

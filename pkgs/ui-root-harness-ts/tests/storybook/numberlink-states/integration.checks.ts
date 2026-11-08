@@ -78,6 +78,7 @@ for (const width of [320, 768, 1440])
             `1/${columns} pairs connected`
           );
           await accessibility(page, info);
+          // regression: numberlink-endpoint-labels-overflow-cells
           expect(geometry.every((cell) => cell.labelFits)).toBe(true);
         });
 
