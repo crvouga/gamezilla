@@ -1,5 +1,16 @@
 import { expect, within } from 'storybook/test';
 
+/** A short name for a failure message: test id, accessible name or tag. */
+function describe(element: Element | null): string {
+  if (element === null) return 'nothing';
+  const html = element as HTMLElement;
+  return (
+    html.dataset['testid'] ??
+    html.getAttribute('aria-label') ??
+    `${element.tagName.toLowerCase()} "${element.textContent.trim().slice(0, 24)}"`
+  );
+}
+
 /** Full box visibility, including corner hit testing; toBeVisible alone misses sticky overlap. */
 export async function assertClear(
   element: HTMLElement,
@@ -19,7 +30,10 @@ export async function assertClear(
   for (const x of [rect.left + 2, rect.right - 2]) {
     for (const y of [rect.top + 2, rect.bottom - 2]) {
       const hit = doc.elementFromPoint(x, y);
-      await expect(hit === element || element.contains(hit)).toBe(true);
+      await expect(
+        hit === element || element.contains(hit),
+        `corner ${Math.round(x)},${Math.round(y)} of ${describe(element)} is covered by ${describe(hit)}`
+      ).toBe(true);
     }
   }
 }
