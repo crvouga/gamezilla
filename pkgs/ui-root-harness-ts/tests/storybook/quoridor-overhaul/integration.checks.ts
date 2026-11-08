@@ -23,6 +23,7 @@ const journeys = {
     'four-player-round',
     'recover-wall-placement',
     'precise-coordinates',
+    'precise-wall-preview',
     'pass-and-continue',
     'reach-the-hill',
     'waiting-for-others',

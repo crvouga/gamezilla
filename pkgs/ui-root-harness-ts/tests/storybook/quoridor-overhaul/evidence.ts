@@ -73,9 +73,6 @@ export async function recordQuoridorState(
   });
 }
 
-/** Long journeys at 4x CPU throttling outlast the default 5s; the duration is reported, not hidden. */
-const STORY_PLAY_DEADLINE_MS = 30_000;
-
 async function testStoryReady(
   page: Page,
   story: string,
@@ -87,8 +84,7 @@ async function testStoryReady(
   );
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-story-ready',
-    'true',
-    { timeout: STORY_PLAY_DEADLINE_MS }
+    'true'
   );
   const playMilliseconds = Date.now() - started;
   await expect(page.locator('#storybook-root')).not.toHaveAttribute(

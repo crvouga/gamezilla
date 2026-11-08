@@ -16,7 +16,10 @@ import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { QuoridorBoard } from './quoridor-board';
 import { quoridorHillGameClient } from './quoridor-game-client';
-import { playHillPreciseCoordinates } from './quoridor-hill-precision.example';
+import {
+  playHillPreciseCoordinates,
+  playHillWallPreview,
+} from './quoridor-hill-precision.example';
 import {
   expectHillDestinationVisible,
   expectHillPassVisible,
@@ -204,6 +207,13 @@ const renderHillJourney: NonNullable<Story['render']> = (args, context) => {
 export const PreciseCoordinates: Story = {
   render: renderHillJourney,
   play: ({ canvasElement }) => playHillPreciseCoordinates(canvasElement),
+};
+
+/** After every pawn has moved once, the picker previews, rotates, cancels and places a d4 wall. */
+export const PreciseWallPreview: Story = {
+  args: { position: hill(['e2', 'a4', 'e8', 'i6']) },
+  render: renderHillJourney,
+  play: ({ canvasElement }) => playHillWallPreview(canvasElement),
 };
 
 /** The four-player board offers the same keyboard proposal cancellation. */
