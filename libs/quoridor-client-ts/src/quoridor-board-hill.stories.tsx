@@ -26,6 +26,7 @@ import { cancelQuoridorWallWithKeyboard } from './quoridor-keyboard.example';
 import {
   chooseQuoridorCoordinate,
   expectQuoridorGoalMarker,
+  expectQuoridorPawnInk,
   expectQuoridorTargetVisible,
 } from './quoridor-precision.example';
 import {
@@ -109,6 +110,7 @@ export const Opening: Story = {
     await expectQuoridorSpatialArea(canvasElement);
     await expectHillDestinationVisible(canvasElement);
     await expectQuoridorGoalMarker(canvasElement, 'e5');
+    await expectQuoridorPawnInk(canvasElement, ['e1', 'a5', 'e9', 'i5']);
   },
 };
 

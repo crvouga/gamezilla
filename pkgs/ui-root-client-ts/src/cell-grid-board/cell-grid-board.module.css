@@ -274,17 +274,20 @@
 .board[data-board-theme="quoridor"] .cell[data-tone="occupied"] .glyph {
   font-size: 72cqw;
 }
+/* Pawns sit on the same sand board in both app themes, so they use the
+   board's own stable inks instead of theme-flipping seat colours, which
+   fall to about 1:1 on sand in the dark theme. */
 .board[data-board-theme="quoridor"] .cell[data-identity="one"] {
-  color: var(--ui-color-player7);
+  color: var(--ui-color-game-quoridor-one);
 }
 .board[data-board-theme="quoridor"] .cell[data-identity="two"] {
-  color: var(--ui-color-player5);
+  color: var(--ui-color-game-quoridor-three);
 }
 .board[data-board-theme="quoridor"] .cell[data-identity="three"] {
-  color: var(--ui-color-player8);
+  color: var(--ui-color-game-quoridor-two);
 }
 .board[data-board-theme="quoridor"] .cell[data-identity="four"] {
-  color: var(--ui-color-player6);
+  color: var(--ui-color-game-quoridor-ink);
 }
 /* A wooden board: squares meet edge to edge in the board's two tones, the
    glyph fills most of its square, and the labels sit in the corners of the

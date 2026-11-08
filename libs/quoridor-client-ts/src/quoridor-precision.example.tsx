@@ -124,6 +124,33 @@ export async function expectQuoridorCellHierarchy(canvasElement: HTMLElement) {
   await expectQuoridorGoalMarker(canvasElement, 'a9');
 }
 
+/** Each pawn's ink stays readable against its own square in every app theme. */
+// regression: quoridor-pawn-ink-vanishes-in-dark-theme
+export async function expectQuoridorPawnInk(
+  canvasElement: HTMLElement,
+  cells: readonly string[]
+) {
+  const view = canvasElement.ownerDocument.defaultView;
+  if (!view) throw new Error('The story requires a browser window');
+  for (const cell of cells) {
+    const pawn = within(canvasElement).getByTestId(
+      `custom-game-board-action-${cell}`
+    );
+    // The first painted ancestor is the square behind the glyph.
+    let ground: Element | null = pawn;
+    let background = '';
+    while (ground && (background === '' || background.endsWith(', 0)'))) {
+      background = view.getComputedStyle(ground).backgroundColor;
+      ground = ground.parentElement;
+    }
+    const inks = [view.getComputedStyle(pawn).color, background].map(luminance);
+    const contrast = (Math.max(...inks) + 0.05) / (Math.min(...inks) + 0.05);
+    await expect(contrast, `${cell} pawn ink contrast`).toBeGreaterThanOrEqual(
+      4.5
+    );
+  }
+}
+
 function luminance(color: string): number {
   const channels = color
     .match(/[\d.]+/g)

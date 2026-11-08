@@ -20,6 +20,7 @@ import {
   chooseQuoridorCoordinate,
   expectQuoridorCellHierarchy,
   expectQuoridorGoalMarker,
+  expectQuoridorPawnInk,
   expectQuoridorTargetVisible,
 } from './quoridor-precision.example';
 import {
@@ -241,6 +242,7 @@ export const PawnIdentityAndKeyboard: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const pawn = await canvas.findByTestId('custom-game-board-action-e9');
+    await expectQuoridorPawnInk(canvasElement, ['e1', 'e9']);
     const glyph = pawn.querySelector('span');
     const view = canvasElement.ownerDocument.defaultView;
     if (!glyph || !view) throw new Error('Pawn rendering is missing');
@@ -249,7 +251,7 @@ export const PawnIdentityAndKeyboard: Story = {
     ).toBeGreaterThan(pawn.getBoundingClientRect().width * 0.6);
     const gold = view
       .getComputedStyle(pawn)
-      .getPropertyValue('--ui-color-player5')
+      .getPropertyValue('--ui-color-game-quoridor-three')
       .trim();
     const encoded = /^#([0-9a-f]{6})$/i.exec(gold)?.[1];
     if (!encoded) throw new Error('Seat color token is missing');
