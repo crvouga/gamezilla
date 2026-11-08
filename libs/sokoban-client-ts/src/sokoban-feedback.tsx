@@ -136,6 +136,7 @@ export function SokobanStatus(props: {
           wrap="nowrap"
           lines={props.wide ? undefined : 1}
           numeral
+          testId="sokoban-count-moves"
         >
           {t`Moves ${props.position.moves}`}
         </Text>
@@ -145,6 +146,7 @@ export function SokobanStatus(props: {
           wrap="nowrap"
           lines={props.wide ? undefined : 1}
           numeral
+          testId="sokoban-count-pushes"
         >
           {t`Pushes ${props.position.pushes}`}
         </Text>
