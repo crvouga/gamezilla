@@ -78,15 +78,20 @@ async function measureSteeringTrial(page: Page) {
 }
 
 /** Keep every measured input inside active play, including Quad's earlier round end. */
-export async function measureSteering(page: Page) {
+export async function measureSteering(page: Page, cpuRate = 1) {
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send('Emulation.setCPUThrottlingRate', { rate: cpuRate });
   const first = await measureSteeringTrial(page);
+  await cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 });
   await page.reload();
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-story-ready',
     'true'
   );
   await page.evaluate(() => document.fonts.ready);
+  await cdp.send('Emulation.setCPUThrottlingRate', { rate: cpuRate });
   const second = await measureSteeringTrial(page);
+  await cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 });
   return {
     inputToPaintMs: [...first.inputToPaintMs, ...second.inputToPaintMs],
     frameMs: [...first.frameMs, ...second.frameMs],

@@ -63,9 +63,7 @@ for (const screen of screens) {
         const errors: string[] = [];
         page.on('pageerror', (error) => errors.push(error.message));
         await page.setViewportSize(screen);
-        const cdp = await page.context().newCDPSession(page);
         const cpuRate = screen.width === 390 ? 4 : 1;
-        await cdp.send('Emulation.setCPUThrottlingRate', { rate: cpuRate });
         await openArena(page, variant, theme);
         await capture(page, info, 'before-input');
         const arena = await page
@@ -75,7 +73,7 @@ for (const screen of screens) {
         expect(arena.x).toBeGreaterThanOrEqual(0);
         expect(arena.x + arena.width).toBeLessThanOrEqual(screen.width);
         expect(arena.y + arena.height).toBeLessThanOrEqual(screen.height);
-        const measurements = await measureSteering(page);
+        const measurements = await measureSteering(page, cpuRate);
         expect(measurements.inputToPaintMs).toHaveLength(12);
         await info.attach('responsiveness.json', {
           body: JSON.stringify(
@@ -86,7 +84,7 @@ for (const screen of screens) {
               cpuRate,
               samples: measurements,
               limits:
-                'Deterministic Storybook production-step fixture. Event dispatch to second animation frame is a paint-opportunity bound, not physical display latency. No live network or continuous simulation claim. CPU throttling is not a physical low-end phone.',
+                'Two fresh six-input trials. Storybook loading and axe run at normal CPU; only the input window uses the recorded CPU rate. Deterministic production-step fixture. Event dispatch to second animation frame is a paint-opportunity bound, not physical display latency. No live network or continuous simulation claim. CPU throttling is not a physical low-end phone.',
             },
             null,
             2
@@ -144,11 +142,13 @@ test('storybook integration: light-cycles evidence simultaneous native touch', a
 });
 
 // regression: light-cycles-probe-crossed-quad-round-end
+// regression: light-cycles-probe-throttled-harness-startup
 test('storybook integration: light-cycles evidence Quad measures twelve active inputs across fresh trials', async ({
   page,
 }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
   await openArena(page, 'quad-steering', 'light');
-  const measurements = await measureSteering(page);
+  const measurements = await measureSteering(page, 4);
   expect(measurements.inputToPaintMs).toHaveLength(12);
 });
 
@@ -158,7 +158,6 @@ for (const variant of ['duel', 'trio', 'quad']) {
       page,
     }, info) => {
       const cdp = await page.context().newCDPSession(page);
-      await cdp.send('Emulation.setCPUThrottlingRate', { rate: cpuRate });
       await page.goto(
         `/iframe.html?id=screens-games-light-cycles-motion--${variant}&viewMode=story&globals=theme:dark`
       );
@@ -167,7 +166,9 @@ for (const variant of ['duel', 'trio', 'quad']) {
         'true'
       );
       await capture(page, info, 'motion-start');
-      await measureMotion(page, info);
+      await cdp.send('Emulation.setCPUThrottlingRate', { rate: cpuRate });
+      await measureMotion(page, info, cpuRate);
+      await cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 });
       await capture(page, info, 'motion-end');
       await accessibility(page, info);
     });
