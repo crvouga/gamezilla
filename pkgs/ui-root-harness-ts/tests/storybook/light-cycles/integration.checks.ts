@@ -2,6 +2,8 @@ import { expect, type Page, type TestInfo, test } from '@playwright/test';
 import axe from 'axe-core';
 import { verifySharedSwipeCapture } from '../light-cycles-pointer';
 import { measureSteering } from './measure';
+import { measureMotion } from './motion';
+import { sharedNativeTouch } from './touch';
 
 test.use({ video: 'on', trace: 'on' });
 
@@ -130,3 +132,44 @@ test('storybook integration: light-cycles evidence shared native pointer', async
   await capture(page, info, 'shared-pointer');
   await accessibility(page, info);
 });
+
+test('storybook integration: light-cycles evidence simultaneous native touch', async ({
+  page,
+}, info) => {
+  await openArena(page, 'shared-swipe', 'light');
+  await capture(page, info, 'before-touch');
+  await sharedNativeTouch(page);
+  await capture(page, info, 'after-touch');
+  await accessibility(page, info);
+});
+
+// regression: light-cycles-probe-crossed-quad-round-end
+test('storybook integration: light-cycles evidence Quad measures twelve active inputs across fresh trials', async ({
+  page,
+}) => {
+  await openArena(page, 'quad-steering', 'light');
+  const measurements = await measureSteering(page);
+  expect(measurements.inputToPaintMs).toHaveLength(12);
+});
+
+for (const variant of ['duel', 'trio', 'quad']) {
+  for (const cpuRate of [1, 4]) {
+    test(`storybook integration: light-cycles evidence sustained ${variant} cpu${cpuRate}`, async ({
+      page,
+    }, info) => {
+      const cdp = await page.context().newCDPSession(page);
+      await cdp.send('Emulation.setCPUThrottlingRate', { rate: cpuRate });
+      await page.goto(
+        `/iframe.html?id=screens-games-light-cycles-motion--${variant}&viewMode=story&globals=theme:dark`
+      );
+      await expect(page.locator('#storybook-root')).toHaveAttribute(
+        'data-story-ready',
+        'true'
+      );
+      await capture(page, info, 'motion-start');
+      await measureMotion(page, info);
+      await capture(page, info, 'motion-end');
+      await accessibility(page, info);
+    });
+  }
+}

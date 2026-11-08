@@ -54,12 +54,12 @@ export async function startMeasurements(page: Page): Promise<void> {
 }
 
 /** Trusted key events advance the existing deterministic production-step fixture. */
-export async function measureSteering(page: Page) {
+async function measureSteeringTrial(page: Page) {
   await page.getByTestId('custom-game-board-arena').focus();
   await startMeasurements(page);
   const rider = page.getByTestId('custom-game-board-arena-rider-0');
   for (const heading of ['right', 'down', 'right'] as const) {
-    for (let index = 0; index < 4; index++) {
+    for (let index = 0; index < 2; index++) {
       const coordinate = heading === 'right' ? 'data-x' : 'data-y';
       const previous = Number(await rider.getAttribute(coordinate));
       await page.keyboard.press(
@@ -74,6 +74,27 @@ export async function measureSteering(page: Page) {
       );
     }
   }
+  return finishMeasurements(page);
+}
+
+/** Keep every measured input inside active play, including Quad's earlier round end. */
+export async function measureSteering(page: Page) {
+  const first = await measureSteeringTrial(page);
+  await page.reload();
+  await expect(page.locator('#storybook-root')).toHaveAttribute(
+    'data-story-ready',
+    'true'
+  );
+  await page.evaluate(() => document.fonts.ready);
+  const second = await measureSteeringTrial(page);
+  return {
+    inputToPaintMs: [...first.inputToPaintMs, ...second.inputToPaintMs],
+    frameMs: [...first.frameMs, ...second.frameMs],
+    longTasksMs: [...first.longTasksMs, ...second.longTasksMs],
+  };
+}
+
+export async function finishMeasurements(page: Page) {
   return page.evaluate(() => {
     const target = window as unknown as MeasuredWindow;
     target.stopLightCyclesMeasurements();
