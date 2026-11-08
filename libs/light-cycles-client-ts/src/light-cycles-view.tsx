@@ -12,6 +12,7 @@ import type { GameSimulationControls } from '@pkgs/turn-game-shared-ts/game-pres
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import type {
   TrailCrash,
+  TrailHeading,
   TrailOverlay,
   TrailRider,
   TrailRiderIndex,
@@ -57,6 +58,29 @@ export function trailCrashes(state: LightCyclesState): readonly TrailCrash[] {
     x: crash.x,
     y: crash.y,
   }));
+}
+
+function directionText(heading: TrailHeading): string {
+  return { up: t`up`, right: t`right`, down: t`down`, left: t`left` }[heading];
+}
+
+/** Readable on demand; never a live announcement on every simulation tick. */
+export function arenaDescription(state: LightCyclesState): string {
+  return state.riders
+    .map((rider) => {
+      const name = riderName(rider.seat);
+      const column = rider.x + 1;
+      const row = rider.y + 1;
+      if (!rider.alive)
+        return t`${name} has crashed at column ${column}, row ${row}.`;
+      const heading = directionText(rider.heading);
+      const current = t`${name}: column ${column}, row ${row}, heading ${heading}.`;
+      const next = plannedHeading(rider);
+      return next === rider.heading
+        ? current
+        : `${current} ${t`Next turn: ${directionText(next)}.`}`;
+    })
+    .join(' ');
 }
 
 function winnerText(winner: GameSide | 'draw'): string {

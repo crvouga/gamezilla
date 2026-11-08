@@ -60,6 +60,30 @@ function board(sides: readonly GameSide[], initial: LightCyclesState) {
   return { ...view, inputs, set, setStale };
 }
 
+// regression: light-cycles-nonvisual-rider-state-missing
+test('the arena describes rider locations, directions and queued turns without live tick announcements', () => {
+  const state = lightCyclesStart(3, 3);
+  const view = board(['white'], {
+    ...state,
+    riders: state.riders.map((rider) =>
+      rider.seat === 'white' ? { ...rider, turns: ['up'] } : rider
+    ),
+  });
+  const description = view.getByTestId('arena-description');
+  expect(description.textContent).toContain(
+    'Comet: column 10, row 7, heading right. Next turn: up.'
+  );
+  expect(description.textContent).toContain(
+    'Ember: column 31, row 22, heading left.'
+  );
+  expect(
+    view.getByTestId('arena-arena').getAttribute('aria-describedby')?.split(' ')
+  ).toContain(description.id);
+  expect(description.closest('[aria-live], [role="status"]')).toBeNull();
+  view.set(until(running(state), (value) => !value.riders[2]?.alive));
+  expect(description.textContent).toContain('Nova has crashed');
+});
+
 test('a rider steers only its own seat, with its round, from the pad and the keyboard', () => {
   const view = board(['black'], running(lightCyclesStart(3, 3)));
   expect(view.queryByTestId('arena-white-pad-up')).toBeNull();

@@ -20,6 +20,7 @@ import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import { createMemo, createUniqueId, For, type JSX, Show } from 'solid-js';
 import {
+  arenaDescription,
   arenaOverlay,
   riderName,
   steeringOf,
@@ -110,15 +111,15 @@ function SteeringHint(props: {
           when={props.sides.length > 1}
           fallback={
             <Trans>
-              Steer with the arrow keys or W, A, S and D. Avoid the edge and
-              every trail.
+              Click the arena or Tab to it, then steer with arrow keys or W, A,
+              S and D. You can also drag to steer. Avoid edges and trails.
             </Trans>
           }
         >
           <Trans>
             Focus the arena. {riderName(props.sides[0]!)} uses arrow keys;{' '}
             {riderName(props.sides[1]!)} uses W, A, S and D. Avoid the edge and
-            every trail.
+            every trail. You can also drag your half to steer.
           </Trans>
         </Show>
       </Show>
@@ -178,6 +179,7 @@ function Arena(props: {
 }): JSX.Element {
   const instructionsId = createUniqueId();
   const statusId = createUniqueId();
+  const descriptionId = createUniqueId();
   const mode = useLayoutMode();
   const controlled = () => props.board.simulation?.sides ?? [];
   const steering = (side: GameSide | undefined) =>
@@ -192,6 +194,11 @@ function Arena(props: {
   return (
     <StackVertical gap="md" testId={props.board.testId}>
       <Scores state={props.state} testId={props.board.testId} />
+      <VisuallyHidden>
+        <P id={descriptionId} testId={`${props.board.testId}-description`}>
+          {arenaDescription(props.state)}
+        </P>
+      </VisuallyHidden>
       <P
         id={statusId}
         role="status"
@@ -246,7 +253,7 @@ function Arena(props: {
         label={t`Light Cycles arena`}
         // A phone's cells are small: its heads are drawn larger.
         heads={mode() === 'wide' ? 'regular' : 'large'}
-        instructionsId={canSteerHere() ? instructionsId : statusId}
+        instructionsId={`${canSteerHere() ? instructionsId : statusId} ${descriptionId}`}
         testId={`${props.board.testId}-arena`}
       />
       {/* A phone's thumb pad sits right under the arena, where the thumb

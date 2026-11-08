@@ -47,12 +47,14 @@ function mount(width: number, position = POSITION): void {
 
 // regression: light-cycles-pad-on-desktop — a wide screen drew the phone's
 // direction pad under a long paragraph, running off the window's foot.
+// regression: light-cycles-desktop-input-undiscoverable
 test('wide: no direction pad, one line on steering by keys', () => {
   mount(1440);
   expect(screen.queryByTestId('arena-white-pad-up')).toBeNull();
   expect(
-    screen.getByText(/Steer with the arrow keys or W, A, S and D/)
+    screen.getByText(/Click the arena or Tab to it, then steer with arrow keys/)
   ).toBeTruthy();
+  expect(screen.getByText(/You can also drag to steer/)).toBeTruthy();
 });
 
 test('phone: the direction pad is under the arena, with a line on swiping', () => {
