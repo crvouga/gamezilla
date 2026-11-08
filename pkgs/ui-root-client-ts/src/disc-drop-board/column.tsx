@@ -74,8 +74,7 @@ export function Column(props: {
   column: number;
   /** Drawn as a `GameBoardStage` preview: the discs alone. */
   thumbnail: boolean;
-  /** The board's single Tab stop; the other columns are reached by arrows. */
-  tabStop: boolean;
+  keyboardHelpId: string | undefined;
   target: number | null;
   preview: (column: number | null) => void;
   focus: (column: number | null) => void;
@@ -97,8 +96,11 @@ export function Column(props: {
   return (
     <>
       <button
-        aria-describedby={descriptionId}
-        tabIndex={props.tabStop ? 0 : -1}
+        aria-describedby={
+          props.keyboardHelpId
+            ? `${descriptionId} ${props.keyboardHelpId}`
+            : descriptionId
+        }
         aria-keyshortcuts={
           props.board.interactive
             ? 'ArrowLeft ArrowRight Home End Enter Space'

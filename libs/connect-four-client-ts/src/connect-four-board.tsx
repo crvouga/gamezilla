@@ -47,8 +47,8 @@ export function ConnectFourBoard(props: {
       }
       keyboardHelp={
         props.interactive && game().result === 0
-          ? t`← → Home End choose · Enter or Space drops`
-          : t`← → Home End inspect columns`
+          ? t`Arrow keys choose a column. Home and End go to the edges. Enter or Space drops.`
+          : t`Arrow keys inspect columns. Home and End go to the edges.`
       }
       cellLabel={(column, row, disc) => {
         const identity =
