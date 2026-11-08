@@ -4,6 +4,7 @@ import { gen } from '@pkgs/harness-root-shared-ts/fast-check';
 import type { SyncArgs } from './args';
 import { arbSyncArgs } from './args';
 import { exampleApp } from './example-app-app';
+import { FAULT_PROFILE_NAMES, FAULT_PROFILES } from './fault-profiles';
 import { DST_FAULTS } from './faults';
 import { toKernelFaults } from './network';
 import { createSyncHarness, syncVirtual } from './scenario-boot';
@@ -13,6 +14,14 @@ import { SYNC_PROPERTY_DEFS } from './sync-properties';
 
 /** Runtime name for the mild fixed reorder / loss profile ({@link DST_FAULTS}). */
 export const EXAMPLE_DST_FAULTS_HOST = 'virtual-dst-faults';
+
+/**
+ * Runtime name that runs a system under one named fault profile's wire
+ * hazards: `exampleSystem.run({ seed, runtime: faultProfileRuntime('flaky') })`.
+ */
+export function faultProfileRuntime(name: string): string {
+  return `virtual-profile-${name}`;
+}
 
 /** System defaults; scripted tests overlay a partial. */
 export const EXAMPLE_DEFAULT_ARGS: SyncArgs = {
@@ -62,6 +71,12 @@ export const exampleSystem = defineSystem<SyncHarness, SyncArgs>({
       name: EXAMPLE_DST_FAULTS_HOST,
       create: () => syncVirtual(toKernelFaults(DST_FAULTS)),
     }),
+    ...FAULT_PROFILE_NAMES.map((name) =>
+      defineRuntime({
+        name: faultProfileRuntime(name),
+        create: () => syncVirtual(toKernelFaults(FAULT_PROFILES[name].wire)),
+      })
+    ),
   ],
 });
 
