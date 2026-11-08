@@ -32,6 +32,8 @@ export type DiscDropBoardProps = {
    * they let go. Leave it out to keep `prompt` throughout.
    */
   readonly previewPrompt?: ((column: number) => string) | undefined;
+  /** Explain a full column and how to choose another while it is targeted. */
+  readonly fullColumnPrompt?: ((column: number) => string) | undefined;
   readonly testId: string;
   readonly columnTestId: (column: number) => string;
   readonly cellLabel: (column: number, row: number, disc: number) => string;
@@ -113,6 +115,7 @@ function Column(props: {
   thumbnail: boolean;
   target: number | null;
   preview: (column: number | null) => void;
+  focus: (column: number | null) => void;
   navigate: (event: KeyboardEvent, column: number) => void;
 }): JSX.Element {
   const descriptionId = createUniqueId();
@@ -142,8 +145,9 @@ function Column(props: {
         data-previewed={String(previewed())}
         onPointerEnter={() => props.preview(props.column)}
         onPointerLeave={() => props.preview(null)}
-        onFocus={() => props.preview(props.column)}
-        onBlur={() => props.preview(null)}
+        onPointerCancel={() => props.preview(null)}
+        onFocus={() => props.focus(props.column)}
+        onBlur={() => props.focus(null)}
         onKeyDown={(event) => props.navigate(event, props.column)}
         onClick={() => {
           if (props.board.interactive && !full())
@@ -205,15 +209,23 @@ export function DiscDropBoard(props: DiscDropBoardProps): JSX.Element {
   // The prompt is kept while someone is to move, never on a preview.
   const promptLine = (): boolean => props.prompt !== undefined && !thumbnail();
   const [preview, setPreview] = createSignal<number | null>(null);
+  const [focused, setFocused] = createSignal<number | null>(null);
+  const focus = (column: number | null): void => {
+    setFocused(column);
+    if (column !== null) setPreview(null);
+  };
   const columns = createMemo(() =>
     Array.from({ length: props.columns }, (_, n) => n)
   );
   const target = () => {
-    const column = preview();
+    const column = preview() ?? focused();
     return props.interactive && column !== null ? landing(props, column) : null;
   };
   const promptText = (): string => {
     const at = target();
+    const column = preview() ?? focused();
+    if (props.interactive && prompting() && column !== null && at === null)
+      return props.fullColumnPrompt?.(column) ?? props.prompt ?? '';
     const named = props.previewPrompt;
     return at !== null && named !== undefined && prompting()
       ? named(at % props.columns)
@@ -222,6 +234,10 @@ export function DiscDropBoard(props: DiscDropBoardProps): JSX.Element {
   let root: HTMLDivElement | undefined;
   const navigate = (event: KeyboardEvent, column: number): void => {
     const key = event.key;
+    if (key === 'Enter' || key === ' ') {
+      focus(column);
+      return;
+    }
     if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(key)) return;
     event.preventDefault();
     const next =
@@ -264,6 +280,7 @@ export function DiscDropBoard(props: DiscDropBoardProps): JSX.Element {
             thumbnail={thumbnail()}
             target={target()}
             preview={setPreview}
+            focus={focus}
             navigate={navigate}
           />
         )}

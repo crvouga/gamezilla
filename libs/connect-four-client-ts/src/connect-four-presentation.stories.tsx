@@ -250,6 +250,9 @@ export const FullColumn: Story = {
       .getByTestId('custom-game-board')
       .getAttribute('data-cells');
     await userEvent.click(column);
+    await expect(
+      canvas.getByTestId('custom-game-board-prompt')
+    ).toHaveTextContent('Column 1 is full. Choose another column.');
     await expect(canvas.getByTestId('custom-game-board')).toHaveAttribute(
       'data-cells',
       before

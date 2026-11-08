@@ -1,0 +1,4 @@
+{
+  "summary": "Selecting a full Connect Four column silently refused the drop while showing the generic instruction instead of explaining how to recover.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/disc-drop-focus-preview.test.tsx"
+}

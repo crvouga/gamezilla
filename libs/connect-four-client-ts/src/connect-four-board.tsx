@@ -42,6 +42,9 @@ export function ConnectFourBoard(props: {
             : ''
       }
       previewPrompt={(column) => t`Drop in column ${column + 1}`}
+      fullColumnPrompt={(column) =>
+        t`Column ${column + 1} is full. Choose another column.`
+      }
       cellLabel={(column, row, disc) => {
         const identity =
           disc === 1
