@@ -1146,7 +1146,7 @@ msgstr "Aim in {0}"
 msgid "All"
 msgstr "All"
 
-#: libs/sokoban-client-ts/src/sokoban-player.tsx
+#: libs/sokoban-client-ts/src/sokoban-feedback.tsx
 msgid "All crates are on goals"
 msgstr "All crates are on goals"
 
@@ -1827,7 +1827,7 @@ msgstr "Choose a username"
 msgid "Choose another bow cell or rotate, then try again."
 msgstr "Choose another bow cell or rotate, then try again."
 
-#: libs/sokoban-client-ts/src/sokoban-player.tsx
+#: libs/sokoban-client-ts/src/sokoban-feedback.tsx
 msgid "Choose another puzzle"
 msgstr "Choose another puzzle"
 
@@ -1967,6 +1967,10 @@ msgstr "Close"
 #: libs/game-session-client-ts/src/game-frame-seat-choices-view.tsx
 msgid "Close seat"
 msgstr "Close seat"
+
+#: libs/sokoban-client-ts/src/sokoban-play-board.tsx
+msgid "Close view follows the worker. Show the whole board to see every crate and goal."
+msgstr "Close view follows the worker. Show the whole board to see every crate and goal."
 
 #: libs/game-session-client-ts/src/custom-game-status.tsx
 msgid "Closed place"
@@ -2620,6 +2624,10 @@ msgstr "Difficulty mode"
 #: libs/app-root-client-ts/src/theme-screen-view.tsx
 msgid "Dim surfaces, light text"
 msgstr "Dim surfaces, light text"
+
+#: libs/sokoban-client-ts/src/sokoban-feedback.tsx
+msgid "Direction not added. Four directions are already waiting."
+msgstr "Direction not added. Four directions are already waiting."
 
 #: pkgs/ui-root-client-ts/src/text-input/text-input.example.tsx
 msgid "Disabled"
@@ -3838,7 +3846,7 @@ msgstr "Just you here"
 msgid "Keep a separate account"
 msgstr "Keep a separate account"
 
-#: libs/sokoban-client-ts/src/sokoban-player.tsx
+#: libs/sokoban-client-ts/src/sokoban-feedback.tsx
 msgid "Keep playing or choose another puzzle."
 msgstr "Keep playing or choose another puzzle."
 
@@ -3866,9 +3874,9 @@ msgstr "Keep working from this copy?"
 msgid "Keep your cards"
 msgstr "Keep your cards"
 
-#: libs/sokoban-client-ts/src/sokoban-player.tsx
-msgid "Keeping your move. Your next directions will wait."
-msgstr "Keeping your move. Your next directions will wait."
+#: libs/sokoban-client-ts/src/sokoban-feedback.tsx
+msgid "Keeping your move. Up to four directions can wait."
+msgstr "Keeping your move. Up to four directions can wait."
 
 #: libs/game-puzzle-client-ts/src/content-kept-positions.tsx
 msgid "Kept"
@@ -4182,6 +4190,10 @@ msgstr "Long tasks"
 msgid "Look and sound"
 msgstr "Look and sound"
 
+#: libs/sokoban-client-ts/src/sokoban-play-board.tsx
+msgid "Look closer"
+msgstr "Look closer"
+
 #. placeholder {0}: count() - 1
 #. placeholder {1}: props.search.gameName
 #. placeholder {2}: control()
@@ -4398,9 +4410,9 @@ msgstr "Move to a marked square."
 msgid "Move up"
 msgstr "Move up"
 
-#: libs/sokoban-client-ts/src/sokoban-player.tsx
-msgid "Move with the arrow keys or W A S D, or click a square beside the worker."
-msgstr "Move with the arrow keys or W A S D, or click a square beside the worker."
+#: libs/sokoban-client-ts/src/sokoban-feedback.tsx
+msgid "Move with the arrow keys, W A S D or the pad, or click a square beside the worker."
+msgstr "Move with the arrow keys, W A S D or the pad, or click a square beside the worker."
 
 #: libs/pong-client-ts/src/pong-game-client.tsx
 msgid "Move your paddle to return the ball. A ball past the other paddle scores a point. Reach the chosen score to win. Play with a bot, share a device, invite someone, or find an opponent."
@@ -4417,10 +4429,9 @@ msgid "Moves"
 msgstr "Moves"
 
 #. placeholder {0}: props.position.moves
-#. placeholder {1}: props.position.pushes
-#: libs/sokoban-client-ts/src/sokoban-player.tsx
-msgid "Moves {0} · Pushes {1}"
-msgstr "Moves {0} · Pushes {1}"
+#: libs/sokoban-client-ts/src/sokoban-feedback.tsx
+msgid "Moves {0}"
+msgstr "Moves {0}"
 
 #: libs/game-session-client-ts/src/game-frame-status-view.tsx
 msgid "Moves appear as they are played."
@@ -5682,6 +5693,11 @@ msgstr "Push every crate onto a goal, one at a time."
 msgid "Pushes"
 msgstr "Pushes"
 
+#. placeholder {0}: props.position.pushes
+#: libs/sokoban-client-ts/src/sokoban-feedback.tsx
+msgid "Pushes {0}"
+msgstr "Pushes {0}"
+
 #: libs/game-menu-client-ts/src/game-menu-choices.tsx
 #: libs/game-puzzle-client-ts/src/content-chips.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-link-screen-view.tsx
@@ -6834,6 +6850,10 @@ msgstr "Show performance monitor"
 msgid "Show the position after {0}"
 msgstr "Show the position after {0}"
 
+#: libs/sokoban-client-ts/src/sokoban-play-board.tsx
+msgid "Show whole board"
+msgstr "Show whole board"
+
 #: libs/spaces-client-ts/src/space-miniplayer.tsx
 msgid "Show your live spaces"
 msgstr "Show your live spaces"
@@ -7028,7 +7048,7 @@ msgstr "Slowest script"
 msgid "Snapshot (JSON)"
 msgstr "Snapshot (JSON)"
 
-#: libs/sokoban-client-ts/src/sokoban-player.tsx
+#: libs/sokoban-client-ts/src/sokoban-play-board.tsx
 msgid "Sokoban board"
 msgstr "Sokoban board"
 
@@ -7039,6 +7059,10 @@ msgstr "Sokoban board being built"
 #: libs/sokoban-client-ts/src/sokoban-player.tsx
 msgid "Sokoban board preview"
 msgstr "Sokoban board preview"
+
+#: libs/sokoban-client-ts/src/sokoban-play-board.tsx
+msgid "Sokoban board, close view around the worker"
+msgstr "Sokoban board, close view around the worker"
 
 #: libs/spaces-client-ts/src/space-games-screen-view.tsx
 msgid "Solo"
@@ -7077,6 +7101,10 @@ msgstr "Solved"
 #: libs/game-puzzle-client-ts/src/content-library-card.tsx
 msgid "Solved · {0} in {1}"
 msgstr "Solved · {0} in {1}"
+
+#: libs/sokoban-client-ts/src/sokoban-feedback.tsx
+msgid "Solved. Keep playing or choose another puzzle."
+msgstr "Solved. Keep playing or choose another puzzle."
 
 #: libs/game-puzzle-client-ts/src/content-pack-overview.tsx
 msgid "Some puzzles have not reached this device. Reconnect to load the rest. Your progress stays saved."
@@ -7371,7 +7399,7 @@ msgstr "Swipe the arena or use the pad to steer. Avoid the edge and every trail.
 msgid "Swipe your half or use your pad. Avoid edges and trails."
 msgstr "Swipe your half or use your pad. Avoid edges and trails."
 
-#: libs/sokoban-client-ts/src/sokoban-player.tsx
+#: libs/sokoban-client-ts/src/sokoban-feedback.tsx
 msgid "Swipe, tap beside the worker, or use the pad."
 msgstr "Swipe, tap beside the worker, or use the pad."
 
@@ -8393,7 +8421,7 @@ msgstr "Try again later"
 msgid "Try again later. This person recently declined your request."
 msgstr "Try again later. This person recently declined your request."
 
-#: libs/sokoban-client-ts/src/sokoban-player.tsx
+#: libs/sokoban-client-ts/src/sokoban-feedback.tsx
 msgid "Try another direction."
 msgstr "Try another direction."
 

@@ -1,0 +1,4 @@
+{
+  "summary": "After the Sokoban counter was split into separately wrapping counts, the new messages were missing from the checked-in English catalog, so the live app showed \"Moves {0} · Pushes {0}\" instead of the numbers. Close-view and queue-limit strings were also missing. The catalog is re-extracted and the live pack journey asserts the rendered counts.",
+  "regressionTest": "specs/journeys/sokoban-packs.feature"
+}
