@@ -11,24 +11,41 @@ import { retainEvidence } from '../word-tiles/retained-evidence';
 /** Scrollable flow is valid only when the complete target can be brought clear. */
 async function reachable(target: Locator, scroll = true): Promise<void> {
   if (scroll) await target.scrollIntoViewIfNeeded();
-  expect(
-    await target.evaluate((element) => {
-      const rect = element.getBoundingClientRect();
-      const doc = element.ownerDocument;
-      return (
-        rect.top >= 0 &&
-        rect.bottom <= doc.documentElement.clientHeight &&
-        rect.left >= 0 &&
-        rect.right <= doc.documentElement.clientWidth &&
-        [rect.left + 2, rect.right - 2].every((x) =>
-          [rect.top + 2, rect.bottom - 2].every((y) => {
-            const hit = doc.elementFromPoint(x, y);
-            return hit !== null && element.contains(hit);
-          })
-        )
+  const result = await target.evaluate((element) => {
+    const rect = element.getBoundingClientRect();
+    const doc = element.ownerDocument;
+    const clear =
+      rect.top >= 0 &&
+      rect.bottom <= doc.documentElement.clientHeight &&
+      rect.left >= 0 &&
+      rect.right <= doc.documentElement.clientWidth &&
+      [rect.left + 2, rect.right - 2].every((x) =>
+        [rect.top + 2, rect.bottom - 2].every((y) => {
+          const hit = doc.elementFromPoint(x, y);
+          return hit !== null && element.contains(hit);
+        })
       );
-    })
-  ).toBe(true);
+    // Why it is not clear: its box, each scrolled container and the focus.
+    const scrolled = Array.from(doc.querySelectorAll<HTMLElement>('*'))
+      .filter((node) => node.scrollTop > 0 || node.scrollLeft > 0)
+      .map((node) => ({
+        component: node.dataset['component'] ?? node.tagName,
+        top: node.scrollTop,
+        left: node.scrollLeft,
+      }));
+    const active = doc.activeElement as HTMLElement | null;
+    return {
+      clear,
+      rect: { top: rect.top, bottom: rect.bottom, left: rect.left },
+      scrolled,
+      focus: active
+        ? `${active.tagName} ${active.dataset['testid'] ?? ''} ${active.getAttribute('aria-label') ?? ''}`
+        : null,
+    };
+  });
+  if (!result.clear)
+    process.stdout.write(`[word-tiles-reachable] ${JSON.stringify(result)}\n`);
+  expect(result.clear).toBe(true);
 }
 
 export async function narrowWorkspace(
