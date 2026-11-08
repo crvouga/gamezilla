@@ -4,10 +4,8 @@ import {
   checkPuzzleFirstRank,
 } from './chess-puzzle-bounds.example';
 
-import {
-  assertStablePuzzleRectangle,
-  puzzleRectangle,
-} from './chess-puzzle-geometry.example';
+import { assertStablePuzzleRectangle } from './chess-puzzle-geometry.example';
+import { puzzleRectangle } from './puzzle-rectangle.example';
 
 /** Keyboard moves exercise the board's real selection and action emission. */
 export async function completeChessPuzzle(canvasElement: HTMLElement) {

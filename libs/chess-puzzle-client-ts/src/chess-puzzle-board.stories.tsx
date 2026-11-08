@@ -13,10 +13,7 @@ import {
   assertPuzzleBounds,
   checkPuzzleFirstRank,
 } from './chess-puzzle-bounds.example';
-import {
-  assertStablePuzzleRectangle,
-  puzzleRectangle,
-} from './chess-puzzle-geometry.example';
+import { assertStablePuzzleRectangle } from './chess-puzzle-geometry.example';
 import { ChessPuzzleJourney } from './chess-puzzle-journey.example';
 import {
   completeChessPuzzle,
@@ -26,6 +23,7 @@ import {
   StoryChessPuzzleBoard,
   withChessPuzzleBoardContext,
 } from './chess-puzzle-story.example';
+import { puzzleRectangle } from './puzzle-rectangle.example';
 
 /**
  * Chess's puzzle play: the platform's puzzle screen with chess's own
