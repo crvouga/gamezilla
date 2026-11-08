@@ -1,0 +1,4 @@
+{
+  "summary": "At 320px, Connect Four's seven irreversible column choices were only 38px wide. The explicit compact frame inset and game-owned narrow spacing must provide seven nonoverlapping 44px native hit areas without horizontal overflow.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/connect-four/geometry/integration.checks.ts"
+}

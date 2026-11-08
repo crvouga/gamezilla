@@ -68,6 +68,14 @@
 .column[aria-disabled="true"] {
   cursor: default;
 }
+/* On the narrowest phones, spend horizontal space on the seven hit areas.
+   The shared frame supplies its explicit compact inset; no overflow/overlap. */
+@media (max-width: 359px) {
+  .board {
+    padding-inline: var(--ui-space-hairline);
+    column-gap: 0;
+  }
+}
 /* The column pointed at or focused while the board takes a drop: one
    quiet wash down its whole height, under its cells. It is the column's
    only mark; the disc waiting in its landing cell is the other signal. */
