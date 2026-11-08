@@ -81,7 +81,7 @@ test('storybook integration: numberlink-states labels fit narrow cells', async (
       .filter((cell) => !cell.labelFits)
       .map(
         (cell) =>
-          `${cell.name} text=${cell.text} ring=${cell.ring} border=${cell.border} font=${cell.fontSize}`
+          `${cell.name} text=${JSON.stringify(cell.text)} ring=${JSON.stringify(cell.ring)} border=${cell.border} font=${cell.fontSize}`
       );
     expect(overflowing).toEqual([]);
   }
