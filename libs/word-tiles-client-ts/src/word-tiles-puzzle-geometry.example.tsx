@@ -28,9 +28,7 @@ export async function expectPuzzlePlacementContext(canvasElement: HTMLElement) {
     const regions = canvas.getByRole('group', { name: 'View a board region' });
     for (const button of within(regions).getAllByRole('button'))
       await assertClear(button);
-    await assertClear(
-      canvas.getByRole('button', { name: 'Board map: locate a square' })
-    );
+    await assertClear(canvas.getByRole('button', { name: 'Find a square' }));
   }
   const bounds = viewport.getBoundingClientRect();
   const rack = canvas

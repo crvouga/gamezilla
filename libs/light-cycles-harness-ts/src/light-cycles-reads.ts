@@ -76,7 +76,7 @@ export async function roundWinsShown(
   );
 }
 
-/** What the banner over the arena says on the board of everyone who can see it. */
+/** The countdown or result shown on the board of everyone who can see it. */
 export async function bannersShown(s: ProductHarness): Promise<string[]> {
   const shown: string[] = [];
   for (const person of await everyoneSeeing(s))

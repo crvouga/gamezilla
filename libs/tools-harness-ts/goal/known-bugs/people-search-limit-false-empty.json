@@ -1,0 +1,4 @@
+{
+  "summary": "Rate-limited people search claimed a successful empty result.",
+  "regressionTest": "libs/friends-shared-ts/tests/people-search-rate-limit.test.ts"
+}

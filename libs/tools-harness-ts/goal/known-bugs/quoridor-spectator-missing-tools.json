@@ -1,0 +1,4 @@
+{
+  "summary": "At seed 1 Eve watches Alice's Classic game and attempts e2. The harness clicked a player-only mode selector absent from the read-only board before reaching the product refusal. Pawn and wall attempts now respect absent tools and use the existing product command path to verify denial and unchanged game state.",
+  "regressionTest": "libs/quoridor-harness-ts/tests/quoridor-spectator-actions.test.ts"
+}

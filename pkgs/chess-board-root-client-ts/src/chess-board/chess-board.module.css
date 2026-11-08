@@ -82,11 +82,15 @@
   z-index: 2;
   /* A fixed-size leaf: its style, layout and paint never reach past it. */
   contain: strict;
-  /* The figure fills 84% of its square, centred, so the edge coordinates in
-     the squares' outer corners never touch a piece. */
   background-size: 84% 84%;
   background-position: center;
   background-repeat: no-repeat;
+}
+
+/* In-square labels need clearance from the widest piece silhouettes across
+   system fonts. Boards with outside coordinates retain their larger figures. */
+.root:has(.coords) .piece {
+  background-size: 80% 80%;
 }
 
 .piece[data-piece="wp"] {
@@ -279,6 +283,10 @@
 @container chess-frame (min-width: 280px) {
   .coords {
     display: none;
+  }
+
+  .root:has(.coords) .piece {
+    background-size: 84% 84%;
   }
 }
 
