@@ -13,14 +13,19 @@ export async function touchSpectatorColumn(page: Page) {
 }
 
 /** Same deterministic browser setup for every immutable review round. */
-export async function openBoard(page: Page, story: string, theme: string) {
+export async function openBoard(
+  page: Page,
+  story: string,
+  theme: string,
+  motion: 'reduced' | 'system' = 'reduced'
+) {
   await page.route('**/*', (route) =>
     new URL(route.request().url()).hostname === '127.0.0.1'
       ? route.continue()
       : route.abort()
   );
   await page.goto(
-    `/iframe.html?id=screens-games-connect-four-board--${story}&viewMode=story&globals=theme:${theme}`
+    `/iframe.html?id=screens-games-connect-four-board--${story}&viewMode=story&globals=theme:${theme};motion:${motion}`
   );
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-story-ready',
