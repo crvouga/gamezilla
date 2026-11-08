@@ -230,9 +230,13 @@ The experimental docgen server is disabled
 because the installed adapter ignores story-level `!manifest` in that mode.
 Keep curation on the native inline path rather than adding a custom filter.
 The Vite docgen hook uses the same discovered component-owner directories as the
-story index and skips preview fixtures. Source `tsconfig.json` files in the
-design-system, developer-tools and chess packages retain production options and
-stories while excluding unrelated test/script roots from metadata extraction.
+story index and skips preview fixtures. `libs/tsconfig.json` groups product
+client sources into one metadata project; source `tsconfig.json` files scope
+component packages. Both retain production options and stories while excluding
+unrelated test/script roots. Grouping product screens avoids duplicating the
+design-system type graph in a separate metadata program for every game.
+Without a nearby source configuration, the metadata adapter can fall back to
+the repository project and exhaust the build heap while loading unrelated tests.
 Full typechecking still uses `tsconfig.tc.json`. Storybook hashes these source
 configs explicitly, while production `src` tasks exclude them to avoid
 invalidating application consumers.
