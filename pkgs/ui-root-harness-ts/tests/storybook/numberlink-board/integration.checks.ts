@@ -8,16 +8,18 @@ import {
 } from './evidence';
 import { reportMeasurements, startMeasurements } from './performance';
 
-test.use({ trace: 'on', hasTouch: true });
+test.use({
+  viewport: { width: 1440, height: 1024 },
+  video: { mode: 'on', size: { width: 1440, height: 1024 } },
+  trace: 'on',
+  hasTouch: true,
+});
 
 for (const width of [320, 390, 768, 1440])
   for (const theme of ['light', 'dark'])
     test.describe(`${width} ${theme}`, () => {
       const viewport = { width, height: width < 768 ? 844 : 1024 };
-      test.use({
-        viewport,
-        video: { mode: 'on', size: viewport },
-      });
+      test.use({ viewport });
       test(`storybook integration: numberlink-board native recovery ${width} ${theme}`, async ({
         page,
       }, info) => {
@@ -74,3 +76,13 @@ for (const width of [320, 390, 768, 1440])
         expect(failures).toEqual([]);
       });
     });
+
+// regression: numberlink-video-options-nested-worker
+test('storybook integration: numberlink-board desktop recording context', async ({
+  page,
+}, info) => {
+  await openBoard(page, 'light');
+  expect(page.viewportSize()).toEqual({ width: 1440, height: 1024 });
+  expect(page.video()).not.toBeNull();
+  await capture(page, info, 'desktop-recording-context');
+});
