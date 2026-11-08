@@ -51,6 +51,20 @@ export async function captureMotion(
     reducedMotion: reduced ? 'reduce' : 'no-preference',
   });
   await openBoard(page, 'drop-a-disc', theme);
+  // The canonical Storybook preview injects reduced motion for stable
+  // screenshots, and a global rule then stops every animation. Remove that
+  // injected preference so the emulated media query alone decides, as on
+  // a device; otherwise both branches below would pass or fail vacuously.
+  const injected = await page.evaluate(() => {
+    const hosts = [...document.querySelectorAll('[data-reduced-motion]')];
+    for (const host of hosts) host.removeAttribute('data-reduced-motion');
+    return hosts.length;
+  });
+  await info.attach('injected-reduced-motion-removed', {
+    body: JSON.stringify({ hosts: injected }),
+    contentType: 'application/json',
+  });
+  await expect(page.locator('[data-reduced-motion]')).toHaveCount(0);
   await observeDrop(page);
   await page.getByTestId('custom-game-board-column-2').click();
   const disc = page.getByTestId('custom-game-board-cell-1').locator('span');
