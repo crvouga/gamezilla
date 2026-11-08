@@ -1,6 +1,6 @@
 import { mutationRegistry } from '@pkgs/sync-engine-shared-ts/mutations-registry';
-import { appendNoteToken } from './append-note-mutation';
 import { queryRegistry } from '@pkgs/sync-engine-shared-ts/queries-registry';
+import { appendNoteToken } from './append-note-mutation';
 import { befriend } from './friendship-mutations';
 import {
   notesAllV2Query,

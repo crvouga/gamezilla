@@ -1,7 +1,7 @@
 import type { PubSub } from '@pkgs/pubsub-root-shared-ts/interface';
-import { HarnessProcessDied } from './durable-crash-points';
 import type { HarnessClient } from './client';
 import { buildHarnessClient } from './client-factory';
+import { HarnessProcessDied } from './durable-crash-points';
 import { createHarnessHttpClient } from './http-bridge';
 import { fireCrashIfArmed, wireMutateCrashArm } from './lifecycle';
 import { SERVER_HTTP } from './traffic';

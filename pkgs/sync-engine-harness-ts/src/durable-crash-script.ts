@@ -21,11 +21,7 @@ import {
   storedWork,
 } from './durable-crash-actions';
 import { setNote } from './mutations';
-import {
-  addClient,
-  clearLocalData,
-  mutate,
-} from './regression-actions';
+import { addClient, clearLocalData, mutate } from './regression-actions';
 import {
   partition,
   restart,

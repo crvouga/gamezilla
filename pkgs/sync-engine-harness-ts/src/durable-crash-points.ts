@@ -64,11 +64,7 @@ export type DurableCrashPointController = {
    * Wrap `raw` for the engine of `clientId`. `storage` is what a restart
    * reopens once this process dies — even when it dies while booting.
    */
-  readonly wrap: <B>(
-    clientId: string,
-    raw: SqlClient,
-    storage: B
-  ) => SqlClient;
+  readonly wrap: <B>(clientId: string, raw: SqlClient, storage: B) => SqlClient;
   readonly storage: <B>(clientId: string) => B | undefined;
 };
 
@@ -144,12 +140,11 @@ function wrapTx(gen: Generation, tx: SqlClient, writes: string[]): SqlClient {
  * taken inside the transaction body, so it follows commit order.
  */
 async function durableTransaction<T>(
-  ctx: Ctx,
-  gen: Generation,
-  inner: SqlClient,
+  on: Engine,
   kind: DurableBoundary['kind'],
   fn: (tx: SqlClient) => Promise<T>
 ): Promise<T> {
+  const { ctx, gen, inner } = on;
   alive(gen);
   let killAfter: DurableBoundary | null = null;
   const result = await inner.transaction(async (tx) => {
@@ -183,7 +178,15 @@ async function durableTransaction<T>(
   return result;
 }
 
+/** One engine generation's view of the raw storage. */
+type Engine = {
+  readonly ctx: Ctx;
+  readonly gen: Generation;
+  readonly inner: SqlClient;
+};
+
 function wrapClient(ctx: Ctx, gen: Generation, inner: SqlClient): SqlClient {
+  const on: Engine = { ctx, gen, inner };
   /** Reads run as-is; an autocommit write is a one-statement transaction. */
   const single = <T>(
     text: string,
@@ -192,13 +195,23 @@ function wrapClient(ctx: Ctx, gen: Generation, inner: SqlClient): SqlClient {
   ): Promise<T> => {
     alive(gen);
     if (classifyWrite(text) === null) return direct();
-    return durableTransaction(ctx, gen, inner, 'statement', inTx);
+    return durableTransaction(on, 'statement', inTx);
   };
   return {
     connect: () => inner.connect(),
     disconnect: () => inner.disconnect(),
-    query: (q) => single(q.sql, () => inner.query(q), (tx) => tx.query(q)),
-    run: (q) => single(q.sql, () => inner.run(q), (tx) => tx.run(q)),
+    query: (q) =>
+      single(
+        q.sql,
+        () => inner.query(q),
+        (tx) => tx.query(q)
+      ),
+    run: (q) =>
+      single(
+        q.sql,
+        () => inner.run(q),
+        (tx) => tx.run(q)
+      ),
     prepare: <T extends Record<string, unknown>>(
       q: Parameters<SqlClient['prepare']>[0]
     ): PreparedStatement<T> => {
@@ -218,7 +231,7 @@ function wrapClient(ctx: Ctx, gen: Generation, inner: SqlClient): SqlClient {
           ),
       };
     },
-    transaction: (fn) => durableTransaction(ctx, gen, inner, 'transaction', fn),
+    transaction: (fn) => durableTransaction(on, 'transaction', fn),
   };
 }
 
