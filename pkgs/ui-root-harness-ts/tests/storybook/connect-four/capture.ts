@@ -2,6 +2,16 @@
 import { expect, type Page, type TestInfo } from '@playwright/test';
 import axe from 'axe-core';
 
+/** A real device can touch an ARIA-disabled inspection control. */
+export async function touchSpectatorColumn(page: Page) {
+  const column = page.getByTestId('custom-game-board-column-4');
+  await expect(column).toHaveAttribute('aria-disabled', 'true');
+  await column.scrollIntoViewIfNeeded();
+  const box = await column.boundingBox();
+  if (!box) throw new Error('Spectator column has no visible hit target');
+  await page.touchscreen.tap(box.x + box.width / 2, box.y + box.height / 2);
+}
+
 /** Same deterministic browser setup for every immutable review round. */
 export async function openBoard(page: Page, story: string, theme: string) {
   await page.route('**/*', (route) =>

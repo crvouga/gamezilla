@@ -1,0 +1,4 @@
+{
+  "summary": "Connect Four browser evidence waited for an intentionally ARIA-disabled spectator column to enable instead of exercising native touch against the read-only board.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/connect-four/integration.checks.ts"
+}
