@@ -2,7 +2,7 @@
 import { expect, type Page, type TestInfo } from '@playwright/test';
 
 type Samples = { frames: number[]; inputs: number[]; longTasks: number[] };
-type MetricsWindow = Window & { pongMetrics: () => Samples };
+type MetricsWindow = Window & { pongMetrics?: () => Samples };
 
 /** Frame and long-task observations plus event-to-two-animation-frames proxy. */
 export async function startPongMetrics(page: Page) {
@@ -53,7 +53,9 @@ export async function finishPongMetrics(
     await new Promise<void>((resolve) => {
       requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
     });
-    return (window as MetricsWindow).pongMetrics();
+    const stop = (window as MetricsWindow).pongMetrics;
+    if (!stop) throw new Error('Pong metrics were not started');
+    return stop();
   });
   expect(samples.inputs.length).toBeGreaterThanOrEqual(24);
   await info.attach('pong-responsiveness', {
