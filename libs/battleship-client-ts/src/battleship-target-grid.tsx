@@ -36,20 +36,20 @@ export function BattleshipTargetGrid(props: {
 }): JSX.Element {
   const [area, setArea] = createSignal(0);
   const descriptions = createMemo(() => regionDescriptions(props.cells));
-  const canAim = () => props.cells.some((cell) => cell.enabled);
-  const columns = () =>
-    COLUMN_LABELS.slice((area() % 2) * 5, (area() % 2) * 5 + 5);
-  const rows = () =>
-    ROW_LABELS.slice(
-      Math.floor(area() / 2) * 2,
-      Math.floor(area() / 2) * 2 + 2
-    );
-  const cells = () =>
+  const canAim = createMemo(() => props.cells.some((cell) => cell.enabled));
+  const columns = createMemo(() =>
+    COLUMN_LABELS.slice((area() % 2) * 5, (area() % 2) * 5 + 5)
+  );
+  const rows = createMemo(() =>
+    ROW_LABELS.slice(Math.floor(area() / 2) * 2, Math.floor(area() / 2) * 2 + 2)
+  );
+  const cells = createMemo(() =>
     props.cells.filter(
       (cell) =>
         columns().includes(cell.id[0]?.toUpperCase() ?? '') &&
         rows().includes(cell.id.slice(1))
-    );
+    )
+  );
   const regions = Array.from(
     { length: 10 },
     (_, n) =>
@@ -60,6 +60,7 @@ export function BattleshipTargetGrid(props: {
       <BattleshipTargetLayout
         overview={
           <BattleshipRegionOverview
+            heading={t`Choose a region`}
             region={area()}
             regions={regions}
             descriptions={descriptions()}
@@ -85,11 +86,10 @@ export function BattleshipTargetGrid(props: {
         }
         controls={
           <StackVertical gap="xs" testId={`${props.testId}-target-tools`}>
-            <P variant="caption">{t`Choose a region`}</P>
             <P variant="label">
               {canAim()
-                ? t`Aim in ${regions[area()]}`
-                : t`Inspect ${regions[area()]}`}
+                ? t`Choose a cell: ${regions[area()]}`
+                : t`Inspect cells: ${regions[area()]}`}
             </P>
           </StackVertical>
         }

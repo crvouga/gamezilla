@@ -147,17 +147,17 @@ test('the keyboard selects a cell with arrows, rotates with R and places with En
 });
 
 // regression: battleship-locked-editing-guidance
-test('a locked setup disables every control and says why', () => {
+test('a locked setup hides editing controls and says why', () => {
   const board = setupBoard('fleet:carrier@a1h', true);
   expect(byTestId('setup-locked').textContent).toContain('locked in');
   expect(document.body.textContent).not.toContain('Tap its first cell');
   expect(document.body.textContent).not.toContain('Choose a placed ship');
   expect(cell('a5').getAttribute('aria-disabled')).toBe('true');
-  expect(byTestId('setup-rotate').hasAttribute('disabled')).toBe(true);
+  expect(document.querySelector('[data-testid="setup-rotate"]')).toBeNull();
   expect(
-    (byTestId('setup-ship-battleship') as HTMLInputElement).closest('fieldset')
-      ?.disabled
-  ).toBe(true);
+    document.querySelector('[data-testid="setup-ship-battleship"]')
+  ).toBeNull();
+  expect(byTestId('setup-enlarge').hasAttribute('disabled')).toBe(false);
   fireEvent.click(cell('a5'));
   fireEvent.keyDown(cell('a5'), { key: 'r' });
   expect(board.setup()).toBe('fleet:carrier@a1h');

@@ -1,10 +1,11 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createUniqueId, For, type JSX } from 'solid-js';
+import { createUniqueId, For, type JSX, Show } from 'solid-js';
 import styles from './battleship-target-layout.module.css';
 
 /** Visible spatial regions over a square ocean; only the enlarged cells commit input. */
 export function BattleshipRegionOverview(props: {
   overview: JSX.Element;
+  heading?: string;
   region: number;
   regions: readonly string[];
   /** Public outcomes in each region, available without opening its detail grid. */
@@ -24,6 +25,9 @@ export function BattleshipRegionOverview(props: {
       class={styles['navigator']}
       {...dataAttrs({ component: 'BattleshipRegionOverview' })}
     >
+      <Show when={props.heading}>
+        {(heading) => <span class="text textCaption">{heading()}</span>}
+      </Show>
       <div class={styles['map']}>
         <div class={styles['overview']} inert>
           {props.overview}

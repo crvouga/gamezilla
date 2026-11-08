@@ -13,10 +13,12 @@ export function BattleshipPlacementLayout(props: {
   feedback?: JSX.Element;
   overview: JSX.Element;
   overviewLabel: string;
+  inspection?: boolean;
 }): JSX.Element {
   return (
     <div
       class={styles['layout']}
+      data-inspection={props.inspection === true}
       {...dataAttrs({ component: 'BattleshipPlacementLayout' })}
     >
       <div class={styles['controls']}>{props.controls}</div>

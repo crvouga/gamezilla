@@ -119,7 +119,7 @@ export function BattleshipSetupBoard(
           {t`Your fleet is locked in and can no longer change.`}
         </Notice>
       </Show>
-      <Show when={!enlarged()}>
+      <Show when={!enlarged() && !props.locked}>
         <GameChoiceGrid
           label={t`Ships`}
           choices={shipChoices(setup.draft(), props.testId)}
@@ -137,11 +137,13 @@ export function BattleshipSetupBoard(
         open={enlarged()}
         onOpenChange={setEnlarged}
         commands={
-          <SetupCommands
-            setup={setup}
-            locked={props.locked}
-            testId={props.testId}
-          />
+          <Show when={!props.locked}>
+            <SetupCommands
+              setup={setup}
+              locked={props.locked}
+              testId={props.testId}
+            />
+          </Show>
         }
         feedback={
           <Show when={!props.locked}>

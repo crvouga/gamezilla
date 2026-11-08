@@ -7,7 +7,7 @@ import { CellGridBoard } from '@pkgs/ui-root-client-ts/cell-grid-board';
 import { Select } from '@pkgs/ui-root-client-ts/select';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { createSignal, type JSX, Show } from 'solid-js';
+import { createMemo, createSignal, type JSX, Show } from 'solid-js';
 import {
   COLUMN_LABELS,
   orientationName,
@@ -28,6 +28,27 @@ function shipOptions(setup: SetupController, testId: string) {
           : `${shipName(id)} · ${placed.bow.toUpperCase()}, ${orientationName(placed.orientation)}`,
     };
   });
+}
+
+function SetupShipPicker(props: {
+  setup: SetupController;
+  locked: boolean;
+  testId: string;
+}): JSX.Element {
+  return (
+    <Show when={!props.locked}>
+      <Select
+        aria-label={t`Ship to place`}
+        placeholder={t`Choose a ship to reposition`}
+        value={props.setup.selected() ?? ''}
+        onValueChange={(value) => {
+          if (isShipId(value)) props.setup.choose(value);
+        }}
+        triggerDataSet={{ testid: `${props.testId}-ship-picker` }}
+        options={shipOptions(props.setup, props.testId)}
+      />
+    </Show>
+  );
 }
 
 function regionOptions() {
@@ -51,6 +72,24 @@ function regionOptions() {
   ];
 }
 
+function createRegion(setup: () => SetupController) {
+  const [area, setArea] = createSignal('nw');
+  const left = () => (area().endsWith('w') ? 0 : 5);
+  const top = () => (area().startsWith('n') ? 0 : 5);
+  const cells = createMemo(() =>
+    setup()
+      .cells()
+      .filter(
+        (_, index) =>
+          index % 10 >= left() &&
+          index % 10 < left() + 5 &&
+          Math.floor(index / 10) >= top() &&
+          Math.floor(index / 10) < top() + 5
+      )
+  );
+  return { area, setArea, left, top, cells };
+}
+
 /** A magnified bow picker; placement still validates against the full fleet. */
 export function SetupPrecision(props: {
   setup: SetupController;
@@ -62,19 +101,7 @@ export function SetupPrecision(props: {
   commands: JSX.Element;
   feedback: JSX.Element;
 }): JSX.Element {
-  const [area, setArea] = createSignal('nw');
-  const left = () => (area().endsWith('w') ? 0 : 5);
-  const top = () => (area().startsWith('n') ? 0 : 5);
-  const cells = () =>
-    props.setup
-      .cells()
-      .filter(
-        (_, index) =>
-          index % 10 >= left() &&
-          index % 10 < left() + 5 &&
-          Math.floor(index / 10) >= top() &&
-          Math.floor(index / 10) < top() + 5
-      );
+  const region = createRegion(() => props.setup);
   return (
     <StackVertical gap="sm" width="full" align="center">
       <Show
@@ -88,48 +115,53 @@ export function SetupPrecision(props: {
         }
       >
         <BattleshipPlacementLayout
-          overviewLabel={t`Choose region`}
+          inspection={props.locked}
+          overviewLabel={
+            props.locked ? t`Inspect your fleet` : t`Choose region`
+          }
           overview={
             <BattleshipRegionOverview
               overview={props.overview}
               placement
               label={t`Fleet overview`}
-              region={['nw', 'ne', 'sw', 'se'].indexOf(area())}
+              region={['nw', 'ne', 'sw', 'se'].indexOf(region.area())}
               regions={regionOptions().map((option) => option.label)}
               onRegion={(index) =>
-                setArea(['nw', 'ne', 'sw', 'se'][index] ?? 'nw')
+                region.setArea(['nw', 'ne', 'sw', 'se'][index] ?? 'nw')
               }
-              disabled={props.locked}
               testId={props.testId}
             />
           }
           feedback={props.feedback}
           commands={props.commands}
           controls={
-            <>
-              <Select
-                aria-label={t`Ship to place`}
-                placeholder={t`Choose a ship to reposition`}
-                value={props.setup.selected() ?? ''}
-                onValueChange={(value) => {
-                  if (isShipId(value)) props.setup.choose(value);
-                }}
-                disabled={props.locked}
-                triggerDataSet={{ testid: `${props.testId}-ship-picker` }}
-                options={shipOptions(props.setup, props.testId)}
-              />
-            </>
+            <SetupShipPicker
+              setup={props.setup}
+              locked={props.locked}
+              testId={props.testId}
+            />
           }
           region={
-            <P variant="label">{t`Place in ${regionOptions().find((option) => option.value === area())?.label ?? ''}`}</P>
+            <P variant="label">
+              {props.locked
+                ? t`Inspect ${regionOptions().find((option) => option.value === region.area())?.label ?? ''}`
+                : t`Place in ${regionOptions().find((option) => option.value === region.area())?.label ?? ''}`}
+            </P>
           }
           working={
             <CellGridBoard
-              label={t`Enlarged bow placement`}
+              label={
+                props.locked
+                  ? t`Enlarged fleet inspection`
+                  : t`Enlarged bow placement`
+              }
               testId={`${props.testId}-precision`}
-              columnLabels={COLUMN_LABELS.slice(left(), left() + 5)}
-              rowLabels={ROW_LABELS.slice(top(), top() + 5)}
-              cells={cells()}
+              columnLabels={COLUMN_LABELS.slice(
+                region.left(),
+                region.left() + 5
+              )}
+              rowLabels={ROW_LABELS.slice(region.top(), region.top() + 5)}
+              cells={region.cells()}
               onActivate={props.setup.place}
               onPreview={props.setup.preview}
               onCellKey={(key) => {
@@ -142,10 +174,15 @@ export function SetupPrecision(props: {
         />
       </Show>
       <Button
-        title={props.open ? t`Show full board` : t`Enlarge placement`}
+        title={
+          props.open
+            ? t`Show full board`
+            : props.locked
+              ? t`Enlarge fleet`
+              : t`Enlarge placement`
+        }
         variant="ghost"
         intent="neutral"
-        disabled={props.locked}
         onClick={() => props.onOpenChange(!props.open)}
         dataSet={{ testid: `${props.testId}-enlarge` }}
       />

@@ -65,7 +65,7 @@ test('a spectator inspects Red waters without being told to aim or fire', () => 
   fireEvent.click(byTestId('watch-view-target'));
   fireEvent.click(byTestId('watch-area-9'));
   expect(byTestId('watch-target-tools').textContent).toContain(
-    'Inspect F9–J10'
+    'Inspect cells: F9–J10'
   );
   expect(byTestId('watch-aim-grid').getAttribute('aria-label')).toBe(
     'Shot details'

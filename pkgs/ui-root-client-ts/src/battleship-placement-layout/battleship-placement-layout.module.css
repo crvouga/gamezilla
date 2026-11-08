@@ -65,3 +65,16 @@
     justify-self: center;
   }
 }
+
+.controls:empty,
+.commands:empty,
+.feedback:empty {
+  display: none;
+}
+@media (max-width: 639px) {
+  .layout[data-inspection="true"] .overview {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    justify-self: center;
+  }
+}
