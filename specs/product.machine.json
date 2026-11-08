@@ -6491,6 +6491,7 @@
                         "snapshot": "Word Tiles offers custom games for two to four, an opponent for two, instructions, history, replay and one-move challenges, as every game does, each player seeing only their own rack.",
                         "confidence": "assumed",
                         "source": [
+                          "specs/journeys/word-tiles-start.feature",
                           "specs/word-tiles/word-tiles-words.feature",
                           "specs/word-tiles/word-tiles-scores.feature",
                           "specs/word-tiles/word-tiles-turns.feature",
@@ -6531,6 +6532,7 @@
                         "snapshot": "Hearts offers four players custom games with people or bots, instructions, history and replay, and nobody is paired up for it. Each player passes three cards in secret, a stand-in plays for a player who is away, and players tied for the lowest score share the victory.",
                         "confidence": "assumed",
                         "source": [
+                          "specs/journeys/hearts-start.feature",
                           "specs/hearts/hearts-accessibility.feature",
                           "specs/hearts/hearts-away.feature",
                           "specs/hearts/hearts-breaking.feature",
@@ -6569,6 +6571,7 @@
                         "snapshot": "Light Cycles Duel offers two riders, Comet and Ember, custom games with people and bots, finding players, and practice against bots on one device. Every rider leaves a trail, the last rider riding wins the round, and the first to the target score wins the game.",
                         "confidence": "assumed",
                         "source": [
+                          "specs/journeys/light-cycles-start.feature",
                           "specs/light-cycles/light-cycles-riding.feature",
                           "specs/light-cycles/light-cycles-crashes.feature",
                           "specs/light-cycles/light-cycles-rounds.feature",
@@ -6606,6 +6609,7 @@
                         "snapshot": "Light Cycles Trio offers three riders, Comet, Ember and Nova, custom games with people and bots, finding players, and practice against bots on one device. Every rider leaves a trail, the last rider riding wins the round, and the first to the target score wins the game.",
                         "confidence": "assumed",
                         "source": [
+                          "specs/journeys/light-cycles-start.feature",
                           "specs/light-cycles/light-cycles-riding.feature",
                           "specs/light-cycles/light-cycles-crashes.feature",
                           "specs/light-cycles/light-cycles-rounds.feature",
@@ -6643,6 +6647,7 @@
                         "snapshot": "Light Cycles Quad offers four riders, Comet, Ember, Nova and Volt, custom games with people and bots, finding players, and practice against bots on one device. Every rider leaves a trail, the last rider riding wins the round, and the first to the target score wins the game.",
                         "confidence": "assumed",
                         "source": [
+                          "specs/journeys/light-cycles-start.feature",
                           "specs/light-cycles/light-cycles-riding.feature",
                           "specs/light-cycles/light-cycles-crashes.feature",
                           "specs/light-cycles/light-cycles-rounds.feature",
@@ -11304,14 +11309,19 @@
                           "id": "Inspectors: Sync inspection",
                           "meta": {
                             "description": "This device's sync inspection is at /more/sync; /more/server-status is currently a status placeholder. Offline recovery and keeping saved data have contracts; diagnostic controls, status details and their failure outcomes still need their own complete observable contract.",
-                            "routes": ["/more/sync", "/more/server-status"],
+                            "routes": [
+                              "/more/sync",
+                              "/more/server-status",
+                              "/more/troubleshooting"
+                            ],
                             "source": [
                               "specs/sync-engine/notes-offline.feature",
                               "specs/README.md#product-contract-inventory"
                             ],
                             "hints": [
                               "App address: /more/sync",
-                              "App address: /more/server-status"
+                              "App address: /more/server-status",
+                              "App address: /more/troubleshooting"
                             ]
                           },
                           "on": {

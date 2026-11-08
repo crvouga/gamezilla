@@ -161,7 +161,7 @@ export const followFindFriends = scenarioAction({
 /**
  * On their profile: Block → confirm. Block sits behind ⋯ beside Remove
  * friend, and alone in the header otherwise (a menu never holds one item).
- * Lands back where the person came from.
+ * Wait for success, dismiss Done, then explicitly return to the tabs.
  */
 export const blockPerson = scenarioAction({
   name: 'blockPerson',
@@ -174,7 +174,16 @@ export const blockPerson = scenarioAction({
     await ui.get(Handles.friendBlock(username)).tap({ timeoutMs: WAIT_MS });
     const confirm = Handles.friendBlockConfirm(username);
     await ui.get(confirm).tap({ timeoutMs: WAIT_MS });
-    await ui.get(confirm).expect.hidden({ timeoutMs: HIDDEN_MS });
+    // regression: friend-danger-harness-vacuous-success
+    await ui
+      .get(Handles.friendBlockSuccess(username))
+      .expect.visible({ timeoutMs: WAIT_MS });
+    await ui.get(Handles.friendBlockDone(username)).tap({ timeoutMs: WAIT_MS });
+    await ui
+      .get(Handles.friendBlockSuccess(username))
+      .expect.hidden({ timeoutMs: HIDDEN_MS });
+    await Promise.resolve(backToTabs.act(s, actorId));
+    await ui.get(Handles.tabProfile).expect.visible({ timeoutMs: WAIT_MS });
   },
 });
 

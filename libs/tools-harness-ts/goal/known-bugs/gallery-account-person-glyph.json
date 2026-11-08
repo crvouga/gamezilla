@@ -1,0 +1,4 @@
+{
+  "summary": "Account gallery triggers showed outlined person glyphs instead of Avatar placeholders.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/gallery-round-eighteen.checks.ts"
+}

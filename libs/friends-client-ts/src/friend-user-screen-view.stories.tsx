@@ -7,6 +7,7 @@ import { UsersIcon } from '@pkgs/ui-root-client-ts/icons';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { FriendUserScreenView } from './friend-user-screen-view';
+import { FriendUserSuccessExample } from './friend-user-success.example';
 
 /** Morgan's id in the space fixtures (`spaces-story.example.tsx`): one face everywhere. */
 const MORGAN_ID = '5a1e0000-0000-4000-8000-000000000003';
@@ -66,8 +67,32 @@ export const Loading: Story = { args: { presence: 'loading' } };
 /** This device has never synced and the last attempt failed; retry asks again. */
 export const Unreachable: Story = { args: { presence: 'unreachable' } };
 
-/** The account was deleted: the profile says so instead of showing nobody. */
+/** The requested profile does not exist after its scope has answered. */
 export const Unavailable: Story = { args: { presence: 'unavailable' } };
+
+/** A synced tombstone explains why this profile cannot be opened. */
+export const Deleted: Story = {
+  args: {
+    presence: 'deleted',
+    profile: { userId: MORGAN_ID, username: '', avatarConfig: null },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText('This account was deleted.')).toBeVisible();
+    await expect(
+      canvas.queryByText(/morgan|5a1e0000/i)
+    ).not.toBeInTheDocument();
+    await expect(
+      canvas.getByRole('heading', { name: 'Account deleted', level: 1 })
+    ).toBeVisible();
+    await expect(
+      canvas.getByRole('link', { name: 'Return to Friends' })
+    ).toHaveAttribute('href', '/profile/friends');
+    await expect(
+      canvas.queryByRole('button', { name: 'Add friend' })
+    ).not.toBeInTheDocument();
+  },
+};
 
 /** A request is out: one Cancel request control. */
 export const RequestSent: Story = { args: { status: 'pending_outgoing' } };
@@ -137,13 +162,24 @@ export const RefusedChange: Story = {
   },
 };
 
-/** Long names truncate to one line. */
+/** A valid maximum-length identity must remain readable on a phone. */
+// regression: friend-profile-valid-username-clipped
 export const LongName: Story = {
   args: {
     profile: {
       ...PROFILE,
-      username: 'a_really_long_username_that_keeps_going_and_going',
+      username: 'wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww',
     },
+  },
+  play: async ({ canvasElement }) => {
+    const heading = await within(canvasElement).findByTestId(
+      Handles.friendUserUsername
+    );
+    await canvasElement.ownerDocument.fonts.ready;
+    await expect(heading.scrollWidth).toBeLessThanOrEqual(heading.clientWidth);
+    await expect(heading.scrollHeight).toBeLessThanOrEqual(
+      heading.clientHeight
+    );
   },
 };
 
@@ -181,5 +217,104 @@ export const RemoveFailed: Story = {
       await body.findByText('This friend could not be removed. Try again.')
     ).toBeVisible();
     await expect(args.onRemove).toHaveBeenCalledOnce();
+  },
+};
+
+/** Removal is acknowledged in place until the person chooses Done. */
+export const RemoveSucceeded: Story = {
+  render: (args) => <FriendUserSuccessExample {...args} />,
+  args: { status: 'friends', confirming: 'remove', onRemove: resolved() },
+  play: async ({ args, canvasElement }) => {
+    const body = within(canvasElement.ownerDocument.body);
+    await userEvent.click(
+      await body.findByTestId(Handles.friendRemoveConfirm('morgan'))
+    );
+    await expect(await body.findByText('Friend removed')).toBeVisible();
+    await expect(args.onRemove).toHaveBeenCalledOnce();
+    await expect(args.onCancelConfirm).not.toHaveBeenCalled();
+  },
+};
+
+/** Blocking is acknowledged in place, preserving the route to unblock later. */
+export const BlockSucceeded: Story = {
+  render: (args) => <FriendUserSuccessExample {...args} />,
+  args: { confirming: 'block', onBlock: resolved() },
+  play: async ({ args, canvasElement }) => {
+    const body = within(canvasElement.ownerDocument.body);
+    await userEvent.click(
+      await body.findByTestId(Handles.friendBlockConfirm('morgan'))
+    );
+    await expect(await body.findByText('User blocked')).toBeVisible();
+    await expect(args.onBlock).toHaveBeenCalledOnce();
+    await expect(args.onCancelConfirm).not.toHaveBeenCalled();
+  },
+};
+
+/** A failed block offers a retry without leaving the person's profile. */
+export const BlockFailed: Story = {
+  args: {
+    confirming: 'block',
+    onBlock: fn(() => Promise.reject(new Error('offline'))),
+  },
+  play: async ({ args, canvasElement }) => {
+    const body = within(canvasElement.ownerDocument.body);
+    await userEvent.click(
+      await body.findByTestId(Handles.friendBlockConfirm('morgan'))
+    );
+    await expect(
+      await body.findByText('This user could not be blocked. Try again.')
+    ).toBeVisible();
+    await expect(
+      await body.findByRole('button', { name: 'Try again' })
+    ).toBeEnabled();
+    await expect(args.onBlock).toHaveBeenCalledOnce();
+  },
+};
+
+/** After acknowledging removal, the same profile offers Add friend. */
+export const RemoveDismissed: Story = {
+  ...RemoveSucceeded,
+  play: async ({ args, canvasElement }) => {
+    const body = within(canvasElement.ownerDocument.body);
+    await userEvent.click(
+      await body.findByTestId(Handles.friendRemoveConfirm('morgan'))
+    );
+    await userEvent.click(
+      await body.findByTestId(Handles.friendRemoveDone('morgan'))
+    );
+    await expect(
+      body.queryByTestId(Handles.friendRemoveSuccess('morgan'))
+    ).not.toBeInTheDocument();
+    await expect(
+      await body.findByTestId(Handles.friendAdd('morgan'))
+    ).toBeVisible();
+    await expect(
+      await body.findByTestId(Handles.friendUserUsername)
+    ).toHaveTextContent('@morgan');
+    await expect(args.onCancelConfirm).toHaveBeenCalledOnce();
+  },
+};
+
+/** After acknowledging a block, the same profile offers Unblock. */
+export const BlockDismissed: Story = {
+  ...BlockSucceeded,
+  play: async ({ args, canvasElement }) => {
+    const body = within(canvasElement.ownerDocument.body);
+    await userEvent.click(
+      await body.findByTestId(Handles.friendBlockConfirm('morgan'))
+    );
+    await userEvent.click(
+      await body.findByTestId(Handles.friendBlockDone('morgan'))
+    );
+    await expect(
+      body.queryByTestId(Handles.friendBlockSuccess('morgan'))
+    ).not.toBeInTheDocument();
+    await expect(
+      await body.findByTestId(Handles.friendUnblock('morgan'))
+    ).toBeVisible();
+    await expect(
+      await body.findByTestId(Handles.friendUserUsername)
+    ).toHaveTextContent('@morgan');
+    await expect(args.onCancelConfirm).toHaveBeenCalledOnce();
   },
 };
