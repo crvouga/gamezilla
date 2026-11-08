@@ -48,3 +48,19 @@ test('the focus ring pairs the app ring with the board-derived contrast band', (
   expect(rule).toContain('var(--chess-focus-band)');
   expect(rule).toContain('inset');
 });
+
+// regression: chess-puzzle-guidance-below-short-landscape-fold
+test('open keyboard help floats over the board in a short landscape window', () => {
+  const board = [...document.head.querySelectorAll('style')]
+    .map((style) => style.textContent)
+    .join('\n');
+  const query = /@media \(orientation: landscape\) and \([^)]*560px\)/.exec(
+    board
+  );
+  const landscape = board.slice(query?.index ?? board.length);
+  const rule = /keyboardHelp\[open\] > :last-child\s*\{([^}]*)\}/.exec(
+    landscape
+  )?.[1];
+  expect(rule).toContain('position: absolute');
+  expect(rule).toContain('var(--ui-color-surface)');
+});

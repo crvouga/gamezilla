@@ -400,3 +400,24 @@
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
+
+/* A short landscape window (a phone on its side): open keyboard help
+   floats above its summary over the board, so the board column never
+   grows past the window and the help is read where it was opened. */
+@media (orientation: landscape) and (max-height: 560px) {
+  .keyboardHelp {
+    position: relative;
+  }
+  .keyboardHelp[open] > :last-child {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    z-index: 1;
+    width: max-content;
+    max-width: 280px;
+    padding: var(--ui-space-2) var(--ui-space-3);
+    border: 1px solid var(--ui-color-border);
+    border-radius: var(--ui-radius-sm);
+    background: var(--ui-color-surface);
+  }
+}

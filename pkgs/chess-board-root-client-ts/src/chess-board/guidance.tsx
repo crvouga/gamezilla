@@ -3,6 +3,7 @@ import type { ChessBoardProps } from '@pkgs/chess-board-root-shared-ts/chess-boa
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import type { BoardController } from '../chess-board-controller';
+import styles from './chess-board.module.css';
 
 /** Visible equivalents of board orientation and keyboard/check affordances. */
 export function ChessBoardGuidance(props: {
@@ -57,7 +58,7 @@ export function ChessBoardGuidance(props: {
         <P variant="caption" tone="secondary">
           <Trans>Tap a piece, then a square.</Trans>
         </P>
-        <details>
+        <details class={styles['keyboardHelp']}>
           <summary class="text textCaption list-item cursor-pointer">
             <Trans>Keyboard controls</Trans>
           </summary>
