@@ -6,11 +6,11 @@ import {
   openStory,
 } from '../numberlink-board/evidence';
 
+const viewport = { width: 390, height: 844 };
+test.use({ viewport, video: { mode: 'on', size: viewport }, trace: 'on' });
+
 for (const theme of ['light', 'dark']) {
   test.describe(theme, () => {
-    const viewport = { width: 390, height: 844 };
-    test.use({ viewport, video: { mode: 'on', size: viewport }, trace: 'on' });
-
     test(`storybook integration: numberlink-access natural Tab entry ${theme}`, async ({
       page,
     }, info) => {

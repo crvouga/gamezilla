@@ -5,15 +5,16 @@ import {
   startMeasurements,
 } from '../numberlink-board/performance';
 
+test.use({
+  video: { mode: 'on', size: { width: 1440, height: 1024 } },
+  trace: 'off',
+});
+
 for (const width of [390, 1440])
   for (const theme of ['light', 'dark'])
     test.describe(`${width} ${theme}`, () => {
       const viewport = { width, height: width < 768 ? 844 : 1024 };
-      test.use({
-        viewport,
-        video: { mode: 'on', size: viewport },
-        trace: 'off',
-      });
+      test.use({ viewport });
       test(`storybook integration: numberlink-performance repeated dense routes ${width} ${theme}`, async ({
         page,
       }, info) => {
