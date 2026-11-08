@@ -5,13 +5,10 @@ import {
   renderGameTable,
 } from '@libs/game-session-client-ts/game-frame-table.example';
 import {
-  decodeQuoridor,
   encodeQuoridor,
-  playQuoridor,
   replayQuoridor,
 } from '@libs/quoridor-shared-ts/quoridor';
 import { QUORIDOR_SIDES } from '@libs/quoridor-shared-ts/quoridor-rules';
-import { createMemo, createSignal } from 'solid-js';
 import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { QuoridorBoard } from './quoridor-board';
@@ -24,6 +21,7 @@ import {
   expectHillDestinationVisible,
   expectHillPassVisible,
 } from './quoridor-hill-visibility.example';
+import { quoridorJourney } from './quoridor-journey.example';
 import { cancelQuoridorWallWithKeyboard } from './quoridor-keyboard.example';
 import {
   chooseQuoridorCoordinate,
@@ -34,12 +32,6 @@ import {
   expectQuoridorSpatialArea,
   expectQuoridorWallPreview,
 } from './quoridor-wall-preview.example';
-
-function sideAt(index: number) {
-  const side = QUORIDOR_SIDES[index];
-  if (side === undefined) throw new Error('Unknown hill seat');
-  return side;
-}
 
 /** The King of the Hill position after `actions`, South first, then clockwise. */
 function hill(actions: readonly string[]): string {
@@ -161,47 +153,12 @@ export const Lost: Story = {
 };
 
 /** Every accepted action goes through the production rules and paints a new position. */
-const renderHillJourney: NonNullable<Story['render']> = (args, context) => {
-  const [game, setGame] = createSignal(decodeQuoridor(args.position));
-  const view = createMemo(() => {
-    const current = game();
-    const side = sideAt(current.turn);
-    return renderGameTable(
-      quoridorHillGameClient.presentation,
-      QUORIDOR_SIDES,
-      {
-        ...args,
-        position: encodeQuoridor(current),
-        orientation: side,
-        interactive: current.winner === null,
-        onAction: (action) => {
-          const next = playQuoridor(game(), action);
-          if (next === null) throw new Error(`Refused hill action: ${action}`);
-          setGame(next);
-        },
-      },
-      {
-        ...context,
-        parameters: {
-          ...context.parameters,
-          table: {
-            turn: side,
-            moves: current.actions,
-            ...(current.winner === null
-              ? {}
-              : {
-                  ending: {
-                    winner: sideAt(current.winner),
-                    reason: 'hill reached',
-                  },
-                }),
-          } satisfies GameTableStory,
-        },
-      }
-    );
-  });
-  return <>{view()}</>;
-};
+const renderHillJourney: NonNullable<Story['render']> = quoridorJourney({
+  presentation: quoridorHillGameClient.presentation,
+  sides: QUORIDOR_SIDES,
+  reason: 'hill reached',
+  seat: 'turn',
+});
 
 /** Coordinate choices advance the same four-player production-rule fixture. */
 export const PreciseCoordinates: Story = {

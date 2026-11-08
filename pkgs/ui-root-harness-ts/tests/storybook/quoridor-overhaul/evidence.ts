@@ -38,6 +38,10 @@ export async function recordQuoridorState(
   theme: string
 ): Promise<void> {
   const playMilliseconds = await testStoryReady(page, story, theme);
+  // Read timing before axe so its audit work is not counted as board long tasks.
+  const metrics = await page.evaluate(
+    () => (window as unknown as { quoridorMetrics: unknown }).quoridorMetrics
+  );
   await page.addScriptTag({ content: axe.source });
   const accessibility = await page.evaluate(auditQuoridorAccessibility);
   await info.attach(`${story}-accessibility`, {
@@ -53,9 +57,6 @@ export async function recordQuoridorState(
     body: await page.screenshot({ fullPage: true }),
     contentType: 'image/png',
   });
-  const metrics = await page.evaluate(
-    () => (window as unknown as { quoridorMetrics: unknown }).quoridorMetrics
-  );
   await info.attach(`${story}-metrics`, {
     body: JSON.stringify(
       {
@@ -64,7 +65,7 @@ export async function recordQuoridorState(
         playMilliseconds,
         metrics,
         limits:
-          'playMilliseconds is navigation to scripted-play completion, dominated by test-library pacing. Event dispatch to next animation frame, not hardware input latency. Story play may use synthetic events. CPU throttling approximates a slower CPU; it is not a physical mobile device.',
+          'Metrics are read before the accessibility audit. playMilliseconds is navigation to scripted-play completion, dominated by test-library pacing. Event dispatch to next animation frame, not hardware input latency. Story play may use synthetic events. CPU throttling approximates a slower CPU; it is not a physical mobile device.',
       },
       null,
       2

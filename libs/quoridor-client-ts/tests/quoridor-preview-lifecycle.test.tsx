@@ -68,10 +68,15 @@ test('Escape on a selected wall anchor cancels without spending a wall in both v
 // regression: quoridor-stale-preview-on-position-change
 test('an incoming move clears both the selected and focused wall preview', () => {
   for (const mode of ['classic', 'hill'] as const) {
-    const { view, anchor, advance } = mountBoard(mode);
+    const { view, advance } = mountBoard(mode);
     advance();
     expect(view.queryByTestId('lifecycle-wall-commit')).toBeNull();
-    expect(anchor().getAttribute('data-preview-edge-top')).toBe('false');
+    // The new turn starts with the pawn tool, so the anchor square drops its wall suffix.
+    expect(
+      view
+        .getByTestId('lifecycle-action-d4')
+        .getAttribute('data-preview-edge-top')
+    ).toBe('false');
     expect(view.getByTestId('lifecycle-wall-status').textContent).not.toContain(
       'Preview only'
     );

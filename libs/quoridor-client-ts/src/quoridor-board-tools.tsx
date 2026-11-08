@@ -40,6 +40,24 @@ export function QuoridorBoardTools(props: {
 }
 
 /** Full-size coordinate choices supplement the whole board's smaller touch cells. */
+/** Picker rows: full descriptions, filtered by coordinate alone. */
+export function quoridorTargetOptions(
+  testId: string,
+  tool: QuoridorTool,
+  cells: readonly CellGridCell[]
+) {
+  return cells
+    .filter((cell) => cell.enabled)
+    .map((cell) => ({
+      value: cell.id,
+      label:
+        tool === 'move' ? cell.label : quoridorBoundary(`${cell.id}${tool}`),
+      // Every wall label shares words like "above", so a letter would match them all.
+      searchText: cell.id,
+      dataSet: { testid: `${testId}-precise-${cell.id}` },
+    }));
+}
+
 export function QuoridorTargetPicker(props: {
   testId: string;
   tool: QuoridorTool;
@@ -59,19 +77,13 @@ export function QuoridorTargetPicker(props: {
       placeholder={
         props.tool === 'move' ? t`Choose destination` : t`Choose wall anchor`
       }
+      surfaceTitle={
+        props.tool === 'move' ? t`Choose destination` : t`Choose wall anchor`
+      }
       value={props.selected ?? ''}
       searchable={props.tool !== 'move'}
       triggerDataSet={{ testid: `${props.testId}-precise-target` }}
-      options={props.cells
-        .filter((cell) => cell.enabled)
-        .map((cell) => ({
-          value: cell.id,
-          label:
-            props.tool === 'move'
-              ? cell.label
-              : quoridorBoundary(`${cell.id}${props.tool}`),
-          dataSet: { testid: `${props.testId}-precise-${cell.id}` },
-        }))}
+      options={quoridorTargetOptions(props.testId, props.tool, props.cells)}
       onValueChange={props.onActivate}
     />
   );

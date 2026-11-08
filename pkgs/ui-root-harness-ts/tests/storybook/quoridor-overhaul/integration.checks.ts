@@ -20,6 +20,9 @@ const journeys = {
     'rotate-wall-preview',
     'reach-opposite-edge',
     'watching',
+    'no-walls-left',
+    'won',
+    'lost',
   ],
   hill: [
     'opening',
@@ -31,6 +34,7 @@ const journeys = {
     'pass-and-continue',
     'reach-the-hill',
     'waiting-for-others',
+    'won',
     'lost',
   ],
 } as const;

@@ -5,18 +5,16 @@ import {
   renderGameTable,
 } from '@libs/game-session-client-ts/game-frame-table.example';
 import {
-  decodeQuoridor,
   encodeQuoridor,
-  playQuoridor,
   replayQuoridor,
 } from '@libs/quoridor-shared-ts/quoridor';
 import { TWO_PLAYER_SIDES } from '@pkgs/turn-game-shared-ts/game-rules';
-import { createSignal, mergeProps } from 'solid-js';
 import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { expectQuoridorActionsFit } from './quoridor-action-bounds.example';
 import { QuoridorBoard } from './quoridor-board';
 import { quoridorGameClient } from './quoridor-game-client';
+import { quoridorJourney } from './quoridor-journey.example';
 import { cancelQuoridorWallWithKeyboard } from './quoridor-keyboard.example';
 import {
   chooseQuoridorCoordinate,
@@ -134,25 +132,12 @@ export const Lost: Story = {
 };
 
 /** Apply the real rules so interaction stories show the resulting board. */
-const renderClassicJourney: NonNullable<Story['render']> = (args, context) => {
-  const [position, setPosition] = createSignal(args.position);
-  const board = mergeProps(args, {
-    get position() {
-      return position();
-    },
-    onAction(action: string) {
-      args.onAction(action);
-      const next = playQuoridor(decodeQuoridor(position()), action);
-      if (next !== null) setPosition(encodeQuoridor(next));
-    },
-  });
-  return renderGameTable(
-    quoridorGameClient.presentation,
-    TWO_PLAYER_SIDES,
-    board,
-    context
-  );
-};
+const renderClassicJourney: NonNullable<Story['render']> = quoridorJourney({
+  presentation: quoridorGameClient.presentation,
+  sides: TWO_PLAYER_SIDES,
+  reason: 'opposite row reached',
+  seat: 'fixed',
+});
 
 /** Place a wall, refuse a crossing, then rotate and place a legal wall. */
 export const PlaceAWall: Story = {
@@ -179,8 +164,12 @@ export const PlaceAWall: Story = {
       await canvas.findByTestId('custom-game-board-action-e5h')
     );
     await userEvent.click(canvas.getByTestId('custom-game-board-wall-commit'));
+    // regression: quoridor-wall-tool-carries-into-next-turn
     await expect(
-      canvas.getByTestId('custom-game-board-action-e5h')
+      canvas.getByTestId('custom-game-board-mode-move')
+    ).toHaveAttribute('aria-pressed', 'true');
+    await expect(
+      canvas.getByTestId('custom-game-board-action-e5')
     ).toHaveAccessibleName(/wall boundaries/);
     await userEvent.click(canvas.getByTestId('custom-game-board-mode-v'));
     await userEvent.click(canvas.getByTestId('custom-game-board-action-e5v'));
@@ -190,7 +179,7 @@ export const PlaceAWall: Story = {
     await userEvent.click(canvas.getByTestId('custom-game-board-action-b3v'));
     await userEvent.click(canvas.getByTestId('custom-game-board-wall-commit'));
     await expect(
-      canvas.getByTestId('custom-game-board-action-b3v')
+      canvas.getByTestId('custom-game-board-action-b3')
     ).toHaveAccessibleName(/wall boundaries/);
   },
 };
@@ -241,7 +230,7 @@ export const KeepAPathOpen: Story = {
     await userEvent.click(canvas.getByTestId('custom-game-board-action-g3v'));
     await userEvent.click(canvas.getByTestId('custom-game-board-wall-commit'));
     await expect(
-      canvas.getByTestId('custom-game-board-action-g3v')
+      canvas.getByTestId('custom-game-board-action-g3')
     ).toHaveAttribute('data-edge-right', 'true');
   },
 };

@@ -27,6 +27,7 @@ import {
   type QuoridorTool,
   quoridorBoardCells,
   quoridorBoundary,
+  quoridorPlayerName,
   quoridorWallMessage,
 } from './quoridor-board-cells';
 import {
@@ -88,15 +89,18 @@ function createBoardSelection(props: BoardViewProps) {
     if (game().winner !== null)
       return t`Game finished. Use the game controls to review earlier moves.`;
     if (!props.interactive)
-      return t`This board is read-only. Follow the game or review earlier moves.`;
+      return t`Waiting for ${quoridorPlayerName(game(), game().turn)} to move. This board is read-only.`;
     if (quoridorMustPass(game()))
       return t`No legal move or wall. Pass to continue.`;
-    if ((game().remaining[game().turn] ?? 0) === 0)
-      return quoridorWallMessage('no-walls');
     const action = previewAction();
-    return action === null
-      ? props.state.refusal()
-      : `${quoridorBoundary(action)}. ${quoridorWallMessage(wallRefusal(game(), action))}`;
+    if (action !== null)
+      return `${quoridorBoundary(action)}. ${quoridorWallMessage(wallRefusal(game(), action), game().mode)}`;
+    // A host refusal explains the last attempt; it outranks standing guidance.
+    const refused = props.state.refusal();
+    if (refused !== '') return refused;
+    return (game().remaining[game().turn] ?? 0) === 0
+      ? quoridorWallMessage('no-walls', game().mode)
+      : '';
   };
   const activate = (cell: string): void => {
     const action = tool() === 'move' ? cell : `${cell}${tool()}`;
@@ -197,6 +201,17 @@ export function createQuoridorBoard(
   const game = createMemo(() => decodeQuoridor(props.position));
   const [tool, setTool] = createSignal<QuoridorTool>('move');
   const [refusal, setRefusal] = createSignal('');
+  // Each new position starts a fresh turn with the pawn tool, never a leftover wall tool.
+  createEffect(
+    on(
+      () => props.position,
+      () => {
+        setTool('move');
+        setRefusal('');
+      },
+      { defer: true }
+    )
+  );
   const live = (): boolean => props.interactive && game().winner === null;
   const toolActions = (): readonly GameFrameAction[] =>
     TOOLS.map((each) => ({
