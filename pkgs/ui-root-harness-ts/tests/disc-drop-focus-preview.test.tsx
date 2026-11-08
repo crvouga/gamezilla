@@ -16,6 +16,7 @@ function setup(cells = Array.from({ length: 42 }, () => 0)) {
       interactive
       label="Connect Four"
       prompt="Choose a column"
+      keyboardHelp="Arrow keys choose a column. Home and End go to the edges. Enter or Space drops."
       fullColumnPrompt={(column) =>
         `Column ${column + 1} is full. Choose another column.`
       }
@@ -27,6 +28,21 @@ function setup(cells = Array.from({ length: 42 }, () => 0)) {
     />
   ));
 }
+
+// regression: connect-four-keyboard-controls-undiscoverable
+test('focused columns describe their keyboard controls alongside their contents', () => {
+  const view = setup();
+  const column = view.getByTestId('column-0');
+  column.focus();
+  expect(column).toHaveAccessibleDescription(/Arrow keys choose a column/);
+  expect(column).toHaveAccessibleDescription(/Home and End/);
+  expect(column).toHaveAccessibleDescription(/Enter or Space drops/);
+  expect(column).toHaveAttribute(
+    'aria-keyshortcuts',
+    'ArrowLeft ArrowRight Home End Enter Space'
+  );
+  view.unmount();
+});
 
 // regression: connect-four-pointer-leave-clears-keyboard-preview
 test('leaving a hovered column restores the keyboard landing preview', () => {

@@ -39,6 +39,19 @@ export async function measureDrop(
   await page.evaluate(() => {
     const root = document.querySelector('#storybook-root');
     if (!root) throw new Error('Missing canvas');
+    const listeners = new AbortController();
+    let inputStart = 0;
+    const rememberInput = (event: Event) => {
+      inputStart ||= event.timeStamp;
+    };
+    root.addEventListener('pointerdown', rememberInput, {
+      capture: true,
+      signal: listeners.signal,
+    });
+    root.addEventListener('keydown', rememberInput, {
+      capture: true,
+      signal: listeners.signal,
+    });
     root.addEventListener(
       'click',
       () => {
@@ -46,6 +59,11 @@ export async function measureDrop(
         const board = root.querySelector('[data-testid="custom-game-board"]');
         const before = board?.getAttribute('data-cells');
         requestAnimationFrame(() => {
+          listeners.abort();
+          root.setAttribute(
+            'data-native-input-frame-ms',
+            String(performance.now() - inputStart)
+          );
           root.setAttribute(
             'data-updated-at-frame',
             String(board?.getAttribute('data-cells') !== before)
@@ -89,6 +107,11 @@ export async function measureDrop(
     input,
     milliseconds: Number(
       await page.locator('#storybook-root').getAttribute('data-input-frame-ms')
+    ),
+    nativeInputToFrameMilliseconds: Number(
+      await page
+        .locator('#storybook-root')
+        .getAttribute('data-native-input-frame-ms')
     ),
   };
 }
