@@ -35,8 +35,7 @@ export async function expectPrecisionDefault(
   // shorter phone keeps the play workspace above (rack, actions, board) and
   // must bring the complete overview clear by scrolling the page.
   const short =
-    (canvasElement.ownerDocument.defaultView?.innerHeight ?? 0) <
-    DESIGN_PHONE_HEIGHT;
+    canvasElement.ownerDocument.defaultView.innerHeight < DESIGN_PHONE_HEIGHT;
   if (short)
     canvas
       .getByRole('group', { name: 'View a board region' })
