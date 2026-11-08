@@ -43,7 +43,7 @@ export function WordTileOverview(props: {
     });
   });
   return (
-    <div class={styles['context']}>
+    <div class={styles['context']} data-overview>
       <WordTileRegions
         board={props.board}
         box={box()}
