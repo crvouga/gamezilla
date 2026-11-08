@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/solid/macro';
 import type { ChessBoardProps } from '@pkgs/chess-board-root-shared-ts/chess-board-types';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { type JSX, Show } from 'solid-js';
+import { type JSX, Match, Show, Switch } from 'solid-js';
 import type { BoardController } from '../chess-board-controller';
 
 /** Visible equivalents of board orientation and keyboard/check affordances. */
@@ -9,23 +9,43 @@ export function ChessBoardGuidance(props: {
   readonly props: ChessBoardProps;
   readonly ctrl: BoardController;
 }): JSX.Element {
+  const game = () => props.ctrl.model.game();
   return (
     <>
       <P variant="caption">
+        {/* Neutral orientation: a watcher reads the same line as a player. */}
         <Show
           when={props.props.orientation === 'black'}
-          fallback={<Trans>White pieces nearest you.</Trans>}
+          fallback={<Trans>White pieces at the bottom.</Trans>}
         >
-          <Trans>Black pieces nearest you.</Trans>
+          <Trans>Black pieces at the bottom.</Trans>
         </Show>{' '}
-        <Show when={props.ctrl.model.game().inCheck}>
-          <Show
-            when={props.ctrl.model.game().turn === 'w'}
-            fallback={<Trans>Black is in check.</Trans>}
-          >
-            <Trans>White is in check.</Trans>
-          </Show>
-        </Show>
+        <Switch>
+          <Match when={game().isCheckmate}>
+            <Show
+              when={game().turn === 'w'}
+              fallback={<Trans>Black is checkmated.</Trans>}
+            >
+              <Trans>White is checkmated.</Trans>
+            </Show>
+          </Match>
+          <Match when={game().isStalemate}>
+            <Show
+              when={game().turn === 'w'}
+              fallback={<Trans>Black is stalemated.</Trans>}
+            >
+              <Trans>White is stalemated.</Trans>
+            </Show>
+          </Match>
+          <Match when={game().inCheck}>
+            <Show
+              when={game().turn === 'w'}
+              fallback={<Trans>Black is in check.</Trans>}
+            >
+              <Trans>White is in check.</Trans>
+            </Show>
+          </Match>
+        </Switch>
       </P>
       {/* Keep the board anchored when a wrong move temporarily disables input. */}
       <div

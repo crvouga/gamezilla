@@ -113,7 +113,7 @@ export const InCheck: Story = {
   parameters: { table: { turn: 'black' } satisfies GameTableStory },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByText(/Black pieces nearest you/)).toBeVisible();
+    await expect(canvas.getByText(/Black pieces at the bottom/)).toBeVisible();
     await expect(canvas.getByText(/Black is in check/)).toBeVisible();
     await userEvent.click(canvas.getByText('Keyboard controls'));
     await expect(canvas.getByText(/Escape to cancel/)).toBeVisible();
