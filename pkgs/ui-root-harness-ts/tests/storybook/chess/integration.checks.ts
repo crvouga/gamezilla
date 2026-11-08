@@ -12,6 +12,19 @@ import {
 
 test.use({ video: 'on', trace: 'on', hasTouch: true });
 
+// regression: chess-tablet-recovery-guidance-collapse
+test('storybook integration: chess tablet recovery keeps every square anchored', async ({
+  page,
+}, info) => {
+  await page.setViewportSize({ width: 768, height: 900 });
+  await openChessStory(
+    page,
+    'screens-puzzles-chess-play--wrong-move-recovery',
+    'light'
+  );
+  await captureChessState(page, info, 'tablet-recovery');
+});
+
 const states = [
   'screens-games-chess-board--your-turn',
   'screens-games-chess-board--waiting-for-opponent',

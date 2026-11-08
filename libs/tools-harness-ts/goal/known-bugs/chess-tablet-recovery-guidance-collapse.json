@@ -1,0 +1,4 @@
+{
+  "summary": "At 768px, wrong chess puzzle moves removed the guidance row and shifted the centered board before Retry, moving the player's targets.",
+  "regressionTest": "pkgs/chess-board-root-client-ts/tests/guidance-recovery.test.tsx"
+}

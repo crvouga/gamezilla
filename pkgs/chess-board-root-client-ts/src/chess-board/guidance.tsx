@@ -27,21 +27,25 @@ export function ChessBoardGuidance(props: {
           </Show>
         </Show>
       </P>
-      <Show when={props.props.interactive !== false}>
-        <div class="box flex-row flex-wrap items-baseline gap-2">
+      {/* Keep the board anchored when a wrong move temporarily disables input. */}
+      <div
+        class="box flex-row flex-wrap items-baseline gap-2"
+        classList={{ invisible: !props.ctrl.model.interaction().interactive }}
+        aria-hidden={!props.ctrl.model.interaction().interactive}
+        inert={!props.ctrl.model.interaction().interactive}
+      >
+        <P variant="caption" tone="secondary">
+          <Trans>Tap a piece, then a square.</Trans>
+        </P>
+        <details>
+          <summary class="text textCaption list-item cursor-pointer">
+            <Trans>Keyboard controls</Trans>
+          </summary>
           <P variant="caption" tone="secondary">
-            <Trans>Tap a piece, then a square.</Trans>
+            <Trans>Arrows to move, Enter to choose, Escape to cancel.</Trans>
           </P>
-          <details>
-            <summary class="text textCaption list-item cursor-pointer">
-              <Trans>Keyboard controls</Trans>
-            </summary>
-            <P variant="caption" tone="secondary">
-              <Trans>Arrows to move, Enter to choose, Escape to cancel.</Trans>
-            </P>
-          </details>
-        </div>
-      </Show>
+        </details>
+      </div>
     </>
   );
 }
