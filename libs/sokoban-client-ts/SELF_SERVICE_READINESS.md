@@ -22,6 +22,7 @@ results, independent ratings and captured artifacts belong to
 PR #287 in this repository. The hosted evidence above is from run
 42438640169 at `d4c374eeffa63ed13f3fec3ac895c6131186ae3e` (102 authoring
 and 102 comparison checks passed). It does not cover the later board-replacement
-fix. The [matched media round](https://github.com/crvouga/gamezilla/pull/287#issuecomment-6718764784)
-contains accessible screenshots, videos and measurement limits; independent
-review reports remain pending.
+fix. The matched media round (PR #287, comment 6718764784) contains uploaded
+screenshots, videos and measurement limits; independent review reports remain
+pending. Zero axe violations does not mean all checks completed: retained
+reports include incomplete contrast checks that require additional evidence.
