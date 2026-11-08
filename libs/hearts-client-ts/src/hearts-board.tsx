@@ -76,7 +76,10 @@ function passButton(
     label: sending
       ? t`Passing your cards…`
       : passAction(directionOf(props.position)),
-    status: t`${chosen.length} of 3 chosen`,
+    status:
+      chosen.length === 3 && !sending
+        ? t`3 of 3 chosen. Unselect a card to choose another.`
+        : t`${chosen.length} of 3 chosen`,
     enabled: chosen.length === 3,
     pending: sending,
     testId: `${props.testId}-pass`,

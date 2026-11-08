@@ -14,6 +14,7 @@ import {
 } from 'solid-js';
 import { Button } from '../button/index';
 import styles from './card-table.module.css';
+import felt from './card-table-felt.module.css';
 
 export type CardSuit = 'clubs' | 'diamonds' | 'spades' | 'hearts';
 export type CardTablePosition = 'bottom' | 'left' | 'top' | 'right';
@@ -237,10 +238,11 @@ const MOVES: Readonly<Record<string, (at: number, last: number) => number>> = {
 };
 
 /**
- * More cards than one row shows at a readable size lie in two rows, the
+ * On wider tables, cards beyond one readable row lie in two rows, the
  * shorter centred under the longer (half a step along when they are
  * equal). Cards never overlap, so every card shows its whole face;
- * thirteen cards on a 390px phone are about 46px wide each.
+ * thirteen cards on a 390px phone are about 46px wide each. Narrower
+ * containers wrap into five-card rows in CSS to preserve touch targets.
  */
 const ONE_ROW_MAX = 7;
 
@@ -382,33 +384,50 @@ function Hand(
         {(id, index) => (
           <Show when={byId().get(id)}>
             {(card) => (
-              <button
-                type="button"
-                class={styles['card']}
-                style={handCardStyle(index(), suits())}
-                data-refused={String(card().refusal !== undefined)}
-                data-suit={card().suit}
-                data-testid={props.cardTestId(id)}
-                data-card={id}
-                aria-label={spokenName(card())}
-                aria-pressed={card().selected ?? undefined}
-                aria-disabled={!card().enabled}
-                title={card().refusal}
-                tabIndex={index() === focus.current() ? 0 : -1}
-                onFocus={() => focus.setCurrent(index())}
-                onKeyDown={(event) => focus.move(event, index())}
-                onClick={() => {
-                  if (card().enabled) {
-                    focus.markPlayed();
-                    props.onCard(id);
-                  } else {
-                    const reason = card().refusal;
-                    if (reason !== undefined) props.onRefused(reason);
+              <>
+                <button
+                  type="button"
+                  class={styles['card']}
+                  style={handCardStyle(index(), suits())}
+                  data-refused={String(card().refusal !== undefined)}
+                  data-suit={card().suit}
+                  data-testid={props.cardTestId(id)}
+                  data-card={id}
+                  aria-label={spokenName(card())}
+                  aria-pressed={card().selected ?? undefined}
+                  aria-disabled={!card().enabled}
+                  aria-describedby={
+                    card().refusal
+                      ? `${props.cardTestId(id)}-reason`
+                      : undefined
                   }
-                }}
-              >
-                <HandCardFace card={card()} />
-              </button>
+                  title={card().refusal}
+                  tabIndex={index() === focus.current() ? 0 : -1}
+                  onFocus={() => focus.setCurrent(index())}
+                  onKeyDown={(event) => focus.move(event, index())}
+                  onClick={() => {
+                    if (card().enabled) {
+                      focus.markPlayed();
+                      props.onCard(id);
+                    } else {
+                      const reason = card().refusal;
+                      if (reason !== undefined) props.onRefused(reason);
+                    }
+                  }}
+                >
+                  <HandCardFace card={card()} />
+                </button>
+                <Show when={card().refusal}>
+                  {(reason) => (
+                    <span
+                      id={`${props.cardTestId(id)}-reason`}
+                      class={styles['spoken']}
+                    >
+                      {reason()}
+                    </span>
+                  )}
+                </Show>
+              </>
             )}
           </Show>
         )}
@@ -499,8 +518,7 @@ function ActionRow(props: { action: CardTableAction }): JSX.Element {
  * in the corner and a large pip in the middle, at full contrast; only a card
  * the rules refuse is dimmed. The hand is a row of card buttons side by
  * side, never overlapping, so every face reads whole (more than seven cards
- * lie in two rows that never scroll, each card as wide as the longer row
- * leaves it); a chosen card lifts 8px out of its row with a strong ring. Arrow keys, Home and End move between them, Enter or Space plays or
+ * lie in two rows, or wrap into rows of five in narrow containers); a chosen card lifts 8px out of its row with a strong ring. Arrow keys, Home and End move between them, Enter or Space plays or
  * selects a card, and a card the rules do not allow says why instead of
  * acting. Focus stays in the hand when a played card leaves it. Suits are
  * written as symbols and named in each card's words, never told by colour
@@ -534,7 +552,12 @@ export function CardTable(props: CardTableProps): JSX.Element {
       {...dataAttrs({ component: 'CardTable', ...props.dataSet })}
       data-testid={props.testId}
     >
-      <div class={styles['table']} role="group" aria-label={props.label}>
+      <div
+        class={styles['table']}
+        classList={{ [felt['felt'] ?? '']: true }}
+        role="group"
+        aria-label={props.label}
+      >
         <For each={seatIds()}>
           {(id) => (
             <Seat
