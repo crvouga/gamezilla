@@ -8,7 +8,7 @@ const LOADING_DEMO_MS = 1500;
 
 function SocialSignInDemo(): JSX.Element {
   const timers = useTimers();
-  const [loading, setLoading] = createSignal(false);
+  const [loading, setLoading] = createSignal(true);
 
   const handleClick = (): void => {
     setLoading(true);

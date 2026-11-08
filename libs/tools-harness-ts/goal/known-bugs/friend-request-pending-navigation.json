@@ -1,0 +1,4 @@
+{
+  "summary": "The request decision dialog allowed View profile or dismissal while an answer was still pending, exposing a second surface for a conflicting decision. Navigation and dismissal now wait for the pending answer to settle.",
+  "regressionTest": "libs/friends-client-ts/tests/friend-request-exclusive-answer.test.tsx"
+}

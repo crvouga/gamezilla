@@ -35,17 +35,26 @@ function SetupShipPicker(props: {
   locked: boolean;
   testId: string;
 }): JSX.Element {
+  const options = () => shipOptions(props.setup, props.testId);
+  const placeholder = () => t`Choose a ship to reposition`;
+  // The accessible name starts with the visible label it shows.
+  const pickerName = () => {
+    const visibleLabel =
+      options().find((option) => option.value === props.setup.selected())
+        ?.label ?? placeholder();
+    return `${t`Ship to place`}: ${visibleLabel}`;
+  };
   return (
     <Show when={!props.locked}>
       <Select
-        aria-label={t`Ship to place`}
-        placeholder={t`Choose a ship to reposition`}
+        aria-label={pickerName()}
+        placeholder={placeholder()}
         value={props.setup.selected() ?? ''}
         onValueChange={(value) => {
           if (isShipId(value)) props.setup.choose(value);
         }}
         triggerDataSet={{ testid: `${props.testId}-ship-picker` }}
-        options={shipOptions(props.setup, props.testId)}
+        options={options()}
       />
     </Show>
   );

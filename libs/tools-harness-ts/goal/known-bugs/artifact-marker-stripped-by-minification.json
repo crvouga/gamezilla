@@ -1,0 +1,4 @@
+{
+  "summary": "Vite minification strips an origin banner inserted at renderChunk; mark final emitted chunks and hash their resulting bytes.",
+  "regressionTest": "pkgs/vite-workspace-resolver-server-ts/tests/artifact-protection.test.ts"
+}

@@ -39,7 +39,12 @@ export default function IconExample(): JSX.Element {
             <For each={COLOR_TONES}>
               {(tone) => (
                 <StackVertical gap="xs" align="center">
-                  <Icon icon={BellIcon} tone={tone} />
+                  <div
+                    class="box rounded-sm p-1"
+                    classList={{ 'bg-tint-active': tone === 'on-primary' }}
+                  >
+                    <Icon icon={BellIcon} tone={tone} />
+                  </div>
                   <Text variant="footnote">{tone}</Text>
                 </StackVertical>
               )}
