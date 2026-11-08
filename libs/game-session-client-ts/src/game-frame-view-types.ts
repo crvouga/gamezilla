@@ -1,4 +1,5 @@
 import type {
+  GameFrameSeatLayout,
   GameOptionGroup,
   GameOutlineStep,
 } from '@pkgs/turn-game-shared-ts/game-frame';
@@ -92,6 +93,7 @@ export type FrameTable = {
    * frame lends it each player (`GameFrame.boardSeats`).
    */
   readonly shape: 'strip' | 'rail' | 'none' | 'board';
+  readonly seatLayout?: GameFrameSeatLayout | undefined;
   /**
    * The board names each player itself (`GameFrame.boardNames`): a phone
    * draws no seats above or below it, except one to take back.
