@@ -138,7 +138,7 @@ export function BattleshipBoard(props: GameBoardProps): JSX.Element {
   const targetCells = createMemo(() =>
     shotGridCells({
       shots: outgoing(),
-      interactive: interactive(),
+      interactive: interactive() && aim.aiming() === null,
       aiming: aim.aiming(),
     })
   );
@@ -207,6 +207,8 @@ function ShotConfirmation(props: {
       <Button
         flex={1}
         disabled={props.selected === null || props.pending}
+        loading={props.pending}
+        loadingLabel={t`Firing at ${props.selected?.toUpperCase() ?? ''}`}
         onClick={() => {
           if (props.selected !== null && !props.pending)
             props.onFire(props.selected);

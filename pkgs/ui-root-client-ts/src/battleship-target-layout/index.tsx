@@ -7,6 +7,8 @@ export function BattleshipRegionOverview(props: {
   overview: JSX.Element;
   region: number;
   regions: readonly string[];
+  /** Public outcomes in each region, available without opening its detail grid. */
+  descriptions?: readonly string[];
   onRegion: (region: number) => void;
   testId: string;
   label: string;
@@ -32,6 +34,7 @@ export function BattleshipRegionOverview(props: {
                 type="button"
                 class={styles['region']}
                 aria-label={label}
+                aria-description={props.descriptions?.[index()]}
                 title={label}
                 aria-pressed={props.region === index()}
                 disabled={props.disabled}

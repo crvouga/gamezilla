@@ -306,3 +306,20 @@ export const CorrectTargetBeforeFiring: Story = {
     ).toHaveAccessibleName('J10: miss, latest shot');
   },
 };
+
+/** A submitted J10 shot remains visibly busy until the controller supplies its outcome. */
+export const PendingShot: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByTestId('custom-game-board-area-9'));
+    await userEvent.click(canvas.getByTestId('custom-game-board-aim-j10'));
+    await userEvent.click(canvas.getByTestId('custom-game-board-fire'));
+    await expect(canvas.getByTestId('custom-game-board-fire')).toHaveAttribute(
+      'aria-busy',
+      'true'
+    );
+    await expect(
+      canvas.getByTestId('custom-game-board-fire')
+    ).toHaveTextContent('Firing at J10');
+  },
+};

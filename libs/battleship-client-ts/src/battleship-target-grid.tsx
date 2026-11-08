@@ -9,8 +9,22 @@ import {
 } from '@pkgs/ui-root-client-ts/cell-grid-board';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { createSignal, type JSX } from 'solid-js';
+import { createMemo, createSignal, type JSX } from 'solid-js';
 import { COLUMN_LABELS, ROW_LABELS } from './battleship-copy';
+
+function regionDescriptions(cells: readonly CellGridCell[]): readonly string[] {
+  const groups = Array.from({ length: 10 }, (): string[] => []);
+  for (const cell of cells) {
+    if (cell.tone === 'open' && cell.emphasis !== 'pending') continue;
+    const column = cell.id.charCodeAt(0) - 'a'.charCodeAt(0);
+    const row = Number(cell.id.slice(1)) - 1;
+    const region = Math.floor(row / 2) * 2 + Math.floor(column / 5);
+    groups[region]?.push(cell.label);
+  }
+  return groups.map((labels) =>
+    labels.length === 0 ? t`No shots in this region` : labels.join('; ')
+  );
+}
 
 /** The full field stays visible while ten coarse regions offer precise two-row aiming. */
 export function BattleshipTargetGrid(props: {
@@ -21,6 +35,8 @@ export function BattleshipTargetGrid(props: {
   confirmation?: JSX.Element;
 }): JSX.Element {
   const [area, setArea] = createSignal(0);
+  const descriptions = createMemo(() => regionDescriptions(props.cells));
+  const canAim = () => props.cells.some((cell) => cell.enabled);
   const columns = () =>
     COLUMN_LABELS.slice((area() % 2) * 5, (area() % 2) * 5 + 5);
   const rows = () =>
@@ -46,9 +62,14 @@ export function BattleshipTargetGrid(props: {
           <BattleshipRegionOverview
             region={area()}
             regions={regions}
+            descriptions={descriptions()}
             onRegion={setArea}
             testId={props.testId}
-            label={t`Choose a target region`}
+            label={
+              canAim()
+                ? t`Choose a target region`
+                : t`Choose a region to inspect`
+            }
             overview={
               <CellGridBoard
                 fill
@@ -65,13 +86,17 @@ export function BattleshipTargetGrid(props: {
         controls={
           <StackVertical gap="xs" testId={`${props.testId}-target-tools`}>
             <P variant="caption">{t`Choose a region`}</P>
-            <P variant="label">{t`Aim in ${regions[area()]}`}</P>
+            <P variant="label">
+              {canAim()
+                ? t`Aim in ${regions[area()]}`
+                : t`Inspect ${regions[area()]}`}
+            </P>
           </StackVertical>
         }
         working={
           <StackVertical gap="xs" align="center" width="full">
             <CellGridBoard
-              label={t`Precise aim`}
+              label={canAim() ? t`Precise aim` : t`Shot details`}
               testId={`${props.testId}-aim-grid`}
               cellTestId={(cell) => `${props.testId}-aim-${cell}`}
               columnLabels={columns()}
