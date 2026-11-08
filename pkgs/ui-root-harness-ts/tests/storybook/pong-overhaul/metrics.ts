@@ -1,13 +1,25 @@
 // @io-wall-ok — wall timings are measured only in this browser evidence adapter.
 import { expect, type Page, type TestInfo } from '@playwright/test';
 
-type Samples = { frames: number[]; inputs: number[]; longTasks: number[] };
+type Samples = {
+  frames: number[];
+  inputs: number[];
+  longTasks: number[];
+  addedNodes: number;
+  removedNodes: number;
+};
 type MetricsWindow = Window & { pongMetrics?: () => Samples };
 
 /** Frame and long-task observations plus event-to-two-animation-frames proxy. */
 export async function startPongMetrics(page: Page) {
   await page.evaluate(() => {
-    const samples: Samples = { frames: [], inputs: [], longTasks: [] };
+    const samples: Samples = {
+      frames: [],
+      inputs: [],
+      longTasks: [],
+      addedNodes: 0,
+      removedNodes: 0,
+    };
     let running = true;
     let previous = performance.now();
     const frame = (time: number) => {
@@ -27,6 +39,13 @@ export async function startPongMetrics(page: Page) {
     };
     const court = document.querySelector('[data-component="PaddleCourt"]');
     if (!court) throw new Error('Missing Pong court');
+    const mutations = new MutationObserver((records) => {
+      for (const record of records) {
+        samples.addedNodes += record.addedNodes.length;
+        samples.removedNodes += record.removedNodes.length;
+      }
+    });
+    mutations.observe(court, { childList: true, subtree: true });
     court.addEventListener('keydown', input);
     court.addEventListener('pointermove', input);
     const observer = new PerformanceObserver((list) => {
@@ -37,6 +56,7 @@ export async function startPongMetrics(page: Page) {
     (window as MetricsWindow).pongMetrics = () => {
       running = false;
       observer.disconnect();
+      mutations.disconnect();
       court.removeEventListener('keydown', input);
       court.removeEventListener('pointermove', input);
       return samples;
