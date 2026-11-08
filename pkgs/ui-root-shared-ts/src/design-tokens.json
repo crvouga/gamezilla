@@ -810,6 +810,15 @@
           "hex": "#f5cf6a"
         }
       },
+      "gameSokobanFocus": {
+        "$description": "Sokoban board only: focus ring on the page, at least 3:1 against the page and the board edge.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.6588, 0.4706, 0.0],
+          "alpha": 1.0,
+          "hex": "#a87800"
+        }
+      },
       "gameSokobanOne": {
         "$description": "Sokoban board only: one.",
         "$value": {
@@ -1944,6 +1953,15 @@
       },
       "gameSokobanAccent": {
         "$description": "Sokoban board only: accent.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.9608, 0.8118, 0.4157],
+          "alpha": 1.0,
+          "hex": "#f5cf6a"
+        }
+      },
+      "gameSokobanFocus": {
+        "$description": "Sokoban board only: focus ring on the page, at least 3:1 against the page and the board edge.",
         "$value": {
           "colorSpace": "srgb",
           "components": [0.9608, 0.8118, 0.4157],

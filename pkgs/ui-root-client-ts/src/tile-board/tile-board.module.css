@@ -23,7 +23,9 @@
   --color-tint-active: var(--ui-color-tint-active);
   --ui-color-tint-subtle: var(--ui-color-game-sokoban-surface);
   --color-tint-subtle: var(--ui-color-tint-subtle);
-  --ui-color-focus-ring: var(--ui-color-game-sokoban-accent);
+  /* The ring sits on the page past a 2px gap, so it is drawn for the page:
+     at least 3:1 against it and against the board's dark edge. */
+  --ui-color-focus-ring: var(--ui-color-game-sokoban-focus);
   --color-focus-ring: var(--ui-color-focus-ring);
   --ui-color-destructive: var(--ui-color-game-sokoban-one);
   --color-destructive: var(--ui-color-destructive);
