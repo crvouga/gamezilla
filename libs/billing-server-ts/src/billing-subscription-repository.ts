@@ -37,6 +37,14 @@ export class BillingSubscriptionRepository {
       projection.periodEndMs === null
         ? null
         : new Date(projection.periodEndMs).toISOString();
+    // The cancellation date records the person's choice to cancel: kept while
+    // the membership is set to end or after it ended, cleared when renewed,
+    // so a renewed membership that later ends is not counted as churn.
+    const canceledAt = projection.endsAtPeriodEnd
+      ? sql`COALESCE(billing_subscriptions.canceled_at, EXCLUDED.canceled_at)`
+      : projection.status === 'ended'
+        ? sql`billing_subscriptions.canceled_at`
+        : sql`NULL`;
     const result = await this.tx.run(sql<void>`
       INSERT INTO billing_subscriptions (
         id, created_at, updated_at, deleted_at,
@@ -67,7 +75,7 @@ export class BillingSubscriptionRepository {
         status = EXCLUDED.status,
         current_period_end = EXCLUDED.current_period_end,
         cancel_at_period_end = EXCLUDED.cancel_at_period_end,
-        canceled_at = COALESCE(EXCLUDED.canceled_at, billing_subscriptions.canceled_at),
+        canceled_at = ${canceledAt},
         credit_cents = COALESCE(EXCLUDED.credit_cents, billing_subscriptions.credit_cents)
       WHERE billing_subscriptions.deleted_at IS NULL
     `);

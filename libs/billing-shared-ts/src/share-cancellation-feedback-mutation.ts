@@ -36,7 +36,8 @@ export const shareCancellationFeedbackMutation = defineMutation({
     await ctx.tx.run(sql`
       INSERT INTO billing_cancellation_feedback (id, account_id, subscription_id, reason, comment)
       VALUES (${args.subscriptionId}, ${ctx.env.actorId}, ${args.subscriptionId}, ${args.reason}, ${args.comment})
-      ON CONFLICT (id) DO UPDATE SET reason = EXCLUDED.reason, comment = EXCLUDED.comment
+      ON CONFLICT (id) DO UPDATE SET reason = EXCLUDED.reason, comment = EXCLUDED.comment,
+        updated_at = ${ctx.env.now().toISOString()}
       WHERE billing_cancellation_feedback.account_id = ${ctx.env.actorId}
         AND billing_cancellation_feedback.deleted_at IS NULL
     `);

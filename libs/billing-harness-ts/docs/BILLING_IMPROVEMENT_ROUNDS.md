@@ -76,6 +76,31 @@ covers the saved return's account scoping and expiry; it caught an empty
 record matching an empty account id before release. All 165 billing client
 tests, both type checks and lint pass.
 
+## Round 4: churn data counts only people who chose to leave
+
+Audit of round 3: 6/10. It confirmed the round 3 fixes and found CI red (schema
+snapshot not regenerated), churn data polluted by renewed memberships, and
+edited feedback missed by time-bounded reports.
+
+Before: a membership canceled and then renewed kept its cancellation date
+forever. When a later payment failed and the membership ended, the person was
+asked why they canceled, and the server accepted churn feedback for a
+membership they had kept. Changing an answer kept its first date, so a report
+for the window of the change missed it. The schema snapshot lacked the
+feedback table, failing `verify:schema-evolution`.
+
+After: the cancellation date is kept while a membership is set to end and after
+a canceled one ends, and cleared on renewal. Changed feedback is dated by the
+change. The branch is merged with main and the snapshot regenerated (release
+21: the feedback table and `canceled_at`).
+
+Evidence: the new scenario
+(`billing-feedback-asked-after-renewed-membership-ends`) failed first
+(expected false, received true) and passes now; a boundaries test failed first
+(received the first answer's date) and passes now. All 113 billing scenarios,
+the billing server and shared tests, the type checks and the schema evolution
+check pass.
+
 ## Acceptance still required
 
 - Provider-neutral concurrency and uncertain-outcome reconciliation, including

@@ -138,3 +138,30 @@ test('feedback input accepts empty optional fields and bounds untrusted comments
     }).success
   ).toBe(false);
 });
+
+test('changing feedback dates it to the change, so reports by time see it', async () => {
+  const { db, env, ctx } = await fixture();
+  try {
+    const answer = {
+      subscriptionId: 'mine',
+      reason: 'price' as const,
+      comment: '',
+    };
+    await shareCancellationFeedbackMutation.run(ctx, answer);
+    const later = mutationEnvFor('free account', CASE_NOW_MS + 86_400_000);
+    await shareCancellationFeedbackMutation.run(
+      { tx: wrapMutationDb(db, later).tx, env: later },
+      { ...answer, reason: 'low usage' }
+    );
+    const [row] = await db.query(
+      sql<{
+        updated_at: string;
+        reason: string;
+      }>`SELECT updated_at, reason FROM billing_cancellation_feedback WHERE account_id = ${env.actorId}`
+    );
+    expect(row?.reason).toBe('low usage');
+    expect(Date.parse(String(row?.updated_at))).toBe(CASE_NOW_MS + 86_400_000);
+  } finally {
+    await db.disconnect();
+  }
+});

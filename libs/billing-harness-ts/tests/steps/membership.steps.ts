@@ -225,6 +225,14 @@ Given(
   }
 );
 
+Given(
+  '{actor} has renewed the membership in the billing portal',
+  async (w, actor: Actor) => {
+    await w.s.apply(resumePlus, actor);
+    await shownWhere(w, actor, (shown) => shown.state !== 'canceling');
+  }
+);
+
 When(
   '{actor} renews the membership in the billing portal',
   async (w, actor: Actor) => {
