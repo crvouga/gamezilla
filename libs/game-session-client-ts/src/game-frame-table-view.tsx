@@ -231,7 +231,12 @@ export function FrameSeatChipView(
         tags={
           <>
             <Show when={props.own === true}>
-              <Badge intent="info" label={<Trans>You</Trans>} />
+              {/* The subtle wash over the active chip's tint falls below AA in the dark theme. */}
+              <Badge
+                intent="info"
+                tone={props.seat.deciding ? 'solid' : 'subtle'}
+                label={<Trans>You</Trans>}
+              />
             </Show>
             <PlaySeatTags seat={props.seat} />
           </>
