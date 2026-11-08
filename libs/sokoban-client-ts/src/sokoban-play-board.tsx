@@ -93,26 +93,12 @@ function createView(props: Props, closer: () => boolean) {
     (Math.floor(index / frame().columns) + frame().top) * props.board.width +
     (index % frame().columns) +
     frame().left;
-  const tiles = createMemo<readonly TileBoardTile[]>((previous) => {
-    const all = sokobanTiles(
-      props.board,
-      positionPieces(props.position),
-      words
-    );
-    const bounds = frame();
-    const width = props.board.width;
-    const shown = all.filter((_, index) => {
-      const x = index % width;
-      const y = Math.floor(index / width);
-      return (
-        x >= bounds.left &&
-        x < bounds.left + bounds.columns &&
-        y >= bounds.top &&
-        y < bounds.top + bounds.rows
-      );
-    });
-    return keepUnchangedTiles(previous, shown);
-  });
+  const tiles = createMemo<readonly TileBoardTile[]>((previous) =>
+    keepUnchangedTiles(
+      previous,
+      sokobanTiles(props.board, positionPieces(props.position), words, frame())
+    )
+  );
   const pieces = createMemo(() =>
     sokobanPieces(props.board, positionPieces(props.position)).map((piece) => ({
       ...piece,

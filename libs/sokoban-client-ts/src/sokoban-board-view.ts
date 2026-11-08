@@ -48,10 +48,24 @@ export function squareLabel(
   return `${squareName(cell)}: ${words.square(square)}${piece}`;
 }
 
+/** The part of a board on show: its first column and row, and its size. */
+export type BoardWindow = {
+  readonly left: number;
+  readonly top: number;
+  readonly columns: number;
+  readonly rows: number;
+};
+
 export function sokobanTiles(
   board: SokobanBoard,
   pieces: Pieces,
-  words: Words
+  words: Words,
+  shown: BoardWindow = {
+    left: 0,
+    top: 0,
+    columns: board.width,
+    rows: board.height,
+  }
 ): readonly TileBoardTile[] {
   // One pass: where each piece stands, and each word once, not per square.
   const at = (cell: Cell): number => cell.y * board.width + cell.x;
@@ -67,7 +81,13 @@ export function sokobanTiles(
     squareWords.set(square, word);
     return word;
   };
-  return board.squares.map((square, index) => {
+  // Only the squares on show: a close view builds 36, not the whole board.
+  return Array.from({ length: shown.columns * shown.rows }, (_, at) => {
+    const index =
+      (shown.top + Math.floor(at / shown.columns)) * board.width +
+      shown.left +
+      (at % shown.columns);
+    const square = board.squares[index] ?? 'outside';
     const piece =
       index === worker ? workerWord : crates.has(index) ? crateWord : '';
     return {

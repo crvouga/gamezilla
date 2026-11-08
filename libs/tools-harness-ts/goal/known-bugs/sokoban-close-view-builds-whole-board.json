@@ -1,0 +1,4 @@
+{
+  "summary": "In Sokoban's 6x6 close view on a 20x20 board at 320px and 4x CPU slowdown, each move built labels for all 400 squares and then kept the 36 on show, giving a 54.1ms p95 key-to-frame (budget 50ms) and three long tasks. The close view now builds only the squares on show.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/sokoban-maximum-320/integration.checks.ts"
+}

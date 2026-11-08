@@ -14,6 +14,7 @@ test.use({
   trace: 'on',
 });
 
+// regression: sokoban-close-view-builds-whole-board
 // regression: sokoban-maximum-board-pieces-too-small
 test('storybook integration: Sokoban close view keeps maximum-board pieces readable at 320px', async ({
   page,
