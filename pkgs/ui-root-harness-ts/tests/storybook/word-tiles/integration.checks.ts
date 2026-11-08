@@ -128,7 +128,7 @@ test('storybook integration: word-tiles 1440 fitted board grows with the window 
 });
 
 // regression: word-tiles-find-square-reads-as-text
-test('storybook integration: word-tiles find a square looks like a button on the phone', async ({
+test('storybook integration: word-tiles find a square looks like an action on the phone', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
@@ -137,14 +137,20 @@ test('storybook integration: word-tiles find a square looks like a button on the
   await expect(find).toHaveAttribute('aria-haspopup', 'dialog');
   const look = await find.evaluate((element) => {
     const css = getComputedStyle(element);
+    const caption = element.closest('[data-overview]')?.querySelector('p');
     const box = element.getBoundingClientRect();
     return {
-      border: Number.parseFloat(css.borderTopWidth),
+      underline: css.textDecorationLine,
+      weight: Number.parseInt(css.fontWeight, 10),
+      color: css.color,
+      captionColor: caption ? getComputedStyle(caption).color : '',
       width: box.width,
       height: box.height,
     };
   });
-  expect(look.border).toBeGreaterThan(0);
+  expect(look.underline).toContain('underline');
+  expect(look.weight).toBeGreaterThanOrEqual(600);
+  expect(look.color).not.toBe(look.captionColor);
   expect(look.height).toBeGreaterThanOrEqual(44);
   expect(look.width).toBeGreaterThanOrEqual(44);
 });

@@ -1,17 +1,20 @@
-/* Reads as the outline button it is, beside Fit and Enlarge; a native button
-   so it can announce the dialog it opens. */
+/* Reads as the action it is: accent ink, underlined and bold, at the full
+   44px target. Compact enough to share a row with Fit and Enlarge, with
+   square corners so its whole box takes the press. A native button, so it
+   can announce the dialog it opens. */
 .locator {
   display: inline-grid;
   place-items: center;
   min-width: var(--ui-control-size-md);
   min-height: var(--ui-control-size-md);
-  padding: 0 var(--ui-space-3);
-  border: 1px solid var(--ui-color-outline);
-  border-radius: var(--ui-radius-full);
+  padding: 0 var(--ui-space-1);
+  border: 0;
   background: transparent;
-  color: var(--ui-color-text);
-  font-size: var(--ui-font-size-sm);
+  color: var(--ui-color-tint);
+  font-size: var(--ui-font-size-xs);
   font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
   cursor: pointer;
 }
 .locator:focus-visible {
