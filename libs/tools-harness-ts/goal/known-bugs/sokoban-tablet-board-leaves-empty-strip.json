@@ -1,0 +1,4 @@
+{
+  "summary": "At 768px the Sokoban board stopped at its largest tile size while the shared layout pinned the stage to the start edge, leaving a ~190px empty strip beside the board. Sokoban opts into the shared stageAlign: 'center', so the board sits centred in its column.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/sokoban-overhaul-tablet/integration.checks.ts"
+}
