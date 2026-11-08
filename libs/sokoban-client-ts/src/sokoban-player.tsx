@@ -61,7 +61,7 @@ function Steering(props: {
         onDirection={steering.steer}
         onTile={steering.tap}
       />
-      <StackHorizontal gap="md" align="center" justify="between">
+      <StackHorizontal gap="md" align="start" justify="between">
         <SokobanStatus
           position={props.position}
           help={help}

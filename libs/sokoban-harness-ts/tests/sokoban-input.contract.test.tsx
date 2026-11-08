@@ -415,8 +415,16 @@ test('solving leaves the board uncovered and offers the way on once, beside the 
   const row = view.getByTestId('sokoban-move').parentElement;
   expect(row?.contains(solved)).toBe(true);
   expect(board.parentElement?.contains(solved)).toBe(false);
-  expect(
-    view.getAllByRole('button', { name: 'Choose another puzzle' })
-  ).toHaveLength(1);
+  expect(view.getAllByRole('button', { name: 'More puzzles' })).toHaveLength(1);
   expect(view.queryByText('Keep playing or choose another puzzle.')).toBeNull();
+});
+
+// regression: sokoban-solved-name-hides-label
+test('the solved action is named by the words it shows', () => {
+  const { view, board } = player();
+  fireEvent.keyDown(board, { key: 'ArrowRight' });
+  fireEvent.keyDown(board, { key: 'ArrowRight' });
+  const action = view.getByRole('button', { name: 'More puzzles' });
+  expect(action.getAttribute('aria-label')).toBeNull();
+  expect(action.textContent).toContain('More puzzles');
 });

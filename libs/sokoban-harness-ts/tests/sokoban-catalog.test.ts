@@ -18,7 +18,6 @@ test('the counts and close view read as words in the built app, not placeholders
     'Show whole board',
     'Not added: four moves waiting.',
     'More puzzles',
-    'Choose another puzzle',
   ]) {
     expect(catalog).toContain(`msgid "${message}"\nmsgstr "${message}"`);
   }

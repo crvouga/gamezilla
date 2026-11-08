@@ -90,7 +90,7 @@ test('solving offers library navigation before movement controls and still permi
     solved.compareDocumentPosition(view.getByTestId('sokoban-move')) &
       Node.DOCUMENT_POSITION_FOLLOWING
   ).not.toBe(0);
-  fireEvent.click(view.getByRole('button', { name: 'Choose another puzzle' }));
+  fireEvent.click(view.getByRole('button', { name: 'More puzzles' }));
   expect(destinations).toEqual(['library']);
   fireEvent.keyDown(board, { key: 'ArrowLeft' });
   expect(view.getByTestId('sokoban-counts').getAttribute('data-moves')).toBe(

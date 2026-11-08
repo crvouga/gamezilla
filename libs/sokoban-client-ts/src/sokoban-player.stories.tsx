@@ -87,9 +87,7 @@ export const Solved: Story = {
     await expect(notice.bottom).toBeLessThanOrEqual(pad.bottom);
     // regression: sokoban-solved-library-action
     openLibrary.mockClear();
-    await userEvent.click(
-      canvas.getByRole('button', { name: 'Choose another puzzle' })
-    );
+    await userEvent.click(canvas.getByRole('button', { name: 'More puzzles' }));
     await expect(openLibrary).toHaveBeenCalledTimes(1);
     // Completion must not disable the board or its movement controls.
     canvas.getByTestId('sokoban-board').focus();

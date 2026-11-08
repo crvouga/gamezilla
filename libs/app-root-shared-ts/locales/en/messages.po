@@ -1827,10 +1827,6 @@ msgstr "Choose a username"
 msgid "Choose another bow cell or rotate, then try again."
 msgstr "Choose another bow cell or rotate, then try again."
 
-#: libs/sokoban-client-ts/src/sokoban-feedback.tsx
-msgid "Choose another puzzle"
-msgstr "Choose another puzzle"
-
 #: libs/word-tiles-client-ts/src/word-tiles-puzzle-feedback.tsx
 msgid "Choose another puzzle from the library. This attempt is kept."
 msgstr "Choose another puzzle from the library. This attempt is kept."
@@ -3873,8 +3869,8 @@ msgid "Keep your cards"
 msgstr "Keep your cards"
 
 #: libs/sokoban-client-ts/src/sokoban-feedback.tsx
-msgid "Keeping your move."
-msgstr "Keeping your move."
+msgid "Keeping your move. More can wait."
+msgstr "Keeping your move. More can wait."
 
 #: libs/game-puzzle-client-ts/src/content-kept-positions.tsx
 msgid "Kept"

@@ -36,7 +36,6 @@ function Solved(props: { readonly onReturnToLibrary: () => void }) {
       </VisuallyHidden>
       <Button
         title={t`More puzzles`}
-        aria-label={t`Choose another puzzle`}
         size="sm"
         onClick={props.onReturnToLibrary}
       />
@@ -46,6 +45,7 @@ function Solved(props: { readonly onReturnToLibrary: () => void }) {
 
 function Message(props: {
   readonly feedback: SokobanFeedback;
+  readonly wide: boolean;
   readonly onReturnToLibrary: () => void;
 }): JSX.Element {
   const words = useSokobanWords();
@@ -58,7 +58,7 @@ function Message(props: {
           role="status"
           variant="caption"
           tone="warning"
-          lines={2}
+          lines={props.wide ? undefined : 2}
           dataSet={{ testid: 'sokoban-saving', state: 'full' }}
         >
           <Trans>Not added: four moves waiting.</Trans>
@@ -70,7 +70,7 @@ function Message(props: {
             role="status"
             variant="caption"
             tone="warning"
-            lines={2}
+            lines={props.wide ? undefined : 2}
             dataSet={{ testid: 'sokoban-refusal', code: refused().code }}
           >
             {words.refusal(refused().code, refused().message)}
@@ -82,10 +82,10 @@ function Message(props: {
           role="status"
           variant="caption"
           tone="secondary"
-          lines={2}
+          lines={props.wide ? undefined : 2}
           dataSet={{ testid: 'sokoban-saving', state: 'keeping' }}
         >
-          <Trans>Keeping your move.</Trans>
+          <Trans>Keeping your move. More can wait.</Trans>
         </P>
       </Match>
       <Match when={props.feedback?.kind === 'solved'}>
@@ -154,13 +154,19 @@ export function SokobanStatus(props: {
       <Show
         when={props.feedback}
         fallback={
-          <P id={props.help} variant="caption" tone="secondary" lines={2}>
+          <P
+            id={props.help}
+            variant="caption"
+            tone="secondary"
+            lines={props.wide ? undefined : 2}
+          >
             {hint()}
           </P>
         }
       >
         <Message
           feedback={props.feedback}
+          wide={props.wide}
           onReturnToLibrary={props.onReturnToLibrary}
         />
         {/* The board keeps its description while feedback shows. */}

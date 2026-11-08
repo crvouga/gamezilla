@@ -131,7 +131,7 @@ export function SokobanPlayBoard(props: Props): JSX.Element {
   const closeView = () => canClose() && closer();
   const view = createView(props, closeView);
   return (
-    <StackVertical gap="xs">
+    <StackVertical gap="md">
       <StackVertical>
         <TileBoard
           label={
@@ -155,6 +155,7 @@ export function SokobanPlayBoard(props: Props): JSX.Element {
           title={closeView() ? t`Show whole board` : t`Look closer`}
           intent="neutral"
           variant="outline"
+          size="sm"
           onClick={() => setCloser((value) => !value)}
         />
         <Show when={closeView()}>
