@@ -11,16 +11,24 @@ The Hearts matrix update to integrate with this PR:
 - At narrow widths the hand wraps into rows of at most five square cards,
   preserving the hit area while reducing the height of a thirteen-card deal.
 - Each seat labels the current deal's points separately from the cumulative score.
+- On a short, narrow phone while passing, the existing disclosure keeps players
+  and scores available without placing the full table above the hand. Opening
+  and closing it preserves selection; trick play restores the full table.
 - Literal regression ownership: `hearts-fourth-pass-card-silent`,
   `hearts-refusal-not-described-on-focus`, `hearts-320-thirteen-card-targets`,
   `hearts-taken-score-unit-ambiguous`,
-  `hearts-320-short-viewport-three-row-overflow`.
+  `hearts-320-short-viewport-three-row-overflow`,
+  `hearts-short-passing-context-crowds-hand`.
 - DOM regressions first failed on the original implementation and passed after the
   first two fixes. Hosted narrow geometry exposed undersized targets in the
   original hand, then vertical overflow after it wrapped into three portrait
-  rows. Square-card geometry and corrected trusted refusal input await replay.
-  The hosted recovery, retention and wider passing captures passed; accepted
-  exchange reached play but stopped at the harness's disabled-locator check.
+  rows. Recorded square-card geometry still overflows at 320x568: the table
+  consumes 254px above the hand. The disclosure correction passes the literal
+  DOM preservation/reactivity test and awaits hosted geometry replay.
+  The preceding hosted candidate passed 32 of 36 browser cases, including
+  accepted exchange, refusal, complete trick, recovery and retention; only
+  the four short-viewport cases failed. Its 31 recorded axe reports had no
+  violations. These results do not yet certify the new disclosure candidate.
 
 Limitations remain explicit: Storybook fixtures do not establish server transport,
 persistence, real-device screen-reader operation or native builds. The accepted

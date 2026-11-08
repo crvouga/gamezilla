@@ -6,14 +6,14 @@ import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import type { JSX } from 'solid-js';
 
 /** `ui` inside the providers a game board may read, on a phone-sized host. */
-export function renderBoard(ui: () => JSX.Element) {
+export function renderBoard(
+  ui: () => JSX.Element,
+  layout = { width: 390, height: 844 }
+) {
   const { clock, timers } = createHarnessClock();
   return renderWithI18n(() => (
     <ClockProvider clock={clock} timers={timers}>
-      <ThemeProvider
-        colorScheme="light"
-        fixedLayout={{ width: 390, height: 844 }}
-      >
+      <ThemeProvider colorScheme="light" fixedLayout={layout}>
         {ui()}
       </ThemeProvider>
     </ClockProvider>

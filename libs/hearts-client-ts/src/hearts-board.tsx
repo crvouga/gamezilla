@@ -137,6 +137,7 @@ export function HeartsBoard(props: GameBoardProps): JSX.Element {
   return (
     <CardTable
       label={t`Hearts table`}
+      tableSummary={t`Players and scores`}
       testId={props.testId}
       seats={tableSeats(props, players?.content)}
       center={
