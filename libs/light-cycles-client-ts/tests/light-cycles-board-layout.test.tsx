@@ -8,6 +8,7 @@ import { lightCyclesConfig } from '@libs/light-cycles-shared-ts/light-cycles-con
 import { lightCyclesPositionCodec } from '@libs/light-cycles-shared-ts/light-cycles-position';
 import { initialLightCyclesState } from '@libs/light-cycles-shared-ts/light-cycles-state';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
+import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { GameSeatSwatch } from '@pkgs/ui-root-client-ts/game-seat-swatch';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { cleanup, screen } from '@solidjs/testing-library';
@@ -18,7 +19,11 @@ const POSITION = lightCyclesPositionCodec(3).encode(
   initialLightCyclesState(lightCyclesConfig(), ['white', 'black', 'red'])
 );
 
-function mount(width: number, position = POSITION): void {
+function mount(
+  width: number,
+  position = POSITION,
+  sides: readonly GameSide[] = ['white']
+): void {
   renderWithI18n(() => (
     <ThemeProvider colorScheme="dark" fixedLayout={{ width, height: 900 }}>
       <LightCyclesBoardView
@@ -36,7 +41,7 @@ function mount(width: number, position = POSITION): void {
         simulation={{
           paused: false,
           stale: false,
-          sides: ['white'],
+          sides,
           onInput: () => undefined,
           onRelease: () => undefined,
         }}
@@ -61,6 +66,19 @@ test('phone: the direction pad is under the arena, with a line on swiping', () =
   mount(390);
   expect(screen.getByTestId('arena-white-pad-up')).toBeTruthy();
   expect(screen.getByText(/Swipe the arena or use the pad/)).toBeTruthy();
+});
+
+// regression: light-cycles-compact-keyboard-help-missing
+test('compact layouts explain keyboard focus and both shared rider mappings', () => {
+  mount(390, POSITION, ['white', 'black']);
+  const hint = screen.getByText(/Keyboard: click or Tab to the arena/);
+  expect(hint.textContent).toContain('Comet uses arrow keys');
+  expect(hint.textContent).toContain('Ember uses W, A, S and D');
+  cleanup();
+  mount(768);
+  expect(
+    screen.getByText(/Keyboard: click or Tab to the arena/).textContent
+  ).toContain('arrow keys or W, A, S and D');
 });
 
 // regression: light-cycles-scores-twice — every rider's round wins showed

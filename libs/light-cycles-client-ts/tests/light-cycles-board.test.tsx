@@ -247,7 +247,7 @@ test('both local riders and their swipe halves are named', () => {
     'You ride Ember.'
   );
   expect(
-    view.getByText('Swipe your half or use your pad. Avoid edges and trails.')
+    view.getByText(/Swipe your half or use your pad\. Avoid edges and trails\./)
   ).toBeDefined();
 });
 

@@ -97,12 +97,15 @@ function SteeringHint(props: {
             fallback={
               <Trans>
                 Swipe the arena or use the pad to steer. Avoid the edge and
-                every trail.
+                every trail. Keyboard: click or Tab to the arena, then use arrow
+                keys or W, A, S and D.
               </Trans>
             }
           >
             <Trans>
-              Swipe your half or use your pad. Avoid edges and trails.
+              Swipe your half or use your pad. Avoid edges and trails. Keyboard:
+              click or Tab to the arena. {riderName(props.sides[0]!)} uses arrow
+              keys; {riderName(props.sides[1]!)} uses W, A, S and D.
             </Trans>
           </Show>
         }
