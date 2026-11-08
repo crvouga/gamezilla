@@ -17,6 +17,14 @@ Feature: Learn why people cancel Plus
       When Alice views the billing plans
       Then Alice is not offered to share cancellation feedback
 
+    @regression:billing-feedback-offered-beside-new-membership
+    Scenario: A person who subscribed again is not asked why they canceled before
+      Given Alice has subscribed to Plus
+      And Alice has canceled the membership in the billing portal
+      And Alice's billing period has ended
+      When Alice subscribes to Plus
+      Then Alice is not offered to share cancellation feedback
+
   Rule: A person can share a reason, a comment, or both after canceling
     No counter-example: every part of cancellation feedback is optional.
 
