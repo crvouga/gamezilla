@@ -188,9 +188,17 @@
   line-height: 1;
   transition: opacity var(--ui-duration-slow) var(--ui-easing-standard);
 }
+/* Every played disc has a light inner rim, so its edge reads against the
+   dark hole whatever its fill (red alone is about 2:1 on the hole). Red's
+   mark is in the board's ink, yellow's in the hole's colour: both at least
+   5:1 against their disc. */
+.cell[data-disc="1"] .disc,
+.cell[data-disc="2"] .disc {
+  box-shadow: inset 0 0 0 2px var(--ui-color-text-secondary);
+}
 .cell[data-disc="1"] .disc {
   background: var(--ui-color-destructive);
-  color: var(--ui-color-on-destructive);
+  color: var(--ui-color-text);
 }
 .cell[data-disc="2"] .disc {
   background: var(--ui-color-warning);
@@ -205,7 +213,10 @@
 .cell[data-preview-disc="2"] .disc {
   box-sizing: border-box;
   border: 4px dashed var(--disc-preview);
-  box-shadow: 0 0 0 2px var(--disc-hole);
+  /* The light inner rim keeps a red preview readable on the hole. */
+  box-shadow:
+    0 0 0 2px var(--disc-hole),
+    inset 0 0 0 2px var(--ui-color-text-secondary);
   animation: disc-preview-breathe 1.6s var(--ui-easing-standard) infinite
     alternate;
 }
@@ -215,9 +226,9 @@
 .cell[data-preview-disc="2"] {
   --disc-preview: var(--ui-color-warning);
 }
-/* Winning rings emphasize the connected four without fading the final position. */
-/* Drawn inside the cell, so the rings never touch a neighbouring disc or
-   the focused column's outline. */
+/* Winning rings emphasize the connected four without fading the final
+   position. Drawn inside the cell, so they never touch a neighbouring disc
+   or the focused column's outline. */
 .cell[data-winning="true"] {
   outline: 3px solid var(--ui-color-text);
   outline-offset: -3px;
