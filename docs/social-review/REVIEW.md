@@ -515,3 +515,30 @@ matched screenshots are unchanged context only.
 
 The previously failing `verify:rebrand` gate and `ci:goals` both pass on
 the corrected tree. Full-catalog completion remains outstanding.
+
+## Round twenty-eight hosted check readiness
+
+The complete catalog at e1512ef44 passed all 1,540 tasks (1,002 cached and
+538 fresh, zero failures or unexecuted tasks). The critic rated that audited
+social candidate 10/10 in all four dimensions. Native platforms were excluded;
+39 zero-test logs do not add test coverage. Main was merged externally during
+that run, so the newer candidate still requires its own verification.
+
+The hosted gate observed CodeQL neutral while its same-head default-setup
+producer was active; analysis succeeded two minutes later. Readiness now
+observes unfinished producers within five minutes using injected time. Only
+the original successful snapshot can pass; terminal failure, untrusted apps,
+metadata failure and expired missing evidence fail closed. Neutral CodeQL is
+deferred only for the exact active default-setup producer on the same SHA.
+No workflow budget or strict gate was weakened.
+
+The literal lifecycle regression and negative cases pass; tooling passes
+1,149 tests plus lint/types/goals. The critic approved this scope, retaining
+current-candidate ratings 10/9/9/10 pending complete and hosted verification.
+No UI changed; prior matched social images remain context, not fresh captures.
+
+Release rehearsal 42430377904 successfully planned repository policy, alerting
+and fleet. Its later dev-foundation plan failed to acquire a pre-existing lock.
+A possible interrupted Health owner was identified but not proven; no unlock,
+state deletion or infrastructure apply was attempted. The affected repository
+policy plan passed; the overall rehearsal remains failed.
