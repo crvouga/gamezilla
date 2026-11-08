@@ -36,7 +36,8 @@ for (const viewport of screens)
         const errors = await openBattleStory(
           page,
           `screens-games-battleship-${story}`,
-          theme
+          theme,
+          info
         );
         await captureBattleEvidence(page, info);
         if (story === 'board--opening') await measureTargeting(page, info);

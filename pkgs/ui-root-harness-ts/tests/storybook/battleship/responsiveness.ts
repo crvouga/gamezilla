@@ -48,7 +48,7 @@ export async function measureTargeting(page: Page, info: TestInfo) {
         samplesPerRepetition: 12,
         runs,
         limits:
-          'Three sequences in one browser context: first and repeated warm local interactions, not three independent devices or cold navigations. Synthetic CPU slowdown, not physical mobile hardware. Event Timing omits events below16ms and quantizes durations; interaction IDs distinguish overlapping events. Processing timestamps support delay/handler attribution, but duration remainder is approximate presentation time. Frame samples start after Playwright click resolves: paint-opportunity cadence, not input latency. No network/transport latency is measured.',
+          'Three sequences in one browser context: first and repeated warm local interactions, not three independent devices or cold navigations. Synthetic CPU slowdown, not physical mobile hardware. Event Timing omits events below16ms and quantizes durations; interaction IDs distinguish overlapping events. Processing timestamps support delay/handler attribution, but duration remainder is approximate presentation time. Frame samples start after Playwright click resolves: paint-opportunity cadence, not input latency. No network/transport latency is measured. Storybook overhead removed before timing: highlight addon disabled before navigation (__STORYBOOK_HIGHLIGHT_INITIALIZED) and the preview keydown forwarding (window.onkeydown) cleared; the story runs with motion:system.',
       }),
       contentType: 'application/json',
     });
