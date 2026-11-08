@@ -6,6 +6,7 @@ import { numberlinkPuzzleContent } from '@libs/numberlink-shared-ts/numberlink-p
 import { createSignal } from 'solid-js';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
+import { numberlinkContentFrame } from './numberlink-content-frame';
 import {
   DENSE_NUMBERLINK,
   LONG_LABEL_NUMBERLINK,
@@ -29,10 +30,11 @@ function progress(paths: typeof SOLUTION): string {
 /** The game's own figures for the attempt, as the app's panel shows them. */
 function figures(definition: string, state: string) {
   const values = numberlinkPuzzleContent.statistics?.(definition, state) ?? {};
-  return [
-    { key: 'connectedPairs', label: 'Connected pairs' },
-    { key: 'coveredCells', label: 'Covered cells' },
-  ].map((figure) => ({ ...figure, value: String(values[figure.key] ?? 0) }));
+  return Object.entries(numberlinkContentFrame.stats).map(([key, label]) => ({
+    key,
+    label: label(),
+    value: String(values[key] ?? 0),
+  }));
 }
 
 /** A five-pair puzzle, as a person plays it from a pack. */
@@ -59,6 +61,7 @@ const meta = {
         args.state
       )}
       figures={figures(args.definition, args.state)}
+      figuresPlacement={numberlinkContentFrame.figuresPlacement}
       player={<NumberlinkPlayer {...args} />}
     />
   ),
@@ -197,6 +200,7 @@ export const DrawPaths: Story = {
       <StoryPackAttempt
         puzzle={PUZZLE}
         figures={figures(args.definition, state())}
+        figuresPlacement={numberlinkContentFrame.figuresPlacement}
         player={
           <NumberlinkPlayer
             {...args}

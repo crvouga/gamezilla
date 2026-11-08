@@ -97,6 +97,7 @@ function AttemptBody(props: {
     <ContentAttemptScreenView
       status="ready"
       figures={figures()}
+      figuresPlacement={game.client.frame.figuresPlacement}
       attempt={summaryOf(props.attempt, props.source)}
       pack={packPlace(props.attempt, data)}
       playtest={props.attempt.mode === 'playtest'}
