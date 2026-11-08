@@ -1,0 +1,4 @@
+{
+  "summary": "The exported blank-assignment context lacked a direct production-component story, leaving its center, edge and long-summary presentation unavailable for independent browser review.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/word-tiles-blank-context/integration.checks.ts"
+}
