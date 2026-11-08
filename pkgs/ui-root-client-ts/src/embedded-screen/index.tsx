@@ -20,6 +20,8 @@ export type EmbeddedScreenProps = {
   actions?: JSX.Element | undefined;
   /** The body column's measure. Defaults to `menu`. */
   width?: ScreenMeasure | undefined;
+  /** Compact precision workspaces may use the 4px inset; the default is 16px. */
+  compactInset?: 'standard' | 'narrow' | undefined;
   /**
    * The host already scrolls and pads this body (a routed `ContentScreen`):
    * render the title block and the sections only, with no scroller and no
@@ -83,7 +85,12 @@ export function EmbeddedScreen(props: EmbeddedScreenProps): JSX.Element {
               ? 'box flex-1 min-h-0 self-stretch min-w-0 gap-ui-lg pt-ui-sm'
               : 'box self-stretch min-w-0 gap-4'
           }
-          classList={{ 'px-ui-lg': props.fill === true && inset() }}
+          classList={{
+            'px-ui-lg':
+              props.fill === true && inset() && props.compactInset !== 'narrow',
+            'px-ui-xs':
+              props.fill === true && inset() && props.compactInset === 'narrow',
+          }}
           {...dataAttrs({
             component: 'EmbeddedScreen',
             ...props.dataSet,
@@ -129,7 +136,13 @@ function EmbeddedScroller(props: ScrolledProps): JSX.Element {
         ...props.dataSet,
         screen: props.screenId,
       }}
-      paddingX={props.inset ? 'lg' : undefined}
+      paddingX={
+        props.inset
+          ? props.compactInset === 'narrow'
+            ? 'xs'
+            : 'lg'
+          : undefined
+      }
       paddingTop="sm"
       paddingBottom="2xl"
       gap="lg"
