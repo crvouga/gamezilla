@@ -5,6 +5,10 @@ type Samples = {
   frames: number[];
   inputs: number[];
   longTasks: number[];
+  /** Time inside the page's input handlers, bracketed at window capture/bubble. */
+  handlers: number[];
+  /** Input to the first change of a controlled paddle's drawn position. */
+  inputToPaddle: number[];
   addedNodes: number;
   removedNodes: number;
 };
@@ -17,6 +21,8 @@ export async function startPongMetrics(page: Page) {
       frames: [],
       inputs: [],
       longTasks: [],
+      handlers: [],
+      inputToPaddle: [],
       addedNodes: 0,
       removedNodes: 0,
     };
@@ -29,8 +35,17 @@ export async function startPongMetrics(page: Page) {
       requestAnimationFrame(frame);
     };
     requestAnimationFrame(frame);
+    let pending: number | undefined;
+    let handlerStart = 0;
+    const handlerBegin = () => {
+      handlerStart = performance.now();
+    };
+    const handlerEnd = () => {
+      samples.handlers.push(performance.now() - handlerStart);
+    };
     const input = () => {
       const start = performance.now();
+      pending ??= start;
       requestAnimationFrame(() =>
         requestAnimationFrame(() => {
           samples.inputs.push(performance.now() - start);
@@ -41,11 +56,29 @@ export async function startPongMetrics(page: Page) {
     if (!court) throw new Error('Missing Pong court');
     const mutations = new MutationObserver((records) => {
       for (const record of records) {
+        if (
+          record.type === 'attributes' &&
+          pending !== undefined &&
+          record.target instanceof Element &&
+          record.target.getAttribute('data-controlled') === 'true'
+        ) {
+          samples.inputToPaddle.push(performance.now() - pending);
+          pending = undefined;
+        }
         samples.addedNodes += record.addedNodes.length;
         samples.removedNodes += record.removedNodes.length;
       }
     });
-    mutations.observe(court, { childList: true, subtree: true });
+    mutations.observe(court, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['y'],
+    });
+    for (const type of ['keydown', 'pointermove']) {
+      window.addEventListener(type, handlerBegin, { capture: true });
+      window.addEventListener(type, handlerEnd);
+    }
     court.addEventListener('keydown', input);
     court.addEventListener('pointermove', input);
     const observer = new PerformanceObserver((list) => {
@@ -59,6 +92,10 @@ export async function startPongMetrics(page: Page) {
       mutations.disconnect();
       court.removeEventListener('keydown', input);
       court.removeEventListener('pointermove', input);
+      for (const type of ['keydown', 'pointermove']) {
+        window.removeEventListener(type, handlerBegin, { capture: true });
+        window.removeEventListener(type, handlerEnd);
+      }
       return samples;
     };
   });
@@ -87,7 +124,7 @@ export async function finishPongMetrics(
         browser: page.context().browser()?.version(),
         samples,
         limits:
-          'Hosted Chromium component fixture. Two-animation-frame proxy excludes hardware touch latency, display scanout, continuous production simulation and network latency. CPU throttling is not a physical low-end device.',
+          'Chromium component fixture. handlers brackets page input handling between window capture and bubble listeners (Solid delegates to document). inputToPaddle is input to the first controlled-paddle position mutation, before paint. Two-animation-frame proxy excludes hardware touch latency, display scanout, continuous production simulation and network latency. CPU throttling is not a physical low-end device.',
       },
       null,
       2
