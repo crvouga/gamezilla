@@ -1,6 +1,7 @@
 // @io-wall-ok — deterministic response fixture driven by trusted browser inputs.
 import { expect, test } from '@playwright/test';
 import { auditHearts, captureHearts, openHearts } from '../evidence';
+import { saveHeartsMetrics, startHeartsMetrics } from '../metrics';
 
 test.use({
   video: { mode: 'on', size: { width: 1440, height: 1024 } },
@@ -14,11 +15,15 @@ for (const width of [390, 1440]) {
       test('storybook integration: Hearts refused pass preserves choices and retries', async ({
         page,
       }, info) => {
+        const rate = width === 390 ? 4 : 1;
+        const cdp = await page.context().newCDPSession(page);
+        await cdp.send('Emulation.setCPUThrottlingRate', { rate });
         await openHearts(
           page,
           'screens-games-hearts-interaction--retry-pass',
           theme
         );
+        await startHeartsMetrics(page);
         const cards = page
           .getByRole('toolbar', { name: 'Your hand' })
           .getByRole('button');
@@ -67,9 +72,13 @@ for (const width of [390, 1440]) {
           page.locator('[aria-pressed="true"][aria-disabled="true"]')
         ).toHaveCount(3);
         await expect(
-          page.getByTestId('custom-game-board-center')
-        ).toContainText('Waiting for every player to pass');
+          page.getByText(
+            'Your cards are chosen. Waiting for every player to pass.',
+            { exact: true }
+          )
+        ).toBeVisible();
         await captureHearts(page, info, 'retry-acknowledged');
+        await saveHeartsMetrics(page, info, rate);
         await auditHearts(page, info);
       });
     });

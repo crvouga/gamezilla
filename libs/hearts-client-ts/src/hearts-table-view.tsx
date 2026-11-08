@@ -37,6 +37,7 @@ import {
   heartsRefusal,
   heartsSeatName,
   passInstruction,
+  passWaiting,
   rankText,
   SUIT_NAMES,
   suitName,
@@ -195,7 +196,7 @@ export function tableCenter(
     const now =
       board.commitment === null
         ? `${passInstruction(passDirection(position.deal))} ${progress}`
-        : `${t`Your cards are chosen. Waiting for every player to pass.`} ${progress}`;
+        : `${passWaiting()} ${progress}`;
     return `${summary} ${now}`.trim();
   }
   const trick = shownTrick(position);
