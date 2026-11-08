@@ -88,6 +88,26 @@ export const Watching: Story = {
   parameters: { table: { viewer: null, turn: 'white' } },
 };
 
+/** Exhausting walls keeps pawn moves available and explains the disabled tools. */
+export const NoWallsLeft: Story = {
+  args: {
+    position: classic(
+      'a1h e8 c1h e9 e1h e8 g1h e9 a3h e8 c3h e9 e3h e8 g3h e9 a5h e8 c5h e9'
+    ),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId('custom-game-board-mode-h')).toBeDisabled();
+    await expect(canvas.getByTestId('custom-game-board-mode-v')).toBeDisabled();
+    await expect(
+      canvas.getByTestId('custom-game-board-mode-move')
+    ).toBeEnabled();
+    await expect(
+      canvas.getByTestId('custom-game-board-wall-status')
+    ).toHaveTextContent('You have no walls left. Move your pawn');
+  },
+};
+
 /** South reached the opposite home row and won. */
 export const Won: Story = {
   args: { position: classic(SOUTH_WINS), interactive: false },

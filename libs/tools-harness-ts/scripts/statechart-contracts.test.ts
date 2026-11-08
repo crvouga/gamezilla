@@ -32,9 +32,14 @@ describe('source-derived statechart guide', () => {
   // regression: puzzle-contract-statechart-ownership
   // regression: puzzle-opponent-statechart-ownership
   // regression: statechart-runtime-space-contract-ownership
-  test('the guide owns puzzle, request and unreachable-space contracts', () => {
+  // regression: game-start-journeys-chart-ownership
+  // regression: troubleshooting-route-chart-ownership
+  test('the guide owns puzzle, request, journey and diagnostic contracts', () => {
     const root = join(import.meta.dir, '../../..');
     const paths = [
+      'specs/journeys/hearts-start.feature',
+      'specs/journeys/light-cycles-start.feature',
+      'specs/journeys/word-tiles-start.feature',
       'specs/chess/puzzle-load-controls.feature',
       'specs/chess/puzzle-load-progress.feature',
       'specs/chess/puzzle-load-updates.feature',
@@ -62,6 +67,13 @@ describe('source-derived statechart guide', () => {
     const guide = productGuide(bundle, contracts);
     expect(guide.meta?.['contracts']).toEqual(contracts);
     expect(unmappedContracts(bundle, contracts)).toEqual([]);
+    expect(
+      walkStates(machine).some(({ node }) =>
+        (node.meta?.['routes'] as string[] | undefined)?.includes(
+          '/more/troubleshooting'
+        )
+      )
+    ).toBe(true);
   });
   // regression: atlas-schema-strict-optional
   test('the public schema represents its explicit undefined optional fields', () => {

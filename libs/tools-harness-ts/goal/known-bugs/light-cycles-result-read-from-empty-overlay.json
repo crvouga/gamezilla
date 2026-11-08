@@ -1,0 +1,4 @@
+{
+  "summary": "At seed 1, Alice and Bob sit out round three and Carol sees Nova win. The harness read only the empty arena overlay, missing the result rendered in the status line. Read the visible result while retaining countdown observations.",
+  "regressionTest": "libs/light-cycles-harness-ts/tests/light-cycles-result-reading.test.ts"
+}

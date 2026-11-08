@@ -1,0 +1,4 @@
+{
+  "summary": "Run mw6tcjre opened Valley after saving Canyon because the publication mutation completed before confirmation and the current-edition read. The journey now waits for the exact Published receipt before opening the edition, preserving the title and changed-body assertions.",
+  "regressionTest": "libs/game-puzzle-harness-ts/tests/content-journey-publication-ready.test.ts"
+}

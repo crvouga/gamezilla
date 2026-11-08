@@ -1,0 +1,4 @@
+{
+  "summary": "A burst of searches within one clock millisecond reset the quota and bypassed the rate limit.",
+  "regressionTest": "libs/friends-shared-ts/tests/people-search-rate-limit.test.ts"
+}

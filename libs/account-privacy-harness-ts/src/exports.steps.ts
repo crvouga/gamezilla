@@ -64,8 +64,11 @@ Then(
       await w.s.read(privacyNotice, actor, 'privacy-export-overdue')
     ).toContain('ask again');
     expect(
-      await w.s.read(privacyNotice, actor, 'privacy-export-request')
-    ).not.toBeNull();
+      await w.s.read(privacyNotice, actor, 'privacy-export-access')
+    ).toContain('Sign in again');
+    expect(
+      await w.s.read(privacyNotice, actor, 'privacy-export-access-action')
+    ).toBe('Sign in');
   }
 );
 Given(
