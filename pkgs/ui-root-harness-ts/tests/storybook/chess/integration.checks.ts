@@ -9,6 +9,7 @@ import {
   openChessStory,
   squareCenter,
 } from './evidence';
+import { measureChessFrame } from './frame-performance';
 
 test.use({ video: 'on', trace: 'on', hasTouch: true });
 
@@ -105,6 +106,13 @@ for (const { width, height } of sizes) {
   for (const theme of ['light', 'dark']) {
     test.describe(`chess ${width} ${theme}`, () => {
       test.use({ viewport: { width, height } });
+
+      if (height === 900)
+        test('storybook integration: chess full game screen timing', async ({
+          page,
+        }, info) => {
+          await measureChessFrame(page, info, theme);
+        });
 
       test('storybook integration: chess assistive activation evidence', async ({
         page,
