@@ -12,13 +12,13 @@ const meta = {
 } satisfies Meta;
 export default meta;
 
-function Workspace(props: { narrow: boolean }) {
+function Workspace(props: { inset: 'standard' | 'narrow' | 'narrowest' }) {
   return (
     <ExampleRoot grow>
       <GameScreen
         screenId="precision-inset"
         title="Precision board"
-        compactInset={props.narrow ? 'narrow' : 'standard'}
+        compactInset={props.inset}
       >
         <Surface
           tone="muted"
@@ -34,6 +34,10 @@ function Workspace(props: { narrow: boolean }) {
 }
 
 export const Standard: StoryObj = {
-  render: () => <Workspace narrow={false} />,
+  render: () => <Workspace inset="standard" />,
 };
-export const Narrow: StoryObj = { render: () => <Workspace narrow /> };
+export const Narrow: StoryObj = { render: () => <Workspace inset="narrow" /> };
+/** 4px only below 360px; the standard 16px on wider compact screens. */
+export const Narrowest: StoryObj = {
+  render: () => <Workspace inset="narrowest" />,
+};
