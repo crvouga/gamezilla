@@ -12,6 +12,7 @@ import type {
 import {
   bestOnColor,
   contrastRatio,
+  ON_DARK,
   ON_LIGHT,
   parseColor,
 } from '@pkgs/ui-root-shared-ts/contrast';
@@ -170,6 +171,21 @@ function coordinateInks(theme: BoardTheme): Record<string, string> {
 }
 
 /**
+ * The focus ring's inner band: of the plain inks, the one whose weaker
+ * contrast over the two squares is higher, so the ring reads on both.
+ */
+function focusBand(theme: BoardTheme): string {
+  const light = parseColor(theme.lightSquare);
+  const dark = parseColor(theme.darkSquare);
+  const weakest = (ink: string): number => {
+    const rgb = parseColor(ink);
+    if (!rgb || !light || !dark) return 0;
+    return Math.min(contrastRatio(rgb, light), contrastRatio(rgb, dark));
+  };
+  return weakest(ON_DARK.fg) > weakest(ON_LIGHT.fg) ? ON_DARK.fg : ON_LIGHT.fg;
+}
+
+/**
  * Host CSS custom properties — only the ones the stylesheet reads (badge and
  * arrow colours are SVG attributes, not variables).
  */
@@ -185,6 +201,7 @@ export function boardThemeToCssVars(theme: BoardTheme): Record<string, string> {
     '--chess-check': theme.check,
     '--chess-legal-dot': theme.legalMoveDot,
     '--chess-legal-ring': theme.legalMoveCaptureRing,
+    '--chess-focus-band': focusBand(theme),
     ...coordinateInks(theme),
   };
 }

@@ -37,3 +37,14 @@ test('last-move wash has a board-ink perimeter in addition to its yellow fill', 
   expect(rule).toContain('var(--chess-border)');
   expect(rule).toContain('inset');
 });
+
+// regression: chess-focus-ring-low-contrast-on-walnut
+test('the focus ring pairs the app ring with the board-derived contrast band', () => {
+  const board = [...document.head.querySelectorAll('style')]
+    .map((style) => style.textContent)
+    .join('\n');
+  const rule = /square:focus-visible[^{]*\{([^}]+)\}/.exec(board)?.[1];
+  expect(rule).toContain('var(--ui-color-focus-ring)');
+  expect(rule).toContain('var(--chess-focus-band)');
+  expect(rule).toContain('inset');
+});

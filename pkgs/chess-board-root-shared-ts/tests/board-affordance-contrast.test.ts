@@ -67,3 +67,23 @@ test('corner coordinates meet normal-text contrast on the square under them', ()
     );
   }
 });
+
+// regression: chess-focus-ring-low-contrast-on-walnut
+test('the keyboard focus ring has a band that clears 3:1 on both squares in both themes', () => {
+  for (const scheme of ['light', 'dark'] as const) {
+    const theme = defaultBoardTheme(scheme);
+    const band = boardThemeToCssVars(theme)['--chess-focus-band'];
+    if (!band) throw new Error('Missing focus band ink');
+    for (const square of [theme.lightSquare, theme.darkSquare])
+      expect(paintedContrast(band, square)).toBeGreaterThanOrEqual(3);
+  }
+});
+
+test('the focus band stays readable after a square palette override', () => {
+  for (const lightSquare of ['#ffffff', '#202020']) {
+    const theme = mergeBoardTheme(defaultBoardTheme('dark'), { lightSquare });
+    const band = boardThemeToCssVars(theme)['--chess-focus-band'];
+    if (!band) throw new Error('Missing focus band ink');
+    expect(paintedContrast(band, theme.lightSquare)).toBeGreaterThanOrEqual(3);
+  }
+});
