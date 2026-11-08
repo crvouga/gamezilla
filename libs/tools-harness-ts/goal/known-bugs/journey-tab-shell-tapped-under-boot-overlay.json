@@ -1,0 +1,4 @@
+{
+  "summary": "Shared journey readiness (atTabShell) waited only for the header's account control, which is visible while the boot overlay still covers the viewport. After a peer device relaunched, confirmSignedIn tapped it and hit the boot-loading overlay, an intermittent release-journey failure seen on Sokoban continuation journeys. Readiness now also waits for the boot overlay to be hidden.",
+  "regressionTest": "libs/runtime-harness-ts/tests/journey-tab-shell-boot.test.ts"
+}

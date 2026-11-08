@@ -1,0 +1,4 @@
+{
+  "summary": "Decoding the 551 MB retained Connect Four evidence log buffered every encrypted and decrypted file, retaining gigabytes before writing any output. Consume one authenticated record at a time and publish only a manifest-verified bundle.",
+  "regressionTest": "libs/tools-harness-ts/scripts/storybook-evidence-stream.test.ts"
+}

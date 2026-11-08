@@ -104,6 +104,8 @@ export type GameFrameScreenViewProps = FrameReviewHandlers & {
   readonly about?: (() => JSX.Element) | undefined;
   /** Public render state on the board stage, for automated observers. */
   readonly boardState?: Readonly<Record<string, string>> | undefined;
+  /** The game's square fit (`GameFrame.boardFit`); absent for width alone. */
+  readonly boardFit?: 'square' | undefined;
   readonly people?: FramePeople | undefined;
   /** Every choice about the game, as the room accepts it. */
   readonly onChoose: (input: CustomGameInput) => Promise<void>;
@@ -557,6 +559,7 @@ function FrameBoardStage(props: Props): JSX.Element {
   return (
     <GameBoardStage
       preview={!seated()}
+      viewportFit={props.boardFit}
       // How the game is played, beside the preview, names it instead.
       previewLabel={
         props.about === undefined ? <Trans>Board preview</Trans> : undefined
@@ -697,6 +700,7 @@ export function GameFrameScreenView(props: Props): JSX.Element {
     <GameScreen
       screenId="custom-game"
       title={props.title}
+      compactInset={props.table.compactInset}
       facts={
         <Show when={props.denial === undefined && props.phase !== 'none'}>
           <FrameFacts {...props} />

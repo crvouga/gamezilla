@@ -1,0 +1,4 @@
+{
+  "summary": "A trailing slash on a nonexistent evidence destination caused staging to be created inside that missing directory. Normalize the target before sibling staging.",
+  "regressionTest": "libs/tools-harness-ts/scripts/storybook-evidence-restore.test.ts"
+}
