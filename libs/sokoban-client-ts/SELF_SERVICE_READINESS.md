@@ -6,6 +6,7 @@ remains in [the Sokoban specs](../../specs/sokoban/).
 
 | Surface | Change | Automated evidence | Remaining limitation |
 | --- | --- | --- | --- |
+| Maximum board | An optional close view follows the worker with full-board tap coordinates; the overview preserves progress | `sokoban-input.contract.test.tsx` (`sokoban-maximum-board-pieces-too-small`); hosted maximum-board suite | 320px screenshot, video and target-size check pending |
 | Movement while saving | A fifth queued direction explicitly says it was not added; existing four-direction queue order is preserved | `libs/sokoban-harness-ts/tests/sokoban-input.contract.test.tsx` (`sokoban-save-queue-silently-drops-fifth-direction`) | Hosted video and accessibility results pending |
 | Wide touch input | Named 44px direction controls remain available at wide widths | Same contract file (`sokoban-wide-touch-screen-hides-steering`) | Physical device responsiveness is not established by DOM checks |
 | Board movement | Tile nodes retain identity while accessible descriptions update | `pkgs/ui-root-harness-ts/tests/sokoban-tile-stability.test.tsx` (`sokoban-moving-worker-replaces-every-tile`) | Hosted small/maximum-board frame and long-task measurements pending |

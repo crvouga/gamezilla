@@ -6,7 +6,12 @@ type Samples = {
   longTaskMs: number[];
 };
 
-export async function measureSokoban(page: Page, info: TestInfo, rate: number) {
+export async function measureSokoban(
+  page: Page,
+  info: TestInfo,
+  rate: number,
+  startingMoves = 2
+) {
   const cdp = await page.context().newCDPSession(page);
   await cdp.send('Emulation.setCPUThrottlingRate', { rate });
   try {
@@ -44,7 +49,7 @@ export async function measureSokoban(page: Page, info: TestInfo, rate: number) {
       await board.press(i % 2 === 0 ? 'ArrowLeft' : 'ArrowRight');
       await expect(page.getByTestId('sokoban-counts')).toHaveAttribute(
         'data-moves',
-        String(2 + i + 1)
+        String(startingMoves + i + 1)
       );
       await page.evaluate(
         () =>

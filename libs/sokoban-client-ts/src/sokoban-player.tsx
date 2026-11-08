@@ -22,11 +22,8 @@ import { TileBoard } from '@pkgs/ui-root-client-ts/tile-board';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { createMemo, createUniqueId, type JSX, Show } from 'solid-js';
 import { createSokobanSteering } from './create-sokoban-steering';
-import {
-  positionPieces,
-  sokobanPieces,
-  sokobanTiles,
-} from './sokoban-board-view';
+import { sokobanPieces, sokobanTiles } from './sokoban-board-view';
+import { SokobanPlayBoard } from './sokoban-play-board';
 import { useSokobanWords } from './use-sokoban-words';
 
 function Steering(props: {
@@ -50,14 +47,9 @@ function Steering(props: {
   const wide = () => mode() === 'wide';
   return (
     <StackVertical gap="md">
-      <TileBoard
-        label={t`Sokoban board`}
-        testId="sokoban-board"
-        size="fill"
-        columns={props.board.width}
-        rows={props.board.height}
-        tiles={sokobanTiles(props.board, positionPieces(props.position), words)}
-        pieces={sokobanPieces(props.board, positionPieces(props.position))}
+      <SokobanPlayBoard
+        board={props.board}
+        position={props.position}
         describedBy={help}
         onDirection={steering.steer}
         onTile={steering.tap}

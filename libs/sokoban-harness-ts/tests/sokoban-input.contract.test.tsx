@@ -1,6 +1,7 @@
 import { expect, test } from 'bun:test';
 import { SokobanEditor } from '@libs/sokoban-client-ts/sokoban-editor';
 import { SokobanPlayerView as SokobanPlayer } from '@libs/sokoban-client-ts/sokoban-player';
+import { MAXIMUM_BOARD } from '@libs/sokoban-client-ts/sokoban-player.example';
 import { decodeSokobanBoard } from '@libs/sokoban-shared-ts/sokoban-definition';
 import { sokobanPuzzleContent } from '@libs/sokoban-shared-ts/sokoban-puzzle-content';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
@@ -24,9 +25,9 @@ function render(ui: () => JSX.Element, width = 390) {
   ));
 }
 
-function player(width = 390) {
+function player(width = 390, definition = CORRIDOR) {
   const rules = sokobanPuzzleContent.rules;
-  const start = rules.initial(CORRIDOR);
+  const start = rules.initial(definition);
   if (!start.accepted) throw new Error('corridor refused');
   const [state, setState] = createSignal(start.state);
   const [disabled, setDisabled] = createSignal(false);
@@ -37,11 +38,11 @@ function player(width = 390) {
         onReturnToLibrary={() => {
           throw new Error('Unexpected navigation');
         }}
-        definition={CORRIDOR}
+        definition={definition}
         state={state()}
         disabled={disabled()}
         onAction={(action) => {
-          const change = rules.apply(CORRIDOR, state(), action);
+          const change = rules.apply(definition, state(), action);
           if (!change.accepted)
             throw new Error('the player sent a refused move');
           actions.push(action);
@@ -301,4 +302,26 @@ test('on a phone the moves are a spatial pad of named icon buttons', () => {
   }
   fireEvent.click(view.getByTestId('sokoban-move-right'));
   expect(actions).toEqual(['r']);
+});
+
+// regression: sokoban-maximum-board-pieces-too-small
+test('a maximum board has a close view that follows the worker and maps taps to the full board', () => {
+  const { view, board, actions } = player(320, MAXIMUM_BOARD);
+  expect(board.querySelectorAll('[role="img"]')).toHaveLength(400);
+  fireEvent.click(view.getByRole('button', { name: 'Look closer' }));
+  expect(board.querySelectorAll('[role="img"]')).toHaveLength(36);
+  for (let move = 0; move < 5; move++)
+    fireEvent.keyDown(board, { key: 'ArrowRight' });
+  expect(view.getByRole('img', { name: 'G2: floor, worker' })).toBeTruthy();
+  board.getBoundingClientRect = () =>
+    ({ left: 0, top: 0, width: 288, height: 288 }) as DOMRect;
+  fireEvent.pointerDown(board, { clientX: 216, clientY: 72 });
+  fireEvent.pointerUp(board, { clientX: 216, clientY: 72 });
+  expect(actions).toEqual(['r', 'r', 'r', 'r', 'r', 'r']);
+  expect(view.getByRole('img', { name: 'H2: floor, worker' })).toBeTruthy();
+  fireEvent.click(view.getByRole('button', { name: 'Show whole board' }));
+  expect(board.querySelectorAll('[role="img"]')).toHaveLength(400);
+  expect(view.getByTestId('sokoban-counts').getAttribute('data-moves')).toBe(
+    '6'
+  );
 });
