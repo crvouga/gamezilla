@@ -1,0 +1,4 @@
+{
+  "summary": "In the shared puzzle builder the pending-publication notice sat above the actions; when confirmation arrived after reconnecting it unmounted and the View saved edition button jumped up under the person's finger, so a tap landed on the publish section (seen as an intermittent Sokoban offline release journey failure). The status now renders after the actions, so its removal moves none of them.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-publication-pending-shift.test.tsx"
+}
