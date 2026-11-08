@@ -18,6 +18,7 @@ const actions = readFileSync(
 const imports = readFileSync(join(TOFU, 'stacks/bootstrap/imports.tf'), 'utf8');
 
 // regression: repository-ruleset-solo-approval
+// regression: repository-policy-codeql-count
 test('main requires verified PRs without approvals a solo maintainer cannot give and refuses deletion and force-pushes', () => {
   expect(repository).toMatch(/resource "github_repository_ruleset" "main"/);
   for (const rule of ['deletion', 'non_fast_forward']) {
@@ -46,13 +47,13 @@ test('main requires verified PRs without approvals a solo maintainer cannot give
         readonly integration_id: number;
       }
   );
-  expect(checks).toHaveLength(2);
-  expect(checks).toEqual(
-    expect.arrayContaining([
-      { context: 'verify:start', integration_id: 15368 },
-      { context: 'verify:end', integration_id: 15368 },
-    ])
-  );
+  expect(checks.sort((a, b) => a.context.localeCompare(b.context))).toEqual([
+    { context: 'Analyze (actions)', integration_id: 15368 },
+    { context: 'Analyze (javascript-typescript)', integration_id: 15368 },
+    { context: 'CodeQL', integration_id: 57789 },
+    { context: 'verify:end', integration_id: 15368 },
+    { context: 'verify:start', integration_id: 15368 },
+  ]);
   expect(new Set(checks.map((check) => check.context)).size).toBe(
     checks.length
   );

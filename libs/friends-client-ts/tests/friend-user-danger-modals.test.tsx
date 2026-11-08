@@ -63,13 +63,12 @@ test('a failed remove shows a retryable error and keeps the confirmation open', 
   expect(
     await screen.findByText('This friend could not be removed. Try again.')
   ).toBeInTheDocument();
-  expect(screen.getByTestId(Handles.friendRemoveConfirm(USERNAME))).toBe(
-    confirm
-  );
-  expect(confirm).not.toBeDisabled();
+  expect(
+    screen.getByTestId(Handles.friendRemoveConfirm(USERNAME))
+  ).not.toBeDisabled();
   expect(closes).toBe(0);
 
-  fireEvent.click(confirm);
+  fireEvent.click(screen.getByTestId(Handles.friendRemoveConfirm(USERNAME)));
   await waitFor(() => expect(attempts).toBe(2));
   await waitFor(() =>
     expect(
@@ -99,12 +98,70 @@ test('a failed block shows a retryable error and keeps the confirmation open', a
   expect(
     await screen.findByText('This user could not be blocked. Try again.')
   ).toBeInTheDocument();
-  expect(confirm).not.toBeDisabled();
+  expect(
+    screen.getByTestId(Handles.friendBlockConfirm(USERNAME))
+  ).not.toBeDisabled();
   expect(closes).toBe(0);
 
-  fireEvent.click(confirm);
+  fireEvent.click(screen.getByTestId(Handles.friendBlockConfirm(USERNAME)));
   await waitFor(() => expect(attempts).toBe(2));
   expect(
     await screen.findByText('This user could not be blocked. Try again.')
   ).toBeInTheDocument();
 });
+
+for (const kind of ['remove', 'block'] as const) {
+  test(`${kind} shows progress and success until explicitly dismissed`, async () => {
+    // regression: friend-danger-success-navigates-away
+    // regression: friend-danger-harness-vacuous-success
+    let finish: (() => void) | undefined;
+    let calls = 0;
+    let closes = 0;
+    const operation = () => {
+      calls += 1;
+      return new Promise<void>((resolve) => {
+        finish = resolve;
+      });
+    };
+    renderModals({
+      removeOpen: kind === 'remove',
+      blockOpen: kind === 'block',
+      onRemove: operation,
+      onBlock: operation,
+      onClose: () => {
+        closes += 1;
+      },
+    });
+    const id =
+      kind === 'remove'
+        ? Handles.friendRemoveConfirm(USERNAME)
+        : Handles.friendBlockConfirm(USERNAME);
+    fireEvent.click(screen.getByTestId(id));
+    expect(
+      await screen.findByText(
+        kind === 'remove' ? 'Removing friend…' : 'Blocking user…'
+      )
+    ).toBeInTheDocument();
+    expect(screen.queryByTestId(id)).toBeNull();
+    expect(calls).toBe(1);
+    expect(closes).toBe(0);
+    finish?.();
+    expect(
+      await screen.findByText(
+        kind === 'remove' ? 'Friend removed' : 'User blocked'
+      )
+    ).toBeInTheDocument();
+    expect(closes).toBe(0);
+    const successId =
+      kind === 'remove'
+        ? Handles.friendRemoveSuccess(USERNAME)
+        : Handles.friendBlockSuccess(USERNAME);
+    const doneId =
+      kind === 'remove'
+        ? Handles.friendRemoveDone(USERNAME)
+        : Handles.friendBlockDone(USERNAME);
+    expect(screen.getByTestId(successId)).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId(doneId));
+    expect(closes).toBe(1);
+  });
+}

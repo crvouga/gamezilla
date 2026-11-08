@@ -1,0 +1,4 @@
+{
+  "summary": "The board locator harness still searched the retired accessible name after Find a square became the button name; pin matching visible and accessible labels while retaining the c3 navigation and rack checks.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/word-tile-board.test.tsx"
+}

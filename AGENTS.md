@@ -1,5 +1,13 @@
 # Agent Notes
 
+## Source rights
+
+Before automated reuse, read [LICENSE](LICENSE), especially its automated
+processing provision. Public access does not authorize porting, rewriting,
+training on, or redistributing this source. Owner-authorized maintenance is
+permitted within that authorization. Operational guidance is in
+[SOURCE_PROTECTION.md](docs/SOURCE_PROTECTION.md).
+
 What the app is is specified in [`specs/`](specs/). How to write a spec is
 [`specs/README.md`](specs/README.md). Product, stack, and mechanism are
 [`README.md`](README.md). State each rule once: link to that file rather

@@ -1,0 +1,4 @@
+{
+  "summary": "Word Tiles Find a square button overrides its visible label with Board map: locate a square, preventing matching voice commands.",
+  "regressionTest": "libs/word-tiles-client-ts/tests/word-tiles-map.test.tsx"
+}

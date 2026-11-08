@@ -1,7 +1,6 @@
 /** @jsxImportSource solid-js */
 
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { Surface } from '@pkgs/ui-root-client-ts/surface';
 import type { TextRole } from '@pkgs/ui-root-client-ts/text';
 import { Code, Em, P, Strong, Text, Time } from '@pkgs/ui-root-client-ts/text';
 import type {
@@ -47,14 +46,14 @@ function Tones(): JSX.Element {
     <ExampleSection title="tone">
       <For each={COLOR_TONES}>
         {(tone) => (
-          <Surface
-            tone={tone === 'on-primary' ? 'info' : 'transparent'}
-            radius="sm"
+          <div
+            class="box rounded-sm"
+            classList={{ 'bg-tint-active': tone === 'on-primary' }}
           >
             <P variant="label" tone={tone}>
               {tone}
             </P>
-          </Surface>
+          </div>
         )}
       </For>
     </ExampleSection>

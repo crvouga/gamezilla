@@ -1,0 +1,4 @@
+{
+  "summary": "A player with zero walls saw disabled wall tools without an explanation; the harness then targeted a wall cell that could not be entered. The board explains the exhausted inventory and recovery action, and the harness sends disabled-tool attempts through product refusal without changing the game.",
+  "regressionTest": "libs/quoridor-harness-ts/tests/quoridor-empty-walls.test.ts"
+}

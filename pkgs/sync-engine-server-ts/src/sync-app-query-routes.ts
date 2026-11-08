@@ -1,5 +1,6 @@
 import { assert } from '@pkgs/assert-root-shared-ts/singleton';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
+import { RetryableQueryError } from '@pkgs/sync-engine-shared-ts/define-query';
 import type { QueryRegistry } from '@pkgs/sync-engine-shared-ts/queries-types';
 
 import type { AuthErrorBody } from '@pkgs/sync-engine-shared-ts/v2';
@@ -25,12 +26,25 @@ type RunQueryDeps = {
 };
 
 async function runOne(deps: RunQueryDeps, body: QueryBatchItem) {
-  return runQuery(deps, {
-    name: body.name,
-    params: body.params,
-    ...(body.lastHash !== undefined ? { lastHash: body.lastHash } : {}),
-    ...(body.checkpoint !== undefined ? { checkpoint: body.checkpoint } : {}),
-  });
+  try {
+    return await runQuery(deps, {
+      name: body.name,
+      params: body.params,
+      ...(body.lastHash !== undefined ? { lastHash: body.lastHash } : {}),
+      ...(body.checkpoint !== undefined ? { checkpoint: body.checkpoint } : {}),
+    });
+  } catch (error) {
+    if (
+      !(error instanceof RetryableQueryError) ||
+      body.supportsRetryableErrors !== true
+    )
+      throw error;
+    return {
+      status: 'retry_later' as const,
+      code: error.code,
+      retryAfterMs: error.retryAfterMs,
+    };
+  }
 }
 
 export type MountQueryRoutesDeps = {
