@@ -38,10 +38,22 @@ function cellGeometry(page: Page) {
       const border = label
         ? Number.parseFloat(getComputedStyle(label).borderLeftWidth)
         : 0;
+      const round = (value: number | undefined) =>
+        value === undefined ? null : Math.round(value * 100) / 100;
       return {
         name: cell.getAttribute('aria-label'),
         width: box.width,
         height: box.height,
+        text:
+          text === null
+            ? null
+            : [text.left, text.top, text.right, text.bottom].map(round),
+        ring:
+          ring === undefined
+            ? null
+            : [ring.left, ring.top, ring.right, ring.bottom].map(round),
+        border,
+        fontSize: label ? getComputedStyle(label).fontSize : null,
         labelFits:
           text === null ||
           ring === undefined ||
@@ -64,9 +76,13 @@ test('storybook integration: numberlink-states labels fit narrow cells', async (
   for (const story of ['dense-board', 'long-labels']) {
     await openBoard(page, 'dark', `screens-games-numberlink-puzzle--${story}`);
     await capture(page, info, `${story}-narrow`);
+    // Measurements, not only names, so a hosted failure shows by how much.
     const overflowing = (await cellGeometry(page))
       .filter((cell) => !cell.labelFits)
-      .map((cell) => cell.name);
+      .map(
+        (cell) =>
+          `${cell.name} text=${cell.text} ring=${cell.ring} border=${cell.border} font=${cell.fontSize}`
+      );
     expect(overflowing).toEqual([]);
   }
 });

@@ -169,8 +169,10 @@
 /* One continuous stroke from cell to cell, joined or still open: a dashed
    open path broke into separate capsules that read as a drawing fault. A
    path still open ends in the board, its endpoints rings, not discs. */
+/* Thinner while unsaved: a cue by shape, not colour alone, and opaque, so
+   a dense board is not re-blended on every repaint while drawing. */
 .line[data-provisional="true"] {
-  stroke-opacity: 0.55;
+  stroke-width: 12;
 }
 .line {
   fill: none;
