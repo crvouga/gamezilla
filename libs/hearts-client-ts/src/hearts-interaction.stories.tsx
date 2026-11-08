@@ -3,6 +3,7 @@ import { heartsRules } from '@libs/hearts-shared-ts/hearts-rules';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { HeartsBoard } from './hearts-board';
 import { renderPassJourney } from './hearts-pass-journey.example';
+import { renderPassRecovery } from './hearts-recovery.example';
 
 const meta = {
   id: 'screens-games-hearts-interaction',
@@ -20,3 +21,10 @@ type Story = StoryObj<typeof meta>;
  * legal-card rules. It does not emulate server transport or persistence.
  */
 export const PassAndPlay: Story = {};
+
+/** A refused pass keeps the three choices; retry clears the real frame notice.
+ * This is a deterministic response fixture, not live transport evidence.
+ */
+export const RetryPass: Story = {
+  render: (_args, context) => renderPassRecovery(context),
+};
