@@ -9,7 +9,8 @@ const meta = {
   id: 'screens-shell-header-island',
   title: 'Screens/Shell/Header island',
   component: AppHeaderIslandView,
-  tags: ['autodocs'],
+  tags: ['autodocs', 'viewport-desktop'],
+  globals: { viewport: { value: 'desktop', isRotated: false } },
   parameters: {
     appRouter: true,
     appFrame: false,

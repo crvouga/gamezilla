@@ -256,7 +256,8 @@ for (const story of [
   });
 
 // regression: storybook-sidebar-compact-viewport
-test('storybook integration: sidebar entries declare desktop eligibility without restricting header stories', async ({
+// regression: storybook-header-compact-viewport
+test('storybook integration: wide header and sidebar entries declare desktop eligibility while compact tabs remain covered', async ({
   request,
 }) => {
   const response = await request.get('/index.json');
@@ -270,6 +271,13 @@ test('storybook integration: sidebar entries declare desktop eligibility without
     'sidebar-notifications-current',
     'sidebar-profile-current',
     'sidebar-none-current',
+    'spaces-current',
+    'search-current',
+    'notifications-current',
+    'profile-current',
+    'long-labels',
+    'select-profile',
+    'with-account-menu',
   ]) {
     const entry = index.entries[`screens-shell-header-island--${name}`];
     expect(entry).toBeDefined();
@@ -277,10 +285,11 @@ test('storybook integration: sidebar entries declare desktop eligibility without
   }
   for (const name of [
     'spaces-current',
-    'select-profile',
-    'with-account-menu',
+    'search-current',
+    'notifications-current',
+    'profile-current',
   ]) {
-    const entry = index.entries[`screens-shell-header-island--${name}`];
+    const entry = index.entries[`screens-shell-tab-bar--${name}`];
     expect(entry).toBeDefined();
     expect(entry?.tags).not.toContain('viewport-desktop');
   }
