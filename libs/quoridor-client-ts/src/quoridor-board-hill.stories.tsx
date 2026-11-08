@@ -21,6 +21,7 @@ import {
   expectHillDestinationVisible,
   expectHillPassVisible,
 } from './quoridor-hill-visibility.example';
+import { cancelQuoridorWallWithKeyboard } from './quoridor-keyboard.example';
 import {
   chooseQuoridorCoordinate,
   expectQuoridorGoalMarker,
@@ -203,6 +204,12 @@ const renderHillJourney: NonNullable<Story['render']> = (args, context) => {
 export const PreciseCoordinates: Story = {
   render: renderHillJourney,
   play: ({ canvasElement }) => playHillPreciseCoordinates(canvasElement),
+};
+
+/** The four-player board offers the same keyboard proposal cancellation. */
+export const KeyboardWallCancellation: Story = {
+  render: renderHillJourney,
+  play: ({ canvasElement }) => cancelQuoridorWallWithKeyboard(canvasElement),
 };
 
 /** Passing changes the active pawn and removes the forced-pass action. */

@@ -17,6 +17,7 @@ import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { expectQuoridorActionsFit } from './quoridor-action-bounds.example';
 import { QuoridorBoard } from './quoridor-board';
 import { quoridorGameClient } from './quoridor-game-client';
+import { cancelQuoridorWallWithKeyboard } from './quoridor-keyboard.example';
 import {
   chooseQuoridorCoordinate,
   expectQuoridorCellHierarchy,
@@ -172,6 +173,12 @@ export const PlaceAWall: Story = {
       canvas.getByTestId('custom-game-board-action-b3v')
     ).toHaveAccessibleName(/wall boundaries/);
   },
+};
+
+/** Escape cancels a proposal while keeping keyboard focus on its anchor. */
+export const KeyboardWallCancellation: Story = {
+  render: renderClassicJourney,
+  play: ({ canvasElement }) => cancelQuoridorWallWithKeyboard(canvasElement),
 };
 
 /** Move the actual pawn onto the opposite edge and observe completion. */

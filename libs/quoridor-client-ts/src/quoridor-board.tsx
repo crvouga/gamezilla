@@ -20,6 +20,7 @@ import {
   createMemo,
   createSignal,
   type JSX,
+  on,
   Show,
 } from 'solid-js';
 import {
@@ -58,8 +59,13 @@ function createBoardSelection(props: BoardViewProps) {
     cell: string;
     position: string;
   } | null>(null);
+  const cancel = () => {
+    setChosen(null);
+    setPreview(null);
+  };
+  createEffect(on([() => props.position, () => props.syncKey], cancel));
   createEffect(() => {
-    if (tool() === 'move') setChosen(null);
+    if (tool() === 'move') cancel();
   });
   const selected = () => {
     const value = chosen();
@@ -100,10 +106,6 @@ function createBoardSelection(props: BoardViewProps) {
     setPreview(null);
     props.onAction(action);
   };
-  const cancel = () => {
-    setChosen(null);
-    setPreview(null);
-  };
   const commit = () => {
     const action = `${selected()}${tool()}`;
     if (wallRefusal(game(), action) !== null) return;
@@ -130,6 +132,7 @@ function QuoridorBoardView(props: BoardViewProps): JSX.Element {
         boardTheme="quoridor"
         fill
         label={t`Quoridor board, nine columns and nine rows`}
+        describedBy={`${props.testId}-wall-status`}
         testId={props.testId}
         columnLabels={['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i']}
         rowLabels={['9', '8', '7', '6', '5', '4', '3', '2', '1']}
@@ -139,6 +142,11 @@ function QuoridorBoardView(props: BoardViewProps): JSX.Element {
         }
         onActivate={selection.activate}
         onPreview={selection.setPreview}
+        onCellKey={(key) => {
+          if (key !== 'Escape') return false;
+          selection.cancel();
+          return true;
+        }}
       />
       <Show
         when={
@@ -169,7 +177,11 @@ function QuoridorBoardView(props: BoardViewProps): JSX.Element {
           commit={selection.commit}
         />
       </Show>
-      <P role="status" dataSet={{ testid: `${props.testId}-wall-status` }}>
+      <P
+        id={`${props.testId}-wall-status`}
+        role="status"
+        dataSet={{ testid: `${props.testId}-wall-status` }}
+      >
         {selection.message() || toolGuidance(tool())}
       </P>
     </StackVertical>
