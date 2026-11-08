@@ -43,8 +43,8 @@ export async function profileMotion(
   ticks: number
 ): Promise<void> {
   const events: TraceEvent[] = [];
-  cdp.on('Tracing.dataCollected', (event: { value: TraceEvent[] }) => {
-    events.push(...event.value);
+  cdp.on('Tracing.dataCollected', (event) => {
+    events.push(...(event.value as unknown as TraceEvent[]));
   });
   const complete = new Promise<void>((resolve) =>
     cdp.once('Tracing.tracingComplete', () => resolve())
@@ -79,10 +79,7 @@ export async function profileMotion(
   const totals = new Map<string, number>();
   for (const event of events)
     if (event.ph === 'X' && event.dur && MAIN_THREAD_WORK.includes(event.name))
-      totals.set(
-        event.name,
-        (totals.get(event.name) ?? 0) + event.dur / 1000
-      );
+      totals.set(event.name, (totals.get(event.name) ?? 0) + event.dur / 1000);
   const nodes = new Map(profile.nodes.map((node) => [node.id, node]));
   const self = new Map<string, number>();
   profile.samples.forEach((id, index) => {
@@ -90,7 +87,10 @@ export async function profileMotion(
     if (!frame) return;
     const file = frame.url.split('/').pop()?.split('?')[0] ?? '';
     const key = `${frame.functionName || '(anonymous)'} ${file}:${frame.lineNumber + 1}`;
-    self.set(key, (self.get(key) ?? 0) + (profile.timeDeltas[index] ?? 0) / 1000);
+    self.set(
+      key,
+      (self.get(key) ?? 0) + (profile.timeDeltas[index] ?? 0) / 1000
+    );
   });
   const round = (entries: [string, number][]) =>
     Object.fromEntries(
