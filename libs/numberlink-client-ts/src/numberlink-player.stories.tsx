@@ -3,7 +3,7 @@ import {
   type StoryPackPuzzle,
 } from '@libs/game-puzzle-client-ts/content-attempt-story.example';
 import { numberlinkPuzzleContent } from '@libs/numberlink-shared-ts/numberlink-puzzle-content';
-import { createSignal } from 'solid-js';
+import { createSignal, type JSX } from 'solid-js';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { numberlinkContentFrame } from './numberlink-content-frame';
@@ -193,54 +193,61 @@ function movementKey(
 }
 
 /** Actual rule application feeds each committed gesture back into the player. */
-function drawPaths(puzzle: StoryPackPuzzle): NonNullable<Story['render']> {
-  return (args) => {
-    const [state, setState] = createSignal(progress([]));
-    return (
-      <StoryPackAttempt
-        puzzle={puzzle}
-        figures={figures(args.definition, state())}
-        figuresPlacement={numberlinkContentFrame.figuresPlacement}
-        player={
-          <NumberlinkPlayer
-            {...args}
-            state={state()}
-            onAction={(action) => {
-              const next = numberlinkPuzzleContent.rules.apply(
-                args.definition,
-                state(),
-                action
-              );
-              if (!next.accepted) throw new Error('Story gesture was refused');
-              setState(next.state);
-            }}
-          />
-        }
-      />
-    );
-  };
+function DrawPathsAttempt(props: {
+  puzzle: StoryPackPuzzle;
+  args: Parameters<NonNullable<Story['render']>>[0];
+}): JSX.Element {
+  const [state, setState] = createSignal(progress([]));
+  return (
+    <StoryPackAttempt
+      puzzle={props.puzzle}
+      figures={figures(props.args.definition, state())}
+      figuresPlacement={numberlinkContentFrame.figuresPlacement}
+      player={
+        <NumberlinkPlayer
+          {...props.args}
+          state={state()}
+          onAction={(action) => {
+            const next = numberlinkPuzzleContent.rules.apply(
+              props.args.definition,
+              state(),
+              action
+            );
+            if (!next.accepted) throw new Error('Story gesture was refused');
+            setState(next.state);
+          }}
+        />
+      }
+    />
+  );
 }
 
-export const DrawPaths: Story = { render: drawPaths(PUZZLE) };
+export const DrawPaths: Story = {
+  render: (args) => <DrawPathsAttempt puzzle={PUZZLE} args={args} />,
+};
+
+const DENSE_PUZZLE: StoryPackPuzzle = {
+  ...PUZZLE,
+  title: 'Twenty rows',
+  difficulty: 'Hard',
+  description: 'Join each pair of numbers across the widest board.',
+};
+
+const LONG_LABEL_PUZZLE: StoryPackPuzzle = {
+  ...PUZZLE,
+  title: 'Weather words',
+  description: 'Join each pair of matching words and fill every square.',
+};
 
 /** Maximum dimensions retain the same real rules and interaction handlers. */
 export const DenseBoard: Story = {
-  render: drawPaths({
-    ...PUZZLE,
-    title: 'Twenty rows',
-    difficulty: 'Hard',
-    description: 'Join each pair of numbers across the widest board.',
-  }),
+  render: (args) => <DrawPathsAttempt puzzle={DENSE_PUZZLE} args={args} />,
   args: { definition: JSON.stringify(DENSE_NUMBERLINK) },
 };
 
 /** Long matching labels remain meaningful without distinct pair colors. */
 export const LongLabels: Story = {
-  render: drawPaths({
-    ...PUZZLE,
-    title: 'Weather words',
-    description: 'Join each pair of matching words and fill every square.',
-  }),
+  render: (args) => <DrawPathsAttempt puzzle={LONG_LABEL_PUZZLE} args={args} />,
   args: { definition: JSON.stringify(LONG_LABEL_NUMBERLINK) },
 };
 
