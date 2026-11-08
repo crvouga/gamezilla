@@ -4,6 +4,7 @@ import { brandHtmlPlugin } from '@libs/product-identity-shared-ts/brand-html';
 import { getConfig } from '@lingui/conf';
 import { feedbackDevPlugin } from '@pkgs/feedback-server-ts/vite';
 import { sqliteWebAssets } from '@pkgs/sql-client-sqlite-web-server-ts/sqlite-web-assets';
+import { artifactProtection } from '@pkgs/vite-workspace-resolver-server-ts/artifact-protection';
 import { preloadDynamicEntry } from '@pkgs/vite-workspace-resolver-server-ts/preload-dynamic-entry';
 import {
   DEFAULT_WORKSPACE_SCOPES,
@@ -39,6 +40,7 @@ export default defineConfig(({ mode }) => {
   const plugins: PluginOption[] = [
     // `index.html` spells `%BRAND_NAME%`; the identity fills it in.
     brandHtmlPlugin(),
+    artifactProtection(),
     feedbackDevPlugin({ repoRoot }),
     workspaceExportsResolver({ repoRoot, scopes: DEFAULT_WORKSPACE_SCOPES }),
     // `root.ts` imports the application dynamically (startup error boundary);
