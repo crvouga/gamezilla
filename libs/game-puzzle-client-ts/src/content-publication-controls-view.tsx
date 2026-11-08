@@ -75,7 +75,10 @@ export type ContentPublicationControlsViewProps = {
   readonly onOpenWaiting?: (() => void) | undefined;
 };
 
-/** The last choice for this draft stays visible across routes and app reopening. */
+/**
+ * The last choice for this draft stays visible across routes and app
+ * reopening, after the actions so its removal never moves one.
+ */
 function PublicationStatus(props: {
   pending: ContentPublicationPending;
   copyState: ContentPublicationCopyState;
@@ -363,11 +366,6 @@ export function ContentPublicationControlsView(
   const actions = usePublicationActions(props);
   return (
     <StackVertical gap={props.layout === 'bar' ? 'sm' : 'md'}>
-      <PublicationStatus
-        pending={props.pending}
-        refusal={props.refusal}
-        copyState={props.copyState}
-      />
       <Switch>
         <Match when={props.layout === 'bar'}>
           <BarFinding {...props} />
@@ -424,6 +422,12 @@ export function ContentPublicationControlsView(
         </Match>
       </Switch>
       <PublicationAftermath controls={props} actions={actions} />
+      {/* Last, so confirmation removing it moves no action under a finger. */}
+      <PublicationStatus
+        pending={props.pending}
+        refusal={props.refusal}
+        copyState={props.copyState}
+      />
     </StackVertical>
   );
 }
