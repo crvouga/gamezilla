@@ -1038,6 +1038,7 @@
       "dependencies": {
         "@libs/auth-shared-ts": "workspace:*",
         "@libs/observability-shared-ts": "workspace:*",
+        "@libs/permissions-shared-ts": "workspace:*",
         "@libs/product-identity-shared-ts": "workspace:*",
         "@libs/sub-shared-ts": "workspace:*",
         "@pkgs/billing-root-shared-ts": "workspace:*",
@@ -1053,6 +1054,7 @@
         "@pkgs/sync-engine-shared-ts": "workspace:*",
         "@pkgs/uuid-shared-ts": "workspace:*",
         "hono": "catalog:",
+        "zod": "catalog:",
       },
       "devDependencies": {
         "@types/bun": "catalog:",

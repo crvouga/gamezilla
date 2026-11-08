@@ -41,7 +41,7 @@ export class BillingSubscriptionRepository {
       INSERT INTO billing_subscriptions (
         id, created_at, updated_at, deleted_at,
         account_id, provider, provider_subscription_id, price_key,
-        status, current_period_end, cancel_at_period_end, credit_cents
+        status, current_period_end, cancel_at_period_end, credit_cents, canceled_at
       )
       SELECT
         ${`${projection.provider}:${projection.subscriptionId}`},
@@ -53,7 +53,8 @@ export class BillingSubscriptionRepository {
         ${projection.status},
         ${periodEnd},
         ${projection.endsAtPeriodEnd ? 1 : 0},
-        ${projection.creditCents}
+        ${projection.creditCents},
+        ${projection.endsAtPeriodEnd ? nowIso : null}
       WHERE NOT EXISTS (
         SELECT 1 FROM billing_account_closures
         WHERE account_id = ${projection.accountId}
@@ -66,6 +67,7 @@ export class BillingSubscriptionRepository {
         status = EXCLUDED.status,
         current_period_end = EXCLUDED.current_period_end,
         cancel_at_period_end = EXCLUDED.cancel_at_period_end,
+        canceled_at = COALESCE(EXCLUDED.canceled_at, billing_subscriptions.canceled_at),
         credit_cents = COALESCE(EXCLUDED.credit_cents, billing_subscriptions.credit_cents)
       WHERE billing_subscriptions.deleted_at IS NULL
     `);

@@ -39,6 +39,7 @@ import {
 import { BillingScreenView } from './billing-screen-view';
 import type { BillingView, BillingViewInput } from './billing-view-model';
 import { billingViewChangesAtMs, buildBillingView } from './billing-view-model';
+import { CancellationFeedbackSection } from './cancellation-feedback-section';
 import { type CheckoutReturn, useCheckoutReturn } from './checkout-return';
 import { openCheckout } from './open-checkout';
 import { useManageSubscription } from './use-manage-subscription';
@@ -151,6 +152,7 @@ export function BillingScreen(): JSX.Element {
 
   return (
     <BillingScreenView
+      cancellationFeedback={<CancellationFeedbackSection />}
       view={view()}
       offer={PLUS_MEMBERSHIP_OFFER}
       locale={i18n().locale}

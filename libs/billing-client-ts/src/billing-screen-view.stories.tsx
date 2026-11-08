@@ -7,6 +7,7 @@ import { BillingRequestError } from './billing-request-error';
 import { BillingScreenView } from './billing-screen-view';
 import type { BillingView, BillingViewInput } from './billing-view-model';
 import { buildBillingView } from './billing-view-model';
+import { CancellationFeedbackExample } from './cancellation-feedback.example';
 
 const NOW = Date.parse('2026-11-02T12:00:00.000Z');
 const DAY = 86_400_000;
@@ -145,6 +146,12 @@ export const ActiveWithCredit: Story = {
 
 /** Canceled but still paid up: when it ends and when Plus access ends. */
 export const Canceling: Story = {
+  render: (args) => (
+    <BillingScreenView
+      {...args}
+      cancellationFeedback={<CancellationFeedbackExample />}
+    />
+  ),
   args: {
     view: buildBillingView({
       ...ACCOUNT,
@@ -157,6 +164,47 @@ export const Canceling: Story = {
         cancel_at_period_end: 1,
       },
     }),
+  },
+};
+
+/** The optional answer is saved on this device while its connection is away. */
+export const CancellationFeedbackOffline: Story = {
+  args: Canceling.args,
+  render: (args) => (
+    <BillingScreenView
+      {...args}
+      cancellationFeedback={
+        <CancellationFeedbackExample
+          online={false}
+          saved={{ reason: 'low usage', comment: 'Less time to play.' }}
+        />
+      }
+    />
+  ),
+};
+
+/** A failed save retains the answer and offers a retry after cancellation. */
+export const CancellationFeedbackFailure: Story = {
+  args: Canceling.args,
+  render: (args) => (
+    <BillingScreenView
+      {...args}
+      cancellationFeedback={<CancellationFeedbackExample fail />}
+    />
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.type(
+      await canvas.findByTestId('billing-feedback-comment'),
+      'Taking a break from games.'
+    );
+    await userEvent.click(await canvas.findByTestId('billing-feedback-save'));
+    await expect(await canvas.findByRole('alert')).toHaveTextContent(
+      'Your answer is still here'
+    );
+    await expect(
+      await canvas.findByTestId('billing-feedback-comment')
+    ).toHaveValue('Taking a break from games.');
   },
 };
 

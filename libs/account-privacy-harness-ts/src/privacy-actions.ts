@@ -42,7 +42,7 @@ export const openPrivacy = scenarioAction({
     const handle = s.actors.get(actor);
     if (handle === undefined) throw new Error('Privacy actor missing');
     await handle.openLink('/profile/privacy');
-    await handle.ui.get('privacy-delete-review').expect.visible();
+    await handle.ui.get('privacy-export-task').expect.visible();
   },
 });
 

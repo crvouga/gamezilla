@@ -18,14 +18,15 @@ export async function liveStripeSubscription(
   stripe: Stripe,
   customer: string
 ): Promise<Record<string, unknown> | null> {
-  const subscriptions = await stripe.subscriptions.list({
+  for await (const subscription of stripe.subscriptions.list({
     customer,
     limit: 100,
-  });
-  const live = subscriptions.data.find((subscription) =>
-    isMembershipLive(membershipStatusOf(subscription.status))
-  );
-  return live === undefined ? null : { ...live };
+  })) {
+    if (isMembershipLive(membershipStatusOf(subscription.status))) {
+      return { ...subscription };
+    }
+  }
+  return null;
 }
 
 /**
@@ -41,15 +42,18 @@ export async function reusableStripeCheckout(
     readonly returnUrl: string;
     readonly nowMs: number;
   }
-): Promise<string | null> {
-  const open = await stripe.checkout.sessions.list({
+): Promise<{ readonly url: string | null; readonly generation: string }> {
+  const sessions: Stripe.Checkout.Session[] = [];
+  for await (const session of stripe.checkout.sessions.list({
     customer: args.customer,
-    status: 'open',
     limit: 100,
-  });
+  })) {
+    if (session.mode === 'subscription') sessions.push(session);
+  }
+  const open = sessions.filter((session) => session.status === 'open');
   const nowS = args.nowMs / 1000;
   const successUrl = paidCheckoutReturnUrl(args.returnUrl);
-  const reusable = [...open.data]
+  const reusable = [...open]
     .sort((a, b) => b.created - a.created)
     .find(
       (session) =>
@@ -58,10 +62,10 @@ export async function reusableStripeCheckout(
         (session.url ?? '').length > 0 &&
         session.expires_at - CHECKOUT_REUSE_MARGIN_S > nowS
     );
-  for (const session of open.data) {
+  for (const session of open) {
     if (session.id !== reusable?.id) {
       await stripe.checkout.sessions.expire(session.id);
     }
   }
-  return reusable?.url ?? null;
+  return { url: reusable?.url ?? null, generation: sessions[0]?.id ?? 'first' };
 }
