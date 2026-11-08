@@ -86,3 +86,17 @@ test('storybook integration: numberlink-board desktop recording context', async 
   expect(page.video()).not.toBeNull();
   await capture(page, info, 'desktop-recording-context');
 });
+
+// regression: numberlink-frame-macro-skips-typescript-module
+test('storybook integration: numberlink-board translated frame loads', async ({
+  page,
+}, info) => {
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  await openBoard(page, 'light');
+  await expect(page.getByTestId('numberlink-progress')).toContainText(
+    '0/5 pairs connected'
+  );
+  await capture(page, info, 'translated-frame');
+  expect(errors).toEqual([]);
+});
