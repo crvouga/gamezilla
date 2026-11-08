@@ -9,7 +9,12 @@ import type {
   BoardTheme,
   CellFeedbackKind,
 } from '@pkgs/chess-board-core-shared-ts/types';
-import { bestOnColor, ON_LIGHT } from '@pkgs/ui-root-shared-ts/contrast';
+import {
+  bestOnColor,
+  contrastRatio,
+  ON_LIGHT,
+  parseColor,
+} from '@pkgs/ui-root-shared-ts/contrast';
 
 export type BoardColorScheme = 'light' | 'dark';
 
@@ -136,15 +141,31 @@ function mixHex(a: string, b: string, amount: number): string {
     .join('')}`;
 }
 
+/** A tonal ink when it reads as normal text on `square`, else the best plain ink. */
+function readableInk(tonal: string, square: string): string {
+  const ink = parseColor(tonal);
+  const surface = parseColor(square);
+  return ink && surface && contrastRatio(ink, surface) >= 4.5
+    ? tonal
+    : bestOnColor(square).fg;
+}
+
 /**
  * Coordinate inks that contrast with the square under them: on a light
  * square a walnut deeper than the border, on a dark square a cream paler
- * than the light square.
+ * than the light square, each replaced by the best plain ink when it would
+ * fall short of normal-text contrast (the walnut square's cream did).
  */
 function coordinateInks(theme: BoardTheme): Record<string, string> {
   return {
-    '--chess-coord-on-light': mixHex(theme.border, '#000000', 0.32),
-    '--chess-coord-on-dark': mixHex(theme.lightSquare, '#ffffff', 0.7),
+    '--chess-coord-on-light': readableInk(
+      mixHex(theme.border, '#000000', 0.32),
+      theme.lightSquare
+    ),
+    '--chess-coord-on-dark': readableInk(
+      mixHex(theme.lightSquare, '#ffffff', 0.7),
+      theme.darkSquare
+    ),
   };
 }
 

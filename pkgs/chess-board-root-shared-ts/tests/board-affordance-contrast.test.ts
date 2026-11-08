@@ -1,5 +1,6 @@
 import { expect, test } from 'bun:test';
 import {
+  boardThemeToCssVars,
   defaultBoardTheme,
   mergeBoardTheme,
 } from '@pkgs/chess-board-root-shared-ts/board-theme';
@@ -47,5 +48,22 @@ test('legal move dots and capture rings separate from both wooden square colors'
         expect(paintedContrast(ink, surface)).toBeGreaterThanOrEqual(3);
       }
     }
+  }
+});
+
+// regression: chess-corner-coordinates-low-contrast
+test('corner coordinates meet normal-text contrast on the square under them', () => {
+  for (const scheme of ['light', 'dark'] as const) {
+    const theme = defaultBoardTheme(scheme);
+    const vars = boardThemeToCssVars(theme);
+    const onLight = vars['--chess-coord-on-light'];
+    const onDark = vars['--chess-coord-on-dark'];
+    if (!onLight || !onDark) throw new Error('Missing coordinate inks');
+    expect(paintedContrast(onLight, theme.lightSquare)).toBeGreaterThanOrEqual(
+      4.5
+    );
+    expect(paintedContrast(onDark, theme.darkSquare)).toBeGreaterThanOrEqual(
+      4.5
+    );
   }
 });
