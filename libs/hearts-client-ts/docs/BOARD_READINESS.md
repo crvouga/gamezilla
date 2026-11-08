@@ -9,8 +9,10 @@ The Hearts matrix update to integrate with this PR:
 - A full three-card pass selection explains how to revise the choice before sending.
 - A refused card explicitly associates its rule explanation with the focused control.
 - At narrow widths the hand wraps into rows of at most five full-size cards.
+- Each seat labels the current deal's points separately from the cumulative score.
 - Literal regression ownership: `hearts-fourth-pass-card-silent`,
-  `hearts-refusal-not-described-on-focus`, `hearts-320-thirteen-card-targets`.
+  `hearts-refusal-not-described-on-focus`, `hearts-320-thirteen-card-targets`,
+  `hearts-taken-score-unit-ambiguous`.
 - DOM regressions first failed on the original implementation and passed after the
   first two fixes. Narrow geometry and trusted touch/mouse exchange/trick tests
   are authored for the hosted browser harness; their verdict is still pending.

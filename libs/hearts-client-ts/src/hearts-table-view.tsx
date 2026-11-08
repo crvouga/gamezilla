@@ -81,7 +81,7 @@ function seatFacts(position: HeartsPosition, seat: Seat): string[] {
     plural(held, { one: '# card', other: '# cards' }),
     t`Score ${score}`,
   ];
-  if (position.phase === 'play') facts.push(t`Taken ${taken}`);
+  if (position.phase === 'play') facts.push(t`Deal points ${taken}`);
   return facts;
 }
 
