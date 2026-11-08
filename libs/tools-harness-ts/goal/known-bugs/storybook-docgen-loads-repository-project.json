@@ -1,0 +1,4 @@
+{
+  "summary": "Storybook component metadata fell back to the repository-wide TypeScript project for product game components, exhausting the browser build's heap before evidence could be recorded.",
+  "regressionTest": "libs/tools-harness-ts/scripts/storybook-docgen-scope.test.ts"
+}
