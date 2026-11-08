@@ -547,7 +547,8 @@
 /* Width-sized boards stop pushing a tablet's Hint, Retry and Next below
    the fold (about 420px for title, coach, guidance and actions), never under
    320px. A short landscape window puts the board in a left column at the
-   window height (less 52px chrome and a 16px gap), the rest down the right. */
+   window height (less the 53px bar, the board's 48px guidance and 3px), so
+   the guidance stays in view too; the rest reads down the right. */
 @container puzzle-frame (width < 880px) {
   .puzzle[data-board-sizing="width"] > .well > .board {
     max-width: max(320px, calc(100dvh - 420px));
@@ -557,7 +558,7 @@
   @container puzzle-frame (min-width: 600px) and (width < 880px) {
     .puzzle[data-board-sizing="width"] {
       display: grid;
-      grid-template-columns: min(100dvh - 68px, 100cqw - 304px) minmax(0, 1fr);
+      grid-template-columns: min(100dvh - 104px, 100cqw - 304px) minmax(0, 1fr);
       grid-template-rows: repeat(6, auto) 1fr;
       column-gap: var(--ui-space-6);
     }

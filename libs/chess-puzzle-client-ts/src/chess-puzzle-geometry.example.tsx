@@ -25,12 +25,13 @@ export async function assertPuzzleTouchSize(canvas: HTMLElement) {
   // at 320px that is 288 - 20 - 4 = 264px of squares, the whole column.
   const chrome = 2 * 16 + 16 + 4 + 2 * 2;
   // A short landscape window limits the board by height instead: its left
-  // column is the window less the 52px host bar and a 16px gap, and the
-  // squares leave out the file labels (20) and frame (4), with 2px rounding.
+  // column is the window less the 53px host bar, the board's 48px guidance
+  // and 3px, and the squares leave out the file labels (20) and frame (4),
+  // with 2px rounding.
   const view = canvas.ownerDocument.defaultView;
   const height =
     view && view.innerWidth > view.innerHeight
-      ? view.innerHeight - (52 + 16 + 20 + 4 + 2)
+      ? view.innerHeight - (53 + 48 + 3 + 20 + 4 + 2)
       : Number.POSITIVE_INFINITY;
   const minimum = Math.min(320, canvas.clientWidth - chrome, height);
   await expect(board.width).toBeGreaterThanOrEqual(minimum);

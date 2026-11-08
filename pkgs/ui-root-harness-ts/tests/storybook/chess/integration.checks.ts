@@ -49,6 +49,22 @@ test('storybook integration: chess puzzle 844x390 shows every square beside its 
   expect(hint.y + hint.height).toBeLessThanOrEqual(390);
 });
 
+// regression: chess-puzzle-guidance-below-short-landscape-fold
+test('storybook integration: chess puzzle 844x390 opens keyboard help with every square in view', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 844, height: 390 });
+  // The story opens Keyboard controls and asserts every square stays in view.
+  await openChessStory(
+    page,
+    'screens-puzzles-chess-play--keyboard-help',
+    'light'
+  );
+  const summary = await page.getByText('Keyboard controls').boundingBox();
+  if (!summary) throw new Error('Missing Keyboard controls');
+  expect(summary.y + summary.height).toBeLessThanOrEqual(390);
+});
+
 // regression: chess-puzzle-board-below-short-landscape-fold
 test('storybook integration: chess puzzle 768x900 keeps Hint and Skip in the first view', async ({
   page,
