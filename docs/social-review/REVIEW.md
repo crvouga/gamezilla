@@ -459,3 +459,41 @@ remains required; focused results alone do not establish full readiness.
 The critic approved all four matched Word Tiles references individually,
 with readable locator text, visible focus and intact board navigation. Both
 rounds are approved within scope; overall ratings remain 10/9/9/10.
+
+## Round twenty-five shared locator harness
+
+The full local run stopped at a shared UI harness test that still queried the
+retired “Board map: locate a square” name. Its literal committed-c3 fixture
+now queries “Find a square” and asserts that exact visible text. All existing
+locator, dialog dismissal, focus and rack-preservation assertions remain.
+The failure is registered as `word-tiles-map-stale-harness-name`.
+
+All 783 harness tests, lint/typechecks and goals pass. Four unchanged Word
+Tiles reference screenshots pass in a fresh 14-check browser run against
+the existing build; no product UI or baseline changed. The independent
+critic approved the fix and retained ratings 10/9/9/10 pending full verification.
+The preceding full run had 875 cached tasks, 382 fresh passes, one failure
+and 282 unexecuted tasks. Hosted verify:end separately rejects three
+unregistered CodeQL checks; that registration defect still needs repair.
+
+## Round twenty-six CodeQL registration
+
+Hosted verification passed its seven shards but rejected CodeQL default
+setup's three successful checks because their exact names and producers
+were absent from the required-checks registry. Provenance is GitHub's
+`dynamic/github-code-scanning/codeql` run 42427272789. The registry now
+requires CodeQL (app 57789) and both Analyze checks (app 15368). The strict
+gate itself is unchanged; no check is ignored and no fifth workflow added.
+
+The literal regression reproduces all three original rejections, then passes
+with the registrations. Missing, failing, pending, neutral and impersonated
+checks still fail. The focused suite passes 10 tests; tooling passes 1,141
+and infrastructure 155. Owning lint/typechecks, goals and all 25 offline
+infrastructure policy checks pass. No infrastructure was applied.
+
+No UI changed. Round twenty-five's 14 browser checks and unchanged matched
+references remain visual context only. Full local verification, fresh hosted
+PR verification and hosted Release rehearsal are still outstanding.
+
+The independent critic approved the registrations and negative coverage,
+retaining overall ratings 10/9/9/10 pending those complete gates.
