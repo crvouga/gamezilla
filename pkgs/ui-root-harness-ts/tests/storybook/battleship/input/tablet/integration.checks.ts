@@ -1,5 +1,6 @@
 import { test } from '@playwright/test';
 import { defineInputChecks } from '../checks';
+import { defineLockedInspectionChecks } from '../locked-checks';
 
 const viewport = { width: 768, height: 1024 };
 test.use({
@@ -9,4 +10,7 @@ test.use({
   trace: 'on',
 });
 
-test.describe('tablet', defineInputChecks);
+test.describe('tablet', () => {
+  defineInputChecks();
+  defineLockedInspectionChecks();
+});
