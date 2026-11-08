@@ -497,3 +497,21 @@ PR verification and hosted Release rehearsal are still outstanding.
 
 The independent critic approved the registrations and negative coverage,
 retaining overall ratings 10/9/9/10 pending those complete gates.
+
+## Round twenty-seven repository-policy check set
+
+The next full run found the infrastructure server's repository-policy test
+still required two checks. Direct reproduction confirms expected 2 versus
+received 5 (102 pass, one fail). The assertion now pins all five check
+names and producer IDs with exact equality. All existing repository
+protection and context-uniqueness assertions remain. A registered literal
+regression guards the corrected set. All 103 infrastructure server tests,
+lint and typechecks pass.
+
+The independent critic approved the stronger explicit assertion and kept
+overall ratings 10/9/9/10 pending complete verification and hosted gates.
+No product UI or infrastructure configuration changed in this round; earlier
+matched screenshots are unchanged context only.
+
+The previously failing `verify:rebrand` gate and `ci:goals` both pass on
+the corrected tree. Full-catalog completion remains outstanding.
