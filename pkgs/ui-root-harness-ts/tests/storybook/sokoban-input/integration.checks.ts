@@ -1,7 +1,101 @@
 import { expect, test } from '@playwright/test';
-import { capture, counts, openSokoban } from '../sokoban-overhaul/evidence';
+import {
+  accessibility,
+  capture,
+  counts,
+  openSokoban,
+} from '../sokoban-overhaul/evidence';
+import { builderGeometry } from './builder-geometry';
 
 test.use({ hasTouch: true, video: 'on', trace: 'on' });
+
+test('storybook integration: Sokoban builder controls remain reachable at the reported viewport', async ({
+  page,
+}, info) => {
+  await page.setViewportSize({ width: 1200, height: 884 });
+  await openSokoban(page, 'editor--two-crates', 'dark');
+  await capture(page, info, 'builder-top');
+  const geometry = await builderGeometry(page, info);
+  expect(
+    geometry.controls.filter(
+      (control) => control.inScroller && !control.topmost
+    ),
+    JSON.stringify(geometry)
+  ).toEqual([]);
+  await capture(page, info, 'builder-bottom');
+  for (const name of ['Undo', 'Redo']) {
+    const control = page.getByRole('button', { name, exact: true });
+    await control.scrollIntoViewIfNeeded();
+    await expect(control).toBeInViewport();
+  }
+  const preview = page.getByTestId('content-preview');
+  await preview.click({ trial: true });
+  await capture(page, info, 'builder-preview-reachable');
+});
+
+test('storybook integration: Sokoban editor corrects a missing worker', async ({
+  page,
+}, info) => {
+  await openSokoban(page, 'editor--edit-and-correct', 'light');
+  await expect(page.getByTestId('sokoban-ready')).toBeVisible();
+  await expect(page.getByTestId('sokoban-square-B3')).toHaveAttribute(
+    'data-identity',
+    'three'
+  );
+  await capture(page, info, 'editor-corrected');
+  await accessibility(page, info);
+});
+
+test('storybook integration: Sokoban touch swipe and cancellation preserve one-step steering', async ({
+  page,
+}, info) => {
+  await openSokoban(page, 'puzzle--fresh', 'light');
+  const box = await page.getByTestId('sokoban-board').boundingBox();
+  if (!box) throw new Error('Sokoban board is missing');
+  const touch = await page.context().newCDPSession(page);
+  const point = { x: box.x + box.width / 2, y: box.y + box.height / 2, id: 1 };
+  try {
+    await touch.send('Input.dispatchTouchEvent', {
+      type: 'touchStart',
+      touchPoints: [point],
+    });
+    await touch.send('Input.dispatchTouchEvent', {
+      type: 'touchMove',
+      touchPoints: [{ ...point, x: point.x + 60 }],
+    });
+    await touch.send('Input.dispatchTouchEvent', {
+      type: 'touchEnd',
+      touchPoints: [],
+    });
+    await counts(page, 1, 1);
+    await capture(page, info, 'touch-push');
+    await touch.send('Input.dispatchTouchEvent', {
+      type: 'touchStart',
+      touchPoints: [point],
+    });
+    await touch.send('Input.dispatchTouchEvent', {
+      type: 'touchCancel',
+      touchPoints: [],
+    });
+    await counts(page, 1, 1);
+    await touch.send('Input.dispatchTouchEvent', {
+      type: 'touchStart',
+      touchPoints: [point],
+    });
+    await touch.send('Input.dispatchTouchEvent', {
+      type: 'touchMove',
+      touchPoints: [{ ...point, x: point.x - 60 }],
+    });
+    await touch.send('Input.dispatchTouchEvent', {
+      type: 'touchEnd',
+      touchPoints: [],
+    });
+    await counts(page, 2, 1);
+    await capture(page, info, 'after-touch-cancel');
+  } finally {
+    await touch.detach();
+  }
+});
 
 // regression: sokoban-board-loses-outside-pointer-release
 test('storybook integration: Sokoban mouse taps and captured outside release', async ({
