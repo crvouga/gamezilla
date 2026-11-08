@@ -105,10 +105,10 @@ function Steering(props: {
             </Show>
           </P>
         </StackVertical>
-        {/* A keyboard is at hand on a wide screen; a phone gets a pad. */}
-        <Show when={!wide()}>
+        {/* Screen width does not tell us whether a keyboard is available. */}
           <DirectionPad
             size="sm"
+            layout="arrows"
             labels={{
               up: t`Move up`,
               right: t`Move right`,
@@ -120,11 +120,14 @@ function Steering(props: {
             testId="sokoban-move"
             onDirection={(heading) => steering.steer(heading)}
           />
-        </Show>
       </StackHorizontal>
-      <Show when={props.disabled && !complete()}>
-        <P role="status" variant="caption" tone="secondary">
-          <Trans>Keeping your move. Your next directions will wait.</Trans>
+      <Show when={props.disabled}>
+        <P role="status" variant="caption" tone="secondary" dataSet={{ testid: 'sokoban-saving' }}>
+          <Show when={steering.queueOverflow()} fallback={
+            <Trans>Keeping your move. Up to four directions can wait.</Trans>
+          }>
+            <Trans>Direction not added. Four directions are already waiting.</Trans>
+          </Show>
         </P>
       </Show>
       <Show when={steering.refusal()}>

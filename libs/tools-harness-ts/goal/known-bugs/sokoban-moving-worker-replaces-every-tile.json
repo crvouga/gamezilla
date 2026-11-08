@@ -1,0 +1,4 @@
+{
+  "summary": "Each Sokoban move replaced every floor and wall node instead of updating their descriptions in place.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/sokoban-tile-stability.test.tsx"
+}

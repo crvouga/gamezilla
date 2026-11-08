@@ -13,13 +13,13 @@ import { createSignal, type JSX } from 'solid-js';
 /** Worker B1, crate C1, goal E1; A1 is a wall. */
 const CORRIDOR = JSON.stringify({ format: 1, rows: ['#@$ .'] });
 
-function render(ui: () => JSX.Element) {
+function render(ui: () => JSX.Element, width = 390) {
   const time = createHarnessClock();
   return renderWithI18n(() => (
     <ClockProvider clock={time.clock} timers={time.timers}>
       <ThemeProvider
         colorScheme="light"
-        fixedLayout={{ width: 390, height: 844 }}
+        fixedLayout={{ width, height: 844 }}
       >
         {ui()}
       </ThemeProvider>
@@ -27,7 +27,7 @@ function render(ui: () => JSX.Element) {
   ));
 }
 
-function player() {
+function player(width = 390) {
   const rules = sokobanPuzzleContent.rules;
   const start = rules.initial(CORRIDOR);
   if (!start.accepted) throw new Error('corridor refused');
@@ -49,7 +49,7 @@ function player() {
         setState(change.state);
       }}
     />
-  ));
+  ), width);
   return {
     view,
     actions,
@@ -83,6 +83,28 @@ test('moves pressed while one is being kept are sent in order once it lands', ()
   expect(actions).toEqual([]);
   setDisabled(false);
   expect(actions).toEqual(['r', 'r']);
+});
+
+// regression: sokoban-wide-touch-screen-hides-steering
+test('a wide touch screen retains the named movement pad', () => {
+  const { view, actions } = player(1440);
+  fireEvent.click(view.getByRole('button', { name: 'Move right' }));
+  expect(actions).toEqual(['r']);
+  expect(view.getByTestId('sokoban-move').getAttribute('data-layout')).toBe('arrows');
+});
+
+// regression: sokoban-save-queue-silently-drops-fifth-direction
+test('the fifth queued direction reports the limit without promising it was saved', () => {
+  const { view, board, setDisabled } = player();
+  setDisabled(true);
+  for (const key of ['ArrowRight', 'ArrowRight', 'ArrowLeft', 'ArrowLeft', 'ArrowRight'])
+    fireEvent.keyDown(board, { key });
+  expect(view.getByTestId('sokoban-saving').textContent).toContain(
+    'Direction not added. Four directions are already waiting.'
+  );
+  setDisabled(false);
+  expect(view.queryByTestId('sokoban-saving')).toBeNull();
+  expect(view.getByTestId('sokoban-counts').getAttribute('data-moves')).toBe('4');
 });
 
 test('a tap beside the worker steps toward it and any other tap does nothing', () => {

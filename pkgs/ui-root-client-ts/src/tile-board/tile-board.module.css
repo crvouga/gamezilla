@@ -72,8 +72,10 @@
   border-radius: var(--ui-radius-card);
   background: var(--color-surface-muted);
   overflow: hidden;
-  touch-action: none;
   user-select: none;
+}
+.board[data-interactive="true"] {
+  touch-action: none;
 }
 /* The hero board: as wide as its column, tiles up to 5rem (80px), never
    taller than most of the viewport; its pieces scale with its tiles. */
