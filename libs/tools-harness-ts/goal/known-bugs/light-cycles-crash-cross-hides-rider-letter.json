@@ -1,4 +1,0 @@
-{
-  "summary": "A crash cross was drawn centred over the crashed rider's head, hiding its letter, so in dense Trio and Quad fields who crashed could not be read. The crash is now a small badge on a solid disc at the head's upper right, leaving the letter clear at both head sizes.",
-  "regressionTest": "pkgs/ui-root-client-ts/tests/trail-arena.test.tsx"
-}
