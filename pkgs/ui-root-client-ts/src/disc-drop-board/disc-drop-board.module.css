@@ -68,14 +68,11 @@
 .column[aria-disabled="true"] {
   cursor: default;
 }
-/* On the narrowest phones, spend horizontal space on the seven hit areas:
-   only the board reaches into the page gutter (16px down to 4px each side),
-   so the rest of the page keeps its edge at every width. */
+/* On the narrowest phones, spend the board's own spacing on the seven hit
+   areas. (The board cannot reach into the page gutter: the shared board
+   wrapper clips, so wider targets there need a page inset below 360px.) */
 @media (max-width: 359px) {
   .board {
-    margin-inline: calc(var(--ui-space-xs) - var(--ui-space-lg));
-    width: calc(100% + 2 * (var(--ui-space-lg) - var(--ui-space-xs)));
-    max-width: none;
     padding-inline: var(--ui-space-hairline);
     column-gap: 0;
   }
