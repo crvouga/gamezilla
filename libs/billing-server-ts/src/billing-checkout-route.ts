@@ -107,10 +107,18 @@ async function linkFirstCustomer(
 async function membershipPending(
   c: Context,
   deps: CheckoutDeps,
-  accountId: string,
-  checkout: Extract<StartCheckoutResult, { kind: 'live_membership' }>,
-  at: MembershipBilling = deps.provider
+  pending: {
+    readonly accountId: string;
+    readonly checkout: Extract<
+      StartCheckoutResult,
+      { kind: 'live_membership' }
+    >;
+    /** The provider that took the payment; the checkout provider by default. */
+    readonly at?: MembershipBilling;
+  }
 ): Promise<Response> {
+  const { accountId, checkout } = pending;
+  const at = pending.at ?? deps.provider;
   const { change } = checkout;
   if (
     change.provider === at.provider &&
@@ -165,13 +173,11 @@ async function settleOtherProviders(
       });
     }
     if (live !== null)
-      return await membershipPending(
-        c,
-        deps,
+      return await membershipPending(c, deps, {
         accountId,
-        { kind: 'live_membership', customerId, change: live },
-        other
-      );
+        checkout: { kind: 'live_membership', customerId, change: live },
+        at: other,
+      });
   }
   return null;
 }
@@ -228,7 +234,10 @@ async function handleBillingCheckout(
       : started.result;
   if (checkout instanceof Response) return checkout;
   if (checkout.kind === 'live_membership') {
-    return await membershipPending(c, deps, auth.accountId, checkout);
+    return await membershipPending(c, deps, {
+      accountId: auth.accountId,
+      checkout,
+    });
   }
   if (checkout.url.length === 0) {
     return c.json({ error: 'Billing checkout URL missing' }, 502);

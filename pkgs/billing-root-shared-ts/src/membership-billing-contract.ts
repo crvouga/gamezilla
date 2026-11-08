@@ -195,6 +195,30 @@ function describeOneCheckout(
     });
   });
 
+  test('an ended membership does not stop a new checkout', async () => {
+    const harness = await open();
+    const first = await harness.billing.startCheckout(
+      checkoutInput('acct-1', null)
+    );
+    harness.setSubscription({
+      ...SUBSCRIPTION,
+      id: 'sub_ended',
+      customerId: first.customerId,
+      situation: 'canceled_immediately',
+    });
+    const again = opened(
+      await harness.billing.startCheckout(
+        checkoutInput('acct-1', first.customerId)
+      )
+    );
+    assertAbsoluteUrl(again.url);
+  });
+}
+
+/** Before checkouts move to another provider, this one closes its own. */
+function describeClosingCheckouts(
+  open: () => Promise<MembershipBillingContractHarness>
+): void {
   test('closing checkouts leaves none open: the next checkout is a new one', async () => {
     const { billing } = await open();
     const first = opened(
@@ -238,25 +262,6 @@ function describeOneCheckout(
     await expect(
       harness.billing.closeCheckouts(first.customerId)
     ).rejects.toThrow();
-  });
-
-  test('an ended membership does not stop a new checkout', async () => {
-    const harness = await open();
-    const first = await harness.billing.startCheckout(
-      checkoutInput('acct-1', null)
-    );
-    harness.setSubscription({
-      ...SUBSCRIPTION,
-      id: 'sub_ended',
-      customerId: first.customerId,
-      situation: 'canceled_immediately',
-    });
-    const again = opened(
-      await harness.billing.startCheckout(
-        checkoutInput('acct-1', first.customerId)
-      )
-    );
-    assertAbsoluteUrl(again.url);
   });
 }
 
@@ -501,6 +506,8 @@ export function describeMembershipBillingContract(
   describe(`${name} satisfies the membership contract`, () => {
     describe('sessions', () => describeSessions(open));
     describe('one checkout at a time', () => describeOneCheckout(open));
+    describe('closing checkouts before a switch', () =>
+      describeClosingCheckouts(open));
     describe('authenticity', () => describeAuthenticity(open));
     describe('projection', () =>
       describeProjection(open, options.unreachable ?? {}));
