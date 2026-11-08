@@ -18,6 +18,13 @@ const screens = [
 ] as const;
 const variants = ['duel-steering', 'steer-up', 'quad-steering'] as const;
 
+// Evidence runs with motion as a person without a reduced-motion preference
+// sees it: the config defaults every page to reduced motion for stable
+// screenshots, and each story URL sets the `motion` global to `system`.
+test.beforeEach(async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+});
+
 async function openArena(page: Page, story: string, theme: string) {
   await page.route('**/*', (route) =>
     new URL(route.request().url()).hostname === '127.0.0.1'
@@ -25,7 +32,7 @@ async function openArena(page: Page, story: string, theme: string) {
       : route.abort()
   );
   await page.goto(
-    `/iframe.html?id=screens-games-light-cycles-arena--${story}&viewMode=story&globals=theme:${theme}`
+    `/iframe.html?id=screens-games-light-cycles-arena--${story}&viewMode=story&globals=theme:${theme};motion:system`
   );
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-story-ready',
@@ -189,7 +196,7 @@ for (const variant of ['duel', 'trio', 'quad']) {
     }, info) => {
       const cdp = await page.context().newCDPSession(page);
       await page.goto(
-        `/iframe.html?id=screens-games-light-cycles-motion--${variant}&viewMode=story&globals=theme:dark`
+        `/iframe.html?id=screens-games-light-cycles-motion--${variant}&viewMode=story&globals=theme:dark;motion:system`
       );
       await expect(page.locator('#storybook-root')).toHaveAttribute(
         'data-story-ready',
@@ -212,7 +219,7 @@ for (const variant of ['trio', 'quad']) {
     await page.setViewportSize({ width: 390, height: 844 });
     const cdp = await page.context().newCDPSession(page);
     await page.goto(
-      `/iframe.html?id=screens-games-light-cycles-motion--${variant}&viewMode=story&globals=theme:dark`
+      `/iframe.html?id=screens-games-light-cycles-motion--${variant}&viewMode=story&globals=theme:dark;motion:system`
     );
     await expect(page.locator('#storybook-root')).toHaveAttribute(
       'data-story-ready',
