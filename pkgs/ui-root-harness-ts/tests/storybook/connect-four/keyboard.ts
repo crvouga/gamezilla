@@ -21,6 +21,14 @@ export async function captureKeyboard(
   await page.keyboard.press('Tab');
   await expect(column(page, 1)).toBeFocused();
   await captureBoard(page, info, 'keyboard-entry');
+  // One Tab stop: Tab leaves the board from any column, and Shift+Tab
+  // returns to the column last used.
+  await page.keyboard.press('Tab');
+  expect(
+    await board.evaluate((node) => node.contains(document.activeElement))
+  ).toBe(false);
+  await page.keyboard.press('Shift+Tab');
+  await expect(column(page, 1)).toBeFocused();
   for (const [key, number] of [
     ['End', 7],
     ['ArrowRight', 1],
