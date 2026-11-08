@@ -139,6 +139,7 @@ export function useFrameTable(
           ? 'board'
           : table.shape,
       named: presentation(game.fen).frame.boardNames === true,
+      seatLayout: presentation(game.fen).frame.seatLayout,
       near: table.near === null ? null : playSeat(game, table.near),
       others: table.others.map((side) => playSeat(game, side)),
     };
