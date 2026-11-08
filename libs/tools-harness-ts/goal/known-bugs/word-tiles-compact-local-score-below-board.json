@@ -1,0 +1,4 @@
+{
+  "summary": "The two-player Word Tiles frame placed the local score after the entire precision workspace, below the 320px initial viewport. Its opt-in compact score rail must precede the board without changing other two-player tables.",
+  "regressionTest": "libs/game-session-client-ts/tests/word-tiles-compact-seat-rail.test.tsx"
+}

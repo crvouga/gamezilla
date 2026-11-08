@@ -167,8 +167,12 @@ export type GameFrameBoardSession<View> = {
   readonly controls?: () => View;
 };
 
+/** Compact score rails are opt-in; opposed two-player strips remain the default. */
+export type GameFrameSeatLayout = 'opposed' | 'compact-rail';
+
 export type GameFrame<View> = {
   readonly players: GamePlayers;
+  readonly seatLayout?: GameFrameSeatLayout;
   /**
    * Whether the frame offers the people playing a draw by agreement among
    * its commands. A game says so itself: one that can never be drawn
