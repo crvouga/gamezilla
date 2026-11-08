@@ -338,6 +338,8 @@ test('offline reopening and space navigation activate the device before document
     expect(
       worker.calls
         .slice(start)
+        // Document-replacement marks are covered by live-device-reopen.test.ts.
+        .filter(({ method }) => method !== 'evaluate')
         .map(({ target, method, args }) => [target, method, args])
     ).toEqual([
       ['view', 'cdp', ['Page.bringToFront', {}]],
