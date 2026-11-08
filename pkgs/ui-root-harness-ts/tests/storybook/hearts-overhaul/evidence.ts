@@ -1,6 +1,7 @@
 // @io-wall-ok — browser evidence adapter; the test runner owns the browser.
 import { expect, type Page, type TestInfo } from '@playwright/test';
 import axe from 'axe-core';
+import { attachHeartsText } from './attachments';
 
 export async function openHearts(page: Page, story: string, theme: string) {
   await page.route('**/*', (route) =>
@@ -23,14 +24,17 @@ export async function openHearts(page: Page, story: string, theme: string) {
 }
 
 export async function captureHearts(page: Page, info: TestInfo, name: string) {
+  const path = info.outputPath(`${name}.png`);
+  await page.screenshot({ path, fullPage: true });
   await info.attach(name, {
-    body: await page.screenshot({ fullPage: true }),
+    path,
     contentType: 'image/png',
   });
-  await info.attach(`${name}-accessibility-tree`, {
-    body: await page.locator('#storybook-root').ariaSnapshot(),
-    contentType: 'text/plain',
-  });
+  await attachHeartsText(
+    info,
+    `${name}-accessibility-tree.txt`,
+    await page.locator('#storybook-root').ariaSnapshot()
+  );
 }
 
 export async function auditHearts(page: Page, info: TestInfo) {
@@ -40,10 +44,11 @@ export async function auditHearts(page: Page, info: TestInfo) {
     if (!root) throw new Error('Missing Hearts canvas');
     return (window as unknown as { axe: typeof axe }).axe.run(root);
   });
-  await info.attach('axe-results', {
-    body: JSON.stringify(result, null, 2),
-    contentType: 'application/json',
-  });
+  await attachHeartsText(
+    info,
+    'axe-results.json',
+    JSON.stringify(result, null, 2)
+  );
   expect(
     result.violations.filter(
       (v) => v.impact === 'serious' || v.impact === 'critical'

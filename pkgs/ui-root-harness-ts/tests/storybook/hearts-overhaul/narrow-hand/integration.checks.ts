@@ -3,9 +3,9 @@ import { expect, test } from '@playwright/test';
 import { captureHearts, openHearts } from '../evidence';
 
 test.use({
-  viewport: { width: 320, height: 844 },
+  viewport: { width: 320, height: 568 },
   hasTouch: true,
-  video: { mode: 'on', size: { width: 320, height: 844 } },
+  video: { mode: 'on', size: { width: 320, height: 568 } },
   trace: 'on',
 });
 

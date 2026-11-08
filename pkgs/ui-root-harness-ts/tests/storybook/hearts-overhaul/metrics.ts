@@ -1,5 +1,6 @@
 // @io-wall-ok — browser timing is measured by the automated evidence adapter.
 import { expect, type Page, type TestInfo } from '@playwright/test';
+import { attachHeartsText } from './attachments';
 
 type Samples = {
   inputs: { event: string; milliseconds: number }[];
@@ -54,8 +55,10 @@ export async function saveHeartsMetrics(
   const sorted = samples.inputs
     .map((sample) => sample.milliseconds)
     .sort((a, b) => a - b);
-  await info.attach('input-render-metrics', {
-    body: JSON.stringify(
+  await attachHeartsText(
+    info,
+    'input-render-metrics.json',
+    JSON.stringify(
       {
         measurement:
           'Trusted input timestamp to second animation frame; a render-latency proxy, not INP',
@@ -71,7 +74,6 @@ export async function saveHeartsMetrics(
       },
       null,
       2
-    ),
-    contentType: 'application/json',
-  });
+    )
+  );
 }
