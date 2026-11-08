@@ -16,7 +16,7 @@ test('the counts and close view read as words in the built app, not placeholders
     'Pushes {0}',
     'Look closer',
     'Show whole board',
-    'Not added: four moves are already waiting.',
+    'Not added: four moves waiting.',
     'More puzzles',
     'Choose another puzzle',
   ]) {

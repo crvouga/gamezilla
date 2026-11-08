@@ -3873,8 +3873,8 @@ msgid "Keep your cards"
 msgstr "Keep your cards"
 
 #: libs/sokoban-client-ts/src/sokoban-feedback.tsx
-msgid "Keeping your move. Up to four can wait."
-msgstr "Keeping your move. Up to four can wait."
+msgid "Keeping your move."
+msgstr "Keeping your move."
 
 #: libs/game-puzzle-client-ts/src/content-kept-positions.tsx
 msgid "Kept"
@@ -4812,8 +4812,8 @@ msgid "North green triangle"
 msgstr "North green triangle"
 
 #: libs/sokoban-client-ts/src/sokoban-feedback.tsx
-msgid "Not added: four moves are already waiting."
-msgstr "Not added: four moves are already waiting."
+msgid "Not added: four moves waiting."
+msgstr "Not added: four moves waiting."
 
 #: libs/permissions-client-ts/src/unlock-copy.tsx
 msgid "Not available"
@@ -7402,8 +7402,8 @@ msgid "Swipe your half or use your pad. Avoid edges and trails."
 msgstr "Swipe your half or use your pad. Avoid edges and trails."
 
 #: libs/sokoban-client-ts/src/sokoban-feedback.tsx
-msgid "Swipe, tap beside the worker, or use the pad."
-msgstr "Swipe, tap beside the worker, or use the pad."
+msgid "Swipe, tap or use the pad."
+msgstr "Swipe, tap or use the pad."
 
 #: libs/app-root-client-ts/src/sync-screen-view.tsx
 #: libs/app-root-client-ts/src/troubleshooting-screen-view.tsx

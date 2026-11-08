@@ -114,7 +114,7 @@ test('the fifth queued direction reports the limit without promising it was save
   ])
     fireEvent.keyDown(board, { key });
   expect(view.getByTestId('sokoban-saving').textContent).toContain(
-    'Not added: four moves are already waiting.'
+    'Not added: four moves waiting.'
   );
   setDisabled(false);
   expect(view.queryByTestId('sokoban-saving')).toBeNull();

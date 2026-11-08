@@ -1,4 +1,0 @@
-{
-  "summary": "At 768px the Sokoban board stopped at its largest tile size and the player column shrank to it, leaving a ~190px empty strip beside the board and pad whose right edge did not line up with the full-width progress card. The player column now spans its column: the board centres and the pad meets the column edge.",
-  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/sokoban-overhaul-tablet/integration.checks.ts"
-}

@@ -79,12 +79,12 @@ export const Solved: Story = {
       canvas.getByTestId('content-attempt-complete')
     ).toHaveTextContent('Completion saved');
     const notice = canvas.getByTestId('sokoban-solved').getBoundingClientRect();
-    const undo = canvas.getByTestId('content-undo').getBoundingClientRect();
+    const pad = canvas.getByTestId('sokoban-move').getBoundingClientRect();
     await expect(notice.height).toBeGreaterThan(0);
     await expect(notice.top).toBeGreaterThanOrEqual(0);
     await expect(notice.bottom).toBeLessThanOrEqual(window.innerHeight);
-    // The way on sits beside the pad, ahead of the attempt's controls.
-    await expect(notice.bottom).toBeLessThanOrEqual(undo.top);
+    // The way on sits beside the pad, within the pad's row.
+    await expect(notice.bottom).toBeLessThanOrEqual(pad.bottom);
     // regression: sokoban-solved-library-action
     openLibrary.mockClear();
     await userEvent.click(

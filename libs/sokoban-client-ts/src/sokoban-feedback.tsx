@@ -58,10 +58,10 @@ function Message(props: {
           role="status"
           variant="caption"
           tone="warning"
-          lines={3}
+          lines={2}
           dataSet={{ testid: 'sokoban-saving', state: 'full' }}
         >
-          <Trans>Not added: four moves are already waiting.</Trans>
+          <Trans>Not added: four moves waiting.</Trans>
         </P>
       </Match>
       <Match when={refusal()}>
@@ -70,7 +70,7 @@ function Message(props: {
             role="status"
             variant="caption"
             tone="warning"
-            lines={3}
+            lines={2}
             dataSet={{ testid: 'sokoban-refusal', code: refused().code }}
           >
             {words.refusal(refused().code, refused().message)}
@@ -82,10 +82,10 @@ function Message(props: {
           role="status"
           variant="caption"
           tone="secondary"
-          lines={3}
+          lines={2}
           dataSet={{ testid: 'sokoban-saving', state: 'keeping' }}
         >
-          <Trans>Keeping your move. Up to four can wait.</Trans>
+          <Trans>Keeping your move.</Trans>
         </P>
       </Match>
       <Match when={props.feedback?.kind === 'solved'}>
@@ -111,7 +111,7 @@ export function SokobanStatus(props: {
   const hint = () => (
     <Show
       when={props.wide}
-      fallback={<Trans>Swipe, tap beside the worker, or use the pad.</Trans>}
+      fallback={<Trans>Swipe, tap or use the pad.</Trans>}
     >
       <Trans>
         Move with the arrow keys, W A S D or the pad, or click a square beside
@@ -154,7 +154,7 @@ export function SokobanStatus(props: {
       <Show
         when={props.feedback}
         fallback={
-          <P id={props.help} variant="caption" tone="secondary" lines={3}>
+          <P id={props.help} variant="caption" tone="secondary" lines={2}>
             {hint()}
           </P>
         }
