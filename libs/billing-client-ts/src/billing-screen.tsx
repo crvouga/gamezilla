@@ -39,6 +39,7 @@ import {
 import { BillingScreenView } from './billing-screen-view';
 import type { BillingView, BillingViewInput } from './billing-view-model';
 import { billingViewChangesAtMs, buildBillingView } from './billing-view-model';
+import { CancellationFeedbackSection } from './cancellation-feedback-section';
 import { type CheckoutReturn, useCheckoutReturn } from './checkout-return';
 import { openCheckout } from './open-checkout';
 import { useManageSubscription } from './use-manage-subscription';
@@ -68,7 +69,8 @@ function useBillingView(
       graceMs: config().billing_grace_period_ms,
       confirmedAtMs: engine.status().lastSyncedAtMs,
       online: engine.status().online,
-      loading: membership.loading(),
+      // A saved checkout return not yet read back could still forbid paying.
+      loading: membership.loading() || !checkoutReturn.ready(),
       checkoutReturnedAtMs: checkoutReturn.returnedAtMs(),
     }),
     billingViewChangesAtMs
@@ -77,8 +79,9 @@ function useBillingView(
 }
 
 /**
- * Remember a paid return from checkout (its mark in the address) for the
- * session, and forget it once the new membership shows.
+ * Record a paid return from checkout (its mark in the address) on the device,
+ * and drop the mark from the address: opening it again later (a reload, a
+ * saved tab) is not a return from paying.
  */
 function useCheckoutReturnTracking(): CheckoutReturn {
   const checkoutReturn = useCheckoutReturn();
@@ -91,8 +94,6 @@ function useCheckoutReturnTracking(): CheckoutReturn {
     if (untrack(checkoutReturn.returnedAtMs) === null) {
       checkoutReturn.mark(clock.now());
     }
-    // Opening this address again later (a reload, a saved tab) is not a
-    // return from paying.
     router.replace(untrack(pathname));
   });
   return checkoutReturn;
@@ -151,6 +152,7 @@ export function BillingScreen(): JSX.Element {
 
   return (
     <BillingScreenView
+      cancellationFeedback={<CancellationFeedbackSection />}
       view={view()}
       offer={PLUS_MEMBERSHIP_OFFER}
       locale={i18n().locale}

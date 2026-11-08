@@ -1,0 +1,4 @@
+{
+  "summary": "A membership canceled and then renewed kept its cancellation date, so when a later payment failed the person was asked why they canceled and could share churn feedback for a membership they had kept.",
+  "regressionTest": "specs/billing/cancellation-feedback.feature"
+}

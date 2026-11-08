@@ -17,8 +17,10 @@ export const BILLING_SUB = defineSub({
   topicMap: BILLING_TOPIC_MAP,
   // Held open for the whole session: what keeps this sub's slice
   // of the local database warm.
-  sessionQueries: ['mySubscription'],
+  sessionQueries: ['mySubscription', 'myCancellationFeedback'],
   queries: BILLING_QUERIES,
-  // No writes: this sub's rows are server-materialized.
-  mutations: () => Promise.resolve([]),
+  mutations: async () => [
+    (await import('./share-cancellation-feedback-mutation'))
+      .shareCancellationFeedbackMutation,
+  ],
 });

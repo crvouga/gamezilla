@@ -86,6 +86,8 @@ function sign(secret: string, t: number, body: string): string {
 
 type OtherProvider = {
   readonly plans: Map<string, Plan>;
+  /** How many times each holder's checkout page was closed. */
+  readonly closed: Map<string, number>;
   down: boolean;
   newHolder(): string;
 };
@@ -94,6 +96,7 @@ function openOtherProvider(): OtherProvider {
   let holders = 0;
   return {
     plans: new Map(),
+    closed: new Map(),
     down: false,
     newHolder: () => {
       holders += 1;
@@ -109,6 +112,21 @@ class OtherProviderBilling implements MembershipBilling {
     if (plan !== undefined)
       this.world.plans.set(id, { ...plan, phase: 'over' });
   }
+  async closeCheckouts(holder: string): Promise<MembershipChange | null> {
+    if (this.world.down) throw new Error('other provider: 503');
+    this.world.closed.set(holder, (this.world.closed.get(holder) ?? 0) + 1);
+    const live = this.livePlan(holder);
+    return live === undefined ? null : this.changeOf(live, false);
+  }
+
+  private livePlan(holder: string): Plan | undefined {
+    return [...this.world.plans.values()].find(
+      (plan) =>
+        plan.holder === holder &&
+        ['trialing', 'active', 'delinquent'].includes(STATUS_OF[plan.phase])
+    );
+  }
+
   async readPayments() {
     return [];
   }
@@ -120,11 +138,7 @@ class OtherProviderBilling implements MembershipBilling {
 
   startCheckout(input: StartCheckoutInput): Promise<StartCheckoutResult> {
     const customerId = input.customerId ?? this.world.newHolder();
-    const live = [...this.world.plans.values()].find(
-      (plan) =>
-        plan.holder === customerId &&
-        ['trialing', 'active', 'delinquent'].includes(STATUS_OF[plan.phase])
-    );
+    const live = this.livePlan(customerId);
     if (live !== undefined) {
       return Promise.resolve({
         kind: 'live_membership',
@@ -132,11 +146,12 @@ class OtherProviderBilling implements MembershipBilling {
         change: this.changeOf(live, false),
       });
     }
-    // One open checkout per holder: the same page until it is paid.
+    // One open checkout per holder: the same page until it is paid or closed.
+    const page = this.world.closed.get(customerId) ?? 0;
     return Promise.resolve({
       kind: 'checkout',
       customerId,
-      url: `https://other.test/pay?holder=${customerId}`,
+      url: `https://other.test/pay?holder=${customerId}&page=${String(page)}`,
     });
   }
 

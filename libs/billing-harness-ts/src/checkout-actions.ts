@@ -25,7 +25,7 @@ import {
 } from './billing-provider-driver';
 import {
   billingButtonEnabled,
-  billingButtonVisible,
+  billingTier,
   subscribeButtonPhase,
 } from './billing-reads';
 
@@ -116,6 +116,18 @@ const SUBSCRIBE_AGAIN_HOP_MS = 30_000;
  * and offers no subscribe button: once the confirmation window passes, the
  * screen offers subscribing again (warning to check first).
  */
+/**
+ * The app has learned of the paid membership: the screen shows paid access.
+ * A manage button alone says nothing: anyone with a customer at the provider
+ * (a checkout started, even unpaid) may open the billing portal.
+ */
+async function appKnowsTheMembership(
+  s: ProductHarness,
+  actorId: string
+): Promise<boolean> {
+  return (await billingTier(s, actorId)) === 'paid';
+}
+
 async function waitForSubscribeOffer(
   s: ProductHarness,
   actorId: string
@@ -126,7 +138,7 @@ async function waitForSubscribeOffer(
     waitedMs += SUBSCRIBE_AGAIN_HOP_MS
   ) {
     if (await billingButtonEnabled(s, actorId, 'subscribe')) return;
-    if (await billingButtonVisible(s, actorId, 'manage')) return;
+    if (await appKnowsTheMembership(s, actorId)) return;
     await Promise.resolve(letTimePass.act(s, SUBSCRIBE_AGAIN_HOP_MS));
   }
 }
@@ -142,20 +154,18 @@ export const trySubscribingAgain = scenarioAction({
   name: 'trySubscribingAgain',
   act: async (s, actorId: string) => {
     await waitForSubscribeOffer(s, actorId);
-    if (await billingButtonVisible(s, actorId, 'manage')) return;
+    if (await appKnowsTheMembership(s, actorId)) return;
     await pressBillingButton(s, actorId, 'subscribe');
     const outcome = await pollUntil(
       s,
       async () => {
         if (await onCheckout(s, actorId)) return 'checkout';
         // Refused: the button says it could not open a checkout, or the app
-        // has meanwhile learned of the membership and offers to manage it.
+        // has meanwhile learned of the membership and shows paid access.
         if ((await subscribeButtonPhase(s, actorId)) === 'error') {
           return 'refused';
         }
-        return (await billingButtonVisible(s, actorId, 'manage'))
-          ? 'refused'
-          : null;
+        return (await appKnowsTheMembership(s, actorId)) ? 'refused' : null;
       },
       {
         maxMs: BILLING_WAIT_MS,
