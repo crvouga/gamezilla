@@ -22,4 +22,4 @@ session. Current browser evidence, failed-pass error recovery in the running app
 full verification and both independent reviewer verdicts remain required.
 
 Immutable rounds, uploaded screenshots/videos, measurements and check outcomes
-belong to [PR 288](https://github.com/crvouga/gamezilla/pull/288), not this note.
+belong to pull request #288, not this note.
