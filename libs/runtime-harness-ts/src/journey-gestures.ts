@@ -34,8 +34,15 @@ export function check(condition: boolean, message: string): asserts condition {
   if (!condition) throw new Error(message);
 }
 
+/**
+ * The shell is ready for taps: the header's account control shows, and the
+ * boot overlay that can still cover it while the app boots is gone.
+ */
 export async function atTabShell(ui: Driver): Promise<void> {
   await ui.get(Handles.statusCurrentUser).expect.visible({
+    timeoutMs: JOURNEY_WAIT_MS,
+  });
+  await ui.get(Handles.bootLoading).expect.hidden({
     timeoutMs: JOURNEY_WAIT_MS,
   });
 }
