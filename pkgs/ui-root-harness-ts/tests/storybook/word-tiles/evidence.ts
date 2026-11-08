@@ -65,14 +65,18 @@ export async function markEvidencePhase(
   }, phase);
 }
 
-/** Await the repository's native Storybook play outcome, including failures. */
+/**
+ * Await the repository's native Storybook play outcome, including failures.
+ * `motion:system` lets the browser's motion preference decide, so videos and
+ * timings include real animation instead of the preview's reduced motion.
+ */
 export async function openStory(
   page: Page,
   story: string,
   theme: string
 ): Promise<void> {
   await page.goto(
-    `/iframe.html?id=screens-games-word-tiles-board--${story}&viewMode=story&globals=theme:${theme}`
+    `/iframe.html?id=screens-games-word-tiles-board--${story}&viewMode=story&globals=theme:${theme};motion:system`
   );
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-story-ready',

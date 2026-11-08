@@ -74,6 +74,7 @@ for (const input of ['mouse', 'touch', 'keyboard'] as const) {
             players,
             viewport: page.viewportSize(),
             theme: 'light',
+            motion: 'system',
           }),
           contentType: 'application/json',
         });
