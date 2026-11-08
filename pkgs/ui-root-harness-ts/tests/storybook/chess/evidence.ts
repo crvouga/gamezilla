@@ -158,6 +158,9 @@ export async function measureChessInput(page: Page, info: TestInfo) {
       press('Escape');
       await frames();
     }
+    // Leave e2 selected for the journey that follows, as a single sample did.
+    press('Enter');
+    await frames();
     const sorted = samples
       .map((sample) => sample.inputThroughTwoFramesMs)
       .sort((a, b) => a - b);
@@ -166,9 +169,11 @@ export async function measureChessInput(page: Page, info: TestInfo) {
       coldTwoFramesMs: samples[0]?.inputThroughTwoFramesMs ?? null,
       medianTwoFramesMs: sorted[Math.floor(sorted.length / 2)] ?? null,
       maxTwoFramesMs: sorted.at(-1) ?? null,
-      selected: samples.every((sample) => sample.selected === 'true')
-        ? 'true'
-        : 'false',
+      selected:
+        samples.every((sample) => sample.selected === 'true') &&
+        source.getAttribute('aria-pressed') === 'true'
+          ? 'true'
+          : 'false',
     };
   });
   await info.attach('input-performance', {
