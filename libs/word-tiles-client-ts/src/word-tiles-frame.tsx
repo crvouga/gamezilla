@@ -52,6 +52,8 @@ export function wordTilesFrame(
 ): GameFrame<JSX.Element> {
   const sides = seatSides(seats);
   return {
+    seatLayout: 'compact-rail',
+    compactInset: 'narrow',
     drawOffers: true,
     players: { min: 2, max: 4, default: seats, modes: WORD_TILES_IDS },
     options: [],

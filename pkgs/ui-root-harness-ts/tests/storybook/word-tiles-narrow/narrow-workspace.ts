@@ -9,8 +9,8 @@ import { playWord } from '../word-tiles/native-input';
 import { retainEvidence } from '../word-tiles/retained-evidence';
 
 /** Scrollable flow is valid only when the complete target can be brought clear. */
-async function reachable(target: Locator): Promise<void> {
-  await target.scrollIntoViewIfNeeded();
+async function reachable(target: Locator, scroll = true): Promise<void> {
+  if (scroll) await target.scrollIntoViewIfNeeded();
   expect(
     await target.evaluate((element) => {
       const rect = element.getBoundingClientRect();
@@ -37,8 +37,8 @@ export async function narrowWorkspace(
   fixture: { players: string; theme: string }
 ): Promise<void> {
   await openStory(page, `${fixture.players}-player-match`, fixture.theme);
-  await reachable(page.getByTestId('custom-game-seat-near'));
-  await retainEvidence(info, 'local-score-after-scroll.png', {
+  await reachable(page.getByTestId('custom-game-seat-near'), false);
+  await retainEvidence(info, 'local-score-initial.png', {
     body: await page.screenshot(),
     contentType: 'image/png',
   });
@@ -46,17 +46,30 @@ export async function narrowWorkspace(
     page.getByRole('button', { name: 'Board map: locate a square' })
   );
   await reachable(page.getByTestId('custom-game-board-more'));
+  await rackTargets(page, info, 'initial', 7);
+  await playWord(page, 'touch', () =>
+    rackTargets(page, info, 'after-placement', 4)
+  );
+  await auditAccessibility(page, info);
+}
+
+async function rackTargets(
+  page: Page,
+  info: TestInfo,
+  stage: string,
+  count: number
+): Promise<void> {
   const rack = page.getByTestId('custom-game-board-rack');
   await reachable(rack);
   const tiles = rack.getByRole('button');
-  await expect(tiles).toHaveCount(7);
+  await expect(tiles).toHaveCount(count);
   const boxes = [];
   for (const tile of await tiles.all()) {
     const box = await tile.boundingBox();
     if (!box) throw new Error('Missing rack target');
     boxes.push(box);
   }
-  await retainEvidence(info, 'rack-targets.json', {
+  await retainEvidence(info, `rack-targets-${stage}.json`, {
     body: JSON.stringify(boxes, null, 2),
     contentType: 'application/json',
   });
@@ -65,6 +78,8 @@ export async function narrowWorkspace(
     expect(box.height).toBeGreaterThanOrEqual(44);
   }
   for (const tile of await tiles.all()) await reachable(tile);
-  await playWord(page, 'touch');
-  await auditAccessibility(page, info);
+  await retainEvidence(info, `rack-targets-${stage}.png`, {
+    body: await page.screenshot(),
+    contentType: 'image/png',
+  });
 }

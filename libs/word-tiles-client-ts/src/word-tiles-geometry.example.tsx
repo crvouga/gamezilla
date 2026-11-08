@@ -63,7 +63,7 @@ export async function checkInitialWordWorkspace(
   // regression: word-tiles-phone-action-overload
   const canvas = within(canvasElement);
   const primary = canvas.getByTestId('custom-game-board-submit');
-  const more = canvas.getByRole('button', { name: 'Pass, exchange & tools' });
+  const more = canvas.getByRole('button', { name: 'More actions' });
   await expect(more).toHaveAttribute('aria-expanded', 'false');
   await expect(
     canvas.queryByTestId('custom-game-board-recall')

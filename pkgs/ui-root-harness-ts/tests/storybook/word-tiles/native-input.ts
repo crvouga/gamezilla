@@ -1,4 +1,6 @@
-import { expect, type Locator, type Page, test } from '@playwright/test';
+import { expect, type Locator, type Page } from '@playwright/test';
+import { measuredStep } from './action-evidence';
+import { markEvidencePhase } from './evidence';
 
 export type WordTilesInput = 'mouse' | 'touch' | 'keyboard';
 
@@ -19,45 +21,56 @@ export async function activate(
 /** Exercise real input and authority settlement, including editing before submission. */
 export async function playWord(
   page: Page,
-  input: WordTilesInput
+  input: WordTilesInput,
+  afterPlacement?: () => Promise<void>
 ): Promise<void> {
-  await test.step('Place C, retract it, then move it to g8', async () => {
-    await activate(page.getByTestId('custom-game-board-rack-11'), input);
-    const center = page.getByTestId('custom-game-board-cell-h8');
-    await activate(center, input);
-    await expect(center).toHaveAttribute('data-state', 'tentative');
-    await activate(center, input);
-    await expect(center).toHaveAttribute('data-state', 'empty');
-  });
+  await markEvidencePhase(page, 'native-word-editing');
+  await measuredStep(
+    page,
+    'Place C, retract it, then move it to g8',
+    async () => {
+      await activate(page.getByTestId('custom-game-board-rack-11'), input);
+      const center = page.getByTestId('custom-game-board-cell-h8');
+      await activate(center, input);
+      await expect(center).toHaveAttribute('data-state', 'tentative');
+      await activate(center, input);
+      await expect(center).toHaveAttribute('data-state', 'empty');
+    }
+  );
   for (const [tile, cell] of [
     ['11', 'g8'],
     ['0', 'h8'],
     ['82', 'i8'],
   ] as const) {
-    await test.step(`Place tile ${tile} at ${cell}`, async () => {
+    await measuredStep(page, `Place tile ${tile} at ${cell}`, async () => {
       await activate(page.getByTestId(`custom-game-board-rack-${tile}`), input);
       const target = page.getByTestId(`custom-game-board-cell-${cell}`);
       await activate(target, input);
       await expect(target).toHaveAttribute('data-state', 'tentative');
     });
   }
-  await test.step('Submit CAT and read the accepted score and next turn', async () => {
-    const submit = page.getByTestId('custom-game-board-submit');
-    await expect(submit).toBeEnabled();
-    await expect(page.getByTestId('custom-game-board-status')).toContainText(
-      '10'
-    );
-    await activate(submit, input);
-    await expect(page.getByTestId('custom-game-board-cell-h8')).toHaveAttribute(
-      'data-state',
-      'committed'
-    );
-    await expect(submit).toBeDisabled();
-    await expect(
-      page.getByTestId('custom-game-white').getByText('10', { exact: true })
-    ).toBeVisible();
-    await expect(page.getByTestId('custom-game-status')).toContainText(
-      'Teal — to play'
-    );
-  });
+  await afterPlacement?.();
+  await measuredStep(
+    page,
+    'Submit CAT and read the accepted score and next turn',
+    async () => {
+      await markEvidencePhase(page, 'native-submission');
+      const submit = page.getByTestId('custom-game-board-submit');
+      await expect(submit).toBeEnabled();
+      await expect(page.getByTestId('custom-game-board-status')).toContainText(
+        '10'
+      );
+      await activate(submit, input);
+      await expect(
+        page.getByTestId('custom-game-board-cell-h8')
+      ).toHaveAttribute('data-state', 'committed');
+      await expect(submit).toBeDisabled();
+      await expect(
+        page.getByTestId('custom-game-white').getByText('10', { exact: true })
+      ).toBeVisible();
+      await expect(page.getByTestId('custom-game-status')).toContainText(
+        'Teal — to play'
+      );
+    }
+  );
 }

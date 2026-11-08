@@ -7,11 +7,26 @@ import { retainEvidence } from './retained-evidence';
 /** Record native input and long tasks; values describe this browser run only. */
 export async function observeInput(page: Page): Promise<void> {
   await page.addInitScript(() => {
-    const samples: { kind: string; duration: number }[] = [];
+    const samples: {
+      kind: string;
+      duration: number;
+      startTime: number;
+      key?: string;
+    }[] = [
+      {
+        kind: 'phase:loading-and-story-play',
+        duration: 0,
+        startTime: performance.now(),
+      },
+    ];
     Object.assign(window, { wordTilesSamples: samples });
     new PerformanceObserver((list) => {
       for (const entry of list.getEntries())
-        samples.push({ kind: entry.entryType, duration: entry.duration });
+        samples.push({
+          kind: entry.entryType,
+          duration: entry.duration,
+          startTime: entry.startTime,
+        });
     }).observe({ type: 'longtask', buffered: true });
     for (const kind of ['pointerup', 'keydown']) {
       document.addEventListener(
@@ -23,6 +38,8 @@ export async function observeInput(page: Page): Promise<void> {
             samples.push({
               kind: `${kind}-to-frame`,
               duration: performance.now() - start,
+              startTime: start,
+              ...(event instanceof KeyboardEvent ? { key: event.key } : {}),
             });
           });
         },
@@ -30,6 +47,22 @@ export async function observeInput(page: Page): Promise<void> {
       );
     }
   });
+}
+
+/** Timestamp phase boundaries; long tasks must be attributed by start time, not delivery time. */
+export async function markEvidencePhase(
+  page: Page,
+  phase: string
+): Promise<void> {
+  await page.evaluate((name) => {
+    const samples = (window as unknown as { wordTilesSamples?: unknown[] })
+      .wordTilesSamples;
+    samples?.push({
+      kind: `phase:${name}`,
+      duration: 0,
+      startTime: performance.now(),
+    });
+  }, phase);
 }
 
 /** Await the repository's native Storybook play outcome, including failures. */
@@ -50,6 +83,7 @@ export async function openStory(
     'error'
   );
   await page.evaluate(() => document.fonts.ready);
+  await markEvidencePhase(page, 'ready');
 }
 
 /** Keep images and measurements on failure too; no baseline is auto-accepted. */
@@ -57,6 +91,7 @@ export async function recordEvidence(
   page: Page,
   info: TestInfo
 ): Promise<void> {
+  await markEvidencePhase(page, 'evidence-capture');
   await recordGeometry(page, info);
   await retainEvidence(info, 'viewport.png', {
     body: await page.screenshot(),
@@ -76,7 +111,7 @@ export async function recordEvidence(
       {
         samples,
         limits:
-          'Input-to-next-animation-frame proxy, not display presentation latency. Desktop Chromium emulation; shared hosted CPU, not physical Android. Long tasks include story loading.',
+          'Input-to-next-animation-frame proxy, not display presentation latency. Named task timings include Playwright auto-wait/scroll, asserted DOM state and two animation frames; not pure input latency. Desktop Chromium emulation; shared hosted CPU, not physical Android. Attribute timestamped long tasks to phase intervals; loading includes Storybook play. Audit and capture work are separate phases.',
       },
       null,
       2
@@ -89,6 +124,7 @@ export async function auditAccessibility(
   page: Page,
   info: TestInfo
 ): Promise<void> {
+  await markEvidencePhase(page, 'accessibility-audit');
   await page.addScriptTag({ content: axe.source });
   const result = await page.evaluate(() =>
     (window as unknown as { axe: typeof axe }).axe.run('#storybook-root')
