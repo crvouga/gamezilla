@@ -370,3 +370,15 @@ test('on a narrow phone each count keeps its label beside its number', () => {
   );
   expect(unbroken).toEqual(['Moves 0', 'Pushes 0']);
 });
+
+// regression: sokoban-feedback-moves-controls
+test('blocked and solved feedback appear beside the pad or over the board, never above the controls', () => {
+  const { view, board } = player();
+  const row = view.getByTestId('sokoban-move').parentElement;
+  fireEvent.keyDown(board, { key: 'ArrowLeft' });
+  const refusal = view.getByTestId('sokoban-refusal');
+  expect(row?.contains(refusal)).toBe(true);
+  expect(refusal.textContent).toBe(
+    "The worker's way is blocked. Try another direction."
+  );
+});

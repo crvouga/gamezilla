@@ -17,12 +17,17 @@ import { Button } from '@pkgs/ui-root-client-ts/button';
 import { DirectionPad } from '@pkgs/ui-root-client-ts/direction-pad';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { P, Text } from '@pkgs/ui-root-client-ts/text';
+
 import { TileBoard } from '@pkgs/ui-root-client-ts/tile-board';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { createMemo, createUniqueId, type JSX, Show } from 'solid-js';
 import { createSokobanSteering } from './create-sokoban-steering';
 import { sokobanPieces, sokobanTiles } from './sokoban-board-view';
+import {
+  type SokobanFeedback,
+  SokobanSolvedCard,
+  SokobanStatus,
+} from './sokoban-feedback';
 import { SokobanPlayBoard } from './sokoban-play-board';
 import { useSokobanWords } from './use-sokoban-words';
 
@@ -34,7 +39,6 @@ function Steering(props: {
   onReturnToLibrary: () => void;
 }): JSX.Element {
   const { t } = useLingui();
-  const words = useSokobanWords();
   const mode = useLayoutMode();
   const help = createUniqueId();
   const steering = createSokobanSteering({
@@ -44,7 +48,14 @@ function Steering(props: {
     onAction: (action) => props.onAction(action),
   });
   const complete = () => sokobanComplete(props.board, props.position);
-  const wide = () => mode() === 'wide';
+  const feedback = (): SokobanFeedback => {
+    const refused = steering.refusal();
+    if (props.disabled && steering.queueOverflow()) return { kind: 'overflow' };
+    if (refused) return { kind: 'refusal', ...refused };
+    if (props.disabled) return { kind: 'saving' };
+    if (complete()) return { kind: 'solved' };
+    return null;
+  };
   return (
     <StackVertical gap="md">
       <SokobanPlayBoard
@@ -53,58 +64,20 @@ function Steering(props: {
         describedBy={help}
         onDirection={steering.steer}
         onTile={steering.tap}
-      />
-      <Show when={complete()}>
-        <Notice tone="success" dataSet={{ testid: 'sokoban-solved' }}>
-          <P role="status" variant="bodyBold">
-            <Trans>All crates are on goals</Trans>
-          </P>
-          <P variant="caption">
-            <Trans>Keep playing or choose another puzzle.</Trans>
-          </P>
-          <Button
-            title={t`Choose another puzzle`}
-            onClick={props.onReturnToLibrary}
+        overlay={
+          <SokobanSolvedCard
+            solved={complete()}
+            onReturnToLibrary={props.onReturnToLibrary}
           />
-        </Notice>
-      </Show>
-      {/* How to move and how far, beside the movement pad on a phone, so
-          the board, the pad and the attempt's undo stay on one screen. */}
+        }
+      />
       <StackHorizontal gap="md" align="center" justify="between">
-        <StackVertical gap="xs" shrink>
-          <P
-            role="status"
-            variant="label"
-            dataSet={{
-              testid: 'sokoban-counts',
-              moves: String(props.position.moves),
-              pushes: String(props.position.pushes),
-            }}
-          >
-            {/* Each count stays with its label; a narrow phone wraps only
-                between the two counts. */}
-            <Text variant="inherit" wrap="nowrap" numeral>
-              {t`Moves ${props.position.moves}`}
-            </Text>
-            {' · '}
-            <Text variant="inherit" wrap="nowrap" numeral>
-              {t`Pushes ${props.position.pushes}`}
-            </Text>
-          </P>
-          <P id={help} variant="caption" tone="secondary">
-            <Show
-              when={wide()}
-              fallback={
-                <Trans>Swipe, tap beside the worker, or use the pad.</Trans>
-              }
-            >
-              <Trans>
-                Move with the arrow keys or W A S D, or click a square beside
-                the worker.
-              </Trans>
-            </Show>
-          </P>
-        </StackVertical>
+        <SokobanStatus
+          position={props.position}
+          help={help}
+          wide={mode() === 'wide'}
+          feedback={feedback()}
+        />
         {/* Screen width does not tell us whether a keyboard is available. */}
         <DirectionPad
           size="sm"
@@ -121,38 +94,6 @@ function Steering(props: {
           onDirection={(heading) => steering.steer(heading)}
         />
       </StackHorizontal>
-      <Show when={props.disabled}>
-        <P
-          role="status"
-          variant="caption"
-          tone="secondary"
-          dataSet={{ testid: 'sokoban-saving' }}
-        >
-          <Show
-            when={steering.queueOverflow()}
-            fallback={
-              <Trans>Keeping your move. Up to four directions can wait.</Trans>
-            }
-          >
-            <Trans>
-              Direction not added. Four directions are already waiting.
-            </Trans>
-          </Show>
-        </P>
-      </Show>
-      <Show when={steering.refusal()}>
-        {(refused) => (
-          <Notice
-            tone="warning"
-            dataSet={{ testid: 'sokoban-refusal', code: refused().code }}
-          >
-            {words.refusal(refused().code, refused().message)}
-            <P variant="caption">
-              <Trans>Try another direction.</Trans>
-            </P>
-          </Notice>
-        )}
-      </Show>
     </StackVertical>
   );
 }

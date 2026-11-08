@@ -2,6 +2,15 @@ import { expect, type Page, type TestInfo } from '@playwright/test';
 import { accessibility, capture, counts, openSokoban } from './evidence';
 import { measureSokoban } from './responsiveness';
 
+/** Where the player's hand rests, in page coordinates: the pad and undo. */
+async function controlTops(page: Page) {
+  const pad = page.getByTestId('sokoban-move-up');
+  const undo = page.getByRole('button', { name: 'Undo', exact: true });
+  const top = (element: Element) =>
+    Math.round(element.getBoundingClientRect().top + window.scrollY);
+  return { pad: await pad.evaluate(top), undo: await undo.evaluate(top) };
+}
+
 export async function solveAndRecover(
   page: Page,
   info: TestInfo,
@@ -12,11 +21,14 @@ export async function solveAndRecover(
   page.on('pageerror', (error) => errors.push(error.message));
   await openSokoban(page, 'puzzle--fresh', theme);
   await capture(page, info, 'fresh');
+  const resting = await controlTops(page);
   const board = page.getByTestId('sokoban-board');
   await board.focus();
   await board.press('ArrowLeft');
   await expect(page.getByTestId('sokoban-refusal')).toBeVisible();
   await counts(page, 0, 0);
+  // regression: sokoban-feedback-moves-controls
+  expect(await controlTops(page)).toEqual(resting);
   await capture(page, info, 'blocked');
   await board.press('ArrowRight');
   await board.press('d');
@@ -36,6 +48,10 @@ export async function solveAndRecover(
   for (const key of ['d', 'a', 'a', 'w', 'd', 'd']) await board.press(key);
   await counts(page, 7, 4);
   await expect(page.getByTestId('sokoban-solved')).toBeVisible();
+  expect(await controlTops(page)).toEqual(resting);
+  await expect(page.getByTestId('sokoban-move-down')).toBeInViewport({
+    ratio: 1,
+  });
   await capture(page, info, 'solved');
   await page.getByRole('button', { name: 'Restart', exact: true }).click();
   await counts(page, 0, 0);

@@ -24,6 +24,8 @@ type Props = {
   readonly describedBy: string;
   readonly onDirection: (direction: TileBoardDirection) => void;
   readonly onTile: (index: number) => void;
+  /** Laid over the board's lower edge, so it never moves the controls below. */
+  readonly overlay?: JSX.Element | undefined;
 };
 
 function createView(props: Props, closer: () => boolean) {
@@ -96,28 +98,30 @@ export function SokobanPlayBoard(props: Props): JSX.Element {
   const view = createView(props, closeView);
   return (
     <StackVertical gap="xs">
-      <TileBoard
-        label={
-          closeView()
-            ? t`Sokoban board, close view around the worker`
-            : t`Sokoban board`
-        }
-        testId="sokoban-board"
-        size="fill"
-        columns={view.frame().columns}
-        rows={view.frame().rows}
-        tiles={view.tiles()}
-        pieces={view.pieces()}
-        describedBy={props.describedBy}
-        onDirection={props.onDirection}
-        onTile={(index) => props.onTile(view.indexInBoard(index))}
-      />
+      <StackVertical>
+        <TileBoard
+          label={
+            closeView()
+              ? t`Sokoban board, close view around the worker`
+              : t`Sokoban board`
+          }
+          testId="sokoban-board"
+          size="fill"
+          columns={view.frame().columns}
+          rows={view.frame().rows}
+          tiles={view.tiles()}
+          pieces={view.pieces()}
+          describedBy={props.describedBy}
+          onDirection={props.onDirection}
+          onTile={(index) => props.onTile(view.indexInBoard(index))}
+        />
+        {props.overlay}
+      </StackVertical>
       <Show when={canClose()}>
         <Button
           title={closeView() ? t`Show whole board` : t`Look closer`}
           intent="neutral"
           variant="outline"
-          aria-pressed={closeView()}
           onClick={() => setCloser((value) => !value)}
         />
         <Show when={closeView()}>

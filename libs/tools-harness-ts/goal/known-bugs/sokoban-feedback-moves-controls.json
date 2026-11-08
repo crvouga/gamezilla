@@ -1,0 +1,4 @@
+{
+  "summary": "Sokoban's blocked and solved notices were inserted between the board and the controls, moving the movement pad and Undo/Restart by 80-130px just as feedback appeared, and at 1440x900 pushing the pad's bottom row below the fold. Blocked, saving and queue feedback now replace the hint beside the pad, and the solved card is laid over the board's lower edge with a dismiss control, so the pad and undo keep their positions.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/sokoban-overhaul/solve-and-recover.ts"
+}
