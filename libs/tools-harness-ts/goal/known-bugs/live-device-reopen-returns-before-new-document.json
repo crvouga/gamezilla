@@ -1,0 +1,4 @@
+{
+  "summary": "Reopening a live journey device (navigateLiveDevice -> driver.launch) returned before the new document committed, so the next readiness check saw the old page (account control visible, no boot overlay), passed, and the tap then landed on the boot overlay of the reload; an intermittent continuation-journey failure. Reopening now marks the old document and returns only once a new document has replaced it.",
+  "regressionTest": "apps/product-ts/tests/live-device-reopen.test.ts"
+}
