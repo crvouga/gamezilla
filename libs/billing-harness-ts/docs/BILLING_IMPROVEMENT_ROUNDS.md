@@ -123,6 +123,25 @@ the previous code the membership stayed active; now it ends. The route matrix
 pins the extra provider read. All 113 billing scenarios and model traces, the
 32 billing server tests and the type check pass.
 
+## Round 6: one payable Paddle checkout however often subscribe is pressed
+
+Before: Paddle has no idempotency keys. Two checkouts started at the same
+moment for one customer both found nothing open and both created a ready
+transaction, so the person could pay twice. Only Stripe had been fixed.
+
+After: after creating a checkout the adapter lists the customer's ready
+transactions, keeps the oldest (Paddle ids sort by creation) and cancels the
+rest, so every caller hands back the same checkout and only it can take a
+payment. A cancel refused because the other caller already canceled it is
+done; an outage, rate limit or auth failure still fails the checkout.
+
+Evidence: a concurrency test failed first (two different checkout links) and
+passes now with exactly one ready transaction. All 57 Paddle tests including
+the shared provider contract, both type checks and all 113 billing scenarios
+pass. Two full runs under a load average of 60 to 120 timed out on unrelated
+scenarios; each of those passed when run alone and the full run passed at
+normal load.
+
 ## Acceptance still required
 
 - Provider-neutral concurrency and uncertain-outcome reconciliation, including

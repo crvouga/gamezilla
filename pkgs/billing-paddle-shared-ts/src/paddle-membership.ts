@@ -282,8 +282,12 @@ export class PaddleMembershipBilling implements MembershipBilling {
   }
 
   /**
-   * The customer's newest checkout that can still take a payment. Paddle's
-   * hosted checkout has no return URL of its own, so any open one will do.
+   * The customer's one checkout that can still take a payment, or `null`.
+   * Paddle has no idempotency keys, so two checkouts started at once can
+   * both be created. Every caller keeps the oldest (Paddle ids sort by
+   * creation) and cancels the rest, so they all hand back the same checkout
+   * and only it can take a payment. Paddle's hosted checkout has no return
+   * URL of its own, so any open one will do.
    */
   private async openCheckout(
     customerId: string
@@ -293,10 +297,30 @@ export class PaddleMembershipBilling implements MembershipBilling {
       status: 'ready',
       per_page: '200',
     });
-    const ready = await this.api.list<PaddleTransaction>(
-      `/transactions?${query.toString()}`
-    );
-    return ready.at(-1) ?? null;
+    const ready = [
+      ...(await this.api.list<PaddleTransaction>(
+        `/transactions?${query.toString()}`
+      )),
+    ].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+    const [kept, ...extra] = ready;
+    for (const transaction of extra) {
+      try {
+        await this.api.data<PaddleTransaction>(
+          'PATCH',
+          `/transactions/${encodeURIComponent(transaction.id)}`,
+          { status: 'canceled' }
+        );
+      } catch (error) {
+        // Already canceled by the other caller (or no longer open): done.
+        // Anything else (auth, rate limit, outage) must fail the checkout.
+        if (
+          !(error instanceof PaddleApiError) ||
+          ![400, 404, 409, 422].includes(error.status)
+        )
+          throw error;
+      }
+    }
+    return kept ?? null;
   }
 
   async startCheckout(input: StartCheckoutInput): Promise<StartCheckoutResult> {
@@ -333,10 +357,12 @@ export class PaddleMembershipBilling implements MembershipBilling {
         custom_data: { [PADDLE_CUSTOM_DATA.accountId]: input.accountId },
       }
     );
+    // A checkout started at the same moment may have been created too.
+    const kept = (await this.openCheckout(customer)) ?? transaction;
     return {
       kind: 'checkout',
       customerId: customer,
-      url: this.checkoutLink(transaction),
+      url: this.checkoutLink(kept),
     };
   }
 
