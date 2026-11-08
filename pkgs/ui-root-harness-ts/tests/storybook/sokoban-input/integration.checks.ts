@@ -132,7 +132,7 @@ test('storybook integration: Sokoban queued input limit is explicit', async ({
     await board.press(key);
   await counts(page, 0, 0);
   await expect(page.getByTestId('sokoban-saving')).toHaveText(
-    'Direction not added. Four directions are already waiting.'
+    'Not added: four moves are already waiting.'
   );
   await capture(page, info, 'queue-full');
 });
