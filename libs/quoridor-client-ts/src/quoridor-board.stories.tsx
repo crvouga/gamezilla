@@ -142,7 +142,7 @@ const renderClassicJourney: NonNullable<Story['render']> = quoridorJourney({
   seat: 'fixed',
 });
 
-/** Place a wall, refuse a crossing, then rotate and place a legal wall. */
+/** Preview and cancel a wall, then place one; the next turn starts with the pawn tool. */
 export const PlaceAWall: Story = {
   render: renderClassicJourney,
   play: async ({ canvasElement }) => {
@@ -174,7 +174,22 @@ export const PlaceAWall: Story = {
     await expect(
       canvas.getByTestId('custom-game-board-action-e5')
     ).toHaveAccessibleName(/wall boundaries/);
-    await userEvent.click(canvas.getByTestId('custom-game-board-mode-v'));
+  },
+};
+
+/**
+ * After e5h, a crossing vertical wall is refused with its reason and a
+ * legal one is placed. Its own journey, so each stays inside the story
+ * deadline on a throttled phone.
+ */
+export const RefuseACrossingWall: Story = {
+  args: { position: classic('e5h') },
+  render: renderClassicJourney,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      await canvas.findByTestId('custom-game-board-mode-v')
+    );
     await userEvent.click(canvas.getByTestId('custom-game-board-action-e5v'));
     await expect(
       canvas.getByTestId('custom-game-board-wall-status')

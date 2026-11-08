@@ -14,6 +14,7 @@ const journeys = {
     'opening',
     'keyboard-wall-cancellation',
     'place-a-wall',
+    'refuse-a-crossing-wall',
     'keep-a-path-open',
     'pawn-identity-and-keyboard',
     'precise-coordinates',
