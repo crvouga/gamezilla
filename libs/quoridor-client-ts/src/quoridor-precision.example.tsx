@@ -166,6 +166,10 @@ export async function expectQuoridorPawnInk(
       background = view.getComputedStyle(ground).backgroundColor;
       ground = ground.parentElement;
     }
+    // A translucent square would blend with the board; measure only opaque grounds.
+    await expect(background, `${cell} square is opaque`).not.toMatch(
+      /rgba\(.*, 0?\.\d+\)$/
+    );
     const inks = [view.getComputedStyle(pawn).color, background].map(luminance);
     const contrast = (Math.max(...inks) + 0.05) / (Math.min(...inks) + 0.05);
     await expect(contrast, `${cell} pawn ink contrast`).toBeGreaterThanOrEqual(

@@ -257,9 +257,9 @@
   --color-focus-ring: var(--ui-color-focus-ring);
   --ui-color-destructive: var(--ui-color-game-quoridor-one);
   --color-destructive: var(--ui-color-destructive);
-  --ui-color-warning: var(--ui-color-game-quoridor-two);
+  --ui-color-warning: var(--ui-color-game-quoridor-three);
   --color-warning: var(--ui-color-warning);
-  --ui-color-success: var(--ui-color-game-quoridor-accent);
+  --ui-color-success: var(--ui-color-game-quoridor-two);
   --color-success: var(--ui-color-success);
   --ui-color-info: var(--ui-color-game-quoridor-accent);
   --color-info: var(--ui-color-info);
@@ -269,6 +269,12 @@
   --color-on-warning: var(--ui-color-on-warning);
   --ui-color-on-info: var(--ui-color-game-quoridor-canvas);
   --color-on-info: var(--ui-color-on-info);
+  --ui-color-destructive-surface: var(--ui-color-game-quoridor-surface);
+  --color-destructive-surface: var(--ui-color-destructive-surface);
+  --ui-color-warning-surface: var(--ui-color-game-quoridor-surface);
+  --color-warning-surface: var(--ui-color-warning-surface);
+  --ui-color-success-surface: var(--ui-color-game-quoridor-surface);
+  --color-success-surface: var(--ui-color-success-surface);
 }
 /* Quoridor pawns keep the same identities as their seats in both variants.
    Keep flat square boundaries distinct from heavier walls and destination rings. */
@@ -280,21 +286,9 @@
 .board[data-board-theme="quoridor"] .cell[data-tone="occupied"] .glyph {
   font-size: 72cqw;
 }
-/* Pawns sit on the same sand board in both app themes, so they use the
-   board's own stable inks instead of theme-flipping seat colours, which
-   fall to about 1:1 on sand in the dark theme. */
-.board[data-board-theme="quoridor"] .cell[data-identity="one"] {
-  color: var(--ui-color-game-quoridor-one);
-}
-.board[data-board-theme="quoridor"] .cell[data-identity="two"] {
-  color: var(--ui-color-game-quoridor-three);
-}
-.board[data-board-theme="quoridor"] .cell[data-identity="three"] {
-  color: var(--ui-color-game-quoridor-two);
-}
-.board[data-board-theme="quoridor"] .cell[data-identity="four"] {
-  color: var(--ui-color-game-quoridor-ink);
-}
+/* Pawn identities use the base identity rules with the stable inks and
+   sand squares mapped above: seat colours flip with the app theme and fell
+   to about 1:1 on sand in the dark theme. */
 /* A wooden board: squares meet edge to edge in the board's two tones, the
    glyph fills most of its square, and the labels sit in the corners of the
    edge squares in the other square's tone, as a chess board's coordinates
