@@ -3,6 +3,7 @@ import { sokobanPuzzleContent } from '@libs/sokoban-shared-ts/sokoban-puzzle-con
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { createSignal, untrack } from 'solid-js';
+import { sokobanGameClient } from './sokoban-game-client';
 import { SokobanPlayerView } from './sokoban-player';
 
 /** Story-only local position history; every forward move uses production rules. */
@@ -22,6 +23,8 @@ export function SokobanHistory(props: {
   );
   return (
     <StoryPackAttempt
+      // As the production attempt screen passes the game's frame.
+      stageAlign={sokobanGameClient.puzzleContent.frame.stageAlign}
       puzzle={{
         title: 'Two crates',
         difficulty: 'Easy',
