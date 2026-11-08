@@ -24,6 +24,11 @@ test('storybook integration: connect-four keyboard help never moves the page', a
   await openBoard(page, 'drop-a-disc', 'light');
   const column = page.getByTestId('custom-game-board-column-1');
   const help = page.getByTestId('custom-game-board-keyboard-help');
+  // The story's own play may leave a column focused; start from rest.
+  await page.evaluate(() => {
+    (document.activeElement as HTMLElement | null)?.blur();
+  });
+  await expect(help).toBeHidden();
   const resting = await layout(page);
   await column.focus();
   await page.keyboard.press('Shift+Tab');
