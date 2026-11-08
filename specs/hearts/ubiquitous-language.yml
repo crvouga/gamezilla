@@ -29,6 +29,7 @@ terms:
       deck exactly once, and each card shows its rank and its suit by both
       symbol and name.
     forms: [cards, deck, rank, ranks, suit, suits, club, clubs, diamond, diamonds, spade, spades, heart, hearts, jack, queen, king, ace]
+    published: true
 
   - term: two of clubs
     definition: >-
@@ -68,6 +69,7 @@ terms:
       their own hand; everyone else, watchers included, sees only how many
       cards each hand holds.
     forms: [hands, own hand, current hand, hold, holds, held, holding, how many cards]
+    published: true
 
   - term: pass
     definition: >-
@@ -81,6 +83,7 @@ terms:
       pass in the same deal, or a pass in a deal without passing is refused
       and changes nothing.
     forms: [passes, passed, passing, has passed, have passed, awaiting passes]
+    published: true
 
   - term: passing direction
     definition: >-
@@ -104,12 +107,14 @@ terms:
       cards are; the winner takes the trick's four cards and leads the next
       trick. Every deal has 13 tricks.
     forms: [tricks, current trick, last trick, second trick, third trick, fourth trick, take, takes, took, taken, last card]
+    published: true
 
   - term: first trick
     definition: >-
       The first trick of a deal, which the two of clubs leads. On it nobody
       may play a heart or the queen of spades unless, after following suit,
       they hold nothing else.
+    published: true
 
   - term: lead
     definition: >-
