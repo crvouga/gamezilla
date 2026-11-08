@@ -288,6 +288,25 @@ the decoded patch is `.cache/verify-nightly/storybook-baselines.patch`. Run
 `git apply --check` before applying it. Comparison reports remain in the CI
 artifacts bucket.
 
+When local artifact credentials are unavailable, an explicit evidence-only
+diagnostic can relay an exact retained run through encrypted job logs. Generate
+an RSA recipient key pair locally (at least 2048 bits), keep the private key in
+an ignored directory with mode 0600, and pass only the base64-encoded public PEM
+as `storybook-evidence-key`. Dispatch `group=storybook` with
+`storybook-evidence-run=<original-run-id>` and that public key. This mode skips
+the renderer, build and browser tests; its success proves only the transfer.
+It reads only that run's Storybook result directory and encrypts every file
+and the final checksum manifest with RSA-OAEP and AES-GCM. No artifact-store
+credentials or plaintext traces leave the job.
+
+Download the export job log, then run
+`bun run libs/tools-harness-ts/scripts/storybook-evidence.ts --decode-log <log> <new-directory> <private-key-file>`.
+The decoder authenticates every file and requires the complete final manifest
+before writing to a fresh destination. Keep the original run/head identity;
+the export commit did not produce the evidence. Inspect restored traces and
+metadata for sensitive material before posting media to a PR. Never upload the
+recipient private key. The ordinary artifact retention remains unchanged.
+
 Axe cannot prove keyboard or focus contracts. Existing Bun DOM interaction tests
 cover those independently; play functions document story-specific contracts.
 
