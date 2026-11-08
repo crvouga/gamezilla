@@ -243,6 +243,18 @@ export class FakePaddle {
     return ok(this.transactionJson(id), 201);
   }
 
+  /** Paddle lets a `draft` or `ready` transaction be canceled, nothing else. */
+  private updateTransaction(id: string, body: Json): Response {
+    const index = this.transactions.findIndex((t) => t.id === id);
+    const found = this.transactions[index];
+    if (found === undefined)
+      return error(404, 'not_found', `Entity ${id} not found`);
+    if (body['status'] !== 'canceled' || found.status !== 'ready')
+      return error(400, 'transaction_immutable', `${id} cannot change`);
+    this.transactions[index] = { ...found, status: 'canceled' };
+    return ok(this.transactionJson(id));
+  }
+
   private transactionJson(id: string) {
     return {
       id,
@@ -381,6 +393,13 @@ export class FakePaddle {
     }
     if (method === 'POST' && path === '/transactions') {
       return this.createTransaction(body);
+    }
+    const transaction = /^\/transactions\/([^/]+)$/.exec(path);
+    if (method === 'PATCH' && transaction !== null) {
+      return this.updateTransaction(
+        decodeURIComponent(transaction[1] ?? ''),
+        body
+      );
     }
     const portal = /^\/customers\/([^/]+)\/portal-sessions$/.exec(path);
     if (method === 'POST' && portal !== null) {

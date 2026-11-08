@@ -8,6 +8,7 @@ import { expect } from 'bun:test';
 
 import {
   holdPaymentConfirmations,
+  leaveBilling,
   releasePaymentConfirmations,
 } from '@libs/billing-harness-ts/billing-actions';
 import {
@@ -23,6 +24,10 @@ const SHOWN_WAIT = { maxMs: 30_000, stepMs: 1_000 } as const;
 
 Given('the payment provider is slow to confirm payments', async (w) => {
   await w.s.apply(holdPaymentConfirmations);
+});
+
+Given('{actor} has left the billing plans', async (w, actor: Actor) => {
+  await w.s.apply(leaveBilling, actor);
 });
 
 When(
