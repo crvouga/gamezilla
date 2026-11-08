@@ -1,0 +1,4 @@
+{
+  "summary": "At a 320px phone width, the seven-column rack compresses letter buttons below the full-sized touch targets while board navigation and local score require scrolling.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/word-tiles-narrow/integration.checks.ts"
+}
