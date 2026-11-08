@@ -5,8 +5,12 @@ import {
   USER_SEARCH_RATE_LIMIT,
   USER_SEARCH_RATE_WINDOW_MS,
 } from '@libs/user-search-shared-ts/user-search-types';
+import { usernamePrefix } from '@libs/user-search-shared-ts/username-prefix';
 import sql from '@pkgs/sql-root-shared-ts/sql';
-import { defineQuery } from '@pkgs/sync-engine-shared-ts/define-query';
+import {
+  defineQuery,
+  RetryableQueryError,
+} from '@pkgs/sync-engine-shared-ts/define-query';
 import { z } from 'zod';
 
 type SearchStamp = { readonly at: number; readonly query: string };
@@ -34,16 +38,7 @@ function isRateLimited(
     rateBuckets.set(now, byUser);
   }
   const prior = byUser.get(userId) ?? [];
-  let recent = prior.filter((stamp) => stamp.at >= windowStart);
-  // A frozen clock keeps every stamp equal to `nowMs`, which would lock the
-  // window forever after RATE_LIMIT hits. Reset that bucket so a paused host
-  // can keep searching.
-  if (
-    recent.length >= USER_SEARCH_RATE_LIMIT &&
-    recent.every((stamp) => stamp.at === nowMs)
-  ) {
-    recent = [];
-  }
+  const recent = prior.filter((stamp) => stamp.at > windowStart);
   if (recent.some((stamp) => stamp.query === key)) {
     byUser.set(userId, recent);
     return false;
@@ -74,9 +69,13 @@ export const searchProfiles = defineQuery({
       return { profile: [] };
     }
     if (isRateLimited(viewerId, query, ctx.env.now)) {
-      return { profile: [] };
+      throw new RetryableQueryError(
+        'people_search_rate_limited',
+        USER_SEARCH_RATE_WINDOW_MS,
+        'Too many searches. Wait a minute and try again.'
+      );
     }
-    const likeQuery = `${query.trim().toLowerCase()}%`;
+    const likeQuery = usernamePrefix(query);
     // Active blocks govern discovery; profile tombstones still reach allowed viewers.
     const rows = await ctx.db.query(sql`
       SELECT
@@ -89,7 +88,7 @@ export const searchProfiles = defineQuery({
           AND block.deleted_at IS NULL
       WHERE p.id <> ${viewerId}
         AND p.username_norm <> ''
-        AND p.username_norm LIKE ${likeQuery}
+        AND p.username_norm LIKE ${likeQuery} ESCAPE '!'
         AND block.id IS NULL
       ORDER BY p.username_norm ASC
     `);

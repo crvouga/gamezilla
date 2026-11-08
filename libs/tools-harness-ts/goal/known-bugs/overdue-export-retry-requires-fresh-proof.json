@@ -1,0 +1,4 @@
+{
+  "summary": "The overdue-export acceptance assertion expected a direct request button after 24 hours, contradicting the ten-minute proof requirement. Verify the visible sign-in way forward and that fresh proof permits a new export without bypassing policy.",
+  "regressionTest": "libs/profile-harness-ts/tests/overdue-export-proof.test.ts"
+}

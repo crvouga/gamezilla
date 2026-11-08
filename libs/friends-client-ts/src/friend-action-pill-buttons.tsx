@@ -8,6 +8,7 @@ import type { MutationStateTransition } from '@pkgs/ui-root-client-ts/mutation-l
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
 import type { JSX } from 'solid-js';
+import { useFriendRequestDecision } from './use-friend-request-decision';
 
 function usePillSounds(
   sounds: () => { success?: SoundId; error?: SoundId }
@@ -37,8 +38,12 @@ export function AcceptDeclinePills(props: {
   declineTestID?: string;
 }): JSX.Element {
   const { t } = useLingui();
+  const decision = useFriendRequestDecision();
   const accept = useMutationButton({
-    operation: () => props.onAccept(),
+    operation: () => decision.run(props.onAccept),
+    get disabled() {
+      return decision.pending();
+    },
     labels: {
       idle: <Trans>Accept</Trans>,
       loading: t`Accepting…`,
@@ -48,7 +53,10 @@ export function AcceptDeclinePills(props: {
     successHoldMs: 0,
   });
   const decline = useMutationButton({
-    operation: () => props.onDecline(),
+    operation: () => decision.run(props.onDecline),
+    get disabled() {
+      return decision.pending();
+    },
     labels: {
       idle: <Trans>Decline</Trans>,
       loading: t`Declining…`,

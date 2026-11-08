@@ -86,6 +86,11 @@ const FIND_ATTEMPTS = 3;
  */
 export async function tapFindOpponent(ui: Driver): Promise<void> {
   for (let attempt = 1; ; attempt += 1) {
+    // A missing notice also means the route has not mounted yet. Establish
+    // the screen first, then observe the connection it reports.
+    await ui.get('multiplayer-find').expect.visible({
+      timeoutMs: JOURNEY_WAIT_MS,
+    });
     await ui.get('multiplayer-offline').expect.hidden({
       timeoutMs: JOURNEY_WAIT_MS,
     });
