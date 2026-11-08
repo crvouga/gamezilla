@@ -104,6 +104,28 @@ verified before this pass; it was inspected, not changed.
 | Search for people | An answer, also offline for people already known | Offline search hid known friends behind "needs a connection" | Hid results | Known people shown offline with a note that more may appear online | journey "Searching for people finishes with an answer"; `specs/friends/social-needs-connection.feature` (`offline-search-hides-known-people`) | — |
 | Inbox actions | Know whether mark read / archive worked | Every failure called "The connection is missing." | One message | Offline, refused and unexplained failures told apart | `libs/notifications-client-ts/tests/inbox-choice-failure.test.ts` (`notifications-refusal-called-connection-missing`) | — |
 
+### Board usability review
+
+The board overhauls below are candidates under review, not release-readiness
+claims. Each owning PR keeps its immutable before/after run identities,
+package-owned readiness detail, automated regressions, recordings and two
+independent reviews. This shared matrix is coordinated centrally so concurrent
+game changes do not overwrite one another. A passed evidence transfer is not a
+passed browser test; missing recordings or performance measurements remain gaps.
+
+| Journey | Person's intent | Observed friction | Before this pass | Candidate work | Evidence | Remaining limits |
+| --- | --- | --- | --- | --- | --- | --- |
+| Play Chess | Make moves and promote with pointer, keyboard or assistive activation | Board activation and promotion focus barriers | Reproduced input failures | Accessible activation, unavailable-state semantics and promotion focus containment | PR 282; paired automated browser runs and literal board regressions | Tablet recovery geometry investigation and fresh independent reviews pending |
+| Play Connect Four | Aim, place one disc and understand refused input | Focus preview and full-column feedback defects | Reproduced input failures | Stable previews, explicit full-column feedback and native input preservation | PR 290; paired automated browser captures and literal disc-drop regressions | Media inspection, independent reviews and full current gate pending |
+| Play Battleship | Correct an aim, fire once and inspect the result | Pending fire feedback and spectator instructions were ambiguous | Reproduced feedback defects | Busy firing feedback, passive inspection copy and region descriptions | PR 289; paired automated captures and accessible-description regressions | Latest accessibility revision needs its own captures and independent reviews |
+| Play Numberlink | Draw, correct and retain paths reliably | Taps erased paths and re-entry could bridge an untraced gap | Four reproduced interaction defects | Pointer lifecycle, Escape focus and endpoint selection corrections | PR 286; four defects fail before and pass after in paired browser runs | Fresh media reviews and shared cross-device journey rehearsal pending |
+| Play and build Sokoban | Move accurately, recover and inspect a large board | Tile remounting, preview input capture and small maximum-board pieces | Reproduced stability and input defects | Stable tile nodes, input recovery and optional close view | PR 287; solve, input, editor and maximum-board automated evidence | Editor control geometry and newest close-view browser evidence pending |
+| Play Quoridor and Hill | Preview and cancel a legal move without stale state | Position changes and reset keys left stale previews | Three reproduced controller defects | Preview reset, Escape cancellation and bound status descriptions | PR 285; paired keyboard, touch and mouse evidence | Hill phone readiness failures and independent reviews pending |
+| Play Word Tiles with two, three or four players | Place and revise tiles without losing the target | Focus recentering interrupted placement; narrow table content fell below the viewport | Six reproduced placement failures | Stable board focus and direct blank-context coverage | PR 284; all six native placement failures pass after the fix | Narrow-screen layout, retained media review and independent ratings pending |
+| Play Hearts | Select, revise and pass cards, then recover from a refusal | Narrow hands and unclear revision/refusal guidance | Reproduced selection and target failures | Narrow hand layout, selection revision guidance, refusal descriptions and clearer deal points | PR 288; paired full-screen recovery and native card input captures | Latest matched captures and independent reviews pending |
+| Play Pong | Steer reliably and see both paddles | Held input survived interruption and a paddle had insufficient contrast | Reproduced input, contrast and node-stability failures | Input cleanup, visible paddle outlines and stable rendered nodes | PR 283; paired contrast, simultaneous touch and motion evidence | Media and performance review; shared release-journey gate rehearsal pending |
+| Play Light Cycles Duel, Trio or Quad | Steer predictably and understand rider state | Held touch survived reconnect and desktop controls were unclear | Reproduced interruption defect | Gesture reset, input guidance and on-demand rider descriptions | PR 291; paired steering, simultaneous touch and sustained rendering captures | Corrected measurement scope, latest captures and independent reviews pending |
+
 ### Plus membership
 
 | Journey | Expected outcome | Failure or confusion | Before | Resolution | Evidence | Remaining limitation |
