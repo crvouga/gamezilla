@@ -1,6 +1,6 @@
 import { test } from '@playwright/test';
 import { observeInput, recordEvidence } from '../word-tiles/evidence';
-import { narrowWorkspace } from './narrow-workspace';
+import { narrowOpeningFits, narrowWorkspace } from './narrow-workspace';
 
 test.use({
   video: 'on',
@@ -29,5 +29,14 @@ for (const fixture of [
     page,
   }, info) => {
     await narrowWorkspace(page, info, fixture);
+  });
+}
+
+// regression: word-tiles-320-rack-wraps-board-below-fold
+for (const players of ['two', 'three', 'four']) {
+  test(`storybook integration: word-tiles narrow ${players} players opening fits without scrolling`, async ({
+    page,
+  }, info) => {
+    await narrowOpeningFits(page, info, { players, theme: 'light' });
   });
 }

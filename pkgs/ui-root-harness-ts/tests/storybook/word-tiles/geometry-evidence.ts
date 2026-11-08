@@ -58,8 +58,14 @@ export async function recordGeometry(
     // Every visible block taller than 4px on the vertical path to the board,
     // so a failed fit names which band spends the height.
     const bands = [];
-    const board = document.querySelector('[aria-label="Scrollable word board"]');
-    for (let node = board; node && node !== document.body; node = node.parentElement) {
+    const board = document.querySelector(
+      '[aria-label="Scrollable word board"]'
+    );
+    for (
+      let node = board;
+      node && node !== document.body;
+      node = node.parentElement
+    ) {
       for (const sibling of Array.from(node.parentElement?.children ?? [])) {
         const rect = sibling.getBoundingClientRect();
         if (rect.height <= 4) continue;
@@ -87,7 +93,9 @@ export async function recordGeometry(
   });
   // Hosted attachments travel through a relay; a failed fit also prints its measurements.
   if (info.status !== info.expectedStatus)
-    console.log(`[word-tiles-geometry] ${info.title} ${JSON.stringify(geometry)}`);
+    console.log(
+      `[word-tiles-geometry] ${info.title} ${JSON.stringify(geometry)}`
+    );
   await retainEvidence(info, 'geometry.json', {
     body: JSON.stringify(geometry, null, 2),
     contentType: 'application/json',

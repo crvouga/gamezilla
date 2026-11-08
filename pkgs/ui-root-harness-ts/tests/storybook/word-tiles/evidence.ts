@@ -176,37 +176,40 @@ async function contrastDiagnostic(
         (check.data as { messageKey?: string } | null)?.messageKey ?? null
     ),
   }));
-  const details = await page.evaluate((targets) => {
-    return targets.map((target) => {
-      const element = document.querySelector<HTMLElement>(target);
-      if (!element) return { target, missing: true };
-      const rect = element.getBoundingClientRect();
-      const css = getComputedStyle(element);
-      const stack = document
-        .elementsFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2)
-        .slice(0, 6)
-        .map((hit) => ({
-          tag: hit.tagName,
-          component: (hit as HTMLElement).dataset['component'] ?? null,
-          background: getComputedStyle(hit).backgroundColor,
-          backgroundImage: getComputedStyle(hit).backgroundImage.slice(0, 80),
-          position: getComputedStyle(hit).position,
-        }));
-      return {
-        target,
-        text: element.textContent?.trim().slice(0, 40) ?? '',
-        color: css.color,
-        background: css.backgroundColor,
-        box: {
-          x: Math.round(rect.x),
-          y: Math.round(rect.y),
-          width: Math.round(rect.width),
-          height: Math.round(rect.height),
-        },
-        stack,
-      };
-    });
-  }, sample.map((entry) => entry.target));
+  const details = await page.evaluate(
+    (targets) => {
+      return targets.map((target) => {
+        const element = document.querySelector<HTMLElement>(target);
+        if (!element) return { target, missing: true };
+        const rect = element.getBoundingClientRect();
+        const css = getComputedStyle(element);
+        const stack = document
+          .elementsFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2)
+          .slice(0, 6)
+          .map((hit) => ({
+            tag: hit.tagName,
+            component: (hit as HTMLElement).dataset['component'] ?? null,
+            background: getComputedStyle(hit).backgroundColor,
+            backgroundImage: getComputedStyle(hit).backgroundImage.slice(0, 80),
+            position: getComputedStyle(hit).position,
+          }));
+        return {
+          target,
+          text: element.textContent?.trim().slice(0, 40) ?? '',
+          color: css.color,
+          background: css.backgroundColor,
+          box: {
+            x: Math.round(rect.x),
+            y: Math.round(rect.y),
+            width: Math.round(rect.width),
+            height: Math.round(rect.height),
+          },
+          stack,
+        };
+      });
+    },
+    sample.map((entry) => entry.target)
+  );
   return {
     nodes: nodes.length,
     reasons,

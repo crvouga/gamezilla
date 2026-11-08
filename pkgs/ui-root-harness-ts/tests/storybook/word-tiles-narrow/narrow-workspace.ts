@@ -43,7 +43,7 @@ export async function narrowWorkspace(
     contentType: 'image/png',
   });
   await reachable(
-    page.getByRole('button', { name: 'Board map: locate a square' })
+    page.getByRole('button', { name: 'Find a square', exact: true })
   );
   await reachable(page.getByTestId('custom-game-board-more'));
   await rackTargets(page, info, 'initial', 7);
@@ -67,8 +67,12 @@ async function rackTargets(
   await expect(rack.locator('button[data-placed="true"]')).toHaveCount(
     7 - count
   );
-  await expect(rack.locator('button[aria-disabled="false"]')).toHaveCount(count);
-  await expect(rack.locator('button[data-placed="true"][aria-disabled="true"]')).toHaveCount(7 - count);
+  await expect(rack.locator('button[aria-disabled="false"]')).toHaveCount(
+    count
+  );
+  await expect(
+    rack.locator('button[data-placed="true"][aria-disabled="true"]')
+  ).toHaveCount(7 - count);
   const boxes = [];
   for (const tile of await tiles.all()) {
     const box = await tile.boundingBox();
@@ -85,6 +89,33 @@ async function rackTargets(
   }
   for (const tile of await tiles.all()) await reachable(tile);
   await retainEvidence(info, `rack-targets-${stage}.png`, {
+    body: await page.screenshot(),
+    contentType: 'image/png',
+  });
+}
+
+/** The opening phone layout needs no scrolling: one rack row, then the whole board. */
+export async function narrowOpeningFits(
+  page: Page,
+  info: TestInfo,
+  fixture: { players: string; theme: string }
+): Promise<void> {
+  await openStory(page, `${fixture.players}-player-match`, fixture.theme);
+  const tops = await page
+    .getByTestId('custom-game-board-rack')
+    .getByRole('button')
+    .evaluateAll((tiles) =>
+      tiles.map((tile) => Math.round(tile.getBoundingClientRect().top))
+    );
+  expect(tops).toHaveLength(7);
+  expect(new Set(tops).size).toBe(1);
+  await reachable(page.getByTestId('custom-game-seat-near'), false);
+  await reachable(page.getByTestId('custom-game-board-submit'), false);
+  await reachable(
+    page.getByRole('region', { name: 'Scrollable word board' }),
+    false
+  );
+  await retainEvidence(info, 'opening-fits.png', {
     body: await page.screenshot(),
     contentType: 'image/png',
   });
