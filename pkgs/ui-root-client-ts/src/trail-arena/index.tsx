@@ -19,6 +19,7 @@ import {
 import {
   TRAIL_RIDER_INDICES,
   type TrailArenaProps,
+  type TrailRiderIndex,
 } from '../trail-arena-types';
 import styles from './trail-arena.module.css';
 
@@ -127,23 +128,50 @@ export function TrailArena(props: TrailArenaProps): JSX.Element {
           height={props.height}
           rx="0.5"
         />
-        <Index each={props.riders}>
-          {(rider) => (
-            <RiderHead
-              rider={rider()}
-              trailCount={shapes()[rider().index]?.count ?? 0}
-              scale={headScale()}
-              testId={props.testId}
-            />
-          )}
-        </Index>
-        <Index each={props.crashes}>
-          {(crash) => <CrashMarker crash={crash()} testId={props.testId} />}
-        </Index>
+        <Markers
+          riders={props.riders}
+          crashes={props.crashes}
+          counts={(index) => shapes()[index]?.count ?? 0}
+          scale={headScale()}
+          testId={props.testId}
+        />
       </svg>
       <TouchRegions regions={props.touchRegions} testId={props.testId} />
       <ArenaOverlay overlay={props.overlay} testId={props.testId} />
     </div>
+  );
+}
+
+/** Heads, then crash badges above them, so a crash is never hidden by a head. */
+function Markers(props: {
+  riders: TrailArenaProps['riders'];
+  crashes: TrailArenaProps['crashes'];
+  counts: (index: TrailRiderIndex) => number;
+  scale: number;
+  testId: string;
+}): JSX.Element {
+  return (
+    <>
+      <Index each={props.riders}>
+        {(rider) => (
+          <RiderHead
+            rider={rider()}
+            trailCount={props.counts(rider().index)}
+            scale={props.scale}
+            testId={props.testId}
+          />
+        )}
+      </Index>
+      <Index each={props.crashes}>
+        {(crash) => (
+          <CrashMarker
+            crash={crash()}
+            scale={props.scale}
+            testId={props.testId}
+          />
+        )}
+      </Index>
+    </>
   );
 }
 

@@ -170,16 +170,15 @@
   opacity: var(--ui-opacity-muted);
 }
 
-.crashRing {
-  fill: none;
+.crashBadge {
+  fill: var(--ui-color-background);
   stroke: var(--ui-color-destructive);
-  stroke-width: 0.16;
-  stroke-dasharray: 0.5 0.3;
+  stroke-width: 0.14;
 }
 .crashCross {
   fill: none;
   stroke: var(--ui-color-destructive);
-  stroke-width: 0.32;
+  stroke-width: 0.22;
   stroke-linecap: round;
 }
 

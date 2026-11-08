@@ -18,7 +18,14 @@ import {
 } from '@pkgs/ui-root-client-ts/trail-arena';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
-import { createMemo, createUniqueId, For, type JSX, Show } from 'solid-js';
+import {
+  createMemo,
+  createUniqueId,
+  For,
+  Index,
+  type JSX,
+  Show,
+} from 'solid-js';
 import {
   arenaDescription,
   arenaOverlay,
@@ -50,19 +57,20 @@ function steer(
 function Scores(props: { state: LightCyclesState; testId: string }) {
   return (
     <VisuallyHidden>
-      <For each={props.state.riders}>
+      {/* By seat index: a new decoded state every tick reuses these nodes. */}
+      <Index each={props.state.riders}>
         {(rider, index) => (
           <Text
             variant="label"
             numeral
-            testId={`${props.testId}-score-${rider.seat}`}
+            testId={`${props.testId}-score-${rider().seat}`}
             dataSet={{
-              score: String(props.state.scores[index()] ?? 0),
-              alive: String(rider.alive),
+              score: String(props.state.scores[index] ?? 0),
+              alive: String(rider().alive),
             }}
-          >{t`${riderName(rider.seat)} ${props.state.scores[index()] ?? 0}`}</Text>
+          >{t`${riderName(rider().seat)} ${props.state.scores[index] ?? 0}`}</Text>
         )}
-      </For>
+      </Index>
       <Text
         variant="caption"
         tone="secondary"
