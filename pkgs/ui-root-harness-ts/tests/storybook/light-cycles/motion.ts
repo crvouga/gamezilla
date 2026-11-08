@@ -1,5 +1,6 @@
 import { expect, type Page, type TestInfo } from '@playwright/test';
 import { finishMeasurements, startMeasurements } from './measure';
+import { logEvidence, longTasks, percentile } from './summary';
 
 /** Eight virtual seconds of production states, paced at two display frames per tick. */
 export async function measureMotion(
@@ -63,6 +64,22 @@ export async function measureMotion(
       2
     ),
     contentType: 'application/json',
+  });
+  const updates = motion.map((sample) => sample.updateMs);
+  const paints = motion.map((sample) => sample.paintOpportunityMs);
+  logEvidence('TIMING', {
+    test: info.title,
+    kind: 'sustained',
+    cpuRate,
+    ticks: motion.length,
+    updateMs: { p50: percentile(updates, 0.5), p95: percentile(updates, 0.95) },
+    paintOpportunityMs: {
+      p50: percentile(paints, 0.5),
+      p95: percentile(paints, 0.95),
+      max: percentile(paints, 1),
+    },
+    frameP95Ms: percentile(frame.frameMs, 0.95),
+    longTasks: longTasks(frame.longTasksMs),
   });
   expect(new Set(motion.map((sample) => sample.heads)).size).toBeGreaterThan(
     10
