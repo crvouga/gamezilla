@@ -2,6 +2,7 @@ import { t } from '@lingui/core/macro';
 import type { GameFrameAction } from '@pkgs/turn-game-shared-ts/game-frame';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import type { CellGridCell } from '@pkgs/ui-root-client-ts/cell-grid-board';
+import type { FocusTarget } from '@pkgs/ui-root-client-ts/focus';
 import { Select } from '@pkgs/ui-root-client-ts/select';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { Index, type JSX } from 'solid-js';
@@ -11,6 +12,8 @@ import { type QuoridorTool, quoridorBoundary } from './quoridor-board-cells';
 export function QuoridorBoardTools(props: {
   testId: string;
   actions: readonly GameFrameAction[];
+  /** Held by whichever tool is pressed, so focus can return to the active tool. */
+  focusTarget?: FocusTarget | undefined;
 }): JSX.Element {
   return (
     <StackHorizontal
@@ -31,6 +34,7 @@ export function QuoridorBoardTools(props: {
                 : 'ghost'
             }
             dataSet={{ testid: `${props.testId}-${action().id}` }}
+            focusTarget={action().pressed ? props.focusTarget : undefined}
             onClick={action().run}
           />
         )}
@@ -39,7 +43,6 @@ export function QuoridorBoardTools(props: {
   );
 }
 
-/** Full-size coordinate choices supplement the whole board's smaller touch cells. */
 /** Picker rows: full descriptions, filtered by coordinate alone. */
 export function quoridorTargetOptions(
   testId: string,
@@ -58,6 +61,7 @@ export function quoridorTargetOptions(
     }));
 }
 
+/** Full-size coordinate choices supplement the whole board's smaller touch cells. */
 export function QuoridorTargetPicker(props: {
   testId: string;
   tool: QuoridorTool;

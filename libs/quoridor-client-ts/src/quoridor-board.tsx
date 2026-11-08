@@ -12,6 +12,7 @@ import type {
 import type { GameBoardProps } from '@pkgs/turn-game-shared-ts/game-presentation';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { CellGridBoard } from '@pkgs/ui-root-client-ts/cell-grid-board';
+import { createFocusTarget } from '@pkgs/ui-root-client-ts/focus';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import {
@@ -48,6 +49,7 @@ type BoardState = {
   readonly refusal: Accessor<string>;
   readonly actions: Accessor<readonly GameFrameAction[]>;
   readonly setRefusal: (message: string) => void;
+  readonly setTool: (tool: QuoridorTool) => void;
 };
 
 type BoardViewProps = GameBoardProps & { readonly state: BoardState };
@@ -117,6 +119,8 @@ function createBoardSelection(props: BoardViewProps) {
     if (wallRefusal(game(), action) !== null) return;
     cancel();
     props.state.setRefusal('');
+    // The wall is spent: the next turn starts with the pawn tool.
+    props.state.setTool('move');
     props.onAction(action);
   };
   return { cells, selected, message, activate, setPreview, cancel, commit };
@@ -126,6 +130,12 @@ function QuoridorBoardView(props: BoardViewProps): JSX.Element {
   const game = (): Quoridor => props.state.game();
   const tool = (): QuoridorTool => props.state.tool();
   const selection = createBoardSelection(props);
+  // Cancel and Place wall leave the page; focus lands on the active tool instead.
+  const toolFocus = createFocusTarget();
+  const [refocus, setRefocus] = createSignal(false);
+  createEffect(() => {
+    if (refocus() && toolFocus.focus()) setRefocus(false);
+  });
   return (
     <StackVertical gap="xs">
       <Show when={game().winner === null && quoridorMustPass(game())}>
@@ -164,6 +174,7 @@ function QuoridorBoardView(props: BoardViewProps): JSX.Element {
         <QuoridorBoardTools
           testId={props.testId}
           actions={props.state.actions()}
+          focusTarget={toolFocus.target}
         />
         <QuoridorTargetPicker
           testId={props.testId}
@@ -179,8 +190,14 @@ function QuoridorBoardView(props: BoardViewProps): JSX.Element {
           enabled={
             wallRefusal(game(), `${selection.selected()}${tool()}`) === null
           }
-          cancel={selection.cancel}
-          commit={selection.commit}
+          cancel={() => {
+            selection.cancel();
+            setRefocus(true);
+          }}
+          commit={() => {
+            selection.commit();
+            setRefocus(true);
+          }}
         />
       </Show>
       <P
@@ -239,6 +256,7 @@ export function createQuoridorBoard(
     tool,
     refusal,
     setRefusal,
+    setTool,
     actions: () => (quoridorMustPass(game()) ? [pass()] : toolActions()),
   };
   return {

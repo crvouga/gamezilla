@@ -141,3 +141,25 @@ test('the wall anchor picker filters by coordinate, not by shared label words', 
     'Wall starts above d4'
   );
 });
+
+// regression: quoridor-wall-confirmation-drops-focus
+test('Cancel and Place wall return focus to the active tool instead of the page', () => {
+  for (const mode of ['classic', 'hill'] as const) {
+    const { view } = mount(newQuoridor(mode), true);
+    const active = () =>
+      view.getByTestId('truth-mode-h').ownerDocument.activeElement;
+    fireEvent.click(view.getByTestId('truth-mode-h'));
+    fireEvent.click(view.getByTestId('truth-action-d4h'));
+    const cancel = view.getByTestId('truth-wall-cancel');
+    cancel.focus();
+    fireEvent.click(cancel);
+    expect(view.queryByTestId('truth-wall-cancel')).toBeNull();
+    expect(active()).toBe(view.getByTestId('truth-mode-h'));
+    fireEvent.click(view.getByTestId('truth-action-d4h'));
+    const commit = view.getByTestId('truth-wall-commit');
+    commit.focus();
+    fireEvent.click(commit);
+    expect(active()).toBe(view.getByTestId('truth-mode-move'));
+    view.unmount();
+  }
+});
