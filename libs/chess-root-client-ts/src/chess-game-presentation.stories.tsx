@@ -159,6 +159,51 @@ export const InsufficientMaterial: Story = {
   },
 };
 
+/** A 5+3 game: White's clock runs while White decides. */
+export const Timed: Story = {
+  args: { position: GIUOCO, lastAction: 'a7a6' },
+  parameters: {
+    table: {
+      turn: 'white',
+      moves: GIUOCO_MOVES,
+      timed: {
+        minutes: 5,
+        increment: 3,
+        clocks: { white: '4:12', black: '3:58' },
+      },
+    } satisfies GameTableStory,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText('4:12')).toBeVisible();
+    await expect(canvas.getByText('3:58')).toBeVisible();
+  },
+};
+
+/** White moved offline: the move is held until the connection returns. */
+export const MoveWaiting: Story = {
+  args: { position: ITALIAN, lastAction: 'f8c5', interactive: false },
+  parameters: {
+    table: {
+      turn: 'white',
+      moves: ITALIAN_MOVES,
+      connection: 'waiting',
+    } satisfies GameTableStory,
+  },
+};
+
+/** Offline in a game that needs the connection: nothing can be moved. */
+export const ConnectionNeeded: Story = {
+  args: { position: ITALIAN, lastAction: 'f8c5', interactive: false },
+  parameters: {
+    table: {
+      turn: 'white',
+      moves: ITALIAN_MOVES,
+      connection: 'needed',
+    } satisfies GameTableStory,
+  },
+};
+
 /** Choose an underpromotion through the real board, then observe the new piece. */
 export const PromotionChoice: Story = {
   args: { position: '7k/P7/8/8/8/8/8/7K w - - 0 1' },

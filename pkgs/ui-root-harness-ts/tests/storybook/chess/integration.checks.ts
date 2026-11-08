@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, type Page, type TestInfo, test } from '@playwright/test';
 import {
   captureAssistiveActivation,
   capturePromotion,
@@ -25,6 +25,39 @@ test('storybook integration: chess tablet recovery keeps every square anchored',
   await captureChessState(page, info, 'tablet-recovery');
 });
 
+/** Keyboard, mouse drag and touch moves, with the timing samples first. */
+async function inputJourney(page: Page, info: TestInfo, theme: string) {
+  await openChessStory(page, 'product-chessboard--initial', theme);
+  await captureChessState(page, info, 'before-input');
+  await measureChessInput(page, info);
+  await captureChessState(page, info, 'selected-e2');
+  await page.keyboard.press('ArrowUp');
+  await page.keyboard.press('ArrowUp');
+  await page.keyboard.press('Enter');
+  await expect(
+    page.getByRole('button', { name: 'e4, White pawn' })
+  ).toBeAttached();
+  await captureChessState(page, info, 'keyboard-e4');
+  const from = await squareCenter(page, 'e7');
+  const to = await squareCenter(page, 'e5');
+  await page.mouse.move(from.x, from.y);
+  await page.mouse.down();
+  await page.mouse.move(to.x, to.y, { steps: 12 });
+  await page.mouse.up();
+  await expect(
+    page.getByRole('button', { name: 'e5, Black pawn' })
+  ).toBeAttached();
+  await captureChessState(page, info, 'mouse-e5');
+  for (const square of ['g1', 'f3']) {
+    const point = await squareCenter(page, square);
+    await page.touchscreen.tap(point.x, point.y);
+  }
+  await expect(
+    page.getByRole('button', { name: 'f3, White knight' })
+  ).toBeAttached();
+  await captureChessState(page, info, 'touch-f3');
+}
+
 const states = [
   'screens-games-chess-board--your-turn',
   'screens-games-chess-board--waiting-for-opponent',
@@ -35,12 +68,34 @@ const states = [
   'screens-puzzles-chess-play--solving',
   'screens-puzzles-chess-play--solve-journey',
   'screens-puzzles-chess-play--wrong-move-recovery',
+  'screens-games-chess-board--opening',
+  'screens-games-chess-board--early-game',
+  'screens-games-chess-board--stalemate',
+  'screens-games-chess-board--insufficient-material',
+  'screens-games-chess-board--timed',
+  'screens-games-chess-board--move-waiting',
+  'screens-games-chess-board--connection-needed',
+  'screens-puzzles-chess-play--hint',
+  'screens-puzzles-chess-play--solution-shown',
+  'screens-puzzles-chess-play--keyboard-help',
+  'product-chessboard--black-orientation',
+  'product-chessboard--read-only',
+  'product-chessboard--endgame',
 ] as const;
 
-for (const width of [390, 768, 1440]) {
+// Small phone, phone, tablet, desktop and a short landscape phone.
+const sizes = [
+  { width: 320, height: 640 },
+  { width: 390, height: 900 },
+  { width: 768, height: 900 },
+  { width: 1440, height: 900 },
+  { width: 844, height: 390 },
+] as const;
+
+for (const { width, height } of sizes) {
   for (const theme of ['light', 'dark']) {
     test.describe(`chess ${width} ${theme}`, () => {
-      test.use({ viewport: { width, height: 900 } });
+      test.use({ viewport: { width, height } });
 
       test('storybook integration: chess assistive activation evidence', async ({
         page,
@@ -69,36 +124,23 @@ for (const width of [390, 768, 1440]) {
       test('storybook integration: chess mouse touch keyboard and timing', async ({
         page,
       }, info) => {
-        await openChessStory(page, 'product-chessboard--initial', theme);
-        await captureChessState(page, info, 'before-input');
-        await measureChessInput(page, info);
-        await captureChessState(page, info, 'selected-e2');
-        await page.keyboard.press('ArrowUp');
-        await page.keyboard.press('ArrowUp');
-        await page.keyboard.press('Enter');
-        await expect(
-          page.getByRole('button', { name: 'e4, White pawn' })
-        ).toBeAttached();
-        await captureChessState(page, info, 'keyboard-e4');
-        const from = await squareCenter(page, 'e7');
-        const to = await squareCenter(page, 'e5');
-        await page.mouse.move(from.x, from.y);
-        await page.mouse.down();
-        await page.mouse.move(to.x, to.y, { steps: 12 });
-        await page.mouse.up();
-        await expect(
-          page.getByRole('button', { name: 'e5, Black pawn' })
-        ).toBeAttached();
-        await captureChessState(page, info, 'mouse-e5');
-        for (const square of ['g1', 'f3']) {
-          const point = await squareCenter(page, square);
-          await page.touchscreen.tap(point.x, point.y);
-        }
-        await expect(
-          page.getByRole('button', { name: 'f3, White knight' })
-        ).toBeAttached();
-        await captureChessState(page, info, 'touch-f3');
+        await inputJourney(page, info, theme);
       });
     });
   }
+}
+
+// Animated moves: every other capture runs with reduced motion.
+for (const theme of ['light', 'dark']) {
+  test.describe(`chess 390 ${theme} motion`, () => {
+    test.use({
+      viewport: { width: 390, height: 900 },
+      contextOptions: { reducedMotion: 'no-preference' },
+    });
+    test('storybook integration: chess input journey with motion', async ({
+      page,
+    }, info) => {
+      await inputJourney(page, info, theme);
+    });
+  });
 }
