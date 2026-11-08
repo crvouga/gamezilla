@@ -163,10 +163,9 @@ async function contrastDiagnostic(
   const reasons: Record<string, number> = {};
   for (const node of nodes)
     for (const check of [...node.any, ...node.all, ...node.none]) {
-      const key = String(
+      const key =
         (check.data as { messageKey?: string } | null)?.messageKey ??
-          check.message
-      );
+        check.message;
       reasons[key] = (reasons[key] ?? 0) + 1;
     }
   const sample = nodes.slice(0, 12).map((node) => ({
@@ -195,7 +194,7 @@ async function contrastDiagnostic(
           }));
         return {
           target,
-          text: element.textContent?.trim().slice(0, 40) ?? '',
+          text: element.textContent.trim().slice(0, 40),
           color: css.color,
           background: css.backgroundColor,
           box: {
