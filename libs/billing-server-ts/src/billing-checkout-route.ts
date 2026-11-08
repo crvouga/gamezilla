@@ -19,7 +19,7 @@ import {
 import type { Context } from 'hono';
 import { Hono } from 'hono';
 import { z } from 'zod';
-import { applyMembershipChange } from './apply-membership-change';
+import { applyCurrentMembership } from './apply-membership-change';
 
 const checkoutBodySchema = z.object({
   returnUrl: z.url(),
@@ -113,11 +113,12 @@ async function membershipPending(
   if (
     change.provider === deps.provider.provider &&
     change.customerId === checkout.customerId &&
-    (await applyMembershipChange({
+    (await applyCurrentMembership({
       sql: deps.getSqlClient(),
       clock: deps.clock,
       accountId,
       change,
+      read: () => deps.provider.readMembership(change.subscriptionId),
     }))
   ) {
     await deps.notifyUser(accountId, 'billing:membership', [

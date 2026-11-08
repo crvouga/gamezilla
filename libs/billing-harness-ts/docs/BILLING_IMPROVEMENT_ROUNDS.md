@@ -101,11 +101,32 @@ Evidence: the new scenario
 the billing server and shared tests, the type checks and the schema evolution
 check pass.
 
+## Round 5: an older provider reading can never be what remains
+
+Before: each provider reading (a callback, a checkout that found a paid
+membership) was written as soon as it was read. Two readings committing out of
+order left the older one in place: a membership that had just ended could
+show as active again until the next re-check, a day or more later.
+
+After: after writing, the app asks the provider again and writes again while
+the answer differs (up to three writes). Because every writer reads after its
+own last write, the last write always agrees with a reading taken after it.
+Callbacks re-read through the adapter's callback reading, so a deletion
+remains final. No lock is held while the provider is asked: a first version
+that held a database lock during the provider call deadlocked with the
+provider's webhook delivery in the full spec run (`membership-lifecycle.qnt`
+trace 2), so it was replaced before commit.
+
+Evidence: `overlapping-callbacks.test.ts` makes a second callback end the
+membership and commit between the first callback's reading and its write. On
+the previous code the membership stayed active; now it ends. The route matrix
+pins the extra provider read. All 113 billing scenarios and model traces, the
+32 billing server tests and the type check pass.
+
 ## Acceptance still required
 
 - Provider-neutral concurrency and uncertain-outcome reconciliation, including
   Paddle and switching providers with an unfinished checkout.
-- Ordering overlapping provider reads and membership projection writes.
 - A deployed payment journey whose result actually measures the payment SLO,
   with observed production history.
 - Complete funnel evidence and independent re-audit of the final revision.
