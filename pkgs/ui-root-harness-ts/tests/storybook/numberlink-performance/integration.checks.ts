@@ -33,11 +33,19 @@ for (const width of [390, 1440])
         const session = await startMeasurements(page, cpuRate);
         // Twenty full native routes; screenshots and axe run outside the timed interval.
         // Video remains enabled, so encoding overhead is not isolated from results.
-        for (let row = 0; row < 20; row++)
+        // Each route's duration reaches the log, so a run that overruns its
+        // budget still shows where the time went.
+        const started = Date.now();
+        for (let row = 0; row < 20; row++) {
+          const routeStart = Date.now();
           await mousePath(
             page,
             Array.from({ length: 20 }, (_, column) => row * 20 + column)
           );
+          process.stdout.write(
+            `numberlink-dense-route ${width} ${theme} row=${row + 1} ms=${Date.now() - routeStart} total=${Date.now() - started}\n`
+          );
+        }
         await reportMeasurements(page, info, cpuRate);
         await session.detach();
         await expect(page.getByTestId('numberlink-progress')).toContainText(
