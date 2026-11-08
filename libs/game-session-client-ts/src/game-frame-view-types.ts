@@ -1,4 +1,5 @@
 import type {
+  GameFrameCompactInset,
   GameFrameSeatLayout,
   GameOptionGroup,
   GameOutlineStep,
@@ -94,6 +95,7 @@ export type FrameTable = {
    */
   readonly shape: 'strip' | 'rail' | 'none' | 'board';
   readonly seatLayout?: GameFrameSeatLayout | undefined;
+  readonly compactInset?: GameFrameCompactInset | undefined;
   /**
    * The board names each player itself (`GameFrame.boardNames`): a phone
    * draws no seats above or below it, except one to take back.
