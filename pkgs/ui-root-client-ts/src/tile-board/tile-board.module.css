@@ -80,12 +80,18 @@
   touch-action: none;
 }
 /* The hero board: as wide as its column, tiles up to 5rem (80px), never
-   taller than most of the viewport; its pieces scale with its tiles. */
+   taller than most of the viewport, and short enough on a short screen to
+   leave room for the title above and the movement pad below (24rem); its
+   pieces scale with its tiles. */
 .board[data-size="fill"] {
   width: min(
     100%,
     calc(var(--tile-board-columns) * 5rem),
-    calc(60dvh * var(--tile-board-columns) / var(--tile-board-rows))
+    calc(
+      min(60dvh, 100dvh - 24rem) *
+      var(--tile-board-columns) /
+      var(--tile-board-rows)
+    )
   );
 }
 .board:focus-visible {

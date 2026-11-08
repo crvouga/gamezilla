@@ -1,0 +1,4 @@
+{
+  "summary": "On a 1440x844 screen a 20x20 Sokoban board grew to 60% of the viewport height, pushing the movement pad's bottom row (left, down, right) below the fold. The hero board now also stops 24rem short of the viewport height, leaving room for the title and the whole pad.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/sokoban-maximum-desktop/integration.checks.ts"
+}
