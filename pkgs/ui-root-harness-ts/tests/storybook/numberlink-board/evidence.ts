@@ -1,4 +1,6 @@
 // @io-wall-ok — automated browser evidence adapter.
+
+import { writeFile } from 'node:fs/promises';
 import { expect, type Page, type TestInfo } from '@playwright/test';
 import axe from 'axe-core';
 
@@ -15,6 +17,17 @@ export async function openStory(
     'true'
   );
   await page.evaluate(() => document.fonts.ready);
+}
+
+/**
+ * Saves a JSON record beside the case's captures. In-memory attachments
+ * only reach the report and the trace, so a case recorded without a trace
+ * would otherwise lose its measurements from the retained evidence.
+ */
+export async function attachJson(info: TestInfo, name: string, value: unknown) {
+  const path = info.outputPath(`${name}.json`);
+  await writeFile(path, JSON.stringify(value, null, 2));
+  await info.attach(name, { path, contentType: 'application/json' });
 }
 
 export async function openBoard(
@@ -49,10 +62,7 @@ export async function capture(page: Page, info: TestInfo, name: string) {
       };
     });
   });
-  await info.attach(`${name}-geometry`, {
-    body: JSON.stringify(geometry),
-    contentType: 'application/json',
-  });
+  await attachJson(info, `${name}-geometry`, geometry);
 }
 
 export async function accessibility(page: Page, info: TestInfo) {
@@ -63,10 +73,7 @@ export async function accessibility(page: Page, info: TestInfo) {
     if (!root) throw new Error('Storybook canvas is missing');
     return scanner.run(root);
   });
-  await info.attach('accessibility', {
-    body: JSON.stringify(results.violations, null, 2),
-    contentType: 'application/json',
-  });
+  await attachJson(info, 'accessibility', results.violations);
   expect(
     results.violations.filter(
       (item) => item.impact === 'serious' || item.impact === 'critical'

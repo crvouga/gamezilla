@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 import {
   accessibility,
+  attachJson,
   capture,
   openBoard,
   openStory,
@@ -30,10 +31,7 @@ for (const theme of ['light', 'dark']) {
         if (await first.evaluate((cell) => cell === document.activeElement))
           break;
       }
-      await info.attach('tab-sequence', {
-        body: JSON.stringify(visited),
-        contentType: 'application/json',
-      });
+      await attachJson(info, 'tab-sequence', visited);
       await expect(first).toBeFocused();
       await capture(page, info, 'keyboard-focus');
       await page.keyboard.press('Enter');

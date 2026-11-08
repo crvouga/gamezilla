@@ -1,5 +1,6 @@
 // @io-wall-ok — browser timing adapter; measurements never enter product code.
 import type { Page, TestInfo } from '@playwright/test';
+import { attachJson } from './evidence';
 
 type Measurements = {
   inputToFrameMs: number[];
@@ -62,19 +63,16 @@ export async function reportMeasurements(
   });
   const ordered = [...values.inputToFrameMs].sort((a, b) => a - b);
   const frames = [...values.frameGapsMs].sort((a, b) => a - b);
-  await info.attach('performance', {
-    body: JSON.stringify({
-      ...values,
-      cpuRate,
-      sampleCount: ordered.length,
-      p50Ms: ordered[Math.floor(ordered.length * 0.5)],
-      p95Ms: ordered[Math.floor(ordered.length * 0.95)],
-      maxMs: ordered.at(-1),
-      frameP95Ms: frames[Math.floor(frames.length * 0.95)],
-      frameMaxMs: frames.at(-1),
-      limitation:
-        'Event timestamp to next animation frame; excludes paint completion and physical display latency. Desktop CPU throttling approximates CPU pressure, not a real mobile device. Input pacing is automated.',
-    }),
-    contentType: 'application/json',
+  await attachJson(info, 'performance', {
+    ...values,
+    cpuRate,
+    sampleCount: ordered.length,
+    p50Ms: ordered[Math.floor(ordered.length * 0.5)],
+    p95Ms: ordered[Math.floor(ordered.length * 0.95)],
+    maxMs: ordered.at(-1),
+    frameP95Ms: frames[Math.floor(frames.length * 0.95)],
+    frameMaxMs: frames.at(-1),
+    limitation:
+      'Event timestamp to next animation frame; excludes paint completion and physical display latency. Desktop CPU throttling approximates CPU pressure, not a real mobile device. Input pacing is automated.',
   });
 }

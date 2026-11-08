@@ -1,5 +1,10 @@
 import { expect, test } from '@playwright/test';
-import { capture, mousePath, openBoard } from '../numberlink-board/evidence';
+import {
+  attachJson,
+  capture,
+  mousePath,
+  openBoard,
+} from '../numberlink-board/evidence';
 import {
   reportMeasurements,
   startMeasurements,
@@ -40,20 +45,17 @@ for (const width of [390, 1440])
         );
         await expect(page.getByTestId('numberlink-solved')).toBeVisible();
         await capture(page, info, 'all-routes-complete');
-        await info.attach('measurement-protocol', {
-          body: JSON.stringify({
-            routes: 20,
-            cellsPerRoute: 20,
-            cpuRate,
-            video: true,
-            trace: false,
-            screenshotsDuringMeasurement: 0,
-            axeDuringMeasurement: false,
-            repeats: 1,
-            limitations:
-              'Single hosted sample per viewport/theme. rAF gaps are scheduling observations, not display presentation. Video encoding overhead remains. CPU throttle is not physical mobile hardware.',
-          }),
-          contentType: 'application/json',
+        await attachJson(info, 'measurement-protocol', {
+          routes: 20,
+          cellsPerRoute: 20,
+          cpuRate,
+          video: true,
+          trace: false,
+          screenshotsDuringMeasurement: 0,
+          axeDuringMeasurement: false,
+          repeats: 1,
+          limitations:
+            'Single hosted sample per viewport/theme. rAF gaps are scheduling observations, not display presentation. Video encoding overhead remains. CPU throttle is not physical mobile hardware.',
         });
       });
     });

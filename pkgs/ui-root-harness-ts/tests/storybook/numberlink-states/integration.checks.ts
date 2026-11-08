@@ -1,6 +1,7 @@
 import { expect, type Page, test } from '@playwright/test';
 import {
   accessibility,
+  attachJson,
   capture,
   center,
   mousePath,
@@ -81,10 +82,7 @@ for (const width of [320, 768, 1440])
           );
           await capture(page, info, 'fresh');
           const geometry = await cellGeometry(page);
-          await info.attach('cell-geometry', {
-            body: JSON.stringify(geometry),
-            contentType: 'application/json',
-          });
+          await attachJson(info, 'cell-geometry', geometry);
           const columns = story === 'dense-board' ? 20 : 5;
           await mousePath(
             page,
