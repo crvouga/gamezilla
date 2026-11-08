@@ -2,38 +2,42 @@
 import { expect, type Page, type TestInfo } from '@playwright/test';
 import { captureBoard, openBoard } from './capture';
 
+/**
+ * Sample the destination disc every frame for a fixed window after the
+ * drop, independent of animation names or event delivery: position plus
+ * the animations actually running on it.
+ */
 async function observeDrop(page: Page) {
   await page.evaluate(() => {
     const root = document.querySelector('#storybook-root');
     if (!root) throw new Error('Missing canvas');
-    const samples: { time: number; top: number }[] = [];
-    let running = false;
-    const cell = root.querySelector('[data-cell="1"] > span');
-    if (!cell) throw new Error('Missing destination');
-    const frame = () => {
-      samples.push({
-        time: performance.now(),
-        top: cell.getBoundingClientRect().top,
-      });
-      if (running) requestAnimationFrame(frame);
+    const samples: {
+      time: number;
+      top: number;
+      animations: string[];
+    }[] = [];
+    let start: number | undefined;
+    const frame = (time: number) => {
+      const disc = root.querySelector('[data-cell="1"] > span');
+      if (disc?.closest('[data-disc="1"]')) {
+        start ??= time;
+        samples.push({
+          time,
+          top: disc.getBoundingClientRect().top,
+          animations: disc
+            .getAnimations()
+            .map((animation) =>
+              animation instanceof CSSAnimation
+                ? animation.animationName
+                : animation.constructor.name
+            ),
+        });
+      }
+      if (start === undefined || time - start < 600)
+        requestAnimationFrame(frame);
       else root.setAttribute('data-drop-motion', JSON.stringify(samples));
     };
-    cell.addEventListener('animationstart', (event) => {
-      if (
-        !(event instanceof AnimationEvent) ||
-        !event.animationName.includes('disc-drop')
-      )
-        return;
-      running = true;
-      requestAnimationFrame(frame);
-    });
-    cell.addEventListener('animationend', (event) => {
-      if (
-        event instanceof AnimationEvent &&
-        event.animationName.includes('disc-drop')
-      )
-        running = false;
-    });
+    requestAnimationFrame(frame);
   });
 }
 
@@ -66,13 +70,14 @@ export async function captureMotion(
       (await page
         .locator('#storybook-root')
         .getAttribute('data-drop-motion')) ?? '[]'
-    ) as { time: number; top: number }[];
-    expect(samples.length).toBeGreaterThan(1);
-    expect(samples.at(-1)?.top).toBeGreaterThan(samples[0]?.top ?? 0);
+    ) as { time: number; top: number; animations: string[] }[];
+    // Attach before asserting, so a failure still shows what ran.
     await info.attach('normal-motion-frames', {
       body: JSON.stringify(samples),
       contentType: 'application/json',
     });
+    expect(samples.some((sample) => sample.animations.length > 0)).toBe(true);
+    expect(samples.at(-1)?.top).toBeGreaterThan(samples[0]?.top ?? 0);
   }
   await captureBoard(
     page,

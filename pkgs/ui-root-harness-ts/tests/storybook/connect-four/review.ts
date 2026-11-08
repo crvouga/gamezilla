@@ -22,9 +22,11 @@ export function defineReview(width: number, theme: string) {
     page.on('pageerror', (error) => errors.push(error.message));
     const cdp = await page.context().newCDPSession(page);
     const cpuRate = width < 768 ? 4 : 1;
-    await cdp.send('Emulation.setCPUThrottlingRate', { rate: cpuRate });
     await openBoard(page, 'drop-a-disc', theme);
     await captureBoard(page, info, 'two-disc-drop');
+    // Throttle only the measured drops; audits and screenshots are not
+    // interactions and would otherwise exhaust the test budget on phones.
+    await cdp.send('Emulation.setCPUThrottlingRate', { rate: cpuRate });
     await startTiming(page);
     const samples: Awaited<ReturnType<typeof measureDrop>>[] = [];
     for (const column of [1, 2, 3, 5, 6, 7]) {
@@ -42,6 +44,7 @@ export function defineReview(width: number, theme: string) {
       '1'
     );
     const longTasks = await finishTiming(page);
+    await cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 });
     await captureBoard(page, info, 'touch-drop');
     await info.attach('performance', {
       body: JSON.stringify(
@@ -52,7 +55,7 @@ export function defineReview(width: number, theme: string) {
           metric:
             'activation click capture to next requestAnimationFrame with updated board (ms)',
           limitation:
-            'Synthetic CPU throttle; no physical-device or compositor presentation claim.',
+            'Synthetic CPU throttle during the seven measured drops only; no physical-device or compositor presentation claim.',
         },
         null,
         2
