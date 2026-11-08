@@ -212,7 +212,7 @@
    grows with the window's height, leaving room for the chrome above the board
    and the viewer's own score row below it. */
 .board[data-measure="compact"][data-enlarged="false"] {
-  max-width: clamp(23rem, calc(100dvh - 28.5rem), 32rem);
+  max-width: clamp(23rem, calc(100dvh - 29rem), 32rem);
   margin-inline: auto;
 }
 

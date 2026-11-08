@@ -165,26 +165,35 @@ test('storybook integration: word-tiles an accepted word appears in the move rec
 });
 
 // regression: word-tiles-preview-moves-board
-test('storybook integration: word-tiles placing the first tile does not move the board', async ({
+test('storybook integration: word-tiles placing tiles does not move the board', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await openStory(page, 'two-player-match', 'light');
   const region = page.getByRole('region', { name: 'Scrollable word board' });
   const before = await region.boundingBox();
-  await page
-    .getByTestId('custom-game-board-rack')
-    .getByRole('button')
-    .first()
-    .click();
+  const rack = page.getByTestId('custom-game-board-rack');
+  // C then A: CA is not in the word list, but its score breakdown appears.
+  await rack.getByRole('button').nth(0).click();
+  await page.getByTestId('custom-game-board-cell-g8').click();
+  await rack.getByRole('button').nth(1).click();
   await page.getByTestId('custom-game-board-cell-h8').click();
-  await expect(page.getByTestId('custom-game-board-cell-h8')).toHaveAttribute(
-    'data-state',
-    'tentative'
-  );
-  await expect(page.getByTestId('custom-game-board-breakdown')).not.toHaveText(
-    /^\s*$/
+  await expect(page.getByTestId('custom-game-board-breakdown')).toContainText(
+    'CA'
   );
   const after = await region.boundingBox();
   expect(after?.y).toBe(before?.y);
+});
+
+// regression: word-tiles-390-edge-inset
+test('storybook integration: word-tiles keeps a 16px edge at 390 and 4px only at 320', async ({
+  page,
+}) => {
+  const rackLeft = async (width: number, height: number) => {
+    await page.setViewportSize({ width, height });
+    await openStory(page, 'two-player-match', 'light');
+    return (await page.getByTestId('custom-game-board-rack').boundingBox())?.x;
+  };
+  expect(await rackLeft(390, 844)).toBe(16);
+  expect(await rackLeft(320, 740)).toBe(4);
 });
