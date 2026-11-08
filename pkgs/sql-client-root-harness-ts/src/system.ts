@@ -198,6 +198,10 @@ export const inSync = defineProperty({
     if (owners > 1) {
       throw new Error(`sql-client.web.multi-owner: ${owners}`);
     }
+    // A full store is readable: erasing it would lose its rows.
+    if (boardOf(s).readableWipes > 0) {
+      throw new Error('sql-client.web.erased-readable-store');
+    }
     // No live owner ⇒ nothing to compare; wipes clear `expected` on reopen.
     if (owners === 0) return;
     const rows = await ownerRows(s);

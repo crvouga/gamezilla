@@ -6973,10 +6973,8 @@
         "@sqlite.org/sqlite-wasm": "catalog:",
       },
       "devDependencies": {
-        "@pkgs/property-shared-ts": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
-        "fast-check": "catalog:",
         "typescript": "catalog:",
       },
     },

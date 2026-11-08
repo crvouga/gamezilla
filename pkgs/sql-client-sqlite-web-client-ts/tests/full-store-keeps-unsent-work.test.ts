@@ -1,19 +1,9 @@
 import { expect, test } from 'bun:test';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { createNoopLogger } from '@pkgs/logger-shared-ts/logger';
-import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-root-shared-ts/impl-mockingbird-sqlite';
 import { createOwnerRuntime } from '@pkgs/sql-client-sqlite-web-client-ts/owner-runtime';
 import sql from '@pkgs/sql-root-shared-ts/sql';
-import fc from 'fast-check';
-
-/** What a store full of junk (or a device out of quota) reports on open. */
-const FULL_STORE_ERRORS = [
-  'SQLITE_FULL: database or disk is full',
-  'SAH pool is full',
-  'cannot create file',
-  'Error: sqlite3_open_v2 (cannot create file)',
-] as const;
 
 /**
  * One device's database file holding a write that has not uploaded yet. The
@@ -93,27 +83,4 @@ test('a full store at open keeps the unsent write instead of erasing the databas
   } finally {
     await device.dispose();
   }
-});
-
-test('however often and however the store reports being full, nothing unsent is erased', async () => {
-  await assertProperty(
-    'full store never erases unsent work',
-    fc.asyncProperty(
-      fc.integer({ min: 1, max: 4 }),
-      fc.constantFrom(...FULL_STORE_ERRORS),
-      async (fullOpens, message) => {
-        const device = await deviceWithUnsentWrite(fullOpens, message);
-        try {
-          const failures = await openUntilRoom(device.runtime, fullOpens + 1);
-          // Every full open fails to the host (which runs on a disposable
-          // database meanwhile); none of them erases the file.
-          expect(failures).toHaveLength(fullOpens);
-          expect(device.wipes()).toBe(0);
-          expect(await device.unsent()).toEqual(['note-1']);
-        } finally {
-          await device.dispose();
-        }
-      }
-    )
-  );
 });
