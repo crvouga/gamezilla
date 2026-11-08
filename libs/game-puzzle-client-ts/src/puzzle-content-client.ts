@@ -44,6 +44,11 @@ export type PuzzleContentClient = {
   readonly authoring?: {
     readonly initialDefinition: () => string;
     readonly Editor: Component<PuzzleEditorProps>;
+    /**
+     * Whether the editor can read a saved draft at all. A draft it cannot
+     * read cannot be playtested; without this, every draft may try.
+     */
+    readonly readable?: ((definition: string) => boolean) | undefined;
   };
   readonly Preview?: Component<PuzzlePreviewProps>;
 };

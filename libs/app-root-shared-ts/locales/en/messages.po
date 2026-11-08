@@ -8207,6 +8207,10 @@ msgstr "This puzzle cannot be opened. Choose a saved puzzle from your library."
 msgid "This puzzle cannot be opened. Return to its overview and choose a saved edition."
 msgstr "This puzzle cannot be opened. Return to its overview and choose a saved edition."
 
+#: libs/game-puzzle-client-ts/src/content-attempt-screen-view.tsx
+msgid "This puzzle cannot be opened. Your attempt stays saved. Return to the library to choose another puzzle."
+msgstr "This puzzle cannot be opened. Your attempt stays saved. Return to the library to choose another puzzle."
+
 #: libs/word-tiles-client-ts/src/word-tiles-puzzle-player.tsx
 msgid "This puzzle cannot be shown."
 msgstr "This puzzle cannot be shown."
