@@ -5,8 +5,12 @@ import { decodeBaselineLog, encodeBaselineLog } from './storybook-baseline-log';
 export const STORYBOOK_RESULTS =
   'pkgs/ui-root-harness-ts/.cache/storybook-test-results/';
 export const EVIDENCE_MANIFEST = `${STORYBOOK_RESULTS}relay-manifest.json`;
+/** The retained reference patch an authoring run writes beside its results. */
+export const STORYBOOK_BASELINE_PATCH =
+  '.cache/verify-nightly/storybook-baselines.patch';
 
 export function assertEvidencePath(path: string): void {
+  if (path === STORYBOOK_BASELINE_PATCH) return;
   if (
     !path.startsWith(STORYBOOK_RESULTS) ||
     path.includes('\\') ||
