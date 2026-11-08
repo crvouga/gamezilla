@@ -7,6 +7,15 @@ import { retainEvidence } from './retained-evidence';
 /** Record native input and long tasks; values describe this browser run only. */
 export async function observeInput(page: Page): Promise<void> {
   await page.addInitScript(() => {
+    // Storybook tooling, not the product, inflates timings: the highlight
+    // addon rescans every element's computed style on each DOM mutation, and
+    // the preview forwards window keydown to the manager. Neither ships.
+    Object.assign(globalThis, { __STORYBOOK_HIGHLIGHT_INITIALIZED: true });
+    Object.defineProperty(window, 'onkeydown', {
+      configurable: true,
+      get: () => null,
+      set: () => undefined,
+    });
     const samples: {
       kind: string;
       duration: number;
@@ -115,7 +124,7 @@ export async function recordEvidence(
       {
         samples,
         limits:
-          'Input-to-next-animation-frame proxy, not display presentation latency. Named task timings include Playwright auto-wait/scroll, asserted DOM state and two animation frames; not pure input latency. Desktop Chromium emulation; shared hosted CPU, not physical Android. Attribute timestamped long tasks to phase intervals; loading includes Storybook play. Audit and capture work are separate phases.',
+          'Input-to-next-animation-frame proxy, not display presentation latency. Named task timings include Playwright auto-wait/scroll, asserted DOM state and two animation frames; not pure input latency. Desktop Chromium emulation; shared hosted CPU, not physical Android. Storybook highlight addon disabled and the preview window.onkeydown manager forwarding neutralised before navigation; other Storybook preview listeners remain. Attribute timestamped long tasks to phase intervals; loading includes Storybook play. Audit and capture work are separate phases.',
       },
       null,
       2
