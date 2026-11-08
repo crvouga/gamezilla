@@ -8,6 +8,7 @@ test.use({ video: 'on', trace: 'on', hasTouch: true });
 const journeys = {
   classic: [
     'opening',
+    'keyboard-wall-cancellation',
     'place-a-wall',
     'keep-a-path-open',
     'pawn-identity-and-keyboard',
@@ -18,6 +19,7 @@ const journeys = {
   ],
   hill: [
     'opening',
+    'keyboard-wall-cancellation',
     'four-player-round',
     'recover-wall-placement',
     'precise-coordinates',
