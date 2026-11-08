@@ -359,3 +359,14 @@ test('changing from a close maximum board to a small board restores every square
   );
   expect(view.queryByRole('button', { name: 'Show whole board' })).toBeNull();
 });
+
+// regression: sokoban-counts-split-on-narrow-phone
+test('on a narrow phone each count keeps its label beside its number', () => {
+  const { view } = player();
+  const counts = view.getByTestId('sokoban-counts');
+  expect(counts.textContent).toBe('Moves 0 · Pushes 0');
+  const unbroken = [...counts.querySelectorAll('.whitespace-nowrap')].map(
+    (part) => part.textContent
+  );
+  expect(unbroken).toEqual(['Moves 0', 'Pushes 0']);
+});

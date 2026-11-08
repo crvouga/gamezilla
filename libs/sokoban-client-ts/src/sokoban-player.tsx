@@ -17,7 +17,7 @@ import { Button } from '@pkgs/ui-root-client-ts/button';
 import { DirectionPad } from '@pkgs/ui-root-client-ts/direction-pad';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { P } from '@pkgs/ui-root-client-ts/text';
+import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { TileBoard } from '@pkgs/ui-root-client-ts/tile-board';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { createMemo, createUniqueId, type JSX, Show } from 'solid-js';
@@ -81,7 +81,15 @@ function Steering(props: {
               pushes: String(props.position.pushes),
             }}
           >
-            {t`Moves ${props.position.moves} · Pushes ${props.position.pushes}`}
+            {/* Each count stays with its label; a narrow phone wraps only
+                between the two counts. */}
+            <Text variant="inherit" wrap="nowrap" numeral>
+              {t`Moves ${props.position.moves}`}
+            </Text>
+            {' · '}
+            <Text variant="inherit" wrap="nowrap" numeral>
+              {t`Pushes ${props.position.pushes}`}
+            </Text>
           </P>
           <P id={help} variant="caption" tone="secondary">
             <Show

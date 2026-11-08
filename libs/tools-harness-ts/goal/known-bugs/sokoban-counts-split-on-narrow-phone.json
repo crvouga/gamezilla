@@ -1,0 +1,4 @@
+{
+  "summary": "At 320 pixels wide the Sokoban move and push counter wrapped inside a pair, leaving a count's number on a different line from its label (\"Moves 0 · Pushes\" / \"0\"). Each count now stays on one line with its label, and the pair wraps only between the two counts.",
+  "regressionTest": "libs/sokoban-harness-ts/tests/sokoban-input.contract.test.tsx"
+}
