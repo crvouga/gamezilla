@@ -20,6 +20,7 @@ import {
   WEST_LEADS_SECOND_TABLE,
   WEST_VOID_TABLE,
 } from '@libs/hearts-harness-ts/hearts-tables';
+import { heartsTrickWinnerShown } from '@libs/hearts-harness-ts/hearts-view';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import {
   deciding,
@@ -266,8 +267,9 @@ Then(
       (v) => Object.values(trick(v)).length === 4
     );
     expect(trick(view)[side]).toBe(card);
-    const name = view.seats[side]?.name ?? '';
-    expect(view.center).toContain(name.replace(' (you)', ''));
+    expect(await w.s.read(heartsTrickWinnerShown, host(w), side, card)).toBe(
+      true
+    );
   }
 );
 Then(

@@ -20,6 +20,7 @@ import type { JSX } from 'solid-js';
 import { createMemo, Show, untrack } from 'solid-js';
 import { FriendProfileAvatar } from './friend-profile-avatar';
 import { profileFromFriendRequestNotification } from './friend-request-notification-profile';
+import { useFriendRequestDecision } from './use-friend-request-decision';
 
 function findAction(
   interaction: Notification,
@@ -59,6 +60,7 @@ function AcceptButton(props: {
   interaction: Notification;
   actions: NotificationCardActions;
   onDone: () => void;
+  decision: ReturnType<typeof useFriendRequestDecision>;
 }): JSX.Element {
   const { t } = useLingui();
   const accept = createMemo(() => findAction(props.interaction, 'accept'));
@@ -70,10 +72,14 @@ function AcceptButton(props: {
   };
   const onPhaseChange = useDecisionSounds(successSound);
   const username = createMemo(() => usernameFrom(props.interaction));
+  const onAnswer = async (): Promise<void> => {
+    await props.actions.performAction(props.interaction.id, 'accept');
+    props.onDone();
+  };
   const mutation = useMutationButton({
-    operation: async () => {
-      await props.actions.performAction(props.interaction.id, 'accept');
-      props.onDone();
+    operation: () => props.decision.run(onAnswer),
+    get disabled() {
+      return props.decision.pending();
     },
     labels: {
       idle: accept()?.label ?? t`Accept`,
@@ -105,15 +111,20 @@ function DeclineButton(props: {
   interaction: Notification;
   actions: NotificationCardActions;
   onDone: () => void;
+  decision: ReturnType<typeof useFriendRequestDecision>;
 }): JSX.Element {
   const { t } = useLingui();
   const decline = createMemo(() => findAction(props.interaction, 'decline'));
   const username = createMemo(() => usernameFrom(props.interaction));
   const onPhaseChange = useDecisionSounds(() => undefined);
+  const onAnswer = async (): Promise<void> => {
+    await props.actions.performAction(props.interaction.id, 'decline');
+    props.onDone();
+  };
   const mutation = useMutationButton({
-    operation: async () => {
-      await props.actions.performAction(props.interaction.id, 'decline');
-      props.onDone();
+    operation: () => props.decision.run(onAnswer),
+    get disabled() {
+      return props.decision.pending();
     },
     labels: {
       idle: decline()?.label ?? t`Decline`,
@@ -151,6 +162,7 @@ export type FriendRequestDecisionModalProps = {
 export function FriendRequestDecisionModal(
   props: FriendRequestDecisionModalProps
 ): JSX.Element {
+  const decision = useFriendRequestDecision();
   const router = useRouter();
   const confirmNavigation = useConfirmNavigation();
   const moderation = useModeration();
@@ -161,9 +173,11 @@ export function FriendRequestDecisionModal(
     () => displayNotification(moderation(), props.interaction).title
   );
 
-  const onViewProfile = () =>
+  const onViewProfile = () => {
+    if (decision.pending()) return;
     confirmNavigation(() =>
       untrack(() => {
+        if (decision.pending()) return;
         props.onClose();
         if (props.interaction.deepLink === undefined) return;
         router.push({
@@ -179,11 +193,15 @@ export function FriendRequestDecisionModal(
         });
       })
     );
+  };
 
   return (
     <ResponsiveSurface
       visible={props.visible}
-      onClose={props.onClose}
+      onClose={() => {
+        if (!decision.pending()) props.onClose();
+      }}
+      closable={!decision.pending()}
       title={<Trans>Friend request</Trans>}
       presentation="modal"
       size="medium"
@@ -203,17 +221,20 @@ export function FriendRequestDecisionModal(
           interaction={props.interaction}
           actions={props.actions}
           onDone={props.onClose}
+          decision={decision}
         />
         <DeclineButton
           interaction={props.interaction}
           actions={props.actions}
           onDone={props.onClose}
+          decision={decision}
         />
         <Button
           title={<Trans>View profile</Trans>}
           intent="neutral"
           variant="ghost"
           size="md"
+          disabled={decision.pending()}
           onClick={onViewProfile}
           {...(profile().username.length > 0
             ? {

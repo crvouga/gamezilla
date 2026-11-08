@@ -21,6 +21,11 @@ export const wordTilesAutomation: TurnGame['turnAutomation'] = {
       await control.wait('enabled');
       await control.tap();
     };
+    if (proposal.kind === 'pass' || proposal.kind === 'exchange') {
+      const more = ui.get(`${board}-more`);
+      await more.wait('enabled');
+      if ((await more.attribute('aria-expanded')) !== 'true') await more.tap();
+    }
     if (proposal.kind === 'pass') return tap('pass');
     if (proposal.kind === 'exchange') {
       await tap('exchange');

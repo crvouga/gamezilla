@@ -1,0 +1,4 @@
+{
+  "summary": "Word Tiles automation waits for pass or exchange while the tools disclosure is collapsed (games partition 115, seed 1).",
+  "regressionTest": "libs/word-tiles-client-ts/tests/automation.test.tsx"
+}

@@ -1,4 +1,0 @@
-{
-  "summary": "Verify PR run 42457760955 judged CodeQL neutral while its registered JavaScript analysis was still in progress. Await existing registered check completion before applying the unchanged mandatory success policy; never rerun tests or accept terminal neutral outcomes.",
-  "regressionTest": "libs/tools-harness-ts/scripts/required-pr-checks-completion.test.ts"
-}

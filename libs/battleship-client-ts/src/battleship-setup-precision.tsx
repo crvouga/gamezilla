@@ -51,6 +51,34 @@ function regionOptions() {
   ];
 }
 
+function ShipPicker(props: {
+  setup: SetupController;
+  testId: string;
+  locked: boolean;
+}): JSX.Element {
+  const options = () => shipOptions(props.setup, props.testId);
+  const placeholder = () => t`Choose a ship to reposition`;
+  const pickerName = () => {
+    const visibleLabel =
+      options().find((option) => option.value === props.setup.selected())
+        ?.label ?? placeholder();
+    return `${t`Ship to place`}: ${visibleLabel}`;
+  };
+  return (
+    <Select
+      aria-label={pickerName()}
+      placeholder={placeholder()}
+      value={props.setup.selected() ?? ''}
+      onValueChange={(value) => {
+        if (isShipId(value)) props.setup.choose(value);
+      }}
+      disabled={props.locked}
+      triggerDataSet={{ testid: `${props.testId}-ship-picker` }}
+      options={options()}
+    />
+  );
+}
+
 /** A magnified bow picker; placement still validates against the full fleet. */
 export function SetupPrecision(props: {
   setup: SetupController;
@@ -106,19 +134,11 @@ export function SetupPrecision(props: {
           feedback={props.feedback}
           commands={props.commands}
           controls={
-            <>
-              <Select
-                aria-label={t`Ship to place`}
-                placeholder={t`Choose a ship to reposition`}
-                value={props.setup.selected() ?? ''}
-                onValueChange={(value) => {
-                  if (isShipId(value)) props.setup.choose(value);
-                }}
-                disabled={props.locked}
-                triggerDataSet={{ testid: `${props.testId}-ship-picker` }}
-                options={shipOptions(props.setup, props.testId)}
-              />
-            </>
+            <ShipPicker
+              setup={props.setup}
+              testId={props.testId}
+              locked={props.locked}
+            />
           }
           region={
             <P variant="label">{t`Place in ${regionOptions().find((option) => option.value === area())?.label ?? ''}`}</P>

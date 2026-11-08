@@ -247,6 +247,62 @@ test('storybook integration: wide header and sidebar entries declare desktop eli
   ]) {
     const entry = index.entries[`screens-shell-tab-bar--${name}`];
     expect(entry).toBeDefined();
+    expect(entry?.tags).toContain('viewport-desktop');
+  }
+  for (const name of ['spaces-current', 'select-search', 'long-labels']) {
+    const entry = index.entries[`screens-shell-tab-bar--${name}`];
+    expect(entry).toBeDefined();
     expect(entry?.tags).not.toContain('viewport-desktop');
   }
+});
+
+// regression: storybook-builder-scrollport-observation
+test('storybook integration: pack 390 and Sokoban 1200 controls remain reachable inside the scrollport', async ({
+  page,
+}) => {
+  for (const [story, width, height] of [
+    ['screens-puzzles-content-author--pack-builder', 390, 791],
+    ['screens-games-sokoban-editor--two-crates', 1200, 884],
+  ] as const) {
+    await page.setViewportSize({ width, height });
+    await page.goto(
+      `/iframe.html?id=${story}&viewMode=story&globals=theme:dark`
+    );
+    await expect(page.locator('#storybook-root')).toHaveAttribute(
+      'data-story-ready',
+      'true'
+    );
+    await page.evaluate(() => document.fonts.ready);
+    expect(await page.evaluate(builderControlsUncovered)).toEqual([]);
+  }
+});
+
+// regression: storybook-header-responsive-observation
+test('storybook integration: compact tab counterpart selects Search at 390 and 768', async ({
+  page,
+}) => {
+  for (const width of [390, 768]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto(
+      '/iframe.html?id=screens-shell-tab-bar--select-search&viewMode=story'
+    );
+    await expect(page.locator('#storybook-root')).toHaveAttribute(
+      'data-story-ready',
+      'true'
+    );
+    await expect(page.locator('#storybook-root')).toHaveAttribute(
+      'data-story-status',
+      'success'
+    );
+    await expect(
+      page.getByRole('button', { name: 'Search', exact: true })
+    ).toBeVisible();
+  }
+});
+
+test.afterEach(async ({ page }, testInfo) => {
+  await page.screenshot({
+    path: testInfo.outputPath('actual.png'),
+    fullPage: true,
+  });
 });
