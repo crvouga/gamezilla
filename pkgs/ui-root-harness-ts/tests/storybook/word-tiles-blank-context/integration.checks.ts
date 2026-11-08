@@ -1,6 +1,7 @@
 // @io-wall-ok — native story coverage for the public blank-assignment context.
 import { expect, test } from '@playwright/test';
 import { auditAccessibility, recordEvidence } from '../word-tiles/evidence';
+import { retainEvidence } from '../word-tiles/retained-evidence';
 
 test.use({ video: 'on', trace: 'on', viewport: { width: 320, height: 740 } });
 test.afterEach(async ({ page }, info) => recordEvidence(page, info));
@@ -29,7 +30,7 @@ test('storybook integration: word-tiles blank context exposes its production sta
       page.locator('#storybook-root').getByRole('button')
     ).toHaveCount(0);
     await page.evaluate(() => document.fonts.ready);
-    await info.attach(`${story}-${theme}.png`, {
+    await retainEvidence(info, `${story}-${theme}.png`, {
       body: await page.screenshot({ fullPage: true }),
       contentType: 'image/png',
     });
