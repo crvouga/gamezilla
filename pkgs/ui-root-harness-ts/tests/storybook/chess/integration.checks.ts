@@ -26,8 +26,17 @@ test('storybook integration: chess tablet recovery keeps every square anchored',
 });
 
 /** Keyboard, mouse drag and touch moves, with the timing samples first. */
-async function inputJourney(page: Page, info: TestInfo, theme: string) {
-  await openChessStory(page, 'product-chessboard--initial', theme);
+async function inputJourney(
+  page: Page,
+  info: TestInfo,
+  theme: string,
+  motion: 'reduced' | 'system' = 'reduced'
+) {
+  await openChessStory(page, 'product-chessboard--initial', theme, motion);
+  if (motion === 'reduced')
+    await expect(
+      page.locator('[data-component="ThemeProvider"]').first()
+    ).toHaveAttribute('data-reduced-motion', 'true');
   await captureChessState(page, info, 'before-input');
   await measureChessInput(page, info);
   await captureChessState(page, info, 'selected-e2');
@@ -140,7 +149,11 @@ for (const theme of ['light', 'dark']) {
     test('storybook integration: chess input journey with motion', async ({
       page,
     }, info) => {
-      await inputJourney(page, info, theme);
+      await inputJourney(page, info, theme, 'system');
+      // The story must render with motion, not the preview's reduced default.
+      await expect(
+        page.locator('[data-component="ThemeProvider"]').first()
+      ).not.toHaveAttribute('data-reduced-motion', 'true');
     });
   });
 }

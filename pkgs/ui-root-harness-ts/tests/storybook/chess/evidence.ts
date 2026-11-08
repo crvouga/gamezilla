@@ -2,14 +2,20 @@
 import { expect, type Page, type TestInfo } from '@playwright/test';
 import axe from 'axe-core';
 
-export async function openChessStory(page: Page, id: string, theme: string) {
+/** `system` lets the browser's motion preference decide; default is reduced. */
+export async function openChessStory(
+  page: Page,
+  id: string,
+  theme: string,
+  motion: 'reduced' | 'system' = 'reduced'
+) {
   await page.route('**/*', (route) =>
     new URL(route.request().url()).hostname === '127.0.0.1'
       ? route.continue()
       : route.abort()
   );
   await page.goto(
-    `/iframe.html?id=${id}&viewMode=story&globals=theme:${theme}`
+    `/iframe.html?id=${id}&viewMode=story&globals=theme:${theme};motion:${motion}`
   );
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-story-ready',
