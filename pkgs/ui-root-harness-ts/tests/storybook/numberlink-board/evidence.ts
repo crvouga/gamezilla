@@ -16,8 +16,9 @@ export async function openStory(
       globalThis as { __STORYBOOK_HIGHLIGHT_INITIALIZED?: boolean }
     ).__STORYBOOK_HIGHLIGHT_INITIALIZED = true;
   });
+  // Real motion: the preview otherwise forces reduced motion everywhere.
   await page.goto(
-    `/iframe.html?id=${story}&viewMode=story&globals=theme:${theme}`
+    `/iframe.html?id=${story}&viewMode=story&globals=theme:${theme};motion:system`
   );
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-story-ready',
