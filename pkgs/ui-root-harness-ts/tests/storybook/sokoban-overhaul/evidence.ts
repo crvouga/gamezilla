@@ -8,6 +8,13 @@ export async function openSokoban(page: Page, story: string, theme: string) {
       ? route.continue()
       : route.abort()
   );
+  // Storybook's highlight addon re-scans every element on each DOM change;
+  // it is dev tooling, not the game, so it stays off for timing evidence.
+  await page.addInitScript(() => {
+    (
+      globalThis as { __STORYBOOK_HIGHLIGHT_INITIALIZED?: boolean }
+    ).__STORYBOOK_HIGHLIGHT_INITIALIZED = true;
+  });
   await page.goto(
     `/iframe.html?id=screens-games-sokoban-${story}&viewMode=story&globals=theme:${theme}`
   );
