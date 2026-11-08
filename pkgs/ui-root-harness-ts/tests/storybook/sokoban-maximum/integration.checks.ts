@@ -26,6 +26,7 @@ test('storybook integration: Sokoban maximum board input and frame evidence', as
   await accessibility(page, info);
 });
 
+// regression: sokoban-move-rebuilds-every-tile
 test('storybook integration: Sokoban dense maximum board input and frame evidence', async ({
   page,
 }, info) => {

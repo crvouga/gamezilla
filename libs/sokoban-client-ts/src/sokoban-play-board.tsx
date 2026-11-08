@@ -9,9 +9,11 @@ import { P } from '@pkgs/ui-root-client-ts/text';
 import {
   TileBoard,
   type TileBoardDirection,
+  type TileBoardTile,
 } from '@pkgs/ui-root-client-ts/tile-board';
 import { createMemo, createSignal, type JSX, Show } from 'solid-js';
 import {
+  keepUnchangedTiles,
   positionPieces,
   sokobanPieces,
   sokobanTiles,
@@ -91,7 +93,7 @@ function createView(props: Props, closer: () => boolean) {
     (Math.floor(index / frame().columns) + frame().top) * props.board.width +
     (index % frame().columns) +
     frame().left;
-  const tiles = createMemo(() => {
+  const tiles = createMemo<readonly TileBoardTile[]>((previous) => {
     const all = sokobanTiles(
       props.board,
       positionPieces(props.position),
@@ -99,7 +101,7 @@ function createView(props: Props, closer: () => boolean) {
     );
     const bounds = frame();
     const width = props.board.width;
-    return all.filter((_, index) => {
+    const shown = all.filter((_, index) => {
       const x = index % width;
       const y = Math.floor(index / width);
       return (
@@ -109,6 +111,7 @@ function createView(props: Props, closer: () => boolean) {
         y < bounds.top + bounds.rows
       );
     });
+    return keepUnchangedTiles(previous, shown);
   });
   const pieces = createMemo(() =>
     sokobanPieces(props.board, positionPieces(props.position)).map((piece) => ({

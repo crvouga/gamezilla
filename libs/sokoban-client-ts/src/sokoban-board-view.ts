@@ -53,11 +53,49 @@ export function sokobanTiles(
   pieces: Pieces,
   words: Words
 ): readonly TileBoardTile[] {
-  return board.squares.map((square, index) => ({
-    terrain: TERRAIN[square],
-    marked: square === 'goal',
-    label: squareLabel(board, pieces, index, words),
-  }));
+  // One pass: where each piece stands, and each word once, not per square.
+  const at = (cell: Cell): number => cell.y * board.width + cell.x;
+  const worker = pieces.worker === null ? -1 : at(pieces.worker);
+  const crates = new Set(pieces.crates.map(at));
+  const workerWord = `, ${words.worker()}`;
+  const crateWord = `, ${words.crate()}`;
+  const squareWords = new Map<SokobanSquare, string>();
+  const squareWord = (square: SokobanSquare): string => {
+    const known = squareWords.get(square);
+    if (known !== undefined) return known;
+    const word = words.square(square);
+    squareWords.set(square, word);
+    return word;
+  };
+  return board.squares.map((square, index) => {
+    const piece =
+      index === worker ? workerWord : crates.has(index) ? crateWord : '';
+    return {
+      terrain: TERRAIN[square],
+      marked: square === 'goal',
+      label: `${squareName(cellOf(board, index))}: ${squareWord(square)}${piece}`,
+    };
+  });
+}
+
+/**
+ * The tiles to show, keeping each unchanged tile's previous object so a move
+ * updates only the squares it changed, not every square on the board.
+ */
+export function keepUnchangedTiles(
+  previous: readonly TileBoardTile[] | undefined,
+  next: readonly TileBoardTile[]
+): readonly TileBoardTile[] {
+  if (previous === undefined) return next;
+  return next.map((tile, index) => {
+    const before = previous[index];
+    return before !== undefined &&
+      before.label === tile.label &&
+      before.terrain === tile.terrain &&
+      before.marked === tile.marked
+      ? before
+      : tile;
+  });
 }
 
 /** Crates keep their array position, so each glides as it is pushed. */
