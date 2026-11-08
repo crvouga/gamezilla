@@ -46,11 +46,15 @@ test('main requires verified PRs without approvals a solo maintainer cannot give
         readonly integration_id: number;
       }
   );
-  expect(checks).toHaveLength(2);
+  expect(checks).toHaveLength(5);
   expect(checks).toEqual(
     expect.arrayContaining([
       { context: 'verify:start', integration_id: 15368 },
       { context: 'verify:end', integration_id: 15368 },
+      // CodeQL default setup posts these on every pull request.
+      { context: 'CodeQL', integration_id: 57789 },
+      { context: 'Analyze (javascript-typescript)', integration_id: 15368 },
+      { context: 'Analyze (actions)', integration_id: 15368 },
     ])
   );
   expect(new Set(checks.map((check) => check.context)).size).toBe(
