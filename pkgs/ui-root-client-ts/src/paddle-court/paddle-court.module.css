@@ -117,34 +117,12 @@
 .paddle[data-controlled="true"] {
   stroke-width: 3;
 }
-/* The court under its scoreboard. Sized by the column's width and, on a
-   short window such as a phone in landscape, by the window's height too:
-   the screen's top bar, the scoreboard and the gaps around them come off
-   first, so the scoreboard and the whole court show together. */
+/* The court under its scoreboard. */
 .frame {
-  --paddle-court-score-block: calc(var(--ui-font-size-2xl) + var(--ui-space-2));
-  --paddle-court-fit-block: calc(
-    100dvh -
-    var(--ui-control-size-lg) -
-    var(--ui-space-sm) -
-    var(--paddle-court-score-block) -
-    var(--ui-space-4)
-  );
   display: flex;
   flex-direction: column;
   gap: var(--ui-space-2);
   width: 100%;
-  max-width: max(
-    280px,
-    calc(var(--paddle-court-fit-block) * (var(--paddle-court-aspect, 3 / 2)))
-  );
-  margin-inline: auto;
-}
-/* Focusing the court or a paddle's slider scrolls only as far as keeps the
-   scoreboard above it in view. */
-.court,
-.half * {
-  scroll-margin-block-start: var(--paddle-court-score-block);
 }
 /* Over the court, outside the play: each side's points at its own end. */
 .scoreboard {
