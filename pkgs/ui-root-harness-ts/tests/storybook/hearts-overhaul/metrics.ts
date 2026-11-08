@@ -1,6 +1,8 @@
 // @io-wall-ok — browser timing is measured by the automated evidence adapter.
+
 import { expect, type Page, type TestInfo } from '@playwright/test';
 import { attachHeartsText } from './attachments';
+import { HEARTS_TIMING_CONDITIONS } from './evidence';
 
 type Samples = {
   inputs: { event: string; milliseconds: number }[];
@@ -71,6 +73,7 @@ export async function saveHeartsMetrics(
         measurement:
           'Trusted input timestamp to second animation frame; a render-latency proxy, not INP',
         cpuThrottle: rate,
+        conditions: HEARTS_TIMING_CONDITIONS,
         viewport: page.viewportSize(),
         browser: page.context().browser()?.version(),
         sampleCount: sorted.length,

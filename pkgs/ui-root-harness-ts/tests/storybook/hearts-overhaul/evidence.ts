@@ -4,6 +4,15 @@ import axe from 'axe-core';
 import { attachHeartsText } from './attachments';
 import { diagnoseContrast } from './contrast-diagnostic';
 
+/** What every Hearts timing excludes and runs with, stated in each report. */
+export const HEARTS_TIMING_CONDITIONS = {
+  motion: 'system motion, normal (prefers-reduced-motion: no-preference)',
+  excluded: [
+    'Storybook highlight addon DOM rescans (__STORYBOOK_HIGHLIGHT_INITIALIZED)',
+    'Storybook preview key forwarding to the manager (window.onkeydown)',
+  ],
+} as const;
+
 /** Evidence runs with real motion: the story follows the browser, and the
  * browser asks for normal motion unless a check says otherwise. */
 export async function openHearts(
@@ -13,6 +22,18 @@ export async function openHearts(
   reducedMotion: 'no-preference' | 'reduce' = 'no-preference'
 ) {
   await page.emulateMedia({ reducedMotion });
+  // Storybook's own work is not the game's: the highlight addon rescans
+  // every element on each change, and the preview forwards each key press
+  // to the manager. Timings exclude both; Hearts' listeners are untouched.
+  await page.addInitScript(() => {
+    const preview = globalThis as unknown as Record<string, unknown>;
+    preview['__STORYBOOK_HIGHLIGHT_INITIALIZED'] = true;
+    Object.defineProperty(window, 'onkeydown', {
+      configurable: true,
+      get: () => null,
+      set: () => undefined,
+    });
+  });
   await page.route('**/*', (route) =>
     new URL(route.request().url()).hostname === '127.0.0.1'
       ? route.continue()

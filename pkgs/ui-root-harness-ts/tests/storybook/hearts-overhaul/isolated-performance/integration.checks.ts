@@ -1,7 +1,11 @@
 // @io-wall-ok — isolated browser measurement; canonical runner owns cleanup.
 import { expect, test } from '@playwright/test';
 import { attachHeartsText } from '../attachments';
-import { captureHearts, openHearts } from '../evidence';
+import {
+  captureHearts,
+  HEARTS_TIMING_CONDITIONS,
+  openHearts,
+} from '../evidence';
 import { readHeartsMetrics, startHeartsMetrics } from '../metrics';
 import { exerciseHeartsTrick } from './inputs';
 
@@ -47,6 +51,7 @@ for (const width of [320, 390, 768, 1440]) {
               viewport: page.viewportSize(),
               theme,
               cpuThrottle: rate,
+              conditions: HEARTS_TIMING_CONDITIONS,
               browser: page.context().browser()?.version(),
               recording: {
                 trace: false,
