@@ -221,7 +221,11 @@ export function PaddleCourt(props: PaddleCourtProps): JSX.Element {
   const input = paddleCourtInput(props);
   useCourtInputLifecycle(props, input.release);
   return (
-    <div class={styles['frame']}>
+    <div
+      class={styles['frame']}
+      // The court's own shape, so the frame can fit a short window's height.
+      style={{ '--paddle-court-aspect': `${props.width} / ${props.height}` }}
+    >
       <Scoreboard {...props} />
       <div class={styles['stage']}>
         <div
