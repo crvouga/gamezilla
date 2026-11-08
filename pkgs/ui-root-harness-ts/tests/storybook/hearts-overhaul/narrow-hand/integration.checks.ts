@@ -43,3 +43,21 @@ test('storybook integration: Hearts 320px thirteen-card hand keeps full touch ta
     'true'
   );
 });
+
+// regression: hearts-320-short-viewport-three-row-overflow
+test('storybook integration: Hearts 320x568 initial hand and pass fit before scrolling', async ({
+  page,
+}, info) => {
+  await openHearts(page, 'screens-games-hearts-board--passing', 'dark');
+  const targets = page.locator(
+    '[data-testid="custom-game-board-hand"] button, [data-testid="custom-game-board-pass"]'
+  );
+  await expect(targets).toHaveCount(14);
+  for (const target of await targets.all()) {
+    const bounds = await target.boundingBox();
+    if (!bounds) throw new Error('Initial target has no bounds');
+    expect(bounds.y).toBeGreaterThanOrEqual(0);
+    expect(bounds.y + bounds.height).toBeLessThanOrEqual(568);
+  }
+  await captureHearts(page, info, 'short-phone-full-deal');
+});
