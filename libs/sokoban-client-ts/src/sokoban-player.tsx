@@ -56,8 +56,10 @@ function Steering(props: {
     if (complete()) return { kind: 'solved' };
     return null;
   };
+  // As wide as its column: the board centres in it and the pad meets its
+  // edge, so a tablet shows no empty strip beside a board at its largest.
   return (
-    <StackVertical gap="md">
+    <StackVertical gap="md" width="full">
       <SokobanPlayBoard
         board={props.board}
         position={props.position}
