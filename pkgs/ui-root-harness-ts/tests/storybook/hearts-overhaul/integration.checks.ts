@@ -3,6 +3,11 @@ import { expect, test } from '@playwright/test';
 import { auditHearts, captureHearts, openHearts } from './evidence';
 import { saveHeartsMetrics, startHeartsMetrics } from './metrics';
 
+test.use({
+  video: { mode: 'on', size: { width: 1440, height: 1024 } },
+  trace: 'on',
+});
+
 const viewports = [
   { width: 320, height: 568 },
   { width: 390, height: 844 },
@@ -14,8 +19,6 @@ for (const viewport of viewports) {
     test.describe(`Hearts ${viewport.width} ${theme}`, () => {
       test.use({
         viewport,
-        video: { mode: 'on', size: viewport },
-        trace: 'on',
       });
       test('storybook integration: Hearts select revise and pass', async ({
         page,
@@ -60,7 +63,6 @@ for (const viewport of viewports) {
 
 for (const theme of ['light', 'dark']) {
   test.describe(`Hearts states ${theme}`, () => {
-    test.use({ video: 'on', trace: 'on' });
     for (const story of [
       'your-turn-to-play',
       'waiting-for-turn',
