@@ -24,6 +24,17 @@ export async function openBoard(
       ? route.continue()
       : route.abort()
   );
+  if (!isolatedPages.has(page)) {
+    isolatedPages.add(page);
+    // Storybook's highlight addon rescans every element's computed style on
+    // each DOM mutation in the story root; that is harness cost, not board
+    // cost, so keep it out of input-to-frame timing.
+    await page.addInitScript(() => {
+      (
+        globalThis as { __STORYBOOK_HIGHLIGHT_INITIALIZED?: boolean }
+      ).__STORYBOOK_HIGHLIGHT_INITIALIZED = true;
+    });
+  }
   await page.goto(
     `/iframe.html?id=screens-games-connect-four-board--${story}&viewMode=story&globals=theme:${theme};motion:${motion}`
   );
@@ -32,8 +43,16 @@ export async function openBoard(
     'true'
   );
   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  // The preview forwards every keydown to the manager; the board's own
+  // listeners are on its elements, so drop that forwarding from timings.
+  await page.evaluate(() => {
+    window.onkeydown = null;
+  });
   await page.evaluate(() => document.fonts.ready);
 }
+
+/** Pages already set up to exclude Storybook harness overhead. */
+const isolatedPages = new WeakSet<Page>();
 
 /** Input-to-next-frame opportunity, not a physical display latency claim. */
 export async function measureDrop(
