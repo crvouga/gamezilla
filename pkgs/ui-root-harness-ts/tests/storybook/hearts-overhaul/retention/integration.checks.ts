@@ -17,6 +17,8 @@ test('storybook integration: Hearts retains PNG and accessibility JSON as artifa
   const axe = JSON.parse(
     await readFile(info.outputPath('axe-results.json'), 'utf8')
   );
+  if (typeof axe !== 'object' || axe === null || !('violations' in axe))
+    throw new Error('Retained accessibility report has no violations list');
   expect(Array.isArray(axe.violations)).toBe(true);
   expect(
     await readFile(
