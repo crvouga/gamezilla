@@ -69,3 +69,19 @@ export async function reusableStripeCheckout(
   }
   return { url: reusable?.url ?? null, generation: sessions[0]?.id ?? 'first' };
 }
+
+/** Expires every open subscription checkout of `customer`. */
+export async function expireStripeCheckouts(
+  stripe: Stripe,
+  customer: string
+): Promise<void> {
+  const open: string[] = [];
+  for await (const session of stripe.checkout.sessions.list({
+    customer,
+    status: 'open',
+    limit: 100,
+  })) {
+    if (session.mode === 'subscription') open.push(session.id);
+  }
+  for (const id of open) await stripe.checkout.sessions.expire(id);
+}

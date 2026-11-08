@@ -67,6 +67,7 @@ test('a callback read before a newer one committed never overwrites it', async (
         offerPriceKey: null,
         membership: current,
       }),
+      closeCheckouts: async () => null,
       readPayments: async () => [],
     };
     let app: ReturnType<BillingApp['build']>;

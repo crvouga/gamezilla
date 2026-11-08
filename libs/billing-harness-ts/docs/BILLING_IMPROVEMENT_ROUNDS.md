@@ -142,10 +142,38 @@ pass. Two full runs under a load average of 60 to 120 timed out on unrelated
 scenarios; each of those passed when run alone and the full run passed at
 normal load.
 
+## Round 7: switching payment provider never lets a person pay twice
+
+Before: a checkout looked only at the provider new checkouts go to. After the
+team switched provider, a checkout page still open at the first provider could
+take a payment, and a payment the first provider took but had not confirmed
+was invisible, so the person was sent to pay again at the second.
+
+After: the provider-neutral interface gained `closeCheckouts(customerId)`.
+Before a checkout opens, every other configured provider where the account is
+a customer closes its open checkouts and reports a live membership; one found
+is recorded at once and no checkout opens (`membership_pending`). A provider
+that cannot answer opens no checkout anywhere. Stripe expires open sessions;
+Paddle cancels ready transactions; both report the live subscription.
+
+Harness defect found and fixed on the way: "tries to subscribe again" stopped
+without pressing whenever the billing portal button showed. That button shows
+for anyone with a provider customer, so `subscribe.feature`'s
+"Subscribing again before the payment is confirmed takes no second payment"
+had been passing without pressing subscribe. It now stops only once the
+screen shows paid access, so that scenario exercises the refusal for real.
+
+Evidence: a new scenario in `payment-provider-switch.feature` failed on the
+previous route (Alice stayed free and was sent to a second checkout) and
+passes now. Three route tests (old checkouts closed first; an unconfirmed
+payment found and recorded; an unreachable old provider opens nothing) failed
+first and pass. New contract tests hold Stripe, Paddle and the reference
+provider to the closing behavior. All 114 billing scenarios and model traces,
+35 billing server tests, 60 Paddle, 57 Stripe and 56 shared contract tests and
+every type check pass.
+
 ## Acceptance still required
 
-- Provider-neutral concurrency and uncertain-outcome reconciliation, including
-  Paddle and switching providers with an unfinished checkout.
 - A deployed payment journey whose result actually measures the payment SLO,
   with observed production history.
 - Complete funnel evidence and independent re-audit of the final revision.

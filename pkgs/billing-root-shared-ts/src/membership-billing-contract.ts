@@ -195,6 +195,51 @@ function describeOneCheckout(
     });
   });
 
+  test('closing checkouts leaves none open: the next checkout is a new one', async () => {
+    const { billing } = await open();
+    const first = opened(
+      await billing.startCheckout(checkoutInput('acct-1', null))
+    );
+    expect(await billing.closeCheckouts(first.customerId)).toBeNull();
+    const again = opened(
+      await billing.startCheckout(checkoutInput('acct-1', first.customerId))
+    );
+    assertAbsoluteUrl(again.url);
+    expect(again.url).not.toBe(first.url);
+  });
+
+  test('closing checkouts reports a live membership the app may not know', async () => {
+    const harness = await open();
+    const first = await harness.billing.startCheckout(
+      checkoutInput('acct-1', null)
+    );
+    harness.setSubscription({
+      ...SUBSCRIPTION,
+      id: 'sub_paid_elsewhere',
+      customerId: first.customerId,
+      situation: 'active',
+    });
+    expect(
+      await harness.billing.closeCheckouts(first.customerId)
+    ).toMatchObject({
+      provider: harness.billing.provider,
+      customerId: first.customerId,
+      subscriptionId: 'sub_paid_elsewhere',
+      membership: CONTRACT_EXPECTED.active,
+    });
+  });
+
+  test('closing checkouts at an unreachable provider throws', async () => {
+    const harness = await open();
+    const first = await harness.billing.startCheckout(
+      checkoutInput('acct-1', null)
+    );
+    harness.setUnavailable(true);
+    await expect(
+      harness.billing.closeCheckouts(first.customerId)
+    ).rejects.toThrow();
+  });
+
   test('an ended membership does not stop a new checkout', async () => {
     const harness = await open();
     const first = await harness.billing.startCheckout(

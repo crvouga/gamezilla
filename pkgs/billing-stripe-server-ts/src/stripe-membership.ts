@@ -15,6 +15,10 @@ import {
   STRIPE_PORTAL_CONFIGURATION_METADATA_KEY,
 } from '@pkgs/billing-stripe-shared-ts/offer-reconcile';
 import Stripe from 'stripe';
+import {
+  expireStripeCheckouts,
+  liveStripeSubscription,
+} from './stripe-checkout-reuse';
 import { startStripeCheckout } from './stripe-start-checkout';
 import type { UnknownRecord } from './stripe-subscription-fields';
 import {
@@ -123,6 +127,12 @@ export class StripeMembershipBilling implements MembershipBilling {
       nowMs: this.now(),
       changeOf: (subscription) => this.changeOf(subscription, false),
     });
+  }
+
+  async closeCheckouts(customerId: string): Promise<MembershipChange | null> {
+    await expireStripeCheckouts(this.stripe, customerId);
+    const live = await liveStripeSubscription(this.stripe, customerId);
+    return live === null ? null : await this.changeOf(live, false);
   }
 
   async openPortal(input: OpenPortalInput): Promise<{ readonly url: string }> {

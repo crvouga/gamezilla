@@ -292,18 +292,17 @@ export class PaddleMembershipBilling implements MembershipBilling {
   private async openCheckout(
     customerId: string
   ): Promise<PaddleTransaction | null> {
-    const query = new URLSearchParams({
-      customer_id: customerId,
-      status: 'ready',
-      per_page: '200',
-    });
-    const ready = [
-      ...(await this.api.list<PaddleTransaction>(
-        `/transactions?${query.toString()}`
-      )),
-    ].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+    const ready = await this.readyCheckouts(customerId);
     const [kept, ...extra] = ready;
-    for (const transaction of extra) {
+    await this.cancelCheckouts(extra);
+    return kept ?? null;
+  }
+
+  /** Cancels ready transactions; one already canceled or settled is done. */
+  private async cancelCheckouts(
+    transactions: readonly PaddleTransaction[]
+  ): Promise<void> {
+    for (const transaction of transactions) {
       try {
         await this.api.data<PaddleTransaction>(
           'PATCH',
@@ -320,7 +319,27 @@ export class PaddleMembershipBilling implements MembershipBilling {
           throw error;
       }
     }
-    return kept ?? null;
+  }
+
+  private async readyCheckouts(
+    customerId: string
+  ): Promise<PaddleTransaction[]> {
+    const query = new URLSearchParams({
+      customer_id: customerId,
+      status: 'ready',
+      per_page: '200',
+    });
+    return [
+      ...(await this.api.list<PaddleTransaction>(
+        `/transactions?${query.toString()}`
+      )),
+    ].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+  }
+
+  async closeCheckouts(customerId: string): Promise<MembershipChange | null> {
+    await this.cancelCheckouts(await this.readyCheckouts(customerId));
+    const live = await this.liveSubscription(customerId);
+    return live === null ? null : this.changeOf(live, false);
   }
 
   async startCheckout(input: StartCheckoutInput): Promise<StartCheckoutResult> {
