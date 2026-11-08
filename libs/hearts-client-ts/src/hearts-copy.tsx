@@ -80,10 +80,6 @@ export function passInstruction(direction: PassDirection): string {
   return instructions[direction];
 }
 
-export function passWaiting(): string {
-  return t`Your cards are chosen. Waiting for every player to pass.`;
-}
-
 /** What a person is told when Hearts' rules refuse their card or pass. */
 export function heartsRefusal(reason: string): string | undefined {
   const refusals: Readonly<Record<string, string>> = {

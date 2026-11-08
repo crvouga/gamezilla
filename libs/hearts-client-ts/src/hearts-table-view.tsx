@@ -37,7 +37,6 @@ import {
   heartsRefusal,
   heartsSeatName,
   passInstruction,
-  passWaiting,
   rankText,
   SUIT_NAMES,
   suitName,
@@ -82,7 +81,7 @@ function seatFacts(position: HeartsPosition, seat: Seat): string[] {
     plural(held, { one: '# card', other: '# cards' }),
     t`Score ${score}`,
   ];
-  if (position.phase === 'play') facts.push(t`Deal points ${taken}`);
+  if (position.phase === 'play') facts.push(t`Taken ${taken}`);
   return facts;
 }
 
@@ -196,7 +195,7 @@ export function tableCenter(
     const now =
       board.commitment === null
         ? `${passInstruction(passDirection(position.deal))} ${progress}`
-        : `${passWaiting()} ${progress}`;
+        : `${t`Your cards are chosen. Waiting for every player to pass.`} ${progress}`;
     return `${summary} ${now}`.trim();
   }
   const trick = shownTrick(position);

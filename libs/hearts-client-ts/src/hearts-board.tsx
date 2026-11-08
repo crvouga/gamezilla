@@ -17,7 +17,7 @@ import {
 } from '@pkgs/ui-root-client-ts/card-table';
 import { useGameTableSeat } from '@pkgs/ui-root-client-ts/game-table-seat';
 import { createEffect, createMemo, createSignal, type JSX, on } from 'solid-js';
-import { passAction, passHeading, passWaiting } from './hearts-copy';
+import { passAction, passHeading } from './hearts-copy';
 import {
   handCards,
   tableCard,
@@ -76,25 +76,12 @@ function passButton(
     label: sending
       ? t`Passing your cards…`
       : passAction(directionOf(props.position)),
-    status:
-      chosen.length === 3 && !sending
-        ? t`3 of 3 chosen. Unselect a card to choose another.`
-        : t`${chosen.length} of 3 chosen`,
+    status: t`${chosen.length} of 3 chosen`,
     enabled: chosen.length === 3,
     pending: sending,
     testId: `${props.testId}-pass`,
     onActivate,
   };
-}
-
-function handInstruction(
-  props: GameBoardProps,
-  passing: boolean
-): string | undefined {
-  if (passing) return props.commitment === null ? undefined : passWaiting();
-  return props.interactive && props.hand !== null
-    ? t`Your turn. Play a card without ×.`
-    : undefined;
 }
 
 /**
@@ -147,7 +134,6 @@ export function HeartsBoard(props: GameBoardProps): JSX.Element {
   return (
     <CardTable
       label={t`Hearts table`}
-      tableSummary={t`Players and scores`}
       testId={props.testId}
       seats={tableSeats(props, players?.content)}
       center={
@@ -170,7 +156,11 @@ export function HeartsBoard(props: GameBoardProps): JSX.Element {
         sending() ? { ...card, enabled: false } : card
       )}
       handLabel={t`Your hand`}
-      handInstruction={handInstruction(props, passing())}
+      handInstruction={
+        !passing() && props.interactive && props.hand !== null
+          ? t`Your turn. Play a card without ×.`
+          : undefined
+      }
       cardTestId={(id) => `${props.testId}-card-${id}`}
       onCard={choose}
       action={
