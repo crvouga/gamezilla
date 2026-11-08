@@ -14,7 +14,7 @@ import {
   type ContentAttemptStatus,
   type ContentAttemptSummary,
 } from './content-attempt-screen-view';
-import { useContentGame } from './content-game-context';
+import { type ContentGame, useContentGame } from './content-game-context';
 import { ContentKeptPositions } from './content-kept-positions';
 import { useContentLibraryState } from './content-library-context';
 import { useContentAttemptChange } from './use-content-attempt-change';
@@ -56,6 +56,11 @@ function packPlace(
 }
 
 /** One attempt on its board, wired to its saved positions and changes. */
+/** Whether the game can read the puzzle content at all. */
+function readable(game: ContentGame, source: ContentBody): boolean {
+  return game.content.rules.validateDefinition(source.definition).valid;
+}
+
 function AttemptBody(props: {
   attempt: ContentAttempt;
   source: ContentBody;
@@ -66,6 +71,8 @@ function AttemptBody(props: {
   // An edition plays only under the rules it was published with.
   const rulesChanged = () =>
     props.attempt.rules_version !== game.content.rulesVersion;
+  // A puzzle that cannot be read stays unreadable in a restarted attempt.
+  const unreadable = createMemo(() => !readable(game, props.source));
   const progress = createMemo(() => {
     const saved = data
       .play()
@@ -105,6 +112,7 @@ function AttemptBody(props: {
       complete={progress()?.complete ?? false}
       rulesChanged={rulesChanged()}
       unopenable={progress() === null}
+      unreadable={unreadable()}
       player={
         <Show when={progress()}>
           {(state) => (
@@ -125,6 +133,7 @@ function AttemptBody(props: {
           attempt={props.attempt}
           writer={writer}
           progress={rulesChanged() ? null : progress()}
+          unreadable={unreadable()}
         />
       }
       keptPositions={

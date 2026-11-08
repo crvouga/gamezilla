@@ -55,6 +55,8 @@ export type ContentAttemptScreenViewProps = {
   readonly rulesChanged: boolean;
   /** The saved position cannot be projected onto the board. */
   readonly unopenable: boolean;
+  /** The puzzle itself cannot be read, so restarting cannot help either. */
+  readonly unreadable?: boolean | undefined;
   /** The game's player on the attempt's position. */
   readonly player?: JSX.Element;
   /** Undo / redo, restart and next. */
@@ -265,11 +267,21 @@ function AttemptBody(props: ContentAttemptScreenViewProps): JSX.Element {
           when={!props.unopenable}
           fallback={
             <Notice tone="error">
-              <Trans>
-                This saved position cannot be opened. Choose another kept
-                continuation below, or restart. Your earlier attempt stays
-                saved.
-              </Trans>
+              <Show
+                when={props.unreadable === true}
+                fallback={
+                  <Trans>
+                    This saved position cannot be opened. Choose another kept
+                    continuation below, or restart. Your earlier attempt stays
+                    saved.
+                  </Trans>
+                }
+              >
+                <Trans>
+                  This puzzle cannot be opened. Your attempt stays saved. Return
+                  to the library to choose another puzzle.
+                </Trans>
+              </Show>
             </Notice>
           }
         >
