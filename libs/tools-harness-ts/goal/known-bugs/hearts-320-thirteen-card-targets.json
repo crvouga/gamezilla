@@ -1,0 +1,4 @@
+{
+  "summary": "A thirteen-card hand at 320px shrinks seven cards into less than the required 44px per touch target.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/hearts-overhaul/narrow-hand/integration.checks.ts"
+}
