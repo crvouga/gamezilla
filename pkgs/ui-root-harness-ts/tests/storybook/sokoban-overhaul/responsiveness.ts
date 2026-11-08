@@ -6,11 +6,19 @@ type Samples = {
   longTaskMs: number[];
 };
 
-export async function measureSokoban(page: Page, info: TestInfo, rate: number) {
+export async function measureSokoban(
+  page: Page,
+  info: TestInfo,
+  rate: number,
+  startingMoves = 2
+) {
   const cdp = await page.context().newCDPSession(page);
   await cdp.send('Emulation.setCPUThrottlingRate', { rate });
   try {
     await page.evaluate(() => {
+      // The preview forwards every keydown to Storybook's manager; that is
+      // harness work, not the game's, so it is off while moves are timed.
+      window.onkeydown = null;
       const samples: Samples = { inputToFrameMs: [], longTaskMs: [] };
       const scope = window as unknown as { sokobanSamples: Samples };
       scope.sokobanSamples = samples;
@@ -44,7 +52,7 @@ export async function measureSokoban(page: Page, info: TestInfo, rate: number) {
       await board.press(i % 2 === 0 ? 'ArrowLeft' : 'ArrowRight');
       await expect(page.getByTestId('sokoban-counts')).toHaveAttribute(
         'data-moves',
-        String(2 + i + 1)
+        String(startingMoves + i + 1)
       );
       await page.evaluate(
         () =>
@@ -65,6 +73,8 @@ export async function measureSokoban(page: Page, info: TestInfo, rate: number) {
       medianMs: sorted[9],
       p95Ms: sorted[18],
       maxMs: sorted[19],
+      harness:
+        'Storybook highlight addon disabled before navigation; preview keydown forwarding to the manager removed while timing.',
       limits:
         'Chromium emulation on a hosted runner; key event to next animation frame after move-count DOM update. Not physical display latency, network saving latency or a physical low-end device benchmark. Reduced motion follows the canonical harness.',
     };
