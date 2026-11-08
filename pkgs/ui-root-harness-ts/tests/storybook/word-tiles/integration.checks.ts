@@ -7,6 +7,7 @@ import {
   recordEvidence,
 } from './evidence';
 import { playWord } from './native-input';
+import { retainEvidence } from './retained-evidence';
 
 test.use({ video: 'on', trace: 'on' });
 test.beforeEach(async ({ page }) => observeInput(page));
@@ -66,7 +67,7 @@ for (const input of ['mouse', 'touch', 'keyboard'] as const) {
       }, info) => {
         const session = await page.context().newCDPSession(page);
         await session.send('Emulation.setCPUThrottlingRate', { rate: 4 });
-        await info.attach('conditions.json', {
+        await retainEvidence(info, 'conditions.json', {
           body: JSON.stringify({
             cpuRate: 4,
             input,

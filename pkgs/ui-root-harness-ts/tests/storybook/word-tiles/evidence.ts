@@ -1,6 +1,8 @@
 // @io-wall-ok — browser measurement adapter; never imported by product code.
 import { expect, type Page, type TestInfo } from '@playwright/test';
 import axe from 'axe-core';
+import { recordGeometry } from './geometry-evidence';
+import { retainEvidence } from './retained-evidence';
 
 /** Record native input and long tasks; values describe this browser run only. */
 export async function observeInput(page: Page): Promise<void> {
@@ -55,7 +57,12 @@ export async function recordEvidence(
   page: Page,
   info: TestInfo
 ): Promise<void> {
-  await info.attach('board.png', {
+  await recordGeometry(page, info);
+  await retainEvidence(info, 'viewport.png', {
+    body: await page.screenshot(),
+    contentType: 'image/png',
+  });
+  await retainEvidence(info, 'board.png', {
     body: await page.screenshot({ fullPage: true }),
     contentType: 'image/png',
   });
@@ -64,7 +71,7 @@ export async function recordEvidence(
       (window as unknown as { wordTilesSamples?: unknown[] })
         .wordTilesSamples ?? []
   );
-  await info.attach('input-and-long-tasks.json', {
+  await retainEvidence(info, 'input-and-long-tasks.json', {
     body: JSON.stringify(
       {
         samples,
@@ -86,7 +93,7 @@ export async function auditAccessibility(
   const result = await page.evaluate(() =>
     (window as unknown as { axe: typeof axe }).axe.run('#storybook-root')
   );
-  await info.attach('accessibility.json', {
+  await retainEvidence(info, 'accessibility.json', {
     body: JSON.stringify(
       { violations: result.violations, incomplete: result.incomplete },
       null,
