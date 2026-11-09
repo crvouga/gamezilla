@@ -26,6 +26,8 @@ export function WordTileWorkspace(props: {
   actions?: JSX.Element;
   feedback?: JSX.Element;
   board: JSX.Element;
+  /** A finished game: the board is for review, so it takes less room. */
+  finished?: boolean;
 }): JSX.Element {
   const [wide, setWide] = createSignal(false);
   let root: HTMLDivElement | undefined;
@@ -62,6 +64,7 @@ export function WordTileWorkspace(props: {
       ref={root}
       class={styles['layout']}
       data-layout={wide() ? 'wide' : 'stacked'}
+      data-finished={props.finished === true}
       {...dataAttrs({ component: 'WordTileWorkspace' })}
     >
       <Show

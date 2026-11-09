@@ -68,6 +68,7 @@ function SeatBoard(props: {
       when={props.draft.props.hand !== null}
       fallback={
         <WordTileWorkspace
+          finished={props.position.ended !== null}
           notice={<LexiconRecovery draft={props.draft} />}
           rack={
             <P tone="secondary">{t`Racks stay private to their players.`}</P>
@@ -77,6 +78,7 @@ function SeatBoard(props: {
       }
     >
       <WordTileWorkspace
+        finished={props.position.ended !== null}
         notice={<LexiconRecovery draft={props.draft} />}
         rack={
           <TileRack

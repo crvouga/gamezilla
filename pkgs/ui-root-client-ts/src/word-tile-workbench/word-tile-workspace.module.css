@@ -33,6 +33,11 @@
   row-gap: var(--ui-space-2);
   align-items: start;
 }
+/* A finished game's result sits above the board; the board is for review and
+   gives way so every seat stays in view. */
+.layout[data-layout="wide"][data-finished="true"] {
+  --word-tile-fitted-size: 23rem;
+}
 .layout[data-layout="wide"] .board {
   grid-area: board;
   position: relative;
