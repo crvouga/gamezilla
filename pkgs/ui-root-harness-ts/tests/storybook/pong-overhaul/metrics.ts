@@ -6,6 +6,12 @@ type Samples = {
   frames: number[];
   inputs: number[];
   longTasks: number[];
+  /** Frames over 50ms with the scripts that ran in them (Chromium LoAF). */
+  longFrames: {
+    duration: number;
+    blocking: number;
+    scripts: { invoker: string; source: string; duration: number }[];
+  }[];
   /** Time inside the page's input handlers, bracketed at window capture/bubble. */
   handlers: number[];
   /** Input to the first change of a controlled paddle's drawn position. */
@@ -22,6 +28,7 @@ export async function startPongMetrics(page: Page) {
       frames: [],
       inputs: [],
       longTasks: [],
+      longFrames: [],
       handlers: [],
       inputToPaddle: [],
       addedNodes: 0,
@@ -104,9 +111,42 @@ export async function startPongMetrics(page: Page) {
         samples.longTasks.push(entry.duration);
     });
     observer.observe({ entryTypes: ['longtask'] });
+    type LoafScript = {
+      invoker: string;
+      sourceURL: string;
+      sourceFunctionName: string;
+      duration: number;
+    };
+    const frameObserver = new PerformanceObserver((list) => {
+      for (const entry of list.getEntries() as (PerformanceEntry & {
+        blockingDuration: number;
+        scripts: LoafScript[];
+      })[])
+        samples.longFrames.push({
+          duration: Math.round(entry.duration),
+          blocking: Math.round(entry.blockingDuration),
+          scripts: [...entry.scripts]
+            .sort((a, b) => b.duration - a.duration)
+            .slice(0, 3)
+            .map((script) => ({
+              invoker: script.invoker.slice(0, 60),
+              source:
+                `${script.sourceURL.split('/').pop() ?? ''}:${script.sourceFunctionName}`.slice(
+                  0,
+                  80
+                ),
+              duration: Math.round(script.duration),
+            })),
+        });
+    });
+    if (
+      PerformanceObserver.supportedEntryTypes.includes('long-animation-frame')
+    )
+      frameObserver.observe({ type: 'long-animation-frame' });
     (window as MetricsWindow).pongMetrics = () => {
       running = false;
       observer.disconnect();
+      frameObserver.disconnect();
       mutations.disconnect();
       court.removeEventListener('keydown', input);
       court.removeEventListener('pointerdown', input);
@@ -151,6 +191,7 @@ export async function finishPongMetrics(
     frameP50: percentile(samples.frames, 0.5),
     frameP95: percentile(samples.frames, 0.95),
     longTasks: samples.longTasks,
+    longFrames: samples.longFrames,
     drawingNodesAdded: samples.addedNodes,
     drawingNodesRemoved: samples.removedNodes,
   };

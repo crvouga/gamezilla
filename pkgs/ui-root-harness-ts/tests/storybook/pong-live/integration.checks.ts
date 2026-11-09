@@ -46,16 +46,26 @@ for (const condition of [
       // Nothing is focused: the first paddle key starts play on the court.
       await page.keyboard.press('ArrowDown');
       await expect(court).toBeFocused();
+      // The rally is running: the ball moves from frame to frame.
       const ball = page.getByTestId('custom-game-board-ball');
-      const ballBefore = await ball.getAttribute('data-ball-x');
+      const ballAt = async () =>
+        `${await ball.getAttribute('data-ball-x')},${await ball.getAttribute('data-ball-y')}`;
+      const ballStart = await ballAt();
+      await frames(page, 3);
+      expect(await ballAt()).not.toBe(ballStart);
       for (const key of ['ArrowDown', 'ArrowUp', 'ArrowDown', 'ArrowUp']) {
         await page.keyboard.down(key);
         await frames(page, 12);
         await page.keyboard.up(key);
       }
-      // Twenty-four short taps, as a player correcting their aim does.
+      // Twenty-four short taps, as a player correcting their aim does. A
+      // person's tap lasts several frames; a zero-length one would start and
+      // end inside one game tick and, correctly, move nothing.
       for (let i = 0; i < 24; i++) {
-        await page.keyboard.press(i % 2 === 0 ? 'ArrowUp' : 'ArrowDown');
+        const key = i % 2 === 0 ? 'ArrowUp' : 'ArrowDown';
+        await page.keyboard.down(key);
+        await frames(page, 3);
+        await page.keyboard.up(key);
         await frames(page, 1);
       }
       const box = await court.boundingBox();
@@ -66,8 +76,6 @@ for (const condition of [
         steps: 30,
       });
       await page.mouse.up();
-      // The rally really ran while all of this was measured.
-      expect(await ball.getAttribute('data-ball-x')).not.toBe(ballBefore);
       await finishPongMetrics(page, info, condition.cpuRate);
       await cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 });
       await cdp.detach();
