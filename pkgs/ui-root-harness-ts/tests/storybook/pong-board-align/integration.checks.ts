@@ -1,8 +1,9 @@
 // @io-wall-ok — automated geometry check; all navigation stays on the test server.
 import { expect, test } from '@playwright/test';
 
-// regression: board-stage-centred-off-title-edge — on a tablet's one column,
-// the Pong court sat centred, 40px in from the game title above it.
+// On a tablet's one column, the Pong court sat centred, 40px in from the
+// game title above it.
+// regression: board-stage-centred-off-title-edge
 test('storybook integration: pong board starts under the game title on one column', async ({
   page,
 }) => {
