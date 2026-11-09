@@ -1,0 +1,4 @@
+{
+  "summary": "The Puzzle solved notice was inserted above the Numberlink board, pushing the board down by about 80 to 90 pixels at the moment of completion. It now appears below the board and says the completed paths are shown above.",
+  "regressionTest": "libs/numberlink-harness-ts/tests/numberlink-board-presentation.test.tsx"
+}

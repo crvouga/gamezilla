@@ -15,6 +15,8 @@ export const billingSubscriptions = defineTable({
     status: 'text',
     current_period_end: 'timestamp',
     cancel_at_period_end: 'boolean',
+    /** Last confirmed voluntary cancellation, retained after the period ends. */
+    canceled_at: 'timestamp',
     /** Provider credit in cents (never negative). Blank until a callback reads it. */
     credit_cents: 'integer',
   },
@@ -56,7 +58,21 @@ export const billingPaymentEvidence = defineTable({
   indexes: ['erase_by'],
 });
 
+export const billingCancellationFeedback = defineTable({
+  domain: 'billing',
+  name: 'billing_cancellation_feedback',
+  columns: {
+    account_id: 'text',
+    subscription_id: 'text',
+    reason: 'text',
+    comment: 'text',
+  },
+  indexes: ['account_id'],
+  uniqueIndexes: [['subscription_id']],
+});
+
 export const BILLING_TABLES = [
+  billingCancellationFeedback,
   billingSubscriptions,
   billingAccountClosures,
   billingPaymentEvidence,

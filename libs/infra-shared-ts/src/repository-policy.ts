@@ -1,5 +1,5 @@
 import type { PlanJson } from './plan-policy';
-import type { Stack, TofuPaths } from './tofu-command';
+import type { PlanOptions, Stack, TofuPaths } from './tofu-command';
 import { planArgs, tofuCredentialEnvironment } from './tofu-command';
 
 const TARGET = { stack: 'bootstrap' as const, env: null };
@@ -23,9 +23,12 @@ export function validateRepositoryPolicy(command: string, stack: Stack): void {
     );
 }
 
-export function repositoryPolicyPlanArgs(paths: TofuPaths): readonly string[] {
+export function repositoryPolicyPlanArgs(
+  paths: TofuPaths,
+  options?: PlanOptions
+): readonly string[] {
   return [
-    ...planArgs(paths, TARGET),
+    ...planArgs(paths, TARGET, options),
     ...REPOSITORY_POLICY_TARGETS.map((address) => `-target=${address}`),
   ];
 }

@@ -299,6 +299,10 @@
       "outputLogs": "errors-only",
       "outputs": []
     },
+    "@libs/billing-server-ts#billing:feedback": {
+      "cache": false,
+      "env": ["DATABASE_URL"]
+    },
     "@libs/game-session-shared-ts#test": {
       "dependsOn": ["^src"],
       "inputs": [
@@ -3273,6 +3277,10 @@
       "passThroughEnv": ["*"]
     },
     "@libs/infra-server-ts#drift:alerting": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "@libs/infra-server-ts#unlock:foundation": {
       "cache": false,
       "passThroughEnv": ["*"]
     },

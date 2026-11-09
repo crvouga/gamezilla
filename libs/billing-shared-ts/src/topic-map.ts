@@ -2,6 +2,12 @@ import type { Topic } from '@pkgs/pubsub-root-shared-ts/topic';
 import type { TopicMap } from '@pkgs/sync-engine-shared-ts/topic-map';
 
 export const BILLING_TOPIC_MAP = {
+  billing_cancellation_feedback: {
+    topics(row, ctx) {
+      return [`user:${String(row['account_id'] ?? ctx.actorId)}`];
+    },
+    rowImage: { publish: () => false },
+  },
   billing_account_closures: {
     topics(row, ctx) {
       return [`user:${String(row['account_id'] ?? ctx.actorId)}`];

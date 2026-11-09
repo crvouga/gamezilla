@@ -10,6 +10,7 @@ import { ScreenIntro } from '../screen-intro/index';
 import { createScreenSlot } from '../screen-slot';
 import heading from './game-heading.module.css';
 import precision from './game-precision.module.css';
+import stageAlign from './game-stage-align.module.css';
 
 /**
  * A game inside its host's chrome. The host's one top bar carries the back
@@ -134,6 +135,12 @@ export function GameLayout(props: {
    * width, as wide as a board and its rail, with nothing beside it.
    */
   workspace?: boolean | undefined;
+  /**
+   * Where the stage sits when everything stacks in one column: `start`
+   * (the default) at the column's start edge; `center` in the middle, for a
+   * board that stops short of the column so no strip opens on one side.
+   */
+  stageAlign?: 'start' | 'center' | undefined;
 }): JSX.Element {
   const stage = createScreenSlot(() => props.children);
   const setup = createScreenSlot(() => props.setup);
@@ -161,12 +168,18 @@ export function GameLayout(props: {
         data-stage-preview={props.stagePreview === true}
         data-arena={props.arena === true}
         data-workspace={props.workspace === true}
+        data-stage-align={props.stageAlign ?? 'start'}
         {...dataAttrs({ component: 'GameLayout' })}
       >
         <Show when={setup.present()}>
           <div class={styles['setup']}>{setup.content()}</div>
         </Show>
-        <div class={`${styles['stage']} ${precision['stage']}`}>
+        <div
+          class={`${styles['stage']} ${precision['stage']}`}
+          classList={{
+            [stageAlign['centred'] ?? '']: props.stageAlign === 'center',
+          }}
+        >
           {stage.content()}
         </div>
         <Show when={controls.present()}>

@@ -1,0 +1,4 @@
+{
+  "summary": "Numberlink endpoints used one font size with a 14px floor and a fixed 4px ring, whatever the label length or cell size. Eight-character labels spilled outside their cells at every width, and two-digit labels on a 20 x 20 board at 320px overflowed their 16px cells. Labels now split into at most two balanced lines and size to the tightest of reading size, line width and line count.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/numberlink-states/integration.checks.ts"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "Concurrent checkout requests create multiple customers or payable sessions for one account.",
+  "regressionTest": "pkgs/billing-stripe-harness-ts/tests/concurrent-checkout.test.ts"
+}

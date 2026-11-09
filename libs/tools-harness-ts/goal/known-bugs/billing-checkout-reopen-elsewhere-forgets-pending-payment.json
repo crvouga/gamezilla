@@ -1,0 +1,4 @@
+{
+  "summary": "After paying, leaving the billing screen and then reopening the app forgot the payment being confirmed and offered a second checkout.",
+  "regressionTest": "specs/billing/billing-plans.feature"
+}

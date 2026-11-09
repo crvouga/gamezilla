@@ -18,7 +18,14 @@ export type PathGridLine = {
   readonly cells: readonly number[];
   readonly tone: PathGridTone;
   readonly connected: boolean;
+  /** Still being drawn: shown, but not yet saved. */
+  readonly provisional?: boolean | undefined;
 };
+
+export type PathGridTraceCancellation =
+  | 'boundary'
+  | 'interrupted'
+  | 'stationary';
 
 export type PathGridBoardProps = {
   readonly columns: number;
@@ -28,6 +35,8 @@ export type PathGridBoardProps = {
   readonly endpoints: readonly PathGridEndpoint[];
   readonly lines: readonly PathGridLine[];
   readonly cellLabel: (index: number) => string;
+  /** The endpoint chosen for editing; marked independently of pair color and focus. */
+  readonly selectedCell?: number | undefined;
   readonly disabled?: boolean | undefined;
   readonly describedBy?: string | undefined;
   readonly onActivate?: ((index: number) => void) | undefined;
@@ -36,5 +45,7 @@ export type PathGridBoardProps = {
   readonly onTraceStart?: ((index: number) => void) | undefined;
   readonly onTraceMove?: ((index: number) => void) | undefined;
   readonly onTraceEnd?: (() => void) | undefined;
-  readonly onTraceCancel?: (() => void) | undefined;
+  readonly onTraceCancel?:
+    | ((reason: PathGridTraceCancellation) => void)
+    | undefined;
 };

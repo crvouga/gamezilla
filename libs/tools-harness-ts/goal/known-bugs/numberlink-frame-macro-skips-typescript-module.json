@@ -1,0 +1,4 @@
+{
+  "summary": "Extracting Numberlink's translated frame labels into a plain .ts module bypassed the Solid Babel macro transform. The uncompiled Lingui browser macro throws on import, stopping puzzle stories and app startup. Keep this presentation module in the transformed .tsx path and verify the translated frame loads in the actual browser build.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/numberlink-board/integration.checks.ts"
+}

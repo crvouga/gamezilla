@@ -1,0 +1,4 @@
+{
+  "summary": "A stationary tap on a connected Numberlink endpoint replaces its saved path with one cell.",
+  "regressionTest": "libs/numberlink-harness-ts/tests/numberlink-pointer-boundary.test.tsx"
+}

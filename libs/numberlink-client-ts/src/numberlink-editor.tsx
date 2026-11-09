@@ -15,6 +15,7 @@ import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
 import { useCreateId } from '@pkgs/uuid-client-ts/solid';
 import { createSignal, type JSX, Show } from 'solid-js';
 import { NumberlinkBoard } from './numberlink-board';
+import { NumberlinkPlacementTarget } from './numberlink-placement-target';
 import {
   type NumberlinkEditorInputs,
   useNumberlinkEditor,
@@ -99,6 +100,14 @@ function PairPlacement(props: {
           }
           disabled={props.disabled}
         />
+        <Show when={props.editor.pair()}>
+          {(pair) => (
+            <NumberlinkPlacementTarget
+              pair={pair()}
+              endpoint={props.editor.endpoint()}
+            />
+          )}
+        </Show>
       </Show>
     </StackVertical>
   );
@@ -204,6 +213,12 @@ export function NumberlinkEditorView(
                 state={{ paths: [] }}
                 disabled={props.disabled}
                 onActivate={editor.place}
+                selectedCell={(() => {
+                  const cell = editor.pair()?.endpoints[editor.endpoint()];
+                  return cell === undefined
+                    ? undefined
+                    : cell.y * board().width + cell.x;
+                })()}
               />
               <P variant="caption" tone="secondary">
                 <Trans>
