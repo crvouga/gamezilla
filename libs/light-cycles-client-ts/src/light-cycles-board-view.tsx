@@ -9,6 +9,7 @@ import type {
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { DirectionPad } from '@pkgs/ui-root-client-ts/direction-pad';
+import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { TextLink } from '@pkgs/ui-root-client-ts/text-link';
@@ -18,9 +19,18 @@ import {
 } from '@pkgs/ui-root-client-ts/trail-arena';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
-import { createMemo, createUniqueId, For, type JSX, Show } from 'solid-js';
 import {
+  createMemo,
+  createUniqueId,
+  For,
+  Index,
+  type JSX,
+  Show,
+} from 'solid-js';
+import {
+  arenaDescription,
   arenaOverlay,
+  awayOverlay,
   riderName,
   steeringOf,
   steeringText,
@@ -49,19 +59,20 @@ function steer(
 function Scores(props: { state: LightCyclesState; testId: string }) {
   return (
     <VisuallyHidden>
-      <For each={props.state.riders}>
+      {/* By seat index: a new decoded state every tick reuses these nodes. */}
+      <Index each={props.state.riders}>
         {(rider, index) => (
           <Text
             variant="label"
             numeral
-            testId={`${props.testId}-score-${rider.seat}`}
+            testId={`${props.testId}-score-${rider().seat}`}
             dataSet={{
-              score: String(props.state.scores[index()] ?? 0),
-              alive: String(rider.alive),
+              score: String(props.state.scores[index] ?? 0),
+              alive: String(rider().alive),
             }}
-          >{t`${riderName(rider.seat)} ${props.state.scores[index()] ?? 0}`}</Text>
+          >{t`${riderName(rider().seat)} ${props.state.scores[index] ?? 0}`}</Text>
         )}
-      </For>
+      </Index>
       <Text
         variant="caption"
         tone="secondary"
@@ -96,12 +107,15 @@ function SteeringHint(props: {
             fallback={
               <Trans>
                 Swipe the arena or use the pad to steer. Avoid the edge and
-                every trail.
+                every trail. Keyboard: click or Tab to the arena, then use arrow
+                keys or W, A, S and D.
               </Trans>
             }
           >
             <Trans>
-              Swipe your half or use your pad. Avoid edges and trails.
+              Swipe your half or use your pad. Avoid edges and trails. Keyboard:
+              click or Tab to the arena. {riderName(props.sides[0]!)} uses arrow
+              keys; {riderName(props.sides[1]!)} uses W, A, S and D.
             </Trans>
           </Show>
         }
@@ -110,15 +124,15 @@ function SteeringHint(props: {
           when={props.sides.length > 1}
           fallback={
             <Trans>
-              Steer with the arrow keys or W, A, S and D. Avoid the edge and
-              every trail.
+              Click the arena or Tab to it, then steer with arrow keys or W, A,
+              S and D. You can also drag to steer. Avoid edges and trails.
             </Trans>
           }
         >
           <Trans>
             Focus the arena. {riderName(props.sides[0]!)} uses arrow keys;{' '}
             {riderName(props.sides[1]!)} uses W, A, S and D. Avoid the edge and
-            every trail.
+            every trail. You can also drag your half to steer.
           </Trans>
         </Show>
       </Show>
@@ -178,6 +192,7 @@ function Arena(props: {
 }): JSX.Element {
   const instructionsId = createUniqueId();
   const statusId = createUniqueId();
+  const descriptionId = createUniqueId();
   const mode = useLayoutMode();
   const controlled = () => props.board.simulation?.sides ?? [];
   const steering = (side: GameSide | undefined) =>
@@ -189,9 +204,18 @@ function Arena(props: {
     controlled()[0] ?? props.board.simulation?.elsewhere?.[0];
   const ownSteering = () => steering(primary());
   const canSteerHere = () => controlled().some(steerable);
+  // The game is away: the arena dims and says so where the player looks.
+  const away = () =>
+    props.board.simulation?.stale === true ||
+    props.board.simulation?.paused === true;
   return (
     <StackVertical gap="md" testId={props.board.testId}>
       <Scores state={props.state} testId={props.board.testId} />
+      <VisuallyHidden>
+        <P id={descriptionId} testId={`${props.board.testId}-description`}>
+          {arenaDescription(props.state, controlled())}
+        </P>
+      </VisuallyHidden>
       <P
         id={statusId}
         role="status"
@@ -233,10 +257,13 @@ function Arena(props: {
         riders={trailRiders(props.state, controlled())}
         crashes={trailCrashes(props.state)}
         overlay={
-          props.state.phase === 'countdown'
-            ? arenaOverlay(props.state)
-            : undefined
+          away()
+            ? awayOverlay()
+            : props.state.phase === 'countdown'
+              ? arenaOverlay(props.state)
+              : undefined
         }
+        dimmed={away()}
         enabled={canSteerHere()}
         onDirection={(heading, slot) => {
           const side = controlled()[slot];
@@ -246,7 +273,7 @@ function Arena(props: {
         label={t`Light Cycles arena`}
         // A phone's cells are small: its heads are drawn larger.
         heads={mode() === 'wide' ? 'regular' : 'large'}
-        instructionsId={canSteerHere() ? instructionsId : statusId}
+        instructionsId={`${canSteerHere() ? instructionsId : statusId} ${descriptionId}`}
         testId={`${props.board.testId}-arena`}
       />
       {/* A phone's thumb pad sits right under the arena, where the thumb
@@ -290,21 +317,28 @@ export function LightCyclesBoardView(props: GameBoardProps): JSX.Element {
     <Show
       when={state()}
       fallback={
-        <StackVertical gap="sm">
-          <P role="alert">
-            <Trans>
-              This game cannot be shown by this app. Check your app version,
-              install an available update, then reopen this game.
-            </Trans>
-          </P>
-          <TextLink
-            href="/more/about"
-            variant="standalone"
-            testId={`${props.testId}-app-info`}
-          >
-            <Trans>Check app version</Trans>
-          </TextLink>
-        </StackVertical>
+        // The way back leads, on a warning surface, ahead of the quiet
+        // game actions below the board.
+        <Notice
+          tone="warning"
+          dataSet={{ testid: `${props.testId}-unreadable` }}
+        >
+          <StackVertical gap="sm">
+            <P role="alert">
+              <Trans>
+                This game cannot be shown by this app. Check your app version,
+                install an available update, then reopen this game.
+              </Trans>
+            </P>
+            <TextLink
+              href="/more/about"
+              variant="standalone"
+              testId={`${props.testId}-app-info`}
+            >
+              <Trans>Check app version</Trans>
+            </TextLink>
+          </StackVertical>
+        </Notice>
       }
     >
       {(game) => <Arena state={game()} board={props} />}

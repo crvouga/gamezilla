@@ -1,0 +1,4 @@
+{
+  "summary": "For a puzzle draft the game cannot play, the builder said 'Next: make the corrections the editor lists, then playtest.' and 'Playtest \u00b7 Correct first'. When the draft could not be opened at all, the editor listed no corrections and instead asked the author to choose an earlier saved copy, so the two instructions contradicted each other. The copy now holds for both cases: 'Next: fix the draft as the editor says, then playtest.' and 'Fix first'.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-publication-steps.test.tsx"
+}

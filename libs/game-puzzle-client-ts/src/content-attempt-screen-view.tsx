@@ -110,6 +110,11 @@ function AttemptFigures(props: ContentAttemptScreenViewProps): JSX.Element {
   );
 }
 
+/** A solved attempt (not a playtest) whose last change is kept. */
+function completionSaved(props: ContentAttemptScreenViewProps): boolean {
+  return props.complete && props.playtest !== true && !props.saving;
+}
+
 /** Where the last change stands: saved, or still being saved. */
 function SaveStatus(props: ContentAttemptScreenViewProps): JSX.Element {
   const { t } = useLingui();
@@ -220,7 +225,10 @@ function AttemptPanel(props: ContentAttemptScreenViewProps): JSX.Element {
     >
       <Show when={props.pack}>{(pack) => <PackTrack pack={pack()} />}</Show>
       <AttemptFigures {...props} />
-      <SaveStatus {...props} />
+      {/* A saved completion carries the save line in its own notice. */}
+      <Show when={!completionSaved(props)}>
+        <SaveStatus {...props} />
+      </Show>
       <Show when={props.playtest}>
         <Notice>
           <Trans>
@@ -235,9 +243,22 @@ function AttemptPanel(props: ContentAttemptScreenViewProps): JSX.Element {
           dataSet={{ testid: 'content-attempt-complete' }}
           title={props.playtest ? t`Playtest solved` : t`Completion saved`}
           body={
-            props.playtest
-              ? t`Return to the builder to validate and publish this puzzle.`
-              : t`Your completion is saved. You can keep playing or choose another puzzle.`
+            completionSaved(props) ? (
+              <>
+                <Text
+                  variant="inherit"
+                  role="status"
+                  testId="content-position-save-status"
+                >
+                  {t`Progress saved on this device.`}
+                </Text>{' '}
+                {t`You can keep playing or choose another puzzle.`}
+              </>
+            ) : props.playtest ? (
+              t`Return to the builder to validate and publish this puzzle.`
+            ) : (
+              t`Your completion is saved. You can keep playing or choose another puzzle.`
+            )
           }
         />
       </Show>

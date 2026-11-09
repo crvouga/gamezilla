@@ -826,8 +826,10 @@ Feature titles, one line each, so a session can route without listing the tree. 
 
 All changes to `main` go through a pull request. The OpenTofu repository ruleset
 requires every check in `libs/infra-shared-ts/tofu/modules/repository/required-checks/`
-(planning, the complete verdict, and CodeQL) and resolved review conversations; no
-approval is required. A branch need not be up to date with `main` to merge: many
+(planning and the complete verdict) and resolved review conversations; no
+approval is required. CodeQL's checks are marked `outage_tolerant`: the final PR gate
+enforces them instead of the ruleset, so findings block but a scanner GitHub could not
+download only warns. A branch need not be up to date with `main` to merge: many
 concurrent agent branches made that a constant update-and-rerun loop. Verify PR checks
 the merge commit at push time, and Release reruns the full gate on `main` before shipping.
 A push dismisses stale approvals. The final PR gate checks both the head and merge commit: every

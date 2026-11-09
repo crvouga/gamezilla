@@ -1,0 +1,4 @@
+{
+  "summary": "While the game was away (reconnecting), the only cue was one line of status text; the arena kept looking live, with the rider ring drawn and no change, so a player mid-swipe could not see that input was ignored. The drawing now dims and a Reconnecting banner shows on the arena until the game returns.",
+  "regressionTest": "libs/light-cycles-client-ts/tests/light-cycles-board.test.tsx"
+}

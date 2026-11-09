@@ -1,0 +1,4 @@
+{
+  "summary": "Quoridor ignored the board host's syncKey reset when the canonical position was unchanged, leaving a stale proposal after a refused gesture. Resets now clear the wall selection and hover preview.",
+  "regressionTest": "libs/quoridor-client-ts/tests/quoridor-preview-lifecycle.test.tsx"
+}

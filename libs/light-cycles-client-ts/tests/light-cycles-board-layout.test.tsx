@@ -8,6 +8,7 @@ import { lightCyclesConfig } from '@libs/light-cycles-shared-ts/light-cycles-con
 import { lightCyclesPositionCodec } from '@libs/light-cycles-shared-ts/light-cycles-position';
 import { initialLightCyclesState } from '@libs/light-cycles-shared-ts/light-cycles-state';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
+import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { GameSeatSwatch } from '@pkgs/ui-root-client-ts/game-seat-swatch';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { cleanup, screen } from '@solidjs/testing-library';
@@ -18,7 +19,11 @@ const POSITION = lightCyclesPositionCodec(3).encode(
   initialLightCyclesState(lightCyclesConfig(), ['white', 'black', 'red'])
 );
 
-function mount(width: number, position = POSITION): void {
+function mount(
+  width: number,
+  position = POSITION,
+  sides: readonly GameSide[] = ['white']
+): void {
   renderWithI18n(() => (
     <ThemeProvider colorScheme="dark" fixedLayout={{ width, height: 900 }}>
       <LightCyclesBoardView
@@ -36,7 +41,7 @@ function mount(width: number, position = POSITION): void {
         simulation={{
           paused: false,
           stale: false,
-          sides: ['white'],
+          sides,
           onInput: () => undefined,
           onRelease: () => undefined,
         }}
@@ -47,18 +52,33 @@ function mount(width: number, position = POSITION): void {
 
 // regression: light-cycles-pad-on-desktop — a wide screen drew the phone's
 // direction pad under a long paragraph, running off the window's foot.
+// regression: light-cycles-desktop-input-undiscoverable
 test('wide: no direction pad, one line on steering by keys', () => {
   mount(1440);
   expect(screen.queryByTestId('arena-white-pad-up')).toBeNull();
   expect(
-    screen.getByText(/Steer with the arrow keys or W, A, S and D/)
+    screen.getByText(/Click the arena or Tab to it, then steer with arrow keys/)
   ).toBeTruthy();
+  expect(screen.getByText(/You can also drag to steer/)).toBeTruthy();
 });
 
 test('phone: the direction pad is under the arena, with a line on swiping', () => {
   mount(390);
   expect(screen.getByTestId('arena-white-pad-up')).toBeTruthy();
   expect(screen.getByText(/Swipe the arena or use the pad/)).toBeTruthy();
+});
+
+// regression: light-cycles-compact-keyboard-help-missing
+test('compact layouts explain keyboard focus and both shared rider mappings', () => {
+  mount(390, POSITION, ['white', 'black']);
+  const hint = screen.getByText(/Keyboard: click or Tab to the arena/);
+  expect(hint.textContent).toContain('Comet uses arrow keys');
+  expect(hint.textContent).toContain('Ember uses W, A, S and D');
+  cleanup();
+  mount(768);
+  expect(
+    screen.getByText(/Keyboard: click or Tab to the arena/).textContent
+  ).toContain('arrow keys or W, A, S and D');
 });
 
 // regression: light-cycles-scores-twice — every rider's round wins showed
@@ -203,4 +223,20 @@ test('the literal unreadable trio position offers existing app version recovery'
     'then reopen this game'
   );
   expect(screen.queryByRole('application')).toBeNull();
+});
+
+// regression: light-cycles-unreadable-recovery-outweighed-by-resign — the
+// way back was a bare text link under the error, so the red Resign below
+// it carried the screen's weight.
+test('the unreadable position leads with its recovery on a warning surface', () => {
+  mount(390, 'light-cycles-3:not-a-position');
+  const link = screen.getByRole('link', { name: 'Check app version' });
+  const notice = link.closest('[data-component="Notice"]');
+  expect(notice?.getAttribute('data-tone')).toBe('warning');
+  expect(notice?.contains(screen.getByRole('alert'))).toBe(true);
+  const resign = screen.queryByRole('button', { name: 'Resign' });
+  if (resign !== null)
+    expect(
+      link.compareDocumentPosition(resign) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
 });
