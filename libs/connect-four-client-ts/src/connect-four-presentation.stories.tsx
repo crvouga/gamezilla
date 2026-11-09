@@ -57,7 +57,7 @@ type Story = StoryObj<typeof meta>;
 export const Opening: Story = {
   play: async ({ canvasElement }) => {
     const board = within(canvasElement).getByTestId('custom-game-board');
-    await expect(board).toHaveAccessibleDescription(/← → Home End choose/);
+    await expect(board).toHaveAccessibleDescription(/Left\/Right to choose/);
     await expect(board).toHaveAccessibleDescription(/Enter or Space drops/);
   },
 };

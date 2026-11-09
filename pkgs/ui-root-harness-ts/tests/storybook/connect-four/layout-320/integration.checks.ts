@@ -131,3 +131,74 @@ test('storybook integration: connect-four discs and marks contrast with the hole
   }
   await captureBoard(page, info, 'disc-contrast-dark');
 });
+
+// regression: connect-four-win-indistinct-from-rim
+test('storybook integration: connect-four winning discs read unlike every other disc', async ({
+  page,
+}, info) => {
+  await openBoard(page, 'won', 'light');
+  const sizes = await page.evaluate(() =>
+    [...document.querySelectorAll('[data-disc="1"], [data-disc="2"]')].map(
+      (cell) => {
+        const disc = cell.querySelector('span');
+        return {
+          winning: cell.getAttribute('data-winning') === 'true',
+          ratio:
+            (disc?.getBoundingClientRect().width ?? 0) /
+            cell.getBoundingClientRect().width,
+        };
+      }
+    )
+  );
+  await info.attach('win-disc-sizes', {
+    body: JSON.stringify(sizes, null, 2),
+    contentType: 'application/json',
+  });
+  await captureBoard(page, info, 'win-distinct-320');
+  const winners = sizes.filter((size) => size.winning);
+  const others = sizes.filter((size) => !size.winning);
+  expect(winners.length).toBeGreaterThanOrEqual(4);
+  expect(others.length).toBeGreaterThan(0);
+  for (const size of winners) expect(size.ratio).toBeLessThanOrEqual(0.75);
+  for (const size of others) expect(size.ratio).toBeGreaterThan(0.95);
+});
+
+// regression: connect-four-deciding-row-below-fold
+test('storybook integration: connect-four finished games show the deciding discs', async ({
+  page,
+}, info) => {
+  await openBoard(page, 'lost', 'dark');
+  const winners = page.locator('[data-winning="true"]');
+  await expect(winners.first()).toBeVisible();
+  const placement = await winners.evaluateAll((cells) =>
+    cells.map((cell) => {
+      const rect = cell.getBoundingClientRect();
+      return { top: rect.top, bottom: rect.bottom, height: innerHeight };
+    })
+  );
+  await info.attach('deciding-discs-320', {
+    body: JSON.stringify(placement, null, 2),
+    contentType: 'application/json',
+  });
+  await captureBoard(page, info, 'deciding-discs-320');
+  expect(placement.length).toBeGreaterThanOrEqual(4);
+  for (const cell of placement) {
+    expect(cell.top).toBeGreaterThanOrEqual(0);
+    expect(cell.bottom).toBeLessThanOrEqual(cell.height);
+  }
+});
+
+test('storybook integration: connect-four pointer focus keeps the keyboard help hidden', async ({
+  page,
+}) => {
+  await openBoard(page, 'drop-a-disc', 'light');
+  await page.evaluate(() => {
+    (document.activeElement as HTMLElement | null)?.blur();
+  });
+  await page.getByTestId('custom-game-board-column-3').hover();
+  await page.mouse.down();
+  await page.mouse.up();
+  await expect(
+    page.getByTestId('custom-game-board-keyboard-help')
+  ).toBeHidden();
+});

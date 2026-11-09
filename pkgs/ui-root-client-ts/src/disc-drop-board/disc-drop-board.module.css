@@ -127,7 +127,7 @@
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-.board:has(.column:focus-visible) .keyboardHelp {
+.board[data-keyboard-help="true"] .keyboardHelp {
   visibility: visible;
 }
 /* A column's number, quiet; the column pointed at rings it in the dropping
@@ -222,12 +222,17 @@
 .cell[data-preview-disc="2"] {
   --disc-preview: var(--ui-color-warning);
 }
-/* Winning rings emphasize the connected four without fading the final
-   position. Drawn inside the cell, so they never touch a neighbouring disc
-   or the focused column's outline. */
+/* The winning four: each disc drawn smaller, inside a dark gap and a ring
+   of the board's ink at the cell's edge, so it reads unlike the thin rim
+   every disc carries. All inside the cell, clear of neighbours and of the
+   focused column's outline; every disc stays at full colour. */
 .cell[data-winning="true"] {
   outline: 3px solid var(--ui-color-text);
   outline-offset: -3px;
+}
+.cell[data-winning="true"] .disc {
+  inline-size: 68%;
+  block-size: 68%;
 }
 /* The last disc played falls the column's height under gravity: slow at
    the top, fastest as it lands. */

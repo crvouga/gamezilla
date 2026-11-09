@@ -78,7 +78,7 @@ export function Column(props: {
   tabStop: boolean;
   target: number | null;
   preview: (column: number | null) => void;
-  focus: (column: number | null) => void;
+  focus: (column: number | null, fromKeyboard?: boolean) => void;
   navigate: (event: KeyboardEvent, column: number) => void;
 }): JSX.Element {
   const descriptionId = createUniqueId();
@@ -115,7 +115,9 @@ export function Column(props: {
         onPointerEnter={() => props.preview(props.column)}
         onPointerLeave={() => props.preview(null)}
         onPointerCancel={() => props.preview(null)}
-        onFocus={() => props.focus(props.column)}
+        onFocus={(event) =>
+          props.focus(props.column, focusVisible(event.currentTarget))
+        }
         onBlur={() => props.focus(null)}
         onKeyDown={(event) => props.navigate(event, props.column)}
         onClick={() => {
@@ -167,4 +169,13 @@ export function nextColumn(
     : key === 'End'
       ? count - 1
       : (column + (key === 'ArrowRight' ? 1 : count - 1)) % count;
+}
+
+/** Whether the browser shows a focus ring here: focus came from the keyboard. */
+function focusVisible(element: Element): boolean {
+  try {
+    return element.matches(':focus-visible');
+  } catch {
+    return false;
+  }
 }

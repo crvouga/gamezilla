@@ -16,7 +16,7 @@ function setup(cells = Array.from({ length: 42 }, () => 0)) {
       interactive
       label="Connect Four"
       prompt="Choose a column"
-      keyboardHelp="← → Home End choose · Enter or Space drops"
+      keyboardHelp="Left/Right to choose · Enter or Space drops"
       fullColumnPrompt={(column) =>
         `Column ${column + 1} is full. Choose another column.`
       }
@@ -35,7 +35,7 @@ test('the board describes its keyboard controls and each column declares them', 
   const column = view.getByTestId('column-0');
   column.focus();
   expect(view.getByTestId('board')).toHaveAccessibleDescription(
-    /← → Home End choose · Enter or Space drops/
+    /Left\/Right to choose · Enter or Space drops/
   );
   expect(column).toHaveAttribute(
     'aria-keyshortcuts',
