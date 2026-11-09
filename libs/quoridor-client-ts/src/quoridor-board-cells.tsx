@@ -129,10 +129,11 @@ export function quoridorBoardCells(
     const identity = cellIdentity(game, cell, moving);
     const goal = isGoal(game, cell);
     const edges = edgesAt(game.walls, cell);
+    // An overlapping proposal never paints over the wall it collides with.
     const previewEdges =
       previewWall === null || tool === 'move'
         ? []
-        : edgesAt([previewWall], cell);
+        : edgesAt([previewWall], cell).filter((edge) => !edges.includes(edge));
     return {
       ...identity,
       id,

@@ -3,6 +3,10 @@ import { createQuoridorBoard } from '@libs/quoridor-client-ts/quoridor-board';
 import { quoridorBoardCells } from '@libs/quoridor-client-ts/quoridor-board-cells';
 import { quoridorTargetOptions } from '@libs/quoridor-client-ts/quoridor-board-tools';
 import {
+  quoridorGameClient,
+  quoridorHillGameClient,
+} from '@libs/quoridor-client-ts/quoridor-game-client';
+import {
   encodeQuoridor,
   newQuoridor,
   playQuoridor,
@@ -161,5 +165,30 @@ test('Cancel and Place wall return focus to the active tool instead of the page'
     fireEvent.click(commit);
     expect(active()).toBe(view.getByTestId('truth-mode-move'));
     view.unmount();
+  }
+});
+
+// regression: quoridor-refused-wall-hides-its-cause
+test('an overlapping proposal leaves the existing wall drawn where they meet', () => {
+  const game = replayQuoridor('classic', ['e5h']);
+  const cells = quoridorBoardCells(game, 'h', true, 'd5h');
+  const at = (id: string) => cells.find((cell) => cell.id === id);
+  // d5h and e5h share the edge above e5: it stays the committed wall.
+  expect(at('e5')?.edges).toContain('top');
+  expect(at('e5')?.previewEdges).not.toContain('top');
+  // The non-overlapping half shows the refused proposal.
+  expect(at('d5')?.previewEdges).toContain('top');
+  expect(at('d5')?.emphasis).toBe('refused');
+});
+
+// regression: quoridor-loser-reads-game-won
+test('the ending line is true for the loser as well as the winner', () => {
+  for (const [client, reason] of [
+    [quoridorGameClient, 'opposite row reached'],
+    [quoridorHillGameClient, 'hill reached'],
+  ] as const) {
+    const line = client.presentation.endingDescription(reason) ?? '';
+    expect(line).not.toMatch(/won/i);
+    expect(line).toMatch(/reached\.$/);
   }
 });

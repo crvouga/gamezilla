@@ -40,6 +40,11 @@ function classic(actions: string): string {
 const MID_GAME = 'e2 e8 e3 e7 d4h e6 f6v d7h';
 /** South walks up the e file while North steps aside: South reaches row 9. */
 const SOUTH_WINS = 'e2 d9 e3 c9 e4 b9 e5 a9 e6 a8 e7 a7 e8 a6 e9';
+/** South spends all ten walls while North shuffles. */
+const SOUTH_OUT_OF_WALLS =
+  'a1h e8 c1h e9 e1h e8 g1h e9 a3h e8 c3h e9 e3h e8 g3h e9 a5h e8 c5h e9';
+/** Fixtures show the moves that reached them, as a live table does. */
+const moves = (actions: string) => actions.split(' ');
 
 const meta = {
   id: 'screens-games-quoridor-classic',
@@ -76,26 +81,37 @@ export const Opening: Story = {
 };
 
 /** Mid-game on South's turn: walls on the board, fewer left to place. */
-export const YourTurn: Story = { args: { position: classic(MID_GAME) } };
+export const YourTurn: Story = {
+  args: { position: classic(MID_GAME) },
+  parameters: { table: { moves: moves(MID_GAME) } satisfies GameTableStory },
+};
 
 /** North is deciding: the board is read-only and the tools are off. */
 export const WaitingForOpponent: Story = {
   args: { position: classic(`${MID_GAME} c3v`), interactive: false },
-  parameters: { table: { turn: 'black' } satisfies GameTableStory },
+  parameters: {
+    table: {
+      turn: 'black',
+      moves: moves(`${MID_GAME} c3v`),
+    } satisfies GameTableStory,
+  },
 };
 
 /** A watcher follows the game from outside it. */
 export const Watching: Story = {
   args: { position: classic(MID_GAME), interactive: false },
-  parameters: { table: { viewer: null, turn: 'white' } },
+  parameters: {
+    table: { viewer: null, turn: 'white', moves: moves(MID_GAME) },
+  },
 };
 
 /** Exhausting walls keeps pawn moves available and explains the disabled tools. */
 export const NoWallsLeft: Story = {
   args: {
-    position: classic(
-      'a1h e8 c1h e9 e1h e8 g1h e9 a3h e8 c3h e9 e3h e8 g3h e9 a5h e8 c5h e9'
-    ),
+    position: classic(SOUTH_OUT_OF_WALLS),
+  },
+  parameters: {
+    table: { moves: moves(SOUTH_OUT_OF_WALLS) } satisfies GameTableStory,
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -116,6 +132,7 @@ export const Won: Story = {
   parameters: {
     table: {
       ending: { winner: 'white', reason: 'opposite row reached' },
+      moves: moves(SOUTH_WINS),
     } satisfies GameTableStory,
   },
 };
@@ -130,6 +147,7 @@ export const Lost: Story = {
   parameters: {
     table: {
       ending: { winner: 'white', reason: 'opposite row reached' },
+      moves: moves(SOUTH_WINS),
     } satisfies GameTableStory,
   },
 };

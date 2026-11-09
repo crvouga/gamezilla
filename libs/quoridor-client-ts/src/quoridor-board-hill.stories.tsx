@@ -129,7 +129,9 @@ export const MustPass: Story = {
 /** East is deciding while the others wait. */
 export const WaitingForOthers: Story = {
   args: { position: hill(['e2', 'a4', 'e8']), interactive: false },
-  parameters: { table: { turn: 'blue' } satisfies GameTableStory },
+  parameters: {
+    table: { turn: 'blue', moves: ['e2', 'a4', 'e8'] } satisfies GameTableStory,
+  },
 };
 
 /** South reached the hill first and won outright. */
@@ -138,6 +140,7 @@ export const Won: Story = {
   parameters: {
     table: {
       ending: { winner: 'white', reason: 'hill reached' },
+      moves: SOUTH_TAKES_THE_HILL,
     } satisfies GameTableStory,
   },
 };
@@ -152,6 +155,7 @@ export const Lost: Story = {
   parameters: {
     table: {
       ending: { winner: 'white', reason: 'hill reached' },
+      moves: SOUTH_TAKES_THE_HILL,
     } satisfies GameTableStory,
   },
 };
