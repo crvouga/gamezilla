@@ -214,7 +214,13 @@ function columnRecord(moves: readonly number[]): readonly string[] {
   return moves.map((column) => String(column + 1));
 }
 
-export const MID_GAME_MOVES = [3, 3, 4, 2, 2, 4, 5];
+/**
+ * Eight drops, four each: Red circle (the viewer) moves first, so it is
+ * Red circle's turn again, as the frame's own-turn stories say.
+ */
+export const MID_GAME_MOVES = [3, 3, 4, 2, 2, 4, 5, 1];
+/** Seven drops: Yellow diamond (the opponent) is to move. */
+export const OPPONENT_TURN_MOVES = MID_GAME_MOVES.slice(0, 7);
 export const MID_GAME_RECORD = columnRecord(MID_GAME_MOVES);
 /** Ten drops, five each: Red circle to move, as a real game's middle reads. */
 export const YOUR_TURN_MOVES = [3, 3, 2, 4, 4, 5, 2, 1, 6, 3];
