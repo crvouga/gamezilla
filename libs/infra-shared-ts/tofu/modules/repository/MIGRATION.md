@@ -1,6 +1,6 @@
 # Agent-first repository policy: migration record
 
-`crvouga/gamezilla`, a **public repository owned by a personal account**.
+The product repository (`var.github.owner`/`var.github.repo`, see `envs/global.tfvars.json`), a **public repository owned by a personal account**.
 This module (bootstrap stack, encrypted state in R2) already owned the
 repository before this change; Release applies it and Health checks it for
 drift hourly. Nothing moved to a new `infra/github/` root: two roots would own
@@ -37,14 +37,14 @@ Each item was tested against the live API on 2026-11-09 with a ruleset created
   would enable it:
 
   ```sh
-  gh api -X PUT repos/<org>/gamezilla/rulesets/<main-ruleset-id> --input ruleset.json  # add {"type":"merge_queue", ...}
+  gh api -X PUT repos/<org>/<repo>/rulesets/<main-ruleset-id> --input ruleset.json  # add {"type":"merge_queue", ...}
   ```
 
   and it is expressible in this module (`rules { merge_queue { … } }`, provider 6.13).
 - **Branch name patterns** (`agent/*`-only branches). Refused on this repository:
 
   ```sh
-  gh api -X POST repos/crvouga/gamezilla/rulesets --input - <<'JSON'
+  gh api -X POST repos/{owner}/{repo}/rulesets --input - <<'JSON'
   {"name":"branch-names","target":"branch","enforcement":"active",
    "conditions":{"ref_name":{"include":["~ALL"],"exclude":["~DEFAULT_BRANCH"]}},
    "rules":[{"type":"branch_name_pattern","parameters":{"operator":"regex","pattern":"^(t3|cursor|fix|feat|chore|ci|docs|refactor|perf|test|ui|evidence|overnight|dependabot)/","negate":false}}]}
@@ -102,8 +102,8 @@ a GitHub App is not something the provider can do. When the maintainer creates t
 
 Run as the maintainer until the agent app exists:
 
-1. `gh api repos/crvouga/gamezilla/rulesets` lists `main` and `release-tags`;
-   `gh api repos/crvouga/gamezilla -q '{allow_squash_merge,allow_merge_commit}'`
+1. `gh api repos/{owner}/{repo}/rulesets` lists `main` and `release-tags`;
+   `gh api repos/{owner}/{repo} -q '{allow_squash_merge,allow_merge_commit}'`
    is `{true,false}`.
 2. Open a trivial PR, `gh pr merge --auto --squash`: it stays open while
    `verify:end` is pending or red.
