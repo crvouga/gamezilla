@@ -2130,7 +2130,7 @@ msgstr "connected"
 msgid "Connected"
 msgstr "Connected"
 
-#: libs/numberlink-client-ts/src/numberlink-game-client.tsx
+#: libs/numberlink-client-ts/src/numberlink-content-frame.tsx
 msgid "Connected pairs"
 msgstr "Connected pairs"
 
@@ -2380,7 +2380,7 @@ msgstr "Cover every cell"
 msgid "Coverage"
 msgstr "Coverage"
 
-#: libs/numberlink-client-ts/src/numberlink-game-client.tsx
+#: libs/numberlink-client-ts/src/numberlink-content-frame.tsx
 msgid "Covered cells"
 msgstr "Covered cells"
 
@@ -2720,8 +2720,8 @@ msgid "Drag"
 msgstr "Drag"
 
 #: libs/numberlink-client-ts/src/numberlink-player.tsx
-msgid "Drag from a number to its match."
-msgstr "Drag from a number to its match."
+msgid "Drag from an endpoint to its match, or use Enter and arrow keys."
+msgstr "Drag from an endpoint to its match, or use Enter and arrow keys."
 
 #: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "Drag up and down along your edge of the court."
@@ -2748,9 +2748,18 @@ msgstr "Draw agreement is available between two people."
 msgid "Draw the path again."
 msgstr "Draw the path again."
 
+#. placeholder {0}: label()
+#: libs/numberlink-client-ts/src/numberlink-player.tsx
+msgid "Drawing {0}. Finish on its matching endpoint to save it."
+msgstr "Drawing {0}. Finish on its matching endpoint to save it."
+
 #: libs/numberlink-client-ts/src/numberlink-drawing-help.tsx
 msgid "Drawing and keyboard help"
 msgstr "Drawing and keyboard help"
+
+#: libs/numberlink-client-ts/src/create-numberlink-drawing.tsx
+msgid "Drawing canceled. Saved paths are unchanged. Start again from an endpoint."
+msgstr "Drawing canceled. Saved paths are unchanged. Start again from an endpoint."
 
 #: libs/numberlink-client-ts/src/numberlink-player.tsx
 msgid "Drawing is unavailable. You can still inspect the board."
@@ -2981,8 +2990,8 @@ msgid "Every match is rated"
 msgstr "Every match is rated"
 
 #: libs/numberlink-client-ts/src/numberlink-player.tsx
-msgid "Every pair is connected. Your completed paths are shown below."
-msgstr "Every pair is connected. Your completed paths are shown below."
+msgid "Every pair is connected. Your completed paths are shown above."
+msgstr "Every pair is connected. Your completed paths are shown above."
 
 #: libs/game-session-client-ts/src/custom-game-error.tsx
 msgid "Every participant has moved. Resign instead of cancelling."
@@ -6596,6 +6605,10 @@ msgstr "Saved positions"
 msgid "Saved puzzle"
 msgstr "Saved puzzle"
 
+#: libs/numberlink-client-ts/src/numberlink-player.tsx
+msgid "Saved:"
+msgstr "Saved:"
+
 #: libs/chess-puzzle-client-ts/src/puzzle-import-stop.tsx
 msgid "Saving stopped"
 msgstr "Saving stopped"
@@ -6765,6 +6778,12 @@ msgstr "Select…"
 #: libs/word-tiles-client-ts/src/word-tiles-cells.tsx
 msgid "selected"
 msgstr "selected"
+
+#. placeholder {0}: props.pair.label
+#. placeholder {1}: coordinate()
+#: libs/numberlink-client-ts/src/numberlink-placement-target.tsx
+msgid "Selected: pair {0} at {1}. The dashed outline marks the endpoint to move."
+msgstr "Selected: pair {0} at {1}. The dashed outline marks the endpoint to move."
 
 #: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
 msgid "Send again"
@@ -7287,8 +7306,8 @@ msgid "Start a space to play with friends. Spaces you join show up here."
 msgstr "Start a space to play with friends. Spaces you join show up here."
 
 #: libs/numberlink-client-ts/src/numberlink-drawing-help.tsx
-msgid "Start again at a number to redraw its path. Drag back along your path to shorten it."
-msgstr "Start again at a number to redraw its path. Drag back along your path to shorten it."
+msgid "Start again at an endpoint to redraw its path. Drag back along your path to shorten it. Release to keep your drawing. Move outside the board or press Escape to cancel; your saved paths stay unchanged. On a small screen, pinch with two fingers to zoom in on the board, then draw with one."
+msgstr "Start again at an endpoint to redraw its path. Drag back along your path to shorten it. Release to keep your drawing. Move outside the board or press Escape to cancel; your saved paths stay unchanged. On a small screen, pinch with two fingers to zoom in on the board, then draw with one."
 
 #: libs/numberlink-client-ts/src/create-numberlink-drawing.tsx
 msgid "Start at a matching endpoint or an existing path."
