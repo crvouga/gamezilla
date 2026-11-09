@@ -23,13 +23,16 @@ export function seatName(seat: number): string {
         : t`Coral`;
 }
 
-/** What the candidate would score, word by word, or why it cannot be played. */
+/**
+ * What the candidate would score, word by word, then whether it can be
+ * played, on one status line: a phone keeps the whole board overview in its
+ * first screen, and the line is there before the first tile, so placing
+ * tiles or playing the word never moves the board below.
+ */
 export function WordTilesPreviewPanel(props: {
   preview: WordTilesPreview;
   testId: string;
 }): JSX.Element {
-  // One breakdown line is always laid out, empty until tiles are placed, so
-  // placing the first tile or playing the word never moves the board below.
   const breakdown = (): string => {
     const preview = props.preview;
     if (preview.kind !== 'score') return '';
@@ -41,16 +44,11 @@ export function WordTilesPreviewPanel(props: {
     return words.join(' · ');
   };
   return (
-    <StackVertical gap="xs" dataSet={{ testid: `${props.testId}-preview` }}>
-      <P
-        variant="caption"
-        aria-hidden={breakdown() === '' ? true : undefined}
-        testId={`${props.testId}-breakdown`}
-      >
-        {breakdown() === '' ? '\u00a0' : breakdown()}
-      </P>
+    <StackVertical dataSet={{ testid: `${props.testId}-preview` }}>
       <P role="status" dataSet={{ testid: `${props.testId}-status` }}>
-        {props.preview.message}
+        {breakdown() === ''
+          ? props.preview.message
+          : `${breakdown()} · ${props.preview.message}`}
       </P>
     </StackVertical>
   );

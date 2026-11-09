@@ -174,8 +174,8 @@ test('storybook integration: word-tiles placing tiles does not move the board', 
   await page.getByTestId('custom-game-board-cell-g8').click();
   await rack.getByRole('button').nth(1).click();
   await page.getByTestId('custom-game-board-cell-h8').click();
-  await expect(page.getByTestId('custom-game-board-breakdown')).toContainText(
-    'CA'
+  await expect(page.getByTestId('custom-game-board-status')).toContainText(
+    'CA: '
   );
   const after = await region.boundingBox();
   expect(after?.y).toBe(before?.y);

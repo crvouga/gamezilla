@@ -262,7 +262,7 @@ export const PlaceAWord: Story = {
     }
     await expect(
       await canvas.findByTestId('custom-game-board-status')
-    ).toHaveTextContent(/^Scores .*points\.$/);
+    ).toHaveTextContent(/^CAT: .* · Scores .*points\.$/);
   },
 };
 
