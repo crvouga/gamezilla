@@ -110,6 +110,8 @@ export function tableSeats(
   const near = seatOfSide(board.orientation);
   const trick = shownTrick(position);
   const deciding = seatToPlay(position);
+  // The trick just completed, until the next card: who took it.
+  const taker = trick?.cards.length === 4 ? trickWinner(trick) : null;
   return POSITIONS.map((place, offset) => {
     const seat = seatAfter(near, offset);
     const side = sideOfSeat(seat);
@@ -128,6 +130,7 @@ export function tableSeats(
           ? !board.committed.includes(side)
           : deciding === seat,
       played: played === undefined ? null : tableCard(played),
+      won: taker === seat ? t`Took it` : undefined,
       testId: `${board.testId}-seat-${side}`,
     };
   });

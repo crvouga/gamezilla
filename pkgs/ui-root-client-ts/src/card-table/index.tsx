@@ -40,6 +40,12 @@ export type CardTableSeat = {
   readonly active: boolean;
   /** The card this seat put on the table in the trick under way. */
   readonly played: CardTableCard | null;
+  /**
+   * When this seat took the trick just completed: how that is said (`Took
+   * it`), shown on its card, in words as well as an outline, until the next
+   * card is played.
+   */
+  readonly won?: string | undefined;
   readonly testId: string;
   /**
    * The person in the seat (`GameTableSeat`: avatar, name, tags), when the
@@ -219,6 +225,7 @@ function Trick(props: {
             aria-label={seat().name}
             data-position={seat().position}
             data-filled={String(seat().played !== null)}
+            data-won={String(seat().won !== undefined)}
           >
             <Show when={seat().played}>
               {(card) => (
@@ -226,11 +233,20 @@ function Trick(props: {
                   class={styles['card']}
                   data-suit={card().suit}
                   role="img"
-                  aria-label={spokenName(card())}
+                  aria-label={[spokenName(card()), seat().won]
+                    .filter(Boolean)
+                    .join(', ')}
                   data-testid={`${seat().testId}-played`}
                   data-card={card().id}
                 >
                   <CardFace card={card()} />
+                </span>
+              )}
+            </Show>
+            <Show when={seat().played && seat().won}>
+              {(won) => (
+                <span class={styles['won']} aria-hidden="true">
+                  {won()}
                 </span>
               )}
             </Show>
@@ -658,7 +674,10 @@ export function CardTable(props: CardTableProps): JSX.Element {
         </div>
       </CardTableContext>
       <HandGuidance {...props} reasons={reasons()} refusal={refusal()} />
-      <Hand {...props} onRefused={setRefusal} reasonId={reasonId} />
+      {/* No cards, no hand: a watcher and a finished game get no empty toolbar. */}
+      <Show when={props.hand.length > 0}>
+        <Hand {...props} onRefused={setRefusal} reasonId={reasonId} />
+      </Show>
       {/* A refused press is always announced, but a reason already shown
           above the hand is emphasised there rather than printed twice. */}
       <p
