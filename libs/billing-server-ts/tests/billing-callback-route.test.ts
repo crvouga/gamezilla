@@ -26,6 +26,10 @@ class StubBilling implements MembershipBilling {
   cancelMembership(): Promise<void> {
     return Promise.reject(new Error('cancellation is outside this fixture'));
   }
+  async closeCheckouts(): Promise<null> {
+    return null;
+  }
+
   readPayments() {
     return Promise.resolve([]);
   }

@@ -51,14 +51,24 @@ export type ContentAttemptScreenViewProps = {
   /** Why the last change was not saved; the earlier position is kept. */
   readonly changeError: string | null;
   readonly complete: boolean;
+  /**
+   * A completion of this puzzle is already saved. Once the board is played
+   * away from solved (a restart, an undo), the panel says so quietly
+   * instead of repeating the full completion message.
+   */
+  readonly solvedBefore?: boolean | undefined;
   /** Published under rules this app version does not have. */
   readonly rulesChanged: boolean;
   /** The saved position cannot be projected onto the board. */
   readonly unopenable: boolean;
+  /** The puzzle itself cannot be read, so restarting cannot help either. */
+  readonly unreadable?: boolean | undefined;
   /** The game's player on the attempt's position. */
   readonly player?: JSX.Element;
   /** Undo / redo, restart and next. */
   readonly controls?: JSX.Element;
+  /** Where the board sits on a one-column screen. */
+  readonly stageAlign?: 'start' | 'center' | undefined;
   /** Earlier kept continuations to choose from. */
   readonly keptPositions?: JSX.Element;
   /**
@@ -225,6 +235,17 @@ function AttemptPanel(props: ContentAttemptScreenViewProps): JSX.Element {
           }
         />
       </Show>
+      <Show
+        when={!props.complete && !props.playtest && props.solvedBefore === true}
+      >
+        <P
+          variant="caption"
+          tone="secondary"
+          testId="content-attempt-solved-before"
+        >
+          {t`Solved before. Your completion stays saved.`}
+        </P>
+      </Show>
     </GameSection>
   );
 }
@@ -259,17 +280,28 @@ function AttemptBody(props: ContentAttemptScreenViewProps): JSX.Element {
         }
         actions={props.controls}
         actionsBeside
+        stageAlign={props.stageAlign}
         aside={<AttemptPanel {...props} />}
       >
         <Show
           when={!props.unopenable}
           fallback={
             <Notice tone="error">
-              <Trans>
-                This saved position cannot be opened. Choose another kept
-                continuation below, or restart. Your earlier attempt stays
-                saved.
-              </Trans>
+              <Show
+                when={props.unreadable === true}
+                fallback={
+                  <Trans>
+                    This saved position cannot be opened. Choose another kept
+                    continuation below, or restart. Your earlier attempt stays
+                    saved.
+                  </Trans>
+                }
+              >
+                <Trans>
+                  This puzzle cannot be opened. Your attempt stays saved. Return
+                  to the library to choose another puzzle.
+                </Trans>
+              </Show>
             </Notice>
           }
         >

@@ -51,6 +51,8 @@ export type GameSessionLayoutProps = {
    * its tools beside its canvas (`EditorWorkbench`). See `GameLayout`.
    */
   workspace?: boolean | undefined;
+  /** Where a narrower stage sits in a one-column layout. See `GameLayout`. */
+  stageAlign?: 'start' | 'center' | undefined;
   /** After everything: a `GameWatchingFooter` for someone watching. */
   footer?: JSX.Element | undefined;
   dataSet?: ComponentDataSet | undefined;
@@ -129,6 +131,7 @@ export function GameSessionLayout(props: GameSessionLayoutProps): JSX.Element {
         stagePreview={props.boardPreview}
         arena={props.arena}
         workspace={props.workspace}
+        stageAlign={props.stageAlign}
       >
         <SessionStage {...props} />
       </GameLayout>

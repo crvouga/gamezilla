@@ -253,6 +253,7 @@ function GameFrameTable(props: TableProps): JSX.Element {
     <GameFrameScreenView
       {...frameArgs()}
       title={props.title ?? props.presentation.name()}
+      boardFit={props.presentation.frame.boardFit}
       phase={over() ? 'completed' : 'active'}
       viewerSide={viewer()}
       status={tableStatus(props)}

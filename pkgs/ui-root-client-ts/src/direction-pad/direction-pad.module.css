@@ -47,7 +47,9 @@
   display: grid;
   place-items: center;
   padding: 0;
-  border: var(--ui-space-hairline) solid var(--ui-color-border);
+  /* The edge says where each target is: the strong line, at least 3:1
+     against the page in both themes (the hairline border was not). */
+  border: var(--ui-space-hairline) solid var(--ui-color-outline);
   border-radius: var(--ui-radius-control);
   background: var(--ui-color-surface-muted);
   color: var(--ui-color-text);

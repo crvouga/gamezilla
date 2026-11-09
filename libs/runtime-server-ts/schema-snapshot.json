@@ -1,5 +1,5 @@
 {
-  "release": 20,
+  "release": 21,
   "snapshot": {
     "tables": {
       "auth_account_devices": {
@@ -38,6 +38,12 @@
         "provider": "text",
         "subscription_id": "text"
       },
+      "billing_cancellation_feedback": {
+        "account_id": "text",
+        "comment": "text",
+        "reason": "text",
+        "subscription_id": "text"
+      },
       "billing_payment_evidence": {
         "account_id": "text",
         "amount_minor": "integer",
@@ -53,6 +59,7 @@
       "billing_subscriptions": {
         "account_id": "text",
         "cancel_at_period_end": "boolean",
+        "canceled_at": "timestamp",
         "credit_cents": "integer",
         "current_period_end": "timestamp",
         "price_key": "text",
@@ -476,6 +483,7 @@
     "retiredTables": [],
     "indexes": [
       ["billing_account_closures", "account_id"],
+      ["billing_cancellation_feedback", "account_id"],
       ["billing_payment_evidence", "erase_by"],
       ["billing_subscriptions", "account_id"],
       ["chess_multiplayer_games", "black_id"],
@@ -517,6 +525,7 @@
       ["auth_external_accounts", "provider", "external_id"],
       ["auth_external_accounts", "user_id", "provider"],
       ["billing_account_closures", "provider", "subscription_id"],
+      ["billing_cancellation_feedback", "subscription_id"],
       ["billing_payment_evidence", "provider", "payment_id"],
       ["billing_subscriptions", "provider", "provider_subscription_id"],
       ["chess_multiplayer_commands", "owner_id", "request_id"],
