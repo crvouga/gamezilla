@@ -222,6 +222,7 @@
   --color-game-sokoban-ink: var(--ui-color-game-sokoban-ink);
   --color-game-sokoban-muted: var(--ui-color-game-sokoban-muted);
   --color-game-sokoban-accent: var(--ui-color-game-sokoban-accent);
+  --color-game-sokoban-focus: var(--ui-color-game-sokoban-focus);
   --color-game-sokoban-one: var(--ui-color-game-sokoban-one);
   --color-game-sokoban-two: var(--ui-color-game-sokoban-two);
   --color-game-numberlink-canvas: var(--ui-color-game-numberlink-canvas);
