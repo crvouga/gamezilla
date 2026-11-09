@@ -25,3 +25,26 @@ test('storybook integration: a centred stage sits in the middle of a one-column 
   const after = layout.x + layout.width - (stage.x + stage.width);
   expect(Math.abs(before - after)).toBeLessThanOrEqual(1);
 });
+
+// regression: game-commands-and-rail-pinned-beside-centred-stage
+test('storybook integration: commands and rail centre with a centred stage at 768', async ({
+  page,
+}) => {
+  await page.goto(
+    '/iframe.html?id=templates-matchmaking-game--stage-centred&viewMode=story'
+  );
+  await expect(page.locator('#storybook-root')).toHaveAttribute(
+    'data-story-ready',
+    'true'
+  );
+  const centre = async (testId: string) => {
+    const box = await page.getByTestId(testId).boundingBox();
+    if (!box) throw new Error(`${testId} is missing`);
+    return box.x + box.width / 2;
+  };
+  const stage = await centre('stage-probe');
+  expect(
+    Math.abs((await centre('commands-probe')) - stage)
+  ).toBeLessThanOrEqual(1);
+  expect(Math.abs((await centre('rail-probe')) - stage)).toBeLessThanOrEqual(1);
+});
