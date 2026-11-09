@@ -69,3 +69,29 @@ test('storybook integration: battleship shot history keeps the own seat on a pho
     await captureBattleEvidence(page, info);
   }
 });
+
+// In enlarged placement the space kept for a longer refusal sat between the
+// "Place in" heading and its guidance: a 40-60px dead band on a phone.
+// regression: battleship-placement-heading-band
+test('storybook integration: battleship placement heading sits with its guidance on a phone', async ({
+  page,
+}, info) => {
+  await openBattleStory(
+    page,
+    'screens-games-battleship-setup--enlarged-placement',
+    'light',
+    info
+  );
+  const heading = await page
+    .getByTestId('custom-game-setup-region-heading')
+    .boundingBox();
+  const guidance = await page
+    .getByTestId('custom-game-setup-guidance')
+    .boundingBox();
+  const grid = await page
+    .getByTestId('custom-game-setup-precision')
+    .boundingBox();
+  if (!heading || !guidance || !grid) throw new Error('Placement not shown');
+  expect(guidance.y - (heading.y + heading.height)).toBeLessThanOrEqual(8);
+  expect(grid.y - (guidance.y + guidance.height)).toBeLessThanOrEqual(8);
+});

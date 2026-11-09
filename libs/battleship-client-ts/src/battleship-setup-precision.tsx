@@ -151,7 +151,7 @@ export function SetupPrecision(props: {
             />
           }
           region={
-            <P variant="label">
+            <P variant="label" testId={`${props.testId}-region-heading`}>
               {props.locked
                 ? t`Inspect ${regionOptions().find((option) => option.value === region.area())?.label ?? ''}`
                 : t`Place in ${regionOptions().find((option) => option.value === region.area())?.label ?? ''}`}
@@ -183,13 +183,7 @@ export function SetupPrecision(props: {
         />
       </Show>
       <Button
-        title={
-          props.open
-            ? t`Show full board`
-            : props.locked
-              ? t`Enlarge fleet`
-              : t`Enlarge placement`
-        }
+        title={props.open ? t`Show full board` : t`Enlarge board`}
         variant="ghost"
         intent="neutral"
         onClick={() => props.onOpenChange(!props.open)}

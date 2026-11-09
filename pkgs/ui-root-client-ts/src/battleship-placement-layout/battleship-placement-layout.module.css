@@ -4,7 +4,7 @@
   align-items: start;
   gap: var(--ui-space-2);
   width: 100%;
-  max-width: 33rem;
+  max-width: 36rem;
 }
 .controls {
   grid-column: 1 / -1;
@@ -14,14 +14,13 @@
   grid-column: 1;
   grid-row: 2;
 }
-.region {
-  grid-column: 1 / -1;
-}
 .feedback {
   grid-column: 1 / -1;
-  min-height: 4.5rem;
+  min-height: 6rem;
   display: flex;
-  align-items: end;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: var(--ui-space-1);
 }
 .working {
   grid-column: 1 / -1;
@@ -38,11 +37,10 @@
 }
 @media (min-width: 640px) {
   .layout {
-    grid-template-columns: 17rem 14rem;
+    grid-template-columns: 20rem 14rem;
   }
   .controls,
   .commands,
-  .region,
   .feedback,
   .working {
     grid-column: 1;
