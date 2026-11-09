@@ -403,16 +403,6 @@ jobs:
         run: >-
           bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload verify-ci-details
           .cache/verify-ci/plan.json .cache/verify-ci/planning.json .cache/verify-ci/profile.json '.cache/verify-ci/results/*.json'
-      # Hosting is an external side effect after the deterministic verdict.
-      # Chromatic's own UI checks report separately; hosting cannot change verify:end.
-      - name: Publish PR Storybook
-        if: ${{ success() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository }}
-        continue-on-error: true
-        timeout-minutes: 30
-        uses: ./.github/actions/publish-storybook
-        with:
-          secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
-          secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
       - name: Delete transfer artifacts
         if: always() && !cancelled() && env.VERIFY_PROFILE != 'nightly'
         run: bun run libs/tools-harness-ts/scripts/ci-artifacts.ts delete verify-
