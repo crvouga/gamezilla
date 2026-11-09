@@ -24,24 +24,16 @@ export async function pongView(s: ProductHarness, actor = 'alice') {
 
 /** The same visible court reader serves local specs and whole-product journeys. */
 export async function readPongCourt(ui: Driver, board: string) {
-  const status = await ui.get(`${board}-status`).text();
-  if (status === null) throw new Error('No Pong status is shown');
+  // The court's status carries what it says as data, so readers never
+  // depend on its words; during live play only the spoken summary shows.
+  const status = ui.get(`${board}-status`);
+  if ((await status.text()) === null)
+    throw new Error('No Pong status is shown');
+  const stage = ((await status.attribute('data-stage')) ??
+    'playing') as PongStage;
+  const shown = await status.attribute('data-winner');
   const winner: PongPaddle | null =
-    status === 'Left wins.'
-      ? 'left'
-      : status === 'Right wins.'
-        ? 'right'
-        : null;
-  const stage: PongStage =
-    winner !== null
-      ? 'finished'
-      : status.startsWith('Serve in ')
-        ? 'countdown'
-        : status === 'Keep the ball in play.'
-          ? 'playing'
-          : status.startsWith('Paused ')
-            ? 'paused'
-            : 'reconnecting';
+    shown === 'left' || shown === 'right' ? shown : null;
   // The ball as the game plays it (court units), not as it is drawn.
   const ball = ui.get(`${board}-ball`);
   const radius = Number(await ball.attribute('data-ball-size')) / 2;

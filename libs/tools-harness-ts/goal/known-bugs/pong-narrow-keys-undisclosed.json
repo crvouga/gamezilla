@@ -1,0 +1,4 @@
+{
+  "summary": "Below the wide layout, Pong's guidance only said to drag, although the keyboard moves the paddles there too.",
+  "regressionTest": "libs/pong-client-ts/tests/pong-court-guidance.test.tsx"
+}

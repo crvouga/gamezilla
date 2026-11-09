@@ -1,0 +1,4 @@
+{
+  "summary": "A held paddle direction survives browser window focus loss, allowing movement and stale keys after returning.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/pong-input-interruption.test.tsx"
+}

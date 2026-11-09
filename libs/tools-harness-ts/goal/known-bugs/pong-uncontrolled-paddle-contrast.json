@@ -1,0 +1,4 @@
+{
+  "summary": "An uncontrolled blue paddle has only 2.17:1 contrast against the light-theme Pong court, leaving spectators and right-seat players without a visible boundary.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/pong-contrast/integration.checks.ts"
+}

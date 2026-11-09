@@ -49,13 +49,18 @@ function mount(width: number): void {
 // regression: pong-court-chrome-repeated — the court drew its own score
 // row and status line over the players' points and the game's turn line,
 // then a four-line paragraph and, on a wide screen, the phone's slider.
-test('wide: no paddle slider, one short line on keys and the points that win', () => {
+// regression: pong-keyboard-entry-undisclosed
+// regression: pong-wide-guidance-asks-for-focus
+test('wide: discover court focus, keys and dragging beside the points that win', () => {
   mount(1440);
   expect(screen.queryByTestId('pong-white-control')).toBeNull();
   expect(screen.getByTestId('pong-target').textContent).toBe('First to 11');
   expect(
     screen.getByText(/W and S or the arrow keys move your paddle/)
   ).toBeTruthy();
+  // Keys reach the court without focusing it first: no step is asked for.
+  expect(screen.queryByText(/Click or Tab/)).toBeNull();
+  expect(screen.getByText(/You can also drag up and down/)).toBeTruthy();
 });
 
 // regression: pong-slider-sideways — a horizontal slider under the court
@@ -79,7 +84,9 @@ test("phone: the paddle's upright slider lies over its own half of the court", (
   );
   // Only the person's own paddle has a slider.
   expect(screen.queryByTestId('pong-black-control')).toBeNull();
-  expect(screen.getByText(/Drag up and down along your edge/)).toBeTruthy();
+  expect(
+    screen.getByText(/Drag up and down anywhere on the court/)
+  ).toBeTruthy();
 });
 
 // regression: pong-markers-unmatched — the players' swatches were blue and
