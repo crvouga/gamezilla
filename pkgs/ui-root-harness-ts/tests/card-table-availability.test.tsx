@@ -32,7 +32,7 @@ test('a refused nine of diamonds explains follow suit before activation and neve
       onCard={(id) => played.push(id)}
     />
   ));
-  expect(view.getByText(`× ${reason}`)).toBeTruthy();
+  expect(view.getByText(reason, { selector: 'span' })).toBeTruthy();
   const card = view.getByTestId('9D');
   expect(card.title).toBe(reason);
   expect(card.textContent).toContain('×');

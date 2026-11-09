@@ -36,6 +36,6 @@ test('pressing a refused nine of diamonds shows its follow-suit reason once and 
   expect(status.textContent).toBe(reason);
   expect(status.getAttribute('role')).toBe('status');
   expect(status.getAttribute('data-spoken-only')).toBe('true');
-  const visible = view.getByText(`× ${reason}`);
-  expect(visible.getAttribute('data-emphasis')).toBe('true');
+  const visible = view.getByText(reason, { selector: 'span' });
+  expect(visible.parentElement?.getAttribute('data-emphasis')).toBe('true');
 });

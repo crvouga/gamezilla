@@ -20,6 +20,7 @@ import { createEffect, createMemo, createSignal, type JSX, on } from 'solid-js';
 import { passActionTo, passHeadingTo, passWaiting } from './hearts-copy';
 import {
   handCards,
+  heartsWaiting,
   passRecipient,
   tableCard,
   tableCenter,
@@ -82,6 +83,22 @@ function passControl(
   if (!passing || props.hand === null || props.commitment !== null || !open)
     return undefined;
   return passButton(props, pass, onSend);
+}
+
+/** The table's sentence: a pass on its way, cards still coming, else the play. */
+function boardCenter(
+  props: GameBoardProps,
+  sending: boolean,
+  awaitingHand: boolean,
+  nameOf: GamePlayerName
+): string {
+  if (sending) return t`Passing your cards…`;
+  if (awaitingHand) return t`Your cards are on their way.`;
+  return tableCenter(
+    props,
+    props.hand === null ? null : props.orientation,
+    nameOf
+  );
 }
 
 /** Who gets a seated player's pass this deal, so passing names a person. */
@@ -180,6 +197,7 @@ export function HeartsBoard(props: GameBoardProps): JSX.Element {
     );
   };
   const players = useSeatPlayers();
+  const nameOf = (side: GameSide) => players?.nameOf(side) ?? null;
   // A seated player whose cards are still on their way, told so rather
   // than shown an empty hand.
   const awaitingHand = () => props.interactive && props.hand === null;
@@ -189,17 +207,7 @@ export function HeartsBoard(props: GameBoardProps): JSX.Element {
       tableSummary={t`Players and scores`}
       testId={props.testId}
       seats={tableSeats(props, players?.content)}
-      center={
-        sending()
-          ? t`Passing your cards…`
-          : awaitingHand()
-            ? t`Your cards are on their way.`
-            : tableCenter(
-                props,
-                props.hand === null ? null : props.orientation,
-                (side) => players?.nameOf(side) ?? null
-              )
-      }
+      center={boardCenter(props, sending(), awaitingHand(), nameOf)}
       // The game's turn line beside the table says the same sentence.
       centerSpokenOnly={!awaitingHand()}
       trick={decodeHearts(props.position)?.phase === 'play'}
@@ -214,6 +222,7 @@ export function HeartsBoard(props: GameBoardProps): JSX.Element {
       )}
       handLabel={t`Your hand`}
       handInstruction={handInstruction(props, passing())}
+      handWaiting={heartsWaiting(props, nameOf)}
       cardTestId={(id) => `${props.testId}-card-${id}`}
       onCard={choose}
       action={passControl(

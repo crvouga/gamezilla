@@ -198,6 +198,24 @@ export function passRecipient(
   return playerName(sideOfSeat(target), nameOf);
 }
 
+/**
+ * Why a seated player's hand cannot be played while tricks are played and
+ * it is not their turn: who plays next. `undefined` on their turn, while
+ * passing, once the game is over, and for a watcher.
+ */
+export function heartsWaiting(
+  board: Pick<GameBoardProps, 'position' | 'hand' | 'orientation'>,
+  nameOf: GamePlayerName
+): string | undefined {
+  const position = decodeHearts(board.position);
+  if (board.hand === null || position?.phase !== 'play') return undefined;
+  const deciding = seatToPlay(position);
+  if (deciding === null || deciding === seatOfSide(board.orientation))
+    return undefined;
+  const next = playerName(sideOfSeat(deciding), nameOf);
+  return t`Not your turn. ${next} plays next.`;
+}
+
 /** What the table is doing, naming the player independently of rendered seats. */
 export function tableCenter(
   board: Pick<GameBoardProps, 'position' | 'commitment' | 'committed'>,
@@ -262,6 +280,9 @@ export function handCards(
   const seat = seatOfSide(board.orientation);
   const refusal = (card: Card): string | undefined => {
     if (position?.phase !== 'play') return undefined;
+    // Not this seat's turn: the hand waits as a whole (`heartsWaiting`),
+    // no card is refused by a rule.
+    if (seatToPlay(position) !== seat) return undefined;
     const reason = cardRefusal(position, seat, held, card);
     return reason === null ? undefined : heartsRefusal(reason);
   };

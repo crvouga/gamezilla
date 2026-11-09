@@ -426,6 +426,13 @@ button.card:focus-visible {
   color: var(--ui-color-text-secondary);
   font-size: var(--ui-font-size-sm);
 }
+/* Not the person's turn: the hand is inactive as a whole, said once above
+   it, rather than every card marked as refused. */
+.hand[data-waiting="true"] > .card {
+  opacity: 0.8;
+  box-shadow: none;
+  cursor: not-allowed;
+}
 /* Empty until a card is refused: it takes no row of its own then. */
 .refusal:empty,
 .refusal[data-spoken-only="true"] {
