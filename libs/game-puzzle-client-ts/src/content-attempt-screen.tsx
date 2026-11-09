@@ -7,6 +7,7 @@ import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { createMemo, type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import { ContentAttemptControls } from './content-attempt-controls';
+import { ContentAttemptNext } from './content-attempt-next';
 import {
   type AttemptFigure,
   type ContentAttemptPack,
@@ -89,6 +90,20 @@ function savedCompletion(
     );
 }
 
+/** A pack puzzle's way on, for its pack card. */
+function PackWayOn(props: {
+  attempt: ContentAttempt;
+  progress: { readonly complete: boolean } | null;
+}): JSX.Element {
+  return (
+    <ContentAttemptNext
+      attempt={props.attempt}
+      complete={props.progress?.complete ?? false}
+      part="pack"
+    />
+  );
+}
+
 function AttemptBody(props: {
   attempt: ContentAttempt;
   source: ContentBody;
@@ -151,6 +166,7 @@ function AttemptBody(props: {
           )}
         </Show>
       }
+      packActions={<PackWayOn attempt={props.attempt} progress={progress()} />}
       controls={
         <ContentAttemptControls
           attempt={props.attempt}

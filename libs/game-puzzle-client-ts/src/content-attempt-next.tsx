@@ -6,9 +6,16 @@ import { createMemo, type JSX, Show } from 'solid-js';
 import { useContentGame } from './content-game-context';
 import { useContentLibraryState } from './content-library-context';
 
+/**
+ * An attempt's way on. `commands` is what sits with Undo and Restart (a
+ * playtest's way back to its builder); `pack` is a pack puzzle's next
+ * puzzle and overview, shown in the pack card so the command row keeps
+ * one width and nothing moves when a puzzle is solved.
+ */
 export function ContentAttemptNext(props: {
   attempt: ContentAttempt;
   complete: boolean;
+  part: 'commands' | 'pack';
 }): JSX.Element {
   const { t } = useLingui();
   const game = useContentGame();
@@ -28,7 +35,9 @@ export function ContentAttemptNext(props: {
   });
   return (
     <>
-      <Show when={props.attempt.mode === 'playtest'}>
+      <Show
+        when={props.part === 'commands' && props.attempt.mode === 'playtest'}
+      >
         <Button
           title={t`Return to builder`}
           variant="outline"
@@ -39,7 +48,22 @@ export function ContentAttemptNext(props: {
           }
         />
       </Show>
-      <Show when={props.attempt.pack_revision_id}>
+      <Show when={props.part === 'pack' && next()}>
+        {(item) => (
+          <Button
+            title={t`Next puzzle: ${item().title}`}
+            onClick={() =>
+              game.open({
+                kind: 'edition',
+                revisionId: item().revisionId,
+                packRevisionId: props.attempt.pack_revision_id,
+              })
+            }
+            dataSet={{ testid: 'content-next-puzzle' }}
+          />
+        )}
+      </Show>
+      <Show when={props.part === 'pack' && props.attempt.pack_revision_id}>
         {(id) => (
           <Button
             title={t`Pack overview`}
@@ -54,21 +78,6 @@ export function ContentAttemptNext(props: {
                 packRevisionId: null,
               })
             }
-          />
-        )}
-      </Show>
-      <Show when={next()}>
-        {(item) => (
-          <Button
-            title={t`Next puzzle: ${item().title}`}
-            onClick={() =>
-              game.open({
-                kind: 'edition',
-                revisionId: item().revisionId,
-                packRevisionId: props.attempt.pack_revision_id,
-              })
-            }
-            dataSet={{ testid: 'content-next-puzzle' }}
           />
         )}
       </Show>
