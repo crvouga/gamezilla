@@ -29,7 +29,7 @@ export function isPullRequestCheck(appId: number, event: string): boolean {
 }
 
 /** The current aggregate cannot await itself; it already checks every planned task. */
-function aggregate(check: Pick<PrCheck, 'name' | 'appId'>): boolean {
+export function aggregate(check: Pick<PrCheck, 'name' | 'appId'>): boolean {
   return check.appId === ACTIONS && check.name === 'verify:end';
 }
 
