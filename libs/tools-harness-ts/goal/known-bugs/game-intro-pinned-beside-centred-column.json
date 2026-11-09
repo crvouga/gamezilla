@@ -1,0 +1,4 @@
+{
+  "summary": "With stageAlign: 'center' on a one-column game layout (768px), the title centred with the board but the session's notices (a puzzle's intro line, 'Push each crate onto a goal.') stayed at the 16px column gutter, so the page still had two left edges; the earlier check measured only the title. The opt-in now gives the notices the board's measure and centres them, and the check asserts the title's and the intro's left edges against the board.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/game-stage-align/integration.checks.ts"
+}
