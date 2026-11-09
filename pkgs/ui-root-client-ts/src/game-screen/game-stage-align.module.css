@@ -9,4 +9,13 @@
     width: 100%;
     max-width: var(--game-board-measure);
   }
+  /* The screen's title and intro (the column's first block) take the same
+     measure and centre too, so the whole page reads as one centred column.
+     Only a column holding a centred stage changes. */
+  :global([data-component="GameColumn"]:has([data-stage-align="center"]))
+  > :first-child {
+    width: 100%;
+    max-width: var(--game-board-measure);
+    margin-inline: auto;
+  }
 }
