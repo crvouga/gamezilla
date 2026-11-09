@@ -105,7 +105,12 @@ function PlayerIdentity(props: GamePlayerBarProps): JSX.Element {
   const facts = (): boolean =>
     tags.present() || (props.state !== undefined && props.state !== null);
   const tagRow = (): JSX.Element => (
-    <span class={styles['playerTags']}>
+    <span
+      class={styles['playerTags']}
+      classList={{ 'shrink-0': inline() }}
+      // After the name, the tags never wrap onto a second line.
+      style={inline() ? { '--player-tags-wrap': 'nowrap' } : undefined}
+    >
       <Show when={props.state}>
         {(state) => <GamePlayerStateBadge state={state()} />}
       </Show>
@@ -130,9 +135,7 @@ function PlayerIdentity(props: GamePlayerBarProps): JSX.Element {
         {/* One line: the swatch, the name (cut short when long, its whole
             self in the tooltip and to a listener), the turn, and the tags
             when they follow the name. */}
-        <span
-          class={`box flex-row items-center gap-2 min-w-0 ${styles['playerOneLine']}`}
-        >
+        <span class="box flex-row flex-nowrap items-center gap-2 min-w-0">
           <Show when={props.swatch}>
             {(look) => (
               <GameSeatSwatch look={look()} label={props.swatchLabel} />

@@ -139,7 +139,7 @@ test('wide arena rail: each strip is one line, a long name cut short with its fu
     const swatch = strip?.querySelector('[data-component="GameSeatSwatch"]');
     // Swatch and name share one line that never wraps.
     expect(swatch?.parentElement === name?.parentElement).toBe(true);
-    expect(name?.parentElement?.classList.contains('flex-wrap')).toBe(false);
+    expect(name?.parentElement?.classList.contains('flex-nowrap')).toBe(true);
   }
   const long = board.querySelector(`[title="${LONG}"]`);
   // The whole name stays reachable in the tooltip when it is cut short.
@@ -162,8 +162,12 @@ test('wide arena rail: each strip is one line, a long name cut short with its fu
   );
   const rule = (selector: string) =>
     sheet.split(`\n${selector} {`)[1]?.split('}')[0] ?? '';
-  expect(rule('.playerOneLine')).toContain('flex-wrap: nowrap;');
-  expect(rule('.playerOneLine > .playerTags')).toContain('flex-shrink: 0;');
+  expect(rule('.playerTags')).toContain(
+    'flex-wrap: var(--player-tags-wrap, wrap);'
+  );
+  const tags = screen.getByTestId('custom-game-white').querySelector('[title]')
+    ?.parentElement?.lastElementChild as HTMLElement | null;
+  expect(tags?.style.getPropertyValue('--player-tags-wrap')).toBe('nowrap');
   expect(rule('.playerName')).toContain('white-space: nowrap;');
   expect(rule('.playerName')).toContain('text-overflow: ellipsis;');
 });
