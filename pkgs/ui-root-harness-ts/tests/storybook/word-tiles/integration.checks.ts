@@ -412,3 +412,28 @@ test('storybook integration: word-tiles desktop keeps Fit and Enlarge in one pla
   const after = await fit.boundingBox();
   expect([after?.x, after?.y]).toEqual([before?.x, before?.y]);
 });
+
+// regression: word-tiles-bonus-squares-one-colour
+test('storybook integration: word-tiles bonus squares are told apart by colour as well as text', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 844 });
+  for (const theme of ['light', 'dark']) {
+    await openStory(page, 'opening', theme);
+    const fills = await page.evaluate(() => {
+      const board = document.querySelector('[data-testid="custom-game-board"]');
+      const fill = (square: string) => {
+        const cell = board?.querySelector(
+          `[data-state="empty"][data-square="${square}"]`
+        );
+        return cell ? getComputedStyle(cell).backgroundColor : null;
+      };
+      return ['DL', 'TL', 'DW', 'TW'].map(fill);
+    });
+    expect(
+      fills.every((value) => value !== null),
+      theme
+    ).toBe(true);
+    expect(new Set(fills).size, theme).toBe(4);
+  }
+});

@@ -33,13 +33,16 @@
   stroke: var(--ui-color-game-word-tiles-muted);
   stroke-width: 0.04;
 }
-.square[data-square="DL"],
+/* The board's bonus colours, so the overview reads the same. */
+.square[data-square="DL"] {
+  fill: var(--ui-color-game-word-tiles-surface);
+}
 .square[data-square="TL"] {
   fill: var(--ui-color-game-word-tiles-two);
 }
 .square[data-square="DW"],
 .square[data-square="start"] {
-  fill: var(--ui-color-game-word-tiles-accent);
+  fill: var(--ui-color-game-word-tiles-muted);
 }
 .square[data-square="TW"] {
   fill: var(--ui-color-game-word-tiles-one);

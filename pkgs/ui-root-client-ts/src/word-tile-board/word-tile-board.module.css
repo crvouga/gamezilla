@@ -224,6 +224,20 @@
   background: var(--ui-color-game-word-tiles-surface);
   color: var(--ui-color-board-card-ink);
 }
+/* Bonus tiers by colour as well as label: a double letter keeps the plain
+   surface, a triple letter is blue, a double word a deeper green and a
+   triple word coral. Gold stays for tiles placed this turn and white for
+   played tiles. Every fill is pale under dark ink. */
+.cell[data-state="empty"][data-square="TL"] {
+  background: var(--ui-color-game-word-tiles-two);
+}
+.cell[data-state="empty"][data-square="DW"],
+.cell[data-state="empty"][data-square="start"] {
+  background: var(--ui-color-game-word-tiles-muted);
+}
+.cell[data-state="empty"][data-square="TW"] {
+  background: var(--ui-color-game-word-tiles-one);
+}
 .square {
   font-weight: 400;
 }
