@@ -42,9 +42,11 @@ export type GamePlayerBarProps = {
    * `below` (default): the tags on a line under the name. `inline`: on the
    * name's own line, after it, for a list of strips (the players beside an
    * arena) where a short tag (`You`) must not make one strip taller than
-   * the rest.
+   * the rest: the line never wraps, a long name is cut short instead.
    */
   tagsPlacement?: 'below' | 'inline' | undefined;
+  /** The name as plain words: the tooltip when a long name is cut short. */
+  plainName?: string | undefined;
   /** The seat's figure at the far edge (score, walls). */
   stat?: GameSeatStat | null | undefined;
   /**
@@ -125,7 +127,12 @@ function PlayerIdentity(props: GamePlayerBarProps): JSX.Element {
         </Show>
       </span>
       <span class={styles['playerIdentity']}>
-        <span class="box flex-row flex-wrap items-center gap-2 min-w-0">
+        {/* One line: the swatch, the name (cut short when long, its whole
+            self in the tooltip and to a listener), the turn, and the tags
+            when they follow the name. */}
+        <span
+          class={`box flex-row items-center gap-2 min-w-0 ${styles['playerOneLine']}`}
+        >
           <Show when={props.swatch}>
             {(look) => (
               <GameSeatSwatch look={look()} label={props.swatchLabel} />
@@ -134,6 +141,7 @@ function PlayerIdentity(props: GamePlayerBarProps): JSX.Element {
           <span
             class={`text textLabel min-w-0 ${styles['playerName']}`}
             classList={{ 'text-on-primary-soft': props.active === true }}
+            title={props.plainName}
           >
             {props.name}
           </span>

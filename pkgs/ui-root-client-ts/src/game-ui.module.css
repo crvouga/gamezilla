@@ -232,8 +232,9 @@
   min-width: 0;
 }
 .playerName {
-  overflow-wrap: anywhere;
-  white-space: normal;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 .playerTags {
   display: flex;
@@ -244,6 +245,16 @@
 }
 /* A compact seat's facts line is a tag's height whether or not it holds a
    tag (`Host`), so two seat cards side by side keep their rows level. */
+/* The name's line never wraps: a long name is cut short instead, so a
+   strip keeps its shape, and tags after the name keep every strip in a
+   list one line tall. */
+.playerOneLine {
+  flex-wrap: nowrap;
+}
+.playerOneLine > .playerTags {
+  flex-wrap: nowrap;
+  flex-shrink: 0;
+}
 .player[data-density="compact"] .playerTags {
   min-height: var(--ui-space-6);
 }
