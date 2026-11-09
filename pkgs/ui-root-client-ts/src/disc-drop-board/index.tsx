@@ -1,6 +1,5 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import {
-  createEffect,
   createMemo,
   createSignal,
   createUniqueId,
@@ -34,11 +33,6 @@ export type DiscDropBoardProps = {
    * they let go. Leave it out to keep `prompt` throughout.
    */
   readonly previewPrompt?: ((column: number) => string) | undefined;
-  /**
-   * The game is over: the board scrolls, by as little as it takes, to be
-   * fully in view, so the deciding discs are never below the fold.
-   */
-  readonly finished?: boolean | undefined;
   /** Keyboard guidance, revealed on keyboard focus and described to assistive technology. */
   readonly keyboardHelp?: string | undefined;
   /** Explain a full column and how to choose another while it is targeted. */
@@ -77,9 +71,7 @@ export function DiscDropBoard(props: DiscDropBoardProps): JSX.Element {
   // The prompt is kept while someone is to move, never on a preview.
   const promptLine = (): boolean => props.prompt !== undefined && !thumbnail();
   const [preview, setPreview] = createSignal<number | null>(null);
-  const { focused, focus, tabStop, keyboard } = createColumnFocus(() =>
-    setPreview(null)
-  );
+  const { focused, focus, tabStop } = createColumnFocus(() => setPreview(null));
   const columns = createMemo(() =>
     Array.from({ length: props.columns }, (_, n) => n)
   );
@@ -87,13 +79,21 @@ export function DiscDropBoard(props: DiscDropBoardProps): JSX.Element {
     const column = preview() ?? focused();
     return props.interactive && column !== null ? landing(props, column) : null;
   };
-  const promptText = (): string =>
-    boardPrompt(props, target(), preview() ?? focused());
+  const promptText = (): string => {
+    const at = target();
+    const column = preview() ?? focused();
+    if (props.interactive && prompting() && column !== null && at === null)
+      return props.fullColumnPrompt?.(column) ?? props.prompt ?? '';
+    const named = props.previewPrompt;
+    return at !== null && named !== undefined && prompting()
+      ? named(at % props.columns)
+      : (props.prompt ?? '');
+  };
   let root: HTMLDivElement | undefined;
   const navigate = (event: KeyboardEvent, column: number): void => {
     const key = event.key;
     if (key === 'Enter' || key === ' ') {
-      focus(column, true);
+      focus(column);
       return;
     }
     const next = nextColumn(key, column, props.columns);
@@ -101,9 +101,6 @@ export function DiscDropBoard(props: DiscDropBoardProps): JSX.Element {
     event.preventDefault();
     root?.querySelector<HTMLButtonElement>(`[data-column="${next}"]`)?.focus();
   };
-  createFinishReveal(() =>
-    props.finished === true && !thumbnail() ? root : undefined
-  );
   return (
     <div
       ref={root}
@@ -119,7 +116,6 @@ export function DiscDropBoard(props: DiscDropBoardProps): JSX.Element {
       data-preview-cell={target() ?? -1}
       data-cells={JSON.stringify(props.cells)}
       data-won={String(props.winning.length > 0)}
-      data-keyboard-help={String(keyboard())}
       style={{ '--disc-columns': props.columns }}
     >
       <Show when={promptLine()}>
@@ -184,44 +180,12 @@ function describedBy(...ids: (string | undefined)[]): string | undefined {
 function createColumnFocus(clearPreview: () => void) {
   const [focused, setFocused] = createSignal<number | null>(null);
   const [tabStop, setTabStop] = createSignal(0);
-  // Whether focus came from the keyboard: it shows the keyboard help. A
-  // plain attribute, not a :has() rule, so the board's other changes never
-  // make the browser re-check it.
-  const [keyboard, setKeyboard] = createSignal(false);
-  const focus = (column: number | null, fromKeyboard = false): void => {
+  const focus = (column: number | null): void => {
     setFocused(column);
-    setKeyboard(column !== null && fromKeyboard);
     if (column !== null) {
       clearPreview();
       setTabStop(column);
     }
   };
-  return { focused, focus, tabStop, keyboard };
-}
-
-/** Once the game is over, bring the whole board into view, minimally. */
-function createFinishReveal(
-  finishedBoard: () => HTMLElement | undefined
-): void {
-  createEffect(() => {
-    finishedBoard()?.scrollIntoView({ block: 'nearest' });
-  });
-}
-
-/**
- * The prompt line: a full column targeted explains itself, a column that
- * would take the disc names where it lands, otherwise the plain prompt.
- */
-function boardPrompt(
-  props: DiscDropBoardProps,
-  at: number | null,
-  column: number | null
-): string {
-  const prompting = (props.prompt ?? '').length > 0;
-  if (props.interactive && prompting && column !== null && at === null)
-    return props.fullColumnPrompt?.(column) ?? props.prompt ?? '';
-  const named = props.previewPrompt;
-  return at !== null && named !== undefined && prompting
-    ? named(at % props.columns)
-    : (props.prompt ?? '');
+  return { focused, focus, tabStop };
 }
