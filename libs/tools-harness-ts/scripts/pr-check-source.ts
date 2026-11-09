@@ -22,29 +22,52 @@ function pages<T>(endpoint: string): readonly T[] {
   return JSON.parse(result.stdout) as readonly T[];
 }
 
+/** A workflow run's event never changes, so each run is looked up once per process. */
+export function memoizedWorkflowEvents(
+  lookup: (runId: string) => string
+): (runId: string) => string {
+  const events = new Map<string, string>();
+  return (runId) => {
+    let event = events.get(runId);
+    if (event === undefined) {
+      event = lookup(runId);
+      events.set(runId, event);
+    }
+    return event;
+  };
+}
+
+const workflowEvents = new Map<string, (runId: string) => string>();
+
+function workflowEventsFor(repository: string): (runId: string) => string {
+  let events = workflowEvents.get(repository);
+  if (events === undefined) {
+    events = memoizedWorkflowEvents((runId) => {
+      const result = spawnSync(
+        'gh',
+        ['api', `repos/${repository}/actions/runs/${runId}`, '--jq', '.event'],
+        { encoding: 'utf8', timeout: 15_000 }
+      );
+      if (result.status !== 0)
+        throw new Error(`Cannot identify PR check source: ${result.stderr}`);
+      return result.stdout.trim();
+    });
+    workflowEvents.set(repository, events);
+  }
+  return events;
+}
+
 function pullRequestChecks(
   repository: string,
   checks: readonly CheckRun[]
 ): readonly CheckRun[] {
-  const events = new Map<string, string>();
+  const eventOf = workflowEventsFor(repository);
   return checks.filter((check) => {
     if (check.app.id !== 15368) return true;
     const id = check.details_url.match(/\/actions\/runs\/(\d+)(?:\/|$)/)?.[1];
     if (id === undefined)
       throw new Error(`Cannot identify the workflow for ${check.name}`);
-    let event = events.get(id);
-    if (event === undefined) {
-      const result = spawnSync(
-        'gh',
-        ['api', `repos/${repository}/actions/runs/${id}`, '--jq', '.event'],
-        { encoding: 'utf8', timeout: 15_000 }
-      );
-      if (result.status !== 0)
-        throw new Error(`Cannot identify PR check source: ${result.stderr}`);
-      event = result.stdout.trim();
-      events.set(id, event);
-    }
-    return isPullRequestCheck(check.app.id, event);
+    return isPullRequestCheck(check.app.id, eventOf(id));
   });
 }
 
