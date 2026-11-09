@@ -53,6 +53,17 @@ export const openBilling = scenarioAction({
   },
 });
 
+/** Leave the billing screen for Settings, the way the person came in. */
+export const leaveBilling = scenarioAction({
+  name: 'leaveBilling',
+  act: async (s, actorId: string) => {
+    const ui = await actorUi(s, actorId);
+    await ui.get(Handles.statusCurrentUser).tap({ timeoutMs: WAIT_MS });
+    await ui.get(Handles.globalMenuSettings).tap({ timeoutMs: WAIT_MS });
+    await ui.get(Handles.billingScreen).expect.hidden({ timeoutMs: WAIT_MS });
+  },
+});
+
 /** Each payment provider's link to the app, as the network names its ends. */
 function confirmationLinks(
   s: ProductHarness

@@ -6,9 +6,9 @@ import {
 
 // regression: registered-storybook-preview-classified-as-production
 test('registered product-shell preview may compose its Storybook fixture', () => {
-  expect(isStorybookSource('apps/product-ts/src/storybook-preview.ts')).toBe(
-    true
-  );
+  expect(
+    isStorybookSource('apps/product-ts/src/storybook-preview.example.tsx')
+  ).toBe(true);
   for (const path of previewAnnotations)
     expect(isStorybookSource(path)).toBe(true);
 });

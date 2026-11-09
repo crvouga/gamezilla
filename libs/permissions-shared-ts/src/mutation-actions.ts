@@ -29,6 +29,8 @@ export const MUTATION_ACTIONS: Readonly<
   patchAvatar: 'public',
   confirmAccountDeletion: PERMISSION.profileDeleteAccount,
   requestPersonalDataExport: PERMISSION.profileExportData,
+  // billing
+  shareCancellationFeedback: PERMISSION.billingManage,
   // chess
   startPuzzleImport: PERMISSION.puzzlesManage,
   stopPuzzleImport: PERMISSION.puzzlesManage,

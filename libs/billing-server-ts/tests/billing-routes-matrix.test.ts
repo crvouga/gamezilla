@@ -116,6 +116,7 @@ function stubBilling(
     provider: 'stub',
     cancelMembership: () =>
       Promise.reject(new Error('cancellation is outside this fixture')),
+    closeCheckouts: async () => null,
     readPayments: () => Promise.resolve([]),
     refundPayment: () =>
       Promise.reject(new Error('refund is outside this fixture')),
@@ -263,14 +264,16 @@ function expectedPortal(caller: Caller, session: SessionAnswer): Outcome {
 }
 
 function expectedCallback(caller: Caller, callback: CallbackAnswer): Outcome {
-  const providerCalls = ['callback'];
-  if (callback === 'throws') return { status: 500, ...NONE, providerCalls };
-  if (callback === 'unverified') return { status: 400, ...NONE, providerCalls };
+  if (callback === 'throws')
+    return { status: 500, ...NONE, providerCalls: ['callback'] };
+  if (callback === 'unverified')
+    return { status: 400, ...NONE, providerCalls: ['callback'] };
   // Callbacks carry no session: the caller only matters through the link.
   const projects = callback === 'membership_linked' && caller === 'customer';
   return {
     status: 200,
-    providerCalls,
+    // A projected callback asks the provider again after writing.
+    providerCalls: projects ? ['callback', 'callback'] : ['callback'],
     runs: projects
       ? ['project:active', 'telemetry:subscription', 'recheck:scheduled']
       : [],

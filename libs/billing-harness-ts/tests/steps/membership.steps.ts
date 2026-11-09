@@ -166,15 +166,18 @@ When("{actor}'s billing period has run out", async (w, actor: Actor) => {
 });
 
 Given("{actor}'s billing period has ended", async (w, actor: Actor) => {
-  const before = await shownWhere(w, actor, () => true);
+  const accountId = await w.s.read(accountIdOf, actor);
+  if (accountId === null) throw new Error(`${actor} is not signed in`);
+  const before = await w.s.read(serverMembershipRow, accountId);
   await w.s.apply(providerEvent, actor, 'run_out_period');
-  // "Has ended" is settled: the screen has moved past the period it showed.
-  await shownWhere(
-    w,
-    actor,
-    (shown) =>
-      shown.state !== before.state || shown.periodEndMs !== before.periodEndMs
-  );
+  // The provider's period ends even while the person's device is offline.
+  await w.s.until((s) => serverMembershipRow(s, accountId), {
+    maxMs: 60_000,
+    pred: (row) =>
+      row !== null &&
+      (row.status !== before?.status ||
+        row.current_period_end !== before?.current_period_end),
+  });
 });
 
 When("{actor}'s payment is refunded", async (w, actor: Actor) => {
@@ -219,6 +222,14 @@ Given(
   async (w, actor: Actor) => {
     await w.s.apply(cancelPlus, actor);
     await shownWhere(w, actor, (shown) => shown.state === 'canceling');
+  }
+);
+
+Given(
+  '{actor} has renewed the membership in the billing portal',
+  async (w, actor: Actor) => {
+    await w.s.apply(resumePlus, actor);
+    await shownWhere(w, actor, (shown) => shown.state !== 'canceling');
   }
 );
 

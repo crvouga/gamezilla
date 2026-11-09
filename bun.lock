@@ -927,6 +927,9 @@
         "@pkgs/billing-root-shared-ts": "workspace:*",
         "@pkgs/clock-client-ts": "workspace:*",
         "@pkgs/http-client-client-ts": "workspace:*",
+        "@pkgs/keyword-shared-ts": "workspace:*",
+        "@pkgs/kv-root-client-ts": "workspace:*",
+        "@pkgs/kv-root-shared-ts": "workspace:*",
         "@pkgs/permissions-shared-ts": "workspace:*",
         "@pkgs/sql-root-shared-ts": "workspace:*",
         "@pkgs/sync-engine-client-ts": "workspace:*",
@@ -1014,6 +1017,7 @@
         "zod": "catalog:",
       },
       "devDependencies": {
+        "@libs/db-shared-ts": "workspace:*",
         "@libs/infra-shared-ts": "workspace:*",
         "@opentelemetry/api": "catalog:",
         "@opentelemetry/sdk-metrics": "catalog:",
@@ -1026,6 +1030,7 @@
         "@pkgs/observability-root-server-ts": "workspace:*",
         "@pkgs/secret-provider-server-ts": "workspace:*",
         "@pkgs/secret-store-shared-ts": "workspace:*",
+        "@pkgs/sql-client-postgres-server-ts": "workspace:*",
         "@pkgs/sql-client-sqlite-root-server-ts": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
@@ -1038,6 +1043,7 @@
       "dependencies": {
         "@libs/auth-shared-ts": "workspace:*",
         "@libs/observability-shared-ts": "workspace:*",
+        "@libs/permissions-shared-ts": "workspace:*",
         "@libs/product-identity-shared-ts": "workspace:*",
         "@libs/sub-shared-ts": "workspace:*",
         "@pkgs/billing-root-shared-ts": "workspace:*",
@@ -1053,6 +1059,7 @@
         "@pkgs/sync-engine-shared-ts": "workspace:*",
         "@pkgs/uuid-shared-ts": "workspace:*",
         "hono": "catalog:",
+        "zod": "catalog:",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
