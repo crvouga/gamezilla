@@ -7,6 +7,7 @@ import type {
 } from '@libs/numberlink-shared-ts/numberlink-types';
 import { sameCell } from '@libs/numberlink-shared-ts/numberlink-types';
 import { useLingui } from '@lingui/solid/macro';
+import type { PathGridTraceCancellation } from '@pkgs/ui-root-client-ts/path-grid-board';
 import {
   type Accessor,
   createEffect,
@@ -59,10 +60,22 @@ function initialDrawing(
   };
 }
 
-function createDrawingKey(ports: DrawingPorts, reset: () => void) {
+function createDrawingKey(
+  ports: DrawingPorts,
+  drawing: {
+    readonly cancel: () => void;
+    readonly escape: () => void;
+    readonly clearError: () => void;
+  }
+) {
+  const reset = (): void => {
+    drawing.cancel();
+    drawing.clearError();
+  };
   return (name: string, index: number): boolean => {
     if (name === 'Escape') {
-      reset();
+      drawing.escape();
+      drawing.clearError();
       return true;
     }
     if (name !== 'Backspace' && name !== 'Delete') return false;
@@ -87,6 +100,41 @@ function previewDrawing(
   return next.valid ? next.value : ports.state();
 }
 
+function createDrawingFeedback(
+  gesture: Accessor<NumberlinkAction | null>,
+  cancel: () => void
+) {
+  const { t } = useLingui();
+  const [feedback, setFeedback] = createSignal<string | null>(null);
+  // Every way a drawing can be abandoned says so in the same words.
+  const cancelExplained = (explain: boolean): void => {
+    const wasDrawing = gesture() !== null;
+    cancel();
+    if (wasDrawing && explain)
+      setFeedback(
+        t`Drawing canceled. Saved paths are unchanged. Start again from an endpoint.`
+      );
+  };
+  const cancelTrace = (reason: PathGridTraceCancellation): void =>
+    cancelExplained(reason !== 'stationary');
+  return {
+    feedback,
+    cancelTrace,
+    escape: () => cancelExplained(true),
+    clear: () => setFeedback(null),
+  };
+}
+
+/** A new puzzle, saved state or availability abandons any drawing in progress. */
+function cancelOnNewInput(ports: DrawingPorts, cancel: () => void): void {
+  createEffect(() => {
+    void ports.definition();
+    void ports.state();
+    void ports.disabled();
+    cancel();
+  });
+}
+
 /** A drawing is provisional until it finishes; only the game rules can accept its cells. */
 export function createNumberlinkDrawing(ports: DrawingPorts) {
   const { t } = useLingui();
@@ -98,12 +146,8 @@ export function createNumberlinkDrawing(ports: DrawingPorts) {
     setGesture(null);
     refused = false;
   };
-  createEffect(() => {
-    void ports.definition();
-    void ports.state();
-    void ports.disabled();
-    cancel();
-  });
+  const status = createDrawingFeedback(gesture, cancel);
+  cancelOnNewInput(ports, cancel);
   const preview = createMemo(() => previewDrawing(ports, gesture()));
   const begin = (index: number): void => {
     if (ports.disabled()) return;
@@ -114,6 +158,7 @@ export function createNumberlinkDrawing(ports: DrawingPorts) {
     }
     refused = false;
     setError(null);
+    status.clear();
     setGesture(action);
   };
   const extend = (index: number): void => {
@@ -150,18 +195,21 @@ export function createNumberlinkDrawing(ports: DrawingPorts) {
       finish();
     }
   };
-  const key = createDrawingKey(ports, () => {
-    cancel();
-    setError(null);
+  const key = createDrawingKey(ports, {
+    cancel,
+    escape: status.escape,
+    clearError: () => setError(null),
   });
   return {
     gesture,
     error,
+    feedback: status.feedback,
     preview,
     begin,
     extend,
     finish,
     cancel,
+    cancelTrace: status.cancelTrace,
     activate,
     key,
   };

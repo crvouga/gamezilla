@@ -1,0 +1,4 @@
+{
+  "summary": "The Numberlink editor does not identify which of a pair's identical endpoints is selected for movement.",
+  "regressionTest": "libs/numberlink-harness-ts/tests/numberlink-editor-selection.test.tsx"
+}
