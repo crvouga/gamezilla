@@ -15,9 +15,10 @@ function contentTop(stage: HTMLElement): number {
 /**
  * Rows the layout puts under the stage (a phone or tablet's action row:
  * Offer draw, Resign) belong in the first view too. A row beside the stage
- * (a wide rail) starts above its bottom and is not counted.
+ * (a wide rail, wherever its rows fall) shares none of its columns and is
+ * not counted.
  */
-function belowStage(stage: HTMLElement, bottom: number): number {
+function belowStage(stage: HTMLElement, rect: DOMRect): number {
   const cell = stage.parentElement;
   const layout = cell?.parentElement;
   if (!cell || !layout) return 0;
@@ -25,7 +26,12 @@ function belowStage(stage: HTMLElement, bottom: number): number {
   let below = 0;
   for (let row = cell.nextElementSibling; row; row = row.nextElementSibling) {
     const box = row.getBoundingClientRect();
-    if (box.height > 0 && box.top >= bottom - 1) below += box.height + gap;
+    // Under the stage: starts below it and shares its columns.
+    const under =
+      box.top >= rect.bottom - 1 &&
+      box.left < rect.right &&
+      box.right > rect.left;
+    if (box.height > 0 && under) below += box.height + gap;
   }
   return below;
 }
@@ -72,7 +78,7 @@ export function createViewportSquareFit(
       }
       const chrome = Math.max(0, rect.height - rect.width);
       const height = view.visualViewport?.height ?? view.innerHeight;
-      const below = belowStage(stage, rect.bottom);
+      const below = belowStage(stage, rect);
       const available =
         height - contentTop(stage) - chrome - below - spacing[4];
       setLimit(Math.max(maxWidth.form, Math.floor(available)));
