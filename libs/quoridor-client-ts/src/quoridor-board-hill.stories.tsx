@@ -330,7 +330,7 @@ export const RecoverWallPlacement: Story = {
     await expect(
       await canvas.findByTestId('custom-game-board-wall-status')
     ).toHaveTextContent(/overlaps/);
-    await expectQuoridorWallPreview(canvasElement);
+    await expectQuoridorWallPreview(canvasElement, { refused: true });
     await chooseQuoridorCoordinate(canvasElement, 'a1');
     await expectQuoridorWallPreview(canvasElement);
     await expectQuoridorTargetVisible(
