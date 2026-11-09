@@ -49,6 +49,7 @@ export async function openBattleStory(
     'error'
   );
   await page.evaluate(() => document.fonts.ready);
+  await settleMotion(page);
   // The preview forwards every keydown to the manager; the iframe has none.
   await page.evaluate(() => {
     window.onkeydown = null;
@@ -175,4 +176,23 @@ async function incompleteSummary(page: Page, results: AxeResults) {
     reasons,
     contrast,
   };
+}
+
+/**
+ * Captures run with the browser's own motion, so an entrance (a result card
+ * sliding in) may still move the layout when a check measures it. Waits for
+ * every finite animation; endless ones (a busy spinner) never settle.
+ */
+export async function settleMotion(page: Page) {
+  await page.evaluate(() =>
+    Promise.all(
+      document
+        .getAnimations()
+        .filter((animation) => {
+          const iterations = animation.effect?.getTiming().iterations;
+          return iterations !== Number.POSITIVE_INFINITY;
+        })
+        .map((animation) => animation.finished.catch(() => undefined))
+    ).then(() => undefined)
+  );
 }

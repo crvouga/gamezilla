@@ -1,5 +1,9 @@
 import { expect, test } from '@playwright/test';
-import { captureBattleEvidence, openBattleStory } from '../evidence';
+import {
+  captureBattleEvidence,
+  openBattleStory,
+  settleMotion,
+} from '../evidence';
 
 test.use({ viewport: { width: 390, height: 844 }, video: 'on', trace: 'on' });
 
@@ -128,6 +132,7 @@ test('storybook integration: battleship finished game keeps the switch and own s
     'light',
     info
   );
+  await settleMotion(page);
   for (const id of ['custom-game-board-view', 'custom-game-seat-near']) {
     const box = await page.getByTestId(id).boundingBox();
     if (!box) throw new Error(`${id} is not shown`);
