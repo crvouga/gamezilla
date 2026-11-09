@@ -1,5 +1,6 @@
 import type { Clock, Timers } from '@pkgs/clock-shared-ts/types';
 import {
+  aggregate,
   type PrCheck,
   type RequiredPrCheck,
   requiredPrCheckFailures,
@@ -12,6 +13,8 @@ export type PrCheckSnapshot = {
 };
 
 function unfinished(check: PrCheck, snapshot: PrCheckSnapshot): boolean {
+  // The running aggregate is this gate itself; it finishes only after we return.
+  if (aggregate(check)) return false;
   if (check.status !== 'completed') return check.conclusion === null;
   return (
     check.appId === 57789 &&
