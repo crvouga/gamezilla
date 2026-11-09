@@ -61,7 +61,8 @@ test('sunk is its own fill and the latest shot never wears the sunk ink', () => 
 test('wide, the Battleship board leaves only the room its switch and key take', () => {
   const css = read('game-ui.module.css');
   const paired = css.slice(css.indexOf('.stage [data-paired-panels]'));
+  // The switch, the key and the Fire row (44px) under the whole board.
   expect(paired).toMatch(
-    /--game-board-chrome-block: calc\(284px \+ var\(--ui-space-12\)\);/
+    /--game-board-chrome-block: calc\(328px \+ 2 \* var\(--ui-space-12\)\);/
   );
 });
