@@ -28,7 +28,17 @@ test('fresh runners install pinned tools without the stalled tool archive', () =
   const install = installs[0]!;
   expect(install.uses).toMatch(/^jdx\/mise-action@[a-f0-9]{40}$/);
   expect(install.if).toBeUndefined();
-  expect(install['continue-on-error']).toBeUndefined();
+  // regression: mise-release-download-504
+  // A GitHub release-download outage (Verify PR run 42566398011) falls back to
+  // main's toolchain snapshot; a miss still fails the job.
+  expect(install['continue-on-error']).toBe(true);
+  const fallback = setup.runs.steps.find(
+    (step) =>
+      step.uses?.startsWith('actions/cache/restore@') &&
+      step.if === "steps.mise.outcome == 'failure'"
+  );
+  expect(fallback?.with?.['fail-on-cache-miss']).toBe(true);
+  expect(fallback?.with?.['path']).toBe('~/.local/share/mise');
   expect(install.with?.['install']).not.toBe(false);
   expect(install.with?.['install_args']).toBe(
     "${{ inputs.tools || '--include-lazy' }}"

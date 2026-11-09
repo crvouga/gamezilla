@@ -1,0 +1,4 @@
+{
+  "summary": "The browser responsiveness probe tried twelve consecutive moves after tick 123 in Quad; the round ended before its last moves, so a correct disabled arena was reported as lost input. Two fresh six-input trials retain twelve asserted active responses.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/light-cycles/integration.checks.ts"
+}

@@ -60,6 +60,8 @@ export type TrailArenaProps = TrailControls & {
   readonly cells: string;
   readonly crashes: readonly TrailCrash[];
   readonly overlay?: TrailOverlay | undefined;
+  /** The game is away (reconnecting): the drawing dims, so it never looks live. */
+  readonly dimmed?: boolean | undefined;
   readonly label: string;
   readonly instructionsId: string;
   readonly testId: string;

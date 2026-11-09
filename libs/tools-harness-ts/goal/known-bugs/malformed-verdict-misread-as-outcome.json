@@ -1,0 +1,4 @@
+{
+  "summary": "The seeded fault adversary (corrupt profile) found that the mutation upload queue trusted a garbled verdict list: a refusal whose status arrived as an unknown value was treated as applied (the device kept the refused change, never showed the refusal, and never converged), and an applied write whose verdict arrived as a code-less \"rejected\" was recorded as refused. Malformed or repeated verdicts now fail the upload, so the queue retries and the server replays its stored verdicts.",
+  "regressionTest": "pkgs/sync-engine-harness-ts/tests/malformed-verdicts-regression.test.ts"
+}

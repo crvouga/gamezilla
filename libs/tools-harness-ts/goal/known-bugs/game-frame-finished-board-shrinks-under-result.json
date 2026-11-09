@@ -1,0 +1,4 @@
+{
+  "summary": "At 1440x900 an opted-in square game frame put the finished game's result card above the board, so the square fit shrank the board from about 540px live to about 340px finished.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/game-frame-fit/integration.checks.ts"
+}

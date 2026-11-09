@@ -36,6 +36,9 @@
     },
     "bench": {
       "cache": false
+    },
+    "fault-evidence": {
+      "cache": false
     }
   }
 }

@@ -826,15 +826,29 @@ Feature titles, one line each, so a session can route without listing the tree. 
 
 All changes to `main` go through a pull request. The OpenTofu repository ruleset
 requires every check in `libs/infra-shared-ts/tofu/modules/repository/required-checks/`
-against current `main` (planning, the complete verdict, and GitGuardian), one independent
-approval after the latest push, and resolved review conversations. A push dismisses
-stale approvals. The final PR gate checks both the head and merge commit: every
+(planning and the complete verdict) and resolved review conversations; no
+approval is required. CodeQL's checks are marked `outage_tolerant`: the final PR gate
+enforces them instead of the ruleset, so findings block but a scanner GitHub could not
+download only warns. A branch need not be up to date with `main` to merge: many
+concurrent agent branches made that a constant update-and-rerun loop. Verify PR checks
+the merge commit at push time, and Release reruns the full gate on `main` before shipping.
+A push dismisses stale approvals. The final PR gate checks both the head and merge commit: every
 check must pass, belong to its declared GitHub App, and be registered as required.
 New integrations cannot silently add advisory checks. Dynamic shards are enforced
-by the aggregate verdict, including missing or failed shard evidence. There are no bypass actors. Only a person authorizes a merge,
-either directly or by enabling auto-merge on a PR. Repository auto-merge is enabled;
-it waits for the same required checks, approvals and resolved conversations. Merge commits
-remain the only merge method. GitHub deletes merged head branches automatically.
+by the aggregate verdict, including missing or failed shard evidence. Agents enable
+auto-merge on every PR they open ([`AGENTS.md`](AGENTS.md)); it waits for the same required
+checks and resolved conversations. Squash is the only merge method and `main` requires
+linear history, so each PR is one commit titled by the PR title. GitHub deletes merged
+head branches automatically. The one bypass actor is the repository admin role, through a
+pull request only: the maintainer can merge a red PR in an emergency but can never push to
+`main`. Release tags (`release-*`) cannot be moved or deleted. Actions are limited to
+GitHub-authored actions, verified creators and the allowlist in
+`libs/infra-shared-ts/tofu/modules/repository/actions.tf`, pinned to a commit SHA. Labels
+are declared one file each in `libs/infra-shared-ts/tofu/modules/repository/labels/`.
+The PR Hygiene workflow (every 15 minutes) turns off auto-merge on `do-not-merge` PRs,
+labels conflicting PRs `needs-human`, and closes PRs idle for 5 days. Settings GitHub
+or the provider cannot express are recorded in
+[`MIGRATION.md`](libs/infra-shared-ts/tofu/modules/repository/MIGRATION.md).
 Repository settings and secret scanning remain owned by the bootstrap stack;
 Release applies the reviewed repository configuration after the full gate and
 before deploying shared services. Hourly Health detects drift. Both jobs use the
@@ -853,7 +867,7 @@ changes outside that allowlist, deletion, replacement and a first bootstrap.
 The ordinary deletion policy and encrypted state backup still run. This requires
 no AWS account login, Cloudflare credential or full bootstrap apply. CI never
 creates the initial backend or changes unrelated global infrastructure.
-The Rego gate refuses weakened PR requirements, bypass actors, disabled automatic
+The Rego gate refuses a missing `verify:end` requirement, weakened PR requirements, nonlinear history, any bypass actor beyond admin pull requests, merge methods other than squash, disabled automatic
 branch deletion, or disabled public-repository secret scanning/push protection.
 
 Workspace setup installs repository-local Git defaults: prune remote references

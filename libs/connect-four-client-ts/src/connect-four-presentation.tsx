@@ -33,6 +33,12 @@ export const connectFourPresentation: GameClientPresentation = {
   // A move is its column's number: the record says so beside it.
   moveHeading: () => t`Column`,
   frame: {
+    // The first turn as the record writes it, so a phone's empty record
+    // already has that turn's height and the board never moves on move 1.
+    firstTurnSample: [
+      { label: '4', look: { color: 'disc-one', mark: '●' } },
+      { label: '4', look: { color: 'disc-two', mark: '◆' } },
+    ],
     drawOffers: true,
     players: fixedPlayers(2),
     options: [],
