@@ -213,6 +213,9 @@ function tableRecord(props: TableProps): FrameRecord {
     ...record(moves),
     turns: props.turns ?? true,
     moveHeading: props.presentation.moveHeading?.() ?? '',
+    firstTurnSample: props.presentation.frame.firstTurnSample?.map(
+      (sample) => ({ label: sample.label, swatch: frameSwatch(sample.look) })
+    ),
     outline: props.presentation.frame.outline?.(props.board.position) ?? [],
     perTurn: movers.length,
     movers: moves.flatMap((_, index) => {

@@ -183,6 +183,9 @@ export function useFrameRecord(
     if (model.current() === null) return null;
     return {
       moveHeading: presentation(review.fen()).moveHeading?.() ?? '',
+      firstTurnSample: presentation(review.fen()).frame.firstTurnSample?.map(
+        (sample) => ({ label: sample.label, swatch: frameSwatch(sample.look) })
+      ),
       earlier: model.games().history.map((game) => game.id),
       selection: review.selection(),
       turns: rules.turnsForPosition(review.fen()) !== undefined,

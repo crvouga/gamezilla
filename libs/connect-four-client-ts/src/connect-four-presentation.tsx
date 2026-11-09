@@ -35,6 +35,12 @@ export const connectFourPresentation: GameClientPresentation = {
   frame: {
     // Seven 44px columns at 320px need a 4px page edge below 360px only.
     compactInset: 'narrowest',
+    // The first turn as the record writes it, so a phone's empty record
+    // already has that turn's height and the board never moves on move 1.
+    firstTurnSample: [
+      { label: '4', look: { color: 'disc-one', mark: '●' } },
+      { label: '4', look: { color: 'disc-two', mark: '◆' } },
+    ],
     drawOffers: true,
     players: fixedPlayers(2),
     options: [],
