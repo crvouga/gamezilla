@@ -441,37 +441,45 @@ export function pongStatus(
     return t`Final score ${state.score.left}–${state.score.right}`;
   if (controls?.stale) return t`Reconnecting…`;
   if (controls?.paused) return t`Paused while a player returns`;
-  if (state.phase === 'countdown') {
-    const serve = t`Serve in ${Math.ceil(state.countdown / config.tickRate)}`;
-    const points = state.score.left + state.score.right;
-    // After a point the serve goes toward the side that lost it.
-    const scorer = points > 0 ? otherPongSide(state.servingToward) : null;
-    const near = (side: PongSide) =>
-      state.targetScore > 1 && state.score[side] === state.targetScore - 1;
-    // Whose match point it is, unless it is the scorer's (just named above)
-    // or both players'.
-    const holder =
-      near('left') === near('right')
-        ? null
-        : near('left')
-          ? ('left' as const)
-          : ('right' as const);
-    const matchPoint = !(near('left') || near('right'))
-      ? undefined
-      : holder === null || holder === scorer
-        ? t`Match point`
-        : holder === own
-          ? t`Your match point`
-          : t`Match point: ${name(holder)}`;
-    return [
-      scorer === null ? undefined : t`${name(scorer)} scored`,
-      matchPoint,
-      serve,
-    ]
-      .filter((part) => part !== undefined)
-      .join('\n');
-  }
+  if (state.phase === 'countdown') return serveStatus(state, name, own);
   return t`Keep the ball in play`;
+}
+
+/** Before a serve: who scored, whose match point, then the countdown. */
+function serveStatus(
+  state: PongState,
+  name: (side: PongSide) => string,
+  own: PongSide | undefined
+): string {
+  const points = state.score.left + state.score.right;
+  // After a point the serve goes toward the side that lost it.
+  const scorer = points > 0 ? otherPongSide(state.servingToward) : null;
+  return [
+    scorer === null ? undefined : t`${name(scorer)} scored`,
+    matchPointLabel(state, scorer, name, own),
+    t`Serve in ${Math.ceil(state.countdown / config.tickRate)}`,
+  ]
+    .filter((part) => part !== undefined)
+    .join('\n');
+}
+
+/**
+ * "Match point", naming whose it is unless it is the scorer's (just named)
+ * or both players'; the device's own is "yours".
+ */
+function matchPointLabel(
+  state: PongState,
+  scorer: PongSide | null,
+  name: (side: PongSide) => string,
+  own: PongSide | undefined
+): string | undefined {
+  const near = (side: PongSide) =>
+    state.targetScore > 1 && state.score[side] === state.targetScore - 1;
+  if (!near('left') && !near('right')) return undefined;
+  if (near('left') && near('right')) return t`Match point`;
+  const holder = near('left') ? 'left' : 'right';
+  if (holder === scorer) return t`Match point`;
+  return holder === own ? t`Your match point` : t`Match point: ${name(holder)}`;
 }
 
 /** What the court's status says, for readers that must not parse its words. */
