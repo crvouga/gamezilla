@@ -15,7 +15,7 @@ async function scanBlocked(page: Page, info: TestInfo, theme: string) {
   await board.press('ArrowLeft');
   await expect(page.getByTestId('sokoban-refusal')).toBeVisible();
   await capture(page, info, `blocked-${theme}`);
-  await accessibility(page, info);
+  await accessibility(page, info, 'blocked');
 }
 
 // regression: sokoban-feedback-states-not-scanned

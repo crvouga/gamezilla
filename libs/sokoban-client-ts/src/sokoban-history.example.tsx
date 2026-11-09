@@ -77,10 +77,19 @@ export function SokobanHistory(props: {
   onAction: (action: string) => void;
   onOpenLibrary: () => void;
 }) {
-  const [history, setHistory] = createSignal([untrack(() => props.state)]);
-  const [cursor, setCursor] = createSignal(0);
-  const state = () => history()[cursor()] ?? props.state;
   const rules = sokobanPuzzleContent.rules;
+  // A resumed attempt can step back to where it started, as a saved
+  // attempt's history can.
+  const [history, setHistory] = createSignal(
+    untrack(() => {
+      const start = rules.initial(props.definition);
+      return start.accepted && start.state !== props.state
+        ? [start.state, props.state]
+        : [props.state];
+    })
+  );
+  const [cursor, setCursor] = createSignal(untrack(() => history().length - 1));
+  const state = () => history()[cursor()] ?? props.state;
   // As in production: complete while the board is solved; once solved, the
   // completion stays saved and is said quietly after a restart.
   const complete = () => rules.complete(props.definition, state());

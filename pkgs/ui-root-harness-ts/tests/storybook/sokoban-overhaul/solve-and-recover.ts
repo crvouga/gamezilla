@@ -59,11 +59,11 @@ export async function solveAndRecover(
   await next.click({ trial: true });
   await capture(page, info, 'solved');
   // The solved state is scanned as well as the fresh board (after timing).
-  await accessibility(page, info);
+  await accessibility(page, info, 'solved');
   await page.getByRole('button', { name: 'Restart', exact: true }).click();
   await counts(page, 0, 0);
   await expect(page.getByTestId('sokoban-solved')).toHaveCount(0);
   await capture(page, info, 'restarted');
-  await accessibility(page, info);
+  await accessibility(page, info, 'restarted');
   expect(errors).toEqual([]);
 }

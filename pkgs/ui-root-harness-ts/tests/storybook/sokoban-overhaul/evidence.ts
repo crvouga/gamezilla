@@ -32,14 +32,20 @@ export async function capture(page: Page, info: TestInfo, state: string) {
   await info.attach(state, { path, contentType: 'image/png' });
 }
 
-export async function accessibility(page: Page, info: TestInfo) {
+/** Scan the story with axe; `state` names the report, so scans in one test
+ *  keep separate files. */
+export async function accessibility(
+  page: Page,
+  info: TestInfo,
+  state = 'fresh'
+) {
   await page.addScriptTag({ content: axe.source });
   const result = await page.evaluate(async () => {
     const root = document.querySelector<HTMLElement>('#storybook-root');
     if (!root) throw new Error('Missing canvas');
     return (window as unknown as { axe: typeof axe }).axe.run(root);
   });
-  await info.attach('accessibility.json', {
+  await info.attach(`accessibility-${state}.json`, {
     body: JSON.stringify(result, null, 2),
     contentType: 'application/json',
   });
@@ -47,6 +53,7 @@ export async function accessibility(page: Page, info: TestInfo) {
   process.stdout.write(
     `SOKOBAN_AXE ${JSON.stringify({
       test: info.title,
+      state,
       violations: result.violations.map((item) => [item.id, item.nodes.length]),
       incomplete: result.incomplete.map((item) => [item.id, item.nodes.length]),
       passes: result.passes.length,

@@ -459,7 +459,7 @@ test('when the screen offers a way on, solving says so once and adds none of its
   fireEvent.keyDown(board, { key: 'ArrowRight' });
   fireEvent.keyDown(board, { key: 'ArrowRight' });
   expect(view.getByTestId('sokoban-solved').textContent).toContain(
-    'Solved: every crate is on a goal.'
+    'Solved: all crates on goals.'
   );
   expect(view.queryByRole('button', { name: 'More puzzles' })).toBeNull();
 });

@@ -119,7 +119,10 @@ export function SokobanPlayerView(
       fallback={
         <Notice tone="error">
           <Trans>This puzzle cannot be opened. Choose another puzzle.</Trans>
-          <Button title={t`More puzzles`} onClick={props.onReturnToLibrary} />
+          {/* The screen's own way on (pack or playtest) replaces ours. */}
+          <Show when={props.context?.shellOffersWayOn !== true}>
+            <Button title={t`More puzzles`} onClick={props.onReturnToLibrary} />
+          </Show>
         </Notice>
       }
     >

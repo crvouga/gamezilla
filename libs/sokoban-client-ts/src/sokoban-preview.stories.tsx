@@ -12,7 +12,7 @@ const meta = {
   args: { definition: TWO_CRATES },
   // As a builder shows it: in the page's own gutter, not against the bar.
   render: (args) => (
-    <StackVertical padding="md">
+    <StackVertical padding="md" align="start">
       <SokobanPreview {...args} />
     </StackVertical>
   ),

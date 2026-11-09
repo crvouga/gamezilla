@@ -39,7 +39,7 @@ function Solved(props: { readonly wayOn: (() => void) | undefined }) {
         when={props.wayOn}
         fallback={
           <P variant="label" tone="success">
-            <Trans>Solved: every crate is on a goal.</Trans>
+            <Trans>Solved: all crates on goals.</Trans>
           </P>
         }
       >
