@@ -39,7 +39,7 @@ export async function recoverWithPointer(canvasElement: HTMLElement) {
       canvas.getByRole('button', { name: 'Drawing and keyboard help' })
     );
     await expect(
-      canvas.getByText(/Start again at an endpoint to redraw/)
+      canvas.getByText(/Start again at a number to redraw/)
     ).toBeInTheDocument();
     await userEvent.click(
       canvas.getByRole('button', { name: 'Drawing and keyboard help' })
