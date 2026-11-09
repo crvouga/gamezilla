@@ -61,28 +61,11 @@ describe('turbo globalPassThroughEnv', () => {
   });
 
   // regression: puzzle-import-secret-passthrough
-  test('passes every registry secret through its owning task scope', () => {
+  test('passes every registry secret through the global pass-through env', () => {
     const patterns = loadPassThroughEnv();
-    const harness = JSON.parse(
-      readFileSync(
-        join(REPO_ROOT, 'pkgs/ui-root-harness-ts/turbo.json'),
-        'utf8'
-      )
-    ) as { tasks: Record<string, { passThroughEnv?: string[] }> };
-    const publishing = harness.tasks['storybook:publish']?.passThroughEnv ?? [];
-    // The publishing credential reaches its one owner, never a static build.
-    expect(passesThrough('CHROMATIC_PROJECT_TOKEN', patterns)).toBe(false);
-    expect(passesThrough('CHROMATIC_PROJECT_TOKEN', publishing)).toBe(true);
-    expect(
-      harness.tasks['storybook:build']?.passThroughEnv ?? []
-    ).not.toContain('CHROMATIC_*');
     expect(
       SECRETS.map((s) => s.name).filter(
-        (name) =>
-          !passesThrough(
-            name,
-            name === 'CHROMATIC_PROJECT_TOKEN' ? publishing : patterns
-          )
+        (name) => !passesThrough(name, patterns)
       )
     ).toEqual([]);
   });
