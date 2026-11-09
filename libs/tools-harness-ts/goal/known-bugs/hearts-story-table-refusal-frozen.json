@@ -1,0 +1,4 @@
+{
+  "summary": "The Hearts story table copied a story's settings once, so a refused pass that appeared later never reached the frame and the retry stories showed no refusal.",
+  "regressionTest": "libs/hearts-client-ts/tests/hearts-story-table-reactive.test.ts"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "After pass acknowledgement the visible hand locks without saying it is waiting for other players; the explicit explanation is screen-reader-only.",
+  "regressionTest": "libs/hearts-client-ts/tests/passed-waiting-guidance.test.tsx"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "A watcher, and a seated player once the game was over, were given an empty \"Your hand\" toolbar that a screen reader announced with nothing in it.",
+  "regressionTest": "libs/hearts-client-ts/tests/board.test.tsx"
+}

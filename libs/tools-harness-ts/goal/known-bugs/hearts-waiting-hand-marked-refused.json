@@ -1,0 +1,4 @@
+{
+  "summary": "While another player was to play, every card in the hand was drawn refused with an × and hatching, as if each broke a rule, and the same reason was attached to each card.",
+  "regressionTest": "libs/hearts-client-ts/tests/waiting-hand-once.test.tsx"
+}

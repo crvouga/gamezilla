@@ -1,0 +1,4 @@
+{
+  "summary": "Pressing a refused Hearts card printed the same rule a second time below the hand, beside the identical line already shown above it.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/card-table-refusal-once.test.tsx"
+}

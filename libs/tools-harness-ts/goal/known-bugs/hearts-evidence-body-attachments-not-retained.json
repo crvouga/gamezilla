@@ -1,0 +1,4 @@
+{
+  "summary": "Body-only Hearts screenshots and accessibility JSON were not written into the directory uploaded as CI artifacts by the list reporter.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/hearts-overhaul/retention/integration.checks.ts"
+}

@@ -76,6 +76,8 @@ export const BOARD_CONTROLS_EXCLUDE = [
 export type GameTableStory = {
   /** The game's title above the board, as its menu names it; defaults to the presentation's name. */
   readonly title?: string;
+  /** A refused action, shown through the production frame's recovery notice. */
+  readonly error?: string;
   /** The person's own seat; `null` for a watcher. Defaults to the board's orientation. */
   readonly viewer?: GameSide | null;
   /** The side to move. */
@@ -94,6 +96,12 @@ export type GameTableStory = {
    * lists no moves, as the app shows it. Defaults to `true`.
    */
   readonly turns?: boolean;
+  /**
+   * `false` for a game whose rules, not a fixed rotation, say who plays next
+   * (a hand game such as Hearts): the app then names no seat beside a move.
+   * Defaults to `true`.
+   */
+  readonly seatedMoves?: boolean;
   /**
    * The viewer's own choice is being sent, as the app's frame shows it while
    * `model.submitting()`: the line says so and the viewer's seat stops
@@ -248,8 +256,9 @@ function tableRecord(props: TableProps): FrameRecord {
       (sample) => ({ label: sample.label, swatch: frameSwatch(sample.look) })
     ),
     outline: props.presentation.frame.outline?.(props.board.position) ?? [],
-    perTurn: movers.length,
+    perTurn: props.seatedMoves === false ? 1 : movers.length,
     movers: moves.flatMap((_, index) => {
+      if (props.seatedMoves === false) return [];
       const mover = movers[index % movers.length];
       return mover === undefined ? [] : [mover];
     }),
@@ -287,6 +296,7 @@ function GameFrameTable(props: TableProps): JSX.Element {
     <GameFrameScreenView
       {...frameArgs()}
       title={props.title ?? props.presentation.name()}
+      error={props.error ?? ''}
       boardFit={props.presentation.frame.boardFit}
       boardAlign={props.presentation.frame.boardAlign}
       connection={props.connection ?? 'online'}

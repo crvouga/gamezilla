@@ -1,0 +1,4 @@
+{
+  "summary": "At 320x568 the five-column thirteen-card hand preserves 44px target width but its three portrait rows extend below the viewport.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/hearts-overhaul/narrow-hand/integration.checks.ts"
+}

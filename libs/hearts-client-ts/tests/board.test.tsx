@@ -72,7 +72,8 @@ test('the viewer sits nearest, named as their own seat, with every seat around t
 
 test("a watcher sees the table, every seat's hand size and score, and no hand", () => {
   board({ hand: null, position: HOLD_START, interactive: false });
-  expect(byTestId('hearts-hand').children).toHaveLength(0);
+  // regression: hearts-empty-hand-toolbar — no cards, no empty "Your hand".
+  expect(document.querySelector('[data-testid="hearts-hand"]')).toBeNull();
   expect(byTestId('hearts-seat-white').getAttribute('aria-label')).toBe(
     'South'
   );

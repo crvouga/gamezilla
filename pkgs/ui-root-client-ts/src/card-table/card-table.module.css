@@ -1,47 +1,3 @@
-/* The felt takes the table's colours; the hand under it sits on the page
-   and keeps the app's, so a chosen card wears the app's selection ring. */
-.table {
-  --ui-color-background: var(--ui-color-game-hearts-canvas);
-  --color-background: var(--ui-color-background);
-  --ui-color-surface: var(--ui-color-game-hearts-surface);
-  --color-surface: var(--ui-color-surface);
-  --ui-color-surface-muted: var(--ui-color-game-hearts-surface);
-  --color-surface-muted: var(--ui-color-surface-muted);
-  --ui-color-surface-sunken: var(--ui-color-game-hearts-surface);
-  --color-surface-sunken: var(--ui-color-surface-sunken);
-  --ui-color-surface-elevated: var(--ui-color-game-hearts-surface);
-  --color-surface-elevated: var(--ui-color-surface-elevated);
-  --ui-color-text: var(--ui-color-game-hearts-ink);
-  --color-text: var(--ui-color-text);
-  --ui-color-text-secondary: var(--ui-color-game-hearts-muted);
-  --color-text-secondary: var(--ui-color-text-secondary);
-  --ui-color-border: var(--ui-color-game-hearts-surface);
-  --color-border: var(--ui-color-border);
-  --ui-color-outline: var(--ui-color-game-hearts-muted);
-  --color-outline: var(--ui-color-outline);
-  --ui-color-tint: var(--ui-color-game-hearts-accent);
-  --color-tint: var(--ui-color-tint);
-  --ui-color-tint-active: var(--ui-color-game-hearts-accent);
-  --color-tint-active: var(--ui-color-tint-active);
-  --ui-color-tint-subtle: var(--ui-color-game-hearts-surface);
-  --color-tint-subtle: var(--ui-color-tint-subtle);
-  --ui-color-focus-ring: var(--ui-color-game-hearts-accent);
-  --color-focus-ring: var(--ui-color-focus-ring);
-  --ui-color-destructive: var(--ui-color-game-hearts-one);
-  --color-destructive: var(--ui-color-destructive);
-  --ui-color-warning: var(--ui-color-game-hearts-two);
-  --color-warning: var(--ui-color-warning);
-  --ui-color-success: var(--ui-color-game-hearts-accent);
-  --color-success: var(--ui-color-success);
-  --ui-color-info: var(--ui-color-game-hearts-accent);
-  --color-info: var(--ui-color-info);
-  --ui-color-on-destructive: var(--ui-color-game-hearts-canvas);
-  --color-on-destructive: var(--ui-color-on-destructive);
-  --ui-color-on-warning: var(--ui-color-game-hearts-canvas);
-  --color-on-warning: var(--ui-color-on-warning);
-  --ui-color-on-info: var(--ui-color-game-hearts-canvas);
-  --color-on-info: var(--ui-color-on-info);
-}
 /* The table and the hand under it, one column the board's width. */
 /* The table's width decides how its seats lay out (container queries). */
 .root {
@@ -52,6 +8,9 @@
   gap: var(--ui-space-3);
   width: 100%;
   min-width: 0;
+  /* Room for a focus ring round the table's edge controls (the players
+     disclosure, the pass button) inside a board stage that clips. */
+  padding: var(--ui-space-1);
 }
 /*
  * The felt: a seat's plate at each edge and the trick in the middle, each
@@ -217,6 +176,9 @@
   grid-column: 3;
   grid-row: 2 / span 2;
 }
+.slot {
+  position: relative;
+}
 .trick[data-trick="true"] .slot[data-filled="false"] {
   border: 1px dashed var(--ui-color-outline);
 }
@@ -369,6 +331,26 @@
   );
   margin-inline-start: calc(var(--hand-step) * var(--step));
 }
+/* Seven 44px targets need 332px before the hand's padding. Narrow hands
+   wrap into centred rows of five, preserving whole faces and hit areas. */
+@container card-table (max-width: 21.25rem) {
+  .hand {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--hand-row-gap) var(--hand-gap);
+  }
+  .hand > .card {
+    --card-w: min(48px, (100cqw - 4 * var(--hand-gap)) / 5);
+    flex: 0 0 var(--card-w);
+    margin: 0;
+    height: var(--card-w);
+  }
+  /* Three rows must also fit a short phone. Keep the rank and the large
+     suit pip in opposite corners; the repeated small pip is redundant. */
+  .hand > .card .index::after {
+    display: none;
+  }
+}
 /* A small card (a phone's hand): the large pip moves to the bottom corner,
    clear of the rank and small pip in the top one, and the rank is a step
    larger, so a 46px card reads from arm's length. */
@@ -451,8 +433,26 @@ button.card:focus-visible {
   font-size: var(--ui-font-size-sm);
 }
 /* Empty until a card is refused: it takes no row of its own then. */
-.refusal:empty {
+.refusal:empty,
+.refusal[data-spoken-only="true"] {
   margin-top: calc(-1 * var(--ui-space-3));
+}
+.refusal[data-spoken-only="true"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+/* The rule the person just ran into, shown once and made prominent. */
+.guidance[data-emphasis="true"] {
+  font-weight: var(--ui-font-weight-semibold);
+  text-decoration: underline;
+  text-decoration-color: var(--ui-color-warning);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
 }
 @media (prefers-reduced-motion: reduce) {
   .card {
