@@ -44,6 +44,8 @@ export type PuzzlePreviewProps = { readonly definition: string };
  */
 export type PuzzleContentFrame = {
   readonly stats: Readonly<Record<string, () => string>>;
+  /** The player can present these figures inline; other games keep the panel. */
+  readonly figuresPlacement?: 'panel' | 'board' | undefined;
   readonly turnStatus: (definition: string, state: string) => string | null;
   readonly controls?: Component<PuzzlePlayerProps>;
   /** Where the board sits on a one-column screen; default `start`. */

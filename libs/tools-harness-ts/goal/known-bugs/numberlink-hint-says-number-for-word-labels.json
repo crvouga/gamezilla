@@ -1,0 +1,4 @@
+{
+  "summary": "Numberlink's drawing hint and cancel message told players to start from a number even when the puzzle's endpoint labels are words. Both now name an endpoint, the game's own term, whatever the labels are.",
+  "regressionTest": "libs/numberlink-harness-ts/tests/numberlink-drawing-feedback.test.tsx"
+}
