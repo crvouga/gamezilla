@@ -1,0 +1,4 @@
+{
+  "summary": "Leaving a hovered Connect Four column cleared the landing preview even while another column retained keyboard focus.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/disc-drop-focus-preview.test.tsx"
+}

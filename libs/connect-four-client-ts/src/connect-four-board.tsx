@@ -33,6 +33,7 @@ export function ConnectFourBoard(props: {
       winning={game().winning}
       lastCell={lastCell()}
       interactive={props.interactive && game().result === 0}
+      finished={game().result !== 0}
       label={t`Connect Four board, seven columns and six rows`}
       prompt={
         game().result !== 0
@@ -42,6 +43,14 @@ export function ConnectFourBoard(props: {
             : ''
       }
       previewPrompt={(column) => t`Drop in column ${column + 1}`}
+      fullColumnPrompt={(column) =>
+        t`Column ${column + 1} is full. Choose another column.`
+      }
+      keyboardHelp={
+        props.interactive && game().result === 0
+          ? t`Left/Right to choose · Enter or Space drops`
+          : t`Left/Right to inspect columns`
+      }
       cellLabel={(column, row, disc) => {
         const identity =
           disc === 1

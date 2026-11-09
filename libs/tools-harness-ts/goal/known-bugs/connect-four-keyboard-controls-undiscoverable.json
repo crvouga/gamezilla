@@ -1,0 +1,4 @@
+{
+  "summary": "Focused Connect Four columns described their contents but never exposed the implemented arrow, Home/End and activation controls. Keyboard focus now reveals and describes the controls without advertising drops for spectators or finished games.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/disc-drop-focus-preview.test.tsx"
+}
