@@ -52,6 +52,11 @@ export async function solveAndRecover(
   await expect(page.getByTestId('sokoban-move-down')).toBeInViewport({
     ratio: 1,
   });
+  // regression: sokoban-solved-way-on-hidden
+  // The way on is offered once, filled, and wholly on screen.
+  const next = page.getByTestId('content-next-puzzle');
+  await expect(next).toBeInViewport({ ratio: 1 });
+  await next.click({ trial: true });
   await capture(page, info, 'solved');
   await page.getByRole('button', { name: 'Restart', exact: true }).click();
   await counts(page, 0, 0);

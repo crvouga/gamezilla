@@ -5,6 +5,7 @@ const viewport = { width: 320, height: 740 };
 test.use({ viewport, video: { mode: 'on', size: viewport }, trace: 'on' });
 
 // regression: sokoban-narrow-feedback-moves-controls
+// regression: sokoban-solved-way-on-hidden
 test('storybook integration: Sokoban overhaul solve and recover 320/light', async ({
   page,
 }, info) => {

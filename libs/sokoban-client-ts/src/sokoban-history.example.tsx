@@ -12,6 +12,8 @@ function StoryControls(props: {
   disabled: boolean;
   /** As production, commands that cannot help unreadable content are withheld. */
   readable: boolean;
+  /** Solved: production then offers the pack's next puzzle, filled. */
+  complete: boolean;
   canUndo: boolean;
   canRedo: boolean;
   onUndo: () => void;
@@ -47,7 +49,16 @@ function StoryControls(props: {
           onClick={props.onRestart}
         />
       </Show>
-      {/* As the production screen offers a pack puzzle's way on. */}
+      {/* As the production screen offers a pack puzzle's way on: its next
+          puzzle once this one is solved, and its overview. */}
+      <Show when={props.complete}>
+        <Button
+          title="Next puzzle: Lift"
+          size="sm"
+          onClick={props.onOpenLibrary}
+          dataSet={{ testid: 'content-next-puzzle' }}
+        />
+      </Show>
       <Button
         title="Pack overview"
         intent="neutral"
@@ -115,6 +126,7 @@ export function SokobanHistory(props: {
         <StoryControls
           disabled={props.disabled}
           readable={rules.validateDefinition(props.definition).valid}
+          complete={complete()}
           canUndo={cursor() > 0}
           canRedo={cursor() < history().length - 1}
           onUndo={() => setCursor((value) => value - 1)}
