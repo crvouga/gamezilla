@@ -19,6 +19,7 @@
   }
   [data-component="GameColumn"]:has(.squareStage)
     > :not([data-component="GameHeading"]),
+  [data-component="GameLayout"]:has(.squareStage),
   [data-component="GameLayout"]:has(.squareStage) > :has(> .squareStage),
   .squareStage {
     display: contents;
