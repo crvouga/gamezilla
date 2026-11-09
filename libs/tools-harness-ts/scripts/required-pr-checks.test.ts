@@ -130,6 +130,24 @@ test('every scheduled shard must pass; only an empty plan permits its unexpanded
       true
     )
   ).not.toEqual([]);
+  // GitHub names a skipped matrix job by its unexpanded template.
+  const template = {
+    ...skipped,
+    name: 'verify:shards (${{ strategy.job-index }})',
+  };
+  expect(
+    requiredPrCheckFailures(REQUIRED, [...PASSED, template], false)
+  ).not.toEqual([]);
+  expect(
+    requiredPrCheckFailures(REQUIRED, [...PASSED, template], true)
+  ).toEqual([]);
+  expect(
+    requiredPrCheckFailures(
+      REQUIRED,
+      [...PASSED, { ...template, conclusion: 'failure' }],
+      true
+    )
+  ).not.toEqual([]);
 });
 
 test('no non-success conclusion can satisfy a declared integration', () => {

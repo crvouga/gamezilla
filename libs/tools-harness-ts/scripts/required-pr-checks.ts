@@ -19,6 +19,14 @@ export type PrCheck = {
 
 const ACTIONS = 15368;
 const SHARD = /^verify:shards(?: \(\d+\))?$/;
+/**
+ * A skipped matrix job is never expanded, so GitHub reports its name template
+ * as written in the workflow (older runs reported the bare job name).
+ */
+const UNEXPANDED_SHARD = new Set([
+  'verify:shards',
+  'verify:shards (${{ strategy.job-index }})',
+]);
 
 /** Manual rehearsal, release and nightly jobs do not belong to the PR workflow. */
 export function isPullRequestCheck(appId: number, event: string): boolean {
@@ -126,7 +134,9 @@ export function requiredPrCheckFailures(
   }
   for (const check of checks) {
     if (aggregate(check)) continue;
-    const shard = check.appId === ACTIONS && SHARD.test(check.name);
+    const shard =
+      check.appId === ACTIONS &&
+      (SHARD.test(check.name) || UNEXPANDED_SHARD.has(check.name));
     const declared = required.some(
       (policy) =>
         policy.context === check.name && policy.integration_id === check.appId
@@ -149,7 +159,7 @@ export function requiredPrCheckFailures(
     if (tolerated) continue;
     const cachedShard =
       emptyShardPlan &&
-      check.name === 'verify:shards' &&
+      UNEXPANDED_SHARD.has(check.name) &&
       check.conclusion === 'skipped';
     if (
       check.status !== 'completed' ||
