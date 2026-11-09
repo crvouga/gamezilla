@@ -1,6 +1,10 @@
 import { afterEach, expect, test } from 'bun:test';
 import { BattleshipBoard } from '@libs/battleship-client-ts/battleship-board';
-import { encodeBattleshipPosition } from '@libs/battleship-shared-ts/battleship-position';
+import { statusText } from '@libs/battleship-client-ts/battleship-status';
+import {
+  encodeBattleshipPosition,
+  readBattleshipPosition,
+} from '@libs/battleship-shared-ts/battleship-position';
 import { resolveBattleshipShot } from '@libs/battleship-shared-ts/battleship-rules';
 import type { GameSetups } from '@pkgs/turn-game-shared-ts/game-rules';
 import { cleanup } from '@solidjs/testing-library';
@@ -57,15 +61,21 @@ function finished(orientation: 'white' | 'black', setup: string | null) {
 
 // regression: battleship-loser-told-as-onlooker — the player whose fleet
 // was sunk read "Red fleet destroyed — all five ships sunk." over their own
-// fleet, as a watcher would.
+// fleet, as a watcher would. The game's end is said once, by the frame's
+// status line, to each reader; the boards add no line of their own.
 test('the end of the game is said to the winner, the loser and a watcher', () => {
-  expect(finished('white', BLUE)).toContain('You sank the whole Red fleet.');
-  cleanup();
-  const loser = finished('black', RED);
-  expect(loser).toContain('Your fleet is sunk: all five ships.');
-  expect(loser).not.toContain('Red fleet destroyed');
-  cleanup();
-  expect(finished('white', null)).toContain(
-    'Red fleet destroyed — all five ships sunk.'
+  const position = readBattleshipPosition(blueWins());
+  if (position === null) throw new Error('Unreadable position');
+  expect(statusText(position, 'white')).toContain(
+    'You sank the whole fleet. You win.'
   );
+  expect(statusText(position, 'black')).toContain(
+    'Blue fleet sank your whole fleet.'
+  );
+  expect(statusText(position, null)).toContain(
+    'Blue fleet sank the whole fleet.'
+  );
+  const loser = finished('black', RED);
+  expect(loser).not.toContain('destroyed');
+  expect(loser).not.toContain('Red fleet destroyed');
 });

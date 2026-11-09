@@ -92,19 +92,6 @@ function marks(ships: boolean): readonly CellGridLegendItem[] {
     : shots;
 }
 
-/**
- * The game's end over the boards, said to whoever reads it: the winner sank
- * the whole rival fleet, the loser's own fleet is sunk, and a watcher reads
- * which fleet was destroyed.
- */
-function endLine(winner: GameSide | null, viewer: GameSide | null): string {
-  const won = requireTwoPlayerSide(winner ?? 'white');
-  const sunk = sideName(otherSide(won));
-  if (viewer === won) return t`You sank the whole ${sunk}.`;
-  if (viewer !== null) return t`Your fleet is sunk: all five ships.`;
-  return t`${sunk} destroyed — all five ships sunk.`;
-}
-
 /** The cell just fired at, until the position (or a resync) answers it. */
 function createAim(props: GameBoardProps) {
   const [aiming, setAiming] = createSignal<string | null>(null);
@@ -184,9 +171,6 @@ export function BattleshipBoard(props: GameBoardProps): JSX.Element {
     (interactive() || aim.aiming() !== null) && view() === 'target';
   return (
     <StackVertical gap="xs" testId={props.testId}>
-      <Show when={battle().winner !== null}>
-        <P variant="bodyBold">{endLine(battle().winner, viewer())}</P>
-      </Show>
       <BattlePanels
         testId={props.testId}
         labels={labels()}
