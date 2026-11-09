@@ -218,3 +218,105 @@ test('storybook integration: word-tiles desktop rack sits under a larger board b
   expect(seat.top - rack.bottom).toBeLessThanOrEqual(48);
   expect(seat.bottom).toBeLessThanOrEqual(900);
 });
+
+// regression: word-tiles-desktop-tab-order-skips-around
+test('storybook integration: word-tiles desktop source order follows the screen: board, rack, then Play word', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await openStory(page, 'two-player-match', 'light');
+  const order = await page.evaluate(() => {
+    const board = document.querySelector('[data-testid="custom-game-board"]');
+    const rack = document.querySelector(
+      '[data-testid="custom-game-board-rack"]'
+    );
+    const submit = document.querySelector(
+      '[data-testid="custom-game-board-submit"]'
+    );
+    if (!board || !rack || !submit) return null;
+    const before = (a: Element, b: Element) =>
+      (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
+    const rackBox = rack.getBoundingClientRect();
+    const submitBox = submit.getBoundingClientRect();
+    return {
+      boardBeforeRack: before(board, rack),
+      rackBeforeSubmit: before(rack, submit),
+      submitBesideRack:
+        submitBox.left >= rackBox.right &&
+        submitBox.top < rackBox.bottom &&
+        submitBox.bottom > rackBox.top,
+    };
+  });
+  expect(order).toEqual({
+    boardBeforeRack: true,
+    rackBeforeSubmit: true,
+    submitBesideRack: true,
+  });
+});
+
+// regression: word-tiles-desktop-recovery-button-clipped
+test('storybook integration: word-tiles desktop word-list recovery button shows its whole label', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await openStory(page, 'word-list-unavailable', 'light');
+  const retry = page.getByRole('button', {
+    name: 'Load the word list again',
+    exact: true,
+  });
+  await expect(retry).toBeVisible();
+  const fit = await retry.evaluate((element) => ({
+    overflow: element.scrollWidth - element.clientWidth,
+    width: element.getBoundingClientRect().width,
+  }));
+  expect(fit.overflow).toBeLessThanOrEqual(0);
+  expect(fit.width).toBeGreaterThanOrEqual(44);
+});
+
+// regression: word-tiles-focus-ring-invisible-on-dark-squares
+test('storybook integration: word-tiles keyboard focus ring stands out on dark and light squares', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  for (const theme of ['light', 'dark']) {
+    await openStory(page, 'opening', theme);
+    // b1 is an empty plain square (dark felt); a1 is a light bonus square.
+    for (const id of ['b1', 'a1']) {
+      const cell = page.getByTestId(`custom-game-board-cell-${id}`);
+      await cell.focus();
+      await page.keyboard.press('ArrowRight');
+      await page.keyboard.press('ArrowLeft');
+      const best = await cell.evaluate((element) => {
+        const parse = (value: string) =>
+          (value.match(/[\d.]+/g) ?? []).slice(0, 3).map(Number);
+        const luminance = (rgb: number[]) => {
+          const [r = 0, g = 0, b = 0] = rgb.map((channel) => {
+            const c = channel / 255;
+            return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+          });
+          return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+        };
+        const contrast = (a: number[], b: number[]) => {
+          const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+          return ((hi ?? 0) + 0.05) / ((lo ?? 0) + 0.05);
+        };
+        const css = getComputedStyle(element);
+        const background = parse(css.backgroundColor);
+        const ring = parse(css.outlineColor);
+        const inner = parse(css.boxShadow);
+        return {
+          focused: element.matches(':focus-visible'),
+          contrast: Math.max(
+            contrast(ring, background),
+            contrast(inner, background)
+          ),
+        };
+      });
+      expect(best.focused, `${theme} ${id} focus-visible`).toBe(true);
+      expect(
+        best.contrast,
+        `${theme} ${id} ring contrast`
+      ).toBeGreaterThanOrEqual(3);
+    }
+  }
+});

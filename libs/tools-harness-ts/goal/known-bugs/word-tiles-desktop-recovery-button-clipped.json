@@ -1,0 +1,4 @@
+{
+  "summary": "With the word list unavailable on desktop, the recovery notice sat in the narrow tools column and its only action read '.oad the word list agair', clipped on both sides.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/word-tiles/integration.checks.ts"
+}
