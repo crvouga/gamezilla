@@ -8,6 +8,7 @@ import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { useLingui } from '@lingui/solid/macro';
 import { useMutationClient } from '@pkgs/sync-engine-client-ts/mutation-client-context';
 import type { Accessor, JSX } from 'solid-js';
+import { contentDraftPlayable } from './content-draft-playable';
 import { useContentGame } from './content-game-context';
 import { ContentPublicationControlsView } from './content-publication-controls-view';
 import { useContentPublicationStatus } from './content-publication-status';
@@ -92,10 +93,11 @@ export function ContentPublicationControls(props: {
       publishDenial={publishDenial()}
       published={props.document.published_revision_id !== null}
       disabled={props.disabled}
-      playable={
-        game.client.authoring?.readable?.(props.writer.body().definition) !==
-        false
-      }
+      playable={contentDraftPlayable(
+        game.client,
+        props.document.kind,
+        props.writer.body().definition
+      )}
       onValidate={tools.validate}
       onPublish={tools.publish}
       onViewPublication={() => {
