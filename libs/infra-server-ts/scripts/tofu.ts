@@ -71,6 +71,7 @@ import {
 } from '@libs/infra-shared-ts/tofu-command';
 import { requireConfiguredIdentity } from '@libs/product-identity-shared-ts/identity-input';
 import { PRODUCT } from '@libs/product-identity-shared-ts/product-identity';
+import { releaseAbandonedLock } from './abandoned-lock';
 import { resolveAwsSession } from './aws-session';
 import {
   dropLocalBackend,
@@ -298,6 +299,8 @@ async function runOnce(
   const env = await toolEnvironment(target, cli);
   const label = `${target.stack}/${target.env ?? cli.env ?? 'global'}`;
   const teardown = teardownOf(target, cli);
+  if (planOptionsFor(cli).lock && !firstRun)
+    await releaseAbandonedLock({ paths: PATHS, target, env, now: new Date() });
   if (target.stack === 'foundation' && command !== 'destroy') {
     const previewed = await retireArchivedGrafana({
       paths: PATHS,
