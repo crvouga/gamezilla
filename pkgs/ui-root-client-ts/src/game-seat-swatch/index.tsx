@@ -71,8 +71,8 @@ export function GameSeatSwatch(props: GameSeatSwatchProps): JSX.Element {
   const labelled = (): boolean =>
     props.label !== undefined && props.label.length > 0;
   const color = (): GameSeatColor | undefined => props.look.color;
-  // A board's own paint carries its mark in the board's canvas ink, as
-  // the pieces on it do; a player color in the screen's canvas ink.
+  // A board's own paint carries its mark in that board's ink, as the
+  // pieces on it do; a player color in the screen's canvas ink.
   const discPaint = (): boolean =>
     color() === 'disc-one' || color() === 'disc-two';
   const trailPaint = (): boolean => color()?.startsWith('trail-') === true;
@@ -97,7 +97,10 @@ export function GameSeatSwatch(props: GameSeatSwatchProps): JSX.Element {
             classList={{
               'text-background':
                 color() !== undefined && !discPaint() && !trailPaint(),
-              'text-game-connect-four-canvas': discPaint(),
+              // Red takes the board's light ink, yellow its canvas ink:
+              // each mark at least 5:1 on its disc, as on the board.
+              'text-game-connect-four-ink': color() === 'disc-one',
+              'text-game-connect-four-canvas': color() === 'disc-two',
               'text-game-light-cycles-canvas': trailPaint(),
               'text-text': color() === undefined,
             }}
