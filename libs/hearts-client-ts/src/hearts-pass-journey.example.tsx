@@ -1,6 +1,6 @@
 import {
   boardArgs,
-  renderGameTable,
+  type renderGameTable,
 } from '@libs/game-session-client-ts/game-frame-table.example';
 import {
   type Card,
@@ -20,9 +20,8 @@ import {
   sideOfSeat,
 } from '@libs/hearts-shared-ts/hearts-position';
 import { legalCards, seatToPlay } from '@libs/hearts-shared-ts/hearts-tricks';
-import { GAME_SIDES } from '@pkgs/turn-game-shared-ts/game-rules';
 import { createSignal } from 'solid-js';
-import { heartsPresentation } from './hearts-presentation';
+import { renderHeartsTable } from './hearts-table.example';
 
 export function journeyValue<T>(value: T | null | undefined): T {
   if (value === null || value === undefined)
@@ -52,9 +51,7 @@ export function renderPassJourney(
   const [position, setPosition] = createSignal(INITIAL_HEARTS);
   const [hands, setHands] = createSignal(journeyDeal.hands);
   const seat = () => seatToPlay(position()) ?? 0;
-  return renderGameTable(
-    heartsPresentation,
-    GAME_SIDES,
+  return renderHeartsTable(
     {
       ...boardArgs(encodeHearts(INITIAL_HEARTS), { interactive: true }),
       get position() {

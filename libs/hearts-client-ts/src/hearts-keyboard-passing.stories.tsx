@@ -1,24 +1,21 @@
 import {
   BOARD_CONTROLS_EXCLUDE,
   boardArgs,
-  renderGameTable,
 } from '@libs/game-session-client-ts/game-frame-table.example';
 import {
   encodeHearts,
   INITIAL_HEARTS,
 } from '@libs/hearts-shared-ts/hearts-position';
-import { GAME_SIDES } from '@pkgs/turn-game-shared-ts/game-rules';
 import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { HeartsBoard } from './hearts-board';
-import { heartsPresentation } from './hearts-presentation';
+import { renderHeartsTable } from './hearts-table.example';
 
 const meta = {
   id: 'screens-games-hearts-keyboard',
   title: 'Screens/Games/Hearts/Keyboard passing',
   component: HeartsBoard,
-  render: (args, context) =>
-    renderGameTable(heartsPresentation, GAME_SIDES, args, context),
+  render: (args, context) => renderHeartsTable(args, context),
   parameters: {
     appRouter: true,
     controls: { exclude: [...BOARD_CONTROLS_EXCLUDE] },

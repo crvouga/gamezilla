@@ -1,11 +1,10 @@
 import {
   boardArgs,
-  renderGameTable,
+  type renderGameTable,
 } from '@libs/game-session-client-ts/game-frame-table.example';
 import { heartsRules } from '@libs/hearts-shared-ts/hearts-rules';
-import { GAME_SIDES } from '@pkgs/turn-game-shared-ts/game-rules';
 import { createSignal } from 'solid-js';
-import { heartsPresentation } from './hearts-presentation';
+import { renderHeartsTable } from './hearts-table.example';
 
 /** Reject one pass, then acknowledge the retry through the board's real reset contract. */
 export function renderPassRecovery(
@@ -14,9 +13,7 @@ export function renderPassRecovery(
   const [error, setError] = createSignal('');
   const [syncKey, setSyncKey] = createSignal(0);
   const [commitment, setCommitment] = createSignal<string | null>(null);
-  return renderGameTable(
-    heartsPresentation,
-    GAME_SIDES,
+  return renderHeartsTable(
     {
       ...boardArgs(heartsRules.initial(), {
         hand: '2C3C4C5C6C7C8C9CTCJCQCKCAC',

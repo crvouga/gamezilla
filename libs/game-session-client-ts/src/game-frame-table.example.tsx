@@ -94,6 +94,12 @@ export type GameTableStory = {
    * lists no moves, as the app shows it. Defaults to `true`.
    */
   readonly turns?: boolean;
+  /**
+   * `false` for a game whose rules, not a fixed rotation, say who plays next
+   * (a hand game such as Hearts): the app then names no seat beside a move.
+   * Defaults to `true`.
+   */
+  readonly seatedMoves?: boolean;
 };
 
 /** Who holds each side: the space stories' people, Avery first. */
@@ -216,8 +222,9 @@ function tableRecord(props: TableProps): FrameRecord {
     turns: props.turns ?? true,
     moveHeading: props.presentation.moveHeading?.() ?? '',
     outline: props.presentation.frame.outline?.(props.board.position) ?? [],
-    perTurn: movers.length,
+    perTurn: props.seatedMoves === false ? 1 : movers.length,
     movers: moves.flatMap((_, index) => {
+      if (props.seatedMoves === false) return [];
       const mover = movers[index % movers.length];
       return mover === undefined ? [] : [mover];
     }),
