@@ -7,10 +7,13 @@ import type { BunWebView } from './bun-webview-host';
 function pointerCounterScript(selector: string | undefined): string {
   return `(function () {
   if (window.__uiTestingPointerCounts === undefined) {
-    var counts = { down: 0, up: 0, click: 0, selector: null, matchesTarget: false, hit: '' };
+    var counts = { down: 0, up: 0, mouse: 0, click: 0, selector: null, matchesTarget: false, hit: '' };
     window.__uiTestingPointerCounts = counts;
     document.addEventListener('pointerdown', function (e) {
       if (e.isTrusted) counts.down += 1;
+    }, true);
+    document.addEventListener('mousedown', function (e) {
+      if (e.isTrusted) counts.mouse += 1;
     }, true);
     document.addEventListener('pointerup', function (e) {
       if (e.isTrusted) counts.up += 1;
@@ -26,7 +29,7 @@ function pointerCounterScript(selector: string | undefined): string {
   var counts = window.__uiTestingPointerCounts;
   counts.selector = ${JSON.stringify(selector ?? null)};
   return [counts.down, counts.up, counts.click, performance.timeOrigin,
-    counts.matchesTarget, counts.hit];
+    counts.matchesTarget, counts.hit, counts.mouse];
 })()`;
 }
 
@@ -37,9 +40,17 @@ const RESEND_PAUSE =
 /** ~10s of re-sends: long enough to outlast a physical press elsewhere. */
 const NATIVE_CLICK_ATTEMPTS = 200;
 
+/**
+ * Polls (~1s) a sent press may stay unseen before it counts as dropped. A busy
+ * page can take longer than one pause to dispatch it; re-sending sooner
+ * presses twice.
+ */
+const QUEUED_PRESS_POLLS = 20;
+
 type PointerCounts = {
   readonly down: number;
   readonly up: number;
+  readonly mouse: number;
   readonly click: number;
   readonly documentId: number;
   readonly matchesTarget: boolean;
@@ -61,6 +72,7 @@ async function readPointerCounts(
   return {
     down: raw[0],
     up: raw[1],
+    mouse: typeof raw[6] === 'number' ? raw[6] : 0,
     click: typeof raw[2] === 'number' ? raw[2] : 0,
     documentId: typeof raw[3] === 'number' ? raw[3] : 0,
     matchesTarget: raw[4] === true,
@@ -85,6 +97,54 @@ function clickProgress(
   return counts.down > initial.down && counts.up > initial.up
     ? 'pending'
     : 'send';
+}
+
+/**
+ * Whether the page has seen any part of the press sent after `sent`. A chorded
+ * press still delivers its `mousedown`; a page that cancels `pointerdown`
+ * still sees the `pointerdown`; a stale pressed pointer sees only the `pointerup`.
+ */
+function pressArrived(counts: PointerCounts, sent: PointerCounts): boolean {
+  return (
+    counts.down > sent.down ||
+    counts.up > sent.up ||
+    counts.mouse > sent.mouse ||
+    counts.click > sent.click
+  );
+}
+
+type PressState = {
+  initial: PointerCounts | null;
+  /** Counts just before the latest press was sent. */
+  sent: PointerCounts | null;
+  unseenPolls: number;
+  pressed: boolean;
+};
+
+/** What a poll of the page's counters calls for: stop, wait, or press (again). */
+function pressStep(
+  state: PressState,
+  counts: PointerCounts,
+  completion: 'pointer' | 'click',
+  awaitsRelease: boolean
+): 'done' | 'wait' | 'send' {
+  state.initial ??= counts;
+  const sent = state.sent;
+  // A form navigation replaces the counters; the sent press has landed.
+  if (sent !== null && counts.documentId !== sent.documentId) return 'done';
+  const progress = clickProgress(completion, counts, state.initial);
+  if (progress === 'delivered') return 'done';
+  // A complete press may still have its click queued in the page event loop.
+  if (progress === 'pending') return 'wait';
+  if (sent === null) return 'send';
+  if (completion === 'pointer') {
+    state.pressed ||= counts.down > sent.down;
+    if (state.pressed && (!awaitsRelease || counts.up > sent.up)) return 'done';
+  }
+  // The last press may still be queued in a busy page; wait for it.
+  if (!pressArrived(counts, sent) && ++state.unseenPolls < QUEUED_PRESS_POLLS)
+    return 'wait';
+  return 'send';
 }
 
 function sendNativeClick(
@@ -121,27 +181,24 @@ export async function nativeClick(
   completion: 'pointer' | 'click' = 'pointer'
 ): Promise<void> {
   const awaitsRelease = button !== 'secondary';
-  let pressed = false;
-  let initial: PointerCounts | null = null;
+  const state: PressState = {
+    initial: null,
+    sent: null,
+    unseenPolls: 0,
+    pressed: false,
+  };
   const selector = typeof target === 'string' ? target : undefined;
   for (let attempt = 1; attempt <= NATIVE_CLICK_ATTEMPTS; attempt += 1) {
     if (attempt > 1) await view.evaluate(RESEND_PAUSE);
     const before = await readPointerCounts(view, selector);
-    initial ??= before;
-    const progress = clickProgress(completion, before, initial);
-    if (progress === 'delivered') return;
-    // A complete press may still have its click queued in the page event loop.
-    if (progress === 'pending') continue;
+    const step = pressStep(state, before, completion, awaitsRelease);
+    if (step === 'done') return;
+    if (step === 'wait') continue;
+    state.sent = before;
+    state.unseenPolls = 0;
     await sendNativeClick(view, target, button);
     const after = await readPointerCounts(view, selector);
-    // A form navigation replaces the counters; the old click has already landed.
-    if (after.documentId !== before.documentId) return;
-    if (completion === 'click') {
-      if (clickProgress(completion, after, initial) === 'delivered') return;
-      continue;
-    }
-    pressed ||= after.down > before.down;
-    if (pressed && (!awaitsRelease || after.up > before.up)) return;
+    if (pressStep(state, after, completion, awaitsRelease) === 'done') return;
   }
   throw new UiTestError(
     `Bun.WebView: native click at ${JSON.stringify(target)} never delivered a whole press after ${NATIVE_CLICK_ATTEMPTS} attempts`
