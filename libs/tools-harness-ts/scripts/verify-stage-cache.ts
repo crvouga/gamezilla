@@ -26,6 +26,36 @@ export function publishedTasks(plan: VerifyPlan, shard: VerifyShard) {
   return shard.tasks.filter((task) => needed.has(task.taskId));
 }
 
+type StageTask = VerifyShard['tasks'][number];
+
+/** Patient retries for a published cache hit's artifact. */
+export const PUBLISHED_RETRY_TIMEOUTS_MS = [60_000, 120_000, 240_000] as const;
+
+/**
+ * Every published cache hit is in the local cache before the stage runs:
+ * missing artifacts are fetched again with longer timeouts, and one still
+ * absent fails the producer here instead of leaving consumers without it.
+ */
+export async function ensurePublishedHits(
+  hits: readonly StageTask[],
+  cacheDir: string,
+  fetch: (tasks: StageTask[], timeoutMs: number) => Promise<void>,
+  timeouts: readonly number[] = PUBLISHED_RETRY_TIMEOUTS_MS
+): Promise<void> {
+  const absent = () =>
+    hits.filter((task) => !existsSync(join(cacheDir, `${task.hash}.tar.zst`)));
+  for (const timeoutMs of timeouts) {
+    const missing = absent();
+    if (!missing.length) return;
+    await fetch(missing, timeoutMs);
+  }
+  const missing = absent();
+  if (missing.length)
+    throw new Error(
+      `Published cache hits unavailable after retries: ${missing.map((task) => task.taskId).join(', ')}`
+    );
+}
+
 export async function prepareStage(
   plan: VerifyPlan,
   shard: VerifyShard,
@@ -46,6 +76,19 @@ export async function prepareStage(
     { tasks: plan.tasks, toExecute: [], remoteHits: restore },
     root,
     env
+  );
+  // Turbo never runs a cached task, so a published hit the prefetch missed
+  // would leave consumers without it; fetch those again, more patiently.
+  await ensurePublishedHits(
+    publish.filter((task) => task.hit),
+    resolveTurboCacheDir(root, env),
+    (tasks, timeoutMs) =>
+      prefetchRemoteHits(
+        { tasks: plan.tasks, toExecute: [], remoteHits: tasks },
+        root,
+        env,
+        timeoutMs
+      )
   );
   const missing = external.filter(
     (task) =>

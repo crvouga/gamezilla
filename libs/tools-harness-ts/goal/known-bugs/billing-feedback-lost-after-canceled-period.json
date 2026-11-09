@@ -1,0 +1,4 @@
+{
+  "summary": "Feedback saved offline was rejected and disappeared when its canceled membership ended before reconnection.",
+  "regressionTest": "specs/billing/cancellation-feedback.feature"
+}

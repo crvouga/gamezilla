@@ -1,0 +1,4 @@
+{
+  "summary": "The completed Drawn geometry fixture replaced the existing drawn position with the seven-drop winning position and highlighted four winning red discs under the Draw result. Reuse the drawn story's board renderer and verify that no winning line is shown.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/completion/integration.checks.ts"
+}

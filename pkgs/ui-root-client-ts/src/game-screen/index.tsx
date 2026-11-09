@@ -1,7 +1,10 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { type JSX, Show } from 'solid-js';
-import { EmbeddedScreen } from '../embedded-screen/index';
+import {
+  EmbeddedScreen,
+  type EmbeddedScreenProps,
+} from '../embedded-screen/index';
 import styles from '../game-ui.module.css';
 import { ScreenIntro } from '../screen-intro/index';
 import { createScreenSlot } from '../screen-slot';
@@ -25,6 +28,7 @@ import stageAlign from './game-stage-align.module.css';
 export function GameScreen(props: {
   screenId: string;
   title: JSX.Element;
+  compactInset?: EmbeddedScreenProps['compactInset'];
   subtitle?: JSX.Element | undefined;
   /**
    * The game's facts on the title's own line, after it (`Unrated`, the
@@ -53,6 +57,7 @@ export function GameScreen(props: {
     <EmbeddedScreen
       screenId={props.screenId}
       width="full"
+      compactInset={props.compactInset}
       dataSet={{ ...props.dataSet, component: 'GameScreen' }}
     >
       <div

@@ -6,6 +6,7 @@ import {
   useGameChoicesName,
 } from '@libs/spaces-client-ts/spaces-nav-context';
 import { Trans } from '@lingui/solid/macro';
+import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
 import type { JSX } from 'solid-js';
 import { useRefusalText } from './custom-game-error';
 import { CustomGameSetupBoard } from './custom-game-private-setup';
@@ -101,6 +102,11 @@ function CustomGameFrame(props: FrameProps): JSX.Element {
   const next = useFrameNext(model);
   const record = useFrameRecord(model, review);
   const boardState = useFrameBoardState(model, review, board);
+  const presentation = useGamePresentation();
+  const boardFit = (): 'square' | undefined => {
+    const game = model.current();
+    return game === null ? undefined : presentation(game.fen).frame.boardFit;
+  };
   return (
     <>
       <GameFrameScreenView
@@ -123,6 +129,7 @@ function CustomGameFrame(props: FrameProps): JSX.Element {
         board={<FrameBoardMount board={board} />}
         setupBoard={<CustomGameSetupBoard model={model} />}
         boardState={boardState()}
+        boardFit={boardFit()}
         about={props.instructions}
         people={PEOPLE}
         onChoose={model.choose}

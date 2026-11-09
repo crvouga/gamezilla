@@ -1,0 +1,4 @@
+{
+  "summary": "A newline-free encrypted log could grow readline memory before a record limit was checked. Reject a line beyond 64 KiB while reading chunks.",
+  "regressionTest": "libs/tools-harness-ts/scripts/storybook-evidence-stream.test.ts"
+}

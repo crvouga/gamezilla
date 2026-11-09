@@ -1,0 +1,4 @@
+{
+  "summary": "The only compact inset narrower than 16px ('narrow') applied across the whole compact layout, so a precision game that needed 4px at 320px also lost its standard edge at 390px. A closed 'narrowest' value gives 4px only below 360px and 16px on wider compact screens.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/compact-inset-narrowest/integration.checks.ts"
+}

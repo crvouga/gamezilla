@@ -46,6 +46,7 @@ test('a partial or pending refund does not complete withdrawal', async () => {
         provider: 'stub',
         customerId: 'cus_alice',
       }),
+      closeCheckouts: async () => null,
       readPayments: async () => [
         {
           id: 'late-payment',
