@@ -26,7 +26,7 @@ test('the known victory sinks the second fleet with the seventeenth hit, on the 
   const won = after(33);
   expect(fixtures.firstSideVictory).toHaveLength(33);
   expect(fixtures.firstSideVictoryLabels.at(-1)).toBe(
-    'G10 sinks the destroyer'
+    'G10 sinks the Destroyer'
   );
   expect(rules.legal(won)).toEqual([]);
   expect(rules.legal(after(32))).not.toEqual([]);

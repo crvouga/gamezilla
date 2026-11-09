@@ -70,11 +70,14 @@ export function shotAction(shot: Shot): string {
     ? `${shot.cell}:sunk:${shot.ship}`
     : `${shot.cell}:${shot.outcome}`;
 }
-/** How a move list names `shot`: `E5 miss`, `E5 hit`, `E5 sinks the cruiser`. */
+/** How a move list names `shot`: `E5 miss`, `E5 hit`, `E5 sinks the Cruiser`. */
 export function shotLabel(shot: Shot): string {
   const cell = cellLabel(shot.cell);
+  // A ship is named as everywhere else it appears: `Cruiser`, not `cruiser`.
+  const ship =
+    (shot.ship ?? '').charAt(0).toUpperCase() + (shot.ship ?? '').slice(1);
   return shot.outcome === 'sunk'
-    ? `${cell} sinks the ${shot.ship}`
+    ? `${cell} sinks the ${ship}`
     : `${cell} ${shot.outcome}`;
 }
 function emptyVolley(): Volley {

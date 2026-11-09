@@ -7,7 +7,10 @@ import {
 } from '@libs/battleship-shared-ts/battleship-position';
 import { t } from '@lingui/core/macro';
 import type { GameBoardProps } from '@pkgs/turn-game-shared-ts/game-presentation';
-import { requireTwoPlayerSide } from '@pkgs/turn-game-shared-ts/game-rules';
+import {
+  type GameSide,
+  requireTwoPlayerSide,
+} from '@pkgs/turn-game-shared-ts/game-rules';
 import { BattleshipWholeBoard } from '@pkgs/ui-root-client-ts/battleship-target-layout';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import {
@@ -78,6 +81,19 @@ function marks(ships: boolean): readonly CellGridLegendItem[] {
   return ships
     ? [{ glyph: GLYPHS.ship, tone: 'occupied', label: t`Ship` }, ...shots]
     : shots;
+}
+
+/**
+ * The game's end over the boards, said to whoever reads it: the winner sank
+ * the whole rival fleet, the loser's own fleet is sunk, and a watcher reads
+ * which fleet was destroyed.
+ */
+function endLine(winner: GameSide | null, viewer: GameSide | null): string {
+  const won = requireTwoPlayerSide(winner ?? 'white');
+  const sunk = sideName(otherSide(won));
+  if (viewer === won) return t`You sank the whole ${sunk}.`;
+  if (viewer !== null) return t`Your fleet is sunk: all five ships.`;
+  return t`${sunk} destroyed — all five ships sunk.`;
 }
 
 /** The cell just fired at, until the position (or a resync) answers it. */
@@ -155,7 +171,7 @@ export function BattleshipBoard(props: GameBoardProps): JSX.Element {
   return (
     <StackVertical gap="xs" testId={props.testId}>
       <Show when={battle().winner !== null}>
-        <P variant="bodyBold">{t`${sideName(otherSide(requireTwoPlayerSide(battle().winner ?? 'white')))} destroyed — all five ships sunk.`}</P>
+        <P variant="bodyBold">{endLine(battle().winner, viewer())}</P>
       </Show>
       <BattlePanels
         testId={props.testId}

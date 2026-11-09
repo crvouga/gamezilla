@@ -164,7 +164,7 @@ describe('playing resolved shots', () => {
     )!;
     expect([sinks.turn, sinks.label]).toEqual([
       'black',
-      'J2 sinks the destroyer',
+      'J2 sinks the Destroyer',
     ]);
   });
   test('the 17th hit sinks the fifth ship and wins at once', () => {

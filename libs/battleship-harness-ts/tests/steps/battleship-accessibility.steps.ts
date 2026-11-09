@@ -28,7 +28,7 @@ import {
 
 const SETTLE_MS = 10_000;
 /** How the board says what a shot found. */
-const FOUND = { hit: 'hit', miss: 'missed' } as const;
+const FOUND = { hit: 'hit', miss: 'missed at' } as const;
 
 /** What `actor` hears once it includes `words`. */
 function hears(w: BattleshipWorld, actor: string, words: RegExp) {
@@ -79,7 +79,7 @@ Then(
   async (w, actor: string, cell: string, result: string) => {
     const found = FOUND[result as keyof typeof FOUND];
     expect(found).toBeDefined();
-    await hears(w, actor, new RegExp(`You ${found} at ${escaped(cell)}\\.`));
+    await hears(w, actor, new RegExp(`You ${found} ${escaped(cell)}\\.`));
   }
 );
 Then(
@@ -96,7 +96,7 @@ Then(
     await hears(
       w,
       actor,
-      new RegExp(`${name} (missed|hit|sank the \\S+) at ${escaped(cell)}\\.`)
+      new RegExp(`${name} (missed at|hit|sank the \\S+ at) ${escaped(cell)}\\.`)
     );
   }
 );

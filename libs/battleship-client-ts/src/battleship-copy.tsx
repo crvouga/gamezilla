@@ -52,14 +52,14 @@ export function shotSentence(shot: Shot, shooter: string | null): string {
   if (shooter === null) {
     const yours: Readonly<Record<Shot['outcome'], string>> = {
       miss: t`You missed at ${cell}.`,
-      hit: t`You hit at ${cell}.`,
+      hit: t`You hit ${cell}.`,
       sunk: t`You sank the ${ship} at ${cell}.`,
     };
     return yours[shot.outcome];
   }
   const theirs: Readonly<Record<Shot['outcome'], string>> = {
     miss: t`${shooter} missed at ${cell}.`,
-    hit: t`${shooter} hit at ${cell}.`,
+    hit: t`${shooter} hit ${cell}.`,
     sunk: t`${shooter} sank the ${ship} at ${cell}.`,
   };
   return theirs[shot.outcome];
