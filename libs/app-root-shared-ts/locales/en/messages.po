@@ -3248,6 +3248,10 @@ msgstr "Fit board"
 msgid "Five"
 msgstr "Five"
 
+#: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
+msgid "Fix first"
+msgstr "Fix first"
+
 #: libs/battleship-client-ts/src/battleship-setup-precision.tsx
 msgid "Fleet overview"
 msgstr "Fleet overview"
@@ -4641,6 +4645,10 @@ msgstr "Next round soon."
 #: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
 msgid "Next: finish a playtest to show the puzzle can be solved."
 msgstr "Next: finish a playtest to show the puzzle can be solved."
+
+#: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
+msgid "Next: fix the draft as the editor says, then playtest."
+msgstr "Next: fix the draft as the editor says, then playtest."
 
 #: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
 msgid "Next: make the changes it needs, then validate again."
