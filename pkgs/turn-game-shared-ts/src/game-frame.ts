@@ -19,8 +19,10 @@ export type FramePlayerColor = FrameSeatCount;
 /**
  * The paint of a board whose pieces are not drawn in player colors, named
  * for what is drawn: the first and second disc of a disc-drop board, the
- * first to fourth rider's trail of a trail arena. A seat painted with it
- * matches its pieces on the board in every theme.
+ * first to fourth rider's trail of a trail arena, the first to fourth pawn
+ * ink of a pawn-and-wall board (drawn on a swatch of that board's own
+ * square, as the pawn is). A seat painted with it matches its pieces on the
+ * board in every theme.
  */
 export type FrameBoardPaint =
   | 'disc-one'
@@ -28,7 +30,11 @@ export type FrameBoardPaint =
   | 'trail-one'
   | 'trail-two'
   | 'trail-three'
-  | 'trail-four';
+  | 'trail-four'
+  | 'pawn-one'
+  | 'pawn-two'
+  | 'pawn-three'
+  | 'pawn-four';
 
 /** Every board paint, in a stable order. */
 export const FRAME_BOARD_PAINTS: readonly FrameBoardPaint[] = [
@@ -38,6 +44,10 @@ export const FRAME_BOARD_PAINTS: readonly FrameBoardPaint[] = [
   'trail-two',
   'trail-three',
   'trail-four',
+  'pawn-one',
+  'pawn-two',
+  'pawn-three',
+  'pawn-four',
 ];
 
 /** A seat's paint: a player color, or its board's own piece paint. */
@@ -180,6 +190,16 @@ export type GameFrame<View> = {
   readonly seatLayout?: GameFrameSeatLayout;
   /** Explicit precision workspace inset on compact screens; wide layout is unchanged. */
   readonly compactInset?: GameFrameCompactInset;
+  /**
+   * A first turn as the record will write it, each move with its seat's
+   * look (Connect Four's `● 4 ◆ 4`). Before the first move a phone's record
+   * keeps that turn's room, so the board under it does not move when the
+   * first move lands. Absent: the empty record keeps one line.
+   */
+  readonly firstTurnSample?: readonly {
+    readonly label: string;
+    readonly look: GameSeatLook;
+  }[];
   /**
    * Whether the frame offers the people playing a draw by agreement among
    * its commands. A game says so itself: one that can never be drawn

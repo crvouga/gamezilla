@@ -139,9 +139,9 @@ failures and populate the shared cache before publishing the batch of fixes:
    before expensive checks, then warm shared prerequisites that unlock affected
    consumers. Reuse an owned verification already covering those tasks rather
    than launching a second overlapping gate.
-4. On the final tree, finish the required local gate (`bun verify` here), plus
-   any affected checks outside it. Avoid repeated full runs of an unchanged
-   tree. Let the runner exit and flush uploads; a local artifact or task pass
+4. On the final tree, run the affected scoped checks locally; the full gate
+   (`bun verify`) runs in hosted Verify PR after the push, never on this
+   machine. Avoid repeated full runs of an unchanged tree. Let the runner exit and flush uploads; a local artifact or task pass
    alone does not prove remote availability. Inspect upload warnings and, when
    practical, confirm important exact hashes through the remote cache lookup.
    Compare remote misses before and after warming. If the same hashes remain
@@ -150,23 +150,21 @@ failures and populate the shared cache before publishing the batch of fixes:
 5. Push the verified batch once when authorized. Do not push each speculative
    fix to use CI as the first broad test. If credentials, compatible execution
    or local capacity block warming, record the precise gap and use hosted CI
-   for that work when repository policy permits. A required pending local gate
-   remains pending; cache warming never substitutes for the published gate.
+   for that work. Cache warming never substitutes for the published gate.
 
 ### Resource limits and long checks
 
-Keep local checks within the machine's budget and respect repository leases.
-Never bypass a queue by detaching processes or killing another worktree's run.
-If a heavy check is queued, continue diagnosis, source analysis and permitted
-focused checks and compatible cache warming. If admission prevents useful local
-progress, apply the blocked-warming fallback above rather than bypassing the
-queue or repeatedly pushing speculative fixes.
+There is no local queue. Heavy checks (integration and end-to-end suites,
+Storybook builds and browser captures, the full `bun verify` or
+`bun verify-nightly` gate, anything with services) run on hosted CI: push, or
+dispatch the workflow (`gh workflow run verify-nightly.yml --ref <branch> -f
+group=<group>`), and read its result. Light and medium checks start locally at
+once; never wait for, lease or serialize local capacity, and never hold work
+until another agent's run finishes. Never kill another worktree's run.
 
-Run a full local gate when the user or repository requires it, or when the
-failure cannot be isolated and broad verification is needed. Run it once on the
-final tree with caches intact; repeat only after relevant changes, new failures
-or unresolved concerns. State any pending required local gate separately from
-hosted CI status. Own and clean up only processes you started.
+When broad verification is needed, run it in hosted CI once on the final tree;
+repeat only after relevant changes, new failures or unresolved concerns. Own
+and clean up only processes you started.
 
 ## 3. Verify the published fix
 
@@ -208,13 +206,13 @@ Use them only when they shorten the current diagnosis:
 | Helper | Use |
 | --- | --- |
 | `scripts/discover-checks` | Map an unfamiliar CI configuration to commands; inspect the relevant path rather than scheduling everything. |
-| `scripts/resource-budget` | Measure local capacity and share slots across worktrees. |
-| `scripts/run-check <id>` | Run a selected check within the budget and save evidence. |
+| `scripts/resource-budget` | Measure local capacity and list running checks. |
+| `scripts/run-check <id>` | Run a selected check now (heavy checks report `hosted`) and save evidence. |
 | `scripts/run-check --adhoc <name> --like <id> --cmd '<command>'` | Run a narrower reproduction with relevant environment. |
 | `scripts/triage-failures` | Cluster recorded local failures that relate to the PR's blockers. |
 | `scripts/audit-diff` | Flag possible bypasses for review; findings need judgment. |
 
 Read [check-discovery](references/check-discovery.md) for helper schemas,
-[resource-budgeting](references/resource-budgeting.md) for local scheduling,
+[resource-budgeting](references/resource-budgeting.md) for what runs locally,
 and [failure-triage](references/failure-triage.md) for relevant failure signatures.
 Do not invoke `run-check --all` or broad phase runs as the default repair loop.

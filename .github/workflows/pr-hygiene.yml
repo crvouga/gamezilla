@@ -1,0 +1,100 @@
+name: PR Hygiene
+
+# Run title, identical shape in every workflow (enforced by
+# libs/tools-harness-ts/scripts/workflow-run-names.test.ts):
+#   <Workflow> · <trigger>
+run-name: "PR Hygiene · ${{ github.event_name == 'schedule' && 'schedule' || 'manual' }}"
+
+# Keeps many concurrent agent PRs moving without a person watching the list:
+# - `do-not-merge` turns auto-merge off.
+# - A PR that conflicts with main gets `needs-human` and one comment naming the
+#   conflicting files; the label comes off once the conflict is resolved.
+# - A PR with no activity for 2 days gets `stale`; 3 days later it is closed.
+#   `hotfix` PRs are exempt.
+#
+# Scheduled only, never on pull_request: Verify PR's final gate refuses any
+# PR check that is not a required check (required-pr-checks.ts), and scheduled
+# runs are not PR checks. Behind-but-clean PRs are left alone: main does not
+# require up-to-date branches, and updating them would rerun CI for nothing.
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-hygiene
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  pr-hygiene:
+    name: pr-hygiene
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read # trial-merge PR heads to list conflicting files
+      pull-requests: write # labels, comments, auto-merge, closing stale PRs
+      issues: write # labels live on the issue side of a PR
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Turn off auto-merge on do-not-merge PRs
+        run: |
+          set -euo pipefail
+          gh pr list --state open --label do-not-merge --limit 200 \
+            --json number,autoMergeRequest \
+            --jq '.[] | select(.autoMergeRequest != null) | .number' |
+          while read -r number; do
+            echo "PR #${number}: do-not-merge, turning auto-merge off"
+            gh pr merge "$number" --disable-auto
+          done
+      - name: Label conflicting PRs needs-human
+        run: |
+          set -euo pipefail
+          marker='<!-- pr-hygiene:conflict -->'
+          tick='`'
+          git -c credential.helper= fetch --quiet origin main
+          gh pr list --state open --base main --limit 200 \
+            --json number,mergeable,labels \
+            --jq '.[] | [.number, .mergeable, ([.labels[].name] | index("needs-human") != null)] | @tsv' |
+          while IFS=$'\t' read -r number mergeable labelled; do
+            if [ "$mergeable" = "CONFLICTING" ] && [ "$labelled" = "false" ]; then
+              git -c credential.helper= fetch --quiet origin "pull/${number}/head:refs/pr-hygiene/${number}"
+              files=$(git merge-tree --write-tree --name-only --no-messages origin/main "refs/pr-hygiene/${number}" | tail -n +2 | sed "s/^/- ${tick}/; s/\$/${tick}/" || true)
+              body=$(printf '%s\nThis PR conflicts with %smain%s. Merge %sorigin/main%s in and resolve:\n\n%s\n' "$marker" "$tick" "$tick" "$tick" "$tick" "${files:-"- (GitHub could not list the files)"}")
+              echo "PR #${number}: conflicting, labelling needs-human"
+              gh pr edit "$number" --add-label needs-human
+              gh pr comment "$number" --body "$body"
+            elif [ "$mergeable" = "MERGEABLE" ] && [ "$labelled" = "true" ]; then
+              # Only remove a label this workflow added.
+              if gh pr view "$number" --json comments --jq '.comments[].body' | grep -qF "$marker"; then
+                echo "PR #${number}: conflict resolved, removing needs-human"
+                gh pr edit "$number" --remove-label needs-human
+              fi
+            fi
+          done
+      - name: Mark and close inactive PRs
+        uses: actions/stale@4391f3da665fdf50b6810c1a66712fb9ba21aa93 # v11.0.0
+        with:
+          repo-token: ${{ github.token }}
+          days-before-issue-stale: -1
+          days-before-issue-close: -1
+          days-before-pr-stale: 2
+          days-before-pr-close: 3
+          stale-pr-label: stale
+          exempt-pr-labels: hotfix
+          stale-pr-message: No activity for 2 days. This PR closes in 3 more days unless it is updated.
+          close-pr-message: Closed after 5 days without activity. Reopen it, or open a fresh PR from current main.
+          delete-branch: false
+          operations-per-run: 100

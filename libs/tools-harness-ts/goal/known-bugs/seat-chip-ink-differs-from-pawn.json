@@ -1,0 +1,4 @@
+{
+  "summary": "Seat chips drew Quoridor pawns in theme player colors, so in the dark theme the chip (pale pink, yellow, lime, white) disagreed with the pawn ink on the sand board (dark red, gold, green, black).",
+  "regressionTest": "pkgs/ui-root-client-ts/tests/game-seat-pawn-ink.test.ts"
+}

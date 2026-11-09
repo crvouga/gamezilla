@@ -74,7 +74,6 @@ app-example
 apps/client-ts/ios/
 apps/client-ts/android/
 
-.cursor/debug*.log
 
 # Local deploy / script logs
 *.log
@@ -172,7 +171,6 @@ graphify-out/
 /.factory/settings.local.json
 
 # Identity and branded files are external configuration/build outputs.
-/.cursor/mcp.json
 /apps/client-swift/config/product-identity.generated.xcconfig
 /apps/client-swift/src/product-identity.generated.swift
 /apps/client-ts/public/favicon.ico

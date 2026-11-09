@@ -80,7 +80,7 @@ Cloud features and paid limits must be checked against the connected project.
 ## Agents
 
 `bun run agents:sync` generates the local Storybook HTTP MCP entry alongside
-Serena for Codex, Claude Code, Cursor, Gemini, OpenCode, VS Code, Factory, Roo,
+Serena for Codex, Claude Code, Gemini, OpenCode, VS Code, Factory, Roo,
 Kiro and Continue. Start the owned server with `bun storybook` (or `bun dev`),
 then reconnect the agent MCP client. The default endpoint is
 `http://127.0.0.1:6006/mcp`. A custom `STORYBOOK_PORT` is recorded in

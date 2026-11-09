@@ -7,6 +7,7 @@ import { createScreenSlot } from '../screen-slot';
 import boardAlign from './board-align.module.css';
 import { GameBoardPreviewContext } from './board-preview';
 import { createViewportSquareFit } from './viewport-fit';
+import fit from './viewport-fit.module.css';
 
 /**
  * The play surface and the people around it. The game supplies the
@@ -45,15 +46,16 @@ export function GameBoardStage(props: {
   const own = createScreenSlot(() => props.own);
   const preview = (): boolean => props.preview === true;
   let root: HTMLDivElement | undefined;
-  const limit = createViewportSquareFit(
-    () => root,
-    () => props.viewportFit === 'square' && !preview()
-  );
+  const square = (): boolean => props.viewportFit === 'square' && !preview();
+  const limit = createViewportSquareFit(() => root, square);
   return (
     <div
       ref={root}
       class={`${styles['boardStage']} ${precision['board']}`}
-      classList={{ [boardAlign['start'] ?? '']: props.align === 'start' }}
+      classList={{
+        [boardAlign['start'] ?? '']: props.align === 'start',
+        [fit['squareStage'] ?? '']: square(),
+      }}
       data-preview={props.preview === true}
       data-viewport-fit={props.viewportFit}
       style={{
@@ -62,7 +64,10 @@ export function GameBoardStage(props: {
       {...dataAttrs({ component: 'GameBoardStage', ...props.dataSet })}
     >
       <Show when={others.present()}>{others.content()}</Show>
-      <div class={styles['board']}>
+      <div
+        class={styles['board']}
+        classList={{ [fit['squareBoard'] ?? '']: square() }}
+      >
         <GameBoardPreviewContext.Provider value={preview}>
           {props.children}
         </GameBoardPreviewContext.Provider>

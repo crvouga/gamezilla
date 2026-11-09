@@ -1,0 +1,4 @@
+{
+  "summary": "At 390px shared steering and 768px single-rider layouts, keyboard input worked but guidance omitted arena focus and the Arrow/WASD rider mappings. Compact guidance now names focus and the applicable keyboard controls alongside touch steering.",
+  "regressionTest": "libs/light-cycles-client-ts/tests/light-cycles-board-layout.test.tsx"
+}
