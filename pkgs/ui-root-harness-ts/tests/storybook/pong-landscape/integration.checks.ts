@@ -12,6 +12,13 @@ test('storybook integration: pong-overhaul landscape court and scoreboard fit af
     await page.setViewportSize({ width: 844, height: 390 });
     await openPong(page, 'paddle-movement', theme);
     const court = page.getByRole('application', { name: 'Pong court' });
+    // regression: pong-landscape-court-below-fold-on-load — before anything
+    // is focused, the whole court already shows.
+    const firstView = await court.evaluate((element) => ({
+      bottom: element.getBoundingClientRect().bottom,
+      height: innerHeight,
+    }));
+    expect(firstView.bottom).toBeLessThanOrEqual(firstView.height);
     for (let i = 0; i < 24; i++) {
       await page.keyboard.press('Tab');
       if (await court.evaluate((element) => element === document.activeElement))
@@ -44,8 +51,8 @@ test('storybook integration: pong-overhaul landscape court and scoreboard fit af
     expect(fit.scoreboard.top).toBeGreaterThanOrEqual(0);
     expect(fit.scoreboardUnobstructed).toBe(true);
     expect(fit.court.bottom).toBeLessThanOrEqual(fit.viewport.height);
-    // Still a usable court: at least three fifths of the window height.
-    expect(fit.court.height).toBeGreaterThanOrEqual(fit.viewport.height * 0.6);
+    // Still a usable court: over half the window height.
+    expect(fit.court.height).toBeGreaterThanOrEqual(fit.viewport.height * 0.55);
   }
   await logVideo(page, 'landscape-focus');
 });

@@ -114,3 +114,52 @@ test('storybook integration: pong-overhaul court and scoreboard text meet 4.5:1 
     }
   }
 });
+
+// regression: pong-court-focus-ring-faint-and-clipped — the court's focus ring
+// was 1.55:1 against the light page and its sides were clipped by the board.
+test('storybook integration: pong-overhaul court focus ring is visible and whole', async ({
+  page,
+}, info) => {
+  for (const theme of ['light', 'dark'])
+    for (const viewport of [
+      { width: 390, height: 844 },
+      { width: 768, height: 1024 },
+      { width: 844, height: 390 },
+      { width: 1440, height: 900 },
+    ]) {
+      await page.setViewportSize(viewport);
+      await openPong(page, 'paddle-movement', theme);
+      const court = page.getByRole('application', { name: 'Pong court' });
+      for (let i = 0; i < 24; i++) {
+        await page.keyboard.press('Tab');
+        if (
+          await court.evaluate((element) => element === document.activeElement)
+        )
+          break;
+      }
+      await expect(court).toBeFocused();
+      const ring = await court.evaluate((element) => {
+        const style = getComputedStyle(element);
+        return {
+          color: style.outlineColor,
+          width: Number.parseFloat(style.outlineWidth),
+          offset: Number.parseFloat(style.outlineOffset),
+          canvas: style.backgroundColor,
+        };
+      });
+      await info.attach(`focus-ring-${theme}-${viewport.width}`, {
+        body: JSON.stringify(ring),
+        contentType: 'application/json',
+      });
+      const color = parseColor(ring.color);
+      const canvas = parseColor(ring.canvas);
+      if (!color || !canvas)
+        throw new Error(`Unreadable ring ${JSON.stringify(ring)}`);
+      // Drawn inside the court's edge, on its own canvas, so nothing clips it.
+      expect(ring.width).toBeGreaterThanOrEqual(2);
+      expect(ring.offset).toBeLessThanOrEqual(-ring.width);
+      expect(contrastRatio(color, canvas)).toBeGreaterThanOrEqual(3);
+      if (viewport.width === 390)
+        await recordPong(page, info, `court-focus-${theme}-${viewport.width}`);
+    }
+});

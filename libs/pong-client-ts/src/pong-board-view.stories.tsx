@@ -24,6 +24,7 @@ import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { PongBoardView } from './pong-board-view';
 import { pongGameClient } from './pong-game-client';
 import { PongJourney } from './pong-journey.example';
+import { PongLiveRally } from './pong-live-rally.example';
 
 /**
  * A game to three points played for `ticks` with nobody moving a paddle:
@@ -224,6 +225,32 @@ export const RightPaddleMovement: Story = {
 export const SharedPaddleMovement: Story = {
   ...PaddleMovement,
   args: { simulation: playing(['white', 'black']) },
+};
+
+/**
+ * A rally in real time: the court holds a fixed mid-rally frame until the
+ * first paddle input, then the product mechanics run at the game's tick rate,
+ * so responsiveness is measured while the ball is moving.
+ */
+export const LiveRally: Story = {
+  render: (args, context) => (
+    <PongLiveRally sides={args.simulation?.sides ?? ['white']}>
+      {(position, simulation) =>
+        renderGameTable(
+          presentation,
+          TWO_PLAYER_SIDES,
+          {
+            ...args,
+            simulation,
+            get position() {
+              return position();
+            },
+          },
+          context
+        )
+      }
+    </PongLiveRally>
+  ),
 };
 
 /** Return, interruption, restored input and a point, all using real fixed-step rules. */

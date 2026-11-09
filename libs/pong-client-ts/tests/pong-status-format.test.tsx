@@ -62,7 +62,7 @@ test('the court status is formatted once per change of its words, not once per f
       })
     );
   const seconds = Math.ceil(start.countdown / config.tickRate);
-  expect(view.getByText(`Serve in ${seconds}.`)).toBeDefined();
+  expect(view.getByText(`Serve in ${seconds}`)).toBeDefined();
   expect(serves()).toBeLessThanOrEqual(1);
   // The next countdown second still rewords it.
   setPosition(
@@ -71,6 +71,6 @@ test('the court status is formatted once per change of its words, not once per f
       countdown: start.countdown - config.tickRate,
     })
   );
-  expect(view.getByText(`Serve in ${seconds - 1}.`)).toBeDefined();
+  expect(view.getByText(`Serve in ${seconds - 1}`)).toBeDefined();
   format.mockRestore();
 });

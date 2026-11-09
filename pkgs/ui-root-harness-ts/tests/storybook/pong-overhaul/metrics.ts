@@ -44,7 +44,19 @@ export async function startPongMetrics(page: Page) {
     const handlerEnd = () => {
       samples.handlers.push(performance.now() - handlerStart);
     };
-    const input = () => {
+    // Only input that can move a paddle: a paddle key, a press, or a drag
+    // with a button held. A hover or another key moves nothing, so timing it
+    // would charge the wait for a later press to the court.
+    const paddleKeys = new Set(['arrowup', 'arrowdown', 'w', 's']);
+    const input = (event: Event) => {
+      if (
+        (event instanceof KeyboardEvent &&
+          !paddleKeys.has(event.key.toLowerCase())) ||
+        (event instanceof PointerEvent &&
+          event.type === 'pointermove' &&
+          event.buttons === 0)
+      )
+        return;
       const start = performance.now();
       pending ??= start;
       requestAnimationFrame(() =>
@@ -66,8 +78,11 @@ export async function startPongMetrics(page: Page) {
           samples.inputToPaddle.push(performance.now() - pending);
           pending = undefined;
         }
-        samples.addedNodes += record.addedNodes.length;
-        samples.removedNodes += record.removedNodes.length;
+        // Rebuilt drawing is churn; a status appearing over the court is not.
+        if (record.target instanceof Element && record.target.closest('svg')) {
+          samples.addedNodes += record.addedNodes.length;
+          samples.removedNodes += record.removedNodes.length;
+        }
       }
     });
     mutations.observe(court, {
@@ -82,6 +97,7 @@ export async function startPongMetrics(page: Page) {
       document.addEventListener(type, handlerEnd);
     }
     court.addEventListener('keydown', input);
+    court.addEventListener('pointerdown', input);
     court.addEventListener('pointermove', input);
     const observer = new PerformanceObserver((list) => {
       for (const entry of list.getEntries())
@@ -93,6 +109,7 @@ export async function startPongMetrics(page: Page) {
       observer.disconnect();
       mutations.disconnect();
       court.removeEventListener('keydown', input);
+      court.removeEventListener('pointerdown', input);
       court.removeEventListener('pointermove', input);
       for (const type of ['keydown', 'pointermove']) {
         window.removeEventListener(type, handlerBegin, { capture: true });
@@ -134,8 +151,8 @@ export async function finishPongMetrics(
     frameP50: percentile(samples.frames, 0.5),
     frameP95: percentile(samples.frames, 0.95),
     longTasks: samples.longTasks,
-    courtNodesAdded: samples.addedNodes,
-    courtNodesRemoved: samples.removedNodes,
+    drawingNodesAdded: samples.addedNodes,
+    drawingNodesRemoved: samples.removedNodes,
   };
   // Readable from the hosted run's own log.
   logSummary('PONG_TIMING', summary);
@@ -148,7 +165,7 @@ export async function finishPongMetrics(
         browser: page.context().browser()?.version(),
         samples,
         limits:
-          'Chromium component fixture. handlers brackets page input handling from a window capture listener to a document bubble listener after the delegated Solid handler, excluding the Storybook window key forwarding; the Storybook highlight addon is disabled because production pages never run it. inputToPaddle is input to the first controlled-paddle position mutation, before paint. Two-animation-frame proxy excludes hardware touch latency, display scanout, continuous production simulation and network latency. CPU throttling is not a physical low-end device.',
+          'Chromium component fixture. handlers brackets page input handling from a window capture listener to a document bubble listener after the delegated Solid handler, excluding the Storybook window key forwarding; the Storybook highlight addon is disabled because production pages never run it. inputToPaddle is input that can move a paddle (a paddle key, a press, or a drag with a button held) to the first controlled-paddle position mutation, before paint. Two-animation-frame proxy excludes hardware touch latency, display scanout, continuous production simulation and network latency. CPU throttling is not a physical low-end device.',
       },
       null,
       2
