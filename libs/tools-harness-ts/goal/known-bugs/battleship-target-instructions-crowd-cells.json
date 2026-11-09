@@ -1,0 +1,4 @@
+{
+  "summary": "At390px the targeting instructions occupied a narrow column beside the precise cells and split coordinate ranges; give each surface its own readable instruction.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/battleship/layout/integration.checks.ts"
+}

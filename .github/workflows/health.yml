@@ -235,6 +235,10 @@ jobs:
         # on purpose: turbo-ci-run hits its own deadline first and names the
         # probe that hung, instead of GitHub cancelling the job silently.
         timeout-minutes: 25
+        # One task: streamed output keeps the scenario in progress visible
+        # when the deadline stops it (grouped output is lost on a kill).
+        env:
+          TURBO_LOG_ORDER: stream
         run: bun run health:local
 
       # Critical journeys (specs/journeys/, apps/product-ts/tests/steps/live-world.ts)

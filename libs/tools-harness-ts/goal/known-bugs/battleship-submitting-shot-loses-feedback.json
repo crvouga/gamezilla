@@ -1,0 +1,4 @@
+{
+  "summary": "While the frame submitted a shot it made the board non-interactive, which hid the busy \"Firing at J10\" control and relabelled the cells \"Inspect cells\" as if the player were a spectator. The pending shot now keeps its busy control and the aiming wording until the position or a resync answers it.",
+  "regressionTest": "libs/battleship-client-ts/tests/pending-shot-submission.test.tsx"
+}

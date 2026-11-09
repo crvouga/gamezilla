@@ -1,0 +1,4 @@
+{
+  "summary": "After every Connect Four disc gained a light rim for contrast, the win outline looked like that rim, so the winning four no longer stood out. Winning discs are now drawn smaller inside a dark gap and an ink ring, unlike any other disc.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/connect-four/layout-320/integration.checks.ts"
+}
