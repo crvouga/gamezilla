@@ -19,9 +19,9 @@ export async function observeQuoridorInput(page: Page): Promise<void> {
     Object.assign(window, { quoridorMetrics: { samples, longTasks } });
     for (const type of ['click', 'keydown', 'pointerdown']) {
       const handled = new WeakMap<Event, number>();
-      // Document bubble: the board's own handlers are done; the preview's
-      // window-level key forwarding to the manager runs after this.
-      document.addEventListener(type, (event) =>
+      // Window bubble: Solid's delegated handlers on document are done, and
+      // this listener precedes Storybook's later window key forwarding.
+      window.addEventListener(type, (event) =>
         handled.set(event, performance.now())
       );
       document.addEventListener(
@@ -81,7 +81,7 @@ export async function recordQuoridorState(
         playMilliseconds,
         metrics,
         limits:
-          'Metrics are read before the accessibility audit, with the Storybook highlight addon disabled. milliseconds is capture-phase dispatch to the next animation frame; handledMilliseconds is capture to document bubble, before the preview forwards keys to the manager. playMilliseconds is navigation to scripted-play completion, dominated by test-library pacing. Event dispatch to next animation frame, not hardware input latency. Story play may use synthetic events. CPU throttling approximates a slower CPU; it is not a physical mobile device.',
+          'Metrics are read before the accessibility audit, with the Storybook highlight addon disabled. milliseconds is capture-phase dispatch to the next animation frame; handledMilliseconds is capture to window bubble: after the board delegated handlers, before the preview forwards keys to the manager. playMilliseconds is navigation to scripted-play completion, dominated by test-library pacing. Event dispatch to next animation frame, not hardware input latency. Story play may use synthetic events. CPU throttling approximates a slower CPU; it is not a physical mobile device.',
       },
       null,
       2

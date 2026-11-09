@@ -43,7 +43,19 @@ export async function exerciseQuoridorNativeInput(page: Page, info: TestInfo) {
     0
   );
   await expect(next).toHaveAttribute('data-edge-right', 'false');
+  // Cancel unmounts itself; focus returns to the active wall tool.
+  await expect(page.getByTestId('custom-game-board-mode-v')).toBeFocused();
   await capture('native-cancelled');
+  // Trusted Escape on the board cancels a proposal and keeps the anchor focused.
+  await next.focus();
+  await next.press('Enter');
+  await expect(page.getByTestId('custom-game-board-wall-commit')).toBeEnabled();
+  await next.press('Escape');
+  await expect(page.getByTestId('custom-game-board-wall-commit')).toHaveCount(
+    0
+  );
+  await expect(next).toHaveAttribute('data-preview-edge-right', 'false');
+  await expect(next).toBeFocused();
   await info.attach('native-input-metrics', {
     body: JSON.stringify(
       await page.evaluate(
