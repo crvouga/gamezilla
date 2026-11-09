@@ -9,13 +9,15 @@ import {
 import { observeElementResize } from '../observe-element-resize';
 import { ResponsiveSurface } from '../responsive-surface/index';
 import { P } from '../text/index';
-import type { WordTileBoardProps } from './index';
+import type { WordTileBoardCell, WordTileBoardProps } from './index';
 import styles from './word-tile-overview.module.css';
 import { WordTileRegions } from './word-tile-regions';
 
 /** Whole-board context adjacent to the precision viewport; the outline tracks actual scrolling. */
 export function WordTileOverview(props: {
   board: WordTileBoardProps;
+  /** The board's cells, with unchanged squares kept as the same objects. */
+  cells: () => readonly WordTileBoardCell[];
   controls: JSX.Element;
   position: string;
   viewport: () => HTMLDivElement | undefined;
@@ -46,6 +48,7 @@ export function WordTileOverview(props: {
     <div class={styles['context']} data-overview>
       <WordTileRegions
         board={props.board}
+        cells={props.cells()}
         box={box()}
         onLocate={props.onLocate}
       />

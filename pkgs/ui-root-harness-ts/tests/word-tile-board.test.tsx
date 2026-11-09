@@ -236,3 +236,66 @@ test('square details show the center value, inspect committed tiles, and preserv
   expect(details.textContent).toBe('Z 10, b1, your tentative tile');
   expect(actions).toEqual(['cell-1']);
 });
+
+// regression: word-tile-overview-rebuilds-squares
+test('a placement updates the changed square in place instead of rebuilding the board and overview', () => {
+  const [letter, setLetter] = createSignal('');
+  // A fresh object for every square on every change, as a caller computes them.
+  const cells = (shown: string): readonly WordTileBoardCell[] =>
+    Array.from({ length: 9 }, (_, at) => ({
+      id: `c${String(at)}`,
+      label: `square ${String(at)}`,
+      state:
+        at === 4 && shown !== '' ? ('tentative' as const) : ('empty' as const),
+      letter: at === 4 ? shown : '',
+      points: at === 4 && shown !== '' ? 1 : null,
+      square: null,
+      enabled: true,
+    }));
+  const time = createHarnessClock();
+  const view = render(() => (
+    <ClockProvider clock={time.clock} timers={time.timers}>
+      <ThemeProvider
+        colorScheme="light"
+        fixedLayout={{ width: 390, height: 844 }}
+      >
+        <WordTileBoard
+          label="Stable board"
+          testId="stable"
+          columnLabels={['a', 'b', 'c']}
+          rowLabels={['1', '2', '3']}
+          cells={cells(letter())}
+          squareText={(square) => square}
+        />
+      </ThemeProvider>
+    </ClockProvider>
+  ));
+  fireEvent.click(view.getByRole('button', { name: 'Enlarge board' }));
+  const overview = () =>
+    Array.from(
+      view
+        .getByRole('img', {
+          name: 'Whole board overview; outline shows the enlarged area',
+        })
+        .querySelectorAll('[data-state]')
+    );
+  const squaresBefore = overview();
+  const untouched = view.getByTestId('stable-cell-c0');
+  let labelWrites = 0;
+  const setAttribute = untouched.setAttribute.bind(untouched);
+  untouched.setAttribute = (name: string, value: string) => {
+    labelWrites += 1;
+    setAttribute(name, value);
+  };
+  setLetter('S');
+  const squaresAfter = overview();
+  expect(squaresAfter).toHaveLength(9);
+  expect(squaresAfter.every((square, at) => square === squaresBefore[at])).toBe(
+    true
+  );
+  expect(squaresAfter[4]?.getAttribute('data-state')).toBe('tentative');
+  expect(view.getByTestId('stable-cell-c4').getAttribute('data-state')).toBe(
+    'tentative'
+  );
+  expect(labelWrites).toBe(0);
+});

@@ -43,6 +43,33 @@ export type WordTileBoardCell = {
   readonly enabled: boolean;
 };
 
+function sameCell(a: WordTileBoardCell, b: WordTileBoardCell): boolean {
+  return (
+    a.id === b.id &&
+    a.letter === b.letter &&
+    a.points === b.points &&
+    a.square === b.square &&
+    a.state === b.state &&
+    a.label === b.label &&
+    a.enabled === b.enabled
+  );
+}
+
+/** The next cells, keeping each previous object whose fields did not change. */
+export function reuseUnchangedCells(
+  previous: readonly WordTileBoardCell[],
+  next: readonly WordTileBoardCell[]
+): readonly WordTileBoardCell[] {
+  let changed = previous.length !== next.length;
+  const kept = next.map((cell, index) => {
+    const before = previous[index];
+    if (before !== undefined && sameCell(before, cell)) return before;
+    changed = true;
+    return cell;
+  });
+  return changed ? kept : previous;
+}
+
 export type WordTileBoardProps = {
   /** Locator mode shows the whole board; activation chooses a location, never a move. */
   readonly purpose?: 'placement' | 'locator';
@@ -139,8 +166,12 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
   const [choice, setEnlarged] = createSignal<boolean>();
   const enlarged = () => props.purpose !== 'locator' && (choice() ?? compact());
   // Read once per change: every square reads the list, and a caller that
-  // computes it inline would otherwise rebuild it once per square.
-  const cells = createMemo(() => props.cells);
+  // computes it inline would otherwise rebuild it once per square. Unchanged
+  // squares keep their previous object, so only changed squares update.
+  const cells = createMemo<readonly WordTileBoardCell[]>(
+    (previous) => reuseUnchangedCells(previous, props.cells),
+    []
+  );
   let root: HTMLDivElement | undefined;
   const [viewport, setViewport] = createSignal<HTMLDivElement>();
   const center = createPrecisionCenter(
@@ -198,6 +229,7 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
         <Show when={enlarged()}>
           <WordTileOverview
             board={props}
+            cells={cells}
             viewport={viewport}
             controls={
               <WordTileViewControls enlarged={enlarged()} onChange={resize} />
