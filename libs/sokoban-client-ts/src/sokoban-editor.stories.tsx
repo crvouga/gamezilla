@@ -5,6 +5,7 @@ import { useArgs } from 'storybook/preview-api';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { SokobanEditor } from './sokoban-editor';
+import { sokobanGameClient } from './sokoban-game-client';
 import { TWO_CRATES } from './sokoban-player.example';
 
 /** The Sokoban editor as the stage of the shared puzzle builder. */
@@ -17,6 +18,12 @@ function renderInBuilder(args: PuzzleEditorProps, onChange = args.onChange) {
       definition={args.definition}
       earlier="Crates"
       disabled={args.disabled}
+      // As the production builder asks the game's authoring readable().
+      playtestable={
+        sokobanGameClient.puzzleContent.authoring?.readable?.(
+          args.definition
+        ) !== false
+      }
       stage={<SokobanEditor {...args} onChange={onChange} />}
     />
   );

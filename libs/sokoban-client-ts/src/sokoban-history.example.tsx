@@ -2,7 +2,7 @@ import { StoryPackAttempt } from '@libs/game-puzzle-client-ts/content-attempt-st
 import { sokobanPuzzleContent } from '@libs/sokoban-shared-ts/sokoban-puzzle-content';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
-import { createSignal, untrack } from 'solid-js';
+import { createSignal, Show, untrack } from 'solid-js';
 import { sokobanGameClient } from './sokoban-game-client';
 import { SokobanPlayerView } from './sokoban-player';
 
@@ -10,6 +10,8 @@ import { SokobanPlayerView } from './sokoban-player';
 /** The attempt's commands, styled as the production screen styles them. */
 function StoryControls(props: {
   disabled: boolean;
+  /** As production, commands that cannot help unreadable content are withheld. */
+  readable: boolean;
   canUndo: boolean;
   canRedo: boolean;
   onUndo: () => void;
@@ -18,31 +20,33 @@ function StoryControls(props: {
   onOpenLibrary: () => void;
 }) {
   return (
-    <StackHorizontal gap="sm" wrap>
-      <Button
-        title="Undo"
-        intent="neutral"
-        variant="outline"
-        size="sm"
-        disabled={props.disabled || !props.canUndo}
-        onClick={props.onUndo}
-      />
-      <Button
-        title="Redo"
-        intent="neutral"
-        variant="outline"
-        size="sm"
-        disabled={props.disabled || !props.canRedo}
-        onClick={props.onRedo}
-      />
-      <Button
-        title="Restart"
-        intent="neutral"
-        variant="outline"
-        size="sm"
-        disabled={props.disabled}
-        onClick={props.onRestart}
-      />
+    <StackHorizontal gap="sm" wrap shrink>
+      <Show when={props.readable}>
+        <Button
+          title="Undo"
+          intent="neutral"
+          variant="outline"
+          size="sm"
+          disabled={props.disabled || !props.canUndo}
+          onClick={props.onUndo}
+        />
+        <Button
+          title="Redo"
+          intent="neutral"
+          variant="outline"
+          size="sm"
+          disabled={props.disabled || !props.canRedo}
+          onClick={props.onRedo}
+        />
+        <Button
+          title="Restart"
+          intent="neutral"
+          variant="outline"
+          size="sm"
+          disabled={props.disabled}
+          onClick={props.onRestart}
+        />
+      </Show>
       {/* As the production screen offers a pack puzzle's way on. */}
       <Button
         title="Pack overview"
@@ -110,6 +114,7 @@ export function SokobanHistory(props: {
       controls={
         <StoryControls
           disabled={props.disabled}
+          readable={rules.validateDefinition(props.definition).valid}
           canUndo={cursor() > 0}
           canRedo={cursor() < history().length - 1}
           onUndo={() => setCursor((value) => value - 1)}

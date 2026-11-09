@@ -9,4 +9,14 @@ test('an unreadable Sokoban draft is not offered for playtest', () => {
   expect(readable?.(initialSokobanDefinition())).toBe(true);
   expect(readable?.('not a board')).toBe(false);
   expect(readable?.(JSON.stringify({ format: 1, rows: [] }))).toBe(false);
+  // regression: sokoban-unplayable-draft-offers-playtest
+  // A board that reads but still needs a worker cannot be playtested either.
+  expect(
+    readable?.(
+      JSON.stringify({
+        format: 1,
+        rows: ['######', '#    #', '# $..#', '#    #', '######'],
+      })
+    )
+  ).toBe(false);
 });

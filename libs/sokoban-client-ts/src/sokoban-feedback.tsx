@@ -38,8 +38,8 @@ function Solved(props: { readonly wayOn: (() => void) | undefined }) {
       <Show
         when={props.wayOn}
         fallback={
-          <P variant="caption" tone="success">
-            <Trans>Solved.</Trans>
+          <P variant="label" tone="success">
+            <Trans>Solved: every crate is on a goal.</Trans>
           </P>
         }
       >
