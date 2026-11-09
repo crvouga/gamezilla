@@ -29,6 +29,7 @@ import {
 import {
   arenaDescription,
   arenaOverlay,
+  awayOverlay,
   riderName,
   steeringOf,
   steeringText,
@@ -202,6 +203,10 @@ function Arena(props: {
     controlled()[0] ?? props.board.simulation?.elsewhere?.[0];
   const ownSteering = () => steering(primary());
   const canSteerHere = () => controlled().some(steerable);
+  // The game is away: the arena dims and says so where the player looks.
+  const away = () =>
+    props.board.simulation?.stale === true ||
+    props.board.simulation?.paused === true;
   return (
     <StackVertical gap="md" testId={props.board.testId}>
       <Scores state={props.state} testId={props.board.testId} />
@@ -251,10 +256,13 @@ function Arena(props: {
         riders={trailRiders(props.state, controlled())}
         crashes={trailCrashes(props.state)}
         overlay={
-          props.state.phase === 'countdown'
-            ? arenaOverlay(props.state)
-            : undefined
+          away()
+            ? awayOverlay()
+            : props.state.phase === 'countdown'
+              ? arenaOverlay(props.state)
+              : undefined
         }
+        dimmed={away()}
         enabled={canSteerHere()}
         onDirection={(heading, slot) => {
           const side = controlled()[slot];

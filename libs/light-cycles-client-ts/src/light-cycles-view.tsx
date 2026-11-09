@@ -157,6 +157,20 @@ function winnerText(winner: GameSide | 'draw'): string {
     : t`${riderName(winner)} wins the round.`;
 }
 
+/** Whole seconds until the riders move again: the result, then the countdown. */
+export function nextRoundSeconds(state: LightCyclesState): number {
+  const ticks = config.roundOverTicks - state.phaseTick + config.countdownTicks;
+  return Math.max(1, Math.ceil(ticks / config.tickRate));
+}
+
+/** Over the arena while the game is away, so the drawing never looks live. */
+export function awayOverlay(): TrailOverlay {
+  return {
+    title: t`Reconnecting`,
+    detail: t`Steering resumes when the game returns.`,
+  };
+}
+
 export function arenaOverlay(
   state: LightCyclesState
 ): TrailOverlay | undefined {
@@ -173,7 +187,7 @@ export function arenaOverlay(
   if (state.phase === 'round-over' && state.roundWinner !== null)
     return {
       title: winnerText(state.roundWinner),
-      detail: t`Next round soon.`,
+      detail: t`Next round starts in ${nextRoundSeconds(state)} s.`,
     };
   if (state.phase === 'completed' && state.result !== null)
     return {

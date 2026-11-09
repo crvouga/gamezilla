@@ -63,6 +63,7 @@ export function TrailArena(props: TrailArenaProps): JSX.Element {
       {...dataAttrs({ component: 'TrailArena', testid: props.testId })}
       class={styles['arena']}
       data-interactive={interactive()}
+      data-dimmed={props.dimmed === true}
       data-width={props.width}
       data-height={props.height}
       data-rider-count={props.riders.length}

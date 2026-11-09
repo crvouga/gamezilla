@@ -156,8 +156,14 @@ test('a crashed rider, a round result and a lost connection each refuse steering
   expect(
     view.getByTestId('arena-status').contains(view.getByTestId('arena-result'))
   ).toBe(true);
+  // regression: light-cycles-round-over-no-countdown
+  const config = lightCyclesConfig();
+  const seconds = Math.ceil(
+    (config.roundOverTicks - over.phaseTick + config.countdownTicks) /
+      config.tickRate
+  );
   expect(view.getByTestId('arena-status').textContent).toContain(
-    'Next round soon.'
+    `Next round starts in ${seconds} s.`
   );
   expect(view.queryByText(/The round result is showing/)).toBeNull();
   expect(view.getByTestId('arena-result').textContent).toContain(
@@ -171,6 +177,14 @@ test('a crashed rider, a round result and a lost connection each refuse steering
   view.set(running(start));
   view.setStale(true);
   expect(view.getByTestId('arena-status').dataset['steering']).toBe('away');
+  // regression: light-cycles-reconnecting-arena-looks-live
+  expect(view.getByTestId('arena-arena').dataset['dimmed']).toBe('true');
+  const overlay = view.getByTestId('arena-arena-overlay');
+  expect(overlay.dataset['open']).toBe('true');
+  expect(overlay.textContent).toContain('Reconnecting');
+  view.setStale(false);
+  expect(view.getByTestId('arena-arena').dataset['dimmed']).toBe('false');
+  expect(view.getByTestId('arena-arena-overlay').dataset['open']).toBe('false');
 });
 
 test('a watcher sees every rider and no steering control', () => {

@@ -99,3 +99,22 @@ test("a crash is never drawn in a rider's colour, and a crashed rider's letter i
       ).toBeGreaterThanOrEqual(4.5);
   }
 });
+
+// regression: light-cycles-arena-focus-ring-invisible-on-light-page
+test('the arena focus ring reads on the light page and apart from its cyan edge', () => {
+  const rule = sheet.split('.arena:focus-visible {')[1]?.split('}')[0] ?? '';
+  expect(rule).toContain('outline: 2px solid var(--ui-color-focus-ring);');
+  expect(rule).toContain('box-shadow: 0 0 0 6px var(--ui-color-background);');
+  for (const theme of ['light', 'dark'] as const) {
+    const halo = arenaHex(theme, 'background');
+    const ring = arenaHex(theme, 'focus-ring');
+    const page = tokens.color[theme]['background']?.$value.hex ?? '';
+    // The ring touches only the dark band, and the band or the ring
+    // stands out from the page (the band on a light page, the ring on a
+    // dark one, where the band blends in).
+    expect(contrast(ring, halo)).toBeGreaterThanOrEqual(3);
+    expect(
+      Math.max(contrast(halo, page), contrast(ring, page))
+    ).toBeGreaterThanOrEqual(3);
+  }
+});

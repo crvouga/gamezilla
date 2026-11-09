@@ -63,6 +63,13 @@
 .arena:focus-visible {
   outline: 2px solid var(--ui-color-focus-ring);
   outline-offset: 2px;
+  /* A dark band either side of the cyan ring, so focus reads on a light
+     page and apart from the arena's own cyan edge. */
+  box-shadow: 0 0 0 6px var(--ui-color-background);
+}
+/* Away from the game, the drawing dims so it never looks live. */
+.arena[data-dimmed="true"] .drawing {
+  opacity: var(--ui-opacity-muted);
 }
 .drawing {
   display: block;
