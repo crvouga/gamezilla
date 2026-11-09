@@ -142,3 +142,4 @@ export function WordTileLetterChoices(props: {
 }
 
 export { WordTileBlankContext } from './word-tile-blank-context';
+export { WordTileWorkspace } from './word-tile-workspace';

@@ -1,4 +1,4 @@
-import { For, type JSX, Show } from 'solid-js';
+import { createMemo, createSelector, For, type JSX, Show } from 'solid-js';
 import type { WordTileBoardCell, WordTileBoardProps } from './index';
 import styles from './word-tile-board.module.css';
 
@@ -10,7 +10,9 @@ function BoardCell(props: {
   onFocusIndex: (index: number) => void;
   onKey: (event: KeyboardEvent, index: number) => void;
 }): JSX.Element {
-  const cell = () => props.cells()[props.index];
+  // Unchanged squares keep their object, so this square's bindings rerun
+  // only when the square itself changes.
+  const cell = createMemo(() => props.cells()[props.index]);
   return (
     <button
       type="button"
@@ -61,6 +63,8 @@ export function BoardRows(props: {
   onFocusIndex: (index: number) => void;
   onKey: (event: KeyboardEvent, index: number) => void;
 }): JSX.Element {
+  // One comparison per focus move, not one per square.
+  const isFocus = createSelector(() => props.focusIndex());
   return (
     <>
       <span class={styles['header']} data-axis="corner" aria-hidden="true" />
@@ -86,7 +90,7 @@ export function BoardRows(props: {
                     board={props.board}
                     cells={props.cells}
                     index={index()}
-                    focusable={props.focusIndex() === index()}
+                    focusable={isFocus(index())}
                     onFocusIndex={props.onFocusIndex}
                     onKey={props.onKey}
                   />

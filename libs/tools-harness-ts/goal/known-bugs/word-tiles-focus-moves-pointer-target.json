@@ -1,0 +1,4 @@
+{
+  "summary": "Focusing a visible precision-board cell recenters the viewport during pointer input, moving the target between press and release.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/word-tile-board-stable-target.test.tsx"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "On the fitted Word Tiles board the row-label column was minmax(0.75rem, 0.5fr), so two-digit row labels 10 to 15 overflowed into column a at 768 and 1440 widths.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/word-tiles/integration.checks.ts"
+}

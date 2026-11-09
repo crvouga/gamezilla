@@ -49,8 +49,9 @@
 }
 .board {
   display: grid;
+  /* Row labels 10 to 15 keep their own gutter instead of running into column a. */
   grid-template-columns:
-    minmax(0.75rem, 0.5fr)
+    minmax(1.5rem, 0.6fr)
     repeat(var(--word-tile-columns), minmax(0, 1fr));
   width: 100%;
   max-width: 40rem;
@@ -91,8 +92,11 @@
   cursor: default;
 }
 .cell:focus-visible {
-  outline: 2px solid currentColor;
+  /* Two tones, so the ring stands out on dark empty squares, light bonus
+     squares and tiles alike. */
+  outline: 2px solid var(--ui-color-board-card-face);
   outline-offset: -2px;
+  box-shadow: inset 0 0 0 4px var(--ui-color-board-card-ink);
   z-index: 1;
 }
 .cell[data-square="DL"] {
@@ -159,7 +163,9 @@
   overscroll-behavior: contain;
 }
 .viewport[data-enlarged="true"] {
-  height: calc(var(--ui-control-size-md) * 7);
+  /* A wide word workspace shows as much of the enlarged board as the fitted
+     one would take. */
+  height: var(--word-tile-enlarged-height, calc(var(--ui-control-size-md) * 7));
   min-height: calc(var(--ui-control-size-md) * 7);
 }
 .board[data-enlarged="true"] {
@@ -207,15 +213,37 @@
   flex: none;
 }
 
-/* A complete fitted puzzle board alongside its rack and target at desktop height. */
+/* A complete fitted puzzle board alongside its rack and target at desktop
+   height; a wide word workspace sets a larger size. */
 .board[data-measure="compact"][data-enlarged="false"] {
-  max-width: 23rem;
-  margin-inline: auto;
+  max-width: var(--word-tile-fitted-size, 23rem);
+  margin-inline: var(--word-tile-fitted-margin, auto);
 }
 
-.cell[data-state="empty"][data-square]:not([data-square="none"]) {
+/* The same weight as the tier rules below, so each tier's fill wins. */
+.cell[data-state="empty"]:is(
+  [data-square="DL"],
+  [data-square="TL"],
+  [data-square="DW"],
+  [data-square="TW"],
+  [data-square="start"]
+) {
   background: var(--ui-color-game-word-tiles-surface);
   color: var(--ui-color-board-card-ink);
+}
+/* Bonus tiers by colour as well as label: a double letter keeps the plain
+   surface, a triple letter is blue, a double word a deeper green and a
+   triple word coral. Gold stays for tiles placed this turn and white for
+   played tiles. Every fill is pale under dark ink. */
+.cell[data-state="empty"][data-square="TL"] {
+  background: var(--ui-color-game-word-tiles-two);
+}
+.cell[data-state="empty"][data-square="DW"],
+.cell[data-state="empty"][data-square="start"] {
+  background: var(--ui-color-game-word-tiles-muted);
+}
+.cell[data-state="empty"][data-square="TW"] {
+  background: var(--ui-color-game-word-tiles-one);
 }
 .square {
   font-weight: 400;

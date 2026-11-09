@@ -64,7 +64,7 @@ function exchangePreview(
     : {
         kind: 'none',
         playable: true,
-        message: t`Exchange ${count} tiles and score nothing this turn.`,
+        message: t`Exchange ${count} tiles, scoring nothing.`,
       };
 }
 
@@ -101,6 +101,7 @@ export function previewCandidate(
     };
   const { words, bonus, total } = evaluation.score;
   const base = { kind: 'score', words, bonus, total } as const;
+  const points = scoreLine(evaluation.score);
   if (lexicon.status !== 'ready')
     return {
       ...base,
@@ -108,8 +109,8 @@ export function previewCandidate(
       playable: true,
       message:
         lexicon.status === 'loading'
-          ? t`Scores ${total} points. Checking the words…`
-          : t`Scores ${total} points. The word list could not load here; the game checks the words when you play.`,
+          ? t`${points} · checking words…`
+          : t`${points} · checked when you play`,
     };
   const unknown = unknownWords(evaluation.score, lexicon.lexicon.has);
   const missing = unknown.join(', ');
@@ -120,10 +121,28 @@ export function previewCandidate(
         playable: false,
         message: t`Not in the word list: ${missing}`,
       }
-    : {
-        ...base,
-        checked: true,
-        playable: true,
-        message: t`Scores ${total} points.`,
-      };
+    : { ...base, checked: true, playable: true, message: points };
+}
+
+/**
+ * The score on one short line, so a phone's status line never wraps and
+ * moves the board: one word shows its sum ("CAT 5 × 2 = 10 points"), several
+ * words their totals ("CAT 10 + AT 2 = 12 points"), and a seven-tile play
+ * its bonus.
+ */
+function scoreLine(score: {
+  readonly words: readonly ScoredWord[];
+  readonly bonus: number;
+  readonly total: number;
+}): string {
+  const [only] = score.words;
+  const sum =
+    score.words.length === 1 && only !== undefined && score.bonus === 0
+      ? `${only.word} ${only.letters}${only.multiplier > 1 ? ` × ${only.multiplier}` : ''}`
+      : [
+          ...score.words.map((word) => `${word.word} ${word.points}`),
+          ...(score.bonus > 0 ? [t`bonus ${score.bonus}`] : []),
+        ].join(' + ');
+  const total = score.total;
+  return t`${sum} = ${total} points`;
 }

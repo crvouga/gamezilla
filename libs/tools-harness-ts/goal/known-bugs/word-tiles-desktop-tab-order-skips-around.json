@@ -1,0 +1,4 @@
+{
+  "summary": "On the round 4 desktop workspace the source order was rack, actions, feedback, board while the screen showed the board first and the rack at the bottom, so Tab jumped from the rack at the bottom to Play word at the top right and back to the board.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/word-tiles/integration.checks.ts"
+}

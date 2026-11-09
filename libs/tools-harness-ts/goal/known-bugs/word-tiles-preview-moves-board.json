@@ -1,0 +1,4 @@
+{
+  "summary": "Placing the first Word Tiles tile inserted the score breakdown lines above the board, moving the board about 23px between taps (and back about 45px after the word was played), so the next tap could land on a different square than the one under the finger.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/word-tiles/integration.checks.ts"
+}
