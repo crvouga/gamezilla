@@ -139,7 +139,6 @@ metric export interval (about 1 min), the rule's hold and IRM delivery.
 | `live-updates-can-connect` | Point dev's broker check at a host without the broker (`broker-missing.<dev zone>`) | `fast-burn (page)` | about 25 min (two failed ten-minute checks) |
 | any Health objective | One feature broken on dev only (for example the Google mock answering 500 through its `/__admin` faults), Health dispatched hourly (`bun health`) | that objective's `fast-burn (page)` with the check as `slice` | about 4 h (two failed runs in 4 h and 30% of 12 h) |
 | `people-can-play-games-end-to-end`, one game | Break one game's journey on dev only | `fast-burn (page)`, `slice` naming that journey | about 4 h |
-| any Health objective, silence | Disable the Health schedule for 9 h | `No events for People can sign in, …` (page) | 8 h + 5 min after the last run |
 | `the-app-serves-people` at low traffic | A dev build answering 5xx on one sync request | `1 or more bad in 1h at low traffic (push)`, `slice` `sync`; at three, `(page)` | about 2 min |
 | `the-app-serves-people`, `changes-are-saved` above the floor | 5% of `/api/mutations` answering 5xx under ≥ 60 people-shaped requests an hour | `fast-burn (page)` per route group | 3 to 5 min |
 | `saves-and-loads-*`, `signing-in-*`, `the-app-never-leaves-people-waiting` | Add 0.8 s, 1.2 s, then 3 s to sync or session responses | the matching `fast-burn` above the floor, or the low-traffic count below it | 2 to 5 min |

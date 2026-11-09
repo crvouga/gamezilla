@@ -74,12 +74,16 @@ export async function measureSlo(input: {
   }
   const nowMs = clock ?? latestAt(measurement);
   if (nowMs === null) {
-    return failAll(
-      slo,
-      measurement.kind === 'totals'
-        ? `the measure for SLI ${sli.name} returned totals, which need the binding's nowMs to know which window they cover`
-        : `no evidence: the measure for SLI ${sli.name} returned nothing`
-    );
+    return measurement.kind === 'totals'
+      ? failAll(
+          slo,
+          `the measure for SLI ${sli.name} returned totals, which need the binding's nowMs to know which window they cover`
+        )
+      : failAll(
+          slo,
+          `no evidence: the measure for SLI ${sli.name} returned nothing`,
+          true
+        );
   }
   return slo.objectives.map((objective) => ({
     id: objectiveId(slo.name, objective.displayName),
@@ -132,7 +136,11 @@ function latestAt(measurement: Measurement): number | null {
   return latest;
 }
 
-function failAll(slo: Slo, detail: string): readonly ObjectiveResult[] {
+function failAll(
+  slo: Slo,
+  detail: string,
+  noEvidence = false
+): readonly ObjectiveResult[] {
   return slo.objectives.map((objective) => ({
     id: objectiveId(slo.name, objective.displayName),
     slo: slo.name,
@@ -143,6 +151,7 @@ function failAll(slo: Slo, detail: string): readonly ObjectiveResult[] {
       target: objective.target,
       considered: 0,
       detail,
+      ...(noEvidence ? { noEvidence: true as const } : {}),
     },
   }));
 }

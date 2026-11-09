@@ -159,16 +159,17 @@ condition, so the short window is named in its
 OpenSLO's conditions are burn rates only, so companions are generated from
 the same files (`companion-alerts.ts`):
 
-- **Silence**: each source of evidence behind a objective (a metric
-  at one cadence and expected slice) has a rule that fires when nothing was counted for the
-  indicator's `silence.after`, so no traffic or no checks can never look like a
-  perfect objective.
+- **No silence alerts**: nothing alerts on an absence of events. With few
+  people and no recent release, quiet is expected and needs no one's
+  attention; alerts are kept for failures someone has to act on.
 - **Failure counts**: an indicator's `failureCounts` notifies regardless of
-  traffic volume. One request failure pushes; three in five minutes page.
+  traffic volume. One failed request (5xx) pushes; three in five minutes page.
+  Slowness needs a pattern: three slow requests in fifteen minutes push, six
+  page, since a lone slow request is usually a cold start.
   A failed scheduled Health check pushes and pages on its next evaluation.
 - **Integrity**: a target of exactly 100% has no burn policies or hosted budget
   object. A direct bad-event rule pages with no traffic floor or hold. Health
-  still judges its full objective window; silence remains independently alerted.
+  still judges its full objective window.
 - **Certificates**: the certificate the checks are shown, 14 days (push) and 3
   days (page) before it expires.
 
@@ -177,8 +178,9 @@ objective) `slo` labels, and annotations with the budget spent and remaining,
 the burn rate, the SLO dashboard, Explore already scoped to the environment's
 error logs and failed traces, the runbook section and the `bun obs` command.
 `route` is decided by `routeOf`: a critical alert on a objective
-pages (Grafana IRM's paging chain, production only); any other critical alert
-and every warning pushes through IRM, including tier 2. The one notification policy and IRM integration for the
+pages (Grafana IRM's paging chain); any other critical alert and every
+warning pushes through IRM, including tier 2. Only production notifies: an
+alert from dev opens an IRM alert group that tells nobody. The one notification policy and IRM integration for the
 stack are in `libs/infra-shared-ts/tofu/modules/alert-routing`, applied by the
 bootstrap stack once `alerting` in `global.tfvars.json` names the responder's
 IRM username (the provider reaches IRM through the
@@ -275,9 +277,8 @@ by itself.
 ### Scheduled outbox drain keeps failing
 
 `outbox_drain_runs_total{app_outcome="failure"}` counted at least three failed
-scheduled drains in fifteen minutes. The telemetry heartbeat is recorded before the
-drain on purpose, so "Telemetry heartbeat is absent" stays quiet: the schedule runs,
-the drain behind it does not. Background work and event export wait; nothing is
+scheduled drains in fifteen minutes: the schedule runs, the drain behind it does
+not. Background work and event export wait; nothing is
 lost, since pending deliveries resume when a drain succeeds.
 
 1. Read the `outbox cron drain failed` error (`bun obs last --errors --source prod`).
@@ -426,7 +427,7 @@ and desktop Bun timings do not certify low-end mobile or browser slice budgets.
 Burn alerts require both windows to exceed 14.4× (1h/5m), 6× (6h/30m),
 3× (24h/2h), or 1× (3d/6h), with at least 20 observations in the short window.
 Three failures in 30 minutes at lower traffic generate a warning; absent target
-series over a day generate a missing-evidence warning. Unknown outcomes raise a
+series never alert, since quiet is expected with few people. Unknown outcomes raise a
 separate coverage warning and are excluded from both good and bad denominators. A stopped exporter whose
 last counter remains queryable needs the existing telemetry-pipeline health checks
 as well; a nonempty series alone is not proof of fresh successful work.

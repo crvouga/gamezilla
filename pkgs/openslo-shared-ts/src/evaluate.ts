@@ -16,7 +16,8 @@
  * - A `totals` measurement is a ratio already counted over the window by
  *   the backend that holds the events (28 days of requests are not fetched
  *   one by one): Occurrences only, since slices need the events' times.
- * - No events in the window is no evidence: not met.
+ * - No events in the window is no evidence: not met, marked `noEvidence`
+ *   so a binding can choose to read it as quiet instead.
  */
 
 import type { Objective, Operator, Sli, Slo } from './model';
@@ -54,6 +55,8 @@ export type Evaluation = {
   /** Events or samples inside the window. */
   readonly considered: number;
   readonly detail: string;
+  /** Nothing was observed in the window: not met, but nothing failed either. */
+  readonly noEvidence?: true;
 };
 
 export type EvaluateInput = {
@@ -93,11 +96,14 @@ export function evaluateObjective(input: EvaluateInput): Evaluation {
   const inWindow = outcomes.filter((o) => withinBounds(o.atMs, bounds));
   const span = describeBounds(bounds);
   if (inWindow.length === 0) {
-    return notMet(
-      objective,
-      0,
-      `no evidence: no ${unitOf(input.sli)} in the window ${span}`
-    );
+    return {
+      ...notMet(
+        objective,
+        0,
+        `no evidence: no ${unitOf(input.sli)} in the window ${span}`
+      ),
+      noEvidence: true,
+    };
   }
   const counted =
     input.slo.budgetingMethod === 'Timeslices'
@@ -147,7 +153,10 @@ function evaluateTotals(input: EvaluateInput): Evaluation {
     );
   }
   if (total === 0) {
-    return notMet(objective, 0, `no evidence: no events in the window ${span}`);
+    return {
+      ...notMet(objective, 0, `no evidence: no events in the window ${span}`),
+      noEvidence: true,
+    };
   }
   const observed = good / total;
   const met = observed + EPSILON >= objective.target;

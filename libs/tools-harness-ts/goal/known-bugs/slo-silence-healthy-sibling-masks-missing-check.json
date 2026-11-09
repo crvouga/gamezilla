@@ -1,4 +1,0 @@
-{
-  "summary": "A healthy sibling check concealed a missing scheduled check, including supporting checks excluded from silence alerts.",
-  "regressionTest": "libs/observability-server-ts/tests/slo-notification-coverage.test.ts"
-}

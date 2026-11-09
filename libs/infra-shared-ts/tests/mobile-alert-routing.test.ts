@@ -57,3 +57,18 @@ test('notification grouping preserves distinct failing capabilities and no diges
   expect(source).not.toContain('grafana_contact_point.digest');
   expect(source).toContain('value = "page|push"');
 });
+
+test('only production alerts reach a phone; other environments notify nobody', () => {
+  const integration = source.split(
+    'resource "grafana_oncall_integration" "alerts" {'
+  )[1];
+  expect(integration?.split('\n}')[0]).toMatch(/default_route \{\}/);
+  for (const route of ['page', 'push']) {
+    const body = source
+      .split(`resource "grafana_oncall_route" "${route}" {`)[1]
+      ?.split('\n}')[0];
+    expect(body).toContain(
+      'payload.commonLabels.environment == \\"${var.paging_environment}\\"'
+    );
+  }
+});

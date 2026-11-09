@@ -14,7 +14,6 @@ import {
 } from '@pkgs/observability-root-shared-ts/outbox-metrics';
 import {
   EXPORT_ATTEMPTS_METRIC,
-  PIPELINE_HEARTBEAT_METRIC,
   SCHEMA_VIOLATIONS_METRIC,
 } from '@pkgs/observability-root-shared-ts/pipeline-metrics';
 import { logsPath, tracesPath } from './alert-links';
@@ -123,17 +122,6 @@ export const PIPELINE_ALERTS: readonly AlertRule[] = (
       summary:
         'Compare the producing release with its registered event contracts. Investigate undeclared event names, required attributes and incompatible schema versions before replaying.',
       investigate_command: 'bun obs last --errors --window 1h --source prod',
-    },
-    {
-      key: 'pipeline-absent',
-      name: 'Telemetry heartbeat is absent',
-      expr: `(sum(count_over_time(${counter(PIPELINE_HEARTBEAT_METRIC.name)}{deployment_environment_name="${ENVIRONMENT}"}[15m])) or vector(0)) == bool 0`,
-      for: '5m',
-      severity: 'critical',
-      owner: 'observability',
-      summary:
-        'The scheduled server heartbeat has not reached the metrics backend for fifteen minutes. Check scheduled Worker execution, OTLP authentication, metrics ingestion and the latest deployment. If the command shows traces but no beat, the metrics path is broken; if it shows nothing, read the Worker with `bun obs platform --service <worker-name>`.',
-      investigate_command: 'bun obs last --window 1h --source prod',
     },
     {
       key: 'outbox-exhausted',

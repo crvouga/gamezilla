@@ -6,9 +6,11 @@
 # | route  | goes to                                                    |
 # | ------ | ---------------------------------------------------------- |
 # | page   | IRM, paging chain (important notification rules), prd only |
-# | push   | IRM, push chain (default notification rules, never pages)  |
+# | push   | IRM, push chain (default notification rules), prd only     |
 #
-# A `page` from any environment but production is pushed, not paged.
+# Only production notifies anyone. An alert from any other environment
+# (dev) still opens an alert group in IRM, visible on the web, but no phone
+# is told: dev is for building, and nobody needs to act on it.
 #
 # Stateless: alert history stays in Grafana and IRM if any of this is replaced.
 
@@ -25,7 +27,7 @@ variable "responder" {
 
 variable "paging_environment" {
   type        = string
-  description = "The only environment whose `page` alerts page."
+  description = "The only environment whose alerts notify anyone: its `page` alerts page, its `push` alerts push."
 }
 
 variable "brand_name" {
@@ -64,9 +66,8 @@ resource "grafana_oncall_escalation" "push" {
 resource "grafana_oncall_integration" "alerts" {
   name = "${var.brand_name} alerts"
   type = "grafana_alerting"
-  default_route {
-    escalation_chain_id = grafana_oncall_escalation_chain.push.id
-  }
+  # Unmatched alerts (any environment but production) notify nobody.
+  default_route {}
 }
 
 resource "grafana_oncall_route" "page" {
@@ -75,6 +76,14 @@ resource "grafana_oncall_route" "page" {
   routing_type        = "jinja2"
   routing_regex       = "{{ payload.commonLabels.route == \"page\" and payload.commonLabels.environment == \"${var.paging_environment}\" }}"
   position            = 0
+}
+
+resource "grafana_oncall_route" "push" {
+  integration_id      = grafana_oncall_integration.alerts.id
+  escalation_chain_id = grafana_oncall_escalation_chain.push.id
+  routing_type        = "jinja2"
+  routing_regex       = "{{ payload.commonLabels.environment == \"${var.paging_environment}\" }}"
+  position            = 1
 }
 
 resource "grafana_contact_point" "irm" {

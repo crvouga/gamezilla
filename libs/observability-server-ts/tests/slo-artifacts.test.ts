@@ -5,10 +5,7 @@ import { join, relative } from 'node:path';
 import { ENVIRONMENT_PLACEHOLDER } from '@libs/observability-server-ts/alert-links';
 import type { AlertRule } from '@libs/observability-server-ts/alert-rule';
 import { ruleKey } from '@libs/observability-server-ts/alert-rule';
-import {
-  failureCountRules,
-  silenceRules,
-} from '@libs/observability-server-ts/companion-alerts';
+import { failureCountRules } from '@libs/observability-server-ts/companion-alerts';
 import {
   generateAlertRules,
   renderAlertRules,
@@ -247,24 +244,6 @@ describe('the failure-count rules', () => {
       // A healthy majority cannot hide a real failure.
       expect(rule.expr).not.toContain('and on()');
       expect(rule.for).toBe('0s');
-    }
-  });
-});
-
-describe('the silence rules', () => {
-  test('cover every objective including supporting checks and every slice', () => {
-    const covered = [
-      ...new Set(silenceRules(docs()).flatMap((r) => r.covers.split(', '))),
-    ].sort();
-    const expected = slos()
-      .map((slo) => slo.name)
-      .sort();
-    expect(covered).toEqual(expected);
-  });
-
-  test('fire on nothing counted, never on an empty answer', () => {
-    for (const rule of silenceRules(docs())) {
-      expect(rule.expr).toEndWith(' or vector(0)) < bool 1');
     }
   });
 });

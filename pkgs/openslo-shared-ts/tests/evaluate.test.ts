@@ -131,8 +131,22 @@ describe('the window', () => {
       objective: objective({ target: 0.5 }),
       measurement: { kind: 'events', events: [at(NOW - 2 * HOUR, true)] },
     });
-    expect(result).toMatchObject({ met: false, observed: null, considered: 0 });
+    expect(result).toMatchObject({
+      met: false,
+      observed: null,
+      considered: 0,
+      noEvidence: true,
+    });
     expect(result.detail).toContain('no evidence');
+  });
+
+  test('a failing window is never marked as no evidence', () => {
+    const result = evaluate({
+      objective: objective({ target: 1 }),
+      measurement: { kind: 'events', events: [at(NOW - 1, false)] },
+    });
+    expect(result.met).toBe(false);
+    expect(result.noEvidence).toBeUndefined();
   });
 
   test('a calendar window starts at its period, not one duration back', () => {

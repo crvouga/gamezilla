@@ -71,5 +71,7 @@ export function liveMetricBinding(input: {
     measure: liveMeasures(input.slis),
     nowMs: () => wallClock.now(),
     alerting: alertingBinding(),
+    // Few people and no recent release: silence needs no one's attention.
+    whenNoEvidence: 'quiet',
   };
 }

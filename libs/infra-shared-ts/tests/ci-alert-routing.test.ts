@@ -59,8 +59,15 @@ function event(overrides: Record<string, unknown> = {}, action = 'completed') {
 
 const truth = (value: string) => value.toLowerCase() === 'true';
 
-test('all four main workflows notify on failed completion, including setup failures and timeouts', () => {
-  for (const file of ['deploy', 'verify-nightly', 'health', 'verify-pr']) {
+test('Health runs never notify: their findings arrive as Grafana alerts', () => {
+  for (const conclusion of ['failure', 'timed_out', 'success']) {
+    const payload = event({ path: '.github/workflows/health.yml', conclusion });
+    expect(truth(render('routing_regex', payload, true))).toBe(false);
+  }
+});
+
+test('the three main workflows notify on failed completion, including setup failures and timeouts', () => {
+  for (const file of ['deploy', 'verify-nightly', 'verify-pr']) {
     for (const conclusion of [
       'failure',
       'timed_out',

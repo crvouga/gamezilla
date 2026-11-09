@@ -4,8 +4,6 @@
  * burn rates only, so these are documented companions
  * (`libs/observability-server-ts/README.md`, "Service level objectives"):
  *
- * - **silence**: one per source of events behind the tier 0 and 1
- *   objectives, so no traffic or no checks can never look perfect;
  * - **low traffic**: while too few events arrive for a burn rate, the bad
  *   ones are counted instead, so a person meeting a failure is never
  *   waiting for traffic to grow;
@@ -13,7 +11,7 @@
  *   expires.
  */
 
-import type { OpenSloDoc, Slo } from '@pkgs/openslo-shared-ts/model';
+import type { OpenSloDoc } from '@pkgs/openslo-shared-ts/model';
 import {
   ENVIRONMENT_PLACEHOLDER,
   exploreLookback,
@@ -32,7 +30,6 @@ import {
   runbookFor,
   tierOf,
 } from './slo-alerts';
-import type { Matcher, MetricIndicator } from './slo-indicators';
 import {
   badCount,
   scopeClauses,
@@ -59,89 +56,6 @@ function blank(): Pick<
     burn_threshold: 0,
     budget_expr: '',
   };
-}
-
-/**
- * The events a group of indicators on one metric count, together: each
- * dimension they all narrow keeps every value any of them selects; one any
- * of them leaves open is left open.
- */
-function unionScope(
-  indicators: readonly MetricIndicator[]
-): readonly Matcher[] {
-  const dimensions = [
-    ...new Set(indicators.flatMap((i) => i.scope.map((m) => m.dimension))),
-  ];
-  return dimensions.flatMap((dimension): Matcher[] => {
-    const values: string[] = [];
-    for (const indicator of indicators) {
-      const matcher = indicator.scope.find((m) => m.dimension === dimension);
-      if (matcher === undefined || matcher.op !== 'is') return [];
-      for (const value of matcher.values)
-        if (!values.includes(value)) values.push(value);
-    }
-    return [{ dimension, op: 'is', values }];
-  });
-}
-
-/**
- * One rule per source of events behind the objectives (a
- * metric, read at one cadence): it fires when the source counted none of
- * their events for `silence.after`. Objectives counted by the same source
- * share a rule only within the same expected slice; a source sampled less
- * often (the broker check) has its own, so a busier one cannot mask it.
- */
-export function silenceRules(
-  docs: readonly OpenSloDoc[]
-): readonly AlertRule[] {
-  const bySource = new Map<
-    string,
-    { slos: Slo[]; indicators: MetricIndicator[] }
-  >();
-  for (const slo of metricBackedSlos(docs)) {
-    for (const indicator of silenceSlices(metricIndicatorOf(slo))) {
-      const source = `${indicator.metric} ${indicator.silence.after} ${indicator.silence.severity} ${JSON.stringify(indicator.scope)}`;
-      const found = bySource.get(source) ?? { slos: [], indicators: [] };
-      found.slos.push(slo);
-      if (!found.indicators.includes(indicator))
-        found.indicators.push(indicator);
-      bySource.set(source, found);
-    }
-  }
-  return [...bySource.entries()].map(([source, { slos, indicators }]) => {
-    const [first] = slos;
-    const [indicator] = indicators;
-    if (first === undefined || indicator === undefined)
-      throw new Error('a silence source has no SLO');
-    const tier = Math.min(...slos.map(tierOf)) as 0 | 1 | 2;
-    const names = slos.map((slo) => slo.displayName ?? slo.name);
-    const slice = indicator.scope.flatMap((scope) => scope.values).join(', ');
-    const { after, severity } = indicator.silence;
-    const { total } = windowQueries({
-      indicator: { ...indicator, scope: unionScope(indicators) },
-      window: after,
-      environment: ENVIRONMENT_PLACEHOLDER,
-    });
-    return {
-      ...blank(),
-      key: ruleKey(`silence:${source}`),
-      name: `No events for ${names.join(', ')} [${slice || 'all'}] (${after})`,
-      // `bool`: the rule fires on a value above zero, never on the count itself.
-      expr: `(${total} or vector(0)) < bool 1`,
-      for: '0s',
-      severity,
-      owner: indicator.owner,
-      tier: String(tier),
-      route: routeOf(severity, tier),
-      capability: first.service,
-      covers: slos.map((slo) => slo.name).join(', '),
-      summary: `Nothing was counted for ${after} that ${names.join(', ')} are judged by, so they cannot be judged and would look perfect. Either what feeds them stopped (people cannot reach the app, the Health workflow or a Synthetic Monitoring check is not running, scheduled work stopped) or telemetry stopped reaching the metrics backend.`,
-      runbook_url: runbookFor(first.name),
-      investigate_command: `bun obs last --window ${exploreLookback(after)} --source prod`,
-      logs_path: logsPath(exploreLookback(after)),
-      traces_path: tracesPath(exploreLookback(after)),
-    };
-  });
 }
 
 /**
@@ -233,20 +147,5 @@ export function certificateRules(): readonly AlertRule[] {
     investigate_command: 'bun obs last --window 1h --source prod',
     logs_path: logsPath('1h'),
     traces_path: tracesPath('1h'),
-  }));
-}
-
-/** A healthy scheduled sibling must never conceal a missing expected slice. */
-function silenceSlices(indicator: MetricIndicator): readonly MetricIndicator[] {
-  const dimension = indicator.sliceBy;
-  const matcher = indicator.scope.find(
-    (scope) => scope.dimension === dimension
-  );
-  if (matcher === undefined || matcher.op !== 'is') return [indicator];
-  return matcher.values.map((value) => ({
-    ...indicator,
-    scope: indicator.scope.map((scope) =>
-      scope === matcher ? { ...scope, values: [value] } : scope
-    ),
   }));
 }

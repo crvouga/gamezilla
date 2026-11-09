@@ -185,6 +185,7 @@ describe('alerts that cannot be judged', () => {
       },
     });
     expect(results.every((r) => !r.ok)).toBe(true);
+    expect(results.every((r) => r.noEvidence === true)).toBe(true);
     expect(results[0]?.detail).toContain('no evidence');
   });
 
