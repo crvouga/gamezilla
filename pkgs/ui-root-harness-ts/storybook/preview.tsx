@@ -15,7 +15,7 @@ import { fn } from 'storybook/test';
 import { createJSXDecorator, type Preview } from 'storybook-solidjs-vite';
 import '@pkgs/ui-root-client-ts/fonts';
 import '@pkgs/ui-root-client-ts/application.css';
-import { backgrounds, chromaticModes, viewports } from './preview-options';
+import { backgrounds, viewports } from './preview-options';
 import { loadStoryFonts } from './story-fonts';
 import { storyReducedMotion } from './story-motion';
 import { trackStoryReadiness } from './story-readiness';
@@ -154,7 +154,6 @@ export default {
   },
   parameters: {
     layout: 'fullscreen',
-    chromatic: { modes: chromaticModes },
     a11y: { test: 'error' },
     controls: { expanded: true, sort: 'requiredFirst' },
     backgrounds,
