@@ -9137,6 +9137,10 @@ msgstr "You can close this while we finish. Closing does not cancel your request
 msgid "You can host one space at a time. End it to start another, or get Plus to host as many as you like."
 msgstr "You can host one space at a time. End it to start another, or get Plus to host as many as you like."
 
+#: libs/game-puzzle-client-ts/src/content-attempt-screen-view.tsx
+msgid "You can keep playing or choose another puzzle."
+msgstr "You can keep playing or choose another puzzle."
+
 #: libs/word-tiles-client-ts/src/word-tiles-board-view.tsx
 msgid "You can plan a word while you wait. Play it when your turn begins."
 msgstr "You can plan a word while you wait. Play it when your turn begins."
