@@ -192,3 +192,15 @@ test('the ending line is true for the loser as well as the winner', () => {
     expect(line).toMatch(/reached\.$/);
   }
 });
+
+// regression: quoridor-seat-chip-disagrees-with-pawn
+test('every Quoridor seat chip uses its pawn ink on the board square', () => {
+  for (const client of [quoridorGameClient, quoridorHillGameClient]) {
+    const look = client.presentation.frame.seats.look;
+    expect(look('white')).toEqual({ color: 'pawn-one', mark: '●' });
+    expect(look('black')).toEqual({ color: 'pawn-two', mark: '◆' });
+  }
+  const look = quoridorHillGameClient.presentation.frame.seats.look;
+  expect(look('red')).toEqual({ color: 'pawn-three', mark: '▲' });
+  expect(look('blue')).toEqual({ color: 'pawn-four', mark: '■' });
+});
