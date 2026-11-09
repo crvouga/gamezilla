@@ -28,15 +28,32 @@ export function pendingFrameModel() {
   const [submitting, setSubmitting] = createSignal(false);
   const [mySide, setMySide] = createSignal<CustomGameSide | null>('white');
   const [error, setError] = createSignal('');
+  const [connected, setConnected] = createSignal(true);
+  const [waiting, setWaiting] = createSignal(false);
+  const [canSubmit, setCanSubmit] = createSignal(true);
   const model = {
     current,
     submitting,
     mySide,
     error,
+    connected,
+    waiting,
+    canSubmit,
     canPlay: () => true,
-    canSubmit: () => true,
     movesWait: () => false,
+    myId: () => 'alice',
+    sharedAvailable: () => false,
+    canCancel: () => false,
+    awaySince: () => null,
   } as unknown as CustomGameScreenModel;
+  /** The connection as the frame reads it: online, waiting, offline-local or needed. */
+  const setConnection = (
+    state: 'online' | 'waiting' | 'offline-local' | 'needed'
+  ) => {
+    setConnected(state === 'online');
+    setWaiting(state === 'waiting');
+    setCanSubmit(state !== 'needed');
+  };
   const submit = async (completion: Promise<void>) => {
     setError('');
     setSubmitting(true);
@@ -48,7 +65,7 @@ export function pendingFrameModel() {
       setSubmitting(false);
     }
   };
-  return { initial, model, setCurrent, setMySide, submit };
+  return { initial, model, setCurrent, setMySide, setConnection, submit };
 }
 
 const engine = {

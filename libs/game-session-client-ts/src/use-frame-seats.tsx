@@ -15,6 +15,7 @@ import type { GamePlayerState } from '@pkgs/ui-root-client-ts/game-player-parts'
 import { type Accessor, createMemo } from 'solid-js';
 import { useBotLevel } from './custom-game-person';
 import {
+  frameViewerHeld,
   usePersonName,
   useSeatNames,
   useSideClocks,
@@ -56,10 +57,13 @@ export function holderOf(
 export function frameSeatDeciding(
   game: CustomGame,
   side: CustomGameSide,
-  model: Pick<CustomGameScreenModel, 'mySide' | 'submitting'>
+  model: Pick<
+    CustomGameScreenModel,
+    'mySide' | 'submitting' | 'connected' | 'waiting' | 'canSubmit'
+  >
 ): boolean {
   if (game.status !== 'active') return false;
-  if (model.submitting() && model.mySide() === side) return false;
+  if (model.mySide() === side && frameViewerHeld(model)) return false;
 
   return game.awaiting.length > 0
     ? game.awaiting.includes(side)
