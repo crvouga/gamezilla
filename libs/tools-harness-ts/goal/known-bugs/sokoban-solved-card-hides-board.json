@@ -1,0 +1,4 @@
+{
+  "summary": "Sokoban's solved card was laid over the lower board, hiding a crate on its goal at 390px and half of a 20x20 board while play continued, and the solved message appeared three times. The card is gone: the board and the attempt's 'Completion saved' show the result, and the line beside the pad offers the way on once ('More puzzles').",
+  "regressionTest": "libs/sokoban-harness-ts/tests/sokoban-input.contract.test.tsx"
+}

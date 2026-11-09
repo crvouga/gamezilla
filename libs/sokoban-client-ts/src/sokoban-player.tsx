@@ -17,16 +17,21 @@ import { Button } from '@pkgs/ui-root-client-ts/button';
 import { DirectionPad } from '@pkgs/ui-root-client-ts/direction-pad';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { P } from '@pkgs/ui-root-client-ts/text';
+
 import { TileBoard } from '@pkgs/ui-root-client-ts/tile-board';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
-import { createMemo, createUniqueId, type JSX, Show } from 'solid-js';
-import { createSokobanSteering } from './create-sokoban-steering';
 import {
-  positionPieces,
-  sokobanPieces,
-  sokobanTiles,
-} from './sokoban-board-view';
+  createMemo,
+  createUniqueId,
+  type JSX,
+  Match,
+  Show,
+  Switch,
+} from 'solid-js';
+import { createSokobanSteering } from './create-sokoban-steering';
+import { sokobanPieces, sokobanTiles } from './sokoban-board-view';
+import { type SokobanFeedback, SokobanStatus } from './sokoban-feedback';
+import { SokobanPlayBoard } from './sokoban-play-board';
 import { useSokobanWords } from './use-sokoban-words';
 
 function Steering(props: {
@@ -34,10 +39,9 @@ function Steering(props: {
   position: SokobanPosition;
   disabled: boolean;
   onAction: (action: string) => void;
-  onReturnToLibrary: () => void;
+  onReturnToLibrary: (() => void) | undefined;
 }): JSX.Element {
   const { t } = useLingui();
-  const words = useSokobanWords();
   const mode = useLayoutMode();
   const help = createUniqueId();
   const steering = createSokobanSteering({
@@ -47,99 +51,47 @@ function Steering(props: {
     onAction: (action) => props.onAction(action),
   });
   const complete = () => sokobanComplete(props.board, props.position);
-  const wide = () => mode() === 'wide';
+  const feedback = (): SokobanFeedback => {
+    const refused = steering.refusal();
+    if (props.disabled && steering.queueOverflow()) return { kind: 'overflow' };
+    if (refused) return { kind: 'refusal', ...refused };
+    if (props.disabled) return { kind: 'saving' };
+    if (complete()) return { kind: 'solved' };
+    return null;
+  };
   return (
     <StackVertical gap="md">
-      <TileBoard
-        label={t`Sokoban board`}
-        testId="sokoban-board"
-        size="fill"
-        columns={props.board.width}
-        rows={props.board.height}
-        tiles={sokobanTiles(props.board, positionPieces(props.position), words)}
-        pieces={sokobanPieces(props.board, positionPieces(props.position))}
+      <SokobanPlayBoard
+        board={props.board}
+        position={props.position}
         describedBy={help}
         onDirection={steering.steer}
         onTile={steering.tap}
       />
-      <Show when={complete()}>
-        <Notice tone="success" dataSet={{ testid: 'sokoban-solved' }}>
-          <P role="status" variant="bodyBold">
-            <Trans>All crates are on goals</Trans>
-          </P>
-          <P variant="caption">
-            <Trans>Keep playing or choose another puzzle.</Trans>
-          </P>
-          <Button
-            title={t`Choose another puzzle`}
-            onClick={props.onReturnToLibrary}
-          />
-        </Notice>
-      </Show>
-      {/* How to move and how far, beside the movement pad on a phone, so
-          the board, the pad and the attempt's undo stay on one screen. */}
-      <StackHorizontal gap="md" align="center" justify="between">
-        <StackVertical gap="xs" shrink>
-          <P
-            role="status"
-            variant="label"
-            dataSet={{
-              testid: 'sokoban-counts',
-              moves: String(props.position.moves),
-              pushes: String(props.position.pushes),
-            }}
-          >
-            {t`Moves ${props.position.moves} · Pushes ${props.position.pushes}`}
-          </P>
-          <P id={help} variant="caption" tone="secondary">
-            <Show
-              when={wide()}
-              fallback={
-                <Trans>Swipe, tap beside the worker, or use the pad.</Trans>
-              }
-            >
-              <Trans>
-                Move with the arrow keys or W A S D, or click a square beside
-                the worker.
-              </Trans>
-            </Show>
-          </P>
-        </StackVertical>
-        {/* A keyboard is at hand on a wide screen; a phone gets a pad. */}
-        <Show when={!wide()}>
-          <DirectionPad
-            size="sm"
-            labels={{
-              up: t`Move up`,
-              right: t`Move right`,
-              down: t`Move down`,
-              left: t`Move left`,
-            }}
-            // Presses while a move is being kept queue, as keys do.
-            disabled={false}
-            testId="sokoban-move"
-            onDirection={(heading) => steering.steer(heading)}
-          />
-        </Show>
+      <StackHorizontal gap="md" align="start" justify="between">
+        <SokobanStatus
+          position={props.position}
+          help={help}
+          wide={mode() === 'wide'}
+          feedback={feedback()}
+          onReturnToLibrary={props.onReturnToLibrary}
+        />
+        {/* Screen width does not tell us whether a keyboard is available. */}
+        <DirectionPad
+          size="sm"
+          layout="arrows"
+          labels={{
+            up: t`Move up`,
+            right: t`Move right`,
+            down: t`Move down`,
+            left: t`Move left`,
+          }}
+          // Presses while a move is being kept queue, as keys do.
+          disabled={false}
+          testId="sokoban-move"
+          onDirection={(heading) => steering.steer(heading)}
+        />
       </StackHorizontal>
-      <Show when={props.disabled && !complete()}>
-        <P role="status" variant="caption" tone="secondary">
-          <Trans>Keeping your move. Your next directions will wait.</Trans>
-        </P>
-      </Show>
-      <Show when={steering.refusal()}>
-        {(refused) => (
-          <Notice
-            tone="warning"
-            dataSet={{ testid: 'sokoban-refusal', code: refused().code }}
-          >
-            {words.refusal(refused().code, refused().message)}
-            <P variant="caption">
-              <Trans>Try another direction.</Trans>
-            </P>
-          </Notice>
-        )}
-      </Show>
     </StackVertical>
   );
 }
@@ -172,15 +124,29 @@ export function SokobanPlayerView(
     <Show
       when={input()}
       fallback={
-        <Notice tone="error">
-          <Trans>
-            This puzzle cannot be opened. Choose a saved puzzle from your
-            library.
-          </Trans>
-          <Button
-            title={t`Return to puzzles`}
-            onClick={props.onReturnToLibrary}
-          />
+        <Notice tone="error" dataSet={{ testid: 'sokoban-unreadable' }}>
+          {/* Names the one way out the screen offers, or offers ours. */}
+          <Switch
+            fallback={
+              <Trans>
+                This puzzle cannot be opened. Choose another puzzle.
+              </Trans>
+            }
+          >
+            <Match when={props.context?.kind === 'pack'}>
+              <Trans>
+                This puzzle cannot be opened. Choose another from Pack overview.
+              </Trans>
+            </Match>
+            <Match when={props.context?.kind === 'playtest'}>
+              <Trans>
+                This draft cannot be opened. Go back to the builder to fix it.
+              </Trans>
+            </Match>
+          </Switch>
+          <Show when={props.context?.shellOffersWayOn !== true}>
+            <Button title={t`More puzzles`} onClick={props.onReturnToLibrary} />
+          </Show>
         </Notice>
       }
     >
@@ -190,7 +156,12 @@ export function SokobanPlayerView(
           position={value().position}
           disabled={props.disabled}
           onAction={props.onAction}
-          onReturnToLibrary={props.onReturnToLibrary}
+          // The screen's own way on (pack or playtest) replaces ours.
+          onReturnToLibrary={
+            props.context?.shellOffersWayOn === true
+              ? undefined
+              : props.onReturnToLibrary
+          }
         />
       )}
     </Show>

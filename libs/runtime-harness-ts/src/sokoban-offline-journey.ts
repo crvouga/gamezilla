@@ -123,6 +123,11 @@ export async function observeReconnectedSokoban(
   kept: SokobanOfflineJourney
 ): Promise<void> {
   await host.act('observeSokobanPublishedAfterReconnecting', async (ui) => {
+    // Publication went ahead once the pending notice is gone; tapping before
+    // then races the notice collapsing above the button.
+    await ui
+      .get('content-publication-pending')
+      .expect.hidden({ timeoutMs: JOURNEY_WAIT_MS });
     await contentTap(device(ui), 'content-view-publication');
     kept.revisionId = await contentAttribute(
       device(ui),

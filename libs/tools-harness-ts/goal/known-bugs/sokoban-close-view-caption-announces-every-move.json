@@ -1,0 +1,4 @@
+{
+  "summary": "Sokoban's close-view caption was a live status region, so screen readers re-announced the out-of-view crate and goal counts whenever a move changed them. The caption is now plain text read on demand; the board's own label says the close view is on.",
+  "regressionTest": "libs/sokoban-harness-ts/tests/sokoban-input.contract.test.tsx"
+}

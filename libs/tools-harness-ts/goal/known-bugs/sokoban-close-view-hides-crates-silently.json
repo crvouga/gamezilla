@@ -1,0 +1,4 @@
+{
+  "summary": "Sokoban's 6x6 close view hid crates and goals outside its window, saying only that the whole board shows every crate and goal, so a player planning from the close view could not tell what was out of sight. The caption now counts the crates and open goals out of view.",
+  "regressionTest": "libs/sokoban-harness-ts/tests/sokoban-input.contract.test.tsx"
+}

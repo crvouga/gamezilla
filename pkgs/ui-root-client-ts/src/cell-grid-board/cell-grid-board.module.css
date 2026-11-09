@@ -355,7 +355,7 @@
   --color-border: var(--ui-color-border);
   --ui-color-tint: var(--ui-color-game-sokoban-accent);
   --color-tint: var(--ui-color-tint);
-  --ui-color-focus-ring: var(--ui-color-game-sokoban-accent);
+  --ui-color-focus-ring: var(--ui-color-game-sokoban-focus);
   --color-focus-ring: var(--ui-color-focus-ring);
   --ui-color-destructive: var(--ui-color-game-sokoban-one);
   --color-destructive: var(--ui-color-destructive);

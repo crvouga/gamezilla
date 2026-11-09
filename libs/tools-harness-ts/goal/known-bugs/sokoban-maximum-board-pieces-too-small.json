@@ -1,0 +1,4 @@
+{
+  "summary": "A 20 by 20 Sokoban board at phone width reduced the worker and crates to roughly 13 pixels with no closer view. A close view now follows the worker while preserving full-board coordinates and the overview.",
+  "regressionTest": "libs/sokoban-harness-ts/tests/sokoban-input.contract.test.tsx"
+}

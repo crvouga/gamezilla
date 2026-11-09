@@ -1,0 +1,4 @@
+{
+  "summary": "Sokoban's builder kept \"Start playtest\" primary and enabled for a draft its editor could not read. Sokoban now declares the shared authoring readable() check, so the builder withholds playtest for an unreadable draft.",
+  "regressionTest": "libs/sokoban-harness-ts/tests/sokoban-readable-draft.test.ts"
+}

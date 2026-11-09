@@ -41,9 +41,7 @@ test("on a phone the board's hint is one short sentence", () => {
     const help = document.getElementById(
       board.getAttribute('aria-describedby') ?? ''
     );
-    expect(help?.textContent).toBe(
-      'Swipe, tap beside the worker, or use the pad.'
-    );
+    expect(help?.textContent).toBe('Swipe, tap or use the pad.');
   } finally {
     view.unmount();
   }

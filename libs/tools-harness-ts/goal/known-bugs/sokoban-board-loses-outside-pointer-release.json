@@ -1,0 +1,4 @@
+{
+  "summary": "A Sokoban swipe released beyond the board was lost because the board did not capture its pointer.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/sokoban-tile-stability.test.tsx"
+}

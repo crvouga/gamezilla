@@ -1,0 +1,4 @@
+{
+  "summary": "On a crowded 20x20 Sokoban board each move rebuilt all 400 tile labels (scanning every crate per square) and handed the board a new object for every tile, so every tile's bindings re-ran: p95 key-to-frame was 69.8ms at 4x CPU, over the 3-frame budget, and the 320px close view logged an 84ms long task. Labels are now built in one pass and unchanged tiles keep their previous object, so a move updates only the squares it changed.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/sokoban-maximum/integration.checks.ts"
+}

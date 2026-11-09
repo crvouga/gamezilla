@@ -4,6 +4,8 @@ import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { SokobanHistory } from './sokoban-history.example';
 import { SokobanPlayer } from './sokoban-player';
 import {
+  DENSE_MAXIMUM_BOARD,
+  MAXIMUM_BOARD,
   playedTwoCrates,
   SOLVING_MOVES,
   TWO_CRATES,
@@ -36,6 +38,22 @@ type Story = StoryObj<typeof meta>;
 /** The start: the worker beside two crates, two goals to fill. */
 export const Fresh: Story = {};
 
+const maximumStart = sokobanPuzzleContent.rules.initial(MAXIMUM_BOARD);
+if (!maximumStart.accepted) throw new Error('Invalid maximum board fixture');
+
+/** All 400 supported tiles, using the production board and movement rules. */
+export const MaximumBoard: Story = {
+  args: { definition: MAXIMUM_BOARD, state: maximumStart.state },
+};
+
+const denseStart = sokobanPuzzleContent.rules.initial(DENSE_MAXIMUM_BOARD);
+if (!denseStart.accepted) throw new Error('Invalid dense board fixture');
+
+/** The size limit, crowded with 36 crates and goals among pillars. */
+export const DenseMaximumBoard: Story = {
+  args: { definition: DENSE_MAXIMUM_BOARD, state: denseStart.state },
+};
+
 /** One crate pushed onto its goal; moves and pushes counted. */
 export const InProgress: Story = {
   args: { state: playedTwoCrates(SOLVING_MOVES.slice(0, 2)) },
@@ -61,17 +79,19 @@ export const Solved: Story = {
       canvas.getByTestId('content-attempt-complete')
     ).toHaveTextContent('Completion saved');
     const notice = canvas.getByTestId('sokoban-solved').getBoundingClientRect();
-    const counts = canvas.getByTestId('sokoban-counts').getBoundingClientRect();
+    const pad = canvas.getByTestId('sokoban-move').getBoundingClientRect();
     await expect(notice.height).toBeGreaterThan(0);
     await expect(notice.top).toBeGreaterThanOrEqual(0);
     await expect(notice.bottom).toBeLessThanOrEqual(window.innerHeight);
-    await expect(notice.bottom).toBeLessThanOrEqual(counts.top);
-    // regression: sokoban-solved-library-action
-    openLibrary.mockClear();
-    await userEvent.click(
-      canvas.getByRole('button', { name: 'Choose another puzzle' })
-    );
-    await expect(openLibrary).toHaveBeenCalledTimes(1);
+    // The way on sits beside the pad, within the pad's row.
+    await expect(notice.bottom).toBeLessThanOrEqual(pad.bottom);
+    // A pack's puzzle: the screen offers the way on, so the board does not.
+    await expect(
+      canvas.queryByRole('button', { name: 'More puzzles' })
+    ).toBeNull();
+    await expect(
+      canvas.getByRole('button', { name: 'Pack overview' })
+    ).toBeVisible();
     // Completion must not disable the board or its movement controls.
     canvas.getByTestId('sokoban-board').focus();
     await userEvent.keyboard('{ArrowLeft}');
@@ -85,15 +105,27 @@ export const Solved: Story = {
 /** While the shared player is not taking moves, the board stays still. */
 export const Disabled: Story = { args: { disabled: true } };
 
-/** A puzzle this app cannot open points back to its overview. */
+/**
+ * A pack puzzle this app cannot open has one way out: the pack card's
+ * Pack overview (the board's own "More puzzles" defers to it).
+ */
 export const Unreadable: Story = {
   args: { definition: '{}' },
   play: async ({ canvasElement }) => {
     // regression: sokoban-unreadable-library-action
     const canvas = within(canvasElement);
-    const button = canvas.getByRole('button', { name: 'Return to puzzles' });
+    await expect(
+      canvas.queryByRole('button', { name: 'More puzzles' })
+    ).toBeNull();
+    await expect(canvas.getByTestId('sokoban-unreadable')).toHaveTextContent(
+      'This puzzle cannot be opened. Choose another from Pack overview.'
+    );
+    const button = within(
+      canvas.getByTestId('puzzle-attempt-pack-actions')
+    ).getByRole('button', { name: 'Pack overview' });
     const rect = button.getBoundingClientRect();
-    await expect(rect.height).toBeGreaterThanOrEqual(44);
+    // A small pill, 32px drawn, with the design system's 44px hit area.
+    await expect(rect.height).toBeGreaterThanOrEqual(32);
     await expect(rect.top).toBeGreaterThanOrEqual(0);
     await expect(rect.bottom).toBeLessThanOrEqual(window.innerHeight);
     openLibrary.mockClear();
@@ -155,6 +187,43 @@ export const SolveWithKeyboard: Story = {
   },
 };
 
+/** Letter-key movement, a blocked push, and recovery use the same real rules. */
+export const LetterKeyRecovery: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const board = canvas.getByTestId('sokoban-board');
+    board.focus();
+    await userEvent.keyboard('a');
+    await expect(canvas.getByTestId('sokoban-refusal')).toBeVisible();
+    await userEvent.keyboard('dd');
+    await expect(canvas.getByTestId('sokoban-counts')).toHaveAttribute(
+      'data-pushes',
+      '2'
+    );
+    await userEvent.click(canvas.getByRole('button', { name: 'Undo' }));
+    await expect(canvas.getByTestId('sokoban-counts')).toHaveAttribute(
+      'data-moves',
+      '1'
+    );
+    await userEvent.click(canvas.getByRole('button', { name: 'Redo' }));
+    await expect(canvas.getByTestId('sokoban-counts')).toHaveAttribute(
+      'data-moves',
+      '2'
+    );
+    board.focus();
+    await userEvent.keyboard('aawdd');
+    await expect(canvas.getByTestId('sokoban-solved')).toBeVisible();
+    await userEvent.click(canvas.getByRole('button', { name: 'Restart' }));
+    await expect(canvas.getByTestId('sokoban-counts')).toHaveAttribute(
+      'data-moves',
+      '0'
+    );
+    await expect(
+      canvas.queryByTestId('sokoban-solved')
+    ).not.toBeInTheDocument();
+  },
+};
+
 const CORNER = JSON.stringify({
   format: 1,
   rows: ['######', '# $@.#', '#    #', '######'],
@@ -211,6 +280,10 @@ export const CornerRecovery: Story = {
     await expect(
       canvas.queryByTestId('sokoban-solved')
     ).not.toBeInTheDocument();
-    await expect(canvas.getByText('Completion saved')).toBeInTheDocument();
+    // The saved completion stays, said quietly once the board is unsolved.
+    await expect(canvas.queryByText('Completion saved')).toBeNull();
+    await expect(
+      canvas.getByTestId('content-attempt-solved-before')
+    ).toBeVisible();
   },
 };
