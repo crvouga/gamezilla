@@ -46,6 +46,21 @@ export const GRAFANA_KINDS: Readonly<Record<string, Kind>> = {
       );
     },
   },
+  grafana_folders: {
+    title: 'Dashboard folder listing',
+    logo: 'grafana',
+    category: 'Observability',
+  },
+  grafana_dashboards: {
+    title: 'Dashboard listing',
+    logo: 'grafana',
+    category: 'Observability',
+  },
+  grafana_slos: {
+    title: 'SLO listing',
+    logo: 'grafana',
+    category: 'Observability',
+  },
   grafana_dashboard: {
     title: 'Dashboard',
     logo: 'grafana',

@@ -54,4 +54,9 @@ export const OTHER_KINDS: Readonly<Record<string, Kind>> = {
     logo: 'hashicorp',
     category: 'Plumbing',
   },
+  http: {
+    title: 'HTTP lookup',
+    logo: 'hashicorp',
+    category: 'Plumbing',
+  },
 };

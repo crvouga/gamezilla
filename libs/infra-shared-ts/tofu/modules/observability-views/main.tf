@@ -51,3 +51,26 @@ resource "grafana_dashboard" "this" {
     logs_uid    = local.logs_uid
   })
 }
+
+# What a restore of an archived instance looks for before adopting
+# (stacks/foundation/observability-views.tf): known from code alone.
+output "adoption_keys" {
+  value = {
+    folder_uid = "business-observability-${var.environment}"
+    dashboard_uids = {
+      for file in fileset(path.module, "dashboards/*.json.tftpl") :
+      file => jsondecode(templatefile("${path.module}/${file}", {
+        environment = var.environment
+        namespace   = var.namespace
+        metrics_uid = local.metrics_uid
+        logs_uid    = local.logs_uid
+      })).uid
+    }
+    rule_group_names = {
+      for key, group in local.rule_groups : key => "${group.name}${local.group_suffix}"
+    }
+    slo_names = {
+      for key, slo in local.objectives : key => "${slo.name} — ${var.environment}"
+    }
+  }
+}
