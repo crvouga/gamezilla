@@ -1,0 +1,4 @@
+{
+  "summary": "With stageAlign: 'center' on a one-column game layout (768px), the board, commands and rail sat centred while the screen's title and intro stayed at the start edge, so the page had two left edges. A column holding a centred stage now gives its title block the board's measure and centres it; other screens are unchanged.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/game-stage-align/integration.checks.ts"
+}
