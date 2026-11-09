@@ -12,6 +12,7 @@ import { ProgressBar } from '@pkgs/ui-root-client-ts/progress-bar';
 import { SuccessState } from '@pkgs/ui-root-client-ts/success-state';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Match, Show, Switch } from 'solid-js';
+import type { PuzzleContentFrame } from './puzzle-content-client';
 
 /**
  * `gone`: no such attempt here; `missing`: the attempt is kept but what it
@@ -76,6 +77,7 @@ export type ContentAttemptScreenViewProps = {
    * (`Connected pairs 2`, `Moves 12`); empty when it gives none.
    */
   readonly figures?: readonly AttemptFigure[] | undefined;
+  readonly figuresPlacement?: PuzzleContentFrame['figuresPlacement'];
   readonly onRetryChange: () => void;
   readonly onReturnToLibrary: () => void;
 };
@@ -91,7 +93,11 @@ export type AttemptFigure = {
 function AttemptFigures(props: ContentAttemptScreenViewProps): JSX.Element {
   const { t } = useLingui();
   return (
-    <Show when={(props.figures?.length ?? 0) > 0}>
+    <Show
+      when={
+        props.figuresPlacement !== 'board' && (props.figures?.length ?? 0) > 0
+      }
+    >
       <MetricStrip
         aria-label={t`This attempt`}
         dataSet={{ testid: 'puzzle-attempt-figures' }}

@@ -4,9 +4,11 @@ import {
   createMemo,
   createSignal,
   For,
+  Index,
   type JSX,
   onCleanup,
   Show,
+  untrack,
 } from 'solid-js';
 import { cellGridStep } from '../cell-grid-board/index';
 import { createPathGridPointer } from '../path-grid-pointer';
@@ -18,7 +20,26 @@ export type {
   PathGridEndpoint,
   PathGridLine,
   PathGridTone,
+  PathGridTraceCancellation,
 } from '../path-grid-types';
+
+/**
+ * Splits a label into at most two balanced lines, so the longest allowed
+ * label stays large enough to read inside one cell: at the space nearest
+ * the middle, or mid-word with a hyphen so it still reads as one word.
+ */
+export function endpointLines(label: string): readonly string[] {
+  if (label.length <= 4) return [label];
+  const middle = label.length / 2;
+  const spaces = [...label.matchAll(/ /g)].map((match) => match.index);
+  const space = spaces.sort(
+    (a, b) => Math.abs(a - middle) - Math.abs(b - middle)
+  )[0];
+  if (space !== undefined)
+    return [label.slice(0, space), label.slice(space + 1)];
+  const split = Math.ceil(middle);
+  return [`${label.slice(0, split)}-`, label.slice(split)];
+}
 
 function PathCell(props: {
   board: PathGridBoardProps;
@@ -28,6 +49,8 @@ function PathCell(props: {
   onFocus: () => void;
   onKey: (event: KeyboardEvent) => void;
 }): JSX.Element {
+  // Only a cell whose description changed is rewritten during a drawing.
+  const label = createMemo(() => props.board.cellLabel(props.index));
   return (
     <button
       type="button"
@@ -36,7 +59,11 @@ function PathCell(props: {
       data-testid={`${props.board.testId}-cell-${props.index}`}
       data-tone={props.endpoint?.tone}
       data-connected={props.endpoint?.connected === true}
-      aria-label={props.board.cellLabel(props.index)}
+      data-selected={props.index === props.board.selectedCell}
+      aria-current={
+        props.index === props.board.selectedCell ? 'true' : undefined
+      }
+      aria-label={label()}
       aria-disabled={props.board.disabled === true}
       tabIndex={props.focusable ? 0 : -1}
       onFocus={() => props.onFocus()}
@@ -50,11 +77,27 @@ function PathCell(props: {
       }}
     >
       <Show when={props.endpoint}>
-        {(endpoint) => (
-          <span class={styles['endpoint']} aria-hidden="true">
-            {endpoint().label}
-          </span>
-        )}
+        {(endpoint) => {
+          const lines = createMemo(() => endpointLines(endpoint().label));
+          return (
+            <span
+              class={styles['endpoint']}
+              aria-hidden="true"
+              data-shape={endpoint().label.length > 2 ? 'tag' : 'ring'}
+              style={{
+                '--endpoint-lines': lines().length,
+                '--endpoint-columns': Math.max(
+                  ...lines().map((line) => line.length)
+                ),
+                '--endpoint-glyph': /^\d+$/.test(endpoint().label) ? 0.6 : 0.8,
+              }}
+            >
+              <For each={lines()}>
+                {(line) => <span class={styles['endpoint-line']}>{line}</span>}
+              </For>
+            </span>
+          );
+        }}
       </Show>
     </button>
   );
@@ -67,22 +110,24 @@ function PathLines(props: { board: PathGridBoardProps }): JSX.Element {
       viewBox={`0 0 ${props.board.columns * 100} ${props.board.rows * 100}`}
       aria-hidden="true"
     >
-      <For each={props.board.lines}>
+      {/* By position, so a growing path updates its node in place. */}
+      <Index each={props.board.lines}>
         {(line) => (
           <polyline
             class={styles['line']}
-            data-path={line.id}
-            data-tone={line.tone}
-            data-connected={line.connected}
-            points={line.cells
-              .map(
+            data-path={line().id}
+            data-tone={line().tone}
+            data-connected={line().connected}
+            data-provisional={line().provisional === true}
+            points={line()
+              .cells.map(
                 (cell) =>
                   `${((cell % props.board.columns) + 0.5) * 100},${(Math.floor(cell / props.board.columns) + 0.5) * 100}`
               )
               .join(' ')}
           />
         )}
-      </For>
+      </Index>
     </svg>
   );
 }
@@ -95,6 +140,10 @@ function PathLines(props: { board: PathGridBoardProps }): JSX.Element {
  */
 export function PathGridBoard(props: PathGridBoardProps): JSX.Element {
   const [focus, setFocus] = createSignal(0);
+  // Pointer drawing focuses its start cell from script (so Escape reaches
+  // it), which browsers treat as keyboard focus: show the ring only after
+  // a key press.
+  const [input, setInput] = createSignal<'keyboard' | 'pointer'>('keyboard');
   const cells = createMemo(() =>
     Array.from({ length: props.columns * props.rows }, (_, index) => index)
   );
@@ -108,10 +157,11 @@ export function PathGridBoard(props: PathGridBoardProps): JSX.Element {
     void props.rows;
     void props.disabled;
     pointer.cancel();
-    if (focus() >= props.columns * props.rows) setFocus(0);
+    if (untrack(focus) >= props.columns * props.rows) setFocus(0);
   });
   onCleanup(pointer.cancel);
   const key = (event: KeyboardEvent, index: number): void => {
+    setInput('keyboard');
     if (
       props.disabled !== true &&
       props.onCellKey?.(event.key, index) === true
@@ -137,8 +187,12 @@ export function PathGridBoard(props: PathGridBoardProps): JSX.Element {
       aria-describedby={props.describedBy}
       data-testid={props.testId}
       data-tracing={props.disabled !== true && props.onTraceStart !== undefined}
+      data-input={input()}
       style={{ '--path-columns': props.columns, '--path-rows': props.rows }}
-      onPointerDown={pointer.down}
+      onPointerDown={(event) => {
+        setInput('pointer');
+        pointer.down(event);
+      }}
       onPointerMove={pointer.move}
       onPointerUp={pointer.up}
       onPointerCancel={pointer.lost}
