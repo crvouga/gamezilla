@@ -3,7 +3,11 @@ import {
   boardArgs,
   type GameTableStory,
 } from '@libs/game-session-client-ts/game-frame-table.example';
-import { type Card, writeCards } from '@libs/hearts-shared-ts/hearts-cards';
+import {
+  type Card,
+  cardLabel,
+  writeCards,
+} from '@libs/hearts-shared-ts/hearts-cards';
 import {
   dealFrom,
   shufflerFrom,
@@ -36,7 +40,7 @@ import {
   receivedHands,
   renderPassJourney,
 } from './hearts-pass-journey.example';
-import { heartsMoves, renderHeartsTable } from './hearts-table.example';
+import { renderHeartsTable } from './hearts-table.example';
 
 /** One fixed deal: every story sees the same thirteen cards per seat. */
 const DEAL = dealFrom(shufflerFrom([7, 11, 13, 17]));
@@ -247,7 +251,7 @@ export const GameOver: Story = {
     table: {
       ending: { winner: 'red', reason: 'lowest score' },
       // A finished game keeps its record: the final deal's cards as played.
-      moves: heartsMoves(encodeHearts(playing(52).position)),
+      moves: playing(52).position.plays.map(cardLabel),
     } satisfies GameTableStory,
   },
 };
