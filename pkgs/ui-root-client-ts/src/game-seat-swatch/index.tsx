@@ -56,7 +56,9 @@ export type GameSeatSwatchProps = {
  * the seat's paint (a player color, or the board's own disc paint, so the
  * legend matches the pieces) carrying its short mark
  * glyph (`●`, `◆`, `X`) in the canvas ink, like a piece on the board; a mark
- * alone without a color. A seat with a mark never relies on hue alone.
+ * alone without a color. A seat with a mark never relies on hue alone, and
+ * a painted swatch is ringed in the outline ink so a light paint still
+ * stands out from a light card.
  *
  * Decorative by default, because the seat's name sits beside it; with a
  * `label` it is an image with that accessible name.
@@ -81,6 +83,10 @@ export function GameSeatSwatch(props: GameSeatSwatchProps): JSX.Element {
       class="box inline-flex flex-row shrink-0 items-center justify-center size-5"
       classList={{
         'rounded-full': color() !== undefined,
+        // Several paints are light on a light card (a light-cycles trail,
+        // a pale disc); the outline ring keeps every painted swatch at 3:1
+        // or more against the card in both themes.
+        'border border-outline': color() !== undefined,
         [DOT[color() ?? 'player1']]: color() !== undefined,
       }}
       role={labelled() ? 'img' : undefined}
