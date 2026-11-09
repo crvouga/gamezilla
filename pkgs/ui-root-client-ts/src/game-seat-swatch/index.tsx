@@ -144,7 +144,10 @@ export function GameSeatSwatch(props: GameSeatSwatchProps): JSX.Element {
                 !discPaint() &&
                 !trailPaint() &&
                 pawnInk() === undefined,
-              'text-game-connect-four-canvas': discPaint(),
+              // Red takes the board's light ink, yellow its canvas ink:
+              // each mark at least 5:1 on its disc, as on the board.
+              'text-game-connect-four-ink': color() === 'disc-one',
+              'text-game-connect-four-canvas': color() === 'disc-two',
               'text-game-light-cycles-canvas': trailPaint(),
               'text-text': color() === undefined,
             }}
