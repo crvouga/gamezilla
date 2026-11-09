@@ -1,4 +1,4 @@
 {
-  "summary": "When a game finished, the result card sat above a board still sized for play, pushing the fleet switch and the own seat below a 390x844 screen (and off a 1440 window). A finished game's whole boards now leave room for the result: at most the window height less 35rem, and the boards add no second end-of-game line under the frame's own result.",
+  "summary": "When a game finished, the result card sat above a board still sized for play, pushing the fleet switch and the own seat below a 390x844 screen (and off a 1440 window). A finished game's whole boards now leave room for the result: at most the window height less 35rem, the boards add no second end-of-game line under the frame's own result, and a player's own board drops its \"Your fleet\" heading (the switch already names it) so a lost game's longer key no longer wraps below it.",
   "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/battleship/layout/integration.checks.ts"
 }

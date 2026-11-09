@@ -65,8 +65,8 @@ test('keyboard focus on a Battleship cell is its own inset ink ring', () => {
     own,
     '.board[data-board-theme="battleship"] .cell:focus-visible'
   );
-  expect(focus).toMatch(/inset 0 0 0 5px var\(--color-text\)/);
-  expect(focus).toMatch(/inset 0 0 0 2px var\(--color-background\)/);
+  expect(focus).toMatch(/inset 0 0 0 3px var\(--color-text\)/);
+  expect(focus).toMatch(/inset 0 0 0 5px var\(--color-background\)/);
   expect(focus).not.toContain('outline');
   expect(focus).not.toContain('--color-tint');
   // Only a cell with no emphasis drops the shared outline for the ring.
@@ -76,6 +76,20 @@ test('keyboard focus on a Battleship cell is its own inset ink ring', () => {
       '.board[data-board-theme="battleship"]\n  .cell[data-emphasis="none"]:focus-visible'
     )
   ).toMatch(/outline:\s*none;/);
+});
+
+// regression: battleship-focus-lost-on-ship-cells — on a small ship cell the
+// ink ring sat inside a water-coloured gap and merged with the ship's mark.
+test('keyboard focus wears its ink at the cell edge, the gap inside it', () => {
+  const own = read('cell-grid-board/cell-grid-board-battleship.module.css');
+  const focus = rule(
+    own,
+    '.board[data-board-theme="battleship"] .cell:focus-visible'
+  );
+  const ink = focus.indexOf('var(--color-text)');
+  const gap = focus.indexOf('var(--color-background)');
+  expect(ink).toBeGreaterThan(-1);
+  expect(gap).toBeGreaterThan(ink);
 });
 
 // regression: battleship-board-small-wide — wide, the 10×10 board was held

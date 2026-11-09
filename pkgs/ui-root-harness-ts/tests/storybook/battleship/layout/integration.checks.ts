@@ -127,20 +127,23 @@ test('storybook integration: battleship own seat stays on a phone after the riva
 test('storybook integration: battleship finished game keeps the switch and own seat on a phone', async ({
   page,
 }, info) => {
-  await openBattleStory(
-    page,
-    'screens-games-battleship-board--won',
-    'light',
-    info
-  );
-  await settleMotion(page);
-  const layout = await captureBattleLayout(page, info);
-  for (const id of ['custom-game-board-view', 'custom-game-seat-near']) {
-    const box = await page.getByTestId(id).boundingBox();
-    if (!box) throw new Error(`${id} is not shown`);
-    if (box.y + box.height > 844)
-      throw new Error(
-        `${id} ends at ${box.y + box.height}px\n${JSON.stringify(layout)}`
-      );
+  // A lost game opens on the viewer's own fleet, whose key is a row longer.
+  for (const story of ['won', 'lost']) {
+    await openBattleStory(
+      page,
+      `screens-games-battleship-board--${story}`,
+      'light',
+      info
+    );
+    await settleMotion(page);
+    const layout = await captureBattleLayout(page, info);
+    for (const id of ['custom-game-board-view', 'custom-game-seat-near']) {
+      const box = await page.getByTestId(id).boundingBox();
+      if (!box) throw new Error(`${story}: ${id} is not shown`);
+      if (box.y + box.height > 844)
+        throw new Error(
+          `${story}: ${id} ends at ${box.y + box.height}px\n${JSON.stringify(layout)}`
+        );
+    }
   }
 });

@@ -51,17 +51,24 @@ function BoardPanel(props: {
   view: BoardView;
   cells: readonly CellGridCell[];
   legend: JSX.Element;
-  /** What the board is, beside its key: the viewer's fleet, or shots so far. */
-  heading: string;
+  /**
+   * What a watcher's board is, beside its key. A player's own board needs
+   * none: the switch (phone) or the panel title (wide) already names it.
+   */
+  heading: string | null;
   finished: boolean;
   onFire?: (cell: string) => void;
 }): JSX.Element {
   return (
     <StackVertical gap="xs" align="center" width="full">
-      <BattleshipTargetHeader>
-        <P variant="caption">{props.heading}</P>
-        {props.legend}
-      </BattleshipTargetHeader>
+      <Show when={props.heading} fallback={props.legend}>
+        {(heading) => (
+          <BattleshipTargetHeader>
+            <P variant="caption">{heading()}</P>
+            {props.legend}
+          </BattleshipTargetHeader>
+        )}
+      </Show>
       <BattleshipWholeBoard finished={props.finished}>
         <CellGridBoard
           fill
@@ -282,7 +289,7 @@ function BattlePanels(props: {
           testId={props.testId}
           view="own"
           cells={props.own}
-          heading={props.ships ? t`Your fleet` : t`Shots so far`}
+          heading={props.ships ? null : t`Shots so far`}
           finished={props.finished}
           legend={
             <CellGridLegend

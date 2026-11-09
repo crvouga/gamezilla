@@ -53,14 +53,16 @@
   outline: 3px solid var(--color-tint);
   outline-offset: 0;
 }
-/* Keyboard focus is the board's ink, inside the cell behind a gap in the
-   water's colour (so it shows on an ink Sunk fill too). It never covers the
-   coordinates outside the cell, and never replaces the outline a cell
-   already wears: the latest shot's accent, a preview or a refusal. */
+/* Keyboard focus is the board's ink at the cell's inner edge, with a ring
+   in the water's colour inside it: the ink shows on open and ship cells,
+   the inner ring parts it from a ship's mark and still shows on an ink
+   Sunk fill. It never covers the coordinates outside the cell, and never
+   replaces the outline a cell already wears: the latest shot's accent, a
+   preview or a refusal. */
 .board[data-board-theme="battleship"] .cell:focus-visible {
   box-shadow:
-    inset 0 0 0 2px var(--color-background),
-    inset 0 0 0 5px var(--color-text);
+    inset 0 0 0 3px var(--color-text),
+    inset 0 0 0 5px var(--color-background);
   z-index: 2;
 }
 .board[data-board-theme="battleship"]
