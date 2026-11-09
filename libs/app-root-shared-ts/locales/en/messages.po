@@ -108,8 +108,8 @@ msgstr "{0, plural, one {Waiting for # person to be ready.} other {Waiting for #
 msgid "{0, plural, one {You sent # request that is still waiting.} other {You sent # requests that are still waiting.}}"
 msgstr "{0, plural, one {You sent # request that is still waiting.} other {You sent # requests that are still waiting.}}"
 
-#. placeholder {0}: riderName(rider.seat)
-#. placeholder {1}: props.state.scores[index()] ?? 0
+#. placeholder {0}: riderName(rider().seat)
+#. placeholder {1}: props.state.scores[index] ?? 0
 #: libs/light-cycles-client-ts/src/light-cycles-board-view.tsx
 msgid "{0} {1}"
 msgstr "{0} {1}"
@@ -492,6 +492,10 @@ msgid "{name} {score}"
 msgstr "{name} {score}"
 
 #: libs/light-cycles-client-ts/src/light-cycles-view.tsx
+msgid "{name} has crashed at column {column}, row {row}."
+msgstr "{name} has crashed at column {column}, row {row}."
+
+#: libs/light-cycles-client-ts/src/light-cycles-view.tsx
 msgid "{name} has crashed in this round. Watch until the next round."
 msgstr "{name} has crashed in this round. Watch until the next round."
 
@@ -543,6 +547,10 @@ msgstr "{name}, empty"
 #: libs/battleship-client-ts/src/battleship-setup-controller.tsx
 msgid "{name}: {length} cells {direction}. Tap its first cell to place it; use Rotate to change direction."
 msgstr "{name}: {length} cells {direction}. Tap its first cell to place it; use Rotate to change direction."
+
+#: libs/light-cycles-client-ts/src/light-cycles-view.tsx
+msgid "{name}: column {column}, row {row}, heading {heading}."
+msgstr "{name}: column {column}, row {row}, heading {heading}."
 
 #: libs/game-session-client-ts/src/game-frame-headline.tsx
 msgid "{names} win"
@@ -1259,6 +1267,12 @@ msgstr "Archive"
 msgid "Archived"
 msgstr "Archived"
 
+#. placeholder {0}: state.width
+#. placeholder {1}: state.height
+#: libs/light-cycles-client-ts/src/light-cycles-view.tsx
+msgid "Arena {0} columns by {1} rows."
+msgstr "Arena {0} columns by {1} rows."
+
 #: libs/numberlink-client-ts/src/numberlink-drawing-help.tsx
 msgid "Arrows"
 msgstr "Arrows"
@@ -1947,6 +1961,10 @@ msgstr "Clear every endpoint?"
 msgid "Clear my suggestion"
 msgstr "Clear my suggestion"
 
+#: libs/light-cycles-client-ts/src/light-cycles-board-view.tsx
+msgid "Click the arena or Tab to it, then steer with arrow keys or W, A, S and D. You can also drag to steer. Avoid edges and trails."
+msgstr "Click the arena or Tab to it, then steer with arrow keys or W, A, S and D. You can also drag to steer. Avoid edges and trails."
+
 #: libs/app-config-client-ts/src/client-config-screen-view.tsx
 #: libs/app-root-client-ts/src/troubleshooting-screen-view.tsx
 msgid "Client config"
@@ -2004,6 +2022,11 @@ msgstr "Color {0}"
 #: libs/connect-four-client-ts/src/connect-four-presentation.tsx
 msgid "Column"
 msgstr "Column"
+
+#. placeholder {0}: column + 1
+#: libs/connect-four-client-ts/src/connect-four-board.tsx
+msgid "Column {0} is full. Choose another column."
+msgstr "Column {0} is full. Choose another column."
 
 #. placeholder {0}: column + 1
 #: libs/connect-four-client-ts/src/connect-four-board.tsx
@@ -2689,6 +2712,7 @@ msgid "double word"
 msgstr "double word"
 
 #: libs/battleship-client-ts/src/battleship-copy.tsx
+#: libs/light-cycles-client-ts/src/light-cycles-view.tsx
 msgid "down"
 msgstr "down"
 
@@ -3275,8 +3299,8 @@ msgstr "Floor"
 #. placeholder {0}: riderName(props.sides[0]!)
 #. placeholder {1}: riderName(props.sides[1]!)
 #: libs/light-cycles-client-ts/src/light-cycles-board-view.tsx
-msgid "Focus the arena. {0} uses arrow keys; {1} uses W, A, S and D. Avoid the edge and every trail."
-msgstr "Focus the arena. {0} uses arrow keys; {1} uses W, A, S and D. Avoid the edge and every trail."
+msgid "Focus the arena. {0} uses arrow keys; {1} uses W, A, S and D. Avoid the edge and every trail. You can also drag your half to steer."
+msgstr "Focus the arena. {0} uses arrow keys; {1} uses W, A, S and D. Avoid the edge and every trail. You can also drag your half to steer."
 
 #: libs/app-root-client-ts/src/theme-screen-view.tsx
 msgid "Follows your device appearance"
@@ -3317,6 +3341,10 @@ msgstr "Frame rate and responsiveness"
 #: libs/app-root-client-ts/src/performance-screen-view.tsx
 msgid "Frames per second"
 msgstr "Frames per second"
+
+#: libs/light-cycles-client-ts/src/light-cycles-view.tsx
+msgid "Free cells: {ahead} ahead, {left} to the left, {right} to the right."
+msgstr "Free cells: {ahead} ahead, {left} to the left, {right} to the right."
 
 #: libs/billing-client-ts/src/billing-plan-card.tsx
 msgid "Free plan"
@@ -4023,6 +4051,10 @@ msgstr "Leave while work is in progress?"
 msgid "Leaving…"
 msgstr "Leaving…"
 
+#: libs/light-cycles-client-ts/src/light-cycles-view.tsx
+msgid "left"
+msgstr "left"
+
 #: libs/pong-client-ts/src/pong-game-client.tsx
 msgid "Left"
 msgstr "Left"
@@ -4052,6 +4084,14 @@ msgstr "Left wins."
 #: libs/light-cycles-client-ts/src/light-cycles-board-view.tsx
 msgid "Left: {0}"
 msgstr "Left: {0}"
+
+#: libs/connect-four-client-ts/src/connect-four-board.tsx
+msgid "Left/Right to choose · Enter or Space drops"
+msgstr "Left/Right to choose · Enter or Space drops"
+
+#: libs/connect-four-client-ts/src/connect-four-board.tsx
+msgid "Left/Right to inspect columns"
+msgstr "Left/Right to inspect columns"
 
 #: libs/chess-puzzle-client-ts/src/puzzle-source-controls.tsx
 msgid "Lichess file uploaded"
@@ -4638,9 +4678,15 @@ msgstr "Next puzzle immediately"
 msgid "Next puzzle: {0}"
 msgstr "Next puzzle: {0}"
 
+#. placeholder {0}: nextRoundSeconds(state)
 #: libs/light-cycles-client-ts/src/light-cycles-view.tsx
-msgid "Next round soon."
-msgstr "Next round soon."
+msgid "Next round starts in {0} s."
+msgstr "Next round starts in {0} s."
+
+#. placeholder {0}: directionText(next)
+#: libs/light-cycles-client-ts/src/light-cycles-view.tsx
+msgid "Next turn: {0}."
+msgstr "Next turn: {0}."
 
 #: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
 msgid "Next: finish a playtest to show the puzzle can be solved."
@@ -6052,6 +6098,7 @@ msgid "Reconnect before changing or playing the game."
 msgstr "Reconnect before changing or playing the game."
 
 #: libs/game-session-client-ts/src/use-frame-seats.tsx
+#: libs/light-cycles-client-ts/src/light-cycles-view.tsx
 msgid "Reconnecting"
 msgstr "Reconnecting"
 
@@ -6465,6 +6512,10 @@ msgstr "Revoke invitation"
 #: libs/light-cycles-client-ts/src/light-cycles-board-view.tsx
 msgid "Ride from this device"
 msgstr "Ride from this device"
+
+#: libs/light-cycles-client-ts/src/light-cycles-view.tsx
+msgid "right"
+msgstr "right"
 
 #: libs/pong-client-ts/src/pong-game-client.tsx
 msgid "Right"
@@ -7371,13 +7422,13 @@ msgstr "Steer {0} right"
 msgid "Steer {0} up"
 msgstr "Steer {0} up"
 
-#: libs/light-cycles-client-ts/src/light-cycles-board-view.tsx
-msgid "Steer with the arrow keys or W, A, S and D. Avoid the edge and every trail."
-msgstr "Steer with the arrow keys or W, A, S and D. Avoid the edge and every trail."
-
 #: libs/light-cycles-client-ts/src/light-cycles-game-client.tsx
 msgid "Steer your rider around the arena. Every rider leaves a light trail; the edge and every trail crash a rider. The last rider riding wins the round, and the first to the target score wins the game. Ride against bots, share a device, invite people, or find players."
 msgstr "Steer your rider around the arena. Every rider leaves a light trail; the edge and every trail crash a rider. The last rider riding wins the round, and the first to the target score wins the game. Ride against bots, share a device, invite people, or find players."
+
+#: libs/light-cycles-client-ts/src/light-cycles-view.tsx
+msgid "Steering resumes when the game returns."
+msgstr "Steering resumes when the game returns."
 
 #: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
 msgid "Steps to publish"
@@ -7453,12 +7504,14 @@ msgid "Swap sides"
 msgstr "Swap sides"
 
 #: libs/light-cycles-client-ts/src/light-cycles-board-view.tsx
-msgid "Swipe the arena or use the pad to steer. Avoid the edge and every trail."
-msgstr "Swipe the arena or use the pad to steer. Avoid the edge and every trail."
+msgid "Swipe the arena or use the pad to steer. Avoid the edge and every trail. Keyboard: click or Tab to the arena, then use arrow keys or W, A, S and D."
+msgstr "Swipe the arena or use the pad to steer. Avoid the edge and every trail. Keyboard: click or Tab to the arena, then use arrow keys or W, A, S and D."
 
+#. placeholder {0}: riderName(props.sides[0]!)
+#. placeholder {1}: riderName(props.sides[1]!)
 #: libs/light-cycles-client-ts/src/light-cycles-board-view.tsx
-msgid "Swipe your half or use your pad. Avoid edges and trails."
-msgstr "Swipe your half or use your pad. Avoid edges and trails."
+msgid "Swipe your half or use your pad. Avoid edges and trails. Keyboard: click or Tab to the arena. {0} uses arrow keys; {1} uses W, A, S and D."
+msgstr "Swipe your half or use your pad. Avoid edges and trails. Keyboard: click or Tab to the arena. {0} uses arrow keys; {1} uses W, A, S and D."
 
 #: libs/sokoban-client-ts/src/sokoban-player.tsx
 msgid "Swipe, tap beside the worker, or use the pad."
@@ -7777,8 +7830,8 @@ msgid "The board needs at least one crate."
 msgstr "The board needs at least one crate."
 
 #: libs/quoridor-client-ts/src/quoridor-game-client.tsx
-msgid "The central hill was reached. Game won."
-msgstr "The central hill was reached. Game won."
+msgid "The central hill was reached."
+msgstr "The central hill was reached."
 
 #: libs/game-puzzle-client-ts/src/use-content-attempt-change.tsx
 msgid "The change was not saved. Your previous position is still kept. Try again."
@@ -7922,8 +7975,8 @@ msgid "The new puzzle could not be kept in this pack. Try again."
 msgstr "The new puzzle could not be kept in this pack. Try again."
 
 #: libs/quoridor-client-ts/src/quoridor-game-client.tsx
-msgid "The opposite home row was reached. Game won."
-msgstr "The opposite home row was reached. Game won."
+msgid "The opposite home row was reached."
+msgstr "The opposite home row was reached."
 
 #: libs/game-session-client-ts/src/custom-game-error.tsx
 msgid "The other participant may still return. Wait before claiming the win."
@@ -8106,10 +8159,6 @@ msgstr "This attempt was unrated."
 #: libs/sokoban-client-ts/src/sokoban-editor.tsx
 msgid "This board cannot be opened. Choose an earlier saved draft to keep building."
 msgstr "This board cannot be opened. Choose an earlier saved draft to keep building."
-
-#: libs/quoridor-client-ts/src/quoridor-board.tsx
-msgid "This board is read-only. Follow the game or review earlier moves."
-msgstr "This board is read-only. Follow the game or review earlier moves."
 
 #: libs/account-privacy-client-ts/src/privacy-screen-view.tsx
 msgid "This cannot be undone. Every device will be signed out. Your hosted spaces and future membership charges will end. If you have Plus, Plus ends at once: the remaining paid time and Plus credit are not refunded. Take an export first if you want a copy of your personal data."
@@ -8657,6 +8706,10 @@ msgstr "Untitled pack"
 msgid "Untitled puzzle"
 msgstr "Untitled puzzle"
 
+#: libs/light-cycles-client-ts/src/light-cycles-view.tsx
+msgid "up"
+msgstr "up"
+
 #: libs/app-root-client-ts/src/app-update-required-view.tsx
 msgid "Update"
 msgstr "Update"
@@ -8818,6 +8871,11 @@ msgstr "W and S move Left; the arrow keys move Right."
 #: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "W and S or the arrow keys move your paddle."
 msgstr "W and S or the arrow keys move your paddle."
+
+#. placeholder {0}: quoridorPlayerName(game(), game().turn)
+#: libs/quoridor-client-ts/src/quoridor-board.tsx
+msgid "Waiting for {0} to move. This board is read-only."
+msgstr "Waiting for {0} to move. This board is read-only."
 
 #: libs/game-puzzle-client-ts/src/content-publication-copy-view.tsx
 #: libs/game-session-client-ts/src/game-frame-record-view.tsx
@@ -9216,6 +9274,10 @@ msgstr "You have no failed puzzles yet. Puzzles you fail show here to try again.
 #: libs/quoridor-client-ts/src/quoridor-board-cells.tsx
 msgid "You have no walls left. Move your pawn, or choose Pass turn when no move is available."
 msgstr "You have no walls left. Move your pawn, or choose Pass turn when no move is available."
+
+#: libs/quoridor-client-ts/src/quoridor-board-cells.tsx
+msgid "You have no walls left. Move your pawn."
+msgstr "You have no walls left. Move your pawn."
 
 #: libs/game-puzzle-client-ts/src/puzzle-empty-pool-state.tsx
 msgid "You have played every puzzle that matches your history and theme filters. Include played puzzles or adjust the feed."

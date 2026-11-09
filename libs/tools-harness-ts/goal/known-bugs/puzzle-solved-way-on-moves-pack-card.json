@@ -1,0 +1,4 @@
+{
+  "summary": "Solving a pack puzzle added a filled \"Next puzzle\" to the attempt's command row, which wrapped \"Pack overview\" onto a second line and pushed the pack card down 44px at the moment of success (320, 390 and 1440). A pack puzzle's way on (its next puzzle and overview) now sits in the pack card under its progress, so the command row keeps one width and the card does not move on solve.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/puzzle-pack-actions/integration.checks.ts"
+}

@@ -70,15 +70,17 @@ function SetupCommands(props: {
           orientation: props.setup.orientation(),
         }}
       />
-      <Button
-        title={t`Remove`}
-        intent="neutral"
-        variant="ghost"
-        size="md"
-        disabled={props.locked || !placed()}
-        onClick={props.setup.remove}
-        dataSet={{ testid: `${props.testId}-remove` }}
-      />
+      {/* Offered only for a placed ship: nothing to remove, no Remove. */}
+      <Show when={!props.locked && placed()}>
+        <Button
+          title={t`Remove`}
+          intent="neutral"
+          variant="ghost"
+          size="md"
+          onClick={props.setup.remove}
+          dataSet={{ testid: `${props.testId}-remove` }}
+        />
+      </Show>
     </StackHorizontal>
   );
 }
@@ -105,21 +107,24 @@ export function BattleshipSetupBoard(
   );
   return (
     <StackVertical gap="md" padding="md" align="center" testId={props.testId}>
-      <P
-        id={statusId}
-        variant="label"
-        role="status"
-        aria-live="polite"
-        testId={`${props.testId}-progress`}
-      >
-        {setup.status()}
-      </P>
+      {/* Locked, the notice below says it once; no second ready line. */}
+      <Show when={!props.locked}>
+        <P
+          id={statusId}
+          variant="label"
+          role="status"
+          aria-live="polite"
+          testId={`${props.testId}-progress`}
+        >
+          {setup.status()}
+        </P>
+      </Show>
       <Show when={props.locked}>
         <Notice dataSet={{ testid: `${props.testId}-locked` }}>
           {t`Your fleet is locked in and can no longer change.`}
         </Notice>
       </Show>
-      <Show when={!enlarged()}>
+      <Show when={!enlarged() && !props.locked}>
         <GameChoiceGrid
           label={t`Ships`}
           choices={shipChoices(setup.draft(), props.testId)}
@@ -137,11 +142,13 @@ export function BattleshipSetupBoard(
         open={enlarged()}
         onOpenChange={setEnlarged}
         commands={
-          <SetupCommands
-            setup={setup}
-            locked={props.locked}
-            testId={props.testId}
-          />
+          <Show when={!props.locked}>
+            <SetupCommands
+              setup={setup}
+              locked={props.locked}
+              testId={props.testId}
+            />
+          </Show>
         }
         feedback={
           <Show when={!props.locked}>
@@ -175,7 +182,7 @@ export function BattleshipSetupBoard(
             columnLabels={COLUMN_LABELS}
             rowLabels={ROW_LABELS}
             cells={setup.cells()}
-            describedBy={statusId}
+            describedBy={props.locked ? undefined : statusId}
             onActivate={(cell) => {
               if (!enlarged()) setup.place(cell);
             }}

@@ -1,0 +1,4 @@
+{
+  "summary": "Each of the seven Connect Four columns was its own Tab stop, so moving past the board took seven Tab presses. The board is now one Tab stop that follows the column last focused; arrows, Home and End move between columns.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/disc-drop-focus-preview.test.tsx"
+}

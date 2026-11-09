@@ -1,10 +1,21 @@
 .layout {
+  container-type: inline-size;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
   gap: var(--ui-space-1);
   width: 100%;
+}
+.header {
+  flex: 1 1 100%;
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ui-space-1) var(--ui-space-3);
+  min-width: 0;
 }
 .navigator {
   flex: 0 0 15.5rem;
@@ -66,11 +77,11 @@
   clip-path: inset(50%);
 }
 .workspace {
-  flex: 0 1 22.75rem;
+  flex: 0 1 17rem;
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 0;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--ui-space-1);
 }
 .controls,
 .working {
@@ -82,19 +93,42 @@
   width: 14rem;
 }
 .controls {
-  flex: 1 1 5.5rem;
+  order: -1;
 }
 .working {
-  flex: 0 0
-    calc(
-      5 *
-      (var(--ui-control-size-md) + 2 * var(--ui-space-hairline)) +
-      var(--ui-space-6) +
-      var(--ui-space-4)
-    );
+  width: 100%;
+  min-width: calc(
+    5 *
+    (var(--ui-control-size-md) + 2 * var(--ui-space-hairline)) +
+    var(--ui-space-6) +
+    var(--ui-space-4)
+  );
 }
 
 /* In the placement column, basis is vertical; the map alone sets its height. */
 .navigator[data-placement="true"] {
   flex: none;
+}
+
+@container (min-width: 608px) {
+  .layout .navigator,
+  .layout .map {
+    width: 20rem;
+  }
+  .layout .navigator {
+    flex-basis: 20rem;
+  }
+}
+
+/* The window's height, less the key above and Fire, the switch and the
+   own seat below, bounds a whole board; a phone's width bounds it first. */
+.whole {
+  width: 100%;
+  max-inline-size: min(100%, calc(100dvh - 25rem));
+  margin-inline: auto;
+}
+/* Finished, the result sits above the boards; the board leaves room for it,
+   so the switch and the own seat still show under the board. */
+.whole[data-finished="true"] {
+  max-inline-size: min(100%, calc(100dvh - 35rem));
 }

@@ -96,13 +96,15 @@ test('a key under the boards names every mark the grids draw', () => {
       />
     ));
   board(FLEET);
-  const key = byTestId('board-key');
-  const named = [...key.querySelectorAll('li')].map((item) => item.textContent);
-  expect(named).toEqual(['■Ship', '○Miss', '✕Hit', '✖Sunk']);
-  expect(key.getAttribute('aria-label')).toBe('Key');
+  // Each board carries its own key; only the viewer's own fleet draws ships.
+  const named = (id: string) =>
+    [...byTestId(id).querySelectorAll('li')].map((item) => item.textContent);
+  expect(named('board-own-key')).toEqual(['■Ship', '○Miss', '✕Hit', '✖Sunk']);
+  expect(named('board-target-key')).toEqual(['○Miss', '✕Hit', '✖Sunk']);
+  expect(byTestId('board-own-key').getAttribute('aria-label')).toBe('Key');
   cleanup();
   board(null);
-  expect(byTestId('board-key').textContent).not.toContain('Ship');
+  expect(byTestId('board-own-key').textContent).not.toContain('Ship');
 });
 
 // regression: battleship-phone-grid-pushed-down — on a phone the turn line,
