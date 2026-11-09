@@ -79,8 +79,14 @@ Personal Conductor settings belong in `.conductor/settings.local.toml`.
 
 Other orchestrators can use those same Run and cleanup commands in their project
 settings. They have no generated adapter here until their repository configuration
-contract is supported. Cloud workspaces additionally need the pinned toolchains
-and credentials; these local lifecycle adapters do not provision cloud resources.
+contract is supported. Cursor Cloud Agents read
+[`.cursor/environment.json`](../.cursor/environment.json). Install is
+[`cloud-agent-install.sh`](../libs/tools-harness-ts/workspace/cloud-agent-install.sh)
+(the tools pinned in `mise.toml`, then a frozen Bun install, with no
+credentials). Start is
+[`cloud-agent-start.sh`](../libs/tools-harness-ts/workspace/cloud-agent-start.sh),
+which boots the same localhost stack as Run. The agent host keeps its own git
+hooks; `git-config.sh` still refuses hooks on a laptop.
 
 The release decision remains the full `bun verify` gate described in
 [`AGENTS.md`](../AGENTS.md); opening an environment is not verification evidence.

@@ -127,6 +127,8 @@ function checkout() {
     dir,
     run: script('run.sh'),
     setup: script('setup.sh'),
+    cloudInstall: script('cloud-agent-install.sh'),
+    cloudStart: script('cloud-agent-start.sh'),
     prepare: script('prepare.sh'),
     teardown: script('teardown.sh'),
     port: script('port.sh'),
@@ -351,4 +353,57 @@ test('activation cannot wait for input or resolve tools over the network', () =>
   expect(result.status, result.stderr).toBe(0);
   expect(result.stderr).toContain('activating installed workspace tools');
   expect(result.calls).toEqual([STOP, DEV]);
+});
+
+test('cloud install proceeds when the host sets git hooks and publishes tools once', () => {
+  const { dir, cloudInstall, cloudStart } = checkout();
+  const published = join(dir, 'published-bin');
+  writeExecutable(join(dir, '.bin/node'), '#!/usr/bin/env bash\nexit 0\n');
+  writeExecutable(
+    join(dir, '.bin/mise'),
+    '#!/usr/bin/env bash\n' +
+      'if [ "$1" = which ]; then printf "%s\\n" "$PWD/.bin/$2"; exit 0; fi\n' +
+      'if [ "$1" = env ]; then printf \'export PATH="%s:$PATH"\\n\' "$PWD/.tools"; fi\n' +
+      'exit 0\n'
+  );
+  const env = {
+    WORKSPACE_RUN_TEST_HOOKS: 'present',
+    CLOUD_AGENT_BIN_DIR: published,
+  };
+  const cold = cloudInstall(env);
+  expect(cold.status, `${cold.stdout}\n${cold.stderr}`).toBe(0);
+  expect(cold.stderr).not.toContain('prohibits git hooks');
+  expect(cold.calls).toEqual([INSTALL]);
+  expect(existsSync(join(published, 'bun'))).toBe(true);
+  expect(existsSync(join(published, 'node'))).toBe(true);
+  const profile = readFileSync(join(dir, 'home/.profile'), 'utf8');
+  expect(profile.match(/# cursor-cloud mise tools/g)?.length).toBe(1);
+  const again = cloudInstall(env);
+  expect(again.status, again.stderr).toBe(0);
+  expect(again.calls).toEqual([]);
+  expect(
+    readFileSync(join(dir, 'home/.profile'), 'utf8').match(
+      /# cursor-cloud mise tools/g
+    )?.length
+  ).toBe(1);
+  const started = cloudStart(env);
+  expect(started.status, started.stderr).toBe(0);
+  expect(started.calls).toEqual([STOP, DEV]);
+});
+
+test('the Cursor environment file points at the cloud agent scripts', () => {
+  const root = join(import.meta.dirname, '../../..');
+  const declared = JSON.parse(
+    readFileSync(join(root, '.cursor/environment.json'), 'utf8')
+  ) as { install: string; start: string; user: string };
+  expect(declared.user).toBe('ubuntu');
+  expect(declared.install).toBe(
+    './libs/tools-harness-ts/workspace/cloud-agent-install.sh'
+  );
+  expect(declared.start).toBe(
+    './libs/tools-harness-ts/workspace/cloud-agent-start.sh'
+  );
+  for (const command of [declared.install, declared.start]) {
+    expect(existsSync(join(root, command))).toBe(true);
+  }
 });

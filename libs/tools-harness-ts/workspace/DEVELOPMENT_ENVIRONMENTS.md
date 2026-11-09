@@ -200,8 +200,11 @@ replaces worktree creation itself, so it is not used merely to install dependenc
 provide setup on new worktrees and on-demand actions; configure these through the
 app rather than guessing generated file contents. Codex CLI and Claude Code are
 coding agents and inherit the execution host's environment; neither needs server
-restart on each message. Cloud agent setup belongs in that provider's environment
-settings; provision development-only credentials explicitly on that worker.
+restart on each message. Cursor Cloud Agents use the committed
+[`.cursor/environment.json`](../../../.cursor/environment.json):
+`cloud-agent-install.sh` then `cloud-agent-start.sh` in this directory.
+Provision development-only credentials explicitly on that worker. The local
+stack does not need them.
 
 ## Platform and validation limits
 
