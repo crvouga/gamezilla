@@ -1,0 +1,4 @@
+{
+  "summary": "While reconnecting, Pong's court status and the caption under it both said that controls resume later.",
+  "regressionTest": "libs/pong-client-ts/tests/pong-court-guidance.test.tsx"
+}

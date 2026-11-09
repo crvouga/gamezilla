@@ -1,0 +1,4 @@
+{
+  "summary": "Holding W through a disconnect leaves it pressed after reconnect; pressing S then cancels movement instead of moving down.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/pong-input-interruption.test.tsx"
+}

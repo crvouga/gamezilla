@@ -231,6 +231,13 @@ export type GameFrame<View> = {
    * Absent for a board sized by width alone.
    */
   readonly boardFit?: 'square';
+  /**
+   * On one column (narrower than the wide layout), the board starts at the
+   * game title's edge instead of the column's centre: for a board narrower
+   * than the column (Pong's court) that would otherwise sit indented from
+   * the title above it. Absent: centred, as every board has been.
+   */
+  readonly boardAlign?: 'start';
   /** The options chosen before play; empty for a game without any. */
   readonly options: readonly GameOptionGroup[];
   readonly seats: {

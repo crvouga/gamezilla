@@ -103,6 +103,10 @@ function CustomGameFrame(props: FrameProps): JSX.Element {
   const record = useFrameRecord(model, review);
   const boardState = useFrameBoardState(model, review, board);
   const presentation = useGamePresentation();
+  const boardAlign = (): 'start' | undefined => {
+    const game = model.current();
+    return game === null ? undefined : presentation(game.fen).frame.boardAlign;
+  };
   const boardFit = (): 'square' | undefined => {
     const game = model.current();
     return game === null ? undefined : presentation(game.fen).frame.boardFit;
@@ -130,6 +134,7 @@ function CustomGameFrame(props: FrameProps): JSX.Element {
         setupBoard={<CustomGameSetupBoard model={model} />}
         boardState={boardState()}
         boardFit={boardFit()}
+        boardAlign={boardAlign()}
         about={props.instructions}
         people={PEOPLE}
         onChoose={model.choose}

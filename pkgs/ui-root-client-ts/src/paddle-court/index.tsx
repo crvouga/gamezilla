@@ -1,11 +1,12 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { For, type JSX, Show } from 'solid-js';
+import { For, Index, type JSX, Show } from 'solid-js';
 import type { AvatarSeatColor } from '../avatar/index';
 import {
   type CourtControls,
   type CourtSide,
   paddleCourtInput,
 } from '../paddle-court-input';
+import { useCourtInputLifecycle } from './input-lifecycle';
 import styles from './paddle-court.module.css';
 
 export type { CourtSide } from '../paddle-court-input';
@@ -13,6 +14,13 @@ export type { CourtSide } from '../paddle-court-input';
 export type PaddleCourtProps = CourtControls & {
   /** A non-playing state placed where the player watches, without taking input. */
   readonly status?: string | undefined;
+  /**
+   * What the status says, for readers that must not depend on its words:
+   * written as `data-stage` (and `data-winner` when it names one).
+   */
+  readonly statusData?:
+    | { readonly stage: string; readonly winner?: string | undefined }
+    | undefined;
   /** Translated touch verb; explicit edge cues avoid unexplained lane shading. */
   readonly touchHint?: string | undefined;
   readonly width: number;
@@ -185,6 +193,8 @@ function CourtFeedback(props: PaddleCourtProps): JSX.Element {
           class={styles['status']}
           role="status"
           data-testid={`${props.testId}-status`}
+          data-stage={props.statusData?.stage}
+          data-winner={props.statusData?.winner}
         >
           {props.status}
         </div>
@@ -218,12 +228,19 @@ function CourtFeedback(props: PaddleCourtProps): JSX.Element {
 /* oxlint-disable jsx-a11y/no-noninteractive-tabindex, jsx-a11y/no-noninteractive-element-interactions -- A keyboard-operated court uses the ARIA application role; the adjacent native sliders provide equivalent controls outside application mode. */
 export function PaddleCourt(props: PaddleCourtProps): JSX.Element {
   const input = paddleCourtInput(props);
+  let court: HTMLDivElement | undefined;
+  useCourtInputLifecycle(props, input.release, () => court);
   return (
-    <div class={styles['frame']}>
+    <div
+      class={styles['frame']}
+      // The court's own shape, so the frame can fit a short window's height.
+      style={{ '--paddle-court-aspect': `${props.width} / ${props.height}` }}
+    >
       <Scoreboard {...props} />
       <div class={styles['stage']}>
         <div
           {...dataAttrs({ component: 'PaddleCourt', testid: props.testId })}
+          ref={court}
           class={styles['court']}
           data-interactive={props.enabled && props.controlled.length > 0}
           role="application"
@@ -232,7 +249,7 @@ export function PaddleCourt(props: PaddleCourtProps): JSX.Element {
           tabIndex={props.enabled && props.controlled.length > 0 ? 0 : -1}
           onKeyDown={input.keyDown}
           onKeyUp={input.keyUp}
-          onBlur={input.release}
+          onBlur={() => input.release()}
           onPointerDown={input.pointerDown}
           onPointerMove={input.pointerMove}
           onPointerUp={input.pointerUp}
@@ -256,21 +273,21 @@ export function PaddleCourt(props: PaddleCourtProps): JSX.Element {
               cy={props.height / 2}
               r={props.height * 0.14}
             />
-            <For each={props.paddles}>
+            <Index each={props.paddles}>
               {(paddle) => (
                 <rect
                   class={styles['paddle']}
-                  data-side={paddle.side}
-                  data-color={paddle.color}
-                  data-testid={`${props.testId}-${paddle.side}-paddle`}
-                  data-controlled={props.controlled.includes(paddle.side)}
-                  x={paddle.x - (paddle.width * PADDLE_DRAWN_SCALE) / 2}
-                  y={paddle.y - paddle.height / 2}
-                  width={paddle.width * PADDLE_DRAWN_SCALE}
-                  height={paddle.height}
+                  data-side={paddle().side}
+                  data-color={paddle().color}
+                  data-testid={`${props.testId}-${paddle().side}-paddle`}
+                  data-controlled={props.controlled.includes(paddle().side)}
+                  x={paddle().x - (paddle().width * PADDLE_DRAWN_SCALE) / 2}
+                  y={paddle().y - paddle().height / 2}
+                  width={paddle().width * PADDLE_DRAWN_SCALE}
+                  height={paddle().height}
                 />
               )}
-            </For>
+            </Index>
             <circle
               class={styles['ball']}
               data-testid={`${props.testId}-ball`}

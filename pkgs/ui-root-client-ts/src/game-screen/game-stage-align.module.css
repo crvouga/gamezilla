@@ -9,4 +9,20 @@
     width: 100%;
     max-width: var(--game-board-measure);
   }
+  /* The screen's title and intro (the column's first block) take the same
+     measure and centre too, so the whole page reads as one centred column.
+     Only a column holding a centred stage changes. */
+  :global([data-component="GameColumn"]:has([data-stage-align="center"]))
+  > :first-child {
+    width: 100%;
+    max-width: var(--game-board-measure);
+    margin-inline: auto;
+  }
+  /* The session's notices (a puzzle's rule line, a warning) between the
+     title and the stage, so title, intro and board share one left edge. */
+  .intro {
+    width: 100%;
+    max-width: var(--game-board-measure);
+    margin-inline: auto;
+  }
 }

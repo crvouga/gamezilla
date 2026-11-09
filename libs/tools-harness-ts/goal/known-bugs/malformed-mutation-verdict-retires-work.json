@@ -1,0 +1,4 @@
+{
+  "summary": "A malformed mutation acknowledgement with an unknown status was treated as applied and retired durable queued work; duplicated verdict IDs could partially acknowledge a batch. Validate the complete batch before any durable effects.",
+  "regressionTest": "pkgs/sync-engine-client-ts/tests/mutation-upload-malformed.test.ts"
+}

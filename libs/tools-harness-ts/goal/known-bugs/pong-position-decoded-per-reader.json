@@ -1,0 +1,4 @@
+{
+  "summary": "Every Pong tick, the court, the frame status and the standings each parsed and validated the same position string again, multiplying per-frame work during play.",
+  "regressionTest": "libs/pong-shared-ts/tests/pong-position-decode-once.test.ts"
+}

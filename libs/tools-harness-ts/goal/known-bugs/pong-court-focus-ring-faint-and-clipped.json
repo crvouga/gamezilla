@@ -1,0 +1,4 @@
+{
+  "summary": "In the light theme the Pong court's keyboard focus ring was 1.55:1 against the page, and the board clipped its left and right sides, so keyboard players could barely tell the court had focus.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/pong-contrast/integration.checks.ts"
+}
