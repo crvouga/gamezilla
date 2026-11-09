@@ -104,7 +104,7 @@ function NextLine(props: PublicationStepsProps): JSX.Element {
         ? t`1 puzzle is still a draft. Publish it, then the pack.`
         : t`${count} puzzles are still drafts. Publish them, then the pack.`;
     if (correctionFirst(props))
-      return t`Next: make the corrections the editor lists, then playtest.`;
+      return t`Next: fix the draft as the editor says, then playtest.`;
     if (props.next === 'playtest')
       return t`Next: finish a playtest to show the puzzle can be solved.`;
     if (props.next === 'publish')
@@ -293,7 +293,7 @@ export function PublicationSteps(props: PublicationStepsProps): JSX.Element {
           done: t`Done`,
           current:
             props.progress?.currentLabel ??
-            (correctionFirst(props) ? t`Correct first` : t`Next`),
+            (correctionFirst(props) ? t`Fix first` : t`Next`),
           upcoming: t`Locked`,
         }}
         steps={steps()}

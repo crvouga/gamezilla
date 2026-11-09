@@ -2268,10 +2268,6 @@ msgstr "Coral"
 msgid "Correct · {side} to move"
 msgstr "Correct · {side} to move"
 
-#: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
-msgid "Correct first"
-msgstr "Correct first"
-
 #: libs/app-root-client-ts/src/boot-error-screen-view.tsx
 msgid "Could not reset local data"
 msgstr "Could not reset local data"
@@ -3249,6 +3245,10 @@ msgstr "Fit board"
 #: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "Five"
 msgstr "Five"
+
+#: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
+msgid "Fix first"
+msgstr "Fix first"
 
 #: libs/battleship-client-ts/src/battleship-setup-precision.tsx
 msgid "Fleet overview"
@@ -4645,12 +4645,12 @@ msgid "Next: finish a playtest to show the puzzle can be solved."
 msgstr "Next: finish a playtest to show the puzzle can be solved."
 
 #: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
-msgid "Next: make the changes it needs, then validate again."
-msgstr "Next: make the changes it needs, then validate again."
+msgid "Next: fix the draft as the editor says, then playtest."
+msgstr "Next: fix the draft as the editor says, then playtest."
 
 #: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
-msgid "Next: make the corrections the editor lists, then playtest."
-msgstr "Next: make the corrections the editor lists, then playtest."
+msgid "Next: make the changes it needs, then validate again."
+msgstr "Next: make the changes it needs, then validate again."
 
 #: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
 msgid "Next: validate the draft, then publish it."

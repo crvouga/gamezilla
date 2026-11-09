@@ -226,13 +226,13 @@ test('a pack waits on its draft puzzles first, names them, and opens the first',
 test('a draft the game cannot play names its corrections, not the playtest, as next', () => {
   mount(() => publication({ playable: false }));
   expect(screen.getByTestId('content-publication-status').textContent).toBe(
-    'Next: make the corrections the editor lists, then playtest.'
+    'Next: fix the draft as the editor says, then playtest.'
   );
   const playtest = screen
     .getByTestId('content-publication-steps')
     .querySelector('li');
   expect(playtest?.getAttribute('data-state')).toBe('current');
-  expect(playtest?.textContent).toBe('1Playtest·Correct first');
+  expect(playtest?.textContent).toBe('1Playtest·Fix first');
 });
 
 function builder(playable?: boolean): JSX.Element {
@@ -479,6 +479,14 @@ for (const current of [true, false]) {
     await waitFor(() => expect(calls).toBe(1));
   });
 }
+
+// regression: builder-unopenable-draft-told-to-correct
+test('the next step for a draft the game cannot play does not promise corrections the editor may not list', () => {
+  mount(() => publication({ playable: false }));
+  const status = screen.getByTestId('content-publication-status').textContent;
+  expect(status).not.toContain('corrections');
+  expect(status).toBe('Next: fix the draft as the editor says, then playtest.');
+});
 
 // regression: builder-preview-open-while-unplayable
 test('Preview waits while the game cannot play the draft', () => {
