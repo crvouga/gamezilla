@@ -41,3 +41,48 @@
     align-self: start;
   }
 }
+
+/* Beside a wide rail, a finished game's result card stood above the board,
+   so the square fit shrank the board to keep both seats in view (about
+   340px against a live 540px at 1440). With the opt-in, the card reads at
+   the top of the rail instead: the session takes the layout's two columns
+   (the board's measure, then the rail), the layout steps aside so the
+   stage keeps the first column, and the card, strip, record and actions
+   read down the second. The board keeps its live size. */
+@container game-column (min-width: 880px) {
+  [data-component="GameColumn"]
+    > :not([data-component="GameHeading"]):has(.squareStage):has(
+      > [data-component="GameSessionOutcome"]
+    ) {
+    display: grid;
+    /* The live board-focus frame's columns (the session layout's own), so a
+       finished board meets the same measure and fit as during play. */
+    grid-template-columns: minmax(0, 1fr) var(--game-arena-rail-measure, 304px);
+    grid-template-rows: repeat(6, auto) 1fr;
+    column-gap: var(--ui-space-6);
+    align-content: start;
+  }
+  [data-component="GameColumn"]
+    > :not([data-component="GameHeading"]):has(.squareStage):has(
+      > [data-component="GameSessionOutcome"]
+    )
+    > * {
+    grid-column: 2;
+  }
+  [data-component="GameColumn"]
+    > :not([data-component="GameHeading"]):has(.squareStage):has(
+      > [data-component="GameSessionOutcome"]
+    )
+    > [data-component="GameLayout"] {
+    display: contents;
+  }
+  [data-component="GameColumn"]
+    > :not([data-component="GameHeading"]):has(.squareStage):has(
+      > [data-component="GameSessionOutcome"]
+    )
+    > [data-component="GameLayout"]
+    > :has(> .squareStage) {
+    grid-column: 1;
+    grid-row: 1 / -1;
+  }
+}
