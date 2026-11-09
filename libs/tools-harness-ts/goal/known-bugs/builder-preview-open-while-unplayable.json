@@ -1,0 +1,4 @@
+{
+  "summary": "In the puzzle builder, Preview stayed enabled for a draft the game cannot play (its authoring readable() is false), opening a player view that could only say the puzzle cannot be opened. Preview now waits until the draft is corrected; games without readable() are unchanged.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-publication-steps.test.tsx"
+}

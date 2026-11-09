@@ -14,7 +14,7 @@ remain in `verify-profile.ts`, independently of selection. No tests were removed
 | Verify Nightly: daily at 10:23 UTC or manual dispatch | Complete catalog at nightly depth plus random, browser, visual, coverage and performance groups. Groups run independently; visual waits only for its required corpus. Manual `all` gives a complete verdict; individual groups give diagnostic verdicts. |
 | Health: hourly at minute 17 or manual dispatch | Live probes, critical journeys, infrastructure/repository drift and historical SLO checks. Releases nothing. Historical SLO debt cannot block a corrective release. |
 
-`verify:end` remains the required status. The existing strict main ruleset, SHA-pinned
+`verify:end` remains the required status. The main ruleset (verified PRs, not required to be up to date), SHA-pinned
 actions, fresh Ubuntu runners, read-only default token and protected production
 environment remain. No workflow, runner service or dependency was added.
 

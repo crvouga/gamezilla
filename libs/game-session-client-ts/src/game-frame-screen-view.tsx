@@ -47,6 +47,7 @@ import {
 import { FrameSetupSeatsView } from './game-frame-seats-view';
 import { withStableTable } from './game-frame-stable-table';
 import {
+  captionLine,
   FrameConnectionView,
   FrameErrorView,
   FrameStatusView,
@@ -359,7 +360,6 @@ function railCaption(
   if (
     status === null ||
     status.tone !== 'neutral' ||
-    status.sending ||
     status.description === '' ||
     plainArenaLine(props)
   )
@@ -367,7 +367,7 @@ function railCaption(
   return arenaBeside(props, mode) ||
     unplayedBeside(props, mode) ||
     recordCaptioned(props, mode)
-    ? status.description
+    ? captionLine(status)
     : undefined;
 }
 
@@ -561,7 +561,7 @@ function FrameBoardStage(props: Props): JSX.Element {
               arena={frameArena(props.phase, shownRecord(props))}
               spokenOnly={
                 plainArenaLine(props) ||
-                turnInSeats(props, mode) ||
+                (turnInSeats(props, mode) && props.status?.sending !== true) ||
                 railCaption(props, mode) !== undefined ||
                 stripCaption(props, mode) !== undefined
               }

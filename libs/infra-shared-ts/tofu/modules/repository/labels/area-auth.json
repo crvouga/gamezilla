@@ -1,0 +1,5 @@
+{
+  "name": "area:auth",
+  "color": "006b75",
+  "description": "Bounded context: auth"
+}

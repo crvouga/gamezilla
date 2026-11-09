@@ -69,8 +69,9 @@ test('opening destinations and d4 wall anchor have precise coordinate choices', 
   fireEvent.click(await view.findByTestId('precision-precise-d4'));
   fireEvent.click(view.getByTestId('precision-wall-commit'));
   expect(actions).toEqual(['e2', 'd4h']);
+  // The placed wall stays drawn after the board returns to the pawn tool.
   expect(
-    view.getByTestId('precision-action-d4h').getAttribute('data-edge-top')
+    view.getByTestId('precision-action-d4').getAttribute('data-edge-top')
   ).toBe('true');
   view.unmount();
 });

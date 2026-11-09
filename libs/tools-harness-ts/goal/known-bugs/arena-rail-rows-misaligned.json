@@ -1,0 +1,4 @@
+{
+  "summary": "In the Players card beside a wide arena (Light Cycles, Pong), a long name wrapped onto its own line under its seat swatch, leaving the swatch alone on the first line, and tags (You, Out) wrapped to a second line on some strips but not others, so rows differed in shape and height. Each listed strip is now one line: swatch and name stay together, the tags follow, and a long name is cut short with its full name in the tooltip and accessible text.",
+  "regressionTest": "libs/game-session-client-ts/tests/game-frame-rail-rows.test.tsx"
+}

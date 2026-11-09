@@ -54,6 +54,11 @@ export type ContentAuthorScreenViewProps = {
   readonly disabled: boolean;
   /** Previewing the draft as a player sees it. */
   readonly preview: boolean;
+  /**
+   * `false` while the game cannot play the draft (its authoring
+   * `readable()`): there is nothing to preview until it is corrected.
+   */
+  readonly playable?: boolean | undefined;
   /** Undo / redo of this session's edits. */
   readonly history?: JSX.Element;
   /**
@@ -144,7 +149,9 @@ function AuthorTools(props: ContentAuthorScreenViewProps): JSX.Element {
           size="sm"
           startIcon={<EyeIcon size={16} />}
           onClick={() => props.onTogglePreview()}
-          disabled={props.disabled}
+          disabled={
+            props.disabled || (props.playable === false && !props.preview)
+          }
           dataSet={{ testid: 'content-preview' }}
         />
       </StackHorizontal>

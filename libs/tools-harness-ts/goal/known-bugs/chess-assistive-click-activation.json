@@ -1,0 +1,4 @@
+{
+  "summary": "Chess square buttons ignored click-only assistive activation, preventing selection and moves without pointer or keyboard events.",
+  "regressionTest": "pkgs/chess-board-root-client-ts/tests/assistive-activation.test.tsx"
+}

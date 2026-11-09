@@ -1209,7 +1209,6 @@
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/.agents/**",
         "$TURBO_ROOT$/.claude/commands",
-        "$TURBO_ROOT$/.cursor/commands",
         "$TURBO_ROOT$/.opencode/commands",
         "$TURBO_ROOT$/.factory/**",
         "$TURBO_ROOT$/.roo/**",
@@ -1227,7 +1226,6 @@
         "$TURBO_ROOT$/.windsurf/workflows/**",
         "$TURBO_ROOT$/.mcp.json",
         "$TURBO_ROOT$/.codex/config.toml",
-        "$TURBO_ROOT$/.cursor/mcp.json",
         "$TURBO_ROOT$/.gemini/settings.json",
         "$TURBO_ROOT$/.vscode/mcp.json",
         "$TURBO_ROOT$/opencode.json",
@@ -3116,10 +3114,6 @@
       "cache": false,
       "passThroughEnv": ["*"]
     },
-    "//#task:verify:heal": {
-      "cache": false,
-      "passThroughEnv": ["*"]
-    },
     "//#task:reports:cleanup": {
       "cache": false,
       "passThroughEnv": ["*"]
@@ -3277,6 +3271,10 @@
       "passThroughEnv": ["*"]
     },
     "@libs/infra-server-ts#drift:alerting": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "@libs/infra-server-ts#unlock:foundation": {
       "cache": false,
       "passThroughEnv": ["*"]
     },

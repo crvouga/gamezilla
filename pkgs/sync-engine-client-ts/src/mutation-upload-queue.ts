@@ -155,6 +155,15 @@ async function storeRejection(
   `);
 }
 
+function isWellFormedVerdict(verdict: MutationUploadVerdict): boolean {
+  if (verdict.status === 'applied') return true;
+  return (
+    verdict.status === 'rejected' &&
+    typeof verdict.code === 'string' &&
+    typeof verdict.message === 'string'
+  );
+}
+
 /**
  * Ack = delete queue row. Applied ids trigger `onAckFence` synchronously,
  * before the delete transaction is even opened: a pre-replay sweep response
@@ -179,9 +188,19 @@ async function applyUploadResult(
       verdict.mutationId.length > 0,
       'mutation verdict id must be non-empty'
     );
-    if (!pendingIds.has(verdict.mutationId)) {
+    // Each pending write gets exactly one verdict (unknown or repeated ids
+    // would ack the wrong write); a missing id was caught by the count.
+    if (!pendingIds.delete(verdict.mutationId)) {
       throw new Error(
         `mutation upload verdict id not pending: ${verdict.mutationId}`
+      );
+    }
+    // regression: malformed-verdict-misread-as-outcome
+    // A garbled verdict is not an outcome: retrying replays the server's
+    // stored verdict instead of dropping a refusal or inventing one.
+    if (!isWellFormedVerdict(verdict)) {
+      throw new Error(
+        `mutation upload verdict malformed: ${verdict.mutationId}`
       );
     }
   }

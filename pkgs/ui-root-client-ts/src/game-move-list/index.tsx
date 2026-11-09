@@ -2,7 +2,7 @@
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createEffect, createMemo, Index, type JSX, Show } from 'solid-js';
+import { createEffect, createMemo, For, Index, type JSX, Show } from 'solid-js';
 import { type GameSeatLook, GameSeatSwatch } from '../game-seat-swatch/index';
 import styles from './game-move-list.module.css';
 
@@ -59,6 +59,18 @@ export type GameMoveListProps = {
    * with `overflow="wrap"`.
    */
   wrap?: boolean | undefined;
+  /**
+   * `turn` only, with no moves yet: `label` (`No moves yet.`) shown over an
+   * unseen, inert first turn of `sample` moves, so a wrapping strip already
+   * has the height its first turn will take and nothing under it moves when
+   * the first move lands.
+   */
+  emptyTurn?:
+    | {
+        readonly sample: readonly GameMoveListEntry[];
+        readonly label: JSX.Element;
+      }
+    | undefined;
   dataSet?: ComponentDataSet | undefined;
 };
 
@@ -143,6 +155,43 @@ function MoveButton(props: {
  * ```
  */
 export function GameMoveList(props: GameMoveListProps): JSX.Element {
+  const empty = () =>
+    props.layout === 'turn' && props.moves.length === 0
+      ? props.emptyTurn
+      : undefined;
+  return (
+    <Show when={empty()} fallback={<TurnList {...props} />}>
+      {(turn) => (
+        <div
+          class={styles['empty']}
+          {...dataAttrs({ component: 'GameMoveList', ...props.dataSet })}
+        >
+          <span class={styles['emptyLabel']}>{turn().label}</span>
+          <span
+            class={styles['emptyReserve']}
+            aria-hidden="true"
+            inert
+            data-testid="game-move-list-empty-reserve"
+          >
+            <TurnList
+              {...props}
+              moves={turn().sample.map((move) => ({
+                ...move,
+                testId: undefined,
+              }))}
+              current={turn().sample.at(-1)?.ply ?? 0}
+              onSelect={() => undefined}
+              dataSet={undefined}
+            />
+          </span>
+        </div>
+      )}
+    </Show>
+  );
+}
+
+/** The listed turns themselves. */
+function TurnList(props: GameMoveListProps): JSX.Element {
   const turns = createMemo(() => {
     const all = turnsOf(props.moves, props.perTurn);
     if (props.layout === 'table') return all;
@@ -223,10 +272,60 @@ export function GameMoveList(props: GameMoveListProps): JSX.Element {
                   />
                 )}
               </Index>
+              <Show when={props.layout === 'turn' && props.wrap === true}>
+                <TurnReserve
+                  moves={turn().moves}
+                  perTurn={props.perTurn}
+                  layout={props.layout}
+                />
+              </Show>
             </li>
           )}
         </Index>
       </ol>
     </div>
+  );
+}
+
+/**
+ * A wrapping turn still waiting on moves keeps the room its full turn will
+ * take: an unseen, inert copy of its last move per move to come, so the
+ * strip wraps the same before and after they land and nothing under it
+ * moves between turns.
+ */
+function TurnReserve(props: {
+  moves: readonly GameMoveListEntry[];
+  perTurn: number;
+  layout: 'turn' | 'table';
+}): JSX.Element {
+  const last = (): GameMoveListEntry | undefined => props.moves.at(-1);
+  const missing = (): number[] =>
+    Array.from(
+      { length: Math.max(0, props.perTurn - props.moves.length) },
+      (_, n) => n
+    );
+  return (
+    <Show when={last()}>
+      {(move) => (
+        <For each={missing()}>
+          {() => (
+            <span
+              class={styles['reserve']}
+              aria-hidden="true"
+              inert
+              data-testid="game-move-list-reserve"
+            >
+              <MoveButton
+                move={{ ...move(), testId: undefined }}
+                layout={props.layout}
+                perTurn={props.perTurn}
+                current={false}
+                onSelect={() => undefined}
+              />
+            </span>
+          )}
+        </For>
+      )}
+    </Show>
   );
 }

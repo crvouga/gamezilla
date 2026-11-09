@@ -1,0 +1,4 @@
+{
+  "summary": "On tablet and desktop the Quoridor board stayed at its phone measure (about 365px), left-aligned in a much wider column.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/quoridor-regressions/integration.checks.ts"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "When a reconnecting or relaunched app remounted under its boot overlay after the shell looked ready, the account avatar tap in openGlobalMenu hit the boot-loading overlay ('trusted click missed ... the element is gone') and failed the journey (offline Numberlink and Sokoban continuation journeys, e.g. run 42551726908). The gesture now waits for the boot overlay to clear and taps again, as a person would.",
+  "regressionTest": "libs/harness-ts/tests/global-menu-gesture.test.ts"
+}

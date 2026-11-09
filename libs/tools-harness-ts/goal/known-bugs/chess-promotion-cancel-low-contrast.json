@@ -1,0 +1,4 @@
+{
+  "summary": "The default promotion Cancel chip painted cream text on walnut at approximately 2.30:1 contrast, making cancellation harder to read in either app theme.",
+  "regressionTest": "pkgs/chess-board-root-shared-ts/tests/board-affordance-contrast.test.ts"
+}
