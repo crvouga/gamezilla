@@ -1,0 +1,4 @@
+{
+  "summary": "Cancellation feedback showed success after the server refused delivery, without restoring the saved answer for retry.",
+  "regressionTest": "libs/billing-client-ts/tests/cancellation-feedback-form.test.tsx"
+}

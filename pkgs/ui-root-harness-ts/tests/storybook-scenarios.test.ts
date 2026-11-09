@@ -19,10 +19,7 @@ test('storybook sidebar viewport matrix captures both themes where the rail exis
 });
 
 test('storybook untagged chrome retains its existing responsive coverage', () => {
-  for (const id of [
-    'screens-shell-header-island--spaces-current',
-    'screens-shell-tabs--spaces-current',
-  ]) {
+  for (const id of ['screens-shell-tab-bar--spaces-current']) {
     expect([
       ...new Set(
         visualScenarios({ ...SIDEBAR, id, tags: [] }).map((s) => s.width)
@@ -38,6 +35,21 @@ test('storybook untagged chrome retains its existing responsive coverage', () =>
       }).map((s) => s.width)
     ),
   ]).toEqual([390, 1440, 768]);
+});
+
+// regression: storybook-header-compact-viewport
+test('storybook literal Search and Notifications headers retain both desktop themes without unsupported phone captures', () => {
+  for (const name of ['search-current', 'notifications-current']) {
+    expect(
+      visualScenarios({
+        ...SIDEBAR,
+        id: `screens-shell-header-island--${name}`,
+      }).map(({ width, height, theme }) => ({ width, height, theme }))
+    ).toEqual([
+      { width: 1440, height: 844, theme: 'light' },
+      { width: 1440, height: 844, theme: 'dark' },
+    ]);
+  }
 });
 
 // regression: storybook-sidebar-compact-viewport

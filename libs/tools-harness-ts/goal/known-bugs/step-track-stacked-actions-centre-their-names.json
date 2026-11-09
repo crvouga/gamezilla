@@ -1,0 +1,4 @@
+{
+  "summary": "On narrow screens StepTrack stacks its steps in a grid whose name column is flexible, so a step's action button stretched across it and centred its label: a locked Validate or Publish sat in the middle of the row while an open step's name started at the marker (puzzle builder at 390px). Actions now keep their own width at the column's start.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/step-track-narrow/integration.checks.ts"
+}

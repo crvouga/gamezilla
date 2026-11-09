@@ -84,12 +84,17 @@ export async function drawNumberlinkJourneyRow(
   row: number
 ): Promise<void> {
   const first = row * 3;
-  await device.ui.get(`numberlink-board-cell-${first}`).wait('enabled', device);
-  await device.ui.get(`numberlink-board-cell-${first}`).key('enter');
-  await device.ui.get(`numberlink-board-cell-${first}`).key('arrowRight');
-  await device.ui.get(`numberlink-board-cell-${first + 1}`).key('arrowRight');
-  await device.ui.get(`numberlink-board-cell-${first + 2}`).key('enter');
-  await device.ui
+  // The departing editor has the same enabled cell handles. Establish the
+  // attempt destination before sending any keys, then keep them in its board.
+  const attempt = device.ui.get('content-attempt');
+  await attempt.wait('visible', device);
+  const board = attempt.get('numberlink-board');
+  await board.get(`numberlink-board-cell-${first}`).wait('enabled', device);
+  await board.get(`numberlink-board-cell-${first}`).key('enter');
+  await board.get(`numberlink-board-cell-${first}`).key('arrowRight');
+  await board.get(`numberlink-board-cell-${first + 1}`).key('arrowRight');
+  await board.get(`numberlink-board-cell-${first + 2}`).key('enter');
+  await attempt
     .get('content-position-save-status')
     .expect.text('Progress saved on this device.', { ...device, exact: false });
 }
