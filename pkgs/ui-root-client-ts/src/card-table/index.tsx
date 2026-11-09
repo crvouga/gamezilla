@@ -14,9 +14,6 @@ import {
 } from 'solid-js';
 import { Button } from '../button/index';
 import styles from './card-table.module.css';
-import felt from './card-table-felt.module.css';
-import state from './card-table-state.module.css';
-import { CardTableContext } from './table-context';
 
 export type CardSuit = 'clubs' | 'diamonds' | 'spades' | 'hearts';
 export type CardTablePosition = 'bottom' | 'left' | 'top' | 'right';
@@ -41,12 +38,6 @@ export type CardTableSeat = {
   readonly active: boolean;
   /** The card this seat put on the table in the trick under way. */
   readonly played: CardTableCard | null;
-  /**
-   * When this seat took the trick just completed: how that is said (`Took
-   * it`), shown on its card, in words as well as an outline, until the next
-   * card is played.
-   */
-  readonly won?: string | undefined;
   readonly testId: string;
   /**
    * The person in the seat (`GameTableSeat`: avatar, name, tags), when the
@@ -83,8 +74,6 @@ export type CardTableAction = {
 
 export type CardTableProps = {
   readonly label: string;
-  /** Disclosure label for the player table while passing on short phones. */
-  readonly tableSummary?: string | undefined;
   readonly testId: string;
   readonly seats: readonly CardTableSeat[];
   /** What the table is doing now, in words. */
@@ -104,12 +93,6 @@ export type CardTableProps = {
   readonly handLabel: string;
   /** Visible guidance immediately above the hand. */
   readonly handInstruction?: string | undefined;
-  /**
-   * While the hand cannot be played because it is not the person's turn:
-   * why, said once above the hand. The hand is marked inactive as a whole,
-   * not card by card, and pressing a card announces this.
-   */
-  readonly handWaiting?: string | undefined;
   readonly cardTestId: (id: string) => string;
   readonly onCard: (id: string) => void;
   readonly action?: CardTableAction | undefined;
@@ -138,10 +121,6 @@ const SYMBOLS: Readonly<Record<CardSuit, string>> = {
 /**
  * What a card is called: the face as shown (`Q spades`), so a person who says
  * what they see names it, then its full name (`Queen of spades`).
- */
-/**
- * A card's spoken name: the rank and suit its face shows (so a voice command
- * naming what is seen finds it, WCAG 2.5.3), then the card in full.
  */
 function spokenName(card: CardTableCard): string {
   return `${card.rank} ${card.suitName}, ${card.label}`;
@@ -226,7 +205,6 @@ function Trick(props: {
             aria-label={seat().name}
             data-position={seat().position}
             data-filled={String(seat().played !== null)}
-            data-won={String(seat().won !== undefined)}
           >
             <Show when={seat().played}>
               {(card) => (
@@ -234,20 +212,11 @@ function Trick(props: {
                   class={styles['card']}
                   data-suit={card().suit}
                   role="img"
-                  aria-label={[spokenName(card()), seat().won]
-                    .filter(Boolean)
-                    .join(', ')}
+                  aria-label={spokenName(card())}
                   data-testid={`${seat().testId}-played`}
                   data-card={card().id}
                 >
                   <CardFace card={card()} />
-                </span>
-              )}
-            </Show>
-            <Show when={seat().played && seat().won}>
-              {(won) => (
-                <span class={state['won']} aria-hidden="true">
-                  {won()}
                 </span>
               )}
             </Show>
@@ -268,11 +237,10 @@ const MOVES: Readonly<Record<string, (at: number, last: number) => number>> = {
 };
 
 /**
- * On wider tables, cards beyond one readable row lie in two rows, the
+ * More cards than one row shows at a readable size lie in two rows, the
  * shorter centred under the longer (half a step along when they are
  * equal). Cards never overlap, so every card shows its whole face;
- * thirteen cards on a 390px phone are about 46px wide each. Narrower
- * containers wrap into five-card rows in CSS to preserve touch targets.
+ * thirteen cards on a 390px phone are about 46px wide each.
  */
 const ONE_ROW_MAX = 7;
 
@@ -388,11 +356,7 @@ function createHandFocus(
 }
 
 function Hand(
-  props: CardTableProps & {
-    readonly onRefused: (reason: string) => void;
-    /** The one node describing why a card cannot be played now. */
-    readonly reasonId: (reason: string) => string | undefined;
-  }
+  props: CardTableProps & { readonly onRefused: (reason: string) => void }
 ): JSX.Element {
   let row: HTMLDivElement | undefined;
   // Cards keyed by id: a change re-renders only the cards that changed.
@@ -412,45 +376,39 @@ function Hand(
       role="toolbar"
       aria-label={props.handLabel}
       data-crowded={String(props.hand.length > ONE_ROW_MAX)}
-      data-waiting={String(props.handWaiting !== undefined)}
       data-testid={`${props.testId}-hand`}
     >
       <For each={ids()}>
         {(id, index) => (
           <Show when={byId().get(id)}>
             {(card) => (
-              <>
-                <button
-                  type="button"
-                  class={styles['card']}
-                  style={handCardStyle(index(), suits())}
-                  data-refused={String(card().refusal !== undefined)}
-                  data-suit={card().suit}
-                  data-testid={props.cardTestId(id)}
-                  data-card={id}
-                  aria-label={spokenName(card())}
-                  aria-pressed={card().selected ?? undefined}
-                  aria-disabled={!card().enabled}
-                  aria-describedby={props.reasonId(
-                    card().refusal ?? props.handWaiting ?? ''
-                  )}
-                  title={card().refusal ?? props.handWaiting}
-                  tabIndex={index() === focus.current() ? 0 : -1}
-                  onFocus={() => focus.setCurrent(index())}
-                  onKeyDown={(event) => focus.move(event, index())}
-                  onClick={() => {
-                    if (card().enabled) {
-                      focus.markPlayed();
-                      props.onCard(id);
-                    } else {
-                      const reason = card().refusal ?? props.handWaiting;
-                      if (reason !== undefined) props.onRefused(reason);
-                    }
-                  }}
-                >
-                  <HandCardFace card={card()} />
-                </button>
-              </>
+              <button
+                type="button"
+                class={styles['card']}
+                style={handCardStyle(index(), suits())}
+                data-refused={String(card().refusal !== undefined)}
+                data-suit={card().suit}
+                data-testid={props.cardTestId(id)}
+                data-card={id}
+                aria-label={spokenName(card())}
+                aria-pressed={card().selected ?? undefined}
+                aria-disabled={!card().enabled}
+                title={card().refusal}
+                tabIndex={index() === focus.current() ? 0 : -1}
+                onFocus={() => focus.setCurrent(index())}
+                onKeyDown={(event) => focus.move(event, index())}
+                onClick={() => {
+                  if (card().enabled) {
+                    focus.markPlayed();
+                    props.onCard(id);
+                  } else {
+                    const reason = card().refusal;
+                    if (reason !== undefined) props.onRefused(reason);
+                  }
+                }}
+              >
+                <HandCardFace card={card()} />
+              </button>
             )}
           </Show>
         )}
@@ -524,55 +482,6 @@ function ActionRow(props: { action: CardTableAction }): JSX.Element {
 }
 
 /**
- * What is said once above the hand: the instruction, or why the hand waits,
- * or each rule refusing a card (every card it refuses points to it).
- */
-function HandGuidance(
-  props: CardTableProps & {
-    readonly reasons: readonly string[];
-    /** The reason last announced for a press, emphasised where it is shown. */
-    readonly refusal: string;
-  }
-): JSX.Element {
-  return (
-    <>
-      <Show
-        when={
-          props.handInstruction &&
-          props.handWaiting === undefined &&
-          !props.hand.some((card) => card.refusal !== undefined)
-        }
-      >
-        <p class={styles['guidance']}>{props.handInstruction}</p>
-      </Show>
-      <Show when={props.handWaiting}>
-        {(waiting) => (
-          <p
-            id={`${props.testId}-waiting`}
-            class={styles['guidance']}
-            data-emphasis={String(waiting() === props.refusal)}
-          >
-            {waiting()}
-          </p>
-        )}
-      </Show>
-      {/* Each rule once: every card it refuses points here. */}
-      <For each={props.reasons}>
-        {(reason, index) => (
-          <p
-            class={styles['guidance']}
-            data-emphasis={String(reason === props.refusal)}
-          >
-            <span aria-hidden="true">× </span>
-            <span id={`${props.testId}-reason-${index()}`}>{reason}</span>
-          </p>
-        )}
-      </For>
-    </>
-  );
-}
-
-/**
  * `CardTable` -- four seats around a card game's shared play, and the
  * viewer's own hand.
  *
@@ -590,7 +499,8 @@ function HandGuidance(
  * in the corner and a large pip in the middle, at full contrast; only a card
  * the rules refuse is dimmed. The hand is a row of card buttons side by
  * side, never overlapping, so every face reads whole (more than seven cards
- * lie in two rows, or wrap into rows of five in narrow containers); a chosen card lifts 8px out of its row with a strong ring. Arrow keys, Home and End move between them, Enter or Space plays or
+ * lie in two rows that never scroll, each card as wide as the longer row
+ * leaves it); a chosen card lifts 8px out of its row with a strong ring. Arrow keys, Home and End move between them, Enter or Space plays or
  * selects a card, and a card the rules do not allow says why instead of
  * acting. Focus stays in the hand when a played card leaves it. Suits are
  * written as symbols and named in each card's words, never told by colour
@@ -611,17 +521,6 @@ export function CardTable(props: CardTableProps): JSX.Element {
   );
   // Why the last card pressed was refused, until the table moves on.
   const [refusal, setRefusal] = createSignal('');
-  const reasons = createMemo(() => [
-    ...new Set(
-      props.hand.flatMap((card) => (card.refusal ? [card.refusal] : []))
-    ),
-  ]);
-  const reasonId = (reason: string): string | undefined => {
-    if (reason !== '' && reason === props.handWaiting)
-      return `${props.testId}-waiting`;
-    const index = reasons().indexOf(reason);
-    return index < 0 ? undefined : `${props.testId}-reason-${index}`;
-  };
   createEffect(
     on(
       () => props.center,
@@ -635,58 +534,55 @@ export function CardTable(props: CardTableProps): JSX.Element {
       {...dataAttrs({ component: 'CardTable', ...props.dataSet })}
       data-testid={props.testId}
     >
-      <CardTableContext
-        passing={props.pass !== undefined && props.trick !== true}
-        summary={props.tableSummary}
-        testId={props.testId}
-      >
-        <div
-          class={styles['table']}
-          classList={{ [felt['felt'] ?? '']: true }}
-          role="group"
-          aria-label={props.label}
+      <div class={styles['table']} role="group" aria-label={props.label}>
+        <For each={seatIds()}>
+          {(id) => (
+            <Seat
+              seat={() => {
+                const seat = seatsById().get(id);
+                if (!seat) throw new Error('A rendered seat must exist');
+                return seat;
+              }}
+              trick={props.trick === true}
+            />
+          )}
+        </For>
+        <Show when={props.seats.length > 0}>
+          <Trick seats={props.seats} trick={props.trick === true} />
+        </Show>
+        <Show when={props.trick !== true && props.pass}>
+          {(pass) => <PassArea pass={pass()} />}
+        </Show>
+        <p
+          class={styles['center']}
+          data-spoken-only={String(props.centerSpokenOnly === true)}
+          aria-live="polite"
+          data-testid={`${props.testId}-center`}
         >
-          <For each={seatIds()}>
-            {(id) => (
-              <Seat
-                seat={() => {
-                  const seat = seatsById().get(id);
-                  if (!seat) throw new Error('A rendered seat must exist');
-                  return seat;
-                }}
-                trick={props.trick === true}
-              />
-            )}
-          </For>
-          <Show when={props.seats.length > 0}>
-            <Trick seats={props.seats} trick={props.trick === true} />
-          </Show>
-          <Show when={props.trick !== true && props.pass}>
-            {(pass) => <PassArea pass={pass()} />}
-          </Show>
-          <p
-            class={styles['center']}
-            data-spoken-only={String(props.centerSpokenOnly === true)}
-            aria-live="polite"
-            data-testid={`${props.testId}-center`}
-          >
-            {props.center}
-          </p>
-        </div>
-      </CardTableContext>
-      <HandGuidance {...props} reasons={reasons()} refusal={refusal()} />
-      {/* No cards, no hand: a watcher and a finished game get no empty toolbar. */}
-      <Show when={props.hand.length > 0}>
-        <Hand {...props} onRefused={setRefusal} reasonId={reasonId} />
+          {props.center}
+        </p>
+      </div>
+      <Show
+        when={
+          props.handInstruction &&
+          !props.hand.some((card) => card.refusal !== undefined)
+        }
+      >
+        <p class={styles['guidance']}>{props.handInstruction}</p>
       </Show>
-      {/* A refused press is always announced, but a reason already shown
-          above the hand is emphasised there rather than printed twice. */}
+      <For
+        each={[
+          ...new Set(
+            props.hand.flatMap((card) => (card.refusal ? [card.refusal] : []))
+          ),
+        ]}
+      >
+        {(reason) => <p class={styles['guidance']}>× {reason}</p>}
+      </For>
+      <Hand {...props} onRefused={setRefusal} />
       <p
         class={styles['refusal']}
         role="status"
-        data-spoken-only={String(
-          reasons().includes(refusal()) || refusal() === props.handWaiting
-        )}
         data-testid={`${props.testId}-refusal`}
       >
         {refusal()}

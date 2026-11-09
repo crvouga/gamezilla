@@ -17,11 +17,9 @@ import {
 } from '@pkgs/ui-root-client-ts/card-table';
 import { useGameTableSeat } from '@pkgs/ui-root-client-ts/game-table-seat';
 import { createEffect, createMemo, createSignal, type JSX, on } from 'solid-js';
-import { passActionTo, passHeadingTo, passWaiting } from './hearts-copy';
+import { passAction, passHeading } from './hearts-copy';
 import {
   handCards,
-  heartsWaiting,
-  passRecipient,
   tableCard,
   tableCenter,
   tableSeats,
@@ -55,102 +53,35 @@ function directionOf(position: string) {
  */
 function passShown(
   props: GameBoardProps,
-  chosen: readonly string[],
-  recipient: string | null
+  chosen: readonly string[]
 ): CardTablePass | undefined {
   if (props.hand === null) return undefined;
   const cards =
     props.commitment === null ? chosen : (parseCards(props.commitment) ?? []);
   return {
-    label: passHeadingTo(
-      directionOf(props.position),
-      props.commitment !== null,
-      recipient
-    ),
+    label: passHeading(directionOf(props.position), props.commitment !== null),
     size: 3,
     cards: cards.map((card) => tableCard(card as never)),
   };
 }
 
-/** The pass button while a seated player can pass, or is passing; else none. */
-function passControl(
-  props: GameBoardProps,
-  pass: PassState,
-  onSend: () => void
-): CardTableAction | undefined {
-  const passing = decodeHearts(props.position)?.phase === 'pass';
-  const open = props.interactive || pass.sending;
-  if (!passing || props.hand === null || props.commitment !== null || !open)
-    return undefined;
-  return passButton(props, pass, onSend);
-}
-
-/** The table's sentence: a pass on its way, cards still coming, else the play. */
-function boardCenter(
-  props: GameBoardProps,
-  sending: boolean,
-  awaitingHand: boolean,
-  nameOf: GamePlayerName
-): string {
-  if (sending) return t`Passing your cards…`;
-  if (awaitingHand) return t`Your cards are on their way.`;
-  return tableCenter(
-    props,
-    props.hand === null ? null : props.orientation,
-    nameOf
-  );
-}
-
-/** Who gets a seated player's pass this deal, so passing names a person. */
-function recipientOf(
-  props: GameBoardProps,
-  players: ReturnType<typeof useSeatPlayers>
-): string | null {
-  if (props.hand === null) return null;
-  return passRecipient(
-    props.position,
-    props.orientation,
-    (side) => players?.nameOf(side) ?? null
-  );
-}
-
-/** The pass in progress: the cards chosen, whether it is on its way, and who gets it. */
-type PassState = {
-  readonly chosen: readonly string[];
-  readonly sending: boolean;
-  readonly recipient: string | null;
-};
-
-/** Pass, named by who gets the cards, beside how many are chosen. */
+/** Pass, named by where the cards go, beside how many are chosen. */
 function passButton(
   props: GameBoardProps,
-  pass: PassState,
+  chosen: readonly string[],
+  sending: boolean,
   onActivate: () => void
 ): CardTableAction {
-  const { chosen, sending } = pass;
   return {
     label: sending
       ? t`Passing your cards…`
-      : passActionTo(directionOf(props.position), pass.recipient),
-    status:
-      chosen.length === 3 && !sending
-        ? t`3 of 3 chosen. Unselect a card to choose another.`
-        : t`${chosen.length} of 3 chosen`,
+      : passAction(directionOf(props.position)),
+    status: t`${chosen.length} of 3 chosen`,
     enabled: chosen.length === 3,
     pending: sending,
     testId: `${props.testId}-pass`,
     onActivate,
   };
-}
-
-function handInstruction(
-  props: GameBoardProps,
-  passing: boolean
-): string | undefined {
-  if (passing) return props.commitment === null ? undefined : passWaiting();
-  return props.interactive && props.hand !== null
-    ? t`Your turn. Play a card without ×.`
-    : undefined;
 }
 
 /**
@@ -197,46 +128,52 @@ export function HeartsBoard(props: GameBoardProps): JSX.Element {
     );
   };
   const players = useSeatPlayers();
-  const nameOf = (side: GameSide) => players?.nameOf(side) ?? null;
   // A seated player whose cards are still on their way, told so rather
   // than shown an empty hand.
   const awaitingHand = () => props.interactive && props.hand === null;
   return (
     <CardTable
       label={t`Hearts table`}
-      tableSummary={t`Players and scores`}
       testId={props.testId}
       seats={tableSeats(props, players?.content)}
-      center={boardCenter(props, sending(), awaitingHand(), nameOf)}
+      center={
+        sending()
+          ? t`Passing your cards…`
+          : awaitingHand()
+            ? t`Your cards are on their way.`
+            : tableCenter(
+                props,
+                props.hand === null ? null : props.orientation,
+                (side) => players?.nameOf(side) ?? null
+              )
+      }
       // The game's turn line beside the table says the same sentence.
       centerSpokenOnly={!awaitingHand()}
       trick={decodeHearts(props.position)?.phase === 'play'}
-      pass={
-        passing()
-          ? passShown(props, chosen(), recipientOf(props, players))
-          : undefined
-      }
+      pass={passing() ? passShown(props, chosen()) : undefined}
       hand={handCards(props, chosen()).map((card) =>
         // A pass on its way locks the hand: the chosen cards stay lifted.
         sending() ? { ...card, enabled: false } : card
       )}
       handLabel={t`Your hand`}
-      handInstruction={handInstruction(props, passing())}
-      handWaiting={heartsWaiting(props, nameOf)}
+      handInstruction={
+        !passing() && props.interactive && props.hand !== null
+          ? t`Your turn. Play a card without ×.`
+          : undefined
+      }
       cardTestId={(id) => `${props.testId}-card-${id}`}
       onCard={choose}
-      action={passControl(
-        props,
-        {
-          chosen: chosen(),
-          sending: sending(),
-          recipient: recipientOf(props, players),
-        },
-        () => {
-          setSending(true);
-          props.onAction(writeCards(chosen() as never));
-        }
-      )}
+      action={
+        passing() &&
+        props.hand !== null &&
+        props.commitment === null &&
+        (props.interactive || sending())
+          ? passButton(props, chosen(), sending(), () => {
+              setSending(true);
+              props.onAction(writeCards(chosen() as never));
+            })
+          : undefined
+      }
       dataSet={{ position: props.position }}
     />
   );
