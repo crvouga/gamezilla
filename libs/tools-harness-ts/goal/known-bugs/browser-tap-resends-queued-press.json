@@ -1,0 +1,4 @@
+{
+  "summary": "On a busy CI runner a native press could still be queued when the driver next polled, 50ms later. The driver took it as lost and pressed again: the first press opened a Numberlink draft and the second landed on the author screen, failing release-journey cleanup with 'trusted click missed the selected control'. The driver now presses again only after the page has seen part of the previous press.",
+  "regressionTest": "pkgs/ui-testing-bun-webview-shared-ts/tests/native-click.test.ts"
+}
