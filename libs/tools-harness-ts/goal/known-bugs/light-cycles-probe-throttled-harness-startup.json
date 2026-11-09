@@ -1,0 +1,4 @@
+{
+  "summary": "The 390px 4x-CPU responsiveness probe throttled the entire Storybook startup and axe scan, exhausting harness readiness budgets outside the measured control window. Fixture loading and accessibility analysis now run outside the throttled measurement window; all twelve active input responses remain asserted.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/light-cycles/integration.checks.ts"
+}

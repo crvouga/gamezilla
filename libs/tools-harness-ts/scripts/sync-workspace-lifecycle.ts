@@ -129,12 +129,6 @@ export const ORCHESTRATORS: Orchestrator[] = [
     }),
   },
   {
-    name: 'Cursor',
-    docs: 'https://cursor.com/docs/configuration/worktrees',
-    configPath: '.cursor/worktrees.json',
-    render: (commands) => ({ 'setup-worktree-unix': [commands.setup] }),
-  },
-  {
     name: 'Superset',
     docs: 'https://docs.superset.sh/setup-teardown-scripts',
     configPath: '.superset/config.json',

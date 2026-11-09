@@ -1,0 +1,4 @@
+{
+  "summary": "A finished Quoridor game told every player, including the loser, \"Game won.\" under the result.",
+  "regressionTest": "libs/quoridor-client-ts/tests/quoridor-board-truthful-state.test.tsx"
+}

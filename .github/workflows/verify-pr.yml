@@ -309,6 +309,8 @@ jobs:
           secrets-environment: dev
           secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
+          # `Plan the fleet stack` runs tofu init below.
+          tofu-providers: 'true'
       - name: Download immutable plan
         run: bun run libs/tools-harness-ts/scripts/ci-artifacts.ts download verify-plan .cache/verify-ci
       # Does nothing when the plan left the fan-in stage nothing to execute.

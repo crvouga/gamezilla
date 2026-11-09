@@ -306,6 +306,13 @@ export type FrameRecord = {
    * number (`Column`); `''` when the notation reads on its own.
    */
   readonly moveHeading?: string | undefined;
+  /**
+   * The game's sample first turn, each move with its seat's swatch: the
+   * empty phone record keeps its room. Absent: one empty line.
+   */
+  readonly firstTurnSample?:
+    | readonly { readonly label: string; readonly swatch: GameSeatLook }[]
+    | undefined;
   readonly displayedPly: number;
   /** A refused review, in words; `''` for none. */
   readonly error: string;

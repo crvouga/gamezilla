@@ -10,7 +10,10 @@ import type {
   PieceColor,
   Square,
 } from '@pkgs/chess-board-core-shared-ts/types';
-import { For, type JSX, onMount, Show } from 'solid-js';
+import { FocusTrap } from '@pkgs/ui-root-client-ts/focus-trap';
+import { createScrollTarget } from '@pkgs/ui-root-client-ts/scroll';
+import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { createEffect, For, type JSX, onMount, Show } from 'solid-js';
 
 import styles from '../chess-board/chess-board.module.css';
 
@@ -138,6 +141,10 @@ function PromotionStack(props: {
       onCancel={props.onCancel}
     />
   );
+  // A board taller than a short landscape view can open its choices below
+  // the fold: reveal them at once, so every choice is visible on opening.
+  const reveal = createScrollTarget();
+  createEffect(() => reveal.scrollIntoView({ behavior: 'instant' }));
   return (
     <div
       class="box absolute flex-col max-h-full overflow-y-auto"
@@ -152,22 +159,24 @@ function PromotionStack(props: {
         }
       }}
     >
-      <h3 class="text textCaption p-2 bg-surface">
-        <Trans>Promote pawn</Trans>
-      </h3>
-      <Show when={props.layout.cancelFirst}>{cancel()}</Show>
-      <For each={[...props.layout.kinds]}>
-        {(kind) => (
-          <PromotionChoice
-            boardTestId={props.boardTestId}
-            kind={kind}
-            color={props.color}
-            theme={props.theme}
-            onPick={props.onPick}
-          />
-        )}
-      </For>
-      <Show when={!props.layout.cancelFirst}>{cancel()}</Show>
+      <StackVertical self="stretch" scrollTarget={reveal.target}>
+        <h3 class="text textCaption p-2 bg-surface">
+          <Trans>Promote pawn</Trans>
+        </h3>
+        <Show when={props.layout.cancelFirst}>{cancel()}</Show>
+        <For each={[...props.layout.kinds]}>
+          {(kind) => (
+            <PromotionChoice
+              boardTestId={props.boardTestId}
+              kind={kind}
+              color={props.color}
+              theme={props.theme}
+              onPick={props.onPick}
+            />
+          )}
+        </For>
+        <Show when={!props.layout.cancelFirst}>{cancel()}</Show>
+      </StackVertical>
     </div>
   );
 }
@@ -175,6 +184,7 @@ function PromotionStack(props: {
 export function ChessBoardPromotion(
   props: ChessBoardPromotionProps
 ): JSX.Element {
+  const { t } = useLingui();
   const layout = () =>
     stackLayout({
       to: props.to,
@@ -202,14 +212,21 @@ export function ChessBoardPromotion(
         }
       }}
     >
-      <PromotionStack
-        boardTestId={props.boardTestId}
-        layout={layout()}
-        color={props.color}
-        theme={props.theme}
-        onPick={props.onPick}
-        onCancel={props.onCancel}
-      />
+      <FocusTrap
+        active
+        autoFocus={false}
+        returnFocus={false}
+        label={t`Promote pawn`}
+      >
+        <PromotionStack
+          boardTestId={props.boardTestId}
+          layout={layout()}
+          color={props.color}
+          theme={props.theme}
+          onPick={props.onPick}
+          onCancel={props.onCancel}
+        />
+      </FocusTrap>
     </div>
   );
 }

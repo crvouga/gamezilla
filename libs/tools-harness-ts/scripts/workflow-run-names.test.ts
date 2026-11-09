@@ -44,6 +44,7 @@ const WORKFLOWS: Record<string, { name: string; jobs: string }> = {
   'verify-pr.yml': { name: 'Verify PR', jobs: 'verify' },
   'deploy.yml': { name: 'Release', jobs: 'deploy' },
   'health.yml': { name: 'Health', jobs: 'health' },
+  'pr-hygiene.yml': { name: 'PR Hygiene', jobs: 'pr-hygiene' },
 };
 
 /** Release names explain the release sequence on the run page. */

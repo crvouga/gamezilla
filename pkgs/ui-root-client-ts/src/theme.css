@@ -217,6 +217,7 @@
   --color-game-quoridor-accent: var(--ui-color-game-quoridor-accent);
   --color-game-quoridor-one: var(--ui-color-game-quoridor-one);
   --color-game-quoridor-two: var(--ui-color-game-quoridor-two);
+  --color-game-quoridor-three: var(--ui-color-game-quoridor-three);
   --color-game-sokoban-canvas: var(--ui-color-game-sokoban-canvas);
   --color-game-sokoban-surface: var(--ui-color-game-sokoban-surface);
   --color-game-sokoban-ink: var(--ui-color-game-sokoban-ink);

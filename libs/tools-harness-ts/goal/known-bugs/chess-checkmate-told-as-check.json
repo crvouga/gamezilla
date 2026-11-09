@@ -1,0 +1,4 @@
+{
+  "summary": "A checkmated Chess board's visible status said 'White is in check.' beside 'By checkmate', and its orientation line addressed spectators as players ('pieces nearest you').",
+  "regressionTest": "pkgs/chess-board-root-client-ts/tests/board-guidance.test.tsx"
+}
