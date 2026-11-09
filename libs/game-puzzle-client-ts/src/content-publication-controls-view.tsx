@@ -73,6 +73,8 @@ export type ContentPublicationControlsViewProps = {
   readonly before?: ((next: Accessor<boolean>) => JSX.Element) | undefined;
   /** Opens a pack's first draft puzzle, the pack's lead while it waits. */
   readonly onOpenWaiting?: (() => void) | undefined;
+  /** `false` while the game cannot play the draft: correct it first. */
+  readonly playable?: boolean | undefined;
 };
 
 /**
@@ -388,6 +390,7 @@ export function ContentPublicationControlsView(
               <PublishButton controls={props} actions={actions} place={place} />
             )}
             onOpenWaiting={props.onOpenWaiting}
+            playable={props.playable}
           />
         </Match>
         <Match when={props.layout !== 'bar'}>

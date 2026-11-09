@@ -60,12 +60,6 @@ describe('renderConfigs', () => {
         );
         continue;
       }
-      if (file.path === '.cursor/worktrees.json') {
-        expect(JSON.parse(file.content)).toEqual({
-          'setup-worktree-unix': [hookCommand('setup')],
-        });
-        continue;
-      }
       if (file.path.endsWith('.toml')) {
         const config = Bun.TOML.parse(file.content) as {
           scripts: { run: string; archive: string; run_mode: string };

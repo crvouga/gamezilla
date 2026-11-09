@@ -19,11 +19,13 @@ Usage:
   run-check --services             services ci-green started; --stop-services stops them
 
 Options: --skip-setup (skip dependency-install steps), --ignore-needs,
---allow-toolchain-mismatch (records it; never silent), --wait SECONDS for a
-slot, --quiet (no streaming; print the summary only).
+--allow-toolchain-mismatch (records it; never silent), --quiet (no streaming;
+print the summary only). Nothing waits for capacity: heavy checks report
+`hosted` and run in hosted CI; every other check starts at once.
 
 Exit status: 0 all passed; 1 a check failed; 3 toolchain mismatch;
-4 not runnable locally; 75 no budget slot within --wait; 2 usage error.
+4 not runnable locally (including heavy checks, which run in hosted CI);
+75 the same check is already running; 2 usage error.
 """
 
 import argparse
@@ -420,11 +422,14 @@ def _run_one(check, root, manifest, args, stream, slot, attempt):
         result.update(status="not-runnable", reasons=service_problems, log=None)
         return finish(result, root, None)
     own_slot = None
+    if slot is None and not budget.runs_locally(check.get("weight") or "medium"):
+        result.update(status="hosted", reasons=[budget.HOSTED], log=None)
+        return finish(result, root, None)
     if slot is None:
         own_slot = budget.acquire("check", check["id"], weight=check.get("weight") or "medium", wait=args.wait,
                                   label=check["name"], root=root, log=say)
         if own_slot is None:
-            result.update(status="no-slot", reasons=["no budget slot within %ss" % args.wait], log=None)
+            result.update(status="no-slot", reasons=["check %s is already running" % check["id"]], log=None)
             return finish(result, root, None)
     held_slot = slot or own_slot
     started = time.time()
@@ -471,7 +476,7 @@ def summary_line(result):
     return "%-18s %s%s%s  (log: %s)" % (result["status"].upper(), result["id"], duration, extra, result.get("log"))
 
 
-EXIT = {"covered": 0, "pass": 0, "fail": 1, "timeout": 1, "toolchain-mismatch": 3, "not-runnable": 4, "no-slot": 75, "skipped-dependency": 1}
+EXIT = {"covered": 0, "pass": 0, "fail": 1, "timeout": 1, "toolchain-mismatch": 3, "not-runnable": 4, "hosted": 4, "no-slot": 75, "skipped-dependency": 1}
 
 
 # -- many checks -----------------------------------------------------------
@@ -513,13 +518,22 @@ def run_many(checks, root, manifest, args):
             if waiting and not args.ignore_needs:
                 continue
             local = check.get("local") or {}
-            if local.get("runnable") == "no":
+            if local.get("runnable") == "no" or not budget.runs_locally(check.get("weight") or "medium"):
                 t = threading.Thread(target=worker, args=(check, None))
             else:
                 slot = budget.acquire("check", check["id"], weight=check.get("weight") or "medium", wait=0,
                                       label=check["name"], root=root)
                 if slot is None:
-                    break  # keep manifest order: wait for capacity before starting later checks
+                    # Already running elsewhere: report it, never wait for it.
+                    res = finish({"id": check["id"], "name": check["name"], "status": "no-slot",
+                                  "reasons": ["check %s is already running" % check["id"]], "log": None,
+                                  "tree": tree_state(root)}, root, None)
+                    with lock:
+                        results[check["id"]] = res
+                    say(summary_line(res))
+                    pending.remove(check)
+                    progressed = True
+                    continue
                 say("start  %s [%s, %s]" % (check["id"], check.get("phase"), check.get("weight")))
                 t = threading.Thread(target=worker, args=(check, slot))
             t.daemon = True

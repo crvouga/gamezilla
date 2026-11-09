@@ -7,6 +7,7 @@ import {
   decodeEvidence,
   EVIDENCE_MANIFEST,
   encodeEvidence,
+  evidenceTransfer,
   STORYBOOK_BASELINE_PATCH,
   STORYBOOK_RESULTS,
 } from './storybook-evidence-log';
@@ -48,9 +49,13 @@ async function exportEvidence(runId: string): Promise<void> {
     if (path === EVIDENCE_MANIFEST) throw new Error('Reserved manifest path');
     const object = await store.get(key);
     if (!object) throw new Error(`Missing retained object: ${path}`);
+    if (evidenceTransfer(path, object.size, total) === 'skip') {
+      console.log(
+        `Skipped ${path} (${object.size} bytes): decode it from the authoring job log instead`
+      );
+      continue;
+    }
     total += object.size;
-    if (object.size > 20 * 1024 * 1024 || total > 512 * 1024 * 1024)
-      throw new Error('Evidence exceeds the bounded log transfer size');
     const bytes = new Uint8Array(await new Response(object.body).arrayBuffer());
     const encoded = encodeEvidence(path, bytes);
     files.push({ path, sha256: decodeEvidence(encoded).sha256 });

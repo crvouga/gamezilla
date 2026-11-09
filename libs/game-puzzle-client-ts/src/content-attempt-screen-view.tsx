@@ -12,6 +12,7 @@ import { ProgressBar } from '@pkgs/ui-root-client-ts/progress-bar';
 import { SuccessState } from '@pkgs/ui-root-client-ts/success-state';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Match, Show, Switch } from 'solid-js';
+import type { PuzzleContentFrame } from './puzzle-content-client';
 
 /**
  * `gone`: no such attempt here; `missing`: the attempt is kept but what it
@@ -76,6 +77,7 @@ export type ContentAttemptScreenViewProps = {
    * (`Connected pairs 2`, `Moves 12`); empty when it gives none.
    */
   readonly figures?: readonly AttemptFigure[] | undefined;
+  readonly figuresPlacement?: PuzzleContentFrame['figuresPlacement'];
   readonly onRetryChange: () => void;
   readonly onReturnToLibrary: () => void;
 };
@@ -91,7 +93,11 @@ export type AttemptFigure = {
 function AttemptFigures(props: ContentAttemptScreenViewProps): JSX.Element {
   const { t } = useLingui();
   return (
-    <Show when={(props.figures?.length ?? 0) > 0}>
+    <Show
+      when={
+        props.figuresPlacement !== 'board' && (props.figures?.length ?? 0) > 0
+      }
+    >
       <MetricStrip
         aria-label={t`This attempt`}
         dataSet={{ testid: 'puzzle-attempt-figures' }}
@@ -102,6 +108,11 @@ function AttemptFigures(props: ContentAttemptScreenViewProps): JSX.Element {
       />
     </Show>
   );
+}
+
+/** A solved attempt (not a playtest) whose last change is kept. */
+function completionSaved(props: ContentAttemptScreenViewProps): boolean {
+  return props.complete && props.playtest !== true && !props.saving;
 }
 
 /** Where the last change stands: saved, or still being saved. */
@@ -214,7 +225,10 @@ function AttemptPanel(props: ContentAttemptScreenViewProps): JSX.Element {
     >
       <Show when={props.pack}>{(pack) => <PackTrack pack={pack()} />}</Show>
       <AttemptFigures {...props} />
-      <SaveStatus {...props} />
+      {/* A saved completion carries the save line in its own notice. */}
+      <Show when={!completionSaved(props)}>
+        <SaveStatus {...props} />
+      </Show>
       <Show when={props.playtest}>
         <Notice>
           <Trans>
@@ -229,9 +243,22 @@ function AttemptPanel(props: ContentAttemptScreenViewProps): JSX.Element {
           dataSet={{ testid: 'content-attempt-complete' }}
           title={props.playtest ? t`Playtest solved` : t`Completion saved`}
           body={
-            props.playtest
-              ? t`Return to the builder to validate and publish this puzzle.`
-              : t`Your completion is saved. You can keep playing or choose another puzzle.`
+            completionSaved(props) ? (
+              <>
+                <Text
+                  variant="inherit"
+                  role="status"
+                  testId="content-position-save-status"
+                >
+                  {t`Progress saved on this device.`}
+                </Text>{' '}
+                {t`You can keep playing or choose another puzzle.`}
+              </>
+            ) : props.playtest ? (
+              t`Return to the builder to validate and publish this puzzle.`
+            ) : (
+              t`Your completion is saved. You can keep playing or choose another puzzle.`
+            )
           }
         />
       </Show>

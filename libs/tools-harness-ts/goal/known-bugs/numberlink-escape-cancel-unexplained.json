@@ -1,0 +1,4 @@
+{
+  "summary": "Leaving the board or an interrupted touch explained a canceled Numberlink drawing, but Escape during a keyboard or mouse drawing canceled silently and left the default hint. Escape now uses the same explained cancel: saved paths are unchanged, start again from an endpoint.",
+  "regressionTest": "libs/numberlink-harness-ts/tests/numberlink-drawing-feedback.test.tsx"
+}

@@ -29,6 +29,8 @@ import { frameActionItems } from './game-frame-play';
 import { GameFrameScreenView } from './game-frame-screen-view';
 import { frameArgs, PEOPLE, record } from './game-frame-story.example';
 import type {
+  FrameClock,
+  FrameConnection,
   FramePlaySeat,
   FrameRecord,
   FrameResult,
@@ -98,6 +100,16 @@ export type GameTableStory = {
    * deciding. Defaults to `false`.
    */
   readonly sending?: boolean;
+  /** A timed game: the agreed control and each seat's clock as it reads now. */
+  readonly timed?:
+    | {
+        readonly minutes: number;
+        readonly increment: number;
+        readonly clocks: Readonly<Partial<Record<GameSide, string>>>;
+      }
+    | undefined;
+  /** The connection as the frame shows it; defaults to `online`. */
+  readonly connection?: FrameConnection | undefined;
 };
 
 /** Who holds each side: the space stories' people, Avery first. */
@@ -118,6 +130,13 @@ function viewerOf(props: TableProps): GameSide | null {
   return props.viewer === undefined ? props.board.orientation : props.viewer;
 }
 
+/** A timed seat's clock, running for the side to move until the game ends. */
+function seatClock(props: TableProps, side: GameSide): FrameClock | null {
+  const value = props.timed?.clocks[side];
+  if (value === undefined) return null;
+  return { value, active: props.ending === undefined && side === props.turn };
+}
+
 /** One seat at the table, read from the game's frame as the app reads it. */
 function playSeat(props: TableProps, side: GameSide): FramePlaySeat {
   const seats = props.presentation.frame.seats;
@@ -128,7 +147,7 @@ function playSeat(props: TableProps, side: GameSide): FramePlaySeat {
     holder: { kind: 'person', person: HOLDERS[side].id },
     plainName: HOLDERS[side].name,
     swatch: frameSwatch(seats.look(side)),
-    clock: null,
+    clock: seatClock(props, side),
     stat: seats.stat(position, side),
     state: seats.out(position, side) ? { kind: 'out', label: 'Out' } : null,
     standIn: false,
@@ -173,9 +192,9 @@ function tableStatus(props: TableProps): FrameStatus {
         ? 'yours'
         : 'neutral',
     tone: 'neutral',
-    sending: props.sending === true,
-    minutes: 0,
-    increment: 0,
+    sending: props.sending === true || props.connection === 'waiting',
+    minutes: props.timed?.minutes ?? 0,
+    increment: props.timed?.increment ?? 0,
   };
 }
 
@@ -225,6 +244,9 @@ function tableRecord(props: TableProps): FrameRecord {
     ...record(moves),
     turns: props.turns ?? true,
     moveHeading: props.presentation.moveHeading?.() ?? '',
+    firstTurnSample: props.presentation.frame.firstTurnSample?.map(
+      (sample) => ({ label: sample.label, swatch: frameSwatch(sample.look) })
+    ),
     outline: props.presentation.frame.outline?.(props.board.position) ?? [],
     perTurn: movers.length,
     movers: moves.flatMap((_, index) => {
@@ -266,6 +288,7 @@ function GameFrameTable(props: TableProps): JSX.Element {
       {...frameArgs()}
       title={props.title ?? props.presentation.name()}
       boardFit={props.presentation.frame.boardFit}
+      connection={props.connection ?? 'online'}
       phase={over() ? 'completed' : 'active'}
       viewerSide={viewer()}
       status={tableStatus(props)}

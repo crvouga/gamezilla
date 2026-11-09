@@ -1,0 +1,4 @@
+{
+  "summary": "The Chess keyboard focus ring used only the app ring colour: about 1.5:1 on both wood squares in the dark theme and about 2.0:1 on walnut in the light theme, below the 3:1 non-text minimum.",
+  "regressionTest": "pkgs/chess-board-root-shared-ts/tests/board-affordance-contrast.test.ts"
+}

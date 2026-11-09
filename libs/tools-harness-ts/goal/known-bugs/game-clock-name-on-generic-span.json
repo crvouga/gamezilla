@@ -1,0 +1,4 @@
+{
+  "summary": "GameClock named its value with aria-label on a plain span inside its role=\"timer\" element; axe left aria-prohibited-attr undecided and screen readers may drop a name on a generic element.",
+  "regressionTest": "pkgs/ui-root-client-ts/tests/game-clock-name.test.tsx"
+}

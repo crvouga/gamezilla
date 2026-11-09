@@ -1,0 +1,4 @@
+{
+  "summary": "The tablet Retry journey compared viewport coordinates across 37px of scrolling and misreported a stationary 584px chessboard as a layout shift.",
+  "regressionTest": "libs/chess-puzzle-client-ts/tests/puzzle-rectangle.test.ts"
+}

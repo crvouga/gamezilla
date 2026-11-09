@@ -1,0 +1,4 @@
+{
+  "summary": "Numberlink showed the same connected-pair and covered-cell figures below its board and again in the shared attempt panel. An explicit board presentation policy suppresses only the repeated panel figures; other puzzle consumers keep their panel figures by default.",
+  "regressionTest": "libs/game-puzzle-harness-ts/tests/numberlink-inline-figures.test.tsx"
+}

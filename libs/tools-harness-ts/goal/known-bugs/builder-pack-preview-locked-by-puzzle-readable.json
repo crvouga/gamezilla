@@ -1,0 +1,4 @@
+{
+  "summary": "After Preview began waiting on the game's authoring readable(), a pack draft's definition (a list of puzzles, not a board) was passed to the puzzle board check, so Numberlink's readable() returned false and Preview stayed disabled in the pack builder; the Numberlink release journeys timed out waiting for content-preview to be enabled. Only puzzle drafts are now checked; packs keep Preview.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-draft-playable.test.ts"
+}

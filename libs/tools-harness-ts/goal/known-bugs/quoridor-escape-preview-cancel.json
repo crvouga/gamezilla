@@ -1,0 +1,4 @@
+{
+  "summary": "Pressing Escape on a selected Quoridor wall anchor left the proposal active. Both variants now cancel through the grid's existing keyboard callback without spending a wall.",
+  "regressionTest": "libs/quoridor-client-ts/tests/quoridor-preview-lifecycle.test.tsx"
+}

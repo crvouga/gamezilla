@@ -1,0 +1,4 @@
+{
+  "summary": "With stageAlign: 'center' on a one-column game layout (768px), the board sat centred but the commands row and the rail (a puzzle's Undo/Redo/Restart and its pack card) stayed full-width from the start edge, so the page read as two left edges. The opt-in now gives the commands and the rail the board's measure and centres them with it; the default layout is unchanged.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/game-stage-align/integration.checks.ts"
+}

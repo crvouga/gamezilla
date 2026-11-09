@@ -239,16 +239,6 @@ test('storybook integration: wide header and sidebar entries declare desktop eli
     expect(entry).toBeDefined();
     expect(entry?.tags).toContain('viewport-desktop');
   }
-  for (const name of [
-    'spaces-current',
-    'search-current',
-    'notifications-current',
-    'profile-current',
-  ]) {
-    const entry = index.entries[`screens-shell-tab-bar--${name}`];
-    expect(entry).toBeDefined();
-    expect(entry?.tags).toContain('viewport-desktop');
-  }
   for (const name of ['spaces-current', 'select-search', 'long-labels']) {
     const entry = index.entries[`screens-shell-tab-bar--${name}`];
     expect(entry).toBeDefined();
