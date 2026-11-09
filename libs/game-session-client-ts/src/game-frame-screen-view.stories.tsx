@@ -15,13 +15,16 @@ import {
   JORDAN,
   MID_GAME_MOVES,
   MID_GAME_RECORD,
+  MORGAN,
   OPPONENT_TURN_MOVES,
   PEOPLE,
   person,
   playSeat,
   record,
+  STANDINGS,
   seat,
   status,
+  WATCHED_LINEUP,
   WON_MOVES,
   WON_RECORD,
   YOUR_TURN_MOVES,
@@ -142,10 +145,10 @@ export const Watching: Story = {
     ...PLAYING,
     viewerSide: null,
     watchers: 3,
-    status: status({ emphasis: 'neutral' }),
+    status: status({ lineup: WATCHED_LINEUP, emphasis: 'neutral' }),
     table: {
       shape: 'strip',
-      near: playSeat(AVERY, { deciding: true }),
+      near: playSeat(MORGAN, { deciding: true }),
       others: [playSeat(JORDAN)],
     },
     play: FRAME_NO_PLAY,
@@ -322,29 +325,6 @@ const OVER: Partial<GameFrameScreenViewProps> = {
   record: record(WON_RECORD),
 };
 
-const STANDINGS = [
-  {
-    id: 'white',
-    place: 1,
-    name: 'avery',
-    holder: person('avery'),
-    score: null,
-    you: true,
-    testId: 'custom-game-standing-white',
-    readiness: null,
-  },
-  {
-    id: 'black',
-    place: 2,
-    name: 'jordan_plays',
-    holder: person('jordan'),
-    score: null,
-    you: false,
-    testId: 'custom-game-standing-black',
-    readiness: null,
-  },
-] as const;
-
 /** The viewer won: the headline is theirs, then the standings and what comes next. */
 export const YouWin: Story = {
   render: (args) => onBoard(WON_MOVES)(args),
@@ -373,7 +353,13 @@ export const YouPlacedSecond: Story = {
   render: (args) => onBoard(WON_MOVES)(args),
   args: {
     ...OVER,
+    // The signed-in viewer (avery) holds Yellow diamond and came second.
     viewerSide: 'black',
+    table: {
+      shape: 'strip',
+      near: playSeat(seat('black', person('avery'), 'avery')),
+      others: [playSeat(seat('white', person('jordan'), 'jordan_plays'))],
+    },
     next: { plays: true, canCreate: false, reviewable: true },
     result: {
       headline: 'You came 2nd',
@@ -382,12 +368,16 @@ export const YouPlacedSecond: Story = {
       standings: [
         {
           ...STANDINGS[0],
+          name: 'jordan_plays',
+          holder: person('jordan'),
           you: false,
           score: '26',
           readiness: { label: 'Ready', ready: true },
         },
         {
           ...STANDINGS[1],
+          name: 'avery',
+          holder: person('avery'),
           you: true,
           score: '19',
           readiness: { label: 'Not yet', ready: false },
@@ -426,12 +416,30 @@ export const WatcherSeesResult: Story = {
   args: {
     ...OVER,
     viewerSide: null,
+    status: status({
+      lineup: WATCHED_LINEUP,
+      description: 'Red circle wins by four in a row.',
+      emphasis: 'neutral',
+    }),
+    table: {
+      shape: 'strip',
+      near: playSeat(MORGAN),
+      others: [playSeat(JORDAN)],
+    },
     next: { plays: false, canCreate: false, reviewable: true },
     result: {
-      headline: 'avery wins',
+      headline: 'morgan wins',
       note: 'Host starts the rematch',
       scoreLabel: null,
-      standings: [{ ...STANDINGS[0], you: false }, STANDINGS[1]],
+      standings: [
+        {
+          ...STANDINGS[0],
+          name: 'morgan',
+          holder: person('morgan'),
+          you: false,
+        },
+        STANDINGS[1],
+      ],
     },
   },
 };

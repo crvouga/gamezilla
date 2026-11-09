@@ -123,6 +123,36 @@ export function setupSeat(
 
 export const AVERY = seat('white', person('avery'), 'avery');
 export const JORDAN = seat('black', person('jordan'), 'jordan_plays');
+/** A seated player the signed-in viewer (avery) only watches. */
+export const MORGAN = seat('white', person('morgan'), 'morgan');
+/** The lineup of a game avery watches: morgan against jordan_plays. */
+export const WATCHED_LINEUP =
+  'Red circle: morgan. Yellow diamond: jordan_plays.';
+
+/** The finished game's places: avery first, jordan_plays second. */
+export const STANDINGS = [
+  {
+    id: 'white',
+    place: 1,
+    name: 'avery',
+    holder: person('avery'),
+    score: null,
+    you: true,
+    testId: 'custom-game-standing-white',
+    readiness: null,
+  },
+  {
+    id: 'black',
+    place: 2,
+    name: 'jordan_plays',
+    holder: person('jordan'),
+    score: null,
+    you: false,
+    testId: 'custom-game-standing-black',
+    readiness: null,
+  },
+] as const;
+
 export const BOT = seat(
   'black',
   { kind: 'bot', level: 'medium' },
