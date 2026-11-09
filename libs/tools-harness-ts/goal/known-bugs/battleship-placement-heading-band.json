@@ -1,0 +1,4 @@
+{
+  "summary": "In enlarged placement the space kept for a longer refusal sat between the \"Place in A–E / 1–5\" heading and its guidance, a 40–60px dead band on a phone. The heading now sits with the guidance at the foot of that space, directly above the grid, so targets still never move.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/battleship/layout/integration.checks.ts"
+}

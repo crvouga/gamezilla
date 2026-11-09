@@ -304,3 +304,17 @@ export const FRAME_CONTROLS_EXCLUDE = [
   'record',
   'status',
 ];
+
+/** A two-seat game in play with the viewer to move. */
+export const FRAME_PLAYING: Partial<GameFrameScreenViewProps> = {
+  phase: 'active',
+  viewerSide: 'white',
+  status: status(),
+  table: {
+    shape: 'strip',
+    near: playSeat(AVERY, { deciding: true }),
+    others: [playSeat(JORDAN)],
+  },
+  play: { ...FRAME_NO_PLAY, canOfferDraw: true, canResign: true },
+  record: record(MID_GAME_RECORD),
+};

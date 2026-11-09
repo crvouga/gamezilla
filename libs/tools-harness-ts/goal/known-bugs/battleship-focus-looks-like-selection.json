@@ -1,0 +1,4 @@
+{
+  "summary": "Keyboard focus on a Battleship cell was a thin accent ring, like the latest shot's accent ring and the chosen cell's accent dashes, so focus could not be told from selection. Focus is now a 3px ink ring outside the cell in both themes.",
+  "regressionTest": "libs/battleship-client-ts/tests/hit-mark.test.ts"
+}

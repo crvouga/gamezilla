@@ -5,15 +5,12 @@ import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import type { JSX } from 'solid-js';
 
-/** `ui` inside the providers a game board may read, on a phone-sized host. */
-export function renderBoard(ui: () => JSX.Element) {
+/** `ui` inside the providers a game board may read, on a phone-sized host by default. */
+export function renderBoard(ui: () => JSX.Element, width = 390) {
   const { clock, timers } = createHarnessClock();
   return renderWithI18n(() => (
     <ClockProvider clock={clock} timers={timers}>
-      <ThemeProvider
-        colorScheme="light"
-        fixedLayout={{ width: 390, height: 844 }}
-      >
+      <ThemeProvider colorScheme="light" fixedLayout={{ width, height: 844 }}>
         {ui()}
       </ThemeProvider>
     </ClockProvider>

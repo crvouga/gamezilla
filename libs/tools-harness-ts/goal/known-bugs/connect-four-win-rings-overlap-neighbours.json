@@ -1,0 +1,4 @@
+{
+  "summary": "Connect Four win outlines were drawn outside each winning cell, so at 320 px they touched neighbouring discs and overlapped the focused column's outline. They are now drawn inside the cell.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/connect-four/layout-320/integration.checks.ts"
+}

@@ -5,6 +5,7 @@ import {
   ContentAttemptScreenView,
   type ContentAttemptScreenViewProps,
 } from './content-attempt-screen-view';
+import { StoryPackActions } from './content-attempt-story.example';
 import {
   StoryAttemptControls,
   StoryCountingPlayer,
@@ -23,6 +24,7 @@ function render(args: ContentAttemptScreenViewProps) {
         />
       }
       controls={<StoryAttemptControls disabled={args.saving} />}
+      packActions={args.packActions}
       keptPositions={<StoryKeptCopies />}
     />
   );
@@ -121,4 +123,24 @@ export const RetryChange: Story = {
     );
     await expect(args.onRetryChange).toHaveBeenCalled();
   },
+};
+
+const PACK = { title: 'Counting basics', position: 2, total: 4 };
+
+/** A pack puzzle partway: its way on (the overview) sits in the pack card. */
+export const PackInProgress: Story = {
+  args: { pack: PACK },
+  render: (args) => render({ ...args, packActions: <StoryPackActions /> }),
+};
+
+/** The same pack puzzle solved: its next puzzle joins the overview in the card. */
+export const PackCompleted: Story = {
+  args: { pack: PACK, complete: true },
+  render: (args) =>
+    render({
+      ...args,
+      packActions: (
+        <StoryPackActions next={{ title: 'Count to nine', open: fn() }} />
+      ),
+    }),
 };
