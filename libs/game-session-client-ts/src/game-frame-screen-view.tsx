@@ -621,12 +621,7 @@ function FrameContent(shown: Props): JSX.Element {
         component: 'CustomGameContent',
         testid: 'custom-game-content',
       }}
-      notices={
-        <>
-          <FrameConnectionView connection={props.connection} />
-          <FrameErrorView text={props.error} />
-        </>
-      }
+      notices={<FrameConnectionView connection={props.connection} />}
       boardFocus={props.phase === 'active' || props.phase === 'completed'}
       outcome={<FrameOutcomeView {...props} />}
       pinned={<FrameMoveStripSlot {...props} />}
@@ -635,7 +630,15 @@ function FrameContent(shown: Props): JSX.Element {
       actionsBeside
       arena={arenaBeside(props, mode)}
       boardPreview={props.phase === 'configuring'}
-      status={<FrameStatusRow {...props} />}
+      // A refused choice is said by the game's commands (under a phone's
+      // board, heading the rail beside a wide one), never above the board,
+      // so the board does not move when it appears or clears.
+      status={
+        <>
+          <FrameErrorView text={props.error} />
+          <FrameStatusRow {...props} />
+        </>
+      }
       actions={
         <Show when={!commandsInRecord(props, mode)}>
           <FramePlayActions {...props} />
