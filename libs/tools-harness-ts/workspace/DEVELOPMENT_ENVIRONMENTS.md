@@ -203,8 +203,10 @@ coding agents and inherit the execution host's environment; neither needs server
 restart on each message. Cursor Cloud Agents use the committed
 [`.cursor/environment.json`](../../../.cursor/environment.json):
 `cloud-agent-install.sh` then `cloud-agent-start.sh` in this directory.
-Provision development-only credentials explicitly on that worker. The local
-stack does not need them.
+The same install is safe to repeat on Ubuntu, Cursor Cloud, and macOS. It
+publishes the pinned Bun and Node in `~/.local/bin` and one login hook for
+bash and zsh. Provision development-only credentials explicitly on that
+worker. The local stack does not need them.
 
 ## Platform and validation limits
 

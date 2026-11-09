@@ -6,7 +6,9 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
+  readlinkSync,
   rmSync,
+  symlinkSync,
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -355,10 +357,28 @@ test('activation cannot wait for input or resolve tools over the network', () =>
   expect(result.calls).toEqual([STOP, DEV]);
 });
 
-test('cloud install proceeds when the host sets git hooks and publishes tools once', () => {
+test('cloud install is repeatable on bash and zsh and does not clobber local binaries', () => {
   const { dir, cloudInstall, cloudStart } = checkout();
-  const published = join(dir, 'published-bin');
+  const home = join(dir, 'home');
+  const bin = join(home, '.local/bin');
+  mkdirSync(bin, { recursive: true });
+  writeFileSync(join(bin, 'node'), 'real-node\n');
+  symlinkSync('/opt/homebrew/Cellar/bun', join(bin, 'bun'));
+  writeFileSync(
+    join(home, '.profile'),
+    [
+      '# keep',
+      '# cursor-cloud mise tools',
+      'if [ -x /usr/local/bin/mise ]; then',
+      '  export PATH="$HOME/.local/bin:/usr/local/bin:$PATH"',
+      '  eval "$(MISE_OFFLINE=1 MISE_AUTO_INSTALL=0 /usr/local/bin/mise env --shell bash)"',
+      'fi',
+      '',
+    ].join('\n')
+  );
+  writeFileSync(join(home, '.bash_profile'), '. "$HOME/.profile"\n');
   writeExecutable(join(dir, '.bin/node'), '#!/usr/bin/env bash\nexit 0\n');
+  writeExecutable(join(dir, '.bin/sudo'), '#!/usr/bin/env bash\nexit 1\n');
   writeExecutable(
     join(dir, '.bin/mise'),
     '#!/usr/bin/env bash\n' +
@@ -366,26 +386,33 @@ test('cloud install proceeds when the host sets git hooks and publishes tools on
       'if [ "$1" = env ]; then printf \'export PATH="%s:$PATH"\\n\' "$PWD/.tools"; fi\n' +
       'exit 0\n'
   );
-  const env = {
-    WORKSPACE_RUN_TEST_HOOKS: 'present',
-    CLOUD_AGENT_BIN_DIR: published,
-  };
+  const env = { WORKSPACE_RUN_TEST_HOOKS: 'present' };
   const cold = cloudInstall(env);
   expect(cold.status, `${cold.stdout}\n${cold.stderr}`).toBe(0);
   expect(cold.stderr).not.toContain('prohibits git hooks');
   expect(cold.calls).toEqual([INSTALL]);
-  expect(existsSync(join(published, 'bun'))).toBe(true);
-  expect(existsSync(join(published, 'node'))).toBe(true);
-  const profile = readFileSync(join(dir, 'home/.profile'), 'utf8');
+  expect(readFileSync(join(bin, 'node'), 'utf8')).toBe('real-node\n');
+  expect(readlinkSync(join(bin, 'bun'))).toBe(join(dir, '.bin/bun'));
+  const hook =
+    '[ -f "$HOME/.local/share/mise-pinned-tools.sh" ] && . "$HOME/.local/share/mise-pinned-tools.sh"';
+  const profile = readFileSync(join(home, '.profile'), 'utf8');
+  const zprofile = readFileSync(join(home, '.zprofile'), 'utf8');
+  expect(profile).toContain('# keep');
   expect(profile.match(/# cursor-cloud mise tools/g)?.length).toBe(1);
+  expect(profile).toContain(hook);
+  expect(profile).not.toContain('/usr/local/bin/mise');
+  expect(zprofile.match(/# cursor-cloud mise tools/g)?.length).toBe(1);
+  expect(readFileSync(join(home, '.bash_profile'), 'utf8')).toBe(
+    '. "$HOME/.profile"\n'
+  );
+  expect(existsSync(join(home, '.local/share/mise-pinned-tools.sh'))).toBe(
+    true
+  );
   const again = cloudInstall(env);
   expect(again.status, again.stderr).toBe(0);
   expect(again.calls).toEqual([]);
-  expect(
-    readFileSync(join(dir, 'home/.profile'), 'utf8').match(
-      /# cursor-cloud mise tools/g
-    )?.length
-  ).toBe(1);
+  expect(readFileSync(join(home, '.profile'), 'utf8')).toBe(profile);
+  expect(readFileSync(join(home, '.zprofile'), 'utf8')).toBe(zprofile);
   const started = cloudStart(env);
   expect(started.status, started.stderr).toBe(0);
   expect(started.calls).toEqual([STOP, DEV]);

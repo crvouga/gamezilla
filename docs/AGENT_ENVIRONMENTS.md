@@ -85,8 +85,12 @@ contract is supported. Cursor Cloud Agents read
 (the tools pinned in `mise.toml`, then a frozen Bun install, with no
 credentials). Start is
 [`cloud-agent-start.sh`](../libs/tools-harness-ts/workspace/cloud-agent-start.sh),
-which boots the same localhost stack as Run. The agent host keeps its own git
-hooks; `git-config.sh` still refuses hooks on a laptop.
+which boots the same localhost stack as Run. Run the install again on Ubuntu,
+Cursor Cloud, or macOS: it refreshes the same pins, rewrites one shared profile
+file in place, and leaves a real Bun or Node binary (and a Homebrew or nvm
+symlink) where it is. The agent host keeps its own git hooks; `git-config.sh`
+still refuses hooks on a laptop. `user` in the environment file is the Cursor
+VM account.
 
 The release decision remains the full `bun verify` gate described in
 [`AGENTS.md`](../AGENTS.md); opening an environment is not verification evidence.

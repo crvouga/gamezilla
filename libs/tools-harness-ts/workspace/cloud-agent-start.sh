@@ -5,6 +5,7 @@
 set -euo pipefail
 . "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 . "$(dirname "${BASH_SOURCE[0]}")/install.sh"
+export PATH="$HOME/.local/bin:${PATH:-/usr/bin:/bin}"
 if ! workspace_activate_tools || ! workspace_install_is_current; then
   echo "==> preparing missing or changed workspace dependencies"
   "$WORKSPACE_PATH/libs/tools-harness-ts/workspace/cloud-agent-install.sh"
