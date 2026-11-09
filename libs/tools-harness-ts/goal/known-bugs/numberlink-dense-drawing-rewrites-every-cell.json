@@ -1,0 +1,4 @@
+{
+  "summary": "Each Numberlink drawing step recomputed all 400 cell descriptions on a 20 x 20 board by searching every pair and path, and rebuilt every path's SVG node. Sustained dense drawing at 390px under 4x CPU throttling overran its 30 second budget. Cells now label themselves from one per-step ownership lookup, connected-pair membership only changes when it actually changes, and paths update their existing nodes in place.",
+  "regressionTest": "libs/numberlink-harness-ts/tests/numberlink-dense-drawing-work.test.tsx"
+}
