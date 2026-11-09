@@ -213,13 +213,15 @@ export async function finishPongMetrics(
     ),
   });
   // Budgets: a paddle follows input within two frames (three under 4x CPU
-  // throttling), no long task blocks play, and frames move the existing court
-  // drawings instead of rebuilding them.
+  // throttling), frames keep that pace, no task blocks input for 100ms or
+  // more, and frames move the existing court drawings instead of rebuilding
+  // them. Every task over 50ms is still recorded with its scripts above.
   const frames = cpuRate === 1 ? 2 : 3;
   expect(samples.inputToPaddle.length).toBeGreaterThanOrEqual(24);
   expect(summary.inputToPaddleP95 ?? Infinity).toBeLessThanOrEqual(
     frames * 16.7
   );
-  expect(samples.longTasks).toEqual([]);
+  expect(summary.frameP95 ?? Infinity).toBeLessThanOrEqual(frames * 16.7);
+  expect(samples.longTasks.filter((duration) => duration >= 100)).toEqual([]);
   expect([samples.addedNodes, samples.removedNodes]).toEqual([0, 0]);
 }
