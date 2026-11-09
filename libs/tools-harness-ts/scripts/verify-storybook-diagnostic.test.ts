@@ -32,7 +32,7 @@ test('Ubuntu reference authoring is explicit and followed by an uncached compari
   );
   expect(author).toBeGreaterThanOrEqual(0);
   expect(job.steps[author]?.if).toBe(
-    '${{ inputs.update-storybook-baselines }}'
+    '${{ !inputs.storybook-evidence-run && inputs.update-storybook-baselines }}'
   );
   expect(
     job.steps.findIndex(
@@ -45,10 +45,14 @@ test('Ubuntu reference authoring is explicit and followed by an uncached compari
       (step) =>
         step.run === 'bun run storybook:test --grep "$STORYBOOK_PATTERN"'
     )?.if
-  ).toBe('${{ inputs.update-storybook-baselines }}');
+  ).toBe(
+    '${{ !inputs.storybook-evidence-run && inputs.update-storybook-baselines }}'
+  );
   expect(
     job.steps.find((step) => step.run?.includes('turbo run ci:storybook'))?.if
-  ).toBe('${{ !inputs.update-storybook-baselines }}');
+  ).toBe(
+    '${{ !inputs.storybook-evidence-run && !inputs.update-storybook-baselines }}'
+  );
   const config = JSON.parse(
     readFileSync(
       new URL('../../../pkgs/ui-root-harness-ts/turbo.json', import.meta.url),
@@ -59,7 +63,9 @@ test('Ubuntu reference authoring is explicit and followed by an uncached compari
   const upload = job.steps.find((step) =>
     step.run?.includes('ci-artifacts.ts upload')
   )!;
-  expect(upload.if).toBe('always() && !cancelled()');
+  expect(upload.if).toBe(
+    '${{ always() && !cancelled() && !inputs.storybook-evidence-run }}'
+  );
   expect(upload.run).toContain('verify-nightly-storybook-');
 });
 

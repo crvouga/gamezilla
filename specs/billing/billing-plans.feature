@@ -48,6 +48,24 @@ Feature: What the billing plans offer
       When 5 minutes pass
       Then Alice is told to check again before paying again
 
+    @regression:billing-checkout-reopen-forgets-pending-payment
+    Scenario: Reopening the app while a payment is being confirmed never offers another membership
+      Given the payment provider is slow to confirm payments
+      And Alice has subscribed to Plus
+      When Alice closes and reopens the app
+      Then Alice is told their payment is still being confirmed
+      And Alice is not offered to subscribe
+
+    @regression:billing-checkout-reopen-elsewhere-forgets-pending-payment
+    Scenario: Leaving the billing plans before reopening the app still says the payment is being confirmed
+      Given the payment provider is slow to confirm payments
+      And Alice has subscribed to Plus
+      And Alice has left the billing plans
+      When Alice closes and reopens the app
+      And Alice views the billing plans
+      Then Alice is told their payment is still being confirmed
+      And Alice is not offered to subscribe
+
     Scenario: Once the payment is confirmed, a person back from checkout has paid access
       Given the payment provider is slow to confirm payments
       And Alice has subscribed to Plus

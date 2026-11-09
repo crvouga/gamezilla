@@ -1,0 +1,4 @@
+{
+  "summary": "On one-column game layouts (tablet widths) the stage is capped at the board measure and pinned to the start edge, so a board narrower than the column leaves an empty strip on one side while the rail below spans the full column. GameLayout and GameSessionLayout now take an opt-in stageAlign: 'center' (puzzle frames: frame.stageAlign) that centres the stage on one column; the default stays at the start edge.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/game-stage-align/integration.checks.ts"
+}

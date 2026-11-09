@@ -256,12 +256,15 @@ function GameFrameTable(props: TableProps): JSX.Element {
       {...frameArgs()}
       title={props.title ?? props.presentation.name()}
       error={props.error ?? ''}
+      boardFit={props.presentation.frame.boardFit}
       phase={over() ? 'completed' : 'active'}
       viewerSide={viewer()}
       status={tableStatus(props)}
       table={{
         shape: tableShape(props),
         named: props.presentation.frame.boardNames === true,
+        seatLayout: props.presentation.frame.seatLayout,
+        compactInset: props.presentation.frame.compactInset,
         near: playSeat(props, near()),
         others: props.sides
           .filter((side) => side !== near())

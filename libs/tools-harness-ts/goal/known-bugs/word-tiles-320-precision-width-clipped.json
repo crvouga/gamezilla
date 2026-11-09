@@ -1,0 +1,4 @@
+{
+  "summary": "The 320px Word Tiles screen allocated only 288px to its precision viewport, below its 308px usable board assertion. A closed compact inset policy gives precision games room without changing default or wide screen insets.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/word-tiles-compact-inset.test.tsx"
+}

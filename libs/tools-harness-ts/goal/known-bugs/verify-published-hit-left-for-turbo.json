@@ -1,0 +1,4 @@
+{
+  "summary": "A prerequisite shard's published cache hit (e.g. @pkgs/ui-quality-check-server-ts#build) timed out in the 30s prefetch and was 'left for turbo to fetch', but turbo never runs a cached task, so the producer packed nothing, its continue-on-error step hid the failure, and every consumer shard failed with 'No verify-evidence-N evidence artifacts' (run 42529785991). Published hits now get patient retries, and one still absent fails the producer by name.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-stage-cache-published-hits.test.ts"
+}

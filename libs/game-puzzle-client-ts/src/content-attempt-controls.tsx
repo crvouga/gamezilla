@@ -12,9 +12,12 @@ export function ContentAttemptControls(props: {
   attempt: ContentAttempt;
   writer: ReturnType<typeof useContentAttemptChange>;
   progress: { complete: boolean; canUndo: boolean; canRedo: boolean } | null;
+  /** The puzzle itself cannot be read: no command here can help. */
+  unreadable: boolean;
 }): JSX.Element {
   const { t } = useLingui();
   const game = useContentGame();
+  const locked = () => props.writer.pending() || props.unreadable;
   return (
     <StackHorizontal gap="sm" wrap shrink>
       <Show when={game.content.history === 'snapshots'}>
@@ -23,7 +26,7 @@ export function ContentAttemptControls(props: {
           intent="neutral"
           variant="outline"
           size="sm"
-          disabled={props.writer.pending() || !props.progress?.canUndo}
+          disabled={locked() || !props.progress?.canUndo}
           onClick={() => props.writer.execute({ kind: 'undo' })}
           dataSet={{ testid: 'content-undo' }}
         />
@@ -32,15 +35,12 @@ export function ContentAttemptControls(props: {
           intent="neutral"
           variant="outline"
           size="sm"
-          disabled={props.writer.pending() || !props.progress?.canRedo}
+          disabled={locked() || !props.progress?.canRedo}
           onClick={() => props.writer.execute({ kind: 'redo' })}
           dataSet={{ testid: 'content-redo' }}
         />
       </Show>
-      <ContentAttemptRestart
-        attempt={props.attempt}
-        disabled={props.writer.pending()}
-      />
+      <ContentAttemptRestart attempt={props.attempt} disabled={locked()} />
       <ContentAttemptNext
         attempt={props.attempt}
         complete={props.progress?.complete ?? false}

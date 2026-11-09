@@ -1,0 +1,4 @@
+{
+  "summary": "A compact rail treated its nearest seat as the viewer's own, showing You even to a spectator. Nearest-seat position must not imply player identity.",
+  "regressionTest": "libs/game-session-client-ts/tests/word-tiles-compact-seat-rail.test.tsx"
+}

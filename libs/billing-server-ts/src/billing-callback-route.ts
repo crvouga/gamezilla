@@ -11,7 +11,7 @@ import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 import statement from '@pkgs/sql-root-shared-ts/sql';
 import type { Context } from 'hono';
 import { Hono } from 'hono';
-import { applyMembershipChange } from './apply-membership-change';
+import { applyCurrentMembership } from './apply-membership-change';
 import { settleDeletedAccountPayments } from './settle-deleted-payments';
 
 /**
@@ -61,10 +61,11 @@ async function handleBillingCallback(
   log: Logger
 ): Promise<Response> {
   const { provider } = deps;
-  const result = await provider.readCallback({
+  const callback = {
     headers: c.req.raw.headers,
     rawBody: await c.req.text(),
-  });
+  };
+  const result = await provider.readCallback(callback);
   if (result.kind === 'unverified') {
     log.warn('billing callback: signature verification failed', {
       provider: provider.provider,
@@ -104,11 +105,17 @@ async function handleBillingCallback(
     );
     return c.json({ received: true }, 200);
   }
-  const applied = await applyMembershipChange({
+  // Asked again after writing: a reading that lands after a newer one is
+  // corrected before this callback answers.
+  const applied = await applyCurrentMembership({
     sql,
     clock: deps.clock,
     accountId,
     change: result,
+    read: async () => {
+      const current = await provider.readCallback(callback);
+      return current.kind === 'membership' ? current : null;
+    },
   });
   if (applied)
     await deps.notifyUser(accountId, 'billing:membership', [

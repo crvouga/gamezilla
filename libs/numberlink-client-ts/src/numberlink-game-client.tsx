@@ -1,4 +1,5 @@
 import { defineGameClient } from '@libs/game-menu-client-ts/game-client';
+import { decodeNumberlinkDraft } from '@libs/numberlink-shared-ts/numberlink-definition';
 import { numberlinkGameShared } from '@libs/numberlink-shared-ts/numberlink-game';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
@@ -35,6 +36,7 @@ export const numberlinkGameClient = defineGameClient({
     authoring: {
       Editor: NumberlinkEditor,
       initialDefinition: initialNumberlinkDefinition,
+      readable: (definition) => decodeNumberlinkDraft(definition).valid,
     },
   },
 });

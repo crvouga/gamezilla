@@ -88,6 +88,11 @@
   .step > * {
     min-width: 0;
   }
+  /* An action keeps its own width at the column's start, so a locked
+     step's lock and name line up with an open step's name. */
+  .step > :nth-child(2) {
+    justify-self: start;
+  }
   .name {
     overflow-wrap: anywhere;
   }

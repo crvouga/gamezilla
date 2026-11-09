@@ -285,7 +285,10 @@ export function useFrameStatus(
         model.mySide(),
         nameOf
       ),
-      emphasis: statusEmphasis(game, model.mySide()),
+      // While the viewer's choice is sent, it is no longer their turn to act.
+      emphasis: model.submitting()
+        ? 'neutral'
+        : statusEmphasis(game, model.mySide()),
       tone: statusTone(game),
       sending: model.submitting(),
       minutes: game.minutes,
