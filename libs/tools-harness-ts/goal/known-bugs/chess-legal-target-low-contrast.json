@@ -1,0 +1,4 @@
+{
+  "summary": "Chess legal destination dots and capture rings used fourteen-percent black, leaving the move targets too faint against both wooden square colors.",
+  "regressionTest": "pkgs/chess-board-root-shared-ts/tests/board-affordance-contrast.test.ts"
+}

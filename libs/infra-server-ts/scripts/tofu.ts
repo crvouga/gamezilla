@@ -82,7 +82,7 @@ import { retireArchivedGrafana } from './grafana-retirement';
 import { resolveInfisicalToken } from './infisical-token';
 import { infraOperation } from './infra-operation';
 import { backupState } from './state-backup';
-import { conftest, fail, spawnTool, tofu } from './tofu-process';
+import { conftest, fail, spawnTool, tofuInit } from './tofu-process';
 import { writeResolvedVarFiles } from './tofu-var-files';
 
 type Command = 'plan' | 'apply' | 'drift' | 'destroy';
@@ -191,24 +191,32 @@ const PLAN_ATTEMPTS = 3;
 /** A dropped provider connection is often up again a moment later. */
 const PLAN_RETRY_WAIT_MS = 1_000;
 
+/** Apply/destroy keep the lock; plan/drift must not abandon one when killed. */
+function planOptionsFor(cli: Cli) {
+  return {
+    lock: cli.command === 'apply' || cli.command === 'destroy',
+  } as const;
+}
+
 /** Plans to a file and returns the tofu exit code (0 no-op, 2 changes). */
 async function planTarget(
   target: Target,
   env: Record<string, string>,
   cli: Cli
 ): Promise<number> {
-  if (tofu(initArgs(PATHS, target), env) !== 0)
+  if ((await tofuInit(initArgs(PATHS, target), env)) !== 0)
     fail(`${target.stack}: tofu init failed`);
+  const lock = planOptionsFor(cli);
   const args =
     cli.command === 'destroy'
       ? destroyPlanArgs(PATHS, target, teardownScope(target, cli))
       : cli.recoverCiIdentity
-        ? ciIdentityRecoveryPlanArgs(PATHS)
+        ? ciIdentityRecoveryPlanArgs(PATHS, lock)
         : cli.repositoryPolicy
-          ? repositoryPolicyPlanArgs(PATHS)
+          ? repositoryPolicyPlanArgs(PATHS, lock)
           : cli.alerting
-            ? alertingDeploymentPlanArgs(PATHS)
-            : planArgs(PATHS, target);
+            ? alertingDeploymentPlanArgs(PATHS, lock)
+            : planArgs(PATHS, target, lock);
   for (let attempt = 1; attempt <= PLAN_ATTEMPTS; attempt += 1) {
     const result = spawnTool('tofu', args, { env, capture: true });
     const output = redactInfraOutput(`${result.stdout}${result.stderr}`, {
@@ -297,6 +305,7 @@ async function runOnce(
       env,
       policyDir: POLICY_DIR,
       preview: command !== 'apply',
+      lock: planOptionsFor(cli).lock,
     });
     if (previewed) {
       if (command === 'drift')

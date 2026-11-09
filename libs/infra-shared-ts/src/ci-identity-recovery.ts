@@ -1,5 +1,5 @@
 import type { PlanJson } from './plan-policy';
-import type { Stack, TofuPaths } from './tofu-command';
+import type { PlanOptions, Stack, TofuPaths } from './tofu-command';
 import { planArgs, tofuCredentialEnvironment } from './tofu-command';
 
 const TARGET = { stack: 'bootstrap' as const, env: null };
@@ -18,9 +18,10 @@ export function validateCiIdentityRecovery(
 }
 
 export function ciIdentityRecoveryPlanArgs(
-  paths: TofuPaths
+  paths: TofuPaths,
+  options?: PlanOptions
 ): readonly string[] {
-  return [...planArgs(paths, TARGET), `-target=${MODULE}`];
+  return [...planArgs(paths, TARGET, options), `-target=${MODULE}`];
 }
 
 /** AWS, GitHub and Cloudflare providers are outside the recovery target. */

@@ -75,3 +75,19 @@ import {
   to       = module.repository.github_actions_variable.this[each.value]
   id       = "${var.github.repo}:${each.value}"
 }
+
+# Labels that existed before OpenTofu managed them (2026-11-09). Labels added
+# later are created by the apply and need no import.
+locals {
+  labels_created_by_tofu = ["agent-generated", "hotfix", "do-not-merge", "stale"]
+  labels_adopted = setsubtract(
+    [for label_file in fileset("${path.module}/../../modules/repository/labels", "*.json") : jsondecode(file("${path.module}/../../modules/repository/labels/${label_file}")).name],
+    local.labels_created_by_tofu
+  )
+}
+
+import {
+  for_each = local.labels_adopted
+  to       = module.repository.github_issue_label.this[each.value]
+  id       = "${var.github.repo}:${each.value}"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "Read-only chess squares did not expose their unavailable activation state to assistive technology.",
+  "regressionTest": "pkgs/chess-board-root-client-ts/tests/assistive-activation.test.tsx"
+}
