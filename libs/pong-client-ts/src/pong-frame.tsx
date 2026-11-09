@@ -27,6 +27,8 @@ export const pongFrame: GameFrame<JSX.Element> = {
   drawOffers: false,
   // Each half of the court names its player under their points.
   boardNames: true,
+  // The court is narrower than a tablet's column: start it under the title.
+  boardAlign: 'start',
   players: fixedPlayers(2),
   options: [
     {

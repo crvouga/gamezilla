@@ -1,0 +1,4 @@
+{
+  "summary": "Desktop Pong names movement keys without telling a player to focus the court first or that mouse dragging is available.",
+  "regressionTest": "libs/pong-client-ts/tests/pong-board-layout.test.tsx"
+}

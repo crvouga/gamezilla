@@ -1,0 +1,4 @@
+{
+  "summary": "When a Pong game could not be opened, Resign stayed offered with nothing saying it ends the game.",
+  "regressionTest": "libs/pong-client-ts/tests/pong-court-guidance.test.tsx"
+}
