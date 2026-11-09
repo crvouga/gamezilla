@@ -14,7 +14,6 @@ import { FAULT_PROFILE_NAMES } from '@pkgs/sync-engine-harness-ts/fault-profiles
 import { DEVICES, sweepOnce } from '@pkgs/sync-engine-harness-ts/offline-sweep';
 import { seededWorkload } from '@pkgs/sync-engine-harness-ts/offline-workload';
 
-
 type ProfileSummary = {
   readonly profile: FaultProfileName;
   readonly runs: number;
