@@ -53,3 +53,10 @@
   outline: 3px solid var(--color-tint);
   outline-offset: 0;
 }
+/* Keyboard focus is the board's ink, outside the cell: never the accent
+   of the latest shot or the dashed preview of a chosen cell. */
+.board[data-board-theme="battleship"] .cell:focus-visible {
+  outline: 3px solid var(--color-text);
+  outline-offset: 2px;
+  z-index: 2;
+}

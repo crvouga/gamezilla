@@ -54,6 +54,20 @@ test('sunk is its own fill and the latest shot never wears the sunk ink', () => 
   expect(latest).not.toContain('--color-text');
 });
 
+// regression: battleship-focus-looks-like-selection — keyboard focus was a
+// thin accent ring, like the latest shot's accent ring and the chosen
+// cell's accent dashes, so focus could not be told from selection.
+test('keyboard focus on a Battleship cell is its own ink ring', () => {
+  const own = read('cell-grid-board/cell-grid-board-battleship.module.css');
+  const focus = rule(
+    own,
+    '.board[data-board-theme="battleship"] .cell:focus-visible'
+  );
+  expect(focus).toMatch(/outline:\s*3px solid var\(--color-text\);/);
+  expect(focus).toMatch(/outline-offset:\s*2px;/);
+  expect(focus).not.toContain('--color-tint');
+});
+
 // regression: battleship-board-small-wide — wide, the 10×10 board was held
 // to about 440px by the room it left under it for the panel switch and the
 // key, though the window still had room to spare below the person's own

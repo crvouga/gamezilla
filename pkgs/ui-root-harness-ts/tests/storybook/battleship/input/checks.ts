@@ -42,6 +42,11 @@ export function defineInputChecks() {
         await aim('j9').focus();
         await page.keyboard.press('ArrowDown');
         await expect(aim('j10')).toBeFocused();
+        // Evidence: the keyboard focus ring, distinct from selection.
+        await info.attach('keyboard-focus', {
+          body: await page.screenshot({ animations: 'disabled' }),
+          contentType: 'image/png',
+        });
         await page.keyboard.press('Enter');
         await expect(page.getByTestId('custom-game-board-fire')).toHaveText(
           'Fire at J10'
