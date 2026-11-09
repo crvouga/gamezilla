@@ -5,6 +5,7 @@ import { logSummary, logVideo } from '../pong-overhaul/log-evidence';
 test.use({ video: 'on', trace: 'on' });
 
 // regression: pong-landscape-court-overflows-window
+// regression: pong-landscape-court-below-fold-on-load
 test('storybook integration: pong-overhaul landscape court and scoreboard fit after keyboard focus', async ({
   page,
 }, info) => {
@@ -12,8 +13,7 @@ test('storybook integration: pong-overhaul landscape court and scoreboard fit af
     await page.setViewportSize({ width: 844, height: 390 });
     await openPong(page, 'paddle-movement', theme);
     const court = page.getByRole('application', { name: 'Pong court' });
-    // regression: pong-landscape-court-below-fold-on-load — before anything
-    // is focused, the whole court already shows.
+    // Before anything is focused, the whole court already shows.
     const firstView = await court.evaluate((element) => ({
       bottom: element.getBoundingClientRect().bottom,
       height: innerHeight,

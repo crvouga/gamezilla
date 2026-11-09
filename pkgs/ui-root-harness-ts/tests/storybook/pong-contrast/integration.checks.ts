@@ -115,8 +115,9 @@ test('storybook integration: pong-overhaul court and scoreboard text meet 4.5:1 
   }
 });
 
-// regression: pong-court-focus-ring-faint-and-clipped — the court's focus ring
-// was 1.55:1 against the light page and its sides were clipped by the board.
+// The court's focus ring was 1.55:1 against the light page and its sides
+// were clipped by the board.
+// regression: pong-court-focus-ring-faint-and-clipped
 test('storybook integration: pong-overhaul court focus ring is visible and whole', async ({
   page,
 }, info) => {
