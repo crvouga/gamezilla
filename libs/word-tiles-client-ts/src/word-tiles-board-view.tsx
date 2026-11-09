@@ -31,6 +31,7 @@ import {
   WordTilesBlankChooser,
   WordTilesPreviewPanel,
 } from './word-tiles-panels';
+import type { WordTilesPreview } from './word-tiles-preview';
 
 /** The board and, for a seat, its rack; a watcher is told racks stay private. */
 function SeatBoard(props: {
@@ -69,7 +70,7 @@ function SeatBoard(props: {
         <WordTileWorkspace
           notice={<LexiconRecovery draft={props.draft} />}
           rack={
-            <P tone="secondary">{t`You are watching. Racks stay private to their players.`}</P>
+            <P tone="secondary">{t`Racks stay private to their players.`}</P>
           }
           board={board()}
         />
@@ -147,9 +148,6 @@ function DraftControls(props: {
       when={props.draft.props.hand !== null && props.draft.position() !== null}
     >
       <StackVertical gap="xs">
-        <Show when={!props.draft.props.interactive && props.draft.editable()}>
-          <P tone="secondary">{t`You can plan a word while you wait. Play it when your turn begins.`}</P>
-        </Show>
         <Show when={props.draft.candidate().blankAt !== null}>
           <WordTilesBlankChooser
             testId={testId()}
@@ -176,12 +174,35 @@ function DraftControls(props: {
           }
         >
           {(preview) => (
-            <WordTilesPreviewPanel preview={preview()} testId={testId()} />
+            <WordTilesPreviewPanel
+              preview={waitingPreview(props.draft, preview())}
+              testId={testId()}
+            />
           )}
         </Show>
       </StackVertical>
     </Show>
   );
+}
+
+/**
+ * Off turn, an empty draft says the player may plan ahead, in the same
+ * reserved status line, so the board does not move when the turn passes.
+ */
+function waitingPreview(
+  draft: WordTilesDraft,
+  preview: WordTilesPreview
+): WordTilesPreview {
+  const candidate = draft.candidate();
+  return !draft.props.interactive &&
+    candidate.placed.length === 0 &&
+    candidate.exchange === null
+    ? {
+        kind: 'none',
+        playable: false,
+        message: t`You can plan a word while you wait. Play it when your turn begins.`,
+      }
+    : preview;
 }
 
 type WordTilesSession = Required<GameFrameBoardSession<JSX.Element>>;

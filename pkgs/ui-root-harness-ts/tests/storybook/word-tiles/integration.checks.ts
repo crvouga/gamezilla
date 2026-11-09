@@ -320,3 +320,23 @@ test('storybook integration: word-tiles keyboard focus ring stands out on dark a
     }
   }
 });
+
+// regression: word-tiles-board-drops-after-submit
+test('storybook integration: word-tiles the board stays put when a played word passes the turn', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openStory(page, 'two-player-match', 'light');
+  const region = page.getByRole('region', { name: 'Scrollable word board' });
+  const top = async () =>
+    region.evaluate(
+      (element) => element.getBoundingClientRect().top + window.scrollY
+    );
+  const before = await top();
+  await playWord(page, 'mouse');
+  await expect(page.getByTestId('custom-game-move-strip')).toContainText('CAT');
+  await expect(page.getByTestId('custom-game-board-status')).toContainText(
+    'You can plan a word while you wait'
+  );
+  expect(await top()).toBe(before);
+});

@@ -1205,6 +1205,10 @@ msgstr "An upload or change is still in progress. Leaving may interrupt it."
 msgid "Another device saved a different copy of this draft. Choose the copy to keep working from under Draft copies before publishing."
 msgstr "Another device saved a different copy of this draft. Choose the copy to keep working from under Draft copies before publishing."
 
+#: libs/billing-client-ts/src/cancellation-feedback-form.tsx
+msgid "Another reason"
+msgstr "Another reason"
+
 #: libs/app-root-client-ts/src/boot-error-screen-view.tsx
 msgid "Another tab stopped sharing saved data. Close the other app tabs, then reload this one. Reloading keeps your local data."
 msgstr "Another tab stopped sharing saved data. Close the other app tabs, then reload this one. Reloading keeps your local data."
@@ -2029,6 +2033,10 @@ msgstr "Columns"
 msgid "Command palette"
 msgstr "Command palette"
 
+#: libs/billing-client-ts/src/cancellation-feedback-form.tsx
+msgid "Comment (optional)"
+msgstr "Comment (optional)"
+
 #: libs/app-root-client-ts/src/about-screen-view.tsx
 msgid "Commit"
 msgstr "Commit"
@@ -2614,6 +2622,10 @@ msgstr "diamonds"
 msgid "Different work was kept from another device"
 msgstr "Different work was kept from another device"
 
+#: libs/billing-client-ts/src/cancellation-feedback-form.tsx
+msgid "Difficult to use"
+msgstr "Difficult to use"
+
 #: libs/game-puzzle-client-ts/src/content-draft-metadata.tsx
 msgid "Difficulty (optional)"
 msgstr "Difficulty (optional)"
@@ -3073,6 +3085,14 @@ msgstr "Failed to load"
 msgid "Features"
 msgstr "Features"
 
+#: libs/billing-client-ts/src/cancellation-feedback-form.tsx
+msgid "Feedback saved on this device. Waiting to share it with the team."
+msgstr "Feedback saved on this device. Waiting to share it with the team."
+
+#: libs/billing-client-ts/src/cancellation-feedback-form.tsx
+msgid "Feedback saved. Thank you for helping us improve."
+msgstr "Feedback saved. Thank you for helping us improve."
+
 #: libs/game-session-client-ts/src/custom-game-error.tsx
 msgid "Fill every place before starting."
 msgstr "Fill every place before starting."
@@ -3508,6 +3528,10 @@ msgstr "Hearts are not broken yet. Lead another suit."
 #: libs/hearts-client-ts/src/hearts-board.tsx
 msgid "Hearts table"
 msgstr "Hearts table"
+
+#: libs/billing-client-ts/src/cancellation-feedback-form.tsx
+msgid "Help us improve Plus"
+msgstr "Help us improve Plus"
 
 #: libs/auth-client-ts/src/sign-in-method-row.tsx
 msgid "Hidden email · forwarding is off"
@@ -4311,6 +4335,10 @@ msgstr "Minutes per side"
 msgid "Miss"
 msgstr "Miss"
 
+#: libs/billing-client-ts/src/cancellation-feedback-form.tsx
+msgid "Missing features"
+msgstr "Missing features"
+
 #: libs/auth-client-ts/src/account-device-meta-grid.tsx
 msgid "Model"
 msgstr "Model"
@@ -4855,6 +4883,10 @@ msgstr "Not set"
 #: libs/synthetic-population-client-ts/src/synthetic-user-details.tsx
 msgid "Not started"
 msgstr "Not started"
+
+#: libs/billing-client-ts/src/cancellation-feedback-form.tsx
+msgid "Not using it enough"
+msgstr "Not using it enough"
 
 #: libs/app-root-client-ts/src/connection-screen-view.tsx
 msgid "Not yet"
@@ -5477,6 +5509,10 @@ msgstr "Playtest: this uses the real puzzle rules. It does not count toward pers
 msgid "Playtests of your drafts"
 msgstr "Playtests of your drafts"
 
+#: libs/billing-client-ts/src/cancellation-feedback-form.tsx
+msgid "Please leave out payment details or other sensitive information."
+msgstr "Please leave out payment details or other sensitive information."
+
 #: libs/billing-client-ts/src/billing-plan-card.tsx
 msgid "Plus"
 msgstr "Plus"
@@ -5517,6 +5553,10 @@ msgstr "Practice runs don't count toward your progress."
 #: libs/battleship-client-ts/src/battleship-target-grid.tsx
 msgid "Precise aim"
 msgstr "Precise aim"
+
+#: libs/billing-client-ts/src/cancellation-feedback-form.tsx
+msgid "Prefer not to say"
+msgstr "Prefer not to say"
 
 #: libs/app-root-client-ts/src/settings-screen-view.tsx
 msgid "Preferences"
@@ -5893,6 +5933,10 @@ msgstr "rack emptied"
 msgid "Rack: {0}. Target: {1} points."
 msgstr "Rack: {0}. Target: {1} points."
 
+#: libs/word-tiles-client-ts/src/word-tiles-board-view.tsx
+msgid "Racks stay private to their players."
+msgstr "Racks stay private to their players."
+
 #: libs/profile-client-ts/src/avatar-editor-pickers.tsx
 #: pkgs/ui-root-client-ts/src/multi-select-swatch-grid/index.tsx
 msgid "Random"
@@ -5957,6 +6001,10 @@ msgstr "Ready to start."
 #: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
 msgid "Ready: publish to share it with everyone who plays."
 msgstr "Ready: publish to share it with everyone who plays."
+
+#: libs/billing-client-ts/src/cancellation-feedback-form.tsx
+msgid "Reason (optional)"
+msgstr "Reason (optional)"
 
 #: libs/word-tiles-client-ts/src/word-tiles-actions.tsx
 #: libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.tsx
@@ -6491,6 +6539,10 @@ msgstr "Save {0}%"
 msgid "Save again"
 msgstr "Save again"
 
+#: libs/billing-client-ts/src/cancellation-feedback-form.tsx
+msgid "Save feedback"
+msgstr "Save feedback"
+
 #: libs/synthetic-population-client-ts/src/synthetic-population-screen-view.tsx
 msgid "Save synthetic population"
 msgstr "Save synthetic population"
@@ -6503,6 +6555,7 @@ msgstr "Save the current changes before changing the pack."
 msgid "Save the pack and choose a game with a puzzle editor."
 msgstr "Save the pack and choose a game with a puzzle editor."
 
+#: libs/billing-client-ts/src/cancellation-feedback-form.tsx
 #: libs/profile-client-ts/src/avatar-editor-screen-view.tsx
 #: libs/profile-client-ts/src/profile-handle-screen-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-population-screen-view.tsx
@@ -6547,6 +6600,7 @@ msgstr "Saving your draft…"
 msgid "Saving your position…"
 msgstr "Saving your position…"
 
+#: libs/billing-client-ts/src/cancellation-feedback-form.tsx
 #: libs/profile-client-ts/src/avatar-editor-screen-view.tsx
 #: libs/profile-client-ts/src/profile-handle-screen-view.tsx
 #: libs/spaces-client-ts/src/rename-space-modal-view.tsx
@@ -6780,7 +6834,7 @@ msgstr "Setup move: {side} played {0} to {1}."
 msgid "Seven"
 msgstr "Seven"
 
-#. placeholder {0}: score().bonus
+#. placeholder {0}: preview.bonus
 #: libs/word-tiles-client-ts/src/word-tiles-panels.tsx
 msgid "Seven-tile bonus: {0}"
 msgstr "Seven-tile bonus: {0}"
@@ -7082,6 +7136,10 @@ msgstr "Solved"
 #: libs/game-puzzle-client-ts/src/content-library-card.tsx
 msgid "Solved · {0} in {1}"
 msgstr "Solved · {0} in {1}"
+
+#: libs/game-puzzle-client-ts/src/content-attempt-screen-view.tsx
+msgid "Solved before. Your completion stays saved."
+msgstr "Solved before. Your completion stays saved."
 
 #: libs/game-puzzle-client-ts/src/content-pack-overview.tsx
 msgid "Some puzzles have not reached this device. Reconnect to load the rest. Your progress stays saved."
@@ -8334,6 +8392,10 @@ msgstr "To move"
 msgid "Today"
 msgstr "Today"
 
+#: libs/billing-client-ts/src/cancellation-feedback-form.tsx
+msgid "Too expensive"
+msgstr "Too expensive"
+
 #: libs/search-client-ts/src/search-screen-view.tsx
 msgid "Too many searches. Please wait a minute; this search will retry automatically."
 msgstr "Too many searches. Please wait a minute; this search will retry automatically."
@@ -8422,6 +8484,10 @@ msgstr "Try publishing again"
 #: libs/game-puzzle-client-ts/src/content-draft-history.tsx
 msgid "Try redoing again"
 msgstr "Try redoing again"
+
+#: libs/billing-client-ts/src/cancellation-feedback-form.tsx
+msgid "Try saving again"
+msgstr "Try saving again"
 
 #: libs/game-puzzle-client-ts/src/content-start-attempt.tsx
 msgid "Try starting again"
@@ -8658,6 +8724,10 @@ msgstr "Username needs at least {USERNAME_MIN_LENGTH} characters"
 #: libs/profile-client-ts/src/username-error-label.tsx
 msgid "Username was changed recently"
 msgstr "Username was changed recently"
+
+#: libs/billing-client-ts/src/cancellation-feedback-form.tsx
+msgid "Using something else"
+msgstr "Using something else"
 
 #: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
 #: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
@@ -9008,6 +9078,10 @@ msgstr "You are already playing your own side."
 msgid "You are offline. Available puzzles and your saved work stay on this device. Changes share when connected."
 msgstr "You are offline. Available puzzles and your saved work stay on this device. Changes share when connected."
 
+#: libs/billing-client-ts/src/cancellation-feedback-form.tsx
+msgid "You are offline. Saved feedback will be shared when your connection returns."
+msgstr "You are offline. Saved feedback will be shared when your connection returns."
+
 #: libs/chess-puzzle-client-ts/src/puzzle-management-screen-view.tsx
 msgid "You are offline. The last status is shown. Reconnect to check or save a Lichess file, start loading, or stop loading."
 msgstr "You are offline. The last status is shown. Reconnect to check or save a Lichess file, start loading, or stop loading."
@@ -9028,10 +9102,6 @@ msgstr "You are reviewing an earlier position, after {0}. No piece can be moved 
 #: libs/game-matchmaking-client-ts/src/multiplayer-reviewing.tsx
 msgid "You are reviewing an earlier position, at the start of the game. No piece can be moved on it."
 msgstr "You are reviewing an earlier position, at the start of the game. No piece can be moved on it."
-
-#: libs/word-tiles-client-ts/src/word-tiles-board-view.tsx
-msgid "You are watching. Racks stay private to their players."
-msgstr "You are watching. Racks stay private to their players."
 
 #: libs/game-session-client-ts/src/game-frame-headline.tsx
 msgid "You came {place}"
@@ -9265,6 +9335,10 @@ msgstr "Your avatar"
 msgid "Your avatar change wasn't saved"
 msgstr "Your avatar change wasn't saved"
 
+#: libs/billing-client-ts/src/cancellation-feedback-form.tsx
+msgid "Your cancellation is already arranged. Sharing a reason or comment is optional and will not change it."
+msgstr "Your cancellation is already arranged. Sharing a reason or comment is optional and will not change it."
+
 #: libs/hearts-client-ts/src/hearts-table-view.tsx
 msgid "Your cards are chosen. Waiting for every player to pass."
 msgstr "Your cards are chosen. Waiting for every player to pass."
@@ -9327,6 +9401,10 @@ msgstr "Your export is late: it was due by {0}. You can ask again, which starts 
 #: libs/account-privacy-client-ts/src/export-download.tsx
 msgid "Your export is ready. Downloads are private to your recently proven account and expire 7 days after becoming ready."
 msgstr "Your export is ready. Downloads are private to your recently proven account and expire 7 days after becoming ready."
+
+#: libs/billing-client-ts/src/cancellation-feedback-form.tsx
+msgid "Your feedback could not be saved. Your answer is still here. Try saving again; your cancellation is unchanged."
+msgstr "Your feedback could not be saved. Your answer is still here. Try saving again; your cancellation is unchanged."
 
 #: libs/battleship-client-ts/src/battleship-board.tsx
 msgid "Your fleet"
