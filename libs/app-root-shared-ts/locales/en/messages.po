@@ -8173,6 +8173,10 @@ msgstr "This device only"
 msgid "This draft cannot be opened. Choose an earlier saved copy to continue."
 msgstr "This draft cannot be opened. Choose an earlier saved copy to continue."
 
+#: libs/sokoban-client-ts/src/sokoban-player.tsx
+msgid "This draft cannot be opened. Go back to the builder to fix it."
+msgstr "This draft cannot be opened. Go back to the builder to fix it."
+
 #: libs/game-puzzle-client-ts/src/content-author-screen-view.tsx
 msgid "This draft is not available on this device"
 msgstr "This draft is not available on this device"
@@ -8290,6 +8294,10 @@ msgstr "This puzzle"
 #: libs/word-tiles-client-ts/src/word-tiles-puzzle-feedback.tsx
 msgid "This puzzle cannot be opened."
 msgstr "This puzzle cannot be opened."
+
+#: libs/sokoban-client-ts/src/sokoban-player.tsx
+msgid "This puzzle cannot be opened. Choose another from Pack overview."
+msgstr "This puzzle cannot be opened. Choose another from Pack overview."
 
 #: libs/sokoban-client-ts/src/sokoban-player.tsx
 msgid "This puzzle cannot be opened. Choose another puzzle."

@@ -20,7 +20,14 @@ import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 
 import { TileBoard } from '@pkgs/ui-root-client-ts/tile-board';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
-import { createMemo, createUniqueId, type JSX, Show } from 'solid-js';
+import {
+  createMemo,
+  createUniqueId,
+  type JSX,
+  Match,
+  Show,
+  Switch,
+} from 'solid-js';
 import { createSokobanSteering } from './create-sokoban-steering';
 import { sokobanPieces, sokobanTiles } from './sokoban-board-view';
 import { type SokobanFeedback, SokobanStatus } from './sokoban-feedback';
@@ -117,9 +124,26 @@ export function SokobanPlayerView(
     <Show
       when={input()}
       fallback={
-        <Notice tone="error">
-          <Trans>This puzzle cannot be opened. Choose another puzzle.</Trans>
-          {/* The screen's own way on (pack or playtest) replaces ours. */}
+        <Notice tone="error" dataSet={{ testid: 'sokoban-unreadable' }}>
+          {/* Names the one way out the screen offers, or offers ours. */}
+          <Switch
+            fallback={
+              <Trans>
+                This puzzle cannot be opened. Choose another puzzle.
+              </Trans>
+            }
+          >
+            <Match when={props.context?.kind === 'pack'}>
+              <Trans>
+                This puzzle cannot be opened. Choose another from Pack overview.
+              </Trans>
+            </Match>
+            <Match when={props.context?.kind === 'playtest'}>
+              <Trans>
+                This draft cannot be opened. Go back to the builder to fix it.
+              </Trans>
+            </Match>
+          </Switch>
           <Show when={props.context?.shellOffersWayOn !== true}>
             <Button title={t`More puzzles`} onClick={props.onReturnToLibrary} />
           </Show>

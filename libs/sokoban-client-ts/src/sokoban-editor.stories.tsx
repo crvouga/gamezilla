@@ -12,8 +12,9 @@ import { TWO_CRATES } from './sokoban-player.example';
 function renderInBuilder(
   args: PuzzleEditorProps,
   onChange = args.onChange,
-  // A draft just opened has no edits of this session to undo.
-  undoable = true
+  // A draft just opened has no edits of this session to undo; only a
+  // story that edits has some.
+  undoable = false
 ) {
   return (
     <StoryPuzzleBuilder
@@ -62,10 +63,14 @@ export const EditAndCorrect: Story = {
   args: { definition: TWO_CRATES },
   render: (args) => {
     const [, updateArgs] = useArgs();
-    return renderInBuilder(args, (definition) => {
-      args.onChange(definition);
-      updateArgs({ definition });
-    });
+    return renderInBuilder(
+      args,
+      (definition) => {
+        args.onChange(definition);
+        updateArgs({ definition });
+      },
+      true
+    );
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -92,7 +97,6 @@ export const NeedsCorrections: Story = {
       rows: ['######', '#    #', '# $..#', '#    #', '######'],
     }),
   },
-  render: (args) => renderInBuilder(args, args.onChange, false),
 };
 
 /** While the shared builder saves, no tool or square can be used. */
@@ -101,5 +105,4 @@ export const Disabled: Story = { args: { disabled: true } };
 /** A draft this app cannot read points at an earlier saved draft. */
 export const Unreadable: Story = {
   args: { definition: 'not a board' },
-  render: (args) => renderInBuilder(args, args.onChange, false),
 };

@@ -5,6 +5,7 @@ import {
 import { sokobanPuzzleContent } from '@libs/sokoban-shared-ts/sokoban-puzzle-content';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
+import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import { createSignal, Show, untrack } from 'solid-js';
 import { sokobanGameClient } from './sokoban-game-client';
 import { SokobanPlayerView } from './sokoban-player';
@@ -79,6 +80,13 @@ export function SokobanHistory(props: {
   const [completionSaved, setCompletionSaved] = createSignal(
     untrack(() => complete())
   );
+  // Story-only: where a way on was asked to go, so a journey can click it
+  // for real and read the destination (production navigates instead).
+  const [opened, setOpened] = createSignal('');
+  const open = (destination: string) => {
+    setOpened(destination);
+    props.onOpenLibrary();
+  };
   return (
     <StoryPackAttempt
       // As the production attempt screen passes the game's frame.
@@ -96,35 +104,38 @@ export function SokobanHistory(props: {
       packActions={
         <StoryPackActions
           next={
-            complete()
-              ? { title: 'Lift', open: props.onOpenLibrary }
-              : undefined
+            complete() ? { title: 'Lift', open: () => open('Lift') } : undefined
           }
-          onOverview={props.onOpenLibrary}
+          onOverview={() => open('Pack overview')}
         />
       }
       disabled={props.disabled}
       player={
-        <SokobanPlayerView
-          onReturnToLibrary={props.onOpenLibrary}
-          // A pack's puzzle: the screen offers the pack overview and next.
-          context={{ kind: 'pack', shellOffersWayOn: true }}
-          definition={props.definition}
-          state={state()}
-          disabled={props.disabled}
-          onAction={(action) => {
-            const next = rules.apply(props.definition, state(), action);
-            if (!next.accepted) throw new Error('Player sent a refused move');
-            props.onAction(action);
-            if (rules.complete(props.definition, next.state))
-              setCompletionSaved(true);
-            setHistory((values) => [
-              ...values.slice(0, cursor() + 1),
-              next.state,
-            ]);
-            setCursor((value) => value + 1);
-          }}
-        />
+        <>
+          <VisuallyHidden testId="story-way-on-opened">
+            {opened()}
+          </VisuallyHidden>
+          <SokobanPlayerView
+            onReturnToLibrary={props.onOpenLibrary}
+            // A pack's puzzle: the screen offers the pack overview and next.
+            context={{ kind: 'pack', shellOffersWayOn: true }}
+            definition={props.definition}
+            state={state()}
+            disabled={props.disabled}
+            onAction={(action) => {
+              const next = rules.apply(props.definition, state(), action);
+              if (!next.accepted) throw new Error('Player sent a refused move');
+              props.onAction(action);
+              if (rules.complete(props.definition, next.state))
+                setCompletionSaved(true);
+              setHistory((values) => [
+                ...values.slice(0, cursor() + 1),
+                next.state,
+              ]);
+              setCursor((value) => value + 1);
+            }}
+          />
+        </>
       }
       controls={
         <StoryControls

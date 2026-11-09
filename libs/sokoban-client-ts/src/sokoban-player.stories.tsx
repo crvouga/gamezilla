@@ -117,6 +117,9 @@ export const Unreadable: Story = {
     await expect(
       canvas.queryByRole('button', { name: 'More puzzles' })
     ).toBeNull();
+    await expect(canvas.getByTestId('sokoban-unreadable')).toHaveTextContent(
+      'This puzzle cannot be opened. Choose another from Pack overview.'
+    );
     const button = within(
       canvas.getByTestId('puzzle-attempt-pack-actions')
     ).getByRole('button', { name: 'Pack overview' });
