@@ -94,6 +94,11 @@
       calc(100dvh - 380px - var(--ui-host-chrome-block-size, 0px)),
       var(--ui-max-width-prose)
     );
+    /* The rail takes what the bounded board leaves, so it sits beside the
+       board and still ends at the column's edge: no empty band between. */
+    grid-template-columns:
+      minmax(0, var(--game-board-measure))
+      minmax(var(--game-arena-rail-measure), 1fr);
   }
 }
 

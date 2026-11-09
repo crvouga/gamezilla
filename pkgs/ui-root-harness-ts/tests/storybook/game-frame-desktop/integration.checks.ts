@@ -39,3 +39,23 @@ test('storybook integration: game frame keeps the own seat, its actions and a wa
     await page.evaluate(() => document.scrollingElement?.scrollTop ?? 0)
   ).toBe(0);
 });
+
+// With the board bounded by the window, the board column kept its 1fr track
+// and the record rail its fixed width, leaving about 200px of empty band
+// between them at 1440x900.
+// regression: game-frame-desktop-board-rail-gap
+test('storybook integration: game frame rail sits beside the bounded board at 1440x900', async ({
+  page,
+}) => {
+  await page.setViewportSize(DESKTOP);
+  await open(page, 'screens-games-frame--your-turn');
+  const board = await page.getByTestId('custom-game-public').boundingBox();
+  // The rail's "Game record" card.
+  const record = await page
+    .locator('[data-component="CustomGameReview"]')
+    .first()
+    .boundingBox();
+  if (board === null || record === null) throw new Error('Frame not shown');
+  expect(record.x - (board.x + board.width)).toBeLessThanOrEqual(48);
+  expect(record.x + record.width).toBeLessThanOrEqual(DESKTOP.width);
+});
