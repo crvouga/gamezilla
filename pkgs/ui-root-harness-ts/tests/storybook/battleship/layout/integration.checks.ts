@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 import {
   captureBattleEvidence,
+  captureBattleLayout,
   openBattleStory,
   settleMotion,
 } from '../evidence';
@@ -133,9 +134,13 @@ test('storybook integration: battleship finished game keeps the switch and own s
     info
   );
   await settleMotion(page);
+  const layout = await captureBattleLayout(page, info);
   for (const id of ['custom-game-board-view', 'custom-game-seat-near']) {
     const box = await page.getByTestId(id).boundingBox();
     if (!box) throw new Error(`${id} is not shown`);
-    expect(box.y + box.height).toBeLessThanOrEqual(844);
+    if (box.y + box.height > 844)
+      throw new Error(
+        `${id} ends at ${box.y + box.height}px\n${JSON.stringify(layout)}`
+      );
   }
 });
