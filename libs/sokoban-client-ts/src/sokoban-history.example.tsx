@@ -7,6 +7,54 @@ import { sokobanGameClient } from './sokoban-game-client';
 import { SokobanPlayerView } from './sokoban-player';
 
 /** Story-only local position history; every forward move uses production rules. */
+/** The attempt's commands, styled as the production screen styles them. */
+function StoryControls(props: {
+  disabled: boolean;
+  canUndo: boolean;
+  canRedo: boolean;
+  onUndo: () => void;
+  onRedo: () => void;
+  onRestart: () => void;
+  onOpenLibrary: () => void;
+}) {
+  return (
+    <StackHorizontal gap="sm" wrap>
+      <Button
+        title="Undo"
+        intent="neutral"
+        variant="outline"
+        size="sm"
+        disabled={props.disabled || !props.canUndo}
+        onClick={props.onUndo}
+      />
+      <Button
+        title="Redo"
+        intent="neutral"
+        variant="outline"
+        size="sm"
+        disabled={props.disabled || !props.canRedo}
+        onClick={props.onRedo}
+      />
+      <Button
+        title="Restart"
+        intent="neutral"
+        variant="outline"
+        size="sm"
+        disabled={props.disabled}
+        onClick={props.onRestart}
+      />
+      {/* As the production screen offers a pack puzzle's way on. */}
+      <Button
+        title="Pack overview"
+        intent="neutral"
+        variant="outline"
+        size="sm"
+        onClick={props.onOpenLibrary}
+      />
+    </StackHorizontal>
+  );
+}
+
 export function SokobanHistory(props: {
   definition: string;
   state: string;
@@ -60,38 +108,20 @@ export function SokobanHistory(props: {
         />
       }
       controls={
-        <StackHorizontal gap="sm" wrap>
-          <Button
-            title="Undo"
-            disabled={props.disabled || cursor() === 0}
-            onClick={() => setCursor((value) => value - 1)}
-          />
-          <Button
-            title="Redo"
-            disabled={props.disabled || cursor() === history().length - 1}
-            onClick={() => setCursor((value) => value + 1)}
-          />
-          <Button
-            title="Restart"
-            intent="neutral"
-            variant="outline"
-            disabled={props.disabled}
-            onClick={() => {
-              const initial = rules.initial(props.definition);
-              if (!initial.accepted) throw new Error('Invalid restart');
-              setHistory([initial.state]);
-              setCursor(0);
-            }}
-          />
-          {/* As the production screen offers a pack puzzle's way on. */}
-          <Button
-            title="Pack overview"
-            intent="neutral"
-            variant="outline"
-            size="sm"
-            onClick={props.onOpenLibrary}
-          />
-        </StackHorizontal>
+        <StoryControls
+          disabled={props.disabled}
+          canUndo={cursor() > 0}
+          canRedo={cursor() < history().length - 1}
+          onUndo={() => setCursor((value) => value - 1)}
+          onRedo={() => setCursor((value) => value + 1)}
+          onRestart={() => {
+            const initial = rules.initial(props.definition);
+            if (!initial.accepted) throw new Error('Invalid restart');
+            setHistory([initial.state]);
+            setCursor(0);
+          }}
+          onOpenLibrary={props.onOpenLibrary}
+        />
       }
     />
   );
