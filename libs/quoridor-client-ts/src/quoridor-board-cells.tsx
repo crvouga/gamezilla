@@ -27,8 +27,11 @@ export function quoridorPlayerName(game: Quoridor, player: number): string {
 }
 
 export function quoridorWallMessage(
-  reason: QuoridorWallRefusal | null
+  reason: QuoridorWallRefusal | null,
+  mode: Quoridor['mode'] = 'hill'
 ): string {
+  if (reason === 'no-walls' && mode === 'classic')
+    return t`You have no walls left. Move your pawn.`;
   if (reason === null) return t`Preview only. Place wall to confirm.`;
   const messages: Readonly<Record<QuoridorWallRefusal, string>> = {
     outside: t`Walls must fit between four squares. Choose a starting square from a1 to h8.`,
@@ -96,10 +99,12 @@ function anchorEnabled(
   return tool === 'move' ? legalMove : cell % 9 < 8 && Math.floor(cell / 9) < 8;
 }
 
+/** A finished game keeps showing the winner's goal instead of the next turn's. */
 function isGoal(game: Quoridor, cell: number): boolean {
+  const player = game.winner ?? game.turn;
   return game.mode === 'hill'
     ? cell === 40
-    : Math.floor(cell / 9) === (game.turn === 0 ? 8 : 0);
+    : Math.floor(cell / 9) === (player === 0 ? 8 : 0);
 }
 
 export function quoridorBoardCells(
@@ -118,14 +123,17 @@ export function quoridorBoardCells(
     const cell = (8 - Math.floor(index / 9)) * 9 + (index % 9);
     const id = quoridorCellName(cell);
     const move = legal.includes(cell);
-    const moving = move && tool === 'move';
+    // Only a player who may act sees destinations; watchers and finished games do not.
+    const moving =
+      move && tool === 'move' && interactive && game.winner === null;
     const identity = cellIdentity(game, cell, moving);
     const goal = isGoal(game, cell);
     const edges = edgesAt(game.walls, cell);
+    // An overlapping proposal never paints over the wall it collides with.
     const previewEdges =
       previewWall === null || tool === 'move'
         ? []
-        : edgesAt([previewWall], cell);
+        : edgesAt([previewWall], cell).filter((edge) => !edges.includes(edge));
     return {
       ...identity,
       id,

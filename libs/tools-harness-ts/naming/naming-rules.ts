@@ -67,7 +67,6 @@ export const NAMING_EXEMPT = {
   kebabMarkdownPrefixes: [
     '.agents/commands/',
     '.claude/agents/',
-    '.cursor/commands/',
     '.factory/commands/',
     '.roo/commands/',
     '.clinerules/workflows/',

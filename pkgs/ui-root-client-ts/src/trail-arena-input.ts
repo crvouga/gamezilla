@@ -1,3 +1,4 @@
+import { createEffect } from 'solid-js';
 import type {
   TrailControls,
   TrailHeading,
@@ -62,6 +63,17 @@ type Swipe = { slot: TrailSlot; x: number; y: number };
  */
 export function trailArenaInput(props: TrailControls) {
   const swipes = new Map<number, Swipe>();
+  // A held finger belongs to the control session in which it began. A
+  // reconnect, round break or ownership change requires a fresh gesture.
+  let previousSession = '';
+  createEffect(() => {
+    const session = `${props.enabled}:${props.riders
+      .filter((rider) => rider.controlled)
+      .map((rider) => rider.index)
+      .join(',')}`;
+    if (session !== previousSession) swipes.clear();
+    previousSession = session;
+  });
   const keyDown = (event: KeyboardEvent) => {
     const slots = controlledSlots(props);
     if (

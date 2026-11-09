@@ -2,6 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import {
   planReadFailed,
   providerFailureIsTransient,
+  providerInstallIsTransient,
 } from '@libs/infra-shared-ts/plan-retry';
 
 describe('plan retry', () => {
@@ -34,5 +35,19 @@ describe('plan retry', () => {
     expect(planReadFailed(0)).toBe(false);
     expect(planReadFailed(2)).toBe(false);
     expect(providerFailureIsTransient('Error: Invalid reference')).toBe(false);
+  });
+
+  // regression: infra-init-provider-download-504
+  test('a provider download gateway timeout during init is transient', () => {
+    const output = [
+      'Error while installing infisical/infisical v0.19.36: could not query',
+      'provider registry for registry.opentofu.org/infisical/infisical: failed to',
+      'retrieve authentication checksums for provider: request failed after 2',
+      'attempts: 504 Gateway Timeout returned from',
+    ].join('\n');
+    expect(providerInstallIsTransient(output)).toBe(true);
+    expect(
+      providerInstallIsTransient('Error: Unsupported argument in module')
+    ).toBe(false);
   });
 });

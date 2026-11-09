@@ -1,5 +1,6 @@
 import { afterEach, expect, test } from 'bun:test';
 import {
+  LARGE_HEAD_SCALE,
   TrailArena,
   type TrailOverlay,
   type TrailRider,
@@ -35,6 +36,7 @@ function arena(options: {
   riders: readonly TrailRider[];
   enabled?: boolean;
   overlay?: TrailOverlay | undefined;
+  heads?: 'regular' | 'large';
 }) {
   const directions: unknown[] = [];
   const view = render(() => (
@@ -45,6 +47,7 @@ function arena(options: {
       riders={options.riders}
       crashes={[{ index: 1, x: 2, y: 2 }]}
       overlay={options.overlay}
+      heads={options.heads}
       enabled={options.enabled ?? true}
       label="Light cycles arena"
       instructionsId="arena-help"
@@ -238,4 +241,38 @@ test('the arena is named and described, and the overlay is announced in place', 
   setOverlay({ title: 'Comet wins the round' });
   expect(status.textContent).toBe('Comet wins the round');
   expect(view.getByTestId('arena-overlay').dataset['open']).toBe('true');
+});
+
+// regression: light-cycles-crash-cross-hides-rider-letter
+test("a crash badge sits beside the crashed rider's letter, never over it", () => {
+  for (const heads of ['regular', 'large'] as const) {
+    const view = arena({
+      riders: [rider(0, true), rider(1, false, false)],
+      heads,
+    });
+    const centre = (testId: string) => {
+      const match = /translate\(([-\d.]+) ([-\d.]+)\)/.exec(
+        view.getByTestId(testId).getAttribute('transform') ?? ''
+      );
+      return [Number(match?.[1]), Number(match?.[2])] as const;
+    };
+    const scale = heads === 'large' ? LARGE_HEAD_SCALE : 1;
+    const head = centre('arena-rider-1');
+    const crash = centre('arena-crash-1');
+    // The badge's half-width: its farthest corner from its centre.
+    const corners = (
+      view
+        .getByTestId('arena-crash-1')
+        .querySelector('path')
+        ?.getAttribute('d') ?? ''
+    )
+      .match(/-?\d+(?:\.\d+)?/g)
+      ?.map((value) => Math.abs(Number(value))) ?? [Number.NaN];
+    const badge = Math.max(...corners);
+    // The letter is 1.3 cells tall on a head of radius one; keep its half clear.
+    const clearance =
+      Math.hypot(crash[0] - head[0], crash[1] - head[1]) - badge * scale;
+    expect(clearance).toBeGreaterThan(0.65 * scale);
+    view.unmount();
+  }
 });

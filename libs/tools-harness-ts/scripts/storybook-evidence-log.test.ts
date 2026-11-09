@@ -5,6 +5,7 @@ import {
   decodeEvidence,
   EVIDENCE_MANIFEST,
   encodeEvidence,
+  evidenceTransfer,
   STORYBOOK_BASELINE_PATCH,
   STORYBOOK_RESULTS,
   validateEvidenceManifest,
@@ -80,6 +81,16 @@ test('an authoring run exports its reference patch, and only that patch path', (
     `${STORYBOOK_RESULTS}storybook-baselines.patch`,
   ])
     expect(() => assertEvidencePath(path)).toThrow();
+});
+
+// regression: storybook-evidence-large-patch-refuses-export
+test('an oversized reference patch is skipped while other oversized evidence still refuses', () => {
+  const mb = 1024 * 1024;
+  expect(evidenceTransfer(STORYBOOK_BASELINE_PATCH, 2 * mb, 0)).toBe('send');
+  expect(evidenceTransfer(STORYBOOK_BASELINE_PATCH, 40 * mb, 0)).toBe('skip');
+  expect(() =>
+    evidenceTransfer(`${STORYBOOK_RESULTS}video.webm`, 40 * mb, 0)
+  ).toThrow('bounded log transfer');
 });
 
 test('truncated evidence cannot be mistaken for a complete recording', () => {

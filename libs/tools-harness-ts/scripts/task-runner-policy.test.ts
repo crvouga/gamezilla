@@ -249,7 +249,4 @@ test('local agent settings are generated without caching user-authored entries',
   expect(
     tasks['@libs/tools-harness-ts#generate:identity-agents']?.outputs ?? []
   ).toEqual([]);
-  expect(
-    tasks['@libs/tools-harness-ts#generate:brand-artifacts']?.outputs
-  ).not.toContain('$TURBO_ROOT$/.cursor/mcp.json');
 });
