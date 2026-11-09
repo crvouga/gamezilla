@@ -43,7 +43,32 @@ test('storybook integration: game frame fit 1440x900 keeps a finished board at i
     page,
     'screens-games-chess-board--checkmated'
   );
-  expect(finished).toBeGreaterThanOrEqual(live - 2);
+  const layout = await page.evaluate(() => {
+    const at = (selector: string) => {
+      const node = document.querySelector<HTMLElement>(selector);
+      if (!node) return null;
+      const box = node.getBoundingClientRect();
+      return {
+        display: getComputedStyle(node).display,
+        columns: getComputedStyle(node).gridTemplateColumns,
+        box: [box.x, box.y, box.width, box.height].map(Math.round),
+      };
+    };
+    const stage = document.querySelector<HTMLElement>(
+      '[data-component="GameBoardStage"]'
+    );
+    return {
+      session: at(
+        '[data-component="GameColumn"] > :not([data-component="GameHeading"])'
+      ),
+      outcome: at('[data-component="GameSessionOutcome"]'),
+      layout: at('[data-component="GameLayout"]'),
+      stage: at('[data-component="GameBoardStage"]'),
+      fit: stage?.style.getPropertyValue('--game-board-fit') ?? null,
+      stageClass: stage?.className ?? null,
+    };
+  });
+  expect(finished, JSON.stringify(layout)).toBeGreaterThanOrEqual(live - 2);
   const board = await page
     .locator('[data-component="ChessBoard"]')
     .boundingBox();
