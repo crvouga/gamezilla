@@ -52,8 +52,8 @@ test('rider letters read on every head and the crash cross reads on its badge, i
   expect(sheet.split('.disc {')[1]?.split('}')[0]).toContain(
     'fill: var(--rider-color);'
   );
-  expect(tokenOf('.crashBadge', 'fill')).toBe('background');
-  expect(tokenOf('.crashCross', 'stroke')).toBe('destructive');
+  expect(tokenOf('.crashBadge', 'fill')).toBe('destructive-surface');
+  expect(tokenOf('.crashCross', 'stroke')).toBe('background');
   const riders = [
     ...sheet.matchAll(
       /\.arena \[data-rider="\d"\] \{\s*--rider-color: var\(--ui-color-(game-light-cycles-[a-z]+)\);/g
@@ -66,8 +66,36 @@ test('rider letters read on every head and the crash cross reads on its badge, i
       expect(contrast(ground, arenaHex(theme, rider))).toBeGreaterThanOrEqual(
         4.5
       );
-    expect(
-      contrast(arenaHex(theme, 'destructive'), ground)
-    ).toBeGreaterThanOrEqual(3);
+    const badge = tokens.color[theme]['destructiveSurface']?.$value.hex ?? '';
+    expect(contrast(badge, ground)).toBeGreaterThanOrEqual(3);
+  }
+});
+
+// regression: light-cycles-crash-badge-in-rider-colour
+// regression: light-cycles-crashed-letter-faint
+test("a crash is never drawn in a rider's colour, and a crashed rider's letter is not dimmed", () => {
+  const riders = new Set(
+    [...sheet.matchAll(/--rider-color: var\(--ui-color-([a-z-]+)\);/g)].map(
+      (match) => match[1]
+    )
+  );
+  for (const [selector, property] of [
+    ['.crashBadge', 'fill'],
+    ['.crashCross', 'stroke'],
+  ] as const) {
+    const token = tokenOf(selector, property) ?? '';
+    const resolved =
+      new RegExp(`--ui-color-${token}: var\\(--ui-color-([a-z-]+)\\);`).exec(
+        sheet
+      )?.[1] ?? token;
+    expect(riders.has(resolved)).toBe(false);
+  }
+  expect(sheet).not.toMatch(/\.head\[data-alive="false"\] \{[^}]*opacity/);
+  for (const theme of ['light', 'dark'] as const) {
+    const ground = arenaHex(theme, 'background');
+    for (const rider of riders)
+      expect(
+        contrast(arenaHex(theme, rider ?? ''), ground)
+      ).toBeGreaterThanOrEqual(4.5);
   }
 });

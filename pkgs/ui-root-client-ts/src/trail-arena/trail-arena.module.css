@@ -155,6 +155,9 @@
   dominant-baseline: central;
   pointer-events: none;
 }
+/* A crashed head keeps its identity at full strength: an opaque disc that
+   hides the trails under it, a dashed ring and the letter in its rider's
+   colour. Only the nose, its heading, is gone. */
 .head[data-alive="false"] .disc {
   fill: var(--ui-color-background);
   stroke: var(--rider-color);
@@ -166,19 +169,20 @@
 .head[data-alive="false"] .nose {
   display: none;
 }
-.head[data-alive="false"] {
-  opacity: var(--ui-opacity-muted);
-}
 
+/* A crash is a red diamond with a cross: a colour and a shape no rider
+   uses (riders are round, in the arena palette). The page's own
+   destructive surface is used, since the arena maps destructive to a
+   rider's colour. */
 .crashBadge {
-  fill: var(--ui-color-background);
-  stroke: var(--ui-color-destructive);
-  stroke-width: 0.14;
+  fill: var(--ui-color-destructive-surface);
+  stroke: var(--ui-color-background);
+  stroke-width: 0.1;
 }
 .crashCross {
   fill: none;
-  stroke: var(--ui-color-destructive);
-  stroke-width: 0.22;
+  stroke: var(--ui-color-background);
+  stroke-width: 0.2;
   stroke-linecap: round;
 }
 

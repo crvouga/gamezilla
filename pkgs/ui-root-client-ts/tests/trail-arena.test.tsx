@@ -259,12 +259,16 @@ test("a crash badge sits beside the crashed rider's letter, never over it", () =
     const scale = heads === 'large' ? LARGE_HEAD_SCALE : 1;
     const head = centre('arena-rider-1');
     const crash = centre('arena-crash-1');
-    const badge = Number(
+    // The badge's half-width: its farthest corner from its centre.
+    const corners = (
       view
         .getByTestId('arena-crash-1')
-        .querySelector('circle')
-        ?.getAttribute('r')
-    );
+        .querySelector('path')
+        ?.getAttribute('d') ?? ''
+    )
+      .match(/-?\d+(?:\.\d+)?/g)
+      ?.map((value) => Math.abs(Number(value))) ?? [Number.NaN];
+    const badge = Math.max(...corners);
     // The letter is 1.3 cells tall on a head of radius one; keep its half clear.
     const clearance =
       Math.hypot(crash[0] - head[0], crash[1] - head[1]) - badge * scale;

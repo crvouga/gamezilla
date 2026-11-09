@@ -166,10 +166,10 @@ export function RiderHead(props: {
  * Offset of a crash badge from its cell's centre, in head radii: up and to
  * the right, so the crashed rider's own letter stays readable beside it.
  */
-export const CRASH_BADGE_OFFSET = 0.95;
+export const CRASH_BADGE_OFFSET = 1.05;
 
 /**
- * Where a rider crashed: a small cross badge on a solid disc at the head's
+ * Where a rider crashed: a small red diamond with a cross at the head's
  * upper right, drawn above every head. It never covers the rider's letter,
  * so who crashed still reads in a dense field of trails.
  */
@@ -190,10 +190,10 @@ export function CrashMarker(props: {
       data-offset={offset()}
       transform={`translate(${props.crash.x + 0.5 + offset()} ${props.crash.y + 0.5 - offset()}) scale(${scale()})`}
     >
-      <circle class={styles['crashBadge']} r="0.62" />
+      <path class={styles['crashBadge']} d="M0 -0.74L0.74 0L0 0.74L-0.74 0Z" />
       <path
         class={styles['crashCross']}
-        d="M-0.3 -0.3L0.3 0.3M0.3 -0.3L-0.3 0.3"
+        d="M-0.24 -0.24L0.24 0.24M0.24 -0.24L-0.24 0.24"
       />
     </g>
   );
