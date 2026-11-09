@@ -46,6 +46,16 @@ function arenaStatus(state: LightCyclesState): string {
   return t`Round ${state.round} · first to ${state.targetScore}`;
 }
 
+/** Every frame reader shares one validated snapshot; retain at most one position. */
+function positionReader() {
+  let latest: { position: string; state: LightCyclesState | null } | undefined;
+  return (position: string): LightCyclesState | null => {
+    if (latest === undefined || latest.position !== position)
+      latest = { position, state: decodeLightCycles(position) };
+    return latest.state;
+  };
+}
+
 /**
  * Two, three or four riders, each table size its own mode; beside each
  * rider its round wins, out once it has crashed this round.
@@ -54,6 +64,7 @@ export function lightCyclesFrame(
   count: LightCyclesRiderCount
 ): GameFrame<JSX.Element> {
   const sides = LIGHT_CYCLES_SEATS[count];
+  const readPosition = positionReader();
   return {
     drawOffers: false,
     players: {
@@ -75,7 +86,7 @@ export function lightCyclesFrame(
         max: 9,
         default: LIGHT_CYCLES_CONFIG.targetScore,
         read: (position) =>
-          decodeLightCycles(position)?.targetScore ??
+          readPosition(position)?.targetScore ??
           LIGHT_CYCLES_CONFIG.targetScore,
         encode: String,
       },
@@ -88,11 +99,11 @@ export function lightCyclesFrame(
       // Short, so a player's name keeps its room on a strip or a chip.
       stat: (position, side) => ({
         label: t`${riderName(side)} wins`,
-        value: String(roundWins(decodeLightCycles(position), side)),
+        value: String(roundWins(readPosition(position), side)),
       }),
       facts: () => [],
       out: (position, side) => {
-        const state = decodeLightCycles(position);
+        const state = readPosition(position);
         return (
           state !== null &&
           state.phase !== 'completed' &&
@@ -102,11 +113,11 @@ export function lightCyclesFrame(
     },
     createBoard: boardOnly(LightCyclesBoard),
     turnStatus: (position) => {
-      const state = decodeLightCycles(position);
+      const state = readPosition(position);
       return state === null ? null : arenaStatus(state);
     },
     result: (position, winner) => {
-      const state = decodeLightCycles(position);
+      const state = readPosition(position);
       return {
         scoreLabel: t`Round wins`,
         standings: standingsByScore({

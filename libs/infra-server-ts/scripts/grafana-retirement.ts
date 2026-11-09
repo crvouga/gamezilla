@@ -13,7 +13,7 @@ import {
   showArgs,
 } from '@libs/infra-shared-ts/tofu-command';
 import { backupState } from './state-backup';
-import { conftest, fail, spawnTool, tofu } from './tofu-process';
+import { conftest, fail, spawnTool, tofu, tofuInit } from './tofu-process';
 
 /**
  * count=0 still refreshes archived Grafana objects, even with destroy=false.
@@ -27,14 +27,20 @@ export async function retireArchivedGrafana(input: {
   env: Record<string, string>;
   policyDir: string;
   preview: boolean;
+  /** false for read-only preview/drift so a killed runner cannot abandon state. */
+  lock: boolean;
 }): Promise<boolean> {
   const { paths, target, env } = input;
-  if (tofu(initArgs(paths, target), env) !== 0)
+  if ((await tofuInit(initArgs(paths, target), env)) !== 0)
     fail('Grafana retirement: tofu init failed');
-  const planned = spawnTool('tofu', grafanaRetirementArgs(paths, target), {
-    env,
-    capture: true,
-  });
+  const planned = spawnTool(
+    'tofu',
+    grafanaRetirementArgs(paths, target, { lock: input.lock }),
+    {
+      env,
+      capture: true,
+    }
+  );
   if (![0, 2].includes(planned.status))
     fail(`Grafana retirement: plan failed: ${planned.stderr}`);
   const shown = spawnTool('tofu', showArgs(paths, target), {

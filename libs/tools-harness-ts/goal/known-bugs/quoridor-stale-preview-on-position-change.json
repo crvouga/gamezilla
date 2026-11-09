@@ -1,0 +1,4 @@
+{
+  "summary": "An incoming Quoridor position invalidated the selected anchor but retained its focused hover preview, painting an obsolete wall proposal. Position changes now clear both preview sources.",
+  "regressionTest": "libs/quoridor-client-ts/tests/quoridor-preview-lifecycle.test.tsx"
+}

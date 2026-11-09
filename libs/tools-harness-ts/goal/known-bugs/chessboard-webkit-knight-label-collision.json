@@ -1,0 +1,4 @@
+{
+  "summary": "On a 358px White-oriented board in WebKit, file label b overlapped the white knight on b1 by nine ink pixels. File labels need room below the figure while keeping their descenders inside the square.",
+  "regressionTest": "pkgs/chess-board-root-harness-ts/tests/browser/marking-geometry.contract.test.ts"
+}

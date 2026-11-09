@@ -7,7 +7,10 @@
  */
 import { describe, expect, test } from 'bun:test';
 import { FRIENDS_QUERIES } from '@libs/friends-shared-ts/queries';
-import { USER_SEARCH_RATE_LIMIT } from '@libs/user-search-shared-ts/user-search-types';
+import {
+  USER_SEARCH_RATE_LIMIT,
+  USER_SEARCH_RATE_WINDOW_MS,
+} from '@libs/user-search-shared-ts/user-search-types';
 
 const VIEWER = 'account-shared-by-seed';
 
@@ -52,7 +55,10 @@ describe('people search rate limit', () => {
       } as never);
     }
     expect(hits.n).toBe(USER_SEARCH_RATE_LIMIT);
-    await query.run(searchCtx(first, hits), { query: 'bob' } as never);
+    // regression: people-search-limit-false-empty
+    await expect(
+      query.run(searchCtx(first, hits), { query: 'bob' } as never)
+    ).rejects.toThrow('Too many searches. Wait a minute and try again.');
     expect(hits.n).toBe(USER_SEARCH_RATE_LIMIT);
     await query.run(searchCtx(first, hits), { query: 'name0' } as never);
     expect(hits.n).toBe(USER_SEARCH_RATE_LIMIT + 1);
@@ -61,4 +67,23 @@ describe('people search rate limit', () => {
     await query.run(searchCtx(second, hits), { query: 'bob' } as never);
     expect(hits.n).toBe(USER_SEARCH_RATE_LIMIT + 2);
   });
+});
+
+// regression: people-search-same-tick-bypasses-limit
+test('searches within the same millisecond still consume the quota and recover at the window boundary', async () => {
+  const query = FRIENDS_QUERIES.find((item) => item.name === 'searchProfiles');
+  if (query === undefined) throw new Error('searchProfiles missing');
+  let nowMs = 1_700_000_000_000;
+  const now = () => new Date(nowMs);
+  const hits = { n: 0 };
+  for (let index = 0; index < USER_SEARCH_RATE_LIMIT; index += 1) {
+    await query.run(searchCtx(now, hits), { query: `name${index}` } as never);
+  }
+  await expect(
+    query.run(searchCtx(now, hits), { query: 'newname' } as never)
+  ).rejects.toThrow('Too many searches');
+  expect(hits.n).toBe(USER_SEARCH_RATE_LIMIT);
+  nowMs += USER_SEARCH_RATE_WINDOW_MS;
+  await query.run(searchCtx(now, hits), { query: 'newname' } as never);
+  expect(hits.n).toBe(USER_SEARCH_RATE_LIMIT + 1);
 });

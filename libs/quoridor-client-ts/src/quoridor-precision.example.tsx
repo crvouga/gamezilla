@@ -124,6 +124,60 @@ export async function expectQuoridorCellHierarchy(canvasElement: HTMLElement) {
   await expectQuoridorGoalMarker(canvasElement, 'a9');
 }
 
+/**
+ * On tablet and desktop the board is centred in its column and uses the
+ * room the first view allows; phones keep their own measure.
+ */
+// regression: quoridor-tablet-board-undersized
+export async function expectQuoridorBoardUsesColumn(
+  canvasElement: HTMLElement
+) {
+  const view = canvasElement.ownerDocument.defaultView;
+  if (!view) throw new Error('The story requires a browser window');
+  if (view.innerWidth < 700 || view.innerHeight < 1000) return;
+  const canvas = within(canvasElement);
+  const board = canvas.getByTestId('custom-game-board').getBoundingClientRect();
+  const column = canvas
+    .getByTestId('custom-game-board-tools')
+    .parentElement?.getBoundingClientRect();
+  if (!column) throw new Error('The board column is missing');
+  await expect(board.width).toBeGreaterThanOrEqual(440);
+  await expect(
+    Math.abs(board.left - column.left - (column.right - board.right))
+  ).toBeLessThanOrEqual(2);
+}
+
+/** Each pawn's ink stays readable against its own square in every app theme. */
+// regression: quoridor-pawn-ink-vanishes-in-dark-theme
+export async function expectQuoridorPawnInk(
+  canvasElement: HTMLElement,
+  cells: readonly string[]
+) {
+  const view = canvasElement.ownerDocument.defaultView;
+  if (!view) throw new Error('The story requires a browser window');
+  for (const cell of cells) {
+    const pawn = within(canvasElement).getByTestId(
+      `custom-game-board-action-${cell}`
+    );
+    // The first painted ancestor is the square behind the glyph.
+    let ground: Element | null = pawn;
+    let background = '';
+    while (ground && (background === '' || background.endsWith(', 0)'))) {
+      background = view.getComputedStyle(ground).backgroundColor;
+      ground = ground.parentElement;
+    }
+    // A translucent square would blend with the board; measure only opaque grounds.
+    await expect(background, `${cell} square is opaque`).not.toMatch(
+      /rgba\(.*, 0?\.\d+\)$/
+    );
+    const inks = [view.getComputedStyle(pawn).color, background].map(luminance);
+    const contrast = (Math.max(...inks) + 0.05) / (Math.min(...inks) + 0.05);
+    await expect(contrast, `${cell} pawn ink contrast`).toBeGreaterThanOrEqual(
+      4.5
+    );
+  }
+}
+
 function luminance(color: string): number {
   const channels = color
     .match(/[\d.]+/g)

@@ -1,5 +1,6 @@
 /** @jsxImportSource solid-js */
 
+import { Avatar } from '@pkgs/ui-root-client-ts/avatar';
 import { BackIconButton } from '@pkgs/ui-root-client-ts/back-icon-button';
 import { CloseIconButton } from '@pkgs/ui-root-client-ts/close-icon-button';
 import {
@@ -10,7 +11,6 @@ import {
   BellIcon,
   EllipsisIcon,
   SettingsIcon,
-  UserIcon,
 } from '@pkgs/ui-root-client-ts/icons';
 import type { JSX } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
@@ -105,9 +105,7 @@ export default function IconButtonExample(): JSX.Element {
               onClick={() => undefined}
               size={AVATAR_BUTTON_SIZE}
             >
-              <UserIcon
-                size={iconButtonAvatarContentSize(AVATAR_BUTTON_SIZE)}
-              />
+              <Avatar size={iconButtonAvatarContentSize(AVATAR_BUTTON_SIZE)} />
             </IconButton>
           </Row>
         </div>

@@ -46,6 +46,7 @@ const stubProvider: MembershipBilling = {
   provider: PROVIDER,
   cancelMembership: () =>
     Promise.reject(new Error('cancellation is outside this fixture')),
+  closeCheckouts: async () => null,
   readPayments: () => Promise.resolve([]),
   refundPayment: () =>
     Promise.reject(new Error('refund is outside this fixture')),

@@ -28,7 +28,10 @@ const PHONE = { width: 390, height: 844 };
 const DESKTOP = { width: 1440, height: 900 };
 
 /** The search with what the friends sub fills its slots with. */
-function renderSearch(size: { width: number; height: number }): HTMLElement {
+function renderSearch(
+  size: { width: number; height: number },
+  query = 'jor'
+): HTMLElement {
   const harness = createHarnessClock();
   const { container } = renderWithI18n(() => (
     <ClockProvider clock={harness.clock} timers={harness.timers}>
@@ -36,7 +39,7 @@ function renderSearch(size: { width: number; height: number }): HTMLElement {
         <StaticAppRouterProvider router={router}>
           <TestViewportProvider value={size}>
             <SearchScreenView
-              query="jor"
+              query={query}
               recentQueries={[]}
               search={{
                 searching: false,
@@ -74,4 +77,20 @@ test('a desktop lists them in the column instead, never twice', () => {
   renderSearch(DESKTOP);
   expect(screen.getByTestId('requests-column')).toBeTruthy();
   expect(screen.queryByTestId('requests-entry')).toBe(null);
+});
+
+// regression: search-long-query-empty-heading-overflow
+test('a long search remains editable without being repeated in the empty heading', () => {
+  const query = 'a_really_long_username_that_keeps_going_and_going';
+  renderSearch(PHONE, query);
+  expect(screen.getByRole('textbox', { name: 'Search people' })).toHaveValue(
+    query
+  );
+  expect(
+    screen.getByText('No people found', { exact: true })
+  ).toBeInTheDocument();
+  expect(screen.queryByText(`No people found for “${query}”`)).toBeNull();
+  expect(
+    screen.getByText('Check the spelling or try a different username.')
+  ).toBeInTheDocument();
 });

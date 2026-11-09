@@ -1,0 +1,4 @@
+{
+  "summary": "A crashed rider's head was drawn at 55% opacity, so its letter fell to about 3.3:1 and other riders' trails showed through the disc in round-over, finished and dense Quad play. The crashed head is now opaque, with its letter in the rider's colour at full contrast.",
+  "regressionTest": "pkgs/ui-root-client-ts/tests/trail-arena-contrast.test.ts"
+}

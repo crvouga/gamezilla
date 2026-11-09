@@ -1,0 +1,4 @@
+{
+  "summary": "The Battleship ship picker showed Carrier · 5 but announced only Ship to place; subsequent selection, placement and placeholder labels must remain in its accessible name.",
+  "regressionTest": "libs/battleship-client-ts/tests/setup-picker-name.test.tsx"
+}

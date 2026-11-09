@@ -30,6 +30,7 @@
     "@pkgs/bun-test-solid-client-ts": "workspace:*",
     "@pkgs/clock-client-ts": "workspace:*",
     "@pkgs/clock-shared-ts": "workspace:*",
+    "@pkgs/ui-testing-solid-dom-client-ts": "workspace:*",
     "@solidjs/testing-library": "catalog:",
     "@types/bun": "catalog:",
     "@types/pg": "catalog:",

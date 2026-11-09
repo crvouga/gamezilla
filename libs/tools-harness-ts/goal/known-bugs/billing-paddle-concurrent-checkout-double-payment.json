@@ -1,0 +1,4 @@
+{
+  "summary": "Two Paddle checkouts started at the same moment for one customer both created a payable transaction, so the person could pay twice.",
+  "regressionTest": "pkgs/billing-paddle-harness-ts/tests/paddle-membership.test.ts"
+}

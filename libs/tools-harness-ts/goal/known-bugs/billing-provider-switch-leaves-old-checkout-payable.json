@@ -1,0 +1,4 @@
+{
+  "summary": "After the team switched payment provider, a checkout still open at the first provider stayed payable and a payment it took but had not confirmed was invisible, so the person could pay at both providers.",
+  "regressionTest": "specs/billing/payment-provider-switch.feature"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "When a puzzle's own content could not be read, the shared attempt screen still offered Restart (and its notice recommended restarting), though a restarted attempt reopens the same unreadable puzzle, and the shared builder still offered Start playtest for a draft its game's editor could not read. Undo, Redo and Restart are now disabled while the puzzle content is unreadable, the notice no longer recommends restarting in that case, and games may declare which drafts their editor can read so an unreadable draft cannot be playtested. An unreadable saved position on readable content still offers Restart.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-unreadable-commands.test.tsx"
+}

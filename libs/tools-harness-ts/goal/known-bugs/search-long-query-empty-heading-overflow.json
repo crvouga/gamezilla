@@ -1,0 +1,4 @@
+{
+  "summary": "Echoing the literal long username a_really_long_username_that_keeps_going_and_going in the no-results heading overflowed the phone viewport.",
+  "regressionTest": "libs/friends-client-ts/tests/search-requests-on-phone.test.tsx"
+}

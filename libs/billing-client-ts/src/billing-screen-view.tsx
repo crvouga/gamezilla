@@ -29,6 +29,8 @@ export type BillingScreenViewProps = {
   readonly formatDate: (ms: number) => string;
   /** Subscribe and manage return promises: their buttons show progress. */
   readonly actions: BillingActions;
+  /** Optional, independent feedback after the membership has been canceled. */
+  readonly cancellationFeedback?: JSX.Element;
 };
 
 /** The billing screen's body: plan card, then the offer's prices and benefits. */
@@ -51,6 +53,7 @@ export function BillingScreenBody(props: BillingScreenViewProps): JSX.Element {
         actions={props.actions}
         creditAmount={creditAmount()}
       />
+      {props.cancellationFeedback}
       <Show when={props.view.showPricing}>
         <BillingPricing
           prices={prices()}
@@ -92,6 +95,7 @@ export function BillingScreenView(props: BillingScreenViewProps): JSX.Element {
         locale={props.locale}
         formatDate={props.formatDate}
         actions={props.actions}
+        cancellationFeedback={props.cancellationFeedback}
       />
     </ContentScreen>
   );

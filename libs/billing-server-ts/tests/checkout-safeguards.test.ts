@@ -70,6 +70,7 @@ function stubProvider(
     refundPayment: async () => {},
     readCallback: async () => ({ kind: 'ignored' }),
     readMembership: async () => null,
+    closeCheckouts: async () => null,
     readPayments: async () => [],
     ...overrides,
   };

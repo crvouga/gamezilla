@@ -53,7 +53,11 @@ export function ContentDraftPlaytest(props: {
       error: t`Try playtesting again`,
     },
     get disabled() {
-      return props.disabled;
+      return (
+        props.disabled ||
+        game.client.authoring?.readable?.(props.writer.body().definition) ===
+          false
+      );
     },
   });
   return (

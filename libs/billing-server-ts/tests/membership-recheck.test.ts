@@ -50,6 +50,7 @@ function stubProvider(current: () => MembershipChange | null) {
     cancelMembership: async () => {},
     refundPayment: async () => {},
     readCallback: async () => ({ kind: 'ignored' }),
+    closeCheckouts: async () => null,
     readPayments: async () => [],
     readMembership: async (id) => {
       reads.push(id);

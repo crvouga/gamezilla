@@ -1,0 +1,4 @@
+{
+  "summary": "Word Tiles screenshots and timing/accessibility JSON used memory-only Playwright body attachments, which the list reporter did not persist for hosted artifact upload.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/word-tiles-retention/integration.checks.ts"
+}

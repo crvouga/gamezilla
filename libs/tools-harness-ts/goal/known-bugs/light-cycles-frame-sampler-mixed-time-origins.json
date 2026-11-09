@@ -1,0 +1,4 @@
+{
+  "summary": "The hosted Quad twelve-input probe recorded a negative first frame interval because performance.now at instrumentation setup and the first animation-frame timestamp use different points within a frame. The sampler now establishes its origin from the first animation frame and records intervals only between subsequent frame timestamps.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/light-cycles/integration.checks.ts"
+}

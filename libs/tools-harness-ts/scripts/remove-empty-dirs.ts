@@ -19,7 +19,6 @@ const REPO_ROOT = join(import.meta.dirname, '../../..');
 /** Directory basenames never entered (nor removed). */
 const SKIP_NAMES = new Set([
   '.git',
-  '.cursor',
   '.agents',
   '.vscode',
   'node_modules',

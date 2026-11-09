@@ -1,0 +1,4 @@
+{
+  "summary": "YourTurn committed C 3 at g8 at 390/768/1440 in both themes has an adjacent readout outside WordTileBoard; the observer incorrectly searched inside the grid.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/word-tile-details/integration.checks.ts"
+}

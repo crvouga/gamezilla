@@ -2,7 +2,7 @@
  * How an opaque handle reaches its element. Design-system internal: the
  * modules that own a handle (`focus.ts`, `scroll.ts`, `measure.ts`) create
  * one here, and the hosts that accept one (`Stack*`, `Surface`, `Pressable`,
- * `TextInput`) attach their element here. A screen only ever holds the
+ * `TextInput`, `Button`) attach their element here. A screen only ever holds the
  * handle and the methods its owner exposes, never the element.
  */
 

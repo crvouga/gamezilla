@@ -1,0 +1,4 @@
+{
+  "summary": "PR 292 run 42427274976 passed all seven shards but rejected GitHub default setup's successful CodeQL (app 57789), Analyze (actions) and Analyze (javascript-typescript) (app 15368). Register each exact context and producer in the shared OpenTofu required-checks registry; missing, failed, pending, neutral and impersonated results must still block the verdict.",
+  "regressionTest": "libs/tools-harness-ts/scripts/codeql-required-checks.test.ts"
+}

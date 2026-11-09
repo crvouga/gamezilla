@@ -11,6 +11,11 @@ import {
   resumeCancellation,
 } from './account-privacy';
 import { BILLING_HARNESS_ACTIONS } from './billing-actions';
+import {
+  setupCancellationFeedback,
+  shareCancellationFeedback,
+  showSavedCancellationFeedback,
+} from './cancellation-feedback';
 
 /**
  * Billing in a harness. The offer boots the harness's payment provider node; the
@@ -23,6 +28,9 @@ export const BILLING_HARNESS_SLICE: HarnessSlice = {
   server: (deps) => createBillingServer(deps.billing),
   billingOffer: PLUS_MEMBERSHIP_OFFER,
   actions: [
+    setupCancellationFeedback,
+    shareCancellationFeedback,
+    showSavedCancellationFeedback,
     ...BILLING_HARNESS_ACTIONS,
     pauseCancellation,
     resumeCancellation,

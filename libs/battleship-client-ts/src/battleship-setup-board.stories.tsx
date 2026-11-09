@@ -157,7 +157,7 @@ export const EnlargedPlacement: Story = {
 
     // regression: battleship-placement-unlabeled-complete-selection
     await expect(
-      canvas.getByRole('button', { name: 'Ship to place' })
+      canvas.getByRole('button', { name: /^Ship to place:/ })
     ).toBeVisible();
     await expect(
       canvas.getByText('Choose region', { exact: true })
@@ -216,7 +216,7 @@ export const EnlargedPlacement: Story = {
       await canvas.findByTestId('custom-game-setup-cell-c2')
     ).toHaveAccessibleName('C2: Destroyer');
     await expect(
-      canvas.getByRole('button', { name: 'Ship to place' })
+      canvas.getByRole('button', { name: /^Ship to place:/ })
     ).toHaveTextContent('Choose a ship to reposition');
     await checkSetupWorkspace(canvasElement);
     await repositionEnlargedShip(canvasElement);

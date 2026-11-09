@@ -73,9 +73,14 @@ export type ContentPublicationControlsViewProps = {
   readonly before?: ((next: Accessor<boolean>) => JSX.Element) | undefined;
   /** Opens a pack's first draft puzzle, the pack's lead while it waits. */
   readonly onOpenWaiting?: (() => void) | undefined;
+  /** `false` while the game cannot play the draft: correct it first. */
+  readonly playable?: boolean | undefined;
 };
 
-/** The last choice for this draft stays visible across routes and app reopening. */
+/**
+ * The last choice for this draft stays visible across routes and app
+ * reopening, after the actions so its removal never moves one.
+ */
 function PublicationStatus(props: {
   pending: ContentPublicationPending;
   copyState: ContentPublicationCopyState;
@@ -363,11 +368,6 @@ export function ContentPublicationControlsView(
   const actions = usePublicationActions(props);
   return (
     <StackVertical gap={props.layout === 'bar' ? 'sm' : 'md'}>
-      <PublicationStatus
-        pending={props.pending}
-        refusal={props.refusal}
-        copyState={props.copyState}
-      />
       <Switch>
         <Match when={props.layout === 'bar'}>
           <BarFinding {...props} />
@@ -390,6 +390,7 @@ export function ContentPublicationControlsView(
               <PublishButton controls={props} actions={actions} place={place} />
             )}
             onOpenWaiting={props.onOpenWaiting}
+            playable={props.playable}
           />
         </Match>
         <Match when={props.layout !== 'bar'}>
@@ -424,6 +425,12 @@ export function ContentPublicationControlsView(
         </Match>
       </Switch>
       <PublicationAftermath controls={props} actions={actions} />
+      {/* Last, so confirmation removing it moves no action under a finger. */}
+      <PublicationStatus
+        pending={props.pending}
+        refusal={props.refusal}
+        copyState={props.copyState}
+      />
     </StackVertical>
   );
 }

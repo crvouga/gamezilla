@@ -1,0 +1,4 @@
+{
+  "summary": "Friend removal/block harness actions treated a hidden confirmation button as completion. The success dialog remained open and removal checked for an absent friends-list row on the profile screen. Actions now await explicit success, dismiss Done and navigate before asserting the list.",
+  "regressionTest": "libs/friends-client-ts/tests/friend-user-danger-modals.test.tsx"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "Removing or blocking a person immediately closed the confirmation and navigated away without a dismissible success state. Destructive actions now show progress, retryable errors and success on the profile.",
+  "regressionTest": "libs/friends-client-ts/tests/friend-user-danger-modals.test.tsx"
+}
