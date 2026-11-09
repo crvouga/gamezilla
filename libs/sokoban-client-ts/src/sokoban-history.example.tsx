@@ -1,4 +1,7 @@
-import { StoryPackAttempt } from '@libs/game-puzzle-client-ts/content-attempt-story.example';
+import {
+  StoryPackActions,
+  StoryPackAttempt,
+} from '@libs/game-puzzle-client-ts/content-attempt-story.example';
 import { sokobanPuzzleContent } from '@libs/sokoban-shared-ts/sokoban-puzzle-content';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
@@ -12,14 +15,11 @@ function StoryControls(props: {
   disabled: boolean;
   /** As production, commands that cannot help unreadable content are withheld. */
   readable: boolean;
-  /** Solved: production then offers the pack's next puzzle, filled. */
-  complete: boolean;
   canUndo: boolean;
   canRedo: boolean;
   onUndo: () => void;
   onRedo: () => void;
   onRestart: () => void;
-  onOpenLibrary: () => void;
 }) {
   return (
     <StackHorizontal gap="sm" wrap shrink>
@@ -49,23 +49,6 @@ function StoryControls(props: {
           onClick={props.onRestart}
         />
       </Show>
-      {/* As the production screen offers a pack puzzle's way on: its next
-          puzzle once this one is solved, and its overview. */}
-      <Show when={props.complete}>
-        <Button
-          title="Next puzzle: Lift"
-          size="sm"
-          onClick={props.onOpenLibrary}
-          dataSet={{ testid: 'content-next-puzzle' }}
-        />
-      </Show>
-      <Button
-        title="Pack overview"
-        intent="neutral"
-        variant="outline"
-        size="sm"
-        onClick={props.onOpenLibrary}
-      />
     </StackHorizontal>
   );
 }
@@ -108,6 +91,18 @@ export function SokobanHistory(props: {
       }}
       complete={complete()}
       solvedBefore={completionSaved()}
+      // As production: the pack's next puzzle (once solved) and its
+      // overview, in the pack card.
+      packActions={
+        <StoryPackActions
+          next={
+            complete()
+              ? { title: 'Lift', open: props.onOpenLibrary }
+              : undefined
+          }
+          onOverview={props.onOpenLibrary}
+        />
+      }
       disabled={props.disabled}
       player={
         <SokobanPlayerView
@@ -135,7 +130,6 @@ export function SokobanHistory(props: {
         <StoryControls
           disabled={props.disabled}
           readable={rules.validateDefinition(props.definition).valid}
-          complete={complete()}
           canUndo={cursor() > 0}
           canRedo={cursor() < history().length - 1}
           onUndo={() => setCursor((value) => value - 1)}
@@ -146,7 +140,6 @@ export function SokobanHistory(props: {
             setHistory([initial.state]);
             setCursor(0);
           }}
-          onOpenLibrary={props.onOpenLibrary}
         />
       }
     />
