@@ -7,7 +7,7 @@ import {
 import { useGameSideLabel } from '@pkgs/turn-game-client-ts/use-game-side-label';
 import { type Accessor, createMemo } from 'solid-js';
 import { useRefusalText } from './custom-game-error';
-import { usePersonName } from './custom-game-status';
+import { frameViewerHeld, usePersonName } from './custom-game-status';
 import { FRAME_NO_PLAY } from './game-frame-empty';
 import { frameSwatch } from './game-frame-look';
 import {
@@ -59,7 +59,7 @@ function drawFacts(
   return {
     drawOffered: offer !== '',
     offerAgainLater: offerable && declined,
-    canOfferDraw: offerable && !declined,
+    canOfferDraw: offerable && !declined && !frameViewerHeld(model),
     canAnswerDraw:
       playing &&
       offer !== '' &&
@@ -101,7 +101,10 @@ export function useFramePlay(
         person === null ? null : { person, plainName: awayName(), twoSided },
       canClaimWin: person !== null && model.canPlay() && twoSided,
       canResign:
-        game.status === 'active' && model.mySide() !== null && model.canPlay(),
+        game.status === 'active' &&
+        model.mySide() !== null &&
+        model.canPlay() &&
+        !frameViewerHeld(model),
       canCancel:
         unfinished &&
         model.canCancel() &&
@@ -183,6 +186,9 @@ export function useFrameRecord(
     if (model.current() === null) return null;
     return {
       moveHeading: presentation(review.fen()).moveHeading?.() ?? '',
+      firstTurnSample: presentation(review.fen()).frame.firstTurnSample?.map(
+        (sample) => ({ label: sample.label, swatch: frameSwatch(sample.look) })
+      ),
       earlier: model.games().history.map((game) => game.id),
       selection: review.selection(),
       turns: rules.turnsForPosition(review.fen()) !== undefined,

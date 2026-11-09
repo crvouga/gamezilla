@@ -26,11 +26,12 @@ function presentation(hill: boolean): GameClientPresentation {
     Board: QuoridorBoard,
     sideLabel: (side) => sideLabel(side, hill),
     frame: quoridorFrame(hill),
+    // The headline names the winner; this line is read by the loser too.
     endingDescription: (reason) =>
       reason === 'hill reached'
-        ? t`The central hill was reached. Game won.`
+        ? t`The central hill was reached.`
         : reason === 'opposite row reached'
-          ? t`The opposite home row was reached. Game won.`
+          ? t`The opposite home row was reached.`
           : undefined,
     timeoutDrawDescription: (side) => {
       const name = sideLabel(side, hill);

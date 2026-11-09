@@ -28,6 +28,12 @@ export const GITHUB_KINDS: Readonly<Record<string, Kind>> = {
     category: 'Source control',
     links: settings('Rulesets', '/settings/rules'),
   },
+  github_issue_label: {
+    title: 'Issue label',
+    logo: 'github',
+    category: 'Source control',
+    links: settings('Labels', '/labels'),
+  },
   github_actions_variable: {
     title: 'Actions variable',
     logo: 'github-actions',

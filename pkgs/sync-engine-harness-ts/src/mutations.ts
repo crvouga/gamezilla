@@ -255,3 +255,21 @@ export const setNoteNoFanout = defineMutation({
     `);
   },
 });
+
+/**
+ * Append `piece` to a note's body (creating it empty first). Not idempotent
+ * on purpose: a write the server applies twice shows its piece twice.
+ */
+export const appendNote = defineMutation({
+  name: 'appendNote',
+  args: z.object({ id: z.string(), piece: z.string() }),
+  async run({ tx, env }, { id, piece }) {
+    await tx.run(sql`
+      INSERT INTO notes (id, folder_id, title, body, owner_id)
+      VALUES (${id}, ${null}, ${''}, ${piece}, ${env.actorId})
+      ON CONFLICT (id) DO UPDATE SET
+        body = notes.body || excluded.body,
+        deleted_at = NULL
+    `);
+  },
+});

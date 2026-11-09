@@ -52,4 +52,4 @@ must decide before merging.
 - [ ] Person-facing changes meet the definition of done in `docs/SELF_SERVICE_READINESS.md` and update its matrix row; no copy sends a person to support.
 - [ ] Docs updated wherever behavior, conventions, or operations changed.
 - [ ] No long-running local process still holds a machine-wide singleton port (EMQX `1883`/`8083`/`18083`, wrangler `8788`).
-- [ ] Merged by a human only once every verification is green; never `--admin` or merge queue. Merging releases.
+- [ ] Auto-merge (`gh pr merge --auto --squash`) is on, unless this PR carries `needs-human`; never `--admin`. The title is the squash commit subject. Merging releases.

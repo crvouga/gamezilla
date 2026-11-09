@@ -14,12 +14,13 @@ import {
 } from './frame-pending-status-fixture';
 
 const live = { live: () => true } as CustomGameReview;
+// A frame with no caption to carry the line shows the status itself.
 function mount(fixture: ReturnType<typeof pendingFrameModel>) {
   return renderPendingFrame(() => {
     const status = useFrameStatus(fixture.model);
     return (
       <>
-        <FrameStatusView status={status()} spokenOnly />
+        <FrameStatusView status={status()} />
         <FrameErrorView text={fixture.model.error()} />
       </>
     );

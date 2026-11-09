@@ -1,5 +1,6 @@
 import type { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import type { GameFrameScreenViewProps } from './game-frame-screen-view';
+import { captionLine } from './game-frame-status-view';
 import type { FrameRecord } from './game-frame-view-types';
 
 /** The record the frame shows: none while the game is being configured. */
@@ -41,9 +42,8 @@ export function stripCaption(
     status === null ||
     status.plainTurn ||
     status.tone !== 'neutral' ||
-    status.sending ||
     status.description === ''
   )
     return undefined;
-  return status.description;
+  return captionLine(status);
 }

@@ -20,7 +20,7 @@ test('storybook integration: the long username leaves Block reachable at 390 pix
 }) => {
   await open(page, 'screens-friends-user--long-name', 390, 'light');
   await expect(page.getByTestId('friend-user-username')).toHaveText(
-    '@a_really_long_username_that_keeps_going_and_going'
+    `@${'w'.repeat(32)}`
   );
   const title = page.getByRole('heading', { level: 1 });
   const block = page.getByRole('button', { name: 'Block', exact: true });

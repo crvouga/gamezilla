@@ -7,6 +7,7 @@ import type { Topic } from '@pkgs/pubsub-root-shared-ts/topic';
 import type { HarnessCorruptionVariant } from './corruption-faults';
 import type { HarnessPubsubFault } from './edge-fault-pubsub';
 import { createPubsubFaultArms } from './edge-fault-pubsub';
+import type { VerdictCorruption } from './hostile-responses';
 
 export type HarnessCrashEvent =
   | 'afterNextSyncResponseDelivered'
@@ -54,6 +55,26 @@ export type HarnessHttpFault =
       readonly route: 'mutations' | 'query';
     }
   | { readonly kind: 'batchTooLarge' }
+  | {
+      /** A Wi-Fi sign-in page answers 200 with HTML; the server never hears it. */
+      readonly kind: 'captivePortal';
+      readonly route: 'mutations' | 'query';
+    }
+  | {
+      /** A proxy refuses with 403; the server never hears it. */
+      readonly kind: 'forbidden';
+      readonly route: 'mutations' | 'query';
+    }
+  | {
+      /** The request is lost on the way: the server never hears it, no reply. */
+      readonly kind: 'dropRequest';
+      readonly route: 'mutations' | 'query';
+    }
+  | {
+      /** The server applied the batch; the reply's verdicts arrive mangled. */
+      readonly kind: 'corruptVerdicts';
+      readonly variant: VerdictCorruption;
+    }
   | {
       readonly kind: 'authExpiredInFlight';
       readonly route: 'mutations' | 'query';
