@@ -38,6 +38,16 @@ export function defineInputChecks() {
         await expect(
           page.getByTestId('custom-game-board-aim-j10')
         ).toHaveAccessibleName('J10: fired, waiting for the result');
+        // regression: battleship-submitting-shot-loses-feedback
+        await expect(page.getByTestId('custom-game-board-fire')).toHaveText(
+          'Firing at J10'
+        );
+        await expect(
+          page.getByTestId('custom-game-board-target-tools')
+        ).not.toContainText('Inspect');
+        await expect(page.getByTestId('custom-game-status')).toContainText(
+          'Sending choice…'
+        );
         await captureBattleEvidence(page, info);
       });
       expect(errors).toEqual([]);

@@ -32,6 +32,12 @@ export function BattleshipTargetGrid(props: {
   testId: string;
   cells: readonly CellGridCell[];
   onAim: (cell: string) => void;
+  /**
+   * The viewer only looks: a watcher, or a player whose turn it is not.
+   * A shot being sent is still the viewer's aim, not an inspection.
+   * Omitted, it follows the cells: inspecting when none can be aimed at.
+   */
+  inspect?: boolean;
   /** The key to the marks, shown beside the region instruction. */
   legend?: JSX.Element;
   /** Fire and its instruction, under the cells; given the open region. */
@@ -39,7 +45,11 @@ export function BattleshipTargetGrid(props: {
 }): JSX.Element {
   const [area, setArea] = createSignal(0);
   const descriptions = createMemo(() => regionDescriptions(props.cells));
-  const canAim = createMemo(() => props.cells.some((cell) => cell.enabled));
+  const canAim = createMemo(() =>
+    props.inspect === undefined
+      ? props.cells.some((cell) => cell.enabled)
+      : !props.inspect
+  );
   const columns = createMemo(() =>
     COLUMN_LABELS.slice((area() % 2) * 5, (area() % 2) * 5 + 5)
   );

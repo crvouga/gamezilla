@@ -9,6 +9,7 @@ import {
   type GameTableStory,
   renderGameTable,
 } from '@libs/game-session-client-ts/game-frame-table.example';
+import type { GameBoardProps } from '@pkgs/turn-game-shared-ts/game-presentation';
 import {
   type GameSetups,
   TWO_PLAYER_SIDES,
@@ -79,13 +80,45 @@ const BLUE_VICTORY = RED_CELLS.flatMap((cell, i) => {
   return reply === undefined ? [cell] : [cell, reply];
 });
 
+/**
+ * The board in the frame as the app runs it: a move the board hands over is
+ * sent, so the board stops taking input and the line says the choice is
+ * being sent, until a story's own position answers it.
+ */
+function renderSending(
+  args: GameBoardProps,
+  context: { readonly parameters: Readonly<Record<string, unknown>> }
+) {
+  const [sending, setSending] = createSignal(false);
+  const board = mergeProps(args, {
+    get interactive() {
+      return args.interactive && !sending();
+    },
+    onAction: (cell: string) => {
+      args.onAction(cell);
+      setSending(true);
+    },
+  });
+  const table = (context.parameters['table'] ?? {}) as GameTableStory;
+  return renderGameTable(battleshipPresentation, TWO_PLAYER_SIDES, board, {
+    parameters: {
+      ...context.parameters,
+      table: {
+        ...table,
+        get sending() {
+          return sending();
+        },
+      } satisfies GameTableStory,
+    },
+  });
+}
+
 const meta = {
   id: 'screens-games-battleship-board',
   title: 'Screens/Games/Battleship/Board',
   component: BattleshipBoard,
   tags: ['autodocs'],
-  render: (args, context) =>
-    renderGameTable(battleshipPresentation, TWO_PLAYER_SIDES, args, context),
+  render: renderSending,
   parameters: {
     appRouter: true,
     controls: { exclude: [...BOARD_CONTROLS_EXCLUDE] },
@@ -308,6 +341,7 @@ export const CorrectTargetBeforeFiring: Story = {
 };
 
 /** A submitted J10 shot remains visibly busy until the controller supplies its outcome. */
+/** Fire hands J10 to the frame, which sends it as the app does. */
 export const PendingShot: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -321,5 +355,12 @@ export const PendingShot: Story = {
     await expect(
       canvas.getByTestId('custom-game-board-fire')
     ).toHaveTextContent('Firing at J10');
+    // regression: battleship-submitting-shot-loses-feedback
+    await expect(
+      canvas.getByTestId('custom-game-board-target-tools')
+    ).not.toHaveTextContent('Inspect');
+    await expect(canvas.getByTestId('custom-game-status')).toHaveTextContent(
+      'Sending choice…'
+    );
   },
 };

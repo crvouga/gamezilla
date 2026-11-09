@@ -146,6 +146,9 @@ export function BattleshipBoard(props: GameBoardProps): JSX.Element {
       aiming: aim.aiming(),
     })
   );
+  // A shot being sent keeps its busy control after the frame stops input.
+  const confirming = () =>
+    (interactive() || aim.aiming() !== null) && view() === 'target';
   return (
     <StackVertical gap="xs" testId={props.testId}>
       <Show when={battle().winner !== null}>
@@ -164,8 +167,9 @@ export function BattleshipBoard(props: GameBoardProps): JSX.Element {
         )}
         onAim={setSelected}
         ships={viewer() !== null}
+        inspect={!interactive() && aim.aiming() === null}
         confirmation={(region) => (
-          <Show when={interactive() && view() === 'target'}>
+          <Show when={confirming()}>
             <ShotConfirmation
               region={region()}
               selected={selected()}
@@ -236,6 +240,8 @@ function BattlePanels(props: {
   onAim: (cell: string) => void;
   /** The viewer's own fleet is drawn, so its key names a ship. */
   ships: boolean;
+  /** The viewer only looks at the target waters (see BattleshipTargetGrid). */
+  inspect: boolean;
   confirmation: (region: () => string) => JSX.Element;
 }): JSX.Element {
   return (
@@ -269,6 +275,7 @@ function BattlePanels(props: {
           testId={props.testId}
           cells={props.target}
           onAim={props.onAim}
+          inspect={props.inspect}
           legend={
             <CellGridLegend
               label={t`Key`}
