@@ -57,9 +57,8 @@ export async function checkCatStatusGeometry(
 ): Promise<void> {
   // regression: word-tiles-cat-status-clipping
   const status = within(canvasElement).getByTestId('custom-game-board-status');
-  await expect(status).toHaveTextContent('Scores 10 points.');
   await expect(status).toHaveTextContent(
-    'the game checks the words when you play'
+    'CAT 5 × 2 = 10 points · checked when you play'
   );
   // First prove text fits its own box, even if placement has scrolled the document.
   await expect(status.scrollWidth).toBeLessThanOrEqual(status.clientWidth);

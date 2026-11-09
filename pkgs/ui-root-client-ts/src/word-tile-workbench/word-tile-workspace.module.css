@@ -38,6 +38,8 @@
 }
 .layout[data-layout="wide"] .feedback {
   grid-area: feedback;
+  /* Beside the board's foot, right above the rack and Play word. */
+  align-self: end;
 }
 .layout[data-layout="wide"] .rack {
   grid-area: rack;

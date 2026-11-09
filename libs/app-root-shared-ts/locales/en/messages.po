@@ -577,6 +577,14 @@ msgstr "{player} to move, played by a stand-in bot."
 msgid "{player} to move."
 msgstr "{player} to move."
 
+#: libs/word-tiles-client-ts/src/word-tiles-preview.tsx
+msgid "{points} · checked when you play"
+msgstr "{points} · checked when you play"
+
+#: libs/word-tiles-client-ts/src/word-tiles-preview.tsx
+msgid "{points} · checking words…"
+msgstr "{points} · checking words…"
+
 #: libs/word-tiles-client-ts/src/word-tiles-cells.tsx
 msgid "{points} points"
 msgstr "{points} points"
@@ -636,6 +644,10 @@ msgstr "{side} to move"
 #: libs/chess-puzzle-client-ts/src/chess-puzzle-announcement.tsx
 msgid "{side} to move. Find the best move."
 msgstr "{side} to move. Find the best move."
+
+#: libs/word-tiles-client-ts/src/word-tiles-preview.tsx
+msgid "{sum} = {total} points"
+msgstr "{sum} = {total} points"
 
 #: libs/hearts-client-ts/src/hearts-table-view.tsx
 msgid "{taker} took the trick with the {card} and leads."
@@ -1474,6 +1486,11 @@ msgstr "Board tiles must join up through the centre square {0} and spell words f
 #: libs/battleship-client-ts/src/battleship-board.tsx
 msgid "Boards"
 msgstr "Boards"
+
+#. placeholder {0}: score.bonus
+#: libs/word-tiles-client-ts/src/word-tiles-preview.tsx
+msgid "bonus {0}"
+msgstr "bonus {0}"
 
 #: libs/game-session-client-ts/src/custom-game-bot-name.tsx
 #: libs/game-session-client-ts/src/game-frame-seat-choices-view.tsx
@@ -3033,8 +3050,8 @@ msgid "Everything in the free plan, synced across your devices"
 msgstr "Everything in the free plan, synced across your devices"
 
 #: libs/word-tiles-client-ts/src/word-tiles-preview.tsx
-msgid "Exchange {count} tiles and score nothing this turn."
-msgstr "Exchange {count} tiles and score nothing this turn."
+msgid "Exchange {count} tiles, scoring nothing."
+msgstr "Exchange {count} tiles, scoring nothing."
 
 #: libs/word-tiles-client-ts/src/word-tiles-actions.tsx
 msgid "Exchange chosen tiles"
@@ -6635,18 +6652,6 @@ msgstr "Score at least {target} points in one move."
 msgid "score target"
 msgstr "score target"
 
-#: libs/word-tiles-client-ts/src/word-tiles-preview.tsx
-msgid "Scores {total} points."
-msgstr "Scores {total} points."
-
-#: libs/word-tiles-client-ts/src/word-tiles-preview.tsx
-msgid "Scores {total} points. Checking the words…"
-msgstr "Scores {total} points. Checking the words…"
-
-#: libs/word-tiles-client-ts/src/word-tiles-preview.tsx
-msgid "Scores {total} points. The word list could not load here; the game checks the words when you play."
-msgstr "Scores {total} points. The word list could not load here; the game checks the words when you play."
-
 #. placeholder {0}: props.position.scores .map((score, index) => `${seatName(index)} ${score}`) .join(', ')
 #: libs/word-tiles-client-ts/src/word-tiles-board-view.tsx
 msgid "Scores: {0}"
@@ -6837,11 +6842,6 @@ msgstr "Setup move: {side} played {0} to {1}."
 #: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "Seven"
 msgstr "Seven"
-
-#. placeholder {0}: preview.bonus
-#: libs/word-tiles-client-ts/src/word-tiles-panels.tsx
-msgid "Seven-tile bonus: {0}"
-msgstr "Seven-tile bonus: {0}"
 
 #: libs/spaces-client-ts/src/space-chrome-action-bar.tsx
 msgid "Share"

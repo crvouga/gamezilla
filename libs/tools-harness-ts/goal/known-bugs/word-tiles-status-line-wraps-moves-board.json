@@ -1,0 +1,4 @@
+{
+  "summary": "With the score breakdown merged into the phone status line, 'CAT: 5 × 2 = 10 · Scores 10 points. Checking the words…' wrapped to two lines and moved the Word Tiles board down about 22px; every preview message now fits one line ('CAT 5 × 2 = 10 points · checking words…').",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/word-tiles/integration.checks.ts"
+}

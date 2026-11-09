@@ -262,7 +262,7 @@ export const PlaceAWord: Story = {
     }
     await expect(
       await canvas.findByTestId('custom-game-board-status')
-    ).toHaveTextContent(/^CAT: .* · Scores .*points\.$/);
+    ).toHaveTextContent('CAT 5 × 2 = 10 points');
   },
 };
 
@@ -285,7 +285,7 @@ export const CheckingWords: Story = {
     }
     await expect(
       await canvas.findByTestId('custom-game-board-status')
-    ).toHaveTextContent('Checking the words');
+    ).toHaveTextContent('CAT 5 × 2 = 10 points · checking words…');
   },
 };
 
@@ -367,9 +367,7 @@ export const RecoverAndSubmit: Story = {
     ).toBeVisible();
     // The local list is optional: the game authority still checks submitted words.
     await expect(canvas.getByTestId('custom-game-board-submit')).toBeEnabled();
-    await expect(
-      canvas.getByText(/the game checks the words when you play/)
-    ).toBeVisible();
+    await expect(canvas.getByText(/checked when you play/)).toBeVisible();
     await checkCatStatusGeometry(canvasElement);
     await userEvent.click(
       canvas.getByTestId('custom-game-board-lexicon-retry')

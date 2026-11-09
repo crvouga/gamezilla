@@ -352,3 +352,23 @@ test('storybook integration: word-tiles the board stays put within its workspace
   expect(before).not.toBeNull();
   expect(await offset()).toBe(before);
 });
+
+// regression: word-tiles-status-line-wraps-moves-board
+test('storybook integration: word-tiles phone status line stays one line while words are checked', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const status = page.getByTestId('custom-game-board-status');
+  const height = async () =>
+    status.evaluate((element) => element.getBoundingClientRect().height);
+  await openStory(page, 'opening', 'light');
+  const oneLine = await height();
+  for (const [story, text] of [
+    ['checking-words', 'checking words'],
+    ['word-list-unavailable', 'checked when you play'],
+  ] as const) {
+    await openStory(page, story, 'light');
+    await expect(status).toContainText(text);
+    expect(await height(), story).toBe(oneLine);
+  }
+});
