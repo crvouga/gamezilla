@@ -62,16 +62,6 @@ export type FailureCount = {
   readonly page: number;
 };
 
-/**
- * What tells the team an indicator has stopped being measured at all: no
- * event for `after` raises an alert of `severity`, so silence can never look
- * like a perfect objective.
- */
-export type Silence = {
-  readonly after: string;
-  readonly severity: 'critical' | 'warning';
-};
-
 type Described = {
   /** The indicator's `metadata.name` in the objective file. */
   readonly sli: string;
@@ -93,7 +83,6 @@ type Described = {
    * `sparse` (4 hours up to 3 days) for one about once an hour.
    */
   readonly cadence: 'standard' | 'ten-minutely' | 'sparse';
-  readonly silence: Silence;
   /**
    * How long the fast burn must hold before it pages; two minutes when
    * unset. Longer for a check whose single failed sample already burns
@@ -171,11 +160,6 @@ const routeGroups = (values: readonly string[]): readonly Matcher[] => [
 
 const peopleRequests = routeGroups(PEOPLE_ROUTE_GROUPS);
 
-/** People's requests: about ten a day today, so silence for a day only warns. */
-const PEOPLE_SILENCE: Silence = { after: '1d', severity: 'warning' };
-/** The Health run is scheduled hourly; GitHub delivers about five a day. */
-const HEALTH_SILENCE: Silence = { after: '8h', severity: 'critical' };
-
 function healthChecks(input: {
   readonly sli: string;
   readonly owner: string;
@@ -190,7 +174,6 @@ function healthChecks(input: {
     investigate: 'errors',
     sliceBy: SYNTHETIC_CHECK_DIMENSION,
     cadence: 'sparse',
-    silence: HEALTH_SILENCE,
     failureCounts: { window: '1h', push: 1, page: 1 },
     metric: SYNTHETIC_CHECK_METRIC.name,
     scope: [
@@ -198,6 +181,13 @@ function healthChecks(input: {
     ],
   };
 }
+
+/**
+ * A single slow request is usually a cold start and needs no one; slowness
+ * that repeats does. Three in fifteen minutes push, six page. Failed
+ * requests (5xx) still notify on the first one.
+ */
+const SLOW_REQUEST_COUNTS: FailureCount = { window: '15m', push: 3, page: 6 };
 
 function under(input: {
   readonly sli: string;
@@ -216,7 +206,6 @@ function under(input: {
     investigate: 'slow',
     sliceBy: ROUTE_GROUP,
     cadence: 'standard',
-    silence: PEOPLE_SILENCE,
     metric: HTTP_DURATION_METRIC,
     scope: routeGroups(input.groups),
     underSeconds: input.seconds,
@@ -225,8 +214,6 @@ function under(input: {
 
 /** The checks that say the app opens: its shell, and the API ready to serve. */
 const OPENING: readonly ProbeCheck[] = ['app-shell', 'api-ready'];
-
-const MINUTE_PROBE_SILENCE: Silence = { after: '10m', severity: 'critical' };
 
 /**
  * At 99.95 in 10000 or stricter, one failed minute-probe in an hour already
@@ -248,7 +235,6 @@ function probeDuration(input: {
     investigate: 'slow',
     sliceBy: 'job',
     cadence: 'standard',
-    silence: MINUTE_PROBE_SILENCE,
     fastBurnHold: LONE_PROBE_HOLD,
     metric: PROBE_DURATION_METRIC.name,
     scope: [{ dimension: 'job', op: 'is', values: OPENING }],
@@ -265,7 +251,6 @@ export const INDICATORS: readonly Indicator[] = [
     investigate: 'errors',
     sliceBy: ROUTE_GROUP,
     cadence: 'standard',
-    silence: PEOPLE_SILENCE,
     // One failure notifies; three within five minutes page.
     failureCounts: { window: '5m', push: 1, page: 3 },
     metric: HTTP_REQUESTS_METRIC,
@@ -282,7 +267,6 @@ export const INDICATORS: readonly Indicator[] = [
     investigate: 'errors',
     sliceBy: null,
     cadence: 'standard',
-    silence: PEOPLE_SILENCE,
     // A failed save is retried, but one is a person's move arriving late.
     failureCounts: { window: '5m', push: 1, page: 3 },
     metric: MUTATION_REPLAYS_METRIC.name,
@@ -300,8 +284,7 @@ export const INDICATORS: readonly Indicator[] = [
     sli: 'saves-and-loads-answered-within-a-second',
     groups: ['sync'],
     seconds: 1,
-    // Every excessive wait notifies; repeated failures page.
-    failureCounts: { window: '5m', push: 1, page: 3 },
+    failureCounts: SLOW_REQUEST_COUNTS,
   }),
   under({
     sli: 'sign-in-requests-answered-within-a-quarter-second',
@@ -312,14 +295,13 @@ export const INDICATORS: readonly Indicator[] = [
     sli: 'sign-in-requests-answered-within-a-second',
     groups: ['session'],
     seconds: 1,
-    failureCounts: { window: '5m', push: 1, page: 3 },
+    failureCounts: SLOW_REQUEST_COUNTS,
   }),
   under({
     sli: 'people-requests-answered-within-two-and-a-half-seconds',
     groups: INTERACTIVE_ROUTE_GROUPS,
     seconds: 2.5,
-    // Past 2.5 s a person gives up: one notifies, three in five minutes page.
-    failureCounts: { window: '5m', push: 1, page: 3 },
+    failureCounts: SLOW_REQUEST_COUNTS,
   }),
   {
     kind: 'sample-share',
@@ -330,7 +312,6 @@ export const INDICATORS: readonly Indicator[] = [
     investigate: 'errors',
     sliceBy: 'job',
     cadence: 'standard',
-    silence: MINUTE_PROBE_SILENCE,
     fastBurnHold: LONE_PROBE_HOLD,
     metric: PROBE_SUCCESS_METRIC.name,
     scope: [{ dimension: 'job', op: 'is', values: OPENING }],
@@ -349,7 +330,6 @@ export const INDICATORS: readonly Indicator[] = [
     investigate: 'errors',
     sliceBy: null,
     cadence: 'ten-minutely',
-    silence: { after: '40m', severity: 'critical' },
     metric: PROBE_SUCCESS_METRIC.name,
     scope: [{ dimension: 'job', op: 'is', values: ['broker'] }],
   },
@@ -383,6 +363,7 @@ export const INDICATORS: readonly Indicator[] = [
       'journeys.connect-four-game',
       'journeys.critical-journeys',
       'journeys.custom-game',
+      'journeys.hearts-first-trick',
       'journeys.hearts-start',
       'journeys.join-and-offline',
       'journeys.light-cycles-start',
@@ -423,7 +404,6 @@ export const INDICATORS: readonly Indicator[] = [
     investigate: 'errors',
     sliceBy: null,
     cadence: 'standard',
-    silence: { after: '15m', severity: 'critical' },
     metric: OUTBOX_DRAIN_RUNS_METRIC.name,
     scope: [],
     good: [{ dimension: 'app.outcome', op: 'is', values: ['success'] }],

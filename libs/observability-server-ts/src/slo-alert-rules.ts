@@ -22,8 +22,8 @@ import { README_URL } from './slo-alerts';
  * - each objective's burn-rate policies (`slo` set), routed by tier and
  *   judged slice by slice (one alert per failing route group, check or
  *   probe);
- * - their companions (`companion-alerts`): silence, failure counts and
- *   certificate expiry;
+ * - their companions (`companion-alerts`): failure counts and certificate
+ *   expiry;
  * - the telemetry pipeline's own health (`pipeline-alerts`).
  */
 
@@ -45,11 +45,7 @@ import {
 } from './alert-links';
 import type { AlertRule } from './alert-rule';
 import { percent, ruleKey } from './alert-rule';
-import {
-  certificateRules,
-  failureCountRules,
-  silenceRules,
-} from './companion-alerts';
+import { certificateRules, failureCountRules } from './companion-alerts';
 import { integrityRules } from './integrity-alerts';
 import { PIPELINE_ALERTS } from './pipeline-alerts';
 import {
@@ -187,7 +183,6 @@ export function generateAlertRules(
     ...integrityRules(docs),
     ...syncPerformanceAlerts(),
     ...certificateRules(),
-    ...silenceRules(docs),
     ...failureCountRules(docs),
   ];
   const slow: AlertRule[] = [];
@@ -243,7 +238,7 @@ function rule(name: string, expr: string, critical: boolean): AlertRule {
     covers: '',
     slice_label: '',
     summary:
-      'Sync diagnostic target violation or missing evidence. Inspect environment, build and workload before inferring population performance.',
+      'Sync diagnostic target violation. Inspect environment, build and workload before inferring population performance.',
     runbook_url: `${README_URL.split('#')[0]}#sync-performance-targets`,
     investigate_command: 'bun obs slow --source prod --since 1h',
     logs_path: logsPath('1h'),
@@ -287,11 +282,6 @@ export function syncPerformanceAlerts(): readonly AlertRule[] {
       rule(
         `sync-${target.id}-low-traffic`,
         `${bad('30m')} >= 3 and ${total('30m')} < 20`,
-        false
-      ),
-      rule(
-        `sync-${target.id}-missing-evidence`,
-        `absent_over_time(${series.total}{${selector}}[1d])`,
         false
       ),
     ];

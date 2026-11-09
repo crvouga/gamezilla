@@ -74,20 +74,6 @@ The certificate Synthetic Monitoring was shown for the app, the API or the
 broker expires within 14 days (push) or 3 days (page). See the README's
 [certificate runbook](../libs/observability-server-ts/README.md#a-certificate-people-are-shown-expires).
 
-### "No events for …" (silence)
-
-Fires when nothing an objective is judged by was counted for a while, so
-the objective cannot look perfect while nobody is measuring it. One rule
-per source and expected slice:
-
-| Source | Silent for | Usual cause |
-| --- | --- | --- |
-| The Health run's check results (`synthetic_check_result`) | 8 h | The Health workflow is not running: GitHub Actions budget exhausted, the schedule disabled, or the run failing before `health` records results. Read the latest Health run in GitHub Actions; the line `health: check results not recorded …` names a recording problem. |
-| Synthetic Monitoring's minute checks (`probe_success`, `probe_duration_seconds`, jobs `app-shell-<env>`, `api-ready-<env>`) | 10 min | Synthetic Monitoring uninstalled, its checks disabled, its token revoked, or the free plan's monthly runs used up (stacks/bootstrap/alerting.tf). |
-| Synthetic Monitoring's broker check (`broker-<env>`) | 40 min | As above, for the ten-minute check. |
-| Scheduled background work (`outbox_drain_runs_total`) | 15 min | The Worker's scheduled trigger is not running, or its telemetry is not exported. See also "Telemetry heartbeat is absent". |
-| People's requests and saves | 1 day | Nobody used the app for a day, or the server's metrics stopped reaching the backend. Warning only. |
-
 ## the-app-is-always-reachable
 
 **Measures.** Grafana Synthetic Monitoring opens `https://www.<host>/` (it
