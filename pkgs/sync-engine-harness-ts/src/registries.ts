@@ -24,6 +24,7 @@ import {
   spaceMembershipQuery,
 } from './membership-query';
 import {
+  appendNote,
   deleteFolder,
   deleteNote,
   illegalHardDeleteNote,
@@ -55,6 +56,7 @@ export const exampleMutationRegistry = mutationRegistry([
   setNote,
   setNoteV2,
   setNoteNoFanout,
+  appendNote,
   deleteNote,
   moveNote,
   illegalHardDeleteNote,
