@@ -219,11 +219,16 @@ Four workflows, one contract each. Details:
 | Release (`deploy.yml`) | `bun deploy` | Continuous production release: verify the selected main commit with the safety gate, then deploy with live safeguards. Newer pending commits supersede older pending releases; active releases finish. |
 | Health (`health.yml`) | `bun health` | Scheduled verification that production is available and correct. Releases nothing. |
 
-- **Run `bun verify` before you call development work done.** It is the
-  complete local catalog; hosted PR and Release select its safety subset. Run `bun verify-nightly` (or one group:
-  `bun verify-nightly random`) when a change deserves deeper verification, such
-  as a new Quint model, a property, or sync and recovery code. An ordinary
-  pull request never waits for a green nightly run.
+- **Heavy verification runs on hosted runners, never queued on this machine.**
+  Development work is done when hosted Verify PR (`bun verify` on GitHub's
+  runners) is green on the final tree. Locally, run only scoped, cached tasks
+  (`bunx turbo run tc lint test --filter=<pkg>`); push for the full gate. For
+  deeper verification (a new Quint model, a property, sync and recovery code),
+  dispatch `verify-nightly.yml` with a group (`gh workflow run verify-nightly.yml
+  --ref <branch> -f group=random`) instead of running `bun verify-nightly`
+  locally. Do not wait for, lease or serialize local capacity: anything too
+  heavy to start now goes to hosted CI. An ordinary pull request never waits
+  for a green nightly run.
 - **One set of tests, two profiles.** `libs/tools-harness-ts/scripts/verify-profile.ts` is
   the only place verification depth differs: the depth (`release` replays the fewest drawn traces of each Quint
   model that take every bound action, at the pinned property budget;
@@ -280,13 +285,13 @@ Setup and server startup are separate stages. Never copy credentials from anothe
 - **Ports and previews.** Use the printed stack URLs and checkout-local manifest;
   see [workspace isolation](libs/tools-harness-ts/workspace/DEVELOPMENT_ENVIRONMENTS.md#isolation-data-and-credentials).
 - **Iterating.** `bun fmt`, `bunx turbo run tc test --filter=<pkg>` (cached),
-  then `bun verify` for the local full gate.
+  then push: hosted Verify PR runs the full gate.
   `bun run git-sync` (`/git-sync`) is the one commit/push/trunk-sync step.
   PR bodies follow `.github/PULL_REQUEST_TEMPLATE.md`. `/pr-ready` drives a PR
   to Ready to merge; `/ci-workflows-green` drives Verify, Release and Health
-  green; the [`ci-green`](.agents/skills/ci-green/SKILL.md) skill runs the
-  full pull-request suite locally and fixes every failure on the current
-  branch.
+  green; the [`ci-green`](.agents/skills/ci-green/SKILL.md) skill diagnoses
+  hosted failures, reproduces them with scoped local checks and fixes every
+  failure on the current branch.
 - **Agent commands.** `.agents/commands/<name>.md` (with `description:`
   frontmatter) is the only source of a slash command; `bun run agents:sync`
   projects it into every harness (`.claude/commands`, `.cursor/commands`,

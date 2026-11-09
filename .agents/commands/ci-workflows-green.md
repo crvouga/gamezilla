@@ -89,7 +89,7 @@ All fixes go on the **current branch** and its single PR. Never open a second PR
 "the release part".
 
 ```bash
-bun verify                               # required final local gate, once on the final tree
+git push                                 # hosted Verify PR runs the full gate (bun verify) on the final tree
 bun run git-sync --message "fix(scope): …"   # commit and push; the PR's Verify runs every gate
 ```
 
