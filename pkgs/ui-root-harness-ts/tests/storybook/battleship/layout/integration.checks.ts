@@ -69,3 +69,49 @@ test('storybook integration: battleship shot history keeps the own seat on a pho
     await captureBattleEvidence(page, info);
   }
 });
+
+// In enlarged placement the space kept for a longer refusal sat between the
+// "Place in" heading and its guidance: a 40-60px dead band on a phone.
+// regression: battleship-placement-heading-band
+test('storybook integration: battleship placement heading sits with its guidance on a phone', async ({
+  page,
+}, info) => {
+  await openBattleStory(
+    page,
+    'screens-games-battleship-setup--enlarged-placement',
+    'light',
+    info
+  );
+  const heading = await page
+    .getByTestId('custom-game-setup-region-heading')
+    .boundingBox();
+  const guidance = await page
+    .getByTestId('custom-game-setup-guidance')
+    .boundingBox();
+  const grid = await page
+    .getByTestId('custom-game-setup-precision')
+    .boundingBox();
+  if (!heading || !guidance || !grid) throw new Error('Placement not shown');
+  expect(guidance.y - (heading.y + heading.height)).toBeLessThanOrEqual(8);
+  expect(grid.y - (guidance.y + guidance.height)).toBeLessThanOrEqual(8);
+});
+
+// After the rival sank a ship, the phone strip carried two-line caption and
+// move list ("…sank the Destroyer at B9. Your turn to fire." and "B9 sinks
+// the Destroyer"), pushing the own seat to 878px on a 390x844 screen.
+// regression: battleship-sink-line-pushes-seat
+test('storybook integration: battleship own seat stays on a phone after the rival sinks a ship', async ({
+  page,
+}, info) => {
+  await openBattleStory(
+    page,
+    'screens-games-battleship-board--sunk-by-rival',
+    'light',
+    info
+  );
+  for (const id of ['custom-game-board-fire', 'custom-game-seat-near']) {
+    const box = await page.getByTestId(id).boundingBox();
+    if (!box) throw new Error(`${id} is not shown`);
+    expect(box.y + box.height).toBeLessThanOrEqual(844);
+  }
+});
