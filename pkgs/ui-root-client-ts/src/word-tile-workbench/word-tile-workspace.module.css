@@ -1,0 +1,55 @@
+.workspace {
+  container-type: inline-size;
+  min-width: 0;
+}
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
+}
+.notice,
+.rack,
+.actions,
+.feedback,
+.board {
+  min-width: 0;
+}
+.notice:empty,
+.actions:empty,
+.feedback:empty {
+  display: none;
+}
+
+/* Desktop and tablet: a larger fitted board with the rack under it, next to
+   the player's own seat, and the word tools in a column beside it. The board
+   still fits a 900px-tall window with every seat in view. */
+@container (min-width: 38rem) {
+  .layout {
+    --word-tile-fitted-size: 27rem;
+    grid-template-columns: minmax(0, 27rem) minmax(0, 1fr);
+    grid-template-rows: auto auto 1fr auto;
+    grid-template-areas:
+      "board actions"
+      "board notice"
+      "board feedback"
+      "rack .";
+    column-gap: var(--ui-space-4);
+    row-gap: var(--ui-space-2);
+    align-items: start;
+  }
+  .notice {
+    grid-area: notice;
+  }
+  .rack {
+    grid-area: rack;
+  }
+  .actions {
+    grid-area: actions;
+  }
+  .feedback {
+    grid-area: feedback;
+  }
+  .board {
+    grid-area: board;
+  }
+}

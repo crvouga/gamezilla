@@ -208,9 +208,10 @@
   flex: none;
 }
 
-/* A complete fitted puzzle board alongside its rack and target at desktop height. */
+/* A complete fitted puzzle board alongside its rack and target at desktop
+   height; a wide word workspace sets a larger size. */
 .board[data-measure="compact"][data-enlarged="false"] {
-  max-width: 23rem;
+  max-width: var(--word-tile-fitted-size, 23rem);
   margin-inline: auto;
 }
 

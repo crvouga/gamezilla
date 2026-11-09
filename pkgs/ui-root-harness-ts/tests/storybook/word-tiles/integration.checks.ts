@@ -193,3 +193,28 @@ test('storybook integration: word-tiles keeps a 16px edge at 390 and 4px only at
   expect(await rackLeft(390, 844)).toBe(16);
   expect(await rackLeft(320, 740)).toBe(4);
 });
+
+// regression: word-tiles-desktop-rack-under-opponent
+test('storybook integration: word-tiles desktop rack sits under a larger board beside the own seat', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await openStory(page, 'two-player-match', 'light');
+  const box = (testId: string) =>
+    page
+      .getByTestId(testId)
+      .first()
+      .evaluate((element) => {
+        const rect = element.getBoundingClientRect();
+        return { top: rect.top, bottom: rect.bottom, width: rect.width };
+      });
+  const board = await box('custom-game-board');
+  const rack = await box('custom-game-board-rack');
+  const seat = await box('custom-game-seat-near');
+  // 27rem fitted board, up from 23rem.
+  expect(board.width).toBeGreaterThanOrEqual(420);
+  expect(rack.top).toBeGreaterThan(board.bottom);
+  expect(seat.top).toBeGreaterThanOrEqual(rack.bottom);
+  expect(seat.top - rack.bottom).toBeLessThanOrEqual(48);
+  expect(seat.bottom).toBeLessThanOrEqual(900);
+});

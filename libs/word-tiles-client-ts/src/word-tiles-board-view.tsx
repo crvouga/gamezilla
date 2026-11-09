@@ -12,6 +12,7 @@ import { WordTileBoard } from '@pkgs/ui-root-client-ts/word-tile-board';
 import {
   WordTileActions,
   WordTileWorkbench,
+  WordTileWorkspace,
 } from '@pkgs/ui-root-client-ts/word-tile-workbench';
 import { createMemo, type JSX, Show } from 'solid-js';
 import type { LexiconState } from './use-word-tiles-lexicon';
@@ -45,42 +46,60 @@ function SeatBoard(props: {
   const tiles = createMemo(() =>
     rackTiles(props.draft.candidate(), props.draft.editable())
   );
+  // A function, so each branch mounts its own board.
+  const board = (): JSX.Element => (
+    <WordTileBoard
+      measure="compact"
+      label={t`Word board, fifteen columns and fifteen rows`}
+      testId={props.draft.props.testId}
+      columnLabels={COLUMN_LABELS}
+      rowLabels={ROW_LABELS}
+      cells={cells()}
+      squareText={squareText}
+      onActivate={(id) => {
+        const cell = parseCell(id);
+        if (cell !== null) props.draft.update((c) => pressCell(c, cell));
+      }}
+    />
+  );
   return (
-    <StackVertical gap="none">
-      <LexiconRecovery draft={props.draft} />
-      <Show
-        when={props.draft.props.hand !== null}
-        fallback={
-          <P tone="secondary">{t`You are watching. Racks stay private to their players.`}</P>
-        }
-      >
-        <TileRack
-          label={t`Your rack`}
-          testId={`${props.draft.props.testId}-rack`}
-          tiles={tiles()}
-          onActivate={(id) =>
-            props.draft.update((c) => pressTile(c, Number(id)))
+    <Show
+      when={props.draft.props.hand !== null}
+      fallback={
+        <WordTileWorkspace
+          notice={<LexiconRecovery draft={props.draft} />}
+          rack={
+            <P tone="secondary">{t`You are watching. Racks stay private to their players.`}</P>
           }
+          board={board()}
         />
-        <WordTileWorkbench>
-          <LocalActions draft={props.draft} random={props.random} />
-          <DraftControls draft={props.draft} position={props.position} />
-        </WordTileWorkbench>
-      </Show>
-      <WordTileBoard
-        measure="compact"
-        label={t`Word board, fifteen columns and fifteen rows`}
-        testId={props.draft.props.testId}
-        columnLabels={COLUMN_LABELS}
-        rowLabels={ROW_LABELS}
-        cells={cells()}
-        squareText={squareText}
-        onActivate={(id) => {
-          const cell = parseCell(id);
-          if (cell !== null) props.draft.update((c) => pressCell(c, cell));
-        }}
+      }
+    >
+      <WordTileWorkspace
+        notice={<LexiconRecovery draft={props.draft} />}
+        rack={
+          <TileRack
+            label={t`Your rack`}
+            testId={`${props.draft.props.testId}-rack`}
+            tiles={tiles()}
+            onActivate={(id) =>
+              props.draft.update((c) => pressTile(c, Number(id)))
+            }
+          />
+        }
+        actions={
+          <WordTileWorkbench>
+            <LocalActions draft={props.draft} random={props.random} />
+          </WordTileWorkbench>
+        }
+        feedback={
+          <WordTileWorkbench>
+            <DraftControls draft={props.draft} position={props.position} />
+          </WordTileWorkbench>
+        }
+        board={board()}
       />
-    </StackVertical>
+    </Show>
   );
 }
 
