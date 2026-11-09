@@ -19,7 +19,7 @@ the same resources and undo each other.
 | Legacy branch protection | none (`removed` block already forgets the old address) | none |
 | Actions | any action, SHA-pinned | GitHub-authored, verified creators, `Infisical/secrets-action@*`, `jdx/mise-action@*`; SHA-pinned |
 | Workflow token | read-only, cannot approve PRs | unchanged |
-| Labels | 58, unmanaged | 62 fixed labels managed one file each (`labels/`), 57 adopted by `import`, 5 created; dated `overnight:<date>` labels stay unmanaged |
+| Labels | 58, unmanaged | 62 fixed labels managed one file each (`labels/`), 58 adopted by `import` (`needs-human` was created by hand for #341), 4 created; dated `overnight:<date>` labels stay unmanaged |
 | Environments | `production` main-only, no reviewers | unchanged |
 | Vulnerability alerts, Dependabot security updates | on | unchanged |
 | Wiki, projects | off | unchanged |
