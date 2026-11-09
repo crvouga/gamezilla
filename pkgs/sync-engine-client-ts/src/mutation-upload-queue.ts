@@ -23,6 +23,7 @@ import { raceUntilAborted } from './race-until-aborted';
 import { SyncHttpPayloadTooLargeError } from './sync-http-payload-too-large-error';
 import { parseRateLimitRetryMs } from './sync-http-rate-limit-error';
 import type { TableChangeBus } from './table-change-bus';
+import { validMutationResponse } from './valid-mutation-response';
 
 // The wire accepts larger batches, but replay holds a pooled database session
 // for the whole request. Keep an offline backlog from monopolizing that hold.
@@ -155,15 +156,6 @@ async function storeRejection(
   `);
 }
 
-function isWellFormedVerdict(verdict: MutationUploadVerdict): boolean {
-  if (verdict.status === 'applied') return true;
-  return (
-    verdict.status === 'rejected' &&
-    typeof verdict.code === 'string' &&
-    typeof verdict.message === 'string'
-  );
-}
-
 /**
  * Ack = delete queue row. Applied ids trigger `onAckFence` synchronously,
  * before the delete transaction is even opened: a pre-replay sweep response
@@ -177,32 +169,14 @@ async function applyUploadResult(
   result: MutationUploadResult,
   now: () => number
 ): Promise<void> {
-  if (result.verdicts.length !== pending.length) {
-    throw new Error(
-      `mutation upload verdict count mismatch: ${result.verdicts.length} verdicts for ${pending.length} pending`
-    );
-  }
-  const pendingIds = new Set(pending.map((row) => row.id));
-  for (const verdict of result.verdicts) {
-    assert.ok(
-      verdict.mutationId.length > 0,
-      'mutation verdict id must be non-empty'
-    );
-    // Each pending write gets exactly one verdict (unknown or repeated ids
-    // would ack the wrong write); a missing id was caught by the count.
-    if (!pendingIds.delete(verdict.mutationId)) {
-      throw new Error(
-        `mutation upload verdict id not pending: ${verdict.mutationId}`
-      );
-    }
-    // regression: malformed-verdict-misread-as-outcome
-    // A garbled verdict is not an outcome: retrying replays the server's
-    // stored verdict instead of dropping a refusal or inventing one.
-    if (!isWellFormedVerdict(verdict)) {
-      throw new Error(
-        `mutation upload verdict malformed: ${verdict.mutationId}`
-      );
-    }
+  // regression: malformed-verdict-misread-as-outcome
+  // regression: malformed-mutation-verdict-retires-work
+  // One verdict per pending write, each applied or a coded refusal, checked
+  // before any durable effect: a garbled acknowledgement is not an outcome,
+  // so retrying replays the server's stored verdicts instead of dropping a
+  // refusal, inventing one, or retiring queued work.
+  if (!validMutationResponse(result, pending.map(toWireRow))) {
+    throw new Error('Invalid mutation upload acknowledgement');
   }
 
   const clientId = options.clientId();
