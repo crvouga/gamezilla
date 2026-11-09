@@ -1,6 +1,7 @@
 import { expect, type Page, type TestInfo, test } from '@playwright/test';
 import axe from 'axe-core';
 import { verifySharedSwipeCapture } from '../light-cycles-pointer';
+import { contrastStacks } from './contrast';
 import { measureSteering } from './measure';
 import { measureMotion } from './motion';
 import { profileMotion } from './profile';
@@ -90,6 +91,10 @@ async function accessibility(page: Page, info: TestInfo) {
       ],
     ]),
     passes: results.passes.length,
+  });
+  logEvidence('CONTRAST', {
+    test: info.title,
+    stacks: await contrastStacks(page, results),
   });
   expect(
     results.violations.filter(
