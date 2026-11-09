@@ -32,6 +32,8 @@ for (const viewport of screens)
       test(`storybook integration: battleship ${story} ${viewport.width}/${theme}`, async ({
         page,
       }, info) => {
+        // The opening case also runs six timed sequences at 6x CPU.
+        if (story === 'board--opening') test.slow();
         await page.setViewportSize(viewport);
         const errors = await openBattleStory(
           page,

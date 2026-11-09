@@ -27,10 +27,12 @@ export async function openBattleStory(
     // board's real transitions instead of the preview's forced reduced motion.
     `/iframe.html?id=${id}&viewMode=story&globals=theme:${theme};motion:system`
   );
-  await expect(page.locator('#storybook-root')).toHaveAttribute(
-    'data-story-ready',
-    'true'
-  );
+  // Ready, or failed in its play: either way the boxes are worth recording.
+  await page
+    .locator(
+      '#storybook-root[data-story-ready="true"], #storybook-root[data-story-status="error"]'
+    )
+    .waitFor({ state: 'attached' });
   // Recorded before the play verdict, so an overflow failure shows its boxes.
   if (info) {
     const layout = await captureBattleLayout(page, info);
@@ -38,6 +40,10 @@ export async function openBattleStory(
     if (layout.storyError !== null)
       throw new Error(`${layout.storyError}\n${JSON.stringify(layout)}`);
   }
+  await expect(page.locator('#storybook-root')).toHaveAttribute(
+    'data-story-ready',
+    'true'
+  );
   await expect(page.locator('#storybook-root')).not.toHaveAttribute(
     'data-story-status',
     'error'
