@@ -121,7 +121,8 @@ resource "github_repository_ruleset" "main" {
     }
   }
 
-  # Every change goes through a PR verified against the current main. No bypass.
+  # Every change goes through a PR. Required checks run on the pull request
+  # head. main moving ahead does not block the merge. No bypass.
   # The repository has one maintainer, who cannot approve their own PRs, so
   # approvals are not required (regression: repository-ruleset-solo-approval).
   rules {
@@ -136,7 +137,7 @@ resource "github_repository_ruleset" "main" {
     }
 
     required_status_checks {
-      strict_required_status_checks_policy = true
+      strict_required_status_checks_policy = false
       dynamic "required_check" {
         for_each = { for check in local.required_checks : check.context => check }
         content {

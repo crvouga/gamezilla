@@ -32,7 +32,7 @@ test('main requires verified PRs without approvals a solo maintainer cannot give
   expect(repository).toMatch(/dismiss_stale_reviews_on_push\s*=\s*true/);
   expect(repository).toMatch(/required_review_thread_resolution\s*=\s*true/);
   expect(repository).toMatch(/\brequired_status_checks\s*\{/);
-  expect(repository).toMatch(/strict_required_status_checks_policy\s*=\s*true/);
+  expect(repository).toMatch(/strict_required_status_checks_policy\s*=\s*false/);
   expect(repository).toContain(
     'for_each = { for check in local.required_checks'
   );

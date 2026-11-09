@@ -826,7 +826,8 @@ Feature titles, one line each, so a session can route without listing the tree. 
 
 All changes to `main` go through a pull request. The OpenTofu repository ruleset
 requires every check in `libs/infra-shared-ts/tofu/modules/repository/required-checks/`
-against current `main` (planning, the complete verdict, and GitGuardian), one independent
+on the pull request head (planning, the complete verdict, and GitGuardian). A pull
+request stays mergeable after `main` moves on. One independent
 approval after the latest push, and resolved review conversations. A push dismisses
 stale approvals. The final PR gate checks both the head and merge commit: every
 check must pass, belong to its declared GitHub App, and be registered as required.

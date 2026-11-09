@@ -240,7 +240,7 @@ Four workflows, one contract each. Details:
   (`slashPath` from `@pkgs/os-shared-ts/slash-path`; `no-native-relative-path.grit`
   refuses a bare `node:path` `relative()`), and nothing assumes a POSIX shell,
   `/tmp` or a tool the runner did not get from `mise.toml`.
-  The ruleset requires `verify:end` against the latest `main` before a human merges.
+  The ruleset requires a green `verify:end` on the pull request before a human merges. The pull request does not have to contain the latest `main`.
 - **Every gate is a package-owned Turbo task.** The task list in
   `libs/tools-harness-ts/scripts/turbo-ci-run.ts` runs every gate through Turbo. There
   are no root `//#verify`, `//#ci:*`, or root lint verifications: each gate has

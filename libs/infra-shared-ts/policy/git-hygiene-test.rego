@@ -16,7 +16,7 @@ strict_ruleset := {
 			"required_review_thread_resolution": true,
 		}],
 		"required_status_checks": [{
-			"strict_required_status_checks_policy": true,
+			"strict_required_status_checks_policy": false,
 			"required_check": [{"context": "verify:end", "integration_id": 15368}],
 		}],
 	}],
@@ -35,9 +35,17 @@ test_admin_bypass_denied if {
 	not strict_main(object.union(strict_ruleset, {"bypass_actors": [{"actor_id": 5}]}))
 }
 
-test_wrong_check_source_denied if {
+test_up_to_date_branch_requirement_denied if {
 	rules := object.union(strict_ruleset.rules[0], {"required_status_checks": [{
 		"strict_required_status_checks_policy": true,
+		"required_check": [{"context": "verify:end", "integration_id": 15368}],
+	}]})
+	not strict_main(object.union(strict_ruleset, {"rules": [rules]}))
+}
+
+test_wrong_check_source_denied if {
+	rules := object.union(strict_ruleset.rules[0], {"required_status_checks": [{
+		"strict_required_status_checks_policy": false,
 		"required_check": [{"context": "verify:end", "integration_id": 0}],
 	}]})
 	not strict_main(object.union(strict_ruleset, {"rules": [rules]}))
