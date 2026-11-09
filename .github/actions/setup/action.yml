@@ -33,6 +33,10 @@ inputs:
     description: fixture for deterministic verification; configured for deployment and live operations
     required: false
     default: fixture
+  tofu-providers:
+    description: Restore and save the OpenTofu provider cache (jobs that run tofu init)
+    required: false
+    default: 'false'
 
 runs:
   using: composite
@@ -53,7 +57,25 @@ runs:
         echo "MISE_TRUSTED_CONFIG_PATHS=${GITHUB_WORKSPACE}" >> "$GITHUB_ENV"
         echo "MISE_DISABLE_TOOLS=pipx:graphifyy,pipx:serena-agent,swift" >> "$GITHUB_ENV"
 
+    # mise and most pinned tools download from GitHub release assets. When
+    # that host is down (504s on 2026-11-09 failed every job), the install
+    # falls back to the last toolchain main installed, kept in the Actions
+    # cache, which is separate storage. Pull requests never save it (each
+    # would store its own ~1 GB copy); Release and scheduled runs on main do,
+    # and every pull request can restore main's.
+    - name: Tool snapshot key
+      id: tool-snapshot
+      shell: bash
+      env:
+        TOOLS: ${{ inputs.tools || '--include-lazy' }}
+        CONFIG_HASH: ${{ hashFiles('mise.toml') }}
+      run: |
+        tools_hash="$(printf '%s' "$TOOLS" | sha256sum | cut -c1-16)"
+        echo "key=mise-tools-v1-${RUNNER_OS}-${RUNNER_ARCH}-${CONFIG_HASH}-${tools_hash}" >> "$GITHUB_OUTPUT"
+
     - name: Install pinned tools (mise.toml)
+      id: mise
+      continue-on-error: true
       uses: jdx/mise-action@82a612c5ab8bcda7cc5db6b7e81a8e7584c3dc6e # v5.2.3
       with:
         version: 2026.9.13
@@ -67,6 +89,62 @@ runs:
         # lazy tools used by model and security verifications. Callers that need a
         # smaller toolchain pass an explicit list (for example `bun gh`).
         install_args: ${{ inputs.tools || '--include-lazy' }}
+
+    - name: Restore the last good toolchain (download outage)
+      if: steps.mise.outcome == 'failure'
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ~/.local/share/mise
+        key: ${{ steps.tool-snapshot.outputs.key }}
+        fail-on-cache-miss: true
+
+    - name: Activate the restored toolchain
+      if: steps.mise.outcome == 'failure'
+      shell: bash
+      env:
+        TOOLS: ${{ inputs.tools || '--include-lazy' }}
+      run: |  # zizmor: ignore[github-env] -- see the note at the top of this file
+        echo "::warning::GitHub release downloads failed; using the cached toolchain from main"
+        data="$HOME/.local/share/mise"
+        export PATH="$data/bin:$data/shims:$PATH" MISE_YES=1
+        {
+          echo "$data/bin"
+          echo "$data/shims"
+        } >> "$GITHUB_PATH"
+        echo "MISE_YES=1" >> "$GITHUB_ENV"
+        # Every pinned tool is already present, so this installs nothing.
+        # shellcheck disable=SC2086 -- TOOLS is a mise argument list
+        mise install $TOOLS
+        mise reshim -f
+        mise env --paths >> "$GITHUB_PATH"
+        mise env --json | jq -r 'to_entries[] | select(.key != "PATH") | "\(.key)=\(.value)"' >> "$GITHUB_ENV"
+
+    - name: Look up the toolchain snapshot
+      if: steps.mise.outcome == 'success' && github.event_name != 'pull_request'
+      id: tool-snapshot-lookup
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ~/.local/share/mise
+        key: ${{ steps.tool-snapshot.outputs.key }}
+        lookup-only: true
+
+    - name: Save the toolchain snapshot
+      if: steps.tool-snapshot-lookup.outcome == 'success' && steps.tool-snapshot-lookup.outputs.cache-hit != 'true'
+      uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ~/.local/share/mise
+        key: ${{ steps.tool-snapshot.outputs.key }}
+
+    # OpenTofu providers download from GitHub release assets too. A provider
+    # already in the plugin cache that matches the committed lock file is
+    # used without downloading (Release run 42565242851 failed on 504s).
+    - name: Restore OpenTofu providers
+      if: inputs.tofu-providers == 'true'
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: libs/infra-server-ts/.cache/tofu/plugins
+        key: tofu-providers-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('libs/infra-shared-ts/tofu/stacks/*/.terraform.lock.hcl') }}
+        restore-keys: tofu-providers-v1-${{ runner.os }}-${{ runner.arch }}-
 
     # The install runs before any secret is in the environment: dependency
     # install scripts (`trustedDependencies`) and the postinstall generation

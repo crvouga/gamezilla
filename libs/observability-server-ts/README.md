@@ -343,7 +343,7 @@ excluded from business counts, rather than assumed to be genuine activity.
 
 The dashboard/alert resources require a successful Actions plan against the existing
 Grafana stack and its hosted datasource names before merge. Production deployment
-requires the repository's human merge and full Release gates. The broader business-wide
+requires the repository's merge gate and full Release gates. The broader business-wide
 mission is not proven complete by the instrumentation and dashboards alone.
 
 ## Sync performance targets

@@ -5,7 +5,7 @@ import {
 import { QUORIDOR_SIDES } from '@libs/quoridor-shared-ts/quoridor-rules';
 import { t } from '@lingui/core/macro';
 import {
-  type FramePlayerColor,
+  type FrameBoardPaint,
   fixedPlayers,
   type GameFrame,
   standingsFromWinner,
@@ -15,8 +15,17 @@ import type { JSX } from 'solid-js';
 import { createQuoridorBoard } from './quoridor-board';
 import { PAWN_GLYPHS, quoridorPlayerName } from './quoridor-board-cells';
 
-/** Each pawn's color, as its name says: red, gold, green and black. */
-const PAWN_COLORS: readonly FramePlayerColor[] = [7, 5, 8, 6];
+/**
+ * Each pawn's ink, as its name says: red, gold, green and black. Seat chips
+ * draw the pawn on a square of the sand board, so chip and pawn match in
+ * both app themes.
+ */
+const PAWN_PAINTS: readonly FrameBoardPaint[] = [
+  'pawn-one',
+  'pawn-two',
+  'pawn-three',
+  'pawn-four',
+];
 
 const playerOf = (side: GameSide) => QUORIDOR_SIDES.indexOf(side);
 
@@ -56,7 +65,7 @@ export function quoridorFrame(hill: boolean): GameFrame<JSX.Element> {
     options: [],
     seats: {
       look: (side) => ({
-        color: PAWN_COLORS[playerOf(side)] ?? 1,
+        color: PAWN_PAINTS[playerOf(side)] ?? 'pawn-one',
         mark: PAWN_GLYPHS[playerOf(side)] ?? '',
       }),
       stat: (position, side) => ({

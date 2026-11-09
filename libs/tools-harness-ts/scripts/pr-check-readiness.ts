@@ -44,7 +44,12 @@ export async function awaitRequiredPrChecks(options: {
       throw new Error(
         'PR checks readiness deadline exceeded during metadata collection'
       );
-    if (failures.length === 0) return snapshot.checks;
+    // A neutral CodeQL result passes the policy, but not while its producer
+    // can still replace it with findings.
+    const settled = !snapshot.checks.some((check) =>
+      unfinished(check, snapshot)
+    );
+    if (failures.length === 0 && settled) return snapshot.checks;
     // This projection identifies terminal errors only. It can never grant success:
     // only the original, unmodified snapshot above can satisfy the gate.
     const terminal = requiredPrCheckFailures(

@@ -1,0 +1,5 @@
+{
+  "name": "stale",
+  "color": "cccccc",
+  "description": "No activity for 2 days; closed after 5"
+}

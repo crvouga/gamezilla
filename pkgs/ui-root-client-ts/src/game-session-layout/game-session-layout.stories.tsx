@@ -31,7 +31,17 @@ export const StageCentred: StoryObj = {
       <GameScreen screenId="example-stage-centred" title="Two crates">
         <GameSessionLayout
           stageAlign="center"
-          aside={<P>Puzzle 3 of 4 in Warehouse basics</P>}
+          actionsBeside
+          actions={
+            <Surface tone="muted" padding="sm" testId="commands-probe">
+              <P>Undo · Redo · Restart</P>
+            </Surface>
+          }
+          aside={
+            <Surface tone="muted" padding="sm" testId="rail-probe">
+              <P>Puzzle 3 of 4 in Warehouse basics</P>
+            </Surface>
+          }
         >
           <Surface tone="muted" padding="lg" testId="stage-probe">
             <P>Board</P>

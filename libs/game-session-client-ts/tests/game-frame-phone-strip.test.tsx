@@ -362,3 +362,29 @@ test('completed game keeps the resignation reason in its completion header', () 
   expect(status.textContent).toContain('Black wins by resignation.');
   expect(screen.getByTestId('custom-game-outcome').contains(status)).toBe(true);
 });
+
+const sending = (plainTurn: boolean): Partial<GameFrameScreenViewProps> => ({
+  status: { ...props(plainTurn).status!, sending: true },
+});
+
+// regression: frame-sending-chip-shifts-layout — while the viewer's choice
+// was sent the strip dropped the game's line for a bare "Live" and a second
+// "Sending choice…" pill appeared under the board, pushing the own seat down.
+// The strip's caption says it in the line's own place; the pill stays for a
+// listener only.
+test('phone: a choice being sent is said in the strip, with no second row', () => {
+  mount(390, false, sending(false));
+  expect(screen.getByTestId('custom-game-record-caption').textContent).toBe(
+    'Sending choice…'
+  );
+  expect(screen.queryByTestId('custom-game-move-strip-place')).toBeNull();
+  const status = screen.getByTestId('custom-game-status');
+  expect(status.closest('[data-spoken-only="true"]')).not.toBeNull();
+});
+
+test('phone: with no line of its own a sent choice still shows by the board', () => {
+  mount(390, true, sending(true));
+  const status = screen.getByTestId('custom-game-status');
+  expect(status).toHaveTextContent('Sending choice…');
+  expect(status.closest('[data-spoken-only="true"]')).toBeNull();
+});

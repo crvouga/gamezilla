@@ -1,0 +1,4 @@
+{
+  "summary": "On a short landscape phone (844x390) Chess promotion opens its choice stack below the fold, so the Knight choice ends at 426px in a 390px view until the player scrolls.",
+  "regressionTest": "pkgs/chess-board-root-client-ts/tests/promotion-reveal.test.tsx"
+}

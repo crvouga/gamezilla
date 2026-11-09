@@ -1,0 +1,4 @@
+{
+  "summary": "Typing a column letter in the wall anchor picker matched every option because all labels contain words like above.",
+  "regressionTest": "libs/quoridor-client-ts/tests/quoridor-board-truthful-state.test.tsx"
+}

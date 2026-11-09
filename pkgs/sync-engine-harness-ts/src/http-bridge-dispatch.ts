@@ -1,6 +1,8 @@
 import type { EndpointId } from '@pkgs/harness-root-shared-ts/network-state';
 import { corruptJsonString } from './corruption-faults';
 import type { EdgeFaultController, HarnessHttpFault } from './edge-faults';
+import { corruptVerdicts } from './hostile-responses';
+import { applyHostileNetworkFaults } from './http-bridge-hostile';
 import type {
   HarnessHttpRequest,
   HarnessHttpResponse,
@@ -64,6 +66,19 @@ function applyPreRouteFaults(args: {
   const { route, payload, serverId, network, faults, clientNode } = args;
   const replyTo = payload.replyTo;
   const correlationId = payload.correlationId;
+  if (
+    applyHostileNetworkFaults({
+      route,
+      replyTo,
+      correlationId,
+      serverId,
+      network,
+      faults,
+      clientNode,
+    }) === 'done'
+  ) {
+    return 'done';
+  }
 
   const rateLimited = takeMatchingRouteFault(
     faults,
@@ -281,6 +296,13 @@ function wireMutationsBody(
       JSON.stringify(body),
       corrupt.variant
     ) as unknown as typeof body;
+  }
+  const verdicts =
+    clientNode === undefined
+      ? undefined
+      : faults?.takeHttpFault(clientNode, 'corruptVerdicts');
+  if (verdicts?.kind === 'corruptVerdicts') {
+    return corruptVerdicts(body, verdicts.variant) as typeof body;
   }
   return body;
 }

@@ -1,0 +1,4 @@
+{
+  "summary": "After placing a wall the next turn still started in wall mode instead of the pawn tool.",
+  "regressionTest": "libs/quoridor-client-ts/tests/quoridor-board-truthful-state.test.tsx"
+}
