@@ -45,9 +45,15 @@ than restating it.
 
 - **No git hooks.** Do not add a `pre-commit`, `pre-push`, `core.hooksPath`, Husky, or any other git hook. Every change to `main` requires a pull request under the [git hygiene policy](README.md#git-hygiene). Release runs the blocking safety gate on that commit before it ships ([`README.md`](README.md#correctness-machinery)).
 
-- **Pull requests open ready for review.** Never pass `--draft` or convert a PR to draft; a PR is the reviewable unit as soon as it exists, and CI runs the same either way. A branch need not be up to date with `main` to merge, so do not merge `main` in just to clear "behind"; merge it only to resolve a conflict or pick up a change you need.
-
-- **Agents never merge a pull request.** `/pr-ready` takes a PR to a green Ready to merge and stops; a human merges — never `--admin`, never a red, pending or draft PR.
+- **Pull requests merge themselves when CI is green.** There is no human review; Verify PR is the gate. The contract:
+  - Branch from fresh `origin/main`. One task is one small PR; never bundle unrelated changes.
+  - Open it ready for review (never `--draft`), then immediately `gh pr merge --auto --squash`. GitHub merges it once every required check passes and every review conversation is resolved.
+  - The PR title is the squash commit's subject (Conventional Commits); the body is its message. Write both for a future reader of `git log`.
+  - Resolve every review conversation by fixing the code or replying with the reason; never dismiss one.
+  - Never push to `main`, never force-push a branch with an open PR, never `--admin`, never merge a red or pending PR by hand.
+  - A branch need not be up to date with `main`; merge `main` in only to resolve a conflict (PR Hygiene labels conflicts `needs-human` and lists the files) or to pick up a change you need.
+  - A PR that changes `.github/` or the repository policy (`libs/infra-shared-ts/tofu/modules/repository`, `libs/infra-shared-ts/policy`) gets the `needs-human` label and no auto-merge: the maintainer merges it.
+  - To stop a PR, add `do-not-merge` and run `gh pr merge --disable-auto`; PR Hygiene also turns auto-merge off every 15 minutes. A PR idle for 2 days is marked `stale` and closed 3 days later unless labelled `hotfix`.
 
 - **Never patch dependencies.** No `bun patch`, `patch-package`, `pnpm patch`, `patches/` directory, or `patchedDependencies` / `resolutions` field. Work around a third-party bug in our code or accept it.
 
@@ -242,7 +248,7 @@ Four workflows, one contract each. Details:
   (`slashPath` from `@pkgs/os-shared-ts/slash-path`; `no-native-relative-path.grit`
   refuses a bare `node:path` `relative()`), and nothing assumes a POSIX shell,
   `/tmp` or a tool the runner did not get from `mise.toml`.
-  The ruleset requires `verify:end` against the latest `main` before a human merges.
+  The ruleset requires `verify:end` before a PR auto-merges.
 - **Every gate is a package-owned Turbo task.** The task list in
   `libs/tools-harness-ts/scripts/turbo-ci-run.ts` runs every gate through Turbo. There
   are no root `//#verify`, `//#ci:*`, or root lint verifications: each gate has

@@ -9,6 +9,7 @@ strict_ruleset := {
 	"rules": [{
 		"deletion": true,
 		"non_fast_forward": true,
+		"required_linear_history": true,
 		"pull_request": [{
 			"required_approving_review_count": 0,
 			"dismiss_stale_reviews_on_push": true,
@@ -39,8 +40,21 @@ test_missing_verdict_check_denied if {
 	not strict_main(object.union(strict_ruleset, {"rules": [rules]}))
 }
 
-test_admin_bypass_denied if {
-	not strict_main(object.union(strict_ruleset, {"bypass_actors": [{"actor_id": 5}]}))
+test_admin_pull_request_bypass_allowed if {
+	strict_main(object.union(strict_ruleset, {"bypass_actors": [{"actor_id": 5, "actor_type": "RepositoryRole", "bypass_mode": "pull_request"}]}))
+}
+
+test_admin_push_bypass_denied if {
+	not strict_main(object.union(strict_ruleset, {"bypass_actors": [{"actor_id": 5, "actor_type": "RepositoryRole", "bypass_mode": "always"}]}))
+}
+
+test_app_bypass_denied if {
+	not strict_main(object.union(strict_ruleset, {"bypass_actors": [{"actor_id": 15368, "actor_type": "Integration", "bypass_mode": "pull_request"}]}))
+}
+
+test_nonlinear_history_denied if {
+	rules := object.union(strict_ruleset.rules[0], {"required_linear_history": false})
+	not strict_main(object.union(strict_ruleset, {"rules": [rules]}))
 }
 
 test_wrong_check_source_denied if {
@@ -61,8 +75,8 @@ test_weak_repository_plan_denied if {
 strict_repository_settings := {
 	"delete_branch_on_merge": true,
 	"allow_auto_merge": true,
-	"allow_merge_commit": true,
-	"allow_squash_merge": false,
+	"allow_merge_commit": false,
+	"allow_squash_merge": true,
 	"allow_rebase_merge": false,
 }
 
@@ -70,8 +84,8 @@ test_auto_merge_allowed if {
 	strict_repository(strict_repository_settings)
 }
 
-test_squash_merge_denied if {
-	not strict_repository(object.union(strict_repository_settings, {"allow_squash_merge": true}))
+test_merge_commit_denied if {
+	not strict_repository(object.union(strict_repository_settings, {"allow_merge_commit": true}))
 }
 
 test_rebase_merge_denied if {

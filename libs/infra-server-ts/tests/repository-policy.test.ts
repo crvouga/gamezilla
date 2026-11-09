@@ -21,7 +21,12 @@ const imports = readFileSync(join(TOFU, 'stacks/bootstrap/imports.tf'), 'utf8');
 // regression: repository-policy-codeql-count
 test('main requires verified PRs without approvals a solo maintainer cannot give and refuses deletion and force-pushes', () => {
   expect(repository).toMatch(/resource "github_repository_ruleset" "main"/);
-  for (const rule of ['deletion', 'non_fast_forward']) {
+  for (const rule of [
+    'creation',
+    'deletion',
+    'non_fast_forward',
+    'required_linear_history',
+  ]) {
     expect(repository).toMatch(new RegExp(`${rule}\\s*=\\s*true`));
   }
   expect(repository).toMatch(/include\s*=\s*\["refs\/heads\/main"\]/);
@@ -60,26 +65,34 @@ test('main requires verified PRs without approvals a solo maintainer cannot give
   expect(new Set(checks.map((check) => check.context)).size).toBe(
     checks.length
   );
-  expect(repository).not.toMatch(/\bbypass_actors\s*\{/);
+  // The only bypass: repository admins, and only through a pull request.
+  const bypasses = [...repository.matchAll(/bypass_actors\s*\{([^}]*)\}/g)].map(
+    (match) => match[1]?.replace(/\s+/g, ' ').trim()
+  );
+  expect(bypasses).toEqual([
+    'actor_id = 5 actor_type = "RepositoryRole" bypass_mode = "pull_request"',
+    'actor_id = 5 actor_type = "RepositoryRole" bypass_mode = "always"',
+  ]);
+  expect(repository).toMatch(/allowed_merge_methods\s*=\s*\["squash"\]/);
   expect(repository).not.toMatch(/resource "github_branch_protection"/);
 });
 
-test('merge-commit-only history and disposable heads remain compatible with main protection', () => {
-  expect(repository).toMatch(/allow_merge_commit\s*=\s*true/);
-  expect(repository).toMatch(/allow_squash_merge\s*=\s*false/);
+test('squash-only linear history and disposable heads remain compatible with main protection', () => {
+  expect(repository).toMatch(/allow_merge_commit\s*=\s*false/);
+  expect(repository).toMatch(/allow_squash_merge\s*=\s*true/);
   expect(repository).toMatch(/allow_rebase_merge\s*=\s*false/);
-  expect(repository).not.toMatch(/required_linear_history/);
   expect(repository).toMatch(/delete_branch_on_merge\s*=\s*true/);
   expect(repository).toMatch(/branch\s*=\s*"main"/);
 });
 
 // regression: disabled-squash-settings-drift
-test('disabled squash metadata matches the values GitHub retains', () => {
-  // GitHub retains PR_TITLE / PR_BODY while squash is disabled. Provider
+test('squash and disabled merge-commit metadata match the values GitHub retains', () => {
+  // GitHub retains PR_TITLE / PR_BODY while a method is disabled. Provider
   // defaults COMMIT_OR_PR_TITLE / COMMIT_MESSAGES otherwise drift forever.
   expect(repository).toMatch(/squash_merge_commit_title\s*=\s*"PR_TITLE"/);
   expect(repository).toMatch(/squash_merge_commit_message\s*=\s*"PR_BODY"/);
-  expect(repository).toMatch(/allow_squash_merge\s*=\s*false/);
+  expect(repository).toMatch(/merge_commit_title\s*=\s*"PR_TITLE"/);
+  expect(repository).toMatch(/merge_commit_message\s*=\s*"PR_BODY"/);
 });
 
 // regression: repository-policy-refuses-auto-merge
@@ -126,7 +139,7 @@ test('the declared merge settings pass the bootstrap repository policy', () => {
     );
   const declared = verdict(after);
   expect(declared.status, declared.stdout).toBe(0);
-  expect(verdict({ ...after, allow_squash_merge: true }).status).not.toBe(0);
+  expect(verdict({ ...after, allow_merge_commit: true }).status).not.toBe(0);
 });
 
 test('only descriptive metadata may drift without a plan', () => {
@@ -373,4 +386,31 @@ test('abandoned foundation lock recovery also runs on the development release jo
         step.if?.includes('abandoned-foundation-lock')
     )
   ).toBe(true);
+});
+
+test('release tags cannot be moved or deleted, and fixed labels are declared one file each', () => {
+  expect(repository).toMatch(
+    /resource "github_repository_ruleset" "release_tags" \{[\s\S]*?target\s*=\s*"tag"[\s\S]*?include\s*=\s*\["refs\/tags\/release-\*"\][\s\S]*?deletion\s*=\s*true[\s\S]*?update\s*=\s*true/
+  );
+  const directory = join(TOFU, 'modules/repository/labels');
+  const labels = readdirSync(directory).map(
+    (file) =>
+      JSON.parse(readFileSync(join(directory, file), 'utf8')) as {
+        readonly name: string;
+        readonly color: string;
+        readonly description: string;
+      }
+  );
+  for (const name of [
+    'agent-generated',
+    'needs-human',
+    'hotfix',
+    'do-not-merge',
+    'stale',
+  ])
+    expect(labels.map((label) => label.name)).toContain(name);
+  for (const label of labels) expect(label.color).toMatch(/^[0-9a-f]{6}$/);
+  // Dated run labels belong to /overnight, never to the declared set.
+  expect(labels.some((label) => /^overnight:\d/.test(label.name))).toBe(false);
+  expect(repository).not.toMatch(/resource "github_issue_labels"/);
 });
