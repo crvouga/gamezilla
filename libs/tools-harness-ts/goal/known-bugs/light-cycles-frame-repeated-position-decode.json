@@ -1,0 +1,4 @@
+{
+  "summary": "A Quad frame validates the same full arena separately for every rider's score and crash status and again for the round label. Repeated frame reads now share one bounded decoded position, invalidated for changed and unreadable positions.",
+  "regressionTest": "libs/light-cycles-client-ts/tests/light-cycles-frame-position.test.tsx"
+}

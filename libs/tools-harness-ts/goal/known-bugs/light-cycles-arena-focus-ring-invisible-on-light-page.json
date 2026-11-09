@@ -1,0 +1,4 @@
+{
+  "summary": "The arena's keyboard focus ring was the accent cyan alone, about 1.35:1 against the light page and indistinguishable from the arena's resting cyan edge. A dark band now sits either side of the ring, so focus reads on the light page and apart from the edge.",
+  "regressionTest": "pkgs/ui-root-client-ts/tests/trail-arena-contrast.test.ts"
+}
