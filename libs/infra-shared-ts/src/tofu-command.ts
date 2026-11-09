@@ -114,13 +114,31 @@ export function migrateStateArgs(
   ];
 }
 
+/**
+ * Read-only `plan` / `drift` must not take the remote state lock: a hard-killed
+ * Health or Verify runner otherwise abandons it and blocks Release. Apply and
+ * destroy keep the lock so concurrent mutators stay serialized.
+ */
+export type PlanOptions = {
+  readonly lock?: boolean;
+};
+
+function planLockArgs(options?: PlanOptions): readonly string[] {
+  return options?.lock === false ? ['-lock=false'] : [];
+}
+
 /** `-detailed-exitcode`: 0 = no changes, 2 = changes, 1 = error. */
-export function planArgs(paths: TofuPaths, target: Target): readonly string[] {
+export function planArgs(
+  paths: TofuPaths,
+  target: Target,
+  options?: PlanOptions
+): readonly string[] {
   return [
     chdir(paths, target),
     'plan',
     '-input=false',
     '-detailed-exitcode',
+    ...planLockArgs(options),
     ...varFileArgs(paths, target),
     `-out=${planFilePath(paths, target)}`,
   ];
