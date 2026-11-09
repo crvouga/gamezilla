@@ -1,0 +1,4 @@
+{
+  "summary": "Health run 42102265025 left foundation/dev lock 31eedd87-d82f-6855-2162-0d37abf22196 behind after a hard deadline; Release then failed at Grafana retirement on every apply:foundation (e.g. 42540201899). Add UUID-scoped foundation unlock on Release rehearsal, matching bootstrap recovery.",
+  "regressionTest": "libs/infra-shared-ts/tests/tofu-process-policy.test.ts"
+}

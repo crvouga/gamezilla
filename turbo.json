@@ -3280,6 +3280,10 @@
       "cache": false,
       "passThroughEnv": ["*"]
     },
+    "@libs/infra-server-ts#unlock:foundation": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
     "@libs/infra-server-ts#unlock:repository-policy": {
       "cache": false,
       "passThroughEnv": ["*"]
