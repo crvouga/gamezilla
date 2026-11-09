@@ -27,6 +27,7 @@ import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Text } from '@pkgs/ui-root-client-ts/text';
 import { For, Index, type JSX, Match, Show, Switch } from 'solid-js';
 import { FrameHolderAvatar, FrameHolderName } from './game-frame-people';
+import { frameUsesRail } from './game-frame-table';
 import type {
   FrameClock,
   FramePeople,
@@ -199,20 +200,24 @@ function chipStat(seat: FramePlaySeat): GameSeatStat | null {
 
 /**
  * One seat at a table of three or more, as a compact chip in the rail. The
- * seat nearest the viewer (`own`) marks its place; it says "You" only when
- * the viewer holds it (`you`, default `own`), never to a watcher.
+ * viewer's own (`own`) says "You" and marks its place as the seat nearest
+ * them.
  */
 export function FrameSeatChipView(
   props: Omit<SeatProps, 'onChoose'> & {
     readonly own?: boolean | undefined;
-    readonly you?: boolean | undefined;
+    readonly near?: boolean | undefined;
   }
 ): JSX.Element {
   return (
     <GameSessionParticipant name={props.seat.plainName}>
       <GamePlayerChip
         dataSet={{ testid: `custom-game-${props.seat.side}` }}
-        placeTestId={props.own === true ? 'custom-game-seat-near' : undefined}
+        placeTestId={
+          props.own === true || props.near === true
+            ? 'custom-game-seat-near'
+            : undefined
+        }
         name={props.seat.plainName}
         avatar={
           <FrameHolderAvatar
@@ -225,8 +230,13 @@ export function FrameSeatChipView(
         swatch={props.seat.swatch}
         tags={
           <>
-            <Show when={(props.you ?? props.own) === true}>
-              <Badge intent="info" label={<Trans>You</Trans>} />
+            <Show when={props.own === true}>
+              {/* The subtle wash over the active chip's tint falls below AA in the dark theme. */}
+              <Badge
+                intent="info"
+                tone={props.seat.deciding ? 'solid' : 'subtle'}
+                label={<Trans>You</Trans>}
+              />
             </Show>
             <PlaySeatTags seat={props.seat} />
           </>
@@ -262,7 +272,7 @@ type TableProps = {
 function nearInRail(props: TableProps): FramePlaySeat | null {
   const near = props.table.near;
   return props.compact === true &&
-    props.table.shape === 'rail' &&
+    frameUsesRail(props.table.shape, props.compact, props.table.seatLayout) &&
     near !== null &&
     !near.reclaim
     ? near
@@ -287,7 +297,9 @@ export function tableShowsTurn(
     nearInRail({ table, compact, onChoose: async () => undefined }) === null;
   return (
     (nearStrip && seatShowsTurn(table.near)) ||
-    (table.shape === 'strip' && seatShowsTurn(table.others[0]))
+    (table.shape === 'strip' &&
+      !frameUsesRail(table.shape, compact, table.seatLayout) &&
+      seatShowsTurn(table.others[0]))
   );
 }
 
@@ -309,7 +321,17 @@ export function FrameOthersView(props: TableProps): JSX.Element {
     <Switch>
       {/* A phone's board that names its players: nothing above it. */}
       <Match when={namedOnBoard(props)}>{null}</Match>
-      <Match when={props.table.shape === 'strip' && props.table.others[0]}>
+      <Match
+        when={
+          props.table.shape === 'strip' &&
+          !frameUsesRail(
+            props.table.shape,
+            props.compact,
+            props.table.seatLayout
+          ) &&
+          props.table.others[0]
+        }
+      >
         {(seat) => (
           <FrameSeatStripView
             seat={seat()}
@@ -320,7 +342,13 @@ export function FrameOthersView(props: TableProps): JSX.Element {
           />
         )}
       </Match>
-      <Match when={props.table.shape === 'rail'}>
+      <Match
+        when={frameUsesRail(
+          props.table.shape,
+          props.compact,
+          props.table.seatLayout
+        )}
+      >
         <GameSessionParticipants>
           <GamePlayerRail
             aria-label={
@@ -332,8 +360,8 @@ export function FrameOthersView(props: TableProps): JSX.Element {
                 <FrameSeatChipView
                   seat={near()}
                   people={props.people}
-                  own
-                  you={near().side === props.viewerSide}
+                  near
+                  own={props.viewerSide === near().side}
                 />
               )}
             </Show>

@@ -1,0 +1,4 @@
+{
+  "summary": "Numberlink pointer drawing focuses its start cell from script so Escape can cancel it. Browsers treat script focus after a prevented pointerdown as keyboard focus, so the keyboard focus ring showed under the finger or mouse for the whole drawing and painted an extra layer above the paths on every move. The board now tracks whether the last input was a pointer or a key and shows the ring only for keyboard use.",
+  "regressionTest": "libs/numberlink-harness-ts/tests/numberlink-board-presentation.test.tsx"
+}

@@ -12,8 +12,11 @@ export function NumberlinkDrawingHelp() {
       <StackVertical gap="sm">
         <P variant="caption" tone="secondary">
           <Trans>
-            Start again at a number to redraw its path. Drag back along your
-            path to shorten it.
+            Start again at an endpoint to redraw its path. Drag back along your
+            path to shorten it. Release to keep your drawing. Move outside the
+            board or press Escape to cancel; your saved paths stay unchanged. On
+            a small screen, pinch with two fingers to zoom in on the board, then
+            draw with one.
           </Trans>
         </P>
         <KeyHints

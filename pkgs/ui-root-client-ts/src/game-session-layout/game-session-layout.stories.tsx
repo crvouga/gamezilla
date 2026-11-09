@@ -1,4 +1,8 @@
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
+import { ScreenExampleFrame } from '../../storybook/fixtures/screen-example-frame';
+import { GameScreen } from '../game-screen/index';
+import { Surface } from '../surface/index';
+import { P } from '../text/index';
 import Example from './game-session-layout.example';
 import { GameSessionLayout } from './index';
 
@@ -14,4 +18,26 @@ export default meta;
 export const States: StoryObj = {
   parameters: { controls: { disable: true } },
   render: () => <Example />,
+};
+
+/**
+ * `stageAlign="center"`: on one column, a stage narrower than the column
+ * sits in its middle rather than at the start edge.
+ */
+export const StageCentred: StoryObj = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <ScreenExampleFrame>
+      <GameScreen screenId="example-stage-centred" title="Two crates">
+        <GameSessionLayout
+          stageAlign="center"
+          aside={<P>Puzzle 3 of 4 in Warehouse basics</P>}
+        >
+          <Surface tone="muted" padding="lg" testId="stage-probe">
+            <P>Board</P>
+          </Surface>
+        </GameSessionLayout>
+      </GameScreen>
+    </ScreenExampleFrame>
+  ),
 };

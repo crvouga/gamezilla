@@ -1,0 +1,4 @@
+{
+  "summary": "The alert delivery canary read incident timelines through the deprecated grafana-oncall-app plugin route, which Grafana Cloud no longer serves, so every main Release failed with an anonymous HTTP 404. Timelines come from grafana-irm-app, and each failed request names its step.",
+  "regressionTest": "libs/infra-server-ts/tests/alert-delivery-check.test.ts"
+}

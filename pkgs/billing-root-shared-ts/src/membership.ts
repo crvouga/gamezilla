@@ -137,6 +137,14 @@ export interface MembershipBilling {
   readPayments(customerId: string): Promise<readonly MembershipPayment[]>;
   refundPayment(paymentId: string): Promise<void>;
   startCheckout(input: StartCheckoutInput): Promise<StartCheckoutResult>;
+  /**
+   * Before new checkouts open at another provider: closes every checkout the
+   * customer has open here, so none can take a payment any more, and reports
+   * the live membership the customer holds here, if any (a payment taken
+   * whose news may not have reached the app). Throws when the provider cannot
+   * be reached, so the app opens no checkout elsewhere until it knows.
+   */
+  closeCheckouts(customerId: string): Promise<MembershipChange | null>;
   openPortal(input: OpenPortalInput): Promise<{ readonly url: string }>;
   /**
    * Verifies authenticity itself; the caller never sees a signature scheme.

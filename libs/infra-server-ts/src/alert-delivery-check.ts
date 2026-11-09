@@ -40,43 +40,53 @@ export class AlertDeliveryCheck {
     });
   }
 
-  private async request(url: string, init: RequestInit): Promise<unknown> {
+  /** `step` names the request in errors; URLs may carry credentials and never do. */
+  private async request(
+    step: string,
+    url: string,
+    init: RequestInit
+  ): Promise<unknown> {
     let response: Response;
     try {
       response = await this.fetch(url, { ...init, redirect: 'error' });
     } catch {
       // Neither credentials, webhook URLs nor remote response bodies enter logs.
       throw new Error(
-        'Alert delivery API request failed or exceeded its deadline'
+        `Alert delivery API request failed or exceeded its deadline (${step})`
       );
     }
     if (!response.ok) {
       await response.body?.cancel();
-      throw new Error(`Alert delivery API returned HTTP ${response.status}`);
+      throw new Error(
+        `Alert delivery API returned HTTP ${response.status} (${step})`
+      );
     }
     const body = await response.text();
     if (body.length > 1_000_000)
-      throw new Error('Alert delivery API response too large');
+      throw new Error(`Alert delivery API response too large (${step})`);
     if (init.method === 'POST') return null;
     if (body.trim() === '') return null;
     try {
       return JSON.parse(body) as unknown;
     } catch {
-      throw new Error('Alert delivery API returned invalid JSON');
+      throw new Error(`Alert delivery API returned invalid JSON (${step})`);
     }
   }
 
-  private api(path: string): Promise<unknown> {
+  // Grafana Cloud serves IRM's internal API from the IRM app; the
+  // standalone OnCall plugin is deprecated and absent from the stack.
+  private irmApp(step: string, path: string): Promise<unknown> {
     return this.request(
-      `${this.config.stackUrl}/api/plugins/grafana-oncall-app/resources${path}`,
+      step,
+      `${this.config.stackUrl}/api/plugins/grafana-irm-app/resources${path}`,
       {
         headers: { Authorization: `Bearer ${this.config.token}` },
       }
     );
   }
 
-  private publicApi(path: string): Promise<unknown> {
-    return this.request(`${this.config.apiUrl}/api/v1${path}`, {
+  private publicApi(step: string, path: string): Promise<unknown> {
+    return this.request(step, `${this.config.apiUrl}/api/v1${path}`, {
       headers: {
         Authorization: `Bearer ${this.config.token}`,
         'X-Grafana-URL': this.config.stackUrl,
@@ -87,6 +97,7 @@ export class AlertDeliveryCheck {
   private async hook(run: AlertCanary): Promise<void> {
     const result = record(
       await this.request(
+        'GitHub project webhook',
         `https://api.github.com/repos/${run.repository}/hooks/${this.config.hookId}`,
         {
           headers: {
@@ -110,11 +121,15 @@ export class AlertDeliveryCheck {
     run: AlertCanary,
     conclusion: 'failure' | 'success'
   ): Promise<void> {
-    await this.request(this.config.webhookUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(canaryPayload(run, conclusion)),
-    });
+    await this.request(
+      `IRM integration ${conclusion} alert`,
+      this.config.webhookUrl,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(canaryPayload(run, conclusion)),
+      }
+    );
   }
 
   private async until<T>(
@@ -140,6 +155,7 @@ export class AlertDeliveryCheck {
     await this.hook(run);
     const responder = record(
       await this.publicApi(
+        'IRM responder',
         `/users/${encodeURIComponent(this.config.responderId)}/`
       )
     );
@@ -153,6 +169,7 @@ export class AlertDeliveryCheck {
         async () =>
           canaryGroup(
             await this.publicApi(
+              'IRM incident search',
               `/alert_groups/?integration_id=${encodeURIComponent(this.config.integrationId)}&search=${encodeURIComponent(payload.workflow_run.name)}`
             ),
             {
@@ -172,7 +189,10 @@ export class AlertDeliveryCheck {
       await this.until(
         async () =>
           mobileAttempt(
-            await this.api(`/alertgroups/${groupId}/`),
+            await this.irmApp(
+              'IRM incident timeline',
+              `/alertgroups/${groupId}/`
+            ),
             this.config.responderId,
             startedAt
           )
@@ -186,7 +206,10 @@ export class AlertDeliveryCheck {
       if (groupId !== '')
         await this.until(async () => {
           const group = record(
-            await this.publicApi(`/alert_groups/${groupId}/`)
+            await this.publicApi(
+              'IRM incident state',
+              `/alert_groups/${groupId}/`
+            )
           );
           return group['state'] === 'resolved' ? true : undefined;
         }, 'incident resolution');

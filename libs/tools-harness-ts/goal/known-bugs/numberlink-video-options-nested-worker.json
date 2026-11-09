@@ -1,0 +1,4 @@
+{
+  "summary": "Numberlink evidence configured video and trace worker options inside describe groups, so Playwright rejected collection before any browser could start. Recording options now belong at file scope, with a fixed full-size recording canvas and per-test viewport overrides.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/numberlink-board/integration.checks.ts"
+}

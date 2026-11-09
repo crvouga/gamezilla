@@ -139,6 +139,11 @@
 /* Before play: a small thumbnail in the board's own colours, its top level
    with the setup beside it, over a quiet label that names it; its size and
    the label say it is a preview, never where to play. */
+/* Opt-in square fit: the measured viewport budget may only narrow the
+   board's usual measure, never widen it. */
+.boardStage[data-viewport-fit="square"] {
+  max-width: min(var(--game-board-measure, 560px), var(--game-board-fit, 100%));
+}
 .boardStage[data-preview="true"] {
   max-width: var(--game-board-preview-measure, 176px);
   gap: var(--ui-space-2);

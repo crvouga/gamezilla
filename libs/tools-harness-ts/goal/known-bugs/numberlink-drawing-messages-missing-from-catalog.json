@@ -1,0 +1,4 @@
+{
+  "summary": "Numberlink's saved-progress label, keyboard drawing hint and canceled-drawing message were added without catalog entries. Production looks messages up by hashed id, so those lines would render as hash codes instead of English. The catalog is now extracted with them.",
+  "regressionTest": "libs/numberlink-harness-ts/tests/numberlink-catalog-messages.test.ts"
+}

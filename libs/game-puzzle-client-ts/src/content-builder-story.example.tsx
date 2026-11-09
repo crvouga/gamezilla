@@ -23,6 +23,11 @@ export function StoryPuzzleBuilder(props: {
   readonly earlier: string;
   /** The builder is saving: nothing in it can be used. */
   readonly disabled: boolean;
+  /**
+   * Whether the draft can be playtested, as the game's authoring
+   * `readable()` says; the production builder withholds playtest otherwise.
+   */
+  readonly playtestable?: boolean | undefined;
   /** The game's own editor. */
   readonly stage: JSX.Element;
 }): JSX.Element {
@@ -48,7 +53,10 @@ export function StoryPuzzleBuilder(props: {
           copyState={{ kind: 'draft' }}
           layout="bar"
           before={(next) => (
-            <StoryPlaytest disabled={props.disabled} next={next()} />
+            <StoryPlaytest
+              disabled={props.disabled || props.playtestable === false}
+              next={next()}
+            />
           )}
           kind="puzzle"
           validation="unchecked"

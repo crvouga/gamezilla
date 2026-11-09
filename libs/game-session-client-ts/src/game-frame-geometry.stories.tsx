@@ -98,11 +98,18 @@ export const Win: Story = {
 };
 
 // regression: shared-board-terminal-buried
+// regression: shared-drawn-geometry-winning-position
 /** A drawn result retains its next actions and final record label. */
 export const Drawn: Story = {
+  ...Draw,
   args: { ...Draw.args },
   play: async ({ canvasElement }) => {
     await expectTerminalVisible(canvasElement);
+    const board = within(canvasElement).getByTestId('custom-game-board');
+    await expect(board).toHaveAttribute('data-won', 'false');
+    await expect(board.querySelectorAll('[data-winning="true"]')).toHaveLength(
+      0
+    );
   },
 };
 

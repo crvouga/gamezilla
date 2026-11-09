@@ -12,6 +12,7 @@ Feature: Stop charging a deleted account
       Then Alice's membership cannot renew because the account was deleted
       And Alice no longer has paid access
 
+    @regression:billing-deletion-outcome-harness-waits-for-action
     Scenario: An unfinished cancellation cannot be called complete
       Given Alice's account deletion has been confirmed
       And the payment provider has not yet confirmed cancellation

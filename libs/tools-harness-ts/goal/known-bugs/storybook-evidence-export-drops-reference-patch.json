@@ -1,0 +1,4 @@
+{
+  "summary": "The encrypted Storybook evidence export listed only the retained test-results prefix, so an authoring run's retained reference patch (.cache/verify-nightly/storybook-baselines.patch) never reached owners, who could not commit authored baselines from it. The export now also sends that one exact patch path.",
+  "regressionTest": "libs/tools-harness-ts/scripts/storybook-evidence-log.test.ts"
+}
