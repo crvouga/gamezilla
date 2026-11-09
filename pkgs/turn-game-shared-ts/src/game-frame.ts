@@ -191,6 +191,16 @@ export type GameFrame<View> = {
   /** Explicit precision workspace inset on compact screens; wide layout is unchanged. */
   readonly compactInset?: GameFrameCompactInset;
   /**
+   * A first turn as the record will write it, each move with its seat's
+   * look (Connect Four's `● 4 ◆ 4`). Before the first move a phone's record
+   * keeps that turn's room, so the board under it does not move when the
+   * first move lands. Absent: the empty record keeps one line.
+   */
+  readonly firstTurnSample?: readonly {
+    readonly label: string;
+    readonly look: GameSeatLook;
+  }[];
+  /**
    * Whether the frame offers the people playing a draw by agreement among
    * its commands. A game says so itself: one that can never be drawn
    * (Battleship), one played in real time (Pong, Light Cycles) and one
