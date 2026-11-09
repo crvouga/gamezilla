@@ -383,6 +383,7 @@ export const INDICATORS: readonly Indicator[] = [
       'journeys.connect-four-game',
       'journeys.critical-journeys',
       'journeys.custom-game',
+      'journeys.hearts-first-trick',
       'journeys.hearts-start',
       'journeys.join-and-offline',
       'journeys.light-cycles-start',

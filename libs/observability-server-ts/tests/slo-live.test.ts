@@ -437,6 +437,7 @@ describe('one broken game among the journeys', () => {
     'journeys.connect-four-game',
     'journeys.critical-journeys',
     'journeys.custom-game',
+    'journeys.hearts-first-trick',
     'journeys.hearts-start',
     'journeys.join-and-offline',
     'journeys.light-cycles-start',

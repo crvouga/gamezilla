@@ -14,6 +14,16 @@
     "configure:slo": {
       "cache": false,
       "dependsOn": ["@libs/tools-harness-ts#configure:identity"]
+    },
+    "test": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/**",
+        "$TURBO_ROOT$/apps/product-ts/package.json",
+        "$TURBO_ROOT$/libs/infra-shared-ts/tofu/**",
+        "$TURBO_ROOT$/docs/SLO_COVERAGE.md",
+        "$TURBO_ROOT$/docs/SLO_RUNBOOK.md"
+      ]
     }
   }
 }
