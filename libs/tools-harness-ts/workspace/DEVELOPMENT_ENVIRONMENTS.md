@@ -88,7 +88,6 @@ end-to-end integration pass. No ADE installation is required by the scripts.
 | T3 Code | Generated `t3.json`, also installed as project actions | Blocking setup on worktree creation; checkout-owned cleanup on settle | Official contract and project API readback; no lifecycle execution claim |
 | Conductor | Generated `.conductor/settings.toml`: setup/run/archive | Check local overrides; run only after setup succeeds | Official scripts reference; not installed/tested |
 | Superset / Paradev | Generated `.superset/config.json`: setup/run/teardown | Enable waiting for setup before agent launch; check user overrides | Official lifecycle reference; not installed/tested |
-| Cursor editor / Agent worktrees | Generated `.cursor/worktrees.json`, Unix setup only | Run/cleanup in terminal or VS Code task; see Worktrees Setup output on failure | Official worktree reference; not installed/tested |
 | VS Code editor | `.vscode/tasks.json`, explicit setup/run/cleanup process tasks | Run Task; open remote folder with Remote SSH/WSL as appropriate | Official Tasks reference; no UI test |
 | Claude Code coding agent | Existing instructions/hooks preserved | Run shared commands in its checkout; no new prompt hooks | Official hook reference; no end-to-end pass |
 | Codex coding agent / desktop host | Existing `.codex` preserved | Desktop local environment Setup script and Actions; CLI uses terminal commands | Official local-environment reference; no end-to-end pass |
@@ -190,8 +189,6 @@ cleanup. Its allocated `CONDUCTOR_PORT` is local-only; our launcher uses its own
 selection in local or cloud workers. [Superset/Paradev](https://docs.paradev.com/setup-teardown-scripts)
 runs setup on create, run on demand, teardown on deletion in the workspace; user
 config can override each key. Existing super.engineering and cmux adapters remain.
-[Cursor](https://cursor.com/docs/configuration/worktrees) supports Unix worktree
-setup commands; no undocumented cleanup key is added.
 
 [VS Code tasks](https://code.visualstudio.com/docs/debugtest/tasks) are explicit
 commands, not a worktree lifecycle system. [Claude Code's WorktreeCreate hook](https://code.claude.com/docs/en/hooks#worktreecreate)
@@ -200,13 +197,7 @@ replaces worktree creation itself, so it is not used merely to install dependenc
 provide setup on new worktrees and on-demand actions; configure these through the
 app rather than guessing generated file contents. Codex CLI and Claude Code are
 coding agents and inherit the execution host's environment; neither needs server
-restart on each message. Cursor Cloud Agents use the committed
-[`.cursor/environment.json`](../../../.cursor/environment.json):
-`cloud-agent-install.sh` then `cloud-agent-start.sh` in this directory.
-The same install is safe to repeat on Ubuntu, Cursor Cloud, and macOS. It
-publishes the pinned Bun and Node in `~/.local/bin` and one login hook for
-bash and zsh. Provision development-only credentials explicitly on that
-worker. The local stack does not need them.
+restart on each message.
 
 ## Platform and validation limits
 
