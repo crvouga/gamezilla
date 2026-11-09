@@ -558,11 +558,7 @@ export const FinishAndReview: Story = {
         onReturnLive={() => setPly(OPPONENT_TURN_RECORD.length)}
         board={
           <ConnectFourStoryBoard
-            moves={
-              finished()
-                ? OPPONENT_TURN_MOVES.slice(0, ply())
-                : OPPONENT_TURN_MOVES
-            }
+            moves={OPPONENT_TURN_MOVES.slice(0, finished() ? ply() : undefined)}
             interactive={false}
           />
         }
