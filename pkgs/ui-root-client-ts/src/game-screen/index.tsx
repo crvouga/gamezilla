@@ -185,13 +185,23 @@ export function GameLayout(props: {
         <Show when={controls.present()}>
           <div
             class={styles['controls']}
+            classList={{
+              [stageAlign['centred'] ?? '']: props.stageAlign === 'center',
+            }}
             {...dataAttrs({ component: 'GameControls' })}
           >
             {controls.content()}
           </div>
         </Show>
         <Show when={aside.present()}>
-          <div class={styles['rail']}>{aside.content()}</div>
+          <div
+            class={styles['rail']}
+            classList={{
+              [stageAlign['centred'] ?? '']: props.stageAlign === 'center',
+            }}
+          >
+            {aside.content()}
+          </div>
         </Show>
       </div>
     </Show>
