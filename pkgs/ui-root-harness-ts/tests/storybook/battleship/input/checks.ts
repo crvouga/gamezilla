@@ -83,7 +83,10 @@ export function defineInputChecks() {
       if (await switcher.isVisible()) await switcher.click();
       // A watcher reads the whole board at every size: no aiming workbench.
       await expect(page.getByTestId('custom-game-board-region')).toHaveCount(0);
-      await expect(page.getByText('Shots so far')).toBeVisible();
+      // Both of a watcher's boards say it; the board on show must.
+      await expect(
+        page.getByText('Shots so far').filter({ visible: true }).first()
+      ).toBeVisible();
       await expect(
         page.getByTestId('custom-game-board-target-f10')
       ).toHaveAccessibleName('F10: hit, sunk Destroyer');

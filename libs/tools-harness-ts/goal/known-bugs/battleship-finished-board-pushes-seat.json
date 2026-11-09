@@ -1,4 +1,4 @@
 {
-  "summary": "When a game finished, the result card sat above a board still sized for play, pushing the fleet switch and the own seat below a 390x844 screen (and off a 1440 window). A finished game's whole boards now leave room for the result: at most the window height less 32rem.",
+  "summary": "When a game finished, the result card sat above a board still sized for play, pushing the fleet switch and the own seat below a 390x844 screen (and off a 1440 window). A finished game's whole boards now leave room for the result: at most the window height less 33rem.",
   "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/battleship/layout/integration.checks.ts"
 }
