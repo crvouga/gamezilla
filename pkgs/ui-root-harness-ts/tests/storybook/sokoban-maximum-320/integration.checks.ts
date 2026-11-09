@@ -37,8 +37,10 @@ test('storybook integration: Sokoban close view keeps maximum-board pieces reada
     board.getByRole('img', { name: 'H2: floor, worker' })
   ).toBeVisible();
   await capture(page, info, 'close-view-follows-worker');
-  await accessibility(page, info);
+  // Timed before the axe scan, as every other Sokoban suite does: the scan's
+  // own garbage collection otherwise lands on the first timed moves.
   await measureSokoban(page, info, 4, 6);
+  await accessibility(page, info);
   await page.getByRole('button', { name: 'Show whole board' }).click();
   await expect(board.getByRole('img')).toHaveCount(400);
   await counts(page, 26, 6);
