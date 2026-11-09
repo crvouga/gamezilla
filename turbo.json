@@ -219,9 +219,6 @@
     "storybook:test": {
       "cache": false
     },
-    "storybook:publish": {
-      "cache": false
-    },
     "tc": {
       "dependsOn": ["^src"],
       "inputs": [

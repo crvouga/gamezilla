@@ -1,0 +1,4 @@
+{
+  "summary": "verify:end's PR check gate waited for every check on the PR to finish, including its own in-progress verify:end run, so it always timed out after five minutes and failed every PR. Fixed in pr-check-readiness: the aggregate does not await itself.",
+  "regressionTest": "libs/tools-harness-ts/scripts/pr-check-readiness.test.ts"
+}
