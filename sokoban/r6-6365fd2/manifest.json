@@ -1,0 +1,98 @@
+[
+  {
+    "file": "before-846b3a5-phone-light-blocked.png",
+    "sha": "846b3a5ccec0c438a3d6a70316f796224add1377",
+    "run": "42535758334",
+    "sha256": "3a3a7d1d40b80ff6d5660ef0e4da32728c4df586a1d4ec27aa5723cdc178e08f",
+    "bytes": 45211,
+    "source": ".ui-ux-overhaul/incoming/42535758334/pkgs/ui-root-harness-ts/.cache/storybook-test-results/sokoban-overhaul-integrati-f7d6e-solve-and-recover-390-light-chromium"
+  },
+  {
+    "file": "before-846b3a5-phone-light-solved.png",
+    "sha": "846b3a5ccec0c438a3d6a70316f796224add1377",
+    "run": "42535758334",
+    "sha256": "aa7c412f5694f6077196ac07b1c1d450164b2cb3a853db50827af86ec4c2fe06",
+    "bytes": 45172,
+    "source": ".ui-ux-overhaul/incoming/42535758334/pkgs/ui-root-harness-ts/.cache/storybook-test-results/sokoban-overhaul-integrati-f7d6e-solve-and-recover-390-light-chromium"
+  },
+  {
+    "file": "before-846b3a5-phone-light.webm",
+    "sha": "846b3a5ccec0c438a3d6a70316f796224add1377",
+    "run": "42535758334",
+    "sha256": "22b0752c68d1da1128ea13f1567aa07d31312911b601b91f1f7f9556f0be8bd1",
+    "bytes": 206118,
+    "source": ".ui-ux-overhaul/incoming/42535758334/pkgs/ui-root-harness-ts/.cache/storybook-test-results/sokoban-overhaul-integrati-f7d6e-solve-and-recover-390-light-chromium"
+  },
+  {
+    "file": "before-846b3a5-desktop-dark-blocked.png",
+    "sha": "846b3a5ccec0c438a3d6a70316f796224add1377",
+    "run": "42535758334",
+    "sha256": "8f3e5024576d763078a1b8ccbea22afccf1b097dec65a081251c26c1f2bd72af",
+    "bytes": 68833,
+    "source": ".ui-ux-overhaul/incoming/42535758334/pkgs/ui-root-harness-ts/.cache/storybook-test-results/sokoban-overhaul-desktop-i-4d7f2-solve-and-recover-1440-dark-chromium"
+  },
+  {
+    "file": "before-846b3a5-desktop-dark-solved.png",
+    "sha": "846b3a5ccec0c438a3d6a70316f796224add1377",
+    "run": "42535758334",
+    "sha256": "d2aa6ce40fd715c2d61812053464d61aa3ef6b65d4906bf2320be22a57c427b5",
+    "bytes": 81236,
+    "source": ".ui-ux-overhaul/incoming/42535758334/pkgs/ui-root-harness-ts/.cache/storybook-test-results/sokoban-overhaul-desktop-i-4d7f2-solve-and-recover-1440-dark-chromium"
+  },
+  {
+    "file": "before-846b3a5-desktop-dark.webm",
+    "sha": "846b3a5ccec0c438a3d6a70316f796224add1377",
+    "run": "42535758334",
+    "sha256": "7168875334ce316f6692c814d35144af20377a5cd399d963e3baae974b78a0df",
+    "bytes": 376367,
+    "source": ".ui-ux-overhaul/incoming/42535758334/pkgs/ui-root-harness-ts/.cache/storybook-test-results/sokoban-overhaul-desktop-i-4d7f2-solve-and-recover-1440-dark-chromium"
+  },
+  {
+    "file": "after-6365fd2-phone-light-blocked.png",
+    "sha": "6365fd2c863c68848b7f68fbd671aa31ecbb35f2",
+    "run": "42545019325",
+    "sha256": "8d3b97208ee97f80e9b9057a679abcf26af80cc917f68b6742d1dbed830ab59e",
+    "bytes": 42818,
+    "source": ".ui-ux-overhaul/incoming/42545019325/pkgs/ui-root-harness-ts/.cache/storybook-test-results/sokoban-overhaul-integrati-f7d6e-solve-and-recover-390-light-chromium"
+  },
+  {
+    "file": "after-6365fd2-phone-light-solved.png",
+    "sha": "6365fd2c863c68848b7f68fbd671aa31ecbb35f2",
+    "run": "42545019325",
+    "sha256": "b7cd95475219188663f7774b0d4c8540bc8684f80ba5611e6ae619a0b01ced9c",
+    "bytes": 47864,
+    "source": ".ui-ux-overhaul/incoming/42545019325/pkgs/ui-root-harness-ts/.cache/storybook-test-results/sokoban-overhaul-integrati-f7d6e-solve-and-recover-390-light-chromium"
+  },
+  {
+    "file": "after-6365fd2-phone-light.webm",
+    "sha": "6365fd2c863c68848b7f68fbd671aa31ecbb35f2",
+    "run": "42545019325",
+    "sha256": "18fa7c0673f4ce2391b637426cfffe84227a5f1f473bccd94a73a5b05663e429",
+    "bytes": 169039,
+    "source": ".ui-ux-overhaul/incoming/42545019325/pkgs/ui-root-harness-ts/.cache/storybook-test-results/sokoban-overhaul-integrati-f7d6e-solve-and-recover-390-light-chromium"
+  },
+  {
+    "file": "after-6365fd2-desktop-dark-blocked.png",
+    "sha": "6365fd2c863c68848b7f68fbd671aa31ecbb35f2",
+    "run": "42545019325",
+    "sha256": "33782315dcf381d97a611ba6ebe74e3a2b4f67f8492b545c79fe8609c1050b71",
+    "bytes": 63133,
+    "source": ".ui-ux-overhaul/incoming/42545019325/pkgs/ui-root-harness-ts/.cache/storybook-test-results/sokoban-overhaul-desktop-i-4d7f2-solve-and-recover-1440-dark-chromium"
+  },
+  {
+    "file": "after-6365fd2-desktop-dark-solved.png",
+    "sha": "6365fd2c863c68848b7f68fbd671aa31ecbb35f2",
+    "run": "42545019325",
+    "sha256": "4b233f6ba47851ccf7dd247fdbde1388eabe9880366e9406330308346c8c747e",
+    "bytes": 67704,
+    "source": ".ui-ux-overhaul/incoming/42545019325/pkgs/ui-root-harness-ts/.cache/storybook-test-results/sokoban-overhaul-desktop-i-4d7f2-solve-and-recover-1440-dark-chromium"
+  },
+  {
+    "file": "after-6365fd2-desktop-dark.webm",
+    "sha": "6365fd2c863c68848b7f68fbd671aa31ecbb35f2",
+    "run": "42545019325",
+    "sha256": "85ca1a98120fbbdc960348a87aa3f13113bb44afd83b0747f75056c0b6c4a49b",
+    "bytes": 365253,
+    "source": ".ui-ux-overhaul/incoming/42545019325/pkgs/ui-root-harness-ts/.cache/storybook-test-results/sokoban-overhaul-desktop-i-4d7f2-solve-and-recover-1440-dark-chromium"
+  }
+]
