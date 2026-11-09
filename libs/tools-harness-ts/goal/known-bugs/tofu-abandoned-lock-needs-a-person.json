@@ -1,0 +1,4 @@
+{
+  "summary": "Recovering the abandoned foundation/dev lock 31eedd87-d82f-6855-2162-0d37abf22196 needed a person to dispatch Release with its UUID; nobody did, so every push to main failed at Grafana retirement from 2026-11-05 to 2026-11-09 (e.g. 42595286060). Each apply now releases a lock a GitHub-hosted runner took longer ago than any hosted job may run.",
+  "regressionTest": "libs/infra-shared-ts/tests/tofu-process-policy.test.ts"
+}

@@ -219,9 +219,6 @@
     "storybook:test": {
       "cache": false
     },
-    "storybook:publish": {
-      "cache": false
-    },
     "tc": {
       "dependsOn": ["^src"],
       "inputs": [
@@ -1597,7 +1594,7 @@
         "@libs/billing-server-ts#billing:sync",
         "@apps/synthetic-population-worker-ts#deploy"
       ],
-      "outputLogs": "errors-only"
+      "outputLogs": "full"
     },
     "//#deploy": {
       "cache": false,

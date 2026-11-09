@@ -23,23 +23,40 @@ export type StoryPackPuzzle = {
   readonly pack: ContentAttemptPack | null;
 };
 
-/** An attempt's commands at rest: undo, redo, restart and the pack. */
-function StoryPackAttemptControls(props: {
-  readonly pack: boolean;
-  readonly disabled: boolean;
+/** A pack puzzle's way on, as the pack card shows it: next once solved, then the overview. */
+export function StoryPackActions(props: {
   readonly next?: { title: string; open: () => void } | undefined;
+  readonly onOverview?: (() => void) | undefined;
 }): JSX.Element {
   return (
-    <StackHorizontal gap="sm" wrap shrink>
+    <>
       <Show when={props.next}>
         {(next) => (
           <Button
             title={`Next puzzle: ${next().title}`}
+            size="sm"
             onClick={next().open}
             dataSet={{ testid: 'content-next-puzzle' }}
           />
         )}
       </Show>
+      <Button
+        title="Pack overview"
+        intent="neutral"
+        variant="outline"
+        size="sm"
+        onClick={props.onOverview}
+      />
+    </>
+  );
+}
+
+/** An attempt's commands at rest: undo, redo and restart. */
+function StoryPackAttemptControls(props: {
+  readonly disabled: boolean;
+}): JSX.Element {
+  return (
+    <StackHorizontal gap="sm" wrap shrink>
       <Button
         title="Undo"
         intent="neutral"
@@ -61,14 +78,6 @@ function StoryPackAttemptControls(props: {
         size="sm"
         disabled={props.disabled}
       />
-      <Show when={props.pack}>
-        <Button
-          title="Pack overview"
-          intent="neutral"
-          variant="outline"
-          size="sm"
-        />
-      </Show>
     </StackHorizontal>
   );
 }
@@ -83,6 +92,8 @@ export function StoryPackAttempt(props: {
   readonly player: JSX.Element;
   /** Stateful controls supplied by a game's rules-backed history fixture. */
   readonly controls?: JSX.Element;
+  /** A game's own pack actions; by default next (once solved) and overview. */
+  readonly packActions?: JSX.Element;
   /** The game's own figures for the attempt (`Connected pairs 2`). */
   readonly figures?: readonly AttemptFigure[] | undefined;
   readonly figuresPlacement?: PuzzleContentFrame['figuresPlacement'];
@@ -117,13 +128,14 @@ export function StoryPackAttempt(props: {
       rulesChanged={false}
       unopenable={false}
       player={props.player}
+      packActions={
+        props.packActions ?? (
+          <StoryPackActions next={props.complete ? props.next : undefined} />
+        )
+      }
       controls={
         props.controls ?? (
-          <StoryPackAttemptControls
-            next={props.complete ? props.next : undefined}
-            pack={props.puzzle.pack !== null}
-            disabled={props.disabled === true}
-          />
+          <StoryPackAttemptControls disabled={props.disabled === true} />
         )
       }
       onRetryChange={fn()}

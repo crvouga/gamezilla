@@ -1,0 +1,4 @@
+{
+  "summary": "A locked fleet said \"All five ships placed. Your fleet is ready.\" and then, in a notice, that it was locked in. The locked notice now says it once; the ready line is for an editable fleet.",
+  "regressionTest": "libs/battleship-client-ts/tests/setup-polish.test.tsx"
+}

@@ -44,6 +44,7 @@ export function ContentAttemptControls(props: {
       <ContentAttemptNext
         attempt={props.attempt}
         complete={props.progress?.complete ?? false}
+        part="commands"
       />
     </StackHorizontal>
   );
