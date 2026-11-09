@@ -1,0 +1,4 @@
+{
+  "summary": "The wide-only Search and Notifications header fixtures bypassed AppFrame and were captured at 390px, cutting Notifications and hiding Profile even though production compact layouts use the tab bar. Declare their desktop eligibility and retain compact production navigation coverage.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/integration.checks.ts"
+}

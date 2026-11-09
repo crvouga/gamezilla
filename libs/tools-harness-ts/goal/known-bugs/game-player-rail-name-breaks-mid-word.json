@@ -1,0 +1,4 @@
+{
+  "summary": "Player rail chip names used overflow-wrap: anywhere, so a long single-word handle such as jordan_plays broke mid-word onto a second line and changed the chip height, although the chip contract says long names are truncated.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-player-rail-name-ellipsis.test.tsx"
+}

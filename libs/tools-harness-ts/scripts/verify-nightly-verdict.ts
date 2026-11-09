@@ -214,6 +214,16 @@ function main(env: NodeJS.ProcessEnv): number {
   const groups = nightlyGroups(
     JSON.parse(env['NEEDS'] ?? '{}') as NeedsResults,
     selection
+  ).map((group) =>
+    env['STORYBOOK_EVIDENCE_RUN'] && group.name === 'storybook'
+      ? {
+          ...group,
+          summary:
+            'Encrypted evidence transfer only; no browser tests executed',
+          reproduce:
+            'Re-dispatch the same evidence run and recipient public key',
+        }
+      : group
   );
   const failed = failedGroups(groups);
   const repository = env['GITHUB_REPOSITORY'] ?? '';
@@ -231,6 +241,8 @@ function main(env: NodeJS.ProcessEnv): number {
       : `Diagnostic scope: ${selection}. This is not a complete Nightly verdict.\n\n${report}`;
   if (env['GITHUB_STEP_SUMMARY'])
     appendFileSync(env['GITHUB_STEP_SUMMARY'], markdown);
+  if (env['STORYBOOK_EVIDENCE_RUN'])
+    console.log('Evidence transfer only; no browser tests executed.');
   console.log(formatNightlyTable(groups, selection));
   for (const group of failed)
     console.log(
