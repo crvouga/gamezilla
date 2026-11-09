@@ -40,7 +40,6 @@ const config: StorybookConfig = {
   ],
   previewAnnotations: previewAnnotations.map((path) => resolve(root, path)),
   addons: [
-    '@chromatic-com/storybook',
     '@storybook/addon-docs',
     '@storybook/addon-a11y',
     '@storybook/addon-mcp',
