@@ -1,0 +1,4 @@
+{
+  "summary": "On a tablet's one-column game layout, a board narrower than the column (Pong's court at 768px) sat centred, indented about 40px from the game title above it, so the title and the board did not share an edge.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/pong-board-align/integration.checks.ts"
+}
