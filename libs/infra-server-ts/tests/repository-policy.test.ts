@@ -253,7 +253,7 @@ type PolicyJob = {
   if?: string;
   environment?: string;
   concurrency?: { group: string };
-  steps?: { run?: string }[];
+  steps?: { run?: string; if?: string }[];
 };
 
 function workflow(name: string): Record<string, PolicyJob> {
