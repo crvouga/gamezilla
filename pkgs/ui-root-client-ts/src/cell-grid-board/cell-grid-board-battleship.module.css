@@ -1,0 +1,55 @@
+/* Battleship's own rules for the shared cell grid. Every element that takes
+   a class from `cell-grid-board.module.css` also takes the class of the same
+   name here; each rule is scoped to the Battleship board theme (a legend is
+   only ever Battleship's). */
+
+/* Include the coordinate gutter, gaps and padding in the bounded target size. */
+.board[data-fill="false"][data-board-theme="battleship"] {
+  grid-template-columns:
+    var(--ui-space-6)
+    repeat(var(--cell-grid-columns), minmax(0, 1fr));
+  max-width: calc(
+    var(--cell-grid-columns) *
+    (var(--ui-control-size-md) + 2 * var(--ui-space-hairline)) +
+    var(--ui-space-6) +
+    var(--ui-space-4)
+  );
+}
+/* On a phone a Battleship grid's ten targets are as large as its frame
+   allows: a narrow label column, hairline gaps and slim padding give the
+   room to the targets, each about 32px instead of 30px. */
+@container game-column (max-width: 879px) {
+  .board[data-fill="true"][data-board-theme="battleship"] {
+    grid-template-columns:
+      minmax(1rem, 0.5fr)
+      repeat(var(--cell-grid-columns), minmax(0, 1fr));
+    gap: 1px;
+    padding: var(--ui-space-1);
+  }
+}
+/* Board boundaries must remain visible against dark water. */
+.board[data-board-theme="battleship"] .cell[data-tone="open"] {
+  border-color: var(--ui-color-game-battleship-muted);
+}
+/* A hit is a solid mark in both themes, never a pale wash: the hit fill
+   with its cross in the fill's own ink. */
+.board[data-board-theme="battleship"] .cell[data-tone="alert"],
+.legendMark[data-tone="alert"] {
+  background: var(--color-destructive);
+  color: var(--color-on-destructive);
+  border-color: var(--color-destructive);
+}
+/* A sunk ship is a wreck: the board's ink fill with its cross in the
+   water's colour, a different fill from a hit in both themes rather than
+   a heavier border. */
+.board[data-board-theme="battleship"] .cell[data-tone="critical"],
+.legendMark[data-tone="critical"] {
+  background: var(--color-text);
+  color: var(--color-background);
+  border-color: var(--color-text);
+}
+/* The latest shot wears the accent ring, never the ink of a sunk ship. */
+.board[data-board-theme="battleship"] .cell[data-emphasis="recent"] {
+  outline: 3px solid var(--color-tint);
+  outline-offset: 0;
+}

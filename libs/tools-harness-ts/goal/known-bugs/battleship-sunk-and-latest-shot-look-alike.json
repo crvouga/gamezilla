@@ -1,0 +1,4 @@
+{
+  "summary": "A sunk square was the hit fill with a heavier ink border, and the latest shot wore a heavy ink ring too, so a fresh hit or miss read as sunk and sunk barely differed from hit at overview size. Sunk is now its own ink fill and the latest shot wears the accent ring.",
+  "regressionTest": "libs/battleship-client-ts/tests/hit-mark.test.ts"
+}

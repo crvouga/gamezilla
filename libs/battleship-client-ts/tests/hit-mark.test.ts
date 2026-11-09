@@ -19,8 +19,9 @@ function rule(css: string, selector: string): string {
 // fill's own ink, in both themes; a sunk ship adds the heavy ring.
 test('a Battleship hit is a solid mark in both themes', () => {
   const css = read('cell-grid-board/cell-grid-board.module.css');
+  const own = read('cell-grid-board/cell-grid-board-battleship.module.css');
   const hit = rule(
-    css,
+    own,
     '.board[data-board-theme="battleship"] .cell[data-tone="alert"],\n.legendMark[data-tone="alert"]'
   );
   expect(hit).toMatch(/background:\s*var\(--color-destructive\);/);
@@ -29,6 +30,28 @@ test('a Battleship hit is a solid mark in both themes', () => {
   expect(rule(css, '.cell[data-outlined="true"]')).toMatch(
     /border-width:\s*3px;/
   );
+});
+
+// regression: battleship-sunk-and-latest-shot-look-alike — a sunk square
+// was the hit fill plus a heavy ink border, and the latest shot wore a heavy
+// ink ring too, so "my last shot" read as "sunk" and sunk barely differed
+// from hit. Sunk is now its own fill (the board's ink, cross in the water's
+// colour); the latest shot wears the accent ring, never the ink.
+test('sunk is its own fill and the latest shot never wears the sunk ink', () => {
+  const own = read('cell-grid-board/cell-grid-board-battleship.module.css');
+  const sunk = rule(
+    own,
+    '.board[data-board-theme="battleship"] .cell[data-tone="critical"],\n.legendMark[data-tone="critical"]'
+  );
+  expect(sunk).toMatch(/background:\s*var\(--color-text\);/);
+  expect(sunk).toMatch(/color:\s*var\(--color-background\);/);
+  expect(sunk).not.toContain('destructive');
+  const latest = rule(
+    own,
+    '.board[data-board-theme="battleship"] .cell[data-emphasis="recent"]'
+  );
+  expect(latest).toMatch(/outline:\s*3px solid var\(--color-tint\);/);
+  expect(latest).not.toContain('--color-text');
 });
 
 // regression: battleship-board-small-wide — wide, the 10×10 board was held
