@@ -18,4 +18,11 @@
     max-width: var(--game-board-measure);
     margin-inline: auto;
   }
+  /* The session's notices (a puzzle's rule line, a warning) between the
+     title and the stage, so title, intro and board share one left edge. */
+  .intro {
+    width: 100%;
+    max-width: var(--game-board-measure);
+    margin-inline: auto;
+  }
 }

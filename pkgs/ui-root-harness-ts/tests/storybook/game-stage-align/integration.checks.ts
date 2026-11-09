@@ -78,3 +78,28 @@ test('storybook integration: the screen title centres with a centred stage at 76
   expect(Math.abs(centre(intro) - centre(stage))).toBeLessThanOrEqual(1);
   expect(intro.width).toBeLessThanOrEqual(stage.width + 1);
 });
+
+// regression: game-intro-pinned-beside-centred-column
+test('storybook integration: the title and the intro share the board left edge at 768', async ({
+  page,
+}) => {
+  await page.goto(
+    '/iframe.html?id=templates-matchmaking-game--stage-centred&viewMode=story'
+  );
+  await expect(page.locator('#storybook-root')).toHaveAttribute(
+    'data-story-ready',
+    'true'
+  );
+  const stage = await page.getByTestId('stage-probe').boundingBox();
+  const title = await page
+    .locator('[data-component="GameColumn"] > :first-child')
+    .boundingBox();
+  const intro = await page.getByTestId('notices-probe').boundingBox();
+  if (!stage || !title || !intro)
+    throw new Error('The stage, the title or the intro is missing');
+  expect(Math.abs(title.x - stage.x)).toBeLessThanOrEqual(1);
+  expect(Math.abs(intro.x - stage.x)).toBeLessThanOrEqual(1);
+  expect(
+    Math.abs(intro.x + intro.width - (stage.x + stage.width))
+  ).toBeLessThanOrEqual(1);
+});
