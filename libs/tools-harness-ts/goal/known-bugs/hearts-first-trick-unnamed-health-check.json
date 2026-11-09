@@ -1,0 +1,4 @@
+{
+  "summary": "Release 42714865162 passed every dev health scenario, then failed recording the results: specs/journeys/hearts-first-trick.feature had no name in SYNTHETIC_CHECKS. The existing check-name test would have failed, but @libs/observability-server-ts#test hashed only its own package, so Verification replayed a cached pass after the new journey spec landed. The test task now hashes the specs, the product manifest, the Grafana module and the SLO docs it reads.",
+  "regressionTest": "libs/observability-server-ts/tests/synthetic-checks.test.ts"
+}
