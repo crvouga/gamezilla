@@ -319,8 +319,10 @@ test('a maximum board has a close view that follows the worker and maps taps to 
   expect(view.getByRole('img', { name: 'G2: floor, worker' })).toBeTruthy();
   board.getBoundingClientRect = () =>
     ({ left: 0, top: 0, width: 288, height: 288 }) as DOMRect;
-  fireEvent.pointerDown(board, { clientX: 216, clientY: 72 });
-  fireEvent.pointerUp(board, { clientX: 216, clientY: 72 });
+  // The view stays put inside its margin: columns C to H, the worker on G,
+  // so the sixth column (H2) is the square beside it.
+  fireEvent.pointerDown(board, { clientX: 264, clientY: 72 });
+  fireEvent.pointerUp(board, { clientX: 264, clientY: 72 });
   expect(actions).toEqual(['r', 'r', 'r', 'r', 'r', 'r']);
   expect(view.getByRole('img', { name: 'H2: floor, worker' })).toBeTruthy();
   fireEvent.click(view.getByRole('button', { name: 'Show whole board' }));

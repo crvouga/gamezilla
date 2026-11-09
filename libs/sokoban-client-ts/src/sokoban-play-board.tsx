@@ -13,6 +13,8 @@ import {
 } from '@pkgs/ui-root-client-ts/tile-board';
 import { createMemo, createSignal, type JSX, Show } from 'solid-js';
 import {
+  type BoardWindow,
+  followAxis,
   keepUnchangedTiles,
   positionPieces,
   sokobanPieces,
@@ -63,29 +65,29 @@ function outsideView(
 
 function createView(props: Props, closer: () => boolean) {
   const words = useSokobanWords();
-  const frame = createMemo(() => {
+  const frame = createMemo<BoardWindow>((previous) => {
     const columns = closer()
       ? Math.min(6, props.board.width)
       : props.board.width;
     const rows = closer()
       ? Math.min(6, props.board.height)
       : props.board.height;
+    // A window of a different size (closer turned on or off) starts afresh.
+    const same = previous?.columns === columns && previous.rows === rows;
     return {
       columns,
       rows,
-      left: Math.max(
-        0,
-        Math.min(
-          props.board.width - columns,
-          props.position.worker.x - Math.floor(columns / 2)
-        )
+      left: followAxis(
+        same ? previous.left : undefined,
+        columns,
+        props.board.width,
+        props.position.worker.x
       ),
-      top: Math.max(
-        0,
-        Math.min(
-          props.board.height - rows,
-          props.position.worker.y - Math.floor(rows / 2)
-        )
+      top: followAxis(
+        same ? previous.top : undefined,
+        rows,
+        props.board.height,
+        props.position.worker.y
       ),
     };
   });

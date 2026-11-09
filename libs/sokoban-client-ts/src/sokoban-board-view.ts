@@ -150,3 +150,26 @@ export function sokobanPieces(
 export function positionPieces(position: SokobanPosition): Pieces {
   return { worker: position.worker, crates: position.crates };
 }
+
+/**
+ * Where a window of `size` squares starts along one axis so it follows the
+ * worker: it stays put while the worker is at least one square from its
+ * edge, and centres on the worker only when the worker nears an edge. A
+ * step inside the window then changes two squares, not all of them, and
+ * the view does not slide under the player on every move.
+ */
+export function followAxis(
+  previous: number | undefined,
+  size: number,
+  extent: number,
+  worker: number
+): number {
+  const clamp = (start: number) => Math.max(0, Math.min(extent - size, start));
+  const centred = clamp(worker - Math.floor(size / 2));
+  if (previous === undefined) return centred;
+  const start = clamp(previous);
+  const nearStart = worker < start + 1 && start > 0;
+  const nearEnd = worker > start + size - 2 && start < extent - size;
+  const outside = worker < start || worker >= start + size;
+  return outside || nearStart || nearEnd ? centred : start;
+}
