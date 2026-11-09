@@ -1,0 +1,42 @@
+/* Opt-in square fit (`viewportFit="square"`) in a short landscape window,
+   a phone on its side: one column would put the title, the move strip and
+   a seat above a board taller than the window. The game column becomes two
+   columns instead: the board on the left at the window's height, held in
+   view, and the title, strip, seats, turn and actions down the right. The
+   wrappers between the column and those parts step aside (`contents`), so
+   each part is a cell of the column's grid. Games without the opt-in keep
+   their layout. */
+@media (orientation: landscape) and (max-height: 560px) {
+  [data-component="GameColumn"]:has(.squareStage) {
+    display: grid;
+    /* The window less the 53px bar, its 8px inset, the board's 44px of
+       guidance and 5px: 280px at 390px tall, 32px squares. */
+    grid-template-columns: min(100dvh - 110px, 50vw) minmax(0, 1fr);
+    grid-template-rows: repeat(9, auto) 1fr;
+    column-gap: var(--ui-space-6);
+    row-gap: var(--ui-space-2);
+    align-content: start;
+  }
+  [data-component="GameColumn"]:has(.squareStage)
+    > :not([data-component="GameHeading"]),
+  [data-component="GameLayout"]:has(.squareStage) > :has(> .squareStage),
+  .squareStage {
+    display: contents;
+  }
+  [data-component="GameColumn"]:has(.squareStage) > *,
+  [data-component="GameColumn"]:has(.squareStage)
+    > :not([data-component="GameHeading"])
+    > *,
+  [data-component="GameLayout"]:has(.squareStage) > *,
+  .squareStage > * {
+    grid-column: 2;
+    min-width: 0;
+  }
+  .squareStage > .squareBoard {
+    grid-column: 1;
+    grid-row: 1 / -1;
+    position: sticky;
+    top: 0;
+    align-self: start;
+  }
+}
