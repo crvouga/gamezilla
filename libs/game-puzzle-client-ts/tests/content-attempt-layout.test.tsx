@@ -180,3 +180,15 @@ test('saved completion remains distinct when the player has moved beyond the sol
   expect(screen.getByTestId('player').textContent).toBe('board');
   expect(screen.getByTestId('controls').textContent).toBe('Undo Redo Restart');
 });
+
+// regression: puzzle-solved-save-said-twice
+test('a saved completion says it is saved once, in its own notice', () => {
+  mount(390, [], true);
+  const record = screen.getByTestId('content-attempt-complete');
+  const save = screen.getAllByTestId('content-position-save-status');
+  expect(save.length).toBe(1);
+  expect(record.contains(save[0] ?? null)).toBe(true);
+  expect(record.textContent).toBe(
+    'Completion savedProgress saved on this device. You can keep playing or choose another puzzle.'
+  );
+});
