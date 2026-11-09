@@ -12,6 +12,7 @@ import type { GameSimulationControls } from '@pkgs/turn-game-shared-ts/game-pres
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import type {
   TrailCrash,
+  TrailHeading,
   TrailOverlay,
   TrailRider,
   TrailRiderIndex,
@@ -59,10 +60,115 @@ export function trailCrashes(state: LightCyclesState): readonly TrailCrash[] {
   }));
 }
 
+function directionText(heading: TrailHeading): string {
+  return { up: t`up`, right: t`right`, down: t`down`, left: t`left` }[heading];
+}
+
+const STEP: Readonly<Record<TrailHeading, readonly [number, number]>> = {
+  up: [0, -1],
+  right: [1, 0],
+  down: [0, 1],
+  left: [-1, 0],
+};
+const LEFT_OF: Readonly<Record<TrailHeading, TrailHeading>> = {
+  up: 'left',
+  right: 'up',
+  down: 'right',
+  left: 'down',
+};
+const RIGHT_OF: Readonly<Record<TrailHeading, TrailHeading>> = {
+  up: 'right',
+  right: 'down',
+  down: 'left',
+  left: 'up',
+};
+
+/** Free cells before the first wall or trail, stepping from a head toward `heading`. */
+export function clearCells(
+  state: LightCyclesState,
+  x: number,
+  y: number,
+  heading: TrailHeading
+): number {
+  const [dx, dy] = STEP[heading];
+  let count = 0;
+  for (
+    let cx = x + dx, cy = y + dy;
+    cx >= 0 &&
+    cy >= 0 &&
+    cx < state.width &&
+    cy < state.height &&
+    state.trails.charAt(cy * state.width + cx) === '.';
+    cx += dx, cy += dy
+  )
+    count++;
+  return count;
+}
+
+/**
+ * The room a steered rider has, for a listener: the free cells straight
+ * ahead, to its left and to its right before a wall or a trail, which a
+ * sighted player reads from the drawing.
+ */
+function roomText(
+  state: LightCyclesState,
+  x: number,
+  y: number,
+  heading: TrailHeading
+) {
+  const ahead = clearCells(state, x, y, heading);
+  const left = clearCells(state, x, y, LEFT_OF[heading]);
+  const right = clearCells(state, x, y, RIGHT_OF[heading]);
+  return t`Free cells: ${ahead} ahead, ${left} to the left, ${right} to the right.`;
+}
+
+/**
+ * Readable on demand; never a live announcement on every simulation tick.
+ * Riders steered on this device also hear their room to each side.
+ */
+export function arenaDescription(
+  state: LightCyclesState,
+  controlled: readonly GameSide[] = []
+): string {
+  const size = t`Arena ${state.width} columns by ${state.height} rows.`;
+  const riders = state.riders.map((rider) => {
+    const name = riderName(rider.seat);
+    const column = rider.x + 1;
+    const row = rider.y + 1;
+    if (!rider.alive)
+      return t`${name} has crashed at column ${column}, row ${row}.`;
+    const heading = directionText(rider.heading);
+    const parts = [
+      t`${name}: column ${column}, row ${row}, heading ${heading}.`,
+    ];
+    const next = plannedHeading(rider);
+    if (next !== rider.heading)
+      parts.push(t`Next turn: ${directionText(next)}.`);
+    if (controlled.includes(rider.seat))
+      parts.push(roomText(state, rider.x, rider.y, rider.heading));
+    return parts.join(' ');
+  });
+  return [size, ...riders].join(' ');
+}
+
 function winnerText(winner: GameSide | 'draw'): string {
   return winner === 'draw'
     ? t`The round is drawn.`
     : t`${riderName(winner)} wins the round.`;
+}
+
+/** Whole seconds until the riders move again: the result, then the countdown. */
+export function nextRoundSeconds(state: LightCyclesState): number {
+  const ticks = config.roundOverTicks - state.phaseTick + config.countdownTicks;
+  return Math.max(1, Math.ceil(ticks / config.tickRate));
+}
+
+/** Over the arena while the game is away, so the drawing never looks live. */
+export function awayOverlay(): TrailOverlay {
+  return {
+    title: t`Reconnecting`,
+    detail: t`Steering resumes when the game returns.`,
+  };
 }
 
 export function arenaOverlay(
@@ -81,7 +187,7 @@ export function arenaOverlay(
   if (state.phase === 'round-over' && state.roundWinner !== null)
     return {
       title: winnerText(state.roundWinner),
-      detail: t`Next round soon.`,
+      detail: t`Next round starts in ${nextRoundSeconds(state)} s.`,
     };
   if (state.phase === 'completed' && state.result !== null)
     return {

@@ -79,7 +79,7 @@ await browser.close();
 
 - Find the run: `gh pr list --state open --search "in:comments \"<!-- <skill>:run -->\""`, then
   `gh pr view <n> --comments --json comments` and read every `<!-- <skill>:… -->` block.
-- Draft PR: `gh pr create --draft --base <trunk> --title "<UI quality overhaul | UI and UX overhaul>" --body-file <body>`.
+- Open the PR ready for review: `gh pr create --base <trunk> --title "<UI quality overhaul | UI and UX overhaul>" --body-file <body>`.
 - Round comment with images: `gh pr comment <n> --body-file .ui-ux-overhaul/rounds/<n>/comment.md --attach ./before/x.png#"alt" --attach ./after/x.png#"alt"`
   (gh 2.99+). gh uploads each file to `user-attachments` and rewrites its `./…` reference.
   Those URLs are immutable, so later pushes cannot overwrite the evidence. A private repo's
@@ -94,7 +94,7 @@ await browser.close();
 
 ### GitLab (`glab`)
 
-`glab mr create --draft`. Upload images with `glab api projects/:id/uploads -F file=@<png>` and put
+`glab mr create` (not `--draft`, unless the target repository below says so). Upload images with `glab api projects/:id/uploads -F file=@<png>` and put
 the returned markdown into `glab mr note <n> --message "$(cat comment.md)"`.
 
 ## Target repositories

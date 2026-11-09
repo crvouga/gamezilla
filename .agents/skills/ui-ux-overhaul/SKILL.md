@@ -47,7 +47,7 @@ title: **UI and UX overhaul**.
      ANOTHER_ROUND, stop after a final comment. If the invocation's roster or minimum differs from
      the recorded run, ask whether the user means to change it. Change it only on an explicit yes,
      then start a new baseline.
-   - Not found: branch from the trunk, open a draft PR titled "UI and UX overhaul" (or the user's
+   - Not found: branch from the trunk, open a PR (ready for review, not a draft) titled "UI and UX overhaul" (or the user's
      title), and continue.
 3. Keep working state in a git-ignored evidence root inside the repository (default
    `.ui-ux-overhaul/`; add it to `.git/info/exclude`). Council members must be able to open its

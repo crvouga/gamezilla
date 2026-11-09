@@ -1,0 +1,4 @@
+{
+  "summary": "Watchers, waiting players and finished games saw dashed legal-move markers on a board they could not use.",
+  "regressionTest": "libs/quoridor-client-ts/tests/quoridor-board-truthful-state.test.tsx"
+}

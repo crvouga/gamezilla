@@ -1,5 +1,5 @@
 import type { PlanJson } from './plan-policy';
-import type { Target, TofuPaths } from './tofu-command';
+import type { PlanOptions, Target, TofuPaths } from './tofu-command';
 import { planArgs } from './tofu-command';
 
 const TARGETS = [
@@ -9,11 +9,15 @@ const TARGETS = [
 ] as const;
 
 /** Only this state-only retirement skips refresh; the release plan never does. */
-export function grafanaRetirementArgs(paths: TofuPaths, target: Target) {
+export function grafanaRetirementArgs(
+  paths: TofuPaths,
+  target: Target,
+  options?: PlanOptions
+) {
   if (target.stack !== 'foundation')
     throw new Error('Grafana retirement requires the foundation stack');
   return [
-    ...planArgs(paths, target),
+    ...planArgs(paths, target, options),
     '-refresh=false',
     ...TARGETS.map((address) => `-target=${address}`),
   ];

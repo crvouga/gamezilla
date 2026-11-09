@@ -1,5 +1,5 @@
 import type { PlanJson } from './plan-policy';
-import type { Stack, TofuPaths } from './tofu-command';
+import type { PlanOptions, Stack, TofuPaths } from './tofu-command';
 import { planArgs, tofuCredentialEnvironment } from './tofu-command';
 
 const TARGET = { stack: 'bootstrap' as const, env: null };
@@ -8,6 +8,8 @@ export const REPOSITORY_POLICY_TARGETS = [
   'module.repository.github_repository.this',
   'module.repository.github_branch_default.main',
   'module.repository.github_repository_ruleset.main',
+  'module.repository.github_repository_ruleset.release_tags',
+  'module.repository.github_issue_label.this',
   'module.repository.github_actions_repository_permissions.this',
   'module.repository.github_workflow_repository_permissions.this',
   'module.repository.github_repository_vulnerability_alerts.this',
@@ -23,9 +25,12 @@ export function validateRepositoryPolicy(command: string, stack: Stack): void {
     );
 }
 
-export function repositoryPolicyPlanArgs(paths: TofuPaths): readonly string[] {
+export function repositoryPolicyPlanArgs(
+  paths: TofuPaths,
+  options?: PlanOptions
+): readonly string[] {
   return [
-    ...planArgs(paths, TARGET),
+    ...planArgs(paths, TARGET, options),
     ...REPOSITORY_POLICY_TARGETS.map((address) => `-target=${address}`),
   ];
 }
