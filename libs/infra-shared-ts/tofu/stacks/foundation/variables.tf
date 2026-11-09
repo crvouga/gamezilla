@@ -172,6 +172,16 @@ variable "imports" {
   description = "Existing resource ids to adopt (import) instead of creating. Removed once adopted."
 }
 
+variable "grafana_restore" {
+  type        = string
+  default     = ""
+  description = "Set only by the release wrapper while a Grafana instance returns from archive: \"account\" adopts the kept service account, \"views\" adopts the kept folder, dashboards, rule groups and SLOs (observability-views.tf)."
+  validation {
+    condition     = contains(["", "account", "views"], var.grafana_restore)
+    error_message = "grafana_restore is \"\", \"account\" or \"views\"."
+  }
+}
+
 variable "state_passphrase" {
   type      = string
   sensitive = true

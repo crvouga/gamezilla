@@ -42,6 +42,7 @@ import {
   validateCiIdentityRecovery,
 } from '@libs/infra-shared-ts/ci-identity-recovery';
 import { envFile } from '@libs/infra-shared-ts/envs';
+import { needsGrafanaRestore } from '@libs/infra-shared-ts/grafana-restore';
 import type { PlanJson } from '@libs/infra-shared-ts/plan-policy';
 import { evaluatePlanPolicy } from '@libs/infra-shared-ts/plan-policy';
 import {
@@ -79,6 +80,7 @@ import {
   migrateToBucket,
   useLocalBackend,
 } from './bootstrap-backend';
+import { adoptKeptGrafanaAccount } from './grafana-restore';
 import { retireArchivedGrafana } from './grafana-retirement';
 import { resolveInfisicalToken } from './infisical-token';
 import { infraOperation } from './infra-operation';
@@ -243,7 +245,7 @@ function checkPolicy(
   env: Record<string, string>,
   teardown: Teardown,
   cli: Cli
-): void {
+): PlanJson {
   const shown = spawnTool('tofu', showArgs(PATHS, target), {
     env,
     capture: true,
@@ -269,6 +271,7 @@ function checkPolicy(
     );
   }
   console.log(`[infra] ${target.stack}: plan passed policy/stateful.rego`);
+  return plan;
 }
 
 /** The torn-down environment's protection, told to the policy. */
@@ -296,7 +299,7 @@ async function runOnce(
   firstRun: boolean
 ): Promise<'done' | 'retry'> {
   const { command } = cli;
-  const env = await toolEnvironment(target, cli);
+  let env = await toolEnvironment(target, cli);
   const label = `${target.stack}/${target.env ?? cli.env ?? 'global'}`;
   const teardown = teardownOf(target, cli);
   if (planOptionsFor(cli).lock && !firstRun)
@@ -316,8 +319,23 @@ async function runOnce(
       return 'done';
     }
   }
-  const status = await planTarget(target, env, cli);
-  checkPolicy(target, env, teardown, cli);
+  let status = await planTarget(target, env, cli);
+  const plan = checkPolicy(target, env, teardown, cli);
+  if (
+    command === 'apply' &&
+    target.stack === 'foundation' &&
+    needsGrafanaRestore(plan)
+  ) {
+    env = await adoptKeptGrafanaAccount({
+      paths: PATHS,
+      target,
+      env,
+      policyDir: POLICY_DIR,
+      lock: planOptionsFor(cli).lock,
+    });
+    status = await planTarget(target, env, cli);
+    checkPolicy(target, env, teardown, cli);
+  }
   if (status === 0) {
     console.log(`[infra] ${label}: no changes`);
     return 'done';

@@ -15,6 +15,7 @@ terraform {
     archive     = { source = "hashicorp/archive", version = "~> 2.7" }
     infisical   = { source = "infisical/infisical", version = "~> 0.19" }
     random      = { source = "hashicorp/random", version = "~> 3.9" }
+    http        = { source = "hashicorp/http", version = "~> 3.5" }
     railway     = { source = "jamesprnich/railway", version = "= 0.11.5" }
   }
 
