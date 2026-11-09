@@ -46,7 +46,7 @@ export function PongLiveRally(props: {
   let frame: number | undefined;
   let last = 0;
   let owed = 0;
-  const advance = () => {
+  const advance = (from: PongState): PongState => {
     tick += 1;
     const inputs = pending.splice(0).map((input, index) => ({
       tick,
@@ -54,24 +54,25 @@ export function PongLiveRally(props: {
       playerId: input.side === 'white' ? 'left' : 'right',
       value: input.value,
     }));
-    setState(
-      step(state(), inputs, {
-        tick,
-        deltaMs: tickMs,
-        elapsedMs: tick * tickMs,
-        random: () => 0.3,
-      })
-    );
+    return step(from, inputs, {
+      tick,
+      deltaMs: tickMs,
+      elapsedMs: tick * tickMs,
+      random: () => 0.3,
+    });
   };
   const run = (now: number) => {
     owed += Math.min(now - last, 250);
     last = now;
-    while (owed >= tickMs && state().phase !== 'completed') {
+    // Every tick owed since the last frame, then one paint: the court is
+    // drawn once per frame, as a player's screen shows it.
+    let next = state();
+    while (owed >= tickMs && next.phase !== 'completed') {
       owed -= tickMs;
-      advance();
+      next = advance(next);
     }
-    frame =
-      state().phase === 'completed' ? undefined : requestAnimationFrame(run);
+    if (next !== state()) setState(next);
+    frame = next.phase === 'completed' ? undefined : requestAnimationFrame(run);
   };
   const start = () => {
     if (frame !== undefined) return;
