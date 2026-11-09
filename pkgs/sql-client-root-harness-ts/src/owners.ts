@@ -62,6 +62,8 @@ export function createTabOwner(state: SqlClientWebState): SqlOwner {
     release: () => inner.release(),
     resetStore: async () => {
       state.wipes += 1;
+      // Only an unreadable store may be erased; a full one keeps its rows.
+      if (!store.corrupt) state.readableWipes += 1;
       state.expected.clear();
       state.appliedEpoch = 0;
       await inner.resetStore();

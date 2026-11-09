@@ -1,8 +1,8 @@
 /**
  * Storage contract of the web SQL client across browser tabs, driven through
- * a toy key-value store: one tab owns the store, a full connection pool, a
- * damaged store or a schema epoch bump still leaves a usable cache, and a
- * closed owner hands over. This is the adapter's port contract, not product
+ * a toy key-value store: one tab owns the store, a full pool erases nothing
+ * (the rows come back once space frees), a damaged store or a schema epoch
+ * bump still leaves a usable cache, and a closed owner hands over. This is the adapter's port contract, not product
  * behavior — nothing here is a person's view of the app — so it stays a code
  * test (the random walk included) rather than a spec.
  */
@@ -12,6 +12,7 @@ import {
   connect,
   corruptStore,
   fillPool,
+  freePool,
   get,
   killTabAction,
   ownerId,
@@ -19,6 +20,7 @@ import {
   put,
   sqlClientWeb,
   tabIdList,
+  wipeCount,
 } from '@pkgs/sql-client-root-harness-ts/system';
 
 describe('sql-client web multi-tab system PBT', () => {
@@ -34,11 +36,19 @@ describe('sql-client web multi-tab system PBT', () => {
   }, 180_000);
 
   test('named fault pins recover to a usable cache', async () => {
+    // A full pool never erases what the store holds: the tab has no cache
+    // until space frees, then finds its rows where it left them.
     await using s1 = await sqlClientWeb.run({ seed: 1 });
-    await s1.apply(fillPool);
     await s1.apply(connect, 't0');
     await s1.apply(put, { tabId: 't0', key: 'a', value: '1' });
+    await s1.apply(fillPool);
+    await s1.apply(killTabAction, 't0');
+    expect(await s1.read(ownerRows)).toEqual({});
+    expect(await s1.read(wipeCount)).toBe(0);
+    await s1.apply(freePool);
+    await s1.apply(connect, 't0');
     expect(await s1.read(get, 't0', 'a')).toBe('1');
+    expect(await s1.read(wipeCount)).toBe(0);
 
     await using s2 = await sqlClientWeb.run({ seed: 1 });
     await s2.apply(corruptStore);

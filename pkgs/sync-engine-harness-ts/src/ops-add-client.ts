@@ -1,6 +1,7 @@
 import type { PubSub } from '@pkgs/pubsub-root-shared-ts/interface';
 import type { HarnessClient } from './client';
 import { buildHarnessClient } from './client-factory';
+import { HarnessProcessDied } from './durable-crash-points';
 import { createHarnessHttpClient } from './http-bridge';
 import { fireCrashIfArmed, wireMutateCrashArm } from './lifecycle';
 import { SERVER_HTTP } from './traffic';
@@ -231,6 +232,7 @@ function harnessClientBuildArgs(
       },
     },
     storagePressure: ctx.storagePressure,
+    durableCrashPoints: ctx.durableCrashPoints,
   };
 }
 
@@ -246,9 +248,21 @@ export async function addClientImpl(
   }
   const args = withSharedDbSticky(ctx, clientArgs);
   const ids = registerClientMeta(ctx, args);
+  const crashesBefore = ctx.durableCrashPoints.crashes().length;
   const handle = await buildHarnessClient(
     harnessClientBuildArgs(ctx, args, ids)
   );
+  // Killed while opening: the engine may still finish building in memory,
+  // but a dead process never becomes a running client.
+  if (
+    ctx.durableCrashPoints
+      .crashes()
+      .slice(crashesBefore)
+      .some((crash) => crash.clientId === clientArgs.id)
+  ) {
+    void handle.dispose({ keepDb: true }).catch(() => undefined);
+    throw new HarnessProcessDied(clientArgs.id);
+  }
   const wrapped = wireMutateCrashArm(ctx, handle);
   ctx.clients.set(clientArgs.id, wrapped);
   await waitForSessionSync(ctx.scheduler, wrapped, clientArgs.id);
