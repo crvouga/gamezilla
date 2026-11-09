@@ -1,0 +1,4 @@
+{
+  "summary": "The focus ring of the Hearts pass button (1440 wide) and of the players disclosure (320x568) was cut off by the board stage at the card table's bottom and top edges.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/hearts-overhaul/focus-ring/integration.checks.ts"
+}

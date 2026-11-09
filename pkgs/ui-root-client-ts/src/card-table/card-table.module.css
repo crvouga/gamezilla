@@ -8,6 +8,9 @@
   gap: var(--ui-space-3);
   width: 100%;
   min-width: 0;
+  /* Room for a focus ring on the first and last controls (the players
+     disclosure, the pass button) inside a board stage that clips. */
+  padding-block: var(--ui-space-1);
 }
 /*
  * The felt: a seat's plate at each edge and the trick in the middle, each
