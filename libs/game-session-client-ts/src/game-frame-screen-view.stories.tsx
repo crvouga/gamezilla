@@ -37,7 +37,8 @@ const meta = {
   id: 'screens-games-frame',
   title: 'Screens/Games/Frame/Game frame',
   component: GameFrameScreenView,
-  tags: ['autodocs'],
+  // A desktop frame is checked at a desktop window's height (1440x900).
+  tags: ['autodocs', 'viewport-native-height'],
   parameters: {
     appRouter: true,
     controls: { exclude: FRAME_CONTROLS_EXCLUDE },

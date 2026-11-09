@@ -33,6 +33,14 @@ export function visualScenarios(story: StoryEntry) {
     /^(templates|layouts|screens)-/.test(story.id) ||
     story.tags?.includes('viewport-responsive');
   const widths = responsive ? [phone, desktop] : [phone];
+  const heights: Record<number, number> = {
+    [phone]: Number.parseInt(viewports.phone.styles.height, 10),
+    [tablet]: Number.parseInt(viewports.tablet.styles.height, 10),
+    [desktop]: Number.parseInt(viewports.desktop.styles.height, 10),
+  };
+  // `viewport-native-height`: each width at its own viewport's height, so a
+  // desktop capture shows what a 1440x900 window shows, not a phone's 844px.
+  const native = story.tags?.includes('viewport-native-height') === true;
   if (story.id.startsWith('layouts-appframe')) widths.push(tablet);
   return widths
     .filter((width) => supportsStoryViewport(story, width))
@@ -43,8 +51,11 @@ export function visualScenarios(story: StoryEntry) {
           width,
           theme,
           suffix,
-          // Preserve the established screenshot height while sharing native widths.
-          height: Number.parseInt(viewports.phone.styles.height, 10),
+          // Preserve the established screenshot height while sharing native
+          // widths, unless the story asks for each viewport's own height.
+          height: native
+            ? (heights[width] ?? heights[phone] ?? 844)
+            : (heights[phone] ?? 844),
           baseline: `${slice}/baselines/chromium/${component}/${name}-${theme}${suffix}.png`,
         };
       })
