@@ -1,0 +1,4 @@
+{
+  "summary": "On a wide screen, where the whole board's cells are large, aiming still took a region, then a cell in a zoomed side panel, then Fire, leaving dead space beside a small board. A wide screen now aims at the whole board directly; anyone only inspecting reads the whole board at every size.",
+  "regressionTest": "libs/battleship-client-ts/tests/wide-direct-aim.test.tsx"
+}

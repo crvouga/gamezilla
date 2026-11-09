@@ -1,0 +1,4 @@
+{
+  "summary": "Pong reformatted its court status message on every frame and paddle input, although its words change at most once per countdown second, adding message formatting to each input's main-thread work.",
+  "regressionTest": "libs/pong-client-ts/tests/pong-status-format.test.tsx"
+}

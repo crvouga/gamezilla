@@ -5,6 +5,7 @@ import {
 } from '@libs/word-tiles-shared-ts/word-tiles-hidden';
 import { playEncoded } from '@libs/word-tiles-shared-ts/word-tiles-play';
 import {
+  decodePosition,
   encodePosition,
   newPosition,
 } from '@libs/word-tiles-shared-ts/word-tiles-position';
@@ -19,20 +20,29 @@ import {
 
 /** Controlled authority fixture: only genuine accepted proposals update the table. */
 export function matchJourney(args: WordTilesBoardViewProps) {
+  const seats = decodePosition(args.position)?.seats;
+  if (seats === undefined) throw new Error('Missing fixture seat count');
   const rack = [11, 0, 82, 98, 25, 77, 69];
   const rest = TILES.map((tile) => tile.id).filter((id) => !rack.includes(id));
   let hidden = encodeHidden({
-    racks: [rack, rest.slice(0, 7)],
-    bag: rest.slice(7),
+    racks: [
+      rack,
+      ...Array.from({ length: seats - 1 }, (_, index) =>
+        rest.slice(index * 7, (index + 1) * 7)
+      ),
+    ],
+    bag: rest.slice((seats - 1) * 7),
     board: [],
     rng: [1, 2, 3, 4],
   });
   const [position, setPosition] = createSignal(
-    encodePosition(newPosition(2, STORY_LEXICON_KEY))
+    encodePosition(newPosition(seats, STORY_LEXICON_KEY))
   );
   const [hand, setHand] = createSignal(rack.join(','));
   const [interactive, setInteractive] = createSignal(true);
   const [lexicon, setLexicon] = createSignal<LexiconState>(args.lexicon);
+  // The record as the app keeps it: each accepted move by the rules' label.
+  const [moves, setMoves] = createSignal<readonly string[]>([]);
   return mergeProps(args, {
     get position() {
       return position();
@@ -45,6 +55,9 @@ export function matchJourney(args: WordTilesBoardViewProps) {
     },
     get lexicon() {
       return lexicon();
+    },
+    get moves() {
+      return moves();
     },
     onRetryLexicon: () => setLexicon(STORY_LEXICON),
     onAction: (proposal: string) => {
@@ -61,7 +74,8 @@ export function matchJourney(args: WordTilesBoardViewProps) {
       if (next === null) throw new Error('Accepted action failed replay');
       hidden = resolution.hidden;
       setPosition(next.position);
-      const nextRack = decodeHidden(hidden, 2)?.racks[0];
+      setMoves([...moves(), next.played.label]);
+      const nextRack = decodeHidden(hidden, seats)?.racks[0];
       if (!nextRack) throw new Error('Accepted action has no local rack');
       setHand(nextRack.join(','));
       setInteractive(false);

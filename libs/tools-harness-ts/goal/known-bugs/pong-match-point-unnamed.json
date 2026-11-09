@@ -1,0 +1,4 @@
+{
+  "summary": "Pong's match point never said whose it was, or that it was the player's own.",
+  "regressionTest": "libs/pong-client-ts/tests/pong-court-guidance.test.tsx"
+}

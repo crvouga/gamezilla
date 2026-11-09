@@ -33,39 +33,41 @@ export type TileRackProps = {
  */
 export function TileRack(props: TileRackProps): JSX.Element {
   return (
-    <div
-      class={styles['rack']}
-      {...dataAttrs({ component: 'TileRack' })}
-      role="group"
-      aria-label={props.label}
-      data-testid={props.testId}
-    >
-      <For each={props.tiles}>
-        {(tile) => (
-          <button
-            type="button"
-            class={styles['tile']}
-            data-testid={
-              props.tileTestId?.(tile.id) ?? `${props.testId}-${tile.id}`
-            }
-            data-selected={String(tile.selected)}
-            data-placed={String(tile.placed)}
-            aria-pressed={tile.selected}
-            aria-label={tile.label}
-            aria-disabled={!tile.enabled}
-            onClick={() => {
-              if (tile.enabled) props.onActivate(tile.id);
-            }}
-          >
-            <span class={styles['letter']} aria-hidden="true">
-              {tile.placed ? '' : tile.letter}
-            </span>{' '}
-            <span class={styles['points']} aria-hidden="true">
-              {tile.placed ? '' : tile.points}
-            </span>
-          </button>
-        )}
-      </For>
+    <div class={styles['frame']}>
+      <div
+        class={styles['rack']}
+        {...dataAttrs({ component: 'TileRack' })}
+        role="group"
+        aria-label={props.label}
+        data-testid={props.testId}
+      >
+        <For each={props.tiles}>
+          {(tile) => (
+            <button
+              type="button"
+              class={styles['tile']}
+              data-testid={
+                props.tileTestId?.(tile.id) ?? `${props.testId}-${tile.id}`
+              }
+              data-selected={String(tile.selected)}
+              data-placed={String(tile.placed)}
+              aria-pressed={tile.selected}
+              aria-label={tile.label}
+              aria-disabled={!tile.enabled}
+              onClick={() => {
+                if (tile.enabled) props.onActivate(tile.id);
+              }}
+            >
+              <span class={styles['letter']} aria-hidden="true">
+                {tile.placed ? '' : tile.letter}
+              </span>{' '}
+              <span class={styles['points']} aria-hidden="true">
+                {tile.placed ? '' : tile.points}
+              </span>
+            </button>
+          )}
+        </For>
+      </div>
     </div>
   );
 }

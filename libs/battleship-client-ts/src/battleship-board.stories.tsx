@@ -9,6 +9,7 @@ import {
   type GameTableStory,
   renderGameTable,
 } from '@libs/game-session-client-ts/game-frame-table.example';
+import type { GameBoardProps } from '@pkgs/turn-game-shared-ts/game-presentation';
 import {
   type GameSetups,
   TWO_PLAYER_SIDES,
@@ -19,8 +20,11 @@ import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { BattleshipBoard } from './battleship-board';
 import { battleshipPresentation } from './battleship-presentation';
 import {
+  aimCell,
   assertTargetViewport,
   assertTargetWorkbench,
+  hasWorkbench,
+  showCell,
 } from './battleship-targeting.example';
 
 /** Blue's fleet along rows 1, 3, 5, 7 and 9 from column A. */
@@ -79,13 +83,45 @@ const BLUE_VICTORY = RED_CELLS.flatMap((cell, i) => {
   return reply === undefined ? [cell] : [cell, reply];
 });
 
+/**
+ * The board in the frame as the app runs it: a move the board hands over is
+ * sent, so the board stops taking input and the line says the choice is
+ * being sent, until a story's own position answers it.
+ */
+function renderSending(
+  args: GameBoardProps,
+  context: { readonly parameters: Readonly<Record<string, unknown>> }
+) {
+  const [sending, setSending] = createSignal(false);
+  const board = mergeProps(args, {
+    get interactive() {
+      return args.interactive && !sending();
+    },
+    onAction: (cell: string) => {
+      args.onAction(cell);
+      setSending(true);
+    },
+  });
+  const table = (context.parameters['table'] ?? {}) as GameTableStory;
+  return renderGameTable(battleshipPresentation, TWO_PLAYER_SIDES, board, {
+    parameters: {
+      ...context.parameters,
+      table: {
+        ...table,
+        get sending() {
+          return sending();
+        },
+      } satisfies GameTableStory,
+    },
+  });
+}
+
 const meta = {
   id: 'screens-games-battleship-board',
   title: 'Screens/Games/Battleship/Board',
   component: BattleshipBoard,
   tags: ['autodocs'],
-  render: (args, context) =>
-    renderGameTable(battleshipPresentation, TWO_PLAYER_SIDES, args, context),
+  render: renderSending,
   parameters: {
     appRouter: true,
     controls: { exclude: [...BOARD_CONTROLS_EXCLUDE] },
@@ -129,6 +165,23 @@ export const Watching: Story = {
       moves: recorded(after(VOLLEYS)),
     } satisfies GameTableStory,
   },
+};
+
+/**
+ * Red has just sunk Blue's destroyer, the longest turn line a phone shows
+ * ("Red fleet sank the Destroyer at B9. Your turn."), and it is Blue's
+ * turn: Fire and the own seat still fit before any scroll.
+ */
+export const SunkByRival: Story = {
+  args: { position: after(['j1', 'a9', 'j3', 'b9']) },
+  parameters: {
+    table: {
+      turn: 'white',
+      moves: recorded(after(['j1', 'a9', 'j3', 'b9'])),
+    } satisfies GameTableStory,
+  },
+  // Pins the longest phone turn line against the seat (sink-line fit).
+  play: async ({ canvasElement }) => assertTargetWorkbench(canvasElement),
 };
 
 /** Blue sinks the whole Red fleet and is told so. */
@@ -210,20 +263,16 @@ function shotJourney(
     play: async ({ canvasElement }) => {
       const canvas = within(canvasElement);
       await assertTargetWorkbench(canvasElement);
-      const area =
-        Number(target.charAt(0) >= 'f') +
-        Math.floor((Number(target.slice(1)) - 1) / 2) * 2;
-      await userEvent.click(
-        canvas.getByTestId(`custom-game-board-area-${area}`)
-      );
-      const aim = canvas.getByTestId(`custom-game-board-aim-${target}`);
+      await showCell(canvasElement, target);
+      const aim = aimCell(canvasElement, target);
       await assertTargetViewport(canvasElement, [aim]);
       await userEvent.click(aim);
-      const cell = canvas.getByTestId(`custom-game-board-target-${target}`);
       await userEvent.click(canvas.getByTestId('custom-game-board-fire'));
+      // Red's turn: the waters are read as a whole board at every size.
+      const cell = canvas.getByTestId(`custom-game-board-target-${target}`);
       await expect(cell).toHaveAccessibleName(outcome);
       await expect(cell).toHaveAttribute('aria-disabled', 'true');
-      await userEvent.click(aim);
+      await userEvent.click(cell);
       await expect(cell).toHaveAccessibleName(outcome);
       if (wins)
         await expect(
@@ -266,32 +315,29 @@ export const CorrectTargetBeforeFiring: Story = {
     const canvas = within(canvasElement);
     // regression: battleship-touch-spends-mistarget
     await assertTargetWorkbench(canvasElement);
-    await userEvent.click(canvas.getByTestId('custom-game-board-aim-b1'));
-    await userEvent.click(canvas.getByTestId('custom-game-board-area-9'));
+    await userEvent.click(aimCell(canvasElement, 'b1'));
+    await showCell(canvasElement, 'j10');
     await expect(
       canvas.getByTestId('custom-game-board-fire')
     ).toHaveTextContent('Fire at B1');
     await assertTargetWorkbench(canvasElement);
-    const targetBounds = canvas
-      .getByTestId('custom-game-board-aim-j10')
-      .getBoundingClientRect();
-    await expect(targetBounds.width).toBeGreaterThanOrEqual(44);
-    await expect(targetBounds.width).toBeLessThanOrEqual(64);
-    await expect(targetBounds.height).toBeGreaterThanOrEqual(44);
+    const targetBounds = aimCell(canvasElement, 'j10').getBoundingClientRect();
+    if (hasWorkbench(canvasElement)) {
+      await expect(targetBounds.width).toBeGreaterThanOrEqual(44);
+      await expect(targetBounds.width).toBeLessThanOrEqual(64);
+      await expect(targetBounds.height).toBeGreaterThanOrEqual(44);
+    } else {
+      await expect(targetBounds.width).toBeGreaterThanOrEqual(32);
+      await expect(targetBounds.height).toBeGreaterThanOrEqual(32);
+    }
     await userEvent.pointer([
-      {
-        keys: '[TouchA]',
-        target: canvas.getByTestId('custom-game-board-aim-j9'),
-      },
+      { keys: '[TouchA]', target: aimCell(canvasElement, 'j9') },
     ]);
-    await expect(
-      canvas.getByTestId('custom-game-board-aim-j9')
-    ).toHaveAccessibleName('Fire at J9');
+    await expect(aimCell(canvasElement, 'j9')).toHaveAccessibleName(
+      'Fire at J9'
+    );
     await userEvent.pointer([
-      {
-        keys: '[TouchA]',
-        target: canvas.getByTestId('custom-game-board-aim-j10'),
-      },
+      { keys: '[TouchA]', target: aimCell(canvasElement, 'j10') },
     ]);
     await expect(
       canvas.getByTestId('custom-game-board-fire')
@@ -299,10 +345,33 @@ export const CorrectTargetBeforeFiring: Story = {
     await assertTargetWorkbench(canvasElement, true);
     await userEvent.click(canvas.getByTestId('custom-game-board-cancel-aim'));
     await expect(canvas.getByTestId('custom-game-board-fire')).toBeDisabled();
-    await userEvent.click(canvas.getByTestId('custom-game-board-aim-j10'));
+    await userEvent.click(aimCell(canvasElement, 'j10'));
     await userEvent.click(canvas.getByTestId('custom-game-board-fire'));
     await expect(
-      canvas.getByTestId('custom-game-board-aim-j10')
+      canvas.getByTestId('custom-game-board-target-j10')
     ).toHaveAccessibleName('J10: miss, latest shot');
+  },
+};
+
+/** A submitted J10 shot remains visibly busy until the controller supplies its outcome. */
+/** Fire hands J10 to the frame, which sends it as the app does. */
+export const PendingShot: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await showCell(canvasElement, 'j10');
+    await userEvent.click(aimCell(canvasElement, 'j10'));
+    await userEvent.click(canvas.getByTestId('custom-game-board-fire'));
+    await expect(canvas.getByTestId('custom-game-board-fire')).toHaveAttribute(
+      'aria-busy',
+      'true'
+    );
+    await expect(
+      canvas.getByTestId('custom-game-board-fire')
+    ).toHaveTextContent('Firing at J10');
+    // regression: battleship-submitting-shot-loses-feedback
+    await expect(canvasElement).not.toHaveTextContent('Shots so far');
+    await expect(canvas.getByTestId('custom-game-status')).toHaveTextContent(
+      'Sending choice…'
+    );
   },
 };

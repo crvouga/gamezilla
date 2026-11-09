@@ -43,9 +43,10 @@ export function WordTileBlankContext(props: {
             <div
               class={styles['neighbor']}
               data-blank={cell.id === props.cells[props.index]?.id}
+              role="img"
               aria-label={cell.label}
             >
-              <strong>
+              <strong aria-hidden="true">
                 {cell.letter !== ''
                   ? cell.letter
                   : cell.square === 'start'

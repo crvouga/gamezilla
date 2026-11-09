@@ -1,6 +1,7 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { createMemo, createSignal, For, type JSX, Show } from 'solid-js';
 import styles from './cell-grid-board.module.css';
+import battleship from './cell-grid-board-battleship.module.css';
 
 /**
  * How a cell reads at a glance. Every tone also differs by its glyph and its
@@ -133,7 +134,7 @@ function GridCell(props: {
   return (
     <button
       type="button"
-      class={styles['cell']}
+      class={`${styles['cell']} ${battleship['cell']}`}
       data-index={props.index}
       data-shade={shade()}
       data-cell={id()}
@@ -260,7 +261,7 @@ export function CellGridBoard(props: CellGridBoardProps): JSX.Element {
   return (
     <div
       ref={root}
-      class={styles['board']}
+      class={`${styles['board']} ${battleship['board']}`}
       data-board-theme={props.boardTheme ?? 'battleship'}
       data-fill={props.fill === true}
       {...dataAttrs({ component: 'CellGridBoard' })}
@@ -340,7 +341,7 @@ export function CellGridLegend(props: {
         {(item) => (
           <li class={styles['legendItem']}>
             <span
-              class={`${styles['cell']} ${styles['legendMark']}`}
+              class={`${styles['cell']} ${styles['legendMark']} ${battleship['cell']} ${battleship['legendMark']}`}
               data-tone={item.tone}
               data-outlined={String(item.outlined === true)}
               aria-hidden="true"

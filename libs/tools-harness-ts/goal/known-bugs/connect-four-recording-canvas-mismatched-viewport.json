@@ -1,0 +1,4 @@
+{
+  "summary": "Changing only the page viewport kept the original phone-sized recording canvas, making desktop board videos unreadable. The encoded WebM dimensions must equal the native viewport configured before browser context creation.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/connect-four/recording/integration.checks.ts"
+}

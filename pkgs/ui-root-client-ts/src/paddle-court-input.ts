@@ -23,8 +23,8 @@ export function paddleCourtInput(props: CourtControls) {
         Math.max(0, Math.min(1, (event.clientY - rect.top) / rect.height))
       );
   };
-  const release = () => {
-    for (const side of props.controlled) props.onDirection(side, 0);
+  const release = (sides: readonly CourtSide[] = props.controlled) => {
+    for (const side of sides) props.onDirection(side, 0);
     pointers.clear();
     keyboard.release();
     props.onRelease();

@@ -1,41 +1,66 @@
+/* Seven 44px targets share one row down to a 320px phone: targets meet edge
+   to edge and each tile's face is drawn inside its own target, so faces keep
+   a visible gap without overlapping hit areas. */
+.frame {
+  container-type: inline-size;
+  min-width: 0;
+}
 .rack {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 3rem));
+  display: flex;
+  flex-wrap: wrap;
   justify-content: center;
-  gap: var(--ui-space-1);
-  padding: var(--ui-space-2);
+  gap: 0;
+  padding: var(--ui-space-1);
   border-radius: var(--ui-radius-sm);
   background: var(--ui-color-surface-muted);
 }
+@container (max-width: 20rem) {
+  .rack {
+    padding-inline: 0;
+  }
+}
 .tile {
   position: relative;
+  isolation: isolate;
   display: grid;
   place-items: center;
+  flex: 1 0 var(--ui-control-size-md);
+  max-width: 3rem;
   aspect-ratio: 1;
-  min-width: 0;
-  min-height: 2.75rem;
+  min-width: var(--ui-control-size-md);
+  min-height: var(--ui-control-size-md);
   padding: 0;
-  border: 1px solid var(--ui-color-outline);
-  border-radius: var(--ui-radius-sm);
-  background: var(--ui-color-surface-elevated);
+  border: none;
+  background: transparent;
   color: var(--ui-color-text);
   cursor: pointer;
   touch-action: manipulation;
   transition: transform 120ms ease;
+}
+.tile::before {
+  content: "";
+  position: absolute;
+  inset: calc(var(--ui-space-1) / 2);
+  z-index: -1;
+  border: 1px solid var(--ui-color-outline);
+  border-radius: var(--ui-radius-sm);
+  background: var(--ui-color-surface-elevated);
 }
 .tile[aria-disabled="true"] {
   cursor: default;
 }
 .tile:focus-visible {
   outline: 2px solid var(--ui-color-focus-ring);
-  outline-offset: 2px;
+  outline-offset: 0;
 }
 .tile[data-selected="true"] {
   transform: translateY(calc(-1 * var(--ui-space-1)));
+}
+.tile[data-selected="true"]::before {
   border: 2px solid var(--ui-color-tint);
   background: var(--ui-color-tint-subtle);
 }
-.tile[data-placed="true"] {
+.tile[data-placed="true"]::before {
   background: transparent;
   border-style: dashed;
 }
@@ -45,8 +70,8 @@
 }
 .points {
   position: absolute;
-  right: var(--ui-space-1);
-  bottom: var(--ui-space-hairline);
+  right: calc(var(--ui-space-1) * 1.5);
+  bottom: calc(var(--ui-space-1) / 2 + var(--ui-space-hairline));
   font-size: var(--ui-font-size-xs);
   color: var(--ui-color-text-secondary);
 }

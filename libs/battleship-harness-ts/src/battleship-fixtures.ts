@@ -74,7 +74,7 @@ export const BLUE_VICTORY_LABELS: readonly string[] = BLUE_SHOTS.flatMap(
     const blue =
       SINKS[shot] === undefined
         ? label(shot, 'hit')
-        : `${shot.toUpperCase()} sinks the ${SINKS[shot]}`;
+        : `${shot.toUpperCase()} sunk`;
     return i < RED_SHOTS.length ? [blue, label(RED_SHOTS[i]!, 'miss')] : [blue];
   }
 );

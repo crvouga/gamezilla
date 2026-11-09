@@ -1,5 +1,6 @@
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 import type { BrokerPort } from '@pkgs/sql-client-sqlite-web-shared-ts/broker-core';
+import { isSqlOwnerCapacityError } from '@pkgs/sql-client-sqlite-web-shared-ts/sql-owner';
 import { persistImage } from './owners';
 import type { SqlClientWebState } from './types';
 import { HARNESS_DB_NAME, nextRpcId, requireBroker, requireTab } from './types';
@@ -62,7 +63,14 @@ export async function ensureOwnerClient(
   if (elected === null) return null;
   const tab = requireTab(state, elected);
   if (!tab.open) {
-    await tab.runtime.open();
+    try {
+      await tab.runtime.open();
+    } catch (error) {
+      // A full store keeps its database; the host runs on a disposable one
+      // until space frees, so this tab simply has no durable cache now.
+      if (isSqlOwnerCapacityError(error)) return null;
+      throw error;
+    }
     tab.open = true;
     persistImage(state, tab.runtime.getClient());
   }

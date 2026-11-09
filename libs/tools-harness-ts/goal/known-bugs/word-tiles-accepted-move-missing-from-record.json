@@ -1,0 +1,4 @@
+{
+  "summary": "In the Word Tiles live match journeys the move record kept saying No moves yet. after CAT was accepted for 10 points, because the journey fixture never recorded accepted moves the way the app's history does, so evidence showed no confirmation of the accepted word.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/word-tiles/integration.checks.ts"
+}

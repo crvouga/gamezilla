@@ -1,0 +1,4 @@
+{
+  "summary": "Pressing Enter on a focused Connect Four column could retain a different hovered column's landing preview while dropping into the focused column.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/disc-drop-focus-preview.test.tsx"
+}

@@ -164,6 +164,19 @@ export const fillPool = defineAction({
   },
 });
 
+/** The person frees space: the junk holding every pool slot goes away. */
+export const freePool = defineAction({
+  name: 'freePool',
+  act: (s: SqlClientWebSurface) => {
+    requireStore(boardOf(s)).paths.clear();
+  },
+});
+
+/** Times any recovery erased the store. */
+export function wipeCount(s: SqlClientWebSurface): number {
+  return boardOf(s).wipes;
+}
+
 export const corruptStore = defineAction({
   name: 'corruptStore',
   act: (s: SqlClientWebSurface) => {
@@ -184,6 +197,10 @@ export const inSync = defineProperty({
     const owners = openOwnerCount(s);
     if (owners > 1) {
       throw new Error(`sql-client.web.multi-owner: ${owners}`);
+    }
+    // A full store is readable: erasing it would lose its rows.
+    if (boardOf(s).readableWipes > 0) {
+      throw new Error('sql-client.web.erased-readable-store');
     }
     // No live owner ⇒ nothing to compare; wipes clear `expected` on reopen.
     if (owners === 0) return;
@@ -231,6 +248,7 @@ export const sqlClientWeb = defineSystem<SqlClientWebSurface, SqlClientWebArgs>(
       put,
       killTabAction,
       fillPool,
+      freePool,
       corruptStore,
       bumpEpoch,
     ],
