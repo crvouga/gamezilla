@@ -1,0 +1,4 @@
+{
+  "summary": "In the puzzle builder, a draft the game cannot play (its authoring readable() is false, e.g. a Sokoban board with no worker) had Start playtest disabled while the line beside it still said 'Next: finish a playtest to show the puzzle can be solved.' and the step track read 'Playtest · Next', so the next step pointed at an action that could not be taken. The line now names the editor's corrections and the step reads 'Correct first'; games without readable() are unchanged.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-publication-steps.test.tsx"
+}

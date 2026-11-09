@@ -92,6 +92,10 @@ export function ContentPublicationControls(props: {
       publishDenial={publishDenial()}
       published={props.document.published_revision_id !== null}
       disabled={props.disabled}
+      playable={
+        game.client.authoring?.readable?.(props.writer.body().definition) !==
+        false
+      }
       onValidate={tools.validate}
       onPublish={tools.publish}
       onViewPublication={() => {

@@ -51,7 +51,17 @@ export type PublicationStepsProps = {
   readonly publish: (place: PublicationActionPlace) => JSX.Element;
   /** Opens a pack's first draft puzzle, to publish it there. */
   readonly onOpenWaiting?: (() => void) | undefined;
+  /**
+   * `false` while the game says the draft cannot be played (its authoring
+   * `readable()`): the playtest waits on the editor's corrections.
+   */
+  readonly playable?: boolean | undefined;
 };
+
+/** The playtest is next but cannot start until the draft is corrected. */
+function correctionFirst(props: PublicationStepsProps): boolean {
+  return props.next === 'playtest' && props.playable === false;
+}
 
 /**
  * The one next step, filled: a pack's draft puzzles are published first, a
@@ -93,6 +103,8 @@ function NextLine(props: PublicationStepsProps): JSX.Element {
       return count === 1
         ? t`1 puzzle is still a draft. Publish it, then the pack.`
         : t`${count} puzzles are still drafts. Publish them, then the pack.`;
+    if (correctionFirst(props))
+      return t`Next: make the corrections the editor lists, then playtest.`;
     if (props.next === 'playtest')
       return t`Next: finish a playtest to show the puzzle can be solved.`;
     if (props.next === 'publish')
@@ -279,7 +291,9 @@ export function PublicationSteps(props: PublicationStepsProps): JSX.Element {
         label={t`Steps to publish`}
         stateNames={{
           done: t`Done`,
-          current: props.progress?.currentLabel ?? t`Next`,
+          current:
+            props.progress?.currentLabel ??
+            (correctionFirst(props) ? t`Correct first` : t`Next`),
           upcoming: t`Locked`,
         }}
         steps={steps()}

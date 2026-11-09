@@ -75,6 +75,7 @@ function AuthorWorkspaceScreen(props: {
     () => props.initial
   );
   const { writer } = workspace;
+  const game = useContentGame();
   return (
     <ContentAuthorScreenView
       status="ready"
@@ -92,6 +93,9 @@ function AuthorWorkspaceScreen(props: {
       }
       disabled={workspace.disabled()}
       preview={workspace.preview()}
+      playable={
+        game.client.authoring?.readable?.(writer.body().definition) !== false
+      }
       history={
         <ContentDraftHistory
           writer={writer}
