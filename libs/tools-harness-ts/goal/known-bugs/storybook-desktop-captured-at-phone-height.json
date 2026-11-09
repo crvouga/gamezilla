@@ -1,0 +1,4 @@
+{
+  "summary": "Desktop (1440) Storybook captures used the phone's 844px height although the desktop viewport is 1440x900, so frame states a desktop window shows (stand-in, watching, the stop explanation, the viewer's clock, review controls) fell below the reference. Stories tagged viewport-native-height now capture each width at its own viewport height; the game frame opts in.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook-scenarios.test.ts"
+}

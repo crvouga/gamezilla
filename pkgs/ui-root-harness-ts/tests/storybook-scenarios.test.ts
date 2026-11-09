@@ -123,3 +123,25 @@ test('storybook responsive tags compose with desktop-only eligibility without du
     )
   ).toEqual([390, 390, 1440, 1440]);
 });
+
+// regression: storybook-desktop-captured-at-phone-height — a desktop (1440)
+// capture used the phone's 844px height although the desktop viewport is
+// 1440x900, so states a desktop window shows fell below the reference.
+test('a story asking for native heights captures each width at its own viewport height', () => {
+  const frame = {
+    ...SIDEBAR,
+    id: 'screens-games-frame--your-turn',
+    tags: ['viewport-native-height'],
+  };
+  expect(
+    visualScenarios(frame).map(({ width, height }) => ({ width, height }))
+  ).toEqual([
+    { width: 390, height: 844 },
+    { width: 390, height: 844 },
+    { width: 1440, height: 900 },
+    { width: 1440, height: 900 },
+  ]);
+  expect(
+    new Set(visualScenarios({ ...frame, tags: [] }).map(({ height }) => height))
+  ).toEqual(new Set([844]));
+});

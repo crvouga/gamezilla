@@ -105,6 +105,9 @@ owns the browser cases and coverage inventory, so explicit regression captures
 must use the same matrix. `viewport-desktop` filters out viewports below the
 production desktop boundary; combining the tags captures only desktop. Keep
 these tags on individual states unless every state needs that coverage.
+Every capture is 844px tall by default; `viewport-native-height` captures each
+width at its own viewport height instead (1440x900 on desktop), for screens
+whose desktop layout puts state below a phone's height.
 When adding a story-owning `libs/` package, name it in the brace lists of this package's and
 `ui-codegen-server-ts`'s `turbo.json`, like `pkgs/` owners.
 
