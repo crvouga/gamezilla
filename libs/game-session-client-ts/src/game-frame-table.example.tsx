@@ -92,6 +92,12 @@ export type GameTableStory = {
    * lists no moves, as the app shows it. Defaults to `true`.
    */
   readonly turns?: boolean;
+  /**
+   * The viewer's own choice is being sent, as the app's frame shows it while
+   * `model.submitting()`: the line says so and the viewer's seat stops
+   * deciding. Defaults to `false`.
+   */
+  readonly sending?: boolean;
 };
 
 /** Who holds each side: the space stories' people, Avery first. */
@@ -129,7 +135,10 @@ function playSeat(props: TableProps, side: GameSide): FramePlaySeat {
     committed: props.board.committed.includes(side),
     choosing: false,
     facts: seats.facts(position, side, props.board.committed),
-    deciding: props.ending === undefined && side === props.turn,
+    deciding:
+      props.ending === undefined &&
+      side === props.turn &&
+      !(props.sending === true && side === viewerOf(props)),
     reclaim: false,
   };
 }
@@ -159,9 +168,12 @@ function tableStatus(props: TableProps): FrameStatus {
       .join(' '),
     description,
     plainTurn: ending === undefined && own === null && turn !== null,
-    emphasis: ending === undefined && turn === viewer ? 'yours' : 'neutral',
+    emphasis:
+      ending === undefined && turn === viewer && props.sending !== true
+        ? 'yours'
+        : 'neutral',
     tone: 'neutral',
-    sending: false,
+    sending: props.sending === true,
     minutes: 0,
     increment: 0,
   };
