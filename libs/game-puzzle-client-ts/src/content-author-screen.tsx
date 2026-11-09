@@ -9,6 +9,7 @@ import { createMemo, type JSX, Show } from 'solid-js';
 import { ContentAuthorScreenView } from './content-author-screen-view';
 import { ContentAuthorStage } from './content-author-stage';
 import { ContentDraftHistory } from './content-draft-history';
+import { contentDraftPlayable } from './content-draft-playable';
 import { ContentDraftPlaytest } from './content-draft-playtest';
 import { useContentGame } from './content-game-context';
 import { ContentKeptCopies } from './content-kept-copies';
@@ -93,9 +94,11 @@ function AuthorWorkspaceScreen(props: {
       }
       disabled={workspace.disabled()}
       preview={workspace.preview()}
-      playable={
-        game.client.authoring?.readable?.(writer.body().definition) !== false
-      }
+      playable={contentDraftPlayable(
+        game.client,
+        props.document.kind,
+        writer.body().definition
+      )}
       history={
         <ContentDraftHistory
           writer={writer}
