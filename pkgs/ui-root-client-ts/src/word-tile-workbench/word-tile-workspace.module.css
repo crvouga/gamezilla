@@ -16,33 +16,41 @@
   display: none;
 }
 
-/* Desktop and tablet: a 28rem fitted board with the status line beside its
-   foot, and the rack (seven 3rem tiles) beside the word actions right under
-   it, above the player's own seat, all on one left edge. 28rem keeps every
-   seat in view in an 844px-tall window under the game frame's header. */
+/* Desktop and tablet: a 28rem fitted board with Fit and Enlarge stacked
+   beside its top (any word-list notice under them), one full-width status
+   line under it, then the rack (seven 3rem tiles) beside the word actions,
+   right above the player's own seat, all on one left edge. Taking the view
+   controls out of the board's column keeps every seat in an 844px window. */
 .layout[data-layout="wide"] {
   --word-tile-fitted-size: 28rem;
   --word-tile-fitted-margin: 0;
-  --word-tile-enlarged-height: 25rem;
   grid-template-columns: 21.5rem minmax(0, 5.5rem) minmax(0, 1fr);
   grid-template-areas:
-    "notice notice notice"
-    "board board feedback"
+    "board board side"
+    "feedback feedback feedback"
     "rack actions actions";
   column-gap: var(--ui-space-4);
   row-gap: var(--ui-space-2);
   align-items: start;
 }
-.layout[data-layout="wide"] .notice {
-  grid-area: notice;
-}
 .layout[data-layout="wide"] .board {
   grid-area: board;
+  position: relative;
+}
+.layout[data-layout="wide"] .board [data-view-controls] {
+  position: absolute;
+  top: 0;
+  left: calc(100% + var(--ui-space-4));
+  flex-direction: column;
+  align-items: stretch;
+}
+.layout[data-layout="wide"] .notice {
+  grid-area: side;
+  /* Below the two stacked view controls. */
+  margin-top: calc(var(--ui-control-size-md) * 2 + var(--ui-space-4));
 }
 .layout[data-layout="wide"] .feedback {
   grid-area: feedback;
-  /* Beside the board's foot, right above the rack and Play word. */
-  align-self: end;
 }
 .layout[data-layout="wide"] .rack {
   grid-area: rack;

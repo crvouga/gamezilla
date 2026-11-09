@@ -18,7 +18,8 @@ export function WordTileOverview(props: {
   board: WordTileBoardProps;
   /** The board's cells, with unchanged squares kept as the same objects. */
   cells: () => readonly WordTileBoardCell[];
-  controls: JSX.Element;
+  /** Fit and Enlarge, on a phone; wider screens keep them above the board. */
+  controls?: JSX.Element;
   position: string;
   viewport: () => HTMLDivElement | undefined;
   locator: (onChoose: (id: string) => void) => JSX.Element;

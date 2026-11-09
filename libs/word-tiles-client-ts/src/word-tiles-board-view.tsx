@@ -261,7 +261,7 @@ function LexiconRecovery(props: { draft: WordTilesDraft }): JSX.Element {
     <Show when={props.draft.lexicon.state().status === 'unavailable'}>
       <P role="status">{t`The word list could not load. Your draft is kept. Reload it to preview words, or play for the game to check them.`}</P>
       <Button
-        title={t`Load the word list again`}
+        title={t`Reload word list`}
         variant="outline"
         dataSet={{ testid: `${props.draft.props.testId}-lexicon-retry` }}
         onClick={props.draft.lexicon.retry}

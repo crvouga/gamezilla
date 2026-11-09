@@ -205,7 +205,8 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
   };
   return (
     <StackVertical gap="none">
-      <Show when={props.purpose !== 'locator' && !enlarged()}>
+      {/* Wider than a phone, Fit and Enlarge stay in one place in both views. */}
+      <Show when={props.purpose !== 'locator' && (!enlarged() || !compact())}>
         <WordTileViewControls enlarged={enlarged()} onChange={resize} />
       </Show>
       <Show when={props.purpose === 'locator'}>
@@ -247,7 +248,9 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
             cells={cells}
             viewport={viewport}
             controls={
-              <WordTileViewControls enlarged={enlarged()} onChange={resize} />
+              compact() ? (
+                <WordTileViewControls enlarged={enlarged()} onChange={resize} />
+              ) : undefined
             }
             position={cells()[focusIndex()]?.label ?? ''}
             locator={(onChoose) => (

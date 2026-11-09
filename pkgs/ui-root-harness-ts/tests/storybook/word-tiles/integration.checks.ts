@@ -261,7 +261,7 @@ test('storybook integration: word-tiles desktop word-list recovery button shows 
   await page.setViewportSize({ width: 1440, height: 900 });
   await openStory(page, 'word-list-unavailable', 'light');
   const retry = page.getByRole('button', {
-    name: 'Load the word list again',
+    name: 'Reload word list',
     exact: true,
   });
   await expect(retry).toBeVisible();
@@ -378,7 +378,13 @@ test('storybook integration: word-tiles desktop keeps the own seat whole in an 8
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 844 });
-  for (const story of ['two-player-match', 'place-a-word']) {
+  for (const story of [
+    'two-player-match',
+    'place-a-word',
+    'enlarged-coordinates',
+    'word-list-unavailable',
+    'game-over',
+  ]) {
     await openStory(page, story, 'light');
     const seat = await page
       .getByTestId('custom-game-seat-near')
@@ -386,4 +392,23 @@ test('storybook integration: word-tiles desktop keeps the own seat whole in an 8
       .evaluate((element) => element.getBoundingClientRect().bottom);
     expect(seat, story).toBeLessThanOrEqual(844);
   }
+});
+
+// regression: word-tiles-desktop-view-controls-jump
+test('storybook integration: word-tiles desktop keeps Fit and Enlarge in one place in both views', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 844 });
+  await openStory(page, 'opening', 'light');
+  const fit = page.getByRole('button', { name: 'Fit board', exact: true });
+  const enlarge = page.getByRole('button', {
+    name: 'Enlarge board',
+    exact: true,
+  });
+  const before = await fit.boundingBox();
+  await enlarge.click();
+  await expect(enlarge).toHaveAttribute('aria-pressed', 'true');
+  await expect(fit).toHaveCount(1);
+  const after = await fit.boundingBox();
+  expect([after?.x, after?.y]).toEqual([before?.x, before?.y]);
 });

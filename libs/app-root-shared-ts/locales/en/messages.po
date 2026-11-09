@@ -4146,10 +4146,6 @@ msgstr "Load more saved positions"
 msgid "Load started"
 msgstr "Load started"
 
-#: libs/word-tiles-client-ts/src/word-tiles-board-view.tsx
-msgid "Load the word list again"
-msgstr "Load the word list again"
-
 #: pkgs/ui-root-client-ts/src/skeleton/index.tsx
 msgid "Loading"
 msgstr "Loading"
@@ -6139,6 +6135,10 @@ msgstr "Reload app"
 #: libs/app-root-client-ts/src/boot-error-screen-view.tsx
 msgid "Reload the app to continue."
 msgstr "Reload the app to continue."
+
+#: libs/word-tiles-client-ts/src/word-tiles-board-view.tsx
+msgid "Reload word list"
+msgstr "Reload word list"
 
 #: libs/game-session-client-ts/src/game-frame-actions-view.tsx
 msgid "Rematch"
