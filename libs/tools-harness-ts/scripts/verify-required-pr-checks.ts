@@ -38,8 +38,10 @@ async function main(): Promise<void> {
     clock: monotonicClock,
     timers: wallTimers,
     // Bounded external-producer coordination within the existing job deadline.
-    timeoutMs: 300_000,
-    intervalMs: 10_000,
+    // Every concurrent PR polls through one token's hourly API budget, so the
+    // wait is long and the polling sparse.
+    timeoutMs: 900_000,
+    intervalMs: 30_000,
   });
   for (const warning of unavailableScannerWarnings(required, checks))
     console.log(`::warning::${warning}`);

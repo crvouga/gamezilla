@@ -65,12 +65,12 @@ it does not replace automated verification.
 | `bun dev` | App stack and Storybook together; Storybook listens on port 6006. |
 | `bun storybook` | Storybook alone, through the same boot owner. Stop an app boot with `bun kill` first. |
 | `bun kill` | Stops the checkout's owned servers. |
-| `bun storybook:publish` | Publish to Chromatic and await cloud results (requires an injected project token). |
 | `bun storybook:build` | Static site in `pkgs/ui-root-harness-ts/.cache/storybook/`. |
 
-Publish the built directory with Chromatic, then copy a
-component's story URL for feedback. The bundle needs no backend. Building does
-not publish it or create a public URL.
+Release deploys the build from `main` to
+`storybook.<domain>` as static assets on
+Cloudflare's CDN; copy a component's story URL there for feedback. The bundle
+needs no backend. Building locally does not publish it or create a public URL.
 
 ## Verify a change
 
@@ -112,16 +112,10 @@ Use `/storybook-ui <task>` in a supported agent harness to load that workflow
 for building, reviewing or maintaining UI.
 
 
-## Hosted review and agents
+## Hosted Storybook and agents
 
-Chromatic hosts this same Storybook, including Docs and component manifests.
-Its Visual Tests panel exposes cloud comparisons. Each story has light and dark
-modes at Phone, Tablet and Desktop sizes. Native play functions run before cloud
-snapshots. Baseline approval stays explicit; uploads never auto-accept changes.
-Accessibility tests and additional browsers require Chromatic project settings.
-
-Coding agents connect to the local MCP endpoint `/mcp` using generated project
-configuration, or read the static index and manifests without a running server.
-Chromatic's documented hosted MCP currently requires React; this Storybook uses
-Solid. See the harness CHROMATIC.md for publishing, agent access and feature
-prerequisites, and its README for the authoritative development workflow.
+The hosted Storybook at `storybook.<domain>` is this same static
+build, including Docs, `/index.json` and the component manifests. Coding agents
+connect to the local MCP endpoint `/mcp` using generated project configuration,
+or read the static index and manifests without a running server. See the
+harness README for the authoritative development workflow.
