@@ -56,16 +56,26 @@ test('sunk is its own fill and the latest shot never wears the sunk ink', () => 
 
 // regression: battleship-focus-looks-like-selection — keyboard focus was a
 // thin accent ring, like the latest shot's accent ring and the chosen
-// cell's accent dashes, so focus could not be told from selection.
-test('keyboard focus on a Battleship cell is its own ink ring', () => {
+// cell's accent dashes, so focus could not be told from selection. An
+// outside ring then covered the coordinates and replaced the cell's own
+// outline (latest shot, preview, refusal), so focus is drawn inside.
+test('keyboard focus on a Battleship cell is its own inset ink ring', () => {
   const own = read('cell-grid-board/cell-grid-board-battleship.module.css');
   const focus = rule(
     own,
     '.board[data-board-theme="battleship"] .cell:focus-visible'
   );
-  expect(focus).toMatch(/outline:\s*3px solid var\(--color-text\);/);
-  expect(focus).toMatch(/outline-offset:\s*2px;/);
+  expect(focus).toMatch(/inset 0 0 0 5px var\(--color-text\)/);
+  expect(focus).toMatch(/inset 0 0 0 2px var\(--color-background\)/);
+  expect(focus).not.toContain('outline');
   expect(focus).not.toContain('--color-tint');
+  // Only a cell with no emphasis drops the shared outline for the ring.
+  expect(
+    rule(
+      own,
+      '.board[data-board-theme="battleship"]\n  .cell[data-emphasis="none"]:focus-visible'
+    )
+  ).toMatch(/outline:\s*none;/);
 });
 
 // regression: battleship-board-small-wide — wide, the 10×10 board was held

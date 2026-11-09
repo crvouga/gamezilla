@@ -53,10 +53,17 @@
   outline: 3px solid var(--color-tint);
   outline-offset: 0;
 }
-/* Keyboard focus is the board's ink, outside the cell: never the accent
-   of the latest shot or the dashed preview of a chosen cell. */
+/* Keyboard focus is the board's ink, inside the cell behind a gap in the
+   water's colour (so it shows on an ink Sunk fill too). It never covers the
+   coordinates outside the cell, and never replaces the outline a cell
+   already wears: the latest shot's accent, a preview or a refusal. */
 .board[data-board-theme="battleship"] .cell:focus-visible {
-  outline: 3px solid var(--color-text);
-  outline-offset: 2px;
+  box-shadow:
+    inset 0 0 0 2px var(--color-background),
+    inset 0 0 0 5px var(--color-text);
   z-index: 2;
+}
+.board[data-board-theme="battleship"]
+  .cell[data-emphasis="none"]:focus-visible {
+  outline: none;
 }

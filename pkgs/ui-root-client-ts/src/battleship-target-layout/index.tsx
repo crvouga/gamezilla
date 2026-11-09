@@ -113,10 +113,13 @@ export function BattleshipTargetHeader(props: {
  */
 export function BattleshipWholeBoard(props: {
   children: JSX.Element;
+  /** A finished game also leaves room for its result above the boards. */
+  finished?: boolean | undefined;
 }): JSX.Element {
   return (
     <div
       class={styles['whole']}
+      data-finished={props.finished === true}
       {...dataAttrs({ component: 'BattleshipWholeBoard' })}
     >
       {props.children}

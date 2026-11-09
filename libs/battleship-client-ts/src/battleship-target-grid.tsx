@@ -68,6 +68,7 @@ function WholeWaters(props: {
   aim: boolean;
   onAim: (cell: string) => void;
   legend?: JSX.Element;
+  finished?: boolean | undefined;
 }): JSX.Element {
   return (
     <StackVertical gap="xs" width="full">
@@ -77,7 +78,7 @@ function WholeWaters(props: {
         </P>
         {props.legend}
       </BattleshipTargetHeader>
-      <BattleshipWholeBoard>
+      <BattleshipWholeBoard finished={props.finished}>
         <CellGridBoard
           fill
           label={props.label}
@@ -111,6 +112,8 @@ export function BattleshipTargetGrid(props: {
   inspect?: boolean;
   /** The key to the marks, shown beside the region instruction. */
   legend?: JSX.Element;
+  /** The game is over: the board leaves room for the result above it. */
+  finished?: boolean | undefined;
   /** Fire and its instruction, under the cells; given the open region. */
   confirmation?: (region: () => string) => JSX.Element;
 }): JSX.Element {
@@ -137,6 +140,7 @@ export function BattleshipTargetGrid(props: {
             aim={canAim()}
             onAim={props.onAim}
             legend={props.legend}
+            finished={props.finished}
           />
         }
       >

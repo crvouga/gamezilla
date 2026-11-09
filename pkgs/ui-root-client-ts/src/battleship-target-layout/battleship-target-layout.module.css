@@ -126,3 +126,8 @@
   max-inline-size: min(100%, calc(100dvh - 25rem));
   margin-inline: auto;
 }
+/* Finished, the result sits above the boards; the board leaves room for it,
+   so the switch and the own seat still show under the board. */
+.whole[data-finished="true"] {
+  max-inline-size: min(100%, calc(100dvh - 32rem));
+}

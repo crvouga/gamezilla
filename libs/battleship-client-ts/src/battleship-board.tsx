@@ -11,7 +11,10 @@ import {
   type GameSide,
   requireTwoPlayerSide,
 } from '@pkgs/turn-game-shared-ts/game-rules';
-import { BattleshipWholeBoard } from '@pkgs/ui-root-client-ts/battleship-target-layout';
+import {
+  BattleshipTargetHeader,
+  BattleshipWholeBoard,
+} from '@pkgs/ui-root-client-ts/battleship-target-layout';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import {
   CellGridBoard,
@@ -48,12 +51,18 @@ function BoardPanel(props: {
   view: BoardView;
   cells: readonly CellGridCell[];
   legend: JSX.Element;
+  /** What the board is, beside its key: the viewer's fleet, or shots so far. */
+  heading: string;
+  finished: boolean;
   onFire?: (cell: string) => void;
 }): JSX.Element {
   return (
     <StackVertical gap="xs" align="center" width="full">
-      {props.legend}
-      <BattleshipWholeBoard>
+      <BattleshipTargetHeader>
+        <P variant="caption">{props.heading}</P>
+        {props.legend}
+      </BattleshipTargetHeader>
+      <BattleshipWholeBoard finished={props.finished}>
         <CellGridBoard
           fill
           label={props.label}
@@ -120,6 +129,17 @@ function createAim(props: GameBoardProps) {
  * only, and the shots fired at it) and the rival's (only the public shots).
  * A watcher sees both as public shot boards, named by side.
  */
+/** The two boards' names: the viewer's own and the rival's, or each side's. */
+function panelLabels(
+  viewer: GameSide | null,
+  orientation: GameSide
+): Record<BoardView, string> {
+  if (viewer !== null) return { own: t`Your fleet`, target: t`Targeting` };
+  const own = sideName(orientation);
+  const target = sideName(otherSide(requireTwoPlayerSide(orientation)));
+  return { own: t`${own} waters`, target: t`${target} waters` };
+}
+
 export function BattleshipBoard(props: GameBoardProps): JSX.Element {
   const battle = createMemo(
     () =>
@@ -146,12 +166,7 @@ export function BattleshipBoard(props: GameBoardProps): JSX.Element {
   const incoming = () => battle().shots[rival()];
   const outgoing = () =>
     battle().shots[requireTwoPlayerSide(props.orientation)];
-  const labels = createMemo(() => {
-    if (viewer() !== null) return { own: t`Your fleet`, target: t`Targeting` };
-    const own = sideName(props.orientation);
-    const target = sideName(rival());
-    return { own: t`${own} waters`, target: t`${target} waters` };
-  });
+  const labels = createMemo(() => panelLabels(viewer(), props.orientation));
   const ownCells = createMemo(() => {
     const mine = fleet();
     return mine === null
@@ -165,7 +180,6 @@ export function BattleshipBoard(props: GameBoardProps): JSX.Element {
       aiming: aim.aiming(),
     })
   );
-  // A shot being sent keeps its busy control after the frame stops input.
   const confirming = () =>
     (interactive() || aim.aiming() !== null) && view() === 'target';
   return (
@@ -187,6 +201,7 @@ export function BattleshipBoard(props: GameBoardProps): JSX.Element {
         onAim={setSelected}
         ships={viewer() !== null}
         inspect={!interactive() && aim.aiming() === null}
+        finished={battle().winner !== null}
         confirmation={(region) => (
           <Show when={confirming()}>
             <ShotConfirmation
@@ -263,6 +278,8 @@ function BattlePanels(props: {
   ships: boolean;
   /** The viewer only looks at the target waters (see BattleshipTargetGrid). */
   inspect: boolean;
+  /** The game is over: both boards leave room for the result above them. */
+  finished: boolean;
   confirmation: (region: () => string) => JSX.Element;
 }): JSX.Element {
   return (
@@ -281,6 +298,8 @@ function BattlePanels(props: {
           testId={props.testId}
           view="own"
           cells={props.own}
+          heading={props.ships ? t`Your fleet` : t`Shots so far`}
+          finished={props.finished}
           legend={
             <CellGridLegend
               label={t`Key`}
@@ -297,6 +316,7 @@ function BattlePanels(props: {
           cells={props.target}
           onAim={props.onAim}
           inspect={props.inspect}
+          finished={props.finished}
           legend={
             <CellGridLegend
               label={t`Key`}
