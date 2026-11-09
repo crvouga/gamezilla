@@ -1,0 +1,4 @@
+{
+  "summary": "Chess corner coordinates on dark walnut squares used a cream ink at 2.88:1, below normal-text contrast; axe left these SVG labels undecided (shortTextContent), so zero violations hid it.",
+  "regressionTest": "pkgs/chess-board-root-shared-ts/tests/board-affordance-contrast.test.ts"
+}

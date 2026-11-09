@@ -1,0 +1,4 @@
+{
+  "summary": "Changing Quoridor wall orientation replaced the focused tool button. Both variants keep their ordered tool buttons mounted as their labels and pressed states update.",
+  "regressionTest": "libs/quoridor-client-ts/tests/quoridor-preview-lifecycle.test.tsx"
+}

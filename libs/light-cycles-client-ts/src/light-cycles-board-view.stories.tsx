@@ -17,6 +17,7 @@ import { createLightCyclesStep } from '@libs/light-cycles-shared-ts/light-cycles
 import { boardOnly } from '@pkgs/turn-game-shared-ts/game-frame';
 import type { GameSimulationControls } from '@pkgs/turn-game-shared-ts/game-presentation';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
+import { createMemo } from 'solid-js';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { LightCyclesBoardView } from './light-cycles-board-view';
@@ -185,6 +186,8 @@ function interactiveRender(
   return ((args, context) => {
     const journey = createLightCyclesJourney(count);
     ready?.(journey);
+    const codec = lightCyclesPositionCodec(count);
+    const position = createMemo(() => codec.encode(journey.state()));
     const seats = LIGHT_CYCLES_SEATS[count];
     const simulation: GameSimulationControls = {
       ...riding(sides),
@@ -212,7 +215,7 @@ function interactiveRender(
       {
         ...args,
         get position() {
-          return lightCyclesPositionCodec(count).encode(journey.state());
+          return position();
         },
         simulation,
       },

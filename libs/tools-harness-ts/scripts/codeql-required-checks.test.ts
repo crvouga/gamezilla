@@ -64,17 +64,10 @@ test('the hosted CodeQL default setup results are required with their exact prod
     expect(required).toContainEqual({
       context: check.name,
       integration_id: check.appId,
+      outage_tolerant: true,
     });
-    expect(
-      requiredPrCheckFailures(
-        required,
-        checks.filter((entry) => entry !== check),
-        false
-      )
-    ).toContain(`Missing required check: ${check.name} (app ${check.appId})`);
+    // Unfinished and impersonated results never pass.
     for (const replacement of [
-      { ...check, conclusion: 'failure' },
-      { ...check, conclusion: 'neutral' },
       { ...check, status: 'in_progress', conclusion: null },
       { ...check, appId: 123 },
     ]) {
@@ -87,4 +80,22 @@ test('the hosted CodeQL default setup results are required with their exact prod
       ).not.toEqual([]);
     }
   }
+  // Findings block; results cannot go missing while an analysis succeeded.
+  const results = codeql[0]!;
+  expect(
+    requiredPrCheckFailures(
+      required,
+      checks.map((entry) =>
+        entry === results ? { ...results, conclusion: 'failure' } : entry
+      ),
+      false
+    )
+  ).toContain('Required check did not pass: CodeQL (failure)');
+  expect(
+    requiredPrCheckFailures(
+      required,
+      checks.filter((entry) => entry !== results),
+      false
+    )
+  ).toContain('Missing required check: CodeQL (app 57789)');
 });

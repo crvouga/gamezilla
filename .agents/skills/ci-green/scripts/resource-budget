@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-"""Measure this machine, print the ci-green concurrency budget, and manage
-the shared slot ledger every check run and subagent draws from.
+"""Measure this machine, print the ci-green budget, and record running
+checks. Nothing queues: a slot is granted at once or refused at once
+(heavy checks run in hosted CI; the same check id never runs twice).
 
 Usage:
   resource-budget [show] [--json]          machine, budget and held slots
@@ -11,7 +12,8 @@ Usage:
   resource-budget renew TOKEN [--ttl SECONDS]
   resource-budget release TOKEN
 
-Exit status: 0 ok; 75 no slot within --wait; 2 usage error.
+Exit status: 0 ok; 75 refused (heavy check, or the same check already
+running); 2 usage error. --wait is accepted and ignored.
 
 Tuning (environment): CI_GREEN_RESERVE_CORES (2), CI_GREEN_RESERVE_MEM_PCT
 (25), CI_GREEN_MAX_CHECKS, CI_GREEN_MAX_AGENTS, CI_GREEN_NICE (10),
@@ -76,7 +78,7 @@ def main():
     parser.add_argument("--label")
     parser.add_argument("--weight", default="medium", choices=common.WEIGHTS)
     parser.add_argument("--pid", type=int)
-    parser.add_argument("--wait", type=float, help="seconds to wait for a slot (default: wait indefinitely)")
+    parser.add_argument("--wait", type=float, help="ignored: slots are granted or refused at once")
     parser.add_argument("--ttl", type=float, help="lease for subagent slots in seconds (default 4h)")
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args()

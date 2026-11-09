@@ -9,6 +9,13 @@ import type {
   BoardTheme,
   CellFeedbackKind,
 } from '@pkgs/chess-board-core-shared-ts/types';
+import {
+  bestOnColor,
+  contrastRatio,
+  ON_DARK,
+  ON_LIGHT,
+  parseColor,
+} from '@pkgs/ui-root-shared-ts/contrast';
 
 export type BoardColorScheme = 'light' | 'dark';
 
@@ -69,7 +76,7 @@ function defaultPromotionPalette(squares: {
     surface: squares.lightSquare,
     surfaceActive: squares.lightSquare,
     cancel: squares.darkSquare,
-    ink: squares.lightSquare,
+    ink: bestOnColor(squares.darkSquare).fg,
   };
 }
 
@@ -89,8 +96,8 @@ export function defaultBoardTheme(scheme: BoardColorScheme): BoardTheme {
     selected: 'rgba(255, 255, 51, 0.5)',
     premove: 'rgba(244, 42, 50, 0.55)',
     hover: 'rgba(255, 255, 255, 0.65)',
-    legalMoveDot: 'rgba(0, 0, 0, 0.14)',
-    legalMoveCaptureRing: 'rgba(0, 0, 0, 0.14)',
+    legalMoveDot: ON_LIGHT.icon,
+    legalMoveCaptureRing: ON_LIGHT.icon,
     check: 'rgba(255, 0, 0, 0.9)',
     feedback: defaultFeedbackPalette(scheme),
     arrows: defaultArrowPalette(scheme),
@@ -135,16 +142,47 @@ function mixHex(a: string, b: string, amount: number): string {
     .join('')}`;
 }
 
+/** A tonal ink when it reads as normal text on `square`, else the best plain ink. */
+function readableInk(tonal: string, square: string): string {
+  const ink = parseColor(tonal);
+  const surface = parseColor(square);
+  return ink && surface && contrastRatio(ink, surface) >= 4.5
+    ? tonal
+    : bestOnColor(square).fg;
+}
+
 /**
  * Coordinate inks that contrast with the square under them: on a light
  * square a walnut deeper than the border, on a dark square a cream paler
- * than the light square.
+ * than the light square, each replaced by the best plain ink when it would
+ * fall short of normal-text contrast (the walnut square's cream did).
  */
 function coordinateInks(theme: BoardTheme): Record<string, string> {
   return {
-    '--chess-coord-on-light': mixHex(theme.border, '#000000', 0.32),
-    '--chess-coord-on-dark': mixHex(theme.lightSquare, '#ffffff', 0.7),
+    '--chess-coord-on-light': readableInk(
+      mixHex(theme.border, '#000000', 0.32),
+      theme.lightSquare
+    ),
+    '--chess-coord-on-dark': readableInk(
+      mixHex(theme.lightSquare, '#ffffff', 0.7),
+      theme.darkSquare
+    ),
   };
+}
+
+/**
+ * The focus ring's inner band: of the plain inks, the one whose weaker
+ * contrast over the two squares is higher, so the ring reads on both.
+ */
+function focusBand(theme: BoardTheme): string {
+  const light = parseColor(theme.lightSquare);
+  const dark = parseColor(theme.darkSquare);
+  const weakest = (ink: string): number => {
+    const rgb = parseColor(ink);
+    if (!rgb || !light || !dark) return 0;
+    return Math.min(contrastRatio(rgb, light), contrastRatio(rgb, dark));
+  };
+  return weakest(ON_DARK.fg) > weakest(ON_LIGHT.fg) ? ON_DARK.fg : ON_LIGHT.fg;
 }
 
 /**
@@ -163,6 +201,7 @@ export function boardThemeToCssVars(theme: BoardTheme): Record<string, string> {
     '--chess-check': theme.check,
     '--chess-legal-dot': theme.legalMoveDot,
     '--chess-legal-ring': theme.legalMoveCaptureRing,
+    '--chess-focus-band': focusBand(theme),
     ...coordinateInks(theme),
   };
 }

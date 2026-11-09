@@ -40,6 +40,7 @@ test('only GitHub Actions owns the Verify, Release and Health triggers', () => {
   expect(readdirSync(join(ROOT, '.github/workflows')).sort()).toEqual([
     'deploy.yml',
     'health.yml',
+    'pr-hygiene.yml',
     'verify-nightly.yml',
     'verify-pr.yml',
   ]);

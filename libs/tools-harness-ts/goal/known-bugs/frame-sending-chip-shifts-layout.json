@@ -1,0 +1,4 @@
+{
+  "summary": "While the viewer's choice was being sent the phone strip dropped the game's line for a bare \"Live\" and a separate \"Sending choice…\" pill appeared under the board, duplicating the game's own busy control and pushing the own seat down. The strip or rail caption now says it in the line's place and the pill stays for a listener only.",
+  "regressionTest": "libs/game-session-client-ts/tests/game-frame-phone-strip.test.tsx"
+}

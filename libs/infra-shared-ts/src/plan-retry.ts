@@ -22,3 +22,21 @@ const TRANSIENT_PROVIDER_FAILURE = [
 export function providerFailureIsTransient(output: string): boolean {
   return TRANSIENT_PROVIDER_FAILURE.some((needle) => output.includes(needle));
 }
+
+const TRANSIENT_INSTALL_FAILURE = [
+  '502 Bad Gateway',
+  '503 Service Unavailable',
+  '504 Gateway Timeout',
+  'could not connect to registry',
+] as const;
+
+/**
+ * `tofu init` could not download a provider because the registry or GitHub
+ * release host was briefly down. The lock file is unchanged, so init again.
+ */
+export function providerInstallIsTransient(output: string): boolean {
+  return (
+    TRANSIENT_INSTALL_FAILURE.some((needle) => output.includes(needle)) ||
+    providerFailureIsTransient(output)
+  );
+}
