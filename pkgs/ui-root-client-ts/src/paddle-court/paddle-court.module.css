@@ -75,9 +75,12 @@
   touch-action: none;
   cursor: crosshair;
 }
+/* Focus rings the court from inside its edge: the light ring always sits on
+   the court's dark canvas (well over 3:1 in both themes), and no ancestor
+   that clips its overflow can cut its sides off. */
 .court:focus-visible {
-  outline: 2px solid var(--ui-color-focus-ring);
-  outline-offset: 2px;
+  outline: 3px solid var(--ui-color-focus-ring);
+  outline-offset: -3px;
 }
 .drawing {
   display: block;
@@ -119,14 +122,16 @@
 }
 /* The court under its scoreboard. Sized by the column's width and, on a
    short window such as a phone in landscape, by the window's height too:
-   the screen's top bar, the scoreboard and the gaps around them come off
-   first, so the scoreboard and the whole court show together. */
+   the screen's top bar, the game's title row, the scoreboard and the gaps
+   around them come off first, so the scoreboard and the whole court show
+   together from the first view, before anything is focused. */
 .frame {
   --paddle-court-score-block: calc(var(--ui-font-size-2xl) + var(--ui-space-2));
   --paddle-court-fit-block: calc(
     100dvh -
     var(--ui-control-size-lg) -
     var(--ui-space-sm) -
+    var(--ui-space-12) -
     var(--paddle-court-score-block) -
     var(--ui-space-4)
   );
