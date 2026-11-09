@@ -220,7 +220,14 @@
   margin-inline: var(--word-tile-fitted-margin, auto);
 }
 
-.cell[data-state="empty"][data-square]:not([data-square="none"]) {
+/* The same weight as the tier rules below, so each tier's fill wins. */
+.cell[data-state="empty"]:is(
+  [data-square="DL"],
+  [data-square="TL"],
+  [data-square="DW"],
+  [data-square="TW"],
+  [data-square="start"]
+) {
   background: var(--ui-color-game-word-tiles-surface);
   color: var(--ui-color-board-card-ink);
 }
