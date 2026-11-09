@@ -37,14 +37,23 @@ test('storybook integration: commands and rail centre with a centred stage at 76
     'data-story-ready',
     'true'
   );
-  const centre = async (testId: string) => {
-    const box = await page.getByTestId(testId).boundingBox();
-    if (!box) throw new Error(`${testId} is missing`);
-    return box.x + box.width / 2;
+  const box = async (testId: string) => {
+    const found = await page.getByTestId(testId).boundingBox();
+    if (!found) throw new Error(`${testId} is missing`);
+    return found;
   };
-  const stage = await centre('stage-probe');
-  expect(
-    Math.abs((await centre('commands-probe')) - stage)
-  ).toBeLessThanOrEqual(1);
-  expect(Math.abs((await centre('rail-probe')) - stage)).toBeLessThanOrEqual(1);
+  const centre = (found: { x: number; width: number }) =>
+    found.x + found.width / 2;
+  const stage = await box('stage-probe');
+  // The commands and the rail are boxes as wide as the board's column.
+  const commands = await page
+    .locator('[data-component="GameControls"]')
+    .boundingBox();
+  const rail = await page
+    .getByTestId('rail-probe')
+    .locator('xpath=..')
+    .boundingBox();
+  if (!commands || !rail) throw new Error('The commands or rail are missing');
+  expect(Math.abs(centre(commands) - centre(stage))).toBeLessThanOrEqual(1);
+  expect(Math.abs(centre(rail) - centre(stage))).toBeLessThanOrEqual(1);
 });
