@@ -260,13 +260,19 @@ export const MoveWaiting: Story = {
   },
 };
 
-/** A choice was refused: the reason sits above the game with no dead end. */
+/**
+ * A choice was refused: the reason sits with the game's commands, with no
+ * dead end, and the board stays where it was.
+ */
 export const ChoiceRefused: Story = {
   args: {
     ...PLAYING,
     error: 'That move is not legal in this position.',
   },
 };
+
+/** The same game once the choice is retried and the refusal clears. */
+export const ChoiceRetried: Story = { args: { ...PLAYING } };
 
 /** The game's own engine stopped: the saved score is kept and reopening recovers. */
 export const Stopped: Story = { args: { ...PLAYING, stopped: true } };
