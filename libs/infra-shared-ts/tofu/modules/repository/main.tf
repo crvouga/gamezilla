@@ -121,7 +121,10 @@ resource "github_repository_ruleset" "main" {
     }
   }
 
-  # Every change goes through a PR verified against the current main. No bypass.
+  # Every change goes through a verified PR. No bypass. A PR need not be up to
+  # date with main to merge: many concurrent agent branches made strict mode a
+  # constant update-and-rerun loop. Verify PR checks the merge commit at push
+  # time, and Release reruns the full gate on main before shipping.
   # The repository has one maintainer, who cannot approve their own PRs, so
   # approvals are not required (regression: repository-ruleset-solo-approval).
   rules {
@@ -136,7 +139,7 @@ resource "github_repository_ruleset" "main" {
     }
 
     required_status_checks {
-      strict_required_status_checks_policy = true
+      strict_required_status_checks_policy = false
       dynamic "required_check" {
         for_each = { for check in local.required_checks : check.context => check }
         content {

@@ -45,6 +45,8 @@ than restating it.
 
 - **No git hooks.** Do not add a `pre-commit`, `pre-push`, `core.hooksPath`, Husky, or any other git hook. Every change to `main` requires a pull request under the [git hygiene policy](README.md#git-hygiene). Release runs the blocking safety gate on that commit before it ships ([`README.md`](README.md#correctness-machinery)).
 
+- **Pull requests open ready for review.** Never pass `--draft` or convert a PR to draft; a PR is the reviewable unit as soon as it exists, and CI runs the same either way. A branch need not be up to date with `main` to merge, so do not merge `main` in just to clear "behind"; merge it only to resolve a conflict or pick up a change you need.
+
 - **Agents never merge a pull request.** `/pr-ready` takes a PR to a green Ready to merge and stops; a human merges — never `--admin`, never a red, pending or draft PR.
 
 - **Never patch dependencies.** No `bun patch`, `patch-package`, `pnpm patch`, `patches/` directory, or `patchedDependencies` / `resolutions` field. Work around a third-party bug in our code or accept it.

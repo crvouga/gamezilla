@@ -826,9 +826,11 @@ Feature titles, one line each, so a session can route without listing the tree. 
 
 All changes to `main` go through a pull request. The OpenTofu repository ruleset
 requires every check in `libs/infra-shared-ts/tofu/modules/repository/required-checks/`
-against current `main` (planning, the complete verdict, and GitGuardian), one independent
-approval after the latest push, and resolved review conversations. A push dismisses
-stale approvals. The final PR gate checks both the head and merge commit: every
+(planning, the complete verdict, and CodeQL) and resolved review conversations; no
+approval is required. A branch need not be up to date with `main` to merge: many
+concurrent agent branches made that a constant update-and-rerun loop. Verify PR checks
+the merge commit at push time, and Release reruns the full gate on `main` before shipping.
+A push dismisses stale approvals. The final PR gate checks both the head and merge commit: every
 check must pass, belong to its declared GitHub App, and be registered as required.
 New integrations cannot silently add advisory checks. Dynamic shards are enforced
 by the aggregate verdict, including missing or failed shard evidence. There are no bypass actors. Only a person authorizes a merge,
@@ -853,7 +855,7 @@ changes outside that allowlist, deletion, replacement and a first bootstrap.
 The ordinary deletion policy and encrypted state backup still run. This requires
 no AWS account login, Cloudflare credential or full bootstrap apply. CI never
 creates the initial backend or changes unrelated global infrastructure.
-The Rego gate refuses weakened PR requirements, bypass actors, disabled automatic
+The Rego gate refuses a missing `verify:end` requirement, weakened PR requirements, bypass actors, disabled automatic
 branch deletion, or disabled public-repository secret scanning/push protection.
 
 Workspace setup installs repository-local Git defaults: prune remote references

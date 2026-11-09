@@ -15,14 +15,15 @@ strict_main(after) if {
 	pr := rules.pull_request[0]
 	pr.dismiss_stale_reviews_on_push == true
 	pr.required_review_thread_resolution == true
+
+	# Up-to-date branches are not required; Release re-verifies main.
 	checks := rules.required_status_checks[0]
-	checks.strict_required_status_checks_policy == true
 	some check in checks.required_check
 	check.context == "verify:end"
 	check.integration_id == 15368
 }
 
-deny contains "main must require pull requests, current verification, resolved conversations and no bypass" if {
+deny contains "main must require pull requests, verification, resolved conversations and no bypass" if {
 	some resource in input.resource_changes
 	resource.address == "module.repository.github_repository_ruleset.main"
 	resource.change.after != null

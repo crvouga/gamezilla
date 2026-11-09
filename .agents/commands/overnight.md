@@ -244,10 +244,10 @@ Give `type:*` one color per type, `priority:*` a red-to-grey ramp, and `risk:*` 
 
 ## The pull request
 
-Open it as a draft with every label in one call:
+Open it ready for review (never a draft) with every label in one call:
 
 ```sh
-gh pr create --draft --base main --head "overnight/<date>/<slug>" \
+gh pr create --base main --head "overnight/<date>/<slug>" \
   --title "<type>(<area>): <summary>" --body-file .overnight/<date>/prs/<slug>.md \
   --label overnight --label "overnight:<date>" --label "type:<t>" --label "area:<a>" \
   --label "priority:<p>" --label "risk:<r>" --label "size:<s>" [--label <flag> …]
