@@ -1,0 +1,4 @@
+{
+  "summary": "Eight-character Numberlink labels split mid-word into two lines (SUNR / ISES) with nothing showing they form one word. Labels now break at the space nearest the middle, or mid-word with a hyphen.",
+  "regressionTest": "libs/numberlink-harness-ts/tests/numberlink-board-presentation.test.tsx"
+}

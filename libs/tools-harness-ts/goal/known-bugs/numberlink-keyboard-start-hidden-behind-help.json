@@ -1,0 +1,4 @@
+{
+  "summary": "Numberlink's initial instruction described only dragging; keyboard users had to discover and open secondary help before learning how to start. The visible drawing hint now names Enter and arrow keys.",
+  "regressionTest": "libs/numberlink-harness-ts/tests/numberlink-drawing-feedback.test.tsx"
+}
