@@ -77,26 +77,34 @@ async function measureSteeringTrial(page: Page) {
   return finishMeasurements(page);
 }
 
+/** Fresh six-input trials per case, so a p95 over them is not just the slowest input. */
+export const STEERING_TRIALS = 4;
+
 /** Keep every measured input inside active play, including Quad's earlier round end. */
 export async function measureSteering(page: Page, cpuRate = 1) {
   const cdp = await page.context().newCDPSession(page);
-  await cdp.send('Emulation.setCPUThrottlingRate', { rate: cpuRate });
-  const first = await measureSteeringTrial(page);
-  await cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 });
-  await page.reload();
-  await expect(page.locator('#storybook-root')).toHaveAttribute(
-    'data-story-ready',
-    'true'
-  );
-  await page.evaluate(() => document.fonts.ready);
-  await cdp.send('Emulation.setCPUThrottlingRate', { rate: cpuRate });
-  const second = await measureSteeringTrial(page);
-  await cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 });
-  return {
-    inputToPaintMs: [...first.inputToPaintMs, ...second.inputToPaintMs],
-    frameMs: [...first.frameMs, ...second.frameMs],
-    longTasksMs: [...first.longTasksMs, ...second.longTasksMs],
+  const all = {
+    inputToPaintMs: [] as number[],
+    frameMs: [] as number[],
+    longTasksMs: [] as number[],
   };
+  for (let trial = 0; trial < STEERING_TRIALS; trial++) {
+    if (trial > 0) {
+      await page.reload();
+      await expect(page.locator('#storybook-root')).toHaveAttribute(
+        'data-story-ready',
+        'true'
+      );
+      await page.evaluate(() => document.fonts.ready);
+    }
+    await cdp.send('Emulation.setCPUThrottlingRate', { rate: cpuRate });
+    const measured = await measureSteeringTrial(page);
+    await cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 });
+    all.inputToPaintMs.push(...measured.inputToPaintMs);
+    all.frameMs.push(...measured.frameMs);
+    all.longTasksMs.push(...measured.longTasksMs);
+  }
+  return all;
 }
 
 export async function finishMeasurements(page: Page) {

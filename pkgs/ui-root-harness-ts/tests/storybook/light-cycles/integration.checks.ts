@@ -2,7 +2,7 @@ import { expect, type Page, type TestInfo, test } from '@playwright/test';
 import axe from 'axe-core';
 import { verifySharedSwipeCapture } from '../light-cycles-pointer';
 import { contrastStacks } from './contrast';
-import { measureSteering } from './measure';
+import { measureSteering, STEERING_TRIALS } from './measure';
 import { measureMotion } from './motion';
 import { profileMotion } from './profile';
 import { logEvidence, longTasks, percentile } from './summary';
@@ -124,7 +124,16 @@ for (const screen of screens) {
         expect(arena.x + arena.width).toBeLessThanOrEqual(screen.width);
         expect(arena.y + arena.height).toBeLessThanOrEqual(screen.height);
         const measurements = await measureSteering(page, cpuRate);
-        expect(measurements.inputToPaintMs).toHaveLength(12);
+        expect(measurements.inputToPaintMs).toHaveLength(6 * STEERING_TRIALS);
+        // regression: player-chip-grows-when-a-badge-appears — a seat going
+        // Out during play must not move the arena.
+        const settled = await page
+          .getByTestId('custom-game-board-arena')
+          .boundingBox();
+        expect(Math.abs((settled?.y ?? 0) - arena.y)).toBeLessThanOrEqual(0.5);
+        expect(
+          Math.abs((settled?.height ?? 0) - arena.height)
+        ).toBeLessThanOrEqual(0.5);
         logEvidence('TIMING', {
           test: info.title,
           kind: 'keyboard',
@@ -146,7 +155,7 @@ for (const screen of screens) {
               cpuRate,
               samples: measurements,
               limits:
-                'Two fresh six-input trials. Storybook loading and axe run at normal CPU; only the input window uses the recorded CPU rate. Deterministic production-step fixture. Event dispatch to second animation frame is a paint-opportunity bound, not physical display latency. No live network or continuous simulation claim. CPU throttling is not a physical low-end phone.',
+                'Four fresh six-input trials (24 inputs). Storybook loading and axe run at normal CPU; only the input window uses the recorded CPU rate. Deterministic production-step fixture. Event dispatch to second animation frame is a paint-opportunity bound, not physical display latency. No live network or continuous simulation claim. CPU throttling is not a physical low-end phone.',
             },
             null,
             2
@@ -175,15 +184,41 @@ for (const state of [
   'shared-keyboard',
 ]) {
   for (const theme of ['light', 'dark']) {
-    test(`storybook integration: light-cycles evidence ${state} ${theme}`, async ({
-      page,
-    }, info) => {
-      await openArena(page, state, theme);
-      await capture(page, info, state);
-      await accessibility(page, info);
-    });
+    // The phone size keeps its original title; tablet and desktop add theirs.
+    for (const screen of [null, screens[1], screens[2]]) {
+      const size = screen === null ? '' : ` ${screen.width}`;
+      test(`storybook integration: light-cycles evidence ${state} ${theme}${size}`, async ({
+        page,
+      }, info) => {
+        if (screen !== null) await page.setViewportSize(screen);
+        await openArena(page, state, theme);
+        await capture(page, info, state);
+        await accessibility(page, info);
+      });
+    }
   }
 }
+
+test('storybook integration: light-cycles evidence desktop mouse drag steers', async ({
+  page,
+}, info) => {
+  await page.setViewportSize(screens[2]);
+  await openArena(page, 'duel-steering', 'light');
+  const arena = page.getByTestId('custom-game-board-arena');
+  const bounds = await arena.boundingBox();
+  if (!bounds) throw new Error('Missing desktop arena');
+  const rider = page.getByTestId('custom-game-board-arena-rider-0');
+  await capture(page, info, 'before-drag');
+  const x = bounds.x + bounds.width * 0.5;
+  const y = bounds.y + bounds.height * 0.5;
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  await page.mouse.move(x, y - 60, { steps: 6 });
+  await page.mouse.up();
+  await expect(rider).toHaveAttribute('data-next', 'up');
+  await capture(page, info, 'after-drag');
+  await accessibility(page, info);
+});
 
 test('storybook integration: light-cycles evidence shared native pointer', async ({
   page,
@@ -229,13 +264,13 @@ test('storybook integration: light-cycles evidence native Tab focus and first st
 // regression: light-cycles-probe-crossed-quad-round-end
 // regression: light-cycles-probe-throttled-harness-startup
 // regression: light-cycles-frame-sampler-mixed-time-origins
-test('storybook integration: light-cycles evidence Quad measures twelve active inputs across fresh trials', async ({
+test('storybook integration: light-cycles evidence Quad measures every active input across fresh trials', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await openArena(page, 'quad-steering', 'light');
   const measurements = await measureSteering(page, 4);
-  expect(measurements.inputToPaintMs).toHaveLength(12);
+  expect(measurements.inputToPaintMs).toHaveLength(6 * STEERING_TRIALS);
   expect(measurements.frameMs.length).toBeGreaterThan(0);
   expect(measurements.frameMs.every((interval) => interval >= 0)).toBe(true);
 });
