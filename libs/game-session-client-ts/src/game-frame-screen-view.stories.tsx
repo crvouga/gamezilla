@@ -16,6 +16,7 @@ import {
   MID_GAME_MOVES,
   MID_GAME_RECORD,
   MORGAN,
+  OPPONENT_TURN_MOVES,
   PEOPLE,
   FRAME_PLAYING as PLAYING,
   person,
@@ -64,10 +65,15 @@ export const EarlyTurn: Story = {
   render: (args) => onBoard(EARLY_MOVES)(args),
 };
 
+/** Seven drops' record: Yellow diamond (the opponent) is to move. */
+const OPPONENT_TURN_RECORD = MID_GAME_RECORD.slice(0, 7);
+
 /** The opponent's turn: the turn line is neutral and their strip is the active one. */
 export const OpponentsTurn: Story = {
+  render: (args) => onBoard(OPPONENT_TURN_MOVES)(args),
   args: {
     ...PLAYING,
+    record: record(OPPONENT_TURN_RECORD),
     status: status({
       description: 'Yellow diamond to move.',
       emphasis: 'neutral',
@@ -514,7 +520,7 @@ export const FinishAndReview: Story = {
   args: PLAYING,
   render: (args) => {
     const [finished, setFinished] = createSignal(false);
-    const [ply, setPly] = createSignal(MID_GAME_RECORD.length);
+    const [ply, setPly] = createSignal(OPPONENT_TURN_RECORD.length);
     return (
       <GameFrameScreenView
         {...args}
@@ -547,17 +553,17 @@ export const FinishAndReview: Story = {
         }
         record={
           finished()
-            ? { ...record(MID_GAME_RECORD), displayedPly: ply() }
+            ? { ...record(OPPONENT_TURN_RECORD), displayedPly: ply() }
             : args.record
         }
         onChoose={async (input) => {
           if (input.operation === 'resign') setFinished(true);
         }}
         onSeek={setPly}
-        onReturnLive={() => setPly(MID_GAME_RECORD.length)}
+        onReturnLive={() => setPly(OPPONENT_TURN_RECORD.length)}
         board={
           <ConnectFourStoryBoard
-            moves={finished() ? MID_GAME_MOVES.slice(0, ply()) : MID_GAME_MOVES}
+            moves={OPPONENT_TURN_MOVES.slice(0, finished() ? ply() : undefined)}
             interactive={false}
           />
         }
