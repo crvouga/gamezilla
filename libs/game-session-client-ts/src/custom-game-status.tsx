@@ -286,7 +286,7 @@ export function useFrameStatus(
         nameOf
       ),
       // While the viewer's choice is sent, it is no longer their turn to act.
-      emphasis: model.submitting()
+      emphasis: frameViewerHeld(model)
         ? 'neutral'
         : statusEmphasis(game, model.mySide()),
       tone: statusTone(game),
@@ -298,10 +298,28 @@ export function useFrameStatus(
 }
 
 /** The connection, as the offline notice words it. */
-export function frameConnection(model: CustomGameScreenModel): FrameConnection {
+export function frameConnection(
+  model: Pick<CustomGameScreenModel, 'connected' | 'waiting' | 'canSubmit'>
+): FrameConnection {
   if (model.connected()) return 'online';
   if (model.waiting()) return 'waiting';
   return model.canSubmit() ? 'offline-local' : 'needed';
+}
+
+/**
+ * The viewer cannot act now, so nothing may say it is their move: their
+ * choice is being sent, waits for the connection, or needs it. A local
+ * game that can go on offline is not held.
+ */
+export function frameViewerHeld(
+  model: Pick<
+    CustomGameScreenModel,
+    'submitting' | 'connected' | 'waiting' | 'canSubmit'
+  >
+): boolean {
+  if (model.submitting()) return true;
+  const connection = frameConnection(model);
+  return connection === 'needed' || connection === 'waiting';
 }
 
 /** The viewer's own turn (or their own choice still awaited) is theirs. */
