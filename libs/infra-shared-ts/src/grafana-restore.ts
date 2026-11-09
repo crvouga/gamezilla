@@ -42,6 +42,8 @@ export function grafanaRestoreAccountArgs(
     throw new Error('Grafana restore requires the foundation stack');
   return [
     ...planArgs(paths, target, options),
+    // The lookup the account's import reads, named so -target keeps it.
+    '-target=data.http.kept_account',
     `-target=${ACCOUNT}`,
     `-target=${TOKEN}`,
   ];

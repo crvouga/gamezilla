@@ -41,6 +41,7 @@ test('the account pass plans only the account and its token', () => {
     { stack: 'foundation', env: 'dev' }
   );
   expect(args.filter((arg) => arg.startsWith('-target='))).toEqual([
+    '-target=data.http.kept_account',
     '-target=grafana_cloud_stack_service_account.observability',
     '-target=grafana_cloud_stack_service_account_token.observability',
   ]);
