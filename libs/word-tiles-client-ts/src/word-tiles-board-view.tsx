@@ -12,6 +12,7 @@ import { WordTileBoard } from '@pkgs/ui-root-client-ts/word-tile-board';
 import {
   WordTileActions,
   WordTileWorkbench,
+  WordTileWorkspace,
 } from '@pkgs/ui-root-client-ts/word-tile-workbench';
 import { createMemo, type JSX, Show } from 'solid-js';
 import type { LexiconState } from './use-word-tiles-lexicon';
@@ -30,6 +31,7 @@ import {
   WordTilesBlankChooser,
   WordTilesPreviewPanel,
 } from './word-tiles-panels';
+import type { WordTilesPreview } from './word-tiles-preview';
 
 /** The board and, for a seat, its rack; a watcher is told racks stay private. */
 function SeatBoard(props: {
@@ -45,42 +47,62 @@ function SeatBoard(props: {
   const tiles = createMemo(() =>
     rackTiles(props.draft.candidate(), props.draft.editable())
   );
+  // A function, so each branch mounts its own board.
+  const board = (): JSX.Element => (
+    <WordTileBoard
+      measure="compact"
+      label={t`Word board, fifteen columns and fifteen rows`}
+      testId={props.draft.props.testId}
+      columnLabels={COLUMN_LABELS}
+      rowLabels={ROW_LABELS}
+      cells={cells()}
+      squareText={squareText}
+      onActivate={(id) => {
+        const cell = parseCell(id);
+        if (cell !== null) props.draft.update((c) => pressCell(c, cell));
+      }}
+    />
+  );
   return (
-    <StackVertical gap="none">
-      <LexiconRecovery draft={props.draft} />
-      <Show
-        when={props.draft.props.hand !== null}
-        fallback={
-          <P tone="secondary">{t`You are watching. Racks stay private to their players.`}</P>
-        }
-      >
-        <TileRack
-          label={t`Your rack`}
-          testId={`${props.draft.props.testId}-rack`}
-          tiles={tiles()}
-          onActivate={(id) =>
-            props.draft.update((c) => pressTile(c, Number(id)))
+    <Show
+      when={props.draft.props.hand !== null}
+      fallback={
+        <WordTileWorkspace
+          finished={props.position.ended !== null}
+          notice={<LexiconRecovery draft={props.draft} />}
+          rack={
+            <P tone="secondary">{t`Racks stay private to their players.`}</P>
           }
+          board={board()}
         />
-        <WordTileWorkbench>
-          <LocalActions draft={props.draft} random={props.random} />
-          <DraftControls draft={props.draft} position={props.position} />
-        </WordTileWorkbench>
-      </Show>
-      <WordTileBoard
-        measure="compact"
-        label={t`Word board, fifteen columns and fifteen rows`}
-        testId={props.draft.props.testId}
-        columnLabels={COLUMN_LABELS}
-        rowLabels={ROW_LABELS}
-        cells={cells()}
-        squareText={squareText}
-        onActivate={(id) => {
-          const cell = parseCell(id);
-          if (cell !== null) props.draft.update((c) => pressCell(c, cell));
-        }}
+      }
+    >
+      <WordTileWorkspace
+        finished={props.position.ended !== null}
+        notice={<LexiconRecovery draft={props.draft} />}
+        rack={
+          <TileRack
+            label={t`Your rack`}
+            testId={`${props.draft.props.testId}-rack`}
+            tiles={tiles()}
+            onActivate={(id) =>
+              props.draft.update((c) => pressTile(c, Number(id)))
+            }
+          />
+        }
+        actions={
+          <WordTileWorkbench>
+            <LocalActions draft={props.draft} random={props.random} />
+          </WordTileWorkbench>
+        }
+        feedback={
+          <WordTileWorkbench>
+            <DraftControls draft={props.draft} position={props.position} />
+          </WordTileWorkbench>
+        }
+        board={board()}
       />
-    </StackVertical>
+    </Show>
   );
 }
 
@@ -128,9 +150,6 @@ function DraftControls(props: {
       when={props.draft.props.hand !== null && props.draft.position() !== null}
     >
       <StackVertical gap="xs">
-        <Show when={!props.draft.props.interactive && props.draft.editable()}>
-          <P tone="secondary">{t`You can plan a word while you wait. Play it when your turn begins.`}</P>
-        </Show>
         <Show when={props.draft.candidate().blankAt !== null}>
           <WordTilesBlankChooser
             testId={testId()}
@@ -157,12 +176,35 @@ function DraftControls(props: {
           }
         >
           {(preview) => (
-            <WordTilesPreviewPanel preview={preview()} testId={testId()} />
+            <WordTilesPreviewPanel
+              preview={waitingPreview(props.draft, preview())}
+              testId={testId()}
+            />
           )}
         </Show>
       </StackVertical>
     </Show>
   );
+}
+
+/**
+ * Off turn, an empty draft says the player may plan ahead, in the same
+ * reserved status line, so the board does not move when the turn passes.
+ */
+function waitingPreview(
+  draft: WordTilesDraft,
+  preview: WordTilesPreview
+): WordTilesPreview {
+  const candidate = draft.candidate();
+  return !draft.props.interactive &&
+    candidate.placed.length === 0 &&
+    candidate.exchange === null
+    ? {
+        kind: 'none',
+        playable: false,
+        message: t`Plan your next word while you wait.`,
+      }
+    : preview;
 }
 
 type WordTilesSession = Required<GameFrameBoardSession<JSX.Element>>;
@@ -221,7 +263,7 @@ function LexiconRecovery(props: { draft: WordTilesDraft }): JSX.Element {
     <Show when={props.draft.lexicon.state().status === 'unavailable'}>
       <P role="status">{t`The word list could not load. Your draft is kept. Reload it to preview words, or play for the game to check them.`}</P>
       <Button
-        title={t`Load the word list again`}
+        title={t`Reload word list`}
         variant="outline"
         dataSet={{ testid: `${props.draft.props.testId}-lexicon-retry` }}
         onClick={props.draft.lexicon.retry}
@@ -237,7 +279,7 @@ function LocalActions(props: {
   return (
     <WordTileActions
       label={t`Word actions`}
-      moreLabel={t`Pass, exchange & tools`}
+      moreLabel={t`More actions`}
       testId={props.draft.props.testId}
       items={wordTilesActions(props.draft, props.random)
         .filter(

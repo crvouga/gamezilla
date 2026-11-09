@@ -123,6 +123,36 @@ export function setupSeat(
 
 export const AVERY = seat('white', person('avery'), 'avery');
 export const JORDAN = seat('black', person('jordan'), 'jordan_plays');
+/** A seated player the signed-in viewer (avery) only watches. */
+export const MORGAN = seat('white', person('morgan'), 'morgan');
+/** The lineup of a game avery watches: morgan against jordan_plays. */
+export const WATCHED_LINEUP =
+  'Red circle: morgan. Yellow diamond: jordan_plays.';
+
+/** The finished game's places: avery first, jordan_plays second. */
+export const STANDINGS = [
+  {
+    id: 'white',
+    place: 1,
+    name: 'avery',
+    holder: person('avery'),
+    score: null,
+    you: true,
+    testId: 'custom-game-standing-white',
+    readiness: null,
+  },
+  {
+    id: 'black',
+    place: 2,
+    name: 'jordan_plays',
+    holder: person('jordan'),
+    score: null,
+    you: false,
+    testId: 'custom-game-standing-black',
+    readiness: null,
+  },
+] as const;
+
 export const BOT = seat(
   'black',
   { kind: 'bot', level: 'medium' },
@@ -214,7 +244,13 @@ function columnRecord(moves: readonly number[]): readonly string[] {
   return moves.map((column) => String(column + 1));
 }
 
-export const MID_GAME_MOVES = [3, 3, 4, 2, 2, 4, 5];
+/**
+ * Eight drops, four each: Red circle (the viewer) moves first, so it is
+ * Red circle's turn again, as the frame's own-turn stories say.
+ */
+export const MID_GAME_MOVES = [3, 3, 4, 2, 2, 4, 5, 1];
+/** Seven drops: Yellow diamond (the opponent) is to move. */
+export const OPPONENT_TURN_MOVES = MID_GAME_MOVES.slice(0, 7);
 export const MID_GAME_RECORD = columnRecord(MID_GAME_MOVES);
 /** Ten drops, five each: Red circle to move, as a real game's middle reads. */
 export const YOUR_TURN_MOVES = [3, 3, 2, 4, 4, 5, 2, 1, 6, 3];
@@ -274,3 +310,33 @@ export const FRAME_CONTROLS_EXCLUDE = [
   'record',
   'status',
 ];
+
+/** A two-seat game in play with the viewer to move. */
+export const FRAME_PLAYING: Partial<GameFrameScreenViewProps> = {
+  phase: 'active',
+  viewerSide: 'white',
+  status: status(),
+  table: {
+    shape: 'strip',
+    near: playSeat(AVERY, { deciding: true }),
+    others: [playSeat(JORDAN)],
+  },
+  play: { ...FRAME_NO_PLAY, canOfferDraw: true, canResign: true },
+  record: record(MID_GAME_RECORD),
+};
+
+/**
+ * Held for the connection, as the app's frame is (frameViewerHeld): the
+ * viewer's seat no longer claims the move, the line drops its own-turn
+ * emphasis, and Resign and Offer draw are withheld until it returns.
+ */
+export const FRAME_HELD: Partial<GameFrameScreenViewProps> = {
+  ...FRAME_PLAYING,
+  status: status({ emphasis: 'neutral' }),
+  table: {
+    shape: 'strip',
+    near: playSeat(AVERY),
+    others: [playSeat(JORDAN)],
+  },
+  play: FRAME_NO_PLAY,
+};

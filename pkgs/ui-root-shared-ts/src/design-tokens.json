@@ -765,6 +765,15 @@
           "hex": "#2d6656"
         }
       },
+      "gameQuoridorThree": {
+        "$description": "Quoridor board only: third pawn ink (gold), readable on the sand board in every app theme.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.5412, 0.3529, 0.0],
+          "alpha": 1.0,
+          "hex": "#8a5a00"
+        }
+      },
       "gameSokobanCanvas": {
         "$description": "Sokoban board only: canvas.",
         "$value": {
@@ -808,6 +817,15 @@
           "components": [0.9608, 0.8118, 0.4157],
           "alpha": 1.0,
           "hex": "#f5cf6a"
+        }
+      },
+      "gameSokobanFocus": {
+        "$description": "Sokoban board only: focus ring on the page, at least 3:1 against the page and the board edge.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.6588, 0.4706, 0.0],
+          "alpha": 1.0,
+          "hex": "#a87800"
         }
       },
       "gameSokobanOne": {
@@ -1906,6 +1924,15 @@
           "hex": "#2d6656"
         }
       },
+      "gameQuoridorThree": {
+        "$description": "Quoridor board only: third pawn ink (gold), readable on the sand board in every app theme.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.5412, 0.3529, 0.0],
+          "alpha": 1.0,
+          "hex": "#8a5a00"
+        }
+      },
       "gameSokobanCanvas": {
         "$description": "Sokoban board only: canvas.",
         "$value": {
@@ -1944,6 +1971,15 @@
       },
       "gameSokobanAccent": {
         "$description": "Sokoban board only: accent.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.9608, 0.8118, 0.4157],
+          "alpha": 1.0,
+          "hex": "#f5cf6a"
+        }
+      },
+      "gameSokobanFocus": {
+        "$description": "Sokoban board only: focus ring on the page, at least 3:1 against the page and the board edge.",
         "$value": {
           "colorSpace": "srgb",
           "components": [0.9608, 0.8118, 0.4157],

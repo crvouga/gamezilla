@@ -13,8 +13,8 @@ Get all four workflows green, and do it in **one pull request** on the current b
 | **Release** (`.github/workflows/deploy.yml`) | releasing `main` fails | every merge to `main`, and `bun deploy` by hand (full verification, then every env) |
 | **Health** (`.github/workflows/health.yml`) | the live release is bad | hourly, and `bun health` dispatches it |
 
-Release runs only from `main`; Health also accepts branch dispatches. Release changes ship from `main`, so a fix for them reaches CI only after a
-human merges the PR. Agents never merge. The loop therefore ends with a green Verification
+Release runs only from `main`; Health also accepts branch dispatches. Release changes ship from `main`, so a fix for them reaches CI only after the
+PR merges. The PR auto-merges once Verification is green (`gh pr merge --auto --squash`). The loop therefore ends with a green Verification
 on the PR **and** every Release/Health failure reproduced and shown fixed in GitHub Actions.
 After the merge it resumes to confirm Release and Health on `main`.
 
@@ -89,7 +89,7 @@ All fixes go on the **current branch** and its single PR. Never open a second PR
 "the release part".
 
 ```bash
-bun verify                               # required final local gate, once on the final tree
+git push                                 # hosted Verify PR runs the full gate (bun verify) on the final tree
 bun run git-sync --message "fix(scope): …"   # commit and push; the PR's Verify runs every gate
 ```
 
@@ -109,7 +109,7 @@ Stop and report instead of looping when either of these happens:
 - the only remaining items need a human (the merge, a credential, a destructive or
   production action).
 
-## 5. After the human merges
+## 5. After the PR merges
 
 The merge is the release: the push to `main` starts Release, which runs full verification
 first, then every environment. Watch that run; `bun deploy` re-dispatches it on

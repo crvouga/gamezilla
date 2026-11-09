@@ -1,0 +1,4 @@
+{
+  "summary": "In the light theme the focused Sokoban board drew its pale gold focus ring on the page past a 2px gap, at 1.39:1 against the page, below the 3:1 needed to see focus. A Sokoban focus token now gives the light theme a deeper gold, 3.63:1 against the page and 3.55:1 against the board's dark edge; the dark theme keeps its ring.",
+  "regressionTest": "libs/sokoban-harness-ts/tests/sokoban-focus-contrast.test.ts"
+}

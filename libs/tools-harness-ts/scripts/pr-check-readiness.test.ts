@@ -162,3 +162,61 @@ test('metadata collection cannot grant success after the readiness deadline', as
     'deadline exceeded during metadata collection'
   );
 });
+
+// regression: codeql-bundle-download-504
+test('a tolerated neutral CodeQL result waits for its active producer', async () => {
+  const tolerant = required.map((policy) => ({
+    ...policy,
+    outage_tolerant: true,
+  }));
+  const failedAnalysis = {
+    ...pending.checks[1]!,
+    status: 'completed',
+    conclusion: 'failure',
+  };
+  const snapshots: readonly PrCheckSnapshot[] = [
+    { activeCodeqlShas: [sha], checks: [pending.checks[0]!, failedAnalysis] },
+    { activeCodeqlShas: [], checks: [pending.checks[0]!, failedAnalysis] },
+  ];
+  let reads = 0;
+  let now = 0;
+  const checks = await awaitRequiredPrChecks({
+    required: tolerant,
+    emptyShardPlan: false,
+    read: () => snapshots[Math.min(reads++, snapshots.length - 1)]!,
+    clock: { now: () => now },
+    timers: {
+      setTimeout: (fn, ms) => {
+        now += ms;
+        fn();
+        return 0;
+      },
+      clearTimeout: () => {},
+      setInterval: () => {
+        throw new Error('unexpected interval');
+      },
+      clearInterval: () => {},
+    },
+    timeoutMs: 30,
+    intervalMs: 10,
+  });
+  expect(checks).toEqual(snapshots[1]!.checks);
+  expect(reads).toBe(2);
+});
+
+// regression: verify-end-awaits-itself
+// Runs 42587259782 and 42592949094: every check had passed by 09:26:53Z, but
+// verify:end saw its own in-progress run and waited out the deadline.
+test('the running verify:end aggregate does not wait for itself', async () => {
+  const self = {
+    sha,
+    name: 'verify:end',
+    appId: 15368,
+    status: 'in_progress',
+    conclusion: null,
+  };
+  const snapshot = { ...success, checks: [...success.checks, self] };
+  const execution = run([snapshot]);
+  expect(await execution.result).toEqual(snapshot.checks);
+  expect(execution.reads()).toBe(1);
+});

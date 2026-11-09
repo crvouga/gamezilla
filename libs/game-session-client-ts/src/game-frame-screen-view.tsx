@@ -47,6 +47,7 @@ import {
 import { FrameSetupSeatsView } from './game-frame-seats-view';
 import { withStableTable } from './game-frame-stable-table';
 import {
+  captionLine,
   FrameConnectionView,
   FrameErrorView,
   FrameStatusView,
@@ -112,6 +113,8 @@ export type GameFrameScreenViewProps = FrameReviewHandlers & {
   readonly boardState?: Readonly<Record<string, string>> | undefined;
   /** The game's square fit (`GameFrame.boardFit`); absent for width alone. */
   readonly boardFit?: 'square' | undefined;
+  /** Where the board sits on one column (`GameFrame.boardAlign`); absent: centred. */
+  readonly boardAlign?: 'start' | undefined;
   readonly people?: FramePeople | undefined;
   /** Every choice about the game, as the room accepts it. */
   readonly onChoose: (input: CustomGameInput) => Promise<void>;
@@ -357,7 +360,6 @@ function railCaption(
   if (
     status === null ||
     status.tone !== 'neutral' ||
-    status.sending ||
     status.description === '' ||
     plainArenaLine(props)
   )
@@ -365,7 +367,7 @@ function railCaption(
   return arenaBeside(props, mode) ||
     unplayedBeside(props, mode) ||
     recordCaptioned(props, mode)
-    ? status.description
+    ? captionLine(status)
     : undefined;
 }
 
@@ -523,6 +525,7 @@ function FrameBoardStage(props: Props): JSX.Element {
     <GameBoardStage
       preview={!seated()}
       viewportFit={props.boardFit}
+      align={props.boardAlign}
       // How the game is played, beside the preview, names it instead.
       previewLabel={
         props.about === undefined ? <Trans>Board preview</Trans> : undefined
@@ -558,7 +561,7 @@ function FrameBoardStage(props: Props): JSX.Element {
               arena={frameArena(props.phase, shownRecord(props))}
               spokenOnly={
                 plainArenaLine(props) ||
-                turnInSeats(props, mode) ||
+                (turnInSeats(props, mode) && props.status?.sending !== true) ||
                 railCaption(props, mode) !== undefined ||
                 stripCaption(props, mode) !== undefined
               }
@@ -622,12 +625,7 @@ function FrameContent(shown: Props): JSX.Element {
         testid: 'custom-game-content',
         phase: props.phase,
       }}
-      notices={
-        <>
-          <FrameConnectionView connection={props.connection} />
-          <FrameErrorView text={props.error} />
-        </>
-      }
+      notices={<FrameConnectionView connection={props.connection} />}
       boardFocus={props.phase === 'active' || props.phase === 'completed'}
       outcome={<FrameOutcomeView {...props} />}
       pinned={<FrameMoveStripSlot {...props} />}
@@ -636,7 +634,15 @@ function FrameContent(shown: Props): JSX.Element {
       actionsBeside
       arena={arenaBeside(props, mode)}
       boardPreview={props.phase === 'configuring'}
-      status={<FrameStatusRow {...props} />}
+      // A refused choice is said by the game's commands (under a phone's
+      // board, heading the rail beside a wide one), never above the board,
+      // so the board does not move when it appears or clears.
+      status={
+        <>
+          <FrameErrorView text={props.error} />
+          <FrameStatusRow {...props} />
+        </>
+      }
       actions={
         <Show when={!commandsInRecord(props, mode)}>
           <FramePlayActions {...props} />

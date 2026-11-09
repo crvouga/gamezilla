@@ -2,9 +2,12 @@ import {
   BOARD_CONTROLS_EXCLUDE,
   boardArgs,
   type GameTableStory,
-  renderGameTable,
 } from '@libs/game-session-client-ts/game-frame-table.example';
-import { type Card, writeCards } from '@libs/hearts-shared-ts/hearts-cards';
+import {
+  type Card,
+  cardLabel,
+  writeCards,
+} from '@libs/hearts-shared-ts/hearts-cards';
 import {
   dealFrom,
   shufflerFrom,
@@ -37,7 +40,7 @@ import {
   receivedHands,
   renderPassJourney,
 } from './hearts-pass-journey.example';
-import { heartsPresentation } from './hearts-presentation';
+import { renderHeartsTable } from './hearts-table.example';
 
 /** One fixed deal: every story sees the same thirteen cards per seat. */
 const DEAL = dealFrom(shufflerFrom([7, 11, 13, 17]));
@@ -107,8 +110,7 @@ const meta = {
   title: 'Screens/Games/Hearts/Table',
   component: HeartsBoard,
   tags: ['autodocs'],
-  render: (args, context) =>
-    renderGameTable(heartsPresentation, GAME_SIDES, args, context),
+  render: (args, context) => renderHeartsTable(args, context),
   parameters: {
     appRouter: true,
     controls: { exclude: [...BOARD_CONTROLS_EXCLUDE] },
@@ -248,6 +250,8 @@ export const GameOver: Story = {
   parameters: {
     table: {
       ending: { winner: 'red', reason: 'lowest score' },
+      // A finished game keeps its record: the final deal's cards as played.
+      moves: playing(52).position.plays.map(cardLabel),
     } satisfies GameTableStory,
   },
 };
@@ -297,9 +301,7 @@ export const PassSending: Story = {
 export const CompleteTrick: Story = {
   render: (args, context) => {
     const [table, setTable] = createSignal(playing(0));
-    return renderGameTable(
-      heartsPresentation,
-      GAME_SIDES,
+    return renderHeartsTable(
       {
         ...args,
         get position() {
@@ -368,9 +370,7 @@ export const CompleteTrick: Story = {
 export const PassAcknowledged: Story = {
   render: (args, context) => {
     const [commitment, setCommitment] = createSignal<string | null>(null);
-    return renderGameTable(
-      heartsPresentation,
-      GAME_SIDES,
+    return renderHeartsTable(
       {
         ...args,
         get commitment() {

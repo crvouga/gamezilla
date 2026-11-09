@@ -60,7 +60,9 @@ test("the players' strips name their seat; the table alone says each seat's card
 test('the table keeps its sentence for a listener and leaves the eye to the turn line', () => {
   board();
   const center = byTestId('hearts-center');
-  expect(center.textContent).toContain('Pass three cards to the left.');
+  expect(center.textContent).toContain(
+    'Pass three cards to the left, to West.'
+  );
   expect(center.getAttribute('aria-live')).toBe('polite');
   expect(center.getAttribute('data-spoken-only')).toBe('true');
   // Cards still on their way: the table alone says so, so it shows it.
@@ -156,7 +158,7 @@ test('thirteen cards sit in two rows, every corner in view, each named by its su
 test('the count chosen sits beside the Pass button, which goes quiet once sent', () => {
   board();
   const action = () => byTestId('hearts-pass');
-  expect(action().textContent).toContain('Pass left');
+  expect(action().textContent).toContain('Pass to West');
   expect(action().parentElement?.textContent).toContain('0 of 3 chosen');
   for (const card of ['2C', '3C', '4C'])
     fireEvent.click(byTestId(`hearts-card-${card}`));
@@ -173,7 +175,7 @@ test('the count chosen sits beside the Pass button, which goes quiet once sent',
 test('the middle of the table shows where the pass goes and the cards chosen', () => {
   board();
   const table = byTestId('hearts');
-  expect(table.textContent).toContain('Passing to the left');
+  expect(table.textContent).toContain('Passing to West, on your left');
   fireEvent.click(byTestId('hearts-card-2C'));
   const placed = table.querySelectorAll('[data-filled="true"]');
   expect(placed).toHaveLength(1);

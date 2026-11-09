@@ -7,6 +7,7 @@ import {
   decodeHearts,
   type HeartsPosition,
   passDirection,
+  passTarget,
   type Seat,
   seatAfter,
   seatOfSide,
@@ -36,7 +37,8 @@ import {
   cardName,
   heartsRefusal,
   heartsSeatName,
-  passInstruction,
+  passInstructionTo,
+  passWaiting,
   rankText,
   SUIT_NAMES,
   suitName,
@@ -81,7 +83,7 @@ function seatFacts(position: HeartsPosition, seat: Seat): string[] {
     plural(held, { one: '# card', other: '# cards' }),
     t`Score ${score}`,
   ];
-  if (position.phase === 'play') facts.push(t`Taken ${taken}`);
+  if (position.phase === 'play') facts.push(t`Deal points ${taken}`);
   return facts;
 }
 
@@ -108,6 +110,8 @@ export function tableSeats(
   const near = seatOfSide(board.orientation);
   const trick = shownTrick(position);
   const deciding = seatToPlay(position);
+  // The trick just completed, until the next card: who took it.
+  const taker = trick?.cards.length === 4 ? trickWinner(trick) : null;
   return POSITIONS.map((place, offset) => {
     const seat = seatAfter(near, offset);
     const side = sideOfSeat(seat);
@@ -126,6 +130,7 @@ export function tableSeats(
           ? !board.committed.includes(side)
           : deciding === seat,
       played: played === undefined ? null : tableCard(played),
+      won: taker === seat ? t`Took it` : undefined,
       testId: `${board.testId}-seat-${side}`,
     };
   });
@@ -180,6 +185,40 @@ function playerName(side: GameSide, nameOf: GamePlayerName): string {
   return name === undefined || name === '' ? heartsSeatName(side) : name;
 }
 
+/**
+ * Who gets `viewer`'s pass this deal, by name (or seat when unnamed);
+ * `null` for a watcher or a deal without passing.
+ */
+export function passRecipient(
+  position: string,
+  viewer: GameSide | null,
+  nameOf: GamePlayerName
+): string | null {
+  const decoded = decodeHearts(position);
+  if (viewer === null || decoded === null) return null;
+  if (passDirection(decoded.deal) === 'hold') return null;
+  const target = passTarget(seatOfSide(viewer), decoded.deal);
+  return playerName(sideOfSeat(target), nameOf);
+}
+
+/**
+ * Why a seated player's hand cannot be played while tricks are played and
+ * it is not their turn: who plays next. `undefined` on their turn, while
+ * passing, once the game is over, and for a watcher.
+ */
+export function heartsWaiting(
+  board: Pick<GameBoardProps, 'position' | 'hand' | 'orientation'>,
+  nameOf: GamePlayerName
+): string | undefined {
+  const position = decodeHearts(board.position);
+  if (board.hand === null || position?.phase !== 'play') return undefined;
+  const deciding = seatToPlay(position);
+  if (deciding === null || deciding === seatOfSide(board.orientation))
+    return undefined;
+  const next = playerName(sideOfSeat(deciding), nameOf);
+  return t`Not your turn. ${next} plays next.`;
+}
+
 /** What the table is doing, naming the player independently of rendered seats. */
 export function tableCenter(
   board: Pick<GameBoardProps, 'position' | 'commitment' | 'committed'>,
@@ -194,8 +233,8 @@ export function tableCenter(
     const progress = passingProgress(board.committed);
     const now =
       board.commitment === null
-        ? `${passInstruction(passDirection(position.deal))} ${progress}`
-        : `${t`Your cards are chosen. Waiting for every player to pass.`} ${progress}`;
+        ? `${passInstructionTo(passDirection(position.deal), passRecipient(board.position, viewer, nameOf))} ${progress}`
+        : `${passWaiting()} ${progress}`;
     return `${summary} ${now}`.trim();
   }
   const trick = shownTrick(position);
@@ -244,6 +283,9 @@ export function handCards(
   const seat = seatOfSide(board.orientation);
   const refusal = (card: Card): string | undefined => {
     if (position?.phase !== 'play') return undefined;
+    // Not this seat's turn: the hand waits as a whole (`heartsWaiting`),
+    // no card is refused by a rule.
+    if (seatToPlay(position) !== seat) return undefined;
     const reason = cardRefusal(position, seat, held, card);
     return reason === null ? undefined : heartsRefusal(reason);
   };

@@ -1,0 +1,4 @@
+{
+  "summary": "The fifth direction pressed during a pending save was silently discarded while the player promised all directions would wait.",
+  "regressionTest": "libs/sokoban-harness-ts/tests/sokoban-input.contract.test.tsx"
+}

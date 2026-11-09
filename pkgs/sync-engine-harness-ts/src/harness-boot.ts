@@ -8,10 +8,11 @@ import {
 } from './boot-parts';
 import type { HarnessAuthStatus } from './client-factory-parts';
 import { HARNESS_SERVER_NODE_ID } from './clock-skew';
+import { createDurableCrashPointController } from './durable-crash-points';
 import type { EdgeFaultController } from './edge-faults';
 import { createBoundaryFaultController } from './edge-faults';
 import { bindHarnessHttpLoadBalancer } from './http-bridge';
-import { fireCrashIfArmed } from './lifecycle';
+import { abandonKilledClient, fireCrashIfArmed } from './lifecycle';
 import type { SyncNetwork } from './network';
 import { openHarnessServerCluster } from './server-cluster';
 import { createStoragePressureController } from './storage-pressure';
@@ -91,6 +92,7 @@ export async function bootHarnessServer(args: {
     authByDevice,
     authStatusByDevice,
     storagePressure: createStoragePressureController(),
+    durableCrashPoints: createDurableCrashPointController(),
     frozenClients: new Set(),
     failNextOpenClients: new Set(),
     clientOpts: args.clientOpts,
@@ -102,6 +104,7 @@ export async function bootHarnessServer(args: {
     nextId,
   };
 
+  kernel.durableCrashPoints.onKill((id) => abandonKilledClient(kernel, id));
   kernel.unbindHttp = bindHarnessHttpLoadBalancer({
     network: runtime.network,
     balancerId: SERVER_HTTP,

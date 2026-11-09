@@ -61,7 +61,7 @@ test('Pong exposes a labelled court and only the player’s normalized paddle co
   view.setPaused(true);
   expect(slider.disabled).toBe(true);
   expect(view.getByRole('status').textContent).toBe(
-    'Paused while a player returns.'
+    'Paused while a player returns'
   );
 });
 
@@ -96,7 +96,7 @@ test('serve and pause remain on court with explicit cues for both touch edges', 
   const view = board(['white', 'black']);
   const court = view.getByRole('application');
   expect(court.contains(view.getByRole('status'))).toBe(true);
-  expect(view.getByRole('status').textContent).toBe('Serve in 3.');
+  expect(view.getByRole('status').textContent).toBe('Serve in 3');
   for (const side of ['first', 'second'])
     expect(view.getByTestId(`pong-${side}-gesture`).textContent).toContain(
       'Drag'
@@ -151,7 +151,7 @@ test('the multiplayer court retains one readable status through the live rally a
   view.setPaused(true);
   expect(view.getAllByTestId('multiplayer-board-status')).toHaveLength(1);
   expect(view.getByTestId('multiplayer-board-status').textContent).toBe(
-    'Paused while a player returns.'
+    'Paused while a player returns'
   );
   expect(
     view

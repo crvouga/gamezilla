@@ -1,0 +1,4 @@
+{
+  "summary": "The hosted accepted-pass journey waits for aria-disabled five of clubs to become enabled instead of sending the trusted tap that explains its refusal.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/hearts-overhaul/refused-card/integration.checks.ts"
+}

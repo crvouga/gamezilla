@@ -1,6 +1,6 @@
 /** @jsxImportSource solid-js */
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { For, Index, type JSX, Show } from 'solid-js';
+import { Index, type JSX, Show } from 'solid-js';
 import styles from './tile-board.module.css';
 
 /** `solid` blocks, `open` is walkable ground, `none` is no part of the board. */
@@ -71,14 +71,11 @@ export function tileBoardSwipe(
   return dy > 0 ? 'down' : 'up';
 }
 
-/**
- * A rectangular board of tiles with pieces standing on them, steered as one
- * focus stop: arrow keys or W A S D give a direction, a swipe gives its
- * direction and a tap names a tile. Pieces glide between tiles unless the
- * person prefers reduced motion; logic never waits for the glide.
- */
-export function TileBoard(props: TileBoardProps): JSX.Element {
-  let origin: { x: number; y: number } | null = null;
+function createTileBoardInput(props: TileBoardProps) {
+  let origin: { x: number; y: number; pointerId: number } | null = null;
+  const interactive = () =>
+    props.disabled !== true &&
+    (props.onDirection !== undefined || props.onTile !== undefined);
   const tileAt = (event: PointerEvent, board: HTMLElement): number | null => {
     const box = board.getBoundingClientRect();
     if (box.width === 0 || box.height === 0) return null;
@@ -94,8 +91,12 @@ export function TileBoard(props: TileBoardProps): JSX.Element {
   };
   const release = (event: PointerEvent): void => {
     const from = origin;
+    if (from === null || from.pointerId !== event.pointerId) return;
     origin = null;
-    if (from === null || props.disabled === true) return;
+    const board = event.currentTarget as HTMLElement;
+    if (board.hasPointerCapture(event.pointerId))
+      board.releasePointerCapture(event.pointerId);
+    if (!interactive()) return;
     const swipe = tileBoardSwipe(
       event.clientX - from.x,
       event.clientY - from.y
@@ -104,6 +105,32 @@ export function TileBoard(props: TileBoardProps): JSX.Element {
     const index = tileAt(event, event.currentTarget as HTMLElement);
     if (index !== null) props.onTile?.(index);
   };
+  const keyDown = (event: KeyboardEvent): void => {
+    if (!interactive() || props.onDirection === undefined) return;
+    const direction = KEYS[event.key];
+    if (direction === undefined || event.ctrlKey || event.metaKey) return;
+    event.preventDefault();
+    props.onDirection(direction);
+  };
+  const pointerDown = (event: PointerEvent): void => {
+    if (!interactive() || origin !== null || event.button !== 0) return;
+    origin = { x: event.clientX, y: event.clientY, pointerId: event.pointerId };
+    (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+  };
+  const cancel = (event: PointerEvent): void => {
+    if (origin?.pointerId === event.pointerId) origin = null;
+  };
+  return { interactive, keyDown, pointerDown, release, cancel };
+}
+
+/**
+ * A rectangular board of tiles with pieces standing on them, steered as one
+ * focus stop: arrow keys or W A S D give a direction, a swipe gives its
+ * direction and a tap names a tile. Pieces glide between tiles unless the
+ * person prefers reduced motion; logic never waits for the glide.
+ */
+export function TileBoard(props: TileBoardProps): JSX.Element {
+  const input = createTileBoardInput(props);
   return (
     // oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- the focused board owns the direction keys that steer it
     <div
@@ -111,48 +138,41 @@ export function TileBoard(props: TileBoardProps): JSX.Element {
       {...dataAttrs({ component: 'TileBoard' })}
       role="group"
       // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- the board itself takes focus so the direction keys reach it
-      tabIndex={0}
+      tabIndex={input.interactive() ? 0 : -1}
       aria-label={props.label}
       aria-describedby={props.describedBy}
       aria-disabled={props.disabled === true}
       data-testid={props.testId}
       data-disabled={String(props.disabled === true)}
+      data-interactive={String(input.interactive())}
       data-size={props.size ?? 'compact'}
       style={{
         '--tile-board-columns': props.columns,
         '--tile-board-rows': props.rows,
       }}
-      onKeyDown={(event) => {
-        const direction = KEYS[event.key];
-        if (direction === undefined || event.ctrlKey || event.metaKey) return;
-        event.preventDefault();
-        if (props.disabled !== true) props.onDirection?.(direction);
-      }}
-      onPointerDown={(event) => {
-        origin = { x: event.clientX, y: event.clientY };
-      }}
-      onPointerUp={release}
-      onPointerCancel={() => {
-        origin = null;
-      }}
+      onKeyDown={input.keyDown}
+      onPointerDown={input.pointerDown}
+      onPointerUp={input.release}
+      onPointerCancel={input.cancel}
+      onLostPointerCapture={input.cancel}
     >
       <div class={styles['tiles']}>
-        <For each={props.tiles}>
+        <Index each={props.tiles}>
           {(tile, index) => (
             <span
               class={styles['tile']}
               role="img"
-              aria-label={tile.label}
-              data-terrain={tile.terrain}
-              data-marked={String(tile.marked)}
-              data-testid={`${props.testId}-tile-${index()}`}
+              aria-label={tile().label}
+              data-terrain={tile().terrain}
+              data-marked={String(tile().marked)}
+              data-testid={`${props.testId}-tile-${index}`}
             >
-              <Show when={tile.marked}>
+              <Show when={tile().marked}>
                 <span class={styles['mark']} aria-hidden="true" />
               </Show>
             </span>
           )}
-        </For>
+        </Index>
       </div>
       <div class={styles['pieces']} aria-hidden="true">
         {/* By position: a piece keeps its element as it moves, so it glides. */}

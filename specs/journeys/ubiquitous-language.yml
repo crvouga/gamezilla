@@ -137,6 +137,16 @@ terms:
     from: games
   - term: Hearts
     from: hearts
+  - term: card
+    from: hearts
+  - term: hand
+    from: hearts
+  - term: pass
+    from: hearts
+  - term: trick
+    from: hearts
+  - term: first trick
+    from: hearts
   - term: Word Tiles
     from: word-tiles
   - term: Word Tiles for three

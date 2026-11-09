@@ -1,0 +1,4 @@
+{
+  "summary": "At 320x740 the seven 44px rack tiles plus gaps and rack padding exceeded the 312px rack, so the rack wrapped to two rows and pushed the bottom of the 308px precision board to 758px, below the initial viewport.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/word-tiles-narrow/integration.checks.ts"
+}

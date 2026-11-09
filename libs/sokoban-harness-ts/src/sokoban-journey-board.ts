@@ -44,9 +44,13 @@ export async function observeSokobanJourneyCounts(
   moves: number,
   pushes: number
 ): Promise<void> {
+  // Each count on its own: a phone shows them on two lines, a wide screen on one.
   await device.ui
-    .get('sokoban-counts')
-    .expect.text(`Moves ${moves} · Pushes ${pushes}`, device);
+    .get('sokoban-count-moves')
+    .expect.text(`Moves ${moves}`, device);
+  await device.ui
+    .get('sokoban-count-pushes')
+    .expect.text(`Pushes ${pushes}`, device);
 }
 
 async function solve(device: ContentJourneyDevice): Promise<void> {

@@ -1,0 +1,4 @@
+{
+  "summary": "With the connection needed or the viewer's move waiting for it, the game frame still said it was their move (a deciding seat with own-turn emphasis) and offered Resign and Offer draw, actions that cannot reach the other player. While held, the viewer's seat stops deciding, the status drops own-turn emphasis, and Resign and Offer draw are withheld; a local game that can continue offline is unchanged.",
+  "regressionTest": "libs/game-session-client-ts/tests/frame-connection-turn.test.tsx"
+}

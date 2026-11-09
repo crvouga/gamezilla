@@ -20,29 +20,49 @@ export async function expectQuoridorSpatialArea(canvasElement: HTMLElement) {
     await expect(canvas.getByRole('button', { name })).toHaveTextContent(name);
 }
 
-/** A complete wall remains painted while confirmation is reachable without scrolling. */
-export async function expectQuoridorWallPreview(canvasElement: HTMLElement) {
+/**
+ * A legal proposal is four solid accent edges. A refused one is only its
+ * dashed edges that do not sit on an existing wall, and every committed
+ * wall stays drawn solid, so the cause of the refusal remains visible.
+ */
+// regression: quoridor-refused-wall-hides-its-cause
+export async function expectQuoridorWallPreview(
+  canvasElement: HTMLElement,
+  options: { readonly refused?: boolean } = {}
+) {
   const canvas = within(canvasElement);
+  const view = canvasElement.ownerDocument.defaultView;
+  if (!view) throw new Error('The story requires a browser window');
   await expectQuoridorSpatialArea(canvasElement);
   for (const id of ['wall-commit', 'wall-cancel'])
     await expectQuoridorTargetVisible(
       canvas.getByTestId(`custom-game-board-${id}`)
     );
-  const edges = canvasElement.querySelectorAll(
-    '[data-preview-edge-top="true"], [data-preview-edge-right="true"], [data-preview-edge-bottom="true"], [data-preview-edge-left="true"]'
-  );
-  await expect(edges.length).toBe(4);
-  for (const cell of edges) {
-    const view = cell.ownerDocument.defaultView;
-    if (!view) throw new Error('The story requires a browser window');
-    const edge = ['top', 'right', 'bottom', 'left'].find(
-      (side) => cell.getAttribute(`data-preview-edge-${side}`) === 'true'
+  const sides = ['top', 'right', 'bottom', 'left'] as const;
+  const marked = (kind: 'edge' | 'preview-edge') =>
+    [
+      ...canvasElement.querySelectorAll(
+        '[data-testid^="custom-game-board-action-"]'
+      ),
+    ].flatMap((cell) =>
+      sides
+        .filter((side) => cell.getAttribute(`data-${kind}-${side}`) === 'true')
+        .map((side) => ({ cell, side }))
     );
+  const previews = marked('preview-edge');
+  if (options.refused === true)
+    await expect(previews.length).toBeLessThanOrEqual(4);
+  else await expect(previews.length).toBe(4);
+  for (const { cell, side } of previews) {
     await expect(
-      view.getComputedStyle(cell).getPropertyValue(`border-${edge}-style`)
-    ).toBe('solid');
+      view.getComputedStyle(cell).getPropertyValue(`border-${side}-style`)
+    ).toBe(options.refused === true ? 'dashed' : 'solid');
     await expect(cell.getBoundingClientRect().width).toBeGreaterThanOrEqual(
       view.innerWidth >= 1000 ? 44 : 32
     );
   }
+  for (const { cell, side } of marked('edge'))
+    await expect(
+      view.getComputedStyle(cell).getPropertyValue(`border-${side}-style`)
+    ).toBe('solid');
 }

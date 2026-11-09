@@ -1,0 +1,4 @@
+{
+  "summary": "At 320px the Sokoban counts re-wrapped once a number reached two digits and longer feedback grew the line beside the pad, moving the pad and Undo by 8-16px mid-play. Phone counts now keep two lines and feedback is capped to the pad's height; the solve journey runs at 320px and asserts the pad and Undo keep their position.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/sokoban-overhaul-narrow/integration.checks.ts"
+}

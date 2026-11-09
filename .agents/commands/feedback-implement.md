@@ -76,7 +76,8 @@ entry.
 
 Run focused format, lint, type-check, tests, and specs while iterating. Then run
 `bun verify` and stay with it until the authoritative verdict is green. Commit and
-push through the repository's normal workflow, but never merge.
+push through the repository's normal workflow, and enable auto-merge
+(`gh pr merge --auto --squash`); never merge by hand.
 
 Report the matched feedback id/title, the implemented behavior, regression/spec
 coverage, final commit, and Verify/report links. Mention blockers only when they

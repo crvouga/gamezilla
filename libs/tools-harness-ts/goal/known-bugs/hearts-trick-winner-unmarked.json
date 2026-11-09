@@ -1,0 +1,4 @@
+{
+  "summary": "When a trick was complete nothing on the table marked the winning card or seat; who took it was only in the turn line's text.",
+  "regressionTest": "libs/hearts-client-ts/tests/trick-winner-marked.test.tsx"
+}

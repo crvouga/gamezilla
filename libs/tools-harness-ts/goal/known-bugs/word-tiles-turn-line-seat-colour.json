@@ -1,0 +1,4 @@
+{
+  "summary": "The Word Tiles turn line named seats by colour (\"Amber — to play\") while every score chip shows the player's name, so players had to map colours to people, and the viewer was never told it was their turn.",
+  "regressionTest": "libs/word-tiles-client-ts/tests/word-tiles-turn-line.test.ts"
+}

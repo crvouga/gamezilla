@@ -1,12 +1,13 @@
 import { t } from '@lingui/core/macro';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { For, type JSX } from 'solid-js';
-import type { WordTileBoardProps } from './index';
+import { For, Index, type JSX } from 'solid-js';
+import type { WordTileBoardCell, WordTileBoardProps } from './index';
 import styles from './word-tile-overview.module.css';
 
 /** Nine comfortable region targets preserve board context without placing a tile. */
 export function WordTileRegions(props: {
   board: WordTileBoardProps;
+  cells: readonly WordTileBoardCell[];
   box: { x: number; y: number; width: number; height: number };
   onLocate: (id: string) => void;
 }): JSX.Element {
@@ -21,7 +22,7 @@ export function WordTileRegions(props: {
     const end = `${props.board.columnLabels[right]}${props.board.rowLabels[bottom]}`;
     const center =
       Math.floor((y + bottom) / 2) * columns() + Math.floor((x + right) / 2);
-    return { start, end, id: props.board.cells[center]?.id };
+    return { start, end, id: props.cells[center]?.id };
   };
   return (
     <div>
@@ -36,19 +37,21 @@ export function WordTileRegions(props: {
           aria-label={t`Whole board overview; outline shows the enlarged area`}
           {...dataAttrs({ component: 'WordTileOverview' })}
         >
-          <For each={props.board.cells}>
+          {/* Index keeps one rect per square, so a placement updates two
+              attributes instead of rebuilding all 225 rects. */}
+          <Index each={props.cells}>
             {(cell, index) => (
               <rect
-                x={index() % columns()}
-                y={Math.floor(index() / columns())}
+                x={index % columns()}
+                y={Math.floor(index / columns())}
                 width="1"
                 height="1"
                 class={styles['square']}
-                data-state={cell.state}
-                data-square={cell.square ?? 'none'}
+                data-state={cell().state}
+                data-square={cell().square ?? 'none'}
               />
             )}
-          </For>
+          </Index>
           <rect
             class={styles['window']}
             data-viewport-indicator="true"

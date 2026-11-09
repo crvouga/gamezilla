@@ -71,6 +71,7 @@ import {
 } from '@libs/infra-shared-ts/tofu-command';
 import { requireConfiguredIdentity } from '@libs/product-identity-shared-ts/identity-input';
 import { PRODUCT } from '@libs/product-identity-shared-ts/product-identity';
+import { releaseAbandonedLock } from './abandoned-lock';
 import { resolveAwsSession } from './aws-session';
 import {
   dropLocalBackend,
@@ -82,7 +83,7 @@ import { retireArchivedGrafana } from './grafana-retirement';
 import { resolveInfisicalToken } from './infisical-token';
 import { infraOperation } from './infra-operation';
 import { backupState } from './state-backup';
-import { conftest, fail, spawnTool, tofu } from './tofu-process';
+import { conftest, fail, spawnTool, tofuInit } from './tofu-process';
 import { writeResolvedVarFiles } from './tofu-var-files';
 
 type Command = 'plan' | 'apply' | 'drift' | 'destroy';
@@ -204,7 +205,7 @@ async function planTarget(
   env: Record<string, string>,
   cli: Cli
 ): Promise<number> {
-  if (tofu(initArgs(PATHS, target), env) !== 0)
+  if ((await tofuInit(initArgs(PATHS, target), env)) !== 0)
     fail(`${target.stack}: tofu init failed`);
   const lock = planOptionsFor(cli);
   const args =
@@ -298,6 +299,8 @@ async function runOnce(
   const env = await toolEnvironment(target, cli);
   const label = `${target.stack}/${target.env ?? cli.env ?? 'global'}`;
   const teardown = teardownOf(target, cli);
+  if (planOptionsFor(cli).lock && !firstRun)
+    await releaseAbandonedLock({ paths: PATHS, target, env, now: new Date() });
   if (target.stack === 'foundation' && command !== 'destroy') {
     const previewed = await retireArchivedGrafana({
       paths: PATHS,

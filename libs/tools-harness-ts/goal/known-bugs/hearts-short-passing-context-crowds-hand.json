@@ -1,0 +1,4 @@
+{
+  "summary": "At 320x568 the initial player table consumes 254px above the hand, pushing the complete deal and passing action below the viewport.",
+  "regressionTest": "libs/hearts-client-ts/tests/short-passing-table.test.tsx"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "Hearts passing said only \"Pass left\" and \"Passing to the left\", never who gets the cards; on the phone seat grid \"left\" has no place, so the person could not tell where their pass goes.",
+  "regressionTest": "libs/hearts-client-ts/tests/pass-recipient-named.test.tsx"
+}

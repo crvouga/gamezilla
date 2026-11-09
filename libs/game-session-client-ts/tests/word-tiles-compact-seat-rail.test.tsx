@@ -129,3 +129,12 @@ test('all Word Tiles table sizes identify the seated viewer once beside every sc
     cleanup();
   }
 });
+
+// regression: word-tiles-active-own-chip-badge-contrast
+test('the active own chip fills its You badge so it stays legible on the turn tint', () => {
+  mount(2, 'white');
+  const badge = within(screen.getByTestId('custom-game-seat-near'))
+    .getByText('You')
+    .closest('[data-component="Badge"]');
+  expect(badge?.getAttribute('data-tone')).toBe('solid');
+});

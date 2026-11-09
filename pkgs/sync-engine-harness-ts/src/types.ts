@@ -105,6 +105,8 @@ export type BootedHarnessKernel = {
   /** Per-device auth token status for expired/revoked scenarios. */
   readonly authStatusByDevice: Map<string, HarnessAuthStatus>;
   readonly storagePressure: import('./storage-pressure').StoragePressureController;
+  /** Kills tracked clients at numbered durable boundaries of their local storage. */
+  readonly durableCrashPoints: import('./durable-crash-points').DurableCrashPointController;
   /** Tab-freeze: sync traffic held while foreground stays true. */
   readonly frozenClients: Set<string>;
   readonly failNextOpenClients: Set<string>;

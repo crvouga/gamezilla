@@ -1,0 +1,4 @@
+{
+  "summary": "After solving a Sokoban pack puzzle on a phone, the only visible way on was an outline button that looked like Undo and Restart, and at 320px it was cut off; reviewers could not find the next step. The solved attempt now offers the pack's next puzzle as the filled action beside its commands, wholly on screen at every width, and the journey asserts it.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/sokoban-overhaul-narrow/integration.checks.ts"
+}

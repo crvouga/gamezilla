@@ -1,0 +1,4 @@
+{
+  "summary": "When a game ended, the player whose fleet was sunk read \"Red fleet destroyed — all five ships sunk.\" over their own fleet, as a watcher would. The end line now speaks to whoever reads it: the winner sank the whole rival fleet, the loser's own fleet is sunk, and only a watcher reads which fleet was destroyed.",
+  "regressionTest": "libs/battleship-client-ts/tests/end-line.test.tsx"
+}

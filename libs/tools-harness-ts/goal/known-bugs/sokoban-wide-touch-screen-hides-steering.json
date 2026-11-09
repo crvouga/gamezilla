@@ -1,0 +1,4 @@
+{
+  "summary": "Wide touch screens lost the directional pad because screen width was treated as proof of a hardware keyboard.",
+  "regressionTest": "libs/sokoban-harness-ts/tests/sokoban-input.contract.test.tsx"
+}

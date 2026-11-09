@@ -1,0 +1,9 @@
+/* Opt-in (`GameBoardStage`'s `align="start"`): when everything stacks in one
+   column, a board narrower than the column starts at its edge, under the
+   game's title, instead of sitting in its middle. Kept apart from
+   game-ui.module.css, which is at its size limit. */
+@container game-column (max-width: 879px) {
+  .start {
+    align-self: flex-start;
+  }
+}

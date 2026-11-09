@@ -1,0 +1,4 @@
+{
+  "summary": "Read-only targeting waters instructed spectators and finished-game viewers to aim, although firing was unavailable.",
+  "regressionTest": "libs/battleship-client-ts/tests/shot-feedback.test.tsx"
+}

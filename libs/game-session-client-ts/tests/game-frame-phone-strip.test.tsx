@@ -362,3 +362,58 @@ test('completed game keeps the resignation reason in its completion header', () 
   expect(status.textContent).toContain('Black wins by resignation.');
   expect(screen.getByTestId('custom-game-outcome').contains(status)).toBe(true);
 });
+
+// regression: phone-strip-first-move-reflow — before the first move the
+// game's line sat beside "No moves yet." in one row; the first move moved it
+// above the strip, so the card grew and the board under it dropped.
+test('phone: the strip keeps one arrangement before and after the first move', () => {
+  for (const moves of [[], RECORD.moves]) {
+    const time = createHarnessClock();
+    const view = renderWithI18n(() => (
+      <ClockProvider clock={time.clock} timers={time.timers}>
+        <ThemeProvider
+          colorScheme="light"
+          fixedLayout={{ width: 390, height: 844 }}
+        >
+          <GameFrameScreenView
+            {...props(false)}
+            record={{ ...RECORD, moves, displayedPly: moves.length }}
+          />
+        </ThemeProvider>
+      </ClockProvider>
+    ));
+    const caption = screen.getByTestId('custom-game-record-caption');
+    const head = screen.getByTestId('custom-game-move-strip-head');
+    expect(head.contains(caption)).toBe(false);
+    expect(
+      caption.compareDocumentPosition(head) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+    view.unmount();
+  }
+});
+
+const sending = (plainTurn: boolean): Partial<GameFrameScreenViewProps> => ({
+  status: { ...props(plainTurn).status!, sending: true },
+});
+
+// regression: frame-sending-chip-shifts-layout — while the viewer's choice
+// was sent the strip dropped the game's line for a bare "Live" and a second
+// "Sending choice…" pill appeared under the board, pushing the own seat down.
+// The strip's caption says it in the line's own place; the pill stays for a
+// listener only.
+test('phone: a choice being sent is said in the strip, with no second row', () => {
+  mount(390, false, sending(false));
+  expect(screen.getByTestId('custom-game-record-caption').textContent).toBe(
+    'Sending choice…'
+  );
+  expect(screen.queryByTestId('custom-game-move-strip-place')).toBeNull();
+  const status = screen.getByTestId('custom-game-status');
+  expect(status.closest('[data-spoken-only="true"]')).not.toBeNull();
+});
+
+test('phone: with no line of its own a sent choice still shows by the board', () => {
+  mount(390, true, sending(true));
+  const status = screen.getByTestId('custom-game-status');
+  expect(status).toHaveTextContent('Sending choice…');
+  expect(status.closest('[data-spoken-only="true"]')).toBeNull();
+});

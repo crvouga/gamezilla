@@ -1,0 +1,4 @@
+{
+  "summary": "A touch held across a connection interruption retained its old swipe origin and sent an unintended turn when steering resumed.",
+  "regressionTest": "libs/light-cycles-client-ts/tests/light-cycles-swipe-recovery.test.tsx"
+}

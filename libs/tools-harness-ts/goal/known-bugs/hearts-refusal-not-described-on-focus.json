@@ -1,0 +1,4 @@
+{
+  "summary": "A refused four of diamonds has no accessible description explaining why it cannot follow the two of clubs on focus.",
+  "regressionTest": "libs/hearts-client-ts/tests/card-description.test.tsx"
+}

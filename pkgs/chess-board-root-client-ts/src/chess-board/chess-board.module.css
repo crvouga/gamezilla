@@ -310,10 +310,14 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Two tones: the app's ring outside, and inside it a band in the plain ink
+   that clears 3:1 on both squares (the app ring alone measured about 1.5:1
+   on walnut in the dark theme). */
 .square:focus-visible {
   outline: 3px solid var(--ui-color-focus-ring);
   outline-offset: -3px;
   border-radius: 2px;
+  box-shadow: inset 0 0 0 5px var(--chess-focus-band);
 }
 
 /* -- cursors (CSS only: one host attribute per move, not 64 classes) ------ */
@@ -395,4 +399,30 @@
   overflow: hidden;
   clip: rect(0 0 0 0);
   white-space: nowrap;
+}
+
+/* A short landscape window (a phone on its side): the guidance keeps to
+   two lines and open keyboard help floats above its summary over the
+   board, so the board column never grows past the window. */
+@media (orientation: landscape) and (max-height: 560px) {
+  /* The tap hint would wrap the guidance to a third line and push the board
+     column past the window; the side, check and keyboard help remain. */
+  .guidanceRow > :first-child {
+    display: none;
+  }
+  .keyboardHelp {
+    position: relative;
+  }
+  .keyboardHelp[open] > :last-child {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    z-index: 1;
+    width: max-content;
+    max-width: 280px;
+    padding: var(--ui-space-2) var(--ui-space-3);
+    border: 1px solid var(--ui-color-border);
+    border-radius: var(--ui-radius-sm);
+    background: var(--ui-color-surface);
+  }
 }

@@ -219,9 +219,6 @@
     "storybook:test": {
       "cache": false
     },
-    "storybook:publish": {
-      "cache": false
-    },
     "tc": {
       "dependsOn": ["^src"],
       "inputs": [
@@ -1209,7 +1206,6 @@
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/.agents/**",
         "$TURBO_ROOT$/.claude/commands",
-        "$TURBO_ROOT$/.cursor/commands",
         "$TURBO_ROOT$/.opencode/commands",
         "$TURBO_ROOT$/.factory/**",
         "$TURBO_ROOT$/.roo/**",
@@ -1227,7 +1223,6 @@
         "$TURBO_ROOT$/.windsurf/workflows/**",
         "$TURBO_ROOT$/.mcp.json",
         "$TURBO_ROOT$/.codex/config.toml",
-        "$TURBO_ROOT$/.cursor/mcp.json",
         "$TURBO_ROOT$/.gemini/settings.json",
         "$TURBO_ROOT$/.vscode/mcp.json",
         "$TURBO_ROOT$/opencode.json",
@@ -1599,7 +1594,7 @@
         "@libs/billing-server-ts#billing:sync",
         "@apps/synthetic-population-worker-ts#deploy"
       ],
-      "outputLogs": "errors-only"
+      "outputLogs": "full"
     },
     "//#deploy": {
       "cache": false,
@@ -3113,10 +3108,6 @@
     },
     "//#task:verify:coverage": {
       "dependsOn": ["@pkgs/ui-root-harness-ts#storybook:build"],
-      "cache": false,
-      "passThroughEnv": ["*"]
-    },
-    "//#task:verify:heal": {
       "cache": false,
       "passThroughEnv": ["*"]
     },

@@ -1,5 +1,16 @@
 import { expect, within } from 'storybook/test';
 
+/** A short name for a failure message: test id, accessible name or tag. */
+function describe(element: Element | null): string {
+  if (element === null) return 'nothing';
+  const html = element as HTMLElement;
+  return (
+    html.dataset['testid'] ??
+    html.getAttribute('aria-label') ??
+    `${element.tagName.toLowerCase()} "${element.textContent.trim().slice(0, 24)}"`
+  );
+}
+
 /** Full box visibility, including corner hit testing; toBeVisible alone misses sticky overlap. */
 export async function assertClear(
   element: HTMLElement,
@@ -19,7 +30,10 @@ export async function assertClear(
   for (const x of [rect.left + 2, rect.right - 2]) {
     for (const y of [rect.top + 2, rect.bottom - 2]) {
       const hit = doc.elementFromPoint(x, y);
-      await expect(hit === element || element.contains(hit)).toBe(true);
+      await expect(
+        hit === element || element.contains(hit),
+        `corner ${Math.round(x)},${Math.round(y)} of ${describe(element)} is covered by ${describe(hit)}`
+      ).toBe(true);
     }
   }
 }
@@ -43,9 +57,8 @@ export async function checkCatStatusGeometry(
 ): Promise<void> {
   // regression: word-tiles-cat-status-clipping
   const status = within(canvasElement).getByTestId('custom-game-board-status');
-  await expect(status).toHaveTextContent('Scores 10 points.');
   await expect(status).toHaveTextContent(
-    'the game checks the words when you play'
+    'CAT 5 × 2 = 10 points · checked when you play'
   );
   // First prove text fits its own box, even if placement has scrolled the document.
   await expect(status.scrollWidth).toBeLessThanOrEqual(status.clientWidth);
@@ -63,7 +76,7 @@ export async function checkInitialWordWorkspace(
   // regression: word-tiles-phone-action-overload
   const canvas = within(canvasElement);
   const primary = canvas.getByTestId('custom-game-board-submit');
-  const more = canvas.getByRole('button', { name: 'Pass, exchange & tools' });
+  const more = canvas.getByRole('button', { name: 'More actions' });
   await expect(more).toHaveAttribute('aria-expanded', 'false');
   await expect(
     canvas.queryByTestId('custom-game-board-recall')

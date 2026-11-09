@@ -1,0 +1,4 @@
+{
+  "summary": "Two players on one device were labelled 'Left player' and 'Right player' on Pong's scoreboard while the Players card named them.",
+  "regressionTest": "libs/pong-client-ts/tests/pong-court-guidance.test.tsx"
+}

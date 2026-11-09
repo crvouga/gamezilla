@@ -132,6 +132,27 @@ test('every scheduled shard must pass; only an empty plan permits its unexpanded
   ).not.toEqual([]);
 });
 
+test('an empty plan permits the skipped shard job under its unevaluated template name', () => {
+  const template = {
+    ...START,
+    name: 'verify:shards (${{ strategy.job-index }})',
+    conclusion: 'skipped',
+  };
+  expect(
+    requiredPrCheckFailures(REQUIRED, [...PASSED, template], true)
+  ).toEqual([]);
+  expect(
+    requiredPrCheckFailures(REQUIRED, [...PASSED, template], false)
+  ).not.toEqual([]);
+  expect(
+    requiredPrCheckFailures(
+      REQUIRED,
+      [...PASSED, { ...template, conclusion: 'failure' }],
+      true
+    )
+  ).not.toEqual([]);
+});
+
 test('no non-success conclusion can satisfy a declared integration', () => {
   assertProperty(
     'every declared non-success outcome blocks merging',

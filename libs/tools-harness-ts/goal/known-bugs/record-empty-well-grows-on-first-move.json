@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone, Connect Four's empty record well ('No moves yet.') was one line while its first turn wrapped to two, so the record card grew 54 to 86px and the board moved down when the first move landed. A game can now give a sample first turn; the empty well keeps that turn's room under an unseen, inert copy.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/record-first-move-steady/integration.checks.ts"
+}

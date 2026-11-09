@@ -5,7 +5,10 @@ import { join } from 'node:path';
 import { monotonicClock, wallTimers } from '@pkgs/clock-shared-ts/wall';
 import { awaitRequiredPrChecks } from './pr-check-readiness';
 import { readPrCheckSnapshot } from './pr-check-source';
-import type { RequiredPrCheck } from './required-pr-checks';
+import {
+  type RequiredPrCheck,
+  unavailableScannerWarnings,
+} from './required-pr-checks';
 
 async function main(): Promise<void> {
   const repository = process.env['GITHUB_REPOSITORY'];
@@ -35,9 +38,13 @@ async function main(): Promise<void> {
     clock: monotonicClock,
     timers: wallTimers,
     // Bounded external-producer coordination within the existing job deadline.
-    timeoutMs: 300_000,
-    intervalMs: 10_000,
+    // Every concurrent PR polls through one token's hourly API budget, so the
+    // wait is long and the polling sparse.
+    timeoutMs: 900_000,
+    intervalMs: 30_000,
   });
+  for (const warning of unavailableScannerWarnings(required, checks))
+    console.log(`::warning::${warning}`);
   console.log(
     `Every discovered PR check passed and is mandatory (${checks.length} check results)`
   );
