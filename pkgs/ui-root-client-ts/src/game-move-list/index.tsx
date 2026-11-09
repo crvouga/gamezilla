@@ -59,6 +59,18 @@ export type GameMoveListProps = {
    * with `overflow="wrap"`.
    */
   wrap?: boolean | undefined;
+  /**
+   * `turn` only, with no moves yet: `label` (`No moves yet.`) shown over an
+   * unseen, inert first turn of `sample` moves, so a wrapping strip already
+   * has the height its first turn will take and nothing under it moves when
+   * the first move lands.
+   */
+  emptyTurn?:
+    | {
+        readonly sample: readonly GameMoveListEntry[];
+        readonly label: JSX.Element;
+      }
+    | undefined;
   dataSet?: ComponentDataSet | undefined;
 };
 
@@ -143,6 +155,43 @@ function MoveButton(props: {
  * ```
  */
 export function GameMoveList(props: GameMoveListProps): JSX.Element {
+  const empty = () =>
+    props.layout === 'turn' && props.moves.length === 0
+      ? props.emptyTurn
+      : undefined;
+  return (
+    <Show when={empty()} fallback={<TurnList {...props} />}>
+      {(turn) => (
+        <div
+          class={styles['empty']}
+          {...dataAttrs({ component: 'GameMoveList', ...props.dataSet })}
+        >
+          <span class={styles['emptyLabel']}>{turn().label}</span>
+          <span
+            class={styles['emptyReserve']}
+            aria-hidden="true"
+            inert
+            data-testid="game-move-list-empty-reserve"
+          >
+            <TurnList
+              {...props}
+              moves={turn().sample.map((move) => ({
+                ...move,
+                testId: undefined,
+              }))}
+              current={turn().sample.at(-1)?.ply ?? 0}
+              onSelect={() => undefined}
+              dataSet={undefined}
+            />
+          </span>
+        </div>
+      )}
+    </Show>
+  );
+}
+
+/** The listed turns themselves. */
+function TurnList(props: GameMoveListProps): JSX.Element {
   const turns = createMemo(() => {
     const all = turnsOf(props.moves, props.perTurn);
     if (props.layout === 'table') return all;

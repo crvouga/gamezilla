@@ -239,6 +239,7 @@ function RecordMoves(
       heading={props.record.moveHeading || undefined}
       turnLabel={turnWords}
       wrap
+      emptyTurn={props.layout === 'turn' ? emptyTurn(props.record) : undefined}
     />
   );
 }
@@ -567,7 +568,10 @@ function RecordStrip(props: RecordProps): JSX.Element {
         <Surface tone="muted" radius="control" grow>
           <MoveStrip testId="custom-game-move-strip" overflow="wrap">
             <Show
-              when={props.record.moves.length > 0}
+              when={
+                props.record.moves.length > 0 ||
+                emptyTurn(props.record) !== undefined
+              }
               fallback={
                 <StackHorizontal paddingX="md">
                   <P variant="caption" tone="secondary">
@@ -687,4 +691,28 @@ export function FrameReviewingView(
       )}
     </Show>
   );
+}
+
+/**
+ * Before the first move, the game's sample first turn under `No moves yet.`,
+ * unseen, so the phone strip keeps the height that turn will take.
+ */
+function emptyTurn(
+  record: FrameRecord
+): { sample: GameMoveListEntry[]; label: JSX.Element } | undefined {
+  const sample = record.firstTurnSample;
+  if (sample === undefined || sample.length === 0) return undefined;
+  return {
+    sample: sample.map((move, index) => ({
+      ply: index + 1,
+      label: move.label,
+      swatch: move.swatch,
+      accessibleName: move.label,
+    })),
+    label: (
+      <P variant="caption" tone="secondary">
+        <Trans>No moves yet.</Trans>
+      </P>
+    ),
+  };
 }
