@@ -62,20 +62,18 @@ Each item was tested against the live API on 2026-11-09 with a ruleset created
 - **Organization settings and organization rulesets.** Not applicable to a
   personal account.
 
-## Pending: GitHub Apps
+## No GitHub Apps (decided)
 
-Neither app exists yet. OpenTofu still authenticates with `GITHUB_ADMIN_TOKEN`
-(Infisical, `shared` environment), and agents push as the maintainer. Registering
-a GitHub App is not something the provider can do. When the maintainer creates them:
+The repository follows a zero-manual-configuration policy. Registering and
+installing a GitHub App needs clicks in GitHub's UI (neither the provider nor
+the API can create one), so there are none. OpenTofu keeps authenticating with
+`GITHUB_ADMIN_TOKEN` (Infisical, `shared` environment), and agents push as the
+maintainer. Consequences:
 
-1. **Infra app**: Administration, Contents, Environments, Actions, Issues
-   (labels) read/write on this repository. Store `GITHUB_APP_ID`,
-   `GITHUB_APP_INSTALLATION_ID` and `GITHUB_APP_PEM_FILE` in Infisical `shared`,
-   switch `provider "github"` in `stacks/bootstrap/terraform.tf` to `app_auth {}`,
-   and delete `GITHUB_ADMIN_TOKEN`.
-2. **Agent app**: Contents and Pull requests read/write. Agents push and open
-   PRs as `<app>[bot]`; then add a PR Hygiene step that labels its PRs
-   `agent-generated`. It is never a bypass actor.
+- No `app_auth` provider block; the token is the one credential.
+- Agent PRs cannot be told apart by author, so PR Hygiene does not apply
+  `agent-generated` automatically; the label exists for agents to add.
+- No app is ever a bypass actor; the admin role is the only one.
 
 ## Deliberate departures from the requested spec
 
@@ -100,7 +98,7 @@ a GitHub App is not something the provider can do. When the maintainer creates t
 
 ## Verify after apply
 
-Run as the maintainer until the agent app exists:
+Run as the maintainer:
 
 1. `gh api repos/{owner}/{repo}/rulesets` lists `main` and `release-tags`;
    `gh api repos/{owner}/{repo} -q '{allow_squash_merge,allow_merge_commit}'`
