@@ -105,11 +105,6 @@
       "outputs": [],
       "env": ["BUN_CHROME_PATH"],
       "passThroughEnv": ["STORYBOOK_TEST_PORT"]
-    },
-    "storybook:publish": {
-      "dependsOn": ["storybook:build"],
-      "cache": false,
-      "passThroughEnv": ["CHROMATIC_*", "GITHUB_*", "CI"]
     }
   }
 }
