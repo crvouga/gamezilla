@@ -1594,7 +1594,7 @@
         "@libs/billing-server-ts#billing:sync",
         "@apps/synthetic-population-worker-ts#deploy"
       ],
-      "outputLogs": "errors-only"
+      "outputLogs": "full"
     },
     "//#deploy": {
       "cache": false,
