@@ -1,0 +1,4 @@
+{
+  "summary": "Connect Four's red seat chip (player strips, game record) drew its mark in the board's navy canvas ink, about 2.1:1 (light) and 2.6:1 (dark) on the red disc paint, below 3:1 and unlike the board's red disc. Red's chip mark now uses the board's light ink (5.1:1); yellow keeps the canvas ink.",
+  "regressionTest": "pkgs/ui-root-client-ts/tests/game-seat-disc-mark.test.tsx"
+}
