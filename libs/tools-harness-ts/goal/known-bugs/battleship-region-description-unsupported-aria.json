@@ -1,0 +1,4 @@
+{
+  "summary": "Battle region buttons used aria-description, which fails the accessibility lint gate and is unavailable to the supported accessible-description query. Link each region to its public outcome text with aria-describedby.",
+  "regressionTest": "libs/battleship-client-ts/tests/region-outcomes.test.tsx"
+}

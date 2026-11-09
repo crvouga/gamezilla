@@ -1,0 +1,4 @@
+{
+  "summary": "The Fire action became disabled during submission but kept its idle label and did not expose a busy state.",
+  "regressionTest": "libs/battleship-client-ts/tests/shot-feedback.test.tsx"
+}

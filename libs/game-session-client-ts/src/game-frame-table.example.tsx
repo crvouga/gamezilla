@@ -102,6 +102,12 @@ export type GameTableStory = {
    * Defaults to `true`.
    */
   readonly seatedMoves?: boolean;
+  /**
+   * The viewer's own choice is being sent, as the app's frame shows it while
+   * `model.submitting()`: the line says so and the viewer's seat stops
+   * deciding. Defaults to `false`.
+   */
+  readonly sending?: boolean;
   /** A timed game: the agreed control and each seat's clock as it reads now. */
   readonly timed?:
     | {
@@ -156,7 +162,10 @@ function playSeat(props: TableProps, side: GameSide): FramePlaySeat {
     committed: props.board.committed.includes(side),
     choosing: false,
     facts: seats.facts(position, side, props.board.committed),
-    deciding: props.ending === undefined && side === props.turn,
+    deciding:
+      props.ending === undefined &&
+      side === props.turn &&
+      !(props.sending === true && side === viewerOf(props)),
     reclaim: false,
   };
 }
@@ -186,9 +195,12 @@ function tableStatus(props: TableProps): FrameStatus {
       .join(' '),
     description,
     plainTurn: ending === undefined && own === null && turn !== null,
-    emphasis: ending === undefined && turn === viewer ? 'yours' : 'neutral',
+    emphasis:
+      ending === undefined && turn === viewer && props.sending !== true
+        ? 'yours'
+        : 'neutral',
     tone: 'neutral',
-    sending: props.connection === 'waiting',
+    sending: props.sending === true || props.connection === 'waiting',
     minutes: props.timed?.minutes ?? 0,
     increment: props.timed?.increment ?? 0,
   };

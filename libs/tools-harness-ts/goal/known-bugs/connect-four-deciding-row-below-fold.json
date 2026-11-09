@@ -1,0 +1,4 @@
+{
+  "summary": "At 320x844 a finished Connect Four game's result banner pushed the board down so the deciding row sat below the fold. When the game is over the board now scrolls, minimally, fully into view.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/connect-four/layout-320/integration.checks.ts"
+}

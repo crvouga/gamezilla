@@ -1,0 +1,4 @@
+{
+  "summary": "A disabled Remove sat beside Rotate on an empty setup board and while an unplaced ship was chosen, offering an action with nothing to act on. Remove now appears only for a placed ship.",
+  "regressionTest": "libs/battleship-client-ts/tests/setup-polish.test.tsx"
+}
