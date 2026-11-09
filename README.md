@@ -3,7 +3,7 @@
 Source protection, artifact evidence, and repository rename procedures:
 [SOURCE_PROTECTION.md](docs/SOURCE_PROTECTION.md).
 
-[Latest Storybook on main](https://main--6aea25769c1aa1557bf4af0c.chromatic.com/) · [Storybook development and publishing](pkgs/ui-root-harness-ts/README.md)
+Latest Storybook on main: `https://storybook.<domain>/` · [Storybook development and publishing](pkgs/ui-root-harness-ts/README.md)
 
 > **Source available, not open source.** Copyright © 2026 Chris Vouga. All
 > rights reserved. This repository is public so its source can be read; that
