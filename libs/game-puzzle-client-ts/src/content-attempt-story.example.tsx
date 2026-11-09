@@ -13,6 +13,7 @@ import {
   type ContentAttemptPack,
   ContentAttemptScreenView,
 } from './content-attempt-screen-view';
+import type { PuzzleContentFrame } from './puzzle-content-client';
 
 /** The puzzle a story plays, as its pack publishes it. */
 export type StoryPackPuzzle = {
@@ -88,12 +89,14 @@ export function StoryPackAttempt(props: {
   readonly stageAlign?: 'start' | 'center' | undefined;
   /** A completion is already saved, as the production screen reads it. */
   readonly solvedBefore?: boolean | undefined;
+  readonly figuresPlacement?: PuzzleContentFrame['figuresPlacement'];
 }): JSX.Element {
   return (
     <ContentAttemptScreenView
       status="ready"
       figures={props.figures}
       stageAlign={props.stageAlign}
+      figuresPlacement={props.figuresPlacement}
       attempt={{
         id: 'a77e0000-0000-4000-8000-0000000000b1',
         sourceId: '7c1e0a00-0000-4000-8000-0000000000b1',
