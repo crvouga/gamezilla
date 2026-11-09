@@ -23,6 +23,7 @@ test('every region describes its shot outcomes without first changing the workin
       label="Targeting"
       testId="outcomes"
       cells={cells()}
+      inspect={false}
       onAim={() => {}}
     />
   ));

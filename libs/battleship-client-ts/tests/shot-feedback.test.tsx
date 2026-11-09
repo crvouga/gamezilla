@@ -65,15 +65,14 @@ test('a spectator inspects Red waters without being told to aim or fire', () => 
     />
   ));
   fireEvent.click(byTestId('watch-view-target'));
-  fireEvent.click(byTestId('watch-area-9'));
-  expect(byTestId('watch-target-tools').textContent).toContain(
-    'Inspect cells: F9–J10'
+  // A watcher reads the whole board, as the other waters are read.
+  expect(document.querySelector('[data-testid="watch-area-9"]')).toBeNull();
+  expect(document.body.textContent).toContain('Shots so far');
+  expect(document.body.textContent).not.toMatch(/Choose a (cell|region)/);
+  expect(byTestId('watch-target-f10').getAttribute('aria-label')).toContain(
+    'hit'
   );
-  expect(byTestId('watch-aim-grid').getAttribute('aria-label')).toBe(
-    'Shot details'
-  );
-  expect(byTestId('watch-aim-f10').getAttribute('aria-label')).toContain('hit');
-  fireEvent.click(byTestId('watch-aim-f10'));
+  fireEvent.click(byTestId('watch-target-f10'));
   expect(actions).toEqual([]);
   expect(document.querySelector('[data-testid="watch-fire"]')).toBeNull();
 });

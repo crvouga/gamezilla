@@ -66,8 +66,11 @@ test('a viewer who cannot act, with no shot pending, still inspects', () => {
     />
   ));
   fireEvent.click(byTestId('waiting-view-target'));
-  expect(byTestId('waiting-target-tools').textContent).toContain(
-    'Inspect cells'
-  );
+  // Inspecting is the whole board, never the aiming workbench.
+  expect(document.querySelector('[data-testid="waiting-area-0"]')).toBeNull();
+  expect(
+    byTestId('waiting-target-grid').querySelectorAll('[data-cell]')
+  ).toHaveLength(100);
+  expect(document.body.textContent).toContain('Shots so far');
   expect(document.querySelector('[data-testid="waiting-fire"]')).toBeNull();
 });

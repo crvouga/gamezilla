@@ -89,3 +89,20 @@ export function BattleshipTargetLayout(props: {
     </div>
   );
 }
+
+/**
+ * One row over a whole board: its instruction first, then whatever reads
+ * the board (its key), wrapping under it where the row is narrow.
+ */
+export function BattleshipTargetHeader(props: {
+  children: JSX.Element;
+}): JSX.Element {
+  return (
+    <div
+      class={styles['header']}
+      {...dataAttrs({ component: 'BattleshipTargetHeader' })}
+    >
+      {props.children}
+    </div>
+  );
+}

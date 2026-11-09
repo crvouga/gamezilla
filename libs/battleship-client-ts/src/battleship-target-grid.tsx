@@ -1,6 +1,7 @@
 import { t } from '@lingui/core/macro';
 import {
   BattleshipRegionOverview,
+  BattleshipTargetHeader,
   BattleshipTargetLayout,
 } from '@pkgs/ui-root-client-ts/battleship-target-layout';
 import {
@@ -9,6 +10,7 @@ import {
 } from '@pkgs/ui-root-client-ts/cell-grid-board';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
+import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { createMemo, createSignal, type JSX, Show } from 'solid-js';
 import { COLUMN_LABELS, ROW_LABELS } from './battleship-copy';
 
@@ -26,7 +28,73 @@ function regionDescriptions(cells: readonly CellGridCell[]): readonly string[] {
   );
 }
 
-/** The full field stays visible while ten coarse regions offer precise two-row aiming. */
+/** The ten regions, two rows of five columns each, named by their corners. */
+const REGIONS = Array.from(
+  { length: 10 },
+  (_, n) =>
+    `${n % 2 === 0 ? 'A' : 'F'}${Math.floor(n / 2) * 2 + 1}–${n % 2 === 0 ? 'E' : 'J'}${Math.floor(n / 2) * 2 + 2}`
+);
+
+/** The open region's columns, rows and cells, read from the board once per change. */
+function createRegionCells(
+  all: () => readonly CellGridCell[],
+  area: () => number
+) {
+  const columns = createMemo(() =>
+    COLUMN_LABELS.slice((area() % 2) * 5, (area() % 2) * 5 + 5)
+  );
+  const rows = createMemo(() =>
+    ROW_LABELS.slice(Math.floor(area() / 2) * 2, Math.floor(area() / 2) * 2 + 2)
+  );
+  const cells = createMemo(() =>
+    all().filter(
+      (cell) =>
+        columns().includes(cell.id[0]?.toUpperCase() ?? '') &&
+        rows().includes(cell.id.slice(1))
+    )
+  );
+  return { columns, rows, cells };
+}
+
+/**
+ * The rival's waters as one board: aimed at directly where cells are large
+ * (a wide screen), and looked at the same way by anyone who only inspects.
+ */
+function WholeWaters(props: {
+  label: string;
+  testId: string;
+  cells: readonly CellGridCell[];
+  aim: boolean;
+  onAim: (cell: string) => void;
+  legend?: JSX.Element;
+}): JSX.Element {
+  return (
+    <StackVertical gap="xs" width="full">
+      <BattleshipTargetHeader>
+        <P variant="caption">
+          {props.aim ? t`Choose a cell` : t`Shots so far`}
+        </P>
+        {props.legend}
+      </BattleshipTargetHeader>
+      <CellGridBoard
+        fill
+        label={props.label}
+        testId={`${props.testId}-target-grid`}
+        cellTestId={(cell) => `${props.testId}-target-${cell}`}
+        columnLabels={COLUMN_LABELS}
+        rowLabels={ROW_LABELS}
+        cells={props.cells}
+        onActivate={props.aim ? props.onAim : undefined}
+      />
+    </StackVertical>
+  );
+}
+
+/**
+ * The rival's waters. A wide screen aims at the whole board directly; a
+ * phone or tablet keeps the whole field in view while ten coarse regions
+ * offer precise two-row aiming. Inspecting, at any size, is the whole board.
+ */
 export function BattleshipTargetGrid(props: {
   label: string;
   testId: string;
@@ -50,81 +118,73 @@ export function BattleshipTargetGrid(props: {
       ? props.cells.some((cell) => cell.enabled)
       : !props.inspect
   );
-  const columns = createMemo(() =>
-    COLUMN_LABELS.slice((area() % 2) * 5, (area() % 2) * 5 + 5)
-  );
-  const rows = createMemo(() =>
-    ROW_LABELS.slice(Math.floor(area() / 2) * 2, Math.floor(area() / 2) * 2 + 2)
-  );
-  const cells = createMemo(() =>
-    props.cells.filter(
-      (cell) =>
-        columns().includes(cell.id[0]?.toUpperCase() ?? '') &&
-        rows().includes(cell.id.slice(1))
-    )
-  );
-  const regions = Array.from(
-    { length: 10 },
-    (_, n) =>
-      `${n % 2 === 0 ? 'A' : 'F'}${Math.floor(n / 2) * 2 + 1}–${n % 2 === 0 ? 'E' : 'J'}${Math.floor(n / 2) * 2 + 2}`
-  );
+  const { columns, rows, cells } = createRegionCells(() => props.cells, area);
+  const mode = useLayoutMode();
+  const workbench = () => mode() !== 'wide' && canAim();
+  const regions = REGIONS;
   return (
     <StackVertical gap="xs" width="full">
-      <BattleshipTargetLayout
-        header={
-          <>
-            <P variant="caption">{t`Choose a region`}</P>
-            {props.legend}
-          </>
-        }
-        overview={
-          <BattleshipRegionOverview
-            region={area()}
-            regions={regions}
-            descriptions={descriptions()}
-            onRegion={setArea}
+      <Show
+        when={workbench()}
+        fallback={
+          <WholeWaters
+            label={props.label}
             testId={props.testId}
-            label={
-              canAim()
-                ? t`Choose a target region`
-                : t`Choose a region to inspect`
-            }
-            overview={
-              <CellGridBoard
-                fill
-                label={props.label}
-                testId={`${props.testId}-target-grid`}
-                cellTestId={(cell) => `${props.testId}-target-${cell}`}
-                columnLabels={COLUMN_LABELS}
-                rowLabels={ROW_LABELS}
-                cells={props.cells}
-              />
-            }
+            cells={props.cells}
+            aim={canAim()}
+            onAim={props.onAim}
+            legend={props.legend}
           />
         }
-        controls={
-          <StackVertical gap="xs" testId={`${props.testId}-target-tools`}>
-            {/* While aiming, Fire under the cells carries the instruction. */}
-            <Show when={!canAim()}>
-              <P variant="label">{t`Inspect cells: ${regions[area()]}`}</P>
-            </Show>
-          </StackVertical>
-        }
-        working={
-          <StackVertical gap="xs" align="center" width="full">
-            <CellGridBoard
-              label={canAim() ? t`Precise aim` : t`Shot details`}
-              testId={`${props.testId}-aim-grid`}
-              cellTestId={(cell) => `${props.testId}-aim-${cell}`}
-              columnLabels={columns()}
-              rowLabels={rows()}
-              cells={cells()}
-              onActivate={props.onAim}
+      >
+        <BattleshipTargetLayout
+          header={
+            <>
+              <P variant="caption">{t`Choose a region`}</P>
+              {props.legend}
+            </>
+          }
+          overview={
+            <BattleshipRegionOverview
+              region={area()}
+              regions={regions}
+              descriptions={descriptions()}
+              onRegion={setArea}
+              testId={props.testId}
+              label={t`Choose a target region`}
+              overview={
+                <CellGridBoard
+                  fill
+                  label={props.label}
+                  testId={`${props.testId}-target-grid`}
+                  cellTestId={(cell) => `${props.testId}-target-${cell}`}
+                  columnLabels={COLUMN_LABELS}
+                  rowLabels={ROW_LABELS}
+                  cells={props.cells}
+                />
+              }
             />
-          </StackVertical>
-        }
-      />
-      {props.confirmation?.(() => regions[area()] ?? '')}
+          }
+          controls={
+            // Fire under the cells carries the cell instruction.
+            <StackVertical gap="xs" testId={`${props.testId}-target-tools`} />
+          }
+          working={
+            <StackVertical gap="xs" align="center" width="full">
+              <CellGridBoard
+                label={t`Precise aim`}
+                testId={`${props.testId}-aim-grid`}
+                cellTestId={(cell) => `${props.testId}-aim-${cell}`}
+                columnLabels={columns()}
+                rowLabels={rows()}
+                cells={cells()}
+                onActivate={props.onAim}
+              />
+            </StackVertical>
+          }
+        />
+      </Show>
+      {props.confirmation?.(() => (workbench() ? (regions[area()] ?? '') : ''))}
     </StackVertical>
   );
 }

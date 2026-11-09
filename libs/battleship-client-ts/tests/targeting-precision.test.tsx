@@ -155,8 +155,9 @@ test('switching spatial regions preserves J10 aim and all outcomes', () => {
   expect(byTestId('precision-area-9').getAttribute('aria-pressed')).toBe(
     'true'
   );
+  // The chosen cell is a preview, never the latest shot's ring.
   expect(byTestId('precision-target-j10').getAttribute('data-emphasis')).toBe(
-    'recent'
+    'preview'
   );
   fireEvent.click(byTestId('precision-area-0'));
   expect(

@@ -162,7 +162,7 @@ export function BattleshipBoard(props: GameBoardProps): JSX.Element {
         own={ownCells()}
         target={targetCells().map((cell) =>
           cell.id === selected() && aim.aiming() === null
-            ? { ...cell, emphasis: 'recent' }
+            ? { ...cell, emphasis: 'preview' }
             : cell
         )}
         onAim={setSelected}
@@ -222,7 +222,9 @@ function ShotConfirmation(props: {
         dataSet={{ testid: `${props.testId}-fire` }}
         title={
           props.selected === null
-            ? t`Choose a cell in ${props.region}`
+            ? props.region === ''
+              ? t`Choose a cell`
+              : t`Choose a cell in ${props.region}`
             : t`Fire at ${props.selected.toUpperCase()}`
         }
       />
