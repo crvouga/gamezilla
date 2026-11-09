@@ -175,7 +175,7 @@ test('storybook integration: word-tiles placing tiles does not move the board', 
   await rack.getByRole('button').nth(1).click();
   await page.getByTestId('custom-game-board-cell-h8').click();
   await expect(page.getByTestId('custom-game-board-status')).toContainText(
-    'CA: '
+    'Not in the word list: CA'
   );
   const after = await region.boundingBox();
   expect(after?.y).toBe(before?.y);
@@ -211,7 +211,7 @@ test('storybook integration: word-tiles desktop rack sits under a larger board b
   const board = await box('custom-game-board');
   const rack = await box('custom-game-board-rack');
   const seat = await box('custom-game-seat-near');
-  // 27rem fitted board, up from 23rem.
+  // The fitted board follows the window height: about 28rem at 900px tall.
   expect(board.width).toBeGreaterThanOrEqual(440);
   expect(rack.top).toBeGreaterThan(board.bottom);
   expect(seat.top).toBeGreaterThanOrEqual(rack.bottom);
@@ -365,7 +365,7 @@ test('storybook integration: word-tiles phone status line stays one line while w
   const oneLine = await height();
   for (const [story, text] of [
     ['checking-words', 'checking words'],
-    ['word-list-unavailable', 'checked when you play'],
+    ['place-a-word', 'CAT 5 × 2 = 10 points'],
   ] as const) {
     await openStory(page, story, 'light');
     await expect(status).toContainText(text);
