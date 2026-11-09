@@ -1,5 +1,5 @@
 import type { PlanJson } from './plan-policy';
-import type { Stack, TofuPaths } from './tofu-command';
+import type { PlanOptions, Stack, TofuPaths } from './tofu-command';
 import { planArgs, tofuCredentialEnvironment } from './tofu-command';
 
 const TARGET = { stack: 'bootstrap' as const, env: null };
@@ -29,10 +29,11 @@ export function validateAlertingDeployment(
 }
 
 export function alertingDeploymentPlanArgs(
-  paths: TofuPaths
+  paths: TofuPaths,
+  options?: PlanOptions
 ): readonly string[] {
   return [
-    ...planArgs(paths, TARGET),
+    ...planArgs(paths, TARGET, options),
     ...[...RESOURCES, ...MODULES].map((address) => `-target=${address}`),
   ];
 }
