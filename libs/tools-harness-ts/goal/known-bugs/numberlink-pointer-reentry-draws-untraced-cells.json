@@ -1,0 +1,4 @@
+{
+  "summary": "Leaving and reentering the Numberlink board interpolates across cells the pointer did not trace.",
+  "regressionTest": "libs/numberlink-harness-ts/tests/numberlink-pointer-boundary.test.tsx"
+}

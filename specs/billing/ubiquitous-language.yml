@@ -8,6 +8,17 @@ purpose: >-
   membership without ever asking the team.
 
 terms:
+  - term: cancellation feedback
+    definition: >-
+      An optional reason and optional comment a person shares after canceling
+      Plus, to help the team understand why they are leaving. Reasons are
+      price, missing features, difficulty using the app, low usage, switching
+      products, and other. A person may share either part, both, or neither.
+      Sharing again replaces their earlier answer. Other people cannot see
+      it. Cancellation never depends on giving an answer.
+    forms: [share cancellation feedback, shares cancellation feedback, shared cancellation feedback]
+    model: [Feedback, shareCancellationFeedback, feedback, feedbackAtTeam]
+
   - term: payment record
     definition: >-
       The minimum evidence of a payment or refund needed for accounting and
@@ -117,6 +128,7 @@ terms:
       Subscribing there needs a connection, and it says so.
     avoid: [pricing page, paywall, plans screen]
     published: true
+    model: [viewBillingPlans]
 
   - term: asked to sign in before subscribing
     definition: >-
@@ -240,7 +252,7 @@ terms:
       access, until then.
     forms: [cancels, canceled, canceling, set to end at the period end]
     avoid: [unsubscribe, cancelled, cancelling]
-    model: [cancel]
+    model: [cancel, canceled]
 
   - term: renew in the billing portal
     definition: >-

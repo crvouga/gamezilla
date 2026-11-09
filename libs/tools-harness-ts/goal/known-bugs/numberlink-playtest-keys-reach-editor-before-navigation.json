@@ -1,0 +1,4 @@
+{
+  "summary": "The Numberlink editor and player expose the same enabled cell handles. The journey began drawing before establishing the attempt destination, allowing its keys to reach the departing editor. Wait for the attempt and scope drawing controls to that screen; never send keys when it does not open.",
+  "regressionTest": "libs/runtime-harness-ts/tests/numberlink-playtest-navigation.test.ts"
+}

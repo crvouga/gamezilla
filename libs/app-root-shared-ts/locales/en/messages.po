@@ -952,6 +952,11 @@ msgstr "Accepting…"
 msgid "Account"
 msgstr "Account"
 
+#: libs/friends-client-ts/src/friend-user-screen-content.tsx
+#: libs/friends-client-ts/src/friend-user-screen-view.tsx
+msgid "Account deleted"
+msgstr "Account deleted"
+
 #: libs/game-session-client-ts/src/game-record-label.tsx
 msgid "account deletion"
 msgstr "account deletion"
@@ -1195,6 +1200,10 @@ msgstr "An upload or change is still in progress. Leaving may interrupt it."
 msgid "Another device saved a different copy of this draft. Choose the copy to keep working from under Draft copies before publishing."
 msgstr "Another device saved a different copy of this draft. Choose the copy to keep working from under Draft copies before publishing."
 
+#: libs/billing-client-ts/src/cancellation-feedback-form.tsx
+msgid "Another reason"
+msgstr "Another reason"
+
 #: libs/app-root-client-ts/src/boot-error-screen-view.tsx
 msgid "Another tab stopped sharing saved data. Close the other app tabs, then reload this one. Reloading keeps your local data."
 msgstr "Another tab stopped sharing saved data. Close the other app tabs, then reload this one. Reloading keeps your local data."
@@ -1426,6 +1435,14 @@ msgstr "Block"
 msgid "Block this user?"
 msgstr "Block this user?"
 
+#: libs/friends-client-ts/src/friend-user-danger-modals.tsx
+msgid "Blocking ends any friendship or friend request between you. They won't be able to find you or send you friend requests. You can unblock them from their profile later."
+msgstr "Blocking ends any friendship or friend request between you. They won't be able to find you or send you friend requests. You can unblock them from their profile later."
+
+#: libs/friends-client-ts/src/friend-user-danger-modals.tsx
+msgid "Blocking user…"
+msgstr "Blocking user…"
+
 #: libs/numberlink-client-ts/src/numberlink-editor.tsx
 msgid "Blue"
 msgstr "Blue"
@@ -1433,10 +1450,6 @@ msgstr "Blue"
 #: libs/battleship-client-ts/src/battleship-copy.tsx
 msgid "Blue fleet"
 msgstr "Blue fleet"
-
-#: pkgs/ui-root-client-ts/src/word-tile-board/word-tile-overview.tsx
-msgid "Board map: locate a square"
-msgstr "Board map: locate a square"
 
 #: libs/game-session-client-ts/src/game-frame-screen-view.tsx
 msgid "Board preview"
@@ -2015,6 +2028,10 @@ msgstr "Columns"
 msgid "Command palette"
 msgstr "Command palette"
 
+#: libs/billing-client-ts/src/cancellation-feedback-form.tsx
+msgid "Comment (optional)"
+msgstr "Comment (optional)"
+
 #: libs/app-root-client-ts/src/about-screen-view.tsx
 msgid "Commit"
 msgstr "Commit"
@@ -2107,7 +2124,7 @@ msgstr "connected"
 msgid "Connected"
 msgstr "Connected"
 
-#: libs/numberlink-client-ts/src/numberlink-game-client.tsx
+#: libs/numberlink-client-ts/src/numberlink-content-frame.tsx
 msgid "Connected pairs"
 msgstr "Connected pairs"
 
@@ -2357,7 +2374,7 @@ msgstr "Cover every cell"
 msgid "Coverage"
 msgstr "Coverage"
 
-#: libs/numberlink-client-ts/src/numberlink-game-client.tsx
+#: libs/numberlink-client-ts/src/numberlink-content-frame.tsx
 msgid "Covered cells"
 msgstr "Covered cells"
 
@@ -2600,6 +2617,10 @@ msgstr "diamonds"
 msgid "Different work was kept from another device"
 msgstr "Different work was kept from another device"
 
+#: libs/billing-client-ts/src/cancellation-feedback-form.tsx
+msgid "Difficult to use"
+msgstr "Difficult to use"
+
 #: libs/game-puzzle-client-ts/src/content-draft-metadata.tsx
 msgid "Difficulty (optional)"
 msgstr "Difficulty (optional)"
@@ -2693,8 +2714,8 @@ msgid "Drag"
 msgstr "Drag"
 
 #: libs/numberlink-client-ts/src/numberlink-player.tsx
-msgid "Drag from a number to its match."
-msgstr "Drag from a number to its match."
+msgid "Drag from an endpoint to its match, or use Enter and arrow keys."
+msgstr "Drag from an endpoint to its match, or use Enter and arrow keys."
 
 #: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "Drag up and down along your edge of the court."
@@ -2721,9 +2742,18 @@ msgstr "Draw agreement is available between two people."
 msgid "Draw the path again."
 msgstr "Draw the path again."
 
+#. placeholder {0}: label()
+#: libs/numberlink-client-ts/src/numberlink-player.tsx
+msgid "Drawing {0}. Finish on its matching endpoint to save it."
+msgstr "Drawing {0}. Finish on its matching endpoint to save it."
+
 #: libs/numberlink-client-ts/src/numberlink-drawing-help.tsx
 msgid "Drawing and keyboard help"
 msgstr "Drawing and keyboard help"
+
+#: libs/numberlink-client-ts/src/create-numberlink-drawing.tsx
+msgid "Drawing canceled. Saved paths are unchanged. Start again from an endpoint."
+msgstr "Drawing canceled. Saved paths are unchanged. Start again from an endpoint."
 
 #: libs/numberlink-client-ts/src/numberlink-player.tsx
 msgid "Drawing is unavailable. You can still inspect the board."
@@ -2954,8 +2984,8 @@ msgid "Every match is rated"
 msgstr "Every match is rated"
 
 #: libs/numberlink-client-ts/src/numberlink-player.tsx
-msgid "Every pair is connected. Your completed paths are shown below."
-msgstr "Every pair is connected. Your completed paths are shown below."
+msgid "Every pair is connected. Your completed paths are shown above."
+msgstr "Every pair is connected. Your completed paths are shown above."
 
 #: libs/game-session-client-ts/src/custom-game-error.tsx
 msgid "Every participant has moved. Resign instead of cancelling."
@@ -3058,6 +3088,14 @@ msgstr "Failed to load"
 #: libs/app-config-client-ts/src/client-config-screen-view.tsx
 msgid "Features"
 msgstr "Features"
+
+#: libs/billing-client-ts/src/cancellation-feedback-form.tsx
+msgid "Feedback saved on this device. Waiting to share it with the team."
+msgstr "Feedback saved on this device. Waiting to share it with the team."
+
+#: libs/billing-client-ts/src/cancellation-feedback-form.tsx
+msgid "Feedback saved. Thank you for helping us improve."
+msgstr "Feedback saved. Thank you for helping us improve."
 
 #: libs/game-session-client-ts/src/custom-game-error.tsx
 msgid "Fill every place before starting."
@@ -3278,6 +3316,10 @@ msgstr "Free plan"
 msgid "Free trial · ends {0} ({1, plural, one {# day left} other {# days left}})"
 msgstr "Free trial · ends {0} ({1, plural, one {# day left} other {# days left}})"
 
+#: libs/friends-client-ts/src/friend-user-danger-modals.tsx
+msgid "Friend removed"
+msgstr "Friend removed"
+
 #: libs/friends-client-ts/src/friend-request-decision-modal.tsx
 msgid "Friend request"
 msgstr "Friend request"
@@ -3490,6 +3532,10 @@ msgstr "Hearts are not broken yet. Lead another suit."
 #: libs/hearts-client-ts/src/hearts-board.tsx
 msgid "Hearts table"
 msgstr "Hearts table"
+
+#: libs/billing-client-ts/src/cancellation-feedback-form.tsx
+msgid "Help us improve Plus"
+msgstr "Help us improve Plus"
 
 #: libs/auth-client-ts/src/sign-in-method-row.tsx
 msgid "Hidden email · forwarding is off"
@@ -4293,6 +4339,10 @@ msgstr "Minutes per side"
 msgid "Miss"
 msgstr "Miss"
 
+#: libs/billing-client-ts/src/cancellation-feedback-form.tsx
+msgid "Missing features"
+msgstr "Missing features"
+
 #: libs/auth-client-ts/src/account-device-meta-grid.tsx
 msgid "Model"
 msgstr "Model"
@@ -4713,14 +4763,10 @@ msgstr "No passing this deal."
 msgid "No pawn move or wall is legal. Pass your turn."
 msgstr "No pawn move or wall is legal. Pass your turn."
 
+#: libs/search-client-ts/src/search-screen-view.tsx
 #: libs/spaces-client-ts/src/space-share-add-people-view.tsx
 msgid "No people found"
 msgstr "No people found"
-
-#. placeholder {0}: props.query
-#: libs/search-client-ts/src/search-screen-view.tsx
-msgid "No people found for “{0}”"
-msgstr "No people found for “{0}”"
 
 #: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
 msgid "No published puzzles loaded"
@@ -4837,6 +4883,10 @@ msgstr "Not set"
 #: libs/synthetic-population-client-ts/src/synthetic-user-details.tsx
 msgid "Not started"
 msgstr "Not started"
+
+#: libs/billing-client-ts/src/cancellation-feedback-form.tsx
+msgid "Not using it enough"
+msgstr "Not using it enough"
 
 #: libs/app-root-client-ts/src/connection-screen-view.tsx
 msgid "Not yet"
@@ -5463,6 +5513,10 @@ msgstr "Playtest: this uses the real puzzle rules. It does not count toward pers
 msgid "Playtests of your drafts"
 msgstr "Playtests of your drafts"
 
+#: libs/billing-client-ts/src/cancellation-feedback-form.tsx
+msgid "Please leave out payment details or other sensitive information."
+msgstr "Please leave out payment details or other sensitive information."
+
 #: libs/billing-client-ts/src/billing-plan-card.tsx
 msgid "Plus"
 msgstr "Plus"
@@ -5503,6 +5557,10 @@ msgstr "Practice runs don't count toward your progress."
 #: libs/battleship-client-ts/src/battleship-target-grid.tsx
 msgid "Precise aim"
 msgstr "Precise aim"
+
+#: libs/billing-client-ts/src/cancellation-feedback-form.tsx
+msgid "Prefer not to say"
+msgstr "Prefer not to say"
 
 #: libs/app-root-client-ts/src/settings-screen-view.tsx
 msgid "Preferences"
@@ -5585,6 +5643,7 @@ msgid "Profile"
 msgstr "Profile"
 
 #: libs/friends-client-ts/src/friend-user-screen-content.tsx
+#: libs/friends-client-ts/src/friend-user-screen-view.tsx
 msgid "Profile unavailable"
 msgstr "Profile unavailable"
 
@@ -5943,6 +6002,10 @@ msgstr "Ready to start."
 msgid "Ready: publish to share it with everyone who plays."
 msgstr "Ready: publish to share it with everyone who plays."
 
+#: libs/billing-client-ts/src/cancellation-feedback-form.tsx
+msgid "Reason (optional)"
+msgstr "Reason (optional)"
+
 #: libs/word-tiles-client-ts/src/word-tiles-actions.tsx
 #: libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.tsx
 msgid "Recall tiles"
@@ -6141,6 +6204,10 @@ msgstr "Removes your account for good; you confirm first"
 msgid "Removing a method stops it signing in to this account. You can connect it again later."
 msgstr "Removing a method stops it signing in to this account. You can connect it again later."
 
+#: libs/friends-client-ts/src/friend-user-danger-modals.tsx
+msgid "Removing friend…"
+msgstr "Removing friend…"
+
 #: libs/auth-client-ts/src/unlink-method-modal.tsx
 #: libs/spaces-client-ts/src/remove-space-person-modal-view.tsx
 msgid "Removing…"
@@ -6306,6 +6373,10 @@ msgstr "Return to editing"
 msgid "Return to editing to add a published puzzle or create a new draft."
 msgstr "Return to editing to add a published puzzle or create a new draft."
 
+#: libs/friends-client-ts/src/friend-user-screen-content.tsx
+msgid "Return to Friends"
+msgstr "Return to Friends"
+
 #: libs/game-puzzle-client-ts/src/content-attempt-screen-view.tsx
 #: libs/game-puzzle-client-ts/src/content-author-screen-view.tsx
 #: libs/game-puzzle-client-ts/src/content-edition-screen-view.tsx
@@ -6468,6 +6539,10 @@ msgstr "Save {0}%"
 msgid "Save again"
 msgstr "Save again"
 
+#: libs/billing-client-ts/src/cancellation-feedback-form.tsx
+msgid "Save feedback"
+msgstr "Save feedback"
+
 #: libs/synthetic-population-client-ts/src/synthetic-population-screen-view.tsx
 msgid "Save synthetic population"
 msgstr "Save synthetic population"
@@ -6480,6 +6555,7 @@ msgstr "Save the current changes before changing the pack."
 msgid "Save the pack and choose a game with a puzzle editor."
 msgstr "Save the pack and choose a game with a puzzle editor."
 
+#: libs/billing-client-ts/src/cancellation-feedback-form.tsx
 #: libs/profile-client-ts/src/avatar-editor-screen-view.tsx
 #: libs/profile-client-ts/src/profile-handle-screen-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-population-screen-view.tsx
@@ -6511,6 +6587,10 @@ msgstr "Saved positions"
 msgid "Saved puzzle"
 msgstr "Saved puzzle"
 
+#: libs/numberlink-client-ts/src/numberlink-player.tsx
+msgid "Saved:"
+msgstr "Saved:"
+
 #: libs/chess-puzzle-client-ts/src/puzzle-import-stop.tsx
 msgid "Saving stopped"
 msgstr "Saving stopped"
@@ -6524,6 +6604,7 @@ msgstr "Saving your draft…"
 msgid "Saving your position…"
 msgstr "Saving your position…"
 
+#: libs/billing-client-ts/src/cancellation-feedback-form.tsx
 #: libs/profile-client-ts/src/avatar-editor-screen-view.tsx
 #: libs/profile-client-ts/src/profile-handle-screen-view.tsx
 #: libs/spaces-client-ts/src/rename-space-modal-view.tsx
@@ -6679,6 +6760,12 @@ msgstr "Select…"
 #: libs/word-tiles-client-ts/src/word-tiles-cells.tsx
 msgid "selected"
 msgstr "selected"
+
+#. placeholder {0}: props.pair.label
+#. placeholder {1}: coordinate()
+#: libs/numberlink-client-ts/src/numberlink-placement-target.tsx
+msgid "Selected: pair {0} at {1}. The dashed outline marks the endpoint to move."
+msgstr "Selected: pair {0} at {1}. The dashed outline marks the endpoint to move."
 
 #: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
 msgid "Send again"
@@ -7060,6 +7147,10 @@ msgstr "Solved"
 msgid "Solved · {0} in {1}"
 msgstr "Solved · {0} in {1}"
 
+#: libs/game-puzzle-client-ts/src/content-attempt-screen-view.tsx
+msgid "Solved before. Your completion stays saved."
+msgstr "Solved before. Your completion stays saved."
+
 #: libs/game-puzzle-client-ts/src/content-pack-overview.tsx
 msgid "Some puzzles have not reached this device. Reconnect to load the rest. Your progress stays saved."
 msgstr "Some puzzles have not reached this device. Reconnect to load the rest. Your progress stays saved."
@@ -7185,8 +7276,8 @@ msgid "Start a space to play with friends. Spaces you join show up here."
 msgstr "Start a space to play with friends. Spaces you join show up here."
 
 #: libs/numberlink-client-ts/src/numberlink-drawing-help.tsx
-msgid "Start again at a number to redraw its path. Drag back along your path to shorten it."
-msgstr "Start again at a number to redraw its path. Drag back along your path to shorten it."
+msgid "Start again at an endpoint to redraw its path. Drag back along your path to shorten it. Release to keep your drawing. Move outside the board or press Escape to cancel; your saved paths stay unchanged. On a small screen, pinch with two fingers to zoom in on the board, then draw with one."
+msgstr "Start again at an endpoint to redraw its path. Drag back along your path to shorten it. Release to keep your drawing. Move outside the board or press Escape to cancel; your saved paths stay unchanged. On a small screen, pinch with two fingers to zoom in on the board, then draw with one."
 
 #: libs/numberlink-client-ts/src/create-numberlink-drawing.tsx
 msgid "Start at a matching endpoint or an existing path."
@@ -7968,10 +8059,6 @@ msgstr "They will be removed from your friends list."
 msgid "They will leave this space. They can choose to join again through the space link."
 msgstr "They will leave this space. They can choose to join again through the space link."
 
-#: libs/friends-client-ts/src/friend-user-danger-modals.tsx
-msgid "They won't be able to send you friend requests."
-msgstr "They won't be able to send you friend requests."
-
 #: libs/billing-client-ts/src/billing-plan-actions.tsx
 msgid "This account already has a membership, so nothing was charged. Looking for it now."
 msgstr "This account already has a membership, so nothing was charged. Looking for it now."
@@ -7983,6 +8070,10 @@ msgstr "This account already has a sign-in method from that provider. Remove it 
 #: libs/account-privacy-client-ts/src/use-account-deletion.tsx
 msgid "This account was already deleted. Sign in again to start a new account."
 msgstr "This account was already deleted. Sign in again to start a new account."
+
+#: libs/friends-client-ts/src/friend-user-screen-content.tsx
+msgid "This account was deleted."
+msgstr "This account was deleted."
 
 #: libs/game-puzzle-client-ts/src/content-attempt-screen-view.tsx
 msgid "This attempt"
@@ -8146,8 +8237,8 @@ msgid "This profile could not be loaded"
 msgstr "This profile could not be loaded"
 
 #: libs/friends-client-ts/src/friend-user-screen-content.tsx
-msgid "This profile is no longer available because the account was deleted."
-msgstr "This profile is no longer available because the account was deleted."
+msgid "This profile is no longer available."
+msgstr "This profile is no longer available."
 
 #: libs/game-puzzle-client-ts/src/content-edition-screen-view.tsx
 msgid "This publication is withdrawn. You can continue saved attempts from your library."
@@ -8169,6 +8260,10 @@ msgstr "This puzzle cannot be opened. Choose a saved puzzle from your library."
 #: libs/numberlink-client-ts/src/numberlink-player.tsx
 msgid "This puzzle cannot be opened. Return to its overview and choose a saved edition."
 msgstr "This puzzle cannot be opened. Return to its overview and choose a saved edition."
+
+#: libs/game-puzzle-client-ts/src/content-attempt-screen-view.tsx
+msgid "This puzzle cannot be opened. Your attempt stays saved. Return to the library to choose another puzzle."
+msgstr "This puzzle cannot be opened. Your attempt stays saved. Return to the library to choose another puzzle."
 
 #: libs/word-tiles-client-ts/src/word-tiles-puzzle-player.tsx
 msgid "This puzzle cannot be shown."
@@ -8311,6 +8406,14 @@ msgstr "to play"
 msgid "Today"
 msgstr "Today"
 
+#: libs/billing-client-ts/src/cancellation-feedback-form.tsx
+msgid "Too expensive"
+msgstr "Too expensive"
+
+#: libs/search-client-ts/src/search-screen-view.tsx
+msgid "Too many searches. Please wait a minute; this search will retry automatically."
+msgstr "Too many searches. Please wait a minute; this search will retry automatically."
+
 #: libs/sokoban-client-ts/src/sokoban-editor.tsx
 msgid "Tool"
 msgstr "Tool"
@@ -8395,6 +8498,10 @@ msgstr "Try publishing again"
 #: libs/game-puzzle-client-ts/src/content-draft-history.tsx
 msgid "Try redoing again"
 msgstr "Try redoing again"
+
+#: libs/billing-client-ts/src/cancellation-feedback-form.tsx
+msgid "Try saving again"
+msgstr "Try saving again"
 
 #: libs/game-puzzle-client-ts/src/content-start-attempt.tsx
 msgid "Try starting again"
@@ -8595,6 +8702,10 @@ msgstr "Use system theme"
 msgid "Use this clock"
 msgstr "Use this clock"
 
+#: libs/friends-client-ts/src/friend-user-danger-modals.tsx
+msgid "User blocked"
+msgstr "User blocked"
+
 #: libs/synthetic-population-client-ts/src/synthetic-user-details.tsx
 msgid "User ID"
 msgstr "User ID"
@@ -8627,6 +8738,10 @@ msgstr "Username needs at least {USERNAME_MIN_LENGTH} characters"
 #: libs/profile-client-ts/src/username-error-label.tsx
 msgid "Username was changed recently"
 msgstr "Username was changed recently"
+
+#: libs/billing-client-ts/src/cancellation-feedback-form.tsx
+msgid "Using something else"
+msgstr "Using something else"
 
 #: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
 #: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
@@ -8977,6 +9092,10 @@ msgstr "You are already playing your own side."
 msgid "You are offline. Available puzzles and your saved work stay on this device. Changes share when connected."
 msgstr "You are offline. Available puzzles and your saved work stay on this device. Changes share when connected."
 
+#: libs/billing-client-ts/src/cancellation-feedback-form.tsx
+msgid "You are offline. Saved feedback will be shared when your connection returns."
+msgstr "You are offline. Saved feedback will be shared when your connection returns."
+
 #: libs/chess-puzzle-client-ts/src/puzzle-management-screen-view.tsx
 msgid "You are offline. The last status is shown. Reconnect to check or save a Lichess file, start loading, or stop loading."
 msgstr "You are offline. The last status is shown. Reconnect to check or save a Lichess file, start loading, or stop loading."
@@ -9234,6 +9353,10 @@ msgstr "Your avatar"
 msgid "Your avatar change wasn't saved"
 msgstr "Your avatar change wasn't saved"
 
+#: libs/billing-client-ts/src/cancellation-feedback-form.tsx
+msgid "Your cancellation is already arranged. Sharing a reason or comment is optional and will not change it."
+msgstr "Your cancellation is already arranged. Sharing a reason or comment is optional and will not change it."
+
 #: libs/hearts-client-ts/src/hearts-table-view.tsx
 msgid "Your cards are chosen. Waiting for every player to pass."
 msgstr "Your cards are chosen. Waiting for every player to pass."
@@ -9296,6 +9419,10 @@ msgstr "Your export is late: it was due by {0}. You can ask again, which starts 
 #: libs/account-privacy-client-ts/src/export-download.tsx
 msgid "Your export is ready. Downloads are private to your recently proven account and expire 7 days after becoming ready."
 msgstr "Your export is ready. Downloads are private to your recently proven account and expire 7 days after becoming ready."
+
+#: libs/billing-client-ts/src/cancellation-feedback-form.tsx
+msgid "Your feedback could not be saved. Your answer is still here. Try saving again; your cancellation is unchanged."
+msgstr "Your feedback could not be saved. Your answer is still here. Try saving again; your cancellation is unchanged."
 
 #: libs/battleship-client-ts/src/battleship-board.tsx
 msgid "Your fleet"

@@ -1,0 +1,4 @@
+{
+  "summary": "The required PR guard rejected successful GitHub CodeQL and Analyze checks because their trusted application identities were missing from the required-checks registry.",
+  "regressionTest": "libs/tools-harness-ts/scripts/required-codeql-checks.test.ts"
+}

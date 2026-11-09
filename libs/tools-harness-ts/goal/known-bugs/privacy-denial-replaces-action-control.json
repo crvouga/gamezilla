@@ -1,0 +1,4 @@
+{
+  "summary": "Privacy harness actions tried to click controls replaced by current permission denials. Observe the real allowed control or visible denial, and verify refusal copy on either current-access or post-submit surfaces without dismissing safety assertions.",
+  "regressionTest": "libs/profile-harness-ts/tests/privacy-denial-control.test.ts"
+}

@@ -1,8 +1,9 @@
 import { defineGameClient } from '@libs/game-menu-client-ts/game-client';
+import { decodeNumberlinkDraft } from '@libs/numberlink-shared-ts/numberlink-definition';
 import { numberlinkGameShared } from '@libs/numberlink-shared-ts/numberlink-game';
-import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import { P } from '@pkgs/ui-root-client-ts/text';
+import { numberlinkContentFrame } from './numberlink-content-frame';
 import { NumberlinkEditor } from './numberlink-editor';
 import { initialNumberlinkDefinition } from './numberlink-editor-actions';
 import { NumberlinkPlayer, NumberlinkPreview } from './numberlink-player';
@@ -25,16 +26,11 @@ export const numberlinkGameClient = defineGameClient({
   puzzleContent: {
     Player: NumberlinkPlayer,
     Preview: NumberlinkPreview,
-    frame: {
-      stats: {
-        connectedPairs: () => t`Connected pairs`,
-        coveredCells: () => t`Covered cells`,
-      },
-      turnStatus: () => null,
-    },
+    frame: numberlinkContentFrame,
     authoring: {
       Editor: NumberlinkEditor,
       initialDefinition: initialNumberlinkDefinition,
+      readable: (definition) => decodeNumberlinkDraft(definition).valid,
     },
   },
 });

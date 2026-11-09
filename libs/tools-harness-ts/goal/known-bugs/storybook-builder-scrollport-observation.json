@@ -1,0 +1,4 @@
+{
+  "summary": "Pack builder 390x791 and Sokoban editor 1200x884 reported controls above the scrollport as covered by shell chrome. Check the visible scrollport and independently reveal every stage control.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/integration.checks.ts"
+}

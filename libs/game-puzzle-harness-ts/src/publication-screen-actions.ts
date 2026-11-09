@@ -18,9 +18,12 @@ async function runDraftControl(
       Promise.resolve(view.queryByTestId(openId) !== null)
     );
     fireEvent.click(view.getByTestId(openId));
-    await waitForContent(s, () =>
-      Promise.resolve(view.queryByTestId(control) !== null)
-    );
+    await waitForContent(s, () => {
+      const button = view.queryByTestId(control);
+      return Promise.resolve(
+        button !== null && !button.matches(':disabled, [aria-disabled="true"]')
+      );
+    });
     s.lastResult.delete(clientId);
     fireEvent.click(view.getByTestId(control));
     await waitForContent(s, () => Promise.resolve(s.lastResult.has(clientId)));

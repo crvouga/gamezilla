@@ -155,7 +155,8 @@
     "wipe": "turbo run //#task:wipe --",
     "workspace:install": "./libs/tools-harness-ts/workspace/step.sh install",
     "workspace:merge": "./libs/tools-harness-ts/workspace/step.sh merge",
-    "workspace:sync": "turbo run //#task:workspace:sync --"
+    "workspace:sync": "turbo run //#task:workspace:sync --",
+    "billing:feedback": "turbo run @libs/billing-server-ts#billing:feedback --"
   },
   "overrides": {
     "@babel/plugin-transform-modules-systemjs": "^7.29.4",

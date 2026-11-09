@@ -1,0 +1,4 @@
+{
+  "summary": "DirectionPad buttons drew their edges in the hairline border token, 1.17:1 against the light page and 1.43:1 against the dark page, so the 44px targets nearly disappeared. The edges now use the strong outline token: 3.53:1 light and 4.02:1 dark against the page, and at least 3:1 against the surface.",
+  "regressionTest": "pkgs/ui-root-client-ts/tests/direction-pad-contrast.test.ts"
+}

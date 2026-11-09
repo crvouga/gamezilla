@@ -1,4 +1,5 @@
 import { expect, type Page, test } from '@playwright/test';
+import { builderControlsUncovered } from './builder-control-visibility';
 
 test.use({ viewport: { width: 1440, height: 900 } });
 
@@ -125,51 +126,6 @@ test('storybook integration: native banner Controls update the portal and visibi
   await expect(bottom.getByText('A new version is ready')).toBeVisible();
 });
 
-/**
- * Every control on a builder's stage that is in the window is the topmost
- * thing at its centre, at the first scroll position and at the last; and
- * the last scroll position shows the whole publish step.
- */
-async function builderControlsUncovered(page: Page) {
-  return await page.evaluate(() => {
-    const scroller = document.querySelector<HTMLElement>(
-      '[data-screen="puzzle-content-author"]'
-    );
-    const publish = document.querySelector(
-      '[data-testid="content-author-publish"]'
-    );
-    if (scroller === null || publish === null)
-      return ['the builder or its publish step is missing'];
-    const covered: string[] = [];
-    const check = (at: string): void => {
-      const controls = document.querySelectorAll<HTMLElement>(
-        '[data-testid="content-author-stage"] :is(button, input)'
-      );
-      for (const control of controls) {
-        const box = control.getBoundingClientRect();
-        const x = box.left + box.width / 2;
-        const y = box.top + box.height / 2;
-        if (y < 0 || y >= window.innerHeight) continue;
-        if (x < 0 || x >= window.innerWidth) continue;
-        const top = document.elementFromPoint(x, y);
-        if (top !== null && control.contains(top)) continue;
-        const name =
-          control.getAttribute('data-testid') ??
-          control.getAttribute('aria-label') ??
-          control.textContent.trim();
-        covered.push(`${at}: ${name}`);
-      }
-    };
-    check('top');
-    scroller.scrollTop = scroller.scrollHeight;
-    check('bottom');
-    const step = publish.getBoundingClientRect();
-    if (step.top < 0 || step.bottom > window.innerHeight)
-      covered.push('bottom: the publish step is not wholly in view');
-    return covered;
-  });
-}
-
 // regression: builder-publish-strip-clips-stage — the publish step was a
 // strip pinned under the scroll area, so in the first view of the pack
 // builder "Create puzzle in this pack" was cut in half by it, and on a
@@ -196,7 +152,7 @@ for (const story of [
         )
         .toBe('true');
       await page.evaluate(() => document.fonts.ready);
-      expect(await builderControlsUncovered(page)).toEqual([]);
+      expect(await page.evaluate(builderControlsUncovered)).toEqual([]);
     });
 
 /**
@@ -256,7 +212,8 @@ for (const story of [
   });
 
 // regression: storybook-sidebar-compact-viewport
-test('storybook integration: sidebar entries declare desktop eligibility without restricting header stories', async ({
+// regression: storybook-header-compact-viewport
+test('storybook integration: wide header and sidebar entries declare desktop eligibility while compact tabs remain covered', async ({
   request,
 }) => {
   const response = await request.get('/index.json');
@@ -270,6 +227,13 @@ test('storybook integration: sidebar entries declare desktop eligibility without
     'sidebar-notifications-current',
     'sidebar-profile-current',
     'sidebar-none-current',
+    'spaces-current',
+    'search-current',
+    'notifications-current',
+    'profile-current',
+    'long-labels',
+    'select-profile',
+    'with-account-menu',
   ]) {
     const entry = index.entries[`screens-shell-header-island--${name}`];
     expect(entry).toBeDefined();
@@ -277,11 +241,68 @@ test('storybook integration: sidebar entries declare desktop eligibility without
   }
   for (const name of [
     'spaces-current',
-    'select-profile',
-    'with-account-menu',
+    'search-current',
+    'notifications-current',
+    'profile-current',
   ]) {
-    const entry = index.entries[`screens-shell-header-island--${name}`];
+    const entry = index.entries[`screens-shell-tab-bar--${name}`];
+    expect(entry).toBeDefined();
+    expect(entry?.tags).toContain('viewport-desktop');
+  }
+  for (const name of ['spaces-current', 'select-search', 'long-labels']) {
+    const entry = index.entries[`screens-shell-tab-bar--${name}`];
     expect(entry).toBeDefined();
     expect(entry?.tags).not.toContain('viewport-desktop');
   }
+});
+
+// regression: storybook-builder-scrollport-observation
+test('storybook integration: pack 390 and Sokoban 1200 controls remain reachable inside the scrollport', async ({
+  page,
+}) => {
+  for (const [story, width, height] of [
+    ['screens-puzzles-content-author--pack-builder', 390, 791],
+    ['screens-games-sokoban-editor--two-crates', 1200, 884],
+  ] as const) {
+    await page.setViewportSize({ width, height });
+    await page.goto(
+      `/iframe.html?id=${story}&viewMode=story&globals=theme:dark`
+    );
+    await expect(page.locator('#storybook-root')).toHaveAttribute(
+      'data-story-ready',
+      'true'
+    );
+    await page.evaluate(() => document.fonts.ready);
+    expect(await page.evaluate(builderControlsUncovered)).toEqual([]);
+  }
+});
+
+// regression: storybook-header-responsive-observation
+test('storybook integration: compact tab counterpart selects Search at 390 and 768', async ({
+  page,
+}) => {
+  for (const width of [390, 768]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto(
+      '/iframe.html?id=screens-shell-tab-bar--select-search&viewMode=story'
+    );
+    await expect(page.locator('#storybook-root')).toHaveAttribute(
+      'data-story-ready',
+      'true'
+    );
+    await expect(page.locator('#storybook-root')).toHaveAttribute(
+      'data-story-status',
+      'success'
+    );
+    await expect(
+      page.getByRole('button', { name: 'Search', exact: true })
+    ).toBeVisible();
+  }
+});
+
+test.afterEach(async ({ page }, testInfo) => {
+  await page.screenshot({
+    path: testInfo.outputPath('actual.png'),
+    fullPage: true,
+  });
 });

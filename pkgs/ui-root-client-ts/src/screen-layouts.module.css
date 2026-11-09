@@ -544,6 +544,38 @@
     order: 6;
   }
 }
+/* Width-sized boards stop pushing a tablet's Hint, Retry and Next below
+   the fold (about 420px for title, coach, guidance and actions), never under
+   320px. A short landscape window puts the board in a left column at the
+   window height (less the 53px bar, the board's 48px guidance and 3px), so
+   the guidance stays in view too; the rest reads down the right while the
+   board column stays put. */
+@container puzzle-frame (width < 880px) {
+  .puzzle[data-board-sizing="width"] > .well > .board {
+    max-width: max(320px, calc(100dvh - 420px));
+  }
+}
+@media (orientation: landscape) and (max-height: 560px) {
+  @container puzzle-frame (min-width: 600px) and (width < 880px) {
+    .puzzle[data-board-sizing="width"] {
+      display: grid;
+      grid-template-columns: min(100dvh - 104px, 100cqw - 304px) minmax(0, 1fr);
+      grid-template-rows: repeat(6, auto) 1fr;
+      column-gap: var(--ui-space-6);
+    }
+    .puzzle[data-board-sizing="width"] > * {
+      grid-column: 2;
+    }
+    .puzzle[data-board-sizing="width"] > .well {
+      grid-column: 1;
+      grid-row: 1 / -1;
+      padding-inline: 0;
+      position: sticky;
+      top: 0;
+      align-self: start;
+    }
+  }
+}
 @container puzzle-frame (min-width: 880px) {
   .puzzle[data-board-sizing="width"] {
     flex: 1;

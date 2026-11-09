@@ -1,0 +1,4 @@
+{
+  "summary": "Viewing a deletion receipt incorrectly waited for the delete action, which is unavailable once the account is deleted.",
+  "regressionTest": "specs/billing/deleted-account-payments.feature"
+}

@@ -1,4 +1,3 @@
-import { paidCheckoutReturnUrl } from '@pkgs/billing-root-shared-ts/checkout-return';
 import type {
   CallbackResult,
   Membership,
@@ -17,9 +16,10 @@ import {
 } from '@pkgs/billing-stripe-shared-ts/offer-reconcile';
 import Stripe from 'stripe';
 import {
+  expireStripeCheckouts,
   liveStripeSubscription,
-  reusableStripeCheckout,
 } from './stripe-checkout-reuse';
+import { startStripeCheckout } from './stripe-start-checkout';
 import type { UnknownRecord } from './stripe-subscription-fields';
 import {
   asRecord,
@@ -120,66 +120,19 @@ export class StripeMembershipBilling implements MembershipBilling {
   }
 
   async startCheckout(input: StartCheckoutInput): Promise<StartCheckoutResult> {
-    if (input.customerId !== null) {
-      const customerId = input.customerId;
-      const live = await liveStripeSubscription(this.stripe, customerId);
-      const change = live === null ? null : await this.changeOf(live, false);
-      if (change !== null) {
-        return { kind: 'live_membership', customerId, change };
-      }
-      const url = await reusableStripeCheckout(this.stripe, {
-        customer: customerId,
-        returnUrl: input.returnUrl,
-        nowMs: this.now(),
-      });
-      if (url !== null) return { kind: 'checkout', customerId, url };
-    }
-    const customer =
-      input.customerId ??
-      (
-        await this.stripe.customers.create({
-          ...(input.email === null ? {} : { email: input.email }),
-          metadata: { accountId: input.accountId },
-        })
-      ).id;
-
-    const spec = this.offer.prices[this.offer.defaultPriceKey];
-    if (spec === undefined) {
-      throw new Error(
-        `stripe: no offer price for key ${this.offer.defaultPriceKey}`
-      );
-    }
-    const prices = await this.stripe.prices.list({
-      lookup_keys: [spec.catalogPriceId],
-      active: true,
-      limit: 1,
+    return startStripeCheckout({
+      stripe: this.stripe,
+      offer: this.offer,
+      input,
+      nowMs: this.now(),
+      changeOf: (subscription) => this.changeOf(subscription, false),
     });
-    const price = prices.data[0];
-    if (price === undefined) {
-      throw new Error(
-        `stripe: no active price for lookup key ${spec.catalogPriceId}`
-      );
-    }
+  }
 
-    const session = await this.stripe.checkout.sessions.create({
-      mode: 'subscription',
-      customer,
-      client_reference_id: input.accountId,
-      // Subscriptions do not inherit customer metadata, so the account link
-      // has to ride on the subscription itself.
-      subscription_data: {
-        metadata: { accountId: input.accountId },
-        // Checkout ignores a price's own trial unless the session asks for one.
-        ...((spec.trialPeriodDays ?? 0) > 0
-          ? { trial_period_days: spec.trialPeriodDays }
-          : {}),
-      },
-      line_items: [{ price: price.id, quantity: 1 }],
-      // Only a paid return is marked, so the app can tell the two apart.
-      success_url: paidCheckoutReturnUrl(input.returnUrl),
-      cancel_url: input.returnUrl,
-    });
-    return { kind: 'checkout', customerId: customer, url: session.url ?? '' };
+  async closeCheckouts(customerId: string): Promise<MembershipChange | null> {
+    await expireStripeCheckouts(this.stripe, customerId);
+    const live = await liveStripeSubscription(this.stripe, customerId);
+    return live === null ? null : await this.changeOf(live, false);
   }
 
   async openPortal(input: OpenPortalInput): Promise<{ readonly url: string }> {

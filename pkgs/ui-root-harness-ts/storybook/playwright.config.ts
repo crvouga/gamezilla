@@ -5,6 +5,10 @@ import {
   chromeForTestingBinary,
 } from '@pkgs/ui-testing-bun-webview-server-ts/chrome-for-testing';
 import { defineConfig } from '@playwright/test';
+import { storybookTestNetwork } from './network';
+
+const network = storybookTestNetwork(process.env);
+const baseURL = `http://${network.host}:${network.port}`;
 
 const chromeDirectory = spawnSync('mise', ['where', CHROME_FOR_TESTING_TOOL], {
   encoding: 'utf8',
@@ -19,6 +23,7 @@ export default defineConfig({
   testDir: '../tests/storybook',
   testMatch: [
     '**/stories.checks.ts',
+    '**/gallery-round-eighteen.checks.ts',
     '**/board-round-four.checks.ts',
     '**/board-round-five.checks.ts',
     '**/board-round-eight.checks.ts',
@@ -36,7 +41,7 @@ export default defineConfig({
   // Authoring requires the explicit --update-snapshots command.
   updateSnapshots: 'none',
   use: {
-    baseURL: 'http://127.0.0.1:6007',
+    baseURL,
     viewport: { width: 390, height: 844 },
     deviceScaleFactor: 1,
     locale: 'en-US',
@@ -52,7 +57,7 @@ export default defineConfig({
   ],
   webServer: {
     command: 'bun static-server.ts',
-    url: 'http://127.0.0.1:6007/index.json',
+    url: `${baseURL}/index.json`,
     reuseExistingServer: false,
   },
 });

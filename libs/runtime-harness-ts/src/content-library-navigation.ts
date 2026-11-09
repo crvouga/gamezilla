@@ -26,9 +26,17 @@ export async function openContentLibrary(
     try {
       await tap(ui, Handles.gameChoice('puzzle-library'));
     } catch (error) {
-      // Restoration can replace the menu between the read and the gesture.
-      // Only the observed destination establishes success; other errors fail.
-      if (!(await ui.get('content-create-puzzle').isVisible())) throw error;
+      // Restoration can replace the menu before the new library paints.
+      // Observe that destination without sending another click; retain the
+      // original gesture failure if the destination never becomes visible.
+      try {
+        await ui
+          .get('content-create-puzzle')
+          .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
+      } catch {
+        throw error;
+      }
+      return;
     }
   }
   await ui

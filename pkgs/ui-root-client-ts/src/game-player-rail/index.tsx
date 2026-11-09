@@ -111,6 +111,7 @@ function ChipFace(props: GamePlayerChipProps): JSX.Element {
         <span
           class={`text textLabel min-w-0 max-w-full ${styles['chipName']}`}
           classList={{ 'text-on-primary-soft': props.active === true }}
+          title={props.name}
         >
           {props.name}
         </span>

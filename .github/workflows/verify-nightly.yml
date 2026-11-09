@@ -58,6 +58,14 @@ on:
         description: Optional story-id regex for explicit Storybook diagnostics; empty runs every state
         type: string
         default: ''
+      storybook-evidence-run:
+        description: Export retained synthetic Storybook evidence for this exact run instead of running tests (group must be storybook)
+        type: string
+        default: ''
+      storybook-evidence-key:
+        description: Base64 PEM public key for encrypted evidence export; private key stays with the reviewer
+        type: string
+        default: ''
       update-storybook-baselines:
         description: Explicitly author Ubuntu Storybook references (group must be storybook); compare them again and retain a patch for review
         type: boolean
@@ -71,7 +79,7 @@ env:
 
 # One nightly run per ref; a second waits rather than discarding a night.
 concurrency:
-  group: verify-nightly-${{ github.ref }}-${{ inputs.group || 'all' }}
+  group: verify-nightly-${{ github.ref }}-${{ inputs.group || 'all' }}-${{ inputs.storybook-evidence-run || 'verify' }}
   cancel-in-progress: ${{ github.event_name == 'workflow_dispatch' && inputs.group != '' && inputs.group != 'all' }}
 
 # Every job runs on a GitHub-hosted `ubuntu-24.04` runner, and every `run:` step is bash.
@@ -167,31 +175,40 @@ jobs:
     timeout-minutes: 60
     env:
       STORYBOOK_PATTERN: ${{ inputs.storybook-pattern }}
+      STORYBOOK_EVIDENCE_RUN: ${{ inputs.storybook-evidence-run }}
+      STORYBOOK_EVIDENCE_PUBLIC_KEY: ${{ inputs.storybook-evidence-key }}
     permissions:
       contents: read # check out the code; the job never pushes references
       id-token: write # mint the OIDC token Infisical trusts
     steps:
       - *checkout
       - *setup
-      - *renderer
+      - name: Prepare Storybook renderer
+        if: ${{ !inputs.storybook-evidence-run }}
+        uses: ./.github/actions/visual-renderer
+        timeout-minutes: 2
       - name: Verify diagnostic tooling
         run: bunx turbo run lint tc test ci:goals --filter=@libs/tools-harness-ts --concurrency=1
+      - name: Export retained Storybook evidence only
+        if: ${{ inputs.storybook-evidence-run != '' }}
+        run: bun run libs/tools-harness-ts/scripts/storybook-evidence.ts --export
       - name: Build canonical Storybook
+        if: ${{ !inputs.storybook-evidence-run }}
         run: bun run storybook:build
       - name: Author references explicitly
-        if: ${{ inputs.update-storybook-baselines }}
+        if: ${{ !inputs.storybook-evidence-run && inputs.update-storybook-baselines }}
         run: bun run storybook:test --grep "$STORYBOOK_PATTERN" --update-snapshots
       - name: Collect reference changes for review
-        if: always() && !cancelled()
+        if: ${{ always() && !cancelled() && !inputs.storybook-evidence-run }}
         run: bun run libs/tools-harness-ts/scripts/storybook-baseline-patch.ts --stdout
       - name: Compare every authored Storybook state
-        if: ${{ inputs.update-storybook-baselines }}
+        if: ${{ !inputs.storybook-evidence-run && inputs.update-storybook-baselines }}
         run: bun run storybook:test --grep "$STORYBOOK_PATTERN"
       - name: Compare PR Storybook states
-        if: ${{ !inputs.update-storybook-baselines }}
+        if: ${{ !inputs.storybook-evidence-run && !inputs.update-storybook-baselines }}
         run: bunx turbo run ci:storybook --filter=@pkgs/ui-root-harness-ts --concurrency=1
       - name: Retain Storybook comparisons and reference patch
-        if: always() && !cancelled()
+        if: ${{ always() && !cancelled() && !inputs.storybook-evidence-run }}
         run: >-
           bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload verify-nightly-storybook-"${GITHUB_RUN_ID}"
           pkgs/ui-root-harness-ts/.cache/storybook-test-results .cache/verify-nightly/storybook-baselines.patch
@@ -295,6 +312,7 @@ jobs:
       NEEDS: ${{ toJSON(needs) }}
       NIGHTLY_OWNER: ${{ vars.CI_TRIAGE_OWNER || github.repository_owner }}
       NIGHTLY_GROUP: ${{ github.event_name == 'schedule' && 'all' || inputs.group || 'all' }}
+      STORYBOOK_EVIDENCE_RUN: ${{ inputs.storybook-evidence-run }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:

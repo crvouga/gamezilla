@@ -18,6 +18,7 @@ const actions = readFileSync(
 const imports = readFileSync(join(TOFU, 'stacks/bootstrap/imports.tf'), 'utf8');
 
 // regression: repository-ruleset-solo-approval
+// regression: repository-policy-codeql-count
 test('main requires verified PRs without approvals a solo maintainer cannot give and refuses deletion and force-pushes', () => {
   expect(repository).toMatch(/resource "github_repository_ruleset" "main"/);
   for (const rule of ['deletion', 'non_fast_forward']) {
@@ -46,13 +47,13 @@ test('main requires verified PRs without approvals a solo maintainer cannot give
         readonly integration_id: number;
       }
   );
-  expect(checks).toHaveLength(2);
-  expect(checks).toEqual(
-    expect.arrayContaining([
-      { context: 'verify:start', integration_id: 15368 },
-      { context: 'verify:end', integration_id: 15368 },
-    ])
-  );
+  expect(checks.sort((a, b) => a.context.localeCompare(b.context))).toEqual([
+    { context: 'Analyze (actions)', integration_id: 15368 },
+    { context: 'Analyze (javascript-typescript)', integration_id: 15368 },
+    { context: 'CodeQL', integration_id: 57789 },
+    { context: 'verify:end', integration_id: 15368 },
+    { context: 'verify:start', integration_id: 15368 },
+  ]);
   expect(new Set(checks.map((check) => check.context)).size).toBe(
     checks.length
   );
@@ -252,7 +253,7 @@ type PolicyJob = {
   if?: string;
   environment?: string;
   concurrency?: { group: string };
-  steps?: { run?: string }[];
+  steps?: { run?: string; if?: string }[];
 };
 
 function workflow(name: string): Record<string, PolicyJob> {
@@ -333,6 +334,40 @@ test('abandoned-lock recovery shares the policy lock and requires an explicit re
   expect(
     preview?.steps?.some((step) =>
       step.run?.includes('#unlock:repository-policy')
+    )
+  ).toBe(true);
+});
+
+// regression: tofu-foundation-abandoned-lock
+test('abandoned foundation lock recovery is an explicit rehearsal input before the foundation plan', () => {
+  const preview = workflow('deploy.yml')['deploy-rehearsal'];
+  const text = readFileSync(
+    join(TOFU, '../../../.github/workflows/deploy.yml'),
+    'utf8'
+  );
+  expect(text).toContain("if: ${{ inputs.abandoned-foundation-lock != '' }}");
+  expect(text).toContain(
+    'TOFU_ABANDONED_LOCK_ID: ${{ inputs.abandoned-foundation-lock }}'
+  );
+  const steps = preview?.steps ?? [];
+  const unlockAt = steps.findIndex((step) =>
+    step.run?.includes('#unlock:foundation')
+  );
+  const foundationPlanAt = steps.findIndex((step) =>
+    step.run?.includes('@libs/infra-server-ts plan:found' + 'ation')
+  );
+  expect(unlockAt).toBeGreaterThan(-1);
+  expect(foundationPlanAt).toBeGreaterThan(unlockAt);
+});
+
+// regression: tofu-foundation-abandoned-lock
+test('abandoned foundation lock recovery also runs on the development release job', () => {
+  const release = workflow('deploy.yml')['deploy-dev'];
+  expect(
+    release?.steps?.some(
+      (step) =>
+        step.run?.includes('#unlock:foundation') &&
+        step.if?.includes('abandoned-foundation-lock')
     )
   ).toBe(true);
 });

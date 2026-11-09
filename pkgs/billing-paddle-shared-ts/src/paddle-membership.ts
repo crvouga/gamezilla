@@ -282,21 +282,64 @@ export class PaddleMembershipBilling implements MembershipBilling {
   }
 
   /**
-   * The customer's newest checkout that can still take a payment. Paddle's
-   * hosted checkout has no return URL of its own, so any open one will do.
+   * The customer's one checkout that can still take a payment, or `null`.
+   * Paddle has no idempotency keys, so two checkouts started at once can
+   * both be created. Every caller keeps the oldest (Paddle ids sort by
+   * creation) and cancels the rest, so they all hand back the same checkout
+   * and only it can take a payment. Paddle's hosted checkout has no return
+   * URL of its own, so any open one will do.
    */
   private async openCheckout(
     customerId: string
   ): Promise<PaddleTransaction | null> {
+    const ready = await this.readyCheckouts(customerId);
+    const [kept, ...extra] = ready;
+    await this.cancelCheckouts(extra);
+    return kept ?? null;
+  }
+
+  /** Cancels ready transactions; one already canceled or settled is done. */
+  private async cancelCheckouts(
+    transactions: readonly PaddleTransaction[]
+  ): Promise<void> {
+    for (const transaction of transactions) {
+      try {
+        await this.api.data<PaddleTransaction>(
+          'PATCH',
+          `/transactions/${encodeURIComponent(transaction.id)}`,
+          { status: 'canceled' }
+        );
+      } catch (error) {
+        // Already canceled by the other caller (or no longer open): done.
+        // Anything else (auth, rate limit, outage) must fail the checkout.
+        if (
+          !(error instanceof PaddleApiError) ||
+          ![400, 404, 409, 422].includes(error.status)
+        )
+          throw error;
+      }
+    }
+  }
+
+  private async readyCheckouts(
+    customerId: string
+  ): Promise<PaddleTransaction[]> {
     const query = new URLSearchParams({
       customer_id: customerId,
       status: 'ready',
       per_page: '200',
     });
-    const ready = await this.api.list<PaddleTransaction>(
-      `/transactions?${query.toString()}`
-    );
-    return ready.at(-1) ?? null;
+    return [
+      ...(await this.api.list<PaddleTransaction>(
+        `/transactions?${query.toString()}`
+      )),
+    ].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+  }
+
+  async closeCheckouts(customerId: string): Promise<MembershipChange | null> {
+    await this.cancelCheckouts(await this.readyCheckouts(customerId));
+    const live = await this.liveSubscription(customerId);
+    return live === null ? null : this.changeOf(live, false);
   }
 
   async startCheckout(input: StartCheckoutInput): Promise<StartCheckoutResult> {
@@ -333,10 +376,12 @@ export class PaddleMembershipBilling implements MembershipBilling {
         custom_data: { [PADDLE_CUSTOM_DATA.accountId]: input.accountId },
       }
     );
+    // A checkout started at the same moment may have been created too.
+    const kept = (await this.openCheckout(customer)) ?? transaction;
     return {
       kind: 'checkout',
       customerId: customer,
-      url: this.checkoutLink(transaction),
+      url: this.checkoutLink(kept),
     };
   }
 

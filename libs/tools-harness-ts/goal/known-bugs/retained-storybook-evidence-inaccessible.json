@@ -1,0 +1,4 @@
+{
+  "summary": "Retained Storybook screenshots, videos and metrics were inaccessible to reviewers without local artifact-store credentials.",
+  "regressionTest": "libs/tools-harness-ts/scripts/storybook-evidence-log.test.ts"
+}

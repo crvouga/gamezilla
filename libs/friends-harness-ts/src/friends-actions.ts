@@ -95,7 +95,25 @@ export const removeFriend = scenarioAction({
     await ui.get(remove).tap({ timeoutMs: WAIT_MS });
     const confirm = Handles.friendRemoveConfirm(username);
     await ui.get(confirm).tap({ timeoutMs: WAIT_MS });
-    await ui.get(confirm).expect.hidden({ timeoutMs: HIDDEN_MS });
+    // regression: friend-danger-harness-vacuous-success
+    await ui
+      .get(Handles.friendRemoveSuccess(username))
+      .expect.visible({ timeoutMs: WAIT_MS });
+    await ui
+      .get(Handles.friendRemoveDone(username))
+      .tap({ timeoutMs: WAIT_MS });
+    await ui
+      .get(Handles.friendRemoveSuccess(username))
+      .expect.hidden({ timeoutMs: HIDDEN_MS });
+    await ui.get(Handles.navBack).tap({ timeoutMs: WAIT_MS });
+    await pollUntil(
+      s,
+      async () =>
+        (await s.actors.get(actorId)?.currentPath()) === '/profile/friends'
+          ? true
+          : null,
+      { maxMs: WAIT_MS, description: 'the friends list after removal' }
+    );
     await ui.get(Handles.friendsListRow(username)).expect.hidden({
       timeoutMs: HIDDEN_MS,
     });

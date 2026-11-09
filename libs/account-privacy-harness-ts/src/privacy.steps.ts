@@ -24,12 +24,7 @@ import {
   proveAccount,
   reviewDeletion,
 } from './privacy-actions';
-import {
-  anyPrivacyNotice,
-  privacyNotice,
-  privacyStatus,
-  privacyText,
-} from './privacy-reads';
+import { anyPrivacyNotice, privacyStatus, privacyText } from './privacy-reads';
 
 /** A stored timestamp shown as it is stored (ISO text or epoch digits). */
 const RAW_DATE = /\d{4}-\d{2}-\d{2}|\d{10,}/;
@@ -155,7 +150,10 @@ Then(
   async (w, actor: Actor) => {
     // regression: deletion-permission-notice-hidden-by-dialog
     expect(
-      await w.s.read(privacyNotice, actor, 'privacy-delete-denial')
+      await w.s.read(anyPrivacyNotice, actor, [
+        'privacy-delete-denial',
+        'privacy-delete-access',
+      ])
     ).toContain('Prove the account again');
   }
 );
@@ -174,7 +172,9 @@ Then(
     expect(
       await w.s.read(anyPrivacyNotice, actor, [
         'privacy-delete-denial',
+        'privacy-delete-access',
         'privacy-export-denial',
+        'privacy-export-access',
       ])
     ).toContain(`last ${minutes} minutes`);
   }
@@ -219,7 +219,10 @@ Then(
   '{actor} is asked to sign in because deletion needs an account',
   async (w, actor: Actor) => {
     expect(
-      await w.s.read(privacyText, actor, 'privacy-delete-denial')
+      await w.s.read(anyPrivacyNotice, actor, [
+        'privacy-delete-denial',
+        'privacy-delete-access',
+      ])
     ).toContain('Sign in');
   }
 );
@@ -227,7 +230,10 @@ Then(
   '{actor} is told account deletion needs a connection',
   async (w, actor: Actor) => {
     expect(
-      await w.s.read(privacyText, actor, 'privacy-delete-denial')
+      await w.s.read(anyPrivacyNotice, actor, [
+        'privacy-delete-denial',
+        'privacy-delete-access',
+      ])
     ).toContain('needs a connection');
   }
 );
@@ -295,7 +301,10 @@ Then(
   '{actor} is told to prove the account again before exporting personal data',
   async (w, actor: Actor) => {
     expect(
-      await w.s.read(privacyText, actor, 'privacy-export-denial')
+      await w.s.read(anyPrivacyNotice, actor, [
+        'privacy-export-denial',
+        'privacy-export-access',
+      ])
     ).toContain('Prove the account again');
   }
 );
@@ -303,7 +312,10 @@ Then(
   '{actor} is told the personal-data export needs a connection',
   async (w, actor: Actor) => {
     expect(
-      await w.s.read(privacyText, actor, 'privacy-export-denial')
+      await w.s.read(anyPrivacyNotice, actor, [
+        'privacy-export-denial',
+        'privacy-export-access',
+      ])
     ).toContain('needs a connection');
   }
 );

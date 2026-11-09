@@ -95,10 +95,11 @@ export function FrameStatusView(props: {
           title={
             <>
               <VisuallyHidden>{status().lineup} </VisuallyHidden>
-              {status().description}
+              <Show when={status().sending} fallback={status().description}>
+                <Trans>Sending choice…</Trans>
+              </Show>
             </>
           }
-          detail={status().sending ? <Trans>Sending choice…</Trans> : undefined}
           spokenOnly={
             (props.spokenOnly === true || status().description.trim() === '') &&
             !status().sending

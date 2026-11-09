@@ -1,0 +1,4 @@
+{
+  "summary": "Leaving the Numberlink board safely canceled the provisional path but gave no explanation or next action. A polite drawing status now explains cancellation, confirms saved paths are unchanged and invites a new start.",
+  "regressionTest": "libs/numberlink-harness-ts/tests/numberlink-drawing-feedback.test.tsx"
+}
