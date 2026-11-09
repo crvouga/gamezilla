@@ -107,6 +107,9 @@
   box-shadow: inset 0 0 0 var(--ui-space-hairline) var(--ui-color-background);
   pointer-events: none;
 }
+.board[data-input="pointer"] .cell:focus-visible::before {
+  content: none;
+}
 /* Paints over the paths, which paint over the grid lines (`.lines`).
    Every size follows the cell (`--path-cell`), so a 20 × 20 board on a
    phone keeps its labels inside their cells. A label sizes to whichever

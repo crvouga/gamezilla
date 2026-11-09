@@ -140,6 +140,10 @@ function PathLines(props: { board: PathGridBoardProps }): JSX.Element {
  */
 export function PathGridBoard(props: PathGridBoardProps): JSX.Element {
   const [focus, setFocus] = createSignal(0);
+  // Pointer drawing focuses its start cell from script (so Escape reaches
+  // it), which browsers treat as keyboard focus: show the ring only after
+  // a key press.
+  const [input, setInput] = createSignal<'keyboard' | 'pointer'>('keyboard');
   const cells = createMemo(() =>
     Array.from({ length: props.columns * props.rows }, (_, index) => index)
   );
@@ -157,6 +161,7 @@ export function PathGridBoard(props: PathGridBoardProps): JSX.Element {
   });
   onCleanup(pointer.cancel);
   const key = (event: KeyboardEvent, index: number): void => {
+    setInput('keyboard');
     if (
       props.disabled !== true &&
       props.onCellKey?.(event.key, index) === true
@@ -182,8 +187,12 @@ export function PathGridBoard(props: PathGridBoardProps): JSX.Element {
       aria-describedby={props.describedBy}
       data-testid={props.testId}
       data-tracing={props.disabled !== true && props.onTraceStart !== undefined}
+      data-input={input()}
       style={{ '--path-columns': props.columns, '--path-rows': props.rows }}
-      onPointerDown={pointer.down}
+      onPointerDown={(event) => {
+        setInput('pointer');
+        pointer.down(event);
+      }}
       onPointerMove={pointer.move}
       onPointerUp={pointer.up}
       onPointerCancel={pointer.lost}
