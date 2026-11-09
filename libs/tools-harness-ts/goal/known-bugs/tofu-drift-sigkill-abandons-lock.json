@@ -1,0 +1,4 @@
+{
+  "summary": "Health 42102265025 SIGKILL'd drift while OpenTofu held foundation/dev, abandoning lock 31eedd87-d82f-6855-2162-0d37abf22196 and blocking every later Release apply:foundation. Read-only plan/drift now use -lock=false, and drift stop sends SIGINT before SIGKILL.",
+  "regressionTest": "libs/infra-shared-ts/tests/plan-lock.test.ts"
+}

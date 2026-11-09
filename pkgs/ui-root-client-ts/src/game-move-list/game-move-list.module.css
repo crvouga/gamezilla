@@ -52,6 +52,11 @@
   column-gap: var(--ui-space-2);
   row-gap: var(--ui-space-1);
 }
+/* Room kept for a turn's moves still to come: laid out, never seen. */
+.reserve {
+  display: inline-flex;
+  visibility: hidden;
+}
 /* The shown turn's number in words reads as a label, not a stray digit. */
 .list[data-layout="turn"] .number {
   white-space: nowrap;
@@ -159,4 +164,23 @@
 /* Four short coordinates fit the phone strip without a second move row. */
 .list[data-layout="turn"][data-wrap="true"][data-many-seats="true"] .turn {
   column-gap: var(--ui-space-1);
+}
+/* No moves yet: the label and an unseen first turn share one cell, so the
+   strip is as tall as that turn will be. */
+.empty {
+  display: grid;
+  min-width: 0;
+}
+.empty > * {
+  grid-area: 1 / 1;
+}
+.emptyReserve {
+  display: flex;
+  justify-content: center;
+  visibility: hidden;
+}
+.emptyLabel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

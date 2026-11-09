@@ -43,6 +43,8 @@ export type ChessBoardHitGridProps = {
   readonly orientation: BoardOrientation;
   /** A square button took focus (tab, screen reader, roving focus). */
   readonly onSquareFocus: (square: Square) => void;
+  readonly onSquareActivate: (square: Square) => void;
+  readonly interactive: boolean;
   readonly cursor: Square;
   readonly position: Accessor<Position>;
   readonly selected: Accessor<Square | null>;
@@ -97,7 +99,14 @@ export function ChessBoardHitGrid(props: ChessBoardHitGridProps): JSX.Element {
               data-square={square}
               aria-label={`${label()}${legal() ? ', Legal destination' : ''}`}
               aria-pressed={isSelected(square)}
+              aria-disabled={!props.interactive}
               tabIndex={isCursor(square) ? 0 : -1}
+              onClick={(event) => {
+                // Pointer gestures already commit through the board host.
+                // Assistive activation emits only a click, with no press.
+                if (event.detail === 0 && props.interactive)
+                  props.onSquareActivate(square);
+              }}
             />
           );
         }}

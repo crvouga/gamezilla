@@ -11,7 +11,6 @@
  * - Claude Code: `.mcp.json`
  * - Codex: `.codex/config.toml` (a generated block; Codex loads it once the
  *   project is trusted)
- * - Cursor: `.cursor/mcp.json`
  * - Gemini CLI: `.gemini/settings.json`
  * - OpenCode: `opencode.json`
  * - VS Code and GitHub Copilot in VS Code: `.vscode/mcp.json`
@@ -28,14 +27,9 @@
  * has no mise shims. Agents that start in the project directory find the
  * project with `--project-from-cwd`; IDEs name it with `${workspaceFolder}`.
  * The dashboard never opens a browser tab: several agents run at once.
- *
- * Cursor also gets the hosted Sentry MCP server for the product's Sentry
- * organization (`external.sentryOrganization` in the product identity), so
- * that entry is generated too and follows the identity.
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { PRODUCT } from '@libs/product-identity-shared-ts/product-identity';
 
 const ROOT = join(import.meta.dirname, '../../..');
 const SERVER = 'serena';
@@ -80,15 +74,9 @@ interface JsonTarget {
   entry: (args: string[]) => unknown;
   /** Keys written when the file is new or lacks them. */
   defaults?: Record<string, unknown>;
-  /** Other generated servers, by name, written beside Serena. */
-  servers?: Record<string, unknown>;
 }
 
 /** The hosted Sentry MCP server, scoped to the product's organization. */
-export const SENTRY_MCP = {
-  url: `https://mcp.sentry.dev/mcp/${PRODUCT.external.sentryOrganization}`,
-};
-
 /** Owned local Storybook; use the checkout manifest when overriding its port. */
 export const STORYBOOK_MCP_URL = 'http://127.0.0.1:6006/mcp';
 
@@ -97,7 +85,6 @@ function storybookServer(target: JsonTarget): unknown {
     return { type: 'remote', url: STORYBOOK_MCP_URL, enabled: true };
   if (target.path === '.gemini/settings.json')
     return { httpUrl: STORYBOOK_MCP_URL };
-  if (target.path === '.cursor/mcp.json') return { url: STORYBOOK_MCP_URL };
   if (target.path === '.roo/mcp.json' || target.path.startsWith('.continue/'))
     return { type: 'streamable-http', url: STORYBOOK_MCP_URL };
   return { type: 'http', url: STORYBOOK_MCP_URL };
@@ -126,13 +113,6 @@ const JSON_TARGETS: JsonTarget[] = [
     container: 'mcpServers',
     launch: { context: 'claude-code', project: 'cwd' },
     entry: stdio,
-  },
-  {
-    path: '.cursor/mcp.json',
-    container: 'mcpServers',
-    launch: { context: 'ide', project: 'workspace-folder' },
-    entry: (args) => ({ command: 'mise', args }),
-    servers: { Sentry: SENTRY_MCP },
   },
   {
     path: '.gemini/settings.json',
@@ -177,7 +157,6 @@ export function renderJson(
     ...doc,
     [target.container]: {
       ...servers,
-      ...target.servers,
       storybook: storybookServer(target),
       [SERVER]: target.entry(serenaArgs(target.launch)),
     },
