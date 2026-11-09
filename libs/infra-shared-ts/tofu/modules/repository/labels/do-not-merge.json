@@ -1,0 +1,5 @@
+{
+  "name": "do-not-merge",
+  "color": "000000",
+  "description": "Auto-merge is disabled while this label is on"
+}

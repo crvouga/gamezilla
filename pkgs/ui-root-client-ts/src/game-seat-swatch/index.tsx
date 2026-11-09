@@ -10,7 +10,8 @@ import type { AvatarSeatColor } from '../avatar/index';
  * board whose pieces are not drawn in player colors, so the swatch matches
  * the pieces on it in both themes: `disc-one` and `disc-two` are the first
  * and second disc of the disc-drop board, `trail-one` to `trail-four` the
- * first to fourth rider's trail in a trail arena.
+ * first to fourth rider's trail in a trail arena, `pawn-one` to `pawn-four`
+ * the first to fourth pawn ink of the pawn-and-wall board.
  */
 export type GameSeatColor =
   | AvatarSeatColor
@@ -19,7 +20,11 @@ export type GameSeatColor =
   | 'trail-one'
   | 'trail-two'
   | 'trail-three'
-  | 'trail-four';
+  | 'trail-four'
+  | 'pawn-one'
+  | 'pawn-two'
+  | 'pawn-three'
+  | 'pawn-four';
 
 /** A seat's look: its paint, its mark, or both. */
 export type GameSeatLook =
@@ -33,6 +38,10 @@ const DOT: Readonly<Record<GameSeatColor, string>> = {
   'trail-two': 'bg-game-light-cycles-one',
   'trail-three': 'bg-game-light-cycles-two',
   'trail-four': 'bg-game-light-cycles-ink',
+  'pawn-one': 'bg-game-quoridor-surface',
+  'pawn-two': 'bg-game-quoridor-surface',
+  'pawn-three': 'bg-game-quoridor-surface',
+  'pawn-four': 'bg-game-quoridor-surface',
   player1: 'bg-player1',
   player2: 'bg-player2',
   player3: 'bg-player3',
@@ -42,6 +51,31 @@ const DOT: Readonly<Record<GameSeatColor, string>> = {
   player7: 'bg-player7',
   player8: 'bg-player8',
 };
+
+/**
+ * A pawn paint is the board's own square with the pawn's ink on it, as the
+ * pawn is drawn: the mark carries the color, so the seat's chip, legend and
+ * pawn read the same in both themes, where a theme's player colors cannot.
+ */
+export const GAME_SEAT_PAWN_INKS: Readonly<
+  Record<'pawn-one' | 'pawn-two' | 'pawn-three' | 'pawn-four', string>
+> = {
+  'pawn-one': 'text-game-quoridor-one',
+  'pawn-two': 'text-game-quoridor-three',
+  'pawn-three': 'text-game-quoridor-two',
+  'pawn-four': 'text-game-quoridor-ink',
+};
+
+function isPawnPaint(
+  paint: GameSeatColor | undefined
+): paint is keyof typeof GAME_SEAT_PAWN_INKS {
+  return (
+    paint === 'pawn-one' ||
+    paint === 'pawn-two' ||
+    paint === 'pawn-three' ||
+    paint === 'pawn-four'
+  );
+}
 
 export type GameSeatSwatchProps = {
   look: GameSeatLook;
@@ -56,7 +90,9 @@ export type GameSeatSwatchProps = {
  * the seat's paint (a player color, or the board's own disc paint, so the
  * legend matches the pieces) carrying its short mark
  * glyph (`●`, `◆`, `X`) in the canvas ink, like a piece on the board; a mark
- * alone without a color. A seat with a mark never relies on hue alone.
+ * alone without a color. A seat with a mark never relies on hue alone, and
+ * a painted swatch is ringed in the outline ink so a light paint still
+ * stands out from a light card.
  *
  * Decorative by default, because the seat's name sits beside it; with a
  * `label` it is an image with that accessible name.
@@ -76,11 +112,19 @@ export function GameSeatSwatch(props: GameSeatSwatchProps): JSX.Element {
   const discPaint = (): boolean =>
     color() === 'disc-one' || color() === 'disc-two';
   const trailPaint = (): boolean => color()?.startsWith('trail-') === true;
+  const pawnInk = (): string | undefined => {
+    const paint = color();
+    return isPawnPaint(paint) ? GAME_SEAT_PAWN_INKS[paint] : undefined;
+  };
   return (
     <span
       class="box inline-flex flex-row shrink-0 items-center justify-center size-5"
       classList={{
         'rounded-full': color() !== undefined,
+        // Several paints are light on a light card (a light-cycles trail,
+        // a pale disc); the outline ring keeps every painted swatch at 3:1
+        // or more against the card in both themes.
+        'border border-outline': color() !== undefined,
         [DOT[color() ?? 'player1']]: color() !== undefined,
       }}
       role={labelled() ? 'img' : undefined}
@@ -93,10 +137,13 @@ export function GameSeatSwatch(props: GameSeatSwatchProps): JSX.Element {
       <Show when={props.look.mark}>
         {(mark) => (
           <span
-            class="text textLabel whitespace-nowrap"
+            class={`text textLabel whitespace-nowrap ${pawnInk() ?? ''}`}
             classList={{
               'text-background':
-                color() !== undefined && !discPaint() && !trailPaint(),
+                color() !== undefined &&
+                !discPaint() &&
+                !trailPaint() &&
+                pawnInk() === undefined,
               'text-game-connect-four-canvas': discPaint(),
               'text-game-light-cycles-canvas': trailPaint(),
               'text-text': color() === undefined,

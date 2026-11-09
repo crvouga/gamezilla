@@ -1,0 +1,4 @@
+{
+  "summary": "The desktop arena hid direction pads but did not tell a rider to focus it before keyboard steering or explain mouse dragging.",
+  "regressionTest": "libs/light-cycles-client-ts/tests/light-cycles-board-layout.test.tsx"
+}

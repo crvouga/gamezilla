@@ -44,7 +44,7 @@ not make it. Default PR title: **UI quality overhaul**.
      state: rerun an INCOMPLETE round, start round n+1 after ANOTHER_ROUND, stop after a final
      comment. If the invocation's roster or minimum differs from the recorded run, ask whether
      the user means to change it. Change it only on an explicit yes, then start a new baseline.
-   - Not found: branch from the trunk, open a draft PR titled "UI quality overhaul" (or the
+   - Not found: branch from the trunk, open a PR (ready for review, not a draft) titled "UI quality overhaul" (or the
      user's title), and continue.
 3. Keep working state in a git-ignored evidence root inside the repository (default
    `.ui-overhaul/`; add it to `.git/info/exclude`). Council members must be able to open its

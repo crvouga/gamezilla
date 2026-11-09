@@ -9,7 +9,7 @@ import {
   expectQuoridorWallPreview,
 } from './quoridor-wall-preview.example';
 
-/** Full-size choices move all four pawns, then preview, cancel and place a wall. */
+/** Full-size choices move all four pawns in turn. */
 export async function playHillPreciseCoordinates(canvasElement: HTMLElement) {
   const canvas = within(canvasElement);
   await expectQuoridorSpatialArea(canvasElement);
@@ -28,11 +28,13 @@ export async function playHillPreciseCoordinates(canvasElement: HTMLElement) {
       canvas.getByTestId(`custom-game-board-action-${square}`)
     ).toHaveAccessibleName(new RegExp(pawn));
   }
-  await playHillWallPreview(canvasElement);
 }
 
-/** Rotation preserves the full d4 proposal until cancellation or explicit commit. */
-async function playHillWallPreview(canvasElement: HTMLElement) {
+/**
+ * Rotation preserves the full d4 proposal until cancellation or explicit commit.
+ * A separate journey from the pawn moves so each fits the story deadline on a throttled phone.
+ */
+export async function playHillWallPreview(canvasElement: HTMLElement) {
   const canvas = within(canvasElement);
   await expectQuoridorSpatialArea(canvasElement);
   await userEvent.click(canvas.getByTestId('custom-game-board-mode-h'));

@@ -1,0 +1,4 @@
+{
+  "summary": "At 320px a turn game's move strip put a long place label (Waiting for connection) in the same row as the moves, squeezing the moves well until the last move (Bc4) ran under the expand chevron.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/game-frame-strip/integration.checks.ts"
+}

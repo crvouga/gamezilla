@@ -10,14 +10,36 @@ test('a checked black king has visible check, orientation and keyboard guidance'
     showGuidance: true,
     interactive: true,
   });
-  expect(screen.getByText(/Black pieces nearest you/).textContent).toContain(
+  expect(screen.getByText(/Black pieces at the bottom/).textContent).toContain(
     'Black is in check.'
   );
   expect(screen.getByText(/Escape to cancel/)).toBeTruthy();
   board.setOrientation('white');
-  expect(screen.getByText(/White pieces nearest you/).textContent).toContain(
+  expect(screen.getByText(/White pieces at the bottom/).textContent).toContain(
     'Black is in check.'
   );
+});
+
+// regression: chess-checkmate-told-as-check
+test('a finished position names checkmate or stalemate, never plain check', () => {
+  const mated = mountBoard({
+    fen: 'rnb1kbnr/pppp1ppp/8/4p3/6Pq/5P2/PPPPP2P/RNBQKBNR w KQkq - 1 3',
+    showGuidance: true,
+    interactive: false,
+  });
+  const matedLine = screen.getByText(/White pieces at the bottom/).textContent;
+  expect(matedLine).toContain('White is checkmated.');
+  expect(matedLine).not.toContain('in check');
+  mated.unmount();
+  const stalemated = mountBoard({
+    fen: '7k/5Q2/6K1/8/8/8/8/8 b - - 0 1',
+    showGuidance: true,
+    interactive: false,
+  });
+  expect(screen.getByText(/White pieces at the bottom/).textContent).toContain(
+    'Black is stalemated.'
+  );
+  stalemated.unmount();
 });
 
 // regression: chess-phone-keyboard-paragraph

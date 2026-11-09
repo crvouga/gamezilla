@@ -12,6 +12,7 @@ import type {
 import type { GameBoardProps } from '@pkgs/turn-game-shared-ts/game-presentation';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { CellGridBoard } from '@pkgs/ui-root-client-ts/cell-grid-board';
+import { createFocusTarget } from '@pkgs/ui-root-client-ts/focus';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import {
@@ -20,12 +21,14 @@ import {
   createMemo,
   createSignal,
   type JSX,
+  on,
   Show,
 } from 'solid-js';
 import {
   type QuoridorTool,
   quoridorBoardCells,
   quoridorBoundary,
+  quoridorPlayerName,
   quoridorWallMessage,
 } from './quoridor-board-cells';
 import {
@@ -46,6 +49,7 @@ type BoardState = {
   readonly refusal: Accessor<string>;
   readonly actions: Accessor<readonly GameFrameAction[]>;
   readonly setRefusal: (message: string) => void;
+  readonly setTool: (tool: QuoridorTool) => void;
 };
 
 type BoardViewProps = GameBoardProps & { readonly state: BoardState };
@@ -58,8 +62,13 @@ function createBoardSelection(props: BoardViewProps) {
     cell: string;
     position: string;
   } | null>(null);
+  const cancel = () => {
+    setChosen(null);
+    setPreview(null);
+  };
+  createEffect(on([() => props.position, () => props.syncKey], cancel));
   createEffect(() => {
-    if (tool() === 'move') setChosen(null);
+    if (tool() === 'move') cancel();
   });
   const selected = () => {
     const value = chosen();
@@ -82,15 +91,18 @@ function createBoardSelection(props: BoardViewProps) {
     if (game().winner !== null)
       return t`Game finished. Use the game controls to review earlier moves.`;
     if (!props.interactive)
-      return t`This board is read-only. Follow the game or review earlier moves.`;
+      return t`Waiting for ${quoridorPlayerName(game(), game().turn)} to move. This board is read-only.`;
     if (quoridorMustPass(game()))
       return t`No legal move or wall. Pass to continue.`;
-    if ((game().remaining[game().turn] ?? 0) === 0)
-      return quoridorWallMessage('no-walls');
     const action = previewAction();
-    return action === null
-      ? props.state.refusal()
-      : `${quoridorBoundary(action)}. ${quoridorWallMessage(wallRefusal(game(), action))}`;
+    if (action !== null)
+      return `${quoridorBoundary(action)}. ${quoridorWallMessage(wallRefusal(game(), action), game().mode)}`;
+    // A host refusal explains the last attempt; it outranks standing guidance.
+    const refused = props.state.refusal();
+    if (refused !== '') return refused;
+    return (game().remaining[game().turn] ?? 0) === 0
+      ? quoridorWallMessage('no-walls', game().mode)
+      : '';
   };
   const activate = (cell: string): void => {
     const action = tool() === 'move' ? cell : `${cell}${tool()}`;
@@ -102,15 +114,13 @@ function createBoardSelection(props: BoardViewProps) {
     setPreview(null);
     props.onAction(action);
   };
-  const cancel = () => {
-    setChosen(null);
-    setPreview(null);
-  };
   const commit = () => {
     const action = `${selected()}${tool()}`;
     if (wallRefusal(game(), action) !== null) return;
     cancel();
     props.state.setRefusal('');
+    // The wall is spent: the next turn starts with the pawn tool.
+    props.state.setTool('move');
     props.onAction(action);
   };
   return { cells, selected, message, activate, setPreview, cancel, commit };
@@ -120,6 +130,12 @@ function QuoridorBoardView(props: BoardViewProps): JSX.Element {
   const game = (): Quoridor => props.state.game();
   const tool = (): QuoridorTool => props.state.tool();
   const selection = createBoardSelection(props);
+  // Cancel and Place wall leave the page; focus lands on the active tool instead.
+  const toolFocus = createFocusTarget();
+  const [refocus, setRefocus] = createSignal(false);
+  createEffect(() => {
+    if (refocus() && toolFocus.focus()) setRefocus(false);
+  });
   return (
     <StackVertical gap="xs">
       <Show when={game().winner === null && quoridorMustPass(game())}>
@@ -132,6 +148,7 @@ function QuoridorBoardView(props: BoardViewProps): JSX.Element {
         boardTheme="quoridor"
         fill
         label={t`Quoridor board, nine columns and nine rows`}
+        describedBy={`${props.testId}-wall-status`}
         testId={props.testId}
         columnLabels={['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i']}
         rowLabels={['9', '8', '7', '6', '5', '4', '3', '2', '1']}
@@ -141,6 +158,11 @@ function QuoridorBoardView(props: BoardViewProps): JSX.Element {
         }
         onActivate={selection.activate}
         onPreview={selection.setPreview}
+        onCellKey={(key) => {
+          if (key !== 'Escape') return false;
+          selection.cancel();
+          return true;
+        }}
       />
       <Show
         when={
@@ -152,6 +174,7 @@ function QuoridorBoardView(props: BoardViewProps): JSX.Element {
         <QuoridorBoardTools
           testId={props.testId}
           actions={props.state.actions()}
+          focusTarget={toolFocus.target}
         />
         <QuoridorTargetPicker
           testId={props.testId}
@@ -167,11 +190,21 @@ function QuoridorBoardView(props: BoardViewProps): JSX.Element {
           enabled={
             wallRefusal(game(), `${selection.selected()}${tool()}`) === null
           }
-          cancel={selection.cancel}
-          commit={selection.commit}
+          cancel={() => {
+            selection.cancel();
+            setRefocus(true);
+          }}
+          commit={() => {
+            selection.commit();
+            setRefocus(true);
+          }}
         />
       </Show>
-      <P role="status" dataSet={{ testid: `${props.testId}-wall-status` }}>
+      <P
+        id={`${props.testId}-wall-status`}
+        role="status"
+        dataSet={{ testid: `${props.testId}-wall-status` }}
+      >
         {selection.message() || toolGuidance(tool())}
       </P>
     </StackVertical>
@@ -185,6 +218,17 @@ export function createQuoridorBoard(
   const game = createMemo(() => decodeQuoridor(props.position));
   const [tool, setTool] = createSignal<QuoridorTool>('move');
   const [refusal, setRefusal] = createSignal('');
+  // Each new position starts a fresh turn with the pawn tool, never a leftover wall tool.
+  createEffect(
+    on(
+      () => props.position,
+      () => {
+        setTool('move');
+        setRefusal('');
+      },
+      { defer: true }
+    )
+  );
   const live = (): boolean => props.interactive && game().winner === null;
   const toolActions = (): readonly GameFrameAction[] =>
     TOOLS.map((each) => ({
@@ -212,6 +256,7 @@ export function createQuoridorBoard(
     tool,
     refusal,
     setRefusal,
+    setTool,
     actions: () => (quoridorMustPass(game()) ? [pass()] : toolActions()),
   };
   return {
