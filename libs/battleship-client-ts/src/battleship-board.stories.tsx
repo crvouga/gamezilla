@@ -167,6 +167,23 @@ export const Watching: Story = {
   },
 };
 
+/**
+ * Red has just sunk Blue's destroyer, the longest turn line a phone shows
+ * ("Red fleet sank the Destroyer at B9. Your turn to fire."), and it is
+ * Blue's turn: Fire and the own seat still fit before any scroll.
+ */
+export const SunkByRival: Story = {
+  args: { position: after(['j1', 'a9', 'j3', 'b9']) },
+  parameters: {
+    table: {
+      turn: 'white',
+      moves: recorded(after(['j1', 'a9', 'j3', 'b9'])),
+    } satisfies GameTableStory,
+  },
+  // Pins the longest phone turn line against the seat (sink-line fit).
+  play: async ({ canvasElement }) => assertTargetWorkbench(canvasElement),
+};
+
 /** Blue sinks the whole Red fleet and is told so. */
 export const Won: Story = {
   play: async ({ canvasElement }) => {

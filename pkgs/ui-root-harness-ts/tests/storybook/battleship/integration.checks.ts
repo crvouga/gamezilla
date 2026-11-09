@@ -21,6 +21,7 @@ const stories = [
   'board--hit-a-ship',
   'board--sink-a-ship',
   'board--sink-the-fleet',
+  'board--sunk-by-rival',
   'board--waiting-for-opponent',
   'board--watching',
   'board--lost',
