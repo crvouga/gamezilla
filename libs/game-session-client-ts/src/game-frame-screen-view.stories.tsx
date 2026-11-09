@@ -17,6 +17,7 @@ import {
   MID_GAME_RECORD,
   MORGAN,
   PEOPLE,
+  FRAME_PLAYING as PLAYING,
   person,
   playSeat,
   record,
@@ -29,19 +30,6 @@ import {
   YOUR_TURN_MOVES,
   YOUR_TURN_RECORD,
 } from './game-frame-story.example';
-
-const PLAYING: Partial<GameFrameScreenViewProps> = {
-  phase: 'active',
-  viewerSide: 'white',
-  status: status(),
-  table: {
-    shape: 'strip',
-    near: playSeat(AVERY, { deciding: true }),
-    others: [playSeat(JORDAN)],
-  },
-  play: { ...FRAME_NO_PLAY, canOfferDraw: true, canResign: true },
-  record: record(MID_GAME_RECORD),
-};
 
 const meta = {
   id: 'screens-games-frame',
