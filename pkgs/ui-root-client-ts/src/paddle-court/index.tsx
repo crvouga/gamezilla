@@ -14,13 +14,6 @@ export type { CourtSide } from '../paddle-court-input';
 export type PaddleCourtProps = CourtControls & {
   /** A non-playing state placed where the player watches, without taking input. */
   readonly status?: string | undefined;
-  /**
-   * What the status says, for readers that must not depend on its words:
-   * written as `data-stage` (and `data-winner` when it names one).
-   */
-  readonly statusData?:
-    | { readonly stage: string; readonly winner?: string | undefined }
-    | undefined;
   /** Translated touch verb; explicit edge cues avoid unexplained lane shading. */
   readonly touchHint?: string | undefined;
   readonly width: number;
@@ -193,8 +186,6 @@ function CourtFeedback(props: PaddleCourtProps): JSX.Element {
           class={styles['status']}
           role="status"
           data-testid={`${props.testId}-status`}
-          data-stage={props.statusData?.stage}
-          data-winner={props.statusData?.winner}
         >
           {props.status}
         </div>
@@ -228,8 +219,7 @@ function CourtFeedback(props: PaddleCourtProps): JSX.Element {
 /* oxlint-disable jsx-a11y/no-noninteractive-tabindex, jsx-a11y/no-noninteractive-element-interactions -- A keyboard-operated court uses the ARIA application role; the adjacent native sliders provide equivalent controls outside application mode. */
 export function PaddleCourt(props: PaddleCourtProps): JSX.Element {
   const input = paddleCourtInput(props);
-  let court: HTMLDivElement | undefined;
-  useCourtInputLifecycle(props, input.release, () => court);
+  useCourtInputLifecycle(props, input.release);
   return (
     <div
       class={styles['frame']}
@@ -240,7 +230,6 @@ export function PaddleCourt(props: PaddleCourtProps): JSX.Element {
       <div class={styles['stage']}>
         <div
           {...dataAttrs({ component: 'PaddleCourt', testid: props.testId })}
-          ref={court}
           class={styles['court']}
           data-interactive={props.enabled && props.controlled.length > 0}
           role="application"

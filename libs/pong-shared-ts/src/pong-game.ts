@@ -22,23 +22,11 @@ import { createPongStep } from './pong-step';
 
 const config = pongConfig();
 const serialized = pongCodec(config);
-// The court, the frame's status and its standings all read the same
-// position every tick: parse and validate it once, and hand each reader the
-// same immutable state.
-let lastPosition: string | undefined;
-let lastState: ReturnType<typeof serialized.decode> = null;
 export const pongPositionCodec = {
   encode: (state: Parameters<typeof serialized.encode>[0]) =>
     `pong:${serialized.encode(state)}`,
-  decode: (position: string) => {
-    if (position !== lastPosition) {
-      lastState = position.startsWith('pong:')
-        ? serialized.decode(position.slice(5))
-        : null;
-      lastPosition = position;
-    }
-    return lastState;
-  },
+  decode: (position: string) =>
+    position.startsWith('pong:') ? serialized.decode(position.slice(5)) : null,
 };
 const requirePosition = (position: string) => {
   const state = pongPositionCodec.decode(position);
