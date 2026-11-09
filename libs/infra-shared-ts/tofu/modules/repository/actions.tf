@@ -1,13 +1,24 @@
-# Any action may run, but only pinned to a full commit SHA: in a public
-# repository a moved tag would run new code with the workflow's OIDC token
+# Only GitHub-authored actions, verified creators and the allowlist below may
+# run, and only pinned to a full commit SHA: in a public repository a moved
+# tag would run new code with the workflow's OIDC token
 # (libs/tools-harness-ts/scripts/workflow-pinning.test.ts checks every
-# reference). Workflows specify elevated permissions where needed. Do not
-# grant repository-wide writes.
+# reference). Add an action to the allowlist in the PR that first uses it.
+# Workflows specify elevated permissions where needed. Do not grant
+# repository-wide writes.
 resource "github_actions_repository_permissions" "this" {
   repository           = github_repository.this.name
   enabled              = true
-  allowed_actions      = "all"
+  allowed_actions      = "selected"
   sha_pinning_required = true
+
+  allowed_actions_config {
+    github_owned_allowed = true
+    verified_allowed     = true
+    patterns_allowed = [
+      "Infisical/secrets-action@*",
+      "jdx/mise-action@*",
+    ]
+  }
 }
 
 resource "github_workflow_repository_permissions" "this" {

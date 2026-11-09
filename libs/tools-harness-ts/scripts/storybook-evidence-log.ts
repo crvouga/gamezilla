@@ -9,6 +9,24 @@ export const EVIDENCE_MANIFEST = `${STORYBOOK_RESULTS}relay-manifest.json`;
 export const STORYBOOK_BASELINE_PATCH =
   '.cache/verify-nightly/storybook-baselines.patch';
 
+const FILE_LIMIT = 20 * 1024 * 1024;
+const TOTAL_LIMIT = 512 * 1024 * 1024;
+
+/**
+ * Whether a retained file fits the bounded log transfer. An oversized
+ * reference patch is skipped (its authoring job log carries it already);
+ * any other oversized evidence refuses the export.
+ */
+export function evidenceTransfer(
+  path: string,
+  size: number,
+  sentSoFar: number
+): 'send' | 'skip' {
+  if (size <= FILE_LIMIT && sentSoFar + size <= TOTAL_LIMIT) return 'send';
+  if (path === STORYBOOK_BASELINE_PATCH) return 'skip';
+  throw new Error('Evidence exceeds the bounded log transfer size');
+}
+
 export function assertEvidencePath(path: string): void {
   if (path === STORYBOOK_BASELINE_PATCH) return;
   if (

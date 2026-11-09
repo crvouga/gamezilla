@@ -13,10 +13,7 @@ import {
   assertPuzzleBounds,
   checkPuzzleFirstRank,
 } from './chess-puzzle-bounds.example';
-import {
-  assertStablePuzzleRectangle,
-  puzzleRectangle,
-} from './chess-puzzle-geometry.example';
+import { assertStablePuzzleRectangle } from './chess-puzzle-geometry.example';
 import { ChessPuzzleJourney } from './chess-puzzle-journey.example';
 import {
   completeChessPuzzle,
@@ -26,6 +23,7 @@ import {
   StoryChessPuzzleBoard,
   withChessPuzzleBoardContext,
 } from './chess-puzzle-story.example';
+import { puzzleRectangle } from './puzzle-rectangle.example';
 
 /**
  * Chess's puzzle play: the platform's puzzle screen with chess's own
@@ -140,7 +138,7 @@ export const KeyboardHelp: Story = {
     const canvas = within(canvasElement);
     const initial = puzzleRectangle(canvasElement);
     await userEvent.click(canvas.getByText('Keyboard controls'));
-    await assertStablePuzzleRectangle(canvasElement, initial);
+    await assertStablePuzzleRectangle(canvasElement, initial, 'keyboard-help');
     await assertPuzzleBounds(canvasElement);
     await expect(
       canvas.getByText('Arrows to move, Enter to choose, Escape to cancel.')

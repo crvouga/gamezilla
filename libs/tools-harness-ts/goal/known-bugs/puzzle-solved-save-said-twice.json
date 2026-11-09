@@ -1,0 +1,4 @@
+{
+  "summary": "On a solved puzzle attempt (Sokoban, Numberlink) the panel said 'Progress saved on this device.' directly above the 'Completion saved / Your completion is saved...' notice, saying the same thing twice and pushing the notice under the fold at 390x844. The save line now sits inside the completion notice as its one statement of saving ('Completion saved' / 'Progress saved on this device. You can keep playing or choose another puzzle.'); it stands alone again while a change is saving, in a playtest, and before the puzzle is solved.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-attempt-layout.test.tsx"
+}

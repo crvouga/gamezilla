@@ -1,6 +1,7 @@
 // @io-wall-ok — CLI helper: spawns tofu / conftest.
 
 import type { ConftestRunner } from '@libs/infra-shared-ts/plan-policy';
+import { providerInstallIsTransient } from '@libs/infra-shared-ts/plan-retry';
 import { redactInfraOutput } from '@libs/infra-shared-ts/redact-output';
 import {
   mayPrintToolStdout,
@@ -87,6 +88,28 @@ export function tofu(
   env: Record<string, string>
 ): number {
   return spawnTool('tofu', args, { env }).status;
+}
+
+const INIT_ATTEMPTS = 4;
+/** Registry and GitHub release outages usually clear within a minute. */
+const INIT_RETRY_WAIT_MS = 15_000;
+
+/** `tofu init`, retried while provider downloads fail transiently. */
+export async function tofuInit(
+  args: readonly string[],
+  env: Record<string, string>
+): Promise<number> {
+  for (let attempt = 1; ; attempt += 1) {
+    const result = spawnTool('tofu', args, { env });
+    if (result.status === 0) return 0;
+    const output = `${result.stdout}${result.stderr}`;
+    if (attempt >= INIT_ATTEMPTS || !providerInstallIsTransient(output))
+      return result.status;
+    console.error(
+      `[infra] tofu init: provider download failed, retrying (${String(attempt)})`
+    );
+    await Bun.sleep(INIT_RETRY_WAIT_MS * attempt);
+  }
 }
 
 export const conftest: ConftestRunner = ({ args, stdin }) =>

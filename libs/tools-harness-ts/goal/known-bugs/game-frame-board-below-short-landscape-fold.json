@@ -1,0 +1,4 @@
+{
+  "summary": "At 844x390 the opted-in square game frame stacked the title, move strip and a seat above a board taller than the window: the board started near y=300 and the own seat, clock, Offer draw and Resign were never in view with it.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/game-frame-landscape/integration.checks.ts"
+}
