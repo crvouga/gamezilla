@@ -106,6 +106,10 @@ resource "github_branch_default" "main" {
 
 locals {
   required_checks = [for check_file in fileset("${path.module}/required-checks", "*.json") : jsondecode(file("${path.module}/required-checks/${check_file}"))]
+  # CodeQL's checks depend on GitHub downloading the scanner. The final PR
+  # gate (verify:end) enforces them instead: findings block, an unavailable
+  # scanner only warns, so a download outage cannot block merging.
+  ruleset_checks = [for check in local.required_checks : check if !try(check.outage_tolerant, false)]
 }
 
 resource "github_repository_ruleset" "main" {
@@ -157,7 +161,7 @@ resource "github_repository_ruleset" "main" {
     required_status_checks {
       strict_required_status_checks_policy = false
       dynamic "required_check" {
-        for_each = { for check in local.required_checks : check.context => check }
+        for_each = { for check in local.ruleset_checks : check.context => check }
         content {
           context        = required_check.value.context
           integration_id = required_check.value.integration_id

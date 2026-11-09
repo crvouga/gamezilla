@@ -1,0 +1,4 @@
+{
+  "summary": "A refused Quoridor wall proposal painted over the existing wall it collided with, so the reason for the refusal was not visible.",
+  "regressionTest": "libs/quoridor-client-ts/tests/quoridor-board-truthful-state.test.tsx"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "The arena maps the destructive colour to the light-cycles 'one' token, so every crash badge was drawn in Ember's own peach and read as an Ember mark beside Ember's trail. A crash is now a red diamond with a cross in the page's destructive surface, a colour and shape no rider uses.",
+  "regressionTest": "pkgs/ui-root-client-ts/tests/trail-arena-contrast.test.ts"
+}

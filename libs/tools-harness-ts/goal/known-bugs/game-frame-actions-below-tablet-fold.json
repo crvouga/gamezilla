@@ -1,0 +1,4 @@
+{
+  "summary": "On a 768x900 tablet the opted-in square game frame fitted the board and both seats but not the action row laid out under them, so Offer draw and Resign sat below the fold during play.",
+  "regressionTest": "pkgs/ui-root-client-ts/tests/game-board-stage-actions-fit.test.tsx"
+}
