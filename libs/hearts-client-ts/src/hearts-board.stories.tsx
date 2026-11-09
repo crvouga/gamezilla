@@ -36,7 +36,7 @@ import {
   receivedHands,
   renderPassJourney,
 } from './hearts-pass-journey.example';
-import { renderHeartsTable } from './hearts-table.example';
+import { heartsMoves, renderHeartsTable } from './hearts-table.example';
 
 /** One fixed deal: every story sees the same thirteen cards per seat. */
 const DEAL = dealFrom(shufflerFrom([7, 11, 13, 17]));
@@ -246,6 +246,8 @@ export const GameOver: Story = {
   parameters: {
     table: {
       ending: { winner: 'red', reason: 'lowest score' },
+      // A finished game keeps its record: the final deal's cards as played.
+      moves: heartsMoves(encodeHearts(playing(52).position)),
     } satisfies GameTableStory,
   },
 };
