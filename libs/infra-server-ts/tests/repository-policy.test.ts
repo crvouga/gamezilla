@@ -359,3 +359,15 @@ test('abandoned foundation lock recovery is an explicit rehearsal input before t
   expect(unlockAt).toBeGreaterThan(-1);
   expect(foundationPlanAt).toBeGreaterThan(unlockAt);
 });
+
+// regression: tofu-foundation-abandoned-lock
+test('abandoned foundation lock recovery also runs on the development release job', () => {
+  const release = workflow('deploy.yml')['deploy-dev'];
+  expect(
+    release?.steps?.some(
+      (step) =>
+        step.run?.includes('#unlock:foundation') &&
+        step.if?.includes('abandoned-foundation-lock')
+    )
+  ).toBe(true);
+});
