@@ -1,0 +1,4 @@
+{
+  "summary": "A solved puzzle could offer three ways on at once: a game's own library action beside the board plus the screen's Pack overview and Next puzzle, and in a playtest the game's action led away from the draft while the screen offered Return to builder. Players now receive a read-only context (pack, playtest or single, and whether the screen offers a way on) so a game can defer to the screen.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/puzzle-play-context.test.ts"
+}

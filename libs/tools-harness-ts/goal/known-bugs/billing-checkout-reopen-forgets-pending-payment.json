@@ -1,0 +1,4 @@
+{
+  "summary": "Reopening the app before payment confirmation discarded the paid return and offered another checkout.",
+  "regressionTest": "specs/billing/billing-plans.feature"
+}

@@ -29,6 +29,14 @@ Feature: Switch payment provider
       When Alice's membership is canceled immediately
       Then Alice's membership has ended
 
+    @regression:billing-provider-switch-leaves-old-checkout-payable
+    Scenario: A payment the first payment provider has not confirmed yet is not taken again after the switch
+      Given Alice has paid at checkout and the payment provider has not yet confirmed it
+      And the team has switched payment provider
+      When Alice tries to subscribe to Plus again
+      Then Alice has paid access
+      And Alice's billing portal is the first payment provider's
+
   Rule: New memberships start at the payment provider the team chose
 
     Scenario: Subscribing after the switch starts at the second payment provider

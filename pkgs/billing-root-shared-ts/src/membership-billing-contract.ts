@@ -215,6 +215,56 @@ function describeOneCheckout(
   });
 }
 
+/** Before checkouts move to another provider, this one closes its own. */
+function describeClosingCheckouts(
+  open: () => Promise<MembershipBillingContractHarness>
+): void {
+  test('closing checkouts leaves none open: the next checkout is a new one', async () => {
+    const { billing } = await open();
+    const first = opened(
+      await billing.startCheckout(checkoutInput('acct-1', null))
+    );
+    expect(await billing.closeCheckouts(first.customerId)).toBeNull();
+    const again = opened(
+      await billing.startCheckout(checkoutInput('acct-1', first.customerId))
+    );
+    assertAbsoluteUrl(again.url);
+    expect(again.url).not.toBe(first.url);
+  });
+
+  test('closing checkouts reports a live membership the app may not know', async () => {
+    const harness = await open();
+    const first = await harness.billing.startCheckout(
+      checkoutInput('acct-1', null)
+    );
+    harness.setSubscription({
+      ...SUBSCRIPTION,
+      id: 'sub_paid_elsewhere',
+      customerId: first.customerId,
+      situation: 'active',
+    });
+    expect(
+      await harness.billing.closeCheckouts(first.customerId)
+    ).toMatchObject({
+      provider: harness.billing.provider,
+      customerId: first.customerId,
+      subscriptionId: 'sub_paid_elsewhere',
+      membership: CONTRACT_EXPECTED.active,
+    });
+  });
+
+  test('closing checkouts at an unreachable provider throws', async () => {
+    const harness = await open();
+    const first = await harness.billing.startCheckout(
+      checkoutInput('acct-1', null)
+    );
+    harness.setUnavailable(true);
+    await expect(
+      harness.billing.closeCheckouts(first.customerId)
+    ).rejects.toThrow();
+  });
+}
+
 const SUBSCRIPTION: ContractSubscription = {
   id: 'sub_contract',
   customerId: 'cus_contract',
@@ -456,6 +506,8 @@ export function describeMembershipBillingContract(
   describe(`${name} satisfies the membership contract`, () => {
     describe('sessions', () => describeSessions(open));
     describe('one checkout at a time', () => describeOneCheckout(open));
+    describe('closing checkouts before a switch', () =>
+      describeClosingCheckouts(open));
     describe('authenticity', () => describeAuthenticity(open));
     describe('projection', () =>
       describeProjection(open, options.unreachable ?? {}));

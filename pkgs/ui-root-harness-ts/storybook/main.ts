@@ -11,6 +11,7 @@ import tailwindcss from '@tailwindcss/vite';
 import type { StorybookConfig } from 'storybook-solidjs-vite';
 import solid from 'vite-plugin-solid';
 import { configureDocgen } from './docgen';
+import { previewAnnotations } from './entrypoints';
 
 const root = resolve(import.meta.dirname, '../../..');
 /** Design-system slices live in `pkgs/`; product screen views live in `libs/`. */
@@ -37,9 +38,7 @@ const config: StorybookConfig = {
       files: '**/*.stories.tsx',
     })),
   ],
-  previewAnnotations: [
-    resolve(root, 'apps/product-ts/src/storybook-preview.example.tsx'),
-  ],
+  previewAnnotations: previewAnnotations.map((path) => resolve(root, path)),
   addons: [
     '@chromatic-com/storybook',
     '@storybook/addon-docs',

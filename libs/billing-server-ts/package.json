@@ -13,7 +13,8 @@
     "billing:sync": "bun run scripts/sync-billing-offer.ts",
     "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test tests"
+    "test": "bun test tests",
+    "billing:feedback": "bun scripts/cancellation-feedback-report.ts"
   },
   "dependencies": {
     "@hono/zod-validator": "catalog:",
@@ -52,7 +53,9 @@
     "@pkgs/sql-client-sqlite-root-server-ts": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "@libs/db-shared-ts": "workspace:*",
+    "@pkgs/sql-client-postgres-server-ts": "workspace:*"
   },
   "category": "server",
   "language": "typescript"

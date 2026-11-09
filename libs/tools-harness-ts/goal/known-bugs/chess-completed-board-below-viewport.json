@@ -1,0 +1,4 @@
+{
+  "summary": "The 1440x900 completed Chess screen lets its width-driven board push lower ranks and the checked king below the initial viewport.",
+  "regressionTest": "pkgs/ui-root-client-ts/tests/chess-viewport-stage.test.tsx"
+}

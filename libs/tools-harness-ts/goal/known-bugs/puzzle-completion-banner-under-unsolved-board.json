@@ -1,0 +1,4 @@
+{
+  "summary": "After a solved puzzle was restarted, the attempt either lost all sign of its saved completion or (in stories that kept it) showed the full \"Completion saved ... choose another puzzle\" banner under an unsolved board with no such action in view. Once the board is played away from solved, the attempt now says quietly \"Solved before. Your completion stays saved.\"",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-attempt-solved-before.test.tsx"
+}

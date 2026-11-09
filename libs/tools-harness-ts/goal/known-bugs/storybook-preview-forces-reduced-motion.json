@@ -1,0 +1,4 @@
+{
+  "summary": "The shared Storybook preview always set data-reduced-motion on the theme host, so every capture disabled transitions and animations regardless of page.emulateMedia; normal-motion evidence was impossible and reduced-motion checks passed trivially. A motion global set to system now lets the browser decide; the default stays reduced for stable screenshots.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/story-motion.test.ts"
+}
