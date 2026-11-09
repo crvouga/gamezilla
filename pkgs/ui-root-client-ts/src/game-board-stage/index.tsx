@@ -5,6 +5,7 @@ import precision from '../game-screen/game-precision.module.css';
 import styles from '../game-ui.module.css';
 import { createScreenSlot } from '../screen-slot';
 import { GameBoardPreviewContext } from './board-preview';
+import { createViewportSquareFit } from './viewport-fit';
 
 /**
  * The play surface and the people around it. The game supplies the
@@ -29,16 +30,28 @@ export function GameBoardStage(props: {
   preview?: boolean | undefined;
   /** Under the thumbnail, what it is (`Board preview`). */
   previewLabel?: JSX.Element | undefined;
+  /** Fit square content and its chrome on larger viewports, with a target floor. */
+  viewportFit?: 'square' | undefined;
   dataSet?: ComponentDataSet | undefined;
 }): JSX.Element {
   const others = createScreenSlot(() => props.others);
   const turn = createScreenSlot(() => props.turn);
   const own = createScreenSlot(() => props.own);
   const preview = (): boolean => props.preview === true;
+  let root: HTMLDivElement | undefined;
+  const limit = createViewportSquareFit(
+    () => root,
+    () => props.viewportFit === 'square' && !preview()
+  );
   return (
     <div
+      ref={root}
       class={`${styles['boardStage']} ${precision['board']}`}
       data-preview={props.preview === true}
+      data-viewport-fit={props.viewportFit}
+      style={{
+        '--game-board-fit': limit() === undefined ? undefined : `${limit()}px`,
+      }}
       {...dataAttrs({ component: 'GameBoardStage', ...props.dataSet })}
     >
       <Show when={others.present()}>{others.content()}</Show>

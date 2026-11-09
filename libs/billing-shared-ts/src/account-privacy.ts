@@ -34,6 +34,11 @@ export const closeAccountMembership = createMessageNamespace(
 export const BILLING_PRIVACY: AccountPrivacyContribution = {
   name: 'payments and membership',
   snapshot: async ({ tx, env }) => ({
+    cancellationFeedback: await tx.query(
+      sql<
+        Record<string, unknown>
+      >`SELECT reason, comment, created_at, updated_at FROM billing_cancellation_feedback WHERE account_id = ${env.actorId} AND deleted_at IS NULL`
+    ),
     memberships: await tx.query(
       sql<
         Record<string, unknown>
@@ -46,6 +51,9 @@ export const BILLING_PRIVACY: AccountPrivacyContribution = {
     ),
   }),
   withdraw: async (ctx) => {
+    await ctx.tx.run(
+      sql`UPDATE billing_cancellation_feedback SET deleted_at = ${(ctx.env.serverNow ?? ctx.env.now)().toISOString()} WHERE account_id = ${ctx.env.actorId}`
+    );
     const rows = await ctx.tx.query(
       sql<{
         provider: string;
@@ -78,7 +86,10 @@ export const BILLING_PRIVACY: AccountPrivacyContribution = {
   },
   erase: async ({ tx, env }) => {
     await tx.run(
-      sql`UPDATE billing_subscriptions SET account_id = ${null}, price_key = ${null}, current_period_end = ${null}, credit_cents = ${null} WHERE account_id = ${env.actorId} AND deleted_at IS NOT NULL`
+      sql`UPDATE billing_cancellation_feedback SET account_id = ${null}, subscription_id = ${null}, reason = ${null}, comment = ${null} WHERE account_id = ${env.actorId} AND deleted_at IS NOT NULL`
+    );
+    await tx.run(
+      sql`UPDATE billing_subscriptions SET account_id = ${null}, price_key = ${null}, current_period_end = ${null}, credit_cents = ${null}, canceled_at = ${null} WHERE account_id = ${env.actorId} AND deleted_at IS NOT NULL`
     );
   },
   withdrawalStatus: async ({ tx, env }) => {

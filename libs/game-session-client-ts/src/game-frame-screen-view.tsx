@@ -33,6 +33,11 @@ import {
   FrameStatusRow,
 } from './game-frame-outcome-view';
 import {
+  shownRecord,
+  stripCaption,
+  strippedRecord,
+} from './game-frame-record-strip';
+import {
   FrameHistoryLink,
   FrameRecordView,
   type FrameReviewHandlers,
@@ -105,6 +110,8 @@ export type GameFrameScreenViewProps = FrameReviewHandlers & {
   readonly about?: (() => JSX.Element) | undefined;
   /** Public render state on the board stage, for automated observers. */
   readonly boardState?: Readonly<Record<string, string>> | undefined;
+  /** The game's square fit (`GameFrame.boardFit`); absent for width alone. */
+  readonly boardFit?: 'square' | undefined;
   readonly people?: FramePeople | undefined;
   /** Every choice about the game, as the room accepts it. */
   readonly onChoose: (input: CustomGameInput) => Promise<void>;
@@ -230,49 +237,6 @@ function FrameSetupSlot(props: Props): JSX.Element {
  * The record has nothing to say while a game is set up: it shows once the
  * game is under way (or over), and before a game only for earlier games.
  */
-function shownRecord(props: Props): FrameRecord | null {
-  return props.phase === 'configuring' ? null : props.record;
-}
-
-/** On a narrow screen, the record of a game played by turns once it is under way. */
-function strippedRecord(
-  props: Props,
-  mode: ReturnType<typeof useLayoutMode>
-): FrameRecord | null {
-  const shown = shownRecord(props);
-  return mode() !== 'wide' &&
-    (props.phase === 'active' || props.phase === 'completed') &&
-    shown !== null &&
-    shown.turns
-    ? shown
-    : null;
-}
-
-/**
- * Beside the phone's strip, the game's own line about the turn
- * (`Red fleet fired at C4 and missed. Your turn to fire.`) heads the strip
- * instead of a pill by the board, so it is said once, under the top bar.
- * The plain `<Side> to move.` stays with the seat that says it, and a
- * warning (reconnecting, a stand-in) still shows by the board.
- */
-function stripCaption(
-  props: Props,
-  mode: ReturnType<typeof useLayoutMode>
-): string | undefined {
-  const status = props.status;
-  if (
-    props.phase !== 'active' ||
-    strippedRecord(props, mode) === null ||
-    status === null ||
-    status.plainTurn ||
-    status.tone !== 'neutral' ||
-    status.sending ||
-    status.description === ''
-  )
-    return undefined;
-  return status.description;
-}
-
 /**
  * On a narrow screen a game played by turns keeps its record as one
  * compact strip pinned under the host's top bar, above the board (whose
@@ -558,6 +522,7 @@ function FrameBoardStage(props: Props): JSX.Element {
   return (
     <GameBoardStage
       preview={!seated()}
+      viewportFit={props.boardFit}
       // How the game is played, beside the preview, names it instead.
       previewLabel={
         props.about === undefined ? <Trans>Board preview</Trans> : undefined
@@ -700,6 +665,7 @@ export function GameFrameScreenView(props: Props): JSX.Element {
     <GameScreen
       screenId="custom-game"
       title={props.title}
+      compactInset={props.table.compactInset}
       facts={
         <Show when={props.denial === undefined && props.phase !== 'none'}>
           <FrameFacts {...props} />

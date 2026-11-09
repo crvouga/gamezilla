@@ -67,6 +67,7 @@ test('deletion committed after a callback reads the account prevents revival', a
           endsAtPeriodEnd: false,
         },
       }),
+      closeCheckouts: async () => null,
       readPayments: async () => [],
     };
     const notified: string[] = [];

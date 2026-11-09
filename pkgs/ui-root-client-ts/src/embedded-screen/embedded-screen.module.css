@@ -1,0 +1,13 @@
+/* The `narrowest` compact inset: 4px only on the narrowest phones (below
+   360px), where a precision board needs every pixel; 16px otherwise, so
+   wider compact screens keep the standard edge. */
+.narrowest,
+[data-compact-inset="narrowest"] > [data-component="ScrollViewContent"] {
+  padding-inline: var(--ui-space-lg);
+}
+@media (max-width: 359px) {
+  .narrowest,
+  [data-compact-inset="narrowest"] > [data-component="ScrollViewContent"] {
+    padding-inline: var(--ui-space-xs);
+  }
+}
