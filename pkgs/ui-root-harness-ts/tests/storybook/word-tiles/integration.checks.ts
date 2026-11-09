@@ -211,7 +211,7 @@ test('storybook integration: word-tiles desktop rack sits under a larger board b
   const board = await box('custom-game-board');
   const rack = await box('custom-game-board-rack');
   const seat = await box('custom-game-seat-near');
-  // The fitted board follows the window height: about 28rem at 900px tall.
+  // 28rem fitted board, up from 23rem before the overhaul.
   expect(board.width).toBeGreaterThanOrEqual(440);
   expect(rack.top).toBeGreaterThan(board.bottom);
   expect(seat.top).toBeGreaterThanOrEqual(rack.bottom);
@@ -370,5 +370,20 @@ test('storybook integration: word-tiles phone status line stays one line while w
     await openStory(page, story, 'light');
     await expect(status).toContainText(text);
     expect(await height(), story).toBe(oneLine);
+  }
+});
+
+// regression: word-tiles-desktop-own-seat-below-fold
+test('storybook integration: word-tiles desktop keeps the own seat whole in an 844px-tall window', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 844 });
+  for (const story of ['two-player-match', 'place-a-word']) {
+    await openStory(page, story, 'light');
+    const seat = await page
+      .getByTestId('custom-game-seat-near')
+      .first()
+      .evaluate((element) => element.getBoundingClientRect().bottom);
+    expect(seat, story).toBeLessThanOrEqual(844);
   }
 });

@@ -1,0 +1,4 @@
+{
+  "summary": "A desktop Word Tiles layout that sized the board to the window height and gave the status line its own row pushed the player's own seat partly below an 844px-tall window; the status line now sits beside the board's foot and the board is a fixed 28rem.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/word-tiles/integration.checks.ts"
+}
