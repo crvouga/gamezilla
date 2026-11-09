@@ -108,7 +108,7 @@ the returned markdown into `glab mr note <n> --message "$(cat comment.md)"`.
 - Storybook: use the `storybook` skill. `pnpm storybook` starts the supervised server and
   `pnpm stack restart app-storybook` restarts it. Never start a second server on 6006. Discover
   stories with the Storybook MCP (`docs-list`, `docs-show-story`) and follow
-  `get-storybook-story-instructions` before writing one. Chromatic owns component baselines.
+  `get-storybook-story-instructions` before writing one. The existing visual baselines own component coverage.
   This skill's full-screen stories add to them and replace nothing.
 - Running app: `pnpm stack start --profile ui` for web. For iOS, `pnpm stack start --profile dev --own-ios`
   and `pnpm agent-tooling local member new --persona <name> --sign-in`.
