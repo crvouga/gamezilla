@@ -1,4 +1,7 @@
-import type { PathGridBoardProps } from './path-grid-types';
+import type {
+  PathGridBoardProps,
+  PathGridTraceCancellation,
+} from './path-grid-types';
 
 type Point = { readonly x: number; readonly y: number };
 type Grid = { readonly columns: number; readonly rows: number };
@@ -44,7 +47,9 @@ export function createPathGridPointer(
   element: () => HTMLDivElement | undefined
 ) {
   let active: number | null = null;
+  const capturedPointer = (): number | null => active;
   let previous: Point | null = null;
+  let traced = false;
   const point = (event: PointerEvent): Point | null => {
     const box = element()?.getBoundingClientRect();
     if (box === undefined || box.width <= 0 || box.height <= 0) return null;
@@ -54,21 +59,27 @@ export function createPathGridPointer(
       ? { x, y }
       : null;
   };
-  const cancel = (): void => {
+  const cancel = (reason: PathGridTraceCancellation = 'interrupted'): void => {
     if (active === null) return;
     const pointer = active;
     active = null;
     previous = null;
     element()?.releasePointerCapture(pointer);
-    props.onTraceCancel?.();
+    props.onTraceCancel?.(reason);
   };
   const move = (event: PointerEvent): void => {
     if (active !== event.pointerId || props.disabled === true) return;
     event.preventDefault();
     const next = point(event);
-    if (next === null || previous === null) return;
-    for (const cell of pathGridSegment(previous, next, props))
+    if (next === null) {
+      cancel('boundary');
+      return;
+    }
+    if (previous === null) return;
+    for (const cell of pathGridSegment(previous, next, props)) {
+      traced = true;
       props.onTraceMove?.(cell);
+    }
     previous = next;
   };
   return {
@@ -87,16 +98,24 @@ export function createPathGridPointer(
       event.preventDefault();
       active = event.pointerId;
       previous = start;
+      traced = false;
       element()?.setPointerCapture(event.pointerId);
-      props.onTraceStart(
-        Math.floor(start.y) * props.columns + Math.floor(start.x)
-      );
+      const index = Math.floor(start.y) * props.columns + Math.floor(start.x);
+      element()
+        ?.querySelector<HTMLButtonElement>(`[data-cell="${index}"]`)
+        ?.focus({ preventScroll: true });
+      props.onTraceStart(index);
     },
     move,
     up(event: PointerEvent): void {
       if (active !== event.pointerId) return;
       move(event);
-      const pointer = active;
+      const pointer = capturedPointer();
+      if (pointer === null) return;
+      if (!traced) {
+        cancel('stationary');
+        return;
+      }
       active = null;
       previous = null;
       element()?.releasePointerCapture(pointer);

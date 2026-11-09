@@ -3,9 +3,14 @@ import {
   type StoryPackPuzzle,
 } from '@libs/game-puzzle-client-ts/content-attempt-story.example';
 import { numberlinkPuzzleContent } from '@libs/numberlink-shared-ts/numberlink-puzzle-content';
-import { createSignal } from 'solid-js';
+import { createSignal, type JSX, untrack } from 'solid-js';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
+import { numberlinkContentFrame } from './numberlink-content-frame';
+import {
+  DENSE_NUMBERLINK,
+  LONG_LABEL_NUMBERLINK,
+} from './numberlink-extremes.example';
 import { numberlinkGeometry } from './numberlink-geometry.example';
 import { NumberlinkPlayer } from './numberlink-player';
 import {
@@ -25,10 +30,11 @@ function progress(paths: typeof SOLUTION): string {
 /** The game's own figures for the attempt, as the app's panel shows them. */
 function figures(definition: string, state: string) {
   const values = numberlinkPuzzleContent.statistics?.(definition, state) ?? {};
-  return [
-    { key: 'connectedPairs', label: 'Connected pairs' },
-    { key: 'coveredCells', label: 'Covered cells' },
-  ].map((figure) => ({ ...figure, value: String(values[figure.key] ?? 0) }));
+  return Object.entries(numberlinkContentFrame.stats).map(([key, label]) => ({
+    key,
+    label: label(),
+    value: String(values[key] ?? 0),
+  }));
 }
 
 /** A five-pair puzzle, as a person plays it from a pack. */
@@ -55,6 +61,7 @@ const meta = {
         args.state
       )}
       figures={figures(args.definition, args.state)}
+      figuresPlacement={numberlinkContentFrame.figuresPlacement}
       player={<NumberlinkPlayer {...args} />}
     />
   ),
@@ -74,6 +81,26 @@ export const Fresh: Story = {
   play: async ({ canvasElement }) => {
     // regression: numberlink-progress-detached-from-board
     await numberlinkGeometry(canvasElement);
+  },
+};
+
+/** Matching labels remain the primary cue when every pair shares one color. */
+export const SameColorPairs: Story = {
+  args: {
+    definition: JSON.stringify({
+      ...FIVE_BY_FIVE,
+      pairs: FIVE_BY_FIVE.pairs.map((pair) => ({ ...pair, color: 'blue' })),
+    }),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    for (const label of ['1', '2', '3', '4', '5']) {
+      await expect(
+        canvas.getAllByRole('button', {
+          name: new RegExp(`endpoint ${label}, unfinished$`),
+        })
+      ).toHaveLength(2);
+    }
   },
 };
 
@@ -166,31 +193,87 @@ function movementKey(
 }
 
 /** Actual rule application feeds each committed gesture back into the player. */
+function DrawPathsAttempt(props: {
+  puzzle: StoryPackPuzzle;
+  args: Parameters<NonNullable<Story['render']>>[0];
+  /** Paths already saved when the attempt opens. */
+  saved?: typeof SOLUTION;
+}): JSX.Element {
+  // Only the opening position: later saves come from the player's actions.
+  const [state, setState] = createSignal(
+    progress(untrack(() => props.saved) ?? [])
+  );
+  return (
+    <StoryPackAttempt
+      puzzle={props.puzzle}
+      figures={figures(props.args.definition, state())}
+      figuresPlacement={numberlinkContentFrame.figuresPlacement}
+      player={
+        <NumberlinkPlayer
+          {...props.args}
+          state={state()}
+          onAction={(action) => {
+            const next = numberlinkPuzzleContent.rules.apply(
+              props.args.definition,
+              state(),
+              action
+            );
+            if (!next.accepted) throw new Error('Story gesture was refused');
+            setState(next.state);
+          }}
+        />
+      }
+    />
+  );
+}
+
+export const DrawPaths: Story = {
+  render: (args) => <DrawPathsAttempt puzzle={PUZZLE} args={args} />,
+};
+
+const DENSE_PUZZLE: StoryPackPuzzle = {
+  ...PUZZLE,
+  title: 'Twenty rows',
+  difficulty: 'Hard',
+  description: 'Join each pair of numbers across the widest board.',
+};
+
+const LONG_LABEL_PUZZLE: StoryPackPuzzle = {
+  ...PUZZLE,
+  title: 'Weather words',
+  description: 'Join each pair of matching words and fill every square.',
+};
+
+/** Maximum dimensions retain the same real rules and interaction handlers. */
+export const DenseBoard: Story = {
+  render: (args) => <DrawPathsAttempt puzzle={DENSE_PUZZLE} args={args} />,
+  args: { definition: JSON.stringify(DENSE_NUMBERLINK) },
+};
+
+/** The densest board with its top ten rows already joined. */
+export const DenseBoardHalfDrawn: Story = {
+  render: (args) => (
+    <DrawPathsAttempt
+      puzzle={DENSE_PUZZLE}
+      args={args}
+      saved={Array.from({ length: 10 }, (_, row) => ({
+        pairId: `row-${row}`,
+        cells: Array.from({ length: 20 }, (_, x) => ({ x, y: row })),
+      }))}
+    />
+  ),
+  args: { definition: JSON.stringify(DENSE_NUMBERLINK) },
+};
+
+/** Long matching labels remain meaningful without distinct pair colors. */
+export const LongLabels: Story = {
+  render: (args) => <DrawPathsAttempt puzzle={LONG_LABEL_PUZZLE} args={args} />,
+  args: { definition: JSON.stringify(LONG_LABEL_NUMBERLINK) },
+};
+
+/** Complete a fresh attempt using keyboard input and real game rules. */
 export const CompleteWithKeyboard: Story = {
-  render: (args) => {
-    const [state, setState] = createSignal(progress([]));
-    return (
-      <StoryPackAttempt
-        puzzle={PUZZLE}
-        figures={figures(args.definition, state())}
-        player={
-          <NumberlinkPlayer
-            {...args}
-            state={state()}
-            onAction={(action) => {
-              const next = numberlinkPuzzleContent.rules.apply(
-                args.definition,
-                state(),
-                action
-              );
-              if (!next.accepted) throw new Error('Story gesture was refused');
-              setState(next.state);
-            }}
-          />
-        }
-      />
-    );
-  },
+  ...DrawPaths,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const first = canvas.getByRole('button', { name: /^A1: endpoint 1/ });
@@ -231,7 +314,7 @@ export const CompleteWithKeyboard: Story = {
       'Puzzle solved'
     );
     await expect(
-      canvas.queryByText('Drag from a number to its match.')
+      canvas.queryByTestId('numberlink-drawing-status')
     ).not.toBeInTheDocument();
   },
 };
@@ -252,7 +335,7 @@ export const DrawingHelp: Story = {
     );
     await expect(canvas.getByTestId('numberlink-key-hints')).toBeVisible();
     await expect(
-      canvas.getByText(/Start again at a number to redraw/)
+      canvas.getByText(/Start again at an endpoint to redraw/)
     ).toBeVisible();
   },
 };
