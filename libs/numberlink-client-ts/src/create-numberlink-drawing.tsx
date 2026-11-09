@@ -60,22 +60,10 @@ function initialDrawing(
   };
 }
 
-function createDrawingKey(
-  ports: DrawingPorts,
-  drawing: {
-    readonly cancel: () => void;
-    readonly escape: () => void;
-    readonly clearError: () => void;
-  }
-) {
-  const reset = (): void => {
-    drawing.cancel();
-    drawing.clearError();
-  };
+function createDrawingKey(ports: DrawingPorts, reset: () => void) {
   return (name: string, index: number): boolean => {
     if (name === 'Escape') {
-      drawing.escape();
-      drawing.clearError();
+      reset();
       return true;
     }
     if (name !== 'Backspace' && name !== 'Delete') return false;
@@ -106,33 +94,15 @@ function createDrawingFeedback(
 ) {
   const { t } = useLingui();
   const [feedback, setFeedback] = createSignal<string | null>(null);
-  // Every way a drawing can be abandoned says so in the same words.
-  const cancelExplained = (explain: boolean): void => {
+  const cancelTrace = (reason: PathGridTraceCancellation): void => {
     const wasDrawing = gesture() !== null;
     cancel();
-    if (wasDrawing && explain)
+    if (wasDrawing && reason !== 'stationary')
       setFeedback(
-        t`Drawing canceled. Saved paths are unchanged. Start again from an endpoint.`
+        t`Drawing canceled. Saved paths are unchanged. Start again from a number.`
       );
   };
-  const cancelTrace = (reason: PathGridTraceCancellation): void =>
-    cancelExplained(reason !== 'stationary');
-  return {
-    feedback,
-    cancelTrace,
-    escape: () => cancelExplained(true),
-    clear: () => setFeedback(null),
-  };
-}
-
-/** A new puzzle, saved state or availability abandons any drawing in progress. */
-function cancelOnNewInput(ports: DrawingPorts, cancel: () => void): void {
-  createEffect(() => {
-    void ports.definition();
-    void ports.state();
-    void ports.disabled();
-    cancel();
-  });
+  return { feedback, cancelTrace, clear: () => setFeedback(null) };
 }
 
 /** A drawing is provisional until it finishes; only the game rules can accept its cells. */
@@ -147,7 +117,12 @@ export function createNumberlinkDrawing(ports: DrawingPorts) {
     refused = false;
   };
   const status = createDrawingFeedback(gesture, cancel);
-  cancelOnNewInput(ports, cancel);
+  createEffect(() => {
+    void ports.definition();
+    void ports.state();
+    void ports.disabled();
+    cancel();
+  });
   const preview = createMemo(() => previewDrawing(ports, gesture()));
   const begin = (index: number): void => {
     if (ports.disabled()) return;
@@ -195,10 +170,9 @@ export function createNumberlinkDrawing(ports: DrawingPorts) {
       finish();
     }
   };
-  const key = createDrawingKey(ports, {
-    cancel,
-    escape: status.escape,
-    clearError: () => setError(null),
+  const key = createDrawingKey(ports, () => {
+    cancel();
+    setError(null);
   });
   return {
     gesture,

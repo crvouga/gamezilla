@@ -25,20 +25,12 @@ export type {
 
 /**
  * Splits a label into at most two balanced lines, so the longest allowed
- * label stays large enough to read inside one cell: at the space nearest
- * the middle, or mid-word with a hyphen so it still reads as one word.
+ * label stays large enough to read inside one cell.
  */
 export function endpointLines(label: string): readonly string[] {
   if (label.length <= 4) return [label];
-  const middle = label.length / 2;
-  const spaces = [...label.matchAll(/ /g)].map((match) => match.index);
-  const space = spaces.sort(
-    (a, b) => Math.abs(a - middle) - Math.abs(b - middle)
-  )[0];
-  if (space !== undefined)
-    return [label.slice(0, space), label.slice(space + 1)];
-  const split = Math.ceil(middle);
-  return [`${label.slice(0, split)}-`, label.slice(split)];
+  const split = Math.ceil(label.length / 2);
+  return [label.slice(0, split), label.slice(split)];
 }
 
 function PathCell(props: {
@@ -89,7 +81,7 @@ function PathCell(props: {
                 '--endpoint-columns': Math.max(
                   ...lines().map((line) => line.length)
                 ),
-                '--endpoint-glyph': /^\d+$/.test(endpoint().label) ? 0.6 : 0.8,
+                '--endpoint-glyph': /^\d+$/.test(endpoint().label) ? 0.6 : 0.74,
               }}
             >
               <For each={lines()}>
@@ -118,7 +110,6 @@ function PathLines(props: { board: PathGridBoardProps }): JSX.Element {
             data-path={line().id}
             data-tone={line().tone}
             data-connected={line().connected}
-            data-provisional={line().provisional === true}
             points={line()
               .cells.map(
                 (cell) =>
@@ -140,10 +131,6 @@ function PathLines(props: { board: PathGridBoardProps }): JSX.Element {
  */
 export function PathGridBoard(props: PathGridBoardProps): JSX.Element {
   const [focus, setFocus] = createSignal(0);
-  // Pointer drawing focuses its start cell from script (so Escape reaches
-  // it), which browsers treat as keyboard focus: show the ring only after
-  // a key press.
-  const [input, setInput] = createSignal<'keyboard' | 'pointer'>('keyboard');
   const cells = createMemo(() =>
     Array.from({ length: props.columns * props.rows }, (_, index) => index)
   );
@@ -161,7 +148,6 @@ export function PathGridBoard(props: PathGridBoardProps): JSX.Element {
   });
   onCleanup(pointer.cancel);
   const key = (event: KeyboardEvent, index: number): void => {
-    setInput('keyboard');
     if (
       props.disabled !== true &&
       props.onCellKey?.(event.key, index) === true
@@ -187,12 +173,8 @@ export function PathGridBoard(props: PathGridBoardProps): JSX.Element {
       aria-describedby={props.describedBy}
       data-testid={props.testId}
       data-tracing={props.disabled !== true && props.onTraceStart !== undefined}
-      data-input={input()}
       style={{ '--path-columns': props.columns, '--path-rows': props.rows }}
-      onPointerDown={(event) => {
-        setInput('pointer');
-        pointer.down(event);
-      }}
+      onPointerDown={pointer.down}
       onPointerMove={pointer.move}
       onPointerUp={pointer.up}
       onPointerCancel={pointer.lost}

@@ -65,9 +65,7 @@
   user-select: none;
 }
 .board[data-tracing="true"] {
-  /* One finger draws; two fingers still zoom the page, so a dense board
-     on a phone can be enlarged and then drawn on. */
-  touch-action: pinch-zoom;
+  touch-action: none;
 }
 .cell {
   position: relative;
@@ -94,21 +92,9 @@
   pointer-events: none;
 }
 .cell:focus-visible {
-  outline: none;
-}
-/* Above the endpoint, with a dark inner edge, so focus stays visible on a
-   filled endpoint of the same hue. */
-.cell:focus-visible::before {
-  content: "";
-  position: absolute;
-  z-index: 4;
-  inset: 0;
-  border: calc(3 * var(--ui-space-hairline)) solid var(--ui-color-focus-ring);
-  box-shadow: inset 0 0 0 var(--ui-space-hairline) var(--ui-color-background);
-  pointer-events: none;
-}
-.board[data-input="pointer"] .cell:focus-visible::before {
-  content: none;
+  outline: calc(2 * var(--ui-space-hairline)) solid var(--ui-color-focus-ring);
+  outline-offset: calc(-1 * calc(2 * var(--ui-space-hairline)));
+  z-index: 1;
 }
 /* Paints over the paths, which paint over the grid lines (`.lines`).
    Every size follows the cell (`--path-cell`), so a 20 × 20 board on a
@@ -146,8 +132,7 @@
   pointer-events: none;
 }
 .endpoint[data-shape="tag"] {
-  --endpoint-text-width: calc(var(--path-cell) * 0.74);
-  width: 92%;
+  --endpoint-text-width: calc(var(--path-cell) * 0.72);
   border-radius: var(--ui-radius-control);
 }
 .endpoint-line {
@@ -172,11 +157,6 @@
 /* One continuous stroke from cell to cell, joined or still open: a dashed
    open path broke into separate capsules that read as a drawing fault. A
    path still open ends in the board, its endpoints rings, not discs. */
-/* Thinner while unsaved: a cue by shape, not colour alone, and opaque, so
-   a dense board is not re-blended on every repaint while drawing. */
-.line[data-provisional="true"] {
-  stroke-width: 12;
-}
 .line {
   fill: none;
   stroke: var(--path-color);

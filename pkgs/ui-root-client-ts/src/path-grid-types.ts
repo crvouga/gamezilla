@@ -18,8 +18,6 @@ export type PathGridLine = {
   readonly cells: readonly number[];
   readonly tone: PathGridTone;
   readonly connected: boolean;
-  /** Still being drawn: shown, but not yet saved. */
-  readonly provisional?: boolean | undefined;
 };
 
 export type PathGridTraceCancellation =
