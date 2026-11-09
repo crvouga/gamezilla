@@ -212,7 +212,7 @@ test('storybook integration: word-tiles desktop rack sits under a larger board b
   const rack = await box('custom-game-board-rack');
   const seat = await box('custom-game-seat-near');
   // 27rem fitted board, up from 23rem.
-  expect(board.width).toBeGreaterThanOrEqual(420);
+  expect(board.width).toBeGreaterThanOrEqual(440);
   expect(rack.top).toBeGreaterThan(board.bottom);
   expect(seat.top).toBeGreaterThanOrEqual(rack.bottom);
   expect(seat.top - rack.bottom).toBeLessThanOrEqual(48);

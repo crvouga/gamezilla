@@ -16,16 +16,24 @@
   display: none;
 }
 
-/* Desktop and tablet: a 27rem fitted board with its feedback beside it, and
-   the rack (seven 3rem tiles) beside the word actions, right above the
-   player's own seat. The whole workspace still fits a 900px-tall window. */
+/* Desktop and tablet: the board as large as the window's height allows (at
+   least 27rem, at most the column), then one status line, then the rack
+   (seven 3rem tiles) beside the word actions, right above the player's own
+   seat, all on one left edge. 28rem is everything else a 900px window shows
+   above and below the board, so every seat stays in view. */
 .layout[data-layout="wide"] {
-  --word-tile-fitted-size: 27rem;
-  grid-template-columns: 21.5rem minmax(0, 5.5rem) minmax(0, 1fr);
+  --word-tile-fitted-size: max(27rem, min(100%, calc(100dvh - 28rem)));
+  --word-tile-fitted-margin: 0;
+  --word-tile-enlarged-height: max(
+    calc(var(--ui-control-size-md) * 7),
+    calc(100dvh - 30rem)
+  );
+  grid-template-columns: 21.5rem minmax(0, 1fr);
   grid-template-areas:
-    "notice notice notice"
-    "board board feedback"
-    "rack actions actions";
+    "notice notice"
+    "board board"
+    "feedback feedback"
+    "rack actions";
   column-gap: var(--ui-space-4);
   row-gap: var(--ui-space-2);
   align-items: start;
@@ -38,8 +46,6 @@
 }
 .layout[data-layout="wide"] .feedback {
   grid-area: feedback;
-  /* Beside the board's foot, right above the rack and Play word. */
-  align-self: end;
 }
 .layout[data-layout="wide"] .rack {
   grid-area: rack;

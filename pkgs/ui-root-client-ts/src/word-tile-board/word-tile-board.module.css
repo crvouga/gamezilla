@@ -163,7 +163,9 @@
   overscroll-behavior: contain;
 }
 .viewport[data-enlarged="true"] {
-  height: calc(var(--ui-control-size-md) * 7);
+  /* A wide word workspace shows as much of the enlarged board as the fitted
+     one would take. */
+  height: var(--word-tile-enlarged-height, calc(var(--ui-control-size-md) * 7));
   min-height: calc(var(--ui-control-size-md) * 7);
 }
 .board[data-enlarged="true"] {
@@ -215,7 +217,7 @@
    height; a wide word workspace sets a larger size. */
 .board[data-measure="compact"][data-enlarged="false"] {
   max-width: var(--word-tile-fitted-size, 23rem);
-  margin-inline: auto;
+  margin-inline: var(--word-tile-fitted-margin, auto);
 }
 
 .cell[data-state="empty"][data-square]:not([data-square="none"]) {
