@@ -324,3 +324,19 @@ export const FRAME_PLAYING: Partial<GameFrameScreenViewProps> = {
   play: { ...FRAME_NO_PLAY, canOfferDraw: true, canResign: true },
   record: record(MID_GAME_RECORD),
 };
+
+/**
+ * Held for the connection, as the app's frame is (frameViewerHeld): the
+ * viewer's seat no longer claims the move, the line drops its own-turn
+ * emphasis, and Resign and Offer draw are withheld until it returns.
+ */
+export const FRAME_HELD: Partial<GameFrameScreenViewProps> = {
+  ...FRAME_PLAYING,
+  status: status({ emphasis: 'neutral' }),
+  table: {
+    shape: 'strip',
+    near: playSeat(AVERY),
+    others: [playSeat(JORDAN)],
+  },
+  play: FRAME_NO_PLAY,
+};
