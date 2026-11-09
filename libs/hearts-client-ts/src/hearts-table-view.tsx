@@ -7,6 +7,7 @@ import {
   decodeHearts,
   type HeartsPosition,
   passDirection,
+  passTarget,
   type Seat,
   seatAfter,
   seatOfSide,
@@ -36,7 +37,7 @@ import {
   cardName,
   heartsRefusal,
   heartsSeatName,
-  passInstruction,
+  passInstructionTo,
   passWaiting,
   rankText,
   SUIT_NAMES,
@@ -181,6 +182,22 @@ function playerName(side: GameSide, nameOf: GamePlayerName): string {
   return name === undefined || name === '' ? heartsSeatName(side) : name;
 }
 
+/**
+ * Who gets `viewer`'s pass this deal, by name (or seat when unnamed);
+ * `null` for a watcher or a deal without passing.
+ */
+export function passRecipient(
+  position: string,
+  viewer: GameSide | null,
+  nameOf: GamePlayerName
+): string | null {
+  const decoded = decodeHearts(position);
+  if (viewer === null || decoded === null) return null;
+  if (passDirection(decoded.deal) === 'hold') return null;
+  const target = passTarget(seatOfSide(viewer), decoded.deal);
+  return playerName(sideOfSeat(target), nameOf);
+}
+
 /** What the table is doing, naming the player independently of rendered seats. */
 export function tableCenter(
   board: Pick<GameBoardProps, 'position' | 'commitment' | 'committed'>,
@@ -195,7 +212,7 @@ export function tableCenter(
     const progress = passingProgress(board.committed);
     const now =
       board.commitment === null
-        ? `${passInstruction(passDirection(position.deal))} ${progress}`
+        ? `${passInstructionTo(passDirection(position.deal), passRecipient(board.position, viewer, nameOf))} ${progress}`
         : `${passWaiting()} ${progress}`;
     return `${summary} ${now}`.trim();
   }

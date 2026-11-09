@@ -99,6 +99,56 @@ export function heartsRefusal(reason: string): string | undefined {
   return refusals[reason];
 }
 
+/** Where the cards go, beside who gets them: `on your left`. */
+function passSide(direction: PassDirection): string {
+  const sides: Readonly<Record<PassDirection, string>> = {
+    left: t`on your left`,
+    right: t`on your right`,
+    across: t`across from you`,
+    hold: '',
+  };
+  return sides[direction];
+}
+
+/** The pass button, named by who gets the cards: `Pass to jordan_plays`. */
+export function passActionTo(
+  direction: PassDirection,
+  recipient: string | null
+): string {
+  if (recipient === null || direction === 'hold') return passAction(direction);
+  return t`Pass to ${recipient}`;
+}
+
+/** Over the pass places: who gets the cards, and where they sit. */
+export function passHeadingTo(
+  direction: PassDirection,
+  passed: boolean,
+  recipient: string | null
+): string {
+  if (recipient === null || direction === 'hold')
+    return passHeading(direction, passed);
+  const side = passSide(direction);
+  return passed
+    ? t`Passed to ${recipient}, ${side}`
+    : t`Passing to ${recipient}, ${side}`;
+}
+
+/** The passing instruction: the direction, then who gets the cards. */
+export function passInstructionTo(
+  direction: PassDirection,
+  recipient: string | null
+): string {
+  if (recipient === null || direction === 'hold')
+    return passInstruction(direction);
+  const instructions: Readonly<Record<PassDirection, string>> = {
+    left: t`Pass three cards to the left, to ${recipient}.`,
+    right: t`Pass three cards to the right, to ${recipient}.`,
+    across: t`Pass three cards across, to ${recipient}.`,
+    hold: '',
+  };
+  return instructions[direction];
+}
+
 /** The pass button, named by where the cards go: `Pass left`. */
 export function passAction(direction: PassDirection): string {
   const actions: Readonly<Record<PassDirection, string>> = {
