@@ -1,0 +1,4 @@
+{
+  "summary": "The chess promotion overlay lacked dialog semantics and allowed Tab to escape its choices.",
+  "regressionTest": "pkgs/chess-board-root-client-ts/tests/assistive-activation.test.tsx"
+}

@@ -187,6 +187,8 @@ function BoardBody(args: {
         boardTestId={args.boardTestId()}
         orientation={args.ctrl.orientation()}
         onSquareFocus={(square) => args.ctrl.onSquareFocus(square)}
+        onSquareActivate={args.ctrl.activateSquare}
+        interactive={ix().interactive && ix().pendingPromotion === null}
         cursor={args.ctrl.cursor()}
         position={() => game().position}
         selected={() => ix().selected ?? ix().dragFrom}
