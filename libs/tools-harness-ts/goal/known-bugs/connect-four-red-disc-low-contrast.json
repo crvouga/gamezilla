@@ -1,0 +1,4 @@
+{
+  "summary": "Red Connect Four discs and red landing previews were about 2.1:1 (light) and 2.6:1 (dark) against the empty hole, and red's mark was 2.1:1 against the disc, below WCAG 1.4.11's 3:1. Discs and previews now have a light inner rim (8:1+ on the hole) and red's mark uses the board ink (5:1).",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/connect-four/layout-320/integration.checks.ts"
+}

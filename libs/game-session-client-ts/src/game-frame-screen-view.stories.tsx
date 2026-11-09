@@ -15,30 +15,21 @@ import {
   JORDAN,
   MID_GAME_MOVES,
   MID_GAME_RECORD,
+  MORGAN,
   PEOPLE,
+  FRAME_PLAYING as PLAYING,
   person,
   playSeat,
   record,
+  STANDINGS,
   seat,
   status,
+  WATCHED_LINEUP,
   WON_MOVES,
   WON_RECORD,
   YOUR_TURN_MOVES,
   YOUR_TURN_RECORD,
 } from './game-frame-story.example';
-
-const PLAYING: Partial<GameFrameScreenViewProps> = {
-  phase: 'active',
-  viewerSide: 'white',
-  status: status(),
-  table: {
-    shape: 'strip',
-    near: playSeat(AVERY, { deciding: true }),
-    others: [playSeat(JORDAN)],
-  },
-  play: { ...FRAME_NO_PLAY, canOfferDraw: true, canResign: true },
-  record: record(MID_GAME_RECORD),
-};
 
 const meta = {
   id: 'screens-games-frame',
@@ -136,10 +127,10 @@ export const Watching: Story = {
     ...PLAYING,
     viewerSide: null,
     watchers: 3,
-    status: status({ emphasis: 'neutral' }),
+    status: status({ lineup: WATCHED_LINEUP, emphasis: 'neutral' }),
     table: {
       shape: 'strip',
-      near: playSeat(AVERY, { deciding: true }),
+      near: playSeat(MORGAN, { deciding: true }),
       others: [playSeat(JORDAN)],
     },
     play: FRAME_NO_PLAY,
@@ -316,29 +307,6 @@ const OVER: Partial<GameFrameScreenViewProps> = {
   record: record(WON_RECORD),
 };
 
-const STANDINGS = [
-  {
-    id: 'white',
-    place: 1,
-    name: 'avery',
-    holder: person('avery'),
-    score: null,
-    you: true,
-    testId: 'custom-game-standing-white',
-    readiness: null,
-  },
-  {
-    id: 'black',
-    place: 2,
-    name: 'jordan_plays',
-    holder: person('jordan'),
-    score: null,
-    you: false,
-    testId: 'custom-game-standing-black',
-    readiness: null,
-  },
-] as const;
-
 /** The viewer won: the headline is theirs, then the standings and what comes next. */
 export const YouWin: Story = {
   render: (args) => onBoard(WON_MOVES)(args),
@@ -367,7 +335,13 @@ export const YouPlacedSecond: Story = {
   render: (args) => onBoard(WON_MOVES)(args),
   args: {
     ...OVER,
+    // The signed-in viewer (avery) holds Yellow diamond and came second.
     viewerSide: 'black',
+    table: {
+      shape: 'strip',
+      near: playSeat(seat('black', person('avery'), 'avery')),
+      others: [playSeat(seat('white', person('jordan'), 'jordan_plays'))],
+    },
     next: { plays: true, canCreate: false, reviewable: true },
     result: {
       headline: 'You came 2nd',
@@ -376,12 +350,16 @@ export const YouPlacedSecond: Story = {
       standings: [
         {
           ...STANDINGS[0],
+          name: 'jordan_plays',
+          holder: person('jordan'),
           you: false,
           score: '26',
           readiness: { label: 'Ready', ready: true },
         },
         {
           ...STANDINGS[1],
+          name: 'avery',
+          holder: person('avery'),
           you: true,
           score: '19',
           readiness: { label: 'Not yet', ready: false },
@@ -420,12 +398,30 @@ export const WatcherSeesResult: Story = {
   args: {
     ...OVER,
     viewerSide: null,
+    status: status({
+      lineup: WATCHED_LINEUP,
+      description: 'Red circle wins by four in a row.',
+      emphasis: 'neutral',
+    }),
+    table: {
+      shape: 'strip',
+      near: playSeat(MORGAN),
+      others: [playSeat(JORDAN)],
+    },
     next: { plays: false, canCreate: false, reviewable: true },
     result: {
-      headline: 'avery wins',
+      headline: 'morgan wins',
       note: 'Host starts the rematch',
       scoreLabel: null,
-      standings: [{ ...STANDINGS[0], you: false }, STANDINGS[1]],
+      standings: [
+        {
+          ...STANDINGS[0],
+          name: 'morgan',
+          holder: person('morgan'),
+          you: false,
+        },
+        STANDINGS[1],
+      ],
     },
   },
 };
@@ -483,8 +479,19 @@ export const Denied: Story = {
   },
 };
 
-/** Resigning asks first; confirming finishes the game with its record kept. */
+/** Resigning asks first: the question, with nothing chosen yet. */
 export const ConfirmResign: Story = {
+  args: PLAYING,
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement.ownerDocument.body);
+    await userEvent.click(await canvas.findByTestId('custom-game-resign'));
+    await canvas.findByText(/^This finishes the current game\./);
+    await expect(args.onChoose).not.toHaveBeenCalled();
+  },
+};
+
+/** Confirming finishes the game with its record kept. */
+export const ResignConfirmed: Story = {
   args: PLAYING,
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement.ownerDocument.body);

@@ -68,6 +68,14 @@
 .column[aria-disabled="true"] {
   cursor: default;
 }
+/* On the narrowest phones, spend the board's own spacing on the seven hit
+   areas; the game's `narrowest` page inset supplies the rest. */
+@media (max-width: 359px) {
+  .board {
+    padding-inline: var(--ui-space-hairline);
+    column-gap: 0;
+  }
+}
 /* The column pointed at or focused while the board takes a drop: one
    quiet wash down its whole height, under its cells. It is the column's
    only mark; the disc waiting in its landing cell is the other signal. */
@@ -103,6 +111,24 @@
   padding-block: var(--ui-space-1) 0;
   color: var(--ui-color-text);
   text-align: center;
+}
+/* Keyboard controls, shown while a column has keyboard focus. Its one line
+   is always reserved, so showing it never moves the board or what is below. */
+.keyboardHelp {
+  visibility: hidden;
+  grid-column: 1 / -1;
+  grid-row: 3;
+  min-height: 1lh;
+  margin: 0;
+  padding-block: var(--ui-space-1) 0;
+  overflow: hidden;
+  color: var(--ui-color-text);
+  text-align: center;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.board[data-keyboard-help="true"] .keyboardHelp {
+  visibility: visible;
 }
 /* A column's number, quiet; the column pointed at rings it in the dropping
    side's colour, a hollow disc waiting in the drop slot above the column:
@@ -158,9 +184,17 @@
   line-height: 1;
   transition: opacity var(--ui-duration-slow) var(--ui-easing-standard);
 }
+/* Every played disc has a light inner rim, so its edge reads against the
+   dark hole whatever its fill (red alone is about 2:1 on the hole). Red's
+   mark is in the board's ink, yellow's in the hole's colour: both at least
+   5:1 against their disc. */
+.cell[data-disc="1"] .disc,
+.cell[data-disc="2"] .disc {
+  box-shadow: inset 0 0 0 2px var(--ui-color-text-secondary);
+}
 .cell[data-disc="1"] .disc {
   background: var(--ui-color-destructive);
-  color: var(--ui-color-on-destructive);
+  color: var(--ui-color-text);
 }
 .cell[data-disc="2"] .disc {
   background: var(--ui-color-warning);
@@ -175,7 +209,10 @@
 .cell[data-preview-disc="2"] .disc {
   box-sizing: border-box;
   border: 4px dashed var(--disc-preview);
-  box-shadow: 0 0 0 2px var(--disc-hole);
+  /* The light inner rim keeps a red preview readable on the hole. */
+  box-shadow:
+    0 0 0 2px var(--disc-hole),
+    inset 0 0 0 2px var(--ui-color-text-secondary);
   animation: disc-preview-breathe 1.6s var(--ui-easing-standard) infinite
     alternate;
 }
@@ -185,10 +222,17 @@
 .cell[data-preview-disc="2"] {
   --disc-preview: var(--ui-color-warning);
 }
-/* Winning rings emphasize the connected four without fading the final position. */
+/* The winning four: each disc drawn smaller, inside a dark gap and a ring
+   of the board's ink at the cell's edge, so it reads unlike the thin rim
+   every disc carries. All inside the cell, clear of neighbours and of the
+   focused column's outline; every disc stays at full colour. */
 .cell[data-winning="true"] {
   outline: 3px solid var(--ui-color-text);
-  outline-offset: 2px;
+  outline-offset: -3px;
+}
+.cell[data-winning="true"] .disc {
+  inline-size: 68%;
+  block-size: 68%;
 }
 /* The last disc played falls the column's height under gravity: slow at
    the top, fastest as it lands. */

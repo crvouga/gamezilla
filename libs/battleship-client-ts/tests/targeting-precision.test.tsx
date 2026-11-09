@@ -96,7 +96,9 @@ test('a refreshed game record preserves the selected target when its position is
   fireEvent.click(byTestId('refresh-fire'));
   expect(actions).toEqual(['f10']);
   setRecord({ position, syncKey: 1 });
-  expect(byTestId('refresh-fire').textContent).toContain('Choose a target');
+  expect(byTestId('refresh-fire').textContent).toContain(
+    'Choose a cell in F9–J10'
+  );
 });
 
 test('large targeting areas partition all 100 cells and allow correction and cancellation', () => {
@@ -153,8 +155,9 @@ test('switching spatial regions preserves J10 aim and all outcomes', () => {
   expect(byTestId('precision-area-9').getAttribute('aria-pressed')).toBe(
     'true'
   );
+  // The chosen cell is a preview, never the latest shot's ring.
   expect(byTestId('precision-target-j10').getAttribute('data-emphasis')).toBe(
-    'recent'
+    'preview'
   );
   fireEvent.click(byTestId('precision-area-0'));
   expect(

@@ -1,0 +1,4 @@
+{
+  "summary": "Connect Four keyboard help appeared only while a column had keyboard focus and took no reserved space, so the board and controls below it jumped by 25-45 px and finished games clipped it at 320 px. Its single line is now always reserved and fits at 320 px.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/connect-four/layout-320/integration.checks.ts"
+}

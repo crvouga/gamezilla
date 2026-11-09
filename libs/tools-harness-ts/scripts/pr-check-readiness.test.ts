@@ -203,3 +203,20 @@ test('a tolerated neutral CodeQL result waits for its active producer', async ()
   expect(checks).toEqual(snapshots[1]!.checks);
   expect(reads).toBe(2);
 });
+
+// regression: verify-end-awaits-itself
+// Runs 42587259782 and 42592949094: every check had passed by 09:26:53Z, but
+// verify:end saw its own in-progress run and waited out the deadline.
+test('the running verify:end aggregate does not wait for itself', async () => {
+  const self = {
+    sha,
+    name: 'verify:end',
+    appId: 15368,
+    status: 'in_progress',
+    conclusion: null,
+  };
+  const snapshot = { ...success, checks: [...success.checks, self] };
+  const execution = run([snapshot]);
+  expect(await execution.result).toEqual(snapshot.checks);
+  expect(execution.reads()).toBe(1);
+});

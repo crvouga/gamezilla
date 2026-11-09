@@ -2,8 +2,18 @@
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createEffect, createMemo, For, Index, type JSX, Show } from 'solid-js';
+import {
+  createEffect,
+  createMemo,
+  For,
+  Index,
+  type JSX,
+  onCleanup,
+  onMount,
+  Show,
+} from 'solid-js';
 import { type GameSeatLook, GameSeatSwatch } from '../game-seat-swatch/index';
+import { observeElementResize } from '../observe-element-resize';
 import styles from './game-move-list.module.css';
 
 /** One move of a game's record. */
@@ -200,17 +210,26 @@ function TurnList(props: GameMoveListProps): JSX.Element {
   });
   let root: HTMLDivElement | undefined;
   // The marked move stays in view. The table scrolls only itself, so the
-  // page never jumps to a record beside the board.
-  createEffect(() => {
-    void props.current;
-    void turns();
-    if (props.layout !== 'table') return;
-    const marked = root?.querySelector<HTMLElement>('[aria-current="step"]');
-    if (root === undefined || marked === null || marked === undefined) return;
+  // page never jumps to a record beside the board. It is kept in view when
+  // the marked move changes and whenever the list's own size settles or
+  // changes (a rail squeezed by what sits above it), not only once.
+  const keepMarkedInView = (): void => {
+    if (props.layout !== 'table' || root === undefined) return;
+    const marked = root.querySelector<HTMLElement>('[aria-current="step"]');
+    if (marked === null) return;
     const box = root.getBoundingClientRect();
     const move = marked.getBoundingClientRect();
     if (move.bottom > box.bottom) root.scrollTop += move.bottom - box.bottom;
     else if (move.top < box.top) root.scrollTop -= box.top - move.top;
+  };
+  createEffect(() => {
+    void props.current;
+    void turns();
+    keepMarkedInView();
+  });
+  onMount(() => {
+    if (root !== undefined)
+      onCleanup(observeElementResize(root, keepMarkedInView));
   });
   const columns = (): number => Math.max(1, props.perTurn);
   return (

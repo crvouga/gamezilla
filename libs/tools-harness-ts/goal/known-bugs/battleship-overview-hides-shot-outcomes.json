@@ -1,0 +1,4 @@
+{
+  "summary": "The inert targeting overview exposed only region coordinates to assistive technology, concealing outcomes outside the working slice until each region was opened.",
+  "regressionTest": "libs/battleship-client-ts/tests/region-outcomes.test.tsx"
+}
