@@ -162,11 +162,24 @@ export function RiderHead(props: {
   );
 }
 
-/** Where a rider crashed: a cross in a broken ring, drawn above every head. */
+/**
+ * Offset of a crash badge from its cell's centre, in head radii: up and to
+ * the right, so the crashed rider's own letter stays readable beside it.
+ */
+export const CRASH_BADGE_OFFSET = 1.05;
+
+/**
+ * Where a rider crashed: a small red diamond with a cross at the head's
+ * upper right, drawn above every head. It never covers the rider's letter,
+ * so who crashed still reads in a dense field of trails.
+ */
 export function CrashMarker(props: {
   crash: TrailCrash;
+  scale?: number | undefined;
   testId: string;
 }): JSX.Element {
+  const scale = () => props.scale ?? 1;
+  const offset = () => CRASH_BADGE_OFFSET * scale();
   return (
     <g
       class={styles['crash']}
@@ -174,12 +187,13 @@ export function CrashMarker(props: {
       data-testid={`${props.testId}-crash-${props.crash.index}`}
       data-x={props.crash.x}
       data-y={props.crash.y}
-      transform={`translate(${props.crash.x + 0.5} ${props.crash.y + 0.5})`}
+      data-offset={offset()}
+      transform={`translate(${props.crash.x + 0.5 + offset()} ${props.crash.y + 0.5 - offset()}) scale(${scale()})`}
     >
-      <circle class={styles['crashRing']} r="1.2" />
+      <path class={styles['crashBadge']} d="M0 -0.74L0.74 0L0 0.74L-0.74 0Z" />
       <path
         class={styles['crashCross']}
-        d="M-0.62 -0.62L0.62 0.62M0.62 -0.62L-0.62 0.62"
+        d="M-0.24 -0.24L0.24 0.24M0.24 -0.24L-0.24 0.24"
       />
     </g>
   );

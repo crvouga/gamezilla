@@ -62,6 +62,7 @@ export type BoardController = {
   readonly userShapes: UserShapes;
   readonly arrows: Accessor<ReturnType<UserShapes['arrows']>>;
   readonly onKeyDown: (event: KeyboardEvent) => void;
+  readonly activateSquare: (square: Square) => void;
   /** A hit-grid square button took focus: the cursor follows it. */
   readonly onSquareFocus: (square: Square) => void;
   /** Return keyboard ownership from the promotion picker to a square. */
@@ -330,6 +331,12 @@ export function createBoardController(args: {
     userShapes,
     arrows,
     onKeyDown: input.onKeyDown,
+    activateSquare: (square) => {
+      input.setCursor(square);
+      userShapes.clear();
+      session.down(square);
+      session.up(square);
+    },
     onSquareFocus: input.setCursor,
     focusSquare: (square) => {
       input.setCursor(square);
