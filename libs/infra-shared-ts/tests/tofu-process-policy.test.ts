@@ -113,7 +113,7 @@ const ABANDONED_LOCK = {
   Who: 'runner@runnervm7aw5e',
   Version: '1.13.1',
   Created: '2026-11-05T20:41:12.856377269Z',
-  Path: 'gamezilla-tofu-state/foundation/dev.tfstate',
+  Path: 'tofu-state/foundation/dev.tfstate',
 };
 const ABANDONED = JSON.stringify(ABANDONED_LOCK);
 
