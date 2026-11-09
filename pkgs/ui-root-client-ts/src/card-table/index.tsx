@@ -15,6 +15,7 @@ import {
 import { Button } from '../button/index';
 import styles from './card-table.module.css';
 import felt from './card-table-felt.module.css';
+import state from './card-table-state.module.css';
 import { CardTableContext } from './table-context';
 
 export type CardSuit = 'clubs' | 'diamonds' | 'spades' | 'hearts';
@@ -245,7 +246,7 @@ function Trick(props: {
             </Show>
             <Show when={seat().played && seat().won}>
               {(won) => (
-                <span class={styles['won']} aria-hidden="true">
+                <span class={state['won']} aria-hidden="true">
                   {won()}
                 </span>
               )}

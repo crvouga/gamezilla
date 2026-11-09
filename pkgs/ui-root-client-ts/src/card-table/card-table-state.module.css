@@ -1,0 +1,35 @@
+/* The table's passing states, kept beside the table's own layout: the
+   trick just taken, and a hand waiting for the person's turn. Cards are
+   found by their data attributes, as the layout module owns their class. */
+
+/* The trick just taken: the winning card is outlined and labelled in words
+   until the next card is played. */
+[data-won="true"] > span[data-card] {
+  outline: 3px solid var(--ui-color-game-hearts-accent);
+  outline-offset: 2px;
+}
+.won {
+  position: absolute;
+  inset-inline: 0;
+  bottom: calc(-1 * var(--ui-space-2));
+  justify-self: center;
+  width: max-content;
+  max-width: calc(100% + var(--ui-space-4));
+  padding-inline: var(--ui-space-1);
+  border-radius: var(--ui-radius-full);
+  background: var(--ui-color-game-hearts-accent);
+  color: var(--ui-color-board-card-ink);
+  font-size: var(--ui-font-size-xs);
+  font-weight: var(--ui-font-weight-semibold);
+  line-height: 1.4;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Not the person's turn: the hand is inactive as a whole, said once above
+   it, rather than every card marked as refused. */
+[data-waiting="true"] > button[data-card] {
+  opacity: 0.8;
+  box-shadow: none;
+  cursor: not-allowed;
+}
