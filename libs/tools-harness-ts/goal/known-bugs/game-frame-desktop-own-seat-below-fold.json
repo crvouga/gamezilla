@@ -1,0 +1,4 @@
+{
+  "summary": "At a 1440x900 desktop window the game frame's board filled a 640px column with no height bound, so the person's own seat with its actions (\"Take back my side\") and a watcher's \"You're watching\" notice fell below the window. The wide board-focus frame now bounds the board by the window height less the frame around it and the host bar (never under 320px, never over 640px); a game's opt-in square fit only narrows it further.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/game-frame-desktop/integration.checks.ts"
+}

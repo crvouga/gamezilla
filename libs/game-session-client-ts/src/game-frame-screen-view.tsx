@@ -620,6 +620,7 @@ function FrameContent(shown: Props): JSX.Element {
       dataSet={{
         component: 'CustomGameContent',
         testid: 'custom-game-content',
+        phase: props.phase,
       }}
       notices={
         <>

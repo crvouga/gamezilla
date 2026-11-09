@@ -75,12 +75,25 @@
 }
 
 /* The active frame may use the host's available width. Setup keeps its own
-   arrangement. No viewport-height subtraction shrinks the board for metadata. */
+   arrangement; a finished game keeps its board large and scrolls. */
 @container game-column (min-width: 880px) {
   .session[data-board-focus="true"]
     > [data-has-stage="true"][data-has-aside="true"] {
     --game-board-measure: var(--ui-max-width-prose);
     grid-template-columns: minmax(0, 1fr) var(--game-arena-rail-measure);
+  }
+  /* During play the window's height bounds the board too: the window less
+     the frame around it (its title and the seats above, about 150px, and
+     the own seat with its actions and a watcher's notice under it, about
+     230px) and the host's own bar, so all of them show in the first view.
+     A game's opt-in square fit only narrows this further. */
+  .session[data-board-focus="true"][data-phase="active"]
+  > [data-has-stage="true"][data-has-aside="true"] {
+    --game-board-measure: clamp(
+      320px,
+      calc(100dvh - 380px - var(--ui-host-chrome-block-size, 0px)),
+      var(--ui-max-width-prose)
+    );
   }
 }
 
