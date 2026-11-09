@@ -540,6 +540,11 @@ function RecordStrip(props: RecordProps): JSX.Element {
           {props.caption}
         </P>
       </Show>
+      {/* A longer place (`Waiting for connection`) reads above the row, so
+          the moves keep the row's width and never run under the chevron. */}
+      <Show when={!reviewing() && !recordIsLive(props)}>
+        <StripPlace {...props} />
+      </Show>
       <StackHorizontal
         align="center"
         gap="sm"
@@ -558,8 +563,7 @@ function RecordStrip(props: RecordProps): JSX.Element {
             is live: the turn then has the row to itself, on one line. */}
         <Show
           when={
-            !reviewing() &&
-            (props.caption === undefined || !recordIsLive(props))
+            !reviewing() && recordIsLive(props) && props.caption === undefined
           }
         >
           <StripPlace {...props} />

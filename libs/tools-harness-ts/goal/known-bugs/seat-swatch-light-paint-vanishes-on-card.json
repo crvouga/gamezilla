@@ -1,0 +1,4 @@
+{
+  "summary": "In the light theme several seat paints sat on a light card at about 1.1:1 to 2.2:1 (Light Cycles' ink rider Volt at 1.07:1, its accent and trail colours, a pale disc, player5 on the muted surface), so the seat's swatch all but vanished from chips and the Players rail. Every painted swatch is now ringed in the outline ink, at 3.3:1 or more against every card in both themes; the palette is unchanged.",
+  "regressionTest": "pkgs/ui-root-client-ts/tests/game-seat-swatch-contrast.test.tsx"
+}

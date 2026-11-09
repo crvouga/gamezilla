@@ -1393,12 +1393,20 @@ msgid "Black"
 msgstr "Black"
 
 #: pkgs/chess-board-root-client-ts/src/chess-board/guidance.tsx
+msgid "Black is checkmated."
+msgstr "Black is checkmated."
+
+#: pkgs/chess-board-root-client-ts/src/chess-board/guidance.tsx
 msgid "Black is in check."
 msgstr "Black is in check."
 
 #: pkgs/chess-board-root-client-ts/src/chess-board/guidance.tsx
-msgid "Black pieces nearest you."
-msgstr "Black pieces nearest you."
+msgid "Black is stalemated."
+msgstr "Black is stalemated."
+
+#: pkgs/chess-board-root-client-ts/src/chess-board/guidance.tsx
+msgid "Black pieces at the bottom."
+msgstr "Black pieces at the bottom."
 
 #: libs/word-tiles-client-ts/src/word-tiles-cells.tsx
 msgid "Blank"
@@ -8963,12 +8971,20 @@ msgid "White"
 msgstr "White"
 
 #: pkgs/chess-board-root-client-ts/src/chess-board/guidance.tsx
+msgid "White is checkmated."
+msgstr "White is checkmated."
+
+#: pkgs/chess-board-root-client-ts/src/chess-board/guidance.tsx
 msgid "White is in check."
 msgstr "White is in check."
 
 #: pkgs/chess-board-root-client-ts/src/chess-board/guidance.tsx
-msgid "White pieces nearest you."
-msgstr "White pieces nearest you."
+msgid "White is stalemated."
+msgstr "White is stalemated."
+
+#: pkgs/chess-board-root-client-ts/src/chess-board/guidance.tsx
+msgid "White pieces at the bottom."
+msgstr "White pieces at the bottom."
 
 #: libs/spaces-client-ts/src/space-who-is-here-view.tsx
 msgid "Who's here"

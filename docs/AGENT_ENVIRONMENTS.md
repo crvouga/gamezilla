@@ -12,7 +12,6 @@ No repository configuration grants automatic tool approval or stores credentials
 | --- | --- | --- | --- |
 | Claude Code | `CLAUDE.md` → `AGENTS.md` | `.claude/commands` | `.mcp.json` |
 | Codex | `AGENTS.md` | `.agents/skills` | `.codex/config.toml` |
-| Cursor | `AGENTS.md` | `.cursor/commands` | `.cursor/mcp.json` |
 | Gemini CLI | `GEMINI.md` → `AGENTS.md` | `.gemini/commands` | `.gemini/settings.json` |
 | GitHub Copilot in VS Code | `.github/copilot-instructions.md` → `AGENTS.md` | `.github/prompts` | `.vscode/mcp.json` |
 | OpenCode | `AGENTS.md` | `.opencode/commands` | `opencode.json` |
@@ -79,18 +78,7 @@ Personal Conductor settings belong in `.conductor/settings.local.toml`.
 
 Other orchestrators can use those same Run and cleanup commands in their project
 settings. They have no generated adapter here until their repository configuration
-contract is supported. Cursor Cloud Agents read
-[`.cursor/environment.json`](../.cursor/environment.json). Install is
-[`cloud-agent-install.sh`](../libs/tools-harness-ts/workspace/cloud-agent-install.sh)
-(the tools pinned in `mise.toml`, then a frozen Bun install, with no
-credentials). Start is
-[`cloud-agent-start.sh`](../libs/tools-harness-ts/workspace/cloud-agent-start.sh),
-which boots the same localhost stack as Run. Run the install again on Ubuntu,
-Cursor Cloud, or macOS: it refreshes the same pins, rewrites one shared profile
-file in place, and leaves a real Bun or Node binary (and a Homebrew or nvm
-symlink) where it is. The agent host keeps its own git hooks; `git-config.sh`
-still refuses hooks on a laptop. `user` in the environment file is the Cursor
-VM account.
+contract is supported.
 
 The release decision remains the full `bun verify` gate described in
 [`AGENTS.md`](../AGENTS.md); opening an environment is not verification evidence.

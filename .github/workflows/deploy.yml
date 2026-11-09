@@ -88,6 +88,7 @@ jobs:
           persist-credentials: false
       - uses: ./.github/actions/setup
         with:
+          tofu-providers: 'true'
           product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
           product-identity-mode: configured
           secrets-environment: dev
@@ -140,6 +141,7 @@ jobs:
           persist-credentials: false
       - uses: ./.github/actions/setup
         with:
+          tofu-providers: 'true'
           product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
           product-identity-mode: configured
           secrets-environment: shared
@@ -182,6 +184,7 @@ jobs:
           persist-credentials: false
       - uses: ./.github/actions/setup
         with:
+          tofu-providers: 'true'
           product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
           product-identity-mode: configured
           secrets-environment: shared
@@ -243,6 +246,7 @@ jobs:
       - id: setup
         uses: ./.github/actions/setup
         with:
+          tofu-providers: 'true'
           product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
           product-identity-mode: configured
           secrets-environment: ${{ env.SECRETS_ENV }}

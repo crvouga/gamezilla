@@ -1,4 +1,5 @@
 {
   "context": "Analyze (actions)",
-  "integration_id": 15368
+  "integration_id": 15368,
+  "outage_tolerant": true
 }

@@ -53,6 +53,8 @@ const PROTECTED: ReadonlySet<string> = new Set([
   'cloudflare_r2_bucket',
   'github_branch_default',
   'github_repository_ruleset',
+  // Deleting a label strips it from every issue and PR that carries it.
+  'github_issue_label',
   'github_repository_environment',
   // Deleting it would let any branch deploy to production.
   'github_repository_environment_deployment_policy',

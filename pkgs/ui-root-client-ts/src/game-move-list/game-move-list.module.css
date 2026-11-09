@@ -52,6 +52,11 @@
   column-gap: var(--ui-space-2);
   row-gap: var(--ui-space-1);
 }
+/* Room kept for a turn's moves still to come: laid out, never seen. */
+.reserve {
+  display: inline-flex;
+  visibility: hidden;
+}
 /* The shown turn's number in words reads as a label, not a stray digit. */
 .list[data-layout="turn"] .number {
   white-space: nowrap;
