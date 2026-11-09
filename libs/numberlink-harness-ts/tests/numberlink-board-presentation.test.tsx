@@ -7,7 +7,8 @@ import {
   SOLUTION,
 } from '@libs/numberlink-client-ts/numberlink-player.example';
 import { endpointLines } from '@pkgs/ui-root-client-ts/path-grid-board';
-import { renderNumberlink } from './numberlink-client-fixture';
+import { fireEvent } from '@solidjs/testing-library';
+import { playerFixture, renderNumberlink } from './numberlink-client-fixture';
 
 const BOARD_CSS = readFileSync(
   join(
@@ -69,4 +70,29 @@ test('long labels break at a space, or mid-word with a hyphen', () => {
   expect(endpointLines('RED STAR')).toEqual(['RED', 'STAR']);
   expect(endpointLines('ABCD')).toEqual(['ABCD']);
   expect(endpointLines('20')).toEqual(['20']);
+});
+
+// regression: numberlink-focus-ring-shown-while-pointer-drawing
+// Pointer drawing focuses its start cell from script so Escape reaches it;
+// browsers count that as keyboard focus, so the keyboard ring showed under
+// a finger or mouse for the whole drawing.
+test('the focus ring belongs to the keyboard, not to pointer drawing', () => {
+  const f = playerFixture();
+  try {
+    f.pointer('pointerdown', 0);
+    expect(f.board.getAttribute('data-input')).toBe('pointer');
+    f.pointer('pointerup', 0);
+    fireEvent.keyDown(f.view.getByTestId('numberlink-board-cell-0'), {
+      key: 'ArrowRight',
+    });
+    expect(f.board.getAttribute('data-input')).toBe('keyboard');
+    expect(
+      declared(
+        '.board[data-input="pointer"] .cell:focus-visible::before',
+        'content'
+      )
+    ).toBe('none');
+  } finally {
+    f.view.unmount();
+  }
 });
