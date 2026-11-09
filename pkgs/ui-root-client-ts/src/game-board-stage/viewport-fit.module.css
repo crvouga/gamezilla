@@ -55,18 +55,9 @@
       > [data-component="GameSessionOutcome"]
     ) {
     display: grid;
-    grid-template-columns:
-      minmax(
-        0,
-        clamp(
-          320px,
-          100dvh -
-          var(--game-board-chrome-block, 284px) -
-          var(--ui-host-chrome-block-size, 0px),
-          560px
-        )
-      )
-      minmax(280px, 1fr);
+    /* The live board-focus frame's columns (the session layout's own), so a
+       finished board meets the same measure and fit as during play. */
+    grid-template-columns: minmax(0, 1fr) var(--game-arena-rail-measure, 304px);
     grid-template-rows: repeat(6, auto) 1fr;
     column-gap: var(--ui-space-6);
     align-content: start;
