@@ -1,0 +1,4 @@
+{
+  "summary": "A finished Pong court said 'Right wins.' by side, under a heading that already named the winner by name.",
+  "regressionTest": "libs/pong-client-ts/tests/pong-court-guidance.test.tsx"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "On an 844x390 landscape window the Pong court is sized only by width, so its bottom runs past the window and focusing it with the keyboard scrolls the scoreboard out of view.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/pong-landscape/integration.checks.ts"
+}

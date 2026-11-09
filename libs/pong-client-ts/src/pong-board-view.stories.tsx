@@ -24,6 +24,7 @@ import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { PongBoardView } from './pong-board-view';
 import { pongGameClient } from './pong-game-client';
 import { PongJourney } from './pong-journey.example';
+import { PongLiveRally } from './pong-live-rally.example';
 
 /**
  * A game to three points played for `ticks` with nobody moving a paddle:
@@ -156,7 +157,7 @@ export const PaddleMovement: Story = {
     const step = createPongStep(config);
     const [state, setState] = createSignal(initialPongState(config, () => 0));
     let tick = 0;
-    const simulation = playing(['white'], {
+    const simulation = playing(args.simulation?.sides ?? ['white'], {
       onInput: (side, value) => {
         const input = parsePongInput(value);
         if (!input) throw new Error('Invalid paddle input');
@@ -198,21 +199,58 @@ export const PaddleMovement: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const court = canvas.getByRole('application', { name: 'Pong court' });
-    const paddle = canvasElement.querySelector(
-      '[data-side="first"][data-controlled="true"]'
-    );
+    const paddle = canvasElement.querySelector('rect[data-controlled="true"]');
     if (!paddle) throw new Error('Missing controlled paddle');
     const before = Number(paddle.getAttribute('y'));
-    await fireEvent.keyDown(court, { key: 'ArrowUp' });
+    const key = paddle.getAttribute('data-side') === 'first' ? 'w' : 'ArrowUp';
+    await fireEvent.keyDown(court, { key });
     await expect(
       Number(
         canvasElement
-          .querySelector('[data-side="first"][data-controlled="true"]')
+          .querySelector('rect[data-controlled="true"]')
           ?.getAttribute('y')
       )
     ).toBeLessThan(before);
-    await fireEvent.keyUp(court, { key: 'ArrowUp' });
+    await fireEvent.keyUp(court, { key });
   },
+};
+
+/** The same production mechanics with the right paddle controlled. */
+export const RightPaddleMovement: Story = {
+  ...PaddleMovement,
+  args: { simulation: playing(['black']) },
+};
+
+/** Both paddles update independently for native simultaneous touch evidence. */
+export const SharedPaddleMovement: Story = {
+  ...PaddleMovement,
+  args: { simulation: playing(['white', 'black']) },
+};
+
+/**
+ * A rally in real time: the court holds a fixed mid-rally frame until the
+ * first paddle input, then the product mechanics run at the game's tick rate,
+ * so responsiveness is measured while the ball is moving.
+ */
+export const LiveRally: Story = {
+  render: (args, context) => (
+    <PongLiveRally sides={args.simulation?.sides ?? ['white']}>
+      {(position, simulation) =>
+        renderGameTable(
+          presentation,
+          TWO_PLAYER_SIDES,
+          {
+            ...args,
+            simulation,
+            get position() {
+              return position();
+            },
+          },
+          context
+        )
+      }
+    </PongLiveRally>
+  ),
 };
 
 /** Return, interruption, restored input and a point, all using real fixed-step rules. */

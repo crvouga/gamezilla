@@ -1,0 +1,4 @@
+{
+  "summary": "A refused choice's notice was inserted above every game's board, pushing the board down about 100px on a phone and back up once the choice was retried.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/frame-refusal/integration.checks.ts"
+}

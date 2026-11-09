@@ -4,6 +4,7 @@ import { type JSX, Show } from 'solid-js';
 import precision from '../game-screen/game-precision.module.css';
 import styles from '../game-ui.module.css';
 import { createScreenSlot } from '../screen-slot';
+import boardAlign from './board-align.module.css';
 import { GameBoardPreviewContext } from './board-preview';
 import { createViewportSquareFit } from './viewport-fit';
 import fit from './viewport-fit.module.css';
@@ -33,6 +34,11 @@ export function GameBoardStage(props: {
   previewLabel?: JSX.Element | undefined;
   /** Fit square content and its chrome on larger viewports, with a target floor. */
   viewportFit?: 'square' | undefined;
+  /**
+   * On one column, start at the column's edge (the game title's) instead of
+   * its centre. Absent: centred.
+   */
+  align?: 'start' | undefined;
   dataSet?: ComponentDataSet | undefined;
 }): JSX.Element {
   const others = createScreenSlot(() => props.others);
@@ -46,7 +52,10 @@ export function GameBoardStage(props: {
     <div
       ref={root}
       class={`${styles['boardStage']} ${precision['board']}`}
-      classList={{ [fit['squareStage'] ?? '']: square() }}
+      classList={{
+        [boardAlign['start'] ?? '']: props.align === 'start',
+        [fit['squareStage'] ?? '']: square(),
+      }}
       data-preview={props.preview === true}
       data-viewport-fit={props.viewportFit}
       style={{

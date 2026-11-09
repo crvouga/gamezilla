@@ -1,0 +1,4 @@
+{
+  "summary": "Pong's desktop guidance still asked players to click or Tab to the court although paddle keys reach it without focus.",
+  "regressionTest": "libs/pong-client-ts/tests/pong-board-layout.test.tsx"
+}
