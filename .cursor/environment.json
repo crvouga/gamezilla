@@ -1,5 +1,5 @@
 {
-  "name": "Gamezilla",
+  "name": "cloud-agent",
   "user": "ubuntu",
   "install": "./libs/tools-harness-ts/workspace/cloud-agent-install.sh",
   "start": "./libs/tools-harness-ts/workspace/cloud-agent-start.sh"
