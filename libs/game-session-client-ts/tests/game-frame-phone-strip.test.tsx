@@ -362,3 +362,32 @@ test('completed game keeps the resignation reason in its completion header', () 
   expect(status.textContent).toContain('Black wins by resignation.');
   expect(screen.getByTestId('custom-game-outcome').contains(status)).toBe(true);
 });
+
+// regression: phone-strip-first-move-reflow — before the first move the
+// game's line sat beside "No moves yet." in one row; the first move moved it
+// above the strip, so the card grew and the board under it dropped.
+test('phone: the strip keeps one arrangement before and after the first move', () => {
+  for (const moves of [[], RECORD.moves]) {
+    const time = createHarnessClock();
+    const view = renderWithI18n(() => (
+      <ClockProvider clock={time.clock} timers={time.timers}>
+        <ThemeProvider
+          colorScheme="light"
+          fixedLayout={{ width: 390, height: 844 }}
+        >
+          <GameFrameScreenView
+            {...props(false)}
+            record={{ ...RECORD, moves, displayedPly: moves.length }}
+          />
+        </ThemeProvider>
+      </ClockProvider>
+    ));
+    const caption = screen.getByTestId('custom-game-record-caption');
+    const head = screen.getByTestId('custom-game-move-strip-head');
+    expect(head.contains(caption)).toBe(false);
+    expect(
+      caption.compareDocumentPosition(head) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+    view.unmount();
+  }
+});
