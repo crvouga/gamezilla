@@ -1,0 +1,4 @@
+{
+  "summary": "Numberlink displayed a provisional path beside counters for committed progress without identifying the difference. The counters now explicitly identify saved progress.",
+  "regressionTest": "libs/numberlink-harness-ts/tests/numberlink-drawing-feedback.test.tsx"
+}

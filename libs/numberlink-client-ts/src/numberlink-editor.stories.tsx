@@ -1,4 +1,5 @@
 import { StoryPuzzleBuilder } from '@libs/game-puzzle-client-ts/content-builder-story.example';
+import { createSignal } from 'solid-js';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { NumberlinkEditorView } from './numberlink-editor';
@@ -47,6 +48,48 @@ export const NewDrawing: Story = {};
 /** A larger draft: five pairs, the first chosen for editing. */
 export const FiveByFive: Story = {
   args: { definition: JSON.stringify(FIVE_BY_FIVE) },
+};
+
+/** Editing feeds accepted placements back into the real builder stage. */
+export const EditEndpoints: Story = {
+  ...FiveByFive,
+  render: (args) => {
+    const [definition, setDefinition] = createSignal(args.definition);
+    return (
+      <StoryPuzzleBuilder
+        title="Five pairs"
+        description="Join every pair without crossing a path."
+        difficulty="Medium"
+        definition={definition()}
+        earlier="Pairs"
+        disabled={args.disabled}
+        stage={
+          <NumberlinkEditorView
+            {...args}
+            definition={definition()}
+            onChange={setDefinition}
+          />
+        }
+      />
+    );
+  },
+};
+
+/** The selected endpoint stays identifiable independently of focus and pair color. */
+export const SelectedSecondEndpoint: Story = {
+  ...FiveByFive,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      canvas.getByRole('radio', { name: 'Second endpoint' })
+    );
+    await expect(
+      canvas.getByTestId('numberlink-board-cell-13')
+    ).toHaveAttribute('aria-current', 'true');
+    await expect(
+      canvas.getByTestId('numberlink-placement-target')
+    ).toHaveTextContent('D3');
+  },
 };
 
 /** No pairs yet: only the board size, coverage and Add pair. */
