@@ -1,0 +1,4 @@
+{
+  "summary": "With the active board bounded by a desktop window's height, the board column kept its 1fr track and the record rail its fixed width, leaving about 200px of empty band between them at 1440x900. During play the rail now takes what the bounded board leaves, sitting beside it and ending at the column's edge.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/game-frame-desktop/integration.checks.ts"
+}
