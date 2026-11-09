@@ -298,6 +298,7 @@ function GameFrameTable(props: TableProps): JSX.Element {
       title={props.title ?? props.presentation.name()}
       error={props.error ?? ''}
       boardFit={props.presentation.frame.boardFit}
+      boardAlign={props.presentation.frame.boardAlign}
       connection={props.connection ?? 'online'}
       phase={over() ? 'completed' : 'active'}
       viewerSide={viewer()}

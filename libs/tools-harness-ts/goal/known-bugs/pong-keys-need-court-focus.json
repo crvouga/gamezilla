@@ -1,0 +1,4 @@
+{
+  "summary": "Pong's arrow keys and W/S did nothing until the player tabbed to the court, which took 6 to 10 Tab presses past the screen's chrome.",
+  "regressionTest": "libs/pong-client-ts/tests/pong-court-guidance.test.tsx"
+}

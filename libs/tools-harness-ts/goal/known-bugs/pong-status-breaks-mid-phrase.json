@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone the Pong court status broke mid-phrase (\"Match / point\", \"Serve / in 1\") because its parts ran together on one wrapping line.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/pong-status-lines/integration.checks.ts"
+}

@@ -1,6 +1,7 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { type JSX, Show } from 'solid-js';
+import stageAlign from '../game-screen/game-stage-align.module.css';
 import { GameLayout } from '../game-screen/index';
 import { GameActions } from '../game-section/index';
 import { createScreenSlot } from '../screen-slot';
@@ -96,6 +97,9 @@ export function GameSessionLayout(props: GameSessionLayoutProps): JSX.Element {
   const footer = createScreenSlot(() => props.footer);
   const pinned = createScreenSlot(() => props.pinned);
   const outcome = createScreenSlot(() => props.outcome);
+  const notices = createScreenSlot(() =>
+    props.stageAlign === 'center' ? props.notices : undefined
+  );
   return (
     <div
       class={`box gap-4 min-w-0 pb-6 ${styles['session']}`}
@@ -119,7 +123,19 @@ export function GameSessionLayout(props: GameSessionLayoutProps): JSX.Element {
           {pinned.content()}
         </div>
       </Show>
-      {props.notices}
+      {/* Only a centred stage wraps its notices, to centre them with it;
+          the default layout keeps them as the session's own rows. */}
+      <Show
+        when={props.stageAlign === 'center' && notices.present()}
+        fallback={props.notices}
+      >
+        <div
+          class={`box gap-4 min-w-0 ${stageAlign['intro'] ?? ''}`}
+          {...dataAttrs({ component: 'GameSessionNotices' })}
+        >
+          {notices.content()}
+        </div>
+      </Show>
       <GameLayout
         setup={props.setup}
         controls={

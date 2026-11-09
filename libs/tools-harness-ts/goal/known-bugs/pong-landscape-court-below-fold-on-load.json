@@ -1,0 +1,4 @@
+{
+  "summary": "On an 844x390 window the Pong court's lower edge was below the fold on first load, before anything was focused, because the title row was not reserved.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/pong-landscape/integration.checks.ts"
+}
