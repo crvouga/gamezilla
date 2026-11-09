@@ -222,7 +222,20 @@ test('a pack waits on its draft puzzles first, names them, and opens the first',
   expect(steps[2]?.textContent).toBe('3Publish·Locked');
 });
 
-function builder(): JSX.Element {
+// regression: builder-playtest-next-while-unplayable
+test('a draft the game cannot play names its corrections, not the playtest, as next', () => {
+  mount(() => publication({ playable: false }));
+  expect(screen.getByTestId('content-publication-status').textContent).toBe(
+    'Next: make the corrections the editor lists, then playtest.'
+  );
+  const playtest = screen
+    .getByTestId('content-publication-steps')
+    .querySelector('li');
+  expect(playtest?.getAttribute('data-state')).toBe('current');
+  expect(playtest?.textContent).toBe('1Playtest·Correct first');
+});
+
+function builder(playable?: boolean): JSX.Element {
   return (
     <ContentAuthorScreenView
       status="ready"
@@ -239,6 +252,7 @@ function builder(): JSX.Element {
       metadataDisabled={false}
       disabled={false}
       preview={false}
+      playable={playable}
       publication={publication({
         before: (next) => (
           <button
@@ -465,3 +479,16 @@ for (const current of [true, false]) {
     await waitFor(() => expect(calls).toBe(1));
   });
 }
+
+// regression: builder-preview-open-while-unplayable
+test('Preview waits while the game cannot play the draft', () => {
+  mount(() => builder(false));
+  expect(screen.getByTestId('content-preview').hasAttribute('disabled')).toBe(
+    true
+  );
+  cleanup();
+  mount(() => builder());
+  expect(screen.getByTestId('content-preview').hasAttribute('disabled')).toBe(
+    false
+  );
+});
