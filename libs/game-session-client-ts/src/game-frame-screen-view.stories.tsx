@@ -40,6 +40,22 @@ const PLAYING: Partial<GameFrameScreenViewProps> = {
   record: record(MID_GAME_RECORD),
 };
 
+/**
+ * Held for the connection, as the app's frame is (frameViewerHeld): the
+ * viewer's seat no longer claims the move, the line drops its own-turn
+ * emphasis, and Resign and Offer draw are withheld until it returns.
+ */
+const HELD: Partial<GameFrameScreenViewProps> = {
+  ...PLAYING,
+  status: status({ emphasis: 'neutral' }),
+  table: {
+    shape: 'strip',
+    near: playSeat(AVERY),
+    others: [playSeat(JORDAN)],
+  },
+  play: FRAME_NO_PLAY,
+};
+
 const meta = {
   id: 'screens-games-frame',
   title: 'Screens/Games/Frame/Game frame',
@@ -243,7 +259,7 @@ export const StandIn: Story = {
 
 /** Offline with a game that needs the room: changes wait for the connection. */
 export const ConnectionNeeded: Story = {
-  args: { ...PLAYING, connection: 'needed' },
+  args: { ...HELD, connection: 'needed' },
 };
 
 /** Offline with a solo game: it carries on on this device. */
@@ -254,9 +270,9 @@ export const OfflineLocal: Story = {
 /** A move made offline is held and played when the connection returns. */
 export const MoveWaiting: Story = {
   args: {
-    ...PLAYING,
+    ...HELD,
     connection: 'waiting',
-    status: status({ sending: true }),
+    status: status({ sending: true, emphasis: 'neutral' }),
   },
 };
 
