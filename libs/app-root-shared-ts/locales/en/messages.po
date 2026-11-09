@@ -3901,10 +3901,6 @@ msgstr "Keep working from this copy?"
 msgid "Keep your cards"
 msgstr "Keep your cards"
 
-#: libs/sokoban-client-ts/src/sokoban-feedback.tsx
-msgid "Keeping your move. More can wait."
-msgstr "Keeping your move. More can wait."
-
 #: libs/game-puzzle-client-ts/src/content-kept-positions.tsx
 msgid "Kept"
 msgstr "Kept"
@@ -6616,6 +6612,10 @@ msgstr "Saving stopped"
 #: libs/game-puzzle-client-ts/src/content-author-screen-view.tsx
 msgid "Saving your draft…"
 msgstr "Saving your draft…"
+
+#: libs/sokoban-client-ts/src/sokoban-feedback.tsx
+msgid "Saving your move. Keep going."
+msgstr "Saving your move. Keep going."
 
 #: libs/game-puzzle-client-ts/src/content-attempt-notices.tsx
 #: libs/game-puzzle-client-ts/src/content-attempt-screen-view.tsx

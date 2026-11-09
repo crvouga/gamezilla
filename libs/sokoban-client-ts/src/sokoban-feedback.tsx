@@ -93,7 +93,7 @@ function Message(props: {
           lines={props.wide ? undefined : 2}
           dataSet={{ testid: 'sokoban-saving', state: 'keeping' }}
         >
-          <Trans>Keeping your move. More can wait.</Trans>
+          <Trans>Saving your move. Keep going.</Trans>
         </P>
       </Match>
       <Match when={props.feedback?.kind === 'solved'}>
