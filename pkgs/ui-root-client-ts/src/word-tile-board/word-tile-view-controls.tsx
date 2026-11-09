@@ -10,7 +10,7 @@ export function WordTileViewControls(props: {
 }): JSX.Element {
   return (
     <>
-      <StackHorizontal gap="xs" wrap>
+      <StackHorizontal gap="xs" wrap dataSet={{ 'view-controls': 'true' }}>
         <Button
           title={props.enlarged ? t`Fit` : t`Fit board`}
           aria-label={t`Fit board`}

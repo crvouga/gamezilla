@@ -1,0 +1,4 @@
+{
+  "summary": "On desktop the Word Tiles rack and Play word sat under the opponent's seat, above a 23rem board, far from the player's own seat; the wide workspace now puts a 27rem board first, the rack under it beside the own seat, and the word tools in a column at its side.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/word-tiles/integration.checks.ts"
+}

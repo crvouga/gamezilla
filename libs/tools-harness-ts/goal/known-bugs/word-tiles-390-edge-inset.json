@@ -1,0 +1,4 @@
+{
+  "summary": "Word Tiles used the 4px compact inset at every phone width, so at 390px text, chips and the rack sat at the screen edge although the seven-tile rack and precision board only need it below 360px.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/word-tiles/integration.checks.ts"
+}

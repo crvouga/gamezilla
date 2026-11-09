@@ -1,0 +1,4 @@
+{
+  "summary": "Sokoban's accessibility scans ran only on the fresh board, so the blocked refusal and the solved state (the feedback a player most needs) were never checked for violations. The blocked state now has its own scan in both themes, and the solve journey scans the solved state at every viewport.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/sokoban-feedback-axe/integration.checks.ts"
+}

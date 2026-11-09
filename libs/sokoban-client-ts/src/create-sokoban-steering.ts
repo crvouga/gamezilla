@@ -29,7 +29,9 @@ export function createSokobanSteering(args: {
     readonly message: string;
   } | null>(null);
   const [queued, setQueued] = createSignal<readonly SokobanDirection[]>([]);
+  const [queueOverflow, setQueueOverflow] = createSignal(false);
   const attempt = (direction: SokobanDirection): void => {
+    setQueueOverflow(false);
     const moved = applySokobanMove(args.board(), args.position(), direction);
     if (!moved.valid) {
       setRefusal(moved.issues[0] ?? null);
@@ -44,9 +46,11 @@ export function createSokobanSteering(args: {
       attempt(direction);
       return;
     }
-    setQueued((waiting) =>
-      waiting.length >= QUEUE_LIMIT ? waiting : [...waiting, direction]
-    );
+    if (queued().length >= QUEUE_LIMIT) {
+      setQueueOverflow(true);
+      return;
+    }
+    setQueued((waiting) => [...waiting, direction]);
   };
   createEffect(on(args.position, () => setRefusal(null), { defer: true }));
   createEffect(
@@ -66,5 +70,5 @@ export function createSokobanSteering(args: {
     if (Math.abs(dx) + Math.abs(dy) !== 1) return;
     steer(dx === 1 ? 'right' : dx === -1 ? 'left' : dy === 1 ? 'down' : 'up');
   };
-  return { steer, tap, refusal };
+  return { steer, tap, refusal, queueOverflow };
 }

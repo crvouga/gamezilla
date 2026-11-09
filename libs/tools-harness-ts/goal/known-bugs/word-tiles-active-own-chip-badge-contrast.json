@@ -1,0 +1,4 @@
+{
+  "summary": "In the dark theme the subtle info You badge on the viewer's active compact-rail chip measured 4.39:1 (#60a5fa on #2e3a5d), below WCAG AA 4.5:1, at the 320px Word Tiles opening.",
+  "regressionTest": "libs/game-session-client-ts/tests/word-tiles-compact-seat-rail.test.tsx"
+}

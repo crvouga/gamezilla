@@ -1,6 +1,9 @@
 import { expect, userEvent, within } from 'storybook/test';
 import { assertClear } from './word-tiles-geometry.example';
 
+/** The repository's standard phone viewport, 390x844. */
+const DESIGN_PHONE_HEIGHT = 844;
+
 /** Phone defaults are measured before any input or focus can scroll the board. */
 export async function expectPrecisionDefault(
   canvasElement: HTMLElement,
@@ -28,6 +31,16 @@ export async function expectPrecisionDefault(
   await expect(center.getBoundingClientRect().height).toBeGreaterThanOrEqual(
     44
   );
+  // The 390x844 design phone shows the whole overview before any scroll. A
+  // shorter phone keeps the play workspace above (rack, actions, board) and
+  // must bring the complete overview clear by scrolling the page.
+  const short =
+    canvasElement.ownerDocument.defaultView.innerHeight < DESIGN_PHONE_HEIGHT;
+  if (short)
+    canvas
+      .getByRole('group', { name: 'View a board region' })
+      .closest('[data-overview]')
+      ?.scrollIntoView({ block: 'end', behavior: 'instant' });
   // regression: word-tiles-region-purpose-hidden
   await assertClear(canvas.getByText('View an area'));
   await assertClear(canvas.getByText('Outline shows viewing area.'));
@@ -46,6 +59,7 @@ export async function expectPrecisionDefault(
       44
     );
   }
+  if (short) viewport.scrollIntoView({ block: 'nearest', behavior: 'instant' });
   const before = canvas
     .getByTestId(`${testId}-cell-c3`)
     .getAttribute('data-state');

@@ -1,0 +1,4 @@
+{
+  "summary": "Sokoban's builder offered Start playtest for a draft that reads but cannot be played (no worker, or crates and goals that do not match), because its readable() only checked the board decoded. It now checks the draft is a playable board, so the builder withholds playtest until the corrections are made.",
+  "regressionTest": "libs/sokoban-harness-ts/tests/sokoban-readable-draft.test.ts"
+}

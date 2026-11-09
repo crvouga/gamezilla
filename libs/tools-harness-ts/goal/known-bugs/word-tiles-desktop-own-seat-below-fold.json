@@ -1,0 +1,4 @@
+{
+  "summary": "On desktop, Word Tiles pushed the player's own seat below an 844px-tall window: first with a window-height board and a separate status row, then with the taller enlarged view and the word-list notice above the board. The view controls and notice now sit beside the board, and the own seat stays whole in the match, placing, enlarged, word-list-unavailable and game-over views.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/word-tiles/integration.checks.ts"
+}

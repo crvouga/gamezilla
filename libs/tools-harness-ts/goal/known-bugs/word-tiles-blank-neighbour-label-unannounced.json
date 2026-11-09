@@ -1,0 +1,4 @@
+{
+  "summary": "The blank-assignment context labelled its 21 nearby squares with aria-label on role-less elements (axe aria-prohibited-attr), so screen readers could skip what each square held; each square is now an image with that label.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/word-tile-blank-context-roles.test.tsx"
+}

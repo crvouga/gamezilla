@@ -3,6 +3,7 @@ import type { SyncHarnessRuntime } from './api';
 import { crashBrokerImpl, restartBrokerImpl } from './broker-restart';
 import type { HarnessClient } from './client';
 import { HARNESS_SERVER_NODE_ID } from './clock-skew';
+import { HarnessProcessDied } from './durable-crash-points';
 import type { InvariantViolation } from './invariant-tracker';
 import {
   checkClientFrameworkInvariants,
@@ -34,6 +35,8 @@ export async function checkClientSeqs(
       seq = await c.db.transaction((tx) => checkClientFrameworkInvariants(tx));
     } catch (error) {
       if (isClosedDatabaseError(error)) continue;
+      // Killed at a durable boundary while this check was queued behind it.
+      if (error instanceof HarnessProcessDied) continue;
       if (error instanceof Error && error.name === 'SqliteStorageFullError') {
         continue;
       }

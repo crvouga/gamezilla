@@ -1,0 +1,4 @@
+{
+  "summary": "A Sokoban pack puzzle that cannot be opened said 'This puzzle cannot be opened. Choose another puzzle.' while the only control on the screen was the pack card's 'Pack overview', so the message did not say where to go. In a pack it now reads 'This puzzle cannot be opened. Choose another from Pack overview.'; in a playtest it sends the author back to the builder; a puzzle on its own keeps 'More puzzles'.",
+  "regressionTest": "libs/sokoban-harness-ts/tests/sokoban-unreadable-exit.test.tsx"
+}
