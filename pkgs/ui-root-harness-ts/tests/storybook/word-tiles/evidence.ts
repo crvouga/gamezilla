@@ -21,6 +21,14 @@ export async function observeInput(page: Page): Promise<void> {
       duration: number;
       startTime: number;
       key?: string;
+      blockingDuration?: number;
+      styleAndLayoutMs?: number;
+      scripts?: {
+        source: string;
+        invoker: string;
+        duration: number;
+        forcedStyleAndLayoutMs: number;
+      }[];
     }[] = [
       {
         kind: 'phase:loading-and-story-play',
@@ -37,6 +45,39 @@ export async function observeInput(page: Page): Promise<void> {
           startTime: entry.startTime,
         });
     }).observe({ type: 'longtask', buffered: true });
+    // Long animation frames name the scripts that ran, so product work can be
+    // told apart from Storybook and Playwright's injected scripts.
+    type FrameScript = {
+      sourceURL: string;
+      invoker: string;
+      duration: number;
+      forcedStyleAndLayoutDuration: number;
+    };
+    type AnimationFrame = PerformanceEntry & {
+      blockingDuration: number;
+      styleAndLayoutStart: number;
+      scripts: FrameScript[];
+    };
+    if (
+      PerformanceObserver.supportedEntryTypes.includes('long-animation-frame')
+    )
+      new PerformanceObserver((list) => {
+        for (const entry of list.getEntries() as AnimationFrame[])
+          samples.push({
+            kind: 'long-animation-frame',
+            duration: entry.duration,
+            startTime: entry.startTime,
+            blockingDuration: entry.blockingDuration,
+            styleAndLayoutMs:
+              entry.startTime + entry.duration - entry.styleAndLayoutStart,
+            scripts: entry.scripts.map((script) => ({
+              source: script.sourceURL.replace(/^.*\//, '') || '(inline)',
+              invoker: script.invoker,
+              duration: script.duration,
+              forcedStyleAndLayoutMs: script.forcedStyleAndLayoutDuration,
+            })),
+          });
+      }).observe({ type: 'long-animation-frame', buffered: true });
     for (const kind of ['pointerup', 'keydown']) {
       document.addEventListener(
         kind,
@@ -124,7 +165,7 @@ export async function recordEvidence(
       {
         samples,
         limits:
-          'Input-to-next-animation-frame proxy, not display presentation latency. Named task timings include Playwright auto-wait/scroll, asserted DOM state and two animation frames; not pure input latency. Desktop Chromium emulation; shared hosted CPU, not physical Android. Storybook highlight addon disabled and the preview window.onkeydown manager forwarding neutralised before navigation; other Storybook preview listeners remain. Attribute timestamped long tasks to phase intervals; loading includes Storybook play. Audit and capture work are separate phases.',
+          'Input-to-next-animation-frame proxy, not display presentation latency. Named task timings include Playwright auto-wait/scroll, asserted DOM state and two animation frames; not pure input latency. Desktop Chromium emulation; shared hosted CPU, not physical Android. Storybook highlight addon disabled and the preview window.onkeydown manager forwarding neutralised before navigation; other Storybook preview listeners remain. Attribute timestamped long tasks to phase intervals; long-animation-frame entries name the scripts in each frame (source file and invoker) and its style-and-layout time, separating product work from Storybook and Playwright injected scripts; loading includes Storybook play. Audit and capture work are separate phases.',
       },
       null,
       2
