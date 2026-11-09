@@ -169,8 +169,8 @@ export const Watching: Story = {
 
 /**
  * Red has just sunk Blue's destroyer, the longest turn line a phone shows
- * ("Red fleet sank the Destroyer at B9. Your turn to fire."), and it is
- * Blue's turn: Fire and the own seat still fit before any scroll.
+ * ("Red fleet sank the Destroyer at B9. Your turn."), and it is Blue's
+ * turn: Fire and the own seat still fit before any scroll.
  */
 export const SunkByRival: Story = {
   args: { position: after(['j1', 'a9', 'j3', 'b9']) },

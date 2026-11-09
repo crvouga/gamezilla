@@ -95,3 +95,23 @@ test('storybook integration: battleship placement heading sits with its guidance
   expect(guidance.y - (heading.y + heading.height)).toBeLessThanOrEqual(8);
   expect(grid.y - (guidance.y + guidance.height)).toBeLessThanOrEqual(8);
 });
+
+// After the rival sank a ship, the phone strip carried two-line caption and
+// move list ("…sank the Destroyer at B9. Your turn to fire." and "B9 sinks
+// the Destroyer"), pushing the own seat to 878px on a 390x844 screen.
+// regression: battleship-sink-line-pushes-seat
+test('storybook integration: battleship own seat stays on a phone after the rival sinks a ship', async ({
+  page,
+}, info) => {
+  await openBattleStory(
+    page,
+    'screens-games-battleship-board--sunk-by-rival',
+    'light',
+    info
+  );
+  for (const id of ['custom-game-board-fire', 'custom-game-seat-near']) {
+    const box = await page.getByTestId(id).boundingBox();
+    if (!box) throw new Error(`${id} is not shown`);
+    expect(box.y + box.height).toBeLessThanOrEqual(844);
+  }
+});

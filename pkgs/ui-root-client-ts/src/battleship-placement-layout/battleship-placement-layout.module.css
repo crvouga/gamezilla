@@ -46,7 +46,8 @@
     grid-column: 1;
   }
   .overview {
-    grid-row: 1 / span 5;
+    /* Beside its four rows: controls, commands, guidance, the grid. */
+    grid-row: 1 / span 4;
     align-self: end;
   }
 }

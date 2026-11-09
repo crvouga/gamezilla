@@ -64,6 +64,10 @@ export function shotSentence(shot: Shot, shooter: string | null): string {
   };
   return theirs[shot.outcome];
 }
+/** The viewer's turn, said after a shot's own sentence. */
+export function ownTurnAfterShot(): string {
+  return t`Your turn.`;
+}
 /** Whose turn it is, or who won; `viewer` is `null` for a watcher. */
 export function turnSentence(args: {
   readonly turn: GameSide;

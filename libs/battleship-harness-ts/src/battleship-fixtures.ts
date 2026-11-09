@@ -74,7 +74,7 @@ export const BLUE_VICTORY_LABELS: readonly string[] = BLUE_SHOTS.flatMap(
     const blue =
       SINKS[shot] === undefined
         ? label(shot, 'hit')
-        : `${shot.toUpperCase()} sinks the ${capitalized(SINKS[shot])}`;
+        : `${shot.toUpperCase()} sunk`;
     return i < RED_SHOTS.length ? [blue, label(RED_SHOTS[i]!, 'miss')] : [blue];
   }
 );
@@ -137,8 +137,3 @@ export const SHIP_LENGTHS = {
 /** Every ship down a column from row 1: carrier J1–J5, battleship H1–H4, cruiser F1–F3, submarine D1–D3, destroyer B1–B2. */
 export const VERTICAL_FLEET =
   'fleet:carrier@j1v;battleship@h1v;cruiser@f1v;submarine@d1v;destroyer@b1v';
-
-/** A ship named as the record names it: `Destroyer`. */
-function capitalized(ship: string | undefined): string {
-  return ship === undefined ? '' : ship.charAt(0).toUpperCase() + ship.slice(1);
-}

@@ -50,7 +50,7 @@ describe('the Battleship registration', () => {
       ruleset: 'classic-10x10-v1',
       metadata: METADATA,
       position,
-      shots: ['C2 hit', 'A1 hit', 'C3 sinks the Destroyer'],
+      shots: ['C2 hit', 'A1 hit', 'C3 sunk'],
     });
     expect(JSON.stringify(record)).not.toContain('fleet:');
     expect(cellLabel('j10')).toBe('J10');

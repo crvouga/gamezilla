@@ -70,15 +70,13 @@ export function shotAction(shot: Shot): string {
     ? `${shot.cell}:sunk:${shot.ship}`
     : `${shot.cell}:${shot.outcome}`;
 }
-/** How a move list names `shot`: `E5 miss`, `E5 hit`, `E5 sinks the Cruiser`. */
+/**
+ * How a move list names `shot`: `E5 miss`, `E5 hit`, `E5 sunk`. Short like
+ * its neighbours, so a phone's move strip holds a sinking on one line; the
+ * ship is named by the turn line, the cell and the seat it sank.
+ */
 export function shotLabel(shot: Shot): string {
-  const cell = cellLabel(shot.cell);
-  // A ship is named as everywhere else it appears: `Cruiser`, not `cruiser`.
-  const ship =
-    (shot.ship ?? '').charAt(0).toUpperCase() + (shot.ship ?? '').slice(1);
-  return shot.outcome === 'sunk'
-    ? `${cell} sinks the ${ship}`
-    : `${cell} ${shot.outcome}`;
+  return `${cellLabel(shot.cell)} ${shot.outcome}`;
 }
 function emptyVolley(): Volley {
   return {

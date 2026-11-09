@@ -161,7 +161,7 @@ test("the frame's turn line announces the latest shot and whose turn it is", () 
   board({ setup: FLEET });
   expect(document.querySelector('[data-testid="board-status"]')).toBeNull();
   expect(battleshipFrame.turnStatus(POSITION, 'white', [], () => null)).toBe(
-    'Red fleet hit C3. Your turn to fire.'
+    'Red fleet hit C3. Your turn.'
   );
 });
 
