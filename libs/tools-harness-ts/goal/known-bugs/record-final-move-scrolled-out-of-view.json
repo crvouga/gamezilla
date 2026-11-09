@@ -1,0 +1,4 @@
+{
+  "summary": "On a finished game at 1440x844, the wide record's move table started scrolled near move 2, so the final move ('17 … sunk') was out of view and not shown as current. The table kept its marked move in view only when the move changed, measured once; when the rail later squeezed the list (a status line now sits above it), nothing re-ran. It now also keeps the marked move in view whenever the list's own size changes.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/record-final-move-in-view/integration.checks.ts"
+}
