@@ -43,8 +43,11 @@ for (const condition of [
       });
       const court = page.getByRole('application', { name: 'Pong court' });
       await startPongMetrics(page);
-      // Nothing is focused: the first paddle key starts play on the court.
-      await page.keyboard.press('ArrowDown');
+      // Nothing is focused: the first paddle key, held as a person taps,
+      // starts play on the court and moves the paddle.
+      await page.keyboard.down('ArrowDown');
+      await frames(page, 3);
+      await page.keyboard.up('ArrowDown');
       await expect(court).toBeFocused();
       // The rally is running: the ball moves from frame to frame.
       const ball = page.getByTestId('custom-game-board-ball');

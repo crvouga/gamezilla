@@ -50,6 +50,7 @@ function mount(width: number): void {
 // row and status line over the players' points and the game's turn line,
 // then a four-line paragraph and, on a wide screen, the phone's slider.
 // regression: pong-keyboard-entry-undisclosed
+// regression: pong-wide-guidance-asks-for-focus
 test('wide: discover court focus, keys and dragging beside the points that win', () => {
   mount(1440);
   expect(screen.queryByTestId('pong-white-control')).toBeNull();
@@ -57,7 +58,8 @@ test('wide: discover court focus, keys and dragging beside the points that win',
   expect(
     screen.getByText(/W and S or the arrow keys move your paddle/)
   ).toBeTruthy();
-  expect(screen.getByText(/Click or Tab to the court/)).toBeTruthy();
+  // Keys reach the court without focusing it first: no step is asked for.
+  expect(screen.queryByText(/Click or Tab/)).toBeNull();
   expect(screen.getByText(/You can also drag up and down/)).toBeTruthy();
 });
 

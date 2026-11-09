@@ -183,6 +183,9 @@ export async function finishPongMetrics(
     viewport: page.viewportSize(),
     cpuRate,
     inputs: samples.inputs.length,
+    // The first input of the run: in a live rally, a key pressed while
+    // nothing has focus.
+    firstInputToPaddle: samples.inputToPaddle[0],
     inputToPaddleP50: percentile(samples.inputToPaddle, 0.5),
     inputToPaddleP95: percentile(samples.inputToPaddle, 0.95),
     handlerP50: percentile(samples.handlers, 0.5),

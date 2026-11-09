@@ -132,7 +132,7 @@ test('the serve after a point names who scored and match point', () => {
   });
   const status = view.getByRole('status');
   expect(status.textContent).toMatch(
-    /^jordan_plays scored · Match point · Serve in \d+$/
+    /^jordan_plays scored\nMatch point\nServe in \d+$/
   );
   expect(status.getAttribute('data-stage')).toBe('countdown');
   view.setPosition(
@@ -145,7 +145,7 @@ test('the serve after a point names who scored and match point', () => {
     })
   );
   expect(view.getByRole('status').textContent).toMatch(
-    /^You scored · Serve in \d+$/
+    /^You scored\nServe in \d+$/
   );
 });
 
@@ -197,6 +197,56 @@ test('two players on one device are named on the scoreboard', () => {
 test('a seated player who cannot open the game is told resigning ends it', () => {
   const view = mount({ position: 'pong:broken' });
   expect(view.getByRole('alert').textContent).toContain(
-    'Return to your spaces, or resign to end this game.'
+    "If you're playing, resigning ends this one."
+  );
+});
+
+// regression: pong-match-point-unnamed — match point never said whose it was.
+test('match point names whose it is, or says it is yours', () => {
+  const view = mount({
+    state: {
+      ...start,
+      score: { left: 2, right: 1 },
+      feedback: { ...start.feedback, points: 3 },
+      targetScore: 3,
+      // The right player just scored; the left (this device) is on match point.
+      servingToward: 'left',
+    },
+  });
+  expect(view.getByRole('status').textContent).toMatch(
+    /^jordan_plays scored\nYour match point\nServe in \d+$/
+  );
+  view.setPosition(
+    pongPositionCodec.encode({
+      ...start,
+      score: { left: 1, right: 2 },
+      feedback: { ...start.feedback, points: 3 },
+      targetScore: 3,
+      servingToward: 'right',
+    })
+  );
+  expect(view.getByRole('status').textContent).toMatch(
+    /^You scored\nMatch point: jordan_plays\nServe in \d+$/
+  );
+});
+
+// regression: pong-two-player-help-unnamed — the help under the court said
+// "Left player" and "Right player" beside a scoreboard naming them.
+test('two players on one phone are named in the help under the court', () => {
+  pointer(false);
+  mount({ sides: ['white', 'black'] });
+  expect(
+    screen.getByText(
+      /avery: drag the left half\. jordan_plays: drag the right half\./
+    )
+  ).toBeTruthy();
+});
+
+// regression: pong-unreadable-resign-copy-hidden — the resign explanation
+// showed only with play controls, so a viewer beside Resign never saw it.
+test('anyone who cannot open the game is told what resigning does', () => {
+  const view = mount({ position: 'pong:broken', sides: [] });
+  expect(view.getByRole('alert').textContent).toContain(
+    "If you're playing, resigning ends this one."
   );
 });

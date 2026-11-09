@@ -1,0 +1,4 @@
+{
+  "summary": "When Pong could not be opened, the explanation that resigning ends the game showed only with play controls, so a viewer beside Resign never saw it.",
+  "regressionTest": "libs/pong-client-ts/tests/pong-court-guidance.test.tsx"
+}
