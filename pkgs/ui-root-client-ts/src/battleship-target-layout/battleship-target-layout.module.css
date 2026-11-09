@@ -118,3 +118,11 @@
     flex-basis: 20rem;
   }
 }
+
+/* The window's height, less the key above and Fire, the switch and the
+   own seat below, bounds a whole board; a phone's width bounds it first. */
+.whole {
+  width: 100%;
+  max-inline-size: min(100%, calc(100dvh - 25rem));
+  margin-inline: auto;
+}

@@ -3,6 +3,7 @@ import {
   BattleshipRegionOverview,
   BattleshipTargetHeader,
   BattleshipTargetLayout,
+  BattleshipWholeBoard,
 } from '@pkgs/ui-root-client-ts/battleship-target-layout';
 import {
   CellGridBoard,
@@ -76,16 +77,18 @@ function WholeWaters(props: {
         </P>
         {props.legend}
       </BattleshipTargetHeader>
-      <CellGridBoard
-        fill
-        label={props.label}
-        testId={`${props.testId}-target-grid`}
-        cellTestId={(cell) => `${props.testId}-target-${cell}`}
-        columnLabels={COLUMN_LABELS}
-        rowLabels={ROW_LABELS}
-        cells={props.cells}
-        onActivate={props.aim ? props.onAim : undefined}
-      />
+      <BattleshipWholeBoard>
+        <CellGridBoard
+          fill
+          label={props.label}
+          testId={`${props.testId}-target-grid`}
+          cellTestId={(cell) => `${props.testId}-target-${cell}`}
+          columnLabels={COLUMN_LABELS}
+          rowLabels={ROW_LABELS}
+          cells={props.cells}
+          onActivate={props.aim ? props.onAim : undefined}
+        />
+      </BattleshipWholeBoard>
     </StackVertical>
   );
 }

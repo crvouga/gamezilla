@@ -8,6 +8,7 @@ import {
 import { t } from '@lingui/core/macro';
 import type { GameBoardProps } from '@pkgs/turn-game-shared-ts/game-presentation';
 import { requireTwoPlayerSide } from '@pkgs/turn-game-shared-ts/game-rules';
+import { BattleshipWholeBoard } from '@pkgs/ui-root-client-ts/battleship-target-layout';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import {
   CellGridBoard,
@@ -49,16 +50,18 @@ function BoardPanel(props: {
   return (
     <StackVertical gap="xs" align="center" width="full">
       {props.legend}
-      <CellGridBoard
-        fill
-        label={props.label}
-        testId={`${props.testId}-${props.view}-grid`}
-        cellTestId={(cell) => `${props.testId}-${props.view}-${cell}`}
-        columnLabels={COLUMN_LABELS}
-        rowLabels={ROW_LABELS}
-        cells={props.cells}
-        onActivate={props.onFire}
-      />
+      <BattleshipWholeBoard>
+        <CellGridBoard
+          fill
+          label={props.label}
+          testId={`${props.testId}-${props.view}-grid`}
+          cellTestId={(cell) => `${props.testId}-${props.view}-${cell}`}
+          columnLabels={COLUMN_LABELS}
+          rowLabels={ROW_LABELS}
+          cells={props.cells}
+          onActivate={props.onFire}
+        />
+      </BattleshipWholeBoard>
     </StackVertical>
   );
 }

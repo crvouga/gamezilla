@@ -106,3 +106,20 @@ export function BattleshipTargetHeader(props: {
     </div>
   );
 }
+
+/**
+ * A whole 10×10 board no taller than the window leaves room for: its key
+ * above, Fire, the switch and the person's own seat below.
+ */
+export function BattleshipWholeBoard(props: {
+  children: JSX.Element;
+}): JSX.Element {
+  return (
+    <div
+      class={styles['whole']}
+      {...dataAttrs({ component: 'BattleshipWholeBoard' })}
+    >
+      {props.children}
+    </div>
+  );
+}
