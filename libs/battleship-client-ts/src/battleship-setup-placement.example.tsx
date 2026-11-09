@@ -69,6 +69,16 @@ export async function checkSetupWorkspace(root: HTMLElement): Promise<void> {
   await expect(
     working.top - feedback.getBoundingClientRect().bottom
   ).toBeLessThanOrEqual(8);
+  // The space kept for a longer refusal sits above "Place in …", never
+  // between the heading and its guidance (battleship-placement-heading-band).
+  const heading = root.querySelector<HTMLElement>(
+    '[data-testid="custom-game-setup-region-heading"]'
+  );
+  if (!heading) throw new Error('Missing region heading');
+  await expect(
+    feedback.getBoundingClientRect().top -
+      heading.getBoundingClientRect().bottom
+  ).toBeLessThanOrEqual(8);
   const headers = Array.from(
     root.querySelectorAll<HTMLElement>(
       '[data-testid="custom-game-setup-grid"] > span[aria-hidden="true"]'

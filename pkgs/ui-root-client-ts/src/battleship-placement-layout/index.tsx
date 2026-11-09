@@ -13,16 +13,22 @@ export function BattleshipPlacementLayout(props: {
   feedback?: JSX.Element;
   overview: JSX.Element;
   overviewLabel: string;
+  inspection?: boolean;
 }): JSX.Element {
   return (
     <div
       class={styles['layout']}
+      data-inspection={props.inspection === true}
       {...dataAttrs({ component: 'BattleshipPlacementLayout' })}
     >
       <div class={styles['controls']}>{props.controls}</div>
       <div class={styles['commands']}>{props.commands}</div>
-      <div class={styles['region']}>{props.region}</div>
-      <div class={styles['feedback']}>{props.feedback}</div>
+      {/* The region heading, the guidance and the grid read as one group:
+          the space kept for a longer refusal sits above the heading. */}
+      <div class={styles['feedback']}>
+        <div class={styles['region']}>{props.region}</div>
+        {props.feedback}
+      </div>
       <div class={styles['working']}>{props.working}</div>
       <div class={styles['overview']}>
         <span class="text textLabel">{props.overviewLabel}</span>

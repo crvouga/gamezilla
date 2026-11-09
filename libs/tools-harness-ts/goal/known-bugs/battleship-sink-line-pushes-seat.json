@@ -1,0 +1,4 @@
+{
+  "summary": "After the rival sank a ship, the phone strip ran two lines in its caption (\"Red fleet sank the Destroyer at B9. Your turn to fire.\") and in its move list (\"B9 sinks the Destroyer\"), pushing the own seat to 878px on a 390x844 screen. After a shot's own sentence the turn reads \"Your turn.\", and the move list records a sinking as \"B9 sunk\" like its neighbours; the ship stays named by the turn line, the cell and the seat.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/battleship/layout/integration.checks.ts"
+}
