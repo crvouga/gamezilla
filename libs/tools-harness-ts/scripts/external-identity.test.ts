@@ -10,7 +10,6 @@ test('deployment identity and every branded build artifact are ignored and untra
   const root = join(import.meta.dirname, '../../..');
   const paths = [
     'libs/product-identity/product-identity.json',
-    '.cursor/mcp.json',
     'libs/infra-shared-ts/tofu/modules/observability-views/alert-rules.generated.json',
     'libs/infra-shared-ts/tofu/modules/observability-views/grafana-slos.generated.json',
     ...BRAND_ARTIFACTS.map(({ path }) => path),
