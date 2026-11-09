@@ -12,11 +12,13 @@ import {
   BOT,
   FRAME_CONTROLS_EXCLUDE,
   frameArgs,
+  FRAME_HELD as HELD,
   JORDAN,
   MID_GAME_MOVES,
   MID_GAME_RECORD,
   MORGAN,
   PEOPLE,
+  FRAME_PLAYING as PLAYING,
   person,
   playSeat,
   record,
@@ -29,35 +31,6 @@ import {
   YOUR_TURN_MOVES,
   YOUR_TURN_RECORD,
 } from './game-frame-story.example';
-
-const PLAYING: Partial<GameFrameScreenViewProps> = {
-  phase: 'active',
-  viewerSide: 'white',
-  status: status(),
-  table: {
-    shape: 'strip',
-    near: playSeat(AVERY, { deciding: true }),
-    others: [playSeat(JORDAN)],
-  },
-  play: { ...FRAME_NO_PLAY, canOfferDraw: true, canResign: true },
-  record: record(MID_GAME_RECORD),
-};
-
-/**
- * Held for the connection, as the app's frame is (frameViewerHeld): the
- * viewer's seat no longer claims the move, the line drops its own-turn
- * emphasis, and Resign and Offer draw are withheld until it returns.
- */
-const HELD: Partial<GameFrameScreenViewProps> = {
-  ...PLAYING,
-  status: status({ emphasis: 'neutral' }),
-  table: {
-    shape: 'strip',
-    near: playSeat(AVERY),
-    others: [playSeat(JORDAN)],
-  },
-  play: FRAME_NO_PLAY,
-};
 
 const meta = {
   id: 'screens-games-frame',
