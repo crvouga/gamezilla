@@ -1,0 +1,4 @@
+{
+  "summary": "Pointer drawing prevents native focus, leaving Escape outside the active Numberlink board.",
+  "regressionTest": "libs/numberlink-harness-ts/tests/numberlink-pointer-boundary.test.tsx"
+}

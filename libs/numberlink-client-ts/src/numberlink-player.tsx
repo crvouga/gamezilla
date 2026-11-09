@@ -37,28 +37,21 @@ function Drawing(props: {
   const solved = createMemo(() =>
     numberlinkComplete(props.definition, props.state)
   );
+  const drawingLabel = createMemo(() => {
+    const id = drawing.gesture()?.pairId;
+    return props.definition.pairs.find((pair) => pair.id === id)?.label;
+  });
   return (
     <StackVertical gap="sm">
-      <Show when={solved()}>
-        <Notice tone="success" dataSet={{ testid: 'numberlink-solved' }}>
-          <P variant="bodyBold">
-            <Trans>Puzzle solved</Trans>
-          </P>
-          <P variant="caption">
-            <Trans>
-              Every pair is connected. Your completed paths are shown below.
-            </Trans>
-          </P>
-        </Notice>
-      </Show>
       <NumberlinkBoard
         definition={props.definition}
         state={drawing.preview()}
+        drawingPair={drawing.gesture()?.pairId}
         disabled={props.disabled}
         onTraceStart={drawing.begin}
         onTraceMove={drawing.extend}
         onTraceEnd={drawing.finish}
-        onTraceCancel={drawing.cancel}
+        onTraceCancel={drawing.cancelTrace}
         onActivate={drawing.activate}
         onNavigate={drawing.extend}
         onCellKey={drawing.key}
@@ -68,6 +61,7 @@ function Drawing(props: {
         aria-live="polite"
         dataSet={{ testid: 'numberlink-progress' }}
       >
+        <Trans>Saved:</Trans>{' '}
         <Trans>
           {connectedPairs(props.definition, props.state).length}/
           {props.definition.pairs.length} pairs connected
@@ -81,6 +75,19 @@ function Drawing(props: {
           /{props.definition.width * props.definition.height} cells covered
         </Trans>
       </P>
+      {/* After the board, so finishing never moves the board. */}
+      <Show when={solved()}>
+        <Notice tone="success" dataSet={{ testid: 'numberlink-solved' }}>
+          <P variant="bodyBold">
+            <Trans>Puzzle solved</Trans>
+          </P>
+          <P variant="caption">
+            <Trans>
+              Every pair is connected. Your completed paths are shown above.
+            </Trans>
+          </P>
+        </Notice>
+      </Show>
       <Show when={props.disabled && !solved()}>
         <Notice>
           <Trans>
@@ -89,8 +96,29 @@ function Drawing(props: {
         </Notice>
       </Show>
       <Show when={!solved() && !props.disabled}>
-        <P variant="caption" tone="secondary">
-          <Trans>Drag from a number to its match.</Trans>
+        <P
+          variant="caption"
+          tone="secondary"
+          aria-live="polite"
+          dataSet={{ testid: 'numberlink-drawing-status' }}
+        >
+          {drawing.feedback() ?? (
+            <Show
+              when={drawingLabel()}
+              fallback={
+                <Trans>
+                  Drag from an endpoint to its match, or use Enter and arrow
+                  keys.
+                </Trans>
+              }
+            >
+              {(label) => (
+                <Trans>
+                  Drawing {label()}. Finish on its matching endpoint to save it.
+                </Trans>
+              )}
+            </Show>
+          )}
         </P>
         <NumberlinkRecovery
           definition={props.definition}
