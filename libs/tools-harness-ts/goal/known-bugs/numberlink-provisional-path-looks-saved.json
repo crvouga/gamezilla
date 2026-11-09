@@ -1,0 +1,4 @@
+{
+  "summary": "A Numberlink path still being drawn looked exactly like a saved path, so players could not tell whether releasing would keep it. The drawn path is now marked provisional and painted lighter, and the status names the pair being drawn until it is saved.",
+  "regressionTest": "libs/numberlink-harness-ts/tests/numberlink-drawing-feedback.test.tsx"
+}

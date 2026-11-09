@@ -1,0 +1,4 @@
+{
+  "summary": "Three existing bot-start journeys had no owning product chart state.",
+  "regressionTest": "libs/tools-harness-ts/scripts/statechart-contracts.test.ts"
+}

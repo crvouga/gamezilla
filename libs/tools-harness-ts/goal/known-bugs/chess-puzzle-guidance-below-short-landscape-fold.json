@@ -1,0 +1,4 @@
+{
+  "summary": "In a short landscape window (844x390) the Chess puzzle board's guidance and Keyboard controls sat below the fold; opening the controls scrolled the board's top ranks out of view.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/chess/integration.checks.ts"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "Quoridor pawns used theme-flipping seat colours on the sand board, so in the dark theme the gold diamond and black square fell to about 1:1 contrast against their squares.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/quoridor-regressions/integration.checks.ts"
+}

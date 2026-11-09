@@ -63,10 +63,10 @@ test('retired GitGuardian results do not gate PRs, but declaring it again enforc
     false
   );
   expect(
-    requiredPrCheckFailures(CONFIGURED, [START, END, skippedScan], false)
+    requiredPrCheckFailures(CONFIGURED, withSecurity(skippedScan), false)
   ).toEqual([]);
   expect(
-    requiredPrCheckFailures(REQUIRED, [START, END, skippedScan], false)
+    requiredPrCheckFailures(REQUIRED, withSecurity(skippedScan), false)
   ).toEqual([
     'Required check did not pass: GitGuardian Security Checks (neutral)',
   ]);

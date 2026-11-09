@@ -63,7 +63,15 @@ export async function openGlobalMenu(
       await goal.expect.visible({ timeoutMs });
       return;
     }
-    await trigger.tap({ timeoutMs });
+    try {
+      await trigger.tap({ timeoutMs });
+    } catch (error) {
+      // The app remounted under its boot overlay mid-tap; once it is ready
+      // the person taps again.
+      if (!(await ui.get(Handles.bootLoading).isVisible())) throw error;
+      await ui.get(Handles.bootLoading).expect.hidden({ timeoutMs });
+      continue;
+    }
     try {
       await goal.expect.visible({ timeoutMs: MENU_SETTLE_MS });
       return;

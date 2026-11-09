@@ -19,6 +19,15 @@ import type {
   FrameStatus,
 } from './game-frame-view-types';
 
+/**
+ * The line a caption says: the game's own line, or, while the viewer's
+ * choice is being sent, that it is being sent, in the same place, so the
+ * screen never shows a second status row for it.
+ */
+export function captionLine(status: FrameStatus): string {
+  return status.sending ? t`Sending choice…` : status.description;
+}
+
 /** The agreed clock: minutes + added seconds. */
 function TimeControlFact(props: { readonly status: FrameStatus }): JSX.Element {
   return (
@@ -95,13 +104,14 @@ export function FrameStatusView(props: {
           title={
             <>
               <VisuallyHidden>{status().lineup} </VisuallyHidden>
-              {status().description}
+              <Show when={status().sending} fallback={status().description}>
+                <Trans>Sending choice…</Trans>
+              </Show>
             </>
           }
-          detail={status().sending ? <Trans>Sending choice…</Trans> : undefined}
           spokenOnly={
-            (props.spokenOnly === true || status().description.trim() === '') &&
-            !status().sending
+            props.spokenOnly === true ||
+            (status().description.trim() === '' && !status().sending)
           }
           look={
             props.arena === true &&

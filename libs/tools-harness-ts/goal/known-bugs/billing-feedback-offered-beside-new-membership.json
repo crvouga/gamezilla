@@ -1,0 +1,4 @@
+{
+  "summary": "After subscribing again, the billing screen still asked why the person canceled their earlier membership, beside the new active one.",
+  "regressionTest": "specs/billing/cancellation-feedback.feature"
+}

@@ -5,37 +5,35 @@ import {
   renderGameTable,
 } from '@libs/game-session-client-ts/game-frame-table.example';
 import {
-  decodeQuoridor,
   encodeQuoridor,
-  playQuoridor,
   replayQuoridor,
 } from '@libs/quoridor-shared-ts/quoridor';
 import { QUORIDOR_SIDES } from '@libs/quoridor-shared-ts/quoridor-rules';
-import { createMemo, createSignal } from 'solid-js';
 import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { QuoridorBoard } from './quoridor-board';
 import { quoridorHillGameClient } from './quoridor-game-client';
-import { playHillPreciseCoordinates } from './quoridor-hill-precision.example';
+import {
+  playHillPreciseCoordinates,
+  playHillWallPreview,
+} from './quoridor-hill-precision.example';
 import {
   expectHillDestinationVisible,
   expectHillPassVisible,
 } from './quoridor-hill-visibility.example';
+import { quoridorJourney } from './quoridor-journey.example';
+import { cancelQuoridorWallWithKeyboard } from './quoridor-keyboard.example';
 import {
   chooseQuoridorCoordinate,
+  expectQuoridorBoardUsesColumn,
   expectQuoridorGoalMarker,
+  expectQuoridorPawnInk,
   expectQuoridorTargetVisible,
 } from './quoridor-precision.example';
 import {
   expectQuoridorSpatialArea,
   expectQuoridorWallPreview,
 } from './quoridor-wall-preview.example';
-
-function sideAt(index: number) {
-  const side = QUORIDOR_SIDES[index];
-  if (side === undefined) throw new Error('Unknown hill seat');
-  return side;
-}
 
 /** The King of the Hill position after `actions`, South first, then clockwise. */
 function hill(actions: readonly string[]): string {
@@ -113,6 +111,8 @@ export const Opening: Story = {
     await expectQuoridorSpatialArea(canvasElement);
     await expectHillDestinationVisible(canvasElement);
     await expectQuoridorGoalMarker(canvasElement, 'e5');
+    await expectQuoridorPawnInk(canvasElement, ['e1', 'a5', 'e9', 'i5']);
+    await expectQuoridorBoardUsesColumn(canvasElement);
   },
 };
 
@@ -129,7 +129,9 @@ export const MustPass: Story = {
 /** East is deciding while the others wait. */
 export const WaitingForOthers: Story = {
   args: { position: hill(['e2', 'a4', 'e8']), interactive: false },
-  parameters: { table: { turn: 'blue' } satisfies GameTableStory },
+  parameters: {
+    table: { turn: 'blue', moves: ['e2', 'a4', 'e8'] } satisfies GameTableStory,
+  },
 };
 
 /** South reached the hill first and won outright. */
@@ -138,6 +140,7 @@ export const Won: Story = {
   parameters: {
     table: {
       ending: { winner: 'white', reason: 'hill reached' },
+      moves: SOUTH_TAKES_THE_HILL,
     } satisfies GameTableStory,
   },
 };
@@ -152,57 +155,36 @@ export const Lost: Story = {
   parameters: {
     table: {
       ending: { winner: 'white', reason: 'hill reached' },
+      moves: SOUTH_TAKES_THE_HILL,
     } satisfies GameTableStory,
   },
 };
 
 /** Every accepted action goes through the production rules and paints a new position. */
-const renderHillJourney: NonNullable<Story['render']> = (args, context) => {
-  const [game, setGame] = createSignal(decodeQuoridor(args.position));
-  const view = createMemo(() => {
-    const current = game();
-    const side = sideAt(current.turn);
-    return renderGameTable(
-      quoridorHillGameClient.presentation,
-      QUORIDOR_SIDES,
-      {
-        ...args,
-        position: encodeQuoridor(current),
-        orientation: side,
-        interactive: current.winner === null,
-        onAction: (action) => {
-          const next = playQuoridor(game(), action);
-          if (next === null) throw new Error(`Refused hill action: ${action}`);
-          setGame(next);
-        },
-      },
-      {
-        ...context,
-        parameters: {
-          ...context.parameters,
-          table: {
-            turn: side,
-            moves: current.actions,
-            ...(current.winner === null
-              ? {}
-              : {
-                  ending: {
-                    winner: sideAt(current.winner),
-                    reason: 'hill reached',
-                  },
-                }),
-          } satisfies GameTableStory,
-        },
-      }
-    );
-  });
-  return <>{view()}</>;
-};
+const renderHillJourney: NonNullable<Story['render']> = quoridorJourney({
+  presentation: quoridorHillGameClient.presentation,
+  sides: QUORIDOR_SIDES,
+  reason: 'hill reached',
+  seat: 'turn',
+});
 
 /** Coordinate choices advance the same four-player production-rule fixture. */
 export const PreciseCoordinates: Story = {
   render: renderHillJourney,
   play: ({ canvasElement }) => playHillPreciseCoordinates(canvasElement),
+};
+
+/** After every pawn has moved once, the picker previews, rotates, cancels and places a d4 wall. */
+export const PreciseWallPreview: Story = {
+  args: { position: hill(['e2', 'a4', 'e8', 'i6']) },
+  render: renderHillJourney,
+  play: ({ canvasElement }) => playHillWallPreview(canvasElement),
+};
+
+/** The four-player board offers the same keyboard proposal cancellation. */
+export const KeyboardWallCancellation: Story = {
+  render: renderHillJourney,
+  play: ({ canvasElement }) => cancelQuoridorWallWithKeyboard(canvasElement),
 };
 
 /** Passing changes the active pawn and removes the forced-pass action. */
@@ -348,7 +330,7 @@ export const RecoverWallPlacement: Story = {
     await expect(
       await canvas.findByTestId('custom-game-board-wall-status')
     ).toHaveTextContent(/overlaps/);
-    await expectQuoridorWallPreview(canvasElement);
+    await expectQuoridorWallPreview(canvasElement, { refused: true });
     await chooseQuoridorCoordinate(canvasElement, 'a1');
     await expectQuoridorWallPreview(canvasElement);
     await expectQuoridorTargetVisible(

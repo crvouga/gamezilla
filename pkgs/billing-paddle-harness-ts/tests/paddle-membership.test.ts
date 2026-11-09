@@ -153,6 +153,39 @@ describe('PaddleMembershipBilling', () => {
     );
   });
 
+  test('two checkouts started at once leave one that can take a payment', async () => {
+    // regression: billing-paddle-concurrent-checkout-double-payment
+    const { paddle, billing } = open();
+    const first = await billing.startCheckout({
+      accountId: 'acc_1',
+      customerId: null,
+      email: 'ada@example.test',
+      returnUrl: RETURN_URL,
+    });
+    // The first checkout was left: nothing is open when both start.
+    paddle.transactions.forEach((t, i) => {
+      paddle.transactions[i] = { ...t, status: 'canceled' };
+    });
+    const input = {
+      accountId: 'acc_1',
+      customerId: first.customerId,
+      email: 'ada@example.test',
+      returnUrl: RETURN_URL,
+    };
+    const [a, b] = await Promise.all([
+      billing.startCheckout(input),
+      billing.startCheckout(input),
+    ]);
+    if (a.kind !== 'checkout' || b.kind !== 'checkout')
+      throw new Error('expected checkouts');
+    expect(a.url).toBe(b.url);
+    expect(
+      paddle.transactions.filter(
+        (t) => t.customerId === first.customerId && t.status === 'ready'
+      )
+    ).toHaveLength(1);
+  });
+
   test('a hosted checkout link carries the transaction', async () => {
     const { paddle, billing } = open(
       'https://pay.paddle.test/hsc_01abc?locale=en'

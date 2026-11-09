@@ -55,7 +55,6 @@ export function WordTileOverview(props: {
           <button
             type="button"
             class={styles['locator']}
-            aria-label={t`Board map: locate a square`}
             aria-haspopup="dialog"
             onClick={() => setOpen(true)}
           >{t`Find a square`}</button>

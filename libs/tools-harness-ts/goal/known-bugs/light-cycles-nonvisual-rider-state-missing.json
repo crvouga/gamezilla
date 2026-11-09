@@ -1,0 +1,4 @@
+{
+  "summary": "The arena hid its SVG from assistive technology without describing rider positions, directions, queued turns or crashes on demand.",
+  "regressionTest": "libs/light-cycles-client-ts/tests/light-cycles-board.test.tsx"
+}

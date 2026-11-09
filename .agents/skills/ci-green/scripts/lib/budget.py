@@ -260,79 +260,61 @@ def held(data, kind=None):
     return [s for s in data["slots"] if kind is None or s["kind"] == kind]
 
 
-def _blocker(data, request, budget, machine):
-    """Why `request` cannot start now, or None."""
-    checks = held(data, "check")
-    agents = held(data, "agent")
+HOSTED = "heavy checks run in hosted CI (cloud runners), never on this machine"
+
+
+def runs_locally(weight):
+    """Heavy checks go to hosted CI; everything else runs here at once."""
+    return weight != "heavy"
+
+
+def _blocker(data, request):
+    """Why `request` cannot start now, or None. There is no queue: a check
+    either starts immediately or is refused for a reason waiting cannot fix."""
     if request["kind"] == "agent":
-        if len(agents) >= budget["max_parallel_agents"]:
-            return "%d of %d subagent slots in use" % (len(agents), budget["max_parallel_agents"])
         return None
-    same = [s for s in checks if s["id"] == request["id"]]
+    if not runs_locally(request["weight"]):
+        return HOSTED
+    same = [s for s in held(data, "check") if s["id"] == request["id"]]
     if same:
         return "check %s is already running (pid %s)" % (request["id"], same[0].get("pid"))
-    if not checks:
-        return None  # always let one check run, so the queue cannot stall
-    if request["weight"] == "heavy" and any(s["weight"] == "heavy" for s in checks):
-        return "a heavy check is already running"
-    if len(checks) >= budget["max_parallel_checks"]:
-        return "%d of %d check slots in use" % (len(checks), budget["max_parallel_checks"])
-    used_cpu = sum(s["cpu"] for s in checks)
-    if used_cpu + request["cpu"] > budget["cpu_units"]:
-        return "CPU budget: %d of %d units in use" % (used_cpu, budget["cpu_units"])
-    cores = machine["logical_cores"]
-    usable = max(1, cores - budget["reserve"]["cores"])
-    if machine["load_1m"] - used_cpu > usable * 0.75 and machine["load_1m"] > usable:
-        return "machine load %.1f is high (usable cores %d)" % (machine["load_1m"], usable)
-    reserve = budget["reserve"]["memory_mb"]
-    if machine["memory_available_mb"] - reserve < request["memory_mb"]:
-        return "memory: %d MB available, %d MB reserved, %d MB needed" % (machine["memory_available_mb"], reserve, request["memory_mb"])
     return None
 
 
 def acquire(kind, slot_id, weight="medium", wait=None, label=None, pid=None, ttl=None, root=None, log=None):
-    """Block until a slot is granted; return the slot dict. wait=0 tries once
-    and returns None when refused; wait=None waits indefinitely."""
+    """Grant a slot now, or return None at once with the reason logged.
+    Never waits: heavy checks belong in hosted CI, and other checks are not
+    rationed against each other. `wait` is accepted for compatibility and
+    ignored."""
     root = root or common.repo_root()
-    deadline = None if wait is None else time.time() + wait
-    delay = 2.0
-    last_reason = None
-    while True:
-        machine = measure(root)
-        budget = compute(machine)
-        cls = budget["classes"].get(weight, budget["classes"]["medium"])
-        request = {
-            "token": uuid.uuid4().hex[:12],
-            "kind": kind,
-            "id": slot_id,
-            "label": label or slot_id,
-            "weight": weight if kind == "check" else "agent",
-            "cpu": cls["cpu"] if kind == "check" else 0,
-            "memory_mb": cls["memory_mb"] if kind == "check" else 0,
-            "pid": pid if pid is not None else (os.getpid() if kind == "check" else None),
-            "host": socket.gethostname(),
-            "worktree": root,
-            "started_at": time.time(),
-            "expires_at": time.time() + (ttl or AGENT_TTL_SECONDS) if kind == "agent" else None,
-        }
-        with Ledger(root) as ledger:
-            data = ledger.load()
-            reap(data)
-            reason = _blocker(data, request, budget, machine)
-            if reason is None:
-                data["slots"].append(request)
-                ledger.save(data)
-                return request
-            ledger.save(data)
-        if deadline is not None and time.time() >= deadline:
-            if log:
-                log("budget: not granted (%s)" % reason)
-            return None
-        if log and reason != last_reason:
-            log("budget: waiting (%s)" % reason)
-        last_reason = reason
-        time.sleep(delay)
-        delay = min(15.0, delay * 1.5)
+    budget = compute(measure(root))
+    cls = budget["classes"].get(weight, budget["classes"]["medium"])
+    request = {
+        "token": uuid.uuid4().hex[:12],
+        "kind": kind,
+        "id": slot_id,
+        "label": label or slot_id,
+        "weight": weight if kind == "check" else "agent",
+        "cpu": cls["cpu"] if kind == "check" else 0,
+        "memory_mb": cls["memory_mb"] if kind == "check" else 0,
+        "pid": pid if pid is not None else (os.getpid() if kind == "check" else None),
+        "host": socket.gethostname(),
+        "worktree": root,
+        "started_at": time.time(),
+        "expires_at": time.time() + (ttl or AGENT_TTL_SECONDS) if kind == "agent" else None,
+    }
+    with Ledger(root) as ledger:
+        data = ledger.load()
+        reap(data)
+        reason = _blocker(data, request)
+        if reason is None:
+            data["slots"].append(request)
+        ledger.save(data)
+    if reason is None:
+        return request
+    if log:
+        log("budget: not started (%s)" % reason)
+    return None
 
 
 def release(token, root=None):

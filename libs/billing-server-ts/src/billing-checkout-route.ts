@@ -9,6 +9,7 @@ import { CustomerLinks } from '@libs/billing-shared-ts/customer-links';
 import { MembershipRepository } from '@libs/billing-shared-ts/membership-repository';
 import type {
   MembershipBilling,
+  MembershipChange,
   StartCheckoutInput,
   StartCheckoutResult,
 } from '@pkgs/billing-root-shared-ts/membership';
@@ -19,7 +20,7 @@ import {
 import type { Context } from 'hono';
 import { Hono } from 'hono';
 import { z } from 'zod';
-import { applyMembershipChange } from './apply-membership-change';
+import { applyCurrentMembership } from './apply-membership-change';
 
 const checkoutBodySchema = z.object({
   returnUrl: z.url(),
@@ -106,18 +107,28 @@ async function linkFirstCustomer(
 async function membershipPending(
   c: Context,
   deps: CheckoutDeps,
-  accountId: string,
-  checkout: Extract<StartCheckoutResult, { kind: 'live_membership' }>
+  pending: {
+    readonly accountId: string;
+    readonly checkout: Extract<
+      StartCheckoutResult,
+      { kind: 'live_membership' }
+    >;
+    /** The provider that took the payment; the checkout provider by default. */
+    readonly at?: MembershipBilling;
+  }
 ): Promise<Response> {
+  const { accountId, checkout } = pending;
+  const at = pending.at ?? deps.provider;
   const { change } = checkout;
   if (
-    change.provider === deps.provider.provider &&
+    change.provider === at.provider &&
     change.customerId === checkout.customerId &&
-    (await applyMembershipChange({
+    (await applyCurrentMembership({
       sql: deps.getSqlClient(),
       clock: deps.clock,
       accountId,
       change,
+      read: () => at.readMembership(change.subscriptionId),
     }))
   ) {
     await deps.notifyUser(accountId, 'billing:membership', [
@@ -131,6 +142,44 @@ async function membershipPending(
     },
     409
   );
+}
+
+/**
+ * Before a checkout opens at the provider new checkouts go to, every other
+ * configured provider where the account is a customer closes the checkouts
+ * it still has open, so a page left open there cannot take a second payment,
+ * and reports a payment it took that the app has not heard of. A provider
+ * that cannot answer opens no checkout anywhere: paying twice is worse than
+ * trying again.
+ */
+async function settleOtherProviders(
+  c: Context,
+  deps: CheckoutDeps,
+  accountId: string
+): Promise<Response | null> {
+  const links = new CustomerLinks(deps.getSqlClient());
+  for (const other of deps.billing?.byId.values() ?? []) {
+    if (other.provider === deps.provider.provider) continue;
+    const customerId = await links.customerOf(accountId, other.provider);
+    if (customerId === null) continue;
+    let live: MembershipChange | null;
+    try {
+      live = await other.closeCheckouts(customerId);
+    } catch (error) {
+      return billingProviderUnavailable(c, deps.log, {
+        provider: other.provider,
+        operation: 'checkout',
+        error,
+      });
+    }
+    if (live !== null)
+      return await membershipPending(c, deps, {
+        accountId,
+        checkout: { kind: 'live_membership', customerId, change: live },
+        at: other,
+      });
+  }
+  return null;
 }
 
 /**
@@ -156,6 +205,8 @@ async function handleBillingCheckout(
   ) {
     return c.json({ error: 'This account already has a membership' }, 409);
   }
+  const elsewhere = await settleOtherProviders(c, deps, auth.accountId);
+  if (elsewhere !== null) return elsewhere;
   const { provider } = deps;
   const existing = await new CustomerLinks(sql).customerOf(
     auth.accountId,
@@ -183,7 +234,10 @@ async function handleBillingCheckout(
       : started.result;
   if (checkout instanceof Response) return checkout;
   if (checkout.kind === 'live_membership') {
-    return await membershipPending(c, deps, auth.accountId, checkout);
+    return await membershipPending(c, deps, {
+      accountId: auth.accountId,
+      checkout,
+    });
   }
   if (checkout.url.length === 0) {
     return c.json({ error: 'Billing checkout URL missing' }, 502);

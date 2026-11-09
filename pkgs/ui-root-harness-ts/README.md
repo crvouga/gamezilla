@@ -97,8 +97,15 @@ Every routed screen and distinct full-screen state is split in two, and the
 
 `bun storybook:coverage` requires a story and source JSDoc for every exported
 `*ScreenView`; other `libs/` exports are inventoried for discovery only.
-Screen stories get phone and desktop baselines, like templates. When adding a
-story-owning `libs/` package, name it in the brace lists of this package's and
+Screen stories get phone and desktop baselines, like templates. Other component
+stories opt into that same two-theme responsive matrix with the story-level
+`tags: ['viewport-responsive']`; use it when a component's layout or interaction
+needs both phone and desktop evidence. The shared `visualScenarios` function
+owns the browser cases and coverage inventory, so explicit regression captures
+must use the same matrix. `viewport-desktop` filters out viewports below the
+production desktop boundary; combining the tags captures only desktop. Keep
+these tags on individual states unless every state needs that coverage.
+When adding a story-owning `libs/` package, name it in the brace lists of this package's and
 `ui-codegen-server-ts`'s `turbo.json`, like `pkgs/` owners.
 
 For each changed surface, choose meaningful states from its contract: loading,
@@ -230,9 +237,13 @@ The experimental docgen server is disabled
 because the installed adapter ignores story-level `!manifest` in that mode.
 Keep curation on the native inline path rather than adding a custom filter.
 The Vite docgen hook uses the same discovered component-owner directories as the
-story index and skips preview fixtures. Source `tsconfig.json` files in the
-design-system, developer-tools and chess packages retain production options and
-stories while excluding unrelated test/script roots from metadata extraction.
+story index and skips preview fixtures. `libs/tsconfig.json` groups product
+client sources into one metadata project; source `tsconfig.json` files scope
+component packages. Both retain production options and stories while excluding
+unrelated test/script roots. Grouping product screens avoids duplicating the
+design-system type graph in a separate metadata program for every game.
+Without a nearby source configuration, the metadata adapter can fall back to
+the repository project and exhaust the build heap while loading unrelated tests.
 Full typechecking still uses `tsconfig.tc.json`. Storybook hashes these source
 configs explicitly, while production `src` tasks exclude them to avoid
 invalidating application consumers.
@@ -253,7 +264,9 @@ cache inputs; the current discovery includes only the Start here guide.
 ## Browser checks and baselines
 
 `bun storybook:test` starts a test-owned static server on 6007 and stops it at the
-end. Playwright visits real stories in both themes with local fonts, fixed locale,
+end. Concurrent checkouts set `STORYBOOK_TEST_PORT` to distinct ports; the server
+and browser use that port together, independently of the development server's
+`STORYBOOK_PORT`. Playwright visits real stories in both themes with local fonts, fixed locale,
 time zone, scale factor and viewport. External requests are blocked. Rendering
 errors and serious/critical axe violations fail. Screenshot comparisons never
 update baselines implicitly. Install the existing pinned renderer with `mise install http:chrome-for-testing`.
@@ -281,6 +294,25 @@ mask false positives. Download the job log and run
 the decoded patch is `.cache/verify-nightly/storybook-baselines.patch`. Run
 `git apply --check` before applying it. Comparison reports remain in the CI
 artifacts bucket.
+
+When local artifact credentials are unavailable, an explicit evidence-only
+diagnostic can relay an exact retained run through encrypted job logs. Generate
+an RSA recipient key pair locally (at least 2048 bits), keep the private key in
+an ignored directory with mode 0600, and pass only the base64-encoded public PEM
+as `storybook-evidence-key`. Dispatch `group=storybook` with
+`storybook-evidence-run=<original-run-id>` and that public key. This mode skips
+the renderer, build and browser tests; its success proves only the transfer.
+It reads only that run's Storybook result directory and encrypts every file
+and the final checksum manifest with RSA-OAEP and AES-GCM. No artifact-store
+credentials or plaintext traces leave the job.
+
+Download the export job log, then run
+`bun run libs/tools-harness-ts/scripts/storybook-evidence.ts --decode-log <log> <new-directory> <private-key-file>`.
+The decoder authenticates every file and requires the complete final manifest
+before writing to a fresh destination. Keep the original run/head identity;
+the export commit did not produce the evidence. Inspect restored traces and
+metadata for sensitive material before posting media to a PR. Never upload the
+recipient private key. The ordinary artifact retention remains unchanged.
 
 Axe cannot prove keyboard or focus contracts. Existing Bun DOM interaction tests
 cover those independently; play functions document story-specific contracts.

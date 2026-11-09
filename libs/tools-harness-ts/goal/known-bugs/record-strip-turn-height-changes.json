@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone, the compact game-record strip showed only the moves already played in the shown turn, so a turn of one move fit one line and a full turn wrapped to two: the board under it moved about 32px every turn at 320 and 390px. A wrapping turn now keeps unseen, inert room for its moves still to come.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/record-strip-steady/integration.checks.ts"
+}

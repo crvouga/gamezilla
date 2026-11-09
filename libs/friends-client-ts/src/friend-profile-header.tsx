@@ -3,6 +3,7 @@ import { useModeration } from '@libs/moderation-client-ts/moderation-context';
 import { usernameLabel } from '@libs/moderation-shared-ts/display';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { H2 } from '@pkgs/ui-root-client-ts/heading';
+import { Text } from '@pkgs/ui-root-client-ts/text';
 import type { JSX } from 'solid-js';
 import { createMemo } from 'solid-js';
 import { FriendProfileAvatar } from './friend-profile-avatar';
@@ -24,13 +25,10 @@ export function FriendProfileHeader(props: {
   return (
     <>
       <FriendProfileAvatar profile={props.profile} size={96} />
-      <H2
-        size="heading"
-        lines={1}
-        align="center"
-        testId={Handles.friendUserUsername}
-      >
-        {handle()}
+      <H2 size="heading" align="center" testId={Handles.friendUserUsername}>
+        <Text variant="inherit" wrap="break">
+          {handle()}
+        </Text>
       </H2>
     </>
   );

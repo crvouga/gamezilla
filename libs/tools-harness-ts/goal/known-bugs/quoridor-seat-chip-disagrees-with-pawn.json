@@ -1,0 +1,4 @@
+{
+  "summary": "Quoridor seat chips used theme player colors, so in the dark theme each chip disagreed with its pawn on the sand board (the black square pawn showed a white chip).",
+  "regressionTest": "libs/quoridor-client-ts/tests/quoridor-board-truthful-state.test.tsx"
+}

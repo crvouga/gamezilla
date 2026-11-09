@@ -85,7 +85,7 @@ export const Results: Story = {
   ),
 };
 
-/** Nobody matched: the query is repeated and a next step suggested. */
+/** Nobody matched: a short heading and a next step, with the query still editable. */
 export const NoResults: Story = { args: { query: 'zzz' } };
 
 /** Offline with nobody on this device: search needs a connection. */
@@ -109,9 +109,22 @@ export const Failed: Story = {
   },
 };
 
-/** A long query is echoed in full in the empty state. */
+/** A long query stays in its field; the empty heading stays short on a phone. */
 export const LongQuery: Story = {
   args: { query: 'a_really_long_username_that_keeps_going_and_going' },
+  // regression: search-long-query-empty-heading-overflow
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(
+      canvas.getByRole('textbox', { name: 'Search people' })
+    ).toHaveValue(args.query);
+    await expect(
+      canvas.getByText('No people found', { exact: true })
+    ).toBeVisible();
+    await expect(
+      canvas.queryByText(`No people found for “${args.query}”`)
+    ).not.toBeInTheDocument();
+  },
 };
 
 /** A guest may not search people: the sign-in way forward, once they type. */
@@ -135,5 +148,26 @@ export const SelectRecent: Story = {
     const canvas = within(canvasElement);
     await userEvent.click(await canvas.findByText('morgan'));
     await expect(args.onSelectRecent).toHaveBeenCalledWith('morgan');
+  },
+};
+
+/** The search quota pauses only search; it never claims the device is offline. */
+export const RateLimited: Story = {
+  args: { query: 'jor', search: { ...IDLE, rateLimited: true } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId('search-rate-limited')).toBeVisible();
+    await expect(canvas.queryByText(/No people found/)).not.toBeInTheDocument();
+    await expect(
+      canvas.queryByText('Search needs a connection')
+    ).not.toBeInTheDocument();
+  },
+};
+
+/** Cached matches remain usable while the server asks this search to wait. */
+export const RateLimitedWithLocalResults: Story = {
+  args: {
+    query: 'jor',
+    search: { ...IDLE, rateLimited: true, results: RESULTS.slice(0, 1) },
   },
 };

@@ -9,7 +9,9 @@ const meta = {
   id: 'screens-shell-header-island',
   title: 'Screens/Shell/Header island',
   component: AppHeaderIslandView,
-  tags: ['autodocs'],
+  // The production shell mounts this only in wide layouts; phones use AppTabBar.
+  tags: ['autodocs', 'viewport-desktop'],
+  globals: { viewport: { value: 'desktop', isRotated: false } },
   parameters: {
     appRouter: true,
     appFrame: false,

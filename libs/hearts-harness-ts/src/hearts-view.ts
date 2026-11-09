@@ -8,6 +8,7 @@
  */
 
 import { CUSTOM_GAME_BOARD } from '@libs/game-session-harness-ts/custom-game-moves';
+import { customGameSeatName } from '@libs/game-session-harness-ts/custom-game-reads';
 import {
   type CustomGameScreen,
   readCustomGameScreen,
@@ -81,6 +82,23 @@ export async function heartsView(
     told: (await shownText(s, actor, 'custom-game-error')) ?? '',
     page: html,
   };
+}
+
+/** The completed trick names the expected winner and shows their winning card. */
+export async function heartsTrickWinnerShown(
+  s: ProductHarness,
+  actor: string,
+  side: GameSide,
+  card: string
+): Promise<boolean> {
+  const view = await heartsView(s, actor);
+  const name = (await customGameSeatName(s, actor, side))?.trim() ?? '';
+  const winner = view.screen.mySide === side ? 'You' : name;
+  return (
+    name !== '' &&
+    view.seats[side]?.played === card &&
+    view.center.startsWith(`${winner} took the trick with `)
+  );
 }
 
 /**

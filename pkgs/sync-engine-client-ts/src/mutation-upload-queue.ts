@@ -169,6 +169,12 @@ async function applyUploadResult(
   result: MutationUploadResult,
   now: () => number
 ): Promise<void> {
+  // regression: malformed-verdict-misread-as-outcome
+  // regression: malformed-mutation-verdict-retires-work
+  // One verdict per pending write, each applied or a coded refusal, checked
+  // before any durable effect: a garbled acknowledgement is not an outcome,
+  // so retrying replays the server's stored verdicts instead of dropping a
+  // refusal, inventing one, or retiring queued work.
   if (!validMutationResponse(result, pending.map(toWireRow))) {
     throw new Error('Invalid mutation upload acknowledgement');
   }

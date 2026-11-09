@@ -165,10 +165,17 @@ export const Handles = {
   /** Remove friend confirmation button (scoped by username). */
   friendRemoveConfirm: (username: string) =>
     `friend-remove-confirm-${username}`,
+  /** Remove friend outcome and explicit dismissal (scoped by username). */
+  friendRemoveSuccess: (username: string) =>
+    `friend-remove-success-${username}`,
+  friendRemoveDone: (username: string) => `friend-remove-done-${username}`,
   /** Block user pill (scoped by username). */
   friendBlock: (username: string) => `friend-block-${username}`,
   /** Block user confirmation (scoped by username). */
   friendBlockConfirm: (username: string) => `friend-block-confirm-${username}`,
+  /** Block user outcome and explicit dismissal (scoped by username). */
+  friendBlockSuccess: (username: string) => `friend-block-success-${username}`,
+  friendBlockDone: (username: string) => `friend-block-done-${username}`,
   /** Unblock user pill (scoped by username). */
   friendUnblock: (username: string) => `friend-unblock-${username}`,
   /** The @handle heading on another person's profile screen. */

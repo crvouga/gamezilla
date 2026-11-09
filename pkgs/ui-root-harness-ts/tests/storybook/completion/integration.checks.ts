@@ -1,4 +1,5 @@
 import { expect, type Locator, type Page, test } from '@playwright/test';
+import { expectFinalBoardReachable } from './board-reachability';
 
 async function open(
   page: Page,
@@ -194,3 +195,66 @@ test('storybook integration: literal cancelled board offers no drop instruction'
       .locator('button:enabled:not([aria-disabled="true"])')
   ).toHaveCount(0);
 });
+
+// regression: shared-drawn-geometry-winning-position
+test('storybook integration: literal drawn geometry has no winning line', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 844 });
+  await page.goto(
+    '/iframe.html?id=screens-games-frame-geometry--drawn&viewMode=story&globals=theme:light'
+  );
+  await expect(page.locator('#storybook-root')).toHaveAttribute(
+    'data-story-ready',
+    'true'
+  );
+  await expect(page.getByTestId('custom-game-result-headline')).toContainText(
+    'Draw'
+  );
+  const board = page.getByTestId('custom-game-board');
+  await expect(board).toHaveAttribute('data-won', 'false');
+  await expect(board.locator('[data-winning="true"]')).toHaveCount(0);
+});
+
+// The reported 1440 × 844 captures ended before the last row. Prove that
+// keyboard scrolling exposes it; a matching first-viewport PNG cannot do that.
+for (const story of [
+  'screens-games-frame--finished-long-record',
+  'screens-games-frame-geometry--win',
+  'screens-games-frame-geometry--drawn',
+]) {
+  for (const theme of ['light', 'dark']) {
+    test(`storybook integration: ${story} final board is keyboard reachable at 1440x844/${theme}`, async ({
+      page,
+    }, info) => {
+      await page.setViewportSize({ width: 1440, height: 844 });
+      await page.goto(
+        `/iframe.html?id=${story}&viewMode=story&globals=theme:${theme}`
+      );
+      await expect(page.locator('#storybook-root')).toHaveAttribute(
+        'data-story-ready',
+        'true'
+      );
+      await page.evaluate(() => document.fonts.ready);
+      const headline = page.getByTestId('custom-game-result-headline');
+      await expect(headline).toHaveCount(1);
+      await expect(headline).toBeInViewport({ ratio: 1 });
+      const actions = page.locator(
+        '[data-testid="custom-game-rematch"], [data-testid="custom-game-new"], [data-testid="custom-game-review-start"]'
+      );
+      expect(await actions.count()).toBeGreaterThan(0);
+      const board = page.getByTestId('custom-game-board');
+      for (const action of await actions.all()) {
+        await expect(action).toBeInViewport({ ratio: 1 });
+        const actionBox = await box(action);
+        expect(actionBox.y + actionBox.height).toBeLessThan(
+          (await box(board)).y
+        );
+      }
+      await expect(board.locator('[data-winning="true"]')).toHaveCount(
+        story.endsWith('--drawn') ? 0 : 4
+      );
+      await expectFinalBoardReachable(page, info);
+    });
+  }
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "The social profile hydration fix replaced the required deleted-account explanation with generic unavailability. A synced profile tombstone must say the account was deleted; loading and absent profiles must not make that claim or expose the former identity.",
+  "regressionTest": "libs/friends-client-ts/tests/friend-profile-sync.test.tsx"
+}

@@ -1,4 +1,6 @@
 import type {
+  GameFrameCompactInset,
+  GameFrameSeatLayout,
   GameOptionGroup,
   GameOutlineStep,
 } from '@pkgs/turn-game-shared-ts/game-frame';
@@ -92,6 +94,8 @@ export type FrameTable = {
    * frame lends it each player (`GameFrame.boardSeats`).
    */
   readonly shape: 'strip' | 'rail' | 'none' | 'board';
+  readonly seatLayout?: GameFrameSeatLayout | undefined;
+  readonly compactInset?: GameFrameCompactInset | undefined;
   /**
    * The board names each player itself (`GameFrame.boardNames`): a phone
    * draws no seats above or below it, except one to take back.
@@ -302,6 +306,13 @@ export type FrameRecord = {
    * number (`Column`); `''` when the notation reads on its own.
    */
   readonly moveHeading?: string | undefined;
+  /**
+   * The game's sample first turn, each move with its seat's swatch: the
+   * empty phone record keeps its room. Absent: one empty line.
+   */
+  readonly firstTurnSample?:
+    | readonly { readonly label: string; readonly swatch: GameSeatLook }[]
+    | undefined;
   readonly displayedPly: number;
   /** A refused review, in words; `''` for none. */
   readonly error: string;

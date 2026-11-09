@@ -108,7 +108,10 @@ function dispatcher(options: DeliveryFaults = {}) {
           ],
         });
       }
-      if (url.endsWith('/resources/alertgroups/I123/'))
+      if (
+        url ===
+        `${config.stackUrl}/api/plugins/grafana-irm-app/resources/alertgroups/I123/`
+      )
         return mobileTimeline(options);
       if (url.endsWith('/api/v1/alert_groups/I123/'))
         return Response.json({ state: 'resolved' });
@@ -188,7 +191,9 @@ test('ingestion failure cannot leak the webhook or remote response body and stil
   const { http, payloads } = dispatcher({ rejectIngestion: true });
   await expect(
     new AlertDeliveryCheck(config, http, clock, timers).run(run)
-  ).rejects.toThrow('Alert delivery API returned HTTP 503');
+  ).rejects.toThrow(
+    'Alert delivery API returned HTTP 503 (IRM integration failure alert)'
+  );
   expect(payloads.map((p) => p.workflow_run.conclusion)).toEqual([
     'failure',
     'success',
@@ -280,4 +285,25 @@ test('canary groups cannot collide with a real GitHub run or another run attempt
       }
     )
   );
+});
+
+// regression: alert-canary-deprecated-oncall-plugin
+test('a missing IRM route names the failing step and still sends recovery', async () => {
+  const { clock, timers } = createHarnessClock({ startMs: startedAt });
+  const { http, payloads } = dispatcher();
+  const missingTimeline = {
+    fetch: (input: RequestInfo | URL, init?: RequestInit) =>
+      String(input).includes('/resources/alertgroups/')
+        ? Promise.resolve(new Response('Plugin not found', { status: 404 }))
+        : http.fetch(input, init),
+  };
+  await expect(
+    new AlertDeliveryCheck(config, missingTimeline, clock, timers).run(run)
+  ).rejects.toThrow(
+    'Alert delivery API returned HTTP 404 (IRM incident timeline)'
+  );
+  expect(payloads.map((p) => p.workflow_run.conclusion)).toEqual([
+    'failure',
+    'success',
+  ]);
 });

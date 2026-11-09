@@ -44,12 +44,17 @@
   }
 }
 
+/* One line, so the rail keeps its height and a name never breaks mid-word;
+   the full name stays the text (accessible name) and the title. */
 .chipName {
-  white-space: normal;
-  overflow-wrap: anywhere;
-  overflow: visible;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .chipFacts {
   row-gap: var(--game-player-facts-row-gap, var(--ui-space-1));
   max-width: 100%;
+  /* A badge's height whether or not one shows, so a seat that goes Out
+     (or turns You) never grows its chip and shifts the board below. */
+  min-height: var(--ui-space-xl);
 }

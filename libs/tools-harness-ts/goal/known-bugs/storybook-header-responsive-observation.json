@@ -1,0 +1,4 @@
+{
+  "summary": "Header index assertion rejected intentional desktop eligibility. Assert desktop HeaderIsland and compact AppTabBar eligibility plus its 390/768 navigation play.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/integration.checks.ts"
+}
