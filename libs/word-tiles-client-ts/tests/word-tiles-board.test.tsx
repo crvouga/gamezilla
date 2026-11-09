@@ -250,6 +250,9 @@ test('opening match h8 blank keeps scores and neighbors, cancels only the blank 
   fireEvent.keyDown(view.getByTestId('wt-blank-A'), { key: 'a' });
   expect(document.activeElement).toBe(square);
   expect(square.getAttribute('aria-label')).toContain('blank as A');
+  // CAT is a word whether or not an earlier test loaded the word list.
+  fireEvent.click(view.getByTestId('wt-rack-82'));
+  fireEvent.click(view.getByTestId('wt-cell-i8'));
   fireEvent.click(view.getByTestId('wt-submit'));
-  expect(actions).toEqual(['play:g8=11.h8=98A']);
+  expect(actions).toEqual(['play:g8=11.h8=98A.i8=82']);
 });
