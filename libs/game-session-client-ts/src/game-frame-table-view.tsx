@@ -199,11 +199,14 @@ function chipStat(seat: FramePlaySeat): GameSeatStat | null {
 
 /**
  * One seat at a table of three or more, as a compact chip in the rail. The
- * viewer's own (`own`) says "You" and marks its place as the seat nearest
- * them.
+ * seat nearest the viewer (`own`) marks its place; it says "You" only when
+ * the viewer holds it (`you`, default `own`), never to a watcher.
  */
 export function FrameSeatChipView(
-  props: Omit<SeatProps, 'onChoose'> & { readonly own?: boolean | undefined }
+  props: Omit<SeatProps, 'onChoose'> & {
+    readonly own?: boolean | undefined;
+    readonly you?: boolean | undefined;
+  }
 ): JSX.Element {
   return (
     <GameSessionParticipant name={props.seat.plainName}>
@@ -222,7 +225,7 @@ export function FrameSeatChipView(
         swatch={props.seat.swatch}
         tags={
           <>
-            <Show when={props.own === true}>
+            <Show when={(props.you ?? props.own) === true}>
               <Badge intent="info" label={<Trans>You</Trans>} />
             </Show>
             <PlaySeatTags seat={props.seat} />
@@ -326,7 +329,12 @@ export function FrameOthersView(props: TableProps): JSX.Element {
           >
             <Show when={nearInRail(props)}>
               {(near) => (
-                <FrameSeatChipView seat={near()} people={props.people} own />
+                <FrameSeatChipView
+                  seat={near()}
+                  people={props.people}
+                  own
+                  you={near().side === props.viewerSide}
+                />
               )}
             </Show>
             <Index each={props.table.others}>
