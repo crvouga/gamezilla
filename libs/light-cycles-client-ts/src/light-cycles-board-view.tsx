@@ -9,6 +9,7 @@ import type {
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { DirectionPad } from '@pkgs/ui-root-client-ts/direction-pad';
+import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { TextLink } from '@pkgs/ui-root-client-ts/text-link';
@@ -316,21 +317,28 @@ export function LightCyclesBoardView(props: GameBoardProps): JSX.Element {
     <Show
       when={state()}
       fallback={
-        <StackVertical gap="sm">
-          <P role="alert">
-            <Trans>
-              This game cannot be shown by this app. Check your app version,
-              install an available update, then reopen this game.
-            </Trans>
-          </P>
-          <TextLink
-            href="/more/about"
-            variant="standalone"
-            testId={`${props.testId}-app-info`}
-          >
-            <Trans>Check app version</Trans>
-          </TextLink>
-        </StackVertical>
+        // The way back leads, on a warning surface, ahead of the quiet
+        // game actions below the board.
+        <Notice
+          tone="warning"
+          dataSet={{ testid: `${props.testId}-unreadable` }}
+        >
+          <StackVertical gap="sm">
+            <P role="alert">
+              <Trans>
+                This game cannot be shown by this app. Check your app version,
+                install an available update, then reopen this game.
+              </Trans>
+            </P>
+            <TextLink
+              href="/more/about"
+              variant="standalone"
+              testId={`${props.testId}-app-info`}
+            >
+              <Trans>Check app version</Trans>
+            </TextLink>
+          </StackVertical>
+        </Notice>
       }
     >
       {(game) => <Arena state={game()} board={props} />}

@@ -224,3 +224,19 @@ test('the literal unreadable trio position offers existing app version recovery'
   );
   expect(screen.queryByRole('application')).toBeNull();
 });
+
+// regression: light-cycles-unreadable-recovery-outweighed-by-resign — the
+// way back was a bare text link under the error, so the red Resign below
+// it carried the screen's weight.
+test('the unreadable position leads with its recovery on a warning surface', () => {
+  mount(390, 'light-cycles-3:not-a-position');
+  const link = screen.getByRole('link', { name: 'Check app version' });
+  const notice = link.closest('[data-component="Notice"]');
+  expect(notice?.getAttribute('data-tone')).toBe('warning');
+  expect(notice?.contains(screen.getByRole('alert'))).toBe(true);
+  const resign = screen.queryByRole('button', { name: 'Resign' });
+  if (resign !== null)
+    expect(
+      link.compareDocumentPosition(resign) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+});
