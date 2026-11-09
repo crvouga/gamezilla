@@ -5410,6 +5410,10 @@ msgstr "Place wall"
 msgid "Plan and subscription"
 msgstr "Plan and subscription"
 
+#: libs/word-tiles-client-ts/src/word-tiles-board-view.tsx
+msgid "Plan your next word while you wait."
+msgstr "Plan your next word while you wait."
+
 #: libs/app-root-client-ts/src/about-screen-view.tsx
 #: libs/auth-client-ts/src/account-device-meta-grid.tsx
 msgid "Platform"
@@ -9118,10 +9122,6 @@ msgstr "You can close this while we finish. Closing does not cancel your request
 #: libs/permissions-client-ts/src/unlock-copy.tsx
 msgid "You can host one space at a time. End it to start another, or get Plus to host as many as you like."
 msgstr "You can host one space at a time. End it to start another, or get Plus to host as many as you like."
-
-#: libs/word-tiles-client-ts/src/word-tiles-board-view.tsx
-msgid "You can plan a word while you wait. Play it when your turn begins."
-msgstr "You can plan a word while you wait. Play it when your turn begins."
 
 #: libs/spaces-client-ts/src/leave-space-confirm-modal.tsx
 msgid "You can rejoin from the invite link if the space is still live."

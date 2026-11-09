@@ -401,7 +401,7 @@ export const RecoverAndSubmit: Story = {
       'step'
     );
     await expect(
-      canvas.getByText(/You can plan a word while you wait/)
+      canvas.getByText('Plan your next word while you wait.')
     ).toBeVisible();
   },
 };

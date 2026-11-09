@@ -200,7 +200,7 @@ function waitingPreview(
     ? {
         kind: 'none',
         playable: false,
-        message: t`You can plan a word while you wait. Play it when your turn begins.`,
+        message: t`Plan your next word while you wait.`,
       }
     : preview;
 }
