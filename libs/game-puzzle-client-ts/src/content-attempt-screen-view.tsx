@@ -9,6 +9,7 @@ import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
 import { MetricStrip } from '@pkgs/ui-root-client-ts/metric-strip';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { ProgressBar } from '@pkgs/ui-root-client-ts/progress-bar';
+import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { SuccessState } from '@pkgs/ui-root-client-ts/success-state';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Match, Show, Switch } from 'solid-js';
@@ -68,6 +69,11 @@ export type ContentAttemptScreenViewProps = {
   readonly player?: JSX.Element;
   /** Undo / redo, restart and next. */
   readonly controls?: JSX.Element;
+  /**
+   * A pack puzzle's way on (its next puzzle, its overview), shown in the
+   * pack card under its progress so the command row never grows on solve.
+   */
+  readonly packActions?: JSX.Element;
   /** Where the board sits on a one-column screen. */
   readonly stageAlign?: 'start' | 'center' | undefined;
   /** Earlier kept continuations to choose from. */
@@ -219,6 +225,15 @@ function AttemptPanel(props: ContentAttemptScreenViewProps): JSX.Element {
       dataSet={{ testid: 'puzzle-attempt-panel' }}
     >
       <Show when={props.pack}>{(pack) => <PackTrack pack={pack()} />}</Show>
+      <Show when={props.pack && props.packActions}>
+        <StackHorizontal
+          gap="sm"
+          wrap
+          dataSet={{ testid: 'puzzle-attempt-pack-actions' }}
+        >
+          {props.packActions}
+        </StackHorizontal>
+      </Show>
       <AttemptFigures {...props} />
       <SaveStatus {...props} />
       <Show when={props.playtest}>
