@@ -15,6 +15,7 @@ strict_main(after) if {
 	pr := rules.pull_request[0]
 	pr.dismiss_stale_reviews_on_push == true
 	pr.required_review_thread_resolution == true
+
 	# Up-to-date branches are not required; Release re-verifies main.
 	checks := rules.required_status_checks[0]
 	some check in checks.required_check
