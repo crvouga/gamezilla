@@ -18,6 +18,7 @@ import {
   MORGAN,
   OPPONENT_TURN_MOVES,
   PEOPLE,
+  FRAME_PLAYING as PLAYING,
   person,
   playSeat,
   record,
@@ -30,19 +31,6 @@ import {
   YOUR_TURN_MOVES,
   YOUR_TURN_RECORD,
 } from './game-frame-story.example';
-
-const PLAYING: Partial<GameFrameScreenViewProps> = {
-  phase: 'active',
-  viewerSide: 'white',
-  status: status(),
-  table: {
-    shape: 'strip',
-    near: playSeat(AVERY, { deciding: true }),
-    others: [playSeat(JORDAN)],
-  },
-  play: { ...FRAME_NO_PLAY, canOfferDraw: true, canResign: true },
-  record: record(MID_GAME_RECORD),
-};
 
 const meta = {
   id: 'screens-games-frame',
@@ -497,8 +485,19 @@ export const Denied: Story = {
   },
 };
 
-/** Resigning asks first; confirming finishes the game with its record kept. */
+/** Resigning asks first: the question, with nothing chosen yet. */
 export const ConfirmResign: Story = {
+  args: PLAYING,
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement.ownerDocument.body);
+    await userEvent.click(await canvas.findByTestId('custom-game-resign'));
+    await canvas.findByText(/^This finishes the current game\./);
+    await expect(args.onChoose).not.toHaveBeenCalled();
+  },
+};
+
+/** Confirming finishes the game with its record kept. */
+export const ResignConfirmed: Story = {
   args: PLAYING,
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement.ownerDocument.body);

@@ -57,18 +57,6 @@
   background: var(--color-surface-muted);
   color: var(--color-text);
 }
-/* Include the coordinate gutter, gaps and padding in the bounded target size. */
-.board[data-fill="false"][data-board-theme="battleship"] {
-  grid-template-columns:
-    var(--ui-space-6)
-    repeat(var(--cell-grid-columns), minmax(0, 1fr));
-  max-width: calc(
-    var(--cell-grid-columns) *
-    (var(--ui-control-size-md) + 2 * var(--ui-space-hairline)) +
-    var(--ui-space-6) +
-    var(--ui-space-4)
-  );
-}
 /* A game's board fills its column, edge to edge with its seats. */
 .board[data-fill="true"] {
   max-width: none;
@@ -76,18 +64,6 @@
 /* Keep the whole Quoridor board above its precise picker and confirmation. */
 .board[data-fill="true"][data-board-theme="quoridor"] {
   max-width: calc(var(--ui-control-size-lg) * 9);
-}
-/* On a phone a Battleship grid's ten targets are as large as its frame
-   allows: a narrow label column, hairline gaps and slim padding give the
-   room to the targets, each about 32px instead of 30px. */
-@container game-column (max-width: 879px) {
-  .board[data-fill="true"][data-board-theme="battleship"] {
-    grid-template-columns:
-      minmax(1rem, 0.5fr)
-      repeat(var(--cell-grid-columns), minmax(0, 1fr));
-    gap: 1px;
-    padding: var(--ui-space-1);
-  }
 }
 /* In a game column the board is at least the phone measure (seven large
    controls) and otherwise grows, centred, to the column while its tools,
@@ -153,15 +129,6 @@
   border-color: var(--color-destructive);
 }
 .cell[data-tone="critical"] {
-  background: var(--color-destructive);
-  color: var(--color-on-destructive);
-  border-color: var(--color-destructive);
-}
-/* A Battleship hit is a solid mark in both themes, never a pale wash: the
-   hit fill with its cross in the fill's own ink. A sunk ship's squares
-   keep that fill and add the heavy ink ring. */
-.board[data-board-theme="battleship"] .cell[data-tone="alert"],
-.legendMark[data-tone="alert"] {
   background: var(--color-destructive);
   color: var(--color-on-destructive);
   border-color: var(--color-destructive);
@@ -493,10 +460,6 @@
   font-size: var(--ui-font-size-sm);
 }
 
-/* Board boundaries must remain visible against dark water. */
-.board[data-board-theme="battleship"] .cell[data-tone="open"] {
-  border-color: var(--ui-color-game-battleship-muted);
-}
 /* Keep bright seat fills, with the board's dark ink defining every pawn. */
 .board[data-board-theme="quoridor"] .cell[data-tone="occupied"] .glyph {
   -webkit-text-stroke: 0.08em var(--ui-color-game-quoridor-ink);

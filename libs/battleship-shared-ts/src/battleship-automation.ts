@@ -31,8 +31,9 @@ export const battleshipAutomation: TurnGame['turnAutomation'] = {
     // regression: battleship-arrange-over-fleet
     for (const { id } of SHIPS) {
       await chooseSetupShip(ui, board, id);
+      // Remove is offered only for a placed ship.
       const remove = ui.get(`${board}-remove`);
-      if ((await remove.attribute('disabled')) === null) await remove.tap();
+      if (await remove.isVisible()) await remove.tap();
     }
     for (const ship of fleet) {
       await chooseSetupShip(ui, board, ship.ship);

@@ -1,7 +1,9 @@
 import { expect, test } from 'bun:test';
 import {
+  abandonedLockId,
   mayPrintToolStdout,
   repositoryUnlockArgs,
+  stateLockKey,
   stateUnlockArgs,
   toolDeadline,
 } from '@libs/infra-shared-ts/tofu-process-policy';
@@ -101,4 +103,51 @@ test('force-unlock resolves the variable-backed state backend with the same file
   expect(
     stateUnlockArgs(FOUNDATION_LOCK, paths, { stack: 'foundation', env: 'dev' })
   ).toContain('-var-file=/cache/vars/envs/dev.tfvars.json');
+});
+
+/** The lock object Health run 42102265025 left on foundation/dev. */
+const ABANDONED_LOCK = {
+  ID: FOUNDATION_LOCK,
+  Operation: 'OperationTypePlan',
+  Info: '',
+  Who: 'runner@runnervm7aw5e',
+  Version: '1.13.1',
+  Created: '2026-11-05T20:41:12.856377269Z',
+  Path: 'tofu-state/foundation/dev.tfstate',
+};
+const ABANDONED = JSON.stringify(ABANDONED_LOCK);
+
+// regression: tofu-abandoned-lock-needs-a-person
+test('a release releases a runner lock older than any hosted job can run, by itself', () => {
+  expect(stateLockKey({ stack: 'foundation', env: 'dev' })).toBe(
+    'foundation/dev.tfstate.tflock'
+  );
+  expect(stateLockKey({ stack: 'bootstrap', env: null })).toBe(
+    'bootstrap/global.tfstate.tflock'
+  );
+  expect(abandonedLockId(ABANDONED, new Date('2026-11-09T09:51:41Z'))).toBe(
+    FOUNDATION_LOCK
+  );
+});
+
+test('a lock a live job or a person may still hold is never released', () => {
+  const created = new Date('2026-11-05T20:41:12Z');
+  const lock = (fields: Record<string, unknown>) =>
+    JSON.stringify({ ...ABANDONED_LOCK, ...fields });
+  // A hosted job may run six hours; within seven, the lock may be live.
+  expect(
+    abandonedLockId(ABANDONED, new Date(created.getTime() + 7 * 3600_000 - 1))
+  ).toBeNull();
+  expect(
+    abandonedLockId(
+      ABANDONED,
+      new Date(created.getTime() + 7 * 3600_000 + 1000)
+    )
+  ).toBe(FOUNDATION_LOCK);
+  const later = new Date('2026-11-09T09:51:41Z');
+  expect(abandonedLockId(lock({ Who: 'chris@laptop' }), later)).toBeNull();
+  expect(abandonedLockId(lock({ ID: '-force; rm' }), later)).toBeNull();
+  expect(abandonedLockId(lock({ Created: 'yesterday' }), later)).toBeNull();
+  expect(abandonedLockId('not json', later)).toBeNull();
+  expect(abandonedLockId('null', later)).toBeNull();
 });

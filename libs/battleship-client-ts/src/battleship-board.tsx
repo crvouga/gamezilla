@@ -7,7 +7,14 @@ import {
 } from '@libs/battleship-shared-ts/battleship-position';
 import { t } from '@lingui/core/macro';
 import type { GameBoardProps } from '@pkgs/turn-game-shared-ts/game-presentation';
-import { requireTwoPlayerSide } from '@pkgs/turn-game-shared-ts/game-rules';
+import {
+  type GameSide,
+  requireTwoPlayerSide,
+} from '@pkgs/turn-game-shared-ts/game-rules';
+import {
+  BattleshipTargetHeader,
+  BattleshipWholeBoard,
+} from '@pkgs/ui-root-client-ts/battleship-target-layout';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import {
   CellGridBoard,
@@ -43,19 +50,38 @@ function BoardPanel(props: {
   testId: string;
   view: BoardView;
   cells: readonly CellGridCell[];
+  legend: JSX.Element;
+  /**
+   * What a watcher's board is, beside its key. A player's own board needs
+   * none: the switch (phone) or the panel title (wide) already names it.
+   */
+  heading: string | null;
+  finished: boolean;
   onFire?: (cell: string) => void;
 }): JSX.Element {
   return (
-    <CellGridBoard
-      fill
-      label={props.label}
-      testId={`${props.testId}-${props.view}-grid`}
-      cellTestId={(cell) => `${props.testId}-${props.view}-${cell}`}
-      columnLabels={COLUMN_LABELS}
-      rowLabels={ROW_LABELS}
-      cells={props.cells}
-      onActivate={props.onFire}
-    />
+    <StackVertical gap="xs" align="center" width="full">
+      <Show when={props.heading} fallback={props.legend}>
+        {(heading) => (
+          <BattleshipTargetHeader>
+            <P variant="caption">{heading()}</P>
+            {props.legend}
+          </BattleshipTargetHeader>
+        )}
+      </Show>
+      <BattleshipWholeBoard finished={props.finished}>
+        <CellGridBoard
+          fill
+          label={props.label}
+          testId={`${props.testId}-${props.view}-grid`}
+          cellTestId={(cell) => `${props.testId}-${props.view}-${cell}`}
+          columnLabels={COLUMN_LABELS}
+          rowLabels={ROW_LABELS}
+          cells={props.cells}
+          onActivate={props.onFire}
+        />
+      </BattleshipWholeBoard>
+    </StackVertical>
   );
 }
 /**
@@ -97,6 +123,17 @@ function createAim(props: GameBoardProps) {
  * only, and the shots fired at it) and the rival's (only the public shots).
  * A watcher sees both as public shot boards, named by side.
  */
+/** The two boards' names: the viewer's own and the rival's, or each side's. */
+function panelLabels(
+  viewer: GameSide | null,
+  orientation: GameSide
+): Record<BoardView, string> {
+  if (viewer !== null) return { own: t`Your fleet`, target: t`Targeting` };
+  const own = sideName(orientation);
+  const target = sideName(otherSide(requireTwoPlayerSide(orientation)));
+  return { own: t`${own} waters`, target: t`${target} waters` };
+}
+
 export function BattleshipBoard(props: GameBoardProps): JSX.Element {
   const battle = createMemo(
     () =>
@@ -123,12 +160,7 @@ export function BattleshipBoard(props: GameBoardProps): JSX.Element {
   const incoming = () => battle().shots[rival()];
   const outgoing = () =>
     battle().shots[requireTwoPlayerSide(props.orientation)];
-  const labels = createMemo(() => {
-    if (viewer() !== null) return { own: t`Your fleet`, target: t`Targeting` };
-    const own = sideName(props.orientation);
-    const target = sideName(rival());
-    return { own: t`${own} waters`, target: t`${target} waters` };
-  });
+  const labels = createMemo(() => panelLabels(viewer(), props.orientation));
   const ownCells = createMemo(() => {
     const mine = fleet();
     return mine === null
@@ -138,15 +170,14 @@ export function BattleshipBoard(props: GameBoardProps): JSX.Element {
   const targetCells = createMemo(() =>
     shotGridCells({
       shots: outgoing(),
-      interactive: interactive(),
+      interactive: interactive() && aim.aiming() === null,
       aiming: aim.aiming(),
     })
   );
+  const confirming = () =>
+    (interactive() || aim.aiming() !== null) && view() === 'target';
   return (
     <StackVertical gap="xs" testId={props.testId}>
-      <Show when={battle().winner !== null}>
-        <P variant="bodyBold">{t`${sideName(otherSide(requireTwoPlayerSide(battle().winner ?? 'white')))} destroyed — all five ships sunk.`}</P>
-      </Show>
       <BattlePanels
         testId={props.testId}
         labels={labels()}
@@ -155,13 +186,17 @@ export function BattleshipBoard(props: GameBoardProps): JSX.Element {
         own={ownCells()}
         target={targetCells().map((cell) =>
           cell.id === selected() && aim.aiming() === null
-            ? { ...cell, emphasis: 'recent' }
+            ? { ...cell, emphasis: 'preview' }
             : cell
         )}
         onAim={setSelected}
-        confirmation={
-          <Show when={interactive() && view() === 'target'}>
+        ships={viewer() !== null}
+        inspect={!interactive() && aim.aiming() === null}
+        finished={battle().winner !== null}
+        confirmation={(region) => (
+          <Show when={confirming()}>
             <ShotConfirmation
+              region={region()}
               selected={selected()}
               pending={aim.aiming() !== null}
               testId={props.testId}
@@ -171,18 +206,14 @@ export function BattleshipBoard(props: GameBoardProps): JSX.Element {
               }}
             />
           </Show>
-        }
-      />
-      <CellGridLegend
-        label={t`Key`}
-        items={marks(viewer() !== null)}
-        testId={`${props.testId}-key`}
+        )}
       />
     </StackVertical>
   );
 }
 
 function ShotConfirmation(props: {
+  region: string;
   selected: string | null;
   pending: boolean;
   testId: string;
@@ -207,6 +238,8 @@ function ShotConfirmation(props: {
       <Button
         flex={1}
         disabled={props.selected === null || props.pending}
+        loading={props.pending}
+        loadingLabel={t`Firing at ${props.selected?.toUpperCase() ?? ''}`}
         onClick={() => {
           if (props.selected !== null && !props.pending)
             props.onFire(props.selected);
@@ -214,7 +247,9 @@ function ShotConfirmation(props: {
         dataSet={{ testid: `${props.testId}-fire` }}
         title={
           props.selected === null
-            ? t`Choose a target`
+            ? props.region === ''
+              ? t`Choose a cell`
+              : t`Choose a cell in ${props.region}`
             : t`Fire at ${props.selected.toUpperCase()}`
         }
       />
@@ -230,7 +265,13 @@ function BattlePanels(props: {
   own: readonly CellGridCell[];
   target: readonly CellGridCell[];
   onAim: (cell: string) => void;
-  confirmation: JSX.Element;
+  /** The viewer's own fleet is drawn, so its key names a ship. */
+  ships: boolean;
+  /** The viewer only looks at the target waters (see BattleshipTargetGrid). */
+  inspect: boolean;
+  /** The game is over: both boards leave room for the result above them. */
+  finished: boolean;
+  confirmation: (region: () => string) => JSX.Element;
 }): JSX.Element {
   return (
     <PairedPanels
@@ -248,6 +289,15 @@ function BattlePanels(props: {
           testId={props.testId}
           view="own"
           cells={props.own}
+          heading={props.ships ? null : t`Shots so far`}
+          finished={props.finished}
+          legend={
+            <CellGridLegend
+              label={t`Key`}
+              items={marks(props.ships)}
+              testId={`${props.testId}-own-key`}
+            />
+          }
         />
       }
       second={
@@ -256,6 +306,15 @@ function BattlePanels(props: {
           testId={props.testId}
           cells={props.target}
           onAim={props.onAim}
+          inspect={props.inspect}
+          finished={props.finished}
+          legend={
+            <CellGridLegend
+              label={t`Key`}
+              items={marks(false)}
+              testId={`${props.testId}-target-key`}
+            />
+          }
           confirmation={props.confirmation}
         />
       }

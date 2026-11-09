@@ -1,0 +1,4 @@
+{
+  "summary": "A locked enlarged fleet disabled its region and view controls while the full overview was inert, preventing accessible inspection beyond the initial quadrant.",
+  "regressionTest": "libs/battleship-client-ts/tests/setup-precision.test.tsx"
+}
