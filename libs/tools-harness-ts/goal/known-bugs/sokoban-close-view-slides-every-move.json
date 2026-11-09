@@ -1,0 +1,4 @@
+{
+  "summary": "Sokoban's close view re-centred on the worker after every step, so each move slid the whole 6x6 view and relabelled all 36 squares; at 320px under 4x CPU it logged three 50-58ms long tasks while moving. The view now stays put while the worker is at least a square from its edge and re-centres only near an edge, so most steps change two squares and the view does not slide under the player.",
+  "regressionTest": "libs/sokoban-harness-ts/tests/sokoban-close-view-follow.test.ts"
+}

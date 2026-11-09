@@ -9,7 +9,7 @@ import {
   WordTileBlankContext,
   WordTileLetterChoices,
 } from '@pkgs/ui-root-client-ts/word-tile-workbench';
-import { For, type JSX, Show } from 'solid-js';
+import { For, type JSX } from 'solid-js';
 import type { WordTilesPreview } from './word-tiles-preview';
 
 export function seatName(seat: number): string {
@@ -23,29 +23,17 @@ export function seatName(seat: number): string {
         : t`Coral`;
 }
 
-/** What the candidate would score, word by word, or why it cannot be played. */
+/**
+ * What the candidate would score, or why it cannot be played, on one short
+ * status line that is there before the first tile: placing tiles or playing
+ * the word never moves the board below.
+ */
 export function WordTilesPreviewPanel(props: {
   preview: WordTilesPreview;
   testId: string;
 }): JSX.Element {
   return (
-    <StackVertical gap="xs" dataSet={{ testid: `${props.testId}-preview` }}>
-      <Show when={props.preview.kind === 'score' && props.preview}>
-        {(score) => (
-          <>
-            <For each={score().words}>
-              {(word) => (
-                <P variant="caption">
-                  {`${word.word}: ${word.letters}${word.multiplier > 1 ? ` × ${word.multiplier}` : ''} = ${word.points}`}
-                </P>
-              )}
-            </For>
-            <Show when={score().bonus > 0}>
-              <P variant="caption">{t`Seven-tile bonus: ${score().bonus}`}</P>
-            </Show>
-          </>
-        )}
-      </Show>
+    <StackVertical dataSet={{ testid: `${props.testId}-preview` }}>
       <P role="status" dataSet={{ testid: `${props.testId}-status` }}>
         {props.preview.message}
       </P>

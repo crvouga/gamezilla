@@ -55,13 +55,47 @@ export async function recordGeometry(
         ancestors,
       };
     });
+    // Every visible block taller than 4px on the vertical path to the board,
+    // so a failed fit names which band spends the height.
+    const bands = [];
+    const board = document.querySelector(
+      '[aria-label="Scrollable word board"]'
+    );
+    for (
+      let node = board;
+      node && node !== document.body;
+      node = node.parentElement
+    ) {
+      for (const sibling of Array.from(node.parentElement?.children ?? [])) {
+        const rect = sibling.getBoundingClientRect();
+        if (rect.height <= 4) continue;
+        bands.push({
+          depth: bands.length,
+          tag: sibling.tagName,
+          component: (sibling as HTMLElement).dataset['component'] ?? null,
+          testId: (sibling as HTMLElement).dataset['testid'] ?? null,
+          onPath: sibling === node,
+          top: Math.round(rect.top),
+          height: Math.round(rect.height),
+          marginTop: getComputedStyle(sibling).marginTop,
+          gap: getComputedStyle(node.parentElement as Element).rowGap,
+        });
+      }
+      if (bands.length > 80) break;
+    }
     return {
+      bands,
       viewport: { width: innerWidth, height: innerHeight },
       documentHeight: document.documentElement.scrollHeight,
       scroll: { x: scrollX, y: scrollY },
       elements,
     };
   });
+  // Hosted attachments travel through a relay; a failed fit also prints its measurements.
+  if (info.status !== info.expectedStatus)
+    process.stdout.write(
+      `[word-tiles-geometry] ${info.title} ${JSON.stringify(geometry)}\n`
+    );
   await retainEvidence(info, 'geometry.json', {
     body: JSON.stringify(geometry, null, 2),
     contentType: 'application/json',

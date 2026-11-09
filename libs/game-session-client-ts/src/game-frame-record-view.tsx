@@ -536,7 +536,9 @@ function RecordStrip(props: RecordProps): JSX.Element {
       gap="xs"
       testId="custom-game-record"
     >
-      <Show when={props.caption && props.record.moves.length > 0}>
+      {/* The game's line sits above the strip before the first move too, so
+          the card keeps one arrangement and height when that move lands. */}
+      <Show when={props.caption}>
         <P variant="label" testId="custom-game-record-caption">
           {props.caption}
         </P>
@@ -551,15 +553,6 @@ function RecordStrip(props: RecordProps): JSX.Element {
         gap="sm"
         testId="custom-game-move-strip-head"
       >
-        <Show when={props.record.moves.length === 0 && props.caption}>
-          {(caption) => (
-            <StackVertical grow shrink>
-              <P variant="label" testId="custom-game-record-caption">
-                {caption()}
-              </P>
-            </StackVertical>
-          )}
-        </Show>
         {/* The game's own line about the live turn already says the board
             is live: the turn then has the row to itself, on one line. */}
         <Show

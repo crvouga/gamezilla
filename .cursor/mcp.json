@@ -1,0 +1,27 @@
+{
+  "mcpServers": {
+    "Sentry": {
+      "url": "https://mcp.sentry.dev/mcp/appcore"
+    },
+    "storybook": {
+      "url": "http://127.0.0.1:6006/mcp"
+    },
+    "serena": {
+      "command": "mise",
+      "args": [
+        "-C",
+        "${workspaceFolder}",
+        "exec",
+        "--",
+        "serena",
+        "start-mcp-server",
+        "--context",
+        "ide",
+        "--project",
+        "${workspaceFolder}",
+        "--open-web-dashboard",
+        "false"
+      ]
+    }
+  }
+}

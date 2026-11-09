@@ -1,0 +1,4 @@
+{
+  "summary": "A solved Sokoban pack puzzle offered its own \"More puzzles\" beside the screen's Pack overview and Next puzzle, and in a playtest led away from the draft while the screen offered Return to builder. Sokoban now reads the player context and, when the screen offers a way on, says \"Solved.\" without adding its own.",
+  "regressionTest": "libs/sokoban-harness-ts/tests/sokoban-input.contract.test.tsx"
+}

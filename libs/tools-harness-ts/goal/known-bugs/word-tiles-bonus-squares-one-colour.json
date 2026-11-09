@@ -1,0 +1,4 @@
+{
+  "summary": "Every empty Word Tiles bonus square (2L, 3L, 2W, 3W) had the same pale fill, so bonus tiers could only be read from 9–10px labels and did not match the overview's colours; each tier now has its own pale hue from the overview's families.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/word-tiles/integration.checks.ts"
+}

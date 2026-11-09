@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone, playing a word dropped the Word Tiles board about 70px because an extra 'You can plan a word while you wait' paragraph was inserted above it when the turn passed; the hint now uses the reserved status line.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/word-tiles/integration.checks.ts"
+}

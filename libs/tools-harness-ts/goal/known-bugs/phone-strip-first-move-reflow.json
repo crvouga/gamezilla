@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone, the pinned record strip put the game's turn line beside 'No moves yet.' before the first move and above the move row afterwards, so the card grew by about 20px and the board under it dropped when the first move landed.",
+  "regressionTest": "libs/game-session-client-ts/tests/game-frame-phone-strip.test.tsx"
+}

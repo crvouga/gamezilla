@@ -1,0 +1,4 @@
+{
+  "summary": "The Word Tiles board's keyboard focus ring used the square's own text colour, so on an empty dark square it was nearly invisible during keyboard play; the ring is now two-toned and reaches 3:1 on every square fill.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/word-tiles/integration.checks.ts"
+}
