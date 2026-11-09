@@ -39,7 +39,8 @@ export function defineInputChecks() {
           page.getByTestId('custom-game-board-aim-j10')
         ).toHaveAccessibleName('J10: fired, waiting for the result');
         // regression: battleship-submitting-shot-loses-feedback
-        await expect(page.getByTestId('custom-game-board-fire')).toHaveText(
+        // The idle title stays in the DOM beside the visible busy label.
+        await expect(page.getByTestId('custom-game-board-fire')).toContainText(
           'Firing at J10'
         );
         await expect(
