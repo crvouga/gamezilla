@@ -70,6 +70,30 @@ export function reuseUnchangedCells(
   return changed ? kept : previous;
 }
 
+/** The board's middle square, the tab stop until a square is chosen. */
+function centreIndex(
+  board: Pick<WordTileBoardProps, 'rowLabels' | 'columnLabels'>
+): number {
+  return (
+    Math.floor(board.rowLabels.length / 2) * board.columnLabels.length +
+    Math.floor(board.columnLabels.length / 2)
+  );
+}
+
+/**
+ * Read once per change: every square reads the list, and a caller that
+ * computes it inline would otherwise rebuild it once per square. Unchanged
+ * squares keep their previous object, so only changed squares update.
+ */
+function createStableCells(
+  read: () => readonly WordTileBoardCell[]
+): () => readonly WordTileBoardCell[] {
+  return createMemo<readonly WordTileBoardCell[]>(
+    (previous) => reuseUnchangedCells(previous, read()),
+    []
+  );
+}
+
 export type WordTileBoardProps = {
   /** Locator mode shows the whole board; activation chooses a location, never a move. */
   readonly purpose?: 'placement' | 'locator';
@@ -158,20 +182,11 @@ function createPrecisionCenter(
  */
 export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
   const [selectedIndex, setFocusIndex] = createSignal<number>();
-  const focusIndex = () =>
-    selectedIndex() ??
-    Math.floor(props.rowLabels.length / 2) * props.columnLabels.length +
-      Math.floor(props.columnLabels.length / 2);
+  const focusIndex = () => selectedIndex() ?? centreIndex(props);
   const compact = createMediaQuery('(max-width: 639px)');
   const [choice, setEnlarged] = createSignal<boolean>();
   const enlarged = () => props.purpose !== 'locator' && (choice() ?? compact());
-  // Read once per change: every square reads the list, and a caller that
-  // computes it inline would otherwise rebuild it once per square. Unchanged
-  // squares keep their previous object, so only changed squares update.
-  const cells = createMemo<readonly WordTileBoardCell[]>(
-    (previous) => reuseUnchangedCells(previous, props.cells),
-    []
-  );
+  const cells = createStableCells(() => props.cells);
   let root: HTMLDivElement | undefined;
   const [viewport, setViewport] = createSignal<HTMLDivElement>();
   const center = createPrecisionCenter(
