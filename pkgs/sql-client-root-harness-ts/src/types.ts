@@ -27,6 +27,8 @@ export type SqlClientWebState = {
   epoch: number;
   appliedEpoch: number;
   wipes: number;
+  /** Wipes of a store that was still readable (full, not corrupt): never allowed. */
+  readableWipes: number;
   rpcSeq: number;
   readonly tabs: Map<string, SqlWebTab>;
   readonly expected: Map<string, string>;
@@ -46,6 +48,7 @@ export function createSqlClientWebState(): SqlClientWebState {
     epoch: 1,
     appliedEpoch: 0,
     wipes: 0,
+    readableWipes: 0,
     rpcSeq: 0,
     tabs: new Map(),
     expected: new Map(),

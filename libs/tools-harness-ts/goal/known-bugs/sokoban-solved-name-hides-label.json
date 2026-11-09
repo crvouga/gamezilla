@@ -1,0 +1,4 @@
+{
+  "summary": "Sokoban's solved action showed \"More puzzles\" but was named \"Choose another puzzle\" for assistive technology, so a voice-control user saying what they saw could not press it (WCAG 2.5.3 Label in Name). The action is now named by its visible words.",
+  "regressionTest": "libs/sokoban-harness-ts/tests/sokoban-input.contract.test.tsx"
+}

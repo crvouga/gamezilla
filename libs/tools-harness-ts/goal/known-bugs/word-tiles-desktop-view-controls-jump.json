@@ -1,0 +1,4 @@
+{
+  "summary": "On desktop, Word Tiles' Fit and Enlarge buttons sat above the board in the fitted view and jumped below it, beside the overview, once the board was enlarged; wider than a phone they now stay in one place in both views.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/word-tiles/integration.checks.ts"
+}

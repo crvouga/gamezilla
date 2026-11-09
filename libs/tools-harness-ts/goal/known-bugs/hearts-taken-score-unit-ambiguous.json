@@ -1,0 +1,4 @@
+{
+  "summary": "A queen-bearing trick renders Taken 13 beside Score 20, leaving the unit ambiguous between tricks and penalty points for this deal.",
+  "regressionTest": "libs/hearts-client-ts/tests/deal-points-label.test.tsx"
+}

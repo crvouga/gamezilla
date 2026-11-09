@@ -57,18 +57,6 @@
   background: var(--color-surface-muted);
   color: var(--color-text);
 }
-/* Include the coordinate gutter, gaps and padding in the bounded target size. */
-.board[data-fill="false"][data-board-theme="battleship"] {
-  grid-template-columns:
-    var(--ui-space-6)
-    repeat(var(--cell-grid-columns), minmax(0, 1fr));
-  max-width: calc(
-    var(--cell-grid-columns) *
-    (var(--ui-control-size-md) + 2 * var(--ui-space-hairline)) +
-    var(--ui-space-6) +
-    var(--ui-space-4)
-  );
-}
 /* A game's board fills its column, edge to edge with its seats. */
 .board[data-fill="true"] {
   max-width: none;
@@ -77,21 +65,16 @@
 .board[data-fill="true"][data-board-theme="quoridor"] {
   max-width: calc(var(--ui-control-size-lg) * 9);
 }
-/* On a phone a Battleship grid's ten targets are as large as its frame
-   allows: a narrow label column, hairline gaps and slim padding give the
-   room to the targets, each about 32px instead of 30px. */
-@container game-column (max-width: 879px) {
-  /* Use the phone column for the spatial task. Concise controls preserve
-     room for confirmation; the precise picker retains 44px alternatives. */
+/* In a game column the board is at least the phone measure (seven large
+   controls) and otherwise grows, centred, to the column while its tools,
+   picker, status and wall confirmation still fit the first view. The
+   height allowance is fixed, so choosing a wall never resizes the board. */
+@container game-column (min-width: 0) {
   .board[data-fill="true"][data-board-theme="quoridor"] {
-    max-width: calc(var(--ui-control-size-lg) * 7);
-  }
-  .board[data-fill="true"][data-board-theme="battleship"] {
-    grid-template-columns:
-      minmax(1rem, 0.5fr)
-      repeat(var(--cell-grid-columns), minmax(0, 1fr));
-    gap: 1px;
-    padding: var(--ui-space-1);
+    --chrome: clamp(440px, calc(500px - (100vw - 768px) * 0.09), 500px);
+    --fit: calc(100dvh - var(--chrome) - var(--ui-host-chrome-block-size, 0px));
+    max-width: max(calc(var(--ui-control-size-lg) * 7), min(100%, var(--fit)));
+    margin-inline: auto;
   }
 }
 .header {
@@ -146,15 +129,6 @@
   border-color: var(--color-destructive);
 }
 .cell[data-tone="critical"] {
-  background: var(--color-destructive);
-  color: var(--color-on-destructive);
-  border-color: var(--color-destructive);
-}
-/* A Battleship hit is a solid mark in both themes, never a pale wash: the
-   hit fill with its cross in the fill's own ink. A sunk ship's squares
-   keep that fill and add the heavy ink ring. */
-.board[data-board-theme="battleship"] .cell[data-tone="alert"],
-.legendMark[data-tone="alert"] {
   background: var(--color-destructive);
   color: var(--color-on-destructive);
   border-color: var(--color-destructive);
@@ -251,9 +225,9 @@
   --color-focus-ring: var(--ui-color-focus-ring);
   --ui-color-destructive: var(--ui-color-game-quoridor-one);
   --color-destructive: var(--ui-color-destructive);
-  --ui-color-warning: var(--ui-color-game-quoridor-two);
+  --ui-color-warning: var(--ui-color-game-quoridor-three);
   --color-warning: var(--ui-color-warning);
-  --ui-color-success: var(--ui-color-game-quoridor-accent);
+  --ui-color-success: var(--ui-color-game-quoridor-two);
   --color-success: var(--ui-color-success);
   --ui-color-info: var(--ui-color-game-quoridor-accent);
   --color-info: var(--ui-color-info);
@@ -263,6 +237,12 @@
   --color-on-warning: var(--ui-color-on-warning);
   --ui-color-on-info: var(--ui-color-game-quoridor-canvas);
   --color-on-info: var(--ui-color-on-info);
+  --ui-color-destructive-surface: var(--ui-color-game-quoridor-surface);
+  --color-destructive-surface: var(--ui-color-destructive-surface);
+  --ui-color-warning-surface: var(--ui-color-game-quoridor-surface);
+  --color-warning-surface: var(--ui-color-warning-surface);
+  --ui-color-success-surface: var(--ui-color-game-quoridor-surface);
+  --color-success-surface: var(--ui-color-success-surface);
 }
 /* Quoridor pawns keep the same identities as their seats in both variants.
    Keep flat square boundaries distinct from heavier walls and destination rings. */
@@ -274,18 +254,9 @@
 .board[data-board-theme="quoridor"] .cell[data-tone="occupied"] .glyph {
   font-size: 72cqw;
 }
-.board[data-board-theme="quoridor"] .cell[data-identity="one"] {
-  color: var(--ui-color-player7);
-}
-.board[data-board-theme="quoridor"] .cell[data-identity="two"] {
-  color: var(--ui-color-player5);
-}
-.board[data-board-theme="quoridor"] .cell[data-identity="three"] {
-  color: var(--ui-color-player8);
-}
-.board[data-board-theme="quoridor"] .cell[data-identity="four"] {
-  color: var(--ui-color-player6);
-}
+/* Pawn identities use the base identity rules with the stable inks and
+   sand squares mapped above: seat colours flip with the app theme and fell
+   to about 1:1 on sand in the dark theme. */
 /* A wooden board: squares meet edge to edge in the board's two tones, the
    glyph fills most of its square, and the labels sit in the corners of the
    edge squares in the other square's tone, as a chess board's coordinates
@@ -384,7 +355,7 @@
   --color-border: var(--ui-color-border);
   --ui-color-tint: var(--ui-color-game-sokoban-accent);
   --color-tint: var(--ui-color-tint);
-  --ui-color-focus-ring: var(--ui-color-game-sokoban-accent);
+  --ui-color-focus-ring: var(--ui-color-game-sokoban-focus);
   --color-focus-ring: var(--ui-color-focus-ring);
   --ui-color-destructive: var(--ui-color-game-sokoban-one);
   --color-destructive: var(--ui-color-destructive);
@@ -489,10 +460,6 @@
   font-size: var(--ui-font-size-sm);
 }
 
-/* Board boundaries must remain visible against dark water. */
-.board[data-board-theme="battleship"] .cell[data-tone="open"] {
-  border-color: var(--ui-color-game-battleship-muted);
-}
 /* Keep bright seat fills, with the board's dark ink defining every pawn. */
 .board[data-board-theme="quoridor"] .cell[data-tone="occupied"] .glyph {
   -webkit-text-stroke: 0.08em var(--ui-color-game-quoridor-ink);
@@ -523,19 +490,28 @@
 
 /* A proposed wall is a continuous accent bar, distinct from committed ink.
    Its location persists while the player reaches the confirmation controls. */
-.board[data-board-theme="quoridor"] .cell[data-preview-edge-top="true"] {
+.board[data-board-theme="quoridor"]
+.cell:not([data-emphasis="refused"])[data-preview-edge-top="true"] {
   border-top-style: solid;
 }
-.board[data-board-theme="quoridor"] .cell[data-preview-edge-right="true"] {
+.board[data-board-theme="quoridor"]
+  .cell:not([data-emphasis="refused"])[data-preview-edge-right="true"] {
   border-right-style: solid;
 }
-.board[data-board-theme="quoridor"] .cell[data-preview-edge-bottom="true"] {
+.board[data-board-theme="quoridor"]
+  .cell:not([data-emphasis="refused"])[data-preview-edge-bottom="true"] {
   border-bottom-style: solid;
 }
-.board[data-board-theme="quoridor"] .cell[data-preview-edge-left="true"] {
+.board[data-board-theme="quoridor"]
+  .cell:not([data-emphasis="refused"])[data-preview-edge-left="true"] {
   border-left-style: solid;
 }
 
+/* A refused proposal is only its red dashed edges, so the wall it collides
+   with stays drawn instead of being covered by square outlines. */
+.board[data-board-theme="quoridor"] .cell[data-emphasis="refused"] {
+  outline: none;
+}
 /* Legal destinations are large open rings, never tiny dots lost in the grid. */
 .board[data-board-theme="quoridor"] .cell[data-emphasis="preview"] .glyph {
   font-size: 72cqw;

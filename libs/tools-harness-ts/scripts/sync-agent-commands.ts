@@ -8,7 +8,7 @@
  * command. Each AI coding harness discovers commands in its own directory and
  * format, so this script projects every source file into each one:
  *
- * - Claude Code, Cursor, OpenCode, Factory, Roo Code and Cline workflows
+ * - Claude Code, OpenCode, Factory, Roo Code and Cline workflows
  *   read markdown commands from their respective directories,
  *   so their directory is a symlink to `.agents/commands`.
  * - Gemini CLI (`.gemini/commands/<name>.toml`) injects the source with
@@ -48,7 +48,6 @@ export const GENERATED_MARKER = `generated from ${SOURCE_DIR} by \`${SYNC_COMMAN
 /** Harness command directories that are symlinks to {@link SOURCE_DIR}. */
 const SYMLINK_DIRS = [
   '.claude/commands',
-  '.cursor/commands',
   '.opencode/commands',
   '.factory/commands',
   '.roo/commands',

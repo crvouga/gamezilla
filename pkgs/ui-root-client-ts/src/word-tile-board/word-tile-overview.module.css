@@ -1,15 +1,20 @@
+/* Reads as the action it is: accent ink, underlined and bold, at the full
+   44px target. Compact enough to share a row with Fit and Enlarge, with
+   square corners so its whole box takes the press. A native button, so it
+   can announce the dialog it opens. */
 .locator {
-  display: grid;
-  justify-items: center;
-  gap: var(--ui-space-1);
-
+  display: inline-grid;
+  place-items: center;
   min-width: var(--ui-control-size-md);
   min-height: var(--ui-control-size-md);
-  padding: 0;
+  padding: 0 var(--ui-space-1);
   border: 0;
   background: transparent;
-  color: var(--ui-color-text);
+  color: var(--ui-color-tint);
   font-size: var(--ui-font-size-xs);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
   cursor: pointer;
 }
 .locator:focus-visible {
@@ -28,13 +33,16 @@
   stroke: var(--ui-color-game-word-tiles-muted);
   stroke-width: 0.04;
 }
-.square[data-square="DL"],
+/* The board's bonus colours, so the overview reads the same. */
+.square[data-square="DL"] {
+  fill: var(--ui-color-game-word-tiles-surface);
+}
 .square[data-square="TL"] {
   fill: var(--ui-color-game-word-tiles-two);
 }
 .square[data-square="DW"],
 .square[data-square="start"] {
-  fill: var(--ui-color-game-word-tiles-accent);
+  fill: var(--ui-color-game-word-tiles-muted);
 }
 .square[data-square="TW"] {
   fill: var(--ui-color-game-word-tiles-one);

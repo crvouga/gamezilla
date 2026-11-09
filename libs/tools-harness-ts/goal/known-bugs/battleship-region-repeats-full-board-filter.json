@@ -1,0 +1,4 @@
+{
+  "summary": "Selecting F9\u2013J10 reread and filtered the full target board182times for cell attributes during one update, causing unnecessary repeated region work.",
+  "regressionTest": "libs/battleship-client-ts/tests/region-workload.test.tsx"
+}

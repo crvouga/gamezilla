@@ -12,7 +12,7 @@ import {
 } from '@libs/word-tiles-shared-ts/word-tiles-position';
 import { seatSides } from '@libs/word-tiles-shared-ts/word-tiles-ruleset';
 import type { GameFrameBoardProps } from '@pkgs/turn-game-shared-ts/game-frame';
-import { expect, fn, userEvent, within } from 'storybook/test';
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { expectBlankTargets } from './word-tiles-blank-geometry.example';
 import {
@@ -57,7 +57,7 @@ const MID_GAME = table({
  * app's random.
  */
 function renderTable(
-  args: WordTilesBoardViewProps,
+  args: WordTilesBoardViewProps & { readonly moves?: readonly string[] },
   context: { readonly parameters: Readonly<Record<string, unknown>> }
 ) {
   const seats = decodePosition(args.position)?.seats ?? 2;
@@ -82,6 +82,13 @@ function renderTable(
         ...(context.parameters['table'] as GameTableStory),
         get turn() {
           return seatSides(seats)[decodePosition(args.position)?.turn ?? 0];
+        },
+        // A live journey records each accepted move; fixed stories keep theirs.
+        get moves() {
+          return (
+            args.moves ??
+            (context.parameters['table'] as GameTableStory | undefined)?.moves
+          );
         },
       },
     },
@@ -117,6 +124,23 @@ export const Opening: Story = {
     await checkInitialWordWorkspace(canvasElement);
     await expectPrecisionDefault(canvasElement, 'custom-game-board');
   },
+};
+
+/** A live authority fixture for native input, scoring and turn settlement. */
+export const TwoPlayerMatch: Story = {
+  render: (args, context) => renderTable(matchJourney(args), context),
+};
+
+/** Three players use the same production board and authority as two players. */
+export const ThreePlayerMatch: Story = {
+  args: { position: encodePosition(newPosition(3, STORY_LEXICON_KEY)) },
+  render: (args, context) => renderTable(matchJourney(args), context),
+};
+
+/** Four players retain private racks while the accepted move updates every score. */
+export const FourPlayerMatch: Story = {
+  args: { position: encodePosition(newPosition(4, STORY_LEXICON_KEY)) },
+  render: (args, context) => renderTable(matchJourney(args), context),
 };
 
 /** Mid-game on the person's turn: words on the board, a fresh rack. */
@@ -238,7 +262,7 @@ export const PlaceAWord: Story = {
     }
     await expect(
       await canvas.findByTestId('custom-game-board-status')
-    ).toHaveTextContent(/^Scores .*points\.$/);
+    ).toHaveTextContent('CAT 5 × 2 = 10 points');
   },
 };
 
@@ -261,7 +285,7 @@ export const CheckingWords: Story = {
     }
     await expect(
       await canvas.findByTestId('custom-game-board-status')
-    ).toHaveTextContent('Checking the words');
+    ).toHaveTextContent('CAT 5 × 2 = 10 points · checking words…');
   },
 };
 
@@ -343,9 +367,7 @@ export const RecoverAndSubmit: Story = {
     ).toBeVisible();
     // The local list is optional: the game authority still checks submitted words.
     await expect(canvas.getByTestId('custom-game-board-submit')).toBeEnabled();
-    await expect(
-      canvas.getByText(/the game checks the words when you play/)
-    ).toBeVisible();
+    await expect(canvas.getByText(/checked when you play/)).toBeVisible();
     await checkCatStatusGeometry(canvasElement);
     await userEvent.click(
       canvas.getByTestId('custom-game-board-lexicon-retry')
@@ -366,16 +388,18 @@ export const RecoverAndSubmit: Story = {
         exact: true,
       })
     ).toBeVisible();
-    await expect(canvas.getByTestId('custom-game-status')).toHaveTextContent(
-      'Teal — to play'
+    // regression: word-tiles-turn-line-seat-colour
+    await waitFor(() =>
+      expect(canvas.getByTestId('custom-game-status')).toHaveTextContent(
+        'jordan_plays to play'
+      )
+    );
+    await expect(canvas.getByTestId('custom-game-black')).toHaveAttribute(
+      'aria-current',
+      'step'
     );
     await expect(
-      within(canvas.getByTestId('custom-game-black')).getByText('To move', {
-        exact: true,
-      })
-    ).toBeVisible();
-    await expect(
-      canvas.getByText(/You can plan a word while you wait/)
+      canvas.getByText('Plan your next word while you wait.')
     ).toBeVisible();
   },
 };

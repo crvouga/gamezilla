@@ -1,0 +1,4 @@
+{
+  "summary": "Every Connect Four column carried the full keyboard-help sentence in its accessible description, so a screen reader would repeat it on each arrow press. The board group now describes the controls once; columns describe only their contents.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/disc-drop-focus-preview.test.tsx"
+}

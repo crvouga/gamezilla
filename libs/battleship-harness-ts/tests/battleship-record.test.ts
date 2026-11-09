@@ -25,9 +25,7 @@ function after(ply: number): string {
 test('the known victory sinks the second fleet with the seventeenth hit, on the thirty-third shot', () => {
   const won = after(33);
   expect(fixtures.firstSideVictory).toHaveLength(33);
-  expect(fixtures.firstSideVictoryLabels.at(-1)).toBe(
-    'G10 sinks the destroyer'
-  );
+  expect(fixtures.firstSideVictoryLabels.at(-1)).toBe('G10 sunk');
   expect(rules.legal(won)).toEqual([]);
   expect(rules.legal(after(32))).not.toEqual([]);
 });

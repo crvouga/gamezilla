@@ -1,7 +1,7 @@
 import { afterEach, expect, test } from 'bun:test';
-import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { CardTable } from '@pkgs/ui-root-client-ts/card-table';
 import { cleanup, fireEvent } from '@solidjs/testing-library';
+import { renderUi } from './render';
 
 afterEach(cleanup);
 
@@ -9,7 +9,7 @@ afterEach(cleanup);
 test('a refused nine of diamonds explains follow suit before activation and never plays', () => {
   const played: string[] = [];
   const reason = 'You must follow suit with a spade.';
-  const view = renderWithI18n(() => (
+  const view = renderUi(() => (
     <CardTable
       label="Hearts"
       testId="availability"
@@ -32,7 +32,7 @@ test('a refused nine of diamonds explains follow suit before activation and neve
       onCard={(id) => played.push(id)}
     />
   ));
-  expect(view.getByText(`× ${reason}`)).toBeTruthy();
+  expect(view.getByText(reason, { selector: 'span' })).toBeTruthy();
   const card = view.getByTestId('9D');
   expect(card.title).toBe(reason);
   expect(card.textContent).toContain('×');

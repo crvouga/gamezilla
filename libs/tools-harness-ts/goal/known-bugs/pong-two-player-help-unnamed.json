@@ -1,0 +1,4 @@
+{
+  "summary": "With two players on one phone, the help under the Pong court said 'Left player' and 'Right player' beside a scoreboard that named them.",
+  "regressionTest": "libs/pong-client-ts/tests/pong-court-guidance.test.tsx"
+}

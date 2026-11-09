@@ -12,33 +12,26 @@ import {
   BOT,
   FRAME_CONTROLS_EXCLUDE,
   frameArgs,
+  FRAME_HELD as HELD,
   JORDAN,
   MID_GAME_MOVES,
   MID_GAME_RECORD,
+  MORGAN,
+  OPPONENT_TURN_MOVES,
   PEOPLE,
+  FRAME_PLAYING as PLAYING,
   person,
   playSeat,
   record,
+  STANDINGS,
   seat,
   status,
+  WATCHED_LINEUP,
   WON_MOVES,
   WON_RECORD,
   YOUR_TURN_MOVES,
   YOUR_TURN_RECORD,
 } from './game-frame-story.example';
-
-const PLAYING: Partial<GameFrameScreenViewProps> = {
-  phase: 'active',
-  viewerSide: 'white',
-  status: status(),
-  table: {
-    shape: 'strip',
-    near: playSeat(AVERY, { deciding: true }),
-    others: [playSeat(JORDAN)],
-  },
-  play: { ...FRAME_NO_PLAY, canOfferDraw: true, canResign: true },
-  record: record(MID_GAME_RECORD),
-};
 
 const meta = {
   id: 'screens-games-frame',
@@ -74,10 +67,15 @@ export const EarlyTurn: Story = {
   render: (args) => onBoard(EARLY_MOVES)(args),
 };
 
+/** Seven drops' record: Yellow diamond (the opponent) is to move. */
+const OPPONENT_TURN_RECORD = MID_GAME_RECORD.slice(0, 7);
+
 /** The opponent's turn: the turn line is neutral and their strip is the active one. */
 export const OpponentsTurn: Story = {
+  render: (args) => onBoard(OPPONENT_TURN_MOVES)(args),
   args: {
     ...PLAYING,
+    record: record(OPPONENT_TURN_RECORD),
     status: status({
       description: 'Yellow diamond to move.',
       emphasis: 'neutral',
@@ -137,10 +135,10 @@ export const Watching: Story = {
     ...PLAYING,
     viewerSide: null,
     watchers: 3,
-    status: status({ emphasis: 'neutral' }),
+    status: status({ lineup: WATCHED_LINEUP, emphasis: 'neutral' }),
     table: {
       shape: 'strip',
-      near: playSeat(AVERY, { deciding: true }),
+      near: playSeat(MORGAN, { deciding: true }),
       others: [playSeat(JORDAN)],
     },
     play: FRAME_NO_PLAY,
@@ -244,7 +242,7 @@ export const StandIn: Story = {
 
 /** Offline with a game that needs the room: changes wait for the connection. */
 export const ConnectionNeeded: Story = {
-  args: { ...PLAYING, connection: 'needed' },
+  args: { ...HELD, connection: 'needed' },
 };
 
 /** Offline with a solo game: it carries on on this device. */
@@ -255,19 +253,25 @@ export const OfflineLocal: Story = {
 /** A move made offline is held and played when the connection returns. */
 export const MoveWaiting: Story = {
   args: {
-    ...PLAYING,
+    ...HELD,
     connection: 'waiting',
-    status: status({ sending: true }),
+    status: status({ sending: true, emphasis: 'neutral' }),
   },
 };
 
-/** A choice was refused: the reason sits above the game with no dead end. */
+/**
+ * A choice was refused: the reason sits with the game's commands, with no
+ * dead end, and the board stays where it was.
+ */
 export const ChoiceRefused: Story = {
   args: {
     ...PLAYING,
     error: 'That move is not legal in this position.',
   },
 };
+
+/** The same game once the choice is retried and the refusal clears. */
+export const ChoiceRetried: Story = { args: { ...PLAYING } };
 
 /** The game's own engine stopped: the saved score is kept and reopening recovers. */
 export const Stopped: Story = { args: { ...PLAYING, stopped: true } };
@@ -317,29 +321,6 @@ const OVER: Partial<GameFrameScreenViewProps> = {
   record: record(WON_RECORD),
 };
 
-const STANDINGS = [
-  {
-    id: 'white',
-    place: 1,
-    name: 'avery',
-    holder: person('avery'),
-    score: null,
-    you: true,
-    testId: 'custom-game-standing-white',
-    readiness: null,
-  },
-  {
-    id: 'black',
-    place: 2,
-    name: 'jordan_plays',
-    holder: person('jordan'),
-    score: null,
-    you: false,
-    testId: 'custom-game-standing-black',
-    readiness: null,
-  },
-] as const;
-
 /** The viewer won: the headline is theirs, then the standings and what comes next. */
 export const YouWin: Story = {
   render: (args) => onBoard(WON_MOVES)(args),
@@ -368,7 +349,13 @@ export const YouPlacedSecond: Story = {
   render: (args) => onBoard(WON_MOVES)(args),
   args: {
     ...OVER,
+    // The signed-in viewer (avery) holds Yellow diamond and came second.
     viewerSide: 'black',
+    table: {
+      shape: 'strip',
+      near: playSeat(seat('black', person('avery'), 'avery')),
+      others: [playSeat(seat('white', person('jordan'), 'jordan_plays'))],
+    },
     next: { plays: true, canCreate: false, reviewable: true },
     result: {
       headline: 'You came 2nd',
@@ -377,12 +364,16 @@ export const YouPlacedSecond: Story = {
       standings: [
         {
           ...STANDINGS[0],
+          name: 'jordan_plays',
+          holder: person('jordan'),
           you: false,
           score: '26',
           readiness: { label: 'Ready', ready: true },
         },
         {
           ...STANDINGS[1],
+          name: 'avery',
+          holder: person('avery'),
           you: true,
           score: '19',
           readiness: { label: 'Not yet', ready: false },
@@ -421,12 +412,30 @@ export const WatcherSeesResult: Story = {
   args: {
     ...OVER,
     viewerSide: null,
+    status: status({
+      lineup: WATCHED_LINEUP,
+      description: 'Red circle wins by four in a row.',
+      emphasis: 'neutral',
+    }),
+    table: {
+      shape: 'strip',
+      near: playSeat(MORGAN),
+      others: [playSeat(JORDAN)],
+    },
     next: { plays: false, canCreate: false, reviewable: true },
     result: {
-      headline: 'avery wins',
+      headline: 'morgan wins',
       note: 'Host starts the rematch',
       scoreLabel: null,
-      standings: [{ ...STANDINGS[0], you: false }, STANDINGS[1]],
+      standings: [
+        {
+          ...STANDINGS[0],
+          name: 'morgan',
+          holder: person('morgan'),
+          you: false,
+        },
+        STANDINGS[1],
+      ],
     },
   },
 };
@@ -484,8 +493,19 @@ export const Denied: Story = {
   },
 };
 
-/** Resigning asks first; confirming finishes the game with its record kept. */
+/** Resigning asks first: the question, with nothing chosen yet. */
 export const ConfirmResign: Story = {
+  args: PLAYING,
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement.ownerDocument.body);
+    await userEvent.click(await canvas.findByTestId('custom-game-resign'));
+    await canvas.findByText(/^This finishes the current game\./);
+    await expect(args.onChoose).not.toHaveBeenCalled();
+  },
+};
+
+/** Confirming finishes the game with its record kept. */
+export const ResignConfirmed: Story = {
   args: PLAYING,
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement.ownerDocument.body);
@@ -502,7 +522,7 @@ export const FinishAndReview: Story = {
   args: PLAYING,
   render: (args) => {
     const [finished, setFinished] = createSignal(false);
-    const [ply, setPly] = createSignal(MID_GAME_RECORD.length);
+    const [ply, setPly] = createSignal(OPPONENT_TURN_RECORD.length);
     return (
       <GameFrameScreenView
         {...args}
@@ -535,17 +555,17 @@ export const FinishAndReview: Story = {
         }
         record={
           finished()
-            ? { ...record(MID_GAME_RECORD), displayedPly: ply() }
+            ? { ...record(OPPONENT_TURN_RECORD), displayedPly: ply() }
             : args.record
         }
         onChoose={async (input) => {
           if (input.operation === 'resign') setFinished(true);
         }}
         onSeek={setPly}
-        onReturnLive={() => setPly(MID_GAME_RECORD.length)}
+        onReturnLive={() => setPly(OPPONENT_TURN_RECORD.length)}
         board={
           <ConnectFourStoryBoard
-            moves={finished() ? MID_GAME_MOVES.slice(0, ply()) : MID_GAME_MOVES}
+            moves={OPPONENT_TURN_MOVES.slice(0, finished() ? ply() : undefined)}
             interactive={false}
           />
         }

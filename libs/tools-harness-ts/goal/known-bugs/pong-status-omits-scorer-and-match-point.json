@@ -1,0 +1,4 @@
+{
+  "summary": "Pong's serve after a point looked the same as any serve: it never said who scored, and match point was never announced.",
+  "regressionTest": "libs/pong-client-ts/tests/pong-court-guidance.test.tsx"
+}

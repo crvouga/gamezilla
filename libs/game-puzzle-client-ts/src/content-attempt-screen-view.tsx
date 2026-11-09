@@ -9,6 +9,7 @@ import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
 import { MetricStrip } from '@pkgs/ui-root-client-ts/metric-strip';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { ProgressBar } from '@pkgs/ui-root-client-ts/progress-bar';
+import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { SuccessState } from '@pkgs/ui-root-client-ts/success-state';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Match, Show, Switch } from 'solid-js';
@@ -68,6 +69,11 @@ export type ContentAttemptScreenViewProps = {
   readonly player?: JSX.Element;
   /** Undo / redo, restart and next. */
   readonly controls?: JSX.Element;
+  /**
+   * A pack puzzle's way on (its next puzzle, its overview), shown in the
+   * pack card under its progress so the command row never grows on solve.
+   */
+  readonly packActions?: JSX.Element;
   /** Where the board sits on a one-column screen. */
   readonly stageAlign?: 'start' | 'center' | undefined;
   /** Earlier kept continuations to choose from. */
@@ -108,6 +114,11 @@ function AttemptFigures(props: ContentAttemptScreenViewProps): JSX.Element {
       />
     </Show>
   );
+}
+
+/** A solved attempt (not a playtest) whose last change is kept. */
+function completionSaved(props: ContentAttemptScreenViewProps): boolean {
+  return props.complete && props.playtest !== true && !props.saving;
 }
 
 /** Where the last change stands: saved, or still being saved. */
@@ -219,8 +230,20 @@ function AttemptPanel(props: ContentAttemptScreenViewProps): JSX.Element {
       dataSet={{ testid: 'puzzle-attempt-panel' }}
     >
       <Show when={props.pack}>{(pack) => <PackTrack pack={pack()} />}</Show>
+      <Show when={props.pack && props.packActions}>
+        <StackHorizontal
+          gap="sm"
+          wrap
+          dataSet={{ testid: 'puzzle-attempt-pack-actions' }}
+        >
+          {props.packActions}
+        </StackHorizontal>
+      </Show>
       <AttemptFigures {...props} />
-      <SaveStatus {...props} />
+      {/* A saved completion carries the save line in its own notice. */}
+      <Show when={!completionSaved(props)}>
+        <SaveStatus {...props} />
+      </Show>
       <Show when={props.playtest}>
         <Notice>
           <Trans>
@@ -235,9 +258,22 @@ function AttemptPanel(props: ContentAttemptScreenViewProps): JSX.Element {
           dataSet={{ testid: 'content-attempt-complete' }}
           title={props.playtest ? t`Playtest solved` : t`Completion saved`}
           body={
-            props.playtest
-              ? t`Return to the builder to validate and publish this puzzle.`
-              : t`Your completion is saved. You can keep playing or choose another puzzle.`
+            completionSaved(props) ? (
+              <>
+                <Text
+                  variant="inherit"
+                  role="status"
+                  testId="content-position-save-status"
+                >
+                  {t`Progress saved on this device.`}
+                </Text>{' '}
+                {t`You can keep playing or choose another puzzle.`}
+              </>
+            ) : props.playtest ? (
+              t`Return to the builder to validate and publish this puzzle.`
+            ) : (
+              t`Your completion is saved. You can keep playing or choose another puzzle.`
+            )
           }
         />
       </Show>

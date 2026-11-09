@@ -1,0 +1,4 @@
+{
+  "summary": "Each new Pong frame supplies new paddle objects and replaces both SVG elements instead of updating their geometry, creating avoidable DOM churn during input.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/pong-paddle-render.test.tsx"
+}

@@ -1,8 +1,9 @@
 # Resource budgeting
 
 The machine is shared: with the user, with other agents, with other
-worktrees. ci-green never runs more than the budget allows, and every check
-and subagent draws from one ledger.
+worktrees. Heavy checks therefore never run on it: they run in hosted CI.
+Nothing queues locally: a check starts at once, or is refused at once with a
+reason waiting cannot fix.
 
 ## Measurement
 
@@ -24,10 +25,11 @@ and subagent draws from one ledger.
 | RAM kept free | 25% of total | `CI_GREEN_RESERVE_MEM_PCT` |
 | CPU units for checks | cores − reserved (min 1), halved on battery | |
 | headroom now | cores − reserved − current 1-minute load | |
-| parallel checks | min(CPU units, headroom now, memory budget ÷ 512 MB), at least 1 | `CI_GREEN_MAX_CHECKS` |
-| parallel heavy checks | 1 | |
-| parallel subagents | min(6, CPU units ÷ 2, parallel checks), at least 1 | `CI_GREEN_MAX_AGENTS` |
+| heavy checks | 0 locally: hosted CI | |
 | priority | `nice -n 10`; Linux adds `ionice -c2 -n7` | `CI_GREEN_NICE` |
+
+The CPU and memory figures are reported by `resource-budget` for information.
+They never delay a light or medium check.
 
 Weight classes (what one check is assumed to take):
 
@@ -44,22 +46,17 @@ or ≥ 3 GB, medium at ≥ 1.5 cores or ≥ 1 GB.
 
 ## Admission
 
-A check slot is granted only when all of these hold (re-measured at every
-attempt, backing off from 2 s to 15 s between attempts):
+A check slot is granted or refused at once, never waited for:
 
-1. the same check id is not already running (never two runs of one check);
-2. no other heavy check is running, if this one is heavy;
-3. fewer checks are running than the parallel-check limit;
-4. the CPU units in use plus this check's fit in the CPU budget;
-5. the load not explained by ci-green's own checks is under 75% of the
-   usable cores;
-6. available memory minus the reserve covers this check's class.
+1. a heavy check is refused locally (`run-check` reports it as `hosted`):
+   push, or dispatch the hosted workflow (`gh workflow run verify-nightly.yml
+   --ref <branch> -f group=<group>`), and read its result;
+2. a check whose id is already running is refused (never two runs of one
+   check); read the running one's result instead of waiting for a turn;
+3. every other check starts immediately, however many others are running.
 
-When nothing is running, one check is always admitted, so the queue cannot
-stall; a heavily loaded machine then runs strictly one check at a time.
-Subagent slots are limited only by the subagent cap; they carry a 4-hour
-lease (renew with `resource-budget renew TOKEN`) so a crashed coordinator
-cannot hold them forever.
+Subagent slots are always granted; they carry a 4-hour lease (renew with
+`resource-budget renew TOKEN`) only so a crashed coordinator's records expire.
 
 ## The shared ledger
 
@@ -68,8 +65,8 @@ cannot hold them forever.
   of the repository (`git rev-parse --git-common-dir`). Override with
   `CI_GREEN_BUDGET_DIR`, for example to share one budget across several
   repositories on the same machine.
-- Writes happen under an exclusive `flock`, so concurrent agents cannot
-  double-book.
+- Writes happen under a brief exclusive `flock`, only to keep the record
+  consistent; no agent ever waits on another's check.
 - A check slot records its process id and host; when that process is gone,
   the next reader reclaims the slot. Subagent slots expire with their lease.
 - `run-check` releases its slot on success, failure, timeout, Ctrl-C and
@@ -94,28 +91,26 @@ server running.
 ## Doing it by hand
 
 When the scripts cannot run (no Python 3.9+), apply the same policy
-manually: measure with `nproc` / `sysctl -n hw.ncpu`, `free -m` /
-`vm_stat`, `uptime`; run at most `cores − 2` light checks or one heavy
-check at a time, each prefixed with `nice -n 10`; keep a list of what is
-running and never start the same check, or a second copy of a service,
-while one is running.
+manually: send heavy checks to hosted CI, start light and medium checks at
+once prefixed with `nice -n 10`, and never start a second copy of the same
+check or service while one is running.
 
 ## Signs the budget is wrong
 
-- Tests time out locally but not in CI: the machine is oversubscribed.
-  Lower `CI_GREEN_MAX_CHECKS`, or run that check alone, before suspecting
-  the code. Never raise the test's timeout.
+- Tests time out locally but not in CI: the machine is oversubscribed. Run
+  that check in hosted CI before suspecting the code. Never raise the test's
+  timeout.
 - `Killed` / exit 137 / heap out of memory: the check is heavier than its
-  class. Run it alone (`--weight heavy`) and report the memory it needed.
+  class. Mark it heavy (`--weight heavy`) so it runs in hosted CI, and report
+  the memory it needed.
 - The user's machine is sluggish: raise `CI_GREEN_RESERVE_CORES`.
 
-## Choosing work before waiting
+## Choosing where work runs
 
-Budgeting limits local resource use; it does not require a full local suite.
-Choose the narrowest check that exercises the observed CI failure. Respect
-shared leases and continue useful diagnosis while queued. Before pushing, prefer
-warming affected, CI-compatible Turbo tasks with remote reads and writes enabled,
-as described in [the pre-push workflow](../SKILL.md#warm-the-remote-cache-before-pushing).
-When local capacity blocks that work, report the unwarmed scope and use hosted
-validation only as repository policy permits. Never bypass a lease or treat queue
-time as evidence that the fix works.
+Choose the narrowest check that exercises the observed CI failure. Run it
+locally at once when it is light or medium; send it to hosted CI when it is
+heavy. Before pushing, prefer warming affected, CI-compatible Turbo tasks with
+remote reads and writes enabled, as described in
+[the pre-push workflow](../SKILL.md#warm-the-remote-cache-before-pushing).
+Never hold work back waiting for local capacity, and never treat waiting time
+as evidence that a fix works.

@@ -1,0 +1,4 @@
+{
+  "summary": "Hearts stories gave the production frame no moves, so its record said \"No moves yet.\" beside a full trick and at game over, unlike the app, which lists the cards played.",
+  "regressionTest": "libs/hearts-client-ts/tests/hearts-story-moves.test.ts"
+}

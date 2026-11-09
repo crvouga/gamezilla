@@ -1,0 +1,4 @@
+{
+  "summary": "Every Word Tiles placement rebuilt all 225 squares of the phone board overview (a keyed list over fresh cell objects) and re-ran every board square's bindings, costing 25-68ms of script per input under 4x CPU throttling; unchanged squares now keep their objects and the overview updates rects in place.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/word-tile-board.test.tsx"
+}

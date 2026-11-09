@@ -57,3 +57,36 @@ export const Activate: StoryObj<typeof meta> = {
     );
   },
 };
+
+/** Keep the keyboard destination visible after the pointer leaves another column. */
+export const KeyboardAndPointer: StoryObj<typeof meta> = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const focused = canvas.getByTestId('column-2');
+    const hovered = canvas.getByTestId('column-5');
+    await userEvent.click(focused);
+    await userEvent.hover(hovered);
+    await expect(canvas.getByTestId('disc-story')).toHaveAttribute(
+      'data-preview-cell',
+      '5'
+    );
+    await userEvent.unhover(hovered);
+    await expect(focused).toHaveFocus();
+    await expect(canvas.getByTestId('disc-story')).toHaveAttribute(
+      'data-preview-cell',
+      '2'
+    );
+    await userEvent.keyboard('{ArrowRight}');
+    await expect(canvas.getByTestId('column-3')).toHaveFocus();
+    await expect(canvas.getByTestId('disc-story')).toHaveAttribute(
+      'data-preview-cell',
+      '3'
+    );
+    await userEvent.hover(hovered);
+    await userEvent.keyboard('{Enter}');
+    await expect(canvas.getByTestId('disc-story')).toHaveAttribute(
+      'data-preview-cell',
+      '3'
+    );
+  },
+};

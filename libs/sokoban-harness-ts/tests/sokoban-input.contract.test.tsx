@@ -1,6 +1,11 @@
 import { expect, test } from 'bun:test';
 import { SokobanEditor } from '@libs/sokoban-client-ts/sokoban-editor';
 import { SokobanPlayerView as SokobanPlayer } from '@libs/sokoban-client-ts/sokoban-player';
+import {
+  DENSE_MAXIMUM_BOARD,
+  MAXIMUM_BOARD,
+  TWO_CRATES,
+} from '@libs/sokoban-client-ts/sokoban-player.example';
 import { decodeSokobanBoard } from '@libs/sokoban-shared-ts/sokoban-definition';
 import { sokobanPuzzleContent } from '@libs/sokoban-shared-ts/sokoban-puzzle-content';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
@@ -13,43 +18,44 @@ import { createSignal, type JSX } from 'solid-js';
 /** Worker B1, crate C1, goal E1; A1 is a wall. */
 const CORRIDOR = JSON.stringify({ format: 1, rows: ['#@$ .'] });
 
-function render(ui: () => JSX.Element) {
+function render(ui: () => JSX.Element, width = 390) {
   const time = createHarnessClock();
   return renderWithI18n(() => (
     <ClockProvider clock={time.clock} timers={time.timers}>
-      <ThemeProvider
-        colorScheme="light"
-        fixedLayout={{ width: 390, height: 844 }}
-      >
+      <ThemeProvider colorScheme="light" fixedLayout={{ width, height: 844 }}>
         {ui()}
       </ThemeProvider>
     </ClockProvider>
   ));
 }
 
-function player() {
+function player(width = 390, definition = CORRIDOR) {
   const rules = sokobanPuzzleContent.rules;
-  const start = rules.initial(CORRIDOR);
+  const start = rules.initial(definition);
   if (!start.accepted) throw new Error('corridor refused');
   const [state, setState] = createSignal(start.state);
   const [disabled, setDisabled] = createSignal(false);
   const actions: string[] = [];
-  const view = render(() => (
-    <SokobanPlayer
-      onReturnToLibrary={() => {
-        throw new Error('Unexpected navigation');
-      }}
-      definition={CORRIDOR}
-      state={state()}
-      disabled={disabled()}
-      onAction={(action) => {
-        const change = rules.apply(CORRIDOR, state(), action);
-        if (!change.accepted) throw new Error('the player sent a refused move');
-        actions.push(action);
-        setState(change.state);
-      }}
-    />
-  ));
+  const view = render(
+    () => (
+      <SokobanPlayer
+        onReturnToLibrary={() => {
+          throw new Error('Unexpected navigation');
+        }}
+        definition={definition}
+        state={state()}
+        disabled={disabled()}
+        onAction={(action) => {
+          const change = rules.apply(definition, state(), action);
+          if (!change.accepted)
+            throw new Error('the player sent a refused move');
+          actions.push(action);
+          setState(change.state);
+        }}
+      />
+    ),
+    width
+  );
   return {
     view,
     actions,
@@ -83,6 +89,38 @@ test('moves pressed while one is being kept are sent in order once it lands', ()
   expect(actions).toEqual([]);
   setDisabled(false);
   expect(actions).toEqual(['r', 'r']);
+});
+
+// regression: sokoban-wide-touch-screen-hides-steering
+test('a wide touch screen retains the named movement pad', () => {
+  const { view, actions } = player(1440);
+  fireEvent.click(view.getByRole('button', { name: 'Move right' }));
+  expect(actions).toEqual(['r']);
+  expect(view.getByTestId('sokoban-move').getAttribute('data-layout')).toBe(
+    'arrows'
+  );
+});
+
+// regression: sokoban-save-queue-silently-drops-fifth-direction
+test('the fifth queued direction reports the limit without promising it was saved', () => {
+  const { view, board, setDisabled } = player();
+  setDisabled(true);
+  for (const key of [
+    'ArrowRight',
+    'ArrowRight',
+    'ArrowLeft',
+    'ArrowLeft',
+    'ArrowRight',
+  ])
+    fireEvent.keyDown(board, { key });
+  expect(view.getByTestId('sokoban-saving').textContent).toContain(
+    'Not added: four moves waiting.'
+  );
+  setDisabled(false);
+  expect(view.queryByTestId('sokoban-saving')).toBeNull();
+  expect(view.getByTestId('sokoban-counts').getAttribute('data-moves')).toBe(
+    '4'
+  );
 });
 
 test('a tap beside the worker steps toward it and any other tap does nothing', () => {
@@ -268,4 +306,179 @@ test('on a phone the moves are a spatial pad of named icon buttons', () => {
   }
   fireEvent.click(view.getByTestId('sokoban-move-right'));
   expect(actions).toEqual(['r']);
+});
+
+// regression: sokoban-maximum-board-pieces-too-small
+test('a maximum board has a close view that follows the worker and maps taps to the full board', () => {
+  const { view, board, actions } = player(320, MAXIMUM_BOARD);
+  expect(board.querySelectorAll('[role="img"]')).toHaveLength(400);
+  fireEvent.click(view.getByRole('button', { name: 'Look closer' }));
+  expect(board.querySelectorAll('[role="img"]')).toHaveLength(36);
+  for (let move = 0; move < 5; move++)
+    fireEvent.keyDown(board, { key: 'ArrowRight' });
+  expect(view.getByRole('img', { name: 'G2: floor, worker' })).toBeTruthy();
+  board.getBoundingClientRect = () =>
+    ({ left: 0, top: 0, width: 288, height: 288 }) as DOMRect;
+  // The view stays put inside its margin: columns C to H, the worker on G,
+  // so the sixth column (H2) is the square beside it.
+  fireEvent.pointerDown(board, { clientX: 264, clientY: 72 });
+  fireEvent.pointerUp(board, { clientX: 264, clientY: 72 });
+  expect(actions).toEqual(['r', 'r', 'r', 'r', 'r', 'r']);
+  expect(view.getByRole('img', { name: 'H2: floor, worker' })).toBeTruthy();
+  fireEvent.click(view.getByRole('button', { name: 'Show whole board' }));
+  expect(board.querySelectorAll('[role="img"]')).toHaveLength(400);
+  expect(view.getByTestId('sokoban-counts').getAttribute('data-moves')).toBe(
+    '6'
+  );
+});
+
+// regression: sokoban-close-view-sticks-on-smaller-board
+test('changing from a close maximum board to a small board restores every square', () => {
+  const [definition, setDefinition] = createSignal(MAXIMUM_BOARD);
+  const state = () => {
+    const initial = sokobanPuzzleContent.rules.initial(definition());
+    if (!initial.accepted) throw new Error('Fixture board refused');
+    return initial.state;
+  };
+  const view = render(() => (
+    <SokobanPlayer
+      definition={definition()}
+      state={state()}
+      disabled={false}
+      onAction={() => undefined}
+      onReturnToLibrary={() => undefined}
+    />
+  ));
+  fireEvent.click(view.getByRole('button', { name: 'Look closer' }));
+  expect(
+    view.getByTestId('sokoban-board').querySelectorAll('[role="img"]')
+  ).toHaveLength(36);
+  setDefinition(TWO_CRATES);
+  expect(
+    view.getByTestId('sokoban-board').querySelectorAll('[role="img"]')
+  ).toHaveLength(42);
+  expect(view.getByTestId('sokoban-board').getAttribute('aria-label')).toBe(
+    'Sokoban board'
+  );
+  expect(view.queryByRole('button', { name: 'Show whole board' })).toBeNull();
+});
+
+// regression: sokoban-counts-split-on-narrow-phone
+test('on a narrow phone each count keeps its label beside its number', () => {
+  const { view } = player();
+  const counts = view.getByTestId('sokoban-counts');
+  // A phone keeps the counts on two lines, so a longer number never re-wraps.
+  expect(counts.textContent).toBe('Moves 0Pushes 0');
+  expect(counts.querySelectorAll('.block')).toHaveLength(2);
+  const unbroken = [
+    ...counts.querySelectorAll('.whitespace-nowrap, .block'),
+  ].map((part) => part.textContent);
+  expect(unbroken).toEqual(['Moves 0', 'Pushes 0']);
+});
+
+// regression: sokoban-feedback-moves-controls
+test('blocked and solved feedback appear beside the pad or over the board, never above the controls', () => {
+  const { view, board } = player();
+  const row = view.getByTestId('sokoban-move').parentElement;
+  fireEvent.keyDown(board, { key: 'ArrowLeft' });
+  const refusal = view.getByTestId('sokoban-refusal');
+  expect(row?.contains(refusal)).toBe(true);
+  expect(refusal.textContent).toBe("The worker's way is blocked.");
+});
+
+// regression: sokoban-close-view-hides-crates-silently
+test('the close view says how many crates and open goals are out of view', () => {
+  const start = sokobanPuzzleContent.rules.initial(DENSE_MAXIMUM_BOARD);
+  if (!start.accepted) throw new Error('Fixture board refused');
+  const view = render(() => (
+    <SokobanPlayer
+      definition={DENSE_MAXIMUM_BOARD}
+      state={start.state}
+      disabled={false}
+      onAction={() => undefined}
+      onReturnToLibrary={() => undefined}
+    />
+  ));
+  fireEvent.click(view.getByRole('button', { name: 'Look closer' }));
+  const outside = view.getByTestId('sokoban-outside-view');
+  expect(outside.getAttribute('data-crates')).toBe('34');
+  expect(outside.getAttribute('data-goals')).toBe('34');
+  expect(outside.textContent).toBe(
+    'Close view follows the worker. Out of view: 34 crates and 34 open goals.'
+  );
+});
+
+// regression: sokoban-solved-card-hides-board
+test('solving leaves the board uncovered and offers the way on once, beside the pad', () => {
+  const { view, board } = player();
+  fireEvent.keyDown(board, { key: 'ArrowRight' });
+  fireEvent.keyDown(board, { key: 'ArrowRight' });
+  const solved = view.getByTestId('sokoban-solved');
+  const row = view.getByTestId('sokoban-move').parentElement;
+  expect(row?.contains(solved)).toBe(true);
+  expect(board.parentElement?.contains(solved)).toBe(false);
+  expect(view.getAllByRole('button', { name: 'More puzzles' })).toHaveLength(1);
+  expect(view.queryByText('Keep playing or choose another puzzle.')).toBeNull();
+});
+
+// regression: sokoban-solved-name-hides-label
+test('the solved action is named by the words it shows', () => {
+  const { view, board } = player();
+  fireEvent.keyDown(board, { key: 'ArrowRight' });
+  fireEvent.keyDown(board, { key: 'ArrowRight' });
+  const action = view.getByRole('button', { name: 'More puzzles' });
+  expect(action.getAttribute('aria-label')).toBeNull();
+  expect(action.textContent).toContain('More puzzles');
+});
+
+// regression: sokoban-solved-repeats-shell-way-on
+test('when the screen offers a way on, solving says so once and adds none of its own', () => {
+  const start = sokobanPuzzleContent.rules.initial(CORRIDOR);
+  if (!start.accepted) throw new Error('corridor refused');
+  const [state, setState] = createSignal(start.state);
+  const view = render(() => (
+    <SokobanPlayer
+      definition={CORRIDOR}
+      state={state()}
+      disabled={false}
+      context={{ kind: 'pack', shellOffersWayOn: true }}
+      onAction={(action) => {
+        const change = sokobanPuzzleContent.rules.apply(
+          CORRIDOR,
+          state(),
+          action
+        );
+        if (change.accepted) setState(change.state);
+      }}
+      onReturnToLibrary={() => {
+        throw new Error('The screen offers the way on');
+      }}
+    />
+  ));
+  const board = view.getByTestId('sokoban-board');
+  fireEvent.keyDown(board, { key: 'ArrowRight' });
+  fireEvent.keyDown(board, { key: 'ArrowRight' });
+  expect(view.getByTestId('sokoban-solved').textContent).toContain(
+    'Solved: all crates on goals.'
+  );
+  expect(view.queryByRole('button', { name: 'More puzzles' })).toBeNull();
+});
+
+// regression: sokoban-close-view-caption-announces-every-move
+test('the close view caption is read on demand, not announced on every move', () => {
+  const start = sokobanPuzzleContent.rules.initial(DENSE_MAXIMUM_BOARD);
+  if (!start.accepted) throw new Error('Fixture board refused');
+  const view = render(() => (
+    <SokobanPlayer
+      definition={DENSE_MAXIMUM_BOARD}
+      state={start.state}
+      disabled={false}
+      onAction={() => undefined}
+      onReturnToLibrary={() => undefined}
+    />
+  ));
+  fireEvent.click(view.getByRole('button', { name: 'Look closer' }));
+  const caption = view.getByTestId('sokoban-outside-view');
+  expect(caption.getAttribute('role')).toBeNull();
+  expect(caption.closest('[aria-live]')).toBeNull();
 });

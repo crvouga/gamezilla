@@ -50,7 +50,7 @@ A new or changed scenario is allowed only to pin existing behavior: a `@regressi
 
 ## Works in any harness
 
-This file is the single source of truth. `bun run agents:sync` projects it into every supported harness: Claude Code, Cursor and OpenCode read it directly; Gemini CLI, GitHub Copilot, Windsurf and Codex (`$overnight`) get generated pointers. Nothing below depends on one vendor's tools:
+This file is the single source of truth. `bun run agents:sync` projects it into every supported harness: Claude Code and OpenCode read it directly; Gemini CLI, GitHub Copilot, Windsurf and Codex (`$overnight`) get generated pointers. Nothing below depends on one vendor's tools:
 
 - **Subagent** means your harness's native parallel-agent or task facility. Without one, work each auditor or item yourself, one after another, with the same prompts and formats.
 - **Persistent goal** means your harness's goal or long-run mode when it has one (rules in [`/autopilot`](autopilot.md)). Without one, keep working in the current session; never invent a scheduler.
@@ -244,10 +244,10 @@ Give `type:*` one color per type, `priority:*` a red-to-grey ramp, and `risk:*` 
 
 ## The pull request
 
-Open it as a draft with every label in one call:
+Open it ready for review (never a draft) with every label in one call:
 
 ```sh
-gh pr create --draft --base main --head "overnight/<date>/<slug>" \
+gh pr create --base main --head "overnight/<date>/<slug>" \
   --title "<type>(<area>): <summary>" --body-file .overnight/<date>/prs/<slug>.md \
   --label overnight --label "overnight:<date>" --label "type:<t>" --label "area:<a>" \
   --label "priority:<p>" --label "risk:<r>" --label "size:<s>" [--label <flag> …]

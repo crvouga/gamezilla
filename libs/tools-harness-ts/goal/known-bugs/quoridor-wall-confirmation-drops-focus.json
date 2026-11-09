@@ -1,0 +1,4 @@
+{
+  "summary": "Cancel and Place wall unmounted the focused button, dropping keyboard focus to the page instead of a defined control.",
+  "regressionTest": "libs/quoridor-client-ts/tests/quoridor-board-truthful-state.test.tsx"
+}

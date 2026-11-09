@@ -232,12 +232,13 @@
   min-width: 0;
 }
 .playerName {
-  overflow-wrap: anywhere;
-  white-space: normal;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 .playerTags {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: var(--player-tags-wrap, wrap);
   align-items: center;
   gap: var(--ui-space-1);
   min-width: 0;
@@ -465,13 +466,13 @@
       560px
     );
   }
-  /* A board that brings its own switch between two panels (and the key to
-     its marks under it) leaves room for both, so the seat under the board
-     still shows without scrolling. */
+  /* A board that brings its own switch between two panels, the key to its
+     marks, and the Fire row under the whole board it aims at leaves room for
+     all three, so the seat under the board still shows without scrolling. */
   .layout[data-has-stage="true"][data-has-aside="true"]:has(
     .stage [data-paired-panels]
   ) {
-    --game-board-chrome-block: calc(284px + var(--ui-space-12));
+    --game-board-chrome-block: calc(328px + 2 * var(--ui-space-12));
   }
   .layout[data-has-stage="true"][data-has-aside="true"],
   .layout[data-has-stage="true"][data-has-setup="true"] {

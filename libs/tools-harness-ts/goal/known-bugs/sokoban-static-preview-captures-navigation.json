@@ -1,0 +1,4 @@
+{
+  "summary": "Static Sokoban previews entered the tab order and suppressed directional keyboard and touch scrolling despite offering no interaction.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/sokoban-tile-stability.test.tsx"
+}

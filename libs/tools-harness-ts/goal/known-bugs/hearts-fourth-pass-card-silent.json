@@ -1,0 +1,4 @@
+{
+  "summary": "With AC, KC and QC selected, pressing JC silently does nothing without guidance on revising the pass.",
+  "regressionTest": "libs/hearts-client-ts/tests/pass-selection-limit.test.tsx"
+}

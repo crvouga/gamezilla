@@ -1,9 +1,28 @@
 /* Opt-in (`GameLayout`'s `stageAlign="center"`): when everything stacks in
    one column, a stage narrower than the column sits in its middle instead
-   of at the start edge. Kept apart from game-ui.module.css, which is at its
-   size limit. */
+   of at the start edge, and the commands and the rail under it take the
+   board's measure and centre with it, so the page reads as one column.
+   Kept apart from game-ui.module.css, which is at its size limit. */
 @container game-column (max-width: 879px) {
   .centred {
     justify-self: center;
+    width: 100%;
+    max-width: var(--game-board-measure);
+  }
+  /* The screen's title and intro (the column's first block) take the same
+     measure and centre too, so the whole page reads as one centred column.
+     Only a column holding a centred stage changes. */
+  :global([data-component="GameColumn"]:has([data-stage-align="center"]))
+  > :first-child {
+    width: 100%;
+    max-width: var(--game-board-measure);
+    margin-inline: auto;
+  }
+  /* The session's notices (a puzzle's rule line, a warning) between the
+     title and the stage, so title, intro and board share one left edge. */
+  .intro {
+    width: 100%;
+    max-width: var(--game-board-measure);
+    margin-inline: auto;
   }
 }

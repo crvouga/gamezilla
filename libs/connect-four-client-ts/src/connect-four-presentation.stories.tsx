@@ -54,7 +54,13 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /** A new game: Red moves first, so the person playing Red can drop anywhere. */
-export const Opening: Story = {};
+export const Opening: Story = {
+  play: async ({ canvasElement }) => {
+    const board = within(canvasElement).getByTestId('custom-game-board');
+    await expect(board).toHaveAccessibleDescription(/Left\/Right to choose/);
+    await expect(board).toHaveAccessibleDescription(/Enter or Space drops/);
+  },
+};
 
 /**
  * Mid-game on the person's turn, ten discs in: every open column offers a
@@ -250,6 +256,9 @@ export const FullColumn: Story = {
       .getByTestId('custom-game-board')
       .getAttribute('data-cells');
     await userEvent.click(column);
+    await expect(
+      canvas.getByTestId('custom-game-board-prompt')
+    ).toHaveTextContent('Column 1 is full. Choose another column.');
     await expect(canvas.getByTestId('custom-game-board')).toHaveAttribute(
       'data-cells',
       before

@@ -1,5 +1,6 @@
 import type { Clock, Timers } from '@pkgs/clock-shared-ts/types';
 import {
+  aggregate,
   type PrCheck,
   type RequiredPrCheck,
   requiredPrCheckFailures,
@@ -12,6 +13,8 @@ export type PrCheckSnapshot = {
 };
 
 function unfinished(check: PrCheck, snapshot: PrCheckSnapshot): boolean {
+  // The running aggregate is this gate itself; it finishes only after we return.
+  if (aggregate(check)) return false;
   if (check.status !== 'completed') return check.conclusion === null;
   return (
     check.appId === 57789 &&
@@ -44,7 +47,12 @@ export async function awaitRequiredPrChecks(options: {
       throw new Error(
         'PR checks readiness deadline exceeded during metadata collection'
       );
-    if (failures.length === 0) return snapshot.checks;
+    // A neutral CodeQL result passes the policy, but not while its producer
+    // can still replace it with findings.
+    const settled = !snapshot.checks.some((check) =>
+      unfinished(check, snapshot)
+    );
+    if (failures.length === 0 && settled) return snapshot.checks;
     // This projection identifies terminal errors only. It can never grant success:
     // only the original, unmodified snapshot above can satisfy the gate.
     const terminal = requiredPrCheckFailures(

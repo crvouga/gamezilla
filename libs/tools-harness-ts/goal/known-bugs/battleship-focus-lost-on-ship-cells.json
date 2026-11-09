@@ -1,0 +1,4 @@
+{
+  "summary": "Keyboard focus on a Battleship cell was a water-coloured gap around an inner ink ring. On a small setup cell (about 32px) holding a ship, the ring met the ship's ink mark and the focus disappeared. Focus now puts ink at the cell's edge, with a water-coloured ring inside that parts it from a ship's mark or an ink Sunk fill.",
+  "regressionTest": "libs/battleship-client-ts/tests/hit-mark.test.ts"
+}

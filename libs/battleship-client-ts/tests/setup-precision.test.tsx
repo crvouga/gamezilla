@@ -152,12 +152,13 @@ test('comfortable placement validates a complete fleet across four regions with 
   );
 });
 
-test('locked comfortable placement keeps all waters visible and refuses editing', async () => {
+// regression: battleship-locked-fleet-blocks-inspection
+test('locked comfortable placement permits inspection while refusing editing', async () => {
   const changes: string[] = [];
   renderBoard(() => (
     <SurfaceStackProvider>
       <BattleshipSetupBoard
-        setup="fleet:carrier@a1h"
+        setup="fleet:carrier@a1h;battleship@a3v;cruiser@c3v;submarine@e3v;destroyer@i7v"
         side="white"
         locked
         testId="setup"
@@ -172,16 +173,29 @@ test('locked comfortable placement keeps all waters visible and refuses editing'
     100
   );
   expect(
-    screen
-      .getByRole('button', { name: /^Ship to place:/ })
-      .hasAttribute('disabled')
+    screen.queryByRole('button', { name: /^Ship to place/ }) === null
   ).toBe(true);
-  expect(
-    screen.getByRole('button', { name: 'A–E / 1–5' }).hasAttribute('disabled')
-  ).toBe(true);
+  expect(screen.queryByRole('button', { name: 'Rotate down' }) === null).toBe(
+    true
+  );
+  expect(document.body.textContent).not.toContain('Place in');
   const user = userEvent.setup();
-  await user.click(byTestId('setup-precision-cell-b2'));
+  await user.click(screen.getByRole('button', { name: 'F–J / 6–10' }));
+  expect(byTestId('setup-precision-cell-i8').getAttribute('aria-label')).toBe(
+    'I8: Destroyer'
+  );
+  expect(
+    screen.getByRole('group', { name: 'Enlarged fleet inspection' })
+  ).toBeTruthy();
+  await user.click(byTestId('setup-precision-cell-i8'));
   await user.keyboard('r{Enter}');
+  await user.click(byTestId('setup-enlarge'));
+  expect(screen.queryByTestId('setup-precision')).toBeNull();
+  expect(byTestId('setup-cell-i8').getAttribute('aria-label')).toBe(
+    'I8: Destroyer'
+  );
+  await user.click(byTestId('setup-enlarge'));
+  expect(byTestId('setup-precision-cell-i8')).toBeTruthy();
   expect(changes).toEqual([]);
 });
 

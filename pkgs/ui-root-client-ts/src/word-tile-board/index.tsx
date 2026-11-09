@@ -7,6 +7,7 @@ import {
   type JSX,
   onCleanup,
   Show,
+  untrack,
 } from 'solid-js';
 import { cellGridStep } from '../cell-grid-board/index';
 import { createMediaQuery } from '../media-query';
@@ -42,6 +43,57 @@ export type WordTileBoardCell = {
   readonly enabled: boolean;
 };
 
+function sameCell(a: WordTileBoardCell, b: WordTileBoardCell): boolean {
+  return (
+    a.id === b.id &&
+    a.letter === b.letter &&
+    a.points === b.points &&
+    a.square === b.square &&
+    a.state === b.state &&
+    a.label === b.label &&
+    a.enabled === b.enabled
+  );
+}
+
+/** The next cells, keeping each previous object whose fields did not change. */
+export function reuseUnchangedCells(
+  previous: readonly WordTileBoardCell[],
+  next: readonly WordTileBoardCell[]
+): readonly WordTileBoardCell[] {
+  let changed = previous.length !== next.length;
+  const kept = next.map((cell, index) => {
+    const before = previous[index];
+    if (before !== undefined && sameCell(before, cell)) return before;
+    changed = true;
+    return cell;
+  });
+  return changed ? kept : previous;
+}
+
+/** The board's middle square, the tab stop until a square is chosen. */
+function centreIndex(
+  board: Pick<WordTileBoardProps, 'rowLabels' | 'columnLabels'>
+): number {
+  return (
+    Math.floor(board.rowLabels.length / 2) * board.columnLabels.length +
+    Math.floor(board.columnLabels.length / 2)
+  );
+}
+
+/**
+ * Read once per change: every square reads the list, and a caller that
+ * computes it inline would otherwise rebuild it once per square. Unchanged
+ * squares keep their previous object, so only changed squares update.
+ */
+function createStableCells(
+  read: () => readonly WordTileBoardCell[]
+): () => readonly WordTileBoardCell[] {
+  return createMemo<readonly WordTileBoardCell[]>(
+    (previous) => reuseUnchangedCells(previous, read()),
+    []
+  );
+}
+
 export type WordTileBoardProps = {
   /** Locator mode shows the whole board; activation chooses a location, never a move. */
   readonly purpose?: 'placement' | 'locator';
@@ -73,30 +125,50 @@ function focusCell(root: HTMLDivElement | undefined, index: number): void {
   });
 }
 
+function boardKeyboard(
+  board: WordTileBoardProps,
+  onFocus: (index: number) => void
+): (event: KeyboardEvent, index: number) => void {
+  return (event, index) => {
+    const next = cellGridStep(event, index, {
+      columns: board.columnLabels.length,
+      rows: board.rowLabels.length,
+    });
+    if (next === null) return;
+    event.preventDefault();
+    onFocus(next);
+  };
+}
+
 function createPrecisionCenter(
   viewport: () => HTMLDivElement | undefined,
   root: () => HTMLDivElement | undefined,
   enlarged: () => boolean,
   focusIndex: () => number
-): void {
+): () => void {
+  const center = () => {
+    const element = viewport();
+    if (!element || !enlarged()) return;
+    const cell = root()?.querySelector<HTMLElement>(
+      `[data-index="${focusIndex()}"]`
+    );
+    if (!cell) return;
+    const bounds = cell.getBoundingClientRect();
+    const clip = element.getBoundingClientRect();
+    element.scrollLeft +=
+      bounds.left - clip.left - (clip.width - bounds.width) / 2;
+    element.scrollTop +=
+      bounds.top - clip.top - (clip.height - bounds.height) / 2;
+  };
   createEffect(() => {
     const element = viewport();
     if (!element || !enlarged()) return;
-    const center = () => {
-      const cell = root()?.querySelector<HTMLElement>(
-        `[data-index="${focusIndex()}"]`
-      );
-      if (!cell) return;
-      const bounds = cell.getBoundingClientRect();
-      const clip = element.getBoundingClientRect();
-      element.scrollLeft +=
-        bounds.left - clip.left - (clip.width - bounds.width) / 2;
-      element.scrollTop +=
-        bounds.top - clip.top - (clip.height - bounds.height) / 2;
-    };
-    center();
+    // Center on zoom or resize, never when a pointer focuses a visible cell.
+    // Moving that cell between press and release can change the hit target.
+    untrack(center);
     onCleanup(observeElementResize(element, center));
   });
+  return center;
 }
 
 /**
@@ -110,36 +182,31 @@ function createPrecisionCenter(
  */
 export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
   const [selectedIndex, setFocusIndex] = createSignal<number>();
-  const focusIndex = () =>
-    selectedIndex() ??
-    Math.floor(props.rowLabels.length / 2) * props.columnLabels.length +
-      Math.floor(props.columnLabels.length / 2);
+  const focusIndex = () => selectedIndex() ?? centreIndex(props);
   const compact = createMediaQuery('(max-width: 639px)');
   const [choice, setEnlarged] = createSignal<boolean>();
   const enlarged = () => props.purpose !== 'locator' && (choice() ?? compact());
-  // Read once per change: every square reads the list, and a caller that
-  // computes it inline would otherwise rebuild it once per square.
-  const cells = createMemo(() => props.cells);
+  const cells = createStableCells(() => props.cells);
   let root: HTMLDivElement | undefined;
   const [viewport, setViewport] = createSignal<HTMLDivElement>();
-  createPrecisionCenter(viewport, () => root, enlarged, focusIndex);
-  const onKey = (event: KeyboardEvent, index: number): void => {
-    const next = cellGridStep(event, index, {
-      columns: props.columnLabels.length,
-      rows: props.rowLabels.length,
-    });
-    if (next === null) return;
-    event.preventDefault();
+  const center = createPrecisionCenter(
+    viewport,
+    () => root,
+    enlarged,
+    focusIndex
+  );
+  const onKey = boardKeyboard(props, (next) => {
     setFocusIndex(next);
     focusCell(root, next);
-  };
+  });
   const resize = (value: boolean): void => {
     setEnlarged(value);
     focusCell(root, focusIndex());
   };
   return (
     <StackVertical gap="none">
-      <Show when={props.purpose !== 'locator' && !enlarged()}>
+      {/* Wider than a phone, Fit and Enlarge stay in one place in both views. */}
+      <Show when={props.purpose !== 'locator' && (!enlarged() || !compact())}>
         <WordTileViewControls enlarged={enlarged()} onChange={resize} />
       </Show>
       <Show when={props.purpose === 'locator'}>
@@ -178,9 +245,12 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
         <Show when={enlarged()}>
           <WordTileOverview
             board={props}
+            cells={cells}
             viewport={viewport}
             controls={
-              <WordTileViewControls enlarged={enlarged()} onChange={resize} />
+              compact() ? (
+                <WordTileViewControls enlarged={enlarged()} onChange={resize} />
+              ) : undefined
             }
             position={cells()[focusIndex()]?.label ?? ''}
             locator={(onChoose) => (
@@ -198,6 +268,7 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
               if (index < 0) return;
               setFocusIndex(index);
               focusCell(root, index);
+              center();
             }}
           />
         </Show>

@@ -1,0 +1,4 @@
+{
+  "summary": "Each refused card carried its own hidden copy of the rule, so a listener's page held the same sentence once per card (12 times on one screen).",
+  "regressionTest": "libs/hearts-client-ts/tests/waiting-hand-once.test.tsx"
+}

@@ -2,15 +2,18 @@ import { t } from '@lingui/core/macro';
 import type { GameFrameAction } from '@pkgs/turn-game-shared-ts/game-frame';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import type { CellGridCell } from '@pkgs/ui-root-client-ts/cell-grid-board';
+import type { FocusTarget } from '@pkgs/ui-root-client-ts/focus';
 import { Select } from '@pkgs/ui-root-client-ts/select';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
-import { For, type JSX } from 'solid-js';
+import { Index, type JSX } from 'solid-js';
 import { type QuoridorTool, quoridorBoundary } from './quoridor-board-cells';
 
 /** The same tools in every host, directly beside the working board. */
 export function QuoridorBoardTools(props: {
   testId: string;
   actions: readonly GameFrameAction[];
+  /** Held by whichever tool is pressed, so focus can return to the active tool. */
+  focusTarget?: FocusTarget | undefined;
 }): JSX.Element {
   return (
     <StackHorizontal
@@ -18,25 +21,44 @@ export function QuoridorBoardTools(props: {
       wrap
       dataSet={{ testid: `${props.testId}-tools` }}
     >
-      <For each={props.actions}>
+      <Index each={props.actions}>
         {(action) => (
           <Button
-            title={action.id === 'mode-move' ? t`Move` : action.label}
-            aria-label={action.label}
-            disabled={!action.enabled}
-            aria-pressed={action.pressed}
+            title={action().id === 'mode-move' ? t`Move` : action().label}
+            aria-label={action().label}
+            disabled={!action().enabled}
+            aria-pressed={action().pressed}
             variant={
-              action.pressed || action.emphasis === 'primary'
+              action().pressed || action().emphasis === 'primary'
                 ? 'solid'
                 : 'ghost'
             }
-            dataSet={{ testid: `${props.testId}-${action.id}` }}
-            onClick={action.run}
+            dataSet={{ testid: `${props.testId}-${action().id}` }}
+            focusTarget={action().pressed ? props.focusTarget : undefined}
+            onClick={action().run}
           />
         )}
-      </For>
+      </Index>
     </StackHorizontal>
   );
+}
+
+/** Picker rows: full descriptions, filtered by coordinate alone. */
+export function quoridorTargetOptions(
+  testId: string,
+  tool: QuoridorTool,
+  cells: readonly CellGridCell[]
+) {
+  return cells
+    .filter((cell) => cell.enabled)
+    .map((cell) => ({
+      value: cell.id,
+      label:
+        tool === 'move' ? cell.label : quoridorBoundary(`${cell.id}${tool}`),
+      // Every wall label shares words like "above", so a letter would match them all.
+      searchText: cell.id,
+      dataSet: { testid: `${testId}-precise-${cell.id}` },
+    }));
 }
 
 /** Full-size coordinate choices supplement the whole board's smaller touch cells. */
@@ -59,19 +81,13 @@ export function QuoridorTargetPicker(props: {
       placeholder={
         props.tool === 'move' ? t`Choose destination` : t`Choose wall anchor`
       }
+      surfaceTitle={
+        props.tool === 'move' ? t`Choose destination` : t`Choose wall anchor`
+      }
       value={props.selected ?? ''}
       searchable={props.tool !== 'move'}
       triggerDataSet={{ testid: `${props.testId}-precise-target` }}
-      options={props.cells
-        .filter((cell) => cell.enabled)
-        .map((cell) => ({
-          value: cell.id,
-          label:
-            props.tool === 'move'
-              ? cell.label
-              : quoridorBoundary(`${cell.id}${props.tool}`),
-          dataSet: { testid: `${props.testId}-precise-${cell.id}` },
-        }))}
+      options={quoridorTargetOptions(props.testId, props.tool, props.cells)}
       onValueChange={props.onActivate}
     />
   );

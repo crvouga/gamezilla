@@ -217,11 +217,13 @@
   --color-game-quoridor-accent: var(--ui-color-game-quoridor-accent);
   --color-game-quoridor-one: var(--ui-color-game-quoridor-one);
   --color-game-quoridor-two: var(--ui-color-game-quoridor-two);
+  --color-game-quoridor-three: var(--ui-color-game-quoridor-three);
   --color-game-sokoban-canvas: var(--ui-color-game-sokoban-canvas);
   --color-game-sokoban-surface: var(--ui-color-game-sokoban-surface);
   --color-game-sokoban-ink: var(--ui-color-game-sokoban-ink);
   --color-game-sokoban-muted: var(--ui-color-game-sokoban-muted);
   --color-game-sokoban-accent: var(--ui-color-game-sokoban-accent);
+  --color-game-sokoban-focus: var(--ui-color-game-sokoban-focus);
   --color-game-sokoban-one: var(--ui-color-game-sokoban-one);
   --color-game-sokoban-two: var(--ui-color-game-sokoban-two);
   --color-game-numberlink-canvas: var(--ui-color-game-numberlink-canvas);

@@ -51,7 +51,7 @@ test('a refused or failed pass keeps the three chosen cards to send again', () =
   // The game refused it: the board is reset and the person can act again.
   board.change({ interactive: true, syncKey: 1 });
   expect(['AC', 'KC', 'QC'].every(pressed)).toBe(true);
-  expect(byTestId('hearts-pass').textContent).toContain('Pass left');
+  expect(byTestId('hearts-pass').textContent).toContain('Pass to West');
   fireEvent.click(byTestId('hearts-pass'));
   expect(board.sent).toEqual(['QCKCAC', 'QCKCAC']);
 });

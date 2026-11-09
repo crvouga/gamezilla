@@ -1,6 +1,10 @@
 import { pongConfig } from '@libs/pong-shared-ts/pong-config';
 import { pongPositionCodec } from '@libs/pong-shared-ts/pong-game';
-import type { PongState } from '@libs/pong-shared-ts/pong-state';
+import {
+  otherPongSide,
+  type PongSide,
+  type PongState,
+} from '@libs/pong-shared-ts/pong-state';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import type { GameFrameSeat } from '@pkgs/turn-game-shared-ts/game-frame';
@@ -21,6 +25,7 @@ import { RangeControl } from '@pkgs/ui-root-client-ts/range-control';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { TextLink } from '@pkgs/ui-root-client-ts/text-link';
+import { useHoverCapable } from '@pkgs/ui-root-client-ts/use-hover-capable';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import {
@@ -30,9 +35,37 @@ import {
   Match,
   Show,
   Switch,
+  untrack,
 } from 'solid-js';
 
 const config = pongConfig();
+
+/** What the court's status says: it is reworded only when one of these changes. */
+type StatusInput = {
+  readonly phase: PongState['phase'];
+  readonly winner: PongState['winner'];
+  readonly paused: boolean;
+  readonly stale: boolean;
+  readonly seconds: number;
+  readonly left: number;
+  readonly right: number;
+  readonly servingToward: PongSide;
+};
+const sameStatusInput = (
+  a: StatusInput | undefined,
+  b: StatusInput | undefined
+): boolean =>
+  a === b ||
+  (a !== undefined &&
+    b !== undefined &&
+    a.phase === b.phase &&
+    a.winner === b.winner &&
+    a.paused === b.paused &&
+    a.stale === b.stale &&
+    a.seconds === b.seconds &&
+    a.left === b.left &&
+    a.right === b.right &&
+    a.servingToward === b.servingToward);
 const seat = (side: CourtSide) =>
   side === 'first' ? ('white' as const) : ('black' as const);
 const paddleName = (side: GameSide) =>
@@ -106,24 +139,28 @@ function CourtSummary(props: {
   testId: string;
   controls: GameSimulationControls | undefined;
 }): JSX.Element {
+  // Every frame brings a new court; these words change only with the score
+  // or the phase, so they are formatted only then.
+  const left = createMemo(() => props.state.score.left);
+  const right = createMemo(() => props.state.score.right);
+  const live = createMemo(
+    () =>
+      props.state.phase === 'playing' &&
+      !props.controls?.paused &&
+      !props.controls?.stale
+  );
   return (
     <VisuallyHidden>
-      <Show
-        when={
-          props.state.phase === 'playing' &&
-          !props.controls?.paused &&
-          !props.controls?.stale
-        }
-      >
+      <Show when={live()}>
         <Text variant="inherit" testId={`${props.testId}-status`}>
           {t`Keep the ball in play.`}
         </Text>
       </Show>
       <Text variant="inherit" testId={`${props.testId}-score-left`}>
-        {t`Left ${props.state.score.left}`}
+        {t`Left ${left()}`}
       </Text>{' '}
       <Text variant="inherit" testId={`${props.testId}-score-right`}>
-        {t`Right ${props.state.score.right}`}
+        {t`Right ${right()}`}
       </Text>
     </VisuallyHidden>
   );
@@ -138,24 +175,24 @@ function CourtSummary(props: {
 function CourtHint(props: {
   id: string;
   state: PongState;
-  board: GameBoardProps;
+  board: PongBoardViewProps;
 }): JSX.Element {
+  const target = createMemo(() => props.state.targetScore);
+  const finished = createMemo(() => props.state.phase === 'completed');
   const mode = useLayoutMode();
+  const hoverCapable = useHoverCapable();
   const shared = () => (props.board.simulation?.sides.length ?? 0) > 1;
   return (
     <P id={props.id} variant="body">
       <Text variant="inherit" testId={`${props.board.testId}-target`}>
-        {t`First to ${props.state.targetScore}`}
+        {t`First to ${target()}`}
       </Text>
       {' · '}
       <Show
         when={!props.board.simulation?.stale && !props.board.simulation?.paused}
         fallback={<Trans>Controls are unavailable until play resumes.</Trans>}
       >
-        <Show
-          when={props.state.phase !== 'completed'}
-          fallback={<Trans>Match finished.</Trans>}
-        >
+        <Show when={!finished()} fallback={<Trans>Match finished.</Trans>}>
           <Show
             when={(props.board.simulation?.sides.length ?? 0) > 0}
             fallback={<Trans>Watching the rally.</Trans>}
@@ -163,36 +200,67 @@ function CourtHint(props: {
             <Show
               when={mode() === 'wide'}
               fallback={
-                <Show
-                  when={shared()}
-                  fallback={
-                    <Trans>
-                      Drag up and down along your edge of the court.
-                    </Trans>
-                  }
-                >
-                  <Trans>
-                    Left player: drag the left half. Right player: drag the
-                    right half.
-                  </Trans>
-                </Show>
+                <>
+                  <Show
+                    when={shared()}
+                    fallback={
+                      <Trans>Drag up and down anywhere on the court.</Trans>
+                    }
+                  >
+                    {t`${playerName(props.board, 'left')}: drag the left half. ${playerName(props.board, 'right')}: drag the right half.`}
+                  </Show>
+                  {/* A mouse or trackpad suggests a keyboard too. */}
+                  <Show when={hoverCapable()}>
+                    {' '}
+                    <PaddleKeys board={props.board} />
+                  </Show>
+                </>
               }
             >
-              <Switch
-                fallback={<Trans>The arrow keys move your paddle.</Trans>}
-              >
-                <Match when={shared()}>
-                  <Trans>W and S move Left; the arrow keys move Right.</Trans>
-                </Match>
-                <Match when={props.board.simulation?.sides[0] === 'white'}>
-                  <Trans>W and S or the arrow keys move your paddle.</Trans>
-                </Match>
-              </Switch>
+              <PaddleKeys board={props.board} />{' '}
+              <Trans>You can also drag up and down.</Trans>
             </Show>
           </Show>
         </Show>
       </Show>
     </P>
+  );
+}
+
+/** The one side this device plays, when it plays exactly one. */
+function ownSide(board: PongBoardViewProps): PongSide | undefined {
+  const sides = board.simulation?.sides ?? [];
+  if (sides.length !== 1) return undefined;
+  return sides[0] === 'white' ? 'left' : 'right';
+}
+
+/** Which keys move which paddle on this device. */
+function PaddleKeys(props: { board: GameBoardProps }): JSX.Element {
+  return (
+    <Switch fallback={<Trans>The arrow keys move your paddle.</Trans>}>
+      <Match when={(props.board.simulation?.sides.length ?? 0) > 1}>
+        <Trans>
+          W and S move the left paddle; the arrow keys move the right paddle.
+        </Trans>
+      </Match>
+      <Match when={props.board.simulation?.sides[0] === 'white'}>
+        <Trans>W and S or the arrow keys move your paddle.</Trans>
+      </Match>
+    </Switch>
+  );
+}
+
+/**
+ * Who plays a side, as the court's status names them: `You` for the one
+ * side this device controls, otherwise the seat's name, else `Left`/`Right`.
+ */
+function playerName(board: PongBoardViewProps, side: PongSide): string {
+  const sides = board.simulation?.sides ?? [];
+  const gameSide = side === 'left' ? 'white' : 'black';
+  if (sides.length === 1 && sides[0] === gameSide) return t`You`;
+  return (
+    board.seats?.find((one) => one.side === gameSide)?.name ??
+    (side === 'left' ? t`Left` : t`Right`)
   );
 }
 
@@ -215,13 +283,59 @@ function sideLabels(
 ): Partial<Record<CourtSide, string | undefined>> {
   const label = (side: CourtSide): string | undefined =>
     controlled.length > 1
-      ? side === 'first'
-        ? t`Left player`
-        : t`Right player`
+      ? (fitHalf(board.seats?.find((one) => one.side === seat(side))?.name) ??
+        (side === 'first' ? t`Left player` : t`Right player`))
       : controlled.includes(side)
         ? t`You`
         : fitHalf(board.seats?.find((one) => one.side === seat(side))?.name);
   return { first: label('first'), second: label('second') };
+}
+
+/**
+ * The court's status words, formatted only when what they say changes: every
+ * frame brings a new court, but the words change at most once a countdown
+ * second.
+ */
+function useCourtStatus(props: {
+  state: PongState;
+  board: PongBoardViewProps;
+}): () => string | undefined {
+  const statusInput = createMemo(
+    (): StatusInput | undefined => {
+      const controls = props.board.simulation;
+      if (
+        props.state.phase === 'playing' &&
+        !controls?.paused &&
+        !controls?.stale
+      )
+        return undefined;
+      return {
+        phase: props.state.phase,
+        winner: props.state.winner,
+        paused: controls?.paused === true,
+        stale: controls?.stale === true,
+        seconds: Math.ceil(props.state.countdown / config.tickRate),
+        left: props.state.score.left,
+        right: props.state.score.right,
+        servingToward: props.state.servingToward,
+      };
+    },
+    undefined,
+    { equals: sameStatusInput }
+  );
+  const status = createMemo(() =>
+    statusInput()
+      ? untrack(() =>
+          pongStatus(
+            props.state,
+            props.board.simulation,
+            (side) => playerName(props.board, side),
+            ownSide(props.board)
+          )
+        )
+      : undefined
+  );
+  return status;
 }
 
 function PongScene(props: {
@@ -239,6 +353,7 @@ function PongScene(props: {
     !props.board.simulation.paused &&
     !props.board.simulation.stale &&
     props.state.phase !== 'completed';
+  const status = useCourtStatus(props);
   return (
     <StackVertical gap="md">
       <CourtSummary
@@ -250,11 +365,10 @@ function PongScene(props: {
       {/* On a phone each controlled half holds its own slider, so the
           court (its shape fixed) takes the whole width. */}
       <PaddleCourt
-        status={
-          props.state.phase !== 'playing' ||
-          props.board.simulation?.paused ||
-          props.board.simulation?.stale
-            ? pongStatus(props.state, props.board.simulation)
+        status={status()}
+        statusData={
+          status()
+            ? pongStatusStage(props.state, props.board.simulation)
             : undefined
         }
         touchHint={mode() !== 'wide' ? t`Drag` : undefined}
@@ -317,16 +431,67 @@ function PongScene(props: {
 /** The court's own status line: the result, the connection, the serve. */
 export function pongStatus(
   state: PongState,
-  controls: GameSimulationControls | undefined
+  controls: GameSimulationControls | undefined,
+  name: (side: PongSide) => string = (side) =>
+    side === 'left' ? t`Left` : t`Right`,
+  /** The one side this device plays, if any: its match point is "yours". */
+  own?: PongSide
 ): string {
   if (state.phase === 'completed')
-    return state.winner === 'left' ? t`Left wins.` : t`Right wins.`;
-  if (controls?.stale)
-    return t`Reconnecting. Controls resume when the game returns.`;
-  if (controls?.paused) return t`Paused while a player returns.`;
-  if (state.phase === 'countdown')
-    return t`Serve in ${Math.ceil(state.countdown / config.tickRate)}.`;
-  return t`Keep the ball in play.`;
+    return t`Final score ${state.score.left}–${state.score.right}`;
+  if (controls?.stale) return t`Reconnecting…`;
+  if (controls?.paused) return t`Paused while a player returns`;
+  if (state.phase === 'countdown') return serveStatus(state, name, own);
+  return t`Keep the ball in play`;
+}
+
+/** Before a serve: who scored, whose match point, then the countdown. */
+function serveStatus(
+  state: PongState,
+  name: (side: PongSide) => string,
+  own: PongSide | undefined
+): string {
+  const points = state.score.left + state.score.right;
+  // After a point the serve goes toward the side that lost it.
+  const scorer = points > 0 ? otherPongSide(state.servingToward) : null;
+  return [
+    scorer === null ? undefined : t`${name(scorer)} scored`,
+    matchPointLabel(state, scorer, name, own),
+    t`Serve in ${Math.ceil(state.countdown / config.tickRate)}`,
+  ]
+    .filter((part) => part !== undefined)
+    .join('\n');
+}
+
+/**
+ * "Match point", naming whose it is unless it is the scorer's (just named)
+ * or both players'; the device's own is "yours".
+ */
+function matchPointLabel(
+  state: PongState,
+  scorer: PongSide | null,
+  name: (side: PongSide) => string,
+  own: PongSide | undefined
+): string | undefined {
+  const near = (side: PongSide) =>
+    state.targetScore > 1 && state.score[side] === state.targetScore - 1;
+  if (!near('left') && !near('right')) return undefined;
+  if (near('left') && near('right')) return t`Match point`;
+  const holder = near('left') ? 'left' : 'right';
+  if (holder === scorer) return t`Match point`;
+  return holder === own ? t`Your match point` : t`Match point: ${name(holder)}`;
+}
+
+/** What the court's status says, for readers that must not parse its words. */
+export function pongStatusStage(
+  state: PongState,
+  controls: GameSimulationControls | undefined
+): { stage: string; winner?: string | undefined } {
+  if (state.phase === 'completed')
+    return { stage: 'finished', winner: state.winner ?? undefined };
+  if (controls?.stale) return { stage: 'reconnecting' };
+  if (controls?.paused) return { stage: 'paused' };
+  return { stage: state.phase };
 }
 
 /**
@@ -344,7 +509,7 @@ export function PongBoardView(props: PongBoardViewProps): JSX.Element {
         <ErrorState
           variant="compact"
           title={t`Pong could not be opened`}
-          body={t`Return to your spaces to choose a game.`}
+          body={t`Return to your spaces to choose a game. If you're playing, resigning ends this one.`}
           details={
             <TextLink href="/" variant="standalone">
               <Trans>Back to spaces</Trans>

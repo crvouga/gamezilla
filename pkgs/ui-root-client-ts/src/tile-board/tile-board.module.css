@@ -23,7 +23,9 @@
   --color-tint-active: var(--ui-color-tint-active);
   --ui-color-tint-subtle: var(--ui-color-game-sokoban-surface);
   --color-tint-subtle: var(--ui-color-tint-subtle);
-  --ui-color-focus-ring: var(--ui-color-game-sokoban-accent);
+  /* The ring sits on the page past a 2px gap, so it is drawn for the page:
+     at least 3:1 against it and against the board's dark edge. */
+  --ui-color-focus-ring: var(--ui-color-game-sokoban-focus);
   --color-focus-ring: var(--ui-color-focus-ring);
   --ui-color-destructive: var(--ui-color-game-sokoban-one);
   --color-destructive: var(--ui-color-destructive);
@@ -72,16 +74,24 @@
   border-radius: var(--ui-radius-card);
   background: var(--color-surface-muted);
   overflow: hidden;
-  touch-action: none;
   user-select: none;
 }
+.board[data-interactive="true"] {
+  touch-action: none;
+}
 /* The hero board: as wide as its column, tiles up to 5rem (80px), never
-   taller than most of the viewport; its pieces scale with its tiles. */
+   taller than most of the viewport, and short enough on a short screen to
+   leave room for the title above and the movement pad below (24rem); its
+   pieces scale with its tiles. */
 .board[data-size="fill"] {
   width: min(
     100%,
     calc(var(--tile-board-columns) * 5rem),
-    calc(60dvh * var(--tile-board-columns) / var(--tile-board-rows))
+    calc(
+      min(60dvh, 100dvh - 24rem) *
+      var(--tile-board-columns) /
+      var(--tile-board-rows)
+    )
   );
 }
 .board:focus-visible {

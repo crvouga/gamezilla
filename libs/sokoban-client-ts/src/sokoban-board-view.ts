@@ -48,16 +48,74 @@ export function squareLabel(
   return `${squareName(cell)}: ${words.square(square)}${piece}`;
 }
 
+/** The part of a board on show: its first column and row, and its size. */
+export type BoardWindow = {
+  readonly left: number;
+  readonly top: number;
+  readonly columns: number;
+  readonly rows: number;
+};
+
 export function sokobanTiles(
   board: SokobanBoard,
   pieces: Pieces,
-  words: Words
+  words: Words,
+  shown: BoardWindow = {
+    left: 0,
+    top: 0,
+    columns: board.width,
+    rows: board.height,
+  }
 ): readonly TileBoardTile[] {
-  return board.squares.map((square, index) => ({
-    terrain: TERRAIN[square],
-    marked: square === 'goal',
-    label: squareLabel(board, pieces, index, words),
-  }));
+  // One pass: where each piece stands, and each word once, not per square.
+  const at = (cell: Cell): number => cell.y * board.width + cell.x;
+  const worker = pieces.worker === null ? -1 : at(pieces.worker);
+  const crates = new Set(pieces.crates.map(at));
+  const workerWord = `, ${words.worker()}`;
+  const crateWord = `, ${words.crate()}`;
+  const squareWords = new Map<SokobanSquare, string>();
+  const squareWord = (square: SokobanSquare): string => {
+    const known = squareWords.get(square);
+    if (known !== undefined) return known;
+    const word = words.square(square);
+    squareWords.set(square, word);
+    return word;
+  };
+  // Only the squares on show: a close view builds 36, not the whole board.
+  return Array.from({ length: shown.columns * shown.rows }, (_, at) => {
+    const index =
+      (shown.top + Math.floor(at / shown.columns)) * board.width +
+      shown.left +
+      (at % shown.columns);
+    const square = board.squares[index] ?? 'outside';
+    const piece =
+      index === worker ? workerWord : crates.has(index) ? crateWord : '';
+    return {
+      terrain: TERRAIN[square],
+      marked: square === 'goal',
+      label: `${squareName(cellOf(board, index))}: ${squareWord(square)}${piece}`,
+    };
+  });
+}
+
+/**
+ * The tiles to show, keeping each unchanged tile's previous object so a move
+ * updates only the squares it changed, not every square on the board.
+ */
+export function keepUnchangedTiles(
+  previous: readonly TileBoardTile[] | undefined,
+  next: readonly TileBoardTile[]
+): readonly TileBoardTile[] {
+  if (previous === undefined) return next;
+  return next.map((tile, index) => {
+    const before = previous[index];
+    return before !== undefined &&
+      before.label === tile.label &&
+      before.terrain === tile.terrain &&
+      before.marked === tile.marked
+      ? before
+      : tile;
+  });
 }
 
 /** Crates keep their array position, so each glides as it is pushed. */
@@ -91,4 +149,27 @@ export function sokobanPieces(
 
 export function positionPieces(position: SokobanPosition): Pieces {
   return { worker: position.worker, crates: position.crates };
+}
+
+/**
+ * Where a window of `size` squares starts along one axis so it follows the
+ * worker: it stays put while the worker is at least one square from its
+ * edge, and centres on the worker only when the worker nears an edge. A
+ * step inside the window then changes two squares, not all of them, and
+ * the view does not slide under the player on every move.
+ */
+export function followAxis(
+  previous: number | undefined,
+  size: number,
+  extent: number,
+  worker: number
+): number {
+  const clamp = (start: number) => Math.max(0, Math.min(extent - size, start));
+  const centred = clamp(worker - Math.floor(size / 2));
+  if (previous === undefined) return centred;
+  const start = clamp(previous);
+  const nearStart = worker < start + 1 && start > 0;
+  const nearEnd = worker > start + size - 2 && start < extent - size;
+  const outside = worker < start || worker >= start + size;
+  return outside || nearStart || nearEnd ? centred : start;
 }

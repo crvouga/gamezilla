@@ -1,7 +1,62 @@
-import { expect, within } from 'storybook/test';
+import { expect, userEvent, within } from 'storybook/test';
+
+/** Whether this screen aims through regions (a phone or tablet) or the whole board. */
+export function hasWorkbench(root: HTMLElement): boolean {
+  return (
+    root.querySelector('[data-testid="custom-game-board-region"]') !== null
+  );
+}
+
+/** Opens the region holding `cell` where aiming goes through regions. */
+export async function showCell(root: HTMLElement, cell: string) {
+  if (!hasWorkbench(root)) return;
+  const area =
+    Number(cell.charAt(0) >= 'f') +
+    Math.floor((Number(cell.slice(1)) - 1) / 2) * 2;
+  await userEvent.click(
+    within(root).getByTestId(`custom-game-board-area-${area}`)
+  );
+}
+
+/** The control that aims at `cell`: its enlarged cell, or the whole board's. */
+export function aimCell(root: HTMLElement, cell: string): HTMLElement {
+  return within(root).getByTestId(
+    hasWorkbench(root)
+      ? `custom-game-board-aim-${cell}`
+      : `custom-game-board-target-${cell}`
+  );
+}
+
+/** A wide screen aims at the whole board: it fits, with Fire under it. */
+async function assertWholeBoardAim(root: HTMLElement, aimed: boolean) {
+  // regression: battleship-desktop-aims-in-two-steps
+  const canvas = within(root);
+  const fire = canvas.getByTestId('custom-game-board-fire');
+  const grid = canvas.getByTestId('custom-game-board-target-grid');
+  await assertTargetViewport(root, [
+    fire,
+    grid,
+    canvas.getByTestId('custom-game-seat-near'),
+  ]);
+  await expect(grid.closest('[inert]')).toBeNull();
+  await expect(grid.querySelectorAll('[data-cell]')).toHaveLength(100);
+  await expect(
+    canvas.getByTestId('custom-game-board-target-j10').getBoundingClientRect()
+      .width
+  ).toBeGreaterThanOrEqual(32);
+  await expect(grid.getBoundingClientRect().bottom).toBeLessThanOrEqual(
+    fire.getBoundingClientRect().top
+  );
+  if (aimed) {
+    const cancel = canvas.getByTestId('custom-game-board-cancel-aim');
+    await assertTargetViewport(root, [cancel]);
+    await expect(fire).toHaveTextContent('Fire at J10');
+  }
+}
 
 /** Measure before input, so userEvent cannot repair a clipped workspace by scrolling. */
 export async function assertTargetWorkbench(root: HTMLElement, aimed = false) {
+  if (!hasWorkbench(root)) return assertWholeBoardAim(root, aimed);
   // regression: battleship-default-precision-loses-whole-field
   // regression: battleship-target-confirmation-competes-with-navigation
   // regression: battleship-target-context-below-fold
