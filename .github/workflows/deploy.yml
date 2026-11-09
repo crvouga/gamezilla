@@ -29,6 +29,10 @@ on:
         description: Exact lock UUID from a completed runner; confirm no bootstrap operation is active before recovery
         type: string
         required: false
+      abandoned-foundation-lock:
+        description: Exact foundation/dev lock UUID from a completed runner; confirm no foundation operation is active before recovery
+        type: string
+        required: false
 
 env:
   TURBO_UI: stream
@@ -100,6 +104,11 @@ jobs:
         env:
           TOFU_ABANDONED_LOCK_ID: ${{ inputs.abandoned-bootstrap-lock }}
         run: bunx turbo run @libs/infra-server-ts#unlock:repository-policy
+      - name: Release explicitly identified abandoned foundation lock
+        if: ${{ inputs.abandoned-foundation-lock != '' }}
+        env:
+          TOFU_ABANDONED_LOCK_ID: ${{ inputs.abandoned-foundation-lock }}
+        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bunx turbo run @libs/infra-server-ts#unlock:foundation
       - name: Plan repository policy without changing configuration
         run: bunx turbo run @libs/infra-server-ts#plan:repository-policy
       - name: Plan alert delivery and independent probes
@@ -242,6 +251,13 @@ jobs:
       # Verification fingerprints this Chrome into the cache key of every test, so
       # without it each task reruns here instead of restoring.
       - uses: ./.github/actions/visual-renderer
+      # Same UUID-scoped recovery as rehearsal: a completed runner can leave
+      # foundation/<env>.tfstate locked; unlock before apply when asked.
+      - name: Release explicitly identified abandoned foundation lock
+        if: ${{ inputs.abandoned-foundation-lock != '' && env.SECRETS_ENV == 'dev' }}
+        env:
+          TOFU_ABANDONED_LOCK_ID: ${{ inputs.abandoned-foundation-lock }}
+        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bunx turbo run @libs/infra-server-ts#unlock:foundation
       # Foundation, migrations, Workers, edge, billing sync, then health.
       - name: Release and verify environment
         id: deploy
