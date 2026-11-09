@@ -1,10 +1,6 @@
 import { pongConfig } from '@libs/pong-shared-ts/pong-config';
 import { pongPositionCodec } from '@libs/pong-shared-ts/pong-game';
-import {
-  otherPongSide,
-  type PongSide,
-  type PongState,
-} from '@libs/pong-shared-ts/pong-state';
+import type { PongState } from '@libs/pong-shared-ts/pong-state';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import type { GameFrameSeat } from '@pkgs/turn-game-shared-ts/game-frame';
@@ -25,7 +21,6 @@ import { RangeControl } from '@pkgs/ui-root-client-ts/range-control';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { TextLink } from '@pkgs/ui-root-client-ts/text-link';
-import { useHoverCapable } from '@pkgs/ui-root-client-ts/use-hover-capable';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import {
@@ -47,9 +42,6 @@ type StatusInput = {
   readonly paused: boolean;
   readonly stale: boolean;
   readonly seconds: number;
-  readonly left: number;
-  readonly right: number;
-  readonly servingToward: PongSide;
 };
 const sameStatusInput = (
   a: StatusInput | undefined,
@@ -62,10 +54,7 @@ const sameStatusInput = (
     a.winner === b.winner &&
     a.paused === b.paused &&
     a.stale === b.stale &&
-    a.seconds === b.seconds &&
-    a.left === b.left &&
-    a.right === b.right &&
-    a.servingToward === b.servingToward);
+    a.seconds === b.seconds);
 const seat = (side: CourtSide) =>
   side === 'first' ? ('white' as const) : ('black' as const);
 const paddleName = (side: GameSide) =>
@@ -174,7 +163,6 @@ function CourtHint(props: {
   board: GameBoardProps;
 }): JSX.Element {
   const mode = useLayoutMode();
-  const hoverCapable = useHoverCapable();
   const shared = () => (props.board.simulation?.sides.length ?? 0) > 1;
   return (
     <P id={props.id} variant="body">
@@ -197,64 +185,36 @@ function CourtHint(props: {
             <Show
               when={mode() === 'wide'}
               fallback={
-                <>
-                  <Show
-                    when={shared()}
-                    fallback={
-                      <Trans>Drag up and down anywhere on the court.</Trans>
-                    }
-                  >
-                    <Trans>
-                      Left player: drag the left half. Right player: drag the
-                      right half.
-                    </Trans>
-                  </Show>
-                  {/* A mouse or trackpad suggests a keyboard too. */}
-                  <Show when={hoverCapable()}>
-                    {' '}
-                    <PaddleKeys board={props.board} />
-                  </Show>
-                </>
+                <Show
+                  when={shared()}
+                  fallback={
+                    <Trans>Drag up and down anywhere on the court.</Trans>
+                  }
+                >
+                  <Trans>
+                    Left player: drag the left half. Right player: drag the
+                    right half.
+                  </Trans>
+                </Show>
               }
             >
               <Trans>Click or Tab to the court.</Trans>{' '}
-              <PaddleKeys board={props.board} />{' '}
+              <Switch
+                fallback={<Trans>The arrow keys move your paddle.</Trans>}
+              >
+                <Match when={shared()}>
+                  <Trans>W and S move Left; the arrow keys move Right.</Trans>
+                </Match>
+                <Match when={props.board.simulation?.sides[0] === 'white'}>
+                  <Trans>W and S or the arrow keys move your paddle.</Trans>
+                </Match>
+              </Switch>{' '}
               <Trans>You can also drag up and down.</Trans>
             </Show>
           </Show>
         </Show>
       </Show>
     </P>
-  );
-}
-
-/** Which keys move which paddle on this device. */
-function PaddleKeys(props: { board: GameBoardProps }): JSX.Element {
-  return (
-    <Switch fallback={<Trans>The arrow keys move your paddle.</Trans>}>
-      <Match when={(props.board.simulation?.sides.length ?? 0) > 1}>
-        <Trans>
-          W and S move the left paddle; the arrow keys move the right paddle.
-        </Trans>
-      </Match>
-      <Match when={props.board.simulation?.sides[0] === 'white'}>
-        <Trans>W and S or the arrow keys move your paddle.</Trans>
-      </Match>
-    </Switch>
-  );
-}
-
-/**
- * Who plays a side, as the court's status names them: `You` for the one
- * side this device controls, otherwise the seat's name, else `Left`/`Right`.
- */
-function playerName(board: PongBoardViewProps, side: PongSide): string {
-  const sides = board.simulation?.sides ?? [];
-  const gameSide = side === 'left' ? 'white' : 'black';
-  if (sides.length === 1 && sides[0] === gameSide) return t`You`;
-  return (
-    board.seats?.find((one) => one.side === gameSide)?.name ??
-    (side === 'left' ? t`Left` : t`Right`)
   );
 }
 
@@ -277,8 +237,9 @@ function sideLabels(
 ): Partial<Record<CourtSide, string | undefined>> {
   const label = (side: CourtSide): string | undefined =>
     controlled.length > 1
-      ? (fitHalf(board.seats?.find((one) => one.side === seat(side))?.name) ??
-        (side === 'first' ? t`Left player` : t`Right player`))
+      ? side === 'first'
+        ? t`Left player`
+        : t`Right player`
       : controlled.includes(side)
         ? t`You`
         : fitHalf(board.seats?.find((one) => one.side === seat(side))?.name);
@@ -309,9 +270,6 @@ function useCourtStatus(props: {
         paused: controls?.paused === true,
         stale: controls?.stale === true,
         seconds: Math.ceil(props.state.countdown / config.tickRate),
-        left: props.state.score.left,
-        right: props.state.score.right,
-        servingToward: props.state.servingToward,
       };
     },
     undefined,
@@ -319,11 +277,7 @@ function useCourtStatus(props: {
   );
   const status = createMemo(() =>
     statusInput()
-      ? untrack(() =>
-          pongStatus(props.state, props.board.simulation, (side) =>
-            playerName(props.board, side)
-          )
-        )
+      ? untrack(() => pongStatus(props.state, props.board.simulation))
       : undefined
   );
   return status;
@@ -357,11 +311,6 @@ function PongScene(props: {
           court (its shape fixed) takes the whole width. */}
       <PaddleCourt
         status={status()}
-        statusData={
-          status()
-            ? pongStatusStage(props.state, props.board.simulation)
-            : undefined
-        }
         touchHint={mode() !== 'wide' ? t`Drag` : undefined}
         sideLabels={sideLabels(props.board, controlled())}
         halfControl={(side) => (
@@ -422,43 +371,16 @@ function PongScene(props: {
 /** The court's own status line: the result, the connection, the serve. */
 export function pongStatus(
   state: PongState,
-  controls: GameSimulationControls | undefined,
-  name: (side: PongSide) => string = (side) =>
-    side === 'left' ? t`Left` : t`Right`
+  controls: GameSimulationControls | undefined
 ): string {
   if (state.phase === 'completed')
-    return t`Final score ${state.score.left}–${state.score.right}`;
-  if (controls?.stale) return t`Reconnecting…`;
-  if (controls?.paused) return t`Paused while a player returns`;
-  if (state.phase === 'countdown') {
-    const serve = t`Serve in ${Math.ceil(state.countdown / config.tickRate)}`;
-    const points = state.score.left + state.score.right;
-    // After a point the serve goes toward the side that lost it.
-    const scorer = points > 0 ? otherPongSide(state.servingToward) : null;
-    const matchPoint =
-      state.targetScore > 1 &&
-      Math.max(state.score.left, state.score.right) === state.targetScore - 1;
-    return [
-      scorer === null ? undefined : t`${name(scorer)} scored`,
-      matchPoint ? t`Match point` : undefined,
-      serve,
-    ]
-      .filter((part) => part !== undefined)
-      .join(' · ');
-  }
-  return t`Keep the ball in play`;
-}
-
-/** What the court's status says, for readers that must not parse its words. */
-export function pongStatusStage(
-  state: PongState,
-  controls: GameSimulationControls | undefined
-): { stage: string; winner?: string | undefined } {
-  if (state.phase === 'completed')
-    return { stage: 'finished', winner: state.winner ?? undefined };
-  if (controls?.stale) return { stage: 'reconnecting' };
-  if (controls?.paused) return { stage: 'paused' };
-  return { stage: state.phase };
+    return state.winner === 'left' ? t`Left wins.` : t`Right wins.`;
+  if (controls?.stale)
+    return t`Reconnecting. Controls resume when the game returns.`;
+  if (controls?.paused) return t`Paused while a player returns.`;
+  if (state.phase === 'countdown')
+    return t`Serve in ${Math.ceil(state.countdown / config.tickRate)}.`;
+  return t`Keep the ball in play.`;
 }
 
 /**
@@ -476,11 +398,7 @@ export function PongBoardView(props: PongBoardViewProps): JSX.Element {
         <ErrorState
           variant="compact"
           title={t`Pong could not be opened`}
-          body={
-            (props.simulation?.sides.length ?? 0) > 0
-              ? t`Return to your spaces, or resign to end this game.`
-              : t`Return to your spaces to choose a game.`
-          }
+          body={t`Return to your spaces to choose a game.`}
           details={
             <TextLink href="/" variant="standalone">
               <Trans>Back to spaces</Trans>
