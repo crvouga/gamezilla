@@ -1,0 +1,4 @@
+{
+  "summary": "Round over said only 'Next round soon.', with no sense of how long the result would show before riders move again. It now says how many whole seconds remain until the next round starts (the result, then the countdown).",
+  "regressionTest": "libs/light-cycles-client-ts/tests/light-cycles-board.test.tsx"
+}

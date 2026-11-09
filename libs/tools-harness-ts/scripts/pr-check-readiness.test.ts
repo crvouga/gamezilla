@@ -162,3 +162,44 @@ test('metadata collection cannot grant success after the readiness deadline', as
     'deadline exceeded during metadata collection'
   );
 });
+
+// regression: codeql-bundle-download-504
+test('a tolerated neutral CodeQL result waits for its active producer', async () => {
+  const tolerant = required.map((policy) => ({
+    ...policy,
+    outage_tolerant: true,
+  }));
+  const failedAnalysis = {
+    ...pending.checks[1]!,
+    status: 'completed',
+    conclusion: 'failure',
+  };
+  const snapshots: readonly PrCheckSnapshot[] = [
+    { activeCodeqlShas: [sha], checks: [pending.checks[0]!, failedAnalysis] },
+    { activeCodeqlShas: [], checks: [pending.checks[0]!, failedAnalysis] },
+  ];
+  let reads = 0;
+  let now = 0;
+  const checks = await awaitRequiredPrChecks({
+    required: tolerant,
+    emptyShardPlan: false,
+    read: () => snapshots[Math.min(reads++, snapshots.length - 1)]!,
+    clock: { now: () => now },
+    timers: {
+      setTimeout: (fn, ms) => {
+        now += ms;
+        fn();
+        return 0;
+      },
+      clearTimeout: () => {},
+      setInterval: () => {
+        throw new Error('unexpected interval');
+      },
+      clearInterval: () => {},
+    },
+    timeoutMs: 30,
+    intervalMs: 10,
+  });
+  expect(checks).toEqual(snapshots[1]!.checks);
+  expect(reads).toBe(2);
+});

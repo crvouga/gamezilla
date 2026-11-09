@@ -113,7 +113,7 @@ export const InCheck: Story = {
   parameters: { table: { turn: 'black' } satisfies GameTableStory },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByText(/Black pieces nearest you/)).toBeVisible();
+    await expect(canvas.getByText(/Black pieces at the bottom/)).toBeVisible();
     await expect(canvas.getByText(/Black is in check/)).toBeVisible();
     await userEvent.click(canvas.getByText('Keyboard controls'));
     await expect(canvas.getByText(/Escape to cancel/)).toBeVisible();
@@ -155,6 +155,51 @@ export const InsufficientMaterial: Story = {
   parameters: {
     table: {
       ending: { winner: 'draw', reason: 'insufficient material' },
+    } satisfies GameTableStory,
+  },
+};
+
+/** A 5+3 game: White's clock runs while White decides. */
+export const Timed: Story = {
+  args: { position: GIUOCO, lastAction: 'a7a6' },
+  parameters: {
+    table: {
+      turn: 'white',
+      moves: GIUOCO_MOVES,
+      timed: {
+        minutes: 5,
+        increment: 3,
+        clocks: { white: '4:12', black: '3:58' },
+      },
+    } satisfies GameTableStory,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText('4:12')).toBeVisible();
+    await expect(canvas.getByText('3:58')).toBeVisible();
+  },
+};
+
+/** White moved offline: the move is held until the connection returns. */
+export const MoveWaiting: Story = {
+  args: { position: ITALIAN, lastAction: 'f8c5', interactive: false },
+  parameters: {
+    table: {
+      turn: 'white',
+      moves: ITALIAN_MOVES,
+      connection: 'waiting',
+    } satisfies GameTableStory,
+  },
+};
+
+/** Offline in a game that needs the connection: nothing can be moved. */
+export const ConnectionNeeded: Story = {
+  args: { position: ITALIAN, lastAction: 'f8c5', interactive: false },
+  parameters: {
+    table: {
+      turn: 'white',
+      moves: ITALIAN_MOVES,
+      connection: 'needed',
     } satisfies GameTableStory,
   },
 };
