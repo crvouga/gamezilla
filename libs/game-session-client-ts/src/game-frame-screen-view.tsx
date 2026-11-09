@@ -623,6 +623,7 @@ function FrameContent(shown: Props): JSX.Element {
       dataSet={{
         component: 'CustomGameContent',
         testid: 'custom-game-content',
+        phase: props.phase,
       }}
       notices={<FrameConnectionView connection={props.connection} />}
       boardFocus={props.phase === 'active' || props.phase === 'completed'}
