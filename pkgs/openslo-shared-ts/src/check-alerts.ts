@@ -34,6 +34,8 @@ export type AlertResult = {
   /** Quiet, or too little traffic to judge; false means a person must act. */
   readonly ok: boolean;
   readonly detail: string;
+  /** Nothing was counted at all: not ok, but nothing failed either. */
+  readonly noEvidence?: true;
 };
 
 export function alertId(slo: string, policy: string): string {
@@ -158,12 +160,15 @@ function policyResult(input: {
   // and a failing test every quiet hour would bury a real one. Nothing in
   // the objective's whole window is no evidence.
   if (evaluation.state === 'no-data' && windowCounts.total <= 0) {
-    return result(
-      slo,
-      policy,
-      false,
-      `no evidence: no events were counted over the longest lookback window or the ${slo.timeWindow.duration} window, so no burn rate can be judged (is telemetry reaching the metrics backend?)`
-    );
+    return {
+      ...result(
+        slo,
+        policy,
+        false,
+        `no evidence: no events were counted over the longest lookback window or the ${slo.timeWindow.duration} window, so no burn rate can be judged (is telemetry reaching the metrics backend?)`
+      ),
+      noEvidence: true,
+    };
   }
   if (evaluation.state === 'no-data') {
     return result(

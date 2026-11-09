@@ -1,7 +1,9 @@
 # CI notifications
 
 GitHub's repository webhook delivers completed main-branch runs of Release,
-Verify Nightly, Health and Verify PR directly to the existing IRM push chain.
+Verify Nightly and Verify PR directly to the existing IRM push chain. Health
+is not among them: its check results already reach IRM as Grafana alerts, so
+a red hourly Health run would only repeat them.
 Failures, timeouts, required action and startup failures notify the responder's
 mobile app with a link to the run, including failures before workflow setup.
 Pull requests, branch rehearsals, progress, skipped runs and cancellations never

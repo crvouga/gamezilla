@@ -74,6 +74,13 @@ export type ObjectivesBinding = {
   readonly alerting?: AlertingBinding;
   /** Per-objective test timeout (a harness-run measure can be slow). Default: the runner's. */
   readonly timeoutMs?: number;
+  /**
+   * What nothing observed in the window means. `fail` (default): no
+   * evidence is not met. `quiet`: it passes as too quiet to judge, for live
+   * objectives where an app with few people and no recent release is
+   * expected to be silent.
+   */
+  readonly whenNoEvidence?: 'fail' | 'quiet';
 };
 
 type Registry = { readonly bindings: Map<string, ObjectivesBinding> };

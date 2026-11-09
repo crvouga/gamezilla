@@ -132,14 +132,19 @@ function registerObjectives(input: {
       const body = async () => {
         const result = await decideOrFail(decide, { slo, objective });
         const { evaluation } = result;
-        const detail = `${evaluation.detail}; ${String(evaluation.considered)} considered`;
+        const quiet =
+          evaluation.noEvidence === true &&
+          !(binding instanceof Error) &&
+          binding.whenNoEvidence === 'quiet';
+        const met = evaluation.met || quiet;
+        const detail = `${evaluation.detail}; ${String(evaluation.considered)} considered${quiet ? '; too quiet to judge' : ''}`;
         record({
           id: result.id,
           layer,
-          status: evaluation.met ? 'pass' : 'fail',
+          status: met ? 'pass' : 'fail',
           detail,
         });
-        if (!evaluation.met) {
+        if (!met) {
           throw new Error(
             `${slo.name} does not meet "${objective.displayName}": ${detail}`
           );
@@ -172,14 +177,17 @@ function registerAlerts(input: {
       const body = async () => {
         measured ??= measureAlerts({ doc, slo, binding });
         const found = (await measured).find((r) => r.policy === policy.name);
-        const detail = found?.detail ?? 'not evaluated';
+        const quiet =
+          found?.noEvidence === true && binding.whenNoEvidence === 'quiet';
+        const ok = found?.ok === true || quiet;
+        const detail = `${found?.detail ?? 'not evaluated'}${quiet ? '; too quiet to judge' : ''}`;
         record({
           id: `alert:${slo.name}:${policy.name}`,
           layer,
-          status: found?.ok === true ? 'pass' : 'fail',
+          status: ok ? 'pass' : 'fail',
           detail,
         });
-        if (found?.ok !== true) throw new Error(detail);
+        if (!ok) throw new Error(detail);
       };
       const name = `${slo.name} raises no ${severity} alert: ${policy.name}`;
       if (binding.timeoutMs === undefined) test(name, body);

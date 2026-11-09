@@ -1,8 +1,10 @@
 # GitHub sends completion events even when checkout, secrets or verification
 # failed before a workflow could send a notification. No fifth workflow and
 # no notification credential exposed to pull-request code.
+# Health is left out: what it finds reaches IRM through the Grafana alert
+# rules on its check results, so a red hourly run would only repeat them.
 locals {
-  ci_relevant = "payload.get('action') == 'completed' and payload.get('workflow_run', {}).get('head_branch') == 'main' and payload.get('workflow_run', {}).get('path') in ['.github/workflows/deploy.yml', '.github/workflows/verify-nightly.yml', '.github/workflows/health.yml', '.github/workflows/verify-pr.yml'] and payload.get('workflow_run', {}).get('event') in ['push', 'schedule', 'workflow_dispatch', 'workflow_call']"
+  ci_relevant = "payload.get('action') == 'completed' and payload.get('workflow_run', {}).get('head_branch') == 'main' and payload.get('workflow_run', {}).get('path') in ['.github/workflows/deploy.yml', '.github/workflows/verify-nightly.yml', '.github/workflows/verify-pr.yml'] and payload.get('workflow_run', {}).get('event') in ['push', 'schedule', 'workflow_dispatch', 'workflow_call']"
   ci_failed   = "payload.get('workflow_run', {}).get('conclusion') in ['failure', 'timed_out', 'action_required', 'startup_failure']"
 }
 
