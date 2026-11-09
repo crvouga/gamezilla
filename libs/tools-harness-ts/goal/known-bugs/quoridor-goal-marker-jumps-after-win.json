@@ -1,0 +1,4 @@
+{
+  "summary": "After a classic win the goal markers moved to the loser's row because they followed the next turn instead of the winner.",
+  "regressionTest": "libs/quoridor-client-ts/tests/quoridor-board-truthful-state.test.tsx"
+}

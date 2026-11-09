@@ -1,0 +1,4 @@
+{
+  "summary": "Exports send an authoring run's reference patch, but a patch with many images exceeds the 20 MB per-file bound, so the whole evidence export was refused (Word Tiles run 42535649204). An oversized reference patch is now skipped with a note, since its authoring job log carries it; other oversized evidence still refuses the export.",
+  "regressionTest": "libs/tools-harness-ts/scripts/storybook-evidence-log.test.ts"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "Classic Quoridor with no walls left told the player to choose Pass turn, which classic does not offer.",
+  "regressionTest": "libs/quoridor-client-ts/tests/quoridor-board-truthful-state.test.tsx"
+}

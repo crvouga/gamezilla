@@ -42,8 +42,9 @@ test('main requires verified PRs without approvals a solo maintainer cannot give
     /strict_required_status_checks_policy\s*=\s*false/
   );
   expect(repository).toContain(
-    'for_each = { for check in local.required_checks'
+    'for_each = { for check in local.ruleset_checks'
   );
+  expect(repository).toContain('check if !try(check.outage_tolerant, false)');
   expect(repository).toContain(
     'integration_id = required_check.value.integration_id'
   );
@@ -53,12 +54,22 @@ test('main requires verified PRs without approvals a solo maintainer cannot give
       JSON.parse(readFileSync(join(directory, file), 'utf8')) as {
         readonly context: string;
         readonly integration_id: number;
+        readonly outage_tolerant?: boolean;
       }
   );
+  // regression: codeql-bundle-download-504 — enforced by verify:end instead.
   expect(checks.sort((a, b) => a.context.localeCompare(b.context))).toEqual([
-    { context: 'Analyze (actions)', integration_id: 15368 },
-    { context: 'Analyze (javascript-typescript)', integration_id: 15368 },
-    { context: 'CodeQL', integration_id: 57789 },
+    {
+      context: 'Analyze (actions)',
+      integration_id: 15368,
+      outage_tolerant: true,
+    },
+    {
+      context: 'Analyze (javascript-typescript)',
+      integration_id: 15368,
+      outage_tolerant: true,
+    },
+    { context: 'CodeQL', integration_id: 57789, outage_tolerant: true },
     { context: 'verify:end', integration_id: 15368 },
     { context: 'verify:start', integration_id: 15368 },
   ]);

@@ -60,6 +60,49 @@ function board(sides: readonly GameSide[], initial: LightCyclesState) {
   return { ...view, inputs, set, setStale };
 }
 
+// regression: light-cycles-nonvisual-rider-state-missing
+test('the arena describes rider locations, directions and queued turns without live tick announcements', () => {
+  const state = lightCyclesStart(3, 3);
+  const view = board(['white'], {
+    ...state,
+    riders: state.riders.map((rider) =>
+      rider.seat === 'white' ? { ...rider, turns: ['up'] } : rider
+    ),
+  });
+  const description = view.getByTestId('arena-description');
+  expect(description.textContent).toContain(
+    'Comet: column 10, row 7, heading right. Next turn: up.'
+  );
+  expect(description.textContent).toContain(
+    'Ember: column 31, row 22, heading left.'
+  );
+  expect(
+    view.getByTestId('arena-arena').getAttribute('aria-describedby')?.split(' ')
+  ).toContain(description.id);
+  expect(description.closest('[aria-live], [role="status"]')).toBeNull();
+  view.set(until(running(state), (value) => !value.riders[2]?.alive));
+  expect(description.textContent).toContain('Nova has crashed');
+});
+
+// regression: light-cycles-nonvisual-hazards-missing
+test('a steered rider hears its free cells ahead and to each side before a wall or trail', () => {
+  const state = lightCyclesStart(3, 3);
+  const comet = state.riders.find((rider) => rider.seat === 'white')!;
+  const view = board(['white'], state);
+  const text = view.getByTestId('arena-description').textContent ?? '';
+  expect(text).toContain(
+    `Arena ${state.width} columns by ${state.height} rows.`
+  );
+  // Comet faces right along row 7, where Nova's trail starts at column 31;
+  // walls bound its left (up) and right (down).
+  expect(text).toContain(`Nova: column 31, row ${comet.y + 1}`);
+  expect(text).toContain(
+    `Comet: column 10, row 7, heading right. Free cells: 20 ahead, ${comet.y} to the left, ${state.height - comet.y - 1} to the right.`
+  );
+  // Only riders steered here are given their room; others keep positions.
+  expect(text).toContain('Ember: column 31, row 22, heading left. Nova');
+});
+
 test('a rider steers only its own seat, with its round, from the pad and the keyboard', () => {
   const view = board(['black'], running(lightCyclesStart(3, 3)));
   expect(view.queryByTestId('arena-white-pad-up')).toBeNull();
@@ -113,8 +156,14 @@ test('a crashed rider, a round result and a lost connection each refuse steering
   expect(
     view.getByTestId('arena-status').contains(view.getByTestId('arena-result'))
   ).toBe(true);
+  // regression: light-cycles-round-over-no-countdown
+  const config = lightCyclesConfig();
+  const seconds = Math.ceil(
+    (config.roundOverTicks - over.phaseTick + config.countdownTicks) /
+      config.tickRate
+  );
   expect(view.getByTestId('arena-status').textContent).toContain(
-    'Next round soon.'
+    `Next round starts in ${seconds} s.`
   );
   expect(view.queryByText(/The round result is showing/)).toBeNull();
   expect(view.getByTestId('arena-result').textContent).toContain(
@@ -128,6 +177,14 @@ test('a crashed rider, a round result and a lost connection each refuse steering
   view.set(running(start));
   view.setStale(true);
   expect(view.getByTestId('arena-status').dataset['steering']).toBe('away');
+  // regression: light-cycles-reconnecting-arena-looks-live
+  expect(view.getByTestId('arena-arena').dataset['dimmed']).toBe('true');
+  const overlay = view.getByTestId('arena-arena-overlay');
+  expect(overlay.dataset['open']).toBe('true');
+  expect(overlay.textContent).toContain('Reconnecting');
+  view.setStale(false);
+  expect(view.getByTestId('arena-arena').dataset['dimmed']).toBe('false');
+  expect(view.getByTestId('arena-arena-overlay').dataset['open']).toBe('false');
 });
 
 test('a watcher sees every rider and no steering control', () => {
@@ -223,7 +280,7 @@ test('both local riders and their swipe halves are named', () => {
     'You ride Ember.'
   );
   expect(
-    view.getByText('Swipe your half or use your pad. Avoid edges and trails.')
+    view.getByText(/Swipe your half or use your pad\. Avoid edges and trails\./)
   ).toBeDefined();
 });
 

@@ -1,0 +1,4 @@
+{
+  "summary": "A player chip's facts line was one text line tall until a state badge (Out, Reconnecting) or a You badge appeared, so when a Light Cycles rider went Out mid-round its chip grew about 4 px and the arena below shifted during play. The facts line now reserves a badge's height whether or not one shows.",
+  "regressionTest": "pkgs/ui-root-client-ts/tests/game-player-chip-stable-height.test.ts"
+}

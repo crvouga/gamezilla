@@ -1393,12 +1393,20 @@ msgid "Black"
 msgstr "Black"
 
 #: pkgs/chess-board-root-client-ts/src/chess-board/guidance.tsx
+msgid "Black is checkmated."
+msgstr "Black is checkmated."
+
+#: pkgs/chess-board-root-client-ts/src/chess-board/guidance.tsx
 msgid "Black is in check."
 msgstr "Black is in check."
 
 #: pkgs/chess-board-root-client-ts/src/chess-board/guidance.tsx
-msgid "Black pieces nearest you."
-msgstr "Black pieces nearest you."
+msgid "Black is stalemated."
+msgstr "Black is stalemated."
+
+#: pkgs/chess-board-root-client-ts/src/chess-board/guidance.tsx
+msgid "Black pieces at the bottom."
+msgstr "Black pieces at the bottom."
 
 #: libs/word-tiles-client-ts/src/word-tiles-cells.tsx
 msgid "Blank"
@@ -3240,6 +3248,10 @@ msgstr "Fit board"
 msgid "Five"
 msgstr "Five"
 
+#: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
+msgid "Fix first"
+msgstr "Fix first"
+
 #: libs/battleship-client-ts/src/battleship-setup-precision.tsx
 msgid "Fleet overview"
 msgstr "Fleet overview"
@@ -4633,6 +4645,10 @@ msgstr "Next round soon."
 #: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
 msgid "Next: finish a playtest to show the puzzle can be solved."
 msgstr "Next: finish a playtest to show the puzzle can be solved."
+
+#: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
+msgid "Next: fix the draft as the editor says, then playtest."
+msgstr "Next: fix the draft as the editor says, then playtest."
 
 #: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
 msgid "Next: make the changes it needs, then validate again."
@@ -8921,12 +8937,20 @@ msgid "White"
 msgstr "White"
 
 #: pkgs/chess-board-root-client-ts/src/chess-board/guidance.tsx
+msgid "White is checkmated."
+msgstr "White is checkmated."
+
+#: pkgs/chess-board-root-client-ts/src/chess-board/guidance.tsx
 msgid "White is in check."
 msgstr "White is in check."
 
 #: pkgs/chess-board-root-client-ts/src/chess-board/guidance.tsx
-msgid "White pieces nearest you."
-msgstr "White pieces nearest you."
+msgid "White is stalemated."
+msgstr "White is stalemated."
+
+#: pkgs/chess-board-root-client-ts/src/chess-board/guidance.tsx
+msgid "White pieces at the bottom."
+msgstr "White pieces at the bottom."
 
 #: libs/spaces-client-ts/src/space-who-is-here-view.tsx
 msgid "Who's here"
@@ -9136,6 +9160,10 @@ msgstr "You can close this while we finish. Closing does not cancel your request
 #: libs/permissions-client-ts/src/unlock-copy.tsx
 msgid "You can host one space at a time. End it to start another, or get Plus to host as many as you like."
 msgstr "You can host one space at a time. End it to start another, or get Plus to host as many as you like."
+
+#: libs/game-puzzle-client-ts/src/content-attempt-screen-view.tsx
+msgid "You can keep playing or choose another puzzle."
+msgstr "You can keep playing or choose another puzzle."
 
 #: libs/word-tiles-client-ts/src/word-tiles-board-view.tsx
 msgid "You can plan a word while you wait. Play it when your turn begins."

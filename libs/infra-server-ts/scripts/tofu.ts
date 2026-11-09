@@ -82,7 +82,7 @@ import { retireArchivedGrafana } from './grafana-retirement';
 import { resolveInfisicalToken } from './infisical-token';
 import { infraOperation } from './infra-operation';
 import { backupState } from './state-backup';
-import { conftest, fail, spawnTool, tofu } from './tofu-process';
+import { conftest, fail, spawnTool, tofuInit } from './tofu-process';
 import { writeResolvedVarFiles } from './tofu-var-files';
 
 type Command = 'plan' | 'apply' | 'drift' | 'destroy';
@@ -204,7 +204,7 @@ async function planTarget(
   env: Record<string, string>,
   cli: Cli
 ): Promise<number> {
-  if (tofu(initArgs(PATHS, target), env) !== 0)
+  if ((await tofuInit(initArgs(PATHS, target), env)) !== 0)
     fail(`${target.stack}: tofu init failed`);
   const lock = planOptionsFor(cli);
   const args =
