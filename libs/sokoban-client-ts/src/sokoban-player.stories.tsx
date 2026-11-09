@@ -105,15 +105,24 @@ export const Solved: Story = {
 /** While the shared player is not taking moves, the board stays still. */
 export const Disabled: Story = { args: { disabled: true } };
 
-/** A puzzle this app cannot open points back to its overview. */
+/**
+ * A pack puzzle this app cannot open has one way out: the pack card's
+ * Pack overview (the board's own "More puzzles" defers to it).
+ */
 export const Unreadable: Story = {
   args: { definition: '{}' },
   play: async ({ canvasElement }) => {
     // regression: sokoban-unreadable-library-action
     const canvas = within(canvasElement);
-    const button = canvas.getByRole('button', { name: 'More puzzles' });
+    await expect(
+      canvas.queryByRole('button', { name: 'More puzzles' })
+    ).toBeNull();
+    const button = within(
+      canvas.getByTestId('puzzle-attempt-pack-actions')
+    ).getByRole('button', { name: 'Pack overview' });
     const rect = button.getBoundingClientRect();
-    await expect(rect.height).toBeGreaterThanOrEqual(44);
+    // A small pill, 32px drawn, with the design system's 44px hit area.
+    await expect(rect.height).toBeGreaterThanOrEqual(32);
     await expect(rect.top).toBeGreaterThanOrEqual(0);
     await expect(rect.bottom).toBeLessThanOrEqual(window.innerHeight);
     openLibrary.mockClear();
