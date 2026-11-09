@@ -33,41 +33,36 @@ async function clippedRing(control: Locator) {
 const NONE = { top: 0, bottom: 0, left: 0, right: 0 };
 
 // regression: hearts-focus-ring-clipped
-test.describe('Hearts focus rings stay whole', () => {
-  test.describe('320x568', () => {
-    test.use({ viewport: { width: 320, height: 568 }, hasTouch: true });
-    test('storybook integration: Hearts players disclosure keeps its whole focus ring', async ({
-      page,
-    }) => {
-      await openHearts(
-        page,
-        'screens-games-hearts-interaction--pass-and-play',
-        'light'
-      );
-      const toggle = page.getByRole('button', { name: 'Players and scores' });
-      await toggle.focus();
-      await expect(toggle).toBeFocused();
-      expect(await clippedRing(toggle)).toEqual(NONE);
-    });
-  });
-  test.describe('1440x844', () => {
-    test.use({ viewport: { width: 1440, height: 844 } });
-    test('storybook integration: Hearts pass button keeps its whole focus ring', async ({
-      page,
-    }) => {
-      await openHearts(
-        page,
-        'screens-games-hearts-interaction--pass-and-play',
-        'dark'
-      );
-      const cards = page
-        .getByRole('toolbar', { name: 'Your hand' })
-        .getByRole('button');
-      for (const index of [0, 1, 2]) await cards.nth(index).click();
-      const pass = page.getByTestId('custom-game-board-pass');
-      await pass.focus();
-      await expect(pass).toBeFocused();
-      expect(await clippedRing(pass)).toEqual(NONE);
-    });
-  });
+test('storybook integration: Hearts players disclosure keeps its whole focus ring at 320x568', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 568 });
+  await openHearts(
+    page,
+    'screens-games-hearts-interaction--pass-and-play',
+    'light'
+  );
+  const toggle = page.getByRole('button', { name: 'Players and scores' });
+  await toggle.focus();
+  await expect(toggle).toBeFocused();
+  expect(await clippedRing(toggle)).toEqual(NONE);
+});
+
+test('storybook integration: Hearts pass button keeps its whole focus ring at 1440', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 844 });
+  await openHearts(
+    page,
+    'screens-games-hearts-interaction--pass-and-play',
+    'dark'
+  );
+  const cards = page
+    .getByRole('toolbar', { name: 'Your hand' })
+    .getByRole('button');
+  for (const index of [0, 1, 2]) await cards.nth(index).click();
+  const pass = page.getByTestId('custom-game-board-pass');
+  await pass.focus();
+  await expect(pass).toBeFocused();
+  expect(await clippedRing(pass)).toEqual(NONE);
 });
