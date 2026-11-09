@@ -139,24 +139,28 @@ function CourtSummary(props: {
   testId: string;
   controls: GameSimulationControls | undefined;
 }): JSX.Element {
+  // Every frame brings a new court; these words change only with the score
+  // or the phase, so they are formatted only then.
+  const left = createMemo(() => props.state.score.left);
+  const right = createMemo(() => props.state.score.right);
+  const live = createMemo(
+    () =>
+      props.state.phase === 'playing' &&
+      !props.controls?.paused &&
+      !props.controls?.stale
+  );
   return (
     <VisuallyHidden>
-      <Show
-        when={
-          props.state.phase === 'playing' &&
-          !props.controls?.paused &&
-          !props.controls?.stale
-        }
-      >
+      <Show when={live()}>
         <Text variant="inherit" testId={`${props.testId}-status`}>
           {t`Keep the ball in play.`}
         </Text>
       </Show>
       <Text variant="inherit" testId={`${props.testId}-score-left`}>
-        {t`Left ${props.state.score.left}`}
+        {t`Left ${left()}`}
       </Text>{' '}
       <Text variant="inherit" testId={`${props.testId}-score-right`}>
-        {t`Right ${props.state.score.right}`}
+        {t`Right ${right()}`}
       </Text>
     </VisuallyHidden>
   );
@@ -171,25 +175,24 @@ function CourtSummary(props: {
 function CourtHint(props: {
   id: string;
   state: PongState;
-  board: GameBoardProps;
+  board: PongBoardViewProps;
 }): JSX.Element {
+  const target = createMemo(() => props.state.targetScore);
+  const finished = createMemo(() => props.state.phase === 'completed');
   const mode = useLayoutMode();
   const hoverCapable = useHoverCapable();
   const shared = () => (props.board.simulation?.sides.length ?? 0) > 1;
   return (
     <P id={props.id} variant="body">
       <Text variant="inherit" testId={`${props.board.testId}-target`}>
-        {t`First to ${props.state.targetScore}`}
+        {t`First to ${target()}`}
       </Text>
       {' · '}
       <Show
         when={!props.board.simulation?.stale && !props.board.simulation?.paused}
         fallback={<Trans>Controls are unavailable until play resumes.</Trans>}
       >
-        <Show
-          when={props.state.phase !== 'completed'}
-          fallback={<Trans>Match finished.</Trans>}
-        >
+        <Show when={!finished()} fallback={<Trans>Match finished.</Trans>}>
           <Show
             when={(props.board.simulation?.sides.length ?? 0) > 0}
             fallback={<Trans>Watching the rally.</Trans>}
@@ -204,10 +207,7 @@ function CourtHint(props: {
                       <Trans>Drag up and down anywhere on the court.</Trans>
                     }
                   >
-                    <Trans>
-                      Left player: drag the left half. Right player: drag the
-                      right half.
-                    </Trans>
+                    {t`${playerName(props.board, 'left')}: drag the left half. ${playerName(props.board, 'right')}: drag the right half.`}
                   </Show>
                   {/* A mouse or trackpad suggests a keyboard too. */}
                   <Show when={hoverCapable()}>
@@ -217,7 +217,6 @@ function CourtHint(props: {
                 </>
               }
             >
-              <Trans>Click or Tab to the court.</Trans>{' '}
               <PaddleKeys board={props.board} />{' '}
               <Trans>You can also drag up and down.</Trans>
             </Show>
@@ -226,6 +225,13 @@ function CourtHint(props: {
       </Show>
     </P>
   );
+}
+
+/** The one side this device plays, when it plays exactly one. */
+function ownSide(board: PongBoardViewProps): PongSide | undefined {
+  const sides = board.simulation?.sides ?? [];
+  if (sides.length !== 1) return undefined;
+  return sides[0] === 'white' ? 'left' : 'right';
 }
 
 /** Which keys move which paddle on this device. */
@@ -320,8 +326,11 @@ function useCourtStatus(props: {
   const status = createMemo(() =>
     statusInput()
       ? untrack(() =>
-          pongStatus(props.state, props.board.simulation, (side) =>
-            playerName(props.board, side)
+          pongStatus(
+            props.state,
+            props.board.simulation,
+            (side) => playerName(props.board, side),
+            ownSide(props.board)
           )
         )
       : undefined
@@ -424,7 +433,9 @@ export function pongStatus(
   state: PongState,
   controls: GameSimulationControls | undefined,
   name: (side: PongSide) => string = (side) =>
-    side === 'left' ? t`Left` : t`Right`
+    side === 'left' ? t`Left` : t`Right`,
+  /** The one side this device plays, if any: its match point is "yours". */
+  own?: PongSide
 ): string {
   if (state.phase === 'completed')
     return t`Final score ${state.score.left}–${state.score.right}`;
@@ -435,16 +446,30 @@ export function pongStatus(
     const points = state.score.left + state.score.right;
     // After a point the serve goes toward the side that lost it.
     const scorer = points > 0 ? otherPongSide(state.servingToward) : null;
-    const matchPoint =
-      state.targetScore > 1 &&
-      Math.max(state.score.left, state.score.right) === state.targetScore - 1;
+    const near = (side: PongSide) =>
+      state.targetScore > 1 && state.score[side] === state.targetScore - 1;
+    // Whose match point it is, unless it is the scorer's (just named above)
+    // or both players'.
+    const holder =
+      near('left') === near('right')
+        ? null
+        : near('left')
+          ? ('left' as const)
+          : ('right' as const);
+    const matchPoint = !(near('left') || near('right'))
+      ? undefined
+      : holder === null || holder === scorer
+        ? t`Match point`
+        : holder === own
+          ? t`Your match point`
+          : t`Match point: ${name(holder)}`;
     return [
       scorer === null ? undefined : t`${name(scorer)} scored`,
-      matchPoint ? t`Match point` : undefined,
+      matchPoint,
       serve,
     ]
       .filter((part) => part !== undefined)
-      .join(' · ');
+      .join('\n');
   }
   return t`Keep the ball in play`;
 }
@@ -476,11 +501,7 @@ export function PongBoardView(props: PongBoardViewProps): JSX.Element {
         <ErrorState
           variant="compact"
           title={t`Pong could not be opened`}
-          body={
-            (props.simulation?.sides.length ?? 0) > 0
-              ? t`Return to your spaces, or resign to end this game.`
-              : t`Return to your spaces to choose a game.`
-          }
+          body={t`Return to your spaces to choose a game. If you're playing, resigning ends this one.`}
           details={
             <TextLink href="/" variant="standalone">
               <Trans>Back to spaces</Trans>

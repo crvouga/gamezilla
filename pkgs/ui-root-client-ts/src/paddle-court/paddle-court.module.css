@@ -220,7 +220,7 @@
 /* State feedback belongs to the court, but never intercepts paddle input. */
 .status {
   position: absolute;
-  inset: 24% 20%;
+  inset: 24% 10%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -232,6 +232,10 @@
   font-size: var(--ui-font-size-xl);
   font-weight: var(--ui-font-weight-semibold);
   line-height: var(--ui-line-height-tight);
+  /* Each part of a status (who scored, match point, the serve) on its own
+     line, so none breaks mid-phrase on a phone. */
+  white-space: pre-line;
+  text-wrap: balance;
   pointer-events: none;
 }
 .gesture {
