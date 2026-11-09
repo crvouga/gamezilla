@@ -665,6 +665,14 @@ msgstr "{winner} wins by {reason}."
 msgid "{winners} win by {reason}."
 msgstr "{winners} win by {reason}."
 
+#: libs/connect-four-client-ts/src/connect-four-board.tsx
+msgid "← → Home End choose · Enter or Space drops"
+msgstr "← → Home End choose · Enter or Space drops"
+
+#: libs/connect-four-client-ts/src/connect-four-board.tsx
+msgid "← → Home End inspect columns"
+msgstr "← → Home End inspect columns"
+
 #: pkgs/ui-root-client-ts/src/command-palette-hint/index.tsx
 msgid "↑ ↓ navigate · ↵ run · Esc close · Tab next"
 msgstr "↑ ↓ navigate · ↵ run · Esc close · Tab next"
@@ -4012,14 +4020,6 @@ msgstr "Left wins."
 #: libs/light-cycles-client-ts/src/light-cycles-board-view.tsx
 msgid "Left: {0}"
 msgstr "Left: {0}"
-
-#: libs/connect-four-client-ts/src/connect-four-board.tsx
-msgid "Left/Right to choose · Enter or Space drops"
-msgstr "Left/Right to choose · Enter or Space drops"
-
-#: libs/connect-four-client-ts/src/connect-four-board.tsx
-msgid "Left/Right to inspect columns"
-msgstr "Left/Right to inspect columns"
 
 #: libs/chess-puzzle-client-ts/src/puzzle-source-controls.tsx
 msgid "Lichess file uploaded"
