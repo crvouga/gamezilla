@@ -40,3 +40,58 @@ test('a trusted nested-target click remains acknowledged after its handler remov
     await window.happyDOM.close();
   }
 });
+
+test('a press still queued in a busy page is awaited, not sent a second time', async () => {
+  // regression: browser-tap-resends-queued-press
+  const window = new Window();
+  window.document.body.innerHTML =
+    '<button data-testid="content-draft-1">Draft</button>';
+  let opened = 0;
+  window.document.body
+    .querySelector('button')!
+    .addEventListener('click', () => {
+      opened++;
+      // The draft opens its author screen where the card was.
+      window.document.body.innerHTML =
+        '<section data-testid=""><h3>Draft details</h3></section>';
+    });
+  const trusted = (type: string) => {
+    const event = new window.MouseEvent(type, {
+      bubbles: true,
+      composed: true,
+    });
+    Object.defineProperty(event, 'isTrusted', { value: true });
+    return event;
+  };
+  let sends = 0;
+  const view = {
+    evaluate: async (script: string) => window.eval(script),
+    click: async () => {
+      sends++;
+      // The browser is busy: the press reaches the page after the resend pause.
+      window.setTimeout(() => {
+        const under = window.document.body.firstElementChild!;
+        for (const type of [
+          'pointerdown',
+          'mousedown',
+          'pointerup',
+          'mouseup',
+          'click',
+        ])
+          under.dispatchEvent(trusted(type));
+      }, 150);
+    },
+  } as unknown as BunWebView;
+  try {
+    await nativeClick(
+      view,
+      '[data-testid="content-draft-1"]',
+      'primary',
+      'click'
+    );
+    expect(sends).toBe(1);
+    expect(opened).toBe(1);
+  } finally {
+    await window.happyDOM.close();
+  }
+});
