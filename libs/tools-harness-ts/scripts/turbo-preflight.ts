@@ -371,7 +371,8 @@ const PREFETCH_TIMEOUT_MS = 30_000;
 /** Wall I/O for `prefetchArtifacts` against the Vercel Remote Cache. */
 export function wallPrefetchIo(
   env: NodeJS.ProcessEnv,
-  cacheDir: string
+  cacheDir: string,
+  timeoutMs: number = PREFETCH_TIMEOUT_MS
 ): PrefetchIo {
   const api = env['TURBO_API'] ?? '';
   const team = env['TURBO_TEAM'] ?? '';
@@ -382,7 +383,7 @@ export function wallPrefetchIo(
       const res = await retryRateLimited(() =>
         fetch(artifactUrl(api, team, hash), {
           headers: { Authorization: `Bearer ${token}` },
-          signal: AbortSignal.timeout(PREFETCH_TIMEOUT_MS),
+          signal: AbortSignal.timeout(timeoutMs),
         })
       );
       if (!res.ok) return null;
@@ -396,14 +397,15 @@ export function wallPrefetchIo(
 export async function prefetchRemoteHits(
   plan: RunPlan,
   repoRoot: string,
-  env: NodeJS.ProcessEnv
+  env: NodeJS.ProcessEnv,
+  timeoutMs: number = PREFETCH_TIMEOUT_MS
 ): Promise<void> {
   if (plan.remoteHits.length === 0) return;
   const cacheDir = resolveTurboCacheDir(repoRoot, env);
   const result = await prefetchArtifacts(
     plan.remoteHits.map((task) => task.hash),
     cacheDir,
-    wallPrefetchIo(env, cacheDir),
+    wallPrefetchIo(env, cacheDir, timeoutMs),
     verifyCacheConcurrency(env, PREFETCH_CONCURRENCY)
   );
   console.log(

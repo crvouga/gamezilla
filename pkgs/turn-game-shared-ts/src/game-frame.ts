@@ -167,8 +167,19 @@ export type GameFrameBoardSession<View> = {
   readonly controls?: () => View;
 };
 
+/** Compact score rails are opt-in; opposed two-player strips remain the default. */
+export type GameFrameSeatLayout = 'opposed' | 'compact-rail';
+/**
+ * `narrow` is the 4px inset on every compact screen; `narrowest` is 4px only
+ * below 360px and the standard 16px from there up.
+ */
+export type GameFrameCompactInset = 'standard' | 'narrow' | 'narrowest';
+
 export type GameFrame<View> = {
   readonly players: GamePlayers;
+  readonly seatLayout?: GameFrameSeatLayout;
+  /** Explicit precision workspace inset on compact screens; wide layout is unchanged. */
+  readonly compactInset?: GameFrameCompactInset;
   /**
    * Whether the frame offers the people playing a draw by agreement among
    * its commands. A game says so itself: one that can never be drawn
@@ -193,6 +204,13 @@ export type GameFrame<View> = {
    * stand-in bot still shows.
    */
   readonly boardNames?: boolean;
+  /**
+   * The board is square and its seats sit above and below it (Chess): on a
+   * tablet or wider screen the frame narrows the board, never below its
+   * usual readable floor, so the board and both seats fit the first view.
+   * Absent for a board sized by width alone.
+   */
+  readonly boardFit?: 'square';
   /** The options chosen before play; empty for a game without any. */
   readonly options: readonly GameOptionGroup[];
   readonly seats: {

@@ -14,9 +14,10 @@ import {
   type ContentAttemptStatus,
   type ContentAttemptSummary,
 } from './content-attempt-screen-view';
-import { useContentGame } from './content-game-context';
+import { type ContentGame, useContentGame } from './content-game-context';
 import { ContentKeptPositions } from './content-kept-positions';
 import { useContentLibraryState } from './content-library-context';
+import { puzzlePlayContext } from './puzzle-play-context';
 import { useContentAttemptChange } from './use-content-attempt-change';
 import { useDeniedView } from './use-denied-view';
 
@@ -56,6 +57,38 @@ function packPlace(
 }
 
 /** One attempt on its board, wired to its saved positions and changes. */
+/** Whether the game can read the puzzle content at all. */
+function readable(game: ContentGame, source: ContentBody): boolean {
+  return game.content.rules.validateDefinition(source.definition).valid;
+}
+
+function attemptFigures(
+  game: ContentGame,
+  definition: string,
+  state: string | undefined
+): AttemptFigure[] {
+  if (state === undefined) return [];
+  const values = game.content.statistics?.(definition, state) ?? {};
+  return Object.entries(game.client.frame.stats).flatMap(([key, label]) => {
+    const value = values[key];
+    return value === undefined
+      ? []
+      : [{ key, label: label(), value: String(value) }];
+  });
+}
+
+/** A completion of this puzzle is already saved for the person. */
+function savedCompletion(
+  data: ReturnType<typeof useContentLibraryState>,
+  attempt: ContentAttempt
+): boolean {
+  return data
+    .play()
+    .completions.some(
+      (completion) => completion.puzzle_revision_id === attempt.source_id
+    );
+}
+
 function AttemptBody(props: {
   attempt: ContentAttempt;
   source: ContentBody;
@@ -66,6 +99,8 @@ function AttemptBody(props: {
   // An edition plays only under the rules it was published with.
   const rulesChanged = () =>
     props.attempt.rules_version !== game.content.rulesVersion;
+  // A puzzle that cannot be read stays unreadable in a restarted attempt.
+  const unreadable = createMemo(() => !readable(game, props.source));
   const progress = createMemo(() => {
     const saved = data
       .play()
@@ -81,18 +116,9 @@ function AttemptBody(props: {
         });
   });
   // The game's own figures for where the attempt stands, by its labels.
-  const figures = createMemo((): AttemptFigure[] => {
-    const state = progress()?.state;
-    if (state === undefined) return [];
-    const values =
-      game.content.statistics?.(props.source.definition, state) ?? {};
-    return Object.entries(game.client.frame.stats).flatMap(([key, label]) => {
-      const value = values[key];
-      return value === undefined
-        ? []
-        : [{ key, label: label(), value: String(value) }];
-    });
-  });
+  const figures = createMemo(() =>
+    attemptFigures(game, props.source.definition, progress()?.state)
+  );
   return (
     <ContentAttemptScreenView
       status="ready"
@@ -100,11 +126,14 @@ function AttemptBody(props: {
       attempt={summaryOf(props.attempt, props.source)}
       pack={packPlace(props.attempt, data)}
       playtest={props.attempt.mode === 'playtest'}
+      stageAlign={game.client.frame.stageAlign}
       saving={writer.pending()}
       changeError={writer.change.error()?.message ?? null}
       complete={progress()?.complete ?? false}
+      solvedBefore={savedCompletion(data, props.attempt)}
       rulesChanged={rulesChanged()}
       unopenable={progress() === null}
+      unreadable={unreadable()}
       player={
         <Show when={progress()}>
           {(state) => (
@@ -116,6 +145,7 @@ function AttemptBody(props: {
               onAction={(action: string) =>
                 writer.execute({ kind: 'play', action })
               }
+              context={puzzlePlayContext(props.attempt)}
             />
           )}
         </Show>
@@ -125,6 +155,7 @@ function AttemptBody(props: {
           attempt={props.attempt}
           writer={writer}
           progress={rulesChanged() ? null : progress()}
+          unreadable={unreadable()}
         />
       }
       keptPositions={

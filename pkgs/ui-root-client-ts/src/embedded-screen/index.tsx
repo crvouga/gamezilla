@@ -8,6 +8,7 @@ import { ScreenIntro } from '../screen-intro/index';
 import type { ScreenMeasure } from '../screen-measure';
 import { ScrollView } from '../scroll-view/index';
 import { useLayoutMode } from '../use-layout-mode';
+import styles from './embedded-screen.module.css';
 
 export type EmbeddedScreenProps = {
   /** Stable screen identifier rendered as `data-screen` (spec / dev tooling). */
@@ -20,6 +21,11 @@ export type EmbeddedScreenProps = {
   actions?: JSX.Element | undefined;
   /** The body column's measure. Defaults to `menu`. */
   width?: ScreenMeasure | undefined;
+  /**
+   * Compact precision workspaces may use the 4px inset: `narrow` on every
+   * compact screen, `narrowest` only below 360px. The default is 16px.
+   */
+  compactInset?: 'standard' | 'narrow' | 'narrowest' | undefined;
   /**
    * The host already scrolls and pads this body (a routed `ContentScreen`):
    * render the title block and the sections only, with no scroller and no
@@ -83,7 +89,18 @@ export function EmbeddedScreen(props: EmbeddedScreenProps): JSX.Element {
               ? 'box flex-1 min-h-0 self-stretch min-w-0 gap-ui-lg pt-ui-sm'
               : 'box self-stretch min-w-0 gap-4'
           }
-          classList={{ 'px-ui-lg': props.fill === true && inset() }}
+          classList={{
+            'px-ui-lg':
+              props.fill === true &&
+              inset() &&
+              standardInset(props.compactInset),
+            'px-ui-xs':
+              props.fill === true && inset() && props.compactInset === 'narrow',
+            [styles['narrowest'] ?? '']:
+              props.fill === true &&
+              inset() &&
+              props.compactInset === 'narrowest',
+          }}
           {...dataAttrs({
             component: 'EmbeddedScreen',
             ...props.dataSet,
@@ -128,8 +145,19 @@ function EmbeddedScroller(props: ScrolledProps): JSX.Element {
         component: 'EmbeddedScreen',
         ...props.dataSet,
         screen: props.screenId,
+        ...(props.inset && props.compactInset === 'narrowest'
+          ? { 'compact-inset': 'narrowest' }
+          : {}),
       }}
-      paddingX={props.inset ? 'lg' : undefined}
+      paddingX={
+        props.inset
+          ? props.compactInset === 'narrow'
+            ? 'xs'
+            : standardInset(props.compactInset)
+              ? 'lg'
+              : undefined
+          : undefined
+      }
       paddingTop="sm"
       paddingBottom="2xl"
       gap="lg"
@@ -144,4 +172,9 @@ function EmbeddedScroller(props: ScrolledProps): JSX.Element {
       {props.children}
     </ScrollView>
   );
+}
+
+/** The 16px inset: neither compact inset was asked for. */
+function standardInset(inset: EmbeddedScreenProps['compactInset']): boolean {
+  return inset !== 'narrow' && inset !== 'narrowest';
 }

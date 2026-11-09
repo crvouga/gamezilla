@@ -3,6 +3,7 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { posix, resolve } from 'node:path';
 import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import ts from 'typescript';
+import { isStorybookSource } from '../storybook/entrypoints';
 import { visualScenarios } from '../storybook/scenarios';
 import { storyContract } from './storybook-contracts';
 import { manifestErrors } from './storybook-manifests';
@@ -244,14 +245,7 @@ for (const story of stories) {
     );
 }
 for (const ref of references) {
-  if (
-    ref.path.endsWith('.stories.tsx') ||
-    ref.path.endsWith('.example.tsx') ||
-    ref.path.includes('/tests/') ||
-    ref.path.includes('/storybook/') ||
-    ref.path.includes('/scripts/')
-  )
-    continue;
+  if (isStorybookSource(ref.path)) continue;
   if (ref.originalModule.includes('/ui-root-client-ts/src/'))
     errors.push(
       `${ref.path}: use the supported public @pkgs/ui-root-client-ts module exports`

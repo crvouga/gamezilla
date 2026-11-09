@@ -1,5 +1,51 @@
 import { expect, type Page, test } from '@playwright/test';
 
+// regression: publication-denial-state-clipped
+test('storybook integration: publication refusal remains readable at 390 pixels', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 900 });
+  await page.goto(
+    '/iframe.html?id=screens-puzzles-content-author--publish-denied&viewMode=story&globals=theme:light'
+  );
+  await expect(page.locator('#storybook-root')).toHaveAttribute(
+    'data-story-ready',
+    'true'
+  );
+  await page.evaluate(() => document.fonts.ready);
+  const step = page
+    .getByTestId('content-publication-steps')
+    .getByRole('listitem')
+    .filter({ hasText: 'Publishing needs a verified account' });
+  await expect(step).toHaveCount(1);
+  await expect(step).toContainText('Locked');
+  await expect(step.getByTestId('permission-denial')).toBeVisible();
+  const clipped = await step.evaluate((element) => {
+    const box = element.getBoundingClientRect();
+    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+    const failures: string[] = [];
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+      if (!node.textContent?.trim() || !node.parentElement?.checkVisibility())
+        continue;
+      const range = document.createRange();
+      range.selectNodeContents(node);
+      if (
+        Array.from(range.getClientRects()).some(
+          (line) =>
+            line.left < box.left ||
+            line.right > box.right ||
+            line.left < 0 ||
+            line.right > innerWidth
+        )
+      )
+        failures.push(node.textContent);
+    }
+    return failures;
+  });
+  expect(clipped).toEqual([]);
+  await expect(step.getByRole('button')).toHaveCount(0);
+});
+
 for (const width of [390, 768, 1440]) {
   for (const theme of ['light', 'dark']) {
     // regression: publication-denial-state-clipped

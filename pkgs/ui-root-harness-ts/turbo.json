@@ -69,8 +69,9 @@
         "$TURBO_ROOT$/libs/{account-privacy,app-config,app-root,auth,battleship,billing,chess-puzzle,chess-root,chess-shared,connect-four,friends,game-matchmaking,game-menu,game-puzzle,game-session,hearts,light-cycles,moderation,notifications,numberlink,permissions,profile,pong,quoridor,search,sokoban,spaces,synthetic-population,user-search,word-tiles}-client-ts/src/**/*.stories.tsx",
         "$TURBO_ROOT$/libs/{account-privacy,app-config,app-root,auth,battleship,billing,chess-puzzle,chess-root,chess-shared,connect-four,friends,game-matchmaking,game-menu,game-puzzle,game-session,hearts,light-cycles,moderation,notifications,numberlink,permissions,profile,pong,quoridor,search,sokoban,spaces,synthetic-population,user-search,word-tiles}-client-ts/src/**/*.example.tsx",
         "$TURBO_ROOT$/pkgs/ui-root-client-ts/storybook/**",
-        "$TURBO_ROOT$/pkgs/{ui-root,ui-devtools,chess-board-root}-client-ts/src/tsconfig.json",
-        "scripts/storybook-dev.ts"
+        "scripts/storybook-dev.ts",
+        "$TURBO_ROOT$/pkgs/{ui-root,ui-devtools,chess-board-root,assistant,collab-ui}-client-ts/src/tsconfig.json",
+        "$TURBO_ROOT$/libs/tsconfig.json"
       ],
       "outputs": [".cache/storybook/**"]
     },
@@ -80,6 +81,10 @@
     },
     "storybook:test": {
       "dependsOn": ["storybook:build"],
+      "cache": false,
+      "passThroughEnv": ["STORYBOOK_TEST_PORT"]
+    },
+    "storybook:video:install": {
       "cache": false
     },
     "storybook:mcp:test": {
@@ -98,7 +103,8 @@
         "$TURBO_ROOT$/libs/{account-privacy,app-config,app-root,auth,battleship,billing,chess-puzzle,chess-root,chess-shared,connect-four,friends,game-matchmaking,game-menu,game-puzzle,game-session,hearts,light-cycles,moderation,notifications,numberlink,permissions,profile,pong,quoridor,search,sokoban,spaces,synthetic-population,user-search,word-tiles}-client-ts/src/**/baselines/**"
       ],
       "outputs": [],
-      "env": ["BUN_CHROME_PATH"]
+      "env": ["BUN_CHROME_PATH"],
+      "passThroughEnv": ["STORYBOOK_TEST_PORT"]
     },
     "storybook:publish": {
       "dependsOn": ["storybook:build"],

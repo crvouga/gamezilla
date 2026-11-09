@@ -31,7 +31,24 @@ export async function openGuestDevice(
   );
 }
 
-/** Activate before starting a document, so startup never runs in a parked tab. */
+const DOCUMENT_MARK = '__liveJourneyDocument';
+const DOCUMENT_COMMIT_MS = 30_000;
+const DOCUMENT_POLL_MS = 50;
+
+async function documentMark(device: Device): Promise<unknown> {
+  try {
+    return await device.view.evaluate(`globalThis.${DOCUMENT_MARK}`);
+  } catch {
+    // A document being replaced cannot answer yet.
+    return undefined;
+  }
+}
+
+/**
+ * Activate before starting a document, so startup never runs in a parked
+ * tab; return once the new document has replaced the old one, so a later
+ * gesture never lands on the old page just before the reload covers it.
+ */
 export async function navigateLiveDevice(
   devices: LiveDevices,
   device: Device,
@@ -39,8 +56,18 @@ export async function navigateLiveDevice(
 ): Promise<void> {
   devices.shown = device;
   await device.view.cdp('Page.bringToFront', {});
+  const mark = crypto.randomUUID();
+  await device.view
+    .evaluate(`globalThis.${DOCUMENT_MARK} = ${JSON.stringify(mark)}`)
+    .catch(() => undefined);
   if (url === undefined) await device.driver.launch();
   else await device.view.navigate(url);
+  const deadline = Date.now() + DOCUMENT_COMMIT_MS;
+  while ((await documentMark(device)) === mark) {
+    if (Date.now() > deadline)
+      throw new Error('the reopened app never replaced the previous page');
+    await Bun.sleep(DOCUMENT_POLL_MS);
+  }
 }
 
 /** Activate the person's tab before reading it or delivering native gestures. */

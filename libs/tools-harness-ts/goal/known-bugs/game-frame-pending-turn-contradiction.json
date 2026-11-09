@@ -1,0 +1,4 @@
+{
+  "summary": "While the viewer's choice was still being sent, the frame kept saying \"Your turn.\" with own-turn emphasis and a deciding seat, contradicting the disabled board.",
+  "regressionTest": "libs/game-session-client-ts/tests/frame-pending-status.test.tsx"
+}

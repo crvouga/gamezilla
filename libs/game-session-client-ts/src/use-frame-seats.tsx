@@ -49,9 +49,18 @@ export function holderOf(
   }
 }
 
-/** Whether `side` decides now: its turn, or its secret choice still open. */
-function seatDeciding(game: CustomGame, side: CustomGameSide): boolean {
+/**
+ * Whether `side` decides now: its turn, or its secret choice still open.
+ * The viewer's own seat stops deciding while their choice is being sent.
+ */
+export function frameSeatDeciding(
+  game: CustomGame,
+  side: CustomGameSide,
+  model: Pick<CustomGameScreenModel, 'mySide' | 'submitting'>
+): boolean {
   if (game.status !== 'active') return false;
+  if (model.submitting() && model.mySide() === side) return false;
+
   return game.awaiting.length > 0
     ? game.awaiting.includes(side)
     : game.turn === side;
@@ -118,7 +127,7 @@ export function useFrameTable(
       committed: game.committed.includes(side),
       choosing: game.awaiting.includes(side),
       facts: seats.facts(position, side, game.committed),
-      deciding: seatDeciding(game, side),
+      deciding: frameSeatDeciding(game, side, model),
       reclaim:
         game.status === 'active' &&
         game.standIns.includes(side) &&
@@ -139,6 +148,8 @@ export function useFrameTable(
           ? 'board'
           : table.shape,
       named: presentation(game.fen).frame.boardNames === true,
+      seatLayout: presentation(game.fen).frame.seatLayout,
+      compactInset: presentation(game.fen).frame.compactInset,
       near: table.near === null ? null : playSeat(game, table.near),
       others: table.others.map((side) => playSeat(game, side)),
     };
