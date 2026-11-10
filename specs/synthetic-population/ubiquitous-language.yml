@@ -4,28 +4,62 @@ purpose: >-
   observe their activity and choose how many are available.
 terms:
   - term: Synthetic Population
-    definition: The complete synthetic population of autonomous automated opponents.
+    definition: >-
+      The complete synthetic population of autonomous automated opponents:
+      every Synthetic User, whether or not it is online now.
+    model: [populationSize, populationVaried]
   - term: Synthetic User
     definition: >-
       A persistent account operated autonomously and identified as automated.
       Each has an email address of its own, and signs in through the same app
       as people with a sign-in link sent to it.
     forms: [Synthetic Users, Synthetic User's]
-    model: [SyntheticUser, identity, invPersistentIdentity, syntheticIdentified, invSyntheticRecognition, invOfflineKeepsIdentification]
+    model: [SyntheticUser, syntheticAvailable, identity, invPersistentIdentity, syntheticIdentified, invSyntheticRecognition, invOfflineKeepsIdentification]
   - term: Bot Observatory
-    definition: Where authorized people observe and control the Synthetic Population.
+    definition: >-
+      Where authorized people observe whoever is online now, watch them live,
+      and control the Synthetic Population.
+    model: [openObservatory]
   - term: desired synthetic population
-    definition: How many Synthetic Users should be available.
+    definition: >-
+      How many Synthetic Users should be available. Apart from Synthetic
+      Users finishing an ongoing game, no more Synthetic Users are online now
+      than this.
+    model: [desiredPopulation, changeDesiredPopulation, invOnlineWithinDesired]
   - term: pause
-    definition: Stop starting activities for a Synthetic User while preserving an ongoing game.
-    forms: [pauses, paused]
+    definition: >-
+      Stop starting activities for a Synthetic User while preserving an
+      ongoing game. Pausing every Synthetic User does this for the whole
+      Synthetic Population at once.
+    forms: [pauses, paused, pausing]
+    model: [pause, pauseAll, paused, syntheticPaused, invPausedStartsNothing]
   - term: resume
-    definition: Allow a paused Synthetic User to start activities again.
-    forms: [resumes, resumed]
+    definition: >-
+      Allow a paused Synthetic User to start activities again. Resuming
+      every Synthetic User does this for the whole Synthetic Population at
+      once.
+    forms: [resumes, resumed, resuming]
+    model: [resume, resumeAll]
+  - term: restart
+    definition: >-
+      Close and reopen a Synthetic User's app from its control panel. It
+      keeps its account, its persona and any ongoing game, and carries on
+      from its current activity.
+    forms: [restarts, restarted, restarting]
+    model: [restart]
+  - term: control panel
+    definition: >-
+      The controls the Bot Observatory offers for one Synthetic User: pause,
+      resume and restart. Only a Synthetic User has one; a person never does.
+    forms: [control panels]
+    model: [controlPanelOffered, invNoControlPanelForPeople]
   - term: activity
-    definition: What a Synthetic User is currently doing in the app.
+    definition: >-
+      What a Synthetic User, or a person online now, is currently doing in
+      the app: browsing, looking for a multiplayer opponent for a game, or
+      playing a game.
     forms: [activities]
-    model: [Activity, activity, Browsing, Playing, Finished, invActivityRestored, startNextActivity, continueActivity]
+    model: [Activity, activity, playing, Browsing, Playing, Finished, invActivityRestored, startNextActivity, continueActivity]
   - term: Recovery
     definition: Restoring an interrupted Synthetic User to its current activity safely.
     forms: [recovers, recovered, recovering]
@@ -79,7 +113,7 @@ terms:
     from: pong
   - term: multiplayer opponent
     from: chess
-    model: [seekingOpponent, invLookingHasGame]
+    model: [seekingOpponent, invLookingHasGame, lookForOpponent, peopleLooking, peoplePlaying, syntheticLooking, syntheticPlaying]
   - term: game
     from: games
     model: [game, chosenGame, invOnlyOfferedGames, invGamePreserved, openMultiplayer]
@@ -98,10 +132,89 @@ terms:
     from: profile
   - term: the app
     from: kernel
-    model: [reopenApp]
+    model: [reopenApp, openApp, closeApp]
   - term: control
-    definition: Permission to pause, resume or restart a Synthetic User's autonomous activity.
+    definition: >-
+      Permission to pause, resume or restart a Synthetic User's autonomous
+      activity, one Synthetic User or every Synthetic User at once.
     forms: [controls, controlling]
+  - term: persona
+    definition: >-
+      Who a Synthetic User is as a player: a username that reads like one a
+      person chose, an avatar, a home region, a skill level, favorite games
+      and a daily schedule. Every Synthetic User has a complete persona of
+      its own, which it keeps for good. Its username is still identified as
+      a Synthetic User wherever it appears.
+    forms: [personas, complete persona]
+    model: [personasComplete, personaKept, usernamesDistinct, invUniqueUsernames, invCompletePersona, invPersonaKept, invVariedPopulation]
+  - term: skill level
+    definition: >-
+      How well a Synthetic User plays: beginner, casual, intermediate or
+      strong.
+    forms: [skill levels]
+  - term: favorite game
+    definition: >-
+      A game a Synthetic User chooses more often than others when it looks
+      for a multiplayer opponent.
+    forms: [favorite games]
+  - term: home region
+    definition: >-
+      The part of the world a Synthetic User plays from. Its daily schedule
+      follows the time of day there.
+    forms: [home regions]
+  - term: daily schedule
+    definition: >-
+      The hours of each day, in its home region, when a Synthetic User tends
+      to be online now. Outside them it is not online now, except to finish
+      an ongoing game, which it always finishes first.
+    forms: [daily schedules]
+    model: [onSchedule, scheduleBegins, scheduleEnds, invOffScheduleOnlyToFinish]
+  - term: online now
+    definition: >-
+      Using the app with a connection at this moment, whether a person or a
+      Synthetic User. The Bot Observatory lists whoever is online now, with
+      each one's activity and whether each is a person or a Synthetic User.
+    model: [onlineNow, listShown, showing, showOnly, invListShowsOnlineNow]
+  - term: move
+    definition: >-
+      What a player does when it is their go in a game: a move in chess, a
+      drop in Connect Four, a shot in Battleship.
+    forms: [moves, moved]
+  - term: thinking time
+    definition: >-
+      How long a Synthetic User needs to make a move, as a person would: at
+      least 2 seconds and at most 20, and never the same whole number of
+      seconds for two moves in a row.
+    model: [thinkingTimeHumanLike, thinkingTimeChanged, invThinkingTimeHumanLike, invThinkingTimeVaries]
+  - term: watch live
+    definition: >-
+      Follow, from the Bot Observatory, what someone online now sees in the
+      app as it changes: their place in the app and what is shown there.
+      Anyone online now can be watched live, a person or a Synthetic User.
+      Watching live stops when they are no longer online now.
+    forms: [watches live, watching live, watched live]
+    model: [watching, watchLive, watchEndedNotice, invWatchingOnlyOnlineNow]
+  - term: private details
+    definition: >-
+      Anything a person writes in the app, such as what they search for,
+      and anything only they should see, such as their email address and how
+      they sign in. Watching a person live never shows them.
+    forms: [private detail]
+    model: [privateDetailsShown, invPrivateDetailsHidden]
+  - term: avatar
+    from: profile
+  - term: rematch
+    from: games
+    model: [offerRematch, gamesInARow, invAtMostThreeInARow]
+  - term: place in the app
+    from: runtime
+    model: [placeShown, placeOf]
+  - term: Settings
+    from: runtime
+    model: [openSettings]
+  - term: people search
+    from: friends
+    model: [searchPeople]
 
   - term: continue a multiplayer game
     definition: >-
