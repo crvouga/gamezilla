@@ -1,0 +1,4 @@
+{
+  "summary": "Release and Health failed 'Nobody has changed the environment by hand' on foundation/dev: the broker and ACM-validation DNS records kept losing their comment. Cloudflare's audit log showed a second OpenTofu config (the zone inventory in crvouga/personal, provider 5.26.0) overwriting both records without a comment after each Release set it. The pubsub module no longer sets a comment, so both configs declare the same record.",
+  "regressionTest": "libs/infra-shared-ts/tests/pubsub-dns-records.test.ts"
+}

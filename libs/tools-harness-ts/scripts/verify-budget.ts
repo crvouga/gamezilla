@@ -70,7 +70,10 @@ export const TASK_BUDGET_SECONDS: Readonly<Record<string, number>> = {
   // process in parallel; the journeys feature dominates — seven journeys in
   // a real browser on production latency, one fresh device each, the
   // signed-in ones first signing in (health only — never part of `bun verify`).
-  '@apps/product-ts#health': 480,
+  // regression: health-outgrew-ci-deadline
+  // Measured: every scenario passing on dev took 1272 s (Release run
+  // 42724814828); the scenarios run one at a time on one monitor account.
+  '@apps/product-ts#health': 720,
   // regression: games-spec-part-two-exceeds-task-budget
   // Hashed to this part: custom-game-away.feature (unsliced, every
   // conformance game) alongside slices of matched-game-without-turns,
@@ -131,6 +134,13 @@ export const DEADLINE_FLUSH_MS = 15_000;
 /** `deploy` adds provision → migrate → three worker releases → health. */
 export const DEPLOY_RUN_DEADLINE_SECONDS = 2700;
 
+/**
+ * Standalone Health: one environment's live probes, one scenario at a time.
+ * Above the `@apps/product-ts#health` budget on a slow runner, so a slow but
+ * finished run reports its overrun instead of being killed mid-probe.
+ */
+export const HEALTH_RUN_DEADLINE_SECONDS = 1800;
+
 /** Overrides the wall-clock deadline (seconds); `0` is rejected, not "off". */
 export const RUN_DEADLINE_ENV = 'VERIFY_DEADLINE_SECONDS';
 
@@ -154,6 +164,8 @@ export function taskBudgetSeconds(
 
 export type RunDeadlineOptions = {
   readonly isDeploy: boolean;
+  /** A standalone Health run (`turbo-ci-run health`). */
+  readonly isHealth?: boolean;
   readonly slowRunner: boolean;
   /** CI with {@link WARM_RUNNER_MIN_CPUS} or more. Wins over `slowRunner`. */
   readonly warmRunner?: boolean;
@@ -172,6 +184,7 @@ export function resolveRunDeadlineSeconds(
   const override = Number.parseInt(env[RUN_DEADLINE_ENV]?.trim() ?? '', 10);
   if (Number.isInteger(override) && override > 0) return override;
   if (options.isDeploy) return DEPLOY_RUN_DEADLINE_SECONDS;
+  if (options.isHealth === true) return HEALTH_RUN_DEADLINE_SECONDS;
   const profile = profileDeadlineSeconds(
     env,
     options.slowRunner || options.warmRunner === true
