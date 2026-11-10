@@ -2,6 +2,7 @@ import type { QuintHarnessWorld } from '@libs/harness-ts/quint-world';
 import type { Picks } from '@pkgs/quint-shared-ts/registry';
 import { bindQuintModel } from '@pkgs/quint-shared-ts/registry';
 import offlineTrace from './fixtures/secret-choice-offline-replay.itf.json';
+import resentPassTrace from './fixtures/secret-choice-refused-pass-resent.itf.json';
 import { observeChoiceModel } from './secret-choices-observe';
 import {
   awaitStandIn,
@@ -31,6 +32,13 @@ bindQuintModel<QuintHarnessWorld>({
       title: 'An offline secret choice stays refused after reconnecting',
       seed: '0x67932',
       itf: offlineTrace,
+    },
+    {
+      // regression: hearts-refused-pass-resent
+      id: 'hearts-refused-pass-resent',
+      title: 'A pass refused while offline is made again once back online',
+      seed: '0x67932',
+      itf: resentPassTrace,
     },
   ],
   actions: {
