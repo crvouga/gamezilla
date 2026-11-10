@@ -2179,6 +2179,7 @@
         "@libs/permissions-harness-ts": "workspace:*",
         "@libs/permissions-shared-ts": "workspace:*",
         "@libs/profile-harness-ts": "workspace:*",
+        "@libs/profile-shared-ts": "workspace:*",
         "@libs/spaces-client-ts": "workspace:*",
         "@libs/spaces-harness-ts": "workspace:*",
         "@libs/spaces-server-ts": "workspace:*",

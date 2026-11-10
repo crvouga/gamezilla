@@ -13,6 +13,7 @@ import {
   newCustomGame,
 } from '@libs/game-session-shared-ts/custom-game-state';
 import { countInput } from '@libs/permissions-shared-ts/people';
+import { PROFILE_TABLES } from '@libs/profile-shared-ts/tables';
 import type { ServerCase } from '@libs/permissions-shared-ts/server';
 import { SPACES_TABLES } from '@libs/spaces-shared-ts/tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared-ts/reconcile-sqlite-schema';
@@ -23,6 +24,8 @@ import sql from '@pkgs/sql-root-shared-ts/sql';
 export const MULTIPLAYER_LIMIT_TABLES = [
   ...BILLING_TABLES,
   ...MULTIPLAYER_TABLES,
+  // Seeking an opponent reads whether the seeker is a Synthetic User.
+  ...PROFILE_TABLES,
   ...SPACES_TABLES,
 ];
 export const UNFINISHED_INPUT = 'unfinished matched games';
