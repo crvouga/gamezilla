@@ -2,7 +2,7 @@
  * Synthetic Users' days: whether each is online now, its daily schedule
  * beginning and ending, and Synthetic Users already online.
  */
-import { scenarioAction } from '@libs/harness-ts/actor-ui';
+import { pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import {
   localHourAt,
@@ -114,28 +114,49 @@ export const givenSyntheticUsersOnline = scenarioAction({
   },
 });
 
-const OFFLINE_ROW = sql<Row>`SELECT id, personality, worker_id, lease_until FROM population_users WHERE worker_id IS NULL AND deleted_at IS NULL ORDER BY created_at, id LIMIT 1`;
+/** The first Synthetic User not online now that the scenario has not named in `taken`. */
+async function offlineRow(
+  s: ProductHarness,
+  taken: readonly string[]
+): Promise<Row | undefined> {
+  const rows = await s.harness.serverSql.sqlClient.query(
+    sql<
+      Row & { username: string }
+    >`SELECT id, username, personality, worker_id, lease_until FROM population_users WHERE worker_id IS NULL AND deleted_at IS NULL ORDER BY created_at, id LIMIT 100`
+  );
+  return rows.find((row) => !taken.includes(row.username));
+}
 
-/** A Synthetic User that is not online now, provisioned if every one is; it is called `name`. */
+/**
+ * A Synthetic User not online now, provisioned if every one is, and none
+ * of `taken`; it is called `name` and waits for nothing yet.
+ */
 async function nameOfflineSyntheticUser(
   s: ProductHarness,
-  name: string
+  name: string,
+  taken: readonly string[] = []
 ): Promise<{ id: string; persona: Persona }> {
   const db = s.harness.serverSql.sqlClient;
-  let row = (await db.query(OFFLINE_ROW))[0];
+  let row = await offlineRow(s, taken);
   if (row === undefined) {
-    // One more Synthetic User than are online, the desired population kept.
-    const online = await syntheticUsersOnline(s);
+    // One more Synthetic User than there are, the desired population kept.
+    const size = (
+      await db.query(
+        sql<{
+          id: string;
+        }>`SELECT id FROM population_users WHERE deleted_at IS NULL LIMIT 1000`
+      )
+    ).length;
     const desired = await desiredSyntheticPopulation(s);
-    await Promise.resolve(givenDesiredSyntheticPopulation.act(s, online + 1));
+    await Promise.resolve(givenDesiredSyntheticPopulation.act(s, size + 1));
     await deployedWorkerHeartbeat(s);
     await Promise.resolve(givenDesiredSyntheticPopulation.act(s, desired));
-    row = (await db.query(OFFLINE_ROW))[0];
+    row = await offlineRow(s, taken);
   }
   if (row === undefined)
     throw new Error('The Synthetic Population has nobody offline');
   await db.run(
-    sql`UPDATE population_users SET username = ${name} WHERE id = ${row.id}`
+    sql`UPDATE population_users SET username = ${name}, kept_away_since = ${null} WHERE id = ${row.id}`
   );
   const raw = row.personality;
   const persona = parsePersona(typeof raw === 'string' ? JSON.parse(raw) : raw);
@@ -156,26 +177,110 @@ export const givenNotOnline = scenarioAction({
   },
 });
 
+/** The Synthetic User's daily schedule began this hour. */
+async function beginDayNow(s: ProductHarness, id: string) {
+  const rows = await s.harness.serverSql.sqlClient.query(
+    sql<{
+      personality: unknown;
+    }>`SELECT personality FROM population_users WHERE id = ${id}`
+  );
+  const raw = rows[0]?.personality;
+  const persona = parsePersona(typeof raw === 'string' ? JSON.parse(raw) : raw);
+  if (persona === null) throw new Error('That Synthetic User has no persona');
+  const zone = persona.dailySchedule.timeZone;
+  const hour = Math.floor(localHourAt(zone, s.harness.clock.now()));
+  await writePersona(s, id, {
+    ...persona,
+    dailySchedule: {
+      timeZone: zone,
+      startHour: hour,
+      endHour: (hour + 4) % 24,
+    },
+  });
+}
+
 /**
  * The named Synthetic User's daily schedule began this hour, but it is not
  * online now: as many Synthetic Users as the desired synthetic population
- * already are, so it was kept away.
+ * already are, so it was kept away. No other Synthetic User not online now
+ * is on its daily schedule, so none waits before it.
  */
 export const givenKeptAway = scenarioAction({
   name: 'givenKeptAway',
   act: async (s, name: string) => {
-    const { id, persona } = await nameOfflineSyntheticUser(s, name);
+    const { id } = await nameOfflineSyntheticUser(s, name);
+    await offScheduleExcept(s, [name]);
+    await beginDayNow(s, id);
+    runDeployedWorker(s, true);
+  },
+});
+
+/** Every Synthetic User not online now, but those `named`, is off its daily schedule. */
+async function offScheduleExcept(s: ProductHarness, named: readonly string[]) {
+  const rows = await s.harness.serverSql.sqlClient.query(
+    sql<{
+      id: string;
+      username: string;
+      personality: unknown;
+    }>`SELECT id, username, personality FROM population_users WHERE worker_id IS NULL AND deleted_at IS NULL ORDER BY created_at, id LIMIT 100`
+  );
+  for (const row of rows) {
+    if (named.includes(row.username)) continue;
+    const raw = row.personality;
+    const persona = parsePersona(
+      typeof raw === 'string' ? JSON.parse(raw) : raw
+    );
+    if (persona === null) continue;
     const zone = persona.dailySchedule.timeZone;
     const hour = Math.floor(localHourAt(zone, s.harness.clock.now()));
-    await writePersona(s, id, {
+    await writePersona(s, row.id, {
       ...persona,
       dailySchedule: {
         timeZone: zone,
-        startHour: hour,
-        endHour: (hour + 4) % 24,
+        startHour: (hour + 1) % 24,
+        endHour: hour,
       },
     });
+  }
+}
+
+/** Whether the named Synthetic User waits, kept away, for a place. */
+async function keptAway(s: ProductHarness, name: string): Promise<boolean> {
+  const rows = await s.harness.serverSql.sqlClient.query(
+    sql<{
+      kept_away_since: string | Date | null;
+    }>`SELECT kept_away_since FROM population_users WHERE username = ${name} AND deleted_at IS NULL`
+  );
+  return (rows[0]?.kept_away_since ?? null) !== null;
+}
+
+/** The deployed worker's next beat finds the named Synthetic User waiting. */
+async function untilKeptAway(s: ProductHarness, name: string) {
+  await pollUntil(s, async () => ((await keptAway(s, name)) ? true : null), {
+    maxMs: DAY_END_MS,
+    stepMs: 1_000,
+    description: `${name} is kept away`,
+  });
+}
+
+/**
+ * `first` and then `second` are kept away, their daily schedules begun
+ * while the desired synthetic population is online now: `first` has waited
+ * longer. `second` is the longer-standing member of the Synthetic
+ * Population, so only how long each has waited puts `first` ahead. No other
+ * Synthetic User not online now is on its daily schedule.
+ */
+export const givenKeptAwayLonger = scenarioAction({
+  name: 'givenKeptAwayLonger',
+  act: async (s, first: string, second: string) => {
+    const longerStanding = await nameOfflineSyntheticUser(s, second);
+    const newer = await nameOfflineSyntheticUser(s, first, [second]);
+    await offScheduleExcept(s, []);
     runDeployedWorker(s, true);
+    await beginDayNow(s, newer.id);
+    await untilKeptAway(s, first);
+    await beginDayNow(s, longerStanding.id);
+    await untilKeptAway(s, second);
   },
 });
 

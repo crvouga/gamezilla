@@ -1,9 +1,8 @@
 /**
  * The daily-rhythm model's Synthetic Users — Cedar, Maple and Birch — held
- * online by the deployed worker, their days beginning and ending. The worker
- * renews and lets go of those it holds on every beat, and brings a Synthetic
- * User online at the model's moments: as a daily schedule begins, or once
- * there is room for one kept away.
+ * online by the deployed worker, their days beginning and ending. On every
+ * beat the worker renews and lets go of those it holds and brings online
+ * the Synthetic User kept away longest whenever there is room.
  */
 import { scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
@@ -21,20 +20,25 @@ import {
   givenDesiredSyntheticPopulation,
 } from './observatory-actions';
 import {
-  claimSyntheticUsers,
   deployedWorkerHeartbeat,
   heldPlaying,
   runDeployedWorker,
+  setDeviceConnected,
   setHeldPlaying,
 } from './population-worker';
 
 export const RHYTHM_USERS = ['Cedar', 'Maple', 'Birch'] as const;
 
-type Row = { id: string; username: string; personality: unknown };
+type Row = {
+  id: string;
+  username: string;
+  personality: unknown;
+  kept_away_since: string | Date | null;
+};
 
 async function rows(s: ProductHarness): Promise<Row[]> {
   return s.harness.serverSql.sqlClient.query(
-    sql<Row>`SELECT id, username, personality FROM population_users WHERE deleted_at IS NULL ORDER BY created_at, id`
+    sql<Row>`SELECT id, username, personality, kept_away_since FROM population_users WHERE deleted_at IS NULL ORDER BY created_at, id`
   );
 }
 function personaOf(row: Row): Persona {
@@ -83,26 +87,22 @@ export const givenDailyRhythm = scenarioAction({
       await setDay(s, name, false);
     }
     await Promise.resolve(givenDesiredSyntheticPopulation.act(s, desired));
-    runDeployedWorker(s, false);
+    runDeployedWorker(s, true);
   },
 });
 
-/**
- * Rather than live through hours, the Synthetic User's daily schedule begins
- * now, and the deployed worker brings a Synthetic User online if there is room.
- */
+/** Rather than live through hours, the Synthetic User's daily schedule begins now. */
 export const dayBegins = scenarioAction({
   name: 'dayBegins',
-  act: async (s, name: string) => {
-    await setDay(s, name, true);
-    await claimSyntheticUsers(s, 1);
-  },
+  act: (s, name: string) => setDay(s, name, true),
 });
 
-/** The deployed worker brings a Synthetic User on its daily schedule online, if there is room. */
-export const roomTaken = scenarioAction({
-  name: 'roomTaken',
-  act: (s) => claimSyntheticUsers(s, 1),
+/** The Synthetic User's device loses its connection, or has it again. */
+export const deviceConnection = scenarioAction({
+  name: 'deviceConnection',
+  act: async (s, name: string, connected: boolean) => {
+    setDeviceConnected(s, (await rowNamed(s, name)).id, connected);
+  },
 });
 
 /** Rather than live through hours, the Synthetic User's daily schedule is over now. */
@@ -119,7 +119,7 @@ export const playsGame = scenarioAction({
   },
 });
 
-/** What the daily-rhythm model names: whose day it is, who is online now and who plays. */
+/** What the daily-rhythm model names: whose day it is, who is online now or kept away, and who plays. */
 export async function observeDailyRhythm(s: ProductHarness) {
   const now = s.harness.clock.now();
   const leased = await s.harness.serverSql.sqlClient.query(
@@ -140,6 +140,14 @@ export async function observeDailyRhythm(s: ProductHarness) {
     onlineNow: new Set(
       named.filter((row) => online.has(row.id)).map((row) => row.username)
     ),
+    keptAway: named
+      .filter((row) => row.kept_away_since !== null && !online.has(row.id))
+      .sort(
+        (a, b) =>
+          new Date(a.kept_away_since!).getTime() -
+          new Date(b.kept_away_since!).getTime()
+      )
+      .map((row) => row.username),
     playing: new Set(
       named
         .filter((row) => online.has(row.id) && heldPlaying(s, row.id))

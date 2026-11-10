@@ -4,6 +4,7 @@ import {
   dailyScheduleBegins,
   dailyScheduleEnds,
   givenKeptAway,
+  givenKeptAwayLonger,
   givenNotOnline,
   givenSyntheticUsersOnline,
   givenSyntheticUsersOnlineAmong,
@@ -37,6 +38,14 @@ Given(
   async (w, name: string) => {
     await w.s.apply(givenKeptAway, name);
     expect(await w.s.read(syntheticUserOnline, name)).toBe(false);
+  }
+);
+Given(
+  '{string} has been kept away longer than {string}',
+  async (w, first: string, second: string) => {
+    await w.s.apply(givenKeptAwayLonger, first, second);
+    expect(await w.s.read(syntheticUserOnline, first)).toBe(false);
+    expect(await w.s.read(syntheticUserOnline, second)).toBe(false);
   }
 );
 Given(

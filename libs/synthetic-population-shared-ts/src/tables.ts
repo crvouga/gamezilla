@@ -27,6 +27,8 @@ export const syntheticPopulationUsers = defineTable({
     last_error: 'text',
     inspection_requested_at: 'timestamp',
     inspection: 'json',
+    /** When it began waiting, on its daily schedule but not online now; null otherwise. */
+    kept_away_since: 'timestamp',
   },
   uniqueIndexes: ['account_id', 'email'],
   indexes: ['worker_id', 'lease_until'],

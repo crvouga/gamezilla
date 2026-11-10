@@ -14,6 +14,7 @@ import type {
   SqlTx,
 } from '@pkgs/sql-client-root-shared-ts/interface';
 import sql from '@pkgs/sql-root-shared-ts/sql';
+import { admitted, sweepKeptAway } from './kept-away';
 import { LeaseRepository } from './lease-repository';
 import type {
   Lease,
@@ -121,13 +122,16 @@ export class SyntheticPopulationController {
    */
   private async scheduled(
     tx: SqlTx,
-    games: readonly string[]
+    games: readonly string[],
+    unreachable: readonly string[]
   ): Promise<(AssignmentRow & { personality: Persona }) | null> {
     const now = isoAt(this.ports.clock.now());
+    // The one kept away longest first; then the longest-standing member.
     const candidates = await tx.query(
-      sql<AssignmentRow>`SELECT id, username, email, checkpoint, account_id, paused, personality FROM population_users WHERE paused = ${false} AND deleted_at IS NULL AND (worker_id IS NULL OR lease_until <= ${now}) ORDER BY created_at, id LIMIT 1000`
+      sql<AssignmentRow>`SELECT id, username, email, checkpoint, account_id, paused, personality FROM population_users WHERE paused = ${false} AND deleted_at IS NULL AND (worker_id IS NULL OR lease_until <= ${now}) ORDER BY (kept_away_since IS NULL), kept_away_since, created_at, id LIMIT 1000`
     );
     for (const user of candidates) {
+      if (unreachable.includes(user.id)) continue;
       const stored = parsePersona(jsonValue(user.personality));
       const persona =
         stored ??
@@ -146,14 +150,27 @@ export class SyntheticPopulationController {
     return null;
   }
 
-  /** `games` are the games the worker's Synthetic Users can play, by registered game id. */
+  /**
+   * `games` are the games the worker's Synthetic Users can play, by
+   * registered game id; `unreachable` are the Synthetic Users whose devices
+   * on this worker have no connection: they are passed over, keeping their
+   * place among those kept away.
+   */
   async claim(
     workerId: string,
-    games: readonly string[] = []
+    games: readonly string[] = [],
+    unreachable: readonly string[] = []
   ): Promise<Assignment | null> {
     let assigned: ClaimedAssignment | null;
     try {
-      assigned = await this.claimAssignment(workerId, games);
+      assigned = await this.db.transaction(async (tx) => {
+        const claimed = await this.claimAssignment(tx, workerId, {
+          games,
+          unreachable,
+        });
+        await sweepKeptAway(tx, this.ports.clock.now());
+        return claimed;
+      });
     } catch (error) {
       // A competing claim committed first. The transaction was rolled back;
       // this worker remains unassigned until its next ordinary claim cycle.
@@ -181,64 +198,65 @@ export class SyntheticPopulationController {
   }
 
   private async claimAssignment(
+    tx: SqlTx,
     workerId: string,
-    games: readonly string[]
+    asked: { games: readonly string[]; unreachable: readonly string[] }
   ): Promise<ClaimedAssignment | null> {
-    return this.db.transaction(async (tx) => {
-      const repo = new SyntheticPopulationRepository(tx, this.ports);
-      await repo.initialize();
-      // A portable row lock serializes capacity and desired-population admission.
-      // The lease itself still uses CAS: workers never depend on replica indices.
-      await tx.run(
-        sql`UPDATE population_config SET revision = revision WHERE id = ${'default'}`
-      );
-      const config = await repo.config();
-      const alive = isoAt(this.ports.clock.now() - config.leaseMs);
-      const workers = await tx.query(
-        sql<{
-          capacity: number;
-          application_version: string;
-        }>`SELECT capacity, application_version FROM population_workers WHERE id = ${workerId} AND draining = ${false} AND heartbeat_at > ${alive} AND deleted_at IS NULL`
-      );
-      const worker = workers[0];
-      if (
-        worker === undefined ||
-        (config.preferredVersion !== '' &&
-          worker.application_version !== config.preferredVersion)
-      )
-        return null;
-      const online = await onlineNow(tx, this.ports.clock.now());
-      if (
-        online.filter((user) => !user.finishing).length >= config.desired ||
-        online.filter((user) => user.worker_id === workerId).length >=
-          Math.min(worker.capacity, config.capacityPerWorker)
-      )
-        return null;
-      // Only a Synthetic User whose daily schedule has it online now comes
-      // online; a population smaller than desired gains a newcomer.
-      const user =
-        (await this.scheduled(tx, games)) ??
-        ((await populationPersonas(tx)).length < config.desired
-          ? await this.provision(tx, games)
-          : null);
-      if (user === null) return null;
-      const lease = await new LeaseRepository(tx, this.ports).acquire(
-        user.id,
-        workerId,
-        config.leaseMs
-      );
-      if (lease === null) return null;
-      await repo.event({
-        userId: user.id,
-        workerId,
-        generation: lease.generation,
-        version: worker.application_version,
-        name: 'WorkerLeaseAcquired',
-      });
-      const persona = parsePersona(jsonValue(user.personality));
-      if (persona === null) throw new Error('A leased user has no persona');
-      return { user, lease, config, persona };
+    const { games, unreachable } = asked;
+    const repo = new SyntheticPopulationRepository(tx, this.ports);
+    await repo.initialize();
+    // A portable row lock serializes capacity and desired-population admission.
+    // The lease itself still uses CAS: workers never depend on replica indices.
+    await tx.run(
+      sql`UPDATE population_config SET revision = revision WHERE id = ${'default'}`
+    );
+    const config = await repo.config();
+    const alive = isoAt(this.ports.clock.now() - config.leaseMs);
+    const workers = await tx.query(
+      sql<{
+        capacity: number;
+        application_version: string;
+      }>`SELECT capacity, application_version FROM population_workers WHERE id = ${workerId} AND draining = ${false} AND heartbeat_at > ${alive} AND deleted_at IS NULL`
+    );
+    const worker = workers[0];
+    if (
+      worker === undefined ||
+      (config.preferredVersion !== '' &&
+        worker.application_version !== config.preferredVersion)
+    )
+      return null;
+    const online = await onlineNow(tx, this.ports.clock.now());
+    if (
+      online.filter((user) => !user.finishing).length >= config.desired ||
+      online.filter((user) => user.worker_id === workerId).length >=
+        Math.min(worker.capacity, config.capacityPerWorker)
+    )
+      return null;
+    // Only a Synthetic User whose daily schedule has it online now comes
+    // online; a population smaller than desired gains a newcomer.
+    const user =
+      (await this.scheduled(tx, games, unreachable)) ??
+      ((await populationPersonas(tx)).length < config.desired
+        ? await this.provision(tx, games)
+        : null);
+    if (user === null) return null;
+    const lease = await new LeaseRepository(tx, this.ports).acquire(
+      user.id,
+      workerId,
+      config.leaseMs
+    );
+    if (lease === null) return null;
+    await admitted(tx, user.id);
+    await repo.event({
+      userId: user.id,
+      workerId,
+      generation: lease.generation,
+      version: worker.application_version,
+      name: 'WorkerLeaseAcquired',
     });
+    const persona = parsePersona(jsonValue(user.personality));
+    if (persona === null) throw new Error('A leased user has no persona');
+    return { user, lease, config, persona };
   }
 }
 

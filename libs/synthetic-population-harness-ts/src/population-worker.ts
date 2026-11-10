@@ -20,6 +20,8 @@ type Worker = {
   readonly held: Map<string, Lease>;
   /** Held Synthetic Users in an ongoing game: they finish it before leaving. */
   readonly playing: Set<string>;
+  /** Synthetic Users whose devices have no connection: claims pass them over. */
+  readonly unreachable: Set<string>;
 };
 const workers = new WeakMap<ProductHarness, Worker>();
 
@@ -60,7 +62,11 @@ export async function claimSyntheticUsers(s: ProductHarness, most = 32) {
     const replica = s.session.ports.createId();
     await deployedWorkerHeartbeat(s, replica);
     const response = await rpc.claim.$post({
-      json: { workerId: replica, games: games() },
+      json: {
+        workerId: replica,
+        games: games(),
+        unreachable: [...worker.unreachable],
+      },
     });
     const { assignment } = await response.json();
     if (assignment === null) return;
@@ -105,6 +111,7 @@ function workerOf(s: ProductHarness): Worker {
     claiming: false,
     held: new Map(),
     playing: new Set(),
+    unreachable: new Set(),
   };
   workers.set(s, worker);
   const timers = s.harness.server.timers;
@@ -170,4 +177,14 @@ export async function setHeldPlaying(
 /** Whether the deployed worker holds the Synthetic User in an ongoing game. */
 export function heldPlaying(s: ProductHarness, userId: string): boolean {
   return workerOf(s).playing.has(userId);
+}
+
+/** The Synthetic User's device loses its connection, or has it again. */
+export function setDeviceConnected(
+  s: ProductHarness,
+  userId: string,
+  connected: boolean
+): void {
+  if (connected) workerOf(s).unreachable.delete(userId);
+  else workerOf(s).unreachable.add(userId);
 }

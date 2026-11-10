@@ -32,6 +32,14 @@ const checkpointInput = leaseSchema.extend({
   error: z.string().max(512).nullable(),
 });
 
+const claimSchema = z.object({
+  workerId: z.string().uuid(),
+  /** The games the worker's Synthetic Users play, by registered game id. */
+  games: z.array(z.string().min(1).max(64)).max(64).default([]),
+  /** Synthetic Users whose devices on this worker have no connection. */
+  unreachable: z.array(z.string().uuid()).max(1000).default([]),
+});
+
 export function createSyntheticPopulationWorkerRoutes(deps: WorkerRouteDeps) {
   const sessions = () =>
     new SyntheticPopulationSession(deps.getDb(), deps.ports);
@@ -60,23 +68,17 @@ export function createSyntheticPopulationWorkerRoutes(deps: WorkerRouteDeps) {
         });
       }
     )
-    .post(
-      '/claim',
-      zValidator(
-        'json',
-        z.object({
-          workerId: z.string().uuid(),
-          /** The games the worker's Synthetic Users play, by registered game id. */
-          games: z.array(z.string().min(1).max(64)).max(64).default([]),
-        })
-      ),
-      async (c) =>
-        c.json({
-          assignment: await new SyntheticPopulationController(
-            deps.getDb(),
-            deps.ports
-          ).claim(c.req.valid('json').workerId, c.req.valid('json').games),
-        })
+    .post('/claim', zValidator('json', claimSchema), async (c) =>
+      c.json({
+        assignment: await new SyntheticPopulationController(
+          deps.getDb(),
+          deps.ports
+        ).claim(
+          c.req.valid('json').workerId,
+          c.req.valid('json').games,
+          c.req.valid('json').unreachable
+        ),
+      })
     )
     .post('/renew', zValidator('json', leaseSchema), async (c) => {
       const renewal = await renewSyntheticUser(
