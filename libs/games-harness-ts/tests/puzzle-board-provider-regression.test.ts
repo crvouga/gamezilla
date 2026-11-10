@@ -18,7 +18,7 @@ test('puzzle 01Xbe renders translated guidance and accepts g6g5 after g3h4', asy
   );
   try {
     await driver.launch();
-    expect(await driver.snapshotHtml()).toContain('White pieces nearest you');
+    expect(await driver.snapshotHtml()).toContain('White pieces at the bottom');
     await CHESS_HARNESS_GAME.shared.automation.turns.perform(
       driver,
       PUZZLE_BOARD,
