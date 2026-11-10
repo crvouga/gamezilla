@@ -8,13 +8,11 @@ import {
   syntheticPopulationCommandSchema,
   syntheticPopulationConfigSchema,
 } from '@libs/synthetic-population-shared-ts/config';
-import { onlineNowFilterSchema } from '@libs/synthetic-population-shared-ts/live-session';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 import { Hono } from 'hono';
 import { bodyLimit } from 'hono/body-limit';
 import { z } from 'zod';
 import { replaySyntheticPopulationDecisions } from './decision-replay';
-import { LiveObservatory, type LiveObservatoryPorts } from './live-observatory';
 import type { SyntheticPopulationPorts } from './records';
 import { SyntheticPopulationAdministration } from './synthetic-population-administration';
 import { SyntheticPopulationRepository } from './synthetic-population-repository';
@@ -26,8 +24,6 @@ import {
 export type SyntheticPopulationRouteDeps = {
   readonly getDb: () => SqlClient;
   readonly ports: SyntheticPopulationPorts;
-  /** How the live view tells watchers and watched apps what changed. */
-  readonly live: LiveObservatoryPorts;
   readonly subscriptionCredentials: (
     actorId: string
   ) => Promise<{ username: string; password: string; expiresAt: number }>;
@@ -37,9 +33,6 @@ export type SyntheticPopulationRouteDeps = {
   ) => Promise<string>;
 };
 const userParam = z.object({ id: z.string().uuid() });
-const liveQuery = z.object({
-  filter: onlineNowFilterSchema.default('everyone'),
-});
 
 export function createSyntheticPopulationRoutes(
   deps: SyntheticPopulationRouteDeps
@@ -106,30 +99,7 @@ export function createSyntheticPopulationRoutes(
         ),
       });
     })
-    .route('/', createSyntheticPopulationLiveRoutes(deps))
     .route('/', createSyntheticPopulationCommandRoutes(deps));
-}
-
-/** Whoever is online now, and watching one of them live. */
-function createSyntheticPopulationLiveRoutes(
-  deps: SyntheticPopulationRouteDeps
-) {
-  const live = () => new LiveObservatory(deps.getDb(), deps.live);
-  return new Hono()
-    .get('/live', zValidator('query', liveQuery), async (c) => {
-      await deps.authorize(c.req.raw, PERMISSION.syntheticPopulationView);
-      return c.json({
-        entries: await live().onlineNow(c.req.valid('query').filter),
-        observedAtMs: deps.ports.clock.now(),
-      });
-    })
-    .post('/live/:id/watch', zValidator('param', userParam), async (c) => {
-      const actorId = await deps.authorize(
-        c.req.raw,
-        PERMISSION.syntheticPopulationWatch
-      );
-      return c.json(await live().watch(c.req.valid('param').id, actorId));
-    });
 }
 
 function createSyntheticPopulationCommandRoutes(

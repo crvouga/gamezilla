@@ -5,20 +5,18 @@ import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { For, type JSX, Show } from 'solid-js';
 import type { SyntheticPopulationOverview } from './synthetic-population-api';
+import { useMomentLabel } from './synthetic-user-labels';
 
+/**
+ * The Synthetic Population Workers: the admission limit each one honors
+ * (or that none has reported yet), then each worker's health, version,
+ * heartbeat, load and resources.
+ */
 export function SyntheticPopulationWorkers(props: {
   overview: SyntheticPopulationOverview;
 }): JSX.Element {
   return (
-    <StackVertical gap="md">
-      <For each={props.overview.workers}>
-        {(worker) => (
-          <SyntheticPopulationWorkerDetails
-            overview={props.overview}
-            worker={worker}
-          />
-        )}
-      </For>
+    <StackVertical gap="xl">
       <MenuSection title={<Trans>Synthetic Population Workers</Trans>}>
         <Show when={props.overview.workers.length === 0}>
           <EmptyState
@@ -34,6 +32,14 @@ export function SyntheticPopulationWorkers(props: {
           value={String(props.overview.config.capacityPerWorker)}
         />
       </MenuSection>
+      <For each={props.overview.workers}>
+        {(worker) => (
+          <SyntheticPopulationWorkerDetails
+            overview={props.overview}
+            worker={worker}
+          />
+        )}
+      </For>
     </StackVertical>
   );
 }
@@ -43,6 +49,7 @@ function SyntheticPopulationWorkerDetails(props: {
   worker: SyntheticPopulationOverview['workers'][number];
 }): JSX.Element {
   const { t } = useLingui();
+  const moment = useMomentLabel();
   const active = () =>
     props.overview.workerAssignments.find(
       (row) => row.worker_id === props.worker.id
@@ -69,7 +76,8 @@ function SyntheticPopulationWorkerDetails(props: {
       />
       <MenuRow
         title={<Trans>Last heartbeat</Trans>}
-        value={props.worker.heartbeat_at}
+        value={moment(props.worker.heartbeat_at)}
+        valueLines={2}
       />
       <MenuRow
         title={<Trans>Active Synthetic Users</Trans>}

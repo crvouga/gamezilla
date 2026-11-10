@@ -21,6 +21,7 @@
         "@libs/games-shared-ts#src",
         "@libs/infra-shared-ts#src",
         "@libs/notifications-server-ts#src",
+        "@libs/observatory-server-ts#src",
         "@libs/runtime-shared-ts#src",
         "@libs/spaces-server-ts#src",
         "@libs/sub-shared-ts#src",

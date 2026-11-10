@@ -1,55 +1,14 @@
-import { clientConfigTopic } from '@libs/app-config-shared-ts/sync-topics';
 import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
-import { signedInAccountOf } from '@libs/harness-ts/identity';
 import {
-  type AppPermission,
-  ROLE,
-} from '@libs/permissions-shared-ts/permission-catalog';
-import { DEFAULT_PERMISSION_POLICY } from '@libs/permissions-shared-ts/permission-policy';
+  SYNTHETIC_USERS_CONFIG_PATH,
+  SYNTHETIC_USERS_PATH,
+} from '@libs/observatory-shared-ts/observatory-routes';
 import { SyntheticPopulationAdministration } from '@libs/synthetic-population-server-ts/synthetic-population-administration';
 import { SyntheticPopulationRepository } from '@libs/synthetic-population-server-ts/synthetic-population-repository';
-import sql from '@pkgs/sql-root-shared-ts/sql';
-import { notifyChannels } from '@pkgs/sync-engine-server-ts/notify-channels';
 import { settleAboveDesired } from './live-synthetic-users';
 import { runDeployedWorker } from './population-worker';
 
-export const grantSyntheticPopulationAccess = scenarioAction({
-  name: 'grantSyntheticPopulationAccess',
-  act: async (s, actor: string, permissions: readonly AppPermission[]) => {
-    const accountId = await signedInAccountOf(s, actor);
-    if (accountId === null)
-      throw new Error(
-        'A Synthetic Population observer needs a normal signed-in account'
-      );
-    const policy = {
-      ...DEFAULT_PERMISSION_POLICY,
-      version: 'synthetic-population-spec',
-      roles: {
-        ...DEFAULT_PERMISSION_POLICY.roles,
-        [ROLE.syntheticPopulationOperator]: {
-          when: { accountId: [accountId] },
-          permissions,
-        },
-      },
-    };
-    const db = s.harness.serverSql.sqlClient;
-    const now = new Date(s.harness.clock.now()).toISOString();
-    await db.run(
-      sql`UPDATE client_config SET value = ${JSON.stringify(policy)}, updated_at = ${now} WHERE id = ${'permission_policy'}`
-    );
-    if (s.harness.server.events !== null)
-      await notifyChannels({
-        pubsub: s.harness.server.events,
-        sql: db,
-        tables: ['client_config'],
-        topics: [clientConfigTopic()],
-        now: s.harness.clock.now,
-        label: 'synthetic-population-permission-fixture',
-      });
-    await s.session.waitForIdle();
-  },
-});
 function ports(s: ProductHarness) {
   return {
     clock: s.harness.clock,
@@ -71,11 +30,12 @@ export const givenDesiredSyntheticPopulation = scenarioAction({
     );
   },
 });
-export const openObservatory = scenarioAction({
-  name: 'openObservatory',
+/** The person opens the Synthetic Population panel of the User Observatory. */
+export const openSyntheticPopulationPanel = scenarioAction({
+  name: 'openSyntheticPopulationPanel',
   act: async (s, actor: string) => {
     await actorUi(s, actor);
-    await s.actors.get(actor)!.openLink('/admin/synthetic-population');
+    await s.actors.get(actor)!.openLink(SYNTHETIC_USERS_PATH);
   },
 });
 export const changeDesiredSyntheticPopulation = scenarioAction({
@@ -84,7 +44,7 @@ export const changeDesiredSyntheticPopulation = scenarioAction({
     // A deployed worker is running, as in production, to act on the change.
     runDeployedWorker(s, false);
     const ui = await actorUi(s, actor);
-    await s.actors.get(actor)!.openLink('/admin/synthetic-population/config');
+    await s.actors.get(actor)!.openLink(SYNTHETIC_USERS_CONFIG_PATH);
     if (await ui.get('synthetic-population-config-denied').isVisible()) return;
     await ui.get('synthetic-population-desired-input').clear();
     await ui.get('synthetic-population-desired-input').input(String(desired));
@@ -114,8 +74,7 @@ export async function syntheticPopulationDenied(
     (await ui.get('synthetic-population-denied').isVisible()) ||
     (await ui.get('synthetic-population-config-denied').isVisible()) ||
     (await ui.get('synthetic-population-inspect-denied').isVisible()) ||
-    (await ui.get('synthetic-population-control-denied').isVisible()) ||
-    (await ui.get('synthetic-population-watch-denied').isVisible())
+    (await ui.get('synthetic-population-control-denied').isVisible())
   );
 }
 export async function syntheticActivityShown(

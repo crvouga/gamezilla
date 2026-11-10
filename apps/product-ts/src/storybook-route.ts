@@ -39,11 +39,12 @@ const STACK_ROUTES: Readonly<Record<string, string>> = {
   'screens-shell-sso-callback': '/sso-callback',
   'screens-games-matchmaking-link': '/chess/multiplayer',
   'screens-puzzles-link': '/chess/puzzle/story-puzzle',
-  'screens-admin-synthetic-population': '/admin/synthetic-population',
+  'screens-admin-user-observatory': '/admin/observatory',
+  'screens-admin-synthetic-population': '/admin/observatory/synthetic-users',
   'screens-admin-synthetic-population-config':
-    '/admin/synthetic-population/config',
+    '/admin/observatory/synthetic-users/config',
   'screens-admin-synthetic-user':
-    '/admin/synthetic-population/users/story-person',
+    '/admin/observatory/synthetic-users/story-person',
 };
 
 // These views are mounted under SpaceActiveLayout in the product. Link screens

@@ -161,27 +161,27 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 
 | | |
 | --- | --- |
-| Packages | 365 |
-| Verify scripts | 1514 |
+| Packages | 370 |
+| Verify scripts | 1529 |
 | Measured scripts | 934 |
-| Estimated scripts | 580 |
+| Estimated scripts | 595 |
 | Stale cost keys | 574 |
-| Cold CPU | 19529 s |
-| Spec parts | 12130 s across 374 tasks |
+| Cold CPU | 19579 s |
+| Spec parts | 12149 s across 375 tasks |
 | Longest task | @libs/games-harness-ts#test:spec:49 213 s |
 
 ### Families
 
 | Family | Tasks | CPU |
 | --- | --- | --- |
-| test:spec | 374 | 12130 s |
-| lint | 363 | 1283 s |
+| test:spec | 375 | 12149 s |
+| lint | 368 | 1293 s |
 | test:contract | 25 | 1004 s |
 | verify:models:10 | 16 | 960 s |
-| test | 274 | 935 s |
-| verify:models | 46 | 748 s |
+| test | 277 | 938 s |
+| verify:models | 47 | 761 s |
 | verify:models:2 | 11 | 660 s |
-| tc | 362 | 546 s |
+| tc | 367 | 551 s |
 
 ### Leaves
 
@@ -190,8 +190,8 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 | | |
 | --- | --- |
 | Leaf CPU, median | 4 s |
-| Leaf CPU, 90th percentile | 103 s |
-| Longest leaf task, 90th percentile | 33 s |
+| Leaf CPU, 90th percentile | 72 s |
+| Longest leaf task, 90th percentile | 26 s |
 | Longest leaf task | 132 s |
 
 | Package | CPU | Longest task |
@@ -208,9 +208,9 @@ A cone is the package plus every transitive workspace dependent. A source change
 
 | Package | Packages | CPU | Longest task |
 | --- | --- | --- | --- |
-| @pkgs/property-shared-ts | 298 | 19316 s | @libs/games-harness-ts#test:spec:49 213 s |
-| @pkgs/clock-shared-ts | 262 | 19190 s | @libs/games-harness-ts#test:spec:49 213 s |
-| @pkgs/assert-root-shared-ts | 255 | 19149 s | @libs/games-harness-ts#test:spec:49 213 s |
+| @pkgs/property-shared-ts | 303 | 19366 s | @libs/games-harness-ts#test:spec:49 213 s |
+| @pkgs/clock-shared-ts | 267 | 19240 s | @libs/games-harness-ts#test:spec:49 213 s |
+| @pkgs/assert-root-shared-ts | 260 | 19199 s | @libs/games-harness-ts#test:spec:49 213 s |
 
 ### Runner
 
@@ -223,7 +223,7 @@ Slot allocation target 240 s. Warm start 30 s. Verdict slack 15 s. Spec workers 
 | Other slots per runner | 11 |
 | Cores required per runner | 29 |
 | Memory required per runner | 40 GiB |
-| Estimated makespan | 253 s |
+| Estimated makespan | 254 s |
 | Provision | 6 × 32 vCPU, 64 GB, Linux x64 |
 | Fits | yes |
 <!-- ci-load:end -->

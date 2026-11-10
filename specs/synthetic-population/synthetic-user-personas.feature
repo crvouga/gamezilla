@@ -18,8 +18,8 @@ Feature: Synthetic Users have personas of their own
 
     Scenario: Twelve Synthetic Users each have a username of their own
       Given the Synthetic Population has 12 Synthetic Users
-      And Alice is authorized to view the Bot Observatory
-      When Alice opens the Bot Observatory
+      And Alice is authorized to view the Synthetic Population panel
+      When Alice opens the Synthetic Population panel
       Then Alice sees 12 Synthetic Users, each with a different username
 
   Rule: A Synthetic User's username reads like one a person chose, with no pattern shared across the Synthetic Population
@@ -27,8 +27,8 @@ Feature: Synthetic Users have personas of their own
 
     Scenario: Twelve Synthetic Users' usernames follow no shared pattern
       Given the Synthetic Population has 12 Synthetic Users
-      And Alice is authorized to view the Bot Observatory
-      When Alice opens the Bot Observatory
+      And Alice is authorized to view the Synthetic Population panel
+      When Alice opens the Synthetic Population panel
       Then no three Synthetic User usernames begin with the same three letters
       And no two Synthetic User usernames differ only by a number
 
@@ -37,13 +37,13 @@ Feature: Synthetic Users have personas of their own
 
     Scenario: Twelve Synthetic Users play at several skill levels and favor several games
       Given the Synthetic Population has 12 Synthetic Users
-      And Alice is authorized to view the Bot Observatory
-      When Alice opens the Bot Observatory
+      And Alice is authorized to view the Synthetic Population panel
+      When Alice opens the Synthetic Population panel
       Then Alice sees Synthetic Users of at least 3 different skill levels
       And Alice sees at least 3 different favorite games among the Synthetic Users
 
   Rule: A Synthetic User keeps its persona for good
-    No counter-example: nobody can change a Synthetic User's persona; the Bot Observatory offers no way to.
+    No counter-example: nobody can change a Synthetic User's persona; the Synthetic Population panel offers no way to.
 
     Scenario: A Synthetic User keeps its persona after closing and reopening the app
       Given the Synthetic User "Cedar" is available

@@ -7,7 +7,7 @@ import { provisionUsername } from './persona-usernames';
 
 /**
  * The contract every Synthetic User persona satisfies. Provisioning, the
- * Worker's behavior and the Bot Observatory all read this one shape; the
+ * Worker's behavior and the Synthetic Population panel all read this one shape; the
  * persisted `population_users.personality` column holds it as JSON.
  */
 export const SKILL_LEVELS = [

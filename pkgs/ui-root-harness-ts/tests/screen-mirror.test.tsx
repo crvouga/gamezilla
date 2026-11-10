@@ -48,4 +48,21 @@ describe('ScreenMirror', () => {
     expect(srcdoc).toContain('Settings');
     expect(srcdoc).not.toContain('Spaces');
   });
+
+  test('is never wider than the device it mirrors', () => {
+    renderUi(() => (
+      <>
+        <ScreenMirror title="Bob's phone" html="<body/>" />
+        <ScreenMirror title="Bob's desktop" html="<body/>" device="desktop" />
+      </>
+    ));
+    const host = (title: string): HTMLElement => {
+      const element = screen.getByTitle(title).parentElement;
+      if (element === null) throw new Error(`${title} has no host`);
+      return element;
+    };
+    // The 390px phone and 1280px desktop, each inside its 1px hairline.
+    expect(host("Bob's phone").style.maxWidth).toBe('392px');
+    expect(host("Bob's desktop").style.maxWidth).toBe('1282px');
+  });
 });

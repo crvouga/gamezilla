@@ -30,6 +30,7 @@ product:
     - numberlink
     - pong
     - profile
+    - observatory
     - puzzles
     - synthetic-population
     - room
@@ -47,12 +48,13 @@ product:
   # Everything a person may or may not be allowed to do. Each is answered by
   # exactly one decision table, named by its decision.
   capabilities:
-    - { id: view the Bot Observatory, context: synthetic-population, decided by: synthetic-population-access }
+    - { id: view the Synthetic Population panel, context: synthetic-population, decided by: synthetic-population-access }
     - { id: inspect a Synthetic User, context: synthetic-population, decided by: synthetic-population-access }
     - { id: configure the Synthetic Population, context: synthetic-population, decided by: synthetic-population-access }
     - { id: control a Synthetic User, context: synthetic-population, decided by: synthetic-population-access }
     - { id: replay Synthetic User decisions, context: synthetic-population, decided by: synthetic-population-access }
-    - { id: watch someone live, context: synthetic-population, decided by: synthetic-population-access }
+    - { id: view the User Observatory, context: observatory, decided by: observatory-access }
+    - { id: watch someone live, context: observatory, decided by: observatory-access }
     - { id: delete their account, context: profile, decided by: privacy-access }
     - { id: take a personal-data export, context: profile, decided by: privacy-access }
     - { id: keep a friends list, context: friends, decided by: access }

@@ -10,13 +10,16 @@ const meta = {
   title: 'Atoms/ScreenMirror',
   component: ScreenMirror,
   tags: ['autodocs'],
-  args: { title: "Bob's screen", html: MIRRORED_SCREEN },
+  args: { title: "nightowl_88's screen", html: MIRRORED_SCREEN },
 } satisfies Meta<typeof ScreenMirror>;
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** A phone screen as its person sees it, scaled to the room it is given. */
-export const Phone: Story = {};
+/**
+ * A phone screen as its person sees it, scaled to the room it is given and,
+ * in a wide column, kept to the phone's own width.
+ */
+export const Phone: Story = { tags: ['viewport-responsive'] };
 
 /** A desktop-sized screen, scaled down further. */
 export const Desktop: Story = { args: { device: 'desktop' } };

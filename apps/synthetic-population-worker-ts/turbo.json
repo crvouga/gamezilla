@@ -16,6 +16,7 @@
         "@libs/app-root-client-ts#src",
         "@libs/auth-shared-ts#src",
         "@libs/game-catalog-shared-ts#src",
+        "@libs/observatory-shared-ts#src",
         "@libs/product-identity-shared-ts#src",
         "@libs/runtime-client-ts#src",
         "@libs/runtime-shared-ts#src",

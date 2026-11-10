@@ -2,6 +2,11 @@ import { expect } from 'bun:test';
 import { Given, Then, When } from '@libs/harness-ts/define';
 import type { Actor } from '@libs/harness-ts/parameter-types';
 import {
+  controlPanelOffered,
+  onlineNowRow,
+} from '@libs/observatory-actions-harness-ts/user-observatory-actions';
+import {
+  directoryControlPanelOffered,
   givenPausedSyntheticUsers,
   pauseEverySyntheticUser,
   restartSyntheticUser,
@@ -10,10 +15,6 @@ import {
   syntheticUserAvailableShown,
   syntheticUserPausedShown,
 } from '@libs/synthetic-population-harness-ts/control-panel-actions';
-import {
-  controlPanelOffered,
-  onlineNowRow,
-} from '@libs/synthetic-population-harness-ts/live-observatory-actions';
 import { rememberContinuity } from './continuity-memo';
 
 const SECOND_MS = 1_000;
@@ -54,7 +55,7 @@ When(
 Then(
   '{actor} is offered the control panel of {string}',
   async (w, actor: Actor, name: string) => {
-    await w.s.until((s) => controlPanelOffered(s, actor, name), {
+    await w.s.until((s) => directoryControlPanelOffered(s, actor, name), {
       pred: Boolean,
       maxMs: SHOWN_MS,
     });

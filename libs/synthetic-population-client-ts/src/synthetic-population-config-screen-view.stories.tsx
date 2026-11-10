@@ -1,7 +1,12 @@
 import { KeyRoundIcon } from '@pkgs/ui-root-client-ts/icons';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
-import { CONFIG, directory, OVERVIEW } from './synthetic-population.example';
+import {
+  CONFIG,
+  directory,
+  OVERVIEW,
+  withGameNames,
+} from './synthetic-population.example';
 import { toConfigurationDraft } from './synthetic-population-configuration';
 import {
   SyntheticPopulationScreenView,
@@ -9,21 +14,25 @@ import {
 } from './synthetic-population-screen-view';
 
 /**
- * `/admin/synthetic-population/config` renders the same view as the overview;
- * these stories cover the configuration form's validation and save states.
+ * `/admin/observatory/synthetic-users/config` renders the panel's
+ * `configuration` section: the desired synthetic population form beside the
+ * counts, with the save footer. These stories cover its validation and save
+ * states.
  */
 const meta = {
   id: 'screens-admin-synthetic-population-config',
   title: 'Screens/Admin/Synthetic population config',
   component: SyntheticPopulationScreenView,
   tags: ['autodocs'],
+  decorators: [withGameNames],
   parameters: {
     appRouter: true,
     controls: {
-      exclude: ['overview', 'denial', 'fields', 'directory', 'onlineNow'],
+      exclude: ['overview', 'denial', 'fields', 'directory'],
     },
   },
   args: {
+    section: 'configuration',
     loading: false,
     failed: false,
     overview: OVERVIEW,
@@ -34,6 +43,7 @@ const meta = {
     onChangeField: fn(),
     onSave: fn(async () => undefined),
     onRefresh: fn(),
+    onOpenConfiguration: fn(),
     canControl: false,
     onCommandAll: fn(async () => undefined),
   },
@@ -103,6 +113,22 @@ export const SaveFailed: Story = {
       )
     );
   },
+};
+
+/**
+ * The first read has not finished: the form waits for the saved
+ * configuration, so Save stays disabled.
+ */
+export const Loading: Story = {
+  args: { loading: true, overview: undefined, canSave: false },
+};
+
+/**
+ * The first read failed: nothing known can be saved over, so Save stays
+ * disabled and the retry reads again.
+ */
+export const Failed: Story = {
+  args: { failed: true, overview: undefined, canSave: false },
 };
 
 /** A person who may view but not configure opens the config link. */

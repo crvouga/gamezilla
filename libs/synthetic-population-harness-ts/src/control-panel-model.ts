@@ -1,7 +1,7 @@
 /**
  * The control panels as the model sees them: Alice acts on her phone and
- * follows those online now on her tablet; Cedar and Maple are Synthetic
- * Users, each with a person to play a matched game against.
+ * follows the Synthetic Population panel on her tablet; Cedar and Maple are
+ * Synthetic Users, each with a person to play a matched game against.
  */
 
 import { GAME_AUTOMATIONS } from '@libs/game-catalog-shared-ts/game-automations';
@@ -21,16 +21,17 @@ import {
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront } from '@libs/harness-ts/observations';
 import { backToTabs } from '@libs/harness-ts/shell-actions';
+import { grantOperatorPermissions } from '@libs/observatory-actions-harness-ts/operator-access-actions';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { showSpacesTab } from '@libs/spaces-harness-ts/space-ui';
 import { configureUsername } from '@libs/synthetic-population-behavior-shared-ts/application-actions';
 import { SyntheticUserApplication } from '@libs/synthetic-population-behavior-shared-ts/synthetic-user-application';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { controlPanelOffered, onlineNowRow } from './live-observatory-actions';
 import {
-  grantSyntheticPopulationAccess,
-  openObservatory,
-} from './observatory-actions';
+  directoryControlPanelOffered,
+  directoryRowShown,
+} from './control-panel-actions';
+import { openSyntheticPopulationPanel } from './observatory-actions';
 import {
   givenSyntheticGameSpace,
   openSyntheticGame,
@@ -40,7 +41,7 @@ import {
 import { syntheticUserActor } from './synthetic-sign-in-actions';
 import { givenSyntheticUser } from './synthetic-user-fixtures';
 
-/** Alice's devices: her phone controls, her tablet follows the list. */
+/** Alice's devices: her phone controls, her tablet follows the panel. */
 export const ALICE_CONTROL = 'alice';
 export const ALICE_LIST = 'alice:tablet';
 /** Who each Synthetic User plays its matched games against. */
@@ -48,7 +49,7 @@ const OPPONENT: Record<string, string> = { Cedar: 'bob', Maple: 'carol' };
 const SYNTHETIC_USERS = ['Cedar', 'Maple'] as const;
 const READY_MS = 15_000;
 
-/** Alice may control; Cedar and Maple are available; her tablet watches. */
+/** Alice may control; Cedar and Maple are available; her tablet follows them. */
 export const givenControlPanels = scenarioAction({
   name: 'givenControlPanels',
   act: async (s) => {
@@ -56,7 +57,7 @@ export const givenControlPanels = scenarioAction({
       await Promise.resolve(givenSyntheticUser.act(s, name, false));
     await Promise.resolve(signInWithGoogle.act(s, ALICE_CONTROL));
     await Promise.resolve(
-      grantSyntheticPopulationAccess.act(s, ALICE_CONTROL, [
+      grantOperatorPermissions.act(s, ALICE_CONTROL, [
         PERMISSION.syntheticPopulationView,
         PERMISSION.syntheticPopulationInspect,
         PERMISSION.syntheticPopulationControl,
@@ -65,7 +66,16 @@ export const givenControlPanels = scenarioAction({
     await Promise.resolve(
       signInWithGoogleAsAccount.act(s, ALICE_LIST, ALICE_CONTROL)
     );
-    await Promise.resolve(openObservatory.act(s, ALICE_LIST));
+    await Promise.resolve(openSyntheticPopulationPanel.act(s, ALICE_LIST));
+  },
+});
+
+/** Alice opens the Synthetic Population panel on the device that follows it. */
+export const openControlPanels = scenarioAction({
+  name: 'openControlPanels',
+  act: async (s) => {
+    await Promise.resolve(openSyntheticPopulationPanel.act(s, ALICE_LIST));
+    await s.session.waitForIdle();
   },
 });
 
@@ -188,7 +198,7 @@ export const setAliceConnection = scenarioAction({
 });
 
 /**
- * What Alice and the Synthetic Users see: who her list shows as paused and
+ * What Alice and the Synthetic Users see: who her panel shows as paused and
  * offers a control panel for, and who is in an ongoing game on its own
  * screen.
  */
@@ -197,9 +207,10 @@ export async function observeControlPanels(s: ProductHarness) {
   const offered: string[] = [];
   const playing: string[] = [];
   for (const name of SYNTHETIC_USERS) {
-    const row = await onlineNowRow(s, ALICE_LIST, name);
+    const row = await directoryRowShown(s, ALICE_LIST, name);
     if (row?.includes('Paused') === true) paused.push(name);
-    if (await controlPanelOffered(s, ALICE_LIST, name)) offered.push(name);
+    if (await directoryControlPanelOffered(s, ALICE_LIST, name))
+      offered.push(name);
     const board = await syntheticGameView(s, syntheticUserActor(name));
     if (board.outcome === 'ongoing') playing.push(name);
   }

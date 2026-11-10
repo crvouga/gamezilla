@@ -6,6 +6,7 @@ import { Trans, useLingui } from '@lingui/solid/macro';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { type JSX, Show } from 'solid-js';
+import { useGameName } from './game-names';
 
 /** A skill level as people say it. */
 export function useSkillLabel(): (level: SkillLevel) => string {
@@ -19,6 +20,12 @@ export function useSkillLabel(): (level: SkillLevel) => string {
   return (level) => labels[level]();
 }
 
+/** A persona's favorite games by the names people know them by. */
+function useFavoriteGames(): (persona: Persona) => string {
+  const gameName = useGameName();
+  return (persona) => persona.favoriteGames.map(gameName).join(', ');
+}
+
 /**
  * One line about who a Synthetic User is as a player, for its directory row:
  * home region, skill level and favorite games (left out when it has none).
@@ -26,10 +33,11 @@ export function useSkillLabel(): (level: SkillLevel) => string {
 export function usePersonaCaption(): (persona: Persona) => string {
   const { t } = useLingui();
   const skill = useSkillLabel();
+  const favoriteGames = useFavoriteGames();
   return (persona) => {
     const region = persona.homeRegion;
     const level = skill(persona.skillLevel);
-    const games = persona.favoriteGames.join(', ');
+    const games = favoriteGames(persona);
     return persona.favoriteGames.length === 0
       ? t`${region} · ${level}`
       : t`${region} · ${level} · Favorite games: ${games}`;
@@ -50,6 +58,7 @@ export function SyntheticUserPersona(props: {
 }): JSX.Element {
   const { t } = useLingui();
   const skill = useSkillLabel();
+  const favoriteGames = useFavoriteGames();
   return (
     <MenuSection title={<Trans>Persona</Trans>}>
       <Show
@@ -77,7 +86,7 @@ export function SyntheticUserPersona(props: {
             />
             <MenuRow
               title={<Trans>Favorite games</Trans>}
-              value={persona().favoriteGames.join(', ')}
+              value={favoriteGames(persona())}
               valueLines={2}
             />
             <MenuRow

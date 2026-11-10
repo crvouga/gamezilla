@@ -1,11 +1,11 @@
 import { partition, restoreActorConnection } from '@libs/harness-ts/actions';
 import { signInWithGoogle } from '@libs/harness-ts/auth-actions';
 import type { QuintHarnessWorld } from '@libs/harness-ts/quint-world';
+import { grantOperatorPermissions } from '@libs/observatory-actions-harness-ts/operator-access-actions';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import {
   changeDesiredSyntheticPopulation,
   givenDesiredSyntheticPopulation,
-  grantSyntheticPopulationAccess,
 } from '@libs/synthetic-population-harness-ts/observatory-actions';
 import {
   observePersonaPopulation,
@@ -21,7 +21,7 @@ bindQuintModel<QuintHarnessWorld>({
   actions: {
     init: async (w) => {
       await w.s.apply(signInWithGoogle, 'alice');
-      await w.s.apply(grantSyntheticPopulationAccess, 'alice', [
+      await w.s.apply(grantOperatorPermissions, 'alice', [
         PERMISSION.syntheticPopulationView,
         PERMISSION.syntheticPopulationConfigure,
       ]);

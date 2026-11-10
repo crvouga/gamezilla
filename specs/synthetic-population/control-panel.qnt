@@ -1,5 +1,5 @@
-// Alice may control the Synthetic Population from the Bot Observatory. Each
-// Synthetic User, Cedar and Maple, has a control panel there; Bob, a person,
+// Alice may control the Synthetic Population from the Synthetic Population
+// panel. Each Synthetic User, Cedar and Maple, has a control panel there; Bob, a person,
 // never has one. Alice pauses or resumes one Synthetic User, or every
 // Synthetic User at once, and restarts one. A paused Synthetic User starts no
 // new activity but finishes an ongoing game. Restarting keeps an ongoing game.
@@ -33,6 +33,19 @@ module control_panel {
     _restartedWhilePlaying' = false,
     _offline' = Set(),
     _pausedBeforeOffline' = Set(),
+  }
+
+  /// Alice opens the Synthetic Population panel and is offered each Synthetic User's control panel.
+  action openPanel = all {
+    not(_offline.contains("Alice")),
+    paused' = paused,
+    playing' = playing,
+    controlPanelOffered' = SYNTHETIC_USERS,
+    _playingWhenPaused' = _playingWhenPaused,
+    _restarted' = "",
+    _restartedWhilePlaying' = false,
+    _offline' = _offline,
+    _pausedBeforeOffline' = _pausedBeforeOffline,
   }
 
   /// Alice pauses one Synthetic User.
@@ -162,6 +175,7 @@ module control_panel {
     nondet who = SYNTHETIC_USERS.oneOf()
     nondet device = Set("Alice").oneOf()
     any {
+      openPanel,
       pause(who),
       pauseAll,
       resume(who),

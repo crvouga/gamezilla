@@ -4,19 +4,19 @@ Feature: Observe and control the Synthetic Population
   observe their activity and choose how many are available, so people can
   find opponents without mistaking them for people.
 
-  Rule: Only authorized people can use the Bot Observatory
+  Rule: Only authorized people can use the Synthetic Population panel
 
     @regression:stack-fixtures-publish-to-in-process-broker
     Scenario: An authorized person sees the desired synthetic population
-      Given Alice is authorized to view the Bot Observatory
+      Given Alice is authorized to view the Synthetic Population panel
       And the desired synthetic population is 4
-      When Alice opens the Bot Observatory
+      When Alice opens the Synthetic Population panel
       Then Alice sees a desired synthetic population of 4
 
     @regression:synthetic-population-denial-removes-shell
     Scenario: An ordinary person cannot inspect Synthetic Users
-      Given Bob is not authorized to view the Bot Observatory
-      When Bob opens the Bot Observatory
+      Given Bob is not authorized to view the Synthetic Population panel
+      When Bob opens the Synthetic Population panel
       Then Bob is told that permission is required
       And Bob sees no Synthetic User activity
 
@@ -29,7 +29,7 @@ Feature: Observe and control the Synthetic Population
       Then Alice sees a desired synthetic population of 6
 
     Scenario: A person with observation permission cannot change the desired synthetic population
-      Given Alice is authorized to view the Bot Observatory
+      Given Alice is authorized to view the Synthetic Population panel
       And the desired synthetic population is 4
       When Alice changes the desired synthetic population to 6
       Then Alice is told that permission is required
@@ -53,7 +53,7 @@ Feature: Observe and control the Synthetic Population
         | Connect Four |
 
     Scenario: A person with observation permission cannot pause a Synthetic User
-      Given Alice is authorized to view the Bot Observatory
+      Given Alice is authorized to view the Synthetic Population panel
       And the Synthetic User "Cedar" is available
       When Alice pauses the Synthetic User "Cedar"
       Then Alice is told that permission is required

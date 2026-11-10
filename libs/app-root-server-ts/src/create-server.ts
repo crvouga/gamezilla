@@ -18,8 +18,8 @@ import type { ApiHonoEnv } from '@libs/auth-shared-ts/api-hono-env';
 import { isLocalApiOrigin } from '@libs/auth-shared-ts/local-api-origin';
 import type { AuthContext } from '@libs/auth-shared-ts/types';
 import { UnauthorizedError } from '@libs/auth-shared-ts/unauthorized-error';
+import { withOperators } from '@libs/permissions-shared-ts/operator-permission-policy';
 import { permissionPolicyForPuzzleManagers } from '@libs/permissions-shared-ts/permission-policy';
-import { withSyntheticPopulationOperators } from '@libs/permissions-shared-ts/synthetic-population-permission-policy';
 import { setHttpPubSubOverride } from '@libs/pubsub-server-ts/create-http-pubsub-from-secret-store';
 import { PubsubSecretName } from '@libs/pubsub-shared-ts/secret-names';
 import type { ComposedSubs } from '@libs/sub-shared-ts/compose';
@@ -233,7 +233,7 @@ async function buildDesiredClientConfig(args: {
     llm: args.llmConfigured,
     googleWebClientId: null,
     emqxWssUrl,
-    permissionPolicy: withSyntheticPopulationOperators(
+    permissionPolicy: withOperators(
       permissionPolicyForPuzzleManagers(args.puzzleManagerAccountIds),
       args.syntheticPopulationOperatorAccountIds
     ),

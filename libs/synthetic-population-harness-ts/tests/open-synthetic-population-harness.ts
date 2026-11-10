@@ -2,14 +2,18 @@ import { gameSystem } from '@libs/game-session-harness-ts/game-system';
 import { HARNESS_GAMES } from '@libs/games-harness-ts/harness-games';
 import type { OpenHarnessOptions } from '@libs/harness-ts/mode';
 import { openHarness as openSystemHarness } from '@libs/harness-ts/open-harness';
+import { OBSERVATORY_HARNESS_SLICE } from '@libs/observatory-actions-harness-ts/observatory-harness-slice';
 import { SYNTHETIC_POPULATION_HARNESS_SLICE } from '@libs/synthetic-population-harness-ts/synthetic-population-harness-slice';
 
-/** Synthetic users play every registered game, as production offers them. */
+/**
+ * Synthetic users play every registered game, as production offers them,
+ * and the User Observatory sees them online now.
+ */
 const SYNTHETIC_POPULATION_SYSTEM = gameSystem(
   'synthetic-population',
   HARNESS_GAMES,
   {
-    beside: [SYNTHETIC_POPULATION_HARNESS_SLICE],
+    beside: [SYNTHETIC_POPULATION_HARNESS_SLICE, OBSERVATORY_HARNESS_SLICE],
     product: {
       secretValues: {
         POPULATION_WORKER_TOKEN:

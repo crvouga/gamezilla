@@ -28,6 +28,7 @@
     "@libs/games-client-ts": "workspace:*",
     "@libs/games-shared-ts": "workspace:*",
     "@libs/notifications-client-ts": "workspace:*",
+    "@libs/observatory-client-ts": "workspace:*",
     "@libs/profile-client-ts": "workspace:*",
     "@libs/search-client-ts": "workspace:*",
     "@libs/spaces-client-ts": "workspace:*",

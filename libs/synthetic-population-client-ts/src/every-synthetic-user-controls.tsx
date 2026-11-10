@@ -1,10 +1,9 @@
 import type { SyntheticPopulationBulkCommand } from '@libs/synthetic-population-shared-ts/config';
 import { Trans, useLingui } from '@lingui/solid/macro';
-import { Button } from '@pkgs/ui-root-client-ts/button';
+import { PauseIcon, PlayIcon } from '@pkgs/ui-root-client-ts/icons';
+import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
-import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
-import { P } from '@pkgs/ui-root-client-ts/text';
 import { createSignal, type JSX, Show } from 'solid-js';
 
 /** A command for every Synthetic User at once. */
@@ -12,7 +11,8 @@ export type EveryCommand = SyntheticPopulationBulkCommand['command'];
 
 /**
  * Pause or resume every Synthetic User at once, shown only to people who may
- * control them. Each confirms first and reports its outcome in place.
+ * control them: one row per command in a panel, with what pausing does
+ * under it. Each confirms first and reports its outcome in its dialog.
  */
 export function EverySyntheticUserControls(props: {
   canControl: boolean;
@@ -22,27 +22,27 @@ export function EverySyntheticUserControls(props: {
   const [asking, setAsking] = createSignal<EveryCommand | null>(null);
   return (
     <Show when={props.canControl}>
-      <MenuSection title={<Trans>Every Synthetic User</Trans>}>
-        <P variant="caption">
+      <MenuSection
+        title={<Trans>Every Synthetic User</Trans>}
+        footer={
           <Trans>
             Paused Synthetic Users finish an ongoing game and start nothing new
             until resumed.
           </Trans>
-        </P>
-        <StackHorizontal wrap gap="md">
-          <Button
-            title={t`Pause every Synthetic User`}
-            intent="neutral"
-            variant="outline"
-            onClick={() => setAsking('pause-all')}
-            dataSet={{ testid: 'synthetic-population-pause-all' }}
-          />
-          <Button
-            title={t`Resume every Synthetic User`}
-            onClick={() => setAsking('resume-all')}
-            dataSet={{ testid: 'synthetic-population-resume-all' }}
-          />
-        </StackHorizontal>
+        }
+      >
+        <MenuRow
+          leading={<PauseIcon size={20} color="icon" />}
+          title={t`Pause every Synthetic User`}
+          onClick={() => setAsking('pause-all')}
+          dataSet={{ testid: 'synthetic-population-pause-all' }}
+        />
+        <MenuRow
+          leading={<PlayIcon size={20} color="icon" />}
+          title={t`Resume every Synthetic User`}
+          onClick={() => setAsking('resume-all')}
+          dataSet={{ testid: 'synthetic-population-resume-all' }}
+        />
       </MenuSection>
       <MutationModal
         visible={asking() === 'pause-all'}

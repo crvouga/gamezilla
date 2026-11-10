@@ -284,7 +284,6 @@ test('no administrative RPC reads the inbox, whatever the operator may do', asyn
     const admin = createSyntheticPopulationRoutes({
       getDb: () => f.db,
       ports: f.ports,
-      live: f.live,
       subscriptionCredentials: async () => ({
         username: 'jwt',
         password: 'scoped',

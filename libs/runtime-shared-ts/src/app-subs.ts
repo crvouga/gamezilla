@@ -19,6 +19,7 @@ import { BILLING_SUB } from '@libs/billing-shared-ts/sub';
 import { CHESS_SUB } from '@libs/chess-sub-shared-ts/sub';
 import { FRIENDS_SUB } from '@libs/friends-shared-ts/sub';
 import { NOTIFICATIONS_SUB } from '@libs/notifications-shared-ts/sub';
+import { OBSERVATORY_SUB } from '@libs/observatory-shared-ts/sub';
 import { PERMISSIONS_SUB } from '@libs/permissions-shared-ts/sub';
 import { PROFILE_SUB } from '@libs/profile-shared-ts/sub';
 import { SPACES_SUB } from '@libs/spaces-shared-ts/sub';
@@ -41,6 +42,7 @@ export const APP_SUBS: readonly SubManifest[] = [
   BILLING_SUB,
   PERMISSIONS_SUB,
   SYNTHETIC_POPULATION_SUB,
+  OBSERVATORY_SUB,
 ];
 
 /** The folded app: schema, queries, topic map, mutations. */

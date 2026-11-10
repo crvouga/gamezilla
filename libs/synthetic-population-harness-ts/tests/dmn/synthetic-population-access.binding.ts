@@ -1,6 +1,6 @@
 import { capabilityKey } from '@libs/permissions-shared-ts/capabilities';
+import { withOperators } from '@libs/permissions-shared-ts/operator-permission-policy';
 import { DEFAULT_PERMISSION_POLICY } from '@libs/permissions-shared-ts/permission-policy';
-import { withSyntheticPopulationOperators } from '@libs/permissions-shared-ts/synthetic-population-permission-policy';
 import { bindDecisions } from '@pkgs/dmn-shared-ts/registry';
 import { decide } from '@pkgs/permissions-shared-ts/decision';
 import { policyAt } from '@pkgs/permissions-shared-ts/policy';
@@ -13,7 +13,7 @@ bindDecisions({
     'application decision': {
       decide(input) {
         const policy = policyAt(
-          withSyntheticPopulationOperators(
+          withOperators(
             DEFAULT_PERMISSION_POLICY,
             input['authorized for this capability'] === 'yes'
               ? [ACCOUNT_ID]

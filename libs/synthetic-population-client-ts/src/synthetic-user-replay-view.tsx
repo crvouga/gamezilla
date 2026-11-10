@@ -5,6 +5,7 @@ import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
 import { For, type JSX, Show } from 'solid-js';
 import type { SyntheticUserReplayResult } from './synthetic-population-api';
+import { useMomentLabel } from './synthetic-user-labels';
 
 /**
  * Decision Policy replay, presentational: the replay button and, once a
@@ -18,6 +19,7 @@ export function SyntheticUserReplayView(props: {
   onReplay: () => Promise<void>;
 }): JSX.Element {
   const { t } = useLingui();
+  const moment = useMomentLabel();
   const action = useMutationButton({
     labels: {
       idle: t`Replay decisions`,
@@ -36,17 +38,30 @@ export function SyntheticUserReplayView(props: {
         </Trans>
       }
     >
-      <Button
-        {...action.buttonProps}
-        dataSet={{ testid: 'synthetic-population-replay' }}
+      <MenuRow
+        title={<Trans>Recorded decisions</Trans>}
+        caption={
+          props.result === null
+            ? t`Not replayed yet`
+            : t`Replayed with the current Decision Policy`
+        }
+        trailing={
+          <Button
+            {...action.buttonProps}
+            intent="neutral"
+            variant="outline"
+            size="sm"
+            dataSet={{ testid: 'synthetic-population-replay' }}
+          />
+        }
       />
       <Show when={props.result}>
         {(value) => (
           <For each={value().decisions}>
             {(item) => (
               <MenuRow
-                title={item.eventId}
-                caption={item.createdAt}
+                title={moment(item.createdAt)}
+                caption={item.eventId}
                 value={
                   item.result === null
                     ? t`Inputs unavailable`

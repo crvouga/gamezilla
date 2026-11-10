@@ -30,6 +30,9 @@ export type ScreenMirrorProps = {
   dataSet?: ComponentDataSet | undefined;
 };
 
+/** The hairline around the picture (`border`), on each side. */
+const BORDER_PX = 1;
+
 const DEVICE_SIZE: Record<ScreenMirrorDevice, { w: number; h: number }> = {
   phone: { w: 390, h: 844 },
   desktop: { w: 1280, h: 800 },
@@ -50,7 +53,7 @@ function mirroredDocument(styles: string, html: string): string {
 
 /**
  * `ScreenMirror` -- another person's screen, drawn as they see it and scaled
- * to fit the room it is given. The picture is a sandboxed document with no
+ * to fit the room it is given, never wider than the device it mirrors. The picture is a sandboxed document with no
  * scripts, forms or navigation: it can be looked at, never used. Its
  * markup must already be sanitized; the mirror adds only this app's styles.
  *
@@ -81,7 +84,12 @@ export function ScreenMirror(props: ScreenMirrorProps): JSX.Element {
     <div
       ref={host}
       class="box w-full overflow-hidden rounded-card border border-border bg-surface"
-      style={{ height: `${Math.round(size().h * scale())}px` }}
+      // Never wider than the screen it draws, so a wide column shows the
+      // device's own shape instead of the picture beside an empty band.
+      style={{
+        'max-width': `${size().w + BORDER_PX * 2}px`,
+        height: `${Math.round(size().h * scale())}px`,
+      }}
       {...dataAttrs({ component: 'ScreenMirror' })}
     >
       <iframe

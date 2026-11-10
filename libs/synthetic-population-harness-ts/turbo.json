@@ -13,13 +13,14 @@
     },
     "src": {
       "dependsOn": [
-        "@libs/app-config-shared-ts#src",
         "@libs/game-catalog-shared-ts#src",
         "@libs/game-matchmaking-harness-ts#src",
         "@libs/game-matchmaking-shared-ts#src",
         "@libs/game-session-harness-ts#src",
         "@libs/games-harness-ts#src",
         "@libs/harness-ts#src",
+        "@libs/observatory-actions-harness-ts#src",
+        "@libs/observatory-shared-ts#src",
         "@libs/permissions-shared-ts#src",
         "@libs/profile-harness-ts#src",
         "@libs/spaces-harness-ts#src",

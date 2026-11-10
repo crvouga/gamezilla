@@ -2,6 +2,10 @@ import { GAME_AUTOMATIONS } from '@libs/game-catalog-shared-ts/game-automations'
 import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront } from '@libs/harness-ts/observations';
+import {
+  SYNTHETIC_USERS_PATH,
+  syntheticUserPath,
+} from '@libs/observatory-shared-ts/observatory-routes';
 import { SyntheticUserApplication } from '@libs/synthetic-population-behavior-shared-ts/synthetic-user-application';
 import { SyntheticPopulationSession } from '@libs/synthetic-population-server-ts/synthetic-population-session';
 import type { ApplicationEvent } from '@libs/synthetic-population-shared-ts/application-events';
@@ -31,9 +35,7 @@ export const pauseSyntheticUser = scenarioAction({
     if (name !== 'Cedar') throw new Error(`Unknown Synthetic User ${name}`);
     const user = await cedarUser(s);
     const ui = await actorUi(s, actor);
-    await s.actors
-      .get(actor)!
-      .openLink(`/admin/synthetic-population/users/${user.id}`);
+    await s.actors.get(actor)!.openLink(syntheticUserPath(user.id));
     if (await ui.get('synthetic-population-inspect-denied').isVisible()) return;
     await ui.get('synthetic-population-pause').tap();
     await ui
@@ -98,7 +100,11 @@ export const finishPausedSession = scenarioAction({
 export async function cedarAvailable(s: ProductHarness, actor: string) {
   const user = await cedarUser(s);
   const ui = await actorUi(s, actor);
-  await s.actors.get(actor)!.openLink('/admin/synthetic-population');
+  await s.actors.get(actor)!.openLink(SYNTHETIC_USERS_PATH);
   const text = await ui.get(`synthetic-population-user-${user.id}`).text();
-  return text?.includes('browsing') === true && !text.includes('Paused');
+  // The row names its activity as people say it ("Browsing").
+  return (
+    text?.toLowerCase().includes('browsing') === true &&
+    !text.includes('Paused')
+  );
 }

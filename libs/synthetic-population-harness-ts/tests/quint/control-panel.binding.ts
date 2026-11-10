@@ -10,6 +10,7 @@ import {
   finishSyntheticGame,
   givenControlPanels,
   observeControlPanels,
+  openControlPanels,
   setAliceConnection,
   startSyntheticGame,
 } from '@libs/synthetic-population-harness-ts/control-panel-model';
@@ -41,12 +42,13 @@ bindQuintModel<QuintHarnessWorld>({
       itf: secondGame,
     },
   ],
-  traces: 6,
-  maxSteps: 6,
+  traces: 8,
+  maxSteps: 8,
   verifySteps: 4,
   timeoutMs: 300_000,
   actions: {
     init: (w) => w.s.apply(givenControlPanels),
+    openPanel: (w) => w.s.apply(openControlPanels),
     pause: (w, picks) =>
       w.s.apply(pauseOneSyntheticUser, ALICE_CONTROL, String(picks['who'])),
     pauseAll: (w) =>
