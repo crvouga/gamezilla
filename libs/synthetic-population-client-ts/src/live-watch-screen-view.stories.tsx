@@ -4,14 +4,21 @@ import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { LiveWatchScreenView } from './live-watch-screen-view';
 import {
   FRAME_HTML,
-  OBSERVED_AT,
   ONLINE_NOW,
   onlineEntry,
-} from './synthetic-population.example';
+  SPACES_FRAME_HTML,
+} from './online-now.example';
+import { face, OBSERVED_AT } from './synthetic-population.example';
 
-const BOB = ONLINE_NOW[1]!;
-const CEDAR = ONLINE_NOW[2]!;
+/** nightowl_88, a person in Settings. */
+const NIGHTOWL = ONLINE_NOW[1]!;
+/** LenaPlays, a Synthetic User browsing Spaces. */
+const LENA = ONLINE_NOW[2]!;
 const FRAME = { html: FRAME_HTML, capturedAtMs: Date.parse(OBSERVED_AT) };
+const SPACES_FRAME = {
+  html: SPACES_FRAME_HTML,
+  capturedAtMs: Date.parse(OBSERVED_AT),
+};
 
 const meta = {
   id: 'screens-admin-live-watch',
@@ -23,7 +30,7 @@ const meta = {
     controls: { exclude: ['state', 'denial'] },
   },
   args: {
-    state: { kind: 'watching', entry: BOB, frame: FRAME },
+    state: { kind: 'watching', entry: NIGHTOWL, frame: FRAME },
     canControl: true,
     onControlPanel: fn(),
     onRetry: fn(),
@@ -38,20 +45,20 @@ export const Watching: Story = {};
 
 /** Watching a Synthetic User: its game as it plays, and its control panel. */
 export const WatchingSyntheticUser: Story = {
-  args: { state: { kind: 'watching', entry: CEDAR, frame: FRAME } },
+  args: { state: { kind: 'watching', entry: LENA, frame: SPACES_FRAME } },
 };
 
 /** A viewer who may watch but not control: no control panel is offered. */
 export const ViewOnly: Story = {
   args: {
     canControl: false,
-    state: { kind: 'watching', entry: CEDAR, frame: FRAME },
+    state: { kind: 'watching', entry: LENA, frame: SPACES_FRAME },
   },
 };
 
 /** The watch has started; the first picture of their screen is on its way. */
 export const WaitingForScreen: Story = {
-  args: { state: { kind: 'watching', entry: BOB, frame: null } },
+  args: { state: { kind: 'watching', entry: NIGHTOWL, frame: null } },
 };
 
 /** Opening the watch: nothing is known yet. */
@@ -62,7 +69,7 @@ export const Failed: Story = { args: { state: { kind: 'failed' } } };
 
 /** The one watched closed the app: watching stopped, and the way back. */
 export const UserWentOffline: Story = {
-  args: { state: { kind: 'offline', username: 'bob' } },
+  args: { state: { kind: 'offline', username: 'nightowl_88' } },
 };
 
 /** Long names and game names wrap instead of breaking the screen. */
@@ -70,17 +77,14 @@ export const LongContent: Story = {
   args: {
     state: {
       kind: 'watching',
-      entry: onlineEntry(
-        5,
-        'someone_with_a_really_long_username_that_goes_on',
-        {
-          kind: 'synthetic',
-          syntheticUserId: CEDAR.syntheticUserId,
-          place: 'space',
-          activity: 'playing',
-          game: 'Quoridor on a board with an exceptionally long name',
-        }
-      ),
+      entry: onlineEntry(9, 'the_grand_strategist_of_rainy_tuesday_evenings', {
+        kind: 'synthetic',
+        syntheticUserId: LENA.syntheticUserId,
+        avatarConfig: face('thumbs', 'a7c31e90d2b4'),
+        place: 'space',
+        activity: 'playing',
+        game: 'Battleship: Salvo with extended fleets and fog of war',
+      }),
       frame: FRAME,
     },
   },

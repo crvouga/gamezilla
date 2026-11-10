@@ -128,11 +128,11 @@ export const LongContent: Story = {
   args: {
     record: {
       user: userDetail({
-        username: 'bot_with_a_really_long_username_that_keeps_on_going',
+        username: 'the_grand_strategist_of_rainy_tuesday_evenings',
         last_error:
           'Timed out waiting for the opponent to acknowledge the move after three reconnect attempts across two workers',
         last_action:
-          'tap chess-board e2-e4 then confirm the promotion dialog and wait',
+          'testId("custom-game-content") >> testId("custom-game-board") >> testId("custom-game-board-column-4"): tap',
       }),
       events: EVENTS,
     },

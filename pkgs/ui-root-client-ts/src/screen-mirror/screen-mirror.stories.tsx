@@ -10,7 +10,7 @@ const meta = {
   title: 'Atoms/ScreenMirror',
   component: ScreenMirror,
   tags: ['autodocs'],
-  args: { title: "Bob's screen", html: MIRRORED_SCREEN },
+  args: { title: "nightowl_88's screen", html: MIRRORED_SCREEN },
 } satisfies Meta<typeof ScreenMirror>;
 export default meta;
 type Story = StoryObj<typeof meta>;
