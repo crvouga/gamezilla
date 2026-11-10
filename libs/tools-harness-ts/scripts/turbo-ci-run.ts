@@ -125,6 +125,18 @@ export const RELEASE_JOURNEY_TASKS = Array.from(
   { length: RELEASE_JOURNEY_PARTS },
   (_, part) => `@apps/product-ts#test:release-journeys:${String(part)}`
 );
+/**
+ * The representative Storybook browser suite in parts
+ * (`playwright test --shard=<k+1>/<n>`): as one task its 1300-odd checks on
+ * two workers outran the 2400 s task budget. Storybook coverage gates with
+ * the first part (its `dependsOn`), so the other parts share no shard with
+ * that uncached prerequisite and run side by side.
+ */
+export const STORYBOOK_PARTS = 4;
+export const STORYBOOK_TASKS = Array.from(
+  { length: STORYBOOK_PARTS },
+  (_, part) => `@pkgs/ui-root-harness-ts#ci:storybook:${String(part)}`
+);
 export const MAIN_VERIFY_TASKS = [
   '@libs/tools-harness-ts#verify:root-lint',
   '@libs/tools-harness-ts#ci:syncpack',
@@ -140,7 +152,7 @@ export const MAIN_VERIFY_TASKS = [
   '@libs/tools-harness-ts#ci:statecharts',
   '@libs/tools-harness-ts#ci:conformance',
   '@libs/tools-harness-ts#ci:spec-ownership',
-  '@pkgs/ui-root-harness-ts#ci:storybook',
+  ...STORYBOOK_TASKS,
   'tc',
   'lint',
   'test',
