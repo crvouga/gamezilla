@@ -1,8 +1,8 @@
+import type { OpponentDemand } from '@libs/synthetic-population-shared-ts/decision-policy';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import type { GameAutomation } from '@pkgs/turn-game-shared-ts/game-automation';
 import type { GamePositionRules } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
-import type { OpponentDemand } from './decision-policy';
 
 const FIND_AN_OPPONENT = Handles.gameChoice('multiplayer');
 

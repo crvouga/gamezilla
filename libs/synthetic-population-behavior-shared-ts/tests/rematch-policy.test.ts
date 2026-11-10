@@ -4,7 +4,7 @@ import {
   type OpponentStreak,
   streakAfterGame,
   wantsRematch,
-} from '@libs/synthetic-population-shared-ts/rematch-policy';
+} from '@libs/synthetic-population-behavior-shared-ts/rematch-policy';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import fc from 'fast-check';
 

@@ -30,7 +30,7 @@ Stateless environments (e.g. Cloudflare Workers HTTP → EMQX) return the **same
 | ------------------------ | ------------------------------------------------ |
 | `@pkgs/pubsub-root-shared-ts/interface` | `PubSub`, errors, `assertValidTopic`, codec      |
 | `@pkgs/pubsub-root-shared-ts/in-memory`   | `createInMemoryPubSub` (runtime; no bun:test)    |
-| `@pkgs/pubsub-root-shared-ts/in-memory/contract` | `runPubSubContractTests` (adapter contract) |
+| `@pkgs/pubsub-contract-harness-ts/contract` | `runPubSubContractTests` (adapter contract) |
 
 ## How to implement an adapter
 
@@ -39,7 +39,7 @@ Stateless environments (e.g. Cloudflare Workers HTTP → EMQX) return the **same
 
 ```ts
 import { wallClock, wallTimers } from '@pkgs/clock';
-import { runPubSubContractTests } from '@pkgs/pubsub-root-shared-ts/in-memory/contract';
+import { runPubSubContractTests } from '@pkgs/pubsub-contract-harness-ts/contract';
 
 runPubSubContractTests('my-adapter', async () => ({
   make: async () => createMyFullDuplex(),

@@ -1,3 +1,4 @@
+import { SyntheticUserApplication } from '@libs/synthetic-population-behavior-shared-ts/synthetic-user-application';
 import { BEHAVIOR_EVENTS } from '@libs/synthetic-population-shared-ts/behavior-statechart';
 import {
   type Checkpoint,
@@ -8,7 +9,6 @@ import {
   redactDiagnostic,
   sanitizeDomSnapshot,
 } from '@libs/synthetic-population-shared-ts/inspection';
-import { SyntheticUserApplication } from '@libs/synthetic-population-shared-ts/synthetic-user-application';
 import type { Clock, Timers } from '@pkgs/clock-shared-ts/types';
 import type { GameAutomation } from '@pkgs/turn-game-shared-ts/game-automation';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';

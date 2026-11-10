@@ -1,6 +1,6 @@
 import type { Clock, Timers } from '@pkgs/clock-shared-ts/types';
 
-import type { PubSub } from './interface';
+import type { PubSub } from '@pkgs/pubsub-root-shared-ts/interface';
 
 export type PubSubContractEnv = {
   make: () => Promise<PubSub>;

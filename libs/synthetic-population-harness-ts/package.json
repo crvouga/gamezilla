@@ -30,6 +30,7 @@
     "@libs/search-harness-ts": "workspace:*",
     "@libs/spaces-harness-ts": "workspace:*",
     "@libs/sub-shared-ts": "workspace:*",
+    "@libs/synthetic-population-behavior-shared-ts": "workspace:*",
     "@libs/synthetic-population-client-ts": "workspace:*",
     "@libs/synthetic-population-server-ts": "workspace:*",
     "@libs/synthetic-population-shared-ts": "workspace:*",

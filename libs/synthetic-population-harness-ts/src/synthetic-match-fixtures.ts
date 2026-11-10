@@ -11,7 +11,7 @@ import { actorUi, pollUntil } from '@libs/harness-ts/actor-ui';
 import { signInWithGoogle } from '@libs/harness-ts/auth-actions';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { signedInAccountOf } from '@libs/harness-ts/identity';
-import { configureUsername } from '@libs/synthetic-population-shared-ts/application-actions';
+import { configureUsername } from '@libs/synthetic-population-behavior-shared-ts/application-actions';
 import { setPlaySetup } from './live-synthetic-users';
 import {
   givenSyntheticGameSpace,

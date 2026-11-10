@@ -1,3 +1,16 @@
+import type { ApplicationEvent } from '@libs/synthetic-population-shared-ts/application-events';
+import {
+  type BEHAVIOR_EVENTS,
+  behaviorStatechart,
+} from '@libs/synthetic-population-shared-ts/behavior-statechart';
+import type { Activity } from '@libs/synthetic-population-shared-ts/config';
+import {
+  chooseActivity,
+  type Decision,
+  type OpponentDemand,
+  type PolicyInputs,
+} from '@libs/synthetic-population-shared-ts/decision-policy';
+import type { Persona } from '@libs/synthetic-population-shared-ts/persona';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import type { Clock } from '@pkgs/clock-shared-ts/types';
 import type { GameAutomation } from '@pkgs/turn-game-shared-ts/game-automation';
@@ -5,31 +18,18 @@ import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 import type { Random } from '@pkgs/uuid-shared-ts/create-id';
 import { createActor } from 'xstate';
 import { logOutThroughUi } from './application-actions';
-import type { ApplicationEvent } from './application-events';
 import {
   isMatchParticipant,
   observeAvailableSpaces,
   returnToSpaces,
 } from './application-navigation';
-import {
-  type BEHAVIOR_EVENTS,
-  behaviorStatechart,
-} from './behavior-statechart';
-import type { Activity } from './config';
 import { ContinuousInputPlayer } from './continuous-input-player';
-import {
-  chooseActivity,
-  type Decision,
-  type OpponentDemand,
-  type PolicyInputs,
-} from './decision-policy';
 import {
   findOpponentFor,
   gameForPosition,
   openMultiplayer,
 } from './game-automation';
 import { MovePacing } from './move-pacing';
-import type { Persona } from './persona';
 import {
   type OpponentStreak,
   streakAfterGame,

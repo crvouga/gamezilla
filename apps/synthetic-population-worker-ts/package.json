@@ -26,6 +26,7 @@
     "@libs/runtime-client-ts": "workspace:*",
     "@libs/runtime-shared-ts": "workspace:*",
     "@libs/spaces-client-ts": "workspace:*",
+    "@libs/synthetic-population-behavior-shared-ts": "workspace:*",
     "@libs/synthetic-population-server-ts": "workspace:*",
     "@libs/synthetic-population-shared-ts": "workspace:*",
     "@opentelemetry/exporter-metrics-otlp-http": "catalog:",

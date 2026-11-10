@@ -1362,6 +1362,8 @@
         "**/pkgs/pubsub-emqx-shared-ts/src/**/*.{ts,tsx}",
         "**/pkgs/pubsub-emqx-shared-ts/tests/**/*.{ts,tsx}",
         "**/pkgs/pubsub-emqx-harness-ts/tests/create-emqx-pubsub.test.ts",
+        "**/pkgs/pubsub-contract-harness-ts/src/**/*.{ts,tsx}",
+        "**/pkgs/pubsub-contract-harness-ts/tests/**/*.{ts,tsx}",
         "**/pkgs/pubsub-root-shared-ts/src/**/*.{ts,tsx}",
         "**/pkgs/pubsub-root-shared-ts/tests/in-memory.test.ts",
         "**/pkgs/pubsub-root-shared-ts/tests/interface.test.ts",
@@ -1856,6 +1858,7 @@
         "**/libs/game-menu-client-ts/src/**/*.{ts,tsx}",
         "**/libs/spaces-*/src/**/*.{ts,tsx}",
         "**/libs/synthetic-population-shared-ts/src/**/*.{ts,tsx}",
+        "**/libs/synthetic-population-behavior-shared-ts/src/**/*.{ts,tsx}",
         "**/pkgs/turn-game-*/src/**/*.{ts,tsx}"
       ]
     }

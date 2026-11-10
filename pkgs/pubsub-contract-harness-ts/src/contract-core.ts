@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-
+import { InMemoryPubSub } from '@pkgs/pubsub-root-shared-ts/in-memory';
 import {
   awaitSubscriptionLive,
   collect,
@@ -8,7 +8,6 @@ import {
   waitUntil,
 } from './contract-helpers';
 import type { PubSubContractEnv } from './contract-types';
-import { InMemoryPubSub } from './in-memory';
 
 export function registerCoreContractTests(env: () => PubSubContractEnv): void {
   registerDeliveryTests(env);

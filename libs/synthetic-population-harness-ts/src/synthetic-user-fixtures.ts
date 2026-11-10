@@ -1,9 +1,9 @@
 import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { signedInAccountOf } from '@libs/harness-ts/identity';
+import { configureUsername } from '@libs/synthetic-population-behavior-shared-ts/application-actions';
 import { SyntheticPopulationController } from '@libs/synthetic-population-server-ts/synthetic-population-controller';
 import { SyntheticPopulationRepository } from '@libs/synthetic-population-server-ts/synthetic-population-repository';
-import { configureUsername } from '@libs/synthetic-population-shared-ts/application-actions';
 import sql from '@pkgs/sql-root-shared-ts/sql';
 import { bindFixtureAccount } from './fixture-account-binding';
 import { maintainFixtureLease } from './fixture-lease-lifecycle';

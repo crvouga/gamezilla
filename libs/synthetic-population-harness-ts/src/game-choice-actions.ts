@@ -7,7 +7,7 @@ import {
 } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { backToTabs } from '@libs/harness-ts/shell-actions';
-import { SyntheticUserApplication } from '@libs/synthetic-population-shared-ts/synthetic-user-application';
+import { SyntheticUserApplication } from '@libs/synthetic-population-behavior-shared-ts/synthetic-user-application';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { syntheticGameAdapter } from './synthetic-game-actions';
 import { syntheticUserActor } from './synthetic-sign-in-actions';

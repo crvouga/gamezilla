@@ -13,7 +13,7 @@ import type {
 
 /**
  * Runs the PubSub semantics contract against a factory.
- * Compiles against port types only — adapters import this from `@pkgs/pubsub-root-shared-ts/in-memory`.
+ * Compiles against port types only — adapters import this from `@pkgs/pubsub-contract-harness-ts/contract`.
  */
 export function runPubSubContractTests(
   name: string,

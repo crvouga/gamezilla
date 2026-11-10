@@ -2,9 +2,9 @@ import { GAME_AUTOMATIONS } from '@libs/game-catalog-shared-ts/game-automations'
 import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront } from '@libs/harness-ts/observations';
+import { SyntheticUserApplication } from '@libs/synthetic-population-behavior-shared-ts/synthetic-user-application';
 import { SyntheticPopulationSession } from '@libs/synthetic-population-server-ts/synthetic-population-session';
 import type { ApplicationEvent } from '@libs/synthetic-population-shared-ts/application-events';
-import { SyntheticUserApplication } from '@libs/synthetic-population-shared-ts/synthetic-user-application';
 import { playSyntheticCurrentGame } from './play-current-game';
 import { syntheticGameView } from './synthetic-game-actions';
 import { cedarUser, syntheticPopulationPorts } from './synthetic-user-fixtures';

@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { SyntheticUserApplication } from '@libs/synthetic-population-shared-ts/synthetic-user-application';
+import { SyntheticUserApplication } from '@libs/synthetic-population-behavior-shared-ts/synthetic-user-application';
 import type { GameAutomation } from '@pkgs/turn-game-shared-ts/game-automation';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 import { automationDriver } from './automation-driver';

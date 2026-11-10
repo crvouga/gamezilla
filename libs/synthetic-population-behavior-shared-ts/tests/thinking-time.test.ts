@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { drawThinkingMs } from '@libs/synthetic-population-shared-ts/thinking-time';
+import { drawThinkingMs } from '@libs/synthetic-population-behavior-shared-ts/thinking-time';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import fc from 'fast-check';
 

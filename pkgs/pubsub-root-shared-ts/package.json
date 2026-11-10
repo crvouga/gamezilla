@@ -15,7 +15,6 @@
     "test": "bun test tests"
   },
   "dependencies": {
-    "@pkgs/clock-shared-ts": "workspace:*",
     "@pkgs/http-client-shared-ts": "workspace:*",
     "@pkgs/logger-shared-ts": "workspace:*"
   },

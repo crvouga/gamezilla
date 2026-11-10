@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { logOutThroughUi } from '@libs/synthetic-population-shared-ts/application-actions';
+import { logOutThroughUi } from '@libs/synthetic-population-behavior-shared-ts/application-actions';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 

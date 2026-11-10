@@ -9,14 +9,14 @@ import { actorUi } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { signedInAccountOf } from '@libs/harness-ts/identity';
 import { bringToFront } from '@libs/harness-ts/observations';
-import type { ApplicationEvent } from '@libs/synthetic-population-shared-ts/application-events';
-import { reconcileCheckpoint } from '@libs/synthetic-population-shared-ts/config';
-import { parsePersona } from '@libs/synthetic-population-shared-ts/persona';
 import {
   type PlayingPersona,
   type PlayMemory,
   SyntheticUserApplication,
-} from '@libs/synthetic-population-shared-ts/synthetic-user-application';
+} from '@libs/synthetic-population-behavior-shared-ts/synthetic-user-application';
+import type { ApplicationEvent } from '@libs/synthetic-population-shared-ts/application-events';
+import { reconcileCheckpoint } from '@libs/synthetic-population-shared-ts/config';
+import { parsePersona } from '@libs/synthetic-population-shared-ts/persona';
 import sql from '@pkgs/sql-root-shared-ts/sql';
 import { fixtureWorkerRpc } from './fixture-worker-rpc';
 

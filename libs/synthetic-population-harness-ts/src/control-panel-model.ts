@@ -21,8 +21,8 @@ import {
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront } from '@libs/harness-ts/observations';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
-import { configureUsername } from '@libs/synthetic-population-shared-ts/application-actions';
-import { SyntheticUserApplication } from '@libs/synthetic-population-shared-ts/synthetic-user-application';
+import { configureUsername } from '@libs/synthetic-population-behavior-shared-ts/application-actions';
+import { SyntheticUserApplication } from '@libs/synthetic-population-behavior-shared-ts/synthetic-user-application';
 import { controlPanelOffered, onlineNowRow } from './live-observatory-actions';
 import {
   grantSyntheticPopulationAccess,

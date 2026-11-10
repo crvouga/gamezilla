@@ -5,7 +5,7 @@ import type { ProductHarness } from '@libs/harness-ts/harness';
 import { signedInAccountOf } from '@libs/harness-ts/identity';
 import { bringToFront } from '@libs/harness-ts/observations';
 import { readProfileUsernameShown } from '@libs/profile-harness-ts/profile-ui-reads';
-import { gameForPosition } from '@libs/synthetic-population-shared-ts/game-automation';
+import { gameForPosition } from '@libs/synthetic-population-behavior-shared-ts/game-automation';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { openSyntheticGame, syntheticGameView } from './synthetic-game-actions';
 import { completeSyntheticGame } from './synthetic-population-control-actions';

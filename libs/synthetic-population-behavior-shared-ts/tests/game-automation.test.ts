@@ -1,10 +1,10 @@
 import { expect, test } from 'bun:test';
-import { isMatchParticipant } from '@libs/synthetic-population-shared-ts/application-navigation';
+import { isMatchParticipant } from '@libs/synthetic-population-behavior-shared-ts/application-navigation';
 import {
   gameForPosition,
   openMultiplayer,
-} from '@libs/synthetic-population-shared-ts/game-automation';
-import { SyntheticUserApplication } from '@libs/synthetic-population-shared-ts/synthetic-user-application';
+} from '@libs/synthetic-population-behavior-shared-ts/game-automation';
+import { SyntheticUserApplication } from '@libs/synthetic-population-behavior-shared-ts/synthetic-user-application';
 import type { GameAutomation } from '@pkgs/turn-game-shared-ts/game-automation';
 import type { GameRules } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';

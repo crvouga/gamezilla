@@ -2,7 +2,7 @@ import {
   authenticateThroughUi,
   configureProfile,
   type SyntheticSignIn,
-} from '@libs/synthetic-population-shared-ts/application-actions';
+} from '@libs/synthetic-population-behavior-shared-ts/application-actions';
 import { redactDiagnostic } from '@libs/synthetic-population-shared-ts/inspection';
 import { createApplicationHost } from './application-host';
 import type { RecordingInput } from './recorded-ui';

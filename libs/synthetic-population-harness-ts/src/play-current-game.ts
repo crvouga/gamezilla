@@ -1,8 +1,8 @@
 import { pollUntil } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront } from '@libs/harness-ts/observations';
+import type { SyntheticUserApplication } from '@libs/synthetic-population-behavior-shared-ts/synthetic-user-application';
 import type { ApplicationEvent } from '@libs/synthetic-population-shared-ts/application-events';
-import type { SyntheticUserApplication } from '@libs/synthetic-population-shared-ts/synthetic-user-application';
 import {
   liveSyntheticUsers,
   syntheticApplication,

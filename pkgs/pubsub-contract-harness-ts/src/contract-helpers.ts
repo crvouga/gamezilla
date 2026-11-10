@@ -1,7 +1,7 @@
 import { expect } from 'bun:test';
 import type { Clock, Timers } from '@pkgs/clock-shared-ts/types';
 
-import type { PubSub } from './interface';
+import type { PubSub } from '@pkgs/pubsub-root-shared-ts/interface';
 
 let contractClock: Clock | undefined;
 let contractTimers: Timers | undefined;

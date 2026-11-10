@@ -24,6 +24,7 @@
         "@libs/profile-harness-ts#src",
         "@libs/spaces-harness-ts#src",
         "@libs/sub-shared-ts#src",
+        "@libs/synthetic-population-behavior-shared-ts#src",
         "@libs/synthetic-population-client-ts#src",
         "@libs/synthetic-population-server-ts#src",
         "@libs/synthetic-population-shared-ts#src",
