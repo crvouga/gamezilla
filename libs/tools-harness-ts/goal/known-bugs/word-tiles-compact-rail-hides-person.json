@@ -1,0 +1,4 @@
+{
+  "summary": "Word Tiles' compact score rail on a phone drew each seat as a chip naming its plain, possibly stale name with no custom-game-<side>-person mark, so a person who renamed themselves did not appear under their new name and custom-game-identity.feature could not read the seat. A chip must name its holder live, as the full strip does.",
+  "regressionTest": "libs/game-session-client-ts/tests/word-tiles-compact-seat-rail.test.tsx"
+}

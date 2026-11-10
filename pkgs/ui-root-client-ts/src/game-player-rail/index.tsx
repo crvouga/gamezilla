@@ -67,6 +67,11 @@ export function GamePlayerRail(props: GamePlayerRailProps): JSX.Element {
 export type GamePlayerChipProps = {
   /** The player's name; long names are truncated. */
   name: string;
+  /**
+   * The name as shown, when it reads richer than the plain `name` (a live
+   * username, a reader's test id); `name` still titles it.
+   */
+  nameContent?: JSX.Element;
   /** The player's `Avatar` (32px). Defaults to the person placeholder. */
   avatar?: JSX.Element;
   swatch?: GameSeatLook | undefined;
@@ -113,7 +118,7 @@ function ChipFace(props: GamePlayerChipProps): JSX.Element {
           classList={{ 'text-on-primary-soft': props.active === true }}
           title={props.name}
         >
-          {props.name}
+          {props.nameContent ?? props.name}
         </span>
         <span
           class={`box flex-row flex-wrap items-center gap-1 min-w-0 ${styles['chipFacts']}`}

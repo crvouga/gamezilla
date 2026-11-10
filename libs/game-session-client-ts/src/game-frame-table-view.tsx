@@ -220,6 +220,20 @@ export function FrameSeatChipView(
             : undefined
         }
         name={props.seat.plainName}
+        // The chip names its holder as the full strip does: live, and
+        // under the seat's person test id.
+        nameContent={
+          <Text
+            variant="inherit"
+            testId={`custom-game-${props.seat.side}-person`}
+          >
+            <FrameHolderName
+              holder={props.seat.holder}
+              plainName={props.seat.plainName}
+              people={props.people}
+            />
+          </Text>
+        }
         avatar={
           <FrameHolderAvatar
             holder={props.seat.holder}

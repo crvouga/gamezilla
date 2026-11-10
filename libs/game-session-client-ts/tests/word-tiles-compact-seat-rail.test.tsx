@@ -4,6 +4,7 @@ import {
   FrameOthersView,
 } from '@libs/game-session-client-ts/game-frame-table-view';
 import type {
+  FramePeople,
   FramePlaySeat,
   FrameTable,
 } from '@libs/game-session-client-ts/game-frame-view-types';
@@ -46,6 +47,7 @@ function mount(
     readonly compact?: boolean;
     readonly optIn?: boolean;
     readonly timed?: boolean;
+    readonly people?: FramePeople;
   } = {}
 ): void {
   const { compact = true, optIn = true, timed = false } = settings;
@@ -65,6 +67,7 @@ function mount(
     table,
     viewerSide: viewer,
     compact,
+    people: settings.people,
     onChoose: async () => undefined,
   };
   renderWithI18n(() => (
@@ -163,6 +166,21 @@ test('a timed Word Tiles table on a phone shows every clock beside every score',
     );
     expect(screen.getByText('9999')).toBeInTheDocument();
     expect(screen.getAllByText('1234')).toHaveLength(count - 1);
+    cleanup();
+  }
+});
+
+// regression: word-tiles-compact-rail-hides-person
+test('a Word Tiles table on a phone names every seat live, as its full strip does', () => {
+  const people: FramePeople = { name: (person) => `${person} (renamed)` };
+  for (const count of [2, 3, 4]) {
+    mount(count, 'white', { people });
+    expect(screen.getByTestId('custom-game-white-person').textContent).toBe(
+      'white (renamed)'
+    );
+    expect(screen.getByTestId('custom-game-black-person').textContent).toBe(
+      'black (renamed)'
+    );
     cleanup();
   }
 });
