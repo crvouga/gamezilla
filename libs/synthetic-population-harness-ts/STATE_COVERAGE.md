@@ -1,7 +1,7 @@
 # Synthetic Population coverage
 
 The user request defines the terms and administrative capabilities in this
-context. The Bot Observatory contract is [the Observatory specifications](../../specs/synthetic-population/observatory.feature).
+context. The Synthetic Population panel contract is [its specifications](../../specs/synthetic-population/observatory.feature).
 
 | Rule | Allowed example | Refused example |
 | --- | --- | --- |

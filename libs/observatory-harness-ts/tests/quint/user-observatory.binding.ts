@@ -4,25 +4,25 @@ import {
   openAccount,
   openSettings,
 } from '@libs/harness-ts/shell-actions';
-import { searchUsername } from '@libs/search-harness-ts/search-actions';
 import {
+  openUserObservatory,
   showOnlyOnlineNow,
   watchLive,
-} from '@libs/synthetic-population-harness-ts/live-observatory-actions';
+} from '@libs/observatory-actions-harness-ts/user-observatory-actions';
 import {
   ALICE_LIST,
   ALICE_WATCH,
   closeLiveApp,
   continueSyntheticActivity,
   deviceOf,
-  givenLiveObservatory,
+  givenUserObservatory,
   loseLiveConnection,
-  observeLiveObservatory,
+  observeUserObservatory,
   reopenLiveApp,
   restoreLiveConnection,
   setAliceLiveConnection,
-} from '@libs/synthetic-population-harness-ts/live-observatory-model';
-import { openObservatory } from '@libs/synthetic-population-harness-ts/observatory-actions';
+} from '@libs/observatory-harness-ts/user-observatory-model';
+import { searchUsername } from '@libs/search-harness-ts/search-actions';
 import type { QuintValue } from '@pkgs/quint-shared-ts/itf';
 import { bindQuintModel } from '@pkgs/quint-shared-ts/registry';
 
@@ -30,7 +30,7 @@ import { bindQuintModel } from '@pkgs/quint-shared-ts/registry';
 const GAME = 'chess';
 /** What Bob searches for in people search: a private detail. */
 const SEARCHED = 'carol';
-const REMEMBERED = 'synthetic-population:live-observatory';
+const REMEMBERED = 'observatory:user-observatory';
 
 type Remembered = {
   places: Map<string, string>;
@@ -56,16 +56,16 @@ function filterOf(show: QuintValue | undefined) {
 }
 
 bindQuintModel<QuintHarnessWorld>({
-  model: 'live-observatory',
+  model: 'user-observatory',
   traces: 24,
   maxSteps: 12,
   verifySteps: 3,
   timeoutMs: 240_000,
   actions: {
-    init: (w) => w.s.apply(givenLiveObservatory, GAME),
+    init: (w) => w.s.apply(givenUserObservatory, GAME),
     openApp: (w, picks) => w.s.apply(reopenLiveApp, String(picks['who'])),
     closeApp: (w, picks) => w.s.apply(closeLiveApp, String(picks['who'])),
-    openObservatory: (w) => w.s.apply(openObservatory, ALICE_LIST),
+    openObservatory: (w) => w.s.apply(openUserObservatory, ALICE_LIST),
     showOnly: (w, picks) =>
       w.s.apply(showOnlyOnlineNow, ALICE_LIST, filterOf(picks['show'])),
     watchLive: (w, picks) =>
@@ -87,7 +87,7 @@ bindQuintModel<QuintHarnessWorld>({
   },
   observe: async (w) => {
     const memory = remembered(w);
-    const seen = await w.quiet.read(observeLiveObservatory, memory.searched);
+    const seen = await w.quiet.read(observeUserObservatory, memory.searched);
     // A closed app keeps the place it was closed in; Alice stays told.
     for (const [who, place] of Object.entries(seen.places))
       memory.places.set(who, place);

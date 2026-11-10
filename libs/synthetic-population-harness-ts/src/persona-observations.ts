@@ -1,13 +1,18 @@
 /**
  * The Synthetic Population's personas as an authorized person sees them in
- * the Bot Observatory: each Synthetic User row on their screen, with the
- * persona the Observatory's directory shows for it.
+ * the Synthetic Population panel: each Synthetic User row on their screen,
+ * with the persona the panel's directory shows for it.
  */
+
 import { GAME_AUTOMATIONS } from '@libs/game-catalog-shared-ts/game-automations';
 import { HARNESS_GAMES } from '@libs/games-harness-ts/harness-games';
 import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront } from '@libs/harness-ts/observations';
+import {
+  SYNTHETIC_USERS_CONFIG_PATH,
+  SYNTHETIC_USERS_PATH,
+} from '@libs/observatory-shared-ts/observatory-routes';
 import { readSyntheticPopulationDirectory } from '@libs/synthetic-population-server-ts/synthetic-population-user-directory';
 import {
   type Persona,
@@ -32,7 +37,7 @@ export type PersonaSeen = {
 
 const FAVORITE_GAMES = 'Favorite games: ';
 
-/** A registered game's name, as the game menu and the Observatory show it. */
+/** A registered game's name, as the game menu and the panel show it. */
 function gameName(id: string): string {
   return (
     HARNESS_GAMES.find((game) => game.client.id === id)?.client.title ?? id
@@ -49,16 +54,16 @@ function favoriteGamesIn(text: string, persona: Persona | null): string[] {
   );
 }
 
-/** Every Synthetic User row the person's Observatory shows, with its persona. */
+/** Every Synthetic User row the person's panel shows, with its persona. */
 export async function personasSeen(
   s: ProductHarness,
   actor: string
 ): Promise<PersonaSeen[]> {
   await bringToFront(s, actor);
   const ui = await actorUi(s, actor);
-  // The person opens the Bot Observatory afresh, to see it as it is now.
-  await s.actors.get(actor)!.openLink('/admin/synthetic-population/config');
-  await s.actors.get(actor)!.openLink('/admin/synthetic-population');
+  // The person opens the Synthetic Population panel afresh, to see it as it is now.
+  await s.actors.get(actor)!.openLink(SYNTHETIC_USERS_CONFIG_PATH);
+  await s.actors.get(actor)!.openLink(SYNTHETIC_USERS_PATH);
   await s.session.waitForIdle();
   if (!(await ui.get('synthetic-population-users').isVisible())) return [];
   const directory = await readSyntheticPopulationDirectory(
@@ -108,7 +113,7 @@ export function offeredGameIds(): string[] {
   return GAME_AUTOMATIONS.map((game) => game.rules.id);
 }
 
-/** Every Synthetic User's username, as the Bot Observatory's directory lists them. */
+/** Every Synthetic User's username, as the Synthetic Population panel's directory lists them. */
 export async function populationUsernames(
   s: ProductHarness
 ): Promise<string[]> {
@@ -122,7 +127,7 @@ export async function populationUsernames(
 /** Each Synthetic User's persona as first seen, so a persona that ever changes shows. */
 const firstSeen = new WeakMap<ProductHarness, Map<string, string>>();
 
-/** The Synthetic Population as the Bot Observatory lists it, as the personas model names it. */
+/** The Synthetic Population as its panel lists it, as the personas model names it. */
 export async function observePersonaPopulation(s: ProductHarness) {
   const first = firstSeen.get(s) ?? new Map<string, string>();
   firstSeen.set(s, first);

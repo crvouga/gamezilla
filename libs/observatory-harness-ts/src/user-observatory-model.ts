@@ -1,5 +1,5 @@
 /**
- * The live observatory as the model sees it: Alice follows the online-now
+ * The User Observatory as the model sees it: Alice follows the online-now
  * list on her phone and watches live on her tablet; Bob is a person and
  * Cedar a Synthetic User. Everything here is read from what each of them
  * sees on their own device.
@@ -11,29 +11,27 @@ import { signInWithGoogleAsAccount } from '@libs/harness-ts/auth-actions';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { connectionMissing } from '@libs/harness-ts/network-notices';
 import { bringToFront, partitioned } from '@libs/harness-ts/observations';
-import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
-import {
-  LIVE_HEARTBEAT_MS,
-  LIVE_ONLINE_WINDOW_MS,
-  placeOfRoute,
-} from '@libs/synthetic-population-shared-ts/live-session';
-import {
-  givenSyntheticGameChoice,
-  startSyntheticActivity,
-} from './game-choice-actions';
+import { grantOperatorPermissions } from '@libs/observatory-actions-harness-ts/operator-access-actions';
 import {
   closePersonApp,
   emailOf,
   onlineNowRow,
   openPersonApp,
+  openUserObservatory,
   watchEndedShown,
   watchedPlace,
   watchedScreen,
-} from './live-observatory-actions';
+} from '@libs/observatory-actions-harness-ts/user-observatory-actions';
 import {
-  grantSyntheticPopulationAccess,
-  openObservatory,
-} from './observatory-actions';
+  LIVE_HEARTBEAT_MS,
+  LIVE_ONLINE_WINDOW_MS,
+  placeOfRoute,
+} from '@libs/observatory-shared-ts/live-session';
+import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
+import {
+  givenSyntheticGameChoice,
+  startSyntheticActivity,
+} from '@libs/synthetic-population-harness-ts/game-choice-actions';
 
 /** Alice's devices: her phone follows the list, her tablet watches live. */
 export const ALICE_LIST = 'alice';
@@ -68,23 +66,23 @@ export function deviceOf(who: string): string {
 }
 
 /** Alice may view and watch; her phone shows the list, her tablet is ready. */
-export const givenLiveObservatory = scenarioAction({
-  name: 'givenLiveObservatory',
+export const givenUserObservatory = scenarioAction({
+  name: 'givenUserObservatory',
   act: async (s, game: string) => {
     await Promise.resolve(givenSyntheticGameChoice.act(s, 'Cedar'));
     await Promise.resolve(startSyntheticActivity.act(s, game));
     await Promise.resolve(openPersonApp.act(s, 'bob'));
     await Promise.resolve(openPersonApp.act(s, ALICE_LIST));
     await Promise.resolve(
-      grantSyntheticPopulationAccess.act(s, ALICE_LIST, [
-        PERMISSION.syntheticPopulationView,
-        PERMISSION.syntheticPopulationWatch,
+      grantOperatorPermissions.act(s, ALICE_LIST, [
+        PERMISSION.observatoryView,
+        PERMISSION.observatoryWatch,
       ])
     );
     await Promise.resolve(
       signInWithGoogleAsAccount.act(s, ALICE_WATCH, ALICE_LIST)
     );
-    await Promise.resolve(openObservatory.act(s, ALICE_LIST));
+    await Promise.resolve(openUserObservatory.act(s, ALICE_LIST));
   },
 });
 
@@ -193,7 +191,7 @@ async function watchedOnTablet(s: ProductHarness) {
  * what Alice's tablet is watching and shows, and whether the watch has
  * ended. `searched` is what Bob searched for, never to be shown.
  */
-export async function observeLiveObservatory(
+export async function observeUserObservatory(
   s: ProductHarness,
   searched: string
 ) {

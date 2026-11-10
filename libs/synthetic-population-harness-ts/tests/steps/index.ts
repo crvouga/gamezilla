@@ -1,4 +1,5 @@
 import '@libs/harness-ts/platform';
+import '@libs/observatory-actions-harness-ts/user-observatory.steps';
 import { useHarnessWorld } from '@libs/harness-ts/spec-world';
 import { openHarness } from '../open-synthetic-population-harness';
 

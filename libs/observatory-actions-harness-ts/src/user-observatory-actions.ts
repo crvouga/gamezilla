@@ -1,10 +1,10 @@
 /**
- * Whoever is online now, as the Bot Observatory shows them, and watching one
- * of them live. The selectors and gestures of the online-now list and the
- * watch screen live here; steps only name people and what they see.
+ * The User Observatory as a person uses it: opening it, whoever is online
+ * now, and watching one of them live. The selectors and gestures of the
+ * online-now list and the watch screen live here; steps only name people and
+ * what they see.
  */
 
-import { seekGameOpponent } from '@libs/game-matchmaking-harness-ts/opponent-seeking';
 import {
   actorUi,
   ensureActor,
@@ -16,10 +16,12 @@ import type { ProductHarness } from '@libs/harness-ts/harness';
 import { actorEmail, signedInAccountOf } from '@libs/harness-ts/identity';
 import { bringToFront } from '@libs/harness-ts/observations';
 import { backToTabs } from '@libs/harness-ts/shell-actions';
-import type { OnlineNowFilter } from '@libs/synthetic-population-shared-ts/live-session';
+import type { OnlineNowFilter } from '@libs/observatory-shared-ts/live-session';
+import {
+  liveWatchPath,
+  OBSERVATORY_PATH,
+} from '@libs/observatory-shared-ts/observatory-routes';
 import sql from '@pkgs/sql-root-shared-ts/sql';
-import { openObservatory } from './observatory-actions';
-import { syntheticGame } from './synthetic-game-actions';
 
 const ONLINE_MS = 15_000;
 
@@ -39,6 +41,27 @@ async function heartbeatReceived(
     SELECT id FROM population_live_sessions
     WHERE account_id = ${accountId} AND deleted_at IS NULL`);
   return rows.length > 0;
+}
+
+/** The person opens the User Observatory. */
+export const openUserObservatory = scenarioAction({
+  name: 'openUserObservatory',
+  act: async (s, actor: string) => {
+    await actorUi(s, actor);
+    await s.actors.get(actor)!.openLink(OBSERVATORY_PATH);
+  },
+});
+
+/** Whether the person is told they may not view the User Observatory or watch live. */
+export async function observatoryDenied(
+  s: ProductHarness,
+  actor: string
+): Promise<boolean> {
+  const ui = await actorUi(s, actor);
+  return (
+    (await ui.get('observatory-denied').isVisible()) ||
+    (await ui.get('observatory-watch-denied').isVisible())
+  );
 }
 
 /** The person opens the app, signed in, and it tells the server so. */
@@ -69,19 +92,6 @@ export const closePersonApp = scenarioAction({
     await s.session.waitForIdle();
     const remaining = s.actors.keys().next().value;
     if (remaining !== undefined) await bringToFront(s, remaining);
-  },
-});
-
-/** The person looks for a multiplayer opponent for a game, from a space. */
-export const lookForOpponent = scenarioAction({
-  name: 'lookForOpponent',
-  act: async (s, actor: string, game: string) => {
-    await Promise.resolve(
-      seekGameOpponent.act(s, actor, syntheticGame(game).shared.id)
-    );
-    await (await actorUi(s, actor))
-      .get('multiplayer-waiting')
-      .expect.visible({ timeoutMs: ONLINE_MS });
   },
 });
 
@@ -140,7 +150,7 @@ async function liveSessionOf(
 export const watchLive = scenarioAction({
   name: 'watchLive',
   act: async (s, watcher: string, target: string) => {
-    await Promise.resolve(openObservatory.act(s, watcher));
+    await Promise.resolve(openUserObservatory.act(s, watcher));
     const ui = await actorUi(s, watcher);
     const row = ui.get(`online-now-row-${usernameOf(target)}`);
     await row.wait('visible', { timeoutMs: ONLINE_MS }).catch(() => undefined);
@@ -149,9 +159,7 @@ export const watchLive = scenarioAction({
     if (await ui.get('live-watch-place').isVisible()) return;
     const session = await liveSessionOf(s, target);
     if (session === null) throw new Error(`${target} is not online now`);
-    await s.actors
-      .get(watcher)!
-      .openLink(`/admin/synthetic-population/live/${session}`);
+    await s.actors.get(watcher)!.openLink(liveWatchPath(session));
     await s.session.waitForIdle();
   },
 });

@@ -1,6 +1,6 @@
 /**
  * The Synthetic Users' control panels and the controls for every Synthetic
- * User at once, driven through the Bot Observatory as a person does; where a
+ * User at once, driven through the Synthetic Population panel as a person does; where a
  * deployed Synthetic Population Worker would act on a command, the fixture
  * worker acts the same way.
  */
@@ -10,6 +10,11 @@ import { restartApp } from '@libs/harness-ts/actions';
 import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront } from '@libs/harness-ts/observations';
+import {
+  SYNTHETIC_USERS_CONTROL_PATH,
+  SYNTHETIC_USERS_PATH,
+  syntheticUserPath,
+} from '@libs/observatory-shared-ts/observatory-routes';
 import { SyntheticUserApplication } from '@libs/synthetic-population-behavior-shared-ts/synthetic-user-application';
 import { SyntheticPopulationAdministration } from '@libs/synthetic-population-server-ts/synthetic-population-administration';
 import { SyntheticPopulationSession } from '@libs/synthetic-population-server-ts/synthetic-population-session';
@@ -93,7 +98,7 @@ async function openEveryControls(
   actor: string
 ): Promise<boolean> {
   const ui = await actorUi(s, actor);
-  await s.actors.get(actor)!.openLink('/admin/synthetic-population/control');
+  await s.actors.get(actor)!.openLink(SYNTHETIC_USERS_CONTROL_PATH);
   await s.session.waitForIdle();
   if (await ui.get('synthetic-population-control-denied').isVisible())
     return false;
@@ -116,6 +121,8 @@ async function confirmEvery(
   await ui
     .get('synthetic-population-every-done')
     .expect.visible({ timeoutMs: WAIT_MS });
+  // Seen; the person closes the outcome, as before acting again.
+  await ui.get('synthetic-population-every-dismiss').tap();
   await s.session.waitForIdle();
 }
 
@@ -160,9 +167,7 @@ async function openControlPanel(
 ): Promise<boolean> {
   const user = await syntheticUserNamed(s, name);
   const ui = await actorUi(s, actor);
-  await s.actors
-    .get(actor)!
-    .openLink(`/admin/synthetic-population/users/${user.id}`);
+  await s.actors.get(actor)!.openLink(syntheticUserPath(user.id));
   await s.session.waitForIdle();
   return !(await ui.get('synthetic-population-inspect-denied').isVisible());
 }
@@ -209,6 +214,8 @@ export const restartSyntheticUser = scenarioAction({
     await ui
       .get('synthetic-population-restart-done')
       .expect.visible({ timeoutMs: WAIT_MS });
+    // Seen; the person closes the outcome, as before acting again.
+    await ui.get('synthetic-population-restart-dismiss').tap();
     const { lease, sessions, renewal } = await leasedSession(s, name);
     const restart = renewal.commands.find(
       (command) => command.command === 'restart'
@@ -261,6 +268,33 @@ export const givenPausedSyntheticUsers = scenarioAction({
   },
 });
 
+/** What the observer's Synthetic Population panel shows for the Synthetic User, as it is on screen. */
+export async function directoryRowShown(
+  s: ProductHarness,
+  observer: string,
+  name: string
+): Promise<string | null> {
+  const user = await syntheticUserNamed(s, name);
+  await bringToFront(s, observer);
+  const row = (await actorUi(s, observer)).get(
+    `synthetic-population-user-${user.id}`
+  );
+  return (await row.isVisible()) ? ((await row.text()) ?? '') : null;
+}
+
+/** Whether the observer's Synthetic Population panel offers the Synthetic User's control panel. */
+export async function directoryControlPanelOffered(
+  s: ProductHarness,
+  observer: string,
+  name: string
+): Promise<boolean> {
+  const user = await syntheticUserNamed(s, name);
+  await bringToFront(s, observer);
+  return (await actorUi(s, observer))
+    .get(`synthetic-population-control-panel-${user.username}`)
+    .isVisible();
+}
+
 /** What the observer's directory says about the Synthetic User. */
 async function directoryRow(
   s: ProductHarness,
@@ -269,7 +303,7 @@ async function directoryRow(
 ): Promise<string> {
   const user = await syntheticUserNamed(s, name);
   const ui = await actorUi(s, observer);
-  await s.actors.get(observer)!.openLink('/admin/synthetic-population');
+  await s.actors.get(observer)!.openLink(SYNTHETIC_USERS_PATH);
   await s.session.waitForIdle();
   return (await ui.get(`synthetic-population-user-${user.id}`).text()) ?? '';
 }

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "verify:models": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/observatory/*.qnt"]
+    },
+    "test:spec:0": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "src": {
+      "dependsOn": [
+        "@libs/game-matchmaking-harness-ts#src",
+        "@libs/harness-ts#src",
+        "@libs/observatory-actions-harness-ts#src",
+        "@libs/observatory-shared-ts#src",
+        "@libs/permissions-shared-ts#src",
+        "@libs/synthetic-population-harness-ts#src"
+      ]
+    }
+  }
+}
