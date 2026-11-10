@@ -1,0 +1,4 @@
+{
+  "summary": "Pausing every Synthetic User twice in a row offers the confirmation again.",
+  "regressionTest": "libs/synthetic-population-harness-ts/tests/quint/control-panel.binding.ts"
+}

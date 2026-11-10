@@ -54,6 +54,7 @@ export function SyntheticUserControls(props: {
         successBody={t`The Synthetic Population Worker reopens its app and it carries on where it was.`}
         submitDataSet={{ testid: 'synthetic-population-restart-confirm' }}
         successDataSet={{ testid: 'synthetic-population-restart-done' }}
+        dismissDataSet={{ testid: 'synthetic-population-restart-dismiss' }}
       />
     </Show>
   );

@@ -15,11 +15,32 @@ import {
 } from '@libs/synthetic-population-harness-ts/control-panel-model';
 import { bindQuintModel } from '@pkgs/quint-shared-ts/registry';
 
+import pauseAllTwice from './fixtures/pause-all-twice-confirms-again.itf.json';
+import secondGame from './fixtures/second-game-against-same-person.itf.json';
+
 /** The game a Synthetic User starts as its next activity. */
 const GAME = 'chess';
 
 bindQuintModel<QuintHarnessWorld>({
   model: 'control-panel',
+  regressions: [
+    {
+      // regression: pause-all-twice-confirms-again
+      id: 'pause-all-twice-confirms-again',
+      title:
+        'Pausing every Synthetic User twice in a row offers the confirmation again.',
+      seed: '0x67932',
+      itf: pauseAllTwice,
+    },
+    {
+      // regression: second-game-against-same-person
+      id: 'second-game-against-same-person',
+      title:
+        'A Synthetic User starts a second game against the same person after its first one ends.',
+      seed: '0x67932',
+      itf: secondGame,
+    },
+  ],
   traces: 6,
   maxSteps: 6,
   verifySteps: 4,
