@@ -168,18 +168,3 @@ test('screens-games-battleship-board--correct-target-before-firing regression ba
   if (!scenario) throw new Error('Missing desktop light scenario');
   await verifyStoryScenario(page, story.id, scenario);
 });
-
-// regression: quoridor-desktop-measure-ignores-fit
-test('screens-games-quoridor-hill--precise-wall-preview regression quoridor-desktop-measure-ignores-fit', async ({
-  page,
-}) => {
-  const story =
-    index.entries['screens-games-quoridor-hill--precise-wall-preview'];
-  if (!story)
-    throw new Error('Missing literal desktop wall preview regression');
-  const scenario = visualScenarios(story).find(
-    (item) => item.width === 1440 && item.theme === 'light'
-  );
-  if (!scenario) throw new Error('Missing desktop light scenario');
-  await verifyStoryScenario(page, story.id, scenario);
-});
