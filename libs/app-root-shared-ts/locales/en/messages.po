@@ -143,7 +143,7 @@ msgid "{0} is low on time, with {1} left."
 msgstr "{0} is low on time, with {1} left."
 
 #. placeholder {0}: state.username
-#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
+#: libs/observatory-client-ts/src/live-watch-screen-view.tsx
 msgid "{0} is no longer online now"
 msgstr "{0} is no longer online now"
 
@@ -294,7 +294,7 @@ msgid "{0}: drag the left half. {1}: drag the right half."
 msgstr "{0}: drag the left half. {1}: drag the right half."
 
 #. placeholder {0}: props.entry.username
-#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
+#: libs/observatory-client-ts/src/live-watch-screen-view.tsx
 msgid "{0}'s screen"
 msgstr "{0}'s screen"
 
@@ -1183,7 +1183,7 @@ msgstr "Adding puzzles"
 msgid "Adjust feed"
 msgstr "Adjust feed"
 
-#: libs/synthetic-population-client-ts/src/synthetic-population-settings.tsx
+#: libs/observatory-client-ts/src/observatory-settings.tsx
 msgid "Administration"
 msgstr "Administration"
 
@@ -1402,7 +1402,7 @@ msgstr "Back"
 msgid "Back to current game"
 msgstr "Back to current game"
 
-#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
+#: libs/observatory-client-ts/src/live-watch-screen-view.tsx
 msgid "Back to online now"
 msgstr "Back to online now"
 
@@ -1580,19 +1580,6 @@ msgstr "Bot (medium)"
 msgid "Bot difficulty"
 msgstr "Bot difficulty"
 
-#: libs/synthetic-population-client-ts/src/live-labels.tsx
-#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
-#: libs/synthetic-population-client-ts/src/synthetic-population-denial.tsx
-#: libs/synthetic-population-client-ts/src/synthetic-population-screen-view.tsx
-#: libs/synthetic-population-client-ts/src/synthetic-population-settings.tsx
-#: libs/synthetic-population-client-ts/src/synthetic-user-screen-view.tsx
-msgid "Bot Observatory"
-msgstr "Bot Observatory"
-
-#: libs/synthetic-population-client-ts/src/synthetic-population-screen-view.tsx
-msgid "Bot Observatory could not be loaded."
-msgstr "Bot Observatory could not be loaded."
-
 #: libs/game-matchmaking-client-ts/src/multiplayer-private-setup.tsx
 msgid "Both players are ready."
 msgstr "Both players are ready."
@@ -1619,7 +1606,7 @@ msgstr "Broken"
 msgid "Browse"
 msgstr "Browse"
 
-#: libs/synthetic-population-client-ts/src/live-labels.tsx
+#: libs/observatory-client-ts/src/live-labels.tsx
 msgid "Browsing"
 msgstr "Browsing"
 
@@ -1791,9 +1778,9 @@ msgstr "Check the spelling or try a different username."
 
 #: libs/friends-client-ts/src/friend-user-screen-content.tsx
 #: libs/friends-client-ts/src/friends-list-screen-view.tsx
+#: libs/observatory-client-ts/src/live-watch-screen-view.tsx
+#: libs/observatory-client-ts/src/online-now-view.tsx
 #: libs/profile-client-ts/src/profile-screen-view.tsx
-#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
-#: libs/synthetic-population-client-ts/src/online-now-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-population-users-view.tsx
 msgid "Check your connection and try again."
 msgstr "Check your connection and try again."
@@ -2320,8 +2307,9 @@ msgstr "Continue with email"
 msgid "Continue with Google"
 msgstr "Continue with Google"
 
-#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
-#: libs/synthetic-population-client-ts/src/online-now-view.tsx
+#: libs/observatory-client-ts/src/live-watch-screen-view.tsx
+#: libs/observatory-client-ts/src/online-now-view.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-population-users-view.tsx
 msgid "Control panel"
 msgstr "Control panel"
 
@@ -2793,7 +2781,7 @@ msgstr "Disconnects multiplayer; changes wait on this device"
 msgid "Dismiss"
 msgstr "Dismiss"
 
-#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
+#: libs/observatory-client-ts/src/live-watch-screen-view.tsx
 msgid "Doing"
 msgstr "Doing"
 
@@ -3001,7 +2989,7 @@ msgstr "Editing now"
 msgid "Eight"
 msgstr "Eight"
 
-#: libs/synthetic-population-client-ts/src/live-labels.tsx
+#: libs/observatory-client-ts/src/live-labels.tsx
 msgid "Elsewhere in the app"
 msgstr "Elsewhere in the app"
 
@@ -3177,7 +3165,7 @@ msgstr "Every Synthetic User is resumed"
 msgid "Every username is unique. Ask a friend for theirs and type the start of it."
 msgstr "Every username is unique. Ask a friend for theirs and type the start of it."
 
-#: libs/synthetic-population-client-ts/src/online-now-view.tsx
+#: libs/observatory-client-ts/src/online-now-view.tsx
 msgid "Everyone"
 msgstr "Everyone"
 
@@ -3867,8 +3855,8 @@ msgstr "In {0}"
 msgid "in a row"
 msgstr "in a row"
 
+#: libs/observatory-client-ts/src/live-labels.tsx
 #: libs/spaces-client-ts/src/friend-live-space.tsx
-#: libs/synthetic-population-client-ts/src/live-labels.tsx
 msgid "In a space"
 msgstr "In a space"
 
@@ -4448,11 +4436,11 @@ msgstr "Looking for a {0} {1} opponent."
 msgid "Looking for a {0} opponent."
 msgstr "Looking for a {0} opponent."
 
-#: libs/synthetic-population-client-ts/src/live-labels.tsx
+#: libs/observatory-client-ts/src/live-labels.tsx
 msgid "Looking for a multiplayer opponent"
 msgstr "Looking for a multiplayer opponent"
 
-#: libs/synthetic-population-client-ts/src/live-labels.tsx
+#: libs/observatory-client-ts/src/live-labels.tsx
 msgid "Looking for a multiplayer opponent for {game}"
 msgstr "Looking for a multiplayer opponent for {game}"
 
@@ -5058,7 +5046,7 @@ msgstr "No Synthetic Users found"
 msgid "Nobody has passed yet."
 msgstr "Nobody has passed yet."
 
-#: libs/synthetic-population-client-ts/src/online-now-view.tsx
+#: libs/observatory-client-ts/src/online-now-view.tsx
 msgid "Nobody is online now"
 msgstr "Nobody is online now"
 
@@ -5180,7 +5168,7 @@ msgstr "Nothing to correct. Playtest the board to prove it."
 
 #: libs/notifications-client-ts/src/notifications-screen-view.tsx
 #: libs/notifications-client-ts/src/sub-client.tsx
-#: libs/synthetic-population-client-ts/src/live-labels.tsx
+#: libs/observatory-client-ts/src/live-labels.tsx
 msgid "Notifications"
 msgstr "Notifications"
 
@@ -5195,10 +5183,6 @@ msgstr "Now"
 #: libs/numberlink-client-ts/src/numberlink-board.tsx
 msgid "Numberlink board"
 msgstr "Numberlink board"
-
-#: libs/synthetic-population-client-ts/src/synthetic-population-settings.tsx
-msgid "Observe and control the Synthetic Population"
-msgstr "Observe and control the Synthetic Population"
 
 #: libs/app-config-client-ts/src/client-config-screen-view.tsx
 #: libs/app-root-client-ts/src/performance-screen-view.tsx
@@ -5259,11 +5243,11 @@ msgstr "online"
 msgid "Online"
 msgstr "Online"
 
-#: libs/synthetic-population-client-ts/src/online-now-view.tsx
+#: libs/observatory-client-ts/src/online-now-view.tsx
 msgid "Online now"
 msgstr "Online now"
 
-#: libs/synthetic-population-client-ts/src/online-now-view.tsx
+#: libs/observatory-client-ts/src/online-now-view.tsx
 msgid "Online now could not be loaded."
 msgstr "Online now could not be loaded."
 
@@ -5360,7 +5344,7 @@ msgstr "Open space {0}"
 msgid "Open the new puzzle draft"
 msgstr "Open the new puzzle draft"
 
-#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
+#: libs/observatory-client-ts/src/live-watch-screen-view.tsx
 msgid "Opening their screen…"
 msgstr "Opening their screen…"
 
@@ -5601,7 +5585,7 @@ msgstr "Pause every Synthetic User"
 msgid "Pause every Synthetic User?"
 msgstr "Pause every Synthetic User?"
 
-#: libs/synthetic-population-client-ts/src/online-now-view.tsx
+#: libs/observatory-client-ts/src/online-now-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-population-users-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-user-controls.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-user-details.tsx
@@ -5637,11 +5621,11 @@ msgstr "Payments are processed securely by our billing provider. We never see yo
 msgid "Pending"
 msgstr "Pending"
 
-#: libs/synthetic-population-client-ts/src/online-now-view.tsx
+#: libs/observatory-client-ts/src/online-now-view.tsx
 msgid "People"
 msgstr "People"
 
-#: libs/synthetic-population-client-ts/src/online-now-view.tsx
+#: libs/observatory-client-ts/src/online-now-view.tsx
 msgid "People and Synthetic Users appear here as soon as they open the app."
 msgstr "People and Synthetic Users appear here as soon as they open the app."
 
@@ -5658,7 +5642,7 @@ msgstr "People can play them in any order. Publishing the pack keeps each puzzle
 msgid "People in this space"
 msgstr "People in this space"
 
-#: libs/synthetic-population-client-ts/src/live-labels.tsx
+#: libs/observatory-client-ts/src/live-labels.tsx
 msgid "People search"
 msgstr "People search"
 
@@ -5693,7 +5677,7 @@ msgid "Permanently delete account?"
 msgstr "Permanently delete account?"
 
 #: libs/game-session-client-ts/src/custom-game-status.tsx
-#: libs/synthetic-population-client-ts/src/live-labels.tsx
+#: libs/observatory-client-ts/src/live-labels.tsx
 msgid "Person"
 msgstr "Person"
 
@@ -5738,7 +5722,7 @@ msgstr "Place every tile in one row or one column."
 msgid "Place in {0}"
 msgstr "Place in {0}"
 
-#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
+#: libs/observatory-client-ts/src/live-watch-screen-view.tsx
 msgid "Place in the app"
 msgstr "Place in the app"
 
@@ -5833,11 +5817,11 @@ msgstr "Players and scores"
 msgid "Playing"
 msgstr "Playing"
 
-#: libs/synthetic-population-client-ts/src/live-labels.tsx
+#: libs/observatory-client-ts/src/live-labels.tsx
 msgid "Playing {game}"
 msgstr "Playing {game}"
 
-#: libs/synthetic-population-client-ts/src/live-labels.tsx
+#: libs/observatory-client-ts/src/live-labels.tsx
 msgid "Playing a game"
 msgstr "Playing a game"
 
@@ -5991,12 +5975,14 @@ msgstr "Production"
 #: libs/billing-client-ts/src/billing-screen-view.tsx
 #: libs/friends-client-ts/src/friend-user-screen-view.tsx
 #: libs/friends-client-ts/src/friends-list-screen-view.tsx
+#: libs/observatory-client-ts/src/live-labels.tsx
+#: libs/observatory-client-ts/src/observatory-denial.tsx
+#: libs/observatory-client-ts/src/user-observatory-screen-view.tsx
 #: libs/profile-client-ts/src/avatar-editor-screen-view.tsx
 #: libs/profile-client-ts/src/profile-edit-screen-view.tsx
 #: libs/profile-client-ts/src/profile-handle-screen-view.tsx
 #: libs/profile-client-ts/src/profile-screen-view.tsx
 #: libs/profile-client-ts/src/sub-client.tsx
-#: libs/synthetic-population-client-ts/src/live-labels.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-population-denial.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-population-screen-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-user-screen-view.tsx
@@ -6350,7 +6336,7 @@ msgstr "Reading Synthetic Population…"
 msgid "Reading Synthetic Users…"
 msgstr "Reading Synthetic Users…"
 
-#: libs/synthetic-population-client-ts/src/online-now-view.tsx
+#: libs/observatory-client-ts/src/online-now-view.tsx
 msgid "Reading who is online now…"
 msgstr "Reading who is online now…"
 
@@ -7113,6 +7099,10 @@ msgstr "See below"
 msgid "See plans"
 msgstr "See plans"
 
+#: libs/observatory-client-ts/src/observatory-settings.tsx
+msgid "See who is online now, watch them live and control the Synthetic Population"
+msgstr "See who is online now, watch them live and control the Synthetic Population"
+
 #: libs/profile-client-ts/src/avatar-editor-seed-field.tsx
 msgid "Seed"
 msgstr "Seed"
@@ -7206,9 +7196,11 @@ msgstr "Sessions"
 #: libs/game-menu-client-ts/src/game-menu-choices.tsx
 #: libs/game-puzzle-client-ts/src/personal-puzzle-stats-screen-view.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-feed-bar-view.tsx
+#: libs/observatory-client-ts/src/live-labels.tsx
+#: libs/observatory-client-ts/src/live-watch-screen-view.tsx
+#: libs/observatory-client-ts/src/observatory-denial.tsx
+#: libs/observatory-client-ts/src/user-observatory-screen-view.tsx
 #: libs/profile-client-ts/src/profile-screen-view.tsx
-#: libs/synthetic-population-client-ts/src/live-labels.tsx
-#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-population-denial.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-population-screen-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-user-screen-view.tsx
@@ -7288,7 +7280,7 @@ msgstr "Show performance monitor"
 msgid "Show the position after {0}"
 msgstr "Show the position after {0}"
 
-#: libs/synthetic-population-client-ts/src/online-now-view.tsx
+#: libs/observatory-client-ts/src/online-now-view.tsx
 msgid "Show who is online now"
 msgstr "Show who is online now"
 
@@ -7411,7 +7403,7 @@ msgid "Sign-in link"
 msgstr "Sign-in link"
 
 #: libs/auth-client-ts/src/sign-in-methods-section.tsx
-#: libs/synthetic-population-client-ts/src/live-labels.tsx
+#: libs/observatory-client-ts/src/live-labels.tsx
 msgid "Sign-in methods"
 msgstr "Sign-in methods"
 
@@ -7615,13 +7607,13 @@ msgstr "Space name"
 msgid "Space renamed"
 msgstr "Space renamed"
 
+#: libs/observatory-client-ts/src/live-labels.tsx
 #: libs/spaces-client-ts/src/space-chrome-nav.tsx
 #: libs/spaces-client-ts/src/space-ended-screen-view.tsx
 #: libs/spaces-client-ts/src/space-join-screen-view.tsx
 #: libs/spaces-client-ts/src/space-unreachable-screen-view.tsx
 #: libs/spaces-client-ts/src/spaces-screen-view.tsx
 #: libs/spaces-client-ts/src/sub-client.tsx
-#: libs/synthetic-population-client-ts/src/live-labels.tsx
 msgid "Spaces"
 msgstr "Spaces"
 
@@ -7879,6 +7871,7 @@ msgstr "Synced from the server on first request. Values come from server secrets
 msgid "Syncing"
 msgstr "Syncing"
 
+#: libs/observatory-client-ts/src/user-observatory-screen-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-population-summary.tsx
 msgid "Synthetic Population"
 msgstr "Synthetic Population"
@@ -7895,7 +7888,7 @@ msgstr "Synthetic Population Worker"
 msgid "Synthetic Population Workers"
 msgstr "Synthetic Population Workers"
 
-#: libs/synthetic-population-client-ts/src/live-labels.tsx
+#: libs/observatory-client-ts/src/live-labels.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-user-screen-view.tsx
 msgid "Synthetic User"
 msgstr "Synthetic User"
@@ -7908,10 +7901,18 @@ msgstr "Synthetic User could not be loaded."
 msgid "Synthetic User directory could not be loaded."
 msgstr "Synthetic User directory could not be loaded."
 
-#: libs/synthetic-population-client-ts/src/online-now-view.tsx
+#: libs/observatory-client-ts/src/online-now-view.tsx
+#: libs/observatory-client-ts/src/user-observatory-screen-view.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-population-denial.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-population-screen-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-population-users-view.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-user-screen-view.tsx
 msgid "Synthetic Users"
 msgstr "Synthetic Users"
+
+#: libs/synthetic-population-client-ts/src/synthetic-population-screen-view.tsx
+msgid "Synthetic Users could not be loaded."
+msgstr "Synthetic Users could not be loaded."
 
 #: libs/app-root-client-ts/src/app-commands.tsx
 msgid "system"
@@ -8421,7 +8422,11 @@ msgstr "The worker's way is blocked."
 msgid "The working draft changed. Open the kept copies and choose again."
 msgstr "The working draft changed. Open the kept copies and choose again."
 
-#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
+#: libs/observatory-client-ts/src/user-observatory-screen-view.tsx
+msgid "Their personas, the desired synthetic population and their control panels"
+msgstr "Their personas, the desired synthetic population and their control panels"
+
+#: libs/observatory-client-ts/src/live-watch-screen-view.tsx
 msgid "Their screen could not be shown."
 msgstr "Their screen could not be shown."
 
@@ -8462,7 +8467,7 @@ msgstr "There is no secret choice to make now."
 msgid "They already asked you"
 msgstr "They already asked you"
 
-#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
+#: libs/observatory-client-ts/src/live-watch-screen-view.tsx
 msgid "They are no longer online now"
 msgstr "They are no longer online now"
 
@@ -9015,8 +9020,8 @@ msgstr "Unlimited access to {productName} servers"
 msgid "Unmute coach"
 msgstr "Unmute coach"
 
-#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
-#: libs/synthetic-population-client-ts/src/online-now-view.tsx
+#: libs/observatory-client-ts/src/live-watch-screen-view.tsx
+#: libs/observatory-client-ts/src/online-now-view.tsx
 msgid "Unnamed"
 msgstr "Unnamed"
 
@@ -9141,6 +9146,17 @@ msgstr "User blocked"
 #: libs/synthetic-population-client-ts/src/synthetic-user-details.tsx
 msgid "User ID"
 msgstr "User ID"
+
+#: libs/observatory-client-ts/src/live-labels.tsx
+#: libs/observatory-client-ts/src/live-watch-screen-view.tsx
+#: libs/observatory-client-ts/src/observatory-denial.tsx
+#: libs/observatory-client-ts/src/observatory-settings.tsx
+#: libs/observatory-client-ts/src/user-observatory-screen-view.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-population-denial.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-population-screen-view.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-user-screen-view.tsx
+msgid "User Observatory"
+msgstr "User Observatory"
 
 #: libs/profile-client-ts/src/profile-edit-screen-view.tsx
 #: libs/profile-client-ts/src/profile-handle-screen-view.tsx
@@ -9270,7 +9286,7 @@ msgstr "Waiting for the host to start a puzzle."
 msgid "Waiting for the host to start."
 msgstr "Waiting for the host to start."
 
-#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
+#: libs/observatory-client-ts/src/live-watch-screen-view.tsx
 msgid "Waiting for their screen…"
 msgstr "Waiting for their screen…"
 
@@ -9310,11 +9326,11 @@ msgstr "Walls must fit between four squares. Choose a starting square from a1 to
 msgid "Wants to be friends"
 msgstr "Wants to be friends"
 
-#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
+#: libs/observatory-client-ts/src/live-watch-screen-view.tsx
 msgid "Watch live"
 msgstr "Watch live"
 
-#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
+#: libs/observatory-client-ts/src/live-watch-screen-view.tsx
 msgid "Watching live stopped. Pick someone else who is online now."
 msgstr "Watching live stopped. Pick someone else who is online now."
 
@@ -9385,7 +9401,7 @@ msgstr "White is stalemated."
 msgid "White pieces at the bottom."
 msgstr "White pieces at the bottom."
 
-#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
+#: libs/observatory-client-ts/src/live-watch-screen-view.tsx
 msgid "Who"
 msgstr "Who"
 

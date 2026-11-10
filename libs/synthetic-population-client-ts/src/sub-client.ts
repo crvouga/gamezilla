@@ -1,13 +1,17 @@
+import {
+  SYNTHETIC_USERS_CONFIG_PATH,
+  SYNTHETIC_USERS_CONTROL_PATH,
+  SYNTHETIC_USERS_PATH,
+} from '@libs/observatory-shared-ts/observatory-routes';
 import { defineSubClient, type SubClient } from '@libs/sub-client-ts/client';
 import { createComponent, type JSX, lazy } from 'solid-js';
 import { type GameName, GameNamesProvider } from './game-names';
-import { LiveSessionReporter } from './live-session-reporter';
-import { SyntheticPopulationSettings } from './synthetic-population-settings';
 
 /**
- * The Bot Observatory and every app's online-now report. Games depend on
- * the platform, so the composition root hands in the registered games'
- * names, which the Observatory shows wherever it names a game.
+ * The Synthetic Population panel, the Synthetic Users' own part of the User
+ * Observatory. Games depend on the platform, so the composition root hands
+ * in the registered games' names, which the panel shows wherever it names a
+ * game.
  */
 export function createSyntheticPopulationClient(options: {
   readonly games: readonly GameName[];
@@ -24,39 +28,30 @@ export function createSyntheticPopulationClient(options: {
   return defineSubClient({
     name: 'synthetic-population',
     chrome: GameNames,
-    settings: SyntheticPopulationSettings,
-    // Every app reports that it is online now, a person's or a Synthetic User's.
-    session: LiveSessionReporter,
     routes: [
       {
-        path: '/admin/synthetic-population',
+        path: SYNTHETIC_USERS_PATH,
         component: lazy(async () => ({
           default: (await import('./synthetic-population-screen'))
             .SyntheticPopulationScreen,
         })),
       },
       {
-        path: '/admin/synthetic-population/config',
+        path: SYNTHETIC_USERS_CONFIG_PATH,
         component: lazy(async () => ({
           default: (await import('./synthetic-population-screen'))
             .SyntheticPopulationConfigurationScreen,
         })),
       },
       {
-        path: '/admin/synthetic-population/control',
+        path: SYNTHETIC_USERS_CONTROL_PATH,
         component: lazy(async () => ({
           default: (await import('./synthetic-population-screen'))
             .SyntheticPopulationControlScreen,
         })),
       },
       {
-        path: '/admin/synthetic-population/live/:sessionId',
-        component: lazy(async () => ({
-          default: (await import('./live-watch-screen')).LiveWatchScreen,
-        })),
-      },
-      {
-        path: '/admin/synthetic-population/users/:id',
+        path: `${SYNTHETIC_USERS_PATH}/:id`,
         component: lazy(async () => ({
           default: (await import('./synthetic-user-screen'))
             .SyntheticUserScreen,

@@ -1,7 +1,6 @@
 import { KeyRoundIcon } from '@pkgs/ui-root-client-ts/icons';
 import { fn } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
-import { ONLINE_NOW, onlineEntry, onlineNow } from './online-now.example';
 import {
   CONFIG,
   directory,
@@ -29,7 +28,7 @@ const meta = {
   parameters: {
     appRouter: true,
     controls: {
-      exclude: ['overview', 'denial', 'fields', 'directory', 'onlineNow'],
+      exclude: ['overview', 'denial', 'fields', 'directory'],
     },
   },
   args: {
@@ -45,7 +44,6 @@ const meta = {
     onRefresh: fn(),
     canControl: true,
     onCommandAll: fn(async () => undefined),
-    onlineNow: onlineNow() as SyntheticPopulationScreenViewProps['onlineNow'],
   },
 } satisfies Meta<typeof SyntheticPopulationScreenView>;
 export default meta;
@@ -53,8 +51,7 @@ type Story = StoryObj<typeof meta>;
 
 /**
  * A running population seen by an operator: counts, controls for every
- * Synthetic User, people and Synthetic Users online now (only Synthetic
- * Users offer a control panel), the configuration form, the directory (each
+ * Synthetic User, the configuration form, the directory (each
  * row with its home region, skill level and favorite games; one paused, one
  * recovering, one recorded before personas) and workers that
  * are ready, draining and unreachable.
@@ -62,72 +59,14 @@ type Story = StoryObj<typeof meta>;
 export const Populated: Story = {};
 
 /**
- * A viewer without configure, control, inspect or watch: no form, no
- * controls, online-now rows do not open and offer no control panel.
+ * A viewer without configure, control or inspect: no form, no controls,
+ * directory rows do not open and offer no control panel.
  */
 export const ViewOnly: Story = {
   args: {
     canConfigure: false,
     canControl: false,
-    directory: directory({ canInspect: false }),
-    onlineNow: onlineNow({ canWatch: false, canControl: false }),
-  },
-};
-
-/** Showing only people online now: Synthetic Users are hidden. */
-export const OnlineNowPeopleOnly: Story = {
-  args: {
-    onlineNow: onlineNow({
-      filter: 'people',
-      entries: ONLINE_NOW.filter((entry) => entry.kind === 'person'),
-    }),
-  },
-};
-
-/** Showing only Synthetic Users online now: people are hidden. */
-export const OnlineNowSyntheticUsersOnly: Story = {
-  args: {
-    onlineNow: onlineNow({
-      filter: 'synthetic',
-      entries: ONLINE_NOW.filter((entry) => entry.kind === 'synthetic'),
-    }),
-  },
-};
-
-/** Nobody is online now: the list says so and what will appear. */
-export const OnlineNowEmpty: Story = {
-  args: { onlineNow: onlineNow({ entries: [] }) },
-};
-
-/** Who is online now is still being read. */
-export const OnlineNowLoading: Story = {
-  args: { onlineNow: onlineNow({ loading: true, entries: undefined }) },
-};
-
-/** Who is online now could not be read; its own retry asks again. */
-export const OnlineNowFailed: Story = {
-  args: { onlineNow: onlineNow({ failed: true, entries: undefined }) },
-};
-
-/** A later read failed: the last list stays, with a retry above the fold. */
-export const OnlineNowFailedKeepsList: Story = {
-  args: { onlineNow: onlineNow({ failed: true }) },
-};
-
-/** Long usernames and game names wrap instead of breaking rows. */
-export const OnlineNowLongContent: Story = {
-  args: {
-    onlineNow: onlineNow({
-      entries: [
-        onlineEntry(9, 'the_grand_strategist_of_rainy_tuesday_evenings', {
-          avatarConfig: face('thumbs', 'a7c31e90d2b4'),
-          place: 'space',
-          activity: 'looking',
-          game: 'Battleship: Salvo with extended fleets and fog of war',
-        }),
-        ...ONLINE_NOW,
-      ],
-    }),
+    directory: directory({ canInspect: false, canControl: false }),
   },
 };
 
@@ -147,7 +86,6 @@ export const Failed: Story = {
 /** Nothing is running yet: nobody online, empty directory, no workers, no events. */
 export const Empty: Story = {
   args: {
-    onlineNow: onlineNow({ entries: [] }),
     overview: EMPTY_OVERVIEW,
     fields: toConfigurationDraft(EMPTY_OVERVIEW.config),
     directory: directory({ page: { users: [], nextCursor: null } }),
@@ -264,7 +202,6 @@ export const Denied: Story = {
     canConfigure: false,
     canControl: false,
     directory: undefined,
-    onlineNow: undefined,
     denial: {
       icon: KeyRoundIcon,
       title: 'Not available',

@@ -24,6 +24,8 @@ export type SyntheticPopulationUsersViewProps = {
   readonly paged: boolean;
   /** Rows open their Synthetic User only when the person may inspect. */
   readonly canInspect: boolean;
+  /** Each row offers its Synthetic User's control panel. */
+  readonly canControl: boolean;
   readonly onFilterChange: (value: string) => void;
   readonly onFirstPage: () => void;
   readonly onNextPage: (cursor: string) => void;
@@ -61,6 +63,19 @@ export function SyntheticPopulationUsersView(
               value={user.paused ? t`Paused` : user.activity}
               onClick={
                 props.canInspect ? () => props.onInspect(user.id) : undefined
+              }
+              accessory={
+                <Show when={props.canControl}>
+                  <Button
+                    title={t`Control panel`}
+                    intent="neutral"
+                    variant="outline"
+                    onClick={() => props.onInspect(user.id)}
+                    dataSet={{
+                      testid: `synthetic-population-control-panel-${user.username}`,
+                    }}
+                  />
+                </Show>
               }
               dataSet={{ testid: `synthetic-population-user-${user.id}` }}
             />

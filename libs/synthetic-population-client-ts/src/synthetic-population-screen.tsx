@@ -1,3 +1,4 @@
+import { syntheticUserPath } from '@libs/observatory-shared-ts/observatory-routes';
 import { DecisionGate } from '@libs/permissions-client-ts/decision-gate';
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { useCan, useDecision } from '@libs/permissions-client-ts/use-can';
@@ -11,7 +12,6 @@ import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
 import { useCreateId } from '@pkgs/uuid-client-ts/solid';
 import { createResource, type JSX } from 'solid-js';
 import type { EveryCommand } from './every-synthetic-user-controls';
-import { SyntheticPopulationOnlineNow } from './online-now';
 import { resourceValue } from './resource-value';
 import { useSyntheticPopulationApi } from './synthetic-population-api';
 import {
@@ -20,7 +20,13 @@ import {
 } from './synthetic-population-configuration';
 import { SyntheticPopulationScreenView } from './synthetic-population-screen-view';
 import { SyntheticPopulationUsers } from './synthetic-population-users';
-import { useSyntheticPopulationUpdates } from './use-synthetic-population-updates';
+import {
+  useRefreshWithoutUpdates,
+  useSyntheticPopulationUpdates,
+} from './use-synthetic-population-updates';
+
+/** Without live updates, the panel is read again this often. */
+const REFRESH_MS = 5_000;
 
 function SyntheticPopulationContent(): JSX.Element {
   const { t } = useLingui();
@@ -29,7 +35,6 @@ function SyntheticPopulationContent(): JSX.Element {
   const configure = useCan(PERMISSION.syntheticPopulationConfigure);
   const inspect = useCan(PERMISSION.syntheticPopulationInspect);
   const control = useCan(PERMISSION.syntheticPopulationControl);
-  const watch = useCan(PERMISSION.syntheticPopulationWatch);
   const createId = useCreateId();
   const draft = useSyntheticPopulationConfiguration();
   const [overview, { refetch }] = createResource(async () => {
@@ -39,6 +44,7 @@ function SyntheticPopulationContent(): JSX.Element {
   });
   const candidate = () => draft.candidate(resourceValue(overview)?.config);
   useSyntheticPopulationUpdates(() => refetch());
+  useRefreshWithoutUpdates(() => refetch(), REFRESH_MS);
   const save = async () => {
     const value = candidate();
     if (value === null)
@@ -65,23 +71,12 @@ function SyntheticPopulationContent(): JSX.Element {
       }}
       canControl={control()}
       onCommandAll={commandAll}
-      onlineNow={() => (
-        <SyntheticPopulationOnlineNow
-          canWatch={watch()}
-          canControl={control()}
-          watch={(id) => router.push(`/admin/synthetic-population/live/${id}`)}
-          controlPanel={(id) =>
-            router.push(`/admin/synthetic-population/users/${id}`)
-          }
-        />
-      )}
       directory={(observedAtMs) => (
         <SyntheticPopulationUsers
           observedAtMs={observedAtMs}
           canInspect={inspect()}
-          inspect={(id) =>
-            router.push(`/admin/synthetic-population/users/${id}`)
-          }
+          canControl={control()}
+          inspect={(id) => router.push(syntheticUserPath(id))}
         />
       )}
     />
@@ -126,7 +121,7 @@ function SyntheticPopulationRoute(props: {
   );
 }
 
-/** `/admin/synthetic-population`: wires `SyntheticPopulationScreenView`. */
+/** `/admin/observatory/synthetic-users`: the Synthetic Population panel. */
 export function SyntheticPopulationScreen(): JSX.Element {
   return (
     <SyntheticPopulationRoute
@@ -136,7 +131,7 @@ export function SyntheticPopulationScreen(): JSX.Element {
   );
 }
 
-/** `/admin/synthetic-population/config`: the same screen, gated on configure. */
+/** `/admin/observatory/synthetic-users/config`: the same panel, gated on configure. */
 export function SyntheticPopulationConfigurationScreen(): JSX.Element {
   return (
     <SyntheticPopulationRoute
@@ -146,7 +141,7 @@ export function SyntheticPopulationConfigurationScreen(): JSX.Element {
   );
 }
 
-/** `/admin/synthetic-population/control`: the same screen, gated on control. */
+/** `/admin/observatory/synthetic-users/control`: the same panel, gated on control. */
 export function SyntheticPopulationControlScreen(): JSX.Element {
   return (
     <SyntheticPopulationRoute

@@ -18,7 +18,7 @@ import {
 } from './synthetic-population-users-view';
 import { SyntheticUserReplayView } from './synthetic-user-replay-view';
 
-/** Story-only Bot Observatory fixtures: fixed ids and instants, no I/O. */
+/** Story-only Synthetic Population panel fixtures: fixed ids and instants, no I/O. */
 
 export const OBSERVED_AT = '2026-03-14T12:00:00.000Z';
 const OBSERVED_AT_MS = Date.parse(OBSERVED_AT);
@@ -326,6 +326,7 @@ const DIRECTORY: SyntheticPopulationUsersViewProps = {
   failed: false,
   paged: false,
   canInspect: true,
+  canControl: true,
   onFilterChange: fn().mockName('directory.onFilterChange'),
   onFirstPage: fn().mockName('directory.onFirstPage'),
   onNextPage: fn().mockName('directory.onNextPage'),

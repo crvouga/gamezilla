@@ -11,7 +11,7 @@ const GameNamesContext = createContext<ReadonlyMap<string, string>>(NO_NAMES);
 
 /**
  * The names of the games Synthetic Users play, supplied by the composition
- * root (which owns the game registry) so the Bot Observatory never names a
+ * root (which owns the game registry) so the Synthetic Population panel never names a
  * game itself.
  */
 export function GameNamesProvider(props: {

@@ -14,7 +14,7 @@ import {
 } from './synthetic-population-screen-view';
 
 /**
- * `/admin/synthetic-population/config` renders the same view as the overview;
+ * `/admin/observatory/synthetic-users/config` renders the same view as the panel;
  * these stories cover the configuration form's validation and save states.
  */
 const meta = {
@@ -26,7 +26,7 @@ const meta = {
   parameters: {
     appRouter: true,
     controls: {
-      exclude: ['overview', 'denial', 'fields', 'directory', 'onlineNow'],
+      exclude: ['overview', 'denial', 'fields', 'directory'],
     },
   },
   args: {

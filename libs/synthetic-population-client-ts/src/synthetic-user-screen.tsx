@@ -29,7 +29,7 @@ function SyntheticUserContent(): JSX.Element {
   );
 }
 
-/** `/admin/synthetic-population/users/:id`: wires `SyntheticUserScreenView`. */
+/** `/admin/observatory/synthetic-users/:id`: wires `SyntheticUserScreenView`. */
 export function SyntheticUserScreen(): JSX.Element {
   const decision = useDecision(PERMISSION.syntheticPopulationInspect);
   return (

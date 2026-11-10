@@ -27,6 +27,7 @@
     "@libs/game-session-shared-ts": "workspace:*",
     "@libs/games-shared-ts": "workspace:*",
     "@libs/notifications-shared-ts": "workspace:*",
+    "@libs/observatory-shared-ts": "workspace:*",
     "@libs/permissions-shared-ts": "workspace:*",
     "@libs/profile-shared-ts": "workspace:*",
     "@libs/spaces-shared-ts": "workspace:*",

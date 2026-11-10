@@ -1,3 +1,7 @@
+import {
+  OBSERVATORY_PATH,
+  SYNTHETIC_USERS_PATH,
+} from '@libs/observatory-shared-ts/observatory-routes';
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import type { Inspection } from '@libs/synthetic-population-shared-ts/inspection';
 import { Trans, useLingui } from '@lingui/solid/macro';
@@ -87,11 +91,9 @@ function SyntheticUserInspector(
       breadcrumbs={[
         { name: <Trans>Profile</Trans>, href: '/profile' },
         { name: <Trans>Settings</Trans>, href: '/more' },
-        {
-          name: <Trans>Bot Observatory</Trans>,
-          href: '/admin/synthetic-population',
-        },
-        { name: <Trans>Synthetic User</Trans> },
+        { name: <Trans>User Observatory</Trans>, href: OBSERVATORY_PATH },
+        { name: <Trans>Synthetic Users</Trans>, href: SYNTHETIC_USERS_PATH },
+        { name: props.record?.user.username ?? t`Synthetic User` },
       ]}
     >
       <Show when={props.failed}>
@@ -116,7 +118,7 @@ function SyntheticUserInspector(
 }
 
 /**
- * `/admin/synthetic-population/users/:id`, presentational: one Synthetic
+ * `/admin/observatory/synthetic-users/:id`, presentational: one Synthetic
  * User's details, persona, control panel, behavior statechart, events, decision replay and
  * live DOM capture, with its loading, failed and denied states.
  * `SyntheticUserScreen` wires it to the admin API.

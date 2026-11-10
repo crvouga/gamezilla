@@ -54,6 +54,7 @@ export function EverySyntheticUserControls(props: {
         successTitle={t`Every Synthetic User is paused`}
         submitDataSet={{ testid: 'synthetic-population-pause-all-confirm' }}
         successDataSet={{ testid: 'synthetic-population-every-done' }}
+        dismissDataSet={{ testid: 'synthetic-population-every-dismiss' }}
       />
       <MutationModal
         visible={asking() === 'resume-all'}
@@ -65,6 +66,7 @@ export function EverySyntheticUserControls(props: {
         successTitle={t`Every Synthetic User is resumed`}
         submitDataSet={{ testid: 'synthetic-population-resume-all-confirm' }}
         successDataSet={{ testid: 'synthetic-population-every-done' }}
+        dismissDataSet={{ testid: 'synthetic-population-every-dismiss' }}
       />
     </Show>
   );

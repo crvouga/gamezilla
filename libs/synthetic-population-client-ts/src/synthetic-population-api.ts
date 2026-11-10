@@ -7,7 +7,6 @@ import type {
   SyntheticPopulationCommand,
   SyntheticPopulationConfig,
 } from '@libs/synthetic-population-shared-ts/config';
-import type { OnlineNowFilter } from '@libs/synthetic-population-shared-ts/live-session';
 import { useHttpClient } from '@pkgs/http-client-client-ts/solid';
 import type { HttpFetch } from '@pkgs/http-client-shared-ts/types';
 import { hc, type InferResponseType } from 'hono/client';
@@ -34,15 +33,6 @@ export type SyntheticUserDetail = InferResponseType<
   Rpc['users'][':id']['$get'],
   200
 >['user'];
-/** Whoever is online now, as the Bot Observatory reads it. */
-export type OnlineNowRead = InferResponseType<Rpc['live']['$get'], 200>;
-export type OnlineNowEntryView = OnlineNowRead['entries'][number];
-/** What a watcher sees of someone online now, or that they have left. */
-export type LiveWatchRead = InferResponseType<
-  Rpc['live'][':id']['watch']['$post'],
-  200
->;
-
 export function useSyntheticPopulationApi() {
   const config = useConfigService();
   const auth = useClientRequestAuth();
@@ -59,7 +49,9 @@ export function useSyntheticPopulationApi() {
     async overview() {
       const response = await rpc.index.$get();
       if (!response.ok)
-        throw new Error(`Bot Observatory unavailable (${response.status})`);
+        throw new Error(
+          `Synthetic Population panel unavailable (${response.status})`
+        );
       return response.json();
     },
     async directory(q: string, cursor: string | null) {
@@ -93,18 +85,6 @@ export function useSyntheticPopulationApi() {
     async replay(id: string) {
       const response = await rpc.users[':id'].replay.$post({ param: { id } });
       if (!response.ok) throw new Error('Decision replay is unavailable.');
-      return response.json();
-    },
-    async onlineNow(filter: OnlineNowFilter) {
-      const response = await rpc.live.$get({ query: { filter } });
-      if (!response.ok) throw new Error('Online now is unavailable.');
-      return response.json();
-    },
-    async watch(sessionId: string) {
-      const response = await rpc.live[':id'].watch.$post({
-        param: { id: sessionId },
-      });
-      if (!response.ok) throw new Error('Watching live is unavailable.');
       return response.json();
     },
     async commandAll(value: SyntheticPopulationBulkCommand) {

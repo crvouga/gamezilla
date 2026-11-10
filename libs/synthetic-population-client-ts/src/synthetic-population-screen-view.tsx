@@ -1,3 +1,4 @@
+import { OBSERVATORY_PATH } from '@libs/observatory-shared-ts/observatory-routes';
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
@@ -48,8 +49,6 @@ export type SyntheticPopulationScreenViewProps = {
    * it reads its own pages.
    */
   readonly directory?: ((observedAtMs: number) => JSX.Element) | undefined;
-  /** Whoever is online now; it reads its own list. */
-  readonly onlineNow?: (() => JSX.Element) | undefined;
   /** Offers pausing and resuming every Synthetic User at once. */
   readonly canControl: boolean;
   /** Pauses or resumes every Synthetic User; its dialog shows the outcome. */
@@ -92,7 +91,8 @@ function SyntheticPopulationOverviewScreen(
       breadcrumbs={[
         { name: <Trans>Profile</Trans>, href: '/profile' },
         { name: <Trans>Settings</Trans>, href: '/more' },
-        { name: <Trans>Bot Observatory</Trans> },
+        { name: <Trans>User Observatory</Trans>, href: OBSERVATORY_PATH },
+        { name: <Trans>Synthetic Users</Trans> },
       ]}
       footer={
         <Show when={props.canConfigure}>
@@ -120,7 +120,7 @@ function SyntheticPopulationOverviewScreen(
       <Show when={props.failed}>
         <ErrorState
           variant="compact"
-          title={<Trans>Bot Observatory could not be loaded.</Trans>}
+          title={<Trans>Synthetic Users could not be loaded.</Trans>}
           body={<Trans>Refresh to try again.</Trans>}
         />
       </Show>
@@ -131,7 +131,6 @@ function SyntheticPopulationOverviewScreen(
           canControl={props.canControl}
           command={props.onCommandAll}
         />
-        {props.onlineNow?.()}
       </Show>
       <Show when={props.overview} keyed>
         {(overview) => (
@@ -149,10 +148,10 @@ function SyntheticPopulationOverviewScreen(
 }
 
 /**
- * `/admin/synthetic-population`, `/admin/synthetic-population/config` and
- * `/admin/synthetic-population/control`, presentational: the Bot
- * Observatory's summary, controls for every Synthetic User, whoever is online
- * now, configuration form, Synthetic User directory, workers and event
+ * `/admin/observatory/synthetic-users`, `…/synthetic-users/config` and
+ * `…/synthetic-users/control`, presentational: the Synthetic Population
+ * panel's summary, controls for every Synthetic User, the desired synthetic
+ * population form, Synthetic User directory, workers and event
  * timeline, with its loading, failed and denied states.
  * `SyntheticPopulationScreen` wires it to the admin API.
  */

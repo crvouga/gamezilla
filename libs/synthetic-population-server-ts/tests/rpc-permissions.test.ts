@@ -29,7 +29,6 @@ test('each administrative RPC rejects denied actors before reading or changing p
           throw new Error('Denied RPC reached the database');
         },
         ports: f.ports,
-        live: f.live,
         subscriptionCredentials: () => {
           throw new Error('Denied RPC minted a subscription');
         },
@@ -44,12 +43,6 @@ test('each administrative RPC rejects denied actors before reading or changing p
       { path: '/users', permission: PERMISSION.syntheticPopulationView },
       { path: '/workers', permission: PERMISSION.syntheticPopulationView },
       { path: '/subscription', permission: PERMISSION.syntheticPopulationView },
-      { path: '/live', permission: PERMISSION.syntheticPopulationView },
-      {
-        path: `/live/${assignment.lease.userId}/watch`,
-        method: 'POST',
-        permission: PERMISSION.syntheticPopulationWatch,
-      },
       ...(['pause-all', 'resume-all'] as const).map((command) => ({
         path: '/commands',
         method: 'POST',
@@ -108,7 +101,6 @@ test('view RPC never exposes sign-in mail or an inspect-only DOM snapshot', asyn
     const app = createSyntheticPopulationRoutes({
       getDb: () => f.db,
       ports: f.ports,
-      live: f.live,
       subscriptionCredentials: async () => ({
         username: 'jwt',
         password: 'scoped',

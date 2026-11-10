@@ -54,23 +54,7 @@ export async function syntheticPopulationFixture(desired = 1) {
       leaseFailures: 0,
     });
   for (const worker of workers) await heartbeat(worker);
-  const liveNotices: string[] = [];
-  const live = {
-    clock,
-    createId,
-    presenceChanged: async () => {
-      liveNotices.push('presence');
-    },
-    frameChanged: async (sessionId: string) => {
-      liveNotices.push(`frame:${sessionId}`);
-    },
-    wakeAccount: async (accountId: string) => {
-      liveNotices.push(`wake:${accountId}`);
-    },
-  };
   return {
-    live,
-    liveNotices: () => [...liveNotices],
     clock,
     timers,
     createId,

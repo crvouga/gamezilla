@@ -8,17 +8,11 @@ import { mintPubSubToken } from '@libs/pubsub-server-ts/mint-pubsub-token';
 import { PubsubSecretName } from '@libs/pubsub-shared-ts/secret-names';
 import { defineSubServer, type SubServerCtx } from '@libs/sub-shared-ts/server';
 import {
-  LIVE_FRAME_CHANGED,
-  LIVE_PRESENCE_CHANGED,
-} from '@libs/synthetic-population-shared-ts/live-session';
-import {
   SYNTHETIC_POPULATION_EVENT_PROTOCOL,
   SYNTHETIC_POPULATION_TOPIC,
 } from '@libs/synthetic-population-shared-ts/synthetic-population-topic';
 import { Hono } from 'hono';
 import { bindSyntheticPopulationAccount } from './account-binding';
-import type { LiveObservatoryPorts } from './live-observatory';
-import { createLiveReportRoutes } from './live-routes';
 import {
   authorizeSyntheticPopulationMutation,
   authorizeSyntheticPopulationSession,
@@ -56,45 +50,15 @@ async function notifySyntheticPopulation(): Promise<void> {
   await publishSyntheticPopulation({ type: 'synthetic-population-changed' });
 }
 
-function liveObservatoryPorts(ctx: SubServerCtx): LiveObservatoryPorts {
-  return {
-    clock: ctx.clock,
-    createId: ctx.createId,
-    presenceChanged: () =>
-      publishSyntheticPopulation({ type: LIVE_PRESENCE_CHANGED }),
-    frameChanged: (sessionId) =>
-      publishSyntheticPopulation({ type: LIVE_FRAME_CHANGED, sessionId }),
-    wakeAccount: (accountId) =>
-      notifyUserChannels([accountId], 'synthetic-population-live-watch', {
-        tables: ['population_live_watches'],
-      }),
-  };
-}
-
-/** The app's own account and device; an unidentified request reports nothing. */
-async function identifyLiveDevice(request: Request) {
-  const store = requireRequestStore();
-  const auth = appAuth(
-    await store.sessionAuth.resolveAuthContext(store.sqlClient, request)
-  );
-  const accountId = auth?.myId ?? '';
-  const deviceId = auth?.deviceId ?? '';
-  return accountId.length > 0 && deviceId.length > 0
-    ? { accountId, deviceId }
-    : null;
-}
-
 function routes(ctx: SubServerCtx) {
   const ports = {
     clock: ctx.clock,
     createId: ctx.createId,
     notify: notifySyntheticPopulation,
   };
-  const live = liveObservatoryPorts(ctx);
   const administration = createSyntheticPopulationRoutes({
     getDb: ctx.getSqlClient,
     ports,
-    live,
     subscriptionCredentials: async (actorId) => {
       const value = await mintPubSubToken({
         secret: await readSecret(PubsubSecretName.jwtSecret),
@@ -158,15 +122,7 @@ function routes(ctx: SubServerCtx) {
   });
   return new Hono()
     .route('/admin/synthetic-population', administration)
-    .route('/synthetic-population-worker', workers)
-    .route(
-      '/synthetic-population-live',
-      createLiveReportRoutes({
-        getDb: ctx.getSqlClient,
-        ports: live,
-        identify: identifyLiveDevice,
-      })
-    );
+    .route('/synthetic-population-worker', workers);
 }
 
 export const SYNTHETIC_POPULATION_SERVER = defineSubServer({

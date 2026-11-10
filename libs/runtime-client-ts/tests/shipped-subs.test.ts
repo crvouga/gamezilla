@@ -17,6 +17,7 @@ const DATA_NAMES = [
   'billing',
   'permissions',
   'synthetic-population',
+  'observatory',
 ] as const;
 
 const CLIENT_NAMES = [
@@ -32,6 +33,7 @@ const CLIENT_NAMES = [
   'billing',
   'puzzle-management',
   'synthetic-population',
+  'observatory',
 ] as const;
 
 const TABLE_NAMES = [

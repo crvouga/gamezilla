@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { sanitizeDomSnapshot } from '@libs/synthetic-population-shared-ts/inspection';
+import { sanitizeDomSnapshot } from '@libs/observatory-shared-ts/dom-sanitizer';
 
 test('on-demand DOM inspection excludes sign-in links, tokens, private controls and hidden interactions', () => {
   // regression: synthetic-population-inspection-private-controls
