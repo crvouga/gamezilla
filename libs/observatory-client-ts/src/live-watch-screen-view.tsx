@@ -1,15 +1,23 @@
 import type { LiveFrame } from '@libs/observatory-shared-ts/live-session';
 import { OBSERVATORY_PATH } from '@libs/observatory-shared-ts/observatory-routes';
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
+import { DeviceAvatar } from '@libs/profile-client-ts/device-avatar';
+import { parseAvatarConfig } from '@libs/profile-shared-ts/avatar-config';
 import { Trans, useLingui } from '@lingui/solid/macro';
+import { Badge, LiveBadge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
+import { Grid } from '@pkgs/ui-root-client-ts/grid';
+import { H2 } from '@pkgs/ui-root-client-ts/heading';
+import { SlidersHorizontalIcon } from '@pkgs/ui-root-client-ts/icons';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
-import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
-import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
+import { useRelativeTimeLabel } from '@pkgs/ui-root-client-ts/relative-time';
 import { ScreenMirror } from '@pkgs/ui-root-client-ts/screen-mirror';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { Surface } from '@pkgs/ui-root-client-ts/surface';
+import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import { useLiveLabels } from './live-labels';
 import type { OnlineNowEntryView } from './observatory-api';
@@ -39,6 +47,12 @@ export type LiveWatchScreenViewProps = {
   readonly onBack: () => void;
 };
 
+/**
+ * Who is being watched, compact above (or, on a desktop, beside) their
+ * screen: their face and name over what they are doing, then a tag each
+ * for a person or a Synthetic User, paused, and their place in the app; a
+ * Synthetic User's control panel under them.
+ */
 function WatchedHeader(props: {
   entry: OnlineNowEntryView;
   canControl: boolean;
@@ -47,35 +61,106 @@ function WatchedHeader(props: {
   const { t } = useLingui();
   const labels = useLiveLabels();
   return (
-    <MenuSection title={props.entry.username || t`Unnamed`}>
-      <MenuRow
-        title={<Trans>Who</Trans>}
-        value={labels.kind(props.entry.kind)}
-        dataSet={{ testid: 'live-watch-kind' }}
-      />
-      <MenuRow
-        title={<Trans>Place in the app</Trans>}
-        value={labels.place(props.entry.place)}
-        dataSet={{ testid: 'live-watch-place' }}
-      />
-      <MenuRow
-        title={<Trans>Doing</Trans>}
-        value={labels.activity(props.entry)}
-        valueLines={2}
-        dataSet={{ testid: 'live-watch-activity' }}
-      />
+    <Surface tone="surface" radius="card" border padding="lg" gap="md">
+      <StackHorizontal gap="md" align="center">
+        <DeviceAvatar
+          avatarConfig={parseAvatarConfig(props.entry.avatarConfig)}
+          seedFallback={props.entry.accountId}
+          name={props.entry.username}
+          size={48}
+        />
+        <StackVertical gap="xs" grow shrink>
+          <H2 size="subtitle">
+            <Text variant="inherit" wrap="break">
+              {props.entry.username || t`Unnamed`}
+            </Text>
+          </H2>
+          <P variant="caption" testId="live-watch-activity">
+            {labels.activity(props.entry)}
+          </P>
+        </StackVertical>
+      </StackHorizontal>
+      <StackHorizontal gap="xs" wrap>
+        <Badge
+          label={labels.kind(props.entry.kind)}
+          intent="neutral"
+          size="sm"
+          dataSet={{ testid: 'live-watch-kind' }}
+        />
+        <Show when={props.entry.paused}>
+          <Badge label={t`Paused`} intent="warning" size="sm" />
+        </Show>
+        <Badge
+          label={labels.place(props.entry.place)}
+          intent="neutral"
+          size="sm"
+          dataSet={{ testid: 'live-watch-place' }}
+        />
+      </StackHorizontal>
       <Show when={props.canControl ? props.entry.syntheticUserId : null}>
         {(id) => (
-          <Button
-            title={t`Control panel`}
-            intent="neutral"
-            variant="outline"
-            onClick={() => props.onControlPanel(id())}
-            dataSet={{ testid: 'live-watch-control-panel' }}
-          />
+          <StackHorizontal>
+            <Button
+              title={t`Control panel`}
+              intent="neutral"
+              variant="outline"
+              size="sm"
+              icon={SlidersHorizontalIcon}
+              onClick={() => props.onControlPanel(id())}
+              dataSet={{ testid: 'live-watch-control-panel' }}
+            />
+          </StackHorizontal>
         )}
       </Show>
-    </MenuSection>
+    </Surface>
+  );
+}
+
+/** That their screen is live, and when its picture last changed. */
+function LiveIndicator(props: { frame: LiveFrame }): JSX.Element {
+  const { t } = useLingui();
+  const updated = useRelativeTimeLabel(() =>
+    new Date(props.frame.capturedAtMs).toISOString()
+  );
+  const caption = () => {
+    const when = updated();
+    return t`Updated ${when}`;
+  };
+  return (
+    <StackHorizontal gap="sm" align="center" wrap>
+      <LiveBadge />
+      <P variant="caption">{caption()}</P>
+    </StackHorizontal>
+  );
+}
+
+/** Their screen as they see it, at their device's shape, once it arrives. */
+function WatchedScreen(props: {
+  entry: OnlineNowEntryView;
+  frame: LiveFrame | null;
+}): JSX.Element {
+  const { t } = useLingui();
+  return (
+    <Show
+      when={props.frame}
+      fallback={
+        <LoadingState
+          variant="compact"
+          caption={<Trans>Waiting for their screen…</Trans>}
+        />
+      }
+    >
+      {(frame) => (
+        <StackVertical gap="sm">
+          <LiveIndicator frame={frame()} />
+          <ScreenMirror
+            title={t`${props.entry.username}'s screen`}
+            html={frame().html}
+            dataSet={{ testid: 'live-watch-screen' }}
+          />
+        </StackVertical>
+      )}
+    </Show>
   );
 }
 
@@ -85,32 +170,15 @@ function Watching(
     frame: LiveFrame | null;
   }
 ): JSX.Element {
-  const { t } = useLingui();
   return (
-    <>
+    <Grid columns={{ base: 1, lg: 2 }} gap="xl" align="start">
       <WatchedHeader
         entry={props.entry}
         canControl={props.canControl}
         onControlPanel={props.onControlPanel}
       />
-      <Show
-        when={props.frame}
-        fallback={
-          <LoadingState
-            variant="compact"
-            caption={<Trans>Waiting for their screen…</Trans>}
-          />
-        }
-      >
-        {(frame) => (
-          <ScreenMirror
-            title={t`${props.entry.username}'s screen`}
-            html={frame().html}
-            dataSet={{ testid: 'live-watch-screen' }}
-          />
-        )}
-      </Show>
-    </>
+      <WatchedScreen entry={props.entry} frame={props.frame} />
+    </Grid>
   );
 }
 
@@ -160,10 +228,12 @@ function LiveWatchBody(props: LiveWatchScreenViewProps): JSX.Element {
 }
 
 /**
- * `/admin/observatory/live/:sessionId`, presentational: someone
- * online now, a person or a Synthetic User, with their place in the app,
- * what they are doing and their screen as they see it; its loading, failed,
- * ended (no longer online now) and denied states.
+ * `/admin/observatory/live/:sessionId`, presentational: someone online now,
+ * a person or a Synthetic User — who they are, what they are doing and
+ * their place in the app in a compact header, then their screen as they
+ * see it at their device's shape, marked live with when it last changed.
+ * On a desktop the screen sits beside the header. Its waiting, loading,
+ * failed, ended (no longer online now) and denied states.
  * `LiveWatchScreen` keeps the watch going.
  */
 export function LiveWatchScreenView(
@@ -175,7 +245,9 @@ export function LiveWatchScreenView(
       fallback={
         <ContentScreen
           screenId="live-watch"
+          width="list"
           breadcrumbs={[
+            { name: <Trans>Profile</Trans>, href: '/profile' },
             { name: <Trans>Settings</Trans>, href: '/more' },
             {
               name: <Trans>User Observatory</Trans>,

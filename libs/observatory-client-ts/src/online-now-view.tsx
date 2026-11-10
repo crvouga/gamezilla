@@ -2,14 +2,17 @@ import type { OnlineNowFilter } from '@libs/observatory-shared-ts/live-session';
 import { DeviceAvatar } from '@libs/profile-client-ts/device-avatar';
 import { parseAvatarConfig } from '@libs/profile-shared-ts/avatar-config';
 import { Trans, useLingui } from '@lingui/solid/macro';
-import { Button } from '@pkgs/ui-root-client-ts/button';
+import { Badge } from '@pkgs/ui-root-client-ts/badge';
+import { ChipGroup } from '@pkgs/ui-root-client-ts/chip-group';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
+import { IconButton } from '@pkgs/ui-root-client-ts/icon-button';
+import { SlidersHorizontalIcon } from '@pkgs/ui-root-client-ts/icons';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
-import { SegmentedControl } from '@pkgs/ui-root-client-ts/segmented-control';
-import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { P } from '@pkgs/ui-root-client-ts/text';
 import { For, type JSX, Show } from 'solid-js';
 import { useLiveLabels } from './live-labels';
 import type { OnlineNowEntryView } from './observatory-api';
@@ -36,6 +39,13 @@ export type OnlineNowViewProps = {
   readonly onRetry: () => void;
 };
 
+/**
+ * One app online now: its face and name, what it is doing in a line of its
+ * own, then a tag each for a person or a Synthetic User, paused, and its
+ * place in the app. The row opens a live view; a Synthetic User's control
+ * panel is a compact button at the row's end, never a wide one that
+ * crowds what it is doing.
+ */
 function OnlineNowRow(
   props: Pick<
     OnlineNowViewProps,
@@ -53,17 +63,32 @@ function OnlineNowRow(
           avatarConfig={parseAvatarConfig(props.entry.avatarConfig)}
           seedFallback={props.entry.accountId}
           name={props.entry.username}
-          size={32}
+          size={40}
         />
       }
       title={props.entry.username || t`Unnamed`}
-      caption={[
-        labels.kind(props.entry.kind),
-        ...(props.entry.paused ? [t`Paused`] : []),
-        labels.place(props.entry.place),
-      ].join(' · ')}
-      value={labels.activity(props.entry)}
-      valueLines={2}
+      caption={
+        <StackVertical gap="xs">
+          <P variant="caption" lines={2}>
+            {labels.activity(props.entry)}
+          </P>
+          <StackHorizontal gap="xs" wrap>
+            <Badge
+              label={labels.kind(props.entry.kind)}
+              intent="neutral"
+              size="sm"
+            />
+            <Show when={props.entry.paused}>
+              <Badge label={t`Paused`} intent="warning" size="sm" />
+            </Show>
+            <Badge
+              label={labels.place(props.entry.place)}
+              intent="neutral"
+              size="sm"
+            />
+          </StackHorizontal>
+        </StackVertical>
+      }
       hideChevron={!props.canWatch}
       onClick={
         props.canWatch ? () => props.onWatch(props.entry.sessionId) : undefined
@@ -71,15 +96,15 @@ function OnlineNowRow(
       accessory={
         <Show when={controlPanel()}>
           {(id) => (
-            <Button
-              title={t`Control panel`}
-              intent="neutral"
-              variant="outline"
+            <IconButton
+              label={t`Control panel`}
               onClick={() => props.onControlPanel(id())}
               dataSet={{
                 testid: `online-now-control-panel-${props.entry.username}`,
               }}
-            />
+            >
+              <SlidersHorizontalIcon size={20} color="icon" />
+            </IconButton>
           )}
         </Show>
       }
@@ -89,8 +114,9 @@ function OnlineNowRow(
 }
 
 /**
- * Whoever is online now, presentational: a person or a Synthetic User per
- * row with what each is doing, a filter for people or Synthetic Users, and
+ * Whoever is online now, presentational: a filter for everyone, people or
+ * Synthetic Users (chips that size to their words, so they fit a phone),
+ * then a person or a Synthetic User per row with what each is doing, and
  * its loading, empty and failed states. Only Synthetic User rows offer a
  * control panel. `OnlineNow` reads the list.
  */
@@ -98,12 +124,24 @@ export function OnlineNowView(props: OnlineNowViewProps): JSX.Element {
   const { t } = useLingui();
   return (
     <StackVertical gap="md" testId="online-now">
-      <SegmentedControl
+      <ChipGroup
         aria-label={t`Show who is online now`}
-        segments={[
-          { key: 'everyone', label: t`Everyone` },
-          { key: 'people', label: t`People` },
-          { key: 'synthetic', label: t`Synthetic Users` },
+        options={[
+          {
+            key: 'everyone',
+            label: t`Everyone`,
+            testid: 'online-now-filter-everyone',
+          },
+          {
+            key: 'people',
+            label: t`People`,
+            testid: 'online-now-filter-people',
+          },
+          {
+            key: 'synthetic',
+            label: t`Synthetic Users`,
+            testid: 'online-now-filter-synthetic',
+          },
         ]}
         selected={props.filter}
         onSelect={(key) => props.onFilterChange(key)}

@@ -1,6 +1,7 @@
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
+import { BotIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { type JSX, Show } from 'solid-js';
@@ -32,6 +33,7 @@ function UserObservatoryBody(
       <Show when={props.canOpenSyntheticUsers}>
         <MenuSection title={<Trans>Synthetic Population</Trans>}>
           <MenuRow
+            leading={<BotIcon size={20} color="icon" />}
             title={t`Synthetic Users`}
             caption={t`Their personas, the desired synthetic population and their control panels`}
             onClick={() => props.onOpenSyntheticUsers()}
