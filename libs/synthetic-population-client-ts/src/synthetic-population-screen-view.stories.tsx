@@ -1,14 +1,13 @@
 import { KeyRoundIcon } from '@pkgs/ui-root-client-ts/icons';
 import { fn } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
+import { ONLINE_NOW, onlineEntry, onlineNow } from './online-now.example';
 import {
   CONFIG,
   directory,
   EMPTY_OVERVIEW,
-  ONLINE_NOW,
+  face,
   OVERVIEW,
-  onlineEntry,
-  onlineNow,
   PAGE,
   PERSONA,
   userRow,
@@ -118,10 +117,11 @@ export const OnlineNowLongContent: Story = {
   args: {
     onlineNow: onlineNow({
       entries: [
-        onlineEntry(5, 'someone_with_a_really_long_username_that_goes_on', {
+        onlineEntry(9, 'the_grand_strategist_of_rainy_tuesday_evenings', {
+          avatarConfig: face('thumbs', 'a7c31e90d2b4'),
           place: 'space',
           activity: 'looking',
-          game: 'Quoridor on a board with an exceptionally long name',
+          game: 'Battleship: Salvo with extended fleets and fog of war',
         }),
         ...ONLINE_NOW,
       ],
@@ -166,7 +166,7 @@ export const DirectoryFailed: Story = {
 export const DirectoryPaged: Story = {
   args: {
     directory: directory({
-      filter: 'bot',
+      filter: 'Berlin',
       paged: true,
       page: { ...PAGE, nextCursor: 'cursor-0002' },
     }),
@@ -182,25 +182,35 @@ export const DirectoryFavoriteGames: Story = {
     directory: directory({
       page: {
         users: [
-          userRow(5, 'quiet_heron', {
+          userRow(5, 'MayaK', {
+            region: 'São Paulo, BR',
             persona: {
               ...PERSONA,
-              username: 'quiet_heron',
+              username: 'MayaK',
+              avatar: face('lorelei', '3e74be7351be'),
+              homeRegion: 'São Paulo, BR',
               favoriteGames: ['backgammon', 'go', 'mancala'],
             },
           }),
-          userRow(6, 'sunny_otter', {
+          userRow(6, 'mango7', {
+            region: 'Lagos, NG',
+            activity: 'matchmaking',
             persona: {
               ...PERSONA,
-              username: 'sunny_otter',
+              username: 'mango7',
+              avatar: face('miniavs', '059c0be93ca0'),
+              homeRegion: 'Lagos, NG',
               skillLevel: 'beginner',
               favoriteGames: ['dominoes'],
             },
           }),
-          userRow(7, 'early_wren', {
+          userRow(7, 'Kenji_irl', {
+            region: 'Tokyo, JP',
             persona: {
               ...PERSONA,
-              username: 'early_wren',
+              username: 'Kenji_irl',
+              avatar: face('notionists', '6e32ed937dae'),
+              homeRegion: 'Tokyo, JP',
               skillLevel: 'strong',
               favoriteGames: [],
             },
@@ -220,7 +230,8 @@ export const LongContent: Story = {
       groups: [
         {
           activity: 'matchmaking',
-          region: 'asia-southeast-singapore-availability-zone-c',
+          region:
+            'Llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch, UK',
           count: 1,
         },
       ],
@@ -233,7 +244,7 @@ export const LongContent: Story = {
     directory: directory({
       page: {
         users: [
-          userRow(5, 'bot_with_a_really_long_username_that_keeps_on_going', {
+          userRow(5, 'the_grand_strategist_of_rainy_tuesday_evenings', {
             activity: 'matchmaking',
           }),
           ...PAGE.users,
