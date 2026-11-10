@@ -16,14 +16,18 @@ import { cleanup, screen, within } from '@solidjs/testing-library';
 
 afterEach(cleanup);
 
-function seat(side: GameSide, own = false): FramePlaySeat {
+function seat(
+  side: GameSide,
+  own = false,
+  clock: FramePlaySeat['clock'] = null
+): FramePlaySeat {
   return {
     side,
     sideLabel: side,
     holder: { kind: 'person', person: side },
     plainName: own ? 'Avery with a very long player name' : `Player ${side}`,
     swatch: { mark: '●' },
-    clock: null,
+    clock,
     stat: { label: 'Score', value: own ? '9999' : '1234' },
     state: null,
     standIn: false,
@@ -38,16 +42,24 @@ function seat(side: GameSide, own = false): FramePlaySeat {
 function mount(
   count: number,
   viewer: GameSide | null,
-  compact = true,
-  optIn = true
+  settings: {
+    readonly compact?: boolean;
+    readonly optIn?: boolean;
+    readonly timed?: boolean;
+  } = {}
 ): void {
+  const { compact = true, optIn = true, timed = false } = settings;
   const time = createHarnessClock();
   const sides = ['black', 'red', 'blue'] as const;
   const table: FrameTable = {
     shape: count === 2 ? 'strip' : 'rail',
     ...(optIn ? { seatLayout: 'compact-rail' as const } : {}),
-    near: seat('white', true),
-    others: sides.slice(0, count - 1).map((side) => seat(side)),
+    near: seat('white', true, timed ? { value: '0:57', active: false } : null),
+    others: sides
+      .slice(0, count - 1)
+      .map((side) =>
+        seat(side, false, timed ? { value: '1:00', active: true } : null)
+      ),
   };
   const common = {
     table,
@@ -106,7 +118,7 @@ test('default two-player tables and wide opt-in tables retain opposed strips', (
     { compact: true, optIn: false },
     { compact: false, optIn: true },
   ]) {
-    mount(2, 'white', settings.compact, settings.optIn);
+    mount(2, 'white', settings);
     const board = screen.getByTestId('word-board');
     expect(
       board.compareDocumentPosition(
@@ -137,4 +149,20 @@ test('the active own chip fills its You badge so it stays legible on the turn ti
     .getByText('You')
     .closest('[data-component="Badge"]');
   expect(badge?.getAttribute('data-tone')).toBe('solid');
+});
+
+// regression: word-tiles-compact-rail-hides-clock
+test('a timed Word Tiles table on a phone shows every clock beside every score', () => {
+  for (const count of [2, 3, 4]) {
+    mount(count, 'white', { timed: true });
+    expect(screen.getByTestId('custom-game-white-clock').textContent).toBe(
+      '0:57'
+    );
+    expect(screen.getByTestId('custom-game-black-clock').textContent).toBe(
+      '1:00'
+    );
+    expect(screen.getByText('9999')).toBeInTheDocument();
+    expect(screen.getAllByText('1234')).toHaveLength(count - 1);
+    cleanup();
+  }
 });

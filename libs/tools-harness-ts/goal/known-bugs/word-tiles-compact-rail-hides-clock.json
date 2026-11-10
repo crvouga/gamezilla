@@ -1,0 +1,4 @@
+{
+  "summary": "Opting Word Tiles into the compact score rail made each phone seat a chip whose one figure is the score, so a timed Word Tiles game showed no clock on a phone and the custom game clock scenarios could not read it. A chip that carries the game's own figure must also show the seat's clock.",
+  "regressionTest": "libs/game-session-client-ts/tests/word-tiles-compact-seat-rail.test.tsx"
+}

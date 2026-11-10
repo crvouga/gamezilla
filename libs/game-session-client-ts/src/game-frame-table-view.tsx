@@ -240,6 +240,11 @@ export function FrameSeatChipView(
               />
             </Show>
             <PlaySeatTags seat={props.seat} />
+            {/* The game's own figure fills the chip's figure, so a timed
+                game's clock sits beside it rather than vanishing. */}
+            <Show when={props.seat.stat !== null && props.seat.clock}>
+              {(clock) => <FrameSeatClock seat={props.seat} clock={clock()} />}
+            </Show>
           </>
         }
         stat={chipStat(props.seat)}
