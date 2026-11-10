@@ -7,12 +7,14 @@
 import type { JSX } from 'solid-js';
 import { fn } from 'storybook/test';
 import { ContentAuthorScreenView } from './content-author-screen-view';
+import { contentDraftPreviewable } from './content-draft-playable';
 import { ContentPublicationControlsView } from './content-publication-controls-view';
 import {
   StoryDraftHistory,
   StoryKeptCopies,
   StoryPlaytest,
 } from './content-story.example';
+import type { PuzzleContentClient } from './puzzle-content-client';
 
 export function StoryPuzzleBuilder(props: {
   readonly title: string;
@@ -29,10 +31,11 @@ export function StoryPuzzleBuilder(props: {
    */
   readonly playtestable?: boolean | undefined;
   /**
-   * Whether Preview can open the draft, as the production builder's
-   * `contentDraftPreviewable` says; by default, whether it is playtestable.
+   * The game's puzzle content: Preview opens the draft as the production
+   * builder's `contentDraftPreviewable` says. Without it, Preview follows
+   * `playtestable`.
    */
-  readonly previewable?: boolean | undefined;
+  readonly content?: PuzzleContentClient | undefined;
   /**
    * This session has edits to undo, as the production builder's history
    * says; a draft just opened has none.
@@ -57,7 +60,11 @@ export function StoryPuzzleBuilder(props: {
       metadataDisabled={props.disabled}
       disabled={props.disabled}
       preview={false}
-      previewable={props.previewable ?? props.playtestable}
+      previewable={
+        props.content === undefined
+          ? props.playtestable
+          : contentDraftPreviewable(props.content, 'puzzle', props.definition)
+      }
       history={
         <StoryDraftHistory
           disabled={props.disabled || props.undoable === false}
