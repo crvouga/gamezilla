@@ -136,22 +136,20 @@ test('screens-games-sokoban-puzzle--corner-recovery regression sokoban-history-f
 
 // Related board components take the desktop matrix through their
 // `viewport-responsive` story tag, so `stories.checks.ts` captures them and
-// Storybook coverage owns their -1440 references. The card table keeps its
-// literal desktop capture until its references are authored.
-for (const theme of ['light', 'dark']) {
-  test(`product-cardtable--states ${theme}-1440`, async ({ page }) => {
-    const story = index.entries['product-cardtable--states'];
-    if (!story) throw new Error('Missing related board reference');
-    const phone = visualScenarios(story).find((item) => item.theme === theme);
-    if (!phone) throw new Error('Missing theme scenario');
-    await verifyStoryScenario(page, story.id, {
-      ...phone,
-      width: 1440,
-      suffix: '-1440',
-      baseline: phone.baseline.replace('.png', '-1440.png'),
-    });
-  });
-}
+// Storybook coverage owns their -1440 references.
+
+// regression: card-table-pass-prompt-covers-direction
+test('product-cardtable--states regression card-table-pass-prompt-covers-direction', async ({
+  page,
+}) => {
+  const story = index.entries['product-cardtable--states'];
+  if (!story) throw new Error('Missing literal card table regression');
+  const scenario = visualScenarios(story).find(
+    (item) => item.width === 390 && item.theme === 'light'
+  );
+  if (!scenario) throw new Error('Missing phone light scenario');
+  await verifyStoryScenario(page, story.id, scenario);
+});
 
 // regression: battleship-desktop-target-tools-below-viewport
 test('screens-games-battleship-board--correct-target-before-firing regression battleship-desktop-target-tools-below-viewport', async ({

@@ -218,6 +218,25 @@
     column-gap: var(--ui-space-4);
     padding: var(--ui-space-4);
   }
+  /* While cards are passed the middle holds where they go and, when the
+     table draws it, what the table is doing: one above the other, never
+     one over the other. */
+  .table:has(> .pass) {
+    grid-template-areas:
+      "top top top"
+      "left pass right"
+      "bottom bottom bottom";
+  }
+  .table:has(> .pass):has(> .center[data-spoken-only="false"]) {
+    grid-template-areas:
+      "top top top"
+      "left pass right"
+      "left center right"
+      "bottom bottom bottom";
+  }
+  .table > .pass {
+    grid-area: pass;
+  }
 }
 /*
  * A card as a card prints it, at the width its row gives it (`--card-w`,
@@ -533,6 +552,11 @@ button.card:focus-visible {
     flex-direction: row;
     padding-top: var(--ui-space-1);
   }
+  /* What the table is doing goes under where the cards are passed, never
+     over it. */
+  .table:has(> .pass) > .center {
+    grid-row: 4;
+  }
   .center {
     max-width: 100%;
     overflow-wrap: anywhere;
@@ -544,18 +568,4 @@ button.card:focus-visible {
   color: var(--ui-color-text);
   font-size: var(--ui-font-size-sm);
   text-align: center;
-}
-.unavailable {
-  color: var(--ui-color-board-card-face);
-  background: var(--ui-color-board-card-ink);
-  border-radius: var(--ui-radius-full);
-  display: grid;
-  place-items: center;
-  width: var(--ui-space-4);
-  height: var(--ui-space-4);
-  position: absolute;
-  top: var(--ui-space-1);
-  right: var(--ui-space-1);
-  font-size: var(--ui-font-size-sm);
-  font-weight: var(--ui-font-weight-semibold);
 }
