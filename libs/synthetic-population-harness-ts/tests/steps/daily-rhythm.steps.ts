@@ -3,8 +3,10 @@ import { Given, Then, When } from '@libs/harness-ts/define';
 import {
   dailyScheduleBegins,
   dailyScheduleEnds,
+  givenKeptAway,
   givenNotOnline,
   givenSyntheticUsersOnline,
+  givenSyntheticUsersOnlineAmong,
   syntheticUserOnline,
   syntheticUsersOnline,
 } from '@libs/synthetic-population-harness-ts/daily-rhythm-actions';
@@ -21,6 +23,20 @@ Given(
   '{int} Synthetic Users are online now, none of them playing',
   async (w, count: number) => {
     await w.s.apply(givenSyntheticUsersOnline, count);
+  }
+);
+Given(
+  '{int} Synthetic Users are online now, {string} among them',
+  async (w, count: number, name: string) => {
+    await w.s.apply(givenSyntheticUsersOnlineAmong, count, name);
+    expect(await w.s.read(syntheticUserOnline, name)).toBe(true);
+  }
+);
+Given(
+  "{string}'s daily schedule has begun while it was kept away",
+  async (w, name: string) => {
+    await w.s.apply(givenKeptAway, name);
+    expect(await w.s.read(syntheticUserOnline, name)).toBe(false);
   }
 );
 Given(

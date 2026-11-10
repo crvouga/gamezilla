@@ -1,6 +1,9 @@
 /**
  * The daily-rhythm model's Synthetic Users — Cedar, Maple and Birch — held
- * online by the deployed worker, their days beginning and ending.
+ * online by the deployed worker, their days beginning and ending. The worker
+ * renews and lets go of those it holds on every beat, and brings a Synthetic
+ * User online at the model's moments: as a daily schedule begins, or once
+ * there is room for one kept away.
  */
 import { scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
@@ -18,6 +21,7 @@ import {
   givenDesiredSyntheticPopulation,
 } from './observatory-actions';
 import {
+  claimSyntheticUsers,
   deployedWorkerHeartbeat,
   heldPlaying,
   runDeployedWorker,
@@ -79,14 +83,26 @@ export const givenDailyRhythm = scenarioAction({
       await setDay(s, name, false);
     }
     await Promise.resolve(givenDesiredSyntheticPopulation.act(s, desired));
-    runDeployedWorker(s, true);
+    runDeployedWorker(s, false);
   },
 });
 
-/** Rather than live through hours, the Synthetic User's daily schedule begins now. */
+/**
+ * Rather than live through hours, the Synthetic User's daily schedule begins
+ * now, and the deployed worker brings a Synthetic User online if there is room.
+ */
 export const dayBegins = scenarioAction({
   name: 'dayBegins',
-  act: (s, name: string) => setDay(s, name, true),
+  act: async (s, name: string) => {
+    await setDay(s, name, true);
+    await claimSyntheticUsers(s, 1);
+  },
+});
+
+/** The deployed worker brings a Synthetic User on its daily schedule online, if there is room. */
+export const roomTaken = scenarioAction({
+  name: 'roomTaken',
+  act: (s) => claimSyntheticUsers(s, 1),
 });
 
 /** Rather than live through hours, the Synthetic User's daily schedule is over now. */

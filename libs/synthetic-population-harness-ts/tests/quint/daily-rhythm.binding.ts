@@ -5,6 +5,7 @@ import {
   givenDailyRhythm,
   observeDailyRhythm,
   playsGame,
+  roomTaken,
 } from '@libs/synthetic-population-harness-ts/daily-rhythm-model';
 import { bindQuintModel } from '@pkgs/quint-shared-ts/registry';
 
@@ -13,12 +14,13 @@ const OFFLINE = 'synthetic-population:daily-rhythm-offline';
 
 bindQuintModel<QuintHarnessWorld>({
   model: 'daily-rhythm',
-  traces: 6,
-  maxSteps: 8,
+  traces: 64,
+  maxSteps: 12,
   verifySteps: 4,
   actions: {
     init: (w, picks) => w.s.apply(givenDailyRhythm, Number(picks['desired'])),
     scheduleBegins: (w, picks) => w.s.apply(dayBegins, String(picks['who'])),
+    comeOnline: (w) => w.s.apply(roomTaken),
     scheduleEnds: (w, picks) => w.s.apply(dayEnds, String(picks['who'])),
     startNextActivity: (w, picks) =>
       w.s.apply(playsGame, String(picks['who']), true),

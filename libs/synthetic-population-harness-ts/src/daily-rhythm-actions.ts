@@ -114,44 +114,89 @@ export const givenSyntheticUsersOnline = scenarioAction({
   },
 });
 
+const OFFLINE_ROW = sql<Row>`SELECT id, personality, worker_id, lease_until FROM population_users WHERE worker_id IS NULL AND deleted_at IS NULL ORDER BY created_at, id LIMIT 1`;
+
+/** A Synthetic User that is not online now, provisioned if every one is; it is called `name`. */
+async function nameOfflineSyntheticUser(
+  s: ProductHarness,
+  name: string
+): Promise<{ id: string; persona: Persona }> {
+  const db = s.harness.serverSql.sqlClient;
+  let row = (await db.query(OFFLINE_ROW))[0];
+  if (row === undefined) {
+    // One more Synthetic User than are online, the desired population kept.
+    const online = await syntheticUsersOnline(s);
+    const desired = await desiredSyntheticPopulation(s);
+    await Promise.resolve(givenDesiredSyntheticPopulation.act(s, online + 1));
+    await deployedWorkerHeartbeat(s);
+    await Promise.resolve(givenDesiredSyntheticPopulation.act(s, desired));
+    row = (await db.query(OFFLINE_ROW))[0];
+  }
+  if (row === undefined)
+    throw new Error('The Synthetic Population has nobody offline');
+  await db.run(
+    sql`UPDATE population_users SET username = ${name} WHERE id = ${row.id}`
+  );
+  const raw = row.personality;
+  const persona = parsePersona(typeof raw === 'string' ? JSON.parse(raw) : raw);
+  if (persona === null) throw new Error(`${name} has no persona`);
+  return { id: row.id, persona };
+}
+
 /** The named Synthetic User is not online now, and its daily schedule begins at the next hour. */
 export const givenNotOnline = scenarioAction({
   name: 'givenNotOnline',
   act: async (s, name: string) => {
-    const db = s.harness.serverSql.sqlClient;
-    let row = (
-      await db.query(
-        sql<Row>`SELECT id, personality, worker_id, lease_until FROM population_users WHERE worker_id IS NULL AND deleted_at IS NULL ORDER BY created_at, id LIMIT 1`
-      )
-    )[0];
-    if (row === undefined) {
-      // One more Synthetic User than are online, the desired population kept.
-      const online = await syntheticUsersOnline(s);
-      const desired = await desiredSyntheticPopulation(s);
-      await Promise.resolve(givenDesiredSyntheticPopulation.act(s, online + 1));
-      await deployedWorkerHeartbeat(s);
-      await Promise.resolve(givenDesiredSyntheticPopulation.act(s, desired));
-      row = (
-        await db.query(
-          sql<Row>`SELECT id, personality, worker_id, lease_until FROM population_users WHERE worker_id IS NULL AND deleted_at IS NULL ORDER BY created_at, id LIMIT 1`
-        )
-      )[0];
-    }
-    if (row === undefined)
-      throw new Error('The Synthetic Population has nobody offline');
-    await db.run(
-      sql`UPDATE population_users SET username = ${name} WHERE id = ${row.id}`
-    );
-    const raw = row.personality;
-    const persona = parsePersona(
-      typeof raw === 'string' ? JSON.parse(raw) : raw
-    );
-    if (persona === null) throw new Error(`${name} has no persona`);
-    await writePersona(s, row.id, {
+    const { id, persona } = await nameOfflineSyntheticUser(s, name);
+    await writePersona(s, id, {
       ...persona,
       dailySchedule: soonestSchedule(s.harness.clock.now()),
     });
     runDeployedWorker(s, true);
+  },
+});
+
+/**
+ * The named Synthetic User's daily schedule began this hour, but it is not
+ * online now: as many Synthetic Users as the desired synthetic population
+ * already are, so it was kept away.
+ */
+export const givenKeptAway = scenarioAction({
+  name: 'givenKeptAway',
+  act: async (s, name: string) => {
+    const { id, persona } = await nameOfflineSyntheticUser(s, name);
+    const zone = persona.dailySchedule.timeZone;
+    const hour = Math.floor(localHourAt(zone, s.harness.clock.now()));
+    await writePersona(s, id, {
+      ...persona,
+      dailySchedule: {
+        timeZone: zone,
+        startHour: hour,
+        endHour: (hour + 4) % 24,
+      },
+    });
+    runDeployedWorker(s, true);
+  },
+});
+
+/** `count` Synthetic Users are online now, none of them playing, and one of them is called `name`. */
+export const givenSyntheticUsersOnlineAmong = scenarioAction({
+  name: 'givenSyntheticUsersOnlineAmong',
+  act: async (s, count: number, name: string) => {
+    await Promise.resolve(givenSyntheticUsersOnline.act(s, count));
+    const db = s.harness.serverSql.sqlClient;
+    const row = (
+      await db.query(
+        sql<{
+          id: string;
+        }>`SELECT id FROM population_users WHERE worker_id IS NOT NULL AND lease_until > ${new Date(s.harness.clock.now()).toISOString()} AND deleted_at IS NULL ORDER BY created_at, id LIMIT 1`
+      )
+    )[0];
+    if (row === undefined)
+      throw new Error('No Synthetic User is online now to be named');
+    await db.run(
+      sql`UPDATE population_users SET username = ${name} WHERE id = ${row.id}`
+    );
   },
 });
 
