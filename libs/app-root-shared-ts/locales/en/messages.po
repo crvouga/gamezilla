@@ -124,11 +124,6 @@ msgstr "{0} active, expires {latestExpires}"
 msgid "{0} added"
 msgstr "{0} added"
 
-#. placeholder {0}: sideName(otherSide(requireTwoPlayerSide(battle().winner ?? 'white')))
-#: libs/battleship-client-ts/src/battleship-board.tsx
-msgid "{0} destroyed — all five ships sunk."
-msgstr "{0} destroyed — all five ships sunk."
-
 #. placeholder {0}: props.label
 #. placeholder {1}: props.max
 #: pkgs/ui-root-client-ts/src/number-stepper/index.tsx
@@ -226,6 +221,11 @@ msgstr "{0} rated puzzles remaining today"
 msgid "{0} removed"
 msgstr "{0} removed"
 
+#. placeholder {0}: name(scorer)
+#: libs/pong-client-ts/src/pong-board-view.tsx
+msgid "{0} scored"
+msgstr "{0} scored"
+
 #. placeholder {0}: count()
 #: libs/game-puzzle-client-ts/src/content-library-card.tsx
 msgid "{0} solved"
@@ -275,6 +275,12 @@ msgstr "{0} won the multiplayer game."
 #: libs/battleship-client-ts/src/battleship-grid-cells.tsx
 msgid "{0}, latest shot"
 msgstr "{0}, latest shot"
+
+#. placeholder {0}: playerName(props.board, 'left')
+#. placeholder {1}: playerName(props.board, 'right')
+#: libs/pong-client-ts/src/pong-board-view.tsx
+msgid "{0}: drag the left half. {1}: drag the right half."
+msgstr "{0}: drag the left half. {1}: drag the right half."
 
 #. placeholder {0}: parts.hostName
 #: libs/spaces-client-ts/src/use-space-display-title.tsx
@@ -630,16 +636,16 @@ msgid "{seconds} seconds"
 msgstr "{seconds} seconds"
 
 #: libs/battleship-client-ts/src/battleship-copy.tsx
-msgid "{shooter} fired at {cell} and hit."
-msgstr "{shooter} fired at {cell} and hit."
+msgid "{shooter} hit {cell}."
+msgstr "{shooter} hit {cell}."
 
 #: libs/battleship-client-ts/src/battleship-copy.tsx
-msgid "{shooter} fired at {cell} and missed."
-msgstr "{shooter} fired at {cell} and missed."
+msgid "{shooter} missed at {cell}."
+msgstr "{shooter} missed at {cell}."
 
 #: libs/battleship-client-ts/src/battleship-copy.tsx
-msgid "{shooter} fired at {cell} and sank the {ship}."
-msgstr "{shooter} fired at {cell} and sank the {ship}."
+msgid "{shooter} sank the {ship} at {cell}."
+msgstr "{shooter} sank the {ship} at {cell}."
 
 #: libs/app-root-client-ts/src/app-header-global-menu-view.tsx
 msgid "{shown}, account menu"
@@ -802,6 +808,10 @@ msgstr "2W doubles the word."
 #: libs/game-puzzle-client-ts/src/content-author-screen-view.tsx
 msgid "3 · Check and publish"
 msgstr "3 · Check and publish"
+
+#: libs/hearts-client-ts/src/hearts-board.tsx
+msgid "3 of 3 chosen. Unselect a card to choose another."
+msgstr "3 of 3 chosen. Unselect a card to choose another."
 
 #: libs/word-tiles-client-ts/src/word-tiles-cells.tsx
 msgid "3L"
@@ -1045,6 +1055,10 @@ msgstr "Ace"
 msgid "across"
 msgstr "across"
 
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "across from you"
+msgstr "across from you"
+
 #: libs/notifications-client-ts/src/notifications-filter-bar.tsx
 msgid "Action needed"
 msgstr "Action needed"
@@ -1161,11 +1175,6 @@ msgstr "After 1 s"
 #: libs/game-session-client-ts/src/game-frame-actions-view.tsx
 msgid "Agree draw"
 msgstr "Agree draw"
-
-#. placeholder {0}: regions[area()]
-#: libs/battleship-client-ts/src/battleship-target-grid.tsx
-msgid "Aim in {0}"
-msgstr "Aim in {0}"
 
 #: libs/notifications-client-ts/src/notifications-filter-bar.tsx
 msgid "All"
@@ -1799,6 +1808,16 @@ msgstr "Choose"
 msgid "Choose a bot difficulty offered by this game."
 msgstr "Choose a bot difficulty offered by this game."
 
+#: libs/battleship-client-ts/src/battleship-board.tsx
+#: libs/battleship-client-ts/src/battleship-target-grid.tsx
+msgid "Choose a cell"
+msgstr "Choose a cell"
+
+#. placeholder {0}: props.region
+#: libs/battleship-client-ts/src/battleship-board.tsx
+msgid "Choose a cell in {0}"
+msgstr "Choose a cell in {0}"
+
 #: libs/game-puzzle-client-ts/src/content-create-controls.tsx
 msgid "Choose a game with a puzzle editor."
 msgstr "Choose a game with a puzzle editor."
@@ -1850,10 +1869,6 @@ msgstr "Choose a square on the board."
 #: pkgs/ui-root-client-ts/src/word-tile-board/word-tile-overview.tsx
 msgid "Choose a square to view on the enlarged board. This does not place a tile."
 msgstr "Choose a square to view on the enlarged board. This does not place a tile."
-
-#: libs/battleship-client-ts/src/battleship-board.tsx
-msgid "Choose a target"
-msgstr "Choose a target"
 
 #: libs/battleship-client-ts/src/battleship-target-grid.tsx
 msgid "Choose a target region"
@@ -2549,6 +2564,10 @@ msgstr "day"
 msgid "Deal {deal}"
 msgstr "Deal {deal}"
 
+#: libs/hearts-client-ts/src/hearts-table-view.tsx
+msgid "Deal points {taken}"
+msgstr "Deal points {taken}"
+
 #: libs/app-root-client-ts/src/app-commands.tsx
 msgid "debug"
 msgstr "debug"
@@ -2778,8 +2797,8 @@ msgid "Drag from an endpoint to its match, or use Enter and arrow keys."
 msgstr "Drag from an endpoint to its match, or use Enter and arrow keys."
 
 #: libs/pong-client-ts/src/pong-board-view.tsx
-msgid "Drag up and down along your edge of the court."
-msgstr "Drag up and down along your edge of the court."
+msgid "Drag up and down anywhere on the court."
+msgstr "Drag up and down anywhere on the court."
 
 #: libs/synthetic-population-client-ts/src/synthetic-population-workers.tsx
 msgid "Draining"
@@ -2979,17 +2998,18 @@ msgstr "Endpoints removed"
 msgid "Enlarge"
 msgstr "Enlarge"
 
+#: libs/battleship-client-ts/src/battleship-setup-precision.tsx
 #: pkgs/ui-root-client-ts/src/word-tile-board/word-tile-view-controls.tsx
 msgid "Enlarge board"
 msgstr "Enlarge board"
 
 #: libs/battleship-client-ts/src/battleship-setup-precision.tsx
-msgid "Enlarge placement"
-msgstr "Enlarge placement"
-
-#: libs/battleship-client-ts/src/battleship-setup-precision.tsx
 msgid "Enlarged bow placement"
 msgstr "Enlarged bow placement"
+
+#: libs/battleship-client-ts/src/battleship-setup-precision.tsx
+msgid "Enlarged fleet inspection"
+msgstr "Enlarged fleet inspection"
 
 #: libs/numberlink-client-ts/src/numberlink-drawing-help.tsx
 msgid "Enter"
@@ -3177,6 +3197,12 @@ msgstr "Final position"
 msgid "Final position copied"
 msgstr "Final position copied"
 
+#. placeholder {0}: state.score.left
+#. placeholder {1}: state.score.right
+#: libs/pong-client-ts/src/pong-board-view.tsx
+msgid "Final score {0}–{1}"
+msgstr "Final score {0}–{1}"
+
 #: pkgs/ui-root-client-ts/src/word-tile-board/word-tile-overview.tsx
 msgid "Find a square"
 msgstr "Find a square"
@@ -3271,6 +3297,11 @@ msgstr "Fire at {0}"
 msgid "Fire at {label}"
 msgstr "Fire at {label}"
 
+#. placeholder {0}: props.selected?.toUpperCase() ?? ''
+#: libs/battleship-client-ts/src/battleship-board.tsx
+msgid "Firing at {0}"
+msgstr "Firing at {0}"
+
 #: libs/numberlink-client-ts/src/numberlink-editor.tsx
 msgid "First endpoint"
 msgstr "First endpoint"
@@ -3283,7 +3314,7 @@ msgstr "First page"
 msgid "First seen"
 msgstr "First seen"
 
-#. placeholder {0}: props.state.targetScore
+#. placeholder {0}: target()
 #: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "First to {0}"
 msgstr "First to {0}"
@@ -3777,6 +3808,15 @@ msgstr "inp"
 msgid "Inputs unavailable"
 msgstr "Inputs unavailable"
 
+#. placeholder {0}: regionOptions().find((option) => option.value === region.area())?.label ?? ''
+#: libs/battleship-client-ts/src/battleship-setup-precision.tsx
+msgid "Inspect {0}"
+msgstr "Inspect {0}"
+
+#: libs/battleship-client-ts/src/battleship-setup-precision.tsx
+msgid "Inspect your fleet"
+msgstr "Inspect your fleet"
+
 #: libs/auth-client-ts/src/account-screen-view.tsx
 msgid "Installs signed into this account"
 msgstr "Installs signed into this account"
@@ -3940,6 +3980,10 @@ msgid "Keep a separate account"
 msgstr "Keep a separate account"
 
 #: libs/pong-client-ts/src/pong-board-view.tsx
+msgid "Keep the ball in play"
+msgstr "Keep the ball in play"
+
+#: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "Keep the ball in play."
 msgstr "Keep the ball in play."
 
@@ -4075,11 +4119,12 @@ msgstr "Leaving…"
 msgid "left"
 msgstr "left"
 
+#: libs/pong-client-ts/src/pong-board-view.tsx
 #: libs/pong-client-ts/src/pong-game-client.tsx
 msgid "Left"
 msgstr "Left"
 
-#. placeholder {0}: props.state.score.left
+#. placeholder {0}: left()
 #: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "Left {0}"
 msgstr "Left {0}"
@@ -4091,14 +4136,6 @@ msgstr "Left paddle"
 #: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "Left player"
 msgstr "Left player"
-
-#: libs/pong-client-ts/src/pong-board-view.tsx
-msgid "Left player: drag the left half. Right player: drag the right half."
-msgstr "Left player: drag the left half. Right player: drag the right half."
-
-#: libs/pong-client-ts/src/pong-board-view.tsx
-msgid "Left wins."
-msgstr "Left wins."
 
 #. placeholder {0}: riderName(controlled()[1]!)
 #: libs/light-cycles-client-ts/src/light-cycles-board-view.tsx
@@ -4340,6 +4377,15 @@ msgstr "Mark all read"
 #: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "Match finished."
 msgstr "Match finished."
+
+#: libs/pong-client-ts/src/pong-board-view.tsx
+msgid "Match point"
+msgstr "Match point"
+
+#. placeholder {0}: name(holder)
+#: libs/pong-client-ts/src/pong-board-view.tsx
+msgid "Match point: {0}"
+msgstr "Match point: {0}"
 
 #: libs/game-puzzle-client-ts/src/puzzle-feed-settings-modal.tsx
 msgid "Match puzzles to your profile rating ({profileCaption}), plus an optional offset."
@@ -4886,6 +4932,10 @@ msgstr "No puzzles yet"
 msgid "No results"
 msgstr "No results"
 
+#: libs/battleship-client-ts/src/battleship-target-grid.tsx
+msgid "No shots in this region"
+msgstr "No shots in this region"
+
 #: libs/spaces-client-ts/src/spaces-lobby-view.tsx
 msgid "No spaces yet"
 msgstr "No spaces yet"
@@ -4986,6 +5036,10 @@ msgstr "Not using it enough"
 msgid "Not yet"
 msgstr "Not yet"
 
+#: libs/hearts-client-ts/src/hearts-table-view.tsx
+msgid "Not your turn. {next} plays next."
+msgstr "Not your turn. {next} plays next."
+
 #: libs/notifications-client-ts/src/notifications-empty-state.tsx
 msgid "Nothing archived"
 msgstr "Nothing archived"
@@ -5072,6 +5126,14 @@ msgstr "On"
 #: libs/word-tiles-client-ts/src/word-tiles-cells.tsx
 msgid "on the board"
 msgstr "on the board"
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "on your left"
+msgstr "on your left"
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "on your right"
+msgstr "on your right"
 
 #: libs/app-root-client-ts/src/app-commands.tsx
 msgid "online"
@@ -5329,16 +5391,32 @@ msgid "Pass right"
 msgstr "Pass right"
 
 #: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Pass three cards across, to {recipient}."
+msgstr "Pass three cards across, to {recipient}."
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "Pass three cards across."
 msgstr "Pass three cards across."
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Pass three cards to the left, to {recipient}."
+msgstr "Pass three cards to the left, to {recipient}."
 
 #: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "Pass three cards to the left."
 msgstr "Pass three cards to the left."
 
 #: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Pass three cards to the right, to {recipient}."
+msgstr "Pass three cards to the right, to {recipient}."
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "Pass three cards to the right."
 msgstr "Pass three cards to the right."
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Pass to {recipient}"
+msgstr "Pass to {recipient}"
 
 #: libs/hearts-client-ts/src/hearts-table-view.tsx
 msgid "Passed"
@@ -5347,6 +5425,10 @@ msgstr "Passed"
 #: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "Passed across"
 msgstr "Passed across"
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Passed to {recipient}, {side}"
+msgstr "Passed to {recipient}, {side}"
 
 #: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "Passed to the left"
@@ -5359,6 +5441,10 @@ msgstr "Passed to the right"
 #: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "Passing across"
 msgstr "Passing across"
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Passing to {recipient}, {side}"
+msgstr "Passing to {recipient}, {side}"
 
 #: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "Passing to the left"
@@ -5382,8 +5468,11 @@ msgstr "Pause"
 msgid "Paused"
 msgstr "Paused"
 
-#: libs/game-session-client-ts/src/custom-game-status.tsx
 #: libs/pong-client-ts/src/pong-board-view.tsx
+msgid "Paused while a player returns"
+msgstr "Paused while a player returns"
+
+#: libs/game-session-client-ts/src/custom-game-status.tsx
 msgid "Paused while a player returns."
 msgstr "Paused while a player returns."
 
@@ -5483,7 +5572,7 @@ msgstr "Pick one from the game log."
 msgid "Place every tile in one row or one column."
 msgstr "Place every tile in one row or one column."
 
-#. placeholder {0}: regionOptions().find((option) => option.value === area())?.label ?? ''
+#. placeholder {0}: regionOptions().find((option) => option.value === region.area())?.label ?? ''
 #: libs/battleship-client-ts/src/battleship-setup-precision.tsx
 msgid "Place in {0}"
 msgstr "Place in {0}"
@@ -5569,6 +5658,10 @@ msgstr "Player search accepted"
 #: libs/game-session-client-ts/src/game-frame-table-view.tsx
 msgid "Players"
 msgstr "Players"
+
+#: libs/hearts-client-ts/src/hearts-board.tsx
+msgid "Players and scores"
+msgstr "Players and scores"
 
 #: libs/synthetic-population-client-ts/src/synthetic-population-summary.tsx
 #: pkgs/ui-root-client-ts/src/sound-indicator/index.tsx
@@ -6143,13 +6236,13 @@ msgstr "Reconnect before changing or playing the game."
 msgid "Reconnecting"
 msgstr "Reconnecting"
 
-#: libs/pong-client-ts/src/pong-board-view.tsx
-msgid "Reconnecting. Controls resume when the game returns."
-msgstr "Reconnecting. Controls resume when the game returns."
-
 #: libs/light-cycles-client-ts/src/light-cycles-view.tsx
 msgid "Reconnecting. Steering resumes when the game returns."
 msgstr "Reconnecting. Steering resumes when the game returns."
+
+#: libs/pong-client-ts/src/pong-board-view.tsx
+msgid "Reconnecting…"
+msgstr "Reconnecting…"
 
 #: libs/synthetic-population-client-ts/src/synthetic-population-event-timeline.tsx
 msgid "Recorded activity appears here as it happens."
@@ -6509,8 +6602,8 @@ msgid "Return to your library, reconnect and open it again. Your saved work stay
 msgstr "Return to your library, reconnect and open it again. Your saved work stays kept."
 
 #: libs/pong-client-ts/src/pong-board-view.tsx
-msgid "Return to your spaces to choose a game."
-msgstr "Return to your spaces to choose a game."
+msgid "Return to your spaces to choose a game. If you're playing, resigning ends this one."
+msgstr "Return to your spaces to choose a game. If you're playing, resigning ends this one."
 
 #: libs/game-puzzle-client-ts/src/puzzle-action-bar-items.tsx
 msgid "Reveal and end attempt"
@@ -6561,11 +6654,12 @@ msgstr "Ride from this device"
 msgid "right"
 msgstr "right"
 
+#: libs/pong-client-ts/src/pong-board-view.tsx
 #: libs/pong-client-ts/src/pong-game-client.tsx
 msgid "Right"
 msgstr "Right"
 
-#. placeholder {0}: props.state.score.right
+#. placeholder {0}: right()
 #: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "Right {0}"
 msgstr "Right {0}"
@@ -6577,10 +6671,6 @@ msgstr "Right paddle"
 #: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "Right player"
 msgstr "Right player"
-
-#: libs/pong-client-ts/src/pong-board-view.tsx
-msgid "Right wins."
-msgstr "Right wins."
 
 #. placeholder {0}: riderName(controlled()[0]!)
 #: libs/light-cycles-client-ts/src/light-cycles-board-view.tsx
@@ -6890,8 +6980,8 @@ msgstr "Sent"
 
 #. placeholder {0}: Math.ceil(state.countdown / config.tickRate)
 #: libs/pong-client-ts/src/pong-board-view.tsx
-msgid "Serve in {0}."
-msgstr "Serve in {0}."
+msgid "Serve in {0}"
+msgstr "Serve in {0}"
 
 #: libs/synthetic-population-client-ts/src/synthetic-population-configuration.tsx
 msgid "Session duration (milliseconds)"
@@ -6987,6 +7077,11 @@ msgstr "Ship to place"
 #: libs/battleship-client-ts/src/battleship-setup-board.tsx
 msgid "Ships"
 msgstr "Ships"
+
+#: libs/battleship-client-ts/src/battleship-board.tsx
+#: libs/battleship-client-ts/src/battleship-target-grid.tsx
+msgid "Shots so far"
+msgstr "Shots so far"
 
 #: libs/battleship-client-ts/src/battleship-setup-precision.tsx
 msgid "Show full board"
@@ -7639,10 +7734,6 @@ msgstr "Take this seat"
 #: libs/word-tiles-client-ts/src/word-tiles-game-client.tsx
 msgid "Take turns placing tiles from your seven-tile rack in one row or column to form words, joined to the tiles already on the 15 × 15 board; the first word covers the centre star. Every word you form or extend must be in the word list, and each is scored: letter squares multiply the new tile under them, word squares the whole word, and using all seven tiles earns 50 more. A blank plays any letter for no points. Instead of placing you may pass, or exchange tiles while the bag holds at least seven. The game ends when someone uses their last tile with the bag empty — the others' remaining tiles count against them and go to that player — or after six scoreless turns in a row, when everyone's remaining tiles count against them. The highest score wins; tied leaders share the win. Resigning or running out of time follows the table's rules: with two players the other wins, with more the game is drawn. Word list: {lexicon} (ENABLE, public domain, words of 2 to 15 letters). Rules: {ruleset}."
 msgstr "Take turns placing tiles from your seven-tile rack in one row or column to form words, joined to the tiles already on the 15 × 15 board; the first word covers the centre star. Every word you form or extend must be in the word list, and each is scored: letter squares multiply the new tile under them, word squares the whole word, and using all seven tiles earns 50 more. A blank plays any letter for no points. Instead of placing you may pass, or exchange tiles while the bag holds at least seven. The game ends when someone uses their last tile with the bag empty — the others' remaining tiles count against them and go to that player — or after six scoreless turns in a row, when everyone's remaining tiles count against them. The highest score wins; tied leaders share the win. Resigning or running out of time follows the table's rules: with two players the other wins, with more the game is drawn. Word list: {lexicon} (ENABLE, public domain, words of 2 to 15 letters). Rules: {ruleset}."
-
-#: libs/hearts-client-ts/src/hearts-table-view.tsx
-msgid "Taken {taken}"
-msgstr "Taken {taken}"
 
 #: libs/auth-client-ts/src/account-devices-screen-view.tsx
 msgid "Tap a device for details."
@@ -8526,6 +8617,10 @@ msgstr "Too expensive"
 msgid "Too many searches. Please wait a minute; this search will retry automatically."
 msgstr "Too many searches. Please wait a minute; this search will retry automatically."
 
+#: libs/hearts-client-ts/src/hearts-table-view.tsx
+msgid "Took it"
+msgstr "Took it"
+
 #: libs/sokoban-client-ts/src/sokoban-editor.tsx
 msgid "Tool"
 msgstr "Tool"
@@ -8908,8 +9003,8 @@ msgid "Violet"
 msgstr "Violet"
 
 #: libs/pong-client-ts/src/pong-board-view.tsx
-msgid "W and S move Left; the arrow keys move Right."
-msgstr "W and S move Left; the arrow keys move Right."
+msgid "W and S move the left paddle; the arrow keys move the right paddle."
+msgstr "W and S move the left paddle; the arrow keys move the right paddle."
 
 #: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "W and S or the arrow keys move your paddle."
@@ -9246,6 +9341,10 @@ msgstr "You are reviewing an earlier position, at the start of the game. No piec
 msgid "You came {place}"
 msgstr "You came {place}"
 
+#: libs/pong-client-ts/src/pong-board-view.tsx
+msgid "You can also drag up and down."
+msgstr "You can also drag up and down."
+
 #: pkgs/ui-root-client-ts/src/mutation-modal-parts/index.tsx
 msgid "You can close this and keep using the app. Check again to learn the outcome of this choice."
 msgstr "You can close this and keep using the app. Check again to learn the outcome of this choice."
@@ -9290,18 +9389,6 @@ msgstr "You do not control that side."
 msgid "You do not hold that card."
 msgstr "You do not hold that card."
 
-#: libs/battleship-client-ts/src/battleship-copy.tsx
-msgid "You fired at {cell} and hit."
-msgstr "You fired at {cell} and hit."
-
-#: libs/battleship-client-ts/src/battleship-copy.tsx
-msgid "You fired at {cell} and missed."
-msgstr "You fired at {cell} and missed."
-
-#: libs/battleship-client-ts/src/battleship-copy.tsx
-msgid "You fired at {cell} and sank the {ship}."
-msgstr "You fired at {cell} and sank the {ship}."
-
 #: libs/game-puzzle-client-ts/src/puzzle-empty-pool-state.tsx
 msgid "You have no failed puzzles yet. Puzzles you fail show here to try again."
 msgstr "You have no failed puzzles yet. Puzzles you fail show here to try again."
@@ -9322,6 +9409,10 @@ msgstr "You have played every puzzle that matches your history and theme filters
 msgid "You have unsaved avatar changes."
 msgstr "You have unsaved avatar changes."
 
+#: libs/battleship-client-ts/src/battleship-copy.tsx
+msgid "You hit {cell}."
+msgstr "You hit {cell}."
+
 #: libs/spaces-client-ts/src/space-who-is-here-view.tsx
 msgid "you host"
 msgstr "you host"
@@ -9334,6 +9425,10 @@ msgstr "You left the space"
 #: libs/game-session-client-ts/src/game-frame-status-view.tsx
 msgid "You may offer a draw again after your next move."
 msgstr "You may offer a draw again after your next move."
+
+#: libs/battleship-client-ts/src/battleship-copy.tsx
+msgid "You missed at {cell}."
+msgstr "You missed at {cell}."
 
 #: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "You must follow suit with a card of the suit led."
@@ -9363,6 +9458,10 @@ msgstr "You ride {name} from another of your devices."
 #: libs/light-cycles-client-ts/src/light-cycles-view.tsx
 msgid "You ride {name}."
 msgstr "You ride {name}."
+
+#: libs/battleship-client-ts/src/battleship-copy.tsx
+msgid "You sank the {ship} at {cell}."
+msgstr "You sank the {ship} at {cell}."
 
 #: libs/battleship-client-ts/src/battleship-copy.tsx
 msgid "You sank the whole fleet. You win."
@@ -9482,7 +9581,7 @@ msgstr "Your avatar change wasn't saved"
 msgid "Your cancellation is already arranged. Sharing a reason or comment is optional and will not change it."
 msgstr "Your cancellation is already arranged. Sharing a reason or comment is optional and will not change it."
 
-#: libs/hearts-client-ts/src/hearts-table-view.tsx
+#: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "Your cards are chosen. Waiting for every player to pass."
 msgstr "Your cards are chosen. Waiting for every player to pass."
 
@@ -9602,6 +9701,10 @@ msgstr "Your last payment didn't go through. Update your payment method to keep 
 #: libs/spaces-client-ts/src/active-spaces-sheet.tsx
 msgid "Your live spaces"
 msgstr "Your live spaces"
+
+#: libs/pong-client-ts/src/pong-board-view.tsx
+msgid "Your match point"
+msgstr "Your match point"
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-seat.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-move-history.tsx
@@ -9746,6 +9849,7 @@ msgstr "Your turn"
 msgid "Your turn to fire."
 msgstr "Your turn to fire."
 
+#: libs/battleship-client-ts/src/battleship-copy.tsx
 #: libs/game-matchmaking-client-ts/src/multiplayer-status.tsx
 #: libs/hearts-client-ts/src/hearts-table-view.tsx
 msgid "Your turn."
