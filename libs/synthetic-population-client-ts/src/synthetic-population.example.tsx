@@ -3,6 +3,8 @@ import type { Inspection } from '@libs/synthetic-population-shared-ts/inspection
 import type { Persona } from '@libs/synthetic-population-shared-ts/persona';
 import type { JSX } from 'solid-js';
 import { fn } from 'storybook/test';
+import { createJSXDecorator } from 'storybook-solidjs-vite';
+import { type GameName, GameNamesProvider } from './game-names';
 import type {
   SyntheticPopulationDirectoryPage,
   SyntheticPopulationEventView,
@@ -53,6 +55,26 @@ function checkpoint(
     startedAtMs: Date.parse('2026-03-14T11:30:00.000Z'),
   };
 }
+
+/**
+ * The games the fixtures' personas favor, named as the composition root
+ * names registered games: platform stories never spell a real game's id.
+ */
+export const GAME_NAMES: readonly GameName[] = [
+  { id: 'backgammon', title: 'Backgammon' },
+  { id: 'checkers', title: 'Checkers' },
+  { id: 'dominoes', title: 'Dominoes' },
+  { id: 'go', title: 'Go' },
+  { id: 'mancala', title: 'Mancala' },
+  { id: 'reversi', title: 'Reversi' },
+];
+
+/** Story decorator: the games' names, as the composition root supplies them. */
+export const withGameNames = createJSXDecorator((Story) => (
+  <GameNamesProvider games={GAME_NAMES}>
+    <Story />
+  </GameNamesProvider>
+));
 
 /** A persona's avatar, serialized as provisioning writes it. */
 export function face(style: string, seed: string): string {

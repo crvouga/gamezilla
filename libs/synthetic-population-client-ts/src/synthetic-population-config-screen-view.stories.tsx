@@ -1,7 +1,12 @@
 import { KeyRoundIcon } from '@pkgs/ui-root-client-ts/icons';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
-import { CONFIG, directory, OVERVIEW } from './synthetic-population.example';
+import {
+  CONFIG,
+  directory,
+  OVERVIEW,
+  withGameNames,
+} from './synthetic-population.example';
 import { toConfigurationDraft } from './synthetic-population-configuration';
 import {
   SyntheticPopulationScreenView,
@@ -17,6 +22,7 @@ const meta = {
   title: 'Screens/Admin/Synthetic population config',
   component: SyntheticPopulationScreenView,
   tags: ['autodocs'],
+  decorators: [withGameNames],
   parameters: {
     appRouter: true,
     controls: {

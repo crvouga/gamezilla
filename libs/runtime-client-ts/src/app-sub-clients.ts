@@ -25,7 +25,7 @@ import { PROFILE_CLIENT } from '@libs/profile-client-ts/sub-client';
 import { SEARCH_CLIENT } from '@libs/search-client-ts/sub-client';
 import { createSpacesClient } from '@libs/spaces-client-ts/sub-client';
 import { defineSubClient, type SubClient } from '@libs/sub-client-ts/client';
-import { SYNTHETIC_POPULATION_CLIENT } from '@libs/synthetic-population-client-ts/sub-client';
+import { createSyntheticPopulationClient } from '@libs/synthetic-population-client-ts/sub-client';
 
 /**
  * Games depend on spaces, so the composition root hands spaces its plugin
@@ -65,5 +65,6 @@ export const APP_SUB_CLIENTS: readonly SubClient[] = [
   SEARCH_CLIENT,
   BILLING_CLIENT,
   PUZZLE_MANAGEMENT_CLIENT,
-  SYNTHETIC_POPULATION_CLIENT,
+  // The Bot Observatory names Synthetic Users' favorite games as the menu does.
+  createSyntheticPopulationClient({ games: GAME_CLIENT_DEFINITIONS }),
 ];

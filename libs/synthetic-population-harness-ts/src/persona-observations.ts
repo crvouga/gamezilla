@@ -4,6 +4,7 @@
  * persona the Observatory's directory shows for it.
  */
 import { GAME_AUTOMATIONS } from '@libs/game-catalog-shared-ts/game-automations';
+import { HARNESS_GAMES } from '@libs/games-harness-ts/harness-games';
 import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront } from '@libs/harness-ts/observations';
@@ -31,12 +32,21 @@ export type PersonaSeen = {
 
 const FAVORITE_GAMES = 'Favorite games: ';
 
+/** A registered game's name, as the game menu and the Observatory show it. */
+function gameName(id: string): string {
+  return (
+    HARNESS_GAMES.find((game) => game.client.id === id)?.client.title ?? id
+  );
+}
+
 /** The favorite games a directory row's text names, of those the persona has. */
 function favoriteGamesIn(text: string, persona: Persona | null): string[] {
   const at = text.indexOf(FAVORITE_GAMES);
   if (persona === null || at < 0) return [];
   const listed = text.slice(at + FAVORITE_GAMES.length);
-  return persona.favoriteGames.filter((game) => listed.includes(game));
+  return persona.favoriteGames.filter((game) =>
+    listed.includes(gameName(game))
+  );
 }
 
 /** Every Synthetic User row the person's Observatory shows, with its persona. */

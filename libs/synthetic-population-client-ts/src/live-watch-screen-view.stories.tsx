@@ -43,7 +43,7 @@ type Story = StoryObj<typeof meta>;
 /** Watching a person live: who, where, what, and their screen as they see it. */
 export const Watching: Story = {};
 
-/** Watching a Synthetic User: its game as it plays, and its control panel. */
+/** Watching a Synthetic User: its screen as it browses Spaces, and its control panel. */
 export const WatchingSyntheticUser: Story = {
   args: { state: { kind: 'watching', entry: LENA, frame: SPACES_FRAME } },
 };

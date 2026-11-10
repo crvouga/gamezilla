@@ -7,6 +7,7 @@ import {
   replay,
   SNAPSHOT,
   userDetail,
+  withGameNames,
 } from './synthetic-population.example';
 import {
   SyntheticUserScreenView,
@@ -20,6 +21,7 @@ const meta = {
   title: 'Screens/Admin/Synthetic user',
   component: SyntheticUserScreenView,
   tags: ['autodocs'],
+  decorators: [withGameNames],
   parameters: {
     appRouter: true,
     controls: { exclude: ['record', 'snapshot', 'denial', 'replay'] },
