@@ -1,0 +1,4 @@
+{
+  "summary": "Release 42746252728 failed on foundation/prd: prd's Grafana instance came back from archive without the observability account, so the restore account pass's search found nothing and the plan created the account, which the pass refused as anything other than an adoption. The account pass now also allows creating the account; the import block fires whenever Grafana's search finds one, and Grafana still refuses a duplicate (400) if the search ever missed it.",
+  "regressionTest": "libs/infra-shared-ts/tests/grafana-restore.test.ts"
+}

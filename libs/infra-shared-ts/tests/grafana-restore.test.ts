@@ -68,7 +68,7 @@ test('the account pass adopts the account and creates a token, nothing else', ()
     )
   ).toEqual([]);
   expect(
-    grafanaRestoreAccountDenials(plan([[ACCOUNT, ['create']]]))
+    grafanaRestoreAccountDenials(plan([[ACCOUNT, ['delete', 'create']]]))
   ).toHaveLength(1);
   expect(
     grafanaRestoreAccountDenials(plan([[TOKEN, ['delete', 'create']]]))
@@ -78,6 +78,21 @@ test('the account pass adopts the account and creates a token, nothing else', ()
       plan([['module.observability_views[0].grafana_folder.this', ['create']]])
     )
   ).toHaveLength(1);
+});
+
+// regression: restored-grafana-without-kept-account
+// Release 42746252728: prd's Grafana instance came back from archive without
+// the observability account; the search found none, so the account pass
+// planned a create and refused it.
+test('the account pass creates the account when Grafana kept none', () => {
+  expect(
+    grafanaRestoreAccountDenials(
+      plan([
+        [ACCOUNT, ['create']],
+        [TOKEN, ['create']],
+      ])
+    )
+  ).toEqual([]);
 });
 
 test('foundation adopts every kept view only during the views pass', () => {

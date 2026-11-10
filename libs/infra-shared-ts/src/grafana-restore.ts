@@ -8,7 +8,9 @@ import { planArgs } from './tofu-command';
  * (`grafana-retirement.ts`), and Grafana refuses to create them a second time.
  * `stacks/foundation/observability-views.tf` adopts what was kept, driven by
  * `var.grafana_restore`: pass "account" imports the account and creates its
- * token, then pass "views" uses that token to import the kept views.
+ * token, then pass "views" uses that token to import the kept views. Grafana
+ * does not always keep the account; when its search finds none, the account
+ * pass creates a fresh one instead.
  */
 const ACCOUNT = 'grafana_cloud_stack_service_account.observability';
 const TOKEN = 'grafana_cloud_stack_service_account_token.observability';
@@ -49,7 +51,12 @@ export function grafanaRestoreAccountArgs(
   ];
 }
 
-/** The account pass may adopt the account and create a token, nothing else. */
+/**
+ * The account pass may adopt the account (or create it when Grafana kept
+ * none) and create a token, nothing else. The import block fires whenever
+ * Grafana's search finds the account, so a plain create means nothing was
+ * kept; if the search ever missed one, Grafana refuses the create (400).
+ */
 export function grafanaRestoreAccountDenials(
   plan: PlanJson
 ): readonly string[] {
@@ -58,12 +65,9 @@ export function grafanaRestoreAccountDenials(
     const actions = resource.change.actions;
     if (actions.every((action) => action === 'no-op' || action === 'update'))
       return [];
-    if (
-      resource.address.startsWith(`${TOKEN}[`) &&
-      actions.length === 1 &&
-      actions[0] === 'create'
-    )
-      return [];
+    const creates = actions.length === 1 && actions[0] === 'create';
+    if (creates && resource.address === `${ACCOUNT}[0]`) return [];
+    if (creates && resource.address.startsWith(`${TOKEN}[`)) return [];
     return [
       `${resource.address}: the Grafana restore account pass permits only adopting the account and creating its token`,
     ];
