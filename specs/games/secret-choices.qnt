@@ -25,10 +25,15 @@
 // game is under way.
 // A person whose device has no connection is away. Their device keeps
 // showing what it last showed, and they cannot make a secret choice or take
-// back their side. While the host has a connection, a participant other than
-// the host who is away for 60 seconds gets a stand-in for their side, shown
-// to everyone, playing by the same rules with only what that side may know;
-// it decides that side's pending secret choice at once. The person keeps
+// back their side. A guest keeps what they see while the host has no
+// connection, even once their own connection is back, and sees the custom
+// game as it is once both they and the host have one. While the host has a
+// connection, a participant other than the host who is away for 60 seconds
+// gets a stand-in for their side, shown to everyone, playing by the same
+// rules with only what that side may know; it decides that side's pending
+// secret choice at once.
+// Being away is timed from when they left, so whoever has been away longer
+// gets their stand-in no later than whoever left after them. The person keeps
 // their side; their own secret choices are refused while the stand-in plays
 // it, and coming back alone does not end it: back online, they take back
 // their side, and from then on the stand-in decides nothing for it.
@@ -62,6 +67,9 @@ module secret_choices {
   /// "" until the game's rules finish the custom game, then "decided".
   var result: str
   var _offline: Set[str]
+  /// Bookkeeping: when each person last left, as an order; people who left while the host was away share one, since none of their time away counted.
+  var _awayMoment: str -> int
+  var _moment: int
   /// Bookkeeping: each side's secret choice in the latest round, or "" while it has made none; nobody sees it once the round takes effect.
   var _secretChoice: str -> str
   /// Bookkeeping: rounds reached, rounds taken effect and moves since the latest one took effect.
@@ -81,6 +89,15 @@ module secret_choices {
   pure def _ownSides(viewer: str): Set[str] = SIDE_SET.filter(s => PARTICIPANTS.get(s) == viewer)
   pure def _sideOf(actor: str): str = if (actor == "alice") "first" else if (actor == "bob") "second" else if (actor == "carol") "third" else ""
   def _hostHere = not(_offline.contains(HOST))
+  /// A guest keeps what they see while the host has no connection, until the custom game finishes.
+  pure def _keepsBoard(v: str, offline: Set[str], newStatus: str): bool =
+    v != HOST and offline.contains(HOST) and newStatus == "under way"
+  /// Every participant other than the host away longer than the actor already has a stand-in.
+  def _awayLongerHaveStandIns(actor: str): bool = SIDE_SET.forall(s => {
+    val p = PARTICIPANTS.get(s)
+    if (p == "bot" or p == HOST or not(_offline.contains(p))) true
+    else _awayMoment.get(p) < _awayMoment.get(actor) implies standIn.contains(s)
+  })
   /// Every side has someone to play it, and the host is here.
   def _playable = _hostHere and SIDE_SET.forall(s =>
     PARTICIPANTS.get(s) == "bot" or standIn.contains(s) or not(_offline.contains(PARTICIPANTS.get(s))))
@@ -88,23 +105,28 @@ module secret_choices {
   action _update(
     newStatus: str, awaiting: bool, choices: str -> str, newRound: int, applied: int, standIns: Set[str],
     moves: int, outcome: str, offline: Set[str], acted: Set[(str, str)],
-  ): bool = all {
+  ): bool = {
+   val fresh = offline.exclude(_offline)
+   val moment = if (fresh != Set() and _hostHere) _moment + 1 else _moment
+   all {
     participants' = participants,
     status' = newStatus, choosing' = awaiting, _secretChoice' = choices,
     chosenShown' = PEOPLE.mapBy(v =>
-      if (offline.contains(v)) chosenShown.get(v)
+      if (offline.contains(v) or _keepsBoard(v, offline, newStatus)) chosenShown.get(v)
       else if (awaiting and newStatus == "under way") SIDE_SET.filter(s => choices.get(s) != "")
       else Set()),
     secretChoiceShown' = PEOPLE.mapBy(v =>
-      if (offline.contains(v)) secretChoiceShown.get(v)
+      if (offline.contains(v) or _keepsBoard(v, offline, newStatus)) secretChoiceShown.get(v)
       else if (awaiting and newStatus == "under way") _ownSides(v).filter(s => choices.get(s) != "")
       else Set()),
     standIn' = standIns, result' = outcome,
     _choiceRound' = newRound, _appliedRounds' = applied, _movesThisRound' = moves,
     _offline' = offline, _actedBy' = acted,
+    _awayMoment' = PEOPLE.mapBy(p => if (fresh.contains(p)) moment else _awayMoment.get(p)), _moment' = moment,
     _previousRound' = _choiceRound, _previousSecretChoice' = _secretChoice, _previousStandIn' = standIn,
     _previousOffline' = _offline, _previousChosenShown' = chosenShown,
     _previousStatus' = status, _previousMoves' = _movesThisRound,
+   }
   }
   action _hold = _update(status, choosing, _secretChoice, _choiceRound, _appliedRounds, standIn,
     _movesThisRound, result, _offline, Set())
@@ -128,7 +150,7 @@ module secret_choices {
       chosenShown' = PEOPLE.mapBy(_ => Set("fourth")),
       secretChoiceShown' = PEOPLE.mapBy(_ => Set()),
       standIn' = Set(), result' = "",
-      _offline' = Set(),
+      _offline' = Set(), _awayMoment' = PEOPLE.mapBy(_ => 0), _moment' = 0,
       _secretChoice' = SIDE_SET.mapBy(s => if (s == "fourth") choice else ""),
       _choiceRound' = 1, _appliedRounds' = 0, _movesThisRound' = 0,
       _actedBy' = Set(("fourth", "bot")),
@@ -163,13 +185,13 @@ module secret_choices {
     _update("finished", false, _secretChoice, _choiceRound, _appliedRounds, Set(),
       _movesThisRound, "decided", _offline, Set()),
   }
-  /// While the host is here, a stand-in takes the side of a participant other than the host who has been away for 60 seconds, and makes its pending secret choice at once.
+  /// While the host is here, a stand-in takes the side of a participant other than the host who has been away for 60 seconds, once everyone away longer has theirs, and makes its pending secret choice at once.
   action standInTakesSide(actor: str, choice: str): bool = {
     val side = _sideOf(actor)
     val standIns = standIn.union(Set(side))
     all {
       status == "under way", side != "", actor != HOST, _hostHere,
-      _offline.contains(actor), not(standIn.contains(side)),
+      _offline.contains(actor), not(standIn.contains(side)), _awayLongerHaveStandIns(actor),
       if (choosing and _secretChoice.get(side) == "")
         _choose(_choiceRound, _secretChoice, Set((side, "stand-in")), choice, standIns)
       else
@@ -211,15 +233,17 @@ module secret_choices {
 
   /// Each person sees only their own side's secret choice; a watcher sees none.
   val invOwnSecretChoiceOnly = PEOPLE.forall(v => secretChoiceShown.get(v).subseteq(_ownSides(v)))
-  /// Once a round takes effect, nobody with a connection sees its secret choices any more, not even their own person.
+  /// Once a round takes effect, nobody with a connection sees its secret choices any more, not even their own person; for a guest, once the host has one too.
   val invChoicesForgottenOnceTakenEffect = PEOPLE.forall(v =>
-    (not(_offline.contains(v)) and not(choosing)) implies secretChoiceShown.get(v) == Set())
-  /// Everyone with a connection sees exactly which sides have made their secret choice while the custom game awaits them.
-  val invChosenShown = PEOPLE.forall(v => not(_offline.contains(v)) implies
+    (not(_offline.contains(v)) and not(_keepsBoard(v, _offline, status)) and not(choosing)) implies secretChoiceShown.get(v) == Set())
+  /// Everyone with a connection sees exactly which sides have made their secret choice while the custom game awaits them; for a guest, once the host has one too.
+  val invChosenShown = PEOPLE.forall(v => (not(_offline.contains(v)) and not(_keepsBoard(v, _offline, status))) implies
     chosenShown.get(v) == (if (choosing and status == "under way") SIDE_SET.filter(s => _secretChoice.get(s) != "") else Set()))
-  /// A device without a connection keeps showing which sides it last saw chosen.
+  /// A device without a connection, and a guest's while the host has none and the custom game is under way, keeps showing which sides it last saw chosen.
   val invOfflineShowsLastSeen = PEOPLE.forall(v =>
-    (_offline.contains(v) and _previousOffline.contains(v)) implies chosenShown.get(v) == _previousChosenShown.get(v))
+    ((_offline.contains(v) and _previousOffline.contains(v))
+      or (_keepsBoard(v, _offline, status) and _previousOffline.contains(HOST)))
+      implies chosenShown.get(v) == _previousChosenShown.get(v))
   /// A round's secret choices take effect only once every side has made one, and no move is made while they are awaited.
   val invChoicesTakeEffectTogether = and {
     choosing implies (_appliedRounds == _choiceRound - 1 and _movesThisRound == 0),
@@ -235,12 +259,17 @@ module secret_choices {
     d._2 == "stand-in" implies standIn.contains(d._1),
     d._2 == "bot" implies d._1 == "fourth",
   })
-  /// A stand-in begins only for a participant other than the host who is away while the host is here, never for the bot, and the person keeps their side.
+  /// A stand-in begins only for a participant other than the host who is away while the host is here, never for the bot and never before everyone away longer has theirs, and the person keeps their side.
   val invStandInOnlyWhenAway = and {
     participants == PARTICIPANTS,
     standIn.forall(s => PARTICIPANTS.get(s) != "bot" and PARTICIPANTS.get(s) != HOST),
     standIn.forall(s => _previousStandIn.contains(s)
       or (_previousOffline.contains(PARTICIPANTS.get(s)) and not(_previousOffline.contains(HOST)))),
+    standIn.forall(s => _previousStandIn.contains(s) or SIDE_SET.forall(o => {
+      val p = PARTICIPANTS.get(o)
+      if (p == "bot" or p == HOST or not(_offline.contains(p))) true
+      else _awayMoment.get(p) < _awayMoment.get(PARTICIPANTS.get(s)) implies standIn.contains(o)
+    })),
   }
   /// The result is decided once and never replaced: a finished custom game stays finished, with no stand-in and no more secret choices or moves.
   val invResultDecidedOnce = and {
