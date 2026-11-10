@@ -1,6 +1,9 @@
 import type { Clock } from '@pkgs/clock-shared-ts/types';
 import type { ContinuousAutomation } from '@pkgs/turn-game-shared-ts/game-automation';
-import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
+import type {
+  BotDifficulty,
+  GameSide,
+} from '@pkgs/turn-game-shared-ts/game-rules';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 import type { Random } from '@pkgs/uuid-shared-ts/create-id';
 
@@ -12,7 +15,11 @@ export class ContinuousInputPlayer {
   private interval: number | null = null;
   constructor(
     private readonly driver: Driver,
-    private readonly ports: { clock: Clock; random: Random }
+    private readonly ports: {
+      clock: Clock;
+      random: Random;
+      strength?: BotDifficulty;
+    }
   ) {}
   intervalMs(): number | null {
     return this.interval;
@@ -59,6 +66,9 @@ export class ContinuousInputPlayer {
     const suggested = automation.choose(position, side, {
       elapsedMs: now - this.startedAt,
       random: this.ports.random,
+      ...(this.ports.strength === undefined
+        ? {}
+        : { strength: this.ports.strength }),
     });
     if (suggested === null) return;
     const input = automation.parseInput(suggested);

@@ -25,6 +25,13 @@ Given('every Synthetic User is paused', async (w) => {
   await w.s.apply(givenEverySyntheticUserPaused);
 });
 Given(
+  'the Synthetic Users {string} and {string} are available',
+  async (w, first: string, second: string) => {
+    await w.s.apply(givenSyntheticUser, first, false);
+    await w.s.apply(givenSyntheticUser, second, false);
+  }
+);
+Given(
   '{string} is the only Synthetic User available',
   async (w, name: string) => {
     await w.s.apply(givenSyntheticUser, name, false);

@@ -11,6 +11,8 @@ import { SyntheticPopulationAdministration } from '@libs/synthetic-population-se
 import { SyntheticPopulationRepository } from '@libs/synthetic-population-server-ts/synthetic-population-repository';
 import sql from '@pkgs/sql-root-shared-ts/sql';
 import { notifyChannels } from '@pkgs/sync-engine-server-ts/notify-channels';
+import { settleAboveDesired } from './live-synthetic-users';
+import { runDeployedWorker } from './population-worker';
 
 export const grantSyntheticPopulationAccess = scenarioAction({
   name: 'grantSyntheticPopulationAccess',
@@ -79,12 +81,16 @@ export const openObservatory = scenarioAction({
 export const changeDesiredSyntheticPopulation = scenarioAction({
   name: 'changeDesiredSyntheticPopulation',
   act: async (s, actor: string, desired: number) => {
+    // A deployed worker is running, as in production, to act on the change.
+    runDeployedWorker(s, false);
     const ui = await actorUi(s, actor);
     await s.actors.get(actor)!.openLink('/admin/synthetic-population/config');
     if (await ui.get('synthetic-population-config-denied').isVisible()) return;
     await ui.get('synthetic-population-desired-input').clear();
     await ui.get('synthetic-population-desired-input').input(String(desired));
     await ui.get('synthetic-population-save').tap();
+    // Synthetic Users above the new desired population finish and leave.
+    await settleAboveDesired(s, desired);
   },
 });
 export async function desiredSyntheticPopulationShown(

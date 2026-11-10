@@ -4,10 +4,10 @@
  * Synthetic Population itself would have written it.
  */
 import { scenarioAction } from '@libs/harness-ts/actor-ui';
-import { notifyChannels } from '@pkgs/sync-engine-server-ts/notify-channels';
 import sql from '@pkgs/sql-root-shared-ts/sql';
-import { completeSyntheticGame } from './synthetic-population-control-actions';
+import { notifyChannels } from '@pkgs/sync-engine-server-ts/notify-channels';
 import { prepareSyntheticMatch } from './synthetic-match-fixtures';
+import { completeSyntheticGame } from './synthetic-population-control-actions';
 import { givenSyntheticUser } from './synthetic-user-fixtures';
 
 /** A Synthetic User, available, then every Synthetic User paused. */

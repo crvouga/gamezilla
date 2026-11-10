@@ -1,5 +1,5 @@
-import type { OpponentDemand } from '@libs/synthetic-population-shared-ts/decision-policy';
 import { onSchedule } from '@libs/synthetic-population-shared-ts/daily-schedule';
+import type { OpponentDemand } from '@libs/synthetic-population-shared-ts/decision-policy';
 import { parsePersona } from '@libs/synthetic-population-shared-ts/persona';
 import type { SqlTx } from '@pkgs/sql-client-root-shared-ts/interface';
 import sql from '@pkgs/sql-root-shared-ts/sql';

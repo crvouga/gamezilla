@@ -5,6 +5,7 @@ import sql from '@pkgs/sql-root-shared-ts/sql';
 import { waitingOpponentsFor } from './opponent-demand';
 import type { Lease, SyntheticPopulationPorts } from './records';
 import { jsonValue } from './records';
+import { onlineNow } from './synthetic-population-controller';
 import { SyntheticPopulationSession } from './synthetic-population-session';
 
 /**
@@ -27,9 +28,14 @@ export async function renewSyntheticUser(
   );
   const persona = parsePersona(jsonValue(rows[0]?.personality));
   const offSchedule =
-    persona !== null &&
-    !onSchedule(persona.dailySchedule, ports.clock.now());
-  const draining = renewal.draining || offSchedule;
+    persona !== null && !onSchedule(persona.dailySchedule, ports.clock.now());
+  // Above the desired synthetic population, counting only those not
+  // finishing a game after their day, it finishes and leaves too.
+  const counted = (await onlineNow(db, ports.clock.now())).filter(
+    (user) => !user.finishing
+  );
+  const position = counted.findIndex((user) => user.id === lease.userId) + 1;
+  const draining = offSchedule || position > renewal.config.desired;
   const demand =
     draining || renewal.paused
       ? { mine: [], reserved: [] }

@@ -39,7 +39,12 @@ export type ContinuousAutomation<Ui> = {
   readonly choose: (
     position: string,
     side: GameSide,
-    context: { readonly elapsedMs: number; readonly random: Random }
+    context: {
+      readonly elapsedMs: number;
+      readonly random: Random;
+      /** How well the player plays (`medium` unless given). */
+      readonly strength?: BotDifficulty;
+    }
   ) => unknown | null;
   readonly parseInput: (value: unknown) => unknown | null;
   readonly perform: (

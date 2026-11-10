@@ -1,3 +1,5 @@
+import { HOME_REGIONS } from './persona-regions';
+
 /** When a Synthetic User tends to be online, in its home region's local time. */
 export type DailySchedule = {
   readonly timeZone: string;
@@ -6,30 +8,15 @@ export type DailySchedule = {
 };
 
 const HOUR_MS = 60 * 60_000;
-const formats = new Map<string, Intl.DateTimeFormat>();
-
-function hourFormat(timeZone: string): Intl.DateTimeFormat {
-  const known = formats.get(timeZone);
-  if (known !== undefined) return known;
-  const format = new Intl.DateTimeFormat('en-US', {
-    timeZone,
-    hour: 'numeric',
-    minute: 'numeric',
-    hourCycle: 'h23',
-  });
-  formats.set(timeZone, format);
-  return format;
-}
+const DAY_MS = 24 * HOUR_MS;
 
 /** The local time of day at `nowMs` in `timeZone`, in fractional hours [0, 24). */
 export function localHourAt(timeZone: string, nowMs: number): number {
-  let hour = 0;
-  let minute = 0;
-  for (const part of hourFormat(timeZone).formatToParts(new Date(nowMs))) {
-    if (part.type === 'hour') hour = Number(part.value) % 24;
-    if (part.type === 'minute') minute = Number(part.value);
-  }
-  return hour + minute / 60;
+  const offset =
+    HOME_REGIONS.find((home) => home.timeZone === timeZone)?.utcOffsetMinutes ??
+    0;
+  const local = (((nowMs + offset * 60_000) % DAY_MS) + DAY_MS) % DAY_MS;
+  return local / HOUR_MS;
 }
 
 /**

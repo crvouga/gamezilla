@@ -3,7 +3,13 @@
  * Users carry on, and what each of them sees come of it.
  */
 import { multiplayerView } from '@libs/game-matchmaking-harness-ts/multiplayer-reads';
-import { seekGameOpponent } from '@libs/game-matchmaking-harness-ts/opponent-seeking';
+import { requestGameOpponent } from '@libs/game-matchmaking-harness-ts/multiplayer-search-ui';
+import {
+  givenGameSpace,
+  openFindingAnOpponent,
+  seekGameOpponent,
+} from '@libs/game-matchmaking-harness-ts/opponent-seeking';
+import { defaultMatchChoice } from '@libs/game-matchmaking-shared-ts/match-choice';
 import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { signedInAccountOf } from '@libs/harness-ts/identity';
@@ -31,18 +37,26 @@ export function gameIdOf(name: string): string {
   return syntheticGame(name).shared.id;
 }
 
-/** Whether anyone at all is looking for a multiplayer opponent for the game. */
+/**
+ * How many outside the scenario's cast (everyone it has named so far) are
+ * looking for a multiplayer opponent for the game.
+ */
 export async function lookingForOpponent(
   s: ProductHarness,
   game: string
 ): Promise<number> {
   const rows = await s.harness.serverSql.sqlClient.query(
     sql<{
+      owner_id: string;
       data: unknown;
-    }>`SELECT w.data FROM chess_opponent_searches AS s JOIN matchmaking_waiting AS w ON w.id = s.search_id WHERE s.standing = ${'waiting'} AND s.deleted_at IS NULL AND w.deleted_at IS NULL`
+    }>`SELECT s.owner_id, w.data FROM chess_opponent_searches AS s JOIN matchmaking_waiting AS w ON w.id = s.search_id WHERE s.standing = ${'waiting'} AND s.deleted_at IS NULL AND w.deleted_at IS NULL`
   );
+  const cast = new Set<string | null>();
+  for (const actor of s.actors.keys())
+    cast.add(await signedInAccountOf(s, actor));
   const id = gameIdOf(game);
   return rows.filter((row) => {
+    if (cast.has(row.owner_id)) return false;
     const data = typeof row.data === 'string' ? JSON.parse(row.data) : row.data;
     const pool = (data as Record<string, unknown> | null)?.['matchmaking/pool'];
     return typeof pool === 'string' && pool.startsWith(`${id}.`);
@@ -62,9 +76,14 @@ async function inGame(s: ProductHarness, actor: string): Promise<boolean> {
 export const lookForMultiplayerOpponent = scenarioAction({
   name: 'lookForMultiplayerOpponent',
   act: async (s, actor: string, game: string) => {
-    const looking: Looking = { startedAt: s.harness.clock.now(), matchedAt: null };
+    const looking: Looking = {
+      startedAt: s.harness.clock.now(),
+      matchedAt: null,
+    };
     lookingOf(s).set(actor, looking);
-    await Promise.resolve(seekGameOpponent.act(s, actor, gameIdOf(game)));
+    if ((await signedInAccountOf(s, actor)) === null)
+      await Promise.resolve(seekGameOpponent.act(s, actor, gameIdOf(game)));
+    else await seekAgain(s, actor, game);
     await carryOnSyntheticUsers(s, {
       maxMs: LOOKING_WINDOW_MS,
       observe: async () => {
@@ -75,6 +94,23 @@ export const lookForMultiplayerOpponent = scenarioAction({
     });
   },
 });
+
+/** A signed-in person looks again, from their own space, as they first did. */
+async function seekAgain(s: ProductHarness, actor: string, game: string) {
+  const matched = syntheticGame(game).shared.capabilities.matchmaking;
+  if (matched === undefined) throw new Error(`${game} offers no matchmaking`);
+  await Promise.resolve(givenGameSpace.act(s, actor));
+  await Promise.resolve(openFindingAnOpponent.act(s, actor, gameIdOf(game)));
+  const ui = await actorUi(s, actor);
+  // After a game, a person finds their next opponent from its result.
+  if (await ui.get('multiplayer-new-opponent').isVisible()) {
+    await ui.get('multiplayer-new-opponent').tap();
+    return;
+  }
+  await Promise.resolve(
+    requestGameOpponent.act(s, actor, defaultMatchChoice(matched))
+  );
+}
 
 /** The Synthetic User, by its scenario name, whose account `accountId` is. */
 async function nameOfAccount(

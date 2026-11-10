@@ -225,6 +225,7 @@ export class SessionRuntime {
         sessionMs:
           renewal?.config.sessionMs ?? this.assignment.config.sessionMs,
         waitingOpponents: renewal?.waitingOpponents ?? [],
+        reservedGames: renewal?.reservedGames ?? [],
       });
       this.nextActionAt =
         this.ports.clock.now() +

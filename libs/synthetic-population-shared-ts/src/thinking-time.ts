@@ -42,6 +42,8 @@ export function drawThinkingMs(
   if (choices.length === 0)
     choices.push(previous === high ? Math.max(2, high - 1) : high);
   const seconds =
-    choices[Math.min(choices.length - 1, Math.floor(random() * choices.length))]!;
+    choices[
+      Math.min(choices.length - 1, Math.floor(random() * choices.length))
+    ]!;
   return seconds * SECOND_MS + Math.floor(random() * JITTER_MS);
 }

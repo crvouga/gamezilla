@@ -9,6 +9,7 @@ import { actorUi } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { signedInAccountOf } from '@libs/harness-ts/identity';
 import { bringToFront } from '@libs/harness-ts/observations';
+import type { ApplicationEvent } from '@libs/synthetic-population-shared-ts/application-events';
 import { reconcileCheckpoint } from '@libs/synthetic-population-shared-ts/config';
 import { parsePersona } from '@libs/synthetic-population-shared-ts/persona';
 import {
@@ -37,7 +38,10 @@ export type PlaySetup = {
 type Renewal = {
   readonly paused: boolean;
   readonly draining: boolean;
-  readonly config: { readonly sessionMs: number; readonly actionIntervalMs: number };
+  readonly config: {
+    readonly sessionMs: number;
+    readonly actionIntervalMs: number;
+  };
   readonly waitingOpponents: readonly { gameId: string; timeControl: string }[];
   readonly reservedGames: readonly string[];
 };
@@ -48,6 +52,10 @@ type Running = {
   renewedAt: number;
   nextTickAt: number;
   closed: boolean;
+  /** It saw its game reach a result while it was still online now. */
+  readonly finishedOnline: boolean;
+  /** Its game is still ongoing (if it went offline, it left mid-game). */
+  readonly leftMidGame: boolean;
 };
 type Population = {
   readonly setups: Map<string, PlaySetup>;
@@ -107,7 +115,10 @@ export async function liveSyntheticUsers(
   return members;
 }
 
-async function personaOf(s: ProductHarness, member: LiveSyntheticUser) {
+async function personaOf(
+  s: ProductHarness,
+  member: Pick<LiveSyntheticUser, 'userId'>
+) {
   const rows = await s.harness.serverSql.sqlClient.query(
     sql<{
       personality: unknown;
@@ -117,12 +128,15 @@ async function personaOf(s: ProductHarness, member: LiveSyntheticUser) {
   return parsePersona(typeof raw === 'string' ? JSON.parse(raw) : raw);
 }
 
-async function running(
+/**
+ * The Synthetic User's application on its device, playing as its persona
+ * and as the scenario decided before it plays.
+ */
+export async function syntheticApplication(
   s: ProductHarness,
-  member: LiveSyntheticUser
-): Promise<Running> {
-  const known = population(s).running.get(member.actor);
-  if (known !== undefined && !known.closed) return known;
+  member: Pick<LiveSyntheticUser, 'actor' | 'userId'>,
+  emit: (event: ApplicationEvent) => void = () => undefined
+): Promise<SyntheticUserApplication> {
   const setup = population(s).setups.get(member.actor) ?? {};
   const stored = await personaOf(s, member);
   const app = new SyntheticUserApplication(await actorUi(s, member.actor), {
@@ -144,9 +158,28 @@ async function running(
           },
         }),
     ...(setup.memory === undefined ? {} : { memory: setup.memory }),
-    emit: () => undefined,
+    emit,
   });
   app.authenticated();
+  return app;
+}
+
+async function running(
+  s: ProductHarness,
+  member: LiveSyntheticUser
+): Promise<Running> {
+  const known = population(s).running.get(member.actor);
+  if (known !== undefined && !known.closed) return known;
+  const games = { ongoing: false, finished: false };
+  const app = await syntheticApplication(s, member, (event) => {
+    // Its game, as it sees it: a result reached while it is still online.
+    if (event.name === 'GameStarted' || event.action === 'MATCH')
+      games.ongoing = true;
+    if (event.name === 'GameCompleted' && games.ongoing) {
+      games.ongoing = false;
+      games.finished = true;
+    }
+  });
   const fresh: Running = {
     member,
     app,
@@ -154,6 +187,12 @@ async function running(
     renewedAt: Number.NEGATIVE_INFINITY,
     nextTickAt: s.harness.clock.now(),
     closed: false,
+    get finishedOnline() {
+      return games.finished;
+    },
+    get leftMidGame() {
+      return games.ongoing;
+    },
   };
   population(s).running.set(member.actor, fresh);
   return fresh;
@@ -178,18 +217,21 @@ async function lease(s: ProductHarness, member: LiveSyntheticUser) {
 /** Renew the Worker Lease as its worker does; `null` once the lease is lost. */
 async function renew(s: ProductHarness, run: Running): Promise<void> {
   const owned = await lease(s, run.member);
-  if (owned === null) {
+  if (owned === null || (await renewed(s, owned, run)) === false)
     run.closed = true;
-    return;
-  }
+}
+
+async function renewed(
+  s: ProductHarness,
+  owned: NonNullable<Awaited<ReturnType<typeof lease>>>,
+  run: Running
+): Promise<boolean> {
   const rpc = await fixtureWorkerRpc(s);
   const response = await rpc.renew.$post({ json: owned });
-  if (response.status !== 200) {
-    run.closed = true;
-    return;
-  }
+  if (response.status !== 200) return false;
   run.renewal = (await response.json()).renewal;
   run.renewedAt = s.harness.clock.now();
+  return true;
 }
 
 /** Report what the Synthetic User is doing, as its worker checkpoints it. */
@@ -278,7 +320,42 @@ export async function carryOnSyntheticUsers(
   }
 }
 
+/** Whether the named Synthetic User stayed online now until its game had its result. */
+export function stayedOnlineToFinish(s: ProductHarness, name: string): boolean {
+  const run = population(s).running.get(name.toLowerCase());
+  return run !== undefined && run.finishedOnline && !run.leftMidGame;
+}
+
 /** Whether the named Synthetic User's application has closed and its lease is released. */
 export function syntheticUserClosed(s: ProductHarness, name: string): boolean {
   return population(s).running.get(name.toLowerCase())?.closed === true;
+}
+
+/** How long Synthetic Users above the desired population get to finish and leave. */
+const SETTLE_MS = 5 * 60_000;
+
+async function onlineCount(s: ProductHarness): Promise<number> {
+  const rows = await s.harness.serverSql.sqlClient.query(
+    sql<{
+      id: string;
+    }>`SELECT id FROM population_users WHERE worker_id IS NOT NULL AND lease_until > ${new Date(s.harness.clock.now()).toISOString()} AND deleted_at IS NULL`
+  );
+  return rows.length;
+}
+
+/**
+ * After the desired synthetic population is lowered, the scenario's
+ * Synthetic Users carry on as deployed ones do while more are online now
+ * than desired: those above it finish what they are doing and leave.
+ */
+export async function settleAboveDesired(
+  s: ProductHarness,
+  desired: number
+): Promise<void> {
+  if ((await liveSyntheticUsers(s)).length === 0) return;
+  if ((await onlineCount(s)) <= desired) return;
+  await carryOnSyntheticUsers(s, {
+    maxMs: SETTLE_MS,
+    settled: async () => (await onlineCount(s)) <= desired,
+  });
 }

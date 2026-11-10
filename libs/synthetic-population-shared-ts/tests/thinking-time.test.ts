@@ -16,7 +16,9 @@ test('every thinking time is 2 to 20 seconds and never repeats the previous whol
     fc.property(
       bounds,
       fc.option(fc.integer({ min: 0, max: 30_000 }), { nil: null }),
-      fc.infiniteStream(fc.double({ min: 0, max: 1, maxExcluded: true, noNaN: true })),
+      fc.infiniteStream(
+        fc.double({ min: 0, max: 1, maxExcluded: true, noNaN: true })
+      ),
       (limits, previous, draws) => {
         const random = () => draws.next().value as number;
         const ms = drawThinkingMs(limits, previous, random);

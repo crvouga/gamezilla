@@ -95,8 +95,12 @@ export class SyntheticUserApplication {
       emit: (event: ApplicationEvent) => void;
     }
   ) {
-    this.continuous = new ContinuousInputPlayer(driver, ports);
     this.persona = ports.persona ?? DEFAULT_PERSONA;
+    this.continuous = new ContinuousInputPlayer(driver, {
+      clock: ports.clock,
+      random: ports.random,
+      strength: STRENGTH[this.persona.skillLevel],
+    });
     this.pacing = new MovePacing(
       this.persona.thinkingTime,
       ports.random,
@@ -177,14 +181,7 @@ export class SyntheticUserApplication {
     );
     if (await this.playCurrentGame()) return true;
     if (this.restoringGame) {
-      if (await this.driver.get(Handles.spaceJoin).isVisible()) {
-        await this.driver.get(Handles.spaceJoin).tap();
-        await this.driver.get(Handles.spaceJoin).wait('hidden');
-      }
-      if (this.ports.clock.now() - this.restoreStartedAt > 30_000)
-        throw new Error(
-          'The ongoing game could not be reconciled through the app'
-        );
+      await this.rejoinRestoredGame();
       return true;
     }
     const ownSpace = Handles.spaceCard(this.ports.username);
@@ -242,6 +239,17 @@ export class SyntheticUserApplication {
     });
     await this.act(selected, preferred);
     return true;
+  }
+  /** A restored session finds its way back to its ongoing game, or gives up. */
+  private async rejoinRestoredGame(): Promise<void> {
+    if (await this.driver.get(Handles.spaceJoin).isVisible()) {
+      await this.driver.get(Handles.spaceJoin).tap();
+      await this.driver.get(Handles.spaceJoin).wait('hidden');
+    }
+    if (this.ports.clock.now() - this.restoreStartedAt > 30_000)
+      throw new Error(
+        'The ongoing game could not be reconciled through the app'
+      );
   }
   private async act(
     decision: Decision,
@@ -321,7 +329,9 @@ export class SyntheticUserApplication {
     if (this.activity() !== 'postGame') return false;
     if (await this.answerRematch()) return true;
     const offer = this.driver.get('multiplayer-offer-rematch');
+    // A person waiting for it comes before another game against the last opponent.
     if (
+      decision.game === undefined &&
       !this.rematchOffered &&
       (await offer.isVisible()) &&
       wantsRematch(this.streak, this.persona.rematchWeight, this.ports.random())
@@ -406,22 +416,26 @@ export class SyntheticUserApplication {
     await this.recordOpponent(await game.attribute('data-game-id'));
     const enabled = (await game.attribute('data-can-move')) === 'true';
     await this.continuous.update(automation.continuous, enabled);
-    if (automation.turns === undefined) return true;
+    if (automation.turns !== undefined) await this.takeTurn(position, enabled);
+    return true;
+  }
+  /** On its turn, once it has thought long enough, it moves; then waits for the move to show. */
+  private async takeTurn(position: string, enabled: boolean): Promise<void> {
     if (this.pendingPosition !== null && position !== this.pendingPosition) {
       this.pendingPosition = null;
       this.transition({ type: 'ACKNOWLEDGED' });
     }
-    if (!enabled) this.pacing.idle();
-    if (enabled && this.pendingPosition === null) {
+    if (!enabled) {
+      this.pacing.idle();
+      return;
+    }
+    if (this.pendingPosition === null) {
       if (this.pacing.ready(position, this.ports.clock.now()))
         await this.move(position);
-    } else if (enabled) {
-      if (this.ports.clock.now() - this.submittedAt > 5_000)
-        throw new Error(
-          'Move acknowledgement requires authoritative reconciliation'
-        );
-    }
-    return true;
+    } else if (this.ports.clock.now() - this.submittedAt > 5_000)
+      throw new Error(
+        'Move acknowledgement requires authoritative reconciliation'
+      );
   }
   private async move(position: string): Promise<void> {
     const automation = gameForPosition(this.ports.games, position).turns;

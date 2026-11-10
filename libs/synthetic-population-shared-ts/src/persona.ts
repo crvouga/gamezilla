@@ -89,14 +89,14 @@ function pick<T>(items: readonly T[], random: Random): T {
   return item;
 }
 /** The candidates the population has least of, so a population stays varied. */
-function leastRepresented<T>(candidates: readonly T[], counts: (c: T) => number) {
+function leastRepresented<T>(
+  candidates: readonly T[],
+  counts: (c: T) => number
+) {
   const fewest = Math.min(...candidates.map(counts));
   return candidates.filter((candidate) => counts(candidate) === fewest);
 }
-function favoriteGames(
-  context: PersonaContext,
-  random: Random
-): string[] {
+function favoriteGames(context: PersonaContext, random: Random): string[] {
   if (context.games.length === 0) return [];
   const first = pick(
     leastRepresented(
@@ -156,7 +156,8 @@ export function provisionPersona(
     skillLevel: pick(
       leastRepresented(
         SKILL_LEVELS,
-        (level) => context.population.filter((p) => p.skillLevel === level).length
+        (level) =>
+          context.population.filter((p) => p.skillLevel === level).length
       ),
       random
     ),

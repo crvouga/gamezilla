@@ -12,7 +12,7 @@ import { usernameFitsPopulation } from '@libs/synthetic-population-shared-ts/per
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import fc from 'fast-check';
 
-const GAMES = ['chess', 'connect-four', 'battleship', 'pong'];
+const GAMES = ['first-game', 'second-game', 'third-game', 'fourth-game'];
 const START = Date.parse('2024-06-01T00:00:00.000Z');
 
 function population(ids: readonly string[], nowMs = START): Persona[] {
@@ -46,8 +46,7 @@ test('the same identity always provisions the same complete persona, online now'
           persona.thinkingTime.maxMs
         );
         expect(/^[A-Za-z0-9_]{3,24}$/.test(persona.username)).toBe(true);
-        for (const game of persona.favoriteGames)
-          expect(GAMES).toContain(game);
+        for (const game of persona.favoriteGames) expect(GAMES).toContain(game);
       }
     )
   );

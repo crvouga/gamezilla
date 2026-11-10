@@ -193,7 +193,6 @@ export class SyntheticPopulationController {
         sql`UPDATE population_config SET revision = revision WHERE id = ${'default'}`
       );
       const config = await repo.config();
-      const now = isoAt(this.ports.clock.now());
       const alive = isoAt(this.ports.clock.now() - config.leaseMs);
       const workers = await tx.query(
         sql<{
@@ -208,15 +207,10 @@ export class SyntheticPopulationController {
           worker.application_version !== config.preferredVersion)
       )
         return null;
-      const counts = await tx.query(
-        sql<{
-          total: number;
-          owned: number;
-        }>`SELECT COUNT(*) AS total, SUM(CASE WHEN worker_id = ${workerId} THEN 1 ELSE 0 END) AS owned FROM population_users WHERE worker_id IS NOT NULL AND lease_until > ${now} AND deleted_at IS NULL`
-      );
+      const online = await onlineNow(tx, this.ports.clock.now());
       if (
-        Number(counts[0]?.total ?? 0) >= config.desired ||
-        Number(counts[0]?.owned ?? 0) >=
+        online.filter((user) => !user.finishing).length >= config.desired ||
+        online.filter((user) => user.worker_id === workerId).length >=
           Math.min(worker.capacity, config.capacityPerWorker)
       )
         return null;
@@ -249,7 +243,9 @@ export class SyntheticPopulationController {
 }
 
 /** The personas the Synthetic Population has, for a newcomer to fit among. */
-async function populationPersonas(tx: SqlTx): Promise<PersonaContext['population'][number][]> {
+async function populationPersonas(
+  tx: SqlTx
+): Promise<PersonaContext['population'][number][]> {
   const rows = await tx.query(
     sql<{
       username: string;
@@ -261,4 +257,30 @@ async function populationPersonas(tx: SqlTx): Promise<PersonaContext['population
     ...parsePersona(jsonValue(row.personality)),
     username: row.username,
   }));
+}
+
+/**
+ * The Synthetic Users online now, in admission order. One whose daily
+ * schedule is over is only finishing its ongoing game: it does not count
+ * towards the desired synthetic population.
+ */
+export async function onlineNow(
+  tx: SqlTx,
+  nowMs: number
+): Promise<{ id: string; worker_id: string; finishing: boolean }[]> {
+  const rows = await tx.query(
+    sql<{
+      id: string;
+      worker_id: string;
+      personality: unknown;
+    }>`SELECT id, worker_id, personality FROM population_users WHERE worker_id IS NOT NULL AND lease_until > ${isoAt(nowMs)} AND deleted_at IS NULL ORDER BY id LIMIT 10000`
+  );
+  return rows.map((row) => {
+    const persona = parsePersona(jsonValue(row.personality));
+    return {
+      id: row.id,
+      worker_id: row.worker_id,
+      finishing: persona !== null && !onSchedule(persona.dailySchedule, nowMs),
+    };
+  });
 }
