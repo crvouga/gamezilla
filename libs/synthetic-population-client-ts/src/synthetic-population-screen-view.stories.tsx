@@ -11,6 +11,7 @@ import {
   PAGE,
   PERSONA,
   userRow,
+  withGameNames,
   worker,
 } from './synthetic-population.example';
 import { toConfigurationDraft } from './synthetic-population-configuration';
@@ -24,6 +25,7 @@ const meta = {
   title: 'Screens/Admin/Synthetic population',
   component: SyntheticPopulationScreenView,
   tags: ['autodocs'],
+  decorators: [withGameNames],
   parameters: {
     appRouter: true,
     controls: {
