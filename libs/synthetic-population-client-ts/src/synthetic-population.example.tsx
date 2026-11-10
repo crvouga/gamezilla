@@ -318,6 +318,7 @@ export function onlineEntry(
     sessionId: `0c1d2e3f-0000-4000-8000-00000000000${index}`,
     kind: 'person',
     syntheticUserId: null,
+    paused: false,
     username,
     avatarConfig: null,
     accountId: `5a5a5a5a-0000-4000-8000-00000000000${index}`,
@@ -347,6 +348,7 @@ export const ONLINE_NOW: readonly OnlineNowEntryView[] = [
   onlineEntry(4, 'maple', {
     kind: 'synthetic',
     syntheticUserId: USERS[1]?.id ?? null,
+    paused: true,
     place: 'people-search',
   }),
 ];

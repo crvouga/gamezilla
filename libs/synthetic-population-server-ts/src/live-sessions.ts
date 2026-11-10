@@ -25,10 +25,11 @@ export type LiveSessionRow = {
   game: string | null;
   heartbeat_at: string;
   synthetic_user_id: string | null;
+  paused: boolean | number | null;
 };
 
 const SESSION_COLUMNS = raw(
-  's.id, s.account_id, s.place, s.activity, s.game, s.heartbeat_at, u.id AS synthetic_user_id'
+  's.id, s.account_id, s.place, s.activity, s.game, s.heartbeat_at, u.id AS synthetic_user_id, u.paused'
 );
 
 /**

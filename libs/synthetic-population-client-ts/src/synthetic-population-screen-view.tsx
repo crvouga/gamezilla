@@ -59,23 +59,12 @@ export type SyntheticPopulationScreenViewProps = {
 function OverviewSections(
   props: Pick<
     SyntheticPopulationScreenViewProps,
-    | 'canConfigure'
-    | 'fields'
-    | 'onChangeField'
-    | 'directory'
-    | 'onlineNow'
-    | 'canControl'
-    | 'onCommandAll'
+    'canConfigure' | 'fields' | 'onChangeField' | 'directory'
   > & { overview: SyntheticPopulationOverview }
 ): JSX.Element {
   return (
     <>
       <SyntheticPopulationSummary overview={props.overview} />
-      <EverySyntheticUserControls
-        canControl={props.canControl}
-        command={props.onCommandAll}
-      />
-      {props.onlineNow?.()}
       <Show when={props.canConfigure}>
         <SyntheticPopulationConfiguration
           fields={props.fields}
@@ -136,6 +125,14 @@ function SyntheticPopulationOverviewScreen(
         />
       </Show>
       <Button title={t`Refresh`} onClick={() => props.onRefresh()} />
+      {/* Outside the overview: a reread keeps their dialogs and choices. */}
+      <Show when={props.overview !== undefined}>
+        <EverySyntheticUserControls
+          canControl={props.canControl}
+          command={props.onCommandAll}
+        />
+        {props.onlineNow?.()}
+      </Show>
       <Show when={props.overview} keyed>
         {(overview) => (
           <OverviewSections
@@ -144,9 +141,6 @@ function SyntheticPopulationOverviewScreen(
             fields={props.fields}
             onChangeField={props.onChangeField}
             directory={props.directory}
-            onlineNow={props.onlineNow}
-            canControl={props.canControl}
-            onCommandAll={props.onCommandAll}
           />
         )}
       </Show>

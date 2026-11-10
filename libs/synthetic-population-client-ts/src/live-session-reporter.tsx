@@ -9,9 +9,9 @@ import {
 } from '@libs/synthetic-population-shared-ts/live-session';
 import { useClock, useTimers } from '@pkgs/clock-client-ts/solid';
 import { useHttpClient } from '@pkgs/http-client-client-ts/solid';
-import { useThemeHost } from '@pkgs/ui-root-client-ts/theme-context';
 import sql from '@pkgs/sql-root-shared-ts/sql';
 import { createQuery } from '@pkgs/sync-engine-client-ts/sync-engine-context';
+import { useThemeHost } from '@pkgs/ui-root-client-ts/theme-context';
 import {
   createEffect,
   createSignal,

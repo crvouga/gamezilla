@@ -15,6 +15,7 @@ import { signInWithGoogle } from '@libs/harness-ts/auth-actions';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { actorEmail, signedInAccountOf } from '@libs/harness-ts/identity';
 import { bringToFront } from '@libs/harness-ts/observations';
+import { backToTabs } from '@libs/harness-ts/shell-actions';
 import type { OnlineNowFilter } from '@libs/synthetic-population-shared-ts/live-session';
 import sql from '@pkgs/sql-root-shared-ts/sql';
 import { openObservatory } from './observatory-actions';
@@ -45,7 +46,10 @@ export const openPersonApp = scenarioAction({
   name: 'openPersonApp',
   act: async (s, actor: string) => {
     await ensureActor(s, actor);
-    await Promise.resolve(signInWithGoogle.act(s, actor));
+    // Reopened, an app is still signed in as it was.
+    if ((await signedInAccountOf(s, actor)) === null)
+      await Promise.resolve(signInWithGoogle.act(s, actor));
+    await Promise.resolve(backToTabs.act(s, actor));
     await pollUntil(
       s,
       async () => ((await heartbeatReceived(s, actor)) ? true : null),

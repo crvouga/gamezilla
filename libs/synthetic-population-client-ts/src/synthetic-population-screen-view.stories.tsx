@@ -106,6 +106,11 @@ export const OnlineNowFailed: Story = {
   args: { onlineNow: onlineNow({ failed: true, entries: undefined }) },
 };
 
+/** A later read failed: the last list stays, with a retry above the fold. */
+export const OnlineNowFailedKeepsList: Story = {
+  args: { onlineNow: onlineNow({ failed: true }) },
+};
+
 /** Long usernames and game names wrap instead of breaking rows. */
 export const OnlineNowLongContent: Story = {
   args: {

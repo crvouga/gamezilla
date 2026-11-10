@@ -3760,6 +3760,7 @@
       },
       "devDependencies": {
         "@libs/synthetic-population-server-ts": "workspace:*",
+        "@pkgs/bun-test-solid-client-ts": "workspace:*",
         "@solidjs/testing-library": "catalog:",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",

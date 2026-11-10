@@ -23,6 +23,8 @@ export type OnlineNowEntry = {
   readonly kind: LiveKind;
   /** The Synthetic User's own id, for its control panel; `null` for a person. */
   readonly syntheticUserId: string | null;
+  /** A paused Synthetic User starts no new activity; never set for a person. */
+  readonly paused: boolean;
   readonly username: string;
   readonly avatarConfig: string | null;
   readonly accountId: string;
@@ -66,6 +68,7 @@ async function entries(
     sessionId: row.id,
     kind: row.synthetic_user_id === null ? 'person' : 'synthetic',
     syntheticUserId: row.synthetic_user_id,
+    paused: row.synthetic_user_id !== null && Boolean(row.paused),
     username: byId.get(row.account_id)?.username ?? '',
     avatarConfig: byId.get(row.account_id)?.avatarConfig ?? null,
     accountId: row.account_id,

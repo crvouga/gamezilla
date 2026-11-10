@@ -6,6 +6,7 @@
  */
 
 import { GAME_AUTOMATIONS } from '@libs/game-catalog-shared-ts/game-automations';
+import { restartApp } from '@libs/harness-ts/actions';
 import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront } from '@libs/harness-ts/observations';
@@ -14,8 +15,7 @@ import { SyntheticPopulationSession } from '@libs/synthetic-population-server-ts
 import { SyntheticUserApplication } from '@libs/synthetic-population-shared-ts/synthetic-user-application';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import sql from '@pkgs/sql-root-shared-ts/sql';
-import { reopenSyntheticApp } from './continuity-actions';
-import { syntheticGameView } from './synthetic-game-actions';
+import { openSyntheticGame, syntheticGameView } from './synthetic-game-actions';
 import { syntheticUserActor } from './synthetic-sign-in-actions';
 import {
   givenSyntheticUser,
@@ -109,18 +109,24 @@ async function confirmEvery(
   command: 'pause-all' | 'resume-all'
 ): Promise<void> {
   const ui = await actorUi(s, actor);
-  for (const id of ['synthetic-population-resume-all', 'synthetic-population-pause-all', 'synthetic-population', 'synthetic-population-control-denied', 'synthetic-population-users'])
-    console.log('CPDEBUG', id, await ui.get(id).isVisible());
   await ui.get(`synthetic-population-${command}`).tap();
-  for (const id of ['synthetic-population-resume-all-confirm', 'synthetic-population-every-done'])
-    console.log('CPDEBUG2', id, await ui.get(id).isVisible());
-  console.log('CPDEBUG3', (await s.actors.get(actor)!.currentPath()));
+
   await ui.get(`synthetic-population-${command}-confirm`).tap();
+
   await ui
     .get('synthetic-population-every-done')
     .expect.visible({ timeoutMs: WAIT_MS });
   await s.session.waitForIdle();
 }
+
+/** The person pauses or resumes every Synthetic User, from the controls. */
+export const commandEverySyntheticUser = scenarioAction({
+  name: 'commandEverySyntheticUser',
+  act: async (s, actor: string, command: 'pause-all' | 'resume-all') => {
+    if (!(await openEveryControls(s, actor))) return;
+    await confirmEvery(s, actor, command);
+  },
+});
 
 /**
  * The person pauses every Synthetic User; each running one is told on its
@@ -140,8 +146,9 @@ export const pauseEverySyntheticUser = scenarioAction({
 export const resumeEverySyntheticUser = scenarioAction({
   name: 'resumeEverySyntheticUser',
   act: async (s, actor: string) => {
-    if (!(await openEveryControls(s, actor))) return;
-    await confirmEvery(s, actor, 'resume-all');
+    await Promise.resolve(
+      commandEverySyntheticUser.act(s, actor, 'resume-all')
+    );
   },
 });
 
@@ -159,6 +166,20 @@ async function openControlPanel(
   await s.session.waitForIdle();
   return !(await ui.get('synthetic-population-inspect-denied').isVisible());
 }
+
+/** The person pauses one Synthetic User from its control panel. */
+export const pauseOneSyntheticUser = scenarioAction({
+  name: 'pauseOneSyntheticUser',
+  act: async (s, actor: string, name: string) => {
+    if (!(await openControlPanel(s, actor, name))) return;
+    const ui = await actorUi(s, actor);
+    await ui.get('synthetic-population-pause').tap();
+    await ui
+      .get('synthetic-population-availability')
+      .expect.text('Synthetic Population statePaused');
+    await s.session.waitForIdle();
+  },
+});
 
 /** The person resumes one Synthetic User from its control panel. */
 export const resumeSyntheticUser = scenarioAction({
@@ -193,9 +214,25 @@ export const restartSyntheticUser = scenarioAction({
       (command) => command.command === 'restart'
     );
     if (restart === undefined) throw new Error(`${name} was not restarted`);
-    const board = await syntheticGameView(s, syntheticUserActor(name));
-    await Promise.resolve(reopenSyntheticApp.act(s, board.gameId));
+    await Promise.resolve(reopenSyntheticUserApp.act(s, name));
     await sessions.completeCommand(lease, restart.id);
+  },
+});
+
+/**
+ * The worker closes and reopens the Synthetic User's app on its device; it
+ * comes back where it was, to its ongoing game if it had one.
+ */
+export const reopenSyntheticUserApp = scenarioAction({
+  name: 'reopenSyntheticUserApp',
+  act: async (s, name: string) => {
+    const actor = syntheticUserActor(name);
+    const path = await s.actors.get(actor)!.currentPath();
+    const board = await syntheticGameView(s, actor);
+    await Promise.resolve(restartApp.act(s, actor));
+    if (board.gameId === null) return;
+    await s.actors.get(actor)!.openLink(path);
+    await Promise.resolve(openSyntheticGame.act(s, actor));
   },
 });
 

@@ -1,7 +1,8 @@
 import type { OnlineNowFilter } from '@libs/synthetic-population-shared-ts/live-session';
-import { createResource, createSignal, type JSX } from 'solid-js';
+import { createEffect, createResource, createSignal, type JSX } from 'solid-js';
 import { OnlineNowView } from './online-now-view';
 import { resourceValue } from './resource-value';
+import type { OnlineNowEntryView } from './synthetic-population-api';
 import { useSyntheticPopulationApi } from './synthetic-population-api';
 import {
   PRESENCE_CHANGES,
@@ -28,12 +29,18 @@ export function SyntheticPopulationOnlineNow(props: {
   const [list, { refetch }] = createResource(filter, (value) =>
     api.onlineNow(value)
   );
+  // The last list read stays in view when a later read fails.
+  const [shown, setShown] = createSignal<readonly OnlineNowEntryView[]>();
+  createEffect(() => {
+    const entries = resourceValue(list)?.entries;
+    if (entries !== undefined) setShown(entries);
+  });
   useSyntheticPopulationUpdates(() => refetch(), PRESENCE_CHANGES);
   useRefreshWithoutUpdates(() => refetch(), REFRESH_MS);
   return (
     <OnlineNowView
       filter={filter()}
-      entries={resourceValue(list)?.entries}
+      entries={shown()}
       loading={list.loading}
       failed={Boolean(list.error)}
       canWatch={props.canWatch}

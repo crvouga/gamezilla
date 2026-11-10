@@ -17,7 +17,10 @@ import type { OnlineNowEntryView } from './synthetic-population-api';
 export type OnlineNowViewProps = {
   /** Which of those online now are shown. */
   readonly filter: OnlineNowFilter;
-  /** The latest list read; kept on screen while the next one loads. */
+  /**
+   * The latest list read; kept on screen while the next one loads and when
+   * a later read fails, so what was known stays in view.
+   */
   readonly entries: readonly OnlineNowEntryView[] | undefined;
   /** A read is under way. Without a list this shows the loading state. */
   readonly loading: boolean;
@@ -54,7 +57,11 @@ function OnlineNowRow(
         />
       }
       title={props.entry.username || t`Unnamed`}
-      caption={`${labels.kind(props.entry.kind)} · ${labels.place(props.entry.place)}`}
+      caption={[
+        labels.kind(props.entry.kind),
+        ...(props.entry.paused ? [t`Paused`] : []),
+        labels.place(props.entry.place),
+      ].join(' · ')}
       value={labels.activity(props.entry)}
       valueLines={2}
       hideChevron={!props.canWatch}

@@ -1,8 +1,6 @@
 {
   "$schema": "https://v2-11-3.turborepo.dev/schema.json",
-  "extends": [
-    "//"
-  ],
+  "extends": ["//"],
   "tasks": {
     "src": {
       "dependsOn": [
