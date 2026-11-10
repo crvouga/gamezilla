@@ -3,7 +3,9 @@
 // 2 seconds and at most 20, never the same whole number of seconds for two
 // moves in a row. After a finished game either of them may offer a rematch;
 // Cedar answers Bob's offer, and sometimes offers one itself, but never plays
-// more than 3 games in a row against Bob.
+// more than 3 games in a row against Bob. Once a rematch is declined, Cedar
+// moves on to look for a new multiplayer opponent and no further rematch
+// between them is offered.
 // With no connection, Cedar makes no move, and neither offers nor answers a
 // rematch; the game stays as it was until the connection returns.
 module human_like_play {
@@ -25,6 +27,8 @@ module human_like_play {
   var _movesBeforeOffline: int
   /// Bookkeeping: Cedar's moves when its latest game finished.
   var _movesAtFinish: int
+  /// Bookkeeping: a rematch was declined, so Cedar has moved on to look for a new multiplayer opponent.
+  var _movedOn: bool
 
   action init = all {
     _activity' = Playing,
@@ -35,6 +39,7 @@ module human_like_play {
     _moves' = 0,
     _movesBeforeOffline' = 0,
     _movesAtFinish' = 0,
+    _movedOn' = false,
   }
 
   /// Cedar continues its current activity by making its next move.
@@ -49,6 +54,7 @@ module human_like_play {
     _moves' = _moves + 1,
     _movesBeforeOffline' = _movesBeforeOffline,
     _movesAtFinish' = _movesAtFinish,
+    _movedOn' = _movedOn,
   }
 
   /// Bookkeeping: the ongoing game reaches its multiplayer result.
@@ -62,12 +68,15 @@ module human_like_play {
     _moves' = _moves,
     _movesBeforeOffline' = _movesBeforeOffline,
     _movesAtFinish' = _moves,
+    _movedOn' = _movedOn,
   }
 
   /// Bob or Cedar offers a rematch after a finished game; the other, with its connection, accepts or declines.
-  /// Cedar never accepts or offers a fourth game in a row against Bob.
+  /// Cedar never accepts or offers a fourth game in a row against Bob. After a decline Cedar moves on,
+  /// and neither offers that rematch again.
   action offerRematch(who: str, accepted: bool): bool = all {
     _activity == Finished,
+    not(_movedOn),
     not(_offline.contains(who)),
     not(_offline.contains(if (who == "Bob") "Cedar" else "Bob")),
     accepted implies (gamesInARow < 3),
@@ -79,6 +88,7 @@ module human_like_play {
     _moves' = _moves,
     _movesBeforeOffline' = _movesBeforeOffline,
     _movesAtFinish' = _movesAtFinish,
+    _movedOn' = not(accepted),
   }
 
   /// Bookkeeping: a device loses its connection.
@@ -92,6 +102,7 @@ module human_like_play {
     _moves' = _moves,
     _movesBeforeOffline' = _moves,
     _movesAtFinish' = _movesAtFinish,
+    _movedOn' = _movedOn,
   }
 
   /// Bookkeeping: that device's connection comes back.
@@ -105,6 +116,7 @@ module human_like_play {
     _moves' = _moves,
     _movesBeforeOffline' = _movesBeforeOffline,
     _movesAtFinish' = _movesAtFinish,
+    _movedOn' = _movedOn,
   }
 
   action step = {
@@ -127,6 +139,8 @@ module human_like_play {
   val invAtMostThreeInARow = gamesInARow >= 1 and gamesInARow <= 3
   /// Bookkeeping: Cedar makes no move in a finished game.
   val invNoMoveAfterResult = (_activity == Finished) implies (_moves == _movesAtFinish)
+  /// Bookkeeping: after a declined rematch the finished game stays finished.
+  val invDeclinedStaysFinished = _movedOn implies (_activity == Finished)
   /// Bookkeeping: Cedar makes no move while its device is offline.
   val invOfflineMakesNoMove = _offline.contains("Cedar") implies (_moves == _movesBeforeOffline)
 }

@@ -27,6 +27,21 @@ Feature: Synthetic Users keep a daily rhythm
       When "Maple"'s daily schedule is over
       Then "Cedar" is online now within 15 minutes
 
+  Rule: A place that frees up goes at once to the Synthetic User kept away longest
+
+    Background:
+      Given the desired synthetic population is 3
+      And 3 Synthetic Users are online now, "Maple" among them
+      And "Birch" has been kept away longer than "Cedar"
+
+    Scenario: The Synthetic User kept away longest comes online now when a place frees up
+      When "Maple"'s daily schedule is over
+      Then "Birch" is online now within 15 minutes
+
+    Scenario: A Synthetic User kept away for less time waits for the next free place
+      When "Maple"'s daily schedule is over
+      Then "Cedar" is still not online now 15 minutes later
+
   Rule: A Synthetic User is no longer online now once its daily schedule is over, after finishing any ongoing game
 
     Scenario: A Synthetic User closes the app once its daily schedule is over

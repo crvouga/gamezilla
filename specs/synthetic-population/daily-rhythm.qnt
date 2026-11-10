@@ -1,18 +1,23 @@
 // Cedar, Maple and Birch are Synthetic Users, each with its own daily
 // schedule. When its daily schedule begins, a Synthetic User comes online now,
 // unless as many Synthetic Users as the desired synthetic population already
-// are; then it comes online now as soon as there is room, while its daily
-// schedule lasts. When its daily schedule ends it is no longer online now, except that a
-// Synthetic User in an ongoing game finishes that game first and starts
-// nothing new. Apart from Synthetic Users finishing an ongoing game, no more
-// Synthetic Users are online now than the desired synthetic population.
-// With no connection, a Synthetic User starts no new activity; it carries on
-// once its connection returns.
+// are; then it is kept away. A place never stays free while a Synthetic User
+// on its daily schedule is kept away: the moment one frees up, the Synthetic
+// User kept away longest comes online now. When its daily schedule ends a
+// Synthetic User is no longer online now, except that one in an ongoing game
+// finishes that game first and starts nothing new. Apart from Synthetic Users
+// finishing an ongoing game, no more Synthetic Users are online now than the
+// desired synthetic population.
+// With no connection, a Synthetic User starts no new activity and is passed
+// over for a free place; once its connection returns it carries on, and if a
+// place is free and it has been kept away longest, it comes online now.
 module daily_rhythm {
   /// The Synthetic Users whose daily schedule says they tend to be online now.
   var onSchedule: Set[str]
   /// The Synthetic Users online now.
   var onlineNow: Set[str]
+  /// The Synthetic Users on their daily schedule kept away while the desired synthetic population is online now, longest first.
+  var keptAway: List[str]
   /// The Synthetic Users playing an ongoing game.
   var playing: Set[str]
   /// The desired synthetic population.
@@ -26,11 +31,35 @@ module daily_rhythm {
 
   pure val SYNTHETIC_USERS = Set("Cedar", "Maple", "Birch")
 
+  /// Bookkeeping: whether a place is free.
+  pure def _room(online: Set[str], finishing: Set[str], desired: int): bool =
+    online.size() - finishing.size() < desired
+
+  /// Bookkeeping: the connected Synthetic User kept away longest, or "" for none.
+  pure def _firstWaiting(kept: List[str], offline: Set[str]): str =
+    kept.foldl("", (acc, s) => if (acc == "" and not(offline.contains(s))) s else acc)
+
+  /// Bookkeeping: who is online now once a free place goes to the one kept away longest.
+  pure def _fillOnline(online: Set[str], finishing: Set[str], kept: List[str], offline: Set[str], desired: int): Set[str] =
+    if (_room(online, finishing, desired) and _firstWaiting(kept, offline) != "")
+      online.union(Set(_firstWaiting(kept, offline)))
+    else online
+
+  /// Bookkeeping: who is still kept away once a free place goes to the one kept away longest.
+  pure def _fillKept(online: Set[str], finishing: Set[str], kept: List[str], offline: Set[str], desired: int): List[str] =
+    if (_room(online, finishing, desired) and _firstWaiting(kept, offline) != "")
+      kept.select(s => s != _firstWaiting(kept, offline))
+    else kept
+
+  pure def _asSet(kept: List[str]): Set[str] =
+    kept.foldl(Set(), (acc, s) => acc.union(Set(s)))
+
   action init = {
     nondet desired = 0.to(3).oneOf()
     all {
       onSchedule' = Set(),
       onlineNow' = Set(),
+      keptAway' = List(),
       playing' = Set(),
       desiredPopulation' = desired,
       _finishing' = Set(),
@@ -39,47 +68,43 @@ module daily_rhythm {
     }
   }
 
-  /// A Synthetic User's daily schedule begins in its home region.
-  action scheduleBegins(who: str): bool = all {
-    not(onSchedule.contains(who)),
-    onSchedule' = onSchedule.union(Set(who)),
-    onlineNow' = if (not(onlineNow.contains(who)) and onlineNow.size() - _finishing.size() < desiredPopulation)
-      onlineNow.union(Set(who))
-    else onlineNow,
-    playing' = playing,
-    desiredPopulation' = desiredPopulation,
-    _finishing' = if (_finishing.contains(who) and onlineNow.size() - _finishing.size() < desiredPopulation)
-      _finishing.exclude(Set(who))
-    else _finishing,
-    _offline' = _offline,
-    _playingBeforeOffline' = _playingBeforeOffline,
+  /// A Synthetic User's daily schedule begins in its home region: it comes online now if a place is free, or else is kept away.
+  action scheduleBegins(who: str): bool = {
+    val room = _room(onlineNow, _finishing, desiredPopulation)
+    val alreadyOnline = onlineNow.contains(who)
+    val comesOnline = not(alreadyOnline) and not(_offline.contains(who)) and room
+    val online0 = if (comesOnline) onlineNow.union(Set(who)) else onlineNow
+    val finishing0 = if (alreadyOnline and room) _finishing.exclude(Set(who)) else _finishing
+    val kept0 = if (alreadyOnline or comesOnline) keptAway else keptAway.append(who)
+    all {
+      not(onSchedule.contains(who)),
+      onSchedule' = onSchedule.union(Set(who)),
+      onlineNow' = _fillOnline(online0, finishing0, kept0, _offline, desiredPopulation),
+      keptAway' = _fillKept(online0, finishing0, kept0, _offline, desiredPopulation),
+      playing' = playing,
+      desiredPopulation' = desiredPopulation,
+      _finishing' = finishing0,
+      _offline' = _offline,
+      _playingBeforeOffline' = _playingBeforeOffline,
+    }
   }
 
-  /// A Synthetic User on its daily schedule, kept away while the desired synthetic population was online now, comes online now once there is room.
-  action comeOnline(who: str): bool = all {
-    onSchedule.contains(who),
-    not(onlineNow.contains(who)),
-    not(_offline.contains(who)),
-    onlineNow.size() - _finishing.size() < desiredPopulation,
-    onSchedule' = onSchedule,
-    onlineNow' = onlineNow.union(Set(who)),
-    playing' = playing,
-    desiredPopulation' = desiredPopulation,
-    _finishing' = _finishing,
-    _offline' = _offline,
-    _playingBeforeOffline' = _playingBeforeOffline,
-  }
-
-  /// A Synthetic User's daily schedule ends; it finishes an ongoing game first.
-  action scheduleEnds(who: str): bool = all {
-    onSchedule.contains(who),
-    onSchedule' = onSchedule.exclude(Set(who)),
-    onlineNow' = if (playing.contains(who)) onlineNow else onlineNow.exclude(Set(who)),
-    playing' = playing,
-    desiredPopulation' = desiredPopulation,
-    _finishing' = if (playing.contains(who) and onlineNow.contains(who)) _finishing.union(Set(who)) else _finishing,
-    _offline' = _offline,
-    _playingBeforeOffline' = _playingBeforeOffline,
+  /// A Synthetic User's daily schedule ends; it finishes an ongoing game first. A place it frees goes at once to the one kept away longest.
+  action scheduleEnds(who: str): bool = {
+    val online0 = if (playing.contains(who)) onlineNow else onlineNow.exclude(Set(who))
+    val finishing0 = if (playing.contains(who) and onlineNow.contains(who)) _finishing.union(Set(who)) else _finishing
+    val kept0 = keptAway.select(s => s != who)
+    all {
+      onSchedule.contains(who),
+      onSchedule' = onSchedule.exclude(Set(who)),
+      onlineNow' = _fillOnline(online0, finishing0, kept0, _offline, desiredPopulation),
+      keptAway' = _fillKept(online0, finishing0, kept0, _offline, desiredPopulation),
+      playing' = playing,
+      desiredPopulation' = desiredPopulation,
+      _finishing' = finishing0,
+      _offline' = _offline,
+      _playingBeforeOffline' = _playingBeforeOffline,
+    }
   }
 
   /// A Synthetic User online now on its daily schedule starts a game.
@@ -91,6 +116,7 @@ module daily_rhythm {
     not(_offline.contains(who)),
     onSchedule' = onSchedule,
     onlineNow' = onlineNow,
+    keptAway' = keptAway,
     playing' = playing.union(Set(who)),
     desiredPopulation' = desiredPopulation,
     _finishing' = _finishing,
@@ -98,17 +124,23 @@ module daily_rhythm {
     _playingBeforeOffline' = _playingBeforeOffline,
   }
 
-  /// Bookkeeping: an ongoing game reaches its multiplayer result; a Synthetic User off its daily schedule then closes the app.
-  action _finishGame(who: str): bool = all {
-    playing.contains(who),
-    not(_offline.contains(who)),
-    onSchedule' = onSchedule,
-    onlineNow' = if (_finishing.contains(who)) onlineNow.exclude(Set(who)) else onlineNow,
-    playing' = playing.exclude(Set(who)),
-    desiredPopulation' = desiredPopulation,
-    _finishing' = _finishing.exclude(Set(who)),
-    _offline' = _offline,
-    _playingBeforeOffline' = _playingBeforeOffline,
+  /// Bookkeeping: an ongoing game reaches its multiplayer result; a Synthetic User off its daily schedule then closes the app, and its place goes at once to the one kept away longest.
+  action _finishGame(who: str): bool = {
+    val online0 = if (_finishing.contains(who)) onlineNow.exclude(Set(who)) else onlineNow
+    val finishing0 = _finishing.exclude(Set(who))
+    val kept0 = if (_finishing.contains(who) and onSchedule.contains(who)) keptAway.append(who) else keptAway
+    all {
+      playing.contains(who),
+      not(_offline.contains(who)),
+      onSchedule' = onSchedule,
+      onlineNow' = _fillOnline(online0, finishing0, kept0, _offline, desiredPopulation),
+      keptAway' = _fillKept(online0, finishing0, kept0, _offline, desiredPopulation),
+      playing' = playing.exclude(Set(who)),
+      desiredPopulation' = desiredPopulation,
+      _finishing' = finishing0,
+      _offline' = _offline,
+      _playingBeforeOffline' = _playingBeforeOffline,
+    }
   }
 
   /// Bookkeeping: a Synthetic User's device loses its connection.
@@ -116,6 +148,7 @@ module daily_rhythm {
     not(_offline.contains(who)),
     onSchedule' = onSchedule,
     onlineNow' = onlineNow,
+    keptAway' = keptAway,
     playing' = playing,
     desiredPopulation' = desiredPopulation,
     _finishing' = _finishing,
@@ -123,23 +156,26 @@ module daily_rhythm {
     _playingBeforeOffline' = playing,
   }
 
-  /// Bookkeeping: that device's connection comes back.
-  action _comeBackOnline(who: str): bool = all {
-    _offline.contains(who),
-    onSchedule' = onSchedule,
-    onlineNow' = onlineNow,
-    playing' = playing,
-    desiredPopulation' = desiredPopulation,
-    _finishing' = _finishing,
-    _offline' = _offline.exclude(Set(who)),
-    _playingBeforeOffline' = _playingBeforeOffline,
+  /// Bookkeeping: that device's connection comes back; a free place goes at once to the one kept away longest.
+  action _comeBackOnline(who: str): bool = {
+    val offline0 = _offline.exclude(Set(who))
+    all {
+      _offline.contains(who),
+      onSchedule' = onSchedule,
+      onlineNow' = _fillOnline(onlineNow, _finishing, keptAway, offline0, desiredPopulation),
+      keptAway' = _fillKept(onlineNow, _finishing, keptAway, offline0, desiredPopulation),
+      playing' = playing,
+      desiredPopulation' = desiredPopulation,
+      _finishing' = _finishing,
+      _offline' = offline0,
+      _playingBeforeOffline' = _playingBeforeOffline,
+    }
   }
 
   action step = {
     nondet who = SYNTHETIC_USERS.oneOf()
     any {
       scheduleBegins(who),
-      comeOnline(who),
       scheduleEnds(who),
       startNextActivity(who),
       _finishGame(who),
@@ -150,6 +186,12 @@ module daily_rhythm {
 
   /// Apart from Synthetic Users finishing an ongoing game, no more are online now than the desired synthetic population.
   val invOnlineWithinDesired = onlineNow.size() - _finishing.size() <= desiredPopulation
+  /// A place never stays free while a connected Synthetic User on its daily schedule is kept away.
+  val invNoFreePlaceWhileKeptAway = not(_room(onlineNow, _finishing, desiredPopulation) and _firstWaiting(keptAway, _offline) != "")
+  /// Those kept away are on their daily schedule, not online now, and each is kept away once.
+  val invKeptAwayOnSchedule = _asSet(keptAway).forall(s => onSchedule.contains(s) and not(onlineNow.contains(s))) and keptAway.length() == _asSet(keptAway).size()
+  /// Every Synthetic User on its daily schedule is online now or kept away.
+  val invOnScheduleOnlineOrKeptAway = onSchedule.forall(s => onlineNow.contains(s) or _asSet(keptAway).contains(s))
   /// A Synthetic User off its daily schedule is online now only to finish an ongoing game.
   val invOffScheduleOnlyToFinish = onlineNow.forall(s => onSchedule.contains(s) or (playing.contains(s) and _finishing.contains(s)))
   /// Only a Synthetic User online now plays.
