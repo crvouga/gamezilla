@@ -34,6 +34,7 @@ export const LINGUI_CATALOG_SOURCES = [
   'libs/friends-client-ts/src',
   'libs/notifications-client-ts/src',
   'libs/permissions-client-ts/src',
+  'libs/observatory-client-ts/src',
   'libs/synthetic-population-client-ts/src',
   'libs/profile-client-ts/src',
   'libs/search-client-ts/src',
