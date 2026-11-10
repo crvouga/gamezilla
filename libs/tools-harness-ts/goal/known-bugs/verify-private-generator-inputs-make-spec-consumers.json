@@ -1,0 +1,4 @@
+{
+  "summary": "Since 03f75e6fc gave the game feature-variants generator the sounds and tokens generators as inputs, the Verify planner treated it as a fan-in (two non-prerequisite dependencies, each read by nothing else) and moved it, the game spec preparation and all 181 game spec parts into the single consumers stage, which ran 15743 task-seconds on the verify:end runner and hit the 3000 s shard deadline every night. A producer's private inputs now count as part of its prerequisite chain.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-stages.test.ts"
+}

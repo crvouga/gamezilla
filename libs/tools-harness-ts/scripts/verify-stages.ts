@@ -17,6 +17,18 @@ export function verifyStages(tasks: readonly VerifyTask[]) {
   const users = new Map<string, number>();
   for (const task of tasks)
     for (const id of task.dependencies) users.set(id, (users.get(id) ?? 0) + 1);
+  // A producer's private input (a generator nothing else reads) travels with
+  // it: `include` promotes it alongside, so it never makes the producer a
+  // fan-in of several shards.
+  const ready = (id: string, seen = new Set<string>()): boolean => {
+    if (!byId.has(id) || prerequisites.has(id) || id.endsWith('#build'))
+      return true;
+    const task = byId.get(id)!;
+    if (seen.has(id) || users.get(id) !== 1 || task.cacheable === false)
+      return false;
+    seen.add(id);
+    return task.dependencies.every((dep) => ready(dep, seen));
+  };
   // A shared producer may itself consume generated inputs. Promote the
   // chain to a fixed point, independent of task discovery order.
   for (let size = -1; size !== prerequisites.size; ) {
@@ -27,10 +39,7 @@ export function verifyStages(tasks: readonly VerifyTask[]) {
       const sharedSource =
         task.cacheable !== false &&
         (users.get(task.taskId) ?? 0) > 1 &&
-        task.dependencies.every(
-          (id) =>
-            !byId.has(id) || prerequisites.has(id) || id.endsWith('#build')
-        );
+        task.dependencies.every((id) => ready(id));
       if (
         (task.taskId.endsWith('#build') || sharedSource) &&
         transferable(task.taskId, byId)
