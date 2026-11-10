@@ -36,7 +36,7 @@ function nameOf(fn: unknown): string {
   return fn.name.length > 0 ? fn.name : preview(fn);
 }
 
-type StepMeta = { readonly kind: string; readonly title: string };
+type StepMeta = Parameters<OpenHarness['record']>[0];
 
 /**
  * Record a scenario step in the report. A host limit — the host proved it

@@ -80,6 +80,13 @@ export type QuintWorld<W> = {
   ) => Promise<T>;
   /** Calls the world made so far (e.g. harness calls), newest last. */
   readonly calls?: (world: W) => readonly string[];
+  /**
+   * Whether `cause`, thrown by a step, is the host proving it cannot do what
+   * the step asks (a live browser cannot make days pass). Such a step ends
+   * the trace where it stands instead of failing it, as a host limit ends a
+   * Gherkin scenario; every earlier step was still checked against the model.
+   */
+  readonly isHostLimit?: (cause: unknown) => boolean;
 };
 
 /** The values the action drew (`nondet` names → values). */

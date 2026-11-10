@@ -1,0 +1,4 @@
+{
+  "summary": "On the real-browser stack (wall clock), steps that let hours or days pass slept through the wall-clock scheduler, which rejects with 'a wall-clock scheduler cannot sleep through time', or were refused as ActionNotEnabled, failing account deletion, investigation trails, billing grace and daily clock scenarios and traces instead of ending them at a host limit. Time travel now throws hostLimit on a host without virtual time, and Quint replay ends a trace at a host limit as a Gherkin scenario does.",
+  "regressionTest": "pkgs/quint-shared-ts/tests/replay-host-limit.test.ts"
+}
