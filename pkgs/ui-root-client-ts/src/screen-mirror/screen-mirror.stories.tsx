@@ -15,8 +15,11 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** A phone screen as its person sees it, scaled to the room it is given. */
-export const Phone: Story = {};
+/**
+ * A phone screen as its person sees it, scaled to the room it is given and,
+ * in a wide column, kept to the phone's own width.
+ */
+export const Phone: Story = { tags: ['viewport-responsive'] };
 
 /** A desktop-sized screen, scaled down further. */
 export const Desktop: Story = { args: { device: 'desktop' } };
