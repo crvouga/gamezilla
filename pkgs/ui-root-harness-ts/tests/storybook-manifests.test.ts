@@ -37,6 +37,10 @@ test('every generated component has its production purpose available to agents',
     'screens-games-sokoban-puzzle',
   ])
     expect(components[id]?.description?.trim()).toBeTruthy();
+  // regression: battleship-board-purpose-detached
+  expect(components['screens-games-battleship-board']?.description).toContain(
+    "the viewer's own waters"
+  );
   const button = components['components-inputs-button'];
   if (!button) throw new Error('Button is missing from the manifest');
   expect(button.jsDocTags.summary).toContain(
