@@ -235,7 +235,7 @@ test('a draft the game cannot play names its corrections, not the playtest, as n
   expect(playtest?.textContent).toBe('1Playtest·Fix first');
 });
 
-function builder(playable?: boolean): JSX.Element {
+function builder(previewable?: boolean): JSX.Element {
   return (
     <ContentAuthorScreenView
       status="ready"
@@ -252,7 +252,7 @@ function builder(playable?: boolean): JSX.Element {
       metadataDisabled={false}
       disabled={false}
       preview={false}
-      playable={playable}
+      previewable={previewable}
       publication={publication({
         before: (next) => (
           <button

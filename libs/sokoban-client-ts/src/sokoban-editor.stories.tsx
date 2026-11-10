@@ -1,4 +1,5 @@
 import { StoryPuzzleBuilder } from '@libs/game-puzzle-client-ts/content-builder-story.example';
+import { contentDraftPreviewable } from '@libs/game-puzzle-client-ts/content-draft-playable';
 import type { PuzzleEditorProps } from '@libs/game-puzzle-client-ts/puzzle-content-client';
 import { initialSokobanDefinition } from '@libs/sokoban-shared-ts/sokoban-board-edits';
 import { useArgs } from 'storybook/preview-api';
@@ -30,6 +31,12 @@ function renderInBuilder(
           args.definition
         ) !== false
       }
+      // A Sokoban draft previews as built, whether or not it can be played.
+      previewable={contentDraftPreviewable(
+        sokobanGameClient.puzzleContent,
+        'puzzle',
+        args.definition
+      )}
       undoable={undoable}
       stage={<SokobanEditor {...args} onChange={onChange} />}
     />

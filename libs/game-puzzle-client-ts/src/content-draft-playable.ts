@@ -15,3 +15,17 @@ export function contentDraftPlayable(
   if (kind !== 'puzzle') return true;
   return client.authoring?.readable?.(definition) !== false;
 }
+
+/**
+ * Whether the builder's Preview may open a draft. A game with its own
+ * `Preview` draws the board as built, incomplete or not, so only a game
+ * that previews through its player waits until the draft is playable.
+ */
+export function contentDraftPreviewable(
+  client: PuzzleContentClient,
+  kind: ContentKind,
+  definition: string
+): boolean {
+  if (client.Preview !== undefined) return true;
+  return contentDraftPlayable(client, kind, definition);
+}

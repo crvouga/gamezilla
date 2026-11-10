@@ -1,0 +1,4 @@
+{
+  "summary": "Once the puzzle builder withheld Start playtest for a draft the game cannot play, the Sokoban harness still clicked the disabled button and waited for a playtest result that never came, timing out 'A board without a worker cannot be playtested' (specs/sokoban/check-boards.feature). The harness now reads a withheld playtest as the builder's refusal.",
+  "regressionTest": "libs/sokoban-harness-ts/tests/sokoban-withheld-playtest.test.ts"
+}

@@ -29,6 +29,11 @@ export function StoryPuzzleBuilder(props: {
    */
   readonly playtestable?: boolean | undefined;
   /**
+   * Whether Preview can open the draft, as the production builder's
+   * `contentDraftPreviewable` says; by default, whether it is playtestable.
+   */
+  readonly previewable?: boolean | undefined;
+  /**
    * This session has edits to undo, as the production builder's history
    * says; a draft just opened has none.
    */
@@ -52,7 +57,7 @@ export function StoryPuzzleBuilder(props: {
       metadataDisabled={props.disabled}
       disabled={props.disabled}
       preview={false}
-      playable={props.playtestable}
+      previewable={props.previewable ?? props.playtestable}
       history={
         <StoryDraftHistory
           disabled={props.disabled || props.undoable === false}
