@@ -214,7 +214,7 @@
     "traces": 128,
     "cover": [2, 6],
     "replayed": [2, 6],
-    "regressions": 1,
+    "regressions": 4,
     "determinism": false,
     "variants": 1
   },
