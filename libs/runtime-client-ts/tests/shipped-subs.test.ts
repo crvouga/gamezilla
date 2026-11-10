@@ -183,6 +183,7 @@ const MUTATION_NAMES = [
   'savePuzzleFeedSettings',
   'sendFriendRequest',
   'settleMultiplayerClock',
+  'shareCancellationFeedback',
   'startPuzzleAttempt',
   'startPuzzleImport',
   'startPuzzlePlaytest',
