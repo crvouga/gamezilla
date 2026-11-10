@@ -1,0 +1,4 @@
+{
+  "summary": "The Battleship board overhaul inserted the panelLabels helper between BattleshipBoard and its doc comment, so the comment documented the helper and the Storybook manifest carried no purpose for screens-games-battleship-board. The comment sits on the component again.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook-manifests.test.ts"
+}

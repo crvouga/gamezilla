@@ -1,0 +1,4 @@
+{
+  "summary": "The puzzle builder disabled Preview for every draft the game cannot play (authoring readable() false), including games such as Sokoban whose own Preview draws an incomplete board as built. A Sokoban draft with more crates than goals could not be previewed, failing specs/sokoban/check-boards.feature 'The preview shows a newly placed crate'. Preview now waits only for games that preview through their player.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-draft-playable.test.ts"
+}

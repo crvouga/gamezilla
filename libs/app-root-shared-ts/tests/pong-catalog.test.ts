@@ -6,7 +6,7 @@ import { i18n } from '@libs/app-root-shared-ts/i18n';
 test.each([
   ['OKpBfL', 'Pong'],
   ['ym0obM', 'Points to win'],
-  ['V0Y6Ky', 'Reconnecting. Controls resume when the game returns.'],
+  ['09Tv5j', 'Reconnecting…'],
 ])('Pong catalog key %s resolves to readable English', (id, english) => {
   expect(i18n._(id!)).toBe(english);
 });

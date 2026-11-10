@@ -118,11 +118,6 @@ function createAim(props: GameBoardProps) {
   };
 }
 
-/**
- * Two boards: the viewer's own waters (their fleet, from their own setup
- * only, and the shots fired at it) and the rival's (only the public shots).
- * A watcher sees both as public shot boards, named by side.
- */
 /** The two boards' names: the viewer's own and the rival's, or each side's. */
 function panelLabels(
   viewer: GameSide | null,
@@ -134,6 +129,11 @@ function panelLabels(
   return { own: t`${own} waters`, target: t`${target} waters` };
 }
 
+/**
+ * Two boards: the viewer's own waters (their fleet, from their own setup
+ * only, and the shots fired at it) and the rival's (only the public shots).
+ * A watcher sees both as public shot boards, named by side.
+ */
 export function BattleshipBoard(props: GameBoardProps): JSX.Element {
   const battle = createMemo(
     () =>

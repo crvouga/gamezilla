@@ -1,0 +1,4 @@
+{
+  "summary": "While cards were passed, the card table drew its prompt ('Choose three cards to pass') in the same grid cell as where the cards go, so on a phone the prompt covered 'Passing to the left'.",
+  "regressionTest": "pkgs/ui-root-client-ts/tests/card-table-pass-prompt-separate.test.ts"
+}

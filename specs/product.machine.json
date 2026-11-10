@@ -3391,6 +3391,8 @@
                       "specs/billing/billing-plans-details.feature",
                       "specs/billing/billing-plans.feature",
                       "specs/billing/billing-portal.feature",
+                      "specs/billing/cancellation-feedback.feature",
+                      "specs/billing/cancellation-feedback.qnt",
                       "specs/billing/deleted-account-payments.feature",
                       "specs/billing/events.qnt",
                       "specs/billing/expired-card.feature",
@@ -6532,6 +6534,7 @@
                         "snapshot": "Hearts offers four players custom games with people or bots, instructions, history and replay, and nobody is paired up for it. Each player passes three cards in secret, a stand-in plays for a player who is away, and players tied for the lowest score share the victory.",
                         "confidence": "assumed",
                         "source": [
+                          "specs/journeys/hearts-first-trick.feature",
                           "specs/journeys/hearts-start.feature",
                           "specs/hearts/hearts-accessibility.feature",
                           "specs/hearts/hearts-away.feature",

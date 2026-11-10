@@ -87,7 +87,10 @@ const meta = {
   id: 'screens-games-quoridor-hill',
   title: 'Screens/Games/Quoridor/King of the Hill',
   component: QuoridorBoard,
-  tags: ['autodocs'],
+  // A desktop capture is the 1440x900 desktop window, where the board's
+  // spatial checks (a 440px board, 44px squares) hold with every tool in
+  // view; a phone-height desktop frame would cut the board to fit.
+  tags: ['autodocs', 'viewport-native-height'],
   render: (args, context) =>
     renderGameTable(
       quoridorHillGameClient.presentation,

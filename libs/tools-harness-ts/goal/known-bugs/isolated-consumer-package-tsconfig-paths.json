@@ -1,0 +1,4 @@
+{
+  "summary": "The framework-independence child `bun test` ran without the repository tsconfig override the package's own test scripts pass, so Bun resolved imports through pkgs/collab-ui-client-ts/tsconfig.json, which maps the inherited tsconfig.paths.json aliases relative to the package: every isolated run failed with Cannot find module '@pkgs/ui-root-client-ts/avatar-group' from presence-strip.",
+  "regressionTest": "libs/games-harness-ts/tests/framework-independence.contract.test.ts"
+}

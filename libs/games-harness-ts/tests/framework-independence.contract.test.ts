@@ -8,7 +8,14 @@ import { stubSource } from '@pkgs/gherkin-shared-ts/stubs';
 const PACKAGE = join(import.meta.dir, '..');
 const ROOT = join(PACKAGE, '../..');
 const PRELOAD = join(import.meta.dir, 'independence/test-only-composition.ts');
+// regression: isolated-consumer-package-tsconfig-paths
+// The child resolves imports as the package's own test scripts do. Without the
+// override Bun reads each package's tsconfig.json, and one that only extends
+// tsconfig.paths.json (collab-ui, assistant) maps the shared aliases relative
+// to itself, so `@pkgs/ui-root-client-ts/avatar-group` is not found.
 const PRELOADS = [
+  '--tsconfig-override',
+  join(ROOT, 'tsconfig.json'),
   '--conditions=browser',
   '--conditions=development',
   '--preload',

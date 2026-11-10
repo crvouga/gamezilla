@@ -160,7 +160,11 @@ describe('foundation bootstrap', () => {
       const source = readFileSync(file, 'utf8');
       const blocks = source.split(/resource "grafana[^\n]+\{\n/).slice(1);
       for (const block of blocks) {
-        expect(block).toMatch(/^\s*lifecycle\s*\{\s*destroy = false\s*\}/);
+        // Comments may explain the block, and the lifecycle may ignore
+        // more, but it opens the resource and keeps it when destroyed.
+        expect(block).toMatch(
+          /^(?:\s*#[^\n]*\n)*\s*lifecycle\s*\{[^}]*\bdestroy\s*=\s*false\b[^}]*\}/
+        );
         resources += 1;
       }
     }

@@ -1,0 +1,4 @@
+{
+  "summary": "Beside the desktop record rail the Quoridor board kept the 440px height allowance of a stacked tablet column, so at 1440x900 it stopped at 400px with 37px squares (364px and 34px in a phone-height frame), short of the 440px board and 44px squares King of the Hill's (and Classic's) wall journeys require.",
+  "regressionTest": "pkgs/ui-root-client-ts/tests/quoridor-desktop-board-fit.test.ts"
+}

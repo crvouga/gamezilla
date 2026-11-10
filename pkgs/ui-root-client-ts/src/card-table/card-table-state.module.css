@@ -33,3 +33,19 @@
   box-shadow: none;
   cursor: not-allowed;
 }
+
+/* A card the rules refuse: an inverse × in its top corner. */
+.unavailable {
+  color: var(--ui-color-board-card-face);
+  background: var(--ui-color-board-card-ink);
+  border-radius: var(--ui-radius-full);
+  display: grid;
+  place-items: center;
+  width: var(--ui-space-4);
+  height: var(--ui-space-4);
+  position: absolute;
+  top: var(--ui-space-1);
+  right: var(--ui-space-1);
+  font-size: var(--ui-font-size-sm);
+  font-weight: var(--ui-font-weight-semibold);
+}

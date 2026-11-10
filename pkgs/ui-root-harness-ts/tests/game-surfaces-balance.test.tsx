@@ -144,7 +144,7 @@ describe('game surfaces', () => {
   // column taking the rest. They are slim now, each target about 32px.
   test("a phone's Battleship grid gives its room to the targets", () => {
     const css = readFileSync(
-      join(UI_SRC, 'cell-grid-board/cell-grid-board.module.css'),
+      join(UI_SRC, 'cell-grid-board/cell-grid-board-battleship.module.css'),
       'utf8'
     );
     const phone = css.slice(
