@@ -19,6 +19,23 @@ export function useSkillLabel(): (level: SkillLevel) => string {
   return (level) => labels[level]();
 }
 
+/**
+ * One line about who a Synthetic User is as a player, for its directory row:
+ * home region, skill level and favorite games (left out when it has none).
+ */
+export function usePersonaCaption(): (persona: Persona) => string {
+  const { t } = useLingui();
+  const skill = useSkillLabel();
+  return (persona) => {
+    const region = persona.homeRegion;
+    const level = skill(persona.skillLevel);
+    const games = persona.favoriteGames.join(', ');
+    return persona.favoriteGames.length === 0
+      ? t`${region} · ${level}`
+      : t`${region} · ${level} · Favorite games: ${games}`;
+  };
+}
+
 function hour(value: number): string {
   return `${String(value).padStart(2, '0')}:00`;
 }

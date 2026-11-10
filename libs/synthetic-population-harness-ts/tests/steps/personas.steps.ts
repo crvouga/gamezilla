@@ -73,9 +73,7 @@ Then(
   '{actor} sees at least {int} different favorite games among the Synthetic Users',
   async (w, actor: Actor, least: number) => {
     const seen = await w.s.read(personasSeen, actor);
-    const games = new Set(
-      seen.flatMap((user) => user.persona?.favoriteGames ?? [])
-    );
+    const games = new Set(seen.flatMap((user) => user.favoriteGamesShown));
     expect(games.size).toBeGreaterThanOrEqual(least);
   }
 );

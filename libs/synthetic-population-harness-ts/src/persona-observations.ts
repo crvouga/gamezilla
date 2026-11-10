@@ -25,7 +25,19 @@ import {
 export type PersonaSeen = {
   readonly username: string;
   readonly persona: Persona | null;
+  /** The persona's favorite games the directory row itself shows. */
+  readonly favoriteGamesShown: readonly string[];
 };
+
+const FAVORITE_GAMES = 'Favorite games: ';
+
+/** The favorite games a directory row's text names, of those the persona has. */
+function favoriteGamesIn(text: string, persona: Persona | null): string[] {
+  const at = text.indexOf(FAVORITE_GAMES);
+  if (persona === null || at < 0) return [];
+  const listed = text.slice(at + FAVORITE_GAMES.length);
+  return persona.favoriteGames.filter((game) => listed.includes(game));
+}
 
 /** Every Synthetic User row the person's Observatory shows, with its persona. */
 export async function personasSeen(
@@ -44,17 +56,23 @@ export async function personasSeen(
     { q: '', limit: 100 }
   );
   const seen: PersonaSeen[] = [];
-  for (const user of directory.users)
-    if (await ui.get(`synthetic-population-user-${user.id}`).isVisible())
-      seen.push({
-        username: user.username,
-        persona: parsePersona((user as { persona?: unknown }).persona ?? null),
-      });
+  for (const user of directory.users) {
+    const row = ui.get(`synthetic-population-user-${user.id}`);
+    if (!(await row.isVisible())) continue;
+    const persona = parsePersona(
+      (user as { persona?: unknown }).persona ?? null
+    );
+    seen.push({
+      username: user.username,
+      persona,
+      favoriteGamesShown: favoriteGamesIn((await row.text()) ?? '', persona),
+    });
+  }
   return seen;
 }
 
 /** Whether a persona has everything a persona has: an avatar, a home region, favorite games… */
-export function personaComplete(seen: PersonaSeen): boolean {
+export function personaComplete(seen: Pick<PersonaSeen, 'persona'>): boolean {
   const persona = seen.persona;
   return (
     persona !== null &&

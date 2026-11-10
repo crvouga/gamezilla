@@ -10,6 +10,7 @@ import {
   onlineEntry,
   onlineNow,
   PAGE,
+  PERSONA,
   userRow,
   worker,
 } from './synthetic-population.example';
@@ -52,8 +53,9 @@ type Story = StoryObj<typeof meta>;
 /**
  * A running population seen by an operator: counts, controls for every
  * Synthetic User, people and Synthetic Users online now (only Synthetic
- * Users offer a control panel), the configuration form, the directory (one
- * paused, one recovering, one recorded before personas) and workers that
+ * Users offer a control panel), the configuration form, the directory (each
+ * row with its home region, skill level and favorite games; one paused, one
+ * recovering, one recorded before personas) and workers that
  * are ready, draining and unreachable.
  */
 export const Populated: Story = {};
@@ -167,6 +169,45 @@ export const DirectoryPaged: Story = {
       filter: 'bot',
       paged: true,
       page: { ...PAGE, nextCursor: 'cursor-0002' },
+    }),
+  },
+};
+
+/**
+ * Each directory row names the persona's favorite games: three, one, or
+ * none when no game was on offer as it was provisioned.
+ */
+export const DirectoryFavoriteGames: Story = {
+  args: {
+    directory: directory({
+      page: {
+        users: [
+          userRow(5, 'quiet_heron', {
+            persona: {
+              ...PERSONA,
+              username: 'quiet_heron',
+              favoriteGames: ['backgammon', 'go', 'mancala'],
+            },
+          }),
+          userRow(6, 'sunny_otter', {
+            persona: {
+              ...PERSONA,
+              username: 'sunny_otter',
+              skillLevel: 'beginner',
+              favoriteGames: ['dominoes'],
+            },
+          }),
+          userRow(7, 'early_wren', {
+            persona: {
+              ...PERSONA,
+              username: 'early_wren',
+              skillLevel: 'strong',
+              favoriteGames: [],
+            },
+          }),
+        ],
+        nextCursor: null,
+      },
     }),
   },
 };
