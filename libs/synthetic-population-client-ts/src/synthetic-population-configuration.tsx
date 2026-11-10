@@ -5,6 +5,7 @@ import {
 } from '@libs/synthetic-population-shared-ts/config';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
+import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
 import { createSignal, For, type JSX } from 'solid-js';
 
@@ -72,7 +73,10 @@ export function useSyntheticPopulationConfiguration() {
   };
 }
 
-/** The configuration form; values are text until the save validates them. */
+/**
+ * The configuration form, its fields inset in one panel; values are text
+ * until the save validates them.
+ */
 export function SyntheticPopulationConfiguration(props: {
   fields: ConfigurationDraft;
   change: (field: ConfigurationField, value: string) => void;
@@ -96,22 +100,24 @@ export function SyntheticPopulationConfiguration(props: {
         </Trans>
       }
     >
-      <For each={[...numericFields, 'preferredVersion'] as const}>
-        {(field) => (
-          <TextInput
-            label={labels[field]}
-            type={field === 'preferredVersion' ? 'text' : 'number'}
-            value={props.fields[field]}
-            onChangeText={(value) => props.change(field, value)}
-            dataSet={{
-              testid:
-                field === 'desired'
-                  ? 'synthetic-population-desired-input'
-                  : `synthetic-population-config-${field}`,
-            }}
-          />
-        )}
-      </For>
+      <StackVertical padding="lg" gap="lg">
+        <For each={[...numericFields, 'preferredVersion'] as const}>
+          {(field) => (
+            <TextInput
+              label={labels[field]}
+              type={field === 'preferredVersion' ? 'text' : 'number'}
+              value={props.fields[field]}
+              onChangeText={(value) => props.change(field, value)}
+              dataSet={{
+                testid:
+                  field === 'desired'
+                    ? 'synthetic-population-desired-input'
+                    : `synthetic-population-config-${field}`,
+              }}
+            />
+          )}
+        </For>
+      </StackVertical>
     </MenuSection>
   );
 }

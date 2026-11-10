@@ -1,0 +1,27 @@
+{
+  "$schema": "https://v2-11-3.turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "src": {
+      "dependsOn": [
+        "@libs/app-config-client-ts#src",
+        "@libs/app-env-client-ts#src",
+        "@libs/auth-client-ts#src",
+        "@libs/auth-shared-ts#src",
+        "@libs/observatory-shared-ts#src",
+        "@libs/permissions-client-ts#src",
+        "@libs/permissions-shared-ts#src",
+        "@libs/profile-client-ts#src",
+        "@libs/profile-shared-ts#src",
+        "@libs/sub-client-ts#src",
+        "@libs/synthetic-population-server-ts#src",
+        "@libs/synthetic-population-shared-ts#src",
+        "@pkgs/http-client-client-ts#src",
+        "@pkgs/http-client-shared-ts#src",
+        "@pkgs/logger-shared-ts#src",
+        "@pkgs/ui-root-client-ts#src",
+        "@pkgs/uuid-client-ts#src"
+      ]
+    }
+  }
+}

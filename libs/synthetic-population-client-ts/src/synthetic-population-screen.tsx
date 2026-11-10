@@ -1,4 +1,7 @@
-import { syntheticUserPath } from '@libs/observatory-shared-ts/observatory-routes';
+import {
+  SYNTHETIC_USERS_CONFIG_PATH,
+  syntheticUserPath,
+} from '@libs/observatory-shared-ts/observatory-routes';
 import { DecisionGate } from '@libs/permissions-client-ts/decision-gate';
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { useCan, useDecision } from '@libs/permissions-client-ts/use-can';
@@ -18,7 +21,10 @@ import {
   toConfigurationDraft,
   useSyntheticPopulationConfiguration,
 } from './synthetic-population-configuration';
-import { SyntheticPopulationScreenView } from './synthetic-population-screen-view';
+import {
+  SyntheticPopulationScreenView,
+  type SyntheticPopulationSection,
+} from './synthetic-population-screen-view';
 import { SyntheticPopulationUsers } from './synthetic-population-users';
 import {
   useRefreshWithoutUpdates,
@@ -28,7 +34,9 @@ import {
 /** Without live updates, the panel is read again this often. */
 const REFRESH_MS = 5_000;
 
-function SyntheticPopulationContent(): JSX.Element {
+function SyntheticPopulationContent(props: {
+  section: SyntheticPopulationSection;
+}): JSX.Element {
   const { t } = useLingui();
   const api = useSyntheticPopulationApi();
   const router = useRouter();
@@ -58,6 +66,7 @@ function SyntheticPopulationContent(): JSX.Element {
   };
   return (
     <SyntheticPopulationScreenView
+      section={props.section}
       loading={overview.loading}
       failed={Boolean(overview.error)}
       overview={resourceValue(overview)}
@@ -69,6 +78,7 @@ function SyntheticPopulationContent(): JSX.Element {
       onRefresh={() => {
         void refetch();
       }}
+      onOpenConfiguration={() => router.push(SYNTHETIC_USERS_CONFIG_PATH)}
       canControl={control()}
       onCommandAll={commandAll}
       directory={(observedAtMs) => (
@@ -86,9 +96,13 @@ function SyntheticPopulationContent(): JSX.Element {
 const INERT_FIELDS = toConfigurationDraft(DEFAULT_SYNTHETIC_POPULATION_CONFIG);
 
 /** The view in its denied state: nothing behind the denial is read. */
-function DeniedSyntheticPopulation(props: { denial: DenialView }): JSX.Element {
+function DeniedSyntheticPopulation(props: {
+  denial: DenialView;
+  section: SyntheticPopulationSection;
+}): JSX.Element {
   return (
     <SyntheticPopulationScreenView
+      section={props.section}
       denial={props.denial}
       loading={false}
       failed={false}
@@ -99,6 +113,7 @@ function DeniedSyntheticPopulation(props: { denial: DenialView }): JSX.Element {
       onChangeField={() => undefined}
       onSave={async () => undefined}
       onRefresh={() => undefined}
+      onOpenConfiguration={() => undefined}
       canControl={false}
       onCommandAll={async () => undefined}
     />
@@ -108,15 +123,18 @@ function DeniedSyntheticPopulation(props: { denial: DenialView }): JSX.Element {
 function SyntheticPopulationRoute(props: {
   permission: AppPermission;
   testId: string;
+  section: SyntheticPopulationSection;
 }): JSX.Element {
   const decision = useDecision(props.permission);
   return (
     <DecisionGate
       decision={decision()}
       testId={props.testId}
-      denied={(denial) => <DeniedSyntheticPopulation denial={denial} />}
+      denied={(denial) => (
+        <DeniedSyntheticPopulation denial={denial} section={props.section} />
+      )}
     >
-      <SyntheticPopulationContent />
+      <SyntheticPopulationContent section={props.section} />
     </DecisionGate>
   );
 }
@@ -127,26 +145,29 @@ export function SyntheticPopulationScreen(): JSX.Element {
     <SyntheticPopulationRoute
       permission={PERMISSION.syntheticPopulationView}
       testId="synthetic-population-denied"
+      section="overview"
     />
   );
 }
 
-/** `/admin/observatory/synthetic-users/config`: the same panel, gated on configure. */
+/** `/admin/observatory/synthetic-users/config`: the desired synthetic population form, gated on configure. */
 export function SyntheticPopulationConfigurationScreen(): JSX.Element {
   return (
     <SyntheticPopulationRoute
       permission={PERMISSION.syntheticPopulationConfigure}
       testId="synthetic-population-config-denied"
+      section="configuration"
     />
   );
 }
 
-/** `/admin/observatory/synthetic-users/control`: the same panel, gated on control. */
+/** `/admin/observatory/synthetic-users/control`: the panel's overview, gated on control. */
 export function SyntheticPopulationControlScreen(): JSX.Element {
   return (
     <SyntheticPopulationRoute
       permission={PERMISSION.syntheticPopulationControl}
       testId="synthetic-population-control-denied"
+      section="overview"
     />
   );
 }

@@ -924,6 +924,10 @@ msgstr "A new attempt starts at the beginning. Your earlier progress and complet
 msgid "A pass is exactly three different cards."
 msgstr "A pass is exactly three different cards."
 
+#: libs/synthetic-population-client-ts/src/synthetic-user-controls.tsx
+msgid "A paused Synthetic User finishes an ongoing game and starts nothing new until resumed."
+msgstr "A paused Synthetic User finishes an ongoing game and starts nothing new until resumed."
+
 #: libs/game-session-client-ts/src/custom-game-error.tsx
 msgid "A person can have only one side."
 msgstr "A person can have only one side."
@@ -1369,6 +1373,7 @@ msgid "Automatic"
 msgstr "Automatic"
 
 #: libs/synthetic-population-client-ts/src/synthetic-user-details.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-user-labels.tsx
 msgid "Available"
 msgstr "Available"
 
@@ -1607,6 +1612,7 @@ msgid "Browse"
 msgstr "Browse"
 
 #: libs/observatory-client-ts/src/live-labels.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-user-labels.tsx
 msgid "Browsing"
 msgstr "Browsing"
 
@@ -1621,6 +1627,10 @@ msgstr "Build mode"
 #: libs/game-matchmaking-client-ts/src/speed-name.tsx
 msgid "Bullet"
 msgstr "Bullet"
+
+#: libs/synthetic-population-client-ts/src/synthetic-population-summary.tsx
+msgid "By activity and region"
+msgstr "By activity and region"
 
 #: libs/chess-root-client-ts/src/chess-game-presentation.tsx
 msgid "By checkmate."
@@ -1732,6 +1742,10 @@ msgstr "Central hill"
 msgid "Change game"
 msgstr "Change game"
 
+#: libs/synthetic-population-client-ts/src/synthetic-population-summary.tsx
+msgid "Change how many there are and how they run"
+msgstr "Change how many there are and how they run"
+
 #: libs/sokoban-client-ts/src/sokoban-size-controls.tsx
 msgid "Change size"
 msgstr "Change size"
@@ -1781,7 +1795,9 @@ msgstr "Check the spelling or try a different username."
 #: libs/observatory-client-ts/src/live-watch-screen-view.tsx
 #: libs/observatory-client-ts/src/online-now-view.tsx
 #: libs/profile-client-ts/src/profile-screen-view.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-population-screen-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-population-users-view.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-user-screen-view.tsx
 msgid "Check your connection and try again."
 msgstr "Check your connection and try again."
 
@@ -2310,6 +2326,7 @@ msgstr "Continue with Google"
 #: libs/observatory-client-ts/src/live-watch-screen-view.tsx
 #: libs/observatory-client-ts/src/online-now-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-population-users-view.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-user-controls.tsx
 msgid "Control panel"
 msgstr "Control panel"
 
@@ -2372,6 +2389,10 @@ msgstr "Coral"
 #: libs/game-puzzle-client-ts/src/puzzle-status-header.tsx
 msgid "Correct · {side} to move"
 msgstr "Correct · {side} to move"
+
+#: libs/synthetic-population-client-ts/src/synthetic-population-event-timeline.tsx
+msgid "Correlation {id}"
+msgstr "Correlation {id}"
 
 #: libs/app-root-client-ts/src/boot-error-screen-view.tsx
 msgid "Could not reset local data"
@@ -2545,7 +2566,6 @@ msgid "Current game"
 msgstr "Current game"
 
 #: libs/synthetic-population-client-ts/src/synthetic-user-details.tsx
-#: libs/synthetic-population-client-ts/src/synthetic-user-dom.tsx
 msgid "Current route"
 msgstr "Current route"
 
@@ -2672,6 +2692,7 @@ msgid "Description"
 msgstr "Description"
 
 #: libs/synthetic-population-client-ts/src/synthetic-population-configuration.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-population-screen-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-population-summary.tsx
 msgid "Desired synthetic population"
 msgstr "Desired synthetic population"
@@ -2728,6 +2749,10 @@ msgstr "Devices"
 msgid "Devices appear here after they sign in."
 msgstr "Devices appear here after they sign in."
 
+#: libs/synthetic-population-client-ts/src/synthetic-user-details.tsx
+msgid "Diagnostics"
+msgstr "Diagnostics"
+
 #: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "diamonds"
 msgstr "diamonds"
@@ -2780,10 +2805,6 @@ msgstr "Disconnects multiplayer; changes wait on this device"
 #: pkgs/ui-root-client-ts/src/notice/index.tsx
 msgid "Dismiss"
 msgstr "Dismiss"
-
-#: libs/observatory-client-ts/src/live-watch-screen-view.tsx
-msgid "Doing"
-msgstr "Doing"
 
 #: libs/auth-client-ts/src/sign-in-modal.tsx
 #: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
@@ -4283,6 +4304,10 @@ msgstr "Link"
 msgid "Live"
 msgstr "Live"
 
+#: libs/synthetic-population-client-ts/src/synthetic-user-dom.tsx
+msgid "Live DOM"
+msgstr "Live DOM"
+
 #: libs/app-root-client-ts/src/performance-screen-view.tsx
 msgid "Live metrics"
 msgstr "Live metrics"
@@ -4443,6 +4468,10 @@ msgstr "Looking for a multiplayer opponent"
 #: libs/observatory-client-ts/src/live-labels.tsx
 msgid "Looking for a multiplayer opponent for {game}"
 msgstr "Looking for a multiplayer opponent for {game}"
+
+#: libs/synthetic-population-client-ts/src/synthetic-user-labels.tsx
+msgid "Looking for an opponent"
+msgstr "Looking for an opponent"
 
 #: libs/game-session-client-ts/src/game-history-screen-view.tsx
 msgid "Losses"
@@ -5089,6 +5118,10 @@ msgstr "Not available in this app"
 msgid "Not available on this account"
 msgstr "Not available on this account"
 
+#: libs/synthetic-population-client-ts/src/synthetic-user-dom.tsx
+msgid "Not captured for this session yet"
+msgstr "Not captured for this session yet"
+
 #: pkgs/ui-root-client-ts/src/mutation-modal-parts/index.tsx
 msgid "Not confirmed yet"
 msgstr "Not confirmed yet"
@@ -5121,6 +5154,10 @@ msgstr "Not recorded for this Synthetic User"
 #: libs/synthetic-population-client-ts/src/synthetic-user-details.tsx
 msgid "Not registered"
 msgstr "Not registered"
+
+#: libs/synthetic-population-client-ts/src/synthetic-user-replay-view.tsx
+msgid "Not replayed yet"
+msgstr "Not replayed yet"
 
 #: libs/app-config-client-ts/src/client-config-screen-view.tsx
 msgid "Not set"
@@ -5206,6 +5243,7 @@ msgstr "offline"
 #: libs/app-root-client-ts/src/app-header-global-menu-view.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-status-header.tsx
 #: libs/game-session-client-ts/src/game-frame-record-view.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-user-labels.tsx
 msgid "Offline"
 msgstr "Offline"
 
@@ -5585,10 +5623,12 @@ msgstr "Pause every Synthetic User"
 msgid "Pause every Synthetic User?"
 msgstr "Pause every Synthetic User?"
 
+#: libs/observatory-client-ts/src/live-watch-screen-view.tsx
 #: libs/observatory-client-ts/src/online-now-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-population-users-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-user-controls.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-user-details.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-user-labels.tsx
 msgid "Paused"
 msgstr "Paused"
 
@@ -5685,6 +5725,10 @@ msgstr "Person"
 msgid "Persona"
 msgstr "Persona"
 
+#: libs/synthetic-population-client-ts/src/synthetic-population-users-view.tsx
+msgid "Persona not recorded"
+msgstr "Persona not recorded"
+
 #: libs/connect-four-client-ts/src/connect-four-board.tsx
 msgid "Pick a column to drop your disc"
 msgstr "Pick a column to drop your disc"
@@ -5721,10 +5765,6 @@ msgstr "Place every tile in one row or one column."
 #: libs/battleship-client-ts/src/battleship-setup-precision.tsx
 msgid "Place in {0}"
 msgstr "Place in {0}"
-
-#: libs/observatory-client-ts/src/live-watch-screen-view.tsx
-msgid "Place in the app"
-msgstr "Place in the app"
 
 #: libs/word-tiles-client-ts/src/word-tiles-game-client.tsx
 msgid "Place letter tiles, cross words, score squares."
@@ -5813,6 +5853,7 @@ msgid "Players and scores"
 msgstr "Players and scores"
 
 #: libs/synthetic-population-client-ts/src/synthetic-population-summary.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-user-labels.tsx
 #: pkgs/ui-root-client-ts/src/sound-indicator/index.tsx
 msgid "Playing"
 msgstr "Playing"
@@ -5976,6 +6017,7 @@ msgstr "Production"
 #: libs/friends-client-ts/src/friend-user-screen-view.tsx
 #: libs/friends-client-ts/src/friends-list-screen-view.tsx
 #: libs/observatory-client-ts/src/live-labels.tsx
+#: libs/observatory-client-ts/src/live-watch-screen-view.tsx
 #: libs/observatory-client-ts/src/observatory-denial.tsx
 #: libs/observatory-client-ts/src/user-observatory-screen-view.tsx
 #: libs/profile-client-ts/src/avatar-editor-screen-view.tsx
@@ -6412,7 +6454,12 @@ msgstr "Reconnecting…"
 msgid "Recorded activity appears here as it happens."
 msgstr "Recorded activity appears here as it happens."
 
+#: libs/synthetic-population-client-ts/src/synthetic-user-replay-view.tsx
+msgid "Recorded decisions"
+msgstr "Recorded decisions"
+
 #: libs/synthetic-population-client-ts/src/synthetic-population-summary.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-user-labels.tsx
 msgid "Recovering"
 msgstr "Recovering"
 
@@ -6452,11 +6499,6 @@ msgstr "Reference: {0}"
 #: libs/synthetic-population-client-ts/src/synthetic-user-screen-view.tsx
 msgid "Refresh"
 msgstr "Refresh"
-
-#: libs/synthetic-population-client-ts/src/synthetic-population-screen-view.tsx
-#: libs/synthetic-population-client-ts/src/synthetic-user-screen-view.tsx
-msgid "Refresh to try again."
-msgstr "Refresh to try again."
 
 #: libs/synthetic-population-client-ts/src/synthetic-user-details.tsx
 msgid "Region"
@@ -6599,6 +6641,10 @@ msgid "Replay decisions"
 msgstr "Replay decisions"
 
 #: libs/synthetic-population-client-ts/src/synthetic-user-replay-view.tsx
+msgid "Replayed with the current Decision Policy"
+msgstr "Replayed with the current Decision Policy"
+
+#: libs/synthetic-population-client-ts/src/synthetic-user-replay-view.tsx
 msgid "Replays recorded choices and random inputs. Application timing and external services are not replayed."
 msgstr "Replays recorded choices and random inputs. Application timing and external services are not replayed."
 
@@ -6683,10 +6729,6 @@ msgstr "Respond"
 #: libs/synthetic-population-client-ts/src/synthetic-user-controls.tsx
 msgid "Restart"
 msgstr "Restart"
-
-#: libs/synthetic-population-client-ts/src/synthetic-user-controls.tsx
-msgid "Restart application"
-msgstr "Restart application"
 
 #: libs/synthetic-population-client-ts/src/synthetic-user-controls.tsx
 msgid "Restart requested"
@@ -7725,6 +7767,10 @@ msgstr "Starting…"
 #: libs/app-root-client-ts/src/sync-screen-view.tsx
 msgid "State"
 msgstr "State"
+
+#: libs/synthetic-population-client-ts/src/synthetic-user-details.tsx
+msgid "Status"
+msgstr "Status"
 
 #: libs/app-root-client-ts/src/troubleshooting-screen-view.tsx
 msgid "Status, and what works offline"
@@ -9052,6 +9098,10 @@ msgstr "Unread"
 msgid "Unseen"
 msgstr "Unseen"
 
+#: libs/synthetic-population-client-ts/src/synthetic-user-details.tsx
+msgid "Until {until}"
+msgstr "Until {until}"
+
 #: libs/game-matchmaking-client-ts/src/multiplayer-find-panel.tsx
 #: libs/game-session-client-ts/src/game-frame-configuration-view.tsx
 #: libs/game-session-client-ts/src/game-frame-status-view.tsx
@@ -9093,6 +9143,10 @@ msgstr "Update the app"
 #: libs/chess-puzzle-client-ts/src/puzzle-import-status.tsx
 msgid "Updated"
 msgstr "Updated"
+
+#: libs/observatory-client-ts/src/live-watch-screen-view.tsx
+msgid "Updated {when}"
+msgstr "Updated {when}"
 
 #: libs/chess-puzzle-client-ts/src/puzzle-management-screen-view.tsx
 msgid "Upload a missing Lichess file, then load its puzzles into this environment."
@@ -9400,10 +9454,6 @@ msgstr "White is stalemated."
 #: pkgs/chess-board-root-client-ts/src/chess-board/guidance.tsx
 msgid "White pieces at the bottom."
 msgstr "White pieces at the bottom."
-
-#: libs/observatory-client-ts/src/live-watch-screen-view.tsx
-msgid "Who"
-msgstr "Who"
 
 #: libs/spaces-client-ts/src/space-who-is-here-view.tsx
 msgid "Who's here"

@@ -102,5 +102,9 @@ export async function cedarAvailable(s: ProductHarness, actor: string) {
   const ui = await actorUi(s, actor);
   await s.actors.get(actor)!.openLink(SYNTHETIC_USERS_PATH);
   const text = await ui.get(`synthetic-population-user-${user.id}`).text();
-  return text?.includes('browsing') === true && !text.includes('Paused');
+  // The row names its activity as people say it ("Browsing").
+  return (
+    text?.toLowerCase().includes('browsing') === true &&
+    !text.includes('Paused')
+  );
 }

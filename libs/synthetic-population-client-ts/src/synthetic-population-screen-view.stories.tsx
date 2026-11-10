@@ -32,6 +32,7 @@ const meta = {
     },
   },
   args: {
+    section: 'overview',
     loading: false,
     failed: false,
     overview: OVERVIEW,
@@ -42,6 +43,7 @@ const meta = {
     onChangeField: fn(),
     onSave: fn(async () => undefined),
     onRefresh: fn(),
+    onOpenConfiguration: fn(),
     canControl: true,
     onCommandAll: fn(async () => undefined),
   },
@@ -50,8 +52,9 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /**
- * A running population seen by an operator: counts, controls for every
- * Synthetic User, the configuration form, the directory (each
+ * A running population seen by an operator: counts with the way to the
+ * desired synthetic population, controls for every Synthetic User, the
+ * directory (each
  * row with its home region, skill level and favorite games; one paused, one
  * recovering, one recorded before personas) and workers that
  * are ready, draining and unreachable.
@@ -59,8 +62,8 @@ type Story = StoryObj<typeof meta>;
 export const Populated: Story = {};
 
 /**
- * A viewer without configure, control or inspect: no form, no controls,
- * directory rows do not open and offer no control panel.
+ * A viewer without configure, control or inspect: no way to the form, no
+ * controls, directory rows do not open and offer no control panel.
  */
 export const ViewOnly: Story = {
   args: {
@@ -70,15 +73,15 @@ export const ViewOnly: Story = {
   },
 };
 
-/** The first read has not finished; the activity indicator, Refresh and unavailable Save. */
+/** The first read has not finished; only the activity indicator, under the header's Refresh. */
 export const Loading: Story = {
   args: { loading: true, overview: undefined, canSave: false },
 };
 
-/** A live update is rereading; the last overview stays under the indicator. */
+/** A live update is rereading; the header's Refresh shows it and the last overview stays. */
 export const Refreshing: Story = { args: { loading: true } };
 
-/** The first read failed; Refresh is the way to try again. */
+/** The first read failed; its retry (or the header's Refresh) reads again. */
 export const Failed: Story = {
   args: { failed: true, overview: undefined, canSave: false },
 };

@@ -11,7 +11,8 @@
   },
   "scripts": {
     "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
-    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --tsconfig-override ../../tsconfig.json --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload tests"
   },
   "dependencies": {
     "@libs/app-config-client-ts": "workspace:*",
@@ -21,6 +22,8 @@
     "@libs/observatory-shared-ts": "workspace:*",
     "@libs/permissions-client-ts": "workspace:*",
     "@libs/permissions-shared-ts": "workspace:*",
+    "@libs/profile-client-ts": "workspace:*",
+    "@libs/profile-shared-ts": "workspace:*",
     "@libs/sub-client-ts": "workspace:*",
     "@libs/synthetic-population-shared-ts": "workspace:*",
     "@lingui/core": "catalog:",
@@ -36,6 +39,10 @@
   },
   "devDependencies": {
     "@libs/synthetic-population-server-ts": "workspace:*",
+    "@pkgs/bun-test-solid-client-ts": "workspace:*",
+    "@pkgs/clock-client-ts": "workspace:*",
+    "@pkgs/clock-shared-ts": "workspace:*",
+    "@solidjs/testing-library": "catalog:",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "storybook": "catalog:",

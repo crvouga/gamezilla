@@ -36,6 +36,9 @@
       "@libs/app-root-shared-ts/*": ["./libs/app-root-shared-ts/src/*"],
       "@libs/auth-client-ts/*": ["./libs/auth-client-ts/src/*"],
       "@libs/auth-server-ts/*": ["./libs/auth-server-ts/src/*"],
+      "@libs/synthetic-population-client-ts/*": [
+        "./libs/synthetic-population-client-ts/src/*"
+      ],
       "@libs/auth-shared-ts/*": ["./libs/auth-shared-ts/src/*"],
       "@libs/billing-client-ts/*": ["./libs/billing-client-ts/src/*"],
       "@libs/billing-harness-ts/*": ["./libs/billing-harness-ts/src/*"],
