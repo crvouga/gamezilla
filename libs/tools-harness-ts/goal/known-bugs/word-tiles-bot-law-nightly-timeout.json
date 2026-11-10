@@ -1,0 +1,4 @@
+{
+  "summary": "Nightly run 42760439972 again timed out the Word Tiles bot law for two, three and four seats (66-72 s against its 60 s deadline at 200 property cases) with no change to the bot: every candidate placement the search recorded rebuilt the 225-square board twice by split/join. The board is now built once per placement by splicing the placed letters, cutting the law's CPU time by about 40%.",
+  "regressionTest": "libs/word-tiles-shared-ts/tests/word-tiles-placement.test.ts"
+}
