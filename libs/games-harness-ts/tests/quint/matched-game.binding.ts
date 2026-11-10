@@ -62,7 +62,7 @@ bindQuintModel<PlayTrace>({
     },
     // regression: matched-game-deleted-own-offline-board
     {
-      id: 'multiplayer-deleted-own-offline-board',
+      id: 'matched-game-deleted-own-offline-board',
       title:
         'A deleted person’s offline phone keeps its board until it comes back',
       seed: '0x67932',
