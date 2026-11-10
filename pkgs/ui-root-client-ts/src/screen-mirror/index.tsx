@@ -87,7 +87,9 @@ export function ScreenMirror(props: ScreenMirrorProps): JSX.Element {
       <iframe
         class="box border-0"
         title={props.title}
-        sandbox=""
+        // Same origin only so its stylesheets load and the browser can read its
+        // navigator; without allow-scripts nothing in it can ever run.
+        sandbox="allow-same-origin"
         srcdoc={mirroredDocument(styles(), props.html)}
         style={{
           width: `${size().w}px`,

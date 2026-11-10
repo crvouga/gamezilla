@@ -16,8 +16,10 @@ describe('ScreenMirror', () => {
     ));
     const frame = screen.getByTitle("Bob's screen");
     expect(frame.tagName).toBe('IFRAME');
-    // An empty sandbox allows no scripts, forms, popups or navigation.
-    expect(frame.getAttribute('sandbox')).toBe('');
+    // regression: screen-mirror-sandbox-service-worker-error
+    // Same origin only: no scripts, forms, popups or navigation.
+    expect(frame.getAttribute('sandbox')).toBe('allow-same-origin');
+    expect(frame.getAttribute('sandbox')).not.toContain('allow-scripts');
     expect(frame.getAttribute('data-testid')).toBe('mirror');
     expect(frame.getAttribute('srcdoc')).toContain('<p>Settings</p>');
     expect(frame.getAttribute('srcdoc')).toContain('pointer-events:none');
