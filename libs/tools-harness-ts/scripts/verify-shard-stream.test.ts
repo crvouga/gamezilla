@@ -73,3 +73,44 @@ test.each([
     expect(stream.tick()).toEqual([]);
   }
 );
+
+// regression: verify-uncached-dependency-reported-as-timeout — the gate's
+// `storybook:coverage` (`cache: false`) finished in seconds, but with no
+// cache artifact the stream kept it "running" while its dependent
+// `ci:storybook` ran, then reported it over its 2400s budget and stopped
+// the shard.
+test('an uncached task is complete once a task depending on it starts', () => {
+  let now = 0;
+  const logs: string[] = [];
+  const coverage: VerifyTask = {
+    ...TASK,
+    taskId: '@pkgs/ui-root-harness-ts#storybook:coverage',
+    directory: 'pkgs/ui-root-harness-ts',
+    command: 'bun scripts/storybook-coverage.ts',
+    cacheable: false,
+  };
+  const storybook: VerifyTask = {
+    ...coverage,
+    taskId: '@pkgs/ui-root-harness-ts#ci:storybook',
+    command: 'playwright test -c storybook/playwright.config.ts',
+    cacheable: true,
+    dependencies: [coverage.taskId],
+  };
+  const stream = taskStream([coverage, storybook], (line) => logs.push(line), {
+    now: () => now,
+    completed: () => false,
+  });
+  const send = (source: string, text: string) =>
+    stream(JSON.stringify({ source, level: 'stdout', text }));
+  send(coverage.taskId, 'cache bypass, force executing c2eaebb638761');
+  now = 21_000;
+  send(storybook.taskId, 'cache miss, executing 1f08d1479');
+  expect(logs).toContain(
+    `COMPLETE ${coverage.taskId}; elapsed: 21.0s; finished before ${storybook.taskId} started`
+  );
+  expect(stream.snapshot().running.map((task) => task.taskId)).toEqual([
+    storybook.taskId,
+  ]);
+  now = 2_401_000;
+  expect(stream.tick()).not.toContain(coverage.taskId);
+});
