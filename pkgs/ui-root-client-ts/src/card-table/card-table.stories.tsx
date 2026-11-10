@@ -13,8 +13,6 @@ export default meta;
 
 /** Representative variants, themes and interaction states from the production contract. */
 export const States: StoryObj = {
-  // Related board components keep a desktop reference beside the phone one.
-  tags: ['viewport-responsive'],
   parameters: { controls: { disable: true } },
   render: () => <Example />,
   play: async ({ canvasElement }) => {

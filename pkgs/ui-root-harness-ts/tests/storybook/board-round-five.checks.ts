@@ -136,7 +136,22 @@ test('screens-games-sokoban-puzzle--corner-recovery regression sokoban-history-f
 
 // Related board components take the desktop matrix through their
 // `viewport-responsive` story tag, so `stories.checks.ts` captures them and
-// Storybook coverage owns their -1440 references.
+// Storybook coverage owns their -1440 references. The card table keeps its
+// literal desktop capture until its references are authored.
+for (const theme of ['light', 'dark']) {
+  test(`product-cardtable--states ${theme}-1440`, async ({ page }) => {
+    const story = index.entries['product-cardtable--states'];
+    if (!story) throw new Error('Missing related board reference');
+    const phone = visualScenarios(story).find((item) => item.theme === theme);
+    if (!phone) throw new Error('Missing theme scenario');
+    await verifyStoryScenario(page, story.id, {
+      ...phone,
+      width: 1440,
+      suffix: '-1440',
+      baseline: phone.baseline.replace('.png', '-1440.png'),
+    });
+  });
+}
 
 // regression: battleship-desktop-target-tools-below-viewport
 test('screens-games-battleship-board--correct-target-before-firing regression battleship-desktop-target-tools-below-viewport', async ({
@@ -147,6 +162,21 @@ test('screens-games-battleship-board--correct-target-before-firing regression ba
       'screens-games-battleship-board--correct-target-before-firing'
     ];
   if (!story) throw new Error('Missing literal desktop targeting regression');
+  const scenario = visualScenarios(story).find(
+    (item) => item.width === 1440 && item.theme === 'light'
+  );
+  if (!scenario) throw new Error('Missing desktop light scenario');
+  await verifyStoryScenario(page, story.id, scenario);
+});
+
+// regression: quoridor-desktop-measure-ignores-fit
+test('screens-games-quoridor-hill--precise-wall-preview regression quoridor-desktop-measure-ignores-fit', async ({
+  page,
+}) => {
+  const story =
+    index.entries['screens-games-quoridor-hill--precise-wall-preview'];
+  if (!story)
+    throw new Error('Missing literal desktop wall preview regression');
   const scenario = visualScenarios(story).find(
     (item) => item.width === 1440 && item.theme === 'light'
   );

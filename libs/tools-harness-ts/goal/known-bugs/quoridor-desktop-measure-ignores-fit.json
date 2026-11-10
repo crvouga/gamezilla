@@ -1,0 +1,4 @@
+{
+  "summary": "The Quoridor spatial-area story check demanded a 440px board at any window 1000px or wider, but the board deliberately fits its tools, picker and wall confirmation into the first view, so at 1440x844 (and 1440x900) it is 364-400px and every desktop wall journey failed. The check keeps the seven-large-control phone measure at every width; the working-area check still proves the tools stay in view.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/board-round-five.checks.ts"
+}

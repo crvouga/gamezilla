@@ -1,4 +1,4 @@
 {
-  "summary": "board-round-five.checks.ts captured eight related board stories at 1440 in a literal loop outside the story matrix, so Storybook coverage flagged the Pong court's authored desktop references as orphans and the other seven were never authored. The stories now carry viewport-responsive, the canonical matrix captures them, and their references are committed.",
+  "summary": "board-round-five.checks.ts captured eight related board stories (the card table still does) at 1440 in a literal loop outside the story matrix, so Storybook coverage flagged the Pong court's authored desktop references as orphans and the other seven were never authored. The stories now carry viewport-responsive, the canonical matrix captures them, and their references are committed.",
   "regressionTest": "pkgs/ui-root-harness-ts/tests/related-board-desktop-references.test.ts"
 }

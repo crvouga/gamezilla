@@ -176,9 +176,6 @@ export const PreciseCoordinates: Story = {
 
 /** After every pawn has moved once, the picker previews, rotates, cancels and places a d4 wall. */
 export const PreciseWallPreview: Story = {
-  // A desktop capture is a 1440x900 window: the board fits the first view's
-  // height, so a phone-height desktop frame would hold it at the phone measure.
-  tags: ['viewport-native-height'],
   args: { position: hill(['e2', 'a4', 'e8', 'i6']) },
   render: renderHillJourney,
   play: ({ canvasElement }) => playHillWallPreview(canvasElement),

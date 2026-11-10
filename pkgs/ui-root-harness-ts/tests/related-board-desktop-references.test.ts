@@ -6,7 +6,6 @@ const SRC = join(import.meta.dirname, '../../ui-root-client-ts/src');
 
 /** Related board components and the stories that carry their desktop reference. */
 const RELATED = [
-  ['card-table/card-table.stories.tsx', 'product-cardtable', ['states']],
   [
     'cell-grid-board/board-boundary-contrast.stories.tsx',
     'games-cellgridboard-boundary-contrast',

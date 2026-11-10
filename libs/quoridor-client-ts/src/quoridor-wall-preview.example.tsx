@@ -11,8 +11,12 @@ export async function expectQuoridorSpatialArea(canvasElement: HTMLElement) {
   const board = canvas.getByTestId('custom-game-board');
   const view = canvasElement.ownerDocument.defaultView;
   if (!view) throw new Error('The story requires a browser window');
-  const minimum =
-    view.innerWidth >= 1000 ? 440 : Math.min(view.innerWidth - 32, 364);
+  // regression: quoridor-desktop-measure-ignores-fit — the board grows on a
+  // desktop only as far as its tools, picker and wall confirmation still fit
+  // the first view, so a 1440px window of ordinary height holds it near the
+  // phone measure. At every width it keeps at least seven large controls;
+  // the working area above proves everything else stays in view.
+  const minimum = Math.min(view.innerWidth - 32, 364);
   await expect(board.getBoundingClientRect().width).toBeGreaterThanOrEqual(
     minimum
   );
