@@ -13,6 +13,8 @@ test('a route is reported only as the place in the app it belongs to', () => {
   expect(placeOfRoute('/search?q=carol')).toBe('people-search');
   expect(placeOfRoute('/more')).toBe('settings');
   expect(placeOfRoute('/more/billing')).toBe('settings');
+  expect(placeOfRoute('/more/account')).toBe('sign-in-methods');
+  expect(placeOfRoute('/more/account/providers')).toBe('sign-in-methods');
   expect(placeOfRoute('/profile/friends')).toBe('profile');
   expect(placeOfRoute('/notifications')).toBe('notifications');
   expect(placeOfRoute('/admin/synthetic-population')).toBe('observatory');

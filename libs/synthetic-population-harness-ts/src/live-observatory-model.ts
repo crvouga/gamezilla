@@ -9,9 +9,14 @@ import { partition, restoreActorConnection } from '@libs/harness-ts/actions';
 import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
 import { signInWithGoogleAsAccount } from '@libs/harness-ts/auth-actions';
 import type { ProductHarness } from '@libs/harness-ts/harness';
+import { connectionMissing } from '@libs/harness-ts/network-notices';
 import { bringToFront, partitioned } from '@libs/harness-ts/observations';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
-import { placeOfRoute } from '@libs/synthetic-population-shared-ts/live-session';
+import {
+  LIVE_HEARTBEAT_MS,
+  LIVE_ONLINE_WINDOW_MS,
+  placeOfRoute,
+} from '@libs/synthetic-population-shared-ts/live-session';
 import {
   givenSyntheticGameChoice,
   startSyntheticActivity,
@@ -33,7 +38,9 @@ import {
 /** Alice's devices: her phone follows the list, her tablet watches live. */
 export const ALICE_LIST = 'alice';
 export const ALICE_WATCH = 'alice:tablet';
-const SETTLE_OFFLINE_MS = 45_000;
+const SETTLE_OFFLINE_MS = LIVE_ONLINE_WINDOW_MS + 5_000;
+/** Long enough for a reconnected app's next heartbeat and a list reread. */
+const SETTLE_RETURN_MS = LIVE_HEARTBEAT_MS + 5_000;
 
 /** The model's names for places in the app, by what the app calls them. */
 const MODEL_PLACES: Record<string, string> = {
@@ -43,6 +50,7 @@ const MODEL_PLACES: Record<string, string> = {
   space: 'game',
   settings: 'Settings',
   'people-search': 'people search',
+  'sign-in-methods': 'sign-in methods',
 };
 const SHOWN_PLACES: Record<string, string> = {
   Spaces: 'tabs',
@@ -51,6 +59,7 @@ const SHOWN_PLACES: Record<string, string> = {
   'In a space': 'game',
   Settings: 'Settings',
   'People search': 'people search',
+  'Sign-in methods': 'sign-in methods',
 };
 
 /** The model's people and Synthetic Users, by their device. */
@@ -87,29 +96,40 @@ export const reopenLiveApp = scenarioAction({
   },
 });
 
-/** A device loses its connection and stays without it a while. */
+/** Bob's or Cedar's device loses its connection and stays without it a while. */
 export const loseLiveConnection = scenarioAction({
   name: 'loseLiveConnection',
   act: async (s, who: string) => {
-    const devices =
-      who === 'Alice' ? [ALICE_LIST, ALICE_WATCH] : [deviceOf(who)];
-    for (const device of devices)
-      if (s.actors.has(device)) await Promise.resolve(partition.act(s, device));
+    const device = deviceOf(who);
+    if (s.actors.has(device)) await Promise.resolve(partition.act(s, device));
     // Long enough for an app that stopped reporting to drop off the list.
-    if (who !== 'Alice') await s.session.advanceTime(SETTLE_OFFLINE_MS);
+    await s.session.advanceTime(SETTLE_OFFLINE_MS);
     await s.session.waitForIdle();
   },
 });
 
-/** That device's connection comes back. */
+/** That device's connection comes back; an open app reports again. */
 export const restoreLiveConnection = scenarioAction({
   name: 'restoreLiveConnection',
   act: async (s, who: string) => {
-    const devices =
-      who === 'Alice' ? [ALICE_LIST, ALICE_WATCH] : [deviceOf(who)];
-    for (const device of devices)
-      if (s.actors.has(device))
-        await Promise.resolve(restoreActorConnection.act(s, device));
+    const device = deviceOf(who);
+    if (s.actors.has(device))
+      await Promise.resolve(restoreActorConnection.act(s, device));
+    await s.session.advanceTime(SETTLE_RETURN_MS);
+    await s.session.waitForIdle();
+  },
+});
+
+/** Alice's devices lose, or regain, their connection. */
+export const setAliceLiveConnection = scenarioAction({
+  name: 'setAliceLiveConnection',
+  act: async (s, online: boolean) => {
+    for (const device of [ALICE_LIST, ALICE_WATCH])
+      await Promise.resolve(
+        online
+          ? restoreActorConnection.act(s, device)
+          : partition.act(s, device)
+      );
     await s.session.waitForIdle();
   },
 });
@@ -205,6 +225,7 @@ export async function observeLiveObservatory(
     placeShown: watch.placeShown,
     privateDetailsShown: leaked,
     ended,
+    connectionAvailable: !(await connectionMissing(s, ALICE_LIST)),
   };
 }
 

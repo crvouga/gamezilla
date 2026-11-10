@@ -20,6 +20,7 @@ export function useLiveLabels() {
     spaces: () => t`Spaces`,
     space: () => t`In a space`,
     'people-search': () => t`People search`,
+    'sign-in-methods': () => t`Sign-in methods`,
     settings: () => t`Settings`,
     profile: () => t`Profile`,
     notifications: () => t`Notifications`,

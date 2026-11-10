@@ -22,6 +22,7 @@ export const LIVE_PLACES = [
   'spaces',
   'space',
   'people-search',
+  'sign-in-methods',
   'settings',
   'profile',
   'notifications',
@@ -75,6 +76,8 @@ export function placeOfRoute(path: string): LivePlace {
   if (route.startsWith('/space/')) return 'space';
   if (route === '/search' || route.startsWith('/search/'))
     return 'people-search';
+  if (route === '/more/account' || route === '/more/account/providers')
+    return 'sign-in-methods';
   if (route === '/more' || route.startsWith('/more/')) return 'settings';
   if (route === '/profile' || route.startsWith('/profile/')) return 'profile';
   if (route.startsWith('/notifications')) return 'notifications';

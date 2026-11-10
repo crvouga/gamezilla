@@ -2,7 +2,11 @@ import { expect } from 'bun:test';
 import { signInWithGoogle } from '@libs/harness-ts/auth-actions';
 import { Given, Then, When } from '@libs/harness-ts/define';
 import type { Actor } from '@libs/harness-ts/parameter-types';
-import { backToTabs, openSettings } from '@libs/harness-ts/shell-actions';
+import {
+  backToTabs,
+  openAccount,
+  openSettings,
+} from '@libs/harness-ts/shell-actions';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { searchUsername } from '@libs/search-harness-ts/search-actions';
 import {
@@ -60,11 +64,11 @@ Given('{actor} has opened the Bot Observatory', async (w, actor: Actor) => {
   ]);
   await w.s.apply(openObservatory, actor);
 });
-Given('{actor} is online now', async (w, actor: Actor) => {
+Given('{actor} is using the app now', async (w, actor: Actor) => {
   await w.s.apply(openPersonApp, actor);
 });
 Given(
-  '{actor} and the Synthetic User {string} are online now',
+  '{actor} and the Synthetic User {string} are using the app now',
   async (w, actor: Actor, name: string) => {
     await w.s.apply(givenSyntheticUser, name, false);
     await w.s.apply(openPersonApp, actor);
@@ -109,6 +113,9 @@ When('{actor} opens the app', async (w, actor: Actor) => {
 });
 When('{actor} closes the app', async (w, actor: Actor) => {
   await w.s.apply(closePersonApp, actor);
+});
+When('{actor} looks at his sign-in methods', async (w, actor: Actor) => {
+  await w.s.apply(openAccount, actor);
 });
 When('{actor} opens Settings', async (w, actor: Actor) => {
   await w.s.apply(openSettings, actor);
@@ -264,10 +271,19 @@ Then(
   }
 );
 Then(
-  "{actor} cannot see {actor}'s email address",
+  "{actor} sees {actor}'s place in the app is his sign-in methods within {int} seconds",
+  async (w, watcher: Actor, _person: Actor, seconds: number) => {
+    await w.s.until((s) => watchedPlace(s, watcher), {
+      pred: (place) => place?.includes('Sign-in methods') === true,
+      maxMs: seconds * SECOND_MS,
+    });
+  }
+);
+Then(
+  "{actor} cannot see the email address of {actor}'s Google sign-in method",
   async (w, watcher: Actor, person: Actor) => {
     const screen = await w.s.until((s) => watchedScreen(s, watcher), {
-      pred: (html) => html?.includes('Settings') === true,
+      pred: (html) => html?.includes('Sign-in methods') === true,
       maxMs: SHOWN_MS,
     });
     expect(screen).not.toContain(await w.s.read(emailOf, person));

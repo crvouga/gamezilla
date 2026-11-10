@@ -14,6 +14,7 @@ import {
   createEffect,
   createMemo,
   createResource,
+  createSignal,
   type JSX,
   onCleanup,
 } from 'solid-js';
@@ -22,7 +23,10 @@ import {
   type LiveWatchState,
 } from './live-watch-screen-view';
 import { resourceValue } from './resource-value';
-import { useSyntheticPopulationApi } from './synthetic-population-api';
+import {
+  type LiveWatchRead,
+  useSyntheticPopulationApi,
+} from './synthetic-population-api';
 import {
   useRefreshWithoutUpdates,
   useSyntheticPopulationUpdates,
@@ -36,8 +40,14 @@ function useLiveWatch(sessionId: () => string) {
   const timers = useTimers();
   const [read, { refetch }] = createResource(sessionId, (id) => api.watch(id));
   let lastUsername: string | null = null;
-  const state = createMemo<LiveWatchState>(() => {
+  // Without a connection, the last known screen stays in view.
+  const [last, setLast] = createSignal<LiveWatchRead>();
+  createEffect(() => {
     const value = resourceValue(read);
+    if (value !== undefined) setLast(value);
+  });
+  const state = createMemo<LiveWatchState>(() => {
+    const value = resourceValue(read) ?? last();
     if (value === undefined)
       return read.error ? { kind: 'failed' } : { kind: 'loading' };
     if (!value.online) return { kind: 'offline', username: lastUsername };

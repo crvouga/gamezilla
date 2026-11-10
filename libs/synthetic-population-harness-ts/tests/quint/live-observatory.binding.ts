@@ -1,5 +1,9 @@
 import type { QuintHarnessWorld } from '@libs/harness-ts/quint-world';
-import { backToTabs, openSettings } from '@libs/harness-ts/shell-actions';
+import {
+  backToTabs,
+  openAccount,
+  openSettings,
+} from '@libs/harness-ts/shell-actions';
 import { searchUsername } from '@libs/search-harness-ts/search-actions';
 import {
   showOnlyOnlineNow,
@@ -16,6 +20,7 @@ import {
   observeLiveObservatory,
   reopenLiveApp,
   restoreLiveConnection,
+  setAliceLiveConnection,
 } from '@libs/synthetic-population-harness-ts/live-observatory-model';
 import { openObservatory } from '@libs/synthetic-population-harness-ts/observatory-actions';
 import type { QuintValue } from '@pkgs/quint-shared-ts/itf';
@@ -52,8 +57,8 @@ function filterOf(show: QuintValue | undefined) {
 
 bindQuintModel<QuintHarnessWorld>({
   model: 'live-observatory',
-  traces: 8,
-  maxSteps: 8,
+  traces: 24,
+  maxSteps: 12,
   verifySteps: 3,
   timeoutMs: 240_000,
   actions: {
@@ -72,10 +77,13 @@ bindQuintModel<QuintHarnessWorld>({
       await w.s.apply(searchUsername, 'bob', SEARCHED);
     },
     continueActivity: (w) => w.s.apply(continueSyntheticActivity, GAME),
+    viewSignInMethods: (w) => w.s.apply(openAccount, 'bob'),
+    _aliceLosesConnection: (w) => w.s.apply(setAliceLiveConnection, false),
+    _aliceComesBackOnline: (w) => w.s.apply(setAliceLiveConnection, true),
     _loseConnection: (w, picks) =>
-      w.s.apply(loseLiveConnection, String(picks['device'])),
+      w.s.apply(loseLiveConnection, String(picks['who'])),
     _comeBackOnline: (w, picks) =>
-      w.s.apply(restoreLiveConnection, String(picks['device'])),
+      w.s.apply(restoreLiveConnection, String(picks['who'])),
   },
   observe: async (w) => {
     const memory = remembered(w);
@@ -93,6 +101,7 @@ bindQuintModel<QuintHarnessWorld>({
       placeShown: seen.placeShown,
       privateDetailsShown: seen.privateDetailsShown,
       watchEndedNotice: memory.told,
+      connectionAvailable: seen.connectionAvailable,
     };
   },
 });
