@@ -6,6 +6,10 @@ import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { FormActionsFooter } from '@pkgs/ui-root-client-ts/form-actions-footer';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { type JSX, Show } from 'solid-js';
+import {
+  type EveryCommand,
+  EverySyntheticUserControls,
+} from './every-synthetic-user-controls';
 import type { SyntheticPopulationOverview } from './synthetic-population-api';
 import {
   type ConfigurationDraft,
@@ -44,6 +48,12 @@ export type SyntheticPopulationScreenViewProps = {
    * it reads its own pages.
    */
   readonly directory?: ((observedAtMs: number) => JSX.Element) | undefined;
+  /** Whoever is online now; it reads its own list. */
+  readonly onlineNow?: (() => JSX.Element) | undefined;
+  /** Offers pausing and resuming every Synthetic User at once. */
+  readonly canControl: boolean;
+  /** Pauses or resumes every Synthetic User; its dialog shows the outcome. */
+  readonly onCommandAll: (command: EveryCommand) => Promise<void>;
 };
 
 function OverviewSections(
@@ -115,6 +125,14 @@ function SyntheticPopulationOverviewScreen(
         />
       </Show>
       <Button title={t`Refresh`} onClick={() => props.onRefresh()} />
+      {/* Outside the overview: a reread keeps their dialogs and choices. */}
+      <Show when={props.overview !== undefined}>
+        <EverySyntheticUserControls
+          canControl={props.canControl}
+          command={props.onCommandAll}
+        />
+        {props.onlineNow?.()}
+      </Show>
       <Show when={props.overview} keyed>
         {(overview) => (
           <OverviewSections
@@ -131,10 +149,12 @@ function SyntheticPopulationOverviewScreen(
 }
 
 /**
- * `/admin/synthetic-population` and `/admin/synthetic-population/config`,
- * presentational: the Bot Observatory's summary, configuration form, Synthetic
- * User directory, workers and event timeline, with its loading, failed and
- * denied states. `SyntheticPopulationScreen` wires it to the admin API.
+ * `/admin/synthetic-population`, `/admin/synthetic-population/config` and
+ * `/admin/synthetic-population/control`, presentational: the Bot
+ * Observatory's summary, controls for every Synthetic User, whoever is online
+ * now, configuration form, Synthetic User directory, workers and event
+ * timeline, with its loading, failed and denied states.
+ * `SyntheticPopulationScreen` wires it to the admin API.
  */
 export function SyntheticPopulationScreenView(
   props: SyntheticPopulationScreenViewProps

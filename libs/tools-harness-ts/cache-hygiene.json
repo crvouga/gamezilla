@@ -171,7 +171,7 @@
         "reason": "predates the cache-hygiene gate; the files that reach few packages are the split (`bun run cache:explain`)"
       },
       "@libs/synthetic-population-shared-ts": {
-        "light": 14,
+        "light": 13,
         "reason": "predates the cache-hygiene gate; the files that reach few packages are the split (`bun run cache:explain`)"
       },
       "@pkgs/bun-test-solid-client-ts": {
@@ -200,10 +200,6 @@
       },
       "@pkgs/openslo-shared-ts": {
         "light": 17,
-        "reason": "predates the cache-hygiene gate; the files that reach few packages are the split (`bun run cache:explain`)"
-      },
-      "@pkgs/pubsub-root-shared-ts": {
-        "light": 9,
         "reason": "predates the cache-hygiene gate; the files that reach few packages are the split (`bun run cache:explain`)"
       },
       "@pkgs/secret-store-shared-ts": {

@@ -5,17 +5,19 @@ import type { ProductHarness } from '@libs/harness-ts/harness';
 import { signedInAccountOf } from '@libs/harness-ts/identity';
 import { bringToFront } from '@libs/harness-ts/observations';
 import { readProfileUsernameShown } from '@libs/profile-harness-ts/profile-ui-reads';
-import { gameForPosition } from '@libs/synthetic-population-shared-ts/game-automation';
+import { gameForPosition } from '@libs/synthetic-population-behavior-shared-ts/game-automation';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { openSyntheticGame, syntheticGameView } from './synthetic-game-actions';
 import { completeSyntheticGame } from './synthetic-population-control-actions';
 import { givenSyntheticUser } from './synthetic-user-fixtures';
+import { syntheticPersonaOf } from './synthetic-user-reads';
 
 export async function syntheticContinuity(s: ProductHarness) {
   await bringToFront(s, 'cedar');
   return {
     account: await signedInAccountOf(s, 'cedar'),
     board: await syntheticGameView(s, 'cedar'),
+    persona: await syntheticPersonaOf(s, 'Cedar').catch(() => null),
   };
 }
 export async function syntheticUsername(s: ProductHarness) {

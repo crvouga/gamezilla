@@ -142,6 +142,11 @@ msgstr "{0} is at its minimum, {1}"
 msgid "{0} is low on time, with {1} left."
 msgstr "{0} is low on time, with {1} left."
 
+#. placeholder {0}: state.username
+#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
+msgid "{0} is no longer online now"
+msgstr "{0} is no longer online now"
+
 #. placeholder {0}: count()
 #: libs/spaces-client-ts/src/space-miniplayer.tsx
 msgid "{0} live spaces"
@@ -271,6 +276,12 @@ msgstr "{0} wins the round."
 msgid "{0} won the multiplayer game."
 msgstr "{0} won the multiplayer game."
 
+#. placeholder {0}: persona().thinkingTime.minMs / 1000
+#. placeholder {1}: persona().thinkingTime.maxMs / 1000
+#: libs/synthetic-population-client-ts/src/synthetic-user-persona.tsx
+msgid "{0}–{1} seconds a move"
+msgstr "{0}–{1} seconds a move"
+
 #. placeholder {0}: cell.label
 #: libs/battleship-client-ts/src/battleship-grid-cells.tsx
 msgid "{0}, latest shot"
@@ -281,6 +292,11 @@ msgstr "{0}, latest shot"
 #: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "{0}: drag the left half. {1}: drag the right half."
 msgstr "{0}: drag the left half. {1}: drag the right half."
+
+#. placeholder {0}: props.entry.username
+#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
+msgid "{0}'s screen"
+msgstr "{0}'s screen"
 
 #. placeholder {0}: parts.hostName
 #: libs/spaces-client-ts/src/use-space-display-title.tsx
@@ -630,6 +646,14 @@ msgstr "{rank} of hearts"
 #: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "{rank} of spades"
 msgstr "{rank} of spades"
+
+#: libs/synthetic-population-client-ts/src/synthetic-user-persona.tsx
+msgid "{region} · {level}"
+msgstr "{region} · {level}"
+
+#: libs/synthetic-population-client-ts/src/synthetic-user-persona.tsx
+msgid "{region} · {level} · Favorite games: {games}"
+msgstr "{region} · {level} · Favorite games: {games}"
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-time-left.tsx
 msgid "{seconds} seconds"
@@ -1378,6 +1402,10 @@ msgstr "Back"
 msgid "Back to current game"
 msgstr "Back to current game"
 
+#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
+msgid "Back to online now"
+msgstr "Back to online now"
+
 #: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "Back to spaces"
 msgstr "Back to spaces"
@@ -1408,6 +1436,10 @@ msgstr "Be the last of four riders riding."
 #: libs/light-cycles-client-ts/src/light-cycles-game-client.tsx
 msgid "Be the last of three riders riding."
 msgstr "Be the last of three riders riding."
+
+#: libs/synthetic-population-client-ts/src/synthetic-user-persona.tsx
+msgid "Beginner"
+msgstr "Beginner"
 
 #: libs/synthetic-population-client-ts/src/synthetic-user-statechart.tsx
 msgid "Behavior Statechart"
@@ -1548,6 +1580,8 @@ msgstr "Bot (medium)"
 msgid "Bot difficulty"
 msgstr "Bot difficulty"
 
+#: libs/synthetic-population-client-ts/src/live-labels.tsx
+#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-population-denial.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-population-screen-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-population-settings.tsx
@@ -1584,6 +1618,10 @@ msgstr "Broken"
 #: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
 msgid "Browse"
 msgstr "Browse"
+
+#: libs/synthetic-population-client-ts/src/live-labels.tsx
+msgid "Browsing"
+msgstr "Browsing"
 
 #: libs/app-root-client-ts/src/about-screen-view.tsx
 msgid "Build"
@@ -1695,6 +1733,10 @@ msgstr "Capture requested"
 msgid "Carrier"
 msgstr "Carrier"
 
+#: libs/synthetic-population-client-ts/src/synthetic-user-persona.tsx
+msgid "Casual"
+msgstr "Casual"
+
 #: libs/quoridor-client-ts/src/quoridor-board-cells.tsx
 msgid "Central hill"
 msgstr "Central hill"
@@ -1750,6 +1792,8 @@ msgstr "Check the spelling or try a different username."
 #: libs/friends-client-ts/src/friend-user-screen-content.tsx
 #: libs/friends-client-ts/src/friends-list-screen-view.tsx
 #: libs/profile-client-ts/src/profile-screen-view.tsx
+#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
+#: libs/synthetic-population-client-ts/src/online-now-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-population-users-view.tsx
 msgid "Check your connection and try again."
 msgstr "Check your connection and try again."
@@ -2276,6 +2320,11 @@ msgstr "Continue with email"
 msgid "Continue with Google"
 msgstr "Continue with Google"
 
+#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
+#: libs/synthetic-population-client-ts/src/online-now-view.tsx
+msgid "Control panel"
+msgstr "Control panel"
+
 #: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "Controls are unavailable until play resumes."
 msgstr "Controls are unavailable until play resumes."
@@ -2538,6 +2587,10 @@ msgstr "Daily"
 msgid "Daily limit reached"
 msgstr "Daily limit reached"
 
+#: libs/synthetic-population-client-ts/src/synthetic-user-persona.tsx
+msgid "Daily schedule"
+msgstr "Daily schedule"
+
 #: libs/auth-client-ts/src/account-screen-view.tsx
 msgid "Danger zone"
 msgstr "Danger zone"
@@ -2740,6 +2793,10 @@ msgstr "Disconnects multiplayer; changes wait on this device"
 msgid "Dismiss"
 msgstr "Dismiss"
 
+#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
+msgid "Doing"
+msgstr "Doing"
+
 #: libs/auth-client-ts/src/sign-in-modal.tsx
 #: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-feed-settings-modal.tsx
@@ -2872,6 +2929,14 @@ msgstr "Duplicates skipped"
 msgid "e.g. ff5733"
 msgstr "e.g. ff5733"
 
+#: libs/synthetic-population-client-ts/src/every-synthetic-user-controls.tsx
+msgid "Each one finishes its ongoing game, then starts nothing new until resumed."
+msgstr "Each one finishes its ongoing game, then starts nothing new until resumed."
+
+#: libs/synthetic-population-client-ts/src/every-synthetic-user-controls.tsx
+msgid "Each one starts its activities again."
+msgstr "Each one starts its activities again."
+
 #: libs/game-puzzle-client-ts/src/content-library-attempts.tsx
 msgid "Each puzzle keeps your place, even if its author changes it later."
 msgstr "Each puzzle keeps your place, even if its author changes it later."
@@ -2935,6 +3000,10 @@ msgstr "Editing now"
 #: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "Eight"
 msgstr "Eight"
+
+#: libs/synthetic-population-client-ts/src/live-labels.tsx
+msgid "Elsewhere in the app"
+msgstr "Elsewhere in the app"
 
 #: libs/auth-client-ts/src/auth-flow-messages.tsx
 #: pkgs/ui-root-client-ts/src/text-input/text-input.example.tsx
@@ -3092,9 +3161,25 @@ msgstr "Every side chooses in secret: {chosen} of {total} have chosen."
 msgid "Every side makes its secret choice before play goes on."
 msgstr "Every side makes its secret choice before play goes on."
 
+#: libs/synthetic-population-client-ts/src/every-synthetic-user-controls.tsx
+msgid "Every Synthetic User"
+msgstr "Every Synthetic User"
+
+#: libs/synthetic-population-client-ts/src/every-synthetic-user-controls.tsx
+msgid "Every Synthetic User is paused"
+msgstr "Every Synthetic User is paused"
+
+#: libs/synthetic-population-client-ts/src/every-synthetic-user-controls.tsx
+msgid "Every Synthetic User is resumed"
+msgstr "Every Synthetic User is resumed"
+
 #: libs/search-client-ts/src/search-screen-view.tsx
 msgid "Every username is unique. Ask a friend for theirs and type the start of it."
 msgstr "Every username is unique. Ask a friend for theirs and type the start of it."
+
+#: libs/synthetic-population-client-ts/src/online-now-view.tsx
+msgid "Everyone"
+msgstr "Everyone"
 
 #: libs/spaces-client-ts/src/leave-space-confirm-modal.tsx
 msgid "Everyone can see that the space has ended."
@@ -3164,6 +3249,10 @@ msgstr "Failed"
 #: pkgs/ui-root-client-ts/src/select/index.tsx
 msgid "Failed to load"
 msgstr "Failed to load"
+
+#: libs/synthetic-population-client-ts/src/synthetic-user-persona.tsx
+msgid "Favorite games"
+msgstr "Favorite games"
 
 #: libs/app-config-client-ts/src/client-config-screen-view.tsx
 msgid "Features"
@@ -3680,6 +3769,10 @@ msgstr "History and stats"
 msgid "Hit"
 msgstr "Hit"
 
+#: libs/synthetic-population-client-ts/src/synthetic-user-persona.tsx
+msgid "Home region"
+msgstr "Home region"
+
 #: libs/quoridor-client-ts/src/quoridor-board.tsx
 msgid "Horizontal wall"
 msgstr "Horizontal wall"
@@ -3775,6 +3868,7 @@ msgid "in a row"
 msgstr "in a row"
 
 #: libs/spaces-client-ts/src/friend-live-space.tsx
+#: libs/synthetic-population-client-ts/src/live-labels.tsx
 msgid "In a space"
 msgstr "In a space"
 
@@ -3824,6 +3918,10 @@ msgstr "Installs signed into this account"
 #: libs/app-root-client-ts/src/performance-screen-view.tsx
 msgid "Interaction to next paint"
 msgstr "Interaction to next paint"
+
+#: libs/synthetic-population-client-ts/src/synthetic-user-persona.tsx
+msgid "Intermediate"
+msgstr "Intermediate"
 
 #: libs/game-session-client-ts/src/game-frame-seat-choices-view.tsx
 msgid "Invite"
@@ -3897,8 +3995,8 @@ msgid "Item not found"
 msgstr "Item not found"
 
 #: libs/synthetic-population-client-ts/src/synthetic-user-controls.tsx
-msgid "Its application reconnects and reconciles its ongoing activity before taking another action."
-msgstr "Its application reconnects and reconciles its ongoing activity before taking another action."
+msgid "Its app closes and opens again. It keeps its account, its persona and any ongoing game, and carries on from its current activity."
+msgstr "Its app closes and opens again. It keeps its account, its persona and any ongoing game, and carries on from its current activity."
 
 #: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "Jack"
@@ -4349,6 +4447,14 @@ msgstr "Looking for a {0} {1} opponent."
 #: libs/game-matchmaking-client-ts/src/multiplayer-waiting.tsx
 msgid "Looking for a {0} opponent."
 msgstr "Looking for a {0} opponent."
+
+#: libs/synthetic-population-client-ts/src/live-labels.tsx
+msgid "Looking for a multiplayer opponent"
+msgstr "Looking for a multiplayer opponent"
+
+#: libs/synthetic-population-client-ts/src/live-labels.tsx
+msgid "Looking for a multiplayer opponent for {game}"
+msgstr "Looking for a multiplayer opponent for {game}"
 
 #: libs/game-session-client-ts/src/game-history-screen-view.tsx
 msgid "Losses"
@@ -4952,6 +5058,10 @@ msgstr "No Synthetic Users found"
 msgid "Nobody has passed yet."
 msgstr "Nobody has passed yet."
 
+#: libs/synthetic-population-client-ts/src/online-now-view.tsx
+msgid "Nobody is online now"
+msgstr "Nobody is online now"
+
 #: libs/friends-client-ts/src/friend-requests-aside.tsx
 msgid "Nobody is waiting on you"
 msgstr "Nobody is waiting on you"
@@ -5016,6 +5126,10 @@ msgstr "Not now"
 msgid "Not proven yet: finish a playtest of this version to show it can be solved."
 msgstr "Not proven yet: finish a playtest of this version to show it can be solved."
 
+#: libs/synthetic-population-client-ts/src/synthetic-user-persona.tsx
+msgid "Not recorded for this Synthetic User"
+msgstr "Not recorded for this Synthetic User"
+
 #: libs/synthetic-population-client-ts/src/synthetic-user-details.tsx
 msgid "Not registered"
 msgstr "Not registered"
@@ -5066,6 +5180,7 @@ msgstr "Nothing to correct. Playtest the board to prove it."
 
 #: libs/notifications-client-ts/src/notifications-screen-view.tsx
 #: libs/notifications-client-ts/src/sub-client.tsx
+#: libs/synthetic-population-client-ts/src/live-labels.tsx
 msgid "Notifications"
 msgstr "Notifications"
 
@@ -5143,6 +5258,14 @@ msgstr "online"
 #: libs/app-root-client-ts/src/sync-screen-view.tsx
 msgid "Online"
 msgstr "Online"
+
+#: libs/synthetic-population-client-ts/src/online-now-view.tsx
+msgid "Online now"
+msgstr "Online now"
+
+#: libs/synthetic-population-client-ts/src/online-now-view.tsx
+msgid "Online now could not be loaded."
+msgstr "Online now could not be loaded."
 
 #: libs/app-root-client-ts/src/settings-screen-view.tsx
 msgid "Online play and sync"
@@ -5236,6 +5359,10 @@ msgstr "Open space {0}"
 #: libs/game-puzzle-client-ts/src/content-pack-editor.tsx
 msgid "Open the new puzzle draft"
 msgstr "Open the new puzzle draft"
+
+#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
+msgid "Opening their screen…"
+msgstr "Opening their screen…"
 
 #: libs/billing-client-ts/src/billing-plan-actions.tsx
 #: libs/spaces-client-ts/src/spaces-screen-view.tsx
@@ -5462,11 +5589,28 @@ msgstr "Passing your cards…"
 msgid "Pause"
 msgstr "Pause"
 
+#: libs/synthetic-population-client-ts/src/every-synthetic-user-controls.tsx
+msgid "Pause all"
+msgstr "Pause all"
+
+#: libs/synthetic-population-client-ts/src/every-synthetic-user-controls.tsx
+msgid "Pause every Synthetic User"
+msgstr "Pause every Synthetic User"
+
+#: libs/synthetic-population-client-ts/src/every-synthetic-user-controls.tsx
+msgid "Pause every Synthetic User?"
+msgstr "Pause every Synthetic User?"
+
+#: libs/synthetic-population-client-ts/src/online-now-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-population-users-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-user-controls.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-user-details.tsx
 msgid "Paused"
 msgstr "Paused"
+
+#: libs/synthetic-population-client-ts/src/every-synthetic-user-controls.tsx
+msgid "Paused Synthetic Users finish an ongoing game and start nothing new until resumed."
+msgstr "Paused Synthetic Users finish an ongoing game and start nothing new until resumed."
 
 #: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "Paused while a player returns"
@@ -5493,6 +5637,14 @@ msgstr "Payments are processed securely by our billing provider. We never see yo
 msgid "Pending"
 msgstr "Pending"
 
+#: libs/synthetic-population-client-ts/src/online-now-view.tsx
+msgid "People"
+msgstr "People"
+
+#: libs/synthetic-population-client-ts/src/online-now-view.tsx
+msgid "People and Synthetic Users appear here as soon as they open the app."
+msgstr "People and Synthetic Users appear here as soon as they open the app."
+
 #: libs/game-puzzle-client-ts/src/content-pack-preview.tsx
 msgid "People can choose any puzzle. Only published editions can be included when you publish this pack."
 msgstr "People can choose any puzzle. Only published editions can be included when you publish this pack."
@@ -5505,6 +5657,10 @@ msgstr "People can play them in any order. Publishing the pack keeps each puzzle
 #: libs/spaces-client-ts/src/space-members-sheet-view.tsx
 msgid "People in this space"
 msgstr "People in this space"
+
+#: libs/synthetic-population-client-ts/src/live-labels.tsx
+msgid "People search"
+msgstr "People search"
 
 #: libs/spaces-client-ts/src/space-share-sheet-view.tsx
 msgid "People with access"
@@ -5537,8 +5693,13 @@ msgid "Permanently delete account?"
 msgstr "Permanently delete account?"
 
 #: libs/game-session-client-ts/src/custom-game-status.tsx
+#: libs/synthetic-population-client-ts/src/live-labels.tsx
 msgid "Person"
 msgstr "Person"
+
+#: libs/synthetic-population-client-ts/src/synthetic-user-persona.tsx
+msgid "Persona"
+msgstr "Persona"
 
 #: libs/connect-four-client-ts/src/connect-four-board.tsx
 msgid "Pick a column to drop your disc"
@@ -5576,6 +5737,10 @@ msgstr "Place every tile in one row or one column."
 #: libs/battleship-client-ts/src/battleship-setup-precision.tsx
 msgid "Place in {0}"
 msgstr "Place in {0}"
+
+#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
+msgid "Place in the app"
+msgstr "Place in the app"
 
 #: libs/word-tiles-client-ts/src/word-tiles-game-client.tsx
 msgid "Place letter tiles, cross words, score squares."
@@ -5667,6 +5832,14 @@ msgstr "Players and scores"
 #: pkgs/ui-root-client-ts/src/sound-indicator/index.tsx
 msgid "Playing"
 msgstr "Playing"
+
+#: libs/synthetic-population-client-ts/src/live-labels.tsx
+msgid "Playing {game}"
+msgstr "Playing {game}"
+
+#: libs/synthetic-population-client-ts/src/live-labels.tsx
+msgid "Playing a game"
+msgstr "Playing a game"
 
 #: libs/friends-client-ts/src/friends-list-screen-view.tsx
 #: libs/friends-client-ts/src/friends-playing-now.tsx
@@ -5823,6 +5996,7 @@ msgstr "Production"
 #: libs/profile-client-ts/src/profile-handle-screen-view.tsx
 #: libs/profile-client-ts/src/profile-screen-view.tsx
 #: libs/profile-client-ts/src/sub-client.tsx
+#: libs/synthetic-population-client-ts/src/live-labels.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-population-denial.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-population-screen-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-user-screen-view.tsx
@@ -6175,6 +6349,10 @@ msgstr "Reading Synthetic Population…"
 #: libs/synthetic-population-client-ts/src/synthetic-population-users-view.tsx
 msgid "Reading Synthetic Users…"
 msgstr "Reading Synthetic Users…"
+
+#: libs/synthetic-population-client-ts/src/online-now-view.tsx
+msgid "Reading who is online now…"
+msgstr "Reading who is online now…"
 
 #: libs/chess-puzzle-client-ts/src/puzzle-import-status.tsx
 #: libs/game-matchmaking-client-ts/src/multiplayer-private-setup.tsx
@@ -6539,6 +6717,18 @@ msgstr "Restart this Synthetic User?"
 #: libs/synthetic-population-client-ts/src/synthetic-user-controls.tsx
 msgid "Resume"
 msgstr "Resume"
+
+#: libs/synthetic-population-client-ts/src/every-synthetic-user-controls.tsx
+msgid "Resume all"
+msgstr "Resume all"
+
+#: libs/synthetic-population-client-ts/src/every-synthetic-user-controls.tsx
+msgid "Resume every Synthetic User"
+msgstr "Resume every Synthetic User"
+
+#: libs/synthetic-population-client-ts/src/every-synthetic-user-controls.tsx
+msgid "Resume every Synthetic User?"
+msgstr "Resume every Synthetic User?"
 
 #: libs/synthetic-population-client-ts/src/synthetic-user-controls.tsx
 msgid "Resumed"
@@ -7017,6 +7207,8 @@ msgstr "Sessions"
 #: libs/game-puzzle-client-ts/src/personal-puzzle-stats-screen-view.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-feed-bar-view.tsx
 #: libs/profile-client-ts/src/profile-screen-view.tsx
+#: libs/synthetic-population-client-ts/src/live-labels.tsx
+#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-population-denial.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-population-screen-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-user-screen-view.tsx
@@ -7095,6 +7287,10 @@ msgstr "Show performance monitor"
 #: libs/game-matchmaking-client-ts/src/multiplayer-moves.tsx
 msgid "Show the position after {0}"
 msgstr "Show the position after {0}"
+
+#: libs/synthetic-population-client-ts/src/online-now-view.tsx
+msgid "Show who is online now"
+msgstr "Show who is online now"
 
 #: libs/sokoban-client-ts/src/sokoban-play-board.tsx
 msgid "Show whole board"
@@ -7215,6 +7411,7 @@ msgid "Sign-in link"
 msgstr "Sign-in link"
 
 #: libs/auth-client-ts/src/sign-in-methods-section.tsx
+#: libs/synthetic-population-client-ts/src/live-labels.tsx
 msgid "Sign-in methods"
 msgstr "Sign-in methods"
 
@@ -7277,6 +7474,10 @@ msgstr "six scoreless turns"
 #: libs/word-tiles-client-ts/src/word-tiles-game-client.tsx
 msgid "Six turns in a row scored nothing. Each player's remaining tiles count against them."
 msgstr "Six turns in a row scored nothing. Each player's remaining tiles count against them."
+
+#: libs/synthetic-population-client-ts/src/synthetic-user-persona.tsx
+msgid "Skill level"
+msgstr "Skill level"
 
 #: libs/game-puzzle-client-ts/src/puzzle-action-bar-items.tsx
 msgid "Skip puzzle"
@@ -7420,6 +7621,7 @@ msgstr "Space renamed"
 #: libs/spaces-client-ts/src/space-unreachable-screen-view.tsx
 #: libs/spaces-client-ts/src/spaces-screen-view.tsx
 #: libs/spaces-client-ts/src/sub-client.tsx
+#: libs/synthetic-population-client-ts/src/live-labels.tsx
 msgid "Spaces"
 msgstr "Spaces"
 
@@ -7613,6 +7815,10 @@ msgstr "Stopped"
 msgid "Streak"
 msgstr "Streak"
 
+#: libs/synthetic-population-client-ts/src/synthetic-user-persona.tsx
+msgid "Strong"
+msgstr "Strong"
+
 #: libs/profile-client-ts/src/avatar-editor-pickers.tsx
 msgid "Style"
 msgstr "Style"
@@ -7689,6 +7895,7 @@ msgstr "Synthetic Population Worker"
 msgid "Synthetic Population Workers"
 msgstr "Synthetic Population Workers"
 
+#: libs/synthetic-population-client-ts/src/live-labels.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-user-screen-view.tsx
 msgid "Synthetic User"
 msgstr "Synthetic User"
@@ -7701,6 +7908,7 @@ msgstr "Synthetic User could not be loaded."
 msgid "Synthetic User directory could not be loaded."
 msgstr "Synthetic User directory could not be loaded."
 
+#: libs/synthetic-population-client-ts/src/online-now-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-population-users-view.tsx
 msgid "Synthetic Users"
 msgstr "Synthetic Users"
@@ -8182,8 +8390,8 @@ msgid "The space stays open. They can join again through its link."
 msgstr "The space stays open. They can join again through its link."
 
 #: libs/synthetic-population-client-ts/src/synthetic-user-controls.tsx
-msgid "The Synthetic Population Worker will recover this application."
-msgstr "The Synthetic Population Worker will recover this application."
+msgid "The Synthetic Population Worker reopens its app and it carries on where it was."
+msgstr "The Synthetic Population Worker reopens its app and it carries on where it was."
 
 #: libs/light-cycles-client-ts/src/light-cycles-game-client.tsx
 msgid "The target score was reached."
@@ -8212,6 +8420,10 @@ msgstr "The worker's way is blocked."
 #: libs/game-puzzle-client-ts/src/use-content-copy-choice.tsx
 msgid "The working draft changed. Open the kept copies and choose again."
 msgstr "The working draft changed. Open the kept copies and choose again."
+
+#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
+msgid "Their screen could not be shown."
+msgstr "Their screen could not be shown."
 
 #: libs/app-root-client-ts/src/app-header-global-menu-view.tsx
 #: libs/app-root-client-ts/src/theme-screen-view.tsx
@@ -8250,6 +8462,10 @@ msgstr "There is no secret choice to make now."
 msgid "They already asked you"
 msgstr "They already asked you"
 
+#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
+msgid "They are no longer online now"
+msgstr "They are no longer online now"
+
 #: libs/spaces-client-ts/src/space-share-add-people-view.tsx
 msgid "They can find this space in their lobby and choose Join."
 msgstr "They can find this space in their lobby and choose Join."
@@ -8261,6 +8477,10 @@ msgstr "They will be removed from your friends list."
 #: libs/spaces-client-ts/src/remove-space-person-modal-view.tsx
 msgid "They will leave this space. They can choose to join again through the space link."
 msgstr "They will leave this space. They can choose to join again through the space link."
+
+#: libs/synthetic-population-client-ts/src/synthetic-user-persona.tsx
+msgid "Thinking time"
+msgstr "Thinking time"
 
 #: libs/billing-client-ts/src/billing-plan-actions.tsx
 msgid "This account already has a membership, so nothing was charged. Looking for it now."
@@ -8795,6 +9015,11 @@ msgstr "Unlimited access to {productName} servers"
 msgid "Unmute coach"
 msgstr "Unmute coach"
 
+#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
+#: libs/synthetic-population-client-ts/src/online-now-view.tsx
+msgid "Unnamed"
+msgstr "Unnamed"
+
 #: libs/game-puzzle-client-ts/src/content-pack-overview.tsx
 msgid "Unplayed"
 msgstr "Unplayed"
@@ -9045,6 +9270,10 @@ msgstr "Waiting for the host to start a puzzle."
 msgid "Waiting for the host to start."
 msgstr "Waiting for the host to start."
 
+#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
+msgid "Waiting for their screen…"
+msgstr "Waiting for their screen…"
+
 #: libs/sokoban-client-ts/src/use-sokoban-words.tsx
 msgid "wall"
 msgstr "wall"
@@ -9080,6 +9309,14 @@ msgstr "Walls must fit between four squares. Choose a starting square from a1 to
 #: libs/friends-client-ts/src/friend-requests-aside.tsx
 msgid "Wants to be friends"
 msgstr "Wants to be friends"
+
+#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
+msgid "Watch live"
+msgstr "Watch live"
+
+#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
+msgid "Watching live stopped. Pick someone else who is online now."
+msgstr "Watching live stopped. Pick someone else who is online now."
 
 #. placeholder {0}: presentation(props.game.fen).name()
 #: libs/game-matchmaking-client-ts/src/multiplayer-status.tsx
@@ -9147,6 +9384,10 @@ msgstr "White is stalemated."
 #: pkgs/chess-board-root-client-ts/src/chess-board/guidance.tsx
 msgid "White pieces at the bottom."
 msgstr "White pieces at the bottom."
+
+#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
+msgid "Who"
+msgstr "Who"
 
 #: libs/spaces-client-ts/src/space-who-is-here-view.tsx
 msgid "Who's here"

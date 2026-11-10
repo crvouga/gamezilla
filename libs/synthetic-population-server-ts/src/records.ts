@@ -2,6 +2,10 @@ import type {
   Checkpoint,
   SyntheticPopulationConfig,
 } from '@libs/synthetic-population-shared-ts/config';
+import {
+  type Persona,
+  personaSchema,
+} from '@libs/synthetic-population-shared-ts/persona';
 import type { Clock } from '@pkgs/clock-shared-ts/types';
 import type { CreateId } from '@pkgs/uuid-shared-ts/create-id';
 import { z } from 'zod';
@@ -27,6 +31,8 @@ export type UserRecord = {
   last_error: string | null;
   inspection_requested_at: string | null;
   inspection: unknown;
+  /** Who the Synthetic User is as a player; `null` for a row from before personas. */
+  persona: Persona | null;
   created_at: string;
   updated_at: string;
 };
@@ -82,4 +88,16 @@ export function jsonValue(value: unknown): unknown {
 }
 export function isoAt(ms: number): string {
   return new Date(ms).toISOString();
+}
+
+/** The persisted persona, or `null` when the row predates personas or is damaged. */
+export function personaOf(value: unknown): Persona | null {
+  let decoded: unknown;
+  try {
+    decoded = jsonValue(value);
+  } catch {
+    return null;
+  }
+  const parsed = personaSchema.safeParse(decoded);
+  return parsed.success ? parsed.data : null;
 }

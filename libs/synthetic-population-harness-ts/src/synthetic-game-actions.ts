@@ -8,7 +8,7 @@ import {
   createSpace,
   returnToOwnSpace,
 } from '@libs/spaces-harness-ts/space-actions';
-import { openMultiplayer } from '@libs/synthetic-population-shared-ts/game-automation';
+import { openMultiplayer } from '@libs/synthetic-population-behavior-shared-ts/game-automation';
 
 /**
  * The registered game a synthetic-population spec names, by the name its

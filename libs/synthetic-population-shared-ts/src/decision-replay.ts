@@ -10,6 +10,15 @@ export const decisionReplaySchema = z.object({
   sessionElapsedMs: z.number().nonnegative(),
   sessionLimitMs: z.number().nonnegative(),
   hostingWeight: z.number(),
+  waitingOpponents: z
+    .array(
+      z.object({
+        gameId: z.string().max(64),
+        timeControl: z.string().max(64),
+      })
+    )
+    .max(32)
+    .default([]),
   draws: z.array(z.number().min(0).lt(1)).max(2),
   selected: z.object({
     activity: z.string(),

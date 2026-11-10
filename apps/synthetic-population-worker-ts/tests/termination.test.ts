@@ -59,6 +59,7 @@ test('draining renews existing ownership, rejects new assignments, and force-sto
       version: 'v2',
       capacity: 1,
       shutdownMs: 25_000,
+      games: [],
     },
     {
       ...f,

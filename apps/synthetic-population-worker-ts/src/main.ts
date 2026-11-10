@@ -3,6 +3,7 @@ import { workerWallPorts } from './wall-io';
 
 const wall = workerWallPorts();
 
+import { GAME_AUTOMATIONS } from '@libs/game-catalog-shared-ts/game-automations';
 import { createLogger } from '@pkgs/logger-shared-ts/logger';
 import { processLifecycle } from '@pkgs/os-server-ts/process-lifecycle';
 import { createIsolatedWorker } from '@pkgs/os-server-ts/wall-isolated-worker';
@@ -31,6 +32,7 @@ const worker: SyntheticPopulationWorker = new SyntheticPopulationWorker(
     version: env.DEPLOYMENT_VERSION,
     capacity: env.POPULATION_CAPACITY,
     shutdownMs: env.POPULATION_SHUTDOWN_MS,
+    games: GAME_AUTOMATIONS.map((game) => game.rules.id),
   },
   {
     clock: wall.clock,

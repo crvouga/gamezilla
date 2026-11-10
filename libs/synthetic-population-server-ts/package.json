@@ -20,6 +20,7 @@
     "@libs/app-root-shared-ts": "workspace:*",
     "@libs/auth-shared-ts": "workspace:*",
     "@libs/permissions-shared-ts": "workspace:*",
+    "@libs/profile-shared-ts": "workspace:*",
     "@libs/pubsub-server-ts": "workspace:*",
     "@libs/pubsub-shared-ts": "workspace:*",
     "@libs/sub-shared-ts": "workspace:*",
@@ -35,7 +36,6 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@libs/profile-shared-ts": "workspace:*",
     "@pkgs/db-schema-root-shared-ts": "workspace:*",
     "@pkgs/db-schema-sqlite-shared-ts": "workspace:*",
     "@pkgs/property-shared-ts": "workspace:*",

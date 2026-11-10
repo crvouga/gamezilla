@@ -5,7 +5,7 @@ import {
 } from '@libs/synthetic-population-shared-ts/config';
 import { createLogger } from '@pkgs/logger-shared-ts/logger';
 import type { SqlTx } from '@pkgs/sql-client-root-shared-ts/interface';
-import sql from '@pkgs/sql-root-shared-ts/sql';
+import sql, { raw } from '@pkgs/sql-root-shared-ts/sql';
 import type {
   ConfigurationRecord,
   EventRecord,
@@ -13,10 +13,15 @@ import type {
   UserRecord,
   WorkerRecord,
 } from './records';
-import { isoAt, jsonValue } from './records';
+import { isoAt, jsonValue, personaOf } from './records';
 
 export const USER_COLUMNS =
-  'id, account_id, username, region, paused, worker_id, generation, lease_until, activity, checkpoint, application_version, last_action, last_error, inspection_requested_at, inspection, created_at, updated_at';
+  'id, account_id, username, region, paused, worker_id, generation, lease_until, activity, checkpoint, application_version, last_action, last_error, inspection_requested_at, inspection, personality, created_at, updated_at';
+
+/** A stored user row: the persona is still the raw column. */
+export type StoredUserRecord = Omit<UserRecord, 'persona'> & {
+  personality: unknown;
+};
 
 export class SyntheticPopulationRepository {
   constructor(
@@ -47,14 +52,14 @@ export class SyntheticPopulationRepository {
   async users(): Promise<UserRecord[]> {
     // Deliberately enumerate fields: an address and its mail never enter an administrative response.
     const rows = await this.tx.query(
-      sql<UserRecord>`SELECT id, account_id, username, region, paused, worker_id, generation, lease_until, activity, checkpoint, application_version, last_action, last_error, inspection_requested_at, inspection, created_at, updated_at FROM population_users WHERE deleted_at IS NULL ORDER BY username LIMIT 1000`
+      sql<StoredUserRecord>`SELECT ${raw(USER_COLUMNS)} FROM population_users WHERE deleted_at IS NULL ORDER BY username LIMIT 1000`
     );
     return rows.map(normalizeUser);
   }
 
   async user(id: string): Promise<UserRecord | null> {
     const rows = await this.tx.query(
-      sql<UserRecord>`SELECT id, account_id, username, region, paused, worker_id, generation, lease_until, activity, checkpoint, application_version, last_action, last_error, inspection_requested_at, inspection, created_at, updated_at FROM population_users WHERE id = ${id} AND deleted_at IS NULL`
+      sql<StoredUserRecord>`SELECT ${raw(USER_COLUMNS)} FROM population_users WHERE id = ${id} AND deleted_at IS NULL`
     );
     return rows[0] === undefined ? null : normalizeUser(rows[0]);
   }
@@ -139,9 +144,11 @@ export class SyntheticPopulationRepository {
   }
 }
 
-function normalizeUser(row: UserRecord): UserRecord {
+export function normalizeUser(stored: StoredUserRecord): UserRecord {
+  const { personality, ...row } = stored;
   return {
     ...row,
+    persona: personaOf(personality),
     paused: Boolean(row.paused),
     checkpoint: jsonValue(row.checkpoint) as UserRecord['checkpoint'],
     inspection: jsonValue(row.inspection),

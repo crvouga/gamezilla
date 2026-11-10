@@ -13,16 +13,17 @@ Given(
     w.memo.set('synthetic-population:next-game', game);
   }
 );
-When('{string} starts its next activity', async (w, _name: string) => {
+When('{string} starts its next activity', async (w, name: string) => {
   await w.s.apply(
     startSyntheticActivity,
-    w.memo.get('synthetic-population:next-game') as string
+    w.memo.get('synthetic-population:next-game') as string,
+    name
   );
 });
 Then(
   '{string} is looking for a multiplayer opponent for {string}',
-  async (w, _name: string, game: string) => {
-    expect(await w.s.read(syntheticGameChoice)).toEqual({
+  async (w, name: string, game: string) => {
+    expect(await w.s.read(syntheticGameChoice, name)).toEqual({
       chosenGame: game,
       seekingOpponent: true,
     });

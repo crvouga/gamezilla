@@ -1,33 +1,61 @@
-import { GAME_AUTOMATIONS } from '@libs/game-catalog-shared-ts/game-automations';
-import { actorUi, pollUntil } from '@libs/harness-ts/actor-ui';
+import { pollUntil } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront } from '@libs/harness-ts/observations';
+import type { SyntheticUserApplication } from '@libs/synthetic-population-behavior-shared-ts/synthetic-user-application';
 import type { ApplicationEvent } from '@libs/synthetic-population-shared-ts/application-events';
-import { SyntheticUserApplication } from '@libs/synthetic-population-shared-ts/synthetic-user-application';
+import {
+  liveSyntheticUsers,
+  syntheticApplication,
+} from './live-synthetic-users';
+import { recordMovesSeen } from './moves-seen';
 import { syntheticGameView } from './synthetic-game-actions';
+import { cedarUser } from './synthetic-user-fixtures';
 
-/** Continues only the current match; administrative pause never abandons it. */
+/**
+ * Continues only the current match, Cedar's and any other Synthetic User's
+ * in it (each as its persona plays); administrative pause never abandons it.
+ */
 export async function playSyntheticCurrentGame(
   s: ProductHarness,
   emit: (event: ApplicationEvent) => void
 ): Promise<void> {
-  await bringToFront(s, 'cedar');
-  const driver = await actorUi(s, 'cedar');
-  const application = new SyntheticUserApplication(driver, {
-    games: GAME_AUTOMATIONS,
-    clock: s.harness.clock,
-    random: s.session.ports.random,
-    username: 'cedar',
-    emit,
-  });
-  application.authenticated();
+  const cedar = await cedarUser(s);
+  const others = (await liveSyntheticUsers(s)).filter(
+    (member) => member.actor !== 'cedar'
+  );
+  const players: { actor: string; app: SyntheticUserApplication }[] = [
+    {
+      actor: 'cedar',
+      app: await syntheticApplication(
+        s,
+        { actor: 'cedar', userId: cedar.id },
+        emit
+      ),
+    },
+  ];
+  for (const member of others)
+    players.push({
+      actor: member.actor,
+      app: await syntheticApplication(s, member),
+    });
+  const play = async () => {
+    for (const player of players) {
+      await bringToFront(s, player.actor);
+      await player.app.continueCurrentGame();
+    }
+    await recordMovesSeen(s);
+    await bringToFront(s, 'cedar');
+  };
   try {
-    await application.continueCurrentGame();
-    if (await driver.get('multiplayer-offline').isVisible()) return;
+    await recordMovesSeen(s);
+    await bringToFront(s, 'cedar');
+    await players[0]!.app.continueCurrentGame();
+    if (await s.actors.get('cedar')!.ui.get('multiplayer-offline').isVisible())
+      return;
     await pollUntil(
       s,
       async () => {
-        await application.continueCurrentGame();
+        await play();
         const game = await syntheticGameView(s);
         return game.outcome !== null && game.outcome !== 'ongoing'
           ? game
@@ -39,6 +67,6 @@ export async function playSyntheticCurrentGame(
       }
     );
   } finally {
-    application.close();
+    for (const player of players) player.app.close();
   }
 }

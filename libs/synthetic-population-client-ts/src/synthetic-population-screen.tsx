@@ -8,7 +8,10 @@ import {
 import { DEFAULT_SYNTHETIC_POPULATION_CONFIG } from '@libs/synthetic-population-shared-ts/config';
 import { useLingui } from '@lingui/solid/macro';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
+import { useCreateId } from '@pkgs/uuid-client-ts/solid';
 import { createResource, type JSX } from 'solid-js';
+import type { EveryCommand } from './every-synthetic-user-controls';
+import { SyntheticPopulationOnlineNow } from './online-now';
 import { resourceValue } from './resource-value';
 import { useSyntheticPopulationApi } from './synthetic-population-api';
 import {
@@ -25,6 +28,9 @@ function SyntheticPopulationContent(): JSX.Element {
   const router = useRouter();
   const configure = useCan(PERMISSION.syntheticPopulationConfigure);
   const inspect = useCan(PERMISSION.syntheticPopulationInspect);
+  const control = useCan(PERMISSION.syntheticPopulationControl);
+  const watch = useCan(PERMISSION.syntheticPopulationWatch);
+  const createId = useCreateId();
   const draft = useSyntheticPopulationConfiguration();
   const [overview, { refetch }] = createResource(async () => {
     const result = await api.overview();
@@ -40,6 +46,10 @@ function SyntheticPopulationContent(): JSX.Element {
     await api.configure(value);
     await refetch();
   };
+  const commandAll = async (command: EveryCommand) => {
+    await api.commandAll({ command, operationId: createId() });
+    await refetch();
+  };
   return (
     <SyntheticPopulationScreenView
       loading={overview.loading}
@@ -53,6 +63,18 @@ function SyntheticPopulationContent(): JSX.Element {
       onRefresh={() => {
         void refetch();
       }}
+      canControl={control()}
+      onCommandAll={commandAll}
+      onlineNow={() => (
+        <SyntheticPopulationOnlineNow
+          canWatch={watch()}
+          canControl={control()}
+          watch={(id) => router.push(`/admin/synthetic-population/live/${id}`)}
+          controlPanel={(id) =>
+            router.push(`/admin/synthetic-population/users/${id}`)
+          }
+        />
+      )}
       directory={(observedAtMs) => (
         <SyntheticPopulationUsers
           observedAtMs={observedAtMs}
@@ -82,6 +104,8 @@ function DeniedSyntheticPopulation(props: { denial: DenialView }): JSX.Element {
       onChangeField={() => undefined}
       onSave={async () => undefined}
       onRefresh={() => undefined}
+      canControl={false}
+      onCommandAll={async () => undefined}
     />
   );
 }
@@ -118,6 +142,16 @@ export function SyntheticPopulationConfigurationScreen(): JSX.Element {
     <SyntheticPopulationRoute
       permission={PERMISSION.syntheticPopulationConfigure}
       testId="synthetic-population-config-denied"
+    />
+  );
+}
+
+/** `/admin/synthetic-population/control`: the same screen, gated on control. */
+export function SyntheticPopulationControlScreen(): JSX.Element {
+  return (
+    <SyntheticPopulationRoute
+      permission={PERMISSION.syntheticPopulationControl}
+      testId="synthetic-population-control-denied"
     />
   );
 }

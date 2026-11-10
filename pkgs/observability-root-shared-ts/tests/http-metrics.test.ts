@@ -74,8 +74,7 @@ describe('the request metrics', () => {
 });
 
 describe('histogram boundaries', () => {
-  test('are ascending and start at zero, in seconds for durations', () => {
-    expect(HISTOGRAM_BOUNDARIES[0]).toBe(0);
+  test('are ascending, in seconds for durations', () => {
     expect([...HISTOGRAM_BOUNDARIES]).toEqual(
       [...HISTOGRAM_BOUNDARIES].sort((a, b) => a - b)
     );

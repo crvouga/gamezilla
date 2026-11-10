@@ -32,8 +32,10 @@ import {
   OPPONENT_SEARCH_SCHEMA,
   OPPONENT_TIME_CONTROL_KEY,
   opponentPool,
+  opponentPoolSignature,
 } from './search-config';
 import { projectOpponentSearch } from './search-projection';
+import { searchRating } from './synthetic-search-rating';
 
 export function requireOfferedMatchChoice(
   id: string,
@@ -116,6 +118,11 @@ export async function beginOpponentSearch(
     ctx.env.actorId,
     control.ratingPool
   );
+  const searchedRating = await searchRating(ctx.tx, {
+    ownerId: ctx.env.actorId,
+    ownRating: rating.rating,
+    poolSignature: opponentPoolSignature(control.id, requireTurnGames(ctx.env)),
+  });
   const result = await new SearchCommands(ctx.tx, {
     now,
     schema: OPPONENT_SEARCH_SCHEMA,
@@ -129,7 +136,7 @@ export async function beginOpponentSearch(
           control.id,
           requireTurnGames(ctx.env)
         ),
-        [OPPONENT_RATING_KEY]: rating.rating,
+        [OPPONENT_RATING_KEY]: searchedRating,
         [OPPONENT_TIME_CONTROL_KEY]: control.id,
       },
       'opponent search'

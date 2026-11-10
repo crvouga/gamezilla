@@ -321,6 +321,7 @@
         "@libs/runtime-client-ts": "workspace:*",
         "@libs/runtime-shared-ts": "workspace:*",
         "@libs/spaces-client-ts": "workspace:*",
+        "@libs/synthetic-population-behavior-shared-ts": "workspace:*",
         "@libs/synthetic-population-server-ts": "workspace:*",
         "@libs/synthetic-population-shared-ts": "workspace:*",
         "@opentelemetry/exporter-metrics-otlp-http": "catalog:",
@@ -3729,6 +3730,26 @@
         "zod": "catalog:",
       },
     },
+    "libs/synthetic-population-behavior-shared-ts": {
+      "name": "@libs/synthetic-population-behavior-shared-ts",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/synthetic-population-shared-ts": "workspace:*",
+        "@libs/test-ids-shared-ts": "workspace:*",
+        "@pkgs/clock-shared-ts": "workspace:*",
+        "@pkgs/turn-game-shared-ts": "workspace:*",
+        "@pkgs/ui-testing-root-shared-ts": "workspace:*",
+        "@pkgs/uuid-shared-ts": "workspace:*",
+        "xstate": "5.33.2",
+      },
+      "devDependencies": {
+        "@pkgs/property-shared-ts": "workspace:*",
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "libs/synthetic-population-client-ts": {
       "name": "@libs/synthetic-population-client-ts",
       "version": "0.0.0",
@@ -3739,13 +3760,19 @@
         "@libs/auth-shared-ts": "workspace:*",
         "@libs/permissions-client-ts": "workspace:*",
         "@libs/permissions-shared-ts": "workspace:*",
+        "@libs/profile-client-ts": "workspace:*",
+        "@libs/profile-shared-ts": "workspace:*",
         "@libs/sub-client-ts": "workspace:*",
         "@libs/synthetic-population-shared-ts": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/solid": "catalog:",
+        "@pkgs/clock-client-ts": "workspace:*",
         "@pkgs/http-client-client-ts": "workspace:*",
         "@pkgs/http-client-shared-ts": "workspace:*",
         "@pkgs/logger-shared-ts": "workspace:*",
+        "@pkgs/sql-root-shared-ts": "workspace:*",
+        "@pkgs/sync-engine-client-ts": "workspace:*",
+        "@pkgs/turn-game-client-ts": "workspace:*",
         "@pkgs/ui-root-client-ts": "workspace:*",
         "@pkgs/uuid-client-ts": "workspace:*",
         "@solidjs/router": "catalog:",
@@ -3754,6 +3781,7 @@
       },
       "devDependencies": {
         "@libs/synthetic-population-server-ts": "workspace:*",
+        "@pkgs/bun-test-solid-client-ts": "workspace:*",
         "@solidjs/testing-library": "catalog:",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
@@ -3775,8 +3803,10 @@
         "@libs/harness-ts": "workspace:*",
         "@libs/permissions-shared-ts": "workspace:*",
         "@libs/profile-harness-ts": "workspace:*",
+        "@libs/search-harness-ts": "workspace:*",
         "@libs/spaces-harness-ts": "workspace:*",
         "@libs/sub-shared-ts": "workspace:*",
+        "@libs/synthetic-population-behavior-shared-ts": "workspace:*",
         "@libs/synthetic-population-client-ts": "workspace:*",
         "@libs/synthetic-population-server-ts": "workspace:*",
         "@libs/synthetic-population-shared-ts": "workspace:*",
@@ -3806,6 +3836,7 @@
         "@libs/app-root-shared-ts": "workspace:*",
         "@libs/auth-shared-ts": "workspace:*",
         "@libs/permissions-shared-ts": "workspace:*",
+        "@libs/profile-shared-ts": "workspace:*",
         "@libs/pubsub-server-ts": "workspace:*",
         "@libs/pubsub-shared-ts": "workspace:*",
         "@libs/sub-shared-ts": "workspace:*",
@@ -3821,7 +3852,6 @@
         "zod": "catalog:",
       },
       "devDependencies": {
-        "@libs/profile-shared-ts": "workspace:*",
         "@pkgs/db-schema-root-shared-ts": "workspace:*",
         "@pkgs/db-schema-sqlite-shared-ts": "workspace:*",
         "@pkgs/property-shared-ts": "workspace:*",
@@ -3838,12 +3868,10 @@
       "dependencies": {
         "@libs/product-identity-shared-ts": "workspace:*",
         "@libs/sub-shared-ts": "workspace:*",
-        "@libs/test-ids-shared-ts": "workspace:*",
-        "@pkgs/clock-shared-ts": "workspace:*",
         "@pkgs/db-schema-root-shared-ts": "workspace:*",
         "@pkgs/sql-client-root-shared-ts": "workspace:*",
         "@pkgs/sql-root-shared-ts": "workspace:*",
-        "@pkgs/turn-game-shared-ts": "workspace:*",
+        "@pkgs/sync-engine-shared-ts": "workspace:*",
         "@pkgs/ui-testing-root-shared-ts": "workspace:*",
         "@pkgs/uuid-shared-ts": "workspace:*",
         "xstate": "5.33.2",
@@ -6245,6 +6273,20 @@
         "typescript": "catalog:",
       },
     },
+    "pkgs/pubsub-contract-harness-ts": {
+      "name": "@pkgs/pubsub-contract-harness-ts",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/clock-shared-ts": "workspace:*",
+        "@pkgs/pubsub-root-shared-ts": "workspace:*",
+      },
+      "devDependencies": {
+        "@pkgs/logger-shared-ts": "workspace:*",
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "pkgs/pubsub-emqx-harness-ts": {
       "name": "@pkgs/pubsub-emqx-harness-ts",
       "version": "0.0.0",
@@ -6254,6 +6296,7 @@
         "@pkgs/emqx-shared-ts": "workspace:*",
         "@pkgs/http-client-shared-ts": "workspace:*",
         "@pkgs/logger-shared-ts": "workspace:*",
+        "@pkgs/pubsub-contract-harness-ts": "workspace:*",
         "@pkgs/pubsub-emqx-shared-ts": "workspace:*",
         "@pkgs/pubsub-root-shared-ts": "workspace:*",
         "@types/bun": "catalog:",
@@ -6313,7 +6356,6 @@
       "name": "@pkgs/pubsub-root-shared-ts",
       "version": "0.0.0",
       "dependencies": {
-        "@pkgs/clock-shared-ts": "workspace:*",
         "@pkgs/http-client-shared-ts": "workspace:*",
         "@pkgs/logger-shared-ts": "workspace:*",
       },
@@ -8640,6 +8682,8 @@
 
     "@libs/sub-shared-ts": ["@libs/sub-shared-ts@workspace:libs/sub-shared-ts"],
 
+    "@libs/synthetic-population-behavior-shared-ts": ["@libs/synthetic-population-behavior-shared-ts@workspace:libs/synthetic-population-behavior-shared-ts"],
+
     "@libs/synthetic-population-client-ts": ["@libs/synthetic-population-client-ts@workspace:libs/synthetic-population-client-ts"],
 
     "@libs/synthetic-population-harness-ts": ["@libs/synthetic-population-harness-ts@workspace:libs/synthetic-population-harness-ts"],
@@ -9197,6 +9241,8 @@
     "@pkgs/property-shared-ts": ["@pkgs/property-shared-ts@workspace:pkgs/property-shared-ts"],
 
     "@pkgs/pubsub-aedes-shared-ts": ["@pkgs/pubsub-aedes-shared-ts@workspace:pkgs/pubsub-aedes-shared-ts"],
+
+    "@pkgs/pubsub-contract-harness-ts": ["@pkgs/pubsub-contract-harness-ts@workspace:pkgs/pubsub-contract-harness-ts"],
 
     "@pkgs/pubsub-emqx-harness-ts": ["@pkgs/pubsub-emqx-harness-ts@workspace:pkgs/pubsub-emqx-harness-ts"],
 

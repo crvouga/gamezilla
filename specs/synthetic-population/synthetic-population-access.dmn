@@ -9,7 +9,7 @@
       </input>
       <input id="capability" label="what they want to do">
         <inputExpression id="capability-expression" typeRef="string"><text>what they want to do</text></inputExpression>
-        <inputValues id="capability-values"><text>"view the Bot Observatory","inspect a Synthetic User","configure the Synthetic Population","control a Synthetic User","replay Synthetic User decisions"</text></inputValues>
+        <inputValues id="capability-values"><text>"view the Bot Observatory","inspect a Synthetic User","configure the Synthetic Population","control a Synthetic User","replay Synthetic User decisions","watch someone live"</text></inputValues>
       </input>
       <output id="answer" name="answer" typeRef="string"><outputValues id="answer-values"><text>"yes","no"</text></outputValues></output>
       <output id="reason" name="reason" typeRef="string"><outputValues id="reason-values"><text>"none","permission required"</text></outputValues></output>

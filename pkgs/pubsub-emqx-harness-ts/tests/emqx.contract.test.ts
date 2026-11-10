@@ -15,6 +15,8 @@ import {
 } from '@pkgs/emqx-shared-ts/ports';
 import { createGlobalHttpClient } from '@pkgs/http-client-shared-ts/global';
 import { createNoopLogger } from '@pkgs/logger-shared-ts/logger';
+import { runPubSubContractTests } from '@pkgs/pubsub-contract-harness-ts/contract';
+import type { PubSubContractEnv } from '@pkgs/pubsub-contract-harness-ts/contract-types';
 import { createEmqxHttpPubSub } from '@pkgs/pubsub-emqx-shared-ts/create-emqx-http-pubsub';
 import {
   createEmqxPubSub,
@@ -22,8 +24,6 @@ import {
 } from '@pkgs/pubsub-emqx-shared-ts/create-emqx-pubsub';
 import { getEmqxClientId } from '@pkgs/pubsub-emqx-shared-ts/emqx-client-id';
 import { randomClientIdSuffix } from '@pkgs/pubsub-emqx-shared-ts/reconnect-backoff';
-import { runPubSubContractTests } from '@pkgs/pubsub-root-shared-ts/contract';
-import type { PubSubContractEnv } from '@pkgs/pubsub-root-shared-ts/contract-types';
 
 const API_KEY = EMQX_API_KEY;
 const API_SECRET = EMQX_API_SECRET;

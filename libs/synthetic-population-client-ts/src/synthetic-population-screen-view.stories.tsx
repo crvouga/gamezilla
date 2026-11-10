@@ -5,8 +5,12 @@ import {
   CONFIG,
   directory,
   EMPTY_OVERVIEW,
+  ONLINE_NOW,
   OVERVIEW,
+  onlineEntry,
+  onlineNow,
   PAGE,
+  PERSONA,
   userRow,
   worker,
 } from './synthetic-population.example';
@@ -24,7 +28,7 @@ const meta = {
   parameters: {
     appRouter: true,
     controls: {
-      exclude: ['overview', 'denial', 'fields', 'directory'],
+      exclude: ['overview', 'denial', 'fields', 'directory', 'onlineNow'],
     },
   },
   args: {
@@ -38,21 +42,91 @@ const meta = {
     onChangeField: fn(),
     onSave: fn(async () => undefined),
     onRefresh: fn(),
+    canControl: true,
+    onCommandAll: fn(async () => undefined),
+    onlineNow: onlineNow() as SyntheticPopulationScreenViewProps['onlineNow'],
   },
 } satisfies Meta<typeof SyntheticPopulationScreenView>;
 export default meta;
 type Story = StoryObj<typeof meta>;
 
 /**
- * A running population seen by an operator: counts, the configuration form,
- * the directory (one paused, one recovering) and workers that are ready,
- * draining and unreachable.
+ * A running population seen by an operator: counts, controls for every
+ * Synthetic User, people and Synthetic Users online now (only Synthetic
+ * Users offer a control panel), the configuration form, the directory (each
+ * row with its home region, skill level and favorite games; one paused, one
+ * recovering, one recorded before personas) and workers that
+ * are ready, draining and unreachable.
  */
 export const Populated: Story = {};
 
-/** A viewer without configure or inspect: no form, no save, rows do not open. */
+/**
+ * A viewer without configure, control, inspect or watch: no form, no
+ * controls, online-now rows do not open and offer no control panel.
+ */
 export const ViewOnly: Story = {
-  args: { canConfigure: false, directory: directory({ canInspect: false }) },
+  args: {
+    canConfigure: false,
+    canControl: false,
+    directory: directory({ canInspect: false }),
+    onlineNow: onlineNow({ canWatch: false, canControl: false }),
+  },
+};
+
+/** Showing only people online now: Synthetic Users are hidden. */
+export const OnlineNowPeopleOnly: Story = {
+  args: {
+    onlineNow: onlineNow({
+      filter: 'people',
+      entries: ONLINE_NOW.filter((entry) => entry.kind === 'person'),
+    }),
+  },
+};
+
+/** Showing only Synthetic Users online now: people are hidden. */
+export const OnlineNowSyntheticUsersOnly: Story = {
+  args: {
+    onlineNow: onlineNow({
+      filter: 'synthetic',
+      entries: ONLINE_NOW.filter((entry) => entry.kind === 'synthetic'),
+    }),
+  },
+};
+
+/** Nobody is online now: the list says so and what will appear. */
+export const OnlineNowEmpty: Story = {
+  args: { onlineNow: onlineNow({ entries: [] }) },
+};
+
+/** Who is online now is still being read. */
+export const OnlineNowLoading: Story = {
+  args: { onlineNow: onlineNow({ loading: true, entries: undefined }) },
+};
+
+/** Who is online now could not be read; its own retry asks again. */
+export const OnlineNowFailed: Story = {
+  args: { onlineNow: onlineNow({ failed: true, entries: undefined }) },
+};
+
+/** A later read failed: the last list stays, with a retry above the fold. */
+export const OnlineNowFailedKeepsList: Story = {
+  args: { onlineNow: onlineNow({ failed: true }) },
+};
+
+/** Long usernames and game names wrap instead of breaking rows. */
+export const OnlineNowLongContent: Story = {
+  args: {
+    onlineNow: onlineNow({
+      entries: [
+        onlineEntry(5, 'someone_with_a_really_long_username_that_goes_on', {
+          place: 'space',
+          activity: 'looking',
+          game: 'Quoridor on a board with an exceptionally long name',
+        }),
+        ...ONLINE_NOW,
+      ],
+    }),
+  },
 };
 
 /** The first read has not finished; the activity indicator, Refresh and unavailable Save. */
@@ -68,9 +142,10 @@ export const Failed: Story = {
   args: { failed: true, overview: undefined, canSave: false },
 };
 
-/** Nothing is running yet: empty directory, no workers, no events. */
+/** Nothing is running yet: nobody online, empty directory, no workers, no events. */
 export const Empty: Story = {
   args: {
+    onlineNow: onlineNow({ entries: [] }),
     overview: EMPTY_OVERVIEW,
     fields: toConfigurationDraft(EMPTY_OVERVIEW.config),
     directory: directory({ page: { users: [], nextCursor: null } }),
@@ -94,6 +169,45 @@ export const DirectoryPaged: Story = {
       filter: 'bot',
       paged: true,
       page: { ...PAGE, nextCursor: 'cursor-0002' },
+    }),
+  },
+};
+
+/**
+ * Each directory row names the persona's favorite games: three, one, or
+ * none when no game was on offer as it was provisioned.
+ */
+export const DirectoryFavoriteGames: Story = {
+  args: {
+    directory: directory({
+      page: {
+        users: [
+          userRow(5, 'quiet_heron', {
+            persona: {
+              ...PERSONA,
+              username: 'quiet_heron',
+              favoriteGames: ['backgammon', 'go', 'mancala'],
+            },
+          }),
+          userRow(6, 'sunny_otter', {
+            persona: {
+              ...PERSONA,
+              username: 'sunny_otter',
+              skillLevel: 'beginner',
+              favoriteGames: ['dominoes'],
+            },
+          }),
+          userRow(7, 'early_wren', {
+            persona: {
+              ...PERSONA,
+              username: 'early_wren',
+              skillLevel: 'strong',
+              favoriteGames: [],
+            },
+          }),
+        ],
+        nextCursor: null,
+      },
     }),
   },
 };
@@ -135,7 +249,9 @@ export const Denied: Story = {
   args: {
     overview: undefined,
     canConfigure: false,
+    canControl: false,
     directory: undefined,
+    onlineNow: undefined,
     denial: {
       icon: KeyRoundIcon,
       title: 'Not available',

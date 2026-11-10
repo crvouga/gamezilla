@@ -1,11 +1,6 @@
 import { ATTR } from './attributes';
 import { validateEvent } from './event-contract';
-import {
-  type MetricContract,
-  SYNC_DURATION_METRIC,
-  SYNC_STARTED_METRIC,
-  SYNC_TARGET_METRIC,
-} from './metric-contract';
+import { type MetricContract, SYNC_TARGET_METRIC } from './metric-contract';
 import { allowlistedAttributes } from './redaction';
 import { WEB_VITAL_EVENT } from './web-vital';
 
@@ -362,11 +357,7 @@ function browserMetricInstance(
 }
 
 type Row = Record<string, unknown>;
-const contracts = [
-  SYNC_DURATION_METRIC,
-  SYNC_STARTED_METRIC,
-  SYNC_TARGET_METRIC,
-];
+const contracts = [SYNC_TARGET_METRIC];
 const isSyncRecord = (x: unknown): x is Row =>
   x !== null && typeof x === 'object' && !Array.isArray(x);
 

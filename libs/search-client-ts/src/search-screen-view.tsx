@@ -173,7 +173,8 @@ function SearchResults(props: {
               </Notice>
             </Show>
             <ScreenBodyVirtualList
-              dataSet={{ testid: Handles.searchResults }}
+              // Results echo the search: private, like the field.
+              dataSet={{ testid: Handles.searchResults, sensitive: 'true' }}
               items={props.search.results}
               keyExtractor={(user) => user.userId}
               estimateSize={60}
@@ -275,7 +276,8 @@ export function SearchScreenView(props: SearchScreenViewProps): JSX.Element {
             autocapitalize="none"
             autocorrect="off"
             autofocus
-            dataSet={{ testid: Handles.searchInput }}
+            // What a person types is private: never part of a screen watched live.
+            dataSet={{ testid: Handles.searchInput, sensitive: 'true' }}
           />
           <Show when={mode() === 'compact'}>{props.requests}</Show>
         </>

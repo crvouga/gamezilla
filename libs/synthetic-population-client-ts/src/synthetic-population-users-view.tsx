@@ -9,6 +9,7 @@ import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
 import { For, type JSX, Show } from 'solid-js';
 import type { SyntheticPopulationDirectoryPage } from './synthetic-population-api';
+import { usePersonaCaption } from './synthetic-user-persona';
 
 export type SyntheticPopulationUsersViewProps = {
   /** The search text as typed. */
@@ -32,13 +33,14 @@ export type SyntheticPopulationUsersViewProps = {
 
 /**
  * The Synthetic User directory, presentational: search, one row per user
- * (paused users say so), its loading / empty / failed states and paging.
+ * with its home region, skill level and favorite games (paused users say so), its loading / empty / failed states and paging.
  * `SyntheticPopulationUsers` reads the pages.
  */
 export function SyntheticPopulationUsersView(
   props: SyntheticPopulationUsersViewProps
 ): JSX.Element {
   const { t } = useLingui();
+  const personaCaption = usePersonaCaption();
   return (
     <StackVertical gap="md" testId="synthetic-population-users">
       <TextInput
@@ -53,7 +55,9 @@ export function SyntheticPopulationUsersView(
           {(user) => (
             <MenuRow
               title={user.username}
-              caption={user.id}
+              caption={
+                user.persona === null ? user.id : personaCaption(user.persona)
+              }
               value={user.paused ? t`Paused` : user.activity}
               onClick={
                 props.canInspect ? () => props.onInspect(user.id) : undefined

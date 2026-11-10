@@ -89,11 +89,17 @@ export const slowAccountReady = scenarioAction({
 
 export const signInWithGoogle = scenarioAction({
   name: 'signInWithGoogle',
-  act: (s, actorId: string) =>
-    providerSignIn(s, actorId, {
+  act: async (s, actorId: string) => {
+    // Already signed in to this very account: there is nothing to do, and
+    // the sign-in invitation it would look for is not on screen.
+    const signedIn = await signedInAccountOf(s, actorId);
+    if (signedIn !== null && signedIn === (await accountIdOf(s, actorId)))
+      return;
+    await providerSignIn(s, actorId, {
       provider: 'google',
       email: actorEmail(s, actorId),
-    }),
+    });
+  },
 });
 
 /**

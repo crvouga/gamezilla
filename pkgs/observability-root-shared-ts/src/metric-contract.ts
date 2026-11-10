@@ -24,10 +24,12 @@ export const METRIC_DIMENSION_KEYS = [
  * Where the SDK cuts every histogram, in the instrument's own unit (seconds
  * for durations). A latency objective can only count "at most X" when X is
  * one of these, so the runtime and the objectives read the same list.
+ * Every bound is one more stored series per label combination per writer,
+ * so the list holds only the bounds objectives read (0.25 to 2.5 s) and a
+ * few around them for percentile panels.
  */
 export const HISTOGRAM_BOUNDARIES: readonly number[] = [
-  0, 0.005, 0.01, 0.025, 0.05, 0.075, 0.1, 0.25, 0.5, 0.75, 1, 2.5, 5, 7.5, 10,
-  25, 50, 75, 100, 250, 500, 750, 1000, 2500, 5000, 7500, 10000,
+  0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10,
 ];
 
 /** The most label combinations one instrument may produce. */
@@ -202,7 +204,6 @@ export function startSyncMeasurement(args: {
   readonly cohort: SyncCohort;
   readonly now: () => number;
   readonly timers?: MeasurementTimers;
-  readonly duration: RecordMetric;
   readonly target: RecordMetric;
   readonly elapsedBeforeStartMs?: number;
 }): (success: boolean) => void {
@@ -242,29 +243,16 @@ export function startSyncMeasurement(args: {
     if (finished) return;
     finished = true;
     if (timer !== undefined) args.timers?.clearTimeout(timer);
-    const elapsed = args.now() - start;
-    recordTargets(success, elapsed);
-    if (!Number.isFinite(elapsed) || elapsed < 0) return;
-    args.duration(elapsed / 1000, {
-      'app.sync.stage': args.stage,
-      'app.sync.cohort': args.cohort,
-      'app.outcome': success ? 'success' : 'failure',
-    });
+    recordTargets(success, args.now() - start);
   };
 }
 
-export const SYNC_DURATION_METRIC: MetricContract = {
-  name: 'sync.work.duration',
-  description: 'Monotonic duration of completed sync work',
-  type: 'histogram',
-  unit: 's',
-  environmentScoped: true,
-  dimensions: {
-    'app.sync.stage': SYNC_PERFORMANCE_STAGES,
-    'app.sync.cohort': SYNC_COHORTS,
-    'app.outcome': ['success', 'failure'],
-  },
-};
+/**
+ * The only sync metric emitted. Every browser page and server isolate writes
+ * its own series, so a per-stage duration histogram or started counter would
+ * multiply the stored series past the metrics plan; objectives and dashboards
+ * read only this.
+ */
 export const SYNC_TARGET_METRIC: MetricContract = {
   name: 'sync.work.target',
   description:
@@ -278,15 +266,6 @@ export const SYNC_TARGET_METRIC: MetricContract = {
     'app.outcome': ['good', 'bad', 'unknown'],
   },
 };
-export const SYNC_STARTED_METRIC: MetricContract = {
-  name: 'sync.work.started',
-  description:
-    'Started sync operations, including operations without a terminal result',
-  type: 'counter',
-  unit: '{operation}',
-  environmentScoped: true,
-  dimensions: { 'app.sync.stage': SYNC_PERFORMANCE_STAGES },
-};
 
 /** Install only at a telemetry composition root with an injected monotonic clock. */
 let recorder: ReturnType<typeof createRecorder> | undefined;
@@ -295,9 +274,7 @@ type MeasurementOptions = {
   readonly cohort?: () => SyncCohort;
 };
 function createRecorder(now: () => number, options: MeasurementOptions) {
-  const duration = createMetric(SYNC_DURATION_METRIC);
   const target = createMetric(SYNC_TARGET_METRIC);
-  const started = createMetric(SYNC_STARTED_METRIC);
   const pending = new Set<(success: boolean) => void>();
   let closed = false;
   const unknown = (
@@ -305,7 +282,6 @@ function createRecorder(now: () => number, options: MeasurementOptions) {
     cohort = options.cohort?.() ?? 'unknown'
   ) => {
     if (closed) return;
-    started(1, { 'app.sync.stage': stage });
     for (const value of SYNC_PERFORMANCE_TARGETS.filter(
       (value) => value.stage === stage
     ))
@@ -325,13 +301,11 @@ function createRecorder(now: () => number, options: MeasurementOptions) {
       unknown(stage, cohort);
       return () => undefined;
     }
-    started(1, { 'app.sync.stage': stage });
     const complete = startSyncMeasurement({
       stage,
       cohort,
       elapsedBeforeStartMs,
       now,
-      duration,
       target,
       ...(options.timers === undefined ? {} : { timers: options.timers }),
     });

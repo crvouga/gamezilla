@@ -1,4 +1,5 @@
 import type {
+  SyntheticPopulationBulkCommand,
   SyntheticPopulationCommand,
   SyntheticPopulationConfig,
 } from '@libs/synthetic-population-shared-ts/config';
@@ -105,6 +106,51 @@ export class SyntheticPopulationAdministration {
         );
       await new SyntheticPopulationRepository(tx, this.ports).event({
         userId,
+        name: 'AdministrativeCommand',
+        context: {
+          actorId,
+          command: value.command,
+          operationId: value.operationId,
+        },
+      });
+      return true;
+    });
+    if (accepted) await this.ports.notify();
+    return accepted;
+  }
+
+  /**
+   * Pauses or resumes every Synthetic User at once. A paused Synthetic User
+   * finishes its ongoing game and starts nothing new; the command is recorded
+   * once per operation, so a retried request changes nothing more.
+   */
+  async commandAll(
+    value: SyntheticPopulationBulkCommand,
+    actorId: string
+  ): Promise<boolean> {
+    const accepted = await this.db.transaction(async (tx) => {
+      const now = isoAt(this.ports.clock.now());
+      const rows = await tx.query(
+        sql<{
+          id: string;
+        }>`INSERT INTO population_commands (id, created_at, updated_at, user_id, actor_id, command, completed_at) VALUES (${value.operationId}, ${now}, ${now}, ${null}, ${actorId}, ${value.command}, ${now}) ON CONFLICT (id) DO NOTHING RETURNING id`
+      );
+      if (rows.length === 0) {
+        const previous = await tx.query(
+          sql<{
+            command: string;
+            actor_id: string;
+          }>`SELECT command, actor_id FROM population_commands WHERE id = ${value.operationId} AND user_id IS NULL`
+        );
+        return (
+          previous[0]?.command === value.command &&
+          previous[0]?.actor_id === actorId
+        );
+      }
+      await tx.run(
+        sql`UPDATE population_users SET paused = ${value.command === 'pause-all'}, updated_at = ${now} WHERE deleted_at IS NULL`
+      );
+      await new SyntheticPopulationRepository(tx, this.ports).event({
         name: 'AdministrativeCommand',
         context: {
           actorId,

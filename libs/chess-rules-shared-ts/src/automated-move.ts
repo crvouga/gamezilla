@@ -11,8 +11,18 @@ function captureValue(game: Chess, san: string): number {
   return VALUE[game.get(target as Square)?.type ?? 'p'] ?? 0;
 }
 
+/**
+ * How much chance outweighs material, by strength: an easy player often
+ * misses a capture, a hard one takes the best material it sees.
+ */
+const NOISE = { easy: 12, medium: 1, hard: 0.5 } as const;
+
 /** Cheap legal-move policy; the application still validates every chosen move. */
-export function chooseChessMove(fen: string, random: Random): Move | null {
+export function chooseChessMove(
+  fen: string,
+  random: Random,
+  strength: keyof typeof NOISE = 'medium'
+): Move | null {
   const game = new Chess(fen);
   // Verbose enumeration computes every candidate's before/after position and
   // regenerates legal moves. Only the selected move needs those snapshots.
@@ -24,7 +34,7 @@ export function chooseChessMove(fen: string, random: Random): Move | null {
       captureValue(game, san) +
       (san.includes('=Q') ? 8 : 0) +
       (san.includes('#') ? 100 : 0) +
-      random(),
+      random() * NOISE[strength],
   }));
   const best = Math.max(...scored.map((candidate) => candidate.score));
   const finalists = scored

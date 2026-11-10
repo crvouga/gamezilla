@@ -179,6 +179,7 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
         PERMISSION.syntheticPopulationConfigure,
         PERMISSION.syntheticPopulationControl,
         PERMISSION.syntheticPopulationReplay,
+        PERMISSION.syntheticPopulationWatch,
       ],
     },
     [ROLE.spaceMember]: {

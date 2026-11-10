@@ -77,6 +77,9 @@ export type Theme = ThemeTokens & ThemeLayoutValue;
 
 const ThemeTokensContext = createContext<ThemeTokens>();
 const ThemeLayoutContext = createContext<ThemeLayoutValue>();
+const ThemeHostContext = createContext<Accessor<HTMLElement | undefined>>(
+  () => undefined
+);
 
 export type ThemeProviderProps = {
   /** An injected device preference; browser CSS also follows the system preference. */
@@ -208,22 +211,24 @@ export function ThemeProvider(props: ThemeProviderProps): JSX.Element {
   return (
     <ThemeTokensContext.Provider value={tokens}>
       <ThemeLayoutContext.Provider value={layoutValue}>
-        <div
-          ref={setHost}
-          class="themeHost"
-          classList={{
-            'bg-transparent': props.transparent === true,
-            'bg-none': props.transparent === true,
-          }}
-          data-theme={colorScheme()}
-          data-reduced-motion={
-            props.reducedMotion === true ? 'true' : undefined
-          }
-          data-component="ThemeProvider"
-          style={fontStyle}
-        >
-          {props.children}
-        </div>
+        <ThemeHostContext.Provider value={host}>
+          <div
+            ref={setHost}
+            class="themeHost"
+            classList={{
+              'bg-transparent': props.transparent === true,
+              'bg-none': props.transparent === true,
+            }}
+            data-theme={colorScheme()}
+            data-reduced-motion={
+              props.reducedMotion === true ? 'true' : undefined
+            }
+            data-component="ThemeProvider"
+            style={fontStyle}
+          >
+            {props.children}
+          </div>
+        </ThemeHostContext.Provider>
       </ThemeLayoutContext.Provider>
     </ThemeTokensContext.Provider>
   );
@@ -249,6 +254,14 @@ export function useThemeLayout(): ThemeLayoutValue {
     );
   }
   return ctx;
+}
+
+/**
+ * The element the nearest theme draws the app in: everything the app shows
+ * on screen, with its theme. `undefined` before it mounts or outside one.
+ */
+export function useThemeHost(): Accessor<HTMLElement | undefined> {
+  return useContext(ThemeHostContext);
 }
 
 /** Combined theme; prefer {@link useThemeTokens} when layout is unused. */
