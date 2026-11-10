@@ -4,14 +4,21 @@ import { Button } from '@pkgs/ui-root-client-ts/button';
 import { CodeBlock } from '@pkgs/ui-root-client-ts/code-block';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
+import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
 import { For, type JSX, Show } from 'solid-js';
+import { useMomentLabel } from './synthetic-user-labels';
 
+/**
+ * The in-process UI inspector: a request for a live DOM capture and, once
+ * one is current, its route, controls, recent actions and sanitized markup.
+ */
 export function SyntheticUserDom(props: {
   snapshot: Inspection | null;
   inspect: () => Promise<void>;
 }): JSX.Element {
   const { t } = useLingui();
+  const moment = useMomentLabel();
   const inspect = useMutationButton({
     labels: {
       idle: t`Capture live DOM`,
@@ -30,14 +37,26 @@ export function SyntheticUserDom(props: {
         </Trans>
       }
     >
-      <Button
-        {...inspect.buttonProps}
-        dataSet={{ testid: 'synthetic-population-inspect' }}
+      <MenuRow
+        title={<Trans>Live DOM</Trans>}
+        caption={
+          props.snapshot === null
+            ? t`Not captured for this session yet`
+            : props.snapshot.route
+        }
+        trailing={
+          <Button
+            {...inspect.buttonProps}
+            intent="neutral"
+            variant="outline"
+            size="sm"
+            dataSet={{ testid: 'synthetic-population-inspect' }}
+          />
+        }
       />
       <Show when={props.snapshot} keyed>
         {(view) => (
           <>
-            <MenuRow title={<Trans>Current route</Trans>} value={view.route} />
             <For each={view.controls}>
               {(item) => (
                 <MenuRow title={item.name || item.testId} caption={item.role} />
@@ -47,14 +66,16 @@ export function SyntheticUserDom(props: {
               {(action) => (
                 <MenuRow
                   title={action.action}
-                  caption={String(action.atMs)}
+                  caption={moment(action.atMs)}
                   value={action.outcome}
                 />
               )}
             </For>
-            <CodeBlock framed={false} testId="synthetic-population-dom">
-              {view.html}
-            </CodeBlock>
+            <StackVertical padding="lg">
+              <CodeBlock wrap testId="synthetic-population-dom">
+                {view.html}
+              </CodeBlock>
+            </StackVertical>
           </>
         )}
       </Show>

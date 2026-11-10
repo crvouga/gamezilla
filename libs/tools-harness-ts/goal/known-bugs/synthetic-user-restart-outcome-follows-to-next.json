@@ -1,0 +1,4 @@
+{
+  "summary": "After restarting one Synthetic User, opening another Synthetic User's control panel still showed \"Restart requested\": the control panel route keeps its screen mounted across Synthetic Users, so the restart dialog and the pause / resume feedback of the first one followed onto the next. Fixed in SyntheticUserScreenView: everything a command leaves on screen is keyed to the Synthetic User it was for.",
+  "regressionTest": "libs/synthetic-population-client-ts/tests/synthetic-user-control-panel-reuse.test.tsx"
+}

@@ -5,13 +5,12 @@ import {
   CONFIG,
   directory,
   EMPTY_OVERVIEW,
-  ONLINE_NOW,
+  face,
   OVERVIEW,
-  onlineEntry,
-  onlineNow,
   PAGE,
   PERSONA,
   userRow,
+  withGameNames,
   worker,
 } from './synthetic-population.example';
 import { toConfigurationDraft } from './synthetic-population-configuration';
@@ -25,13 +24,15 @@ const meta = {
   title: 'Screens/Admin/Synthetic population',
   component: SyntheticPopulationScreenView,
   tags: ['autodocs'],
+  decorators: [withGameNames],
   parameters: {
     appRouter: true,
     controls: {
-      exclude: ['overview', 'denial', 'fields', 'directory', 'onlineNow'],
+      exclude: ['overview', 'denial', 'fields', 'directory'],
     },
   },
   args: {
+    section: 'overview',
     loading: false,
     failed: false,
     overview: OVERVIEW,
@@ -42,18 +43,18 @@ const meta = {
     onChangeField: fn(),
     onSave: fn(async () => undefined),
     onRefresh: fn(),
+    onOpenConfiguration: fn(),
     canControl: true,
     onCommandAll: fn(async () => undefined),
-    onlineNow: onlineNow() as SyntheticPopulationScreenViewProps['onlineNow'],
   },
 } satisfies Meta<typeof SyntheticPopulationScreenView>;
 export default meta;
 type Story = StoryObj<typeof meta>;
 
 /**
- * A running population seen by an operator: counts, controls for every
- * Synthetic User, people and Synthetic Users online now (only Synthetic
- * Users offer a control panel), the configuration form, the directory (each
+ * A running population seen by an operator: counts with the way to the
+ * desired synthetic population, controls for every Synthetic User, the
+ * directory (each
  * row with its home region, skill level and favorite games; one paused, one
  * recovering, one recorded before personas) and workers that
  * are ready, draining and unreachable.
@@ -61,83 +62,26 @@ type Story = StoryObj<typeof meta>;
 export const Populated: Story = {};
 
 /**
- * A viewer without configure, control, inspect or watch: no form, no
- * controls, online-now rows do not open and offer no control panel.
+ * A viewer without configure, control or inspect: no way to the form, no
+ * controls, directory rows do not open and offer no control panel.
  */
 export const ViewOnly: Story = {
   args: {
     canConfigure: false,
     canControl: false,
-    directory: directory({ canInspect: false }),
-    onlineNow: onlineNow({ canWatch: false, canControl: false }),
+    directory: directory({ canInspect: false, canControl: false }),
   },
 };
 
-/** Showing only people online now: Synthetic Users are hidden. */
-export const OnlineNowPeopleOnly: Story = {
-  args: {
-    onlineNow: onlineNow({
-      filter: 'people',
-      entries: ONLINE_NOW.filter((entry) => entry.kind === 'person'),
-    }),
-  },
-};
-
-/** Showing only Synthetic Users online now: people are hidden. */
-export const OnlineNowSyntheticUsersOnly: Story = {
-  args: {
-    onlineNow: onlineNow({
-      filter: 'synthetic',
-      entries: ONLINE_NOW.filter((entry) => entry.kind === 'synthetic'),
-    }),
-  },
-};
-
-/** Nobody is online now: the list says so and what will appear. */
-export const OnlineNowEmpty: Story = {
-  args: { onlineNow: onlineNow({ entries: [] }) },
-};
-
-/** Who is online now is still being read. */
-export const OnlineNowLoading: Story = {
-  args: { onlineNow: onlineNow({ loading: true, entries: undefined }) },
-};
-
-/** Who is online now could not be read; its own retry asks again. */
-export const OnlineNowFailed: Story = {
-  args: { onlineNow: onlineNow({ failed: true, entries: undefined }) },
-};
-
-/** A later read failed: the last list stays, with a retry above the fold. */
-export const OnlineNowFailedKeepsList: Story = {
-  args: { onlineNow: onlineNow({ failed: true }) },
-};
-
-/** Long usernames and game names wrap instead of breaking rows. */
-export const OnlineNowLongContent: Story = {
-  args: {
-    onlineNow: onlineNow({
-      entries: [
-        onlineEntry(5, 'someone_with_a_really_long_username_that_goes_on', {
-          place: 'space',
-          activity: 'looking',
-          game: 'Quoridor on a board with an exceptionally long name',
-        }),
-        ...ONLINE_NOW,
-      ],
-    }),
-  },
-};
-
-/** The first read has not finished; the activity indicator, Refresh and unavailable Save. */
+/** The first read has not finished; only the activity indicator, under the header's Refresh. */
 export const Loading: Story = {
   args: { loading: true, overview: undefined, canSave: false },
 };
 
-/** A live update is rereading; the last overview stays under the indicator. */
+/** A live update is rereading; the header's Refresh shows it and the last overview stays. */
 export const Refreshing: Story = { args: { loading: true } };
 
-/** The first read failed; Refresh is the way to try again. */
+/** The first read failed; its retry (or the header's Refresh) reads again. */
 export const Failed: Story = {
   args: { failed: true, overview: undefined, canSave: false },
 };
@@ -145,7 +89,6 @@ export const Failed: Story = {
 /** Nothing is running yet: nobody online, empty directory, no workers, no events. */
 export const Empty: Story = {
   args: {
-    onlineNow: onlineNow({ entries: [] }),
     overview: EMPTY_OVERVIEW,
     fields: toConfigurationDraft(EMPTY_OVERVIEW.config),
     directory: directory({ page: { users: [], nextCursor: null } }),
@@ -166,7 +109,7 @@ export const DirectoryFailed: Story = {
 export const DirectoryPaged: Story = {
   args: {
     directory: directory({
-      filter: 'bot',
+      filter: 'Berlin',
       paged: true,
       page: { ...PAGE, nextCursor: 'cursor-0002' },
     }),
@@ -182,25 +125,35 @@ export const DirectoryFavoriteGames: Story = {
     directory: directory({
       page: {
         users: [
-          userRow(5, 'quiet_heron', {
+          userRow(5, 'MayaK', {
+            region: 'São Paulo, BR',
             persona: {
               ...PERSONA,
-              username: 'quiet_heron',
+              username: 'MayaK',
+              avatar: face('lorelei', '3e74be7351be'),
+              homeRegion: 'São Paulo, BR',
               favoriteGames: ['backgammon', 'go', 'mancala'],
             },
           }),
-          userRow(6, 'sunny_otter', {
+          userRow(6, 'mango7', {
+            region: 'Lagos, NG',
+            activity: 'matchmaking',
             persona: {
               ...PERSONA,
-              username: 'sunny_otter',
+              username: 'mango7',
+              avatar: face('miniavs', '059c0be93ca0'),
+              homeRegion: 'Lagos, NG',
               skillLevel: 'beginner',
               favoriteGames: ['dominoes'],
             },
           }),
-          userRow(7, 'early_wren', {
+          userRow(7, 'Kenji_irl', {
+            region: 'Tokyo, JP',
             persona: {
               ...PERSONA,
-              username: 'early_wren',
+              username: 'Kenji_irl',
+              avatar: face('notionists', '6e32ed937dae'),
+              homeRegion: 'Tokyo, JP',
               skillLevel: 'strong',
               favoriteGames: [],
             },
@@ -220,7 +173,8 @@ export const LongContent: Story = {
       groups: [
         {
           activity: 'matchmaking',
-          region: 'asia-southeast-singapore-availability-zone-c',
+          region:
+            'Llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch, UK',
           count: 1,
         },
       ],
@@ -233,7 +187,7 @@ export const LongContent: Story = {
     directory: directory({
       page: {
         users: [
-          userRow(5, 'bot_with_a_really_long_username_that_keeps_on_going', {
+          userRow(5, 'the_grand_strategist_of_rainy_tuesday_evenings', {
             activity: 'matchmaking',
           }),
           ...PAGE.users,
@@ -251,7 +205,6 @@ export const Denied: Story = {
     canConfigure: false,
     canControl: false,
     directory: undefined,
-    onlineNow: undefined,
     denial: {
       icon: KeyRoundIcon,
       title: 'Not available',

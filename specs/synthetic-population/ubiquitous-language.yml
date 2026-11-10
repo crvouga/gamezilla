@@ -14,12 +14,18 @@ terms:
       Each has an email address of its own, and signs in through the same app
       as people with a sign-in link sent to it.
     forms: [Synthetic Users, Synthetic User's]
+    published: true
     model: [SyntheticUser, syntheticAvailable, identity, invPersistentIdentity, syntheticIdentified, invSyntheticRecognition, invOfflineKeepsIdentification]
-  - term: Bot Observatory
+  - term: Synthetic Population panel
     definition: >-
-      Where authorized people observe whoever is online now, watch them live,
-      and control the Synthetic Population.
-    model: [openObservatory]
+      The Synthetic Users' own part of the User Observatory. Authorized
+      people see every Synthetic User there with its persona and activity,
+      see and change the desired synthetic population, and find each
+      Synthetic User's control panel.
+    forms: [Synthetic Population panel's]
+    model: [openPanel]
+  - term: User Observatory
+    from: observatory
   - term: desired synthetic population
     definition: >-
       How many Synthetic Users should be available. Apart from Synthetic
@@ -49,15 +55,14 @@ terms:
     model: [restart]
   - term: control panel
     definition: >-
-      The controls the Bot Observatory offers for one Synthetic User: pause,
+      The controls the Synthetic Population panel offers for one Synthetic User: pause,
       resume and restart. Only a Synthetic User has one; a person never does.
     forms: [control panels]
     model: [controlPanelOffered, invNoControlPanelForPeople]
   - term: activity
     definition: >-
-      What a Synthetic User, or a person online now, is currently doing in
-      the app: browsing, looking for a multiplayer opponent for a game, or
-      playing a game.
+      What a Synthetic User is currently doing in the app: browsing,
+      looking for a multiplayer opponent for a game, or playing a game.
     forms: [activities]
     model: [Activity, activity, playing, Browsing, Playing, Finished, invActivityRestored, startNextActivity, continueActivity]
   - term: Recovery
@@ -132,7 +137,7 @@ terms:
     from: profile
   - term: the app
     from: kernel
-    model: [reopenApp, openApp, closeApp]
+    model: [reopenApp]
   - term: control
     definition: >-
       Permission to pause, resume or restart a Synthetic User's autonomous
@@ -171,13 +176,11 @@ terms:
       now, it is kept away; a place that frees up goes at once to the one
       kept away longest.
     forms: [daily schedules]
+    published: true
     model: [keptAway, onSchedule, scheduleBegins, scheduleEnds, invOffScheduleOnlyToFinish]
   - term: online now
-    definition: >-
-      Using the app with a connection at this moment, whether a person or a
-      Synthetic User. The Bot Observatory lists whoever is online now, with
-      each one's activity and whether each is a person or a Synthetic User.
-    model: [onlineNow, listShown, showing, showOnly, invListShowsOnlineNow]
+    from: observatory
+    model: [onlineNow]
   - term: move
     definition: >-
       What a player does when it is their go in a game: a move in chess, a
@@ -189,38 +192,11 @@ terms:
       least 2 seconds and at most 20, and never the same whole number of
       seconds for two moves in a row.
     model: [thinkingTimeHumanLike, thinkingTimeChanged, invThinkingTimeHumanLike, invThinkingTimeVaries]
-  - term: watch live
-    definition: >-
-      Follow, from the Bot Observatory, what someone online now sees in the
-      app as it changes: their place in the app and what is shown there.
-      Anyone online now can be watched live, a person or a Synthetic User.
-      Watching live stops when they are no longer online now.
-    forms: [watches live, watching live, watched live]
-    model: [watching, watchLive, watchEndedNotice, invWatchingOnlyOnlineNow]
-  - term: private details
-    definition: >-
-      Anything a person writes in the app, such as what they search for,
-      and anything only they should see, such as their email address and how
-      they sign in. Watching a person live never shows them.
-    forms: [private detail]
-    model: [privateDetailsShown, invPrivateDetailsHidden]
   - term: avatar
     from: profile
   - term: rematch
     from: games
     model: [offerRematch, gamesInARow, invAtMostThreeInARow]
-  - term: place in the app
-    from: runtime
-    model: [placeShown, placeOf]
-  - term: Settings
-    from: runtime
-    model: [openSettings]
-  - term: sign-in method
-    from: profile
-    model: [viewSignInMethods]
-  - term: people search
-    from: friends
-    model: [searchPeople]
 
   - term: continue a multiplayer game
     definition: >-

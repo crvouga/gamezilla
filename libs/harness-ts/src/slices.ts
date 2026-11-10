@@ -78,6 +78,7 @@ export const SLICE_ORDER = [
   'billing',
   'permissions',
   'synthetic-population',
+  'observatory',
 ] as const;
 
 /** The slice of one game's own sub (its own screens' data, beside the shared ones). */

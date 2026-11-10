@@ -10,6 +10,7 @@ import { SyntheticPopulationUsersView } from './synthetic-population-users-view'
 export function SyntheticPopulationUsers(props: {
   observedAtMs: number;
   canInspect: boolean;
+  canControl: boolean;
   inspect: (id: string) => void;
 }): JSX.Element {
   const [filter, setFilter] = createSignal('');
@@ -27,6 +28,7 @@ export function SyntheticPopulationUsers(props: {
       failed={Boolean(page.error)}
       paged={cursor() !== null}
       canInspect={props.canInspect}
+      canControl={props.canControl}
       onFilterChange={(value) => {
         setCursor(null);
         setFilter(value);

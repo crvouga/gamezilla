@@ -16,6 +16,7 @@
         "@libs/game-session-shared-ts#src",
         "@libs/games-shared-ts#src",
         "@libs/notifications-shared-ts#src",
+        "@libs/observatory-shared-ts#src",
         "@libs/permissions-shared-ts#src",
         "@libs/profile-shared-ts#src",
         "@libs/spaces-shared-ts#src",

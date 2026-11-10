@@ -34,6 +34,7 @@
     "@libs/games-shared-ts": "workspace:*",
     "@libs/infra-shared-ts": "workspace:*",
     "@libs/notifications-server-ts": "workspace:*",
+    "@libs/observatory-server-ts": "workspace:*",
     "@libs/runtime-shared-ts": "workspace:*",
     "@libs/spaces-server-ts": "workspace:*",
     "@libs/sub-shared-ts": "workspace:*",

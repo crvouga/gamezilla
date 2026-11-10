@@ -17,6 +17,7 @@ const DATA_NAMES = [
   'billing',
   'permissions',
   'synthetic-population',
+  'observatory',
 ] as const;
 
 const CLIENT_NAMES = [
@@ -32,6 +33,7 @@ const CLIENT_NAMES = [
   'billing',
   'puzzle-management',
   'synthetic-population',
+  'observatory',
 ] as const;
 
 const TABLE_NAMES = [
@@ -66,6 +68,8 @@ const TABLE_NAMES = [
   'population_commands',
   'population_config',
   'population_events',
+  'population_live_sessions',
+  'population_live_watches',
   'population_sign_in_mail',
   'population_users',
   'population_workers',
@@ -103,6 +107,7 @@ const QUERY_NAMES = [
   'friendRequests',
   'friendships',
   'myCancellationFeedback',
+  'myLiveWatches',
   'mySpaceUsers',
   'mySpaces',
   'mySubscription',

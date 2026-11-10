@@ -7,6 +7,7 @@ import {
   replay,
   SNAPSHOT,
   userDetail,
+  withGameNames,
 } from './synthetic-population.example';
 import {
   SyntheticUserScreenView,
@@ -20,6 +21,7 @@ const meta = {
   title: 'Screens/Admin/Synthetic user',
   component: SyntheticUserScreenView,
   tags: ['autodocs'],
+  decorators: [withGameNames],
   parameters: {
     appRouter: true,
     controls: { exclude: ['record', 'snapshot', 'denial', 'replay'] },
@@ -40,8 +42,10 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /**
- * A running Synthetic User mid-game, seen by an operator: details, controls,
- * the statechart at its live state, events, replay and the live DOM capture.
+ * A running Synthetic User mid-game, seen by an operator: who it is first
+ * (face, name, Bot tag, status), then its control panel, persona, events,
+ * replay, statechart at its live state and live DOM capture, with its
+ * status and diagnostics beside them on a desktop.
  */
 export const Running: Story = {};
 
@@ -102,15 +106,15 @@ export const Recovering: Story = {
   },
 };
 
-/** The first read has not finished; only the activity indicator and Refresh. */
+/** The first read has not finished; only the activity indicator, under the header's Refresh. */
 export const Loading: Story = {
   args: { loading: true, record: undefined, snapshot: null },
 };
 
-/** A live update is rereading; the last record stays under the indicator. */
+/** A live update is rereading; the header's Refresh shows it and the last record stays. */
 export const Refreshing: Story = { args: { loading: true } };
 
-/** The first read failed; Refresh is the way to try again. */
+/** The first read failed; its retry (or the header's Refresh) reads again. */
 export const Failed: Story = {
   args: { failed: true, record: undefined, snapshot: null },
 };
@@ -128,11 +132,11 @@ export const LongContent: Story = {
   args: {
     record: {
       user: userDetail({
-        username: 'bot_with_a_really_long_username_that_keeps_on_going',
+        username: 'the_grand_strategist_of_rainy_tuesday_evenings',
         last_error:
           'Timed out waiting for the opponent to acknowledge the move after three reconnect attempts across two workers',
         last_action:
-          'tap chess-board e2-e4 then confirm the promotion dialog and wait',
+          'testId("custom-game-content") >> testId("custom-game-board") >> testId("custom-game-board-column-4"): tap',
       }),
       events: EVENTS,
     },
@@ -161,12 +165,23 @@ export const Denied: Story = {
 export const ConfirmRestart: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(
-      canvas.getByRole('button', { name: 'Restart application' })
-    );
+    await userEvent.click(canvas.getByRole('button', { name: 'Restart' }));
     await expect(
       await canvas.findByText('Restart this Synthetic User?')
     ).toBeVisible();
     await expect(args.onCommand).not.toHaveBeenCalled();
+  },
+};
+
+/** Restart confirmed: its dialog says the request went to the worker. */
+export const RestartRequested: Story = {
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByTestId('synthetic-population-restart'));
+    await userEvent.click(
+      await canvas.findByTestId('synthetic-population-restart-confirm')
+    );
+    await expect(args.onCommand).toHaveBeenCalledWith('restart');
+    await expect(await canvas.findByText('Restart requested')).toBeVisible();
   },
 };

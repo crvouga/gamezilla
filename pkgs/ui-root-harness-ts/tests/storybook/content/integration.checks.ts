@@ -39,7 +39,12 @@ test('storybook integration: the long username leaves Block reachable at 390 pix
 test('storybook integration: failed initial population configuration cannot be saved', async ({
   page,
 }) => {
-  await open(page, 'screens-admin-synthetic-population--failed', 390, 'light');
+  await open(
+    page,
+    'screens-admin-synthetic-population-config--failed',
+    390,
+    'light'
+  );
   await expect(
     page.getByRole('button', {
       name: 'Save synthetic population',
@@ -190,7 +195,7 @@ for (const state of ['loading', 'failed'])
   }) => {
     await open(
       page,
-      `screens-admin-synthetic-population--${state}`,
+      `screens-admin-synthetic-population-config--${state}`,
       390,
       'light'
     );
@@ -311,7 +316,12 @@ test('storybook integration: literal a long friend name stays inside its profile
 test('storybook integration: literal initial loading cannot save unknown configuration', async ({
   page,
 }) => {
-  await open(page, 'screens-admin-synthetic-population--loading', 390, 'light');
+  await open(
+    page,
+    'screens-admin-synthetic-population-config--loading',
+    390,
+    'light'
+  );
   await expect(
     page.getByRole('button', {
       name: 'Save synthetic population',

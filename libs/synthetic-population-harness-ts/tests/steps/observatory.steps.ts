@@ -3,6 +3,7 @@ import { signInWithGoogle } from '@libs/harness-ts/auth-actions';
 import { Given, Then, When } from '@libs/harness-ts/define';
 import type { Actor } from '@libs/harness-ts/parameter-types';
 import { focusActor } from '@libs/harness-ts/shell-actions';
+import { grantOperatorPermissions } from '@libs/observatory-actions-harness-ts/operator-access-actions';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { syntheticSessionEnded } from '@libs/synthetic-population-harness-ts/control-panel-actions';
 import {
@@ -10,8 +11,7 @@ import {
   desiredSyntheticPopulation,
   desiredSyntheticPopulationShown,
   givenDesiredSyntheticPopulation,
-  grantSyntheticPopulationAccess,
-  openObservatory,
+  openSyntheticPopulationPanel,
   syntheticActivityShown,
   syntheticPopulationDenied,
 } from '@libs/synthetic-population-harness-ts/observatory-actions';
@@ -25,10 +25,10 @@ import { recallContinuity, rememberContinuity } from './continuity-memo';
 
 // regression: stack-fixtures-publish-to-in-process-broker
 Given(
-  '{actor} is authorized to view the Bot Observatory',
+  '{actor} is authorized to view the Synthetic Population panel',
   async (w, actor: Actor) => {
     await w.s.apply(signInWithGoogle, actor);
-    await w.s.apply(grantSyntheticPopulationAccess, actor, [
+    await w.s.apply(grantOperatorPermissions, actor, [
       PERMISSION.syntheticPopulationView,
     ]);
   }
@@ -37,14 +37,14 @@ Given(
   '{actor} is authorized to configure the Synthetic Population',
   async (w, actor: Actor) => {
     await w.s.apply(signInWithGoogle, actor);
-    await w.s.apply(grantSyntheticPopulationAccess, actor, [
+    await w.s.apply(grantOperatorPermissions, actor, [
       PERMISSION.syntheticPopulationView,
       PERMISSION.syntheticPopulationConfigure,
     ]);
   }
 );
 Given(
-  '{actor} is not authorized to view the Bot Observatory',
+  '{actor} is not authorized to view the Synthetic Population panel',
   async (w, actor: Actor) => {
     await w.s.apply(focusActor, actor);
   }
@@ -55,9 +55,12 @@ Given(
     await w.s.apply(givenDesiredSyntheticPopulation, desired);
   }
 );
-When('{actor} opens the Bot Observatory', async (w, actor: Actor) => {
-  await w.s.apply(openObservatory, actor);
-});
+When(
+  '{actor} opens the Synthetic Population panel',
+  async (w, actor: Actor) => {
+    await w.s.apply(openSyntheticPopulationPanel, actor);
+  }
+);
 When(
   '{actor} changes the desired synthetic population to {int}',
   async (w, actor: Actor, desired: number) => {
@@ -93,7 +96,7 @@ Given(
   '{actor} is authorized to control the Synthetic Population',
   async (w, actor: Actor) => {
     await w.s.apply(signInWithGoogle, actor);
-    await w.s.apply(grantSyntheticPopulationAccess, actor, [
+    await w.s.apply(grantOperatorPermissions, actor, [
       PERMISSION.syntheticPopulationView,
       PERMISSION.syntheticPopulationInspect,
       PERMISSION.syntheticPopulationControl,

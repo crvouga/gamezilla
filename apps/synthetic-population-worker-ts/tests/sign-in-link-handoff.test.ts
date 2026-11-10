@@ -1,7 +1,7 @@
 import { expect, test } from 'bun:test';
 import { ManagedSession } from '@apps/synthetic-population-worker-ts/managed-session';
 import { SignInLinkMailbox } from '@apps/synthetic-population-worker-ts/sign-in-link-mailbox';
-import { redactDiagnostic } from '@libs/synthetic-population-shared-ts/inspection';
+import { redactDiagnostic } from '@libs/observatory-shared-ts/dom-sanitizer';
 import { ControlledRealm, settleWorker, workerFixture } from './worker-fixture';
 
 const LINK =

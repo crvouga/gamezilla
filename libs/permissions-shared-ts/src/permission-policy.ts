@@ -1,6 +1,7 @@
 import type { PermissionPolicy } from '@pkgs/permissions-shared-ts/policy';
 import { definePolicy } from '@pkgs/permissions-shared-ts/policy';
 import type { QuotaGrant } from '@pkgs/permissions-shared-ts/quota-window';
+import { OPERATOR_PERMISSIONS } from './operator-permission-policy';
 import type {
   AppLimit,
   AppPermission,
@@ -173,14 +174,7 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
     },
     [ROLE.syntheticPopulationOperator]: {
       when: { accountId: [] },
-      permissions: [
-        PERMISSION.syntheticPopulationView,
-        PERMISSION.syntheticPopulationInspect,
-        PERMISSION.syntheticPopulationConfigure,
-        PERMISSION.syntheticPopulationControl,
-        PERMISSION.syntheticPopulationReplay,
-        PERMISSION.syntheticPopulationWatch,
-      ],
+      permissions: [...OPERATOR_PERMISSIONS],
     },
     [ROLE.spaceMember]: {
       permissions: [

@@ -1145,7 +1145,8 @@ terms:
 | App | `runtime` | the app itself: opening it, tabs, Settings, addresses, updates, reconnecting, and the promises a live environment keeps about reaching and answering people | generic |
 | Developer tools | `developer-tools` | the team's testing tool, test worlds, checkpoints, data notebooks, test runs, test reports, recorded moments, and release checks | supporting |
 | Product feedback | `feedback` | bugs, feature requests, gaps and polish, with recordings and diagnostics that help the team reproduce trouble | supporting |
-| Synthetic Population | `synthetic-population` | persistent automated opponents: their personas, daily schedules, human-like play, finding multiplayer opponents for people and each other, their activities, recovery and disclosure; and the Bot Observatory: observing whoever is online now, watching live, and controlling Synthetic Users | supporting |
+| Synthetic Population | `synthetic-population` | persistent automated opponents: their personas, daily schedules, human-like play, finding multiplayer opponents for people and each other, their activities, recovery and disclosure; and the Synthetic Population panel of the User Observatory: their personas, the desired synthetic population and their control panels | supporting |
+| Observatory | `observatory` | the User Observatory: who is online now, people and Synthetic Users, with what each is doing; watching anyone live; never showing a person's private details | supporting |
 | Journeys | `journeys` | the critical journeys across every context | — |
 
 Relationships — upstream contexts publish; downstream contexts borrow their
@@ -1189,8 +1190,15 @@ Spaces   ──► Pong (space, join)
 Games    ──► Journeys (bot, rematch)
 Pong     ──► Journeys (Pong, paddle, score, target score)
 Games    ──► Synthetic Population (game, rematch)
-App      ──► Synthetic Population (Settings, place in the app)
-Friends  ──► Synthetic Population (people search)
+Observatory ──► Synthetic Population (User Observatory, online now)
+Synthetic Population ──► Observatory (Synthetic User, daily schedule)
+App      ──► Observatory (Settings, place in the app)
+Friends  ──► Observatory (people search)
+Identity ──► Observatory (sign-in method, sign in, Google)
+Auth     ──► Observatory (email address)
+Games    ──► Observatory (game)
+Chess    ──► Observatory (chess, multiplayer opponent)
+Connect Four ──► Observatory (Connect Four)
 Identity ──► Synthetic Population (avatar)
 Pong     ──► Synthetic Population (Pong)
 Games    ──► Light Cycles (game, custom game, custom game readiness, bot, start a custom game, under way)
@@ -1225,6 +1233,8 @@ Published language:
 | Developer tools (`developer-tools`) | the testing tool | — |
 | Matchmaking (`matchmaking`) | matchmaking match, pair people up | `MatchmakingEvent`: `MatchFormed` |
 | Auth (`auth`) | email address, mailbox, sign-in link, ask for a sign-in link | — |
+| Synthetic Population (`synthetic-population`) | Synthetic User, daily schedule | — |
+| Observatory (`observatory`) | User Observatory, online now, watch live, private details | — |
 | Room, Sync engine, Journeys | — | — |
 
 - Publish product concepts, not common words: "open space", never "open".

@@ -1,5 +1,5 @@
+import { redactDiagnostic } from '@libs/observatory-shared-ts/dom-sanitizer';
 import type { Inspection } from '@libs/synthetic-population-shared-ts/inspection';
-import { redactDiagnostic } from '@libs/synthetic-population-shared-ts/inspection';
 import type { Clock } from '@pkgs/clock-shared-ts/types';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 import { recordingDriver } from '@pkgs/ui-testing-root-shared-ts/recording-driver';

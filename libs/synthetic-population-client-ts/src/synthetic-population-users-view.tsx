@@ -1,14 +1,20 @@
 import { Trans, useLingui } from '@lingui/solid/macro';
+import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
+import { IconButton } from '@pkgs/ui-root-client-ts/icon-button';
+import { SlidersHorizontalIcon } from '@pkgs/ui-root-client-ts/icons';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { P } from '@pkgs/ui-root-client-ts/text';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
 import { For, type JSX, Show } from 'solid-js';
 import type { SyntheticPopulationDirectoryPage } from './synthetic-population-api';
+import { SyntheticUserAvatar } from './synthetic-user-identity';
+import { useActivityLabel } from './synthetic-user-labels';
 import { usePersonaCaption } from './synthetic-user-persona';
 
 export type SyntheticPopulationUsersViewProps = {
@@ -24,6 +30,8 @@ export type SyntheticPopulationUsersViewProps = {
   readonly paged: boolean;
   /** Rows open their Synthetic User only when the person may inspect. */
   readonly canInspect: boolean;
+  /** Each row offers its Synthetic User's control panel. */
+  readonly canControl: boolean;
   readonly onFilterChange: (value: string) => void;
   readonly onFirstPage: () => void;
   readonly onNextPage: (cursor: string) => void;
@@ -31,16 +39,75 @@ export type SyntheticPopulationUsersViewProps = {
   readonly onRetry: () => void;
 };
 
+type DirectoryUser = SyntheticPopulationDirectoryPage['users'][number];
+
+/**
+ * One Synthetic User in the directory: its face and name, who it is as a
+ * player, and a tag for what it is doing (or that it is paused). The row
+ * opens it; its control panel is a compact button at the row's end.
+ */
+function DirectoryRow(
+  props: Pick<
+    SyntheticPopulationUsersViewProps,
+    'canInspect' | 'canControl' | 'onInspect'
+  > & { user: DirectoryUser }
+): JSX.Element {
+  const { t } = useLingui();
+  const personaCaption = usePersonaCaption();
+  const activity = useActivityLabel();
+  return (
+    <MenuRow
+      leading={<SyntheticUserAvatar user={props.user} size={40} />}
+      title={props.user.username}
+      caption={
+        <StackVertical gap="xs">
+          <P variant="caption" lines={2}>
+            {props.user.persona === null
+              ? t`Persona not recorded`
+              : personaCaption(props.user.persona)}
+          </P>
+          <StackHorizontal gap="xs" wrap>
+            <Badge
+              label={
+                props.user.paused ? t`Paused` : activity(props.user.activity)
+              }
+              intent={props.user.paused ? 'warning' : 'neutral'}
+              size="sm"
+            />
+          </StackHorizontal>
+        </StackVertical>
+      }
+      onClick={
+        props.canInspect ? () => props.onInspect(props.user.id) : undefined
+      }
+      accessory={
+        <Show when={props.canControl}>
+          <IconButton
+            label={t`Control panel`}
+            onClick={() => props.onInspect(props.user.id)}
+            dataSet={{
+              testid: `synthetic-population-control-panel-${props.user.username}`,
+            }}
+          >
+            <SlidersHorizontalIcon size={20} color="icon" />
+          </IconButton>
+        </Show>
+      }
+      dataSet={{ testid: `synthetic-population-user-${props.user.id}` }}
+    />
+  );
+}
+
 /**
  * The Synthetic User directory, presentational: search, one row per user
- * with its home region, skill level and favorite games (paused users say so), its loading / empty / failed states and paging.
- * `SyntheticPopulationUsers` reads the pages.
+ * with its face, home region, skill level, favorite games and what it is
+ * doing (paused users say so), its loading / empty / failed states and
+ * paging. `SyntheticPopulationUsers` reads the pages.
  */
 export function SyntheticPopulationUsersView(
   props: SyntheticPopulationUsersViewProps
 ): JSX.Element {
   const { t } = useLingui();
-  const personaCaption = usePersonaCaption();
   return (
     <StackVertical gap="md" testId="synthetic-population-users">
       <TextInput
@@ -53,16 +120,11 @@ export function SyntheticPopulationUsersView(
       <MenuSection title={<Trans>Synthetic Users</Trans>}>
         <For each={props.page?.users ?? []}>
           {(user) => (
-            <MenuRow
-              title={user.username}
-              caption={
-                user.persona === null ? user.id : personaCaption(user.persona)
-              }
-              value={user.paused ? t`Paused` : user.activity}
-              onClick={
-                props.canInspect ? () => props.onInspect(user.id) : undefined
-              }
-              dataSet={{ testid: `synthetic-population-user-${user.id}` }}
+            <DirectoryRow
+              user={user}
+              canInspect={props.canInspect}
+              canControl={props.canControl}
+              onInspect={props.onInspect}
             />
           )}
         </For>
@@ -92,25 +154,31 @@ export function SyntheticPopulationUsersView(
           retry={{ onClick: () => props.onRetry() }}
         />
       </Show>
-      <StackHorizontal gap="md">
-        <Show when={props.paged}>
-          <Button
-            title={t`First page`}
-            intent="neutral"
-            variant="outline"
-            onClick={() => props.onFirstPage()}
-          />
-        </Show>
-        <Show when={props.page?.nextCursor}>
-          {(next) => (
+      <Show when={props.paged || props.page?.nextCursor}>
+        <StackHorizontal gap="sm" justify="end">
+          <Show when={props.paged}>
             <Button
-              title={t`Next page`}
-              disabled={props.loading}
-              onClick={() => props.onNextPage(next())}
+              title={t`First page`}
+              intent="neutral"
+              variant="outline"
+              size="sm"
+              onClick={() => props.onFirstPage()}
             />
-          )}
-        </Show>
-      </StackHorizontal>
+          </Show>
+          <Show when={props.page?.nextCursor}>
+            {(next) => (
+              <Button
+                title={t`Next page`}
+                intent="neutral"
+                variant="outline"
+                size="sm"
+                disabled={props.loading}
+                onClick={() => props.onNextPage(next())}
+              />
+            )}
+          </Show>
+        </StackHorizontal>
+      </Show>
     </StackVertical>
   );
 }

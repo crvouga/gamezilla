@@ -8,7 +8,7 @@
         "$TURBO_ROOT$/pkgs/ui-root-client-ts/src/**",
         "$TURBO_ROOT$/pkgs/ui-root-shared-ts/src/**",
         "$TURBO_ROOT$/pkgs/{ui-root,ui-devtools,chess-board-root,assistant,collab-ui}-client-ts/src/**/*.stories.tsx",
-        "$TURBO_ROOT$/libs/{account-privacy,app-config,app-root,auth,battleship,billing,chess-puzzle,chess-root,chess-shared,connect-four,friends,game-matchmaking,game-menu,game-puzzle,game-session,hearts,light-cycles,moderation,notifications,numberlink,permissions,profile,pong,quoridor,search,sokoban,spaces,synthetic-population,user-search,word-tiles}-client-ts/src/**/*.stories.tsx"
+        "$TURBO_ROOT$/libs/{account-privacy,app-config,app-root,auth,battleship,billing,chess-puzzle,chess-root,chess-shared,connect-four,friends,game-matchmaking,game-menu,game-puzzle,game-session,hearts,light-cycles,moderation,notifications,numberlink,observatory,permissions,profile,pong,quoridor,search,sokoban,spaces,synthetic-population,user-search,word-tiles}-client-ts/src/**/*.stories.tsx"
       ],
       "outputs": [".cache/inventory.md", ".cache/inventory.json"]
     },
@@ -19,7 +19,7 @@
         "$TURBO_ROOT$/pkgs/ui-root-harness-ts/turbo.json",
         "$TURBO_ROOT$/pkgs/ui-codegen-server-ts/turbo.json",
         "$TURBO_ROOT$/pkgs/{ui-root,ui-devtools,chess-board-root,assistant,collab-ui}-client-ts/src/**/*.stories.tsx",
-        "$TURBO_ROOT$/libs/{account-privacy,app-config,app-root,auth,battleship,billing,chess-puzzle,chess-root,chess-shared,connect-four,friends,game-matchmaking,game-menu,game-puzzle,game-session,hearts,light-cycles,moderation,notifications,numberlink,permissions,profile,pong,quoridor,search,sokoban,spaces,synthetic-population,user-search,word-tiles}-client-ts/src/**/*.stories.tsx"
+        "$TURBO_ROOT$/libs/{account-privacy,app-config,app-root,auth,battleship,billing,chess-puzzle,chess-root,chess-shared,connect-four,friends,game-matchmaking,game-menu,game-puzzle,game-session,hearts,light-cycles,moderation,notifications,numberlink,observatory,permissions,profile,pong,quoridor,search,sokoban,spaces,synthetic-population,user-search,word-tiles}-client-ts/src/**/*.stories.tsx"
       ],
       "outputs": []
     }

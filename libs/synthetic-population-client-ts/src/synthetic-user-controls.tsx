@@ -1,7 +1,9 @@
-import { useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
+import { Grid } from '@pkgs/ui-root-client-ts/grid';
+import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
-import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
+import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
 import { createSignal, type JSX, Show } from 'solid-js';
 
@@ -9,8 +11,10 @@ import { createSignal, type JSX, Show } from 'solid-js';
 export type SyntheticUserCommand = 'pause' | 'resume' | 'restart';
 
 /**
- * Pause, resume and restart for one Synthetic User, shown only to people who
- * may control it. Restart confirms first; each command reports its outcome.
+ * The control panel's commands for one Synthetic User — pause, resume and
+ * restart, three equal buttons in one padded panel — shown only to people
+ * who may control it. Restart confirms first; each command reports its
+ * outcome on its own button or in its dialog.
  */
 export function SyntheticUserControls(props: {
   canControl: boolean;
@@ -28,21 +32,42 @@ export function SyntheticUserControls(props: {
   });
   return (
     <Show when={props.canControl}>
-      <StackHorizontal wrap gap="md">
-        <Button
-          {...pause.buttonProps}
-          dataSet={{ testid: 'synthetic-population-pause' }}
-        />
-        <Button
-          {...resume.buttonProps}
-          dataSet={{ testid: 'synthetic-population-resume' }}
-        />
-        <Button
-          title={t`Restart application`}
-          onClick={() => setRestart(true)}
-          dataSet={{ testid: 'synthetic-population-restart' }}
-        />
-      </StackHorizontal>
+      <MenuSection
+        title={<Trans>Control panel</Trans>}
+        footer={
+          <Trans>
+            A paused Synthetic User finishes an ongoing game and starts nothing
+            new until resumed.
+          </Trans>
+        }
+      >
+        <StackVertical padding="lg">
+          <Grid columns={3} gap="sm">
+            <Button
+              {...pause.buttonProps}
+              intent="neutral"
+              variant="outline"
+              fullWidth
+              dataSet={{ testid: 'synthetic-population-pause' }}
+            />
+            <Button
+              {...resume.buttonProps}
+              intent="neutral"
+              variant="outline"
+              fullWidth
+              dataSet={{ testid: 'synthetic-population-resume' }}
+            />
+            <Button
+              title={t`Restart`}
+              intent="neutral"
+              variant="outline"
+              fullWidth
+              onClick={() => setRestart(true)}
+              dataSet={{ testid: 'synthetic-population-restart' }}
+            />
+          </Grid>
+        </StackVertical>
+      </MenuSection>
       <MutationModal
         visible={restart()}
         onClose={() => setRestart(false)}
@@ -54,6 +79,7 @@ export function SyntheticUserControls(props: {
         successBody={t`The Synthetic Population Worker reopens its app and it carries on where it was.`}
         submitDataSet={{ testid: 'synthetic-population-restart-confirm' }}
         successDataSet={{ testid: 'synthetic-population-restart-done' }}
+        dismissDataSet={{ testid: 'synthetic-population-restart-dismiss' }}
       />
     </Show>
   );
