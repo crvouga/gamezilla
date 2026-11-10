@@ -1,7 +1,8 @@
 // Cedar, Maple and Birch are Synthetic Users, each with its own daily
 // schedule. When its daily schedule begins, a Synthetic User comes online now,
 // unless as many Synthetic Users as the desired synthetic population already
-// are. When its daily schedule ends it is no longer online now, except that a
+// are; then it comes online now as soon as there is room, while its daily
+// schedule lasts. When its daily schedule ends it is no longer online now, except that a
 // Synthetic User in an ongoing game finishes that game first and starts
 // nothing new. Apart from Synthetic Users finishing an ongoing game, no more
 // Synthetic Users are online now than the desired synthetic population.
@@ -50,6 +51,21 @@ module daily_rhythm {
     _finishing' = if (_finishing.contains(who) and onlineNow.size() - _finishing.size() < desiredPopulation)
       _finishing.exclude(Set(who))
     else _finishing,
+    _offline' = _offline,
+    _playingBeforeOffline' = _playingBeforeOffline,
+  }
+
+  /// A Synthetic User on its daily schedule, kept away while the desired synthetic population was online now, comes online now once there is room.
+  action comeOnline(who: str): bool = all {
+    onSchedule.contains(who),
+    not(onlineNow.contains(who)),
+    not(_offline.contains(who)),
+    onlineNow.size() - _finishing.size() < desiredPopulation,
+    onSchedule' = onSchedule,
+    onlineNow' = onlineNow.union(Set(who)),
+    playing' = playing,
+    desiredPopulation' = desiredPopulation,
+    _finishing' = _finishing,
     _offline' = _offline,
     _playingBeforeOffline' = _playingBeforeOffline,
   }
@@ -123,6 +139,7 @@ module daily_rhythm {
     nondet who = SYNTHETIC_USERS.oneOf()
     any {
       scheduleBegins(who),
+      comeOnline(who),
       scheduleEnds(who),
       startNextActivity(who),
       _finishGame(who),

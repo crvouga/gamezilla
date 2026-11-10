@@ -174,7 +174,7 @@ terms:
       Using the app with a connection at this moment, whether a person or a
       Synthetic User. The Bot Observatory lists whoever is online now, with
       each one's activity and whether each is a person or a Synthetic User.
-    model: [onlineNow, listShown, showing, showOnly, invListShowsOnlineNow]
+    model: [onlineNow, comeOnline, listShown, showing, showOnly, invListShowsOnlineNow]
   - term: move
     definition: >-
       What a player does when it is their go in a game: a move in chess, a

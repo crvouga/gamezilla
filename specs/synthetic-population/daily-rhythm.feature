@@ -4,7 +4,7 @@ Feature: Synthetic Users keep a daily rhythm
   Synthetic Users to come and go the way people do, so the app feels like it
   has a real community of players at every hour.
 
-  Rule: A Synthetic User comes online now when its daily schedule begins, unless as many Synthetic Users as the desired synthetic population already are
+  Rule: A Synthetic User comes online now during its daily schedule whenever fewer Synthetic Users than the desired synthetic population are online now
 
     Background:
       Given the desired synthetic population is 3
@@ -20,6 +20,12 @@ Feature: Synthetic Users keep a daily rhythm
       And the Synthetic User "Cedar" is not online now
       When "Cedar"'s daily schedule begins
       Then "Cedar" is still not online now 15 minutes later
+
+    Scenario: A Synthetic User kept away comes online now once there is room
+      Given 3 Synthetic Users are online now, "Maple" among them
+      And "Cedar"'s daily schedule has begun while it was kept away
+      When "Maple"'s daily schedule is over
+      Then "Cedar" is online now within 15 minutes
 
   Rule: A Synthetic User is no longer online now once its daily schedule is over, after finishing any ongoing game
 

@@ -4,8 +4,8 @@
 // moves in a row. After a finished game either of them may offer a rematch;
 // Cedar answers Bob's offer, and sometimes offers one itself, but never plays
 // more than 3 games in a row against Bob.
-// With no connection, Cedar makes no move and Bob offers no rematch; the game
-// stays as it was until the connection returns.
+// With no connection, Cedar makes no move, and neither offers nor answers a
+// rematch; the game stays as it was until the connection returns.
 module human_like_play {
   type Activity = Playing | Finished
 
@@ -64,11 +64,12 @@ module human_like_play {
     _movesAtFinish' = _moves,
   }
 
-  /// Bob or Cedar offers a rematch after a finished game; the other accepts or declines.
+  /// Bob or Cedar offers a rematch after a finished game; the other, with its connection, accepts or declines.
   /// Cedar never accepts or offers a fourth game in a row against Bob.
   action offerRematch(who: str, accepted: bool): bool = all {
     _activity == Finished,
     not(_offline.contains(who)),
+    not(_offline.contains(if (who == "Bob") "Cedar" else "Bob")),
     accepted implies (gamesInARow < 3),
     _activity' = if (accepted) Playing else Finished,
     thinkingTimeHumanLike' = thinkingTimeHumanLike,
