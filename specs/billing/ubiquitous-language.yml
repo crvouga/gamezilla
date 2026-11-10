@@ -285,6 +285,12 @@ terms:
       still has free access and is still offered to subscribe.
     forms: [leaves checkout, leaving checkout, has left checkout]
 
+  - term: leave the billing plans
+    definition: >-
+      Going from the billing plans to somewhere else in the app. Nothing
+      changes: a payment still being confirmed is still being confirmed.
+    forms: [leaves the billing plans, leaving the billing plans, has left the billing plans]
+
   - term: cancel immediately
     definition: >-
       Ending a membership at once rather than at the period end.
