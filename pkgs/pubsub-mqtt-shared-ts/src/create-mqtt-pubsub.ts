@@ -14,6 +14,10 @@ import type { Topic } from '@pkgs/pubsub-root-shared-ts/topic';
 import { assertValidTopic } from '@pkgs/pubsub-root-shared-ts/topic';
 import mqtt, { type IClientOptions, type MqttClient } from 'mqtt';
 import { rememberMqttClientId } from './mqtt-client-id';
+import {
+  isRefusalCode,
+  MqttPublishRefusedError,
+} from './mqtt-publish-refused-error';
 import { fullJitterDelayMs } from './reconnect-backoff';
 import { TopicGrants } from './topic-grants';
 
@@ -115,10 +119,25 @@ class MqttPubSub implements PubSub {
     const payload = encodePayload(data);
     await this.waitUntilConnected();
     const client = this.requireClient();
+    // A topic the credentials do not grant is never sent: the broker would
+    // refuse it, and reconnecting for a fresh answer took the whole session
+    // (every subscription, every multiplayer command) down with it.
+    if (!this.grants.isGranted(topic)) {
+      throw new PubSubPublishError(
+        `Publish error: ${topic} is not granted by this session's credentials`
+      );
+    }
     try {
       await publishQos1(client, this.toWireTopic(topic), payload);
     } catch (error) {
-      if (!this.closed && this.client === client) this.scheduleReconnect();
+      // A refusal the broker answered over a live connection (an MQTT 5
+      // reason code) leaves that connection healthy. Only credentials that
+      // name no topics may be stale enough for a fresh answer to help.
+      const refusal = error instanceof MqttPublishRefusedError;
+      const reconnect = !refusal || !this.grants.namesTopics();
+      if (reconnect && !this.closed && this.client === client) {
+        this.scheduleReconnect();
+      }
       throw error;
     }
   }
@@ -441,10 +460,12 @@ function publishQos1(
       { qos: MQTT_PUBSUB_QOS, retain: false },
       (err) => {
         if (err) {
+          const message =
+            err instanceof Error ? err.message : 'MQTT publish failed';
           reject(
-            new PubSubPublishError(
-              err instanceof Error ? err.message : 'MQTT publish failed'
-            )
+            isRefusalCode(reasonCodeOf(err))
+              ? new MqttPublishRefusedError(message)
+              : new PubSubPublishError(message)
           );
         } else {
           resolve();
@@ -452,4 +473,13 @@ function publishQos1(
       }
     );
   });
+}
+
+/** The MQTT 5 reason code a broker refused with, if it sent one. */
+function reasonCodeOf(err: unknown): number | undefined {
+  if (typeof err !== 'object' || err === null || !('code' in err)) {
+    return undefined;
+  }
+  const { code } = err;
+  return typeof code === 'number' ? code : undefined;
 }

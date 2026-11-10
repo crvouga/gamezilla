@@ -30,6 +30,8 @@ function renderInBuilder(
           args.definition
         ) !== false
       }
+      // A Sokoban draft previews as built, whether or not it can be played.
+      content={sokobanGameClient.puzzleContent}
       undoable={undoable}
       stage={<SokobanEditor {...args} onChange={onChange} />}
     />

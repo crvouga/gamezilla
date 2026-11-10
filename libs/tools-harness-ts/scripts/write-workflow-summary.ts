@@ -10,6 +10,7 @@
 // @io-wall-ok — CI entry; reads trace artifacts + writes GITHUB_STEP_SUMMARY
 import { appendFileSync, existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { nextStepsMarkdown } from './workflow-next-steps';
 import type { FailedTestTrace } from './workflow-observability';
 import {
   failedTestTraceMarkdown,
@@ -90,6 +91,8 @@ function buildStatusMarkdown(
       lines.push('bun obs last --source artifacts --errors --window 24h');
       lines.push('```', '');
     }
+    const next = nextStepsMarkdown({ repo, runId, server, secretsEnv });
+    if (next !== '') lines.push(next, '');
   }
   return lines.join('\n');
 }

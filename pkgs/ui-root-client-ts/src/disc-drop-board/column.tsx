@@ -69,6 +69,12 @@ function DropMarker(props: {
   );
 }
 
+/**
+ * One column of a disc-drop board: a button that drops the dropping side's
+ * disc into it, its cells from bottom to top, and its number above. Pointing
+ * at or focusing it previews where the disc would land; a full column stays
+ * focusable but refuses the drop and says it is full.
+ */
 export function Column(props: {
   board: DiscDropBoardProps;
   column: number;

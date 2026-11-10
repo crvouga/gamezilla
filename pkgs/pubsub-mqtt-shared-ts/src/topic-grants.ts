@@ -42,6 +42,11 @@ export class TopicGrants {
     }
   }
 
+  /** Whether the current credentials list their topics (null grants all). */
+  namesTopics(): boolean {
+    return this.granted !== null;
+  }
+
   isGranted(topic: Topic): boolean {
     return this.granted === null || this.granted.has(topic);
   }

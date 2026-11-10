@@ -1,5 +1,8 @@
 import { expect, test } from 'bun:test';
-import { contentDraftPlayable } from '@libs/game-puzzle-client-ts/content-draft-playable';
+import {
+  contentDraftPlayable,
+  contentDraftPreviewable,
+} from '@libs/game-puzzle-client-ts/content-draft-playable';
 import type { PuzzleContentClient } from '@libs/game-puzzle-client-ts/puzzle-content-client';
 
 /** A game whose authoring reads only the definition `board`. */
@@ -20,4 +23,18 @@ test('a puzzle draft is playable only when the game can read its board', () => {
 test('a game without readable() leaves every draft playable', () => {
   const plain = { authoring: {} } as unknown as PuzzleContentClient;
   expect(contentDraftPlayable(plain, 'puzzle', 'anything')).toBe(true);
+});
+
+// regression: builder-preview-locked-for-game-preview
+test('a game with its own Preview previews a draft it cannot yet play', () => {
+  const drawn = {
+    ...game,
+    Preview: () => null,
+  } as unknown as PuzzleContentClient;
+  expect(contentDraftPreviewable(drawn, 'puzzle', 'not a board')).toBe(true);
+});
+
+test('a game previewing through its player waits until the draft is playable', () => {
+  expect(contentDraftPreviewable(game, 'puzzle', 'not a board')).toBe(false);
+  expect(contentDraftPreviewable(game, 'puzzle', 'board')).toBe(true);
 });

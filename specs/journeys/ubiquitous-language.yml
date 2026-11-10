@@ -137,14 +137,28 @@ terms:
     from: games
   - term: Hearts
     from: hearts
+  # Hearts keeps these words to itself, since every context also says
+  # "pass", "hand" and "take" in their everyday sense; the Hearts journey
+  # names them here.
   - term: card
-    from: hearts
+    definition: >-
+      One of the cards of a Hearts game's deck, as Hearts deals them.
+    forms: [cards]
   - term: hand
-    from: hearts
+    definition: >-
+      The cards a Hearts player holds in the current deal, and how many of
+      them are left after the cards they have played.
+    forms: [hands, cards left in her hand]
   - term: pass
-    from: hearts
+    definition: >-
+      In Hearts, a player's secret choice of three cards from their hand for
+      another player, before the first trick.
+    forms: [passes, passed, passing]
   - term: trick
-    from: hearts
+    definition: >-
+      In Hearts, one card from each player in turn; the highest card of the
+      suit led takes it.
+    forms: [tricks, take, takes, took, taken]
   - term: first trick
     from: hearts
   - term: Word Tiles

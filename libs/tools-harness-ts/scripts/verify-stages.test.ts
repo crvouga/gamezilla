@@ -193,6 +193,48 @@ test('staged shared spec preparation leaves all 181 game parts independently sch
   ).toEqual(tasks.map((task) => task.taskId).sort());
 });
 
+// regression: verify-private-generator-inputs-make-spec-consumers
+test('a shared producer brings its private generators along instead of becoming a fan-in', () => {
+  // Nightly run 42760439972: feature variants read the sounds and tokens
+  // generators, which nothing else reads, so the planner called it a fan-in
+  // and ran all 181 game spec parts on the one consumers runner past its
+  // 3000 s deadline.
+  const owner = '@libs/games-harness-ts';
+  const identity = task('@libs/tools-harness-ts#generate:identity');
+  const sounds = task('//#task:sounds:generate', [identity.taskId]);
+  const tokens = task('//#task:tokens:generate', [identity.taskId]);
+  const i18n = task('//#task:i18n:compile', [identity.taskId]);
+  const generator = task(`${owner}#generate:feature-variants`, [
+    sounds.taskId,
+    tokens.taskId,
+    identity.taskId,
+  ]);
+  const prepare = task(`${owner}#prepare:spec`, [generator.taskId]);
+  const parts = Array.from({ length: 181 }, (_, index) =>
+    task(`${owner}#test:spec:${index}`, [prepare.taskId])
+  );
+  const tasks = [
+    identity,
+    sounds,
+    tokens,
+    i18n,
+    generator,
+    prepare,
+    ...parts,
+    task(`${owner}#test`, [generator.taskId]),
+    task('@libs/harness-ts#test', [generator.taskId]),
+  ];
+  for (const order of [tasks, [...tasks].reverse()]) {
+    const stages = verifyStages(order);
+    expect(stages.consumers).toEqual([]);
+    expect(stages.prerequisites.map((task) => task.taskId).sort()).toEqual(
+      [identity, sounds, tokens, generator, prepare]
+        .map((task) => task.taskId)
+        .sort()
+    );
+  }
+});
+
 test('staged shared producer chains reach the same prerequisite fixed point in any discovery order', () => {
   assertProperty(
     'shared prerequisite closure',

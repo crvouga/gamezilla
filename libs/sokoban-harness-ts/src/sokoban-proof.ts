@@ -19,7 +19,7 @@ const PUBLISHED = new WeakMap<SokobanHarness, Map<string, string>>();
 const NEEDS_PLAYTEST = 'Complete a playtest of this board before publication.';
 
 /** A person presses a control once it offers itself again: idle, or retry after a refusal. */
-async function clickIdle(
+async function waitIdle(
   s: SokobanHarness,
   view: View,
   testId: string
@@ -28,6 +28,14 @@ async function clickIdle(
     const phase = view.queryByTestId(testId)?.getAttribute('data-phase');
     return phase === 'idle' || phase === 'error';
   });
+}
+
+async function clickIdle(
+  s: SokobanHarness,
+  view: View,
+  testId: string
+): Promise<void> {
+  await waitIdle(s, view, testId);
   s.lastResult.delete(ALICE);
   fireEvent.click(view.getByTestId(testId));
 }
@@ -50,10 +58,16 @@ async function newestPlaytest(s: SokobanHarness): Promise<string | null> {
   );
 }
 
-/** Starts a playtest from the builder; a board with corrections is refused there. */
+/**
+ * Starts a playtest from the builder; a board with corrections is refused
+ * there: the builder withholds the playtest until they are made.
+ */
 export async function playtestFromBuilder(s: SokobanHarness): Promise<void> {
   const view = await openSokobanBuilder(s);
   const earlier = await newestPlaytest(s);
+  await waitIdle(s, view, 'content-start-playtest');
+  if (view.getByTestId('content-start-playtest').hasAttribute('disabled'))
+    return;
   await clickIdle(s, view, 'content-start-playtest');
   await waitFor(s, () => s.lastResult.has(ALICE));
   const attemptId = await newestPlaytest(s);

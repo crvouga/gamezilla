@@ -77,6 +77,17 @@
     margin-inline: auto;
   }
 }
+/* Beside the record rail (a desktop window) the seats share one row above
+   the board, and under it are only the tools, the picker, the wall
+   confirmation and the status (about 360px with the title above). At
+   1440x900 the board then fills its column with 44px squares instead of
+   stopping at the phone measure, and the frame's own height bound on the
+   column still caps it. */
+@container game-column (min-width: 880px) {
+  .board[data-fill="true"][data-board-theme="quoridor"] {
+    --chrome: 360px;
+  }
+}
 .header {
   display: grid;
   place-items: center;

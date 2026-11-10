@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
-import { GameScreen } from '../game-screen/index';
 import { Surface } from '../surface/index';
 import { P } from '../text/index';
+import { GameScreen } from './index';
 
 const meta = {
   id: 'templates-game-compact-inset',

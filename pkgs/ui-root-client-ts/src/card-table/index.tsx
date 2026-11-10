@@ -330,7 +330,7 @@ function HandCardFace(props: { card: CardTableHandCard }): JSX.Element {
     <>
       <CardFace card={props.card} />
       <Show when={props.card.refusal}>
-        <span class={styles['unavailable']} aria-hidden="true">
+        <span class={state['unavailable']} aria-hidden="true">
           ×
         </span>
       </Show>

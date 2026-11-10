@@ -98,11 +98,22 @@ function lineOf(placed: readonly PlacedLetter[]): Direction | null {
   return columns.size === 1 ? 'down' : null;
 }
 
+/**
+ * The board with `placed` written in, for placements on distinct cells
+ * (`geometryRefusal` refuses a shared cell first). Bots judge hundreds of
+ * thousands of candidates a search, so this splices the few placed letters
+ * between slices instead of rebuilding all 225 squares.
+ */
 function withPlaced(board: string, placed: readonly PlacedLetter[]): string {
-  const cells = board.split('');
-  for (const p of placed)
-    cells[p.cell] = p.blank ? p.letter.toLowerCase() : p.letter;
-  return cells.join('');
+  const ordered = [...placed].sort((a, b) => a.cell - b.cell);
+  let next = '';
+  let from = 0;
+  for (const p of ordered) {
+    next += board.slice(from, p.cell);
+    next += p.blank ? p.letter.toLowerCase() : p.letter;
+    from = p.cell + 1;
+  }
+  return next + board.slice(from);
 }
 
 function spanIsContiguous(
@@ -165,28 +176,33 @@ function formedWords(
   return spans;
 }
 
-function geometryRefusal(
-  board: string,
-  placed: readonly PlacedLetter[]
-): PlacementRefusal | null {
-  if (placed.length === 0) return 'no tiles';
+type Geometry =
+  | { readonly refusal: PlacementRefusal }
+  | { readonly refusal: null; readonly line: Direction; readonly next: string };
+
+function geometryOf(board: string, placed: readonly PlacedLetter[]): Geometry {
+  if (placed.length === 0) return { refusal: 'no tiles' };
   // Two tiles on one square: the second finds it taken.
   const cells = new Set(placed.map((p) => p.cell));
-  if (cells.size !== placed.length) return 'cell taken';
-  if (placed.some((p) => isOccupied(board, p.cell))) return 'cell taken';
+  if (cells.size !== placed.length) return { refusal: 'cell taken' };
+  if (placed.some((p) => isOccupied(board, p.cell)))
+    return { refusal: 'cell taken' };
   const line = lineOf(placed);
-  if (line === null) return 'not in one line';
+  if (line === null) return { refusal: 'not in one line' };
   const next = withPlaced(board, placed);
-  if (!spanIsContiguous(next, placed, line)) return 'gap in the word';
+  if (!spanIsContiguous(next, placed, line))
+    return { refusal: 'gap in the word' };
   if (boardIsEmpty(board)) {
     if (!placed.some((p) => p.cell === CENTER_CELL))
-      return 'must cover the centre';
-    return placed.length < 2 ? 'too short' : null;
+      return { refusal: 'must cover the centre' };
+    return placed.length < 2
+      ? { refusal: 'too short' }
+      : { refusal: null, line, next };
   }
   const touches = placed.some((p) =>
     neighbours(p.cell).some((n) => isOccupied(board, n))
   );
-  return touches ? null : 'not connected';
+  return touches ? { refusal: null, line, next } : { refusal: 'not connected' };
 }
 
 /** Judge one complete placement on `board`. */
@@ -194,10 +210,10 @@ export function evaluatePlacement(
   board: string,
   placed: readonly PlacedLetter[]
 ): Evaluation {
-  const refusal = geometryRefusal(board, placed);
-  if (refusal !== null) return { ok: false, refusal };
-  const line = lineOf(placed)!;
-  const next = withPlaced(board, placed);
+  const geometry = geometryOf(board, placed);
+  if (geometry.refusal !== null)
+    return { ok: false, refusal: geometry.refusal };
+  const { line, next } = geometry;
   const fresh = new Set(placed.map((p) => p.cell));
   const words = formedWords(next, placed, line).map(([cells, direction]) =>
     scoreWord(next, cells, direction, fresh)

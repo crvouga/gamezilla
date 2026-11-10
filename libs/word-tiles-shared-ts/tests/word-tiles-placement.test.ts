@@ -119,3 +119,19 @@ describe('words formed', () => {
     ]);
   });
 });
+
+describe('the committed board', () => {
+  // regression: word-tiles-bot-law-nightly-timeout
+  test('holds every placed letter wherever the tiles were listed', () => {
+    const inOrder = evaluatePlacement(CAT, placed('j7A j8S j9k'));
+    const reversed = evaluatePlacement(CAT, placed('j9k j8S j7A'));
+    const expected = boardWith([
+      ['g8', 'across', 'CAT'],
+      ['j7', 'down', 'AS'],
+    ]);
+    const k = parseCell('j9')!;
+    const board = `${expected.slice(0, k)}k${expected.slice(k + 1)}`;
+    expect(inOrder.ok && inOrder.board).toBe(board);
+    expect(reversed.ok && reversed.board).toBe(board);
+  });
+});

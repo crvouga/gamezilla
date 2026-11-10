@@ -315,11 +315,14 @@ test('the landing preview is an empty dashed outline and the drop slot a hollow 
 // regression: connect-four-preview-weak — the landing preview was a thin
 // dashed ring of the dropping side's colour, faint against the blue board
 // and fading to half at each breath. The ring is thick, set off from the
-// board by a dark halo, and never fades below 70%; still never filled.
+// board by a dark halo outside and a light rim inside (so a red ring reads
+// on the dark hole too), and never fades below 70%; still never filled.
 test('the landing preview reads against the board yet stays an outline', () => {
   const landing = boardRule('.cell[data-preview-disc="1"] .disc,');
   expect(landing).toContain('border: 4px dashed var(--disc-preview)');
-  expect(landing).toContain('box-shadow: 0 0 0 2px var(--disc-hole)');
+  expect(landing).toMatch(
+    /box-shadow:\s*0 0 0 2px var\(--disc-hole\),\s*inset 0 0 0 2px var\(--ui-color-text-secondary\);/
+  );
   expect(landing).not.toMatch(/background/);
   expect(boardRule('@keyframes disc-preview-breathe')).not.toContain(
     'opacity: 0.5'

@@ -1,0 +1,4 @@
+{
+  "summary": "Release failed the live Pong rematch journey on dev: the host's optimistic publish to a topic its pubsub token did not grant (a just-created room) came back 'Not authorized', and the MQTT client reconnected on every publish error, so the device went offline and matchmaking refused with 'This action needs a connection'. Publishes the credentials do not grant are now refused locally, and a broker refusal over a live MQTT 5 connection no longer tears it down.",
+  "regressionTest": "pkgs/pubsub-mqtt-harness-ts/tests/mqtt-publish-authorization.test.ts"
+}

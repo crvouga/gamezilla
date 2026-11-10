@@ -289,11 +289,13 @@ describe('checkout across providers', () => {
     expect(await two.customerOf('ada', 'stripe')).toBe(atStripe);
     const customers = await two.stripe.stripe.customers.list();
     expect(customers.data.map((c) => c.id)).toEqual([atStripe]);
-    // The first checkout there was never paid and is still open, so it is
-    // handed back rather than a second one opened.
+    // The first checkout there was closed when Paddle opened one, so it can
+    // never be paid alongside it; the new checkout is the same customer's.
+    // regression: billing-provider-switch-leaves-old-checkout-payable
     const checkouts = await two.stripe.stripe.checkout.sessions.list();
     expect(checkouts.data.map((c) => [c.customer, c.status])).toEqual([
       [atStripe, 'open'],
+      [atStripe, 'expired'],
     ]);
   });
 });
