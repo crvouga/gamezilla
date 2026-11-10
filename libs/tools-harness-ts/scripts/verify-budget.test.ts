@@ -11,6 +11,7 @@ import {
   findBudgetOverruns,
   formatBudgetOverruns,
   gateExitCode,
+  HEALTH_RUN_DEADLINE_SECONDS,
   RUN_DEADLINE_ENV,
   resolveRunDeadlineSeconds,
   SLOW_RUNNER_MULTIPLIER,
@@ -163,22 +164,36 @@ describe('resolveRunDeadlineSeconds', () => {
 
   // regression: health-timeout-hides-hung-probe
   test.each([
-    ['verify-pr.yml', 'verify'],
-    ['health.yml', 'health:${{ matrix.env }}'],
-  ])('the CI deadline fires before the %s step timeout', (file, name) => {
-    // Otherwise GitHub kills the job first and nobody learns which task hung.
-    const workflow = readFileSync(
-      join(import.meta.dirname, '../../../.github/workflows', file),
-      'utf8'
+    ['verify-pr.yml', 'verify', CI_RUN_DEADLINE_SECONDS],
+    ['health.yml', 'health:${{ matrix.env }}', HEALTH_RUN_DEADLINE_SECONDS],
+  ])(
+    'the CI deadline fires before the %s step timeout',
+    (file, name, deadline) => {
+      // Otherwise GitHub kills the job first and nobody learns which task hung.
+      const workflow = readFileSync(
+        join(import.meta.dirname, '../../../.github/workflows', file),
+        'utf8'
+      );
+      // Only the step's own keys: stop at the next step (`- …`). The gate's
+      // step names both profiles' timeouts; the `pr` one is the default read
+      // here, and `verify-profile.test.ts` holds the nightly one.
+      const step = new RegExp(
+        `- name: ${RegExp.escape(name)}\\n(?:(?!\\s*- ).*\\n)*?\\s+timeout-minutes:\\s*(?:\\$\\{\\{ inputs\\.profile == 'nightly' && \\d+ \\|\\| )?(\\d+)`
+      ).exec(workflow);
+      expect(step, `${file} ${name} step has a timeout-minutes`).not.toBeNull();
+      expect(Number(step?.[1]) * 60).toBeGreaterThan(deadline);
+    }
+  );
+
+  // regression: health-outgrew-ci-deadline
+  test('standalone Health has its own ceiling, above its slow-runner budget', () => {
+    const options = { isDeploy: false, isHealth: true, slowRunner: true };
+    expect(resolveRunDeadlineSeconds({}, options)).toBe(
+      HEALTH_RUN_DEADLINE_SECONDS
     );
-    // Only the step's own keys: stop at the next step (`- …`). The gate's
-    // step names both profiles' timeouts; the `pr` one is the default read
-    // here, and `verify-profile.test.ts` holds the nightly one.
-    const step = new RegExp(
-      `- name: ${RegExp.escape(name)}\\n(?:(?!\\s*- ).*\\n)*?\\s+timeout-minutes:\\s*(?:\\$\\{\\{ inputs\\.profile == 'nightly' && \\d+ \\|\\| )?(\\d+)`
-    ).exec(workflow);
-    expect(step, `${file} ${name} step has a timeout-minutes`).not.toBeNull();
-    expect(Number(step?.[1]) * 60).toBeGreaterThan(CI_RUN_DEADLINE_SECONDS);
+    expect(HEALTH_RUN_DEADLINE_SECONDS).toBeGreaterThan(
+      taskBudgetSeconds('@apps/product-ts#health', true, {})
+    );
   });
 
   test('release verification installs Chrome without apt dependency upgrades', () => {

@@ -146,7 +146,9 @@ resource "cloudflare_dns_record" "cert_validation" {
   content = trimsuffix(each.value.value, ".")
   proxied = false
   ttl     = 1
-  comment = "OpenTofu: libs/infra pubsub certificate"
+  # regression: pubsub-dns-comment-tug-of-war
+  # No comment: the zone's DNS inventory (crvouga/personal) also declares this
+  # record, without one. Two applies disagreeing on it rewrote it every run.
 }
 
 resource "aws_acm_certificate_validation" "broker" {
@@ -177,7 +179,9 @@ resource "cloudflare_dns_record" "broker" {
   content = data.aws_iot_endpoint.data.endpoint_address
   proxied = false
   ttl     = 1
-  comment = "OpenTofu: libs/infra pubsub"
+  # regression: pubsub-dns-comment-tug-of-war
+  # No comment: the zone's DNS inventory (crvouga/personal) also declares this
+  # record, without one. Two applies disagreeing on it rewrote it every run.
 }
 
 resource "aws_iam_user" "publisher" {

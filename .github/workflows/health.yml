@@ -197,7 +197,7 @@ jobs:
     permissions:
       contents: read # check out the code
       id-token: write # mint the OIDC token Infisical and AWS trust
-    timeout-minutes: 30
+    timeout-minutes: 40
     # No GitHub environment ('') for a standard env. Only `main` may enter the
     # `production` environment (its deployment branch policy), so a branch run
     # checks a production env without it: the read-only Health role trusts a
@@ -231,10 +231,10 @@ jobs:
 
 
       - name: health:${{ matrix.env }}
-        # Above `CI_RUN_DEADLINE_SECONDS` (libs/tools-harness-ts/scripts/verify-budget.ts)
+        # Above `HEALTH_RUN_DEADLINE_SECONDS` (libs/tools-harness-ts/scripts/verify-budget.ts)
         # on purpose: turbo-ci-run hits its own deadline first and names the
         # probe that hung, instead of GitHub cancelling the job silently.
-        timeout-minutes: 25
+        timeout-minutes: 33
         # One task: streamed, full output keeps the scenario in progress
         # visible when the deadline stops it. turbo-ci-run defaults to
         # errors-only, which prints nothing for a task killed at the deadline.

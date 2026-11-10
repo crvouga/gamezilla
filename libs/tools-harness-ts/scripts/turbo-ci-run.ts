@@ -703,6 +703,7 @@ function runDeadlineSeconds(
 ): number {
   return resolveRunDeadlineSeconds(process.env, {
     isDeploy: mode === 'deploy',
+    isHealth: mode === 'health',
     slowRunner,
     warmRunner: ci && !slowRunner,
   });

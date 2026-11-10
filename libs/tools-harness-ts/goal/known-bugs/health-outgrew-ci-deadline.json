@@ -1,0 +1,4 @@
+{
+  "summary": "Every hourly Health run since Nov 9 was killed at the 1200 s CI deadline on both dev and prd before its last probes (environment drift) ran, and Release failed the @apps/product-ts#health budget (1272 s measured against 960 s). Health runs its live scenarios one at a time on one monitor account; it now has its own 1800 s deadline and a 720 s budget (1440 s on a 2-core runner) sized from that measurement.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-budget.test.ts"
+}
