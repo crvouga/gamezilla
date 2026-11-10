@@ -33,7 +33,9 @@
 // rules with only what that side may know; it decides that side's pending
 // secret choice at once.
 // Being away is timed from when they left, so whoever has been away longer
-// gets their stand-in no later than whoever left after them. The person keeps
+// gets their stand-in no later than whoever left after them, and people
+// whose time away started together, such as everyone who left while the host
+// was away, get theirs at the same time. The person keeps
 // their side; their own secret choices are refused while the stand-in plays
 // it, and coming back alone does not end it: back online, they take back
 // their side, and from then on the stand-in decides nothing for it.
@@ -97,6 +99,12 @@ module secret_choices {
     val p = PARTICIPANTS.get(s)
     if (p == "bot" or p == HOST or not(_offline.contains(p))) true
     else _awayMoment.get(p) < _awayMoment.get(actor) implies standIn.contains(s)
+  })
+  /// The sides without a stand-in of participants other than the host who have been away exactly as long as the actor, the actor's own included.
+  def _awayAsLong(actor: str): Set[str] = SIDE_SET.filter(s => {
+    val p = PARTICIPANTS.get(s)
+    if (p == "bot" or p == HOST or not(_offline.contains(p)) or standIn.contains(s)) false
+    else _awayMoment.get(p) == _awayMoment.get(actor)
   })
   /// Every side has someone to play it, and the host is here.
   def _playable = _hostHere and SIDE_SET.forall(s =>
@@ -185,15 +193,17 @@ module secret_choices {
     _update("finished", false, _secretChoice, _choiceRound, _appliedRounds, Set(),
       _movesThisRound, "decided", _offline, Set()),
   }
-  /// While the host is here, a stand-in takes the side of a participant other than the host who has been away for 60 seconds, once everyone away longer has theirs, and makes its pending secret choice at once.
+  /// While the host is here, a stand-in takes the side of a participant other than the host who has been away for 60 seconds, once everyone away longer has theirs, together with everyone away exactly as long, and each makes its pending secret choice at once.
   action standInTakesSide(actor: str, choice: str): bool = {
     val side = _sideOf(actor)
-    val standIns = standIn.union(Set(side))
+    val sides = _awayAsLong(actor).union(Set(side))
+    val standIns = standIn.union(sides)
+    val pending = sides.filter(s => _secretChoice.get(s) == "")
     all {
       status == "under way", side != "", actor != HOST, _hostHere,
       _offline.contains(actor), not(standIn.contains(side)), _awayLongerHaveStandIns(actor),
-      if (choosing and _secretChoice.get(side) == "")
-        _choose(_choiceRound, _secretChoice, Set((side, "stand-in")), choice, standIns)
+      if (choosing and pending != Set())
+        _choose(_choiceRound, _secretChoice, pending.map(s => (s, "stand-in")), choice, standIns)
       else
         _update(status, choosing, _secretChoice, _choiceRound, _appliedRounds, standIns,
           _movesThisRound, result, _offline, Set()),
@@ -259,7 +269,7 @@ module secret_choices {
     d._2 == "stand-in" implies standIn.contains(d._1),
     d._2 == "bot" implies d._1 == "fourth",
   })
-  /// A stand-in begins only for a participant other than the host who is away while the host is here, never for the bot and never before everyone away longer has theirs, and the person keeps their side.
+  /// A stand-in begins only for a participant other than the host who is away while the host is here, never for the bot, never before everyone away longer has theirs and never without everyone away exactly as long, and the person keeps their side.
   val invStandInOnlyWhenAway = and {
     participants == PARTICIPANTS,
     standIn.forall(s => PARTICIPANTS.get(s) != "bot" and PARTICIPANTS.get(s) != HOST),
@@ -268,7 +278,7 @@ module secret_choices {
     standIn.forall(s => _previousStandIn.contains(s) or SIDE_SET.forall(o => {
       val p = PARTICIPANTS.get(o)
       if (p == "bot" or p == HOST or not(_offline.contains(p))) true
-      else _awayMoment.get(p) < _awayMoment.get(PARTICIPANTS.get(s)) implies standIn.contains(o)
+      else _awayMoment.get(p) <= _awayMoment.get(PARTICIPANTS.get(s)) implies standIn.contains(o)
     })),
   }
   /// The result is decided once and never replaced: a finished custom game stays finished, with no stand-in and no more secret choices or moves.
