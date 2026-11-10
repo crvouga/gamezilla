@@ -47,11 +47,13 @@ export function SyntheticUserControls(props: {
         visible={restart()}
         onClose={() => setRestart(false)}
         title={t`Restart this Synthetic User?`}
-        message={t`Its application reconnects and reconciles its ongoing activity before taking another action.`}
+        message={t`Its app closes and opens again. It keeps its account, its persona and any ongoing game, and carries on from its current activity.`}
         operation={() => props.command('restart')}
         submitLabel={t`Restart`}
         successTitle={t`Restart requested`}
-        successBody={t`The Synthetic Population Worker will recover this application.`}
+        successBody={t`The Synthetic Population Worker reopens its app and it carries on where it was.`}
+        submitDataSet={{ testid: 'synthetic-population-restart-confirm' }}
+        successDataSet={{ testid: 'synthetic-population-restart-done' }}
       />
     </Show>
   );

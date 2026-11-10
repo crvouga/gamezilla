@@ -1,3 +1,4 @@
+import { PROFILE_TABLES } from '@libs/profile-shared-ts/tables';
 import { LeaseRepository } from '@libs/synthetic-population-server-ts/lease-repository';
 import { SyntheticPopulationAdministration } from '@libs/synthetic-population-server-ts/synthetic-population-administration';
 import { SyntheticPopulationController } from '@libs/synthetic-population-server-ts/synthetic-population-controller';
@@ -20,7 +21,10 @@ export async function syntheticPopulationFixture(desired = 1) {
     seed: 213,
     now: () => new Date(clock.now()),
   });
-  await reconcileSqliteSchema(db, registerTables(SYNTHETIC_POPULATION_TABLES));
+  await reconcileSqliteSchema(
+    db,
+    registerTables([...SYNTHETIC_POPULATION_TABLES, ...PROFILE_TABLES])
+  );
   let notifications = 0;
   const ports = {
     clock,
@@ -50,7 +54,23 @@ export async function syntheticPopulationFixture(desired = 1) {
       leaseFailures: 0,
     });
   for (const worker of workers) await heartbeat(worker);
+  const liveNotices: string[] = [];
+  const live = {
+    clock,
+    createId,
+    presenceChanged: async () => {
+      liveNotices.push('presence');
+    },
+    frameChanged: async (sessionId: string) => {
+      liveNotices.push(`frame:${sessionId}`);
+    },
+    wakeAccount: async (accountId: string) => {
+      liveNotices.push(`wake:${accountId}`);
+    },
+  };
   return {
+    live,
+    liveNotices: () => [...liveNotices],
     clock,
     timers,
     createId,

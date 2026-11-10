@@ -1,5 +1,5 @@
 {
-  "release": 21,
+  "release": 22,
   "snapshot": {
     "tables": {
       "auth_account_devices": {
@@ -279,6 +279,21 @@
         "user_id": "text",
         "worker_id": "text"
       },
+      "population_live_sessions": {
+        "account_id": "text",
+        "activity": "text",
+        "device_id": "text",
+        "frame": "text",
+        "frame_at": "timestamp",
+        "game": "text",
+        "heartbeat_at": "timestamp",
+        "place": "text"
+      },
+      "population_live_watches": {
+        "account_id": "text",
+        "device_id": "text",
+        "watched_until": "timestamp"
+      },
       "population_sign_in_mail": {
         "email": "text",
         "expires_at": "timestamp",
@@ -294,6 +309,7 @@
         "generation": "integer",
         "inspection": "json",
         "inspection_requested_at": "timestamp",
+        "kept_away_since": "timestamp",
         "last_action": "text",
         "last_error": "text",
         "lease_until": "timestamp",
@@ -498,6 +514,7 @@
       ["permissions_quota_ledger", "owner_id", "quota", "consumed_at"],
       ["population_commands", "user_id"],
       ["population_events", "user_id", "created_at"],
+      ["population_live_sessions", "heartbeat_at"],
       ["population_sign_in_mail", "email", "created_at"],
       ["population_users", "lease_until"],
       ["population_users", "worker_id"],
@@ -547,6 +564,8 @@
         "source_id"
       ],
       ["permissions_quota_ledger", "owner_id", "idempotency_key"],
+      ["population_live_sessions", "account_id", "device_id"],
+      ["population_live_watches", "account_id", "device_id"],
       ["population_users", "account_id"],
       ["population_users", "email"],
       ["profile", "username_norm"],

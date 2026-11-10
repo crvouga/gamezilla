@@ -61,6 +61,13 @@ export const Paused: Story = {
   },
 };
 
+/** A Synthetic User recorded before personas: the persona says so. */
+export const PersonaNotRecorded: Story = {
+  args: {
+    record: { user: userDetail({ persona: null }), events: EVENTS },
+  },
+};
+
 /** A user that never started: every session field reads its "none" copy. */
 export const NotStarted: Story = {
   args: {

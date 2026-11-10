@@ -17,12 +17,10 @@
   "dependencies": {
     "@libs/product-identity-shared-ts": "workspace:*",
     "@libs/sub-shared-ts": "workspace:*",
-    "@libs/test-ids-shared-ts": "workspace:*",
-    "@pkgs/clock-shared-ts": "workspace:*",
     "@pkgs/db-schema-root-shared-ts": "workspace:*",
     "@pkgs/sql-client-root-shared-ts": "workspace:*",
     "@pkgs/sql-root-shared-ts": "workspace:*",
-    "@pkgs/turn-game-shared-ts": "workspace:*",
+    "@pkgs/sync-engine-shared-ts": "workspace:*",
     "@pkgs/ui-testing-root-shared-ts": "workspace:*",
     "@pkgs/uuid-shared-ts": "workspace:*",
     "xstate": "5.33.2",

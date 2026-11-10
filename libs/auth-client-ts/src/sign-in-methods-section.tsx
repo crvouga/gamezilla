@@ -155,7 +155,11 @@ function EmailMethodRow(props: {
           onRemove={props.onRemove}
         />
       }
-      dataSet={{ testid: Handles.accountSignInMethod('email') }}
+      // Its address is private: never part of a screen watched live.
+      dataSet={{
+        testid: Handles.accountSignInMethod('email'),
+        sensitive: 'true',
+      }}
     />
   );
 }

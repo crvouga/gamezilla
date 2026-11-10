@@ -9,6 +9,13 @@ export type PolicyInputs = {
   readonly sessionElapsedMs: number;
   readonly sessionLimitMs: number;
   readonly hostingWeight: number;
+  /** Games where a person waits for this Synthetic User as their opponent. */
+  readonly waitingOpponents?: readonly OpponentDemand[];
+};
+/** A person looking for a multiplayer opponent: the game and the match choice. */
+export type OpponentDemand = {
+  readonly gameId: string;
+  readonly timeControl: string;
 };
 export type Decision = {
   activity:
@@ -19,6 +26,8 @@ export type Decision = {
     | 'joining'
     | 'loggingOut';
   targetControlId: string | null;
+  /** The game to find an opponent for, when a person is waiting for one. */
+  game?: OpponentDemand;
 };
 
 /** Authoritative ongoing activity always wins over a new random decision. */
@@ -33,6 +42,10 @@ export function chooseActivity(input: PolicyInputs, random: Random): Decision {
     return { activity: 'loggingOut', targetControlId: null };
   if (input.hasQueueEntry)
     return { activity: 'matchmaking', targetControlId: null };
+  // A person waiting for an opponent comes before anything a Synthetic User fancies.
+  const waiting = input.waitingOpponents?.[0];
+  if (waiting !== undefined)
+    return { activity: 'matchmaking', targetControlId: null, game: waiting };
   const choice = random();
   if (input.availableSpaces.length > 0 && choice < 0.4) {
     const index = Math.min(

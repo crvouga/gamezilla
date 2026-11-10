@@ -39,6 +39,8 @@ export function SearchRecentQueries(props: {
                   <HistoryIcon size={ROW_ICON_SIZE} color="textSecondary" />
                 }
                 onClick={() => props.onSelect(query)}
+                // What a person searched for is private: never watched live.
+                dataSet={{ sensitive: 'true' }}
               />
             )}
           </For>

@@ -20,6 +20,7 @@
         "@libs/runtime-client-ts#src",
         "@libs/runtime-shared-ts#src",
         "@libs/spaces-client-ts#src",
+        "@libs/synthetic-population-behavior-shared-ts#src",
         "@libs/synthetic-population-server-ts#src",
         "@libs/synthetic-population-shared-ts#src",
         "@pkgs/bun-test-solid-client-ts#src",

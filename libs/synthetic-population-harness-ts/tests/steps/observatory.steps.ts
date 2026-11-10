@@ -4,6 +4,7 @@ import { Given, Then, When } from '@libs/harness-ts/define';
 import type { Actor } from '@libs/harness-ts/parameter-types';
 import { focusActor } from '@libs/harness-ts/shell-actions';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
+import { syntheticSessionEnded } from '@libs/synthetic-population-harness-ts/control-panel-actions';
 import {
   changeDesiredSyntheticPopulation,
   desiredSyntheticPopulation,
@@ -17,7 +18,6 @@ import {
 import {
   cedarAvailable,
   cedarGameResult,
-  cedarSessionEnded,
   pauseSyntheticUser,
 } from '@libs/synthetic-population-harness-ts/synthetic-population-control-actions';
 import { givenSyntheticUser } from '@libs/synthetic-population-harness-ts/synthetic-user-fixtures';
@@ -127,8 +127,10 @@ Then('{string} can finish its ongoing game', async (w, name: string) => {
   expect(result.announcement).toBeTruthy();
 });
 Then('{string} starts no new activity', async (w, name: string) => {
-  expect(name).toBe('Cedar');
-  await w.s.until(cedarSessionEnded, { pred: Boolean, maxMs: 10_000 });
+  await w.s.until((s) => syntheticSessionEnded(s, name), {
+    pred: Boolean,
+    maxMs: 10_000,
+  });
 });
 Then('{string} remains available', async (w, name: string) => {
   expect(name).toBe('Cedar');

@@ -3,9 +3,11 @@ import { useClientRequestAuth } from '@libs/auth-client-ts/use-client-request-au
 import { clientAuthHeaders } from '@libs/auth-shared-ts/client-request-auth';
 import type { SyntheticPopulationRPC } from '@libs/synthetic-population-server-ts/synthetic-population-routes';
 import type {
+  SyntheticPopulationBulkCommand,
   SyntheticPopulationCommand,
   SyntheticPopulationConfig,
 } from '@libs/synthetic-population-shared-ts/config';
+import type { OnlineNowFilter } from '@libs/synthetic-population-shared-ts/live-session';
 import { useHttpClient } from '@pkgs/http-client-client-ts/solid';
 import type { HttpFetch } from '@pkgs/http-client-shared-ts/types';
 import { hc, type InferResponseType } from 'hono/client';
@@ -32,6 +34,14 @@ export type SyntheticUserDetail = InferResponseType<
   Rpc['users'][':id']['$get'],
   200
 >['user'];
+/** Whoever is online now, as the Bot Observatory reads it. */
+export type OnlineNowRead = InferResponseType<Rpc['live']['$get'], 200>;
+export type OnlineNowEntryView = OnlineNowRead['entries'][number];
+/** What a watcher sees of someone online now, or that they have left. */
+export type LiveWatchRead = InferResponseType<
+  Rpc['live'][':id']['watch']['$post'],
+  200
+>;
 
 export function useSyntheticPopulationApi() {
   const config = useConfigService();
@@ -84,6 +94,23 @@ export function useSyntheticPopulationApi() {
       const response = await rpc.users[':id'].replay.$post({ param: { id } });
       if (!response.ok) throw new Error('Decision replay is unavailable.');
       return response.json();
+    },
+    async onlineNow(filter: OnlineNowFilter) {
+      const response = await rpc.live.$get({ query: { filter } });
+      if (!response.ok) throw new Error('Online now is unavailable.');
+      return response.json();
+    },
+    async watch(sessionId: string) {
+      const response = await rpc.live[':id'].watch.$post({
+        param: { id: sessionId },
+      });
+      if (!response.ok) throw new Error('Watching live is unavailable.');
+      return response.json();
+    },
+    async commandAll(value: SyntheticPopulationBulkCommand) {
+      const response = await rpc.commands.$post({ json: value });
+      if (response.status !== 200)
+        throw new Error('Command was not accepted. Refresh and try again.');
     },
     async command(id: string, value: SyntheticPopulationCommand) {
       const response = await rpc.users[':id'].commands.$post({

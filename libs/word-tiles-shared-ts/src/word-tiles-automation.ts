@@ -10,8 +10,8 @@ import { wordTilesBots } from './word-tiles-rules';
  * exchange and confirm.
  */
 export const wordTilesAutomation: TurnGame['turnAutomation'] = {
-  choose: (position, random, hand) =>
-    wordTilesBots.choose(position, 'medium', random, hand),
+  choose: (position, random, hand, strength = 'medium') =>
+    wordTilesBots.choose(position, strength, random, hand),
   async perform(ui, board, action) {
     const proposal = parseProposal(action);
     if (proposal === null)

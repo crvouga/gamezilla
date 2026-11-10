@@ -5,6 +5,7 @@ import {
   mutationEnvFor,
   openConformanceDb,
 } from '@libs/permissions-shared-ts/world';
+import { PROFILE_TABLES } from '@libs/profile-shared-ts/tables';
 import { spaceUserEntityId } from '@libs/spaces-shared-ts/participation-ids';
 import { SPACES_TABLES } from '@libs/spaces-shared-ts/tables';
 import { defineTable } from '@pkgs/db-schema-root-shared-ts/define-table';
@@ -41,6 +42,8 @@ export async function localFind(input: FindLocalCase) {
   const db = await openConformanceDb([
     ...MULTIPLAYER_TABLES,
     ...SPACES_TABLES,
+    // Who searches: a Synthetic User searches at a waiting person's level.
+    ...PROFILE_TABLES,
     billing,
     matchmakingActivePartitions,
     matchmakingOwners,

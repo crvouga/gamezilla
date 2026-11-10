@@ -22,12 +22,17 @@ export function lightCyclesAutomation(
       const movement = Math.floor(context.elapsedMs / intervalMs);
       const tick = (movement + 1) * config.movementTicks;
       const deciding = { ...state, phaseTick: config.movementTicks - 1 };
-      return simulation.bots!.input(deciding, side, 'medium', {
-        tick,
-        deltaMs,
-        elapsedMs: tick * deltaMs,
-        random: context.random,
-      });
+      return simulation.bots!.input(
+        deciding,
+        side,
+        context.strength ?? 'medium',
+        {
+          tick,
+          deltaMs,
+          elapsedMs: tick * deltaMs,
+          random: context.random,
+        }
+      );
     },
     async perform(ui, board, side, value) {
       const input = parseLightCyclesInput(value);

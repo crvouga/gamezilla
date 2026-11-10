@@ -3,6 +3,10 @@ import {
   type WorkerAssignment,
 } from '@apps/synthetic-population-worker-ts/worker-rpc';
 import { DEFAULT_SYNTHETIC_POPULATION_CONFIG } from '@libs/synthetic-population-shared-ts/config';
+import {
+  personaRandom,
+  provisionPersona,
+} from '@libs/synthetic-population-shared-ts/persona';
 import { syntheticAddress } from '@libs/synthetic-population-shared-ts/synthetic-address';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { createNoopLogger } from '@pkgs/logger-shared-ts/logger';
@@ -52,7 +56,11 @@ export function workerFixture() {
     username: 'Cedar',
     email: syntheticAddress('cedar'),
     registered: true,
-    personality: { hostingWeight: 0.3, skill: 'beginner' },
+    persona: provisionPersona('cedar', personaRandom('cedar'), {
+      games: ['some-game'],
+      population: [],
+      nowMs: clock.now(),
+    }),
     deviceId: createId(),
     checkpoint: null,
     config: { ...DEFAULT_SYNTHETIC_POPULATION_CONFIG, desired: 1 },

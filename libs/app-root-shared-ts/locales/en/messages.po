@@ -124,11 +124,6 @@ msgstr "{0} active, expires {latestExpires}"
 msgid "{0} added"
 msgstr "{0} added"
 
-#. placeholder {0}: sideName(otherSide(requireTwoPlayerSide(battle().winner ?? 'white')))
-#: libs/battleship-client-ts/src/battleship-board.tsx
-msgid "{0} destroyed — all five ships sunk."
-msgstr "{0} destroyed — all five ships sunk."
-
 #. placeholder {0}: props.label
 #. placeholder {1}: props.max
 #: pkgs/ui-root-client-ts/src/number-stepper/index.tsx
@@ -146,6 +141,11 @@ msgstr "{0} is at its minimum, {1}"
 #: libs/game-matchmaking-client-ts/src/multiplayer-status.tsx
 msgid "{0} is low on time, with {1} left."
 msgstr "{0} is low on time, with {1} left."
+
+#. placeholder {0}: state.username
+#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
+msgid "{0} is no longer online now"
+msgstr "{0} is no longer online now"
 
 #. placeholder {0}: count()
 #: libs/spaces-client-ts/src/space-miniplayer.tsx
@@ -226,6 +226,11 @@ msgstr "{0} rated puzzles remaining today"
 msgid "{0} removed"
 msgstr "{0} removed"
 
+#. placeholder {0}: name(scorer)
+#: libs/pong-client-ts/src/pong-board-view.tsx
+msgid "{0} scored"
+msgstr "{0} scored"
+
 #. placeholder {0}: count()
 #: libs/game-puzzle-client-ts/src/content-library-card.tsx
 msgid "{0} solved"
@@ -271,10 +276,27 @@ msgstr "{0} wins the round."
 msgid "{0} won the multiplayer game."
 msgstr "{0} won the multiplayer game."
 
+#. placeholder {0}: persona().thinkingTime.minMs / 1000
+#. placeholder {1}: persona().thinkingTime.maxMs / 1000
+#: libs/synthetic-population-client-ts/src/synthetic-user-persona.tsx
+msgid "{0}–{1} seconds a move"
+msgstr "{0}–{1} seconds a move"
+
 #. placeholder {0}: cell.label
 #: libs/battleship-client-ts/src/battleship-grid-cells.tsx
 msgid "{0}, latest shot"
 msgstr "{0}, latest shot"
+
+#. placeholder {0}: playerName(props.board, 'left')
+#. placeholder {1}: playerName(props.board, 'right')
+#: libs/pong-client-ts/src/pong-board-view.tsx
+msgid "{0}: drag the left half. {1}: drag the right half."
+msgstr "{0}: drag the left half. {1}: drag the right half."
+
+#. placeholder {0}: props.entry.username
+#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
+msgid "{0}'s screen"
+msgstr "{0}'s screen"
 
 #. placeholder {0}: parts.hostName
 #: libs/spaces-client-ts/src/use-space-display-title.tsx
@@ -625,21 +647,29 @@ msgstr "{rank} of hearts"
 msgid "{rank} of spades"
 msgstr "{rank} of spades"
 
+#: libs/synthetic-population-client-ts/src/synthetic-user-persona.tsx
+msgid "{region} · {level}"
+msgstr "{region} · {level}"
+
+#: libs/synthetic-population-client-ts/src/synthetic-user-persona.tsx
+msgid "{region} · {level} · Favorite games: {games}"
+msgstr "{region} · {level} · Favorite games: {games}"
+
 #: libs/game-matchmaking-client-ts/src/multiplayer-time-left.tsx
 msgid "{seconds} seconds"
 msgstr "{seconds} seconds"
 
 #: libs/battleship-client-ts/src/battleship-copy.tsx
-msgid "{shooter} fired at {cell} and hit."
-msgstr "{shooter} fired at {cell} and hit."
+msgid "{shooter} hit {cell}."
+msgstr "{shooter} hit {cell}."
 
 #: libs/battleship-client-ts/src/battleship-copy.tsx
-msgid "{shooter} fired at {cell} and missed."
-msgstr "{shooter} fired at {cell} and missed."
+msgid "{shooter} missed at {cell}."
+msgstr "{shooter} missed at {cell}."
 
 #: libs/battleship-client-ts/src/battleship-copy.tsx
-msgid "{shooter} fired at {cell} and sank the {ship}."
-msgstr "{shooter} fired at {cell} and sank the {ship}."
+msgid "{shooter} sank the {ship} at {cell}."
+msgstr "{shooter} sank the {ship} at {cell}."
 
 #: libs/app-root-client-ts/src/app-header-global-menu-view.tsx
 msgid "{shown}, account menu"
@@ -802,6 +832,10 @@ msgstr "2W doubles the word."
 #: libs/game-puzzle-client-ts/src/content-author-screen-view.tsx
 msgid "3 · Check and publish"
 msgstr "3 · Check and publish"
+
+#: libs/hearts-client-ts/src/hearts-board.tsx
+msgid "3 of 3 chosen. Unselect a card to choose another."
+msgstr "3 of 3 chosen. Unselect a card to choose another."
 
 #: libs/word-tiles-client-ts/src/word-tiles-cells.tsx
 msgid "3L"
@@ -1045,6 +1079,10 @@ msgstr "Ace"
 msgid "across"
 msgstr "across"
 
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "across from you"
+msgstr "across from you"
+
 #: libs/notifications-client-ts/src/notifications-filter-bar.tsx
 msgid "Action needed"
 msgstr "Action needed"
@@ -1161,11 +1199,6 @@ msgstr "After 1 s"
 #: libs/game-session-client-ts/src/game-frame-actions-view.tsx
 msgid "Agree draw"
 msgstr "Agree draw"
-
-#. placeholder {0}: regions[area()]
-#: libs/battleship-client-ts/src/battleship-target-grid.tsx
-msgid "Aim in {0}"
-msgstr "Aim in {0}"
 
 #: libs/notifications-client-ts/src/notifications-filter-bar.tsx
 msgid "All"
@@ -1369,6 +1402,10 @@ msgstr "Back"
 msgid "Back to current game"
 msgstr "Back to current game"
 
+#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
+msgid "Back to online now"
+msgstr "Back to online now"
+
 #: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "Back to spaces"
 msgstr "Back to spaces"
@@ -1399,6 +1436,10 @@ msgstr "Be the last of four riders riding."
 #: libs/light-cycles-client-ts/src/light-cycles-game-client.tsx
 msgid "Be the last of three riders riding."
 msgstr "Be the last of three riders riding."
+
+#: libs/synthetic-population-client-ts/src/synthetic-user-persona.tsx
+msgid "Beginner"
+msgstr "Beginner"
 
 #: libs/synthetic-population-client-ts/src/synthetic-user-statechart.tsx
 msgid "Behavior Statechart"
@@ -1539,6 +1580,8 @@ msgstr "Bot (medium)"
 msgid "Bot difficulty"
 msgstr "Bot difficulty"
 
+#: libs/synthetic-population-client-ts/src/live-labels.tsx
+#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-population-denial.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-population-screen-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-population-settings.tsx
@@ -1575,6 +1618,10 @@ msgstr "Broken"
 #: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
 msgid "Browse"
 msgstr "Browse"
+
+#: libs/synthetic-population-client-ts/src/live-labels.tsx
+msgid "Browsing"
+msgstr "Browsing"
 
 #: libs/app-root-client-ts/src/about-screen-view.tsx
 msgid "Build"
@@ -1686,6 +1733,10 @@ msgstr "Capture requested"
 msgid "Carrier"
 msgstr "Carrier"
 
+#: libs/synthetic-population-client-ts/src/synthetic-user-persona.tsx
+msgid "Casual"
+msgstr "Casual"
+
 #: libs/quoridor-client-ts/src/quoridor-board-cells.tsx
 msgid "Central hill"
 msgstr "Central hill"
@@ -1741,6 +1792,8 @@ msgstr "Check the spelling or try a different username."
 #: libs/friends-client-ts/src/friend-user-screen-content.tsx
 #: libs/friends-client-ts/src/friends-list-screen-view.tsx
 #: libs/profile-client-ts/src/profile-screen-view.tsx
+#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
+#: libs/synthetic-population-client-ts/src/online-now-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-population-users-view.tsx
 msgid "Check your connection and try again."
 msgstr "Check your connection and try again."
@@ -1799,6 +1852,16 @@ msgstr "Choose"
 msgid "Choose a bot difficulty offered by this game."
 msgstr "Choose a bot difficulty offered by this game."
 
+#: libs/battleship-client-ts/src/battleship-board.tsx
+#: libs/battleship-client-ts/src/battleship-target-grid.tsx
+msgid "Choose a cell"
+msgstr "Choose a cell"
+
+#. placeholder {0}: props.region
+#: libs/battleship-client-ts/src/battleship-board.tsx
+msgid "Choose a cell in {0}"
+msgstr "Choose a cell in {0}"
+
 #: libs/game-puzzle-client-ts/src/content-create-controls.tsx
 msgid "Choose a game with a puzzle editor."
 msgstr "Choose a game with a puzzle editor."
@@ -1850,10 +1913,6 @@ msgstr "Choose a square on the board."
 #: pkgs/ui-root-client-ts/src/word-tile-board/word-tile-overview.tsx
 msgid "Choose a square to view on the enlarged board. This does not place a tile."
 msgstr "Choose a square to view on the enlarged board. This does not place a tile."
-
-#: libs/battleship-client-ts/src/battleship-board.tsx
-msgid "Choose a target"
-msgstr "Choose a target"
 
 #: libs/battleship-client-ts/src/battleship-target-grid.tsx
 msgid "Choose a target region"
@@ -2261,6 +2320,11 @@ msgstr "Continue with email"
 msgid "Continue with Google"
 msgstr "Continue with Google"
 
+#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
+#: libs/synthetic-population-client-ts/src/online-now-view.tsx
+msgid "Control panel"
+msgstr "Control panel"
+
 #: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "Controls are unavailable until play resumes."
 msgstr "Controls are unavailable until play resumes."
@@ -2523,6 +2587,10 @@ msgstr "Daily"
 msgid "Daily limit reached"
 msgstr "Daily limit reached"
 
+#: libs/synthetic-population-client-ts/src/synthetic-user-persona.tsx
+msgid "Daily schedule"
+msgstr "Daily schedule"
+
 #: libs/auth-client-ts/src/account-screen-view.tsx
 msgid "Danger zone"
 msgstr "Danger zone"
@@ -2548,6 +2616,10 @@ msgstr "day"
 #: libs/hearts-client-ts/src/hearts-frame.tsx
 msgid "Deal {deal}"
 msgstr "Deal {deal}"
+
+#: libs/hearts-client-ts/src/hearts-table-view.tsx
+msgid "Deal points {taken}"
+msgstr "Deal points {taken}"
 
 #: libs/app-root-client-ts/src/app-commands.tsx
 msgid "debug"
@@ -2721,6 +2793,10 @@ msgstr "Disconnects multiplayer; changes wait on this device"
 msgid "Dismiss"
 msgstr "Dismiss"
 
+#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
+msgid "Doing"
+msgstr "Doing"
+
 #: libs/auth-client-ts/src/sign-in-modal.tsx
 #: libs/game-puzzle-client-ts/src/content-publication-steps.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-feed-settings-modal.tsx
@@ -2778,8 +2854,8 @@ msgid "Drag from an endpoint to its match, or use Enter and arrow keys."
 msgstr "Drag from an endpoint to its match, or use Enter and arrow keys."
 
 #: libs/pong-client-ts/src/pong-board-view.tsx
-msgid "Drag up and down along your edge of the court."
-msgstr "Drag up and down along your edge of the court."
+msgid "Drag up and down anywhere on the court."
+msgstr "Drag up and down anywhere on the court."
 
 #: libs/synthetic-population-client-ts/src/synthetic-population-workers.tsx
 msgid "Draining"
@@ -2853,6 +2929,14 @@ msgstr "Duplicates skipped"
 msgid "e.g. ff5733"
 msgstr "e.g. ff5733"
 
+#: libs/synthetic-population-client-ts/src/every-synthetic-user-controls.tsx
+msgid "Each one finishes its ongoing game, then starts nothing new until resumed."
+msgstr "Each one finishes its ongoing game, then starts nothing new until resumed."
+
+#: libs/synthetic-population-client-ts/src/every-synthetic-user-controls.tsx
+msgid "Each one starts its activities again."
+msgstr "Each one starts its activities again."
+
 #: libs/game-puzzle-client-ts/src/content-library-attempts.tsx
 msgid "Each puzzle keeps your place, even if its author changes it later."
 msgstr "Each puzzle keeps your place, even if its author changes it later."
@@ -2917,6 +3001,10 @@ msgstr "Editing now"
 msgid "Eight"
 msgstr "Eight"
 
+#: libs/synthetic-population-client-ts/src/live-labels.tsx
+msgid "Elsewhere in the app"
+msgstr "Elsewhere in the app"
+
 #: libs/auth-client-ts/src/auth-flow-messages.tsx
 #: pkgs/ui-root-client-ts/src/text-input/text-input.example.tsx
 msgid "Email"
@@ -2979,17 +3067,18 @@ msgstr "Endpoints removed"
 msgid "Enlarge"
 msgstr "Enlarge"
 
+#: libs/battleship-client-ts/src/battleship-setup-precision.tsx
 #: pkgs/ui-root-client-ts/src/word-tile-board/word-tile-view-controls.tsx
 msgid "Enlarge board"
 msgstr "Enlarge board"
 
 #: libs/battleship-client-ts/src/battleship-setup-precision.tsx
-msgid "Enlarge placement"
-msgstr "Enlarge placement"
-
-#: libs/battleship-client-ts/src/battleship-setup-precision.tsx
 msgid "Enlarged bow placement"
 msgstr "Enlarged bow placement"
+
+#: libs/battleship-client-ts/src/battleship-setup-precision.tsx
+msgid "Enlarged fleet inspection"
+msgstr "Enlarged fleet inspection"
 
 #: libs/numberlink-client-ts/src/numberlink-drawing-help.tsx
 msgid "Enter"
@@ -3072,9 +3161,25 @@ msgstr "Every side chooses in secret: {chosen} of {total} have chosen."
 msgid "Every side makes its secret choice before play goes on."
 msgstr "Every side makes its secret choice before play goes on."
 
+#: libs/synthetic-population-client-ts/src/every-synthetic-user-controls.tsx
+msgid "Every Synthetic User"
+msgstr "Every Synthetic User"
+
+#: libs/synthetic-population-client-ts/src/every-synthetic-user-controls.tsx
+msgid "Every Synthetic User is paused"
+msgstr "Every Synthetic User is paused"
+
+#: libs/synthetic-population-client-ts/src/every-synthetic-user-controls.tsx
+msgid "Every Synthetic User is resumed"
+msgstr "Every Synthetic User is resumed"
+
 #: libs/search-client-ts/src/search-screen-view.tsx
 msgid "Every username is unique. Ask a friend for theirs and type the start of it."
 msgstr "Every username is unique. Ask a friend for theirs and type the start of it."
+
+#: libs/synthetic-population-client-ts/src/online-now-view.tsx
+msgid "Everyone"
+msgstr "Everyone"
 
 #: libs/spaces-client-ts/src/leave-space-confirm-modal.tsx
 msgid "Everyone can see that the space has ended."
@@ -3145,6 +3250,10 @@ msgstr "Failed"
 msgid "Failed to load"
 msgstr "Failed to load"
 
+#: libs/synthetic-population-client-ts/src/synthetic-user-persona.tsx
+msgid "Favorite games"
+msgstr "Favorite games"
+
 #: libs/app-config-client-ts/src/client-config-screen-view.tsx
 msgid "Features"
 msgstr "Features"
@@ -3176,6 +3285,12 @@ msgstr "Final position"
 #: libs/game-matchmaking-client-ts/src/multiplayer-game-record.tsx
 msgid "Final position copied"
 msgstr "Final position copied"
+
+#. placeholder {0}: state.score.left
+#. placeholder {1}: state.score.right
+#: libs/pong-client-ts/src/pong-board-view.tsx
+msgid "Final score {0}–{1}"
+msgstr "Final score {0}–{1}"
 
 #: pkgs/ui-root-client-ts/src/word-tile-board/word-tile-overview.tsx
 msgid "Find a square"
@@ -3271,6 +3386,11 @@ msgstr "Fire at {0}"
 msgid "Fire at {label}"
 msgstr "Fire at {label}"
 
+#. placeholder {0}: props.selected?.toUpperCase() ?? ''
+#: libs/battleship-client-ts/src/battleship-board.tsx
+msgid "Firing at {0}"
+msgstr "Firing at {0}"
+
 #: libs/numberlink-client-ts/src/numberlink-editor.tsx
 msgid "First endpoint"
 msgstr "First endpoint"
@@ -3283,7 +3403,7 @@ msgstr "First page"
 msgid "First seen"
 msgstr "First seen"
 
-#. placeholder {0}: props.state.targetScore
+#. placeholder {0}: target()
 #: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "First to {0}"
 msgstr "First to {0}"
@@ -3649,6 +3769,10 @@ msgstr "History and stats"
 msgid "Hit"
 msgstr "Hit"
 
+#: libs/synthetic-population-client-ts/src/synthetic-user-persona.tsx
+msgid "Home region"
+msgstr "Home region"
+
 #: libs/quoridor-client-ts/src/quoridor-board.tsx
 msgid "Horizontal wall"
 msgstr "Horizontal wall"
@@ -3744,6 +3868,7 @@ msgid "in a row"
 msgstr "in a row"
 
 #: libs/spaces-client-ts/src/friend-live-space.tsx
+#: libs/synthetic-population-client-ts/src/live-labels.tsx
 msgid "In a space"
 msgstr "In a space"
 
@@ -3777,6 +3902,15 @@ msgstr "inp"
 msgid "Inputs unavailable"
 msgstr "Inputs unavailable"
 
+#. placeholder {0}: regionOptions().find((option) => option.value === region.area())?.label ?? ''
+#: libs/battleship-client-ts/src/battleship-setup-precision.tsx
+msgid "Inspect {0}"
+msgstr "Inspect {0}"
+
+#: libs/battleship-client-ts/src/battleship-setup-precision.tsx
+msgid "Inspect your fleet"
+msgstr "Inspect your fleet"
+
 #: libs/auth-client-ts/src/account-screen-view.tsx
 msgid "Installs signed into this account"
 msgstr "Installs signed into this account"
@@ -3784,6 +3918,10 @@ msgstr "Installs signed into this account"
 #: libs/app-root-client-ts/src/performance-screen-view.tsx
 msgid "Interaction to next paint"
 msgstr "Interaction to next paint"
+
+#: libs/synthetic-population-client-ts/src/synthetic-user-persona.tsx
+msgid "Intermediate"
+msgstr "Intermediate"
 
 #: libs/game-session-client-ts/src/game-frame-seat-choices-view.tsx
 msgid "Invite"
@@ -3857,8 +3995,8 @@ msgid "Item not found"
 msgstr "Item not found"
 
 #: libs/synthetic-population-client-ts/src/synthetic-user-controls.tsx
-msgid "Its application reconnects and reconciles its ongoing activity before taking another action."
-msgstr "Its application reconnects and reconciles its ongoing activity before taking another action."
+msgid "Its app closes and opens again. It keeps its account, its persona and any ongoing game, and carries on from its current activity."
+msgstr "Its app closes and opens again. It keeps its account, its persona and any ongoing game, and carries on from its current activity."
 
 #: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "Jack"
@@ -3938,6 +4076,10 @@ msgstr "Just you here"
 #: libs/auth-client-ts/src/sign-in-link-required.tsx
 msgid "Keep a separate account"
 msgstr "Keep a separate account"
+
+#: libs/pong-client-ts/src/pong-board-view.tsx
+msgid "Keep the ball in play"
+msgstr "Keep the ball in play"
 
 #: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "Keep the ball in play."
@@ -4075,11 +4217,12 @@ msgstr "Leaving…"
 msgid "left"
 msgstr "left"
 
+#: libs/pong-client-ts/src/pong-board-view.tsx
 #: libs/pong-client-ts/src/pong-game-client.tsx
 msgid "Left"
 msgstr "Left"
 
-#. placeholder {0}: props.state.score.left
+#. placeholder {0}: left()
 #: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "Left {0}"
 msgstr "Left {0}"
@@ -4091,14 +4234,6 @@ msgstr "Left paddle"
 #: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "Left player"
 msgstr "Left player"
-
-#: libs/pong-client-ts/src/pong-board-view.tsx
-msgid "Left player: drag the left half. Right player: drag the right half."
-msgstr "Left player: drag the left half. Right player: drag the right half."
-
-#: libs/pong-client-ts/src/pong-board-view.tsx
-msgid "Left wins."
-msgstr "Left wins."
 
 #. placeholder {0}: riderName(controlled()[1]!)
 #: libs/light-cycles-client-ts/src/light-cycles-board-view.tsx
@@ -4313,6 +4448,14 @@ msgstr "Looking for a {0} {1} opponent."
 msgid "Looking for a {0} opponent."
 msgstr "Looking for a {0} opponent."
 
+#: libs/synthetic-population-client-ts/src/live-labels.tsx
+msgid "Looking for a multiplayer opponent"
+msgstr "Looking for a multiplayer opponent"
+
+#: libs/synthetic-population-client-ts/src/live-labels.tsx
+msgid "Looking for a multiplayer opponent for {game}"
+msgstr "Looking for a multiplayer opponent for {game}"
+
 #: libs/game-session-client-ts/src/game-history-screen-view.tsx
 msgid "Losses"
 msgstr "Losses"
@@ -4340,6 +4483,15 @@ msgstr "Mark all read"
 #: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "Match finished."
 msgstr "Match finished."
+
+#: libs/pong-client-ts/src/pong-board-view.tsx
+msgid "Match point"
+msgstr "Match point"
+
+#. placeholder {0}: name(holder)
+#: libs/pong-client-ts/src/pong-board-view.tsx
+msgid "Match point: {0}"
+msgstr "Match point: {0}"
 
 #: libs/game-puzzle-client-ts/src/puzzle-feed-settings-modal.tsx
 msgid "Match puzzles to your profile rating ({profileCaption}), plus an optional offset."
@@ -4886,6 +5038,10 @@ msgstr "No puzzles yet"
 msgid "No results"
 msgstr "No results"
 
+#: libs/battleship-client-ts/src/battleship-target-grid.tsx
+msgid "No shots in this region"
+msgstr "No shots in this region"
+
 #: libs/spaces-client-ts/src/spaces-lobby-view.tsx
 msgid "No spaces yet"
 msgstr "No spaces yet"
@@ -4901,6 +5057,10 @@ msgstr "No Synthetic Users found"
 #: libs/hearts-client-ts/src/hearts-table-view.tsx
 msgid "Nobody has passed yet."
 msgstr "Nobody has passed yet."
+
+#: libs/synthetic-population-client-ts/src/online-now-view.tsx
+msgid "Nobody is online now"
+msgstr "Nobody is online now"
 
 #: libs/friends-client-ts/src/friend-requests-aside.tsx
 msgid "Nobody is waiting on you"
@@ -4966,6 +5126,10 @@ msgstr "Not now"
 msgid "Not proven yet: finish a playtest of this version to show it can be solved."
 msgstr "Not proven yet: finish a playtest of this version to show it can be solved."
 
+#: libs/synthetic-population-client-ts/src/synthetic-user-persona.tsx
+msgid "Not recorded for this Synthetic User"
+msgstr "Not recorded for this Synthetic User"
+
 #: libs/synthetic-population-client-ts/src/synthetic-user-details.tsx
 msgid "Not registered"
 msgstr "Not registered"
@@ -4985,6 +5149,10 @@ msgstr "Not using it enough"
 #: libs/app-root-client-ts/src/connection-screen-view.tsx
 msgid "Not yet"
 msgstr "Not yet"
+
+#: libs/hearts-client-ts/src/hearts-table-view.tsx
+msgid "Not your turn. {next} plays next."
+msgstr "Not your turn. {next} plays next."
 
 #: libs/notifications-client-ts/src/notifications-empty-state.tsx
 msgid "Nothing archived"
@@ -5012,6 +5180,7 @@ msgstr "Nothing to correct. Playtest the board to prove it."
 
 #: libs/notifications-client-ts/src/notifications-screen-view.tsx
 #: libs/notifications-client-ts/src/sub-client.tsx
+#: libs/synthetic-population-client-ts/src/live-labels.tsx
 msgid "Notifications"
 msgstr "Notifications"
 
@@ -5073,6 +5242,14 @@ msgstr "On"
 msgid "on the board"
 msgstr "on the board"
 
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "on your left"
+msgstr "on your left"
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "on your right"
+msgstr "on your right"
+
 #: libs/app-root-client-ts/src/app-commands.tsx
 msgid "online"
 msgstr "online"
@@ -5081,6 +5258,14 @@ msgstr "online"
 #: libs/app-root-client-ts/src/sync-screen-view.tsx
 msgid "Online"
 msgstr "Online"
+
+#: libs/synthetic-population-client-ts/src/online-now-view.tsx
+msgid "Online now"
+msgstr "Online now"
+
+#: libs/synthetic-population-client-ts/src/online-now-view.tsx
+msgid "Online now could not be loaded."
+msgstr "Online now could not be loaded."
 
 #: libs/app-root-client-ts/src/settings-screen-view.tsx
 msgid "Online play and sync"
@@ -5174,6 +5359,10 @@ msgstr "Open space {0}"
 #: libs/game-puzzle-client-ts/src/content-pack-editor.tsx
 msgid "Open the new puzzle draft"
 msgstr "Open the new puzzle draft"
+
+#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
+msgid "Opening their screen…"
+msgstr "Opening their screen…"
 
 #: libs/billing-client-ts/src/billing-plan-actions.tsx
 #: libs/spaces-client-ts/src/spaces-screen-view.tsx
@@ -5329,16 +5518,32 @@ msgid "Pass right"
 msgstr "Pass right"
 
 #: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Pass three cards across, to {recipient}."
+msgstr "Pass three cards across, to {recipient}."
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "Pass three cards across."
 msgstr "Pass three cards across."
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Pass three cards to the left, to {recipient}."
+msgstr "Pass three cards to the left, to {recipient}."
 
 #: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "Pass three cards to the left."
 msgstr "Pass three cards to the left."
 
 #: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Pass three cards to the right, to {recipient}."
+msgstr "Pass three cards to the right, to {recipient}."
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "Pass three cards to the right."
 msgstr "Pass three cards to the right."
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Pass to {recipient}"
+msgstr "Pass to {recipient}"
 
 #: libs/hearts-client-ts/src/hearts-table-view.tsx
 msgid "Passed"
@@ -5347,6 +5552,10 @@ msgstr "Passed"
 #: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "Passed across"
 msgstr "Passed across"
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Passed to {recipient}, {side}"
+msgstr "Passed to {recipient}, {side}"
 
 #: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "Passed to the left"
@@ -5359,6 +5568,10 @@ msgstr "Passed to the right"
 #: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "Passing across"
 msgstr "Passing across"
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Passing to {recipient}, {side}"
+msgstr "Passing to {recipient}, {side}"
 
 #: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "Passing to the left"
@@ -5376,14 +5589,34 @@ msgstr "Passing your cards…"
 msgid "Pause"
 msgstr "Pause"
 
+#: libs/synthetic-population-client-ts/src/every-synthetic-user-controls.tsx
+msgid "Pause all"
+msgstr "Pause all"
+
+#: libs/synthetic-population-client-ts/src/every-synthetic-user-controls.tsx
+msgid "Pause every Synthetic User"
+msgstr "Pause every Synthetic User"
+
+#: libs/synthetic-population-client-ts/src/every-synthetic-user-controls.tsx
+msgid "Pause every Synthetic User?"
+msgstr "Pause every Synthetic User?"
+
+#: libs/synthetic-population-client-ts/src/online-now-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-population-users-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-user-controls.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-user-details.tsx
 msgid "Paused"
 msgstr "Paused"
 
-#: libs/game-session-client-ts/src/custom-game-status.tsx
+#: libs/synthetic-population-client-ts/src/every-synthetic-user-controls.tsx
+msgid "Paused Synthetic Users finish an ongoing game and start nothing new until resumed."
+msgstr "Paused Synthetic Users finish an ongoing game and start nothing new until resumed."
+
 #: libs/pong-client-ts/src/pong-board-view.tsx
+msgid "Paused while a player returns"
+msgstr "Paused while a player returns"
+
+#: libs/game-session-client-ts/src/custom-game-status.tsx
 msgid "Paused while a player returns."
 msgstr "Paused while a player returns."
 
@@ -5404,6 +5637,14 @@ msgstr "Payments are processed securely by our billing provider. We never see yo
 msgid "Pending"
 msgstr "Pending"
 
+#: libs/synthetic-population-client-ts/src/online-now-view.tsx
+msgid "People"
+msgstr "People"
+
+#: libs/synthetic-population-client-ts/src/online-now-view.tsx
+msgid "People and Synthetic Users appear here as soon as they open the app."
+msgstr "People and Synthetic Users appear here as soon as they open the app."
+
 #: libs/game-puzzle-client-ts/src/content-pack-preview.tsx
 msgid "People can choose any puzzle. Only published editions can be included when you publish this pack."
 msgstr "People can choose any puzzle. Only published editions can be included when you publish this pack."
@@ -5416,6 +5657,10 @@ msgstr "People can play them in any order. Publishing the pack keeps each puzzle
 #: libs/spaces-client-ts/src/space-members-sheet-view.tsx
 msgid "People in this space"
 msgstr "People in this space"
+
+#: libs/synthetic-population-client-ts/src/live-labels.tsx
+msgid "People search"
+msgstr "People search"
 
 #: libs/spaces-client-ts/src/space-share-sheet-view.tsx
 msgid "People with access"
@@ -5448,8 +5693,13 @@ msgid "Permanently delete account?"
 msgstr "Permanently delete account?"
 
 #: libs/game-session-client-ts/src/custom-game-status.tsx
+#: libs/synthetic-population-client-ts/src/live-labels.tsx
 msgid "Person"
 msgstr "Person"
+
+#: libs/synthetic-population-client-ts/src/synthetic-user-persona.tsx
+msgid "Persona"
+msgstr "Persona"
 
 #: libs/connect-four-client-ts/src/connect-four-board.tsx
 msgid "Pick a column to drop your disc"
@@ -5483,10 +5733,14 @@ msgstr "Pick one from the game log."
 msgid "Place every tile in one row or one column."
 msgstr "Place every tile in one row or one column."
 
-#. placeholder {0}: regionOptions().find((option) => option.value === area())?.label ?? ''
+#. placeholder {0}: regionOptions().find((option) => option.value === region.area())?.label ?? ''
 #: libs/battleship-client-ts/src/battleship-setup-precision.tsx
 msgid "Place in {0}"
 msgstr "Place in {0}"
+
+#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
+msgid "Place in the app"
+msgstr "Place in the app"
 
 #: libs/word-tiles-client-ts/src/word-tiles-game-client.tsx
 msgid "Place letter tiles, cross words, score squares."
@@ -5570,10 +5824,22 @@ msgstr "Player search accepted"
 msgid "Players"
 msgstr "Players"
 
+#: libs/hearts-client-ts/src/hearts-board.tsx
+msgid "Players and scores"
+msgstr "Players and scores"
+
 #: libs/synthetic-population-client-ts/src/synthetic-population-summary.tsx
 #: pkgs/ui-root-client-ts/src/sound-indicator/index.tsx
 msgid "Playing"
 msgstr "Playing"
+
+#: libs/synthetic-population-client-ts/src/live-labels.tsx
+msgid "Playing {game}"
+msgstr "Playing {game}"
+
+#: libs/synthetic-population-client-ts/src/live-labels.tsx
+msgid "Playing a game"
+msgstr "Playing a game"
 
 #: libs/friends-client-ts/src/friends-list-screen-view.tsx
 #: libs/friends-client-ts/src/friends-playing-now.tsx
@@ -5730,6 +5996,7 @@ msgstr "Production"
 #: libs/profile-client-ts/src/profile-handle-screen-view.tsx
 #: libs/profile-client-ts/src/profile-screen-view.tsx
 #: libs/profile-client-ts/src/sub-client.tsx
+#: libs/synthetic-population-client-ts/src/live-labels.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-population-denial.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-population-screen-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-user-screen-view.tsx
@@ -6083,6 +6350,10 @@ msgstr "Reading Synthetic Population…"
 msgid "Reading Synthetic Users…"
 msgstr "Reading Synthetic Users…"
 
+#: libs/synthetic-population-client-ts/src/online-now-view.tsx
+msgid "Reading who is online now…"
+msgstr "Reading who is online now…"
+
 #: libs/chess-puzzle-client-ts/src/puzzle-import-status.tsx
 #: libs/game-matchmaking-client-ts/src/multiplayer-private-setup.tsx
 #: libs/game-session-client-ts/src/game-frame-seats-view.tsx
@@ -6143,13 +6414,13 @@ msgstr "Reconnect before changing or playing the game."
 msgid "Reconnecting"
 msgstr "Reconnecting"
 
-#: libs/pong-client-ts/src/pong-board-view.tsx
-msgid "Reconnecting. Controls resume when the game returns."
-msgstr "Reconnecting. Controls resume when the game returns."
-
 #: libs/light-cycles-client-ts/src/light-cycles-view.tsx
 msgid "Reconnecting. Steering resumes when the game returns."
 msgstr "Reconnecting. Steering resumes when the game returns."
+
+#: libs/pong-client-ts/src/pong-board-view.tsx
+msgid "Reconnecting…"
+msgstr "Reconnecting…"
 
 #: libs/synthetic-population-client-ts/src/synthetic-population-event-timeline.tsx
 msgid "Recorded activity appears here as it happens."
@@ -6447,6 +6718,18 @@ msgstr "Restart this Synthetic User?"
 msgid "Resume"
 msgstr "Resume"
 
+#: libs/synthetic-population-client-ts/src/every-synthetic-user-controls.tsx
+msgid "Resume all"
+msgstr "Resume all"
+
+#: libs/synthetic-population-client-ts/src/every-synthetic-user-controls.tsx
+msgid "Resume every Synthetic User"
+msgstr "Resume every Synthetic User"
+
+#: libs/synthetic-population-client-ts/src/every-synthetic-user-controls.tsx
+msgid "Resume every Synthetic User?"
+msgstr "Resume every Synthetic User?"
+
 #: libs/synthetic-population-client-ts/src/synthetic-user-controls.tsx
 msgid "Resumed"
 msgstr "Resumed"
@@ -6509,8 +6792,8 @@ msgid "Return to your library, reconnect and open it again. Your saved work stay
 msgstr "Return to your library, reconnect and open it again. Your saved work stays kept."
 
 #: libs/pong-client-ts/src/pong-board-view.tsx
-msgid "Return to your spaces to choose a game."
-msgstr "Return to your spaces to choose a game."
+msgid "Return to your spaces to choose a game. If you're playing, resigning ends this one."
+msgstr "Return to your spaces to choose a game. If you're playing, resigning ends this one."
 
 #: libs/game-puzzle-client-ts/src/puzzle-action-bar-items.tsx
 msgid "Reveal and end attempt"
@@ -6561,11 +6844,12 @@ msgstr "Ride from this device"
 msgid "right"
 msgstr "right"
 
+#: libs/pong-client-ts/src/pong-board-view.tsx
 #: libs/pong-client-ts/src/pong-game-client.tsx
 msgid "Right"
 msgstr "Right"
 
-#. placeholder {0}: props.state.score.right
+#. placeholder {0}: right()
 #: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "Right {0}"
 msgstr "Right {0}"
@@ -6577,10 +6861,6 @@ msgstr "Right paddle"
 #: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "Right player"
 msgstr "Right player"
-
-#: libs/pong-client-ts/src/pong-board-view.tsx
-msgid "Right wins."
-msgstr "Right wins."
 
 #. placeholder {0}: riderName(controlled()[0]!)
 #: libs/light-cycles-client-ts/src/light-cycles-board-view.tsx
@@ -6890,8 +7170,8 @@ msgstr "Sent"
 
 #. placeholder {0}: Math.ceil(state.countdown / config.tickRate)
 #: libs/pong-client-ts/src/pong-board-view.tsx
-msgid "Serve in {0}."
-msgstr "Serve in {0}."
+msgid "Serve in {0}"
+msgstr "Serve in {0}"
 
 #: libs/synthetic-population-client-ts/src/synthetic-population-configuration.tsx
 msgid "Session duration (milliseconds)"
@@ -6927,6 +7207,8 @@ msgstr "Sessions"
 #: libs/game-puzzle-client-ts/src/personal-puzzle-stats-screen-view.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-feed-bar-view.tsx
 #: libs/profile-client-ts/src/profile-screen-view.tsx
+#: libs/synthetic-population-client-ts/src/live-labels.tsx
+#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-population-denial.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-population-screen-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-user-screen-view.tsx
@@ -6988,6 +7270,11 @@ msgstr "Ship to place"
 msgid "Ships"
 msgstr "Ships"
 
+#: libs/battleship-client-ts/src/battleship-board.tsx
+#: libs/battleship-client-ts/src/battleship-target-grid.tsx
+msgid "Shots so far"
+msgstr "Shots so far"
+
 #: libs/battleship-client-ts/src/battleship-setup-precision.tsx
 msgid "Show full board"
 msgstr "Show full board"
@@ -7000,6 +7287,10 @@ msgstr "Show performance monitor"
 #: libs/game-matchmaking-client-ts/src/multiplayer-moves.tsx
 msgid "Show the position after {0}"
 msgstr "Show the position after {0}"
+
+#: libs/synthetic-population-client-ts/src/online-now-view.tsx
+msgid "Show who is online now"
+msgstr "Show who is online now"
 
 #: libs/sokoban-client-ts/src/sokoban-play-board.tsx
 msgid "Show whole board"
@@ -7120,6 +7411,7 @@ msgid "Sign-in link"
 msgstr "Sign-in link"
 
 #: libs/auth-client-ts/src/sign-in-methods-section.tsx
+#: libs/synthetic-population-client-ts/src/live-labels.tsx
 msgid "Sign-in methods"
 msgstr "Sign-in methods"
 
@@ -7182,6 +7474,10 @@ msgstr "six scoreless turns"
 #: libs/word-tiles-client-ts/src/word-tiles-game-client.tsx
 msgid "Six turns in a row scored nothing. Each player's remaining tiles count against them."
 msgstr "Six turns in a row scored nothing. Each player's remaining tiles count against them."
+
+#: libs/synthetic-population-client-ts/src/synthetic-user-persona.tsx
+msgid "Skill level"
+msgstr "Skill level"
 
 #: libs/game-puzzle-client-ts/src/puzzle-action-bar-items.tsx
 msgid "Skip puzzle"
@@ -7325,6 +7621,7 @@ msgstr "Space renamed"
 #: libs/spaces-client-ts/src/space-unreachable-screen-view.tsx
 #: libs/spaces-client-ts/src/spaces-screen-view.tsx
 #: libs/spaces-client-ts/src/sub-client.tsx
+#: libs/synthetic-population-client-ts/src/live-labels.tsx
 msgid "Spaces"
 msgstr "Spaces"
 
@@ -7518,6 +7815,10 @@ msgstr "Stopped"
 msgid "Streak"
 msgstr "Streak"
 
+#: libs/synthetic-population-client-ts/src/synthetic-user-persona.tsx
+msgid "Strong"
+msgstr "Strong"
+
 #: libs/profile-client-ts/src/avatar-editor-pickers.tsx
 msgid "Style"
 msgstr "Style"
@@ -7594,6 +7895,7 @@ msgstr "Synthetic Population Worker"
 msgid "Synthetic Population Workers"
 msgstr "Synthetic Population Workers"
 
+#: libs/synthetic-population-client-ts/src/live-labels.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-user-screen-view.tsx
 msgid "Synthetic User"
 msgstr "Synthetic User"
@@ -7606,6 +7908,7 @@ msgstr "Synthetic User could not be loaded."
 msgid "Synthetic User directory could not be loaded."
 msgstr "Synthetic User directory could not be loaded."
 
+#: libs/synthetic-population-client-ts/src/online-now-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-population-users-view.tsx
 msgid "Synthetic Users"
 msgstr "Synthetic Users"
@@ -7639,10 +7942,6 @@ msgstr "Take this seat"
 #: libs/word-tiles-client-ts/src/word-tiles-game-client.tsx
 msgid "Take turns placing tiles from your seven-tile rack in one row or column to form words, joined to the tiles already on the 15 × 15 board; the first word covers the centre star. Every word you form or extend must be in the word list, and each is scored: letter squares multiply the new tile under them, word squares the whole word, and using all seven tiles earns 50 more. A blank plays any letter for no points. Instead of placing you may pass, or exchange tiles while the bag holds at least seven. The game ends when someone uses their last tile with the bag empty — the others' remaining tiles count against them and go to that player — or after six scoreless turns in a row, when everyone's remaining tiles count against them. The highest score wins; tied leaders share the win. Resigning or running out of time follows the table's rules: with two players the other wins, with more the game is drawn. Word list: {lexicon} (ENABLE, public domain, words of 2 to 15 letters). Rules: {ruleset}."
 msgstr "Take turns placing tiles from your seven-tile rack in one row or column to form words, joined to the tiles already on the 15 × 15 board; the first word covers the centre star. Every word you form or extend must be in the word list, and each is scored: letter squares multiply the new tile under them, word squares the whole word, and using all seven tiles earns 50 more. A blank plays any letter for no points. Instead of placing you may pass, or exchange tiles while the bag holds at least seven. The game ends when someone uses their last tile with the bag empty — the others' remaining tiles count against them and go to that player — or after six scoreless turns in a row, when everyone's remaining tiles count against them. The highest score wins; tied leaders share the win. Resigning or running out of time follows the table's rules: with two players the other wins, with more the game is drawn. Word list: {lexicon} (ENABLE, public domain, words of 2 to 15 letters). Rules: {ruleset}."
-
-#: libs/hearts-client-ts/src/hearts-table-view.tsx
-msgid "Taken {taken}"
-msgstr "Taken {taken}"
 
 #: libs/auth-client-ts/src/account-devices-screen-view.tsx
 msgid "Tap a device for details."
@@ -8091,8 +8390,8 @@ msgid "The space stays open. They can join again through its link."
 msgstr "The space stays open. They can join again through its link."
 
 #: libs/synthetic-population-client-ts/src/synthetic-user-controls.tsx
-msgid "The Synthetic Population Worker will recover this application."
-msgstr "The Synthetic Population Worker will recover this application."
+msgid "The Synthetic Population Worker reopens its app and it carries on where it was."
+msgstr "The Synthetic Population Worker reopens its app and it carries on where it was."
 
 #: libs/light-cycles-client-ts/src/light-cycles-game-client.tsx
 msgid "The target score was reached."
@@ -8121,6 +8420,10 @@ msgstr "The worker's way is blocked."
 #: libs/game-puzzle-client-ts/src/use-content-copy-choice.tsx
 msgid "The working draft changed. Open the kept copies and choose again."
 msgstr "The working draft changed. Open the kept copies and choose again."
+
+#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
+msgid "Their screen could not be shown."
+msgstr "Their screen could not be shown."
 
 #: libs/app-root-client-ts/src/app-header-global-menu-view.tsx
 #: libs/app-root-client-ts/src/theme-screen-view.tsx
@@ -8159,6 +8462,10 @@ msgstr "There is no secret choice to make now."
 msgid "They already asked you"
 msgstr "They already asked you"
 
+#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
+msgid "They are no longer online now"
+msgstr "They are no longer online now"
+
 #: libs/spaces-client-ts/src/space-share-add-people-view.tsx
 msgid "They can find this space in their lobby and choose Join."
 msgstr "They can find this space in their lobby and choose Join."
@@ -8170,6 +8477,10 @@ msgstr "They will be removed from your friends list."
 #: libs/spaces-client-ts/src/remove-space-person-modal-view.tsx
 msgid "They will leave this space. They can choose to join again through the space link."
 msgstr "They will leave this space. They can choose to join again through the space link."
+
+#: libs/synthetic-population-client-ts/src/synthetic-user-persona.tsx
+msgid "Thinking time"
+msgstr "Thinking time"
 
 #: libs/billing-client-ts/src/billing-plan-actions.tsx
 msgid "This account already has a membership, so nothing was charged. Looking for it now."
@@ -8526,6 +8837,10 @@ msgstr "Too expensive"
 msgid "Too many searches. Please wait a minute; this search will retry automatically."
 msgstr "Too many searches. Please wait a minute; this search will retry automatically."
 
+#: libs/hearts-client-ts/src/hearts-table-view.tsx
+msgid "Took it"
+msgstr "Took it"
+
 #: libs/sokoban-client-ts/src/sokoban-editor.tsx
 msgid "Tool"
 msgstr "Tool"
@@ -8699,6 +9014,11 @@ msgstr "Unlimited access to {productName} servers"
 #: pkgs/ui-root-client-ts/src/speaking-avatar/index.tsx
 msgid "Unmute coach"
 msgstr "Unmute coach"
+
+#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
+#: libs/synthetic-population-client-ts/src/online-now-view.tsx
+msgid "Unnamed"
+msgstr "Unnamed"
 
 #: libs/game-puzzle-client-ts/src/content-pack-overview.tsx
 msgid "Unplayed"
@@ -8908,8 +9228,8 @@ msgid "Violet"
 msgstr "Violet"
 
 #: libs/pong-client-ts/src/pong-board-view.tsx
-msgid "W and S move Left; the arrow keys move Right."
-msgstr "W and S move Left; the arrow keys move Right."
+msgid "W and S move the left paddle; the arrow keys move the right paddle."
+msgstr "W and S move the left paddle; the arrow keys move the right paddle."
 
 #: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "W and S or the arrow keys move your paddle."
@@ -8950,6 +9270,10 @@ msgstr "Waiting for the host to start a puzzle."
 msgid "Waiting for the host to start."
 msgstr "Waiting for the host to start."
 
+#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
+msgid "Waiting for their screen…"
+msgstr "Waiting for their screen…"
+
 #: libs/sokoban-client-ts/src/use-sokoban-words.tsx
 msgid "wall"
 msgstr "wall"
@@ -8985,6 +9309,14 @@ msgstr "Walls must fit between four squares. Choose a starting square from a1 to
 #: libs/friends-client-ts/src/friend-requests-aside.tsx
 msgid "Wants to be friends"
 msgstr "Wants to be friends"
+
+#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
+msgid "Watch live"
+msgstr "Watch live"
+
+#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
+msgid "Watching live stopped. Pick someone else who is online now."
+msgstr "Watching live stopped. Pick someone else who is online now."
 
 #. placeholder {0}: presentation(props.game.fen).name()
 #: libs/game-matchmaking-client-ts/src/multiplayer-status.tsx
@@ -9052,6 +9384,10 @@ msgstr "White is stalemated."
 #: pkgs/chess-board-root-client-ts/src/chess-board/guidance.tsx
 msgid "White pieces at the bottom."
 msgstr "White pieces at the bottom."
+
+#: libs/synthetic-population-client-ts/src/live-watch-screen-view.tsx
+msgid "Who"
+msgstr "Who"
 
 #: libs/spaces-client-ts/src/space-who-is-here-view.tsx
 msgid "Who's here"
@@ -9246,6 +9582,10 @@ msgstr "You are reviewing an earlier position, at the start of the game. No piec
 msgid "You came {place}"
 msgstr "You came {place}"
 
+#: libs/pong-client-ts/src/pong-board-view.tsx
+msgid "You can also drag up and down."
+msgstr "You can also drag up and down."
+
 #: pkgs/ui-root-client-ts/src/mutation-modal-parts/index.tsx
 msgid "You can close this and keep using the app. Check again to learn the outcome of this choice."
 msgstr "You can close this and keep using the app. Check again to learn the outcome of this choice."
@@ -9290,18 +9630,6 @@ msgstr "You do not control that side."
 msgid "You do not hold that card."
 msgstr "You do not hold that card."
 
-#: libs/battleship-client-ts/src/battleship-copy.tsx
-msgid "You fired at {cell} and hit."
-msgstr "You fired at {cell} and hit."
-
-#: libs/battleship-client-ts/src/battleship-copy.tsx
-msgid "You fired at {cell} and missed."
-msgstr "You fired at {cell} and missed."
-
-#: libs/battleship-client-ts/src/battleship-copy.tsx
-msgid "You fired at {cell} and sank the {ship}."
-msgstr "You fired at {cell} and sank the {ship}."
-
 #: libs/game-puzzle-client-ts/src/puzzle-empty-pool-state.tsx
 msgid "You have no failed puzzles yet. Puzzles you fail show here to try again."
 msgstr "You have no failed puzzles yet. Puzzles you fail show here to try again."
@@ -9322,6 +9650,10 @@ msgstr "You have played every puzzle that matches your history and theme filters
 msgid "You have unsaved avatar changes."
 msgstr "You have unsaved avatar changes."
 
+#: libs/battleship-client-ts/src/battleship-copy.tsx
+msgid "You hit {cell}."
+msgstr "You hit {cell}."
+
 #: libs/spaces-client-ts/src/space-who-is-here-view.tsx
 msgid "you host"
 msgstr "you host"
@@ -9334,6 +9666,10 @@ msgstr "You left the space"
 #: libs/game-session-client-ts/src/game-frame-status-view.tsx
 msgid "You may offer a draw again after your next move."
 msgstr "You may offer a draw again after your next move."
+
+#: libs/battleship-client-ts/src/battleship-copy.tsx
+msgid "You missed at {cell}."
+msgstr "You missed at {cell}."
 
 #: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "You must follow suit with a card of the suit led."
@@ -9363,6 +9699,10 @@ msgstr "You ride {name} from another of your devices."
 #: libs/light-cycles-client-ts/src/light-cycles-view.tsx
 msgid "You ride {name}."
 msgstr "You ride {name}."
+
+#: libs/battleship-client-ts/src/battleship-copy.tsx
+msgid "You sank the {ship} at {cell}."
+msgstr "You sank the {ship} at {cell}."
 
 #: libs/battleship-client-ts/src/battleship-copy.tsx
 msgid "You sank the whole fleet. You win."
@@ -9482,7 +9822,7 @@ msgstr "Your avatar change wasn't saved"
 msgid "Your cancellation is already arranged. Sharing a reason or comment is optional and will not change it."
 msgstr "Your cancellation is already arranged. Sharing a reason or comment is optional and will not change it."
 
-#: libs/hearts-client-ts/src/hearts-table-view.tsx
+#: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "Your cards are chosen. Waiting for every player to pass."
 msgstr "Your cards are chosen. Waiting for every player to pass."
 
@@ -9602,6 +9942,10 @@ msgstr "Your last payment didn't go through. Update your payment method to keep 
 #: libs/spaces-client-ts/src/active-spaces-sheet.tsx
 msgid "Your live spaces"
 msgstr "Your live spaces"
+
+#: libs/pong-client-ts/src/pong-board-view.tsx
+msgid "Your match point"
+msgstr "Your match point"
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-seat.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-move-history.tsx
@@ -9746,6 +10090,7 @@ msgstr "Your turn"
 msgid "Your turn to fire."
 msgstr "Your turn to fire."
 
+#: libs/battleship-client-ts/src/battleship-copy.tsx
 #: libs/game-matchmaking-client-ts/src/multiplayer-status.tsx
 #: libs/hearts-client-ts/src/hearts-table-view.tsx
 msgid "Your turn."

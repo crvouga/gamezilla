@@ -6,11 +6,13 @@ import {
 import { defaultMatchChoice } from '@libs/game-matchmaking-shared-ts/match-choice';
 import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import { isTurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
+import { playedRulesOf } from '@libs/game-session-harness-ts/played-rules';
 import { actorUi, pollUntil } from '@libs/harness-ts/actor-ui';
 import { signInWithGoogle } from '@libs/harness-ts/auth-actions';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { signedInAccountOf } from '@libs/harness-ts/identity';
-import { configureUsername } from '@libs/synthetic-population-shared-ts/application-actions';
+import { configureUsername } from '@libs/synthetic-population-behavior-shared-ts/application-actions';
+import { setPlaySetup } from './live-synthetic-users';
 import {
   givenSyntheticGameSpace,
   openSyntheticGame,
@@ -26,7 +28,8 @@ async function preparePosition(
 ) {
   if (!isTurnHarnessGame(game)) return null;
   const victory = game.fixtures.firstSideVictory;
-  const fen = game.shared.turnGame.rules.replay(victory, victory.length - 1);
+  // As the authority plays it: with the game's known private setups.
+  const fen = playedRulesOf(game).replay(victory, victory.length - 1);
   await Promise.resolve(
     givenMultiplayerPosition.act(s, 'cedar', { gameId, fen })
   );
@@ -61,6 +64,8 @@ export async function prepareSyntheticMatch(s: ProductHarness, label: string) {
     }
   );
   const fen = await preparePosition(s, game, gameId);
+  // One move from its win, Cedar plays as a strong player sees it.
+  setPlaySetup(s, 'Cedar', { persona: { skillLevel: 'strong' } });
   await Promise.resolve(openSyntheticGame.act(s, 'cedar', label));
   await pollUntil(
     s,

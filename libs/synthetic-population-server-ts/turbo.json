@@ -8,6 +8,7 @@
         "@libs/app-root-shared-ts#src",
         "@libs/auth-shared-ts#src",
         "@libs/permissions-shared-ts#src",
+        "@libs/profile-shared-ts#src",
         "@libs/pubsub-server-ts#src",
         "@libs/pubsub-shared-ts#src",
         "@libs/sub-shared-ts#src",

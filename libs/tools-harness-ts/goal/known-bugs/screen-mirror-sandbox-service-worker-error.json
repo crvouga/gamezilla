@@ -1,0 +1,4 @@
+{
+  "summary": "ScreenMirror's fully empty sandbox made reading the frame's navigator.serviceWorker throw a SecurityError, an uncaught page error in every story showing a watched screen. The frame now allows same origin only (still no scripts).",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/screen-mirror.test.tsx"
+}

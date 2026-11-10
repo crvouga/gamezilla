@@ -146,3 +146,23 @@ test('an incompatible snapshot preserves validated game references without resum
   expect(restored.pendingOperationId).toBeNull();
   expect(restored.activity).toBe('recovering');
 });
+
+test('a person waiting for an opponent decides the next activity', () => {
+  assertProperty(
+    'waiting person first',
+    fc.property(fc.integer(), fc.boolean(), (seed, queued) => {
+      const game = { gameId: 'some-game', timeControl: '5+0' };
+      const decision = chooseActivity(
+        { ...INPUT, hasQueueEntry: queued, waitingOpponents: [game] },
+        createHarnessIds(seed).random
+      );
+      expect(decision.activity).toBe('matchmaking');
+      if (!queued) expect(decision.game).toEqual(game);
+      const leaving = chooseActivity(
+        { ...INPUT, draining: true, waitingOpponents: [game] },
+        createHarnessIds(seed).random
+      );
+      expect(leaving.activity).toBe('loggingOut');
+    })
+  );
+});

@@ -147,7 +147,11 @@ function LinkedMethodRow(props: {
           onRemove={() => props.onRemove(props.provider)}
         />
       }
-      dataSet={{ testid: Handles.accountSignInMethod(props.provider) }}
+      // Its address is private: never part of a screen watched live.
+      dataSet={{
+        testid: Handles.accountSignInMethod(props.provider),
+        sensitive: 'true',
+      }}
     />
   );
 }

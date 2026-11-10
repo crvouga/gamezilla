@@ -1,7 +1,7 @@
 @domain:synthetic-population
 Feature: Synthetic Users recover their current activity
   When a Synthetic User's app reopens, people want it to recover its current
-  activity, so an interruption never takes away their ongoing game.
+  activity, so an interruption never costs them their ongoing game.
 
   Rule: Recovery keeps a Synthetic User's identity
     No counter-example: reopening never gives a Synthetic User a different account.

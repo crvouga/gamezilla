@@ -1145,7 +1145,7 @@ terms:
 | App | `runtime` | the app itself: opening it, tabs, Settings, addresses, updates, reconnecting, and the promises a live environment keeps about reaching and answering people | generic |
 | Developer tools | `developer-tools` | the team's testing tool, test worlds, checkpoints, data notebooks, test runs, test reports, recorded moments, and release checks | supporting |
 | Product feedback | `feedback` | bugs, feature requests, gaps and polish, with recordings and diagnostics that help the team reproduce trouble | supporting |
-| Synthetic Population | `synthetic-population` | persistent automated opponents, their activities, recovery, disclosure and authorized observation and control | supporting |
+| Synthetic Population | `synthetic-population` | persistent automated opponents: their personas, daily schedules, human-like play, finding multiplayer opponents for people and each other, their activities, recovery and disclosure; and the Bot Observatory: observing whoever is online now, watching live, and controlling Synthetic Users | supporting |
 | Journeys | `journeys` | the critical journeys across every context | — |
 
 Relationships — upstream contexts publish; downstream contexts borrow their
@@ -1188,7 +1188,10 @@ Matchmaking ──► Pong (pair people up)
 Spaces   ──► Pong (space, join)
 Games    ──► Journeys (bot, rematch)
 Pong     ──► Journeys (Pong, paddle, score, target score)
-Games    ──► Synthetic Population (game)
+Games    ──► Synthetic Population (game, rematch)
+App      ──► Synthetic Population (Settings, place in the app)
+Friends  ──► Synthetic Population (people search)
+Identity ──► Synthetic Population (avatar)
 Pong     ──► Synthetic Population (Pong)
 Games    ──► Light Cycles (game, custom game, custom game readiness, bot, start a custom game, under way)
 Matchmaking ──► Light Cycles (pair people up)

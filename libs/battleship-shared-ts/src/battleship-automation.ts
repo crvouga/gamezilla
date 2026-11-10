@@ -5,8 +5,8 @@ import { parseFleet } from './battleship-fleet';
 import { chooseSetupShip, placeSetupBow } from './battleship-setup-gestures';
 
 export const battleshipAutomation: TurnGame['turnAutomation'] = {
-  choose: (position, random) =>
-    battleshipBots.choose(position, 'medium', random, null),
+  choose: (position, random, _hand, strength = 'medium') =>
+    battleshipBots.choose(position, strength, random, null),
   async perform(ui, board, action) {
     if (!isCell(action)) throw new Error('Invalid automated Battleship shot');
     const area =

@@ -20,7 +20,7 @@ export function pongAutomation(
       // This is the bot's reaction clock, not the authority's committed tick.
       const tick =
         1 + Math.floor(context.elapsedMs / intervalMs) * reactionTicks;
-      return simulation.bots!.input(state, side, 'medium', {
+      return simulation.bots!.input(state, side, context.strength ?? 'medium', {
         tick,
         deltaMs,
         elapsedMs: (tick - 1) * deltaMs,

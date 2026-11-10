@@ -1,0 +1,6 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-no-ui-framework.grit": [
+    "**/pkgs/pubsub-contract-harness-ts/src/**/*.{ts,tsx}",
+    "**/pkgs/pubsub-contract-harness-ts/tests/**/*.{ts,tsx}"
+  ]
+}

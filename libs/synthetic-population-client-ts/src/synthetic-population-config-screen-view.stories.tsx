@@ -20,7 +20,7 @@ const meta = {
   parameters: {
     appRouter: true,
     controls: {
-      exclude: ['overview', 'denial', 'fields', 'directory'],
+      exclude: ['overview', 'denial', 'fields', 'directory', 'onlineNow'],
     },
   },
   args: {
@@ -34,6 +34,8 @@ const meta = {
     onChangeField: fn(),
     onSave: fn(async () => undefined),
     onRefresh: fn(),
+    canControl: false,
+    onCommandAll: fn(async () => undefined),
   },
 } satisfies Meta<typeof SyntheticPopulationScreenView>;
 export default meta;

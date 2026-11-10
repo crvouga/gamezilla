@@ -43,8 +43,8 @@ function definition(rules: typeof quoridorRules, hill: boolean) {
       history: { record: quoridorRecord },
     },
     turnAutomation: {
-      choose: (position, random) =>
-        quoridorBots.choose(position, 'medium', random, null),
+      choose: (position, random, _hand, strength = 'medium') =>
+        quoridorBots.choose(position, strength, random, null),
       async perform(ui, board, action) {
         if (action !== 'pass') {
           const mode = ui.get(
