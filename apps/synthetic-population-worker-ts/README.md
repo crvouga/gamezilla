@@ -26,8 +26,9 @@ PostgreSQL owns persistent identities, configuration, Worker Leases and recovery
 references. Lease generations fence sessions and mutations; the existing room
 service owns matchmaking and games. Recovery rebuilds the client and reconciles
 its active match. It cannot preserve a terminated process's network connections.
-The nested Hono RPC control plane and lazy `/admin/synthetic-population` client
-use the existing declarative permission system. DOM inspection reads the selected
+The nested Hono RPC control plane and the lazy Synthetic Population panel
+(`/admin/observatory/synthetic-users`, inside the User Observatory) use the
+existing declarative permission system. DOM inspection reads the selected
 live instance on demand and redacts sensitive fields. Replay covers recorded
 Decision Policy inputs; it does not replay uncontrolled external services.
 
