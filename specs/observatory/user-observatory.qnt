@@ -1,4 +1,4 @@
-// Alice may view the Bot Observatory and watch live. She sees whoever is
+// Alice may view the User Observatory and watch live. She sees whoever is
 // online now, Bob (a person) and Cedar (a Synthetic User), each with its
 // activity and whether it is a person or a Synthetic User, and can show only
 // people or only Synthetic Users. Whoever has the app open with a connection
@@ -14,10 +14,10 @@
 // Observatory, change what it shows or start watching live until her
 // connection returns; then her list and watching show who is online now
 // again.
-module live_observatory {
+module user_observatory {
   /// Who is online now.
   var onlineNow: Set[str]
-  /// Who Alice sees in her Bot Observatory list.
+  /// Who Alice sees in her User Observatory list.
   var listShown: Set[str]
   /// Which kinds of those online now Alice shows: people, Synthetic Users, or both.
   var showing: Set[str]
@@ -132,7 +132,7 @@ module live_observatory {
     _worldChanges(onlineNow, placeOf.set("Cedar", "game"), _appOpen, _offline),
   }
 
-  /// Alice opens the Bot Observatory and sees whoever is online now, filtered as she chose.
+  /// Alice opens the User Observatory and sees whoever is online now, filtered as she chose.
   action openObservatory = all {
     connectionAvailable,
     onlineNow' = onlineNow,
