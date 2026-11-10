@@ -15,7 +15,7 @@ Feature: Control Synthetic Users from their control panels
       Then Alice is offered the control panel of "Cedar"
 
     Scenario: A person online now never has a control panel
-      Given Bob is online now
+      Given Bob is using the app now
       When Alice opens the Bot Observatory
       Then Alice is not offered a control panel for Bob
 

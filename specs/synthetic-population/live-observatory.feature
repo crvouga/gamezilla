@@ -21,7 +21,7 @@ Feature: Observe whoever is online now
 
     Scenario: A person without permission sees nobody online now
       Given Bob is not authorized to view the Bot Observatory
-      And Carol is online now
+      And Carol is using the app now
       When Bob opens the Bot Observatory
       Then Bob is told that permission is required
       And Bob does not see Carol online now
@@ -31,7 +31,7 @@ Feature: Observe whoever is online now
 
     Background:
       Given Alice has opened the Bot Observatory
-      And Bob and the Synthetic User "Cedar" are online now
+      And Bob and the Synthetic User "Cedar" are using the app now
 
     Scenario: Showing only people hides Synthetic Users
       When Alice shows only people online now
@@ -54,7 +54,7 @@ Feature: Observe whoever is online now
       Then Alice sees Bob online now within 30 seconds
 
     Scenario: A person who closes the app is no longer listed
-      Given Bob is online now
+      Given Bob is using the app now
       When Bob closes the app
       Then Alice does not see Bob online now within 30 seconds
 
@@ -64,7 +64,7 @@ Feature: Observe whoever is online now
       Then Alice does not see "Cedar" online now within 15 minutes
 
     Scenario: A person who moves around the app stays listed
-      Given Bob is online now
+      Given Bob is using the app now
       When Bob opens Settings
       Then Alice sees Bob online now
 
@@ -72,7 +72,7 @@ Feature: Observe whoever is online now
 
     Scenario: An authorized person watches a person live
       Given Alice is authorized to watch someone live
-      And Bob is online now
+      And Bob is using the app now
       When Alice watches Bob live
       Then Alice sees Bob's place in the app within 5 seconds
 
@@ -89,7 +89,7 @@ Feature: Observe whoever is online now
 
     Scenario: A person without permission cannot watch someone live
       Given Bob is not authorized to watch someone live
-      And Carol is online now
+      And Carol is using the app now
       When Bob watches Carol live
       Then Bob is told that permission is required
       And Bob does not see Carol's place in the app
@@ -100,9 +100,11 @@ Feature: Observe whoever is online now
     Background:
       Given Alice is watching Bob live
 
-    Scenario: A person's email address stays hidden while they are watched live
-      When Bob opens Settings
-      Then Alice cannot see Bob's email address
+    Scenario: The email address on a person's sign-in method stays hidden while they are watched live
+      Given Bob is signed in with Google
+      When Bob looks at his sign-in methods
+      Then Alice sees Bob's place in the app is his sign-in methods within 5 seconds
+      And Alice cannot see the email address of Bob's Google sign-in method
 
     Scenario: What a person searches for stays hidden while they are watched live
       When Bob searches for "carol"

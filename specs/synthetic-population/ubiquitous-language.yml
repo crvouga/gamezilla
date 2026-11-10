@@ -212,6 +212,9 @@ terms:
   - term: Settings
     from: runtime
     model: [openSettings]
+  - term: sign-in method
+    from: profile
+    model: [viewSignInMethods]
   - term: people search
     from: friends
     model: [searchPeople]
