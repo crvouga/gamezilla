@@ -26,6 +26,8 @@ function luminance(color: string): number {
 
 // regression: battleship-dark-grid-boundaries
 export const OpenWater: StoryObj<typeof CellGridBoard> = {
+  // Related board components keep a desktop reference beside the phone one.
+  tags: ['viewport-responsive'],
   args: {
     boardTheme: 'battleship',
     label: 'Open water',

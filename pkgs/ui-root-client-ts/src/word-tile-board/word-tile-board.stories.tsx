@@ -13,12 +13,16 @@ export default meta;
 
 /** Representative variants, themes and interaction states from the production contract. */
 export const States: StoryObj = {
+  // Related board components keep a desktop reference beside the phone one.
+  tags: ['viewport-responsive'],
   parameters: { controls: { disable: true } },
   render: () => <Example />,
 };
 
 /** Enlarge the same board, place a tile, then retain it in the overview. */
 export const EnlargedPlacement: StoryObj = {
+  // Related board components keep a desktop reference beside the phone one.
+  tags: ['viewport-responsive'],
   render: () => <Example />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
