@@ -1,8 +1,4 @@
-import {
-  SYNC_DURATION_METRIC,
-  SYNC_STARTED_METRIC,
-  SYNC_TARGET_METRIC,
-} from '@pkgs/observability-root-shared-ts/metric-contract';
+import { SYNC_TARGET_METRIC } from '@pkgs/observability-root-shared-ts/metric-contract';
 
 /**
  * Every metric the server emits, as its contract, and the series names a
@@ -88,9 +84,7 @@ function emitted(
 }
 
 export const EMITTED_METRICS: readonly EmittedMetric[] = [
-  ...[SYNC_DURATION_METRIC, SYNC_STARTED_METRIC, SYNC_TARGET_METRIC].map(
-    (contract) => emitted(contract)
-  ),
+  emitted(SYNC_TARGET_METRIC),
   emitted(http.requests),
   emitted(http.duration),
   emitted(MUTATION_REPLAYS_METRIC),

@@ -44,17 +44,14 @@ test('unsampled work counts exact threshold boundaries and failures separately',
         throw new Error('unavailable');
       })
     ).rejects.toThrow('unavailable');
-    expect(
-      points.filter((p) => p.name === 'sync.work.duration').map((p) => p.value)
-    ).toEqual([0.025, 0.001]);
+    expect(points.map((p) => p.name)).toEqual(
+      Array(4).fill('sync.work.target')
+    );
     expect(
       points
         .filter((p) => p.name === 'sync.work.target')
         .map((p) => p.attributes['app.outcome'])
     ).toEqual(['good', 'good', 'bad', 'bad']);
-    expect(points.filter((p) => p.name === 'sync.work.started')).toHaveLength(
-      2
-    );
   } finally {
     uninstall();
   }
@@ -70,9 +67,11 @@ test('missing and reversed clocks cannot report successful latency', () => {
     observeSyncNow('database', () => {
       now = 0;
     });
-    expect(points.filter((p) => p.name === 'sync.work.duration')).toHaveLength(
-      0
-    );
+    expect(
+      points
+        .filter((p) => p.name === 'sync.work.target')
+        .map((p) => p.attributes['app.outcome'])
+    ).toEqual(['unknown', 'unknown']);
   } finally {
     uninstall();
   }
@@ -180,9 +179,6 @@ test('persisted queue age consumes the deadline budget and invalid clock evidenc
         .filter((p) => p.name === 'sync.work.target')
         .map((p) => p.attributes['app.outcome'])
     ).toEqual(['bad', 'good', 'unknown', 'unknown']);
-    expect(points.find((p) => p.name === 'sync.work.duration')?.value).toBe(
-      0.31
-    );
   } finally {
     stop();
   }
