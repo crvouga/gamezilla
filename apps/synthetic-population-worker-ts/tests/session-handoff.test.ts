@@ -53,7 +53,7 @@ test.each([1, 99])(
               move.game_id === checkpointSchema.parse(user.checkpoint).matchId
           )
         );
-      });
+      }, 45_000);
       const matches = new Map(
         playing.map((user) => [
           user.id,
@@ -106,7 +106,7 @@ test.each([1, 99])(
             (event) => event.generation === 2 && event.event === 'MoveSubmitted'
           )
         );
-      });
+      }, 45_000);
       expect(recovered).toHaveLength(2);
       for (const user of recovered) {
         expect(user.account_id).toBe(matches.get(user.id)!.account);
@@ -124,5 +124,6 @@ test.each([1, 99])(
       await backend.close();
     }
   },
-  60_000
+  // Every move first waits out a human-like thinking time.
+  150_000
 );

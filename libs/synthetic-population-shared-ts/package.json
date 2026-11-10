@@ -22,6 +22,7 @@
     "@pkgs/db-schema-root-shared-ts": "workspace:*",
     "@pkgs/sql-client-root-shared-ts": "workspace:*",
     "@pkgs/sql-root-shared-ts": "workspace:*",
+    "@pkgs/sync-engine-shared-ts": "workspace:*",
     "@pkgs/turn-game-shared-ts": "workspace:*",
     "@pkgs/ui-testing-root-shared-ts": "workspace:*",
     "@pkgs/uuid-shared-ts": "workspace:*",

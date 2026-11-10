@@ -10,6 +10,8 @@ export type WorkerSettings = {
   version: string;
   capacity: number;
   shutdownMs: number;
+  /** The games its Synthetic Users play, by registered game id. */
+  games: readonly string[];
 };
 export type WorkerPorts = {
   clock: Clock;
@@ -70,6 +72,7 @@ export class SyntheticPopulationWorker {
           capacity: this.settings.capacity,
           draining: this.draining,
           leaseFailures: this.leaseFailures,
+          games: [...this.settings.games],
           ...this.ports.resources(),
         },
       });
@@ -95,7 +98,7 @@ export class SyntheticPopulationWorker {
           Math.min(this.settings.capacity, config.capacityPerWorker)
       ) {
         const claim = await this.ports.rpc.claim.$post({
-          json: { workerId: this.settings.id },
+          json: { workerId: this.settings.id, games: [...this.settings.games] },
         });
         if (!claim.ok)
           throw new Error(

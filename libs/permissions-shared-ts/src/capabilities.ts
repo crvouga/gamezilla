@@ -22,6 +22,7 @@ export const CAPABILITY_KEYS = {
   'configure the Synthetic Population': PERMISSION.syntheticPopulationConfigure,
   'control a Synthetic User': PERMISSION.syntheticPopulationControl,
   'replay Synthetic User decisions': PERMISSION.syntheticPopulationReplay,
+  'watch someone live': PERMISSION.syntheticPopulationWatch,
   'keep a friends list': PERMISSION.friendsUse,
   'use people search': PERMISSION.peopleSearch,
   'get notifications': PERMISSION.notificationsReceive,

@@ -1,9 +1,11 @@
 import type { SqlTx } from '@pkgs/sql-client-root-shared-ts/interface';
 import sql, { raw } from '@pkgs/sql-root-shared-ts/sql';
 import { z } from 'zod';
-import type { UserRecord } from './records';
-import { jsonValue } from './records';
-import { USER_COLUMNS } from './synthetic-population-repository';
+import {
+  normalizeUser,
+  type StoredUserRecord,
+  USER_COLUMNS,
+} from './synthetic-population-repository';
 
 export const syntheticPopulationDirectoryQuery = z.object({
   q: z.string().max(128).default(''),
@@ -18,7 +20,7 @@ export async function readSyntheticPopulationDirectory(
 ) {
   const term = `%${input.q.toLowerCase().replace(/[\\%_]/g, '\\$&')}%`;
   const after = input.cursor ?? '';
-  const rows = await db.query(sql<UserRecord>`
+  const rows = await db.query(sql<StoredUserRecord>`
     SELECT ${raw(USER_COLUMNS)} FROM population_users
     WHERE deleted_at IS NULL AND id > ${after}
       AND LOWER(username || ' ' || id || ' ' || activity || ' ' || region || ' ' || COALESCE(worker_id, '')) LIKE ${term} ESCAPE ${'\\'}
@@ -26,11 +28,10 @@ export async function readSyntheticPopulationDirectory(
   `);
   const page = rows.slice(0, input.limit);
   return {
-    users: page.map(({ inspection: _inspection, ...row }) => ({
-      ...row,
-      paused: Boolean(row.paused),
-      checkpoint: jsonValue(row.checkpoint) as UserRecord['checkpoint'],
-    })),
+    users: page.map((stored) => {
+      const { inspection: _inspection, ...row } = normalizeUser(stored);
+      return row;
+    }),
     nextCursor: rows.length > input.limit ? page.at(-1)!.id : null,
   };
 }

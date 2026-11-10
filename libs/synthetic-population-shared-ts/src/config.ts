@@ -30,6 +30,15 @@ export type SyntheticPopulationCommand = z.infer<
   typeof syntheticPopulationCommandSchema
 >;
 
+/** A command for every Synthetic User at once. */
+export const syntheticPopulationBulkCommandSchema = z.object({
+  operationId: z.string().uuid(),
+  command: z.enum(['pause-all', 'resume-all']),
+});
+export type SyntheticPopulationBulkCommand = z.infer<
+  typeof syntheticPopulationBulkCommandSchema
+>;
+
 export const activitySchema = z.enum([
   'offline',
   'authenticating',

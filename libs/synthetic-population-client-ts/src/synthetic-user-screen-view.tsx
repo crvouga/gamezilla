@@ -18,6 +18,7 @@ import {
 } from './synthetic-user-controls';
 import { SyntheticUserDetails } from './synthetic-user-details';
 import { SyntheticUserDom } from './synthetic-user-dom';
+import { SyntheticUserPersona } from './synthetic-user-persona';
 import { SyntheticUserStatechart } from './synthetic-user-statechart';
 
 /** One Synthetic User and its recorded events. */
@@ -57,6 +58,7 @@ function SyntheticUserSections(
   return (
     <>
       <SyntheticUserDetails user={props.record.user} />
+      <SyntheticUserPersona persona={props.record.user.persona} />
       <SyntheticUserControls
         canControl={props.canControl}
         command={props.onCommand}
@@ -115,7 +117,7 @@ function SyntheticUserInspector(
 
 /**
  * `/admin/synthetic-population/users/:id`, presentational: one Synthetic
- * User's details, controls, behavior statechart, events, decision replay and
+ * User's details, persona, control panel, behavior statechart, events, decision replay and
  * live DOM capture, with its loading, failed and denied states.
  * `SyntheticUserScreen` wires it to the admin API.
  */

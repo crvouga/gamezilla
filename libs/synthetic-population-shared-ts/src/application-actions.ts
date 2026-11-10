@@ -83,6 +83,46 @@ export async function configureUsername(
   await driver.get(Handles.profileUsernameSave).expect.text('Saved');
   await driver.get(Handles.profileUsernameCancel).tap();
 }
+/**
+ * Choose the persona's avatar in the profile's avatar editor, as a person
+ * would: its style from the style picker, then its seed, then Save. An
+ * avatar that is already the persona's is left as it is.
+ */
+export async function configureAvatar(
+  driver: Driver,
+  avatar: string
+): Promise<void> {
+  const chosen = JSON.parse(avatar) as { style?: unknown; seed?: unknown };
+  if (typeof chosen.style !== 'string' || typeof chosen.seed !== 'string')
+    throw new Error('The persona has no avatar to choose');
+  await driver.get(Handles.profileEditAvatar).tap({ timeoutMs: 15_000 });
+  await driver.get(Handles.profileAvatarSeed).wait('visible');
+  if ((await driver.get(Handles.profileAvatarSeed).text()) === chosen.seed) {
+    await driver.get(Handles.profileAvatarCancel).tap();
+    return;
+  }
+  // The style list scrolls; a person types the style's name and takes the
+  // first match, the style itself (its variants are named after it).
+  await driver.get(Handles.profileAvatarStyle).tap();
+  await driver.get(Handles.profileAvatarStyleSearch).input(chosen.style);
+  await driver.get(Handles.profileAvatarStyleSearch).key('enter');
+  await driver.get(Handles.profileAvatarStyleSearch).wait('hidden');
+  await driver.get(Handles.profileAvatarSeed).clear();
+  await driver.get(Handles.profileAvatarSeed).input(chosen.seed);
+  await driver.get(Handles.profileAvatarSave).tap();
+  await driver.get(Handles.profileAvatarSave).expect.text('Saved');
+  await driver.get(Handles.profileAvatarCancel).tap();
+}
+/** Set up the profile a person would after signing in: username, then avatar. */
+export async function configureProfile(
+  driver: Driver,
+  profile: { readonly username: string; readonly avatar: string }
+): Promise<void> {
+  await configureUsername(driver, profile.username);
+  if (!(await driver.get(Handles.profileEditAvatar).isVisible()))
+    await driver.get(Handles.profileEdit).tap();
+  await configureAvatar(driver, profile.avatar);
+}
 export async function leaveSpace(driver: Driver): Promise<void> {
   if (await driver.get(Handles.spaceChromeOverflow).isVisible())
     await driver.get(Handles.spaceChromeOverflow).tap();

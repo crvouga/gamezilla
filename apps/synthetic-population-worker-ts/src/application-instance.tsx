@@ -1,6 +1,6 @@
 import {
   authenticateThroughUi,
-  configureUsername,
+  configureProfile,
   type SyntheticSignIn,
 } from '@libs/synthetic-population-shared-ts/application-actions';
 import { redactDiagnostic } from '@libs/synthetic-population-shared-ts/inspection';
@@ -14,6 +14,8 @@ export async function createApplicationInstance(
       origin: string;
       deviceId: string;
       username: string;
+      /** The persona's avatar, as the profile stores it. */
+      avatar: string;
       route: string;
     }
 ) {
@@ -34,7 +36,7 @@ export async function createApplicationInstance(
       // Profile and gameplay writes start only after backend ownership binding.
       activate() {
         activation ??= (async () => {
-          await configureUsername(host.driver, input.username);
+          await configureProfile(host.driver, input);
           host.history.set({ value: input.route, replace: true });
         })();
         return activation;

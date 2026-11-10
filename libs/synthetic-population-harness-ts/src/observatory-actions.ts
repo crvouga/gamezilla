@@ -107,7 +107,9 @@ export async function syntheticPopulationDenied(
   return (
     (await ui.get('synthetic-population-denied').isVisible()) ||
     (await ui.get('synthetic-population-config-denied').isVisible()) ||
-    (await ui.get('synthetic-population-inspect-denied').isVisible())
+    (await ui.get('synthetic-population-inspect-denied').isVisible()) ||
+    (await ui.get('synthetic-population-control-denied').isVisible()) ||
+    (await ui.get('synthetic-population-watch-denied').isVisible())
   );
 }
 export async function syntheticActivityShown(

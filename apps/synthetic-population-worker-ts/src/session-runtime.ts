@@ -8,7 +8,6 @@ import {
   redactDiagnostic,
   sanitizeDomSnapshot,
 } from '@libs/synthetic-population-shared-ts/inspection';
-import { readPersonality } from '@libs/synthetic-population-shared-ts/personality';
 import { SyntheticUserApplication } from '@libs/synthetic-population-shared-ts/synthetic-user-application';
 import type { Clock, Timers } from '@pkgs/clock-shared-ts/types';
 import type { GameAutomation } from '@pkgs/turn-game-shared-ts/game-automation';
@@ -108,7 +107,8 @@ export class SessionRuntime {
     this.activated = false;
     const instance = await this.ports.openApplication({
       email: this.assignment.email,
-      username: this.assignment.username,
+      username: this.assignment.persona.username,
+      avatar: this.assignment.persona.avatar,
       deviceId: this.assignment.deviceId,
       origin: this.origin,
       route: this.checkpoint.route,
@@ -159,7 +159,8 @@ export class SessionRuntime {
     this.behavior = new SyntheticUserApplication(this.instance.driver, {
       games: this.ports.games,
       clock: this.ports.clock,
-      username: this.assignment.username,
+      username: this.assignment.persona.username,
+      persona: this.assignment.persona,
       restoreGame: this.checkpoint.matchId !== null,
       random: () => {
         this.checkpoint.decisions += 1;
@@ -180,13 +181,19 @@ export class SessionRuntime {
       this.renewal?.config.actionIntervalMs ??
       this.assignment.config.actionIntervalMs;
     const controlInterval = this.behavior?.continuousIntervalMs() ?? null;
-    const delay =
+    const paced =
       controlInterval === null
         ? policyInterval
         : Math.min(
             controlInterval,
             Math.max(1, this.nextActionAt - this.ports.clock.now())
           );
+    // A Synthetic User thinking about its move moves once it has thought.
+    const wake = this.behavior?.nextWakeAt() ?? null;
+    const delay =
+      wake === null
+        ? paced
+        : Math.min(paced, Math.max(1, wake - this.ports.clock.now()));
     this.timer = this.ports.timers.setTimeout(() => {
       void this.tick();
     }, delay);
@@ -217,8 +224,7 @@ export class SessionRuntime {
         elapsedMs: this.ports.clock.now() - this.checkpoint.startedAtMs,
         sessionMs:
           renewal?.config.sessionMs ?? this.assignment.config.sessionMs,
-        hostingWeight: readPersonality(this.assignment.personality)
-          .hostingWeight,
+        waitingOpponents: renewal?.waitingOpponents ?? [],
       });
       this.nextActionAt =
         this.ports.clock.now() +

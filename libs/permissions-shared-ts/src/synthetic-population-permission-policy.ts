@@ -20,6 +20,7 @@ export function withSyntheticPopulationOperators(
           PERMISSION.syntheticPopulationConfigure,
           PERMISSION.syntheticPopulationControl,
           PERMISSION.syntheticPopulationReplay,
+          PERMISSION.syntheticPopulationWatch,
         ],
       },
     },

@@ -98,8 +98,9 @@ test('an unrelated game uses the same pending, completion and disposal lifecycle
     attributes,
   });
   const events: string[] = [];
+  let now = 0;
   const application = new SyntheticUserApplication(surface.driver, {
-    clock: { now: () => 0 },
+    clock: { now: () => now },
     random: () => 0.95,
     username: 'player',
     games: [COUNTING],
@@ -108,10 +109,15 @@ test('an unrelated game uses the same pending, completion and disposal lifecycle
   application.authenticated();
   const context = { paused: true, draining: true, elapsedMs: 0, sessionMs: 1 };
   try {
+    // Each move waits out its thinking time.
+    await application.tick(context);
+    now = 20_000;
     await application.tick(context);
     await application.tick(context);
     expect(surface.actions).toEqual(['multiplayer-board-advance:enter']);
     attributes.set('multiplayer-game:data-fen', 'count:2');
+    await application.tick(context);
+    now = 40_000;
     await application.tick(context);
     expect(surface.actions).toEqual([
       'multiplayer-board-advance:enter',
@@ -149,8 +155,9 @@ test('invalid suggestions and spectators cannot submit through the shared contro
     ]),
   });
   const events: string[] = [];
+  let now = 0;
   const application = new SyntheticUserApplication(surface.driver, {
-    clock: { now: () => 0 },
+    clock: { now: () => now },
     random: () => 0.95,
     username: 'watcher',
     games: [
@@ -172,9 +179,58 @@ test('invalid suggestions and spectators cannot submit through the shared contro
     await application.tick(context);
     expect(surface.actions).toEqual([]);
     visible.add('multiplayer-colour');
+    await application.tick(context);
+    now = 20_000;
     await expect(application.tick(context)).rejects.toThrow('illegal action');
     expect(surface.actions).toEqual([]);
     expect(events).not.toContain('MoveSubmitted');
+  } finally {
+    application.close();
+  }
+});
+
+test('a Synthetic User thinks for a human-like time before each move, never at once', async () => {
+  let now = 1_000;
+  const attributes = new Map([
+    ['multiplayer-game:data-fen', 'count:0'],
+    ['multiplayer-game:data-outcome', 'ongoing'],
+    ['multiplayer-game:data-can-move', 'true'],
+  ]);
+  const surface = automationDriver({
+    visible: new Set([
+      'multiplayer-colour',
+      'multiplayer-game',
+      'multiplayer-board',
+    ]),
+    attributes,
+  });
+  const application = new SyntheticUserApplication(surface.driver, {
+    clock: { now: () => now },
+    random: () => 0,
+    username: 'player',
+    games: [COUNTING],
+    persona: {
+      thinkingTime: { minMs: 6_000, maxMs: 7_999 },
+      skillLevel: 'strong',
+      rematchWeight: 0,
+      hostingWeight: 0,
+      favoriteGames: [],
+    },
+    memory: { previousThinkingMs: 6_100 },
+    emit: () => undefined,
+  });
+  application.authenticated();
+  try {
+    await application.continueCurrentGame();
+    expect(surface.actions).toEqual([]);
+    // The previous move took 6 seconds: this one takes 7.
+    expect(application.nextWakeAt()).toBe(8_000);
+    now = 7_999;
+    await application.continueCurrentGame();
+    expect(surface.actions).toEqual([]);
+    now = 8_000;
+    await application.continueCurrentGame();
+    expect(surface.actions).toEqual(['multiplayer-board-advance:enter']);
   } finally {
     application.close();
   }

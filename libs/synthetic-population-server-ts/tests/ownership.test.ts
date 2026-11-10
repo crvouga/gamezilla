@@ -54,7 +54,7 @@ test('lease expiry fences sessions, writes, inspection and release before a repl
     expect(second.lease.generation).toBe(first.lease.generation + 1);
     expect(second.deviceId).not.toBe(first.deviceId);
     expect(second.email).toBe(first.email);
-    expect(second.personality).toEqual(first.personality);
+    expect(second.persona).toEqual(first.persona);
     expect(second.registered).toBe(true);
     expect(await f.leases.release(first.lease)).toBe(false);
     expect(

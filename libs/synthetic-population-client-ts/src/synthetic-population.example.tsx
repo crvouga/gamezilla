@@ -1,8 +1,11 @@
 import type { SyntheticPopulationConfig } from '@libs/synthetic-population-shared-ts/config';
 import type { Inspection } from '@libs/synthetic-population-shared-ts/inspection';
+import type { Persona } from '@libs/synthetic-population-shared-ts/persona';
 import type { JSX } from 'solid-js';
 import { fn } from 'storybook/test';
+import { OnlineNowView, type OnlineNowViewProps } from './online-now-view';
 import type {
+  OnlineNowEntryView,
   SyntheticPopulationDirectoryPage,
   SyntheticPopulationEventView,
   SyntheticPopulationOverview,
@@ -50,6 +53,20 @@ function checkpoint(
   };
 }
 
+/** A complete persona, as provisioning records it. */
+export const PERSONA: Persona = {
+  schemaVersion: 2,
+  username: 'maplewood_fox',
+  avatar: '{"style":"lorelei","seed":"maplewood_fox"}',
+  homeRegion: 'Lisbon, PT',
+  skillLevel: 'intermediate',
+  favoriteGames: ['backgammon', 'go'],
+  dailySchedule: { timeZone: 'Europe/Lisbon', startHour: 18, endHour: 23 },
+  thinkingTime: { minMs: 3_000, maxMs: 14_000 },
+  rematchWeight: 0.4,
+  hostingWeight: 0.3,
+};
+
 /** One Synthetic User row; `overrides` shapes a particular state. */
 export function userRow(
   index: number,
@@ -71,6 +88,7 @@ export function userRow(
     last_action: 'tap chess-board e2-e4',
     last_error: null,
     inspection_requested_at: null,
+    persona: PERSONA,
     created_at: '2026-03-01T09:00:00.000Z',
     updated_at: '2026-03-14T11:59:30.000Z',
     ...overrides,
@@ -93,6 +111,8 @@ export const USERS: readonly UserRow[] = [
     region: 'us-east',
     worker_id: 'worker-us-1',
     last_error: 'Socket closed during move',
+    // Recorded before personas: the directory falls back to its id.
+    persona: null,
   }),
 ];
 
@@ -287,3 +307,73 @@ export function replay(
     />
   );
 }
+
+/** One app online now; `overrides` shapes who and what. */
+export function onlineEntry(
+  index: number,
+  username: string,
+  overrides: Partial<OnlineNowEntryView> = {}
+): OnlineNowEntryView {
+  return {
+    sessionId: `0c1d2e3f-0000-4000-8000-00000000000${index}`,
+    kind: 'person',
+    syntheticUserId: null,
+    username,
+    avatarConfig: null,
+    accountId: `5a5a5a5a-0000-4000-8000-00000000000${index}`,
+    place: 'spaces',
+    activity: 'browsing',
+    game: null,
+    heartbeatAtMs: OBSERVED_AT_MS - 5_000,
+    ...overrides,
+  };
+}
+
+/** People and Synthetic Users online now, each doing something different. */
+export const ONLINE_NOW: readonly OnlineNowEntryView[] = [
+  onlineEntry(1, 'bob', {
+    place: 'space',
+    activity: 'looking',
+    game: 'Chess',
+  }),
+  onlineEntry(2, 'carol', { place: 'settings' }),
+  onlineEntry(3, 'cedar', {
+    kind: 'synthetic',
+    syntheticUserId: USERS[0]?.id ?? null,
+    place: 'space',
+    activity: 'playing',
+    game: 'Connect Four',
+  }),
+  onlineEntry(4, 'maple', {
+    kind: 'synthetic',
+    syntheticUserId: USERS[1]?.id ?? null,
+    place: 'people-search',
+  }),
+];
+
+const ONLINE_NOW_VIEW: OnlineNowViewProps = {
+  filter: 'everyone',
+  entries: ONLINE_NOW,
+  loading: false,
+  failed: false,
+  canWatch: true,
+  canControl: true,
+  onFilterChange: fn().mockName('onlineNow.onFilterChange'),
+  onWatch: fn().mockName('onlineNow.onWatch'),
+  onControlPanel: fn().mockName('onlineNow.onControlPanel'),
+  onRetry: fn().mockName('onlineNow.onRetry'),
+};
+
+/** The online-now slot in a given state, as the container would fill it. */
+export function onlineNow(
+  overrides: Partial<OnlineNowViewProps> = {}
+): () => JSX.Element {
+  return () => <OnlineNowView {...ONLINE_NOW_VIEW} {...overrides} />;
+}
+
+/** A sanitized picture of a watched phone: Settings, its email redacted. */
+export const FRAME_HTML = `<body><main style="padding:16px;font-family:sans-serif">
+<h1>Settings</h1>
+<p>Theme · System</p>
+<p>Signed in as [redacted email]</p>
+</main></body>`;

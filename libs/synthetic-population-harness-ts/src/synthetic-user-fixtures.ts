@@ -25,13 +25,17 @@ export function syntheticPopulationPorts(s: ProductHarness) {
   };
 }
 export async function cedarUser(s: ProductHarness) {
+  return syntheticUserNamed(s, 'Cedar');
+}
+/** The provisioned Synthetic User the scenario calls `name`. */
+export async function syntheticUserNamed(s: ProductHarness, name: string) {
   const users = await new SyntheticPopulationRepository(
     s.harness.serverSql.sqlClient,
     syntheticPopulationPorts(s)
   ).users();
-  const cedar = users.find((user) => user.username === 'Cedar');
-  if (cedar === undefined) throw new Error('Cedar was not provided');
-  return cedar;
+  const user = users.find((candidate) => candidate.username === name);
+  if (user === undefined) throw new Error(`${name} was not provided`);
+  return user;
 }
 /**
  * A Synthetic User a worker holds the lease for, on its own application
@@ -41,10 +45,17 @@ export async function cedarUser(s: ProductHarness) {
 export const givenLeasedSyntheticUser = scenarioAction({
   name: 'givenLeasedSyntheticUser',
   act: async (s, name: string) => {
-    if (name !== 'Cedar') throw new Error(`Unknown Synthetic User ${name}`);
-    await Promise.resolve(givenDesiredSyntheticPopulation.act(s, 1));
     const db = s.harness.serverSql.sqlClient;
     const ports = syntheticPopulationPorts(s);
+    // One more Synthetic User than the scenario has already named.
+    const named = await db.query(
+      sql<{
+        id: string;
+      }>`SELECT id FROM population_users WHERE worker_id IS NOT NULL AND deleted_at IS NULL`
+    );
+    await Promise.resolve(
+      givenDesiredSyntheticPopulation.act(s, named.length + 1)
+    );
     const controller = new SyntheticPopulationController(db, ports);
     const workerId = ports.createId();
     await controller.heartbeat({
@@ -71,22 +82,23 @@ export const givenSyntheticUser = scenarioAction({
   name: 'givenSyntheticUser',
   act: async (s, name: string, playing: boolean, game?: string) => {
     const label = syntheticGame(game).label;
+    const actor = syntheticUserActor(name);
     await Promise.resolve(givenLeasedSyntheticUser.act(s, name));
     const db = s.harness.serverSql.sqlClient;
     const user = await syntheticUserSignIn(s, name);
-    // Cedar signs in as a deployed Synthetic User does: on its own host, by
+    // It signs in as a deployed Synthetic User does: on its own host, by
     // the link in its internal inbox.
-    await Promise.resolve(signInSyntheticUser.act(s, 'cedar', user));
-    const accountId = await signedInAccountOf(s, 'cedar');
-    const deviceId = await s.actors.get('cedar')!.deviceId();
-    const token = await s.actors.get('cedar')!.sessionToken();
+    await Promise.resolve(signInSyntheticUser.act(s, actor, user));
+    const accountId = await signedInAccountOf(s, actor);
+    const deviceId = await s.actors.get(actor)!.deviceId();
+    const token = await s.actors.get(actor)!.sessionToken();
     if (deviceId === null || token === null)
-      throw new Error('Cedar did not authenticate');
+      throw new Error(`${name} did not authenticate`);
     await bindFixtureAccount(s, { lease: user.lease, deviceId, token });
     await db.run(
       sql`UPDATE population_users SET account_id = ${accountId}, device_id = ${deviceId}, activity = ${playing ? 'playing' : 'browsing'} WHERE id = ${user.lease.userId}`
     );
-    await configureUsername(await actorUi(s, 'cedar'), 'cedar');
+    await configureUsername(await actorUi(s, actor), actor);
     if (!playing) return;
     await prepareSyntheticMatch(s, label);
   },

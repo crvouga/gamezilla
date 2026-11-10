@@ -7,7 +7,8 @@ import {
 import type { Square } from '@pkgs/chess-board-core-shared-ts/types';
 
 export const chessAutomation: TurnGame['turnAutomation'] = {
-  choose: (position, random) => chooseChessMove(position, random)?.lan ?? null,
+  choose: (position, random, _hand, strength = 'medium') =>
+    chooseChessMove(position, random, strength)?.lan ?? null,
   async perform(ui, board, action) {
     if (!/^[a-h][1-8][a-h][1-8][qrbn]?$/.test(action))
       throw new Error('Invalid automated Chess action');

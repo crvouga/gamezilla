@@ -45,7 +45,7 @@ test('successive draining versions and simultaneous expiry retain identities wit
       await f.heartbeat(workerId, version);
       const replacement = (await f.controller.claim(workerId))!;
       expect(replacement.lease.userId).toBe(initial.lease.userId);
-      expect(replacement.personality).toEqual(initial.personality);
+      expect(replacement.persona).toEqual(initial.persona);
       expect(replacement.lease.generation).toBe(previous.lease.generation + 1);
       expect(
         await f.leases.renew(previous.lease, previous.config.leaseMs)

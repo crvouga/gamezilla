@@ -7,6 +7,7 @@ export const PERMISSION = defineCatalog({
   syntheticPopulationConfigure: 'synthetic-population:configure',
   syntheticPopulationControl: 'synthetic-population:control',
   syntheticPopulationReplay: 'synthetic-population:replay',
+  syntheticPopulationWatch: 'synthetic-population:watch',
   friendsUse: 'friends:use',
   peopleSearch: 'people:search',
   notificationsReceive: 'notifications:receive',

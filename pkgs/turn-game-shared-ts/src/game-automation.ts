@@ -1,5 +1,10 @@
 import type { Random } from '@pkgs/uuid-shared-ts/create-id';
-import type { GamePositionRules, GameRules, GameSide } from './game-rules';
+import type {
+  BotDifficulty,
+  GamePositionRules,
+  GameRules,
+  GameSide,
+} from './game-rules';
 
 /**
  * A game's legal decisions and its board gesture, independent of the UI
@@ -8,11 +13,16 @@ import type { GamePositionRules, GameRules, GameSide } from './game-rules';
  */
 export type TurnAutomation<Ui> = {
   readonly rules: GameRules;
-  /** `hand` is the side's own dealt hand, for a game with dealt hands; `null` otherwise. */
+  /**
+   * `hand` is the side's own dealt hand, for a game with dealt hands; `null`
+   * otherwise. `strength` is how well the player plays (`medium` unless
+   * given): a stronger player prefers the better decision.
+   */
   readonly choose: (
     position: string,
     random: () => number,
-    hand: string | null
+    hand: string | null,
+    strength?: BotDifficulty
   ) => string | null;
   /** Perform `action` on the game's board identified by `board`. */
   readonly perform: (ui: Ui, board: string, action: string) => Promise<void>;

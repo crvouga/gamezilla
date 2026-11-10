@@ -14,6 +14,7 @@ import {
 import { SignInInbox } from './sign-in-inbox';
 import { SyntheticPopulationController } from './synthetic-population-controller';
 import { SyntheticPopulationSession } from './synthetic-population-session';
+import { renewSyntheticUser } from './synthetic-user-renewal';
 
 export type WorkerRouteDeps = {
   getDb: () => SqlClient;
@@ -40,27 +41,49 @@ export function createSyntheticPopulationWorkerRoutes(deps: WorkerRouteDeps) {
       await deps.authorize(c.req.raw);
       await next();
     })
-    .post('/heartbeat', zValidator('json', workerHeartbeatSchema), async (c) =>
-      c.json({
-        config: await new SyntheticPopulationController(
-          deps.getDb(),
-          deps.ports
-        ).heartbeat(c.req.valid('json')),
-      })
+    .post(
+      '/heartbeat',
+      zValidator(
+        'json',
+        workerHeartbeatSchema.extend({
+          /** The games the worker's Synthetic Users play, by registered game id. */
+          games: z.array(z.string().min(1).max(64)).max(64).default([]),
+        })
+      ),
+      async (c) => {
+        const { games, ...heartbeat } = c.req.valid('json');
+        return c.json({
+          config: await new SyntheticPopulationController(
+            deps.getDb(),
+            deps.ports
+          ).heartbeat(heartbeat, games),
+        });
+      }
     )
     .post(
       '/claim',
-      zValidator('json', z.object({ workerId: z.string().uuid() })),
+      zValidator(
+        'json',
+        z.object({
+          workerId: z.string().uuid(),
+          /** The games the worker's Synthetic Users play, by registered game id. */
+          games: z.array(z.string().min(1).max(64)).max(64).default([]),
+        })
+      ),
       async (c) =>
         c.json({
           assignment: await new SyntheticPopulationController(
             deps.getDb(),
             deps.ports
-          ).claim(c.req.valid('json').workerId),
+          ).claim(c.req.valid('json').workerId, c.req.valid('json').games),
         })
     )
     .post('/renew', zValidator('json', leaseSchema), async (c) => {
-      const renewal = await sessions().renew(c.req.valid('json'));
+      const renewal = await renewSyntheticUser(
+        deps.getDb(),
+        deps.ports,
+        c.req.valid('json')
+      );
       return renewal === null
         ? c.json({ error: 'Worker Lease expired or replaced' }, 409)
         : c.json({ renewal });

@@ -20,9 +20,50 @@ import { ContinuousInputPlayer } from './continuous-input-player';
 import {
   chooseActivity,
   type Decision,
+  type OpponentDemand,
   type PolicyInputs,
 } from './decision-policy';
-import { gameForPosition, openMultiplayer } from './game-automation';
+import {
+  findOpponentFor,
+  gameForPosition,
+  openMultiplayer,
+} from './game-automation';
+import { MovePacing } from './move-pacing';
+import type { Persona } from './persona';
+import {
+  type OpponentStreak,
+  streakAfterGame,
+  wantsRematch,
+} from './rematch-policy';
+
+/** What of its persona a Synthetic User's play follows. */
+export type PlayingPersona = Pick<
+  Persona,
+  | 'thinkingTime'
+  | 'skillLevel'
+  | 'rematchWeight'
+  | 'hostingWeight'
+  | 'favoriteGames'
+>;
+/** How a Synthetic User plays when it was given no persona. */
+const DEFAULT_PERSONA: PlayingPersona = {
+  thinkingTime: { minMs: 2_000, maxMs: 8_000 },
+  skillLevel: 'intermediate',
+  rematchWeight: 0.35,
+  hostingWeight: 0.3,
+  favoriteGames: [],
+};
+const STRENGTH = {
+  beginner: 'easy',
+  casual: 'easy',
+  intermediate: 'medium',
+  strong: 'hard',
+} as const;
+/** What a Synthetic User remembers of its play from before this application opened. */
+export type PlayMemory = {
+  readonly previousThinkingMs?: number;
+  readonly streak?: OpponentStreak;
+};
 
 const MULTIPLAYER_BOARD = Handles.multiplayerBoard;
 
@@ -35,6 +76,12 @@ export class SyntheticUserApplication {
   private restoringGame: boolean;
   private readonly restoreStartedAt: number;
   private decision: { inputs: PolicyInputs; selected: Decision } | null = null;
+  private readonly persona: PlayingPersona;
+  private readonly pacing: MovePacing;
+  private streak: OpponentStreak | null;
+  private streakGame: string | null = null;
+  private rematchOffered = false;
+  private reserved: readonly string[] = [];
   constructor(
     private readonly driver: Driver,
     private readonly ports: {
@@ -43,10 +90,19 @@ export class SyntheticUserApplication {
       random: Random;
       username: string;
       restoreGame?: boolean;
+      persona?: PlayingPersona;
+      memory?: PlayMemory;
       emit: (event: ApplicationEvent) => void;
     }
   ) {
     this.continuous = new ContinuousInputPlayer(driver, ports);
+    this.persona = ports.persona ?? DEFAULT_PERSONA;
+    this.pacing = new MovePacing(
+      this.persona.thinkingTime,
+      ports.random,
+      ports.memory?.previousThinkingMs ?? null
+    );
+    this.streak = ports.memory?.streak ?? null;
     this.restoringGame = ports.restoreGame ?? false;
     this.restoreStartedAt = ports.clock.now();
   }
@@ -74,6 +130,20 @@ export class SyntheticUserApplication {
   continuousIntervalMs(): number | null {
     return this.continuous.intervalMs();
   }
+  /** The games it may choose to play now: any but those people wait in for another. */
+  private offeredGames(): readonly GameAutomation<Driver>[] {
+    return this.ports.games.filter(
+      (game) => !this.reserved.includes(game.rules.id)
+    );
+  }
+  /** When the Synthetic User means to act next, sooner than its usual pace: its next move. */
+  nextWakeAt(): number | null {
+    return this.pacing.wakeAt();
+  }
+  /** The opponent it has played most recently, and how many games in a row. */
+  opponentStreak(): OpponentStreak | null {
+    return this.streak;
+  }
   reconciled(): boolean {
     return !this.restoringGame;
   }
@@ -89,9 +159,22 @@ export class SyntheticUserApplication {
     draining: boolean;
     elapsedMs: number;
     sessionMs: number;
-    hostingWeight?: number;
+    waitingOpponents?: readonly OpponentDemand[];
+    /** Games where people wait for another Synthetic User: left to that one. */
+    reservedGames?: readonly string[];
   }): Promise<boolean> {
-    await openMultiplayer(this.driver, this.ports.games, this.ports.random);
+    const waiting = context.waitingOpponents ?? [];
+    this.reserved = context.reservedGames ?? [];
+    const preferred = [
+      ...waiting.map((demand) => demand.gameId),
+      ...this.persona.favoriteGames,
+    ];
+    await openMultiplayer(
+      this.driver,
+      this.offeredGames(),
+      this.ports.random,
+      preferred
+    );
     if (await this.playCurrentGame()) return true;
     if (this.restoringGame) {
       if (await this.driver.get(Handles.spaceJoin).isVisible()) {
@@ -110,7 +193,12 @@ export class SyntheticUserApplication {
       (await this.driver.get(ownSpace).isVisible())
     ) {
       await this.driver.get(ownSpace).tap();
-      await openMultiplayer(this.driver, this.ports.games, this.ports.random);
+      await openMultiplayer(
+        this.driver,
+        this.offeredGames(),
+        this.ports.random,
+        preferred
+      );
       this.transition({ type: 'HOST' });
       this.event('SessionRestored', ownSpace);
       return true;
@@ -123,7 +211,8 @@ export class SyntheticUserApplication {
       draining: context.draining,
       sessionElapsedMs: context.elapsedMs,
       sessionLimitMs: context.sessionMs,
-      hostingWeight: context.hostingWeight ?? 0.3,
+      hostingWeight: this.persona.hostingWeight,
+      waitingOpponents: waiting,
     };
     const draws: number[] = [];
     const selected = chooseActivity(inputs, () => {
@@ -151,21 +240,47 @@ export class SyntheticUserApplication {
       targetControlId: selected.targetControlId,
       replay: JSON.stringify({ ...inputs, draws, selected }),
     });
-    await this.act(selected);
+    await this.act(selected, preferred);
     return true;
   }
-  private async act(decision: Decision): Promise<void> {
+  private async act(
+    decision: Decision,
+    preferred: readonly string[]
+  ): Promise<void> {
     if (await this.tryRematch(decision)) return;
+    if (
+      decision.game !== undefined &&
+      (await findOpponentFor(this.driver, decision.game))
+    ) {
+      this.transition({ type: 'WAIT' });
+      this.event('EnteredMatchmaking', 'multiplayer-find', {
+        game: decision.game.gameId,
+      });
+      return;
+    }
     if (await this.driver.get(Handles.spaceJoin).isVisible()) {
       await this.driver.get(Handles.spaceJoin).tap();
       await this.driver.get(Handles.spaceJoin).wait('hidden');
       this.transition({ type: 'JOIN' });
       this.event('JoinedSpace', Handles.spaceJoin);
-      await openMultiplayer(this.driver, this.ports.games, this.ports.random);
+      await openMultiplayer(
+        this.driver,
+        this.offeredGames(),
+        this.ports.random,
+        preferred
+      );
       return;
     }
-    await openMultiplayer(this.driver, this.ports.games, this.ports.random);
+    await openMultiplayer(
+      this.driver,
+      this.offeredGames(),
+      this.ports.random,
+      preferred
+    );
+    // Which game a find screen is for is unknown: while people wait for
+    // another Synthetic User, it finds an opponent only where it was sent.
     if (
+      this.reserved.length === 0 &&
       (await this.driver.get('multiplayer-find').isVisible()) &&
       decision.activity !== 'browsing'
     ) {
@@ -197,24 +312,29 @@ export class SyntheticUserApplication {
     this.event('OpenedSpaces', Handles.tabSpaces);
     this.idleUntil = this.ports.clock.now() + 15_000;
   }
+  /**
+   * After a game, a Synthetic User answers its opponent's rematch offer at
+   * once, accepting by its rematch weight, and may offer one itself; never
+   * a fourth game in a row against the same opponent.
+   */
   private async tryRematch(decision: Decision): Promise<boolean> {
     if (this.activity() !== 'postGame') return false;
-    for (const id of [
-      'multiplayer-accept-rematch',
-      'multiplayer-offer-rematch',
-    ]) {
-      if (
-        (await this.driver.get(id).isVisible()) &&
-        this.ports.random() < 0.35
-      ) {
-        await this.driver.get(id).tap();
-        this.event('RematchRequested', id);
-        this.idleUntil = this.ports.clock.now() + 15_000;
-        return true;
-      }
+    if (await this.answerRematch()) return true;
+    const offer = this.driver.get('multiplayer-offer-rematch');
+    if (
+      !this.rematchOffered &&
+      (await offer.isVisible()) &&
+      wantsRematch(this.streak, this.persona.rematchWeight, this.ports.random())
+    ) {
+      this.rematchOffered = true;
+      await offer.tap();
+      this.event('RematchRequested', 'multiplayer-offer-rematch');
+      this.idleUntil = this.ports.clock.now() + 15_000;
+      return true;
     }
     if (
       decision.activity === 'matchmaking' &&
+      !(await this.finishedGameReserved()) &&
       (await this.driver.get('multiplayer-new-opponent').isVisible())
     ) {
       await this.driver.get('multiplayer-new-opponent').tap();
@@ -223,6 +343,32 @@ export class SyntheticUserApplication {
       return true;
     }
     return false;
+  }
+  /** Whether people wait for another Synthetic User in the game it just finished. */
+  private async finishedGameReserved(): Promise<boolean> {
+    const position = await this.driver
+      .get('multiplayer-game')
+      .attribute('data-fen');
+    if (position === null) return false;
+    return this.reserved.includes(
+      gameForPosition(this.ports.games, position).rules.id
+    );
+  }
+  /** An offer waiting for this Synthetic User is accepted or declined, never left. */
+  async answerRematch(): Promise<boolean> {
+    if (!(await this.driver.get('multiplayer-accept-rematch').isVisible()))
+      return false;
+    const accept = wantsRematch(
+      this.streak,
+      this.persona.rematchWeight,
+      this.ports.random()
+    );
+    const id = accept
+      ? 'multiplayer-accept-rematch'
+      : 'multiplayer-decline-rematch';
+    await this.driver.get(id).tap();
+    this.event('RematchRequested', id, { accepted: accept });
+    return true;
   }
   async continueCurrentGame(): Promise<void> {
     await this.playCurrentGame();
@@ -257,6 +403,7 @@ export class SyntheticUserApplication {
       this.transition({ type: 'MATCH' });
       this.event('GameStarted');
     }
+    await this.recordOpponent(await game.attribute('data-game-id'));
     const enabled = (await game.attribute('data-can-move')) === 'true';
     await this.continuous.update(automation.continuous, enabled);
     if (automation.turns === undefined) return true;
@@ -264,9 +411,12 @@ export class SyntheticUserApplication {
       this.pendingPosition = null;
       this.transition({ type: 'ACKNOWLEDGED' });
     }
-    if (enabled) {
-      if (this.pendingPosition === null) await this.move(position);
-      else if (this.ports.clock.now() - this.submittedAt > 5_000)
+    if (!enabled) this.pacing.idle();
+    if (enabled && this.pendingPosition === null) {
+      if (this.pacing.ready(position, this.ports.clock.now()))
+        await this.move(position);
+    } else if (enabled) {
+      if (this.ports.clock.now() - this.submittedAt > 5_000)
         throw new Error(
           'Move acknowledgement requires authoritative reconciliation'
         );
@@ -276,7 +426,12 @@ export class SyntheticUserApplication {
   private async move(position: string): Promise<void> {
     const automation = gameForPosition(this.ports.games, position).turns;
     if (automation === undefined) return;
-    const action = automation.choose(position, this.ports.random, null);
+    const action = automation.choose(
+      position,
+      this.ports.random,
+      null,
+      STRENGTH[this.persona.skillLevel]
+    );
     if (action === null) return;
     if (!automation.rules.legal(position).includes(action))
       throw new Error('The automated participant suggested an illegal action');
@@ -286,10 +441,22 @@ export class SyntheticUserApplication {
     this.submittedAt = this.ports.clock.now();
     await automation.perform(this.driver, MULTIPLAYER_BOARD, action);
     this.transition({ type: 'MOVE' });
+    this.pacing.moved();
     this.event('MoveSubmitted', action, {
       position,
       game: automation.rules.id,
     });
+  }
+  /** A new game counts towards the games in a row against its opponent. */
+  private async recordOpponent(gameId: string | null): Promise<void> {
+    if (gameId === null || gameId === this.streakGame) return;
+    const seat = this.driver.get('multiplayer-seat-far');
+    if (!(await seat.isVisible())) return;
+    const opponent = await seat.attribute('data-profile-id');
+    if (opponent === null) return;
+    this.streakGame = gameId;
+    this.rematchOffered = false;
+    this.streak = streakAfterGame(this.streak, opponent);
   }
   close(): void {
     this.continuous.suspend();

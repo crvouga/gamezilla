@@ -9,6 +9,7 @@ import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
 import { For, type JSX, Show } from 'solid-js';
 import type { SyntheticPopulationDirectoryPage } from './synthetic-population-api';
+import { useSkillLabel } from './synthetic-user-persona';
 
 export type SyntheticPopulationUsersViewProps = {
   /** The search text as typed. */
@@ -39,6 +40,7 @@ export function SyntheticPopulationUsersView(
   props: SyntheticPopulationUsersViewProps
 ): JSX.Element {
   const { t } = useLingui();
+  const skill = useSkillLabel();
   return (
     <StackVertical gap="md" testId="synthetic-population-users">
       <TextInput
@@ -53,7 +55,11 @@ export function SyntheticPopulationUsersView(
           {(user) => (
             <MenuRow
               title={user.username}
-              caption={user.id}
+              caption={
+                user.persona === null
+                  ? user.id
+                  : `${user.persona.homeRegion} · ${skill(user.persona.skillLevel)}`
+              }
               value={user.paused ? t`Paused` : user.activity}
               onClick={
                 props.canInspect ? () => props.onInspect(user.id) : undefined

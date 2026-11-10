@@ -27,6 +27,7 @@
     "@libs/harness-ts": "workspace:*",
     "@libs/permissions-shared-ts": "workspace:*",
     "@libs/profile-harness-ts": "workspace:*",
+    "@libs/search-harness-ts": "workspace:*",
     "@libs/spaces-harness-ts": "workspace:*",
     "@libs/sub-shared-ts": "workspace:*",
     "@libs/synthetic-population-client-ts": "workspace:*",

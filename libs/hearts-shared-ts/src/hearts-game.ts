@@ -54,8 +54,8 @@ export const heartsGameShared = defineGame({
     history: { record: heartsRecord },
   },
   turnAutomation: {
-    choose: (position, random, hand) =>
-      chooseHeartsDecision(position, 'medium', random, hand),
+    choose: (position, random, hand, strength = 'medium') =>
+      chooseHeartsDecision(position, strength, random, hand),
     async perform(ui, board, action) {
       // A pass is three cards chosen on the hand, then confirmed; a play is
       // one card of the hand.

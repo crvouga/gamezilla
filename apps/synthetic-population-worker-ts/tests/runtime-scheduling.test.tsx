@@ -132,6 +132,7 @@ test('repeated continuous gestures retain local inspection history without flood
         draining: false,
         commands: [],
         inspectionRequestedAt: '2026-01-01T00:00:03.200Z',
+        waitingOpponents: [],
       },
     });
     f.clock.advance(2800);
