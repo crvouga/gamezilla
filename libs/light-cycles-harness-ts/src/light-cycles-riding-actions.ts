@@ -246,6 +246,19 @@ async function phaseShown(s: ProductHarness, phase: string): Promise<void> {
   );
 }
 
+async function liveShown(s: ProductHarness): Promise<void> {
+  await pollUntil(
+    s,
+    async () =>
+      (await lightCyclesBoardShown(s, observer(s))).live ? true : null,
+    {
+      maxMs: ROUND_ENDS_MS,
+      stepMs: STEP_POLL_MS,
+      description: 'the live game on the arena',
+    }
+  );
+}
+
 /**
  * The round under way ends: every riding rider a present person rides but
  * the first crashes; riders nobody steers crash on their own.
@@ -271,7 +284,12 @@ async function reachCountdown(s: ProductHarness, round: number) {
   await startedLightCycles(s);
   for (;;) {
     const board = await lightCyclesBoardShown(s, observer(s));
-    if (board.round === round && board.phase === 'countdown') return;
+    if (board.round === round && board.phase === 'countdown') {
+      // A game just started reaches the device a moment later: until then
+      // the arena says it is reconnecting, not how long the countdown has.
+      if (!board.live) await liveShown(s);
+      return;
+    }
     if (board.round > round || board.phase === 'completed')
       throw new Error(`Round ${String(round)} can no longer count down`);
     if (board.phase === 'countdown') await phaseShown(s, 'running');

@@ -1,0 +1,4 @@
+{
+  "summary": "Since the Light Cycles arena dims under a Reconnecting banner while the live game has not reached the device, the harness read a just-started game's countdown before its first snapshot arrived and saw 'Reconnecting' instead of '3', failing 'Riders stay on their starting cells during the countdown' (specs/light-cycles/light-cycles-rounds.feature). Reaching a countdown now waits until the arena shows the live game.",
+  "regressionTest": "libs/light-cycles-harness-ts/tests/light-cycles-countdown-reading.test.ts"
+}

@@ -42,6 +42,8 @@ export type LightCyclesBoardShown = {
   readonly steering: string;
   readonly overlay: string;
   readonly crashes: readonly string[];
+  /** The live game reaches this device; otherwise the arena dims as reconnecting. */
+  readonly live: boolean;
 };
 
 export function cellName(cell: LightCyclesCell): string {
@@ -137,6 +139,7 @@ export async function lightCyclesBoard(
         ? await result.text()
         : await ui.get(`${board}-arena-overlay`).text()) ?? '',
     crashes,
+    live: (await ui.get(`${board}-arena`).attribute('data-dimmed')) !== 'true',
   };
 }
 
