@@ -68,12 +68,13 @@ export async function cutConnection(
 ): Promise<void> {
   // regression: browser-cut-connection-host-limit
   const refused = await w.s.apply(partition, actor).then(
-    () => null,
-    (error: unknown) => error
+    () => false,
+    (error: unknown) => {
+      if (error instanceof ActionNotEnabled) return true;
+      throw error;
+    }
   );
-  if (refused instanceof ActionNotEnabled)
-    throw hostLimit('this host cannot cut the connection');
-  if (refused !== null) throw refused;
+  if (refused) throw hostLimit('this host cannot cut the connection');
   // The browser's offline command already settled its own connection state.
   if (!(await w.s.read(caps)).includes('partition')) return;
   await w.s.apply(refreshActorConnection, actor);
