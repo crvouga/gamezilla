@@ -111,6 +111,7 @@ export function grafanaUntaintArgs(
     throw new Error(`Grafana restore untaints only views, not ${address}`);
   return [
     `-chdir=${stackDir(paths, target.stack)}`,
+    // `untaint` defines no `-input` flag; passing one fails the parse.
     'untaint',
     ...varFileArgs(paths, target),
     address,

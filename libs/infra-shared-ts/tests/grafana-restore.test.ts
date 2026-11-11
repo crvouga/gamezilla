@@ -157,6 +157,7 @@ test('only a view is ever untainted, through its own state-only command', () => 
     .map((arg) => arg.slice(0, arg.indexOf('=') >>> 0));
   for (const flag of flags)
     expect(UNTAINT_FLAGS as readonly string[]).toContain(flag);
+  expect(args.some((arg) => arg.startsWith('-input'))).toBe(false);
   expect(() => grafanaUntaintArgs(PATHS, target, ACCOUNT)).toThrow();
   expect(() =>
     grafanaUntaintArgs(PATHS, { stack: 'edge', env: 'prd' }, FOLDER)
