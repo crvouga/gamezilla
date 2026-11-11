@@ -31,7 +31,7 @@ import {
   readStatsLatestTitle,
   readStatsPuzzleRating,
   readStatsRatedCount,
-  showGamePuzzleStats,
+  showPersonalPuzzleStats,
 } from './puzzle-records';
 import { retryGamePuzzle } from './puzzle-screen';
 
@@ -78,12 +78,12 @@ export const retryFinishedGamePuzzle = scenarioAction({
   },
 });
 
-/** The game's own puzzle stats, in the space, on a device back from away. */
+/** The game's own puzzle stats, from Settings, on a device back from away. */
 export const viewGamePuzzleStatsOnReturn = scenarioAction({
   name: 'viewGamePuzzleStatsOnReturn',
   act: async (s, device: string, gameId: string) => {
     await ensureActor(s, device);
-    await Promise.resolve(showGamePuzzleStats.act(s, device, gameId));
+    await Promise.resolve(showPersonalPuzzleStats.act(s, device, gameId));
   },
 });
 
@@ -94,7 +94,7 @@ export const viewEachDevicePuzzleStats = scenarioAction({
     for (const device of devices) {
       if (!s.actors.has(device)) continue;
       await bringToFront(s, device);
-      await Promise.resolve(showGamePuzzleStats.act(s, device, gameId));
+      await Promise.resolve(showPersonalPuzzleStats.act(s, device, gameId));
     }
   },
 });
