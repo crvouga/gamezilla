@@ -45,7 +45,9 @@ export const NoMatch: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.type(
-      await canvas.findByTestId('chess-puzzle-feed-theme-search'),
+      // regression: puzzle-theme-story-types-into-search-wrapper
+      // The test id marks the field's wrapper; a person types in the box.
+      await canvas.findByRole('searchbox', { name: 'Search themes…' }),
       'zugzwang'
     );
     await expect(await canvas.findByText('No matching themes')).toBeVisible();
@@ -58,7 +60,9 @@ export const SearchAndChoose: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.type(
-      await canvas.findByTestId('chess-puzzle-feed-theme-search'),
+      // regression: puzzle-theme-story-types-into-search-wrapper
+      // The test id marks the field's wrapper; a person types in the box.
+      await canvas.findByRole('searchbox', { name: 'Search themes…' }),
       'sacr'
     );
     await userEvent.click(

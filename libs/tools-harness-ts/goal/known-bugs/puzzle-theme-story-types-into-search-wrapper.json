@@ -1,0 +1,4 @@
+{
+  "summary": "The puzzle feed's theme stories typed into the search field's test id, which marks the field's wrapper, so nothing was typed: the no-match story never showed 'No matching themes' and the search story passed only because its theme was visible unfiltered. The stories now type into the search box itself.",
+  "regressionTest": "libs/game-puzzle-client-ts/src/puzzle-feed-themes.stories.tsx"
+}
