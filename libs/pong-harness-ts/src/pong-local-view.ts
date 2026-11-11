@@ -1,5 +1,5 @@
-import { customGameStartOffered } from '@libs/game-session-harness-ts/custom-game-reads';
 import { customGamePlace } from '@libs/game-session-harness-ts/custom-game-places';
+import { customGameStartOffered } from '@libs/game-session-harness-ts/custom-game-reads';
 import { readCustomGameScreen } from '@libs/game-session-harness-ts/custom-game-screen';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { pongControlledPaddles } from './pong-controls-view';
