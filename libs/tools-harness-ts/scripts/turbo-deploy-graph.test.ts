@@ -14,6 +14,7 @@ import {
   MAIN_VERIFY_TASKS,
   RELEASE_JOURNEY_TASKS,
 } from './turbo-ci-run';
+import { readTurboTasks } from './turbo-config';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 
@@ -27,10 +28,7 @@ type TaskConfig = {
 type Tasks = Readonly<Record<string, TaskConfig>>;
 
 function loadTasks(): Tasks {
-  const turbo = JSON.parse(
-    readFileSync(join(REPO_ROOT, 'turbo.json'), 'utf8')
-  ) as { tasks: Tasks };
-  return turbo.tasks;
+  return readTurboTasks(REPO_ROOT);
 }
 
 function loadRootScripts(): Readonly<Record<string, string>> {
@@ -211,10 +209,27 @@ function reachableFromVerify(tasks: Tasks): ReadonlySet<string> {
     const bare = task.startsWith('^') ? task.slice(1) : task;
     if (seen.has(bare)) continue;
     seen.add(bare);
-    queue.push(...(configFor(tasks, bare)?.dependsOn ?? []));
+    // Inside `<package>#<task>`, a bare dependency is that package's own task.
+    const owner = bare.includes('#') ? bare.slice(0, bare.indexOf('#')) : '';
+    queue.push(
+      ...(configFor(tasks, bare)?.dependsOn ?? []).map((dep) =>
+        owner !== '' && !dep.startsWith('^') && !dep.includes('#')
+          ? `${owner}#${dep}`
+          : dep
+      )
+    );
   }
   return seen;
 }
+
+/**
+ * Verify tasks that run uncached on purpose. Storybook coverage gates with the
+ * first browser part in its shard (`verify-storybook-stage.test.ts`).
+ */
+const UNCACHED_VERIFY_TASKS: Readonly<Record<string, string>> = {
+  '@pkgs/ui-root-harness-ts#storybook:coverage':
+    'gates with the first Storybook part in its shard; verify-storybook-stage.test.ts',
+};
 
 /**
  * Cycles among declared root tasks. Inside a root task's `dependsOn`, a bare
@@ -291,7 +306,9 @@ describe('turbo verify/deploy graph invariants', () => {
   test('all Verify tasks cache against current inputs, including fresh advisory evidence', () => {
     const tasks = loadTasks();
     const uncached = [...reachableFromVerify(tasks)].filter(
-      (task) => configFor(tasks, task)?.cache === false
+      (task) =>
+        configFor(tasks, task)?.cache === false &&
+        !Object.hasOwn(UNCACHED_VERIFY_TASKS, task)
     );
     expect(uncached).toEqual([]);
     expect(tasks['@libs/tools-harness-ts#ci:audit']?.inputs).toContain(

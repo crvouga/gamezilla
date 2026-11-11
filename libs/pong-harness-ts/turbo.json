@@ -22,6 +22,10 @@
         "@pkgs/room-root-shared-ts#src",
         "@pkgs/ui-testing-root-shared-ts#src"
       ]
+    },
+    "bench": {
+      "cache": false,
+      "passThroughEnv": ["*"]
     }
   }
 }

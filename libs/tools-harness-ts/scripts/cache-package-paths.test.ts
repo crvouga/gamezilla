@@ -1,6 +1,7 @@
 import { expect, test } from 'bun:test';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { readTurboTasks } from './turbo-config';
 
 const ROOT = join(import.meta.dir, '../../..');
 type Config = {
@@ -52,28 +53,16 @@ test('model verdicts depend on the split checker and evidence implementations', 
  * rerun every one of them. A new game package must be added to the lists, and
  * this test says which.
  */
-const GAME_MANIFEST_TASKS: ReadonlyArray<readonly [string, readonly string[]]> =
-  [
-    [
-      'turbo.json',
-      [
-        '@apps/client-ts#test',
-        '@libs/games-harness-ts#test',
-        '@libs/games-harness-ts#test:contract',
-      ],
-    ],
-    [
-      'libs/games-harness-ts/turbo.json',
-      [
-        'test',
-        'test:contract:0',
-        'test:contract:1',
-        'test:contract:2',
-        'test:contract:3',
-        'test:contract:4',
-      ],
-    ],
-  ];
+const GAME_MANIFEST_TASKS: readonly string[] = [
+  '@apps/client-ts#test',
+  '@libs/games-harness-ts#test',
+  '@libs/games-harness-ts#test:contract',
+  '@libs/games-harness-ts#test:contract:0',
+  '@libs/games-harness-ts#test:contract:1',
+  '@libs/games-harness-ts#test:contract:2',
+  '@libs/games-harness-ts#test:contract:3',
+  '@libs/games-harness-ts#test:contract:4',
+];
 
 test('tests that scan manifests for game markers list every marked manifest and no others', () => {
   const marked = [
@@ -84,30 +73,28 @@ test('tests that scan manifests for game markers list every marked manifest and 
     )
     .sort();
   expect(marked.length).toBeGreaterThan(0);
-  for (const [file, tasks] of GAME_MANIFEST_TASKS) {
-    const config = JSON.parse(readFileSync(join(ROOT, file), 'utf8')) as Config;
-    for (const task of tasks) {
-      const manifests = (config.tasks[task]?.inputs ?? [])
-        .filter((input) => input.endsWith('/package.json'))
-        .map((input) => input.replace('$TURBO_ROOT$/', ''));
-      const covered = new Set(
-        manifests.flatMap((pattern) =>
-          [
-            ...new Bun.Glob('{apps,libs,pkgs}/*/package.json').scanSync({
-              cwd: ROOT,
-            }),
-          ].filter((path) => new Bun.Glob(pattern).match(path))
-        )
-      );
-      expect(
-        marked.filter((path) => !covered.has(path)),
-        `${file}: ${task} leaves a game manifest out`
-      ).toEqual([]);
-      expect(
-        [...covered].filter((path) => !marked.includes(path)),
-        `${file}: ${task} lists a manifest with no game marker`
-      ).toEqual([]);
-    }
+  const tasks = readTurboTasks(ROOT);
+  for (const task of GAME_MANIFEST_TASKS) {
+    const manifests = (tasks[task]?.inputs ?? [])
+      .filter((input) => input.endsWith('/package.json'))
+      .map((input) => input.replace('$TURBO_ROOT$/', ''));
+    const covered = new Set(
+      manifests.flatMap((pattern) =>
+        [
+          ...new Bun.Glob('{apps,libs,pkgs}/*/package.json').scanSync({
+            cwd: ROOT,
+          }),
+        ].filter((path) => new Bun.Glob(pattern).match(path))
+      )
+    );
+    expect(
+      marked.filter((path) => !covered.has(path)),
+      `${task} leaves a game manifest out`
+    ).toEqual([]);
+    expect(
+      [...covered].filter((path) => !marked.includes(path)),
+      `${task} lists a manifest with no game marker`
+    ).toEqual([]);
   }
 });
 

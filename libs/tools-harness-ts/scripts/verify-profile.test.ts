@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { existsSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { NIGHTLY_REPLAY_SCALE } from '@libs/harness-ts/spec-parts';
 import {
@@ -8,6 +8,7 @@ import {
   RELEASE_JOURNEY_PARTS,
   RELEASE_JOURNEY_TASKS,
 } from './turbo-ci-run';
+import { readTurboTasks } from './turbo-config';
 import { CI_RUN_DEADLINE_SECONDS, taskBudgetSeconds } from './verify-budget';
 import {
   failedGroups,
@@ -145,26 +146,13 @@ describe('verification profiles', () => {
   // regression: nightly-package-task-declaration
   // regression: nightly-package-owned-tasks
   test('every nightly suite task is a declared Turbo task', () => {
-    const root = JSON.parse(readFileSync(join(ROOT, 'turbo.json'), 'utf8')) as {
-      tasks: Record<string, unknown>;
-    };
+    const tasks = readTurboTasks(ROOT);
     for (const suite of Object.keys(NIGHTLY_SUITES))
       for (const task of flattenVerifyAggregators(
         [`verify-nightly:${suite}`],
         {}
-      )) {
-        const [pkg, name] = task.split('#') as [string, string];
-        const file = join(ROOT, pkg.slice(1), 'turbo.json');
-        const owner = existsSync(file)
-          ? (JSON.parse(readFileSync(file, 'utf8')) as {
-              tasks: Record<string, unknown>;
-            })
-          : { tasks: {} };
-        expect(
-          Object.hasOwn(root.tasks, task) || Object.hasOwn(owner.tasks, name),
-          task
-        ).toBe(true);
-      }
+      ))
+        expect(Object.hasOwn(tasks, task), task).toBe(true);
   });
 
   test('the local commands name suites as groups', () => {
@@ -389,13 +377,11 @@ test('the release journeys are split into parts that the scripts, turbo and the 
   const product = JSON.parse(
     readFileSync(join(ROOT, 'apps/product-ts/package.json'), 'utf8')
   ) as { scripts: Record<string, string> };
-  const turbo = JSON.parse(readFileSync(join(ROOT, 'turbo.json'), 'utf8')) as {
-    tasks: Record<string, unknown>;
-  };
+  const tasks = readTurboTasks(ROOT);
   expect(RELEASE_JOURNEY_TASKS).toHaveLength(RELEASE_JOURNEY_PARTS);
   for (const [part, task] of RELEASE_JOURNEY_TASKS.entries()) {
     expect(MAIN_VERIFY_TASKS).toContain(task);
-    expect(turbo.tasks[task]).toBeDefined();
+    expect(tasks[task]).toBeDefined();
     expect(product.scripts[`test:release-journeys:${String(part)}`]).toBe(
       `bun run scripts/test-release-journeys.ts --part=${String(part)}/${String(RELEASE_JOURNEY_PARTS)}`
     );
