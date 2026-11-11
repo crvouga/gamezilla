@@ -16,7 +16,13 @@ export function renderBrandMark(identity: ProductIdentity = PRODUCT): string {
         "'": '&apos;',
       })[character] ?? character
   );
-  return `${identity.brand.markSvg.replace('>', `><title>${title}</title>`)}\n`;
+  // The title is the opening <svg> tag's first child, wherever that tag is.
+  const opening = /<svg\b[^>]*>/.exec(identity.brand.markSvg);
+  if (opening === null)
+    throw new Error('Brand mark artwork has no opening <svg> tag');
+  const at = opening.index + opening[0].length;
+  const svg = identity.brand.markSvg;
+  return `${svg.slice(0, at)}<title>${title}</title>${svg.slice(at)}\n`;
 }
 
 /** The host supplies artwork to the product-agnostic design system. */
