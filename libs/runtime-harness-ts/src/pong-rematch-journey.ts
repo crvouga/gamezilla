@@ -1,3 +1,4 @@
+import { pressBackUntilVisible } from '@libs/harness-ts/driver-gestures';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 import { check, JOURNEY_WAIT_MS, tap } from './journey-gestures';
 import { type JourneyHost, journeyDevice } from './journey-types';
@@ -32,16 +33,19 @@ export async function acceptPongRematch(
 }
 
 /**
- * The finished board stays on screen until the rematch replaces it: read
- * the new game only once the finished game's actions give way to its own.
+ * The finished game's result stays on screen until the rematch replaces
+ * it: read the new game only once the result's actions give way to the
+ * rematch's own, Resign among its commands, one press from the court.
  */
 async function rematchShown(ui: Driver): Promise<PongJourneyStart> {
   await ui
     .get('multiplayer-offer-rematch')
     .expect.hidden({ timeoutMs: JOURNEY_WAIT_MS });
+  await tap(ui, 'multiplayer-open-commands');
   await ui
     .get('multiplayer-resign')
     .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
+  await pressBackUntilVisible(ui, 'multiplayer-game', JOURNEY_WAIT_MS);
   return pongJourneyStart(ui);
 }
 

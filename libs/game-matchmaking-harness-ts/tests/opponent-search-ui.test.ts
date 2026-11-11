@@ -3,18 +3,14 @@ import { requestGameOpponent } from '@libs/game-matchmaking-harness-ts/multiplay
 import { withOpponentSearchCleanup } from '@libs/game-matchmaking-harness-ts/opponent-search-cleanup';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import type { OpenHarness } from '@libs/harness-ts/open-harness';
+import { searchHub } from './search-hub-fixture';
 
 test('an immediate assignment completes the ordinary search without requiring a waiting screen', async () => {
-  let requests = 0;
-  const ui = {
-    get: (id: string) => ({
-      tap: async () => {
-        if (id === 'multiplayer-find') requests += 1;
-      },
-      wait: async () => {},
-      isVisible: async () => id === 'multiplayer-game' && requests === 1,
-    }),
-  };
+  const requests = () =>
+    pressed.filter((id) => id === 'multiplayer-find').length;
+  const { ui, pressed } = searchHub(
+    (id) => id === 'multiplayer-game' && requests() === 1
+  );
   const s = {
     actors: new Map([['alice', { ui }]]),
   } as unknown as ProductHarness;
@@ -29,6 +25,11 @@ test('an immediate assignment completes the ordinary search without requiring a 
     },
   } as unknown as OpenHarness);
   await run[Symbol.asyncDispose]();
-  expect(requests).toBe(1);
+  // The clock is chosen on its own place, one row from the hub, then Find.
+  expect(pressed).toEqual([
+    'multiplayer-open-time-control',
+    'multiplayer-time-control-2-1',
+    'multiplayer-find',
+  ]);
   expect(disposed).toBe(1);
 });
