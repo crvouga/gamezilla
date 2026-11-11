@@ -60,14 +60,15 @@ test('storybook integration: three Word Tiles players keep every fact inside its
   await expect(chips.getByText('7 tiles', { exact: true })).toHaveCount(3);
   await expect(chips.getByText('10', { exact: true })).toBeVisible();
   expect(await containedItems(chips, facts)).toEqual([]);
-  // A seated player's table adds `You` to their own seat's facts.
+  // A seated player's own chip says one thing, `You` (their rack is in
+  // view under the seats); the other seats keep their rack counts.
   await openGame(
     page,
     'screens-games-word-tiles-board--three-player-match',
     390
   );
   await expect(chips).toHaveCount(3);
-  await expect(chips.getByText('7 tiles', { exact: true })).toHaveCount(3);
+  await expect(chips.getByText('7 tiles', { exact: true })).toHaveCount(2);
   await expect(chips.getByText('You', { exact: true })).toBeVisible();
   expect(await containedItems(chips, facts)).toEqual([]);
 });

@@ -2,7 +2,7 @@
 import { expect, test } from '@playwright/test';
 
 // On a tablet's one column, the Pong court sat centred, 40px in from the
-// game title above it.
+// game title above it. A phone's court spans the frame instead (#379).
 // regression: board-stage-centred-off-title-edge
 test('storybook integration: pong board starts under the game title on one column', async ({
   page,
@@ -33,6 +33,12 @@ test('storybook integration: pong board starts under the game title on one colum
         .first()
         .boundingBox();
       if (!title || !stage) throw new Error('Missing title or board geometry');
-      expect(Math.abs(stage.x - title.x)).toBeLessThanOrEqual(1);
+      // A phone's game is one fixed view whose board takes the frame's
+      // whole width; on a tablet's one column the court starts under the
+      // title. Never centred somewhere in between.
+      if (viewport.width < 768) {
+        expect(stage.x).toBe(0);
+        expect(stage.width).toBe(viewport.width);
+      } else expect(Math.abs(stage.x - title.x)).toBeLessThanOrEqual(1);
     }
 });
