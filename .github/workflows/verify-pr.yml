@@ -252,16 +252,18 @@ jobs:
         timeout-minutes: ${{ inputs.profile == 'nightly' && 60 || 25 }}
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$VERIFY_CONCURRENCY" bun run libs/tools-harness-ts/scripts/verify-shard-run.ts "$VERIFY_SHARD"
       # Reports are the nightly profile's; the `release` profile keeps none. One
-      # artifact per shard every night, kept for the bucket's week.
+      # artifact per shard every night, kept for the bucket's week. They only
+      # describe the shard, so `--best-effort` warns instead of failing it when
+      # the artifacts bucket is down; the transfers below stay strict.
       - name: Upload queryable trace artifacts
         if: always() && !cancelled() && env.VERIFY_PROFILE == 'nightly'
         run: >-
-          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload observability-traces-"${GITHUB_RUN_ID}-${VERIFY_SHARD}"
+          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts --best-effort upload observability-traces-"${GITHUB_RUN_ID}-${VERIFY_SHARD}"
           'apps/*/.cache/harness-report/*/traces/*.ndjson' 'libs/*/.cache/harness-report/*/traces/*.ndjson' 'pkgs/*/.cache/harness-report/*/traces/*.ndjson'
       - name: Upload turbo run summary
         if: always() && !cancelled() && env.VERIFY_PROFILE == 'nightly'
         run: >-
-          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload turbo-summary-"${GITHUB_RUN_ID}-${VERIFY_SHARD}"
+          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts --best-effort upload turbo-summary-"${GITHUB_RUN_ID}-${VERIFY_SHARD}"
           '.turbo/runs/*.json'
       # Transfer verdicts and the exact cache artifacts consumers need; the
       # nightly profile adds failed reports.
@@ -350,12 +352,12 @@ jobs:
       - name: Upload queryable trace artifacts
         if: always() && !cancelled() && env.VERIFY_PROFILE == 'nightly'
         run: >-
-          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload observability-traces-"${GITHUB_RUN_ID}"-consumers
+          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts --best-effort upload observability-traces-"${GITHUB_RUN_ID}"-consumers
           'apps/*/.cache/harness-report/*/traces/*.ndjson' 'libs/*/.cache/harness-report/*/traces/*.ndjson' 'pkgs/*/.cache/harness-report/*/traces/*.ndjson'
       - name: Upload turbo run summary
         if: always() && !cancelled() && env.VERIFY_PROFILE == 'nightly'
         run: >-
-          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload turbo-summary-"${GITHUB_RUN_ID}"-consumers
+          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts --best-effort upload turbo-summary-"${GITHUB_RUN_ID}"-consumers
           '.turbo/runs/*.json'
       - name: Transfer raw evidence
         if: always() && !cancelled()

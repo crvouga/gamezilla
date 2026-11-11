@@ -9,9 +9,19 @@
  * relative to the deepest directory that holds every searched path, as
  * `actions/upload-artifact` does: one file uploads by its base name, the
  * patterns `apps/*` and `libs/*` keep their `apps/` and `libs/` prefixes.
- * Uploading a name again replaces it.
+ * Uploading a name again replaces it: the new files are written first, then
+ * the keys the new upload no longer has are deleted, so no key is deleted and
+ * rewritten at once (R2 allows one write a second to the same key).
  *
- *   ci-artifacts.ts upload <name> <path or glob>...
+ * A write the bucket throttles (429) or fails (5xx) is retried after a pause:
+ * both responses ask the client to back off and try again, and a whole-object
+ * PUT is idempotent.
+ *
+ * `--best-effort` (before the command) marks an upload as diagnostic: when the
+ * bucket cannot take it, the step warns and passes, because an outage of the
+ * artifacts bucket must not fail the verification the files only describe.
+ *
+ *   ci-artifacts.ts [--best-effort] upload <name> <path or glob>...
  *   ci-artifacts.ts download <name> <directory>
  *   ci-artifacts.ts download-all <name prefix> <directory>   (one subdirectory per artifact)
  *   ci-artifacts.ts delete <name prefix>
@@ -29,6 +39,8 @@ import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 export const CI_ARTIFACTS_ROOT = 'runs';
 
 const CONCURRENCY = 16;
+/** Pauses before each retried PUT; at least a second, R2's per-key write rate. */
+export const PUT_RETRY_DELAYS_MS: readonly number[] = [1_000, 4_000];
 const GLOB_CHARS = /[*?[\]{}]/;
 
 export function ciArtifactsStore(
@@ -161,26 +173,70 @@ async function eachLimited<T>(
     throw new AggregateError(failures, 'CI artifact transfer failed');
 }
 
+function httpStatus(error: unknown): number | undefined {
+  if (error === null || typeof error !== 'object' || !('$metadata' in error))
+    return undefined;
+  const metadata = error.$metadata;
+  if (
+    metadata === null ||
+    typeof metadata !== 'object' ||
+    !('httpStatusCode' in metadata) ||
+    typeof metadata.httpStatusCode !== 'number'
+  )
+    return undefined;
+  return metadata.httpStatusCode;
+}
+
+/** The bucket throttled the write (429) or failed it (5xx) and asks for a retry. */
+export function isRetryableWrite(error: unknown): boolean {
+  const status = httpStatus(error);
+  return status !== undefined && (status === 429 || status >= 500);
+}
+
+async function putWithBackoff(
+  store: ObjectStore,
+  key: string,
+  bytes: Uint8Array,
+  sleep: (ms: number) => Promise<void>
+): Promise<void> {
+  for (let attempt = 0; ; attempt += 1) {
+    try {
+      await store.put(key, bytes, 'application/octet-stream');
+      return;
+    } catch (error) {
+      const delay = PUT_RETRY_DELAYS_MS[attempt];
+      if (delay === undefined || !isRetryableWrite(error)) throw error;
+      await sleep(delay);
+    }
+  }
+}
+
 export async function uploadArtifact(args: {
   readonly store: ObjectStore;
   readonly runId: string;
   readonly name: string;
   readonly root: string;
   readonly files: readonly string[];
+  readonly sleep?: (ms: number) => Promise<void>;
 }): Promise<number> {
   const { store, runId, name, root, files } = args;
+  const sleep = args.sleep ?? ((ms: number) => Bun.sleep(ms));
   const prefix = artifactPrefix(runId, name);
-  await store.deleteMany(await store.listKeys(prefix));
-  await eachLimited(files, async (file) => {
+  const keys = files.map((file) => {
     const key = slashPath(relative(root, file));
     if (!key || key.startsWith('../') || isAbsolute(key))
       throw new Error(`${file} is outside the artifact root ${root}`);
-    await store.put(
-      `${prefix}${key}`,
-      readFileSync(file),
-      'application/octet-stream'
-    );
+    return `${prefix}${key}`;
   });
+  const previous = await store.listKeys(prefix);
+  await eachLimited(
+    files.map((file, index) => ({ file, key: keys[index]! })),
+    ({ file, key }) => putWithBackoff(store, key, readFileSync(file), sleep)
+  );
+  // Only after every write: deleting a key and writing it again at once is
+  // what R2 throttles, and a failed upload keeps the previous files.
+  const current = new Set(keys);
+  await store.deleteMany(previous.filter((key) => !current.has(key)));
   return files.length;
 }
 
@@ -236,11 +292,19 @@ export async function deleteArtifacts(args: {
 async function main(argv: readonly string[]): Promise<void> {
   let args = [...argv];
   let runId = process.env['GITHUB_RUN_ID'] ?? '';
-  if (args[0] === '--run') {
-    runId = args[1] ?? '';
-    args = args.slice(2);
+  let bestEffort = false;
+  for (;;) {
+    if (args[0] === '--run') {
+      runId = args[1] ?? '';
+      args = args.slice(2);
+    } else if (args[0] === '--best-effort') {
+      bestEffort = true;
+      args = args.slice(1);
+    } else break;
   }
   const [command, target, ...rest] = args;
+  if (bestEffort && command !== 'upload')
+    throw new Error('--best-effort applies only to upload');
   const store = ciArtifactsStore(process.env);
   if (command === 'upload' && target && rest.length) {
     const { root, files } = collectFiles(process.cwd(), rest);
@@ -248,14 +312,22 @@ async function main(argv: readonly string[]): Promise<void> {
       console.log(`No files for CI artifact ${target}; nothing uploaded.`);
       return;
     }
-    const count = await uploadArtifact({
-      store,
-      runId,
-      name: target,
-      root,
-      files,
-    });
-    console.log(`Uploaded ${count} files as CI artifact ${target}`);
+    try {
+      const count = await uploadArtifact({
+        store,
+        runId,
+        name: target,
+        root,
+        files,
+      });
+      console.log(`Uploaded ${count} files as CI artifact ${target}`);
+    } catch (error) {
+      if (!bestEffort) throw error;
+      console.error(error);
+      console.log(
+        `::warning title=CI artifact not uploaded::${target} (${files.length} files) could not be uploaded to the CI artifacts bucket; this diagnostic upload does not decide the verification. ${String(error)}`
+      );
+    }
   } else if (command === 'download' && target && rest.length === 1) {
     const count = await downloadArtifact({
       store,
@@ -282,7 +354,7 @@ async function main(argv: readonly string[]): Promise<void> {
     console.log(`Deleted ${count} objects of ${target}* CI artifacts`);
   } else {
     throw new Error(
-      'usage: ci-artifacts.ts [--run <id>] upload <name> <path>... | download <name> <dir> | download-all <prefix> <dir> | delete <prefix>'
+      'usage: ci-artifacts.ts [--run <id>] [--best-effort] upload <name> <path>... | download <name> <dir> | download-all <prefix> <dir> | delete <prefix>'
     );
   }
 }
