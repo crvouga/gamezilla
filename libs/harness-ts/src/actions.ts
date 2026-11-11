@@ -35,8 +35,16 @@ export const restartApp = defineAction({
   name: 'restartApp',
   pool: false,
   act: async (s: ProductHarness, id: string) => {
+    // The in-process app reopens where it was (its saved route); a browser
+    // tab reopens on its address the same way.
+    const browser = productExtra(s).ui.kind === 'bun-webview';
+    const path = browser ? await s.actors.get(id)?.currentPath() : undefined;
     await s.runtime.restartActor(id);
     await ensureActor(s, id);
+    if (path !== undefined && path !== '/') {
+      await s.actors.get(id)?.openLink(path);
+      await s.session.waitForIdle();
+    }
   },
 });
 
