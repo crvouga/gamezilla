@@ -11419,6 +11419,11 @@
                           "specs/developer-tools/checkpoints.feature",
                           "specs/developer-tools/test-world-views.feature",
                           "specs/developer-tools/ubiquitous-language.yml",
+                          "specs/observatory/observatory-access.dmn",
+                          "specs/observatory/online-now.feature",
+                          "specs/observatory/ubiquitous-language.yml",
+                          "specs/observatory/user-observatory.qnt",
+                          "specs/observatory/watching-live.feature",
                           "specs/synthetic-population/choose-a-game.feature",
                           "specs/synthetic-population/choose-a-game.qnt",
                           "specs/synthetic-population/control-panel.feature",
@@ -11429,8 +11434,6 @@
                           "specs/synthetic-population/finding-opponents.qnt",
                           "specs/synthetic-population/human-like-play.feature",
                           "specs/synthetic-population/human-like-play.qnt",
-                          "specs/synthetic-population/live-observatory.feature",
-                          "specs/synthetic-population/live-observatory.qnt",
                           "specs/synthetic-population/observatory.feature",
                           "specs/synthetic-population/recognizing-synthetic-users.feature",
                           "specs/synthetic-population/synthetic-population-access.dmn",
@@ -11449,11 +11452,12 @@
                         ],
                         "events": [],
                         "routes": [
-                          "/admin/synthetic-population",
-                          "/admin/synthetic-population/config",
-                          "/admin/synthetic-population/control",
-                          "/admin/synthetic-population/live/:sessionId",
-                          "/admin/synthetic-population/users/:id"
+                          "/admin/observatory",
+                          "/admin/observatory/live/:sessionId",
+                          "/admin/observatory/synthetic-users",
+                          "/admin/observatory/synthetic-users/:id",
+                          "/admin/observatory/synthetic-users/config",
+                          "/admin/observatory/synthetic-users/control"
                         ]
                       },
                       "initial": "Test Worlds: Selected device",
