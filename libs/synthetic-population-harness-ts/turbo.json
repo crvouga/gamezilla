@@ -1,8 +1,6 @@
 {
   "$schema": "https://turborepo.com/schema.json",
-  "extends": [
-    "//"
-  ],
+  "extends": ["//"],
   "tasks": {
     "verify:models": {
       "inputs": [
@@ -11,9 +9,7 @@
       ]
     },
     "test:spec:0": {
-      "inputs": [
-        "$TURBO_EXTENDS$"
-      ]
+      "inputs": ["$TURBO_EXTENDS$"]
     },
     "src": {
       "dependsOn": [
