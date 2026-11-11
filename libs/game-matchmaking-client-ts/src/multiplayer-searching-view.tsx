@@ -26,6 +26,8 @@ export function MultiplayerSearchingView(
     readonly title: string;
     /** How the game is won, in one sentence, where the game says. */
     readonly goal?: string | undefined;
+    /** The game's board at its start: the mode card's picture. */
+    readonly boardPreview?: JSX.Element;
     readonly search: MultiplayerSearchView;
     readonly onStop: () => Promise<void>;
   }
@@ -46,6 +48,7 @@ export function MultiplayerSearchingView(
         eyebrow={<Trans>Ranked match</Trans>}
         title={props.title}
         summary={props.goal}
+        art={props.boardPreview}
         facts={[
           {
             id: 'players',

@@ -27,8 +27,8 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 const TIMED = {
-  title: 'Chess',
-  goal: "Checkmate your opponent's king.",
+  title: 'Connect Four',
+  goal: 'Drop discs in turn. Four of yours in a row wins.',
   find: { players: 2, timed: true, timeControl: '5+0' },
   ratings: SPEED_RATINGS,
 } as const;

@@ -83,7 +83,7 @@ function VersusCard(
       mark={<Trans>VS</Trans>}
       count={props.count}
       countLabel={<Trans>Starts in</Trans>}
-      skipLabel={<Trans>Skip</Trans>}
+      skipLabel={<Trans>Start now</Trans>}
       aria-label={t`Opponent found. The game is starting.`}
       onSkip={() => props.onOverlay({ type: 'skip' })}
       dataSet={{ testid: 'multiplayer-versus', count: String(props.count) }}

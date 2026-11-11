@@ -118,7 +118,7 @@ describe('the play place', () => {
     expect(versus.getAttribute('data-count')).toBe('2');
     expect(versus.textContent).toContain('avery');
     expect(versus.textContent).toContain('jordan');
-    fireEvent.click(within(versus).getByRole('button', { name: 'Skip' }));
+    fireEvent.click(within(versus).getByRole('button', { name: 'Start now' }));
     expect(sent).toEqual([{ type: 'skip' }]);
   });
 

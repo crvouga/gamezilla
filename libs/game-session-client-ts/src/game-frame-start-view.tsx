@@ -35,6 +35,7 @@ export function FrameStartPlace(props: FramePlaceProps): JSX.Element {
             Anyone in this space can watch.
           </Trans>
         }
+        art={props.boardPreview}
         dataSet={{ testid: 'custom-game-mode' }}
       />
       <Show

@@ -164,7 +164,7 @@ export const FourSeats: Story = {
     status: status({
       lineup:
         'Red circle: avery. Yellow diamond: jordan_plays. Third seat: morgan. Fourth seat: Bot.',
-      description: 'Every side chooses in secret: 2 of 4 have chosen.',
+      description: 'Secret choices: 2 of 4 made.',
     }),
     table: {
       shape: 'rail',
@@ -176,7 +176,7 @@ export const FourSeats: Story = {
         }),
         playSeat(seat('red', person('morgan'), 'morgan'), {
           committed: true,
-          state: { kind: 'reconnecting', label: 'Reconnecting' },
+          state: { kind: 'reconnecting', label: 'Away' },
         }),
         playSeat(seat('blue', { kind: 'bot' }, 'Bot'), {
           choosing: true,
@@ -208,7 +208,7 @@ export const OpponentAway: Story = {
       near: playSeat(AVERY, { deciding: true }),
       others: [
         playSeat(JORDAN, {
-          state: { kind: 'reconnecting', label: 'Reconnecting' },
+          state: { kind: 'reconnecting', label: 'Away' },
         }),
       ],
     },

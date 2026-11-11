@@ -356,10 +356,12 @@ function LobbyMode(props: Props & { readonly setup: FrameSetup }): JSX.Element {
       id: 'clock',
       label: <Trans>Clock</Trans>,
       value: (
-        <FrameClockWords
-          minutes={props.status?.minutes ?? 0}
-          increment={props.status?.increment ?? 0}
-        />
+        <Show
+          when={(props.status?.minutes ?? 0) > 0}
+          fallback={<Trans>Untimed</Trans>}
+        >
+          {props.status?.minutes}+{props.status?.increment ?? 0}
+        </Show>
       ),
     },
     {
@@ -375,6 +377,7 @@ function LobbyMode(props: Props & { readonly setup: FrameSetup }): JSX.Element {
       title={props.title}
       summary={props.goal}
       facts={facts()}
+      art={props.boardPreview}
       dataSet={{ testid: 'custom-game-mode' }}
     />
   );

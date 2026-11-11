@@ -9,6 +9,7 @@ import {
 import { useTimers } from '@pkgs/clock-client-ts/solid';
 import type { Decision } from '@pkgs/permissions-shared-ts/decision';
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
+import { GamePreviewBoard } from '@pkgs/turn-game-client-ts/game-preview-board';
 import { useGameGoal } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { useStageOverlay } from '@pkgs/turn-game-client-ts/use-stage-overlay';
 import { type JSX, Show } from 'solid-js';
@@ -47,6 +48,8 @@ type ScreenProps = {
   readonly data: ReturnType<typeof useMultiplayerData>;
   readonly controls: ReturnType<typeof useMultiplayerControls>;
   readonly view: OwnBoard;
+  /** The game's board at its start: the picture of what is searched for. */
+  readonly boardPreview: JSX.Element;
   /** Leaves finding an opponent for the game's choices. */
   readonly onLeave: () => void;
 };
@@ -223,6 +226,7 @@ function MultiplayerContent(props: ScreenProps): JSX.Element {
       <MultiplayerScreenView
         title={props.title}
         goal={screen.goal()}
+        boardPreview={props.boardPreview}
         stage={screen.stage()}
         place={nav.place()}
         onOpen={nav.open}
@@ -288,6 +292,12 @@ export default function MultiplayerScreen(props: {
       data={data}
       controls={controls}
       view={view}
+      boardPreview={
+        <GamePreviewBoard
+          gameId={props.gameId}
+          testId="multiplayer-board-preview"
+        />
+      }
       onLeave={props.onBack}
     />
   );

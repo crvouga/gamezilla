@@ -202,7 +202,7 @@ describe('play holds the board and one way to the commands', () => {
     view.time.clock.advance(1000);
     expect(view.overlay()).toEqual({ kind: 'versus', count: 2 });
     within(screen.getByTestId('multiplayer-versus'))
-      .getByRole('button', { name: 'Skip' })
+      .getByRole('button', { name: 'Start now' })
       .click();
     expect(view.overlay()).toEqual({ kind: 'none' });
     expect(ids('multiplayer-versus')).toEqual([]);

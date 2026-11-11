@@ -17,6 +17,7 @@ import {
 import { Trans } from '@lingui/solid/macro';
 import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { useGameSideLabel } from '@pkgs/turn-game-client-ts/use-game-side-label';
+import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { GameCountdown } from '@pkgs/ui-root-client-ts/game-countdown';
 import type {
   GameTurnPillEmphasis,
@@ -77,19 +78,31 @@ function PlayerResult(props: StatusProps): JSX.Element {
   return (
     <Switch>
       <Match when={props.game.outcome === 'aborted'}>
-        <Trans>The multiplayer game was aborted.</Trans>
+        <Trans>
+          The <VisuallyHidden>multiplayer </VisuallyHidden>game was aborted.
+        </Trans>
       </Match>
       <Match when={props.game.outcome === 'draw'}>
-        <Trans>The multiplayer game is drawn.</Trans>
+        <Trans>
+          The <VisuallyHidden>multiplayer </VisuallyHidden>game is drawn.
+        </Trans>
       </Match>
       <Match when={won()}>
-        <Trans>You won the multiplayer game.</Trans>
+        <Trans>
+          You won<VisuallyHidden> the multiplayer game</VisuallyHidden>.
+        </Trans>
       </Match>
       <Match when={multiplayerSides(props.game).length > 2}>
-        <Trans>{props.winnerName} won the multiplayer game.</Trans>
+        <Trans>
+          {props.winnerName} won
+          <VisuallyHidden> the multiplayer game</VisuallyHidden>.
+        </Trans>
       </Match>
       <Match when={!won()}>
-        <Trans>Your opponent won the multiplayer game.</Trans>
+        <Trans>
+          Your opponent won
+          <VisuallyHidden> the multiplayer game</VisuallyHidden>.
+        </Trans>
       </Match>
     </Switch>
   );
@@ -307,12 +320,24 @@ function RatingChange(props: StatusProps): JSX.Element {
   const diff = () => props.game[`${ownSide(props)}_rating_diff`] ?? null;
   return (
     <Show when={props.viewer.participant && diff() !== null}>
-      <Text variant="inherit" testId="multiplayer-rating-change">
-        <Trans>
-          Your rating changed by {(diff() ?? 0) > 0 ? '+' : ''}
-          {diff() ?? 0}.
-        </Trans>
-      </Text>
+      <Badge
+        intent={
+          (diff() ?? 0) > 0
+            ? 'success'
+            : (diff() ?? 0) < 0
+              ? 'destructive'
+              : 'neutral'
+        }
+        label={
+          <Trans>
+            <VisuallyHidden>Your rating changed by </VisuallyHidden>
+            {(diff() ?? 0) > 0 ? '+' : ''}
+            {diff() ?? 0}
+            <VisuallyHidden>.</VisuallyHidden>
+          </Trans>
+        }
+        dataSet={{ testid: 'multiplayer-rating-change' }}
+      />
     </Show>
   );
 }

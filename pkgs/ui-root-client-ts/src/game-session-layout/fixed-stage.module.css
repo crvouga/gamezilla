@@ -176,6 +176,10 @@
     background: transparent;
     overflow: hidden;
   }
+  /* Before the first move the record's one line keeps the page's inset. */
+  .fixed [data-game-slot="rail"] > section > p {
+    padding-inline-start: var(--ui-space-3);
+  }
   .fixed [data-game-slot="rail"] > section > [data-section-part],
   .fixed
     [data-game-slot="rail"]

@@ -200,11 +200,11 @@
     overflow: auto hidden;
     scrollbar-width: none;
     /* Earlier turns fade out at the leading edge: none is cut mid-glyph. */
-    padding-inline-start: var(--ui-space-5);
+    padding-inline-start: var(--ui-space-8);
     mask-image: linear-gradient(
       to right,
       transparent 0,
-      var(--ui-color-text) var(--ui-space-5)
+      var(--ui-color-text) var(--ui-space-10)
     );
   }
   [data-game-fixed="true"]

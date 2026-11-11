@@ -98,7 +98,7 @@ function seatState(
   if (out) return { kind: 'out', label: t`Out` };
   return participant.kind === 'person' &&
     model.awaySince(participant.person) !== null
-    ? { kind: 'reconnecting', label: t`Reconnecting` }
+    ? { kind: 'reconnecting', label: t`Away` }
     : null;
 }
 

@@ -28,6 +28,12 @@ export type GameModeCardProps = {
   summary?: JSX.Element | undefined;
   /** What is agreed, at a glance: up to three tiles in one row. */
   facts?: readonly GameModeFact[] | undefined;
+  /**
+   * The game's own board at its start, as the card's picture: it shows what
+   * is played and takes nothing pressed. A phone gives it the room the
+   * lobby has to spare; a long roster leaves it out.
+   */
+  art?: JSX.Element | undefined;
   dataSet?: ComponentDataSet | undefined;
 };
 
@@ -49,11 +55,18 @@ export type GameModeCardProps = {
  */
 export function GameModeCard(props: GameModeCardProps): JSX.Element {
   const summary = createScreenSlot(() => props.summary);
+  const art = createScreenSlot(() => props.art);
   return (
     <header
       class={styles['mode']}
+      data-art={art.present() ? 'true' : 'false'}
       {...dataAttrs({ component: 'GameModeCard', ...props.dataSet })}
     >
+      <Show when={art.present()}>
+        <div class={styles['modeArt']} aria-hidden="true" inert>
+          <div class={styles['modeArtBoard']}>{art.content()}</div>
+        </div>
+      </Show>
       <div class={styles['modeWords']}>
         <p class={`text textCaption ${styles['eyebrow']}`}>{props.eyebrow}</p>
         <h1 class="text textTitle min-w-0 max-w-full break-words">

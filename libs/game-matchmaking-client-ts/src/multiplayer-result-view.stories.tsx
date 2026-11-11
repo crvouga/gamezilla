@@ -1,3 +1,4 @@
+import { Badge, type BadgeIntent } from '@pkgs/ui-root-client-ts/badge';
 import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { MultiplayerScreenView } from './multiplayer-screen-view';
@@ -8,10 +9,19 @@ import {
   storyArgs,
 } from './multiplayer-screen-view.example';
 
+/** The reason and the rating change, as the result card lays them out. */
+function caption(reason: string, intent: BadgeIntent, change: string) {
+  return (
+    <>
+      {reason} <Badge intent={intent} label={change} />
+    </>
+  );
+}
+
 const WON = {
   tone: 'won',
-  title: 'You won the multiplayer game.',
-  caption: 'By resignation. Your rating changed by +8.',
+  title: 'You won.',
+  caption: caption('By resignation.', 'success', '+8'),
 } as const;
 
 const meta = {
@@ -40,9 +50,12 @@ export const RematchOffered: Story = {
   render: renderStory({
     result: {
       tone: 'lost',
-      title: 'Your opponent won the multiplayer game.',
-      caption:
-        'By resignation. Bob offered you a multiplayer rematch. Your rating changed by -8.',
+      title: 'Your opponent won.',
+      caption: caption(
+        'By resignation. Bob offered you a multiplayer rematch.',
+        'destructive',
+        '-8'
+      ),
     },
   }),
   args: { game: { ...STORY_FINISHED_GAME, rematch: 'answer' } },
@@ -53,8 +66,8 @@ export const Drawn: Story = {
   render: renderStory({
     result: {
       tone: 'drawn',
-      title: 'The multiplayer game was drawn.',
-      caption: 'By agreement. Your rating changed by +0.',
+      title: 'The game is drawn.',
+      caption: caption('Drawn by agreement.', 'neutral', '0'),
     },
   }),
 };
@@ -65,7 +78,7 @@ export const Aborted: Story = {
     result: {
       tone: 'neutral',
       aborted: true,
-      title: 'The multiplayer game was aborted.',
+      title: 'The game was aborted.',
       caption: "The first move wasn't made in time.",
     },
   }),

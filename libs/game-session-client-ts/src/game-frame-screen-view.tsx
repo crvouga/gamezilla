@@ -77,6 +77,11 @@ export type GameFrameScreenData = FrameReviewHandlers & {
   readonly record: FrameRecord | null;
   /** The game's own board and its controls; the only part the game draws. */
   readonly board?: JSX.Element;
+  /**
+   * The game's own board at its start, with nothing to press: the picture
+   * on the mode card before and while a game is set up.
+   */
+  readonly boardPreview?: JSX.Element;
   /** The game's own private setup board, while the viewer arranges theirs. */
   readonly setupBoard?: JSX.Element;
   /** Public render state on the board stage, for automated observers. */

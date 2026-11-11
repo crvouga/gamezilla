@@ -95,7 +95,7 @@ function FrameVersusOverlay(
       mark={<Trans>VS</Trans>}
       count={props.count}
       countLabel={<Trans>Starts in</Trans>}
-      skipLabel={<Trans>Skip</Trans>}
+      skipLabel={<Trans>Start now</Trans>}
       aria-label={
         props.status === null
           ? t`The game is starting.`

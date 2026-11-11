@@ -46,6 +46,11 @@ export type MultiplayerScreenViewProps = {
   readonly title: string;
   /** How the game is won, in one sentence, where the game says. */
   readonly goal?: string | undefined;
+  /**
+   * The game's own board at its start, with nothing to press: the picture
+   * on the mode card before and during a search.
+   */
+  readonly boardPreview?: JSX.Element;
   /** Where the search and the game stand; see `multiplayerStageOf`. */
   readonly stage: MultiplayerStage;
   /** The small screen this device shows within the stage. */
@@ -180,6 +185,7 @@ function FindPlace(props: Props): JSX.Element {
       {...frameOf(props)}
       title={props.title}
       goal={props.goal}
+      boardPreview={props.boardPreview}
       find={props.find}
       ratings={props.ratings}
       onOpen={props.onOpen}
@@ -211,6 +217,7 @@ function SearchingPlace(props: Props): JSX.Element {
           {...frameOf(props)}
           title={props.title}
           goal={props.goal}
+          boardPreview={props.boardPreview}
           search={search()}
           onStop={props.onStop}
         />

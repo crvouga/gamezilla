@@ -42,6 +42,8 @@ type FindProps = MultiplayerPlaceFrame & {
   readonly title: string;
   /** How the game is won, in one sentence, where the game says. */
   readonly goal?: string | undefined;
+  /** The game's board at its start: the mode card's picture. */
+  readonly boardPreview?: JSX.Element;
   readonly find: MultiplayerFindChoice;
   readonly ratings: readonly MultiplayerRatingView[];
   readonly onOpen: (place: MultiplayerPlace) => void;
@@ -207,6 +209,7 @@ export function MultiplayerFindView(props: FindProps): JSX.Element {
         title={props.title}
         summary={props.goal}
         facts={conditions(props.find)}
+        art={props.boardPreview}
         dataSet={{ testid: 'multiplayer-find-conditions' }}
       />
       <Show when={props.find.players > 2}>

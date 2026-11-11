@@ -162,7 +162,7 @@ function Onward(props: ResultProps): JSX.Element {
         <Button
           title={<Trans>Game options</Trans>}
           aria-label={t`New game: choose what to play for next`}
-          variant="outline"
+          variant="ghost"
           intent="neutral"
           size="sm"
           onClick={() => props.onOpen({ screen: 'find' })}
@@ -171,7 +171,7 @@ function Onward(props: ResultProps): JSX.Element {
       </Show>
       <Button
         title={<Trans>Your ratings</Trans>}
-        variant="outline"
+        variant="ghost"
         intent="neutral"
         size="sm"
         onClick={() => props.onOpen({ screen: 'ratings', from: 'result' })}
