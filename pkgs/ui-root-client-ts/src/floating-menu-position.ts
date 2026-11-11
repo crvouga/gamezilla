@@ -14,7 +14,11 @@ export type FloatingMenuViewport = {
   height: number;
 };
 
-/** Placement is authoritative — no auto-flip. */
+/**
+ * The preferred side and alignment. The menu keeps its side unless the
+ * panel does not fit there and does fit on the other side: then it flips,
+ * so a menu never covers the control that opened it.
+ */
 export type FloatingMenuPlacement =
   | 'bottom-end'
   | 'bottom-start'
@@ -37,8 +41,26 @@ export type ComputeFloatingMenuPositionOptions = {
 export type FloatingMenuPosition = { top: number; left: number };
 
 /**
- * Absolute top/left for a menu panel from a static placement prop.
- * Clamps inside the viewport; does not flip when space is short.
+ * Whether the panel opens below its anchor: the preferred side when it fits
+ * there or fits on neither side, else the other side.
+ */
+function opensBelow(
+  opts: ComputeFloatingMenuPositionOptions,
+  preferBelow: boolean,
+  gap: number
+): boolean {
+  const { anchor, menuHeight, insets, viewport } = opts;
+  const fitsBelow =
+    anchor.y + anchor.height + gap + menuHeight <=
+    viewport.height - insets.bottom - EDGE_MARGIN;
+  const fitsAbove = anchor.y - gap - menuHeight >= insets.top + EDGE_MARGIN;
+  return preferBelow ? fitsBelow || !fitsAbove : !fitsAbove && fitsBelow;
+}
+
+/**
+ * Absolute top/left for a menu panel from its placement: on the preferred
+ * side, flipped to the other side when only that one fits, then clamped
+ * inside the viewport.
  */
 export function computeFloatingMenuPosition(
   opts: ComputeFloatingMenuPositionOptions
@@ -46,7 +68,7 @@ export function computeFloatingMenuPosition(
   const { anchor, menuHeight, menuWidth, insets, viewport } = opts;
   const gap = opts.gap ?? DEFAULT_GAP;
   const placement = opts.placement ?? 'bottom-end';
-  const below = placement.startsWith('bottom');
+  const below = opensBelow(opts, placement.startsWith('bottom'), gap);
   const alignEnd = placement.endsWith('end');
 
   let top = below

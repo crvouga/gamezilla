@@ -12,7 +12,7 @@ import { GAME_PUZZLE_SUB } from '@libs/game-puzzle-shared-ts/sub';
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { actorLocalSql } from '@libs/harness-ts/identity';
-import { openSettings, spaceBarShown } from '@libs/harness-ts/shell-actions';
+import { spaceBarShown } from '@libs/harness-ts/shell-actions';
 import { writeServerFixture } from '@libs/harness-ts/write-server-fixture';
 import {
   ownSpaceCard,
@@ -100,23 +100,6 @@ export const showGamePuzzleStats = scenarioAction({
         (await stepTowardStats(s, actorId, gameId, entered)) ? true : null,
       { maxMs: WAIT_MS * 2, stepMs: POLL_MS, description: 'the puzzle stats' }
     );
-  },
-});
-
-/**
- * The game's puzzle stats outside any space, from Settings: a person's own,
- * whoever hosts the space they are in and whether it is reachable.
- */
-export const showPersonalPuzzleStats = scenarioAction({
-  name: 'showPersonalPuzzleStats',
-  act: async (s, actorId: string, gameId: string) => {
-    const ui = await actorUi(s, actorId);
-    if (await ui.get(Handles.chessStatsElo).isVisible()) return;
-    await Promise.resolve(openSettings.act(s, actorId));
-    await ui
-      .get(Handles.settingsPuzzleStats(gameId))
-      .tap({ timeoutMs: WAIT_MS });
-    await ui.get(Handles.chessStatsElo).expect.visible({ timeoutMs: WAIT_MS });
   },
 });
 
@@ -486,7 +469,6 @@ export async function readCataloguePuzzles(
 
 export const PUZZLE_RECORD_ACTIONS = [
   showGamePuzzleStats,
-  showPersonalPuzzleStats,
   leaveGamePuzzleStats,
   openPuzzleReviewFromLog,
   useReviewControl,

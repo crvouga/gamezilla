@@ -6,42 +6,45 @@
  * translatable text never reruns it. A package that starts using a macro
  * without being listed would ship hashed ids in production; every package's
  * `lint` verifies its own files against this list (`lint-package.ts`), and
- * `turbo.json`'s `@libs/tools-harness-ts#ci:i18n` inputs are kept equal to it by a test.
+ * the inputs of `turbo.json`'s `//#task:i18n:compile` (which extracts the
+ * catalog) and `@libs/tools-harness-ts#ci:i18n` are kept equal to it by a test.
+ * Keep it sorted (a test enforces it): new packages then land in different
+ * places instead of all appending to the same line.
  */
 export const LINGUI_CATALOG_SOURCES = [
   'libs/account-privacy-client-ts/src',
-  'libs/app-root-client-ts/src',
-  'libs/app-env-client-ts/src',
   'libs/app-config-client-ts/src',
+  'libs/app-env-client-ts/src',
+  'libs/app-root-client-ts/src',
   'libs/auth-client-ts/src',
-  'libs/billing-client-ts/src',
-  'libs/chess-root-client-ts/src',
-  'libs/connect-four-client-ts/src',
-  'libs/quoridor-client-ts/src',
-  'libs/word-tiles-client-ts/src',
   'libs/battleship-client-ts/src',
-  'libs/hearts-client-ts/src',
-  'libs/numberlink-client-ts/src',
-  'libs/sokoban-client-ts/src',
-  'libs/pong-client-ts/src',
-  'libs/light-cycles-client-ts/src',
-  'libs/game-menu-client-ts/src',
-  'libs/game-session-client-ts/src',
-  'libs/game-matchmaking-client-ts/src',
+  'libs/billing-client-ts/src',
   'libs/chess-puzzle-client-ts/src',
-  'libs/game-puzzle-client-ts/src',
+  'libs/chess-root-client-ts/src',
   'libs/chess-shared-client-ts/src',
+  'libs/connect-four-client-ts/src',
   'libs/friends-client-ts/src',
+  'libs/game-matchmaking-client-ts/src',
+  'libs/game-menu-client-ts/src',
+  'libs/game-puzzle-client-ts/src',
+  'libs/game-session-client-ts/src',
+  'libs/hearts-client-ts/src',
+  'libs/light-cycles-client-ts/src',
   'libs/notifications-client-ts/src',
-  'libs/permissions-client-ts/src',
+  'libs/numberlink-client-ts/src',
   'libs/observatory-client-ts/src',
-  'libs/synthetic-population-client-ts/src',
+  'libs/permissions-client-ts/src',
+  'libs/pong-client-ts/src',
   'libs/profile-client-ts/src',
+  'libs/quoridor-client-ts/src',
   'libs/search-client-ts/src',
+  'libs/sokoban-client-ts/src',
   'libs/spaces-client-ts/src',
+  'libs/synthetic-population-client-ts/src',
+  'libs/word-tiles-client-ts/src',
   'pkgs/chess-board-root-client-ts/src',
-  'pkgs/ui-root-client-ts/src',
   'pkgs/ui-devtools-client-ts/src',
+  'pkgs/ui-root-client-ts/src',
 ] as const;
 
 /** A Lingui macro import: the only thing the extractor reads. */

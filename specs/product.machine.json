@@ -8624,8 +8624,7 @@
                           "specs/games/puzzle-stats-summary.feature:9",
                           "specs/games/puzzle-stats.feature:11"
                         ],
-                        "events": [],
-                        "routes": ["/more/:id-stats"]
+                        "events": []
                       },
                       "on": {
                         "Opens a recorded puzzle attempt": {
@@ -13834,8 +13833,7 @@
                       "specs/chess/puzzle-loading-choices.qnt",
                       "specs/chess/puzzle-management-access.dmn"
                     ],
-                    "events": [],
-                    "routes": ["/more/puzzles"]
+                    "events": []
                   },
                   "states": {
                     "Puzzle loading: Checking access": {

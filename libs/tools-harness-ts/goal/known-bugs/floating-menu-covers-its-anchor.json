@@ -1,0 +1,4 @@
+{
+  "summary": "A floating menu asked to open below an anchor at the foot of the screen (the wide sidebar's account menu) was clamped back up over the control that opened it, because placement never flipped. It now opens on the other side when only that side fits, and the sidebar's account menu asks to open above.",
+  "regressionTest": "pkgs/ui-root-client-ts/tests/floating-menu-logic.test.ts"
+}

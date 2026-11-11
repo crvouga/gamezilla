@@ -124,7 +124,7 @@
     "task:git-sync": "bun run libs/tools-harness-ts/scripts/git-sync.ts",
     "task:graphify:install": "bun run libs/tools-harness-ts/scripts/graphify-install.ts",
     "task:health": "bun run libs/tools-harness-ts/scripts/workflow-remote.ts health",
-    "task:i18n:compile": "lingui compile --typescript --strict && bun run libs/tools-harness-ts/scripts/ensure-trailing-newline.ts libs/app-root-shared-ts/locales/en/messages.ts",
+    "task:i18n:compile": "lingui extract --clean --overwrite --workers 1 && lingui compile --typescript --strict && bun run libs/tools-harness-ts/scripts/ensure-trailing-newline.ts libs/app-root-shared-ts/locales/en/messages.ts",
     "task:i18n:extract": "lingui extract --clean --overwrite",
     "task:infra:destroy": "bun run libs/infra-server-ts/scripts/destroy-env.ts",
     "task:inspect": "bun run libs/infra-server-ts/scripts/inspect.ts",

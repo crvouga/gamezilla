@@ -221,10 +221,14 @@ export function AppHeaderGlobalMenuView(
     const shown = name();
     return shown === null ? t`Account menu` : t`${shown}, account menu`;
   };
+  // The sidebar's foot opens upward, from the trigger's left edge; the top
+  // bars open downward, from their right edge.
+  const placement = (): 'top-start' | 'bottom-end' =>
+    props.showName === true ? 'top-start' : 'bottom-end';
   return (
     <OverflowMenuButton
-      placement="bottom-end"
-      tooltipPlacement="bottom-end"
+      placement={placement()}
+      tooltipPlacement={placement()}
       actions={actions()}
       header={header()}
       trigger={trigger()}

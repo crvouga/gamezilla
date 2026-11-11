@@ -1034,6 +1034,7 @@
     "generate:feature-variants": {
       "dependsOn": [
         "^src",
+        "//#task:i18n:compile",
         "//#task:sounds:generate",
         "//#task:tokens:generate",
         "@libs/tools-harness-ts#generate:identity"

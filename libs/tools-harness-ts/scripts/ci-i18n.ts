@@ -1,24 +1,24 @@
 #!/usr/bin/env bun
 // @io-wall-ok — composition root
 /**
- * Fail if the Lingui catalog is stale vs source macros, or does not compile.
- * (A `t` / `<Trans>` file outside the catalog sources is each package's own
- * `lint`: `lingui-scope.ts`.)
+ * Fail if the Lingui catalog cannot be extracted from the source macros and
+ * compiled strictly. (A `t` / `<Trans>` file outside the catalog sources is
+ * each package's own `lint`: `lingui-scope.ts`.)
  *
  * Production Lingui looks up a hashed id (`iDNBZe`). A missing catalog key
- * renders that hash instead of English — keep the `.po` in lockstep with the
- * sources. The compiled `messages.ts` is gitignored output of
- * `bun run i18n:compile` (root `postinstall`), so only the `.po` is compared.
+ * renders that hash instead of English. Neither the `.po` nor the compiled
+ * `messages.ts` is committed: `bun run i18n:compile` (root `postinstall`)
+ * extracts the `.po` from the sources and compiles it, so the catalog can
+ * never go stale and never conflicts in a merge.
  */
 import { spawnSync } from 'node:child_process';
-import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
-const PO_REL = 'libs/app-root-shared-ts/locales/en/messages.po';
 /**
- * Scratch catalog the verification regenerates into. The real catalogs are never
+ * Scratch catalog the verification extracts into. The real catalogs are never
  * rewritten: `tc` of every package that imports them runs beside this
  * verification, and a catalog half-written in place fails it ("is not a module").
  */
@@ -112,15 +112,13 @@ function writeScratchConfig(): void {
   const scratch = join(REPO_ROOT, SCRATCH_REL);
   removeTree(scratch);
   mkdirSync(join(scratch, 'en'), { recursive: true });
-  copyFileSync(join(REPO_ROOT, PO_REL), join(scratch, 'en/messages.po'));
   writeFileSync(
     join(REPO_ROOT, SCRATCH_CONFIG_REL),
     scratchConfigSource(REPO_ROOT)
   );
 }
 
-function assertCatalogsFresh(): void {
-  const poBefore = readFileSync(join(REPO_ROOT, PO_REL), 'utf8');
+function assertCatalogCompiles(): void {
   writeScratchConfig();
   const config = ['--config', SCRATCH_CONFIG_REL];
   // One process, no worker pool: the pool costs ~2.5x the CPU for a few
@@ -128,24 +126,10 @@ function assertCatalogsFresh(): void {
   // init ("Did not receive an init message from worker").
   runLingui('extract', ['--clean', '--overwrite', '--workers', '1', ...config]);
   runLingui('compile', ['--typescript', '--strict', ...config]);
-  const poAfter = readFileSync(
-    join(REPO_ROOT, SCRATCH_REL, 'en/messages.po'),
-    'utf8'
-  );
-  if (poAfter === poBefore) {
-    console.log('[ci:i18n] catalog matches source macros');
-    return;
-  }
-  console.error(
-    '[ci:i18n] The Lingui catalog is stale. Production shows hashed ids ' +
-      '(e.g. "iDNBZe") for any string missing from the catalog.\n' +
-      'Run `bun run i18n:extract && bun run i18n:compile` and commit\n' +
-      'libs/app-root-shared-ts/locales/en/messages.po'
-  );
-  process.exit(1);
+  console.log('[ci:i18n] catalog extracts from source macros and compiles');
 }
 
 if (import.meta.main) {
   assertDescriptorFieldsKept();
-  assertCatalogsFresh();
+  assertCatalogCompiles();
 }

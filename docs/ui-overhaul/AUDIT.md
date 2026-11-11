@@ -73,8 +73,6 @@ not-found route `/*all`. Tab roots (`tab: true`) nest under `TabsLayout`
 | `/more/account/devices` | `libs/auth-client-ts/src/account-devices-screen.tsx` | MenuScreen |
 | `/more/account/device/:deviceId` | `libs/auth-client-ts/src/account-device-detail-screen.tsx` | MenuScreen |
 | `/more/billing` | `libs/billing-client-ts/src/billing-screen.tsx` → `billing-screen-view.tsx` | ContentScreen |
-| `/more/puzzles` | `libs/chess-puzzle-client-ts/src/puzzle-management-screen.tsx` (registered in `app-sub-clients.ts:45`) | ContentScreen, or EmbeddedScreen when embedded |
-| `/more/<game>-stats` (chess only today) | `libs/game-menu-client-ts/src/personal-puzzle-stats-clients.tsx` → `libs/game-puzzle-client-ts/src/personal-puzzle-stats-screen.tsx` | ContentScreen wrapping GameHistoryScreen / GameReviewScreen |
 | `/chess/puzzle/:puzzleId` | `libs/game-puzzle-client-ts/src/puzzle-link-client.ts` → `puzzle-link-screen.tsx` | ContentScreen |
 | `/:gameId/multiplayer` | `libs/game-matchmaking-client-ts/src/multiplayer-link-client.tsx` → `multiplayer-link-screen.tsx` | ContentScreen |
 | `/admin/observatory` | `libs/observatory-client-ts/src/user-observatory-screen.tsx` (lazy) | MenuScreen (links only) |

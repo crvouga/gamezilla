@@ -14,10 +14,18 @@
  * On `main` itself it only fast-forwards the checkout. The script owns every
  * git step and every safeguard; the caller only writes the commit message. It
  * never pushes `main`, never force-pushes, never moves local `main` except by
- * fast-forward, and aborts a conflicted merge unless told to leave it.
+ * fast-forward, and aborts a conflicted merge unless told to leave it. A merge
+ * that conflicts only in generated files (`generated-conflicts.ts`) is finished
+ * by rebuilding them instead.
  */
 import { existsSync } from 'node:fs';
 
+import {
+  type GeneratedPlan,
+  generatedConflictHint,
+  planGeneratedConflicts,
+  settleCommand,
+} from './generated-conflicts';
 import { isSpecFile } from './verify-spec-ownership';
 
 /** Conventional Commit header: `<type>(<scope>): <summary>`, same as a PR title. */
@@ -365,25 +373,90 @@ function fetchScoped(branch: string | null, remoteExists: boolean): void {
   gitOk(['fetch', '--quiet', '--no-tags', '--no-prune', 'origin', ...refspecs]);
 }
 
+/** Runs a rebuild command in the repository, streaming its output. */
+function runRebuild(command: readonly string[]): boolean {
+  step(`rebuilding generated files: ${command.join(' ')}`);
+  const result = Bun.spawnSync([...command], {
+    stdout: 'inherit',
+    stderr: 'inherit',
+  });
+  return result.exitCode === 0;
+}
+
 /**
- * Merges `ref` into HEAD with git's default message. On conflict it aborts,
+ * Settles every generated file of a conflicted merge (trunk's copy, staged,
+ * or out of the index) so only hand-written conflicts remain. Returns false
+ * when git refuses a step.
+ */
+function settleGenerated(plan: GeneratedPlan): boolean {
+  for (const { path, rule } of plan.generated) {
+    if (git(settleCommand(path, rule).slice(1)).code !== 0) return false;
+    if (rule.settle === 'theirs' && git(['add', '--', path]).code !== 0)
+      return false;
+  }
+  return true;
+}
+
+/**
+ * Finishes a merge whose only conflicts are generated files: settles each one
+ * (trunk's copy, or out of the index), rebuilds them from the merged sources
+ * and commits the merge. Returns false, leaving the merge as it was, when a
+ * step fails.
+ */
+function finishGeneratedMerge(plan: GeneratedPlan): boolean {
+  if (!settleGenerated(plan)) return false;
+  for (const command of plan.rebuilds) if (!runRebuild(command)) return false;
+  const rebuilt = plan.generated
+    .filter(({ rule }) => rule.settle === 'theirs')
+    .map(({ path }) => path);
+  if (rebuilt.length > 0) gitOk(['add', '--', ...rebuilt]);
+  if (git(['diff', '--name-only', '--diff-filter=U']).out !== '') return false;
+  gitOk(['commit', '--no-edit', '--quiet']);
+  step(
+    `rebuilt generated files instead of merging them: ${plan.generated
+      .map(({ path }) => path)
+      .join(', ')}.`
+  );
+  return true;
+}
+
+/**
+ * Merges `ref` into HEAD with git's default message. A conflict only in
+ * generated files is finished by rebuilding them. Any other conflict aborts,
  * or with `leaveConflicts` keeps the merge in progress for the caller.
  */
 function mergeOrAbort(ref: string, leaveConflicts: boolean): void {
   const merge = git(['merge', '--no-edit', '--quiet', ref]);
   if (merge.code === 0) return;
   const conflicts = git(['diff', '--name-only', '--diff-filter=U']).out;
+  const plan = planGeneratedConflicts(
+    conflicts.split('\n').filter((path) => path.length > 0)
+  );
+  if (
+    plan.generated.length > 0 &&
+    plan.manual.length === 0 &&
+    finishGeneratedMerge(plan)
+  )
+    return;
   if (leaveConflicts) {
+    // Only hand-written files are left for the caller to resolve.
+    const settled = plan.generated.length > 0 && settleGenerated(plan);
+    const remaining = git(['diff', '--name-only', '--diff-filter=U']).out;
+    const hint = generatedConflictHint(plan, settled);
+    const hintBlock = hint.length > 0 ? `${hint}\n` : '';
     throw new SyncError(
       `Merging ${ref} conflicted; the merge is left in progress.\n` +
-        `Conflicted paths:\n${conflicts.length > 0 ? conflicts : '(none listed)'}\n` +
+        `Conflicted paths:\n${remaining.length > 0 ? remaining : '(none listed)'}\n` +
+        hintBlock +
         'Resolve and `git add` them, run `GIT_EDITOR=true git merge --continue`, then rerun `bun run git-sync`.'
     );
   }
   git(['merge', '--abort']);
+  const hint = generatedConflictHint(plan);
+  const hintBlock = hint.length > 0 ? `${hint}\n` : '';
   throw new SyncError(
     `Merging ${ref} conflicted; the merge was aborted and the tree is back at HEAD.\n` +
-      `Conflicted paths:\n${conflicts.length > 0 ? conflicts : '(none listed)'}\n${merge.out}`
+      `Conflicted paths:\n${conflicts.length > 0 ? conflicts : '(none listed)'}\n${hintBlock}${merge.out}`
   );
 }
 
