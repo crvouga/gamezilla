@@ -1,0 +1,4 @@
+{
+  "summary": "Live critical journeys (Pong find, Battleship ready, resign dismiss) failed at random with 'This action needs a connection.' while the device and the server were fine: any failed background sync request (a single net::ERR_FAILED refresh, a server error, a refused optimistic pubsub publish, a failed upload) marked the sync engine offline until a later query sweep succeeded, so online-only commands were refused without the offline notice. Only a server the device cannot reach now takes the app offline: a request that never reached the server before the connection was confirmed, or again after the app's own retry; a server that answered with an error leaves the device online with the error recorded.",
+  "regressionTest": "pkgs/sync-engine-harness-ts/tests/online-only-after-hiccup.test.ts"
+}

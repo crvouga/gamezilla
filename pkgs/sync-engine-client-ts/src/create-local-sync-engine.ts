@@ -54,6 +54,10 @@ import type {
 import { SubscriptionRuntime } from './subscription-runtime';
 import type { SyncEngine } from './sync-engine-port';
 import { SyncApiAuthError } from './sync-http-client';
+import {
+  createSyncReachability,
+  type SyncReachability,
+} from './sync-reachability';
 import { createTableChangeSqlClient } from './table-change-sql-client';
 
 export type CreateLocalSyncEngineOptions = {
@@ -127,6 +131,7 @@ type LocalEngineState = {
   readonly bus: ReturnType<typeof createTableChangeBus>;
   readonly appDb: SqlClient;
   readonly status: LocalSyncStatusStore;
+  readonly reachability: SyncReachability;
   readonly recovery: ReturnType<typeof createRecoveryObservation>;
   readonly runtime: SubscriptionRuntime;
   readonly uploadQueue: MutationUploadQueue;
@@ -150,10 +155,6 @@ type LocalEngineStateRef = { current: LocalEngineState | null };
 function readState(ref: LocalEngineStateRef): LocalEngineState {
   assert.defined(ref.current, 'Local sync engine not initialized');
   return ref.current;
-}
-
-function errorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
 }
 
 function mergeDeps(state: LocalEngineState) {
@@ -180,14 +181,9 @@ function handleError(state: LocalEngineState, error: unknown): void {
   if (error instanceof SyncApiAuthError && error.reason === 'expired') {
     return;
   }
-  state.status.patch({
-    online: false,
-    lastError: errorMessage(error),
-    // Protocol cut: the app is outdated. Kept until a sync succeeds again.
-    ...(error instanceof SyncApiAuthError && error.reason === 'upgrade_required'
-      ? { upgradeRequired: true }
-      : {}),
-  });
+  // A hiccup is not being offline: online-only actions stay available while
+  // the app retries; only a server it cannot reach takes them away.
+  state.reachability.failed(error);
 }
 
 function createUploadQueue(
@@ -207,8 +203,11 @@ function createUploadQueue(
       state.refreshTopics?.();
     },
     onRejected: () => readState(stateRef).runtime.wakeAllAndDrain(),
-    onCommitted: (ids, requiresRepair) =>
-      readState(stateRef).recovery.acknowledged(ids, requiresRepair),
+    onCommitted: (ids, requiresRepair) => {
+      const state = readState(stateRef);
+      state.reachability.answered();
+      state.recovery.acknowledged(ids, requiresRepair);
+    },
     onError: (error) => handleError(readState(stateRef), error),
     timers: options.timers,
     now: options.now,
@@ -240,6 +239,11 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
   const bus = createTableChangeBus();
   const appDb = createTableChangeSqlClient(options.db, bus);
   const status = createLocalSyncStatusStore();
+  const reachability = createSyncReachability({
+    status,
+    isOnline: () => options.lifecycle?.isOnline() ?? true,
+    now: options.now,
+  });
   status.patch({ online: options.lifecycle?.isOnline() ?? true });
   const stateRef: LocalEngineStateRef = { current: null };
   const runtime = new SubscriptionRuntime({
@@ -260,15 +264,7 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
       : {}),
     getMergeDeps: () => mergeDeps(readState(stateRef)),
     onError: (error) => handleError(readState(stateRef), error),
-    onSynced: () =>
-      status.patch({
-        connection: 'connected',
-        online: options.lifecycle?.isOnline() ?? true,
-        hasSynced: true,
-        lastSyncedAtMs: options.now(),
-        lastError: null,
-        upgradeRequired: false,
-      }),
+    onSynced: reachability.synced,
   });
   const sessionHandles = options.sessionQueries.map((spec) =>
     runtime.subscribe({ ...spec, settleOnNetworkError: true })
@@ -285,6 +281,7 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
     appDb,
     mutationDrains: new Set(),
     status,
+    reachability,
     recovery: createRecovery(options),
     runtime,
     uploadQueue,
