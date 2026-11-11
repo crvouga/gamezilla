@@ -112,3 +112,29 @@ export function readTurboTasks(root = REPO_ROOT): TurboTasks {
     }
   return tasks;
 }
+
+/**
+ * Package task fields that list `$TURBO_EXTENDS$` with nothing to extend: no
+ * root `<package>#<task>` or `<task>` defines the field, so Turborepo splices
+ * in nothing and the task silently loses the definition it meant to inherit.
+ */
+export function danglingExtends(root = REPO_ROOT): readonly string[] {
+  const rootTasks = readRootTurbo(root).tasks ?? {};
+  return readPackageTurbos(root).flatMap(({ name, dir, file }) =>
+    Object.entries(file.tasks ?? {}).flatMap(([task, own]) => {
+      const inherited = rootTasks[`${name}#${task}`] ?? rootTasks[task];
+      return Object.entries(own)
+        .filter(
+          ([field, value]) =>
+            Array.isArray(value) &&
+            value.includes(EXTENDS) &&
+            (inherited as Record<string, unknown> | undefined)?.[field] ===
+              undefined
+        )
+        .map(
+          ([field]) =>
+            `${dir}/turbo.json: ${task}.${field} extends nothing — no root "${task}" defines ${field}; declare the whole definition here`
+        );
+    })
+  );
+}
