@@ -39,7 +39,7 @@ type Seen = {
   readonly place: PuzzleStatsPlace;
 };
 
-/** A device walking the machine as `useEnteredPlace` does. */
+/** A device walking the machine as `useScreenPlace` does. */
 function walk(steps: readonly Step[]): Seen[] {
   let at: PuzzleStatsStage = 'loading';
   let opened: OpenedPlace<PuzzleStatsStage, PuzzleStatsPlace> | null = null;

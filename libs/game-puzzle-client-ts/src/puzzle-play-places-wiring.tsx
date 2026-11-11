@@ -4,7 +4,10 @@ import {
 } from '@libs/spaces-client-ts/spaces-nav-context';
 import { t } from '@lingui/core/macro';
 import { placeBehind } from '@pkgs/turn-game-client-ts/screen-places';
-import type { ScreenPlaceNavigation } from '@pkgs/turn-game-client-ts/use-screen-place';
+import {
+  type ScreenPlaceNavigation,
+  useScreenPlace,
+} from '@pkgs/turn-game-client-ts/use-screen-place';
 import { type Accessor, createMemo, type JSX } from 'solid-js';
 import {
   isPuzzleFeedPlace,
@@ -17,7 +20,6 @@ import type {
   PuzzleLineModel,
   PuzzleResultModel,
 } from './puzzle-play-screen-model';
-import { useEnteredPlace } from './use-entered-place';
 import { usePuzzleFeedSettings } from './use-puzzle-feed-settings';
 
 const noop = (): void => {};
@@ -68,7 +70,7 @@ export function usePuzzlePlayPlaces(args: {
   readonly leave: () => void;
   readonly onFeedConfigApplied: () => void;
 }): PuzzlePlayPlacesWiring {
-  const nav = useEnteredPlace(PUZZLE_PLAY_PLACES, args.stage);
+  const nav = useScreenPlace(PUZZLE_PLAY_PLACES, args.stage);
   const editing = createMemo(() => isPuzzleFeedPlace(nav.place()));
   const feed = usePuzzleFeedSettings({
     editing,

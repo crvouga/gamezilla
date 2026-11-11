@@ -40,18 +40,22 @@ export function useScreenPlace<Stage extends string, Place extends ScreenPlace>(
   const [opened, setOpened] = createSignal<OpenedPlace<Stage, Place> | null>(
     null
   );
+  // The stage as a value: the data behind it changes far more often than
+  // the stage it yields (a seat taken, a move played), and only a change
+  // of stage may move the person.
+  const current = createMemo(stage);
   // A place does not outlive its stage: once the stage changes it is
   // forgotten, so returning to that stage later opens on its home again
   // (a game menu left open when a game ends is not there for the rematch).
-  createComputed(on(stage, () => setOpened(null), { defer: true }));
-  const place = createMemo(() => placeIn(places, stage(), opened()));
+  createComputed(on(current, () => setOpened(null), { defer: true }));
+  const place = createMemo(() => placeIn(places, current(), opened()));
   return {
     place,
-    open: (next) => setOpened({ stage: stage(), place: next }),
+    open: (next) => setOpened({ stage: current(), place: next }),
     back: () => {
-      const behind = placeBehind(places, stage(), place());
+      const behind = placeBehind(places, current(), place());
       if (behind === null) return false;
-      setOpened({ stage: stage(), place: behind });
+      setOpened({ stage: current(), place: behind });
       return true;
     },
     home: () => setOpened(null),

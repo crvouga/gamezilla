@@ -78,7 +78,7 @@ type Seen = {
 };
 
 /**
- * A device walking the machine as `useEnteredPlace` does: a stage is
+ * A device walking the machine as `useScreenPlace` does: a stage is
  * entered on its home, whatever was opened in it before.
  */
 function walk(steps: readonly Step[]): Seen[] {

@@ -38,3 +38,18 @@ test('Back steps to the home, then reports there is nowhere further', () => {
     dispose();
   });
 });
+
+// regression: screen-place-reset-by-unchanged-stage
+test('the data behind the stage changing leaves the opened place when the stage is the same', () => {
+  createRoot((dispose) => {
+    const [game, setGame] = createSignal({ stage: 'play' as Stage, moves: 0 });
+    const navigation = useScreenPlace(PLACES, () => game().stage);
+    navigation.open({ screen: 'menu' });
+    // A move arrives: the game is new data, its stage is not.
+    setGame({ stage: 'play', moves: 1 });
+    expect(navigation.place()).toEqual({ screen: 'menu' });
+    setGame({ stage: 'over', moves: 1 });
+    expect(navigation.place()).toEqual({ screen: 'result' });
+    dispose();
+  });
+});

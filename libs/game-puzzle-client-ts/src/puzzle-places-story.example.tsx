@@ -8,6 +8,7 @@ import {
   DEFAULT_PUZZLE_FEED_CONFIG,
   type PuzzleFeedConfig,
 } from '@libs/game-puzzle-shared-ts/feed-config';
+import { useScreenPlace } from '@pkgs/turn-game-client-ts/use-screen-place';
 import { createComputed, createMemo, createSignal, on } from 'solid-js';
 import { fn } from 'storybook/test';
 import {
@@ -16,7 +17,6 @@ import {
   type PuzzlePlayStage,
 } from './puzzle-play-places';
 import type { PuzzleFeedSettingsModel } from './puzzle-play-screen-model';
-import { useEnteredPlace } from './use-entered-place';
 
 /** The themes a story's feed can be narrowed to, as a game names them. */
 const STORY_THEMES = [
@@ -81,7 +81,7 @@ export function useStoryPuzzlePlaces(args: {
   readonly onBack: () => void;
   readonly home: () => void;
 } {
-  const nav = useEnteredPlace(PUZZLE_PLAY_PLACES, args.stage);
+  const nav = useScreenPlace(PUZZLE_PLAY_PLACES, args.stage);
   createComputed(on(args.place, (place) => nav.open(place)));
   return {
     place: nav.place,

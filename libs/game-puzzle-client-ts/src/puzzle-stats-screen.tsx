@@ -7,6 +7,7 @@ import {
 import { useGameScreen } from '@libs/spaces-client-ts/use-game-screen';
 import { useSpaceRoomDispatch } from '@libs/spaces-client-ts/use-space-room-selector';
 import { t } from '@lingui/core/macro';
+import { useScreenPlace } from '@pkgs/turn-game-client-ts/use-screen-place';
 import { createComputed, createMemo, type JSX } from 'solid-js';
 import { PUZZLE_SCREEN } from './puzzle-screens';
 import {
@@ -16,7 +17,6 @@ import {
 } from './puzzle-stats-places';
 import { PuzzleStatsReturnContext } from './puzzle-stats-return';
 import { PuzzleStatsScreenView } from './puzzle-stats-screen-view';
-import { useEnteredPlace } from './use-entered-place';
 import { usePuzzleHistory } from './use-puzzle-history';
 
 /**
@@ -33,7 +33,7 @@ export function PuzzleStatsScreen(): JSX.Element {
   const stage = createMemo<PuzzleStatsStage>(() =>
     puzzleStatsStageOf({ loading: history.loading() })
   );
-  const nav = useEnteredPlace(PUZZLE_STATS_PLACES, stage);
+  const nav = useScreenPlace(PUZZLE_STATS_PLACES, stage);
   // Back from a review opened here: the log it was opened from.
   createComputed(() => {
     if (stage() !== 'ready' || returning?.toLog !== true) return;
