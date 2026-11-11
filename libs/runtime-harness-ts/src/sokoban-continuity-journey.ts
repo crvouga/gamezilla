@@ -1,9 +1,12 @@
 import {
   contentAttribute,
+  contentExpectText,
   contentTap,
+  leaveContentStage,
 } from '@libs/game-puzzle-harness-ts/content-journey-device';
 import type { PublishedJourneyPack } from '@libs/game-puzzle-harness-ts/content-journey-pack';
 import {
+  expectJourneyCompletion,
   openJourneyAttempt,
   startJourneyAttempt,
 } from '@libs/game-puzzle-harness-ts/content-journey-playing';
@@ -11,7 +14,6 @@ import {
   observeSokobanJourneyCounts,
   pushSokobanJourneyRight,
 } from '@libs/sokoban-harness-ts/sokoban-journey-board';
-import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { openContentSpace } from './content-library-navigation';
 import { JOURNEY_WAIT_MS } from './journey-gestures';
 import type { JourneyHost } from './journey-types';
@@ -51,7 +53,7 @@ export async function playSokobanPartway(
     attemptId = await startJourneyAttempt(device(ui));
     await pushSokobanJourneyRight(device(ui));
     await observeSokobanJourneyCounts(device(ui), 1, 1);
-    await contentTap(device(ui), Handles.navBack);
+    await leaveContentStage(device(ui));
   });
   await host.peerDevice.reopen();
   return { pack, link, attemptId };
@@ -91,9 +93,7 @@ export async function observeSokobanWhereStopped(
 export async function finishSokobanPuzzle(host: JourneyHost): Promise<void> {
   await host.actAsGuest('finishSokobanPuzzle', async (ui) => {
     await pushSokobanJourneyRight(device(ui));
-    await ui
-      .get('content-attempt-complete')
-      .expect.text('Completion saved', { ...device(ui), exact: false });
+    await expectJourneyCompletion(device(ui), 'Completion saved');
   });
 }
 
@@ -104,8 +104,6 @@ export async function observeNextSokobanPuzzle(
   const next = kept.pack.items[1];
   if (next === undefined) throw new Error('The pack has no second puzzle');
   await host.actAsGuest('observeNextSokobanPuzzle', (ui) =>
-    ui
-      .get('content-next-puzzle')
-      .expect.text(next.title, { ...device(ui), exact: false })
+    contentExpectText(device(ui), 'content-next-puzzle', next.title)
   );
 }

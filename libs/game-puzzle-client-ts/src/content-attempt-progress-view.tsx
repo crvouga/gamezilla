@@ -1,4 +1,5 @@
 import { Trans, useLingui } from '@lingui/solid/macro';
+import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { MetricStrip } from '@pkgs/ui-root-client-ts/metric-strip';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
@@ -165,15 +166,24 @@ function AttemptPanel(props: ContentAttemptScreenViewProps): JSX.Element {
 /**
  * `progress`: where the attempt stands (its place in its pack and the way
  * on, the game's figures, the save status, the completion), then the
- * earlier positions kept for it.
+ * earlier positions kept for it, and the way back to the board.
  */
 export function ContentAttemptProgressView(props: {
   view: ContentAttemptScreenViewProps;
 }): JSX.Element {
+  const { t } = useLingui();
   return (
     <StackVertical gap="lg" dataSet={{ testid: 'content-attempt-progress' }}>
       <AttemptPanel {...props.view} />
       {props.view.keptPositions}
+      <Button
+        title={t`Back to the board`}
+        intent="neutral"
+        variant="outline"
+        fullWidth
+        onClick={() => props.view.onOpen({ screen: 'attempt' })}
+        dataSet={{ testid: 'content-return-board' }}
+      />
     </StackVertical>
   );
 }

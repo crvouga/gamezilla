@@ -109,7 +109,9 @@ export function renderAuthorStory(
       })}
       history={slot('history') ?? <StoryDraftHistory />}
       stage={slot('stage') ?? <StoryCountingEditor target="7" />}
-      preview={slot('preview') ?? <StoryCountingPlayer state="count:0" disabled />}
+      preview={
+        slot('preview') ?? <StoryCountingPlayer state="count:0" disabled />
+      }
       keptCopies={slot('keptCopies') ?? <StoryKeptCopies />}
       refusal={options.refused === true ? <StoryRefusal /> : undefined}
       publication={

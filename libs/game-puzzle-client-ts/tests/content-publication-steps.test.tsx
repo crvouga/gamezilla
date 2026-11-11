@@ -452,7 +452,7 @@ test('repeating a waiting publication still invokes the existing operation once'
   await waitFor(() => expect(calls).toBe(1));
 });
 
-test('a refused publication retains the retry callback, under the shell\'s refusal explanation', async () => {
+test("a refused publication retains the retry callback, under the shell's refusal explanation", async () => {
   let calls = 0;
   mount(() =>
     builder({

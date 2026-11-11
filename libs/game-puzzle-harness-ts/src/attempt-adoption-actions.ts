@@ -4,11 +4,7 @@ import type { SyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-port';
 import { fireEvent } from '@solidjs/testing-library';
 import { selectedPlay } from './attempt-actions';
 import { contentClient } from './content-actions';
-import {
-  openContentPlace,
-  openLibraryEntry,
-  showContentHome,
-} from './content-screen-places';
+import { openContentPlace, openLibraryEntry } from './content-screen-places';
 import { contentWait, waitForContent } from './content-sync';
 import type { ContentHarness } from './content-system';
 import { mountContentExample } from './mount-content-example';
@@ -86,8 +82,10 @@ export const observeAttemptAdoption = defineAction({
           ) && view.queryAllByText(/Saved position/).length >= 2
         );
       });
-      // Back on the board, the player still waits for the attempt's head.
-      await showContentHome(wait, view, 'attempt');
+      // Back on the board (by the screen's own command: the host's Back
+      // waits for the save still in flight), the player still waits for the
+      // attempt's head.
+      fireEvent.click(view.getByTestId('content-return-board'));
       s.notices.set('attempt-waits-for-head', String(button().disabled));
       delivery.release();
       await waitForContent(s, () => Promise.resolve(!button().disabled));

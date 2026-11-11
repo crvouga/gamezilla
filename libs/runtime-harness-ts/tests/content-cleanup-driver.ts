@@ -11,7 +11,11 @@ const SCREENS: Readonly<Record<string, readonly string[]>> = {
     'content-library-tab-mine',
     'content-create-puzzle',
   ],
-  mine: ['content-library', 'content-library-mine', 'content-draft-river-document'],
+  mine: [
+    'content-library',
+    'content-library-mine',
+    'content-draft-river-document',
+  ],
   builder: ['content-author', 'content-author-steps', 'content-open-publish'],
   publish: ['content-author', 'content-author-publish', 'content-withdraw'],
   confirm: ['content-author', 'content-withdraw-confirm'],

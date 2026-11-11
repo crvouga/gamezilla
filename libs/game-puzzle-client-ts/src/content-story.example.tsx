@@ -309,7 +309,11 @@ export function StoryKeptPositions(): JSX.Element {
       title="Saved positions"
       footer="Choose a saved position to continue. Your other positions stay kept."
     >
-      <MenuRow title="Saved position 1" value="Kept" onClick={() => undefined} />
+      <MenuRow
+        title="Saved position 1"
+        value="Kept"
+        onClick={() => undefined}
+      />
       <MenuRow title="Saved position 2" value="Current" disabled />
     </MenuSection>
   );

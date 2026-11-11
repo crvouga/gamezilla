@@ -22,14 +22,24 @@ type Place = {
   readonly row: string;
   /** A handle only the place itself has. */
   readonly mark: string;
+  /** The stage's save line and what it says once nothing is left to save. */
+  readonly saved?: readonly [id: string, text: string];
 };
 
 const LIBRARY = {
   root: 'content-library',
   home: 'content-library-tab-continue',
 };
-const BUILDER = { root: 'content-author', home: 'content-author-steps' };
-const ATTEMPT = { root: 'content-attempt', home: 'content-open-progress' };
+const BUILDER = {
+  root: 'content-author',
+  home: 'content-author-steps',
+  saved: ['content-draft-save-status', 'Saved on this device.'],
+} as const;
+const ATTEMPT = {
+  root: 'content-attempt',
+  home: 'content-open-progress',
+  saved: ['content-position-save-status', 'Progress saved on this device.'],
+} as const;
 
 /** The small screens of the puzzle library template a journey can ask for. */
 const PLACES = {
@@ -124,7 +134,25 @@ export function contentPlaceOf(id: string): ContentJourneyPlace | null {
   return HELD.find(([shape]) => shape.test(id))?.[1] ?? null;
 }
 
-type Stage = { readonly root: string; readonly home: string };
+type Stage = {
+  readonly root: string;
+  readonly home: string;
+  /** The stage's save line and what it says once nothing is left to save. */
+  readonly saved?: readonly [id: string, text: string];
+};
+
+/**
+ * Before Back, a person lets the save in flight settle: the host's Back
+ * asks before interrupting one.
+ */
+async function waitUntilSaved(
+  device: ContentJourneyDevice,
+  stage: Stage
+): Promise<void> {
+  if (stage.saved === undefined) return;
+  const [id, text] = stage.saved;
+  await device.ui.get(id).expect.text(text, { ...device, exact: false });
+}
 
 /** The hub (the attempt's board) that holds a control, by the control's handle. */
 const HUB_HELD: readonly (readonly [RegExp, Stage])[] = [
@@ -148,6 +176,7 @@ async function showHub(
   // A previewed pack puzzle is two steps from the hub.
   for (let steps = 0; steps < 3; steps += 1) {
     if (await ui.get(stage.home).isVisible()) return;
+    await waitUntilSaved(device, stage);
     await ui.get(Handles.navBack).tap(device);
     await ui.get(stage.root).expect.visible(device);
   }
@@ -164,11 +193,12 @@ export async function openContentPlace(
   device: ContentJourneyDevice,
   place: ContentJourneyPlace
 ): Promise<void> {
-  const { root, home, row, mark } = PLACES[place];
+  const held: Place = PLACES[place];
+  const { root, row, mark } = held;
   const ui = device.ui;
   await ui.get(root).expect.visible(device);
   if (await ui.get(mark).isVisible()) return;
-  await showHub(device, { root, home });
+  await showHub(device, held);
   await ui.get(row).wait('enabled', device);
   await ui.get(row).tap(device);
   await ui.get(mark).expect.visible(device);

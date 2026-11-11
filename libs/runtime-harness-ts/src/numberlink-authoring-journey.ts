@@ -1,6 +1,6 @@
 import { authorJourneyPuzzle } from '@libs/game-puzzle-harness-ts/content-journey-authoring';
 import {
-  contentTap,
+  leaveContentStage,
   type PublishedJourneyContent,
 } from '@libs/game-puzzle-harness-ts/content-journey-device';
 import { discoverJourneyContent } from '@libs/game-puzzle-harness-ts/content-journey-discovery';
@@ -30,11 +30,10 @@ async function authorChallenges(
           device,
           title: `${name} ${host.runId}`,
           board: NUMBERLINK_JOURNEY_BOARD,
-          backId: Handles.navBack,
           onCreated,
         })
       );
-      await contentTap(device, Handles.navBack);
+      await leaveContentStage(device);
     });
   }
   const first = puzzles[0];

@@ -60,7 +60,12 @@ export async function publishJourneyDraft(
     .expect.text('Publication saved', { ...device, exact: false });
   // Saving queues the publication; the previous edition remains viewable until
   // this copy is confirmed and the document read names its new revision.
-  await contentExpectText(device, 'content-publication-status', 'Published', true);
+  await contentExpectText(
+    device,
+    'content-publication-status',
+    'Published',
+    true
+  );
   await contentTap(device, 'content-view-publication');
   await device.ui
     .get('content-edition')

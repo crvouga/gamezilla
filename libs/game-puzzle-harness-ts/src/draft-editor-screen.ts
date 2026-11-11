@@ -95,11 +95,7 @@ export async function openDraftEditor(
   const documentId = currentContentEditor(s, clientId).documentId;
   const view = await mountContentExample(s, clientId);
   try {
-    await openLibraryEntry(
-      contentWait(s),
-      view,
-      `content-draft-${documentId}`
-    );
+    await openLibraryEntry(contentWait(s), view, `content-draft-${documentId}`);
     await waitForEditorAt(s, { view, clientId }, documentId, () => true);
     await copyMarkedEditing(s, { view, clientId }, documentId);
     return { view, documentId };
