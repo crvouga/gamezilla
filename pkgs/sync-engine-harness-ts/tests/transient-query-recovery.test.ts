@@ -4,6 +4,7 @@ import { HttpNetworkError } from '@pkgs/http-client-shared-ts/http-network-error
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-root-server-ts/impl-bun-sqlite';
 import { createLocalSyncEngine } from '@pkgs/sync-engine-client-ts/create-local-sync-engine';
+import { SyncHttpServerError } from '@pkgs/sync-engine-client-ts/sync-http-server-error';
 import { exampleLocalSchema } from '@pkgs/sync-engine-harness-ts/local-schema';
 import fc from 'fast-check';
 
@@ -11,7 +12,10 @@ async function settle(): Promise<void> {
   for (let turn = 0; turn < 200; turn += 1) await Promise.resolve();
 }
 
-async function openTransientQuery(failures: number) {
+async function openTransientQuery(
+  failures: number,
+  failure: () => Error = () => new HttpNetworkError('net::ERR_FAILED')
+) {
   const db = SqlClientImplBunSqlite.openMemory();
   const time = createHarnessClock();
   let requests = 0;
@@ -31,7 +35,7 @@ async function openTransientQuery(failures: number) {
     sessionQueries: [{ name: 'notes', params: {} }],
     postQueries: async (batch) => {
       requests += 1;
-      if (requests <= failures) throw new HttpNetworkError('net::ERR_FAILED');
+      if (requests <= failures) throw failure();
       return batch.map(() => ({ status: 'not_modified' as const }));
     },
     postMutations: async () => ({
@@ -132,4 +136,32 @@ test('an unrelated query answering does not cancel recovery of an unanswered loo
   } finally {
     await fixture.close();
   }
+});
+
+// regression: query-server-error-waits-for-reconcile
+test('a 500 on the first lookup is retried within a second, not at the next reconciliation', async () => {
+  const fixture = await openTransientQuery(
+    1,
+    () =>
+      new SyncHttpServerError(
+        '/api/query',
+        500,
+        'Worker returned HTTP 500 in a standard environment'
+      )
+  );
+  try {
+    await fixture.engine.connect();
+    await settle();
+    expect(fixture.answered()).toBe(false);
+    fixture.time.clock.advance(1000);
+    await settle();
+    expect(fixture.answered()).toBe(true);
+    const requests = fixture.requests();
+    fixture.time.clock.advance(60_000);
+    await settle();
+    expect(fixture.requests()).toBe(requests);
+  } finally {
+    await fixture.close();
+  }
+  expect(fixture.time.clock.pendingOneShotCount()).toBe(0);
 });

@@ -1,7 +1,22 @@
 import type { Timers } from '@pkgs/clock-shared-ts/types';
 import { HttpNetworkError } from '@pkgs/http-client-shared-ts/http-network-error';
+import { SyncHttpServerError } from './sync-http-server-error';
 
-/** Retry a failed read; a successful full sweep leaves no background polling. */
+/** A failure a later attempt of the same read can get past. */
+function transient(error: unknown): boolean {
+  if (error instanceof HttpNetworkError) return true;
+  if (error instanceof SyncHttpServerError) return true;
+  // Errors that crossed a realm or a worker keep only their name.
+  return (
+    error instanceof Error &&
+    (error.name === 'HttpNetworkError' || error.name === 'SyncHttpServerError')
+  );
+}
+
+/**
+ * Retry a read the network or the server failed; a successful full sweep
+ * leaves no background polling.
+ */
 export function createQueryNetworkRetry(timers: Timers, wake: () => void) {
   let timer: unknown = null;
   let failures = 0;
@@ -13,10 +28,8 @@ export function createQueryNetworkRetry(timers: Timers, wake: () => void) {
   return {
     reset,
     failed: (error: unknown): void => {
-      const networkError =
-        error instanceof HttpNetworkError ||
-        (error instanceof Error && error.name === 'HttpNetworkError');
-      if (!networkError || timer !== null) return;
+      // regression: query-server-error-waits-for-reconcile
+      if (!transient(error) || timer !== null) return;
       const delay = Math.min(1000 * 2 ** failures, 30_000);
       failures = Math.min(failures + 1, 5);
       timer = timers.setTimeout(() => {
