@@ -56,6 +56,17 @@ export const VersusCount: Story = {
   render: renderStory({ shown: 0, announcement: { title: 'Your turn.' } }),
 };
 
+/**
+ * A long name beside the turn and the side played: the name is cut short on
+ * its one line, the seat keeps its height and the board its full width.
+ */
+export const LongName: Story = {
+  render: renderStory({
+    ownName: 'XenaciousPuffin162',
+    announcement: { title: 'Your turn.' },
+  }),
+};
+
 /** A draw offered to the person waits for their answer under the board. */
 export const DrawOffered: Story = {
   render: renderStory({

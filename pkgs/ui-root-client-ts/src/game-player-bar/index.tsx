@@ -14,6 +14,7 @@ import {
 import { type GameSeatLook, GameSeatSwatch } from '../game-seat-swatch/index';
 import styles from '../game-ui.module.css';
 import { createScreenSlot } from '../screen-slot';
+import line from './name-line.module.css';
 import { SeatOptions, SeatOptionsToggle, useSeatOptions } from './seat-options';
 
 /** The one avatar size a seat uses, so both seats of a game line up. */
@@ -107,7 +108,7 @@ function PlayerIdentity(props: GamePlayerBarProps): JSX.Element {
   const tagRow = (): JSX.Element => (
     <span
       class={styles['playerTags']}
-      classList={{ 'shrink-0': inline() }}
+      classList={{ 'shrink-0': inline(), [line['tags'] ?? '']: inline() }}
       // After the name, the tags never wrap onto a second line.
       style={inline() ? { '--player-tags-wrap': 'nowrap' } : undefined}
     >
@@ -131,32 +132,37 @@ function PlayerIdentity(props: GamePlayerBarProps): JSX.Element {
           {props.avatar}
         </Show>
       </span>
-      <span class={styles['playerIdentity']}>
+      <span
+        class={styles['playerIdentity']}
+        classList={{ [line['identity'] ?? '']: inline() }}
+      >
         {/* One line: the swatch, the name (cut short when long, its whole
-            self in the tooltip and to a listener), the turn, and the tags
-            when they follow the name. */}
-        <span class="box flex-row flex-nowrap items-center gap-2 min-w-0">
-          <Show when={props.swatch}>
-            {(look) => (
-              <GameSeatSwatch look={look()} label={props.swatchLabel} />
-            )}
-          </Show>
-          <span
-            class={`text textLabel min-w-0 ${styles['playerName']}`}
-            classList={{ 'text-on-primary-soft': props.active === true }}
-            title={props.plainName}
-          >
-            {props.name}
-          </span>
-          {/* The turn on the name's own line: the strip gains no row. */}
-          <Show when={turn()}>
+            self in the tooltip and to a listener) and the turn; the tags
+            follow it when they are inline and the strip has the room. */}
+        <span class={line['line']}>
+          <span class={line['who']}>
+            <Show when={props.swatch}>
+              {(look) => (
+                <GameSeatSwatch look={look()} label={props.swatchLabel} />
+              )}
+            </Show>
             <span
-              class={`${styles['playerTurn']} text textLabel rounded-full shrink-0`}
-              {...dataAttrs({ component: 'GamePlayerTurn' })}
+              class={`text textLabel ${styles['playerName']} ${line['name']}`}
+              classList={{ 'text-on-primary-soft': props.active === true }}
+              title={props.plainName}
             >
-              {props.turnLabel}
+              {props.name}
             </span>
-          </Show>
+            {/* The turn on the name's own line: the strip gains no row. */}
+            <Show when={turn()}>
+              <span
+                class={`${styles['playerTurn']} text textLabel rounded-full shrink-0`}
+                {...dataAttrs({ component: 'GamePlayerTurn' })}
+              >
+                {props.turnLabel}
+              </span>
+            </Show>
+          </span>
           <Show when={inline() && facts()}>{tagRow()}</Show>
         </span>
         <Show when={!inline() && facts()}>{tagRow()}</Show>

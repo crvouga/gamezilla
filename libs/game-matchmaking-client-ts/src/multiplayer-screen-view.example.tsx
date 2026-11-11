@@ -172,6 +172,8 @@ function StoryStage(props: {
   readonly shown?: number | undefined;
   /** Whether the person is to move. */
   readonly active: boolean;
+  /** The person's own name; a long one must stay one cut-short line. */
+  readonly ownName?: string | undefined;
   readonly overlay?: JSX.Element | undefined;
 }): JSX.Element {
   const drops = () => DROPS.slice(0, props.shown ?? DROPS.length);
@@ -188,7 +190,8 @@ function StoryStage(props: {
       }
       own={
         <GamePlayerBar
-          name="alice"
+          name={props.ownName ?? 'alice'}
+          plainName={props.ownName}
           avatar={<StoryAvatar who="alice" size={GAME_PLAYER_AVATAR_SIZE} />}
           swatch={{ color: 'disc-one' }}
           swatchLabel="Red"
@@ -199,10 +202,7 @@ function StoryStage(props: {
         />
       }
     >
-      <ConnectFourStoryBoard
-        moves={drops()}
-        interactive={props.active}
-      />
+      <ConnectFourStoryBoard moves={drops()} interactive={props.active} />
     </GameBoardStage>
   );
 }
@@ -358,6 +358,8 @@ export function StoryPlaces(props: MultiplayerScreenViewProps): JSX.Element {
 export type StorySlots = {
   /** How many of the story game's drops the board shows. */
   readonly shown?: number;
+  /** The person's own name, when the story is about a long one. */
+  readonly ownName?: string;
   /** The line under the board. */
   readonly announcement?: { readonly title: string; readonly detail?: string };
   /** How the game ended, on the result card. */
@@ -377,6 +379,7 @@ export function renderStory(slots: StorySlots = {}) {
       board={(overlay) => (
         <StoryStage
           shown={slots.shown}
+          ownName={slots.ownName}
           active={slots.announcement !== undefined}
           overlay={overlay}
         />

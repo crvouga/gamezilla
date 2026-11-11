@@ -51,7 +51,7 @@ function resultCard(onDismiss: () => void, onRematch: () => void) {
 function tabStops(root: HTMLElement): string[] {
   return [...root.querySelectorAll<HTMLElement>('button, a[href]')]
     .filter((node) => node.tabIndex >= 0)
-    .map((node) => node.getAttribute('aria-label') ?? node.textContent ?? '');
+    .map((node) => node.getAttribute('aria-label') ?? node.textContent);
 }
 
 describe('GameResultOverlay', () => {
