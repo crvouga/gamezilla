@@ -240,7 +240,8 @@ export type GameFrame<View> = {
   readonly boardAlign?: 'start';
   /**
    * The board is a workspace that lays itself out and fits itself (Word
-   * Tiles' rack, board and view controls, at the page's own edge): on a
+   * Tiles' rack, board and view controls at the page's own edge; Quoridor's
+   * board with its wall tools and target picker under it): on a
    * phone the frame keeps the page flowing around it, as on every other
    * screen, instead of holding the game in one fixed view whose
    * full-width board narrows to fit, which is for a board of one shape.
