@@ -10,6 +10,8 @@ export type PlanJson = {
     readonly mode: 'managed' | 'data';
     readonly type: string;
     readonly change: { readonly actions: readonly string[] };
+    /** Why a resource is replaced, e.g. `replace_because_tainted`. */
+    readonly action_reason?: string;
   }[];
   readonly variables?: Record<string, { readonly value: unknown }>;
   /**

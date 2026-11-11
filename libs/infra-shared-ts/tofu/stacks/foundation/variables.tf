@@ -182,6 +182,12 @@ variable "grafana_restore" {
   }
 }
 
+variable "grafana_adopt" {
+  type        = list(string)
+  default     = []
+  description = "Set only by the release wrapper for the \"views\" restore pass: the view addresses not yet in state, which the pass imports when Grafana still holds them (observability-views.tf)."
+}
+
 variable "state_passphrase" {
   type      = string
   sensitive = true

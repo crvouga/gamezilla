@@ -1,0 +1,4 @@
+{
+  "summary": "Verify Nightly browser runs 42600698097 and 42760439972 failed Quoridor setups with nav-back 'not actionable': its centre hit '<div position=absolute z=1> < <div position=relative z=1> ...', anonymous layout boxes, so neither the screen on top nor the buried screen holding Back could be named. A press diagnosis now names the test-hook data-screen of what covers the control and of the control itself (absent from production builds, so no page text, labels or test ids are read).",
+  "regressionTest": "pkgs/ui-testing-bun-webview-harness-ts/tests/press-diagnosis.test.ts"
+}

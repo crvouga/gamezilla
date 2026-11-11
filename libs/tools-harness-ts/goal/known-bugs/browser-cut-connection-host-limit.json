@@ -1,0 +1,4 @@
+{
+  "summary": "On the real-browser stack, cutConnection asserted that partition was refused whenever the host had no modelled network, but partition has since gone offline through the app's own Work offline command on browser devices. Every offline scenario and trace on the stack (offline usernames, local Pong, Light Cycles practice, account deletion, Battleship) failed with 'Expected constructor: ActionNotEnabled, Received value: null'. cutConnection now asks partition itself and treats only a refusal as a host limit.",
+  "regressionTest": "libs/harness-ts/tests/wall-clock-host-limits.test.ts"
+}

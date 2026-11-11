@@ -4,13 +4,18 @@ provider "grafana" {
 }
 
 locals {
-  observability_account = "${var.project}-${var.env}-observability"
+  views_account = "${var.project}-${var.env}-observability-views"
 }
 
+# Grafana 13 gives a folder created through the API no permissions beyond the
+# Admin role's, so an Editor account can create the views folder and then
+# cannot read it back (403 folders:read, Release 42779170490), nor see a folder
+# Grafana kept while archived. The account that manages the views is an Admin.
+#
 # The provider waits ten minutes on the instance health URL before it creates
 # a service account. An archived instance answers that URL with 404, so the
 # account, its token, and the dashboards exist only while the instance is active.
-resource "grafana_cloud_stack_service_account" "observability" {
+resource "grafana_cloud_stack_service_account" "views" {
   lifecycle {
     destroy = false
   }
@@ -19,11 +24,11 @@ resource "grafana_cloud_stack_service_account" "observability" {
 
   provider   = grafana.stack_management
   stack_slug = var.grafana.stack_slug
-  name       = local.observability_account
-  role       = "Editor"
+  name       = local.views_account
+  role       = "Admin"
 }
 
-resource "grafana_cloud_stack_service_account_token" "observability" {
+resource "grafana_cloud_stack_service_account_token" "views" {
   # Tokens cannot be imported, and the account kept while archived still
   # holds the old one: each new token gets a name of its own, kept as created.
   lifecycle {
@@ -35,14 +40,32 @@ resource "grafana_cloud_stack_service_account_token" "observability" {
 
   provider           = grafana.stack_management
   stack_slug         = var.grafana.stack_slug
-  name               = "${local.observability_account}-${formatdate("YYYYMMDDhhmmss", plantimestamp())}"
-  service_account_id = grafana_cloud_stack_service_account.observability[0].id
+  name               = "${local.views_account}-${formatdate("YYYYMMDDhhmmss", plantimestamp())}"
+  service_account_id = grafana_cloud_stack_service_account.views[0].id
+}
+
+# The Editor account the views used before. A role change forces a new
+# account (bootstrap's alerting provisioner did the same). Like every retired
+# address it is forgotten, never deleted: deleting it would wait on the
+# instance health URL and fail whenever the instance is archived.
+removed {
+  from = grafana_cloud_stack_service_account_token.observability
+  lifecycle {
+    destroy = false
+  }
+}
+
+removed {
+  from = grafana_cloud_stack_service_account.observability
+  lifecycle {
+    destroy = false
+  }
 }
 
 provider "grafana" {
   alias = "views"
   url   = module.observability.grafana_url
-  auth  = module.observability.grafana_instance_ready ? grafana_cloud_stack_service_account_token.observability[0].key : "instance-not-active"
+  auth  = module.observability.grafana_instance_ready ? grafana_cloud_stack_service_account_token.views[0].key : "instance-not-active"
 }
 
 module "observability_views" {
@@ -61,8 +84,10 @@ module "observability_views" {
 # but kept in Grafana, which refuses a second account of the same name (400)
 # and a second folder of the same uid. The release wrapper adopts what was
 # kept in two passes: "account" imports the account (a token follows), then
-# "views" uses that token to import the views that still exist. Outside a
-# restore none of these lookups run.
+# "views" uses that token to import the views that still exist. The views pass
+# imports only the addresses in var.grafana_adopt: the ones the release's
+# state-only plan would create, since importing an address already in state
+# is an error. Outside a restore none of these lookups run.
 locals {
   restore_account = module.observability.grafana_instance_ready && var.grafana_restore == "account"
   restore_views   = module.observability.grafana_instance_ready && var.grafana_restore == "views"
@@ -71,7 +96,7 @@ locals {
 
 data "http" "kept_account" {
   count = local.restore_account ? 1 : 0
-  url   = "https://grafana.com/api/instances/${var.grafana.stack_slug}/api/serviceaccounts/search?perpage=100&query=${urlencode(local.observability_account)}"
+  url   = "https://grafana.com/api/instances/${var.grafana.stack_slug}/api/serviceaccounts/search?perpage=100&query=${urlencode(local.views_account)}"
   request_headers = {
     Accept        = "application/json"
     Authorization = "Bearer ${module.observability.management_token}"
@@ -87,9 +112,9 @@ data "http" "kept_account" {
 import {
   for_each = toset(local.restore_account ? [
     for account in jsondecode(data.http.kept_account[0].response_body).serviceAccounts :
-    tostring(account.id) if account.name == local.observability_account
+    tostring(account.id) if account.name == local.views_account
   ] : [])
-  to = grafana_cloud_stack_service_account.observability[0]
+  to = grafana_cloud_stack_service_account.views[0]
   id = "${var.grafana.stack_slug}:${each.value}"
 }
 
@@ -110,7 +135,7 @@ data "http" "kept_rules" {
   url   = "${module.observability.grafana_url}/api/v1/provisioning/alert-rules"
   request_headers = {
     Accept        = "application/json"
-    Authorization = "Bearer ${grafana_cloud_stack_service_account_token.observability[0].key}"
+    Authorization = "Bearer ${grafana_cloud_stack_service_account_token.views[0].key}"
   }
   lifecycle {
     postcondition {
@@ -142,25 +167,25 @@ locals {
 }
 
 import {
-  for_each = local.kept_folder ? toset([local.view_keys.folder_uid]) : toset([])
+  for_each = local.kept_folder && contains(var.grafana_adopt, "module.observability_views[0].grafana_folder.this") ? toset([local.view_keys.folder_uid]) : toset([])
   to       = module.observability_views[0].grafana_folder.this
   id       = each.value
 }
 
 import {
-  for_each = { for file, uid in local.restore_views ? local.view_keys.dashboard_uids : {} : file => uid if contains(local.kept_dashboards, uid) }
+  for_each = { for file, uid in local.restore_views ? local.view_keys.dashboard_uids : {} : file => uid if contains(local.kept_dashboards, uid) && contains(var.grafana_adopt, format("module.observability_views[0].grafana_dashboard.this[%q]", file)) }
   to       = module.observability_views[0].grafana_dashboard.this[each.key]
   id       = each.value
 }
 
 import {
-  for_each = { for key, name in local.restore_views ? local.view_keys.rule_group_names : {} : key => name if contains(local.kept_rule_groups, name) }
+  for_each = { for key, name in local.restore_views ? local.view_keys.rule_group_names : {} : key => name if contains(local.kept_rule_groups, name) && contains(var.grafana_adopt, format("module.observability_views[0].grafana_rule_group.groups[%q]", key)) }
   to       = module.observability_views[0].grafana_rule_group.groups[each.key]
   id       = "${local.view_keys.folder_uid}:${each.value}"
 }
 
 import {
-  for_each = { for key, name in local.restore_views ? local.view_keys.slo_names : {} : key => local.kept_slos[name] if contains(keys(local.kept_slos), name) }
+  for_each = { for key, name in local.restore_views ? local.view_keys.slo_names : {} : key => local.kept_slos[name] if contains(keys(local.kept_slos), name) && contains(var.grafana_adopt, format("module.observability_views[0].grafana_slo.objectives[%q]", key)) }
   to       = module.observability_views[0].grafana_slo.objectives[each.key]
   id       = each.value
 }

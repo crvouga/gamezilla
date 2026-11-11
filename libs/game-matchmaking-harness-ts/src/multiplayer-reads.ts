@@ -4,7 +4,11 @@ import type { ClockSpeed } from '@libs/game-matchmaking-shared-ts/time-control';
 import { gameSpeed } from '@libs/game-matchmaking-shared-ts/time-control';
 import { actorUi } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
-import { actorLocalSql, signedInAccountOf } from '@libs/harness-ts/identity';
+import {
+  actorLocalSql,
+  localAccountIdOf,
+  signedInAccountOf,
+} from '@libs/harness-ts/identity';
 import { bringToFront } from '@libs/harness-ts/observations';
 import sql, { raw } from '@pkgs/sql-root-shared-ts/sql';
 
@@ -28,6 +32,23 @@ const GAME_COLUMNS = raw(
 
 const NOTHING = { game: null, search: null, ratings: [] } as const;
 
+/**
+ * The account whose play the device shows. The server's verdict, while the
+ * device can hear it; a device cut off from the server has not heard that
+ * its session ended (its account deleted), so it still shows its own copy.
+ */
+async function shownAccountOf(
+  s: ProductHarness,
+  actor: string
+): Promise<string | null> {
+  const live = await signedInAccountOf(s, actor);
+  if (live !== null) return live;
+  const cutOff =
+    s.session.caps.has('partition') &&
+    s.session.network.isPartitioned(s.harness.loadBalancer.id, actor);
+  return cutOff ? localAccountIdOf(s, actor) : null;
+}
+
 /** What one device holds: the person's current game, search and own ratings. */
 export async function multiplayerView(
   s: ProductHarness,
@@ -38,7 +59,7 @@ export async function multiplayerView(
   readonly ratings: readonly MultiplayerRatingView[];
 }> {
   const db = actorLocalSql(s, actor);
-  const owner = await signedInAccountOf(s, actor);
+  const owner = await shownAccountOf(s, actor);
   if (db === null || owner === null) return NOTHING;
   const games = await db.query(sql<MultiplayerGame>`SELECT ${GAME_COLUMNS}
     FROM chess_multiplayer_games AS g

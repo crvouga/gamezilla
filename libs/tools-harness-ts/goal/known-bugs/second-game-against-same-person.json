@@ -1,0 +1,4 @@
+{
+  "summary": "A Synthetic User starts a second game against the same person after its first one ends.",
+  "regressionTest": "libs/synthetic-population-harness-ts/tests/quint/control-panel.binding.ts"
+}

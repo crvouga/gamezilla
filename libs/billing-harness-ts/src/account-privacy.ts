@@ -1,4 +1,5 @@
 import { runPrivacyJobs } from '@libs/account-privacy-harness-ts/privacy-actions';
+import { sleepThroughTime } from '@libs/harness-ts/actions';
 import { pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import sql from '@pkgs/sql-root-shared-ts/sql';
@@ -161,7 +162,8 @@ export const agePaymentRetention = scenarioAction({
     const deadline = rows[0]?.erase_by;
     if (deadline === undefined)
       throw new Error('An actual membership payment is required');
-    await s.session.scheduler.underlying.sleep(
+    await sleepThroughTime(
+      s,
       Math.max(0, Date.parse(deadline) - s.harness.clock.now())
     );
   },

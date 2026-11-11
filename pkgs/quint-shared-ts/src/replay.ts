@@ -3,7 +3,9 @@
  * state's action through the binding with the values Quint drew, and after
  * every step require the world to be in the state the model says it is in.
  * The first step the product disagrees with fails the trace, with the whole
- * trace, the variables that differ and what the world was asked to do.
+ * trace, the variables that differ and what the world was asked to do. A
+ * step the host cannot perform (`QuintWorld.isHostLimit`) ends the trace
+ * there instead.
  */
 
 import type { ItfState, ItfTrace, QuintValue } from './itf';
@@ -191,7 +193,17 @@ export async function replayTrace(args: ReplayArgs): Promise<string | null> {
         title: describeStep(state),
         detail: observedPart(state, observedNames),
       };
-      await (world.record === undefined ? run() : world.record(w, meta, run));
+      try {
+        await (world.record === undefined ? run() : world.record(w, meta, run));
+      } catch (cause) {
+        if (world.isHostLimit?.(cause) !== true) throw cause;
+        // regression: wall-clock-time-travel-host-limit
+        const rest = trace.states.length - index - 1;
+        console.warn(
+          `${ctx.specUri} ${ctx.title}: ${(cause as Error).message} at ${describeStep(state)} — ${String(rest)} later step(s) not replayed`
+        );
+        return null;
+      }
     }
     return binding.fingerprint === undefined
       ? null

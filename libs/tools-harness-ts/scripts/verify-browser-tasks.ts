@@ -6,7 +6,6 @@ import type { VerifyPlan } from './verify-shards';
 const BROWSER_TASKS = new Set([
   '@apps/product-ts#test:contract:render',
   '@pkgs/ui-testing-bun-webview-server-ts#test',
-  '@pkgs/ui-root-harness-ts#ci:storybook',
   '@pkgs/ui-root-harness-ts#storybook:test',
   '@pkgs/ui-root-harness-ts#storybook:mcp:test',
 ]);
@@ -16,7 +15,8 @@ export function needsBrowser(tasks: VerifyPlan['tasks']): boolean {
     (task) =>
       !task.hit &&
       (BROWSER_TASKS.has(task.taskId) ||
-        task.taskId.startsWith('@apps/product-ts#test:release-journeys:'))
+        task.taskId.startsWith('@apps/product-ts#test:release-journeys:') ||
+        task.taskId.startsWith('@pkgs/ui-root-harness-ts#ci:storybook:'))
   );
 }
 export function needsSolver(tasks: VerifyPlan['tasks']): boolean {
