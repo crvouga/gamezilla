@@ -11,8 +11,7 @@ import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront } from '@libs/harness-ts/observations';
 import {
-  SYNTHETIC_USERS_CONTROL_PATH,
-  SYNTHETIC_USERS_PATH,
+  SYNTHETIC_USER_DIRECTORY_PATH,
   syntheticUserPath,
 } from '@libs/observatory-shared-ts/observatory-routes';
 import { SyntheticUserApplication } from '@libs/synthetic-population-behavior-shared-ts/synthetic-user-application';
@@ -20,6 +19,7 @@ import { SyntheticPopulationAdministration } from '@libs/synthetic-population-se
 import { SyntheticPopulationSession } from '@libs/synthetic-population-server-ts/synthetic-population-session';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import sql from '@pkgs/sql-root-shared-ts/sql';
+import { openSyntheticUserDirectory } from './observatory-actions';
 import { openSyntheticGame, syntheticGameView } from './synthetic-game-actions';
 import { syntheticUserActor } from './synthetic-sign-in-actions';
 import {
@@ -92,20 +92,22 @@ async function syntheticUsersWithApps(
     .filter((name) => s.actors.has(syntheticUserActor(name)));
 }
 
-/** Opens the controls for every Synthetic User; `false` when denied. */
-async function openEveryControls(
+/**
+ * From the Synthetic Users table, the person presses "Pause every" or
+ * "Resume every". `false` when they are refused: the panel's denial, or the
+ * dialog saying they may not control, which stays open to read.
+ */
+async function pressEvery(
   s: ProductHarness,
-  actor: string
+  actor: string,
+  command: 'pause-all' | 'resume-all'
 ): Promise<boolean> {
   const ui = await actorUi(s, actor);
-  await s.actors.get(actor)!.openLink(SYNTHETIC_USERS_CONTROL_PATH);
+  await Promise.resolve(openSyntheticUserDirectory.act(s, actor));
+  if (await ui.get('synthetic-population-denied').isVisible()) return false;
+  await ui.get(`synthetic-population-${command}`).tap({ timeoutMs: WAIT_MS });
   await s.session.waitForIdle();
-  if (await ui.get('synthetic-population-control-denied').isVisible())
-    return false;
-  await ui
-    .get('synthetic-population-pause-all')
-    .expect.visible({ timeoutMs: WAIT_MS });
-  return true;
+  return !(await ui.get('synthetic-population-control-denied').isVisible());
 }
 
 async function confirmEvery(
@@ -114,10 +116,7 @@ async function confirmEvery(
   command: 'pause-all' | 'resume-all'
 ): Promise<void> {
   const ui = await actorUi(s, actor);
-  await ui.get(`synthetic-population-${command}`).tap();
-
   await ui.get(`synthetic-population-${command}-confirm`).tap();
-
   await ui
     .get('synthetic-population-every-done')
     .expect.visible({ timeoutMs: WAIT_MS });
@@ -126,11 +125,11 @@ async function confirmEvery(
   await s.session.waitForIdle();
 }
 
-/** The person pauses or resumes every Synthetic User, from the controls. */
+/** The person pauses or resumes every Synthetic User, from the Synthetic Users table. */
 export const commandEverySyntheticUser = scenarioAction({
   name: 'commandEverySyntheticUser',
   act: async (s, actor: string, command: 'pause-all' | 'resume-all') => {
-    if (!(await openEveryControls(s, actor))) return;
+    if (!(await pressEvery(s, actor, command))) return;
     await confirmEvery(s, actor, command);
   },
 });
@@ -142,7 +141,7 @@ export const commandEverySyntheticUser = scenarioAction({
 export const pauseEverySyntheticUser = scenarioAction({
   name: 'pauseEverySyntheticUser',
   act: async (s, actor: string) => {
-    if (!(await openEveryControls(s, actor))) return;
+    if (!(await pressEvery(s, actor, 'pause-all'))) return;
     await confirmEvery(s, actor, 'pause-all');
     for (const name of await syntheticUsersWithApps(s))
       await Promise.resolve(tickSyntheticUser.act(s, name));
@@ -172,13 +171,32 @@ async function openControlPanel(
   return !(await ui.get('synthetic-population-inspect-denied').isVisible());
 }
 
+/**
+ * On a control panel, the person presses a command, confirms it, sees its
+ * outcome and closes it, as before acting again.
+ */
+async function confirmCommand(
+  s: ProductHarness,
+  actor: string,
+  command: 'pause' | 'resume' | 'restart'
+): Promise<void> {
+  const ui = await actorUi(s, actor);
+  await ui.get(`synthetic-population-${command}`).tap();
+  await ui.get(`synthetic-population-${command}-confirm`).tap();
+  await ui
+    .get(`synthetic-population-${command}-done`)
+    .expect.visible({ timeoutMs: WAIT_MS });
+  await ui.get(`synthetic-population-${command}-dismiss`).tap();
+  await s.session.waitForIdle();
+}
+
 /** The person pauses one Synthetic User from its control panel. */
 export const pauseOneSyntheticUser = scenarioAction({
   name: 'pauseOneSyntheticUser',
   act: async (s, actor: string, name: string) => {
     if (!(await openControlPanel(s, actor, name))) return;
+    await confirmCommand(s, actor, 'pause');
     const ui = await actorUi(s, actor);
-    await ui.get('synthetic-population-pause').tap();
     await ui
       .get('synthetic-population-availability')
       .expect.text('Synthetic Population statePaused');
@@ -191,8 +209,8 @@ export const resumeSyntheticUser = scenarioAction({
   name: 'resumeSyntheticUser',
   act: async (s, actor: string, name: string) => {
     if (!(await openControlPanel(s, actor, name))) return;
+    await confirmCommand(s, actor, 'resume');
     const ui = await actorUi(s, actor);
-    await ui.get('synthetic-population-resume').tap();
     await ui
       .get('synthetic-population-availability')
       .expect.text('Synthetic Population stateAvailable');
@@ -208,14 +226,7 @@ export const restartSyntheticUser = scenarioAction({
   name: 'restartSyntheticUser',
   act: async (s, actor: string, name: string) => {
     if (!(await openControlPanel(s, actor, name))) return;
-    const ui = await actorUi(s, actor);
-    await ui.get('synthetic-population-restart').tap();
-    await ui.get('synthetic-population-restart-confirm').tap();
-    await ui
-      .get('synthetic-population-restart-done')
-      .expect.visible({ timeoutMs: WAIT_MS });
-    // Seen; the person closes the outcome, as before acting again.
-    await ui.get('synthetic-population-restart-dismiss').tap();
+    await confirmCommand(s, actor, 'restart');
     const { lease, sessions, renewal } = await leasedSession(s, name);
     const restart = renewal.commands.find(
       (command) => command.command === 'restart'
@@ -268,7 +279,7 @@ export const givenPausedSyntheticUsers = scenarioAction({
   },
 });
 
-/** What the observer's Synthetic Population panel shows for the Synthetic User, as it is on screen. */
+/** What the observer's Synthetic Users table shows for the Synthetic User, as it is on screen. */
 export async function directoryRowShown(
   s: ProductHarness,
   observer: string,
@@ -282,7 +293,10 @@ export async function directoryRowShown(
   return (await row.isVisible()) ? ((await row.text()) ?? '') : null;
 }
 
-/** Whether the observer's Synthetic Population panel offers the Synthetic User's control panel. */
+/**
+ * Whether the observer's Synthetic Users table offers the Synthetic User's
+ * control panel: its row is shown and opens it.
+ */
 export async function directoryControlPanelOffered(
   s: ProductHarness,
   observer: string,
@@ -290,12 +304,16 @@ export async function directoryControlPanelOffered(
 ): Promise<boolean> {
   const user = await syntheticUserNamed(s, name);
   await bringToFront(s, observer);
-  return (await actorUi(s, observer))
-    .get(`synthetic-population-control-panel-${user.username}`)
-    .isVisible();
+  const row = (await actorUi(s, observer)).get(
+    `synthetic-population-user-${user.id}`
+  );
+  return (
+    (await row.isVisible()) &&
+    (await row.attribute('data-pressable')) === 'true'
+  );
 }
 
-/** What the observer's directory says about the Synthetic User. */
+/** What the observer's Synthetic Users table says about the Synthetic User. */
 async function directoryRow(
   s: ProductHarness,
   observer: string,
@@ -303,7 +321,7 @@ async function directoryRow(
 ): Promise<string> {
   const user = await syntheticUserNamed(s, name);
   const ui = await actorUi(s, observer);
-  await s.actors.get(observer)!.openLink(SYNTHETIC_USERS_PATH);
+  await s.actors.get(observer)!.openLink(SYNTHETIC_USER_DIRECTORY_PATH);
   await s.session.waitForIdle();
   return (await ui.get(`synthetic-population-user-${user.id}`).text()) ?? '';
 }

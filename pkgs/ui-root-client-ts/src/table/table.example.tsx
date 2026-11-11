@@ -22,7 +22,12 @@ const GAMES: readonly Game[] = [
 ];
 
 const COLUMNS: readonly TableColumn<Game>[] = [
-  { key: 'opponent', header: 'Opponent', render: (game) => game.opponent },
+  {
+    key: 'opponent',
+    header: 'Opponent',
+    primary: true,
+    render: (game) => game.opponent,
+  },
   {
     key: 'result',
     header: 'Result',
@@ -67,6 +72,23 @@ export default function TableExample(): JSX.Element {
       </ExampleSection>
       <ExampleSection title="Pressable rows">
         <PressableTable />
+      </ExampleSection>
+      <ExampleSection title="Sortable columns, most moves first">
+        <Table
+          caption="Longest games"
+          columns={COLUMNS.map((column) =>
+            column.key === 'result'
+              ? column
+              : {
+                  ...column,
+                  sortValue: (game: Game) =>
+                    column.key === 'moves' ? game.moves : game.opponent,
+                }
+          )}
+          rows={GAMES}
+          rowKey={(game) => game.id}
+          defaultSort={{ key: 'moves', direction: 'descending' }}
+        />
       </ExampleSection>
       <ExampleSection title="Centered column, no caption">
         <Table

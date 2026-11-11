@@ -1,12 +1,16 @@
-import { OBSERVATORY_PATH } from '@libs/observatory-shared-ts/observatory-routes';
+import {
+  OBSERVATORY_PATH,
+  ONLINE_NOW_PATH,
+} from '@libs/observatory-shared-ts/observatory-routes';
 import { defineSubClient } from '@libs/sub-client-ts/client';
 import { lazy } from 'solid-js';
 import { LiveSessionReporter } from './live-session-reporter';
 import { ObservatorySettings } from './observatory-settings';
 
 /**
- * The User Observatory and every app's online-now report: whoever is online
- * now, people and Synthetic Users, and watching any of them live.
+ * The User Observatory and every app's online-now report: a hub linking to
+ * Online now (whoever is online now, people and Synthetic Users, as a table)
+ * and watching any of them live.
  */
 export const OBSERVATORY_CLIENT = defineSubClient({
   name: 'observatory',
@@ -19,6 +23,12 @@ export const OBSERVATORY_CLIENT = defineSubClient({
       component: lazy(async () => ({
         default: (await import('./user-observatory-screen'))
           .UserObservatoryScreen,
+      })),
+    },
+    {
+      path: ONLINE_NOW_PATH,
+      component: lazy(async () => ({
+        default: (await import('./online-now-screen')).OnlineNowScreen,
       })),
     },
     {

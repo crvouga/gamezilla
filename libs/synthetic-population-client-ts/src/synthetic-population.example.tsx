@@ -1,8 +1,6 @@
 import type { SyntheticPopulationConfig } from '@libs/synthetic-population-shared-ts/config';
 import type { Inspection } from '@libs/synthetic-population-shared-ts/inspection';
 import type { Persona } from '@libs/synthetic-population-shared-ts/persona';
-import type { JSX } from 'solid-js';
-import { fn } from 'storybook/test';
 import { createJSXDecorator } from 'storybook-solidjs-vite';
 import { type GameName, GameNamesProvider } from './game-names';
 import type {
@@ -12,11 +10,6 @@ import type {
   SyntheticUserDetail,
   SyntheticUserReplayResult,
 } from './synthetic-population-api';
-import {
-  SyntheticPopulationUsersView,
-  type SyntheticPopulationUsersViewProps,
-} from './synthetic-population-users-view';
-import { SyntheticUserReplayView } from './synthetic-user-replay-view';
 
 /** Story-only Synthetic Population panel fixtures: fixed ids and instants, no I/O. */
 
@@ -319,28 +312,6 @@ export const PAGE: SyntheticPopulationDirectoryPage = {
   nextCursor: null,
 };
 
-const DIRECTORY: SyntheticPopulationUsersViewProps = {
-  filter: '',
-  page: PAGE,
-  loading: false,
-  failed: false,
-  paged: false,
-  canInspect: true,
-  canControl: true,
-  onFilterChange: fn().mockName('directory.onFilterChange'),
-  onFirstPage: fn().mockName('directory.onFirstPage'),
-  onNextPage: fn().mockName('directory.onNextPage'),
-  onInspect: fn().mockName('directory.onInspect'),
-  onRetry: fn().mockName('directory.onRetry'),
-};
-
-/** The directory slot in a given state, as the container would fill it. */
-export function directory(
-  overrides: Partial<SyntheticPopulationUsersViewProps> = {}
-): () => JSX.Element {
-  return () => <SyntheticPopulationUsersView {...DIRECTORY} {...overrides} />;
-}
-
 /**
  * Live DOM capture for generation 3, Tobi_plays's turn in Connect Four:
  * the inspection keeps the accessible structure only (an excerpt).
@@ -434,15 +405,3 @@ export const REPLAY: SyntheticUserReplayResult = {
     },
   ],
 };
-
-/** The replay slot, before or after a replay. */
-export function replay(
-  result: SyntheticUserReplayResult | null
-): () => JSX.Element {
-  return () => (
-    <SyntheticUserReplayView
-      result={result}
-      onReplay={fn(async () => undefined).mockName('replay.onReplay')}
-    />
-  );
-}
