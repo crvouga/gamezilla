@@ -1,0 +1,4 @@
+{
+  "summary": "The tools-harness tests compare the committed-path brand artwork (PWA icons and splashes) with a fresh render from the configured identity, but the test task never depended on generate:brand-artifacts. CI generated the artwork under the fixture identity, then materialized the configured identity, and the uncached test read stale icons (Verify Nightly storybook run 42965833419). The test task now regenerates the artwork first.",
+  "regressionTest": "libs/tools-harness-ts/scripts/brand-image-artifacts.test.ts"
+}

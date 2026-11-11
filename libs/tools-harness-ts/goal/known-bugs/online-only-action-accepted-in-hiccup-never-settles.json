@@ -1,0 +1,4 @@
+{
+  "summary": "After a sync hiccup stopped taking the app offline, an online-only command (abort, resign, Find, a move) taken between a lost connection's first failed request and its failed retry was accepted and queued, then never settled: once the loss was established nothing refused it, so its caller waited for a server verdict that could not arrive (human-like-play trace 4 timed out waiting for Bob's abort verdict after Bob's device was cut off). When the connection proves lost, every queued online-only action is now refused with the offline verdict, 'This action needs a connection.', and never goes out later on its own.",
+  "regressionTest": "pkgs/sync-engine-harness-ts/tests/online-only-after-hiccup.test.ts"
+}

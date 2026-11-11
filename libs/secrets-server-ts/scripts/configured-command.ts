@@ -1,7 +1,7 @@
 // @io-wall-ok — prepare external configuration before the child imports product modules.
 import { spawnSync } from 'node:child_process';
 import { join } from 'node:path';
-import { configuredIdentity } from '@libs/product-identity-shared-ts/identity-input';
+import { configuredIdentity } from '@libs/product-brand-shared-ts/identity-input';
 import { configuredCommandInput } from '@libs/secrets-server-ts/configured-command-input';
 
 const root = join(import.meta.dirname, '../../..');

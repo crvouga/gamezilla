@@ -1,11 +1,11 @@
 /**
- * Verification depth is separate from task selection (`ci-stage.ts`).
- * Release depth is bounded and deterministic, without retained reports.
- * Nightly exercises the complete catalog at deeper budgets plus the suites
- * below, retaining reports. Local `bun verify` retains the complete catalog
- * at release depth. A profile never defines different tests: environment
+ * Verification depth is separate from task selection (`ci-stage.ts`): every
+ * profile runs the whole gate catalog. Release depth is bounded and
+ * deterministic, without retained reports. Nightly runs the same catalog at
+ * deeper budgets plus the suites below, retaining reports. Local `bun verify`
+ * is release depth. A profile never defines different tests: environment
  * budgets participate in task hashes. Pin nightly findings in their owning
- * suites; promote security and irreversible-change regressions to blocking CI.
+ * gate suites, which every pull request then runs.
  */
 
 export const PROFILE_ENV = 'VERIFY_PROFILE';

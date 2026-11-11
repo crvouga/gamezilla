@@ -69,7 +69,8 @@ function runLingui(subcommand: 'extract' | 'compile', args: string[]): void {
   run(command.cmd, [...command.args]);
 }
 
-const BABEL_CONFIG_RELS = [
+/** The Babel configs the verification reads; also `ci:i18n` inputs (a test). */
+export const BABEL_CONFIG_RELS = [
   'apps/client-ts/vite.config.mts',
   'pkgs/bun-test-solid-client-ts/src/babel.config.cjs',
 ] as const;

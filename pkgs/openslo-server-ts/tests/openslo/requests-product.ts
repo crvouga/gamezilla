@@ -43,6 +43,6 @@ export const REQUEST_ALERTING: AlertingBinding = {
   respond: ({ policy }) => ({
     owner: 'runtime',
     runbook: 'https://example.test/runbook',
-    command: `bun obs errors --since 1h # ${policy.name}`,
+    command: `bun obs errors --since 1h # ${policy?.name ?? 'objective'}`,
   }),
 };

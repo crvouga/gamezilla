@@ -18,6 +18,7 @@
     "@aws-sdk/client-s3": "catalog:",
     "@libs/infra-shared-ts": "workspace:*",
     "@libs/observability-shared-ts": "workspace:*",
+    "@libs/product-brand-shared-ts": "workspace:*",
     "@libs/product-identity-shared-ts": "workspace:*",
     "@libs/secrets-shared-ts": "workspace:*",
     "@pkgs/assert-root-shared-ts": "workspace:*",
@@ -37,6 +38,7 @@
     "picocolors": "catalog:"
   },
   "devDependencies": {
+    "@pkgs/fs-server-ts": "workspace:*",
     "@pkgs/property-shared-ts": "workspace:*",
     "@types/bun": "catalog:",
     "@types/node": "catalog:",

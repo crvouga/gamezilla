@@ -29,6 +29,7 @@ import type { CreateId } from '@pkgs/uuid-shared-ts/create-id';
 import { assertUuid } from '@pkgs/uuid-shared-ts/uuid';
 import { createUuidV7 } from '@pkgs/uuid-shared-ts/uuid-v7';
 import type { MutationVerdict } from './mutation-status';
+import { OFFLINE_REFUSAL } from './online-only-refusal';
 import { recordOptimisticOwnRows } from './optimistic-own-rows';
 import { reobservePendingChoice } from './reobserve-pending-choice';
 import {
@@ -341,13 +342,7 @@ export function createMutationClient(
         if (m.requiresOnline === true && !online) {
           return {
             ok: false as const,
-            failures: [
-              {
-                rule: m.name,
-                code: 'OFFLINE',
-                message: 'This action needs a connection.',
-              },
-            ],
+            failures: [{ rule: m.name, ...OFFLINE_REFUSAL }],
           };
         }
 

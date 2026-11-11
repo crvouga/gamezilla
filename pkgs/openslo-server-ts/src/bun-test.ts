@@ -8,6 +8,12 @@
  * and fails when the obligation does. The runner-generated stub
  * (`stubs.ts`) imports the package's openslo entry, which registers the
  * bindings, then calls {@link runObjectiveSpec}.
+ *
+ * Every failure message starts with the environment and the objective file
+ * (`[prd] specs/runtime/request-success.openslo.yaml: …`), and every failed
+ * objective or firing policy also leaves an `ObjectiveFailure` in the report
+ * bucket's `failures/` (`writeFailure`), the numbers and response whoever
+ * answers it needs.
  */
 
 import { describe, test } from 'bun:test';
@@ -23,6 +29,8 @@ import {
 } from '@pkgs/openslo-shared-ts/check';
 import type { AlertResult } from '@pkgs/openslo-shared-ts/check-alerts';
 import { bundleFor, measureAlerts } from '@pkgs/openslo-shared-ts/check-alerts';
+import type { ObjectiveFailure } from '@pkgs/openslo-shared-ts/failure';
+import { failureMessage, failureWhere } from '@pkgs/openslo-shared-ts/failure';
 import type { Objective, OpenSloDoc, Slo } from '@pkgs/openslo-shared-ts/model';
 import { parseOpenSlo } from '@pkgs/openslo-shared-ts/parse';
 import type { ObjectivesBinding } from '@pkgs/openslo-shared-ts/registry';
@@ -30,6 +38,7 @@ import {
   objectiveSpecStem,
   objectivesBinding,
 } from '@pkgs/openslo-shared-ts/registry';
+import { writeFailure } from './failures';
 
 export type RunObjectiveOptions = {
   readonly packageName: string;
@@ -37,11 +46,21 @@ export type RunObjectiveOptions = {
   readonly specPath: string;
   /** Repo-relative path, as reported (`specs/sync-engine/note-delivery.openslo.yaml`). */
   readonly specUri: string;
-  /** The package's report bucket; evidence lands in `evidence/`. */
+  /** The package's report bucket; evidence lands in `evidence/`, failures in `failures/`. */
   readonly reportDir: string;
+  /** The environment measured (`prd`): named in every failure message. */
+  readonly environment?: string;
 };
 
 type RecordObligation = (obligation: Obligation) => void;
+
+/** Where a file's checks report: the evidence, the failures, and where it ran. */
+type Reporting = {
+  readonly record: RecordObligation;
+  readonly fail: (failure: ObjectiveFailure) => void;
+  readonly specUri: string;
+  readonly environment: string | null;
+};
 
 /** Register the file's tests with `bun test`. Call at module top level. */
 export function runObjectiveSpec(options: RunObjectiveOptions): void {
@@ -56,6 +75,12 @@ export function runObjectiveSpec(options: RunObjectiveOptions): void {
         obligations: [obligation],
       });
     };
+    const reporting: Reporting = {
+      record,
+      fail: (failure) => writeFailure(options.reportDir, failure),
+      specUri: options.specUri,
+      environment: options.environment ?? null,
+    };
     const parsed = parseOpenSlo(text);
     test('is a well-formed objective', () => {
       const detail = parsed.ok
@@ -69,16 +94,16 @@ export function runObjectiveSpec(options: RunObjectiveOptions): void {
       });
       if (!parsed.ok) {
         throw new Error(
-          `${options.specUri} is not a well-formed objective:\n  ${parsed.issues.join('\n  ')}`
+          `${failureWhere(options.environment, options.specUri)} is not a well-formed objective:\n  ${parsed.issues.join('\n  ')}`
         );
       }
     });
     if (!parsed.ok) return;
     const stem = objectiveSpecStem(options.specPath);
-    registerObjectives({ doc: parsed.doc, stem, record });
+    registerObjectives({ doc: parsed.doc, stem, reporting });
     const binding = lookup(stem);
     if (!(binding instanceof Error)) {
-      registerAlerts({ doc: parsed.doc, binding, record });
+      registerAlerts({ doc: parsed.doc, binding, reporting });
     }
   });
 }
@@ -86,9 +111,11 @@ export function runObjectiveSpec(options: RunObjectiveOptions): void {
 function registerObjectives(input: {
   readonly doc: OpenSloDoc;
   readonly stem: string;
-  readonly record: RecordObligation;
+  readonly reporting: Reporting;
 }): void {
-  const { doc, record } = input;
+  const { doc, reporting } = input;
+  const { record } = reporting;
+  const where = failureWhere(reporting.environment, reporting.specUri);
   const binding = lookup(input.stem);
   const layer =
     binding instanceof Error
@@ -109,7 +136,7 @@ function registerObjectives(input: {
       status: issues.length === 0 ? 'pass' : 'fail',
       detail,
     });
-    if (issues.length > 0) throw new Error(detail);
+    if (issues.length > 0) throw new Error(`${where}: ${detail}`);
   });
   const measured = new Map<string, Promise<readonly ObjectiveResult[]>>();
   const resultsOf = (slo: Slo, found: ObjectivesBinding) => {
@@ -138,17 +165,22 @@ function registerObjectives(input: {
           binding.whenNoEvidence === 'quiet';
         const met = evaluation.met || quiet;
         const detail = `${evaluation.detail}; ${String(evaluation.considered)} considered${quiet ? '; too quiet to judge' : ''}`;
-        record({
-          id: result.id,
-          layer,
-          status: met ? 'pass' : 'fail',
-          detail,
-        });
-        if (!met) {
-          throw new Error(
-            `${slo.name} does not meet "${objective.displayName}": ${detail}`
-          );
+        if (met) {
+          record({ id: result.id, layer, status: 'pass', detail });
+          return;
         }
+        const failure = objectiveFailure({
+          reporting,
+          slo,
+          objective,
+          evaluation,
+          detail,
+          binding,
+        });
+        const message = failureMessage(failure);
+        record({ id: result.id, layer, status: 'fail', detail: message });
+        reporting.fail(failure);
+        throw new Error(message);
       };
       const name = `${slo.name} meets "${objective.displayName}"`;
       const timeoutMs =
@@ -162,9 +194,10 @@ function registerObjectives(input: {
 function registerAlerts(input: {
   readonly doc: OpenSloDoc;
   readonly binding: ObjectivesBinding;
-  readonly record: RecordObligation;
+  readonly reporting: Reporting;
 }): void {
-  const { doc, binding, record } = input;
+  const { doc, binding, reporting } = input;
+  const { record } = reporting;
   if (binding.alerting === undefined) return;
   const layer = binding.layer ?? 'implementation';
   for (const slo of doc.slos) {
@@ -181,18 +214,91 @@ function registerAlerts(input: {
           found?.noEvidence === true && binding.whenNoEvidence === 'quiet';
         const ok = found?.ok === true || quiet;
         const detail = `${found?.detail ?? 'not evaluated'}${quiet ? '; too quiet to judge' : ''}`;
-        record({
-          id: `alert:${slo.name}:${policy.name}`,
-          layer,
-          status: ok ? 'pass' : 'fail',
+        const id = `alert:${slo.name}:${policy.name}`;
+        if (ok) {
+          record({ id, layer, status: 'pass', detail });
+          return;
+        }
+        const failure: ObjectiveFailure = {
+          ...sloFields(reporting, slo),
+          check: { kind: 'alert', policy: policy.name, severity },
+          target: slo.objectives[0]?.target ?? null,
+          observed: null,
+          considered: null,
+          readings: found?.firing?.readings ?? [],
+          budgetRemaining: found?.firing?.budgetRemaining ?? null,
+          response: found?.firing?.response ?? null,
           detail,
-        });
-        if (!ok) throw new Error(detail);
+        };
+        const message = failureMessage(failure);
+        record({ id, layer, status: 'fail', detail: message });
+        reporting.fail(failure);
+        throw new Error(message);
       };
       const name = `${slo.name} raises no ${severity} alert: ${policy.name}`;
       if (binding.timeoutMs === undefined) test(name, body);
       else test(name, body, binding.timeoutMs);
     }
+  }
+}
+
+function sloFields(
+  reporting: Reporting,
+  slo: Slo
+): Pick<
+  ObjectiveFailure,
+  | 'environment'
+  | 'specUri'
+  | 'slo'
+  | 'sloDisplayName'
+  | 'sloDescription'
+  | 'window'
+> {
+  return {
+    environment: reporting.environment,
+    specUri: reporting.specUri,
+    slo: slo.name,
+    sloDisplayName: slo.displayName,
+    sloDescription: slo.description,
+    window: slo.timeWindow.duration,
+  };
+}
+
+/** A missed objective, with the binding's response when it alerts. */
+function objectiveFailure(input: {
+  readonly reporting: Reporting;
+  readonly slo: Slo;
+  readonly objective: Objective;
+  readonly evaluation: ObjectiveResult['evaluation'];
+  readonly detail: string;
+  readonly binding: ObjectivesBinding | Error;
+}): ObjectiveFailure {
+  const { slo, evaluation, binding } = input;
+  return {
+    ...sloFields(input.reporting, slo),
+    check: { kind: 'objective', objective: input.objective.displayName },
+    target: evaluation.target,
+    observed: evaluation.observed,
+    considered: evaluation.considered,
+    readings: [],
+    budgetRemaining: null,
+    response: respondTo(binding, slo),
+    detail: input.detail,
+  };
+}
+
+function respondTo(
+  binding: ObjectivesBinding | Error,
+  slo: Slo
+): ObjectiveFailure['response'] {
+  if (binding instanceof Error || binding.alerting === undefined) return null;
+  try {
+    return binding.alerting.respond({
+      slo,
+      lookbackWindow: slo.timeWindow.duration,
+    });
+  } catch {
+    return null;
   }
 }
 

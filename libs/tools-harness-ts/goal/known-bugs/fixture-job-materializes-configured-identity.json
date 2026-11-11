@@ -1,0 +1,4 @@
+{
+  "summary": "The setup action injected the configured identity JSON into every later step of a fixture-mode job without the mode, so any later generate:identity materialized the configured identity: an uncached tools-harness run then compared fixture artwork with the configured brand, and a Storybook authoring run rendered the real brand into references (Verify Nightly run 42974226522). The mode is exported with the identity.",
+  "regressionTest": "libs/secrets-server-ts/tests/export-product-identity.test.ts"
+}

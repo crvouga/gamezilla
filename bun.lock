@@ -55,6 +55,7 @@
       "dependencies": {
         "@libs/app-root-client-ts": "workspace:*",
         "@libs/app-root-shared-ts": "workspace:*",
+        "@libs/product-brand-shared-ts": "workspace:*",
         "@libs/product-identity-shared-ts": "workspace:*",
         "@libs/runtime-client-ts": "workspace:*",
         "@libs/runtime-shared-ts": "workspace:*",
@@ -114,6 +115,7 @@
         "@libs/chess-puzzle-harness-ts": "workspace:*",
         "@libs/connect-four-harness-ts": "workspace:*",
         "@libs/harness-ts": "workspace:*",
+        "@libs/product-brand-shared-ts": "workspace:*",
         "@libs/product-identity-shared-ts": "workspace:*",
         "@libs/runtime-client-ts": "workspace:*",
         "@libs/runtime-harness-ts": "workspace:*",
@@ -2421,6 +2423,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@aws-sdk/client-s3": "catalog:",
+        "@libs/product-brand-shared-ts": "workspace:*",
         "@libs/product-identity-shared-ts": "workspace:*",
       },
       "devDependencies": {
@@ -2450,6 +2453,7 @@
       },
       "devDependencies": {
         "@huggingface/jinja": "catalog:",
+        "@libs/product-brand-shared-ts": "workspace:*",
         "@pkgs/property-shared-ts": "workspace:*",
         "@pkgs/resource-naming-shared-ts": "workspace:*",
         "@types/bun": "catalog:",
@@ -2728,6 +2732,7 @@
       "dependencies": {
         "@libs/observability-shared-ts": "workspace:*",
         "@libs/product-identity-shared-ts": "workspace:*",
+        "@pkgs/clock-shared-ts": "workspace:*",
         "@pkgs/http-client-shared-ts": "workspace:*",
         "@pkgs/observability-root-shared-ts": "workspace:*",
         "@pkgs/openslo-shared-ts": "workspace:*",
@@ -3062,6 +3067,21 @@
         "typescript": "catalog:",
       },
     },
+    "libs/product-brand-shared-ts": {
+      "name": "@libs/product-brand-shared-ts",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/product-identity-shared-ts": "workspace:*",
+      },
+      "devDependencies": {
+        "@libs/product-identity": "workspace:*",
+        "@pkgs/property-shared-ts": "workspace:*",
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "libs/product-identity": {
       "name": "@libs/product-identity",
       "version": "0.0.0",
@@ -3074,10 +3094,8 @@
         "zod": "catalog:",
       },
       "devDependencies": {
-        "@pkgs/property-shared-ts": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
-        "fast-check": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -3552,6 +3570,7 @@
         "@aws-sdk/client-s3": "catalog:",
         "@libs/infra-shared-ts": "workspace:*",
         "@libs/observability-shared-ts": "workspace:*",
+        "@libs/product-brand-shared-ts": "workspace:*",
         "@libs/product-identity-shared-ts": "workspace:*",
         "@libs/secrets-shared-ts": "workspace:*",
         "@pkgs/assert-root-shared-ts": "workspace:*",
@@ -3571,6 +3590,7 @@
         "picocolors": "catalog:",
       },
       "devDependencies": {
+        "@pkgs/fs-server-ts": "workspace:*",
         "@pkgs/property-shared-ts": "workspace:*",
         "@types/bun": "catalog:",
         "@types/node": "catalog:",
@@ -4020,6 +4040,7 @@
       "name": "@libs/tools-harness-ts",
       "version": "0.0.0",
       "dependencies": {
+        "@libs/product-brand-shared-ts": "workspace:*",
         "@libs/product-identity": "workspace:*",
         "@libs/product-identity-shared-ts": "workspace:*",
       },
@@ -8754,6 +8775,8 @@
     "@libs/pong-harness-ts": ["@libs/pong-harness-ts@workspace:libs/pong-harness-ts"],
 
     "@libs/pong-shared-ts": ["@libs/pong-shared-ts@workspace:libs/pong-shared-ts"],
+
+    "@libs/product-brand-shared-ts": ["@libs/product-brand-shared-ts@workspace:libs/product-brand-shared-ts"],
 
     "@libs/product-identity": ["@libs/product-identity@workspace:libs/product-identity"],
 

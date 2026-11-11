@@ -382,7 +382,7 @@ the visibility, homepage, enabled Issues, disabled Projects/Wiki/Discussions,
 and existing environment names (`allow_forking` is not sent for a user-owned
 repository). Publishing the repository is the one edit `visibility` →
 `public`; the same apply turns on secret scanning and push protection.
-Release runs `.github/workflows/verify-pr.yml` (`verify:end`, the blocking safety checks) on
+Release runs `.github/workflows/verify-pr.yml` (`verify:end`, the whole gate at release depth) on
 `main` on every push to `main` before it ships. The ruleset requires the same gate before a PR merges.
 No merge queue is added.
 

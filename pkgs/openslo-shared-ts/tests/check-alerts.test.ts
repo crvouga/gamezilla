@@ -85,7 +85,7 @@ function bindingFor(
       respond: ({ policy, lookbackWindow }) => ({
         owner: 'runtime',
         runbook: 'https://example.test/runbook',
-        command: `bun obs errors --since ${lookbackWindow} # ${policy.name}`,
+        command: `bun obs errors --since ${lookbackWindow} # ${policy?.name ?? 'objective'}`,
       }),
     },
   };

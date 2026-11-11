@@ -2,7 +2,7 @@
 import { expect, test } from 'bun:test';
 import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
-import { BRAND_ARTIFACTS } from '@libs/product-identity-shared-ts/brand-artifacts';
+import { BRAND_ARTIFACTS } from '@libs/product-brand-shared-ts/brand-artifacts';
 import { BRAND_IMAGE_ARTIFACTS } from './brand-image-catalog';
 
 test('deployment identity and every branded build artifact are ignored and untracked', () => {
