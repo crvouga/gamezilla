@@ -71,32 +71,34 @@ export function isPuzzleFeedPlace(place: PuzzlePlayPlace): boolean {
  * The feed's places. A watcher waiting for the host has nothing to set; the
  * line is stepped through from the board or from the result.
  */
-export const PUZZLE_PLAY_PLACES: ScreenPlaces<PuzzlePlayStage, PuzzlePlayPlace> =
-  defineScreenPlaces<PuzzlePlayStage, PuzzlePlayPlace>({
-    home: {
-      loading: STATUS,
-      offline: STATUS,
-      limited: STATUS,
-      empty: STATUS,
-      waiting: STATUS,
-      playing: { screen: 'play' },
-      finished: { screen: 'result' },
-    },
-    screens: {
-      loading: WITHOUT_PUZZLE,
-      offline: WITHOUT_PUZZLE,
-      limited: WITHOUT_PUZZLE,
-      empty: WITHOUT_PUZZLE,
-      waiting: ['status'],
-      playing: ['play', 'line', ...PUZZLE_FEED_SCREENS],
-      finished: ['result', 'line', ...PUZZLE_FEED_SCREENS],
-    },
-    // One setting leads back to the settings; everything else to the home.
-    parent: (place) =>
-      place.screen !== 'feed' && isPuzzleFeedPlace(place)
-        ? { screen: 'feed' }
-        : null,
-  });
+export const PUZZLE_PLAY_PLACES: ScreenPlaces<
+  PuzzlePlayStage,
+  PuzzlePlayPlace
+> = defineScreenPlaces<PuzzlePlayStage, PuzzlePlayPlace>({
+  home: {
+    loading: STATUS,
+    offline: STATUS,
+    limited: STATUS,
+    empty: STATUS,
+    waiting: STATUS,
+    playing: { screen: 'play' },
+    finished: { screen: 'result' },
+  },
+  screens: {
+    loading: WITHOUT_PUZZLE,
+    offline: WITHOUT_PUZZLE,
+    limited: WITHOUT_PUZZLE,
+    empty: WITHOUT_PUZZLE,
+    waiting: ['status'],
+    playing: ['play', 'line', ...PUZZLE_FEED_SCREENS],
+    finished: ['result', 'line', ...PUZZLE_FEED_SCREENS],
+  },
+  // One setting leads back to the settings; everything else to the home.
+  parent: (place) =>
+    place.screen !== 'feed' && isPuzzleFeedPlace(place)
+      ? { screen: 'feed' }
+      : null,
+});
 
 /** Solved, the solution shown or skipped: nothing more to play on it. */
 export function isPuzzleOver(status: SolveStatus): boolean {

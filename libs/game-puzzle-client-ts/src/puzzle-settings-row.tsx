@@ -67,11 +67,7 @@ export function PuzzleSettingsRow(props: PuzzleSettingsRowProps): JSX.Element {
     props.feed.themes?.label(theme) ?? theme;
   const spoken = (): string =>
     [
-      feedAccessibleLabel(
-        props.feed.saved,
-        props.feed.savedTarget,
-        themeLabel
-      ),
+      feedAccessibleLabel(props.feed.saved, props.feed.savedTarget, themeLabel),
       props.allowanceLabel,
     ]
       .filter((part) => part.length > 0)

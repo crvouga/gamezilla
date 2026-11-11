@@ -14,11 +14,11 @@ import { Handles } from '@libs/test-ids-shared-ts/handles';
 import type { TurnHarnessGame } from './harness-game';
 import { turnHarnessGameOf } from './harness-game-of';
 import {
+  FEED_SETTING_ROW,
   type FeedSettingPlace,
   leavePuzzleFeedUnsaved,
   openFeedSetting,
   openPuzzleFeed,
-  readPuzzlePlace,
   waitPuzzleFeedClosed,
   waitPuzzleFeedHub,
 } from './puzzle-places';
@@ -263,64 +263,50 @@ export const includePlayedPuzzles = scenarioAction({
 
 // ------------------------------------------------------------------- reads
 
-/**
- * Read on the target's own place, opened from the feed settings when the
- * person is there, and left for them again: the draft stays as it is.
- */
-async function onTargetPlace<T>(
-  s: ProductHarness,
-  actorId: string,
-  read: () => Promise<T>
-): Promise<T> {
-  const from = (await readPuzzlePlace(s, actorId))?.place;
-  await openFeedSetting(s, actorId, 'feed-target');
-  const value = await read();
-  if (from === 'feed') await openPuzzleFeed(s, actorId);
-  return value;
-}
-
-export function readFeedOffsetValue(
+/** The rating offset on the target's own place (`setPuzzleFeedMode` opens it). */
+export async function readFeedOffsetValue(
   s: ProductHarness,
   actorId: string
 ): Promise<number | null> {
-  return onTargetPlace(s, actorId, async () => {
-    const ui = await actorUi(s, actorId);
-    const raw = stripProbe(
-      await ui.get(Handles.chessPuzzleFeedOffsetValue).text()
-    );
-    const n = Number.parseInt(raw, 10);
-    return Number.isFinite(n) ? n : null;
-  });
+  const ui = await actorUi(s, actorId);
+  const raw = stripProbe(
+    await ui.get(Handles.chessPuzzleFeedOffsetValue).text()
+  );
+  const n = Number.parseInt(raw, 10);
+  return Number.isFinite(n) ? n : null;
 }
 
 /**
- * The target the open settings preview: the custom target's value in
- * custom mode, else the target under the rating offset.
+ * The target the unsaved settings preview, where the person is: on the
+ * target's own place the custom target's value or the target under the
+ * rating offset; on the feed settings the target row's value.
  */
-export function readFeedModalTargetRating(
+export async function readFeedModalTargetRating(
   s: ProductHarness,
   actorId: string
 ): Promise<number | null> {
-  return onTargetPlace(s, actorId, async () => {
-    const ui = await actorUi(s, actorId);
-    const custom = ui.get(Handles.chessPuzzleFeedCustomRatingValue);
-    const raw = stripProbe(
-      await ((await custom.isVisible())
-        ? custom.text()
-        : ui.get(Handles.chessPuzzleFeedTarget).text())
-    );
-    const match = /(\d{3,4})\s*$/.exec(raw);
+  const ui = await actorUi(s, actorId);
+  for (const handle of [
+    Handles.chessPuzzleFeedCustomRatingValue,
+    Handles.chessPuzzleFeedTarget,
+    FEED_SETTING_ROW['feed-target'],
+  ]) {
+    const node = ui.get(handle);
+    if (!(await node.isVisible())) continue;
+    const match = /(\d{3,4})\s*$/.exec(stripProbe(await node.text()));
     return match?.[1] !== undefined ? Number.parseInt(match[1], 10) : null;
-  });
+  }
+  return null;
 }
 
-/** How many puzzles fit the open settings, of how many: `{ matched, total }`. */
+/**
+ * How many puzzles fit the unsaved settings, of how many: the pool line of
+ * the feed settings themselves.
+ */
 export async function readFeedModalPool(
   s: ProductHarness,
   actorId: string
 ): Promise<{ matched: number; total: number } | null> {
-  // The pool line is on the feed settings themselves.
-  await openPuzzleFeed(s, actorId);
   const ui = await actorUi(s, actorId);
   const raw = stripProbe(await ui.get(Handles.chessPuzzleFeedPool).text());
   const [matched, total] = raw.match(/\d+/g) ?? [];

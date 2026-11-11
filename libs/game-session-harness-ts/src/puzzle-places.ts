@@ -205,19 +205,3 @@ export async function leavePuzzleFeedUnsaved(
   await ui.get(Handles.navBack).tap({ timeoutMs: WAIT_MS });
   await waitPuzzleFeedClosed(s, actorId);
 }
-
-/**
- * The result of a finished puzzle, from its line: what the result holds is
- * read there, one step back. The settings are left alone (a step back
- * from them would drop a draft). Returns whether the result shows now.
- */
-export async function showPuzzleResult(
-  s: ProductHarness,
-  actorId: string
-): Promise<boolean> {
-  const here = await readPuzzlePlace(s, actorId);
-  if (here === null || here.stage !== 'finished') return false;
-  if (here.place !== 'line') return here.place === 'result';
-  const home = await showPuzzleHome(s, actorId);
-  return home?.place === 'result';
-}

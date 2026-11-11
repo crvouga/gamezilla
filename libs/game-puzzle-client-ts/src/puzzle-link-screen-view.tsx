@@ -41,7 +41,9 @@ export function PuzzleLinkScreenView(
       breadcrumbs={[{ name: <Trans>Puzzle</Trans> }]}
       dataSet={{ testid: Handles.chessPuzzleLinkScreen }}
     >
-      <Switch fallback={<LoadingState caption={<Trans>Opening puzzle…</Trans>} />}>
+      <Switch
+        fallback={<LoadingState caption={<Trans>Opening puzzle…</Trans>} />}
+      >
         <Match when={props.status === 'denied' && props.denial} keyed>
           {(denial) => <DenialSurfaceView denial={denial} />}
         </Match>
@@ -49,7 +51,9 @@ export function PuzzleLinkScreenView(
           <EmptyState
             icon={WifiOffIcon}
             title={<Trans>You're offline</Trans>}
-            body={<Trans>Puzzles need a connection. Reconnect and try again.</Trans>}
+            body={
+              <Trans>Puzzles need a connection. Reconnect and try again.</Trans>
+            }
             action={{
               label: <Trans>Try again</Trans>,
               onClick: props.onRetry,

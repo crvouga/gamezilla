@@ -23,7 +23,7 @@ import sql from '@pkgs/sql-root-shared-ts/sql';
 import type { DriverKey } from '@pkgs/ui-testing-root-shared-ts/keys';
 import { SHARED_SCREEN_MARK } from './game-navigation';
 import { PUZZLE_RATING_SCALE } from './puzzle-fixtures';
-import { closeResultPanel, moveChipText } from './puzzle-screen';
+import { moveChipText } from './puzzle-screen';
 
 const WAIT_MS = 15_000;
 const POLL_MS = 250;
@@ -45,6 +45,29 @@ async function sharedScreenShown(
   return false;
 }
 
+/** The stats' own places behind their summary, by the mark each shows. */
+const STATS_PLACE_MARK = {
+  trend: 'chess-stats-trend',
+  log: 'chess-stats-log',
+} as const;
+
+/** The row of the stats' summary that opens each place. */
+const STATS_PLACE_ROW = {
+  trend: 'chess-stats-open-trend',
+  log: 'chess-stats-open-log',
+} as const;
+
+/** One of the stats' places behind the summary is what shows. */
+async function statsPlaceShown(
+  s: ProductHarness,
+  actorId: string
+): Promise<boolean> {
+  const ui = await actorUi(s, actorId);
+  for (const mark of Object.values(STATS_PLACE_MARK))
+    if (await ui.get(mark).isVisible()) return true;
+  return false;
+}
+
 /** One step toward the stats from where the device is; true once shown. */
 async function stepTowardStats(
   s: ProductHarness,
@@ -56,8 +79,12 @@ async function stepTowardStats(
   if (await ui.get(Handles.chessStatsElo).isVisible()) return true;
   if (await ui.get(Handles.gameChoice('stats')).isVisible()) {
     await ui.get(Handles.gameChoice('stats')).tap({ timeoutMs: WAIT_MS });
-  } else if (await ui.get(Handles.chessPuzzlePlayScreen).isVisible()) {
-    await closeResultPanel(s, actorId);
+  } else if (
+    (await ui.get(Handles.chessPuzzlePlayScreen).isVisible()) ||
+    (await statsPlaceShown(s, actorId))
+  ) {
+    // One step back: through the puzzles' places to the game's choices, or
+    // from the stats' trend or log to their summary.
     await ui.get(Handles.navBack).tap({ timeoutMs: WAIT_MS });
   } else if (await sharedScreenShown(s, actorId)) {
     // Another of the game's screens: back to its choices.
@@ -104,6 +131,24 @@ export const showGamePuzzleStats = scenarioAction({
 });
 
 /**
+ * One of the stats' places behind their summary, once the stats are shown:
+ * the rating trend or the game log, through its row. Already there:
+ * nothing to do.
+ */
+export const openPuzzleStatsPlace = scenarioAction({
+  name: 'openPuzzleStatsPlace',
+  act: async (s, actorId: string, place: 'trend' | 'log') => {
+    const ui = await actorUi(s, actorId);
+    const mark = ui.get(STATS_PLACE_MARK[place]);
+    if (await mark.isVisible()) return;
+    if (!(await ui.get(Handles.chessStatsElo).isVisible()))
+      await ui.get(Handles.navBack).tap({ timeoutMs: WAIT_MS });
+    await ui.get(STATS_PLACE_ROW[place]).tap({ timeoutMs: WAIT_MS });
+    await mark.expect.visible({ timeoutMs: WAIT_MS });
+  },
+});
+
+/**
  * The game's puzzle stats outside any space, from Settings: a person's own,
  * whoever hosts the space they are in and whether it is reachable.
  */
@@ -129,11 +174,17 @@ export async function isPuzzleStatsShown(
   return ui.get(Handles.chessStatsElo).isVisible();
 }
 
-/** Back from the stats to the game's choices. */
+/** Back from the stats (their trend or log first) to the game's choices. */
 export const leaveGamePuzzleStats = scenarioAction({
   name: 'leaveGamePuzzleStats',
   act: async (s, actorId: string) => {
     const ui = await actorUi(s, actorId);
+    if (await statsPlaceShown(s, actorId)) {
+      await ui.get(Handles.navBack).tap({ timeoutMs: WAIT_MS });
+      await ui
+        .get(Handles.chessStatsElo)
+        .expect.visible({ timeoutMs: WAIT_MS });
+    }
     await ui.get(Handles.navBack).tap({ timeoutMs: WAIT_MS });
     await ui
       .get(Handles.gameChoice('puzzle'))
@@ -218,13 +269,47 @@ export async function readStatsRatingDirections(
   );
 }
 
-/** Whether the game log says no puzzle was played yet. */
+/**
+ * Whether the stats say no puzzle was played yet: the game log itself on
+ * its own place, or the summary's row to it.
+ */
 export async function isGameLogEmpty(
   s: ProductHarness,
   actorId: string
 ): Promise<boolean> {
   const ui = await actorUi(s, actorId);
-  return ui.get(Handles.chessGameLogEmpty).isVisible();
+  return (
+    (await ui.get(Handles.chessGameLogEmpty).isVisible()) ||
+    (await ui.get('chess-stats-log-empty').isVisible())
+  );
+}
+
+/** How many rated puzzles the stats' summary counts on its trend row. */
+export async function readStatsRatedCount(
+  s: ProductHarness,
+  actorId: string
+): Promise<number | null> {
+  return readNumber(s, actorId, 'chess-stats-rated-count');
+}
+
+/**
+ * The summary's word on the latest logged puzzle ("Solved 1458") when that
+ * puzzle is `puzzleId`; null when another, or none, is the latest.
+ */
+export async function readStatsLatestTitle(
+  s: ProductHarness,
+  actorId: string,
+  puzzleId: string
+): Promise<string | null> {
+  try {
+    const ui = await actorUi(s, actorId);
+    const node = ui.get('chess-stats-latest');
+    if (!(await node.isVisible())) return null;
+    if ((await node.attribute('data-puzzle')) !== puzzleId) return null;
+    return stripProbe(await node.text());
+  } catch {
+    return null;
+  }
 }
 
 /** The game log's title for `puzzleId` ("Solved · 1458"), or null. */
@@ -350,11 +435,15 @@ export async function readPuzzleReviewHighlight(
   return Number.isFinite(index) ? index + 1 : null;
 }
 
-/** Open `puzzleId`'s review from the game log, once the stats are shown. */
+/**
+ * Open `puzzleId`'s review from the game log, once the stats are shown:
+ * the log through its row on the summary, then the puzzle's own row.
+ */
 export const openPuzzleReviewFromLog = scenarioAction({
   name: 'openPuzzleReviewFromLog',
   act: async (s, actorId: string, puzzleId: string) => {
     const ui = await actorUi(s, actorId);
+    await Promise.resolve(openPuzzleStatsPlace.act(s, actorId, 'log'));
     await ui.get(Handles.chessGameLogRow(puzzleId)).tap({ timeoutMs: WAIT_MS });
     const frame = ui.get(Handles.chessPuzzleBoardFrame);
     const board = ui.get(Handles.chessPuzzleReviewBoard);
@@ -486,6 +575,7 @@ export async function readCataloguePuzzles(
 
 export const PUZZLE_RECORD_ACTIONS = [
   showGamePuzzleStats,
+  openPuzzleStatsPlace,
   showPersonalPuzzleStats,
   leaveGamePuzzleStats,
   openPuzzleReviewFromLog,

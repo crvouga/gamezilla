@@ -27,11 +27,11 @@ import sql from '@pkgs/sql-root-shared-ts/sql';
 import { turnHarnessGameOf } from './harness-game-of';
 import { knownPuzzle, solveKnownPuzzle } from './puzzle-moves';
 import {
-  readGameLogTitle,
   readStatsFigures,
+  readStatsLatestTitle,
   readStatsPuzzleRating,
-  readStatsRatingHistory,
-  showPersonalPuzzleStats,
+  readStatsRatedCount,
+  showGamePuzzleStats,
 } from './puzzle-records';
 import { retryGamePuzzle } from './puzzle-screen';
 
@@ -78,12 +78,12 @@ export const retryFinishedGamePuzzle = scenarioAction({
   },
 });
 
-/** The game's own puzzle stats, from Settings, on a device back from away. */
+/** The game's own puzzle stats, in the space, on a device back from away. */
 export const viewGamePuzzleStatsOnReturn = scenarioAction({
   name: 'viewGamePuzzleStatsOnReturn',
   act: async (s, device: string, gameId: string) => {
     await ensureActor(s, device);
-    await Promise.resolve(showPersonalPuzzleStats.act(s, device, gameId));
+    await Promise.resolve(showGamePuzzleStats.act(s, device, gameId));
   },
 });
 
@@ -94,7 +94,7 @@ export const viewEachDevicePuzzleStats = scenarioAction({
     for (const device of devices) {
       if (!s.actors.has(device)) continue;
       await bringToFront(s, device);
-      await Promise.resolve(showPersonalPuzzleStats.act(s, device, gameId));
+      await Promise.resolve(showGamePuzzleStats.act(s, device, gameId));
     }
   },
 });
@@ -145,17 +145,19 @@ export async function readPuzzleResultShown(
   puzzleId: string
 ): Promise<PuzzleResultShown> {
   const { record } = knownPuzzle(turnHarnessGameOf(s, gameId), puzzleId);
-  const title = await readGameLogTitle(s, device, puzzleId);
+  // Everything here is on the stats' summary: the rating, the puzzles
+  // played, how many were rated and the latest logged puzzle.
+  const title = await readStatsLatestTitle(s, device, puzzleId);
   const rating = await readStatsPuzzleRating(s, device);
   const { played } = await readStatsFigures(s, device);
-  const history = await readStatsRatingHistory(s, device);
-  if (rating === null || played === null)
+  const rated = await readStatsRatedCount(s, device);
+  if (rating === null || played === null || rated === null)
     throw new Error(`${device}'s stats are not displayed`);
-  if (played > 1 || history.length > 1)
+  if (played > 1 || rated > 1)
     throw new Error(`${device}'s stats counted one puzzle twice`);
   const result = displayedResult(title, rating, record);
   const counted = result !== 'Unfinished';
-  if (played !== Number(counted) || history.length !== Number(counted))
+  if (played !== Number(counted) || rated !== Number(counted))
     return { gameLog: 'contradictory', ratedResult: result };
   const gameLog = title?.startsWith('Solved')
     ? 'solved'

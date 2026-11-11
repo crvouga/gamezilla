@@ -141,7 +141,7 @@ function ResultRows(props: PuzzlePlayScreenViewProps): JSX.Element {
  * retrying and sharing the puzzle are quieter beside it.
  */
 function ResultCommands(props: PuzzlePlayScreenViewProps): JSX.Element {
-  const plan = createMemo(() =>
+  const slots = createMemo(() =>
     buildPuzzleActionBarPlan({
       status: props.status,
       hintStage: props.hintStage,
@@ -149,7 +149,7 @@ function ResultCommands(props: PuzzlePlayScreenViewProps): JSX.Element {
     })
   );
   const offers = (id: 'next' | 'retry'): boolean =>
-    plan().some((slot) => slot.id === id);
+    slots().some((slot) => slot.id === id);
   return (
     <StackVertical gap="md">
       <Show when={offers('next')}>

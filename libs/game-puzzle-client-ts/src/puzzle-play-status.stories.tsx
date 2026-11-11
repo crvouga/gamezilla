@@ -121,7 +121,9 @@ export const OpenSettings: Story = {
   args: { ...Offline.args },
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(await canvas.findByTestId('chess-puzzle-feed-summary'));
+    await userEvent.click(
+      await canvas.findByTestId('chess-puzzle-feed-summary')
+    );
     await expect(args.onOpen).toHaveBeenCalledWith({ screen: 'feed' });
     await expect(
       await canvas.findByTestId('chess-puzzle-feed-done')

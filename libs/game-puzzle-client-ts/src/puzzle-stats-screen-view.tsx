@@ -4,12 +4,12 @@ import type {
 } from '@libs/game-puzzle-shared-ts/stats';
 import type { JSX } from 'solid-js';
 import { Match, Switch } from 'solid-js';
-import type { PuzzleStatsPlace, PuzzleStatsStage } from './puzzle-stats-places';
 import {
   PuzzleStatsLogView,
   PuzzleStatsSummaryView,
   PuzzleStatsTrendView,
 } from './puzzle-stats-place-views';
+import type { PuzzleStatsPlace, PuzzleStatsStage } from './puzzle-stats-places';
 
 export type PuzzleStatsScreenViewProps = {
   /** Whether the player's history is known (`puzzleStatsStageOf`). */

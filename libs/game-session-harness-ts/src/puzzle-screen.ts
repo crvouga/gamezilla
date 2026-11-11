@@ -21,7 +21,6 @@ import {
   openPuzzleLine,
   readPuzzlePlace,
   showPuzzleHome,
-  showPuzzleResult,
   waitPuzzleFeedClosed,
   waitPuzzleFeedHub,
 } from './puzzle-places';
@@ -888,7 +887,12 @@ export function moveChipText(text: string | null | undefined): string {
   return stripProbe(text).replace(MOVE_NUMBER, '');
 }
 
-async function highlightedMoveNow(
+/**
+ * The move the move list highlights: its index from 0 and its text. The
+ * board and the line show the moves; a result does not (`showPuzzleLine`
+ * first).
+ */
+export async function readPuzzleHighlightedMove(
   s: ProductHarness,
   actorId: string
 ): Promise<{ readonly index: number; readonly text: string } | null> {
@@ -901,35 +905,17 @@ async function highlightedMoveNow(
   return { index, text: moveChipText(await chip.text()) };
 }
 
-/**
- * The move the board's move list highlights: its index from 0 and its
- * text. The board and the line show the moves; from a result the line is
- * opened to read them, and the result returned to.
- */
-export async function readPuzzleHighlightedMove(
-  s: ProductHarness,
-  actorId: string
-): Promise<{ readonly index: number; readonly text: string } | null> {
-  if ((await readPuzzlePlace(s, actorId))?.place !== 'result')
-    return highlightedMoveNow(s, actorId);
-  await openPuzzleLine(s, actorId);
-  const move = await highlightedMoveNow(s, actorId);
-  await showPuzzleHome(s, actorId);
-  return move;
-}
-
 export type ShownRatingChange = 'raised' | 'lowered' | 'unchanged' | 'unrated';
 
 /**
  * The rating change on screen, read off its signed number; null if none.
- * A finished puzzle's change is on its result: read there, from its line
- * or the settings too.
+ * A finished puzzle's change is on its result (`showPuzzleResult` first,
+ * from its line).
  */
 export async function readShownRatingChange(
   s: ProductHarness,
   actorId: string
 ): Promise<ShownRatingChange | null> {
-  await showPuzzleResult(s, actorId);
   const ui = await actorUi(s, actorId);
   for (const handle of [
     Handles.chessPuzzleSummaryDelta,
@@ -961,13 +947,12 @@ export async function isPuzzleUnratedShown(
 
 /**
  * The puzzle's own rating shows. It is a fact of the result, hidden while
- * the puzzle is solved: a finished puzzle's is read on its result.
+ * the puzzle is solved.
  */
 export async function isPuzzleOwnRatingShown(
   s: ProductHarness,
   actorId: string
 ): Promise<boolean> {
-  await showPuzzleResult(s, actorId);
   const ui = await actorUi(s, actorId);
   const node = ui.get(Handles.chessPuzzleBoardElo);
   return (await node.isVisible()) && /\d/.test(stripProbe(await node.text()));
@@ -978,7 +963,6 @@ export async function isPuzzleThemesShown(
   s: ProductHarness,
   actorId: string
 ): Promise<boolean> {
-  await showPuzzleResult(s, actorId);
   const ui = await actorUi(s, actorId);
   const node = ui.get(Handles.chessPuzzleFeedPuzzleThemes);
   return (await node.isVisible()) && stripProbe(await node.text()).length > 0;
@@ -995,8 +979,7 @@ export async function readDeviceHaptics(
 
 /**
  * Puzzle starts the actor has left today, when the puzzles show them: on
- * the settings row of a stage's home (and a watcher's board). From a
- * finished puzzle's line the person steps back to its result to read them.
+ * the settings row of a stage's home (and a watcher's board).
  */
 export async function readPuzzleStartsLeft(
   s: ProductHarness,
@@ -1004,7 +987,6 @@ export async function readPuzzleStartsLeft(
 ): Promise<number | null> {
   const ui = await actorUi(s, actorId);
   const node = ui.get('chess-puzzle-remaining-today');
-  if (!(await node.isVisible())) await showPuzzleResult(s, actorId);
   if (!(await node.isVisible())) return null;
   // Reconnecting can replace the allowance after it was seen: its absence
   // then is a normal loading state; any other failure is one.
@@ -1016,7 +998,26 @@ export async function readPuzzleStartsLeft(
   return match === null || match === undefined ? null : Number(match[1]);
 }
 
+/** Open the line's own place, where the moves are stepped through. */
+export const showPuzzleLine = scenarioAction({
+  name: 'showPuzzleLine',
+  act: openPuzzleLine,
+});
+
+/**
+ * Back to the home of the puzzles' stage: the board being solved, the
+ * result of a finished puzzle, or why there is no puzzle.
+ */
+export const showPuzzleStageHome = scenarioAction({
+  name: 'showPuzzleStageHome',
+  act: async (s, actorId: string) => {
+    await showPuzzleHome(s, actorId);
+  },
+});
+
 export const PUZZLE_SCREEN_ACTIONS = [
+  showPuzzleLine,
+  showPuzzleStageHome,
   openGamePuzzles,
   openGamePuzzlesNoWait,
   moveOnWithoutWaiting,

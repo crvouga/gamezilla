@@ -1,5 +1,5 @@
-import { puzzleFeedHasNarrowingFilters } from '@libs/game-puzzle-shared-ts/feed-config';
 import type { PuzzleFeedConfig } from '@libs/game-puzzle-shared-ts/feed-config';
+import { puzzleFeedHasNarrowingFilters } from '@libs/game-puzzle-shared-ts/feed-config';
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
 import { Trans } from '@lingui/solid/macro';
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';

@@ -18,7 +18,7 @@ import {
   readStatsRatingDirections,
   readStatsRatingHistory,
   readStatsRatingLabel,
-  showPersonalPuzzleStats,
+  showGamePuzzleStats,
 } from '@libs/game-session-harness-ts/puzzle-records';
 import {
   moveOnToNextPuzzle,
@@ -34,6 +34,7 @@ import {
   enterKnownPuzzleRated,
   failedPuzzlesKey,
   focusPuzzle,
+  focusRatingTrend,
   focusStats,
   puzzleGameId,
   ratingOf,
@@ -246,7 +247,7 @@ Given(
 
 When('{actor} opens their stats', async (w, actor: Actor) => {
   await w.s.apply(focusActor, actor);
-  await w.s.apply(showPersonalPuzzleStats, actor, puzzleGameId(w));
+  await w.s.apply(showGamePuzzleStats, actor, puzzleGameId(w));
 });
 
 Then(
@@ -280,7 +281,7 @@ Then(
       | 'lowered'
     )[];
     expect(results).toHaveLength(count);
-    await focusStats(w, actor);
+    await focusRatingTrend(w, actor);
     const history = await w.s.until(
       (surf) => readStatsRatingHistory(surf, actor),
       { maxMs: SETTLE_MS, pred: (ratings) => ratings.length === count }

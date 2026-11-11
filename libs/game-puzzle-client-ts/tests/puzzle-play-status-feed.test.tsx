@@ -63,7 +63,10 @@ test('status, empty with filters: including played puzzles is the one thing to d
   mountPlay('status', {
     ...SHELL,
     stage: 'empty',
-    feed: { ...FEED, saved: { ...DEFAULT_PUZZLE_FEED_CONFIG, themes: ['pin'] } },
+    feed: {
+      ...FEED,
+      saved: { ...DEFAULT_PUZZLE_FEED_CONFIG, themes: ['pin'] },
+    },
     onIncludeAllPuzzles: () => widened++,
   });
   expect(filledCommands()).toEqual(['Include played puzzles']);
@@ -118,9 +121,9 @@ test('the settings row names the settings and what the saved feed serves', () =>
   expect(screen.getByTestId('chess-puzzle-feed-target-label').textContent).toBe(
     'Auto target 1500'
   );
-  expect(screen.getByTestId('chess-puzzle-feed-history-label').textContent).toBe(
-    'Unseen'
-  );
+  expect(
+    screen.getByTestId('chess-puzzle-feed-history-label').textContent
+  ).toBe('Unseen');
   expect(screen.getByTestId('chess-puzzle-feed-themes-label').textContent).toBe(
     'All themes'
   );
@@ -142,9 +145,9 @@ test('feed: one row per setting with the value the draft holds, the pool and Don
     autoAdvance: 'after1s',
   };
   mountPlay('feed', { feed: { ...FEED, draft, draftTarget: 1850 } });
-  expect(screen.getByTestId('chess-puzzle-feed-row-target').textContent).toContain(
-    'Custom target 1850'
-  );
+  expect(
+    screen.getByTestId('chess-puzzle-feed-row-target').textContent
+  ).toContain('Custom target 1850');
   expect(
     screen.getByTestId('chess-puzzle-feed-row-history').textContent
   ).toContain('Failed');
@@ -200,9 +203,9 @@ test('feed, locked: a guest is told how to get an account, with no row and no Do
       },
     },
   });
-  expect(screen.getByTestId('chess-puzzle-feed-locked-action').textContent).toBe(
-    'Sign in'
-  );
+  expect(
+    screen.getByTestId('chess-puzzle-feed-locked-action').textContent
+  ).toBe('Sign in');
   expect(shown('chess-puzzle-feed-pool')).toBe(false);
   expect(shown('chess-puzzle-feed-row-target')).toBe(false);
   expect(shown('chess-puzzle-feed-done')).toBe(false);
@@ -228,7 +231,9 @@ test('feed-history and feed-advance: a choice is applied and returns to the sett
   fireEvent.click(screen.getByTestId('chess-puzzle-feed-history-seen'));
   cleanup();
   mountPlay('feed-advance', wiring);
-  fireEvent.click(screen.getByTestId('chess-puzzle-feed-auto-advance-immediate'));
+  fireEvent.click(
+    screen.getByTestId('chess-puzzle-feed-auto-advance-immediate')
+  );
   expect(patches).toEqual([
     { historyFilter: 'seen' },
     { autoAdvance: 'immediate' },
@@ -281,10 +286,14 @@ test('feed-themes: a theme toggles, and one the search hides keeps its choice', 
     },
   });
   expect(
-    screen.getByTestId('chess-puzzle-feed-theme-mate').getAttribute('aria-pressed')
+    screen
+      .getByTestId('chess-puzzle-feed-theme-mate')
+      .getAttribute('aria-pressed')
   ).toBe('true');
   expect(
-    screen.getByTestId('chess-puzzle-feed-theme-pin').getAttribute('aria-pressed')
+    screen
+      .getByTestId('chess-puzzle-feed-theme-pin')
+      .getAttribute('aria-pressed')
   ).toBe('false');
   const search = screen.getByTestId('chess-puzzle-feed-theme-search');
   fireEvent.input(search.querySelector('input') ?? search, {

@@ -101,7 +101,12 @@ export const Unrated: Story = {
     ratingChange: 'unrated',
     result: {
       ...STORY_RESULT,
-      completion: { ...STORY_SOLVED, delta: 0, ratingAfter: 1500, rated: false },
+      completion: {
+        ...STORY_SOLVED,
+        delta: 0,
+        ratingAfter: 1500,
+        rated: false,
+      },
       displayRating: 1500,
     },
   },
@@ -126,7 +131,9 @@ export const LinkCopyFailed: Story = {
 export const NextPuzzle: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(await canvas.findByTestId('chess-puzzle-summary-next'));
+    await userEvent.click(
+      await canvas.findByTestId('chess-puzzle-summary-next')
+    );
     await expect(args.onNext).toHaveBeenCalled();
   },
 };
@@ -135,7 +142,9 @@ export const NextPuzzle: Story = {
 export const RetryAndShare: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(await canvas.findByTestId('chess-puzzle-action-retry'));
+    await userEvent.click(
+      await canvas.findByTestId('chess-puzzle-action-retry')
+    );
     await expect(args.onRetry).toHaveBeenCalled();
     await userEvent.click(await canvas.findByTestId('chess-puzzle-share-link'));
     await expect(args.share?.onShare).toHaveBeenCalled();

@@ -7,9 +7,10 @@ import { solveKnownPuzzle } from '@libs/game-session-harness-ts/puzzle-moves';
 import { writeKnownPuzzlePool } from '@libs/game-session-harness-ts/puzzle-pool';
 import {
   openPuzzleReviewFromLog,
+  openPuzzleStatsPlace,
   readGameLogTitle,
   readPuzzleReview,
-  showPersonalPuzzleStats,
+  showGamePuzzleStats,
 } from '@libs/game-session-harness-ts/puzzle-records';
 import { openGamePuzzles } from '@libs/game-session-harness-ts/puzzle-screen';
 import { returnToTabs, signInWithGoogle } from '@libs/harness-ts/auth-actions';
@@ -33,7 +34,8 @@ test('personal stats and review are inherited without a game-owned settings wrap
   await s.apply(createSpace, 'alice');
   await s.apply(openGamePuzzles, 'alice', id);
   await s.apply(solveKnownPuzzle, 'alice', id);
-  await s.apply(showPersonalPuzzleStats, 'alice', id);
+  await s.apply(showGamePuzzleStats, 'alice', id);
+  await s.apply(openPuzzleStatsPlace, 'alice', 'log');
   expect(await s.read(readGameLogTitle, 'alice', puzzle)).toStartWith('Solved');
   await s.apply(openPuzzleReviewFromLog, 'alice', puzzle);
   expect((await s.read(readPuzzleReview, 'alice'))?.move).toBe(2);

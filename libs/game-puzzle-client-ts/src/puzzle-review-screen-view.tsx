@@ -94,8 +94,8 @@ export function PuzzleReviewScreenView(
               title={<Trans>Puzzle unavailable</Trans>}
               body={
                 <Trans>
-                  This puzzle is not on this device yet. It shows here once
-                  your puzzles have synced.
+                  This puzzle is not on this device yet. It shows here once your
+                  puzzles have synced.
                 </Trans>
               }
               action={{

@@ -93,17 +93,35 @@ const shown = (testId: string): boolean =>
 // played and solved, and the accuracy together, at one glance.
 test('summary: the rating, played, solved and accuracy together, and the rows onward', () => {
   const opened: string[] = [];
-  mount({ screen: 'summary' }, { onOpen: (place) => opened.push(place.screen) });
+  mount(
+    { screen: 'summary' },
+    { onOpen: (place) => opened.push(place.screen) }
+  );
   expect(screen.getByTestId('chess-stats-elo').textContent).toBe('1500?');
   expect(screen.getByTestId('chess-stats-played').textContent).toBe('2');
   expect(screen.getByTestId('chess-stats-solved').textContent).toBe('1');
   expect(screen.getByTestId('chess-stats-accuracy').textContent).toBe('50%');
+  // Each row says where it leads and what is there now.
+  expect(screen.getByTestId('chess-stats-rated-count').textContent).toBe(
+    '2 rated'
+  );
+  const latest = screen.getByTestId('chess-stats-latest');
+  expect(latest.textContent).toBe('Failed 1474');
+  expect(latest.getAttribute('data-puzzle')).toBe('chess:b');
   // The trend and the log are screens of their own.
   expect(shown('chess-stats-rating-history-point-0')).toBe(false);
   expect(shown('chess-game-log-row-chess:a')).toBe(false);
   fireEvent.click(screen.getByTestId('chess-stats-open-trend'));
   fireEvent.click(screen.getByTestId('chess-stats-open-log'));
   expect(opened).toEqual(['trend', 'log']);
+});
+
+test('summary, with nothing played: the log row says so', () => {
+  mount({ screen: 'summary' }, { gameLog: [] });
+  expect(screen.getByTestId('chess-stats-log-empty').textContent).toBe(
+    'Nothing played yet'
+  );
+  expect(shown('chess-stats-latest')).toBe(false);
 });
 
 test('summary, while the history is unknown: one activity indicator and no figure', () => {

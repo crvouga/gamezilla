@@ -72,7 +72,10 @@ const step = fc.oneof(
   stage.map((next): Step => ({ kind: 'stage', stage: next }))
 );
 
-type Seen = { readonly stage: PuzzlePlayStage; readonly place: PuzzlePlayPlace };
+type Seen = {
+  readonly stage: PuzzlePlayStage;
+  readonly place: PuzzlePlayPlace;
+};
 
 /**
  * A device walking the machine as `useEnteredPlace` does: a stage is
@@ -151,7 +154,10 @@ describe('the puzzle feed places', () => {
     assertProperty(
       'Back reaches the home of the stage in at most two steps, fro',
       fc.property(stage, place, (at, opened) => {
-        const from = placeIn(PUZZLE_PLAY_PLACES, at, { stage: at, place: opened });
+        const from = placeIn(PUZZLE_PLAY_PLACES, at, {
+          stage: at,
+          place: opened,
+        });
         const path = backToHome(at, from);
         expect(path.length).toBeLessThanOrEqual(3);
         expect(path.at(-1)).toBe(PUZZLE_PLAY_PLACES.home[at].screen);
@@ -161,7 +167,11 @@ describe('the puzzle feed places', () => {
 
   test('one setting leads back to the settings, and the settings to the home', () => {
     for (const screen of PUZZLE_FEED_SCREENS) {
-      const behind: PuzzlePlayPlace | null = placeBehind(PUZZLE_PLAY_PLACES, 'playing', { screen });
+      const behind: PuzzlePlayPlace | null = placeBehind(
+        PUZZLE_PLAY_PLACES,
+        'playing',
+        { screen }
+      );
       expect(behind?.screen).toBe(screen === 'feed' ? 'play' : 'feed');
       expect(isPuzzleFeedPlace({ screen })).toBe(true);
     }
