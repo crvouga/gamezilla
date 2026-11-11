@@ -42,8 +42,10 @@ reviewed is the [Storybook agent workflow](../../../pkgs/ui-root-harness-ts/READ
    against it and the commands in one bar at the bottom edge
    (`GameSessionLayout`'s `fixedStage`). Nothing on it scrolls and the board
    never moves: a board taller than the room narrows instead
-   (`GameBoardStage`). The moves wait behind the game's menu; a wide window
-   keeps them beside the board.
+   (`GameBoardStage`). The moves are one line over the stage, the latest
+   in view, kept before the first move so the board does not move when it
+   lands; a wide window keeps them as a table beside the board, with the
+   commands as one even block over it.
 9. **What interrupts the board lies over the board.** Who plays whom before
    the game (`GameVersusOverlay`) and how it ended (`GameResultOverlay`) are
    the stage's `overlay`: they cover the board and nothing else, so nothing
@@ -130,8 +132,10 @@ each of its states, with phone and desktop baselines in both themes.
 The play screen always shows the live position. Looking at an earlier
 position is the `moves` place; leaving it returns the board to live. An
 answer the game is waiting for (a draw offered, a win to claim) is asked on
-the play screen; every other command is a row of the game menu
-(`commands`). The lobby's one filled command is the next thing to do: take a
+the play screen, beside offering a draw and resigning (which asks first);
+every other command is a row of the game menu (`commands`). While the
+connection is away those two stay in their places, held back, under the
+notice that says why. The lobby's one filled command is the next thing to do: take a
 seat, arrange an incomplete private setup, get ready, then start. It sits in
 the lobby's dock, under the mode card and the roster.
 

@@ -199,7 +199,10 @@ function StoryStage(props: {
         />
       }
     >
-      <ConnectFourStoryBoard moves={drops()} interactive />
+      <ConnectFourStoryBoard
+        moves={drops()}
+        interactive={props.active}
+      />
     </GameBoardStage>
   );
 }

@@ -61,7 +61,7 @@ type OverlayProps = {
   readonly children?: JSX.Element | undefined;
 };
 
-/** The card's one big word: how the game went for the person. */
+/** Over the card's headline, one word: how the game went for the person. */
 function headline(result: MultiplayerResultShown): string {
   if (result.aborted === true) return t`No result`;
   if (result.tone === 'won') return t`Victory`;
@@ -115,12 +115,9 @@ export function MultiplayerOverlayView(props: OverlayProps): JSX.Element {
           <GameResultOverlay
             live
             tone={result().tone}
-            title={headline(result())}
-            caption={
-              <>
-                {result().title} {result().caption}
-              </>
-            }
+            eyebrow={headline(result())}
+            title={result().title}
+            caption={result().caption}
             dismissLabel={t`Show the board`}
             onDismiss={() => props.onOverlay({ type: 'dismiss' })}
             dataSet={{ testid: 'multiplayer-announcement' }}

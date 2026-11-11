@@ -3,8 +3,8 @@
  * fixed view, never a page that scrolls. The column fills the frame under
  * the host's bar; the board takes the frame's whole width with the seats against it,
  * a third of the spare room above it and the rest below; the game's commands
- * are a bar held at the bottom edge; the rail (the move list) waits behind
- * the game's menu. `GameBoardStage` narrows a board taller than the room
+ * are a bar held at the bottom edge; the rail (the move list) is one line of
+ * moves over the stage. `GameBoardStage` narrows a board taller than the room
  * (`--game-board-room`), so nothing is cut off and nothing moves. Wider
  * windows keep the board beside its rail. Kept apart from
  * game-ui.module.css, which is at its size limit.
@@ -114,6 +114,14 @@
     > [data-variant="solid"]:first-child:nth-last-child(n + 3) {
     grid-column: 1 / -1;
   }
+  /* Under it, the other two of three share the row evenly. */
+  .fixed
+    [data-game-slot="controls"]
+    [data-component="GameActionBar"]:has(
+      > [data-variant="solid"]:first-child:nth-last-child(3)
+    ) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
   /* Four make two rows of two, so no label is cut short. */
   .fixed
     [data-game-slot="controls"]
@@ -213,6 +221,20 @@
     width: 100%;
     min-width: 0;
     padding-inline: var(--ui-space-2);
+  }
+  /* The one filled command leads three on a row of its own, its label whole. */
+  .fixed
+    [data-game-slot="controls"]
+    [data-component="GameActionBar"]
+    > [data-variant="solid"]:first-child:nth-last-child(3) {
+    grid-column: 1 / -1;
+  }
+  .fixed
+    [data-game-slot="controls"]
+    [data-component="GameActionBar"]:has(
+      > [data-variant="solid"]:first-child:nth-last-child(3)
+    ) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 /* A wide window shows the whole game too: no page padding to scroll for. */

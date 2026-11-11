@@ -328,3 +328,16 @@ export const OpenMove: Story = {
     await expect(args.onOpen).toHaveBeenCalledWith({ screen: 'moves' });
   },
 };
+
+/** Resigning from the play bar asks first, over the board: nothing is chosen yet. */
+export const ResignAsked: Story = {
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement.ownerDocument.body);
+    await userEvent.click(await canvas.findByTestId('custom-game-resign-now'));
+    await canvas.findByText(/^This finishes the current game\./);
+    await expect(
+      await canvas.findByTestId('custom-game-resign-confirm')
+    ).toBeVisible();
+    await expect(args.onChoose).not.toHaveBeenCalled();
+  },
+};

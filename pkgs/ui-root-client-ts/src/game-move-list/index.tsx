@@ -155,8 +155,9 @@ function MoveButton(props: {
  * move is a button that shows its position. `turn` shows only the turn
  * holding the shown move, whole and centred, for a `MoveStrip` under a
  * phone's board (stepping moves it along); `table` gives every turn its
- * own line with the moves in columns, for the record beside a wide board,
- * and scrolls the marked move into view, the latest while the game is live.
+ * own line with the moves in columns, for the record beside a wide board
+ * (one line that scrolls sideways over a phone's fixed board), and scrolls
+ * the marked move into view, the latest while the game is live.
  *
  * @example
  * ```tsx

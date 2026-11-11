@@ -492,9 +492,13 @@ describe('the result', () => {
     expect(card.textContent).toContain('Victory');
     expect(card.textContent).toContain('You won the multiplayer game.');
     expect(card.textContent).toContain('By resignation.');
-    // The one big word, the sentence and why are announced as one.
+    // The word, the sentence and why are announced as one. The sentence is
+    // the headline, which a small board keeps when it drops the reason.
     expect(card.querySelector('[role="status"]')?.textContent).toBe(
-      'VictoryYou won the multiplayer game. By resignation.'
+      'VictoryYou won the multiplayer game.By resignation.'
+    );
+    expect(card.querySelector('h2')?.textContent).toBe(
+      'You won the multiplayer game.'
     );
     expect(ids('multiplayer-show-result')).toEqual([]);
     screen.getByRole('button', { name: 'Show the board' }).click();
