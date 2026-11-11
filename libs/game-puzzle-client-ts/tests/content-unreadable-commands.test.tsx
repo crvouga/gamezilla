@@ -12,7 +12,6 @@ import {
   ContentLibraryProvider,
   type ContentLibraryState,
 } from '@libs/game-puzzle-client-ts/content-library-context';
-import type { ContentAttempt } from '@libs/game-puzzle-shared-ts/attempt-types';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
