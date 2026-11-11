@@ -94,7 +94,6 @@ const SPACE_BODIES = new Set([
   'screens-games-custom-commands',
   'screens-games-custom-moves',
   'screens-games-custom-result',
-  'screens-games-frame-geometry',
   'screens-games-frame-history',
   'screens-games-frame-replay',
   'screens-games-hearts-board',

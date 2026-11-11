@@ -55,7 +55,8 @@ async function capture(page: Page, info: TestInfo, name: string) {
 
 /** Arrow keys expose the whole final row and winning line without shrinking the board. */
 export async function expectFinalBoardReachable(page: Page, info: TestInfo) {
-  const scroller = page.locator('[data-screen="custom-game"]');
+  // The result place of the custom game (`custom-game-result`).
+  const scroller = page.locator('[data-screen^="custom-game"]');
   const board = page.getByTestId('custom-game-board');
   await expect(scroller).toHaveCount(1);
   expect(await scroller.evaluate((element) => element.scrollTop)).toBe(0);

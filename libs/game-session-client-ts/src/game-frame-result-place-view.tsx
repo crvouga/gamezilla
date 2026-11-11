@@ -77,6 +77,17 @@ function NextActions(props: Props): JSX.Element {
 }
 
 /**
+ * Under the headline: how the game ended (`Black wins by resignation.`),
+ * unless the headline already is that line, then the game's own note.
+ */
+function outcomeCaption(props: Props): string | undefined {
+  const reason = props.result === null ? '' : (props.status?.description ?? '');
+  const note = props.result?.note ?? '';
+  const caption = [reason, note].filter((part) => part !== '').join(' ');
+  return caption === '' ? undefined : caption;
+}
+
+/**
  * The result place, once the game is over or called off: what happened in
  * one headline, what to do next, the final position with the people around
  * it, every player's finish, and the moves that led there.
@@ -109,10 +120,12 @@ export function FrameResultPlace(props: Props): JSX.Element {
                 props.status?.description ??
                 t`Game finished`
               }
-              caption={props.result?.note ?? undefined}
+              caption={outcomeCaption(props)}
               dataSet={{ testid: 'custom-game-result-headline' }}
             />
-            <FrameStatusView status={props.status} />
+            {/* The headline's caption says how the game ended; a listener
+                hears it from the frame's own line. */}
+            <FrameStatusView status={props.status} spokenOnly />
             <NextActions {...props} />
           </StackVertical>
         }
