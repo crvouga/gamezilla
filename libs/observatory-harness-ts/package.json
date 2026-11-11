@@ -42,5 +42,6 @@
   "specDomains": [
     "observatory"
   ],
-  "specParts": 1
+  "specParts": 1,
+  "stackSerial": true
 }

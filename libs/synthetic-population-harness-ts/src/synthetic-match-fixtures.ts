@@ -11,6 +11,7 @@ import { actorUi, pollUntil } from '@libs/harness-ts/actor-ui';
 import { signInWithGoogle } from '@libs/harness-ts/auth-actions';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { signedInAccountOf } from '@libs/harness-ts/identity';
+import { runScopedUsername } from '@libs/harness-ts/run-scope';
 import { configureUsername } from '@libs/synthetic-population-behavior-shared-ts/application-actions';
 import { setPlaySetup } from './live-synthetic-users';
 import {
@@ -46,7 +47,7 @@ export async function prepareSyntheticMatch(s: ProductHarness, label: string) {
     maxMs: 20_000,
     description: "Bob's account is ready",
   });
-  await configureUsername(await actorUi(s, 'bob'), 'bob');
+  await configureUsername(await actorUi(s, 'bob'), runScopedUsername(s, 'bob'));
   for (const actor of ['cedar', 'bob']) {
     await Promise.resolve(givenSyntheticGameSpace.act(s, actor, label));
     await Promise.resolve(

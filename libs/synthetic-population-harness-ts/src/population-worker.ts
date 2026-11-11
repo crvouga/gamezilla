@@ -6,8 +6,10 @@
  * each once its renewal says its day is over or it is above the desired
  * synthetic population.
  */
+
 import { GAME_AUTOMATIONS } from '@libs/game-catalog-shared-ts/game-automations';
 import type { ProductHarness } from '@libs/harness-ts/harness';
+import { runScopedCreateId } from '@libs/harness-ts/run-scope';
 import { reconcileCheckpoint } from '@libs/synthetic-population-shared-ts/config';
 import { fixtureWorkerRpc } from './fixture-worker-rpc';
 
@@ -59,7 +61,7 @@ export async function claimSyntheticUsers(s: ProductHarness, most = 32) {
   const worker = workerOf(s);
   const rpc = await fixtureWorkerRpc(s);
   for (let claimed = 0; claimed < most; claimed += 1) {
-    const replica = s.session.ports.createId();
+    const replica = runScopedCreateId(s)();
     await deployedWorkerHeartbeat(s, replica);
     const response = await rpc.claim.$post({
       json: {
@@ -107,7 +109,7 @@ function workerOf(s: ProductHarness): Worker {
   const known = workers.get(s);
   if (known !== undefined) return known;
   const worker: Worker = {
-    id: s.session.ports.createId(),
+    id: runScopedCreateId(s)(),
     claiming: false,
     held: new Map(),
     playing: new Set(),

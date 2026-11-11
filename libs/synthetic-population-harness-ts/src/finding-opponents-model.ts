@@ -205,9 +205,8 @@ export const personGameEnds = scenarioAction({
         )
       ).map((row) => row.account_id)
     );
-    // A person with no connection cannot leave: their game goes on.
+    // The model ends a game only while every person has a connection.
     for (const person of worldOf(s).people) {
-      if (offline(s, person)) continue;
       const view = await multiplayerView(s, person);
       if (view.game === null || view.game.outcome !== 'ongoing') continue;
       const against = [view.game.white_id, view.game.black_id];
@@ -226,10 +225,7 @@ export const personGameEnds = scenarioAction({
       if (await someoneWaiting(s)) await carryOn(s, () => nobodyWaiting(s));
       return;
     }
-    throw new Error(
-      'No person with a connection is playing a Synthetic User: a game ' +
-        'cannot end while the person in it has no connection'
-    );
+    throw new Error('No person is playing a Synthetic User');
   },
 });
 
