@@ -16,6 +16,7 @@ import { spaceBarShown } from '@libs/harness-ts/shell-actions';
 import { writeServerFixture } from '@libs/harness-ts/write-server-fixture';
 import {
   ownSpaceCard,
+  showSpacesTab,
   waitActiveSpace,
 } from '@libs/spaces-harness-ts/space-ui';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
@@ -45,16 +46,43 @@ async function sharedScreenShown(
   return false;
 }
 
+/**
+ * Whether the device is in someone else's space it cannot steer: its host
+ * is offline, or it was just told only the host chooses. A person's stats
+ * are their own, so they are read from a space the person hosts instead.
+ */
+async function inSpaceSteeredByAnother(
+  s: ProductHarness,
+  actorId: string
+): Promise<boolean> {
+  const ui = await actorUi(s, actorId);
+  if (!(await spaceBarShown(ui))) return false;
+  return (
+    (await ui.get(Handles.spaceHostOffline).isVisible()) ||
+    (await ui.get(Handles.spaceHostChoosesGame).isVisible())
+  );
+}
+
+type StatsRoute = { space: boolean; ownSpace: boolean };
+
 /** One step toward the stats from where the device is; true once shown. */
 async function stepTowardStats(
   s: ProductHarness,
   actorId: string,
   gameId: string,
-  entered: { space: boolean }
+  entered: StatsRoute
 ): Promise<boolean> {
   const ui = await actorUi(s, actorId);
   if (await ui.get(Handles.chessStatsElo).isVisible()) return true;
-  if (await ui.get(Handles.gameChoice('stats')).isVisible()) {
+  if (!entered.ownSpace && (await inSpaceSteeredByAnother(s, actorId))) {
+    // regression: puzzle-stats-unreachable-from-a-guest-space
+    // A watcher's stats live in their own space, not the host's.
+    entered.ownSpace = true;
+    entered.space = true;
+    await showSpacesTab(s, actorId);
+    await ui.get(Handles.spaceCreate).tap({ timeoutMs: WAIT_MS });
+    await waitActiveSpace(s, actorId);
+  } else if (await ui.get(Handles.gameChoice('stats')).isVisible()) {
     await ui.get(Handles.gameChoice('stats')).tap({ timeoutMs: WAIT_MS });
   } else if (await ui.get(Handles.chessPuzzlePlayScreen).isVisible()) {
     await closeResultPanel(s, actorId);
@@ -87,13 +115,14 @@ async function stepTowardStats(
 
 /**
  * The game's puzzle stats, from wherever the device is: the board, the
- * game's choices, the space's game choice, or outside the space. Reading
+ * game's choices, the space's game choice, or outside the space — or,
+ * from someone else's space it cannot steer, in a space of its own. Reading
  * them changes nothing.
  */
 export const showGamePuzzleStats = scenarioAction({
   name: 'showGamePuzzleStats',
   act: async (s, actorId: string, gameId: string) => {
-    const entered = { space: false };
+    const entered: StatsRoute = { space: false, ownSpace: false };
     await pollUntil(
       s,
       async () =>
