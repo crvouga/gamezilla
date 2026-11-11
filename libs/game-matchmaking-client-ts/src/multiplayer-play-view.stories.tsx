@@ -43,7 +43,10 @@ export const Versus: Story = {
     renderStory({ shown: 0, announcement: { title: 'Your turn.' } })(args),
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(await canvas.findByTestId('multiplayer-versus'));
+    const card = await canvas.findByTestId('multiplayer-versus');
+    await userEvent.click(
+      within(card).getByRole('button', { name: 'Start now' })
+    );
     await expect(args.onOverlay).toHaveBeenCalledWith({ type: 'skip' });
     await expect(canvas.queryByTestId('multiplayer-versus')).toBeNull();
   },
