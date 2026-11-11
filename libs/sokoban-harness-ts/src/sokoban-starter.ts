@@ -151,7 +151,13 @@ export async function playingStarter(
 /** The next puzzle the finished attempt offers, by pack position, or -1. */
 export function offeredStarter(s: SokobanHarness, clientId: string): number {
   const view = screensOf(s, clientId).play?.view;
+  // The pack's way on is on the attempt's progress screen: open it by the
+  // board's control, read, and return to the board.
+  const onward = view?.queryByTestId('content-open-progress') ?? null;
+  if (onward !== null) fireEvent.click(onward);
   const offer = view?.queryByTestId('content-next-puzzle')?.textContent ?? '';
+  const board = view?.queryByTestId('content-return-board') ?? null;
+  if (onward !== null && board !== null) fireEvent.click(board);
   return starterEditions(s).puzzles.findIndex(
     (puzzle) => offer === `Next puzzle: ${puzzle.title}`
   );
