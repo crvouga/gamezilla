@@ -319,8 +319,8 @@ cover those independently; play functions document story-specific contracts.
 Production `src` hashes exclude stories, examples, baselines and shared preview scaffolding. Storybook tasks explicitly hash those inputs, so preview changes do not fan out to application consumers.
 
 The release gate runs coverage, static Storybook builds, DOM contracts, and a
-representative browser suite through `ci:storybook:0`–`ci:storybook:7`
-(eight Playwright shards of one selection, so each fits its task budget;
+representative browser suite through `ci:storybook:0`–`ci:storybook:11`
+(twelve Playwright shards of one selection, so each fits its task budget;
 coverage gates with the first). The visual nightly group
 also runs every story in both themes, with desktop screen/layout variants and a
 tablet shell. These use the same tests, not a second visual catalog. Serious and
