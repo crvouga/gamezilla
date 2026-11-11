@@ -17,7 +17,16 @@ function json<T>(path: string): T {
   return JSON.parse(readFileSync(join(REPO_ROOT, path), 'utf8')) as T;
 }
 
-const tasks = json<{ tasks: Record<string, Task> }>('turbo.json').tasks;
+// The root config and the package's own turbo.json, which owns its
+// package-scoped tasks (`dev:*`) as `@apps/product-ts#<task>`.
+const tasks: Record<string, Task> = {
+  ...json<{ tasks: Record<string, Task> }>('turbo.json').tasks,
+  ...Object.fromEntries(
+    Object.entries(
+      json<{ tasks: Record<string, Task> }>('apps/product-ts/turbo.json').tasks
+    ).map(([name, task]) => [`@apps/product-ts#${name}`, task])
+  ),
+};
 const scripts = json<{ scripts: Record<string, string> }>(
   'apps/product-ts/package.json'
 ).scripts;
