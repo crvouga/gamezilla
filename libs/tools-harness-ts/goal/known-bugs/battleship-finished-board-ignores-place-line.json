@@ -1,0 +1,4 @@
+{
+  "summary": "A finished Battleship board's room for the result (window height less 35rem) was measured while the record's place (`Finished`) shared the move row; once a place other than Live read on its own line above the row, the finished phone overflowed by 12px even without the empty reserve line, and the own seat ended below a 390x844 screen. The finished board now leaves 36rem, which includes that line.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/battleship/layout/integration.checks.ts"
+}
