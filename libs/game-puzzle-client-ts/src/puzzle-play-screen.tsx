@@ -163,7 +163,6 @@ function PuzzlePlayerChrome(props: {
     stage,
     leave: p.backToRoot,
     onFeedConfigApplied: props.onFeedConfigApplied,
-    toLive: line.toLive,
   });
   const result = usePuzzleResult(p);
   const share = usePuzzleShare(() => (p.isSpectator() ? null : p.puzzleId()));
@@ -202,7 +201,7 @@ function PuzzlePlayerChrome(props: {
             live={places.nav.place().screen === 'play'}
           />
         )}
-        line={line.model()}
+        line={line()}
         status={p.status()}
         hintStage={p.hintStage()}
         canGoForward={p.canGoForward()}
@@ -280,7 +279,6 @@ function PuzzlePlayShell(props: {
     stage,
     leave: props.backToRoot,
     onFeedConfigApplied: props.onFeedConfigApplied,
-    toLive: noop,
   });
   const denial = useDeniedView({
     get decision() {

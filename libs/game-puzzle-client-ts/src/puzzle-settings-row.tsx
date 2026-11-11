@@ -56,6 +56,15 @@ function ServedLine(props: PuzzleSettingsRowProps): JSX.Element {
   );
 }
 
+/** The saved feed in one sentence, as the puzzle settings are described. */
+export function savedFeedSpoken(feed: PuzzleFeedSettingsModel): string {
+  return feedAccessibleLabel(
+    feed.saved,
+    feed.savedTarget,
+    (theme) => feed.themes?.label(theme) ?? theme
+  );
+}
+
 /**
  * The one way to the puzzle settings: a row naming them, with what the
  * feed serves now as its value line. The whole feed is also said in words
@@ -63,13 +72,8 @@ function ServedLine(props: PuzzleSettingsRowProps): JSX.Element {
  * (WCAG 2.5.3). A row of a `MenuSection`.
  */
 export function PuzzleSettingsRow(props: PuzzleSettingsRowProps): JSX.Element {
-  const themeLabel = (theme: string): string =>
-    props.feed.themes?.label(theme) ?? theme;
   const spoken = (): string =>
-    [
-      feedAccessibleLabel(props.feed.saved, props.feed.savedTarget, themeLabel),
-      props.allowanceLabel,
-    ]
+    [savedFeedSpoken(props.feed), props.allowanceLabel]
       .filter((part) => part.length > 0)
       .join(' ');
   return (

@@ -58,15 +58,15 @@ export type PuzzlePlayPlacesWiring = {
 /**
  * The feed's place machine on this device: the place within `stage`, the
  * feed settings its `feed-…` screens edit (a draft kept while any of them
- * shows), and Back. Leaving the line while the puzzle is being solved
- * returns the board to the latest move (`toLive`).
+ * shows), and Back. The move the board is on is the room's: leaving the
+ * line keeps it, and the board says so until the person returns to the
+ * latest move.
  */
 export function usePuzzlePlayPlaces(args: {
   readonly stage: Accessor<PuzzlePlayStage>;
   /** Leave the puzzles for the game's choices. */
   readonly leave: () => void;
   readonly onFeedConfigApplied: () => void;
-  readonly toLive: () => void;
 }): PuzzlePlayPlacesWiring {
   const nav = useEnteredPlace(PUZZLE_PLAY_PLACES, args.stage);
   const editing = createMemo(() => isPuzzleFeedPlace(nav.place()));
@@ -76,12 +76,7 @@ export function usePuzzlePlayPlaces(args: {
     onClose: nav.home,
   });
   const back = (): void => {
-    const from = nav.place().screen;
-    if (!nav.back()) {
-      args.leave();
-      return;
-    }
-    if (from === 'line' && args.stage() === 'playing') args.toLive();
+    if (!nav.back()) args.leave();
   };
   return { stage: args.stage, nav, back, feed };
 }

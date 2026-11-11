@@ -135,12 +135,12 @@ test('summary, while the history is unknown: one activity indicator and no figur
 
 test('trend: the rating after each rated puzzle, oldest first', () => {
   mount({ screen: 'trend' });
-  expect(
-    screen.getByTestId('chess-stats-rating-history-0').textContent
-  ).toBe('1512');
-  expect(
-    screen.getByTestId('chess-stats-rating-history-1').textContent
-  ).toBe('1500');
+  expect(screen.getByTestId('chess-stats-rating-history-0').textContent).toBe(
+    '1512'
+  );
+  expect(screen.getByTestId('chess-stats-rating-history-1').textContent).toBe(
+    '1500'
+  );
   expect(shown('chess-stats-elo')).toBe(false);
   expect(shown('chess-game-log-row-chess:a')).toBe(false);
 });

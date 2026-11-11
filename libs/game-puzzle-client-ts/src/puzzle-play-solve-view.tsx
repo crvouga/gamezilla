@@ -34,40 +34,35 @@ function SpectatorAllowance(props: { label: string }): JSX.Element {
 /**
  * What is done about the puzzle, as the solve state allows it
  * (`buildPuzzleActionBarPlan`). While the board shows an earlier move the
- * one thing to do is to return to the latest.
+ * hint waits, and the way back to the latest move is offered under it.
  */
 function SolveActions(props: PuzzlePlayScreenViewProps): JSX.Element {
   return (
     <StackVertical paddingX="lg" gap="sm">
-      <Show
-        when={!props.canGoForward}
-        fallback={
-          <>
-            <P variant="caption" tone="secondary">
-              <Trans>The board shows an earlier move.</Trans>
-            </P>
-            <StackHorizontal>
-              <Button
-                title={<Trans>Back to the latest move</Trans>}
-                intent="neutral"
-                variant="outline"
-                onClick={() => props.line.nav.onNavigate(PUZZLE_NAV_INTENT.end)}
-                dataSet={{ testid: 'chess-puzzle-return-live' }}
-              />
-            </StackHorizontal>
-          </>
-        }
-      >
-        <PuzzleActionBar
-          status={props.status}
-          hintStage={props.hintStage}
-          canGoForward={props.canGoForward}
-          onHint={props.onHint}
-          onSolution={props.onSolution}
-          onRetry={props.onRetry}
-          onSkip={props.onSkip}
-          onNext={props.onNext}
-        />
+      <PuzzleActionBar
+        status={props.status}
+        hintStage={props.hintStage}
+        canGoForward={props.canGoForward}
+        onHint={props.onHint}
+        onSolution={props.onSolution}
+        onRetry={props.onRetry}
+        onSkip={props.onSkip}
+        onNext={props.onNext}
+      />
+      <Show when={props.canGoForward}>
+        <StackHorizontal align="center" gap="sm" wrap>
+          <P variant="caption" tone="secondary">
+            <Trans>The board shows an earlier move.</Trans>
+          </P>
+          <Button
+            title={<Trans>Back to the latest move</Trans>}
+            intent="neutral"
+            variant="ghost"
+            size="sm"
+            onClick={() => props.line.nav.onNavigate(PUZZLE_NAV_INTENT.end)}
+            dataSet={{ testid: 'chess-puzzle-return-live' }}
+          />
+        </StackHorizontal>
       </Show>
     </StackVertical>
   );

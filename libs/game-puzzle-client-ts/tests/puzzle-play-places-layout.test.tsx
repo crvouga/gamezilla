@@ -112,7 +112,7 @@ test('play: a wrong move reports failure, and Retry is the one filled command', 
   expect(filledCommands()).toEqual(['Retry']);
 });
 
-test('play: a board on an earlier move offers only the way back to the latest', () => {
+test('play: a board on an earlier move holds the hint and offers the way back to the latest', () => {
   const asked: string[] = [];
   mountPlay('play', {
     canGoForward: true,
@@ -125,13 +125,24 @@ test('play: a board on an earlier move offers only the way back to the latest', 
       },
     },
   });
-  expect(shown('chess-puzzle-action-hint')).toBe(false);
+  expect(screen.getByTestId('chess-puzzle-action-hint')).toHaveProperty(
+    'disabled',
+    true
+  );
+  expect(screen.getByTestId('chess-puzzle-action-skip')).toHaveProperty(
+    'disabled',
+    false
+  );
   fireEvent.click(screen.getByTestId('chess-puzzle-return-live'));
   expect(asked).toEqual(['end']);
 });
 
 test('play: a wrong move already shows what it did to the rating, on the status line', () => {
-  mountPlay('play', { statusKind: 'failed', status: 'wrong', ratingChange: -9 });
+  mountPlay('play', {
+    statusKind: 'failed',
+    status: 'wrong',
+    ratingChange: -9,
+  });
   const change = screen.getByTestId('chess-puzzle-feed-rating-change');
   expect(change.textContent).toBe('-9');
   expect(region('PuzzleHeader').contains(change)).toBe(true);

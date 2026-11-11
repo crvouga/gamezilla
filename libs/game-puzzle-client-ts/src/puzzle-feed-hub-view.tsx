@@ -18,6 +18,7 @@ import {
 } from './puzzle-feed-words';
 import type { PuzzleFeedSettingScreen } from './puzzle-play-places';
 import type { PuzzlePlayScreenViewProps } from './puzzle-play-screen-model';
+import { savedFeedSpoken } from './puzzle-settings-row';
 import { PuzzleShareLabel } from './puzzle-share-label';
 
 /** A setting's row: its name, its unsaved value, and the way to its screen. */
@@ -136,6 +137,12 @@ export function PuzzleFeedHubView(
     <EmbeddedScreen
       screenId="chess-puzzle-feed"
       title={<Trans>Puzzle settings</Trans>}
+      subtitle={
+        // What is saved now, beside the draft the rows below hold.
+        <Text variant="inherit" testId="chess-puzzle-feed-description">
+          <Trans>Saved now: {savedFeedSpoken(props.feed)}</Trans>
+        </Text>
+      }
     >
       <StackVertical gap="xl">
         <FeedSettings {...props} />
