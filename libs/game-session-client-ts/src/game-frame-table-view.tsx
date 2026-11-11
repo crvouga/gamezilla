@@ -25,8 +25,9 @@ import {
 } from '@pkgs/ui-root-client-ts/game-table-seat';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Text } from '@pkgs/ui-root-client-ts/text';
-import { For, Index, type JSX, Match, Show, Switch } from 'solid-js';
+import { Index, type JSX, Match, Show, Switch } from 'solid-js';
 import { FrameHolderAvatar, FrameHolderName } from './game-frame-people';
+import { ChipSeatTags, PlaySeatTags } from './game-frame-seat-tags';
 import { frameUsesRail } from './game-frame-table';
 import type {
   FrameClock,
@@ -51,37 +52,6 @@ export function FrameSeatClock(props: {
       dataSet={{ testid: `custom-game-${props.seat.side}-clock` }}
       ariaLabel={props.seat.sideLabel}
     />
-  );
-}
-
-/**
- * The seat's public facts as tags: a stand-in bot playing it, whether it has
- * made its secret choice (never what), and the game's own facts.
- */
-function PlaySeatTags(props: { readonly seat: FramePlaySeat }): JSX.Element {
-  return (
-    <>
-      <Show when={props.seat.standIn}>
-        <Badge
-          intent="warning"
-          label={<Trans>Stand-in bot</Trans>}
-          dataSet={{ testid: `custom-game-${props.seat.side}-stand-in` }}
-        />
-      </Show>
-      <Show when={props.seat.committed}>
-        <Badge
-          intent="success"
-          label={<Trans>Chosen</Trans>}
-          dataSet={{ testid: `custom-game-${props.seat.side}-committed` }}
-        />
-      </Show>
-      <Show when={props.seat.choosing}>
-        <Badge intent="neutral" label={<Trans>Choosing</Trans>} />
-      </Show>
-      <For each={props.seat.facts}>
-        {(fact) => <Badge intent="neutral" label={fact} />}
-      </For>
-    </>
   );
 }
 
@@ -245,15 +215,7 @@ export function FrameSeatChipView(
         swatch={props.seat.swatch}
         tags={
           <>
-            <Show when={props.own === true}>
-              {/* The subtle wash over the active chip's tint falls below AA in the dark theme. */}
-              <Badge
-                intent="info"
-                tone={props.seat.deciding ? 'solid' : 'subtle'}
-                label={<Trans>You</Trans>}
-              />
-            </Show>
-            <PlaySeatTags seat={props.seat} />
+            <ChipSeatTags seat={props.seat} own={props.own === true} />
             {/* The game's own figure fills the chip's figure, so a timed
                 game's clock sits beside it rather than vanishing. */}
             <Show when={props.seat.stat !== null && props.seat.clock}>

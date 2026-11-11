@@ -1,6 +1,10 @@
 import type { CustomGameInput } from '@libs/game-session-shared-ts/custom-game-choice';
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
+import type {
+  StageOverlay,
+  StageOverlayEvent,
+} from '@pkgs/turn-game-client-ts/stage-overlay';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
 import { type JSX, Match, Show, Switch } from 'solid-js';
@@ -43,6 +47,8 @@ import type {
 /** What the room says about the game; `GameFrameScreenView` adds the place and the confirmation. */
 export type GameFrameScreenData = FrameReviewHandlers & {
   readonly title: JSX.Element;
+  /** How the game is won, in one sentence; absent before there is a game. */
+  readonly goal?: string | undefined;
   /** Set when the person may not watch this space's games. */
   readonly denial?: DenialView | undefined;
   /** The game's stage: nobody navigates it. */
@@ -71,6 +77,11 @@ export type GameFrameScreenData = FrameReviewHandlers & {
   readonly record: FrameRecord | null;
   /** The game's own board and its controls; the only part the game draws. */
   readonly board?: JSX.Element;
+  /**
+   * The game's own board at its start, with nothing to press: the picture
+   * on the mode card before and while a game is set up.
+   */
+  readonly boardPreview?: JSX.Element;
   /** The game's own private setup board, while the viewer arranges theirs. */
   readonly setupBoard?: JSX.Element;
   /** Public render state on the board stage, for automated observers. */
@@ -100,6 +111,13 @@ export type GameFrameScreenViewProps = GameFrameScreenData & {
   readonly onOpen: (place: CustomGamePlace) => void;
   /** One step back, towards the phase's home. */
   readonly onClose: () => void;
+  /**
+   * What lies over the board on this device: the versus card and its
+   * count, the result card, or nothing (`useStageOverlay`).
+   */
+  readonly overlay: StageOverlay;
+  /** The person's own overlay events: `skip`, `dismiss`, `show`. */
+  readonly onOverlay: (event: StageOverlayEvent) => void;
 };
 
 /** What every place is given: the frame's data, and asking for its one confirmation. */

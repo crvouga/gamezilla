@@ -1,7 +1,11 @@
 import { Trans } from '@lingui/solid/macro';
 import { Badge, HostBadge } from '@pkgs/ui-root-client-ts/badge';
+import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
-import { GameSeatReadiness } from '@pkgs/ui-root-client-ts/game-player-parts';
+import {
+  GameModeCard,
+  type GameModeFact,
+} from '@pkgs/ui-root-client-ts/game-lobby';
 import { GameSeatSwatch } from '@pkgs/ui-root-client-ts/game-seat-swatch';
 import { GameActions } from '@pkgs/ui-root-client-ts/game-section';
 import {
@@ -15,17 +19,16 @@ import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
-import { For, Index, type JSX, Show } from 'solid-js';
+import { For, Index, type JSX, Match, Show, Switch } from 'solid-js';
 import {
   FrameHolderAvatar,
   FrameHolderName,
   FramePersonName,
 } from './game-frame-people';
 import type { FramePlaceProps } from './game-frame-screen-view';
-import { FramePlacePage } from './game-frame-shell';
+import { FrameLobbyPage } from './game-frame-shell';
 import { FrameStartView } from './game-frame-start-line-view';
-import { FrameFactsView } from './game-frame-status-view';
-import { FrameSeatClock } from './game-frame-table-view';
+import { FrameClockWords } from './game-frame-status-view';
 import type {
   FrameOptions,
   FrameSetup,
@@ -47,15 +50,12 @@ function showsReadiness(seat: FrameSetupSeat): boolean {
 }
 
 /**
- * The seat's facts under its holder's name: the side's look and name, one
- * tag for the host's own seat or the viewer's seat at someone else's
- * table, and whether its holder is ready as a dot and a word.
+ * Beside the holder's name: one tag for the host's own seat or the
+ * viewer's seat at someone else's table.
  */
-function SeatFacts(props: { readonly seat: FrameSetupSeat }): JSX.Element {
+function SeatTags(props: { readonly seat: FrameSetupSeat }): JSX.Element {
   return (
-    <StackHorizontal gap="sm" align="center" wrap>
-      <GameSeatSwatch look={props.seat.swatch} />
-      <Text variant="caption">{props.seat.sideLabel}</Text>
+    <>
       <Show when={props.seat.host}>
         <HostBadge
           size="sm"
@@ -70,19 +70,59 @@ function SeatFacts(props: { readonly seat: FrameSetupSeat }): JSX.Element {
           dataSet={{ testid: `custom-game-${props.seat.side}-you` }}
         />
       </Show>
-      <Show when={showsReadiness(props.seat)}>
-        <GameSeatReadiness
-          ready={props.seat.ready}
-          label={
-            props.seat.ready ? (
-              <Trans>Ready</Trans>
-            ) : (
-              <Trans>Getting ready</Trans>
-            )
-          }
-        />
+    </>
+  );
+}
+
+/** Under the holder's name: the side's look and name, then its clock. */
+function SeatFacts(props: { readonly seat: FrameSetupSeat }): JSX.Element {
+  return (
+    <StackHorizontal gap="sm" align="center" wrap>
+      <GameSeatSwatch look={props.seat.swatch} />
+      <Text variant="caption">{props.seat.sideLabel}</Text>
+      <Show when={props.seat.clock}>
+        {(clock) => (
+          <Text
+            variant="caption"
+            testId={`custom-game-${props.seat.side}-clock`}
+          >
+            · {clock().value}
+          </Text>
+        )}
       </Show>
     </StackHorizontal>
+  );
+}
+
+/**
+ * Where the seat stands, at the row's end, as one tag every seat has in
+ * the same place: ready or not for a person, else what holds the seat up
+ * (an invitation not answered, an empty seat) or that a bot plays it.
+ */
+function SeatState(props: { readonly seat: FrameSetupSeat }): JSX.Element {
+  const kind = () => props.seat.holder.kind;
+  return (
+    <Switch>
+      <Match when={showsReadiness(props.seat) && props.seat.ready}>
+        <Badge intent="success" tone="solid" label={<Trans>Ready</Trans>} />
+      </Match>
+      <Match when={showsReadiness(props.seat)}>
+        <Badge intent="neutral" label={<Trans>Not ready</Trans>} />
+      </Match>
+      <Match when={kind() === 'invitation'}>
+        <Badge
+          intent="warning"
+          label={<Trans>Invited</Trans>}
+          dataSet={{ testid: `custom-game-${props.seat.side}-invited` }}
+        />
+      </Match>
+      <Match when={kind() === 'open'}>
+        <Badge intent="brand" label={<Trans>Open</Trans>} />
+      </Match>
+      <Match when={kind() === 'bot'}>
+        <Badge intent="neutral" label={<Trans>Bot</Trans>} />
+      </Match>
+    </Switch>
   );
 }
 
@@ -117,20 +157,19 @@ function SeatRow(
         />
       }
       title={
-        <Text variant="inherit" testId={`custom-game-${side()}-person`}>
-          <FrameHolderName
-            holder={props.seat.holder}
-            plainName={props.seat.plainName}
-            people={props.people}
-          />
-        </Text>
+        <StackHorizontal gap="sm" align="center">
+          <Text variant="inherit" testId={`custom-game-${side()}-person`}>
+            <FrameHolderName
+              holder={props.seat.holder}
+              plainName={props.seat.plainName}
+              people={props.people}
+            />
+          </Text>
+          <SeatTags seat={props.seat} />
+        </StackHorizontal>
       }
       caption={<SeatFacts seat={props.seat} />}
-      value={
-        <Show when={props.seat.clock}>
-          {(clock) => <FrameSeatClock seat={props.seat} clock={clock()} />}
-        </Show>
-      }
+      value={<SeatState seat={props.seat} />}
       onClick={
         seatOpens(props.seat)
           ? () => props.onOpen({ screen: 'seat', side: side() })
@@ -219,8 +258,7 @@ function AgreedRows(
       when={
         rules() !== null ||
         options()?.clock != null ||
-        props.setup.privateSetup !== null ||
-        props.play.canCancel
+        props.setup.privateSetup !== null
       }
     >
       <MenuSection title={<Trans>Game</Trans>}>
@@ -241,12 +279,10 @@ function AgreedRows(
               leading={<ClockIcon size={24} />}
               title={<Trans>Clock and sides</Trans>}
               value={
-                <Show
-                  when={clock().minutes > 0}
-                  fallback={<Trans>Untimed</Trans>}
-                >
-                  {clock().minutes}+{clock().increment}
-                </Show>
+                <FrameClockWords
+                  minutes={clock().minutes}
+                  increment={clock().increment}
+                />
               }
               onClick={() => props.onOpen({ screen: 'clock' })}
               dataSet={{ testid: 'custom-game-options' }}
@@ -287,36 +323,107 @@ function AgreedRows(
             />
           )}
         </Show>
-        <Show when={props.play.canCancel}>
-          <MenuRow
-            title={<Trans>Cancel game</Trans>}
-            tone="destructive"
-            hideChevron
-            onClick={() => props.onConfirm('cancel')}
-            dataSet={{ testid: 'custom-game-cancel' }}
-          />
-        </Show>
       </MenuSection>
     </Show>
   );
 }
 
+/** How many seats someone or something holds, of how many. */
+function seatedCount(seats: readonly FrameSetupSeat[]): number {
+  return seats.filter((seat) => {
+    const kind = seat.holder.kind;
+    return kind === 'person' || kind === 'bot' || kind === 'local';
+  }).length;
+}
+
 /**
- * The lobby while a game is set up: who sits where, what is agreed, and
- * the one thing to do next (take a seat, answer an invitation, get ready,
- * start). Each seat and each agreed thing is a row that opens its own
- * place; nothing is changed here.
+ * What is about to be played, at the head of the lobby: the game and how
+ * it is won, then what is agreed (who is in, the clock, that it is
+ * unrated) at a glance.
+ */
+function LobbyMode(props: Props & { readonly setup: FrameSetup }): JSX.Element {
+  const facts = (): readonly GameModeFact[] => [
+    {
+      id: 'players',
+      label: <Trans>Players</Trans>,
+      value: (
+        <Trans>
+          {seatedCount(props.setup.seats)} of {props.setup.seats.length}
+        </Trans>
+      ),
+    },
+    {
+      id: 'clock',
+      label: <Trans>Clock</Trans>,
+      value: (
+        <FrameClockWords
+          minutes={props.status?.minutes ?? 0}
+          increment={props.status?.increment ?? 0}
+        />
+      ),
+    },
+    {
+      id: 'rating',
+      label: <Trans>Rating</Trans>,
+      value: <Trans>Unrated</Trans>,
+      testId: 'custom-game-unrated',
+    },
+  ];
+  return (
+    <GameModeCard
+      eyebrow={<Trans>Custom game</Trans>}
+      title={props.title}
+      summary={props.goal}
+      facts={facts()}
+      art={props.boardPreview}
+      dataSet={{ testid: 'custom-game-mode' }}
+    />
+  );
+}
+
+/**
+ * The lobby while a game is set up, as a lobby reads in any game: what is
+ * played, who is in and who is ready, what is agreed, and under them, in
+ * a dock that never scrolls, the one thing to do next (take a seat, get
+ * ready, start). Each seat and each agreed thing is a row that opens its
+ * own place; nothing is changed here.
  */
 export function FrameLobbyPlace(
   props: Props & { readonly setup: FrameSetup }
 ): JSX.Element {
   return (
-    <FramePlacePage
+    <FrameLobbyPage
       {...props}
       screenId="custom-game-lobby"
-      title={props.title}
-      subtitle={<FrameFactsView status={props.status} />}
+      dock={
+        <FrameStartView
+          start={props.setup.start}
+          onChoose={props.onChoose}
+          onReady={props.onReady}
+          onArrange={
+            props.setup.privateSetup === null
+              ? undefined
+              : () => props.onOpen({ screen: 'private-setup' })
+          }
+          seat={
+            <Show when={props.setup.takeSeat}>
+              {(side) => (
+                <GameActionButton
+                  title={<Trans>Take a seat</Trans>}
+                  variant="solid"
+                  size="lg"
+                  dataSet={{ testid: 'custom-game-take-seat' }}
+                  operation={() =>
+                    props.onChoose({ operation: 'claim', side: side() })
+                  }
+                />
+              )}
+            </Show>
+          }
+        />
+      }
     >
+      <LobbyMode {...props} />
       <For each={props.setup.seats}>
         {(seat) => <OwnInvitation {...props} seat={seat} />}
       </For>
@@ -325,20 +432,6 @@ export function FrameLobbyPlace(
           <P tone="secondary" testId="custom-game-viewer">
             {text()}
           </P>
-        )}
-      </Show>
-      <Show when={props.setup.takeSeat}>
-        {(side) => (
-          <GameActions sizing="share">
-            <GameActionButton
-              title={<Trans>Take a seat</Trans>}
-              variant="solid"
-              dataSet={{ testid: 'custom-game-take-seat' }}
-              operation={() =>
-                props.onChoose({ operation: 'claim', side: side() })
-              }
-            />
-          </GameActions>
         )}
       </Show>
       <MenuSection
@@ -350,16 +443,19 @@ export function FrameLobbyPlace(
         </Index>
       </MenuSection>
       <AgreedRows {...props} />
-      <FrameStartView
-        start={props.setup.start}
-        onChoose={props.onChoose}
-        onReady={props.onReady}
-        onArrange={
-          props.setup.privateSetup === null
-            ? undefined
-            : () => props.onOpen({ screen: 'private-setup' })
-        }
-      />
-    </FramePlacePage>
+      {/* Calling the game off: last on the page, quiet, and it asks first. */}
+      <Show when={props.play.canCancel}>
+        <GameActions sizing="share">
+          <Button
+            title={<Trans>Cancel game</Trans>}
+            variant="outline"
+            intent="danger"
+            size="md"
+            onClick={() => props.onConfirm('cancel')}
+            dataSet={{ testid: 'custom-game-cancel' }}
+          />
+        </GameActions>
+      </Show>
+    </FrameLobbyPage>
   );
 }

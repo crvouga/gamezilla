@@ -51,7 +51,10 @@ export function FramePersonAvatar(props: {
 const personOf = (holder: FrameHolder): string =>
   'person' in holder ? holder.person : '';
 
-/** Whoever holds a seat, as the seat's name reads. */
+/**
+ * Whoever holds a seat, as the seat's name reads. An invited person reads
+ * as their name; the seat's own tag says the invitation is not answered.
+ */
 export function FrameHolderName(props: {
   readonly holder: FrameHolder;
   readonly plainName: string;
@@ -67,9 +70,7 @@ export function FrameHolderName(props: {
   return (
     <Switch fallback={<Trans>Closed seat</Trans>}>
       <Match when={props.holder.kind === 'person'}>{person()}</Match>
-      <Match when={props.holder.kind === 'invitation'}>
-        <Trans>Invited:</Trans> {person()}
-      </Match>
+      <Match when={props.holder.kind === 'invitation'}>{person()}</Match>
       <Match when={props.holder.kind === 'bot'}>
         {botName(props.holder.kind === 'bot' ? props.holder.level : undefined)}
       </Match>

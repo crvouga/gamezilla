@@ -40,10 +40,9 @@ function boardIgnoring(ignoredPairs: number): {
       visible: async () => {},
       hidden: unused,
       text: async (expected) => {
-        if (id !== 'multiplayer-move-list') return unused();
-        if (expected === '1. e4') return;
-        if (!moved())
-          throw new Error('Timed out waiting for text contains "1. e4 e5"');
+        if (id === 'multiplayer-move-1' && expected === 'e4') return;
+        if (id !== 'multiplayer-move-2') return unused();
+        if (!moved()) throw new Error('Timed out waiting for text "e5"');
       },
     },
   });
@@ -96,14 +95,14 @@ function boardAwaitingOpponentsMove(): {
       visible: unused,
       hidden: unused,
       text: async (expected) => {
-        if (id !== 'multiplayer-move-list') return unused();
-        if (expected === '1. e4') {
+        if (id === 'multiplayer-move-1' && expected === 'e4') {
           arrived = true;
           actions.push('observe-e4');
           return;
         }
-        if (expected === '1. e4 e5' && taps >= 2) return;
-        throw new Error('Timed out waiting for text contains "1. e4 e5"');
+        if (id !== 'multiplayer-move-2') return unused();
+        if (expected === 'e5' && taps >= 2) return;
+        throw new Error('Timed out waiting for text "e5"');
       },
     },
   });

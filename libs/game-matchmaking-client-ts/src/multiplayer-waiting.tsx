@@ -62,12 +62,15 @@ function WaitingDescription(props: {
   );
 }
 
-function StopSearch(props: {
+/** The search's one command: stopping it. */
+export function MultiplayerStopSearch(props: {
   readonly multiple: boolean;
   readonly onStop: () => Promise<void>;
 }): JSX.Element {
   return (
     <GameActionButton
+      size="lg"
+      fullWidth
       title={
         <Show
           when={props.multiple}
@@ -91,7 +94,6 @@ function StopSearch(props: {
 /** A waiting search shows its time control and how long it has been looking. */
 export function MultiplayerWaiting(props: {
   readonly search: MultiplayerSearchView;
-  readonly onStop: () => Promise<void>;
 }): JSX.Element {
   return (
     <GameSearchState
@@ -111,9 +113,6 @@ export function MultiplayerWaiting(props: {
           </Text>{' '}
           <Trans>seconds</Trans>
         </>
-      }
-      actions={
-        <StopSearch multiple={props.search.players > 2} onStop={props.onStop} />
       }
     />
   );

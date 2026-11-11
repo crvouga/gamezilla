@@ -1,0 +1,208 @@
+/* A lobby: the column scrolls, the dock under it never does. */
+.screen {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-self: stretch;
+  min-width: 0;
+  min-height: 0;
+}
+/* What is about to be played: the mode's own wash, so the head of the
+   lobby reads as the game and not as one more list section. */
+.mode {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-4);
+  min-width: 0;
+  padding: var(--ui-space-5) var(--ui-space-4) var(--ui-space-4);
+  border: 1px solid var(--ui-color-border);
+  border-radius: var(--ui-radius-lg);
+  background: linear-gradient(
+    135deg,
+    var(--ui-color-tint-subtle) 0%,
+    var(--ui-color-surface) 72%
+  );
+}
+.modeWords {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-1);
+  min-width: 0;
+}
+.eyebrow {
+  color: var(--ui-color-tint);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.summary {
+  color: var(--ui-color-text-secondary);
+}
+/* What is agreed: tiles in one row, each a label over its value, split by
+   hairlines. A tile is as wide as its words need, and the room left over
+   is shared, so a long value (`10 min + 5 sec`) keeps one line. */
+.facts {
+  display: flex;
+  margin: 0;
+  border: 1px solid var(--ui-color-border);
+  border-radius: var(--ui-radius-md);
+  background: var(--ui-color-surface-muted);
+}
+.fact {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-1);
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: var(--ui-space-3);
+}
+.fact + .fact {
+  border-inline-start: 1px solid var(--ui-color-border);
+}
+.fact > dt {
+  color: var(--ui-color-text-secondary);
+}
+.factValue {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+/* The dock: a bar across the foot of the screen, its column at the same
+   measure as the lobby above it. */
+.dock {
+  display: flex;
+  flex: none;
+  justify-content: center;
+  min-width: 0;
+  padding-block: var(--ui-space-3)
+    calc(var(--ui-space-3) + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--ui-color-border);
+  background: var(--ui-color-surface);
+}
+.dock[data-inset="true"] {
+  padding-inline: var(--ui-space-4);
+}
+.dockColumn {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--ui-space-3);
+  min-width: 0;
+  max-width: 720px;
+}
+.dockStatus {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-1);
+  min-width: 0;
+  text-align: center;
+}
+/* The commands, each the dock's full width: the filled one first. */
+.dockActions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-2);
+  min-width: 0;
+}
+.dockActions > * {
+  align-self: stretch;
+  width: 100%;
+  max-width: none;
+}
+/* Wide: the dock closes the column, right under the lobby, with no bar of
+   its own; the column still scrolls when it outgrows the pane. */
+.screen[data-wide="true"] > :first-child {
+  flex: 0 1 auto;
+}
+.screen[data-wide="true"] > .dock {
+  padding-block: var(--ui-space-2) var(--ui-space-6);
+  border-top: 0;
+  background: none;
+}
+
+/* A phone with room to spare: the mode card takes it as the lobby's
+   poster (a quiet board pattern over its wash, the words at its foot), so
+   the rows and the command sit together under the thumb and no empty band
+   parts them. A long roster gives the card back its own height. */
+.screen[data-wide="false"] [data-component="ScrollViewContent"] {
+  min-height: 100%;
+}
+/* A product's own column around the card and the rows grows with it. */
+.screen[data-wide="false"]
+  [data-component="ScrollViewContent"]
+  > :has(> .mode) {
+  flex: 1 0 auto;
+}
+.screen[data-wide="false"] .mode {
+  flex: 1 0 auto;
+  justify-content: flex-end;
+  background:
+    linear-gradient(
+      to top,
+      var(--ui-color-surface) 0%,
+      var(--ui-color-surface) 9rem,
+      transparent 100%
+    ),
+    repeating-conic-gradient(
+      var(--ui-color-tint-subtle) 0% 25%,
+      transparent 0% 50%
+    )
+    0 0 / 4.5rem 4.5rem,
+    linear-gradient(
+      135deg,
+      var(--ui-color-tint-subtle) 0%,
+      var(--ui-color-surface) 72%
+    );
+}
+
+/* The game's own board as the card's picture: whole, centred, in the room
+   the card has over its words. Nothing on it is pressed. */
+.modeArt {
+  display: none;
+}
+.screen[data-wide="false"] .mode:has(.modeArtBoard > *) {
+  background: linear-gradient(
+    135deg,
+    var(--ui-color-tint-subtle) 0%,
+    var(--ui-color-surface) 72%
+  );
+}
+.screen[data-wide="false"] .modeArt:has(.modeArtBoard > *) {
+  display: flex;
+  flex: 1 1 0;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  container-type: size;
+  pointer-events: none;
+}
+.modeArtBoard {
+  display: flex;
+  flex-direction: column;
+  width: min(100cqw, 100cqh);
+  min-width: 0;
+  border-radius: var(--ui-radius-card);
+  overflow: hidden;
+}
+/* No command docked under the lobby (before any game): nothing is pinned
+   to the foot, so the card is its board and its words, and the ways to
+   play follow at once instead of waiting under a poster. */
+.screen[data-wide="false"]:not(:has(> .dock)) .mode {
+  flex: 0 0 auto;
+}
+.screen[data-wide="false"]:not(:has(> .dock)) .modeArt:has(.modeArtBoard > *) {
+  flex: none;
+  height: clamp(160px, 34svh, 300px);
+}
+/* Too little room for a board to read: the card is its words alone. */
+@container (max-height: 96px) {
+  .modeArtBoard {
+    display: none;
+  }
+}
+/* A line said between the card and the rows keeps their words' inset. */
+.screen [data-component="ScrollViewContent"] > p,
+.screen [data-component="ScrollViewContent"] > [data-component] > p {
+  padding-inline: var(--ui-space-4);
+}

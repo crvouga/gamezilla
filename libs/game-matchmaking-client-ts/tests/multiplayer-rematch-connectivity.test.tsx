@@ -28,7 +28,7 @@ test('rematch commands follow connectivity without losing the offered game', () 
   view.set({ online: false });
   expect(offer.hasAttribute('disabled')).toBe(true);
   // The result and its other command stay through the disconnection.
-  expect(screen.getByTestId('slot-outcome')).toBeTruthy();
+  expect(screen.getByTestId('multiplayer-announcement')).toBeTruthy();
   expect(
     screen.getByTestId('multiplayer-new-opponent').hasAttribute('disabled')
   ).toBe(false);

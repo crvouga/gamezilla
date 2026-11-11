@@ -1,6 +1,6 @@
 import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
-import { FrameStory, onBoard } from './game-frame-board.example';
+import { onBoard } from './game-frame-board.example';
 import { FRAME_NO_PLAY } from './game-frame-empty';
 import { GameFrameScreenView } from './game-frame-screen-view';
 import {
@@ -61,6 +61,27 @@ export const EarlyTurn: Story = {
 /** Before the first move: the moves card says there are none yet. */
 export const NoMovesYet: Story = {
   args: { record: record([]) },
+  render: (args) => onBoard([])(args),
+};
+
+/**
+ * The game this device watched begin: the versus card covers the board for
+ * its count, the people who play on its two bands; a press goes to the board.
+ */
+export const Versus: Story = {
+  args: { record: record([]), overlay: { kind: 'versus', count: 3 } },
+  render: (args) => onBoard([])(args),
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(await canvas.findByTestId('custom-game-versus'));
+    await expect(args.onOverlay).toHaveBeenCalledWith({ type: 'skip' });
+    await expect(canvas.queryByTestId('custom-game-versus')).toBeNull();
+  },
+};
+
+/** The versus card as it opens, still: the count at three. */
+export const VersusCount: Story = {
+  args: { record: record([]), overlay: { kind: 'versus', count: 3 } },
   render: (args) => onBoard([])(args),
 };
 
@@ -137,13 +158,13 @@ export const Watching: Story = {
 
 /** A bigger table: the other seats sit above the board as a rail of chips. */
 export const FourSeats: Story = {
-  render: (args) => <FrameStory {...args} />,
+  render: (args) => onBoard(MID_GAME_MOVES)(args),
   args: {
     playerCount: 4,
     status: status({
       lineup:
         'Red circle: avery. Yellow diamond: jordan_plays. Third seat: morgan. Fourth seat: Bot.',
-      description: 'Every side chooses in secret: 2 of 4 have chosen.',
+      description: 'Secret choices: 2 of 4 made.',
     }),
     table: {
       shape: 'rail',
@@ -155,11 +176,9 @@ export const FourSeats: Story = {
         }),
         playSeat(seat('red', person('morgan'), 'morgan'), {
           committed: true,
-          state: { kind: 'reconnecting', label: 'Reconnecting' },
+          state: { kind: 'reconnecting', label: 'Away' },
         }),
         playSeat(seat('blue', { kind: 'bot' }, 'Bot'), {
-          choosing: true,
-          deciding: true,
           state: { kind: 'out', label: 'Out' },
         }),
       ],
@@ -187,7 +206,7 @@ export const OpponentAway: Story = {
       near: playSeat(AVERY, { deciding: true }),
       others: [
         playSeat(JORDAN, {
-          state: { kind: 'reconnecting', label: 'Reconnecting' },
+          state: { kind: 'reconnecting', label: 'Away' },
         }),
       ],
     },
@@ -305,5 +324,18 @@ export const OpenMove: Story = {
     );
     await expect(args.onSeek).toHaveBeenCalledWith(3);
     await expect(args.onOpen).toHaveBeenCalledWith({ screen: 'moves' });
+  },
+};
+
+/** Resigning from the play bar asks first, over the board: nothing is chosen yet. */
+export const ResignAsked: Story = {
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement.ownerDocument.body);
+    await userEvent.click(await canvas.findByTestId('custom-game-resign-now'));
+    await canvas.findByText(/^This finishes the current game\./);
+    await expect(
+      await canvas.findByTestId('custom-game-resign-confirm')
+    ).toBeVisible();
+    await expect(args.onChoose).not.toHaveBeenCalled();
   },
 };

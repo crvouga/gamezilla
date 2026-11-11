@@ -3,14 +3,12 @@ import { Trans } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameActionBar } from '@pkgs/ui-root-client-ts/game-action-bar';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
-import { GameResultHeadline } from '@pkgs/ui-root-client-ts/game-result';
 import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
-import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { ChevronUpIcon } from '@pkgs/ui-root-client-ts/icons';
 import { type JSX, Show } from 'solid-js';
 import { FrameMovesCard } from './game-frame-moves-view';
 import { FrameFacts, FrameStage } from './game-frame-play-view';
-import { FrameResultView } from './game-frame-result-view';
 import type { FramePlaceProps } from './game-frame-screen-view';
 import { FrameNoticesView } from './game-frame-shell';
 import { FrameStatusView } from './game-frame-status-view';
@@ -53,7 +51,8 @@ function NextActions(props: Props): JSX.Element {
       </Show>
       <Show when={props.next.reviewable}>
         <Button
-          title={<Trans>Review moves</Trans>}
+          title={<Trans>Review</Trans>}
+          aria-label={t`Review moves`}
           variant="outline"
           intent="neutral"
           onClick={() => {
@@ -65,8 +64,9 @@ function NextActions(props: Props): JSX.Element {
       </Show>
       <Show when={props.record?.history}>
         <Button
-          title={<Trans>History and stats</Trans>}
-          variant="ghost"
+          title={<Trans>History</Trans>}
+          aria-label={t`History and stats`}
+          variant="outline"
           intent="neutral"
           onClick={() => props.onOpenHistory()}
           dataSet={{ testid: 'custom-game-history-stats' }}
@@ -77,20 +77,10 @@ function NextActions(props: Props): JSX.Element {
 }
 
 /**
- * Under the headline: how the game ended (`Black wins by resignation.`),
- * unless the headline already is that line, then the game's own note.
- */
-function outcomeCaption(props: Props): string | undefined {
-  const reason = props.result === null ? '' : (props.status?.description ?? '');
-  const note = props.result?.note ?? '';
-  const caption = [reason, note].filter((part) => part !== '').join(' ');
-  return caption === '' ? undefined : caption;
-}
-
-/**
- * The result place, once the game is over or called off: what happened in
- * one headline, what to do next, the final position with the people around
- * it, every player's finish, and the moves that led there.
+ * The result place, once the game is over or called off: the final
+ * position with the people around it, under a card that says what happened
+ * and every player's finish (`FrameOverlay`), and what to do next in the
+ * bar. Closing the card shows the final board; Result brings it back.
  */
 export function FrameResultPlace(props: Props): JSX.Element {
   return (
@@ -112,31 +102,32 @@ export function FrameResultPlace(props: Props): JSX.Element {
         }
         boardFocus
         actionsBeside
-        outcome={
-          <StackVertical gap="sm" testId="custom-game-outcome">
-            <GameResultHeadline
-              title={
-                props.result?.headline ??
-                props.status?.description ??
-                t`Game finished`
-              }
-              caption={outcomeCaption(props)}
-              dataSet={{ testid: 'custom-game-result-headline' }}
-            />
-            {/* The headline's caption says how the game ended; a listener
-                hears it from the frame's own line. */}
-            <FrameStatusView status={props.status} spokenOnly />
-            <NextActions {...props} />
-          </StackVertical>
-        }
-        aside={<FrameMovesCard {...props} listOnly />}
+        fixedStage
         status={
-          <Show when={props.result}>
-            {(result) => (
-              <FrameResultView result={result()} people={props.people} />
-            )}
-          </Show>
+          <>
+            {/* The card says how the game ended; a listener hears it from
+                the frame's own line, with or without the card. */}
+            <FrameStatusView status={props.status} spokenOnly />
+            <Show when={props.overlay.kind === 'board'}>
+              <Button
+                title={
+                  props.result?.headline ??
+                  props.status?.description ??
+                  t`Game finished`
+                }
+                aria-label={t`Show the result`}
+                variant="ghost"
+                intent="neutral"
+                fullWidth
+                endIcon={<ChevronUpIcon size={20} />}
+                onClick={() => props.onOverlay({ type: 'show' })}
+                dataSet={{ testid: 'custom-game-show-result' }}
+              />
+            </Show>
+          </>
         }
+        actions={<NextActions {...props} />}
+        aside={<FrameMovesCard {...props} listOnly />}
       >
         <FrameStage {...props} />
       </GameSessionLayout>

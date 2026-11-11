@@ -240,6 +240,12 @@ export type FramePlay = {
   readonly canAnswerDraw: boolean;
   readonly canClaimWin: boolean;
   readonly canResign: boolean;
+  /**
+   * Offering a draw or resigning is the viewer's to do but waits for the
+   * connection: shown held back, never hidden, so nothing seems lost.
+   */
+  readonly heldOfferDraw: boolean;
+  readonly heldResign: boolean;
   readonly canCancel: boolean;
   /** The board's own actions (`custom-game-board-${id}`). */
   readonly boardActions: readonly GameActionItem[];

@@ -131,6 +131,33 @@ describe('the lobby', () => {
     expect(opened).toEqual([{ screen: 'seat', side: 'black' }]);
   });
 
+  test('the lobby opens with what is played and keeps its one command in a dock', () => {
+    mountFrame(() =>
+      setupProps(
+        { screen: 'lobby' },
+        { goal: 'Count to ten before the other side does.' }
+      )
+    );
+    const mode = screen.getByTestId('custom-game-mode');
+    expect(mode.querySelector('h1')?.textContent).toBe('Counting race');
+    expect(mode.textContent).toContain(
+      'Count to ten before the other side does.'
+    );
+    expect(mode.textContent).toContain('Untimed');
+    expect(screen.getByTestId('custom-game-unrated').textContent).toBe(
+      'Unrated'
+    );
+    const dock = document.querySelector('[data-component="GameLobbyDock"]');
+    expect(dock?.contains(screen.getByTestId('custom-game-startable'))).toBe(
+      true
+    );
+    expect(dock?.contains(screen.getByTestId('custom-game-start'))).toBe(true);
+    // The dock is outside what scrolls.
+    const scroller = document.querySelector('[data-component="ScrollView"]');
+    expect(scroller?.contains(dock as Element)).toBe(false);
+    expect(scroller?.contains(mode)).toBe(true);
+  });
+
   test('what is agreed sits behind its own row, each saying what is chosen', () => {
     const opened: CustomGamePlace[] = [];
     mountFrame(() =>
@@ -163,8 +190,9 @@ describe('the lobby', () => {
       )
     );
     expect(screen.getByTestId('custom-game-rules').textContent).toContain('3');
+    // In plain words, for someone who does not read `5+3`.
     expect(screen.getByTestId('custom-game-options').textContent).toContain(
-      '5+3'
+      '5 min + 3 sec'
     );
     // The row shows one word; a listener hears the whole sentence.
     expect(screen.getByTestId('custom-game-setup-status').textContent).toBe(
@@ -207,10 +235,11 @@ describe('the lobby', () => {
     expect(filled().map((button) => button.dataset['testid'])).toEqual([
       'custom-game-ready',
     ]);
-    // Start is there, held back, and the line says why.
-    expect(screen.getByTestId('custom-game-start')).toBeDisabled();
+    // No start that cannot be pressed sits beside it, and the line
+    // speaks to the one person everyone waits for.
+    expect(screen.queryByTestId('custom-game-start')).toBeNull();
     expect(screen.getByTestId('custom-game-startable').textContent).toBe(
-      'Waiting for 1 person to be ready.'
+      'Everyone else is in. Get ready to start.'
     );
   });
 

@@ -63,6 +63,7 @@ export function ChessGameBoard(props: GameBoardProps): JSX.Element {
 export const chessPresentation: GameClientPresentation = {
   canFlip: true,
   name: () => t`chess`,
+  goal: () => t`Checkmate the other king to win.`,
   Board: ChessGameBoard,
   sideLabel: (side) => (side === 'white' ? t`White` : t`Black`),
   frame: {

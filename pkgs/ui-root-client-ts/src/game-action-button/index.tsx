@@ -16,8 +16,11 @@ export function GameActionButton(props: {
   disabled?: boolean;
   variant?: ButtonVariant;
   fullWidth?: boolean;
-  /** `sm` inside a compact seat row; defaults to the regular height. */
-  size?: 'sm' | undefined;
+  /**
+   * `sm` inside a compact seat row, `lg` for a lobby's one command;
+   * defaults to the regular height.
+   */
+  size?: 'sm' | 'lg' | undefined;
   successLabel?: JSX.Element;
   dataSet?: ComponentDataSet;
 }): JSX.Element {

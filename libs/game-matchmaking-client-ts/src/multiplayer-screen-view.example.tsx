@@ -1,12 +1,22 @@
 import { ConnectFourStoryBoard } from '@libs/game-session-client-ts/connect-four-story-board.example';
+import { SpacePersonAvatar } from '@libs/spaces-client-ts/space-person-view';
+import { AVERY, JORDAN } from '@libs/spaces-client-ts/spaces-story.example';
+import {
+  NO_STAGE_OVERLAY,
+  type StageOverlay,
+  stageOverlayAfter,
+} from '@pkgs/turn-game-client-ts/stage-overlay';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
-import { GamePlayerBar } from '@pkgs/ui-root-client-ts/game-player-bar';
-import { GameResultHeadline } from '@pkgs/ui-root-client-ts/game-result';
+import {
+  GAME_PLAYER_AVATAR_SIZE,
+  GamePlayerBar,
+} from '@pkgs/ui-root-client-ts/game-player-bar';
 import { GameActions, GameSection } from '@pkgs/ui-root-client-ts/game-section';
+import { GAME_VERSUS_AVATAR_SIZE } from '@pkgs/ui-root-client-ts/game-stage-overlay';
 import { GameTurnPill } from '@pkgs/ui-root-client-ts/game-turn-pill';
-import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { createRenderEffect, createSignal, type JSX, Show } from 'solid-js';
 import { fn } from 'storybook/test';
@@ -15,6 +25,10 @@ import type {
   MultiplayerGameView,
   MultiplayerMovesShown,
 } from './multiplayer-game-view';
+import type {
+  MultiplayerResultShown,
+  MultiplayerVersusShown,
+} from './multiplayer-overlay-view';
 import {
   MultiplayerScreenView,
   type MultiplayerScreenViewProps,
@@ -39,7 +53,9 @@ const DROPS = [3, 3, 4, 2, 4];
 export function storyMoves(shownPly = DROPS.length): MultiplayerMovesShown {
   const moves = DROPS.map((column, index) => {
     const round = Math.floor(index / 2) + 1;
-    const san = `${COLUMNS[column] ?? 'a'}${String(index + 1)}`;
+    // A drop is named by its column and the row it lands on.
+    const row = DROPS.slice(0, index + 1).filter((at) => at === column).length;
+    const san = `${COLUMNS[column] ?? 'a'}${String(row)}`;
     const ordinal = `${String(round)}${index % 2 === 0 ? '.' : '...'}`;
     return {
       ply: index + 1,
@@ -78,7 +94,7 @@ export const STORY_FINISHED_GAME: MultiplayerGameView = {
   rematch: 'offer',
   newOpponent: true,
   record: {
-    record: '1. d1 d2 2. e3 c4 3. e5 1-0',
+    record: '1. d1 d2 2. e1 c1 3. e2 1-0',
     finalPosition: 'connect-four:3,3,4,2,4',
   },
 };
@@ -104,42 +120,90 @@ export function storyCommands(): MultiplayerGameCommands {
   };
 }
 
+/** The two players as the app shows them: each with their own picture. */
+function StoryAvatar(props: {
+  readonly who: 'alice' | 'bob';
+  readonly size: number;
+}): JSX.Element {
+  return (
+    <SpacePersonAvatar
+      person={props.who === 'alice' ? AVERY : JORDAN}
+      size={props.size}
+    />
+  );
+}
+
+/**
+ * Who plays whom in the story game, as the versus card shows them. Made
+ * when a story renders, never at module load: its faces read the theme.
+ */
+function storyVersus(): MultiplayerVersusShown {
+  return {
+    others: [
+      {
+        id: 'black',
+        name: 'Bob',
+        avatar: <StoryAvatar who="bob" size={GAME_VERSUS_AVATAR_SIZE} />,
+        swatch: { color: 'disc-two' },
+        caption: 'Yellow · 1487',
+      },
+    ],
+    own: [
+      {
+        id: 'white',
+        name: 'alice',
+        avatar: <StoryAvatar who="alice" size={GAME_VERSUS_AVATAR_SIZE} />,
+        swatch: { color: 'disc-one' },
+        caption: 'Red · 1512',
+      },
+    ],
+    clock: '5 min',
+    timeControl: '5+0',
+  };
+}
+
 /**
  * Story-only: the matched game's stage, standing in for the board slot
- * `MultiplayerScreen` fills: two seats around Connect Four's board, then
- * the announcement line.
+ * `MultiplayerScreen` fills: two seats around Connect Four's board, under
+ * whatever lies over it.
  */
 function StoryStage(props: {
   /** How many of the story game's drops the board shows. */
   readonly shown?: number | undefined;
-  /** The line under the board; none on the result, whose headline says it. */
-  readonly announcement?: JSX.Element | undefined;
+  /** Whether the person is to move. */
+  readonly active: boolean;
+  /** The person's own name; a long one must stay one cut-short line. */
+  readonly ownName?: string | undefined;
+  readonly overlay?: JSX.Element | undefined;
 }): JSX.Element {
   const drops = () => DROPS.slice(0, props.shown ?? DROPS.length);
   return (
-    <StackVertical gap="md">
-      <GameBoardStage
-        others={
-          <GamePlayerBar
-            name="Bob (1500?)"
-            swatch={{ color: 'disc-two' }}
-            tags={<Badge intent="neutral" label="Yellow" />}
-          />
-        }
-        own={
-          <GamePlayerBar
-            name="alice"
-            swatch={{ color: 'disc-one' }}
-            tags={<Badge intent="neutral" label="You play Red" />}
-            active={props.announcement !== undefined}
-            turnLabel="Your move"
-          />
-        }
-      >
-        <ConnectFourStoryBoard moves={drops()} interactive />
-      </GameBoardStage>
-      {props.announcement}
-    </StackVertical>
+    <GameBoardStage
+      overlay={props.overlay}
+      others={
+        <GamePlayerBar
+          name="Bob (1487)"
+          avatar={<StoryAvatar who="bob" size={GAME_PLAYER_AVATAR_SIZE} />}
+          swatch={{ color: 'disc-two' }}
+          swatchLabel="Yellow"
+        />
+      }
+      own={
+        <GamePlayerBar
+          name={props.ownName ?? 'alice'}
+          plainName={props.ownName}
+          avatar={<StoryAvatar who="alice" size={GAME_PLAYER_AVATAR_SIZE} />}
+          swatch={{ color: 'disc-one' }}
+          swatchLabel="Red"
+          tags={<Badge intent="neutral" label="You play Red" />}
+          tagsPlacement="inline"
+          active={props.active}
+          turnLabel="Your move"
+        />
+      }
+    >
+      <ConnectFourStoryBoard moves={drops()} interactive={props.active} />
+    </GameBoardStage>
   );
 }
 
@@ -151,20 +215,12 @@ function StoryAnnouncement(props: {
   return (
     <GameTurnPill
       live
+      spokenOnly={props.detail === undefined}
       emphasis="yours"
       title={props.title}
       detail={props.detail}
-      trailing={<Badge intent="neutral" label="5+0" />}
     />
   );
-}
-
-/** Story-only: the result's headline. */
-function StoryOutcome(props: {
-  readonly title: string;
-  readonly caption: string;
-}): JSX.Element {
-  return <GameResultHeadline title={props.title} caption={props.caption} />;
 }
 
 /** What every story of `MultiplayerScreenView` shares: its route and its controls. */
@@ -182,7 +238,11 @@ export const STORY_PARAMETERS = {
       'commands',
       'board',
       'setup',
-      'outcome',
+      'status',
+      'goal',
+      'overlay',
+      'versus',
+      'result',
     ],
   },
 };
@@ -191,6 +251,7 @@ export const STORY_PARAMETERS = {
 export function storyArgs(): MultiplayerScreenViewProps {
   return {
     title: 'Connect Four',
+    goal: 'Drop discs in turn. Four of yours in a row wins.',
     stage: 'idle',
     place: { screen: 'find' },
     onOpen: fn(),
@@ -203,13 +264,15 @@ export function storyArgs(): MultiplayerScreenViewProps {
     onFind: resolved(),
     search: null,
     onStop: resolved(),
-    ratings: [{ pool: 'game', rating: 1512, games: 7 }],
+    ratings: [{ pool: 'game', rating: 1512, games: 34 }],
     game: null,
     commands: storyCommands(),
     confirming: null,
     manyPlayers: false,
     onConfirm: resolved(),
     onCloseConfirm: fn(),
+    overlay: NO_STAGE_OVERLAY,
+    onOverlay: fn(),
   };
 }
 
@@ -257,11 +320,20 @@ export function StoryPlaces(props: MultiplayerScreenViewProps): JSX.Element {
     () => props.commands.returnToCurrent()
   );
   const [chosen, setChosen] = createSignal<string | null>(null);
+  // The story's overlay answers a press as the app's does; the count is
+  // held still, so a story is one moment.
+  const [overlay, setOverlay] = createSignal<StageOverlay>(props.overlay);
+  createRenderEffect(() => setOverlay(props.overlay));
   createRenderEffect(() => nav.open(props.place));
   return (
     <MultiplayerScreenView
       {...props}
       place={nav.place()}
+      overlay={overlay()}
+      onOverlay={(event) => {
+        props.onOverlay(event);
+        setOverlay((current) => stageOverlayAfter(current, event));
+      }}
       find={{
         ...props.find,
         timeControl: chosen() ?? props.find.timeControl,
@@ -286,10 +358,12 @@ export function StoryPlaces(props: MultiplayerScreenViewProps): JSX.Element {
 export type StorySlots = {
   /** How many of the story game's drops the board shows. */
   readonly shown?: number;
+  /** The person's own name, when the story is about a long one. */
+  readonly ownName?: string;
   /** The line under the board. */
   readonly announcement?: { readonly title: string; readonly detail?: string };
-  /** The result's headline. */
-  readonly outcome?: { readonly title: string; readonly caption: string };
+  /** How the game ended, on the result card. */
+  readonly result?: MultiplayerResultShown;
   /** The private setup panel. */
   readonly setup?: { readonly status: string; readonly choosing?: boolean };
 };
@@ -302,21 +376,26 @@ export function renderStory(slots: StorySlots = {}) {
   return (args: MultiplayerScreenViewProps): JSX.Element => (
     <StoryPlaces
       {...args}
-      board={
+      boardPreview={
+        args.title.startsWith('Connect Four') ? (
+          <ConnectFourStoryBoard moves={[]} />
+        ) : undefined
+      }
+      board={(overlay) => (
         <StoryStage
           shown={slots.shown}
-          announcement={
-            slots.announcement === undefined ? undefined : (
-              <StoryAnnouncement {...slots.announcement} />
-            )
-          }
+          ownName={slots.ownName}
+          active={slots.announcement !== undefined}
+          overlay={overlay}
         />
-      }
-      outcome={
-        slots.outcome === undefined ? undefined : (
-          <StoryOutcome {...slots.outcome} />
+      )}
+      status={
+        slots.announcement === undefined ? undefined : (
+          <StoryAnnouncement {...slots.announcement} />
         )
       }
+      versus={storyVersus()}
+      result={slots.result}
       setup={
         slots.setup === undefined ? undefined : <StorySetup {...slots.setup} />
       }

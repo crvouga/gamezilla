@@ -60,6 +60,7 @@ function drawFacts(
     drawOffered: offer !== '',
     offerAgainLater: offerable && declined,
     canOfferDraw: offerable && !declined && !frameViewerHeld(model),
+    heldOfferDraw: offerable && !declined && frameViewerHeld(model),
     canAnswerDraw:
       playing &&
       offer !== '' &&
@@ -95,16 +96,15 @@ export function useFramePlay(
     const twoSided = game.sides.length === 2;
     const unfinished =
       game.status === 'configuring' || game.status === 'active';
+    const resigns =
+      game.status === 'active' && model.mySide() !== null && model.canPlay();
     return {
       ...drawFacts(model, game, presentation(game.fen).frame.drawOffers),
       away:
         person === null ? null : { person, plainName: awayName(), twoSided },
       canClaimWin: person !== null && model.canPlay() && twoSided,
-      canResign:
-        game.status === 'active' &&
-        model.mySide() !== null &&
-        model.canPlay() &&
-        !frameViewerHeld(model),
+      canResign: resigns && !frameViewerHeld(model),
+      heldResign: resigns && frameViewerHeld(model),
       canCancel:
         unfinished &&
         model.canCancel() &&

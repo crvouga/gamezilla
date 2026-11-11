@@ -6,11 +6,19 @@ import {
   DefineBackButton,
   useGameChoicesName,
 } from '@libs/spaces-client-ts/spaces-nav-context';
+import { useTimers } from '@pkgs/clock-client-ts/solid';
 import type { Decision } from '@pkgs/permissions-shared-ts/decision';
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
+import { GamePreviewBoard } from '@pkgs/turn-game-client-ts/game-preview-board';
+import { useGameGoal } from '@pkgs/turn-game-client-ts/turn-games-context';
+import { useStageOverlay } from '@pkgs/turn-game-client-ts/use-stage-overlay';
 import { type JSX, Show } from 'solid-js';
-import { MultiplayerBoard } from './multiplayer-board';
-import { MultiplayerGameOutcome } from './multiplayer-outcome';
+import { MultiplayerBoard, MultiplayerGameStatus } from './multiplayer-board';
+import {
+  multiplayerResultShown,
+  useMultiplayerVersus,
+} from './multiplayer-outcome';
+import { multiplayerOverlayPhase } from './multiplayer-overlay-view';
 import { MULTIPLAYER_PLACES } from './multiplayer-places';
 import { MultiplayerPrivateSetupPanel } from './multiplayer-private-setup';
 import { useMultiplayerRatings } from './multiplayer-ratings';
@@ -40,6 +48,8 @@ type ScreenProps = {
   readonly data: ReturnType<typeof useMultiplayerData>;
   readonly controls: ReturnType<typeof useMultiplayerControls>;
   readonly view: OwnBoard;
+  /** The game's board at its start: the picture of what is searched for. */
+  readonly boardPreview: JSX.Element;
   /** Leaves finding an opponent for the game's choices. */
   readonly onLeave: () => void;
 };
@@ -104,7 +114,8 @@ function LowOnTimeWarning(props: {
 function MatchBoard(
   props: ScreenProps & {
     readonly reviewing: boolean;
-    readonly announced: boolean;
+    /** What lies over the board: the versus card, the result card. */
+    readonly overlay: JSX.Element;
     readonly setup: ReturnType<typeof useMultiplayerPrivateSetup>;
   }
 ): JSX.Element {
@@ -124,7 +135,7 @@ function MatchBoard(
           moving={props.controls.moving()}
           syncKey={props.controls.boardSync()}
           view={props.reviewing ? props.view : live()}
-          announced={props.announced}
+          overlay={props.overlay}
           onMove={props.controls.play}
         />
       )}
@@ -136,9 +147,25 @@ function MatchBoard(
 function useMultiplayerScreen(props: ScreenProps) {
   const denial = useMultiplayerAccess(props.data);
   const stage = useMultiplayerStage(props.data, () => denial() !== undefined);
+  const goal = useGameGoal();
   return {
     denial,
     stage,
+    goal: () => goal(props.data.gameId()),
+    /** How the game ended, once it has. */
+    result: () => {
+      const game = props.data.game();
+      return game === null || game.outcome === 'ongoing'
+        ? undefined
+        : multiplayerResultShown(game, props.data.myId());
+    },
+    // An opponent found on this device plays the versus card; the end of
+    // the game lays its result over the final board.
+    overlay: useStageOverlay(
+      () => multiplayerOverlayPhase(stage()),
+      useTimers()
+    ),
+    versus: useMultiplayerVersus(props.data.game, props.data.myId),
     nav: useMultiplayerPlaces(stage, props.view.returnToCurrent),
     commandDenial: useDenial(
       props.controls.denial,
@@ -151,6 +178,17 @@ function useMultiplayerScreen(props: ScreenProps) {
     finding: useMultiplayerFind(props.data),
     game: useMultiplayerGameView(props.data, props.view),
   };
+}
+
+/** The one line about the matched game, under its board. */
+function MatchStatus(props: Pick<ScreenProps, 'data'>): JSX.Element {
+  return (
+    <Show when={props.data.game()}>
+      {(game) => (
+        <MultiplayerGameStatus game={game()} myId={props.data.myId()} />
+      )}
+    </Show>
+  );
 }
 
 /** Reads matchmaking for `MultiplayerScreenView`. */
@@ -187,6 +225,8 @@ function MultiplayerContent(props: ScreenProps): JSX.Element {
       </Show>
       <MultiplayerScreenView
         title={props.title}
+        goal={screen.goal()}
+        boardPreview={props.boardPreview}
         stage={screen.stage()}
         place={nav.place()}
         onOpen={nav.open}
@@ -219,21 +259,19 @@ function MultiplayerContent(props: ScreenProps): JSX.Element {
             )}
           </Show>
         }
-        board={
+        board={(overlay) => (
           <MatchBoard
             {...props}
             setup={screen.setup}
             reviewing={nav.place().screen === 'moves'}
-            announced={nav.place().screen !== 'result'}
+            overlay={overlay}
           />
-        }
-        outcome={
-          <Show when={data.game()}>
-            {(game) => (
-              <MultiplayerGameOutcome game={game()} myId={data.myId()} />
-            )}
-          </Show>
-        }
+        )}
+        status={<MatchStatus data={data} />}
+        overlay={screen.overlay.overlay()}
+        onOverlay={screen.overlay.send}
+        versus={screen.versus()}
+        result={screen.result()}
       />
     </>
   );
@@ -254,6 +292,12 @@ export default function MultiplayerScreen(props: {
       data={data}
       controls={controls}
       view={view}
+      boardPreview={
+        <GamePreviewBoard
+          gameId={props.gameId}
+          testId="multiplayer-board-preview"
+        />
+      }
       onLeave={props.onBack}
     />
   );

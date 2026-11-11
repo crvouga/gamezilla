@@ -8,6 +8,7 @@ import {
   MORGAN as MORGAN_PERSON,
   ROBIN as ROBIN_PERSON,
 } from '@libs/spaces-client-ts/spaces-story.example';
+import { NO_STAGE_OVERLAY } from '@pkgs/turn-game-client-ts/stage-overlay';
 import type { GameOptionGroup } from '@pkgs/turn-game-shared-ts/game-frame';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { fn } from 'storybook/test';
@@ -267,6 +268,7 @@ const resolved = () => fn(() => Promise.resolve());
 export function frameArgs(): GameFrameScreenViewProps {
   return {
     title: 'Connect Four',
+    goal: 'Line up four discs in a row before your opponent does.',
     phase: 'none',
     viewerSide: 'white',
     watchers: 0,
@@ -295,6 +297,8 @@ export function frameArgs(): GameFrameScreenViewProps {
     place: { screen: 'start' },
     onOpen: fn(),
     onClose: fn(),
+    overlay: NO_STAGE_OVERLAY,
+    onOverlay: fn(),
   };
 }
 
@@ -313,6 +317,7 @@ export const FRAME_CONTROLS_EXCLUDE = [
   'next',
   'record',
   'status',
+  'overlay',
 ];
 
 /** A two-seat game in play with the viewer to move. */
@@ -343,13 +348,14 @@ export const FRAME_HELD: Partial<GameFrameScreenViewProps> = {
     near: playSeat(AVERY),
     others: [playSeat(JORDAN)],
   },
-  play: FRAME_NO_PLAY,
+  play: { ...FRAME_NO_PLAY, heldOfferDraw: true, heldResign: true },
 };
 
 /** A finished two-seat game the viewer won: the result, with the moves to review. */
 export const FRAME_OVER: Partial<GameFrameScreenViewProps> = {
   phase: 'completed',
   place: { screen: 'result' },
+  overlay: { kind: 'outcome' },
   viewerSide: 'white',
   status: status({
     description: 'Red circle wins by four in a row.',

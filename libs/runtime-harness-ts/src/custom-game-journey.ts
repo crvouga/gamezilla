@@ -160,8 +160,7 @@ export async function inviteToBlack(ui: Driver): Promise<void> {
   // The seat's own place, then the list of people: pressing one invites them.
   await tap(ui, 'custom-game-black-invite-choose');
   await tap(ui, 'custom-game-black-invitable');
-  await ui.get('custom-game-black-person').expect.text('Invited:', {
-    exact: false,
+  await ui.get('custom-game-black-invited').expect.visible({
     timeoutMs: JOURNEY_WAIT_MS,
   });
 }
@@ -213,6 +212,11 @@ export function expectBlackNamed(name: string): (ui: Driver) => Promise<void> {
 
 export async function becomeReady(ui: Driver): Promise<void> {
   await openCustomGameJourney(ui);
+  // Readiness is given to the seats as they stand: an invitation another
+  // device answered must have arrived here first.
+  await ui.get('custom-game-black-invited').expect.hidden({
+    timeoutMs: JOURNEY_WAIT_MS,
+  });
   await tap(ui, 'custom-game-ready');
   await ui.get('custom-game-ready').expect.text("I'm not ready", {
     exact: false,

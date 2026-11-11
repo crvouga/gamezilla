@@ -12,7 +12,7 @@ import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-contex
 import type { GameFrameBoardProps } from '@pkgs/turn-game-shared-ts/game-frame';
 import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { For, type JSX, Show } from 'solid-js';
+import { For, type JSX } from 'solid-js';
 import { MultiplayerFrameBoard } from './multiplayer-frame-board';
 import type { MultiplayerViewer } from './multiplayer-seat';
 import { MultiplayerSeat } from './multiplayer-seat';
@@ -39,13 +39,57 @@ type BoardProps = {
   readonly ownSetup: string | null;
   /** The viewer's own dealt hand in this game, if it deals hands. */
   readonly ownHand: string | null;
-  /**
-   * Whether the line under the board says where the game stands. A place
-   * that says it elsewhere (the result's headline) leaves it out, so the
-   * screen keeps one announcement.
-   */
-  readonly announced?: boolean | undefined;
+  /** What lies over the board: the versus card, the result card. */
+  readonly overlay?: JSX.Element | undefined;
 };
+
+/** Every seat but the one nearest the person, above the board. */
+function OtherSeats(props: {
+  readonly game: MultiplayerGame;
+  readonly position: string;
+  readonly near: MultiplayerSide;
+  readonly ownSide: MultiplayerSide;
+  readonly viewer: MultiplayerViewer;
+}): JSX.Element {
+  return (
+    <StackVertical gap="sm">
+      <For
+        each={multiplayerSides(props.game).filter(
+          (side) => side !== props.near
+        )}
+      >
+        {(side) => (
+          <MultiplayerSeat
+            game={props.game}
+            position={props.position}
+            side={side}
+            own={side === props.ownSide}
+            near={false}
+            viewer={props.viewer}
+          />
+        )}
+      </For>
+    </StackVertical>
+  );
+}
+
+/** What the harness and the tests read of the game from its stage. */
+function gameMark(
+  props: BoardProps & { readonly canMove: boolean },
+  shown: string
+): Record<string, string> {
+  return {
+    testid: 'multiplayer-game',
+    'game-id': props.game.id,
+    'can-move': String(props.canMove),
+    'board-takes-moves': String(props.canMove && props.view.earlier() === null),
+    revision: String(props.game.revision),
+    fen: props.game.fen,
+    'shown-position': shown,
+    outcome: props.game.outcome,
+    reason: props.game.reason ?? '',
+  };
+}
 
 /**
  * The board and the two seats around it, as this device shows them: seen
@@ -61,6 +105,8 @@ function BoardStage(
     readonly simulation: ReturnType<typeof useMatchedSimulation>;
   }
 ): JSX.Element {
+  const shown = () =>
+    props.simulation.position() ?? props.view.earlier()?.fen ?? props.game.fen;
   const sounds = useSoundsPreference();
   const presentation = useGamePresentation();
   // The side nearest the person: their own, until they flip the board.
@@ -116,25 +162,16 @@ function BoardStage(
   };
   return (
     <GameBoardStage
+      overlay={props.overlay}
+      dataSet={gameMark(props, shown())}
       others={
-        <StackVertical gap="sm">
-          <For
-            each={multiplayerSides(props.game).filter(
-              (side) => side !== nearSide()
-            )}
-          >
-            {(side) => (
-              <MultiplayerSeat
-                game={props.game}
-                position={board.position}
-                side={side}
-                own={side === props.ownSide}
-                near={false}
-                viewer={props.viewer}
-              />
-            )}
-          </For>
-        </StackVertical>
+        <OtherSeats
+          game={props.game}
+          position={board.position}
+          near={nearSide()}
+          ownSide={props.ownSide}
+          viewer={props.viewer}
+        />
       }
       own={
         <MultiplayerSeat
@@ -156,8 +193,9 @@ function BoardStage(
 }
 
 /**
- * The matched game's stage: the seats, the board on the position this
- * device shows, and the one line that says where the game stands.
+ * The matched game's stage: the seats around the board on the position
+ * this device shows, under whatever lies over it. The stage is one element
+ * (`GameBoardStage`), so a screen can hold it still.
  */
 export function MultiplayerBoard(props: BoardProps): JSX.Element {
   const simulation = useMatchedSimulation(
@@ -166,8 +204,7 @@ export function MultiplayerBoard(props: BoardProps): JSX.Element {
     () => props.myId,
     () => props.connected
   );
-  const lowOnTime = useLowOnTime(() => props.game);
-  const { ownSide, participant, viewer, winnerName } = useMultiplayerViewer(
+  const { ownSide, participant, viewer } = useMultiplayerViewer(
     () => props.game,
     () => props.myId
   );
@@ -182,36 +219,36 @@ export function MultiplayerBoard(props: BoardProps): JSX.Element {
       ? !simulation.controls().paused && !simulation.controls().stale
       : props.game.turn === props.myId);
   return (
-    <StackVertical
-      gap="md"
-      testId="multiplayer-game"
-      dataSet={{
-        'game-id': props.game.id,
-        'can-move': String(canMove()),
-        'board-takes-moves': String(canMove() && props.view.earlier() === null),
-        revision: String(props.game.revision),
-        fen: props.game.fen,
-        'shown-position':
-          simulation.position() ?? props.view.earlier()?.fen ?? props.game.fen,
-        outcome: props.game.outcome,
-        reason: props.game.reason ?? '',
-      }}
-    >
-      <BoardStage
-        {...props}
-        viewer={viewer()}
-        ownSide={ownSide()}
-        canMove={canMove()}
-        simulation={simulation}
-      />
-      <Show when={props.announced !== false}>
-        <MultiplayerStatus
-          game={props.game}
-          viewer={viewer()}
-          winnerName={winnerName()}
-          lowOnTime={lowOnTime()}
-        />
-      </Show>
-    </StackVertical>
+    <BoardStage
+      {...props}
+      viewer={viewer()}
+      ownSide={ownSide()}
+      canMove={canMove()}
+      simulation={simulation}
+    />
+  );
+}
+
+/**
+ * The one line that says where the matched game stands: whose turn, a
+ * clock low on time, an offer. It is the screen's live announcement while
+ * the game is played.
+ */
+export function MultiplayerGameStatus(props: {
+  readonly game: MultiplayerGame;
+  readonly myId: string;
+}): JSX.Element {
+  const lowOnTime = useLowOnTime(() => props.game);
+  const { viewer, winnerName } = useMultiplayerViewer(
+    () => props.game,
+    () => props.myId
+  );
+  return (
+    <MultiplayerStatus
+      game={props.game}
+      viewer={viewer()}
+      winnerName={winnerName()}
+      lowOnTime={lowOnTime()}
+    />
   );
 }

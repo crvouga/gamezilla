@@ -20,6 +20,7 @@ export const pongGameClient = defineGameClient({
   ),
   presentation: {
     name: () => t`Pong`,
+    goal: () => t`Get the ball past the other paddle. First to the score wins.`,
     canFlip: false,
     Board: PongBoard,
     sideLabel: (side) => (side === 'white' ? t`Left` : t`Right`),
