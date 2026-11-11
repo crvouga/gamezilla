@@ -32,6 +32,7 @@ import { solidActorRoot } from './solid-actor-root';
 import { createHarnessWaitPump } from './wait-pump';
 import { webviewCheckpoint } from './webview-checkpoint';
 import { webviewLocalSql, webviewSqlStatements } from './webview-local-sql';
+import { webviewMutations } from './webview-mutations';
 
 export type ActorEntry = {
   readonly handle: HarnessActor;
@@ -184,6 +185,7 @@ async function launchWebview(
     screenshot: () => view.screenshot({ encoding: 'buffer' }),
     checkpoint: webviewCheckpoint(view, openLink),
     executeStatements: webviewSqlStatements(view),
+    mutations: webviewMutations(view),
     closeResources,
     openLink,
     currentPath,
