@@ -103,12 +103,28 @@ position is the `moves` place; leaving it returns the board to live.
 | | `guide` | Hub | How finding an opponent works |
 | `searching` | `searching` | Result | Waiting, and stopping |
 | `setup` | `private-setup` | Stage | The person's own private setup before the first move |
+| | `commands` | Choice | Offer a draw, abort, flip the board |
 | `playing` | `play` | Stage | Play the live position |
 | | `commands` | Choice | Offer a draw, resign, abort, flip the board |
 | | `moves` | Stage | Step through the moves played |
 | `finished` | `result` | Result | The outcome and rating change, rematch or a new opponent |
 | | `moves` | Stage | Step through the moves; copy the game record |
 | | `ratings` | Hub | The person's ratings, per speed |
+| | `find`, `time-control`, `guide` | Hub, Choice | A new game at another clock, one row from the result |
+
+The stage is `multiplayerStageOf` over the game and the search: an
+unfinished game comes before a waiting search, and a search before a
+finished game. Its names follow the product statechart's (`#Multiplayer:
+Choosing a time control` is `idle`, `Finding an opponent` is `searching`,
+`Playing multiplayer` is `playing`, `Finished multiplayer` is `finished`).
+
+Two refinements the specs demand. A finished game keeps the search's hub
+one row from its result, because New opponent seeks at the finished game's
+clock and nothing else could choose another. And one place outlives its
+stage: a person stepping through the moves when the game ends goes on
+stepping through them, on the position they chose
+(`multiplayerPlaceKept`); every other stage change lands on the new stage's
+home, and a place opened before it is forgotten.
 
 ### Puzzles (`puzzle`, `stats`, `stats-review`)
 
