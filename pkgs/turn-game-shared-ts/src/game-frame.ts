@@ -238,6 +238,15 @@ export type GameFrame<View> = {
    * the title above it. Absent: centred, as every board has been.
    */
   readonly boardAlign?: 'start';
+  /**
+   * The board is a workspace that lays itself out and fits itself (Word
+   * Tiles' rack, board and view controls, at the page's own edge): on a
+   * phone the frame keeps the page flowing around it, as on every other
+   * screen, instead of holding the game in one fixed view whose
+   * full-width board narrows to fit, which is for a board of one shape.
+   * Absent: the fixed view.
+   */
+  readonly boardWorkspace?: boolean;
   /** The options chosen before play; empty for a game without any. */
   readonly options: readonly GameOptionGroup[];
   readonly seats: {
