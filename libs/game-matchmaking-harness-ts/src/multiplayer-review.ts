@@ -4,7 +4,6 @@ import { bringToFront } from '@libs/harness-ts/observations';
 import {
   openMultiplayerPlace,
   showMultiplayerMoveList,
-  tapMultiplayerControl,
 } from './multiplayer-places';
 
 /** The seat below the board, nearest the person holding the device. */
@@ -75,14 +74,21 @@ export async function bringMultiplayerMoveList(
 /**
  * The person turns their own board around, or back: with the control
  * beside the moves they are stepping through, or from the game's commands,
- * which return to the game.
+ * which return to the game. A game that is over has no commands, and its
+ * board is turned from its moves.
  */
 export async function pressFlipMultiplayerBoard(
   s: ProductHarness,
   actor: string
 ): Promise<void> {
   await bringToFront(s, actor);
-  await tapMultiplayerControl(s, actor, 'multiplayer-flip-board');
+  const flip = (await actorUi(s, actor)).get('multiplayer-flip-board');
+  if (
+    !(await flip.isVisible()) &&
+    (await openMultiplayerPlace(s, actor, 'commands')) === 'unreachable'
+  )
+    await openMultiplayerPlace(s, actor, 'moves');
+  await flip.tap();
 }
 
 /** Where a person takes their own board in the move list. */
