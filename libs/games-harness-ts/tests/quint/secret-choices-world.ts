@@ -35,6 +35,15 @@ export const CHOICE_OBSERVER = 'charlie';
 export const MODEL_SIDES = ['first', 'second', 'third', 'fourth'] as const;
 /** The model's bound on moves between rounds of secret choices. */
 const MAX_MOVES = 2;
+/** The participants a stand-in can play for: everyone on a side but the host. */
+const STAND_IN_PEOPLE: readonly string[] = ['bob', 'carol'];
+/**
+ * Time that passes after such a participant leaves. Twice this, the most
+ * either can be away from leaving alone, stays under the 60-second stand-in
+ * delay, and once the earlier leaver's stand-in comes, the later one's is
+ * still this far off.
+ */
+const DEPARTURE_GAP_MS = 20_000;
 /** How long a decision may take to reach the observer. */
 const SHOWN_WITHIN_MS = 10_000;
 /** How long play may take to reach the next round or the end. */
@@ -290,6 +299,13 @@ export async function loseModelConnection(
 ): Promise<void> {
   await w.s.apply(partition, actor);
   await w.s.apply(refreshActorConnection, actor);
+  // The model orders departures by step (`_awayMoment`); a stand-in comes
+  // 60 seconds after its person left. Departures in different steps are
+  // different moments, so a participant's leaving is followed by time
+  // passing: whoever left earlier gets their stand-in that long before
+  // whoever left after them. With two participants who can be away, this
+  // keeps both under the stand-in delay until the model brings one in.
+  if (STAND_IN_PEOPLE.includes(actor)) await w.s.advanceTime(DEPARTURE_GAP_MS);
 }
 
 export async function modelConnectionReturns(

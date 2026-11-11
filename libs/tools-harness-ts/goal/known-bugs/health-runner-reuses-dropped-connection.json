@@ -1,0 +1,4 @@
+{
+  "summary": "Hourly Health failed Connect Four health and the Sokoban/Quoridor device-continuation journeys with `ECONNRESET: The socket connection was closed unexpectedly` on POST /api/auth/synthetic-monitor/code (and GET /api/auth/session). The live world's Bun fetch reused a keep-alive connection that had sat idle for a minute or more while the browser played. The network path had dropped that connection without closing it, and Bun does not resend a request that fails on a reused connection. The health runner's requests now each open a new connection.",
+  "regressionTest": "pkgs/http-client-shared-ts/tests/fresh-connection-regression.test.ts"
+}

@@ -55,24 +55,28 @@ export function otherDevice(actor: string): string {
 }
 
 /**
- * Cut `actor` off from the server. A live browser (`HARNESS_MODE=real|stack`)
- * cannot cut its own connection: the host lacks the `partition` capability
- * and the action is not enabled. That is a harness limit, so the scenario
- * ends here instead of failing.
+ * Cut `actor` off from the server. A host that models the network partitions
+ * it; a live browser (`HARNESS_MODE=real|stack`) works offline through the
+ * app's own command instead. Whichever of the two the host offers is what
+ * `partition` does, so this asks it: only a host on which `partition` is not
+ * enabled at all lacks the means, and that is a harness limit, so the
+ * scenario ends here instead of failing.
  */
 export async function cutConnection(
   w: Pick<HarnessWorld, 's'>,
   actor: string
 ): Promise<void> {
-  if (!(await w.s.read(caps)).includes('partition')) {
-    const refused = await w.s.apply(partition, actor).then(
-      () => null,
-      (error: unknown) => error
-    );
-    expect(refused).toBeInstanceOf(ActionNotEnabled);
-    throw hostLimit('this host cannot cut the connection');
-  }
-  await w.s.apply(partition, actor);
+  // regression: browser-cut-connection-host-limit
+  const refused = await w.s.apply(partition, actor).then(
+    () => false,
+    (error: unknown) => {
+      if (error instanceof ActionNotEnabled) return true;
+      throw error;
+    }
+  );
+  if (refused) throw hostLimit('this host cannot cut the connection');
+  // The browser's offline command already settled its own connection state.
+  if (!(await w.s.read(caps)).includes('partition')) return;
   await w.s.apply(refreshActorConnection, actor);
   await w.s.apply(refreshActorQueries, actor);
 }

@@ -8,6 +8,7 @@
  */
 
 import { deviceMutationEnv } from '@libs/auth-shared-ts/device-mutation-env';
+import { requireVirtualTime, sleepThroughTime } from '@libs/harness-ts/actions';
 import { pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { actorLocalSql } from '@libs/harness-ts/identity';
@@ -191,8 +192,9 @@ export function readMsUntilNextUtcDay(s: ProductHarness): number {
 export const sleepUntilNextUtcDay = scenarioAction({
   name: 'sleepUntilNextUtcDay',
   act: async (s) => {
+    requireVirtualTime(s);
     await s.session.advanceTime(0);
-    await s.session.scheduler.underlying.sleep(readMsUntilNextUtcDay(s));
+    await sleepThroughTime(s, readMsUntilNextUtcDay(s));
     await s.session.advanceTime(0);
   },
 });

@@ -29,7 +29,14 @@ export function pressDiagnosisScript(selector: string): string {
       var chain = [];
       for (var at = node; at !== null && at !== document.body && chain.length < 4; at = at.parentElement)
         chain.push(one(at));
-      return chain.join(' < ');
+      // The screen it belongs to, by its test-hook \`data-screen\` (stripped
+      // from production builds): a stacked screen covering a buried one's
+      // control is named, not just its anonymous layout boxes.
+      var host = node.closest ? node.closest('[data-screen]') : null;
+      return chain.join(' < ') + screenOf(host);
+    }
+    function screenOf(host) {
+      return host === null ? '' : ' on screen ' + String(host.getAttribute('data-screen')).slice(0, 48);
     }
     var el = document.querySelector(${JSON.stringify(selector)});
     if (el === null) return 'the element is gone';
@@ -52,7 +59,8 @@ export function pressDiagnosisScript(selector: string): string {
       '; disabled=' + (el.disabled === true || el.getAttribute('aria-disabled') === 'true') +
       '; hidden=' + (style.display === 'none' || style.visibility === 'hidden') +
       '; centre (' + Math.round(x) + ',' + Math.round(y) + ') hits ' +
-      (covered || hit === null ? describe(hit) : 'the element');
+      (covered || hit === null ? describe(hit) : 'the element') +
+      (covered ? '; the element is' + (screenOf(el.closest('[data-screen]')) || ' on no screen') : '');
   })()`;
 }
 

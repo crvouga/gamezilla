@@ -1,0 +1,277 @@
+{
+  "#meta": {
+    "format": "ITF",
+    "source": "specs/synthetic-population/control-panel.qnt",
+    "description": "Pausing every Synthetic User twice in a row offers the confirmation again."
+  },
+  "vars": [
+    "paused",
+    "playing",
+    "controlPanelOffered",
+    "_playingWhenPaused",
+    "_restarted",
+    "_restartedWhilePlaying",
+    "_offline",
+    "_pausedBeforeOffline",
+    "mbt::actionTaken",
+    "mbt::nondetPicks"
+  ],
+  "states": [
+    {
+      "#meta": {
+        "index": 0
+      },
+      "_offline": {
+        "#set": []
+      },
+      "_pausedBeforeOffline": {
+        "#set": []
+      },
+      "_playingWhenPaused": {
+        "#set": []
+      },
+      "_restarted": "",
+      "_restartedWhilePlaying": false,
+      "controlPanelOffered": {
+        "#set": ["Cedar", "Maple"]
+      },
+      "mbt::actionTaken": "init",
+      "mbt::nondetPicks": {
+        "device": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "who": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
+      "paused": {
+        "#set": []
+      },
+      "playing": {
+        "#set": []
+      }
+    },
+    {
+      "#meta": {
+        "index": 1
+      },
+      "_offline": {
+        "#set": []
+      },
+      "_pausedBeforeOffline": {
+        "#set": []
+      },
+      "_playingWhenPaused": {
+        "#set": []
+      },
+      "_restarted": "",
+      "_restartedWhilePlaying": false,
+      "controlPanelOffered": {
+        "#set": ["Cedar", "Maple"]
+      },
+      "mbt::actionTaken": "pauseAll",
+      "mbt::nondetPicks": {
+        "device": {
+          "tag": "Some",
+          "value": "Alice"
+        },
+        "who": {
+          "tag": "Some",
+          "value": "Maple"
+        }
+      },
+      "paused": {
+        "#set": ["Cedar", "Maple"]
+      },
+      "playing": {
+        "#set": []
+      }
+    },
+    {
+      "#meta": {
+        "index": 2
+      },
+      "_offline": {
+        "#set": []
+      },
+      "_pausedBeforeOffline": {
+        "#set": []
+      },
+      "_playingWhenPaused": {
+        "#set": []
+      },
+      "_restarted": "Maple",
+      "_restartedWhilePlaying": false,
+      "controlPanelOffered": {
+        "#set": ["Cedar", "Maple"]
+      },
+      "mbt::actionTaken": "restart",
+      "mbt::nondetPicks": {
+        "device": {
+          "tag": "Some",
+          "value": "Alice"
+        },
+        "who": {
+          "tag": "Some",
+          "value": "Maple"
+        }
+      },
+      "paused": {
+        "#set": ["Cedar", "Maple"]
+      },
+      "playing": {
+        "#set": []
+      }
+    },
+    {
+      "#meta": {
+        "index": 3
+      },
+      "_offline": {
+        "#set": ["Alice"]
+      },
+      "_pausedBeforeOffline": {
+        "#set": ["Cedar", "Maple"]
+      },
+      "_playingWhenPaused": {
+        "#set": []
+      },
+      "_restarted": "Maple",
+      "_restartedWhilePlaying": false,
+      "controlPanelOffered": {
+        "#set": ["Cedar", "Maple"]
+      },
+      "mbt::actionTaken": "_loseConnection",
+      "mbt::nondetPicks": {
+        "device": {
+          "tag": "Some",
+          "value": "Alice"
+        },
+        "who": {
+          "tag": "Some",
+          "value": "Cedar"
+        }
+      },
+      "paused": {
+        "#set": ["Cedar", "Maple"]
+      },
+      "playing": {
+        "#set": []
+      }
+    },
+    {
+      "#meta": {
+        "index": 4
+      },
+      "_offline": {
+        "#set": []
+      },
+      "_pausedBeforeOffline": {
+        "#set": ["Cedar", "Maple"]
+      },
+      "_playingWhenPaused": {
+        "#set": []
+      },
+      "_restarted": "Maple",
+      "_restartedWhilePlaying": false,
+      "controlPanelOffered": {
+        "#set": ["Cedar", "Maple"]
+      },
+      "mbt::actionTaken": "_comeBackOnline",
+      "mbt::nondetPicks": {
+        "device": {
+          "tag": "Some",
+          "value": "Alice"
+        },
+        "who": {
+          "tag": "Some",
+          "value": "Maple"
+        }
+      },
+      "paused": {
+        "#set": ["Cedar", "Maple"]
+      },
+      "playing": {
+        "#set": []
+      }
+    },
+    {
+      "#meta": {
+        "index": 5
+      },
+      "_offline": {
+        "#set": []
+      },
+      "_pausedBeforeOffline": {
+        "#set": ["Cedar", "Maple"]
+      },
+      "_playingWhenPaused": {
+        "#set": []
+      },
+      "_restarted": "",
+      "_restartedWhilePlaying": false,
+      "controlPanelOffered": {
+        "#set": ["Cedar", "Maple"]
+      },
+      "mbt::actionTaken": "pauseAll",
+      "mbt::nondetPicks": {
+        "device": {
+          "tag": "Some",
+          "value": "Alice"
+        },
+        "who": {
+          "tag": "Some",
+          "value": "Cedar"
+        }
+      },
+      "paused": {
+        "#set": ["Cedar", "Maple"]
+      },
+      "playing": {
+        "#set": []
+      }
+    },
+    {
+      "#meta": {
+        "index": 6
+      },
+      "_offline": {
+        "#set": []
+      },
+      "_pausedBeforeOffline": {
+        "#set": ["Cedar", "Maple"]
+      },
+      "_playingWhenPaused": {
+        "#set": []
+      },
+      "_restarted": "",
+      "_restartedWhilePlaying": false,
+      "controlPanelOffered": {
+        "#set": ["Cedar", "Maple"]
+      },
+      "mbt::actionTaken": "pauseAll",
+      "mbt::nondetPicks": {
+        "device": {
+          "tag": "Some",
+          "value": "Alice"
+        },
+        "who": {
+          "tag": "Some",
+          "value": "Maple"
+        }
+      },
+      "paused": {
+        "#set": ["Cedar", "Maple"]
+      },
+      "playing": {
+        "#set": []
+      }
+    }
+  ]
+}

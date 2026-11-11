@@ -1,6 +1,7 @@
 import { exportPreparationConsumer } from '@libs/account-privacy-server-ts/privacy-consumers';
 import { prepareExport } from '@libs/account-privacy-shared-ts/messages';
 import { drainAndNotifyOutbox } from '@libs/app-root-server-ts/outbox-drain';
+import { requireVirtualTime, sleepThroughTime } from '@libs/harness-ts/actions';
 import {
   actorUi,
   ensureActor,
@@ -202,8 +203,9 @@ export const runPrivacyJobs = scenarioAction({
 export const privacyTimePasses = scenarioAction({
   name: 'privacyTimePasses',
   act: async (s, ms: number, prepareExports: boolean = true) => {
+    requireVirtualTime(s);
     await s.session.waitForIdle();
-    await s.session.scheduler.underlying.sleep(Math.max(0, ms - 2_000));
+    await sleepThroughTime(s, Math.max(0, ms - 2_000));
     await s.session.advanceTime(Math.min(ms, 2_000));
     await Promise.resolve(runPrivacyJobs.act(s, prepareExports));
   },

@@ -1,0 +1,4 @@
+{
+  "summary": "Verify Nightly browser run 42760439972 failed 'Losing the connection keeps local Pong available [finished]' in its setup: finishing local Pong read the court as still playing, the deciding point landed, the finished board took its paddle controls away, and holding a paddle then timed out waiting for custom-game-board-white-control. A hold that finds no control because the game just finished now counts as the victory.",
+  "regressionTest": "libs/pong-harness-ts/tests/pong-court-reads.test.ts"
+}

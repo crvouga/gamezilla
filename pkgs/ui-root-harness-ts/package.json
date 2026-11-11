@@ -7,7 +7,10 @@
   ],
   "type": "module",
   "scripts": {
-    "ci:storybook": "playwright test -c storybook/playwright.config.ts --grep 'storybook integration|primitives-|button--|checkbox--|components-overlay-mutationmodal--|product-game-arena--searching|templates-form-editor|templates-search-and-collections'",
+    "ci:storybook:0": "STORYBOOK_TEST_PORT=6110 playwright test -c storybook/playwright.config.ts --grep 'storybook integration|primitives-|button--|checkbox--|components-overlay-mutationmodal--|product-game-arena--searching|templates-form-editor|templates-search-and-collections' --shard=1/4",
+    "ci:storybook:1": "STORYBOOK_TEST_PORT=6111 playwright test -c storybook/playwright.config.ts --grep 'storybook integration|primitives-|button--|checkbox--|components-overlay-mutationmodal--|product-game-arena--searching|templates-form-editor|templates-search-and-collections' --shard=2/4",
+    "ci:storybook:2": "STORYBOOK_TEST_PORT=6112 playwright test -c storybook/playwright.config.ts --grep 'storybook integration|primitives-|button--|checkbox--|components-overlay-mutationmodal--|product-game-arena--searching|templates-form-editor|templates-search-and-collections' --shard=3/4",
+    "ci:storybook:3": "STORYBOOK_TEST_PORT=6113 playwright test -c storybook/playwright.config.ts --grep 'storybook integration|primitives-|button--|checkbox--|components-overlay-mutationmodal--|product-game-arena--searching|templates-form-editor|templates-search-and-collections' --shard=4/4",
     "dev:storybook": "bun scripts/storybook-dev.ts",
     "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
     "storybook:build": "NODE_OPTIONS=\"$NODE_OPTIONS --max-old-space-size=8192\" storybook build -c storybook -o .cache/storybook",

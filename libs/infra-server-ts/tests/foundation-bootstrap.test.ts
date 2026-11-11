@@ -123,7 +123,7 @@ describe('foundation bootstrap', () => {
     expect(views).toContain('metrics_uid = "grafanacloud-prom"');
     expect(views).toContain('logs_uid    = "grafanacloud-logs"');
     expect(wiring).toContain(
-      'grafana_cloud_stack_service_account_token.observability[0].key'
+      'grafana_cloud_stack_service_account_token.views[0].key'
     );
     expect(wiring).not.toContain('data "grafana_data_source"');
   });

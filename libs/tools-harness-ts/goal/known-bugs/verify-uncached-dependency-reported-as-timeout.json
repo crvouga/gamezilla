@@ -1,0 +1,4 @@
+{
+  "summary": "A gate shard's stream saw a task end only through its cache artifact, so the uncacheable storybook:coverage (cache: false), done in seconds, stayed 'running' while its dependent ci:storybook ran, was reported over its 2400s budget and stopped the shard.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-shard-stream.test.ts"
+}

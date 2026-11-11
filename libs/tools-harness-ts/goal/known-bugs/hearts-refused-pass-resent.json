@@ -1,0 +1,4 @@
+{
+  "summary": "Nightly 42600698097 failed secret-choices traces 50 and 95 for Hearts (seed 0x67932): a person whose pass was refused while offline could not make it again once back online. The Hearts board keeps a refused pass's cards chosen so they can be sent again, but the Hearts board gesture tapped each card of the pass regardless, putting already chosen cards back and leaving Pass disabled. The gesture now puts back only chosen cards outside the pass and chooses only those of the pass not yet chosen.",
+  "regressionTest": "libs/games-harness-ts/tests/quint/secret-choices.binding.ts"
+}

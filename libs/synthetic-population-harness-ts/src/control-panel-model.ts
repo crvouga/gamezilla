@@ -20,10 +20,13 @@ import {
 } from '@libs/harness-ts/auth-actions';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront } from '@libs/harness-ts/observations';
+import { backToTabs } from '@libs/harness-ts/shell-actions';
 import { grantOperatorPermissions } from '@libs/observatory-actions-harness-ts/operator-access-actions';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
+import { showSpacesTab } from '@libs/spaces-harness-ts/space-ui';
 import { configureUsername } from '@libs/synthetic-population-behavior-shared-ts/application-actions';
 import { SyntheticUserApplication } from '@libs/synthetic-population-behavior-shared-ts/synthetic-user-application';
+import { Handles } from '@libs/test-ids-shared-ts/handles';
 import {
   directoryControlPanelOffered,
   directoryRowShown,
@@ -93,6 +96,27 @@ async function shortPosition(
 }
 
 /**
+ * Into a space to look for the game from: the one the player already hosts,
+ * since a second is refused at the hosting limit, or else a new one.
+ */
+async function enterGameSpace(
+  s: ProductHarness,
+  player: string,
+  label: string
+): Promise<void> {
+  await Promise.resolve(backToTabs.act(s, player));
+  await showSpacesTab(s, player);
+  const hosting = await (await actorUi(s, player))
+    .get(Handles.spaceCard(player))
+    .isVisible();
+  await Promise.resolve(
+    hosting
+      ? openSyntheticGame.act(s, player, label)
+      : givenSyntheticGameSpace.act(s, player, label)
+  );
+}
+
+/**
  * The Synthetic User starts its next activity: a matched game against its
  * opponent, both looking for one with the game's usual choice.
  */
@@ -105,9 +129,12 @@ export const startSyntheticGame = scenarioAction({
     if (matched === undefined)
       throw new Error(`${label} offers no matchmaking`);
     await Promise.resolve(signInWithGoogle.act(s, person));
+    // After an earlier matched game the person is still in its space, where
+    // neither the tab bar nor a back button is offered: leave it first.
+    await Promise.resolve(backToTabs.act(s, person));
     await configureUsername(await actorUi(s, person), person);
     for (const player of [actor, person]) {
-      await Promise.resolve(givenSyntheticGameSpace.act(s, player, label));
+      await enterGameSpace(s, player, label);
       await Promise.resolve(
         givenOpponentSearch.act(s, player, defaultMatchChoice(matched))
       );

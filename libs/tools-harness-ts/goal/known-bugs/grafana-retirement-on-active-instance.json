@@ -1,0 +1,4 @@
+{
+  "summary": "Release 42794639115 failed on foundation/prd: the active instance planned a forget + create for the folder the previous run left tainted, and any forget counted as an archive, so the state-only retirement refused every view to create. Retirement now needs a pure forget in the Grafana scope and no create there, which only an archived instance (every count 0) produces.",
+  "regressionTest": "libs/infra-shared-ts/tests/grafana-retirement.test.ts"
+}
