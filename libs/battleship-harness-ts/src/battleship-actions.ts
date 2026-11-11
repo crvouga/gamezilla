@@ -199,7 +199,10 @@ export const askForRandomFleet = scenarioAction({
   act: async (s, actor: string) => {
     const ui = await actorUi(s, actor);
     const random = ui.get('custom-game-setup-random');
-    if (!(await random.isVisible())) return;
+    // regression: battleship-random-fleet-disabled-tap
+    // A ready player's control is shown disabled: a person cannot press it,
+    // so asking comes to nothing and the screen's notice is the refusal.
+    if (!(await pressable(random))) return;
     await random.tap();
     await s.session.waitForIdle();
   },
