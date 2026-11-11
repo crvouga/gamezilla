@@ -149,6 +149,7 @@ test('only a view is ever untainted, through its own state-only command', () => 
   expect(args).toContain('untaint');
   expect(args.at(-1)).toBe(FOLDER);
   expect(args.some((arg) => arg.startsWith('-var-file='))).toBe(true);
+  expect(args.some((arg) => arg.startsWith('-input'))).toBe(false);
   expect(() => grafanaUntaintArgs(PATHS, target, ACCOUNT)).toThrow();
   expect(() =>
     grafanaUntaintArgs(PATHS, { stack: 'edge', env: 'prd' }, FOLDER)
