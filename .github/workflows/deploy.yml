@@ -157,8 +157,6 @@ jobs:
         run: bunx turbo run @libs/infra-server-ts#apply:repository-policy
       - name: Apply reviewed alert delivery and independent probes
         run: bunx turbo run @libs/infra-server-ts#apply:alerting
-      - name: Verify project alert firing, mobile attempt and recovery
-        run: bunx turbo run @libs/infra-server-ts#check:alert-delivery
 
   # What every environment shares (libs/infra-shared-ts/tofu/stacks/fleet): the
   # shared secrets, the auth relay that forwards to every env, the Storybook

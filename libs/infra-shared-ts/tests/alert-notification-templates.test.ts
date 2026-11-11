@@ -153,7 +153,6 @@ const run = {
 };
 
 test('a CI failure notification links the run, commit and playbook and says what to run first', () => {
-  // The delivery check (alert-delivery-evidence.ts) matches this title.
   expect(ci('web.title', run)).toBe('Release: failure');
   const message = ci('web.message', run);
   for (const line of [

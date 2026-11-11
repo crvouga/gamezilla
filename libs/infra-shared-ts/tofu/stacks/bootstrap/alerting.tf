@@ -96,7 +96,7 @@ resource "grafana_cloud_stack_service_account" "alerting" {
   provider   = grafana.alerting_management
   stack_slug = var.grafana.stack_slug
   name       = "${var.project}-alerting"
-  # The live delivery check uses this account; preserve its existing credential.
+  # Kept as Editor: changing a Cloud service-account role replaces its credential.
   role = "Editor"
 }
 
