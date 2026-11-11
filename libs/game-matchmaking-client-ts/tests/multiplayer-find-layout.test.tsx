@@ -237,6 +237,27 @@ test('a game rated per speed shows the rating its chosen clock plays for', () =>
   );
 });
 
+// regression: multiplayer-empty-board-unavailable
+test('a first visit says there is no game here yet, above the search it offers', () => {
+  const view = mountPlaces({
+    stage: 'idle',
+    props: {
+      find: { players: 2, timed: false, timeControl: '5+0', fresh: true },
+    },
+  });
+  const told = screen.getByTestId('multiplayer-unavailable');
+  expect(told.textContent).toContain(
+    'No multiplayer game is available to you.'
+  );
+  expect(
+    told.compareDocumentPosition(screen.getByTestId('multiplayer-find')) &
+      Node.DOCUMENT_POSITION_FOLLOWING
+  ).toBeTruthy();
+  // Once something was sought from here, the hub says nothing of the kind.
+  view.set({ find: { players: 2, timed: false, timeControl: '5+0' } });
+  expect(screen.queryByTestId('multiplayer-unavailable')).toBeNull();
+});
+
 test('a bigger game says how many players it finds, and names its command so', () => {
   mountPlaces({
     stage: 'idle',

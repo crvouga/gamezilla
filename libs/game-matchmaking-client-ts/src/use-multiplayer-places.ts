@@ -100,6 +100,7 @@ export function useMultiplayerFind(data: MultiplayerData) {
       timed:
         rules.capability(data.gameId(), 'matchmaking')?.clockChoices === true,
       timeControl: timeControl(),
+      fresh: data.game() === null && data.search() === null,
     })
   );
   return { find, choose: setTimeControl };

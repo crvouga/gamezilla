@@ -4,8 +4,9 @@ import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameFact, GameFacts } from '@pkgs/ui-root-client-ts/game-facts';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
+import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { P } from '@pkgs/ui-root-client-ts/text';
+import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Show } from 'solid-js';
 import {
   MultiplayerMenuPlace,
@@ -27,6 +28,11 @@ export type MultiplayerFindChoice = {
   readonly timed: boolean;
   /** The time control this device chose for its next search. */
   readonly timeControl: string;
+  /**
+   * Nothing was ever sought from this space, so there is no game here to
+   * return to or watch: the hub says so before offering the first search.
+   */
+  readonly fresh?: boolean | undefined;
 };
 
 type FindProps = MultiplayerPlaceFrame & {
@@ -146,6 +152,16 @@ export function MultiplayerFindView(props: FindProps): JSX.Element {
       title={props.title}
       subtitle={many() ? <PlayersNeeded find={props.find} /> : undefined}
     >
+      <Show when={props.find.fresh === true}>
+        <Notice dataSet={{ testid: 'multiplayer-unavailable' }}>
+          <Text variant="inherit" role="status">
+            <Trans>
+              No multiplayer game is available to you. Find an opponent to start
+              one.
+            </Trans>
+          </Text>
+        </Notice>
+      </Show>
       <FindRows {...props} />
       <StackVertical gap="sm">
         <MatchConditions find={props.find} />

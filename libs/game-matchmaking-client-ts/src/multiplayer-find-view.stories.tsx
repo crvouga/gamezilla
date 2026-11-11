@@ -35,6 +35,11 @@ const TIMED = {
 /** Before a search: find an opponent for a game without clock choices. */
 export const FindOpponent: Story = {};
 
+/** A first visit: nothing was ever sought here, so there is no game to return to. */
+export const FirstVisit: Story = {
+  args: { find: { players: 2, timed: false, timeControl: '5+0', fresh: true } },
+};
+
 /** A game with clock choices: the chosen clock is one row, one press from changing. */
 export const FindTimed: Story = { args: TIMED };
 
