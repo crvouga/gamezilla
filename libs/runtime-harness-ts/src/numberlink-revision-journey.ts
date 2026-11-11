@@ -3,7 +3,9 @@ import {
   contentAttribute,
   contentInput,
   contentTap,
+  leaveContentStage,
   openContentDetails,
+  openContentPlace,
   type PublishedJourneyContent,
 } from '@libs/game-puzzle-harness-ts/content-journey-device';
 import {
@@ -16,7 +18,6 @@ import {
   NUMBERLINK_JOURNEY_BOARD,
   observeNumberlinkJourneyRow,
 } from '@libs/numberlink-harness-ts/numberlink-journey-board';
-import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { JOURNEY_WAIT_MS } from './journey-gestures';
 import type { JourneyHost } from './journey-types';
 import { authorNumberlinkJourney } from './numberlink-authoring-journey';
@@ -44,10 +45,11 @@ export async function reviseNumberlinkJourney(
   });
   await host.act('publishChangedNumberlinkEdition', async (ui) => {
     const device = { ui, timeoutMs: JOURNEY_WAIT_MS };
-    await contentTap(device, Handles.navBack);
+    await leaveContentStage(device);
     await contentTap(device, `content-draft-${source.documentId}`);
     await openContentDetails(device);
     await contentInput(device, 'content-title', `Canyon ${host.runId}`);
+    await openContentPlace(device, 'board');
     await contentInput(device, 'numberlink-pair-label', 'B');
     const latest = await publishJourneyDraft(device, `Canyon ${host.runId}`);
     if (

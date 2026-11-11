@@ -8,15 +8,11 @@ afterEach(() => {
 });
 
 function builderFixture(covered = false, reachable = true) {
-  document.body.innerHTML = `<section data-screen="puzzle-content-author"><div data-testid="content-author-stage"><button aria-label="Undo">Undo</button></div><div data-testid="content-author-publish">Publish</div></section><header>Header</header>`;
+  document.body.innerHTML = `<section data-screen="puzzle-content-author-board"><div data-testid="content-author-stage"><button aria-label="Undo">Undo</button></div></section><header>Header</header>`;
   const scroller = document.querySelector<HTMLElement>('section');
   const control = document.querySelector('button');
   const header = document.querySelector('header');
-  const publish = document.querySelector<HTMLElement>(
-    '[data-testid="content-author-publish"]'
-  );
-  if (!scroller || !control || !header || !publish)
-    throw new Error('Fixture missing');
+  if (!scroller || !control || !header) throw new Error('Fixture missing');
   const oldWidth = window.innerWidth;
   const oldHeight = window.innerHeight;
   restores.push(() => {
@@ -45,7 +41,6 @@ function builderFixture(covered = false, reachable = true) {
   control.scrollIntoView = () => {
     reached = reachable;
   };
-  publish.getBoundingClientRect = () => new DOMRect(260, 700, 900, 100);
   const hit = spyOn(document, 'elementFromPoint').mockImplementation((_, y) =>
     y < 84 || covered ? header : control
   );
@@ -69,4 +64,12 @@ test('builder controls genuinely covered inside the scrollport remain failures',
 test('builder controls that cannot scroll into view remain failures', () => {
   builderFixture(false, false);
   expect(builderControlsUncovered()).toContain('reach: Undo');
+});
+
+test('a builder story that is not on its board screen is reported, not passed', () => {
+  document.body.innerHTML =
+    '<section data-screen="puzzle-content-author"><div data-testid="content-author-stage"><button>Undo</button></div></section>';
+  expect(builderControlsUncovered()).toEqual([
+    "the builder's board screen is missing",
+  ]);
 });

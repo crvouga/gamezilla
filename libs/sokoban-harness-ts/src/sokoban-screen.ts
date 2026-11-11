@@ -2,6 +2,7 @@ import {
   contentOnDevice,
   playOnDevice,
 } from '@libs/game-puzzle-harness-ts/content-game-reads';
+import { openLibraryEntry } from '@libs/game-puzzle-harness-ts/content-screen-places';
 import { waitForContent } from '@libs/game-puzzle-harness-ts/content-sync';
 import { mountContentExample } from '@libs/game-puzzle-harness-ts/mount-content-example';
 import { fireEvent } from '@solidjs/testing-library';
@@ -66,7 +67,12 @@ export async function openAttemptOnScreen(
 ): Promise<View> {
   closePlay(s, clientId);
   const view = await mountContentExample(s, clientId);
-  await clickWhenReady(s, view, `content-attempt-${attemptId}`);
+  // A saved attempt is listed on one of the library's screens.
+  await openLibraryEntry(
+    (ready) => waitFor(s, ready),
+    view,
+    `content-attempt-${attemptId}`
+  );
   await waitFor(s, () => view.queryByTestId('content-attempt') !== null);
   screensOf(s, clientId).play = { view, attemptId };
   return view;

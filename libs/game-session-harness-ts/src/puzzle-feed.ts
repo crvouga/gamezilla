@@ -1,9 +1,11 @@
 /**
  * The puzzle feed as a solver customizes it, for any game offering puzzles:
- * the feed settings opened from the feed bar, their history filter, target
- * mode, rating offset and custom target steppers, the game's themes and
- * auto-advance, saved, discarded or closed — and what the bar and the
- * settings say. A theme is named as the game names it (its `themes`).
+ * the feed settings opened from the settings row, each setting on a place
+ * of its own behind its row (the history filter, the target's mode with
+ * its rating offset and custom target steppers, the game's themes and
+ * what follows a solve), saved by Done or dropped by going back — and what
+ * the settings row and the settings say. A theme is named as the game
+ * names it (its `themes`).
  */
 
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
@@ -11,6 +13,15 @@ import type { ProductHarness } from '@libs/harness-ts/harness';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import type { TurnHarnessGame } from './harness-game';
 import { turnHarnessGameOf } from './harness-game-of';
+import {
+  FEED_SETTING_ROW,
+  type FeedSettingPlace,
+  leavePuzzleFeedUnsaved,
+  openFeedSetting,
+  openPuzzleFeed,
+  waitPuzzleFeedClosed,
+  waitPuzzleFeedHub,
+} from './puzzle-places';
 import {
   isEmptyFeedShown,
   pressEmptyFeedAction,
@@ -45,24 +56,33 @@ export function feedThemesOf(game: TurnHarnessGame): readonly string[] {
 
 // ------------------------------------------------------------ the settings
 
-/** Open the feed settings from the feed bar. */
+/** Open the feed settings from the settings row. */
 export const openPuzzleFeedSettings = scenarioAction({
   name: 'openPuzzleFeedSettings',
-  act: async (s, actorId: string) => {
-    const ui = await actorUi(s, actorId);
-    await ui.get(Handles.chessPuzzleFeedSummary).tap({ timeoutMs: WAIT_MS });
-    await ui.get(Handles.chessPuzzleFeedDone).expect.visible({
-      timeoutMs: WAIT_MS,
-    });
-  },
+  act: openPuzzleFeed,
 });
 
+/** Done is on the feed settings themselves: back there from a setting first. */
 async function pressDone(s: ProductHarness, actorId: string): Promise<void> {
+  await openPuzzleFeed(s, actorId);
   const ui = await actorUi(s, actorId);
   await ui.get(Handles.chessPuzzleFeedDone).tap({ timeoutMs: WAIT_MS });
-  await ui.get(Handles.chessPuzzleFeedDone).expect.hidden({
-    timeoutMs: WAIT_MS,
-  });
+  await waitPuzzleFeedClosed(s, actorId);
+}
+
+/**
+ * A setting's own place, then one of its choices: the choice is applied to
+ * the draft and the place returns to the feed settings.
+ */
+async function chooseOnSetting(
+  s: ProductHarness,
+  actorId: string,
+  choice: { readonly setting: FeedSettingPlace; readonly handle: string }
+): Promise<void> {
+  await openFeedSetting(s, actorId, choice.setting);
+  const ui = await actorUi(s, actorId);
+  await ui.get(choice.handle).tap({ timeoutMs: WAIT_MS });
+  await waitPuzzleFeedHub(s, actorId);
 }
 
 /** Done saves the settings; a changed feed places its puzzle. */
@@ -101,31 +121,26 @@ export const savePuzzleFeedSettings = scenarioAction({
   },
 });
 
-/** Close the settings without saving, as Escape does. */
+/** Leave the settings without saving, as going back from them does. */
 export const discardFeedSettings = scenarioAction({
   name: 'discardFeedSettings',
-  act: async (s, actorId: string) => {
-    const ui = await actorUi(s, actorId);
-    await ui.key('escape');
-    await ui
-      .get(Handles.chessPuzzleFeedDone)
-      .expect.hidden({ timeoutMs: WAIT_MS });
-  },
+  act: leavePuzzleFeedUnsaved,
 });
 
 export const setPuzzleFeedHistory = scenarioAction({
   name: 'setPuzzleFeedHistory',
-  act: async (s, actorId: string, filter: FeedHistoryFilter) => {
-    const ui = await actorUi(s, actorId);
-    await ui
-      .get(Handles.chessPuzzleFeedHistorySegment(filter))
-      .tap({ timeoutMs: WAIT_MS });
-  },
+  act: (s, actorId: string, filter: FeedHistoryFilter) =>
+    chooseOnSetting(s, actorId, {
+      setting: 'feed-history',
+      handle: Handles.chessPuzzleFeedHistorySegment(filter),
+    }),
 });
 
+/** The target's mode, on the target's own place; the steppers follow it there. */
 export const setPuzzleFeedMode = scenarioAction({
   name: 'setPuzzleFeedMode',
   act: async (s, actorId: string, mode: FeedMode) => {
+    await openFeedSetting(s, actorId, 'feed-target');
     const ui = await actorUi(s, actorId);
     await ui
       .get(Handles.chessPuzzleFeedModeSegment(mode))
@@ -135,44 +150,41 @@ export const setPuzzleFeedMode = scenarioAction({
 
 export const setPuzzleFeedAutoAdvance = scenarioAction({
   name: 'setPuzzleFeedAutoAdvance',
-  act: async (s, actorId: string, setting: FeedAutoAdvance) => {
-    const ui = await actorUi(s, actorId);
-    await ui
-      .get(Handles.chessPuzzleFeedAutoAdvanceSegment(setting))
-      .tap({ timeoutMs: WAIT_MS });
-  },
+  act: (s, actorId: string, setting: FeedAutoAdvance) =>
+    chooseOnSetting(s, actorId, {
+      setting: 'feed-advance',
+      handle: Handles.chessPuzzleFeedAutoAdvanceSegment(setting),
+    }),
 });
 
-/** Whether `theme` is chosen in the open themes picker. */
+/** Whether `theme` is chosen on the themes' place: its toggle is pressed. */
 async function isThemeChosen(
   s: ProductHarness,
   actorId: string,
   theme: string
 ): Promise<boolean> {
   const ui = await actorUi(s, actorId);
-  const html = (await ui.snapshotHtml()) ?? '';
-  const option = Handles.chessPuzzleFeedThemeOption(theme);
-  // The option row, not the chip a chosen theme also shows.
-  const rows = [
-    ...html.matchAll(new RegExp(`<[^>]*data-testid="${option}"[^>]*>`, 'g')),
-  ]
-    .map((match) => match[0])
-    .filter((tag) => tag.includes('aria-selected='));
-  if (rows.length === 0) throw new Error(`the theme ${theme} is not on offer`);
-  return rows.some((tag) => tag.includes('aria-selected="true"'));
+  const option = ui.get(Handles.chessPuzzleFeedThemeOption(theme));
+  await option.expect.visible({
+    timeoutMs: WAIT_MS,
+    description: `the theme ${theme} on offer`,
+  });
+  const pressed = await option.attribute('aria-pressed');
+  if (pressed === null) throw new Error(`the theme ${theme} is not a choice`);
+  return pressed === 'true';
 }
 
 /**
- * Make `theme` chosen or not in the themes picker: searched by the label
- * the game gives it, so its row shows, then the picker closed.
+ * Make `theme` chosen or not on the themes' place: searched by the label
+ * the game gives it, so it shows, then back to the feed settings.
  */
 async function pickFeedTheme(
   s: ProductHarness,
   actorId: string,
   pick: { readonly gameId: string; readonly theme: string; chosen: boolean }
 ): Promise<void> {
+  await openFeedSetting(s, actorId, 'feed-themes');
   const ui = await actorUi(s, actorId);
-  await ui.get(Handles.chessPuzzleFeedThemeTrigger).tap({ timeoutMs: WAIT_MS });
   await ui.get(Handles.chessPuzzleFeedThemeSearch).clear();
   await ui
     .get(Handles.chessPuzzleFeedThemeSearch)
@@ -182,9 +194,7 @@ async function pickFeedTheme(
       .get(Handles.chessPuzzleFeedThemeOption(pick.theme))
       .tap({ timeoutMs: WAIT_MS });
   await ui.get(Handles.chessPuzzleFeedThemeDone).tap({ timeoutMs: WAIT_MS });
-  await ui.get(Handles.chessPuzzleFeedThemeDone).expect.hidden({
-    timeoutMs: WAIT_MS,
-  });
+  await waitPuzzleFeedHub(s, actorId);
 }
 
 /** Choose `gameId`'s theme `theme` in the open feed settings. */
@@ -201,12 +211,14 @@ export const clearPuzzleFeedTheme = scenarioAction({
     pickFeedTheme(s, actorId, { gameId, theme, chosen: false }),
 });
 
+/** Press one of the target's steppers `steps` times, on the target's place. */
 async function tapTimes(
   s: ProductHarness,
   actorId: string,
   handle: string,
   steps: number
 ): Promise<void> {
+  await openFeedSetting(s, actorId, 'feed-target');
   const ui = await actorUi(s, actorId);
   for (let i = 0; i < steps; i += 1)
     await ui.get(handle).tap({ timeoutMs: WAIT_MS });
@@ -251,6 +263,7 @@ export const includePlayedPuzzles = scenarioAction({
 
 // ------------------------------------------------------------------- reads
 
+/** The rating offset on the target's own place (`setPuzzleFeedMode` opens it). */
 export async function readFeedOffsetValue(
   s: ProductHarness,
   actorId: string
@@ -264,25 +277,32 @@ export async function readFeedOffsetValue(
 }
 
 /**
- * The target the open settings preview: the custom target's value in
- * custom mode, else the target under the rating offset.
+ * The target the unsaved settings preview, where the person is: on the
+ * target's own place the custom target's value or the target under the
+ * rating offset; on the feed settings the target row's value.
  */
 export async function readFeedModalTargetRating(
   s: ProductHarness,
   actorId: string
 ): Promise<number | null> {
   const ui = await actorUi(s, actorId);
-  const custom = ui.get(Handles.chessPuzzleFeedCustomRatingValue);
-  const raw = stripProbe(
-    await ((await custom.isVisible())
-      ? custom.text()
-      : ui.get(Handles.chessPuzzleFeedTarget).text())
-  );
-  const match = /(\d{3,4})\s*$/.exec(raw);
-  return match?.[1] !== undefined ? Number.parseInt(match[1], 10) : null;
+  for (const handle of [
+    Handles.chessPuzzleFeedCustomRatingValue,
+    Handles.chessPuzzleFeedTarget,
+    FEED_SETTING_ROW['feed-target'],
+  ]) {
+    const node = ui.get(handle);
+    if (!(await node.isVisible())) continue;
+    const match = /(\d{3,4})\s*$/.exec(stripProbe(await node.text()));
+    return match?.[1] !== undefined ? Number.parseInt(match[1], 10) : null;
+  }
+  return null;
 }
 
-/** How many puzzles fit the open settings, of how many: `{ matched, total }`. */
+/**
+ * How many puzzles fit the unsaved settings, of how many: the pool line of
+ * the feed settings themselves.
+ */
 export async function readFeedModalPool(
   s: ProductHarness,
   actorId: string
@@ -297,7 +317,7 @@ export async function readFeedModalPool(
   };
 }
 
-/** The feed bar's target: "Auto target 1500" / "Custom target 1550". */
+/** The settings row's target: "Auto target 1500" / "Custom target 1550". */
 export async function readFeedTargetLabel(
   s: ProductHarness,
   actorId: string
@@ -315,7 +335,7 @@ export async function readFeedTargetLabel(
   };
 }
 
-/** The feed bar's history filter, as it reads ("Unseen", "Any", …). */
+/** The settings row's history filter, as it reads ("Unseen", "Any", …). */
 export async function readFeedHistoryLabel(
   s: ProductHarness,
   actorId: string
@@ -327,7 +347,7 @@ export async function readFeedHistoryLabel(
   return raw.length > 0 ? raw : null;
 }
 
-/** The feed bar names `theme` as the one theme the feed is limited to. */
+/** The settings row names `theme` as the one theme the feed is limited to. */
 export async function isFeedLimitedToTheme(
   s: ProductHarness,
   actorId: string,

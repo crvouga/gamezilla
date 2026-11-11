@@ -28,12 +28,12 @@ test('storybook integration: game frame keeps the own seat, its actions and a wa
   page,
 }) => {
   await page.setViewportSize(DESKTOP);
-  await open(page, 'screens-games-frame--stand-in');
+  await open(page, 'screens-games-custom-play--stand-in');
   await inFirstView(page, 'custom-game-seat-near');
   await inFirstView(page, 'custom-game-reclaim');
-  await open(page, 'screens-games-frame--watching');
+  await open(page, 'screens-games-custom-play--watching');
   await inFirstView(page, 'custom-game-watching');
-  await open(page, 'screens-games-frame--your-turn');
+  await open(page, 'screens-games-custom-play--your-turn');
   await inFirstView(page, 'custom-game-seat-near');
   expect(
     await page.evaluate(() => document.scrollingElement?.scrollTop ?? 0)
@@ -48,9 +48,9 @@ test('storybook integration: game frame rail sits beside the bounded board at 14
   page,
 }) => {
   await page.setViewportSize(DESKTOP);
-  await open(page, 'screens-games-frame--your-turn');
+  await open(page, 'screens-games-custom-play--your-turn');
   const board = await page.getByTestId('custom-game-public').boundingBox();
-  // The rail's "Game record" card.
+  // The rail's Moves card.
   const record = await page
     .locator('[data-component="CustomGameReview"]')
     .first()

@@ -91,7 +91,7 @@ for (const width of [390, 768, 1440])
   for (const theme of ['light', 'dark']) {
     // regression: account-connect-error-label-clipped
     for (const story of [
-      'screens-games-matchmaking--choose-time-control',
+      'screens-games-matchmaking-find--choose-time-control',
       'screens-billing--checkout-provider-unavailable',
     ])
       test(`storybook integration: feedback remains readable in ${story} at ${width}/${theme}`, async ({
@@ -221,9 +221,7 @@ for (const state of ['won', 'lost', 'full-board-draw'])
     await expect(page.getByText('No moves yet.', { exact: true })).toHaveCount(
       0
     );
-    await expect(
-      page.getByTestId('custom-game-move-strip-place')
-    ).toBeVisible();
+    await expect(page.getByTestId('custom-game-review-move-1')).toBeVisible();
   });
 
 // regression: connect-four-finished-fixture-missing-record
@@ -232,7 +230,7 @@ test('storybook integration: literal won Connect Four retains its move record', 
 }) => {
   await open(page, 'screens-games-connect-four-board--won', 390, 'light');
   await expect(page.getByText('No moves yet.', { exact: true })).toHaveCount(0);
-  await expect(page.getByTestId('custom-game-move-strip-place')).toBeVisible();
+  await expect(page.getByTestId('custom-game-review-move-1')).toBeVisible();
 });
 
 async function assertAccountRetry(page: Page, width: number, theme: string) {

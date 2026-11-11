@@ -17,37 +17,36 @@ afterEach(cleanup);
 const resolved = async (): Promise<void> => undefined;
 
 // regression: puzzle-builder-pending-notice-shifts-view-edition
-for (const layout of ['bar', 'stacked'] as const) {
-  test(`${layout}: the pending notice sits after the edition actions, so its removal moves none of them`, () => {
-    const time = createHarnessClock();
-    renderWithI18n(() => (
-      <ClockProvider clock={time.clock} timers={time.timers}>
-        <ThemeProvider
-          colorScheme="dark"
-          fixedLayout={{ width: 390, height: 844 }}
-        >
-          <ContentPublicationControlsView
-            copyState={{ kind: 'pending', connection: 'online' }}
-            layout={layout}
-            kind="puzzle"
-            validation="valid"
-            validationMessage=""
-            proven
-            pending="online"
-            published
-            disabled={false}
-            onValidate={resolved}
-            onPublish={resolved}
-            onViewPublication={() => undefined}
-            onWithdraw={resolved}
-          />
-        </ThemeProvider>
-      </ClockProvider>
-    ));
-    const notice = screen.getByTestId('content-publication-pending');
-    const view = screen.getByTestId('content-view-publication');
+test('the pending notice sits after the edition actions, so its removal moves none of them', () => {
+  const time = createHarnessClock();
+  renderWithI18n(() => (
+    <ClockProvider clock={time.clock} timers={time.timers}>
+      <ThemeProvider
+        colorScheme="dark"
+        fixedLayout={{ width: 390, height: 844 }}
+      >
+        <ContentPublicationControlsView
+          copyState={{ kind: 'pending', connection: 'online' }}
+          kind="puzzle"
+          validation="valid"
+          validationMessage=""
+          proven
+          pending="online"
+          published
+          disabled={false}
+          onValidate={resolved}
+          onPublish={resolved}
+          onViewPublication={() => undefined}
+          onWithdraw={() => undefined}
+        />
+      </ThemeProvider>
+    </ClockProvider>
+  ));
+  const notice = screen.getByTestId('content-publication-pending');
+  const view = screen.getByTestId('content-view-publication');
+  const withdraw = screen.getByTestId('content-withdraw');
+  for (const action of [view, withdraw])
     expect(
-      view.compareDocumentPosition(notice) & Node.DOCUMENT_POSITION_FOLLOWING
+      action.compareDocumentPosition(notice) & Node.DOCUMENT_POSITION_FOLLOWING
     ).toBeTruthy();
-  });
-}
+});

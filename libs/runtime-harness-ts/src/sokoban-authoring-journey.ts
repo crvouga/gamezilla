@@ -1,6 +1,6 @@
 import { authorJourneyPuzzle } from '@libs/game-puzzle-harness-ts/content-journey-authoring';
 import {
-  contentTap,
+  leaveContentStage,
   type PublishedJourneyContent,
 } from '@libs/game-puzzle-harness-ts/content-journey-device';
 import { discoverJourneyContent } from '@libs/game-puzzle-harness-ts/content-journey-discovery';
@@ -34,12 +34,11 @@ async function authorSokobanPuzzle(
       device,
       title: `${name} ${host.runId}`,
       board: SOKOBAN_JOURNEY_BOARD,
-      backId: Handles.navBack,
       onCreated: (id) => {
         owned.push(id);
       },
     });
-    await contentTap(device, Handles.navBack);
+    await leaveContentStage(device);
   });
   if (puzzle === undefined) throw new Error(`${name} was not published`);
   return puzzle;

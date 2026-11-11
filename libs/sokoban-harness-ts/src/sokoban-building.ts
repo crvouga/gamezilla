@@ -3,6 +3,11 @@ import {
   settleBuilder,
 } from '@libs/game-puzzle-harness-ts/builder-session';
 import { workingDefinitionOnDevice } from '@libs/game-puzzle-harness-ts/content-game-reads';
+import {
+  type ContentScreenPlace,
+  openContentPlace,
+  showContentHome,
+} from '@libs/game-puzzle-harness-ts/content-screen-places';
 import { defineAction } from '@pkgs/harness-root-shared-ts/define-action';
 import { fireEvent } from '@solidjs/testing-library';
 import { createSokobanDraft } from './sokoban-fixtures';
@@ -20,9 +25,19 @@ function buildingDocument(s: SokobanHarness): string {
   return id;
 }
 
-export async function openSokobanBuilder(s: SokobanHarness): Promise<View> {
+/**
+ * Alice's builder on one of its small screens, opened from its hub by its
+ * row as a person does: the board with the game's editor unless another is
+ * asked for.
+ */
+export async function openSokobanBuilder(
+  s: SokobanHarness,
+  place: ContentScreenPlace = 'board'
+): Promise<View> {
   const view = await openBuilder(s, ALICE, buildingDocument(s));
-  await waitFor(s, () => view.queryByTestId('sokoban-editor-board') !== null);
+  await openContentPlace((ready) => waitFor(s, ready), view, place);
+  if (place === 'board')
+    await waitFor(s, () => view.queryByTestId('sokoban-editor-board') !== null);
   return view;
 }
 
@@ -131,8 +146,7 @@ const PIECES = ['worker', 'crate'];
 export async function previewWords(
   s: SokobanHarness
 ): Promise<readonly (readonly string[])[]> {
-  const view = await openSokobanBuilder(s);
-  fireEvent.click(view.getByTestId('content-preview'));
+  const view = await openSokobanBuilder(s, 'preview');
   await waitFor(s, () => view.queryByTestId('sokoban-preview') !== null);
   const board = view.getByTestId('sokoban-preview');
   const columns = Number(board.style.getPropertyValue('--tile-board-columns'));
@@ -145,7 +159,7 @@ export async function previewWords(
     if (piece === undefined || !PIECES.includes(piece)) return terrain ?? '';
     return terrain === 'goal' ? `${piece} on goal` : piece;
   });
-  fireEvent.click(view.getByTestId('content-preview'));
+  await showContentHome((ready) => waitFor(s, ready), view, 'builder');
   const rows: string[][] = [];
   for (let index = 0; index < words.length; index += columns)
     rows.push(words.slice(index, index + columns));

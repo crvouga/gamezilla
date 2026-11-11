@@ -1,3 +1,4 @@
+import { useArgs } from 'storybook/preview-api';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import {
@@ -60,12 +61,14 @@ const meta = {
       'Take turns dropping a disc into a column. Four in a row, column or diagonal wins.',
     choices: CHOICES,
     onChoose: fn(),
+    place: { screen: 'menu' },
+    onOpen: fn(),
   },
 } satisfies Meta<typeof GameMenuScreenView>;
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** A game with custom games, matchmaking and history, then how to play. */
+/** A game with custom games, matchmaking and history; how to play is its last, quiet row. */
 export const SharedChoices: Story = {};
 
 /** A game offering puzzles and settings: its puzzle choices first, settings last. */
@@ -100,7 +103,7 @@ export const ManyPlayers: Story = {
   },
 };
 
-/** A game with only its own choices and no instructions. */
+/** A puzzle-only game: one choice, and no how to play when the game says nothing. */
 export const OwnChoicesOnly: Story = {
   args: {
     title: 'Numberlink',
@@ -139,5 +142,30 @@ export const OpenChoice: Story = {
     const canvas = within(canvasElement);
     await userEvent.click(await canvas.findByText('Find an opponent'));
     await expect(args.onChoose).toHaveBeenCalledWith('multiplayer');
+  },
+};
+
+/** How to play is a row like any other: it opens the place behind the menu. */
+export const OpenHowToPlay: Story = {
+  parameters: { test: { restoreMocks: false } },
+  render: (args) => {
+    const [, updateArgs] = useArgs();
+    return (
+      <GameMenuScreenView
+        {...args}
+        onOpen={(place) => {
+          args.onOpen(place);
+          updateArgs({ place });
+        }}
+      />
+    );
+  },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(await canvas.findByTestId('game-choice-how-to-play'));
+    await expect(args.onOpen).toHaveBeenCalledWith({ screen: 'how-to-play' });
+    await expect(
+      await canvas.findByText(/Take turns dropping a disc/)
+    ).toBeVisible();
   },
 };

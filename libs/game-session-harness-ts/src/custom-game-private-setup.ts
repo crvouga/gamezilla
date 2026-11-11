@@ -9,6 +9,7 @@
 import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront } from '@libs/harness-ts/observations';
+import { openCustomGamePlace } from './custom-game-places';
 import { readCustomGameProbe } from './custom-game-probe';
 import { customGameReference, sendCustomGameChoice } from './custom-game-ui';
 import type { TurnHarnessGame } from './harness-game';
@@ -17,6 +18,22 @@ import { keepOwnPrivateSetup } from './own-private-setups';
 
 /** The setup board of the Custom Game screen. */
 export const CUSTOM_GAME_SETUP_BOARD = 'custom-game-setup';
+
+/** The lobby's row that opens the person's private setup. */
+export const CUSTOM_GAME_SETUP_ROW = 'custom-game-setup-open';
+
+/** `actor` opens their private setup's own place, where its board is. */
+export async function openCustomGameSetupBoard(
+  s: ProductHarness,
+  actor: string
+): Promise<boolean> {
+  return openCustomGamePlace(
+    s,
+    actor,
+    CUSTOM_GAME_SETUP_ROW,
+    CUSTOM_GAME_SETUP_BOARD
+  );
+}
 
 /**
  * A complete setup of `game`'s own drawing other than every one of
@@ -59,7 +76,7 @@ async function boardTakesSetup(
     game.status === 'configuring' &&
     probe.mySide !== null &&
     !game.ready.includes(probe.mySide) &&
-    (await (await actorUi(s, actor)).get(CUSTOM_GAME_SETUP_BOARD).isVisible())
+    (await openCustomGameSetupBoard(s, actor))
   );
 }
 
@@ -77,6 +94,7 @@ export const arrangeCustomGamePrivateSetup = scenarioAction({
     if (arrange === undefined)
       throw new Error(`${game.label} has no setup board gesture`);
     await bringToFront(s, actor);
+    await openCustomGameSetupBoard(s, actor);
     await arrange(await actorUi(s, actor), CUSTOM_GAME_SETUP_BOARD, setup);
   },
 });
@@ -123,7 +141,11 @@ export async function customGamePrivateSetupShown(
 ): Promise<PrivateSetupShown> {
   const probe = await readCustomGameProbe(s, actor);
   const ui = await actorUi(s, actor);
-  const board = await ui.get(CUSTOM_GAME_SETUP_BOARD).isVisible();
+  // Their setup board shows on its own place, behind the lobby's row for
+  // it: either says they have a setup to arrange.
+  const board =
+    (await ui.get(CUSTOM_GAME_SETUP_BOARD).isVisible()) ||
+    (await ui.get(CUSTOM_GAME_SETUP_ROW).isVisible());
   const status = ui.get(`${CUSTOM_GAME_SETUP_BOARD}-status`);
   return {
     arranged: board ? (probe?.privateSetup?.arranged ?? null) : null,

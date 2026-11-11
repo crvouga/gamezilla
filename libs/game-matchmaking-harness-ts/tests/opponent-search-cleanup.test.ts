@@ -3,16 +3,21 @@ import { requestGameOpponent } from '@libs/game-matchmaking-harness-ts/multiplay
 import { withOpponentSearchCleanup } from '@libs/game-matchmaking-harness-ts/opponent-search-cleanup';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import type { OpenHarness } from '@libs/harness-ts/open-harness';
+import { searchHub } from './search-hub-fixture';
 
 // regression: matchmaking-scenario-leaks-waiting-player
 test('owned search cancellation reaches the server before its browser is disposed', async () => {
   let waiting = false;
   let pending = 0;
   const events: string[] = [];
+  const hub = searchHub(
+    (id) => ['multiplayer-waiting', 'multiplayer-stop'].includes(id) && waiting
+  );
   const ui = {
     get: (id: string) => ({
-      wait: async () => {},
+      ...hub.ui.get(id),
       tap: async () => {
+        await hub.ui.get(id).tap();
         if (id === 'multiplayer-find') waiting = true;
         if (id === 'multiplayer-stop') {
           waiting = false;
@@ -20,8 +25,6 @@ test('owned search cancellation reaches the server before its browser is dispose
           events.push('stop');
         }
       },
-      isVisible: async () =>
-        ['multiplayer-waiting', 'multiplayer-stop'].includes(id) && waiting,
     }),
   };
   const harness = {

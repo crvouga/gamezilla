@@ -46,9 +46,9 @@ in source, tests and steps alike (the full map and the reasons are in
 | --- | --- |
 | `@pkgs/turn-game-shared-ts` | `game-rules`, `game-presentation`, `game-automation`, `game-puzzles`, `puzzle-content`, `puzzle-content-catalog` |
 | `@libs/game-session-shared-ts` | `game-definition`, `turn-game-definition` |
-| `@libs/game-menu-client-ts` | `game-client` |
+| `@libs/game-menu-client-ts` | `game-client`, and `game-settings` for a game that declares settings |
 | `@libs/game-puzzle-shared-ts` (a game offering puzzles) | `puzzle-catalogue`, `sub`, `puzzle-link`, `completion`, `hint-stage`, `solve-status` |
-| `@libs/game-puzzle-client-ts` (a game offering puzzles) | `puzzle-client`, `puzzle-content-client` |
+| `@libs/game-puzzle-client-ts` (a game offering puzzles) | `puzzle-client`, `puzzle-content-client`; for a game that loads its own catalogue, `catalogue-load-client` (its `CatalogueLoadClient`) and `catalogue-load-screen` (to mount the loader on a routed page of its own) |
 | `@libs/spaces-shared-ts` | `game` (only for a game with its own room behaviour) |
 | `@libs/game-session-harness-ts` (its `-harness`) | `harness-game`, `known-puzzles`, `game-system`, `game-navigation`, `space-game-choice`, `custom-game-ui`, `custom-game-controls`, `custom-game-lineup`, `custom-game-moves`, `custom-game-screen`, `custom-game-reads`, `custom-game-history`, `puzzle-session-probe`, `puzzle-fixtures`, `puzzle-screen`, `puzzle-records`, `puzzle-moves`, `puzzle-room-probe`, `puzzle-link`, `puzzle-finishes`, `puzzle-result-recovery`, `puzzle-listening`, `puzzle-sounds` |
 | `@libs/game-matchmaking-harness-ts` (its `-harness`) | `matched-game-world`, `matched-game-app.steps`, `opponent-seeking`, `multiplayer-board`, `multiplayer-review`, `multiplayer-game-record`, `multiplayer-time`, `matched-game-fixtures` |
@@ -391,7 +391,8 @@ A game's own Gherkin parameter types join `libs/harness-ts/src/parameter-types.t
 | A game offering puzzles whose client has no `puzzles` part (with its `Board`), or a `puzzles` part for a game offering none | type checking (`GameClient`), `defineGameClient` when the module loads, `assertMatchingGameIds` and `assertHarnessGame`, each naming the fix |
 | A catalogue puzzle outside the game's namespace, in a position the game does not recognise, or refused by its `content.validate` | `admitCataloguePuzzle`, which no row skips |
 | A hand-built or copied definition or client | type checking (only `defineTurnGame` makes a `TurnGameDefinition`, only `defineGameClient` a `GameClientRegistration`), and the registries when they load |
-| A screen key that is not a slug, is declared twice or belongs to the platform (`puzzle`, `stats`, `stats-review`, `custom-game`, `multiplayer`, `history`, `settings`, `choices`) | `defineGameClient` |
+| A screen of the game's own (`choices`, `screens`, `Frame`, `SessionEffects`, a settings `Screen`): every game is shown through the platform's template screens | type checking (`GameClient`), and `defineGameClient`, naming the part |
+| A settings row whose key is not a slug or is declared twice in its group, that shares its control with another row, or that opens the catalogue loader without a load | `defineGameClient` (`assertGameSettings`) |
 | A client missing, extra or out of order | `assertMatchingGameIds`, naming the entry to fix |
 | A game missing from `HARNESS_GAMES` (or there but not registered) | the conformance plan (`game-conformance-matrix.test.ts`) |
 | A harness game omitted from execution; duplicate execution identities; a suite missing any eligible game's case or claiming another game's case | the conformance plan; another suite's pass cannot fill the missing case |

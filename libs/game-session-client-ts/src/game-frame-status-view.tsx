@@ -7,7 +7,7 @@ import { GameWatchingFooter } from '@pkgs/ui-root-client-ts/game-watching';
 import { WifiOffIcon } from '@pkgs/ui-root-client-ts/icons';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { P, Text } from '@pkgs/ui-root-client-ts/text';
+import { Text } from '@pkgs/ui-root-client-ts/text';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import { FramePersonName } from './game-frame-people';
@@ -212,11 +212,6 @@ export function FramePlayNoticesView(props: {
             </Notice>
           </StackVertical>
         )}
-      </Show>
-      <Show when={props.play.offerAgainLater}>
-        <P variant="caption" tone="secondary">
-          <Trans>You may offer a draw again after your next move.</Trans>
-        </P>
       </Show>
     </>
   );

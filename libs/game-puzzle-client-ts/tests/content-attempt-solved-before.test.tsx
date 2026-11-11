@@ -15,6 +15,8 @@ function mount(complete: boolean, solvedBefore: boolean): void {
     >
       <ContentAttemptScreenView
         status="ready"
+        place={{ screen: 'progress' }}
+        onOpen={() => undefined}
         attempt={{
           id: 'attempt-1',
           sourceId: 'revision-1',

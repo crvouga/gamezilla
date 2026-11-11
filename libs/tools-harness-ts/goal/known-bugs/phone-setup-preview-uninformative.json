@@ -1,4 +1,4 @@
 {
   "summary": "On a phone a game's setup opened with a slim row holding a tiny board thumbnail labelled only \"Board preview\", where the rules would have helped. That row now says how the game is played, in the game's own words, beside the thumbnail.",
-  "regressionTest": "libs/game-session-client-ts/tests/game-frame-arena.test.tsx"
+  "regressionTest": "libs/game-session-client-ts/tests/game-frame-setup-places.test.tsx"
 }

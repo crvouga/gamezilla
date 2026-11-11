@@ -1,4 +1,4 @@
 {
   "summary": "Under a phone's board the shown turn sat squeezed between four step arrows, the marked move touching the next arrow. The steps now head the record beside its name, and the shown turn has a well of its own the board's width.",
-  "regressionTest": "libs/game-session-client-ts/tests/game-frame-record-layout.test.tsx"
+  "regressionTest": "libs/game-session-client-ts/tests/game-frame-play-places.test.tsx"
 }

@@ -7,6 +7,7 @@ import type { GamePuzzlesClient } from './puzzle-client';
 import { PuzzleFeedProvider } from './puzzle-feed-provider';
 import { PuzzleGameProvider } from './puzzle-game-context';
 import { PUZZLE_SCREEN } from './puzzle-screens';
+import { PuzzleStatsReturnContext } from './puzzle-stats-return';
 import { ReconcilePuzzleResult } from './reconcile-puzzle-result';
 import { useIsPuzzleDriver } from './use-puzzle-space-role';
 
@@ -35,8 +36,10 @@ export function PuzzleFrame(props: {
   return (
     <PuzzleGameProvider gameId={props.gameId} client={props.puzzles}>
       <PuzzleFeedProvider>
-        <LinkedPuzzle />
-        {props.children}
+        <PuzzleStatsReturnContext.Provider value={{ toLog: false }}>
+          <LinkedPuzzle />
+          {props.children}
+        </PuzzleStatsReturnContext.Provider>
       </PuzzleFeedProvider>
     </PuzzleGameProvider>
   );

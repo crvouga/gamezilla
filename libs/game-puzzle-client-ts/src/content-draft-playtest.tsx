@@ -6,22 +6,29 @@ import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
 import { useCreateId } from '@pkgs/uuid-client-ts/solid';
-import { createSignal, type JSX, Show } from 'solid-js';
+import { type JSX, Show } from 'solid-js';
 import { useContentGame } from './content-game-context';
 import type { useContentDraftSave } from './use-content-draft-save';
 
+/**
+ * Starting a private playtest of the working copy, then the way into it.
+ * The builder keeps the started playtest (`attemptId`), so "Open playtest"
+ * is still offered when the publish screen is opened again.
+ */
 export function ContentDraftPlaytest(props: {
   documentId: string;
   writer: ReturnType<typeof useContentDraftSave>;
   /** The playtest is the draft's one next step: filled. */
   next?: boolean | undefined;
   disabled: boolean;
+  /** The playtest started in this builder, if any. */
+  attemptId: string | null;
+  onStarted: (attemptId: string) => void;
 }): JSX.Element {
   const { t } = useLingui();
   const game = useContentGame();
   const mutations = useMutationClient();
   const createId = useCreateId();
-  const [attemptId, setAttemptId] = createSignal<string | null>(null);
   const start = useMutationButton({
     operation: async () => {
       await props.writer.save();
@@ -44,7 +51,7 @@ export function ContentDraftPlaytest(props: {
           result.failures[0]?.message ??
             t`Complete the required details and start the playtest again.`
         );
-      setAttemptId(id);
+      props.onStarted(id);
     },
     labels: {
       idle: t`Start playtest`,
@@ -83,7 +90,7 @@ export function ContentDraftPlaytest(props: {
           />
         )}
       </Show>
-      <Show when={attemptId()}>
+      <Show when={props.attemptId}>
         {(id) => (
           <Button
             title={t`Open playtest`}

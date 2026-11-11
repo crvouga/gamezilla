@@ -6,14 +6,20 @@ import { type OpenHarness, openHarness } from '@libs/harness-ts/open-harness';
 import { followPuzzleImport } from './puzzle-import-ui';
 import { joinPuzzleTeam, readImportPool } from './puzzle-import-world';
 import {
-  readPuzzleSource,
+  inspectPuzzleSource,
   reuseLichessFile,
   saveLichessFile,
 } from './puzzle-source-ui';
 
 const environments = new WeakMap<
   ProductHarness,
-  { run: OpenHarness; before: number; ready: boolean }
+  {
+    run: OpenHarness;
+    before: number;
+    ready: boolean;
+    /** What the other environment's loader said when it was last refreshed. */
+    source?: Awaited<ReturnType<typeof inspectPuzzleSource>>;
+  }
 >();
 export const prepareOtherPuzzleEnvironment = scenarioAction({
   name: 'prepareOtherPuzzleEnvironment',
@@ -49,10 +55,12 @@ export const followOtherPuzzleEnvironment = scenarioAction({
   },
 });
 
+/** What the other environment's loader said at its last refresh. */
 export async function readOtherPuzzleSource(s: ProductHarness) {
-  const other = environments.get(s);
-  if (!other) throw new Error('Other environment missing');
-  return other.run.read(readPuzzleSource, 'alice');
+  const source = environments.get(s)?.source;
+  if (!source)
+    throw new Error('Refresh the other environment before reading it');
+  return source;
 }
 
 export const refreshOtherPuzzleSource = scenarioAction({
@@ -61,6 +69,7 @@ export const refreshOtherPuzzleSource = scenarioAction({
     const other = environments.get(s);
     if (!other) throw new Error('Other environment missing');
     await other.run.apply(reuseLichessFile);
+    other.source = await inspectPuzzleSource(other.run, 'alice');
   },
 });
 

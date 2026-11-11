@@ -2,7 +2,7 @@ import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { chessBoardSquareTestId } from '@pkgs/chess-board-core-shared-ts/probe';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 import { Chess } from 'chess.js';
-import { takeBlack } from './custom-game-readiness-wait';
+import { OWN_BLACK_SEAT, takeBlack } from './custom-game-readiness-wait';
 import { check, expectVisible, JOURNEY_WAIT_MS, tap } from './journey-gestures';
 
 async function openConnectedCustomGame(ui: Driver): Promise<void> {
@@ -97,6 +97,8 @@ export async function expectCustomGameBotReply(ui: Driver): Promise<void> {
 }
 
 export async function resignCustomGame(ui: Driver): Promise<void> {
+  // Resigning is a row of the game menu, confirmed before it is sent.
+  await tap(ui, 'custom-game-commands');
   await tap(ui, 'custom-game-resign');
   await tap(ui, 'custom-game-resign-confirm');
   await tap(ui, 'custom-game-resign-done');
@@ -108,7 +110,7 @@ export async function expectCustomGameResigned(ui: Driver): Promise<void> {
     timeoutMs: JOURNEY_WAIT_MS,
   });
   await expectVisible(ui, 'custom-game-rematch');
-  await ui.get('custom-game-resign').expect.hidden();
+  await ui.get('custom-game-commands').expect.hidden();
   await ui.get('custom-game-review-move-1').expect.text('e4', { exact: true });
   await expectVisible(ui, 'custom-game-review-move-2');
 }
@@ -155,9 +157,9 @@ export async function inviteToBlack(ui: Driver): Promise<void> {
   await openCustomGameJourney(ui);
   await tap(ui, 'custom-game-create');
   await tap(ui, 'custom-game-black-choices');
+  // The seat's own place, then the list of people: pressing one invites them.
   await tap(ui, 'custom-game-black-invite-choose');
   await tap(ui, 'custom-game-black-invitable');
-  await tap(ui, 'custom-game-black-invite');
   await ui.get('custom-game-black-person').expect.text('Invited:', {
     exact: false,
     timeoutMs: JOURNEY_WAIT_MS,
@@ -193,9 +195,9 @@ export async function acceptBlack(ui: Driver): Promise<void> {
   await takeBlack(ui, 'custom-game-black-accept');
 }
 
-/** The person holds Black: theirs to release, and named on Black's side. */
+/** The person holds Black: the seat is marked as theirs, and names them. */
 export async function readOwnBlackName(ui: Driver): Promise<string> {
-  await expectVisible(ui, 'custom-game-black-release');
+  await expectVisible(ui, OWN_BLACK_SEAT);
   const name = (await ui.get('custom-game-black-person').text())?.trim();
   check(name !== undefined && name !== '', 'Black shows no name');
   return name;

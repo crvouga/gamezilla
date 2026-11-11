@@ -22,6 +22,7 @@ import {
   retireCataloguePuzzle,
   useReviewControl,
 } from '@libs/game-session-harness-ts/puzzle-records';
+import { showPuzzleLine } from '@libs/game-session-harness-ts/puzzle-screen';
 import { Given, Then, When } from '@libs/harness-ts/define';
 import type { Actor, PuzzleLinePoint } from '@libs/harness-ts/parameter-types';
 import { focusActor } from '@libs/harness-ts/shell-actions';
@@ -147,6 +148,8 @@ When(
   '{actor} jumps to the {end} of the revealed line',
   async (w, actor: Actor, end: End) => {
     await w.s.apply(focusActor, actor);
+    // The line is stepped through on its own place, behind the result.
+    await w.s.apply(showPuzzleLine, actor);
     await w.s.apply(useReviewControl, actor, end);
   }
 );

@@ -20,6 +20,11 @@ import {
   forgetMultiplayerReply,
   sendMultiplayerCommand,
 } from './multiplayer-commands';
+import {
+  MULTIPLAYER_SCREEN,
+  openMultiplayerPlace,
+  returnToMultiplayerHome,
+} from './multiplayer-places';
 import { multiplayerView } from './multiplayer-reads';
 import { clockChoiceOf, requestGameOpponent } from './multiplayer-search-ui';
 import { multiplayerSpaceId } from './multiplayer-spaces';
@@ -68,8 +73,12 @@ export const givenGameSpace = scenarioAction({
   },
 });
 
-/** What finding an opponent shows first: a game, a search, or the choices. */
+/**
+ * What finding an opponent shows: any of its places (each carries the
+ * screen's mark), named too by what a stage opens on.
+ */
 const FINDING_SURFACES = [
+  MULTIPLAYER_SCREEN,
   'multiplayer-game',
   'multiplayer-waiting',
   'multiplayer-find',
@@ -140,6 +149,12 @@ async function reachFindingAnOpponent(
       const visible = new Set<string>();
       for (const handle of findingAnOpponentHandles(gameId))
         if (await ui.get(handle).isVisible()) visible.add(handle);
+      // Still reading the game and the search: nothing to act on yet.
+      if (
+        visible.has(MULTIPLAYER_SCREEN) &&
+        (await ui.get(MULTIPLAYER_SCREEN).attribute('data-stage')) === 'loading'
+      )
+        visible.delete(MULTIPLAYER_SCREEN);
       const step = findingAnOpponentStep(visible, gameId, whereverItCan);
       if (step === 'arrived') return true;
       if (step === 'nowhere')
@@ -190,16 +205,21 @@ async function seekFromFindingAnOpponent(
   const choice = ui.get(
     `multiplayer-time-control-${timeControlKey(clockChoiceOf(timeControl))}`
   );
+  // The search's hub is where an idle screen opens, and one row from a
+  // finished game's result.
   if (
     matchChoiceOf(timeControl)?.clock === null &&
-    (await ui.get('multiplayer-find').isVisible())
+    (await openMultiplayerPlace(s, actor, 'find')) !== 'unreachable'
   ) {
     await forgetMultiplayerReply(s, actor);
     await ui.get('multiplayer-find').tap();
     await s.session.waitForIdle();
     return;
   }
+  // The clock choices are a place of their own, one row from the hub.
+  const clocks = await openMultiplayerPlace(s, actor, 'time-control');
   if (!(await choice.isVisible())) {
+    if (clocks === 'opened') await returnToMultiplayerHome(s, actor);
     await Promise.resolve(
       sendMultiplayerCommand.act(s, actor, {
         name: 'findChessOpponent',

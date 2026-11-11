@@ -1,10 +1,10 @@
 import { readContentLibrary } from '@libs/game-puzzle-shared-ts/content-library';
 import { defineAction } from '@pkgs/harness-root-shared-ts/define-action';
-import { fireEvent } from '@solidjs/testing-library';
 import { selectedPlay } from './attempt-actions';
 import { closeBuilders } from './builder-session';
 import { contentClient } from './content-actions';
-import { waitForContent } from './content-sync';
+import { openLibraryEntry } from './content-screen-places';
+import { contentWait, waitForContent } from './content-sync';
 import type { ContentHarness } from './content-system';
 import { mountContentExample } from './mount-content-example';
 
@@ -29,11 +29,11 @@ export async function resumeAttemptOnScreen(
   s.lastResult.delete(clientId);
   const view = await mountContentExample(s, clientId);
   try {
-    const entry = `content-attempt-${selection.attemptId}`;
-    await waitForContent(s, () =>
-      Promise.resolve(view.queryByTestId(entry) !== null)
+    await openLibraryEntry(
+      contentWait(s),
+      view,
+      `content-attempt-${selection.attemptId}`
     );
-    fireEvent.click(view.getByTestId(entry));
     await waitForContent(s, () =>
       Promise.resolve(view.queryByTestId('content-attempt') !== null)
     );

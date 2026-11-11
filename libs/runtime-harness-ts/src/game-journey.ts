@@ -117,17 +117,17 @@ async function readyKnownSetups(
 
 /**
  * Make the `ply`-th move of a matched game on its board, once the
- * opponent's previous move has arrived, and wait for it to be accepted.
+ * opponent's previous move has arrived, then wait for `accepted` to show.
  */
-export async function playJourneyMove(
+async function playMove(
   ui: Driver,
   game: PlayableGame,
   action: string,
-  ply: number
+  move: { readonly ply: number; readonly accepted: string }
 ): Promise<void> {
-  if (ply > 1)
+  if (move.ply > 1)
     await ui
-      .get(`multiplayer-move-${ply - 1}`)
+      .get(`multiplayer-move-${move.ply - 1}`)
       .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
   await ui.get('multiplayer-offline').expect.hidden({
     timeoutMs: JOURNEY_WAIT_MS,
@@ -137,9 +137,37 @@ export async function playJourneyMove(
     Handles.multiplayerBoard,
     action
   );
-  await ui
-    .get(`multiplayer-move-${ply}`)
-    .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
+  await ui.get(move.accepted).expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
+}
+
+/**
+ * Make the `ply`-th move of a matched game on its board, once the
+ * opponent's previous move has arrived, and wait for it to be accepted:
+ * it joins the moves beside the live board.
+ */
+export async function playJourneyMove(
+  ui: Driver,
+  game: PlayableGame,
+  action: string,
+  ply: number
+): Promise<void> {
+  await playMove(ui, game, action, {
+    ply,
+    accepted: `multiplayer-move-${ply}`,
+  });
+}
+
+/**
+ * Make the move that ends a matched game. Once it is accepted the live
+ * board gives way to the result, which keeps the moves one step away.
+ */
+async function playEndingMove(
+  ui: Driver,
+  game: PlayableGame,
+  action: string,
+  ply: number
+): Promise<void> {
+  await playMove(ui, game, action, { ply, accepted: 'multiplayer-open-moves' });
 }
 
 /**
@@ -169,10 +197,14 @@ export async function playGameJourney(
   const [mover, opponent] = first
     ? [host.act, host.actAsGuest]
     : [host.actAsGuest, host.act];
-  for (const [index, action] of game.fixtures.firstSideVictory.entries())
+  const victory = game.fixtures.firstSideVictory;
+  for (const [index, action] of victory.entries()) {
+    const play =
+      index === victory.length - 1 ? playEndingMove : playJourneyMove;
     await (index % 2 === 0 ? mover : opponent)('playJourneyMove', (ui) =>
-      playJourneyMove(ui, game, action, index + 1)
+      play(ui, game, action, index + 1)
     );
+  }
   return first;
 }
 

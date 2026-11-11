@@ -3,13 +3,13 @@ import type { ContentLibrary } from '@libs/game-puzzle-shared-ts/content-library
 import { decodePackDefinition } from '@libs/game-puzzle-shared-ts/content-pack';
 import { CONTENT_PAGE_SIZE } from '@libs/game-puzzle-shared-ts/content-query-scope';
 import type { SyncEngineQuerySubscriptionSpec } from '@pkgs/sync-engine-client-ts/subscribe-queries-types';
-import type { ContentView } from './content-game-context';
+import type { ContentSubject } from './content-places';
 import type { ContentPages } from './use-content-pages';
 
 type Plan = SyncEngineQuerySubscriptionSpec[];
 type Selection = {
   gameId: string;
-  view: ContentView;
+  subject: ContentSubject;
   content: ContentLibrary;
   play: AttemptLibrary;
   pages: ContentPages;
@@ -27,7 +27,7 @@ function batches(name: string, ids: readonly string[], key = 'ids'): Plan {
 }
 
 function selectedRoots(selection: Selection) {
-  const view = selection.view;
+  const view = selection.subject;
   const attempt =
     view.kind === 'attempt'
       ? selection.play.attempts.find((entry) => entry.id === view.attemptId)
@@ -47,7 +47,7 @@ function selectedRoots(selection: Selection) {
               : [attempt.pack_revision_id]),
           ];
   const document =
-    view.kind === 'edit'
+    view.kind === 'builder'
       ? selection.content.documents.find(
           (entry) => entry.id === view.documentId
         )
@@ -70,7 +70,7 @@ function selectedRoots(selection: Selection) {
 
 /** Describes requested content only; subscriptions never enumerate the whole catalogue or history. */
 export function contentSubscriptionPlan(selection: Selection): Plan {
-  const { gameId, view, pages } = selection;
+  const { gameId, subject: view, pages } = selection;
   const roots = selectedRoots(selection);
   const requests: Plan = [
     ...pages.published.afterIds().map((afterId) => ({
@@ -86,7 +86,7 @@ export function contentSubscriptionPlan(selection: Selection): Plan {
       params: { gameId, ...cursor },
     })),
   ];
-  if (view.kind === 'edit')
+  if (view.kind === 'builder')
     requests.push(
       {
         name: 'puzzleContentOwned',

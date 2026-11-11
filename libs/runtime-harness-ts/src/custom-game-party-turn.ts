@@ -174,15 +174,10 @@ export async function playCustomGamePartyTurn(
     return view.ply;
   check(view.status === 'active', 'The party game never started');
   if (!view.canMove && progress.returnedLiveAt !== view.ply) {
-    // A phone's record keeps its steps behind its chevron while the board
-    // is live: the person opens it first, as they would to step back.
-    if (await ui.get('custom-game-back-to-live').isVisible()) {
+    // The live board never shows an earlier move: a person looking back is
+    // on the moves place, and returns to the game from there.
+    if (await ui.get('custom-game-back-to-live').isVisible())
       await tap(ui, 'custom-game-back-to-live');
-    } else {
-      if (!(await ui.get('custom-game-review-live').isVisible()))
-        await tap(ui, 'custom-game-review-jump');
-      await tap(ui, 'custom-game-review-live');
-    }
     progress.returnedLiveAt = view.ply;
     view = await readPublicCustomGame(ui);
   }

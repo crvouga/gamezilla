@@ -16,10 +16,9 @@
   "dependencies": {
     "@libs/chess-puzzle-client-ts": "workspace:*",
     "@libs/chess-root-shared-ts": "workspace:*",
-    "@libs/chess-shared-client-ts": "workspace:*",
+    "@libs/permissions-shared-ts": "workspace:*",
     "@libs/chess-sub-shared-ts": "workspace:*",
     "@libs/game-menu-client-ts": "workspace:*",
-    "@libs/spaces-client-ts": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/solid": "catalog:",
     "@pkgs/chess-board-root-client-ts": "workspace:*",

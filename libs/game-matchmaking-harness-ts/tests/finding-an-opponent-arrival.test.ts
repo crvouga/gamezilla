@@ -30,3 +30,10 @@ test('an ended space is the arrival, even though Back is also on screen', () => 
     )
   ).toBe('arrived');
 });
+
+test('a place opened within finding an opponent is the arrival, never a Back to press', () => {
+  // Its Back steps out of the place: pressing it would undo what the person opened.
+  const opened = new Set([Handles.navBack, 'multiplayer-screen']);
+  expect(findingAnOpponentStep(opened, GAME, false)).toBe('arrived');
+  expect(findingAnOpponentStep(opened, GAME, true)).toBe('arrived');
+});

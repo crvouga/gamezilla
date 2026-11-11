@@ -19,7 +19,7 @@ async function box(page: Page, selector: string, index = 0) {
   return rect;
 }
 
-/** The board, both seats, the strip and the actions in view, side by side. */
+/** The board, both seats and the way to the commands in view, side by side. */
 async function checkLandscapeFrame(page: Page, theme: string) {
   await page.setViewportSize({ width: 844, height: 390 });
   await openStory(page, 'screens-games-chess-board--your-turn', theme);
@@ -30,17 +30,13 @@ async function checkLandscapeFrame(page: Page, theme: string) {
     expect(cell.y).toBeGreaterThanOrEqual(0);
     expect(cell.y + cell.height).toBeLessThanOrEqual(390);
   }
+  // The game's commands are behind one control, Game menu.
   const beside = [
     await box(page, '[data-component="GameHeading"]'),
-    await box(page, '[data-component="GameSessionPinned"]'),
     await box(page, '[data-component="GamePlayerBar"]', 0),
     await box(page, '[data-component="GamePlayerBar"]', 1),
+    await box(page, '[data-testid="custom-game-commands"]'),
   ];
-  for (const name of [/^Offer draw/, /^Resign/]) {
-    const action = await page.getByRole('button', { name }).boundingBox();
-    if (!action) throw new Error(`Missing ${String(name)}`);
-    beside.push(action);
-  }
   for (const part of beside) {
     expect(part.x).toBeGreaterThanOrEqual(board.x + board.width);
     expect(part.y).toBeGreaterThanOrEqual(0);

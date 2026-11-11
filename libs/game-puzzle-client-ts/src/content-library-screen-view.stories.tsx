@@ -1,240 +1,36 @@
-import { KeyRoundIcon } from '@pkgs/ui-root-client-ts/icons';
-import { expect, fn, userEvent, within } from 'storybook/test';
+import { expect, userEvent, within } from 'storybook/test';
+import type { Meta, StoryObj } from 'storybook-solidjs-vite';
+import { ContentLibraryScreenView } from './content-library-screen-view';
 import {
-  createJSXDecorator,
-  type Meta,
-  type StoryObj,
-} from 'storybook-solidjs-vite';
-import { ContentConnectionStatusView } from './content-connection-status-view';
-import { ContentCreateControlsView } from './content-create-controls-view';
-import {
-  type ContentLibraryEdition,
-  ContentLibraryScreenView,
-  type ContentLibraryScreenViewProps,
-} from './content-library-screen-view';
-import { StoryCountingPreview } from './content-story.example';
-
-const BUNDLED: readonly ContentLibraryEdition[] = [
-  {
-    id: 'bundled-counting-starter-r1',
-    document_id: 'bundled-counting-starter',
-    kind: 'pack',
-    title: 'Counting starter pack',
-    description: 'Five short counts to learn the rules.',
-    difficulty: '',
-    preview: 'target:5',
-    progress: { completed: 2, total: 5 },
-  },
-];
-
-const COUNT_TO_SEVEN: ContentLibraryEdition = {
-  id: '7c1e0a00-0000-4000-8000-000000000001',
-  document_id: '7c1e0a00-0000-4000-8000-0000000000d1',
-  kind: 'puzzle',
-  title: 'Count to seven',
-  description: 'Reach seven exactly, one or two steps at a time.',
-  difficulty: 'Easy',
-  preview: 'target:7',
-};
-
-const PUBLISHED: readonly ContentLibraryEdition[] = [
-  COUNT_TO_SEVEN,
-  {
-    id: '7c1e0a00-0000-4000-8000-000000000002',
-    document_id: '7c1e0a00-0000-4000-8000-0000000000d2',
-    kind: 'puzzle',
-    title: 'Thirteen without overshooting',
-    description: '',
-    difficulty: 'Medium',
-    preview: 'target:13',
-  },
-  {
-    id: '7c1e0a00-0000-4000-8000-000000000003',
-    document_id: '7c1e0a00-0000-4000-8000-0000000000d3',
-    kind: 'pack',
-    title: 'Weekend counts',
-    description: 'Three puzzles that get harder.',
-    difficulty: '',
-    preview: 'target:5',
-    progress: { completed: 1, total: 3 },
-  },
-];
-
-/** The create controls with nothing in flight. */
-function createControls(denied = false) {
-  return (
-    <ContentCreateControlsView
-      denial={
-        denied
-          ? {
-              icon: KeyRoundIcon,
-              title: 'Sign in to create puzzles',
-              body: 'Your drafts are saved to your account.',
-              action: { label: 'Sign in', onPress: fn() },
-              dataSet: {
-                testid: 'permission-denial',
-                reason: 'requires_account',
-              },
-            }
-          : undefined
-      }
-      canCreatePuzzle
-      onCreate={fn(async () => 'draft-1')}
-      onOpenDraft={fn()}
-    />
-  );
-}
-
-/** Renders the view with fresh create controls per mount. */
-function renderWith(args: ContentLibraryScreenViewProps, denied = false) {
-  return (
-    <ContentLibraryScreenView
-      {...args}
-      createControls={createControls(denied)}
-    />
-  );
-}
-
-/** The connection status that sits above the library in the app. */
-const withConnection = (status: {
-  online: boolean;
-  lastError: string | null;
-}) =>
-  createJSXDecorator((Story) => (
-    <>
-      <ContentConnectionStatusView
-        loading={false}
-        online={status.online}
-        lastError={status.lastError}
-        onReconnect={fn()}
-      />
-      <Story />
-    </>
-  ));
+  CREATE_DENIAL,
+  LIBRARY_STORY_ARGS,
+  LIBRARY_STORY_EMPTY,
+  LIBRARY_STORY_PARAMETERS,
+  SIGN_IN_DENIAL,
+  withLibraryConnection,
+} from './content-library-story.example';
 
 const meta = {
   id: 'screens-puzzles-content-library',
   title: 'Screens/Puzzles/Content library',
   component: ContentLibraryScreenView,
   tags: ['autodocs'],
-  render: (args) => renderWith(args),
-  parameters: {
-    appRouter: true,
-    controls: {
-      exclude: [
-        'createControls',
-        'bundledPacks',
-        'personalDenial',
-        'drafts',
-        'attempts',
-        'playtests',
-        'published',
-        'more',
-        'renderPreview',
-      ],
-    },
-  },
-  args: {
-    status: 'ready',
-    title: 'Counting',
-    bundledPacks: BUNDLED,
-    drafts: [
-      {
-        id: 'doc-draft-1',
-        kind: 'puzzle',
-        title: 'Count to eleven',
-        status: 'draft',
-        preview: 'target:11',
-      },
-      {
-        id: 'doc-draft-2',
-        kind: 'puzzle',
-        title: 'Five in two steps',
-        status: 'draft',
-        preview: 'target:5',
-      },
-      {
-        id: 'doc-draft-3',
-        kind: 'puzzle',
-        title: 'Count to seven',
-        status: 'published',
-        preview: 'target:7',
-      },
-      {
-        id: 'doc-draft-4',
-        kind: 'pack',
-        title: 'Old count',
-        status: 'withdrawn',
-        preview: 'target:3',
-      },
-    ],
-    attempts: [
-      {
-        id: 'attempt-1',
-        title: 'Count to seven',
-        completed: false,
-        difficulty: 'Easy',
-        pack: { title: 'Weekend counts', completed: 1, total: 3 },
-        preview: 'target:7',
-      },
-      {
-        id: 'attempt-3',
-        title: 'Thirteen without overshooting',
-        completed: false,
-        difficulty: 'Medium',
-        preview: 'target:13',
-      },
-      {
-        id: 'attempt-2',
-        title: 'Count to five',
-        completed: true,
-        difficulty: 'Easy',
-        pack: { title: 'Weekend counts', completed: 1, total: 3 },
-        preview: 'target:5',
-      },
-    ],
-    playtests: [
-      {
-        id: 'attempt-4',
-        title: 'Count to eleven',
-        completed: false,
-        preview: 'target:11',
-      },
-    ],
-    renderPreview: (definition: string) => (
-      <StoryCountingPreview definition={definition} />
-    ),
-    published: PUBLISHED,
-    more: { owned: false, attempts: false, published: true },
-    onOpenEdition: fn(),
-    onOpenDraft: fn(),
-    onOpenAttempt: fn(),
-    onMoreOwned: fn(),
-    onMoreAttempts: fn(),
-    onMorePublished: fn(),
-  },
+  parameters: LIBRARY_STORY_PARAMETERS,
+  args: LIBRARY_STORY_ARGS,
 } satisfies Meta<typeof ContentLibraryScreenView>;
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Everything a returning author sees: packs, drafts, attempts, publications. */
+/** The hub a returning author sees: every list by its count, then creating. */
 export const Populated: Story = {};
 
 /** The stored library has not been read yet: one activity indicator. */
 export const Loading: Story = { args: { status: 'loading' } };
 
-/** A first visit: only the shipped starter pack, nothing published loaded. */
-export const Empty: Story = {
-  args: {
-    drafts: [],
-    attempts: [],
-    playtests: [],
-    published: [],
-    more: { owned: false, attempts: false, published: false },
-  },
-};
+/** A first visit: only the shipped starter pack, nothing started or built. */
+export const Empty: Story = { args: LIBRARY_STORY_EMPTY };
 
-/** Every list has a further page: each shows its own load-more button. */
+/** Every list has a further page: its count says there is more. */
 export const MorePages: Story = {
   args: { more: { owned: true, attempts: true, published: true } },
 };
@@ -242,7 +38,7 @@ export const MorePages: Story = {
 /** Syncing failed while online: the library stays usable, reconnect retries. */
 export const Failed: Story = {
   decorators: [
-    withConnection({
+    withLibraryConnection({
       online: true,
       lastError: 'The server did not answer. Your changes are kept.',
     }),
@@ -251,50 +47,78 @@ export const Failed: Story = {
 
 /** Offline: available puzzles and saved work stay on the device. */
 export const Offline: Story = {
-  decorators: [withConnection({ online: false, lastError: null })],
+  decorators: [withLibraryConnection({ online: false, lastError: null })],
 };
 
-/** Someone signed out: creating and their own content are behind sign-in. */
+/** Someone signed out: creating is behind sign-in, said under the rows. */
 export const Denied: Story = {
-  render: (args) => renderWith(args, true),
   args: {
     drafts: [],
     attempts: [],
     playtests: [],
-    personalDenial: {
-      icon: KeyRoundIcon,
-      title: 'Sign in to see your drafts',
-      body: 'Your drafts and publications are kept with your account.',
-      action: { label: 'Sign in', onPress: fn() },
-      dataSet: { testid: 'permission-denial', reason: 'requires_account' },
-    },
+    personalDenial: SIGN_IN_DENIAL,
+    createDenial: CREATE_DENIAL,
   },
 };
 
-/** Long titles and descriptions wrap or truncate without breaking rows. */
+/** A long game name and pack title wrap inside the hub's rows. */
 export const LongContent: Story = {
   args: {
     title: 'A counting game with a deliberately long localized name',
-    published: [
+    bundledPacks: [
       {
-        ...COUNT_TO_SEVEN,
-        title:
-          'Count all the way to ninety-nine without overshooting even once',
+        ...LIBRARY_STORY_ARGS.bundledPacks[0],
+        id: 'bundled-long',
+        document_id: 'bundled-long',
+        kind: 'pack',
+        title: 'A starter pack whose name runs well past the end of its row',
         description:
-          'A long description that keeps going to show how the caption behaves when an author writes a paragraph instead of a sentence.',
-        difficulty: 'Very difficult',
+          'A long description that keeps going to show how the caption behaves when an author writes a paragraph.',
+        difficulty: '',
       },
     ],
   },
 };
 
-/** Pressing a published puzzle opens its edition. */
-export const OpenPublished: Story = {
+/** A puzzle draft is being made: its row spins and every other row waits. */
+export const Creating: Story = {
+  args: { create: { status: 'creating', kind: 'puzzle' } },
+};
+
+/** The draft is made: a row opens it; nothing navigates on its own. */
+export const Created: Story = {
+  args: {
+    create: { status: 'created', kind: 'puzzle', documentId: 'doc-new' },
+  },
+};
+
+/** Creating was refused: the reason stays on the screen with its retry. */
+export const CreateFailed: Story = {
+  args: {
+    create: {
+      status: 'failed',
+      kind: 'pack',
+      message: 'The draft could not be created. Try again.',
+    },
+  },
+};
+
+/** Pressing a list's row opens that list. */
+export const OpenList: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(
-      await canvas.findByTestId(`content-published-${COUNT_TO_SEVEN.id}`)
+      await canvas.findByTestId('content-library-tab-browse')
     );
-    await expect(args.onOpenEdition).toHaveBeenCalledWith(COUNT_TO_SEVEN.id);
+    await expect(args.onOpen).toHaveBeenCalledWith({ screen: 'browse' });
+  },
+};
+
+/** Pressing a create row asks for a draft of its kind. */
+export const CreatePack: Story = {
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(await canvas.findByTestId('content-create-pack'));
+    await expect(args.onCreate).toHaveBeenCalledWith('pack');
   },
 };

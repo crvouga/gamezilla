@@ -75,9 +75,6 @@ export const Solved: Story = {
     // regression: sokoban-solved-below-controls
     // Geometry is measured before a click can scroll the destination into view.
     const canvas = within(canvasElement);
-    await expect(
-      canvas.getByTestId('content-attempt-complete')
-    ).toHaveTextContent('Completion saved');
     const notice = canvas.getByTestId('sokoban-solved').getBoundingClientRect();
     const pad = canvas.getByTestId('sokoban-move').getBoundingClientRect();
     await expect(notice.height).toBeGreaterThan(0);
@@ -89,9 +86,6 @@ export const Solved: Story = {
     await expect(
       canvas.queryByRole('button', { name: 'More puzzles' })
     ).toBeNull();
-    await expect(
-      canvas.getByRole('button', { name: 'Pack overview' })
-    ).toBeVisible();
     // Completion must not disable the board or its movement controls.
     canvas.getByTestId('sokoban-board').focus();
     await userEvent.keyboard('{ArrowLeft}');
@@ -99,6 +93,15 @@ export const Solved: Story = {
       'data-moves',
       '8'
     );
+    // The completion record and the pack's way on are where the attempt
+    // stands: behind the board's one control onward.
+    await userEvent.click(canvas.getByTestId('content-open-progress'));
+    await expect(
+      canvas.getByTestId('content-attempt-complete')
+    ).toHaveTextContent('Completion saved');
+    await expect(
+      canvas.getByRole('button', { name: 'Pack overview' })
+    ).toBeVisible();
   },
 };
 
@@ -120,6 +123,7 @@ export const Unreadable: Story = {
     await expect(canvas.getByTestId('sokoban-unreadable')).toHaveTextContent(
       'This puzzle cannot be opened. Choose another from Pack overview.'
     );
+    await userEvent.click(canvas.getByTestId('content-open-progress'));
     const button = within(
       canvas.getByTestId('puzzle-attempt-pack-actions')
     ).getByRole('button', { name: 'Pack overview' });
@@ -281,6 +285,7 @@ export const CornerRecovery: Story = {
       canvas.queryByTestId('sokoban-solved')
     ).not.toBeInTheDocument();
     // The saved completion stays, said quietly once the board is unsolved.
+    await userEvent.click(canvas.getByTestId('content-open-progress'));
     await expect(canvas.queryByText('Completion saved')).toBeNull();
     await expect(
       canvas.getByTestId('content-attempt-solved-before')

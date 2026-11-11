@@ -1,7 +1,8 @@
 import { defineAction } from '@pkgs/harness-root-shared-ts/define-action';
 import { fireEvent } from '@solidjs/testing-library';
 import { currentContentEditor } from './content-actions';
-import { waitForContent } from './content-sync';
+import { openContentPlace, openLibraryEntry } from './content-screen-places';
+import { contentWait, waitForContent } from './content-sync';
 import type { ContentHarness } from './content-system';
 import { mountContentExample } from './mount-content-example';
 
@@ -13,11 +14,10 @@ async function runDraftControl(
   const editor = currentContentEditor(s, clientId);
   const view = await mountContentExample(s, clientId);
   try {
-    const openId = `content-draft-${editor.documentId}`;
-    await waitForContent(s, () =>
-      Promise.resolve(view.queryByTestId(openId) !== null)
-    );
-    fireEvent.click(view.getByTestId(openId));
+    const wait = contentWait(s);
+    await openLibraryEntry(wait, view, `content-draft-${editor.documentId}`);
+    // Validate and Publish are steps of the builder's publish screen.
+    await openContentPlace(wait, view, 'publish');
     await waitForContent(s, () => {
       const button = view.queryByTestId(control);
       return Promise.resolve(

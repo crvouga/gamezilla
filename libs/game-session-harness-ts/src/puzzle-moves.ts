@@ -17,6 +17,7 @@ import {
   PUZZLE_BOARD,
   readPuzzleOnBoard,
   readPuzzleProbe,
+  showPuzzleBoard,
   waitSolverMayMove,
 } from './puzzle-screen';
 
@@ -79,6 +80,8 @@ async function perform(
   game: TurnHarnessGame,
   action: string
 ): Promise<void> {
+  // A move is made on the board itself, not on the line's own place.
+  await showPuzzleBoard(s, actorId);
   await game.shared.automation.turns.perform(
     await actorUi(s, actorId),
     PUZZLE_BOARD,

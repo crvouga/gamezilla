@@ -23,14 +23,16 @@ import type {
 } from '@pkgs/turn-game-shared-ts/game-rules';
 import { type JSX, mergeProps, Show, untrack } from 'solid-js';
 import { fn } from 'storybook/test';
+import { CUSTOM_GAME_PLACES } from './custom-game-places';
+import { FrameStory } from './game-frame-board.example';
 import { FRAME_NO_NEXT, FRAME_NO_PLAY } from './game-frame-empty';
 import { frameSwatch } from './game-frame-look';
 import { frameActionItems } from './game-frame-play';
-import { GameFrameScreenView } from './game-frame-screen-view';
 import { frameArgs, PEOPLE, record } from './game-frame-story.example';
 import type {
   FrameClock,
   FrameConnection,
+  FramePhase,
   FramePlaySeat,
   FrameRecord,
   FrameResult,
@@ -292,15 +294,17 @@ function GameFrameTable(props: TableProps): JSX.Element {
   const near = (): GameSide => viewer() ?? props.board.orientation;
   const over = (): boolean => props.ending !== undefined;
   const seated = (): boolean => viewer() !== null && !over();
+  const phase = (): FramePhase => (over() ? 'completed' : 'active');
   return (
-    <GameFrameScreenView
+    <FrameStory
       {...frameArgs()}
+      place={CUSTOM_GAME_PLACES.home[phase()]}
       title={props.title ?? props.presentation.name()}
       error={props.error ?? ''}
       boardFit={props.presentation.frame.boardFit}
       boardAlign={props.presentation.frame.boardAlign}
       connection={props.connection ?? 'online'}
-      phase={over() ? 'completed' : 'active'}
+      phase={phase()}
       viewerSide={viewer()}
       status={tableStatus(props)}
       table={{

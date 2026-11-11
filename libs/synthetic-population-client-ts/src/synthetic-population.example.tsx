@@ -332,8 +332,7 @@ export const SNAPSHOT: Inspection = {
     '    <button type="button" data-testid="custom-game-board-column-4" aria-label="Column 4, 3 of 6 occupied" aria-disabled="false"></button>',
     '  </div>',
     '  <section data-testid="custom-game-white"><span data-testid="custom-game-white-person"><span>Tobi_plays</span></span></section>',
-    '  <button data-testid="custom-game-offer" type="button"><p>Offer draw</p></button>',
-    '  <button data-testid="custom-game-resign" type="button"><p>Resign game</p></button>',
+    '  <button data-testid="custom-game-commands" type="button"><p>Game menu</p></button>',
     '</div></div></div></body></html>',
   ].join('\n'),
   state: '{"playing":"choosing"}',
@@ -349,8 +348,7 @@ export const SNAPSHOT: Inspection = {
       role: 'button',
       name: 'Column 4, 3 of 6 occupied',
     },
-    { testId: 'custom-game-offer', role: 'button', name: 'Offer draw' },
-    { testId: 'custom-game-resign', role: 'button', name: 'Resign game' },
+    { testId: 'custom-game-commands', role: 'button', name: 'Game menu' },
   ],
   actions: [
     {

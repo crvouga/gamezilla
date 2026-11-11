@@ -2,9 +2,12 @@ import {
   type ContentJourneyDevice,
   contentAttribute,
   contentTap,
+  leaveContentStage,
+  showContentControl,
 } from '@libs/game-puzzle-harness-ts/content-journey-device';
 import type { PublishedJourneyPack } from '@libs/game-puzzle-harness-ts/content-journey-pack';
 import {
+  expectJourneyCompletion,
   openJourneyAttempt,
   restartJourneyAttempt,
   startJourneyAttempt,
@@ -14,7 +17,6 @@ import {
   drawNumberlinkJourneyRow,
   observeNumberlinkJourneyRow,
 } from '@libs/numberlink-harness-ts/numberlink-journey-board';
-import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { JOURNEY_WAIT_MS } from './journey-gestures';
 import type { JourneyHost } from './journey-types';
 import { authorNumberlinkJourney } from './numberlink-authoring-journey';
@@ -39,10 +41,10 @@ async function beginAndKeep(device: ContentJourneyDevice): Promise<string> {
   if (restarted === id)
     throw new Error('Restart did not create another personal attempt');
   await observeNumberlinkJourneyRow(device, 0, false);
-  await contentTap(device, Handles.navBack);
+  await leaveContentStage(device);
   await openJourneyAttempt(device, id);
   await observeNumberlinkJourneyRow(device, 0, true);
-  await contentTap(device, Handles.navBack);
+  await leaveContentStage(device);
   return id;
 }
 
@@ -55,9 +57,7 @@ async function finishAndContinue(
   await observeNumberlinkJourneyRow(device, 0, true);
   await drawNumberlinkJourneyRow(device, 1);
   await drawNumberlinkJourneyRow(device, 2);
-  await device.ui
-    .get('content-attempt-complete')
-    .expect.text('Completion saved', { ...device, exact: false });
+  await expectJourneyCompletion(device, 'Completion saved');
   await contentTap(device, 'content-next-puzzle');
   const next = await startJourneyAttempt(device);
   await drawNumberlinkJourneyRow(device, 0);
@@ -120,6 +120,7 @@ export async function observeNumberlinkContinuity(
         'Continuing the pack did not reopen its unfinished attempt'
       );
     await observeNumberlinkJourneyRow(device, 0, true);
+    await showContentControl(device, 'content-return-pack');
     await ui.get('content-return-pack').wait('enabled', device);
   });
 }

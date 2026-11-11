@@ -9,13 +9,8 @@ import {
 } from '@libs/game-matchmaking-shared-ts/time-control';
 import { Plural, Trans } from '@lingui/solid/macro';
 import { useTurnGames } from '@pkgs/turn-game-client-ts/turn-games-context';
-import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
-import { GameStat } from '@pkgs/ui-root-client-ts/game-stat';
-import { Grid } from '@pkgs/ui-root-client-ts/grid';
-import { H3 } from '@pkgs/ui-root-client-ts/heading';
-import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Text } from '@pkgs/ui-root-client-ts/text';
-import { type Accessor, createMemo, For, type JSX, Show } from 'solid-js';
+import { type Accessor, createMemo, type JSX, Show } from 'solid-js';
 import { SpeedName } from './speed-name';
 import type { MultiplayerRatingRow } from './use-multiplayer-data';
 
@@ -54,18 +49,67 @@ export function useMultiplayerRatings(
 }
 
 /**
- * Under the number, one quiet footnote: how many rated games stand behind
- * it and, while it is provisional, how many of the games that settle it
- * are played (`7 of 12 rated games`) and what the "?" beside the number
- * means, in plain words. No bar: the rating supports finding an opponent,
- * it never competes with it.
+ * A rating as people read it: the number, and beside it the quiet "?" a
+ * provisional rating keeps until it settles, so it never reads as an error.
  */
-function RatingGames(props: {
+export function MultiplayerRatingFigure(props: {
   readonly rating: MultiplayerRatingView;
 }): JSX.Element {
   return (
     <>
-      <RatingGameCount rating={props.rating} />
+      {props.rating.rating}
+      <Show when={isProvisional(props.rating)}>
+        <Text variant="inherit" tone="secondary">
+          ?
+        </Text>
+      </Show>
+    </>
+  );
+}
+
+/** The pool a rating belongs to, in words: a speed, or the game's one rating. */
+export function MultiplayerRatingPoolName(props: {
+  readonly pool: MultiplayerRatingView['pool'];
+}): JSX.Element {
+  return (
+    <Show
+      when={props.pool === 'game'}
+      fallback={<SpeedName speed={props.pool} />}
+    >
+      <Trans>Game rating</Trans>
+    </Show>
+  );
+}
+
+/**
+ * How many rated games stand behind a rating and, while it is provisional,
+ * how many of the games that settle it are played (`7 of 12 rated games`)
+ * and, once, what the "?" beside the number means, in plain words.
+ */
+export function MultiplayerRatingGames(props: {
+  readonly rating: MultiplayerRatingView;
+}): JSX.Element {
+  return (
+    <>
+      <Text
+        variant="inherit"
+        testId={`multiplayer-rating-${props.rating.pool}-games`}
+      >
+        <Show
+          when={isProvisional(props.rating)}
+          fallback={
+            <Plural
+              value={props.rating.games}
+              one="# rated game"
+              other="# rated games"
+            />
+          }
+        >
+          <Trans>
+            {props.rating.games} of {MULTIPLAYER_SETTLED_GAMES} rated games
+          </Trans>
+        </Show>
+      </Text>
       <Show when={isProvisional(props.rating)}>
         {' · '}
         <Text
@@ -76,118 +120,5 @@ function RatingGames(props: {
         </Text>
       </Show>
     </>
-  );
-}
-
-function RatingGameCount(props: {
-  readonly rating: MultiplayerRatingView;
-}): JSX.Element {
-  return (
-    <Text
-      variant="inherit"
-      testId={`multiplayer-rating-${props.rating.pool}-games`}
-    >
-      <Show
-        when={isProvisional(props.rating)}
-        fallback={
-          <Plural
-            value={props.rating.games}
-            one="# rated game"
-            other="# rated games"
-          />
-        }
-      >
-        <Trans>
-          {props.rating.games} of {MULTIPLAYER_SETTLED_GAMES} rated games
-        </Trans>
-      </Show>
-    </Text>
-  );
-}
-
-/**
- * One pool's rating: the number, its quiet "?" while provisional, and how
- * far it is from settling. In the search's card (`compact`) the number is
- * at a label's size: it supports finding an opponent, never the first
- * thing read.
- */
-function RatingStat(props: {
-  readonly rating: MultiplayerRatingView;
-  readonly compact: boolean;
-}): JSX.Element {
-  const provisional = (): boolean => isProvisional(props.rating);
-  return (
-    <GameStat
-      size={props.compact ? 'compact' : 'regular'}
-      dataSet={{ testid: `multiplayer-rating-${props.rating.pool}` }}
-      label={
-        <Show
-          when={props.rating.pool === 'game'}
-          fallback={<SpeedName speed={props.rating.pool} />}
-        >
-          <Trans>Game rating</Trans>
-        </Show>
-      }
-      value={
-        <Text
-          variant="inherit"
-          testId={`multiplayer-rating-${props.rating.pool}-value`}
-        >
-          {props.rating.rating}
-          {/* The "?" a provisional rating keeps is quiet beside the number,
-              and the footnote under it says once what it means, so it
-              never reads as an error. */}
-          <Show when={provisional()}>
-            <Text variant="inherit" tone="secondary">
-              ?
-            </Text>
-          </Show>
-        </Text>
-      }
-      detail={<RatingGames rating={props.rating} />}
-    />
-  );
-}
-
-/** Every pool's rating: one takes the row; a rating per speed, two a row. */
-function RatingGrid(props: {
-  readonly ratings: readonly MultiplayerRatingView[];
-  readonly compact: boolean;
-}): JSX.Element {
-  return (
-    <Grid columns={props.ratings.length === 1 ? 1 : 2} gap="lg">
-      <For each={props.ratings}>
-        {(rating) => <RatingStat rating={rating} compact={props.compact} />}
-      </For>
-    </Grid>
-  );
-}
-
-/**
- * The person's own multiplayer rating and rated games in every pool. A
- * provisional rating keeps its "?", and one footnote says how many of the
- * games that settle it are played and that the "?" goes then. `framed={false}` draws it without
- * a card of its own, under a heading, for the search's card to hold.
- */
-export function MultiplayerRatings(props: {
-  readonly ratings: readonly MultiplayerRatingView[];
-  readonly framed?: boolean | undefined;
-}): JSX.Element {
-  return (
-    <Show
-      when={props.framed !== false}
-      fallback={
-        <StackVertical gap="md">
-          <H3 size="label">
-            <Trans>Your ratings</Trans>
-          </H3>
-          <RatingGrid ratings={props.ratings} compact />
-        </StackVertical>
-      }
-    >
-      <GameSection title={<Trans>Your ratings</Trans>}>
-        <RatingGrid ratings={props.ratings} compact={false} />
-      </GameSection>
-    </Show>
   );
 }

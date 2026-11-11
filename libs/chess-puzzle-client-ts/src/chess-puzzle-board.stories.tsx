@@ -84,7 +84,7 @@ export const Hint: Story = {
   },
 };
 
-/** The solution shown as an arrow on chess's board. */
+/** The solution shown as an arrow on chess's board, where the line is stepped through. */
 export const SolutionShown: Story = {
   play: async ({ canvasElement }) => {
     await assertPuzzleBounds(canvasElement);
@@ -104,6 +104,8 @@ export const SolutionShown: Story = {
   },
   parameters: {
     view: {
+      stage: 'finished',
+      place: { screen: 'line' },
       statusKind: 'failed',
       status: 'revealed',
       hintStage: 'solution',
@@ -113,7 +115,6 @@ export const SolutionShown: Story = {
       fen: STORY_LINE.start,
       plies: 1,
       lastAction: 'g7g6',
-      over: true,
       marks: { wrong: null, hint: null, solution: { from: 'f3', to: 'e5' } },
     },
   },

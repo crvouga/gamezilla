@@ -2,12 +2,11 @@ import type { ContentKind } from '@libs/game-puzzle-shared-ts/content-types';
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
 import { Trans, useLingui } from '@lingui/solid/macro';
-import { Button } from '@pkgs/ui-root-client-ts/button';
+import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
-import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
-import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
+import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
+import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
-import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Show } from 'solid-js';
 
@@ -28,21 +27,40 @@ export type ContentEditionScreenViewProps = {
   readonly available: boolean;
   /** The person may edit the document's working draft. */
   readonly canEdit: boolean;
-  /** Set when the person may not play; replaces the preview. */
+  /** Set when the person may not play; replaces the picture and the start. */
   readonly playDenial?: DenialView | undefined;
-  /** Start or continue an attempt (puzzles). */
+  /** Continue the saved attempt, or start a new one (puzzles). */
   readonly startAttempt?: JSX.Element;
-  /** The puzzle's preview, or the pack's overview. */
+  /** The puzzle's picture, or the pack's progress and puzzles. */
   readonly body?: JSX.Element;
   readonly onEditWorkingDraft: () => void;
   readonly onReturnToLibrary: () => void;
 };
 
+/** What the owner can do with their own publication. */
+function OwnerRows(props: ContentEditionScreenViewProps): JSX.Element {
+  const { t } = useLingui();
+  return (
+    <Show when={props.canEdit}>
+      <MenuSection title={<Trans>Yours</Trans>}>
+        <MenuRow
+          title={t`Edit working draft`}
+          caption={t`Published editions stay as they are`}
+          onClick={() => props.onEditWorkingDraft()}
+          dataSet={{ testid: 'content-edit-working-draft' }}
+        />
+      </MenuSection>
+    </Show>
+  );
+}
+
 /**
- * One published puzzle or pack, presentational: its title, difficulty and
- * description, a preview or the pack's puzzles, starting an attempt, and
- * editing for its owner — or withdrawn, denied and not-on-this-device
- * states. The start control and the body arrive as slots.
+ * One published puzzle or pack, presentational, as one small screen: what
+ * it is (its title, difficulty, description and picture), continuing or
+ * starting an attempt (a pack: its progress, the next puzzle and its
+ * puzzles), and editing the working draft for its owner — or withdrawn,
+ * denied and not-on-this-device states. The start control and the body
+ * arrive as slots.
  */
 export function ContentEditionScreenView(
   props: ContentEditionScreenViewProps
@@ -63,7 +81,7 @@ export function ContentEditionScreenView(
       }
     >
       {(edition) => (
-        <GameScreen
+        <EmbeddedScreen
           screenId="puzzle-content-edition"
           dataSet={{
             testid: 'content-edition',
@@ -71,44 +89,34 @@ export function ContentEditionScreenView(
             documentid: edition().documentId,
           }}
           title={edition().title}
-          subtitle={edition().difficulty}
+          subtitle={edition().difficulty || undefined}
         >
-          <GameSessionLayout
-            notices={
-              <Show when={!props.available}>
-                <Notice>
-                  <Trans>
-                    This publication is withdrawn. You can continue saved
-                    attempts from your library.
-                  </Trans>
-                </Notice>
-              </Show>
-            }
-            aside={
-              <StackVertical gap="md">
-                <P>{edition().description}</P>
-                <Show when={props.canEdit}>
-                  <Button
-                    title={t`Edit working draft`}
-                    variant="outline"
-                    intent="neutral"
-                    dataSet={{ testid: 'content-edit-working-draft' }}
-                    onClick={() => props.onEditWorkingDraft()}
-                  />
+          <Show when={!props.available}>
+            <Notice dataSet={{ testid: 'content-edition-withdrawn' }}>
+              <Trans>
+                This publication is withdrawn. You can continue saved attempts
+                from your library.
+              </Trans>
+            </Notice>
+          </Show>
+          <Show when={edition().description}>
+            {(description) => <P>{description()}</P>}
+          </Show>
+          <Show
+            when={props.playDenial}
+            fallback={
+              <>
+                {props.body}
+                <Show when={edition().kind === 'puzzle'}>
+                  {props.startAttempt}
                 </Show>
-              </StackVertical>
-            }
-            actions={
-              <Show when={edition().kind === 'puzzle'}>
-                {props.startAttempt}
-              </Show>
+              </>
             }
           >
-            <Show when={props.playDenial} fallback={props.body}>
-              {(denial) => <DenialSurfaceView denial={denial()} />}
-            </Show>
-          </GameSessionLayout>
-        </GameScreen>
+            {(denial) => <DenialSurfaceView denial={denial()} />}
+          </Show>
+          <OwnerRows {...props} />
+        </EmbeddedScreen>
       )}
     </Show>
   );

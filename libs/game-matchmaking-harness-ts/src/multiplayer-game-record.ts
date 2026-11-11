@@ -3,6 +3,7 @@ import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront } from '@libs/harness-ts/observations';
 import type { RecordingClipboard } from '@pkgs/device-shared-ts/clipboard';
 import { hostLimit } from '@pkgs/gherkin-shared-ts/registry';
+import { onMultiplayerPlace } from './multiplayer-places';
 
 /** The copy controls a matched game's screen offers once it is over with a result. */
 const COPY_CONTROLS = {
@@ -30,10 +31,11 @@ export async function gameRecordOffered(
 ): Promise<{ readonly gameRecord: boolean; readonly finalPosition: boolean }> {
   await bringToFront(s, actor);
   const ui = await actorUi(s, actor);
-  return {
+  // What a finished game offers to keep is with its moves, one row away.
+  return onMultiplayerPlace(s, actor, 'moves', async () => ({
     gameRecord: await ui.get(COPY_CONTROLS['game record']).isVisible(),
     finalPosition: await ui.get(COPY_CONTROLS['final position']).isVisible(),
-  };
+  }));
 }
 
 /**
@@ -46,12 +48,15 @@ export const copyShownMultiplayerText = scenarioAction({
     const clipboard = await clipboardOf(s, actor);
     const before = clipboard.writes.length;
     await bringToFront(s, actor);
-    await (await actorUi(s, actor)).get(COPY_CONTROLS[what]).tap();
-    await pollUntil(
-      s,
-      async () => (clipboard.writes.length > before ? true : null),
-      { maxMs: 5000, stepMs: 1, description: `copying the ${what}` }
-    );
+    const ui = await actorUi(s, actor);
+    await onMultiplayerPlace(s, actor, 'moves', async () => {
+      await ui.get(COPY_CONTROLS[what]).tap();
+      await pollUntil(
+        s,
+        async () => (clipboard.writes.length > before ? true : null),
+        { maxMs: 5000, stepMs: 1, description: `copying the ${what}` }
+      );
+    });
   },
 });
 

@@ -1,4 +1,4 @@
 {
   "summary": "On a phone the game record strip above the board spent two lines on a two-move turn (\"Move 5 ● col 7 ◆ col 4\"): the well's 12px side padding and 12px step between moves left the turn 7px short of one line, so the strip stood 86px tall and pushed the board and its commands down. Slim padding and an 8px step keep it to one 52px row.",
-  "regressionTest": "libs/game-session-client-ts/tests/game-frame-phone-strip.test.tsx"
+  "regressionTest": "libs/game-session-client-ts/tests/game-frame-play-places.test.tsx"
 }

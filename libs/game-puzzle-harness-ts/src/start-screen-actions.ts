@@ -6,7 +6,8 @@ import {
 import { defineAction } from '@pkgs/harness-root-shared-ts/define-action';
 import { fireEvent } from '@solidjs/testing-library';
 import { contentClient } from './content-actions';
-import { waitForContent } from './content-sync';
+import { openLibraryEntry } from './content-screen-places';
+import { contentWait, waitForContent } from './content-sync';
 import type { ContentHarness } from './content-system';
 import { mountContentExample } from './mount-content-example';
 
@@ -24,9 +25,14 @@ export const startPublishedThroughScreen = defineAction({
         ).find((entry) => entry.title === title);
         if (edition === undefined) return false;
         revisionId = edition.id;
-        return view.queryByTestId(`content-published-${revisionId}`) !== null;
+        return true;
       });
-      fireEvent.click(view.getByTestId(`content-published-${revisionId}`));
+      // Published puzzles are listed on the library's Browse screen.
+      await openLibraryEntry(
+        contentWait(s),
+        view,
+        `content-published-${revisionId}`
+      );
       await waitForContent(s, () =>
         Promise.resolve(
           view

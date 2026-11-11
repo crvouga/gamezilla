@@ -1,9 +1,10 @@
 import {
   followPuzzleImport,
-  readPuzzleImport,
+  inspectPuzzleImport,
   seedPuzzleRefreshPool,
   startPuzzleLoading,
   stopPuzzleLoading,
+  untilPuzzleImport,
 } from '@libs/chess-root-harness-ts/puzzle-import-ui';
 import {
   advancePuzzleImport,
@@ -36,7 +37,7 @@ bindQuintModel<QuintHarnessWorld>({
       await w.s.apply(signInWithGoogle, 'alice');
       await w.s.apply(joinPuzzleTeam, 'alice');
       await w.s.apply(followPuzzleImport, 'alice');
-      await w.s.until((s) => readPuzzleImport(s, 'alice'), {
+      await untilPuzzleImport(w.s, 'alice', {
         pred: (view) => !view.denied,
         maxMs: 15000,
       });
@@ -51,7 +52,7 @@ bindQuintModel<QuintHarnessWorld>({
     comeBackOnline: (w) => w.s.apply(restoreActorConnection, 'alice'),
   },
   observe: async (w) => {
-    const view = await w.quiet.read(readPuzzleImport, 'alice');
+    const view = await inspectPuzzleImport(w.quiet, 'alice');
     return {
       puzzleLoading: {
         status: view.status,

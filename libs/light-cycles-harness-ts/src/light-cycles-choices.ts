@@ -1,4 +1,5 @@
 import { operateCustomGameControls } from '@libs/game-session-harness-ts/custom-game-controls';
+import { openCustomGamePlace } from '@libs/game-session-harness-ts/custom-game-places';
 import {
   readCustomGameRefusal,
   readCustomGameScreen,
@@ -21,6 +22,8 @@ import {
 const TARGET = 'custom-game-option-target-score';
 const TARGET_VALUE = `${TARGET}-value`;
 const TARGET_RANGE = `${TARGET}-range`;
+/** The lobby's row that opens the game's own options. */
+const OPTIONS_ROW = 'custom-game-rules';
 
 const SETTLED_MS = 5000;
 
@@ -63,7 +66,8 @@ async function readTargetStepper(s: ProductHarness, actor: string) {
 export const chooseTargetScore = scenarioAction({
   name: 'chooseTargetScore',
   act: async (s, actor: string, target: number) => {
-    if (!(await (await actorUi(s, actor)).get(TARGET_VALUE).isVisible())) {
+    // The game's options are their own place, behind the lobby's row.
+    if (!(await openCustomGamePlace(s, actor, OPTIONS_ROW, TARGET_VALUE))) {
       await chooseCustomGame(s, actor, {
         operation: 'rules',
         choice: String(target),
@@ -113,8 +117,11 @@ export const chooseBot = scenarioAction({
     const index = LIGHT_CYCLES_RIDER_NAMES.indexOf(rider);
     const side = LIGHT_CYCLES_SIDES[index]!;
     await operateCustomGameControls(s, actor, { operation: 'bot', side });
+    // The bot's levels are on its seat's own place, behind the seat's row.
     const button = `custom-${side}-difficulty-${level}`;
-    if (await (await actorUi(s, actor)).get(button).isVisible())
+    if (
+      await openCustomGamePlace(s, actor, `custom-game-${side}-choices`, button)
+    )
       await tapSettled(s, actor, button);
     else
       await chooseCustomGame(s, actor, {

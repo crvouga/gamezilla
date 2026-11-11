@@ -1,17 +1,17 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { fireEvent } from '@solidjs/testing-library';
-import { waitForContent } from './content-sync';
+import { openContentPlace, openLibraryEntry } from './content-screen-places';
+import { contentWait, waitForContent } from './content-sync';
 import type { ContentHarness } from './content-system';
 import { mountContentExample } from './mount-content-example';
 
 async function openRecoveryEditor(s: ContentHarness) {
   const view = await mountContentExample(s, 'alice:phone');
   try {
-    const id = `content-draft-${s.selectedPacks.get('alice:phone')}`;
-    await waitForContent(s, () =>
-      Promise.resolve(view.queryByTestId(id) !== null)
+    await openLibraryEntry(
+      contentWait(s),
+      view,
+      `content-draft-${s.selectedPacks.get('alice:phone')}`
     );
-    fireEvent.click(view.getByTestId(id));
     await waitForContent(s, () =>
       Promise.resolve(view.queryByTestId('content-author') !== null)
     );
@@ -30,11 +30,9 @@ export async function publicationRefusalVisible(
     await waitForContent(s, () =>
       Promise.resolve(view.queryByTestId(Handles.refusedChange) !== null)
     );
-    // The builder shows its details closed to one row; open them as a
-    // person would, to see the draft is still there to edit.
-    const details = view.queryByTestId('content-author-details-toggle');
-    if (details?.getAttribute('aria-expanded') === 'false')
-      fireEvent.click(details);
+    // The refusal belongs to the builder's shell: it is still said on the
+    // details screen, where the draft is there to edit.
+    await openContentPlace(contentWait(s), view, 'details');
     const notice = view.getByTestId(Handles.refusedChange);
     return (
       notice.getAttribute('data-mutation') === 'publishPuzzleContent' &&
@@ -51,6 +49,8 @@ export async function publicationWaitingVisible(
 ): Promise<boolean> {
   const view = await openRecoveryEditor(s);
   try {
+    // What became of the publication is said on the builder's publish screen.
+    await openContentPlace(contentWait(s), view, 'publish');
     await waitForContent(s, () =>
       Promise.resolve(
         view.queryByTestId('content-publication-pending') !== null

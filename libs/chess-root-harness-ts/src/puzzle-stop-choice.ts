@@ -25,11 +25,13 @@ export const preparePuzzleStopChoice = scenarioAction({
     await Promise.resolve(followPuzzleImport.act(s, 'alice'));
     await Promise.resolve(startPuzzleLoading.act(s, 'alice'));
     const ui = await actorUi(s, 'alice');
+    // Once the addition is accepted the hub's command is Stop, not Start.
+    const start = ui.get('puzzle-load-start');
     await pollUntil(
       s,
       async () =>
-        (await ui.get('puzzle-load-start').attribute('data-phase')) !==
-        'loading'
+        !(await start.isVisible()) ||
+        (await start.attribute('data-phase')) !== 'loading'
           ? true
           : null,
       { maxMs: 15000, description: 'accepted puzzle addition' }

@@ -4,29 +4,24 @@ import type {
 } from '@libs/game-matchmaking-shared-ts/game-state';
 import { awaitingSetups } from '@libs/game-matchmaking-shared-ts/game-state';
 import {
-  multiplayerOwner,
   multiplayerSideOf,
   multiplayerSides,
 } from '@libs/game-matchmaking-shared-ts/multiplayer-roster';
 import { useSoundsPreference } from '@pkgs/sounds-client-ts/solid';
-import {
-  useGamePresentation,
-  useTurnGames,
-} from '@pkgs/turn-game-client-ts/turn-games-context';
+import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
 import type { GameFrameBoardProps } from '@pkgs/turn-game-shared-ts/game-frame';
 import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { For, type JSX, Show } from 'solid-js';
 import { MultiplayerFrameBoard } from './multiplayer-frame-board';
-import { MultiplayerReviewing } from './multiplayer-reviewing';
 import type { MultiplayerViewer } from './multiplayer-seat';
 import { MultiplayerSeat } from './multiplayer-seat';
 import { MultiplayerStatus } from './multiplayer-status';
-import { useLowOnTime, useLowOnTimeWarning } from './use-low-on-time';
+import { useLowOnTime } from './use-low-on-time';
 import type { MatchRoomClient } from './use-match-room';
 import { useMatchedSimulation } from './use-matched-simulation';
+import { useMultiplayerViewer } from './use-multiplayer-viewer';
 import type { OwnBoard } from './use-own-board';
-import { useShownName } from './use-shown-name';
 
 const otherSide = (side: MultiplayerSide): MultiplayerSide =>
   side === 'white' ? 'black' : 'white';
@@ -44,6 +39,12 @@ type BoardProps = {
   readonly ownSetup: string | null;
   /** The viewer's own dealt hand in this game, if it deals hands. */
   readonly ownHand: string | null;
+  /**
+   * Whether the line under the board says where the game stands. A place
+   * that says it elsewhere (the result's headline) leaves it out, so the
+   * screen keeps one announcement.
+   */
+  readonly announced?: boolean | undefined;
 };
 
 /**
@@ -154,8 +155,11 @@ function BoardStage(
   );
 }
 
+/**
+ * The matched game's stage: the seats, the board on the position this
+ * device shows, and the one line that says where the game stands.
+ */
 export function MultiplayerBoard(props: BoardProps): JSX.Element {
-  const rules = useTurnGames();
   const simulation = useMatchedSimulation(
     () => props.game,
     () => props.room,
@@ -163,13 +167,10 @@ export function MultiplayerBoard(props: BoardProps): JSX.Element {
     () => props.connected
   );
   const lowOnTime = useLowOnTime(() => props.game);
-  useLowOnTimeWarning({
-    game: () => props.game,
-    myId: () => props.myId,
-    low: lowOnTime,
-  });
-  const ownSide = () => multiplayerSideOf(props.game, props.myId) ?? 'white';
-  const participant = () => multiplayerSideOf(props.game, props.myId) !== null;
+  const { ownSide, participant, viewer, winnerName } = useMultiplayerViewer(
+    () => props.game,
+    () => props.myId
+  );
   const canMove = () =>
     participant() &&
     props.connected &&
@@ -180,23 +181,6 @@ export function MultiplayerBoard(props: BoardProps): JSX.Element {
     (simulation.active()
       ? !simulation.controls().paused && !simulation.controls().stale
       : props.game.turn === props.myId);
-  // A watcher sees the board from White's side.
-  const other = () =>
-    multiplayerSides(props.game).find((side) => side !== ownSide()) ?? 'black';
-  const opponentName = useShownName(() =>
-    multiplayerOwner(props.game, other())
-  );
-  const winnerName = useShownName(() =>
-    multiplayerSides(props.game).includes(props.game.outcome as MultiplayerSide)
-      ? multiplayerOwner(props.game, props.game.outcome as MultiplayerSide)
-      : ''
-  );
-  const viewer = (): MultiplayerViewer => ({
-    myId: props.myId,
-    participant: participant(),
-    opponentName: opponentName(),
-    opponentRating: props.game[`${other()}_rating`] ?? '',
-  });
   return (
     <StackVertical
       gap="md"
@@ -220,15 +204,14 @@ export function MultiplayerBoard(props: BoardProps): JSX.Element {
         canMove={canMove()}
         simulation={simulation}
       />
-      <Show when={rules.turnsForPosition(props.game.fen) !== undefined}>
-        <MultiplayerReviewing view={props.view} />
+      <Show when={props.announced !== false}>
+        <MultiplayerStatus
+          game={props.game}
+          viewer={viewer()}
+          winnerName={winnerName()}
+          lowOnTime={lowOnTime()}
+        />
       </Show>
-      <MultiplayerStatus
-        game={props.game}
-        viewer={viewer()}
-        winnerName={winnerName()}
-        lowOnTime={lowOnTime()}
-      />
     </StackVertical>
   );
 }

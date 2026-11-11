@@ -74,6 +74,7 @@ export function ContentPackOverview(props: {
                       ? t`Play ${next().title}`
                       : t`Continue ${next().title}`
                   }
+                  fullWidth
                   onClick={() => open(next().revisionId)}
                   dataSet={{ testid: 'content-pack-next' }}
                 />

@@ -1,135 +1,30 @@
-import { RefusedChangeCard } from '@libs/app-env-client-ts/refused-change-notice';
 import { KeyRoundIcon } from '@pkgs/ui-root-client-ts/icons';
-import { expect, fn, userEvent, within } from 'storybook/test';
+import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
+import { ContentAuthorScreenView } from './content-author-screen-view';
 import {
-  ContentAuthorScreenView,
-  type ContentAuthorScreenViewProps,
-} from './content-author-screen-view';
-import {
-  ContentPublicationControlsView,
-  type ContentPublicationControlsViewProps,
-} from './content-publication-controls-view';
-import {
-  COUNTING_BODY,
-  StoryCountingEditor,
-  StoryCountingPlayer,
-  StoryDraftHistory,
-  StoryKeptCopies,
-  StoryPackEditor,
-  StoryPlaytest,
-} from './content-story.example';
-
-const DOCUMENT_ID = '5d0c1a00-0000-4000-8000-0000000000a1';
-
-/**
- * Validation and publication of the draft, with nothing in flight; a
- * puzzle's playtest comes first among its actions.
- */
-function publication(
-  overrides: Partial<ContentPublicationControlsViewProps> = {}
-) {
-  return (
-    <ContentPublicationControlsView
-      copyState={{ kind: 'draft' }}
-      layout="bar"
-      before={
-        overrides.kind === 'pack'
-          ? undefined
-          : (next) => (
-              <StoryPlaytest
-                disabled={overrides.disabled === true}
-                next={next()}
-              />
-            )
-      }
-      kind="puzzle"
-      validation="unchecked"
-      validationMessage=""
-      proven={false}
-      pending={null}
-      published={false}
-      disabled={false}
-      onValidate={fn(async () => undefined)}
-      onPublish={fn(async () => undefined)}
-      onViewPublication={fn()}
-      onWithdraw={fn(async () => undefined)}
-      {...overrides}
-    />
-  );
-}
-
-type Slots = Pick<
-  ContentAuthorScreenViewProps,
-  'history' | 'publication' | 'stage' | 'keptCopies'
->;
-
-/**
- * Renders the view with fresh smart-widget stand-ins per mount; `slots`
- * replaces some of them for one state. They are made when the view first
- * reads them, as production's JSX props are, so they are made inside the
- * view (where a phone moves the publication's next action to the title).
- */
-function renderWith(
-  args: ContentAuthorScreenViewProps,
-  slots: () => Partial<Slots> = () => ({})
-) {
-  let chosen: Partial<Slots> | undefined;
-  const slot = <K extends keyof Slots>(key: K): Partial<Slots>[K] => {
-    chosen ??= slots();
-    return chosen[key];
-  };
-  return (
-    <ContentAuthorScreenView
-      {...args}
-      history={slot('history') ?? <StoryDraftHistory />}
-      publication={slot('publication') ?? publication()}
-      stage={slot('stage') ?? <StoryCountingEditor target="7" />}
-      keptCopies={slot('keptCopies') ?? <StoryKeptCopies />}
-    />
-  );
-}
+  AUTHOR_STORY_ARGS,
+  AUTHOR_STORY_PACK,
+  AUTHOR_STORY_PARAMETERS,
+  PUBLICATION_PUBLISHED,
+  PUBLICATION_READY,
+  renderAuthorStory,
+} from './content-author-story.example';
+import { COUNTING_BODY } from './content-story.example';
 
 const meta = {
   id: 'screens-puzzles-content-author',
   title: 'Screens/Puzzles/Content author',
   component: ContentAuthorScreenView,
   tags: ['autodocs'],
-  render: (args) => renderWith(args),
-  parameters: {
-    appRouter: true,
-    controls: {
-      exclude: [
-        'denial',
-        'body',
-        'save',
-        'history',
-        'publication',
-        'stage',
-        'keptCopies',
-      ],
-    },
-  },
-  args: {
-    status: 'ready',
-    documentId: DOCUMENT_ID,
-    kind: 'puzzle',
-    body: COUNTING_BODY,
-    save: { saving: false, dirty: false, error: null },
-    conflicted: false,
-    metadataDisabled: false,
-    disabled: false,
-    preview: false,
-    onChangeBody: fn(),
-    onSaveAgain: fn(),
-    onTogglePreview: fn(),
-    onReturnToLibrary: fn(),
-  },
+  render: (args) => renderAuthorStory(args),
+  parameters: AUTHOR_STORY_PARAMETERS,
+  args: AUTHOR_STORY_ARGS,
 } satisfies Meta<typeof ContentAuthorScreenView>;
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Editing a saved draft: details, the game's editor, undo, playtest, publish. */
+/** A saved draft's steps, each with where it stands; playtesting comes next. */
 export const Editing: Story = {};
 
 /** The library is still being read. */
@@ -149,22 +44,20 @@ export const Denied: Story = {
 /** The working copy has not reached this device; the way back is offered. */
 export const Missing: Story = { args: { status: 'missing' } };
 
+/** The draft was removed: said plainly, with the way back. */
+export const Gone: Story = { args: { status: 'gone' } };
+
 /** An edit is waiting to be saved. */
 export const Unsaved: Story = {
   args: { save: { saving: false, dirty: true, error: null } },
 };
 
-/** The draft is saving; the builder's actions wait for it. */
+/** The draft is saving; the save line says so on every place. */
 export const Saving: Story = {
   args: {
     save: { saving: true, dirty: true, error: null },
     disabled: true,
   },
-  render: (args) =>
-    renderWith(args, () => ({
-      history: <StoryDraftHistory disabled />,
-      publication: publication({ disabled: true }),
-    })),
 };
 
 const SAVE_FAILED = {
@@ -175,147 +68,77 @@ const SAVE_FAILED = {
   },
 } as const;
 
-/** The save failed: the edits stay on screen with a retry. */
+/** The save failed: the edits stay, with a retry, on every place. */
 export const SaveFailed: Story = { args: SAVE_FAILED };
 
 /** Another device kept a different working copy: choose one first. */
-export const Conflicted: Story = {
-  args: { conflicted: true },
-  render: (args) =>
-    renderWith(args, () => ({ publication: publication({ disabled: true }) })),
+export const Conflicted: Story = { args: { conflicted: true } };
+
+/** A new draft with no title and a board the game cannot play yet. */
+export const NeedsFixing: Story = {
+  args: {
+    body: { ...COUNTING_BODY, title: '', description: '', difficulty: '' },
+    playable: false,
+    previewable: false,
+  },
 };
 
-/** The draft passed validation and a completed playtest proves it. */
+/** The draft passed its check with a finished playtest: publishing is next. */
 export const Validated: Story = {
-  render: (args) =>
-    renderWith(args, () => ({
-      publication: publication({ validation: 'valid', proven: true }),
-    })),
+  render: (args) => renderAuthorStory(args, { publication: PUBLICATION_READY }),
 };
 
-/** Validation found problems; the check's own message says what to fix. */
+/** The check found problems: validating again is next. */
 export const ValidationFailed: Story = {
   render: (args) =>
-    renderWith(args, () => ({
-      publication: publication({
-        validation: 'invalid',
-        validationMessage: 'The target must be a number from 2 to 9.',
-      }),
-    })),
+    renderAuthorStory(args, {
+      publication: { proven: true, validation: 'invalid' },
+    }),
 };
 
-/** Published and waiting for the server's confirmation while online. */
+/** Sent, and waiting for the server's confirmation: nothing to press. */
 export const PublishPending: Story = {
   render: (args) =>
-    renderWith(args, () => ({
-      publication: publication({
-        validation: 'valid',
-        proven: true,
+    renderAuthorStory(args, {
+      publication: {
+        ...PUBLICATION_READY,
         pending: 'online',
         copyState: { kind: 'pending', connection: 'online' },
-      }),
-    })),
+      },
+    }),
 };
 
-/** Published while offline: it waits for the connection, the draft is kept. */
+/** Sent while offline: it waits for the connection, the draft is kept. */
 export const PublishPendingOffline: Story = {
   render: (args) =>
-    renderWith(args, () => ({
-      publication: publication({
-        validation: 'valid',
-        proven: true,
+    renderAuthorStory(args, {
+      publication: {
+        ...PUBLICATION_READY,
         pending: 'offline',
         copyState: { kind: 'pending', connection: 'offline' },
-      }),
-    })),
+      },
+    }),
 };
 
-/** The server refused the publication; the card says why until dismissed. */
+/** The server refused the publication; the card says why on every place. */
 export const PublishRefused: Story = {
   render: (args) =>
-    renderWith(args, () => ({
-      publication: publication({
-        validation: 'valid',
-        proven: true,
-        refusal: (
-          <RefusedChangeCard
-            refusal={{
-              mutationId: 'f00d0000-0000-4000-8000-000000000001',
-              mutationName: 'publishPuzzleContent',
-              code: 'validation_failed',
-              message: 'The puzzle cannot be finished from its start.',
-              meta: null,
-            }}
-            onDismiss={fn()}
-          />
-        ),
-      }),
-    })),
+    renderAuthorStory(args, { publication: PUBLICATION_READY, refused: true }),
 };
 
-const renderPublished = (args: ContentAuthorScreenViewProps) =>
-  renderWith(args, () => ({
-    publication: publication({
-      validation: 'valid',
-      proven: true,
-      published: true,
-      copyState: { kind: 'edition', current: true },
-    }),
-  }));
-
-/** An edition is out: it can be viewed or withdrawn from discovery. */
+/** An edition is out: viewing it is the next thing to do. */
 export const Published: Story = {
-  render: (args) => renderPublished(args),
-};
-
-/** The author may draft but not publish; the denial replaces Publish. */
-export const PublishDenied: Story = {
   render: (args) =>
-    renderWith(args, () => ({
-      publication: publication({
-        publishDenial: {
-          icon: KeyRoundIcon,
-          title: 'Publishing needs a verified account',
-          dataSet: { testid: 'permission-denial', reason: 'not_granted' },
-        },
-      }),
-    })),
+    renderAuthorStory(args, { publication: PUBLICATION_PUBLISHED }),
 };
 
-/**
- * A pack: its puzzles in order, each with its tools, published puzzles to
- * add and a new one to create, instead of a game editor; no playtest.
- */
+/** A pack: its puzzles counted, and a draft puzzle to finish first. */
 export const PackBuilder: Story = {
-  args: {
-    kind: 'pack',
-    body: {
-      ...COUNTING_BODY,
-      title: 'Weekend counts',
-      description: 'Three counts that get harder.',
-      difficulty: '',
-    },
-  },
+  args: AUTHOR_STORY_PACK,
   render: (args) =>
-    renderWith(args, () => ({
-      stage: <StoryPackEditor />,
-      publication: publication({
-        kind: 'pack',
-        waitingOn: ['Count to nine'],
-      }),
-      keptCopies: (
-        <StoryKeptCopies current="Weekend counts" earlier="Weekend puzzles" />
-      ),
-    })),
-};
-
-/** Previewing the draft as a player sees it. */
-export const Preview: Story = {
-  args: { preview: true },
-  render: (args) =>
-    renderWith(args, () => ({
-      stage: <StoryCountingPlayer state="0 of 7" disabled />,
-    })),
+    renderAuthorStory(args, {
+      publication: { waitingOn: ['Count to nine'] },
+    }),
 };
 
 /** An untitled draft is named so, and a long title wraps in the header. */
@@ -339,68 +162,30 @@ export const SaveAgain: Story = {
   },
 };
 
-/** Withdrawing asks first, in a destructive confirm. */
-export const ConfirmWithdraw: Story = {
-  render: (args) => renderPublished(args),
-  play: async ({ canvasElement }) => {
+/** Pressing a step's row opens that step. */
+export const OpenStep: Story = {
+  play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(await canvas.findByTestId('content-withdraw'));
-    const page = within(canvasElement.ownerDocument.body);
-    await expect(
-      await page.findByText('Withdraw this publication?')
-    ).toBeVisible();
+    await userEvent.click(await canvas.findByTestId('content-open-board'));
+    await expect(args.onOpen).toHaveBeenCalledWith({ screen: 'board' });
   },
 };
 
-/** The current copy's receipt is still hydrating; its local edition is not proof of confirmation. */
-export const PublicationReading: Story = {
-  render: (args) =>
-    renderWith(args, () => ({
-      publication: publication({
-        validation: 'valid',
-        proven: true,
-        published: true,
-        copyState: { kind: 'reading' },
-      }),
-    })),
+/** The next step's command leads to where that step is taken. */
+export const OpenNextStep: Story = {
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(await canvas.findByTestId('content-author-next'));
+    await expect(args.onOpen).toHaveBeenCalledWith({ screen: 'publish' });
+  },
 };
 
-/** Edited work remains publishable while a different saved copy waits offline. */
-export const OlderPublicationPending: Story = {
-  render: (args) =>
-    renderWith(args, () => ({
-      publication: publication({
-        validation: 'valid',
-        proven: true,
-        published: true,
-        pending: 'offline',
-        copyState: { kind: 'draft' },
-      }),
-    })),
-};
-
-/** A newer saved working copy coexists with the already published edition. */
-export const NewDraftAfterPublication: Story = {
-  render: (args) =>
-    renderWith(args, () => ({
-      publication: publication({
-        validation: 'valid',
-        proven: true,
-        published: true,
-        copyState: { kind: 'draft' },
-      }),
-    })),
-};
-
-/** This unchanged older copy was published; repeating its request cannot replace a later edition. */
-export const PreviouslyPublishedCopy: Story = {
-  render: (args) =>
-    renderWith(args, () => ({
-      publication: publication({
-        validation: 'valid',
-        proven: true,
-        published: true,
-        copyState: { kind: 'edition', current: false },
-      }),
-    })),
+/** A pack's next step opens its first draft puzzle. */
+export const OpenWaitingPuzzle: Story = {
+  ...PackBuilder,
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(await canvas.findByTestId('content-open-waiting'));
+    await expect(args.onOpenWaiting).toHaveBeenCalled();
+  },
 };

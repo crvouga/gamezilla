@@ -7,13 +7,11 @@ import {
   expectTerminalVisible,
 } from './game-frame-geometry.example';
 import { GameFrameScreenView } from './game-frame-screen-view';
+import { FourSeats, YourTurn } from './game-frame-screen-view.play.stories';
+import { Draw } from './game-frame-screen-view.result.stories';
 import {
-  Draw,
-  FourSeats,
-  YourTurn,
-  YouWin,
-} from './game-frame-screen-view.stories';
-import {
+  FRAME_OVER,
+  FRAME_PLAYING,
   frameArgs,
   MID_GAME_MOVES,
   person,
@@ -58,7 +56,7 @@ type Story = StoryObj<typeof meta>;
 // regression: shared-board-metadata-height
 /** A two-player game leaves the initial viewport to the board. */
 export const TwoPlayers: Story = {
-  args: { ...YourTurn.args },
+  args: { ...FRAME_PLAYING, ...YourTurn.args },
   play: async ({ canvasElement }) => {
     await expectBoardFirst(canvasElement);
   },
@@ -67,7 +65,7 @@ export const TwoPlayers: Story = {
 // regression: shared-board-metadata-height
 /** Four named players share a compact band without losing seat state. */
 export const FourPlayers: Story = {
-  args: { ...FourSeats.args },
+  args: { ...FRAME_PLAYING, ...FourSeats.args },
   play: async ({ canvasElement }) => {
     const { canvas, board, view } = await expectBoardFirst(canvasElement);
     const seats = ['white', 'black', 'red', 'blue'].map((side) =>
@@ -87,7 +85,7 @@ export const FourPlayers: Story = {
 // regression: shared-board-terminal-buried
 /** The outcome and real rematch action precede the final board. */
 export const Win: Story = {
-  args: { ...YouWin.args },
+  args: { ...FRAME_OVER },
   play: async ({ args, canvasElement }) => {
     await expectTerminalVisible(canvasElement);
     await userEvent.click(
@@ -99,10 +97,10 @@ export const Win: Story = {
 
 // regression: shared-board-terminal-buried
 // regression: shared-drawn-geometry-winning-position
-/** A drawn result retains its next actions and final record label. */
+/** A drawn result retains its next actions, with no winning line drawn. */
 export const Drawn: Story = {
   ...Draw,
-  args: { ...Draw.args },
+  args: { ...FRAME_OVER, ...Draw.args },
   play: async ({ canvasElement }) => {
     await expectTerminalVisible(canvasElement);
     const board = within(canvasElement).getByTestId('custom-game-board');
@@ -117,6 +115,7 @@ export const Drawn: Story = {
 /** Long identities stay on one line with the full name available. */
 export const LongNameRail: Story = {
   args: {
+    ...FRAME_PLAYING,
     ...YourTurn.args,
     record: {
       earlier: [],

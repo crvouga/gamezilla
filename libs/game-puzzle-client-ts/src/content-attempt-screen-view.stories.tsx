@@ -1,18 +1,20 @@
 import { KeyRoundIcon } from '@pkgs/ui-root-client-ts/icons';
-import { expect, fn, userEvent, within } from 'storybook/test';
+import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import {
   ContentAttemptScreenView,
   type ContentAttemptScreenViewProps,
 } from './content-attempt-screen-view';
-import { StoryPackActions } from './content-attempt-story.example';
+import {
+  ATTEMPT_STORY_ARGS,
+  ATTEMPT_STORY_PARAMETERS,
+} from './content-attempt-story.example';
 import {
   StoryAttemptControls,
   StoryCountingPlayer,
-  StoryKeptCopies,
 } from './content-story.example';
 
-/** Renders the view with a fresh player, controls and kept positions. */
+/** Renders the stage with a fresh player and commands. */
 function render(args: ContentAttemptScreenViewProps) {
   return (
     <ContentAttemptScreenView
@@ -24,8 +26,6 @@ function render(args: ContentAttemptScreenViewProps) {
         />
       }
       controls={<StoryAttemptControls disabled={args.saving} />}
-      packActions={args.packActions}
-      keptPositions={<StoryKeptCopies />}
     />
   );
 }
@@ -36,39 +36,16 @@ const meta = {
   component: ContentAttemptScreenView,
   tags: ['autodocs'],
   render,
-  parameters: {
-    appRouter: true,
-    controls: {
-      exclude: ['denial', 'attempt', 'player', 'controls', 'keptPositions'],
-    },
-  },
-  args: {
-    status: 'ready',
-    attempt: {
-      id: 'a77e0000-0000-4000-8000-000000000001',
-      sourceId: '7c1e0a00-0000-4000-8000-000000000001',
-      packRevisionId: null,
-      title: 'Count to seven',
-      difficulty: 'Easy',
-      description: 'Reach seven exactly, one or two steps at a time.',
-    },
-    playtest: false,
-    saving: false,
-    changeError: null,
-    complete: false,
-    rulesChanged: false,
-    unopenable: false,
-    onRetryChange: fn(),
-    onReturnToLibrary: fn(),
-  },
+  parameters: ATTEMPT_STORY_PARAMETERS,
+  args: ATTEMPT_STORY_ARGS,
 } satisfies Meta<typeof ContentAttemptScreenView>;
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Partway through a published puzzle, progress saved on the device. */
+/** Partway through a published puzzle: the board, its commands, one way on. */
 export const InProgress: Story = {};
 
-/** A move is being saved; the board and controls wait for it. */
+/** A move is being saved; the board and its commands wait for it. */
 export const Saving: Story = { args: { saving: true } };
 
 /** A move was not saved; the earlier position is kept and retry is offered. */
@@ -79,13 +56,13 @@ export const ChangeFailed: Story = {
   },
 };
 
-/** The puzzle is solved: the completion is saved. */
+/** The puzzle is solved: what comes next is the one filled command. */
 export const Completed: Story = { args: { complete: true } };
 
-/** A private playtest of the person's draft: it counts toward nothing. */
+/** A private playtest of the person's draft, on its board. */
 export const Playtest: Story = { args: { playtest: true } };
 
-/** A solved playtest sends the author back to validate and publish. */
+/** A solved playtest: the way on leads back toward the builder. */
 export const PlaytestSolved: Story = {
   args: { playtest: true, complete: true },
 };
@@ -96,8 +73,19 @@ export const RulesChanged: Story = { args: { rulesChanged: true } };
 /** The saved position cannot be opened: choose another or restart. */
 export const Unopenable: Story = { args: { unopenable: true } };
 
+/** The puzzle itself cannot be read: the way out is the library. */
+export const Unreadable: Story = {
+  args: { unopenable: true, unreadable: true },
+};
+
+/** The attempt asked for is still on its way. */
+export const Loading: Story = { args: { status: 'loading' } };
+
 /** What the attempt plays has not reached this device. */
 export const Missing: Story = { args: { status: 'missing' } };
+
+/** The attempt was removed: said plainly, with the way back. */
+export const Gone: Story = { args: { status: 'gone' } };
 
 /** Someone else's attempt: the denial replaces the board. */
 export const Denied: Story = {
@@ -127,20 +115,17 @@ export const RetryChange: Story = {
 
 const PACK = { title: 'Counting basics', position: 2, total: 4 };
 
-/** A pack puzzle partway: its way on (the overview) sits in the pack card. */
-export const PackInProgress: Story = {
-  args: { pack: PACK },
-  render: (args) => render({ ...args, packActions: <StoryPackActions /> }),
-};
+/** A pack puzzle partway: the stage is the same; the pack is behind Progress. */
+export const PackInProgress: Story = { args: { pack: PACK } };
 
-/** The same pack puzzle solved: its next puzzle joins the overview in the card. */
-export const PackCompleted: Story = {
-  args: { pack: PACK, complete: true },
-  render: (args) =>
-    render({
-      ...args,
-      packActions: (
-        <StoryPackActions next={{ title: 'Count to nine', open: fn() }} />
-      ),
-    }),
+/** The same pack puzzle solved: its way on is the filled command. */
+export const PackCompleted: Story = { args: { pack: PACK, complete: true } };
+
+/** The one control onward opens where the attempt stands. */
+export const OpenProgress: Story = {
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(await canvas.findByTestId('content-open-progress'));
+    await expect(args.onOpen).toHaveBeenCalledWith({ screen: 'progress' });
+  },
 };

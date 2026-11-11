@@ -24,6 +24,7 @@ import {
 import {
   isPuzzleStatsShown,
   leaveGamePuzzleStats,
+  openPuzzleStatsPlace,
   readCataloguePuzzles,
   readStatsPuzzleRating,
   retireCataloguePuzzle,
@@ -283,6 +284,24 @@ export async function focusStats(
 ): Promise<void> {
   await w.s.apply(focusActor, actor);
   await w.s.apply(showGamePuzzleStats, actor, puzzleGameId(w));
+}
+
+/** The stats' game log on `actor`'s device, for a `Then` reading its rows. */
+export async function focusGameLog(
+  w: HarnessWorld,
+  actor: string
+): Promise<void> {
+  await focusStats(w, actor);
+  await w.s.apply(openPuzzleStatsPlace, actor, 'log');
+}
+
+/** The stats' rating trend on `actor`'s device, for a `Then` reading it. */
+export async function focusRatingTrend(
+  w: HarnessWorld,
+  actor: string
+): Promise<void> {
+  await focusStats(w, actor);
+  await w.s.apply(openPuzzleStatsPlace, actor, 'trend');
 }
 
 // ------------------------------------------------------- the board before

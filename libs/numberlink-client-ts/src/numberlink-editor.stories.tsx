@@ -15,7 +15,6 @@ function renderInBuilder(args: NumberlinkEditorInputs) {
       description="Join every pair without crossing a path."
       difficulty="Medium"
       definition={args.definition}
-      earlier="Pairs"
       disabled={args.disabled}
       stage={<NumberlinkEditorView {...args} />}
     />
@@ -61,7 +60,6 @@ export const EditEndpoints: Story = {
         description="Join every pair without crossing a path."
         difficulty="Medium"
         definition={definition()}
-        earlier="Pairs"
         disabled={args.disabled}
         stage={
           <NumberlinkEditorView

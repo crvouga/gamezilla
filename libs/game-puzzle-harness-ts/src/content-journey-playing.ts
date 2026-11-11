@@ -1,5 +1,10 @@
 import type { ContentJourneyDevice } from './content-journey-device';
-import { contentAttribute, contentTap } from './content-journey-device';
+import {
+  contentAttribute,
+  contentExpectText,
+  contentTap,
+  showContentHome,
+} from './content-journey-device';
 
 export async function startJourneyAttempt(
   device: ContentJourneyDevice
@@ -10,8 +15,8 @@ export async function startJourneyAttempt(
 }
 
 /**
- * Reopens a saved attempt from the library: one to continue under
- * Continue, a `solved` one under Browse, where the library lists it.
+ * Reopens a saved attempt from the library: one to continue from its
+ * Continue screen, a `solved` one from its Solved screen.
  */
 export async function openJourneyAttempt(
   device: ContentJourneyDevice,
@@ -21,7 +26,7 @@ export async function openJourneyAttempt(
   await contentTap(
     device,
     `content-attempt-${id}`,
-    list === 'solved' ? 'content-library-tab-browse' : undefined
+    list === 'solved' ? 'solved' : 'continue'
   );
   if (
     (await contentAttribute(device, 'content-attempt', 'data-attemptid')) !== id
@@ -29,12 +34,25 @@ export async function openJourneyAttempt(
     throw new Error('The saved attempt did not reopen at its own identity');
 }
 
+/** The board's own status line says the last move is kept. */
 export async function waitForJourneyPosition(
   device: ContentJourneyDevice
 ): Promise<void> {
   await device.ui
     .get('content-position-save-status')
     .expect.text('Progress saved on this device.', { ...device, exact: false });
+}
+
+/**
+ * Reads the attempt's completion record on its progress screen, then
+ * returns to the board.
+ */
+export async function expectJourneyCompletion(
+  device: ContentJourneyDevice,
+  text: string
+): Promise<void> {
+  await contentExpectText(device, 'content-attempt-complete', text);
+  await showContentHome(device);
 }
 
 export async function restartJourneyAttempt(

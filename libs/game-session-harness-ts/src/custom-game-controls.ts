@@ -3,6 +3,7 @@ import { customGameStartable } from '@libs/game-session-shared-ts/custom-game-st
 import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { controlIsEnabled } from '@pkgs/ui-testing-root-shared-ts/control-is-enabled';
+import { openCustomGamePlace, showCustomGameHome } from './custom-game-places';
 import type { CustomGameProbe } from './custom-game-probe';
 import { readCustomGameProbe } from './custom-game-probe';
 import {
@@ -38,34 +39,57 @@ export function customGameControl(
   }
 }
 
-/** Open the side's choices or the game options a control sits behind. */
+/** The choices about one seat that sit on that seat's own place. */
+const SEAT_PLACE_OPERATIONS: readonly string[] = [
+  'take',
+  'bot',
+  'local',
+  'open',
+  'close',
+  'release',
+  'claim',
+  'revoke',
+];
+
+/** The choices that sit on the clock's place. */
+const CLOCK_PLACE_OPERATIONS: readonly string[] = ['swap', 'clock', 'untimed'];
+
+/** The commands of a game being played that sit in its game menu. */
+const GAME_MENU_OPERATIONS: readonly string[] = ['offer', 'resign', 'cancel'];
+
+/** The row on the home place that opens the place holding `input`'s control. */
+function placeRow(input: CustomGameInput, probe: CustomGameProbe): string {
+  if ('side' in input && SEAT_PLACE_OPERATIONS.includes(input.operation))
+    return `custom-game-${input.side}-choices`;
+  if (CLOCK_PLACE_OPERATIONS.includes(input.operation))
+    return 'custom-game-options';
+  if (
+    GAME_MENU_OPERATIONS.includes(input.operation) &&
+    probe.current?.status === 'active'
+  )
+    return 'custom-game-commands';
+  // Becoming ready with a private setup happens on the setup's own place.
+  if (input.operation === 'ready' && probe.privateSetup !== null)
+    return 'custom-game-setup-open';
+  return '';
+}
+
+/**
+ * Open the place a control sits on, as a person does: the seat's own place,
+ * the clock, the game menu or the private setup, by its row on the home
+ * place. A control on the home place is reached by going back to it.
+ */
 async function revealControl(
   s: ProductHarness,
   actor: string,
-  input: CustomGameInput
+  input: CustomGameInput,
+  probe: CustomGameProbe
 ): Promise<void> {
   const ui = await actorUi(s, actor);
-  if (
-    'side' in input &&
-    ['take', 'bot', 'local', 'open', 'close', 'invite', 'release'].includes(
-      input.operation
-    )
-  ) {
-    const toggle = `custom-game-${input.side}-choices`;
-    if (
-      !(await ui
-        .get(`custom-game-${input.side}-${input.operation}`)
-        .isVisible()) &&
-      (await ui.get(toggle).isVisible())
-    )
-      await ui.get(toggle).tap();
-  }
-  if (
-    ['swap', 'clock', 'untimed'].includes(input.operation) &&
-    !(await ui.get(`custom-game-${input.operation}`).isVisible()) &&
-    (await ui.get('custom-game-options').isVisible())
-  )
-    await ui.get('custom-game-options').tap();
+  const row = placeRow(input, probe);
+  const target = customGameControl(input, probe);
+  if (row === '') await showCustomGameHome(s, actor);
+  else await openCustomGamePlace(s, actor, row, target);
   if (
     input.operation === 'clock' &&
     (await ui.get('custom-game-minutes').isVisible())
@@ -180,12 +204,16 @@ export async function operateCustomGameControls(
 ): Promise<void> {
   const probe = await readCustomGameProbe(s, actor);
   if (probe === null) throw new Error(`${actor} sees no custom game screen`);
-  await revealControl(s, actor, input);
   const target = customGameControl(input, probe);
-  if (
-    needsModifiedDevice(probe, input) ||
-    !(await controlUsable(s, actor, target))
-  ) {
+  if (needsModifiedDevice(probe, input)) {
+    await chooseCustomGame(s, actor, input);
+    return;
+  }
+  await revealControl(s, actor, input, probe);
+  if (!(await controlUsable(s, actor, target))) {
+    // The place offers no such control now: back to where the game opens,
+    // then the choice as a modified device would send it.
+    await showCustomGameHome(s, actor);
     await chooseCustomGame(s, actor, input);
     return;
   }
@@ -201,6 +229,8 @@ export async function operateCustomGameControls(
     (await ui.get(`${target}-done`).isVisible())
   )
     await ui.get(`${target}-done`).tap();
+  // A refused choice leaves the person on the place they made it from.
+  await showCustomGameHome(s, actor);
 }
 
 /** One custom-game choice, made as {@link operateCustomGameControls} does. */

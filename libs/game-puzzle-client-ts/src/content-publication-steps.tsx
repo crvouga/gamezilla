@@ -7,15 +7,7 @@ import {
   type StepTrackStep,
 } from '@pkgs/ui-root-client-ts/step-track';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import {
-  createEffect,
-  createMemo,
-  type JSX,
-  onCleanup,
-  Show,
-  untrack,
-} from 'solid-js';
-import { usePublicationLeadSlot } from './content-publication-lead';
+import { createMemo, type JSX, Show, untrack } from 'solid-js';
 
 /** The one step that comes next on the way to publishing a draft. */
 export type PublicationStep = 'puzzles' | 'playtest' | 'validate' | 'publish';
@@ -194,22 +186,9 @@ function useTrackActions(
 }
 
 /**
- * The lead drawn in the screen's slot while one asks for it (a phone's
- * title row), else over the steps; `true` while it is away.
- */
-function useLeadPlace(lead: () => JSX.Element): () => boolean {
-  const slot = usePublicationLeadSlot();
-  const away = (): boolean => slot?.active() === true;
-  createEffect(() => slot?.show(away() ? lead() : undefined));
-  onCleanup(() => slot?.show(undefined));
-  return away;
-}
-
-/**
  * Where the draft stands on its way to publishing: the one next step's
  * action, filled, the one thing to press, with a line beside it saying
- * why (under it where the row is narrow; the action in the screen's title
- * row where the screen asks for it); then every step in order as
+ * why (under it where the row is narrow); then every step in order as
  * status, each one short line: its number, its name and its state (done,
  * next or locked). A step behind the person keeps its action as an
  * outline; a step that waits keeps its action locked (muted, still
@@ -221,7 +200,6 @@ export function PublicationSteps(props: PublicationStepsProps): JSX.Element {
   const usualLead = useLead(props, next);
   const lead = () =>
     props.progress === undefined ? usualLead() : props.progress.lead;
-  const away = useLeadPlace(lead);
   const actions = useTrackActions(props, next);
   const steps = (): StepTrackStep[] => [
     ...(props.kind === 'pack'
@@ -269,7 +247,7 @@ export function PublicationSteps(props: PublicationStepsProps): JSX.Element {
   return (
     <StackVertical gap="md">
       <StackHorizontal gap="md" wrap align="center">
-        <Show when={!away()}>{lead()}</Show>
+        {lead()}
         <Show
           when={props.progress === undefined}
           fallback={

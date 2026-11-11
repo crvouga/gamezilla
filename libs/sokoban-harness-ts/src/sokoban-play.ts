@@ -233,7 +233,12 @@ export function shownPlay(s: SokobanHarness, clientId: string) {
   return {
     moves: Number(counts.getAttribute('data-moves')),
     pushes: Number(counts.getAttribute('data-pushes')),
-    complete: view.queryByTestId('content-attempt-complete') !== null,
+    // The board's one control onward says whether the attempt is complete;
+    // its completion record is a screen away, and a read stays on the board.
+    complete:
+      view
+        .getByTestId('content-open-progress')
+        .getAttribute('data-complete') === 'true',
   };
 }
 

@@ -3,7 +3,12 @@ import { defineAction } from '@pkgs/harness-root-shared-ts/define-action';
 import { fireEvent } from '@solidjs/testing-library';
 import { selectedPlay } from './attempt-actions';
 import { contentClient } from './content-actions';
-import { waitForContent } from './content-sync';
+import {
+  openContentPlace,
+  openLibraryEntry,
+  showContentHome,
+} from './content-screen-places';
+import { contentWait, waitForContent } from './content-sync';
 import type { ContentHarness } from './content-system';
 import { mountContentExample } from './mount-content-example';
 
@@ -14,11 +19,12 @@ export const playTwoStepsThroughScreen = defineAction({
     const selection = selectedPlay(s, clientId);
     const view = await mountContentExample(s, clientId);
     try {
-      const openId = `content-attempt-${selection.attemptId}`;
-      await waitForContent(s, () =>
-        Promise.resolve(view.queryByTestId(openId) !== null)
+      const wait = contentWait(s);
+      await openLibraryEntry(
+        wait,
+        view,
+        `content-attempt-${selection.attemptId}`
       );
-      fireEvent.click(view.getByTestId(openId));
       await waitForContent(s, () =>
         Promise.resolve(view.queryByTestId('counting-step-two') !== null)
       );
@@ -40,6 +46,8 @@ export const playTwoStepsThroughScreen = defineAction({
         attemptId: attempt.id,
         positionId: attempt.current_position_id,
       });
+      // The completion is recorded where the attempt stands: its progress.
+      await openContentPlace(wait, view, 'progress');
       await waitForContent(s, () =>
         Promise.resolve(
           view.queryByText(
@@ -47,6 +55,7 @@ export const playTwoStepsThroughScreen = defineAction({
           ) !== null
         )
       );
+      await showContentHome(wait, view, 'attempt');
     } finally {
       view.unmount();
     }

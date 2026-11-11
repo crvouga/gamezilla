@@ -54,7 +54,7 @@ test('journey diagnostics keep the failed readiness control and public refusal',
   const { ui, taps } = journeyDiagnosticDriver({
     html: null,
     visible: ['custom-game-black-invitation'],
-    refusedVisible: 'custom-game-black-release',
+    refusedVisible: 'custom-game-black-you',
     captions: {},
     texts: {
       'custom-game-error': 'The choice could not be confirmed. Try again.',
@@ -62,7 +62,7 @@ test('journey diagnostics keep the failed readiness control and public refusal',
     },
   });
   const message = String(await acceptBlack(ui).catch(String));
-  expect(message).toContain('custom-game-black-release expect.visible');
+  expect(message).toContain('custom-game-black-you expect.visible');
   expect(message).toContain('Timed out after 20000ms waiting for visible');
   expect(message).toContain('The choice could not be confirmed. Try again.');
   expect(message).toContain('"role":"invited to black"');

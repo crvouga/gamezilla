@@ -21,8 +21,14 @@ async function boardTop(page: Page, story: string): Promise<number> {
 test('storybook integration: a refused choice appears and clears without moving the board at 390', async ({
   page,
 }) => {
-  const retried = await boardTop(page, 'screens-games-frame--choice-retried');
-  const refused = await boardTop(page, 'screens-games-frame--choice-refused');
+  const retried = await boardTop(
+    page,
+    'screens-games-custom-play--choice-retried'
+  );
+  const refused = await boardTop(
+    page,
+    'screens-games-custom-play--choice-refused'
+  );
   // The refusal is shown and announced, with the game's commands.
   const alert = page.getByTestId('custom-game-error');
   await expect(alert).toBeVisible();

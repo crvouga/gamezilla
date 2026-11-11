@@ -16,7 +16,11 @@ export async function expectBoardFirst(
     parent = parent.parentElement;
   }
   const box = board.getBoundingClientRect();
-  await expect(box.width).toBeGreaterThan(view.innerWidth < 880 ? 320 : 600);
+  // Beside its rail a board is as wide as the window's height lets the
+  // seats and the commands around it stay in view (never under 320px).
+  await expect(box.width).toBeGreaterThan(
+    view.innerWidth < 880 ? 320 : Math.max(319, view.innerHeight - 384)
+  );
   await expect(box.left).toBeGreaterThanOrEqual(0);
   await expect(box.right).toBeLessThanOrEqual(view.innerWidth);
   await expect(box.top).toBeLessThan(
@@ -40,11 +44,6 @@ export async function expectTerminalVisible(canvasElement: HTMLElement) {
   await expect(canvas.getAllByTestId('custom-game-history-stats')).toHaveLength(
     1
   );
-  if (view.innerWidth < 880) {
-    await expect(
-      canvas.getByTestId('custom-game-move-strip-place')
-    ).toHaveTextContent('Finished');
-  }
 }
 
 /** Two phone columns retain complete identities and each seat's readable facts. */

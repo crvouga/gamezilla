@@ -27,10 +27,10 @@ import sql from '@pkgs/sql-root-shared-ts/sql';
 import { turnHarnessGameOf } from './harness-game-of';
 import { knownPuzzle, solveKnownPuzzle } from './puzzle-moves';
 import {
-  readGameLogTitle,
   readStatsFigures,
+  readStatsLatestTitle,
   readStatsPuzzleRating,
-  readStatsRatingHistory,
+  readStatsRatedCount,
   showGamePuzzleStats,
 } from './puzzle-records';
 import { retryGamePuzzle } from './puzzle-screen';
@@ -145,17 +145,19 @@ export async function readPuzzleResultShown(
   puzzleId: string
 ): Promise<PuzzleResultShown> {
   const { record } = knownPuzzle(turnHarnessGameOf(s, gameId), puzzleId);
-  const title = await readGameLogTitle(s, device, puzzleId);
+  // Everything here is on the stats' summary: the rating, the puzzles
+  // played, how many were rated and the latest logged puzzle.
+  const title = await readStatsLatestTitle(s, device, puzzleId);
   const rating = await readStatsPuzzleRating(s, device);
   const { played } = await readStatsFigures(s, device);
-  const history = await readStatsRatingHistory(s, device);
-  if (rating === null || played === null)
+  const rated = await readStatsRatedCount(s, device);
+  if (rating === null || played === null || rated === null)
     throw new Error(`${device}'s stats are not displayed`);
-  if (played > 1 || history.length > 1)
+  if (played > 1 || rated > 1)
     throw new Error(`${device}'s stats counted one puzzle twice`);
   const result = displayedResult(title, rating, record);
   const counted = result !== 'Unfinished';
-  if (played !== Number(counted) || history.length !== Number(counted))
+  if (played !== Number(counted) || rated !== Number(counted))
     return { gameLog: 'contradictory', ratedResult: result };
   const gameLog = title?.startsWith('Solved')
     ? 'solved'

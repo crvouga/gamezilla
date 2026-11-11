@@ -2,10 +2,10 @@
  * A game's client joins the registry only as `defineGameClient` made it,
  * and with exactly the parts its shared registration asks for: a copy, a
  * hand-built client, a game offering puzzles without a puzzles part, a
- * puzzles part for a game offering none, or a presentation without its
- * frame is refused at type checking (each `@ts-expect-error` fails `tc` the
- * day the type accepts it) and when it is defined or registered, naming
- * what to fix.
+ * puzzles part for a game offering none, a presentation without its frame,
+ * or a screen of the game's own is refused at type checking (each
+ * `@ts-expect-error` fails `tc` the day the type accepts it) and when it is
+ * defined or registered, naming what to fix.
  */
 
 import { expect, test } from 'bun:test';
@@ -157,6 +157,66 @@ test("a puzzle-only game's menu offers its puzzles without reading turn rules", 
   expect(gameChoices(game, () => false).map((choice) => choice.screen)).toEqual(
     [SHARED_GAME_SCREEN.content]
   );
+});
+
+const settings = {
+  caption: () => 'Laps and developer tools',
+  rows: [
+    {
+      key: 'developer',
+      title: () => 'Developer',
+      opens: { kind: 'group', rows: [] },
+    },
+  ],
+} as const;
+
+test("a game's settings are rows it declares; the menu offers them last", () => {
+  const game: GameClient = { ...client, settings };
+  expect(() => defineGameClient(game)).not.toThrow();
+  const choices = gameChoices(game, () => true);
+  expect(choices.at(-1)?.screen).toBe(SHARED_GAME_SCREEN.settings);
+  expect(choices.at(-1)?.caption).toBe(settings.caption);
+  expect(
+    gameChoices(client, () => true).map((choice) => choice.screen)
+  ).not.toContain(SHARED_GAME_SCREEN.settings);
+});
+
+test('every choice of a game is a template screen of the platform', () => {
+  const platform = new Set<string>(Object.values(SHARED_GAME_SCREEN));
+  for (const choice of gameChoices({ ...client, settings }, () => true))
+    expect(platform.has(choice.screen)).toBe(true);
+});
+
+test('a game cannot hand the platform a screen, at type checking and when defined', () => {
+  const Screen = () => null;
+  expect(() =>
+    defineGameClient({
+      ...parts,
+      shared: plain,
+      // @ts-expect-error: settings are rows the platform draws, never a screen.
+      settings: { caption: () => 'Laps', Screen },
+    })
+  ).toThrow('race: settings.Screen is not part of the contract');
+  for (const part of ['choices', 'screens', 'Frame', 'SessionEffects'])
+    expect(() =>
+      defineGameClient({ ...parts, shared: plain, [part]: [] } as GameClient)
+    ).toThrow(`race: ${part} is not part of defineGameClient`);
+  expect(() =>
+    defineGameClient({
+      ...parts,
+      shared: plain,
+      // @ts-expect-error: a game has no menu entries of its own.
+      choices: [{ screen: 'laps', title: () => 'Laps', Screen }],
+    })
+  ).toThrow('race: choices is not part of defineGameClient');
+  expect(() =>
+    defineGameClient({
+      ...parts,
+      shared: plain,
+      // @ts-expect-error: a game has no screens of its own.
+      screens: [{ screen: 'lap-times', Screen }],
+    })
+  ).toThrow('race: screens is not part of defineGameClient');
 });
 
 test('puzzle rendering agrees with standalone and combined registrations', () => {

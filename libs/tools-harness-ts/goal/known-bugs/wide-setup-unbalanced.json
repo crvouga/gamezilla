@@ -1,4 +1,4 @@
 {
   "summary": "Wide, a game being set up was a Players card beside a card holding only a small board preview, two short blocks at the top of the window that did not feel composed. The preview's card now also says how the game is played, in the game's own words from its menu, so the two columns balance; a phone keeps the slim preview row.",
-  "regressionTest": "libs/game-session-client-ts/tests/game-frame-arena.test.tsx"
+  "regressionTest": "libs/game-session-client-ts/tests/game-frame-setup-places.test.tsx"
 }

@@ -102,7 +102,11 @@ function usePuzzleLinkRefusal(
 export function usePuzzleLinkOpening(
   puzzleId: Accessor<string>,
   gameId: string
-): Accessor<PuzzleLinkOpening> {
+): {
+  readonly opening: Accessor<PuzzleLinkOpening>;
+  /** Open the link again (after it could not open for want of a connection). */
+  readonly retry: () => void;
+} {
   const myId = useMyId();
   const router = useRouter();
   const refusal = usePuzzleLinkRefusal(puzzleId);
@@ -112,6 +116,7 @@ export function usePuzzleLinkOpening(
   const [opening, setOpening] = createSignal<PuzzleLinkOpening>({
     kind: 'opening',
   });
+  const [tries, setTries] = createSignal(0);
   /** The person's own space, opened when they host none. */
   const ownSpace = async (): Promise<string | PuzzleLinkOpening> => {
     const hostedId = hosted.id();
@@ -154,7 +159,7 @@ export function usePuzzleLinkOpening(
     false
   );
   createEffect(
-    on([puzzleId, localReady], ([id, ready]) => {
+    on([puzzleId, localReady, tries], ([id, ready]) => {
       if (id.length === 0) {
         setOpening({ kind: 'unavailable' });
         return;
@@ -173,5 +178,5 @@ export function usePuzzleLinkOpening(
       );
     })
   );
-  return opening;
+  return { opening, retry: () => setTries((count) => count + 1) };
 }

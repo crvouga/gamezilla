@@ -8,7 +8,7 @@ import {
   readStopPuzzleChoice,
 } from '@libs/chess-root-harness-ts/lichess-file-actions';
 import { preparePuzzleImport } from '@libs/chess-root-harness-ts/puzzle-import-setup';
-import { readPuzzleImport } from '@libs/chess-root-harness-ts/puzzle-import-ui';
+import { inspectPuzzleImport } from '@libs/chess-root-harness-ts/puzzle-import-ui';
 import {
   advancePuzzleImport,
   failPuzzleImport,
@@ -118,7 +118,7 @@ Then(
 Then(
   '{actor} sees that this environment finished adding puzzles',
   async (w, actor: Actor) => {
-    expect(await w.s.read(readPuzzleImport, actor)).toMatchObject({
+    expect(await inspectPuzzleImport(w.s, actor)).toMatchObject({
       status: 'finished',
     });
   }

@@ -3,6 +3,7 @@ import {
   establishBattleship,
   placeBattleshipShip,
   rotateBattleshipShip,
+  showFleetSetup,
 } from '@libs/battleship-harness-ts/battleship-actions';
 import {
   battleshipSetupRefusal,
@@ -37,6 +38,7 @@ test('the setup adapter attempts Carrier at G1 through the visible precision con
 test('a disconnected ready fleet does not open a disabled ship picker', async () => {
   await using s = await openHarness('battleship-locked-carrier');
   await s.apply(establishBattleship, { ready: true, active: false });
+  await s.apply(showFleetSetup, 'bob');
   const before = (await s.read(battleshipView, 'bob')).setup;
   await cutConnection({ s }, 'bob');
   await s.apply(rotateBattleshipShip, 'bob', 'carrier');

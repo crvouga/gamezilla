@@ -2,8 +2,8 @@ import { expect, type Page, test } from '@playwright/test';
 
 test.use({ video: 'on', trace: 'on' });
 
-/** Where the board starts, and the heights of the card's two rows. */
-async function stripGeometry(page: Page, story: string) {
+/** Where the board starts, and whether the moves card comes after its stage. */
+async function boardGeometry(page: Page, story: string) {
   await page.goto(
     `/iframe.html?id=screens-games-battleship-board--${story}&viewMode=story&globals=theme:light`
   );
@@ -11,51 +11,41 @@ async function stripGeometry(page: Page, story: string) {
     'data-story-ready',
     'true'
   );
-  await expect(page.getByTestId('custom-game-record-caption')).toBeVisible();
+  await expect(page.getByTestId('custom-game-record')).toBeVisible();
   return page.evaluate(() => {
-    const box = (id: string) =>
-      document
-        .querySelector(`[data-testid="${id}"]`)
-        ?.getBoundingClientRect() ?? null;
-    const board = box('custom-game-board');
-    const caption = box('custom-game-record-caption');
-    const head = box('custom-game-move-strip-head');
+    const box = (selector: string) =>
+      document.querySelector(selector)?.getBoundingClientRect() ?? null;
+    const board = box('[data-testid="custom-game-board"]');
+    const stage = box('[data-component="GameBoardStage"]');
+    const record = box('[data-testid="custom-game-record"]');
     return {
       boardTop: (board?.top ?? Number.NaN) + window.scrollY,
-      captionHeight: caption?.height ?? Number.NaN,
-      headHeight: head?.height ?? Number.NaN,
-      captionAboveHead:
-        caption !== null && head !== null && caption.bottom <= head.top,
+      recordAfterStage:
+        stage !== null && record !== null && record.top >= stage.bottom,
     };
   });
 }
 
 // regression: phone-strip-first-move-reflow
-test('storybook integration: the phone record card keeps one arrangement from no moves to the first moves', async ({
+// The record card above a phone's board rearranged itself when the first
+// move landed, and the board dropped. The moves are a card after the board,
+// so the first moves cannot move it at all.
+test('storybook integration: the phone board stays where it is from no moves to the first moves', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   // Opening has no moves ("No moves yet."); Your turn has recorded volleys.
-  const empty = await stripGeometry(page, 'opening');
-  await expect(page.getByTestId('custom-game-move-strip')).toHaveText(
+  const empty = await boardGeometry(page, 'opening');
+  await expect(page.getByTestId('custom-game-record')).toContainText(
     'No moves yet.'
   );
-  const played = await stripGeometry(page, 'your-turn');
-  await expect(page.getByTestId('custom-game-move-strip')).not.toHaveText(
+  const played = await boardGeometry(page, 'your-turn');
+  await expect(page.getByTestId('custom-game-record')).not.toContainText(
     'No moves yet.'
   );
-  // The game's line sits above the strip in both states...
-  expect([empty.captionAboveHead, played.captionAboveHead]).toEqual([
+  expect([empty.recordAfterStage, played.recordAfterStage]).toEqual([
     true,
     true,
   ]);
-  // ...so the board moves only by what the line and the moves themselves
-  // add, never by the card rearranging. A game whose line and turn keep
-  // their height (Word Tiles) therefore keeps its board still.
-  const shift = played.boardTop - empty.boardTop;
-  const content =
-    played.captionHeight -
-    empty.captionHeight +
-    (played.headHeight - empty.headHeight);
-  expect(Math.abs(shift - content)).toBeLessThanOrEqual(1);
+  expect(Math.abs(played.boardTop - empty.boardTop)).toBeLessThanOrEqual(1);
 });

@@ -1,4 +1,4 @@
 {
   "summary": "On a 900px-tall desktop window Battleship's turn line sat under the board, pushing the person's own seat (\"Your move\") below the fold. Beside a wide board the game's own turn line now heads the record card, and the board leaves room for its fleet switch and key, so the board, the switch and the turn show together.",
-  "regressionTest": "libs/game-session-client-ts/tests/game-frame-arena.test.tsx"
+  "regressionTest": "libs/game-session-client-ts/tests/game-frame-play-places.test.tsx"
 }

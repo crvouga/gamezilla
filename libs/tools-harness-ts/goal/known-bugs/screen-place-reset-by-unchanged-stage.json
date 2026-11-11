@@ -1,0 +1,4 @@
+{
+  "summary": "A template's opened place was dropped whenever the data behind its stage changed, even with the stage unchanged: a seat's invite list closed under the host when the game's row synced, so the release journey could not invite Bob to Black.",
+  "regressionTest": "pkgs/turn-game-client-ts/tests/use-screen-place.test.ts"
+}

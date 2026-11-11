@@ -1,4 +1,4 @@
 {
   "summary": "Wide, the custom game's Players card held a 300px list of seats in a 670px card, leaving a wide empty band between the seats' controls and Start at the card's far edge. Wide, the seats now sit two to a row across the card and Start closes it right under them.",
-  "regressionTest": "libs/game-session-client-ts/tests/game-frame-record-layout.test.tsx"
+  "regressionTest": "libs/game-session-client-ts/tests/game-frame-setup-places.test.tsx"
 }

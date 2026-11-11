@@ -98,6 +98,9 @@ function props(): GameFrameScreenViewProps {
     onReturnLive: () => undefined,
     onSelectRecord: () => undefined,
     onOpenHistory: () => undefined,
+    place: { screen: 'play' },
+    onOpen: () => undefined,
+    onClose: () => undefined,
   };
 }
 
