@@ -235,3 +235,49 @@ test('a Synthetic User thinks for a human-like time before each move, never at o
     application.close();
   }
 });
+
+test('after a game, a Synthetic User finds its next opponent from the result', async () => {
+  // regression: synthetic-user-find-after-game
+  const visible = new Set([
+    'multiplayer-open-find',
+    'multiplayer-new-opponent',
+  ]);
+  const surface = automationDriver({
+    visible,
+    onTap: (id) => {
+      // The result's row opens the search's hub, where Find is.
+      if (id !== 'multiplayer-open-find') return;
+      visible.clear();
+      visible.add('multiplayer-find');
+    },
+  });
+  const application = new SyntheticUserApplication(surface.driver, {
+    clock: { now: () => 0 },
+    random: () => 0.5,
+    username: 'cedar',
+    games: [COUNTING],
+    persona: {
+      thinkingTime: { minMs: 2_000, maxMs: 8_000 },
+      skillLevel: 'intermediate',
+      rematchWeight: 0,
+      hostingWeight: 0,
+      favoriteGames: [],
+    },
+    emit: () => undefined,
+  });
+  application.authenticated();
+  try {
+    await application.tick({
+      paused: false,
+      draining: false,
+      elapsedMs: 0,
+      sessionMs: 60_000,
+    });
+  } finally {
+    application.close();
+  }
+  expect(surface.actions).toEqual([
+    'multiplayer-open-find',
+    'multiplayer-find',
+  ]);
+});
