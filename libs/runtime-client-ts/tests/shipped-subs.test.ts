@@ -26,12 +26,10 @@ const CLIENT_NAMES = [
   'spaces',
   'puzzle-link',
   'multiplayer-link',
-  'personal-chess-stats',
   'friends',
   'notifications',
   'search',
   'billing',
-  'puzzle-management',
   'synthetic-population',
   'observatory',
 ] as const;

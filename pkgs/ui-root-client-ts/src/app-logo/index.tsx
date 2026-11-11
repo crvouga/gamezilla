@@ -16,6 +16,8 @@ export type AppLogoProps = {
   markSrc?: string | undefined;
   /** Pixel size of the mark (the wordmark scales proportionally). Defaults to 28. */
   size?: number | undefined;
+  /** Show the mark beside the wordmark. Defaults to true. */
+  mark?: boolean | undefined;
   /** Show the wordmark alongside the mark. Defaults to true. */
   wordmark?: boolean | undefined;
   /** Semantic color token for the wordmark. Defaults to text. */
@@ -29,7 +31,8 @@ const WORDMARK_HEIGHT_RATIO = 0.7;
 /**
  * `AppLogo` — host-supplied artwork and a product wordmark. The intrinsic
  * brand artwork is a scoped color exception; surrounding chrome stays neutral.
- * Mark-only instances retain the accessible product name. This is branding,
+ * Mark-only instances retain the accessible product name; wordmark-only
+ * instances (`mark={false}`) show the name alone. This is branding,
  * not a page heading.
  *
  * @example
@@ -52,13 +55,15 @@ export function AppLogo(props: AppLogoProps): JSX.Element {
       aria-label={props.name}
       style={{ gap: `${Math.max(1, Math.round(size() / 16)) * 4}px` }}
     >
-      <img
-        src={props.markSrc ?? mark}
-        width={size()}
-        height={size()}
-        alt=""
-        aria-hidden="true"
-      />
+      <Show when={props.mark !== false}>
+        <img
+          src={props.markSrc ?? mark}
+          width={size()}
+          height={size()}
+          alt=""
+          aria-hidden="true"
+        />
+      </Show>
       <Show when={props.wordmark !== false}>
         <span
           class="text textTitle"

@@ -70,7 +70,7 @@ and the multi-seat specifications cover the wider lifecycle.
 | `@libs/game-session-client-ts` / `-server` | The custom-game, history and review screens; the matched-game notice, reminder and availability consumers. |
 | `@libs/game-matchmaking-shared-ts` / `-client` | Opponent searches, matched games, ratings per speed, rematches, the multiplayer screen and link. |
 | `@libs/game-puzzle-shared-ts` | Puzzles over any game's rules: setting a puzzle up, replaying, staging and judging its line (`puzzle-setup`, `opponent-stage`, `solve-projection`, `move-history`, `puzzle-judge`), the space's puzzle session (`PUZZLE_SESSIONS`: its room state, messages, router and handlers, and the puzzle the space reviews), puzzle ratings, completion, statistics, the feed and its settings, choosing the next puzzle, the catalogue and its namespaces (`puzzle-catalogue`, `puzzle-namespace`), the puzzle sub (`GAME_PUZZLE_SUB`: its tables, queries, mutations and erasure) and its server half, and the puzzle link. |
-| `@libs/game-puzzle-client-ts` | The client part a game supplies (`GamePuzzlesClient`) and every puzzle screen: play, stats and review, the feed and its settings, the attempt's solver, controls, recorder and result reconciliation, the move list, the puzzle frame (`PuzzleFrame`, `PuzzleSessionEffects`), the puzzle link and the personal stats screen. |
+| `@libs/game-puzzle-client-ts` | The client part a game supplies (`GamePuzzlesClient`) and every puzzle screen: play, stats and review, the feed and its settings, the attempt's solver, controls, recorder and result reconciliation, the move list, the puzzle frame (`PuzzleFrame`, `PuzzleSessionEffects`), and the puzzle link. |
 | `@libs/game-menu-client-ts` | `defineGameClient` and the one `GameMenu` every game is offered through. |
 | `@libs/game-session-harness-ts` | The conformance contract a game's harness supplies (`PlayableGame` without screens, `HarnessGame` with them, `GameFixtures` and, for a game offering puzzles, its known puzzles: `known-puzzles`), `gameSystem` (a world of any games, with the puzzle sub when a game offers puzzles, and optionally a catalogue holding exactly every game's known puzzles), shared drivers (the platform's puzzle screens as a person uses them, a game's moves on its puzzle board from its known puzzles, and the puzzle session's commands and reads among them), and the laws (`game-rules-laws`, `game-capability-laws`, `game-puzzle-laws`). |
 | `@libs/game-matchmaking-harness-ts` | Opponent seeking and the one matched-game scenario world. |
@@ -135,7 +135,7 @@ It is never a new entry for an internal module.
 | | `custom-game-screen`, `custom-game-reads` | What a person's Custom Game screen shows: a projection of the game, the refusal they were told, their clock, invitations, the move list |
 | | `custom-game-history` | Fixture: a legal earlier history played through the real move boundary |
 | | `puzzle-session-probe`, `puzzle-fixtures` | The space's puzzle session below the screens: a command as a (possibly modified) client sends it and what the session holds; the rating scale, the rated start key and the rated-result write a quota table replays |
-| | `puzzle-screen`, `puzzle-records` | The platform's puzzle screens as a person uses them, for any game: the way in and back, the attempt's controls, what the board and its probes say, the rating change, the puzzle stats (in the space, or a person's own from Settings), the game log and a played puzzle's review; retiring a catalogue puzzle |
+| | `puzzle-screen`, `puzzle-records` | The platform's puzzle screens as a person uses them, for any game: the way in and back, the attempt's controls, what the board and its probes say, the rating change, the puzzle stats (in the space), the game log and a played puzzle's review; retiring a catalogue puzzle |
 | | `puzzle-feed`, `puzzle-feed-choices` | The feed settings as a person customizes them, for any game: the history filter, target mode, rating offset and custom target, the game's themes (as the game names them) and auto-advance, saved, discarded or closed, and what the feed bar and the settings say; the feed choices `puzzle-feed.qnt` names, and "a theme of the game's known puzzle" (`chosenFeedTheme`) |
 | | `puzzle-pool` | A pool a scenario describes (rating, popularity, times played, themes) made of the game's known puzzles (or its more puzzles) and written through `admitCataloguePuzzle`; what the catalogue says of a puzzle; a person's earlier puzzle rating at a game (`seedPuzzleRating`) |
 | | `puzzle-allowance` | The daily puzzle limit as a scenario sets it up, one allowance for every game: the rated starts a device has charged, earlier starts of the same day written to the one ledger, and the night passing to the next UTC day |
@@ -150,7 +150,6 @@ It is never a new entry for an internal module.
 | | `puzzle-link` | The puzzle link's route, path and parsing |
 | | `completion`, `hint-stage`, `solve-status` | The attempt's vocabulary its `PuzzleAttempt` speaks: a completion and its rating change, the hint's stage, the solve status |
 | `@libs/game-puzzle-client-ts` | `puzzle-client` | `GamePuzzlesClient`, `PuzzleBoardProps`, `PuzzleBoardMarks`, `PuzzleSuggestion`, `PuzzleAttempt`, `PuzzleCoachLine`, `PuzzleFeedback`: the client part a game offering puzzles supplies |
-| | Personal puzzle stats | Framework-owned: composition derives each registered puzzle game's settings entry and `/more/<game id>-stats` route; no game-owned wrapper or additional public game API |
 | `@pkgs/turn-game-client-ts`, `@libs/game-session-client-ts`, `@libs/game-session-server-ts`, `@libs/game-matchmaking-shared-ts`, `@libs/game-matchmaking-client-ts` | none | The platform's screens, consumers, commands and storage: a game never imports them |
 | `@libs/games-shared-ts`, `@libs/games-client-ts`, `@libs/game-catalog-shared-ts`, `@libs/games-harness-ts` | none | Registries: composition roots import `game-plugins`, `game-plugins.client`, `turn-games` / `game-automations` and `harness-games` / `game-conformance`; a game never depends on one (`gameViolations`) |
 
@@ -1187,11 +1186,8 @@ no production game advertises the new mode.
   spoken moves and squares, a legal checkmate counting as one, and chess's
   own themes such as "fork" (`specs/chess/puzzle-*`, `puzzle-assistant.qnt`,
   `puzzle-sound.qnt`, …) — still name chess and its board, so only chess
-  is held to them. A game's puzzle stats outside any space are on
-  the game's own route (chess's `/more/chess-stats`, pinned by
-  `specs/product.machine.json`; the reference game's
-  `/more/counting-race-stats`) behind a Settings row marked
-  `Handles.settingsPuzzleStats(<game id>)`; they can become the platform's.
+  is held to them. A game's puzzle stats live only in a space, on the
+  game's own menu; app-wide Settings names no game.
 - The custom-game, matched-game and puzzle-attempt models are every
   game's. Chess keeps only its own puzzle and Lichess models; a model that
   moves takes its model-check task and its share of chess's spec parts to

@@ -12,11 +12,8 @@ import { TURN_GAMES } from '@libs/game-catalog-shared-ts/turn-games';
 
 import { ACCOUNT_PRIVACY_CLIENT } from '@libs/account-privacy-client-ts/sub-client';
 import { BILLING_CLIENT } from '@libs/billing-client-ts/sub-client';
-import { PuzzleManagementScreen } from '@libs/chess-puzzle-client-ts/puzzle-management-screen';
-import { PuzzleManagementSettings } from '@libs/chess-puzzle-client-ts/puzzle-management-settings';
 import { FRIENDS_CLIENT } from '@libs/friends-client-ts/sub-client';
 import { createMultiplayerLinkClient } from '@libs/game-matchmaking-client-ts/multiplayer-link-client';
-import { createPersonalPuzzleStatsClients } from '@libs/game-menu-client-ts/personal-puzzle-stats-clients';
 import { createPuzzleLinkClient } from '@libs/game-puzzle-client-ts/puzzle-link-client';
 import { GAME_CLIENT_DEFINITIONS } from '@libs/games-client-ts/game-plugins.client';
 import { GAME_DEFINITIONS } from '@libs/games-shared-ts/game-plugins';
@@ -25,7 +22,7 @@ import { OBSERVATORY_CLIENT } from '@libs/observatory-client-ts/sub-client';
 import { PROFILE_CLIENT } from '@libs/profile-client-ts/sub-client';
 import { SEARCH_CLIENT } from '@libs/search-client-ts/sub-client';
 import { createSpacesClient } from '@libs/spaces-client-ts/sub-client';
-import { defineSubClient, type SubClient } from '@libs/sub-client-ts/client';
+import type { SubClient } from '@libs/sub-client-ts/client';
 import { createSyntheticPopulationClient } from '@libs/synthetic-population-client-ts/sub-client';
 
 /**
@@ -39,17 +36,6 @@ const SPACES_CLIENT = createSpacesClient({
   },
 });
 
-const PUZZLE_MANAGEMENT_CLIENT = defineSubClient({
-  name: 'puzzle-management',
-  routes: [
-    {
-      path: '/more/puzzles',
-      component: PuzzleManagementScreen,
-    },
-  ],
-  settings: PuzzleManagementSettings,
-});
-
 export const APP_SUB_CLIENTS: readonly SubClient[] = [
   // Profile is outermost: a space's room roster reads the local profile, so
   // the profile provider has to be above the room provider.
@@ -58,14 +44,12 @@ export const APP_SUB_CLIENTS: readonly SubClient[] = [
   SPACES_CLIENT,
   createPuzzleLinkClient(TURN_GAMES),
   createMultiplayerLinkClient(TURN_GAMES),
-  ...createPersonalPuzzleStatsClients(GAME_CLIENT_DEFINITIONS),
   // Friends registers a notification source, so it mounts above the inbox
   // that reads it.
   FRIENDS_CLIENT,
   NOTIFICATIONS_CLIENT,
   SEARCH_CLIENT,
   BILLING_CLIENT,
-  PUZZLE_MANAGEMENT_CLIENT,
   // The Synthetic Population panel names Synthetic Users' favorite games as
   // the menu does.
   createSyntheticPopulationClient({ games: GAME_CLIENT_DEFINITIONS }),

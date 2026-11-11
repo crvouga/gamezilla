@@ -170,6 +170,13 @@ describe('brand + providers', () => {
     expect(screen.queryByText('acme')).toBeNull();
   });
 
+  test('AppLogo wordmark-only shows the name without artwork', () => {
+    renderUi(() => <AppLogo name="acme" mark={false} />);
+    const brand = screen.getByRole('img', { name: 'acme' });
+    expect(brand).toHaveTextContent('acme');
+    expect(brand.querySelector('img')).toBeNull();
+  });
+
   // regression: google-brand-desaturated
   test('BrandIcon preserves the official full-color vendor artwork', () => {
     renderUi(() => (
