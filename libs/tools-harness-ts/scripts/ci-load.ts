@@ -1,6 +1,6 @@
 // @io-wall-ok — reads the workspace graph and the measured task-cost file.
-import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 import {
   RUNNER_COUNT,
   RUNNER_RAM_GIB,
@@ -15,8 +15,6 @@ import {
 } from './ci-runner-capacity';
 import { createTaskEstimator } from './verify-task-estimates';
 
-const START = '<!-- ci-load:start -->';
-const END = '<!-- ci-load:end -->';
 const TIERS = ['apps', 'libs', 'pkgs'] as const;
 const DEP_FIELDS = [
   'dependencies',
@@ -447,22 +445,6 @@ function seconds(value: number): string {
   return `${String(value)} s`;
 }
 
-export function measuredSection(doc: string): string {
-  const start = doc.indexOf(START);
-  const end = doc.indexOf(END);
-  if (start < 0 || end < start)
-    throw new Error('CI requirements doc is missing ci-load markers');
-  return doc.slice(start + START.length, end).trim();
-}
-
-export function replaceMeasuredLoad(doc: string, section: string): string {
-  const start = doc.indexOf(START);
-  const end = doc.indexOf(END);
-  if (start < 0 || end < start)
-    throw new Error('CI requirements doc is missing ci-load markers');
-  return `${doc.slice(0, start + START.length)}\n${section.trim()}\n${doc.slice(end)}`;
-}
-
 export function readLoadInput(root: string): LoadInput {
   const packages = TIERS.flatMap((tier) => readTier(join(root, tier)));
   const costs = JSON.parse(
@@ -515,15 +497,20 @@ function workspaceDeps(pkg: Record<string, unknown>): string[] {
   return deps;
 }
 
+/**
+ * The measured load is printed (or written under `.cache/`), never committed:
+ * every new verification script changes its counts, so a committed copy
+ * conflicted in nearly every pair of concurrent pull requests.
+ */
+export const MEASURED_LOAD_PATH = '.cache/ci-load/MEASURED_LOAD.md';
+
 if (import.meta.main) {
   const root = join(import.meta.dirname, '../../..');
   const section = renderMeasuredLoad(loadReport(readLoadInput(root)));
-  const path = join(root, 'docs/CI_REQUIREMENTS.md');
   if (process.argv[2] === '--write') {
-    writeFileSync(
-      path,
-      replaceMeasuredLoad(readFileSync(path, 'utf8'), section)
-    );
+    const path = join(root, MEASURED_LOAD_PATH);
+    mkdirSync(dirname(path), { recursive: true });
+    writeFileSync(path, `# Measured load\n\n${section.trim()}\n`);
     console.log(`ci-load: wrote ${path}`);
   } else {
     console.log(section);

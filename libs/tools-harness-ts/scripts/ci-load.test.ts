@@ -1,13 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import {
-  loadReport,
-  measuredSection,
-  readLoadInput,
-  renderMeasuredLoad,
-  replaceMeasuredLoad,
-} from './ci-load';
+import { loadReport, readLoadInput, renderMeasuredLoad } from './ci-load';
 import {
   LEAF_VERIFY_SECONDS,
   NARROW_VERIFY_SECONDS,
@@ -86,18 +79,10 @@ test('the measured corpus fits the dedicated runner capacity model', () => {
   ).toBeLessThanOrEqual(NARROW_VERIFY_SECONDS);
 });
 
-test('the requirements doc measured section matches the corpus', () => {
-  const report = loadReport(readLoadInput(ROOT));
-  const doc = readFileSync(join(ROOT, 'docs/CI_REQUIREMENTS.md'), 'utf8');
-  expect(measuredSection(doc)).toBe(renderMeasuredLoad(report).trim());
-});
-
-test('replaceMeasuredLoad rewrites only the marked section', () => {
-  const doc =
-    'before\n<!-- ci-load:start -->\nold\n<!-- ci-load:end -->\nafter\n';
-  expect(replaceMeasuredLoad(doc, 'new')).toBe(
-    'before\n<!-- ci-load:start -->\nnew\n<!-- ci-load:end -->\nafter\n'
-  );
+test('the measured load renders for the current corpus', () => {
+  const section = renderMeasuredLoad(loadReport(readLoadInput(ROOT)));
+  expect(section).toContain('| Packages |');
+  expect(section).toContain('### Runner');
 });
 
 // regression: ci-capacity-overallocates-spec-workers

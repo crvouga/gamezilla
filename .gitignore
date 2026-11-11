@@ -152,6 +152,9 @@ pkgs/sounds-shared-ts/src/sound-id.ts
 pkgs/sounds-shared-ts/src/sound-urls.ts
 pkgs/sounds-shared-ts/src/sound-volumes.ts
 libs/app-root-shared-ts/locales/*/messages.ts
+# Extracted from the source macros by `bun run i18n:compile` (postinstall);
+# committing it made every pull request that adds copy conflict here.
+libs/app-root-shared-ts/locales/*/messages.po
 apps/product-ts/scripts/ui-quality/sources.json
 
 # Graphify: the knowledge graph, and the project skill the pinned release

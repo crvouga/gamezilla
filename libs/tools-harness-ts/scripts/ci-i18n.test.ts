@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { linguiCommand, scratchConfigSource } from './ci-i18n';
 import {
@@ -29,22 +30,38 @@ describe('lingui catalog scope', () => {
     ).toEqual(['apps/server-ts/src/untranslated.tsx']);
   });
 
-  test('turbo hashes exactly the catalog sources for @libs/tools-harness-ts#ci:i18n', () => {
-    const inputs =
-      readTurboTasks(REPO_ROOT)['@libs/tools-harness-ts#ci:i18n']?.inputs ?? [];
-    const sources = inputs
-      .filter((input) => input.endsWith('/**/*.{ts,tsx}'))
-      .map((input) =>
-        input
-          .slice(0, -'/**/*.{ts,tsx}'.length)
-          .replace(/^\$TURBO_ROOT\$\//, '')
-      )
-      .sort();
-    expect(sources).toEqual([...LINGUI_CATALOG_SOURCES].sort());
+  test('the catalog sources are sorted, so new packages do not all append to one line', () => {
+    expect([...LINGUI_CATALOG_SOURCES]).toEqual(
+      [...LINGUI_CATALOG_SOURCES].sort()
+    );
+  });
+
+  for (const task of [
+    '//#task:i18n:compile',
+    '@libs/tools-harness-ts#ci:i18n',
+  ]) {
+    test(`turbo hashes exactly the catalog sources for ${task}`, () => {
+      const inputs = readTurboTasks(REPO_ROOT)[task]?.inputs ?? [];
+      const sources = inputs
+        .filter((input) => input.endsWith('/**/*.{ts,tsx}'))
+        .map((input) =>
+          input
+            .slice(0, -'/**/*.{ts,tsx}'.length)
+            .replace(/^\$TURBO_ROOT\$\//, '')
+        )
+        .sort();
+      expect(sources).toEqual([...LINGUI_CATALOG_SOURCES].sort());
+    });
+  }
+
+  test('the extracted catalog is never committed', () => {
+    // regression: committed-lingui-catalog-merge-conflicts
+    const ignore = readFileSync(join(REPO_ROOT, '.gitignore'), 'utf8');
+    expect(ignore).toContain('libs/app-root-shared-ts/locales/*/messages.po');
   });
 });
 
-test('the freshness verification regenerates into scratch, never the committed catalog', () => {
+test('the verification extracts into scratch, never the committed catalog', () => {
   // regression: ci-i18n-rewrites-committed-catalog
   const source = scratchConfigSource('/repo');
   expect(source).toContain(

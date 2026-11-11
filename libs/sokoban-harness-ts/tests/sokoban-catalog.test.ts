@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 // Component tests render with an empty catalog, so a message missing from
-// the checked-in English catalog only shows up in the built app.
+// the extracted English catalog only shows up in the built app.
 const catalog = readFileSync(
   join(import.meta.dir, '../../app-root-shared-ts/locales/en/messages.po'),
   'utf8'
