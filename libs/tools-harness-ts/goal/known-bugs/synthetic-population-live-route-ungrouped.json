@@ -1,4 +1,4 @@
 {
-  "summary": "#362 mounted /api/synthetic-population-live (a device reporting its screen) without a route group, so it counted as people's app requests and the route-group test failed in the nightly. #366 moved it to /api/observatory-live, where every app also sends its online-now heartbeat; it is the telemetry group, never people's requests.",
+  "summary": "#362 mounted /api/synthetic-population-live (a synthetic person's device reporting its screen) without a route group, so its machine traffic would have been counted with people's app requests; the route-group test failed in the nightly. The routes, since renamed /api/observatory-live (every open app's live-session reports), are now the telemetry group.",
   "regressionTest": "apps/server-ts/tests/route-groups.test.ts"
 }

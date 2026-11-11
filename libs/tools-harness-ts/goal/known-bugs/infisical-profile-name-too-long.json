@@ -1,0 +1,4 @@
+{
+  "summary": "`bun run secrets:login` failed with Infisical CLI 0.44: the default project profile name spelled out the URL-encoded Infisical origin (`project-https_3A_2F_2Fapp.infisical.com-<workspace id>`, 76 characters) and the CLI refuses names over 64. The origin is now named by its 8-digit FNV-1a hash, and a name that would still exceed 64 characters hashes the workspace too; SECRETS_PROFILE still overrides it.",
+  "regressionTest": "pkgs/secret-provider-shared-ts/tests/infisical-auth.test.ts"
+}

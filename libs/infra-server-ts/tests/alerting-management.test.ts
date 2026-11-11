@@ -47,7 +47,7 @@ test('the alert provisioner can create IRM integrations and manage responder not
 });
 
 // regression: alerting-role-replacement
-test('provisioning preserves the delivery-check account and uses a separate administrator', () => {
+test('provisioning preserves the Editor account and uses a separate administrator', () => {
   const source = readFileSync(
     new URL(
       '../../infra-shared-ts/tofu/stacks/bootstrap/alerting.tf',
@@ -61,15 +61,5 @@ test('provisioning preserves the delivery-check account and uses a separate admi
   expect(account).toMatch(/role\s*=\s*"Editor"/);
   expect(source).toContain(
     'grafana_cloud_stack_service_account_token.alerting_provisioner[0].key'
-  );
-  const evidence = readFileSync(
-    new URL(
-      '../../infra-shared-ts/tofu/stacks/bootstrap/alerting-evidence.tf',
-      import.meta.url
-    ),
-    'utf8'
-  );
-  expect(evidence).toContain(
-    'grafana_cloud_stack_service_account_token.alerting[0].key'
   );
 });

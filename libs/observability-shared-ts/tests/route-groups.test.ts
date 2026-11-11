@@ -25,6 +25,8 @@ describe('the group a route belongs to', () => {
     ['/api/llm/structured', 'media'],
     ['/api/notifications/notifications/:id/read', 'app'],
     ['/api/observability/v1/:signal', 'telemetry'],
+    ['/api/observatory-live/heartbeat', 'telemetry'],
+    ['/api/admin/observatory/watch', 'app'],
     ['/api/health', 'machine'],
     ['/api/health/ready', 'machine'],
     ['/api/synthetic-population-worker/claim', 'machine'],

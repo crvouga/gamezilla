@@ -1,0 +1,404 @@
+{
+  "#meta": {
+    "format": "ITF",
+    "format-description": "https://apalache-mc.org/docs/adr/015adr-trace.html",
+    "source": "finding-opponents.qnt",
+    "status": "ok",
+    "description": "Created by Quint on Tue Nov 10 2026 17:03:46 GMT-0700 (Mountain Standard Time)",
+    "timestamp": 1794355426558
+  },
+  "vars": [
+    "peopleLooking",
+    "peoplePlaying",
+    "syntheticAvailable",
+    "syntheticLooking",
+    "syntheticPlaying",
+    "syntheticPaused",
+    "_offline",
+    "_peopleLookingBeforeOffline",
+    "mbt::actionTaken",
+    "mbt::nondetPicks"
+  ],
+  "states": [
+    {
+      "#meta": {
+        "index": 0
+      },
+      "_offline": {
+        "#set": []
+      },
+      "_peopleLookingBeforeOffline": {
+        "#bigint": "0"
+      },
+      "mbt::actionTaken": "init",
+      "mbt::nondetPicks": {
+        "available": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "1"
+          }
+        },
+        "who": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
+      "peopleLooking": {
+        "#bigint": "0"
+      },
+      "peoplePlaying": {
+        "#bigint": "0"
+      },
+      "syntheticAvailable": {
+        "#bigint": "1"
+      },
+      "syntheticLooking": {
+        "#bigint": "0"
+      },
+      "syntheticPaused": {
+        "#bigint": "0"
+      },
+      "syntheticPlaying": {
+        "#bigint": "0"
+      }
+    },
+    {
+      "#meta": {
+        "index": 1
+      },
+      "_offline": {
+        "#set": ["Bob"]
+      },
+      "_peopleLookingBeforeOffline": {
+        "#bigint": "0"
+      },
+      "mbt::actionTaken": "_loseConnection",
+      "mbt::nondetPicks": {
+        "available": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "who": {
+          "tag": "Some",
+          "value": "Bob"
+        }
+      },
+      "peopleLooking": {
+        "#bigint": "0"
+      },
+      "peoplePlaying": {
+        "#bigint": "0"
+      },
+      "syntheticAvailable": {
+        "#bigint": "1"
+      },
+      "syntheticLooking": {
+        "#bigint": "0"
+      },
+      "syntheticPaused": {
+        "#bigint": "0"
+      },
+      "syntheticPlaying": {
+        "#bigint": "0"
+      }
+    },
+    {
+      "#meta": {
+        "index": 2
+      },
+      "_offline": {
+        "#set": ["Bob"]
+      },
+      "_peopleLookingBeforeOffline": {
+        "#bigint": "0"
+      },
+      "mbt::actionTaken": "startNextActivity",
+      "mbt::nondetPicks": {
+        "available": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "who": {
+          "tag": "Some",
+          "value": "Bob"
+        }
+      },
+      "peopleLooking": {
+        "#bigint": "0"
+      },
+      "peoplePlaying": {
+        "#bigint": "0"
+      },
+      "syntheticAvailable": {
+        "#bigint": "0"
+      },
+      "syntheticLooking": {
+        "#bigint": "1"
+      },
+      "syntheticPaused": {
+        "#bigint": "0"
+      },
+      "syntheticPlaying": {
+        "#bigint": "0"
+      }
+    },
+    {
+      "#meta": {
+        "index": 3
+      },
+      "_offline": {
+        "#set": []
+      },
+      "_peopleLookingBeforeOffline": {
+        "#bigint": "0"
+      },
+      "mbt::actionTaken": "_comeBackOnline",
+      "mbt::nondetPicks": {
+        "available": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "who": {
+          "tag": "Some",
+          "value": "Bob"
+        }
+      },
+      "peopleLooking": {
+        "#bigint": "0"
+      },
+      "peoplePlaying": {
+        "#bigint": "0"
+      },
+      "syntheticAvailable": {
+        "#bigint": "0"
+      },
+      "syntheticLooking": {
+        "#bigint": "1"
+      },
+      "syntheticPaused": {
+        "#bigint": "0"
+      },
+      "syntheticPlaying": {
+        "#bigint": "0"
+      }
+    },
+    {
+      "#meta": {
+        "index": 4
+      },
+      "_offline": {
+        "#set": []
+      },
+      "_peopleLookingBeforeOffline": {
+        "#bigint": "0"
+      },
+      "mbt::actionTaken": "lookForOpponent",
+      "mbt::nondetPicks": {
+        "available": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "who": {
+          "tag": "Some",
+          "value": "Bob"
+        }
+      },
+      "peopleLooking": {
+        "#bigint": "0"
+      },
+      "peoplePlaying": {
+        "#bigint": "1"
+      },
+      "syntheticAvailable": {
+        "#bigint": "0"
+      },
+      "syntheticLooking": {
+        "#bigint": "0"
+      },
+      "syntheticPaused": {
+        "#bigint": "0"
+      },
+      "syntheticPlaying": {
+        "#bigint": "1"
+      }
+    },
+    {
+      "#meta": {
+        "index": 5
+      },
+      "_offline": {
+        "#set": []
+      },
+      "_peopleLookingBeforeOffline": {
+        "#bigint": "0"
+      },
+      "mbt::actionTaken": "lookForOpponent",
+      "mbt::nondetPicks": {
+        "available": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "who": {
+          "tag": "Some",
+          "value": "Bob"
+        }
+      },
+      "peopleLooking": {
+        "#bigint": "1"
+      },
+      "peoplePlaying": {
+        "#bigint": "1"
+      },
+      "syntheticAvailable": {
+        "#bigint": "0"
+      },
+      "syntheticLooking": {
+        "#bigint": "0"
+      },
+      "syntheticPaused": {
+        "#bigint": "0"
+      },
+      "syntheticPlaying": {
+        "#bigint": "1"
+      }
+    },
+    {
+      "#meta": {
+        "index": 6
+      },
+      "_offline": {
+        "#set": []
+      },
+      "_peopleLookingBeforeOffline": {
+        "#bigint": "0"
+      },
+      "mbt::actionTaken": "lookForOpponent",
+      "mbt::nondetPicks": {
+        "available": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "who": {
+          "tag": "Some",
+          "value": "Bob"
+        }
+      },
+      "peopleLooking": {
+        "#bigint": "0"
+      },
+      "peoplePlaying": {
+        "#bigint": "3"
+      },
+      "syntheticAvailable": {
+        "#bigint": "0"
+      },
+      "syntheticLooking": {
+        "#bigint": "0"
+      },
+      "syntheticPaused": {
+        "#bigint": "0"
+      },
+      "syntheticPlaying": {
+        "#bigint": "1"
+      }
+    },
+    {
+      "#meta": {
+        "index": 7
+      },
+      "_offline": {
+        "#set": []
+      },
+      "_peopleLookingBeforeOffline": {
+        "#bigint": "0"
+      },
+      "mbt::actionTaken": "_finishGame",
+      "mbt::nondetPicks": {
+        "available": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "who": {
+          "tag": "Some",
+          "value": "Bob"
+        }
+      },
+      "peopleLooking": {
+        "#bigint": "0"
+      },
+      "peoplePlaying": {
+        "#bigint": "2"
+      },
+      "syntheticAvailable": {
+        "#bigint": "1"
+      },
+      "syntheticLooking": {
+        "#bigint": "0"
+      },
+      "syntheticPaused": {
+        "#bigint": "0"
+      },
+      "syntheticPlaying": {
+        "#bigint": "0"
+      }
+    },
+    {
+      "#meta": {
+        "index": 8
+      },
+      "_offline": {
+        "#set": []
+      },
+      "_peopleLookingBeforeOffline": {
+        "#bigint": "0"
+      },
+      "mbt::actionTaken": "startNextActivity",
+      "mbt::nondetPicks": {
+        "available": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "who": {
+          "tag": "Some",
+          "value": "Bob"
+        }
+      },
+      "peopleLooking": {
+        "#bigint": "0"
+      },
+      "peoplePlaying": {
+        "#bigint": "2"
+      },
+      "syntheticAvailable": {
+        "#bigint": "0"
+      },
+      "syntheticLooking": {
+        "#bigint": "1"
+      },
+      "syntheticPaused": {
+        "#bigint": "0"
+      },
+      "syntheticPlaying": {
+        "#bigint": "0"
+      }
+    }
+  ]
+}
