@@ -13,18 +13,15 @@ test('a synthetic-monitor sign-in is never written into an idle pooled connectio
   };
   const http = withFreshConnections(inner);
 
-  await http.fetch(
-    'https://api-dev.gamezilla.app/api/auth/synthetic-monitor/code',
-    {
-      method: 'POST',
-      headers: { authorization: 'Bearer token' },
-      body: '{"callbackUrl":"https://www-dev.gamezilla.app/sso-callback"}',
-    }
-  );
-  await http.fetch('https://api-dev.gamezilla.app/api/auth/session', {
+  await http.fetch('https://api.example.test/api/auth/synthetic-monitor/code', {
+    method: 'POST',
+    headers: { authorization: 'Bearer token' },
+    body: '{"callbackUrl":"https://www.example.test/sso-callback"}',
+  });
+  await http.fetch('https://api.example.test/api/auth/session', {
     keepalive: true,
   });
-  await http.fetch('https://api-dev.gamezilla.app/api/health');
+  await http.fetch('https://api.example.test/api/health');
 
   expect(sent.map((request) => request.init.keepalive)).toEqual([
     false,
@@ -32,11 +29,11 @@ test('a synthetic-monitor sign-in is never written into an idle pooled connectio
     false,
   ]);
   expect(sent[0]).toEqual({
-    input: 'https://api-dev.gamezilla.app/api/auth/synthetic-monitor/code',
+    input: 'https://api.example.test/api/auth/synthetic-monitor/code',
     init: {
       method: 'POST',
       headers: { authorization: 'Bearer token' },
-      body: '{"callbackUrl":"https://www-dev.gamezilla.app/sso-callback"}',
+      body: '{"callbackUrl":"https://www.example.test/sso-callback"}',
       keepalive: false,
     },
   });
