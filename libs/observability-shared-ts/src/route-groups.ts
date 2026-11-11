@@ -26,7 +26,7 @@ export const ROUTE_GROUPS = [
   'media',
   /** Any other thing a person or an operator asks of the app. */
   'app',
-  /** Telemetry the browser uploads. People do not wait for it. */
+  /** Telemetry the browser uploads (signals, live-watch reports). People do not wait for it. */
   'telemetry',
   /** Machines: health probes and the synthetic population worker. */
   'machine',
@@ -82,8 +82,9 @@ export const ROUTE_RULES: readonly RouteRule[] = [
   { prefix: '/api/observability', group: 'telemetry' },
   { prefix: '/api/health', group: 'machine' },
   { prefix: '/api/synthetic-population-worker', group: 'machine' },
-  // A synthetic person's device reporting what its screen shows.
-  { prefix: '/api/synthetic-population-live', group: 'machine' },
+  // Every app's background "online now" heartbeat, and its screen while
+  // someone watches it live: nobody waits on these.
+  { prefix: '/api/observatory-live', group: 'telemetry' },
 ];
 
 function segments(path: string): readonly string[] {
