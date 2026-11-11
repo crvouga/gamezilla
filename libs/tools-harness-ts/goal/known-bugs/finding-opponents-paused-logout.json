@@ -1,0 +1,4 @@
+{
+  "summary": "In the finding-opponents model's world, a paused Synthetic User was still carried on while a person looked; it read its pause, logged out and released its lease, and once resumed nothing claimed it again, so it never answered the waiting person. A paused Synthetic User now rests until it is resumed, as the world's other steps already treated it.",
+  "regressionTest": "libs/synthetic-population-harness-ts/tests/quint/finding-opponents.binding.ts"
+}

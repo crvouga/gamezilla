@@ -60,13 +60,22 @@ type Running = {
 type Population = {
   readonly setups: Map<string, PlaySetup>;
   readonly running: Map<string, Running>;
+  /** What the scenario's people do meanwhile, on every tick. */
+  people: (() => Promise<void>) | null;
+  /** The Synthetic Users the scenario keeps out of what carries on. */
+  resting: (() => Promise<ReadonlySet<string>>) | null;
 };
 const populations = new WeakMap<ProductHarness, Population>();
 
 function population(s: ProductHarness): Population {
   const known = populations.get(s);
   if (known !== undefined) return known;
-  const fresh: Population = { setups: new Map(), running: new Map() };
+  const fresh: Population = {
+    setups: new Map(),
+    running: new Map(),
+    people: null,
+    resting: null,
+  };
   populations.set(s, fresh);
   return fresh;
 }
@@ -87,6 +96,23 @@ export function setPlaySetup(
     memory: { ...known.memory, ...setup.memory },
   });
   population(s).running.delete(actor);
+}
+
+/**
+ * How the scenario's world carries on beside its Synthetic Users: what its
+ * people do meanwhile, as people do between the moments a scenario names
+ * (answering their games), and which Synthetic Users (by name) rest instead
+ * of carrying on.
+ */
+export function setScenarioCarryOn(
+  s: ProductHarness,
+  world: {
+    readonly people: () => Promise<void>;
+    readonly resting: () => Promise<ReadonlySet<string>>;
+  }
+): void {
+  population(s).people = world.people;
+  population(s).resting = world.resting;
 }
 
 /** The Synthetic Users signed in on the scenario's devices. */
@@ -302,8 +328,9 @@ export async function carryOnSyntheticUsers(
   }
 ): Promise<void> {
   const end = s.harness.clock.now() + options.maxMs;
+  const resting = (await population(s).resting?.()) ?? new Set<string>();
   const members = (await liveSyntheticUsers(s)).filter(
-    (member) => options.only?.(member) ?? true
+    (member) => !resting.has(member.name) && (options.only?.(member) ?? true)
   );
   while (s.harness.clock.now() < end) {
     let continuous = false;
@@ -313,6 +340,7 @@ export async function carryOnSyntheticUsers(
       await tick(s, run);
       continuous ||= run.app.continuousIntervalMs() !== null;
     }
+    await population(s).people?.();
     await options.observe?.();
     if ((await options.settled?.()) === true) return;
     await s.session.advanceTime(continuous ? 100 : 250);
