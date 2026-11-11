@@ -1,4 +1,4 @@
 {
   "summary": "Beside a wide board the record card's foot put Offer draw and Resign on one row and History and stats alone on a second, out of line with them. In the rail History and stats drops its chevron, so the three share one row at the end of the game's commands; a phone's row keeps the chevron.",
-  "regressionTest": "libs/game-session-client-ts/tests/game-frame-phone-strip.test.tsx"
+  "regressionTest": "libs/game-session-client-ts/tests/game-frame-play-places.test.tsx"
 }

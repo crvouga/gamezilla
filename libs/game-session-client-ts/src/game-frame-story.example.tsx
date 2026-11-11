@@ -292,11 +292,15 @@ export function frameArgs(): GameFrameScreenViewProps {
     onReturnLive: fn(),
     onSelectRecord: fn(),
     onOpenHistory: fn(),
+    place: { screen: 'start' },
+    onOpen: fn(),
+    onClose: fn(),
   };
 }
 
 /** Controls cannot edit slots, callbacks or nested frame data. */
 export const FRAME_CONTROLS_EXCLUDE = [
+  'place',
   'board',
   'setupBoard',
   'boardState',
@@ -314,6 +318,7 @@ export const FRAME_CONTROLS_EXCLUDE = [
 /** A two-seat game in play with the viewer to move. */
 export const FRAME_PLAYING: Partial<GameFrameScreenViewProps> = {
   phase: 'active',
+  place: { screen: 'play' },
   viewerSide: 'white',
   status: status(),
   table: {
@@ -339,4 +344,25 @@ export const FRAME_HELD: Partial<GameFrameScreenViewProps> = {
     others: [playSeat(JORDAN)],
   },
   play: FRAME_NO_PLAY,
+};
+
+/** A finished two-seat game the viewer won: the result, with the moves to review. */
+export const FRAME_OVER: Partial<GameFrameScreenViewProps> = {
+  phase: 'completed',
+  place: { screen: 'result' },
+  viewerSide: 'white',
+  status: status({
+    description: 'Red circle wins by four in a row.',
+    emphasis: 'neutral',
+  }),
+  table: { shape: 'strip', near: playSeat(AVERY), others: [playSeat(JORDAN)] },
+  play: FRAME_NO_PLAY,
+  next: { plays: true, canCreate: true, reviewable: true },
+  record: record(WON_RECORD),
+  result: {
+    headline: 'You win',
+    note: 'Host starts the rematch',
+    scoreLabel: null,
+    standings: STANDINGS,
+  },
 };

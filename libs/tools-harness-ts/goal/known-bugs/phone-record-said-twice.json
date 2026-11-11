@@ -1,4 +1,4 @@
 {
   "summary": "Under a phone's board the record showed as a cryptic \"Moves · Live\" head with a one-turn strip, then a separate \"Game record\" accordion holding the same moves again. It is now one compact card: a Live / Reviewing move N line with the steps, the shown turn, and an All moves toggle that opens the rest in place.",
-  "regressionTest": "libs/game-session-client-ts/tests/game-frame-record-layout.test.tsx"
+  "regressionTest": "libs/game-session-client-ts/tests/game-frame-play-places.test.tsx"
 }

@@ -40,11 +40,6 @@ export async function expectTerminalVisible(canvasElement: HTMLElement) {
   await expect(canvas.getAllByTestId('custom-game-history-stats')).toHaveLength(
     1
   );
-  if (view.innerWidth < 880) {
-    await expect(
-      canvas.getByTestId('custom-game-move-strip-place')
-    ).toHaveTextContent('Finished');
-  }
 }
 
 /** Two phone columns retain complete identities and each seat's readable facts. */

@@ -1,4 +1,4 @@
 {
   "summary": "In a custom game's setup each seat's toggle said \"Change player\", which never said whether it invites someone from the space or picks a bot. It now says \"Invite or bot\", and still names the side for assistive technology.",
-  "regressionTest": "libs/game-session-client-ts/tests/game-frame-record-layout.test.tsx"
+  "regressionTest": "libs/game-session-client-ts/tests/game-frame-setup-places.test.tsx"
 }

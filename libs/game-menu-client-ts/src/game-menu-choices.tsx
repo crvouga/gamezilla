@@ -60,7 +60,6 @@ export function sharedScreens(
               <CustomGameScreen
                 gameId={id}
                 title={game.title}
-                instructions={game.instructions}
                 onBack={back}
                 {...history}
               />

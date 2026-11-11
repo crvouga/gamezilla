@@ -7,8 +7,10 @@ import {
 } from '@libs/spaces-client-ts/spaces-nav-context';
 import { Trans } from '@lingui/solid/macro';
 import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
-import type { JSX } from 'solid-js';
+import { useScreenPlace } from '@pkgs/turn-game-client-ts/use-screen-place';
+import { createEffect, type JSX } from 'solid-js';
 import { useRefusalText } from './custom-game-error';
+import { CUSTOM_GAME_PLACES } from './custom-game-places';
 import { CustomGameSetupBoard } from './custom-game-private-setup';
 import { frameConnection, useFrameStatus } from './custom-game-status';
 import { CustomGameTest } from './custom-game-test';
@@ -23,7 +25,7 @@ import {
   GameFrameScreenView,
   type GameFrameScreenViewProps,
 } from './game-frame-screen-view';
-import type { FramePeople } from './game-frame-view-types';
+import type { FramePeople, FramePhase } from './game-frame-view-types';
 import { useFrameWatcherCount } from './game-frame-watchers';
 import { useCustomGameReview } from './use-custom-game-review';
 import type { CustomGameScreenModel } from './use-custom-game-screen';
@@ -78,19 +80,41 @@ const DENIED_FRAME = {
   onReturnLive: () => undefined,
   onSelectRecord: () => undefined,
   onOpenHistory: () => undefined,
+  place: CUSTOM_GAME_PLACES.home.none,
+  onOpen: () => undefined,
+  onClose: () => undefined,
 } satisfies Omit<GameFrameScreenViewProps, 'title' | 'onBack'>;
 
 type FrameProps = {
   model: CustomGameScreenModel;
   title: JSX.Element;
-  /** The game's own words on how it is played (its menu's instructions). */
-  instructions?: (() => JSX.Element) | undefined;
 };
+
+/**
+ * The small screen this device shows: the game's phase is the stage, and
+ * the place within it is the person's own. Back leads to the place behind,
+ * and from a phase's home out to the game's choices. Leaving the moves
+ * place returns the board to the game as it stands, so the play place only
+ * ever shows the live position.
+ */
+function useCustomGamePlace(
+  model: CustomGameScreenModel,
+  review: ReturnType<typeof useCustomGameReview>
+) {
+  const phase = (): FramePhase => model.current()?.status ?? 'none';
+  const navigation = useScreenPlace(CUSTOM_GAME_PLACES, phase);
+  createEffect(() => {
+    if (navigation.place().screen !== 'moves') review.returnLive();
+  });
+  return { phase, ...navigation };
+}
 
 /** Reads the room for `GameFrameScreenView`: the allowed custom game. */
 function CustomGameFrame(props: FrameProps): JSX.Element {
   const model = props.model;
   const review = useCustomGameReview(model);
+  const place = useCustomGamePlace(model, review);
+  const choices = useGameChoicesName();
   const board = useFrameBoard(model, review);
   const refusal = useRefusalText();
   const status = useFrameStatus(model);
@@ -113,9 +137,25 @@ function CustomGameFrame(props: FrameProps): JSX.Element {
   };
   return (
     <>
+      {/* Back from a phase's home names where it leads: the game's choices. */}
+      <DefineBackButton
+        onPress={() => {
+          if (!place.back()) model.back();
+        }}
+        label={
+          place.place().screen === CUSTOM_GAME_PLACES.home[place.phase()].screen
+            ? choices()
+            : undefined
+        }
+      />
       <GameFrameScreenView
         title={props.title}
-        phase={model.current()?.status ?? 'none'}
+        phase={place.phase()}
+        place={place.place()}
+        onOpen={place.open}
+        onClose={() => {
+          place.back();
+        }}
         viewerSide={model.mySide()}
         watchers={watchers()}
         connection={frameConnection(model)}
@@ -135,7 +175,6 @@ function CustomGameFrame(props: FrameProps): JSX.Element {
         boardState={boardState()}
         boardFit={boardFit()}
         boardAlign={boardAlign()}
-        about={props.instructions}
         people={PEOPLE}
         onChoose={model.choose}
         onReady={model.ready}
@@ -158,8 +197,6 @@ export function CustomGameScreen(props: {
   onBack: () => void;
   title?: string;
   onHistory?: () => void;
-  /** The game's own words on how it is played, beside a wide setup. */
-  instructions?: (() => JSX.Element) | undefined;
 }): JSX.Element {
   const model = useCustomGameScreen(
     props.onBack,
@@ -183,11 +220,7 @@ export function CustomGameScreen(props: {
           />
         )}
       >
-        <CustomGameFrame
-          model={model}
-          title={title()}
-          instructions={props.instructions}
-        />
+        <CustomGameFrame model={model} title={title()} />
       </DecisionGate>
     </>
   );

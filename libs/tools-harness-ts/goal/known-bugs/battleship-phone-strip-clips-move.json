@@ -1,4 +1,4 @@
 {
   "summary": "Under a phone's top bar the Battleship record strip read \"Move 4 ● G2 hit ● C4 mi\": the shown turn was wider than its well and was cut mid-word at the well's edge. The turn now wraps between its moves onto a second line, every move whole.",
-  "regressionTest": "libs/game-session-client-ts/tests/game-frame-phone-strip.test.tsx"
+  "regressionTest": "libs/game-session-client-ts/tests/game-frame-play-places.test.tsx"
 }

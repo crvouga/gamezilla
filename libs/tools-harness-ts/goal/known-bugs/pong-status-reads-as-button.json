@@ -1,4 +1,4 @@
 {
   "summary": "On a phone the line under Pong's court, \"Keep the ball in play.\", sat in a round well and read as a button. A real-time game's neutral line under its arena is now plain hint text.",
-  "regressionTest": "libs/game-session-client-ts/tests/game-frame-arena.test.tsx"
+  "regressionTest": "libs/game-session-client-ts/tests/game-frame-play-places.test.tsx"
 }

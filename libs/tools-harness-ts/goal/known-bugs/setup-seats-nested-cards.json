@@ -1,4 +1,4 @@
 {
   "summary": "While a custom game was set up, each seat was a bordered card nested inside the Players card, and a bot's seat said \"Ready\" though a bot always is and the game never waits for it, so a simple start read as a stack of boxes and readiness labels. The seats are now one plain list of player rows, and only a person's seat says whether they are ready.",
-  "regressionTest": "libs/game-session-client-ts/tests/game-frame-record-layout.test.tsx"
+  "regressionTest": "libs/game-session-client-ts/tests/game-frame-setup-places.test.tsx"
 }

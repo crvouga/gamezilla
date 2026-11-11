@@ -47,11 +47,13 @@
   "devDependencies": {
     "@pkgs/bun-test-solid-client-ts": "workspace:*",
     "@pkgs/logger-shared-ts": "workspace:*",
+    "@pkgs/property-shared-ts": "workspace:*",
     "@pkgs/room-adapter-memory-shared-ts": "workspace:*",
     "@solidjs/testing-library": "catalog:",
     "@types/bun": "catalog:",
     "@types/pg": "catalog:",
     "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
     "storybook": "catalog:",
     "storybook-solidjs-vite": "catalog:",
     "typescript": "catalog:"

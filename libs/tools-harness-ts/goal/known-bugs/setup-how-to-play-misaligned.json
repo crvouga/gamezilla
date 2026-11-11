@@ -1,4 +1,4 @@
 {
   "summary": "Wide, a custom game's setup centred the board preview in its card but set 'How to play' and its words flush left under it, and left a band of empty room at the card's foot. The words are centred like the board and the card's content is centred in its height.",
-  "regressionTest": "libs/game-session-client-ts/tests/game-frame-arena.test.tsx"
+  "regressionTest": "libs/game-session-client-ts/tests/game-frame-setup-places.test.tsx"
 }
