@@ -19,7 +19,7 @@ const meta = {
   component: MultiplayerScreenView,
   tags: ['autodocs'],
   parameters: STORY_PARAMETERS,
-  render: renderStory({ outcome: WON }),
+  render: (args) => renderStory({ outcome: WON })(args),
   args: {
     ...storyArgs(),
     stage: 'finished',
@@ -35,36 +35,39 @@ export const AfterTheGame: Story = {};
 
 /** A rematch offered to the person is the one filled command. */
 export const RematchOffered: Story = {
-  render: renderStory({
-    outcome: {
-      title: 'Your opponent won the multiplayer game.',
-      caption:
-        'By resignation. Bob offered you a multiplayer rematch. Your rating changed by -8.',
-    },
-  }),
+  render: (args) =>
+    renderStory({
+      outcome: {
+        title: 'Your opponent won the multiplayer game.',
+        caption:
+          'By resignation. Bob offered you a multiplayer rematch. Your rating changed by -8.',
+      },
+    })(args),
   args: { game: { ...STORY_FINISHED_GAME, rematch: 'answer' } },
 };
 
 /** An aborted game has no result to rematch and no record to keep. */
 export const Aborted: Story = {
-  render: renderStory({
-    outcome: {
-      title: 'The multiplayer game was aborted.',
-      caption: "The first move wasn't made in time.",
-    },
-  }),
+  render: (args) =>
+    renderStory({
+      outcome: {
+        title: 'The multiplayer game was aborted.',
+        caption: "The first move wasn't made in time.",
+      },
+    })(args),
   args: { game: { ...STORY_FINISHED_GAME, rematch: 'none', record: null } },
 };
 
 /** A watcher reads the result and may step through the moves. */
 export const Watching: Story = {
-  render: renderStory({
-    outcome: {
-      title:
-        'Watching multiplayer Connect Four. alice won the multiplayer game.',
-      caption: 'By resignation.',
-    },
-  }),
+  render: (args) =>
+    renderStory({
+      outcome: {
+        title:
+          'Watching multiplayer Connect Four. alice won the multiplayer game.',
+        caption: 'By resignation.',
+      },
+    })(args),
   args: {
     game: { ...STORY_FINISHED_GAME, rematch: 'none', newOpponent: false },
   },

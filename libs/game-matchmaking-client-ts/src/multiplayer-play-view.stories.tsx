@@ -15,7 +15,8 @@ const meta = {
   component: MultiplayerScreenView,
   tags: ['autodocs'],
   parameters: STORY_PARAMETERS,
-  render: renderStory({ announcement: { title: 'Your turn.' } }),
+  render: (args) =>
+    renderStory({ announcement: { title: 'Your turn.' } })(args),
   args: {
     ...storyArgs(),
     stage: 'playing',
@@ -31,18 +32,20 @@ export const Matched: Story = {};
 
 /** A draw offered to the person waits for their answer under the board. */
 export const DrawOffered: Story = {
-  render: renderStory({
-    announcement: {
-      title: 'Your turn.',
-      detail: 'Bob offered you a multiplayer draw.',
-    },
-  }),
+  render: (args) =>
+    renderStory({
+      announcement: {
+        title: 'Your turn.',
+        detail: 'Bob offered you a multiplayer draw.',
+      },
+    })(args),
   args: { game: { ...STORY_GAME, draw: 'answer' } },
 };
 
 /** Before the first move there are no moves to list. */
 export const NoMovesYet: Story = {
-  render: renderStory({ shown: 0, announcement: { title: 'Your turn.' } }),
+  render: (args) =>
+    renderStory({ shown: 0, announcement: { title: 'Your turn.' } })(args),
   args: { game: { ...STORY_GAME, leave: 'abort', moves: storyMoves(0) } },
 };
 
@@ -53,9 +56,10 @@ export const WithoutTurns: Story = {
 
 /** A watcher has nothing to resign or offer; the moves stay one press away. */
 export const Watching: Story = {
-  render: renderStory({
-    announcement: { title: 'Watching multiplayer Connect Four.' },
-  }),
+  render: (args) =>
+    renderStory({
+      announcement: { title: 'Watching multiplayer Connect Four.' },
+    })(args),
   args: { game: { ...STORY_GAME, leave: null, draw: 'none' } },
 };
 

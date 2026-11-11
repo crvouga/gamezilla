@@ -16,7 +16,8 @@ const meta = {
   component: MultiplayerScreenView,
   tags: ['autodocs'],
   parameters: STORY_PARAMETERS,
-  render: renderStory({ shown: 2, announcement: { title: 'Your turn.' } }),
+  render: (args) =>
+    renderStory({ shown: 2, announcement: { title: 'Your turn.' } })(args),
   args: {
     ...storyArgs(),
     stage: 'playing',
@@ -37,25 +38,27 @@ export const Reviewing: Story = {};
 
 /** The start of the game: nothing earlier to step back to. */
 export const AtTheStart: Story = {
-  render: renderStory({ shown: 0, announcement: { title: 'Your turn.' } }),
+  render: (args) =>
+    renderStory({ shown: 0, announcement: { title: 'Your turn.' } })(args),
   args: { game: { ...STORY_GAME, moves: storyMoves(0) } },
 };
 
 /** The current position: the board is the game as it stands. */
 export const AtTheCurrentPosition: Story = {
-  render: renderStory({ announcement: { title: 'Your turn.' } }),
+  render: (args) =>
+    renderStory({ announcement: { title: 'Your turn.' } })(args),
   args: { game: STORY_GAME },
 };
 
 /** After the game: its record and final position can be copied. */
 export const GameRecord: Story = {
-  render: renderStory({ announcement: WON }),
+  render: (args) => renderStory({ announcement: WON })(args),
   args: { stage: 'finished', game: STORY_FINISHED_GAME },
 };
 
 /** A game without turns keeps only its record. */
 export const RecordWithoutTurns: Story = {
-  render: renderStory({ announcement: WON }),
+  render: (args) => renderStory({ announcement: WON })(args),
   args: {
     title: 'Pong',
     stage: 'finished',
