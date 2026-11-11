@@ -96,7 +96,11 @@ export class BunWebviewDriver implements Driver, BunWebviewHost {
   }
 
   async snapshotHtml(): Promise<string | null> {
-    const html = await this.view.evaluate('document.documentElement.outerHTML');
+    // Between one page and the next there is no document element: nothing
+    // to show, not an error.
+    const html = await this.view.evaluate(
+      'document.documentElement?.outerHTML ?? null'
+    );
     return typeof html === 'string' ? html : null;
   }
   async inventory(): Promise<Inventory> {

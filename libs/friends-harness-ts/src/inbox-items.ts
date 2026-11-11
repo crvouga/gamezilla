@@ -1,3 +1,4 @@
+import { actorUsername } from '@libs/harness-ts/run-scope';
 /**
  * What a person does with one inbox item: open it, mark the inbox read,
  * set it aside, and look at one list. Reads are what that inbox shows.
@@ -35,7 +36,7 @@ export const openInboxItem = scenarioAction({
     await onInbox(s, actorId);
     const ui = await actorUi(s, actorId);
     await ui
-      .get(Handles.notificationsFriendRequestCard(fromUsername))
+      .get(Handles.notificationsFriendRequestCard(actorUsername(s, fromUsername)))
       .tap({ timeoutMs: WAIT_MS });
     await s.session.waitForIdle();
   },
@@ -61,7 +62,7 @@ export const archiveInboxItem = scenarioAction({
   act: async (s, actorId: string, fromUsername: string) => {
     await onInbox(s, actorId);
     const ui = await actorUi(s, actorId);
-    const card = Handles.notificationsFriendRequestCard(fromUsername);
+    const card = Handles.notificationsFriendRequestCard(actorUsername(s, fromUsername));
     await ui
       .get(Handles.notificationsCardMenu(card))
       .tap({ timeoutMs: WAIT_MS });
@@ -90,7 +91,7 @@ export async function inboxItemState(
   fromUsername: string
 ): Promise<string | null> {
   const ui = await actorUi(s, actorId);
-  const card = ui.get(Handles.notificationsFriendRequestCard(fromUsername));
+  const card = ui.get(Handles.notificationsFriendRequestCard(actorUsername(s, fromUsername)));
   if (!(await card.isVisible())) return null;
   return card.attribute('data-inbox-state');
 }

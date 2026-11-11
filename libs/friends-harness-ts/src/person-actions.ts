@@ -1,3 +1,4 @@
+import { actorUsername } from '@libs/harness-ts/run-scope';
 /**
  * Another person's profile (`/profile/user/:id`) and the ways to reach it:
  * a search result, the friend-request modal's View profile, the accepted
@@ -36,7 +37,7 @@ export const openPersonFromSearch = scenarioAction({
     await Promise.resolve(backToTabs.act(s, actorId));
     await Promise.resolve(searchUsername.act(s, actorId, username));
     const ui = await actorUi(s, actorId);
-    const row = Handles.searchUserResultOpen(username);
+    const row = Handles.searchUserResultOpen(actorUsername(s, username));
     await pollUntil(
       s,
       async () => ((await ui.get(row).isVisible()) ? true : null),
@@ -57,10 +58,10 @@ export const viewProfileFromRequest = scenarioAction({
   act: async (s, actorId: string, fromUsername: string) => {
     const ui = await actorUi(s, actorId);
     await ui.get(Handles.tabNotifications).tap({ timeoutMs: WAIT_MS });
-    const card = Handles.notificationsFriendRequestCard(fromUsername);
+    const card = Handles.notificationsFriendRequestCard(actorUsername(s, fromUsername));
     await ui.get(card).tap({ timeoutMs: WAIT_MS });
     await ui
-      .get(Handles.notificationsFriendRequestViewProfile(fromUsername))
+      .get(Handles.notificationsFriendRequestViewProfile(actorUsername(s, fromUsername)))
       .tap({ timeoutMs: WAIT_MS });
     await expectPersonScreen(s, actorId, fromUsername);
   },
@@ -72,7 +73,7 @@ export const openAcceptedNotification = scenarioAction({
   act: async (s, actorId: string, username: string) => {
     const ui = await actorUi(s, actorId);
     await ui.get(Handles.tabNotifications).tap({ timeoutMs: WAIT_MS });
-    const card = Handles.notificationsFriendAcceptedCard(username);
+    const card = Handles.notificationsFriendAcceptedCard(actorUsername(s, username));
     await ui.get(card).tap({ timeoutMs: WAIT_MS });
     await expectPersonScreen(s, actorId, username);
   },
@@ -104,7 +105,7 @@ export const sendRequestFromProfile = scenarioAction({
       if (!(await showKnownPerson(s, actorId, username)))
         await Promise.resolve(openPersonFromSearch.act(s, actorId, username));
     }
-    await tapPill(s, actorId, Handles.friendAdd(username));
+    await tapPill(s, actorId, Handles.friendAdd(actorUsername(s, username)));
   },
 });
 
@@ -121,7 +122,7 @@ export const openKnownPersonProfile = scenarioAction({
 export const confirmFromProfile = scenarioAction({
   name: 'confirmFromProfile',
   act: async (s, actorId: string, fromUsername: string) => {
-    await tapPill(s, actorId, Handles.friendConfirm(fromUsername));
+    await tapPill(s, actorId, Handles.friendConfirm(actorUsername(s, fromUsername)));
   },
 });
 
@@ -129,7 +130,7 @@ export const confirmFromProfile = scenarioAction({
 export const declineFromProfile = scenarioAction({
   name: 'declineFromProfile',
   act: async (s, actorId: string, fromUsername: string) => {
-    await tapPill(s, actorId, Handles.friendDecline(fromUsername));
+    await tapPill(s, actorId, Handles.friendDecline(actorUsername(s, fromUsername)));
   },
 });
 
@@ -138,7 +139,7 @@ export const askAgainFromSearch = scenarioAction({
   name: 'askAgainFromSearch',
   act: async (s, actorId: string, username: string) => {
     await Promise.resolve(searchUsername.act(s, actorId, username));
-    await tapPill(s, actorId, Handles.friendAdd(username));
+    await tapPill(s, actorId, Handles.friendAdd(actorUsername(s, username)));
   },
 });
 
@@ -171,16 +172,16 @@ export const blockPerson = scenarioAction({
     if (await ui.get(OVERFLOW_MENU).isVisible()) {
       await ui.get(OVERFLOW_MENU).tap({ timeoutMs: WAIT_MS });
     }
-    await ui.get(Handles.friendBlock(username)).tap({ timeoutMs: WAIT_MS });
-    const confirm = Handles.friendBlockConfirm(username);
+    await ui.get(Handles.friendBlock(actorUsername(s, username))).tap({ timeoutMs: WAIT_MS });
+    const confirm = Handles.friendBlockConfirm(actorUsername(s, username));
     await ui.get(confirm).tap({ timeoutMs: WAIT_MS });
     // regression: friend-danger-harness-vacuous-success
     await ui
-      .get(Handles.friendBlockSuccess(username))
+      .get(Handles.friendBlockSuccess(actorUsername(s, username)))
       .expect.visible({ timeoutMs: WAIT_MS });
-    await ui.get(Handles.friendBlockDone(username)).tap({ timeoutMs: WAIT_MS });
+    await ui.get(Handles.friendBlockDone(actorUsername(s, username))).tap({ timeoutMs: WAIT_MS });
     await ui
-      .get(Handles.friendBlockSuccess(username))
+      .get(Handles.friendBlockSuccess(actorUsername(s, username)))
       .expect.hidden({ timeoutMs: HIDDEN_MS });
     await Promise.resolve(backToTabs.act(s, actorId));
     await ui.get(Handles.tabProfile).expect.visible({ timeoutMs: WAIT_MS });
@@ -193,8 +194,8 @@ export const keepFriend = scenarioAction({
   act: async (s, actorId: string, username: string) => {
     const ui = await actorUi(s, actorId);
     await ui.get(OVERFLOW_MENU).tap({ timeoutMs: WAIT_MS });
-    await ui.get(Handles.friendRemove(username)).tap({ timeoutMs: WAIT_MS });
-    const cancel = Handles.friendRemoveCancel(username);
+    await ui.get(Handles.friendRemove(actorUsername(s, username))).tap({ timeoutMs: WAIT_MS });
+    const cancel = Handles.friendRemoveCancel(actorUsername(s, username));
     await ui.get(cancel).tap({ timeoutMs: WAIT_MS });
     await ui.get(cancel).expect.hidden({ timeoutMs: HIDDEN_MS });
   },

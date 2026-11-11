@@ -71,7 +71,19 @@ export const confirmDeletion = scenarioAction({
     // A confirmation already open is confirmed as it stands.
     if (!(await ui.get('privacy-delete-confirm').isVisible()))
       await Promise.resolve(reviewDeletion.act(s, actor));
-    if (!(await ui.get('privacy-delete-confirm').isVisible())) return;
+    // The confirmation opens a moment after the review is chosen; a refusal
+    // shows its explanation in place of the review instead.
+    const shown = await pollUntil(
+      s,
+      async () => {
+        if (await ui.get('privacy-delete-confirm').isVisible())
+          return 'confirmation';
+        if (await ui.get('privacy-delete-access').isVisible()) return 'refused';
+        return null;
+      },
+      { maxMs: 5_000, description: 'deletion confirmation or its refusal' }
+    );
+    if (shown !== 'confirmation') return;
     await ui.get('privacy-delete-confirm').tap();
     await pollUntil(
       s,

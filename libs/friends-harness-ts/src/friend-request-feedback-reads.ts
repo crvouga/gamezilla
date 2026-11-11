@@ -1,3 +1,4 @@
+import { actorUsername } from '@libs/harness-ts/run-scope';
 import { actorUi } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront } from '@libs/harness-ts/observations';
@@ -30,7 +31,7 @@ export async function requestRefusalShown(
 ): Promise<boolean> {
   await showKnownPerson(s, actor, other);
   const ui = await actorUi(s, actor);
-  const add = ui.get(Handles.friendAdd(other));
+  const add = ui.get(Handles.friendAdd(actorUsername(s, other)));
   return (
     (await ui.get(Handles.friendRequestRefusal).isVisible()) ||
     ((await add.isVisible()) && (await add.text()) === 'Try again later')

@@ -1,3 +1,4 @@
+import { actorUsername } from '@libs/harness-ts/run-scope';
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
 import { searchUsername } from '@libs/search-harness-ts/search-actions';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
@@ -12,7 +13,7 @@ export const acceptFriendRequest = scenarioAction({
     const ui = await actorUi(s, actorId);
     await ui.get(Handles.statusCurrentUser).expect.visible();
     const shownAccept = ui.get(
-      Handles.notificationsFriendRequestAccept(fromUsername)
+      Handles.notificationsFriendRequestAccept(actorUsername(s, fromUsername))
     );
     if (await shownAccept.isVisible()) {
       s.harness.heal(`${actorId}:events`, 'server-a');
@@ -21,10 +22,10 @@ export const acceptFriendRequest = scenarioAction({
       return;
     }
     await ui.get(Handles.tabNotifications).tap();
-    const card = Handles.notificationsFriendRequestCard(fromUsername);
+    const card = Handles.notificationsFriendRequestCard(actorUsername(s, fromUsername));
     await ui.get(card).expect.visible({ timeoutMs: WAIT_MS });
     await ui.get(card).tap({ timeoutMs: WAIT_MS });
-    const accept = Handles.notificationsFriendRequestAccept(fromUsername);
+    const accept = Handles.notificationsFriendRequestAccept(actorUsername(s, fromUsername));
     await ui.get(accept).tap({ timeoutMs: WAIT_MS });
     await ui.get(accept).expect.hidden({ timeoutMs: HIDDEN_MS });
     await ui.get(card).expect.hidden({ timeoutMs: HIDDEN_MS });
@@ -36,10 +37,10 @@ export const declineFriendRequest = scenarioAction({
   act: async (s, actorId: string, fromUsername: string) => {
     const ui = await actorUi(s, actorId);
     await ui.get(Handles.tabNotifications).tap({ timeoutMs: WAIT_MS });
-    const card = Handles.notificationsFriendRequestCard(fromUsername);
+    const card = Handles.notificationsFriendRequestCard(actorUsername(s, fromUsername));
     await ui.get(card).expect.visible({ timeoutMs: WAIT_MS });
     await ui.get(card).tap({ timeoutMs: WAIT_MS });
-    const decline = Handles.notificationsFriendRequestDecline(fromUsername);
+    const decline = Handles.notificationsFriendRequestDecline(actorUsername(s, fromUsername));
     await ui.get(decline).tap({ timeoutMs: WAIT_MS });
     await ui.get(card).expect.hidden({ timeoutMs: HIDDEN_MS });
   },
@@ -49,7 +50,7 @@ export const cancelFriendRequest = scenarioAction({
   name: 'cancelFriendRequest',
   act: async (s, actorId: string, toUsername: string) => {
     const ui = await actorUi(s, actorId);
-    const cancel = Handles.friendCancel(toUsername);
+    const cancel = Handles.friendCancel(actorUsername(s, toUsername));
     await ui.get(cancel).expect.visible({ timeoutMs: WAIT_MS });
     await ui.get(cancel).tap({ timeoutMs: WAIT_MS });
     await ui.get(cancel).expect.hidden({ timeoutMs: HIDDEN_MS });
@@ -77,10 +78,10 @@ async function openFriendProfile(
     .expect.visible({ timeoutMs: WAIT_MS });
   await ui.get(Handles.profileFriendsStats).tap();
   await s.session.waitForIdle();
-  const row = Handles.friendsListRow(username);
+  const row = Handles.friendsListRow(actorUsername(s, username));
   await ui.get(row).expect.visible({ timeoutMs: WAIT_MS });
   await ui.get(row).tap({ timeoutMs: WAIT_MS });
-  await ui.get(Handles.friendStatusFriends(username)).expect.visible({
+  await ui.get(Handles.friendStatusFriends(actorUsername(s, username))).expect.visible({
     timeoutMs: WAIT_MS,
   });
 }
@@ -91,19 +92,19 @@ export const removeFriend = scenarioAction({
     const ui = await actorUi(s, actorId);
     await openFriendProfile(s, actorId, username);
     await ui.get('header-overflow-menu').tap({ timeoutMs: WAIT_MS });
-    const remove = Handles.friendRemove(username);
+    const remove = Handles.friendRemove(actorUsername(s, username));
     await ui.get(remove).tap({ timeoutMs: WAIT_MS });
-    const confirm = Handles.friendRemoveConfirm(username);
+    const confirm = Handles.friendRemoveConfirm(actorUsername(s, username));
     await ui.get(confirm).tap({ timeoutMs: WAIT_MS });
     // regression: friend-danger-harness-vacuous-success
     await ui
-      .get(Handles.friendRemoveSuccess(username))
+      .get(Handles.friendRemoveSuccess(actorUsername(s, username)))
       .expect.visible({ timeoutMs: WAIT_MS });
     await ui
-      .get(Handles.friendRemoveDone(username))
+      .get(Handles.friendRemoveDone(actorUsername(s, username)))
       .tap({ timeoutMs: WAIT_MS });
     await ui
-      .get(Handles.friendRemoveSuccess(username))
+      .get(Handles.friendRemoveSuccess(actorUsername(s, username)))
       .expect.hidden({ timeoutMs: HIDDEN_MS });
     await ui.get(Handles.navBack).tap({ timeoutMs: WAIT_MS });
     await pollUntil(
@@ -114,7 +115,7 @@ export const removeFriend = scenarioAction({
           : null,
       { maxMs: WAIT_MS, description: 'the friends list after removal' }
     );
-    await ui.get(Handles.friendsListRow(username)).expect.hidden({
+    await ui.get(Handles.friendsListRow(actorUsername(s, username))).expect.hidden({
       timeoutMs: HIDDEN_MS,
     });
   },
@@ -125,7 +126,7 @@ export const unblockFriend = scenarioAction({
   act: async (s, actorId: string, username: string) => {
     await Promise.resolve(searchUsername.act(s, actorId, username));
     const ui = await actorUi(s, actorId);
-    const unblock = Handles.friendUnblock(username);
+    const unblock = Handles.friendUnblock(actorUsername(s, username));
     await pollUntil(
       s,
       async () => ((await ui.get(unblock).isVisible()) ? true : null),
@@ -140,6 +141,27 @@ export const unblockFriend = scenarioAction({
   },
 });
 
+/**
+ * A friend request opened from the inbox covers the tab bar, as a dialog
+ * does; a person closes it before going anywhere else.
+ */
+async function closeShownRequest(
+  s: Parameters<typeof actorUi>[0],
+  actorId: string
+): Promise<void> {
+  const ui = await actorUi(s, actorId);
+  for (const other of s.actors.keys()) {
+    if (other === actorId) continue;
+    const decline = Handles.notificationsFriendRequestDecline(
+      actorUsername(s, other)
+    );
+    if (!(await ui.get(decline).isVisible())) continue;
+    await ui.key('escape');
+    await ui.get(decline).expect.hidden({ timeoutMs: HIDDEN_MS });
+    return;
+  }
+}
+
 export const openFriendsList = scenarioAction({
   name: 'openFriendsList',
   act: async (s, actorId: string) => {
@@ -147,6 +169,7 @@ export const openFriendsList = scenarioAction({
     await ui.get(Handles.statusCurrentUser).expect.visible({
       timeoutMs: WAIT_MS,
     });
+    await closeShownRequest(s, actorId);
     if (
       !(await ui.get(Handles.tabProfile).isVisible()) &&
       (await ui.get(Handles.navBack).isVisible())
@@ -166,7 +189,7 @@ export const addFriend = scenarioAction({
   name: 'addFriend',
   act: async (s, actorId: string, username: string) => {
     const ui = await actorUi(s, actorId);
-    const add = Handles.friendAdd(username);
+    const add = Handles.friendAdd(actorUsername(s, username));
     // The search screen can still be settling when this starts. A wall-clock
     // wait does not fire the debounce timer, so keep virtual time moving
     // until Add is actually painted.
@@ -205,7 +228,7 @@ export const searchUntilAddOffered = scenarioAction({
       s,
       async () => {
         await Promise.resolve(searchUsername.act(s, actorId, username));
-        return (await ui.get(Handles.friendAdd(username)).isVisible())
+        return (await ui.get(Handles.friendAdd(actorUsername(s, username))).isVisible())
           ? true
           : null;
       },
