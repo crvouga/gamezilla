@@ -11,7 +11,8 @@
  *
  * The thresholds are in `libs/tools-harness-ts/cache-hygiene.json`.
  */
-import { readFileSync, writeFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { sliceDrift, syncBiomeSlices } from './biome-scope-slices';
 import { fileReachWithin, readImportGraph } from './cache-file-reach';
@@ -28,6 +29,7 @@ import {
   globalInputViolations,
   hubViolations,
   type LightFile,
+  missingInputViolations,
   type Policy,
   type TaskInputs,
   type Violation,
@@ -68,6 +70,25 @@ function taskInputs(packages: readonly GraphPackage[]): TaskInputs[] {
   return found;
 }
 
+const generated = new Map<string, boolean>();
+
+/**
+ * A named input exists, or is a git-ignored file a run writes before the
+ * task (`turbo-platform-key.json`, `.cache/...`).
+ */
+function presentOrGenerated(path: string): boolean {
+  if (existsSync(join(ROOT, path))) return true;
+  let ignored = generated.get(path);
+  if (ignored === undefined) {
+    ignored =
+      spawnSync('git', ['check-ignore', '--quiet', '--no-index', path], {
+        cwd: ROOT,
+      }).status === 0;
+    generated.set(path, ignored);
+  }
+  return ignored;
+}
+
 function lightFiles(
   reach: (file: string, maximum: number) => number | null,
   pkg: GraphPackage,
@@ -93,6 +114,7 @@ export function cacheHygieneViolations(policy = readPolicy()): Violation[] {
   const reach = (file: string, maximum: number): number | null =>
     fileReachWithin(imports, file, maximum)?.packages ?? null;
   const turbo = readJson<TurboFile>('turbo.json');
+  const tasks = taskInputs(packages);
   const base = readJson<{ compilerOptions?: { paths?: unknown } }>(
     'tsconfig.base.json'
   );
@@ -100,7 +122,8 @@ export function cacheHygieneViolations(policy = readPolicy()): Violation[] {
     ...hubViolations({ packages, blast, policy }, (pkg) =>
       lightFiles(reach, pkg, blast.get(pkg.name)?.packages.size ?? 0, policy)
     ),
-    ...broadInputViolations(taskInputs(packages), policy),
+    ...broadInputViolations(tasks, policy),
+    ...missingInputViolations(tasks, presentOrGenerated),
     ...globalInputViolations(
       {
         globalDependencies: turbo.globalDependencies ?? [],

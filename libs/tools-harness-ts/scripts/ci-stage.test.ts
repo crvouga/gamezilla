@@ -6,6 +6,23 @@ import fc from 'fast-check';
 import { ciStageTasks, isBlockingCiTask } from './ci-stage';
 import { MAIN_VERIFY_TASKS, RELEASE_JOURNEY_TASKS } from './turbo-ci-run';
 
+type Workflow = {
+  env: Record<string, string>;
+  jobs: Record<
+    string,
+    { steps: { uses?: string; with?: Record<string, unknown> }[] }
+  >;
+};
+
+function verifyWorkflow(): Workflow {
+  return Bun.YAML.parse(
+    readFileSync(
+      join(import.meta.dirname, '../../../.github/workflows/verify-pr.yml'),
+      'utf8'
+    )
+  ) as Workflow;
+}
+
 test('nightly and local verification retain the complete catalog', () => {
   expect(ciStageTasks(MAIN_VERIFY_TASKS, 'nightly')).toEqual(MAIN_VERIFY_TASKS);
   expect(ciStageTasks(MAIN_VERIFY_TASKS, undefined)).toEqual(MAIN_VERIFY_TASKS);
@@ -17,6 +34,7 @@ test('blocking stages preserve irreversible-change and security safeguards', () 
     for (const task of [
       'tc',
       'lint',
+      'test',
       '@libs/tools-harness-ts#verify:secrets',
       '@libs/tools-harness-ts#verify:workflow-security',
       '@libs/runtime-server-ts#verify:schema-evolution',
@@ -25,13 +43,65 @@ test('blocking stages preserve irreversible-change and security safeguards', () 
     ])
       expect(tasks).toContain(task);
     for (const task of [
-      'test',
-      'verify:models',
-      'test:spec:0',
-      'test:contract:0',
+      '@libs/permissions-harness-ts#test',
+      '@pkgs/db-migrate-shared-ts#test',
+      '@pkgs/auth-root-harness-ts#test',
     ])
-      expect(tasks).not.toContain(task);
-    expect(tasks).toContain('@libs/permissions-harness-ts#test');
+      expect(isBlockingCiTask(task, tasks)).toBe(true);
+  }
+});
+
+// regression: consistency-gates-nightly-only
+test('pull requests are held to the catalog, spec language and chart ownership gates', () => {
+  for (const stage of ['pr', 'release']) {
+    const tasks = ciStageTasks(MAIN_VERIFY_TASKS, stage);
+    for (const task of [
+      '@libs/tools-harness-ts#ci:i18n',
+      '@libs/tools-harness-ts#ci:specs',
+      '@libs/tools-harness-ts#ci:statecharts',
+    ]) {
+      expect(tasks).toContain(task);
+      expect(isBlockingCiTask(task, tasks)).toBe(true);
+    }
+  }
+});
+
+// regression: pr-gate-narrower-than-nightly
+test('PR and Release hold a change to every gate task nightly runs', () => {
+  const nightly = ciStageTasks(MAIN_VERIFY_TASKS, 'nightly');
+  for (const stage of ['pr', 'release'])
+    expect(ciStageTasks(MAIN_VERIFY_TASKS, stage)).toEqual(nightly);
+  // Nightly's gate found these red on main 93782bb0a after PR #287, PR #288
+  // and commit e2cc4c093 each passed Verify: none was in the PR selection.
+  const pr = ciStageTasks(MAIN_VERIFY_TASKS, 'pr');
+  for (const task of [
+    '@libs/tools-harness-ts#verify:brand-policy',
+    '@libs/tools-harness-ts#verify:rebrand',
+    '@libs/tools-harness-ts#ci:cache-hygiene',
+    '@apps/server-ts#test',
+    '@libs/billing-harness-ts#test',
+    '@pkgs/ui-root-harness-ts#test',
+    '@libs/runtime-client-ts#test',
+    '@libs/infra-server-ts#test',
+    '@libs/tools-harness-ts#test',
+    '@libs/sokoban-harness-ts#test:spec:0',
+    '@libs/light-cycles-harness-ts#test:spec:0',
+    '@libs/games-harness-ts#test:contract:0',
+    '@pkgs/ui-root-harness-ts#ci:storybook',
+  ])
+    expect(isBlockingCiTask(task, pr)).toBe(true);
+});
+
+// regression: pr-gate-narrower-than-nightly
+test('gate shards install every toolchain the gate catalog needs', () => {
+  const workflow = verifyWorkflow();
+  for (const job of ['verify-shards', 'verify-end']) {
+    const setup = workflow.jobs[job]!.steps.find(
+      (step) => step.uses === './.github/actions/setup'
+    )!;
+    // Unset is the setup action's default: every pinned tool, lazy included,
+    // which is what nightly's gate shards ran the same catalog with.
+    expect(setup.with?.['tools']).toBeUndefined();
   }
 });
 
@@ -43,13 +113,7 @@ test('a misspelled stage cannot silently remove verification', () => {
 
 // regression: release-schema-compared-to-itself
 test('Release compares schema evolution against the pre-push commit', () => {
-  const workflow = Bun.YAML.parse(
-    readFileSync(
-      join(import.meta.dirname, '../../../.github/workflows/verify-pr.yml'),
-      'utf8'
-    )
-  ) as { env: Record<string, string> };
-  expect(workflow.env['PR_BASE']).toBe(
+  expect(verifyWorkflow().env['PR_BASE']).toBe(
     "${{ github.event.pull_request.base.sha || github.event.before || format('{0}^', github.sha) }}"
   );
 });
@@ -59,55 +123,27 @@ test('PR and Release enforce the same production-build journeys', () => {
   const pr = ciStageTasks(MAIN_VERIFY_TASKS, 'pr');
   const release = ciStageTasks(MAIN_VERIFY_TASKS, 'release');
   expect(pr).toEqual(release);
-  for (const task of pr) expect(release).toContain(task);
   for (const task of RELEASE_JOURNEY_TASKS) {
     expect(pr).toContain(task);
-    expect(isBlockingCiTask(task)).toBe(true);
-    expect(ciStageTasks(MAIN_VERIFY_TASKS, 'nightly')).toContain(task);
+    expect(isBlockingCiTask(task, pr)).toBe(true);
   }
-  expect(new Set(release).size).toBe(release.length);
   expect(new Set(pr).size).toBe(pr.length);
-  for (const task of pr)
-    expect(
-      MAIN_VERIFY_TASKS.includes(task) ||
-        (task.endsWith('#test') && MAIN_VERIFY_TASKS.includes('test'))
-    ).toBe(true);
-  for (const task of [
-    '@pkgs/db-migrate-shared-ts#test',
-    '@pkgs/db-schema-root-shared-ts#test',
-    '@pkgs/permissions-shared-ts#test',
-  ])
-    expect(pr).toContain(task);
 });
 
 test('PR and manual prediction runs differ from reusable release and nightly runs', () => {
-  const workflow = Bun.YAML.parse(
-    readFileSync(
-      join(import.meta.dirname, '../../../.github/workflows/verify-pr.yml'),
-      'utf8'
-    )
-  ) as { env: Record<string, string> };
-  expect(workflow.env['VERIFY_CI_STAGE']).toBe(
+  expect(verifyWorkflow().env['VERIFY_CI_STAGE']).toBe(
     "${{ inputs.profile == 'nightly' && 'nightly' || (inputs.profile == 'release' && 'release' || 'pr') }}"
   );
 });
 
-test('stage selections stay nested as the catalog grows and changes order', () => {
+test('every stage selects the whole catalog as it grows and changes order', () => {
   assertProperty(
-    'ci-stage-nested-coverage',
+    'ci-stage-whole-catalog',
     fc.property(
       fc.shuffledSubarray([...MAIN_VERIFY_TASKS, 'future:verification']),
-      (catalog) => {
-        const pr = ciStageTasks(catalog, 'pr');
-        const release = ciStageTasks(catalog, 'release');
-        const nightly = ciStageTasks(catalog, 'nightly');
-        expect(pr).toEqual(release);
-        // Focused test selections are covered by nightly's generic test task.
-        for (const task of release)
-          expect(nightly.includes(task) || task.endsWith('#test')).toBe(true);
-        expect(nightly).toEqual(catalog);
-        expect(pr).not.toContain('future:verification');
-        expect(release).not.toContain('future:verification');
+      fc.constantFrom('pr', 'release', 'nightly', undefined, ''),
+      (catalog, stage) => {
+        expect(ciStageTasks(catalog, stage)).toEqual(catalog);
       }
     )
   );

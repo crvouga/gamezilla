@@ -22,6 +22,20 @@ export const PRODUCT_ROUTE_ROOTS = [
   'apps/product-ts/src/console-nav-real.ts',
 ] as const;
 
+/**
+ * Sources outside the route roots and the `sub-client` entries that the
+ * statechart compiler reads for routes and links. `turbo.json`'s
+ * `@libs/tools-harness-ts#ci:statecharts` inputs cover each (a test).
+ */
+export const PRODUCT_LINK_SOURCES = [
+  'libs/game-menu-client-ts/src/personal-puzzle-stats-clients.tsx',
+  'libs/game-puzzle-client-ts/src/puzzle-link-client.ts',
+  'libs/game-puzzle-shared-ts/src/puzzle-link.ts',
+  'libs/game-matchmaking-client-ts/src/multiplayer-link-client.tsx',
+  'libs/game-matchmaking-shared-ts/src/multiplayer-link.ts',
+  'libs/observatory-shared-ts/src/observatory-routes.ts',
+] as const;
+
 function namedProperty(
   location: Location,
   name: string

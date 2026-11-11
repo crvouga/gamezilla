@@ -134,8 +134,8 @@ function keyNumbers(input: StatsInput): string {
     '## Key numbers',
     '',
     `- Complete catalog (release-depth cost reference): ${duration(load.coldSeconds)} of task time over ${String(load.tasks)} tasks in ${String(load.packages)} packages (${String(load.measuredTasks)} measured, ${String(load.estimatedTasks)} estimated).`,
-    `- Pull-request safety selection: ${duration(split.prSeconds)} over ${String(split.prTasks)} tasks, the same safety checks Release reuses.`,
-    `- Nightly-only catalog work: ${duration(split.nightlyOnlySeconds)} over ${String(split.nightlyOnlyTasks)} tasks.`,
+    `- Pull-request gate (the whole catalog; only cache misses execute): ${duration(split.prSeconds)} over ${String(split.prTasks)} tasks, the same gate Release and nightly run.`,
+    `- Nightly-only deeper groups: ${duration(split.nightlyOnlySeconds)} over ${String(split.nightlyOnlyTasks)} tasks.`,
     `- Longest indivisible task: ${split.longest[0]?.id ?? 'n/a'} at ${duration(split.longest[0]?.seconds ?? 0)}. No pool size makes a run faster than this plus setup.`,
     `- Shard cap: ${input.workload.workflows.find((w) => w.shardCap)?.shardCap ?? 'unknown'} per verify run (repo variable \`VERIFY_SHARDS\` overrides: ${input.variables['VERIFY_SHARDS'] ?? 'unset'}).`,
   ];

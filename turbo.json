@@ -1194,7 +1194,7 @@
         "$TURBO_ROOT$/lingui.config.ts",
         "$TURBO_ROOT$/lingui.solid.config.ts",
         "$TURBO_ROOT$/libs/app-root-shared-ts/locales/**",
-        "$TURBO_ROOT$/apps/client-ts/babel.config.js",
+        "$TURBO_ROOT$/apps/client-ts/vite.config.mts",
         "$TURBO_ROOT$/pkgs/bun-test-solid-client-ts/src/babel.config.cjs",
         "$TURBO_ROOT$/libs/tools-harness-ts/scripts/ci-i18n.ts",
         "$TURBO_ROOT$/libs/tools-harness-ts/scripts/lingui-scope.ts"
@@ -1246,6 +1246,7 @@
         "$TURBO_ROOT$/{apps,libs,pkgs}/*/biome-scope.json",
         "$TURBO_ROOT$/{apps,libs,pkgs}/*/src/**",
         "$TURBO_ROOT$/{apps/product-ts,apps/server-ts,libs/harness-ts,pkgs/sql-client-sqlite-web-server-ts}/scripts/**",
+        "$TURBO_ROOT$/.gitignore",
         "$TURBO_ROOT$/libs/tools-harness-ts/cache-hygiene.json",
         "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-cache-hygiene.ts",
         "$TURBO_ROOT$/libs/tools-harness-ts/scripts/cache-hygiene.ts",
@@ -2959,11 +2960,12 @@
         "$TURBO_ROOT$/libs/app-root-client-ts/src/route-table.ts",
         "$TURBO_ROOT$/libs/runtime-client-ts/src/app-sub-clients.ts",
         "$TURBO_ROOT$/libs/*-client-ts/src/sub-client.{ts,tsx}",
-        "$TURBO_ROOT$/libs/chess-puzzle-client-ts/src/personal-chess-stats-client.tsx",
+        "$TURBO_ROOT$/libs/game-menu-client-ts/src/personal-puzzle-stats-clients.tsx",
         "$TURBO_ROOT$/libs/game-puzzle-client-ts/src/puzzle-link-client.ts",
         "$TURBO_ROOT$/libs/game-puzzle-shared-ts/src/puzzle-link.ts",
         "$TURBO_ROOT$/libs/game-matchmaking-client-ts/src/multiplayer-link-client.tsx",
         "$TURBO_ROOT$/libs/game-matchmaking-shared-ts/src/multiplayer-link.ts",
+        "$TURBO_ROOT$/libs/observatory-shared-ts/src/observatory-routes.ts",
         "$TURBO_ROOT$/apps/product-ts/src/main.tsx",
         "$TURBO_ROOT$/apps/product-ts/src/console-nav-real.ts"
       ],
@@ -2995,6 +2997,10 @@
       "passThroughEnv": ["*"]
     },
     "//#task:deps:graph": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "//#task:alerts": {
       "cache": false,
       "passThroughEnv": ["*"]
     },

@@ -5,7 +5,7 @@ name: Release
 #   <Workflow> · <trigger>
 run-name: "Release · ${{ github.event_name == 'push' && 'push' || 'manual' }}"
 
-# Every push to main verifies the exact commit with the blocking safety checks,
+# Every push to main verifies the exact commit with the whole gate (cached verdicts replay),
 # then releases shared services, development, and production in order.
 # Rehearsals verify and plan without releasing.
 

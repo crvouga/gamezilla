@@ -1,7 +1,10 @@
 import { describe, expect, test } from 'bun:test';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import type { MachineConfig } from '@crvouga/atlas';
 import {
   declaredProductRoutes,
+  PRODUCT_LINK_SOURCES,
   PRODUCT_ROUTE_ROOTS,
   routeCoverageProblems,
 } from './statechart-routes';
@@ -297,4 +300,22 @@ describe('declared product route closure', () => {
       )
     ).toBe(true);
   });
+});
+
+// regression: gate-inputs-name-missing-files
+test('turbo hashes every source the statechart verification reads', () => {
+  const turbo = JSON.parse(
+    readFileSync(join(import.meta.dirname, '../../../turbo.json'), 'utf8')
+  ) as { tasks: Record<string, { inputs?: string[] }> };
+  const inputs = (
+    turbo.tasks['@libs/tools-harness-ts#ci:statecharts']?.inputs ?? []
+  ).map((input) => input.replace('$TURBO_ROOT$/', ''));
+  const unhashed = [
+    ...PRODUCT_ROUTE_ROOTS,
+    ...PRODUCT_LINK_SOURCES,
+    'libs/example-client-ts/src/sub-client.tsx',
+    'specs/example/example.feature',
+    'docs/statecharts/README.md',
+  ].filter((path) => !inputs.some((input) => new Bun.Glob(input).match(path)));
+  expect(unhashed).toEqual([]);
 });

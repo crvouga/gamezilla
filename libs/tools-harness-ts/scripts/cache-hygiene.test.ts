@@ -14,6 +14,8 @@ import {
   globalInputViolations,
   hubViolations,
   isBroadInput,
+  missingInputViolations,
+  namedInputs,
   type Policy,
   type Violation,
 } from './cache-hygiene';
@@ -245,6 +247,39 @@ test('a task with a broad glob fails unless allowed, and only up to its count', 
   expect(again?.message).toContain('allows 1 (reads every manifest)');
 });
 
+// --------------------------------------------------------- missing inputs
+
+// regression: gate-inputs-name-missing-files
+test('an input naming a file that does not exist fails; globs and present files pass', () => {
+  const task = {
+    task: '@libs/tools-harness-ts#ci:i18n',
+    inputs: [
+      '$TURBO_DEFAULT$',
+      '$TURBO_ROOT$/libs/a-client-ts/src/**/*.{ts,tsx}',
+      '$TURBO_ROOT$/apps/client-ts/babel.config.js',
+      '$TURBO_ROOT$/apps/client-ts/vite.config.mts',
+      '!$TURBO_ROOT$/apps/gone.ts',
+      'src/**',
+    ],
+  };
+  expect(namedInputs(task.inputs)).toEqual([
+    'apps/client-ts/babel.config.js',
+    'apps/client-ts/vite.config.mts',
+  ]);
+  const present = new Set(['apps/client-ts/vite.config.mts']);
+  const [violation, ...rest] = missingInputViolations([task], (path) =>
+    present.has(path)
+  );
+  expect(rest).toEqual([]);
+  expect(violation?.rule).toBe('missing-input');
+  expect(violation?.message).toContain('`apps/client-ts/babel.config.js`');
+  expect(violation?.message).not.toContain('vite.config.mts');
+  present.add('apps/client-ts/babel.config.js');
+  expect(missingInputViolations([task], (path) => present.has(path))).toEqual(
+    []
+  );
+});
+
 // ---------------------------------------------------------- global inputs
 
 test('a new global dependency, a new global variable, or aliases in the base config fail', () => {
@@ -300,6 +335,10 @@ test('every message names the problem, the cost and the fix', () => {
       POLICY
     ),
     ...derivedViolations({ srcEdges: ['a'], biomeSlices: ['b'] }),
+    ...missingInputViolations(
+      [{ task: 't', inputs: ['$TURBO_ROOT$/gone.ts'] }],
+      () => false
+    ),
   ].map((v) => v.message);
   expect(messages.length).toBeGreaterThan(5);
   for (const message of messages) {

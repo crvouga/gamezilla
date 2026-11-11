@@ -1,0 +1,4 @@
+{
+  "summary": "Gate task inputs named files that had been renamed (apps/client-ts/babel.config.js for ci:i18n, libs/chess-puzzle-client-ts/src/personal-chess-stats-client.tsx for ci:statecharts), so the files those gates really read were not in their Turbo hash and edits to them replayed stale cached verdicts.",
+  "regressionTest": "libs/tools-harness-ts/scripts/cache-hygiene.test.ts"
+}
