@@ -12,6 +12,7 @@ import {
   desiredSyntheticPopulationShown,
   givenDesiredSyntheticPopulation,
   openSyntheticPopulationPanel,
+  openSyntheticUserDirectory,
   syntheticActivityShown,
   syntheticPopulationDenied,
 } from '@libs/synthetic-population-harness-ts/observatory-actions';
@@ -70,6 +71,7 @@ When(
 Then(
   '{actor} sees a desired synthetic population of {int}',
   async (w, actor: Actor, desired: number) => {
+    await w.s.apply(openSyntheticUserDirectory, actor);
     await w.s.until((s) => desiredSyntheticPopulationShown(s, actor), {
       pred: (value) => value === desired,
       maxMs: 10_000,

@@ -5,7 +5,7 @@ import {
   LIVE_WATCH_LEASE_MS,
 } from '@libs/observatory-shared-ts/live-session';
 import {
-  OBSERVATORY_PATH,
+  ONLINE_NOW_PATH,
   syntheticUserPath,
 } from '@libs/observatory-shared-ts/observatory-routes';
 import { DecisionGate } from '@libs/permissions-client-ts/decision-gate';
@@ -84,7 +84,7 @@ function LiveWatchContent(): JSX.Element {
       canControl={control()}
       onControlPanel={(id) => router.push(syntheticUserPath(id))}
       onRetry={watch.retry}
-      onBack={() => router.push(OBSERVATORY_PATH)}
+      onBack={() => router.push(ONLINE_NOW_PATH)}
     />
   );
 }

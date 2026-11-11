@@ -77,8 +77,12 @@ not-found route `/*all`. Tab roots (`tab: true`) nest under `TabsLayout`
 | `/more/<game>-stats` (chess only today) | `libs/game-menu-client-ts/src/personal-puzzle-stats-clients.tsx` → `libs/game-puzzle-client-ts/src/personal-puzzle-stats-screen.tsx` | ContentScreen wrapping GameHistoryScreen / GameReviewScreen |
 | `/chess/puzzle/:puzzleId` | `libs/game-puzzle-client-ts/src/puzzle-link-client.ts` → `puzzle-link-screen.tsx` | ContentScreen |
 | `/:gameId/multiplayer` | `libs/game-matchmaking-client-ts/src/multiplayer-link-client.tsx` → `multiplayer-link-screen.tsx` | ContentScreen |
-| `/admin/observatory` · `/live/:sessionId` | `libs/observatory-client-ts/src/user-observatory-screen.tsx`, `live-watch-screen.tsx` (lazy) | ContentScreen |
-| `/admin/observatory/synthetic-users` · `/config` · `/:id` | `libs/synthetic-population-client-ts/src/synthetic-population-screen.tsx`, `synthetic-user-screen.tsx` (lazy) | ContentScreen |
+| `/admin/observatory` | `libs/observatory-client-ts/src/user-observatory-screen.tsx` (lazy) | MenuScreen (links only) |
+| `/admin/observatory/online` · `/live/:sessionId` | `libs/observatory-client-ts/src/online-now-screen.tsx`, `live-watch-screen.tsx` (lazy) | ContentScreen (`DataTable`; live view) |
+| `/admin/observatory/synthetic-users` | `libs/synthetic-population-client-ts/src/synthetic-population-screen.tsx` (lazy) | MenuScreen (links only) |
+| `/admin/observatory/synthetic-users/directory` · `/workers` · `/events` · `/:id/events` | `libs/synthetic-population-client-ts/src/` table screens (lazy) | ContentScreen (`DataTable`) |
+| `/admin/observatory/synthetic-users/settings` | `libs/synthetic-population-client-ts/src/` settings screen (lazy) | Form screen (one form) |
+| `/admin/observatory/synthetic-users/:id` · `/:id/replay` · `/:id/inspector` | `libs/synthetic-population-client-ts/src/synthetic-user-screen.tsx` and its detail surfaces (lazy) | ProfileScreenLayout / ContentScreen |
 | `/client/sql` | `libs/app-root-client-ts/src/client-sql.tsx` | ScreenBase (raw) |
 | `/client/events` | `client-events.tsx` | ContentScreen |
 | `/ui`, `/ui/:component` | `ui-explorer.tsx`, `ui-explorer-detail.tsx` | ExplorerList / ExplorerDetail |

@@ -3,7 +3,7 @@ import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront } from '@libs/harness-ts/observations';
 import {
-  SYNTHETIC_USERS_PATH,
+  SYNTHETIC_USER_DIRECTORY_PATH,
   syntheticUserPath,
 } from '@libs/observatory-shared-ts/observatory-routes';
 import { SyntheticUserApplication } from '@libs/synthetic-population-behavior-shared-ts/synthetic-user-application';
@@ -37,7 +37,11 @@ export const pauseSyntheticUser = scenarioAction({
     const ui = await actorUi(s, actor);
     await s.actors.get(actor)!.openLink(syntheticUserPath(user.id));
     if (await ui.get('synthetic-population-inspect-denied').isVisible()) return;
+    // Pausing asks first; the person confirms, sees it done and closes it.
     await ui.get('synthetic-population-pause').tap();
+    await ui.get('synthetic-population-pause-confirm').tap();
+    await ui.get('synthetic-population-pause-done').expect.visible();
+    await ui.get('synthetic-population-pause-dismiss').tap();
     await ui
       .get('synthetic-population-availability')
       .expect.text('Synthetic Population statePaused');
@@ -100,7 +104,8 @@ export const finishPausedSession = scenarioAction({
 export async function cedarAvailable(s: ProductHarness, actor: string) {
   const user = await cedarUser(s);
   const ui = await actorUi(s, actor);
-  await s.actors.get(actor)!.openLink(SYNTHETIC_USERS_PATH);
+  await s.actors.get(actor)!.openLink(SYNTHETIC_USER_DIRECTORY_PATH);
+  await s.session.waitForIdle();
   const text = await ui.get(`synthetic-population-user-${user.id}`).text();
   // The row names its activity as people say it ("Browsing").
   return (

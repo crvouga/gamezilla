@@ -1,26 +1,25 @@
-import {
-  OBSERVATORY_PATH,
-  SYNTHETIC_USERS_PATH,
-} from '@libs/observatory-shared-ts/observatory-routes';
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import type { Inspection } from '@libs/synthetic-population-shared-ts/inspection';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
-import { RefreshCwIcon } from '@pkgs/ui-root-client-ts/icons';
+import {
+  CodeIcon,
+  HistoryIcon,
+  RotateCcwIcon,
+} from '@pkgs/ui-root-client-ts/icons';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
+import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
+import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { ProfileScreenLayout } from '@pkgs/ui-root-client-ts/profile-screen-layout';
 import type {
   ScreenBaseAction,
   ScreenBaseBreadcrumb,
 } from '@pkgs/ui-root-client-ts/screen-base-types';
 import { type JSX, Show } from 'solid-js';
-import type {
-  SyntheticPopulationEventView,
-  SyntheticUserDetail,
-} from './synthetic-population-api';
+import type { SyntheticUserDetail } from './synthetic-population-api';
 import { SyntheticPopulationDenial } from './synthetic-population-denial';
-import { SyntheticPopulationEventTimeline } from './synthetic-population-event-timeline';
+import { panelCrumbs, useRefreshAction } from './synthetic-population-frame';
 import {
   type SyntheticUserCommand,
   SyntheticUserControls,
@@ -29,7 +28,6 @@ import {
   SyntheticUserDiagnostics,
   SyntheticUserStatus,
 } from './synthetic-user-details';
-import { SyntheticUserDom } from './synthetic-user-dom';
 import {
   SyntheticUserAvatar,
   SyntheticUserIdentity,
@@ -37,35 +35,31 @@ import {
 import { SyntheticUserPersona } from './synthetic-user-persona';
 import { SyntheticUserStatechart } from './synthetic-user-statechart';
 
-/** One Synthetic User and its recorded events. */
-export type SyntheticUserRecord = {
-  readonly user: SyntheticUserDetail;
-  readonly events: readonly SyntheticPopulationEventView[];
-};
+/** Where a control panel leads: each a surface of its own. */
+export type SyntheticUserDestination = 'events' | 'replay' | 'inspector';
 
 export type SyntheticUserScreenViewProps = {
   /**
-   * The record is being read. Shown on its own on the first read; while a
-   * refresh runs the header's Refresh shows it, the record staying in view.
+   * The Synthetic User is being read. Shown on its own on the first read;
+   * while a refresh runs the header's Refresh shows it.
    */
   readonly loading: boolean;
   /** The last read failed; its retry and the header's Refresh read again. */
   readonly failed: boolean;
-  /** The latest record read, if any. */
-  readonly record: SyntheticUserRecord | undefined;
+  /** The Synthetic User last read, if any. */
+  readonly user: SyntheticUserDetail | undefined;
   /** The live DOM capture for the user's current generation, if any. */
   readonly snapshot: Inspection | null;
   /** Set when the person may not inspect Synthetic Users; replaces the screen. */
   readonly denial?: DenialView | undefined;
   /** Shows pause, resume and restart. */
   readonly canControl: boolean;
+  /** Offers decision replay. */
+  readonly canReplay: boolean;
   readonly onRefresh: () => void;
-  /** Sends a control command; its button shows the outcome. */
+  /** Sends a control command once confirmed; its dialog shows the outcome. */
   readonly onCommand: (command: SyntheticUserCommand) => Promise<void>;
-  /** Requests a live DOM capture; its button shows the outcome. */
-  readonly onInspect: () => Promise<void>;
-  /** Decision Policy replay for the user; it runs its own replays. */
-  readonly replay?: ((userId: string) => JSX.Element) | undefined;
+  readonly onOpen: (destination: SyntheticUserDestination) => void;
 };
 
 type ScreenFrame = {
@@ -84,6 +78,40 @@ function ReadFailed(props: { onRetry: () => void }): JSX.Element {
   );
 }
 
+/** The ways on from a control panel: its records, each on its own screen. */
+function SyntheticUserRecords(
+  props: Pick<SyntheticUserScreenViewProps, 'canReplay' | 'onOpen'>
+): JSX.Element {
+  const { t } = useLingui();
+  return (
+    <MenuSection title={<Trans>Records</Trans>}>
+      <MenuRow
+        leading={<HistoryIcon size={20} color="icon" />}
+        title={t`Event timeline`}
+        caption={t`What this Synthetic User recorded, newest first`}
+        onClick={() => props.onOpen('events')}
+        dataSet={{ testid: 'synthetic-user-open-events' }}
+      />
+      <Show when={props.canReplay}>
+        <MenuRow
+          leading={<RotateCcwIcon size={20} color="icon" />}
+          title={t`Decision replay`}
+          caption={t`Whether the current Decision Policy makes its recorded choices`}
+          onClick={() => props.onOpen('replay')}
+          dataSet={{ testid: 'synthetic-user-open-replay' }}
+        />
+      </Show>
+      <MenuRow
+        leading={<CodeIcon size={20} color="icon" />}
+        title={t`UI inspector`}
+        caption={t`A sanitized capture of its app's live screen`}
+        onClick={() => props.onOpen('inspector')}
+        dataSet={{ testid: 'synthetic-user-open-inspector' }}
+      />
+    </MenuSection>
+  );
+}
+
 /**
  * The control panel of the Synthetic User on screen. Mounted once per
  * Synthetic User, so a command's dialog or feedback never follows the
@@ -91,20 +119,19 @@ function ReadFailed(props: { onRetry: () => void }): JSX.Element {
  */
 function SyntheticUserProfile(
   props: SyntheticUserScreenViewProps &
-    ScreenFrame & { record: SyntheticUserRecord }
+    ScreenFrame & { user: SyntheticUserDetail }
 ): JSX.Element {
-  const user = () => props.record.user;
   return (
     <ProfileScreenLayout
       screenId="synthetic-user"
       breadcrumbs={props.breadcrumbs}
       actions={props.actions}
-      avatar={<SyntheticUserAvatar user={user()} size={64} />}
-      identity={<SyntheticUserIdentity user={user()} />}
+      avatar={<SyntheticUserAvatar user={props.user} size={64} />}
+      identity={<SyntheticUserIdentity user={props.user} />}
       rail={
         <>
-          <SyntheticUserStatus user={user()} />
-          <SyntheticUserDiagnostics user={user()} />
+          <SyntheticUserStatus user={props.user} />
+          <SyntheticUserDiagnostics user={props.user} />
         </>
       }
     >
@@ -115,16 +142,11 @@ function SyntheticUserProfile(
         canControl={props.canControl}
         command={props.onCommand}
       />
-      <SyntheticUserPersona persona={user().persona} />
-      <SyntheticPopulationEventTimeline events={props.record.events} />
-      {props.replay?.(user().id)}
+      <SyntheticUserPersona persona={props.user.persona} />
+      <SyntheticUserRecords canReplay={props.canReplay} onOpen={props.onOpen} />
       <SyntheticUserStatechart
-        activity={user().activity}
+        activity={props.user.activity}
         snapshot={props.snapshot}
-      />
-      <SyntheticUserDom
-        snapshot={props.snapshot}
-        inspect={() => props.onInspect()}
       />
     </ProfileScreenLayout>
   );
@@ -133,27 +155,13 @@ function SyntheticUserProfile(
 function SyntheticUserInspector(
   props: SyntheticUserScreenViewProps
 ): JSX.Element {
-  const { t } = useLingui();
-  const breadcrumbs = (): ScreenBaseBreadcrumb[] => [
-    { name: <Trans>Profile</Trans>, href: '/profile' },
-    { name: <Trans>Settings</Trans>, href: '/more' },
-    { name: <Trans>User Observatory</Trans>, href: OBSERVATORY_PATH },
-    { name: <Trans>Synthetic Users</Trans>, href: SYNTHETIC_USERS_PATH },
-    { name: props.record?.user.username ?? t`Synthetic User` },
-  ];
-  // Live updates reread on their own; Refresh is a quiet header action.
-  const actions = (): ScreenBaseAction[] => [
-    {
-      type: 'secondary',
-      label: t`Refresh`,
-      icon: RefreshCwIcon,
-      loading: props.loading,
-      onClick: () => props.onRefresh(),
-    },
-  ];
+  // The identity header names the Synthetic User; the trail names the screen.
+  const breadcrumbs = (): ScreenBaseBreadcrumb[] =>
+    panelCrumbs([{ name: <Trans>Control panel</Trans> }]);
+  const actions = useRefreshAction(props);
   return (
     <Show
-      when={props.record?.user.id}
+      when={props.user?.id}
       keyed
       fallback={
         <ContentScreen
@@ -167,18 +175,18 @@ function SyntheticUserInspector(
           <Show when={props.loading}>
             <LoadingState
               variant="compact"
-              caption={<Trans>Reading activity…</Trans>}
+              caption={<Trans>Reading Synthetic User…</Trans>}
             />
           </Show>
         </ContentScreen>
       }
     >
       {(_userId) => (
-        <Show when={props.record}>
-          {(record) => (
+        <Show when={props.user}>
+          {(user) => (
             <SyntheticUserProfile
               {...props}
-              record={record()}
+              user={user()}
               breadcrumbs={breadcrumbs()}
               actions={actions()}
             />
@@ -192,11 +200,13 @@ function SyntheticUserInspector(
 /**
  * `/admin/observatory/synthetic-users/:id`, presentational: one Synthetic
  * User's control panel. It leads with who the Synthetic User is (its face,
- * name, Bot tag, whether it is paused and what it is doing), then its
- * commands, persona, events, decision replay, behavior statechart and live
- * DOM capture; its status and diagnostics (ids, worker, lease) sit beside
- * them on a desktop and after them on a phone. Its loading, failed and
- * denied states replace the record. `SyntheticUserScreen` wires it.
+ * name, Bot tag, whether it is paused and what it is doing), then pause,
+ * resume and restart (each confirmed in a dialog that reports its
+ * outcome), its persona, the ways to its event timeline, decision replay
+ * and UI inspector (each a screen of its own) and its behavior statechart;
+ * its status and diagnostics sit beside them on a desktop and after them
+ * on a phone. Its loading, failed and denied states replace it.
+ * `SyntheticUserScreen` wires it.
  */
 export function SyntheticUserScreenView(
   props: SyntheticUserScreenViewProps

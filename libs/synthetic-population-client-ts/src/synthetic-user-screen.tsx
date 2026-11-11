@@ -1,30 +1,48 @@
+import {
+  syntheticUserEventsPath,
+  syntheticUserInspectorPath,
+  syntheticUserReplayPath,
+} from '@libs/observatory-shared-ts/observatory-routes';
 import { DecisionGate } from '@libs/permissions-client-ts/decision-gate';
 import { useCan, useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
+import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
 import { useParams } from '@solidjs/router';
 import type { JSX } from 'solid-js';
-import { resourceValue } from './resource-value';
-import { SyntheticUserReplay } from './synthetic-user-replay';
-import { SyntheticUserScreenView } from './synthetic-user-screen-view';
+import {
+  type SyntheticUserDestination,
+  SyntheticUserScreenView,
+} from './synthetic-user-screen-view';
 import { useSyntheticUser } from './use-synthetic-user';
+
+const DESTINATIONS: Readonly<
+  Record<SyntheticUserDestination, (id: string) => string>
+> = {
+  events: syntheticUserEventsPath,
+  replay: syntheticUserReplayPath,
+  inspector: syntheticUserInspectorPath,
+};
 
 function SyntheticUserContent(): JSX.Element {
   const params = useParams();
-  const inspector = useSyntheticUser(() => params['id'] ?? '');
+  const router = useRouter();
+  const id = () => params['id'] ?? '';
+  const user = useSyntheticUser(id);
   const control = useCan(PERMISSION.syntheticPopulationControl);
+  const replay = useCan(PERMISSION.syntheticPopulationReplay);
   return (
     <SyntheticUserScreenView
-      loading={inspector.record.loading}
-      failed={Boolean(inspector.record.error)}
-      record={resourceValue(inspector.record)}
-      snapshot={inspector.snapshot()}
+      loading={user.record.loading}
+      failed={Boolean(user.record.error)}
+      user={user.shown()}
+      snapshot={user.snapshot()}
       canControl={control()}
+      canReplay={replay()}
       onRefresh={() => {
-        void inspector.refetch();
+        void user.refetch();
       }}
-      onCommand={inspector.command}
-      onInspect={() => inspector.command('inspect')}
-      replay={(userId) => <SyntheticUserReplay userId={userId} />}
+      onCommand={user.command}
+      onOpen={(destination) => router.push(DESTINATIONS[destination](id()))}
     />
   );
 }
@@ -41,12 +59,13 @@ export function SyntheticUserScreen(): JSX.Element {
           denial={denial}
           loading={false}
           failed={false}
-          record={undefined}
+          user={undefined}
           snapshot={null}
           canControl={false}
+          canReplay={false}
           onRefresh={() => undefined}
           onCommand={async () => undefined}
-          onInspect={async () => undefined}
+          onOpen={() => undefined}
         />
       )}
     >

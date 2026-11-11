@@ -1,6 +1,8 @@
 import {
-  SYNTHETIC_USERS_CONFIG_PATH,
-  SYNTHETIC_USERS_CONTROL_PATH,
+  SYNTHETIC_POPULATION_EVENTS_PATH,
+  SYNTHETIC_POPULATION_SETTINGS_PATH,
+  SYNTHETIC_POPULATION_WORKERS_PATH,
+  SYNTHETIC_USER_DIRECTORY_PATH,
   SYNTHETIC_USERS_PATH,
 } from '@libs/observatory-shared-ts/observatory-routes';
 import { defineSubClient, type SubClient } from '@libs/sub-client-ts/client';
@@ -37,17 +39,31 @@ export function createSyntheticPopulationClient(options: {
         })),
       },
       {
-        path: SYNTHETIC_USERS_CONFIG_PATH,
+        path: SYNTHETIC_USER_DIRECTORY_PATH,
         component: lazy(async () => ({
-          default: (await import('./synthetic-population-screen'))
-            .SyntheticPopulationConfigurationScreen,
+          default: (await import('./synthetic-users-screen'))
+            .SyntheticUsersScreen,
         })),
       },
       {
-        path: SYNTHETIC_USERS_CONTROL_PATH,
+        path: SYNTHETIC_POPULATION_WORKERS_PATH,
         component: lazy(async () => ({
-          default: (await import('./synthetic-population-screen'))
-            .SyntheticPopulationControlScreen,
+          default: (await import('./synthetic-population-workers-screen'))
+            .SyntheticPopulationWorkersScreen,
+        })),
+      },
+      {
+        path: SYNTHETIC_POPULATION_EVENTS_PATH,
+        component: lazy(async () => ({
+          default: (await import('./synthetic-population-events-screen'))
+            .SyntheticPopulationEventsScreen,
+        })),
+      },
+      {
+        path: SYNTHETIC_POPULATION_SETTINGS_PATH,
+        component: lazy(async () => ({
+          default: (await import('./synthetic-population-settings-screen'))
+            .SyntheticPopulationSettingsScreen,
         })),
       },
       {
@@ -55,6 +71,27 @@ export function createSyntheticPopulationClient(options: {
         component: lazy(async () => ({
           default: (await import('./synthetic-user-screen'))
             .SyntheticUserScreen,
+        })),
+      },
+      {
+        path: `${SYNTHETIC_USERS_PATH}/:id/events`,
+        component: lazy(async () => ({
+          default: (await import('./synthetic-user-events-screen'))
+            .SyntheticUserEventsScreen,
+        })),
+      },
+      {
+        path: `${SYNTHETIC_USERS_PATH}/:id/replay`,
+        component: lazy(async () => ({
+          default: (await import('./synthetic-user-replay-screen'))
+            .SyntheticUserReplayScreen,
+        })),
+      },
+      {
+        path: `${SYNTHETIC_USERS_PATH}/:id/inspector`,
+        component: lazy(async () => ({
+          default: (await import('./synthetic-user-inspector-screen'))
+            .SyntheticUserInspectorScreen,
         })),
       },
     ],

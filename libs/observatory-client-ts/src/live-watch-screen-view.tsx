@@ -1,5 +1,8 @@
 import type { LiveFrame } from '@libs/observatory-shared-ts/live-session';
-import { OBSERVATORY_PATH } from '@libs/observatory-shared-ts/observatory-routes';
+import {
+  OBSERVATORY_PATH,
+  ONLINE_NOW_PATH,
+} from '@libs/observatory-shared-ts/observatory-routes';
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { DeviceAvatar } from '@libs/profile-client-ts/device-avatar';
 import { parseAvatarConfig } from '@libs/profile-shared-ts/avatar-config';
@@ -71,7 +74,7 @@ function WatchedHeader(props: {
         />
         <StackVertical gap="xs" grow shrink>
           <H2 size="subtitle">
-            <Text variant="inherit" wrap="break">
+            <Text variant="inherit" wrap="break" testId="live-watch-name">
               {props.entry.username || t`Unnamed`}
             </Text>
           </H2>
@@ -253,6 +256,7 @@ export function LiveWatchScreenView(
               name: <Trans>User Observatory</Trans>,
               href: OBSERVATORY_PATH,
             },
+            { name: <Trans>Online now</Trans>, href: ONLINE_NOW_PATH },
             { name: <Trans>Watch live</Trans> },
           ]}
         >

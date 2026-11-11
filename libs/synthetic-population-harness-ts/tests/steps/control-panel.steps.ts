@@ -15,6 +15,7 @@ import {
   syntheticUserAvailableShown,
   syntheticUserPausedShown,
 } from '@libs/synthetic-population-harness-ts/control-panel-actions';
+import { openSyntheticUserDirectory } from '@libs/synthetic-population-harness-ts/observatory-actions';
 import { rememberContinuity } from './continuity-memo';
 
 const SECOND_MS = 1_000;
@@ -55,6 +56,7 @@ When(
 Then(
   '{actor} is offered the control panel of {string}',
   async (w, actor: Actor, name: string) => {
+    await w.s.apply(openSyntheticUserDirectory, actor);
     await w.s.until((s) => directoryControlPanelOffered(s, actor, name), {
       pred: Boolean,
       maxMs: SHOWN_MS,

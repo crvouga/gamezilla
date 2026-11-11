@@ -10,7 +10,7 @@ import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront } from '@libs/harness-ts/observations';
 import {
-  SYNTHETIC_USERS_CONFIG_PATH,
+  SYNTHETIC_USER_DIRECTORY_PATH,
   SYNTHETIC_USERS_PATH,
 } from '@libs/observatory-shared-ts/observatory-routes';
 import { readSyntheticPopulationDirectory } from '@libs/synthetic-population-server-ts/synthetic-population-user-directory';
@@ -35,8 +35,6 @@ export type PersonaSeen = {
   readonly favoriteGamesShown: readonly string[];
 };
 
-const FAVORITE_GAMES = 'Favorite games: ';
-
 /** A registered game's name, as the game menu and the panel show it. */
 function gameName(id: string): string {
   return (
@@ -44,28 +42,26 @@ function gameName(id: string): string {
   );
 }
 
-/** The favorite games a directory row's text names, of those the persona has. */
-function favoriteGamesIn(text: string, persona: Persona | null): string[] {
-  const at = text.indexOf(FAVORITE_GAMES);
-  if (persona === null || at < 0) return [];
-  const listed = text.slice(at + FAVORITE_GAMES.length);
+/** The favorite games a row's favorite games cell names, of those the persona has. */
+function favoriteGamesIn(listed: string, persona: Persona | null): string[] {
+  if (persona === null) return [];
   return persona.favoriteGames.filter((game) =>
     listed.includes(gameName(game))
   );
 }
 
-/** Every Synthetic User row the person's panel shows, with its persona. */
+/** Every Synthetic User row the person's Synthetic Users table shows, with its persona. */
 export async function personasSeen(
   s: ProductHarness,
   actor: string
 ): Promise<PersonaSeen[]> {
   await bringToFront(s, actor);
   const ui = await actorUi(s, actor);
-  // The person opens the Synthetic Population panel afresh, to see it as it is now.
-  await s.actors.get(actor)!.openLink(SYNTHETIC_USERS_CONFIG_PATH);
+  // The person opens the Synthetic Users table afresh, to see it as it is now.
   await s.actors.get(actor)!.openLink(SYNTHETIC_USERS_PATH);
+  await s.actors.get(actor)!.openLink(SYNTHETIC_USER_DIRECTORY_PATH);
   await s.session.waitForIdle();
-  if (!(await ui.get('synthetic-population-users').isVisible())) return [];
+  if (!(await ui.get('synthetic-population-user').isVisible())) return [];
   const directory = await readSyntheticPopulationDirectory(
     s.harness.serverSql.sqlClient,
     { q: '', limit: 100 }
@@ -80,7 +76,10 @@ export async function personasSeen(
     seen.push({
       username: user.username,
       persona,
-      favoriteGamesShown: favoriteGamesIn((await row.text()) ?? '', persona),
+      favoriteGamesShown: favoriteGamesIn(
+        (await row.get('synthetic-user-favorite-games').text()) ?? '',
+        persona
+      ),
     });
   }
   return seen;
