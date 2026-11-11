@@ -77,8 +77,6 @@ export type GameMenuScreenProps = {
   motif: GameTileMotif;
   /** One line under the name: what the game is. */
   subtitle?: JSX.Element | undefined;
-  /** How to play, in a sentence or two. */
-  description?: JSX.Element | undefined;
   choices: readonly GameMenuChoice[];
   dataSet?: ComponentDataSet | undefined;
 };
@@ -163,7 +161,6 @@ function ChoiceLink(props: { choice: GameMenuChoice }): JSX.Element {
  */
 function WideGameMenu(props: GameMenuScreenProps): JSX.Element {
   const subtitle = createScreenSlot(() => props.subtitle);
-  const description = createScreenSlot(() => props.description);
   const split = createMemo(() => {
     const quiet = props.choices.filter((c) => c.emphasis === 'quiet');
     const loud = props.choices.filter((c) => c.emphasis !== 'quiet');
@@ -186,11 +183,6 @@ function WideGameMenu(props: GameMenuScreenProps): JSX.Element {
           <h1 class="text textTitle min-w-0 break-words">{props.title}</h1>
           <Show when={subtitle.present()}>
             <p class="text textSubtitle min-w-0">{subtitle.content()}</p>
-          </Show>
-          <Show when={description.present()}>
-            <p class={`${styles['description']} text textCaption`}>
-              {description.content()}
-            </p>
           </Show>
         </div>
       </header>
@@ -236,9 +228,11 @@ function WideGameMenu(props: GameMenuScreenProps): JSX.Element {
 /**
  * `GameMenuScreen` -- a game's own menu inside a space: the ways into the
  * game (puzzles, playing with friends or bots, finding an opponent, its
- * history, its settings). On a wide screen it opens with a hero block (the
- * game's `GameTile` at its largest, its name, what it is and how to play)
- * and lays every choice out as a large tile with its picture; on a phone it
+ * history, its settings, how to play). It holds rows that lead onward and
+ * nothing else: how the game is played is a screen of its own, opened by a
+ * choice. On a wide screen it opens with a hero block (the game's `GameTile`
+ * at its largest, its name and what it is) and lays every choice out as a
+ * large tile with its picture; on a phone it
  * is a `MainMenuScreen`: the name beside the tile, then one panel of rows,
  * each led by the same picture. Either way the main way in (`emphasis:
  * 'primary'`) leads the same way: its picture on the accent and its tag
@@ -260,7 +254,6 @@ function WideGameMenu(props: GameMenuScreenProps): JSX.Element {
  */
 export function GameMenuScreen(props: GameMenuScreenProps): JSX.Element {
   const mode = useLayoutMode();
-  const description = createScreenSlot(() => props.description);
   const rows = createMemo((): MainMenuItem[] =>
     props.choices.map((choice) => ({
       key: choice.key,
@@ -290,9 +283,6 @@ export function GameMenuScreen(props: GameMenuScreenProps): JSX.Element {
           }
           subtitle={props.subtitle}
           items={rows()}
-          helper={
-            <Show when={description.present()}>{description.content()}</Show>
-          }
         />
       }
     >

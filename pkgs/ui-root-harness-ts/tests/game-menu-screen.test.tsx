@@ -63,7 +63,6 @@ function menu(width: number, onPlay: () => void) {
         title="Connect Four"
         motif="discs"
         subtitle="Drop discs and line up four"
-        description="Four in a row wins."
         choices={[
           {
             key: 'custom-game',
@@ -97,7 +96,7 @@ describe('GameMenuScreen', () => {
     expect(view.getByRole('heading', { level: 1 }).textContent).toBe(
       'Connect Four'
     );
-    expect(view.getByText('Four in a row wins.')).toBeTruthy();
+    expect(view.getByText('Drop discs and line up four')).toBeTruthy();
     const tiles = view.getAllByRole('listitem');
     expect(tiles).toHaveLength(2);
     const play = view.getByTestId('choice-play');
@@ -196,7 +195,7 @@ describe('GameMenuScreen', () => {
     expect(view.getByTestId('choice-play').getAttribute('data-component')).toBe(
       'MainMenuItem'
     );
-    expect(view.getByText('Four in a row wins.')).toBeTruthy();
+    expect(view.getByText('Drop discs and line up four')).toBeTruthy();
     view.unmount();
   });
 

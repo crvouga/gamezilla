@@ -1,12 +1,12 @@
 import {
   followPuzzleImport,
-  readPuzzleImport,
+  inspectPuzzleImport,
   startPuzzleLoading,
 } from '@libs/chess-root-harness-ts/puzzle-import-ui';
 import { joinPuzzleTeam } from '@libs/chess-root-harness-ts/puzzle-import-world';
 import {
+  inspectPuzzleSource,
   noSavedLichessFile,
-  readPuzzleSource,
   saveLichessFile,
   seedSavedLichessFile,
 } from '@libs/chess-root-harness-ts/puzzle-source-ui';
@@ -35,8 +35,8 @@ bindQuintModel<QuintHarnessWorld>({
     comeBackOnline: (w) => w.s.apply(restoreActorConnection, 'alice'),
   },
   observe: async (w) => {
-    const source = await w.quiet.read(readPuzzleSource, 'alice');
-    const job = await w.quiet.read(readPuzzleImport, 'alice');
+    const source = await inspectPuzzleSource(w.quiet, 'alice');
+    const job = await inspectPuzzleImport(w.quiet, 'alice');
     return {
       lichessFileSaved: source.saved,
       needsLichessFile: source.needsFile,

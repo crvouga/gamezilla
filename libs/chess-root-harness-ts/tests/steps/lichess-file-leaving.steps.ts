@@ -7,7 +7,7 @@ import {
   readLichessDeparture,
 } from '@libs/chess-root-harness-ts/lichess-file-departure';
 import { followPuzzleImport } from '@libs/chess-root-harness-ts/puzzle-import-ui';
-import { readPuzzleSource } from '@libs/chess-root-harness-ts/puzzle-source-ui';
+import { inspectPuzzleSource } from '@libs/chess-root-harness-ts/puzzle-source-ui';
 import { Given, Then, When } from '@libs/harness-ts/define';
 import type { Actor } from '@libs/harness-ts/parameter-types';
 
@@ -59,7 +59,7 @@ Then(
   'the team can still add puzzles from the saved Lichess file',
   async (w) => {
     await w.s.apply(followPuzzleImport, 'alice');
-    expect(await w.s.read(readPuzzleSource, 'alice')).toMatchObject({
+    expect(await inspectPuzzleSource(w.s, 'alice')).toMatchObject({
       saved: true,
       startOffered: true,
     });

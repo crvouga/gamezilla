@@ -11,9 +11,9 @@ import {
   beginCheckingLichessFile,
   beginReturningToLichessFile,
   failSavingLichessFile,
+  inspectLichessFilePreparation,
   losePuzzleLoadingConnection,
   prepareLichessFileCheck,
-  readLichessFilePreparation,
 } from '@libs/chess-root-harness-ts/puzzle-file-preparation';
 import { saveFirstLichessFileElsewhere } from '@libs/chess-root-harness-ts/puzzle-import-environments';
 import { startPuzzleLoading } from '@libs/chess-root-harness-ts/puzzle-import-ui';
@@ -82,5 +82,5 @@ bindQuintModel<QuintHarnessWorld>({
       await w.s.apply(restoreActorConnection, 'alice');
     },
   },
-  observe: (w) => w.quiet.read(readLichessFilePreparation),
+  observe: (w) => inspectLichessFilePreparation(w.quiet),
 });

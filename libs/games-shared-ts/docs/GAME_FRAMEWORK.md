@@ -70,7 +70,7 @@ and the multi-seat specifications cover the wider lifecycle.
 | `@libs/game-session-client-ts` / `-server` | The custom-game, history and review screens; the matched-game notice, reminder and availability consumers. |
 | `@libs/game-matchmaking-shared-ts` / `-client` | Opponent searches, matched games, ratings per speed, rematches, the multiplayer screen and link. |
 | `@libs/game-puzzle-shared-ts` | Puzzles over any game's rules: setting a puzzle up, replaying, staging and judging its line (`puzzle-setup`, `opponent-stage`, `solve-projection`, `move-history`, `puzzle-judge`), the space's puzzle session (`PUZZLE_SESSIONS`: its room state, messages, router and handlers, and the puzzle the space reviews), puzzle ratings, completion, statistics, the feed and its settings, choosing the next puzzle, the catalogue and its namespaces (`puzzle-catalogue`, `puzzle-namespace`), the puzzle sub (`GAME_PUZZLE_SUB`: its tables, queries, mutations and erasure) and its server half, and the puzzle link. |
-| `@libs/game-puzzle-client-ts` | The client part a game supplies (`GamePuzzlesClient`) and every puzzle screen: play, stats and review, the feed and its settings, the attempt's solver, controls, recorder and result reconciliation, the move list, the puzzle frame (`PuzzleFrame`, `PuzzleSessionEffects`), and the puzzle link. |
+| `@libs/game-puzzle-client-ts` | The client part a game supplies (`GamePuzzlesClient`) and every puzzle screen: play, stats and review, the feed and its settings, the attempt's solver, controls, recorder and result reconciliation, the move list, the puzzle frame (`PuzzleFrame`, `PuzzleSessionEffects`), the puzzle link and the catalogue loader (`CatalogueLoadScreen`, fed by a game's `CatalogueLoadClient`: `catalogue-load-client`, `catalogue-load-screen`). |
 | `@libs/game-menu-client-ts` | `defineGameClient` and the one `GameMenu` every game is offered through. |
 | `@libs/game-session-harness-ts` | The conformance contract a game's harness supplies (`PlayableGame` without screens, `HarnessGame` with them, `GameFixtures` and, for a game offering puzzles, its known puzzles: `known-puzzles`), `gameSystem` (a world of any games, with the puzzle sub when a game offers puzzles, and optionally a catalogue holding exactly every game's known puzzles), shared drivers (the platform's puzzle screens as a person uses them, a game's moves on its puzzle board from its known puzzles, and the puzzle session's commands and reads among them), and the laws (`game-rules-laws`, `game-capability-laws`, `game-puzzle-laws`). |
 | `@libs/game-matchmaking-harness-ts` | Opponent seeking and the one matched-game scenario world. |
@@ -124,7 +124,8 @@ It is never a new entry for an internal module.
 | | `game-presentation` | `GamePresentation`, `GameBoardProps` (with the viewer's own `setup`), `GameSetupBoardProps`: the board, the setup board of a game with private setups and the copy the shared screens show |
 | | `game-automation` | `GameAutomation`: a synthetic or scripted participant's choice, its board gesture and, for a game with private setups, the gesture that arranges a setup (`arrange`) |
 | `@libs/game-session-shared-ts` | `turn-game-definition` | `defineTurnGame` and `TurnGame`: the registration |
-| `@libs/game-menu-client-ts` | `game-client` | `defineGameClient`, `GameClient` (its `shared` registration and, for a game offering puzzles, its `puzzles` part), `GameClientPresentation`, the game's own screens and choices |
+| `@libs/game-menu-client-ts` | `game-client` | `defineGameClient`, `GameClient` (its `shared` registration and, for a game offering puzzles, its `puzzles` part), `GameClientPresentation` |
+| | `game-settings` | `GameSettings`, `GameSettingsRow`, `GameSettingsTarget`: a game's settings as rows the platform draws |
 | `@libs/spaces-shared-ts` | `game` | `GameOwnRoom`, `GameCommandContext`: a game's own room behaviour, and `mergeGameRouterEntries` (one router per namespace, as the space composes a shared module and a game's own room) for a game's room tests |
 | `@libs/game-session-harness-ts` | `harness-game` | `PlayableGame`, `HarnessGame`, `GameFixtures`, `ReadGameRecord`, `PuzzleSoundKind`, `assertHarnessGame`: the conformance adapter (a game offering puzzles names the sounds its puzzles play, `puzzleSounds`) |
 | | `known-puzzles` | `PuzzleFixture`, `PuzzleFixtureMove`, `KnownPuzzles`: the known puzzles of a game offering puzzles, and its more puzzles (`morePuzzles`) for a scenario needing many at once |
@@ -268,14 +269,25 @@ review; its record is never copied.
 Client extension points (`defineGameClient`): `shared` (the game's
 `defineTurnGame` value: its id, and which parts are asked for),
 `presentation` (board, side names, ending copy), `puzzles` (exactly for a
-game offering puzzles), optional `choices` and `screens` (the game's own
-screens, shown space-wide), `settings`, `Frame` (data its own screens
-share) and `SessionEffects`. The platform wraps a puzzle-offering game's
-frame in its puzzle frame (the feed, a puzzle link) and adds its puzzle
-session effects (result reconciliation). The screen keys `puzzle`,
-`stats` and `stats-review` are the platform's, like `custom-game`,
-`multiplayer`, `history` and `settings`. A game screen navigates with
-`useGameScreen()`; it never renders the platform's screens itself.
+game offering puzzles), optional `instructions` (how to play, shown on a
+small screen of its own behind the menu) and optional `settings`. A game
+supplies no screen: `defineGameClient` has no `Screen`, `choices`,
+`screens`, `Frame` or `SessionEffects` to give, and refuses each by name.
+`settings` is data (`game-settings`): a caption for the menu and a tree of
+rows, each with a slug `key`, a rendered `title` and `caption`, an optional
+`permission` (`@libs/permissions-shared-ts`) that hides the row from a
+person it is denied, and what the row `opens`: a nested group of rows, or
+one of the platform's template screens (today the catalogue loader,
+`{ kind: 'catalogue-load', load }`, fed by the game's own
+`CatalogueLoadClient`: a hook returning facts and commands, and its copy).
+The platform draws the settings hub and every screen behind it; a row is
+pressed by `<game id>-<group>-<row key>`. The platform wraps a
+puzzle-offering game's screens in its puzzle frame (the feed, a puzzle
+link) and adds its puzzle session effects (result reconciliation). Every
+screen key in a space (`puzzle`, `stats`, `stats-review`, `custom-game`,
+`multiplayer`, `history`, `settings`, `puzzle-library`) is the platform's;
+what shows inside one of them is each device's own place
+([`GAME_SCREENS.md`](GAME_SCREENS.md)).
 
 ## Semantics
 

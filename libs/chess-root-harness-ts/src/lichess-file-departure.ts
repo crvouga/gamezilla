@@ -5,11 +5,15 @@ import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { prepareSavingLichessFile } from './lichess-file-setup';
 import { followPuzzleImport } from './puzzle-import-ui';
 import { joinPuzzleTeam } from './puzzle-import-world';
+import { showLoaderPlace } from './puzzle-loader-places';
 
 export const askToLeaveAddingPuzzles = scenarioAction({
   name: 'askToLeaveAddingPuzzles',
   act: async (s, actor: string = 'alice') => {
     const ui = await actorUi(s, actor);
+    // Back leaves the loader from the place its stage opens on: the hub,
+    // or the Lichess file's place while the file is being saved.
+    await showLoaderPlace(s, actor, 'load');
     await ui.get(Handles.navBack).tap();
     await s.session.waitForIdle();
   },

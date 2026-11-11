@@ -15,20 +15,16 @@
     "verify:board-contract": "bun run ../tools-harness-ts/scripts/verify-board-contract.ts"
   },
   "dependencies": {
-    "@libs/chess-root-shared-ts": "workspace:*",
-    "@libs/permissions-client-ts": "workspace:*",
+    "@libs/chess-puzzle-client-ts": "workspace:*",
+    "@libs/game-menu-client-ts": "workspace:*",
     "@libs/permissions-shared-ts": "workspace:*",
-    "@libs/spaces-client-ts": "workspace:*",
     "@lingui/solid": "catalog:",
-    "@pkgs/ui-root-client-ts": "workspace:*",
     "solid-js": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:",
     "@types/pg": "catalog:",
     "@typescript/native": "catalog:",
-    "storybook": "catalog:",
-    "storybook-solidjs-vite": "catalog:",
     "typescript": "catalog:"
   },
   "category": "client",

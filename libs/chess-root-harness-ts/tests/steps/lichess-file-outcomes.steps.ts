@@ -4,28 +4,28 @@ import {
   readOtherPuzzleSource,
   refreshOtherPuzzleSource,
 } from '@libs/chess-root-harness-ts/puzzle-import-environments';
-import { readPuzzleSource } from '@libs/chess-root-harness-ts/puzzle-source-ui';
+import { inspectPuzzleSource } from '@libs/chess-root-harness-ts/puzzle-source-ui';
 import { Then } from '@libs/harness-ts/define';
 import type { Actor } from '@libs/harness-ts/parameter-types';
 
 Then(
   '{actor} is told the saved Lichess file is being checked',
   async (w, actor: Actor) => {
-    expect(await w.s.read(readPuzzleSource, actor)).toMatchObject({
+    expect(await inspectPuzzleSource(w.s, actor)).toMatchObject({
       checking: true,
       needsFile: false,
     });
   }
 );
 Then('{actor} is not offered to add puzzles', async (w, actor: Actor) => {
-  expect(await w.s.read(readPuzzleSource, actor)).toMatchObject({
+  expect(await inspectPuzzleSource(w.s, actor)).toMatchObject({
     startOffered: false,
   });
 });
 Then(
   '{actor} is told the saved Lichess file could not be checked',
   async (w, actor: Actor) => {
-    expect(await w.s.read(readPuzzleSource, actor)).toMatchObject({
+    expect(await inspectPuzzleSource(w.s, actor)).toMatchObject({
       checkFailed: true,
     });
   }
@@ -33,7 +33,7 @@ Then(
 Then(
   '{actor} is offered to check for the saved Lichess file again',
   async (w, actor: Actor) => {
-    expect(await w.s.read(readPuzzleSource, actor)).toMatchObject({
+    expect(await inspectPuzzleSource(w.s, actor)).toMatchObject({
       checkAgainOffered: true,
     });
   }
@@ -41,20 +41,20 @@ Then(
 Then(
   '{actor} is told a connection is needed to check for the saved Lichess file',
   async (w, actor: Actor) => {
-    expect(await w.s.read(readPuzzleSource, actor)).toMatchObject({
+    expect(await inspectPuzzleSource(w.s, actor)).toMatchObject({
       offline: true,
     });
   }
 );
 Then('{actor} is not shown the saved Lichess file', async (w, actor: Actor) => {
-  expect(await w.s.read(readPuzzleSource, actor)).toMatchObject({
+  expect(await inspectPuzzleSource(w.s, actor)).toMatchObject({
     saved: false,
   });
 });
 Then(
   '{actor} is not offered to save a Lichess file',
   async (w, actor: Actor) => {
-    expect(await w.s.read(readPuzzleSource, actor)).toMatchObject({
+    expect(await inspectPuzzleSource(w.s, actor)).toMatchObject({
       saveEnabled: false,
     });
   }
@@ -62,7 +62,7 @@ Then(
 Then(
   '{actor} is offered to save the chosen Lichess file',
   async (w, actor: Actor) => {
-    expect(await w.s.read(readPuzzleSource, actor)).toMatchObject({
+    expect(await inspectPuzzleSource(w.s, actor)).toMatchObject({
       saveEnabled: true,
     });
   }
@@ -70,7 +70,7 @@ Then(
 Then(
   '{actor} is not offered to save a Lichess file without choosing one',
   async (w, actor: Actor) => {
-    expect(await w.s.read(readPuzzleSource, actor)).toMatchObject({
+    expect(await inspectPuzzleSource(w.s, actor)).toMatchObject({
       saveEnabled: false,
     });
   }
@@ -78,7 +78,7 @@ Then(
 Then(
   '{actor} can see that the Lichess file is being saved',
   async (w, actor: Actor) => {
-    expect(await w.s.read(readPuzzleSource, actor)).toMatchObject({
+    expect(await inspectPuzzleSource(w.s, actor)).toMatchObject({
       saving: true,
       progressVisible: true,
     });
@@ -87,20 +87,20 @@ Then(
 Then(
   '{actor} is not offered to choose another Lichess file',
   async (w, actor: Actor) => {
-    expect(await w.s.read(readPuzzleSource, actor)).toMatchObject({
+    expect(await inspectPuzzleSource(w.s, actor)).toMatchObject({
       chooseEnabled: false,
     });
   }
 );
 Then('{actor} is offered to choose a Lichess file', async (w, actor: Actor) => {
-  expect(await w.s.read(readPuzzleSource, actor)).toMatchObject({
+  expect(await inspectPuzzleSource(w.s, actor)).toMatchObject({
     chooseEnabled: true,
   });
 });
 Then(
   '{actor} is told the file could not be saved and why',
   async (w, actor: Actor) => {
-    expect(await w.s.read(readPuzzleSource, actor)).toMatchObject({
+    expect(await inspectPuzzleSource(w.s, actor)).toMatchObject({
       saveFailed: true,
       saveError: expect.any(String),
     });
@@ -110,7 +110,7 @@ Then(
 Then(
   '{actor} is told saving the Lichess file stopped',
   async (w, actor: Actor) => {
-    expect(await w.s.read(readPuzzleSource, actor)).toMatchObject({
+    expect(await inspectPuzzleSource(w.s, actor)).toMatchObject({
       saving: false,
       saveError: expect.stringContaining('Saving stopped'),
     });
@@ -119,7 +119,7 @@ Then(
 Then(
   '{actor} is told the Lichess file could not finish saving without a connection',
   async (w, actor: Actor) => {
-    expect(await w.s.read(readPuzzleSource, actor)).toMatchObject({
+    expect(await inspectPuzzleSource(w.s, actor)).toMatchObject({
       saving: false,
       offline: true,
       saveFailed: true,
@@ -129,11 +129,11 @@ Then(
 Then(
   '{actor} still sees the same saved Lichess file',
   async (w, actor: Actor) => {
-    expect(await w.s.read(readPuzzleSource, actor)).toMatchObject({
+    expect(await inspectPuzzleSource(w.s, actor)).toMatchObject({
       saved: true,
       filename: expect.any(String),
     });
-    expect((await w.s.read(readPuzzleSource, actor)).filename).toBe(
+    expect((await inspectPuzzleSource(w.s, actor)).filename).toBe(
       String(w.memo.get('lichess:file-seen') ?? 'Saved Lichess filelichess.csv')
     );
   }
@@ -141,12 +141,12 @@ Then(
 Then(
   '{actor} is offered the Lichess file already saved by the team',
   async (w, actor: Actor) => {
-    expect(await w.s.read(readPuzzleSource, actor)).toMatchObject({
+    expect(await inspectPuzzleSource(w.s, actor)).toMatchObject({
       saved: true,
       filename: expect.stringContaining('lichess.csv'),
       startOffered: true,
     });
-    expect((await w.s.read(readPuzzleSource, actor)).filename).not.toContain(
+    expect((await inspectPuzzleSource(w.s, actor)).filename).not.toContain(
       'alice-lichess'
     );
   }
@@ -172,6 +172,7 @@ Then(
   }
 );
 Then('the other environment is not adding puzzles', async (w) => {
+  await w.s.apply(refreshOtherPuzzleSource);
   expect(await w.s.read(readOtherPuzzleSource)).toMatchObject({
     startOffered: false,
   });
@@ -196,7 +197,7 @@ Then(
 Then(
   '{actor} is not offered to check for the saved Lichess file again',
   async (w, actor: Actor) => {
-    expect(await w.s.read(readPuzzleSource, actor)).toMatchObject({
+    expect(await inspectPuzzleSource(w.s, actor)).toMatchObject({
       checkAgainEnabled: false,
     });
   }

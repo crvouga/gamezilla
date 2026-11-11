@@ -8,10 +8,11 @@ import { preparePuzzleImport } from '@libs/chess-root-harness-ts/puzzle-import-s
 import {
   chooseBrokenUpdates,
   followPuzzleImport,
+  inspectPuzzleImport,
   readEnvironmentPuzzleImport,
-  readPuzzleImport,
   startPuzzleLoading,
   stopPuzzleLoading,
+  untilPuzzleImport,
 } from '@libs/chess-root-harness-ts/puzzle-import-ui';
 import {
   advancePuzzleImport,
@@ -20,6 +21,7 @@ import {
   joinPuzzleTeam,
   readImportPool,
 } from '@libs/chess-root-harness-ts/puzzle-import-world';
+import { openLoaderPlace } from '@libs/chess-root-harness-ts/puzzle-loader-places';
 import { followPuzzleStopChoice } from '@libs/chess-root-harness-ts/puzzle-stop-choice';
 import {
   openGamePuzzles,
@@ -47,7 +49,7 @@ async function onTeam(w: HarnessWorld, actor: Actor) {
     await w.s.read(readSpaceLink, actor)
   );
   await w.s.apply(followPuzzleImport, actor);
-  await w.s.until((s) => readPuzzleImport(s, actor), {
+  await untilPuzzleImport(w.s, actor, {
     pred: (view) => !view.denied,
     maxMs: 15000,
   });
@@ -65,7 +67,7 @@ Given(
   }
 );
 Given('this environment is ready to add puzzles', async (w) => {
-  expect((await w.s.read(readPuzzleImport)).status).toBe('ready');
+  expect((await inspectPuzzleImport(w.s)).status).toBe('ready');
 });
 Given('this environment is adding puzzles', ongoing);
 Given('this environment finished adding puzzles', async (w) => {
@@ -164,7 +166,7 @@ When("{actor}'s device comes back online", async (w, actor: Actor) => {
 Then(
   '{actor} sees that this environment is adding puzzles',
   async (w, actor: Actor) => {
-    expect((await w.s.read(readPuzzleImport, actor)).status).toBe('adding');
+    expect((await inspectPuzzleImport(w.s, actor)).status).toBe('adding');
   }
 );
 Then(
@@ -172,7 +174,7 @@ Then(
   async (w, actor: Actor) => {
     expect(
       (
-        await w.s.until((s) => readPuzzleImport(s, actor), {
+        await untilPuzzleImport(w.s, actor, {
           pred: (view) => view.status === 'stopped',
           maxMs: 15000,
         })
@@ -181,15 +183,16 @@ Then(
   }
 );
 Then('this environment is still adding puzzles', async (w) => {
+  await w.s.apply(openLoaderPlace, 'alice', 'load');
   expect((await w.s.read(readEnvironmentPuzzleImport)).status).toBe('adding');
 });
 Then('this environment is not adding puzzles', async (w) => {
-  expect((await w.s.read(readPuzzleImport)).status).not.toBe('adding');
+  expect((await inspectPuzzleImport(w.s)).status).not.toBe('adding');
 });
 Then(
   '{actor} is told only the team can add or stop adding puzzles',
   async (w, actor: Actor) => {
-    expect(await w.s.read(readPuzzleImport, actor)).toMatchObject({
+    expect(await inspectPuzzleImport(w.s, actor)).toMatchObject({
       denied: true,
       denialText: expect.stringContaining('Only the puzzle team'),
     });
@@ -198,25 +201,28 @@ Then(
 Then(
   '{actor} is told this environment is already adding puzzles',
   async (w, actor: Actor) => {
-    expect(await w.s.read(readPuzzleImport, actor)).toMatchObject({
+    // While puzzles are being added the hub's one command is Stop: adding
+    // more is not offered at all.
+    expect(await inspectPuzzleImport(w.s, actor)).toMatchObject({
       status: 'adding',
-      startDisabled: true,
+      startOffered: false,
+      stopOffered: true,
     });
   }
 );
 Then('{actor} is offered to stop adding puzzles', async (w, actor: Actor) => {
-  expect((await w.s.read(readPuzzleImport, actor)).stopOffered).toBe(true);
+  expect((await inspectPuzzleImport(w.s, actor)).stopOffered).toBe(true);
 });
 Then(
   '{actor} is not offered to stop adding puzzles',
   async (w, actor: Actor) => {
-    expect((await w.s.read(readPuzzleImport, actor)).stopOffered).toBe(false);
+    expect((await inspectPuzzleImport(w.s, actor)).stopOffered).toBe(false);
   }
 );
 Then(
   '{actor} is told a connection is needed to add puzzles',
   async (w, actor: Actor) => {
-    expect(await w.s.read(readPuzzleImport, actor)).toMatchObject({
+    expect(await inspectPuzzleImport(w.s, actor)).toMatchObject({
       offline: true,
       startDisabled: true,
     });
@@ -225,7 +231,7 @@ Then(
 Then(
   '{actor} is told a connection is needed to stop adding puzzles',
   async (w, actor: Actor) => {
-    expect(await w.s.read(readPuzzleImport, actor)).toMatchObject({
+    expect(await inspectPuzzleImport(w.s, actor)).toMatchObject({
       offline: true,
       stopDisabled: true,
     });
@@ -234,7 +240,7 @@ Then(
 Then('{actor} sees how many puzzles were added', async (w, actor: Actor) => {
   expect(
     (
-      await w.s.until((s) => readPuzzleImport(s, actor), {
+      await untilPuzzleImport(w.s, actor, {
         pred: (view) => view.added === 3,
         maxMs: 15000,
       })
@@ -244,7 +250,7 @@ Then('{actor} sees how many puzzles were added', async (w, actor: Actor) => {
 Then('{actor} sees how many puzzles were broken', async (w, actor: Actor) => {
   expect(
     (
-      await w.s.until((s) => readPuzzleImport(s, actor), {
+      await untilPuzzleImport(w.s, actor, {
         pred: (view) => view.broken === 2,
         maxMs: 15000,
       })
@@ -255,7 +261,7 @@ Then(
   '{actor} sees {int} puzzles added and {int} broken puzzles',
   async (w, actor: Actor, added: number, broken: number) => {
     expect(
-      await w.s.until((s) => readPuzzleImport(s, actor), {
+      await untilPuzzleImport(w.s, actor, {
         pred: (view) => view.added === added && view.broken === broken,
         maxMs: 15000,
       })
@@ -268,7 +274,7 @@ Then(
 Then(
   '{actor} sees {int} puzzles added and {int} puzzles updated',
   async (w, actor: Actor, added: number, updated: number) => {
-    expect(await w.s.read(readPuzzleImport, actor)).toMatchObject({
+    expect(await inspectPuzzleImport(w.s, actor)).toMatchObject({
       added,
       updated,
     });
@@ -277,7 +283,7 @@ Then(
 Then(
   '{actor} sees {int} puzzles updated and {int} broken puzzles',
   async (w, actor: Actor, updated: number, broken: number) => {
-    expect(await w.s.read(readPuzzleImport, actor)).toMatchObject({
+    expect(await inspectPuzzleImport(w.s, actor)).toMatchObject({
       updated,
       broken,
     });
@@ -286,19 +292,19 @@ Then(
 Then(
   '{actor} is told adding puzzles failed and why',
   async (w, actor: Actor) => {
-    expect(await w.s.read(readPuzzleImport, actor)).toMatchObject({
+    expect(await inspectPuzzleImport(w.s, actor)).toMatchObject({
       status: 'failed',
       error: expect.stringContaining('incomplete'),
     });
   }
 );
 Then("this environment's puzzle pool holds the added puzzles", async (w) => {
-  expect((await w.s.read(readPuzzleImport)).poolSize).toBe(
+  expect((await inspectPuzzleImport(w.s)).poolSize).toBe(
     Number(w.memo.get(BASELINE)) + 3
   );
 });
 Then('the puzzles already added remain available to solvers', async (w) => {
-  expect((await w.s.read(readPuzzleImport)).poolSize).toBe(
+  expect((await inspectPuzzleImport(w.s)).poolSize).toBe(
     Number(w.memo.get(BASELINE)) + 3
   );
   await w.s.apply(

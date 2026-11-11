@@ -14,8 +14,6 @@ const meta = {
     title: 'Connect Four',
     motif: 'discs',
     subtitle: 'Drop discs and line up four',
-    description:
-      'Take turns dropping a disc into a column. Four in a row, column or diagonal wins.',
     choices: [
       {
         key: 'custom-game',

@@ -150,13 +150,61 @@ places with `@libs/game-session-harness-ts/custom-game-places`.
 | attempt | `attempt` | Stage | Solve it |
 | | `progress` | Hub | The pack place, saved positions, what next |
 
-### A game's menu and settings (`game-choices`, `settings`)
+### A game's menu (`menu`)
 
-A game's menu is a hub of the template screens its capabilities offer. A
-game's settings are rows it declares as data (`GameClient.settings`: a label,
-a value, a permission, a choice list or a template screen); the framework
-draws the settings hub and every screen behind it. `defineGameClient` has no
-`Screen` to give.
+| Stage | Place | Kind | Job |
+| --- | --- | --- | --- |
+| `open` | `menu` | Hub | The template screens the game's capabilities offer, one emphasised |
+| | `how-to-play` | Hub | The game's own words on how it is played |
+
+The menu holds rows that lead onward and nothing else. Choosing a template
+screen moves the whole space (`useGameScreen`); how to play is this
+device's own place behind the menu, offered as a row when the game says how.
+
+### A game's settings (`settings`)
+
+| Stage | Place | Kind | Job |
+| --- | --- | --- | --- |
+| `open` | `settings` | Hub | The rows of the root group |
+| | `settings/<row>/…` (a group) | Hub | The rows of a nested group |
+| | `settings/<row>/…` (a template screen) | — | The template the row opens, with its own places |
+
+A game's settings are rows it declares as data (`GameClient.settings`: a
+key, a title and caption, an optional permission that hides the row from a
+person it is denied, and what the row opens: a nested group, or one of the
+platform's template screens). The places are derived from that tree, one
+per group and one per template screen (`gameSettingsTree`); Back walks up
+the tree and, from the root, returns to the menu. A group none of whose
+rows the person may see says so. The framework draws the hub and every
+screen behind it: `defineGameClient` has no `Screen` to give, and no
+`choices`, `screens`, `Frame` or `SessionEffects` either. Story ids:
+`screens-games-menu`, `screens-games-menu-how-to-play`,
+`screens-games-settings-group`.
+
+### Loading a puzzle catalogue (`catalogue-load`)
+
+| Stage | Place | Kind | Job |
+| --- | --- | --- | --- |
+| `denied` | `status` | Result | Say why the person may not load puzzles |
+| `ready`, `loading`, `finished`, `failed`, `stopped` | `load` | Hub | The pool, the source file's row, start or stop, the latest load |
+| | `source` | Form | Check for the shared file, choose one, upload it, check again |
+| `saving` | `source` | Form | The upload under way, and stopping it |
+
+The stage is where the load itself stands: the person's access, this
+device's upload of the source file, then the latest load. What a place
+shows inside a stage is named too, and is not a stage, because a stage
+change returns a device to the stage's home: the line to the load's status
+(`offline`, `connecting`, `live`) and the source file's status (`unknown`,
+`checking`, `check-failed`, `missing`, `chosen`, `uploading`, `saved`).
+While the file is being saved the only place is `source`, so Back leaves
+the loader and asks before abandoning the upload; a save that finishes
+lands on the hub, and one that does not returns to `source` beside its
+retry. The hub's one command and why it is unavailable are derived from
+those three (`catalogueLoadCommand`). A game feeds the template with a hook
+of facts and commands and a few words (`CatalogueLoadClient`); the same
+template shows inside a space (from a settings row) and on a routed page.
+Story ids: `screens-puzzles-catalogue-load-load`, `-source`, `-status` and
+`-routed`.
 
 ## Verifying a screen
 
