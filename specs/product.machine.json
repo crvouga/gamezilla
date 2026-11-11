@@ -11634,8 +11634,14 @@
                               "specs/synthetic-population/control-panel.feature"
                             ],
                             "events": [],
-                            "routes": ["/admin/observatory"],
-                            "hints": ["App address: /admin/observatory"]
+                            "routes": [
+                              "/admin/observatory",
+                              "/admin/observatory/online"
+                            ],
+                            "hints": [
+                              "App address: /admin/observatory",
+                              "App address: /admin/observatory/online"
+                            ]
                           },
                           "on": {
                             "Someone comes online or changes activity": {
@@ -11715,9 +11721,17 @@
                               "specs/synthetic-population/control-panel.feature"
                             ],
                             "events": [],
-                            "routes": ["/admin/observatory/synthetic-users"],
+                            "routes": [
+                              "/admin/observatory/synthetic-users",
+                              "/admin/observatory/synthetic-users/directory",
+                              "/admin/observatory/synthetic-users/workers",
+                              "/admin/observatory/synthetic-users/events"
+                            ],
                             "hints": [
-                              "App address: /admin/observatory/synthetic-users"
+                              "App address: /admin/observatory/synthetic-users",
+                              "App address: /admin/observatory/synthetic-users/directory",
+                              "App address: /admin/observatory/synthetic-users/workers",
+                              "App address: /admin/observatory/synthetic-users/events"
                             ]
                           },
                           "on": {
@@ -11752,10 +11766,16 @@
                             ],
                             "events": [],
                             "routes": [
-                              "/admin/observatory/synthetic-users/:id"
+                              "/admin/observatory/synthetic-users/:id",
+                              "/admin/observatory/synthetic-users/:id/events",
+                              "/admin/observatory/synthetic-users/:id/replay",
+                              "/admin/observatory/synthetic-users/:id/inspector"
                             ],
                             "hints": [
-                              "App address: /admin/observatory/synthetic-users/:id"
+                              "App address: /admin/observatory/synthetic-users/:id",
+                              "App address: /admin/observatory/synthetic-users/:id/events",
+                              "App address: /admin/observatory/synthetic-users/:id/replay",
+                              "App address: /admin/observatory/synthetic-users/:id/inspector"
                             ]
                           },
                           "on": {
@@ -11778,10 +11798,10 @@
                             ],
                             "events": [],
                             "routes": [
-                              "/admin/observatory/synthetic-users/config"
+                              "/admin/observatory/synthetic-users/settings"
                             ],
                             "hints": [
-                              "App address: /admin/observatory/synthetic-users/config"
+                              "App address: /admin/observatory/synthetic-users/settings"
                             ]
                           },
                           "on": {
@@ -11805,13 +11825,7 @@
                               "specs/synthetic-population/observatory.feature",
                               "specs/synthetic-population/synthetic-population-access.dmn"
                             ],
-                            "events": [],
-                            "routes": [
-                              "/admin/observatory/synthetic-users/control"
-                            ],
-                            "hints": [
-                              "App address: /admin/observatory/synthetic-users/control"
-                            ]
+                            "events": []
                           },
                           "on": {
                             "Pauses, resumes or restarts Synthetic Users": {
