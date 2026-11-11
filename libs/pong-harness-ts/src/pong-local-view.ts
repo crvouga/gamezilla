@@ -1,6 +1,6 @@
 import { customGameStartOffered } from '@libs/game-session-harness-ts/custom-game-reads';
+import { customGamePlace } from '@libs/game-session-harness-ts/custom-game-places';
 import { readCustomGameScreen } from '@libs/game-session-harness-ts/custom-game-screen';
-import { actorUi } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { pongControlledPaddles } from './pong-controls-view';
 import { PONG_BOARD } from './pong-view';
@@ -21,6 +21,8 @@ export async function pongLocalView(s: ProductHarness, actor = 'alice') {
             (await customGameStartOffered(s, actor))
           ? 'ready'
           : (current?.status ?? 'none');
+  // Before it starts, the game shows its lobby rather than the board.
+  const place = await customGamePlace(s, actor);
   return {
     localStage: stage,
     localOpponent:
@@ -29,7 +31,7 @@ export async function pongLocalView(s: ProductHarness, actor = 'alice') {
         : current?.black.kind === 'person'
           ? 'remote'
           : (current?.black.kind ?? ''),
-    gameShown: await (await actorUi(s, actor)).get(PONG_BOARD).isVisible(),
+    gameShown: current != null && place !== null && place !== 'start',
     controlledPaddles: await pongControlledPaddles(s, actor, PONG_BOARD),
   };
 }
