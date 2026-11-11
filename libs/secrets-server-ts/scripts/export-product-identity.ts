@@ -14,9 +14,13 @@ if (injected?.trim() || repository?.trim()) {
   if (!destination)
     throw new Error('GITHUB_ENV is required to export identity');
   // Compact JSON escapes embedded newlines; it cannot add an environment entry.
+  // The mode travels with it: a later step that materializes the identity
+  // (generate:identity) otherwise reads a present identity as configured, and
+  // a fixture job renders the real brand.
+  // regression: fixture-job-materializes-configured-identity
   appendFileSync(
     destination,
-    `PRODUCT_IDENTITY_JSON=${JSON.stringify(identity)}\n`
+    `PRODUCT_IDENTITY_JSON=${JSON.stringify(identity)}\nPRODUCT_IDENTITY_MODE=${mode}\n`
   );
   console.log('Public build identity injected; values omitted.');
 }
