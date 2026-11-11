@@ -25,6 +25,18 @@
         "@pkgs/sync-engine-server-ts#src",
         "@pkgs/uuid-shared-ts#src"
       ]
+    },
+    "initialize:catalog": {
+      "cache": false,
+      "dependsOn": ["@libs/runtime-server-ts#migrate"]
+    },
+    "export:puzzles-load": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "seed:puzzles": {
+      "cache": false,
+      "passThroughEnv": ["*"]
     }
   }
 }

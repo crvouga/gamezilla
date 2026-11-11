@@ -11,6 +11,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { writeHostKey } from './package-hosts';
+import { readTurboTasks } from './turbo-config';
 import { applyPlanContext } from './verify-shard-run';
 
 const REPO = join(import.meta.dirname, '../../..');
@@ -38,11 +39,7 @@ function rootLintHash(root: string): string {
 test('a non-browser shard restores the host fingerprint used by root lint', () => {
   const root = mkdtempSync(join(tmpdir(), 'verify-plan-context-'));
   try {
-    const config = JSON.parse(
-      readFileSync(join(REPO, 'turbo.json'), 'utf8')
-    ) as {
-      tasks: Record<string, { inputs: string[] }>;
-    };
+    const tasks = readTurboTasks(REPO);
     writeFileSync(join(root, '.gitignore'), '.cache/\nturbo-*-key.json\n');
     writeFileSync(
       join(root, 'package.json'),
@@ -57,8 +54,7 @@ test('a non-browser shard restores the host fingerprint used by root lint', () =
       JSON.stringify({
         tasks: {
           lint: {
-            inputs:
-              config.tasks['@libs/tools-harness-ts#verify:root-lint']!.inputs,
+            inputs: tasks['@libs/tools-harness-ts#verify:root-lint']!.inputs,
             outputs: [],
           },
         },

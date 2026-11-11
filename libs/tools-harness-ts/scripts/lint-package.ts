@@ -46,11 +46,11 @@ import { swiftFormatOk } from './swift-format';
 import {
   packageScriptViolations,
   rootScriptViolations,
-  type TurboTasks,
   taskCachingViolations,
 } from './task-runner-policy';
 import { tcProject, tcScopeViolations } from './tc-scope';
 import { testScriptViolations } from './test-scripts';
+import { readTurboTasks } from './turbo-config';
 import { unusedWorkspaceDependencies } from './unused-dependencies';
 
 const REPO_ROOT = resolve(import.meta.dir, '../../..');
@@ -411,7 +411,7 @@ function lintRoot(): Promise<boolean> {
   const scripts = readJson<{ scripts: Record<string, string> }>(
     'package.json'
   ).scripts;
-  const { tasks } = readJson<{ tasks: TurboTasks }>('turbo.json');
+  const tasks = readTurboTasks(REPO_ROOT);
   // Each rule reports on its own: one failing does not hide the next.
   const rules = [
     namingOk(files),

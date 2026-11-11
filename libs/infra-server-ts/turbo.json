@@ -4,6 +4,109 @@
   "tasks": {
     "src": {
       "dependsOn": ["@libs/infra-shared-ts#src"]
+    },
+    "apply:foundation": {
+      "cache": false,
+      "dependsOn": ["@libs/tools-harness-ts#install:cli"]
+    },
+    "apply:edge": {
+      "cache": false,
+      "dependsOn": ["@apps/product-ts#deploy"]
+    },
+    "lint": {
+      "dependsOn": ["^src"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/biome.shared.json",
+        "$TURBO_ROOT$/libs/tools-harness-ts/biome-plugins/**",
+        "$TURBO_ROOT$/oxlint.config.mts",
+        "$TURBO_ROOT$/components.json",
+        "$TURBO_ROOT$/pkgs/tailwind-shared-ts/src/lint.css",
+        "$TURBO_ROOT$/pkgs/tailwind-shared-ts/src/tailwind.css",
+        "$TURBO_ROOT$/pkgs/ui-root-client-ts/src/theme.css",
+        "$TURBO_ROOT$/pkgs/ui-root-client-ts/src/hosts.css",
+        "$TURBO_ROOT$/libs/tools-harness-ts/port/*.json",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/lint-package.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/design-vocabulary.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/design-composition.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/biome-scope.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/package-boundaries.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/tc-scope.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/test-scripts.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/unused-dependencies.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/lingui-scope.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/naming/**",
+        "$TURBO_ROOT$/libs/tools-harness-ts/goal/**",
+        "$TURBO_ROOT$/mise.toml"
+      ],
+      "outputLogs": "errors-only",
+      "outputs": []
+    },
+    "test": {
+      "dependsOn": ["^src"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/libs/infra-shared-ts/tofu/**",
+        "$TURBO_ROOT$/libs/infra-shared-ts/policy/**",
+        "$TURBO_ROOT$/.github/workflows/**"
+      ],
+      "env": ["HARNESS_FIDELITY", "PBT_NUM_RUNS", "PBT_RANDOM", "FC_SEED"],
+      "outputLogs": "errors-only",
+      "outputs": []
+    },
+    "plan:alerting": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "apply:alerting": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "drift:alerting": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "unlock:foundation": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "unlock:repository-policy": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "plan:repository-policy": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "apply:repository-policy": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "drift:repository-policy": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "verify:repository-policy": {
+      "inputs": [
+        "scripts/verify-repository-policy.ts",
+        "src/tofu-layout.ts",
+        "$TURBO_ROOT$/libs/infra-shared-ts/policy/**",
+        "$TURBO_ROOT$/libs/infra-shared-ts/tofu/modules/repository/**",
+        "$TURBO_ROOT$/mise.toml"
+      ],
+      "outputs": []
+    },
+    "apply:bootstrap": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "apply:fleet": {
+      "dependsOn": ["@apps/auth-relay-ts#deploy", "@apps/storybook-ts#deploy"],
+      "cache": false,
+      "passThroughEnv": ["*"]
     }
   }
 }

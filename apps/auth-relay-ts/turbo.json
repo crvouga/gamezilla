@@ -4,6 +4,10 @@
   "tasks": {
     "src": {
       "dependsOn": ["@pkgs/auth-inhouse-server-ts#src"]
+    },
+    "deploy": {
+      "cache": false,
+      "passThroughEnv": ["*"]
     }
   }
 }

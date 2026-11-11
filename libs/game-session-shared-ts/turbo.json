@@ -20,6 +20,19 @@
         "@pkgs/ui-testing-root-shared-ts#src",
         "@pkgs/uuid-shared-ts#src"
       ]
+    },
+    "test": {
+      "dependsOn": ["^src"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/libs/games-shared-ts/package.json",
+        "$TURBO_ROOT$/libs/games-shared-ts/src/game-plugins.ts"
+      ],
+      "env": ["HARNESS_FIDELITY", "PBT_NUM_RUNS", "PBT_RANDOM", "FC_SEED"],
+      "outputLogs": "errors-only",
+      "outputs": []
     }
   }
 }
