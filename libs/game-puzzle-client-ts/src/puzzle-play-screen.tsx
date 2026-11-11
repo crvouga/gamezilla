@@ -2,12 +2,6 @@ import { useMyId } from '@libs/auth-client-ts/use-current-user';
 import { PUZZLE_PIECE_MOVE_MS } from '@libs/game-puzzle-shared-ts/opponent-stage';
 import type { PuzzlePickState } from '@libs/game-puzzle-shared-ts/pick-state';
 import { lineActions } from '@libs/game-puzzle-shared-ts/step';
-import {
-  DefineBackButton,
-  useGameChoicesName,
-} from '@libs/spaces-client-ts/spaces-nav-context';
-import { t } from '@lingui/core/macro';
-import type { Decision } from '@pkgs/permissions-shared-ts/decision';
 import { useSoundsPreference } from '@pkgs/sounds-client-ts/solid';
 import { createSpeak } from '@pkgs/tts-root-client-ts/solid';
 import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
@@ -15,36 +9,44 @@ import { puzzleLineLayout } from '@pkgs/turn-game-shared-ts/game-puzzles';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { type Accessor, createMemo, type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
+import { PuzzleFeedRefusedChangeNotice } from './puzzle-feed-refused-change-notice';
 import { usePuzzleGame } from './puzzle-game-context';
-import { PuzzleMoveHistoryBar } from './puzzle-move-history-bar';
-import {
-  CelebrationLayer,
-  PuzzlePlayFeed,
-  useFeedSettingsOverlay,
-} from './puzzle-play-overlays';
 import {
   type PuzzlePlayPick,
-  PuzzlePlayScreenView,
-} from './puzzle-play-screen-view';
+  type PuzzlePlayStage,
+  puzzlePlayStageOf,
+} from './puzzle-play-places';
+import {
+  NO_PUZZLE_LINE,
+  NO_PUZZLE_RESULT,
+  PuzzlePlaceBack,
+  usePuzzlePlayPlaces,
+} from './puzzle-play-places-wiring';
+import { PuzzlePlayScreenView } from './puzzle-play-screen-view';
 import { PuzzleRecommendationLegend } from './puzzle-recommendation-legend';
 import { PuzzleResultAnnouncement } from './puzzle-result-announcement';
-import { PuzzleShareLink } from './puzzle-share-link';
 import { PuzzleTestLoadingStatus } from './puzzle-test-loading-status';
 import { PuzzleTestProbes } from './puzzle-test-probes';
 import { useDeniedView } from './use-denied-view';
 import { usePuzzleAllowance } from './use-puzzle-allowance';
-import { usePuzzleFeedConfig } from './use-puzzle-feed-config';
-import { usePuzzleHistory } from './use-puzzle-history';
+import { usePuzzleLine } from './use-puzzle-line';
 import { usePuzzlePlayScreenState } from './use-puzzle-play-screen-state';
 import type { PuzzlePlayerChromeModel } from './use-puzzle-player-state';
 import { usePuzzlePlayerState } from './use-puzzle-player-state';
+import { PuzzleResultFeedback, usePuzzleResult } from './use-puzzle-result';
+import { PuzzleShareAnnouncement, usePuzzleShare } from './use-puzzle-share';
 
 const noop = (): void => {};
 
-/** The game's board, in play: the room's position, its marks and suggestions. */
+/**
+ * The game's board with the room's position, its marks and suggestions. It
+ * takes moves only on the board's own screen (`live`), while the solver is
+ * to move at the latest position.
+ */
 function PuzzlePlayerBoardSlot(props: {
   size: number;
   p: PuzzlePlayerChromeModel;
+  live: boolean;
 }): JSX.Element {
   const sounds = useSoundsPreference();
   const { client } = usePuzzleGame();
@@ -62,7 +64,10 @@ function PuzzlePlayerBoardSlot(props: {
         position={p.boardPosition() ?? ''}
         orientation={p.orientation()}
         interactive={
-          p.status() === 'solving' && p.atFrontier() && !p.opponentAnimating()
+          props.live &&
+          p.status() === 'solving' &&
+          p.atFrontier() &&
+          !p.opponentAnimating()
         }
         sound={!sounds.muted()}
         setup={null}
@@ -124,16 +129,17 @@ function useCorrectSoFar(p: PuzzlePlayerChromeModel): () => boolean {
   return () => p.status() === 'solving' && p.attempt.solveIdx() > firstSolveIdx;
 }
 
-/** The solver's own run so far; nothing for a spectator. */
-function usePlayProgress(p: PuzzlePlayerChromeModel) {
-  const history = usePuzzleHistory();
-  return () =>
-    p.isSpectator()
-      ? undefined
-      : {
-          streak: history.stats().currentStreak,
-          solved: history.stats().totalSolved,
-        };
+/** The coach's line and its spec handles, as the status line takes them. */
+function coachOf(p: PuzzlePlayerChromeModel) {
+  return {
+    message: p.coach()?.text ?? '',
+    contextKey: p.coach()?.positionKey ?? '',
+    handles: {
+      observation: p.coach()?.kind ?? '',
+      purpose: p.coach()?.purpose ?? '',
+      puzzleId: p.coach()?.puzzleId ?? '',
+    },
+  };
 }
 
 function PuzzlePlayerChrome(props: {
@@ -145,49 +151,42 @@ function PuzzlePlayerChrome(props: {
   const puzzleGame = usePuzzleGame();
   const myId = useMyId();
   const allowance = usePuzzleAllowance();
-  const [config] = usePuzzleFeedConfig();
-  const feedSettings = useFeedSettingsOverlay(props.onFeedConfigApplied);
-  const choices = useGameChoicesName();
-  const progress = usePlayProgress(p);
+  const line = usePuzzleLine();
+  const stage = createMemo<PuzzlePlayStage>(() =>
+    puzzlePlayStageOf({
+      pick: 'playing',
+      status: p.status(),
+      spectator: p.isSpectator(),
+    })
+  );
+  const places = usePuzzlePlayPlaces({
+    stage,
+    leave: p.backToRoot,
+    onFeedConfigApplied: props.onFeedConfigApplied,
+    toLive: line.toLive,
+  });
+  const result = usePuzzleResult(p);
+  const share = usePuzzleShare(() => (p.isSpectator() ? null : p.puzzleId()));
   const correct = useCorrectSoFar(p);
   const solverSide = useSolverSide(p);
   return (
     <>
-      <DefineBackButton onPress={p.backToRoot} label={choices()} />
+      <PuzzlePlaceBack places={places} />
       <PuzzlePlayScreenView
-        pick="playing"
+        stage={stage()}
+        place={places.nav.place()}
+        onOpen={places.nav.open}
+        onBack={places.back}
         boardSizing={puzzleGame.client.boardSizing}
         statusKind={p.statusKind()}
         solverSide={solverSide()}
         correct={correct()}
-        coach={{
-          message: p.coach()?.text ?? '',
-          contextKey: p.coach()?.positionKey ?? '',
-          handles: {
-            observation: p.coach()?.kind ?? '',
-            purpose: p.coach()?.purpose ?? '',
-            puzzleId: p.coach()?.puzzleId ?? '',
-          },
-        }}
+        coach={coachOf(p)}
         speaker={createSpeak}
         elapsedMs={p.clockElapsedMs()}
         spectator={p.isSpectator()}
         allowanceLabel={allowance.label()}
-        progress={progress()}
-        shareLink={
-          <Show when={p.puzzleId()} keyed>
-            {(puzzleId) => <PuzzleShareLink puzzleId={puzzleId} />}
-          </Show>
-        }
-        feed={
-          <PuzzlePlayFeed
-            puzzleId={p.puzzleId()}
-            rating={p.rating()}
-            themes={p.themes()}
-            status={p.status()}
-            onOpenFeedSettings={feedSettings.open}
-          />
-        }
+        ratingChange={result.ratingChange()}
         legend={
           <PuzzleRecommendationLegend
             entries={p.recommendationEntries}
@@ -196,9 +195,14 @@ function PuzzlePlayerChrome(props: {
             onClearMine={p.onClearMyRecommendation}
           />
         }
-        timeline={<PuzzleMoveHistoryBar />}
-        board={(size) => <PuzzlePlayerBoardSlot size={size} p={p} />}
-        feedConfig={config()}
+        board={(size) => (
+          <PuzzlePlayerBoardSlot
+            size={size}
+            p={p}
+            live={places.nav.place().screen === 'play'}
+          />
+        )}
+        line={line.model()}
         status={p.status()}
         hintStage={p.hintStage()}
         canGoForward={p.canGoForward()}
@@ -208,17 +212,16 @@ function PuzzlePlayerChrome(props: {
         onSkip={p.onSkip}
         onNext={p.onNext}
         onIncludeAllPuzzles={noop}
-        onOpenFeedSettings={feedSettings.open}
+        feed={places.feed()}
+        result={result.model()}
+        share={share()}
+        notices={<PuzzleFeedRefusedChangeNotice />}
         probe={props.probe}
         overlay={
           <>
             <PuzzleCompanion p={p} />
-            <CelebrationLayer
-              completion={p.completion}
-              status={p.status}
-              onNext={p.onNext}
-            />
-            {feedSettings.modal()}
+            <PuzzleResultFeedback model={p} />
+            <PuzzleShareAnnouncement share={share()} />
           </>
         }
       />
@@ -254,61 +257,52 @@ function PuzzlePlayer(props: PuzzlePlayerProps): JSX.Element {
   );
 }
 
-type ShellPickState = Exclude<PuzzlePickState, 'ready'>;
+type ShellPick = Exclude<PuzzlePlayPick, 'playing'>;
 
-function shellCoachLine(state: ShellPickState): string {
-  switch (state) {
-    case 'loading':
-      return '';
-    case 'offline':
-      return t`I can't fetch puzzles without a connection. Come back online and we'll pick up here.`;
-    case 'limited':
-      return t`That's all the puzzles for now. The board opens again when your allowance resets.`;
-    case 'empty':
-      return t`You've cleared everything in your feed. Widen the filters and let's keep going.`;
-    case 'waiting':
-      return t`Waiting for the host to start a puzzle.`;
-  }
-}
-
-/** Play chrome without a placed puzzle: loading, offline, limited or empty. */
+/** The feed without a placed puzzle: loading, offline, limited, empty, waiting. */
 function PuzzlePlayShell(props: {
   backToRoot: () => void;
-  pickState: Accessor<ShellPickState>;
+  pick: Accessor<ShellPick>;
   testLoadingStatus: JSX.Element;
   onFeedConfigApplied: () => void;
   includeAllPuzzles: () => void;
-  startDenial: Accessor<Decision | null>;
+  startDenial: ReturnType<typeof usePuzzlePlayScreenState>['startDenial'];
 }): JSX.Element {
-  const [config] = usePuzzleFeedConfig();
-  const feedSettings = useFeedSettingsOverlay(props.onFeedConfigApplied);
-  const choices = useGameChoicesName();
+  const allowance = usePuzzleAllowance();
+  const stage = createMemo<PuzzlePlayStage>(() =>
+    puzzlePlayStageOf({
+      pick: props.pick(),
+      status: 'loading',
+      spectator: false,
+    })
+  );
+  const places = usePuzzlePlayPlaces({
+    stage,
+    leave: props.backToRoot,
+    onFeedConfigApplied: props.onFeedConfigApplied,
+    toLive: noop,
+  });
   const denial = useDeniedView({
     get decision() {
       return props.startDenial();
     },
     testId: 'chess-puzzle-limit',
   });
-  const pick = (): PuzzlePlayPick => props.pickState();
   return (
     <>
-      <DefineBackButton onPress={props.backToRoot} label={choices()} />
+      <PuzzlePlaceBack places={places} />
       <PuzzlePlayScreenView
-        pick={pick()}
-        statusKind={props.pickState()}
-        coach={{ message: shellCoachLine(props.pickState()) }}
-        coachResolving={props.pickState() === 'loading'}
+        stage={stage()}
+        place={places.nav.place()}
+        onOpen={places.nav.open}
+        onBack={places.back}
+        statusKind={props.pick()}
+        coach={{ message: '' }}
         elapsedMs={null}
-        spectator={false}
-        allowanceLabel=""
-        feed={
-          <PuzzlePlayFeed
-            status="loading"
-            onOpenFeedSettings={feedSettings.open}
-          />
-        }
-        timeline={<PuzzleMoveHistoryBar />}
-        feedConfig={config()}
+        spectator={props.pick() === 'waiting'}
+        allowanceLabel={allowance.label()}
+        ratingChange={null}
+        line={NO_PUZZLE_LINE}
         denial={denial()}
         status="loading"
         hintStage="none"
@@ -319,14 +313,27 @@ function PuzzlePlayShell(props: {
         onSkip={noop}
         onNext={noop}
         onIncludeAllPuzzles={props.includeAllPuzzles}
-        onOpenFeedSettings={feedSettings.open}
+        feed={places.feed()}
+        result={NO_PUZZLE_RESULT}
+        share={null}
+        notices={<PuzzleFeedRefusedChangeNotice />}
         probe={props.testLoadingStatus}
-        overlay={feedSettings.modal()}
       />
     </>
   );
 }
 
+/** Without a placed puzzle a ready pick is still being placed: loading. */
+function shellPickOf(state: PuzzlePickState): ShellPick {
+  return state === 'ready' ? 'loading' : state;
+}
+
+/**
+ * The puzzle feed's screen in a space: the place machine's stage from the
+ * feed's pick and the attempt in the room, its place from what this device
+ * opened, and one back control that steps back through the places before
+ * leaving for the game's choices.
+ */
 export function PuzzlePlayScreen(): JSX.Element {
   const {
     backToRoot,
@@ -343,10 +350,7 @@ export function PuzzlePlayScreen(): JSX.Element {
   } = usePuzzlePlayScreenState();
 
   const testPickStatus = <PuzzleTestLoadingStatus {...testLoadingStatus()} />;
-  const shellState = createMemo<ShellPickState>(() => {
-    const state = pickState();
-    return state === 'ready' ? 'loading' : state;
-  });
+  const shellPick = createMemo<ShellPick>(() => shellPickOf(pickState()));
 
   return (
     <Show
@@ -354,7 +358,7 @@ export function PuzzlePlayScreen(): JSX.Element {
       fallback={
         <PuzzlePlayShell
           backToRoot={backToRoot}
-          pickState={shellState}
+          pick={shellPick}
           testLoadingStatus={testPickStatus}
           onFeedConfigApplied={reselectActivePuzzleFromFeed}
           includeAllPuzzles={includeAllPuzzles}

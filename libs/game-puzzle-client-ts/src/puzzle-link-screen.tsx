@@ -7,7 +7,10 @@
 import { puzzleIdOfRouteParam } from '@libs/game-puzzle-shared-ts/puzzle-link';
 import { puzzleNamespaceOf } from '@libs/game-puzzle-shared-ts/puzzle-namespace';
 import type { TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
-import { useLocalSearchParams } from '@pkgs/ui-root-client-ts/app-router';
+import {
+  useLocalSearchParams,
+  useRouter,
+} from '@pkgs/ui-root-client-ts/app-router';
 import { createMemo, type JSX, Show, untrack } from 'solid-js';
 import {
   PuzzleLinkScreenView,
@@ -29,6 +32,8 @@ function gameOfPuzzle(turnGames: TurnGames, puzzleId: string): string | null {
 
 const UNAVAILABLE: PuzzleLinkOpening = { kind: 'unavailable' };
 
+const noop = (): void => {};
+
 export function PuzzleLinkScreen(props: {
   readonly turnGames: TurnGames;
 }): JSX.Element {
@@ -39,7 +44,7 @@ export function PuzzleLinkScreen(props: {
     <Show
       when={gameId()}
       keyed
-      fallback={<PuzzleLinkOutcome opening={() => UNAVAILABLE} />}
+      fallback={<PuzzleLinkOutcome opening={() => UNAVAILABLE} retry={noop} />}
     >
       {(id) => <PuzzleLinkOpener puzzleId={puzzleId} gameId={id} />}
     </Show>
@@ -56,18 +61,20 @@ function PuzzleLinkOpener(props: {
     props.puzzleId,
     untrack(() => props.gameId)
   );
-  return <PuzzleLinkOutcome opening={opening} />;
+  return <PuzzleLinkOutcome opening={opening.opening} retry={opening.retry} />;
 }
 
-/** The view's status; a denial carries its own copy. */
+/** The view's status; no space to open the puzzle in is its denial. */
 function linkStatus(opening: PuzzleLinkOpening): PuzzleLinkStatus {
-  return opening.kind === 'spaceLimited' ? 'opening' : opening.kind;
+  return opening.kind === 'spaceLimited' ? 'denied' : opening.kind;
 }
 
 /** Opening the link, or why it cannot open. */
 function PuzzleLinkOutcome(props: {
   readonly opening: () => PuzzleLinkOpening;
+  readonly retry: () => void;
 }): JSX.Element {
+  const router = useRouter();
   const opening = () => props.opening();
   const denial = useDeniedView({
     get decision() {
@@ -76,6 +83,11 @@ function PuzzleLinkOutcome(props: {
     },
   });
   return (
-    <PuzzleLinkScreenView status={linkStatus(opening())} denial={denial()} />
+    <PuzzleLinkScreenView
+      status={linkStatus(opening())}
+      denial={denial()}
+      onRetry={props.retry}
+      onGoHome={() => router.replace('/')}
+    />
   );
 }

@@ -20,6 +20,8 @@ export type PuzzleReviewScreenViewProps = {
   readonly board?: JSX.Element;
   /** The host already scrolls and pads the page (the personal stats route). */
   readonly nested?: boolean | undefined;
+  /** Back to the game log, the way out of a review that cannot show. */
+  readonly onBackToLog: () => void;
 };
 
 /** How the reviewed attempt went; "Puzzle review" before the log has it. */
@@ -51,9 +53,11 @@ function ReviewSubtitle(props: { rating: number }): JSX.Element {
 }
 
 /**
- * Puzzle review, presentational: replays one logged puzzle on its board,
- * titled by how the attempt went, or says why it cannot (nothing picked,
- * or not synced yet). The board arrives as a slot from the container.
+ * Puzzle review, presentational: a stage that replays one logged puzzle on
+ * its board, titled by how the attempt went, with the line to step through
+ * under it. When it cannot (nothing picked, or the puzzle is not on this
+ * device yet) it says why and leads back to the game log. The board
+ * arrives as a slot from the container.
  */
 export function PuzzleReviewScreenView(
   props: PuzzleReviewScreenViewProps
@@ -65,6 +69,11 @@ export function PuzzleReviewScreenView(
         <EmptyState
           title={<Trans>No puzzle selected</Trans>}
           body={<Trans>Pick one from the game log.</Trans>}
+          action={{
+            label: <Trans>Back to the game log</Trans>,
+            onClick: props.onBackToLog,
+          }}
+          dataSet={{ testid: 'chess-puzzle-review-unselected' }}
         />
       }
     >
@@ -85,10 +94,15 @@ export function PuzzleReviewScreenView(
               title={<Trans>Puzzle unavailable</Trans>}
               body={
                 <Trans>
-                  This puzzle is not in your local feed yet. Try again after
-                  sync.
+                  This puzzle is not on this device yet. It shows here once
+                  your puzzles have synced.
                 </Trans>
               }
+              action={{
+                label: <Trans>Back to the game log</Trans>,
+                onClick: props.onBackToLog,
+              }}
+              dataSet={{ testid: 'chess-puzzle-review-unavailable' }}
             />
           }
         >

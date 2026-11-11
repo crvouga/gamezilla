@@ -9,6 +9,7 @@ import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
 } from '@libs/spaces-client-ts/use-space-room-selector';
+import { t } from '@lingui/core/macro';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { createMemo, type JSX, Show } from 'solid-js';
 import { useReviewPuzzleEntity } from './puzzle-play-queries';
@@ -24,6 +25,7 @@ export function PuzzleReviewBody(props: {
   cursor: PuzzleReviewCursor;
   /** The host already scrolls and pads the page (the personal stats route). */
   nested?: boolean;
+  onBackToLog: () => void;
 }): JSX.Element {
   const entity = useReviewPuzzleEntity(() => props.puzzleId);
   const history = usePuzzleHistory();
@@ -37,6 +39,7 @@ export function PuzzleReviewBody(props: {
       outcome={entry()?.outcome ?? null}
       puzzleRating={entity.rating}
       nested={props.nested}
+      onBackToLog={props.onBackToLog}
       board={
         <PuzzleReviewBoard
           fen={entity.fen}
@@ -68,15 +71,25 @@ export function PuzzleReviewScreen(): JSX.Element {
 
   return (
     <StackVertical grow self="stretch" overflow="hidden">
-      <DefineBackButton onPress={backToStats} />
+      <DefineBackButton onPress={backToStats} label={t`Puzzle stats`} />
       <Show
         when={puzzleId()}
         keyed
         fallback={
-          <PuzzleReviewScreenView status="unselected" puzzleRating={0} />
+          <PuzzleReviewScreenView
+            status="unselected"
+            puzzleRating={0}
+            onBackToLog={backToStats}
+          />
         }
       >
-        {(id) => <PuzzleReviewBody puzzleId={id} cursor={cursor} />}
+        {(id) => (
+          <PuzzleReviewBody
+            puzzleId={id}
+            cursor={cursor}
+            onBackToLog={backToStats}
+          />
+        )}
       </Show>
     </StackVertical>
   );

@@ -55,10 +55,12 @@
     "@pkgs/clock-shared-ts": "workspace:*",
     "@pkgs/db-schema-root-shared-ts": "workspace:*",
     "@pkgs/db-schema-sqlite-shared-ts": "workspace:*",
+    "@pkgs/property-shared-ts": "workspace:*",
     "@pkgs/sql-client-sqlite-root-shared-ts": "workspace:*",
     "@solidjs/testing-library": "catalog:",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
     "storybook": "catalog:",
     "storybook-solidjs-vite": "catalog:",
     "typescript": "catalog:"
@@ -69,6 +71,7 @@
     "content-builder-story.example",
     "puzzle-content-client",
     "puzzle-client",
+    "puzzle-places-story.example",
     "puzzle-screen-story.example"
   ],
   "language": "typescript"

@@ -1,0 +1,66 @@
+import { Trans } from '@lingui/solid/macro';
+import { Badge } from '@pkgs/ui-root-client-ts/badge';
+import { SpeakingAvatar } from '@pkgs/ui-root-client-ts/speaking-avatar';
+import { SpectatorIndicator } from '@pkgs/ui-root-client-ts/spectator-indicator';
+import { type JSX, Show } from 'solid-js';
+import { PuzzleClockLabel } from './puzzle-clock-label';
+import type { PuzzlePlayScreenViewProps } from './puzzle-play-screen-model';
+import { PuzzleStatusHeader } from './puzzle-status-header';
+
+/** The coach's face: small, so its words keep the line beside the board. */
+const AVATAR_SIZE = 40;
+
+/**
+ * What ends the status line: that this attempt cannot move the rating (a
+ * repeat, §9), the clock, and the mark of someone watching.
+ */
+function StatusLineTrailing(props: PuzzlePlayScreenViewProps): JSX.Element {
+  return (
+    <>
+      <Show when={props.ratingChange === 'unrated'}>
+        <Badge
+          intent="neutral"
+          label={<Trans>Unrated</Trans>}
+          dataSet={{ testid: 'chess-puzzle-feed-unrated-label' }}
+        />
+      </Show>
+      <PuzzleClockLabel elapsedMs={props.elapsedMs} />
+      <Show when={props.spectator}>
+        <SpectatorIndicator />
+      </Show>
+    </>
+  );
+}
+
+/**
+ * The board's one status line: whose move it is or how the attempt stands,
+ * the coach's words about it under that, and the clock at its end.
+ */
+export function PuzzleStatusLine(
+  props: PuzzlePlayScreenViewProps
+): JSX.Element {
+  const handles = () => props.coach.handles;
+  return (
+    <SpeakingAvatar
+      message={props.coach.message}
+      contextKey={props.coach.contextKey}
+      bubbleResolving={props.coachResolving}
+      speaker={props.speaker}
+      dataSet={handles() ? { testid: 'puzzle-assistant' } : undefined}
+      data-observation={handles()?.observation}
+      data-purpose={handles()?.purpose}
+      data-puzzle={handles()?.puzzleId}
+      header={
+        <PuzzleStatusHeader
+          kind={props.statusKind}
+          solutionShown={props.status === 'revealed'}
+          solverSide={props.solverSide ?? null}
+          correct={props.correct}
+          trailing={<StatusLineTrailing {...props} />}
+        />
+      }
+      numberOfLines={2}
+      avatarSize={AVATAR_SIZE}
+    />
+  );
+}
