@@ -1,0 +1,4 @@
+{
+  "summary": "On a localhost stack every scenario shares one database, but Synthetic Population fixtures minted the same seeded ids each scenario (duplicate population_events keys), claimed the same usernames, and met the population, configuration (the stack's preferred version) and leases earlier or concurrent scenarios left (\"Cedar could not be assigned\"). Fixture ids and claimed usernames now carry the run's tag, the population slice retires an earlier scenario's population before each scenario, and stack-serial packages run one scenario at a time on a stack.",
+  "regressionTest": "libs/synthetic-population-harness-ts/tests/shared-database-isolation.test.ts"
+}

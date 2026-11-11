@@ -119,6 +119,13 @@ export type HarnessComposition = {
   /** Rows every harness of this composition starts with, after migrate. */
   readonly seedServer?: (sqlClient: SqlClient) => Promise<void>;
   /**
+   * Bring the server state this sub owns to a fresh world's before the
+   * scenario starts. A world on its own server starts fresh and finds
+   * nothing to do; a localhost stack outlives one scenario, so what an
+   * earlier scenario left there is put away.
+   */
+  readonly beforeScenario?: (s: ProductHarness) => Promise<void>;
+  /**
    * What the composition sells. When set, the harness runs a payment provider
    * node with this catalog and gives every API instance an adapter to it.
    */

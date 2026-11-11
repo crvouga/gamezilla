@@ -20,6 +20,7 @@ import {
 } from '@libs/harness-ts/auth-actions';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront } from '@libs/harness-ts/observations';
+import { runScopedUsername } from '@libs/harness-ts/run-scope';
 import { grantOperatorPermissions } from '@libs/observatory-actions-harness-ts/operator-access-actions';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { configureUsername } from '@libs/synthetic-population-behavior-shared-ts/application-actions';
@@ -105,7 +106,10 @@ export const startSyntheticGame = scenarioAction({
     if (matched === undefined)
       throw new Error(`${label} offers no matchmaking`);
     await Promise.resolve(signInWithGoogle.act(s, person));
-    await configureUsername(await actorUi(s, person), person);
+    await configureUsername(
+      await actorUi(s, person),
+      runScopedUsername(s, person)
+    );
     for (const player of [actor, person]) {
       await Promise.resolve(givenSyntheticGameSpace.act(s, player, label));
       await Promise.resolve(

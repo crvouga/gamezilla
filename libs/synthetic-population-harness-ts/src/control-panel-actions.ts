@@ -10,6 +10,7 @@ import { restartApp } from '@libs/harness-ts/actions';
 import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront } from '@libs/harness-ts/observations';
+import { runScopedCreateId } from '@libs/harness-ts/run-scope';
 import {
   SYNTHETIC_USERS_CONTROL_PATH,
   SYNTHETIC_USERS_PATH,
@@ -255,12 +256,12 @@ export const givenPausedSyntheticUsers = scenarioAction({
     );
     for (const name of names) {
       const user = await syntheticUserNamed(s, name);
-      const operationId = s.session.ports.createId();
+      const operationId = runScopedCreateId(s)();
       if (
         !(await administration.command(
           user.id,
           { operationId, command: 'pause' },
-          s.session.ports.createId()
+          runScopedCreateId(s)()
         ))
       )
         throw new Error(`${name} could not be paused`);
