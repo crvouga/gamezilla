@@ -99,7 +99,8 @@ export function DataTableHeader(props: {
             <Spinner size="sm" label={t`Updating…`} />
           </Show>
         </div>
-        <div class="box flex-row flex-wrap items-center gap-ui-sm">
+        {/* Shrinks to the row so its actions wrap on a phone, not overflow. */}
+        <div class="box shrink max-w-full flex-row flex-wrap items-center gap-ui-sm">
           <For each={props.actions}>
             {(action) => (
               <Button

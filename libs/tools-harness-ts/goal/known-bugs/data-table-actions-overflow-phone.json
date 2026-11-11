@@ -1,0 +1,4 @@
+{
+  "summary": "DataTable's collection actions (e.g. Pause / Resume every Synthetic User) overflowed a phone's width: every `box` sets flex-shrink 0, so the actions row never narrowed and its flex-wrap never took effect. The row now shrinks to the header and wraps.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/data-table.test.tsx"
+}
