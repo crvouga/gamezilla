@@ -36,6 +36,8 @@ export type HarnessActor = {
   /** Private session probe for server-verdict reads; never recorded in reports. */
   readonly sessionToken: () => Promise<string | null>;
   readonly deviceId: () => Promise<string | null>;
+  /** The identity the device keeps for local work, a guest's included. */
+  readonly memberId: () => Promise<string | null>;
   /** Open an app link (`/space/<id>`) the way a person pastes one. */
   readonly openLink: (path: string) => Promise<void>;
   /** The app route the actor is on — what "Copy link" would hand out. */
