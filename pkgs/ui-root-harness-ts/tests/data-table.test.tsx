@@ -139,6 +139,28 @@ describe('DataTable', () => {
     expect(pressed).toHaveBeenCalledTimes(1);
   });
 
+  // regression: data-table-actions-overflow-phone
+  test('actions wrap within the row instead of overflowing a phone', () => {
+    renderUi(() => (
+      <DataTable
+        {...table({
+          actions: [
+            { label: 'Pause every worker', onPress: () => undefined },
+            { label: 'Resume every worker', onPress: () => undefined },
+          ],
+        })}
+      />
+    ));
+    // Every `box` refuses to shrink by default; the actions row must, so its
+    // flex-wrap takes effect at a phone's width.
+    const row = screen.getByRole('button', {
+      name: 'Pause every worker',
+    }).parentElement;
+    expect(row?.classList.contains('flex-wrap')).toBe(true);
+    expect(row?.classList.contains('shrink')).toBe(true);
+    expect(row?.classList.contains('max-w-full')).toBe(true);
+  });
+
   test('paging: Previous and Next follow what the caller can do', async () => {
     const user = userEvent.setup();
     const next = mock(() => undefined);
