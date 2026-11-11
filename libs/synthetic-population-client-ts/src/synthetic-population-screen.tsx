@@ -15,7 +15,7 @@ import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
 import { useCreateId } from '@pkgs/uuid-client-ts/solid';
 import { createResource, type JSX } from 'solid-js';
 import type { EveryCommand } from './every-synthetic-user-controls';
-import { resourceValue } from './resource-value';
+import { lastKnownValue } from './resource-value';
 import { useSyntheticPopulationApi } from './synthetic-population-api';
 import {
   toConfigurationDraft,
@@ -50,7 +50,9 @@ function SyntheticPopulationContent(props: {
     draft.initialize(result.config);
     return result;
   });
-  const candidate = () => draft.candidate(resourceValue(overview)?.config);
+  // A reread that fails (say, without a connection) keeps the panel last read.
+  const known = lastKnownValue(overview);
+  const candidate = () => draft.candidate(known()?.config);
   useSyntheticPopulationUpdates(() => refetch());
   useRefreshWithoutUpdates(() => refetch(), REFRESH_MS);
   const save = async () => {
@@ -68,8 +70,8 @@ function SyntheticPopulationContent(props: {
     <SyntheticPopulationScreenView
       section={props.section}
       loading={overview.loading}
-      failed={Boolean(overview.error)}
-      overview={resourceValue(overview)}
+      failed={Boolean(overview.error) && known() === undefined}
+      overview={known()}
       canConfigure={configure()}
       fields={draft.fields()}
       canSave={candidate() !== null}
