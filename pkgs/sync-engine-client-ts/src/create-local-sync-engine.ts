@@ -37,6 +37,7 @@ import type {
   MutationUploadRow,
 } from './mutation-upload-queue';
 import { MutationUploadQueue } from './mutation-upload-queue';
+import { refuseQueuedOnlineOnly } from './online-only-refusal';
 import type { OutboundLiveBuffer } from './optimistic-fanout';
 import {
   buildOptimisticFanout,
@@ -186,6 +187,22 @@ function handleError(state: LocalEngineState, error: unknown): void {
   state.reachability.failed(error);
 }
 
+/**
+ * The connection is lost: online-only actions still queued, taken while a
+ * hiccup looked like one, get the offline verdict instead of waiting for a
+ * server that cannot answer. Their local effect is repaired by the next
+ * sweep that reaches the server, as for any refused write.
+ */
+function refuseOnlineOnlyWhenLost(state: LocalEngineState): void {
+  void refuseQueuedOnlineOnly({
+    db: state.options.db,
+    bus: state.bus,
+    registry: state.options.mutationRegistry,
+    clientId: state.options.getClientId(),
+    now: state.options.now,
+  }).catch((error: unknown) => handleError(state, error));
+}
+
 function createUploadQueue(
   options: CreateLocalSyncEngineOptions,
   bus: ReturnType<typeof createTableChangeBus>,
@@ -239,13 +256,14 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
   const bus = createTableChangeBus();
   const appDb = createTableChangeSqlClient(options.db, bus);
   const status = createLocalSyncStatusStore();
+  const stateRef: LocalEngineStateRef = { current: null };
   const reachability = createSyncReachability({
     status,
     isOnline: () => options.lifecycle?.isOnline() ?? true,
     now: options.now,
+    lost: () => refuseOnlineOnlyWhenLost(readState(stateRef)),
   });
   status.patch({ online: options.lifecycle?.isOnline() ?? true });
-  const stateRef: LocalEngineStateRef = { current: null };
   const runtime = new SubscriptionRuntime({
     onSweepStarted: (scopes) =>
       readState(stateRef).recovery.scopesStarted(scopes),

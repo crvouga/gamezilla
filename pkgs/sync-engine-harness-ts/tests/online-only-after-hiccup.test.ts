@@ -4,6 +4,7 @@ import { HttpNetworkError } from '@pkgs/http-client-shared-ts/http-network-error
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-root-server-ts/impl-bun-sqlite';
 import { createLocalSyncEngine } from '@pkgs/sync-engine-client-ts/create-local-sync-engine';
 import { createMutationClient } from '@pkgs/sync-engine-client-ts/create-mutation-client';
+import { mutationVerdict } from '@pkgs/sync-engine-client-ts/mutation-status';
 import { exampleLocalSchema } from '@pkgs/sync-engine-harness-ts/local-schema';
 import {
   requiresOnlineNote,
@@ -160,6 +161,43 @@ test('a server that stays unreachable still has online-only actions refused', as
     await settle();
     expect(device.engine.status.getSnapshot().online).toBe(false);
     expect(refusedOffline(await device.announce('fire-drill'))).toBe(true);
+  });
+});
+
+// regression: online-only-action-accepted-in-hiccup-never-settles
+test('an online-only action taken during a hiccup is refused once the connection proves lost', async () => {
+  await withLiveDevice(async (device) => {
+    device.queryFailures.push(() => new HttpNetworkError('net::ERR_FAILED'));
+    await device.engine.refreshQueries();
+    await settle();
+    expect(device.engine.status.getSnapshot().online).toBe(true);
+    const taken = await device.announce('fire-drill');
+    if (!taken.ok) throw new Error('the hiccup refused the announcement');
+    device.queryFailures.push(() => new HttpNetworkError('net::ERR_FAILED'));
+    await device.engine.refreshQueries();
+    await settle();
+    expect(device.engine.status.getSnapshot().online).toBe(false);
+    expect(await mutationVerdict(device.engine.db, taken.mutationId)).toEqual({
+      status: 'rejected',
+      code: 'OFFLINE',
+      message: 'This action needs a connection.',
+    });
+  });
+});
+
+test('a write that is not online-only stays queued when the connection proves lost', async () => {
+  await withLiveDevice(async (device) => {
+    device.queryFailures.push(() => new HttpNetworkError('net::ERR_FAILED'));
+    device.queryFailures.push(() => new HttpNetworkError('net::ERR_FAILED'));
+    const taken = await device.write('draft');
+    if (!taken.ok) throw new Error('the draft was refused');
+    await device.engine.refreshQueries();
+    await device.engine.refreshQueries();
+    await settle();
+    expect(device.engine.status.getSnapshot().online).toBe(false);
+    expect(await mutationVerdict(device.engine.db, taken.mutationId)).toEqual({
+      status: 'pending',
+    });
   });
 });
 

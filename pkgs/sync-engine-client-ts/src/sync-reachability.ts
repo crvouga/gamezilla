@@ -20,7 +20,8 @@ function errorMessage(error: unknown): string {
  * with an error is reachable, and a request that never reached it on a
  * confirmed connection is a hiccup the app retries on its own. The device is
  * offline when a request cannot reach the server before the connection is
- * confirmed, or again after that retry.
+ * confirmed, or again after that retry; then `lost` settles what was taken
+ * during the hiccup as taken offline.
  */
 export type SyncReachability = {
   /** A sweep answered every scope: the connection is confirmed. */
@@ -35,6 +36,8 @@ export function createSyncReachability(args: {
   readonly status: LocalSyncStatusStore;
   readonly isOnline: () => boolean;
   readonly now: () => number;
+  /** A request could not reach the server: the connection is lost. */
+  readonly lost: () => void;
 }): SyncReachability {
   let unanswered = 0;
   const unreachable = (error: unknown): boolean => {
@@ -62,11 +65,13 @@ export function createSyncReachability(args: {
       const upgradeRequired =
         error instanceof SyncApiAuthError &&
         error.reason === 'upgrade_required';
+      const lost = unreachable(error);
       args.status.patch({
         lastError: errorMessage(error),
-        ...(upgradeRequired || unreachable(error) ? { online: false } : {}),
+        ...(upgradeRequired || lost ? { online: false } : {}),
         ...(upgradeRequired ? { upgradeRequired: true } : {}),
       });
+      if (lost) args.lost();
     },
   };
 }
