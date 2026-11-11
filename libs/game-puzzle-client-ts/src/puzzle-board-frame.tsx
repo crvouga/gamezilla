@@ -3,8 +3,9 @@ import { Trans } from '@lingui/solid/macro';
 import { BoardFit } from '@pkgs/ui-root-client-ts/board-fit';
 import { createMeasure } from '@pkgs/ui-root-client-ts/measure';
 import { PuzzleScreen } from '@pkgs/ui-root-client-ts/puzzle-screen';
+import { createScrollTarget } from '@pkgs/ui-root-client-ts/scroll';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { type JSX, Show } from 'solid-js';
+import { createEffect, type JSX, on, Show } from 'solid-js';
 import type { PuzzlePlayScreenViewProps } from './puzzle-play-screen-model';
 import { PuzzleStatusLine } from './puzzle-status-line';
 
@@ -27,6 +28,24 @@ export type PuzzleBoardFrameProps = {
  */
 export function PuzzleBoardFrame(props: PuzzleBoardFrameProps): JSX.Element {
   const boardMeasure = createMeasure();
+  const boardReveal = createScrollTarget();
+  // A width-sized board scrolls with the screen, and Retry sits under the
+  // wrong move's longer coaching: reaching it can scroll the board's top
+  // away. Retry puts the position back to play on, so the board comes back
+  // into view with it.
+  createEffect(
+    on(
+      () => props.view.status,
+      (status, before) => {
+        if (before === 'wrong' && status !== 'wrong')
+          boardReveal.scrollIntoView({
+            behavior: 'instant',
+            block: 'nearest',
+            scope: 'scroller',
+          });
+      }
+    )
+  );
   return (
     <PuzzleScreen
       screenId={props.screenId}
@@ -54,6 +73,7 @@ export function PuzzleBoardFrame(props: PuzzleBoardFrameProps): JSX.Element {
         <StackVertical
           self="stretch"
           measureTarget={boardMeasure.target}
+          scrollTarget={boardReveal.target}
           testId={Handles.chessPuzzleBoardFrame}
         >
           {props.view.board?.(boardMeasure.width())}

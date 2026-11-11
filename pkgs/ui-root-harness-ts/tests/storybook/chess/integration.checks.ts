@@ -26,6 +26,25 @@ test('storybook integration: chess tablet recovery keeps every square anchored',
   await captureChessState(page, info, 'tablet-recovery');
 });
 
+// regression: chess-puzzle-retry-leaves-board-scrolled-away
+test('storybook integration: chess puzzle 320x640 Retry brings the whole board back into view', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 640 });
+  // The story reaches Retry below the fold, then requires every square
+  // unclipped by the scrolling screen after it.
+  await openChessStory(
+    page,
+    'screens-puzzles-chess-play--wrong-move-recovery',
+    'light'
+  );
+  const board = await page
+    .locator('[data-component="ChessBoard"]')
+    .boundingBox();
+  if (!board) throw new Error('Missing board');
+  expect(board.y).toBeGreaterThanOrEqual(0);
+});
+
 // regression: chess-puzzle-board-below-short-landscape-fold
 test('storybook integration: chess puzzle 844x390 shows every square beside its actions', async ({
   page,
