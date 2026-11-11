@@ -1,5 +1,8 @@
 /** @jsxImportSource solid-js */
-/** The puzzle library: Browse, Continue and My creations, each said once. */
+/**
+ * The puzzle library as small screens: a hub of rows, then one list each
+ * (Continue, Solved, Browse, My creations, Playtests).
+ */
 
 import { afterEach, expect, test } from 'bun:test';
 import {
@@ -7,8 +10,9 @@ import {
   type ContentLibraryScreenViewProps,
 } from '@libs/game-puzzle-client-ts/content-library-screen-view';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
+import { KeyRoundIcon } from '@pkgs/ui-root-client-ts/icons';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
-import { cleanup, screen } from '@solidjs/testing-library';
+import { cleanup, fireEvent, screen } from '@solidjs/testing-library';
 
 afterEach(cleanup);
 
@@ -25,7 +29,12 @@ const PUBLISHED_PUZZLE = {
 
 const VIEW: ContentLibraryScreenViewProps = {
   status: 'ready',
+  place: { screen: 'library' },
+  onOpen: none,
   title: 'Counting',
+  create: { status: 'idle' },
+  canCreatePuzzle: true,
+  onCreate: none,
   bundledPacks: [],
   drafts: [
     {
@@ -59,36 +68,58 @@ const VIEW: ContentLibraryScreenViewProps = {
   onMorePublished: none,
 };
 
+type Screen = ContentLibraryScreenViewProps['place']['screen'];
+
+/** The library on one of its small screens. */
+function renderPlace(
+  place: Screen,
+  view: Partial<ContentLibraryScreenViewProps> = {}
+): void {
+  renderLibrary({ ...VIEW, ...view, place: { screen: place } });
+}
+
+const LISTS = ['continue', 'solved', 'browse', 'mine', 'playtests'] as const;
+
 // regression: content-library-scrolled-past-title — every list stacked in
 // one column, so opening the last published puzzle scrolled the title out
 // of view, and each saved attempt repeated "Your progress is kept at this
-// edition." Playing and building are now separate tabs, and the note is
-// said once for the section.
+// edition."
 // regression: content-library-one-long-page — playing, finished attempts,
-// publishing, drafts and playtests competed on one long page. Browse,
-// Continue and My creations are tabs; finished attempts sit apart from
-// the ones to continue.
+// publishing, drafts and playtests competed on one long page, then on
+// three tabs of several lists each. Each list is now a small screen of its
+// own, reached by a row of the hub; no screen holds a second list.
 // regression: library-engineer-copy — the note said "Each attempt keeps
-// your progress at the edition you started". It now says it plainly.
-test('browsing, continuing and building are separate tabs, the attempt note said once', () => {
-  renderWithI18n(() => (
-    <ThemeProvider
-      colorScheme="dark"
-      fixedLayout={{ width: 1440, height: 900 }}
-    >
-      <ContentLibraryScreenView {...VIEW} />
-    </ThemeProvider>
-  ));
-  const browse = screen.getByTestId('content-library-browse');
-  const resume = screen.getByTestId('content-library-continue');
-  const mine = screen.getByTestId('content-library-mine');
-  expect(
-    browse.contains(screen.getByTestId('content-published-revision-1'))
-  ).toBe(true);
-  expect(resume.contains(screen.getByTestId('content-attempt-attempt-1'))).toBe(
-    true
-  );
-  expect(mine.contains(screen.getByTestId('content-draft-draft-1'))).toBe(true);
+// your progress at the edition you started". It now says it plainly, once.
+test('each list is a screen of its own: one list, its note said once', () => {
+  const rows: Record<(typeof LISTS)[number], string> = {
+    continue: 'content-attempt-attempt-1',
+    solved: 'content-attempt-attempt-2',
+    browse: 'content-published-revision-1',
+    mine: 'content-draft-draft-1',
+    playtests: 'content-attempt-playtest-1',
+  };
+  for (const place of LISTS) {
+    renderPlace(place);
+    const list = screen.getByTestId(`content-library-${place}`);
+    expect(list.contains(screen.getByTestId(rows[place]))).toBe(true);
+    expect(
+      list.querySelectorAll('[data-component="PreviewCardGrid"]')
+    ).toHaveLength(1);
+    // No other list, no hub row and no tabs share its screen.
+    for (const other of LISTS.filter((entry) => entry !== place)) {
+      expect(screen.queryByTestId(`content-library-${other}`)).toBeNull();
+      expect(screen.queryByTestId(rows[other])).toBeNull();
+    }
+    expect(screen.queryByTestId('content-library-tab-browse')).toBeNull();
+    expect(document.querySelector('[role="tab"]')).toBeNull();
+    expect(
+      document
+        .querySelector('[data-component="EmbeddedScreen"]')
+        ?.getAttribute('data-screen')
+    ).toBe(`puzzle-content-library-${place}`);
+    cleanup();
+  }
+  renderPlace('continue');
   expect(
     screen.getAllByText(
       'Each puzzle keeps your place, even if its author changes it later.'
@@ -97,107 +128,256 @@ test('browsing, continuing and building are separate tabs, the attempt note said
   expect(
     screen.queryByText('Your progress is kept at this edition.')
   ).toBeNull();
-  // Something is unfinished, so the library opens on Continue; the other
-  // tabs are hidden until chosen.
-  const tab = (value: string) =>
-    screen.getByTestId(`content-library-tab-${value}`);
-  expect(tab('continue').getAttribute('aria-selected')).toBe('true');
-  expect(browse.closest('[role="tabpanel"]')?.hasAttribute('hidden')).toBe(
-    true
-  );
-  tab('mine').click();
-  expect(mine.closest('[role="tabpanel"]')?.hasAttribute('hidden')).toBe(false);
-  expect(resume.closest('[role="tabpanel"]')?.hasAttribute('hidden')).toBe(
-    true
-  );
 });
 
 // regression: library-continue-holds-finished — the Continue tab listed
 // finished puzzles and private playtests beside the ones to pick up, so
-// "Continue" did not mean what it said. It now holds only what is
-// unfinished; what is solved is listed under Browse, after the puzzles it
-// came from, and the playtests of the person's drafts under My creations.
+// "Continue" did not mean what it said. It holds only what is unfinished;
+// what is solved and the playtests of the person's drafts are lists of
+// their own.
 // regression: library-sections-hang-left — wide, "Finished" and the
-// playtests once hung in one column under a two-column list: the Continue
-// tab now holds that one list alone.
-test('Continue holds only what is unfinished; solved under Browse, playtests under My creations', () => {
-  renderLibrary(VIEW);
-  const resume = screen.getByTestId('content-library-continue');
-  const browse = screen.getByTestId('content-library-browse');
-  const mine = screen.getByTestId('content-library-mine');
+// playtests once hung in one column under a two-column list: each list
+// now stands alone on its screen.
+test('Continue holds only what is unfinished; solved and playtests are their own lists', () => {
   const section = (row: HTMLElement) =>
     row.closest('[data-component="PreviewCardGrid"]');
+  renderPlace('continue');
   const unfinished = screen.getByTestId('content-attempt-attempt-1');
-  const finished = screen.getByTestId('content-attempt-attempt-2');
-  const playtest = screen.getByTestId('content-attempt-playtest-1');
-  expect(resume.contains(unfinished)).toBe(true);
-  expect(resume.contains(finished)).toBe(false);
-  expect(resume.contains(playtest)).toBe(false);
-  expect(
-    resume.querySelectorAll('[data-component="PreviewCardGrid"]')
-  ).toHaveLength(1);
   expect(section(unfinished)?.textContent).toContain('Continue playing');
-  expect(browse.contains(finished)).toBe(true);
+  expect(screen.queryByTestId('content-attempt-attempt-2')).toBeNull();
+  expect(screen.queryByTestId('content-attempt-playtest-1')).toBeNull();
+  expect(
+    screen
+      .getByTestId('content-library-continue')
+      .querySelector('[data-testid="content-chip-status"]')
+  ).toBeNull();
+  cleanup();
+  renderPlace('solved');
+  const finished = screen.getByTestId('content-attempt-attempt-2');
   expect(section(finished)?.textContent?.startsWith('Solved')).toBe(true);
-  expect(mine.contains(playtest)).toBe(true);
+  cleanup();
+  renderPlace('playtests');
+  const playtest = screen.getByTestId('content-attempt-playtest-1');
   expect(section(playtest)?.textContent).toContain('Playtests of your drafts');
   expect(section(playtest)?.textContent).toContain(
     "Practice runs don't count toward your progress."
   );
-  expect(
-    resume.querySelector('[data-testid="content-chip-status"]')
-  ).toBeNull();
 });
 
-test('with nothing unfinished, Continue says so and the solved stay under Browse', () => {
-  renderLibrary({
-    ...VIEW,
-    attempts: [{ id: 'attempt-2', title: 'Count to nine', completed: true }],
-  });
-  const resume = screen.getByTestId('content-library-continue');
-  expect(resume.textContent).toContain('Nothing to continue yet');
-  expect(
-    screen
-      .getByTestId('content-library-browse')
-      .contains(screen.getByTestId('content-attempt-attempt-2'))
-  ).toBe(true);
+test('every list has its own empty state with a next action', () => {
+  const opened: Screen[] = [];
+  const empty = {
+    drafts: [],
+    attempts: [],
+    playtests: [],
+    published: [],
+    onOpen: (place: ContentLibraryScreenViewProps['place']) =>
+      opened.push(place.screen),
+  };
+  const states: Record<(typeof LISTS)[number], [string, string, Screen]> = {
+    continue: ['Nothing to continue yet', 'Browse puzzles', 'browse'],
+    solved: ['Nothing solved here yet', 'Browse puzzles', 'browse'],
+    browse: ['No published puzzles loaded', 'Back to puzzles', 'library'],
+    mine: ['Nothing built yet', 'Back to puzzles', 'library'],
+    playtests: ['No playtests yet', 'My creations', 'mine'],
+  };
+  for (const place of LISTS) {
+    renderPlace(place, empty);
+    const [title, action] = states[place];
+    const list = screen.getByTestId(`content-library-${place}`);
+    expect(list.textContent).toContain(title);
+    expect(list.querySelector('[data-component="PreviewCardGrid"]')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: action }));
+    cleanup();
+  }
+  expect(opened).toEqual(LISTS.map((place) => states[place][2]));
 });
 
-test('with nothing unfinished the library opens on Browse', () => {
-  renderLibrary({
-    ...VIEW,
-    attempts: [{ id: 'attempt-2', title: 'Count to nine', completed: true }],
-  });
-  expect(
-    screen
-      .getByTestId('content-library-tab-browse')
-      .getAttribute('aria-selected')
-  ).toBe('true');
+test('each list loads its own next page', () => {
+  const asked: string[] = [];
+  const paged = {
+    more: { owned: true, attempts: true, published: true },
+    onMoreOwned: () => asked.push('owned'),
+    onMoreAttempts: () => asked.push('attempts'),
+    onMorePublished: () => asked.push('published'),
+  };
+  const labels: Record<(typeof LISTS)[number], string> = {
+    continue: 'Load earlier attempts',
+    solved: 'Load earlier attempts',
+    browse: 'Load more published puzzles and packs',
+    mine: 'Load more of your drafts and publications',
+    playtests: 'Load earlier attempts',
+  };
+  for (const place of LISTS) {
+    renderPlace(place, paged);
+    const buttons = screen
+      .getAllByRole('button')
+      .filter((button) => /^Load /.test(button.textContent ?? ''));
+    expect(buttons.map((button) => button.textContent)).toEqual([
+      labels[place],
+    ]);
+    fireEvent.click(buttons[0] as HTMLElement);
+    cleanup();
+  }
+  expect(asked).toEqual([
+    'attempts',
+    'attempts',
+    'published',
+    'owned',
+    'attempts',
+  ]);
 });
 
 // regression: content-library-create-off-screen — on a phone the create
-// controls sat at the end of the page, after every list. They come first,
-// under the title, before any tab.
-test('creating a puzzle or pack comes before the tabs on a phone', () => {
-  renderLibrary({
-    ...VIEW,
-    createControls: <button type="button" data-testid="create" />,
+// controls sat at the end of the page, after every list. They are rows of
+// the hub, with the lists they sit beside.
+// regression: library-creation-before-continue — the library's two
+// outlined create buttons were the first content under its title, before
+// the list to continue. On the hub Continue leads, creating comes with
+// what the person makes, and every row says how much it holds.
+test('the hub leads with Continue, counts each list, and creates from rows', () => {
+  const opened: Screen[] = [];
+  const created: string[] = [];
+  renderPlace('library', {
+    bundledPacks: [
+      {
+        id: 'bundled-r1',
+        document_id: 'bundled-1',
+        kind: 'pack',
+        title: 'Starter pack',
+        description: '',
+        difficulty: '',
+        progress: { completed: 2, total: 5 },
+      },
+    ],
+    more: { owned: false, attempts: false, published: true },
+    onOpen: (place) => opened.push(place.screen),
+    onCreate: (kind) => created.push(kind),
   });
-  const create = screen.getByTestId('create');
-  const tabs = screen.getByTestId('content-library-tab');
+  const rows = [...document.querySelectorAll('[data-component="MenuRow"]')].map(
+    (row) => row.getAttribute('data-testid')
+  );
+  expect(rows).toEqual([
+    'content-library-tab-continue',
+    'content-library-tab-solved',
+    'content-library-tab-browse',
+    'content-bundled-bundled-1',
+    'content-library-tab-mine',
+    'content-library-tab-playtests',
+    'content-create-puzzle',
+    'content-create-pack',
+  ]);
+  const value = (testid: string) => screen.getByTestId(testid).textContent;
+  expect(value('content-library-tab-continue')).toContain('1');
+  expect(value('content-library-tab-solved')).toContain('1');
+  expect(value('content-library-tab-browse')).toContain('1+');
+  expect(value('content-library-tab-mine')).toContain('1');
+  expect(value('content-bundled-bundled-1')).toContain('2 of 5 solved');
+  // The hub holds rows only: no list, no card, no filled command.
   expect(
-    (create.compareDocumentPosition(tabs) &
-      Node.DOCUMENT_POSITION_FOLLOWING) !==
-      0
-  ).toBe(true);
+    document.querySelector('[data-component="PreviewCardGrid"]')
+  ).toBeNull();
+  expect(
+    document
+      .querySelector('[data-component="EmbeddedScreen"]')
+      ?.getAttribute('data-screen')
+  ).toBe('puzzle-content-library');
+  for (const list of ['continue', 'solved', 'browse', 'mine', 'playtests'])
+    fireEvent.click(screen.getByTestId(`content-library-tab-${list}`));
+  expect(opened).toEqual(['continue', 'solved', 'browse', 'mine', 'playtests']);
+  fireEvent.click(screen.getByTestId('content-create-puzzle'));
+  fireEvent.click(screen.getByTestId('content-create-pack'));
+  expect(created).toEqual(['puzzle', 'pack']);
+});
+
+test('the hub hides Solved and Playtests while there is nothing in them', () => {
+  renderPlace('library', {
+    attempts: [],
+    playtests: [],
+    published: [],
+    drafts: [],
+  });
+  expect(screen.queryByTestId('content-library-tab-solved')).toBeNull();
+  expect(screen.queryByTestId('content-library-tab-playtests')).toBeNull();
+  for (const list of ['continue', 'browse', 'mine'])
+    expect(
+      screen.getByTestId(`content-library-tab-${list}`).textContent
+    ).toContain('None yet');
+});
+
+test('creating is one named state: a spinner on its row, the others waiting, then the draft to open', () => {
+  const opened: string[] = [];
+  renderPlace('library', { create: { status: 'creating', kind: 'pack' } });
+  const disabled = (testid: string) =>
+    (screen.getByTestId(testid) as HTMLButtonElement).disabled;
+  expect(
+    screen
+      .getByTestId('content-create-pack')
+      .querySelector('[data-component="Spinner"]')
+  ).not.toBeNull();
+  expect(
+    screen
+      .getByTestId('content-create-puzzle')
+      .querySelector('[data-component="Spinner"]')
+  ).toBeNull();
+  for (const row of [
+    'content-library-tab-continue',
+    'content-library-tab-browse',
+    'content-library-tab-mine',
+    'content-create-puzzle',
+    'content-create-pack',
+  ])
+    expect(disabled(row)).toBe(true);
+  expect(screen.queryByTestId('content-open-created-draft')).toBeNull();
+  cleanup();
+  renderPlace('library', {
+    create: { status: 'created', kind: 'pack', documentId: 'doc-new' },
+    onOpenDraft: (id) => opened.push(id),
+  });
+  expect(disabled('content-create-pack')).toBe(false);
+  fireEvent.click(screen.getByTestId('content-open-created-draft'));
+  expect(opened).toEqual(['doc-new']);
+});
+
+test('a draft that could not be created is said on every library screen, with its retry', () => {
+  for (const place of ['library', ...LISTS] as const) {
+    const retried: string[] = [];
+    renderPlace(place, {
+      create: { status: 'failed', kind: 'pack', message: 'No room left.' },
+      onCreate: (kind) => retried.push(kind),
+    });
+    const notice = screen.getByTestId('content-create-failed');
+    expect(notice.textContent).toContain('Your draft was not created');
+    expect(notice.textContent).toContain('No room left.');
+    fireEvent.click(
+      notice.querySelector('button') ??
+        screen.getByRole('button', { name: /try again|retry/i })
+    );
+    expect(retried).toEqual(['pack']);
+    cleanup();
+  }
+});
+
+test('someone who may not create is told so instead of the create rows', () => {
+  renderPlace('library', {
+    createDenial: {
+      icon: KeyRoundIcon,
+      title: 'Sign in to create puzzles',
+      dataSet: { testid: 'permission-denial', reason: 'requires_account' },
+    },
+  });
+  expect(screen.queryByTestId('content-create-puzzle')).toBeNull();
+  expect(screen.queryByTestId('content-create-pack')).toBeNull();
+  expect(screen.getByTestId('permission-denial').textContent).toContain(
+    'Sign in to create puzzles'
+  );
 });
 
 // Library cards lead with their picture filling the card's picture area,
 // a pack's on stacked sheets (their alignment:
 // pkgs/ui-root-harness-ts/tests/preview-thumbnail-stack).
 test("every library card leads with its picture, a pack's stacked", () => {
-  renderLibrary({
-    ...VIEW,
+  renderPlace('browse', {
     published: [
       { ...PUBLISHED_PUZZLE },
       { ...PUBLISHED_PUZZLE, id: 'revision-2', kind: 'pack' },
@@ -236,8 +416,7 @@ function chip(row: HTMLElement, testId: string): HTMLElement {
 // row now leads with a picture of its board, and kind, difficulty and
 // status are chips of three distinct looks.
 test('rows lead with their board and keep kind, difficulty and status apart', () => {
-  renderLibrary({
-    ...VIEW,
+  const view: Partial<ContentLibraryScreenViewProps> = {
     published: [
       {
         id: 'revision-1',
@@ -260,7 +439,8 @@ test('rows lead with their board and keep kind, difficulty and status apart', ()
     renderPreview: (definition) => (
       <span data-testid={`preview-${definition}`}>{definition}</span>
     ),
-  });
+  };
+  renderPlace('browse', view);
   const puzzle = screen.getByTestId('content-published-revision-1');
   const thumbnail = chip(puzzle, 'content-thumbnail');
   expect(thumbnail.querySelector('[data-testid="preview-board-7"]')).not.toBe(
@@ -277,16 +457,16 @@ test('rows lead with their board and keep kind, difficulty and status apart', ()
   expect(pack.querySelector('[data-testid="content-chip-difficulty"]')).toBe(
     null
   );
+  const looks = [
+    chip(puzzle, 'content-chip-kind'),
+    chip(puzzle, 'content-chip-difficulty'),
+  ].map((element) => element.getAttribute('data-intent'));
+  cleanup();
+  renderPlace('mine', view);
   const draft = screen.getByTestId('content-draft-draft-1');
   expect(chip(draft, 'content-chip-status').textContent).toBe('Draft');
-  const looks = new Set(
-    [
-      chip(puzzle, 'content-chip-kind'),
-      chip(puzzle, 'content-chip-difficulty'),
-      chip(draft, 'content-chip-status'),
-    ].map((element) => element.getAttribute('data-intent'))
-  );
-  expect(looks.size).toBe(3);
+  looks.push(chip(draft, 'content-chip-status').getAttribute('data-intent'));
+  expect(new Set(looks).size).toBe(3);
 });
 
 // regression: library-pack-progress-unlabelled — a finished puzzle's card
@@ -299,8 +479,7 @@ test('rows lead with their board and keep kind, difficulty and status apart', ()
 // shows the puzzle's difficulty and, for a pack or a puzzle started in
 // one, how much of the pack is solved; titles wrap instead of being cut.
 test('cards say difficulty and pack progress, and titles are never cut short', () => {
-  renderLibrary({
-    ...VIEW,
+  const view: Partial<ContentLibraryScreenViewProps> = {
     attempts: [
       {
         id: 'attempt-1',
@@ -326,7 +505,8 @@ test('cards say difficulty and pack progress, and titles are never cut short', (
         progress: { completed: 2, total: 5 },
       },
     ],
-  });
+  };
+  renderPlace('continue', view);
   const attempt = screen.getByTestId('content-attempt-attempt-1');
   expect(attempt.getAttribute('data-component')).toBe('PreviewCard');
   expect(chip(attempt, 'content-chip-difficulty').textContent).toBe('Medium');
@@ -339,6 +519,14 @@ test('cards say difficulty and pack progress, and titles are never cut short', (
     null
   );
   expect(plain.querySelector('[data-testid="content-progress"]')).toBe(null);
+  const titles = [attempt, plain].map(
+    (card) => card.querySelector('.textRowTitle')?.className ?? ''
+  );
+  expect(attempt.querySelector('.textRowTitle')?.textContent).toBe(
+    'Thirteen without overshooting, all the way'
+  );
+  cleanup();
+  renderPlace('solved', view);
   // regression: library-solved-progress-contradicts — a finished puzzle's
   // card read "Finished … 1 of 3 solved", as if it were itself unsolved.
   // Its line now says it is solved first, then where its pack stands.
@@ -346,69 +534,53 @@ test('cards say difficulty and pack progress, and titles are never cut short', (
     chip(screen.getByTestId('content-attempt-attempt-4'), 'content-progress')
       .textContent
   ).toBe('Solved · 1\u00a0of\u00a03 in Weekend counts');
+  cleanup();
+  renderPlace('browse', view);
   const pack = screen.getByTestId('content-published-revision-2');
   expect(chip(pack, 'content-progress').textContent).toBe(
     '2\u00a0of\u00a05\u00a0solved'
   );
-  for (const card of [attempt, plain, pack]) {
-    const title = card.querySelector('.textRowTitle');
-    expect(title?.className).not.toMatch(/line-clamp|truncate/);
+  titles.push(pack.querySelector('.textRowTitle')?.className ?? '');
+  expect(titles).toHaveLength(3);
+  for (const title of titles) {
+    expect(title).toContain('textRowTitle');
+    expect(title).not.toMatch(/line-clamp|truncate/);
   }
-  expect(attempt.querySelector('.textRowTitle')?.textContent).toBe(
-    'Thirteen without overshooting, all the way'
-  );
 });
 
-// regression: library-creation-before-continue — the library's two
-// outlined create buttons were the first content under its title, before
-// the tabs and the list to continue, and Continue was the second tab.
-// Creating is now the screen's own action at its title (`ScreenIntro`'s
-// actions), Continue is the first tab, and its lists are compact rows at
-// every width.
-test('Continue leads the tabs, creating is a title action, and attempts are rows', () => {
+test('attempts are compact rows at every width, published content is cards', () => {
+  for (const place of ['continue', 'solved', 'playtests'] as const) {
+    renderWide(place);
+    expect(
+      screen
+        .getByTestId(`content-library-${place}`)
+        .querySelector('[data-component="PreviewCardGrid"]')
+        ?.getAttribute('data-layout')
+    ).toBe('rows');
+    cleanup();
+  }
+  for (const place of ['browse', 'mine'] as const) {
+    renderWide(place);
+    expect(
+      screen
+        .getByTestId(`content-library-${place}`)
+        .querySelector('[data-component="PreviewCardGrid"]')
+        ?.getAttribute('data-layout')
+    ).toBe('cards');
+    cleanup();
+  }
+});
+
+function renderWide(place: Screen): void {
   renderWithI18n(() => (
     <ThemeProvider
       colorScheme="dark"
       fixedLayout={{ width: 1440, height: 900 }}
     >
-      <ContentLibraryScreenView
-        {...VIEW}
-        createControls={<button type="button" data-testid="create" />}
-      />
+      <ContentLibraryScreenView {...VIEW} place={{ screen: place }} />
     </ThemeProvider>
   ));
-  const tabs = [...document.querySelectorAll('[role="tab"]')].map((tab) =>
-    tab.getAttribute('data-testid')
-  );
-  expect(tabs).toEqual([
-    'content-library-tab-continue',
-    'content-library-tab-browse',
-    'content-library-tab-mine',
-  ]);
-  const actions = screen
-    .getByTestId('create')
-    .closest('[data-component="ScreenIntroActions"]');
-  expect(actions?.closest('[data-component="ScreenIntro"]')).not.toBeNull();
-  expect(
-    screen
-      .getByTestId('create')
-      .closest('[data-testid^="content-library-"][role="tabpanel"]')
-  ).toBeNull();
-  const grids = [
-    ...screen
-      .getByTestId('content-library-continue')
-      .querySelectorAll('[data-component="PreviewCardGrid"]'),
-  ];
-  expect(grids.length).toBeGreaterThan(0);
-  for (const grid of grids)
-    expect(grid.getAttribute('data-layout')).toBe('rows');
-  expect(
-    screen
-      .getByTestId('content-library-browse')
-      .querySelector('[data-component="PreviewCardGrid"]')
-      ?.getAttribute('data-layout')
-  ).toBe('cards');
-});
+}
 
 // regression: library-difficulty-one-blue — "Easy" and "Medium" were the
 // same blue tag, so how hard a puzzle is read only from its word. The usual
@@ -416,8 +588,7 @@ test('Continue leads the tabs, creating is a title action, and attempts are rows
 // red), and any other word an author chose stays the plain info tag.
 test('difficulty tags take distinct tints that climb with how hard', () => {
   const difficulties = ['Easy', 'Medium', 'Hard', 'Tricky'];
-  renderLibrary({
-    ...VIEW,
+  renderPlace('browse', {
     published: difficulties.map((difficulty, index) => ({
       ...PUBLISHED_PUZZLE,
       id: `revision-${index}`,
@@ -434,34 +605,24 @@ test('difficulty tags take distinct tints that climb with how hard', () => {
 });
 
 // regression: library-continue-sparse-desktop — wide, a Continue tab with
-// two unfinished puzzles was two cards and then an empty page. With little
-// to continue, Browse's next puzzles and packs follow under "More to
-// play": never a puzzle Continue already lists, and nothing more once
-// there is plenty to continue.
-test('a sparse Continue is followed by More to play, never repeating what it lists', () => {
-  const pack = {
-    id: 'pack-1',
-    document_id: 'pack-document-1',
-    kind: 'pack',
-    title: 'Weekend counts',
-    description: 'Three puzzles that get harder.',
-    difficulty: '',
-    progress: { completed: 1, total: 3 },
-  } as const;
-  renderLibrary({ ...VIEW, published: [PUBLISHED_PUZZLE, pack] });
-  const resume = screen.getByTestId('content-library-continue');
-  const more = screen.getByTestId('content-library-more-to-play');
-  expect(resume.contains(more)).toBe(true);
-  expect(more.textContent).toContain('More to play');
-  expect(more.contains(screen.getByTestId('content-pick-pack-1'))).toBe(true);
-  // "Count to seven" is already under Continue.
-  expect(screen.queryByTestId('content-pick-revision-1')).toBeNull();
-  cleanup();
-  const busy = ['a', 'b', 'c', 'd'].map((id) => ({
-    id: `attempt-${id}`,
-    title: `Count to ${id}`,
-    completed: false,
-  }));
-  renderLibrary({ ...VIEW, attempts: busy, published: [pack] });
+// two unfinished puzzles was two cards and then an empty page, later
+// padded with Browse's picks under "More to play". Continue is now one
+// list on its own screen: it never repeats Browse, and with nothing to
+// continue it says so and leads to Browse.
+test('Continue never borrows from Browse; empty, it leads there', () => {
+  const opened: Screen[] = [];
+  renderPlace('continue');
   expect(screen.queryByTestId('content-library-more-to-play')).toBeNull();
+  expect(screen.queryByTestId('content-published-revision-1')).toBeNull();
+  expect(screen.queryByText('More to play')).toBeNull();
+  cleanup();
+  renderPlace('continue', {
+    attempts: [{ id: 'attempt-2', title: 'Count to nine', completed: true }],
+    onOpen: (place) => opened.push(place.screen),
+  });
+  const list = screen.getByTestId('content-library-continue');
+  expect(list.textContent).toContain('Nothing to continue yet');
+  expect(screen.queryByTestId('content-attempt-attempt-2')).toBeNull();
+  fireEvent.click(screen.getByRole('button', { name: 'Browse puzzles' }));
+  expect(opened).toEqual(['browse']);
 });

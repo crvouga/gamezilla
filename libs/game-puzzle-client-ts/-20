@@ -1,0 +1,25 @@
+IMPORTS
+import type { Meta, StoryObj } from 'storybook-solidjs-vite';
+import { ContentAuthorScreenView } from './content-author-screen-view';
+import {
+  AUTHOR_STORY_ARGS,
+  AUTHOR_STORY_PACK,
+  AUTHOR_STORY_PARAMETERS,
+  PUBLICATION_PUBLISHED,
+  PUBLICATION_READY,
+  renderAuthorStory,
+} from './content-author-story.example';
+EXTRA
+
+const meta = {
+  id: 'screens-puzzles-content-author',
+  title: 'Screens/Puzzles/Content author',
+  component: ContentAuthorScreenView,
+  TAGS
+  render: (args) => renderAuthorStory(args),
+  parameters: AUTHOR_STORY_PARAMETERS,
+  args: PLACEARGS,
+} satisfies Meta<typeof ContentAuthorScreenView>;
+export default meta;
+type Story = StoryObj<typeof meta>;
+

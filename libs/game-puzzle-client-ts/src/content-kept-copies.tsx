@@ -1,7 +1,4 @@
-import type {
-  ContentDocument,
-  ContentDraft,
-} from '@libs/game-puzzle-shared-ts/content-types';
+import type { ContentDocument } from '@libs/game-puzzle-shared-ts/content-types';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
@@ -9,14 +6,18 @@ import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
 import { createMemo, For, type JSX } from 'solid-js';
 import { useContentLibraryState } from './content-library-context';
 import { ContentLoadMore } from './content-load-more';
-import { useContentCopyChoice } from './use-content-copy-choice';
 import { byContentId } from './use-content-pages';
 
+/**
+ * The draft's kept copies, a page at a time, the one being edited marked.
+ * Choosing another asks first; the builder's shell owns that dialog.
+ */
 export function ContentKeptCopies(props: {
   document: ContentDocument;
   disabled: boolean;
   currentId: string;
-  onChoose: (draft: ContentDraft) => void;
+  /** Asks to keep working from the copy `draftId`. */
+  onSelect: (draftId: string) => void;
 }): JSX.Element {
   const { t } = useLingui();
   const data = useContentLibraryState();
@@ -34,7 +35,6 @@ export function ContentKeptCopies(props: {
       props.currentId,
     ]),
   ]);
-  const choice = useContentCopyChoice(props);
   return (
     <>
       <MenuSection
@@ -62,7 +62,7 @@ export function ContentKeptCopies(props: {
               selected={id === props.currentId}
               value={id === props.currentId ? t`Editing now` : t`Use copy`}
               disabled={props.disabled || id === props.currentId}
-              onClick={() => choice.select(id)}
+              onClick={() => props.onSelect(id)}
               dataSet={{ testid: `content-use-copy-${id}` }}
             />
           )}
@@ -73,21 +73,35 @@ export function ContentKeptCopies(props: {
         label={t`Load more draft copies`}
         disabled={props.disabled}
       />
-      <MutationModal
-        visible={choice.visible()}
-        onClose={choice.close}
-        title={<Trans>Keep working from this copy?</Trans>}
-        message={
-          <Trans>
-            Your draft will continue from this copy. Your other draft copies
-            stay saved.
-          </Trans>
-        }
-        operation={choice.choose}
-        submitLabel={<Trans>Use copy</Trans>}
-        successTitle={<Trans>Working copy chosen</Trans>}
-        submitDisabled={props.disabled}
-      />
     </>
+  );
+}
+
+/** The confirm before the draft continues from another kept copy. */
+export function ContentCopyConfirm(props: {
+  visible: boolean;
+  disabled: boolean;
+  onClose: () => void;
+  /** Makes the chosen copy the working draft; rejects with what to say. */
+  onChoose: () => Promise<void>;
+}): JSX.Element {
+  return (
+    <MutationModal
+      visible={props.visible}
+      onClose={() => props.onClose()}
+      title={<Trans>Keep working from this copy?</Trans>}
+      message={
+        <Trans>
+          Your draft will continue from this copy. Your other draft copies stay
+          saved.
+        </Trans>
+      }
+      operation={() => props.onChoose()}
+      submitLabel={<Trans>Use copy</Trans>}
+      successTitle={<Trans>Working copy chosen</Trans>}
+      submitDisabled={props.disabled}
+      submitDataSet={{ testid: 'content-use-copy-confirm' }}
+      dismissDataSet={{ testid: 'content-use-copy-dismiss' }}
+    />
   );
 }

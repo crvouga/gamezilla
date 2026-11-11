@@ -6,9 +6,13 @@ import {
   type ContentDraft,
   contentBody,
 } from '@libs/game-puzzle-shared-ts/content-types';
-import { fireEvent } from '@solidjs/testing-library';
 import { contentClient, currentContentEditor } from './content-actions';
-import { waitForContent } from './content-sync';
+import {
+  openContentPlace,
+  openLibraryEntry,
+  showContentHome,
+} from './content-screen-places';
+import { contentWait, waitForContent } from './content-sync';
 import type { ContentHarness } from './content-system';
 import { mountContentExample } from './mount-content-example';
 
@@ -31,11 +35,14 @@ export async function workingDraftOn(
   );
 }
 
-/** The builder shows the device's working copy as current and has nothing left to save. */
+/**
+ * The builder edits the device's working copy and has nothing left to
+ * save: its shell names that copy and says so on every one of its screens.
+ */
 function editorShows(view: DraftEditorView, draft: ContentDraft): boolean {
-  const current = view.queryByTestId(`content-use-copy-${draft.id}`);
   return (
-    current?.textContent.includes('Editing now') === true &&
+    view.queryByTestId('content-author')?.getAttribute('data-draftid') ===
+      draft.id &&
     view.queryByTestId('content-draft-save-status')?.textContent ===
       SAVED_STATUS
   );
@@ -57,7 +64,30 @@ export async function waitForEditorAt(
   });
 }
 
-/** Open the draft this device is editing in the shared builder. */
+/**
+ * The builder's Draft copies screen marks the device's working copy as the
+ * one being edited; the device is left on the builder's hub.
+ */
+async function copyMarkedEditing(
+  s: ContentHarness,
+  editor: { readonly view: DraftEditorView; readonly clientId: string },
+  documentId: string
+): Promise<void> {
+  const wait = contentWait(s);
+  await openContentPlace(wait, editor.view, 'copies');
+  await waitForContent(s, async () => {
+    const draft = await workingDraftOn(s, editor.clientId, documentId);
+    return (
+      draft !== null &&
+      editor.view
+        .queryByTestId(`content-use-copy-${draft.id}`)
+        ?.textContent.includes('Editing now') === true
+    );
+  });
+  await showContentHome(wait, editor.view, 'builder');
+}
+
+/** Open the draft this device is editing in the shared builder, on its hub. */
 export async function openDraftEditor(
   s: ContentHarness,
   clientId: string
@@ -65,12 +95,13 @@ export async function openDraftEditor(
   const documentId = currentContentEditor(s, clientId).documentId;
   const view = await mountContentExample(s, clientId);
   try {
-    const entry = `content-draft-${documentId}`;
-    await waitForContent(s, () =>
-      Promise.resolve(view.queryByTestId(entry) !== null)
+    await openLibraryEntry(
+      contentWait(s),
+      view,
+      `content-draft-${documentId}`
     );
-    fireEvent.click(view.getByTestId(entry));
     await waitForEditorAt(s, { view, clientId }, documentId, () => true);
+    await copyMarkedEditing(s, { view, clientId }, documentId);
     return { view, documentId };
   } catch (failure) {
     view.unmount();
@@ -93,7 +124,7 @@ export async function followWorkingDraft(
   });
 }
 
-/** Whether the builder offers a control, or `null` when it shows none. */
+/** Whether the screen shown offers a control, or `null` when it shows none. */
 export function controlOffered(
   view: DraftEditorView,
   testId: string

@@ -2,7 +2,10 @@
 /** Publishing reads as one sequence of steps with one next action. */
 
 import { afterEach, expect, test } from 'bun:test';
-import { ContentAuthorScreenView } from '@libs/game-puzzle-client-ts/content-author-screen-view';
+import {
+  ContentAuthorScreenView,
+  type ContentAuthorScreenViewProps,
+} from '@libs/game-puzzle-client-ts/content-author-screen-view';
 import {
   ContentPublicationControlsView,
   type ContentPublicationControlsViewProps,
@@ -41,7 +44,6 @@ function publication(
   return (
     <ContentPublicationControlsView
       copyState={{ kind: 'draft' }}
-      layout="bar"
       kind="puzzle"
       validation="unchecked"
       validationMessage=""
@@ -59,7 +61,7 @@ function publication(
       onValidate={resolved}
       onPublish={resolved}
       onViewPublication={() => undefined}
-      onWithdraw={resolved}
+      onWithdraw={() => undefined}
       {...overrides}
     />
   );
@@ -235,7 +237,9 @@ test('a draft the game cannot play names its corrections, not the playtest, as n
   expect(playtest?.textContent).toBe('1Playtest·Fix first');
 });
 
-function builder(previewable?: boolean): JSX.Element {
+function builder(
+  overrides: Partial<ContentAuthorScreenViewProps> = {}
+): JSX.Element {
   return (
     <ContentAuthorScreenView
       status="ready"
@@ -251,8 +255,9 @@ function builder(previewable?: boolean): JSX.Element {
       conflicted={false}
       metadataDisabled={false}
       disabled={false}
-      preview={false}
-      previewable={previewable}
+      place={{ screen: 'publish' }}
+      onOpen={() => undefined}
+      standing={{ kind: 'playtest' }}
       publication={publication({
         before: (next) => (
           <button
@@ -265,14 +270,11 @@ function builder(previewable?: boolean): JSX.Element {
       stage={<span data-testid="editor" />}
       onChangeBody={() => undefined}
       onSaveAgain={() => undefined}
-      onTogglePreview={() => undefined}
       onReturnToLibrary={() => undefined}
+      {...overrides}
     />
   );
 }
-
-const follows = (a: Element, b: Element): boolean =>
-  (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
 
 // regression: builder-phone-next-step-below-fold — on a phone the
 // builder's playtest and publishing started below the board, the tools and
@@ -283,45 +285,66 @@ const follows = (a: Element, b: Element): boolean =>
 // regression: builder-phone-publish-card-buries-stage — then the publish
 // step was an unnumbered card between "1 · Details" and "2 · Board", so
 // the steps read out of order and the board started under the fold. The
-// steps now read 1, 2, 3 on a phone too, and the one next action, filled,
-// sits in the title row, in the flow, covering nothing.
-test('on a phone the steps read in order and the next action is filled in the title row', () => {
-  mount(() => builder(), PHONE);
-  const details = screen.getByTestId('content-author-details');
-  const stage = screen.getByTestId('content-author-stage');
-  const publish = screen.getByTestId('content-author-publish');
-  expect(follows(details, stage)).toBe(true);
-  expect(follows(stage, publish)).toBe(true);
-  expect(publish.getAttribute('data-component')).toBe('StepFooter');
-  expect(publish.textContent?.startsWith('3 · Check and publish')).toBe(true);
-  const actions = document.querySelector(
-    '[data-component="ScreenIntroActions"]'
-  );
-  const playtest = screen.getByTestId('playtest');
-  expect(lead()).toBe(playtest);
-  expect(actions?.contains(playtest)).toBe(true);
-  expect(follows(playtest, details)).toBe(true);
-  // Why it is next stays in the step, with the steps in order.
-  expect(
-    publish.contains(screen.getByTestId('content-publication-status'))
-  ).toBe(true);
-  expect(
-    publish.contains(screen.getByTestId('content-publication-steps'))
-  ).toBe(true);
-});
+// builder's hub now holds no board at all: its steps in order and, filled,
+// the one next step, which opens the publish screen where the step is
+// taken. Phone and desktop show the same screens.
+for (const [size, name] of [
+  [PHONE, 'a phone'],
+  [DESKTOP, 'a desktop'],
+] as const)
+  test(`on ${name} the hub's one filled command is the next step, and it opens the publish screen`, () => {
+    const opened: string[] = [];
+    mount(
+      () =>
+        builder({
+          place: { screen: 'builder' },
+          onOpen: (place) => opened.push(place.screen),
+        }),
+      size
+    );
+    expect(screen.queryByTestId('editor')).toBeNull();
+    expect(screen.queryByTestId('content-author-publish')).toBeNull();
+    const next = screen.getByTestId('content-author-next');
+    expect(next.getAttribute('data-variant')).toBe('solid');
+    expect(next.textContent).toBe('Next: playtest');
+    expect(
+      document.querySelectorAll(
+        '[data-component="Button"][data-variant="solid"]'
+      )
+    ).toHaveLength(1);
+    // It follows the steps it continues, in the flow, never in the title row.
+    expect(
+      screen.getByTestId('content-author-steps').compareDocumentPosition(next) &
+        Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+    expect(
+      document.querySelector('[data-component="ScreenIntroActions"]')
+    ).toBeNull();
+    fireEvent.click(next);
+    expect(opened).toEqual(['publish']);
+  });
 
-test('wide, publishing is the last step, after the stage, its lead inside it', () => {
-  mount(() => builder(), DESKTOP);
-  const publish = screen.getByTestId('content-author-publish');
-  expect(publish.getAttribute('data-component')).toBe('StepFooter');
-  expect(follows(screen.getByTestId('content-author-stage'), publish)).toBe(
-    true
-  );
-  expect(publish.contains(lead())).toBe(true);
-  expect(
-    document.querySelector('[data-component="ScreenIntroActions"]')
-  ).toBeNull();
-});
+for (const [size, name] of [
+  [PHONE, 'a phone'],
+  [DESKTOP, 'a desktop'],
+] as const)
+  test(`on ${name} the publish screen holds the lead, why it is next, and the steps in order`, () => {
+    mount(() => builder(), size);
+    const publish = screen.getByTestId('content-author-publish');
+    const playtest = screen.getByTestId('playtest');
+    expect(lead()).toBe(playtest);
+    expect(publish.contains(playtest)).toBe(true);
+    expect(
+      publish.contains(screen.getByTestId('content-publication-status'))
+    ).toBe(true);
+    expect(
+      publish.contains(screen.getByTestId('content-publication-steps'))
+    ).toBe(true);
+    expect(
+      document.querySelector('[data-component="ScreenIntroActions"]')
+    ).toBeNull();
+    expect(screen.queryByTestId('editor')).toBeNull();
+  });
 
 // regression: publication-current-copy-status-ambiguous
 // State inputs match the existing PublishPending/Published fixtures.
@@ -429,18 +452,21 @@ test('repeating a waiting publication still invokes the existing operation once'
   await waitFor(() => expect(calls).toBe(1));
 });
 
-test('a refused publication retains the retry callback and refusal explanation', async () => {
+test('a refused publication retains the retry callback, under the shell\'s refusal explanation', async () => {
   let calls = 0;
   mount(() =>
-    publication({
-      validation: 'valid',
-      proven: true,
-      copyState: { kind: 'draft' },
+    builder({
+      standing: { kind: 'publish' },
       refusal: <span>Earlier publication was refused.</span>,
-      onPublish: async () => {
-        calls += 1;
-        if (calls === 1) throw new Error('The pack puzzle is unavailable.');
-      },
+      publication: publication({
+        validation: 'valid',
+        proven: true,
+        copyState: { kind: 'draft' },
+        onPublish: async () => {
+          calls += 1;
+          if (calls === 1) throw new Error('The pack puzzle is unavailable.');
+        },
+      }),
     })
   );
   fireEvent.click(screen.getByTestId('content-publish'));
@@ -490,13 +516,31 @@ test('the next step for a draft the game cannot play does not promise correction
 
 // regression: builder-preview-open-while-unplayable
 test('Preview waits while the game cannot play the draft', () => {
-  mount(() => builder(false));
+  mount(() => builder({ place: { screen: 'builder' }, previewable: false }));
   expect(screen.getByTestId('content-preview').hasAttribute('disabled')).toBe(
     true
   );
   cleanup();
-  mount(() => builder());
+  mount(() => builder({ place: { screen: 'builder' } }));
   expect(screen.getByTestId('content-preview').hasAttribute('disabled')).toBe(
     false
   );
+});
+
+test('withdrawing only asks: the confirmation belongs to the shell', () => {
+  let asked = 0;
+  mount(() =>
+    publication({
+      validation: 'valid',
+      proven: true,
+      published: true,
+      copyState: { kind: 'edition', current: true },
+      onWithdraw: () => {
+        asked += 1;
+      },
+    })
+  );
+  fireEvent.click(screen.getByTestId('content-withdraw'));
+  expect(asked).toBe(1);
+  expect(screen.queryByTestId('content-withdraw-confirm')).toBeNull();
 });

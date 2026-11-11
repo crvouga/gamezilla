@@ -1,17 +1,17 @@
 import {
   type ContentJourneyDevice,
   contentTap,
-  showLibraryTabOf,
+  openContentPlace,
 } from './content-journey-device';
 
-/** Discover the edition through the library's ordinary pagination controls. */
+/** Discover the edition through the library's Browse screen and its pagination. */
 export async function discoverJourneyContent(
   device: ContentJourneyDevice,
   revisionId: string
 ): Promise<void> {
   const target = device.ui.get(`content-published-${revisionId}`);
   const moreId = 'content-more-published';
-  await showLibraryTabOf(device, `content-published-${revisionId}`);
+  await openContentPlace(device, 'browse');
   for (;;) {
     await target.wait('visible', { ...device, visibleOr: [moreId] });
     if (await target.isVisible()) break;

@@ -14,6 +14,10 @@ import { useContentGame } from './content-game-context';
 import { useContentLibraryState } from './content-library-context';
 import { useContentPackChoiceReady } from './use-content-pack-choice-ready';
 
+/**
+ * Continue the saved attempt at a published puzzle, or start a new one;
+ * whichever comes first for the person is the one filled command.
+ */
 export function ContentStartAttempt(props: {
   revisionId: string;
   packRevisionId: string | null;
@@ -78,13 +82,18 @@ export function ContentStartAttempt(props: {
           {(id) => (
             <Button
               title={t`Continue saved attempt`}
+              fullWidth
               onClick={() => game.open({ kind: 'attempt', attemptId: id() })}
               dataSet={{ testid: 'content-continue-attempt' }}
             />
           )}
         </Show>
+        {/* One filled command: continuing, when there is something to continue. */}
         <Button
           {...start.buttonProps}
+          intent={selected() === undefined ? 'primary' : 'neutral'}
+          variant={selected() === undefined ? 'solid' : 'outline'}
+          fullWidth
           dataSet={{ testid: 'content-start-attempt' }}
         />
         <Show when={start.error()}>

@@ -16,14 +16,15 @@ import { useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { createMemo, type JSX } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
-import { ContentCreateControls } from './content-create-controls';
-import { useContentGame } from './content-game-context';
+import { useContentGame, useContentPlace } from './content-game-context';
 import { useContentLibraryState } from './content-library-context';
 import {
   type ContentLibraryAttempt,
   type ContentLibraryDraft,
   ContentLibraryScreenView,
 } from './content-library-screen-view';
+import { contentPlaceOf } from './content-places';
+import { useContentCreate } from './use-content-create';
 import { byContentId } from './use-content-pages';
 import { useDeniedView } from './use-denied-view';
 
@@ -169,9 +170,10 @@ function publishedEditions(
   return editions.map((edition) => withPreview(content, play, edition));
 }
 
-/** The library wired to the synced content, attempts and their pages. */
+/** The library's small screens wired to the synced content, attempts and their pages. */
 export function ContentLibraryScreen(): JSX.Element {
   const game = useContentGame();
+  const nav = useContentPlace();
   const data = useContentLibraryState();
   const myId = useMyId();
   const decision = useDecision(PERMISSION.puzzlesReadOwnContent);
@@ -180,6 +182,13 @@ export function ContentLibraryScreen(): JSX.Element {
       return decision();
     },
   });
+  const mayCreate = useDecision(PERMISSION.puzzlesCreateContent);
+  const createDenial = useDeniedView({
+    get decision() {
+      return mayCreate();
+    },
+  });
+  const creation = useContentCreate();
   const pages = data.pages;
   const attempts = (mode: 'ordinary' | 'playtest') =>
     savedAttempts({
@@ -201,8 +210,13 @@ export function ContentLibraryScreen(): JSX.Element {
   return (
     <ContentLibraryScreenView
       status={data.isLoading() ? 'loading' : 'ready'}
+      place={contentPlaceOf('library', nav.place())}
+      onOpen={nav.open}
       title={game.title}
-      createControls={<ContentCreateControls />}
+      create={creation.state()}
+      createDenial={createDenial()}
+      canCreatePuzzle={game.client.authoring !== undefined}
+      onCreate={creation.create}
       bundledPacks={bundled()}
       personalDenial={personalDenial()}
       drafts={ownedDrafts(data.content(), myId(), pages.owned.limit())}
@@ -225,7 +239,7 @@ export function ContentLibraryScreen(): JSX.Element {
             )
       }
       onOpenEdition={openEdition}
-      onOpenDraft={(documentId) => game.open({ kind: 'edit', documentId })}
+      onOpenDraft={(documentId) => game.open({ kind: 'builder', documentId })}
       onOpenAttempt={(attemptId) => game.open({ kind: 'attempt', attemptId })}
       onMoreOwned={pages.owned.more}
       onMoreAttempts={pages.attempts.more}

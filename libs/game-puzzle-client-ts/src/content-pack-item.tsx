@@ -34,7 +34,8 @@ export function ContentPackItem(props: {
     puzzleOwnerId: document()?.owner_id ?? '',
   }));
   const open = (): void => {
-    if (decision().allowed) game.open({ kind: 'edit', documentId: props.id });
+    if (decision().allowed)
+      game.open({ kind: 'builder', documentId: props.id });
     else {
       const id = revision()?.id;
       if (id !== undefined)

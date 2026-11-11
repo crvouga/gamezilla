@@ -7,15 +7,13 @@ import { useContentGame } from './content-game-context';
 import { useContentLibraryState } from './content-library-context';
 
 /**
- * An attempt's way on. `commands` is what sits with Undo and Restart (a
- * playtest's way back to its builder); `pack` is a pack puzzle's next
- * puzzle and overview, shown in the pack card so the command row keeps
- * one width and nothing moves when a puzzle is solved.
+ * An attempt's way on, on its progress screen: a pack puzzle's next
+ * puzzle (once this one is solved, the one filled command) and its
+ * overview, or a playtest's way back to its builder.
  */
 export function ContentAttemptNext(props: {
   attempt: ContentAttempt;
   complete: boolean;
-  part: 'commands' | 'pack';
 }): JSX.Element {
   const { t } = useLingui();
   const game = useContentGame();
@@ -35,23 +33,26 @@ export function ContentAttemptNext(props: {
   });
   return (
     <>
-      <Show
-        when={props.part === 'commands' && props.attempt.mode === 'playtest'}
-      >
+      <Show when={props.attempt.mode === 'playtest'}>
         <Button
           title={t`Return to builder`}
           variant="outline"
           intent="neutral"
           size="sm"
           onClick={() =>
-            game.open({ kind: 'edit', documentId: props.attempt.puzzle_id })
+            game.open({
+              kind: 'builder',
+              documentId: props.attempt.puzzle_id,
+            })
           }
+          dataSet={{ testid: 'content-return-builder' }}
         />
       </Show>
-      <Show when={props.part === 'pack' && next()}>
+      <Show when={next()}>
         {(item) => (
           <Button
             title={t`Next puzzle: ${item().title}`}
+            size="sm"
             onClick={() =>
               game.open({
                 kind: 'edition',
@@ -63,7 +64,7 @@ export function ContentAttemptNext(props: {
           />
         )}
       </Show>
-      <Show when={props.part === 'pack' && props.attempt.pack_revision_id}>
+      <Show when={props.attempt.pack_revision_id}>
         {(id) => (
           <Button
             title={t`Pack overview`}

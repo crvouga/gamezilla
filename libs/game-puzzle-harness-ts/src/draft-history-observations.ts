@@ -8,6 +8,8 @@ import { decodePackDefinition } from '@libs/game-puzzle-shared-ts/content-pack';
 import type { ContentDraft } from '@libs/game-puzzle-shared-ts/content-types';
 import { contentClient, currentContentEditor } from './content-actions';
 import { currentSavedContentDraft } from './content-observations';
+import { openContentPlace } from './content-screen-places';
+import { contentWait } from './content-sync';
 import type { ContentHarness } from './content-system';
 import {
   controlOffered,
@@ -24,6 +26,8 @@ export async function draftEditChoices(
 ): Promise<{ readonly undo: boolean | null; readonly redo: boolean | null }> {
   const { view } = await openDraftEditor(s, clientId);
   try {
+    // Undo and redo head the builder's board.
+    await openContentPlace(contentWait(s), view, 'board');
     return {
       undo: controlOffered(view, UNDO_DRAFT_EDIT),
       redo: controlOffered(view, REDO_DRAFT_EDIT),

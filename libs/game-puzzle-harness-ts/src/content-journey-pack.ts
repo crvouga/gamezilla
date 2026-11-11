@@ -6,7 +6,11 @@ import type {
   ContentJourneyDevice,
   PublishedJourneyContent,
 } from './content-journey-device';
-import { contentTap } from './content-journey-device';
+import {
+  contentExpectText,
+  contentTap,
+  openContentPlace,
+} from './content-journey-device';
 
 export type PublishedJourneyPack = PublishedJourneyContent & {
   items: readonly PublishedJourneyContent[];
@@ -23,6 +27,7 @@ export async function authorJourneyPack(args: {
   args.onCreated(await createJourneyDraft(args.device, 'pack', args.title));
   for (const item of args.items)
     await contentTap(args.device, `content-add-puzzle-${item.revisionId}`);
+  await openContentPlace(args.device, 'board');
   await args.device.ui
     .get(`content-pack-item-${args.items[1].documentId}`)
     .get('content-pack-menu')
@@ -30,16 +35,16 @@ export async function authorJourneyPack(args: {
   const up = args.device.ui.get('content-pack-up');
   await up.wait('enabled', args.device);
   await up.tap(args.device);
-  await args.device.ui
-    .get('content-pack-order')
-    .expect.text(args.items[1].title, { ...args.device, exact: false });
-  await contentTap(args.device, 'content-preview');
+  await contentExpectText(
+    args.device,
+    'content-pack-order',
+    args.items[1].title
+  );
   await contentTap(
     args.device,
     `content-preview-puzzle-${args.items[1].documentId}`
   );
   await args.preview();
-  await contentTap(args.device, 'content-preview');
   const pack = await publishJourneyDraft(args.device, args.title);
   return { ...pack, items: [...args.items].reverse() };
 }

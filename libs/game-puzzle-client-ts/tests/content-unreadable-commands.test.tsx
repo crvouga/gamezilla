@@ -72,11 +72,10 @@ function disabled(testId: string): boolean {
   );
 }
 
-const attempt = {
-  id: 'attempt-1',
-  pack_revision_id: null,
-  mode: 'solve',
-} as unknown as ContentAttempt;
+const restart = {
+  ask: () => undefined,
+  created: () => null,
+} as unknown as Parameters<typeof ContentAttemptControls>[0]['restart'];
 const writer = {
   pending: () => false,
   execute: () => undefined,
@@ -89,8 +88,8 @@ const writer = {
 test('unreadable puzzle content disables Undo, Redo and Restart', () => {
   mount(game(), () => (
     <ContentAttemptControls
-      attempt={attempt}
       writer={writer}
+      restart={restart}
       progress={{ complete: false, canUndo: true, canRedo: true }}
       unreadable
     />
@@ -103,8 +102,8 @@ test('unreadable puzzle content disables Undo, Redo and Restart', () => {
 test('readable content with an unopenable position keeps Restart', () => {
   mount(game(), () => (
     <ContentAttemptControls
-      attempt={attempt}
       writer={writer}
+      restart={restart}
       progress={null}
       unreadable={false}
     />
@@ -136,6 +135,8 @@ test('a draft its editor cannot read cannot be playtested', () => {
         writer={draftWriter('unreadable')}
         next
         disabled={false}
+        attemptId={null}
+        onStarted={() => undefined}
       />
     )
   );
@@ -149,6 +150,8 @@ test('a game without a readability check keeps playtesting available', () => {
       writer={draftWriter('unreadable')}
       next
       disabled={false}
+      attemptId={null}
+      onStarted={() => undefined}
     />
   ));
   expect(disabled('content-start-playtest')).toBe(false);
