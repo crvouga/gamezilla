@@ -27,6 +27,11 @@ const QUERY_DEADLINE_MS = 60_000;
 /** A week of minute-by-minute check samples is a few megabytes of answer. */
 const MAX_RESPONSE_BYTES = 16 * 1_048_576;
 
+/** The environment `SECRETS_ENV` names, whose telemetry is read and investigated. */
+function measuredEnvironment(): string {
+  return envFile(process.env['SECRETS_ENV']?.trim() || 'dev').env;
+}
+
 /** Measures for these indicators, built when the first one is asked. */
 function liveMeasures(
   slis: readonly string[]
@@ -43,7 +48,7 @@ function liveMeasures(
           timeoutMs: QUERY_DEADLINE_MS,
         }),
       }),
-      environment: envFile(process.env['SECRETS_ENV']?.trim() || 'dev').env,
+      environment: measuredEnvironment(),
       slis,
     });
     return opened;
@@ -70,7 +75,7 @@ export function liveMetricBinding(input: {
     layer: 'release',
     measure: liveMeasures(input.slis),
     nowMs: () => wallClock.now(),
-    alerting: alertingBinding(),
+    alerting: alertingBinding({ environment: measuredEnvironment() }),
     // Few people and no recent release: silence needs no one's attention.
     whenNoEvidence: 'quiet',
   };

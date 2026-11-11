@@ -18,6 +18,8 @@ export type SloStubInput = {
   readonly bridge: string;
   /** Absolute path of the package's report bucket. */
   readonly reportDir: string;
+  /** The environment measured (`prd`), named in every failure message. */
+  readonly environment?: string;
 };
 
 /** `specs/sync-engine/note-delivery.openslo.yaml` → `sync-engine-note-delivery.openslo.test.ts`. */
@@ -35,7 +37,7 @@ export function sloStubSource(input: SloStubInput): string {
     `import ${q(input.entry)};`,
     `import { runObjectiveSpec } from ${q(input.bridge)};`,
     '',
-    `runObjectiveSpec({ packageName: ${q(input.packageName)}, specPath: ${q(input.specPath)}, specUri: ${q(input.specUri)}, reportDir: ${q(input.reportDir)} });`,
+    `runObjectiveSpec({ packageName: ${q(input.packageName)}, specPath: ${q(input.specPath)}, specUri: ${q(input.specUri)}, reportDir: ${q(input.reportDir)}${input.environment === undefined ? '' : `, environment: ${q(input.environment)}`} });`,
     '',
   ].join('\n');
 }

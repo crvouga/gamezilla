@@ -405,6 +405,7 @@
         "@libs/account-privacy-shared-ts": "workspace:*",
         "@libs/app-root-server-ts": "workspace:*",
         "@libs/harness-ts": "workspace:*",
+        "@pkgs/gherkin-shared-ts": "workspace:*",
         "@pkgs/outbox-shared-ts": "workspace:*",
         "@pkgs/sql-root-shared-ts": "workspace:*",
       },
@@ -2744,6 +2745,7 @@
       "dependencies": {
         "@libs/observability-shared-ts": "workspace:*",
         "@libs/product-identity-shared-ts": "workspace:*",
+        "@pkgs/clock-shared-ts": "workspace:*",
         "@pkgs/http-client-shared-ts": "workspace:*",
         "@pkgs/observability-root-shared-ts": "workspace:*",
         "@pkgs/openslo-shared-ts": "workspace:*",

@@ -1,0 +1,4 @@
+{
+  "summary": "Health's health:objectives job checks every environment in one log, but an objective or burn-rate alert failure never said which environment (dev or prd) failed or which objective file defined it, and its investigate command always read production. Every failure message and recorded obligation now starts with `[<env>] <objective file>:`, the investigate command carries `--env <env>`, and each failure leaves a record that becomes a work item for `bun alerts`.",
+  "regressionTest": "pkgs/openslo-server-ts/tests/alert-stub.test.ts"
+}

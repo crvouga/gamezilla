@@ -54,11 +54,13 @@ resource "grafana_rule_group" "groups" {
         rule.value.slo == "" ? tomap({}) : tomap({ slo = rule.value.slo }),
         rule.value.tier == "" ? tomap({}) : tomap({ tier = rule.value.tier })
       )
+      # Every investigate command is `bun obs …`; `--env` makes it read this
+      # environment's telemetry.
       annotations = merge(
         {
           summary             = rule.value.summary
           runbook_url         = rule.value.runbook_url
-          investigate_command = rule.value.investigate_command
+          investigate_command = "${rule.value.investigate_command} --env ${var.environment}"
           logs_url            = "${var.grafana_url}${replace(rule.value.logs_path, "__ENVIRONMENT__", var.environment)}"
           traces_url          = "${var.grafana_url}${replace(rule.value.traces_path, "__ENVIRONMENT__", var.environment)}"
           dashboard_url       = lookup(local.slo_dashboards, rule.value.slo, local.folder_url)

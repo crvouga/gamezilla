@@ -210,15 +210,22 @@ export function grafanaSeverity(severity: string): 'critical' | 'warning' {
   return severity === 'page' ? 'critical' : 'warning';
 }
 
-/** The exact command that starts investigating an alert looking back `lookback`. */
+/**
+ * The exact command that starts investigating an alert looking back
+ * `lookback`. With an `environment` it reads that environment's telemetry
+ * (`--env dev`); without one, production's.
+ */
 export function investigationCommand(input: {
   readonly indicator: MetricIndicator;
   readonly lookback: string;
+  readonly environment?: string;
 }): string {
   const asked = parseDuration(input.lookback) ?? 0;
   const longest = parseDuration(LONGEST_INVESTIGATION) ?? 0;
   const since = asked > longest ? LONGEST_INVESTIGATION : input.lookback;
-  return `bun obs ${input.indicator.investigate} --since ${since} --source prod`;
+  const env =
+    input.environment === undefined ? '' : ` --env ${input.environment}`;
+  return `bun obs ${input.indicator.investigate} --since ${since} --source prod${env}`;
 }
 
 /** The SLO's metric indicator, or why it has none. */
@@ -232,8 +239,13 @@ export function metricIndicatorOf(slo: Slo): MetricIndicator {
   return indicator;
 }
 
-/** Alerting for a binding whose SLIs are all in the catalog. */
-export function alertingBinding(): AlertingBinding {
+/**
+ * Alerting for a binding whose SLIs are all in the catalog. Given the
+ * `environment` measured, its investigate command reads that environment.
+ */
+export function alertingBinding(
+  options: { readonly environment?: string } = {}
+): AlertingBinding {
   return {
     minimumEventsPerHour: (slo) => metricIndicatorOf(slo).minimumEventsPerHour,
     tiers: tiersFor,
@@ -242,7 +254,13 @@ export function alertingBinding(): AlertingBinding {
       return {
         owner: indicator.owner,
         runbook: runbookFor(slo.name),
-        command: investigationCommand({ indicator, lookback: lookbackWindow }),
+        command: investigationCommand({
+          indicator,
+          lookback: lookbackWindow,
+          ...(options.environment === undefined
+            ? {}
+            : { environment: options.environment }),
+        }),
       };
     },
   };

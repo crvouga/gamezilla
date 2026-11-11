@@ -52,6 +52,7 @@ import { stubFileName, stubSource } from '@pkgs/gherkin-shared-ts/stubs';
 import { isSyntheticFeatureSource } from '@pkgs/gherkin-shared-ts/tags';
 import { createDeadlineFetch } from '@pkgs/http-client-shared-ts/deadline-fetch';
 import { createGlobalHttpClient } from '@pkgs/http-client-shared-ts/global';
+import { readFailures } from '@pkgs/openslo-server-ts/failures';
 import { isLiveObjectiveSource } from '@pkgs/openslo-shared-ts/live';
 import { sloStubFileName, sloStubSource } from '@pkgs/openslo-shared-ts/stubs';
 import { slashPath } from '@pkgs/os-shared-ts/slash-path';
@@ -384,7 +385,8 @@ export function writeFeatureStubs(
 
 export function writeSloStubs(
   objectives: readonly string[],
-  dirs: RunDirs
+  dirs: RunDirs,
+  environment?: string
 ): readonly string[] {
   if (objectives.length === 0) return [];
   if (!existsSync(SLO_ENTRY)) {
@@ -410,10 +412,36 @@ export function writeSloStubs(
         entry: SLO_ENTRY,
         bridge,
         reportDir,
+        ...(environment === undefined ? {} : { environment }),
       })
     );
     return `./${slashPath(relative(PACKAGE_DIR, file))}`;
   });
+}
+
+/**
+ * Where an objectives run leaves its environment's failures for the Health
+ * workflow's evidence step (`libs/observability-server-ts/scripts/health-alerts.ts`):
+ * one file per environment, so a run over every environment keeps them all.
+ */
+export const ALERT_FAILURES_DIR = join(REPO_ROOT, '.cache/health-alerts');
+
+export function alertFailuresFile(environment: string): string {
+  return join(ALERT_FAILURES_DIR, `failures-${environment}.json`);
+}
+
+function keepObjectiveFailures(environment: string): void {
+  const failures = readFailures(OBJECTIVE_DIRS.reportDir);
+  mkdirSync(ALERT_FAILURES_DIR, { recursive: true });
+  writeFileSync(
+    alertFailuresFile(environment),
+    `${JSON.stringify(failures, null, 2)}\n`
+  );
+  if (failures.length > 0) {
+    console.log(
+      `health objectives: ${String(failures.length)} failed checks in ${environment} kept in ${slashPath(relative(REPO_ROOT, alertFailuresFile(environment)))}`
+    );
+  }
 }
 
 function environmentOffers(): {
@@ -435,8 +463,9 @@ function environmentOffers(): {
 /** The stubs to run, and the repo-relative features they run. */
 function writeStubs(
   cli: Cli,
-  offers: Environment
+  environment: { readonly name: string; readonly offers: Environment }
 ): { readonly stubs: readonly string[]; readonly features: readonly string[] } {
+  const { offers } = environment;
   const selection = selectSpecs({ all: scopedSpecs(cli), cli });
   if (!selection.ok) {
     console.error(`health: ${selection.error} (${liveDomains().join(', ')})`);
@@ -445,7 +474,7 @@ function writeStubs(
   freshDirs(cli.objectives ? OBJECTIVE_DIRS : FEATURE_DIRS);
   if (cli.objectives) {
     return {
-      stubs: writeSloStubs(selection.specs, OBJECTIVE_DIRS),
+      stubs: writeSloStubs(selection.specs, OBJECTIVE_DIRS, environment.name),
       features: [],
     };
   }
@@ -555,7 +584,7 @@ if (import.meta.main) {
   console.log(
     `${label}${cli.objectives ? ' objectives' : ''}: ${name}${missing.length > 0 ? ` — without ${missing.join(', ')}` : ''}${tags.length > 0 ? ` — ${tags}` : ''}`
   );
-  const { stubs, features } = writeStubs(cli, offers);
+  const { stubs, features } = writeStubs(cli, { name, offers });
   if (stubs.length === 0) {
     console.error('health: nothing to run');
     process.exit(1);
@@ -572,5 +601,6 @@ if (import.meta.main) {
     }),
   });
   await recordChecks({ cli, environment: name, features, secrets });
+  if (cli.objectives) keepObjectiveFailures(name);
   process.exit(result.status ?? 1);
 }

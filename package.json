@@ -10,6 +10,7 @@
   ],
   "scripts": {
     "agents:sync": "turbo run //#task:agents:sync --",
+    "alerts": "turbo run //#task:alerts --",
     "atlas:build": "turbo run //#task:atlas:build --",
     "atlas:export": "turbo run //#task:atlas:export --",
     "atlas:lint": "bun run libs/tools-harness-ts/scripts/turbo-ci-run.ts @libs/tools-harness-ts#ci:statecharts",
@@ -102,6 +103,7 @@
     "synthetic": "bun run libs/secrets-server-ts/scripts/secrets-run.ts -- turbo run @apps/product-ts#synthetic --only --",
     "synthetic:prd": "SECRETS_ENV=prd bun run synthetic",
     "task:agents:sync": "bun run libs/tools-harness-ts/scripts/sync-agent-commands.ts",
+    "task:alerts": "bun run libs/observability-server-ts/scripts/alerts.ts",
     "task:atlas:build": "bun run libs/tools-harness-ts/scripts/statechart-cli.ts build",
     "task:atlas:export": "bun run libs/tools-harness-ts/scripts/statechart-cli.ts export",
     "task:atlas:run": "bun run libs/tools-harness-ts/scripts/spec-run.ts --keep-going",

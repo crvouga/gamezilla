@@ -20,6 +20,31 @@ export function productionQueryRequested(argv: readonly string[]): boolean {
   return argv[0] === 'platform' || source === 'prod' || source === 'tempo';
 }
 
+/**
+ * `--env <name>` (or `--env=<name>`): the environment whose telemetry a
+ * production source reads, taken out of the arguments the CLI sees. Absent,
+ * the first production environment's.
+ */
+export function takeEnvFlag(argv: readonly string[]): {
+  readonly env: string | undefined;
+  readonly argv: readonly string[];
+} {
+  const rest: string[] = [];
+  let env: string | undefined;
+  for (let i = 0; i < argv.length; i++) {
+    const arg = argv[i] ?? '';
+    if (arg.startsWith('--env=')) env = arg.slice('--env='.length);
+    else if (arg === '--env') {
+      const next = argv[i + 1];
+      if (next !== undefined && !next.startsWith('--')) {
+        env = next;
+        i++;
+      }
+    } else rest.push(arg);
+  }
+  return { env: env === '' ? undefined : env, argv: rest };
+}
+
 /** Fills only keys that are unset. An empty stored value is left unset. */
 export function fillUnsetEnv(
   env: Record<string, string | undefined>,

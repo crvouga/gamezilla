@@ -3,6 +3,7 @@ import {
   fillUnsetEnv,
   OBS_QUERY_KEYS,
   productionQueryRequested,
+  takeEnvFlag,
 } from '@libs/secrets-shared-ts/obs-query-env';
 
 describe('production query credentials', () => {
@@ -42,5 +43,39 @@ describe('production query credentials', () => {
     expect(env['OBS_READONLY_DATABASE_URL']).toContain('obs_read');
     expect(env['DATABASE_URL']).toContain('owner:secret');
     expect(env['GRAFANA_CLOUD_API_TOKEN']).toBe('admin');
+  });
+});
+
+describe('the environment a query reads', () => {
+  test('--env names it and is taken out of what the CLI sees', () => {
+    expect(
+      takeEnvFlag([
+        'errors',
+        '--since',
+        '1d',
+        '--source',
+        'prod',
+        '--env',
+        'dev',
+      ])
+    ).toEqual({
+      env: 'dev',
+      argv: ['errors', '--since', '1d', '--source', 'prod'],
+    });
+    expect(takeEnvFlag(['errors', '--env=prd', '--json'])).toEqual({
+      env: 'prd',
+      argv: ['errors', '--json'],
+    });
+  });
+
+  test('without --env the arguments pass through and production is read', () => {
+    expect(takeEnvFlag(['last', '--source', 'prod'])).toEqual({
+      env: undefined,
+      argv: ['last', '--source', 'prod'],
+    });
+    expect(takeEnvFlag(['last', '--env', '--json'])).toEqual({
+      env: undefined,
+      argv: ['last', '--json'],
+    });
   });
 });
