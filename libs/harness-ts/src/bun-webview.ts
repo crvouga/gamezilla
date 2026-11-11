@@ -84,12 +84,20 @@ async function openStackExtra(
   const { readStackAddresses } = await import('./stack-manifest');
   const { bootHarnessPostgres } = await import('./boot-harness-postgres');
   const addresses = await readStackAddresses();
-  if (addresses.mqttUrl === null)
+  // The spec worker's MQTT client is its browser build (the runner resolves
+  // `browser` exports), which cannot open the broker's TCP port: it closed
+  // at once, forever, and every fixture that announced a change waited out
+  // the scenario. It speaks WebSocket, as the apps do.
+  if (addresses.mqttWssUrl === null)
     throw new Error('Stack fixtures require the stack broker');
+  // Every world on the stack shares one broker. Seeded ids repeat from one
+  // world to the next, and a second client with the same id takes the
+  // first one's session over, so the client id carries the run's tag.
+  const accountTag = crypto.randomUUID().slice(0, 8);
   const serverEvents = createAedesPubSub({
-    url: addresses.mqttUrl,
+    url: addresses.mqttWssUrl,
     auth: () => Promise.resolve({ username: 'stack', password: 'stack' }),
-    clientIdPrefix: `harness-fixtures-${session.ports.createId()}`,
+    clientIdPrefix: `harness-fixtures-${accountTag}`,
     timers: session.ports.timers,
     random: session.ports.random,
     logger: createLogger({
@@ -112,7 +120,7 @@ async function openStackExtra(
       kind: 'stack' as const,
       origin: addresses.apiOrigin,
       idpOrigins: addresses.idpOrigins,
-      accountTag: crypto.randomUUID().slice(0, 8),
+      accountTag,
     },
   };
 }

@@ -13,6 +13,11 @@ export type StackAddresses = {
   readonly webOrigin: string;
   readonly idpOrigins: StackIdpOrigins;
   readonly databaseUrl: string;
+  /**
+   * The broker over WebSocket. Spec workers resolve packages under the
+   * `browser` condition, where the MQTT client speaks only WebSocket.
+   */
+  readonly mqttWssUrl: string | null;
   readonly mqttUrl: string | null;
 };
 
