@@ -6,6 +6,7 @@ import {
 import { actorUi } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront } from '@libs/harness-ts/observations';
+import { onMultiplayerPlace } from './multiplayer-places';
 
 /** The visible match details, independent of their arrangement in the lineup. */
 export async function shownMultiplayerLineup(s: ProductHarness, actor: string) {
@@ -42,14 +43,24 @@ export async function opponentSearchPresentation(
     (await ui.get(id).isVisible()) ? ui.get(id).text() : null;
   const attribute = async (id: string, name: string) =>
     (await ui.get(id).isVisible()) ? ui.get(id).attribute(name) : null;
-  const clockChoices = [];
-  for (const clock of TIME_CONTROLS)
-    if (
-      await ui
-        .get(`multiplayer-time-control-${timeControlKey(clock.id)}`)
-        .isVisible()
-    )
-      clockChoices.push(clock.id);
+  // The clock choices are a place of their own, one row from finding; a
+  // screen with a search or a game offers no such row, and so no choices.
+  const clockChoices = await onMultiplayerPlace(
+    s,
+    actor,
+    'time-control',
+    async () => {
+      const offered = [];
+      for (const clock of TIME_CONTROLS)
+        if (
+          await ui
+            .get(`multiplayer-time-control-${timeControlKey(clock.id)}`)
+            .isVisible()
+        )
+          offered.push(clock.id);
+      return offered;
+    }
+  );
   return {
     clockChoices,
     whiteClock: await text('multiplayer-white-clock'),

@@ -59,6 +59,8 @@ async function guestInvited(ui: Driver): Promise<boolean> {
   for (let poll = 0; poll < SURFACE_POLLS; poll += 1) {
     if (await ui.get('multiplayer-access-denial-action').isVisible())
       return true;
+    // A finished game's result: Find is one row away, on the search's hub.
+    if (await ui.get('multiplayer-open-find').isVisible()) return false;
     try {
       await ui
         .get('multiplayer-find')
@@ -213,6 +215,8 @@ export async function openWithE4AndE5(
 }
 
 export async function resignMultiplayerJourney(ui: Driver): Promise<void> {
+  // Resigning is among the game's commands, one press from the board.
+  await tap(ui, 'multiplayer-open-commands');
   await tap(ui, 'multiplayer-resign');
   await tap(ui, 'multiplayer-confirm');
   await tap(ui, 'multiplayer-dismiss');
@@ -235,9 +239,12 @@ export async function expectNoMultiplayerGame(ui: Driver): Promise<void> {
 /** Observe the rendered board, rather than a server or local database row. */
 async function shownGameId(ui: Driver, timeoutMs: number): Promise<string> {
   await ui.get('multiplayer-game').expect.visible({ timeoutMs });
-  // The previous completed board stays visible while a new search runs.
-  // A fresh pairing offers Abort until either person has played.
+  // A fresh pairing offers Abort, among the game's commands, until either
+  // person has played: a finished game has no commands to open at all.
+  await ui.get('multiplayer-open-commands').expect.visible({ timeoutMs });
+  await tap(ui, 'multiplayer-open-commands');
   await ui.get('multiplayer-abort').expect.visible({ timeoutMs });
+  await pressBackUntilVisible(ui, 'multiplayer-game', JOURNEY_WAIT_MS);
   const html = await ui.snapshotHtml();
   const tag = html?.match(/<[^>]*data-testid="multiplayer-game"[^>]*>/)?.[0];
   const id = tag?.match(/data-game-id="([^"]+)"/)?.[1];

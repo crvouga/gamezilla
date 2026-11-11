@@ -1,5 +1,29 @@
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 import { endActiveSpace, JOURNEY_WAIT_MS, tap } from './journey-gestures';
+import { openMultiplayerFind } from './multiplayer-time-control-gesture';
+
+const COMMAND_POLLS = 10;
+
+/**
+ * The command that ends the game, once its commands are on screen: Abort
+ * before both have moved, Resign after. Reading before the commands have
+ * painted would take a missing Abort for a game to resign.
+ */
+async function leavingCommand(ui: Driver): Promise<string> {
+  for (let poll = 0; poll < COMMAND_POLLS; poll += 1) {
+    if (await ui.get('multiplayer-resign').isVisible())
+      return 'multiplayer-resign';
+    try {
+      await ui
+        .get('multiplayer-abort')
+        .expect.visible({ timeoutMs: JOURNEY_WAIT_MS / COMMAND_POLLS });
+      return 'multiplayer-abort';
+    } catch {
+      // The commands are still opening, or the game offers Resign.
+    }
+  }
+  return 'multiplayer-resign';
+}
 
 /** A monitor account survives failed runs; retire its previous search or game. */
 export async function retirePreviousMultiplayer(ui: Driver): Promise<void> {
@@ -24,18 +48,17 @@ export async function retirePreviousMultiplayer(ui: Driver): Promise<void> {
     (await ui.get('multiplayer-game').attribute('data-outcome')) !== 'ongoing'
   )
     return;
-  const action = (await ui.get('multiplayer-abort').isVisible())
-    ? 'multiplayer-abort'
-    : 'multiplayer-resign';
-  await tap(ui, action);
+  // Aborting and resigning are among the game's commands, one press from
+  // the board; whichever the game offers ends it.
+  await tap(ui, 'multiplayer-open-commands');
+  await tap(ui, await leavingCommand(ui));
   await tap(ui, 'multiplayer-confirm');
   await ui
     .get('multiplayer-confirm')
     .expect.hidden({ timeoutMs: JOURNEY_WAIT_MS });
   await tap(ui, 'multiplayer-dismiss');
-  await ui
-    .get('multiplayer-find')
-    .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
+  // The game is over: its result offers the search's hub, where Find is.
+  await openMultiplayerFind(ui);
 }
 
 /** A failed scenario must not leave a search to consume the next person's match. */

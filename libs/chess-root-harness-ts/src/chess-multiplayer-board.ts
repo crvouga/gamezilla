@@ -8,7 +8,11 @@
 
 import type { MatchedGameMove } from '@libs/game-matchmaking-harness-ts/multiplayer-board';
 import { sendMoveFromBoard } from '@libs/game-matchmaking-harness-ts/multiplayer-board';
-import { reviewMultiplayerMoves } from '@libs/game-matchmaking-harness-ts/multiplayer-review';
+import {
+  bringMultiplayerMoveList,
+  pressFlipMultiplayerBoard,
+  reviewMultiplayerMoves,
+} from '@libs/game-matchmaking-harness-ts/multiplayer-review';
 import { openFindingAnOpponent } from '@libs/game-matchmaking-harness-ts/opponent-seeking';
 import {
   actorUi,
@@ -93,6 +97,8 @@ async function movePly(
   san: string
 ): Promise<number> {
   const ui = await actorUi(s, actor);
+  // A result lists no moves: they are one row away.
+  await bringMultiplayerMoveList(s, actor);
   for (let ply = 1; ; ply++) {
     const move = ui.get(`multiplayer-move-${String(ply)}`);
     if (!(await move.isVisible()))
@@ -140,12 +146,16 @@ export const playMultiplayerMove = scenarioAction({
   },
 });
 
-/** The person flips their own multiplayer board, or flips it back. */
+/**
+ * The person flips their own multiplayer board, or flips it back: with the
+ * control beside the moves they are stepping through, or from the game's
+ * commands, which return to the game.
+ */
 export const flipMultiplayerBoard = scenarioAction({
   name: 'flipMultiplayerBoard',
   act: async (s, actor: string) => {
     await openChessMatches(s, actor);
-    await (await actorUi(s, actor)).get('multiplayer-flip-board').tap();
+    await pressFlipMultiplayerBoard(s, actor);
     await s.session.waitForIdle();
   },
 });

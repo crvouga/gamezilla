@@ -1,59 +1,92 @@
 /** @jsxImportSource solid-js */
-/** Before a search: one card holds the choice, its conditions and what the person brings. */
+/**
+ * Before a search: a hub of rows, the search's conditions and its one
+ * command. The ratings and the guide are places of their own, the same on
+ * a phone and wide.
+ */
 
 import { afterEach, expect, test } from 'bun:test';
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-import { MultiplayerScreenView } from '@libs/game-matchmaking-client-ts/multiplayer-screen-view';
-import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
-import { ClockProvider } from '@pkgs/clock-client-ts/solid';
-import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
-import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { cleanup, screen } from '@solidjs/testing-library';
+import { mountPlaces } from './multiplayer-places-fixture';
 
 afterEach(cleanup);
 
-function mount(width: number): HTMLElement {
-  const time = createHarnessClock();
-  const { container } = renderWithI18n(() => (
-    <ClockProvider clock={time.clock} timers={time.timers}>
-      <ThemeProvider colorScheme="dark" fixedLayout={{ width, height: 900 }}>
-        <MultiplayerScreenView
-          title="Connect Four"
-          stage="search"
-          next={{ kind: 'find', players: 2, timed: false }}
-          error={null}
-          online
-          ratings={[{ pool: 'game', rating: 1512, games: 7 }]}
-          confirming={null}
-          manyPlayers={false}
-          onFind={() => Promise.resolve()}
-          onStop={() => Promise.resolve()}
-          onConfirm={() => Promise.resolve()}
-          onCloseConfirm={() => undefined}
-        />
-      </ThemeProvider>
-    </ClockProvider>
-  ));
-  return container;
-}
+const WIDTHS = [390, 1440];
 
 // regression: matchmaking-columns-lopsided — wide, a 210px search card sat
 // beside a 500px rail of ratings and three paragraphs on how matchmaking
 // works, so the explanation outweighed the decision.
-test('wide: the search, the ratings and a short guide are one card, with no rail beside it', () => {
-  const container = mount(1440);
-  const card = container.querySelector('[data-component="GameSetupPanel"]');
-  if (card === null) throw new Error('No search card');
-  expect(card.contains(screen.getByTestId('multiplayer-rating-game'))).toBe(
-    true
-  );
-  expect(card.contains(screen.getByTestId('multiplayer-guide'))).toBe(true);
+// regression: matchmaking-card-lonely
+// regression: matchmaking-columns-equal-weight
+// regression: matchmaking-card-too-wide
+// regression: matchmaking-search-stretched-legal-columns
+// regression: matchmaking-column-off-the-page-edge — every one of these was
+// a way one card failed to hold the search, the ratings and the guide at
+// once. The search no longer shares its screen: it is a menu-width hub.
+test('the search is a hub of rows and one command, with no ratings or guide beside it', () => {
+  for (const width of WIDTHS) {
+    const { container } = mountPlaces({ stage: 'idle', width });
+    expect(
+      container.querySelector('[data-component="GameSetupPanel"]')
+    ).toBeNull();
+    expect(container.querySelector('[data-component="GameLayout"]')).toBeNull();
+    expect(screen.queryByTestId('multiplayer-rating-game')).toBeNull();
+    expect(screen.queryByTestId('multiplayer-guide')).toBeNull();
+    const rows = [
+      ...container.querySelectorAll('[data-component="MenuRow"]'),
+    ].map((row) => row.getAttribute('data-testid'));
+    expect(rows).toEqual([
+      'multiplayer-open-ratings',
+      'multiplayer-open-guide',
+    ]);
+    // One filled command, and it is finding an opponent.
+    const filled = [
+      ...container.querySelectorAll('button[data-variant="solid"]'),
+    ].map((button) => button.getAttribute('data-testid'));
+    expect(filled).toEqual(['multiplayer-find']);
+    cleanup();
+  }
+});
+
+test('a game with clock choices adds one row showing the chosen clock, and choosing another returns with it', () => {
+  mountPlaces({
+    stage: 'idle',
+    props: { find: { players: 2, timed: true, timeControl: '5+0' } },
+  });
+  const row = screen.getByTestId('multiplayer-open-time-control');
+  expect(row.textContent).toContain('5+0');
+  expect(row.textContent).toContain('Blitz');
+  // The choices are a place of their own, never on the hub.
+  expect(screen.queryByTestId('multiplayer-time-control-10-0')).toBeNull();
+  row.click();
+  expect(screen.queryByTestId('multiplayer-find')).toBeNull();
   expect(
-    container
-      .querySelector('[data-component="GameLayout"]')
-      ?.getAttribute('data-has-aside')
-  ).toBe('false');
+    screen
+      .getByTestId('multiplayer-time-control-5-0')
+      .getAttribute('aria-current')
+  ).toBe('true');
+  screen.getByTestId('multiplayer-time-control-10-0').click();
+  expect(
+    screen.getByTestId('multiplayer-open-time-control').textContent
+  ).toContain('10+0');
+  expect(
+    [
+      ...screen
+        .getByTestId('multiplayer-find-conditions')
+        .querySelectorAll('[data-component="GameFact"]'),
+    ].map((fact) => fact.textContent)
+  ).toEqual(['Rated', '10+0']);
+});
+
+test('choosing the clock already chosen returns to the search all the same', () => {
+  const view = mountPlaces({
+    stage: 'idle',
+    open: 'time-control',
+    props: { find: { players: 2, timed: true, timeControl: '5+0' } },
+  });
+  screen.getByTestId('multiplayer-time-control-5-0').click();
+  expect(view.place()).toBe('find');
+  expect(screen.getByTestId('multiplayer-find')).toBeTruthy();
 });
 
 // regression: matchmaking-intro-wordy — the card said "Find someone to
@@ -66,8 +99,8 @@ test('wide: the search, the ratings and a short guide are one card, with no rail
 // that looked pressable and said "No clock" where a game says "Untimed".
 // They are the game's own quiet settings line, in the game's words.
 test("the conditions are the game's settings line, right above the command", () => {
-  for (const width of [390, 1440]) {
-    mount(width);
+  for (const width of WIDTHS) {
+    mountPlaces({ stage: 'idle', width });
     const conditions = screen.getByTestId('multiplayer-find-conditions');
     expect(conditions.getAttribute('data-component')).toBe('GameFacts');
     expect(conditions.querySelector('[data-component="Badge"]')).toBeNull();
@@ -75,13 +108,21 @@ test("the conditions are the game's settings line, right above the command", () 
       ...conditions.querySelectorAll('[data-component="GameFact"]'),
     ].map((fact) => fact.textContent);
     expect(facts).toEqual(['Rated', 'Untimed']);
-    // The chips and the command are one group: the command comes next.
+    // The conditions and the command are one group: the command comes next.
     const actions = conditions.nextElementSibling;
     expect(
       actions?.contains(screen.getByTestId('multiplayer-find')) === true
     ).toBe(true);
     expect(screen.queryByText('Find someone to play with.')).toBeNull();
     expect(screen.queryByText('This search finds')).toBeNull();
+    // Under it, what a found opponent means for the space.
+    const note = screen.getByTestId('multiplayer-find-space');
+    expect(note.textContent).toContain('opens in this space');
+    expect(note.textContent).toContain('everyone can watch');
+    expect(
+      screen.getByTestId('multiplayer-find').compareDocumentPosition(note) &
+        Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
     cleanup();
   }
 });
@@ -89,79 +130,34 @@ test("the conditions are the game's settings line, right above the command", () 
 // regression: matchmaking-phone-drops-guide — a phone left out "How
 // matchmaking works", which the wide card explains.
 // regression: matchmaking-guide-dominates — wide, the three points of the
-// guide sat open under the search and outweighed its one command. A phone
-// keeps them behind one closed disclosure.
-test('phone: the ratings are in the card and the guide behind one closed disclosure', () => {
-  const container = mount(390);
-  const card = container.querySelector('[data-component="GameSetupPanel"]');
-  expect(card?.contains(screen.getByTestId('multiplayer-rating-game'))).toBe(
-    true
-  );
-  const guide = screen.getByTestId('multiplayer-guide');
-  expect(card?.contains(guide)).toBe(true);
-  const toggle = screen.getByTestId('multiplayer-guide-toggle');
-  expect(toggle.textContent).toContain('How matchmaking works');
-  expect(toggle.getAttribute('aria-expanded')).toBe('false');
-  expect(screen.queryByText('Every match is rated')).toBeNull();
-  toggle.click();
-  expect(toggle.getAttribute('aria-expanded')).toBe('true');
-  expect(screen.getByText('Every match is rated')).toBeTruthy();
-});
-
-// regression: matchmaking-card-lonely — wide, a 720px card sat at the
-// game column's start with about 70% of the canvas empty beside and under
-// it. The card fills the game column: the search and the ratings side by
-// side, the guide's three short points across the card's foot.
-// regression: matchmaking-columns-equal-weight — the columns were then
-// equal, so the search and its command carried no more weight than
-// reference text. The search leads, the wider column, and the guide is
-// quiet caption text.
+// guide sat open under the search and outweighed its one command.
 // regression: matchmaking-guide-nested-card — the guide then stood as a
-// sunken grey card inside the card, a third column as tall as the row, so
-// the search's column stood mostly empty under its command. The guide is
-// plain quiet text across the card's foot, past its hairline, never a box.
-test("wide: the search leads the card's two columns and the guide is quiet text across its foot", () => {
-  const container = mount(1440);
-  const card = container.querySelector('[data-component="GameSetupPanel"]');
-  const split = card?.querySelector('[data-setup-split="true"]');
-  expect(split?.getAttribute('data-details-across')).toBe('true');
-  const guide = screen.getByTestId('multiplayer-guide');
-  expect(card?.contains(guide)).toBe(true);
-  // The guide follows the search and the ratings, at the card's foot.
-  expect(
-    screen
-      .getByTestId('multiplayer-rating-game')
-      .compareDocumentPosition(guide) & Node.DOCUMENT_POSITION_FOLLOWING
-  ).toBeTruthy();
-  // Open, headed like the ratings, with no disclosure to press.
-  expect(screen.queryByTestId('multiplayer-guide-toggle')).toBeNull();
-  expect(guide.textContent).toContain('How matchmaking works');
-  expect(screen.getByText('Every match is rated')).toBeTruthy();
-  // Its three points one under another, each one line (see below).
-  expect(guide.querySelector('[role="list"]')?.className).toContain(
-    'grid-cols-1'
-  );
-  const css = readFileSync(
-    join(
-      import.meta.dirname,
-      '../../../pkgs/ui-root-client-ts/src/game-setup-panel/game-setup-panel.module.css'
-    ),
-    'utf8'
-  );
-  expect(css).toMatch(
-    /section:has\(> \.setupSplit\[data-details-across="true"\]\) \{\s*grid-template-columns: minmax\(0, 3fr\) minmax\(0, 2fr\);\s*\}/
-  );
-  // No rule gives the guide a box of its own: it spans the card's foot.
-  expect(css).not.toMatch(/data-details-across="true"\] ~ \*/);
-  expect(css).not.toContain('surface-muted');
-  expect(css).toMatch(
-    /section > \.setupSplit ~ \* \{\s*grid-column: 1 \/ -1;\s*grid-row: 3;/
-  );
-  // The guide's heading and points are quieter than the search's title.
-  const heading = [...guide.querySelectorAll('h3')].find((h) =>
-    h.textContent?.includes('How matchmaking works')
-  );
-  expect(heading?.className).toContain('text-text-secondary');
+// sunken grey card inside the card. It is a place of its own, one row from
+// the search, with nothing to open or close on any size.
+test('the guide is one row away on every size: three points, no disclosure', () => {
+  for (const width of WIDTHS) {
+    const view = mountPlaces({ stage: 'idle', width });
+    expect(screen.queryByText('Every match is rated')).toBeNull();
+    screen.getByTestId('multiplayer-open-guide').click();
+    expect(view.place()).toBe('guide');
+    expect(screen.queryByTestId('multiplayer-guide-toggle')).toBeNull();
+    expect(view.container.querySelector('[aria-expanded]')).toBeNull();
+    const points = [
+      ...screen
+        .getByTestId('multiplayer-guide')
+        .querySelectorAll('[data-component="MenuRow"]'),
+    ].map((point) => point.textContent);
+    expect(points).toEqual([
+      'Every match is ratedWin, lose or draw, your rating moves once.',
+      'Stop whenever you likeA search waits until you stop it or are matched.',
+      "Only people you can playNever someone you've blocked, or who blocked you.",
+    ]);
+    // Nothing to press: the guide is read, then Back.
+    expect(
+      screen.getByTestId('multiplayer-guide').querySelector('button')
+    ).toBeNull();
+    cleanup();
+  }
 });
 
 // regression: provisional-rating-reads-as-error — "1512?" read like an
@@ -170,7 +166,8 @@ test("wide: the search leads the card's two columns and the guide is quiet text 
 // "Provisional" tag and a footnote all said the rating was provisional.
 // The "?" stays, and the footnote alone says what it means.
 test('a provisional rating keeps its "?" quietly, explained once under it', () => {
-  mount(1440);
+  mountPlaces({ stage: 'idle' });
+  screen.getByTestId('multiplayer-open-ratings').click();
   const value = screen.getByTestId('multiplayer-rating-game-value');
   expect(value.textContent).toBe('1512?');
   const mark = [...value.querySelectorAll('span')].find(
@@ -180,8 +177,8 @@ test('a provisional rating keeps its "?" quietly, explained once under it', () =
   expect(
     screen.queryByTestId('multiplayer-rating-game-provisional')
   ).toBeNull();
-  const stat = screen.getByTestId('multiplayer-rating-game');
-  expect(stat.querySelector('[data-component="Badge"]')).toBeNull();
+  const row = screen.getByTestId('multiplayer-rating-game');
+  expect(row.querySelector('[data-component="Badge"]')).toBeNull();
   expect(
     screen.getByTestId('multiplayer-rating-game-settles').textContent
   ).toBe('the “?” goes once your rating settles');
@@ -190,99 +187,88 @@ test('a provisional rating keeps its "?" quietly, explained once under it', () =
 // regression: provisional-rating-loud — beside Find an opponent the
 // provisional rating drew an accent tag, a progress bar and a two-part
 // footnote, outweighing the search itself. There is no bar, and how far
-// the rating is from settling is one quiet footnote.
-test('a provisional rating is quiet beside the search: no tag, no bar', () => {
-  mount(1440);
-  const stat = screen.getByTestId('multiplayer-rating-game');
-  expect(stat.querySelector('[data-component="ProgressBar"]')).toBeNull();
+// the rating is from settling is one quiet line.
+test('a provisional rating has no tag and no bar, and a settled one no "?"', () => {
+  const view = mountPlaces({ stage: 'idle' });
+  screen.getByTestId('multiplayer-open-ratings').click();
+  const row = screen.getByTestId('multiplayer-rating-game');
+  expect(row.querySelector('[data-component="ProgressBar"]')).toBeNull();
   expect(screen.getByTestId('multiplayer-rating-game-games').textContent).toBe(
     '7 of 12 rated games'
   );
-});
-
-// regression: matchmaking-card-too-wide — wide, the search card spanned the
-// whole 960px game column for three items, and nothing said what a found
-// opponent meant for the space. A two-column card holds form-width columns
-// at the column's start (a three-column one fills the column), and under
-// Find an opponent it says the game opens in this space, where everyone
-// can watch.
-test('wide: a two-column search card keeps form-width columns and says what happens to the space', () => {
-  mount(1440);
-  const css = readFileSync(
-    join(
-      import.meta.dirname,
-      '../../../pkgs/ui-root-client-ts/src/game-ui.module.css'
-    ),
-    'utf8'
+  view.set({ ratings: [{ pool: 'game', rating: 1688, games: 240 }] });
+  expect(screen.getByTestId('multiplayer-rating-game-value').textContent).toBe(
+    '1688'
   );
-  expect(css).toContain('--game-search-split-measure: 45rem;');
-  const wide = css.slice(
-    css.indexOf('@container game-column (min-width: 880px)')
+  expect(screen.getByTestId('multiplayer-rating-game-games').textContent).toBe(
+    '240 rated games'
   );
-  expect(wide).toMatch(
-    /\[data-setup-split="true"\]\[data-details-across="false"\]\) \{\s*max-width: var\(--game-search-split-measure\);/
-  );
-  const note = screen.getByTestId('multiplayer-find-space');
-  expect(note.textContent).toContain('opens in this space');
-  expect(note.textContent).toContain('everyone can watch');
-  // The note follows the command, in the same group.
-  expect(
-    screen.getByTestId('multiplayer-find').compareDocumentPosition(note) &
-      Node.DOCUMENT_POSITION_FOLLOWING
-  ).toBeTruthy();
-});
-
-// regression: matchmaking-search-stretched-legal-columns — wide, the card
-// filled the 960px game column: Find an opponent stretched to 530px, the
-// guide read like fine print in three columns, and 60% of the page stood
-// empty. The command is sized to its words, and the guide is three short
-// lines, each one sentence; a phone's command still spans its card.
-// regression: matchmaking-column-off-the-page-edge — the search's column
-// was then held to 45rem and centred, so the title and card started 120px
-// right of the space's bar while every other page starts under it. The
-// column takes the content column every page has, from its leading edge.
-test('wide: the search column starts at the page edge, a command sized to its words, a guide of short lines', () => {
-  mount(1440);
-  const css = readFileSync(
-    join(
-      import.meta.dirname,
-      '../../../pkgs/ui-root-client-ts/src/game-ui.module.css'
-    ),
-    'utf8'
-  );
-  expect(css).toMatch(
-    /\.column:has\(\.layout \[data-setup-split="true"\]\[data-details-across="true"\]\) \{\s*max-width: calc\(\s*var\(--game-board-measure\) \+\s*var\(--ui-space-6\) \+\s*var\(--game-rail-measure\)\s*\);\s*margin-inline: 0 auto;/
-  );
-  const find = screen.getByTestId('multiplayer-find');
-  expect(find.classList.contains('w-full')).toBe(false);
-  const points = [
-    ...screen
-      .getByTestId('multiplayer-guide')
-      .querySelectorAll('[role="listitem"]'),
-  ].map((point) => point.textContent);
-  expect(points).toEqual([
-    'Every match is rated. Win, lose or draw, your rating moves once.',
-    'Stop whenever you like. A search waits until you stop it or are matched.',
-    "Only people you can play. Never someone you've blocked, or who blocked you.",
-  ]);
-  cleanup();
-  mount(390);
-  expect(screen.getByTestId('multiplayer-find').className).toContain('w-full');
+  expect(screen.queryByTestId('multiplayer-rating-game-settles')).toBeNull();
 });
 
 // regression: matchmaking-rating-focal-point — in the search's card the
 // rating "1512?" was set in the large stat figures, the brightest thing on
-// a screen whose task is finding an opponent. In the card it is at a
-// label's size; the search's title and command lead.
-test("the rating in the search's card is a label-sized figure, not a stat", () => {
-  for (const width of [1440, 390]) {
-    mount(width);
-    const stat = screen.getByTestId('multiplayer-rating-game');
-    expect(stat.getAttribute('data-size')).toBe('compact');
-    const value = screen.getByTestId('multiplayer-rating-game-value');
-    const figure = value.closest('strong');
-    expect(figure?.className).toContain('textLabel');
-    expect(figure?.className).not.toContain('textStat');
+// a screen whose task is finding an opponent. On the search it is a row's
+// quiet value; the figures are the ratings' own place.
+test('on the search the rating is a quiet row value, never a stat', () => {
+  for (const width of WIDTHS) {
+    const { container } = mountPlaces({ stage: 'idle', width });
+    const row = screen.getByTestId('multiplayer-open-ratings');
+    expect(row.textContent).toBe('Your ratings1512?');
+    expect(container.querySelector('[data-component="GameStat"]')).toBeNull();
+    expect(container.querySelector('.textStat')).toBeNull();
     cleanup();
   }
+});
+
+test('a game rated per speed shows the rating its chosen clock plays for', () => {
+  mountPlaces({
+    stage: 'idle',
+    props: {
+      find: { players: 2, timed: true, timeControl: '10+0' },
+      ratings: [
+        { pool: 'blitz', rating: 1623, games: 41 },
+        { pool: 'rapid', rating: 1488, games: 12 },
+      ],
+    },
+  });
+  expect(screen.getByTestId('multiplayer-open-ratings').textContent).toBe(
+    'Your ratings1488'
+  );
+});
+
+// regression: multiplayer-empty-board-unavailable
+test('a first visit says there is no game here yet, above the search it offers', () => {
+  const view = mountPlaces({
+    stage: 'idle',
+    props: {
+      find: { players: 2, timed: false, timeControl: '5+0', fresh: true },
+    },
+  });
+  const told = screen.getByTestId('multiplayer-unavailable');
+  expect(told.textContent).toContain(
+    'No multiplayer game is available to you.'
+  );
+  expect(
+    told.compareDocumentPosition(screen.getByTestId('multiplayer-find')) &
+      Node.DOCUMENT_POSITION_FOLLOWING
+  ).toBeTruthy();
+  // Once something was sought from here, the hub says nothing of the kind.
+  view.set({ find: { players: 2, timed: false, timeControl: '5+0' } });
+  expect(screen.queryByTestId('multiplayer-unavailable')).toBeNull();
+});
+
+test('a bigger game says how many players it finds, and names its command so', () => {
+  mountPlaces({
+    stage: 'idle',
+    props: { find: { players: 4, timed: false, timeControl: '5+0' } },
+  });
+  expect(
+    screen.getByText(
+      'A game needs 4 players including you. Find 3 other players.'
+    )
+  ).toBeTruthy();
+  expect(screen.getByTestId('multiplayer-find').textContent).toContain(
+    'Find players'
+  );
 });

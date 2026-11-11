@@ -34,7 +34,8 @@ import type { LowOnTime } from './use-low-on-time';
 import { useOfflineSince } from './use-offline-since';
 import { useShownName } from './use-shown-name';
 
-type StatusProps = {
+/** What the announcement is made from. */
+export type MultiplayerStatusProps = {
   readonly game: MultiplayerGame;
   readonly viewer: MultiplayerViewer;
   /** The winner's name, for a watcher or another participant. */
@@ -42,6 +43,8 @@ type StatusProps = {
   /** The clock that is low on time, if one is. */
   readonly lowOnTime: LowOnTime | null;
 };
+
+type StatusProps = MultiplayerStatusProps;
 
 const ownSide = (props: StatusProps) =>
   multiplayerSideOf(props.game, props.viewer.myId) ?? 'white';
@@ -337,7 +340,8 @@ function Offers(props: StatusProps): JSX.Element {
   );
 }
 
-function StatusDetail(props: StatusProps): JSX.Element {
+/** After the headline: why a finished game ended, offers, the rating change. */
+export function MultiplayerStatusDetail(props: StatusProps): JSX.Element {
   return (
     <>
       <Show when={props.game.outcome !== 'ongoing'}>
@@ -349,7 +353,8 @@ function StatusDetail(props: StatusProps): JSX.Element {
   );
 }
 
-function hasDetail(props: StatusProps): boolean {
+/** Whether {@link MultiplayerStatusDetail} has anything to say. */
+export function multiplayerStatusHasDetail(props: StatusProps): boolean {
   const game = props.game;
   if (game.outcome !== 'ongoing' && game.reason !== 'abort') return true;
   if (!props.viewer.participant) return false;
@@ -415,6 +420,38 @@ const awaitingFirstMoves = (props: StatusProps): boolean =>
   !isDailyTimeControl(props.game.time_control);
 
 /**
+ * The headline: a paused game says so first, then whose turn it is or how
+ * the game ended, and for a listener a clock that became low on time.
+ */
+export function MultiplayerStatusTitle(props: StatusProps): JSX.Element {
+  return (
+    <>
+      <Show
+        when={
+          props.game.outcome === 'ongoing' && props.game.paused_at_ms !== null
+        }
+      >
+        <Text variant="inherit" testId="multiplayer-paused">
+          <Show
+            when={timeControlOf(props.game.time_control) !== null}
+            fallback={<Trans>Multiplayer game is paused.</Trans>}
+          >
+            <Trans>Multiplayer clocks are paused.</Trans>
+          </Show>{' '}
+        </Text>
+      </Show>
+      <Show
+        when={props.viewer.participant}
+        fallback={<WatcherHeadline {...props} />}
+      >
+        <PlayerHeadline {...props} />
+      </Show>
+      <LowOnTimeWords {...props} />
+    </>
+  );
+}
+
+/**
  * Where the game stands, in one line under the board: whose turn, or how it
  * ended and why. It is the screen's live announcement, so a listener hears
  * colour, turn, offers and the result as they change.
@@ -426,33 +463,12 @@ export function MultiplayerStatus(props: StatusProps): JSX.Element {
       emphasis={emphasis(props)}
       tone={tone(props)}
       dataSet={{ testid: 'multiplayer-announcement' }}
-      title={
-        <>
-          <Show
-            when={
-              props.game.outcome === 'ongoing' &&
-              props.game.paused_at_ms !== null
-            }
-          >
-            <Text variant="inherit" testId="multiplayer-paused">
-              <Show
-                when={timeControlOf(props.game.time_control) !== null}
-                fallback={<Trans>Multiplayer game is paused.</Trans>}
-              >
-                <Trans>Multiplayer clocks are paused.</Trans>
-              </Show>{' '}
-            </Text>
-          </Show>
-          <Show
-            when={props.viewer.participant}
-            fallback={<WatcherHeadline {...props} />}
-          >
-            <PlayerHeadline {...props} />
-          </Show>
-          <LowOnTimeWords {...props} />
-        </>
+      title={<MultiplayerStatusTitle {...props} />}
+      detail={
+        multiplayerStatusHasDetail(props) ? (
+          <MultiplayerStatusDetail {...props} />
+        ) : undefined
       }
-      detail={hasDetail(props) ? <StatusDetail {...props} /> : undefined}
       note={
         awaitingFirstMoves(props) ? (
           <FirstMoveCountdown {...props} />

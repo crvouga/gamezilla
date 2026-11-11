@@ -17,6 +17,7 @@ import {
   joinMultiplayerSpace,
   multiplayerBoardShown,
 } from '@libs/game-matchmaking-harness-ts/multiplayer-board';
+import { onMultiplayerPlace } from '@libs/game-matchmaking-harness-ts/multiplayer-places';
 import {
   multiplayerText,
   multiplayerView,
@@ -39,11 +40,16 @@ import { openOn } from './matched-game-shown.steps';
 export async function watcherBoard(s: ProductHarness, actor: string) {
   const board = await multiplayerBoardShown(s, actor);
   const ui = await actorUi(s, actor);
-  return {
-    ...board,
-    canResign: await ui.get('multiplayer-resign').isVisible(),
-    announcement: await multiplayerText(s, actor, 'multiplayer-announcement'),
-  };
+  const announcement = await multiplayerText(
+    s,
+    actor,
+    'multiplayer-announcement'
+  );
+  // Resigning is among the game's commands, one press from the board.
+  const canResign = await onMultiplayerPlace(s, actor, 'commands', () =>
+    ui.get('multiplayer-resign').isVisible()
+  );
+  return { ...board, canResign, announcement };
 }
 
 /** `watcher` sees the matched game but cannot make a move or resign in it. */

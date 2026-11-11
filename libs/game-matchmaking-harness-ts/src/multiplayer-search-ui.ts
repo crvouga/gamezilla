@@ -4,6 +4,10 @@ import {
 } from '@libs/game-matchmaking-shared-ts/time-control';
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
+import {
+  openMultiplayerPlace,
+  tapMultiplayerControl,
+} from './multiplayer-places';
 
 /**
  * The clock choice a time control names, without its game's clock namespace
@@ -26,12 +30,23 @@ export const requestGameOpponent = scenarioAction({
   name: 'requestGameOpponent',
   act: async (s, actor: string, timeControl: string) => {
     const ui = await actorUi(s, actor);
+    // The search's hub: where an idle screen opens once it has read the
+    // game and the search, and one row from a finished game's result.
+    await pollUntil(
+      s,
+      async () =>
+        (await openMultiplayerPlace(s, actor, 'find')) === 'unreachable'
+          ? null
+          : true,
+      { maxMs: 15000, description: 'the choices of a new opponent search' }
+    );
+    // The clock is chosen on its own place, which returns to the hub.
     if (timeControlOf(timeControl) !== null)
-      await ui
-        .get(
-          `multiplayer-time-control-${timeControlKey(clockChoiceOf(timeControl))}`
-        )
-        .tap();
+      await tapMultiplayerControl(
+        s,
+        actor,
+        `multiplayer-time-control-${timeControlKey(clockChoiceOf(timeControl))}`
+      );
     await ui.get('multiplayer-find').wait('enabled');
     const actors = searches.get(s) ?? new Set<string>();
     actors.add(actor);

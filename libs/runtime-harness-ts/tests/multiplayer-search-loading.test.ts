@@ -16,12 +16,22 @@ import type {
   DriverNode,
 } from '@pkgs/ui-testing-root-shared-ts/driver';
 
+const CLOCK_CHOICE = 'multiplayer-time-control-';
+
+/**
+ * A device on finding an opponent, as its places stand: a game that is
+ * unfinished (`leftover`) keeps its commands one press from the board, and
+ * one that is over keeps the search's hub one row from its result. The
+ * hub's clock row names the clock chosen, at first a previous run's 2+1.
+ */
 function loadingScreen(
   invitation: boolean,
   leftover = false
 ): { ui: Driver; taps: string[] } {
   let ongoing = leftover;
-  let selected = 'multiplayer-time-control-2-1';
+  let commands = false;
+  let hub = false;
+  let selected = '2+1';
   const taps: string[] = [];
   const unused = (): never => {
     throw new Error('unexpected gesture');
@@ -31,11 +41,13 @@ function loadingScreen(
     launch: unused,
     close: unused,
     key: unused,
-    snapshotHtml: async () =>
-      `<label data-selected="true"><input data-testid="${selected}"></label>`,
+    snapshotHtml: async () => '',
     get: (id): DriverNode => ({
       get: unused,
-      attribute: async () => (ongoing ? 'ongoing' : null),
+      attribute: async (name) => {
+        if (name === 'data-time-control') return selected;
+        return ongoing ? 'ongoing' : null;
+      },
       tapAt: unused,
       drag: unused,
       layout: unused,
@@ -43,8 +55,10 @@ function loadingScreen(
       input: unused,
       clear: unused,
       key: async (key) => {
-        expect(key).toBe('space');
-        selected = id;
+        expect(key).toBe('enter');
+        if (ongoing)
+          throw new Error('the previous game still owns the account');
+        selected = id.slice(CLOCK_CHOICE.length).replace('-', '+');
         taps.push(id);
       },
       scroll: unused,
@@ -52,14 +66,20 @@ function loadingScreen(
       text: unused,
       isVisible: async () =>
         id === 'multiplayer-game' ||
-        (id === 'multiplayer-abort' && ongoing) ||
+        (id === 'multiplayer-open-commands' && ongoing) ||
+        (id === 'multiplayer-abort' && ongoing && commands) ||
+        (id === 'multiplayer-open-find' && !ongoing && !hub) ||
+        (id === 'multiplayer-find' && hub) ||
         id === 'multiplayer-access-denial' ||
         (id === 'multiplayer-access-denial-action' && invitation),
       tap: async () => {
-        if (ongoing && id === 'multiplayer-time-control-5-0')
-          throw new Error('the previous game still owns the account');
         taps.push(id);
-        if (id === 'multiplayer-confirm') ongoing = false;
+        if (id === 'multiplayer-open-commands') commands = true;
+        if (id === 'multiplayer-open-find') hub = true;
+        if (id === 'multiplayer-confirm') {
+          ongoing = false;
+          commands = false;
+        }
       },
       expect: {
         hidden: async () => {},
@@ -77,7 +97,12 @@ test('a loading permission surface does not count as a completed search', async 
   // regression: multiplayer-search-transient-denial
   const { ui, taps } = loadingScreen(false);
   await startMultiplayerSearch('5+0')(ui);
-  expect(taps).toEqual(['multiplayer-time-control-5-0', 'multiplayer-find']);
+  expect(taps).toEqual([
+    'multiplayer-open-find',
+    'multiplayer-open-time-control',
+    'multiplayer-time-control-5-0',
+    'multiplayer-find',
+  ]);
 });
 
 test('a chess journey leaves Connect Four choices before finding an opponent', async () => {
@@ -114,10 +139,15 @@ test('a chess journey leaves Connect Four choices before finding an opponent', a
 test('a monitor left in an unfinished game retires it before finding a new opponent', async () => {
   const { ui, taps } = loadingScreen(false, true);
   await startMultiplayerSearch('5+0')(ui);
+  // Its commands are one press from the board; once it is over, the
+  // search's hub is one row from its result, and the clock one row on.
   expect(taps).toEqual([
+    'multiplayer-open-commands',
     'multiplayer-abort',
     'multiplayer-confirm',
     'multiplayer-dismiss',
+    'multiplayer-open-find',
+    'multiplayer-open-time-control',
     'multiplayer-time-control-5-0',
     'multiplayer-find',
   ]);
@@ -134,6 +164,8 @@ test('a pre-existing search waits for its accepted waiting row before the next p
   const { ui, taps } = loadingScreen(false);
   await establishMultiplayerSearch('5+0')(ui);
   expect(taps).toEqual([
+    'multiplayer-open-find',
+    'multiplayer-open-time-control',
     'multiplayer-time-control-5-0',
     'multiplayer-find',
     'waiting-row-shown',
@@ -153,7 +185,8 @@ test('the same completed board on both devices is not a newly matched game', asy
       expect: {
         ...node.expect,
         visible: async () => {
-          if (id === 'multiplayer-abort')
+          // A game that is over has no commands to open, so no Abort.
+          if (id === 'multiplayer-open-commands')
             throw new Error('there is no ongoing game');
         },
       },
@@ -173,7 +206,7 @@ test('the same completed board on both devices is not a newly matched game', asy
 test('recovery setup can establish its unfinished game beyond the separate timed pairing assertion', async () => {
   const { ui } = loadingScreen(false);
   ui.snapshotHtml = async () =>
-    '<label data-selected="true"><input data-testid="multiplayer-time-control-5-0"></label><div data-testid="multiplayer-game" data-game-id="fresh-game" data-outcome="ongoing"></div>';
+    '<div data-testid="multiplayer-game" data-game-id="fresh-game" data-outcome="ongoing"></div>';
   const get = ui.get.bind(ui);
   const moves: string[] = [];
   ui.get = (id) => {
@@ -262,13 +295,18 @@ test('cleanup stops a waiting search before ending its space', async () => {
 test('a previous 2+1 choice is changed to the requested 5+0 before finding an opponent', async () => {
   const { ui, taps } = loadingScreen(false);
   await startMultiplayerSearch('5+0')(ui);
-  expect(await ui.snapshotHtml()).toContain(
-    'data-testid="multiplayer-time-control-5-0"'
-  );
-  expect(taps).toEqual(['multiplayer-time-control-5-0', 'multiplayer-find']);
+  expect(
+    await ui.get('multiplayer-open-time-control').attribute('data-time-control')
+  ).toBe('5+0');
+  expect(taps).toEqual([
+    'multiplayer-open-find',
+    'multiplayer-open-time-control',
+    'multiplayer-time-control-5-0',
+    'multiplayer-find',
+  ]);
 });
 
-test('an unchanged 2+1 radio refuses to start a search requested at 5+0', async () => {
+test('an unchanged 2+1 clock refuses to start a search requested at 5+0', async () => {
   const { ui, taps } = loadingScreen(false);
   const get = ui.get.bind(ui);
   ui.get = (id) => ({ ...get(id), key: async () => {} });
@@ -329,7 +367,13 @@ test.each([
     await retirePreviousMultiplayer(ui);
     expect(taps).toEqual(
       ongoing
-        ? ['multiplayer-abort', 'multiplayer-confirm', 'multiplayer-dismiss']
+        ? [
+            'multiplayer-open-commands',
+            'multiplayer-abort',
+            'multiplayer-confirm',
+            'multiplayer-dismiss',
+            'multiplayer-open-find',
+          ]
         : []
     );
   }

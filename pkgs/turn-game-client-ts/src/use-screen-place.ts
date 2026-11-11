@@ -1,4 +1,10 @@
-import { type Accessor, createMemo, createSignal } from 'solid-js';
+import {
+  type Accessor,
+  createComputed,
+  createMemo,
+  createSignal,
+  on,
+} from 'solid-js';
 import {
   type OpenedPlace,
   placeBehind,
@@ -34,6 +40,10 @@ export function useScreenPlace<Stage extends string, Place extends ScreenPlace>(
   const [opened, setOpened] = createSignal<OpenedPlace<Stage, Place> | null>(
     null
   );
+  // A place does not outlive its stage: once the stage changes it is
+  // forgotten, so returning to that stage later opens on its home again
+  // (a game menu left open when a game ends is not there for the rematch).
+  createComputed(on(stage, () => setOpened(null), { defer: true }));
   const place = createMemo(() => placeIn(places, stage(), opened()));
   return {
     place,

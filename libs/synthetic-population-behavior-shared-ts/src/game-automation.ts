@@ -36,6 +36,42 @@ export async function openMultiplayer(
   await driver.get(FIND_AN_OPPONENT).tap();
 }
 
+const PLACE_WAIT_MS = 1000;
+
+/**
+ * The search's hub, where Find is: an idle screen opens on it once it has
+ * read the game and the search, and a finished game keeps it one row from
+ * its result.
+ */
+async function openSearchHub(driver: Driver): Promise<void> {
+  const hub = driver.get('multiplayer-find');
+  await hub.wait('visible', { visibleOr: ['multiplayer-open-find'] });
+  if (await hub.isVisible()) return;
+  await driver.get('multiplayer-open-find').tap();
+  await hub.wait('visible');
+}
+
+/**
+ * The person's clock, chosen on its own place one row from the hub, which
+ * returns to the hub with it. A game without clock choices has no such row,
+ * and a clock the game does not offer leaves the hub's own choice.
+ */
+async function chooseClock(driver: Driver, clock: string): Promise<void> {
+  const row = driver.get('multiplayer-open-time-control');
+  if (!(await row.isVisible())) return;
+  await row.tap();
+  const choice = driver.get(
+    `multiplayer-time-control-${clock.replace('+', '-')}`
+  );
+  try {
+    await choice.wait('visible', { timeoutMs: PLACE_WAIT_MS });
+    await choice.tap();
+  } catch {
+    await driver.get(Handles.navBack).tap();
+  }
+  await driver.get('multiplayer-find').wait('visible');
+}
+
 /**
  * Find an opponent for the game a person waits in, through the same
  * controls a person uses: back to the space's games when another game is
@@ -50,12 +86,8 @@ export async function findOpponentFor(
     if (await driver.get(Handles.gameMenu(demand.gameId)).isVisible()) {
       await driver.get(Handles.gameMenu(demand.gameId)).tap();
       await driver.get(FIND_AN_OPPONENT).tap();
-      await driver.get('multiplayer-find').wait('visible');
-      const clock = demand.timeControl.split('/').at(-1) ?? '';
-      const choice = driver.get(
-        `multiplayer-time-control-${clock.replace('+', '-')}`
-      );
-      if (await choice.isVisible()) await choice.tap();
+      await openSearchHub(driver);
+      await chooseClock(driver, demand.timeControl.split('/').at(-1) ?? '');
       await driver.get('multiplayer-find').tap();
       return true;
     }
