@@ -3,7 +3,10 @@
  * `%BRAND_NAME%` and `%BRAND_THEME_COLOR%`, and the build replaces them
  * (`brandHtmlPlugin` for Vite, `renderBrandHtml` anywhere else).
  */
-import { PRODUCT, type ProductIdentity } from './product-identity.ts';
+import {
+  PRODUCT,
+  type ProductIdentity,
+} from '@libs/product-identity-shared-ts/product-identity';
 
 export function renderBrandHtml(
   html: string,

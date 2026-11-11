@@ -2,13 +2,13 @@
 import { describe, expect, test } from 'bun:test';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { BRAND_ARTIFACTS } from '@libs/product-identity-shared-ts/brand-artifacts';
+import { BRAND_ARTIFACTS } from '@libs/product-brand-shared-ts/brand-artifacts';
 import {
   brandMarkSource,
   renderBrandMark,
-} from '@libs/product-identity-shared-ts/brand-mark';
+} from '@libs/product-brand-shared-ts/brand-mark';
+import { syntheticIdentity } from '@libs/product-brand-shared-ts/synthetic-identity';
 import { PRODUCT } from '@libs/product-identity-shared-ts/product-identity';
-import { syntheticIdentity } from '@libs/product-identity-shared-ts/synthetic-identity';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import fc from 'fast-check';
 import sharp from 'sharp';

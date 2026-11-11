@@ -2,9 +2,9 @@
 import { describe, expect, test } from 'bun:test';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { BRAND_ARTIFACTS } from '@libs/product-identity-shared-ts/brand-artifacts';
+import { BRAND_ARTIFACTS } from '@libs/product-brand-shared-ts/brand-artifacts';
+import { syntheticIdentity } from '@libs/product-brand-shared-ts/synthetic-identity';
 import { PRODUCT } from '@libs/product-identity-shared-ts/product-identity';
-import { syntheticIdentity } from '@libs/product-identity-shared-ts/synthetic-identity';
 
 const ROOT = join(import.meta.dir, '../../..');
 const FIX = 'bun run libs/tools-harness-ts/scripts/generate-brand-artifacts.ts';
