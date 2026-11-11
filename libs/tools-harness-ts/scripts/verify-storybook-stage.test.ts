@@ -63,3 +63,30 @@ test('uncached Storybook coverage stays with its gate while units and the other 
   ).toEqual([`${owner}#storybook:build`]);
   expect(plan.shards.flatMap((item) => item.tasks)).toHaveLength(names.length);
 });
+
+// regression: storybook-part-exceeds-release-task-budget
+test('every Storybook part is a script and a task that runs its own shard', () => {
+  const read = (file: string) =>
+    JSON.parse(
+      readFileSync(
+        new URL(`../../../pkgs/ui-root-harness-ts/${file}`, import.meta.url),
+        'utf8'
+      )
+    ) as {
+      scripts?: Record<string, string>;
+      tasks?: Record<string, unknown>;
+    };
+  const scripts = read('package.json').scripts ?? {};
+  const tasks = read('turbo.json').tasks ?? {};
+  const parts = Object.keys(scripts).filter((name) =>
+    name.startsWith('ci:storybook:')
+  );
+  expect(parts).toHaveLength(STORYBOOK_PARTS);
+  for (let part = 0; part < STORYBOOK_PARTS; part++) {
+    const name = `ci:storybook:${String(part)}`;
+    expect(scripts[name]).toContain(
+      `--shard=${String(part + 1)}/${String(STORYBOOK_PARTS)}`
+    );
+    expect(tasks[name]).toBeDefined();
+  }
+});

@@ -129,11 +129,13 @@ export const RELEASE_JOURNEY_TASKS = Array.from(
 /**
  * The representative Storybook browser suite in parts
  * (`playwright test --shard=<k+1>/<n>`): as one task its 1300-odd checks on
- * two workers outran the 2400 s task budget. Storybook coverage gates with
- * the first part (its `dependsOn`), so the other parts share no shard with
- * that uncached prerequisite and run side by side.
+ * two workers outran the 2400 s task budget, and once the pull-request gate
+ * ran it, each of four parts outran the 600 s release task budget. Storybook
+ * coverage gates with the first part (its `dependsOn`), so the other parts
+ * share no shard with that uncached prerequisite and run side by side.
  */
-export const STORYBOOK_PARTS = 4;
+// regression: storybook-part-exceeds-release-task-budget
+export const STORYBOOK_PARTS = 8;
 export const STORYBOOK_TASKS = Array.from(
   { length: STORYBOOK_PARTS },
   (_, part) => `@pkgs/ui-root-harness-ts#ci:storybook:${String(part)}`
