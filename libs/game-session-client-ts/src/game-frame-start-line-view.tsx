@@ -1,4 +1,5 @@
 import type { CustomGameInput } from '@libs/game-session-shared-ts/custom-game-choice';
+import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
@@ -66,14 +67,20 @@ export function FrameReadinessButton(props: StartProps): JSX.Element {
   );
 }
 
+/**
+ * Start, once the viewer is ready: held back, with the line over it saying
+ * why, until the game can start. Before that their own readiness is the
+ * one command, so the dock never shows a start that cannot be pressed
+ * beside the thing to press.
+ */
 function StartButton(props: StartProps): JSX.Element {
   return (
-    <Show when={props.start.canStart}>
+    <Show when={props.start.canStart && !mustGetReady(props.start)}>
       <GameActionButton
         title={<Trans>Start game</Trans>}
         dataSet={{ testid: 'custom-game-start' }}
-        variant={mustGetReady(props.start) ? 'outline' : 'solid'}
-        size={mustGetReady(props.start) ? undefined : 'lg'}
+        variant="solid"
+        size="lg"
         operation={() => props.onChoose({ operation: 'start' })}
         disabled={props.start.reason !== null}
       />
@@ -100,11 +107,26 @@ function ReadinessCommand(props: StartProps): JSX.Element {
 }
 
 /**
+ * The line over the dock's command. The last person everyone waits for is
+ * told so in the second person, never counted as "1 person".
+ */
+function startLine(start: FrameStart): string {
+  const reason = start.reason;
+  const last =
+    reason?.kind === 'unready' && reason.count === 1 && mustGetReady(start);
+  if (!last) return frameStartLine(reason);
+  return start.canStart
+    ? t`Everyone else is in. Get ready to start.`
+    : t`Everyone else is ready. Get ready to play.`;
+}
+
+/**
  * Starting the game, in the lobby's dock: why it cannot start yet (or
  * "Ready to start."), then the one thing to do next as the dock's filled
  * command, first. Arranging an incomplete private setup comes first, then
  * getting ready; once the viewer is ready Start leads, held back until the
  * game can start, and taking readiness back is the quiet command under it.
+ * Start is not shown before then: one filled command, nothing inert.
  * Someone who may not start it is told the host will. A member with no
  * seat (`seat`) takes one here.
  */
@@ -116,7 +138,7 @@ export function FrameStartView(
       status={
         <>
           <P variant="bodyBold" role="status" testId="custom-game-startable">
-            {frameStartLine(props.start.reason)}
+            {startLine(props.start)}
           </P>
           <Show when={props.start.hostStarts}>
             <P
@@ -131,18 +153,8 @@ export function FrameStartView(
       }
     >
       {props.seat}
-      <Show
-        when={mustGetReady(props.start)}
-        fallback={
-          <>
-            <StartButton {...props} />
-            <ReadinessCommand {...props} />
-          </>
-        }
-      >
-        <ReadinessCommand {...props} />
-        <StartButton {...props} />
-      </Show>
+      <StartButton {...props} />
+      <ReadinessCommand {...props} />
     </GameLobbyDock>
   );
 }

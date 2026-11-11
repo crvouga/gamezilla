@@ -11,7 +11,20 @@
   border-radius: inherit;
   container-type: size;
 }
-/* The versus card: one press target that fills the board. */
+/* The versus card covers the whole stage, the seats with the board, so
+   nobody is named twice while it shows. */
+:global([data-game-board-stage]):has(.versus) {
+  position: relative;
+}
+:global([data-game-board-stage]):has(.versus) > :global([data-game-board]) {
+  position: static;
+}
+:global([data-game-board-stage]):has(.versus)
+  > :global([data-game-board])
+  > .overlay {
+  border-radius: var(--ui-radius-card);
+}
+/* The versus card: one press target that fills the stage. */
 .versus {
   position: relative;
   display: flex;
@@ -26,10 +39,6 @@
   font: inherit;
   text-align: center;
   cursor: pointer;
-}
-.versus:focus-visible {
-  outline: 2px solid var(--ui-color-focus-ring);
-  outline-offset: -4px;
 }
 /* Two bands meeting on a slant: the others above, the person's own below. */
 .band {
@@ -51,7 +60,8 @@
   bottom: 0;
   height: 60%;
   align-items: flex-end;
-  padding: var(--ui-space-4) var(--ui-space-4) var(--ui-space-8);
+  /* Room under the person's own side for the Skip control. */
+  padding: var(--ui-space-4) var(--ui-space-4) calc(44px + var(--ui-space-6));
   background: var(--ui-color-tint-active);
   color: var(--ui-color-on-primary);
   clip-path: polygon(0 32%, 100% 0, 100% 100%, 0 100%);
@@ -175,16 +185,45 @@
 .line {
   position: absolute;
   inset-inline: 0;
+  top: 0;
   padding: var(--ui-space-2) var(--ui-space-3);
+  color: var(--ui-color-text-secondary);
   pointer-events: none;
 }
-.line[data-edge="top"] {
-  top: 0;
-  color: var(--ui-color-text-secondary);
+/* The one control: a pill at the foot, a full touch target. */
+.skipArea {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
 }
-.line[data-edge="bottom"] {
-  bottom: 0;
+.skip {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  bottom: var(--ui-space-3);
+  left: 50%;
+  min-width: 96px;
+  min-height: 44px;
+  margin: 0;
+  padding: 0 var(--ui-space-5);
+  transform: translateX(-50%);
+  border: 1px solid var(--ui-color-on-primary);
+  border-radius: var(--ui-radius-full);
+  background: transparent;
   color: var(--ui-color-on-primary);
+  cursor: pointer;
+}
+.skipArea:focus-visible {
+  outline: none;
+}
+.skipArea:focus-visible .skip {
+  outline: 2px solid var(--ui-color-on-primary);
+  outline-offset: 2px;
 }
 
 /* The result: the final board dimmed behind one small card. */

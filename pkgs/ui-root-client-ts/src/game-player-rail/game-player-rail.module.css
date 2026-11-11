@@ -46,6 +46,12 @@
 
 /* One line, so the rail keeps its height and a name never breaks mid-word;
    the full name stays the text (accessible name) and the title. */
+.chipName > * {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .chipName {
   white-space: nowrap;
   overflow: hidden;
@@ -57,4 +63,13 @@
   /* A badge's height whether or not one shows, so a seat that goes Out
      (or turns You) never grows its chip and shifts the board below. */
   min-height: var(--ui-space-xl);
+}
+
+/* Three or more beside a wide board share its width: the swatch names each
+   player's piece, so the avatar steps aside and every name and status
+   reads whole. */
+@container game-column (min-width: 880px) {
+  .playerRail:has(> :nth-child(3)) .chipAvatar {
+    display: none;
+  }
 }

@@ -11,7 +11,7 @@ import {
   GameVersusOverlay,
   type GameVersusSide,
 } from '@pkgs/ui-root-client-ts/game-stage-overlay';
-import { type JSX, Match, Show, Switch } from 'solid-js';
+import { type JSX, Match, Switch } from 'solid-js';
 import type { MultiplayerStage } from './multiplayer-places';
 
 /**
@@ -35,6 +35,8 @@ export type MultiplayerVersusShown = {
   readonly own: readonly GameVersusSide[];
   /** The clock the game is played at, in plain words; none when untimed. */
   readonly clock?: string | undefined;
+  /** The same clock as its figures (`5+0`), beside the game's name. */
+  readonly timeControl?: string | undefined;
 };
 
 /** How the matched game ended, as the result card says it. */
@@ -81,16 +83,8 @@ function VersusCard(
       mark={<Trans>VS</Trans>}
       count={props.count}
       countLabel={<Trans>Starts in</Trans>}
-      mode={
-        <>
-          {props.title} · <Trans>Rated</Trans> ·{' '}
-          <Show when={props.versus.clock} fallback={<Trans>Untimed</Trans>}>
-            {props.versus.clock}
-          </Show>
-        </>
-      }
-      skipLabel={<Trans>Tap to skip</Trans>}
-      aria-label={t`Opponent found. The game is starting. Skip to the board.`}
+      skipLabel={<Trans>Skip</Trans>}
+      aria-label={t`Opponent found. The game is starting.`}
       onSkip={() => props.onOverlay({ type: 'skip' })}
       dataSet={{ testid: 'multiplayer-versus', count: String(props.count) }}
     />

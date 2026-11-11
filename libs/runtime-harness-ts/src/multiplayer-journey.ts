@@ -146,6 +146,9 @@ async function playsWhite(ui: Driver): Promise<boolean> {
   return ((await ui.get('multiplayer-colour').text()) ?? '').includes('White');
 }
 
+/** A move as the move list shows it: its place in the game and its notation. */
+type ListedMove = { readonly ply: number; readonly san: string };
+
 const MOVE_ATTEMPTS = 6;
 const MOVE_SETTLE_MS = JOURNEY_WAIT_MS / MOVE_ATTEMPTS;
 
@@ -158,17 +161,20 @@ const MOVE_SETTLE_MS = JOURNEY_WAIT_MS / MOVE_ATTEMPTS;
 function tapMove(
   from: { readonly x: number; readonly y: number },
   to: { readonly x: number; readonly y: number },
-  expectedMoves: string,
-  previousMoves?: string
+  expected: ListedMove,
+  previous?: ListedMove
 ): (ui: Driver) => Promise<void> {
   return async (ui) => {
-    if (previousMoves !== undefined)
-      await ui.get('multiplayer-move-list').expect.text(previousMoves, {
-        exact: false,
-        timeoutMs: JOURNEY_WAIT_MS,
-      });
+    if (previous !== undefined)
+      await ui
+        .get(`multiplayer-move-${String(previous.ply)}`)
+        .expect.text(previous.san, {
+          exact: false,
+          timeoutMs: JOURNEY_WAIT_MS,
+        });
     const board = ui.get('multiplayer-board');
-    const moveList = ui.get('multiplayer-move-list');
+    const moveList = ui.get(`multiplayer-move-${String(expected.ply)}`);
+    const expectedMoves = expected.san;
     for (let attempt = 0; attempt < MOVE_ATTEMPTS; attempt += 1) {
       await board.layout();
       await board.tapAt({ xRatio: from.x / 8, yRatio: from.y / 8 });
@@ -190,13 +196,15 @@ function tapMove(
   };
 }
 
+const E4: ListedMove = { ply: 1, san: 'e4' };
+
 /** White's board: e2 to e4. Black's board is turned round: e7 to e5. */
-export const PLAY_E4 = tapMove({ x: 4.5, y: 6.5 }, { x: 4.5, y: 4.5 }, '1. e4');
+export const PLAY_E4 = tapMove({ x: 4.5, y: 6.5 }, { x: 4.5, y: 4.5 }, E4);
 export const PLAY_E5 = tapMove(
   { x: 3.5, y: 6.5 },
   { x: 3.5, y: 4.5 },
-  '1. e4 e5',
-  '1. e4'
+  { ply: 2, san: 'e5' },
+  E4
 );
 
 /** Whoever plays White opens with e4, and the other answers e5. */

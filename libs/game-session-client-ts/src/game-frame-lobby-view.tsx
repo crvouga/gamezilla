@@ -1,5 +1,6 @@
 import { Trans } from '@lingui/solid/macro';
 import { Badge, HostBadge } from '@pkgs/ui-root-client-ts/badge';
+import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import {
   GameModeCard,
@@ -109,7 +110,11 @@ function SeatState(props: { readonly seat: FrameSetupSeat }): JSX.Element {
         <Badge intent="neutral" label={<Trans>Not ready</Trans>} />
       </Match>
       <Match when={kind() === 'invitation'}>
-        <Badge intent="warning" label={<Trans>Invited</Trans>} />
+        <Badge
+          intent="warning"
+          label={<Trans>Invited</Trans>}
+          dataSet={{ testid: `custom-game-${props.seat.side}-invited` }}
+        />
       </Match>
       <Match when={kind() === 'open'}>
         <Badge intent="brand" label={<Trans>Open</Trans>} />
@@ -253,8 +258,7 @@ function AgreedRows(
       when={
         rules() !== null ||
         options()?.clock != null ||
-        props.setup.privateSetup !== null ||
-        props.play.canCancel
+        props.setup.privateSetup !== null
       }
     >
       <MenuSection title={<Trans>Game</Trans>}>
@@ -318,15 +322,6 @@ function AgreedRows(
               dataSet={{ testid: 'custom-game-setup-open' }}
             />
           )}
-        </Show>
-        <Show when={props.play.canCancel}>
-          <MenuRow
-            title={<Trans>Cancel game</Trans>}
-            tone="destructive"
-            hideChevron
-            onClick={() => props.onConfirm('cancel')}
-            dataSet={{ testid: 'custom-game-cancel' }}
-          />
         </Show>
       </MenuSection>
     </Show>
@@ -447,6 +442,19 @@ export function FrameLobbyPlace(
         </Index>
       </MenuSection>
       <AgreedRows {...props} />
+      {/* Calling the game off: last on the page, quiet, and it asks first. */}
+      <Show when={props.play.canCancel}>
+        <GameActions>
+          <Button
+            title={<Trans>Cancel game</Trans>}
+            variant="ghost"
+            intent="danger"
+            size="sm"
+            onClick={() => props.onConfirm('cancel')}
+            dataSet={{ testid: 'custom-game-cancel' }}
+          />
+        </GameActions>
+      </Show>
     </FrameLobbyPage>
   );
 }

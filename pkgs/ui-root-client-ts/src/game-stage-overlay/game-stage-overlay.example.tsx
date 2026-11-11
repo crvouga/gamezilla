@@ -62,8 +62,8 @@ function Versus(props: GameStageOverlayExampleProps): JSX.Element {
       count={props.count}
       countLabel="Starts in"
       mode="Connect Four · Rated · 5 min"
-      skipLabel="Tap to skip"
-      aria-label="River versus Atlas. Skip to the board."
+      skipLabel="Skip"
+      aria-label="River versus Atlas. The game is starting."
       onSkip={props.onSkip}
       dataSet={{ testid: 'example-versus' }}
     />

@@ -5,7 +5,7 @@
  */
 
 import { afterEach, describe, expect, test } from 'bun:test';
-import { cleanup, screen } from '@solidjs/testing-library';
+import { cleanup, screen, within } from '@solidjs/testing-library';
 import { FINISHED, GAME, mountPlaces } from './multiplayer-places-fixture';
 
 afterEach(cleanup);
@@ -178,9 +178,10 @@ describe('play holds the board and one way to the commands', () => {
     );
     view.set({ game: { ...GAME, draw: 'answer' } });
     expect(ids('multiplayer-offer-draw-now')).toEqual([]);
-    expect(
-      ids('multiplayer-accept-draw', 'multiplayer-leave-now')
-    ).toHaveLength(2);
+    // The answer comes first: leaving waits in the menu until it is given.
+    expect(ids('multiplayer-accept-draw')).toHaveLength(1);
+    expect(ids('multiplayer-leave-now')).toEqual([]);
+    expect(ids('multiplayer-open-commands')).toHaveLength(1);
   });
 
   // The versus card: only a match this device watched being found plays it.
@@ -193,13 +194,16 @@ describe('play holds the board and one way to the commands', () => {
     expect(card.getAttribute('data-count')).toBe('3');
     expect(card.textContent).toContain('Bob');
     expect(card.textContent).toContain('alice');
-    expect(card.textContent).toContain('Connect Four · Rated · 5 min');
+    // The mode is said once, in the screen's title, not again on the card.
+    expect(card.textContent).not.toContain('Rated');
     expect(
       screen.getByTestId('slot-board').closest('[data-component]')
     ).toBeTruthy();
     view.time.clock.advance(1000);
     expect(view.overlay()).toEqual({ kind: 'versus', count: 2 });
-    screen.getByTestId('multiplayer-versus').click();
+    within(screen.getByTestId('multiplayer-versus'))
+      .getByRole('button', { name: 'Skip' })
+      .click();
     expect(view.overlay()).toEqual({ kind: 'none' });
     expect(ids('multiplayer-versus')).toEqual([]);
   });
@@ -403,7 +407,7 @@ describe('the moves are a place of their own', () => {
     );
     expect(
       screen.getByTestId('multiplayer-move-1').getAttribute('aria-current')
-    ).toBe('true');
+    ).toBe('step');
     screen.getByTestId('multiplayer-return-to-current').click();
     expect(view.props().commands.returnToCurrent).toHaveBeenCalledTimes(1);
     screen.getByTestId('multiplayer-review-back').click();

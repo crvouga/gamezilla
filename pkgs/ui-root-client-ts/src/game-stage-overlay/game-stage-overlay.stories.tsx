@@ -35,11 +35,11 @@ type Story = StoryObj<GameStageOverlayExampleProps>;
 export const Versus: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
-    const card = canvas.getByRole('button', {
-      name: 'River versus Atlas. Skip to the board.',
+    const card = canvas.getByRole('group', {
+      name: 'River versus Atlas. The game is starting.',
     });
     await expect(card).toHaveTextContent('Starts in3');
-    await userEvent.click(card);
+    await userEvent.click(within(card).getByRole('button', { name: 'Skip' }));
     await expect(args.onSkip).toHaveBeenCalledTimes(1);
   },
 };

@@ -23,7 +23,7 @@ import {
   MultiplayerStatusTitle,
   multiplayerStatusHasDetail,
 } from './multiplayer-status';
-import { timeControlWords } from './time-control-name';
+import { timeControlText, timeControlWords } from './time-control-name';
 import { useMultiplayerViewer } from './use-multiplayer-viewer';
 
 /**
@@ -140,6 +140,7 @@ export function useMultiplayerVersus(
           : sides.filter((side) => side !== own).map(shown),
       own: own === null ? sides.slice(half).map(shown) : [shown(own)],
       clock: timeControlWords(current.time_control) || undefined,
+      timeControl: timeControlText(current.time_control) || undefined,
     };
   };
 }

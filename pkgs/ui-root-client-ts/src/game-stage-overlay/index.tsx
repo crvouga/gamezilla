@@ -69,9 +69,9 @@ export type GameVersusOverlayProps = {
   countLabel: JSX.Element;
   /** What is being played, in one line: the game, its clock, rated or not. */
   mode?: JSX.Element | undefined;
-  /** Under everything: how to go straight to the board (`Tap to skip`). */
+  /** The one control, at the foot: straight to the board (`Skip`). */
   skipLabel: JSX.Element;
-  /** The whole card's accessible name. */
+  /** The card's accessible name: who plays whom. */
   'aria-label': string;
   onSkip: () => void;
   dataSet?: ComponentDataSet | undefined;
@@ -81,10 +81,12 @@ export type GameVersusOverlayProps = {
  * `GameVersusOverlay` -- who plays whom, over the board, in the seconds
  * before a game this device watched begin: the other players in a band
  * above, the person's own side in the accent band below, the mark between
- * them and a count down to the board. The whole card is one button: a press
- * (or Enter) goes straight to the board. It only shows a count it is given;
- * the stage's overlay machine owns the time. Motion is entrance only and is
- * dropped under reduced motion.
+ * them and a count down to the board. It covers the whole stage, the seats
+ * included, so nobody is named twice. Its one control is a real button
+ * (`skipLabel`) that goes straight to the board; a press anywhere on the
+ * card does the same. It only shows a count it is given; the stage's
+ * overlay machine owns the time. Motion is entrance only and is dropped
+ * under reduced motion.
  *
  * @example
  * ```tsx
@@ -92,41 +94,47 @@ export type GameVersusOverlayProps = {
  *   <GameVersusOverlay
  *     others={[{ id: 'yellow', name: 'jordan', avatar: <Avatar size={56} /> }]}
  *     own={[{ id: 'red', name: 'avery', avatar: <Avatar size={56} /> }]}
- *     mark="VS" count={3} countLabel="Starts in" skipLabel="Tap to skip"
- *     aria-label="avery versus jordan. Skip to the board." onSkip={skip}
+ *     mark="VS" count={3} countLabel="Starts in" skipLabel="Skip"
+ *     aria-label="avery versus jordan" onSkip={skip}
  *   />
  * }>{board}</GameBoardStage>
  * ```
  */
 export function GameVersusOverlay(props: GameVersusOverlayProps): JSX.Element {
   return (
-    <button
-      type="button"
+    <div
+      role="group"
       class={styles['versus']}
       aria-label={props['aria-label']}
-      onClick={() => props.onSkip()}
       {...dataAttrs({ component: 'GameVersusOverlay', ...props.dataSet })}
     >
       <VersusBand edge="top" sides={props.others} />
       <VersusBand edge="bottom" sides={props.own} />
       <Show when={props.mode}>
-        <span class={`text textCaption ${styles['line']}`} data-edge="top">
-          {props.mode}
-        </span>
+        <span class={`text textCaption ${styles['line']}`}>{props.mode}</span>
       </Show>
       <span class={styles['centre']}>
         <span class={styles['mark']}>{props.mark}</span>
-        <span class={styles['count']}>
+        <span class={styles['count']} aria-live="off">
           <span class="text textCaption">{props.countLabel}</span>
           <span class="text textStat textNumeral" data-versus-count>
             {props.count}
           </span>
         </span>
       </span>
-      <span class={`text textCaption ${styles['line']}`} data-edge="bottom">
-        {props.skipLabel}
-      </span>
-    </button>
+      {/* One button over the whole card, drawn as the pill at its foot:
+          a press anywhere on the card is the way to the board. */}
+      <button
+        type="button"
+        class={styles['skipArea']}
+        onClick={() => props.onSkip()}
+        data-versus-skip
+      >
+        <span class={`text textLabel ${styles['skip']}`}>
+          {props.skipLabel}
+        </span>
+      </button>
+    </div>
   );
 }
 

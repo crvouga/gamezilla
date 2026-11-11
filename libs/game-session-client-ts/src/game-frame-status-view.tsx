@@ -156,6 +156,7 @@ export function FrameConnectionView(props: {
   return (
     <Show when={props.connection !== 'online'}>
       <Notice
+        tone={props.connection === 'needed' ? 'warning' : undefined}
         icon={WifiOffIcon}
         dataSet={{ testid: 'custom-game-connection-needed' }}
       >

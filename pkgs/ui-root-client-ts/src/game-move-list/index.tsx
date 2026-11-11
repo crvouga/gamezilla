@@ -227,6 +227,9 @@ function TurnList(props: GameMoveListProps): JSX.Element {
     const move = marked.getBoundingClientRect();
     if (move.bottom > box.bottom) root.scrollTop += move.bottom - box.bottom;
     else if (move.top < box.top) root.scrollTop -= box.top - move.top;
+    // Laid out as one line (over a phone's board) it scrolls sideways.
+    if (move.right > box.right) root.scrollLeft += move.right - box.right;
+    else if (move.left < box.left) root.scrollLeft -= box.left - move.left;
   };
   createEffect(() => {
     void props.current;

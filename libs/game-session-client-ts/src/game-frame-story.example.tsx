@@ -348,7 +348,7 @@ export const FRAME_HELD: Partial<GameFrameScreenViewProps> = {
     near: playSeat(AVERY),
     others: [playSeat(JORDAN)],
   },
-  play: FRAME_NO_PLAY,
+  play: { ...FRAME_NO_PLAY, heldOfferDraw: true, heldResign: true },
 };
 
 /** A finished two-seat game the viewer won: the result, with the moves to review. */

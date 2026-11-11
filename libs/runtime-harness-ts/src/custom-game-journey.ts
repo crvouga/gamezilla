@@ -160,8 +160,7 @@ export async function inviteToBlack(ui: Driver): Promise<void> {
   // The seat's own place, then the list of people: pressing one invites them.
   await tap(ui, 'custom-game-black-invite-choose');
   await tap(ui, 'custom-game-black-invitable');
-  await ui.get('custom-game-black-person').expect.text('Invited:', {
-    exact: false,
+  await ui.get('custom-game-black-invited').expect.visible({
     timeoutMs: JOURNEY_WAIT_MS,
   });
 }

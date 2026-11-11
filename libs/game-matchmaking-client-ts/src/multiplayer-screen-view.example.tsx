@@ -1,10 +1,11 @@
 import { ConnectFourStoryBoard } from '@libs/game-session-client-ts/connect-four-story-board.example';
+import { SpacePersonAvatar } from '@libs/spaces-client-ts/space-person-view';
+import { AVERY, JORDAN } from '@libs/spaces-client-ts/spaces-story.example';
 import {
   NO_STAGE_OVERLAY,
   type StageOverlay,
   stageOverlayAfter,
 } from '@pkgs/turn-game-client-ts/stage-overlay';
-import { Avatar } from '@pkgs/ui-root-client-ts/avatar';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
@@ -119,14 +120,14 @@ export function storyCommands(): MultiplayerGameCommands {
   };
 }
 
+/** The two players as the app shows them: each with their own picture. */
 function StoryAvatar(props: {
   readonly who: 'alice' | 'bob';
   readonly size: number;
 }): JSX.Element {
   return (
-    <Avatar
-      initials={props.who === 'alice' ? 'A' : 'B'}
-      you={props.who === 'alice'}
+    <SpacePersonAvatar
+      person={props.who === 'alice' ? AVERY : JORDAN}
       size={props.size}
     />
   );
@@ -157,6 +158,7 @@ function storyVersus(): MultiplayerVersusShown {
       },
     ],
     clock: '5 min',
+    timeControl: '5+0',
   };
 }
 
@@ -181,7 +183,7 @@ function StoryStage(props: {
           name="Bob (1487)"
           avatar={<StoryAvatar who="bob" size={GAME_PLAYER_AVATAR_SIZE} />}
           swatch={{ color: 'disc-two' }}
-          tags={<Badge intent="neutral" label="Yellow" />}
+          swatchLabel="Yellow"
         />
       }
       own={
@@ -189,7 +191,9 @@ function StoryStage(props: {
           name="alice"
           avatar={<StoryAvatar who="alice" size={GAME_PLAYER_AVATAR_SIZE} />}
           swatch={{ color: 'disc-one' }}
+          swatchLabel="Red"
           tags={<Badge intent="neutral" label="You play Red" />}
+          tagsPlacement="inline"
           active={props.active}
           turnLabel="Your move"
         />
@@ -208,10 +212,10 @@ function StoryAnnouncement(props: {
   return (
     <GameTurnPill
       live
+      spokenOnly={props.detail === undefined}
       emphasis="yours"
       title={props.title}
       detail={props.detail}
-      trailing={<Badge intent="neutral" label="5+0" />}
     />
   );
 }

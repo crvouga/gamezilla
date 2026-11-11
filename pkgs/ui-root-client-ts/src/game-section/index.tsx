@@ -47,7 +47,7 @@ export function GameSection(props: {
       data-section-media={media.present()}
       {...dataAttrs({ component: 'GameSection', ...props.dataSet })}
     >
-      <div class="box gap-1">
+      <div class="box gap-1" data-section-part="head">
         <div class="box flex-row items-center justify-between gap-2 min-w-0">
           <h2 id={id} class="text textNavigationTitle min-w-0">
             {props.title}
@@ -66,7 +66,10 @@ export function GameSection(props: {
       </div>
       {props.children}
       <Show when={footer.present()}>
-        <div class={`${styles['sectionFooter']} ${split['sectionFoot']}`}>
+        <div
+          class={`${styles['sectionFooter']} ${split['sectionFoot']}`}
+          data-section-part="foot"
+        >
           {footer.content()}
         </div>
       </Show>

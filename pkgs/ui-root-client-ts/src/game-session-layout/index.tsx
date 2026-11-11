@@ -113,6 +113,7 @@ export function GameSessionLayout(props: GameSessionLayoutProps): JSX.Element {
       class={`box gap-4 min-w-0 pb-6 ${styles['session']}`}
       classList={{ [fixed['fixed'] ?? '']: props.fixedStage === true }}
       data-board-focus={props.boardFocus === true}
+      data-game-fixed={props.fixedStage === true}
       {...dataAttrs({ component: 'GameSessionLayout', ...props.dataSet })}
     >
       <Show when={header.present()}>{header.content()}</Show>

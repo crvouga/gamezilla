@@ -235,10 +235,11 @@ describe('the lobby', () => {
     expect(filled().map((button) => button.dataset['testid'])).toEqual([
       'custom-game-ready',
     ]);
-    // Start is there, held back, and the line says why.
-    expect(screen.getByTestId('custom-game-start')).toBeDisabled();
+    // No start that cannot be pressed sits beside it, and the line
+    // speaks to the one person everyone waits for.
+    expect(screen.queryByTestId('custom-game-start')).toBeNull();
     expect(screen.getByTestId('custom-game-startable').textContent).toBe(
-      'Waiting for 1 person to be ready.'
+      'Everyone else is in. Get ready to start.'
     );
   });
 

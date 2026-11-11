@@ -10,6 +10,7 @@ import { GameTableSeats } from '@pkgs/ui-root-client-ts/game-table-seat';
 import { GameWatcherCount } from '@pkgs/ui-root-client-ts/game-watching';
 import { MenuIcon } from '@pkgs/ui-root-client-ts/icons';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
+import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import { type JSX, Show } from 'solid-js';
 import { FrameMovesCard } from './game-frame-moves-view';
 import { FrameOverlay } from './game-frame-overlay-view';
@@ -180,6 +181,35 @@ export function commandsOffered(props: Props): boolean {
 }
 
 /**
+ * Offering a draw and resigning while the connection is away: still in
+ * their places, held back, under the notice that says why.
+ */
+function HeldActions(props: Props): JSX.Element {
+  return (
+    <>
+      <Show when={props.play.heldOfferDraw}>
+        <Button
+          title={<Trans>Offer draw</Trans>}
+          variant="outline"
+          intent="neutral"
+          disabled
+          dataSet={{ testid: 'custom-game-offer-draw-held' }}
+        />
+      </Show>
+      <Show when={props.play.heldResign}>
+        <Button
+          title={<Trans>Resign</Trans>}
+          variant="outline"
+          intent="neutral"
+          disabled
+          dataSet={{ testid: 'custom-game-resign-held' }}
+        />
+      </Show>
+    </>
+  );
+}
+
+/**
  * What is done from the live board: the board's own actions, an answer the
  * game is waiting for (a draw offered, a win to claim), and the one way to
  * everything else, the game's commands.
@@ -190,16 +220,25 @@ function PlayActions(props: Props): JSX.Element {
       aria-label={t`Game actions`}
       items={props.play.boardActions}
       width="content"
+      dataSet={{ answering: String(props.play.canAnswerDraw) }}
     >
       <Show when={props.play.canAnswerDraw}>
         <GameActionButton
-          title={<Trans>Agree draw</Trans>}
+          title={
+            <Trans>
+              Accept<VisuallyHidden> draw</VisuallyHidden>
+            </Trans>
+          }
           variant="solid"
           dataSet={{ testid: 'custom-game-agree' }}
           operation={() => props.onChoose({ operation: 'agree' })}
         />
         <GameActionButton
-          title={<Trans>Decline draw</Trans>}
+          title={
+            <Trans>
+              Decline<VisuallyHidden> draw</VisuallyHidden>
+            </Trans>
+          }
           dataSet={{ testid: 'custom-game-reject' }}
           operation={() => props.onChoose({ operation: 'reject' })}
         />
@@ -219,7 +258,8 @@ function PlayActions(props: Props): JSX.Element {
           operation={() => props.onChoose({ operation: 'offer' })}
         />
       </Show>
-      <Show when={props.play.canResign}>
+      {/* An offered draw is answered first: resigning waits in the menu. */}
+      <Show when={props.play.canResign && !props.play.canAnswerDraw}>
         <Button
           title={<Trans>Resign</Trans>}
           variant="outline"
@@ -228,6 +268,7 @@ function PlayActions(props: Props): JSX.Element {
           dataSet={{ testid: 'custom-game-resign-now' }}
         />
       </Show>
+      <HeldActions {...props} />
       <Show when={commandsOffered(props)}>
         <Button
           title={<Trans>Menu</Trans>}

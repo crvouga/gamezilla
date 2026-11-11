@@ -84,21 +84,6 @@ function versusBands(props: Props): {
   };
 }
 
-/** What is being played, in one line: the game, unrated, its clock. */
-function VersusMode(props: Props): JSX.Element {
-  return (
-    <>
-      {props.title} · <Trans>Unrated</Trans> ·{' '}
-      <Show
-        when={(props.status?.minutes ?? 0) > 0}
-        fallback={<Trans>Untimed</Trans>}
-      >
-        {props.status?.minutes}+{props.status?.increment}
-      </Show>
-    </>
-  );
-}
-
 function FrameVersusOverlay(
   props: Props & { readonly count: number }
 ): JSX.Element {
@@ -110,12 +95,11 @@ function FrameVersusOverlay(
       mark={<Trans>VS</Trans>}
       count={props.count}
       countLabel={<Trans>Starts in</Trans>}
-      mode={<VersusMode {...props} />}
-      skipLabel={<Trans>Tap to skip</Trans>}
+      skipLabel={<Trans>Skip</Trans>}
       aria-label={
         props.status === null
-          ? t`The game is starting. Skip to the board.`
-          : t`${props.status.lineup} The game is starting. Skip to the board.`
+          ? t`The game is starting.`
+          : t`${props.status.lineup} The game is starting.`
       }
       onSkip={() => props.onOverlay({ type: 'skip' })}
       dataSet={{ testid: 'custom-game-versus', count: String(props.count) }}

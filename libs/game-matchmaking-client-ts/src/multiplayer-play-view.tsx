@@ -79,7 +79,7 @@ function DrawAnswer(props: PlayProps): JSX.Element {
         variant="solid"
         title={
           <Trans>
-            Accept<VisuallyHidden> the multiplayer</VisuallyHidden> draw
+            Accept<VisuallyHidden> the multiplayer draw</VisuallyHidden>
           </Trans>
         }
         dataSet={{ testid: 'multiplayer-accept-draw' }}
@@ -117,7 +117,8 @@ function QuickCommands(props: PlayProps): JSX.Element {
           dataSet={{ testid: 'multiplayer-offer-draw-now' }}
         />
       </Show>
-      <Show when={props.game.leave}>
+      {/* An offered draw is answered first: leaving waits in the menu. */}
+      <Show when={props.game.draw === 'answer' ? null : props.game.leave}>
         {(leave) => (
           <Button
             title={
@@ -168,6 +169,7 @@ export function MultiplayerPlayView(props: PlayProps): JSX.Element {
             aria-label={t`Game actions`}
             items={[]}
             width="content"
+            dataSet={{ answering: String(props.game.draw === 'answer') }}
           >
             <DrawAnswer {...props} />
             <QuickCommands {...props} />
@@ -184,6 +186,7 @@ export function MultiplayerPlayView(props: PlayProps): JSX.Element {
               <GameSection title={<Trans>Moves</Trans>}>
                 <MultiplayerMoveList
                   moves={moves()}
+                  perTurn={props.game.players}
                   onChoose={(ply) => {
                     props.commands.chooseMove(ply);
                     props.onOpen({ screen: 'moves' });

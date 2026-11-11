@@ -1,8 +1,8 @@
 /*
  * Opt-in (`GameSessionLayout`'s `fixedStage`): on a phone the game is one
  * fixed view, never a page that scrolls. The column fills the frame under
- * the host's bar; the board takes the frame's whole width and sits in the
- * middle of the room left, with the seats against it; the game's commands
+ * the host's bar; the board takes the frame's whole width with the seats against it,
+ * a third of the spare room above it and the rest below; the game's commands
  * are a bar held at the bottom edge; the rail (the move list) waits behind
  * the game's menu. `GameBoardStage` narrows a board taller than the room
  * (`--game-board-room`), so nothing is cut off and nothing moves. Wider
@@ -52,10 +52,29 @@
     max-width: none;
     overflow: hidden auto;
   }
-  /* Centred in the room; auto margins never cut a taller stage's top off. */
+  /*
+   * The room a tall phone has to spare: a third above the stage, the rest
+   * below it, over the commands. The seats sit against the board and the
+   * top seat near the game's name, so no empty band parts them. Spacers,
+   * not auto margins: the stage keeps its own height (the board's fit
+   * measures it) and a taller stage's top is never cut off.
+   */
+  .fixed [data-game-slot="stage"] {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .fixed [data-game-slot="stage"]::before,
+  .fixed [data-game-slot="stage"]::after {
+    content: "";
+    flex: 1 1 0;
+  }
+  .fixed [data-game-slot="stage"]::after {
+    flex-grow: 2;
+  }
   .fixed [data-game-slot="stage"] > [data-game-board-stage] {
+    flex: none;
     max-width: none;
-    margin-block: auto;
     padding-block: var(--ui-space-2);
     gap: var(--ui-space-2);
   }
@@ -107,11 +126,45 @@
     > [data-variant="solid"]:first-child:nth-last-child(4) {
     grid-column: auto;
   }
+  /* An answer the game waits for and the menu: one row, the answer first. */
+  .fixed
+    [data-game-slot="controls"]
+    [data-component="GameActionBar"][data-answering="true"]
+    > [data-variant="solid"]:first-child {
+    grid-column: auto;
+  }
   .fixed [data-game-slot="controls"] [data-component="GameActionBar"] > * {
     width: 100%;
     min-width: 0;
   }
+  /*
+   * The record: one quiet line of moves over the stage, the latest in view
+   * (`GameMoveList` lays its table out as a strip here). It keeps its line
+   * before the first move, so the board never moves when one lands. The
+   * whole record, and stepping through it, wait behind the game's menu.
+   */
   .fixed [data-game-slot="rail"] {
+    order: -1;
+    flex: none;
+    width: 100%;
+    max-width: none;
+  }
+  .fixed [data-game-slot="rail"] > section {
+    flex-direction: row;
+    align-items: center;
+    height: 40px;
+    padding: 0 var(--ui-space-3);
+    border: 0;
+    border-bottom: 1px solid var(--ui-color-border);
+    border-radius: var(--ui-radius-none);
+    background: transparent;
+    overflow: hidden;
+  }
+  .fixed [data-game-slot="rail"] > section > [data-section-part],
+  .fixed
+    [data-game-slot="rail"]
+    > section
+    > :not([data-component="GameMoveList"], p) {
     display: none;
   }
 }
@@ -130,5 +183,46 @@
   .fixed [data-game-slot="controls"] {
     padding-top: var(--ui-space-1);
     gap: var(--ui-space-1);
+  }
+}
+/* A tall phone gives the seats the room its board cannot use. */
+@media (max-width: 767px) and (min-height: 780px) {
+  .fixed [data-game-slot="stage"] > [data-game-board-stage] {
+    gap: var(--ui-space-3);
+  }
+  .fixed [data-game-board-stage] [data-component="GamePlayerBar"] {
+    padding-block: var(--ui-space-2);
+  }
+}
+/*
+ * Beside a wide board the commands head the rail as one even block: each
+ * the same width, four as two rows of two, never three and a stray one.
+ */
+@container game-column (min-width: 880px) {
+  .fixed [data-game-slot="controls"] [data-component="GameActionBar"] {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
+    width: 100%;
+  }
+  .fixed
+    [data-game-slot="controls"]
+    [data-component="GameActionBar"]:has(> :first-child:nth-last-child(4)) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .fixed [data-game-slot="controls"] [data-component="GameActionBar"] > * {
+    width: 100%;
+    min-width: 0;
+    padding-inline: var(--ui-space-2);
+  }
+}
+/* A wide window shows the whole game too: no page padding to scroll for. */
+@media (min-width: 768px) {
+  [data-component="ScrollViewContent"]:has(
+    > [data-component="GameColumn"] > .fixed
+  ) {
+    padding-bottom: var(--ui-space-2);
+  }
+  .fixed {
+    padding-bottom: 0;
   }
 }

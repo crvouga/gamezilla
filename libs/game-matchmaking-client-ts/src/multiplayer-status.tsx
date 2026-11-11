@@ -17,7 +17,6 @@ import {
 import { Trans } from '@lingui/solid/macro';
 import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { useGameSideLabel } from '@pkgs/turn-game-client-ts/use-game-side-label';
-import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { GameCountdown } from '@pkgs/ui-root-client-ts/game-countdown';
 import type {
   GameTurnPillEmphasis,
@@ -452,14 +451,32 @@ export function MultiplayerStatusTitle(props: StatusProps): JSX.Element {
 }
 
 /**
+ * The seat to move already says whose turn it is (`Your move`), so the
+ * plain line is for a listener only. Anything more (a pause, an offer, a
+ * first-move deadline, a low clock, the result) is shown.
+ */
+function seatsSayIt(props: StatusProps): boolean {
+  return (
+    props.game.outcome === 'ongoing' &&
+    props.game.paused_at_ms === null &&
+    props.lowOnTime === null &&
+    !multiplayerStatusHasDetail(props) &&
+    !awaitingFirstMoves(props)
+  );
+}
+
+/**
  * Where the game stands, in one line under the board: whose turn, or how it
  * ended and why. It is the screen's live announcement, so a listener hears
  * colour, turn, offers and the result as they change.
  */
 export function MultiplayerStatus(props: StatusProps): JSX.Element {
+  // A game's own words about the turn (`First to e5 wins.`) are shown.
+  const turnStatus = useFrameTurnStatus(props);
   return (
     <GameTurnPill
       live
+      spokenOnly={seatsSayIt(props) && turnStatus() === null}
       emphasis={emphasis(props)}
       tone={tone(props)}
       dataSet={{ testid: 'multiplayer-announcement' }}
@@ -473,18 +490,6 @@ export function MultiplayerStatus(props: StatusProps): JSX.Element {
         awaitingFirstMoves(props) ? (
           <FirstMoveCountdown {...props} />
         ) : undefined
-      }
-      trailing={
-        <Show when={timeControlOf(props.game.time_control) !== null}>
-          <Badge
-            intent="neutral"
-            label={
-              <Text variant="inherit" testId="multiplayer-time-control">
-                {timeControlText(props.game.time_control)}
-              </Text>
-            }
-          />
-        </Show>
       }
     />
   );

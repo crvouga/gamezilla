@@ -237,6 +237,7 @@ export function MultiplayerResultView(props: ResultProps): JSX.Element {
               <GameSection title={<Trans>Moves</Trans>}>
                 <MultiplayerMoveList
                   moves={moves()}
+                  perTurn={props.game.players}
                   onChoose={(ply) => {
                     props.commands.chooseMove(ply);
                     props.onOpen({ screen: 'moves' });

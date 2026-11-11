@@ -184,3 +184,53 @@
   align-items: center;
   justify-content: center;
 }
+
+/*
+ * Over a phone's fixed board (`GameSessionLayout`'s `fixedStage`) the table
+ * is one line: every turn in a row that scrolls sideways, the marked move
+ * kept in view, so the record never takes the board's room.
+ */
+@media (max-width: 767px) {
+  [data-game-fixed="true"] [data-game-slot="rail"] .list[data-layout="table"] {
+    flex: 1 1 0;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--ui-space-3);
+    max-height: none;
+    overflow: auto hidden;
+    scrollbar-width: none;
+  }
+  [data-game-fixed="true"]
+    [data-game-slot="rail"]
+    .list[data-layout="table"]
+    .turns {
+    display: flex;
+    flex-direction: row;
+    gap: var(--ui-space-3);
+  }
+  [data-game-fixed="true"]
+    [data-game-slot="rail"]
+    .list[data-layout="table"]
+    .turn {
+    display: flex;
+  }
+  [data-game-fixed="true"]
+    [data-game-slot="rail"]
+    .list[data-layout="table"]
+    .number {
+    min-width: 0;
+  }
+  [data-game-fixed="true"]
+    [data-game-slot="rail"]
+    .list[data-layout="table"]
+    .heading {
+    padding-inline-start: 0;
+  }
+  [data-game-fixed="true"]
+    [data-game-slot="rail"]
+    .list[data-layout="table"]
+    .moveButton {
+    padding-block: 0;
+    white-space: nowrap;
+  }
+}

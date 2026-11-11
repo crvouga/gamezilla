@@ -3,7 +3,7 @@ import type { CustomGamePlace } from '@libs/game-session-client-ts/custom-game-p
 import { FRAME_NO_PLAY } from '@libs/game-session-client-ts/game-frame-empty';
 import type { StageOverlayEvent } from '@pkgs/turn-game-client-ts/stage-overlay';
 import { useGameTableSeat } from '@pkgs/ui-root-client-ts/game-table-seat';
-import { cleanup, fireEvent, screen } from '@solidjs/testing-library';
+import { cleanup, fireEvent, screen, within } from '@solidjs/testing-library';
 import {
   frameProps,
   mountFrame,
@@ -118,7 +118,7 @@ describe('the play place', () => {
     expect(versus.getAttribute('data-count')).toBe('2');
     expect(versus.textContent).toContain('avery');
     expect(versus.textContent).toContain('jordan');
-    fireEvent.click(versus);
+    fireEvent.click(within(versus).getByRole('button', { name: 'Skip' }));
     expect(sent).toEqual([{ type: 'skip' }]);
   });
 

@@ -11,6 +11,7 @@ import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import type { TableColumn } from '@pkgs/ui-root-client-ts/table';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { createSignal, type JSX } from 'solid-js';
+import { ExampleRoot } from '../../storybook/fixtures/example-root';
 
 /** Story-only DataTable fixtures: a small club's players. */
 
@@ -164,5 +165,14 @@ export function LivePlayerTable(props: Partial<PlayerTableProps>): JSX.Element {
       />
       <P variant="caption">{`Opened: ${opened()}`}</P>
     </>
+  );
+}
+
+/** The live table on its own, as the fixtures' mount check opens it. */
+export default function DataTableExample(): JSX.Element {
+  return (
+    <ExampleRoot>
+      <LivePlayerTable />
+    </ExampleRoot>
   );
 }

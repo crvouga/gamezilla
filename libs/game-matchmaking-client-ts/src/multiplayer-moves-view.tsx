@@ -200,7 +200,10 @@ function GameRecord(props: {
  * arrows step through the moves while this region has focus.
  */
 function MoveSteps(
-  props: StepsProps & { readonly flip: MultiplayerGameView['flip'] }
+  props: StepsProps & {
+    readonly flip: MultiplayerGameView['flip'];
+    readonly players: number;
+  }
 ): JSX.Element {
   return (
     <ArrowKeyGroup
@@ -211,6 +214,7 @@ function MoveSteps(
     >
       <MultiplayerMoveList
         moves={props.moves}
+        perTurn={props.players}
         onChoose={props.commands.chooseMove}
       />
       <GameActions>
@@ -283,6 +287,7 @@ export function MultiplayerMovesView(props: MovesProps): JSX.Element {
                   moves={moves()}
                   commands={props.commands}
                   flip={props.game.flip}
+                  players={props.game.players}
                 />
               )}
             </Show>

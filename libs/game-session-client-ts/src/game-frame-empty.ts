@@ -9,6 +9,8 @@ export const FRAME_NO_PLAY: FramePlay = {
   canAnswerDraw: false,
   canClaimWin: false,
   canResign: false,
+  heldOfferDraw: false,
+  heldResign: false,
   canCancel: false,
   boardActions: [],
   leadingBoardActions: [],
