@@ -18,7 +18,7 @@ import type { ObjectiveFailure } from '@pkgs/openslo-shared-ts/failure';
 
 const SPEC = 'specs/runtime/request-success.openslo.yaml';
 const RUNBOOK =
-  'https://github.com/crvouga/gamezilla/blob/main/docs/SLO_RUNBOOK.md#the-app-serves-people';
+  'https://example.test/product/blob/main/docs/SLO_RUNBOOK.md#the-app-serves-people';
 const NOW = Date.parse('2026-11-09T12:00:00Z');
 
 function failure(

@@ -25,7 +25,7 @@ const missed: ObjectiveFailure = {
   response: {
     owner: 'runtime',
     runbook:
-      'https://github.com/crvouga/gamezilla/blob/main/docs/SLO_RUNBOOK.md#the-app-serves-people',
+      'https://example.test/product/blob/main/docs/SLO_RUNBOOK.md#the-app-serves-people',
     command: 'bun obs errors --since 1d --source prod --env prd',
   },
   detail:
@@ -36,7 +36,7 @@ const missed: ObjectiveFailure = {
 describe('a failure message', () => {
   test('a missed objective names the environment, the file, and who answers it how', () => {
     expect(failureMessage(missed)).toBe(
-      '[prd] specs/runtime/request-success.openslo.yaml: the-app-serves-people does not meet "At least 99.99% meet this promise": observed 0.995548 (12302/12357 good events) vs target 0.9999; 12357 considered. Owner: runtime. Runbook: https://github.com/crvouga/gamezilla/blob/main/docs/SLO_RUNBOOK.md#the-app-serves-people. Investigate with: bun obs errors --since 1d --source prod --env prd'
+      '[prd] specs/runtime/request-success.openslo.yaml: the-app-serves-people does not meet "At least 99.99% meet this promise": observed 0.995548 (12302/12357 good events) vs target 0.9999; 12357 considered. Owner: runtime. Runbook: https://example.test/product/blob/main/docs/SLO_RUNBOOK.md#the-app-serves-people. Investigate with: bun obs errors --since 1d --source prod --env prd'
     );
   });
 
