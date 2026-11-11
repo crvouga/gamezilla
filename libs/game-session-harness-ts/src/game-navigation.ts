@@ -1,3 +1,4 @@
+import { MULTIPLAYER_SCREEN } from '@libs/game-matchmaking-harness-ts/multiplayer-places';
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront } from '@libs/harness-ts/observations';
@@ -6,7 +7,10 @@ import { Handles } from '@libs/test-ids-shared-ts/handles';
 /** What each shared screen shows first, so a person can tell it is open. */
 export const SHARED_SCREEN_MARK = {
   'custom-game': 'custom-game-status',
-  multiplayer: 'multiplayer-find',
+  // regression: puzzle-stats-unreachable-from-a-finished-matched-game
+  // Finding an opponent is a set of small places; the result after a game
+  // carries no Find control, only the mark every place shares.
+  multiplayer: MULTIPLAYER_SCREEN,
   history: 'game-history-statistics',
 } as const;
 
