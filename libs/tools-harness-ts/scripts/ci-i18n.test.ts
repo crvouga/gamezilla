@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { linguiCommand, scratchConfigSource } from './ci-i18n';
 import {
@@ -7,6 +6,7 @@ import {
   macrosOutsideCatalog,
   underCatalogSource,
 } from './lingui-scope';
+import { readTurboTasks } from './turbo-config';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 const MACRO = "import { t } from '@lingui/core/macro';";
@@ -30,12 +30,8 @@ describe('lingui catalog scope', () => {
   });
 
   test('turbo hashes exactly the catalog sources for @libs/tools-harness-ts#ci:i18n', () => {
-    const turbo = JSON.parse(
-      readFileSync(join(REPO_ROOT, 'turbo.json'), 'utf8')
-    ) as {
-      readonly tasks: Record<string, { readonly inputs?: readonly string[] }>;
-    };
-    const inputs = turbo.tasks['@libs/tools-harness-ts#ci:i18n']?.inputs ?? [];
+    const inputs =
+      readTurboTasks(REPO_ROOT)['@libs/tools-harness-ts#ci:i18n']?.inputs ?? [];
     const sources = inputs
       .filter((input) => input.endsWith('/**/*.{ts,tsx}'))
       .map((input) =>

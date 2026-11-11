@@ -57,7 +57,7 @@
  */
 
 import { type ChildProcess, spawn } from 'node:child_process';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { availableParallelism } from 'node:os';
 import { join } from 'node:path';
 import { writeSpecInputs } from '@libs/harness-ts/spec-inputs';
@@ -79,6 +79,7 @@ import { describeRunningTasks } from './running-tasks';
 import { SECRETS_RANGE_ENV, secretsScanRange } from './secrets-scan-range';
 import { solverSlots } from './solver-slots';
 import { MAX_MODEL_PARTS, MAX_SPEC_PARTS } from './spec-packages';
+import { readTurboTasks } from './turbo-config';
 import type { RunPlan } from './turbo-preflight';
 import {
   dryRunPlan,
@@ -390,13 +391,7 @@ export function turboChildEnv(
 }
 
 function loadTurboTasks(): TurboTasks {
-  const turboJson = JSON.parse(
-    readFileSync(join(REPO_ROOT, 'turbo.json'), 'utf8')
-  ) as { tasks?: TurboTasks };
-  if (turboJson.tasks === undefined) {
-    throw new Error('turbo.json missing tasks');
-  }
-  return turboJson.tasks;
+  return readTurboTasks(REPO_ROOT);
 }
 
 function taskDependsOn(tasks: TurboTasks, taskName: string): string[] {

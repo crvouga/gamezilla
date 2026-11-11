@@ -3,28 +3,64 @@
   "extends": ["//"],
   "tasks": {
     "test:release-journeys": {
+      "dependsOn": ["^src", "//#task:i18n:compile"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/specs/journeys/**",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "env": ["JOURNEY_CAPTURE_STEPS", "VERIFY_PROFILE"],
       "outputs": [
         ".cache/release-report/all/**",
         ".cache/critical-journeys/release-all/**"
-      ]
+      ],
+      "passThroughEnv": ["*"]
     },
     "test:release-journeys:0": {
+      "dependsOn": ["^src", "//#task:i18n:compile"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/specs/journeys/**",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "env": ["JOURNEY_CAPTURE_STEPS", "VERIFY_PROFILE"],
       "outputs": [
         ".cache/release-report/part-0-of-3/**",
         ".cache/critical-journeys/release-part-0-of-3/**"
-      ]
+      ],
+      "passThroughEnv": ["*"]
     },
     "test:release-journeys:1": {
+      "dependsOn": ["^src", "//#task:i18n:compile"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/specs/journeys/**",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "env": ["JOURNEY_CAPTURE_STEPS", "VERIFY_PROFILE"],
       "outputs": [
         ".cache/release-report/part-1-of-3/**",
         ".cache/critical-journeys/release-part-1-of-3/**"
-      ]
+      ],
+      "passThroughEnv": ["*"]
     },
     "test:release-journeys:2": {
+      "dependsOn": ["^src", "//#task:i18n:compile"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/specs/journeys/**",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "env": ["JOURNEY_CAPTURE_STEPS", "VERIFY_PROFILE"],
       "outputs": [
         ".cache/release-report/part-2-of-3/**",
         ".cache/critical-journeys/release-part-2-of-3/**"
-      ]
+      ],
+      "passThroughEnv": ["*"]
     },
     "build": {
       "dependsOn": ["$TURBO_EXTENDS$", "//#task:i18n:compile"]
@@ -55,6 +91,8 @@
     },
     "test:stack": {
       "cache": false,
+      "env": ["JOURNEY_CAPTURE_STEPS"],
+      "passThroughEnv": ["*"],
       "outputs": []
     },
     "test:contract:0": {
@@ -934,6 +972,130 @@
         "@pkgs/uuid-client-ts#src",
         "@pkgs/uuid-shared-ts#src"
       ]
+    },
+    "dev:prepare": {
+      "dependsOn": ["//#workspace:install", "//#workspace:merge"],
+      "cache": false
+    },
+    "dev": {
+      "dependsOn": ["dev:prepare"],
+      "with": [
+        "dev:postgres",
+        "dev:openai",
+        "dev:s3",
+        "dev:mqtt",
+        "dev:observability",
+        "dev:idp",
+        "dev:billing",
+        "dev:server",
+        "dev:population",
+        "dev:web",
+        "@pkgs/ui-root-harness-ts#dev:storybook"
+      ],
+      "persistent": true,
+      "cache": false
+    },
+    "dev:postgres": {
+      "dependsOn": ["dev:prepare"],
+      "persistent": true,
+      "cache": false
+    },
+    "dev:openai": {
+      "dependsOn": ["dev:prepare"],
+      "persistent": true,
+      "cache": false
+    },
+    "dev:s3": {
+      "dependsOn": ["dev:prepare"],
+      "persistent": true,
+      "cache": false
+    },
+    "dev:mqtt": {
+      "dependsOn": ["dev:prepare"],
+      "persistent": true,
+      "cache": false
+    },
+    "dev:observability": {
+      "dependsOn": ["dev:prepare"],
+      "persistent": true,
+      "cache": false
+    },
+    "dev:idp": {
+      "dependsOn": ["dev:prepare"],
+      "persistent": true,
+      "cache": false
+    },
+    "dev:billing": {
+      "dependsOn": ["dev:prepare"],
+      "persistent": true,
+      "cache": false
+    },
+    "dev:server": {
+      "dependsOn": ["dev:prepare"],
+      "persistent": true,
+      "cache": false
+    },
+    "dev:population": {
+      "dependsOn": ["dev:prepare"],
+      "persistent": true,
+      "cache": false
+    },
+    "dev:web": {
+      "dependsOn": ["dev:prepare"],
+      "persistent": true,
+      "cache": false
+    },
+    "verify:offline-shell": {
+      "dependsOn": ["@apps/product-ts#build"],
+      "inputs": [
+        "scripts/verify-offline-shell.ts",
+        "scripts/dist-graph.ts",
+        "scripts/sw-policy.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "errors-only"
+    },
+    "deploy": {
+      "cache": false,
+      "dependsOn": [
+        "@libs/runtime-server-ts#migrate",
+        "@libs/chess-puzzle-server-ts#initialize:catalog",
+        "@apps/server-ts#verify:api",
+        "@apps/product-ts#verify:offline-shell",
+        "@apps/product-ts#verify:worker-bundle",
+        "@apps/product-ts#verify:rendered-worker"
+      ]
+    },
+    "verify:worker-bundle": {
+      "dependsOn": ["^src", "build"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-worker-bundle.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/worker-compat-date.ts"
+      ],
+      "outputLogs": "errors-only",
+      "outputs": []
+    },
+    "verify:rendered-worker": {
+      "dependsOn": ["^src", "build"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/libs/infra-shared-ts/tofu/global.tfvars.json",
+        "$TURBO_ROOT$/libs/infra-shared-ts/tofu/envs/*.tfvars.json"
+      ],
+      "outputLogs": "errors-only",
+      "outputs": []
+    },
+    "synthetic": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "test:fuzz": {
+      "dependsOn": ["@pkgs/ui-root-harness-ts#storybook:build"],
+      "cache": false,
+      "passThroughEnv": ["*"]
     }
   }
 }

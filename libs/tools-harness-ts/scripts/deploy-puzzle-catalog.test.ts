@@ -1,6 +1,7 @@
 import { expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { readTurboTasks } from './turbo-config';
 
 type Task = {
   readonly cache?: boolean;
@@ -11,9 +12,7 @@ const ROOT = join(import.meta.dirname, '../../..');
 
 // regression: deploy-unseeded-chess-puzzle-catalog
 test('Release initializes the puzzle catalog after migration and before shipping', () => {
-  const { tasks } = JSON.parse(
-    readFileSync(join(ROOT, 'turbo.json'), 'utf8')
-  ) as { tasks: Record<string, Task> };
+  const tasks: Readonly<Record<string, Task>> = readTurboTasks(ROOT);
   const initialize = tasks['@libs/chess-puzzle-server-ts#initialize:catalog'];
   expect(initialize?.cache).toBe(false);
   expect(initialize?.dependsOn).toContain('@libs/runtime-server-ts#migrate');

@@ -33,15 +33,10 @@ import {
   type Violation,
 } from './cache-hygiene';
 import { srcEdgeDrift, syncSrcEdges } from './src-task-edges';
+import { readRootTurbo, readTurboTasks } from './turbo-config';
 
 const ROOT = join(import.meta.dirname, '../../..');
 const POLICY_FILE = 'libs/tools-harness-ts/cache-hygiene.json';
-
-type TurboFile = {
-  globalDependencies?: string[];
-  globalEnv?: string[];
-  tasks?: Record<string, { inputs?: string[] }>;
-};
 
 function readJson<T>(path: string): T {
   return JSON.parse(readFileSync(join(ROOT, path), 'utf8')) as T;
@@ -51,21 +46,12 @@ export function readPolicy(): Policy {
   return readJson<Policy>(POLICY_FILE);
 }
 
-function taskInputs(packages: readonly GraphPackage[]): TaskInputs[] {
-  const found: TaskInputs[] = [];
-  const add = (prefix: string, file: TurboFile): void => {
-    for (const [task, definition] of Object.entries(file.tasks ?? {}))
-      found.push({ task: prefix + task, inputs: definition.inputs ?? [] });
-  };
-  add('', readJson<TurboFile>('turbo.json'));
-  for (const { dir, name } of packages) {
-    try {
-      add(`${name}#`, readJson<TurboFile>(`${dir}/turbo.json`));
-    } catch {
-      // No package turbo.json.
-    }
-  }
-  return found;
+/** Every task's inputs as Turborepo resolves them, root and package configs merged. */
+function taskInputs(): TaskInputs[] {
+  return Object.entries(readTurboTasks(ROOT)).map(([task, definition]) => ({
+    task,
+    inputs: [...(definition.inputs ?? [])],
+  }));
 }
 
 function lightFiles(
@@ -92,7 +78,7 @@ export function cacheHygieneViolations(policy = readPolicy()): Violation[] {
   const imports = readImportGraph(ROOT);
   const reach = (file: string, maximum: number): number | null =>
     fileReachWithin(imports, file, maximum)?.packages ?? null;
-  const turbo = readJson<TurboFile>('turbo.json');
+  const turbo = readRootTurbo(ROOT);
   const base = readJson<{ compilerOptions?: { paths?: unknown } }>(
     'tsconfig.base.json'
   );
@@ -100,11 +86,11 @@ export function cacheHygieneViolations(policy = readPolicy()): Violation[] {
     ...hubViolations({ packages, blast, policy }, (pkg) =>
       lightFiles(reach, pkg, blast.get(pkg.name)?.packages.size ?? 0, policy)
     ),
-    ...broadInputViolations(taskInputs(packages), policy),
+    ...broadInputViolations(taskInputs(), policy),
     ...globalInputViolations(
       {
-        globalDependencies: turbo.globalDependencies ?? [],
-        globalEnv: turbo.globalEnv ?? [],
+        globalDependencies: [...(turbo.globalDependencies ?? [])],
+        globalEnv: [...(turbo.globalEnv ?? [])],
         baseHasAliases: base.compilerOptions?.paths !== undefined,
       },
       policy

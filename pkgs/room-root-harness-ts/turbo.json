@@ -21,6 +21,10 @@
         "@pkgs/room-root-shared-ts#src",
         "@pkgs/uuid-shared-ts#src"
       ]
+    },
+    "bench": {
+      "cache": false,
+      "passThroughEnv": ["*"]
     }
   }
 }

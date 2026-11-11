@@ -2,6 +2,7 @@
 import { expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { readTurboTasks } from './turbo-config';
 
 const root = join(import.meta.dirname, '../../..');
 type Step = { uses?: string; with?: Record<string, string> };
@@ -57,19 +58,16 @@ test('composite identity configuration travels through declared inputs', () => {
 });
 
 test('configured builds check source spellings after identity materialization', () => {
-  const rootGraph = JSON.parse(
-    readFileSync(join(root, 'turbo.json'), 'utf8')
-  ) as { tasks: Record<string, { dependsOn?: string[] }> };
-  const tools = JSON.parse(
-    readFileSync(join(root, 'libs/tools-harness-ts/turbo.json'), 'utf8')
-  ) as { tasks: Record<string, { dependsOn?: string[]; cache?: boolean }> };
-  expect(
-    rootGraph.tasks['@libs/tools-harness-ts#configure:brand']?.dependsOn
-  ).toContain('@libs/tools-harness-ts#configure:brand-policy');
-  expect(tools.tasks['configure:brand-policy']?.dependsOn).toContain(
-    '@libs/tools-harness-ts#configure:identity'
+  const tasks = readTurboTasks(root);
+  expect(tasks['@libs/tools-harness-ts#configure:brand']?.dependsOn).toContain(
+    '@libs/tools-harness-ts#configure:brand-policy'
   );
-  expect(tools.tasks['configure:brand-policy']?.cache).toBe(false);
+  expect(
+    tasks['@libs/tools-harness-ts#configure:brand-policy']?.dependsOn
+  ).toContain('@libs/tools-harness-ts#configure:identity');
+  expect(tasks['@libs/tools-harness-ts#configure:brand-policy']?.cache).toBe(
+    false
+  );
 });
 
 // regression: auth-shard-missing-solver
