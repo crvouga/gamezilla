@@ -75,9 +75,14 @@ around the script.
    remote branch is ahead, local catches up first: a fast-forward, or a merge when the two have
    diverged. Then it pushes, with `--set-upstream` when the branch is new. It never force-pushes.
 4. **Merges `origin/main`.** It skips this step when the branch already contains
-   `origin/main`. The merge keeps git's default message. On a conflict it runs
-   `git merge --abort`, lists the conflicted paths and stops. Your committed work is already
-   pushed. With `--leave-conflicts` it leaves the merge in progress instead. Resolve and
+   `origin/main`. The merge keeps git's default message. Generated files are never
+   merged by hand (`libs/tools-harness-ts/scripts/generated-conflicts.ts`): when only
+   they conflict (`bun.lock`, the Biome scope slices), it takes trunk's copy, rebuilds
+   them (`bun install`, `bun run cache:sync`) and commits the merge. On any other
+   conflict it runs `git merge --abort`, lists the conflicted paths and stops. Your committed work is already
+   pushed. With `--leave-conflicts` it leaves the merge in progress instead, with the
+   generated files already set to trunk's copy and the rebuild commands to run
+   before committing the merge. Resolve and
    `git add` the paths, run `GIT_EDITOR=true git merge --continue`, then rerun
    `bun run git-sync`.
 5. **Pushes the merge.**

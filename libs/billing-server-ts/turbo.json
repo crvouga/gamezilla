@@ -21,6 +21,14 @@
         "@pkgs/sql-root-shared-ts#src",
         "@pkgs/uuid-shared-ts#src"
       ]
+    },
+    "billing:feedback": {
+      "cache": false,
+      "env": ["DATABASE_URL"]
+    },
+    "billing:sync": {
+      "cache": false,
+      "dependsOn": ["@libs/infra-server-ts#apply:edge"]
     }
   }
 }

@@ -29,6 +29,7 @@ import { parseOpenSlo } from '@pkgs/openslo-shared-ts/parse';
 import type { SpecPackage } from '../scripts/spec-packages';
 import { REPO_ROOT, SPECS_DIR, specPackages } from '../scripts/spec-packages';
 import { MAIN_VERIFY_TASKS } from '../scripts/turbo-ci-run';
+import { readTurboTasks } from '../scripts/turbo-config';
 import { campaignBindings } from './campaigns';
 import { EVIDENCE_MAP } from './evidence-map';
 import type { PackageScripts, TurboTasks } from './gating-tasks';
@@ -227,9 +228,9 @@ function objectiveFacts(
   return out;
 }
 
+/** Every task definition, root and package configs merged (`turbo-config.ts`). */
 export function turboTasks(): TurboTasks {
-  return (JSON.parse(read('turbo.json')) as { readonly tasks: TurboTasks })
-    .tasks;
+  return readTurboTasks();
 }
 
 export function packageScripts(): PackageScripts {

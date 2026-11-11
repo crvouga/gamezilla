@@ -23,6 +23,10 @@
         "@pkgs/turn-game-shared-ts#src",
         "@pkgs/ui-testing-root-shared-ts#src"
       ]
+    },
+    "bench": {
+      "cache": false,
+      "passThroughEnv": ["*"]
     }
   }
 }

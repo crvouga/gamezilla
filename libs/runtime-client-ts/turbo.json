@@ -6,11 +6,9 @@
       "dependsOn": [
         "@libs/account-privacy-client-ts#src",
         "@libs/billing-client-ts#src",
-        "@libs/chess-puzzle-client-ts#src",
         "@libs/friends-client-ts#src",
         "@libs/game-catalog-shared-ts#src",
         "@libs/game-matchmaking-client-ts#src",
-        "@libs/game-menu-client-ts#src",
         "@libs/game-puzzle-client-ts#src",
         "@libs/games-client-ts#src",
         "@libs/games-shared-ts#src",

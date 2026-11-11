@@ -1,6 +1,6 @@
 # CI requirements
 
-Capacity reference for the complete verification catalog. Hosted PR and release stages select the smaller blocking subset defined in [CI stage policy](CI_STAGE_POLICY.md). The generated full-catalog sizing below remains a conservative reference, not a claim about the new PR task selection. Every workflow job runs on a standard GitHub-hosted `ubuntu-24.04` runner ([below](#runner-operating-systems)); the sections that size a warm pool are the sizing a faster, dedicated fleet would need and provision nothing. The measured section is generated from [`libs/tools-harness-ts/scripts/verify-task-costs.json`](../libs/tools-harness-ts/scripts/verify-task-costs.json) and the workspace graph. [`libs/tools-harness-ts/scripts/ci-load.test.ts`](../libs/tools-harness-ts/scripts/ci-load.test.ts) fails when that section drifts, or when the corpus no longer fits the runner below.
+Capacity reference for the complete verification catalog. Hosted PR and release stages select the smaller blocking subset defined in [CI stage policy](CI_STAGE_POLICY.md). The generated full-catalog sizing below remains a conservative reference, not a claim about the new PR task selection. Every workflow job runs on a standard GitHub-hosted `ubuntu-24.04` runner ([below](#runner-operating-systems)); the sections that size a warm pool are the sizing a faster, dedicated fleet would need and provision nothing. The measured load is generated from [`libs/tools-harness-ts/scripts/verify-task-costs.json`](../libs/tools-harness-ts/scripts/verify-task-costs.json) and the workspace graph ([below](#measured-load)). [`libs/tools-harness-ts/scripts/ci-load.test.ts`](../libs/tools-harness-ts/scripts/ci-load.test.ts) fails when the corpus no longer fits the runner.
 
 Refresh after a cold Verify harvest:
 
@@ -11,7 +11,7 @@ bun run libs/tools-harness-ts/scripts/ci-load.ts --write
 
 To size hardware from real run history, `bun ci:stats` writes `.cache/ci-stats/CI_STATS.md`: the declared workload, the workflow files, and GitHub's run and job history (durations, queue waits, concurrency, agent-hours), as one brief to hand an LLM. Flags: `--days <n>` (default 14), `--budget`, `--goals`, `--have`, `--out`, `--no-github`. It needs a signed-in `gh`.
 
-Commit the cost file and this document together. The budgets live in [`libs/tools-harness-ts/scripts/ci-runner-capacity.ts`](../libs/tools-harness-ts/scripts/ci-runner-capacity.ts). A task that no longer fits is split, or the runner constants change in that same commit with the measurement that justifies them. The five-minute promise stays.
+Commit the cost file with any change to this document it calls for. The budgets live in [`libs/tools-harness-ts/scripts/ci-runner-capacity.ts`](../libs/tools-harness-ts/scripts/ci-runner-capacity.ts). A task that no longer fits is split, or the runner constants change in that same commit with the measurement that justifies them. The five-minute promise stays.
 
 ## Promises
 
@@ -156,74 +156,4 @@ The longest shared-game part took 213 seconds. Device agreement fell from 267 to
 
 The generated sizing model totals 17,071 task-seconds, including 9,493 spec-seconds, using the harvested timings, retained history and family estimates. The five-minute, three-minute leaf and ninety-second percentile targets, the 16-worker cap, and each machine's 32 vCPU / 64 GB shape stay fixed. This is a sizing forecast; the hosted run remains the evidence of actual execution. The proposed pool changes no deployed infrastructure.
 
-<!-- ci-load:start -->
-Unmeasured scripts follow `estimateTask`: the family median when that family has a sample, otherwise 60 seconds. 574 cost keys name tasks outside the current graph and stay out of the cold total. The unit-test median is one second, the recorder floor. A family with no sample, such as an unmeasured `verify:board-contract`, reserves 60 seconds until a cold Verification is harvested.
-
-| | |
-| --- | --- |
-| Packages | 370 |
-| Verify scripts | 1531 |
-| Measured scripts | 934 |
-| Estimated scripts | 597 |
-| Stale cost keys | 574 |
-| Cold CPU | 19581 s |
-| Spec parts | 12149 s across 375 tasks |
-| Longest task | @libs/games-harness-ts#test:spec:49 213 s |
-
-### Families
-
-| Family | Tasks | CPU |
-| --- | --- | --- |
-| test:spec | 375 | 12149 s |
-| lint | 368 | 1293 s |
-| test:contract | 25 | 1004 s |
-| verify:models:10 | 16 | 960 s |
-| test | 279 | 940 s |
-| verify:models | 47 | 761 s |
-| verify:models:2 | 11 | 660 s |
-| tc | 367 | 551 s |
-
-### Leaves
-
-50 leaves have verification scripts. On the warm runner their tasks run together, so the wall clock is the longest task plus the 30 s warm start.
-
-| | |
-| --- | --- |
-| Leaf CPU, median | 4 s |
-| Leaf CPU, 90th percentile | 72 s |
-| Longest leaf task, 90th percentile | 26 s |
-| Longest leaf task | 132 s |
-
-| Package | CPU | Longest task |
-| --- | --- | --- |
-| @apps/product-ts | 1049 s | @apps/product-ts#test 132 s |
-| @pkgs/chess-board-root-harness-ts | 192 s | @pkgs/chess-board-root-harness-ts#test:contract 52 s |
-| @libs/tools-harness-ts | 123 s | @libs/tools-harness-ts#verify:rebrand 26 s |
-| @apps/synthetic-population-worker-ts | 110 s | @apps/synthetic-population-worker-ts#test 79 s |
-| @pkgs/matchmaking-root-harness-ts | 106 s | @pkgs/matchmaking-root-harness-ts#test:spec:4 33 s |
-
-### Widest dependency cones
-
-A cone is the package plus every transitive workspace dependent. A source change misses this CPU. The wall clock is the longest task in the cone when the runner has the slots below, because dependents wait on `src`, and `src` is not the long task.
-
-| Package | Packages | CPU | Longest task |
-| --- | --- | --- | --- |
-| @pkgs/property-shared-ts | 303 | 19368 s | @libs/games-harness-ts#test:spec:49 213 s |
-| @pkgs/clock-shared-ts | 267 | 19242 s | @libs/games-harness-ts#test:spec:49 213 s |
-| @pkgs/assert-root-shared-ts | 260 | 19201 s | @libs/games-harness-ts#test:spec:49 213 s |
-
-### Runner
-
-Slot allocation target 240 s. Warm start 30 s. Verdict slack 15 s. Spec workers stay at or under 16 per runner.
-
-| | |
-| --- | --- |
-| Runners per verification | 3 |
-| Spec slots per runner | 16 |
-| Other slots per runner | 11 |
-| Cores required per runner | 29 |
-| Memory required per runner | 40 GiB |
-| Estimated makespan | 254 s |
-| Provision | 6 × 32 vCPU, 64 GB, Linux x64 |
-| Fits | yes |
-<!-- ci-load:end -->
+The current numbers (packages, verification scripts, family totals, leaves, widest dependency cones and the runner fit) are generated, not committed: every new verification script changes them, so a committed copy conflicted in nearly every pair of concurrent pull requests. Print them with `bun run libs/tools-harness-ts/scripts/ci-load.ts`, or write them to `.cache/ci-load/MEASURED_LOAD.md` with `--write`. [`ci-load.test.ts`](../libs/tools-harness-ts/scripts/ci-load.test.ts) still fails when the corpus no longer fits the runner.

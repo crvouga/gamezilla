@@ -4,6 +4,7 @@ import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
+import { readTurboTasks } from './turbo-config';
 import { cacheDiagnostics } from './verify-cache-diagnostics';
 
 type DryTask = { taskId: string; hash: string; inputs: Record<string, string> };
@@ -433,16 +434,7 @@ test.each([
   'apps/product-ts/scripts/ui-quality/sources.json',
 ])('repository tooling verdict invalidates on %s', (path) => {
   const root = fixture();
-  const local = JSON.parse(
-    readFileSync(join(import.meta.dirname, '../turbo.json'), 'utf8')
-  ) as {
-    tasks: { test: { inputs: string[] } };
-  };
-  const inputs = local.tasks.test.inputs.flatMap((input) =>
-    input === '$TURBO_EXTENDS$'
-      ? config.tasks['@libs/tools-harness-ts#test']!.inputs
-      : [input]
-  );
+  const inputs = readTurboTasks()['@libs/tools-harness-ts#test']!.inputs;
   try {
     writeFileSync(
       join(root, 'package.json'),

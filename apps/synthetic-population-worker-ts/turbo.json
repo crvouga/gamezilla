@@ -38,6 +38,10 @@
         "@pkgs/ui-testing-solid-dom-client-ts#src",
         "@pkgs/uuid-shared-ts#src"
       ]
+    },
+    "deploy": {
+      "cache": false,
+      "dependsOn": ["@libs/infra-server-ts#apply:edge"]
     }
   }
 }

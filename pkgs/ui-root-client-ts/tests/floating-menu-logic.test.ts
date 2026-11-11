@@ -45,7 +45,10 @@ describe('computeFloatingMenuPosition', () => {
     ).toEqual({ top: 494, left: 280 });
   });
 
-  test('clamps to edges when placement would overflow', () => {
+  // regression: floating-menu-covers-its-anchor
+  test('flips to the side that fits rather than covering its anchor', () => {
+    // The sidebar's account menu, at the foot of the screen, asked to open
+    // below: it opens above its trigger instead of clamping over it.
     expect(
       computeFloatingMenuPosition({
         anchor: { x: 10, y: 700, width: 40, height: 40 },
@@ -55,7 +58,20 @@ describe('computeFloatingMenuPosition', () => {
         viewport,
         placement: 'bottom-end',
       })
-    ).toEqual({ top: 562, left: 8 });
+    ).toEqual({ top: 494, left: 8 });
+    expect(
+      computeFloatingMenuPosition({
+        anchor: { x: 100, y: 20, width: 40, height: 40 },
+        menuHeight: 200,
+        menuWidth: 260,
+        insets,
+        viewport,
+        placement: 'top-start',
+      })
+    ).toEqual({ top: 66, left: 100 });
+  });
+
+  test('clamps to edges when placement would overflow', () => {
     // Far right anchor clamps to viewport - width - margin.
     expect(
       computeFloatingMenuPosition({

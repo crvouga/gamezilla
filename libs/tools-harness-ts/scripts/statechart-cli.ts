@@ -70,7 +70,6 @@ function sourceFiles(): Map<string, string> {
       }),
       slashPath
     ),
-    'libs/game-menu-client-ts/src/personal-puzzle-stats-clients.tsx',
     'libs/game-puzzle-client-ts/src/puzzle-link-client.ts',
     'libs/game-puzzle-shared-ts/src/puzzle-link.ts',
     'libs/game-matchmaking-client-ts/src/multiplayer-link-client.tsx',
