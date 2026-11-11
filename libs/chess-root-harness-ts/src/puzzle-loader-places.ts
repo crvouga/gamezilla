@@ -45,7 +45,8 @@ async function loaderDialogOpen(
  * when the loader is closed, when the stage does not show that place (a
  * person outside the team sees only the denial; while the Lichess file is
  * being saved only `source` shows, and Back would leave the loader), or
- * when a dialog covers the loader.
+ * when a dialog still asking or working covers the loader. A dialog that
+ * only reports a finished stop is put away first.
  */
 export async function showLoaderPlace(
   s: ProductHarness,
@@ -55,8 +56,14 @@ export async function showLoaderPlace(
   const at = await readLoaderPosition(s, actor);
   if (at === null) return false;
   if (at.place === wanted) return true;
-  if (await loaderDialogOpen(s, actor)) return false;
   const ui = await actorUi(s, actor);
+  if (await loaderDialogOpen(s, actor)) {
+    // A finished stop only waits to be put away, as a person does before
+    // moving on; a question still open is not this driver's to answer.
+    if (!(await ui.get('puzzle-load-stop-success').isVisible())) return false;
+    await ui.key('escape');
+    if (await loaderDialogOpen(s, actor)) return false;
+  }
   if (wanted === 'source') {
     const row = ui.get('puzzle-load-source');
     if (!(await row.isVisible())) return false;
