@@ -700,6 +700,30 @@ journeys:
     - specs/developer-tools/test-world-views.feature
     - specs/developer-tools/checkpoints.feature
     tour: true
+  The User Observatory shows people and Synthetic Users:
+    description: An authorized person sees who is online now, watches someone live and looks after the Synthetic Population.
+    events:
+    - Opens the testing tool
+    - Opens the User Observatory
+    - Watches someone live
+    - The watched person moves around the app
+    - Returns to the User Observatory
+    - Opens the Synthetic Population panel
+    - Opens a Synthetic User
+    - Returns to the Synthetic Population panel
+    - Opens the desired synthetic population
+    - Changes the desired synthetic population
+    - Returns to the Synthetic Population panel
+    - Opens the control panel
+    - Pauses, resumes or restarts Synthetic Users
+    endsIn:
+    - 'Observatory: Control panel'
+    gherkin:
+    - specs/observatory/online-now.feature
+    - specs/observatory/watching-live.feature
+    - specs/synthetic-population/observatory.feature
+    - specs/synthetic-population/control-panel.feature
+    tour: true
   A notebook copy waits for its own answer:
     description: Duplicating a question does not start it; asking it shows its answer or failure.
     events:
@@ -964,6 +988,12 @@ journeys:
     - Eligible index work is planned
     - Index work begins
     - Index work completes
+    - Returns to the testing tool
+    - Opens the User Observatory
+    - Watches someone live
+    - Returns to the User Observatory
+    - Opens the Synthetic Population panel
+    - Opens the control panel
     - Returns to the testing tool
     - Reads device inspection scope
     - Reads sync inspection scope

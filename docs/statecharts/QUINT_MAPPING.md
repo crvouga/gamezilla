@@ -85,6 +85,14 @@ or policy without an owner fails compilation.
 | [specs/sync-engine/note-replication.qnt](../../specs/sync-engine/note-replication.qnt) | notes |
 | [specs/synthetic-population/playing-pong.qnt](../../specs/synthetic-population/playing-pong.qnt) | pong |
 | [specs/synthetic-population/recognizing-synthetic-users.qnt](../../specs/synthetic-population/recognizing-synthetic-users.qnt) | pong |
+| [specs/observatory/user-observatory.qnt](../../specs/observatory/user-observatory.qnt) | observatory |
+| [specs/synthetic-population/choose-a-game.qnt](../../specs/synthetic-population/choose-a-game.qnt) | observatory |
+| [specs/synthetic-population/control-panel.qnt](../../specs/synthetic-population/control-panel.qnt) | observatory |
+| [specs/synthetic-population/daily-rhythm.qnt](../../specs/synthetic-population/daily-rhythm.qnt) | observatory |
+| [specs/synthetic-population/finding-opponents.qnt](../../specs/synthetic-population/finding-opponents.qnt) | multiplayer |
+| [specs/synthetic-population/human-like-play.qnt](../../specs/synthetic-population/human-like-play.qnt) | multiplayer |
+| [specs/synthetic-population/synthetic-user-continuity.qnt](../../specs/synthetic-population/synthetic-user-continuity.qnt) | observatory |
+| [specs/synthetic-population/synthetic-user-personas.qnt](../../specs/synthetic-population/synthetic-user-personas.qnt) | observatory |
 | [specs/system/access-sync.qnt](../../specs/system/access-sync.qnt) | access |
 | [specs/system/adversarial-examples.qnt](../../specs/system/adversarial-examples.qnt) | product |
 | [specs/system/boundary-assumptions.qnt](../../specs/system/boundary-assumptions.qnt) | product |
