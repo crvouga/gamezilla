@@ -20,7 +20,7 @@ import {
   saveFirstLichessFileElsewhere,
 } from '@libs/chess-root-harness-ts/puzzle-import-environments';
 import {
-  readPuzzleSource,
+  inspectPuzzleSource,
   seedSavedLichessFile,
 } from '@libs/chess-root-harness-ts/puzzle-source-ui';
 import { partition } from '@libs/harness-ts/actions';
@@ -55,7 +55,7 @@ Given('{actor} has seen the saved Lichess file', async (w, actor: Actor) => {
   await w.s.apply(seedSavedLichessFile);
   w.memo.set(
     'lichess:file-seen',
-    (await w.s.read(readPuzzleSource, actor)).filename
+    (await inspectPuzzleSource(w.s, actor)).filename
   );
 });
 Given('{actor} has no previous Lichess file check', async (w, actor: Actor) => {

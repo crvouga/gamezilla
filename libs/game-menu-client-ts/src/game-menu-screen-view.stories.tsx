@@ -162,9 +162,7 @@ export const OpenHowToPlay: Story = {
   },
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(
-      await canvas.findByTestId('game-choice-how-to-play')
-    );
+    await userEvent.click(await canvas.findByTestId('game-choice-how-to-play'));
     await expect(args.onOpen).toHaveBeenCalledWith({ screen: 'how-to-play' });
     await expect(
       await canvas.findByText(/Take turns dropping a disc/)

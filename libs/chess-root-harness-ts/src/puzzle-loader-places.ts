@@ -1,5 +1,6 @@
 import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
+import type { OpenHarness } from '@libs/harness-ts/open-harness';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 
 /**
@@ -9,6 +10,9 @@ import { Handles } from '@libs/test-ids-shared-ts/handles';
  * control as a person does: the hub's row opens `source`, Back returns.
  */
 export type LoaderPlace = 'load' | 'source';
+
+/** A harness's actions and reads, as a step or a model binding holds them. */
+export type LoaderRunner = Pick<OpenHarness, 'apply' | 'read'>;
 
 /** The stage the loader stands in and the place shown; `null` away from it. */
 export async function readLoaderPosition(
@@ -64,14 +68,6 @@ export async function showLoaderPlace(
   }
   return (await readLoaderPosition(s, actor))?.place === wanted;
 }
-
-/** Open a place of the loader, as a person would. */
-export const openLoaderPlace = scenarioAction({
-  name: 'openLoaderPlace',
-  act: async (s, actor: string, place: LoaderPlace) => {
-    await showLoaderPlace(s, actor, place);
-  },
-});
 
 /** Open a place of the loader, as a person would. */
 export const openLoaderPlace = scenarioAction({

@@ -4,8 +4,8 @@ import type { ProductHarness } from '@libs/harness-ts/harness';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { prepareSavingLichessFile } from './lichess-file-setup';
 import { followPuzzleImport } from './puzzle-import-ui';
-import { showLoaderPlace } from './puzzle-loader-places';
 import { joinPuzzleTeam } from './puzzle-import-world';
+import { showLoaderPlace } from './puzzle-loader-places';
 
 export const askToLeaveAddingPuzzles = scenarioAction({
   name: 'askToLeaveAddingPuzzles',

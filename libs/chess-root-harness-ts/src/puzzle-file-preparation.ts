@@ -1,7 +1,6 @@
 import { partition } from '@libs/harness-ts/actions';
 import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
 import { signInWithGoogle } from '@libs/harness-ts/auth-actions';
-import type { ProductHarness } from '@libs/harness-ts/harness';
 import {
   askToStopPuzzleLoading,
   chooseLichessFile,
@@ -13,10 +12,10 @@ import {
 } from './lichess-file-actions';
 import { followPuzzleImport, readPuzzleImport } from './puzzle-import-ui';
 import { joinPuzzleTeam } from './puzzle-import-world';
-import { showLoaderPlace } from './puzzle-loader-places';
+import { type LoaderRunner, showLoaderPlace } from './puzzle-loader-places';
 import {
+  inspectPuzzleSource,
   noSavedLichessFile,
-  readPuzzleSource,
   seedSavedLichessFile,
 } from './puzzle-source-ui';
 
@@ -91,11 +90,14 @@ export const losePuzzleLoadingConnection = scenarioAction({
   },
 });
 
-/** Translation of the actual file, progress and confirmation controls. */
-export async function readLichessFilePreparation(s: ProductHarness) {
-  const source = await readPuzzleSource(s);
-  const choice = await readStopPuzzleChoice(s);
-  const addition = await readPuzzleImport(s);
+/**
+ * Translation of the actual file, progress and confirmation controls: both
+ * places of the loader, each opened with an action before it is read.
+ */
+export async function inspectLichessFilePreparation(run: LoaderRunner) {
+  const source = await inspectPuzzleSource(run);
+  const choice = await run.read(readStopPuzzleChoice);
+  const addition = await run.read(readPuzzleImport);
   return {
     lichessFile: {
       check: source.checking

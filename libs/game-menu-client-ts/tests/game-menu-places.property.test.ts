@@ -36,7 +36,11 @@ describe("a game's menu places", () => {
       fc.property(fc.array(step, { maxLength: 20 }), (steps) => {
         let opened: OpenedPlace<GameMenuStage, GameMenuPlace> | null = null;
         for (const next of steps) {
-          const shown: GameMenuPlace = placeIn(GAME_MENU_PLACES, 'open', opened);
+          const shown: GameMenuPlace = placeIn(
+            GAME_MENU_PLACES,
+            'open',
+            opened
+          );
           if (next.kind === 'open')
             opened = { stage: 'open', place: next.place };
           else {

@@ -5,7 +5,11 @@ import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { writeUtf8 } from '@pkgs/object-store-root-shared-ts/helpers';
 import { importFixture } from './puzzle-import-fixtures';
-import { showLoaderPlace } from './puzzle-loader-places';
+import {
+  type LoaderRunner,
+  openLoaderPlace,
+  showLoaderPlace,
+} from './puzzle-loader-places';
 
 const reuseOnly = new WeakSet<ProductHarness>();
 export function onlyUseSavedPuzzleSource(s: ProductHarness) {
@@ -13,20 +17,18 @@ export function onlyUseSavedPuzzleSource(s: ProductHarness) {
 }
 
 /**
- * What the loader says about the Lichess file. Its controls are on the
- * `source` place, opened first as a person would; whether adding puzzles is
- * offered is on the hub, where the read ends. A place a dialog covers, or
- * one the stage does not show, cannot be opened: its controls then read as
- * not shown, which is what the person sees.
+ * What the place shown says about the Lichess file. The file's controls are
+ * on the `source` place and adding puzzles is the hub's command: a control
+ * of the place not shown reads as not shown, which is what the person
+ * sees. It never navigates; `inspectPuzzleSource` reads both places.
  */
 export async function readPuzzleSource(s: ProductHarness, actor = 'alice') {
   const ui = await actorUi(s, actor);
-  await showLoaderPlace(s, actor, 'source');
   const shown = (name: string) => ui.get(name).isVisible();
   const enabled = async (name: string) =>
     (await shown(name)) && (await ui.get(name).attribute('disabled')) === null;
   const saved = await shown('puzzle-source-saved');
-  const source = {
+  return {
     saved,
     chosen: await shown('puzzle-source-chosen'),
     filename: saved ? await ui.get('puzzle-source-saved').text() : null,
@@ -47,16 +49,39 @@ export async function readPuzzleSource(s: ProductHarness, actor = 'alice') {
       (await ui.get('puzzle-load-file').attribute('aria-disabled')) !== 'true',
     needsFile: await shown('puzzle-source-missing'),
     saveOffered: await shown('puzzle-source-save'),
+    // The hub offers adding puzzles only from a saved file.
+    startOffered: await enabled('puzzle-load-start'),
     offline: await shown('puzzle-load-offline'),
     offlineMessage: (await shown('puzzle-load-offline'))
       ? await ui.get('puzzle-load-offline').text()
       : null,
   };
-  const hub = await showLoaderPlace(s, actor, 'load');
-  return {
-    ...source,
-    startOffered: saved && hub && (await enabled('puzzle-load-start')),
-  };
+}
+
+/**
+ * Both places of the loader, as an action looks them over: the Lichess
+ * file's own place first, then the hub, where it ends. A place a dialog
+ * covers or the stage does not show cannot be opened; its controls read as
+ * not shown.
+ */
+export async function surveyPuzzleSource(s: ProductHarness, actor = 'alice') {
+  await showLoaderPlace(s, actor, 'source');
+  const source = await readPuzzleSource(s, actor);
+  await showLoaderPlace(s, actor, 'load');
+  const hub = await readPuzzleSource(s, actor);
+  return { ...source, startOffered: hub.startOffered };
+}
+
+/**
+ * The same look over both places for a step or a model binding: it opens
+ * each place with an action and reads it, so no read navigates.
+ */
+export async function inspectPuzzleSource(run: LoaderRunner, actor = 'alice') {
+  await run.apply(openLoaderPlace, actor, 'source');
+  const source = await run.read(readPuzzleSource, actor);
+  await run.apply(openLoaderPlace, actor, 'load');
+  const hub = await run.read(readPuzzleSource, actor);
+  return { ...source, startOffered: hub.startOffered };
 }
 
 export async function reloadPuzzleSource(s: ProductHarness, actor = 'alice') {
@@ -67,7 +92,7 @@ export async function reloadPuzzleSource(s: ProductHarness, actor = 'alice') {
   await pollUntil(
     s,
     async () => {
-      const source = await readPuzzleSource(s, actor);
+      const source = await surveyPuzzleSource(s, actor);
       return source.saved || source.needsFile || source.offline ? true : null;
     },
     { maxMs: 15000, description: 'shared Lichess file availability' }
@@ -81,7 +106,7 @@ export const saveLichessFile = scenarioAction({
     const view = await pollUntil(
       s,
       async () => {
-        const source = await readPuzzleSource(s, actor);
+        const source = await surveyPuzzleSource(s, actor);
         return source.saved || source.offline || source.saveOffered
           ? source
           : null;
@@ -97,7 +122,7 @@ export const saveLichessFile = scenarioAction({
     await ui.get('puzzle-source-save').tap();
     await pollUntil(
       s,
-      async () => ((await readPuzzleSource(s, actor)).saved ? true : null),
+      async () => ((await surveyPuzzleSource(s, actor)).saved ? true : null),
       { maxMs: 15000, description: 'Lichess file saved' }
     );
   },

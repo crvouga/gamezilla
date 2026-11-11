@@ -1,13 +1,18 @@
 import { ingestChessPuzzleCsv } from '@libs/chess-puzzle-harness-ts/chess-puzzle-data';
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
+import type { OpenHarness } from '@libs/harness-ts/open-harness';
 import { importFixture } from './puzzle-import-fixtures';
-import { showLoaderPlace } from './puzzle-loader-places';
+import {
+  type LoaderRunner,
+  openLoaderPlace,
+  showLoaderPlace,
+} from './puzzle-loader-places';
 import {
   onlyUseSavedPuzzleSource,
-  readPuzzleSource,
   saveLichessFile,
   seedSavedLichessFile,
+  surveyPuzzleSource,
 } from './puzzle-source-ui';
 
 export const followPuzzleImport = scenarioAction({
@@ -40,12 +45,12 @@ export const startPuzzleLoading = scenarioAction({
     await pollUntil(
       s,
       async () => {
-        const source = await readPuzzleSource(s, actor);
+        const source = await surveyPuzzleSource(s, actor);
         return source.saved || source.needsFile ? true : null;
       },
       { maxMs: 15000, description: 'saved file ready' }
     );
-    if (!(await readPuzzleSource(s, actor)).saved) {
+    if (!(await surveyPuzzleSource(s, actor)).saved) {
       if (onlyUseSavedPuzzleSource(s)) return;
       await Promise.resolve(saveLichessFile.act(s, actor));
     }
@@ -107,13 +112,13 @@ const STATUS_WORDS: Readonly<Record<string, string>> = {
 
 /**
  * What the loader's hub says: the latest load, the pool and its one
- * command. The hub is shown first, as a person would return to it; away
- * from the loader, for a person outside the team or while the Lichess file
- * is being saved there is no hub, and its controls read as not shown.
+ * command. It never navigates: away from the hub (on the Lichess file's
+ * place, for a person outside the team, or while the file is being saved)
+ * the hub's controls read as not shown. `inspectPuzzleImport` opens the hub
+ * first.
  */
 export async function readPuzzleImport(s: ProductHarness, actor = 'alice') {
   const ui = await actorUi(s, actor);
-  await showLoaderPlace(s, actor, 'load');
   const read = async (name: string) =>
     (await ui.get(name).isVisible()) ? await ui.get(name).text() : null;
   const enabled = async (name: string) =>
@@ -139,6 +144,25 @@ export async function readPuzzleImport(s: ProductHarness, actor = 'alice') {
     denied: await ui.get('permission-denial').isVisible(),
     denialText: await read('permission-denial'),
   };
+}
+
+/** The hub, opened first with an action, for a step or a model binding. */
+export async function inspectPuzzleImport(run: LoaderRunner, actor = 'alice') {
+  await run.apply(openLoaderPlace, actor, 'load');
+  return run.read(readPuzzleImport, actor);
+}
+
+/** Poll the hub, opened first with an action, until `options.pred` holds. */
+export async function untilPuzzleImport(
+  run: Pick<OpenHarness, 'apply' | 'until'>,
+  actor: string,
+  options: {
+    pred: (view: Awaited<ReturnType<typeof readPuzzleImport>>) => boolean;
+    maxMs: number;
+  }
+) {
+  await run.apply(openLoaderPlace, actor, 'load');
+  return run.until((s) => readPuzzleImport(s, actor), options);
 }
 
 export const seedPuzzleRefreshPool = scenarioAction({

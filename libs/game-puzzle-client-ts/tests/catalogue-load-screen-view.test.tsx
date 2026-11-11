@@ -230,13 +230,16 @@ describe('the load hub', () => {
     [{ source: MISSING }, 'no-source'],
     [{ source: CHOSEN }, 'no-source'],
     [{ source: { ...SAVED, status: 'checking' } }, 'checking'],
-  ] as const)('starting is unavailable with its reason said: %#', (props, reason) => {
-    loader(props);
-    expect(disabled('puzzle-load-start')).toBe(true);
-    expect(
-      screen.getByTestId('puzzle-load-blocked').getAttribute('data-reason')
-    ).toBe(reason);
-  });
+  ] as const)(
+    'starting is unavailable with its reason said: %#',
+    (props, reason) => {
+      loader(props);
+      expect(disabled('puzzle-load-start')).toBe(true);
+      expect(
+        screen.getByTestId('puzzle-load-blocked').getAttribute('data-reason')
+      ).toBe(reason);
+    }
+  );
 
   test('a file seen before a failed check can still be loaded from', () => {
     loader({
@@ -337,9 +340,9 @@ describe('the source place', () => {
 
   test('a save that did not finish says why beside its retry', () => {
     source({ ...CHOSEN, saveError: 'Saving stopped.' });
-    expect(screen.getByTestId('puzzle-source-save-error').textContent).toContain(
-      'Saving stopped.'
-    );
+    expect(
+      screen.getByTestId('puzzle-source-save-error').textContent
+    ).toContain('Saving stopped.');
     expect(disabled('puzzle-source-save')).toBe(false);
   });
 

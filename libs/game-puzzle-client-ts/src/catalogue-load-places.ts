@@ -178,7 +178,8 @@ export function catalogueLoadCommand(facts: {
   if (facts.stage === 'loading')
     return { kind: 'stop', blocked: offline ? 'offline' : null };
   if (offline) return { kind: 'start', blocked: 'offline' };
-  if (facts.source === 'checking') return { kind: 'start', blocked: 'checking' };
+  if (facts.source === 'checking')
+    return { kind: 'start', blocked: 'checking' };
   if (!facts.saved) return { kind: 'start', blocked: 'no-source' };
   if (facts.link === 'connecting')
     return { kind: 'start', blocked: 'connecting' };

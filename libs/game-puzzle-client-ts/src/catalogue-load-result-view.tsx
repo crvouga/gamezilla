@@ -48,10 +48,7 @@ export function CatalogueLoadResultView(props: {
   return (
     <StackVertical gap="lg" testId="puzzle-load-result">
       <ResultStatus job={props.job} />
-      <ProgressBar
-        label={t`Puzzles processed`}
-        progress={props.job.progress}
-      />
+      <ProgressBar label={t`Puzzles processed`} progress={props.job.progress} />
       <Show when={props.job.error} keyed>
         {(error) => (
           <Notice tone="error" dataSet={{ testid: 'puzzle-load-error' }}>

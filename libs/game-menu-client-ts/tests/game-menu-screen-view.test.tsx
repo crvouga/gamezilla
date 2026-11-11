@@ -50,26 +50,36 @@ function menu(options: {
 // the menu said "Drop discs and line up four" and then the rules, the same
 // instruction twice. The rules now have a place of their own: the menu
 // says what the game is once and offers how to play as a row.
-test.each([
-  390, 1440,
-])('at %ipx the menu holds rows only: the tagline once, and how to play as a row', (width) => {
-  const view = menu({ width, instructions: RULES, place: { screen: 'menu' } });
-  expect(view.getByText(TAGLINE)).toBeTruthy();
-  expect(view.queryByText(RULES)).toBeNull();
-  expect(view.getByTestId('game-choice-how-to-play')).toBeTruthy();
-  view.unmount();
-});
+test.each([390, 1440])(
+  'at %ipx the menu holds rows only: the tagline once, and how to play as a row',
+  (width) => {
+    const view = menu({
+      width,
+      instructions: RULES,
+      place: { screen: 'menu' },
+    });
+    expect(view.getByText(TAGLINE)).toBeTruthy();
+    expect(view.queryByText(RULES)).toBeNull();
+    expect(view.getByTestId('game-choice-how-to-play')).toBeTruthy();
+    view.unmount();
+  }
+);
 
-test.each([
-  390, 1440,
-])('at %ipx at most one row of the menu is emphasised', (width) => {
-  const view = menu({ width, instructions: RULES, place: { screen: 'menu' } });
-  const emphasised = view.container.querySelectorAll(
-    '[data-testid^="game-choice-"][data-emphasis="primary"]'
-  );
-  expect(emphasised.length).toBeLessThanOrEqual(1);
-  view.unmount();
-});
+test.each([390, 1440])(
+  'at %ipx at most one row of the menu is emphasised',
+  (width) => {
+    const view = menu({
+      width,
+      instructions: RULES,
+      place: { screen: 'menu' },
+    });
+    const emphasised = view.container.querySelectorAll(
+      '[data-testid^="game-choice-"][data-emphasis="primary"]'
+    );
+    expect(emphasised.length).toBeLessThanOrEqual(1);
+    view.unmount();
+  }
+);
 
 test('the how to play row opens its place, and that place says the rules', () => {
   const onOpen = mock((_place: GameMenuPlace) => undefined);

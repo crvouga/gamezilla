@@ -131,7 +131,10 @@ function SourceFiles(props: {
             />
           )}
         </Show>
-        <Show when={props.source.filename === null && props.source.chosen} keyed>
+        <Show
+          when={props.source.filename === null && props.source.chosen}
+          keyed
+        >
           {(chosen) => (
             <MenuRow
               title={<Trans>Chosen {props.sourceName}</Trans>}

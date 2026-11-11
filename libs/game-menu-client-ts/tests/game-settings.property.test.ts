@@ -8,8 +8,10 @@ import {
   assertGameSettings,
   GAME_SETTINGS_ROOT,
   type GameSettings,
+  type GameSettingsNode,
   type GameSettingsPlace,
   type GameSettingsRow,
+  type GameSettingsTree,
   gameSettingsBehind,
   gameSettingsChild,
   gameSettingsHandle,
@@ -88,6 +90,23 @@ const settings = rows.map(
 );
 const granted = fc.subarray([...PERMISSIONS]);
 
+/** Every row on the way to `shown` is one the person sees. */
+function expectWayInShown(
+  tree: GameSettingsTree,
+  shown: GameSettingsNode,
+  can: (permission: AppGrantKey) => boolean
+): void {
+  let at = shown;
+  while (at.parent !== null) {
+    const parent = tree.nodes.get(at.parent.screen);
+    if (parent === undefined) throw new Error('a parent is missing');
+    const row = at.row;
+    if (row === null) throw new Error('a screen below the root has a row');
+    expect(gameSettingsRows(parent, can)).toContain(row);
+    at = parent;
+  }
+}
+
 describe("a game's settings places", () => {
   test('every screen of the tree is a place, and Back walks up to the root', () => {
     assertProperty(
@@ -132,16 +151,7 @@ describe("a game's settings places", () => {
             node.place.screen === shown.place.screen ||
               node.place.screen.startsWith(`${shown.place.screen}/`)
           ).toBe(true);
-          // Every row on the way to the screen shown is one the person sees.
-          let at = shown;
-          while (at.parent !== null) {
-            const parent = tree.nodes.get(at.parent.screen);
-            if (parent === undefined) throw new Error('a parent is missing');
-            const row = at.row;
-            if (row === null) throw new Error('a screen below the root has a row');
-            expect(gameSettingsRows(parent, can)).toContain(row);
-            at = parent;
-          }
+          expectWayInShown(tree, shown, can);
           // The rows a group offers are exactly its permitted ones.
           for (const row of gameSettingsRows(node, can))
             expect(row.permission === undefined || can(row.permission)).toBe(
@@ -232,9 +242,9 @@ describe("a game's settings, declared as data", () => {
 
   test('settings are checked when the game is defined', () => {
     expect(() => assertGameSettings('race', LAPS)).not.toThrow();
-    expect(() =>
-      assertGameSettings('race', { ...LAPS, rows: [] })
-    ).toThrow('race: settings declares no rows');
+    expect(() => assertGameSettings('race', { ...LAPS, rows: [] })).toThrow(
+      'race: settings declares no rows'
+    );
     const [first] = LAPS.rows;
     if (first === undefined) throw new Error('LAPS has a row');
     expect(() =>
@@ -251,7 +261,11 @@ describe("a game's settings, declared as data", () => {
         ...LAPS,
         // Two rows that would both be pressed by `race-settings-laps`.
         rows: [
-          { key: 'laps', title: () => 'Laps', opens: { kind: 'group', rows: [] } },
+          {
+            key: 'laps',
+            title: () => 'Laps',
+            opens: { kind: 'group', rows: [] },
+          },
           {
             key: 'settings',
             title: () => 'More',

@@ -2,7 +2,7 @@ import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { importFixture } from './puzzle-import-fixtures';
 import { showLoaderPlace } from './puzzle-loader-places';
-import { readPuzzleSource } from './puzzle-source-ui';
+import { surveyPuzzleSource } from './puzzle-source-ui';
 
 export const LICHESS_SOURCE_PATH = '/api/puzzle-management/source';
 
@@ -93,12 +93,12 @@ export const finishSavingChosenLichessFile = scenarioAction({
     const ui = await actorUi(s, actor);
     await showLoaderPlace(s, actor, 'source');
     if (!(await ui.get('puzzle-source-save').isVisible())) return;
-    if ((await readPuzzleSource(s, actor)).offline) return;
+    if ((await surveyPuzzleSource(s, actor)).offline) return;
     await Promise.resolve(saveChosenLichessFile.act(s, actor));
     await pollUntil(
       s,
       async () => {
-        const source = await readPuzzleSource(s, actor);
+        const source = await surveyPuzzleSource(s, actor);
         return source.saved || source.saveFailed ? true : null;
       },
       { maxMs: 15000, description: 'chosen Lichess file save outcome' }
