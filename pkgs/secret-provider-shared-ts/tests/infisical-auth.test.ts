@@ -22,8 +22,33 @@ test('a project never selects another project session inherited by its terminal'
     '--domain',
     project.domain,
     '--profile',
-    'project-https_3A_2F_2Fapp.infisical.com-26137c60-8dea-4d95-a8a3-30901615b026',
+    'project-7911acf6-26137c60-8dea-4d95-a8a3-30901615b026',
   ]);
+});
+
+// regression: infisical-profile-name-too-long
+test('the default project profile name fits the Infisical CLI limit of 64 characters', () => {
+  const profile = infisicalProjectProfile(project, {});
+  expect(profile.length).toBeLessThanOrEqual(64);
+  expect(profile).toMatch(/^project-[0-9a-f]{8}-/);
+  expect(profile).toEndWith(project.workspaceId);
+  const longest = infisicalProjectProfile(
+    {
+      domain: `https://${'secrets.'.repeat(30)}example.com`,
+      workspaceId: 'w'.repeat(200),
+    },
+    {}
+  );
+  expect(longest.length).toBeLessThanOrEqual(64);
+  expect(longest).not.toBe(
+    infisicalProjectProfile(
+      {
+        domain: `https://${'secrets.'.repeat(30)}example.com`,
+        workspaceId: `${'w'.repeat(199)}x`,
+      },
+      {}
+    )
+  );
 });
 
 test('worktrees share a project session and may explicitly select their own', () => {

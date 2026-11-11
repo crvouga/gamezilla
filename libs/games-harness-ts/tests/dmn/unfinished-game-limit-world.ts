@@ -24,7 +24,9 @@ import sql from '@pkgs/sql-root-shared-ts/sql';
 export const MULTIPLAYER_LIMIT_TABLES = [
   ...BILLING_TABLES,
   ...MULTIPLAYER_TABLES,
-  // Seeking an opponent reads whether the seeker is a Synthetic User.
+  // regression: unfinished-game-limit-no-profile-table
+  // A search reads the searcher's account kind (a Synthetic User searches at
+  // the waiting person's rating).
   ...PROFILE_TABLES,
   ...SPACES_TABLES,
 ];
