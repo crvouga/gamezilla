@@ -86,6 +86,22 @@ export async function showsGameScreen(
     .isVisible();
 }
 
+type Node = ReturnType<Awaited<ReturnType<typeof actorUi>>['get']>;
+
+/**
+ * Tap `node`, unless it goes before the tap lands: the space's screen moves
+ * on by itself (the host's chosen game arrives, the menu settles), and the
+ * caller looks again at what shows instead.
+ */
+async function tapWhileShown(node: Node): Promise<void> {
+  try {
+    await node.tap();
+  } catch (error) {
+    // regression: space-menu-moves-on-before-tap
+    if (await node.isVisible()) throw error;
+  }
+}
+
 /**
  * Bring `actor` to the selected game's custom games: the space may already
  * show them, else the host picks the game and anyone opens the choice.
@@ -103,9 +119,9 @@ export async function showCustomGames(
       if (await ui.get(SHARED_SCREEN_MARK['custom-game']).isVisible())
         return true;
       if (await ui.get(Handles.gameChoice('custom-game')).isVisible())
-        await ui.get(Handles.gameChoice('custom-game')).tap();
+        await tapWhileShown(ui.get(Handles.gameChoice('custom-game')));
       else if (await ui.get(Handles.gameMenu(gameId)).isVisible())
-        await ui.get(Handles.gameMenu(gameId)).tap();
+        await tapWhileShown(ui.get(Handles.gameMenu(gameId)));
       return null;
     },
     { maxMs: 15_000, stepMs: 1, description: `${actor} reaches custom games` }

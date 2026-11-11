@@ -1,6 +1,7 @@
 import { expect, test } from 'bun:test';
 import type { IsolatedWorker } from '@pkgs/os-server-ts/wall-isolated-worker';
 import { createIsolatedBrowserProcess } from '@pkgs/ui-testing-bun-webview-server-ts/wall-io';
+import { ElementNotFoundError } from '@pkgs/ui-testing-root-shared-ts/element-not-found-error';
 
 function worker() {
   let receive: (value: unknown) => void = () => {};
@@ -101,4 +102,39 @@ test('device cleanup waits for the owned process to exit', async () => {
   exit.resolve();
   await closing;
   expect(closed).toBe(true);
+});
+
+// regression: browser-process-error-class-lost
+test('a missing element in the browser process is still an ElementNotFoundError', async () => {
+  const child = worker();
+  const post = child.process.post;
+  let receive: (value: unknown) => void = () => {};
+  const subscribe = child.process.subscribe;
+  child.process.subscribe = (listener) => {
+    receive = listener;
+    return subscribe(listener);
+  };
+  child.process.post = (raw) => {
+    const request = raw as { id: number; call?: { method: string } };
+    if (request.call?.method !== 'text') return post(raw);
+    receive({
+      id: request.id,
+      error: 'Element not found: testId("custom-game-debug")',
+      errorName: 'ElementNotFoundError',
+    });
+  };
+  const process = createIsolatedBrowserProcess(() => child.process);
+  const browser = await process.open({
+    webOrigin: 'http://localhost',
+    dataStore: { directory: '/device' },
+  });
+  const missing = await browser.driver
+    .get('custom-game-debug')
+    .text()
+    .catch((error: unknown) => error);
+  expect(missing).toBeInstanceOf(ElementNotFoundError);
+  expect((missing as Error).name).toBe('ElementNotFoundError');
+  expect((missing as Error).message).toContain('custom-game-debug');
+  await browser.close();
+  await process.close();
 });
