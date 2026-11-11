@@ -1,4 +1,5 @@
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
+import { GameLobbyScreen } from '@pkgs/ui-root-client-ts/game-lobby';
 import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
 import type { JSX } from 'solid-js';
 import type { MultiplayerPlace, MultiplayerStage } from './multiplayer-places';
@@ -43,6 +44,29 @@ export function MultiplayerMenuPlace(
       {props.notices}
       {props.children}
     </EmbeddedScreen>
+  );
+}
+
+/**
+ * Before a game: what is about to be played over the one command that
+ * moves on (find an opponent, stop looking), held at the foot of the
+ * screen.
+ */
+export function MultiplayerLobbyPlace(
+  props: MultiplayerPlaceFrame & {
+    readonly dock: JSX.Element;
+    readonly children: JSX.Element;
+  }
+): JSX.Element {
+  return (
+    <GameLobbyScreen
+      screenId="multiplayer"
+      dock={props.dock}
+      dataSet={placeMark(props)}
+    >
+      {props.notices}
+      {props.children}
+    </GameLobbyScreen>
   );
 }
 

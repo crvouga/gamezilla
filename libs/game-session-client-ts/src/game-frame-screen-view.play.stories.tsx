@@ -1,6 +1,6 @@
 import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
-import { FrameStory, onBoard } from './game-frame-board.example';
+import { onBoard } from './game-frame-board.example';
 import { FRAME_NO_PLAY } from './game-frame-empty';
 import { GameFrameScreenView } from './game-frame-screen-view';
 import {
@@ -61,6 +61,27 @@ export const EarlyTurn: Story = {
 /** Before the first move: the moves card says there are none yet. */
 export const NoMovesYet: Story = {
   args: { record: record([]) },
+  render: (args) => onBoard([])(args),
+};
+
+/**
+ * The game this device watched begin: the versus card covers the board for
+ * its count, the people who play on its two bands; a press goes to the board.
+ */
+export const Versus: Story = {
+  args: { record: record([]), overlay: { kind: 'versus', count: 3 } },
+  render: (args) => onBoard([])(args),
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(await canvas.findByTestId('custom-game-versus'));
+    await expect(args.onOverlay).toHaveBeenCalledWith({ type: 'skip' });
+    await expect(canvas.queryByTestId('custom-game-versus')).toBeNull();
+  },
+};
+
+/** The versus card as it opens, still: the count at three. */
+export const VersusCount: Story = {
+  args: { record: record([]), overlay: { kind: 'versus', count: 3 } },
   render: (args) => onBoard([])(args),
 };
 
@@ -137,7 +158,7 @@ export const Watching: Story = {
 
 /** A bigger table: the other seats sit above the board as a rail of chips. */
 export const FourSeats: Story = {
-  render: (args) => <FrameStory {...args} />,
+  render: (args) => onBoard(MID_GAME_MOVES)(args),
   args: {
     playerCount: 4,
     status: status({

@@ -1,5 +1,9 @@
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { Trans } from '@lingui/solid/macro';
+import type {
+  StageOverlay,
+  StageOverlayEvent,
+} from '@pkgs/turn-game-client-ts/stage-overlay';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import { MultiplayerCommandsView } from './multiplayer-commands-view';
@@ -15,6 +19,11 @@ import type {
 import { MultiplayerGuideView } from './multiplayer-guide-view';
 import { MultiplayerMovesView } from './multiplayer-moves-view';
 import { MultiplayerNotices } from './multiplayer-notices';
+import {
+  MultiplayerOverlayView,
+  type MultiplayerResultShown,
+  type MultiplayerVersusShown,
+} from './multiplayer-overlay-view';
 import type { MultiplayerPlaceFrame } from './multiplayer-place-frame';
 import type { MultiplayerPlace, MultiplayerStage } from './multiplayer-places';
 import { MultiplayerPlayView } from './multiplayer-play-view';
@@ -27,8 +36,16 @@ import { MultiplayerStatusView } from './multiplayer-status-view';
 import { MultiplayerTimeControlView } from './multiplayer-time-control-view';
 import type { MultiplayerSearchView } from './multiplayer-waiting';
 
+/**
+ * The matched game's stage: the seats around its board, under `overlay`.
+ * The place decides what lies over the board; the slot draws it there.
+ */
+export type MultiplayerBoardSlot = (overlay?: JSX.Element) => JSX.Element;
+
 export type MultiplayerScreenViewProps = {
   readonly title: string;
+  /** How the game is won, in one sentence, where the game says. */
+  readonly goal?: string | undefined;
   /** Where the search and the game stand; see `multiplayerStageOf`. */
   readonly stage: MultiplayerStage;
   /** The small screen this device shows within the stage. */
@@ -58,12 +75,20 @@ export type MultiplayerScreenViewProps = {
   /** The matched game; set in the `setup`, `playing` and `finished` stages. */
   readonly game: MultiplayerGameView | null;
   readonly commands: MultiplayerGameCommands;
-  /** The matched game's seats, its board and the line that says where it stands. */
-  readonly board?: JSX.Element;
+  /** The matched game's seats around its board. */
+  readonly board?: MultiplayerBoardSlot | undefined;
+  /** The one line that says where the matched game stands. */
+  readonly status?: JSX.Element;
   /** The person's own private setup for the matched game. */
   readonly setup?: JSX.Element;
-  /** How the matched game ended, as the result's headline. */
-  readonly outcome?: JSX.Element;
+  /** What lies over the matched game's board (`StageOverlay`). */
+  readonly overlay: StageOverlay;
+  /** The person's own overlay events: skip the count, close or show the result. */
+  readonly onOverlay: (event: StageOverlayEvent) => void;
+  /** Who plays whom, for the versus card. */
+  readonly versus?: MultiplayerVersusShown | undefined;
+  /** How the matched game ended, for the result card. */
+  readonly result?: MultiplayerResultShown | undefined;
   /** The confirmation open now, if any. */
   readonly confirming: MultiplayerConfirm | null;
   /** The game seats more than two: resigning draws the round for everyone. */
@@ -151,6 +176,7 @@ function FindPlace(props: Props): JSX.Element {
     <MultiplayerFindView
       {...frameOf(props)}
       title={props.title}
+      goal={props.goal}
       find={props.find}
       ratings={props.ratings}
       onOpen={props.onOpen}
@@ -181,6 +207,7 @@ function SearchingPlace(props: Props): JSX.Element {
         <MultiplayerSearchingView
           {...frameOf(props)}
           title={props.title}
+          goal={props.goal}
           search={search()}
           onStop={props.onStop}
         />
@@ -198,7 +225,8 @@ function PrivateSetupPlace(props: Props): JSX.Element {
           {...frameOf(props)}
           title={props.title}
           setup={props.setup}
-          board={props.board}
+          board={props.board?.()}
+          status={props.status}
           game={game()}
           onOpen={props.onOpen}
         />
@@ -215,7 +243,16 @@ function PlayPlace(props: Props): JSX.Element {
         <MultiplayerPlayView
           {...frameOf(props)}
           title={props.title}
-          board={props.board}
+          board={props.board?.(
+            <MultiplayerOverlayView
+              title={props.title}
+              overlay={props.overlay}
+              onOverlay={props.onOverlay}
+              versus={props.versus}
+              result={undefined}
+            />
+          )}
+          status={props.status}
           game={game()}
           commands={props.commands}
           onOpen={props.onOpen}
@@ -250,7 +287,8 @@ function MovesPlace(props: Props): JSX.Element {
         <MultiplayerMovesView
           {...frameOf(props)}
           title={props.title}
-          board={props.board}
+          board={props.board?.()}
+          status={props.status}
           game={game()}
           commands={props.commands}
         />
@@ -267,8 +305,10 @@ function ResultPlace(props: Props): JSX.Element {
         <MultiplayerResultView
           {...frameOf(props)}
           title={props.title}
-          outcome={props.outcome}
           board={props.board}
+          overlay={props.overlay}
+          onOverlay={props.onOverlay}
+          result={props.result}
           game={game()}
           commands={props.commands}
           online={props.online}
@@ -327,11 +367,12 @@ function Places(props: Props): JSX.Element {
  * it (`MULTIPLAYER_PLACES`). Before a game: why there is nothing to do,
  * the search's hub with its clock, ratings and guide one row away, and the
  * wait. With a game: its private setup, play on the live position, its
- * commands, its moves and its result. The connection and refusal notices
- * show on every place, and the resign and abort confirmation belongs to
- * this shell, so both outlive the place under them. The board, the private
- * setup and the result's headline are slots; `MultiplayerScreen` wires it
- * all to matchmaking.
+ * commands, its moves and its result. A game found on this device opens
+ * under the versus card and its count, and a finished one under its result
+ * card, as `overlay` says. The connection and refusal notices show on every
+ * place, and the resign and abort confirmation belongs to this shell, so
+ * both outlive the place under them. The board, its status line and the
+ * private setup are slots; `MultiplayerScreen` wires it all to matchmaking.
  */
 export function MultiplayerScreenView(props: Props): JSX.Element {
   return (

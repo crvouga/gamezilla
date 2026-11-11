@@ -1,0 +1,134 @@
+/*
+ * Opt-in (`GameSessionLayout`'s `fixedStage`): on a phone the game is one
+ * fixed view, never a page that scrolls. The column fills the frame under
+ * the host's bar; the board takes the frame's whole width and sits in the
+ * middle of the room left, with the seats against it; the game's commands
+ * are a bar held at the bottom edge; the rail (the move list) waits behind
+ * the game's menu. `GameBoardStage` narrows a board taller than the room
+ * (`--game-board-room`), so nothing is cut off and nothing moves. Wider
+ * windows keep the board beside its rail. Kept apart from
+ * game-ui.module.css, which is at its size limit.
+ */
+@media (max-width: 767px) {
+  [data-component="ScrollViewContent"]:has(
+    > [data-component="GameColumn"] > .fixed
+  ) {
+    flex: 1 1 0;
+    min-height: 0;
+    padding: 0;
+    gap: 0;
+  }
+  [data-component="GameColumn"]:has(> .fixed) {
+    flex: 1 1 0;
+    min-height: 0;
+    gap: 0;
+  }
+  /* The game's name and facts: one quiet line over the stage. */
+  [data-component="GameColumn"]:has(> .fixed) > :not(.fixed) {
+    flex: none;
+    padding: var(--ui-space-2) var(--ui-space-3) 0;
+  }
+  .fixed {
+    flex: 1 1 0;
+    min-height: 0;
+    gap: 0;
+    padding-bottom: 0;
+  }
+  .fixed > :not([data-component="GameLayout"]) {
+    flex: none;
+    margin: var(--ui-space-2) var(--ui-space-3) 0;
+  }
+  .fixed > [data-component="GameLayout"] {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 0;
+    min-height: 0;
+    gap: 0;
+  }
+  .fixed [data-game-slot="stage"] {
+    --game-stage-room: 1;
+    flex: 1 1 0;
+    min-height: 0;
+    max-width: none;
+    overflow: hidden auto;
+  }
+  /* Centred in the room; auto margins never cut a taller stage's top off. */
+  .fixed [data-game-slot="stage"] > [data-game-board-stage] {
+    max-width: none;
+    margin-block: auto;
+    padding-block: var(--ui-space-2);
+    gap: var(--ui-space-2);
+  }
+  .fixed [data-game-board-stage] > :not([data-game-board]) {
+    margin-inline: var(--ui-space-2);
+  }
+  .fixed [data-game-board-stage] > [data-game-board] {
+    align-self: center;
+    max-width: min(100%, var(--game-board-room, 100%));
+    border-radius: var(--ui-radius-none);
+  }
+  /* The commands: a bar at the bottom edge, over the page's own surface. */
+  .fixed [data-game-slot="controls"] {
+    flex: none;
+    align-self: stretch;
+    gap: var(--ui-space-2);
+    padding: var(--ui-space-2) var(--ui-space-3)
+      calc(var(--ui-space-2) + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--ui-color-border);
+    background: var(--ui-color-surface);
+  }
+  .fixed [data-game-slot="controls"] > * {
+    align-self: stretch;
+    width: 100%;
+    max-width: none;
+  }
+  /* Every command the same size, side by side: a row of thumbs' targets. */
+  .fixed [data-game-slot="controls"] [data-component="GameActionBar"] {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+    width: 100%;
+  }
+  /* The one filled command leads a bar of three or more, on a row of its own. */
+  .fixed
+    [data-game-slot="controls"]
+    [data-component="GameActionBar"]
+    > [data-variant="solid"]:first-child:nth-last-child(n + 3) {
+    grid-column: 1 / -1;
+  }
+  /* Four make two rows of two, so no label is cut short. */
+  .fixed
+    [data-game-slot="controls"]
+    [data-component="GameActionBar"]:has(> :first-child:nth-last-child(4)) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .fixed
+    [data-game-slot="controls"]
+    [data-component="GameActionBar"]
+    > [data-variant="solid"]:first-child:nth-last-child(4) {
+    grid-column: auto;
+  }
+  .fixed [data-game-slot="controls"] [data-component="GameActionBar"] > * {
+    width: 100%;
+    min-width: 0;
+  }
+  .fixed [data-game-slot="rail"] {
+    display: none;
+  }
+}
+/* A short phone gives the board the room its gaps took. */
+@media (max-width: 767px) and (max-height: 700px) {
+  [data-component="GameColumn"]:has(> .fixed) > :not(.fixed) {
+    padding-top: var(--ui-space-1);
+  }
+  .fixed > :not([data-component="GameLayout"]) {
+    margin-top: var(--ui-space-1);
+  }
+  .fixed [data-game-slot="stage"] > [data-game-board-stage] {
+    padding-block: var(--ui-space-1);
+    gap: var(--ui-space-1);
+  }
+  .fixed [data-game-slot="controls"] {
+    padding-top: var(--ui-space-1);
+    gap: var(--ui-space-1);
+  }
+}

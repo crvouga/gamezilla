@@ -6,8 +6,11 @@ import {
   useGameChoicesName,
 } from '@libs/spaces-client-ts/spaces-nav-context';
 import { Trans } from '@lingui/solid/macro';
+import { useTimers } from '@pkgs/clock-client-ts/solid';
+import { NO_STAGE_OVERLAY } from '@pkgs/turn-game-client-ts/stage-overlay';
 import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { useScreenPlace } from '@pkgs/turn-game-client-ts/use-screen-place';
+import { useStageOverlay } from '@pkgs/turn-game-client-ts/use-stage-overlay';
 import { createEffect, type JSX } from 'solid-js';
 import { useRefusalText } from './custom-game-error';
 import { CUSTOM_GAME_PLACES } from './custom-game-places';
@@ -19,6 +22,7 @@ import {
   FRAME_NO_PLAY,
   FRAME_NO_TABLE,
 } from './game-frame-empty';
+import { frameOverlayPhase } from './game-frame-overlay-view';
 import { FrameBoardMount, useFrameBoard } from './game-frame-play';
 import { useFrameResult } from './game-frame-result';
 import {
@@ -83,6 +87,8 @@ const DENIED_FRAME = {
   place: CUSTOM_GAME_PLACES.home.none,
   onOpen: () => undefined,
   onClose: () => undefined,
+  overlay: NO_STAGE_OVERLAY,
+  onOverlay: () => undefined,
 } satisfies Omit<GameFrameScreenViewProps, 'title' | 'onBack'>;
 
 type FrameProps = {
@@ -109,12 +115,31 @@ function useCustomGamePlace(
   return { phase, ...navigation };
 }
 
+/** What the game's own presentation says of the screen around its board. */
+function useFramePresentationFacts(model: FrameProps['model']) {
+  const presentation = useGamePresentation();
+  const shown = () => {
+    const game = model.current();
+    return game === null ? undefined : presentation(game.fen);
+  };
+  return {
+    /** How the game is won, in one sentence. */
+    goal: (): string | undefined => shown()?.goal?.(),
+    boardAlign: (): 'start' | undefined => shown()?.frame.boardAlign,
+    boardFit: (): 'square' | undefined => shown()?.frame.boardFit,
+  };
+}
+
 /** Reads the room for `GameFrameScreenView`: the allowed custom game. */
 function CustomGameFrame(props: FrameProps): JSX.Element {
   const model = props.model;
   const review = useCustomGameReview(model);
   const place = useCustomGamePlace(model, review);
   const choices = useGameChoicesName();
+  const stage = useStageOverlay(
+    () => frameOverlayPhase(place.phase()),
+    useTimers()
+  );
   const board = useFrameBoard(model, review);
   const refusal = useRefusalText();
   const status = useFrameStatus(model);
@@ -126,15 +151,7 @@ function CustomGameFrame(props: FrameProps): JSX.Element {
   const next = useFrameNext(model);
   const record = useFrameRecord(model, review);
   const boardState = useFrameBoardState(model, review, board);
-  const presentation = useGamePresentation();
-  const boardAlign = (): 'start' | undefined => {
-    const game = model.current();
-    return game === null ? undefined : presentation(game.fen).frame.boardAlign;
-  };
-  const boardFit = (): 'square' | undefined => {
-    const game = model.current();
-    return game === null ? undefined : presentation(game.fen).frame.boardFit;
-  };
+  const shown = useFramePresentationFacts(model);
   return (
     <>
       {/* Back from a phase's home names where it leads: the game's choices. */}
@@ -150,12 +167,15 @@ function CustomGameFrame(props: FrameProps): JSX.Element {
       />
       <GameFrameScreenView
         title={props.title}
+        goal={shown.goal()}
         phase={place.phase()}
         place={place.place()}
         onOpen={place.open}
         onClose={() => {
           place.back();
         }}
+        overlay={stage.overlay()}
+        onOverlay={stage.send}
         viewerSide={model.mySide()}
         watchers={watchers()}
         connection={frameConnection(model)}
@@ -173,8 +193,8 @@ function CustomGameFrame(props: FrameProps): JSX.Element {
         board={<FrameBoardMount board={board} />}
         setupBoard={<CustomGameSetupBoard model={model} />}
         boardState={boardState()}
-        boardFit={boardFit()}
-        boardAlign={boardAlign()}
+        boardFit={shown.boardFit()}
+        boardAlign={shown.boardAlign()}
         people={PEOPLE}
         onChoose={model.choose}
         onReady={model.ready}

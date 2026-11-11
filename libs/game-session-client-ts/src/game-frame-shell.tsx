@@ -1,6 +1,7 @@
 import type { CustomGameInput } from '@libs/game-session-shared-ts/custom-game-choice';
 import { Trans } from '@lingui/solid/macro';
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
+import { GameLobbyScreen } from '@pkgs/ui-root-client-ts/game-lobby';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { type Accessor, createSignal, type JSX, Show } from 'solid-js';
@@ -111,7 +112,8 @@ export function FramePlacePage(
   > & {
     /** `custom-game-${place}`. */
     readonly screenId: string;
-    readonly title: JSX.Element;
+    /** Omit when the place opens with its own title (a mode card). */
+    readonly title?: JSX.Element | undefined;
     readonly subtitle?: JSX.Element | undefined;
     readonly children: JSX.Element;
   }
@@ -136,5 +138,40 @@ export function FramePlacePage(
         <FrameStatusView status={props.status} spokenOnly />
       </StackVertical>
     </EmbeddedScreen>
+  );
+}
+
+/**
+ * The lobby's page: the same column as any place, its body opening with the
+ * game's mode card, over a dock that keeps the lobby's one command at the
+ * foot of the screen however long the roster grows.
+ */
+export function FrameLobbyPage(
+  props: Pick<
+    GameFrameScreenViewProps,
+    'connection' | 'error' | 'status' | 'phase' | 'place'
+  > & {
+    /** `custom-game-${place}`. */
+    readonly screenId: string;
+    readonly dock: JSX.Element;
+    readonly children: JSX.Element;
+  }
+): JSX.Element {
+  return (
+    <GameLobbyScreen screenId={props.screenId} dock={props.dock}>
+      <StackVertical
+        gap="lg"
+        testId="custom-game-content"
+        dataSet={{
+          component: 'CustomGameContent',
+          phase: props.phase,
+          place: props.place.screen,
+        }}
+      >
+        <FrameNoticesView connection={props.connection} error={props.error} />
+        {props.children}
+        <FrameStatusView status={props.status} spokenOnly />
+      </StackVertical>
+    </GameLobbyScreen>
   );
 }

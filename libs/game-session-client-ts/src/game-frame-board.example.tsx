@@ -3,7 +3,13 @@ import {
   placeBehind,
   placeIn,
 } from '@pkgs/turn-game-client-ts/screen-places';
-import { createSignal, type JSX } from 'solid-js';
+import {
+  type StageOverlay,
+  type StageOverlayPhase,
+  stageOverlayAfter,
+  stageOverlayPhaseEvent,
+} from '@pkgs/turn-game-client-ts/stage-overlay';
+import { createComputed, createSignal, type JSX, on } from 'solid-js';
 import { ConnectFourStoryBoard } from './connect-four-story-board.example';
 import { CUSTOM_GAME_PLACES, type CustomGamePlace } from './custom-game-places';
 import { recordReviewing } from './game-frame-moves-view';
@@ -13,6 +19,11 @@ import {
 } from './game-frame-screen-view';
 import { WON_LINE, WON_MOVES } from './game-frame-story.example';
 import type { FramePhase } from './game-frame-view-types';
+
+function overlayPhase(phase: FramePhase): StageOverlayPhase {
+  if (phase === 'active') return 'play';
+  return phase === 'completed' || phase === 'cancelled' ? 'over' : 'setup';
+}
 
 /**
  * The frame as a story shows it: opened on the story's place, and moving
@@ -31,9 +42,30 @@ export function FrameStory(
   > | null>({ stage: props.phase, place: props.place });
   const place = (): CustomGamePlace =>
     placeIn(CUSTOM_GAME_PLACES, props.phase, opened());
+  const [overlay, setOverlay] = createSignal<StageOverlay>(props.overlay);
+  // The story's phase moves the overlay as the app's does; the count is
+  // the story's own (a still card), so no picture depends on time.
+  let seen = overlayPhase(props.phase);
+  createComputed(
+    on(
+      () => overlayPhase(props.phase),
+      (to) => {
+        const event = stageOverlayPhaseEvent(seen, to);
+        seen = to;
+        if (event !== null)
+          setOverlay((state) => stageOverlayAfter(state, event));
+      },
+      { defer: true }
+    )
+  );
   return (
     <GameFrameScreenView
       {...props}
+      overlay={overlay()}
+      onOverlay={(event) => {
+        props.onOverlay(event);
+        setOverlay((state) => stageOverlayAfter(state, event));
+      }}
       place={place()}
       onOpen={(next) => {
         props.onOpen(next);

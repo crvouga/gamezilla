@@ -9,6 +9,7 @@ import { BattleshipSetupBoard } from './battleship-setup-board';
 export const battleshipPresentation: GameClientPresentation = {
   canFlip: false,
   name: () => t`Battleship`,
+  goal: () => t`Hide your fleet, then sink every ship of theirs first.`,
   Board: BattleshipBoard,
   SetupBoard: BattleshipSetupBoard,
   sideLabel: sideName,

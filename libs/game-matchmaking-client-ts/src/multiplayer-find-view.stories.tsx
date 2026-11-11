@@ -28,6 +28,7 @@ type Story = StoryObj<typeof meta>;
 
 const TIMED = {
   title: 'Chess',
+  goal: "Checkmate your opponent's king.",
   find: { players: 2, timed: true, timeControl: '5+0' },
   ratings: SPEED_RATINGS,
 } as const;
@@ -47,6 +48,7 @@ export const FindTimed: Story = { args: TIMED };
 export const FindPlayers: Story = {
   args: {
     title: 'Hearts',
+    goal: 'Take as few hearts as you can. The lowest score wins.',
     find: { players: 4, timed: true, timeControl: '10+5' },
     ratings: SPEED_RATINGS,
   },

@@ -97,7 +97,7 @@ export const InvitedToPlay: Story = {
           seat(
             'black',
             { kind: 'invitation', person: PEOPLE.jordan },
-            'Invited person: jordan_plays'
+            'jordan_plays'
           ),
           {
             invitation: {

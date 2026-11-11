@@ -1,4 +1,5 @@
 import { Trans } from '@lingui/solid/macro';
+import { GameModeCard } from '@pkgs/ui-root-client-ts/game-lobby';
 import { BotIcon, UsersIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
@@ -9,7 +10,8 @@ import type { FramePlaceProps } from './game-frame-screen-view';
 import { FramePlacePage } from './game-frame-shell';
 
 /**
- * Before any game: play the bots at once, or set a game up with people.
+ * Before any game: what a custom game is, then play the bots at once, or
+ * set a game up with people.
  * Someone who may not create one is told who will.
  */
 export function FrameStartPlace(props: FramePlaceProps): JSX.Element {
@@ -17,11 +19,24 @@ export function FrameStartPlace(props: FramePlaceProps): JSX.Element {
   const choices = createFrameChoices(() => undefined);
   return (
     <FramePlacePage
-      {...props}
+      connection={props.connection}
+      error={props.error}
+      status={props.status}
+      phase={props.phase}
+      place={props.place}
       screenId="custom-game-start"
-      title={props.title}
-      subtitle={<Trans>Anyone in this space can watch.</Trans>}
     >
+      <GameModeCard
+        eyebrow={<Trans>Custom game</Trans>}
+        title={props.title}
+        summary={
+          <Trans>
+            A private, unrated game with the people in this space, or bots.
+            Anyone in this space can watch.
+          </Trans>
+        }
+        dataSet={{ testid: 'custom-game-mode' }}
+      />
       <Show
         when={props.canCreate}
         fallback={

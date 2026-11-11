@@ -12,7 +12,7 @@ import {
   type MultiplayerPlaceFrame,
 } from './multiplayer-place-frame';
 import { SpeedName } from './speed-name';
-import { timeControlChoiceText } from './time-control-name';
+import { timeControlChoiceText, timeControlWords } from './time-control-name';
 
 /**
  * The clock a search is for: every offered time control, grouped by its
@@ -33,8 +33,8 @@ export function MultiplayerTimeControlView(
       title={<Trans>Time control</Trans>}
       subtitle={
         <Trans>
-          Minutes per player + seconds added after each move, or days for every
-          move in a daily game.
+          Each player's time for the whole game, plus the seconds every move
+          adds. A daily game gives days for each move.
         </Trans>
       }
     >
@@ -44,7 +44,13 @@ export function MultiplayerTimeControlView(
             <For each={TIME_CONTROLS.filter((c) => c.speed === speed)}>
               {(control) => (
                 <MenuRow
-                  title={timeControlChoiceText(control.id)}
+                  title={timeControlWords(control.id)}
+                  value={
+                    timeControlWords(control.id) ===
+                    timeControlChoiceText(control.id)
+                      ? undefined
+                      : timeControlChoiceText(control.id)
+                  }
                   selected={props.timeControl === control.id}
                   hideChevron
                   onClick={() => props.onChoose(control.id)}

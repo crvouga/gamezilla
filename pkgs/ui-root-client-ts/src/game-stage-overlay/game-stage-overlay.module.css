@@ -1,0 +1,312 @@
+/* Over the board, never the page: the stage's board is the overlay's frame,
+   so the board stays where it is and the overlay never moves the layout. */
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  container-type: size;
+}
+/* The versus card: one press target that fills the board. */
+.versus {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: var(--ui-color-background);
+  color: var(--ui-color-text);
+  font: inherit;
+  text-align: center;
+  cursor: pointer;
+}
+.versus:focus-visible {
+  outline: 2px solid var(--ui-color-focus-ring);
+  outline-offset: -4px;
+}
+/* Two bands meeting on a slant: the others above, the person's own below. */
+.band {
+  position: absolute;
+  inset-inline: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-evenly;
+  gap: var(--ui-space-2);
+  padding: var(--ui-space-8) var(--ui-space-4) var(--ui-space-4);
+}
+.band[data-edge="top"] {
+  top: 0;
+  height: 60%;
+  background: var(--ui-color-surface-elevated);
+  clip-path: polygon(0 0, 100% 0, 100% 68%, 0 100%);
+}
+.band[data-edge="bottom"] {
+  bottom: 0;
+  height: 60%;
+  align-items: flex-end;
+  padding: var(--ui-space-4) var(--ui-space-4) var(--ui-space-8);
+  background: var(--ui-color-tint-active);
+  color: var(--ui-color-on-primary);
+  clip-path: polygon(0 32%, 100% 0, 100% 100%, 0 100%);
+}
+/* One side: the picture over the name, so a table of four fits a row. */
+.side {
+  display: flex;
+  flex: 0 1 auto;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ui-space-1);
+  min-width: 0;
+}
+/* A side alone in its band reads as a line: the picture, then who it is,
+   the two bands leaning to opposite edges. */
+.band[data-solo="true"] {
+  justify-content: flex-start;
+}
+.band[data-solo="true"][data-edge="bottom"] {
+  justify-content: flex-end;
+}
+.band[data-solo="true"] .side {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  column-gap: var(--ui-space-3);
+  row-gap: 0;
+  text-align: start;
+}
+.band[data-solo="true"] .sideAvatar {
+  grid-row: 1 / span 2;
+}
+.band[data-solo="true"] .sideName {
+  align-self: end;
+}
+.band[data-solo="true"] .sideCaption {
+  align-self: start;
+}
+.band[data-solo="true"][data-edge="bottom"] .side {
+  grid-template-columns: minmax(0, 1fr) auto;
+  text-align: end;
+}
+.band[data-solo="true"][data-edge="bottom"] .sideAvatar {
+  grid-column: 2;
+}
+.band[data-solo="true"][data-edge="bottom"] .sideName {
+  grid-column: 1;
+  grid-row: 1;
+  justify-content: flex-end;
+}
+.band[data-solo="true"][data-edge="bottom"] .sideCaption {
+  grid-column: 1;
+  grid-row: 2;
+}
+.sideAvatar {
+  display: flex;
+  border-radius: var(--ui-radius-full);
+  box-shadow: 0 0 0 4px var(--ui-color-background);
+}
+.sideName {
+  display: flex;
+  align-items: center;
+  gap: var(--ui-space-2);
+  max-width: 100%;
+  min-width: 0;
+}
+.sideName > :last-child {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.sideCaption {
+  color: var(--ui-color-text-secondary);
+}
+.band[data-edge="bottom"] .sideCaption {
+  color: inherit;
+  opacity: 0.85;
+}
+/* A band of several keeps to names: the seat's look says the side. */
+.band[data-solo="false"] .sideCaption {
+  display: none;
+}
+/* The mark in the middle, over the slant, with the count under it. */
+.centre {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ui-space-1);
+  pointer-events: none;
+}
+.mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  border: 4px solid var(--ui-color-tint-active);
+  border-radius: var(--ui-radius-full);
+  background: var(--ui-color-background);
+  box-shadow: var(--ui-elevation-4);
+  color: var(--ui-color-text);
+  font-family: var(--ui-font-display);
+  font-size: var(--ui-font-size-3xl);
+  font-style: italic;
+  font-weight: var(--ui-font-weight-bold);
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+.count {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--ui-space-2);
+  padding: var(--ui-space-1) var(--ui-space-3);
+  border-radius: var(--ui-radius-full);
+  background: var(--ui-color-background);
+  box-shadow: var(--ui-elevation-2);
+}
+.line {
+  position: absolute;
+  inset-inline: 0;
+  padding: var(--ui-space-2) var(--ui-space-3);
+  pointer-events: none;
+}
+.line[data-edge="top"] {
+  top: 0;
+  color: var(--ui-color-text-secondary);
+}
+.line[data-edge="bottom"] {
+  bottom: 0;
+  color: var(--ui-color-on-primary);
+}
+
+/* The result: the final board dimmed behind one small card. */
+.result {
+  position: relative;
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 0;
+  padding: var(--ui-space-3);
+}
+.scrim {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: var(--ui-color-scrim);
+  cursor: pointer;
+}
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-3);
+  width: 100%;
+  max-width: 352px;
+  max-height: 100%;
+  min-width: 0;
+  padding: var(--ui-space-4);
+  overflow: hidden auto;
+  border-top: 4px solid var(--ui-color-outline);
+  border-radius: var(--ui-radius-card);
+  background: var(--ui-color-surface-elevated);
+  box-shadow: var(--ui-elevation-5);
+}
+.card[data-tone="won"] {
+  border-top-color: var(--ui-color-success);
+}
+.card[data-tone="lost"] {
+  border-top-color: var(--ui-color-destructive);
+}
+.cardHead {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ui-space-2);
+  min-width: 0;
+}
+.cardTitle {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--ui-space-1);
+  min-width: 0;
+}
+.eyebrow {
+  color: var(--ui-color-text-secondary);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.card[data-tone="won"] .eyebrow {
+  color: var(--ui-color-success);
+}
+.card[data-tone="lost"] .eyebrow {
+  color: var(--ui-color-destructive);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .band[data-edge="top"] {
+    animation: versus-top var(--ui-duration-slow) var(--ui-easing-standard) both;
+  }
+  .band[data-edge="bottom"] {
+    animation: versus-bottom var(--ui-duration-slow) var(--ui-easing-standard)
+      both;
+  }
+  .mark {
+    animation: versus-mark var(--ui-duration-slow) var(--ui-easing-standard)
+      both;
+  }
+  .card {
+    animation: ui-dialog-enter var(--ui-duration-normal)
+      var(--ui-easing-standard) both;
+  }
+  .scrim {
+    animation: ui-fade-in var(--ui-duration-normal) var(--ui-easing-standard)
+      both;
+  }
+}
+@keyframes versus-top {
+  from {
+    transform: translateX(-100%);
+  }
+}
+@keyframes versus-bottom {
+  from {
+    transform: translateX(100%);
+  }
+}
+@keyframes versus-mark {
+  from {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+
+/* A small board (a short phone) keeps the whole card: it only tightens. */
+@container (max-height: 336px) {
+  .result {
+    padding: var(--ui-space-2);
+  }
+  .card {
+    gap: var(--ui-space-2);
+    padding: var(--ui-space-2) var(--ui-space-3) var(--ui-space-3);
+  }
+  .cardTitle > p {
+    display: none;
+  }
+  .mark {
+    width: 64px;
+    height: 64px;
+    font-size: var(--ui-font-size-2xl);
+  }
+}

@@ -8,6 +8,8 @@ import { heartsFrame } from './hearts-frame';
 export const heartsPresentation: GameClientPresentation = {
   canFlip: false,
   name: () => t`Hearts`,
+  goal: () =>
+    t`Avoid the hearts and the queen of spades. The lowest score wins.`,
   Board: HeartsBoard,
   sideLabel: heartsSeatName,
   frame: heartsFrame,

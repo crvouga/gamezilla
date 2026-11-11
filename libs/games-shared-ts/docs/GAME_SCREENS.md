@@ -37,6 +37,23 @@ reviewed is the [Storybook agent workflow](../../../pkgs/ui-root-harness-ts/READ
    to pick what it shows. A stage may place its rail beside the board when
    there is room (`GameLayout`, a container query); that is the only
    difference between a phone and a desktop.
+8. **A stage is one fixed view on a phone.** The board takes the screen's
+   whole width and sits in the middle of the room left, with the seats
+   against it and the commands in one bar at the bottom edge
+   (`GameSessionLayout`'s `fixedStage`). Nothing on it scrolls and the board
+   never moves: a board taller than the room narrows instead
+   (`GameBoardStage`). The moves wait behind the game's menu; a wide window
+   keeps them beside the board.
+9. **What interrupts the board lies over the board.** Who plays whom before
+   the game (`GameVersusOverlay`) and how it ended (`GameResultOverlay`) are
+   the stage's `overlay`: they cover the board and nothing else, so nothing
+   around it shifts. Which one shows is a state machine of its own (below).
+10. **A lobby says what is about to be played and has one command.** It
+    opens with the mode card (`GameModeCard`: the mode, the game's name, how
+    it is won in a sentence, and what is agreed as three facts), then the
+    roster as plain rows with each person's ready state, and one large
+    command docked under the thumb (`GameLobbyScreen`, `GameLobbyDock`).
+    Nothing is dragged: a seat is a row, and pressing it opens its choices.
 
 ## Places: the explicit state machine
 
@@ -68,6 +85,26 @@ stage, and each place's parent.
   stage, the place and `onOpen(place)`. Stories pass both as args, so every
   place of every stage is a story.
 
+## The stage's overlay: a second explicit machine
+
+What lies over the board is `StageOverlay`
+(`@pkgs/turn-game-client-ts/stage-overlay`), a pure transition function
+with four states:
+
+| State | Shows | Leaves on |
+| --- | --- | --- |
+| `none` | The board | `began` (to `versus`), `ended` (to `outcome`) |
+| `versus` (a count, 3 to 1) | Who plays whom, counting down | `tick` at 1, `skip` (a press), `ended` |
+| `outcome` | The result card | `dismiss` (to `board`), `reset` |
+| `board` | The final board, the card closed | `show` (back to `outcome`), `reset` |
+
+`useStageOverlay` feeds it from the template's stage and from injected
+timers (`useTimers`), one tick a second. A game this device watched begin
+plays the versus card; a game already under way when the screen opened
+does not, and a game already over opens under its result card. The views
+take the state and one `onOverlay(event)`, so every state is a story and
+no view keeps a timer or a flag of its own.
+
 ## The catalogue
 
 Story ids are `screens-games-<template>-<place>`; every place has stories for
@@ -95,7 +132,13 @@ position is the `moves` place; leaving it returns the board to live. An
 answer the game is waiting for (a draw offered, a win to claim) is asked on
 the play screen; every other command is a row of the game menu
 (`commands`). The lobby's one filled command is the next thing to do: take a
-seat, arrange an incomplete private setup, get ready, then start.
+seat, arrange an incomplete private setup, get ready, then start. It sits in
+the lobby's dock, under the mode card and the roster.
+
+`play` opens under the versus card when the game starts on this device, and
+`result` is the final board under the result card: the headline, the
+standings and, once the card is closed, a line that brings it back. The
+commands for what next are the bar under the board on both.
 
 Code: `libs/game-session-client-ts/src/custom-game-places.ts` (the machine),
 `game-frame-screen-view.tsx` (the switch), one `game-frame-*-view.tsx` per
@@ -127,6 +170,13 @@ unfinished game comes before a waiting search, and a search before a
 finished game. Its names follow the product statechart's (`#Multiplayer:
 Choosing a time control` is `idle`, `Finding an opponent` is `searching`,
 `Playing multiplayer` is `playing`, `Finished multiplayer` is `finished`).
+
+`find` and `searching` are the same lobby as a custom game's: the mode card
+(Ranked match, the game, how it is won, the players, the clock in words),
+then one docked command (Find an opponent, Stop). A game found on this
+device opens under the versus card with both ratings; `result` lays the
+result card over the final board, with the rating change in its caption and
+the moves beside a wide board.
 
 Two refinements the specs demand. A finished game keeps the search's hub
 one row from its result, because New opponent seeks at the finished game's

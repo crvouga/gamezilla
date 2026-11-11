@@ -63,11 +63,7 @@ export const BOT_SEAT: FrameSetupSeat = setupSeat(BOT, {
 
 /** An invitation out to jordan_plays, as the host sees it. */
 export const INVITED_SEAT: FrameSetupSeat = setupSeat(
-  seat(
-    'black',
-    { kind: 'invitation', person: PEOPLE.jordan },
-    'Invited person: jordan_plays'
-  ),
+  seat('black', { kind: 'invitation', person: PEOPLE.jordan }, 'jordan_plays'),
   {
     invitation: {
       mine: false,

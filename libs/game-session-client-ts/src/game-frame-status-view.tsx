@@ -28,6 +28,28 @@ export function captionLine(status: FrameStatus): string {
   return status.sending ? t`Sending choice…` : status.description;
 }
 
+/**
+ * The agreed clock in plain words (`10 min + 5 sec`, `Untimed`), where a
+ * game is set up and someone may not know what `10+5` means.
+ */
+export function FrameClockWords(props: {
+  readonly minutes: number;
+  readonly increment: number;
+}): JSX.Element {
+  return (
+    <Switch fallback={<Trans>Untimed</Trans>}>
+      <Match when={props.minutes > 0 && props.increment > 0}>
+        <Trans>
+          {props.minutes} min + {props.increment} sec
+        </Trans>
+      </Match>
+      <Match when={props.minutes > 0}>
+        <Trans>{props.minutes} min</Trans>
+      </Match>
+    </Switch>
+  );
+}
+
 /** The agreed clock: minutes + added seconds. */
 function TimeControlFact(props: { readonly status: FrameStatus }): JSX.Element {
   return (

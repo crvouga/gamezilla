@@ -52,7 +52,7 @@ describe('each stage opens on its own small screen', () => {
     view.set({ game: FINISHED });
     view.setStage('finished');
     expect(mark()).toEqual({ stage: 'finished', place: 'result' });
-    expect(ids('slot-outcome', 'slot-board')).toHaveLength(2);
+    expect(ids('multiplayer-announcement', 'slot-board')).toHaveLength(2);
   });
 
   test('a watcher with no game is told so and given the way back', () => {
@@ -132,13 +132,95 @@ describe('a place does not outlive its stage', () => {
 });
 
 describe('play holds the board and one way to the commands', () => {
-  test('play shows no command of the game but the one control that opens them', () => {
+  test('play holds the board, the two commands a game is left by, and the menu for the rest', () => {
     mountPlaces({ stage: 'playing' });
     expect(ids(...GAME_COMMANDS)).toEqual([]);
-    expect(ids('slot-board', 'multiplayer-open-commands')).toHaveLength(2);
+    expect(
+      ids(
+        'slot-board',
+        'slot-status',
+        'multiplayer-offer-draw-now',
+        'multiplayer-leave-now',
+        'multiplayer-open-commands'
+      )
+    ).toHaveLength(5);
     // The moves played are listed; the steps through them are not here.
     expect(ids('multiplayer-move-1', 'multiplayer-move-2')).toHaveLength(2);
     expect(ids('multiplayer-review-back', 'multiplayer-moves')).toEqual([]);
+  });
+
+  // regression: matchmaking-commands-hidden — offering a draw and resigning
+  // were two presses away, behind one "Commands" control.
+  test('offering a draw is one press from the board; resigning asks first', () => {
+    const view = mountPlaces({ stage: 'playing' });
+    screen.getByTestId('multiplayer-offer-draw-now').click();
+    expect(view.props().commands.offerDraw).toHaveBeenCalledTimes(1);
+    const leave = screen.getByTestId('multiplayer-leave-now');
+    expect(leave.textContent).toContain('Resign');
+    leave.click();
+    expect(view.props().commands.ask).toHaveBeenCalledWith('resign');
+    expect(view.place()).toBe('play');
+    view.set({ game: { ...GAME, leave: 'abort' } });
+    expect(screen.getByTestId('multiplayer-leave-now').textContent).toContain(
+      'Abort'
+    );
+    screen.getByTestId('multiplayer-leave-now').click();
+    expect(view.props().commands.ask).toHaveBeenLastCalledWith('abort');
+  });
+
+  test('a watcher is shown neither, and a draw being answered is not offered again', () => {
+    const view = mountPlaces({
+      stage: 'playing',
+      props: { game: { ...GAME, leave: null, draw: 'none' } },
+    });
+    expect(ids('multiplayer-offer-draw-now', 'multiplayer-leave-now')).toEqual(
+      []
+    );
+    view.set({ game: { ...GAME, draw: 'answer' } });
+    expect(ids('multiplayer-offer-draw-now')).toEqual([]);
+    expect(
+      ids('multiplayer-accept-draw', 'multiplayer-leave-now')
+    ).toHaveLength(2);
+  });
+
+  // The versus card: only a match this device watched being found plays it.
+  test('an opponent found from a search is announced over the board, counted down, and skipped by a press', () => {
+    const view = mountPlaces({ stage: 'searching' });
+    expect(ids('multiplayer-versus')).toEqual([]);
+    view.setStage('playing');
+    const card = screen.getByTestId('multiplayer-versus');
+    expect(view.overlay()).toEqual({ kind: 'versus', count: 3 });
+    expect(card.getAttribute('data-count')).toBe('3');
+    expect(card.textContent).toContain('Bob');
+    expect(card.textContent).toContain('alice');
+    expect(card.textContent).toContain('Connect Four · Rated · 5 min');
+    expect(
+      screen.getByTestId('slot-board').closest('[data-component]')
+    ).toBeTruthy();
+    view.time.clock.advance(1000);
+    expect(view.overlay()).toEqual({ kind: 'versus', count: 2 });
+    screen.getByTestId('multiplayer-versus').click();
+    expect(view.overlay()).toEqual({ kind: 'none' });
+    expect(ids('multiplayer-versus')).toEqual([]);
+  });
+
+  test('left alone the versus card counts itself away and never holds the game', () => {
+    const view = mountPlaces({ stage: 'searching' });
+    view.setStage('playing');
+    // The game's commands are there under the card from the first moment.
+    expect(ids('multiplayer-leave-now', 'slot-board')).toHaveLength(2);
+    view.time.clock.advance(1000);
+    view.time.clock.advance(1000);
+    view.time.clock.advance(1000);
+    expect(view.overlay()).toEqual({ kind: 'none' });
+    expect(ids('multiplayer-versus')).toEqual([]);
+  });
+
+  test('a game opened already in play shows its board at once', () => {
+    const view = mountPlaces({ stage: 'loading' });
+    view.setStage('playing');
+    expect(view.overlay()).toEqual({ kind: 'none' });
+    expect(ids('multiplayer-versus')).toEqual([]);
   });
 
   test('a draw offered to the person is answered under the board', () => {
@@ -356,12 +438,16 @@ describe('the moves are a place of their own', () => {
   });
 });
 
+/** A filled command; the move list marks the move shown the same way. */
+const FILLED_COMMAND =
+  'button[data-variant="solid"]:not([data-testid^="multiplayer-move-"])';
+
 describe('the result', () => {
   test('holds the outcome, a rematch and a new opponent, with the moves and ratings one row away', () => {
     const view = mountPlaces({ stage: 'finished', props: { game: FINISHED } });
     expect(
       ids(
-        'slot-outcome',
+        'multiplayer-announcement',
         'slot-board',
         'multiplayer-offer-rematch',
         'multiplayer-new-opponent',
@@ -375,19 +461,69 @@ describe('the result', () => {
         ...GAME_COMMANDS.filter((id) => id !== 'multiplayer-open-moves'),
         'multiplayer-copy-game-record',
         'multiplayer-rating-game',
-        'multiplayer-move-1',
         'multiplayer-find'
       )
     ).toEqual([]);
-    const filled = [
-      ...view.container.querySelectorAll('button[data-variant="solid"]'),
-    ].map((button) => button.getAttribute('data-testid'));
+    // The moves played sit beside a wide board, as they do during play.
+    expect(ids('multiplayer-move-1', 'multiplayer-move-2')).toHaveLength(2);
+    const filled = [...view.container.querySelectorAll(FILLED_COMMAND)].map(
+      (button) => button.getAttribute('data-testid')
+    );
     expect(filled).toEqual(['multiplayer-new-opponent']);
     screen.getByTestId('multiplayer-open-ratings').click();
     expect(view.place()).toBe('ratings');
     expect(
       screen.getByTestId('multiplayer-rating-game-value').textContent
     ).toBe('1512?');
+  });
+
+  // regression: matchmaking-result-pushes-board — the result's headline and
+  // rows stood above and below the board, which moved as the game ended.
+  test('the result lies over the final board, is closed to see it, and is one press from coming back', () => {
+    const view = mountPlaces({ stage: 'playing' });
+    view.set({ game: FINISHED });
+    view.setStage('finished');
+    expect(view.overlay()).toEqual({ kind: 'outcome' });
+    const card = screen.getByTestId('multiplayer-announcement');
+    expect(card.textContent).toContain('Victory');
+    expect(card.textContent).toContain('You won the multiplayer game.');
+    expect(card.textContent).toContain('By resignation.');
+    // The one big word, the sentence and why are announced as one.
+    expect(card.querySelector('[role="status"]')?.textContent).toBe(
+      'VictoryYou won the multiplayer game. By resignation.'
+    );
+    expect(ids('multiplayer-show-result')).toEqual([]);
+    screen.getByRole('button', { name: 'Show the board' }).click();
+    expect(view.overlay()).toEqual({ kind: 'board' });
+    // How it ended is still said, and the commands are still there.
+    expect(
+      screen.getByTestId('multiplayer-announcement').textContent
+    ).toContain('You won the multiplayer game.');
+    expect(
+      ids('slot-board', 'multiplayer-new-opponent', 'multiplayer-offer-rematch')
+    ).toHaveLength(3);
+    screen.getByTestId('multiplayer-show-result').click();
+    expect(view.overlay()).toEqual({ kind: 'outcome' });
+    expect(ids('multiplayer-show-result')).toEqual([]);
+  });
+
+  test('a game lost, drawn or aborted is named as that on its card', () => {
+    const view = mountPlaces({
+      stage: 'finished',
+      props: {
+        game: FINISHED,
+        result: { tone: 'lost', title: 'Your opponent won.' },
+      },
+    });
+    const text = () =>
+      screen.getByTestId('multiplayer-announcement').textContent;
+    expect(text()).toContain('Defeat');
+    view.set({ result: { tone: 'drawn', title: 'Drawn.' } });
+    expect(text()).toContain('Draw');
+    view.set({ result: { tone: 'neutral', aborted: true, title: 'Aborted.' } });
+    expect(text()).toContain('No result');
+    view.set({ result: { tone: 'neutral', title: 'alice won.' } });
+    expect(text()).toContain('Game over');
   });
 
   test('Back from the ratings returns to where they were opened from', () => {
@@ -422,9 +558,9 @@ describe('the result', () => {
       stage: 'finished',
       props: { game: { ...FINISHED, rematch: 'answer' } },
     });
-    const filled = [
-      ...view.container.querySelectorAll('button[data-variant="solid"]'),
-    ].map((button) => button.getAttribute('data-testid'));
+    const filled = [...view.container.querySelectorAll(FILLED_COMMAND)].map(
+      (button) => button.getAttribute('data-testid')
+    );
     expect(filled).toEqual(['multiplayer-accept-rematch']);
   });
 

@@ -1,15 +1,18 @@
 import { timeControlOf } from '@libs/game-matchmaking-shared-ts/time-control';
 import { Trans } from '@lingui/solid/macro';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
-import { GameFact, GameFacts } from '@pkgs/ui-root-client-ts/game-facts';
+import {
+  GameLobbyDock,
+  GameModeCard,
+  type GameModeFact,
+} from '@pkgs/ui-root-client-ts/game-lobby';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
-import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Show } from 'solid-js';
 import {
-  MultiplayerMenuPlace,
+  MultiplayerLobbyPlace,
   type MultiplayerPlaceFrame,
 } from './multiplayer-place-frame';
 import type { MultiplayerPlace } from './multiplayer-places';
@@ -18,7 +21,7 @@ import {
   type MultiplayerRatingView,
 } from './multiplayer-ratings';
 import { SpeedName } from './speed-name';
-import { timeControlChoiceText, timeControlText } from './time-control-name';
+import { timeControlWords } from './time-control-name';
 
 /** What a new search is for. */
 export type MultiplayerFindChoice = {
@@ -37,6 +40,8 @@ export type MultiplayerFindChoice = {
 
 type FindProps = MultiplayerPlaceFrame & {
   readonly title: string;
+  /** How the game is won, in one sentence, where the game says. */
+  readonly goal?: string | undefined;
   readonly find: MultiplayerFindChoice;
   readonly ratings: readonly MultiplayerRatingView[];
   readonly onOpen: (place: MultiplayerPlace) => void;
@@ -45,26 +50,34 @@ type FindProps = MultiplayerPlaceFrame & {
 };
 
 /**
- * What the search will find, right above its command, as the game's
- * settings line (`Rated · Untimed`, or `Rated · 5+0` at the chosen time
- * control), in the same words and quiet style a game's title carries. A
- * search is always rated.
+ * What the search will find, as the mode card's tiles: how many play, the
+ * clock at the chosen time control in plain words, and that it is rated (a
+ * search always is).
  */
-function MatchConditions(props: {
-  readonly find: MultiplayerFindChoice;
-}): JSX.Element {
-  return (
-    <GameFacts testId="multiplayer-find-conditions">
-      <GameFact label={<Trans>Rated</Trans>} />
-      <GameFact
-        label={
-          <Show when={props.find.timed} fallback={<Trans>Untimed</Trans>}>
-            {timeControlText(props.find.timeControl)}
-          </Show>
-        }
-      />
-    </GameFacts>
-  );
+function conditions(find: MultiplayerFindChoice): readonly GameModeFact[] {
+  return [
+    {
+      id: 'players',
+      label: <Trans>Players</Trans>,
+      value: find.players,
+    },
+    {
+      id: 'clock',
+      label: <Trans>Clock</Trans>,
+      value: find.timed ? (
+        timeControlWords(find.timeControl)
+      ) : (
+        <Trans>Untimed</Trans>
+      ),
+      testId: 'multiplayer-find-clock',
+    },
+    {
+      id: 'rating',
+      label: <Trans>Rating</Trans>,
+      value: <Trans>Rated</Trans>,
+      testId: 'multiplayer-find-rated',
+    },
+  ];
 }
 
 /** How many players a bigger game finds; a two-player search needs no more said. */
@@ -112,7 +125,7 @@ function FindRows(props: FindProps): JSX.Element {
               speed={timeControlOf(props.find.timeControl)?.speed ?? ''}
             />
           }
-          value={timeControlChoiceText(props.find.timeControl)}
+          value={timeControlWords(props.find.timeControl)}
           onClick={() => props.onOpen({ screen: 'time-control' })}
           dataSet={{
             testid: 'multiplayer-open-time-control',
@@ -139,19 +152,68 @@ function FindRows(props: FindProps): JSX.Element {
   );
 }
 
-/**
- * Finding an opponent, or the other players of a bigger game: one row per
- * thing a person may want to look at first (the clock, their ratings, how
- * a search works), what the search will find, and its one command.
- */
-export function MultiplayerFindView(props: FindProps): JSX.Element {
+/** The search's one command, held at the foot of the screen. */
+function FindDock(props: FindProps): JSX.Element {
   const many = () => props.find.players > 2;
   return (
-    <MultiplayerMenuPlace
-      {...props}
-      title={props.title}
-      subtitle={many() ? <PlayersNeeded find={props.find} /> : undefined}
+    <GameLobbyDock
+      status={
+        <P variant="caption" tone="secondary" testId="multiplayer-find-space">
+          <Trans>
+            The game opens in this space, where everyone can watch. Your
+            opponent plays from their own space.
+          </Trans>
+        </P>
+      }
     >
+      <GameActionButton
+        title={
+          <Show when={many()} fallback={<Trans>Find an opponent</Trans>}>
+            <Trans>Find players</Trans>
+          </Show>
+        }
+        successLabel={
+          <Show
+            when={many()}
+            fallback={<Trans>Opponent search accepted</Trans>}
+          >
+            <Trans>Player search accepted</Trans>
+          </Show>
+        }
+        operation={() =>
+          props.onFind(props.find.timed ? props.find.timeControl : undefined)
+        }
+        variant="solid"
+        size="lg"
+        fullWidth
+        dataSet={{ testid: 'multiplayer-find' }}
+      />
+    </GameLobbyDock>
+  );
+}
+
+/**
+ * Finding an opponent, or the other players of a bigger game: what will be
+ * played (the game, how it is won, how many play, the clock, rated), one
+ * row per thing a person may want to look at first (the clock, their
+ * ratings, how a search works), and the search's one command in a dock at
+ * the foot of the screen.
+ */
+export function MultiplayerFindView(props: FindProps): JSX.Element {
+  return (
+    <MultiplayerLobbyPlace {...props} dock={<FindDock {...props} />}>
+      <GameModeCard
+        eyebrow={<Trans>Ranked match</Trans>}
+        title={props.title}
+        summary={props.goal}
+        facts={conditions(props.find)}
+        dataSet={{ testid: 'multiplayer-find-conditions' }}
+      />
+      <Show when={props.find.players > 2}>
+        <P variant="caption" tone="secondary" testId="multiplayer-find-players">
+          <PlayersNeeded find={props.find} />
+        </P>
+      </Show>
       <Show when={props.find.fresh === true}>
         <Notice dataSet={{ testid: 'multiplayer-unavailable' }}>
           <Text variant="inherit" role="status">
@@ -163,36 +225,6 @@ export function MultiplayerFindView(props: FindProps): JSX.Element {
         </Notice>
       </Show>
       <FindRows {...props} />
-      <StackVertical gap="sm">
-        <MatchConditions find={props.find} />
-        <GameActionButton
-          title={
-            <Show when={many()} fallback={<Trans>Find an opponent</Trans>}>
-              <Trans>Find players</Trans>
-            </Show>
-          }
-          successLabel={
-            <Show
-              when={many()}
-              fallback={<Trans>Opponent search accepted</Trans>}
-            >
-              <Trans>Player search accepted</Trans>
-            </Show>
-          }
-          operation={() =>
-            props.onFind(props.find.timed ? props.find.timeControl : undefined)
-          }
-          variant="solid"
-          fullWidth
-          dataSet={{ testid: 'multiplayer-find' }}
-        />
-        <P variant="caption" tone="secondary" testId="multiplayer-find-space">
-          <Trans>
-            The game opens in this space, where everyone can watch. Your
-            opponent plays from their own space.
-          </Trans>
-        </P>
-      </StackVertical>
-    </MultiplayerMenuPlace>
+    </MultiplayerLobbyPlace>
   );
 }

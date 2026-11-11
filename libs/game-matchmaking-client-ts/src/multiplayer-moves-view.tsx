@@ -32,8 +32,10 @@ import {
 
 type MovesProps = MultiplayerPlaceFrame & {
   readonly title: string;
-  /** The seats, the board on the position chosen here and the announcement line. */
+  /** The seats around the board on the position chosen here. */
   readonly board: JSX.Element;
+  /** The line that says where the game stands. */
+  readonly status: JSX.Element;
   readonly game: MultiplayerGameView;
   readonly commands: MultiplayerGameCommands;
 };
@@ -247,9 +249,14 @@ export function MultiplayerMovesView(props: MovesProps): JSX.Element {
         notices={props.notices}
         actionsBeside
         status={
-          <Show when={props.game.moves}>
-            {(moves) => <Reviewing moves={moves()} commands={props.commands} />}
-          </Show>
+          <>
+            {props.status}
+            <Show when={props.game.moves}>
+              {(moves) => (
+                <Reviewing moves={moves()} commands={props.commands} />
+              )}
+            </Show>
+          </>
         }
         aside={
           <GameSection

@@ -29,6 +29,33 @@ type Story = StoryObj<typeof meta>;
 /** Matched: the seats, the board, whose turn it is, and one way to the game's commands. */
 export const Matched: Story = {};
 
+/**
+ * An opponent was just found: the versus card covers the board for its
+ * count, and a press skips to the board.
+ */
+export const Versus: Story = {
+  args: {
+    overlay: { kind: 'versus', count: 3 },
+    game: { ...STORY_GAME, leave: 'abort', moves: storyMoves(0) },
+  },
+  render: renderStory({ shown: 0, announcement: { title: 'Your turn.' } }),
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(await canvas.findByTestId('multiplayer-versus'));
+    await expect(args.onOverlay).toHaveBeenCalledWith({ type: 'skip' });
+    await expect(canvas.queryByTestId('multiplayer-versus')).toBeNull();
+  },
+};
+
+/** The versus card as it opens, still: the count at three. */
+export const VersusCount: Story = {
+  args: {
+    overlay: { kind: 'versus', count: 3 },
+    game: { ...STORY_GAME, leave: 'abort', moves: storyMoves(0) },
+  },
+  render: renderStory({ shown: 0, announcement: { title: 'Your turn.' } }),
+};
+
 /** A draw offered to the person waits for their answer under the board. */
 export const DrawOffered: Story = {
   render: renderStory({
@@ -79,7 +106,20 @@ export const OpenMove: Story = {
   },
 };
 
-/** The one control under the board opens the game's commands. */
+/** Offering a draw and resigning are one press from the board. */
+export const OfferDrawNow: Story = {
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      await canvas.findByTestId('multiplayer-offer-draw-now')
+    );
+    await expect(args.commands.offerDraw).toHaveBeenCalled();
+    await userEvent.click(await canvas.findByTestId('multiplayer-leave-now'));
+    await expect(args.commands.ask).toHaveBeenCalledWith('resign');
+  },
+};
+
+/** The menu beside them opens the rest of the game's commands. */
 export const OpenCommands: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);

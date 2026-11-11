@@ -23,6 +23,10 @@ function presentation(hill: boolean): GameClientPresentation {
   return {
     canFlip: false,
     name: () => (hill ? t`Quoridor: King of the Hill` : t`Classic Quoridor`),
+    goal: () =>
+      hill
+        ? t`Reach the central hill first. Walls slow the others down.`
+        : t`Reach the opposite home row first. Walls slow the others down.`,
     Board: QuoridorBoard,
     sideLabel: (side) => sideLabel(side, hill),
     frame: quoridorFrame(hill),

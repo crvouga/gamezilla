@@ -1,0 +1,120 @@
+/* A lobby: the column scrolls, the dock under it never does. */
+.screen {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-self: stretch;
+  min-width: 0;
+  min-height: 0;
+}
+/* What is about to be played: the mode's own wash, so the head of the
+   lobby reads as the game and not as one more list section. */
+.mode {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-4);
+  min-width: 0;
+  padding: var(--ui-space-5) var(--ui-space-4) var(--ui-space-4);
+  border: 1px solid var(--ui-color-border);
+  border-radius: var(--ui-radius-lg);
+  background: linear-gradient(
+    135deg,
+    var(--ui-color-tint-subtle) 0%,
+    var(--ui-color-surface) 72%
+  );
+}
+.modeWords {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-1);
+  min-width: 0;
+}
+.eyebrow {
+  color: var(--ui-color-tint);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.summary {
+  color: var(--ui-color-text-secondary);
+}
+/* What is agreed: tiles of equal width in one row, each a label over its
+   value, split by hairlines. */
+.facts {
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  margin: 0;
+  border: 1px solid var(--ui-color-border);
+  border-radius: var(--ui-radius-md);
+  background: var(--ui-color-surface-muted);
+}
+.fact {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-1);
+  min-width: 0;
+  padding: var(--ui-space-3);
+}
+.fact + .fact {
+  border-inline-start: 1px solid var(--ui-color-border);
+}
+.fact > dt {
+  color: var(--ui-color-text-secondary);
+}
+.factValue {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+/* The dock: a bar across the foot of the screen, its column at the same
+   measure as the lobby above it. */
+.dock {
+  display: flex;
+  flex: none;
+  justify-content: center;
+  min-width: 0;
+  padding-block: var(--ui-space-3)
+    calc(var(--ui-space-3) + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--ui-color-border);
+  background: var(--ui-color-surface);
+}
+.dock[data-inset="true"] {
+  padding-inline: var(--ui-space-4);
+}
+.dockColumn {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--ui-space-3);
+  min-width: 0;
+  max-width: 720px;
+}
+.dockStatus {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-1);
+  min-width: 0;
+  text-align: center;
+}
+/* The commands, each the dock's full width: the filled one first. */
+.dockActions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-2);
+  min-width: 0;
+}
+.dockActions > * {
+  align-self: stretch;
+  width: 100%;
+  max-width: none;
+}
+/* Wide: the dock closes the column, right under the lobby, with no bar of
+   its own; the column still scrolls when it outgrows the pane. */
+.screen[data-wide="true"] > :first-child {
+  flex: 0 1 auto;
+}
+.screen[data-wide="true"] > .dock {
+  padding-block: var(--ui-space-2) var(--ui-space-6);
+  border-top: 0;
+  background: none;
+}

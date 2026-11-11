@@ -13,6 +13,8 @@ import { riderName } from './light-cycles-view';
 
 const presentation = (name: () => string, riders: LightCyclesRiderCount) => ({
   name,
+  goal: () =>
+    t`Outlast the other riders. Every trail and the arena's edge crash you.`,
   canFlip: false,
   Board: LightCyclesBoard,
   sideLabel: riderName,

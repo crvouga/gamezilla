@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, test } from 'bun:test';
 import type { CustomGamePlace } from '@libs/game-session-client-ts/custom-game-places';
 import { FRAME_NO_PLAY } from '@libs/game-session-client-ts/game-frame-empty';
+import type { StageOverlayEvent } from '@pkgs/turn-game-client-ts/stage-overlay';
 import { useGameTableSeat } from '@pkgs/ui-root-client-ts/game-table-seat';
 import { cleanup, fireEvent, screen } from '@solidjs/testing-library';
 import {
@@ -57,8 +58,9 @@ describe('the play place', () => {
   // regression: arena-commands-loose
   // The replay steps and the game's commands were moved around the board
   // and its rail five times. The play place holds neither: stepping
-  // through the moves is the moves place, and every command that is not an
-  // answer to the game is a row of the game menu.
+  // through the moves is the moves place, and the game menu holds every
+  // command; the two a player reaches for mid-game (offer a draw, resign)
+  // are also one press away in the bar under the board.
   test.each([390, 1440] as const)(
     'at %ipx it holds the board, the seats, one line and one way to the commands',
     (width) => {
@@ -80,6 +82,45 @@ describe('the play place', () => {
         expect(shown(absent)).toBe(false);
     }
   );
+
+  test('offering a draw and resigning are one press from the board; resigning is confirmed', () => {
+    const chosen: unknown[] = [];
+    const view = mountFrame(() =>
+      frameProps({
+        onChoose: async (input) => {
+          chosen.push(input);
+        },
+      })
+    );
+    fireEvent.click(screen.getByTestId('custom-game-offer-draw'));
+    expect(chosen).toEqual([{ operation: 'offer' }]);
+    fireEvent.click(screen.getByTestId('custom-game-resign-now'));
+    expect(chosen).toHaveLength(1);
+    expect(view.queryByRole('dialog')).not.toBeNull();
+  });
+
+  test('someone who may neither offer a draw nor resign is shown neither', () => {
+    mountFrame(() => frameProps({ play: FRAME_NO_PLAY }));
+    expect(shown('custom-game-offer-draw')).toBe(false);
+    expect(shown('custom-game-resign-now')).toBe(false);
+  });
+
+  test('the versus card lies over the board with its count; a press skips to the board', () => {
+    const sent: StageOverlayEvent[] = [];
+    mountFrame(() =>
+      frameProps({
+        overlay: { kind: 'versus', count: 2 },
+        onOverlay: (event) => sent.push(event),
+      })
+    );
+    const versus = screen.getByTestId('custom-game-versus');
+    expect(stage().contains(versus)).toBe(true);
+    expect(versus.getAttribute('data-count')).toBe('2');
+    expect(versus.textContent).toContain('avery');
+    expect(versus.textContent).toContain('jordan');
+    fireEvent.click(versus);
+    expect(sent).toEqual([{ type: 'skip' }]);
+  });
 
   // regression: battleship-own-seat-below-fold
   // regression: phone-game-status-buried
@@ -434,15 +475,17 @@ describe('the moves place', () => {
 
 describe('the result place', () => {
   // regression: shared-board-terminal-buried
+  // The outcome is never under the board: it lies over it, and the one
+  // rematch is a command of the bar, so neither moves the board.
   test.each([390, 1440] as const)(
-    'at %ipx the outcome and one real rematch lead the final board',
+    'at %ipx the outcome lies over the final board, with one real rematch',
     (width) => {
       mountFrame(() => over(), width);
       const headline = screen.getByTestId('custom-game-result-headline');
       const rematch = screen.getAllByTestId('custom-game-rematch');
       expect(rematch).toHaveLength(1);
-      expect(precedes(headline, stage())).toBe(true);
-      expect(precedes(rematch[0] as HTMLElement, stage())).toBe(true);
+      expect(stage().contains(headline)).toBe(true);
+      expect(stage().contains(rematch[0] as HTMLElement)).toBe(false);
       expect(screen.getAllByTestId('custom-game-history-stats')).toHaveLength(
         1
       );
@@ -462,6 +505,29 @@ describe('the result place', () => {
     expect(screen.getByTestId('custom-game-outcome').textContent).toContain(
       'You resigned.'
     );
+  });
+
+  test('the result card is closed to see the board and opened again from the bar', () => {
+    const sent: StageOverlayEvent[] = [];
+    mountFrame(() => ({
+      ...over(),
+      onOverlay: (event) => sent.push(event),
+    }));
+    expect(shown('custom-game-show-result')).toBe(false);
+    fireEvent.click(screen.getByTestId('game-result-overlay-dismiss'));
+    expect(sent).toEqual([{ type: 'dismiss' }]);
+    cleanup();
+    mountFrame(() => ({
+      ...over(),
+      overlay: { kind: 'board' as const },
+      onOverlay: (event) => sent.push(event),
+    }));
+    // Closed, the board shows; the headline stays, as the way back.
+    expect(shown('custom-game-outcome')).toBe(false);
+    const reopen = screen.getByTestId('custom-game-show-result');
+    expect(reopen.textContent).toContain('You came 2nd');
+    fireEvent.click(reopen);
+    expect(sent).toEqual([{ type: 'dismiss' }, { type: 'show' }]);
   });
 
   test('a watcher goes back to the space or looks at the moves', () => {

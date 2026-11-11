@@ -12,6 +12,7 @@ import { MenuIcon } from '@pkgs/ui-root-client-ts/icons';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { type JSX, Show } from 'solid-js';
 import { FrameMovesCard } from './game-frame-moves-view';
+import { FrameOverlay } from './game-frame-overlay-view';
 import type { FramePlaceProps } from './game-frame-screen-view';
 import {
   FrameConnectionView,
@@ -127,7 +128,12 @@ export function FrameStage(props: Props): JSX.Element {
     <GameBoardStage
       viewportFit={props.boardFit}
       align={props.boardAlign}
-      dataSet={{ ...props.boardState, testid: 'custom-game-public' }}
+      dataSet={{
+        ...props.boardState,
+        testid: 'custom-game-public',
+        overlay: props.overlay.kind,
+      }}
+      overlay={<FrameOverlay {...props} />}
       others={
         <>
           <FrameOthersView
@@ -206,10 +212,27 @@ function PlayActions(props: Props): JSX.Element {
           operation={() => props.onChoose({ operation: 'claimWin' })}
         />
       </Show>
+      <Show when={props.play.canOfferDraw}>
+        <GameActionButton
+          title={<Trans>Offer draw</Trans>}
+          dataSet={{ testid: 'custom-game-offer-draw' }}
+          operation={() => props.onChoose({ operation: 'offer' })}
+        />
+      </Show>
+      <Show when={props.play.canResign}>
+        <Button
+          title={<Trans>Resign</Trans>}
+          variant="outline"
+          intent="neutral"
+          onClick={() => props.onConfirm('resign')}
+          dataSet={{ testid: 'custom-game-resign-now' }}
+        />
+      </Show>
       <Show when={commandsOffered(props)}>
         <Button
-          title={<Trans>Game menu</Trans>}
-          variant="ghost"
+          title={<Trans>Menu</Trans>}
+          aria-label={t`Game menu`}
+          variant="outline"
           intent="neutral"
           startIcon={<MenuIcon size={20} />}
           onClick={() => props.onOpen({ screen: 'commands' })}
@@ -221,9 +244,11 @@ function PlayActions(props: Props): JSX.Element {
 }
 
 /**
- * The play place: the live position and only what playing needs now. The
- * board never shows an earlier move here (that is the moves place), and
- * every command that is not an answer to the game waits behind Game menu.
+ * The play place: the live position and what playing needs now, in one
+ * bar: an answer the game waits for, offering a draw, resigning (confirmed)
+ * and the game's menu, where the moves, the history and the rest wait. The
+ * board never shows an earlier move here (that is the moves place). A game
+ * this device watched begin opens under the versus card (`overlay`).
  */
 export function FramePlayPlace(props: Props): JSX.Element {
   return (
@@ -243,6 +268,7 @@ export function FramePlayPlace(props: Props): JSX.Element {
         notices={<FrameConnectionView connection={props.connection} />}
         boardFocus
         actionsBeside
+        fixedStage
         // A refused choice is said with the game's commands (under a
         // phone's board, heading the rail beside a wide one), never above
         // the board, so the board does not move when it appears or clears.

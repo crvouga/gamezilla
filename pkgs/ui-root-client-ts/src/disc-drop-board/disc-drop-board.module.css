@@ -40,6 +40,13 @@
   --ui-color-on-info: var(--ui-color-game-connect-four-canvas);
   --color-on-info: var(--ui-color-on-info);
 }
+/* Beside its rail, the stage is as wide as this board and no wider, so the
+   seats end where it ends and what lies over it covers it exactly. */
+@media (min-width: 768px) {
+  :global([data-game-board-stage]):has(:global([data-game-board]) .board) {
+    max-width: 38rem;
+  }
+}
 .board {
   display: grid;
   grid-template-columns: repeat(var(--disc-columns), minmax(0, 1fr));
