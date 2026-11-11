@@ -10,13 +10,29 @@ import { PuzzleStatusHeader } from './puzzle-status-header';
 /** The coach's face: small, so its words keep the line beside the board. */
 const AVATAR_SIZE = 40;
 
+function formatSignedDelta(delta: number): string {
+  return delta > 0 ? `+${delta}` : String(delta);
+}
+
 /**
- * What ends the status line: that this attempt cannot move the rating (a
- * repeat, §9), the clock, and the mark of someone watching.
+ * What ends the status line: what the attempt did to the rating once that
+ * is decided (a wrong move already has), or that it cannot move it (a
+ * repeat, §9); then the clock, and the mark of someone watching.
  */
 function StatusLineTrailing(props: PuzzlePlayScreenViewProps): JSX.Element {
+  const change = (): number | null =>
+    typeof props.ratingChange === 'number' ? props.ratingChange : null;
   return (
     <>
+      <Show when={change()} keyed>
+        {(delta) => (
+          <Badge
+            intent="neutral"
+            label={formatSignedDelta(delta)}
+            dataSet={{ testid: 'chess-puzzle-feed-rating-change' }}
+          />
+        )}
+      </Show>
       <Show when={props.ratingChange === 'unrated'}>
         <Badge
           intent="neutral"

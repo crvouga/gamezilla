@@ -130,6 +130,13 @@ test('play: a board on an earlier move offers only the way back to the latest', 
   expect(asked).toEqual(['end']);
 });
 
+test('play: a wrong move already shows what it did to the rating, on the status line', () => {
+  mountPlay('play', { statusKind: 'failed', status: 'wrong', ratingChange: -9 });
+  const change = screen.getByTestId('chess-puzzle-feed-rating-change');
+  expect(change.textContent).toBe('-9');
+  expect(region('PuzzleHeader').contains(change)).toBe(true);
+});
+
 test('play: a repeat says it is unrated on the status line', () => {
   mountPlay('play', { ratingChange: 'unrated' });
   expect(
