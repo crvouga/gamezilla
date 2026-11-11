@@ -36,12 +36,19 @@ export function createSyncReachability(args: {
   readonly status: LocalSyncStatusStore;
   readonly isOnline: () => boolean;
   readonly now: () => number;
+  /**
+   * The trouble began: the first request since the server last answered
+   * that did not reach it. What is taken from then on is taken while the
+   * connection is already failing.
+   */
+  readonly troubleBegan: () => void;
   /** A request could not reach the server: the connection is lost. */
   readonly lost: () => void;
 }): SyncReachability {
   let unanswered = 0;
   const unreachable = (error: unknown): boolean => {
     if (!isHttpNetworkError(error)) return false;
+    if (unanswered === 0) args.troubleBegan();
     unanswered += 1;
     return !args.status.status.getSnapshot().hasSynced || unanswered > 1;
   };

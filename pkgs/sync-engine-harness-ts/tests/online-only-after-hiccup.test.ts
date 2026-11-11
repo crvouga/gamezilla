@@ -76,6 +76,7 @@ async function openLiveDevice() {
   return {
     engine,
     control,
+    clock: time.clock,
     queryFailures,
     uploadFailures,
     announce: (id: string) =>
@@ -181,6 +182,24 @@ test('an online-only action taken during a hiccup is refused once the connection
       status: 'rejected',
       code: 'OFFLINE',
       message: 'This action needs a connection.',
+    });
+  });
+});
+
+// regression: online-only-action-sent-before-trouble-refused
+test('an online-only action taken before the trouble began keeps waiting for its verdict', async () => {
+  await withLiveDevice(async (device) => {
+    const taken = await device.announce('stop-adding-puzzles');
+    if (!taken.ok) throw new Error('the live device refused the announcement');
+    device.clock.advance(1_000);
+    device.queryFailures.push(() => new HttpNetworkError('net::ERR_FAILED'));
+    device.queryFailures.push(() => new HttpNetworkError('net::ERR_FAILED'));
+    await device.engine.refreshQueries();
+    await device.engine.refreshQueries();
+    await settle();
+    expect(device.engine.status.getSnapshot().online).toBe(false);
+    expect(await mutationVerdict(device.engine.db, taken.mutationId)).toEqual({
+      status: 'pending',
     });
   });
 });
