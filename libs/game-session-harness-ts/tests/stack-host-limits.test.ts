@@ -1,6 +1,11 @@
 import { describe, expect, test } from 'bun:test';
 import { privacyTimePasses } from '@libs/account-privacy-harness-ts/privacy-actions';
+import { playCustomGameHistory } from '@libs/game-session-harness-ts/custom-game-history';
 import { queueRoomDraws } from '@libs/game-session-harness-ts/room-draws';
+import {
+  restoreDeviceSimulation,
+  restoreSharedSimulation,
+} from '@libs/game-session-harness-ts/simulation-fixtures';
 import { isHostLimit } from '@pkgs/gherkin-shared-ts/registry';
 
 /** A harness attached to a separately booted stack, on a wall clock. */
@@ -39,5 +44,34 @@ describe('what a stack host cannot do ends the scenario as a host limit', () => 
       privacyTimePasses.act(stackHarness(), 30 * 86_400_000)
     );
     expect(isHostLimit(outcome)).toBe(true);
+  });
+
+  // regression: stack-history-has-no-room
+  test("a history's moves cannot be sent to the stack room from the test process", async () => {
+    const outcome = await outcomeOf(() =>
+      playCustomGameHistory.act(stackHarness(), {
+        spaceId: 'space-1',
+        white: 'alice',
+        black: 'bob',
+        moves: ['e2e4'],
+      })
+    );
+    expect(isHostLimit(outcome)).toBe(true);
+  });
+
+  // regression: stack-saved-game-rewrite
+  test("a real browser's or the stack room's saved game cannot be rewritten", async () => {
+    const device = await outcomeOf(() =>
+      restoreDeviceSimulation(
+        stackHarness(),
+        { actor: 'alice', gameId: 'game-1' },
+        (position) => position
+      )
+    );
+    const room = await outcomeOf(() =>
+      restoreSharedSimulation(stackHarness(), (position) => position)
+    );
+    expect(isHostLimit(device)).toBe(true);
+    expect(isHostLimit(room)).toBe(true);
   });
 });

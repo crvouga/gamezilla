@@ -3,6 +3,8 @@ import { FixedStepSimulation } from '@libs/game-session-shared-ts/simulation-eng
 import { RecoverSimulation } from '@libs/game-session-shared-ts/simulation-recovery';
 import { ensureActor, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
+import { productExtra } from '@libs/harness-ts/harness';
+import { hostLimit } from '@pkgs/gherkin-shared-ts/registry';
 import type { RegisteredSimulation } from '@pkgs/turn-game-shared-ts/game-simulation';
 import type { SimulationInput } from '@pkgs/turn-game-shared-ts/simulation';
 import { showCustomGames } from './game-navigation';
@@ -143,6 +145,9 @@ export async function restoreSharedSimulation(
   s: ProductHarness,
   arrange: (position: string) => string | null
 ): Promise<void> {
+  // regression: stack-saved-game-rewrite
+  if (productExtra(s).http.kind === 'stack')
+    throw hostLimit("this host cannot rewrite the stack room's saved game");
   await s.session.waitForIdle();
   const node = s.harness.roomNode;
   for (const topic of node.listTopics()) {
@@ -179,6 +184,9 @@ export async function restoreDeviceSimulation(
   device: { readonly actor: string; readonly gameId: string },
   arrange: (position: string) => string | null
 ): Promise<void> {
+  // regression: stack-saved-game-rewrite
+  if (productExtra(s).http.kind === 'stack')
+    throw hostLimit("this host cannot rewrite a real browser's saved game");
   await s.session.waitForIdle();
   await s.runtime.restartActor(device.actor);
   const prefix = `${s.harness.clientNamespace(device.actor)}.`;

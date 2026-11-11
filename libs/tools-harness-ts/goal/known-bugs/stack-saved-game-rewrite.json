@@ -1,0 +1,4 @@
+{
+  "summary": "Against a separately booted stack every device is a real browser and every room runs in the stack's processes, so the fixture that rewrites a saved real-time game (a practice game on the device, or the shared room's live checkpoint) looked in the test process's own storage and room node, found nothing and failed with 'alice's device saved no real-time game'. Rewriting a saved game on a stack host now ends the scenario as a host limit.",
+  "regressionTest": "libs/game-session-harness-ts/tests/stack-host-limits.test.ts"
+}
