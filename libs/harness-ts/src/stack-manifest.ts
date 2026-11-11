@@ -21,6 +21,17 @@ export type StackAddresses = {
   readonly mqttUrl: string | null;
 };
 
+/**
+ * A run's seed on a shared stack. Every scenario writes into the one stack
+ * database, so a fixed seed would have concurrent runs mint the same ids
+ * (two matched games with one match id, and the second never created). The
+ * report records the seed, so a run can still be replayed.
+ */
+export function stackRunSeed(): number {
+  const [value = 1] = crypto.getRandomValues(new Uint32Array(1));
+  return value >>> 1;
+}
+
 export const STACK_MANIFEST_ENV = 'LOCALHOST_STACK_MANIFEST';
 
 export function stackManifestPath(): string | null {
