@@ -167,6 +167,8 @@ const VERIFY_LEAVES = [
   '@pkgs/ui-root-harness-ts#ci:storybook:9',
   '@pkgs/ui-root-harness-ts#ci:storybook:10',
   '@pkgs/ui-root-harness-ts#ci:storybook:11',
+  '@pkgs/ui-root-harness-ts#ci:storybook:12',
+  '@pkgs/ui-root-harness-ts#ci:storybook:13',
   'tc',
   'lint',
   'test',

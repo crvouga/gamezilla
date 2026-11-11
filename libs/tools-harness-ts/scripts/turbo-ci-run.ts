@@ -131,13 +131,19 @@ export const RELEASE_JOURNEY_TASKS = Array.from(
  * (`playwright test --shard=<k+1>/<n>`): as one task its 1300-odd checks on
  * two workers outran the 2400 s task budget, and once the pull-request gate
  * ran it, four and then eight parts outran the 600 s release task budget:
- * the throttled Quoridor journeys (about 40 s each) run side by side and
- * land in one part. Storybook coverage gates with the first part (its
- * `dependsOn`), so the other parts share no shard with that uncached
- * prerequisite and run side by side.
+ * the throttled Quoridor journeys (about 40 s each) sit side by side, and
+ * Playwright shards in contiguous runs of tests, so whichever part held them
+ * ran past it. The journeys therefore run in parts of their own
+ * ({@link STORYBOOK_JOURNEY_PARTS}), after the general parts. Storybook
+ * coverage gates with the first part (its `dependsOn`), so the other parts
+ * share no shard with that uncached prerequisite and run side by side.
  */
 // regression: storybook-part-exceeds-release-task-budget
-export const STORYBOOK_PARTS = 12;
+export const STORYBOOK_GENERAL_PARTS = 12;
+/** Parts of the throttled Quoridor journeys alone (`--grep` of their titles). */
+export const STORYBOOK_JOURNEY_PARTS = 2;
+export const STORYBOOK_PARTS =
+  STORYBOOK_GENERAL_PARTS + STORYBOOK_JOURNEY_PARTS;
 export const STORYBOOK_TASKS = Array.from(
   { length: STORYBOOK_PARTS },
   (_, part) => `@pkgs/ui-root-harness-ts#ci:storybook:${String(part)}`

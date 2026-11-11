@@ -1,4 +1,4 @@
 {
-  "summary": "Once Verify PR ran the representative Storybook browser suite, its four Playwright parts each ran past the 600 s release task budget, so pull requests went red on capacity rather than on a failing check. The suite now runs in twelve parts, so the throttled Quoridor journeys no longer share one part, and the package's scripts and tasks are held to that count.",
+  "summary": "Once Verify PR ran the representative Storybook browser suite, its four Playwright parts each ran past the 600 s release task budget, so pull requests went red on capacity rather than on a failing check. The suite now runs in twelve general parts plus two parts of its own for the throttled Quoridor journeys, which Playwright's contiguous sharding otherwise kept together in one part, and the package's scripts and tasks are held to that count.",
   "regressionTest": "libs/tools-harness-ts/scripts/verify-storybook-stage.test.ts"
 }
