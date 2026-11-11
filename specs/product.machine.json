@@ -11466,10 +11466,16 @@
                         "routes": [
                           "/admin/observatory",
                           "/admin/observatory/live/:sessionId",
+                          "/admin/observatory/online",
                           "/admin/observatory/synthetic-users",
                           "/admin/observatory/synthetic-users/:id",
-                          "/admin/observatory/synthetic-users/config",
-                          "/admin/observatory/synthetic-users/control"
+                          "/admin/observatory/synthetic-users/:id/events",
+                          "/admin/observatory/synthetic-users/:id/inspector",
+                          "/admin/observatory/synthetic-users/:id/replay",
+                          "/admin/observatory/synthetic-users/directory",
+                          "/admin/observatory/synthetic-users/events",
+                          "/admin/observatory/synthetic-users/settings",
+                          "/admin/observatory/synthetic-users/workers"
                         ]
                       },
                       "initial": "Test Worlds: Selected device",
