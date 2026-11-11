@@ -80,10 +80,11 @@ export const ROUTE_RULES: readonly RouteRule[] = [
   { prefix: '/api/puzzle-management', group: 'app' },
   { prefix: '/api/admin', group: 'app' },
   { prefix: '/api/observability', group: 'telemetry' },
+  // Every app's online-now report and live frames, a person's or a Synthetic
+  // User's: best effort, in the background, never waited on.
+  { prefix: '/api/observatory-live', group: 'telemetry' },
   { prefix: '/api/health', group: 'machine' },
   { prefix: '/api/synthetic-population-worker', group: 'machine' },
-  // A synthetic person's device reporting what its screen shows.
-  { prefix: '/api/synthetic-population-live', group: 'machine' },
 ];
 
 function segments(path: string): readonly string[] {
