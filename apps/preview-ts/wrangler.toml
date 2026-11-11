@@ -12,6 +12,9 @@ compatibility_date = "2026-09-21"
 workers_dev = false
 preview_urls = true
 
+# A Preview adds nothing to the Worker above: no vars, no bindings.
+[previews]
+
 # `apps/product-ts` built with `VITE_HARNESS_ONLY=1`.
 [assets]
 directory = "../product-ts/dist"

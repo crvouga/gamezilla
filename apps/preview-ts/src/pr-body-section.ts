@@ -41,7 +41,11 @@ function short(sha: string | null): string {
 export function renderPreviewSection(facts: PreviewSectionFacts): string {
   const pr = String(facts.pr);
   const rows = [
-    `| Status | ${STATUS_LINE[facts.status]} |`,
+    `| Status | ${
+      facts.status === 'failed' && facts.deployedSha === null
+        ? '🔴 deploy failed — nothing has been deployed yet'
+        : STATUS_LINE[facts.status]
+    } |`,
     `| URL | ${facts.url ?? '—'} |`,
     `| Deployed commit | ${short(facts.deployedSha)} |`,
   ];

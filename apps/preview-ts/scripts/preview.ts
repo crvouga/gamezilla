@@ -391,6 +391,7 @@ function writeConfig(): string {
       {
         ...committed,
         assets: { ...assets, directory: reRoot(assets['directory']) },
+        previews: committed['previews'] ?? {},
       },
       null,
       2

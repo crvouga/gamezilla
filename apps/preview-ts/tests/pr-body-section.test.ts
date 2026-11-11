@@ -54,6 +54,16 @@ test('a failed deploy shows the commit still serving beside the one attempted', 
   expect(section).toContain('> wrangler preview exited 1');
 });
 
+test('a first deploy that fails claims no working version', () => {
+  const section = renderPreviewSection({
+    ...facts,
+    status: 'failed',
+    deployedSha: null,
+  });
+  expect(section).toContain('nothing has been deployed yet');
+  expect(section).not.toContain('still serving');
+});
+
 test('a removed Preview offers no sign-in', () => {
   const section = renderPreviewSection({
     ...facts,
