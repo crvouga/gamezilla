@@ -21,10 +21,11 @@ export async function multiplayerEndingView(s: ProductHarness, actor: string) {
     for (const seatId of ['multiplayer-seat-near', 'multiplayer-seat-far']) {
       const seat = ui.get(seatId);
       if ((await seat.attribute('data-side')) !== outcome) continue;
+      // The seat leads with the side's mark (Light Cycles' rider letter)
+      // before the name, and its text joins without spaces.
       const name = ((await seat.text()) ?? '')
         .toLowerCase()
-        .trim()
-        .match(/^(alice|bob)/)?.[1];
+        .match(/(alice|bob)/)?.[1];
       if (name !== undefined) result = `${name} won`;
     }
   }
