@@ -17,6 +17,7 @@ import type {
 } from '@pkgs/sync-engine-shared-ts/mutations-types';
 import { multiplayerClient } from './multiplayer-client';
 import { multiplayerSpaceId } from './multiplayer-spaces';
+import { holdOpponentPool } from './opponent-pool-hold';
 
 export type MultiplayerCommand = {
   readonly name: string;
@@ -31,6 +32,7 @@ const results = new WeakMap<
 export const sendMultiplayerCommand = scenarioAction({
   name: 'sendMultiplayerCommand',
   act: async (s, actor: string, command: MultiplayerCommand) => {
+    await holdOpponentPool(s);
     await ensureActor(s, actor);
     const { live, env, owner, engine } = await multiplayerClient(s, actor);
     const mutation = MULTIPLAYER_MUTATIONS.find((m) => m.name === command.name);

@@ -8,6 +8,7 @@ import {
   openMultiplayerPlace,
   tapMultiplayerControl,
 } from './multiplayer-places';
+import { holdOpponentPool } from './opponent-pool-hold';
 
 /**
  * The clock choice a time control names, without its game's clock namespace
@@ -29,6 +30,7 @@ export function scenarioSearchActors(s: ProductHarness): readonly string[] {
 export const requestGameOpponent = scenarioAction({
   name: 'requestGameOpponent',
   act: async (s, actor: string, timeControl: string) => {
+    await holdOpponentPool(s);
     const ui = await actorUi(s, actor);
     // The search's hub: where an idle screen opens once it has read the
     // game and the search, and one row from a finished game's result.

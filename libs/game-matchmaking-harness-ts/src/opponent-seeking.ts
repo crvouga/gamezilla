@@ -28,6 +28,7 @@ import {
 import { multiplayerView } from './multiplayer-reads';
 import { clockChoiceOf, requestGameOpponent } from './multiplayer-search-ui';
 import { multiplayerSpaceId } from './multiplayer-spaces';
+import { holdOpponentPool } from './opponent-pool-hold';
 
 /**
  * `actor` seeks an opponent for `gameId` from their own space, through the
@@ -131,6 +132,7 @@ async function reachFindingAnOpponent(
   gameId: string,
   whereverItCan: boolean
 ): Promise<void> {
+  await holdOpponentPool(s);
   await ensureActor(s, actor);
   const spaceId = await multiplayerSpaceId(s, actor);
   if (spaceId === null) {
