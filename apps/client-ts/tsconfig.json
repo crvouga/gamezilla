@@ -81,9 +81,6 @@
         "../../libs/game-puzzle-shared-ts/src/*"
       ],
       "@libs/chess-root-server-ts/*": ["../../libs/chess-root-server-ts/src/*"],
-      "@libs/chess-shared-client-ts/*": [
-        "../../libs/chess-shared-client-ts/src/*"
-      ],
       "@libs/chess-root-shared-ts/*": ["../../libs/chess-root-shared-ts/src/*"],
       "@libs/db-server-ts/*": ["../../libs/db-server-ts/src/*"],
       "@libs/db-shared-ts/*": ["../../libs/db-shared-ts/src/*"],

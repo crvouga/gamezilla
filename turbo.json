@@ -2403,7 +2403,6 @@
         "libs/billing-client-ts/src/**/*.{ts,tsx}",
         "libs/chess-puzzle-client-ts/src/**/*.{ts,tsx}",
         "libs/chess-root-client-ts/src/**/*.{ts,tsx}",
-        "libs/chess-shared-client-ts/src/**/*.{ts,tsx}",
         "libs/connect-four-client-ts/src/**/*.{ts,tsx}",
         "libs/friends-client-ts/src/**/*.{ts,tsx}",
         "libs/game-matchmaking-client-ts/src/**/*.{ts,tsx}",

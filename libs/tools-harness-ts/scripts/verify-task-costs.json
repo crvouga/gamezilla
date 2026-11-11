@@ -187,8 +187,6 @@
   "@libs/chess-root-server-ts#test": 1,
   "@libs/chess-root-shared-ts#lint": 4,
   "@libs/chess-root-shared-ts#tc": 1,
-  "@libs/chess-shared-client-ts#lint": 7,
-  "@libs/chess-shared-client-ts#tc": 2,
   "@libs/chess-sub-shared-ts#lint": 4,
   "@libs/chess-sub-shared-ts#tc": 1,
   "@libs/chess#lint": 8,

@@ -119,7 +119,6 @@ const PUBLIC_CONTRACTS: ProofTable = {
     { task: '@pkgs/chess-board-root-harness-ts#test:contract' },
     { task: '@pkgs/chess-board-root-harness-ts#verify:models' },
     { task: '@pkgs/chess-board-core-shared-ts#test' },
-    { task: '@libs/chess-shared-client-ts#verify:board-contract' },
     { task: '@libs/game-session-client-ts#verify:board-contract' },
     { task: '@libs/game-matchmaking-client-ts#verify:board-contract' },
     { task: '@libs/chess-puzzle-client-ts#verify:board-contract' },

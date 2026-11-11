@@ -6,9 +6,9 @@
       "dependsOn": [
         "@libs/chess-puzzle-client-ts#src",
         "@libs/chess-root-shared-ts#src",
-        "@libs/chess-shared-client-ts#src",
         "@libs/chess-sub-shared-ts#src",
         "@libs/game-menu-client-ts#src",
+        "@libs/permissions-shared-ts#src",
         "@pkgs/chess-board-root-client-ts#src",
         "@pkgs/turn-game-shared-ts#src",
         "@pkgs/ui-root-client-ts#src"

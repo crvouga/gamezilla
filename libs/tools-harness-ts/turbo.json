@@ -149,7 +149,6 @@
         "$TURBO_ROOT$/libs/billing-client-ts/src/**/*.{ts,tsx}",
         "$TURBO_ROOT$/libs/chess-puzzle-client-ts/src/**/*.{ts,tsx}",
         "$TURBO_ROOT$/libs/chess-root-client-ts/src/**/*.{ts,tsx}",
-        "$TURBO_ROOT$/libs/chess-shared-client-ts/src/**/*.{ts,tsx}",
         "$TURBO_ROOT$/libs/connect-four-client-ts/src/**/*.{ts,tsx}",
         "$TURBO_ROOT$/libs/friends-client-ts/src/**/*.{ts,tsx}",
         "$TURBO_ROOT$/libs/game-matchmaking-client-ts/src/**/*.{ts,tsx}",

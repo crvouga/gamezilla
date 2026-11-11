@@ -1,9 +1,9 @@
 import { chessPuzzlesClient } from '@libs/chess-puzzle-client-ts/chess-puzzles-client';
-import { chessSettings } from '@libs/chess-shared-client-ts/chess-settings';
 import { chessGameShared } from '@libs/chess-sub-shared-ts/chess-game';
 import { defineGameClient } from '@libs/game-menu-client-ts/game-client';
 import { Trans } from '@lingui/solid/macro';
 import { chessPresentation } from './chess-game-presentation';
+import { chessSettings } from './chess-settings';
 
 /**
  * Chess's client: its board and copy, its puzzles part (board, coach,

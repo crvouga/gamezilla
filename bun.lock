@@ -1226,9 +1226,9 @@
       "dependencies": {
         "@libs/chess-puzzle-client-ts": "workspace:*",
         "@libs/chess-root-shared-ts": "workspace:*",
-        "@libs/chess-shared-client-ts": "workspace:*",
         "@libs/chess-sub-shared-ts": "workspace:*",
         "@libs/game-menu-client-ts": "workspace:*",
+        "@libs/permissions-shared-ts": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/solid": "catalog:",
         "@pkgs/chess-board-root-client-ts": "workspace:*",
@@ -1353,23 +1353,6 @@
         "@types/pg": "catalog:",
         "@typescript/native": "catalog:",
         "fast-check": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    "libs/chess-shared-client-ts": {
-      "name": "@libs/chess-shared-client-ts",
-      "version": "0.0.0",
-      "dependencies": {
-        "@libs/chess-puzzle-client-ts": "workspace:*",
-        "@libs/game-menu-client-ts": "workspace:*",
-        "@libs/permissions-shared-ts": "workspace:*",
-        "@lingui/solid": "catalog:",
-        "solid-js": "catalog:",
-      },
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "@types/pg": "catalog:",
-        "@typescript/native": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -8657,8 +8640,6 @@
     "@libs/chess-root-shared-ts": ["@libs/chess-root-shared-ts@workspace:libs/chess-root-shared-ts"],
 
     "@libs/chess-rules-shared-ts": ["@libs/chess-rules-shared-ts@workspace:libs/chess-rules-shared-ts"],
-
-    "@libs/chess-shared-client-ts": ["@libs/chess-shared-client-ts@workspace:libs/chess-shared-client-ts"],
 
     "@libs/chess-sub-shared-ts": ["@libs/chess-sub-shared-ts@workspace:libs/chess-sub-shared-ts"],
 
