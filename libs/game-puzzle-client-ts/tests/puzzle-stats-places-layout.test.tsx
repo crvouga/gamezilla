@@ -109,7 +109,7 @@ test('summary: the rating, played, solved and accuracy together, and the rows on
   expect(latest.textContent).toBe('Failed 1474');
   expect(latest.getAttribute('data-puzzle')).toBe('chess:b');
   // The trend and the log are screens of their own.
-  expect(shown('chess-stats-rating-history-point-0')).toBe(false);
+  expect(shown('chess-stats-rating-history-0')).toBe(false);
   expect(shown('chess-game-log-row-chess:a')).toBe(false);
   fireEvent.click(screen.getByTestId('chess-stats-open-trend'));
   fireEvent.click(screen.getByTestId('chess-stats-open-log'));
@@ -136,10 +136,10 @@ test('summary, while the history is unknown: one activity indicator and no figur
 test('trend: the rating after each rated puzzle, oldest first', () => {
   mount({ screen: 'trend' });
   expect(
-    screen.getByTestId('chess-stats-rating-history-point-0').textContent
+    screen.getByTestId('chess-stats-rating-history-0').textContent
   ).toBe('1512');
   expect(
-    screen.getByTestId('chess-stats-rating-history-point-1').textContent
+    screen.getByTestId('chess-stats-rating-history-1').textContent
   ).toBe('1500');
   expect(shown('chess-stats-elo')).toBe(false);
   expect(shown('chess-game-log-row-chess:a')).toBe(false);
