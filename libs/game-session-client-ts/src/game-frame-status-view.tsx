@@ -163,7 +163,10 @@ export function FrameConnectionView(props: {
         <Text variant="inherit" role="status">
           <Switch
             fallback={
-              <Trans>Connection needed to change or play this game.</Trans>
+              <Trans>
+                You are offline. Moves and the dimmed commands come back when
+                the connection returns.
+              </Trans>
             }
           >
             <Match when={props.connection === 'waiting'}>

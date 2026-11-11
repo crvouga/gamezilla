@@ -447,7 +447,7 @@ export function FrameLobbyPlace(
         <GameActions>
           <Button
             title={<Trans>Cancel game</Trans>}
-            variant="ghost"
+            variant="outline"
             intent="danger"
             size="sm"
             onClick={() => props.onConfirm('cancel')}

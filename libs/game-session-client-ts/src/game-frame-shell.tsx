@@ -153,7 +153,8 @@ export function FrameLobbyPage(
   > & {
     /** `custom-game-${place}`. */
     readonly screenId: string;
-    readonly dock: JSX.Element;
+    /** Omit for a lobby with no one command (before any game). */
+    readonly dock?: JSX.Element | undefined;
     readonly children: JSX.Element;
   }
 ): JSX.Element {

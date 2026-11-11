@@ -116,7 +116,7 @@ function ratingAtStake(props: FindProps): MultiplayerRatingView | undefined {
 /** Where the search's choices and what stands behind it are: one row each. */
 function FindRows(props: FindProps): JSX.Element {
   return (
-    <MenuSection title={<Trans>New game</Trans>}>
+    <MenuSection title={<Trans>Ranked play</Trans>}>
       <Show when={props.find.timed}>
         <MenuRow
           title={<Trans>Time control</Trans>}

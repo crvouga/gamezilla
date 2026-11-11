@@ -7,7 +7,7 @@ import { Text } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Show } from 'solid-js';
 import { createFrameChoices, FrameChoiceRow } from './game-frame-choice';
 import type { FramePlaceProps } from './game-frame-screen-view';
-import { FramePlacePage } from './game-frame-shell';
+import { FrameLobbyPage } from './game-frame-shell';
 
 /**
  * Before any game: what a custom game is, then play the bots at once, or
@@ -18,7 +18,7 @@ export function FrameStartPlace(props: FramePlaceProps): JSX.Element {
   // Either choice makes a game, and the game's own phase moves the screen on.
   const choices = createFrameChoices(() => undefined);
   return (
-    <FramePlacePage
+    <FrameLobbyPage
       connection={props.connection}
       error={props.error}
       status={props.status}
@@ -73,6 +73,6 @@ export function FrameStartPlace(props: FramePlaceProps): JSX.Element {
           />
         </MenuSection>
       </Show>
-    </FramePlacePage>
+    </FrameLobbyPage>
   );
 }

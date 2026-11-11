@@ -3,8 +3,8 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { For, type JSX, Show } from 'solid-js';
-import { CloseIconButton } from '../close-icon-button/index';
 import { type GameSeatLook, GameSeatSwatch } from '../game-seat-swatch/index';
+import { XIcon } from '../icons';
 import { createScreenSlot } from '../screen-slot';
 import styles from './game-stage-overlay.module.css';
 
@@ -167,7 +167,8 @@ export type GameResultOverlayProps = {
 /**
  * `GameResultOverlay` -- how the game ended, on a card over the final
  * board: a word for the result, the headline, why, the standings and what
- * to do next. It never moves the board. Its close control and a press on
+ * to do next. It never moves the board. Its close control (the words
+ * `dismissLabel`, beside the result's word) and a press on
  * the dimmed board behind it both dismiss it; what it said stays reachable
  * from the screen's own commands.
  *
@@ -217,15 +218,23 @@ export function GameResultOverlay(props: GameResultOverlayProps): JSX.Element {
               <p class="text textBody text-text-secondary">{props.caption}</p>
             </Show>
           </div>
-          <CloseIconButton
-            label={props.dismissLabel}
+          {/* Named in words, not only a cross: closing is how the final
+              board is seen, so the card says so. */}
+          <button
+            type="button"
+            class={`text textCaption ${styles['dismiss']}`}
             onClick={() => props.onDismiss()}
-            dataSet={{ testid: 'game-result-overlay-dismiss' }}
-          />
+            data-testid="game-result-overlay-dismiss"
+          >
+            <span class={styles['dismissWords']}>{props.dismissLabel}</span>
+            <XIcon size={16} color="textSecondary" />
+          </button>
         </div>
         {props.children}
         <Show when={actions.present()}>
-          <div class="box gap-2 min-w-0">{actions.content()}</div>
+          <div class="box flex-row flex-wrap gap-2 min-w-0">
+            {actions.content()}
+          </div>
         </Show>
       </section>
     </div>

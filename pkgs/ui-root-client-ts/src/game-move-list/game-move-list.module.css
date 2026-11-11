@@ -199,6 +199,13 @@
     max-height: none;
     overflow: auto hidden;
     scrollbar-width: none;
+    /* Earlier turns fade out at the leading edge: none is cut mid-glyph. */
+    padding-inline-start: var(--ui-space-5);
+    mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      var(--ui-color-text) var(--ui-space-5)
+    );
   }
   [data-game-fixed="true"]
     [data-game-slot="rail"]

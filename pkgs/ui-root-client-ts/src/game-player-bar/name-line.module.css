@@ -38,7 +38,7 @@
   max-width: 100%;
   overflow: hidden;
 }
-@container seat-identity (max-width: 280px) {
+@container seat-identity (max-width: 240px) {
   .line > .tags {
     flex-basis: 100%;
   }

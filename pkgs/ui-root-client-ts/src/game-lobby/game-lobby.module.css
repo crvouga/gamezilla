@@ -118,3 +118,38 @@
   border-top: 0;
   background: none;
 }
+
+/* A phone with room to spare: the mode card takes it as the lobby's
+   poster (a quiet board pattern over its wash, the words at its foot), so
+   the rows and the command sit together under the thumb and no empty band
+   parts them. A long roster gives the card back its own height. */
+.screen[data-wide="false"] [data-component="ScrollViewContent"] {
+  min-height: 100%;
+}
+/* A product's own column around the card and the rows grows with it. */
+.screen[data-wide="false"]
+  [data-component="ScrollViewContent"]
+  > :has(> .mode) {
+  flex: 1 0 auto;
+}
+.screen[data-wide="false"] .mode {
+  flex: 1 0 auto;
+  justify-content: flex-end;
+  background:
+    linear-gradient(
+      to top,
+      var(--ui-color-surface) 0%,
+      var(--ui-color-surface) 9rem,
+      transparent 100%
+    ),
+    repeating-conic-gradient(
+      var(--ui-color-tint-subtle) 0% 25%,
+      transparent 0% 50%
+    )
+    0 0 / 4.5rem 4.5rem,
+    linear-gradient(
+      135deg,
+      var(--ui-color-tint-subtle) 0%,
+      var(--ui-color-surface) 72%
+    );
+}

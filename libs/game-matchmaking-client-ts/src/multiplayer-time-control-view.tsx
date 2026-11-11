@@ -33,8 +33,7 @@ export function MultiplayerTimeControlView(
       title={<Trans>Time control</Trans>}
       subtitle={
         <Trans>
-          Each player's time for the whole game, plus the seconds every move
-          adds. A daily game gives days for each move.
+          Each player's time for the whole game, plus seconds added every move.
         </Trans>
       }
     >
