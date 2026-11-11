@@ -11,6 +11,12 @@ import {
 } from '@libs/harness-ts/identity';
 import { bringToFront } from '@libs/harness-ts/observations';
 import sql, { raw } from '@pkgs/sql-root-shared-ts/sql';
+import {
+  multiplayerPlaceHolding,
+  onMultiplayerPlace,
+  returnToMultiplayerHome,
+  showMultiplayerMoveList,
+} from './multiplayer-places';
 
 export type MultiplayerSearchView = {
   readonly search_id: string;
@@ -114,14 +120,21 @@ export async function multiplayerText(
     : null;
 }
 
-/** The text a person sees on their multiplayer screen, brought to the front. */
+/**
+ * The text a person sees on their multiplayer screen, brought to the front.
+ * A control kept on another place of finding an opponent (the ratings, the
+ * game's commands, the game record) is read there: the place is opened as a
+ * person opens it, and left again.
+ */
 export async function shownMultiplayerText(
   s: ProductHarness,
   actor: string,
   target: string
 ): Promise<string | null> {
   await bringToFront(s, actor);
-  return multiplayerText(s, actor, target);
+  return onMultiplayerPlace(s, actor, multiplayerPlaceHolding(target), () =>
+    multiplayerText(s, actor, target)
+  );
 }
 
 /** Seconds shown on one rendered multiplayer clock (`m:ss`). */
@@ -183,8 +196,11 @@ export async function shownMoveCount(
 ): Promise<number> {
   await bringToFront(s, actor);
   const ui = await actorUi(s, actor);
+  // A result lists no moves: they are one row away, and read there.
+  const opened = await showMultiplayerMoveList(s, actor);
   let shown = 0;
   while (await ui.get(`multiplayer-move-${String(shown + 1)}`).isVisible())
     shown++;
+  if (opened) await returnToMultiplayerHome(s, actor);
   return shown;
 }

@@ -109,7 +109,7 @@ function base(): Omit<
  */
 export function mountPlaces(options: {
   readonly stage: MultiplayerStage;
-  readonly open?: MultiplayerPlace['screen'];
+  readonly open?: Exclude<MultiplayerPlace['screen'], 'ratings'>;
   readonly width?: number;
   readonly props?: Overrides;
 }) {
@@ -118,12 +118,14 @@ export function mountPlaces(options: {
   const [props, setProps] = createSignal({ ...base(), ...options.props });
   const [chosen, setChosen] = createSignal<string | null>(null);
   let place: () => MultiplayerPlace = () => MULTIPLAYER_PLACES.home.idle;
+  let back: () => boolean = () => false;
   function Places(): JSX.Element {
     const nav = useMultiplayerPlaces(stage, () =>
       props().commands.returnToCurrent()
     );
     if (options.open !== undefined) nav.open({ screen: options.open });
     place = nav.place;
+    back = nav.back;
     return (
       <MultiplayerScreenView
         {...props()}
@@ -158,6 +160,8 @@ export function mountPlaces(options: {
     ...view,
     props,
     place: () => place().screen,
+    /** The bar's Back: false from a stage's home, where it leaves. */
+    back: () => back(),
     setStage,
     set: (next: Overrides) => setProps((current) => ({ ...current, ...next })),
   };

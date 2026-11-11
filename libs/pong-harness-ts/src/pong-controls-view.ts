@@ -22,6 +22,9 @@ export async function pongMoveListOffered(
     'custom-game-review-back',
     'custom-game-review-forward',
     'custom-game-review-ply',
+    // A matched game lists its moves beside the board and steps through
+    // them on a place of their own.
+    'multiplayer-move-list',
     'multiplayer-moves',
   ])
     if (await ui.get(id).isVisible()) return true;

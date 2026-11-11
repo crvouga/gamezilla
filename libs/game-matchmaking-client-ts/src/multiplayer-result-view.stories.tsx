@@ -95,6 +95,16 @@ export const OpenMoves: Story = {
   },
 };
 
+/** A new game at another clock starts from the search's hub, one row away. */
+export const OpenFind: Story = {
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(await canvas.findByTestId('multiplayer-open-find'));
+    await expect(args.onOpen).toHaveBeenCalledWith({ screen: 'find' });
+    await expect(await canvas.findByTestId('multiplayer-find')).toBeVisible();
+  },
+};
+
 /** Seeking a new opponent is the result's one filled command. */
 export const NewOpponent: Story = {
   play: async ({ args, canvasElement }) => {

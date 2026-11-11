@@ -1,6 +1,11 @@
 import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront } from '@libs/harness-ts/observations';
+import {
+  openMultiplayerPlace,
+  showMultiplayerMoveList,
+  tapMultiplayerControl,
+} from './multiplayer-places';
 
 /** The seat below the board, nearest the person holding the device. */
 export type NearestMultiplayerSeat = {
@@ -55,6 +60,31 @@ export async function shownReviewDescription(
   return (await description.isVisible()) ? await description.text() : null;
 }
 
+/**
+ * The move list is in front of the person after this: the game in play
+ * lists its moves, and a finished game's are one row from its result.
+ */
+export async function bringMultiplayerMoveList(
+  s: ProductHarness,
+  actor: string
+): Promise<void> {
+  await bringToFront(s, actor);
+  await showMultiplayerMoveList(s, actor);
+}
+
+/**
+ * The person turns their own board around, or back: with the control
+ * beside the moves they are stepping through, or from the game's commands,
+ * which return to the game.
+ */
+export async function pressFlipMultiplayerBoard(
+  s: ProductHarness,
+  actor: string
+): Promise<void> {
+  await bringToFront(s, actor);
+  await tapMultiplayerControl(s, actor, 'multiplayer-flip-board');
+}
+
 /** Where a person takes their own board in the move list. */
 export type MultiplayerReviewStep =
   | 'start'
@@ -75,7 +105,9 @@ const REVIEW_CONTROLS = {
  * The person reviews the matched game on the screen in front of them: goes
  * to the start, steps back or forward one move (with its control, or with
  * the keyboard's left or right arrow), returns to the current position, or
- * chooses a move in the move list.
+ * chooses a move in the move list. A move is chosen in the list the game in
+ * play shows, which opens the moves on it; the steps are on the moves
+ * themselves, opened first. The person stays there, reviewing.
  */
 export const reviewMultiplayerMoves = scenarioAction({
   name: 'reviewMultiplayerMoves',
@@ -87,9 +119,14 @@ export const reviewMultiplayerMoves = scenarioAction({
   ) => {
     await bringToFront(s, actor);
     const ui = await actorUi(s, actor);
-    if (typeof step === 'number')
+    if (typeof step === 'number') {
+      await showMultiplayerMoveList(s, actor);
       await ui.get(`multiplayer-move-${String(step)}`).tap();
-    else if (keyboard && (step === 'back' || step === 'forward'))
+      await s.session.waitForIdle();
+      return;
+    }
+    await openMultiplayerPlace(s, actor, 'moves');
+    if (keyboard && (step === 'back' || step === 'forward'))
       await ui
         .get('multiplayer-moves')
         .key(step === 'back' ? 'arrowLeft' : 'arrowRight');

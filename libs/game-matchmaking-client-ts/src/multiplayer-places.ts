@@ -23,21 +23,26 @@ export type MultiplayerStage =
   | 'playing'
   | 'finished';
 
-/** The small screen this device shows within a stage. */
-export type MultiplayerPlace = {
-  readonly screen:
-    | 'status'
-    | 'find'
-    | 'time-control'
-    | 'ratings'
-    | 'guide'
-    | 'searching'
-    | 'private-setup'
-    | 'play'
-    | 'commands'
-    | 'moves'
-    | 'result';
-};
+/**
+ * The small screen this device shows within a stage. The ratings are
+ * reached from the search's hub and from a result, and remember which, so
+ * Back returns there.
+ */
+export type MultiplayerPlace =
+  | {
+      readonly screen:
+        | 'status'
+        | 'find'
+        | 'time-control'
+        | 'guide'
+        | 'searching'
+        | 'private-setup'
+        | 'play'
+        | 'commands'
+        | 'moves'
+        | 'result';
+    }
+  | { readonly screen: 'ratings'; readonly from: 'find' | 'result' };
 
 /** The matched game, as far as its stage needs it. */
 export type MultiplayerStandingGame = {
@@ -79,11 +84,8 @@ export function multiplayerStageOf(
 }
 
 function parentOf(place: MultiplayerPlace): MultiplayerPlace | null {
-  if (
-    place.screen === 'time-control' ||
-    place.screen === 'ratings' ||
-    place.screen === 'guide'
-  )
+  if (place.screen === 'ratings') return { screen: place.from };
+  if (place.screen === 'time-control' || place.screen === 'guide')
     return { screen: 'find' };
   if (place.screen === 'commands' || place.screen === 'moves')
     return { screen: 'play' };
@@ -91,9 +93,10 @@ function parentOf(place: MultiplayerPlace): MultiplayerPlace | null {
 }
 
 /**
- * The places of finding an opponent. Back from the ratings or the moves of
- * a finished game leads to its result, the stage's home, because the stage
- * shows neither `find` nor `play`.
+ * The places of finding an opponent. A finished game keeps the search's hub
+ * one row from its result, so a new game at another clock never waits for
+ * anything. Back from the moves of a finished game, or from that hub, leads
+ * to the result, the stage's home.
  */
 export const MULTIPLAYER_PLACES = defineScreenPlaces<
   MultiplayerStage,
@@ -117,7 +120,7 @@ export const MULTIPLAYER_PLACES = defineScreenPlaces<
     searching: ['searching'],
     setup: ['private-setup', 'commands'],
     playing: ['play', 'commands', 'moves'],
-    finished: ['result', 'moves', 'ratings'],
+    finished: ['result', 'moves', 'ratings', 'find', 'time-control', 'guide'],
   },
   parent: parentOf,
 });

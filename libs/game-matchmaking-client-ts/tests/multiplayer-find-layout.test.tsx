@@ -166,7 +166,8 @@ test('the guide is one row away on every size: three points, no disclosure', () 
 // "Provisional" tag and a footnote all said the rating was provisional.
 // The "?" stays, and the footnote alone says what it means.
 test('a provisional rating keeps its "?" quietly, explained once under it', () => {
-  mountPlaces({ stage: 'idle', open: 'ratings' });
+  mountPlaces({ stage: 'idle' });
+  screen.getByTestId('multiplayer-open-ratings').click();
   const value = screen.getByTestId('multiplayer-rating-game-value');
   expect(value.textContent).toBe('1512?');
   const mark = [...value.querySelectorAll('span')].find(
@@ -188,7 +189,8 @@ test('a provisional rating keeps its "?" quietly, explained once under it', () =
 // footnote, outweighing the search itself. There is no bar, and how far
 // the rating is from settling is one quiet line.
 test('a provisional rating has no tag and no bar, and a settled one no "?"', () => {
-  const view = mountPlaces({ stage: 'idle', open: 'ratings' });
+  const view = mountPlaces({ stage: 'idle' });
+  screen.getByTestId('multiplayer-open-ratings').click();
   const row = screen.getByTestId('multiplayer-rating-game');
   expect(row.querySelector('[data-component="ProgressBar"]')).toBeNull();
   expect(screen.getByTestId('multiplayer-rating-game-games').textContent).toBe(

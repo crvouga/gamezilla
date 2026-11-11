@@ -17,6 +17,10 @@ import {
 import { multiplayerBoardShown } from '@libs/game-matchmaking-harness-ts/multiplayer-board';
 import { gameRecordOffered } from '@libs/game-matchmaking-harness-ts/multiplayer-game-record';
 import {
+  returnToMultiplayerHome,
+  showMultiplayerMoveList,
+} from '@libs/game-matchmaking-harness-ts/multiplayer-places';
+import {
   multiplayerView,
   shownMultiplayerText,
 } from '@libs/game-matchmaking-harness-ts/multiplayer-reads';
@@ -45,12 +49,16 @@ export async function shownMoveLabels(
 ): Promise<readonly string[]> {
   await bringToFront(s, actor);
   const ui = await actorUi(s, actor);
+  // A result lists no moves: they are one row away, and read there.
+  const opened = await showMultiplayerMoveList(s, actor);
   const labels: string[] = [];
   for (let ply = 1; ; ply++) {
     const move = ui.get(`multiplayer-move-${String(ply)}`);
-    if (!(await move.isVisible())) return labels;
+    if (!(await move.isVisible())) break;
     labels.push(((await move.text()) ?? '').trim());
   }
+  if (opened) await returnToMultiplayerHome(s, actor);
+  return labels;
 }
 
 /** `person`'s move list shows the game's victory's first `count` moves. */

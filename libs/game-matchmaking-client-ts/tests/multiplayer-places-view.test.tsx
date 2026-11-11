@@ -366,9 +366,10 @@ describe('the result', () => {
         'multiplayer-offer-rematch',
         'multiplayer-new-opponent',
         'multiplayer-open-moves',
+        'multiplayer-open-find',
         'multiplayer-open-ratings'
       )
-    ).toHaveLength(6);
+    ).toHaveLength(7);
     expect(
       ids(
         ...GAME_COMMANDS.filter((id) => id !== 'multiplayer-open-moves'),
@@ -387,6 +388,33 @@ describe('the result', () => {
     expect(
       screen.getByTestId('multiplayer-rating-game-value').textContent
     ).toBe('1512?');
+  });
+
+  test('Back from the ratings returns to where they were opened from', () => {
+    const view = mountPlaces({ stage: 'finished', props: { game: FINISHED } });
+    screen.getByTestId('multiplayer-open-ratings').click();
+    expect(view.back()).toBe(true);
+    expect(view.place()).toBe('result');
+    // The search's hub is one row from the result, for another clock.
+    screen.getByTestId('multiplayer-open-find').click();
+    expect(view.place()).toBe('find');
+    expect(mark()).toEqual({ stage: 'finished', place: 'find' });
+    screen.getByTestId('multiplayer-open-ratings').click();
+    expect(view.back()).toBe(true);
+    expect(view.place()).toBe('find');
+    expect(view.back()).toBe(true);
+    expect(view.place()).toBe('result');
+    expect(view.back()).toBe(false);
+  });
+
+  test('a watcher of a finished game is offered no search of their own', () => {
+    mountPlaces({
+      stage: 'finished',
+      props: { game: { ...FINISHED, rematch: 'none', newOpponent: false } },
+    });
+    expect(ids('multiplayer-open-find', 'multiplayer-new-opponent')).toEqual(
+      []
+    );
   });
 
   test('a rematch offered to the person is the one filled command', () => {

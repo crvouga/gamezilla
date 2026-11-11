@@ -108,7 +108,10 @@ function FindRows(props: FindProps): JSX.Element {
           }
           value={timeControlChoiceText(props.find.timeControl)}
           onClick={() => props.onOpen({ screen: 'time-control' })}
-          dataSet={{ testid: 'multiplayer-open-time-control' }}
+          dataSet={{
+            testid: 'multiplayer-open-time-control',
+            'time-control': props.find.timeControl,
+          }}
         />
       </Show>
       <MenuRow
@@ -118,7 +121,7 @@ function FindRows(props: FindProps): JSX.Element {
             {(rating) => <MultiplayerRatingFigure rating={rating()} />}
           </Show>
         }
-        onClick={() => props.onOpen({ screen: 'ratings' })}
+        onClick={() => props.onOpen({ screen: 'ratings', from: 'find' })}
         dataSet={{ testid: 'multiplayer-open-ratings' }}
       />
       <MenuRow

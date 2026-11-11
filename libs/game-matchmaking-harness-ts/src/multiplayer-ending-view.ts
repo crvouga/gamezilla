@@ -1,6 +1,7 @@
 import { actorUi } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront } from '@libs/harness-ts/observations';
+import { onMultiplayerPlace } from './multiplayer-places';
 
 /** The ending choices and result actually shown by the two seats and announcement. */
 export async function multiplayerEndingView(s: ProductHarness, actor: string) {
@@ -27,13 +28,14 @@ export async function multiplayerEndingView(s: ProductHarness, actor: string) {
       if (name !== undefined) result = `${name} won`;
     }
   }
-  return {
-    result,
-    gameId: await board.attribute('data-game-id'),
-    position: await board.attribute('data-shown-position'),
+  const gameId = await board.attribute('data-game-id');
+  const position = await board.attribute('data-shown-position');
+  // Aborting and resigning are among the game's commands, one press away.
+  const leaving = await onMultiplayerPlace(s, actor, 'commands', async () => ({
     abortOffered: await ui.get('multiplayer-abort').isVisible(),
     resignOffered: await ui.get('multiplayer-resign').isVisible(),
-  };
+  }));
+  return { result, gameId, position, ...leaving };
 }
 
 /** The model's two people, each observed on their own rendered device. */

@@ -118,7 +118,10 @@ function NewOpponent(props: ResultProps): JSX.Element {
   );
 }
 
-/** Where the finished game leads: its moves or record, and the person's ratings. */
+/**
+ * Where the finished game leads: its moves or record, a new game at another
+ * clock, and the person's ratings.
+ */
 function Onward(props: ResultProps): JSX.Element {
   return (
     <MenuSection>
@@ -145,9 +148,17 @@ function Onward(props: ResultProps): JSX.Element {
           dataSet={{ testid: 'multiplayer-open-moves' }}
         />
       </Show>
+      <Show when={props.game.newOpponent}>
+        <MenuRow
+          title={<Trans>New game</Trans>}
+          caption={<Trans>Choose what to play for next</Trans>}
+          onClick={() => props.onOpen({ screen: 'find' })}
+          dataSet={{ testid: 'multiplayer-open-find' }}
+        />
+      </Show>
       <MenuRow
         title={<Trans>Your ratings</Trans>}
-        onClick={() => props.onOpen({ screen: 'ratings' })}
+        onClick={() => props.onOpen({ screen: 'ratings', from: 'result' })}
         dataSet={{ testid: 'multiplayer-open-ratings' }}
       />
     </MenuSection>
@@ -156,8 +167,9 @@ function Onward(props: ResultProps): JSX.Element {
 
 /**
  * The matched game is over: how it ended and what it did to the person's
- * rating, a rematch or a new opponent, then the final position. Its moves
- * and the person's ratings are each one row away.
+ * rating, a rematch or a new opponent at the same clock, then the final
+ * position. Its moves, the search's hub (for another clock) and the
+ * person's ratings are each one row away.
  */
 export function MultiplayerResultView(props: ResultProps): JSX.Element {
   return (

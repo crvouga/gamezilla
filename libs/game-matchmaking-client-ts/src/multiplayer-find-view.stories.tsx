@@ -5,6 +5,7 @@ import { MultiplayerScreenView } from './multiplayer-screen-view';
 import {
   renderStory,
   SPEED_RATINGS,
+  STORY_FINISHED_GAME,
   STORY_PARAMETERS,
   storyArgs,
 } from './multiplayer-screen-view.example';
@@ -66,6 +67,11 @@ export const CommandRefused: Story = {
   args: { error: 'Multiplayer game could not accept that command.' },
 };
 
+/** After a game: the search's hub is one row from the result, for another clock. */
+export const AfterTheGame: Story = {
+  args: { ...TIMED, stage: 'finished', game: STORY_FINISHED_GAME },
+};
+
 /** Offline: a search waits for the connection. */
 export const Offline: Story = { args: { online: false } };
 
@@ -103,7 +109,10 @@ export const OpenRatings: Story = {
     await userEvent.click(
       await canvas.findByTestId('multiplayer-open-ratings')
     );
-    await expect(args.onOpen).toHaveBeenCalledWith({ screen: 'ratings' });
+    await expect(args.onOpen).toHaveBeenCalledWith({
+      screen: 'ratings',
+      from: 'find',
+    });
     await expect(
       await canvas.findByTestId('multiplayer-rating-blitz-value')
     ).toHaveTextContent('1623');

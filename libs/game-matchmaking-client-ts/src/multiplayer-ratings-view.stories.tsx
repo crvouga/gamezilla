@@ -18,7 +18,7 @@ const meta = {
   args: {
     ...storyArgs(),
     stage: 'idle',
-    place: { screen: 'ratings' },
+    place: { screen: 'ratings', from: 'find' },
   },
 } satisfies Meta<typeof MultiplayerScreenView>;
 export default meta;
@@ -42,6 +42,7 @@ export const AfterTheGame: Story = {
   args: {
     title: 'Chess',
     stage: 'finished',
+    place: { screen: 'ratings', from: 'result' },
     game: STORY_FINISHED_GAME,
     ratings: SPEED_RATINGS,
   },
