@@ -112,17 +112,37 @@ position is the `moves` place; leaving it returns the board to live.
 
 ### Puzzles (`puzzle`, `stats`, `stats-review`)
 
+The feed (`puzzle-play-places`):
+
 | Stage | Place | Kind | Job |
 | --- | --- | --- | --- |
-| `loading`, `offline`, `limited`, `empty`, `waiting` | `status` | Result | Say why there is no puzzle, and what to do about it |
-| `playing` | `play` | Stage | Solve the puzzle on the board |
-| | `feed` | Hub | What the feed serves next, one row per setting |
+| `loading`, `offline`, `limited`, `empty`, `waiting` | `status` | Result | Say why there is no puzzle, and the one thing to do about it |
+| | `feed`, `feed-…` | Hub, Choice | As under `playing` (not for a watcher `waiting`) |
+| `playing` | `play` | Stage | Solve the puzzle on the board: one status line, what the solve state allows, the line so far, one row to the puzzle settings |
+| | `line` | Stage | Step through the moves played |
+| | `feed` | Hub | What the feed serves next, one row per setting; share the puzzle |
 | | `feed-target`, `feed-history`, `feed-themes`, `feed-advance` | Choice | One feed setting each |
-| `finished` | `result` | Result | Solved or failed, the rating change, the next puzzle |
-| (stats) | `summary` | Hub | Rating, played, solved, accuracy; onward to the trend and the log |
-| | `trend` | Hub | The rating over time |
+| `finished` | `result` | Result | Solved, solution shown or skipped; the rating change; the next puzzle, a retry, the puzzle's link |
+| | `line` | Stage | Step through the whole line; the next puzzle or a retry |
+| | `feed`, `feed-…` | Hub, Choice | As under `playing` |
+
+The stage is `puzzlePlayStageOf` of the feed's pick and the attempt: a
+puzzle is `finished` for its solver when it is solved, shown or skipped; a
+watcher's board stays `playing`. `play`, `line` and `result` share one board
+(`PuzzleScreen`), so a puzzle's last move is still played and heard as its
+result arrives; the result keeps the coach's words on the status line. The
+move the board is on is the room's: leaving `line` keeps it, and `play` says
+so and offers the way back to the latest move. The feed settings edit a
+draft: Done saves it, Back from `feed` drops it.
+
+The stats (`puzzle-stats-places`), and the review:
+
+| Stage | Place | Kind | Job |
+| --- | --- | --- | --- |
+| `loading`, `ready` | `summary` | Hub | Rating, played, solved, accuracy; onward to the trend and the log |
+| `ready` | `trend` | Hub | The rating over time |
 | | `log` | Hub | Every puzzle played, each opening its review |
-| (review) | `review` | Stage | Step through a played puzzle |
+| (`stats-review`) | review | Stage | Step through a played puzzle; back to the log |
 
 ### Puzzles and packs (`puzzle-library`)
 
