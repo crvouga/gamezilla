@@ -1,3 +1,4 @@
+import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import {
   PuzzleReviewScreenView,
@@ -54,7 +55,12 @@ const meta = {
   tags: ['autodocs'],
   render: (args, context) => renderAt(args, context),
   parameters: { appRouter: true, controls: { exclude: ['board'] } },
-  args: { status: 'ready', outcome: 'solved', puzzleRating: 1702 },
+  args: {
+    status: 'ready',
+    outcome: 'solved',
+    puzzleRating: 1702,
+    onBackToLog: fn(),
+  },
 } satisfies Meta<typeof PuzzleReviewScreenView>;
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -77,11 +83,23 @@ export const Abandoned: Story = {
 /** The log does not have the attempt yet: the generic title, no rating. */
 export const Untitled: Story = { args: { outcome: null, puzzleRating: 0 } };
 
-/** The puzzle is not on this device yet; try again after sync. */
+/** The puzzle is not on this device yet; the way back to the log is offered. */
 export const Unavailable: Story = { args: { status: 'unavailable' } };
 
-/** Nothing picked from the game log yet. */
+/** Nothing picked from the game log yet; the way back to it is offered. */
 export const Unselected: Story = { args: { status: 'unselected' } };
 
 /** Inside the personal stats route: the host scrolls and pads the page. */
 export const Nested: Story = { args: { nested: true } };
+
+/** A review that cannot show leads back to the game log. */
+export const BackToLog: Story = {
+  args: { status: 'unavailable' },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      await canvas.findByRole('button', { name: 'Back to the game log' })
+    );
+    await expect(args.onBackToLog).toHaveBeenCalled();
+  },
+};

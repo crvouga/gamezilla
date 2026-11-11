@@ -1,6 +1,7 @@
 /**
  * Puzzle links as people use them, for any game offering puzzles: "Share
- * puzzle link" on the puzzle screen copies the link; opening a link goes to
+ * puzzle link" (on a finished puzzle's result, and in the puzzle settings
+ * while solving) copies the link; opening a link goes to
  * it as a tapped link would; the link's screen says why a puzzle cannot
  * open.
  */
@@ -21,6 +22,7 @@ import { bringToFront } from '@libs/harness-ts/observations';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import type { RecordingClipboard } from '@pkgs/device-shared-ts/clipboard';
 import { hostLimit } from '@pkgs/gherkin-shared-ts/registry';
+import { leavePuzzleFeedUnsaved, openPuzzleFeed } from './puzzle-places';
 import {
   isPuzzleLimitShown,
   isPuzzleOfflineNoticeShown,
@@ -73,12 +75,17 @@ export const sharePuzzleLink = scenarioAction({
     const clipboard = await clipboardOf(s, actorId);
     const before = clipboard.writes.length;
     const ui = await actorUi(s, actorId);
+    // A finished puzzle's result has the share command; while solving it is
+    // a row of the puzzle settings, opened and left again without a change.
+    const onResult = await ui.get(Handles.chessPuzzleShareLink).isVisible();
+    if (!onResult) await openPuzzleFeed(s, actorId);
     await ui.get(Handles.chessPuzzleShareLink).tap({ timeoutMs: WAIT_MS });
     await pollUntil(
       s,
       async () => (clipboard.writes.length > before ? true : null),
       { maxMs: WAIT_MS, stepMs: POLL_MS, description: 'puzzle link copied' }
     );
+    if (!onResult) await leavePuzzleFeedUnsaved(s, actorId);
   },
 });
 

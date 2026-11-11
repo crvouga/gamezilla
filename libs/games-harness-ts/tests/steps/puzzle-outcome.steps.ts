@@ -37,6 +37,7 @@ import {
   currentPuzzle,
   ensureOnPuzzle,
   enterKnownPuzzle,
+  focusGameLog,
   focusPuzzle,
   focusStats,
   ownRatingOf,
@@ -214,7 +215,7 @@ Then(
     const title = LOG_TITLES[outcome];
     if (title === undefined) throw new Error(`no game log outcome ${outcome}`);
     const puzzle = currentPuzzle(w, actor);
-    await focusStats(w, actor);
+    await focusGameLog(w, actor);
     await w.s.until((surf) => readGameLogTitle(surf, actor, puzzle), {
       maxMs: SETTLE_MS,
       pred: (text) => text !== null && title.test(text),
@@ -313,7 +314,7 @@ Then(
   async (w, actor: Actor) => {
     const puzzle = currentPuzzle(w, actor);
     const own = await ownRatingOf(w, puzzle);
-    await focusStats(w, actor);
+    await focusGameLog(w, actor);
     const row = await w.s.until((surf) => readGameLogRow(surf, actor, puzzle), {
       maxMs: SETTLE_MS,
       pred: (shown) => typeof shown?.change === 'number',
@@ -327,7 +328,7 @@ Then(
   "{actor}'s game log shows the repeat as unrated",
   async (w, actor: Actor) => {
     const puzzle = currentPuzzle(w, actor);
-    await focusStats(w, actor);
+    await focusGameLog(w, actor);
     await w.s.until((surf) => readGameLogRow(surf, actor, puzzle), {
       maxMs: SETTLE_MS,
       pred: (shown) => shown?.change === 'unrated',

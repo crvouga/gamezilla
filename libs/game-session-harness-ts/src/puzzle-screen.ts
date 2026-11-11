@@ -15,6 +15,15 @@ import { waitActiveSpace } from '@libs/spaces-harness-ts/space-ui';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import type { RecordingHaptics } from '@pkgs/device-shared-ts/haptics';
 import { ElementNotFoundError } from '@pkgs/ui-testing-root-shared-ts/element-not-found-error';
+import {
+  openFeedSetting,
+  openPuzzleFeed,
+  openPuzzleLine,
+  readPuzzlePlace,
+  showPuzzleHome,
+  waitPuzzleFeedClosed,
+  waitPuzzleFeedHub,
+} from './puzzle-places';
 
 const WAIT_MS = 15_000;
 const POLL_MS = 250;
@@ -229,13 +238,18 @@ export async function readPuzzlePickState(
   return (await readPickField(s, actorId, 'pickState')) ?? null;
 }
 
-/** Whether the puzzle's result is shown: solved, its panel on the board. */
+/** Whether the puzzle is solved: its result says so, or the attempt does. */
 export async function isPuzzleSolved(
   s: ProductHarness,
   actorId: string
 ): Promise<boolean> {
   const ui = await actorUi(s, actorId);
-  if (await ui.get(Handles.chessPuzzleSummary).isVisible()) return true;
+  const result = ui.get(Handles.chessPuzzleSummary);
+  if (
+    (await result.isVisible()) &&
+    (await result.attribute('data-outcome')) === 'solved'
+  )
+    return true;
   return (await readPuzzleState(s, actorId)) === 'solved';
 }
 
@@ -297,10 +311,23 @@ async function boardReadyNow(
   return true;
 }
 
+/** A finished puzzle's result is what shows, in the board's place. */
+async function resultShownNow(
+  s: ProductHarness,
+  actorId: string
+): Promise<boolean> {
+  const ui = await actorUi(s, actorId);
+  return ui.get(Handles.chessPuzzleSummary).isVisible();
+}
+
+/** The puzzle's board is up, or the result of a puzzle already over. */
 async function waitBoardReady(s: ProductHarness, actorId: string) {
   await pollUntil(
     s,
-    async () => ((await boardReadyNow(s, actorId)) ? true : null),
+    async () =>
+      (await resultShownNow(s, actorId)) || (await boardReadyNow(s, actorId))
+        ? true
+        : null,
     { maxMs: WAIT_MS, description: 'the puzzle board' }
   );
 }
@@ -481,8 +508,9 @@ export const leavePuzzleForGameChoices = scenarioAction({
   name: 'leavePuzzleForGameChoices',
   act: async (s, actorId: string) => {
     const ui = await actorUi(s, actorId);
-    // A result panel covers the board: it is closed first, as a person must.
-    await closeResultPanel(s, actorId);
+    // Back steps through the open places (a line, the settings) to the
+    // stage's home, and from there out to the game's choices.
+    await showPuzzleHome(s, actorId);
     await ui.get(Handles.navBack).tap({ timeoutMs: WAIT_MS });
     await ui
       .get(Handles.gameChoice('puzzle'))
@@ -512,6 +540,7 @@ export const goBackToGamePuzzles = scenarioAction({
       async () => {
         if (await isPuzzleLimitShown(s, actorId)) return 'notice';
         if (await isPuzzleOfflineNoticeShown(s, actorId)) return 'notice';
+        if (await resultShownNow(s, actorId)) return 'board';
         return (await boardReadyNow(s, actorId)) ? 'board' : null;
       },
       { maxMs: WAIT_MS, description: 'the puzzles, or why not' }
@@ -572,17 +601,26 @@ export async function readPuzzleView(
 
 // ---------------------------------------------------------------- controls
 
+/**
+ * Press one of the attempt's controls. They are on the stage's home (the
+ * board while solving); from another place (the line, the settings) the
+ * person goes back there first.
+ */
 async function tapControl(
   s: ProductHarness,
   actorId: string,
   handle: string
 ): Promise<void> {
   const ui = await actorUi(s, actorId);
+  if (!(await ui.get(handle).isVisible())) await showPuzzleHome(s, actorId);
   await ui.get(handle).expect.visible({ timeoutMs: WAIT_MS });
   await ui.get(handle).tap({ timeoutMs: WAIT_MS });
 }
 
-/** Close the result panel over a finished puzzle, when it is open. */
+/**
+ * Leave a finished puzzle's result for its line on the board, by the
+ * result's own row, when the result is what shows.
+ */
 export async function closeResultPanel(
   s: ProductHarness,
   actorId: string
@@ -593,6 +631,35 @@ export async function closeResultPanel(
   await ui
     .get(Handles.chessPuzzleSummary)
     .expect.hidden({ timeoutMs: WAIT_MS });
+}
+
+/**
+ * The control that moves on to the next puzzle, where the person is: the
+ * result's own, or the one under the finished puzzle's line.
+ */
+async function nextPuzzleControl(
+  s: ProductHarness,
+  actorId: string
+): Promise<string> {
+  const ui = await actorUi(s, actorId);
+  return (await ui.get(Handles.chessPuzzleSummaryNext).isVisible())
+    ? Handles.chessPuzzleSummaryNext
+    : Handles.chessPuzzleActionNext;
+}
+
+/**
+ * The board, ready for a move: from the line or the settings of a puzzle
+ * being solved, back to the board itself. Nothing to do when it shows, or
+ * when the puzzle is over.
+ */
+export async function showPuzzleBoard(
+  s: ProductHarness,
+  actorId: string
+): Promise<void> {
+  const here = await readPuzzlePlace(s, actorId);
+  if (here === null || here.stage !== 'playing' || here.place === 'play')
+    return;
+  await showPuzzleHome(s, actorId);
 }
 
 /** The first hint: where the solution move starts is highlighted. */
@@ -618,6 +685,7 @@ export const showPuzzleSolution = scenarioAction({
   name: 'showPuzzleSolution',
   act: async (s, actorId: string) => {
     const ui = await actorUi(s, actorId);
+    await showPuzzleBoard(s, actorId);
     // After a wrong move the bar has its own Solution control; while
     // solving, the one hint control goes on from the hints to the line.
     const solution = ui.get(Handles.chessPuzzleActionSolution);
@@ -685,7 +753,7 @@ export async function waitNextPuzzle(
 export const moveOnToNextPuzzle = scenarioAction({
   name: 'moveOnToNextPuzzle',
   act: async (s, actorId: string) => {
-    await tapControl(s, actorId, Handles.chessPuzzleActionNext);
+    await tapControl(s, actorId, await nextPuzzleControl(s, actorId));
     await waitNextPuzzle(s, actorId);
   },
 });
@@ -693,44 +761,46 @@ export const moveOnToNextPuzzle = scenarioAction({
 /** Move on, without waiting for a puzzle: the feed may have none left. */
 export const moveOnWithoutWaiting = scenarioAction({
   name: 'moveOnWithoutWaiting',
-  act: (s, actorId: string) =>
-    tapControl(s, actorId, Handles.chessPuzzleActionNext),
+  act: async (s, actorId: string) =>
+    tapControl(s, actorId, await nextPuzzleControl(s, actorId)),
 });
 
-/** Ask for the next puzzle: press it only when the board offers it. */
+/** Ask for the next puzzle: press it only when the screen offers it. */
 export const askForNextPuzzle = scenarioAction({
   name: 'askForNextPuzzle',
   act: async (s, actorId: string) => {
     const ui = await actorUi(s, actorId);
-    const next = ui.get(Handles.chessPuzzleActionNext);
+    const next = ui.get(await nextPuzzleControl(s, actorId));
     if (await next.isVisible()) await next.tap({ timeoutMs: WAIT_MS });
   },
 });
 
 /**
- * The next puzzle asked for twice back to back: the result panel's when it
- * shows, else the bar's, then the bar's again if it is still there.
+ * The next puzzle asked for twice back to back: the result's own control
+ * when it shows, else the one under the line; then whichever is still
+ * there, pressed again.
  */
 export const askForNextPuzzleTwice = scenarioAction({
   name: 'askForNextPuzzleTwice',
   act: async (s, actorId: string) => {
     const ui = await actorUi(s, actorId);
-    const summary = ui.get(Handles.chessPuzzleSummaryNext);
-    const first = (await summary.isVisible())
-      ? summary
-      : ui.get(Handles.chessPuzzleActionNext);
-    await first.tap({ timeoutMs: WAIT_MS });
-    const again = ui.get(Handles.chessPuzzleActionNext);
+    await ui
+      .get(await nextPuzzleControl(s, actorId))
+      .tap({ timeoutMs: WAIT_MS });
+    const again = ui.get(await nextPuzzleControl(s, actorId));
     if (await again.isVisible()) await again.tap({ timeoutMs: WAIT_MS });
     await waitNextPuzzle(s, actorId);
   },
 });
 
-/** Look back one move of the line, or forward again toward the latest. */
+/**
+ * Look back one move of the line, or forward again toward the latest, on
+ * the line's own place.
+ */
 export const stepThroughPuzzleLine = scenarioAction({
   name: 'stepThroughPuzzleLine',
   act: async (s, actorId: string, direction: 'back' | 'forward') => {
-    await closeResultPanel(s, actorId);
+    await openPuzzleLine(s, actorId);
     const ui = await actorUi(s, actorId);
     await ui.get(Handles.chessPuzzleMoveNav(direction)).tap();
     await s.session.waitForIdle();
@@ -741,8 +811,8 @@ export const stepThroughPuzzleLine = scenarioAction({
 export const choosePuzzleLineMove = scenarioAction({
   name: 'choosePuzzleLineMove',
   act: async (s, actorId: string, move: number) => {
-    await closeResultPanel(s, actorId);
     if ((await readPuzzleProbe(s, actorId))?.solveIdx === move) return;
+    await openPuzzleLine(s, actorId);
     const ui = await actorUi(s, actorId);
     const target =
       move === 0
@@ -760,30 +830,34 @@ export const advancePuzzlesAfterASecond = scenarioAction({
   name: 'advancePuzzlesAfterASecond',
   act: async (s, actorId: string) => {
     const ui = await actorUi(s, actorId);
-    await ui.get(Handles.chessPuzzleFeedSummary).tap({ timeoutMs: WAIT_MS });
-    await ui.get(Handles.chessPuzzleFeedDone).expect.visible({
-      timeoutMs: WAIT_MS,
-    });
+    await openPuzzleFeed(s, actorId);
+    await openFeedSetting(s, actorId, 'feed-advance');
+    // The choice is applied and returns to the settings, where Done saves.
     await ui
       .get(Handles.chessPuzzleFeedAutoAdvanceSegment('after1s'))
       .tap({ timeoutMs: WAIT_MS });
+    await waitPuzzleFeedHub(s, actorId);
     await ui.get(Handles.chessPuzzleFeedDone).tap({ timeoutMs: WAIT_MS });
-    await ui.get(Handles.chessPuzzleFeedDone).expect.hidden({
-      timeoutMs: WAIT_MS,
-    });
+    await waitPuzzleFeedClosed(s, actorId);
   },
 });
 
-/** Which of the attempt's controls the board offers right now. */
+/** Which of the attempt's controls the screen offers right now. */
 export async function readPuzzleControls(s: ProductHarness, actorId: string) {
+  const place = await readPuzzlePlace(s, actorId);
   return {
     retryOffered: await visible(s, actorId, [Handles.chessPuzzleActionRetry]),
-    moveOnOffered: await visible(s, actorId, [Handles.chessPuzzleActionNext]),
+    // Moving on is offered by the result, or under the finished line.
+    moveOnOffered:
+      (await visible(s, actorId, [Handles.chessPuzzleActionNext])) ||
+      (await visible(s, actorId, [Handles.chessPuzzleSummaryNext])),
     resultMoveOnOffered: await visible(s, actorId, [
       Handles.chessPuzzleSummaryNext,
     ]),
     resultShown: await visible(s, actorId, [Handles.chessPuzzleSummary]),
-    feedSettingsOpen: await visible(s, actorId, [Handles.chessPuzzleFeedDone]),
+    feedSettingsOpen:
+      place !== null &&
+      (place.place === 'feed' || place.place.startsWith('feed-')),
   };
 }
 
@@ -813,7 +887,11 @@ export function moveChipText(text: string | null | undefined): string {
   return stripProbe(text).replace(MOVE_NUMBER, '');
 }
 
-/** The move the board's move list highlights: its index from 0 and its text. */
+/**
+ * The move the move list highlights: its index from 0 and its text. The
+ * board and the line show the moves; a result does not (`showPuzzleLine`
+ * first).
+ */
 export async function readPuzzleHighlightedMove(
   s: ProductHarness,
   actorId: string
@@ -829,7 +907,11 @@ export async function readPuzzleHighlightedMove(
 
 export type ShownRatingChange = 'raised' | 'lowered' | 'unchanged' | 'unrated';
 
-/** The rating change on screen, read off its signed number; null if none. */
+/**
+ * The rating change on screen, read off its signed number; null if none.
+ * A finished puzzle's change is on its result (`showPuzzleResult` first,
+ * from its line).
+ */
 export async function readShownRatingChange(
   s: ProductHarness,
   actorId: string
@@ -851,7 +933,10 @@ export async function readShownRatingChange(
   return (await unrated.isVisible()) ? 'unrated' : null;
 }
 
-/** The feed marks the puzzle on the board unrated (a repeat). */
+/**
+ * The puzzle on the board is marked unrated (a repeat): on the board's
+ * status line while it is solved, on its result once it is over.
+ */
 export async function isPuzzleUnratedShown(
   s: ProductHarness,
   actorId: string
@@ -860,24 +945,20 @@ export async function isPuzzleUnratedShown(
   return ui.get(Handles.chessPuzzleFeedUnratedLabel).isVisible();
 }
 
-/** The puzzle's own rating shows: on the feed bar or the result panel. */
+/**
+ * The puzzle's own rating shows. It is a fact of the result, hidden while
+ * the puzzle is solved.
+ */
 export async function isPuzzleOwnRatingShown(
   s: ProductHarness,
   actorId: string
 ): Promise<boolean> {
   const ui = await actorUi(s, actorId);
-  for (const handle of [
-    Handles.chessPuzzleBoardElo,
-    Handles.chessPuzzleSummaryPuzzleRating,
-  ]) {
-    const node = ui.get(handle);
-    if ((await node.isVisible()) && /\d/.test(stripProbe(await node.text())))
-      return true;
-  }
-  return false;
+  const node = ui.get(Handles.chessPuzzleBoardElo);
+  return (await node.isVisible()) && /\d/.test(stripProbe(await node.text()));
 }
 
-/** The puzzle's themes show on the feed bar. */
+/** The puzzle's themes show: a fact of the result, as its own rating is. */
 export async function isPuzzleThemesShown(
   s: ProductHarness,
   actorId: string
@@ -896,7 +977,10 @@ export async function readDeviceHaptics(
   return [...(env.haptics as RecordingHaptics).calls];
 }
 
-/** Puzzle starts the actor has left today, when the board shows them. */
+/**
+ * Puzzle starts the actor has left today, when the puzzles show them: on
+ * the settings row of a stage's home (and a watcher's board).
+ */
 export async function readPuzzleStartsLeft(
   s: ProductHarness,
   actorId: string
@@ -914,7 +998,26 @@ export async function readPuzzleStartsLeft(
   return match === null || match === undefined ? null : Number(match[1]);
 }
 
+/** Open the line's own place, where the moves are stepped through. */
+export const showPuzzleLine = scenarioAction({
+  name: 'showPuzzleLine',
+  act: openPuzzleLine,
+});
+
+/**
+ * Back to the home of the puzzles' stage: the board being solved, the
+ * result of a finished puzzle, or why there is no puzzle.
+ */
+export const showPuzzleStageHome = scenarioAction({
+  name: 'showPuzzleStageHome',
+  act: async (s, actorId: string) => {
+    await showPuzzleHome(s, actorId);
+  },
+});
+
 export const PUZZLE_SCREEN_ACTIONS = [
+  showPuzzleLine,
+  showPuzzleStageHome,
   openGamePuzzles,
   openGamePuzzlesNoWait,
   moveOnWithoutWaiting,

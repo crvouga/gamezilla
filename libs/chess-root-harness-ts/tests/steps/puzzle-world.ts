@@ -15,7 +15,10 @@ import {
   stockPuzzles,
 } from '@libs/chess-puzzle-harness-ts/puzzle-pool-stock';
 import { CHESS_GAME_ID } from '@libs/chess-root-harness-ts/chess-playable';
-import { showGamePuzzleStats } from '@libs/game-session-harness-ts/puzzle-records';
+import {
+  openPuzzleStatsPlace,
+  showGamePuzzleStats,
+} from '@libs/game-session-harness-ts/puzzle-records';
 import type { PuzzleProbe } from '@libs/game-session-harness-ts/puzzle-screen';
 import {
   openGamePuzzles,
@@ -215,6 +218,15 @@ export async function ensureStatsOpen(
 ): Promise<void> {
   await w.s.apply(focusActor, device);
   await w.s.apply(showGamePuzzleStats, device, CHESS_GAME_ID);
+}
+
+/** The stats' game log on `device`, for a `Then` reading its rows. */
+export async function ensureGameLogOpen(
+  w: HarnessWorld,
+  device: string
+): Promise<void> {
+  await ensureStatsOpen(w, device);
+  await w.s.apply(openPuzzleStatsPlace, device, 'log');
 }
 
 /** `a1-a5` → `a1a5`. */

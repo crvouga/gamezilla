@@ -1,10 +1,10 @@
 /**
  * Story-only fixtures for the puzzle play and review screen views: the
- * presentational widgets their containers put in the views' slots (feed
- * strip, result overlay, move list) and a game-agnostic board drawing a
- * fixed puzzle line (Legal's mate) on the design system's checkered board. The
- * platform knows no game, so the stories use no game's own board.
- * Production never imports this module.
+ * plain data their containers wire from the room (the feed settings, the
+ * line, the result), the place machine a story walks, and a game-agnostic
+ * board drawing a fixed puzzle line (Legal's mate) on the design system's
+ * checkered board. The platform knows no game, so the stories use no
+ * game's own board. Production never imports this module.
  */
 import type { PuzzleCompletion } from '@libs/game-puzzle-shared-ts/completion';
 import { DEFAULT_PUZZLE_FEED_CONFIG } from '@libs/game-puzzle-shared-ts/feed-config';
@@ -16,24 +16,28 @@ import {
   type CellGridCell,
 } from '@pkgs/ui-root-client-ts/cell-grid-board';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from 'solid-js';
 import { fn } from 'storybook/test';
 import { createJSXDecorator } from 'storybook-solidjs-vite';
-import { PuzzleCelebrationOverlayView } from './puzzle-celebration-overlay-view';
 import type { PuzzleBoardMarks } from './puzzle-client';
-import {
-  PuzzleFeedBarView,
-  type PuzzleFeedRatingChange,
-} from './puzzle-feed-bar-view';
 import { PuzzleMoveHistory } from './puzzle-move-history';
 import {
-  PuzzlePlayScreenView,
-  type PuzzlePlayScreenViewProps,
-} from './puzzle-play-screen-view';
+  STORY_FEED,
+  useStoryFeedSettings,
+  useStoryPuzzlePlaces,
+} from './puzzle-places-story.example';
+import type {
+  PuzzleLineModel,
+  PuzzlePlayScreenViewProps,
+  PuzzleResultModel,
+} from './puzzle-play-screen-model';
+import { PuzzlePlayScreenView } from './puzzle-play-screen-view';
 import type { PuzzleMoveWriting } from './use-puzzle-notation';
 
 /** The feed as a new player first sees it: automatic, unseen puzzles. */
 export const STORY_FEED_CONFIG = DEFAULT_PUZZLE_FEED_CONFIG;
+
+export { STORY_FEED };
 
 /** Moves written as the game names them, numbered on the mover's turn. */
 const WRITING: PuzzleMoveWriting = {
@@ -60,76 +64,6 @@ export const withScreenFrame = createJSXDecorator((Story) => (
     <Story />
   </StackVertical>
 ));
-
-/** The feed strip above the board, with a typical feed and pool. */
-export function StoryFeedBar(props: {
-  readonly puzzleId?: string | undefined;
-  readonly rating?: number | undefined;
-  readonly themes?: readonly string[] | undefined;
-  readonly over?: boolean | undefined;
-  readonly ratingChange?: PuzzleFeedRatingChange | undefined;
-  readonly allowanceLabel?: string | undefined;
-}): JSX.Element {
-  return (
-    <PuzzleFeedBarView
-      puzzleId={props.puzzleId}
-      rating={props.rating}
-      themes={props.themes}
-      over={props.over}
-      ratingChange={props.ratingChange ?? null}
-      config={STORY_FEED_CONFIG}
-      configReady
-      effectiveRating={1500}
-      matched={1240}
-      total={3000}
-      allowanceLabel={props.allowanceLabel ?? ''}
-      themeLabel={(theme) => theme}
-      onOpenFeedSettings={noop}
-    />
-  );
-}
-
-/** The result of a finished puzzle, shown over the board. */
-export function StoryCelebration(props: {
-  readonly completion: PuzzleCompletion;
-  readonly provisional?: boolean | undefined;
-  readonly onNext?: (() => void) | undefined;
-}): JSX.Element {
-  return (
-    <PuzzleCelebrationOverlayView
-      completion={props.completion}
-      displayRating={props.completion.ratingAfter}
-      provisional={props.provisional === true}
-      visible
-      onClose={noop}
-      onNext={props.onNext ?? noop}
-    />
-  );
-}
-
-/** The move list under the play board, on its latest move. */
-export function StoryTimeline(props: {
-  readonly plies: readonly PuzzleHistoryPly[];
-  readonly selectedSolveIdx?: number | undefined;
-  /** The solver is to move at the line's end. */
-  readonly awaiting?: boolean | undefined;
-}): JSX.Element {
-  return (
-    <PuzzleMoveHistory
-      plies={props.plies}
-      awaiting={props.awaiting}
-      selectedSolveIdx={props.selectedSolveIdx ?? props.plies.length}
-      interactive
-      writing={WRITING}
-      onSeek={noop}
-      nav={{
-        canGoBack: props.plies.length > 0,
-        canGoForward: false,
-        onNavigate: noop,
-      }}
-    />
-  );
-}
 
 /** The review surface: the game's board over the line's move list. */
 export function StoryReviewBoard(props: {
@@ -297,23 +231,19 @@ export function StoryPuzzleBoard(props: StoryPuzzleBoardProps): JSX.Element {
   );
 }
 
-/** The puzzle a play story shows in its feed. */
-const STORY_PUZZLE_ID = 'chess/00a3f';
-
-/** What the slots show for one state: the board, the line so far, the result. */
+/** What the board's screens draw for one state: the position and the line. */
 export type PuzzleScene = {
   readonly fen: string;
   readonly marks?: PuzzleBoardMarks;
+  /** How many moves of the line were reached. */
   readonly plies: number;
+  /** The move the board is on; the latest when unset. */
+  readonly selected?: number;
   /** The line's move that led to `fen` (UCI), marked on the board. */
   readonly lastAction?: string;
-  readonly over?: boolean;
-  readonly ratingChange?: number | 'unrated';
-  readonly allowanceLabel?: string;
-  readonly completion?: PuzzleCompletion;
 };
 
-/** A solved puzzle that raised the rating, for the result overlay. */
+/** A solved puzzle that raised the rating, for the result. */
 export const STORY_SOLVED: PuzzleCompletion = {
   outcome: 'solved',
   ratingBefore: 1500,
@@ -331,17 +261,56 @@ const SOLVING_SCENE: PuzzleScene = {
   lastAction: 'g7g6',
 };
 
+/** The result of a puzzle nobody has finished. */
+export const STORY_NO_RESULT: PuzzleResultModel = {
+  completion: null,
+  displayRating: 0,
+  provisional: false,
+  puzzleRating: 1702,
+  themes: ['mate', 'opening', 'sacrifice'],
+};
+
+/** The result of the solved puzzle. */
+export const STORY_RESULT: PuzzleResultModel = {
+  ...STORY_NO_RESULT,
+  completion: STORY_SOLVED,
+  displayRating: STORY_SOLVED.ratingAfter,
+};
+
+/** The line with `count` moves reached, the board on `selected`. */
+export function storyLine(args: {
+  readonly count: number;
+  readonly selected?: number | undefined;
+  readonly awaiting?: boolean | undefined;
+}): PuzzleLineModel {
+  const selected = args.selected ?? args.count;
+  return {
+    plies: STORY_PLIES.slice(0, args.count),
+    selectedSolveIdx: selected,
+    interactive: true,
+    awaiting: args.awaiting === true,
+    writing: WRITING,
+    nav: {
+      canGoBack: selected > 0,
+      canGoForward: selected < args.count,
+      onNavigate: noop,
+    },
+    onSeek: noop,
+  };
+}
+
 /** The play view's slots a story fills itself, hidden from Controls. */
 export const PUZZLE_PLAY_STORY_CONTROLS_EXCLUDE = [
   'coach',
   'speaker',
-  'shareLink',
-  'feed',
   'legend',
-  'timeline',
   'board',
-  'feedConfig',
+  'line',
+  'feed',
+  'result',
+  'share',
   'denial',
+  'notices',
   'probe',
   'overlay',
 ] as const;
@@ -358,7 +327,10 @@ export { PuzzlePlayScreenView, type PuzzlePlayScreenViewProps };
 
 /** The play view solving the line's first move, every callback a spy. */
 export const PUZZLE_PLAY_STORY_ARGS: PuzzlePlayScreenViewProps = {
-  pick: 'playing',
+  stage: 'playing',
+  place: { screen: 'play' },
+  onOpen: fn(),
+  onBack: fn(),
   statusKind: 'started',
   solverSide: 'White',
   coach: {
@@ -368,8 +340,8 @@ export const PUZZLE_PLAY_STORY_ARGS: PuzzlePlayScreenViewProps = {
   elapsedMs: 12_000,
   spectator: false,
   allowanceLabel: '',
-  progress: { streak: 3, solved: 24 },
-  feedConfig: STORY_FEED_CONFIG,
+  ratingChange: null,
+  line: storyLine({ count: 1, awaiting: true }),
   status: 'solving',
   hintStage: 'none',
   canGoForward: false,
@@ -379,14 +351,55 @@ export const PUZZLE_PLAY_STORY_ARGS: PuzzlePlayScreenViewProps = {
   onSkip: fn(),
   onNext: fn(),
   onIncludeAllPuzzles: fn(),
-  onOpenFeedSettings: fn(),
+  feed: STORY_FEED,
+  result: STORY_NO_RESULT,
+  share: { state: 'idle', onShare: fn() },
 };
+
+/** The play view walking its places, its slots filled from `scene`. */
+function StoryPuzzlePlay(props: {
+  readonly args: PuzzlePlayScreenViewProps;
+  readonly scene: PuzzleScene;
+  readonly Board: (props: StoryPuzzleBoardProps) => JSX.Element;
+}): JSX.Element {
+  const places = useStoryPuzzlePlaces({
+    stage: () => props.args.stage,
+    place: () => props.args.place,
+    onOpen: (place) => props.args.onOpen(place),
+    onBack: () => props.args.onBack(),
+  });
+  const feed = useStoryFeedSettings(() => props.args.feed, places.home);
+  const Board = props.Board;
+  return (
+    <PuzzlePlayScreenView
+      {...props.args}
+      place={places.place()}
+      onOpen={places.onOpen}
+      onBack={places.onBack}
+      feed={feed()}
+      line={storyLine({
+        count: props.scene.plies,
+        selected: props.scene.selected,
+        awaiting: props.args.status === 'solving',
+      })}
+      board={(size) => (
+        <Board
+          position={props.scene.fen}
+          testId="chess-puzzle-board"
+          marks={props.scene.marks}
+          size={size}
+          lastAction={props.scene.lastAction ?? null}
+        />
+      )}
+    />
+  );
+}
 
 /**
  * The play view with its slots filled from the story's `puzzleScene`
- * parameter, fresh per mount: the feed strip, the line so far, the result,
- * and `Board` drawing the position (the platform's stand-in, or a game's
- * own board).
+ * parameter, fresh per mount: the line so far and `Board` drawing the
+ * position (the platform's stand-in, or a game's own board). The place is
+ * walked on the real machine, from the story's `place` arg.
  */
 export function renderPuzzlePlayScene(
   args: PuzzlePlayScreenViewProps,
@@ -396,43 +409,5 @@ export function renderPuzzlePlayScene(
   const scene =
     (context.parameters['puzzleScene'] as PuzzleScene | undefined) ??
     SOLVING_SCENE;
-  return (
-    <PuzzlePlayScreenView
-      {...args}
-      feed={
-        <StoryFeedBar
-          puzzleId={args.pick === 'playing' ? STORY_PUZZLE_ID : undefined}
-          rating={1702}
-          themes={['mate', 'opening', 'sacrifice']}
-          over={scene.over}
-          ratingChange={scene.ratingChange}
-          allowanceLabel={scene.allowanceLabel}
-        />
-      }
-      timeline={
-        <StoryTimeline
-          plies={
-            args.pick === 'playing' ? STORY_PLIES.slice(0, scene.plies) : []
-          }
-          awaiting={args.pick === 'playing' && args.status === 'solving'}
-        />
-      }
-      board={(size) => (
-        <Board
-          position={scene.fen}
-          testId="chess-puzzle-board"
-          marks={scene.marks}
-          size={size}
-          lastAction={scene.lastAction ?? null}
-        />
-      )}
-      overlay={
-        <Show when={scene.completion} keyed>
-          {(completion) => (
-            <StoryCelebration completion={completion} onNext={args.onNext} />
-          )}
-        </Show>
-      }
-    />
-  );
+  return <StoryPuzzlePlay args={args} scene={scene} Board={Board} />;
 }

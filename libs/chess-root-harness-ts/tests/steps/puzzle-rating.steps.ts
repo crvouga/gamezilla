@@ -12,7 +12,12 @@ import { Then } from '@libs/harness-ts/define';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import type { Actor } from '@libs/harness-ts/parameter-types';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
-import { currentPuzzle, ensureStatsOpen, SETTLE_MS } from './puzzle-world';
+import {
+  currentPuzzle,
+  ensureGameLogOpen,
+  ensureStatsOpen,
+  SETTLE_MS,
+} from './puzzle-world';
 
 type Figures = {
   readonly played: number | null;
@@ -71,7 +76,7 @@ Then(
     if (title === undefined) {
       throw new Error(`no game log outcome "${outcome}"`);
     }
-    await ensureStatsOpen(w, actor);
+    await ensureGameLogOpen(w, actor);
     await w.s.until(
       (surf) => readGameLogTitle(surf, actor, currentPuzzle(w, actor)),
       { maxMs: SETTLE_MS, pred: (text) => text !== null && title.test(text) }

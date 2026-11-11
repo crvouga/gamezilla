@@ -26,7 +26,7 @@ export function PuzzleGameLog(props: PuzzleGameLogProps): JSX.Element {
         />
       }
     >
-      <MenuSection title={<Trans>Game log</Trans>}>
+      <MenuSection>
         <For each={props.entries}>
           {(entry) => (
             <PuzzleGameLogRow

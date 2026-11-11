@@ -73,6 +73,7 @@
     "content-builder-story.example",
     "puzzle-client",
     "puzzle-content-client",
+    "puzzle-places-story.example",
     "puzzle-screen-story.example"
   ],
   "language": "typescript"

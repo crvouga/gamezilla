@@ -1,7 +1,9 @@
+import { useStoryPuzzlePlaces } from '@libs/game-puzzle-client-ts/puzzle-places-story.example';
 import {
   PUZZLE_PLAY_STORY_ARGS,
   PuzzlePlayScreenView,
   STORY_LINE,
+  storyLine,
 } from '@libs/game-puzzle-client-ts/puzzle-screen-story.example';
 import { createSignal } from 'solid-js';
 import { ChessPuzzleBoard } from './chess-puzzle-board';
@@ -12,7 +14,18 @@ const STEPS = [
   { position: STORY_LINE.afterKe7, move: 'c3d5', reply: 'c3d5' },
 ] as const;
 
-/** Deterministic screen fixture: accepted moves advance through the recorded line. */
+const noop = (): void => {};
+
+/** The moves of the line reached after `step` solver moves and their replies. */
+function pliesAfter(step: number): number {
+  return Math.min(6, 1 + step * 2);
+}
+
+/**
+ * Deterministic screen fixture: accepted moves advance through the recorded
+ * line, and the screen walks the feed's places as the app does: the board
+ * while solving, the result once solved, the line from there.
+ */
 export function ChessPuzzleJourney() {
   const [step, setStep] = createSignal(0);
   const [wrong, setWrong] = createSignal(false);
@@ -26,6 +39,12 @@ export function ChessPuzzleJourney() {
     setHint(false);
     setRevision((value) => value + 1);
   };
+  const places = useStoryPuzzlePlaces({
+    stage: () => (solved() ? 'finished' : 'playing'),
+    place: () => ({ screen: 'play' }),
+    onOpen: noop,
+    onBack: noop,
+  });
   const play = (action: string) => {
     if (action === STEPS[step()]?.move) {
       setStep((value) => value + 1);
@@ -35,6 +54,11 @@ export function ChessPuzzleJourney() {
   return (
     <PuzzlePlayScreenView
       {...PUZZLE_PLAY_STORY_ARGS}
+      stage={solved() ? 'finished' : 'playing'}
+      place={places.place()}
+      onOpen={places.onOpen}
+      onBack={places.onBack}
+      line={storyLine({ count: pliesAfter(step()), awaiting: !solved() })}
       boardSizing="width"
       status={wrong() ? 'wrong' : solved() ? 'solved' : 'solving'}
       statusKind={wrong() ? 'failed' : solved() ? 'solved' : 'started'}
@@ -55,7 +79,9 @@ export function ChessPuzzleJourney() {
           mode="play"
           position={position()}
           orientation="white"
-          interactive={!wrong() && !solved()}
+          interactive={
+            !wrong() && !solved() && places.place().screen === 'play'
+          }
           sound={false}
           syncKey={revision()}
           onAction={play}

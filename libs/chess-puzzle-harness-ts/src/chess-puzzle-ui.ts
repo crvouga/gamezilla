@@ -11,6 +11,7 @@ import {
   isPuzzleSolved,
   readPuzzleBoardPosition,
   readPuzzleProbe,
+  showPuzzleBoard,
   waitPuzzleState,
 } from '@libs/game-session-harness-ts/puzzle-screen';
 import { actorUi, pollUntil } from '@libs/harness-ts/actor-ui';
@@ -164,6 +165,8 @@ async function playExpectedMove(
   s: ProductHarness,
   actorId: string
 ): Promise<void> {
+  // A move is made on the board itself, not on the line's own place.
+  await showPuzzleBoard(s, actorId);
   const uci = await waitExpectedUci(s, actorId);
   const squares = parseUciSquares(uci);
   await waitBoardReady(s, actorId);
@@ -230,6 +233,7 @@ export async function playWrongMove(
   s: ProductHarness,
   actorId: string
 ): Promise<void> {
+  await showPuzzleBoard(s, actorId);
   const expected = await waitExpectedUci(s, actorId);
   const fen = await readDisplayFen(s, actorId);
   const wrong = pickWrongUci(fen, expected);
