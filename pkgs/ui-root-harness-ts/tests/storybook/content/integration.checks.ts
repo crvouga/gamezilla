@@ -221,7 +221,7 @@ for (const state of ['won', 'lost', 'full-board-draw'])
     await expect(page.getByText('No moves yet.', { exact: true })).toHaveCount(
       0
     );
-    await expect(page.getByTestId('custom-game-review-move-1')).toBeVisible();
+    await expectFinishedRecord(page);
   });
 
 // regression: connect-four-finished-fixture-missing-record
@@ -230,8 +230,31 @@ test('storybook integration: literal won Connect Four retains its move record', 
 }) => {
   await open(page, 'screens-games-connect-four-board--won', 390, 'light');
   await expect(page.getByText('No moves yet.', { exact: true })).toHaveCount(0);
-  await expect(page.getByTestId('custom-game-review-move-1')).toBeVisible();
+  await expectFinishedRecord(page);
 });
+
+/**
+ * The finished game's record lists its moves through the last one played.
+ * A long game lists only its latest moves and says how many earlier moves
+ * it leaves out, so the record starts at move 1 or right after them.
+ */
+async function expectFinishedRecord(page: Page) {
+  const moves = page
+    .getByTestId('custom-game-record')
+    .getByRole('list', { name: 'Moves played' })
+    .getByRole('button');
+  await expect(moves.last()).toBeVisible();
+  const earlier = page.getByTestId('custom-game-earlier-moves');
+  const left =
+    (await earlier.count()) === 0
+      ? 0
+      : Number.parseInt((await earlier.textContent()) ?? '', 10);
+  await expect(moves.first()).toHaveAttribute(
+    'data-testid',
+    `custom-game-review-move-${left + 1}`
+  );
+  await expect(moves.first()).toBeVisible();
+}
 
 async function assertAccountRetry(page: Page, width: number, theme: string) {
   await open(page, 'screens-account--connect-failed', width, theme);

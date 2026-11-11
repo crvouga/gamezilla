@@ -51,17 +51,25 @@ async function containedItems(containers: Locator, selector: string) {
 test('storybook integration: three Word Tiles players keep every fact inside its seat', async ({
   page,
 }) => {
+  const facts =
+    '[data-component="GameSeatSwatch"], [data-component="GameSeatStat"], [data-component="Badge"]';
+  // A watcher's table: every seat's score (up to two digits) and rack count.
   await openGame(page, 'screens-games-word-tiles-board--three-players', 390);
   const chips = page.locator('[data-component="GamePlayerChip"]');
   await expect(chips).toHaveCount(3);
   await expect(chips.getByText('7 tiles', { exact: true })).toHaveCount(3);
+  await expect(chips.getByText('10', { exact: true })).toBeVisible();
+  expect(await containedItems(chips, facts)).toEqual([]);
+  // A seated player's table adds `You` to their own seat's facts.
+  await openGame(
+    page,
+    'screens-games-word-tiles-board--three-player-match',
+    390
+  );
+  await expect(chips).toHaveCount(3);
+  await expect(chips.getByText('7 tiles', { exact: true })).toHaveCount(3);
   await expect(chips.getByText('You', { exact: true })).toBeVisible();
-  expect(
-    await containedItems(
-      chips,
-      '[data-component="GameSeatSwatch"], [data-component="GameSeatStat"], [data-component="Badge"]'
-    )
-  ).toEqual([]);
+  expect(await containedItems(chips, facts)).toEqual([]);
 });
 
 for (const sample of [

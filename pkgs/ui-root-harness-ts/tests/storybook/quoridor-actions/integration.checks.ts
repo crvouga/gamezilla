@@ -66,11 +66,13 @@ async function checkReadout(page: Page, width: number, theme: string) {
     .getByRole('button');
   await expect(squares).toHaveCount(81);
   for (const square of await squares.all()) await expect(square).toBeDisabled();
-  await expect(
-    page.getByText('No pawn move or wall is legal. Pass your turn.', {
-      exact: true,
-    })
-  ).toBeVisible();
+  // The game's one status line says why the only command is a pass. Its
+  // pill also holds the visually hidden lineup for a listener.
+  const status = page.getByTestId('custom-game-status');
+  await expect(status).toBeVisible();
+  await expect(status).toContainText(
+    'No pawn move or wall is legal. Pass your turn.'
+  );
 }
 
 // regression: storybook-hill-tools-observation
