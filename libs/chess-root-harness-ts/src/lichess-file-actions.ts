@@ -1,6 +1,7 @@
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { importFixture } from './puzzle-import-fixtures';
+import { showLoaderPlace } from './puzzle-loader-places';
 import { readPuzzleSource } from './puzzle-source-ui';
 
 export const LICHESS_SOURCE_PATH = '/api/puzzle-management/source';
@@ -39,6 +40,7 @@ export const checkLichessFileAgain = scenarioAction({
   name: 'checkLichessFileAgain',
   act: async (s, actor: string = 'alice') => {
     const ui = await actorUi(s, actor);
+    await showLoaderPlace(s, actor, 'source');
     if (await ui.get('puzzle-source-recheck').isVisible())
       await ui.get('puzzle-source-recheck').tap();
     else await Promise.resolve(reopenLichessFile.act(s, actor));
@@ -50,6 +52,7 @@ export const chooseLichessFile = scenarioAction({
   name: 'chooseLichessFile',
   act: async (s, invalid: boolean = false, actor: string = 'alice') => {
     const ui = await actorUi(s, actor);
+    await showLoaderPlace(s, actor, 'source');
     await ui.get('puzzle-load-file').selectFile({
       name: 'alice-lichess.csv',
       bytes: [
@@ -65,6 +68,7 @@ export const saveChosenLichessFile = scenarioAction({
   name: 'saveChosenLichessFile',
   act: async (s, actor: string = 'alice') => {
     const ui = await actorUi(s, actor);
+    await showLoaderPlace(s, actor, 'source');
     if (await ui.get('puzzle-source-save').isVisible())
       await ui.get('puzzle-source-save').tap();
     await s.session.waitForIdle();
@@ -87,6 +91,7 @@ export const finishSavingChosenLichessFile = scenarioAction({
   name: 'finishSavingChosenLichessFile',
   act: async (s, actor: string = 'alice') => {
     const ui = await actorUi(s, actor);
+    await showLoaderPlace(s, actor, 'source');
     if (!(await ui.get('puzzle-source-save').isVisible())) return;
     if ((await readPuzzleSource(s, actor)).offline) return;
     await Promise.resolve(saveChosenLichessFile.act(s, actor));
@@ -129,6 +134,10 @@ export const askToStopPuzzleLoading = scenarioAction({
   name: 'askToStopPuzzleLoading',
   act: async (s, actor: string = 'alice') => {
     const ui = await actorUi(s, actor);
+    // Stopping a save is beside its progress, on the place saving shows;
+    // stopping an addition is the hub's command.
+    if (!(await ui.get('puzzle-load-stop').isVisible()))
+      await showLoaderPlace(s, actor, 'load');
     if (await ui.get('puzzle-load-stop').isVisible())
       await ui.get('puzzle-load-stop').tap();
   },

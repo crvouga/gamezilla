@@ -5,48 +5,57 @@ import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { writeUtf8 } from '@pkgs/object-store-root-shared-ts/helpers';
 import { importFixture } from './puzzle-import-fixtures';
+import { showLoaderPlace } from './puzzle-loader-places';
 
 const reuseOnly = new WeakSet<ProductHarness>();
 export function onlyUseSavedPuzzleSource(s: ProductHarness) {
   return reuseOnly.has(s);
 }
 
+/**
+ * What the loader says about the Lichess file. Its controls are on the
+ * `source` place, opened first as a person would; whether adding puzzles is
+ * offered is on the hub, where the read ends. A place a dialog covers, or
+ * one the stage does not show, cannot be opened: its controls then read as
+ * not shown, which is what the person sees.
+ */
 export async function readPuzzleSource(s: ProductHarness, actor = 'alice') {
   const ui = await actorUi(s, actor);
-  const saved = await ui.get('puzzle-source-saved').isVisible();
-  return {
+  await showLoaderPlace(s, actor, 'source');
+  const shown = (name: string) => ui.get(name).isVisible();
+  const enabled = async (name: string) =>
+    (await shown(name)) && (await ui.get(name).attribute('disabled')) === null;
+  const saved = await shown('puzzle-source-saved');
+  const source = {
     saved,
-    chosen: await ui.get('puzzle-source-chosen').isVisible(),
+    chosen: await shown('puzzle-source-chosen'),
     filename: saved ? await ui.get('puzzle-source-saved').text() : null,
-    checking: await ui.get('puzzle-source-checking').isVisible(),
-    checkOffline: await ui.get('puzzle-source-check-offline').isVisible(),
-    checkFailed: await ui.get('puzzle-source-error').isVisible(),
-    checkAgainOffered: await ui.get('puzzle-source-recheck').isVisible(),
-    checkAgainEnabled:
-      (await ui.get('puzzle-source-recheck').isVisible()) &&
-      (await ui.get('puzzle-source-recheck').attribute('disabled')) === null,
-    saving: await ui.get('puzzle-source-saving').isVisible(),
-    progressVisible: await ui.get('puzzle-source-progress').isVisible(),
-    saveFailed: await ui.get('puzzle-source-save-error').isVisible(),
-    saveError: (await ui.get('puzzle-source-save-error').isVisible())
+    checking: await shown('puzzle-source-checking'),
+    checkOffline: await shown('puzzle-source-check-offline'),
+    checkFailed: await shown('puzzle-source-error'),
+    checkAgainOffered: await shown('puzzle-source-recheck'),
+    checkAgainEnabled: await enabled('puzzle-source-recheck'),
+    saving: await shown('puzzle-source-saving'),
+    progressVisible: await shown('puzzle-source-progress'),
+    saveFailed: await shown('puzzle-source-save-error'),
+    saveError: (await shown('puzzle-source-save-error'))
       ? await ui.get('puzzle-source-save-error').text()
       : null,
-    saveEnabled:
-      (await ui.get('puzzle-source-save').isVisible()) &&
-      (await ui.get('puzzle-source-save').attribute('disabled')) === null,
+    saveEnabled: await enabled('puzzle-source-save'),
     chooseEnabled:
-      (await ui.get('puzzle-load-file').isVisible()) &&
+      (await shown('puzzle-load-file')) &&
       (await ui.get('puzzle-load-file').attribute('aria-disabled')) !== 'true',
-
-    needsFile: await ui.get('puzzle-source-missing').isVisible(),
-    saveOffered: await ui.get('puzzle-source-save').isVisible(),
-    startOffered:
-      saved &&
-      (await ui.get('puzzle-load-start').attribute('disabled')) === null,
-    offline: await ui.get('puzzle-load-offline').isVisible(),
-    offlineMessage: (await ui.get('puzzle-load-offline').isVisible())
+    needsFile: await shown('puzzle-source-missing'),
+    saveOffered: await shown('puzzle-source-save'),
+    offline: await shown('puzzle-load-offline'),
+    offlineMessage: (await shown('puzzle-load-offline'))
       ? await ui.get('puzzle-load-offline').text()
       : null,
+  };
+  const hub = await showLoaderPlace(s, actor, 'load');
+  return {
+    ...source,
+    startOffered: saved && hub && (await enabled('puzzle-load-start')),
   };
 }
 
@@ -80,6 +89,7 @@ export const saveLichessFile = scenarioAction({
       { maxMs: 15000, description: 'Lichess file availability before saving' }
     );
     if (view.saved || view.offline) return;
+    await showLoaderPlace(s, actor, 'source');
     await ui.get('puzzle-load-file').selectFile({
       name: 'lichess.csv',
       bytes: [...new TextEncoder().encode(importFixture(1))],

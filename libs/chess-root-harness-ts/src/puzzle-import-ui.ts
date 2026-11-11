@@ -2,6 +2,7 @@ import { ingestChessPuzzleCsv } from '@libs/chess-puzzle-harness-ts/chess-puzzle
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { importFixture } from './puzzle-import-fixtures';
+import { showLoaderPlace } from './puzzle-loader-places';
 import {
   onlyUseSavedPuzzleSource,
   readPuzzleSource,
@@ -30,13 +31,12 @@ export const startPuzzleLoading = scenarioAction({
   name: 'startPuzzleLoading',
   act: async (s, actor: string) => {
     const ui = await actorUi(s, actor);
+    // The denial surface, or a file still being saved, is the outcome.
+    if (!(await showLoaderPlace(s, actor, 'load'))) return;
     const start = ui.get('puzzle-load-start');
-    if (!(await start.isVisible())) return; // The policy's denial surface is the outcome.
-    if (
-      (await ui.get('puzzle-load-stop').isVisible()) ||
-      (await ui.get('puzzle-load-offline').isVisible())
-    )
-      return;
+    // While puzzles are being added the hub's one command is Stop.
+    if (!(await start.isVisible())) return;
+    if (await ui.get('puzzle-load-offline').isVisible()) return;
     await pollUntil(
       s,
       async () => {
@@ -51,7 +51,12 @@ export const startPuzzleLoading = scenarioAction({
     }
     await pollUntil(
       s,
-      async () => ((await start.attribute('disabled')) === null ? true : null),
+      async () =>
+        (await showLoaderPlace(s, actor, 'load')) &&
+        (await start.isVisible()) &&
+        (await start.attribute('disabled')) === null
+          ? true
+          : null,
       { maxMs: 15_000, description: 'puzzle import start enabled' }
     );
     await start.tap();
@@ -71,6 +76,7 @@ export const stopPuzzleLoading = scenarioAction({
   name: 'stopPuzzleLoading',
   act: async (s, actor: string) => {
     const ui = await actorUi(s, actor);
+    if (!(await showLoaderPlace(s, actor, 'load'))) return;
     const stop = ui.get('puzzle-load-stop');
     if (
       !(await stop.isVisible()) ||
@@ -92,36 +98,44 @@ export const stopPuzzleLoading = scenarioAction({
   },
 });
 
+const STATUS_WORDS: Readonly<Record<string, string>> = {
+  'Adding puzzles': 'adding',
+  Finished: 'finished',
+  Failed: 'failed',
+  Stopped: 'stopped',
+};
+
+/**
+ * What the loader's hub says: the latest load, the pool and its one
+ * command. The hub is shown first, as a person would return to it; away
+ * from the loader, for a person outside the team or while the Lichess file
+ * is being saved there is no hub, and its controls read as not shown.
+ */
 export async function readPuzzleImport(s: ProductHarness, actor = 'alice') {
   const ui = await actorUi(s, actor);
+  await showLoaderPlace(s, actor, 'load');
   const read = async (name: string) =>
     (await ui.get(name).isVisible()) ? await ui.get(name).text() : null;
+  const enabled = async (name: string) =>
+    (await ui.get(name).isVisible()) &&
+    (await ui.get(name).attribute('disabled')) === null;
   const text = (await read('puzzle-load-status')) ?? 'Ready';
   const number = async (name: string) =>
     Number(((await read(name)) ?? '0').match(/\d+/)?.[0] ?? 0);
+  const startShown = await ui.get('puzzle-load-start').isVisible();
+  const stopOffered = await ui.get('puzzle-load-stop').isVisible();
   return {
-    status:
-      (
-        {
-          'Adding puzzles': 'adding',
-          Finished: 'finished',
-          Failed: 'failed',
-          Stopped: 'stopped',
-        } as Record<string, string>
-      )[text.trim()] ?? 'ready',
+    status: STATUS_WORDS[text.trim()] ?? 'ready',
     added: await number('puzzle-load-added'),
     updated: await number('puzzle-load-updated'),
     broken: await number('puzzle-load-broken'),
     poolSize: await number('puzzle-load-pool'),
     error: await read('puzzle-load-error'),
-    stopOffered: await ui.get('puzzle-load-stop').isVisible(),
-    stopDisabled:
-      (await ui.get('puzzle-load-stop').isVisible()) &&
-      (await ui.get('puzzle-load-stop').attribute('disabled')) !== null,
+    stopOffered,
+    stopDisabled: stopOffered && !(await enabled('puzzle-load-stop')),
     offline: await ui.get('puzzle-load-offline').isVisible(),
-    startDisabled:
-      (await ui.get('puzzle-load-start').isVisible()) &&
-      (await ui.get('puzzle-load-start').attribute('disabled')) !== null,
+    startOffered: await enabled('puzzle-load-start'),
+    startDisabled: startShown && !(await enabled('puzzle-load-start')),
     denied: await ui.get('permission-denial').isVisible(),
     denialText: await read('permission-denial'),
   };

@@ -1,40 +1,20 @@
-import { useDenialView } from '@libs/permissions-client-ts/denial-surface';
+import { CatalogueLoadScreen } from '@libs/game-puzzle-client-ts/catalogue-load-screen';
+import { Trans } from '@lingui/solid/macro';
 import type { JSX } from 'solid-js';
-import { PuzzleManagementScreenView } from './puzzle-management-screen-view';
-import { usePuzzleImport } from './use-puzzle-import';
+import { chessCatalogueLoad } from './chess-catalogue-load';
 
-/** `/more/puzzles`: wires `PuzzleManagementScreenView` to storage and sync. */
-export function PuzzleManagementScreen(props: {
-  embedded?: boolean;
-}): JSX.Element {
-  const state = usePuzzleImport();
-  const denial = useDenialView({
-    get decision() {
-      return state.decision();
-    },
-  });
+/**
+ * `/more/puzzles`: the platform's catalogue loader fed by chess's Lichess
+ * source and load, on its own page under Settings.
+ */
+export function PuzzleManagementScreen(): JSX.Element {
   return (
-    <PuzzleManagementScreenView
-      embedded={props.embedded}
-      denial={state.decision().allowed ? undefined : denial()}
-      online={state.connection.status().online}
-      ready={state.ready()}
-      job={state.job() ?? null}
-      source={{
-        known: state.source.known(),
-        loading: state.source.loading(),
-        error: state.source.error()?.message ?? null,
-        filename: state.source.source()?.filename ?? null,
+    <CatalogueLoadScreen
+      client={chessCatalogueLoad}
+      frame={{
+        kind: 'route',
+        parent: { name: <Trans>Settings</Trans>, href: '/more' },
       }}
-      chosenFile={state.file()}
-      uploading={state.uploading()}
-      uploadProgress={state.uploadProgress()}
-      uploadedRows={state.uploadedRows()}
-      onSelectFile={state.setFile}
-      onSave={state.save}
-      onRecheck={state.source.reload}
-      onStart={state.start}
-      onStop={state.stop}
     />
   );
 }

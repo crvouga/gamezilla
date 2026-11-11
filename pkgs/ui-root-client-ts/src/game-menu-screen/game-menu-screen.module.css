@@ -14,10 +14,6 @@
   gap: var(--ui-space-1);
   min-width: 0;
 }
-.description {
-  max-width: var(--ui-max-width-prose);
-  margin-top: var(--ui-space-1);
-}
 .grid {
   display: grid;
   grid-template-columns: repeat(var(--game-menu-columns, 3), minmax(0, 1fr));

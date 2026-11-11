@@ -198,9 +198,12 @@ Then(
 Then(
   '{actor} is told this environment is already adding puzzles',
   async (w, actor: Actor) => {
+    // While puzzles are being added the hub's one command is Stop: adding
+    // more is not offered at all.
     expect(await w.s.read(readPuzzleImport, actor)).toMatchObject({
       status: 'adding',
-      startDisabled: true,
+      startOffered: false,
+      stopOffered: true,
     });
   }
 );

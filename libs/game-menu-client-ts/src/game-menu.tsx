@@ -11,6 +11,7 @@ import type { GameScreen } from '@libs/spaces-client-ts/use-game-screen';
 import { useGameScreen } from '@libs/spaces-client-ts/use-game-screen';
 import { useSpaceCan } from '@libs/spaces-client-ts/use-space-can';
 import { useLingui } from '@lingui/solid/macro';
+import { useScreenPlace } from '@pkgs/turn-game-client-ts/use-screen-place';
 import { useLocalSearchParams } from '@pkgs/ui-root-client-ts/app-router';
 import { FadeSwitch } from '@pkgs/ui-root-client-ts/fade-switch';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
@@ -19,6 +20,7 @@ import { createEffect, createMemo, Show, untrack } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import type { GameClient } from './game-client';
 import { gameChoices, type Offers, sharedScreens } from './game-menu-choices';
+import { GAME_MENU_PLACES } from './game-menu-places';
 import { GameMenuScreenView } from './game-menu-screen-view';
 import { SHARED_GAME_SCREEN } from './shared-game-screens';
 
@@ -29,6 +31,7 @@ function GameChoices(props: {
   onBackToGames: () => void;
 }): JSX.Element {
   const { t } = useLingui();
+  const nav = useScreenPlace(GAME_MENU_PLACES, () => 'open' as const);
   const choices = createMemo(() =>
     gameChoices(props.game, props.offers).map((choice) => ({
       screen: choice.screen,
@@ -38,8 +41,13 @@ function GameChoices(props: {
   );
   return (
     <>
-      {/* Back names where it goes: the space's list of games. */}
-      <DefineBackButton onPress={props.onBackToGames} label={t`Games`} />
+      {/* Back names where it goes: the space's list of games, or the menu. */}
+      <DefineBackButton
+        onPress={() => {
+          if (!nav.back()) props.onBackToGames();
+        }}
+        label={nav.place().screen === 'menu' ? t`Games` : props.game.title}
+      />
       <GameMenuScreenView
         title={props.game.title}
         tile={props.game.tile}
@@ -51,6 +59,8 @@ function GameChoices(props: {
         }
         choices={choices()}
         onChoose={(screen) => props.navigation.show(screen)}
+        place={nav.place()}
+        onOpen={nav.open}
       />
     </>
   );
@@ -77,28 +87,19 @@ function useOpenLinkedMultiplayer(
   });
 }
 
-function PassThrough(props: { children: JSX.Element }): JSX.Element {
-  return <>{props.children}</>;
-}
-
 /**
  * Everything around the game's screens: the platform's puzzle frame (the
- * feed, a puzzle link) for a game offering puzzles, then the game's own.
+ * feed, a puzzle link) for a game offering puzzles.
  */
 function GameFrame(props: {
   game: GameClient;
   children: JSX.Element;
 }): JSX.Element {
-  const own = (): JSX.Element => (
-    <Dynamic component={props.game.Frame ?? PassThrough}>
-      {props.children}
-    </Dynamic>
-  );
   return (
-    <Show when={props.game.puzzles} keyed fallback={own()}>
+    <Show when={props.game.puzzles} keyed fallback={props.children}>
       {(puzzles: GamePuzzlesClient) => (
         <PuzzleFrame gameId={props.game.shared.id} puzzles={puzzles}>
-          {own()}
+          {props.children}
         </PuzzleFrame>
       )}
     </Show>
@@ -106,10 +107,11 @@ function GameFrame(props: {
 }
 
 /**
- * The selected game in a space: its choices and every screen they open,
- * shown alike to everyone in the space. The same component serves every
- * game; the game supplies its definition and the capabilities its shared
- * registration declares decide which shared screens exist.
+ * The selected game in a space: its choices and every template screen they
+ * open, shown alike to everyone in the space. The same component serves
+ * every game; the game supplies its definition, and the capabilities its
+ * shared registration declares and the settings it declares as data decide
+ * which template screens exist. No screen is the game's own.
  */
 export function GameMenu(props: {
   game: GameClient;
@@ -122,19 +124,10 @@ export function GameMenu(props: {
   const screens = createMemo(
     () =>
       new Map(
-        [
-          ...(props.game.choices ?? []),
-          ...sharedScreens(props.game, offers, navigation),
-          ...(props.game.settings === undefined
-            ? []
-            : [
-                {
-                  screen: SHARED_GAME_SCREEN.settings,
-                  Screen: props.game.settings.Screen,
-                },
-              ]),
-          ...(props.game.screens ?? []),
-        ].map((entry) => [entry.screen, entry.Screen])
+        sharedScreens(props.game, offers, navigation).map((entry) => [
+          entry.screen,
+          entry.Screen,
+        ])
       )
   );
   const choices = () => (

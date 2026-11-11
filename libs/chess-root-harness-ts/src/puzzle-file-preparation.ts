@@ -13,6 +13,7 @@ import {
 } from './lichess-file-actions';
 import { followPuzzleImport, readPuzzleImport } from './puzzle-import-ui';
 import { joinPuzzleTeam } from './puzzle-import-world';
+import { showLoaderPlace } from './puzzle-loader-places';
 import {
   noSavedLichessFile,
   readPuzzleSource,
@@ -55,6 +56,7 @@ export const beginCheckingLichessFile = scenarioAction({
   act: async (s) => {
     await Promise.resolve(controlLichessFileCheck.act(s, 'hold'));
     const ui = await actorUi(s, 'alice');
+    await showLoaderPlace(s, 'alice', 'source');
     if (await ui.get('puzzle-source-checking').isVisible()) return;
     if (await ui.get('puzzle-source-recheck').isVisible())
       await ui.get('puzzle-source-recheck').tap();

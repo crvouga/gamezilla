@@ -16,24 +16,10 @@ import {
 import type { JSX } from 'solid-js';
 import { assertContentFrame, assertFrame } from './game-frame-contract';
 import { GameMenu } from './game-menu';
-import { assertGameScreens } from './shared-game-screens';
+import { assertGameSettings, type GameSettings } from './game-settings';
 
 /** How the shared screens show the game: its board, side names and endings. */
 export type GameClientPresentation = Omit<GamePresentation<JSX.Element>, 'id'>;
-
-/** A screen the game renders itself, shown to everyone in the space. */
-export type GameOwnScreen = {
-  /** Its key in the space; a choice's key also names its control (`game-choice-<screen>`). */
-  readonly screen: string;
-  readonly Screen: () => JSX.Element;
-};
-
-/** One of a game's own choices: how it is offered and the screen it opens. */
-export type GameChoice = GameOwnScreen & {
-  /** Rendered where the choice is offered (copy is rendered, never built ahead). */
-  readonly title: () => JSX.Element;
-  readonly caption: () => JSX.Element;
-};
 
 /**
  * The puzzles part, exactly when the shared registration offers puzzles:
@@ -47,9 +33,10 @@ export type GameClientPuzzles<C> = 'puzzles' extends keyof C
 
 /**
  * Everything a game supplies to the shared game experience. The platform
- * owns the menu, its order, the puzzle, custom-game, opponent and history
- * screens, the space-wide navigation and links; a game adds only what is
- * unique. Which shared screens appear follows the capabilities its shared
+ * owns every screen: the menu and its order, the puzzle, custom-game,
+ * opponent, history and settings screens, the space-wide navigation and
+ * links. A game supplies its board, its copy and its data, never a screen.
+ * Which shared screens appear follows the capabilities its shared
  * registration declares (`shared`), and a capability whose screens show
  * the game's own board asks for that part here (`puzzles`).
  */
@@ -84,17 +71,13 @@ type GameClientParts = {
   readonly tile: GameTileMotif;
   /** One line under the name above the game's choices. */
   readonly subtitle: () => JSX.Element;
-  /** How to play, under the game's choices. */
+  /** How to play, on its own small screen opened from the game's choices. */
   readonly instructions?: () => JSX.Element;
-  /** The game's own choices, offered before the shared ones. */
-  readonly choices?: readonly GameChoice[];
-  /** The game's settings, offered last under the shared name. */
-  readonly settings?: Omit<GameChoice, 'screen' | 'title'>;
-  /** Further screens the game's own screens and links open. */
-  readonly screens?: readonly GameOwnScreen[];
-  /** Wraps every screen of the game (shared data the game's screens read). */
-  readonly Frame?: (props: { children: JSX.Element }) => JSX.Element;
-  readonly SessionEffects?: () => JSX.Element;
+  /**
+   * The game's settings, offered last under the shared name: a tree of
+   * rows declared as data, which the platform draws.
+   */
+  readonly settings?: GameSettings;
 };
 
 /**
@@ -138,16 +121,12 @@ class DefinedGameClient implements GameClientDefinition {
       <GameMenu game={game} onBackToGames={props.onBackToGames} />
     );
     const puzzles = game.puzzles;
-    if (puzzles !== undefined) this.puzzles = puzzles;
-    const own = game.SessionEffects;
-    if (puzzles !== undefined)
+    if (puzzles !== undefined) {
+      this.puzzles = puzzles;
       this.SessionEffects = () => (
-        <>
-          <PuzzleSessionEffects gameId={id} puzzles={puzzles} />
-          {own === undefined ? null : own()}
-        </>
+        <PuzzleSessionEffects gameId={id} puzzles={puzzles} />
       );
-    else if (own !== undefined) this.SessionEffects = own;
+    }
   }
 
   /** Whether `value` was made by {@link defineGameClient}. */
@@ -225,11 +204,22 @@ export function defineGameClient<G extends AnyGameRegistration>(
     throw new Error(
       `${game.shared.id}: clock choices need presentation.timeoutDrawDescription`
     );
-  assertGameScreens(game.shared.id, [
-    ...(game.choices ?? []).map((choice) => choice.screen),
-    ...(game.screens ?? []).map((screen) => screen.screen),
-  ]);
+  assertNoOwnScreens(game);
+  if (game.settings !== undefined)
+    assertGameSettings(game.shared.id, game.settings);
   return new DefinedGameClient(game) as GameClientRegistration<G>;
+}
+
+/** The parts through which a game once handed the platform a screen. */
+const OWN_SCREEN_PARTS = ['choices', 'screens', 'Frame', 'SessionEffects'];
+
+/** A game supplies data, never a screen: the removed parts are refused by name. */
+function assertNoOwnScreens(game: GameClient): void {
+  for (const part of OWN_SCREEN_PARTS)
+    if (part in game)
+      throw new Error(
+        `${game.shared.id}: ${part} is not part of defineGameClient — every game is shown through the platform's template screens; declare settings rows or a capability instead`
+      );
 }
 
 function assertContentPart(game: GameClient): void {
