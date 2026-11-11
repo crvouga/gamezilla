@@ -48,6 +48,13 @@ export type HarnessSlice = {
     gateway: HarnessRoomGateway
   ) => HarnessRoomNode;
   readonly seedServer?: (sqlClient: SqlClient) => Promise<void>;
+  /**
+   * Bring the server state this sub owns to a fresh world's before the
+   * scenario starts. A world on its own server starts fresh and finds
+   * nothing to do; a localhost stack outlives one scenario, so what an
+   * earlier scenario left there is put away.
+   */
+  readonly beforeScenario?: (s: ProductHarness) => Promise<void>;
   /** What this sub sells; boots the harness's payment provider. */
   readonly billingOffer?: PlusMembershipOffer;
   /** Where this sub keeps the auth service's emailed sign-in links. */
@@ -176,6 +183,9 @@ export function composeHarnessSlices(
   const seeds = ordered.flatMap((s) =>
     s.seedServer === undefined ? [] : [s.seedServer]
   );
+  const baselines = ordered.flatMap((s) =>
+    s.beforeScenario === undefined ? [] : [s.beforeScenario]
+  );
   const app = composeSubs(
     ordered.flatMap((s) => (s.sub === undefined ? [] : [s.sub]))
   );
@@ -194,6 +204,9 @@ export function composeHarnessSlices(
     ...(emailLinks === undefined ? {} : { emailLinks }),
     seedServer: async (sqlClient) => {
       for (const seed of seeds) await seed(sqlClient);
+    },
+    beforeScenario: async (surface) => {
+      for (const baseline of baselines) await baseline(surface);
     },
     properties: ordered.flatMap((s) => s.properties ?? []),
     actions: ordered.flatMap((s) => s.actions ?? []),

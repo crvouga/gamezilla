@@ -1,6 +1,10 @@
 import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { signedInAccountOf } from '@libs/harness-ts/identity';
+import {
+  runScopedCreateId,
+  runScopedUsername,
+} from '@libs/harness-ts/run-scope';
 import { configureUsername } from '@libs/synthetic-population-behavior-shared-ts/application-actions';
 import { SyntheticPopulationController } from '@libs/synthetic-population-server-ts/synthetic-population-controller';
 import { SyntheticPopulationRepository } from '@libs/synthetic-population-server-ts/synthetic-population-repository';
@@ -20,7 +24,7 @@ import {
 export function syntheticPopulationPorts(s: ProductHarness) {
   return {
     clock: s.harness.clock,
-    createId: s.session.ports.createId,
+    createId: runScopedCreateId(s),
     notify: async () => undefined,
   };
 }
@@ -98,7 +102,10 @@ export const givenSyntheticUser = scenarioAction({
     await db.run(
       sql`UPDATE population_users SET account_id = ${accountId}, device_id = ${deviceId}, activity = ${playing ? 'playing' : 'browsing'} WHERE id = ${user.lease.userId}`
     );
-    await configureUsername(await actorUi(s, actor), actor);
+    await configureUsername(
+      await actorUi(s, actor),
+      runScopedUsername(s, actor)
+    );
     if (!playing) return;
     await prepareSyntheticMatch(s, label);
   },

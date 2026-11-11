@@ -1,5 +1,6 @@
 import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
+import { runScopedCreateId } from '@libs/harness-ts/run-scope';
 import {
   SYNTHETIC_POPULATION_SETTINGS_PATH,
   SYNTHETIC_USERS_PATH,
@@ -12,7 +13,7 @@ import { runDeployedWorker } from './population-worker';
 function ports(s: ProductHarness) {
   return {
     clock: s.harness.clock,
-    createId: s.session.ports.createId,
+    createId: runScopedCreateId(s),
     notify: async () => undefined,
   };
 }
@@ -26,7 +27,7 @@ export const givenDesiredSyntheticPopulation = scenarioAction({
     ).config();
     await new SyntheticPopulationAdministration(db, ports(s)).configure(
       { ...config, desired },
-      s.session.ports.createId()
+      runScopedCreateId(s)()
     );
   },
 });

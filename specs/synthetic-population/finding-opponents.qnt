@@ -5,8 +5,9 @@
 // person looking, Synthetic Users looking are matched with each other. A
 // paused Synthetic User is not available; when every Synthetic User is paused
 // or playing, a person keeps looking.
-// With no connection, Bob cannot start looking; anyone already looking stays
-// as they were until his connection returns.
+// With no connection, Bob cannot start looking, and his game does not end;
+// anyone already looking or playing stays as they were until his connection
+// returns.
 module finding_opponents {
   /// How many people are looking for a multiplayer opponent.
   var peopleLooking: int
@@ -132,7 +133,9 @@ module finding_opponents {
 
   /// Bookkeeping: a game between a person and a Synthetic User reaches its multiplayer result;
   /// the Synthetic User, available again, becomes the multiplayer opponent of a person looking.
+  /// While Bob has no connection, his game stays as it was until his connection returns.
   action _finishGame = all {
+    not(_offline.contains("Bob")),
     peoplePlaying > 0,
     syntheticPlaying > 0,
     if (peopleLooking > 0) all {

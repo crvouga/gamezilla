@@ -20,6 +20,7 @@ import {
 } from '@libs/harness-ts/auth-actions';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront } from '@libs/harness-ts/observations';
+import { runScopedUsername } from '@libs/harness-ts/run-scope';
 import { backToTabs } from '@libs/harness-ts/shell-actions';
 import { grantOperatorPermissions } from '@libs/observatory-actions-harness-ts/operator-access-actions';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
@@ -132,7 +133,10 @@ export const startSyntheticGame = scenarioAction({
     // After an earlier matched game the person is still in its space, where
     // neither the tab bar nor a back button is offered: leave it first.
     await Promise.resolve(backToTabs.act(s, person));
-    await configureUsername(await actorUi(s, person), person);
+    await configureUsername(
+      await actorUi(s, person),
+      runScopedUsername(s, person)
+    );
     for (const player of [actor, person]) {
       await enterGameSpace(s, player, label);
       await Promise.resolve(

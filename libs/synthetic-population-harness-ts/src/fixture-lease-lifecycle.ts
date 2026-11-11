@@ -1,4 +1,5 @@
 import type { ProductHarness } from '@libs/harness-ts/harness';
+import { runScopedCreateId } from '@libs/harness-ts/run-scope';
 import type { Lease } from '@libs/synthetic-population-server-ts/records';
 import { SyntheticPopulationSession } from '@libs/synthetic-population-server-ts/synthetic-population-session';
 
@@ -9,7 +10,7 @@ export function maintainFixtureLease(s: ProductHarness, lease: Lease) {
     s.harness.serverSql.sqlClient,
     {
       clock: s.harness.clock,
-      createId: s.session.ports.createId,
+      createId: runScopedCreateId(s),
       notify: async () => undefined,
     }
   );

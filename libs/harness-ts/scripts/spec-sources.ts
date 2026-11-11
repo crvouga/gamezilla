@@ -5,7 +5,38 @@ import { isSyntheticFeatureSource } from '@pkgs/gherkin-shared-ts/tags';
 import { isLiveObjectiveSource } from '@pkgs/openslo-shared-ts/live';
 import { SPEC_GLOBS } from './spec-verify-kinds';
 
-export type SpecManifest = { specDomains?: string[]; specParts?: number };
+export type SpecManifest = {
+  specDomains?: string[];
+  specParts?: number;
+  /**
+   * Its scenarios share server state no run can partition (one Synthetic
+   * Population, one permission policy), so on a localhost stack, where
+   * every scenario meets the same database, they run one at a time.
+   */
+  stackSerial?: boolean;
+};
+
+/**
+ * How many spec workers run side by side: `parallelism`, except one for a
+ * `stackSerial` package on a localhost stack.
+ */
+export function specWorkers(
+  env: NodeJS.ProcessEnv,
+  manifest: SpecManifest,
+  parallelism: number
+): number {
+  return env['HARNESS_MODE']?.trim() === 'stack' &&
+    manifest.stackSerial === true
+    ? 1
+    : parallelism;
+}
+
+export function packageSpecManifest(packageDir: string): SpecManifest {
+  if (!existsSync(join(packageDir, 'package.json'))) return {};
+  return JSON.parse(
+    readFileSync(join(packageDir, 'package.json'), 'utf8')
+  ) as SpecManifest;
+}
 
 export function packageSpecDomains(packageDir: string): readonly string[] {
   if (!existsSync(join(packageDir, 'package.json'))) return [];
