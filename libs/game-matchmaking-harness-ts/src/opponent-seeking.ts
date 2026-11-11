@@ -61,6 +61,9 @@ export const seekGameOpponent = scenarioAction({
   },
 });
 
+/** How long a new space's upload may take to reach the server. */
+const SPACE_ARRIVAL_MS = 10_000;
+
 /**
  * Given setup: `actor`'s space to seek an opponent from, open on their
  * device; a person without one starts it.
@@ -69,8 +72,18 @@ export const givenGameSpace = scenarioAction({
   name: 'givenGameSpace',
   act: async (s, actor: string) => {
     const id = await multiplayerSpaceId(s, actor);
-    if (id === null) await Promise.resolve(createSpace.act(s, actor));
-    else await s.actors.get(actor)!.openLink(`/space/${id}`);
+    if (id !== null) {
+      await s.actors.get(actor)!.openLink(`/space/${id}`);
+      return;
+    }
+    await Promise.resolve(createSpace.act(s, actor));
+    // A device shows its new space before the server holds it, and a
+    // search's fixture is made on the server: wait for the space to arrive.
+    await pollUntil(
+      s,
+      async () => ((await multiplayerSpaceId(s, actor)) === null ? null : true),
+      { maxMs: SPACE_ARRIVAL_MS, description: `${actor}'s new space` }
+    );
   },
 });
 
