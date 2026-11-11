@@ -1,0 +1,4 @@
+{
+  "summary": "Release 42779170490 failed on foundation/prd: the restore created a fresh Editor views account, whose apply created the business-observability-prd folder and then failed reading it back (403 getFolderByUidForbidden, folders:read). Grafana 13 grants a folder created through the API only to the Admin role, so an Editor account cannot read the folders it creates nor see folders Grafana kept. The views account is now an Admin at a new address (grafana_cloud_stack_service_account.views), and removed blocks forget the old Editor account and its token.",
+  "regressionTest": "libs/infra-shared-ts/tests/grafana-restore.test.ts"
+}

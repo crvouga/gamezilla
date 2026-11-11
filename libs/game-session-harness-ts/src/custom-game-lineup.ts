@@ -19,7 +19,9 @@ import {
   openSpaceLink,
   reopenSpaceLink,
 } from '@libs/spaces-harness-ts/space-actions';
+import { waitSpaceOutcome } from '@libs/spaces-harness-ts/space-ui';
 import { readSpaceLink } from '@libs/spaces-harness-ts/spaces-ui-reads';
+import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { type GameSide, gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
 import { playCustomGameHistory } from './custom-game-history';
 import { readCustomGameProbe } from './custom-game-probe';
@@ -171,6 +173,30 @@ async function preparePeople(
   }
 }
 
+/**
+ * `person` is offered Join on `link`'s prompt; else the failure names what the
+ * space shows instead (the host away, no connection, an end), not only that
+ * Join never appeared.
+ */
+async function awaitJoinOffered(
+  s: ProductHarness,
+  person: string,
+  link: string
+): Promise<void> {
+  const ui = await actorUi(s, person);
+  await ui
+    .get(Handles.spaceJoin)
+    .expect.visible()
+    .catch(async (error: unknown) => {
+      const shown = await waitSpaceOutcome(s, person, `what ${link} shows`)
+        .then((handle) => `shows ${handle}`)
+        .catch(() => 'settles on nothing');
+      throw new Error(`${person} is not offered Join on ${link}: it ${shown}`, {
+        cause: error,
+      });
+    });
+}
+
 /** `person` comes into `link`'s space at the game's custom games. */
 async function enterCustomGames(
   s: ProductHarness,
@@ -180,7 +206,7 @@ async function enterCustomGames(
 ): Promise<void> {
   // regression: connect-four-fixture-before-space-join
   await Promise.resolve(openSpaceLink.act(s, person, link));
-  await (await actorUi(s, person)).get('space-join').expect.visible();
+  await awaitJoinOffered(s, person, link);
   await Promise.resolve(joinFromPrompt.act(s, person));
   await showCustomGames(s, person, gameId);
 }

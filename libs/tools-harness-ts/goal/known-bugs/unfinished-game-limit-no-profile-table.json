@@ -1,4 +1,4 @@
 {
   "summary": "The unfinished-game-limit decision's server-enforcement world had no profile table, so once a search began reading the searcher's account kind (a Synthetic User searches at the waiting person's rating), every case allowed to search threw `no such table: profile` instead of answering yes. The world now holds the profile table the product schema has.",
-  "regressionTest": "libs/games-harness-ts/tests/dmn/unfinished-game-limit-world.ts"
+  "regressionTest": "libs/games-harness-ts/tests/dmn/unfinished-game-limit-world.test.ts"
 }

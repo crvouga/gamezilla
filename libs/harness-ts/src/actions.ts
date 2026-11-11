@@ -1,4 +1,5 @@
 import { originAvailabilityFor } from '@libs/app-root-client-ts/origin-availability-for-env';
+import { hostLimit } from '@pkgs/gherkin-shared-ts/registry';
 import { defineAction } from '@pkgs/harness-root-shared-ts/define-action';
 import type { UiOp } from '@pkgs/ui-testing-root-shared-ts/ui-op';
 import {
@@ -144,6 +145,30 @@ const TIME_PASS_HOP_MS = 60 * 60 * 1000;
 const TIME_PASS_SETTLE_MS = 2_000;
 
 /**
+ * Every device and server sleeps through `ms` at once, as a machine closed
+ * overnight does. Only virtual time can jump: a live browser against a
+ * running stack (`HARNESS_MODE=real|stack`) is on the wall clock, which
+ * cannot be moved ahead of the processes it does not own. That is a harness
+ * limit, so the scenario or trace ends here instead of failing.
+ */
+export async function sleepThroughTime(
+  s: ProductHarness,
+  ms: number
+): Promise<void> {
+  requireVirtualTime(s);
+  await s.session.scheduler.underlying.sleep(ms);
+}
+
+/** A host on the wall clock cannot make hours or days pass. */
+export function requireVirtualTime(s: Pick<ProductHarness, 'session'>): void {
+  // regression: wall-clock-time-travel-host-limit
+  if (!s.session.caps.has('virtualTime'))
+    throw hostLimit(
+      'this host runs on the wall clock and cannot let time pass'
+    );
+}
+
+/**
  * Days go by for everyone — devices, servers, the payment provider — in
  * hour-long jumps, as a sleeping machine sees them: each jump fires whatever
  * fell due once, then lets the answers land. Stepping every heartbeat through
@@ -153,15 +178,15 @@ const TIME_PASS_SETTLE_MS = 2_000;
 export const letTimePass = defineAction({
   name: 'letTimePass',
   pool: false,
-  enabled: (s: ProductHarness) => s.session.caps.has('virtualTime'),
   act: async (s: ProductHarness, ms: number) => {
+    requireVirtualTime(s);
     const end = s.session.ports.clock.now() + ms;
     for (;;) {
       await s.session.waitForIdle();
       const left = end - s.session.ports.clock.now();
       if (left <= TIME_PASS_SETTLE_MS) break;
       const hop = Math.min(TIME_PASS_HOP_MS, left - TIME_PASS_SETTLE_MS);
-      await s.session.scheduler.underlying.sleep(hop);
+      await sleepThroughTime(s, hop);
       await s.session.advanceTime(TIME_PASS_SETTLE_MS);
     }
     const left = end - s.session.ports.clock.now();

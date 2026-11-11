@@ -152,3 +152,14 @@ export const CustomGameAvailabilityChanged = customGameEvtNs(
       .strict()
       .safeParse(p).success
 );
+
+/**
+ * Time away stopped or resumed counting because the space's host left or
+ * came back: only the absence bookkeeping changes, never the room's own
+ * availability.
+ */
+export const CustomGameAbsencePaused = customGameEvtNs(
+  'absence-paused',
+  (p): p is { readonly absence: z.infer<typeof customGameAbsenceSchema> } =>
+    z.object({ absence: customGameAbsenceSchema }).strict().safeParse(p).success
+);

@@ -55,6 +55,7 @@ import { requestSyntheticMonitorSignIn } from '@pkgs/auth-inhouse-shared-ts/synt
 import { wallClock, wallTimers } from '@pkgs/clock-shared-ts/wall';
 import type { ScenarioContext } from '@pkgs/gherkin-shared-ts/registry';
 import { setWorld } from '@pkgs/gherkin-shared-ts/registry';
+import { withFreshConnections } from '@pkgs/http-client-shared-ts/fresh-connection';
 import { createGlobalHttpClient } from '@pkgs/http-client-shared-ts/global';
 import type { HttpClient } from '@pkgs/http-client-shared-ts/types';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server-ts/impl-node-fs';
@@ -354,7 +355,9 @@ type LiveScenario = LiveWorld & { readonly browsing: Browsing };
 export function useLiveWorld(target?: LiveTarget): void {
   const env = envFile(process.env['SECRETS_ENV']?.trim() || 'dev');
   const origins = envOrigins(env);
-  const http = createGlobalHttpClient();
+  // Requests here are minutes apart, between browser steps; an idle pooled
+  // connection to the live edge can be dropped under them.
+  const http = withFreshConnections(createGlobalHttpClient());
   const store =
     process.env['JOURNEY_CAPTURE_STEPS'] === '1'
       ? createNodeFsObjectStore({

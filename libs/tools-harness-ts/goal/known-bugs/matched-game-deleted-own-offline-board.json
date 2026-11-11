@@ -1,0 +1,4 @@
+{
+  "summary": "The matched-game harness read a device's play through the server's live session, so once a person deleted their account their own offline device read as showing nothing, although it cannot have heard of the deletion and the model keeps its last known board. The divergence settled in 1 ms steps for 15 s of virtual time, so the nightly matched-game trace 47 [Word Tiles] timed out at 300 s instead of reporting it. A device cut off from the server now shows its own local account's play.",
+  "regressionTest": "libs/games-harness-ts/tests/quint/matched-game.binding.ts"
+}

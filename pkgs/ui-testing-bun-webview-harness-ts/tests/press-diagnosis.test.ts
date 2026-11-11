@@ -77,3 +77,46 @@ test('a tap that never becomes actionable says the element kept moving', async (
   expect(message).toContain('moving: ');
   expect(message).toContain('hits the element');
 });
+
+// regression: browser-buried-back-unnamed-screen
+test('a control buried under a stacked screen names both screens', async () => {
+  document.body.innerHTML =
+    '<section data-screen="settings"><button data-testid="nav-back">Back</button></section>' +
+    '<section data-screen="tabs-home"><div><div>Home</div></div></section>';
+  const back = document.querySelector('button')!;
+  back.scrollIntoView = () => {};
+  back.getBoundingClientRect = () => new DOMRect(8, 4, 44, 44);
+  const previousFrame = globalThis.requestAnimationFrame;
+  const previousHit = document.elementFromPoint;
+  document.elementFromPoint = () =>
+    document.querySelector('[data-screen="tabs-home"] div div')!;
+  globalThis.requestAnimationFrame = (callback) => {
+    queueMicrotask(() => callback(0));
+    return 1;
+  };
+  const view = {
+    evaluate: async (script: string) => runInThisContext(script),
+    click: async () => {
+      throw new Error('timeout waiting for \'[data-testid="nav-back"]\'');
+    },
+    close: () => {},
+  } as unknown as BunWebView;
+  try {
+    const message = await new BunWebviewDriver({
+      view,
+      timers: createHarnessClock().timers,
+    })
+      .get('nav-back')
+      .tap()
+      .then(
+        () => 'tapped',
+        (error: unknown) => String(error)
+      );
+    expect(message).toContain('on screen tabs-home');
+    expect(message).toContain('the element is on screen settings');
+    expect(message).not.toContain('Home');
+  } finally {
+    globalThis.requestAnimationFrame = previousFrame;
+    document.elementFromPoint = previousHit;
+  }
+});

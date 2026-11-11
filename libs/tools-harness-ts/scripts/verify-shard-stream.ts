@@ -44,6 +44,47 @@ function failedTaskIds(
     .map((task) => task.taskId);
 }
 
+type StreamEvent = { source: string; text: string; level: string };
+
+/** One structured Turbo line, or `null` for anything else. */
+function parseEvent(line: string): StreamEvent | null {
+  try {
+    const event = JSON.parse(line) as Partial<StreamEvent> | null;
+    return typeof event?.text === 'string' && typeof event.source === 'string'
+      ? (event as StreamEvent)
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Turbo begins a task only once every task it depends on has succeeded. An
+ * uncacheable task (`cache: false`) writes no artifact for `completed` to
+ * find, so its dependent starting is how its end is seen; otherwise it would
+ * stay "running" until its budget and be reported as a timeout.
+ */
+function dependenciesFinished(
+  task: VerifyTask,
+  clocks: {
+    readonly started: Map<string, number>;
+    readonly finished: Map<string, number>;
+  },
+  now: number,
+  log: (line: string) => void
+): void {
+  for (const id of task.dependencies) {
+    const start = clocks.started.get(id);
+    if (start === undefined) continue;
+    const seconds = (now - start) / 1000;
+    log(
+      `COMPLETE ${id}; elapsed: ${seconds.toFixed(1)}s; finished before ${task.taskId} started`
+    );
+    clocks.finished.set(id, seconds);
+    clocks.started.delete(id);
+  }
+}
+
 export function taskStream(
   tasks: readonly VerifyTask[],
   log: (line: string) => void,
@@ -66,14 +107,8 @@ export function taskStream(
     failed.set(id, { seconds, detail, tail: tailOf(output) });
   };
   const line = (line: string): void => {
-    let event: { source: string; text: string; level: string };
-    try {
-      event = JSON.parse(line) as typeof event;
-    } catch {
-      log(line);
-      return;
-    }
-    if (typeof event.text !== 'string' || typeof event.source !== 'string') {
+    const event = parseEvent(line);
+    if (event === null) {
       log(line);
       return;
     }
@@ -88,14 +123,16 @@ export function taskStream(
       log(event.text);
       return;
     }
-    if (/^cache (miss|bypass)/.test(event.text)) {
+    const begun = /^cache (miss|bypass|hit)/.exec(event.text)?.[1];
+    if (begun)
+      dependenciesFinished(task, { started, finished }, ports.now(), log);
+    if (begun === 'miss' || begun === 'bypass') {
       started.set(event.source, ports.now());
       log(
         `START ${event.source}; command: ${task.command}; budget: ${taskBudgetSeconds(event.source, true, ports.env)}s`
       );
     }
-    if (/^cache hit/.test(event.text))
-      log(`COMPLETE ${event.source}; cached; elapsed: 0s`);
+    if (begun === 'hit') log(`COMPLETE ${event.source}; cached; elapsed: 0s`);
     logs.set(
       event.source,
       `${logs.get(event.source) ?? ''}${event.text}\n`.slice(-65536)

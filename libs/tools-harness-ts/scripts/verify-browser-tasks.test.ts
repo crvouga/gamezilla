@@ -24,7 +24,7 @@ test('the Storybook verification shard installs the planned renderer', () => {
     needsBrowser([
       task('@pkgs/ui-root-harness-ts#storybook:coverage'),
       task('@pkgs/ui-root-harness-ts#test'),
-      task('@pkgs/ui-root-harness-ts#ci:storybook'),
+      task('@pkgs/ui-root-harness-ts#ci:storybook:0'),
     ])
   ).toBe(true);
 });
@@ -36,7 +36,8 @@ test('browser checks request setup exactly when an assigned check must run', () 
       fc.array(
         fc.record({
           taskId: fc.constantFrom(
-            '@pkgs/ui-root-harness-ts#ci:storybook',
+            '@pkgs/ui-root-harness-ts#ci:storybook:0',
+            '@pkgs/ui-root-harness-ts#ci:storybook:3',
             '@pkgs/ui-root-harness-ts#storybook:test',
             '@pkgs/ui-root-harness-ts#storybook:mcp:test',
             '@pkgs/ui-testing-bun-webview-server-ts#test'
@@ -60,7 +61,7 @@ test('browser checks request setup exactly when an assigned check must run', () 
 // regression: storybook-shard-missing-pinned-renderer
 test('an uncached Storybook gate installs the renderer used to plan its task hash', () => {
   const storybook: VerifyTask = {
-    taskId: '@pkgs/ui-root-harness-ts#ci:storybook',
+    taskId: '@pkgs/ui-root-harness-ts#ci:storybook:0',
     hash: '0123456789abcdef',
     hit: false,
     source: null,

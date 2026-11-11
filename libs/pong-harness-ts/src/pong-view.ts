@@ -27,6 +27,10 @@ export async function readPongCourt(ui: Driver, board: string) {
   // The court's status carries what it says as data, so readers never
   // depend on its words; during live play only the spoken summary shows.
   const status = ui.get(`${board}-status`);
+  // regression: pong-court-read-before-reopened-board
+  // A reopened app draws the court a moment after it starts in a real
+  // browser; read it once it is shown, as a person looking at it would.
+  await status.expect.visible();
   if ((await status.text()) === null)
     throw new Error('No Pong status is shown');
   const stage = ((await status.attribute('data-stage')) ??
