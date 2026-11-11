@@ -250,15 +250,40 @@ export const SESSION_REVALIDATE_MS = 60_000;
 function useRevalidateSession(args: {
   enabled: Accessor<boolean>;
   port: AuthClientPort;
+  origin: ReturnType<typeof useOptionalOriginAvailability>;
 }): void {
   const timers = useTimers();
   createEffect(() => {
     if (!args.enabled()) return;
+    // regression: privacy-proof-unknown-after-reopen
+    // A reopened app knows its session only from storage. Ask the server as
+    // soon as it can be reached, not a minute from now: until it answers, the
+    // device cannot tell when the person last signed in, and choices that
+    // need a recent sign-in (export, deletion) are refused as if they had not.
+    if (!args.port.session.getSnapshot().isHydrated) {
+      const boot = new AbortController();
+      void hydrateSessionWhenReachable(args.port, args.origin, boot.signal);
+      onCleanup(() => boot.abort());
+    }
     const id = timers.setInterval(() => {
       void args.port.session.refresh();
     }, SESSION_REVALIDATE_MS);
     onCleanup(() => timers.clearInterval(id));
   });
+}
+
+async function hydrateSessionWhenReachable(
+  port: AuthClientPort,
+  origin: ReturnType<typeof useOptionalOriginAvailability>,
+  signal: AbortSignal
+): Promise<void> {
+  try {
+    await origin?.waitUntilAvailable(signal);
+  } catch {
+    return;
+  }
+  if (signal.aborted || port.session.getSnapshot().isHydrated) return;
+  await port.session.refresh();
 }
 
 /** The minute interval is the backstop. A returning connection asks at once. */
@@ -363,7 +388,11 @@ export function AuthBridge(
     externalUserId,
     deps,
   });
-  useRevalidateSession({ enabled: refreshEnabled, port });
+  useRevalidateSession({
+    enabled: refreshEnabled,
+    port,
+    origin: originAvailability,
+  });
   useRevalidateSessionWhenOriginReturns({
     enabled: refreshEnabled,
     port,

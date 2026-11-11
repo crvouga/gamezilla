@@ -199,6 +199,19 @@ export const runPrivacyJobs = scenarioAction({
   },
 });
 
+/**
+ * Minutes go by while a sign-in ages or a confirmation stays open. A host on
+ * the wall clock would sit through them for real, past the scenario's
+ * deadline, so it ends the scenario at a host limit instead.
+ */
+export const proofAges = scenarioAction({
+  name: 'proofAges',
+  act: async (s, ms: number) => {
+    requireVirtualTime(s);
+    await s.session.advanceTime(ms);
+  },
+});
+
 /** Resume the world after an absence; overdue work wakes once, as on a sleeping device. */
 export const privacyTimePasses = scenarioAction({
   name: 'privacyTimePasses',

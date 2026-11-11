@@ -21,6 +21,7 @@ import {
   confirmDeletion,
   openPrivacy,
   privacyTimePasses,
+  proofAges,
   proveAccount,
   reviewDeletion,
 } from './privacy-actions';
@@ -74,14 +75,14 @@ Given(
   '{actor} completed signing in more than 10 minutes ago',
   async (w, actor: Actor) => {
     await recentAccount(w, actor);
-    await w.s.advanceTime(600_001);
+    await w.s.apply(proofAges, 600_001);
   }
 );
 Given(
   '{actor} completed signing in exactly 10 minutes ago',
   async (w, actor: Actor) => {
     await recentAccount(w, actor);
-    await w.s.advanceTime(600_000);
+    await w.s.apply(proofAges, 600_000);
   }
 );
 Given(
@@ -163,7 +164,7 @@ Given(
     expect(
       await w.s.read(privacyText, actor, 'privacy-delete-modal')
     ).not.toBeNull();
-    await w.s.advanceTime(minutes * 60_000);
+    await w.s.apply(proofAges, minutes * 60_000);
   }
 );
 Then(
