@@ -57,7 +57,14 @@ test('Release rehearsal verifies and plans without opening the release path', ()
   ) as {
     jobs: Record<
       string,
-      { steps: { name?: string; if?: string; run?: string }[] }
+      {
+        steps: {
+          name?: string;
+          if?: string;
+          run?: string;
+          env?: Record<string, string>;
+        }[];
+      }
     >;
   };
   expect(verify.jobs['verify-start']?.steps[0]).toMatchObject({
@@ -67,4 +74,13 @@ test('Release rehearsal verifies and plans without opening the release path', ()
   expect(verify.jobs['verify-start']?.steps[0]?.run).toContain(
     'refs/heads/main'
   );
+  // regression: pr-infra-plan-reads-fixture-state-bucket
+  // A plan reads the real stacks: under the fixture identity it named the
+  // fixture's state bucket and was refused (HTTP 403).
+  const plans = Object.values(verify.jobs)
+    .flatMap((job) => job.steps)
+    .filter((step) => /\bplan:(fleet|foundation)\b/.test(step.run ?? ''));
+  expect(plans.length).toBeGreaterThan(0);
+  for (const plan of plans)
+    expect(plan.env?.['PRODUCT_IDENTITY_MODE']).toBe('configured');
 });
