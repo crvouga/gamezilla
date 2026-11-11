@@ -1,10 +1,11 @@
 import { expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
+import { STORYBOOK_PARTS, STORYBOOK_TASKS } from './turbo-ci-run';
 import { balanceShards, type VerifyTask } from './verify-shards';
 import { publishedTasks, requiredTasks } from './verify-stage-cache';
 
 // regression: uncached-storybook-coverage-prerequisite
-test('uncached Storybook coverage stays with its gate while units restore the build', () => {
+test('uncached Storybook coverage stays with its gate while units and the other browser parts restore the build', () => {
   const config = JSON.parse(
     readFileSync(
       new URL('../../../pkgs/ui-root-harness-ts/turbo.json', import.meta.url),
@@ -12,12 +13,11 @@ test('uncached Storybook coverage stays with its gate while units restore the bu
     )
   ) as { tasks: Record<string, { dependsOn?: string[] }> };
   const owner = '@pkgs/ui-root-harness-ts';
-  const names = [
-    'storybook:build',
-    'storybook:coverage',
-    'test',
-    'ci:storybook',
-  ];
+  const parts = Array.from(
+    { length: STORYBOOK_PARTS },
+    (_, part) => `ci:storybook:${String(part)}`
+  );
+  const names = ['storybook:build', 'storybook:coverage', 'test', ...parts];
   const tasks: VerifyTask[] = names.map((name) => ({
     taskId: `${owner}#${name}`,
     hash: name,
@@ -37,14 +37,22 @@ test('uncached Storybook coverage stays with its gate while units restore the bu
     item.tasks.some((task) => task.taskId === coverage)
   )!;
   expect(shard.stage).toBe('verifications');
-  expect(shard.tasks.map((task) => task.taskId)).toContain(
-    `${owner}#ci:storybook`
-  );
+  // Coverage gates with the first browser part, in its shard; the other
+  // parts restore only the build, so they run side by side elsewhere.
+  const [first, ...rest] = parts.map((part) => `${owner}#${part}`);
+  expect(STORYBOOK_TASKS).toEqual([first!, ...rest]);
+  expect(shard.tasks.map((task) => task.taskId)).toContain(first!);
   expect(
-    requiredTasks(plan, [
-      tasks.find((task) => task.taskId === `${owner}#ci:storybook`)!,
-    ]).map((task) => task.taskId)
+    requiredTasks(plan, [tasks.find((task) => task.taskId === first)!]).map(
+      (task) => task.taskId
+    )
   ).toContain(coverage);
+  for (const part of rest)
+    expect(
+      requiredTasks(plan, [tasks.find((task) => task.taskId === part)!]).map(
+        (task) => task.taskId
+      )
+    ).toEqual([`${owner}#storybook:build`]);
   expect(publishedTasks(plan, shard).map((task) => task.taskId)).not.toContain(
     coverage
   );

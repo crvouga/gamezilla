@@ -80,6 +80,8 @@ test('machines are kept apart from people on the routes only machines call', () 
   const machine = routes.filter((route) => routeGroupOf(route) === 'machine');
   expect(machine).toContain('/api/health');
   expect(machine).toContain('/api/synthetic-population-worker/claim');
+  // regression: synthetic-population-live-route-ungrouped
+  expect(machine).toContain('/api/synthetic-population-live/heartbeat');
   expect(routes.filter((r) => routeGroupOf(r) === 'telemetry')).toEqual([
     '/api/observability/v1/:signal',
     '/api/observatory-live/*',

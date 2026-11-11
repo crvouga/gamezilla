@@ -42,7 +42,10 @@ import {
   validateCiIdentityRecovery,
 } from '@libs/infra-shared-ts/ci-identity-recovery';
 import { envFile } from '@libs/infra-shared-ts/envs';
-import { needsGrafanaRestore } from '@libs/infra-shared-ts/grafana-restore';
+import {
+  grafanaRestore,
+  needsGrafanaRestore,
+} from '@libs/infra-shared-ts/grafana-restore';
 import type { PlanJson } from '@libs/infra-shared-ts/plan-policy';
 import { evaluatePlanPolicy } from '@libs/infra-shared-ts/plan-policy';
 import {
@@ -80,8 +83,8 @@ import {
   migrateToBucket,
   useLocalBackend,
 } from './bootstrap-backend';
-import { adoptKeptGrafanaAccount } from './grafana-restore';
-import { retireArchivedGrafana } from './grafana-retirement';
+import { restoreGrafana } from './grafana-restore';
+import { planGrafanaScope, retireArchivedGrafana } from './grafana-retirement';
 import { resolveInfisicalToken } from './infisical-token';
 import { infraOperation } from './infra-operation';
 import { backupState } from './state-backup';
@@ -305,37 +308,42 @@ async function runOnce(
   if (planOptionsFor(cli).lock && !firstRun)
     await releaseAbandonedLock({ paths: PATHS, target, env, now: new Date() });
   if (target.stack === 'foundation' && command !== 'destroy') {
+    const lock = planOptionsFor(cli).lock;
+    const scope = await planGrafanaScope({ paths: PATHS, target, env, lock });
     const previewed = await retireArchivedGrafana({
       paths: PATHS,
       target,
       env,
       policyDir: POLICY_DIR,
       preview: command !== 'apply',
-      lock: planOptionsFor(cli).lock,
+      plan: scope,
     });
     if (previewed) {
       if (command === 'drift')
         fail(`${label}: archived Grafana state needs retirement`);
       return 'done';
     }
+    const restore = grafanaRestore(scope);
+    if (command === 'apply' && needsGrafanaRestore(restore))
+      env = await restoreGrafana({
+        paths: PATHS,
+        target,
+        env,
+        policyDir: POLICY_DIR,
+        lock,
+        restore,
+      });
+    else if (restore.untaint.length > 0) {
+      // Refreshing a tainted view needs the token the restore provides.
+      if (command === 'drift') fail(`${label}: Grafana views need a restore`);
+      console.log(
+        `[infra] preview: Grafana restore follows on apply for ${restore.untaint.join(', ')}`
+      );
+      return 'done';
+    }
   }
-  let status = await planTarget(target, env, cli);
-  const plan = checkPolicy(target, env, teardown, cli);
-  if (
-    command === 'apply' &&
-    target.stack === 'foundation' &&
-    needsGrafanaRestore(plan)
-  ) {
-    env = await adoptKeptGrafanaAccount({
-      paths: PATHS,
-      target,
-      env,
-      policyDir: POLICY_DIR,
-      lock: planOptionsFor(cli).lock,
-    });
-    status = await planTarget(target, env, cli);
-    checkPolicy(target, env, teardown, cli);
-  }
+  const status = await planTarget(target, env, cli);
+  checkPolicy(target, env, teardown, cli);
   if (status === 0) {
     console.log(`[infra] ${label}: no changes`);
     return 'done';

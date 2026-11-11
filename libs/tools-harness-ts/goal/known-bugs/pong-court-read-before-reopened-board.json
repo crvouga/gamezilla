@@ -1,0 +1,4 @@
+{
+  "summary": "Verify Nightly browser run 42760439972 failed specs/pong/pong-scoring.qnt trace 3 at step 3 reopenApp: the observation read custom-game-board-status right after the real browser reopened and found no element, because the reopened app had not drawn the court yet. The court reader now waits for the status to show before reading it.",
+  "regressionTest": "libs/pong-harness-ts/tests/pong-court-reads.test.ts"
+}

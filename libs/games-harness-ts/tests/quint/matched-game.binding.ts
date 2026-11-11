@@ -1,4 +1,5 @@
 import { bindQuintModel } from '@pkgs/quint-shared-ts/registry';
+import ownOfflineBoardTrace from './fixtures/multiplayer-deleted-own-offline-board.itf.json';
 import reconnectionTrace from './fixtures/multiplayer-reconnection-before-auth-refresh.itf.json';
 import deletionTrace from './fixtures/multiplayer-third-device-deletion.itf.json';
 import {
@@ -58,6 +59,14 @@ bindQuintModel<PlayTrace>({
         'A deletion clears connected devices and preserves the offline board',
       seed: '0x67932',
       itf: deletionTrace,
+    },
+    // regression: matched-game-deleted-own-offline-board
+    {
+      id: 'matched-game-deleted-own-offline-board',
+      title:
+        'A deleted person’s offline phone keeps its board until it comes back',
+      seed: '0x67932',
+      itf: ownOfflineBoardTrace,
     },
   ],
   actions: {

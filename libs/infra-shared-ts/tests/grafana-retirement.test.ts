@@ -77,3 +77,55 @@ test('no-op plans need no retirement and mixed plans fail closed', () => {
     )
   ).toThrow();
 });
+
+// regression: grafana-retirement-on-active-instance
+// Release 42794639115: an active prd instance replaced a tainted folder
+// (forget + create under `destroy = false`) beside views to create; any
+// forget counted as an archive and the retirement refused every view.
+test('only an archive, which plans pure forgets, is a retirement', () => {
+  const changes = (
+    entries: readonly (readonly [string, readonly string[]])[]
+  ): PlanJson => ({
+    resource_changes: entries.map(([address, actions]) => ({
+      address,
+      mode: 'managed',
+      type: 'grafana_folder',
+      change: { actions },
+    })),
+  });
+  const folder = 'module.observability_views[0].grafana_folder.this';
+  const dashboard =
+    'module.observability_views[0].grafana_dashboard.this["dashboards/product.json.tftpl"]';
+  expect(
+    hasGrafanaRetirement(
+      changes([
+        [folder, ['forget', 'create']],
+        [dashboard, ['create']],
+      ])
+    )
+  ).toBe(false);
+  // A view dropped from code on an active instance is no archive either.
+  expect(
+    hasGrafanaRetirement(
+      changes([
+        [dashboard, ['forget']],
+        ['grafana_cloud_stack_service_account.views[0]', ['create']],
+      ])
+    )
+  ).toBe(false);
+  // Outside the Grafana scope a forget is the ordinary plan's business.
+  expect(
+    hasGrafanaRetirement(
+      changes([['module.database.neon_branch.this', ['forget']]])
+    )
+  ).toBe(false);
+  expect(
+    hasGrafanaRetirement(
+      changes([
+        [folder, ['forget']],
+        [dashboard, ['forget']],
+        ['grafana_cloud_stack_service_account_token.views[0]', ['forget']],
+      ])
+    )
+  ).toBe(true);
+});

@@ -1,0 +1,4 @@
+{
+  "summary": "#362 mounted /api/synthetic-population-live (a synthetic person's device reporting its screen) without a route group, so its machine traffic would have been counted with people's app requests; the route-group test failed in the nightly. The routes are now the machine group.",
+  "regressionTest": "apps/server-ts/tests/route-groups.test.ts"
+}

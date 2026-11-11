@@ -1,37 +1,107 @@
+import { inGrafanaScope } from './grafana-retirement';
 import type { PlanJson } from './plan-policy';
 import type { PlanOptions, Target, TofuPaths } from './tofu-command';
-import { planArgs } from './tofu-command';
+import { planArgs, stackDir, varFileArgs } from './tofu-command';
 
 /**
  * Restoring a Grafana instance that comes back from archive. While archived,
- * foundation forgot its observability account and views but Grafana kept them
+ * foundation forgot its views account and views but Grafana kept them
  * (`grafana-retirement.ts`), and Grafana refuses to create them a second time.
  * `stacks/foundation/observability-views.tf` adopts what was kept, driven by
  * `var.grafana_restore`: pass "account" imports the account and creates its
- * token, then pass "views" uses that token to import the kept views. Grafana
- * does not always keep the account; when its search finds none, the account
- * pass creates a fresh one instead.
+ * token, then pass "views" uses that token to import the kept views named in
+ * `var.grafana_adopt`. Grafana does not always keep the account; when its
+ * search finds none, the account pass creates a fresh one instead.
+ *
+ * The steps are read from the state-only Grafana scope plan
+ * (`grafanaRetirementArgs`), never from the fully refreshed plan: refreshing
+ * a view needs a token that can read it, which is what the restore provides.
  */
-const ACCOUNT = 'grafana_cloud_stack_service_account.observability';
-const TOKEN = 'grafana_cloud_stack_service_account_token.observability';
+const ACCOUNT = 'grafana_cloud_stack_service_account.views';
+const TOKEN = 'grafana_cloud_stack_service_account_token.views';
+const VIEWS = 'module.observability_views[';
 
 /** The variable each restore pass sets (`TF_VAR_grafana_restore`). */
 export type GrafanaRestorePass = 'account' | 'views';
 
 export function grafanaRestoreEnv(
   env: Record<string, string>,
-  pass: GrafanaRestorePass
+  pass: GrafanaRestorePass,
+  adopt: readonly string[] = []
 ): Record<string, string> {
-  return { ...env, TF_VAR_grafana_restore: pass };
+  if (pass === 'account') return { ...env, TF_VAR_grafana_restore: pass };
+  return {
+    ...env,
+    TF_VAR_grafana_restore: pass,
+    TF_VAR_grafana_adopt: JSON.stringify(adopt),
+  };
 }
 
-/** A plan that creates the observability account is a restore. */
-export function needsGrafanaRestore(plan: PlanJson): boolean {
-  return (plan.resource_changes ?? []).some(
+export type GrafanaRestore = {
+  /**
+   * Views Grafana created whose read-back failed: the create left them
+   * tainted in state. With `destroy = false` a replace forgets and recreates,
+   * and Grafana refuses a second folder of the same uid, so they are untainted
+   * and refreshed instead (Release 42779170490, 42794639115).
+   */
+  readonly untaint: readonly string[];
+  /** The account is not in state: adopt the kept one or create it. */
+  readonly account: boolean;
+  /** Views not in state, which the views pass imports if Grafana kept them. */
+  readonly adopt: readonly string[];
+};
+
+export function grafanaRestore(scope: PlanJson): GrafanaRestore {
+  const managed = (scope.resource_changes ?? []).filter(
     (resource) =>
-      resource.address === `${ACCOUNT}[0]` &&
-      resource.change.actions.includes('create')
+      resource.mode === 'managed' && inGrafanaScope(resource.address)
   );
+  const creates = (actions: readonly string[]) =>
+    actions.length === 1 && actions[0] === 'create';
+  return {
+    untaint: managed
+      .filter(
+        (resource) =>
+          resource.address.startsWith(VIEWS) &&
+          resource.action_reason === 'replace_because_tainted'
+      )
+      .map((resource) => resource.address),
+    account: managed.some(
+      (resource) =>
+        resource.address === `${ACCOUNT}[0]` && creates(resource.change.actions)
+    ),
+    adopt: managed
+      .filter(
+        (resource) =>
+          resource.address.startsWith(VIEWS) && creates(resource.change.actions)
+      )
+      .map((resource) => resource.address),
+  };
+}
+
+export function needsGrafanaRestore(restore: GrafanaRestore): boolean {
+  return (
+    restore.untaint.length > 0 || restore.account || restore.adopt.length > 0
+  );
+}
+
+/** Clears the taint on one view; state only, never a remote change. */
+export function grafanaUntaintArgs(
+  paths: TofuPaths,
+  target: Target,
+  address: string
+): readonly string[] {
+  if (target.stack !== 'foundation')
+    throw new Error('Grafana restore requires the foundation stack');
+  if (!address.startsWith(VIEWS))
+    throw new Error(`Grafana restore untaints only views, not ${address}`);
+  return [
+    `-chdir=${stackDir(paths, target.stack)}`,
+    'untaint',
+    '-input=false',
+    ...varFileArgs(paths, target),
+    address,
+  ];
 }
 
 /** The account pass touches only the account and its token. */

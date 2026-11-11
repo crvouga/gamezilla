@@ -13,12 +13,13 @@
  *   useQuintHarness(openHarness);
  */
 
+import { isHostLimit } from '@pkgs/gherkin-shared-ts/registry';
 import type { TraceContext } from '@pkgs/quint-shared-ts/registry';
 import { setQuintWorld } from '@pkgs/quint-shared-ts/registry';
 
 import type { OpenHarness } from './open-harness';
 import type { OpenPackageHarness } from './spec-world';
-import { recordingRun } from './spec-world';
+import { recordingRun, recordStep } from './spec-world';
 
 export type QuintHarnessWorld = {
   /** The run. A binding's actions call `s.apply` / `s.read` on it. */
@@ -57,7 +58,12 @@ export function useQuintHarness(openHarness: OpenPackageHarness): void {
     dispose: (w) => w.quiet[Symbol.asyncDispose](),
     calls: (w) => w.calls,
     record: (w, meta, fn) =>
-      w.s.record({ kind: 'quint', title: meta.title, detail: meta.detail }, fn),
+      recordStep(
+        w.s,
+        { kind: 'quint', title: meta.title, detail: meta.detail },
+        fn
+      ),
+    isHostLimit,
     settle: async (w, matches, opts) => {
       try {
         await w.quiet.until(() => matches(), {

@@ -11,6 +11,7 @@ import {
   ChangeCustomGame,
   ChangeLocalCustomGame,
   type ChangeLocalCustomGamePayload,
+  CustomGameAbsencePaused,
   CustomGameAvailabilityChanged,
   CustomGameProgressed,
   CustomGamesChanged,
@@ -236,6 +237,10 @@ export const customGameEventReducer = createMessageRouter<
   .on(CustomGameAvailabilityChanged, (state, _ctx, event) => ({
     ...state,
     ...CustomGameAvailableAttr(event.payload.available),
+    ...CustomGameAbsenceAttr(event.payload.absence),
+  }))
+  .on(CustomGameAbsencePaused, (state, _ctx, event) => ({
+    ...state,
     ...CustomGameAbsenceAttr(event.payload.absence),
   }));
 

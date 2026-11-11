@@ -1,5 +1,6 @@
 import { expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
+import { STORYBOOK_PARTS } from './turbo-ci-run';
 import {
   failedGroups,
   nightlyGroupNames,
@@ -49,7 +50,15 @@ test('Ubuntu reference authoring is explicit and followed by an uncached compari
     '${{ !inputs.storybook-evidence-run && inputs.update-storybook-baselines }}'
   );
   expect(
-    job.steps.find((step) => step.run?.includes('turbo run ci:storybook'))?.if
+    job.steps.find((step) =>
+      [
+        'turbo run',
+        ...Array.from(
+          { length: STORYBOOK_PARTS },
+          (_, part) => ` ci:storybook:${String(part)}`
+        ),
+      ].every((part) => step.run?.includes(part))
+    )?.if
   ).toBe(
     '${{ !inputs.storybook-evidence-run && !inputs.update-storybook-baselines }}'
   );

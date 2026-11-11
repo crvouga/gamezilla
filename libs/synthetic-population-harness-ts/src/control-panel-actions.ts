@@ -121,8 +121,10 @@ async function confirmEvery(
   await ui
     .get('synthetic-population-every-done')
     .expect.visible({ timeoutMs: WAIT_MS });
-  // Seen; the person closes the outcome, as before acting again.
+  // The person closes the outcome, as anyone does before the next command:
+  // left open, the next open of the controls finds it still there.
   await ui.get('synthetic-population-every-dismiss').tap();
+  await ui.get('synthetic-population-every-done').expect.hidden();
   await s.session.waitForIdle();
 }
 
@@ -214,8 +216,8 @@ export const restartSyntheticUser = scenarioAction({
     await ui
       .get('synthetic-population-restart-done')
       .expect.visible({ timeoutMs: WAIT_MS });
-    // Seen; the person closes the outcome, as before acting again.
     await ui.get('synthetic-population-restart-dismiss').tap();
+    await ui.get('synthetic-population-restart-done').expect.hidden();
     const { lease, sessions, renewal } = await leasedSession(s, name);
     const restart = renewal.commands.find(
       (command) => command.command === 'restart'

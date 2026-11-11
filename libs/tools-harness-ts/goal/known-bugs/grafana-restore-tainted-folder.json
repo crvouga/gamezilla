@@ -1,0 +1,4 @@
+{
+  "summary": "Releases 42779170490 and 42794639115 left foundation/prd stuck: the folder Grafana created but could not read back was tainted in state, the other views were missing from state, and the restore decision came from a fully refreshed plan that the old token could not refresh. The release now reads its restore steps from the state-only Grafana scope plan: it untaints views Grafana already created, adopts or creates the account, and imports only kept views that are missing from state (var.grafana_adopt).",
+  "regressionTest": "libs/infra-shared-ts/tests/grafana-restore.test.ts"
+}

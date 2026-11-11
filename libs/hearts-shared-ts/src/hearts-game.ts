@@ -6,7 +6,7 @@ import type {
 import { winningSides } from '@pkgs/turn-game-shared-ts/game-rules';
 import { replayHearts } from './hearts-actions';
 import { chooseHeartsDecision, heartsBots } from './hearts-bot';
-import { parseCards } from './hearts-cards';
+import { DECK, parseCards } from './hearts-cards';
 import { decodeHearts, HEARTS_SIDES } from './hearts-position';
 import { heartsRules } from './hearts-rules';
 
@@ -57,19 +57,38 @@ export const heartsGameShared = defineGame({
     choose: (position, random, hand, strength = 'medium') =>
       chooseHeartsDecision(position, strength, random, hand),
     async perform(ui, board, action) {
-      // A pass is three cards chosen on the hand, then confirmed; a play is
-      // one card of the hand.
+      // A play is one card of the hand, played at once.
       const cards = parseCards(action) ?? [];
+      if (cards.length <= 1) {
+        for (const card of cards) {
+          const target = ui.get(`${board}-card-${card}`);
+          await target.wait('enabled');
+          await target.tap();
+        }
+        return;
+      }
+      // A pass is three cards chosen on the hand, then confirmed. A refused
+      // pass keeps its cards chosen so they can be sent again, so a card
+      // still chosen that is not in this pass is put back first, and a card
+      // of this pass already chosen stays chosen.
+      for (const card of DECK) {
+        if (cards.includes(card)) continue;
+        const other = ui.get(`${board}-card-${card}`);
+        if (
+          (await other.isVisible()) &&
+          (await other.attribute('aria-pressed')) === 'true'
+        )
+          await other.tap();
+      }
       for (const card of cards) {
         const target = ui.get(`${board}-card-${card}`);
         await target.wait('enabled');
-        await target.tap();
+        if ((await target.attribute('aria-pressed')) !== 'true')
+          await target.tap();
       }
-      if (cards.length > 1) {
-        const confirm = ui.get(`${board}-pass`);
-        await confirm.wait('enabled');
-        await confirm.tap();
-      }
+      const confirm = ui.get(`${board}-pass`);
+      await confirm.wait('enabled');
+      await confirm.tap();
     },
   },
 });
