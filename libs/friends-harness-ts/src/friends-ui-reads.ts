@@ -1,6 +1,6 @@
-import { actorUsername } from '@libs/harness-ts/run-scope';
 import { actorUi } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
+import { actorUsername } from '@libs/harness-ts/run-scope';
 import { openTab } from '@libs/harness-ts/shell-actions';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { showKnownPerson } from './known-person-view';
@@ -22,7 +22,9 @@ export async function friendRowVisible(
   try {
     const ui = await actorUi(s, actorId);
     await focus(ui);
-    return await ui.get(Handles.friendsListRow(actorUsername(s, username))).isVisible();
+    return await ui
+      .get(Handles.friendsListRow(actorUsername(s, username)))
+      .isVisible();
   } catch {
     return false;
   }
@@ -52,7 +54,9 @@ export async function friendRequestCardText(
 ): Promise<string | null> {
   await Promise.resolve(openTab.act(s, actorId, Handles.tabNotifications));
   const ui = await actorUi(s, actorId);
-  const card = ui.get(Handles.notificationsFriendRequestCard(actorUsername(s, fromUsername)));
+  const card = ui.get(
+    Handles.notificationsFriendRequestCard(actorUsername(s, fromUsername))
+  );
   return (await card.isVisible()) ? await card.text() : null;
 }
 
@@ -65,7 +69,9 @@ export async function addFriendOffered(
   try {
     const ui = await actorUi(s, actorId);
     await focus(ui);
-    return await ui.get(Handles.friendAdd(actorUsername(s, username))).isVisible();
+    return await ui
+      .get(Handles.friendAdd(actorUsername(s, username)))
+      .isVisible();
   } catch {
     return false;
   }
@@ -152,8 +158,11 @@ export async function recentDeclineRefusalShown(
   username: string
 ): Promise<boolean> {
   return (
-    (await handleText(s, actorId, Handles.friendAdd(actorUsername(s, username)))) ===
-    'Try again later'
+    (await handleText(
+      s,
+      actorId,
+      Handles.friendAdd(actorUsername(s, username))
+    )) === 'Try again later'
   );
 }
 
@@ -163,7 +172,11 @@ export async function friendStatusShown(
   actorId: string,
   username: string
 ): Promise<boolean> {
-  return await handleVisible(s, actorId, Handles.friendStatusFriends(actorUsername(s, username)));
+  return await handleVisible(
+    s,
+    actorId,
+    Handles.friendStatusFriends(actorUsername(s, username))
+  );
 }
 
 /** The screen offers to confirm `fromUsername`'s request (focuses the actor). */
@@ -172,7 +185,11 @@ export async function confirmOffered(
   actorId: string,
   fromUsername: string
 ): Promise<boolean> {
-  return await handleVisible(s, actorId, Handles.friendConfirm(actorUsername(s, fromUsername)));
+  return await handleVisible(
+    s,
+    actorId,
+    Handles.friendConfirm(actorUsername(s, fromUsername))
+  );
 }
 
 /** The screen offers to withdraw the request to `toUsername` (focuses the actor). */
@@ -182,7 +199,11 @@ export async function withdrawOffered(
   toUsername: string
 ): Promise<boolean> {
   await showKnownPerson(s, actorId, toUsername);
-  return await handleVisible(s, actorId, Handles.friendCancel(actorUsername(s, toUsername)));
+  return await handleVisible(
+    s,
+    actorId,
+    Handles.friendCancel(actorUsername(s, toUsername))
+  );
 }
 
 /** The screen offers to ask `username` (Add) (focuses the actor). */
@@ -191,7 +212,11 @@ export async function askOffered(
   actorId: string,
   username: string
 ): Promise<boolean> {
-  return await handleVisible(s, actorId, Handles.friendAdd(actorUsername(s, username)));
+  return await handleVisible(
+    s,
+    actorId,
+    Handles.friendAdd(actorUsername(s, username))
+  );
 }
 
 /** The screen offers to unblock `username` (focuses the actor). */
@@ -200,7 +225,11 @@ export async function unblockOffered(
   actorId: string,
   username: string
 ): Promise<boolean> {
-  return await handleVisible(s, actorId, Handles.friendUnblock(actorUsername(s, username)));
+  return await handleVisible(
+    s,
+    actorId,
+    Handles.friendUnblock(actorUsername(s, username))
+  );
 }
 
 /** The friends list says there are no friends yet (focuses the actor). */

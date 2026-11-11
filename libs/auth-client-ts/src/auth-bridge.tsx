@@ -250,9 +250,9 @@ export const SESSION_REVALIDATE_MS = 60_000;
 function useRevalidateSession(args: {
   enabled: Accessor<boolean>;
   port: AuthClientPort;
-  origin: ReturnType<typeof useOptionalOriginAvailability>;
 }): void {
   const timers = useTimers();
+  const origin = useOptionalOriginAvailability();
   createEffect(() => {
     if (!args.enabled()) return;
     // regression: privacy-proof-unknown-after-reopen
@@ -262,7 +262,7 @@ function useRevalidateSession(args: {
     // need a recent sign-in (export, deletion) are refused as if they had not.
     if (!args.port.session.getSnapshot().isHydrated) {
       const boot = new AbortController();
-      void hydrateSessionWhenReachable(args.port, args.origin, boot.signal);
+      void hydrateSessionWhenReachable(args.port, origin, boot.signal);
       onCleanup(() => boot.abort());
     }
     const id = timers.setInterval(() => {
@@ -388,11 +388,7 @@ export function AuthBridge(
     externalUserId,
     deps,
   });
-  useRevalidateSession({
-    enabled: refreshEnabled,
-    port,
-    origin: originAvailability,
-  });
+  useRevalidateSession({ enabled: refreshEnabled, port });
   useRevalidateSessionWhenOriginReturns({
     enabled: refreshEnabled,
     port,

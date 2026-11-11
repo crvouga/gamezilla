@@ -1,6 +1,6 @@
-import { actorUsername } from '@libs/harness-ts/run-scope';
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
+import { actorUsername } from '@libs/harness-ts/run-scope';
 import { peopleSearchShowsAnswer } from '@libs/search-shared-ts/search-result-phase';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { USER_SEARCH_DEBOUNCE_MS } from '@libs/user-search-shared-ts/user-search-types';

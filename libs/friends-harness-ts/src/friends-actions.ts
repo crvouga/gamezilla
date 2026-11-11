@@ -1,5 +1,5 @@
-import { actorUsername } from '@libs/harness-ts/run-scope';
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
+import { actorUsername } from '@libs/harness-ts/run-scope';
 import { searchUsername } from '@libs/search-harness-ts/search-actions';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { USER_SEARCH_DEBOUNCE_MS } from '@libs/user-search-shared-ts/user-search-types';
@@ -22,10 +22,14 @@ export const acceptFriendRequest = scenarioAction({
       return;
     }
     await ui.get(Handles.tabNotifications).tap();
-    const card = Handles.notificationsFriendRequestCard(actorUsername(s, fromUsername));
+    const card = Handles.notificationsFriendRequestCard(
+      actorUsername(s, fromUsername)
+    );
     await ui.get(card).expect.visible({ timeoutMs: WAIT_MS });
     await ui.get(card).tap({ timeoutMs: WAIT_MS });
-    const accept = Handles.notificationsFriendRequestAccept(actorUsername(s, fromUsername));
+    const accept = Handles.notificationsFriendRequestAccept(
+      actorUsername(s, fromUsername)
+    );
     await ui.get(accept).tap({ timeoutMs: WAIT_MS });
     await ui.get(accept).expect.hidden({ timeoutMs: HIDDEN_MS });
     await ui.get(card).expect.hidden({ timeoutMs: HIDDEN_MS });
@@ -37,10 +41,14 @@ export const declineFriendRequest = scenarioAction({
   act: async (s, actorId: string, fromUsername: string) => {
     const ui = await actorUi(s, actorId);
     await ui.get(Handles.tabNotifications).tap({ timeoutMs: WAIT_MS });
-    const card = Handles.notificationsFriendRequestCard(actorUsername(s, fromUsername));
+    const card = Handles.notificationsFriendRequestCard(
+      actorUsername(s, fromUsername)
+    );
     await ui.get(card).expect.visible({ timeoutMs: WAIT_MS });
     await ui.get(card).tap({ timeoutMs: WAIT_MS });
-    const decline = Handles.notificationsFriendRequestDecline(actorUsername(s, fromUsername));
+    const decline = Handles.notificationsFriendRequestDecline(
+      actorUsername(s, fromUsername)
+    );
     await ui.get(decline).tap({ timeoutMs: WAIT_MS });
     await ui.get(card).expect.hidden({ timeoutMs: HIDDEN_MS });
   },
@@ -81,9 +89,11 @@ async function openFriendProfile(
   const row = Handles.friendsListRow(actorUsername(s, username));
   await ui.get(row).expect.visible({ timeoutMs: WAIT_MS });
   await ui.get(row).tap({ timeoutMs: WAIT_MS });
-  await ui.get(Handles.friendStatusFriends(actorUsername(s, username))).expect.visible({
-    timeoutMs: WAIT_MS,
-  });
+  await ui
+    .get(Handles.friendStatusFriends(actorUsername(s, username)))
+    .expect.visible({
+      timeoutMs: WAIT_MS,
+    });
 }
 
 export const removeFriend = scenarioAction({
@@ -115,9 +125,11 @@ export const removeFriend = scenarioAction({
           : null,
       { maxMs: WAIT_MS, description: 'the friends list after removal' }
     );
-    await ui.get(Handles.friendsListRow(actorUsername(s, username))).expect.hidden({
-      timeoutMs: HIDDEN_MS,
-    });
+    await ui
+      .get(Handles.friendsListRow(actorUsername(s, username)))
+      .expect.hidden({
+        timeoutMs: HIDDEN_MS,
+      });
   },
 });
 
@@ -228,7 +240,9 @@ export const searchUntilAddOffered = scenarioAction({
       s,
       async () => {
         await Promise.resolve(searchUsername.act(s, actorId, username));
-        return (await ui.get(Handles.friendAdd(actorUsername(s, username))).isVisible())
+        return (await ui
+          .get(Handles.friendAdd(actorUsername(s, username)))
+          .isVisible())
           ? true
           : null;
       },

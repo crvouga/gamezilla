@@ -1,7 +1,7 @@
-import { actorUsername } from '@libs/harness-ts/run-scope';
 import { actorUi } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront } from '@libs/harness-ts/observations';
+import { actorUsername } from '@libs/harness-ts/run-scope';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { showKnownPerson } from './known-person-view';
 

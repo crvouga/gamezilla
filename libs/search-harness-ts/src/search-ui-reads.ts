@@ -1,6 +1,6 @@
-import { actorUsername } from '@libs/harness-ts/run-scope';
 import { actorUi } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
+import { actorUsername } from '@libs/harness-ts/run-scope';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 
 const WAIT_MS = 10_000;

@@ -1,6 +1,6 @@
-import { actorUsername } from '@libs/harness-ts/run-scope';
 import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
+import { actorUsername } from '@libs/harness-ts/run-scope';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 
 export const keepShownRequest = scenarioAction({
@@ -8,7 +8,9 @@ export const keepShownRequest = scenarioAction({
   act: async (s, actor: string, from: string) => {
     const ui = await actorUi(s, actor);
     await ui.get(Handles.tabNotifications).tap();
-    await ui.get(Handles.notificationsFriendRequestCard(actorUsername(s, from))).tap();
+    await ui
+      .get(Handles.notificationsFriendRequestCard(actorUsername(s, from)))
+      .tap();
     await ui
       .get(Handles.notificationsFriendRequestAccept(actorUsername(s, from)))
       .expect.visible();
@@ -24,7 +26,9 @@ export const acceptShownRequest = scenarioAction({
   name: 'acceptShownRequest',
   act: async (s, actor: string, from: string) => {
     const ui = await actorUi(s, actor);
-    await ui.get(Handles.notificationsFriendRequestAccept(actorUsername(s, from))).tap();
+    await ui
+      .get(Handles.notificationsFriendRequestAccept(actorUsername(s, from)))
+      .tap();
     await s.session.waitForIdle();
   },
 });
@@ -35,5 +39,7 @@ export async function requestDeletionReason(
   from: string
 ) {
   const ui = await actorUi(s, actor);
-  return ui.get(Handles.notificationsFriendRequestAccept(actorUsername(s, from))).text();
+  return ui
+    .get(Handles.notificationsFriendRequestAccept(actorUsername(s, from)))
+    .text();
 }
