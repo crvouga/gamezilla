@@ -1,4 +1,4 @@
 {
   "summary": "On a phone the chess puzzle stacked the feed's settings (\"This puzzle\", \"Auto target 1500 · Unseen · All themes\") and the coach over the board, which started about 300px down the screen. Only the prompt (the coach and whose move it is) now sits over the board; the feed's line follows the actions.",
-  "regressionTest": "libs/game-puzzle-client-ts/tests/puzzle-phone-layout.test.tsx"
+  "regressionTest": "libs/game-puzzle-client-ts/tests/puzzle-play-places-layout.test.tsx"
 }
