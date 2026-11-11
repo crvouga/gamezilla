@@ -87,8 +87,6 @@ export const ROUTE_RULES: readonly RouteRule[] = [
   { prefix: '/api/observatory-live', group: 'telemetry' },
   { prefix: '/api/health', group: 'machine' },
   { prefix: '/api/synthetic-population-worker', group: 'machine' },
-  // A synthetic person's device reporting what its screen shows.
-  { prefix: '/api/synthetic-population-live', group: 'machine' },
 ];
 
 function segments(path: string): readonly string[] {

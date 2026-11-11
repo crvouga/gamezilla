@@ -81,7 +81,8 @@ test('machines are kept apart from people on the routes only machines call', () 
   expect(machine).toContain('/api/health');
   expect(machine).toContain('/api/synthetic-population-worker/claim');
   // regression: synthetic-population-live-route-ungrouped
-  expect(machine).toContain('/api/synthetic-population-live/heartbeat');
+  // Live-session reports (now /api/observatory-live) are background telemetry,
+  // never counted with people's app requests.
   expect(routes.filter((r) => routeGroupOf(r) === 'telemetry')).toEqual([
     '/api/observability/v1/:signal',
     '/api/observatory-live/*',

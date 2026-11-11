@@ -38,7 +38,7 @@ bindQuintModel<QuintHarnessWorld>({
     },
     {
       // regression: finding-opponents-paused-logout
-      id: 'finding-opponents-paused-resume-answers',
+      id: 'finding-opponents-paused-logout',
       title:
         'A Synthetic User paused while a person looks answers them once resumed',
       seed: '0x67932',
