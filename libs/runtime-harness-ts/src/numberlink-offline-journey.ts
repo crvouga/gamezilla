@@ -2,6 +2,7 @@ import {
   contentAttribute,
   contentTap,
   leaveContentStage,
+  openContentPlace,
 } from '@libs/game-puzzle-harness-ts/content-journey-device';
 import { discoverJourneyContent } from '@libs/game-puzzle-harness-ts/content-journey-discovery';
 import {
@@ -147,6 +148,7 @@ export async function observeKeptOfflineNumberlink(
     await ui
       .get('content-author-title')
       .expect.text(kept.draft.puzzleTitle, { ...device, exact: false });
+    await openContentPlace(device, 'preview');
     await NUMBERLINK_JOURNEY_BOARD.preview(device);
     await ui
       .get('content-draft-save-status')
