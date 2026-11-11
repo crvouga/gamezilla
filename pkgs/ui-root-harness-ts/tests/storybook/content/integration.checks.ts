@@ -91,7 +91,7 @@ for (const width of [390, 768, 1440])
   for (const theme of ['light', 'dark']) {
     // regression: account-connect-error-label-clipped
     for (const story of [
-      'screens-games-matchmaking--choose-time-control',
+      'screens-games-matchmaking-find--choose-time-control',
       'screens-billing--checkout-provider-unavailable',
     ])
       test(`storybook integration: feedback remains readable in ${story} at ${width}/${theme}`, async ({
