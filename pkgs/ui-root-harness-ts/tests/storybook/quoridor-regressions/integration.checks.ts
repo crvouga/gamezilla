@@ -27,3 +27,17 @@ test('storybook integration: quoridor overhaul regression, the tablet board is c
     'light'
   );
 });
+
+// regression: quoridor-fixed-stage-clips-wall-commit
+test('storybook integration: quoridor overhaul regression, a proposed wall can be placed on the phone', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  // The story's play proposes a wall and presses Place; the phone's fixed
+  // game view had clipped Place under its command bar.
+  await expectQuoridorStoryPasses(
+    page,
+    'screens-games-quoridor-classic--precise-coordinates',
+    'light'
+  );
+});

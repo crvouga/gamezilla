@@ -1,4 +1,4 @@
 {
   "summary": "The phone game frame's fixed view (#379) held Quoridor's board, wall tools and target picker in a stage of a set height that scrolls inside itself. Proposing a wall adds Place and Cancel under the board, so at 390x844 Place was vertically clipped by the stage, under the command bar, in the precise-coordinates journey. Quoridor declares its board a workspace (GameFrame.boardWorkspace) and keeps the flowing page on phones.",
-  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/quoridor-overhaul/integration.checks.ts"
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/quoridor-regressions/integration.checks.ts"
 }
