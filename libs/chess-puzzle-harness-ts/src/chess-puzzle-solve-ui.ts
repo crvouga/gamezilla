@@ -4,6 +4,7 @@
  * that keeps the device.
  */
 
+import { showPuzzleBoard } from '@libs/game-session-harness-ts/puzzle-screen';
 import { actorUi } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
@@ -31,6 +32,18 @@ async function puzzleBoard(
 ): Promise<ChessBoardFlows> {
   const ui = await actorUi(s, actorId);
   return new ChessBoardFlows(ui, Handles.chessPuzzleBoard);
+}
+
+/**
+ * The board, for a move on it: from the line's own place (where the board
+ * takes none) the solver goes back to the board first.
+ */
+async function puzzleBoardForMove(
+  s: ProductHarness,
+  actorId: string
+): Promise<ChessBoardFlows> {
+  await showPuzzleBoard(s, actorId);
+  return puzzleBoard(s, actorId);
 }
 
 /** What the puzzle board renders right now (FEN, orientation, picker, …). */
@@ -91,7 +104,7 @@ export async function dragPuzzleUci(
   uci: string
 ): Promise<void> {
   const squares = squaresOf(uci);
-  const board = await puzzleBoard(s, actorId);
+  const board = await puzzleBoardForMove(s, actorId);
   await board.drag(squares.from, squares.to);
 }
 
@@ -102,7 +115,7 @@ export async function tapPuzzleUci(
   uci: string
 ): Promise<void> {
   const squares = squaresOf(uci);
-  const board = await puzzleBoard(s, actorId);
+  const board = await puzzleBoardForMove(s, actorId);
   await board.tapSquare(squares.from);
   await board.tapSquare(squares.to);
 }
@@ -113,7 +126,7 @@ export async function pickUpPuzzlePieceAt(
   actorId: string,
   square: Square
 ): Promise<void> {
-  const board = await puzzleBoard(s, actorId);
+  const board = await puzzleBoardForMove(s, actorId);
   await board.tapSquare(square);
 }
 

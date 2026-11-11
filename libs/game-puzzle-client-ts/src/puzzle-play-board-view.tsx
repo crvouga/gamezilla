@@ -30,7 +30,9 @@ export function PuzzlePlayBoardView(
   const place = (): string => props.place.screen;
   return (
     <PuzzleBoardFrame
-      screenId={`chess-puzzle-${place()}`}
+      // One screen for the three: its id is read as the screen goes away,
+      // so it never follows the place.
+      screenId="chess-puzzle-play"
       view={props}
       lead={
         <Show when={props.spectator}>
