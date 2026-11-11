@@ -7,6 +7,12 @@ export type RequiredPrCheck = {
    * unavailable scanner warns instead of blocking.
    */
   readonly outage_tolerant?: boolean;
+  /**
+   * The check reports on something beside the change's correctness (the pull
+   * request's Preview deployment). The ruleset leaves it out; this gate waits
+   * for it, and one that is absent or did not pass warns instead of blocking.
+   */
+  readonly advisory?: boolean;
 };
 
 export type PrCheck = {
@@ -81,12 +87,33 @@ function scanResultsCannotArrive(
   );
 }
 
-/** Outage-tolerant checks that passed only because their scanner could not run. */
+function advisory(
+  required: readonly RequiredPrCheck[],
+  check: Pick<PrCheck, 'name' | 'appId'>
+): boolean {
+  return required.some(
+    (policy) =>
+      policy.advisory === true &&
+      policy.context === check.name &&
+      policy.integration_id === check.appId
+  );
+}
+
+/** Checks this gate let through without a pass: an unavailable scanner, an advisory check. */
 export function unavailableScannerWarnings(
   required: readonly RequiredPrCheck[],
   checks: readonly PrCheck[]
 ): readonly string[] {
   const warnings: string[] = [];
+  for (const check of checks)
+    if (
+      advisory(required, check) &&
+      check.status === 'completed' &&
+      check.conclusion !== 'success'
+    )
+      warnings.push(
+        `${check.name} did not pass (${check.conclusion ?? check.status}); advisory, not blocking`
+      );
   for (const policy of required) {
     if (policy.outage_tolerant !== true) continue;
     const matching = checks.filter(
@@ -124,9 +151,13 @@ export function requiredPrCheckFailures(
         check.name === policy.context && check.appId === policy.integration_id
     );
     const absenceTolerated =
-      policy.outage_tolerant === true &&
-      (!isScanResults({ name: policy.context, appId: policy.integration_id }) ||
-        scanResultsCannotArrive(required, checks));
+      policy.advisory === true ||
+      (policy.outage_tolerant === true &&
+        (!isScanResults({
+          name: policy.context,
+          appId: policy.integration_id,
+        }) ||
+          scanResultsCannotArrive(required, checks)));
     if (!present && !absenceTolerated)
       failures.push(
         `Missing required check: ${policy.context} (app ${policy.integration_id})`
@@ -157,6 +188,8 @@ export function requiredPrCheckFailures(
           policy.integration_id === check.appId
       ) && scannerUnavailable(check);
     if (tolerated) continue;
+    // Waited for like any other check; only its verdict is advisory.
+    if (advisory(required, check) && check.status === 'completed') continue;
     const cachedShard =
       emptyShardPlan &&
       UNEXPANDED_SHARD.has(check.name) &&

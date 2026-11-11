@@ -1,0 +1,187 @@
+/**
+ * What a deployed Preview must be, checked over plain HTTP: the harness page,
+ * the bundle it loads, the commit it was built from, and — because a Preview
+ * is files and nothing else — no server answering behind it.
+ */
+
+import type { HttpFetch } from '@pkgs/http-client-shared-ts/types';
+
+/** Written into the bundle by `preview build`; names what is being served. */
+export const PREVIEW_MANIFEST_PATH = '/preview.json';
+export const PREVIEW_HARNESS_PATH = '/harness';
+/** An application route with no file behind it. */
+const API_PROBE_PATH = '/api/health';
+
+export type PreviewManifest = {
+  readonly preview: string;
+  readonly commit: string;
+};
+
+export type PreviewCheck = {
+  readonly name: string;
+  readonly ok: boolean;
+  readonly detail: string;
+};
+
+export function parsePreviewManifest(text: string): PreviewManifest | null {
+  try {
+    const value: unknown = JSON.parse(text);
+    if (value === null || typeof value !== 'object') return null;
+    const { preview, commit } = value as Record<string, unknown>;
+    return typeof preview === 'string' && typeof commit === 'string'
+      ? { preview, commit }
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+/** The manifest a Preview serves, or `null` when it serves none. */
+export async function readPreviewManifest(
+  origin: string,
+  send: HttpFetch
+): Promise<PreviewManifest | null> {
+  try {
+    const response = await send(`${origin}${PREVIEW_MANIFEST_PATH}`);
+    if (!response.ok || !isOf(response, 'application/json')) return null;
+    return parsePreviewManifest(await response.text());
+  } catch {
+    return null;
+  }
+}
+
+function isOf(response: Response, type: string): boolean {
+  return (response.headers.get('content-type') ?? '').includes(type);
+}
+
+/** The module scripts an HTML page loads from its own origin. */
+export function entryScripts(html: string): readonly string[] {
+  return [
+    ...html.matchAll(/<script\b[^>]*\bsrc="(\/[^"]+\.js)"[^>]*>/g),
+  ].flatMap((match) => (match[1] === undefined ? [] : [match[1]]));
+}
+
+type Probe = {
+  readonly origin: string;
+  readonly fetch: HttpFetch;
+};
+
+async function harnessCheck(probe: Probe): Promise<{
+  readonly check: PreviewCheck;
+  readonly scripts: readonly string[];
+}> {
+  const response = await probe.fetch(`${probe.origin}${PREVIEW_HARNESS_PATH}`);
+  const html = await response.text();
+  const ok =
+    response.status === 200 &&
+    isOf(response, 'text/html') &&
+    html.includes('id="root"');
+  return {
+    check: {
+      name: 'harness page',
+      ok,
+      detail: ok
+        ? `${PREVIEW_HARNESS_PATH} serves the application shell`
+        : `${PREVIEW_HARNESS_PATH} answered HTTP ${String(response.status)} ${response.headers.get('content-type') ?? ''}`,
+    },
+    scripts: entryScripts(html),
+  };
+}
+
+async function bundleCheck(
+  probe: Probe,
+  scripts: readonly string[]
+): Promise<PreviewCheck> {
+  const name = 'bundle';
+  if (scripts.length === 0)
+    return { name, ok: false, detail: 'the page loads no script' };
+  for (const script of scripts) {
+    const response = await probe.fetch(`${probe.origin}${script}`);
+    await response.arrayBuffer();
+    if (response.status !== 200 || !isOf(response, 'javascript'))
+      return {
+        name,
+        ok: false,
+        detail: `${script} answered HTTP ${String(response.status)} ${response.headers.get('content-type') ?? ''}`,
+      };
+  }
+  return {
+    name,
+    ok: true,
+    detail: `${String(scripts.length)} entry script(s) served`,
+  };
+}
+
+async function commitCheck(
+  probe: Probe,
+  expected: { readonly previewName: string; readonly commit: string | null }
+): Promise<PreviewCheck> {
+  const name = 'deployed commit';
+  const manifest = await readPreviewManifest(probe.origin, probe.fetch);
+  if (manifest === null)
+    return { name, ok: false, detail: `${PREVIEW_MANIFEST_PATH} is missing` };
+  if (manifest.preview !== expected.previewName)
+    return {
+      name,
+      ok: false,
+      detail: `serves ${manifest.preview}, expected ${expected.previewName}`,
+    };
+  if (expected.commit !== null && manifest.commit !== expected.commit)
+    return {
+      name,
+      ok: false,
+      detail: `serves ${manifest.commit.slice(0, 12)}, expected ${expected.commit.slice(0, 12)}`,
+    };
+  return { name, ok: true, detail: manifest.commit.slice(0, 12) };
+}
+
+/** A route no file backs falls through to the shell: nothing computes it. */
+async function staticOnlyCheck(probe: Probe): Promise<PreviewCheck> {
+  const response = await probe.fetch(`${probe.origin}${API_PROBE_PATH}`);
+  await response.arrayBuffer();
+  const ok = isOf(response, 'text/html');
+  return {
+    name: 'no server',
+    ok,
+    detail: ok
+      ? `${API_PROBE_PATH} is the static shell, not an API`
+      : `${API_PROBE_PATH} answered ${response.headers.get('content-type') ?? 'no content type'} (HTTP ${String(response.status)}): something is serving requests`,
+  };
+}
+
+async function guarded(
+  name: string,
+  check: () => Promise<PreviewCheck>
+): Promise<PreviewCheck> {
+  try {
+    return await check();
+  } catch (error) {
+    return {
+      name,
+      ok: false,
+      detail: error instanceof Error ? error.message : String(error),
+    };
+  }
+}
+
+export async function runPreviewChecks(args: {
+  readonly origin: string;
+  readonly fetch: HttpFetch;
+  readonly previewName: string;
+  /** `null` accepts whichever commit the Preview names. */
+  readonly commit: string | null;
+}): Promise<readonly PreviewCheck[]> {
+  const probe: Probe = { origin: args.origin, fetch: args.fetch };
+  let scripts: readonly string[] = [];
+  const harness = await guarded('harness page', async () => {
+    const result = await harnessCheck(probe);
+    scripts = result.scripts;
+    return result.check;
+  });
+  return [
+    harness,
+    await guarded('bundle', () => bundleCheck(probe, scripts)),
+    await guarded('deployed commit', () => commitCheck(probe, args)),
+    await guarded('no server', () => staticOnlyCheck(probe)),
+  ];
+}

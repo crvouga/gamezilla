@@ -97,6 +97,24 @@
         "workbox-build": "catalog:",
       },
     },
+    "apps/preview-ts": {
+      "name": "@apps/preview-ts",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/product-identity-shared-ts": "workspace:*",
+        "@pkgs/clock-shared-ts": "workspace:*",
+        "@pkgs/fs-server-ts": "workspace:*",
+        "@pkgs/http-client-shared-ts": "workspace:*",
+      },
+      "devDependencies": {
+        "@pkgs/property-shared-ts": "workspace:*",
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
+        "typescript": "catalog:",
+        "wrangler": "catalog:",
+      },
+    },
     "apps/product-ts": {
       "name": "@apps/product-ts",
       "version": "1.0.0",
@@ -8023,6 +8041,8 @@
     "@apps/client-swift": ["@apps/client-swift@workspace:apps/client-swift"],
 
     "@apps/client-ts": ["@apps/client-ts@workspace:apps/client-ts"],
+
+    "@apps/preview-ts": ["@apps/preview-ts@workspace:apps/preview-ts"],
 
     "@apps/product-ts": ["@apps/product-ts@workspace:apps/product-ts"],
 

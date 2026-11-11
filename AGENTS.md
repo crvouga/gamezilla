@@ -271,7 +271,8 @@ Four workflows, one contract each. Details:
   deployment checks. It never waits for nightly. `bun health` and `bun deploy`
   dispatch their workflows and block on the verdict; `bun health:local` and
   `bun deploy:local` run that work on this machine.
-- **Exactly four workflows.** Rehearse anything touching deploy, infra,
+- **Exactly six workflows**: Verify PR, Verify Nightly, Release, Health, PR
+  Hygiene and Preview. Rehearse anything touching deploy, infra,
   secrets, Workers or `health` in GitHub Actions before merging, triggered and
   managed locally with the GitHub CLI. Never execute a rehearsal on the
   developer machine.
@@ -286,6 +287,10 @@ Setup and server startup are separate stages. Never copy credentials from anothe
 
 - **Ports and previews.** Use the printed stack URLs and checkout-local manifest;
   see [workspace isolation](libs/tools-harness-ts/workspace/DEVELOPMENT_ENVIRONMENTS.md#isolation-data-and-credentials).
+- **Pull request Previews.** Every pull request serves its own build at the URL
+  in the `## Preview` section of its description (`mise run preview:url`): the
+  whole system running in the browser at `/harness`, no local servers. Prefer it
+  for looking at a change; see [preview environments](docs/PREVIEW_ENVIRONMENTS.md).
 - **Iterating.** `bun fmt`, `bunx turbo run tc test --filter=<pkg>` (cached),
   then push: hosted Verify PR runs the full gate.
   `bun run git-sync` (`/git-sync`) is the one commit/push/trunk-sync step.

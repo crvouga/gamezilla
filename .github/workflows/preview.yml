@@ -1,0 +1,94 @@
+name: Preview
+
+# Run title, identical shape in every workflow (enforced by
+# libs/tools-harness-ts/scripts/workflow-run-names.test.ts):
+#   <Workflow> · <trigger>
+run-name: "Preview · ${{ github.event_name == 'pull_request' && format('pr #{0}', github.event.pull_request.number) || github.event_name == 'schedule' && 'schedule' || 'manual' }}"
+
+# Every pull request gets the web bundle as its own Cloudflare Worker Preview
+# (`pr-<number>`): static files only, with the whole system — API servers,
+# Postgres, rooms, simulated vendors — running in the visitor's browser at
+# `/harness`. No Worker script, no Durable Object, no secret is deployed.
+# - opened, reopened, new commit: build, check the bundle, upload, check again.
+# - closed or merged: delete the Preview and confirm Cloudflare reports it gone.
+# - schedule: remove Previews whose pull request is closed or went quiet.
+# Each step is one command of apps/preview-ts/scripts/preview.ts, the same
+# program `mise run preview:<command>` runs on a laptop. See
+# docs/PREVIEW_ENVIRONMENTS.md.
+#
+# A pull request from a fork is skipped: GitHub withholds OIDC and secrets from
+# it, and its code never runs beside the Cloudflare credential.
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, reopened, synchronize, closed]
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# One run at a time per pull request, in order, never cancelled: an upload in
+# flight finishes, and the next run re-reads the head before it uploads, so an
+# older commit never replaces a newer one.
+concurrency:
+  group: ${{ github.event_name == 'pull_request' && format('preview-pr-{0}', github.event.pull_request.number) || 'preview-sweep' }}
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  preview:
+    name: preview
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    permissions:
+      contents: read # check out the code
+      id-token: write # the OIDC token the secrets backend trusts
+      pull-requests: write # the preview section of the pull request description
+      deployments: write # deployment statuses for the preview environment
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          # The head itself, not the merge with main: the deployed commit is
+          # the one the pull request shows.
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: ./.github/actions/setup
+        with:
+          tools: bun node gh
+          product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
+          product-identity-mode: configured
+          secrets-environment: dev
+          secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
+      - name: Decide what this pull request's Preview needs
+        id: plan
+        run: bun run apps/preview-ts/scripts/preview.ts ci plan
+      - name: Build the harness-only bundle and check it
+        if: ${{ steps.plan.outputs.action == 'deploy' }}
+        env:
+          PREVIEW_PR: ${{ steps.plan.outputs.pr }}
+          PREVIEW_URL: ${{ steps.plan.outputs.url }}
+        run: bun run preview:build
+      - name: Deploy, remove or sweep
+        if: ${{ steps.plan.outputs.action != 'skip' }}
+        env:
+          PREVIEW_ACTION: ${{ steps.plan.outputs.action }}
+          PREVIEW_PR: ${{ steps.plan.outputs.pr }}
+          PREVIEW_URL: ${{ steps.plan.outputs.url }}
+        run: bun run apps/preview-ts/scripts/preview.ts ci apply
+      - name: Report a run that failed before the upload
+        if: ${{ failure() && steps.plan.outputs.action == 'deploy' }}
+        env:
+          PREVIEW_ACTION: ${{ steps.plan.outputs.action }}
+          PREVIEW_PR: ${{ steps.plan.outputs.pr }}
+          PREVIEW_URL: ${{ steps.plan.outputs.url }}
+        run: bun run apps/preview-ts/scripts/preview.ts ci failed

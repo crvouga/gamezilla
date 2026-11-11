@@ -7,7 +7,9 @@
  * palettes (`Open Harness` / `Exit harness`). Popstate remounts when
  * crossing a boundary (no nested routers). `?harness` on any other path
  * hands off to `/harness` before boot, so a launcher that can only open the
- * site root still lands in the harness.
+ * site root still lands in the harness. A bundle built with
+ * `VITE_HARNESS_ONLY=1` (a pull request's Preview, which has no servers
+ * behind it) hands every path off the same way.
  *
  * The application graph is imported eagerly. The harness is not application
  * code: its graph (in-browser servers, Postgres, the console) loads only when
@@ -38,16 +40,22 @@ const root = document.getElementById('root');
 assert.ok(root !== null, 'root element is missing');
 
 const HARNESS_FLAG = 'harness';
+/** Set by a build that is served with nothing behind it but its own files. */
+const HARNESS_ONLY = import.meta.env.VITE_HARNESS_ONLY === '1';
 
 function isHarnessPath(pathname: string): boolean {
   return pathname === HARNESS_PATH || pathname.startsWith(`${HARNESS_PATH}/`);
 }
 
-/** Navigates to `/harness` for `?harness`; `true` means boot is handed off. */
+/**
+ * Navigates to `/harness` for `?harness`, or for any path of a harness-only
+ * bundle; `true` means boot is handed off.
+ */
 function redirectedToHarness(): boolean {
   const { pathname, search } = window.location;
   if (isHarnessPath(pathname)) return false;
-  if (!new URLSearchParams(search).has(HARNESS_FLAG)) return false;
+  if (!HARNESS_ONLY && !new URLSearchParams(search).has(HARNESS_FLAG))
+    return false;
   window.location.replace(HARNESS_PATH);
   return true;
 }

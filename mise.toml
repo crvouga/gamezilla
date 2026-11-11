@@ -121,6 +121,36 @@ macos-x64 = { asset_pattern = "emqx-*-macos13-amd64.zip", checksum = "sha256:433
 linux-arm64 = { asset_pattern = "emqx-*-ubuntu22.04-arm64.tar.gz", checksum = "sha256:7c9e58b6b5d3b55b5dac3b14be0371ccbffd867a3b97b3d3e70930a80cddd9b2" }
 linux-x64 = { asset_pattern = "emqx-*-ubuntu22.04-amd64.tar.gz", checksum = "sha256:cda8ca0c44e403de7284d7a4e65101cdaee428385a3ebdb1e34355c46b98eeb8" }
 
+# Pull request Previews (docs/PREVIEW_ENVIRONMENTS.md): the web bundle, served
+# as static files from one Cloudflare Worker Preview per pull request, with the
+# whole system running in the visitor's browser. These are the commands a
+# person, an agent and the Preview workflow all run. Each is a thin name for
+# the root script beside it — Turborepo stays the only task runner — and takes
+# the pull request from `PREVIEW_PR`, or from the current branch.
+[tasks."preview:url"]
+description = "Print the Preview URL recorded in the pull request description"
+run = "bun run preview:url"
+
+[tasks."preview:build"]
+description = "Build the harness-only web bundle for this pull request's Preview URL"
+run = "bun run preview:build"
+
+[tasks."preview:deploy"]
+description = "Build, upload and check this pull request's Preview (Cloudflare Worker Preview pr-<number>)"
+run = "bun run preview:deploy"
+
+[tasks."preview:test"]
+description = "Check the deployed Preview over HTTP (serves the harness, names its commit, runs no server)"
+run = "bun run preview:test"
+
+[tasks."preview:destroy"]
+description = "Delete the Preview and verify Cloudflare reports it gone"
+run = "bun run preview:destroy"
+
+[tasks."preview:sweep"]
+description = "Delete Previews whose pull request is closed or unused past the retention"
+run = "bun run preview:sweep"
+
 # Apple toolchain. mise cannot install Xcode, so these are read, not
 # installed: the Apple task wrappers (`libs/tools-harness-ts/scripts/xcode-task.ts`) find
 # this Xcode (`DEVELOPER_DIR`, the active one, or `/Applications/Xcode*.app`)
