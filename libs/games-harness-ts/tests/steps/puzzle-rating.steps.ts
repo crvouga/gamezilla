@@ -18,7 +18,7 @@ import {
   readStatsRatingDirections,
   readStatsRatingHistory,
   readStatsRatingLabel,
-  showPersonalPuzzleStats,
+  showGamePuzzleStats,
 } from '@libs/game-session-harness-ts/puzzle-records';
 import {
   moveOnToNextPuzzle,
@@ -246,7 +246,7 @@ Given(
 
 When('{actor} opens their stats', async (w, actor: Actor) => {
   await w.s.apply(focusActor, actor);
-  await w.s.apply(showPersonalPuzzleStats, actor, puzzleGameId(w));
+  await w.s.apply(showGamePuzzleStats, actor, puzzleGameId(w));
 });
 
 Then(

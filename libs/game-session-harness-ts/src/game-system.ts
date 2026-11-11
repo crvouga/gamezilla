@@ -10,7 +10,6 @@ import {
 } from '@libs/game-matchmaking-harness-ts/multiplayer-setups';
 import { withOpponentSearchCleanup } from '@libs/game-matchmaking-harness-ts/opponent-search-cleanup';
 import { OPPONENT_SEEKING_ACTIONS } from '@libs/game-matchmaking-harness-ts/opponent-seeking';
-import { createPersonalPuzzleStatsClients } from '@libs/game-menu-client-ts/personal-puzzle-stats-clients';
 import { createPuzzleLinkClient } from '@libs/game-puzzle-client-ts/puzzle-link-client';
 import { GAME_PUZZLE_SERVER } from '@libs/game-puzzle-shared-ts/puzzle-sub-server';
 import { seedStarterContent } from '@libs/game-puzzle-shared-ts/starter-content';
@@ -112,12 +111,7 @@ export function gameSystem(
       (sub): HarnessSlice => ({
         name: 'game-puzzle',
         sub,
-        client: {
-          ...createPuzzleLinkClient(turnGames),
-          subs: createPersonalPuzzleStatsClients(
-            games.map((game) => game.client)
-          ),
-        },
+        client: createPuzzleLinkClient(turnGames),
         server: () => GAME_PUZZLE_SERVER,
         seedServer: async (sqlClient) => {
           if (options.knownPuzzles === true)

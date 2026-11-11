@@ -99,7 +99,6 @@ const SPACE_BODIES = new Set([
   'screens-puzzles-content-author',
   'screens-puzzles-content-edition',
   'screens-puzzles-content-library',
-  'screens-puzzles-personal-stats',
   'screens-puzzles-review',
   'screens-puzzles-stats',
 ]);

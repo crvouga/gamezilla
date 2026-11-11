@@ -1,7 +1,6 @@
 /** @jsxImportSource solid-js */
 
 import { isAppTabActive } from '@libs/app-root-shared-ts/is-app-tab-active';
-import { brandMarkSource } from '@libs/product-identity-shared-ts/brand-mark';
 import { PRODUCT_NAME } from '@libs/product-identity-shared-ts/product-identity';
 import { AppHeaderIsland } from '@pkgs/ui-root-client-ts/app-header-island';
 import type { AppHeaderIslandItem } from '@pkgs/ui-root-client-ts/app-header-island-types';
@@ -24,7 +23,7 @@ export type AppHeaderIslandViewProps = {
 };
 
 /**
- * Wide navigation, presentational: logo, the tabs and the global actions —
+ * Wide navigation, presentational: the product's name, the tabs and the global actions —
  * the top row, or (`vertical`) the sidebar mounted via `AppFrame` `rail`.
  * Compact layouts use the tab bar instead.
  * `AppHeaderIslandHost` supplies the tabs, route and account menu.
@@ -44,13 +43,7 @@ export function AppHeaderIslandView(
 
   return (
     <AppHeaderIsland
-      leading={
-        <AppLogo
-          name={PRODUCT_NAME}
-          markSrc={brandMarkSource()}
-          size={LOGO_SIZE}
-        />
-      }
+      leading={<AppLogo name={PRODUCT_NAME} mark={false} size={LOGO_SIZE} />}
       items={items()}
       trailing={props.trailing}
       orientation={props.orientation}

@@ -73,14 +73,12 @@ test('the shared game screens compile with the production web toolchain and no g
   ).toEqual([]);
   for (const screen of [
     'game-menu-client-ts/src/game-menu.tsx',
-    'game-menu-client-ts/src/personal-puzzle-stats-clients.tsx',
     'game-session-client-ts/src/custom-game-screen.tsx',
     'game-session-client-ts/src/game-history.tsx',
     'game-matchmaking-client-ts/src/multiplayer-screen.tsx',
     'game-puzzle-client-ts/src/puzzle-play-screen.tsx',
     'game-puzzle-client-ts/src/puzzle-review-screen.tsx',
     'game-puzzle-client-ts/src/puzzle-stats-screen.tsx',
-    'game-puzzle-client-ts/src/personal-puzzle-stats-screen.tsx',
   ])
     expect(
       modules.some((id) => id.endsWith(`/libs/${screen}`)),
@@ -88,9 +86,6 @@ test('the shared game screens compile with the production web toolchain and no g
     ).toBe(true);
   expect(chunks.flatMap((chunk) => chunk.exports)).toContain('GameMenu');
   expect(chunks.flatMap((chunk) => chunk.exports)).toContain('games');
-  expect(chunks.flatMap((chunk) => chunk.exports)).toContain(
-    'createPersonalPuzzleStatsClients'
-  );
 }, 120_000);
 
 test('the production web build rejects a game implementation without going through a registry', async () => {

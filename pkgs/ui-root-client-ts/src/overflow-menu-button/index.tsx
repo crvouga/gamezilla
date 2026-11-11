@@ -251,8 +251,11 @@ export function OverflowMenuButton(
   const renderMenu = () => props.renderMenu ?? renderDefaultOverflowMenu;
   return (
     <Show when={props.actions.length > 0}>
+      {/* A custom trigger (a face and a name) gives up width to its row, so
+          a long name truncates instead of running past its container. */}
       <div
         class="box"
+        classList={{ 'shrink max-w-full': props.trigger !== undefined }}
         data-component="OverflowMenuButton"
         ref={menu.setTrigger}
       >
