@@ -179,8 +179,6 @@ export const FourSeats: Story = {
           state: { kind: 'reconnecting', label: 'Away' },
         }),
         playSeat(seat('blue', { kind: 'bot' }, 'Bot'), {
-          choosing: true,
-          deciding: true,
           state: { kind: 'out', label: 'Out' },
         }),
       ],

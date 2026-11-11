@@ -13,7 +13,7 @@ import {
 function caption(reason: string, intent: BadgeIntent, change: string) {
   return (
     <>
-      {reason} <Badge intent={intent} label={change} />
+      {reason} <Badge intent={intent} tone="solid" label={change} />
     </>
   );
 }

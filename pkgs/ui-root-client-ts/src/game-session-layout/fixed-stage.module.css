@@ -86,6 +86,14 @@
     max-width: min(100%, var(--game-board-room, 100%));
     border-radius: var(--ui-radius-none);
   }
+  /* A board narrowed to fit stands clear of the edges, so it and what lies
+     over it take the card's corners. */
+  .fixed
+    [data-game-board-stage][data-board-narrowed="true"]
+    > [data-game-board] {
+    overflow: hidden;
+    border-radius: var(--ui-radius-card);
+  }
   /* The commands: a bar at the bottom edge, over the page's own surface. */
   .fixed [data-game-slot="controls"] {
     flex: none;

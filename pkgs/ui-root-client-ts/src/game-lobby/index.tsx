@@ -8,6 +8,7 @@ import { createScreenSlot } from '../screen-slot';
 import { ScrollView } from '../scroll-view/index';
 import { useLayoutMode } from '../use-layout-mode';
 import styles from './game-lobby.module.css';
+import { GameModeArt } from './mode-art';
 
 /** One thing agreed about the game, as a tile on the mode card. */
 export type GameModeFact = {
@@ -55,18 +56,12 @@ export type GameModeCardProps = {
  */
 export function GameModeCard(props: GameModeCardProps): JSX.Element {
   const summary = createScreenSlot(() => props.summary);
-  const art = createScreenSlot(() => props.art);
   return (
     <header
       class={styles['mode']}
-      data-art={art.present() ? 'true' : 'false'}
       {...dataAttrs({ component: 'GameModeCard', ...props.dataSet })}
     >
-      <Show when={art.present()}>
-        <div class={styles['modeArt']} aria-hidden="true" inert>
-          <div class={styles['modeArtBoard']}>{art.content()}</div>
-        </div>
-      </Show>
+      <GameModeArt art={props.art} />
       <div class={styles['modeWords']}>
         <p class={`text textCaption ${styles['eyebrow']}`}>{props.eyebrow}</p>
         <h1 class="text textTitle min-w-0 max-w-full break-words">

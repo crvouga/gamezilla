@@ -328,6 +328,16 @@
   color: var(--ui-color-destructive);
 }
 
+/* A figure in the caption (a rating change) is the result's own number:
+   larger than a tag in a row, on the caption's line. */
+.cardTitle > p > :global(.badge) {
+  min-height: 28px;
+  margin-inline-start: var(--ui-space-1);
+  padding-inline: var(--ui-space-3);
+  font-size: var(--ui-font-size-base);
+  vertical-align: middle;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .band[data-edge="top"] {
     animation: versus-top var(--ui-duration-slow) var(--ui-easing-standard) both;
@@ -375,8 +385,13 @@
     gap: var(--ui-space-2);
     padding: var(--ui-space-2) var(--ui-space-3) var(--ui-space-3);
   }
-  .cardTitle > p {
+  /* Over standings the headline says it; the reason waits on the board. */
+  .card:has(:global(.panel)) .cardTitle > p {
     display: none;
+  }
+  /* The card's own quiet commands sit on one row of a narrow card. */
+  .card :global(.btn[data-size="sm"]) {
+    padding-inline: var(--ui-space-1);
   }
   .cardTitle > h2 {
     font-size: var(--ui-font-size-lg);

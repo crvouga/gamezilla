@@ -1,5 +1,4 @@
-import { Surface } from '@pkgs/ui-root-client-ts/surface';
-import { P } from '@pkgs/ui-root-client-ts/text';
+import { CellGridBoard } from '@pkgs/ui-root-client-ts/cell-grid-board';
 import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { FrameStory } from './game-frame-board.example';
@@ -11,12 +10,28 @@ import {
   setup,
 } from './game-frame-story.example';
 
-/** A stand-in for a game's own setup board: the frame only gives it room. */
+const COLUMNS = 'ABCDEFGH'.split('');
+const ROWS = COLUMNS.map((_, row) => String(row + 1));
+/** Where the story's three pieces lie: across row 2, down column F, across row 7. */
+const SHIPS = new Set([9, 10, 11, 12, 29, 37, 45, 49, 50]);
+
+/** A stand-in for a game's own setup board: pieces being placed on a grid. */
 function StorySetupBoard() {
   return (
-    <Surface tone="muted" radius="card" padding="xl" align="center">
-      <P tone="secondary">The game's own setup board</P>
-    </Surface>
+    <CellGridBoard
+      fill
+      label="Your setup"
+      testId="story-setup-board"
+      columnLabels={COLUMNS}
+      rowLabels={ROWS}
+      cells={Array.from({ length: 64 }, (_, cell) => ({
+        id: String(cell),
+        label: SHIPS.has(cell) ? `Piece ${cell + 1}` : `Empty ${cell + 1}`,
+        glyph: SHIPS.has(cell) ? '■' : '',
+        tone: SHIPS.has(cell) ? ('occupied' as const) : ('open' as const),
+        enabled: false,
+      }))}
+    />
   );
 }
 

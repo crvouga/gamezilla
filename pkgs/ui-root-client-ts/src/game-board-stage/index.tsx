@@ -59,6 +59,12 @@ export function GameBoardStage(props: {
   const limit = createViewportSquareFit(() => root, square);
   const [surface, setSurface] = createSignal<HTMLDivElement>();
   const room = createStageRoomFit(() => root, surface);
+  // Narrower than its room: the board stands clear of the screen's edges.
+  const narrowed = (): boolean => {
+    const limit = room();
+    const cell = root?.parentElement;
+    return limit !== undefined && !!cell && limit < cell.clientWidth - 1;
+  };
   return (
     <div
       ref={root}
@@ -74,6 +80,7 @@ export function GameBoardStage(props: {
         '--game-board-room': room() === undefined ? undefined : `${room()}px`,
       }}
       data-game-board-stage
+      data-board-narrowed={narrowed() ? 'true' : undefined}
       {...dataAttrs({ component: 'GameBoardStage', ...props.dataSet })}
     >
       <Show when={others.present()}>{others.content()}</Show>

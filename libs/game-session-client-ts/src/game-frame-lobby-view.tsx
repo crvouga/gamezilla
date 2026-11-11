@@ -356,12 +356,10 @@ function LobbyMode(props: Props & { readonly setup: FrameSetup }): JSX.Element {
       id: 'clock',
       label: <Trans>Clock</Trans>,
       value: (
-        <Show
-          when={(props.status?.minutes ?? 0) > 0}
-          fallback={<Trans>Untimed</Trans>}
-        >
-          {props.status?.minutes}+{props.status?.increment ?? 0}
-        </Show>
+        <FrameClockWords
+          minutes={props.status?.minutes ?? 0}
+          increment={props.status?.increment ?? 0}
+        />
       ),
     },
     {

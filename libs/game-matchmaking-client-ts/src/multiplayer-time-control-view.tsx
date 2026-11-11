@@ -4,15 +4,16 @@ import {
   timeControlKey,
 } from '@libs/game-matchmaking-shared-ts/time-control';
 import { Trans } from '@lingui/solid/macro';
+import { CheckIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
-import { For, type JSX } from 'solid-js';
+import { For, type JSX, Show } from 'solid-js';
 import {
   MultiplayerMenuPlace,
   type MultiplayerPlaceFrame,
 } from './multiplayer-place-frame';
 import { SpeedName } from './speed-name';
-import { timeControlChoiceText, timeControlWords } from './time-control-name';
+import { timeControlWords } from './time-control-name';
 
 /**
  * The clock a search is for: every offered time control, grouped by its
@@ -44,11 +45,10 @@ export function MultiplayerTimeControlView(
               {(control) => (
                 <MenuRow
                   title={timeControlWords(control.id)}
-                  value={
-                    timeControlWords(control.id) ===
-                    timeControlChoiceText(control.id)
-                      ? undefined
-                      : timeControlChoiceText(control.id)
+                  trailing={
+                    <Show when={props.timeControl === control.id}>
+                      <CheckIcon size={20} color="tint" />
+                    </Show>
                   }
                   selected={props.timeControl === control.id}
                   hideChevron

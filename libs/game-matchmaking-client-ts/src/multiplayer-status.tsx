@@ -336,6 +336,7 @@ function RatingChange(props: StatusProps): JSX.Element {
             <VisuallyHidden>.</VisuallyHidden>
           </Trans>
         }
+        tone="solid"
         dataSet={{ testid: 'multiplayer-rating-change' }}
       />
     </Show>
