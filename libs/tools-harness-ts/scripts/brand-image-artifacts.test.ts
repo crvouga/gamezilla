@@ -14,6 +14,7 @@ import fc from 'fast-check';
 import sharp from 'sharp';
 import { renderBrandImage } from './brand-image-artifacts';
 import { BRAND_IMAGE_ARTIFACTS } from './brand-image-catalog';
+import { readTurboTasks } from './turbo-config';
 
 const ROOT = join(import.meta.dirname, '../../..');
 
@@ -76,6 +77,16 @@ test('generated colors and transparency follow configuration across image varian
       }
     )
   );
+});
+
+// regression: brand-artwork-test-reads-stale-generation
+test('the tests regenerate the artwork they compare under the current identity', () => {
+  // CI materialized a fixture identity, generated the artwork, then
+  // materialized the configured one: without this edge the comparison read
+  // the fixture's icons against the configured brand.
+  expect(
+    readTurboTasks(ROOT)['@libs/tools-harness-ts#test']?.dependsOn
+  ).toContain('generate:brand-artifacts');
 });
 
 describe('configured brand artwork', () => {

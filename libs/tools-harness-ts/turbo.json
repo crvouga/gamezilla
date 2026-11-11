@@ -9,7 +9,7 @@
       "inputs": ["$TURBO_EXTENDS$"]
     },
     "test": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "generate:brand-artifacts"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
