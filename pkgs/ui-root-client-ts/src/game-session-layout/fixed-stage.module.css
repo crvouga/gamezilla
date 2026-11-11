@@ -141,6 +141,14 @@
     > [data-variant="solid"]:first-child {
     grid-column: auto;
   }
+  /* Accept, decline and the menu: three across, so the board keeps its room. */
+  .fixed
+    [data-game-slot="controls"]
+    [data-component="GameActionBar"][data-answering="true"]:has(
+      > :first-child:nth-last-child(3)
+    ) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
   .fixed [data-game-slot="controls"] [data-component="GameActionBar"] > * {
     width: 100%;
     min-width: 0;

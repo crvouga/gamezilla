@@ -343,9 +343,20 @@
   .cardTitle > p {
     display: none;
   }
+  .cardTitle > h2 {
+    font-size: var(--ui-font-size-lg);
+    line-height: var(--ui-line-height-tight, 1.25);
+  }
   .mark {
     width: 64px;
     height: 64px;
     font-size: var(--ui-font-size-2xl);
+  }
+}
+/* A narrow board: a headline of a whole sentence stays two lines or so. */
+@container (max-width: 300px) {
+  .cardTitle > h2 {
+    font-size: var(--ui-font-size-lg);
+    line-height: var(--ui-line-height-tight, 1.25);
   }
 }
