@@ -1,0 +1,4 @@
+{
+  "summary": "An untimed matched game (Pong, whose match choice is `<game>/play`) showed the word 'play' as its time control on the game screen's facts, because the time-control wording read the choice's last segment as minutes. An untimed choice now names no clock.",
+  "regressionTest": "libs/game-matchmaking-client-ts/tests/time-control-name.test.ts"
+}
