@@ -87,7 +87,7 @@ test('PR and Release hold a change to every gate task nightly runs', () => {
     '@libs/sokoban-harness-ts#test:spec:0',
     '@libs/light-cycles-harness-ts#test:spec:0',
     '@libs/games-harness-ts#test:contract:0',
-    '@pkgs/ui-root-harness-ts#ci:storybook',
+    '@pkgs/ui-root-harness-ts#ci:storybook:0',
   ])
     expect(isBlockingCiTask(task, pr)).toBe(true);
 });
