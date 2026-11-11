@@ -20,8 +20,10 @@ export function MultiplayerPrivateSetupView(
     readonly title: string;
     /** The person's own setup, its commands and who is ready. */
     readonly setup: JSX.Element;
-    /** The seats, the board and the announcement line. */
+    /** The seats around the board. */
     readonly board: JSX.Element;
+    /** The line that says who is still getting ready. */
+    readonly status: JSX.Element;
     readonly game: MultiplayerGameView;
     readonly onOpen: (place: MultiplayerPlace) => void;
   }
@@ -32,6 +34,7 @@ export function MultiplayerPrivateSetupView(
         notices={props.notices}
         setup={props.setup}
         actionsBeside
+        status={props.status}
         actions={
           <MultiplayerCommandsControl
             game={props.game}

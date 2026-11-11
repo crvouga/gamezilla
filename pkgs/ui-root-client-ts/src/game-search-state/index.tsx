@@ -12,7 +12,8 @@ export function GameSearchState(props: {
   description: JSX.Element;
   /** The elapsed time, already worded by the caller ("12 seconds"). */
   elapsed: JSX.Element;
-  actions: JSX.Element;
+  /** Its commands, when they are not in a dock of their own. */
+  actions?: JSX.Element | undefined;
 }): JSX.Element {
   return (
     <section

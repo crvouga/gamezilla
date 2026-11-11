@@ -176,6 +176,7 @@ export function GameLayout(props: {
         </Show>
         <div
           class={`${styles['stage']} ${precision['stage']}`}
+          data-game-slot="stage"
           classList={{
             [stageAlign['centred'] ?? '']: props.stageAlign === 'center',
           }}
@@ -185,6 +186,7 @@ export function GameLayout(props: {
         <Show when={controls.present()}>
           <div
             class={styles['controls']}
+            data-game-slot="controls"
             classList={{
               [stageAlign['centred'] ?? '']: props.stageAlign === 'center',
             }}
@@ -196,6 +198,7 @@ export function GameLayout(props: {
         <Show when={aside.present()}>
           <div
             class={styles['rail']}
+            data-game-slot="rail"
             classList={{
               [stageAlign['centred'] ?? '']: props.stageAlign === 'center',
             }}

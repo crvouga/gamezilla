@@ -1,0 +1,45 @@
+/*
+ * A seat whose tags follow its name (`tagsPlacement="inline"`). The name,
+ * its swatch and the turn are one line that never wraps: a long name is cut
+ * short, never squeezed to nothing or broken a letter a line. The tags sit
+ * after it while the strip has the room; on a narrow strip (a phone's seat
+ * beside its clock) they always take a line of their own under the name, so
+ * the seat is the same height whoever is to move.
+ */
+.identity {
+  container: seat-identity / inline-size;
+}
+.line {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  gap: var(--ui-space-1) var(--ui-space-2);
+  min-width: 0;
+}
+.who {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  gap: var(--ui-space-2);
+  min-width: 0;
+  max-width: 100%;
+}
+.name {
+  min-width: 3ch;
+}
+.name,
+.name * {
+  white-space: nowrap;
+}
+.name > * {
+  overflow-wrap: normal;
+}
+.line > .tags {
+  max-width: 100%;
+  overflow: hidden;
+}
+@container seat-identity (max-width: 240px) {
+  .line > .tags {
+    flex-basis: 100%;
+  }
+}

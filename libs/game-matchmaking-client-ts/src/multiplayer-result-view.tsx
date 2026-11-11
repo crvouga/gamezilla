@@ -1,28 +1,43 @@
-import { Plural, Trans } from '@lingui/solid/macro';
+import { t } from '@lingui/core/macro';
+import { Trans } from '@lingui/solid/macro';
+import type {
+  StageOverlay,
+  StageOverlayEvent,
+} from '@pkgs/turn-game-client-ts/stage-overlay';
+import { Button } from '@pkgs/ui-root-client-ts/button';
+import { GameActionBar } from '@pkgs/ui-root-client-ts/game-action-bar';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
-import { GameActions } from '@pkgs/ui-root-client-ts/game-section';
+import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
-import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
-import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
-import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { ChevronUpIcon } from '@pkgs/ui-root-client-ts/icons';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import { type JSX, Show } from 'solid-js';
 import type {
   MultiplayerGameCommands,
   MultiplayerGameView,
 } from './multiplayer-game-view';
+import { MultiplayerMoveList } from './multiplayer-move-list';
+import {
+  MultiplayerOverlayView,
+  type MultiplayerResultShown,
+} from './multiplayer-overlay-view';
 import {
   type MultiplayerPlaceFrame,
   MultiplayerStagePlace,
 } from './multiplayer-place-frame';
 import type { MultiplayerPlace } from './multiplayer-places';
+import type { MultiplayerBoardSlot } from './multiplayer-screen-view';
 
 type ResultProps = MultiplayerPlaceFrame & {
   readonly title: string;
+  /** The seats around the board on the final position. */
+  readonly board: MultiplayerBoardSlot | undefined;
+  /** What lies over the final board: the result card, or nothing once closed. */
+  readonly overlay: StageOverlay;
+  readonly onOverlay: (event: StageOverlayEvent) => void;
   /** How the game ended, why, and the rating change: the screen's announcement. */
-  readonly outcome: JSX.Element;
-  /** The seats and the board on the final position. */
-  readonly board: JSX.Element;
+  readonly result: MultiplayerResultShown | undefined;
   readonly game: MultiplayerGameView;
   readonly commands: MultiplayerGameCommands;
   /** Rematch commands need a connection. */
@@ -118,76 +133,132 @@ function NewOpponent(props: ResultProps): JSX.Element {
   );
 }
 
-/**
- * Where the finished game leads: its moves or record, a new game at another
- * clock, and the person's ratings.
- */
-function Onward(props: ResultProps): JSX.Element {
+/** Stepping through the finished game: its moves, or its record. */
+function Review(props: ResultProps): JSX.Element {
   return (
-    <MenuSection>
-      <Show when={props.game.moves}>
-        {(moves) => (
-          <MenuRow
-            title={<Trans>Review moves</Trans>}
-            value={
-              <Plural
-                value={moves().moves.length}
-                one="# move"
-                other="# moves"
-              />
-            }
-            onClick={() => props.onOpen({ screen: 'moves' })}
-            dataSet={{ testid: 'multiplayer-open-moves' }}
-          />
-        )}
-      </Show>
-      <Show when={props.game.moves === null && props.game.record !== null}>
-        <MenuRow
-          title={<Trans>Game record</Trans>}
-          onClick={() => props.onOpen({ screen: 'moves' })}
-          dataSet={{ testid: 'multiplayer-open-moves' }}
-        />
-      </Show>
-      <Show when={props.game.newOpponent}>
-        <MenuRow
-          title={<Trans>New game</Trans>}
-          caption={<Trans>Choose what to play for next</Trans>}
-          onClick={() => props.onOpen({ screen: 'find' })}
-          dataSet={{ testid: 'multiplayer-open-find' }}
-        />
-      </Show>
-      <MenuRow
-        title={<Trans>Your ratings</Trans>}
-        onClick={() => props.onOpen({ screen: 'ratings', from: 'result' })}
-        dataSet={{ testid: 'multiplayer-open-ratings' }}
+    <Show when={props.game.moves !== null || props.game.record !== null}>
+      <Button
+        title={<Trans>Review</Trans>}
+        aria-label={
+          props.game.moves === null ? t`Game record` : t`Review moves`
+        }
+        variant="outline"
+        intent="neutral"
+        onClick={() => props.onOpen({ screen: 'moves' })}
+        dataSet={{ testid: 'multiplayer-open-moves' }}
       />
-    </MenuSection>
+    </Show>
   );
 }
 
 /**
- * The matched game is over: how it ended and what it did to the person's
- * rating, a rematch or a new opponent at the same clock, then the final
- * position. Its moves, the search's hub (for another clock) and the
- * person's ratings are each one row away.
+ * Where else the result leads, on its card: a new game at another clock
+ * and the person's ratings.
+ */
+function Onward(props: ResultProps): JSX.Element {
+  return (
+    <StackHorizontal gap="sm" wrap>
+      <Show when={props.game.newOpponent}>
+        <Button
+          title={<Trans>Game options</Trans>}
+          aria-label={t`New game: choose what to play for next`}
+          variant="ghost"
+          intent="neutral"
+          size="sm"
+          onClick={() => props.onOpen({ screen: 'find' })}
+          dataSet={{ testid: 'multiplayer-open-find' }}
+        />
+      </Show>
+      <Button
+        title={<Trans>Your ratings</Trans>}
+        variant="ghost"
+        intent="neutral"
+        size="sm"
+        onClick={() => props.onOpen({ screen: 'ratings', from: 'result' })}
+        dataSet={{ testid: 'multiplayer-open-ratings' }}
+      />
+    </StackHorizontal>
+  );
+}
+
+/** The closed result card's way back, saying how the game ended. */
+function ShowResult(props: ResultProps): JSX.Element {
+  return (
+    <Show when={props.overlay.kind === 'board' ? props.result : undefined}>
+      {(result) => (
+        <StackVertical testId="multiplayer-announcement">
+          <Button
+            title={result().title}
+            variant="ghost"
+            intent="neutral"
+            fullWidth
+            endIcon={<ChevronUpIcon size={20} />}
+            onClick={() => props.onOverlay({ type: 'show' })}
+            dataSet={{ testid: 'multiplayer-show-result' }}
+          />
+        </StackVertical>
+      )}
+    </Show>
+  );
+}
+
+/**
+ * The matched game is over: the final position, held still, under a card
+ * that says how it ended and what it did to the person's rating, with a
+ * new game at another clock and their ratings one press away. Under the
+ * board, one bar: a new opponent at the same clock, a rematch, and the
+ * moves, which also sit beside a wide board. Closing the card shows the final board; the line under it brings
+ * the card back.
  */
 export function MultiplayerResultView(props: ResultProps): JSX.Element {
   return (
     <MultiplayerStagePlace {...props} title={props.title}>
       <GameSessionLayout
         notices={props.notices}
-        outcome={
-          <StackVertical gap="md">
-            {props.outcome}
-            <GameActions>
+        boardFocus
+        actionsBeside
+        fixedStage
+        status={<ShowResult {...props} />}
+        actions={
+          <GameActionBar aria-label={t`What next`} items={[]} width="content">
+            <Show when={props.game.rematch === 'answer'}>
               <Rematch {...props} />
-              <NewOpponent {...props} />
-            </GameActions>
-          </StackVertical>
+            </Show>
+            <NewOpponent {...props} />
+            <Show when={props.game.rematch !== 'answer'}>
+              <Rematch {...props} />
+            </Show>
+            <Review {...props} />
+          </GameActionBar>
         }
-        aside={<Onward {...props} />}
+        aside={
+          <Show when={props.game.moves}>
+            {(moves) => (
+              <GameSection title={<Trans>Moves</Trans>}>
+                <MultiplayerMoveList
+                  moves={moves()}
+                  perTurn={props.game.players}
+                  onChoose={(ply) => {
+                    props.commands.chooseMove(ply);
+                    props.onOpen({ screen: 'moves' });
+                  }}
+                />
+              </GameSection>
+            )}
+          </Show>
+        }
       >
-        {props.board}
+        {props.board?.(
+          <MultiplayerOverlayView
+            title={props.title}
+            overlay={props.overlay}
+            onOverlay={props.onOverlay}
+            versus={undefined}
+            result={props.result}
+          >
+            <Onward {...props} />
+          </MultiplayerOverlayView>
+        )}
       </GameSessionLayout>
     </MultiplayerStagePlace>
   );

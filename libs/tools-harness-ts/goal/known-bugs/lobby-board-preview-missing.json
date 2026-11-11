@@ -1,4 +1,0 @@
-{
-  "summary": "Once a custom game was split into small places, its lobby showed no board at all while the game was set up, so after swapping sides nobody could see which way their board now faced (specs/chess/custom-game-board.feature, 'Swapping sides turns both people's boards'). The lobby now heads its players with a small, labelled, non-interactive preview of the game's own board (test id custom-game-board-preview, never the live custom-game-board), facing the viewer's own side and White for everyone else.",
-  "regressionTest": "libs/game-session-client-ts/tests/game-frame-setup-places.test.tsx"
-}

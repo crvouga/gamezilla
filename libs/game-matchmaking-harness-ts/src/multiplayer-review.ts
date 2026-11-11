@@ -45,7 +45,7 @@ export async function shownEarlierPosition(
   for (let ply = 1; ; ply++) {
     const move = ui.get(`multiplayer-move-${String(ply)}`);
     if (!(await move.isVisible())) return 0;
-    if ((await move.attribute('aria-current')) === 'true') return ply;
+    if ((await move.attribute('aria-current')) === 'step') return ply;
   }
 }
 

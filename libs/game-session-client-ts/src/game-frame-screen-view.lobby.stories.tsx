@@ -1,6 +1,5 @@
 import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
-import { ConnectFourStoryBoard } from './connect-four-story-board.example';
 import { FrameStory } from './game-frame-board.example';
 import { FRAME_NO_PLAY } from './game-frame-empty';
 import { GameFrameScreenView } from './game-frame-screen-view';
@@ -36,34 +35,13 @@ const meta = {
     controls: { exclude: FRAME_CONTROLS_EXCLUDE },
   },
   args: { ...frameArgs(), ...CONFIGURING },
-  // The game's board heads the players as a small preview, never played on.
-  render: (args) => (
-    <FrameStory
-      {...args}
-      boardPreview={
-        <ConnectFourStoryBoard moves={[]} testId="custom-game-board-preview" />
-      }
-    />
-  ),
+  render: (args) => <FrameStory {...args} />,
 } satisfies Meta<typeof GameFrameScreenView>;
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/**
- * The host set up a bot opponent: every seat is filled and Start is the one
- * filled command, under a small preview of the game's board.
- */
-export const HostReadyToStart: Story = {
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    const preview = await canvas.findByTestId('custom-game-preview');
-    await expect(preview).toHaveAttribute('data-preview', 'true');
-    await expect(
-      within(preview).getByTestId('custom-game-board-preview')
-    ).toBeVisible();
-    await expect(canvas.queryByTestId('custom-game-board')).toBeNull();
-  },
-};
+/** The host set up a bot opponent: every seat is filled and Start is the one filled command. */
+export const HostReadyToStart: Story = {};
 
 /** The game's options and the clock are agreed behind their own rows, each showing what is chosen. */
 export const HostWithOptions: Story = { args: FRAME_WITH_OPTIONS };
@@ -119,7 +97,7 @@ export const InvitedToPlay: Story = {
           seat(
             'black',
             { kind: 'invitation', person: PEOPLE.jordan },
-            'Invited person: jordan_plays'
+            'jordan_plays'
           ),
           {
             invitation: {

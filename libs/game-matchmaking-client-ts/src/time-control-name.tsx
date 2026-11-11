@@ -17,3 +17,16 @@ export function timeControlChoiceText(id: string): string {
   if (days === 0) return id.split('/').at(-1) ?? '';
   return days === 1 ? t`1 day` : t`${days} days`;
 }
+
+/**
+ * A time control in plain words for someone who never read `5+3`: the
+ * minutes each player has, then the seconds a move adds.
+ */
+export function timeControlWords(id: string | null | undefined): string {
+  if (daysPerMoveOf(id) !== 0) return timeControlText(id);
+  const [minutes, seconds] = (id?.split('/').at(-1) ?? '').split('+');
+  if (minutes === undefined || minutes === '') return '';
+  return seconds === undefined || seconds === '0'
+    ? t`${minutes} min`
+    : t`${minutes} min + ${seconds} sec`;
+}

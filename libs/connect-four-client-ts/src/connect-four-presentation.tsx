@@ -28,6 +28,7 @@ export function ConnectFourGameBoard(props: GameBoardProps): JSX.Element {
 export const connectFourPresentation: GameClientPresentation = {
   canFlip: false,
   name: () => t`Connect Four`,
+  goal: () => t`Line up four discs in a row before your opponent does.`,
   Board: ConnectFourGameBoard,
   sideLabel: (side) => (side === 'white' ? t`Red circle` : t`Yellow diamond`),
   // A move is its column's number: the record says so beside it.

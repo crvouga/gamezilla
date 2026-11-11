@@ -40,16 +40,13 @@ export function ConnectFourStoryBoard(props: {
   readonly interactive?: boolean | undefined;
   /** The four cells of a finished line, bottom row first. */
   readonly winning?: readonly number[] | undefined;
-  /** Absent: the live board's, `custom-game-board`. */
-  readonly testId?: string | undefined;
 }): JSX.Element {
   const board = createMemo(() => dropAll(props.moves));
   const turn = (): 1 | 2 => (props.moves.length % 2 === 0 ? 1 : 2);
-  const testId = (): string => props.testId ?? 'custom-game-board';
   return (
     <DiscDropBoard
-      testId={testId()}
-      columnTestId={(column) => `${testId()}-column-${column + 1}`}
+      testId="custom-game-board"
+      columnTestId={(column) => `custom-game-board-column-${column + 1}`}
       cells={board().cells}
       columns={COLUMNS}
       rows={ROWS}

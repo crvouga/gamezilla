@@ -4,6 +4,8 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 10rem), 1fr));
   gap: var(--ui-space-2);
+  /* Every chip the height of the tallest, so the rows read as one block. */
+  grid-auto-rows: 1fr;
   width: 100%;
   min-width: 0;
 }
@@ -46,6 +48,12 @@
 
 /* One line, so the rail keeps its height and a name never breaks mid-word;
    the full name stays the text (accessible name) and the title. */
+.chipName > * {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .chipName {
   white-space: nowrap;
   overflow: hidden;
@@ -57,4 +65,40 @@
   /* A badge's height whether or not one shows, so a seat that goes Out
      (or turns You) never grows its chip and shifts the board below. */
   min-height: var(--ui-space-xl);
+}
+
+/* Three or more beside a wide board share its width: the swatch names each
+   player's piece, so the avatar steps aside and every name and status
+   reads whole. */
+@container game-column (min-width: 880px) {
+  .playerRail:has(> :nth-child(3)) .chipAvatar {
+    display: none;
+  }
+}
+
+/* Four or more on a phone: each chip's facts stay one line (the swatch,
+   then one status), so no chip grows a third line over the board. */
+@container game-column (max-width: 879px) {
+  .playerRail:has(> :nth-child(4)) .chipFacts {
+    flex-wrap: nowrap;
+    gap: var(--ui-space-0-5, 2px);
+    overflow: hidden;
+  }
+  /* When the line is still too long, the status after the swatch is the
+     one cut short; what was chosen or scored stays whole. */
+  .playerRail:has(> :nth-child(4)) .chipFacts > * {
+    flex-shrink: 0;
+  }
+  .playerRail:has(> :nth-child(4)) .chipFacts > :nth-child(2):not(:last-child) {
+    flex-shrink: 1;
+    min-width: 0;
+    overflow: hidden;
+  }
+  .playerRail:has(> :nth-child(4)) .chipFrame {
+    gap: var(--ui-space-1);
+    padding-inline: var(--ui-space-1);
+  }
+  .playerRail:has(> :nth-child(4)) .chipAvatar {
+    display: none;
+  }
 }

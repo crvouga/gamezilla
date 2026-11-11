@@ -17,11 +17,15 @@ const meta = {
   render: (args) => renderStory()(args),
   args: {
     ...storyArgs(),
-    title: 'Chess',
     stage: 'searching',
     place: { screen: 'searching' },
     ratings: SPEED_RATINGS,
-    search: { players: 2, gameName: 'Chess', timeControl: '5+3', seconds: 42 },
+    search: {
+      players: 2,
+      gameName: 'Connect Four',
+      timeControl: '5+3',
+      seconds: 42,
+    },
   },
 } satisfies Meta<typeof MultiplayerScreenView>;
 export default meta;
@@ -34,6 +38,7 @@ export const Searching: Story = {};
 export const SearchingForPlayers: Story = {
   args: {
     title: 'Hearts',
+    goal: 'Take as few hearts as you can. The lowest score wins.',
     search: { players: 4, gameName: 'Hearts', timeControl: null, seconds: 7 },
   },
 };

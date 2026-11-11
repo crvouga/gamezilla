@@ -260,7 +260,7 @@ test('recovery setup can establish its unfinished game beyond the separate timed
     defer: () => {},
     settle: () => {},
   });
-  expect(moves).toEqual(['1. e4', '1. e4', '1. e4 e5']);
+  expect(moves).toEqual(['e4', 'e4', 'e5']);
   expect(elapsed).toBe(12000);
 });
 

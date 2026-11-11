@@ -35,3 +35,11 @@ export function useGamePresentation() {
     return presentation;
   };
 }
+
+/** How a game is won, in one sentence, by the game's id; none if it has no such line. */
+export function useGameGoal() {
+  const value = useContext(Context);
+  if (value === undefined) throw new Error('TurnGamesProvider is required');
+  return (gameId: string): string | undefined =>
+    value.presentations.find((p) => p.id === gameId)?.goal?.();
+}

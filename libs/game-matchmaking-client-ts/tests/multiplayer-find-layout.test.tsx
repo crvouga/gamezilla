@@ -54,7 +54,9 @@ test('a game with clock choices adds one row showing the chosen clock, and choos
     props: { find: { players: 2, timed: true, timeControl: '5+0' } },
   });
   const row = screen.getByTestId('multiplayer-open-time-control');
-  expect(row.textContent).toContain('5+0');
+  // The clock is said in plain words; its shorthand is for the choices.
+  expect(row.textContent).toContain('5 min');
+  expect(row.getAttribute('data-time-control')).toBe('5+0');
   expect(row.textContent).toContain('Blitz');
   // The choices are a place of their own, never on the hub.
   expect(screen.queryByTestId('multiplayer-time-control-10-0')).toBeNull();
@@ -68,14 +70,13 @@ test('a game with clock choices adds one row showing the chosen clock, and choos
   screen.getByTestId('multiplayer-time-control-10-0').click();
   expect(
     screen.getByTestId('multiplayer-open-time-control').textContent
-  ).toContain('10+0');
-  expect(
-    [
-      ...screen
-        .getByTestId('multiplayer-find-conditions')
-        .querySelectorAll('[data-component="GameFact"]'),
-    ].map((fact) => fact.textContent)
-  ).toEqual(['Rated', '10+0']);
+  ).toContain('10 min');
+  expect(screen.getByTestId('multiplayer-find-clock').textContent).toBe(
+    '10 min'
+  );
+  expect(screen.getByTestId('multiplayer-find-rated').textContent).toBe(
+    'Rated'
+  );
 });
 
 test('choosing the clock already chosen returns to the search all the same', () => {
@@ -97,32 +98,42 @@ test('choosing the clock already chosen returns to the search all the same', () 
 // "Untimed" as chips, and wide they floated about 60px above the command.
 // regression: match-chips-look-pressable — the conditions were then pills
 // that looked pressable and said "No clock" where a game says "Untimed".
-// They are the game's own quiet settings line, in the game's words.
-test("the conditions are the game's settings line, right above the command", () => {
+// They are tiles on the card that says what is played, in the game's words.
+// regression: matchmaking-find-empty-canvas — the hub was three rows and a
+// command at the top of an empty phone: nothing said what was played, and
+// the command sat far from the thumb. The mode card opens the screen and
+// the command is docked at its foot.
+test('what is played opens the screen as one card, and the one command is docked', () => {
   for (const width of WIDTHS) {
-    mountPlaces({ stage: 'idle', width });
+    const view = mountPlaces({
+      stage: 'idle',
+      width,
+      props: { goal: 'Four in a row wins.' },
+    });
     const conditions = screen.getByTestId('multiplayer-find-conditions');
-    expect(conditions.getAttribute('data-component')).toBe('GameFacts');
+    expect(conditions.getAttribute('data-component')).toBe('GameModeCard');
     expect(conditions.querySelector('[data-component="Badge"]')).toBeNull();
-    const facts = [
-      ...conditions.querySelectorAll('[data-component="GameFact"]'),
-    ].map((fact) => fact.textContent);
-    expect(facts).toEqual(['Rated', 'Untimed']);
-    // The conditions and the command are one group: the command comes next.
-    const actions = conditions.nextElementSibling;
+    expect(conditions.querySelector('button')).toBeNull();
+    expect(conditions.querySelector('h1')?.textContent).toBe('Connect Four');
+    expect(conditions.textContent).toContain('Ranked match');
+    expect(conditions.textContent).toContain('Four in a row wins.');
     expect(
-      actions?.contains(screen.getByTestId('multiplayer-find')) === true
-    ).toBe(true);
+      [...conditions.querySelectorAll('dd')].map((fact) => fact.textContent)
+    ).toEqual(['2', 'Untimed', 'Rated']);
+    expect(view.container.querySelectorAll('h1')).toHaveLength(1);
+    // The command and what a found opponent means share the dock.
+    const dock = view.container.querySelector(
+      '[data-component="GameLobbyDock"]'
+    );
+    const find = screen.getByTestId('multiplayer-find');
+    expect(dock?.contains(find)).toBe(true);
+    expect(find.getAttribute('data-size')).toBe('lg');
     expect(screen.queryByText('Find someone to play with.')).toBeNull();
     expect(screen.queryByText('This search finds')).toBeNull();
-    // Under it, what a found opponent means for the space.
     const note = screen.getByTestId('multiplayer-find-space');
+    expect(dock?.contains(note)).toBe(true);
     expect(note.textContent).toContain('opens in this space');
     expect(note.textContent).toContain('everyone can watch');
-    expect(
-      screen.getByTestId('multiplayer-find').compareDocumentPosition(note) &
-        Node.DOCUMENT_POSITION_FOLLOWING
-    ).toBeTruthy();
     cleanup();
   }
 });

@@ -58,6 +58,12 @@ export type GameSetupBoardProps = {
 };
 export type GamePresentation<View = unknown> = {
   readonly name: () => string;
+  /**
+   * How the game is won, in one plain sentence (`Line up four discs in a
+   * row before your opponent does.`): said under the game's name where a
+   * game is set up, so someone invited to it knows what they sit down to.
+   */
+  readonly goal?: () => string;
   readonly canFlip: boolean;
   readonly id: string;
   readonly Board: (props: GameBoardProps) => View;

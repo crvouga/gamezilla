@@ -1,11 +1,13 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { type JSX, Show } from 'solid-js';
+import { createSignal, type JSX, Show } from 'solid-js';
 import precision from '../game-screen/game-precision.module.css';
+import { GameStageOverlayFrame } from '../game-stage-overlay/index';
 import styles from '../game-ui.module.css';
 import { createScreenSlot } from '../screen-slot';
 import boardAlign from './board-align.module.css';
 import { GameBoardPreviewContext } from './board-preview';
+import { createStageRoomFit } from './room-fit';
 import { createViewportSquareFit } from './viewport-fit';
 import fit from './viewport-fit.module.css';
 
@@ -28,6 +30,12 @@ export function GameBoardStage(props: {
   /** The person holding the device, below the board. */
   own?: JSX.Element;
   children: JSX.Element;
+  /**
+   * Over the board, covering it and nothing else: who plays whom before
+   * the game (`GameVersusOverlay`), how it ended (`GameResultOverlay`).
+   * The board keeps its place under it; an empty slot covers nothing.
+   */
+  overlay?: JSX.Element | undefined;
   /** A thumbnail of the board, before there is play to show. */
   preview?: boolean | undefined;
   /** Under the thumbnail, what it is (`Board preview`). */
@@ -44,10 +52,19 @@ export function GameBoardStage(props: {
   const others = createScreenSlot(() => props.others);
   const turn = createScreenSlot(() => props.turn);
   const own = createScreenSlot(() => props.own);
+  const overlay = createScreenSlot(() => props.overlay);
   const preview = (): boolean => props.preview === true;
   let root: HTMLDivElement | undefined;
   const square = (): boolean => props.viewportFit === 'square' && !preview();
   const limit = createViewportSquareFit(() => root, square);
+  const [surface, setSurface] = createSignal<HTMLDivElement>();
+  const room = createStageRoomFit(() => root, surface);
+  // Narrower than its room: the board stands clear of the screen's edges.
+  const narrowed = (): boolean => {
+    const limit = room();
+    const cell = root?.parentElement;
+    return limit !== undefined && !!cell && limit < cell.clientWidth - 1;
+  };
   return (
     <div
       ref={root}
@@ -60,17 +77,28 @@ export function GameBoardStage(props: {
       data-viewport-fit={props.viewportFit}
       style={{
         '--game-board-fit': limit() === undefined ? undefined : `${limit()}px`,
+        '--game-board-room': room() === undefined ? undefined : `${room()}px`,
       }}
+      data-game-board-stage
+      data-board-narrowed={narrowed() ? 'true' : undefined}
       {...dataAttrs({ component: 'GameBoardStage', ...props.dataSet })}
     >
       <Show when={others.present()}>{others.content()}</Show>
       <div
+        ref={setSurface}
         class={styles['board']}
-        classList={{ [fit['squareBoard'] ?? '']: square() }}
+        data-game-board
+        classList={{
+          [fit['squareBoard'] ?? '']: square(),
+          relative: overlay.present(),
+        }}
       >
         <GameBoardPreviewContext.Provider value={preview}>
           {props.children}
         </GameBoardPreviewContext.Provider>
+        <Show when={overlay.present()}>
+          <GameStageOverlayFrame>{overlay.content()}</GameStageOverlayFrame>
+        </Show>
       </div>
       <Show when={props.preview === true && props.previewLabel}>
         <p class={`${styles['previewLabel']} text textFootnote`}>

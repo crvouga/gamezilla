@@ -168,7 +168,7 @@ export function LivePlayerTable(props: Partial<PlayerTableProps>): JSX.Element {
   );
 }
 
-/** The working table, as the Storybook fixtures mount every example. */
+/** The live table on its own, as the fixtures' mount check opens it. */
 export default function DataTableExample(): JSX.Element {
   return (
     <ExampleRoot>

@@ -84,6 +84,24 @@ export const YouPlacedSecond: Story = {
   },
 };
 
+/** The result card closed: the final board, and Result to bring the card back. */
+export const ResultClosed: Story = { args: { overlay: { kind: 'board' } } };
+
+/** Closing the card shows the final board; Result brings the card back. */
+export const CloseAndReopenResult: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      await canvas.findByTestId('game-result-overlay-dismiss')
+    );
+    await expect(canvas.queryByTestId('custom-game-outcome')).toBeNull();
+    await userEvent.click(await canvas.findByTestId('custom-game-show-result'));
+    await expect(
+      await canvas.findByTestId('custom-game-result-headline')
+    ).toHaveTextContent('You win');
+  },
+};
+
 /** A drawn game: everyone shares first place. */
 export const Draw: Story = {
   render: (args) => onBoard(DRAWN_MOVES)(args),

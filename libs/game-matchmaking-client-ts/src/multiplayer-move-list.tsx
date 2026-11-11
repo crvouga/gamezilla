@@ -1,66 +1,46 @@
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
-import { Button } from '@pkgs/ui-root-client-ts/button';
-import { ListEntry, OrderedList } from '@pkgs/ui-root-client-ts/semantic-list';
-import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
-import { P, Text } from '@pkgs/ui-root-client-ts/text';
-import { For, type JSX, Show } from 'solid-js';
-import type {
-  MultiplayerMoveShown,
-  MultiplayerMovesShown,
-} from './multiplayer-game-view';
+import {
+  GameMoveList,
+  type GameMoveListEntry,
+} from '@pkgs/ui-root-client-ts/game-move-list';
+import { P } from '@pkgs/ui-root-client-ts/text';
+import { createMemo, type JSX, Show } from 'solid-js';
+import type { MultiplayerMovesShown } from './multiplayer-game-view';
 
 type ListProps = {
   readonly moves: MultiplayerMovesShown;
+  /** Moves per numbered turn: the game's seats in rotation. */
+  readonly perTurn: number;
   /** Shows the position after `ply` moves. */
   readonly onChoose: (ply: number) => void;
 };
 
-/** One move of the list: choosing it shows the position after it. */
-function MoveChoice(
-  props: ListProps & { readonly move: MultiplayerMoveShown }
-): JSX.Element {
-  const shown = () => props.moves.shownPly === props.move.ply;
-  return (
-    <ListEntry>
-      <StackHorizontal align="center" gap="xs">
-        <Show when={props.move.numbering !== ''}>
-          <Text variant="caption" numeral>
-            {props.move.numbering}
-          </Text>
-        </Show>{' '}
-        <Button
-          title={props.move.san}
-          size="sm"
-          variant={shown() ? 'solid' : 'ghost'}
-          intent="neutral"
-          aria-label={t`Show the position after ${props.move.name}`}
-          aria-current={shown()}
-          onClick={() => props.onChoose(props.move.ply)}
-          dataSet={{ testid: `multiplayer-move-${String(props.move.ply)}` }}
-        />{' '}
-      </StackHorizontal>
-    </ListEntry>
-  );
-}
-
 /**
- * The accepted moves in the game's notation, each one a position to
- * choose, the one on the board marked.
+ * The accepted moves in the game's notation, a numbered turn per line,
+ * each one a position to choose and the one on the board marked: the same
+ * record a custom game shows.
  */
 export function MultiplayerMoveList(props: ListProps): JSX.Element {
+  const moves = createMemo((): readonly GameMoveListEntry[] =>
+    props.moves.moves.map((move) => ({
+      ply: move.ply,
+      label: move.san,
+      accessibleName: t`Show the position after ${move.name}`,
+      testId: `multiplayer-move-${String(move.ply)}`,
+    }))
+  );
   return (
     <>
-      <StackHorizontal wrap align="center" gap="sm">
-        <OrderedList
-          aria-label={t`Moves played`}
-          testId="multiplayer-move-list"
-        >
-          <For each={props.moves.moves}>
-            {(move) => <MoveChoice {...props} move={move} />}
-          </For>
-        </OrderedList>
-      </StackHorizontal>
+      <GameMoveList
+        layout="table"
+        aria-label={t`Moves played`}
+        perTurn={props.perTurn}
+        current={props.moves.shownPly}
+        moves={moves()}
+        onSelect={props.onChoose}
+        dataSet={{ testid: 'multiplayer-move-list' }}
+      />
       <Show when={props.moves.moves.length === 0}>
         <P variant="caption" tone="secondary">
           <Trans>No moves yet.</Trans>

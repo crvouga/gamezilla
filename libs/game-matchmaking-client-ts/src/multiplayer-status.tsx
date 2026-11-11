@@ -78,19 +78,31 @@ function PlayerResult(props: StatusProps): JSX.Element {
   return (
     <Switch>
       <Match when={props.game.outcome === 'aborted'}>
-        <Trans>The multiplayer game was aborted.</Trans>
+        <Trans>
+          The <VisuallyHidden>multiplayer </VisuallyHidden>game was aborted.
+        </Trans>
       </Match>
       <Match when={props.game.outcome === 'draw'}>
-        <Trans>The multiplayer game is drawn.</Trans>
+        <Trans>
+          The <VisuallyHidden>multiplayer </VisuallyHidden>game is drawn.
+        </Trans>
       </Match>
       <Match when={won()}>
-        <Trans>You won the multiplayer game.</Trans>
+        <Trans>
+          You won<VisuallyHidden> the multiplayer game</VisuallyHidden>.
+        </Trans>
       </Match>
       <Match when={multiplayerSides(props.game).length > 2}>
-        <Trans>{props.winnerName} won the multiplayer game.</Trans>
+        <Trans>
+          {props.winnerName} won
+          <VisuallyHidden> the multiplayer game</VisuallyHidden>.
+        </Trans>
       </Match>
       <Match when={!won()}>
-        <Trans>Your opponent won the multiplayer game.</Trans>
+        <Trans>
+          Your opponent won
+          <VisuallyHidden> the multiplayer game</VisuallyHidden>.
+        </Trans>
       </Match>
     </Switch>
   );
@@ -308,12 +320,25 @@ function RatingChange(props: StatusProps): JSX.Element {
   const diff = () => props.game[`${ownSide(props)}_rating_diff`] ?? null;
   return (
     <Show when={props.viewer.participant && diff() !== null}>
-      <Text variant="inherit" testId="multiplayer-rating-change">
-        <Trans>
-          Your rating changed by {(diff() ?? 0) > 0 ? '+' : ''}
-          {diff() ?? 0}.
-        </Trans>
-      </Text>
+      <Badge
+        intent={
+          (diff() ?? 0) > 0
+            ? 'success'
+            : (diff() ?? 0) < 0
+              ? 'destructive'
+              : 'neutral'
+        }
+        label={
+          <Trans>
+            <VisuallyHidden>Your rating changed by </VisuallyHidden>
+            {(diff() ?? 0) > 0 ? '+' : ''}
+            {diff() ?? 0}
+            <VisuallyHidden>.</VisuallyHidden>
+          </Trans>
+        }
+        tone="solid"
+        dataSet={{ testid: 'multiplayer-rating-change' }}
+      />
     </Show>
   );
 }
@@ -452,14 +477,32 @@ export function MultiplayerStatusTitle(props: StatusProps): JSX.Element {
 }
 
 /**
+ * The seat to move already says whose turn it is (`Your move`), so the
+ * plain line is for a listener only. Anything more (a pause, an offer, a
+ * first-move deadline, a low clock, the result) is shown.
+ */
+function seatsSayIt(props: StatusProps): boolean {
+  return (
+    props.game.outcome === 'ongoing' &&
+    props.game.paused_at_ms === null &&
+    props.lowOnTime === null &&
+    !multiplayerStatusHasDetail(props) &&
+    !awaitingFirstMoves(props)
+  );
+}
+
+/**
  * Where the game stands, in one line under the board: whose turn, or how it
  * ended and why. It is the screen's live announcement, so a listener hears
  * colour, turn, offers and the result as they change.
  */
 export function MultiplayerStatus(props: StatusProps): JSX.Element {
+  // A game's own words about the turn (`First to e5 wins.`) are shown.
+  const turnStatus = useFrameTurnStatus(props);
   return (
     <GameTurnPill
       live
+      spokenOnly={seatsSayIt(props) && turnStatus() === null}
       emphasis={emphasis(props)}
       tone={tone(props)}
       dataSet={{ testid: 'multiplayer-announcement' }}
@@ -473,18 +516,6 @@ export function MultiplayerStatus(props: StatusProps): JSX.Element {
         awaitingFirstMoves(props) ? (
           <FirstMoveCountdown {...props} />
         ) : undefined
-      }
-      trailing={
-        <Show when={timeControlOf(props.game.time_control) !== null}>
-          <Badge
-            intent="neutral"
-            label={
-              <Text variant="inherit" testId="multiplayer-time-control">
-                {timeControlText(props.game.time_control)}
-              </Text>
-            }
-          />
-        </Show>
       }
     />
   );

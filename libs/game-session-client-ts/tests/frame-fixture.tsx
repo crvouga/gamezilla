@@ -3,6 +3,7 @@ import {
   FRAME_NO_NEXT,
   FRAME_NO_PLAY,
 } from '@libs/game-session-client-ts/game-frame-empty';
+import { frameOverlayPhase } from '@libs/game-session-client-ts/game-frame-overlay-view';
 import {
   GameFrameScreenView,
   type GameFrameScreenViewProps,
@@ -18,6 +19,7 @@ import type {
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
+import { stageOverlayOpening } from '@pkgs/turn-game-client-ts/stage-overlay';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
@@ -155,7 +157,11 @@ export function record(
 
 const resolved = async (): Promise<void> => undefined;
 
-/** A two-seat game in play, the viewer to move, on the play place. */
+/**
+ * A two-seat game in play, the viewer to move, on the play place. Over the
+ * board lies what the stage's machine opens with at the game's phase (the
+ * result card once it is over), unless `over` says otherwise.
+ */
 export function frameProps(
   over: Partial<GameFrameScreenViewProps> = {}
 ): GameFrameScreenViewProps {
@@ -182,7 +188,6 @@ export function frameProps(
     next: FRAME_NO_NEXT,
     record: record(['1', '2', '3']),
     board: <output data-testid="story-board" />,
-    boardPreview: <output data-testid="story-board-preview" />,
     onChoose: resolved,
     onReady: resolved,
     onPlayBot: resolved,
@@ -194,6 +199,8 @@ export function frameProps(
     onOpenHistory: () => undefined,
     onOpen: () => undefined,
     onClose: () => undefined,
+    overlay: stageOverlayOpening(frameOverlayPhase(over.phase ?? 'active')),
+    onOverlay: () => undefined,
     ...over,
   };
 }

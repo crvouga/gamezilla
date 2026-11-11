@@ -5,6 +5,7 @@ import stageAlign from '../game-screen/game-stage-align.module.css';
 import { GameLayout } from '../game-screen/index';
 import { GameActions } from '../game-section/index';
 import { createScreenSlot } from '../screen-slot';
+import fixed from './fixed-stage.module.css';
 import styles from './game-session-layout.module.css';
 
 export type GameSessionLayoutProps = {
@@ -52,6 +53,13 @@ export type GameSessionLayoutProps = {
    * its tools beside its canvas (`EditorWorkbench`). See `GameLayout`.
    */
   workspace?: boolean | undefined;
+  /**
+   * A phone shows the game as one fixed view that never scrolls: the board
+   * at the frame's full width in the middle, `status` and `actions` in a
+   * bar at the bottom edge, the `aside` left to the game's menu. Needs
+   * `actionsBeside`. Wider windows are unchanged.
+   */
+  fixedStage?: boolean | undefined;
   /** Where a narrower stage sits in a one-column layout. See `GameLayout`. */
   stageAlign?: 'start' | 'center' | undefined;
   /** After everything: a `GameWatchingFooter` for someone watching. */
@@ -103,7 +111,9 @@ export function GameSessionLayout(props: GameSessionLayoutProps): JSX.Element {
   return (
     <div
       class={`box gap-4 min-w-0 pb-6 ${styles['session']}`}
+      classList={{ [fixed['fixed'] ?? '']: props.fixedStage === true }}
       data-board-focus={props.boardFocus === true}
+      data-game-fixed={props.fixedStage === true}
       {...dataAttrs({ component: 'GameSessionLayout', ...props.dataSet })}
     >
       <Show when={header.present()}>{header.content()}</Show>

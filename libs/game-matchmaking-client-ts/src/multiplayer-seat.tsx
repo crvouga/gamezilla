@@ -28,14 +28,6 @@ export type MultiplayerViewer = {
   readonly opponentRating: string;
 };
 
-function SideName(props: {
-  readonly side: MultiplayerSide;
-  readonly position: string;
-}): JSX.Element {
-  const gameSideLabel = useGameSideLabel();
-  return <>{gameSideLabel(props.position, props.side)}</>;
-}
-
 function SeatName(props: {
   readonly profileId: string;
   readonly own: boolean;
@@ -54,7 +46,10 @@ function SeatName(props: {
   );
 }
 
-/** The person's own seat says which colour they play; any other names its side. */
+/**
+ * The person's own seat says which colour they play, in words. Any other
+ * seat's side is its swatch, named for a listener.
+ */
 function SeatTags(props: {
   readonly position: string;
   readonly profileId: string;
@@ -65,15 +60,7 @@ function SeatTags(props: {
   const gameSideLabel = useGameSideLabel();
   return (
     <>
-      <Show
-        when={props.own && props.viewer.participant}
-        fallback={
-          <Badge
-            intent="neutral"
-            label={<SideName side={props.side} position={props.position} />}
-          />
-        }
-      >
+      <Show when={props.own && props.viewer.participant}>
         <Badge
           intent="neutral"
           label={
@@ -109,6 +96,7 @@ export function MultiplayerSeat(props: {
 }): JSX.Element {
   const presentation = useGamePresentation();
   const frame = () => presentation(props.game.fen).frame;
+  const gameSideLabel = useGameSideLabel();
   const profileId = () => multiplayerOwner(props.game, props.side);
   return (
     <GamePlayerBar
@@ -130,6 +118,8 @@ export function MultiplayerSeat(props: {
         />
       }
       swatch={frameSwatch(frame().seats.look(props.side))}
+      swatchLabel={gameSideLabel(props.position, props.side)}
+      tagsPlacement="inline"
       stat={frame().seats.stat(props.position, props.side)}
       state={
         frame().seats.out(props.position, props.side)

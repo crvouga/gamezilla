@@ -36,6 +36,7 @@ function sideLabel(side: GameSide): string {
 const presentation = (seats: WordTilesSeatCount): GameClientPresentation => ({
   canFlip: false,
   name: () => t`Word Tiles`,
+  goal: () => t`Build words on the board. The highest score wins.`,
   Board: WordTilesBoard,
   sideLabel,
   frame: wordTilesFrame(seats),
