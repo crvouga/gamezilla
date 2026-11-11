@@ -7,6 +7,16 @@
         "@pkgs/object-store-root-shared-ts#src",
         "@pkgs/object-store-s3-shared-ts#src"
       ]
+    },
+    "generate:browser": {
+      "inputs": [
+        "src/**",
+        "scripts/generate-browser.ts",
+        "package.json",
+        "$TURBO_ROOT$/bun.lock"
+      ],
+      "outputs": [".cache/browser/**"],
+      "dependsOn": ["@libs/tools-harness-ts#generate:identity"]
     }
   }
 }

@@ -24,6 +24,22 @@
         "$TURBO_ROOT$/docs/SLO_COVERAGE.md",
         "$TURBO_ROOT$/docs/SLO_RUNBOOK.md"
       ]
+    },
+    "generate:slo": {
+      "dependsOn": ["@libs/tools-harness-ts#generate:identity"],
+      "inputs": [
+        "src/**",
+        "scripts/slo-generate.ts",
+        "$TURBO_ROOT$/specs/**/*.openslo.yaml",
+        "$TURBO_ROOT$/libs/product-identity/product-identity.json",
+        "$TURBO_ROOT$/pkgs/openslo-shared-ts/src/**",
+        "package.json"
+      ],
+      "outputs": [
+        "$TURBO_ROOT$/libs/infra-shared-ts/tofu/modules/observability-views/alert-rules.generated.json",
+        "$TURBO_ROOT$/libs/infra-shared-ts/tofu/modules/observability-views/grafana-slos.generated.json",
+        "slo-alert-policies.openslo.yaml"
+      ]
     }
   }
 }

@@ -7,6 +7,7 @@ import {
   macrosOutsideCatalog,
   underCatalogSource,
 } from './lingui-scope';
+import { readTurboTasks } from './turbo-config';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 const MACRO = "import { t } from '@lingui/core/macro';";
@@ -40,12 +41,7 @@ describe('lingui catalog scope', () => {
     '@libs/tools-harness-ts#ci:i18n',
   ]) {
     test(`turbo hashes exactly the catalog sources for ${task}`, () => {
-      const turbo = JSON.parse(
-        readFileSync(join(REPO_ROOT, 'turbo.json'), 'utf8')
-      ) as {
-        readonly tasks: Record<string, { readonly inputs?: readonly string[] }>;
-      };
-      const inputs = turbo.tasks[task]?.inputs ?? [];
+      const inputs = readTurboTasks(REPO_ROOT)[task]?.inputs ?? [];
       const sources = inputs
         .filter((input) => input.endsWith('/**/*.{ts,tsx}'))
         .map((input) =>

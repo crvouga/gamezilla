@@ -18,6 +18,7 @@ import {
   type Violation,
 } from './cache-hygiene';
 import { visibleDirectories } from './src-task-edges';
+import { readTurboTasks } from './turbo-config';
 import { cacheHygieneViolations, readPolicy } from './verify-cache-hygiene';
 
 const ROOT = join(import.meta.dirname, '../../..');
@@ -390,18 +391,12 @@ test('the blast radius computed here matches the packages Turborepo reruns', () 
 // The gate and the tests that run it read every directory a dependent can see.
 // A package that starts exporting another one has to be listed as an input.
 test('the gate and the tools tests hash every directory a package exports', () => {
-  const inputsOf = (file: string, task: string): string[] =>
-    (
-      JSON.parse(readFileSync(join(ROOT, file), 'utf8')) as {
-        tasks: Record<string, { inputs?: string[] }>;
-      }
-    ).tasks[task]?.inputs?.map((input) => input.replace('$TURBO_ROOT$/', '')) ??
+  const tasks = readTurboTasks(ROOT);
+  const inputsOf = (task: string): string[] =>
+    tasks[task]?.inputs?.map((input) => input.replace('$TURBO_ROOT$/', '')) ??
     [];
-  const gate = inputsOf(
-    'turbo.json',
-    '@libs/tools-harness-ts#ci:cache-hygiene'
-  );
-  const tests = inputsOf('libs/tools-harness-ts/turbo.json', 'test');
+  const gate = inputsOf('@libs/tools-harness-ts#ci:cache-hygiene');
+  const tests = inputsOf('@libs/tools-harness-ts#test');
   const missing: string[] = [];
   for (const pkg of readGraph(ROOT)) {
     const manifest = JSON.parse(
@@ -419,6 +414,6 @@ test('the gate and the tools tests hash every directory a package exports', () =
   }
   expect(
     missing,
-    'add the directory to the inputs of both tasks in turbo.json and libs/tools-harness-ts/turbo.json'
+    'add the directory to the inputs of both tasks in libs/tools-harness-ts/turbo.json'
   ).toEqual([]);
 });

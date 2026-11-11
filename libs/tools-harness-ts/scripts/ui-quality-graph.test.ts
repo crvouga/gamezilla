@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { testConcurrency } from '@pkgs/os-server-ts/test-concurrency';
 import { specPackages } from './spec-packages';
 import { MAIN_VERIFY_TASKS } from './turbo-ci-run';
+import { readTurboTasks } from './turbo-config';
 
 const ROOT = join(import.meta.dir, '../../..');
 const readJson = <T>(file: string): T =>
@@ -129,11 +130,9 @@ test('native inference waits for the existing product symbolic and renderer cont
 });
 
 test('release Verify and Release never run the visual gate or prepare its model', () => {
-  const turbo = readJson<{ tasks: Record<string, { dependsOn?: string[] }> }>(
-    'turbo.json'
-  );
+  const tasks = readTurboTasks(ROOT);
   expect(MAIN_VERIFY_TASKS).not.toContain('@apps/product-ts#verify:ui-quality');
-  expect(turbo.tasks['@apps/product-ts#deploy']!.dependsOn).not.toContain(
+  expect(tasks['@apps/product-ts#deploy']!.dependsOn).not.toContain(
     '@apps/product-ts#verify:ui-quality'
   );
   for (const name of ['verify-pr', 'deploy'])

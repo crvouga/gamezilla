@@ -6,14 +6,20 @@
       "cache": false
     },
     "test": {
-      "dependsOn": ["$TURBO_EXTENDS$", "generate:feature-variants"],
+      "dependsOn": ["^src", "generate:feature-variants"],
       "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/games/*.feature",
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/specs/games/**",
         "$TURBO_ROOT$/apps/{client-ts,product-ts,server-ts,synthetic-population-worker-ts}/package.json",
         "$TURBO_ROOT$/libs/{battleship-client-ts,battleship-harness-ts,battleship-shared-ts,chess-puzzle-client-ts,chess-puzzle-harness-ts,chess-puzzle-server-ts,chess-puzzle-shared-ts,chess-root-client-ts,chess-root-harness-ts,chess-root-server-ts,chess-root-shared-ts,chess-rules-shared-ts,chess-shared-client-ts,chess-sub-shared-ts,connect-four-client-ts,connect-four-harness-ts,connect-four-shared-ts,game-catalog-shared-ts,games-client-ts,games-harness-ts,games-shared-ts,hearts-client-ts,hearts-harness-ts,hearts-shared-ts,light-cycles-client-ts,light-cycles-harness-ts,light-cycles-shared-ts,numberlink-client-ts,numberlink-harness-ts,numberlink-shared-ts,observatory-harness-ts,pong-client-ts,pong-harness-ts,pong-shared-ts,quoridor-client-ts,quoridor-harness-ts,quoridor-shared-ts,room-app-server-ts,runtime-client-ts,runtime-harness-ts,runtime-server-ts,runtime-shared-ts,sokoban-client-ts,sokoban-harness-ts,sokoban-shared-ts,spaces-shared-ts,synthetic-population-harness-ts,word-tiles-client-ts,word-tiles-harness-ts,word-tiles-shared-ts}/package.json",
-        "$TURBO_ROOT$/pkgs/{chess-board-core-shared-ts,chess-board-root-client-ts,chess-board-root-harness-ts,chess-board-root-shared-ts,chess-rules-shared-ts}/package.json"
-      ]
+        "$TURBO_ROOT$/pkgs/{chess-board-core-shared-ts,chess-board-root-client-ts,chess-board-root-harness-ts,chess-board-root-shared-ts,chess-rules-shared-ts}/package.json",
+        "$TURBO_ROOT$/specs/games/*.feature"
+      ],
+      "env": ["HARNESS_FIDELITY", "PBT_NUM_RUNS", "PBT_RANDOM", "FC_SEED"],
+      "outputLogs": "errors-only",
+      "outputs": []
     },
     "test:contract:0": {
       "inputs": [
@@ -137,52 +143,468 @@
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/games/*.qnt"]
     },
     "verify:models:10:0": {
-      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/games/*.qnt"]
+      "inputs": [
+        "package.json",
+        "tests/quint/**",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/specs/games/*.qnt"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only",
+      "dependsOn": [
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
+      ]
     },
     "verify:models:10:1": {
-      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/games/*.qnt"]
+      "inputs": [
+        "package.json",
+        "tests/quint/**",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/specs/games/*.qnt"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only",
+      "dependsOn": [
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
+      ]
     },
     "verify:models:10:2": {
-      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/games/*.qnt"]
+      "inputs": [
+        "package.json",
+        "tests/quint/**",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/specs/games/*.qnt"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only",
+      "dependsOn": [
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
+      ]
     },
     "verify:models:10:3": {
-      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/games/*.qnt"]
+      "inputs": [
+        "package.json",
+        "tests/quint/**",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/specs/games/*.qnt"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only",
+      "dependsOn": [
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
+      ]
     },
     "verify:models:10:4": {
-      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/games/*.qnt"]
+      "inputs": [
+        "package.json",
+        "tests/quint/**",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/specs/games/*.qnt"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only",
+      "dependsOn": [
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
+      ]
     },
     "verify:models:10:5": {
-      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/games/*.qnt"]
+      "inputs": [
+        "package.json",
+        "tests/quint/**",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/specs/games/*.qnt"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only",
+      "dependsOn": [
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
+      ]
     },
     "verify:models:10:6": {
-      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/games/*.qnt"]
+      "inputs": [
+        "package.json",
+        "tests/quint/**",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/specs/games/*.qnt"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only",
+      "dependsOn": [
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
+      ]
     },
     "verify:models:10:7": {
-      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/games/*.qnt"]
+      "inputs": [
+        "package.json",
+        "tests/quint/**",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/specs/games/*.qnt"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only",
+      "dependsOn": [
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
+      ]
     },
     "verify:models:10:8": {
-      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/games/*.qnt"]
+      "inputs": [
+        "package.json",
+        "tests/quint/**",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/specs/games/*.qnt"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only",
+      "dependsOn": [
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
+      ]
     },
     "verify:models:10:9": {
-      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/games/*.qnt"]
+      "inputs": [
+        "package.json",
+        "tests/quint/**",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/specs/games/*.qnt"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only",
+      "dependsOn": [
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
+      ]
     },
     "verify:models:10:10": {
-      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/games/*.qnt"]
+      "inputs": [
+        "package.json",
+        "tests/quint/**",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/specs/games/*.qnt"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only",
+      "dependsOn": [
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
+      ]
     },
     "verify:models:10:11": {
-      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/games/*.qnt"]
+      "inputs": [
+        "package.json",
+        "tests/quint/**",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/specs/games/*.qnt"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only",
+      "dependsOn": [
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
+      ]
     },
     "verify:models:10:12": {
-      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/games/*.qnt"]
+      "inputs": [
+        "package.json",
+        "tests/quint/**",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/specs/games/*.qnt"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only",
+      "dependsOn": [
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
+      ]
     },
     "verify:models:10:13": {
-      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/games/*.qnt"]
+      "inputs": [
+        "package.json",
+        "tests/quint/**",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/specs/games/*.qnt"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only",
+      "dependsOn": [
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
+      ]
     },
     "verify:models:10:14": {
-      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/games/*.qnt"]
+      "inputs": [
+        "package.json",
+        "tests/quint/**",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/specs/games/*.qnt"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only",
+      "dependsOn": [
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
+      ]
     },
     "verify:models:10:15": {
-      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/games/*.qnt"]
+      "inputs": [
+        "package.json",
+        "tests/quint/**",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/specs/games/*.qnt"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only",
+      "dependsOn": [
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
+      ]
     },
     "verify:models:11": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/games/*.qnt"]
@@ -827,6 +1249,21 @@
     },
     "test:spec:180": {
       "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:contract": {
+      "dependsOn": ["^src"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/specs/games/**",
+        "$TURBO_ROOT$/apps/{client-ts,product-ts,server-ts,synthetic-population-worker-ts}/package.json",
+        "$TURBO_ROOT$/libs/{battleship-client-ts,battleship-harness-ts,battleship-shared-ts,chess-puzzle-client-ts,chess-puzzle-harness-ts,chess-puzzle-server-ts,chess-puzzle-shared-ts,chess-root-client-ts,chess-root-harness-ts,chess-root-server-ts,chess-root-shared-ts,chess-rules-shared-ts,chess-shared-client-ts,chess-sub-shared-ts,connect-four-client-ts,connect-four-harness-ts,connect-four-shared-ts,game-catalog-shared-ts,games-client-ts,games-harness-ts,games-shared-ts,hearts-client-ts,hearts-harness-ts,hearts-shared-ts,light-cycles-client-ts,light-cycles-harness-ts,light-cycles-shared-ts,numberlink-client-ts,numberlink-harness-ts,numberlink-shared-ts,observatory-harness-ts,pong-client-ts,pong-harness-ts,pong-shared-ts,quoridor-client-ts,quoridor-harness-ts,quoridor-shared-ts,room-app-server-ts,runtime-client-ts,runtime-harness-ts,runtime-server-ts,runtime-shared-ts,sokoban-client-ts,sokoban-harness-ts,sokoban-shared-ts,spaces-shared-ts,synthetic-population-harness-ts,word-tiles-client-ts,word-tiles-harness-ts,word-tiles-shared-ts}/package.json",
+        "$TURBO_ROOT$/pkgs/{chess-board-core-shared-ts,chess-board-root-client-ts,chess-board-root-harness-ts,chess-board-root-shared-ts,chess-rules-shared-ts}/package.json"
+      ],
+      "env": ["HARNESS_FIDELITY", "PBT_NUM_RUNS", "PBT_RANDOM", "FC_SEED"],
+      "outputLogs": "errors-only",
+      "outputs": []
     }
   }
 }

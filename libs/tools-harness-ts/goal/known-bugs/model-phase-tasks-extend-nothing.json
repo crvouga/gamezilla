@@ -1,0 +1,4 @@
+{
+  "summary": "The phase tasks of two split model suites (@libs/battleship-harness-ts verify:models:1:0–7, @libs/games-harness-ts verify:models:10:0–15) listed $TURBO_EXTENDS$ in their inputs, but no root task of that name existed. Turborepo spliced in nothing, so each phase hashed only its .qnt files: edits to tests/quint, the model runner scripts or the Quint and conformance packages restored a stale verdict, and no evidence outputs were cached. Fixed by declaring the full model-runner definition in each package, and a check that fails on any $TURBO_EXTENDS$ with nothing to extend.",
+  "regressionTest": "libs/tools-harness-ts/scripts/turbo-config.test.ts"
+}

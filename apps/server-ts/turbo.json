@@ -73,6 +73,10 @@
         "@pkgs/tts-root-server-ts#src",
         "@pkgs/turn-game-shared-ts#src"
       ]
+    },
+    "verify:api": {
+      "cache": false,
+      "outputLogs": "errors-only"
     }
   }
 }
