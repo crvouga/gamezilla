@@ -23,6 +23,7 @@
 import { spawnSync } from 'node:child_process';
 import {
   appendFileSync,
+  copyFileSync,
   existsSync,
   mkdirSync,
   readdirSync,
@@ -452,6 +453,12 @@ async function build(pr: number, origin: string): Promise<void> {
     `${JSON.stringify(manifest)}\n`,
     'utf8'
   );
+  // A Preview has no single-page fallback (Cloudflare applies none to an
+  // assets-only Preview), so the one route it serves is a file of its own.
+  copyFileSync(
+    join(dist, 'index.html'),
+    join(dist, `${PREVIEW_HARNESS_PATH.slice(1)}.html`)
+  );
   const files = readdirSync(dist, { recursive: true, withFileTypes: true })
     .filter((entry) => entry.isFile())
     .map((entry) =>
@@ -502,19 +509,27 @@ function failed(checks: readonly PreviewCheck[]): string {
     .join('; ');
 }
 
-/** `fetch` over the built bundle on disk, with the fallback Cloudflare applies. */
+/** `fetch` over the built bundle on disk, resolved the way Cloudflare does. */
 function bundleFetch(dist: string): HttpFetch {
   const types: Readonly<Record<string, string>> = {
     html: 'text/html; charset=utf-8',
     js: 'text/javascript; charset=utf-8',
     json: 'application/json',
   };
+  const isFile = (file: string): boolean =>
+    existsSync(file) && statSync(file).isFile();
   return async (input) => {
     const path = new URL(new Request(input).url).pathname;
-    const file = join(dist, path);
-    const found = path !== '/' && existsSync(file) && statSync(file).isFile();
-    const served = found ? file : join(dist, 'index.html');
-    if (!existsSync(served)) return new Response('', { status: 404 });
+    const served = [
+      join(dist, path),
+      join(dist, `${path}.html`),
+      join(dist, path, 'index.html'),
+    ].find(isFile);
+    if (served === undefined)
+      return new Response('Not found', {
+        status: 404,
+        headers: { 'content-type': 'text/html' },
+      });
     return new Response(readFileSync(served), {
       headers: {
         'content-type':

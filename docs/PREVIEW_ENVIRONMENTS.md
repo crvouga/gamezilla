@@ -28,7 +28,9 @@ https://pr-<number>-<namespace>-preview.<account>.workers.dev/harness
 - **The build.** A Preview bundle is the product bundle built with
   `VITE_HARNESS_ONLY=1`, which sends every path to `/harness` — the app at `/`
   would have no API to talk to. `preview.json` in the bundle names the Preview
-  and the commit it was built from.
+  and the commit it was built from. Cloudflare applies no single-page fallback
+  to an assets-only Preview, so the build also writes `harness.html`: `/` and
+  `/harness` are the two routes a Preview serves, and anything else is a 404.
 
 ## Commands
 
@@ -73,6 +75,9 @@ wipe, and there is no server to inspect — see "State and reset".
   disk with the same checks the deployed Preview must pass, before anything is
   uploaded. A commit that does not build or fails that gate is never uploaded,
   and the pull request shows the commit still serving beside the one attempted.
+  The same checks run again against the deployed URL; if they fail there, the
+  new commit is already serving and the pull request says `deployed, but
+  failing its checks`.
 - **Idempotent.** Deploying the same commit again uploads the same files;
   deleting a Preview that is gone succeeds.
 - **Orphans.** The sweep lists the Worker's Previews and deletes every `pr-<n>`

@@ -15,7 +15,8 @@ preview_urls = true
 # A Preview adds nothing to the Worker above: no vars, no bindings.
 [previews]
 
-# `apps/product-ts` built with `VITE_HARNESS_ONLY=1`.
+# `apps/product-ts` built with `VITE_HARNESS_ONLY=1`. No `not_found_handling`:
+# Cloudflare applies no single-page fallback to an assets-only Preview, so the
+# build writes `harness.html` and the Preview serves `/harness` as that file.
 [assets]
 directory = "../product-ts/dist"
-not_found_handling = "single-page-application"

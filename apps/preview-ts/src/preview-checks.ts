@@ -135,16 +135,16 @@ async function commitCheck(
   return { name, ok: true, detail: manifest.commit.slice(0, 12) };
 }
 
-/** A route no file backs falls through to the shell: nothing computes it. */
+/** A route no file backs is not found: nothing computes an answer for it. */
 async function staticOnlyCheck(probe: Probe): Promise<PreviewCheck> {
   const response = await probe.fetch(`${probe.origin}${API_PROBE_PATH}`);
   await response.arrayBuffer();
-  const ok = isOf(response, 'text/html');
+  const ok = response.status === 404 || isOf(response, 'text/html');
   return {
     name: 'no server',
     ok,
     detail: ok
-      ? `${API_PROBE_PATH} is the static shell, not an API`
+      ? `${API_PROBE_PATH} is not an API (HTTP ${String(response.status)})`
       : `${API_PROBE_PATH} answered ${response.headers.get('content-type') ?? 'no content type'} (HTTP ${String(response.status)}): something is serving requests`,
   };
 }

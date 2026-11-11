@@ -20,12 +20,21 @@ const GOOD: Site = {
   ],
 };
 
-/** Static hosting with the single-page fallback: a missing path is the shell. */
-function staticSite(files: Site, shell: string = SHELL): HttpFetch {
+/** Static hosting as an assets-only Preview does it: no fallback, a 404. */
+function staticSite(files: Site, shell: string | null = SHELL): HttpFetch {
   return async (input) => {
-    const file = files[new URL(new Request(input).url).pathname];
-    const [type, body] = file ?? ['text/html; charset=utf-8', shell];
-    return new Response(body, { headers: { 'content-type': type } });
+    const path = new URL(new Request(input).url).pathname;
+    const file =
+      files[path] ??
+      (path === '/harness' && shell !== null
+        ? (['text/html; charset=utf-8', shell] as const)
+        : undefined);
+    if (file === undefined)
+      return new Response('Not found', {
+        status: 404,
+        headers: { 'content-type': 'text/html' },
+      });
+    return new Response(file[1], { headers: { 'content-type': file[0] } });
   };
 }
 
@@ -61,7 +70,7 @@ test('a bundle built for another pull request fails', async () => {
   expect(await failing(staticSite(other))).toEqual(['deployed commit']);
 });
 
-test('a missing manifest falls back to the shell and fails', async () => {
+test('a missing manifest fails', async () => {
   const { '/preview.json': _, ...rest } = GOOD;
   expect(await failing(staticSite(rest))).toEqual(['deployed commit']);
 });
@@ -70,6 +79,14 @@ test('a shell whose script is missing fails the bundle check', async () => {
   const { '/assets/index-abc.js': _, ...rest } = GOOD;
   expect(await failing(staticSite(rest))).toEqual(['bundle']);
   expect(await failing(staticSite(GOOD, '<div id="root"></div>'))).toEqual([
+    'bundle',
+  ]);
+});
+
+test('a Preview that does not serve the harness route fails', async () => {
+  // The first real upload served `/` and answered 404 for `/harness`.
+  expect(await failing(staticSite(GOOD, null))).toEqual([
+    'harness page',
     'bundle',
   ]);
 });
