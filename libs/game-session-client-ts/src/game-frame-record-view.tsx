@@ -239,6 +239,7 @@ function RecordMoves(
       heading={props.record.moveHeading || undefined}
       turnLabel={turnWords}
       wrap
+      ended={props.phase === 'completed' || props.phase === 'cancelled'}
       emptyTurn={props.layout === 'turn' ? emptyTurn(props.record) : undefined}
     />
   );

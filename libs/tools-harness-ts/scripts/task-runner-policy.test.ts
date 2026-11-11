@@ -9,6 +9,7 @@ import {
   type TurboTasks,
   taskCachingViolations,
 } from './task-runner-policy';
+import { readTurboTasks } from './turbo-config';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 
@@ -159,7 +160,7 @@ describe('task caching', () => {
 });
 
 describe('this repository', () => {
-  const tasks = json<{ tasks: TurboTasks }>('turbo.json').tasks;
+  const tasks = readTurboTasks(REPO_ROOT);
   const scripts = json<{ scripts: Record<string, string> }>(
     'package.json'
   ).scripts;
@@ -242,7 +243,7 @@ describe('this repository', () => {
 
 // regression: identity-agent-settings-cache
 test('local agent settings are generated without caching user-authored entries', () => {
-  const tasks = json<{ tasks: TurboTasks }>('turbo.json').tasks;
+  const tasks = readTurboTasks(REPO_ROOT);
   expect(tasks['@libs/tools-harness-ts#generate:identity-agents']?.cache).toBe(
     false
   );

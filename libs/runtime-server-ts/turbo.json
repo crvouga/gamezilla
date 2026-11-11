@@ -53,6 +53,21 @@
         "@pkgs/turn-game-shared-ts#src",
         "@pkgs/uuid-shared-ts#src"
       ]
+    },
+    "verify:schema-evolution": {
+      "dependsOn": ["^src"],
+      "env": ["PR_BASE"],
+      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
+      "outputs": [],
+      "outputLogs": "errors-only"
+    },
+    "migrate": {
+      "cache": false,
+      "dependsOn": ["@libs/infra-server-ts#apply:foundation"]
+    },
+    "db:wipe:dev": {
+      "cache": false,
+      "passThroughEnv": ["*"]
     }
   }
 }

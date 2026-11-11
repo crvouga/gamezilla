@@ -1,6 +1,7 @@
 import { expect, test } from 'bun:test';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { readRootTurbo, readTurboTasks } from './turbo-config';
 
 const root = join(import.meta.dirname, '../../..');
 
@@ -155,37 +156,26 @@ test('every job that injects secrets does it in setup, after the install', () =>
 
 // regression: turbo-build-unhashed-inputs
 test('build hashes its toolchain, shared compiler configs and output-affecting env', () => {
-  const turbo = JSON.parse(readFileSync(join(root, 'turbo.json'), 'utf8')) as {
-    globalDependencies: string[];
-    tasks: {
-      build: { env: string[]; inputs: string[] };
-      '@apps/product-ts#verify:offline-shell': {
-        inputs: string[];
-        dependsOn: string[];
-      };
-    };
-  };
-  expect(turbo.globalDependencies).toContain('mise.toml');
+  const tasks = readTurboTasks(root);
+  const build = tasks['build']!;
+  const offlineShell = tasks['@apps/product-ts#verify:offline-shell']!;
+  expect(readRootTurbo(root).globalDependencies).toContain('mise.toml');
   // Vite embeds the entire public env object for import.meta.env reads.
   for (const name of ['VITE_*', 'ANALYZE']) {
-    expect(turbo.tasks.build.env).toContain(name);
+    expect(build.env).toContain(name);
   }
   for (const file of [
     'package.json',
     'lingui.config.ts',
     'lingui.solid.config.ts',
   ]) {
-    expect(turbo.tasks.build.inputs).toContain(`$TURBO_ROOT$/${file}`);
+    expect(build.inputs).toContain(`$TURBO_ROOT$/${file}`);
   }
   for (const input of ['**/*.po', '**/*.mts', '.env.local']) {
-    expect(turbo.tasks.build.inputs).toContain(input);
+    expect(build.inputs).toContain(input);
   }
-  expect(
-    turbo.tasks['@apps/product-ts#verify:offline-shell'].dependsOn
-  ).toContain('@apps/product-ts#build');
-  expect(
-    turbo.tasks['@apps/product-ts#verify:offline-shell'].inputs
-  ).not.toContain('dist/**');
+  expect(offlineShell.dependsOn).toContain('@apps/product-ts#build');
+  expect(offlineShell.inputs).not.toContain('dist/**');
 });
 
 const WORKFLOW_FILES = [

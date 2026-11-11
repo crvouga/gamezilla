@@ -124,6 +124,7 @@ test('storybook integration: battleship own seat stays on a phone after the riva
 // Finished, the result card sat above a board sized for play, pushing the
 // fleet switch and the own seat below a 390x844 screen.
 // regression: battleship-finished-board-pushes-seat
+// regression: battleship-finished-board-ignores-place-line
 test('storybook integration: battleship finished game keeps the switch and own seat on a phone', async ({
   page,
 }, info) => {

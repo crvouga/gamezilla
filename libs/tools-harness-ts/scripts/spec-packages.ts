@@ -45,6 +45,7 @@ import {
   syntheticFeatures,
 } from './spec-live';
 import { stepRegistrationGlobs } from './step-registration-globs';
+import { resolvePackageTask } from './turbo-config';
 
 export const REPO_ROOT = resolve(import.meta.dir, '../../..');
 export const SHARED_STEPS_DIR = 'libs/harness-ts/src';
@@ -643,12 +644,8 @@ function specPartInputProblems(pkg: SpecPackage): readonly string[] {
   return [
     ...specInputProblems(join(REPO_ROOT, pkg.dir), REPO_ROOT),
     ...parts.flatMap((part) => {
-      const local = tasks[part]?.inputs;
-      const inherited = root[part]?.inputs ?? [];
       const inputs =
-        local?.flatMap((input) =>
-          input === '$TURBO_EXTENDS$' ? [...inherited] : [input]
-        ) ?? inherited;
+        resolvePackageTask(root[part], tasks[part] ?? {}).inputs ?? [];
       const input = `.cache/spec-inputs/part-${part.split(':').at(-1)}.json`;
       return inputs.includes(input)
         ? []

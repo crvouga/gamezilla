@@ -17,7 +17,9 @@ import {
   commonRoot,
   deleteArtifacts,
   downloadArtifact,
+  isRetryableWrite,
   listArtifacts,
+  PUT_RETRY_DELAYS_MS,
   uploadArtifact,
 } from './ci-artifacts';
 
@@ -167,6 +169,121 @@ test('uploading a name again replaces it rather than merging', async () => {
   await put({ 'old.json': 'old' });
   await put({ 'new.json': 'new' });
   expect(await store.listKeys('1/')).toEqual(['1/verify-plan/new.json']);
+});
+
+function s3Error(status: number): Error {
+  return Object.assign(new Error(`status ${String(status)}`), {
+    $metadata: { httpStatusCode: status, attempts: 1 },
+  });
+}
+
+/** An in-memory bucket that records every write and delete in order. */
+function recordingStore(failures = new Map<string, number[]>()) {
+  const store = new ObjectStoreImplInMemory();
+  const ops: string[] = [];
+  const put = store.put.bind(store);
+  const deleteMany = store.deleteMany.bind(store);
+  store.put = async (key, bytes, type) => {
+    ops.push(`put ${key}`);
+    const status = failures.get(key)?.shift();
+    if (status !== undefined) throw s3Error(status);
+    await put(key, bytes, type);
+  };
+  store.deleteMany = async (keys) => {
+    for (const key of keys) ops.push(`delete ${key}`);
+    await deleteMany(keys);
+  };
+  return { store, ops };
+}
+
+async function uploadFiles(
+  store: ObjectStoreImplInMemory,
+  files: Record<string, string>,
+  sleeps: number[] = []
+): Promise<number> {
+  const root = workspace(files);
+  try {
+    return await uploadArtifact({
+      store,
+      runId: '1',
+      name: 'observability-traces-1-6',
+      ...collectFiles(root, Object.keys(files)),
+      sleep: async (ms) => {
+        sleeps.push(ms);
+      },
+    });
+  } finally {
+    removeTree(root, { whenLocked: 'leave' });
+  }
+}
+
+const TRACES = '1/observability-traces-1-6/';
+
+// regression: ci-artifact-upload-r2-same-object-throttle
+test('re-uploading a name never deletes a key it then writes again, and drops only stale keys after every write', async () => {
+  const { store, ops } = recordingStore();
+  await uploadFiles(store, { 'a.ndjson': 'a1', 'b.ndjson': 'b1' });
+  ops.length = 0;
+  await uploadFiles(store, { 'b.ndjson': 'b2', 'c.ndjson': 'c2' });
+  expect(ops.filter((op) => op.startsWith('delete '))).toEqual([
+    `delete ${TRACES}a.ndjson`,
+  ]);
+  expect(ops.at(-1)).toBe(`delete ${TRACES}a.ndjson`);
+  expect(await store.listKeys('1/')).toEqual([
+    `${TRACES}b.ndjson`,
+    `${TRACES}c.ndjson`,
+  ]);
+});
+
+// regression: ci-artifact-upload-r2-same-object-throttle
+test('a throttled or failed write is retried after at least a second; other failures are not', async () => {
+  expect(PUT_RETRY_DELAYS_MS.every((ms) => ms >= 1_000)).toBe(true);
+  for (const status of [429, 500, 503])
+    expect(isRetryableWrite(s3Error(status))).toBe(true);
+  for (const status of [400, 403, 404])
+    expect(isRetryableWrite(s3Error(status))).toBe(false);
+  expect(isRetryableWrite(new Error('no status'))).toBe(false);
+
+  const key = `${TRACES}t.ndjson`;
+  const throttled = recordingStore(new Map([[key, [429, 500]]]));
+  const sleeps: number[] = [];
+  expect(await uploadFiles(throttled.store, { 't.ndjson': 't' }, sleeps)).toBe(
+    1
+  );
+  expect(sleeps).toEqual([...PUT_RETRY_DELAYS_MS]);
+  expect(await throttled.store.listKeys('1/')).toEqual([key]);
+
+  const forbidden = recordingStore(new Map([[key, [403]]]));
+  await expect(
+    uploadFiles(forbidden.store, { 't.ndjson': 't' })
+  ).rejects.toThrow('CI artifact transfer failed');
+  expect(forbidden.ops).toEqual([`put ${key}`]);
+
+  const down = recordingStore(new Map([[key, [500, 500, 500]]]));
+  await expect(uploadFiles(down.store, { 't.ndjson': 't' })).rejects.toThrow(
+    'CI artifact transfer failed'
+  );
+  expect(down.ops.length).toBe(PUT_RETRY_DELAYS_MS.length + 1);
+});
+
+// regression: ci-artifact-upload-r2-same-object-throttle
+test('the diagnostic trace and turbo summary uploads warn instead of failing Verify; transfers stay strict', () => {
+  const workflow = readFileSync(
+    join(REPO, '.github/workflows/verify-pr.yml'),
+    'utf8'
+  );
+  const uploads = [
+    ...workflow.matchAll(/ci-artifacts\.ts (--best-effort )?upload (\S+)/g),
+  ].map(([, flag, name]) => ({ name: name!, bestEffort: Boolean(flag) }));
+  const diagnostic = uploads.filter(({ name }) =>
+    /^(observability-traces|turbo-summary)-/.test(name)
+  );
+  expect(diagnostic.length).toBe(4);
+  for (const upload of uploads)
+    expect(upload).toEqual({
+      name: upload.name,
+      bestEffort: diagnostic.includes(upload),
+    });
 });
 
 // regression: github-artifact-download-attempt-selection

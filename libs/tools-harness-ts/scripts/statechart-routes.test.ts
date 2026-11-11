@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { MachineConfig } from '@crvouga/atlas';
 import {
@@ -8,6 +7,7 @@ import {
   PRODUCT_ROUTE_ROOTS,
   routeCoverageProblems,
 } from './statechart-routes';
+import { readTurboTasks } from './turbo-config';
 
 function sources(): Map<string, string> {
   return new Map([
@@ -304,11 +304,10 @@ describe('declared product route closure', () => {
 
 // regression: gate-inputs-name-missing-files
 test('turbo hashes every source the statechart verification reads', () => {
-  const turbo = JSON.parse(
-    readFileSync(join(import.meta.dirname, '../../../turbo.json'), 'utf8')
-  ) as { tasks: Record<string, { inputs?: string[] }> };
   const inputs = (
-    turbo.tasks['@libs/tools-harness-ts#ci:statecharts']?.inputs ?? []
+    readTurboTasks(join(import.meta.dirname, '../../..'))[
+      '@libs/tools-harness-ts#ci:statecharts'
+    ]?.inputs ?? []
   ).map((input) => input.replace('$TURBO_ROOT$/', ''));
   const unhashed = [
     ...PRODUCT_ROUTE_ROOTS,

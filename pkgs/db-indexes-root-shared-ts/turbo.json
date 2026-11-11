@@ -16,6 +16,10 @@
         "@pkgs/assert-root-shared-ts#src",
         "@pkgs/clock-shared-ts#src"
       ]
+    },
+    "mutants": {
+      "cache": false,
+      "passThroughEnv": ["*"]
     }
   }
 }

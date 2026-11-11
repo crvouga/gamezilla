@@ -4,6 +4,11 @@
   "tasks": {
     "src": {
       "dependsOn": []
+    },
+    "deploy": {
+      "dependsOn": ["@pkgs/ui-root-harness-ts#storybook:build"],
+      "cache": false,
+      "passThroughEnv": ["*"]
     }
   }
 }
