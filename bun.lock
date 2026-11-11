@@ -2092,6 +2092,7 @@
         "@opentelemetry/api": "catalog:",
         "@pkgs/db-schema-root-shared-ts": "workspace:*",
         "@pkgs/db-schema-sqlite-shared-ts": "workspace:*",
+        "@pkgs/fs-server-ts": "workspace:*",
         "@pkgs/matchmaking-sql-shared-ts": "workspace:*",
         "@pkgs/observability-root-server-ts": "workspace:*",
         "@pkgs/outbox-shared-ts": "workspace:*",
