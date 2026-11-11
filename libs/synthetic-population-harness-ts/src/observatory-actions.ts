@@ -2,7 +2,7 @@ import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { runScopedCreateId } from '@libs/harness-ts/run-scope';
 import {
-  SYNTHETIC_USERS_CONFIG_PATH,
+  SYNTHETIC_POPULATION_SETTINGS_PATH,
   SYNTHETIC_USERS_PATH,
 } from '@libs/observatory-shared-ts/observatory-routes';
 import { SyntheticPopulationAdministration } from '@libs/synthetic-population-server-ts/synthetic-population-administration';
@@ -39,13 +39,28 @@ export const openSyntheticPopulationPanel = scenarioAction({
     await s.actors.get(actor)!.openLink(SYNTHETIC_USERS_PATH);
   },
 });
+/**
+ * The person opens the Synthetic Users table from the Synthetic Population
+ * panel, as they would; a panel they may not open stays on its denial.
+ */
+export const openSyntheticUserDirectory = scenarioAction({
+  name: 'openSyntheticUserDirectory',
+  act: async (s, actor: string) => {
+    const ui = await actorUi(s, actor);
+    await s.actors.get(actor)!.openLink(SYNTHETIC_USERS_PATH);
+    await s.session.waitForIdle();
+    if (await ui.get('synthetic-population-denied').isVisible()) return;
+    await ui.get('synthetic-population-open-directory').tap();
+    await s.session.waitForIdle();
+  },
+});
 export const changeDesiredSyntheticPopulation = scenarioAction({
   name: 'changeDesiredSyntheticPopulation',
   act: async (s, actor: string, desired: number) => {
     // A deployed worker is running, as in production, to act on the change.
     runDeployedWorker(s, false);
     const ui = await actorUi(s, actor);
-    await s.actors.get(actor)!.openLink(SYNTHETIC_USERS_CONFIG_PATH);
+    await s.actors.get(actor)!.openLink(SYNTHETIC_POPULATION_SETTINGS_PATH);
     if (await ui.get('synthetic-population-config-denied').isVisible()) return;
     await ui.get('synthetic-population-desired-input').clear();
     await ui.get('synthetic-population-desired-input').input(String(desired));
@@ -82,9 +97,12 @@ export async function syntheticActivityShown(
   s: ProductHarness,
   actor: string
 ): Promise<boolean> {
-  return (await actorUi(s, actor))
-    .get('synthetic-population-users')
-    .isVisible();
+  // Neither the Synthetic Users table nor the way to it.
+  const ui = await actorUi(s, actor);
+  return (
+    (await ui.get('synthetic-population-user').isVisible()) ||
+    (await ui.get('synthetic-population-open-directory').isVisible())
+  );
 }
 export async function desiredSyntheticPopulation(s: ProductHarness) {
   return (

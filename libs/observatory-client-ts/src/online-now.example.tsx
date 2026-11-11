@@ -1,8 +1,7 @@
-import type { JSX } from 'solid-js';
 import { fn } from 'storybook/test';
 import { SETTINGS_FRAME_HTML } from './live-watch-frames.example';
 import type { OnlineNowEntryView } from './observatory-api';
-import { OnlineNowView, type OnlineNowViewProps } from './online-now-view';
+import type { OnlineNowScreenViewProps } from './online-now-screen-view';
 
 /** Story-only Online now and Live watch fixtures: fixed ids, real faces. */
 
@@ -143,25 +142,19 @@ export const ONLINE_NOW: readonly OnlineNowEntryView[] = [
   }),
 ];
 
-const ONLINE_NOW_VIEW: OnlineNowViewProps = {
+/** Online now as an operator who may watch sees it: everyone, unsearched. */
+export const ONLINE_NOW_SCREEN: OnlineNowScreenViewProps = {
   filter: 'everyone',
+  search: '',
   entries: ONLINE_NOW,
   loading: false,
   failed: false,
   canWatch: true,
-  canControl: true,
-  onFilterChange: fn().mockName('onlineNow.onFilterChange'),
-  onWatch: fn().mockName('onlineNow.onWatch'),
-  onControlPanel: fn().mockName('onlineNow.onControlPanel'),
-  onRetry: fn().mockName('onlineNow.onRetry'),
+  onFilterChange: fn().mockName('onFilterChange'),
+  onSearchChange: fn().mockName('onSearchChange'),
+  onWatch: fn().mockName('onWatch'),
+  onRetry: fn().mockName('onRetry'),
 };
-
-/** The online-now slot in a given state, as the container would fill it. */
-export function onlineNow(
-  overrides: Partial<OnlineNowViewProps> = {}
-): () => JSX.Element {
-  return () => <OnlineNowView {...ONLINE_NOW_VIEW} {...overrides} />;
-}
 
 /** A sanitized picture of a watched phone: nightowl_88 in Settings. */
 export const FRAME_HTML = SETTINGS_FRAME_HTML;

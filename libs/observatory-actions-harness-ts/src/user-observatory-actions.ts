@@ -72,12 +72,21 @@ async function heartbeatReceived(
   return rows.length > 0;
 }
 
-/** The person opens the User Observatory. */
+/**
+ * The person opens the User Observatory and, from its hub, Online now, as
+ * a person does to see who is online now. A person without permission is
+ * told so on the hub and goes no further.
+ */
 export const openUserObservatory = scenarioAction({
   name: 'openUserObservatory',
   act: async (s, actor: string) => {
-    await actorUi(s, actor);
+    const ui = await actorUi(s, actor);
     await s.actors.get(actor)!.openLink(OBSERVATORY_PATH);
+    await s.session.waitForIdle();
+    const onlineNow = ui.get('observatory-online-now');
+    if (!(await onlineNow.isVisible())) return;
+    await onlineNow.tap();
+    await s.session.waitForIdle();
   },
 });
 
@@ -151,16 +160,24 @@ export async function onlineNowRow(
   return (await row.isVisible()) ? ((await row.text()) ?? '') : null;
 }
 
-/** Whether the observer's row for `name` offers its control panel. */
+/**
+ * Whether the User Observatory offers the observer `name`'s control panel.
+ * Online now rows only open a live view; the way to a Synthetic User's
+ * control panel is its live view's link, so this reads that link while the
+ * observer watches `name`, and finds none anywhere else.
+ */
 export async function controlPanelOffered(
   s: ProductHarness,
   observer: string,
   name: string
 ): Promise<boolean> {
   await bringToFront(s, observer);
-  return (await actorUi(s, observer))
-    .get(`online-now-control-panel-${await usernameOf(s, name)}`)
-    .isVisible();
+  const ui = await actorUi(s, observer);
+  const shown = ui.get('live-watch-name');
+  if (!(await shown.isVisible())) return false;
+  const watched = (await shown.text())?.trim().toLowerCase();
+  if (watched !== (await usernameOf(s, name)).toLowerCase()) return false;
+  return ui.get('live-watch-control-panel').isVisible();
 }
 
 /** The live session of the actor's open app, as a link to it would name it. */

@@ -6,6 +6,8 @@ export type SummaryMetric = {
   readonly label: JSX.Element;
   readonly value: JSX.Element;
   readonly detail?: JSX.Element;
+  /** Rendered as the fact's `data-testid`, for a harness that reads it. */
+  readonly testId?: string | undefined;
 };
 export type MetricStripProps = {
   readonly metrics: readonly SummaryMetric[];
@@ -27,7 +29,7 @@ export function MetricStrip(props: MetricStripProps): JSX.Element {
     >
       <For each={props.metrics}>
         {(metric) => (
-          <div class="box gap-1 min-w-0">
+          <div class="box gap-1 min-w-0" data-testid={metric.testId}>
             <dt class="text textCaption">{metric.label}</dt>
             <dd class="text textStat m-0">{metric.value}</dd>
             <dd class="text textFootnote m-0">{metric.detail}</dd>

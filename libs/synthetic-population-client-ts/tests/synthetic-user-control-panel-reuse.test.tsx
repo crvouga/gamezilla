@@ -6,10 +6,7 @@
  */
 import { afterEach, expect, test } from 'bun:test';
 import type { SyntheticUserDetail } from '@libs/synthetic-population-client-ts/synthetic-population-api';
-import {
-  type SyntheticUserRecord,
-  SyntheticUserScreenView,
-} from '@libs/synthetic-population-client-ts/synthetic-user-screen-view';
+import { SyntheticUserScreenView } from '@libs/synthetic-population-client-ts/synthetic-user-screen-view';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
@@ -30,7 +27,7 @@ const router: AppRouter = {
 };
 
 /** A Synthetic User as the control panel reads it. */
-function syntheticUser(id: string, username: string): SyntheticUserRecord {
+function syntheticUser(id: string, username: string): SyntheticUserDetail {
   const user: SyntheticUserDetail = {
     id,
     account_id: `account-${username}`,
@@ -51,7 +48,7 @@ function syntheticUser(id: string, username: string): SyntheticUserRecord {
     updated_at: '2026-03-14T11:59:30.000Z',
     inspection: null,
   };
-  return { user, events: [] };
+  return user;
 }
 
 const CEDAR = syntheticUser('7d3f0a10-0000-4000-8000-000000000001', 'Cedar');
@@ -59,7 +56,7 @@ const MAPLE = syntheticUser('7d3f0a10-0000-4000-8000-000000000002', 'Maple');
 
 function mountControlPanel() {
   const harness = createHarnessClock();
-  const [record, setRecord] = createSignal<SyntheticUserRecord>(CEDAR);
+  const [record, setRecord] = createSignal<SyntheticUserDetail>(CEDAR);
   renderWithI18n(() => (
     <ClockProvider clock={harness.clock} timers={harness.timers}>
       <ThemeProvider
@@ -71,12 +68,13 @@ function mountControlPanel() {
             <SyntheticUserScreenView
               loading={false}
               failed={false}
-              record={record()}
+              user={record()}
               snapshot={null}
               canControl
+              canReplay={false}
               onRefresh={() => undefined}
               onCommand={async () => undefined}
-              onInspect={async () => undefined}
+              onOpen={() => undefined}
             />
           </StaticAppRouterProvider>
         </SurfaceStackProvider>
@@ -87,22 +85,29 @@ function mountControlPanel() {
 }
 
 // regression: synthetic-user-restart-outcome-follows-to-next
-test("a restart's outcome stays with the Synthetic User it was for", async () => {
-  const panel = mountControlPanel();
-  fireEvent.click(screen.getByTestId('synthetic-population-restart'));
-  fireEvent.click(screen.getByTestId('synthetic-population-restart-confirm'));
-  await waitFor(() =>
+test.each(['pause', 'resume', 'restart'] as const)(
+  "a %s's outcome stays with the Synthetic User it was for",
+  async (command) => {
+    const panel = mountControlPanel();
+    fireEvent.click(screen.getByTestId(`synthetic-population-${command}`));
+    fireEvent.click(
+      screen.getByTestId(`synthetic-population-${command}-confirm`)
+    );
+    await waitFor(() =>
+      expect(
+        screen.queryByTestId(`synthetic-population-${command}-done`)
+      ).not.toBeNull()
+    );
+
+    panel.open(MAPLE);
+
+    await waitFor(() =>
+      expect(
+        screen.queryByTestId(`synthetic-population-${command}-done`)
+      ).toBeNull()
+    );
     expect(
-      screen.queryByTestId('synthetic-population-restart-done')
-    ).not.toBeNull()
-  );
-
-  panel.open(MAPLE);
-
-  await waitFor(() =>
-    expect(screen.queryByTestId('synthetic-population-restart-done')).toBeNull()
-  );
-  expect(
-    screen.queryByTestId('synthetic-population-restart-confirm')
-  ).toBeNull();
-});
+      screen.queryByTestId(`synthetic-population-${command}-confirm`)
+    ).toBeNull();
+  }
+);

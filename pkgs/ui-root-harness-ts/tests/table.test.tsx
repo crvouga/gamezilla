@@ -117,6 +117,95 @@ describe('Table', () => {
     expect(onRowPress).toHaveBeenCalledWith('g2');
   });
 
+  test('wide: a sortable header orders the rows and flips on a second press', async () => {
+    const user = userEvent.setup();
+    renderUi(() => (
+      <Table
+        columns={COLUMNS.map((column) => ({
+          ...column,
+          sortValue: (g: Game) =>
+            column.key === 'moves' ? g.moves : g.opponent,
+        }))}
+        rows={[...GAMES, { id: 'g3', opponent: 'Linus', moves: 40 }]}
+        rowKey={(g) => g.id}
+        defaultSort={{ key: 'moves', direction: 'descending' }}
+      />
+    ));
+    const names = () =>
+      screen
+        .getAllByRole('row')
+        .slice(1)
+        .map((row) => within(row).getAllByRole('cell')[0]?.textContent);
+    const moves = screen.getByRole('columnheader', { name: 'Moves' });
+    expect(moves).toHaveAttribute('aria-sort', 'descending');
+    expect(names()).toEqual(['Grace', 'Linus', 'Ada']);
+    await user.click(within(moves).getByRole('button', { name: 'Moves' }));
+    expect(moves).toHaveAttribute('aria-sort', 'ascending');
+    expect(names()).toEqual(['Ada', 'Linus', 'Grace']);
+    const opponent = screen.getByRole('columnheader', { name: 'Opponent' });
+    await user.click(within(opponent).getByRole('button'));
+    expect(opponent).toHaveAttribute('aria-sort', 'ascending');
+    expect(moves).toHaveAttribute('aria-sort', 'none');
+    expect(names()).toEqual(['Ada', 'Grace', 'Linus']);
+  });
+
+  test('compact: the primary column heads each card and sort is offered as chips', async () => {
+    const user = userEvent.setup();
+    renderUi(
+      () => (
+        <Table
+          label="Games"
+          columns={[
+            {
+              ...nth(COLUMNS, 0),
+              primary: true,
+              sortValue: (g: Game) => g.opponent,
+            },
+            { ...nth(COLUMNS, 1), sortValue: (g: Game) => g.moves },
+          ]}
+          rows={GAMES}
+          rowKey={(g) => g.id}
+          defaultSort={{ key: 'opponent', direction: 'ascending' }}
+          testId="games"
+        />
+      ),
+      { width: 390 }
+    );
+    const list = screen.getByRole('list', { name: 'Games' });
+    const first = nth(within(list).getAllByRole('listitem'), 0);
+    // The primary column is the card's heading, not a label / value pair.
+    expect(
+      within(first)
+        .getAllByRole('term')
+        .map((t) => t.textContent)
+    ).toEqual(['Moves']);
+    expect(first.textContent.startsWith('Ada')).toBe(true);
+    expect(first).not.toHaveAttribute('data-pressable');
+    await user.click(screen.getByRole('radio', { name: 'Moves' }));
+    await user.click(screen.getByRole('button', { name: 'Sort descending' }));
+    const items = within(list).getAllByRole('listitem');
+    expect(items.map((item) => item.dataset['testid'])).toEqual([
+      'games-g2',
+      'games-g1',
+    ]);
+  });
+
+  test('pressable rows say so on the row, for both layouts', () => {
+    renderUi(() => (
+      <Table
+        columns={COLUMNS}
+        rows={GAMES}
+        rowKey={(g) => g.id}
+        onRowPress={() => undefined}
+        testId="games"
+      />
+    ));
+    expect(screen.getByTestId('games-g1')).toHaveAttribute(
+      'data-pressable',
+      'true'
+    );
+  });
+
   test('the empty slot replaces the rows', () => {
     renderUi(() => (
       <Table

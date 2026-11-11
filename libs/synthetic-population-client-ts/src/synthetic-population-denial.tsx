@@ -19,7 +19,7 @@ export function SyntheticPopulationDenial(props: {
         { name: <Trans>Profile</Trans>, href: '/profile' },
         { name: <Trans>Settings</Trans>, href: '/more' },
         { name: <Trans>User Observatory</Trans>, href: OBSERVATORY_PATH },
-        { name: <Trans>Synthetic Users</Trans> },
+        { name: <Trans>Synthetic Population</Trans> },
       ]}
     >
       <DenialSurfaceView denial={props.denial} />

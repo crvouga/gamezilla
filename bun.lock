@@ -2443,7 +2443,6 @@
         "@pkgs/clock-shared-ts": "workspace:*",
         "@pkgs/emqx-shared-ts": "workspace:*",
         "@pkgs/fs-server-ts": "workspace:*",
-        "@pkgs/http-client-shared-ts": "workspace:*",
         "@pkgs/object-store-node-fs-server-ts": "workspace:*",
         "@pkgs/property-shared-ts": "workspace:*",
         "@pkgs/secret-provider-server-ts": "workspace:*",
