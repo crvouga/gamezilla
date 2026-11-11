@@ -1,0 +1,4 @@
+{
+  "summary": "On a 320x640 phone the fixed game stage narrowed the chess board to its 184px smallest board, under the 196px a chess board needs inside its 2px border to take a move: the board went inert and its guidance and keyboard help were hidden. The stage's smallest board is now 200px, so a narrowed board can still be played.",
+  "regressionTest": "pkgs/ui-root-client-ts/tests/game-board-room-fit.property.test.ts"
+}
