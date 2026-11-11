@@ -50,12 +50,17 @@ export async function playSyntheticCurrentGame(
     await recordMovesSeen(s);
     await bringToFront(s, 'cedar');
     await players[0]!.app.continueCurrentGame();
-    if (await s.actors.get('cedar')!.ui.get('multiplayer-offline').isVisible())
-      return;
+    // A lost connection shows as offline only once it proves lost (one failed
+    // request is a hiccup), so it is looked for on every round: offline, the
+    // game waits on this device and has no result to reach.
+    const offline = () =>
+      s.actors.get('cedar')!.ui.get('multiplayer-offline').isVisible();
+    if (await offline()) return;
     await pollUntil(
       s,
       async () => {
         await play();
+        if (await offline()) return 'offline';
         const game = await syntheticGameView(s);
         return game.outcome !== null && game.outcome !== 'ongoing'
           ? game
