@@ -962,7 +962,21 @@
       "Publishes the proven Sokoban draft": "user",
       "Publishes the proven Sokoban draft without a connection": "user",
       "Builds the Sokoban board of the draft": "user",
-      "Chooses Sokoban": "user"
+      "Chooses Sokoban": "user",
+      "Opens the User Observatory": "user",
+      "Someone comes online or changes activity": "system",
+      "Watches someone live": "user",
+      "Opens the Synthetic Population panel": "user",
+      "Opens the User Observatory without permission": "user",
+      "The watched person moves around the app": "system",
+      "Returns to the User Observatory": "user",
+      "A Synthetic User's daily schedule begins or ends": "time",
+      "Opens a Synthetic User": "user",
+      "Opens the desired synthetic population": "user",
+      "Opens the control panel": "user",
+      "Returns to the Synthetic Population panel": "user",
+      "Changes the desired synthetic population": "user",
+      "Pauses, resumes or restarts Synthetic Users": "user"
     }
   },
   "states": {
@@ -5480,7 +5494,9 @@
                             "confidence": "assumed",
                             "source": [
                               "specs/games/finding-an-opponent-without-a-clock.feature",
-                              "specs/games/opponent-search.qnt"
+                              "specs/games/opponent-search.qnt",
+                              "specs/synthetic-population/finding-opponents.feature",
+                              "specs/synthetic-population/finding-opponents.qnt"
                             ],
                             "events": []
                           },
@@ -8859,8 +8875,8 @@
                     "Multiplayer: Finding an opponent": {
                       "id": "Multiplayer: Finding an opponent",
                       "meta": {
-                        "description": "The person sees their wait and may cancel it while keeping the chosen time control.",
-                        "snapshot": "The person sees their wait and may cancel it while keeping the chosen time control.",
+                        "description": "The person sees their wait and may cancel it while keeping the chosen time control. With nobody else looking for the same game, an available Synthetic User becomes the opponent within 30 seconds; with none available, the person keeps looking and is told so.",
+                        "snapshot": "The person sees their wait and may cancel it while keeping the chosen time control. With nobody else looking for the same game, an available Synthetic User becomes the opponent within 30 seconds; with none available, the person keeps looking and is told so.",
                         "confidence": "assumed",
                         "source": [
                           "specs/games/matched-game-blocking.feature:5",
@@ -8875,7 +8891,9 @@
                           "specs/games/finding-an-opponent-devices.feature:5",
                           "specs/games/finding-an-opponent.feature:72",
                           "specs/games/matched-game-over.feature:6",
-                          "specs/games/matched-game-over.feature:32"
+                          "specs/games/matched-game-over.feature:32",
+                          "specs/synthetic-population/finding-opponents.feature",
+                          "specs/synthetic-population/finding-opponents.qnt"
                         ],
                         "events": []
                       },
@@ -9030,8 +9048,8 @@
                     "Multiplayer: Playing multiplayer": {
                       "id": "Multiplayer: Playing multiplayer",
                       "meta": {
-                        "description": "Both participants see the assigned colours, whose turn it is, and the agreed clocks.",
-                        "snapshot": "Both participants see the assigned colours, whose turn it is, and the agreed clocks.",
+                        "description": "Both participants see the assigned colours, whose turn it is, and the agreed clocks. A Synthetic User opponent thinks between 2 and 20 seconds over each move, like a person.",
+                        "snapshot": "Both participants see the assigned colours, whose turn it is, and the agreed clocks. A Synthetic User opponent thinks between 2 and 20 seconds over each move, like a person.",
                         "confidence": "assumed",
                         "source": [
                           "specs/games/matched-games.als",
@@ -9064,7 +9082,9 @@
                           "specs/games/matched-game-rules-draw.feature",
                           "specs/games/matched-game-turns.feature",
                           "specs/games/matched-game-spaces.qnt",
-                          "specs/games/matched-game.qnt"
+                          "specs/games/matched-game.qnt",
+                          "specs/synthetic-population/human-like-play.feature",
+                          "specs/synthetic-population/human-like-play.qnt"
                         ],
                         "events": []
                       },
@@ -9513,13 +9533,15 @@
                     "Multiplayer: Rematch offered": {
                       "id": "Multiplayer: Rematch offered",
                       "meta": {
-                        "description": "The other participant can accept the offer, which starts a new game with swapped colours.",
-                        "snapshot": "The other participant can accept the offer, which starts a new game with swapped colours.",
+                        "description": "The other participant can accept the offer, which starts a new game with swapped colours. A Synthetic User answers within 20 seconds and plays at most 3 games in a row against the same opponent.",
+                        "snapshot": "The other participant can accept the offer, which starts a new game with swapped colours. A Synthetic User answers within 20 seconds and plays at most 3 games in a row against the same opponent.",
                         "confidence": "assumed",
                         "source": [
                           "specs/games/matched-game-rematch.feature:7",
                           "specs/games/matched-game-rematch.feature:42",
-                          "specs/games/matched-game-rematch.feature:63"
+                          "specs/games/matched-game-rematch.feature:63",
+                          "specs/synthetic-population/human-like-play.feature",
+                          "specs/synthetic-population/human-like-play.qnt"
                         ],
                         "events": []
                       },
@@ -11215,8 +11237,8 @@
                       "id": "Tools: Tool home",
                       "meta": {
                         "routes": ["/harness"],
-                        "description": "The team can choose a test world, evidence or an independent framework example.",
-                        "snapshot": "The team can choose a test world, evidence or an independent framework example.",
+                        "description": "The team can choose a test world, evidence, the User Observatory or an independent framework example.",
+                        "snapshot": "The team can choose a test world, evidence, the User Observatory or an independent framework example.",
                         "confidence": "assumed",
                         "source": [
                           "specs/README.md#context-map",
@@ -11258,6 +11280,12 @@
                         },
                         "Reads device inspection scope": {
                           "target": "#Tools: Inspection scope"
+                        },
+                        "Opens the User Observatory": {
+                          "target": "#Tools: User Observatory"
+                        },
+                        "Opens the User Observatory without permission": {
+                          "target": "#Observatory: Permission required"
                         }
                       }
                     },
@@ -11419,46 +11447,10 @@
                           "specs/developer-tools/checkpoints.feature",
                           "specs/developer-tools/test-world-views.feature",
                           "specs/developer-tools/ubiquitous-language.yml",
-                          "specs/observatory/observatory-access.dmn",
-                          "specs/observatory/online-now.feature",
-                          "specs/observatory/ubiquitous-language.yml",
-                          "specs/observatory/user-observatory.qnt",
-                          "specs/observatory/watching-live.feature",
-                          "specs/synthetic-population/choose-a-game.feature",
-                          "specs/synthetic-population/choose-a-game.qnt",
-                          "specs/synthetic-population/control-panel.feature",
-                          "specs/synthetic-population/control-panel.qnt",
-                          "specs/synthetic-population/daily-rhythm.feature",
-                          "specs/synthetic-population/daily-rhythm.qnt",
-                          "specs/synthetic-population/finding-opponents.feature",
-                          "specs/synthetic-population/finding-opponents.qnt",
-                          "specs/synthetic-population/human-like-play.feature",
-                          "specs/synthetic-population/human-like-play.qnt",
-                          "specs/synthetic-population/observatory.feature",
-                          "specs/synthetic-population/recognizing-synthetic-users.feature",
-                          "specs/synthetic-population/synthetic-population-access.dmn",
-                          "specs/synthetic-population/synthetic-user-continuity.feature",
-                          "specs/synthetic-population/synthetic-user-continuity.qnt",
-                          "specs/synthetic-population/synthetic-user-personas.feature",
-                          "specs/synthetic-population/synthetic-user-personas.qnt",
-                          "specs/synthetic-population/synthetic-user-sign-in.feature",
-                          "specs/synthetic-population/synthetic-users-play-each-other.feature",
-                          "specs/synthetic-population/ubiquitous-language.yml",
                           "specs/ubiquitous-language.yml",
-                          "specs/developer-tools/checkpoints.qnt",
-                          "specs/synthetic-population/playing-pong.feature",
-                          "specs/synthetic-population/playing-pong.qnt",
-                          "specs/synthetic-population/recognizing-synthetic-users.qnt"
+                          "specs/developer-tools/checkpoints.qnt"
                         ],
-                        "events": [],
-                        "routes": [
-                          "/admin/observatory",
-                          "/admin/observatory/live/:sessionId",
-                          "/admin/observatory/synthetic-users",
-                          "/admin/observatory/synthetic-users/:id",
-                          "/admin/observatory/synthetic-users/config",
-                          "/admin/observatory/synthetic-users/control"
-                        ]
+                        "events": []
                       },
                       "initial": "Test Worlds: Selected device",
                       "states": {
@@ -11603,6 +11595,246 @@
                       "on": {
                         "Returns to the testing tool": {
                           "target": "#Tools: Tool home"
+                        }
+                      }
+                    },
+                    "Tools: User Observatory": {
+                      "id": "Tools: User Observatory",
+                      "meta": {
+                        "description": "An authorized person sees who is online now, watches someone live and looks after the Synthetic Population from its panel.",
+                        "snapshot": "The team sees how people and Synthetic Users use the app.",
+                        "confidence": "assumed",
+                        "source": [
+                          "specs/observatory/ubiquitous-language.yml",
+                          "specs/observatory/observatory-access.dmn",
+                          "specs/observatory/user-observatory.qnt",
+                          "specs/synthetic-population/synthetic-population-access.dmn",
+                          "specs/synthetic-population/ubiquitous-language.yml",
+                          "specs/ubiquitous-language.yml"
+                        ],
+                        "events": []
+                      },
+                      "initial": "Observatory: User Observatory",
+                      "on": {
+                        "Returns to the testing tool": {
+                          "target": "#Tools: Tool home"
+                        }
+                      },
+                      "states": {
+                        "Observatory: User Observatory": {
+                          "id": "Observatory: User Observatory",
+                          "meta": {
+                            "description": "An authorized person sees whoever is online now, each with its activity and whether it is a person or a Synthetic User, and may show only people or only Synthetic Users. Only a Synthetic User is offered a control panel.",
+                            "snapshot": "An authorized person sees whoever is online now, each with its activity and whether it is a person or a Synthetic User, and may show only people or only Synthetic Users. Only a Synthetic User is offered a control panel.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/observatory/online-now.feature",
+                              "specs/observatory/user-observatory.qnt",
+                              "specs/observatory/observatory-access.dmn",
+                              "specs/synthetic-population/control-panel.feature"
+                            ],
+                            "events": [],
+                            "routes": [
+                              "/admin/observatory",
+                              "/admin/observatory/online"
+                            ],
+                            "hints": [
+                              "App address: /admin/observatory",
+                              "App address: /admin/observatory/online"
+                            ]
+                          },
+                          "on": {
+                            "Someone comes online or changes activity": {
+                              "target": "#Observatory: User Observatory"
+                            },
+                            "Watches someone live": {
+                              "target": "#Observatory: Watching live"
+                            },
+                            "Opens the Synthetic Population panel": {
+                              "target": "#Observatory: Synthetic Population panel"
+                            }
+                          }
+                        },
+                        "Observatory: Watching live": {
+                          "id": "Observatory: Watching live",
+                          "meta": {
+                            "description": "The authorized person sees the watched person's place in the app, or a Synthetic User's ongoing game as it sees it, and follows them around the app, never seeing a person's private details.",
+                            "snapshot": "The authorized person sees the watched person's place in the app, or a Synthetic User's ongoing game as it sees it, and follows them around the app, never seeing a person's private details.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/observatory/watching-live.feature",
+                              "specs/observatory/user-observatory.qnt",
+                              "specs/observatory/observatory-access.dmn"
+                            ],
+                            "events": [],
+                            "routes": ["/admin/observatory/live/:sessionId"],
+                            "hints": [
+                              "App address: /admin/observatory/live/:sessionId"
+                            ]
+                          },
+                          "on": {
+                            "The watched person moves around the app": {
+                              "target": "#Observatory: Watching live"
+                            },
+                            "Returns to the User Observatory": {
+                              "target": "#Observatory: User Observatory"
+                            }
+                          }
+                        },
+                        "Observatory: Permission required": {
+                          "id": "Observatory: Permission required",
+                          "meta": {
+                            "description": "A person without permission is told that permission is required and sees nobody online now, no one live and no Synthetic User activity.",
+                            "snapshot": "A person without permission is told that permission is required and sees nobody online now, no one live and no Synthetic User activity.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/observatory/online-now.feature",
+                              "specs/observatory/watching-live.feature",
+                              "specs/observatory/observatory-access.dmn",
+                              "specs/synthetic-population/observatory.feature",
+                              "specs/synthetic-population/synthetic-population-access.dmn"
+                            ],
+                            "events": []
+                          },
+                          "on": {}
+                        },
+                        "Observatory: Synthetic Population panel": {
+                          "id": "Observatory: Synthetic Population panel",
+                          "meta": {
+                            "description": "An authorized person sees the desired synthetic population and each Synthetic User's activity. Synthetic Users keep a daily rhythm within the desired synthetic population, each with a persona of its own, and with no person looking they play each other to a multiplayer result.",
+                            "snapshot": "An authorized person sees the desired synthetic population and each Synthetic User's activity. Synthetic Users keep a daily rhythm within the desired synthetic population, each with a persona of its own, and with no person looking they play each other to a multiplayer result.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/synthetic-population/observatory.feature",
+                              "specs/synthetic-population/synthetic-population-access.dmn",
+                              "specs/synthetic-population/synthetic-user-personas.feature",
+                              "specs/synthetic-population/synthetic-user-personas.qnt",
+                              "specs/synthetic-population/daily-rhythm.feature",
+                              "specs/synthetic-population/daily-rhythm.qnt",
+                              "specs/synthetic-population/synthetic-users-play-each-other.feature",
+                              "specs/synthetic-population/finding-opponents.qnt",
+                              "specs/synthetic-population/choose-a-game.feature",
+                              "specs/synthetic-population/choose-a-game.qnt",
+                              "specs/synthetic-population/synthetic-user-continuity.feature",
+                              "specs/synthetic-population/synthetic-user-continuity.qnt",
+                              "specs/synthetic-population/synthetic-user-sign-in.feature",
+                              "specs/synthetic-population/control-panel.feature"
+                            ],
+                            "events": [],
+                            "routes": [
+                              "/admin/observatory/synthetic-users",
+                              "/admin/observatory/synthetic-users/directory",
+                              "/admin/observatory/synthetic-users/workers",
+                              "/admin/observatory/synthetic-users/events"
+                            ],
+                            "hints": [
+                              "App address: /admin/observatory/synthetic-users",
+                              "App address: /admin/observatory/synthetic-users/directory",
+                              "App address: /admin/observatory/synthetic-users/workers",
+                              "App address: /admin/observatory/synthetic-users/events"
+                            ]
+                          },
+                          "on": {
+                            "A Synthetic User's daily schedule begins or ends": {
+                              "target": "#Observatory: Synthetic Population panel"
+                            },
+                            "Opens a Synthetic User": {
+                              "target": "#Observatory: Synthetic User"
+                            },
+                            "Opens the desired synthetic population": {
+                              "target": "#Observatory: Desired synthetic population"
+                            },
+                            "Opens the control panel": {
+                              "target": "#Observatory: Control panel"
+                            },
+                            "Returns to the User Observatory": {
+                              "target": "#Observatory: User Observatory"
+                            }
+                          }
+                        },
+                        "Observatory: Synthetic User": {
+                          "id": "Observatory: Synthetic User",
+                          "meta": {
+                            "description": "One Synthetic User's persona, kept for good: its username, skill level and favorite games, with its current activity.",
+                            "snapshot": "One Synthetic User's persona, kept for good: its username, skill level and favorite games, with its current activity.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/synthetic-population/synthetic-user-personas.feature",
+                              "specs/synthetic-population/synthetic-user-personas.qnt",
+                              "specs/synthetic-population/synthetic-user-continuity.feature",
+                              "specs/synthetic-population/synthetic-user-continuity.qnt"
+                            ],
+                            "events": [],
+                            "routes": [
+                              "/admin/observatory/synthetic-users/:id",
+                              "/admin/observatory/synthetic-users/:id/events",
+                              "/admin/observatory/synthetic-users/:id/replay",
+                              "/admin/observatory/synthetic-users/:id/inspector"
+                            ],
+                            "hints": [
+                              "App address: /admin/observatory/synthetic-users/:id",
+                              "App address: /admin/observatory/synthetic-users/:id/events",
+                              "App address: /admin/observatory/synthetic-users/:id/replay",
+                              "App address: /admin/observatory/synthetic-users/:id/inspector"
+                            ]
+                          },
+                          "on": {
+                            "Returns to the Synthetic Population panel": {
+                              "target": "#Observatory: Synthetic Population panel"
+                            }
+                          }
+                        },
+                        "Observatory: Desired synthetic population": {
+                          "id": "Observatory: Desired synthetic population",
+                          "meta": {
+                            "description": "An authorized person changes the desired synthetic population; a person with observation permission is told that permission is required and the number stays as it was.",
+                            "snapshot": "An authorized person changes the desired synthetic population; a person with observation permission is told that permission is required and the number stays as it was.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/synthetic-population/observatory.feature",
+                              "specs/synthetic-population/synthetic-population-access.dmn",
+                              "specs/synthetic-population/daily-rhythm.feature",
+                              "specs/synthetic-population/daily-rhythm.qnt"
+                            ],
+                            "events": [],
+                            "routes": [
+                              "/admin/observatory/synthetic-users/settings"
+                            ],
+                            "hints": [
+                              "App address: /admin/observatory/synthetic-users/settings"
+                            ]
+                          },
+                          "on": {
+                            "Changes the desired synthetic population": {
+                              "target": "#Observatory: Desired synthetic population"
+                            },
+                            "Returns to the Synthetic Population panel": {
+                              "target": "#Observatory: Synthetic Population panel"
+                            }
+                          }
+                        },
+                        "Observatory: Control panel": {
+                          "id": "Observatory: Control panel",
+                          "meta": {
+                            "description": "An authorized person pauses, resumes or restarts one Synthetic User or every one at once. A paused Synthetic User finishes its ongoing game and starts no new activity; a restarted one keeps its account, persona and ongoing game. A person with observation permission is told that permission is required.",
+                            "snapshot": "An authorized person pauses, resumes or restarts one Synthetic User or every one at once. A paused Synthetic User finishes its ongoing game and starts no new activity; a restarted one keeps its account, persona and ongoing game. A person with observation permission is told that permission is required.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/synthetic-population/control-panel.feature",
+                              "specs/synthetic-population/control-panel.qnt",
+                              "specs/synthetic-population/observatory.feature",
+                              "specs/synthetic-population/synthetic-population-access.dmn"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Pauses, resumes or restarts Synthetic Users": {
+                              "target": "#Observatory: Control panel"
+                            },
+                            "Returns to the Synthetic Population panel": {
+                              "target": "#Observatory: Synthetic Population panel"
+                            }
+                          }
                         }
                       }
                     },

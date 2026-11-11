@@ -2964,6 +2964,7 @@
         "$TURBO_ROOT$/libs/game-puzzle-shared-ts/src/puzzle-link.ts",
         "$TURBO_ROOT$/libs/game-matchmaking-client-ts/src/multiplayer-link-client.tsx",
         "$TURBO_ROOT$/libs/game-matchmaking-shared-ts/src/multiplayer-link.ts",
+        "$TURBO_ROOT$/libs/observatory-shared-ts/src/observatory-routes.ts",
         "$TURBO_ROOT$/apps/product-ts/src/main.tsx",
         "$TURBO_ROOT$/apps/product-ts/src/console-nav-real.ts"
       ],
@@ -6818,10 +6819,6 @@
     "@libs/tools-harness-ts#generate:identity-agents": {
       "cache": false,
       "dependsOn": ["@libs/tools-harness-ts#generate:identity"]
-    },
-    "@libs/infra-server-ts#check:alert-delivery": {
-      "cache": false,
-      "passThroughEnv": ["*"]
     }
   }
 }

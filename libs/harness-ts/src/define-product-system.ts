@@ -186,6 +186,7 @@ export function defineProductSystem(
       await harness.spawnServer();
       await composition.seedServer?.(harness.serverSql.sqlClient);
       const surface = createProductHarness(session, harness);
+      await composition.beforeScenario?.(surface);
       // Default actor runtime so `system.explore` / `spawnActor` work without
       // openHarness. openHarness may replace this with a recording-aware wrapper.
       wireProductRuntime(surface);

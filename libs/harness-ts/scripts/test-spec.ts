@@ -69,7 +69,12 @@ import {
 import { completedOrigin, reportOrigin } from './report-origin';
 import type { Part, SpecUnit } from './spec-parts';
 import { partOf } from './spec-parts';
-import { packageSpecDomains, packageSpecs } from './spec-sources';
+import {
+  packageSpecDomains,
+  packageSpecManifest,
+  packageSpecs,
+  specWorkers,
+} from './spec-sources';
 import { isSpecPath, VERIFY_KINDS } from './spec-verify-kinds';
 
 const PACKAGE_DIR = process.cwd();
@@ -354,7 +359,14 @@ const result = spawnSync(
     String(PRODUCT_HARNESS_TIMEOUT_MS),
     // One product world per worker (~2GB). The ceiling follows CPUs and RAM;
     // VERIFY_TEST_CONCURRENCY can only lower it. Frames still go to the report.
-    `--parallel=${String(specParallelism(process.env))}`,
+    // A stack-serial package's scenarios share state no run can partition.
+    `--parallel=${String(
+      specWorkers(
+        process.env,
+        packageSpecManifest(PACKAGE_DIR),
+        specParallelism(process.env)
+      )
+    )}`,
     '--no-isolate',
     '--reporter=junit',
     `--reporter-outfile=${JUNIT_PATH}`,

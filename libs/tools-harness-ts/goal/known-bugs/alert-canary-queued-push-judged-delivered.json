@@ -1,4 +1,0 @@
-{
-  "summary": "IRM records a mobile attempt before its asynchronous push send. A queued attempt without a successful notification outcome must not pass the delivery canary or trigger early resolution.",
-  "regressionTest": "libs/infra-server-ts/tests/alert-delivery-check.test.ts"
-}

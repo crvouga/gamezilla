@@ -1,0 +1,4 @@
+{
+  "summary": "Online now kept its people / Synthetic Users filter only while its screen stayed mounted, so after Alice showed only Synthetic Users and reopened the User Observatory through its hub, the list showed everyone again and Bob reappeared. The filter is now this device's remembered choice.",
+  "regressionTest": "libs/observatory-harness-ts/tests/quint/user-observatory.binding.ts"
+}

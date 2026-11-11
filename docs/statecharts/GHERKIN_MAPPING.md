@@ -23,6 +23,7 @@ every rule in a feature.
 | [Journeys](../../specs/journeys/) | Whole-product root, Pong, Sokoban and puzzle content |
 | [Matchmaking](../../specs/matchmaking/) | Independent matchmaking contract |
 | [Numberlink](../../specs/numberlink/) | Numberlink |
+| [Observatory](../../specs/observatory/) | User Observatory: online now, watching live |
 | [Pong](../../specs/pong/) | Pong |
 | [Profile](../../specs/profile/) | Identity, profile and devices, signing in, sign-in methods, privacy |
 | [Puzzles](../../specs/puzzles/) | Puzzle content: drafts, playtests, editions, packs, attempts and pack progress |
@@ -31,7 +32,7 @@ every rule in a feature.
 | [Sokoban](../../specs/sokoban/) | Sokoban |
 | [Spaces](../../specs/spaces/) | Spaces |
 | [Sync engine](../../specs/sync-engine/) | Independent notes contract, related inspection scope |
-| [Synthetic Population](../../specs/synthetic-population/) | Test worlds, Pong |
+| [Synthetic Population](../../specs/synthetic-population/) | User Observatory: Synthetic Population panel, Synthetic Users, desired synthetic population, control panel; finding an opponent, multiplayer play, Pong |
 | [Word Tiles](../../specs/word-tiles/) | Word Tiles |
 
 This table locates source families; the current exact examples and their

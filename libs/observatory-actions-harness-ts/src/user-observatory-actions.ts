@@ -15,6 +15,7 @@ import { signInWithGoogle } from '@libs/harness-ts/auth-actions';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { actorEmail, signedInAccountOf } from '@libs/harness-ts/identity';
 import { bringToFront } from '@libs/harness-ts/observations';
+import { runScopedUsername } from '@libs/harness-ts/run-scope';
 import { backToTabs } from '@libs/harness-ts/shell-actions';
 import type { OnlineNowFilter } from '@libs/observatory-shared-ts/live-session';
 import {
@@ -25,9 +26,37 @@ import sql from '@pkgs/sql-root-shared-ts/sql';
 
 const ONLINE_MS = 15_000;
 
-/** The username a scenario's name has in the app. */
-function usernameOf(name: string): string {
+/** The device (actor) of the person or Synthetic User a scenario names. */
+function actorOf(name: string): string {
   return name.toLowerCase();
+}
+
+/** The username each actor was last seen with, for after their app closed. */
+const usernamesSeen = new WeakMap<ProductHarness, Map<string, string>>();
+
+/**
+ * The username a scenario's name has in the app: the one the server holds
+ * for the actor's account. On a stack every run's people have names of
+ * their own, so it is read rather than assumed from the scenario's name.
+ */
+async function usernameOf(s: ProductHarness, name: string): Promise<string> {
+  const actor = actorOf(name);
+  const seen = usernamesSeen.get(s) ?? new Map<string, string>();
+  usernamesSeen.set(s, seen);
+  const accountId = s.actors.has(actor)
+    ? await signedInAccountOf(s, actor)
+    : null;
+  if (accountId !== null) {
+    const rows = await s.harness.serverSql.sqlClient.query(
+      sql<{
+        username: string | null;
+      }>`SELECT username FROM profile WHERE id = ${accountId} AND deleted_at IS NULL`
+    );
+    const username = rows[0]?.username;
+    if (typeof username === 'string' && username.length > 0)
+      seen.set(actor, username);
+  }
+  return seen.get(actor) ?? runScopedUsername(s, actor);
 }
 
 /** Whether the server holds a fresh heartbeat from the actor's open app. */
@@ -43,12 +72,21 @@ async function heartbeatReceived(
   return rows.length > 0;
 }
 
-/** The person opens the User Observatory. */
+/**
+ * The person opens the User Observatory and, from its hub, Online now, as
+ * a person does to see who is online now. A person without permission is
+ * told so on the hub and goes no further.
+ */
 export const openUserObservatory = scenarioAction({
   name: 'openUserObservatory',
   act: async (s, actor: string) => {
-    await actorUi(s, actor);
+    const ui = await actorUi(s, actor);
     await s.actors.get(actor)!.openLink(OBSERVATORY_PATH);
+    await s.session.waitForIdle();
+    const onlineNow = ui.get('observatory-online-now');
+    if (!(await onlineNow.isVisible())) return;
+    await onlineNow.tap();
+    await s.session.waitForIdle();
   },
 });
 
@@ -78,6 +116,8 @@ export const openPersonApp = scenarioAction({
       async () => ((await heartbeatReceived(s, actor)) ? true : null),
       { maxMs: ONLINE_MS, description: `${actor}'s app is online now` }
     );
+    // Seen now, the username still names them once the app is closed.
+    await usernameOf(s, actor);
   },
 });
 
@@ -88,6 +128,7 @@ export const openPersonApp = scenarioAction({
 export const closePersonApp = scenarioAction({
   name: 'closePersonApp',
   act: async (s, actor: string) => {
+    await usernameOf(s, actor);
     await s.runtime.restartActor(actor);
     await s.session.waitForIdle();
     const remaining = s.actors.keys().next().value;
@@ -114,21 +155,29 @@ export async function onlineNowRow(
 ): Promise<string | null> {
   await bringToFront(s, observer);
   const row = (await actorUi(s, observer)).get(
-    `online-now-row-${usernameOf(name)}`
+    `online-now-row-${await usernameOf(s, name)}`
   );
   return (await row.isVisible()) ? ((await row.text()) ?? '') : null;
 }
 
-/** Whether the observer's row for `name` offers its control panel. */
+/**
+ * Whether the User Observatory offers the observer `name`'s control panel.
+ * Online now rows only open a live view; the way to a Synthetic User's
+ * control panel is its live view's link, so this reads that link while the
+ * observer watches `name`, and finds none anywhere else.
+ */
 export async function controlPanelOffered(
   s: ProductHarness,
   observer: string,
   name: string
 ): Promise<boolean> {
   await bringToFront(s, observer);
-  return (await actorUi(s, observer))
-    .get(`online-now-control-panel-${usernameOf(name)}`)
-    .isVisible();
+  const ui = await actorUi(s, observer);
+  const shown = ui.get('live-watch-name');
+  if (!(await shown.isVisible())) return false;
+  const watched = (await shown.text())?.trim().toLowerCase();
+  if (watched !== (await usernameOf(s, name)).toLowerCase()) return false;
+  return ui.get('live-watch-control-panel').isVisible();
 }
 
 /** The live session of the actor's open app, as a link to it would name it. */
@@ -136,7 +185,7 @@ async function liveSessionOf(
   s: ProductHarness,
   actor: string
 ): Promise<string | null> {
-  const accountId = await signedInAccountOf(s, usernameOf(actor));
+  const accountId = await signedInAccountOf(s, actorOf(actor));
   const rows = await s.harness.serverSql.sqlClient.query(sql<{ id: string }>`
     SELECT id FROM population_live_sessions
     WHERE account_id = ${accountId ?? ''} AND deleted_at IS NULL`);
@@ -152,7 +201,7 @@ export const watchLive = scenarioAction({
   act: async (s, watcher: string, target: string) => {
     await Promise.resolve(openUserObservatory.act(s, watcher));
     const ui = await actorUi(s, watcher);
-    const row = ui.get(`online-now-row-${usernameOf(target)}`);
+    const row = ui.get(`online-now-row-${await usernameOf(s, target)}`);
     await row.wait('visible', { timeoutMs: ONLINE_MS }).catch(() => undefined);
     if (await row.isVisible()) await row.tap();
     await s.session.waitForIdle();

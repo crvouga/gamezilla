@@ -4,6 +4,7 @@
  * ever answer the people waiting for them.
  */
 
+import { sendMoveFromBoard } from '@libs/game-matchmaking-harness-ts/multiplayer-board';
 import { sendMultiplayerCommand } from '@libs/game-matchmaking-harness-ts/multiplayer-commands';
 import { multiplayerView } from '@libs/game-matchmaking-harness-ts/multiplayer-reads';
 import { scenarioAction } from '@libs/harness-ts/actor-ui';
@@ -15,7 +16,11 @@ import {
   givenSyntheticGameChoice,
   startSyntheticActivity,
 } from './game-choice-actions';
-import { carryOnSyntheticUsers, setPlaySetup } from './live-synthetic-users';
+import {
+  carryOnSyntheticUsers,
+  setPlaySetup,
+  setScenarioCarryOn,
+} from './live-synthetic-users';
 import { lookForMultiplayerOpponent } from './opponent-finding-actions';
 
 export const GAME = 'chess';
@@ -49,12 +54,47 @@ async function standing(s: ProductHarness, actor: string) {
   return 'idle';
 }
 
+/** A first move each side can always make: White's, and Black's answer to any. */
+const FIRST_MOVES = ['e2e4', 'g8f6'] as const;
+
+function offline(s: ProductHarness, person: string): boolean {
+  return s.session.network
+    .partitions()
+    .some((pair) => (pair as readonly string[]).includes(person));
+}
+
+/**
+ * People play the games they are matched into: each makes their first move
+ * when it is theirs, so no game is called off for a first move nobody made.
+ */
+async function peopleMakeTheirFirstMove(s: ProductHarness): Promise<void> {
+  for (const person of worldOf(s).people) {
+    if (offline(s, person)) continue;
+    const own = await signedInAccountOf(s, person);
+    const game = (await multiplayerView(s, person)).game;
+    if (own === null || game === null || game.outcome !== 'ongoing') continue;
+    const uci = FIRST_MOVES[game.revision];
+    if (game.turn !== own || uci === undefined) continue;
+    await sendMoveFromBoard(s, person, {
+      gameId: game.id,
+      revision: game.revision,
+      uci,
+      requestId: `first-move-${game.id}-${person}`,
+    });
+  }
+}
+
 /** `available` Synthetic Users, each signed in and answering only people who wait for it. */
 export const givenFindingOpponents = scenarioAction({
   name: 'givenFindingOpponents',
   act: async (s, available: number) => {
     const synthetic = SYNTHETIC.slice(0, available);
     worlds.set(s, { synthetic: [...synthetic], people: [] });
+    // A paused Synthetic User rests until it is resumed; people play on.
+    setScenarioCarryOn(s, {
+      people: () => peopleMakeTheirFirstMove(s),
+      resting: () => pausedNames(s),
+    });
     for (const name of synthetic) {
       await Promise.resolve(givenSyntheticGameChoice.act(s, name));
       // It browses unless sent to a person; it never offers a rematch.
@@ -66,14 +106,9 @@ export const givenFindingOpponents = scenarioAction({
   },
 });
 
-/** The Synthetic Users who carry on: everyone not paused. */
+/** The Synthetic Users carry on: everyone not paused. */
 async function carryOn(s: ProductHarness, settled: () => Promise<boolean>) {
-  const paused = await pausedNames(s);
-  await carryOnSyntheticUsers(s, {
-    maxMs: ANSWER_MS,
-    only: (member) => !paused.has(member.name),
-    settled,
-  });
+  await carryOnSyntheticUsers(s, { maxMs: ANSWER_MS, settled });
 }
 
 /** A new person looks for a chess opponent; the Synthetic Users carry on meanwhile. */
@@ -170,6 +205,7 @@ export const personGameEnds = scenarioAction({
         )
       ).map((row) => row.account_id)
     );
+    // The model ends a game only while every person has a connection.
     for (const person of worldOf(s).people) {
       const view = await multiplayerView(s, person);
       if (view.game === null || view.game.outcome !== 'ongoing') continue;
@@ -189,7 +225,7 @@ export const personGameEnds = scenarioAction({
       if (await someoneWaiting(s)) await carryOn(s, () => nobodyWaiting(s));
       return;
     }
-    throw new Error('No person is playing');
+    throw new Error('No person is playing a Synthetic User');
   },
 });
 

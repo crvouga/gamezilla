@@ -1,6 +1,6 @@
 /**
  * The control panels as the model sees them: Alice acts on her phone and
- * follows the Synthetic Population panel on her tablet; Cedar and Maple are
+ * follows the Synthetic Users table on her tablet; Cedar and Maple are
  * Synthetic Users, each with a person to play a matched game against.
  */
 
@@ -20,6 +20,7 @@ import {
 } from '@libs/harness-ts/auth-actions';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront } from '@libs/harness-ts/observations';
+import { runScopedUsername } from '@libs/harness-ts/run-scope';
 import { backToTabs } from '@libs/harness-ts/shell-actions';
 import { grantOperatorPermissions } from '@libs/observatory-actions-harness-ts/operator-access-actions';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
@@ -31,7 +32,7 @@ import {
   directoryControlPanelOffered,
   directoryRowShown,
 } from './control-panel-actions';
-import { openSyntheticPopulationPanel } from './observatory-actions';
+import { openSyntheticUserDirectory } from './observatory-actions';
 import {
   givenSyntheticGameSpace,
   openSyntheticGame,
@@ -49,7 +50,7 @@ const OPPONENT: Record<string, string> = { Cedar: 'bob', Maple: 'carol' };
 const SYNTHETIC_USERS = ['Cedar', 'Maple'] as const;
 const READY_MS = 15_000;
 
-/** Alice may control; Cedar and Maple are available; her tablet follows them. */
+/** Alice may control; Cedar and Maple are available; her tablet follows them in the Synthetic Users table. */
 export const givenControlPanels = scenarioAction({
   name: 'givenControlPanels',
   act: async (s) => {
@@ -66,15 +67,15 @@ export const givenControlPanels = scenarioAction({
     await Promise.resolve(
       signInWithGoogleAsAccount.act(s, ALICE_LIST, ALICE_CONTROL)
     );
-    await Promise.resolve(openSyntheticPopulationPanel.act(s, ALICE_LIST));
+    await Promise.resolve(openSyntheticUserDirectory.act(s, ALICE_LIST));
   },
 });
 
-/** Alice opens the Synthetic Population panel on the device that follows it. */
+/** Alice opens the Synthetic Users table on the device that follows it. */
 export const openControlPanels = scenarioAction({
   name: 'openControlPanels',
   act: async (s) => {
-    await Promise.resolve(openSyntheticPopulationPanel.act(s, ALICE_LIST));
+    await Promise.resolve(openSyntheticUserDirectory.act(s, ALICE_LIST));
     await s.session.waitForIdle();
   },
 });
@@ -132,7 +133,10 @@ export const startSyntheticGame = scenarioAction({
     // After an earlier matched game the person is still in its space, where
     // neither the tab bar nor a back button is offered: leave it first.
     await Promise.resolve(backToTabs.act(s, person));
-    await configureUsername(await actorUi(s, person), person);
+    await configureUsername(
+      await actorUi(s, person),
+      runScopedUsername(s, person)
+    );
     for (const player of [actor, person]) {
       await enterGameSpace(s, player, label);
       await Promise.resolve(
@@ -198,7 +202,7 @@ export const setAliceConnection = scenarioAction({
 });
 
 /**
- * What Alice and the Synthetic Users see: who her panel shows as paused and
+ * What Alice and the Synthetic Users see: who her table shows as paused and
  * offers a control panel for, and who is in an ongoing game on its own
  * screen.
  */

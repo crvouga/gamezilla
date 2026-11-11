@@ -1,0 +1,4 @@
+{
+  "summary": "The finding-opponents model's world never let its people move: a person matched into a chess game sat through the next person's 45-second look, so the server called the game off for a missed first move (30 seconds) and the model's people playing dropped to 0 (Verify Nightly traces 1 and 8). The binding's people now make their first move when it is theirs, while the Synthetic Users carry on.",
+  "regressionTest": "libs/synthetic-population-harness-ts/tests/quint/finding-opponents.binding.ts"
+}
