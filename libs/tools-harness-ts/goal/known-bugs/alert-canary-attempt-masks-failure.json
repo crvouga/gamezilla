@@ -1,4 +1,0 @@
-{
-  "summary": "A mobile canary timeline beginning with a triggered attempt must not pass when the same responder's later entry reports notification failure.",
-  "regressionTest": "libs/infra-server-ts/tests/alert-delivery-check.test.ts"
-}

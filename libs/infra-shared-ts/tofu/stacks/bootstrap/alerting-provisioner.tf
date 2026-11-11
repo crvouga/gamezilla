@@ -1,5 +1,5 @@
 # Cloud service-account roles force replacement. A dedicated provisioner grants
-# IRM administration without deleting the live delivery check's Editor account.
+# IRM administration without replacing the existing Editor account.
 resource "grafana_cloud_stack_service_account" "alerting_provisioner" {
   count = local.routing_ready ? 1 : 0
 
