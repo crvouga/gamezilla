@@ -3,7 +3,6 @@ import { Button } from '@pkgs/ui-root-client-ts/button';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { type JSX, Show } from 'solid-js';
 import { PuzzleActionBar } from './puzzle-action-bar';
-import { PuzzleBoardFrame } from './puzzle-board-frame';
 import { PuzzleMoveHistory } from './puzzle-move-history';
 import type { PuzzlePlayScreenViewProps } from './puzzle-play-screen-model';
 
@@ -12,7 +11,9 @@ import type { PuzzlePlayScreenViewProps } from './puzzle-play-screen-model';
  * allows (the next puzzle, a retry); while it is being solved, the way
  * back to solving it.
  */
-function LineActions(props: PuzzlePlayScreenViewProps): JSX.Element {
+export function PuzzleLineActions(
+  props: PuzzlePlayScreenViewProps
+): JSX.Element {
   return (
     <StackVertical paddingX="lg">
       <Show
@@ -45,29 +46,19 @@ function LineActions(props: PuzzlePlayScreenViewProps): JSX.Element {
 }
 
 /**
- * The `line` place: step through the moves played. The board shows the
- * chosen move, never taking one; the move list has the step and jump
- * controls, and a sideways swipe over it steps too.
+ * The `line` place's moves: the move list with its step and jump controls;
+ * a sideways swipe over it steps too.
  */
-export function PuzzlePlayLineView(
-  props: PuzzlePlayScreenViewProps
-): JSX.Element {
+export function PuzzleLineMoves(props: PuzzlePlayScreenViewProps): JSX.Element {
   return (
-    <PuzzleBoardFrame
-      screenId="chess-puzzle-line"
-      view={props}
-      actions={<LineActions {...props} />}
-      timeline={
-        <PuzzleMoveHistory
-          plies={props.line.plies}
-          selectedSolveIdx={props.line.selectedSolveIdx}
-          interactive={props.line.interactive}
-          writing={props.line.writing}
-          onSeek={props.line.onSeek}
-          awaiting={props.line.awaiting}
-          nav={props.line.nav}
-        />
-      }
+    <PuzzleMoveHistory
+      plies={props.line.plies}
+      selectedSolveIdx={props.line.selectedSolveIdx}
+      interactive={props.line.interactive}
+      writing={props.line.writing}
+      onSeek={props.line.onSeek}
+      awaiting={props.line.awaiting}
+      nav={props.line.nav}
     />
   );
 }

@@ -1,18 +1,22 @@
-import { expect, userEvent, within } from 'storybook/test';
-import type { Meta, StoryObj } from 'storybook-solidjs-vite';
-import { PuzzlePlayScreenView } from './puzzle-play-screen-view';
 import {
   PUZZLE_PLAY_STORY_ARGS,
   PUZZLE_PLAY_STORY_CONTROLS_EXCLUDE,
+  type PuzzlePlayStoryArgs,
   type PuzzleScene,
   renderPuzzlePlayScene,
   STORY_LINE,
   STORY_NO_RESULT,
   STORY_RESULT,
   STORY_SOLVED,
-  StoryPuzzleBoard,
   withScreenFrame,
-} from './puzzle-screen-story.example';
+} from '@libs/game-puzzle-client-ts/puzzle-screen-story.example';
+import { expect, userEvent, within } from 'storybook/test';
+import type { Meta, StoryObj } from 'storybook-solidjs-vite';
+import { ChessPuzzleBoard } from './chess-puzzle-board';
+import {
+  StoryChessPuzzleBoard,
+  withChessPuzzleBoardContext,
+} from './chess-puzzle-story.example';
 
 /** The whole line played out, for the row that steps through it. */
 const WHOLE_LINE: PuzzleScene = {
@@ -23,16 +27,17 @@ const WHOLE_LINE: PuzzleScene = {
 
 /**
  * The feed's `result` place: how the finished puzzle went, the rating it
- * made, and what next.
+ * made, and what next, under the board its puzzle feed plays on (chess's)
+ * with the puzzle's last move.
  */
 const meta = {
   id: 'screens-puzzles-play-result',
   title: 'Screens/Puzzles/Play/Result',
-  component: PuzzlePlayScreenView,
+  component: ChessPuzzleBoard,
   tags: ['autodocs'],
-  decorators: [withScreenFrame],
+  decorators: [withScreenFrame, withChessPuzzleBoardContext],
   render: (args, context) =>
-    renderPuzzlePlayScene(args, context, StoryPuzzleBoard),
+    renderPuzzlePlayScene(args, context, StoryChessPuzzleBoard),
   parameters: {
     appRouter: true,
     controls: { exclude: [...PUZZLE_PLAY_STORY_CONTROLS_EXCLUDE] },
@@ -40,6 +45,7 @@ const meta = {
   },
   args: {
     ...PUZZLE_PLAY_STORY_ARGS,
+    boardSizing: 'width',
     stage: 'finished',
     place: { screen: 'result' },
     statusKind: 'solved',
@@ -49,9 +55,10 @@ const meta = {
     ratingChange: 16,
     result: STORY_RESULT,
   },
-} satisfies Meta<typeof PuzzlePlayScreenView>;
+} satisfies Meta<PuzzlePlayStoryArgs>;
 export default meta;
-type Story = StoryObj<typeof meta>;
+// The render owns screen-fixture args; the production board owns this story slice.
+type Story = StoryObj<Omit<typeof meta, 'component'>>;
 
 /** Solved: the rating it earned, the streak, and the next puzzle. */
 export const Solved: Story = {};
@@ -163,5 +170,8 @@ export const StepThroughTheLine: Story = {
       await canvas.findByTestId('chess-puzzle-move-nav-back')
     ).toBeVisible();
     await expect(canvas.queryByTestId('chess-puzzle-summary')).toBeNull();
+    await expect(
+      await canvas.findByTestId('chess-puzzle-action-next')
+    ).toBeVisible();
   },
 };

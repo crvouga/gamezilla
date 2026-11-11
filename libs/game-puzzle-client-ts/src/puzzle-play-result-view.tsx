@@ -4,9 +4,8 @@ import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
-import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
-import { GameResultHeadline } from '@pkgs/ui-root-client-ts/game-result';
 import { GameActions } from '@pkgs/ui-root-client-ts/game-section';
+import { H2 } from '@pkgs/ui-root-client-ts/heading';
 import {
   ChevronRightIcon,
   RotateCcwIcon,
@@ -15,17 +14,13 @@ import {
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { Text } from '@pkgs/ui-root-client-ts/text';
+import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { createMemo, type JSX, Match, Show, Switch } from 'solid-js';
 import type { PuzzlePlayScreenViewProps } from './puzzle-play-screen-model';
 import { PuzzleRatingBadge } from './puzzle-rating-badge';
 import { PuzzleSettingsRow } from './puzzle-settings-row';
 import { PuzzleShareLabel } from './puzzle-share-label';
 import { PuzzleSummaryCard } from './puzzle-summary-card';
-
-function formatSignedDelta(delta: number): string {
-  return delta > 0 ? `+${delta}` : String(delta);
-}
 
 /** How the puzzle ended, in the tone of its outcome. */
 function ResultTitle(props: PuzzlePlayScreenViewProps): JSX.Element {
@@ -69,18 +64,10 @@ function ResultCaption(props: PuzzlePlayScreenViewProps): JSX.Element {
   );
 }
 
-/**
- * The puzzle's own facts, each a quiet tag: its rating, its themes, that
- * the attempt was a repeat, and the rating change of an attempt that has
- * no rated summary (a skip after a wrong move).
- */
+/** The puzzle's own facts, each a quiet tag: its rating and its themes. */
 function ResultFacts(props: PuzzlePlayScreenViewProps): JSX.Element {
   const themeLabel = (theme: string): string =>
     props.feed.themes?.label(theme) ?? theme;
-  const change = (): number | null =>
-    props.result.completion === null && typeof props.ratingChange === 'number'
-      ? props.ratingChange
-      : null;
   return (
     <StackHorizontal wrap gap="sm" justify="center">
       <Show when={props.result.puzzleRating > 0}>
@@ -97,41 +84,29 @@ function ResultFacts(props: PuzzlePlayScreenViewProps): JSX.Element {
           dataSet={{ testid: Handles.chessPuzzleFeedPuzzleThemes }}
         />
       </Show>
-      <Show when={props.ratingChange === 'unrated'}>
-        <Badge
-          intent="neutral"
-          label={<Trans>Unrated</Trans>}
-          dataSet={{ testid: Handles.chessPuzzleFeedUnratedLabel }}
-        />
-      </Show>
-      <Show when={change()} keyed>
-        {(delta) => (
-          <Badge
-            intent="neutral"
-            label={formatSignedDelta(delta)}
-            dataSet={{ testid: Handles.chessPuzzleFeedRatingChange }}
-          />
-        )}
-      </Show>
     </StackHorizontal>
   );
 }
 
 /** Onward from the result: the line on the board, and the puzzle settings. */
-function ResultRows(props: PuzzlePlayScreenViewProps): JSX.Element {
+export function PuzzleResultRows(
+  props: PuzzlePlayScreenViewProps
+): JSX.Element {
   return (
-    <MenuSection>
-      <MenuRow
-        title={<Trans>Step through the line</Trans>}
-        onClick={() => props.onOpen({ screen: 'line' })}
-        dataSet={{ testid: Handles.chessPuzzleSummaryClose }}
-      />
-      <PuzzleSettingsRow
-        feed={props.feed}
-        allowanceLabel={props.allowanceLabel}
-        onOpen={() => props.onOpen({ screen: 'feed' })}
-      />
-    </MenuSection>
+    <StackVertical paddingX="lg">
+      <MenuSection>
+        <MenuRow
+          title={<Trans>Step through the line</Trans>}
+          onClick={() => props.onOpen({ screen: 'line' })}
+          dataSet={{ testid: Handles.chessPuzzleSummaryClose }}
+        />
+        <PuzzleSettingsRow
+          feed={props.feed}
+          allowanceLabel={props.allowanceLabel}
+          onOpen={() => props.onOpen({ screen: 'feed' })}
+        />
+      </MenuSection>
+    </StackVertical>
   );
 }
 
@@ -191,39 +166,42 @@ function ResultCommands(props: PuzzlePlayScreenViewProps): JSX.Element {
 }
 
 /**
- * The `result` place: how the finished puzzle went (solved, the solution
- * shown, skipped), the rating it made, and what next: the next puzzle,
- * a retry, or sharing it. Rows lead on to the line and the puzzle settings.
+ * The `result` place, under the board that keeps the puzzle's last move:
+ * how it went (solved, the solution shown, skipped), the rating it made,
+ * and what next. The status line over the board carries the coach's words
+ * about it, and what the attempt did to the rating when it has no rated
+ * summary (a skip).
  */
-export function PuzzlePlayResultView(
+export function PuzzleResultSummary(
   props: PuzzlePlayScreenViewProps
 ): JSX.Element {
   return (
-    <EmbeddedScreen
-      screenId="chess-puzzle-result"
-      title={<Trans>Puzzles</Trans>}
+    <StackVertical
+      paddingX="lg"
+      gap="lg"
       dataSet={{ testid: Handles.chessPuzzleSummary, outcome: props.status }}
     >
-      <StackVertical gap="xl">
-        <StackVertical gap="lg" align="center">
-          <GameResultHeadline
-            title={<ResultTitle {...props} />}
-            caption={<ResultCaption {...props} />}
-          />
-          <Show when={props.result.completion} keyed>
-            {(completion) => (
-              <PuzzleSummaryCard
-                completion={completion}
-                displayRating={props.result.displayRating}
-                provisional={props.result.provisional}
-              />
-            )}
-          </Show>
-          <ResultFacts {...props} />
+      <StackVertical gap="md" align="center">
+        <StackVertical gap="xs" align="center">
+          <H2 size="heading" align="center">
+            <ResultTitle {...props} />
+          </H2>
+          <P variant="caption" tone="secondary" align="center">
+            <ResultCaption {...props} />
+          </P>
         </StackVertical>
-        <ResultCommands {...props} />
-        <ResultRows {...props} />
+        <Show when={props.result.completion} keyed>
+          {(completion) => (
+            <PuzzleSummaryCard
+              completion={completion}
+              displayRating={props.result.displayRating}
+              provisional={props.result.provisional}
+            />
+          )}
+        </Show>
+        <ResultFacts {...props} />
       </StackVertical>
-    </EmbeddedScreen>
+      <ResultCommands {...props} />
+    </StackVertical>
   );
 }

@@ -236,8 +236,13 @@ test('result: how it went, the rating it made, and Next puzzle as the one filled
     'chess-puzzle-feed-summary',
   ])
     expect(shown(command)).toBe(true);
-  expect(shown('board')).toBe(false);
+  // The board keeps the puzzle's last move under the coach's words on it.
+  expect(shown('board')).toBe(true);
+  expect(region('PuzzleHeader').textContent).toContain(
+    'Something on the board is undefended.'
+  );
   expect(shown('chess-puzzle-action-hint')).toBe(false);
+  expect(shown('chess-puzzle-move-nav-back')).toBe(false);
 });
 
 test('result: a skip has no rated outcome, and still offers the next puzzle and a retry', () => {
@@ -250,6 +255,7 @@ test('result: a skip has no rated outcome, and still offers the next puzzle and 
     'Puzzle skipped'
   );
   expect(shown('chess-puzzle-summary-delta')).toBe(false);
+  expect(shown('chess-puzzle-feed-rating-change')).toBe(false);
   expect(shown('chess-puzzle-summary-next')).toBe(true);
   expect(shown('chess-puzzle-action-retry')).toBe(true);
 });
@@ -277,4 +283,18 @@ test('width-driven chess bypasses height fitting without changing the default pu
   mountPlay('play', { boardSizing: 'fit' });
   expect(region('PuzzleScreen').getAttribute('data-board-sizing')).toBe('fit');
   expect(document.querySelector('[data-component="BoardFit"]')).not.toBeNull();
+});
+
+test('result: a skip after a wrong move says what the attempt cost, once', () => {
+  mountPlay('result', {
+    stage: 'finished',
+    statusKind: 'skipped',
+    status: 'skipped',
+    ratingChange: -9,
+  });
+  expect(
+    screen
+      .getAllByTestId('chess-puzzle-feed-rating-change')
+      .map((tag) => tag.textContent)
+  ).toEqual(['-9']);
 });

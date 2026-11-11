@@ -20,8 +20,12 @@ function formatSignedDelta(delta: number): string {
  * repeat, §9); then the clock, and the mark of someone watching.
  */
 function StatusLineTrailing(props: PuzzlePlayScreenViewProps): JSX.Element {
+  // A finished puzzle's rated summary says the change itself.
   const change = (): number | null =>
-    typeof props.ratingChange === 'number' ? props.ratingChange : null;
+    typeof props.ratingChange === 'number' &&
+    !(props.place.screen === 'result' && props.result.completion !== null)
+      ? props.ratingChange
+      : null;
   return (
     <>
       <Show when={change()} keyed>

@@ -28,9 +28,8 @@ export async function completeChessPuzzle(canvasElement: HTMLElement) {
     canvas.getByRole('button', { name: /^e7, Black king/ })
   ).toBeVisible();
   await move(/^c3, White knight/, '{ArrowUp}{ArrowUp}{ArrowRight}');
-  // Solved: the result takes the board's place; its row leads to the line.
+  // Solved: the result arrives under the same board, which has not moved.
   await expect(await canvas.findByText('Puzzle solved!')).toBeVisible();
-  await userEvent.click(canvas.getByText('Step through the line'));
   await assertStablePuzzleRectangle(canvasElement, initial, 'solved');
   await expect(canvas.getByText('Checkmate. Puzzle solved.')).toBeVisible();
   await expect(

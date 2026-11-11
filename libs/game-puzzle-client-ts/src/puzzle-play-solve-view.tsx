@@ -7,7 +7,6 @@ import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { For, type JSX, Show } from 'solid-js';
 import { PuzzleActionBar } from './puzzle-action-bar';
-import { PuzzleBoardFrame } from './puzzle-board-frame';
 import { HistoryPlyCluster } from './puzzle-move-history-ply';
 import type { PuzzlePlayScreenViewProps } from './puzzle-play-screen-model';
 import { PuzzleSettingsRow } from './puzzle-settings-row';
@@ -15,7 +14,7 @@ import { PuzzleSettingsRow } from './puzzle-settings-row';
 const ignoreSeek = (): void => {};
 
 /** A watcher sees what is left of the host's rated allowance. */
-function SpectatorAllowance(props: { label: string }): JSX.Element {
+export function SpectatorAllowance(props: { label: string }): JSX.Element {
   return (
     <Show when={props.label.length > 0}>
       <StackVertical paddingX="md" paddingY="xs">
@@ -36,7 +35,9 @@ function SpectatorAllowance(props: { label: string }): JSX.Element {
  * (`buildPuzzleActionBarPlan`). While the board shows an earlier move the
  * hint waits, and the way back to the latest move is offered under it.
  */
-function SolveActions(props: PuzzlePlayScreenViewProps): JSX.Element {
+export function PuzzleSolveActions(
+  props: PuzzlePlayScreenViewProps
+): JSX.Element {
   return (
     <StackVertical paddingX="lg" gap="sm">
       <PuzzleActionBar
@@ -120,44 +121,24 @@ function CompactLine(props: PuzzlePlayScreenViewProps): JSX.Element {
 }
 
 /**
- * The `play` place: solve the puzzle on the board. The status line, the
- * board, what the solve state allows, the line so far and the one row to
- * the puzzle settings. A watcher gets the board, the status line and the
- * line only.
+ * The `play` place's line: the moves so far and, for the solver, the one
+ * row to the puzzle settings.
  */
-export function PuzzlePlaySolveView(
-  props: PuzzlePlayScreenViewProps
-): JSX.Element {
+export function PuzzleSolveLine(props: PuzzlePlayScreenViewProps): JSX.Element {
   return (
-    <PuzzleBoardFrame
-      screenId="chess-puzzle-play"
-      view={props}
-      lead={
-        <Show when={props.spectator}>
-          <SpectatorAllowance label={props.allowanceLabel} />
-        </Show>
-      }
-      actions={
-        <Show when={!props.spectator}>
-          <SolveActions {...props} />
-        </Show>
-      }
-      timeline={
-        <StackVertical gap="md">
-          <CompactLine {...props} />
-          <Show when={!props.spectator}>
-            <StackVertical paddingX="lg">
-              <MenuSection>
-                <PuzzleSettingsRow
-                  feed={props.feed}
-                  allowanceLabel={props.allowanceLabel}
-                  onOpen={() => props.onOpen({ screen: 'feed' })}
-                />
-              </MenuSection>
-            </StackVertical>
-          </Show>
+    <StackVertical gap="md">
+      <CompactLine {...props} />
+      <Show when={!props.spectator}>
+        <StackVertical paddingX="lg">
+          <MenuSection>
+            <PuzzleSettingsRow
+              feed={props.feed}
+              allowanceLabel={props.allowanceLabel}
+              onOpen={() => props.onOpen({ screen: 'feed' })}
+            />
+          </MenuSection>
         </StackVertical>
-      }
-    />
+      </Show>
+    </StackVertical>
   );
 }

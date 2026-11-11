@@ -198,7 +198,7 @@ function PuzzlePlayerChrome(props: {
           <PuzzlePlayerBoardSlot
             size={size}
             p={p}
-            live={places.nav.place().screen === 'play'}
+            live={places.nav.place().screen !== 'line'}
           />
         )}
         line={line()}

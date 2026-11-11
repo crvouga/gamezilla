@@ -62,6 +62,15 @@ export const PUZZLE_FEED_SCREENS = [
 const STATUS: PuzzlePlayPlace = { screen: 'status' };
 const WITHOUT_PUZZLE = ['status', ...PUZZLE_FEED_SCREENS] as const;
 
+/** Whether `place` is one with the board: `play`, `line` or `result`. */
+export function isPuzzleBoardPlace(place: PuzzlePlayPlace): boolean {
+  return (
+    place.screen === 'play' ||
+    place.screen === 'line' ||
+    place.screen === 'result'
+  );
+}
+
 /** Whether `place` is one of the feed settings' screens. */
 export function isPuzzleFeedPlace(place: PuzzlePlayPlace): boolean {
   return PUZZLE_FEED_SCREENS.some((screen) => screen === place.screen);
