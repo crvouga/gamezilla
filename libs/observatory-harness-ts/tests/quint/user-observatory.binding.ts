@@ -25,6 +25,7 @@ import {
 import { searchUsername } from '@libs/search-harness-ts/search-actions';
 import type { QuintValue } from '@pkgs/quint-shared-ts/itf';
 import { bindQuintModel } from '@pkgs/quint-shared-ts/registry';
+import onlineNowFilterForgotten from './fixtures/online-now-filter-forgotten.itf.json';
 
 /** The game Cedar looks for an opponent in throughout a trace. */
 const GAME = 'chess';
@@ -61,6 +62,16 @@ bindQuintModel<QuintHarnessWorld>({
   maxSteps: 12,
   verifySteps: 3,
   timeoutMs: 240_000,
+  regressions: [
+    {
+      // regression: online-now-filter-forgotten
+      id: 'online-now-filter-forgotten',
+      title:
+        'Alice reopens the User Observatory and still shows only what she chose',
+      seed: '0x67932',
+      itf: onlineNowFilterForgotten,
+    },
+  ],
   actions: {
     init: (w) => w.s.apply(givenUserObservatory, GAME),
     openApp: (w, picks) => w.s.apply(reopenLiveApp, String(picks['who'])),

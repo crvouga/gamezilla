@@ -1,0 +1,630 @@
+{
+  "#meta": {
+    "format": "ITF",
+    "format-description": "https://apalache-mc.org/docs/adr/015adr-trace.html",
+    "source": "specs/observatory/user-observatory.qnt",
+    "status": "ok",
+    "description": "Created by Quint on Tue Nov 10 2026 17:57:45 GMT-0700 (Mountain Standard Time)",
+    "timestamp": 1794358665014
+  },
+  "vars": [
+    "connectionAvailable",
+    "_listBeforeOffline",
+    "placeOf",
+    "_placeBeforeOffline",
+    "watching",
+    "_offline",
+    "placeShown",
+    "_appOpen",
+    "privateDetailsShown",
+    "onlineNow",
+    "listShown",
+    "showing",
+    "_watchStopped",
+    "watchEndedNotice",
+    "mbt::actionTaken",
+    "mbt::nondetPicks"
+  ],
+  "states": [
+    {
+      "#meta": {
+        "index": 0
+      },
+      "_appOpen": {
+        "#set": ["Bob", "Cedar"]
+      },
+      "_listBeforeOffline": {
+        "#set": []
+      },
+      "_offline": {
+        "#set": []
+      },
+      "_placeBeforeOffline": "",
+      "_watchStopped": false,
+      "connectionAvailable": true,
+      "listShown": {
+        "#set": ["Bob", "Cedar"]
+      },
+      "mbt::actionTaken": "init",
+      "mbt::nondetPicks": {
+        "show": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "who": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
+      "onlineNow": {
+        "#set": ["Bob", "Cedar"]
+      },
+      "placeOf": {
+        "#map": [["Bob", "tabs"], ["Cedar", "game"]]
+      },
+      "placeShown": "",
+      "privateDetailsShown": false,
+      "showing": {
+        "#set": ["people", "Synthetic Users"]
+      },
+      "watchEndedNotice": false,
+      "watching": ""
+    },
+    {
+      "#meta": {
+        "index": 1
+      },
+      "_appOpen": {
+        "#set": ["Bob", "Cedar"]
+      },
+      "_listBeforeOffline": {
+        "#set": []
+      },
+      "_offline": {
+        "#set": []
+      },
+      "_placeBeforeOffline": "",
+      "_watchStopped": false,
+      "connectionAvailable": true,
+      "listShown": {
+        "#set": ["Bob"]
+      },
+      "mbt::actionTaken": "showOnly",
+      "mbt::nondetPicks": {
+        "show": {
+          "tag": "Some",
+          "value": {
+            "#set": ["people"]
+          }
+        },
+        "who": {
+          "tag": "Some",
+          "value": "Bob"
+        }
+      },
+      "onlineNow": {
+        "#set": ["Bob", "Cedar"]
+      },
+      "placeOf": {
+        "#map": [["Bob", "tabs"], ["Cedar", "game"]]
+      },
+      "placeShown": "",
+      "privateDetailsShown": false,
+      "showing": {
+        "#set": ["people"]
+      },
+      "watchEndedNotice": false,
+      "watching": ""
+    },
+    {
+      "#meta": {
+        "index": 2
+      },
+      "_appOpen": {
+        "#set": ["Bob", "Cedar"]
+      },
+      "_listBeforeOffline": {
+        "#set": []
+      },
+      "_offline": {
+        "#set": []
+      },
+      "_placeBeforeOffline": "",
+      "_watchStopped": false,
+      "connectionAvailable": true,
+      "listShown": {
+        "#set": ["Bob"]
+      },
+      "mbt::actionTaken": "continueActivity",
+      "mbt::nondetPicks": {
+        "show": {
+          "tag": "Some",
+          "value": {
+            "#set": ["people"]
+          }
+        },
+        "who": {
+          "tag": "Some",
+          "value": "Bob"
+        }
+      },
+      "onlineNow": {
+        "#set": ["Bob", "Cedar"]
+      },
+      "placeOf": {
+        "#map": [["Bob", "tabs"], ["Cedar", "game"]]
+      },
+      "placeShown": "",
+      "privateDetailsShown": false,
+      "showing": {
+        "#set": ["people"]
+      },
+      "watchEndedNotice": false,
+      "watching": ""
+    },
+    {
+      "#meta": {
+        "index": 3
+      },
+      "_appOpen": {
+        "#set": ["Bob", "Cedar"]
+      },
+      "_listBeforeOffline": {
+        "#set": []
+      },
+      "_offline": {
+        "#set": ["Cedar"]
+      },
+      "_placeBeforeOffline": "",
+      "_watchStopped": false,
+      "connectionAvailable": true,
+      "listShown": {
+        "#set": ["Bob"]
+      },
+      "mbt::actionTaken": "_loseConnection",
+      "mbt::nondetPicks": {
+        "show": {
+          "tag": "Some",
+          "value": {
+            "#set": ["Synthetic Users"]
+          }
+        },
+        "who": {
+          "tag": "Some",
+          "value": "Cedar"
+        }
+      },
+      "onlineNow": {
+        "#set": ["Bob"]
+      },
+      "placeOf": {
+        "#map": [["Bob", "tabs"], ["Cedar", "game"]]
+      },
+      "placeShown": "",
+      "privateDetailsShown": false,
+      "showing": {
+        "#set": ["people"]
+      },
+      "watchEndedNotice": false,
+      "watching": ""
+    },
+    {
+      "#meta": {
+        "index": 4
+      },
+      "_appOpen": {
+        "#set": ["Bob", "Cedar"]
+      },
+      "_listBeforeOffline": {
+        "#set": []
+      },
+      "_offline": {
+        "#set": ["Cedar"]
+      },
+      "_placeBeforeOffline": "",
+      "_watchStopped": false,
+      "connectionAvailable": true,
+      "listShown": {
+        "#set": ["Bob"]
+      },
+      "mbt::actionTaken": "viewSignInMethods",
+      "mbt::nondetPicks": {
+        "show": {
+          "tag": "Some",
+          "value": {
+            "#set": ["people", "Synthetic Users"]
+          }
+        },
+        "who": {
+          "tag": "Some",
+          "value": "Cedar"
+        }
+      },
+      "onlineNow": {
+        "#set": ["Bob"]
+      },
+      "placeOf": {
+        "#map": [["Bob", "sign-in methods"], ["Cedar", "game"]]
+      },
+      "placeShown": "",
+      "privateDetailsShown": false,
+      "showing": {
+        "#set": ["people"]
+      },
+      "watchEndedNotice": false,
+      "watching": ""
+    },
+    {
+      "#meta": {
+        "index": 5
+      },
+      "_appOpen": {
+        "#set": ["Bob", "Cedar"]
+      },
+      "_listBeforeOffline": {
+        "#set": []
+      },
+      "_offline": {
+        "#set": ["Cedar"]
+      },
+      "_placeBeforeOffline": "",
+      "_watchStopped": false,
+      "connectionAvailable": true,
+      "listShown": {
+        "#set": []
+      },
+      "mbt::actionTaken": "showOnly",
+      "mbt::nondetPicks": {
+        "show": {
+          "tag": "Some",
+          "value": {
+            "#set": ["Synthetic Users"]
+          }
+        },
+        "who": {
+          "tag": "Some",
+          "value": "Bob"
+        }
+      },
+      "onlineNow": {
+        "#set": ["Bob"]
+      },
+      "placeOf": {
+        "#map": [["Bob", "sign-in methods"], ["Cedar", "game"]]
+      },
+      "placeShown": "",
+      "privateDetailsShown": false,
+      "showing": {
+        "#set": ["Synthetic Users"]
+      },
+      "watchEndedNotice": false,
+      "watching": ""
+    },
+    {
+      "#meta": {
+        "index": 6
+      },
+      "_appOpen": {
+        "#set": ["Bob", "Cedar"]
+      },
+      "_listBeforeOffline": {
+        "#set": []
+      },
+      "_offline": {
+        "#set": ["Cedar"]
+      },
+      "_placeBeforeOffline": "",
+      "_watchStopped": false,
+      "connectionAvailable": true,
+      "listShown": {
+        "#set": []
+      },
+      "mbt::actionTaken": "openObservatory",
+      "mbt::nondetPicks": {
+        "show": {
+          "tag": "Some",
+          "value": {
+            "#set": ["people"]
+          }
+        },
+        "who": {
+          "tag": "Some",
+          "value": "Cedar"
+        }
+      },
+      "onlineNow": {
+        "#set": ["Bob"]
+      },
+      "placeOf": {
+        "#map": [["Bob", "sign-in methods"], ["Cedar", "game"]]
+      },
+      "placeShown": "",
+      "privateDetailsShown": false,
+      "showing": {
+        "#set": ["Synthetic Users"]
+      },
+      "watchEndedNotice": false,
+      "watching": ""
+    },
+    {
+      "#meta": {
+        "index": 7
+      },
+      "_appOpen": {
+        "#set": ["Bob", "Cedar"]
+      },
+      "_listBeforeOffline": {
+        "#set": []
+      },
+      "_offline": {
+        "#set": ["Cedar"]
+      },
+      "_placeBeforeOffline": "",
+      "_watchStopped": false,
+      "connectionAvailable": true,
+      "listShown": {
+        "#set": []
+      },
+      "mbt::actionTaken": "viewSignInMethods",
+      "mbt::nondetPicks": {
+        "show": {
+          "tag": "Some",
+          "value": {
+            "#set": ["people", "Synthetic Users"]
+          }
+        },
+        "who": {
+          "tag": "Some",
+          "value": "Bob"
+        }
+      },
+      "onlineNow": {
+        "#set": ["Bob"]
+      },
+      "placeOf": {
+        "#map": [["Bob", "sign-in methods"], ["Cedar", "game"]]
+      },
+      "placeShown": "",
+      "privateDetailsShown": false,
+      "showing": {
+        "#set": ["Synthetic Users"]
+      },
+      "watchEndedNotice": false,
+      "watching": ""
+    },
+    {
+      "#meta": {
+        "index": 8
+      },
+      "_appOpen": {
+        "#set": ["Bob", "Cedar"]
+      },
+      "_listBeforeOffline": {
+        "#set": []
+      },
+      "_offline": {
+        "#set": ["Cedar"]
+      },
+      "_placeBeforeOffline": "",
+      "_watchStopped": false,
+      "connectionAvailable": true,
+      "listShown": {
+        "#set": []
+      },
+      "mbt::actionTaken": "searchPeople",
+      "mbt::nondetPicks": {
+        "show": {
+          "tag": "Some",
+          "value": {
+            "#set": ["people"]
+          }
+        },
+        "who": {
+          "tag": "Some",
+          "value": "Cedar"
+        }
+      },
+      "onlineNow": {
+        "#set": ["Bob"]
+      },
+      "placeOf": {
+        "#map": [["Bob", "people search"], ["Cedar", "game"]]
+      },
+      "placeShown": "",
+      "privateDetailsShown": false,
+      "showing": {
+        "#set": ["Synthetic Users"]
+      },
+      "watchEndedNotice": false,
+      "watching": ""
+    },
+    {
+      "#meta": {
+        "index": 9
+      },
+      "_appOpen": {
+        "#set": ["Bob", "Cedar"]
+      },
+      "_listBeforeOffline": {
+        "#set": []
+      },
+      "_offline": {
+        "#set": []
+      },
+      "_placeBeforeOffline": "",
+      "_watchStopped": false,
+      "connectionAvailable": true,
+      "listShown": {
+        "#set": ["Cedar"]
+      },
+      "mbt::actionTaken": "_comeBackOnline",
+      "mbt::nondetPicks": {
+        "show": {
+          "tag": "Some",
+          "value": {
+            "#set": ["people"]
+          }
+        },
+        "who": {
+          "tag": "Some",
+          "value": "Cedar"
+        }
+      },
+      "onlineNow": {
+        "#set": ["Bob", "Cedar"]
+      },
+      "placeOf": {
+        "#map": [["Bob", "people search"], ["Cedar", "game"]]
+      },
+      "placeShown": "",
+      "privateDetailsShown": false,
+      "showing": {
+        "#set": ["Synthetic Users"]
+      },
+      "watchEndedNotice": false,
+      "watching": ""
+    },
+    {
+      "#meta": {
+        "index": 10
+      },
+      "_appOpen": {
+        "#set": ["Bob", "Cedar"]
+      },
+      "_listBeforeOffline": {
+        "#set": []
+      },
+      "_offline": {
+        "#set": []
+      },
+      "_placeBeforeOffline": "",
+      "_watchStopped": false,
+      "connectionAvailable": true,
+      "listShown": {
+        "#set": ["Cedar"]
+      },
+      "mbt::actionTaken": "openObservatory",
+      "mbt::nondetPicks": {
+        "show": {
+          "tag": "Some",
+          "value": {
+            "#set": ["people"]
+          }
+        },
+        "who": {
+          "tag": "Some",
+          "value": "Cedar"
+        }
+      },
+      "onlineNow": {
+        "#set": ["Bob", "Cedar"]
+      },
+      "placeOf": {
+        "#map": [["Bob", "people search"], ["Cedar", "game"]]
+      },
+      "placeShown": "",
+      "privateDetailsShown": false,
+      "showing": {
+        "#set": ["Synthetic Users"]
+      },
+      "watchEndedNotice": false,
+      "watching": ""
+    },
+    {
+      "#meta": {
+        "index": 11
+      },
+      "_appOpen": {
+        "#set": ["Bob", "Cedar"]
+      },
+      "_listBeforeOffline": {
+        "#set": []
+      },
+      "_offline": {
+        "#set": []
+      },
+      "_placeBeforeOffline": "",
+      "_watchStopped": false,
+      "connectionAvailable": true,
+      "listShown": {
+        "#set": ["Bob"]
+      },
+      "mbt::actionTaken": "showOnly",
+      "mbt::nondetPicks": {
+        "show": {
+          "tag": "Some",
+          "value": {
+            "#set": ["people"]
+          }
+        },
+        "who": {
+          "tag": "Some",
+          "value": "Cedar"
+        }
+      },
+      "onlineNow": {
+        "#set": ["Bob", "Cedar"]
+      },
+      "placeOf": {
+        "#map": [["Bob", "people search"], ["Cedar", "game"]]
+      },
+      "placeShown": "",
+      "privateDetailsShown": false,
+      "showing": {
+        "#set": ["people"]
+      },
+      "watchEndedNotice": false,
+      "watching": ""
+    },
+    {
+      "#meta": {
+        "index": 12
+      },
+      "_appOpen": {
+        "#set": ["Bob", "Cedar"]
+      },
+      "_listBeforeOffline": {
+        "#set": []
+      },
+      "_offline": {
+        "#set": []
+      },
+      "_placeBeforeOffline": "",
+      "_watchStopped": false,
+      "connectionAvailable": true,
+      "listShown": {
+        "#set": ["Bob"]
+      },
+      "mbt::actionTaken": "searchPeople",
+      "mbt::nondetPicks": {
+        "show": {
+          "tag": "Some",
+          "value": {
+            "#set": ["people"]
+          }
+        },
+        "who": {
+          "tag": "Some",
+          "value": "Cedar"
+        }
+      },
+      "onlineNow": {
+        "#set": ["Bob", "Cedar"]
+      },
+      "placeOf": {
+        "#map": [["Bob", "people search"], ["Cedar", "game"]]
+      },
+      "placeShown": "",
+      "privateDetailsShown": false,
+      "showing": {
+        "#set": ["people"]
+      },
+      "watchEndedNotice": false,
+      "watching": ""
+    }
+  ]
+}
