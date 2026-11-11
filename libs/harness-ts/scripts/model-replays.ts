@@ -7,6 +7,9 @@
  *   bun run --conditions=browser --conditions=development \
  *     --preload=@pkgs/bun-test-solid-client-ts/register \
  *     ../../libs/harness-ts/scripts/model-replays.ts --write
+ *
+ * A model's measured `nightlyReplayCost` is not part of the draw: the
+ * rewrite keeps the one the plan already records.
  */
 
 import { existsSync, writeFileSync } from 'node:fs';
@@ -16,10 +19,10 @@ import {
   drawModelInstances,
   instancesReplayPlan,
 } from '@pkgs/quint-server-ts/model-instances';
-import type { ReplayPlan } from '@pkgs/quint-server-ts/trace-runs';
 import { quintBinding } from '@pkgs/quint-shared-ts/registry';
 import type { ReplayPlans } from './replay-plans';
-import { REPLAY_PLAN_PATH } from './replay-plans';
+import { REPLAY_PLAN_PATH, readReplayPlans } from './replay-plans';
+import type { PlannedModel } from './spec-parts';
 import { packageSpecs } from './spec-sources';
 
 /** The plan file's text: models in path order, as the draw has them now. */
@@ -38,7 +41,8 @@ async function writePlans(dir: string): Promise<void> {
   if (!existsSync(entry)) throw new Error(`${dir}: no tests/quint/index.ts`);
   // The entry registers the bindings and the host's variants; it opens no world.
   await import(entry);
-  const plans: Record<string, ReplayPlan> = {};
+  const previous = readReplayPlans(dir);
+  const plans: Record<string, PlannedModel> = {};
   for (const specPath of packageSpecs(dir, root)) {
     if (!specPath.endsWith('.qnt')) continue;
     const model = basename(specPath, '.qnt');
@@ -51,7 +55,11 @@ async function writePlans(dir: string): Promise<void> {
       binding,
       outDir: join(dir, '.cache/replay-plan', model),
     });
-    plans[model] = instancesReplayPlan(instances, binding);
+    const cost = previous?.[model]?.nightlyReplayCost;
+    plans[model] = {
+      ...instancesReplayPlan(instances, binding),
+      ...(cost === undefined ? {} : { nightlyReplayCost: cost }),
+    };
     console.log(`quint: planned ${model}`);
   }
   writeFileSync(join(dir, REPLAY_PLAN_PATH), formatReplayPlans(plans));

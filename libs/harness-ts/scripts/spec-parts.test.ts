@@ -4,7 +4,7 @@ import { basename, join } from 'node:path';
 import type { ReplayPlan } from '@pkgs/quint-server-ts/trace-runs';
 import { sliceReplays } from '@pkgs/quint-server-ts/trace-runs';
 import { packageSpecInventory, readReplayPlans } from './replay-plans';
-import type { SpecUnit } from './spec-parts';
+import type { PlannedModel, SpecUnit } from './spec-parts';
 import {
   MODEL_FILE_REPLAYS,
   MODEL_SLICES,
@@ -16,6 +16,7 @@ import {
   partLoad,
   partOf,
   partsOf,
+  plannedModelFiles,
   plannedModelUnits,
   SLICE_SCENARIOS,
   specUnits,
@@ -156,6 +157,37 @@ describe('a planned model', () => {
         PART_REPLAYS * NIGHTLY_REPLAY_SCALE
       );
     }
+  });
+
+  // regression: secret-choices-nightly-parts-overrun
+  test('a model measured heavier spreads its nightly replays over more files and parts', () => {
+    const wide: PlannedModel = {
+      seed: '0x67932',
+      traces: 128,
+      cover: [2, 6],
+      replayed: [2, 6],
+      regressions: 5,
+      determinism: false,
+      variants: 1,
+    };
+    const heavy: PlannedModel = { ...wide, nightlyReplayCost: 4 };
+    const light = plannedModelUnits('specs/games/secret-choices.qnt', wide);
+    const units = plannedModelUnits('specs/games/secret-choices.qnt', heavy);
+    expect(light.length).toBe(3);
+    expect(units.length).toBe(9);
+    // Every replay still runs once, in each profile.
+    expect(sum(units, 'pr')).toBe(sum(light, 'pr'));
+    expect(sum(units, 'nightly')).toBe(133);
+    for (const unit of units) {
+      expect(unit.replays!.pr).toBeLessThanOrEqual(MODEL_FILE_REPLAYS);
+      expect(partLoad([unit]).nightly).toBe(4 * unit.replays!.nightly);
+      expect(partLoad([unit]).nightly).toBeLessThanOrEqual(
+        PART_REPLAYS * NIGHTLY_REPLAY_SCALE
+      );
+      // The gate's load of a file is its replays, whatever they cost nightly.
+      expect(partLoad([unit]).load).toBe(TRACE_WEIGHT * unit.replays!.pr);
+    }
+    expect(plannedModelFiles(heavy)).toBe(units.length);
   });
 
   test('a package that plans replays sizes its models by them', () => {
