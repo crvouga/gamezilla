@@ -15,7 +15,7 @@ const move = (ply: number): GameMoveListEntry => ({
   testId: `move-${String(ply)}`,
 });
 
-function reserves(moves: GameMoveListEntry[], wrap: boolean) {
+function reserves(moves: GameMoveListEntry[], wrap: boolean, ended = false) {
   const view = render(() => (
     <GameMoveList
       moves={moves}
@@ -24,6 +24,7 @@ function reserves(moves: GameMoveListEntry[], wrap: boolean) {
       layout="turn"
       aria-label="Moves"
       wrap={wrap}
+      ended={ended}
       onSelect={() => undefined}
     />
   ));
@@ -44,4 +45,13 @@ test('a wrapping turn keeps room for its moves still to come, unseen and inert',
   expect(half[0]?.hasAttribute('inert')).toBe(true);
   expect(reserves([move(1), move(2), move(3), move(4)], true)).toHaveLength(0);
   expect(reserves([move(1), move(2), move(3)], false)).toHaveLength(0);
+});
+
+// A finished game's last turn never fills: keeping room for its missing
+// moves left an empty second line in the record (Battleship's won phone
+// pushed the own seat to 888px on a 390x844 screen).
+// regression: record-ended-turn-keeps-reserve
+test('an ended record keeps no room for moves that will never come', () => {
+  expect(reserves([move(1), move(2), move(3)], true, true)).toHaveLength(0);
+  expect(reserves([move(1), move(2), move(3)], true, false)).toHaveLength(1);
 });

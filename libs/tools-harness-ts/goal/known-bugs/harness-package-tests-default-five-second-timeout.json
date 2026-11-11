@@ -1,0 +1,4 @@
+{
+  "summary": "A harness package's own `bun test` (and `verify:coverage`, which runs it instrumented) ran product-world tests under bun's 5 s default; only test-spec.ts passed the 240 s product-harness wall clock. Battleship's setup-adapter test (a full custom-game lineup, 4.5–5.0 s under coverage) timed out in Verify Nightly coverage. Fixed: @libs/harness-ts/preload sets PRODUCT_HARNESS_TIMEOUT_MS as the default, shared with test-spec.ts.",
+  "regressionTest": "libs/harness-ts/tests/product-harness-timeout.test.ts"
+}

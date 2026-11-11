@@ -49,6 +49,7 @@ import {
 } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import { parseJunit } from '@crvouga/atlas/reports/junit';
+import { PRODUCT_HARNESS_TIMEOUT_MS } from '@libs/harness-ts/product-harness-timeout';
 import { REPORT_COMPLETION, REPORT_READY } from '@libs/harness-ts/report-ready';
 import { testFailureSpans } from '@libs/harness-ts/test-failure-spans';
 import { wallClock } from '@pkgs/clock-shared-ts/wall';
@@ -87,14 +88,6 @@ const TEST_SERVICE_NAME = `${TEST_PACKAGE_NAME}-spec`;
 function repoPath(path: string): string {
   return slashPath(relative(REPO_ROOT, path));
 }
-/**
- * Per test, a wall clock. A scenario costs 2–5 s idle, but under a full
- * `bun verify` (every package's spec plus the Quint models at once) chess
- * scenarios measured 60–95 s, past the old 90 s. 240 s is over twice that
- * loaded cost, so load cannot flip a verdict; the per-task budget still
- * bounds a hang. A live browser (`HARNESS_MODE=real|stack`) gets the same.
- */
-const TIMEOUT_MS = 240_000;
 
 type Cli = {
   readonly bunArgs: string[];
@@ -363,7 +356,7 @@ const result = spawnSync(
       ? []
       : ['--preload', process.env['HARNESS_PRELOAD']]),
     '--timeout',
-    String(TIMEOUT_MS),
+    String(PRODUCT_HARNESS_TIMEOUT_MS),
     // One product world per worker (~2GB). The ceiling follows CPUs and RAM;
     // VERIFY_TEST_CONCURRENCY can only lower it. Frames still go to the report.
     // A stack-serial package's scenarios share state no run can partition.

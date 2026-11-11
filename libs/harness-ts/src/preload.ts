@@ -3,10 +3,10 @@
  * bun:test preload for harness spec suites, after `@pkgs/bun-test-solid-client-ts/preload`
  * (Solid compile, happy-dom `document` — Solid trees render into it via
  * `MultiAppSolidDomSession` — and the Lingui pin): harness env, a phone
- * viewport, and quieter logs.
+ * viewport, quieter logs, and the product-harness wall clock per test.
  */
 
-import { afterAll, afterEach } from 'bun:test';
+import { afterAll, afterEach, setDefaultTimeout } from 'bun:test';
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { setDomWindow } from '@pkgs/bun-test-solid-client-ts/register';
 import { wallTimers } from '@pkgs/clock-shared-ts/wall';
@@ -17,6 +17,7 @@ import type { NodeTelemetry } from '@pkgs/observability-root-server-ts/node-node
 import { createNodeTelemetry } from '@pkgs/observability-root-server-ts/node-node';
 import { ATTR } from '@pkgs/observability-root-shared-ts/attributes';
 import { NdjsonSpanExporter } from '@pkgs/observability-runtime-shared-ts/ndjson-exporter';
+import { PRODUCT_HARNESS_TIMEOUT_MS } from './product-harness-timeout';
 
 // Match the server entry: overlapping requests need native async context.
 const nativeContext = globalThis as typeof globalThis & {
@@ -32,6 +33,11 @@ process.env['HARNESS_WITH_DOM'] = process.env['HARNESS_WITH_DOM'] ?? '1';
 setDomWindow({ width: 390, height: 844, url: 'http://localhost:8081/' });
 
 setDefaultLogLevel('error');
+
+// A package's own `bun test` (and `verify:coverage`, which runs it
+// instrumented) opens product worlds just as `test-spec.ts` does, so it gets
+// the same contract instead of bun's 5 s default.
+setDefaultTimeout(PRODUCT_HARNESS_TIMEOUT_MS);
 
 const telemetry = createArtifactTelemetry();
 if (telemetry !== undefined) {
