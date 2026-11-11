@@ -226,6 +226,17 @@ jobs:
       id-token: write # mint the OIDC token Infisical and AWS trust
     steps:
       - *checkout
+      # Judging every recorded state replays every spec part's cached
+      # report (frames and page snapshots) next to the visual model; once
+      # every part passed, that filled the runner's disk (ENOSPC, Verify
+      # Nightly run 43088243094). The runner's preinstalled toolchains this
+      # job never uses make room first.
+      - name: Free runner disk for the recorded states
+        run: |
+          set -euo pipefail
+          df -h /
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL
+          df -h /
       - *setup
       - *renderer
       # The pinned model is larger than the remote cache's artifact limit.
