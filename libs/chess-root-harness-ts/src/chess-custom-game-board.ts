@@ -95,15 +95,21 @@ export const changeCustomGame = scenarioAction({
  * played, the lobby's preview while it is set up, or `null` when neither
  * is on screen.
  */
+/** The lobby's card of what is about to be played, which pictures the board. */
+const CUSTOM_GAME_MODE_CARD = 'custom-game-mode';
+
 export async function readCustomGameBoardProbe(
   s: ProductHarness,
   actor: string
 ): Promise<ChessBoardProbe | null> {
   const ui = await actorUi(s, actor);
   await bringToFront(s, actor);
-  for (const board of [CUSTOM_GAME_BOARD, CUSTOM_GAME_BOARD_PREVIEW]) {
-    if (await ui.get(board).isVisible())
-      return new ChessBoardFlows(ui, board).readProbe();
-  }
+  if (await ui.get(CUSTOM_GAME_BOARD).isVisible())
+    return new ChessBoardFlows(ui, CUSTOM_GAME_BOARD).readProbe();
+  // The lobby pictures the board on its mode card as decoration (hidden from
+  // assistive technology, so never "visible" to a driver): read it while the
+  // card shows, as a person sees it.
+  if (await ui.get(CUSTOM_GAME_MODE_CARD).isVisible())
+    return new ChessBoardFlows(ui, CUSTOM_GAME_BOARD_PREVIEW).readProbe();
   return null;
 }
