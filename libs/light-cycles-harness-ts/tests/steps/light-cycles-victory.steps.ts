@@ -5,6 +5,7 @@ import {
   chooseTargetScore,
   refusalTold,
   targetScoreRefusalShown,
+  targetScoreShown,
 } from '@libs/light-cycles-harness-ts/light-cycles-choices';
 import {
   gameStatusText,
@@ -151,7 +152,7 @@ Then('the Light Cycles game is still unfinished', async (w) => {
 Then(
   'the Light Cycles game (still )has a target score of {int}',
   async (w, target: number) => {
-    expect((await w.s.read(arenaShown)).targetScore).toBe(target);
+    expect(await w.s.read(targetScoreShown)).toBe(target);
   }
 );
 Then(
