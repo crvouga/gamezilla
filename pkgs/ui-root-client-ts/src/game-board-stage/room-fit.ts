@@ -27,7 +27,9 @@ export function boardRoomLimit(room: {
  * the board and the board's own shape, and returns the board's widest fit,
  * so a board taller than the room narrows instead of pushing its seats or
  * the commands off the screen. The layout says when it applies
- * (`--game-stage-room`); anywhere else the board keeps its measure.
+ * (`--game-stage-room`); anywhere else the board keeps its measure. A
+ * board that grows no shorter when narrowed (a card table, whose rows
+ * wrap) keeps the room's width, and the stage scrolls for the rest.
  */
 export function createStageRoomFit(
   root: Accessor<HTMLElement | undefined>,
@@ -40,11 +42,24 @@ export function createStageRoomFit(
     const cell = stage?.parentElement;
     const view = stage?.ownerDocument.defaultView;
     if (!stage || !surface || !cell || !view) return;
+    // The board's height at the room's whole width, and whether narrowing
+    // it failed to shorten it, for the room's width that was measured at.
+    let whole: { width: number; height: number } | undefined;
+    let rigid = false;
     const read = () => {
+      if (whole !== undefined && whole.width !== cell.clientWidth) {
+        whole = undefined;
+        rigid = false;
+      }
+      const narrowed = surface.offsetWidth < cell.clientWidth - 1;
+      if (!narrowed)
+        whole = { width: cell.clientWidth, height: surface.offsetHeight };
+      else if (whole !== undefined && surface.offsetHeight >= whole.height)
+        rigid = true;
       const fixed = view
         .getComputedStyle(cell)
         .getPropertyValue('--game-stage-room');
-      if (fixed.trim() !== '1') {
+      if (fixed.trim() !== '1' || rigid) {
         setLimit(undefined);
         return;
       }

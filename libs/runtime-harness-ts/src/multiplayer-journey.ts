@@ -289,21 +289,17 @@ export async function expectSharedMultiplayerGame(
 }
 
 export async function expectMultiplayerWin(ui: Driver): Promise<void> {
-  await ui
-    .get('multiplayer-announcement')
-    .expect.text('You won the multiplayer game.', {
-      exact: false,
-      timeoutMs: JOURNEY_WAIT_MS,
-    });
+  await ui.get('multiplayer-announcement').expect.text('You won', {
+    exact: false,
+    timeoutMs: JOURNEY_WAIT_MS,
+  });
 }
 
 export async function expectMultiplayerLoss(ui: Driver): Promise<void> {
-  await ui
-    .get('multiplayer-announcement')
-    .expect.text('Your opponent won the multiplayer game.', {
-      exact: false,
-      timeoutMs: JOURNEY_WAIT_MS,
-    });
+  await ui.get('multiplayer-announcement').expect.text('Your opponent won', {
+    exact: false,
+    timeoutMs: JOURNEY_WAIT_MS,
+  });
 }
 
 export async function prepareMultiplayerPair(host: JourneyHost): Promise<void> {
