@@ -445,12 +445,12 @@ export function FrameLobbyPlace(
       <AgreedRows {...props} />
       {/* Calling the game off: last on the page, quiet, and it asks first. */}
       <Show when={props.play.canCancel}>
-        <GameActions>
+        <GameActions sizing="share">
           <Button
             title={<Trans>Cancel game</Trans>}
             variant="outline"
             intent="danger"
-            size="sm"
+            size="md"
             onClick={() => props.onConfirm('cancel')}
             dataSet={{ testid: 'custom-game-cancel' }}
           />

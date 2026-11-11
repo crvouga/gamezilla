@@ -2,7 +2,7 @@
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { For, type JSX, Show } from 'solid-js';
+import { createSignal, For, type JSX, onMount, Show } from 'solid-js';
 import { type GameSeatLook, GameSeatSwatch } from '../game-seat-swatch/index';
 import { XIcon } from '../icons';
 import { createScreenSlot } from '../screen-slot';
@@ -241,16 +241,29 @@ export function GameResultOverlay(props: GameResultOverlayProps): JSX.Element {
   );
 }
 
+/** The corner of the board an overlay lies over, so its dimming keeps the board's own shape. */
+export function boardCornerUnder(overlay: HTMLElement): string | undefined {
+  const board = overlay.previousElementSibling;
+  const view = overlay.ownerDocument.defaultView;
+  if (board === null || !view) return undefined;
+  const corner = view.getComputedStyle(board).borderRadius;
+  return corner === '' || Number.parseFloat(corner) === 0 ? undefined : corner;
+}
+
 /**
- * The frame of a stage overlay: fills the board it is over. `GameBoardStage`
- * places its `overlay` in one; nothing else needs it.
+ * The frame of a stage overlay: fills the board it is over, with the
+ * board's own corners. `GameBoardStage` places its `overlay` in one;
+ * nothing else needs it.
  */
 export function GameStageOverlayFrame(props: {
   children: JSX.Element;
 }): JSX.Element {
+  const [corner, setCorner] = createSignal<string>();
   return (
     <div
+      ref={(el) => onMount(() => setCorner(boardCornerUnder(el)))}
       class={styles['overlay']}
+      style={{ '--game-board-corner': corner() }}
       {...dataAttrs({ component: 'GameStageOverlay' })}
     >
       {props.children}

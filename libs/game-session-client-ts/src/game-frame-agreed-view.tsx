@@ -1,17 +1,19 @@
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
+import { GameLobbyDock } from '@pkgs/ui-root-client-ts/game-lobby';
 import { GameOptionField } from '@pkgs/ui-root-client-ts/game-option-field';
 import { GameActions } from '@pkgs/ui-root-client-ts/game-section';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
+import { ScreenIntro } from '@pkgs/ui-root-client-ts/screen-intro';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
-import { createSignal, type JSX, Show } from 'solid-js';
+import { createSignal, type JSX, Match, Show, Switch } from 'solid-js';
 import { createFrameChoices, FrameChoiceRow } from './game-frame-choice';
 import { GameFrameOptions } from './game-frame-options';
 import type { FramePlaceProps } from './game-frame-screen-view';
-import { FramePlacePage } from './game-frame-shell';
+import { FrameLobbyPage, FramePlacePage } from './game-frame-shell';
 import type { FrameOptions } from './game-frame-view-types';
 
 type Props = FramePlaceProps;
@@ -143,10 +145,51 @@ export function FrameClockPlace(
   );
 }
 
+/** Where the setup stands, and what getting ready still needs. */
+function PrivateSetupStatus(props: {
+  readonly complete: boolean;
+  readonly ready: boolean;
+}): JSX.Element {
+  return (
+    <>
+      <P
+        variant="bodyBold"
+        role="status"
+        dataSet={{ testid: 'custom-game-setup-status' }}
+      >
+        <Show
+          when={props.complete}
+          fallback={<Trans>Your private setup is incomplete.</Trans>}
+        >
+          <Trans>Your private setup is complete.</Trans>
+        </Show>
+      </P>
+      <P variant="caption" tone="secondary" testId="custom-game-setup-hint">
+        <Switch
+          fallback={
+            <Trans>
+              Place every piece on the board, or take a random setup. Then you
+              can get ready.
+            </Trans>
+          }
+        >
+          <Match when={props.ready}>
+            <Trans>It is locked while you are ready.</Trans>
+          </Match>
+          <Match when={props.complete}>
+            <Trans>You can still move pieces until you are ready.</Trans>
+          </Match>
+        </Switch>
+      </P>
+    </>
+  );
+}
+
 /**
- * The person's own private setup: the game's own setup board, a random
- * setup, whether it is complete, and getting ready with it. It locks while
- * they are ready or offline.
+ * The person's own private setup: the game's own setup board, and under
+ * it, in a dock that never scrolls, whether it is complete, what getting
+ * ready still needs, getting ready with it and a random setup. It locks
+ * while they are ready or offline.
  */
 export function FramePrivateSetupPlace(
   props: Props & {
@@ -155,55 +198,53 @@ export function FramePrivateSetupPlace(
 ): JSX.Element {
   const ready = (): boolean => props.setup?.start.readiness?.ready === true;
   return (
-    <FramePlacePage
+    <FrameLobbyPage
       {...props}
       screenId="custom-game-private-setup"
-      title={<Trans>Your private setup</Trans>}
-      subtitle={<Trans>Only you see it.</Trans>}
-    >
-      {props.setupBoard}
-      <P
-        variant="bodyBold"
-        role="status"
-        dataSet={{ testid: 'custom-game-setup-status' }}
-      >
-        <Show
-          when={props.own.complete}
-          fallback={<Trans>Your private setup is incomplete.</Trans>}
+      dock={
+        <GameLobbyDock
+          status={
+            <PrivateSetupStatus complete={props.own.complete} ready={ready()} />
+          }
         >
-          <Trans>Your private setup is complete.</Trans>
-        </Show>
-      </P>
-      <GameActions sizing="share">
-        <GameActionButton
-          title={<Trans>Random setup</Trans>}
-          dataSet={{ testid: 'custom-game-setup-random' }}
-          disabled={props.own.locked}
-          operation={() => props.onRandomSetup()}
-        />
-        <Show when={props.setup?.start.readiness}>
-          {(readiness) => (
-            <GameActionButton
-              title={
-                <Show when={ready()} fallback={<Trans>I'm ready</Trans>}>
-                  <Trans>I'm not ready</Trans>
-                </Show>
-              }
-              variant={ready() ? 'outline' : 'solid'}
-              dataSet={{ testid: 'custom-game-ready' }}
-              disabled={!ready() && readiness().blocked}
-              operation={async () => {
-                if (ready()) {
-                  await props.onChoose({ operation: 'unready' });
-                  return;
+          <Show when={props.setup?.start.readiness}>
+            {(readiness) => (
+              <GameActionButton
+                title={
+                  <Show when={ready()} fallback={<Trans>I'm ready</Trans>}>
+                    <Trans>I'm not ready</Trans>
+                  </Show>
                 }
-                await props.onReady();
-                props.onClose();
-              }}
-            />
-          )}
-        </Show>
-      </GameActions>
-    </FramePlacePage>
+                variant={ready() ? 'outline' : 'solid'}
+                size="lg"
+                dataSet={{ testid: 'custom-game-ready' }}
+                disabled={!ready() && readiness().blocked}
+                operation={async () => {
+                  if (ready()) {
+                    await props.onChoose({ operation: 'unready' });
+                    return;
+                  }
+                  await props.onReady();
+                  props.onClose();
+                }}
+              />
+            )}
+          </Show>
+          <GameActionButton
+            title={<Trans>Random setup</Trans>}
+            size="lg"
+            dataSet={{ testid: 'custom-game-setup-random' }}
+            disabled={props.own.locked}
+            operation={() => props.onRandomSetup()}
+          />
+        </GameLobbyDock>
+      }
+    >
+      <ScreenIntro
+        title={<Trans>Your private setup</Trans>}
+        subtitle={<Trans>Only you see it.</Trans>}
+      />
+      {props.setupBoard}
+    </FrameLobbyPage>
   );
 }

@@ -35,6 +35,7 @@ export function MultiplayerTimeControlView(
       subtitle={
         <Trans>
           Each player's time for the whole game, plus seconds added every move.
+          Chosen now: {timeControlWords(props.timeControl)}.
         </Trans>
       }
     >

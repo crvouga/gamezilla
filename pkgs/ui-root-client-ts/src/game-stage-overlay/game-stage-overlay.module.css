@@ -8,7 +8,7 @@
   min-width: 0;
   min-height: 0;
   overflow: hidden;
-  border-radius: inherit;
+  border-radius: var(--game-board-corner, inherit);
   container-type: size;
 }
 /* The versus card covers the whole stage, the seats with the board, so
@@ -290,7 +290,7 @@
   border: 0;
   border-radius: var(--ui-radius-full);
   background: transparent;
-  color: var(--ui-color-text-secondary);
+  color: var(--ui-color-text);
   white-space: nowrap;
   cursor: pointer;
 }
@@ -385,8 +385,8 @@
     gap: var(--ui-space-2);
     padding: var(--ui-space-2) var(--ui-space-3) var(--ui-space-3);
   }
-  /* Over standings the headline says it; the reason waits on the board. */
-  .card:has(:global(.panel)) .cardTitle > p {
+  /* The headline and its reason say it; the standings wait on the board. */
+  .card :global(.panel) {
     display: none;
   }
   /* The card's own quiet commands sit on one row of a narrow card. */

@@ -185,6 +185,16 @@
   border-radius: var(--ui-radius-card);
   overflow: hidden;
 }
+/* No command docked under the lobby (before any game): nothing is pinned
+   to the foot, so the card is its board and its words, and the ways to
+   play follow at once instead of waiting under a poster. */
+.screen[data-wide="false"]:not(:has(> .dock)) .mode {
+  flex: 0 0 auto;
+}
+.screen[data-wide="false"]:not(:has(> .dock)) .modeArt:has(.modeArtBoard > *) {
+  flex: none;
+  height: clamp(160px, 34svh, 300px);
+}
 /* Too little room for a board to read: the card is its words alone. */
 @container (max-height: 96px) {
   .modeArtBoard {

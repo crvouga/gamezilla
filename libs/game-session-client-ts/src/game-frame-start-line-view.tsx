@@ -40,7 +40,7 @@ function mustGetReady(start: FrameStart): boolean {
 
 /**
  * The person's own readiness: getting ready is the filled command while
- * they are not; taking it back is a quiet one once they are.
+ * they are not; taking it back is an outlined one of the same size once they are.
  */
 export function FrameReadinessButton(props: StartProps): JSX.Element {
   return (
@@ -53,8 +53,8 @@ export function FrameReadinessButton(props: StartProps): JSX.Element {
             </Show>
           }
           dataSet={{ testid: 'custom-game-ready' }}
-          variant={readiness().ready ? 'ghost' : 'solid'}
-          size={readiness().ready ? undefined : 'lg'}
+          variant={readiness().ready ? 'outline' : 'solid'}
+          size="lg"
           disabled={!readiness().ready && readiness().blocked}
           operation={() =>
             readiness().ready
