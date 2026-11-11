@@ -110,27 +110,31 @@ export function collectFiles(
   patterns: readonly string[]
 ): { readonly root: string; readonly files: readonly string[] } {
   const files = new Set<string>();
-  for (const pattern of patterns) {
-    if (GLOB_CHARS.test(pattern)) {
-      for (const match of new Bun.Glob(pattern).scanSync({
-        cwd,
-        dot: true,
-        absolute: true,
-        onlyFiles: true,
-      }))
-        files.add(resolve(match));
-      continue;
-    }
-    const path = resolve(cwd, pattern);
+  const add = (path: string) => {
     let stats;
     try {
       stats = statSync(path);
     } catch {
-      continue;
+      return;
     }
     if (stats.isDirectory())
       for (const file of filesUnder(path)) files.add(file);
     else if (stats.isFile()) files.add(path);
+  };
+  for (const pattern of patterns) {
+    if (!GLOB_CHARS.test(pattern)) {
+      add(resolve(cwd, pattern));
+      continue;
+    }
+    // A pattern may name directories (`libs/*/.cache/harness-report`): each
+    // uploads every file under it, as a directory path does.
+    for (const match of new Bun.Glob(pattern).scanSync({
+      cwd,
+      dot: true,
+      absolute: true,
+      onlyFiles: false,
+    }))
+      add(resolve(match));
   }
   return {
     root: commonRoot(patterns.map((pattern) => searchRoot(cwd, pattern))),

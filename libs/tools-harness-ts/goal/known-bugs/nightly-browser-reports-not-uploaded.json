@@ -1,0 +1,4 @@
+{
+  "summary": "Verify Nightly's browser and visual groups kept no per-scenario reports, recordings or traces: their artifact patterns name directories (`libs/*/.cache/harness-report`), and the uploader matched globs with `onlyFiles`, so every directory match was dropped and only `.turbo/runs/*.json` (one file) was uploaded. A glob that matches a directory now uploads every file under it, as a plain directory path does.",
+  "regressionTest": "libs/tools-harness-ts/scripts/ci-artifacts.test.ts"
+}

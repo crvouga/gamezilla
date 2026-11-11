@@ -115,6 +115,29 @@ test('a directory uploads every file under it, hidden ones included', async () =
   ).toEqual({ 'j/.page.html': 'html', 'j/shot.png': 'png' });
 });
 
+// regression: nightly-browser-reports-not-uploaded
+test('a pattern that matches directories uploads every file under each', async () => {
+  expect(
+    await roundTrip(
+      {
+        '.turbo/runs/run.json': 'run',
+        'apps/a/.cache/harness-report/all/runs/latest/report.json': 'a',
+        'libs/b/.cache/harness-report/all/frames/1.png': 'b',
+      },
+      [
+        '.turbo/runs/*.json',
+        'apps/*/.cache/harness-report',
+        'libs/*/.cache/harness-report',
+        'pkgs/*/.cache/harness-report',
+      ]
+    )
+  ).toEqual({
+    '.turbo/runs/run.json': 'run',
+    'apps/a/.cache/harness-report/all/runs/latest/report.json': 'a',
+    'libs/b/.cache/harness-report/all/frames/1.png': 'b',
+  });
+});
+
 test('nothing matched uploads nothing', () => {
   const root = workspace({});
   try {
