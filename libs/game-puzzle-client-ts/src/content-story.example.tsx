@@ -161,9 +161,15 @@ export function StoryStartAttempt(props: {
   return (
     <StackVertical gap="md">
       <Show when={props.continuing}>
-        <Button title="Continue saved attempt" />
+        <Button title="Continue saved attempt" fullWidth />
       </Show>
-      <Button title="Start a new attempt" disabled={props.disabled} />
+      <Button
+        title="Start a new attempt"
+        intent={props.continuing ? 'neutral' : 'primary'}
+        variant={props.continuing ? 'outline' : 'solid'}
+        fullWidth
+        disabled={props.disabled}
+      />
     </StackVertical>
   );
 }
@@ -173,7 +179,7 @@ export function StoryPackOverview(): JSX.Element {
   return (
     <StackVertical gap="lg">
       <P role="status">1 of 3 puzzles completed</P>
-      <Button title="Continue Count to seven" />
+      <Button title="Continue Count to seven" fullWidth />
       <MenuSection title="Choose any puzzle">
         <MenuRow title="Count to five" value="Completed" />
         <MenuRow title="Count to seven" value="In progress" />
@@ -275,15 +281,40 @@ export function StoryAttemptControls(props: {
         title="Undo"
         intent="neutral"
         variant="outline"
+        size="sm"
         disabled={props.disabled}
       />
-      <Button title="Redo" intent="neutral" variant="outline" disabled />
+      <Button
+        title="Redo"
+        intent="neutral"
+        variant="outline"
+        size="sm"
+        disabled
+      />
       <Button
         title="Restart"
         intent="neutral"
         variant="outline"
+        size="sm"
         disabled={props.disabled}
       />
     </StackHorizontal>
+  );
+}
+
+/** An attempt's kept positions, the current one marked. */
+export function StoryKeptPositions(): JSX.Element {
+  return (
+    <MenuSection
+      title="Saved positions"
+      footer="Choose a saved position to continue. Your other positions stay kept."
+    >
+      <MenuRow
+        title="Saved position 1"
+        value="Kept"
+        onClick={() => undefined}
+      />
+      <MenuRow title="Saved position 2" value="Current" disabled />
+    </MenuSection>
   );
 }

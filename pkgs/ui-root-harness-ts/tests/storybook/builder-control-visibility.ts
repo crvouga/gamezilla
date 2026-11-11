@@ -1,13 +1,10 @@
 /** Serializable browser probe: clipping is distinct from an obscured control. */
 export function builderControlsUncovered() {
+  // The builder's board is a screen of its own, with nothing pinned over it.
   const scroller = document.querySelector<HTMLElement>(
-    '[data-screen="puzzle-content-author"]'
+    '[data-screen="puzzle-content-author-board"]'
   );
-  const publish = document.querySelector(
-    '[data-testid="content-author-publish"]'
-  );
-  if (scroller === null || publish === null)
-    return ['the builder or its publish step is missing'];
+  if (scroller === null) return ["the builder's board screen is missing"];
   const controls = document.querySelectorAll<HTMLElement>(
     '[data-testid="content-author-stage"] :is(button, input)'
   );
@@ -43,13 +40,5 @@ export function builderControlsUncovered() {
     });
     check(control, 'reach', true);
   }
-  scroller.scrollTop = scroller.scrollHeight;
-  const step = publish.getBoundingClientRect();
-  const bounds = scroller.getBoundingClientRect();
-  if (
-    step.top < Math.max(0, bounds.top) ||
-    step.bottom > Math.min(window.innerHeight, bounds.bottom)
-  )
-    covered.push('bottom: the publish step is not wholly in view');
   return covered;
 }

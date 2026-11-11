@@ -23,7 +23,7 @@ for (const width of [390, 768, 1440]) {
       }) => {
         await page.setViewportSize({ width, height: 900 });
         await page.goto(
-          `/iframe.html?id=screens-puzzles-content-author--${sample.story}&viewMode=story&globals=theme:${theme}`
+          `/iframe.html?id=screens-puzzles-content-author-publish--${sample.story}&viewMode=story&globals=theme:${theme}`
         );
         await expect(page.locator('#storybook-root')).toHaveAttribute(
           'data-story-ready',

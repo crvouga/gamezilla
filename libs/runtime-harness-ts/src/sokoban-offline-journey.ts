@@ -2,20 +2,19 @@ import { createJourneyDraft } from '@libs/game-puzzle-harness-ts/content-journey
 import {
   contentAttribute,
   contentTap,
-  showLibraryTabOf,
+  leaveContentStage,
+  openContentPlace,
 } from '@libs/game-puzzle-harness-ts/content-journey-device';
 import { discoverJourneyContent } from '@libs/game-puzzle-harness-ts/content-journey-discovery';
-import { startJourneyAttempt } from '@libs/game-puzzle-harness-ts/content-journey-playing';
+import {
+  expectJourneyCompletion,
+  startJourneyAttempt,
+} from '@libs/game-puzzle-harness-ts/content-journey-playing';
 import { withdrawJourneyPublications } from '@libs/game-puzzle-harness-ts/content-journey-withdraw';
 import { SOKOBAN_JOURNEY_BOARD } from '@libs/sokoban-harness-ts/sokoban-journey-board';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
-import {
-  endActiveSpace,
-  hostSpace,
-  JOURNEY_WAIT_MS,
-  tap,
-} from './journey-gestures';
+import { endActiveSpace, hostSpace, JOURNEY_WAIT_MS } from './journey-gestures';
 import { hostDeferringEnd } from './journey-space';
 import type { JourneyHost } from './journey-types';
 import { openSokobanLibrary } from './sokoban-authoring-journey';
@@ -66,27 +65,23 @@ export async function keepSokobanWorkOffline(
     await ui.get('content-offline').expect.visible(device(ui));
     documentId = await createJourneyDraft(device(ui), 'puzzle', title);
     owned.push(documentId);
+    await openContentPlace(device(ui), 'board');
     await SOKOBAN_JOURNEY_BOARD.edit(device(ui));
     await contentTap(device(ui), 'content-start-playtest');
     await contentTap(device(ui), 'content-open-playtest');
     await SOKOBAN_JOURNEY_BOARD.solve(device(ui));
-    await ui
-      .get('content-attempt-complete')
-      .expect.text('Playtest solved', { ...device(ui), exact: false });
-    await contentTap(device(ui), Handles.navBack);
+    await expectJourneyCompletion(device(ui), 'Playtest solved');
+    await leaveContentStage(device(ui));
     await contentTap(device(ui), `content-draft-${documentId}`);
   });
   await host.actAsGuest('playSokobanStarterWithoutConnection', async (ui) => {
     await ui.get('content-offline').expect.visible(device(ui));
-    await showLibraryTabOf(device(ui), STARTER_PACK);
-    await tap(ui, STARTER_PACK);
+    await contentTap(device(ui), STARTER_PACK);
     await contentTap(device(ui), 'content-pack-next');
     await startJourneyAttempt(device(ui));
     // The first starter puzzle: a step right, then a push onto the goal.
     await SOKOBAN_JOURNEY_BOARD.solve(device(ui));
-    await ui
-      .get('content-attempt-complete')
-      .expect.text('Completion saved', { ...device(ui), exact: false });
+    await expectJourneyCompletion(device(ui), 'Completion saved');
   });
   return { documentId, title, revisionId: '' };
 }
@@ -134,14 +129,14 @@ export async function observeReconnectedSokoban(
       'content-edition',
       'data-revisionid'
     );
-    await contentTap(device(ui), Handles.navBack);
+    await leaveContentStage(device(ui));
   });
   await host.actAsGuest('discoverSokobanAfterReconnecting', async (ui) => {
     await contentTap(device(ui), 'content-return-pack');
     await ui
       .get('content-pack-progress')
       .expect.text('1 of 4 puzzles completed', device(ui));
-    await contentTap(device(ui), Handles.navBack);
+    await leaveContentStage(device(ui));
     await discoverJourneyContent(
       { ui, timeoutMs: JOURNEY_WAIT_MS },
       kept.revisionId

@@ -78,7 +78,8 @@ export function ContentEditionScreen(props: {
       }
       onEditWorkingDraft={() => {
         const documentId = revision()?.document_id;
-        if (documentId !== undefined) game.open({ kind: 'edit', documentId });
+        if (documentId !== undefined)
+          game.open({ kind: 'builder', documentId });
       }}
       onReturnToLibrary={() => game.open({ kind: 'library' })}
     />

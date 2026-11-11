@@ -4,7 +4,11 @@ import type {
   PuzzleEditorProps,
   PuzzlePlayerProps,
 } from '@libs/game-puzzle-client-ts/puzzle-content-client';
-import { SpacesNavProvider } from '@libs/spaces-client-ts/spaces-nav-context';
+import {
+  SpacesNavProvider,
+  useSpacesNavBack,
+} from '@libs/spaces-client-ts/spaces-nav-context';
+import { Handles } from '@libs/test-ids-shared-ts/handles';
 import type { PuzzleContent } from '@pkgs/turn-game-shared-ts/puzzle-content';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
@@ -54,6 +58,20 @@ export const countingContentClient: PuzzleContentClient = {
   authoring: { initialDefinition: () => 'target:', Editor: CountingEditor },
 };
 
+/** The host's Back, as a space's bar draws it for whichever screen registered one. */
+function ExampleBack(): JSX.Element {
+  const back = useSpacesNavBack();
+  return (
+    <Button
+      title="Back"
+      intent="neutral"
+      variant="ghost"
+      onClick={() => back()?.()}
+      dataSet={{ testid: Handles.navBack }}
+    />
+  );
+}
+
 /** The shared content experience of one harness game, as the app offers it. */
 export function ContentExampleClient(props: {
   gameId: string;
@@ -63,6 +81,7 @@ export function ContentExampleClient(props: {
 }): JSX.Element {
   return (
     <SpacesNavProvider>
+      <ExampleBack />
       <ContentExperience
         gameId={props.gameId}
         title={props.title}

@@ -1,6 +1,7 @@
 import {
   contentAttribute,
   contentTap,
+  leaveContentStage,
 } from '@libs/game-puzzle-harness-ts/content-journey-device';
 import { discoverJourneyContent } from '@libs/game-puzzle-harness-ts/content-journey-discovery';
 import {
@@ -12,6 +13,7 @@ import {
   type JourneyPackDraft,
 } from '@libs/game-puzzle-harness-ts/content-journey-pack-draft';
 import {
+  expectJourneyCompletion,
   openJourneyAttempt,
   startJourneyAttempt,
 } from '@libs/game-puzzle-harness-ts/content-journey-playing';
@@ -19,7 +21,6 @@ import {
   NUMBERLINK_JOURNEY_BOARD,
   observeNumberlinkJourneyRow,
 } from '@libs/numberlink-harness-ts/numberlink-journey-board';
-import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { JOURNEY_WAIT_MS } from './journey-gestures';
 import type { JourneyHost } from './journey-types';
 import { authorNumberlinkJourney } from './numberlink-authoring-journey';
@@ -43,14 +44,13 @@ async function authorWhileOffline(
   await host.act('authorNumberlinkWithoutConnection', async (ui) => {
     const device = { ui, timeoutMs: JOURNEY_WAIT_MS };
     await ui.get('content-offline').expect.visible(device);
-    await contentTap(device, Handles.navBack);
+    await leaveContentStage(device);
     draft = await createJourneyPackWithPuzzle({
       device,
       title: `Offline trails ${host.runId}`,
       puzzleTitle: `Meadow ${host.runId}`,
       existing: pack.items[0]!,
       board: NUMBERLINK_JOURNEY_BOARD,
-      backId: Handles.navBack,
       onCreated: (id) => {
         owned.push(id);
       },
@@ -74,9 +74,7 @@ async function playWhileOffline(
       await contentTap(device, 'content-pack-next');
       attemptId = await startJourneyAttempt(device);
       await NUMBERLINK_JOURNEY_BOARD.solve(device);
-      await ui
-        .get('content-attempt-complete')
-        .expect.text('Completion saved', { ...device, exact: false });
+      await expectJourneyCompletion(device, 'Completion saved');
     }
   );
   await host.peerDevice.reopen();
@@ -88,9 +86,7 @@ async function playWhileOffline(
     const device = { ui, timeoutMs: JOURNEY_WAIT_MS };
     await ui.get('content-offline').expect.visible(device);
     await openJourneyAttempt(device, attemptId, 'solved');
-    await ui
-      .get('content-attempt-complete')
-      .expect.text('Completion saved', { ...device, exact: false });
+    await expectJourneyCompletion(device, 'Completion saved');
   });
   return attemptId;
 }
@@ -130,8 +126,8 @@ export async function keepNumberlinkOfflineWork(
       `content-pack-puzzle-${published.items[0]!.revisionId}`
     );
     await NUMBERLINK_JOURNEY_BOARD.preview(device);
-    await contentTap(device, Handles.navBack);
-    await contentTap(device, Handles.navBack);
+    await leaveContentStage(device);
+    await leaveContentStage(device);
     await openJourneyAttempt(device, attemptId, 'solved');
   });
   return { draft, attemptId };
@@ -170,9 +166,7 @@ export async function observeKeptOfflineNumberlink(
         throw new Error(
           'The offline attempt did not reach the second signed-in device'
         );
-      await ui
-        .get('content-attempt-complete')
-        .expect.text('Completion saved', { ...device, exact: false });
+      await expectJourneyCompletion(device, 'Completion saved');
       for (const row of [0, 1, 2])
         await observeNumberlinkJourneyRow(device, row, true);
     }

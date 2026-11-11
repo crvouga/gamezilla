@@ -2,24 +2,28 @@ import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
+import { Button } from '@pkgs/ui-root-client-ts/button';
+import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
-import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
-import { MetricStrip } from '@pkgs/ui-root-client-ts/metric-strip';
+import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
-import { ProgressBar } from '@pkgs/ui-root-client-ts/progress-bar';
-import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
-import { SuccessState } from '@pkgs/ui-root-client-ts/success-state';
-import { P, Text } from '@pkgs/ui-root-client-ts/text';
+import { P } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Match, Show, Switch } from 'solid-js';
+import {
+  ContentAttemptProgressView,
+  ContentAttemptSaveStatus,
+} from './content-attempt-progress-view';
+import type { ContentAttemptPlace } from './content-places';
 import type { PuzzleContentFrame } from './puzzle-content-client';
 
 /**
- * `gone`: no such attempt here; `missing`: the attempt is kept but what it
- * plays has not reached this device; `ready`: the attempt on its board.
+ * `loading`: the attempt asked for is still on its way; `gone`: no such
+ * attempt here; `missing`: the attempt is kept but what it plays has not
+ * reached this device; `ready`: the attempt on its board.
  */
-export type ContentAttemptStatus = 'gone' | 'missing' | 'ready';
+export type ContentAttemptStatus = 'loading' | 'gone' | 'missing' | 'ready';
 
 /** The saved attempt and what it plays, as the screen names them. */
 export type ContentAttemptSummary = {
@@ -39,10 +43,20 @@ export type ContentAttemptPack = {
   readonly total: number;
 };
 
+/** One of the game's figures for the attempt: its label and value. */
+export type AttemptFigure = {
+  readonly key: string;
+  readonly label: string;
+  readonly value: string;
+};
+
 export type ContentAttemptScreenViewProps = {
   readonly status: ContentAttemptStatus;
   /** Set when the person may not change this attempt. */
   readonly denial?: DenialView | undefined;
+  /** The small screen shown: the board, or where the attempt stands. */
+  readonly place: ContentAttemptPlace;
+  readonly onOpen: (place: ContentAttemptPlace) => void;
   readonly attempt: ContentAttemptSummary;
   /** The pack this attempt is played from; absent for a puzzle on its own. */
   readonly pack?: ContentAttemptPack | null | undefined;
@@ -65,18 +79,18 @@ export type ContentAttemptScreenViewProps = {
   readonly unopenable: boolean;
   /** The puzzle itself cannot be read, so restarting cannot help either. */
   readonly unreadable?: boolean | undefined;
-  /** The game's player on the attempt's position. */
+  /** `attempt`: the game's player on the attempt's position. */
   readonly player?: JSX.Element;
-  /** Undo / redo, restart and next. */
+  /** `attempt`: undo / redo and restart. */
   readonly controls?: JSX.Element;
   /**
-   * A pack puzzle's way on (its next puzzle, its overview), shown in the
-   * pack card under its progress so the command row never grows on solve.
+   * `progress`: the attempt's way on — a pack puzzle's next puzzle and its
+   * overview, a playtest's way back to its builder.
    */
-  readonly packActions?: JSX.Element;
+  readonly wayOn?: JSX.Element;
   /** Where the board sits on a one-column screen. */
   readonly stageAlign?: 'start' | 'center' | undefined;
-  /** Earlier kept continuations to choose from. */
+  /** `progress`: earlier kept continuations to choose from. */
   readonly keptPositions?: JSX.Element;
   /**
    * The game's own figures for where the attempt stands, by its labels
@@ -84,63 +98,15 @@ export type ContentAttemptScreenViewProps = {
    */
   readonly figures?: readonly AttemptFigure[] | undefined;
   readonly figuresPlacement?: PuzzleContentFrame['figuresPlacement'];
+  /** The attempt's confirmation dialogs, kept whichever place is shown. */
+  readonly confirms?: JSX.Element;
   readonly onRetryChange: () => void;
   readonly onReturnToLibrary: () => void;
 };
 
-/** One of the game's figures for the attempt: its label and value. */
-export type AttemptFigure = {
-  readonly key: string;
-  readonly label: string;
-  readonly value: string;
-};
-
-/** Where the attempt stands in the game's own figures, under the pack's bar. */
-function AttemptFigures(props: ContentAttemptScreenViewProps): JSX.Element {
-  const { t } = useLingui();
-  return (
-    <Show
-      when={
-        props.figuresPlacement !== 'board' && (props.figures?.length ?? 0) > 0
-      }
-    >
-      <MetricStrip
-        aria-label={t`This attempt`}
-        dataSet={{ testid: 'puzzle-attempt-figures' }}
-        metrics={(props.figures ?? []).map((figure) => ({
-          label: figure.label,
-          value: figure.value,
-        }))}
-      />
-    </Show>
-  );
-}
-
-/** A solved attempt (not a playtest) whose last change is kept. */
-function completionSaved(props: ContentAttemptScreenViewProps): boolean {
-  return props.complete && props.playtest !== true && !props.saving;
-}
-
-/** Where the last change stands: saved, or still being saved. */
-function SaveStatus(props: ContentAttemptScreenViewProps): JSX.Element {
-  const { t } = useLingui();
-  return (
-    <P
-      role="status"
-      variant="caption"
-      tone="secondary"
-      dataSet={{ testid: 'content-position-save-status' }}
-    >
-      {props.saving
-        ? t`Saving your position…`
-        : t`Progress saved on this device.`}
-    </P>
-  );
-}
-
 /**
- * What stops play or needs the person first, above the board on every
- * size: rules this app lacks, or a change that was not saved.
+ * What stops play or needs the person first, on every place: rules this
+ * app lacks, or a change that was not saved.
  */
 function AttemptAlerts(props: ContentAttemptScreenViewProps): JSX.Element {
   const { t } = useLingui();
@@ -185,123 +151,73 @@ function AttemptRule(props: ContentAttemptScreenViewProps): JSX.Element {
   );
 }
 
-/** `Puzzle 3 of 4 in Warehouse basics`, for a puzzle played from a pack. */
-function PackPlace(props: { pack: ContentAttemptPack }): JSX.Element {
-  return (
-    <Text variant="inherit" testId="puzzle-attempt-pack-place">
-      <Trans>
-        Puzzle {props.pack.position} of {props.pack.total} in {props.pack.title}
-      </Trans>
-    </Text>
-  );
-}
-
-/** How far through its pack this puzzle is, as a bar under its place. */
-function PackTrack(props: { pack: ContentAttemptPack }): JSX.Element {
+/**
+ * The stage's one control onward: it opens where the attempt stands (its
+ * pack, its figures, its saved positions), and is the filled command once
+ * the puzzle is solved, when what comes next is there.
+ */
+function OpenProgress(props: ContentAttemptScreenViewProps): JSX.Element {
   const { t } = useLingui();
   return (
-    <ProgressBar
+    <Button
+      title={props.complete ? t`Solved: what next` : t`Progress`}
+      intent={props.complete ? 'primary' : 'neutral'}
+      variant={props.complete ? 'solid' : 'outline'}
       size="sm"
-      progress={props.pack.position / Math.max(1, props.pack.total)}
-      accessibleLabel={t`Puzzle ${props.pack.position} of ${props.pack.total}`}
-      dataSet={{ testid: 'puzzle-attempt-pack-track' }}
+      onClick={() => props.onOpen({ screen: 'progress' })}
+      dataSet={{
+        testid: 'content-open-progress',
+        complete: String(props.complete),
+      }}
     />
   );
 }
 
-/**
- * The puzzle panel: beside the board when wide, under it on a phone, as a
- * game's record is. Compact, what is useful first: its heading says where
- * the puzzle sits in its pack ("Puzzle 3 of 4 in Warehouse basics", or
- * "This puzzle" on its own) over a bar of how far through the pack it is,
- * then the game's own figures for the attempt, a playtest's note and the completion, and last the save status in
- * one short quiet line. It is secondary: the attempt's commands sit with
- * the board, not at the panel's foot.
- */
-function AttemptPanel(props: ContentAttemptScreenViewProps): JSX.Element {
-  const { t } = useLingui();
+/** Why there is no board to play: the position, or the puzzle itself. */
+function Unopenable(props: ContentAttemptScreenViewProps): JSX.Element {
   return (
-    <GameSection
-      title={
-        <Show when={props.pack} fallback={<Trans>This puzzle</Trans>}>
-          {(pack) => <PackPlace pack={pack()} />}
-        </Show>
-      }
-      dataSet={{ testid: 'puzzle-attempt-panel' }}
-    >
-      <Show when={props.pack}>{(pack) => <PackTrack pack={pack()} />}</Show>
-      <Show when={props.pack && props.packActions}>
-        <StackHorizontal
-          gap="sm"
-          wrap
-          dataSet={{ testid: 'puzzle-attempt-pack-actions' }}
-        >
-          {props.packActions}
-        </StackHorizontal>
-      </Show>
-      <AttemptFigures {...props} />
-      {/* A saved completion carries the save line in its own notice. */}
-      <Show when={!completionSaved(props)}>
-        <SaveStatus {...props} />
-      </Show>
-      <Show when={props.playtest}>
-        <Notice>
-          <Trans>
-            Playtest: this uses the real puzzle rules. It does not count toward
-            personal or pack completion.
-          </Trans>
-        </Notice>
-      </Show>
-      <Show when={props.complete}>
-        <SuccessState
-          variant="compact"
-          dataSet={{ testid: 'content-attempt-complete' }}
-          title={props.playtest ? t`Playtest solved` : t`Completion saved`}
-          body={
-            completionSaved(props) ? (
-              <>
-                <Text
-                  variant="inherit"
-                  role="status"
-                  testId="content-position-save-status"
-                >
-                  {t`Progress saved on this device.`}
-                </Text>{' '}
-                {t`You can keep playing or choose another puzzle.`}
-              </>
-            ) : props.playtest ? (
-              t`Return to the builder to validate and publish this puzzle.`
-            ) : (
-              t`Your completion is saved. You can keep playing or choose another puzzle.`
-            )
-          }
-        />
-      </Show>
+    <Notice tone="error">
       <Show
-        when={!props.complete && !props.playtest && props.solvedBefore === true}
+        when={props.unreadable === true}
+        fallback={
+          <Trans>
+            This saved position cannot be opened. Choose another kept
+            continuation under Progress, or restart. Your earlier attempt stays
+            saved.
+          </Trans>
+        }
       >
-        <P
-          variant="caption"
-          tone="secondary"
-          testId="content-attempt-solved-before"
-        >
-          {t`Solved before. Your completion stays saved.`}
-        </P>
+        <Trans>
+          This puzzle cannot be opened. Your attempt stays saved. Return to the
+          library to choose another puzzle.
+        </Trans>
       </Show>
-    </GameSection>
+    </Notice>
   );
 }
 
-function AttemptBody(props: ContentAttemptScreenViewProps): JSX.Element {
+/** The identifiers every place of one attempt carries. */
+function attemptDataSet(props: ContentAttemptScreenViewProps) {
+  return {
+    testid: 'content-attempt',
+    attemptid: props.attempt.id,
+    sourceid: props.attempt.sourceId,
+    packrevisionid: props.attempt.packRevisionId ?? '',
+    place: props.place.screen,
+  };
+}
+
+/**
+ * `attempt`: the stage. The puzzle's title and difficulty, what it asks,
+ * the game's player on the saved position, one status line (the save), and
+ * with the board its own commands (undo, redo, restart) and the one
+ * control onward.
+ */
+function AttemptStage(props: ContentAttemptScreenViewProps): JSX.Element {
   return (
     <GameScreen
       screenId="puzzle-content-attempt"
-      dataSet={{
-        testid: 'content-attempt',
-        attemptid: props.attempt.id,
-        sourceid: props.attempt.sourceId,
-        packrevisionid: props.attempt.packRevisionId ?? '',
-      }}
+      dataSet={attemptDataSet(props)}
       title={props.attempt.title}
       keepTitle
       facts={
@@ -310,9 +226,6 @@ function AttemptBody(props: ContentAttemptScreenViewProps): JSX.Element {
         </Show>
       }
     >
-      {/* The commands (undo, redo, restart, the pack) sit with the board:
-          right under it on a phone, heading the rail beside it when wide,
-          so the puzzle panel never stands between the board and them. */}
       <GameSessionLayout
         notices={
           <>
@@ -320,70 +233,103 @@ function AttemptBody(props: ContentAttemptScreenViewProps): JSX.Element {
             <AttemptAlerts {...props} />
           </>
         }
-        actions={props.controls}
-        actionsBeside
+        status={<ContentAttemptSaveStatus {...props} />}
+        actions={
+          <>
+            {props.controls}
+            <OpenProgress {...props} />
+          </>
+        }
         stageAlign={props.stageAlign}
-        aside={<AttemptPanel {...props} />}
       >
-        <Show
-          when={!props.unopenable}
-          fallback={
-            <Notice tone="error">
-              <Show
-                when={props.unreadable === true}
-                fallback={
-                  <Trans>
-                    This saved position cannot be opened. Choose another kept
-                    continuation below, or restart. Your earlier attempt stays
-                    saved.
-                  </Trans>
-                }
-              >
-                <Trans>
-                  This puzzle cannot be opened. Your attempt stays saved. Return
-                  to the library to choose another puzzle.
-                </Trans>
-              </Show>
-            </Notice>
-          }
-        >
+        <Show when={!props.unopenable} fallback={<Unopenable {...props} />}>
           {props.player}
         </Show>
       </GameSessionLayout>
-      {props.keptPositions}
     </GameScreen>
+  );
+}
+
+/** `progress` under the attempt's title, with what needs the person first. */
+function AttemptProgress(props: ContentAttemptScreenViewProps): JSX.Element {
+  const { t } = useLingui();
+  return (
+    <EmbeddedScreen
+      screenId="puzzle-content-attempt-progress"
+      dataSet={attemptDataSet(props)}
+      title={props.attempt.title}
+      subtitle={t`Where this attempt stands`}
+    >
+      <AttemptAlerts {...props} />
+      <ContentAttemptProgressView view={props} />
+    </EmbeddedScreen>
+  );
+}
+
+/** The attempt cannot be shown: why, and the way back to the puzzles. */
+function AttemptUnavailable(props: {
+  gone: boolean;
+  onReturnToLibrary: () => void;
+}): JSX.Element {
+  const { t } = useLingui();
+  return (
+    <ErrorState
+      title={
+        props.gone
+          ? t`This attempt is no longer here`
+          : t`This puzzle has not reached this device`
+      }
+      body={
+        props.gone
+          ? t`It was removed, or it belongs to another account. Return to puzzles to continue another.`
+          : t`Return to puzzles, reconnect and open the attempt again. Your progress stays saved.`
+      }
+      secondary={{
+        label: t`Return to puzzles`,
+        onClick: () => props.onReturnToLibrary(),
+      }}
+    />
   );
 }
 
 /**
  * A saved attempt at a published puzzle or a private playtest,
- * presentational: the puzzle's title and difficulty, the game's player on
- * the saved position as the hero with the attempt's commands right by it,
- * and beside it (under it on a phone) the puzzle panel: its place in the
- * pack, what it asks, the save status and completion — or denied and
- * not-on-this-device states. Player and controls arrive as slots.
+ * presentational, as two small screens. `attempt` is the stage: the
+ * puzzle's title and difficulty, what it asks, the game's player on the
+ * saved position, the save status as its one status line, undo, redo and
+ * restart, and one control onward. `progress` is where the attempt stands:
+ * its place in its pack and the next puzzle, the game's figures, the save
+ * status, the completion, and the kept positions. A change that was not
+ * saved and rules this app lacks are said on both — or loading, denied,
+ * gone and not-on-this-device states. Player, commands and dialogs arrive as slots.
  */
 export function ContentAttemptScreenView(
   props: ContentAttemptScreenViewProps
 ): JSX.Element {
-  const { t } = useLingui();
   return (
     <Switch>
+      <Match when={props.status === 'loading'}>
+        <LoadingState />
+      </Match>
       <Match when={props.denial}>
         {(denial) => <DenialSurfaceView denial={denial()} />}
       </Match>
-      <Match when={props.status === 'missing'}>
-        <ErrorState
-          title={t`This puzzle has not reached this device`}
-          body={t`Return to puzzles, reconnect and open the attempt again. Your progress stays saved.`}
-          secondary={{
-            label: t`Return to puzzles`,
-            onClick: () => props.onReturnToLibrary(),
-          }}
-        />
-      </Match>
       <Match when={props.status === 'ready'}>
-        <AttemptBody {...props} />
+        <Switch>
+          <Match when={props.place.screen === 'attempt'}>
+            <AttemptStage {...props} />
+          </Match>
+          <Match when={props.place.screen === 'progress'}>
+            <AttemptProgress {...props} />
+          </Match>
+        </Switch>
+        {props.confirms}
+      </Match>
+      <Match when={props.status === 'gone' || props.status === 'missing'}>
+        <AttemptUnavailable
+          gone={props.status === 'gone'}
+          onReturnToLibrary={props.onReturnToLibrary}
+        />
       </Match>
     </Switch>
   );

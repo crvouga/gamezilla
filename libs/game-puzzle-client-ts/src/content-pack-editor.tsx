@@ -6,11 +6,11 @@ import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { PlusIcon } from '@pkgs/ui-root-client-ts/icons';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { SuccessState } from '@pkgs/ui-root-client-ts/success-state';
-import { createMemo, createSignal, type JSX, Show, untrack } from 'solid-js';
+import { createMemo, type JSX, Show, untrack } from 'solid-js';
 import { useContentGame } from './content-game-context';
 import { useContentLibraryState } from './content-library-context';
 import { ContentPackEditorView } from './content-pack-editor-view';
-import { ContentPackItems, ContentPackRemoval } from './content-pack-items';
+import { ContentPackItems } from './content-pack-items';
 import type { useContentDraftSave } from './use-content-draft-save';
 import type { useContentPackEdit } from './use-content-pack-edit';
 
@@ -18,6 +18,8 @@ type PackEditorProps = {
   writer: ReturnType<typeof useContentDraftSave>;
   disabled: boolean;
   tools: ReturnType<typeof useContentPackEdit>;
+  /** Asks to take a puzzle out; the builder's shell confirms first. */
+  onRemove: (puzzleId: string) => void;
 };
 
 export function ContentPackEditor(props: PackEditorProps): JSX.Element {
@@ -39,7 +41,6 @@ export function ContentPackEditor(props: PackEditorProps): JSX.Element {
   const ids = createMemo(
     () => pack()?.items.map((item) => item.puzzleId) ?? []
   );
-  const [remove, setRemove] = createSignal<string | null>(null);
   const preview = () => {
     const Preview = game.client.Preview;
     return Preview === undefined
@@ -48,57 +49,50 @@ export function ContentPackEditor(props: PackEditorProps): JSX.Element {
   };
   const busy = (): boolean => props.disabled || tools.change.loading();
   return (
-    <>
-      <ContentPackEditorView
-        readable={pack() !== null}
-        count={ids().length}
-        order={
-          <ContentPackItems
-            ids={ids()}
-            tools={tools}
-            disabled={props.disabled}
-            onRemove={setRemove}
-          />
-        }
-        candidates={available().map((entry) => ({
-          id: entry.id,
-          title: entry.title,
-          caption: entry.difficulty,
-          preview: entry.definition,
-        }))}
-        renderPreview={preview()}
-        addDisabled={busy()}
-        onAdd={(id) => {
-          const puzzleId = available().find(
-            (revision) => revision.id === id
-          )?.document_id;
-          if (puzzleId !== undefined) tools.execute({ kind: 'add', puzzleId });
-        }}
-        notices={
-          <>
-            <Show when={tools.change.status() === 'success'}>
-              <SuccessState variant="compact" title={t`Pack change saved`} />
-            </Show>
-            <Show when={tools.change.error()}>
-              {(error) => (
-                <ErrorState
-                  variant="compact"
-                  title={t`The pack change was not saved`}
-                  body={error().message}
-                  retry={{ onClick: tools.retry }}
-                />
-              )}
-            </Show>
-          </>
-        }
-        create={<CreateInPack tools={tools} disabled={busy()} />}
-      />
-      <ContentPackRemoval
-        puzzleId={remove()}
-        tools={tools}
-        onClose={() => setRemove(null)}
-      />
-    </>
+    <ContentPackEditorView
+      readable={pack() !== null}
+      count={ids().length}
+      order={
+        <ContentPackItems
+          ids={ids()}
+          tools={tools}
+          disabled={props.disabled}
+          onRemove={(id) => props.onRemove(id)}
+        />
+      }
+      candidates={available().map((entry) => ({
+        id: entry.id,
+        title: entry.title,
+        caption: entry.difficulty,
+        preview: entry.definition,
+      }))}
+      renderPreview={preview()}
+      addDisabled={busy()}
+      onAdd={(id) => {
+        const puzzleId = available().find(
+          (revision) => revision.id === id
+        )?.document_id;
+        if (puzzleId !== undefined) tools.execute({ kind: 'add', puzzleId });
+      }}
+      notices={
+        <>
+          <Show when={tools.change.status() === 'success'}>
+            <SuccessState variant="compact" title={t`Pack change saved`} />
+          </Show>
+          <Show when={tools.change.error()}>
+            {(error) => (
+              <ErrorState
+                variant="compact"
+                title={t`The pack change was not saved`}
+                body={error().message}
+                retry={{ onClick: tools.retry }}
+              />
+            )}
+          </Show>
+        </>
+      }
+      create={<CreateInPack tools={tools} disabled={busy()} />}
+    />
   );
 }
 
@@ -141,7 +135,7 @@ function CreateInPack(props: {
               dataSet={{ testid: 'content-open-pack-puzzle' }}
               intent="neutral"
               variant="outline"
-              onClick={() => game.open({ kind: 'edit', documentId: id() })}
+              onClick={() => game.open({ kind: 'builder', documentId: id() })}
             />
           )}
         </Show>

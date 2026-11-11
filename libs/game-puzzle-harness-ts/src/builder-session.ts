@@ -6,7 +6,13 @@ import { contentBody } from '@libs/game-puzzle-shared-ts/content-types';
 import { defineAction } from '@pkgs/harness-root-shared-ts/define-action';
 import { fireEvent } from '@solidjs/testing-library';
 import { contentClient } from './content-actions';
-import { waitForContent } from './content-sync';
+import {
+  type ContentScreenPlace,
+  openContentPlace,
+  openLibraryEntry,
+  showContentHome,
+} from './content-screen-places';
+import { contentWait, waitForContent } from './content-sync';
 import type { ContentHarness } from './content-system';
 import { waitForEditorAt, workingDraftOn } from './draft-editor-screen';
 import { mountContentExample } from './mount-content-example';
@@ -14,36 +20,23 @@ import { movePackRowUp } from './pack-row-menu';
 
 type View = Awaited<ReturnType<typeof mountContentExample>>;
 
-/**
- * The builder's title field, its details opened first as a person opens
- * them when the builder shows them closed to one row over its stage (the
- * builder closes them again when it is drawn anew).
- */
+/** A field of the builder's details screen, which must be the one shown. */
 export function builderField(
-  view: Pick<View, 'queryByTestId' | 'getByLabelText'>,
+  view: Pick<View, 'getByLabelText'>,
   label: 'Title' | 'Description' | 'Difficulty (optional)'
 ): HTMLElement {
-  const toggle = view.queryByTestId('content-author-details-toggle');
-  if (toggle?.getAttribute('aria-expanded') === 'false')
-    fireEvent.click(toggle);
   return view.getByLabelText(label);
 }
 
 /**
- * The builder's details (title, description, difficulty), opened as a
- * person does when the builder shows them closed to one row over its stage.
+ * The builder's details screen (title, description, difficulty), opened
+ * from its hub by its row, as a person does.
  */
 export async function openBuilderDetails(
   s: ContentHarness,
-  view: Pick<View, 'queryByTestId' | 'queryByLabelText'>
+  view: Pick<View, 'queryByTestId' | 'getByTestId' | 'queryByLabelText'>
 ): Promise<void> {
-  const toggle = 'content-author-details-toggle';
-  await waitForContent(s, () =>
-    Promise.resolve(view.queryByTestId(toggle) !== null)
-  );
-  const button = view.queryByTestId(toggle);
-  if (button !== null && button.getAttribute('aria-expanded') !== 'true')
-    fireEvent.click(button);
+  await openContentPlace(contentWait(s), view, 'details');
   await waitForContent(s, () =>
     Promise.resolve(view.queryByLabelText('Title') !== null)
   );
@@ -81,12 +74,10 @@ export async function openBuilder(
   if (open?.documentId === documentId) return open.view;
   closeBuilder(s, clientId);
   const view = await mountContentExample(s, clientId);
-  const entry = `content-draft-${documentId}`;
+  await openLibraryEntry(contentWait(s), view, `content-draft-${documentId}`);
   await waitForContent(s, () =>
-    Promise.resolve(view.queryByTestId(entry) !== null)
+    Promise.resolve(view.queryByTestId('content-author') !== null)
   );
-  fireEvent.click(view.getByTestId(entry));
-  await openBuilderDetails(s, view);
   s.builders.set(clientId, { documentId, view });
   return view;
 }
@@ -120,19 +111,23 @@ export async function settleBuilder(
     });
 }
 
+/** Act on one of the open builder's small screens, then wait for the save. */
 async function inBuilder(
   s: ContentHarness,
   clientId: string,
+  place: ContentScreenPlace,
   act: (view: View) => void
 ): Promise<void> {
-  act(await openBuilder(s, clientId));
+  const view = await openBuilder(s, clientId);
+  await openContentPlace(contentWait(s), view, place);
+  act(view);
   await settleBuilder(s, clientId);
 }
 
 export const editTitleInBuilder = defineAction({
   name: 'editTitleInBuilder',
   act: (s: ContentHarness, clientId: string, title: string) =>
-    inBuilder(s, clientId, (view) => {
+    inBuilder(s, clientId, 'details', (view) => {
       fireEvent.input(builderField(view, 'Title'), {
         target: { value: title },
       });
@@ -143,7 +138,7 @@ export const editTitleInBuilder = defineAction({
 export const editDetailsInBuilder = defineAction({
   name: 'editDetailsInBuilder',
   act: (s: ContentHarness, clientId: string, target: string) =>
-    inBuilder(s, clientId, (view) => {
+    inBuilder(s, clientId, 'board', (view) => {
       fireEvent.input(view.getByLabelText('Target'), {
         target: { value: target },
       });
@@ -158,6 +153,7 @@ export const movePackPuzzleUpInBuilder = defineAction({
     if (packId === undefined || puzzleId === undefined)
       throw new Error(`No pack draft holds ${title}`);
     const view = await openBuilder(s, clientId, packId);
+    await openContentPlace(contentWait(s), view, 'board');
     const item = `content-pack-item-${puzzleId}`;
     await waitForContent(s, () =>
       Promise.resolve(view.queryByTestId(item) !== null)
@@ -182,6 +178,8 @@ async function chooseHistory(
 ): Promise<void> {
   const session = s.builders.get(clientId);
   const view = session?.view ?? (await openBuilder(s, clientId));
+  // Undo and redo head the board they act on.
+  await openContentPlace(contentWait(s), view, 'board');
   const documentId = buildingDocument(s, clientId);
   const before = await workingDraftOn(s, clientId, documentId);
   const button = historyButton(view, testId);
@@ -220,10 +218,14 @@ export async function offeredDraftEdits(
   const view =
     s.builders.get(clientId)?.view ??
     (await openBuilder(s, clientId, documentId));
-  return {
+  const wait = contentWait(s);
+  await openContentPlace(wait, view, 'board');
+  const offered = {
     undo: !historyButton(view, 'content-undo-draft-edit').disabled,
     redo: !historyButton(view, 'content-redo-draft-edit').disabled,
   };
+  await showContentHome(wait, view, 'builder');
+  return offered;
 }
 
 export const BUILDER_ACTIONS = [

@@ -12,7 +12,7 @@ export async function builderGeometry(page: Page, info: TestInfo) {
       height: rect.height,
     });
     const scroller = document.querySelector<HTMLElement>(
-      '[data-screen="puzzle-content-author"]'
+      '[data-screen="puzzle-content-author-board"]'
     );
     if (!scroller) throw new Error('Builder is missing');
     scroller.scrollTop = scroller.scrollHeight;

@@ -63,7 +63,8 @@ async function newestPlaytest(s: SokobanHarness): Promise<string | null> {
  * there: the builder withholds the playtest until they are made.
  */
 export async function playtestFromBuilder(s: SokobanHarness): Promise<void> {
-  const view = await openSokobanBuilder(s);
+  // The playtest is a step of the builder's publish screen.
+  const view = await openSokobanBuilder(s, 'publish');
   const earlier = await newestPlaytest(s);
   await waitIdle(s, view, 'content-start-playtest');
   if (view.getByTestId('content-start-playtest').hasAttribute('disabled'))
@@ -101,7 +102,7 @@ export const stopSokobanPlaytest = defineAction({
 export const publishSokobanDraft = defineAction({
   name: 'publishSokobanDraft',
   act: async (s: SokobanHarness) => {
-    const view = await openSokobanBuilder(s);
+    const view = await openSokobanBuilder(s, 'publish');
     const board = await builtDefinition(s);
     await clickIdle(s, view, 'content-publish');
     await waitFor(s, () => s.lastResult.has(ALICE));
@@ -125,7 +126,7 @@ export const changeSokobanRules = defineAction({
 });
 
 export async function proofShown(s: SokobanHarness): Promise<boolean> {
-  const view = await openSokobanBuilder(s);
+  const view = await openSokobanBuilder(s, 'publish');
   return (
     view.queryByTestId('content-proof')?.getAttribute('data-proven') === 'true'
   );
@@ -141,7 +142,7 @@ export function toldToPlaytest(s: SokobanHarness): boolean {
 }
 
 export async function publicationWaiting(s: SokobanHarness): Promise<boolean> {
-  const view = await openSokobanBuilder(s);
+  const view = await openSokobanBuilder(s, 'publish');
   return view.queryByTestId('content-publication-pending') !== null;
 }
 

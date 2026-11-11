@@ -9,15 +9,28 @@ import { Dynamic } from 'solid-js/web';
 import { ContentAttemptControls } from './content-attempt-controls';
 import { ContentAttemptNext } from './content-attempt-next';
 import {
+  ContentAttemptRestartConfirm,
+  useContentAttemptRestart,
+} from './content-attempt-restart';
+import {
   type AttemptFigure,
   type ContentAttemptPack,
   ContentAttemptScreenView,
   type ContentAttemptStatus,
   type ContentAttemptSummary,
 } from './content-attempt-screen-view';
-import { type ContentGame, useContentGame } from './content-game-context';
-import { ContentKeptPositions } from './content-kept-positions';
+import {
+  type ContentGame,
+  useContentGame,
+  useContentPlace,
+} from './content-game-context';
+import {
+  ContentKeptPositions,
+  ContentPositionConfirm,
+  useContentPositionChoice,
+} from './content-kept-positions';
 import { useContentLibraryState } from './content-library-context';
+import { contentPlaceOf } from './content-places';
 import { puzzlePlayContext } from './puzzle-play-context';
 import { useContentAttemptChange } from './use-content-attempt-change';
 import { useDeniedView } from './use-denied-view';
@@ -57,7 +70,6 @@ function packPlace(
   return { title: pack.title, position: index + 1, total: progress.total };
 }
 
-/** One attempt on its board, wired to its saved positions and changes. */
 /** Whether the game can read the puzzle content at all. */
 function readable(game: ContentGame, source: ContentBody): boolean {
   return game.content.rules.validateDefinition(source.definition).valid;
@@ -90,27 +102,13 @@ function savedCompletion(
     );
 }
 
-/** A pack puzzle's way on, for its pack card. */
-function PackWayOn(props: {
-  attempt: ContentAttempt;
-  progress: { readonly complete: boolean } | null;
-}): JSX.Element {
-  return (
-    <ContentAttemptNext
-      attempt={props.attempt}
-      complete={props.progress?.complete ?? false}
-      part="pack"
-    />
-  );
-}
-
-function AttemptBody(props: {
+/** Where the attempt's saved position stands under this app's rules. */
+function useAttemptStanding(props: {
   attempt: ContentAttempt;
   source: ContentBody;
-}): JSX.Element {
+}) {
   const game = useContentGame();
   const data = useContentLibraryState();
-  const writer = useContentAttemptChange(() => props.attempt);
   // An edition plays only under the rules it was published with.
   const rulesChanged = () =>
     props.attempt.rules_version !== game.content.rulesVersion;
@@ -134,9 +132,27 @@ function AttemptBody(props: {
   const figures = createMemo(() =>
     attemptFigures(game, props.source.definition, progress()?.state)
   );
+  return { rulesChanged, unreadable, progress, figures };
+}
+
+/** One attempt on its small screens, wired to its saved positions and changes. */
+function AttemptBody(props: {
+  attempt: ContentAttempt;
+  source: ContentBody;
+}): JSX.Element {
+  const game = useContentGame();
+  const nav = useContentPlace();
+  const data = useContentLibraryState();
+  const writer = useContentAttemptChange(() => props.attempt);
+  const restart = useContentAttemptRestart(() => props.attempt);
+  const position = useContentPositionChoice(() => props.attempt);
+  const { rulesChanged, unreadable, progress, figures } =
+    useAttemptStanding(props);
   return (
     <ContentAttemptScreenView
       status="ready"
+      place={contentPlaceOf('attempt', nav.place())}
+      onOpen={nav.open}
       figures={figures()}
       figuresPlacement={game.client.frame.figuresPlacement}
       attempt={summaryOf(props.attempt, props.source)}
@@ -166,11 +182,16 @@ function AttemptBody(props: {
           )}
         </Show>
       }
-      packActions={<PackWayOn attempt={props.attempt} progress={progress()} />}
+      wayOn={
+        <ContentAttemptNext
+          attempt={props.attempt}
+          complete={progress()?.complete ?? false}
+        />
+      }
       controls={
         <ContentAttemptControls
-          attempt={props.attempt}
           writer={writer}
+          restart={restart}
           progress={rulesChanged() ? null : progress()}
           unreadable={unreadable()}
         />
@@ -179,7 +200,14 @@ function AttemptBody(props: {
         <ContentKeptPositions
           attempt={props.attempt}
           disabled={writer.pending()}
+          onSelect={position.select}
         />
+      }
+      confirms={
+        <>
+          <ContentAttemptRestartConfirm tools={restart} />
+          <ContentPositionConfirm choice={position} />
+        </>
       }
       onRetryChange={writer.retry}
       onReturnToLibrary={() => game.open({ kind: 'library' })}
@@ -192,6 +220,7 @@ export function ContentAttemptScreen(props: {
   attemptId: string;
 }): JSX.Element {
   const game = useContentGame();
+  const nav = useContentPlace();
   const data = useContentLibraryState();
   const attempt = createMemo(() =>
     data.play().attempts.find((entry) => entry.id === props.attemptId)
@@ -222,7 +251,8 @@ export function ContentAttemptScreen(props: {
       : { attempt: current, source: played };
   });
   const status = (): ContentAttemptStatus => {
-    if (attempt() === undefined) return 'gone';
+    // An attempt asked for by id may still be on its way.
+    if (attempt() === undefined) return data.isFetching() ? 'loading' : 'gone';
     return source() === undefined ? 'missing' : 'ready';
   };
   return (
@@ -232,6 +262,8 @@ export function ContentAttemptScreen(props: {
         <ContentAttemptScreenView
           status={status()}
           denial={denial()}
+          place={contentPlaceOf('attempt', nav.place())}
+          onOpen={nav.open}
           attempt={summaryOf(
             attempt() ?? {
               id: props.attemptId,

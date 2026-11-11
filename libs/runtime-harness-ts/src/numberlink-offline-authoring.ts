@@ -2,6 +2,8 @@ import { publishJourneyDraft } from '@libs/game-puzzle-harness-ts/content-journe
 import {
   contentAttribute,
   contentTap,
+  leaveContentStage,
+  openContentPlace,
 } from '@libs/game-puzzle-harness-ts/content-journey-device';
 import type { PublishedJourneyPack } from '@libs/game-puzzle-harness-ts/content-journey-pack';
 import {
@@ -9,7 +11,6 @@ import {
   observeJourneyPackDraft,
 } from '@libs/game-puzzle-harness-ts/content-journey-pack-draft';
 import { NUMBERLINK_JOURNEY_BOARD } from '@libs/numberlink-harness-ts/numberlink-journey-board';
-import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { JOURNEY_WAIT_MS } from './journey-gestures';
 import type { JourneyHost } from './journey-types';
 import { openNumberlinkSpace } from './numberlink-journey-navigation';
@@ -26,11 +27,12 @@ export async function reopenOfflineNumberlinkDraft(
     await ui.get('content-offline').expect.visible(device);
     await contentTap(device, `content-draft-${draft.documentId}`);
     await observeJourneyPackDraft(device, draft);
-    await contentTap(device, Handles.navBack);
+    await leaveContentStage(device);
     await contentTap(device, `content-draft-${draft.puzzleId}`);
     await ui
       .get('content-author-title')
       .expect.text(draft.puzzleTitle, { ...device, exact: false });
+    await openContentPlace(device, 'preview');
     await NUMBERLINK_JOURNEY_BOARD.preview(device);
     await ui
       .get('content-draft-save-status')
@@ -49,12 +51,12 @@ export async function publishOfflineNumberlinkDraft(
     const puzzle = await publishJourneyDraft(device, draft.puzzleTitle);
     if (puzzle.documentId !== draft.puzzleId)
       throw new Error('Publishing replaced the identity of the offline puzzle');
-    await contentTap(device, Handles.navBack);
+    await leaveContentStage(device);
     await contentTap(device, `content-draft-${draft.documentId}`);
     await observeJourneyPackDraft(device, draft);
     const published = await publishJourneyDraft(device, draft.title);
     pack = { ...published, items: [puzzle, draft.existing] };
-    await contentTap(device, Handles.navBack);
+    await leaveContentStage(device);
     await contentTap(device, `content-draft-${draft.puzzleId}`);
     if (
       (await contentAttribute(device, 'content-author', 'data-documentid')) !==

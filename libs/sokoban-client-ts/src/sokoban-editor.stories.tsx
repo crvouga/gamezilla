@@ -5,7 +5,6 @@ import { useArgs } from 'storybook/preview-api';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { SokobanEditor } from './sokoban-editor';
-import { sokobanGameClient } from './sokoban-game-client';
 import { TWO_CRATES } from './sokoban-player.example';
 
 /** The Sokoban editor as the stage of the shared puzzle builder. */
@@ -22,16 +21,7 @@ function renderInBuilder(
       description="Push both crates onto the goals on the right."
       difficulty="Easy"
       definition={args.definition}
-      earlier="Crates"
       disabled={args.disabled}
-      // As the production builder asks the game's authoring readable().
-      playtestable={
-        sokobanGameClient.puzzleContent.authoring?.readable?.(
-          args.definition
-        ) !== false
-      }
-      // A Sokoban draft previews as built, whether or not it can be played.
-      content={sokobanGameClient.puzzleContent}
       undoable={undoable}
       stage={<SokobanEditor {...args} onChange={onChange} />}
     />

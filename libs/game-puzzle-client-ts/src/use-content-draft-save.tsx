@@ -28,12 +28,15 @@ export function useContentDraftSave(
   const [dirty, setDirty] = createSignal(false);
   const [error, setError] = createSignal<string | null>(null);
   let active: Promise<void> | null = null;
-  let live = true;
+  // A confirmed departure abandons the edits in flight; editing again in a
+  // builder that stayed open resumes saving. Disposal stops it for good.
+  let abandoned = false;
+  let disposed = false;
   const drain = async (): Promise<void> => {
     setSaving(true);
     setError(null);
     try {
-      while (dirty() && live) {
+      while (dirty() && !abandoned && !disposed) {
         const value = body();
         const parentId = draftId();
         const nextId = createId();
@@ -72,6 +75,7 @@ export function useContentDraftSave(
     if (JSON.stringify(next) === JSON.stringify(body())) return;
     setBody(next);
     setDirty(true);
+    abandoned = false;
     void save();
   };
   const adopt = (draft: ContentDraft): void => {
@@ -83,11 +87,11 @@ export function useContentDraftSave(
   usePendingOperation(
     () => dirty() || saving(),
     () => {
-      live = false;
+      abandoned = true;
     }
   );
   onCleanup(() => {
-    live = false;
+    disposed = true;
   });
   return { body, draftId, saving, dirty, error, change, save, adopt };
 }

@@ -9,7 +9,7 @@ import {
   createSignal,
   on,
 } from 'solid-js';
-import type { ContentView } from './content-game-context';
+import type { ContentSubject } from './content-places';
 
 export type ContentIdPage = {
   readonly afterIds: Accessor<readonly string[]>;
@@ -41,7 +41,7 @@ function createIdPage(
 export function useContentPages(
   content: Accessor<ContentLibrary>,
   play: Accessor<AttemptLibrary>,
-  view: Accessor<ContentView>
+  subject: Accessor<ContentSubject>
 ) {
   const myId = useMyId();
   const published = createIdPage(() =>
@@ -51,11 +51,11 @@ export function useContentPages(
     content().documents.filter((doc) => doc.owner_id === myId())
   );
   const draftDocument = () => {
-    const current = view();
-    return current.kind === 'edit' ? current.documentId : '';
+    const current = subject();
+    return current.kind === 'builder' ? current.documentId : '';
   };
   const positionAttempt = () => {
-    const current = view();
+    const current = subject();
     return current.kind === 'attempt' ? current.attemptId : '';
   };
   const drafts = createIdPage(

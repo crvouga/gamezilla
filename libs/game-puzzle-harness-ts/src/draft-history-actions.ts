@@ -6,8 +6,13 @@ import {
 import { decodePackDefinition } from '@libs/game-puzzle-shared-ts/content-pack';
 import { defineAction } from '@pkgs/harness-root-shared-ts/define-action';
 import { fireEvent } from '@solidjs/testing-library';
-import { builderField } from './builder-session';
+import { builderField, openBuilderDetails } from './builder-session';
 import { contentClient, createDraftFor } from './content-actions';
+import {
+  type ContentScreenPlace,
+  openContentPlace,
+} from './content-screen-places';
+import { contentWait } from './content-sync';
 import type { ContentHarness } from './content-system';
 import {
   controlOffered,
@@ -51,7 +56,13 @@ function settle(
   return waitForEditorAt(editing.s, editing, editing.documentId, accept);
 }
 
+/** Show one of the open builder's small screens, as a person opens it. */
+function show(editing: Editing, place: ContentScreenPlace): Promise<void> {
+  return openContentPlace(contentWait(editing.s), editing.view, place);
+}
+
 async function typeTitle(editing: Editing, title: string): Promise<void> {
+  await openBuilderDetails(editing.s, editing.view);
   fireEvent.input(builderField(editing.view, 'Title'), {
     target: { value: title },
   });
@@ -60,6 +71,8 @@ async function typeTitle(editing: Editing, title: string): Promise<void> {
 
 async function typeDetails(editing: Editing, valid: boolean): Promise<void> {
   const definition = valid ? 'target:2' : 'target:';
+  // The counting game's editor is the builder's board.
+  await show(editing, 'board');
   fireEvent.input(editing.view.getByLabelText('Target'), {
     target: { value: definition.slice(7) },
   });
@@ -93,6 +106,7 @@ async function moveUp(editing: Editing, title: string): Promise<void> {
   const item = order[index];
   if (item === undefined || index === 0)
     throw new Error(`The pack offers no way to move ${title} up`);
+  await show(editing, 'board');
   const row = editing.view.getByTestId(`content-pack-item-${item.id}`);
   movePackRowUp(editing.view, row);
   const expected = order.map((entry) => entry.id);
@@ -170,6 +184,8 @@ async function pressHistory(editing: Editing, testId: string): Promise<void> {
     editing.clientId,
     editing.documentId
   );
+  // Undo and redo head the board they act on.
+  await show(editing, 'board');
   if (controlOffered(editing.view, testId) !== true)
     throw new Error(`The builder does not offer ${testId}`);
   fireEvent.click(editing.view.getByTestId(testId));

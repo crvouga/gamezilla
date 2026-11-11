@@ -2,7 +2,7 @@ import { expect, type Page, test } from '@playwright/test';
 
 async function panelTop(page: Page, story: string) {
   await page.goto(
-    `/iframe.html?id=screens-puzzles-content-attempt--${story}&viewMode=story`
+    `/iframe.html?id=screens-puzzles-content-attempt-progress--${story}&viewMode=story`
   );
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-story-ready',
@@ -14,6 +14,7 @@ async function panelTop(page: Page, story: string) {
 }
 
 // regression: puzzle-solved-way-on-moves-pack-card
+// The pack card is on the attempt's progress screen.
 test('storybook integration: solving a pack puzzle leaves its pack card in place', async ({
   page,
 }) => {

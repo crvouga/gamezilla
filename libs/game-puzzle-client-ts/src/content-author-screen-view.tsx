@@ -5,22 +5,24 @@ import type {
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
 import { Trans, useLingui } from '@lingui/solid/macro';
-import { Button } from '@pkgs/ui-root-client-ts/button';
-import { DisclosureCard } from '@pkgs/ui-root-client-ts/disclosure-card';
+import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
-import { H2 } from '@pkgs/ui-root-client-ts/heading';
-import { EyeIcon } from '@pkgs/ui-root-client-ts/icons';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
-import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { StepFooter } from '@pkgs/ui-root-client-ts/step-footer';
 import { Text } from '@pkgs/ui-root-client-ts/text';
-import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
-import { createSignal, type JSX, Match, Show, Switch } from 'solid-js';
-import { ContentDraftMetadata } from './content-draft-metadata';
-import { PublicationLeadProvider } from './content-publication-lead';
+import { type JSX, Match, Show, Switch } from 'solid-js';
+import { ContentAuthorHubView } from './content-author-hub-view';
+import {
+  ContentAuthorBoardView,
+  ContentAuthorCopiesView,
+  ContentAuthorDetailsView,
+  ContentAuthorPreviewView,
+  ContentAuthorPublishView,
+} from './content-author-place-views';
+import type { ContentBuilderStanding } from './content-builder-standing';
+import type { ContentBuilderPlace } from './content-places';
 
 /**
  * `loading`: the library is still being read; `gone`: the document is not
@@ -43,6 +45,8 @@ export type ContentAuthorScreenViewProps = {
   /** Set when the person may not edit this document. */
   readonly denial?: DenialView | undefined;
   readonly documentId: string;
+  /** The working copy being edited (`data-draftid` on every place). */
+  readonly draftId?: string | undefined;
   readonly kind: ContentKind;
   /** The working copy's title, description, difficulty and definition. */
   readonly body: ContentBody;
@@ -52,36 +56,48 @@ export type ContentAuthorScreenViewProps = {
   readonly metadataDisabled: boolean;
   /** The builder is busy (saving, adopting a copy, a pack change). */
   readonly disabled: boolean;
-  /** Previewing the draft as a player sees it. */
-  readonly preview: boolean;
+  /** The small screen shown: the hub of steps, or one of the steps. */
+  readonly place: ContentBuilderPlace;
+  readonly onOpen: (place: ContentBuilderPlace) => void;
+  /** Where the draft stands on its way to being published. */
+  readonly standing: ContentBuilderStanding;
+  /** `false` while the game cannot play the draft: its board needs fixing. */
+  readonly playable?: boolean | undefined;
   /**
    * `false` while there is nothing to preview: the game previews through
    * its player and cannot play the draft (its authoring `readable()`)
    * until it is corrected.
    */
   readonly previewable?: boolean | undefined;
-  /** Undo / redo of this session's edits. */
+  /** How many puzzles a pack draft holds. */
+  readonly puzzles?: number | undefined;
+  /** How many copies of the draft are kept. */
+  readonly copies?: number | undefined;
+  /** `board`: undo / redo of this session's edits. */
   readonly history?: JSX.Element;
-  /**
-   * Validation and publication: the one next action over the steps (a
-   * puzzle's playtest first among them), the last step, after the stage.
-   * On a phone its next action moves to the title row, in the first screen;
-   * for that it must be made where the view reads it (a JSX prop is).
-   */
-  readonly publication?: JSX.Element;
-  /** The game's editor, the pack editor, or the preview. */
+  /** `board`: the game's editor, or the pack editor. */
   readonly stage?: JSX.Element;
-  /** The draft's other saved copies, to keep working from one. */
+  /** `preview`: the draft as a solver sees it. */
+  readonly preview?: JSX.Element;
+  /** `publish`: playtest, validate and publish, and why not yet. */
+  readonly publication?: JSX.Element;
+  /** `copies`: the draft's other saved copies, to keep working from one. */
   readonly keptCopies?: JSX.Element;
+  /** The server's refusal of the last publication, said on every place. */
+  readonly refusal?: JSX.Element;
+  /** The builder's confirmation dialogs, kept whichever place is shown. */
+  readonly confirms?: JSX.Element;
   readonly onChangeBody: (body: ContentBody) => void;
   readonly onSaveAgain: () => void;
-  readonly onTogglePreview: () => void;
+  /** Opens a pack's first draft puzzle, to finish and publish it there. */
+  readonly onOpenWaiting?: (() => void) | undefined;
+  readonly onViewPublication?: (() => void) | undefined;
   readonly onReturnToLibrary: () => void;
 };
 
 /**
- * Where the working copy's last save stands, one quiet line after the
- * builder's kind under its title.
+ * Where the working copy's last save stands, one quiet line under the
+ * draft's title on every place: the builder's one live region.
  */
 function SaveLine(props: ContentAuthorScreenViewProps): JSX.Element {
   const { t } = useLingui();
@@ -96,8 +112,11 @@ function SaveLine(props: ContentAuthorScreenViewProps): JSX.Element {
   );
 }
 
-/** A failed save or a conflicting copy: what needs the author first. */
-function SaveNotices(props: ContentAuthorScreenViewProps): JSX.Element {
+/**
+ * What needs the author first, on every place: a failed save, a
+ * conflicting copy, a refused publication.
+ */
+function AuthorNotices(props: ContentAuthorScreenViewProps): JSX.Element {
   const { t } = useLingui();
   return (
     <>
@@ -112,188 +131,171 @@ function SaveNotices(props: ContentAuthorScreenViewProps): JSX.Element {
         )}
       </Show>
       <Show when={props.conflicted}>
-        <Notice tone="warning">
+        <Notice tone="warning" dataSet={{ testid: 'content-author-conflict' }}>
           <Trans>
             Another device saved a different copy of this draft. Choose the copy
             to keep working from under Draft copies before publishing.
           </Trans>
         </Notice>
       </Show>
+      {props.refusal}
     </>
   );
 }
 
-/**
- * The editing tools, heading the stage they act on: the step's name at the
- * start, then undo and redo of this session's edits and a look at the
- * draft as a player sees it at the end of the same line.
- */
-function AuthorTools(props: ContentAuthorScreenViewProps): JSX.Element {
+/** What the place is, said before the save line under the draft's title. */
+function usePlaceName(props: ContentAuthorScreenViewProps): () => string {
   const { t } = useLingui();
+  return () => {
+    const pack = props.kind === 'pack';
+    return {
+      builder: pack ? t`Pack builder` : t`Puzzle builder`,
+      details: t`Details`,
+      board: pack ? t`Puzzles` : t`Board`,
+      preview: t`Preview`,
+      publish: t`Check and publish`,
+      copies: t`Draft copies`,
+    }[props.place.screen];
+  };
+}
+
+/** The one small screen `place` names. */
+function AuthorPlace(props: ContentAuthorScreenViewProps): JSX.Element {
   return (
-    <StackHorizontal
-      gap="sm"
-      wrap
-      align="center"
-      justify="between"
-      dataSet={{ testid: 'content-author-tools' }}
-    >
-      <H2 size="navigationTitle" testId="content-author-stage-step">
-        {props.kind === 'pack' ? t`2 · Puzzles` : t`2 · Board`}
-      </H2>
-      <StackHorizontal gap="xs" wrap align="center">
-        {props.history}
-        <Button
-          title={props.preview ? t`Return to editing` : t`Preview`}
-          intent="neutral"
-          variant="ghost"
-          size="sm"
-          startIcon={<EyeIcon size={16} />}
-          onClick={() => props.onTogglePreview()}
-          disabled={
-            props.disabled || (props.previewable === false && !props.preview)
+    <Switch>
+      <Match when={props.place.screen === 'builder'}>
+        <ContentAuthorHubView view={props} />
+      </Match>
+      <Match when={props.place.screen === 'details'}>
+        <ContentAuthorDetailsView view={props} />
+      </Match>
+      <Match when={props.place.screen === 'board'}>
+        <ContentAuthorBoardView view={props} />
+      </Match>
+      <Match when={props.place.screen === 'preview'}>
+        <ContentAuthorPreviewView view={props} />
+      </Match>
+      <Match when={props.place.screen === 'publish'}>
+        <ContentAuthorPublishView view={props} />
+      </Match>
+      <Match when={props.place.screen === 'copies'}>
+        <ContentAuthorCopiesView view={props} />
+      </Match>
+    </Switch>
+  );
+}
+
+/** The board and the preview are stages; every other place is a menu column. */
+function isStage(screen: ContentBuilderPlace['screen']): boolean {
+  return screen === 'board' || screen === 'preview';
+}
+
+/**
+ * The builder's shell around one place: the draft's title and its save
+ * line, then what needs the author first, then the place. Each place is
+ * its own screen, so opening one starts at its top with focus on it.
+ */
+function AuthorShell(props: ContentAuthorScreenViewProps): JSX.Element {
+  const { t } = useLingui();
+  const name = usePlaceName(props);
+  const dataSet = () => ({
+    testid: 'content-author',
+    documentid: props.documentId,
+    draftid: props.draftId ?? '',
+    place: props.place.screen,
+  });
+  const title = (): JSX.Element => (
+    <Text variant="inherit" testId="content-author-title">
+      {props.body.title || t`Untitled draft`}
+    </Text>
+  );
+  const subtitle = (): JSX.Element => (
+    <>
+      {name()}
+      {' · '}
+      <SaveLine {...props} />
+    </>
+  );
+  return (
+    <Show when={props.place.screen} keyed>
+      {(screen) => (
+        <Show
+          when={isStage(screen)}
+          fallback={
+            <EmbeddedScreen
+              screenId={
+                screen === 'builder'
+                  ? 'puzzle-content-author'
+                  : `puzzle-content-author-${screen}`
+              }
+              dataSet={dataSet()}
+              title={title()}
+              subtitle={subtitle()}
+            >
+              <AuthorNotices {...props} />
+              <AuthorPlace {...props} />
+            </EmbeddedScreen>
           }
-          dataSet={{ testid: 'content-preview' }}
-        />
-      </StackHorizontal>
-    </StackHorizontal>
+        >
+          <GameScreen
+            screenId={`puzzle-content-author-${screen}`}
+            dataSet={dataSet()}
+            title={title()}
+            subtitle={subtitle()}
+          >
+            <GameSessionLayout notices={<AuthorNotices {...props} />} workspace>
+              <AuthorPlace {...props} />
+            </GameSessionLayout>
+          </GameScreen>
+        </Show>
+      )}
+    </Show>
   );
 }
 
-/** What the closed details say: the difficulty, then the description. */
-function detailsSummary(body: ContentBody): string {
-  return [body.difficulty.trim(), body.description.trim()]
-    .filter((part) => part !== '')
-    .join(' · ');
-}
-
-/**
- * Step one: the draft's title, description and difficulty, closed to one
- * row over the stage once the draft has a title, so the board or the
- * pack's puzzles fill the screen; a new draft opens on them.
- */
-function AuthorDetails(props: ContentAuthorScreenViewProps): JSX.Element {
+/** The draft cannot be shown: why, and the way back to the puzzles. */
+function AuthorUnavailable(props: {
+  gone: boolean;
+  onReturnToLibrary: () => void;
+}): JSX.Element {
   const { t } = useLingui();
   return (
-    <DisclosureCard
-      title={t`1 · Details`}
-      summary={
-        detailsSummary(props.body) || t`Title, description and difficulty`
-      }
-      defaultOpen={props.body.title.trim() === ''}
-      toggleTestId="content-author-details-toggle"
-      dataSet={{ testid: 'content-author-details' }}
-    >
-      <ContentDraftMetadata
-        body={props.body}
-        disabled={props.metadataDisabled}
-        onChange={props.onChangeBody}
-      />
-    </DisclosureCard>
-  );
-}
-
-/**
- * The last step, in the flow right after the stage: the one next action
- * over the steps to publish (on a phone, the action is in the title row
- * instead, so it is in the first screen). It scrolls with the stage
- * instead of being pinned over it, so it never covers the board or the
- * pack's puzzles.
- */
-function AuthorPublish(props: ContentAuthorScreenViewProps): JSX.Element {
-  const { t } = useLingui();
-  return (
-    <StepFooter
-      title={t`3 · Check and publish`}
-      dataSet={{ testid: 'content-author-publish' }}
-    >
-      {props.publication}
-    </StepFooter>
-  );
-}
-
-/**
- * One builder in three numbered steps, in order on every size: the
- * details (one row once titled), the stage with its tools across the
- * whole column (a game's editor sets its own tools beside its board), and
- * checking and publishing right after the stage; the draft's other saved
- * copies, no step of their own, come last. On a phone the one next action
- * (a playtest, Validate, Publish) sits in the title row, so it is in the
- * first screen without a card pushing the stage under the fold.
- */
-function AuthorBody(props: ContentAuthorScreenViewProps): JSX.Element {
-  const mode = useLayoutMode();
-  const [lead, setLead] = createSignal<JSX.Element>();
-  return (
-    <PublicationLeadProvider
-      value={{
-        active: () => mode() === 'compact',
-        show: (element) => setLead(() => element),
-      }}
-    >
-      <AuthorFrame {...props} lead={lead()} />
-    </PublicationLeadProvider>
-  );
-}
-
-/** The builder's screen, with the next action `lead` in its title row. */
-function AuthorFrame(
-  props: ContentAuthorScreenViewProps & { readonly lead: JSX.Element }
-): JSX.Element {
-  const { t } = useLingui();
-  return (
-    <GameScreen
-      screenId="puzzle-content-author"
-      actions={props.lead}
-      dataSet={{ testid: 'content-author', documentid: props.documentId }}
+    <ErrorState
       title={
-        <Text variant="inherit" testId="content-author-title">
-          {props.body.title || t`Untitled draft`}
-        </Text>
+        props.gone
+          ? t`This draft is no longer here`
+          : t`This draft is not available on this device`
       }
-      subtitle={
-        <>
-          {props.kind === 'pack' ? t`Pack builder` : t`Puzzle builder`}
-          {' · '}
-          <SaveLine {...props} />
-        </>
+      body={
+        props.gone
+          ? t`It was removed, or it belongs to another account. Return to your puzzles to open another.`
+          : t`Return to your library, reconnect and open it again. Your saved work stays kept.`
       }
-    >
-      <GameSessionLayout
-        notices={
-          <>
-            <SaveNotices {...props} />
-            <AuthorDetails {...props} />
-          </>
-        }
-        workspace
-      >
-        <StackVertical gap="xl">
-          <StackVertical gap="md" dataSet={{ testid: 'content-author-stage' }}>
-            <AuthorTools {...props} />
-            {props.stage}
-          </StackVertical>
-          <AuthorPublish {...props} />
-          {props.keptCopies}
-        </StackVertical>
-      </GameSessionLayout>
-    </GameScreen>
+      secondary={{
+        label: t`Return to puzzles`,
+        onClick: () => props.onReturnToLibrary(),
+      }}
+    />
   );
 }
 
 /**
- * The puzzle or pack builder, presentational, one layout for both, in
- * three numbered steps: the draft's details; the stage (the game's editor,
- * the pack's puzzles, or a preview) headed by its editing tools; and
- * checking and publishing it, then the draft's other saved copies — or
- * loading, denied and not-on-this-device states. The
- * host's bar holds the way back to the puzzles. Smart widgets arrive as
- * slots.
+ * The puzzle or pack builder, presentational, as small screens under one
+ * shell. `builder` is the hub: one row per step with where it stands
+ * (Details, Board or Puzzles, Preview, Check and publish, Draft copies)
+ * and the one next step as its filled command. `details` is the form for
+ * the title, description and difficulty; `board` the game's editor or the
+ * pack's puzzles with undo and redo; `preview` the draft as a solver sees
+ * it; `publish` playtesting, validating and publishing; `copies` the kept
+ * draft copies. The shell shows on every place: the draft's title, its
+ * save line, a failed save, a conflicting copy, a refused publication, and
+ * the confirmation dialogs — or loading, denied, gone and
+ * not-on-this-device states. Smart widgets arrive as slots, each drawn
+ * only on its place.
  */
 export function ContentAuthorScreenView(
   props: ContentAuthorScreenViewProps
 ): JSX.Element {
-  const { t } = useLingui();
   return (
     <Switch>
       <Match when={props.status === 'loading'}>
@@ -302,18 +304,15 @@ export function ContentAuthorScreenView(
       <Match when={props.denial}>
         {(denial) => <DenialSurfaceView denial={denial()} />}
       </Match>
-      <Match when={props.status === 'missing'}>
-        <ErrorState
-          title={t`This draft is not available on this device`}
-          body={t`Return to your library, reconnect and open it again. Your saved work stays kept.`}
-          secondary={{
-            label: t`Return to puzzles`,
-            onClick: () => props.onReturnToLibrary(),
-          }}
-        />
-      </Match>
       <Match when={props.status === 'ready'}>
-        <AuthorBody {...props} />
+        <AuthorShell {...props} />
+        {props.confirms}
+      </Match>
+      <Match when={props.status === 'gone' || props.status === 'missing'}>
+        <AuthorUnavailable
+          gone={props.status === 'gone'}
+          onReturnToLibrary={props.onReturnToLibrary}
+        />
       </Match>
     </Switch>
   );

@@ -2,7 +2,8 @@ import { defineAction } from '@pkgs/harness-root-shared-ts/define-action';
 import sql, { join } from '@pkgs/sql-root-shared-ts/sql';
 import { fireEvent } from '@solidjs/testing-library';
 import { contentClient, currentContentEditor } from './content-actions';
-import { waitForContent } from './content-sync';
+import { openContentPlace } from './content-screen-places';
+import { contentWait, waitForContent } from './content-sync';
 import type { ContentHarness } from './content-system';
 import { mountContentExample } from './mount-content-example';
 
@@ -37,6 +38,8 @@ export const loadEarlierAttemptsThroughScreen = defineAction({
   act: async (s: ContentHarness) => {
     const view = await mountContentExample(s, 'bob:phone');
     try {
+      // Every seeded attempt is unfinished: the Continue screen lists them.
+      await openContentPlace(contentWait(s), view, 'continue');
       await waitForContent(s, () =>
         Promise.resolve(
           view.queryAllByTestId(/^content-attempt-/).length === 32

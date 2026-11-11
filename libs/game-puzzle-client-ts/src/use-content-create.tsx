@@ -1,14 +1,28 @@
 import type { ContentKind } from '@libs/game-puzzle-shared-ts/content-types';
 import { createPuzzleContentMutation } from '@libs/game-puzzle-shared-ts/create-content-mutation';
-import { useDecision } from '@libs/permissions-client-ts/use-can';
-import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { useLingui } from '@lingui/solid/macro';
 import { useMutationClient } from '@pkgs/sync-engine-client-ts/mutation-client-context';
 import { useCreateId } from '@pkgs/uuid-client-ts/solid';
-import type { JSX } from 'solid-js';
-import { ContentCreateControlsView } from './content-create-controls-view';
+import { type Accessor, createSignal } from 'solid-js';
 import { useContentGame } from './content-game-context';
-import { useDeniedView } from './use-denied-view';
+
+/**
+ * Where creating a draft stands: nothing asked, a draft of `kind` being
+ * made, made (its document waits to be opened), or refused with why.
+ */
+export type ContentCreateState =
+  | { readonly status: 'idle' }
+  | { readonly status: 'creating'; readonly kind: ContentKind }
+  | {
+      readonly status: 'created';
+      readonly kind: ContentKind;
+      readonly documentId: string;
+    }
+  | {
+      readonly status: 'failed';
+      readonly kind: ContentKind;
+      readonly message: string;
+    };
 
 /** Creates a private draft of `kind` and resolves to its document id. */
 function useCreateDraft(): (kind: ContentKind) => Promise<string> {
@@ -48,22 +62,34 @@ function useCreateDraft(): (kind: ContentKind) => Promise<string> {
   };
 }
 
-/** Create controls wired to the create permission and mutation. */
-export function ContentCreateControls(): JSX.Element {
-  const game = useContentGame();
-  const decision = useDecision(PERMISSION.puzzlesCreateContent);
+/**
+ * Creating a private puzzle or pack draft from the library's hub, as one
+ * named state; a second request waits for the first to settle.
+ */
+export function useContentCreate(): {
+  readonly state: Accessor<ContentCreateState>;
+  readonly create: (kind: ContentKind) => void;
+} {
+  const { t } = useLingui();
   const createDraft = useCreateDraft();
-  const denial = useDeniedView({
-    get decision() {
-      return decision();
-    },
+  const [state, setState] = createSignal<ContentCreateState>({
+    status: 'idle',
   });
-  return (
-    <ContentCreateControlsView
-      denial={denial()}
-      canCreatePuzzle={game.client.authoring !== undefined}
-      onCreate={createDraft}
-      onOpenDraft={(documentId) => game.open({ kind: 'edit', documentId })}
-    />
-  );
+  const create = (kind: ContentKind): void => {
+    if (state().status === 'creating') return;
+    setState({ status: 'creating', kind });
+    createDraft(kind).then(
+      (documentId) => setState({ status: 'created', kind, documentId }),
+      (failure: unknown) =>
+        setState({
+          status: 'failed',
+          kind,
+          message:
+            failure instanceof Error
+              ? failure.message
+              : t`The draft could not be created. Try again.`,
+        })
+    );
+  };
+  return { state, create };
 }
