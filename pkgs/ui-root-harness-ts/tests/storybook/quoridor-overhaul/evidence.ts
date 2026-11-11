@@ -108,6 +108,9 @@ export async function expectQuoridorStoryPasses(
   await testStoryReady(page, story, theme);
 }
 
+/** Longest a story's scripted play may take before it counts as stuck. */
+const STORY_READY_MS = 30_000;
+
 async function testStoryReady(
   page: Page,
   story: string,
@@ -117,9 +120,14 @@ async function testStoryReady(
   await page.goto(
     `/iframe.html?id=${story}&viewMode=story&globals=theme:${theme}`
   );
+  // How long the scripted play takes is recorded (playMilliseconds), never
+  // asserted; under 4x CPU throttling on a 2-core runner the longer plays
+  // (precise-wall-preview) outran expect's 5 s default, so readiness waits
+  // within the journey's own budget instead.
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-story-ready',
-    'true'
+    'true',
+    { timeout: STORY_READY_MS }
   );
   const playMilliseconds = Date.now() - started;
   await expect(page.locator('#storybook-root')).not.toHaveAttribute(
