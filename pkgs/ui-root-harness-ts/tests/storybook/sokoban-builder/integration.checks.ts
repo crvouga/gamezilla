@@ -37,7 +37,7 @@ test('storybook integration: Sokoban builder probe rejects a real covering layer
   await openBuilder(page);
   await page.evaluate(() => {
     const scroller = document.querySelector(
-      '[data-screen="puzzle-content-author"]'
+      '[data-screen="puzzle-content-author-board"]'
     );
     if (!scroller) throw new Error('Missing builder');
     const bounds = scroller.getBoundingClientRect();

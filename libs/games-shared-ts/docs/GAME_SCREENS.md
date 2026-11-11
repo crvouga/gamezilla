@@ -128,17 +128,27 @@ position is the `moves` place; leaving it returns the board to live.
 
 | Stage | Place | Kind | Job |
 | --- | --- | --- | --- |
-| library | `library` | Hub | Continue, browse, my creations, create |
-| | `continue`, `browse`, `mine` | Hub | One list each |
-| builder | `builder` | Hub | The draft's steps and where each stands |
+| library | `library` | Hub | Continue, solved, browse, my creations and playtests by their counts; the starter packs; a row each to create a puzzle or a pack |
+| | `continue`, `solved`, `browse`, `mine`, `playtests` | Hub | One list each, with its own empty state and its own "load more" |
+| builder | `builder` | Hub | The draft's steps and where each stands; the one next step as its filled command |
 | | `details` | Form | Title, description, difficulty |
-| | `board` | Stage | The game's editor, undo and redo |
-| | `preview` | Stage | The draft as a solver sees it |
-| | `publish` | Hub | Playtest, validate, publish; why not yet |
+| | `board` | Stage | The game's editor (a pack: its puzzles), undo and redo |
+| | `preview` (a pack's puzzle) | Stage | The draft as a solver sees it |
+| | `publish` | Hub | Playtest, validate, publish; why not yet; view and withdraw |
 | | `copies` | Choice | The kept draft copies |
 | edition | `edition` | Hub | A published puzzle or pack: start, continue, edit |
-| attempt | `attempt` | Stage | Solve it |
-| | `progress` | Hub | The pack place, saved positions, what next |
+| attempt | `attempt` | Stage | Solve it: the board, its save line, undo, redo and restart, one control onward |
+| | `progress` | Hub | The pack place and next puzzle, figures, the completion, saved positions |
+
+Here the stage is what the person has open (`ContentSubject`: the library,
+one document's builder, one edition, one attempt), so opening anything
+lands on its home, also another thing of the same kind. Solved attempts and
+playtests are lists of their own (`solved`, `playtests`) so that no list
+screen holds two. The builder's shell (the draft's title, its save line, a
+failed save, a conflicting copy, a refused publication, the confirmation
+dialogs) shows on every builder place. The stage ids are
+`screens-puzzles-content-<stage>` for a home and
+`screens-puzzles-content-<stage>-<place>` otherwise.
 
 ### A game's menu and settings (`game-choices`, `settings`)
 

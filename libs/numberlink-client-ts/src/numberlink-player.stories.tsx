@@ -123,8 +123,11 @@ export const InProgress: Story = {
 // regression: solved-pack-story-completion
 export const Solved: Story = {
   play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // The completion record is where the attempt stands: behind "Solved".
+    await userEvent.click(canvas.getByTestId('content-open-progress'));
     await expect(
-      within(canvasElement).getByTestId('content-attempt-complete')
+      canvas.getByTestId('content-attempt-complete')
     ).toHaveTextContent('Completion saved');
   },
   args: { state: progress(SOLUTION), disabled: false },
@@ -159,7 +162,9 @@ export const NextPuzzle: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByTestId('numberlink-solved')).toBeVisible();
+    await userEvent.click(canvas.getByTestId('content-open-progress'));
     await userEvent.click(canvas.getByTestId('content-next-puzzle'));
+    await userEvent.click(canvas.getByTestId('content-return-board'));
     await expect(
       canvas.queryByTestId('numberlink-solved')
     ).not.toBeInTheDocument();

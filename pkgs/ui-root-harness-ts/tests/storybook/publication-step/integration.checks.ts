@@ -6,7 +6,7 @@ test('storybook integration: publication refusal remains readable at 390 pixels'
 }) => {
   await page.setViewportSize({ width: 390, height: 900 });
   await page.goto(
-    '/iframe.html?id=screens-puzzles-content-author--publish-denied&viewMode=story&globals=theme:light'
+    '/iframe.html?id=screens-puzzles-content-author-publish--publish-denied&viewMode=story&globals=theme:light'
   );
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-story-ready',
@@ -64,7 +64,7 @@ async function assertPublicationDenial(
 ) {
   await page.setViewportSize({ width, height: 900 });
   await page.goto(
-    `/iframe.html?id=screens-puzzles-content-author--publish-denied&viewMode=story&globals=theme:${theme}`
+    `/iframe.html?id=screens-puzzles-content-author-publish--publish-denied&viewMode=story&globals=theme:${theme}`
   );
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-story-ready',

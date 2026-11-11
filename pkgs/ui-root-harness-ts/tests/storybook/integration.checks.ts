@@ -129,10 +129,10 @@ test('storybook integration: native banner Controls update the portal and visibi
 // regression: builder-publish-strip-clips-stage — the publish step was a
 // strip pinned under the scroll area, so in the first view of the pack
 // builder "Create puzzle in this pack" was cut in half by it, and on a
-// phone the strip hid the Sokoban board. The step is now a section in the
-// flow after the stage: nothing on the stage is ever under it.
+// phone the strip hid the Sokoban board. Publishing is now a screen of its
+// own: nothing is ever pinned over the board's.
 for (const story of [
-  'screens-puzzles-content-author--pack-builder',
+  'screens-puzzles-content-author-board--pack',
   'screens-games-sokoban-editor--two-crates',
 ])
   for (const size of [
@@ -156,32 +156,25 @@ for (const story of [
     });
 
 /**
- * On a phone's first screen: the stage's first row (the board's first
- * squares, the pack's first puzzle) is wholly in view, the publish step
- * comes after it, and the one next action is in view in the title row.
+ * On a phone's first screen of the builder's board: the stage's first row
+ * (the board's first squares, the pack's first puzzle) is wholly in view,
+ * and the screen holds the board alone: publishing and the next action are
+ * screens of their own, so neither can come before or over it.
  */
 async function builderPhoneFirstScreen(page: Page) {
   return await page.evaluate(() => {
     const first = document.querySelector(
       '[data-testid="content-author-stage"] :is([data-testid^="sokoban-square-"], [data-testid^="content-pack-item-"])'
     );
-    const publish = document.querySelector(
-      '[data-testid="content-author-publish"]'
-    );
-    const lead = document.querySelector(
-      '[data-component="ScreenIntroActions"] :is(button, a)'
-    );
-    if (first === null || publish === null || lead === null)
-      return ['the first row, the publish step or the lead is missing'];
+    if (first === null) return ['the first row is missing'];
     const found: string[] = [];
     const row = first.getBoundingClientRect();
     if (row.top < 0 || row.bottom > window.innerHeight)
       found.push('the first row is not wholly in the first screen');
-    if (publish.getBoundingClientRect().top < row.bottom)
-      found.push('the publish step comes before the first row');
-    const action = lead.getBoundingClientRect();
-    if (action.top < 0 || action.bottom > window.innerHeight)
-      found.push('the next action is not in the first screen');
+    if (document.querySelector('[data-testid="content-author-publish"]'))
+      found.push("the publish step shares the board's screen");
+    if (document.querySelector('[data-component="ScreenIntroActions"]'))
+      found.push("a next action sits in the board's title row");
     return found;
   });
 }
@@ -189,13 +182,13 @@ async function builderPhoneFirstScreen(page: Page) {
 // regression: builder-phone-publish-card-buries-stage — on a phone the
 // unnumbered "Check and publish" card sat between "1 · Details" and
 // "2 · Board", so the board (or the pack's puzzle list) started under the
-// fold and the steps read out of order. The steps now read in order and
-// the next action sits in the title row.
+// fold and the steps read out of order. The board is now a screen of its
+// own, reached from the builder's hub of steps.
 for (const story of [
-  'screens-puzzles-content-author--pack-builder',
+  'screens-puzzles-content-author-board--pack',
   'screens-games-sokoban-editor--two-crates',
 ])
-  test(`storybook integration: ${story} on a phone shows its first row before the publish step`, async ({
+  test(`storybook integration: ${story} on a phone shows its first row in the board's first screen`, async ({
     page,
   }) => {
     await page.setViewportSize({ width: 390, height: 791 });
@@ -251,7 +244,7 @@ test('storybook integration: pack 390 and Sokoban 1200 controls remain reachable
   page,
 }) => {
   for (const [story, width, height] of [
-    ['screens-puzzles-content-author--pack-builder', 390, 791],
+    ['screens-puzzles-content-author-board--pack', 390, 791],
     ['screens-games-sokoban-editor--two-crates', 1200, 884],
   ] as const) {
     await page.setViewportSize({ width, height });

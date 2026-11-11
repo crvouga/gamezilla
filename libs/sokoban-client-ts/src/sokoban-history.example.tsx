@@ -6,9 +6,35 @@ import { sokobanPuzzleContent } from '@libs/sokoban-shared-ts/sokoban-puzzle-con
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
-import { createSignal, Show, untrack } from 'solid-js';
+import { createSignal, type JSX, Show, untrack } from 'solid-js';
 import { sokobanGameClient } from './sokoban-game-client';
 import { SokobanPlayerView } from './sokoban-player';
+
+/**
+ * A pack puzzle's ways on, as its progress screen offers them, with where
+ * the last one pressed asked to go (readable there, where they are pressed).
+ */
+function StoryWayOn(props: {
+  opened: string;
+  complete: boolean;
+  onOpen: (destination: string) => void;
+}): JSX.Element {
+  return (
+    <>
+      <VisuallyHidden testId="story-way-on-opened">
+        {props.opened}
+      </VisuallyHidden>
+      <StoryPackActions
+        next={
+          props.complete
+            ? { title: 'Lift', open: () => props.onOpen('Lift') }
+            : undefined
+        }
+        onOverview={() => props.onOpen('Pack overview')}
+      />
+    </>
+  );
+}
 
 /** Story-only local position history; every forward move uses production rules. */
 /** The attempt's commands, styled as the production screen styles them. */
@@ -101,13 +127,8 @@ export function SokobanHistory(props: {
       solvedBefore={completionSaved()}
       // As production: the pack's next puzzle (once solved) and its
       // overview, in the pack card.
-      packActions={
-        <StoryPackActions
-          next={
-            complete() ? { title: 'Lift', open: () => open('Lift') } : undefined
-          }
-          onOverview={() => open('Pack overview')}
-        />
+      wayOn={
+        <StoryWayOn opened={opened()} complete={complete()} onOpen={open} />
       }
       disabled={props.disabled}
       player={
