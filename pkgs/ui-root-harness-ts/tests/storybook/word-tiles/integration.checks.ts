@@ -150,11 +150,11 @@ test('storybook integration: word-tiles an accepted word appears in the move rec
   page,
 }) => {
   await openStory(page, 'two-player-match', 'light');
-  await expect(page.getByTestId('custom-game-move-strip')).toContainText(
+  await expect(page.getByTestId('custom-game-record')).toContainText(
     'No moves yet.'
   );
   await playWord(page, 'mouse');
-  const strip = page.getByTestId('custom-game-move-strip');
+  const strip = page.getByTestId('custom-game-record');
   await expect(strip).toContainText('CAT');
   await expect(strip).toContainText('10');
   await expect(strip).not.toContainText('No moves yet.');
@@ -345,7 +345,7 @@ test('storybook integration: word-tiles the board stays put within its workspace
     });
   const before = await offset();
   await playWord(page, 'mouse');
-  await expect(page.getByTestId('custom-game-move-strip')).toContainText('CAT');
+  await expect(page.getByTestId('custom-game-record')).toContainText('CAT');
   await expect(page.getByTestId('custom-game-board-status')).toHaveText(
     'Plan your next word while you wait.'
   );

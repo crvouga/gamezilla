@@ -243,6 +243,9 @@ export const ChoiceRefused: Story = {
   args: { error: 'That move is not legal in this position.' },
 };
 
+/** The same game once the choice is retried and the refusal clears: the board has not moved. */
+export const ChoiceRetried: Story = {};
+
 /** The game's own engine stopped: the saved score is kept and reopening recovers. */
 export const Stopped: Story = { args: { stopped: true } };
 

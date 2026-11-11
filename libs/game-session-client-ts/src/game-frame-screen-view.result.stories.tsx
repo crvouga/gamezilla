@@ -163,8 +163,9 @@ export const OpenMoves: Story = {
 };
 
 /**
- * A real transition: resigning from the game menu is confirmed over it,
- * the game finishes under the dialog, and dismissing it leaves the result.
+ * A real transition, driven by the browser check of the completion: resigning
+ * from the game menu is confirmed over it, the game finishes under the
+ * dialog, and dismissing it leaves the result.
  */
 export const FinishFromGameMenu: Story = {
   args: { ...PLAYING, place: { screen: 'commands' }, result: null },
@@ -212,17 +213,5 @@ export const FinishFromGameMenu: Story = {
         }
       />
     );
-  },
-  play: async ({ canvasElement }) => {
-    const page = within(canvasElement.ownerDocument.body);
-    await userEvent.click(await page.findByTestId('custom-game-resign'));
-    await userEvent.click(
-      await page.findByTestId('custom-game-resign-confirm')
-    );
-    await userEvent.click(await page.findByTestId('custom-game-resign-done'));
-    await expect(
-      await page.findByTestId('custom-game-result-headline')
-    ).toBeVisible();
-    await expect(await page.findByTestId('custom-game-rematch')).toBeVisible();
   },
 };
