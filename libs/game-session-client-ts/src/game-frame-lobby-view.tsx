@@ -1,6 +1,7 @@
 import { Trans } from '@lingui/solid/macro';
 import { Badge, HostBadge } from '@pkgs/ui-root-client-ts/badge';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
+import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
 import { GameSeatReadiness } from '@pkgs/ui-root-client-ts/game-player-parts';
 import { GameSeatSwatch } from '@pkgs/ui-root-client-ts/game-seat-swatch';
 import { GameActions } from '@pkgs/ui-root-client-ts/game-section';
@@ -302,10 +303,30 @@ function AgreedRows(
 }
 
 /**
+ * The game's board as a small thumbnail, facing the viewer's own side: it
+ * says which board the game is played on, never where to play.
+ */
+function BoardPreview(props: Props): JSX.Element {
+  return (
+    <Show when={props.boardPreview}>
+      {(board) => (
+        <GameBoardStage
+          preview
+          previewLabel={<Trans>Board preview</Trans>}
+          dataSet={{ testid: 'custom-game-preview' }}
+        >
+          {board()}
+        </GameBoardStage>
+      )}
+    </Show>
+  );
+}
+
+/**
  * The lobby while a game is set up: who sits where, what is agreed, and
  * the one thing to do next (take a seat, answer an invitation, get ready,
- * start). Each seat and each agreed thing is a row that opens its own
- * place; nothing is changed here.
+ * start), under a small preview of the game's board. Each seat and each
+ * agreed thing is a row that opens its own place; nothing is changed here.
  */
 export function FrameLobbyPlace(
   props: Props & { readonly setup: FrameSetup }
@@ -341,6 +362,7 @@ export function FrameLobbyPlace(
           </GameActions>
         )}
       </Show>
+      <BoardPreview {...props} />
       <MenuSection
         title={<Trans>Players</Trans>}
         dataSet={{ testid: 'custom-game-setup-seats' }}

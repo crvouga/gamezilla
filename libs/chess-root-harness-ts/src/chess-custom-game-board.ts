@@ -8,6 +8,7 @@
 import { operateCustomGameControls } from '@libs/game-session-harness-ts/custom-game-controls';
 import {
   CUSTOM_GAME_BOARD,
+  CUSTOM_GAME_BOARD_PREVIEW,
   customGameBoardTakes,
   playOnCustomGameBoard,
 } from '@libs/game-session-harness-ts/custom-game-moves';
@@ -89,13 +90,20 @@ export const changeCustomGame = scenarioAction({
   act: changeThroughCustomGameControls,
 });
 
-/** The Custom Game board as painted, or `null` when none is on screen. */
+/**
+ * The Custom Game board as painted: the live board while the game is
+ * played, the lobby's preview while it is set up, or `null` when neither
+ * is on screen.
+ */
 export async function readCustomGameBoardProbe(
   s: ProductHarness,
   actor: string
 ): Promise<ChessBoardProbe | null> {
   const ui = await actorUi(s, actor);
   await bringToFront(s, actor);
-  if (!(await ui.get(CUSTOM_GAME_BOARD).isVisible())) return null;
-  return new ChessBoardFlows(ui, CUSTOM_GAME_BOARD).readProbe();
+  for (const board of [CUSTOM_GAME_BOARD, CUSTOM_GAME_BOARD_PREVIEW]) {
+    if (await ui.get(board).isVisible())
+      return new ChessBoardFlows(ui, board).readProbe();
+  }
+  return null;
 }

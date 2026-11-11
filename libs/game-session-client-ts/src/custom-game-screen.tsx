@@ -19,7 +19,11 @@ import {
   FRAME_NO_PLAY,
   FRAME_NO_TABLE,
 } from './game-frame-empty';
-import { FrameBoardMount, useFrameBoard } from './game-frame-play';
+import {
+  FrameBoardMount,
+  FramePreviewBoardMount,
+  useFrameBoard,
+} from './game-frame-play';
 import { useFrameResult } from './game-frame-result';
 import {
   GameFrameScreenView,
@@ -171,6 +175,7 @@ function CustomGameFrame(props: FrameProps): JSX.Element {
         next={next()}
         record={record()}
         board={<FrameBoardMount board={board} />}
+        boardPreview={<FramePreviewBoardMount model={model} board={board} />}
         setupBoard={<CustomGameSetupBoard model={model} />}
         boardState={boardState()}
         boardFit={boardFit()}

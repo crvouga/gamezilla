@@ -27,6 +27,12 @@ import type { CustomGameScreenModel } from './use-custom-game-screen';
 export const BOARD_TEST_ID = 'custom-game-board';
 
 /**
+ * The lobby's board preview: the game's own board, never the live one, so
+ * nothing reads a game being set up as one being played.
+ */
+export const BOARD_PREVIEW_TEST_ID = 'custom-game-board-preview';
+
+/**
  * The board's gesture as a choice: while every side commits it is this
  * side's own commitment; otherwise it is a move.
  */
@@ -72,8 +78,7 @@ function useFrameBoardProps(
   state: BoardState
 ): GameFrameBoardProps {
   const sounds = useSoundsPreference();
-  const presentation = useGamePresentation();
-  const names = useSeatNames(model);
+  const seats = useFrameBoardSeats(model);
   const simulation = model.simulation;
   const live = (): boolean => review.live();
   return {
@@ -116,15 +121,26 @@ function useFrameBoardProps(
       return model.mySide();
     },
     get seats() {
-      const game = model.current();
-      if (game === null) return [];
-      const frame = presentation(game.fen).frame;
-      return game.sides.map((side) => ({
-        side,
-        look: frame.seats.look(side),
-        name: names[side](),
-      }));
+      return seats();
     },
+  };
+}
+
+/** Every seat of the game with its look and its holder's name, read live. */
+function useFrameBoardSeats(
+  model: CustomGameScreenModel
+): Accessor<GameFrameBoardProps['seats']> {
+  const presentation = useGamePresentation();
+  const names = useSeatNames(model);
+  return () => {
+    const game = model.current();
+    if (game === null) return [];
+    const frame = presentation(game.fen).frame;
+    return game.sides.map((side) => ({
+      side,
+      look: frame.seats.look(side),
+      name: names[side](),
+    }));
   };
 }
 
@@ -206,6 +222,60 @@ export function FrameBoardMount(props: { board: FrameBoard }): JSX.Element {
           </Show>
         </>
       )}
+    </Show>
+  );
+}
+
+const ignoreAction = (): void => undefined;
+
+/**
+ * The board as the game's own frame draws it while the game is set up: the
+ * starting position facing the viewer's own side (the side they hold, else
+ * the first), and nothing on it to press. It carries no private setup, hand
+ * or commitment, and its own actions and controls are left out: a preview
+ * says which board, not where to play.
+ */
+export function FramePreviewBoardMount(props: {
+  readonly model: CustomGameScreenModel;
+  readonly board: FrameBoard;
+}): JSX.Element {
+  const presentation = useGamePresentation();
+  const frame = createMemo(() => {
+    const game = props.model.current();
+    return game === null ? null : presentation(game.fen).frame;
+  });
+  const seats = useFrameBoardSeats(props.model);
+  const previewProps: GameFrameBoardProps = {
+    simulation: undefined,
+    get position() {
+      return props.model.current()?.fen ?? '';
+    },
+    lastAction: null,
+    get orientation() {
+      return props.board.orientation();
+    },
+    interactive: false,
+    sound: false,
+    syncKey: 0,
+    onAction: ignoreAction,
+    testId: BOARD_PREVIEW_TEST_ID,
+    setup: null,
+    hand: null,
+    committed: [],
+    commitment: null,
+    get viewer() {
+      return props.model.mySide();
+    },
+    get seats() {
+      return seats();
+    },
+  };
+  return (
+    <Show when={frame()} keyed>
+      {(current) => {
+        const session = untrack(() => current.createBoard(previewProps));
+        return <Dynamic component={session.Board} />;
+      }}
     </Show>
   );
 }

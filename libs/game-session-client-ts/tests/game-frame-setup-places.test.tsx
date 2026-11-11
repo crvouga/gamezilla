@@ -64,23 +64,53 @@ describe('the lobby', () => {
   // regression: setup-how-to-play-misaligned
   // regression: wide-setup-unbalanced
   // regression: setup-desktop-top-strip
+  // regression: lobby-board-preview-missing
   // The setup's board preview and its "How to play" card were rearranged
-  // seven times. The lobby holds no board at all: the people, what is
-  // agreed and starting, in one column, on every size.
+  // seven times, then left out, so nobody saw which way their board faced
+  // before the game started. The lobby is one column on every size: a
+  // small, labelled thumbnail of the game's board heading the players, then
+  // what is agreed and starting. It is never the live board, never a card
+  // of its own and never beside the seats.
   test.each([390, 1440] as const)(
-    'at %ipx the lobby holds no board preview and no instructions card',
+    'at %ipx the lobby heads the players with a small board preview, in one column',
     (width) => {
       mountFrame(() => setupProps(), width);
-      expect(
-        document.querySelector('[data-component="GameBoardStage"]')
-      ).toBeNull();
+      const stages = document.querySelectorAll(
+        '[data-component="GameBoardStage"]'
+      );
+      expect(stages).toHaveLength(1);
+      const stage = stages[0] as HTMLElement;
+      expect(stage.dataset['testid']).toBe('custom-game-preview');
+      expect(stage.dataset['preview']).toBe('true');
+      expect(stage.textContent).toContain('Board preview');
+      // The game's preview board, never the live one or its public state.
+      expect(shown('story-board-preview')).toBe(true);
+      expect(shown('story-board')).toBe(false);
       expect(shown('custom-game-public')).toBe(false);
       expect(shown('custom-game-about')).toBe(false);
       expect(
         document.querySelector('[data-component="GameSection"]')
       ).toBeNull();
+      // Above the players and Start, in the lobby's one column.
+      const seats = screen.getByTestId('custom-game-setup-seats');
+      const start = screen.getByTestId('custom-game-start');
+      for (const after of [seats, start])
+        expect(
+          stage.compareDocumentPosition(after) &
+            Node.DOCUMENT_POSITION_FOLLOWING
+        ).toBeTruthy();
+      expect(stage.parentElement).toBe(seats.parentElement);
     }
   );
+
+  test('a game drawn without a board shows no preview', () => {
+    mountFrame(() =>
+      setupProps({ screen: 'lobby' }, { boardPreview: undefined })
+    );
+    expect(
+      document.querySelector('[data-component="GameBoardStage"]')
+    ).toBeNull();
+  });
 
   // regression: setup-seats-nested-cards
   // regression: setup-player-controls-scattered

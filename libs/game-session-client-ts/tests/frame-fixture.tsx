@@ -182,6 +182,7 @@ export function frameProps(
     next: FRAME_NO_NEXT,
     record: record(['1', '2', '3']),
     board: <output data-testid="story-board" />,
+    boardPreview: <output data-testid="story-board-preview" />,
     onChoose: resolved,
     onReady: resolved,
     onPlayBot: resolved,

@@ -302,6 +302,7 @@ export function frameArgs(): GameFrameScreenViewProps {
 export const FRAME_CONTROLS_EXCLUDE = [
   'place',
   'board',
+  'boardPreview',
   'setupBoard',
   'boardState',
   'people',
