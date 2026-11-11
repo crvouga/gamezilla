@@ -14,7 +14,10 @@ import { addFriend } from './friends-actions';
 import { pendingRequestStored } from './relationship-reads';
 
 /** The username `actor` claims in this run. */
-function actorUsernameOf(s: ProductHarness, actor: string): Promise<string> {
+export function actorUsernameOf(
+  s: ProductHarness,
+  actor: string
+): Promise<string> {
   return Promise.resolve(actorUsername(s, actor));
 }
 

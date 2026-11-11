@@ -1,5 +1,8 @@
 import { expect, test } from 'bun:test';
-import { prepareNamedFriend } from '@libs/friends-harness-ts/setup-friend-request';
+import {
+  actorUsernameOf,
+  prepareNamedFriend,
+} from '@libs/friends-harness-ts/setup-friend-request';
 import { signedInAccountOf } from '@libs/harness-ts/identity';
 import { backToTabs } from '@libs/harness-ts/shell-actions';
 import { readProfileTabUsername } from '@libs/profile-harness-ts/profile-ui-reads';
@@ -11,6 +14,8 @@ test('an existing offline friend name requires no setup mutation', async () => {
     read: async (read: unknown, actor: string) => {
       if (read === signedInAccountOf) return 'alice-account';
       if (read === readProfileTabUsername) return actor;
+      // Outside a shared stack an actor claims their bare name.
+      if (read === actorUsernameOf) return actor;
       // The profile control is absent on the current spaces tab.
       return null;
     },
