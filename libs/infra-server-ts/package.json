@@ -33,6 +33,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "catalog:",
+    "@libs/product-brand-shared-ts": "workspace:*",
     "@libs/product-identity-shared-ts": "workspace:*"
   },
   "devDependencies": {

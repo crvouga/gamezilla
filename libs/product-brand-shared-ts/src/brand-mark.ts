@@ -1,4 +1,7 @@
-import { PRODUCT, type ProductIdentity } from './product-identity.ts';
+import {
+  PRODUCT,
+  type ProductIdentity,
+} from '@libs/product-identity-shared-ts/product-identity';
 
 /** Trusted configuration artwork, labeled with the configured product name. */
 export function renderBrandMark(identity: ProductIdentity = PRODUCT): string {

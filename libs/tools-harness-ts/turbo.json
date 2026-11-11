@@ -89,7 +89,7 @@
       "inputs": [
         "scripts/materialize-product-identity.ts",
         "scripts/materialize-product-identity-input.ts",
-        "$TURBO_ROOT$/libs/product-identity-shared-ts/src/identity-input.ts",
+        "$TURBO_ROOT$/libs/product-brand-shared-ts/src/identity-input.ts",
         "$TURBO_ROOT$/libs/product-identity-shared-ts/src/identity-schema.ts",
         "$TURBO_ROOT$/libs/product-identity/fixtures/**"
       ],
@@ -533,6 +533,7 @@
         "scripts/brand-image-catalog.ts",
         "brand/web-image-artifacts/**",
         "$TURBO_ROOT$/libs/product-identity-shared-ts/src/**",
+        "$TURBO_ROOT$/libs/product-brand-shared-ts/src/**",
         "$TURBO_ROOT$/libs/product-identity/product-identity.json",
         "package.json"
       ],

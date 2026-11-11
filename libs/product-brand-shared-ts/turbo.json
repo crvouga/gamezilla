@@ -12,7 +12,7 @@
       ]
     },
     "src": {
-      "dependsOn": ["@libs/product-identity#src"]
+      "dependsOn": ["@libs/product-identity-shared-ts#src"]
     }
   }
 }

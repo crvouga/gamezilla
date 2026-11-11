@@ -6,7 +6,7 @@
       "dependsOn": [
         "@libs/infra-shared-ts#src",
         "@libs/observability-shared-ts#src",
-        "@libs/product-identity-shared-ts#src",
+        "@libs/product-brand-shared-ts#src",
         "@libs/secrets-shared-ts#src",
         "@pkgs/assert-root-shared-ts#src",
         "@pkgs/billing-providers-server-ts#src",

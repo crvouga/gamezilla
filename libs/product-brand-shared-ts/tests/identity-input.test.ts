@@ -1,12 +1,12 @@
 import { expect, test } from 'bun:test';
-import fixtureInput from '@libs/product-identity/fixtures/verification-identity.json' with {
-  type: 'json',
-};
 import {
   configuredIdentity,
   identityInput,
   requireConfiguredIdentity,
-} from '@libs/product-identity-shared-ts/identity-input';
+} from '@libs/product-brand-shared-ts/identity-input';
+import fixtureInput from '@libs/product-identity/fixtures/verification-identity.json' with {
+  type: 'json',
+};
 import { parseProductIdentity } from '@libs/product-identity-shared-ts/identity-schema';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import fc from 'fast-check';

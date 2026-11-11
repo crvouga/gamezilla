@@ -29,9 +29,9 @@ import {
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
+import { syntheticIdentity } from '@libs/product-brand-shared-ts/synthetic-identity';
 import type { ProductIdentity } from '@libs/product-identity-shared-ts/product-identity';
 import { PRODUCT } from '@libs/product-identity-shared-ts/product-identity';
-import { syntheticIdentity } from '@libs/product-identity-shared-ts/synthetic-identity';
 import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import type { ScannedFile } from './brand-policy';
 import { oldBrandTraces } from './rebrand';
@@ -43,6 +43,7 @@ const PROBE_CONFIG = { json: '' };
 /** Brand-sensitive suites, run inside the copy (package dir, command). */
 const SUITES: readonly (readonly [string, readonly string[]])[] = [
   ['libs/product-identity-shared-ts', ['bun', 'test', 'tests/']],
+  ['libs/product-brand-shared-ts', ['bun', 'test', 'tests/']],
   [
     'libs/tools-harness-ts',
     ['bun', 'test', 'scripts/brand-image-artifacts.test.ts'],

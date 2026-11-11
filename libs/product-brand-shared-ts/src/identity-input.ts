@@ -1,7 +1,7 @@
 import {
   type ProductIdentity,
   parseProductIdentity,
-} from './identity-schema.ts';
+} from '@libs/product-identity-shared-ts/identity-schema';
 
 /** Parse required deployment input without loading any verification data. */
 export function identityInput(value: string | undefined): ProductIdentity {

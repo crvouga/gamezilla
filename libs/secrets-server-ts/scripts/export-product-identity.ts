@@ -1,6 +1,6 @@
 // @io-wall-ok — export validated public configuration after CI secret injection.
 import { appendFileSync } from 'node:fs';
-import { configuredIdentity } from '@libs/product-identity-shared-ts/identity-input';
+import { configuredIdentity } from '@libs/product-brand-shared-ts/identity-input';
 
 const mode = process.env['PRODUCT_IDENTITY_MODE'] ?? 'fixture';
 if (mode !== 'fixture' && mode !== 'configured')

@@ -9,7 +9,7 @@
 import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
-import { BRAND_ARTIFACTS } from '@libs/product-identity-shared-ts/brand-artifacts';
+import { BRAND_ARTIFACTS } from '@libs/product-brand-shared-ts/brand-artifacts';
 import { PRODUCT } from '@libs/product-identity-shared-ts/product-identity';
 import {
   brandTokens,
@@ -56,8 +56,7 @@ const brandArtifacts: GeneratedArtifact[] = BRAND_ARTIFACTS.map((artifact) => ({
   path: artifact.path,
   generator:
     'bun run libs/tools-harness-ts/scripts/generate-brand-artifacts.ts',
-  freshnessTest:
-    'libs/product-identity-shared-ts/tests/brand-artifacts.test.ts',
+  freshnessTest: 'libs/product-brand-shared-ts/tests/brand-artifacts.test.ts',
 }));
 const { exempt, problems } = verifiedArtifacts(
   [...registry.artifacts, ...brandArtifacts],
