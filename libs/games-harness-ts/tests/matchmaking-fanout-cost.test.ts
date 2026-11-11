@@ -4,6 +4,7 @@ import {
   multiplayerCommandReply,
   sendMultiplayerCommand,
 } from '@libs/game-matchmaking-harness-ts/multiplayer-commands';
+import { PRODUCT_HARNESS_TIMEOUT_MS } from '@libs/harness-ts/product-harness-timeout';
 import {
   FANOUT_CONTROL,
   FANOUT_SYSTEM,
@@ -11,9 +12,6 @@ import {
   prepareFanoutFind,
   type Statement,
 } from './matchmaking-fanout-fixture';
-
-// The same product-harness wall-time contract as libs/harness-ts/scripts/test-spec.ts.
-const PRODUCT_HARNESS_TIMEOUT_MS = 240_000;
 
 test(
   'one real Find delivers both hosted boards without duplicate owner-space lookups',

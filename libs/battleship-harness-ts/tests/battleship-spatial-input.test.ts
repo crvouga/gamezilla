@@ -13,6 +13,9 @@ import { openHarness } from './open-battleship-harness';
 
 // regression: battleship-inert-overview-skips-harness-input
 // Literal feature failure: the overview became inert, so no keyboard input ran.
+// regression: harness-package-tests-default-five-second-timeout
+// Its lineup opens a whole product world (4.5–5.0 s under coverage); it runs
+// under the product-harness wall clock the harness preload sets.
 test('the setup adapter attempts Carrier at G1 through the visible precision controls', async () => {
   await using s = await openHarness('battleship-inert-overview-g1');
   await s.apply(establishBattleship, { ready: false, active: false });
