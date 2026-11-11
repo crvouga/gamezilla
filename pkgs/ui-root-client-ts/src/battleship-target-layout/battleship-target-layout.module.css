@@ -128,7 +128,9 @@
   margin-inline: auto;
 }
 /* Finished, the result sits above the boards; the board leaves room for it,
-   so the switch and the own seat still show under the board. */
+   so the switch and the own seat still show under the board. That room
+   includes the record's place line (`Finished`), which reads above its
+   move row once the game is not live. */
 .whole[data-finished="true"] {
-  max-inline-size: min(100%, calc(100dvh - 35rem));
+  max-inline-size: min(100%, calc(100dvh - 36rem));
 }

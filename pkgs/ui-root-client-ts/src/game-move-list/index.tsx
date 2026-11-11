@@ -70,6 +70,12 @@ export type GameMoveListProps = {
    */
   wrap?: boolean | undefined;
   /**
+   * The record takes no more moves (the game is over): a wrapping turn
+   * keeps no room for moves still to come, so a finished game's last,
+   * partial turn is one line, not a line and an empty one.
+   */
+  ended?: boolean | undefined;
+  /**
    * `turn` only, with no moves yet: `label` (`No moves yet.`) shown over an
    * unseen, inert first turn of `sample` moves, so a wrapping strip already
    * has the height its first turn will take and nothing under it moves when
@@ -291,7 +297,13 @@ function TurnList(props: GameMoveListProps): JSX.Element {
                   />
                 )}
               </Index>
-              <Show when={props.layout === 'turn' && props.wrap === true}>
+              <Show
+                when={
+                  props.layout === 'turn' &&
+                  props.wrap === true &&
+                  props.ended !== true
+                }
+              >
                 <TurnReserve
                   moves={turn().moves}
                   perTurn={props.perTurn}

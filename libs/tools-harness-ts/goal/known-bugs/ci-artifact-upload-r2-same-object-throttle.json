@@ -1,0 +1,4 @@
+{
+  "summary": "Verify Nightly shards failed on the diagnostic 'Upload queryable trace artifacts' step whenever the R2 CI artifacts bucket refused one PUT: 429 'Reduce your concurrent request rate for the same object' (run 42927047520 shard 6) or 500 InternalError (run 42798930220 shards 35, 48, 59). The S3 client makes one attempt, so a single throttled or failed write out of the ~500-1,000 a shard uploads failed the shard and the whole Verify, although the traces only describe it. Uploads also deleted every existing key and immediately rewrote the same keys, which R2 throttles at one write a second per key. Uploads now write first and delete only stale keys afterwards, retry 429/5xx PUTs after at least a second, and the trace and turbo-summary uploads run with --best-effort so a bucket outage warns instead of failing Verify.",
+  "regressionTest": "libs/tools-harness-ts/scripts/ci-artifacts.test.ts"
+}

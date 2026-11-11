@@ -34,12 +34,10 @@ import { pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
 import { signInWithGoogle } from '@libs/harness-ts/auth-actions';
 import { signedInAccountOf } from '@libs/harness-ts/identity';
 import type { OpenHarness } from '@libs/harness-ts/open-harness';
+import { PRODUCT_HARNESS_TIMEOUT_MS } from '@libs/harness-ts/product-harness-timeout';
 import sql from '@pkgs/sql-root-shared-ts/sql';
 import Stripe from 'stripe';
 import { openHarness } from './open-billing-harness';
-
-// Product-harness wall-time contract: TIMEOUT_MS in libs/harness-ts/scripts/test-spec.ts.
-const PRODUCT_HARNESS_TIMEOUT_MS = 240_000;
 
 async function payer(s: OpenHarness): Promise<string> {
   await s.apply(signInWithGoogle, 'alice');

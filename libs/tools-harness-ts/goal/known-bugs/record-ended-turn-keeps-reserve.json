@@ -1,0 +1,4 @@
+{
+  "summary": "A finished game's phone record strip still kept unseen room for the moves its last, partial turn would never get, so the strip wrapped to a second, empty line: Battleship's won game (33 moves, two per turn) pushed the own seat to 888px on a 390x844 screen. A record whose game is completed or cancelled now keeps no room for moves still to come.",
+  "regressionTest": "pkgs/ui-root-client-ts/tests/game-move-list-turn-reserve.test.tsx"
+}
