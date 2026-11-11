@@ -14,7 +14,7 @@ test('observes bots in the three-player Word Tiles seat wrappers', async () => {
     ...Object.keys(texts),
     'custom-game-board',
     'custom-game-board-rack',
-    'custom-game-resign',
+    'custom-game-commands',
     'custom-game-public',
   ];
   const base = journeyDiagnosticDriver({

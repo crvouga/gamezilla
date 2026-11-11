@@ -128,7 +128,7 @@ export function delayedPartyHost(
       partyNode(id, {
         read: () => read(actor),
         tap: () => {
-          if (id !== 'custom-game-review-live') return unused();
+          if (id !== 'custom-game-back-to-live') return unused();
           reviewing = null;
           returnsLive++;
         },
@@ -144,9 +144,9 @@ export function delayedPartyHost(
             else play(actor, action);
           }
         },
-        // The record beside a wide board always shows its steps.
+        // The way back to the game shows only on the moves place.
         shown: () =>
-          id === 'custom-game-review-live' ||
+          (id === 'custom-game-back-to-live' && reviewing !== null) ||
           (id === 'custom-game-error' && rejected),
         text: () =>
           id === 'custom-game-error' && rejected

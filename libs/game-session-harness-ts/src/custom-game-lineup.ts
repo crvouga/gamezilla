@@ -24,6 +24,7 @@ import { readSpaceLink } from '@libs/spaces-harness-ts/spaces-ui-reads';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { type GameSide, gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
 import { playCustomGameHistory } from './custom-game-history';
+import { showCustomGameHome } from './custom-game-places';
 import { readCustomGameProbe } from './custom-game-probe';
 import { configureCustomGame, waitCustomGameSettled } from './custom-game-ui';
 import { showCustomGames } from './game-navigation';
@@ -297,6 +298,7 @@ async function startCustomGame(
   const before = await readCustomGameProbe(s, host);
   if (before === null) throw new Error(`${host} sees no custom game`);
   queueRoomDraws(s, draws);
+  await showCustomGameHome(s, host);
   await (await actorUi(s, host)).get('custom-game-start').tap();
   const refused = await waitCustomGameSettled(s, host, before.settled);
   if (refused !== '') throw new Error(`could not establish start: ${refused}`);

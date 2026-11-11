@@ -50,7 +50,8 @@ async function createParty(ui: Driver, game: PlayableGame): Promise<void> {
 async function readyParty(host: JourneyHost): Promise<void> {
   let guestName = '';
   await host.actAsGuest('takeSecondSeat', async (ui) => {
-    await takeBlack(ui, 'custom-game-black-claim');
+    // A member with a seat open to them takes it from the lobby.
+    await takeBlack(ui, 'custom-game-take-seat');
     guestName = (await ui.get('custom-game-black-person').text())?.trim() ?? '';
     check(guestName !== '', 'The second participant has no displayed name');
     await tap(ui, 'custom-game-ready');
@@ -68,8 +69,9 @@ async function readyParty(host: JourneyHost): Promise<void> {
       .get('custom-game-startable')
       .expect.text('Ready to start.', { timeoutMs: JOURNEY_WAIT_MS });
     await tap(ui, 'custom-game-start');
+    // The game is under way once its board offers the game menu.
     await ui
-      .get('custom-game-resign')
+      .get('custom-game-commands')
       .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
   });
 }

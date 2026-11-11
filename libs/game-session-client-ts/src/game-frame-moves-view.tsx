@@ -158,7 +158,12 @@ function RecordOutline(props: { readonly record: FrameRecord }): JSX.Element {
  * list to read, never to steer the live board with. Pressing a move, or
  * Review moves, opens the moves place at it.
  */
-export function FrameMovesCard(props: Props): JSX.Element {
+export function FrameMovesCard(
+  props: Props & {
+    /** The place has its own way to the moves place (the result's Review moves). */
+    readonly listOnly?: boolean | undefined;
+  }
+): JSX.Element {
   const review = (ply: number): void => {
     props.onSeek(ply);
     props.onOpen({ screen: 'moves' });
@@ -173,7 +178,7 @@ export function FrameMovesCard(props: Props): JSX.Element {
             testid: 'custom-game-record',
           }}
           footer={
-            <Show when={recordPlayed(record())}>
+            <Show when={recordPlayed(record()) && props.listOnly !== true}>
               <GameActions>
                 <Button
                   title={<Trans>Review moves</Trans>}
@@ -362,6 +367,7 @@ export function FrameMovesPlace(props: RecordProps): JSX.Element {
           component: 'CustomGameContent',
           testid: 'custom-game-content',
           phase: props.phase,
+          place: props.place.screen,
         }}
         notices={
           <FrameNoticesView connection={props.connection} error={props.error} />

@@ -80,8 +80,9 @@ async function observeStartedGame(ui: Driver, game: BotGame): Promise<void> {
   await ui
     .get(game.readyControl)
     .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
+  // A game under way offers its commands (resigning among them) by one control.
   await ui
-    .get('custom-game-resign')
+    .get('custom-game-commands')
     .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
   const board = ui.get('custom-game-board');
   await board.expect.visible({ timeoutMs: JOURNEY_WAIT_MS });

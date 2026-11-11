@@ -20,7 +20,7 @@ reviewed is the [Storybook agent workflow](../../../pkgs/ui-root-harness-ts/READ
    | Choice | One short list of choices. Pressing one applies it and returns. | `EmbeddedScreen`, `MenuSection`, `MenuRow` / `GameChoiceGrid` |
    | Form | One form and its one submit. | `EmbeddedScreen`, fields, one `GameActionButton` |
    | Stage | The board and only what play needs now: the seats, one status line, the board's own actions, one way to the game's commands. | `GameScreen`, `GameSessionLayout`, `GameBoardStage` |
-   | Result | What happened and at most three things to do next. | `GameScreen`, `GameResultHeadline`, `GameStandings` |
+   | Result | What happened, and what to do next: one filled command and at most three quiet ones. | `GameScreen`, `GameResultHeadline`, `GameStandings` |
 
 3. **At most one filled (primary) command per screen.** Everything else is an
    outline or ghost button, or a row.
@@ -80,9 +80,10 @@ each of its states, with phone and desktop baselines in both themes.
 | `none` | `start` | Choice | Play the bots at once, or set a game up |
 | `configuring` | `lobby` | Hub | Who sits where, what is agreed, get ready, start |
 | | `seat` (a side) | Choice | Who sits in this seat |
+| | `invite` (a side) | Choice | Which member of the space to invite to it |
 | | `options` | Form | The game's own options |
 | | `clock` | Form | The clock, and swapping sides |
-| | `private-setup` | Stage | The person's own private setup |
+| | `private-setup` | Stage | The person's own private setup, and getting ready with it |
 | `active` | `play` | Stage | Play the live position |
 | | `commands` | Choice | Offer a draw, resign, cancel, look back |
 | | `moves` | Stage | Step through the moves played |
@@ -90,7 +91,16 @@ each of its states, with phone and desktop baselines in both themes.
 | | `moves` | Stage | Step through the moves played |
 
 The play screen always shows the live position. Looking at an earlier
-position is the `moves` place; leaving it returns the board to live.
+position is the `moves` place; leaving it returns the board to live. An
+answer the game is waiting for (a draw offered, a win to claim) is asked on
+the play screen; every other command is a row of the game menu
+(`commands`). The lobby's one filled command is the next thing to do: take a
+seat, arrange an incomplete private setup, get ready, then start.
+
+Code: `libs/game-session-client-ts/src/custom-game-places.ts` (the machine),
+`game-frame-screen-view.tsx` (the switch), one `game-frame-*-view.tsx` per
+place, and `game-frame-screen-view.<place>.stories.tsx`. Drivers move between
+places with `@libs/game-session-harness-ts/custom-game-places`.
 
 ### Finding an opponent (`multiplayer`)
 

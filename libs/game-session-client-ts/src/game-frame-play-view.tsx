@@ -114,11 +114,11 @@ function PlayLine(props: Props): JSX.Element {
 }
 
 /**
- * The live board and the people around it: the other seats above, the
- * game's required choice, the board, then the person's own seat nearest
- * them.
+ * The board and the people around it: the other seats above, the game's
+ * required choice, the board, then the person's own seat nearest them. The
+ * live position while the game is played, the final one once it is over.
  */
-function PlayStage(props: Props): JSX.Element {
+export function FrameStage(props: Props): JSX.Element {
   // The seats' density only: chips on a phone at a bigger table, strips
   // otherwise. What the stage shows is the same on every size.
   const mode = useLayoutMode();
@@ -238,6 +238,7 @@ export function FramePlayPlace(props: Props): JSX.Element {
           component: 'CustomGameContent',
           testid: 'custom-game-content',
           phase: props.phase,
+          place: props.place.screen,
         }}
         notices={<FrameConnectionView connection={props.connection} />}
         boardFocus
@@ -261,7 +262,7 @@ export function FramePlayPlace(props: Props): JSX.Element {
           />
         }
       >
-        <PlayStage {...props} />
+        <FrameStage {...props} />
       </GameSessionLayout>
     </GameScreen>
   );

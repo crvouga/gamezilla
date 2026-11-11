@@ -121,7 +121,9 @@ test('the party reselects a pending acting board without repeating a move', asyn
   };
   const finished = await completeCustomGameParty(host, QUORIDOR_HILL_PLAYABLE);
   expect(delayed).toBe(true);
-  expect(fixture.returnsLive()).toBe(1);
+  // The play place only ever shows the live board: a board that is merely
+  // not ready yet is waited for, with no way back to press.
+  expect(fixture.returnsLive()).toBe(0);
   expect(finished.status).toBe('completed');
   expect(fixture.players).toHaveLength(10);
 });

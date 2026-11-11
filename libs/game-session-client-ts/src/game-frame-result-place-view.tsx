@@ -3,13 +3,13 @@ import { Trans } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameActionBar } from '@pkgs/ui-root-client-ts/game-action-bar';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
-import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
 import { GameResultHeadline } from '@pkgs/ui-root-client-ts/game-result';
 import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { type JSX, Show } from 'solid-js';
-import { FrameBoard, FrameFacts } from './game-frame-play-view';
+import { FrameMovesCard } from './game-frame-moves-view';
+import { FrameFacts, FrameStage } from './game-frame-play-view';
 import { FrameResultView } from './game-frame-result-view';
 import type { FramePlaceProps } from './game-frame-screen-view';
 import { FrameNoticesView } from './game-frame-shell';
@@ -78,8 +78,8 @@ function NextActions(props: Props): JSX.Element {
 
 /**
  * The result place, once the game is over or called off: what happened in
- * one headline, what to do next, the final position, and every player's
- * finish.
+ * one headline, what to do next, the final position with the people around
+ * it, every player's finish, and the moves that led there.
  */
 export function FrameResultPlace(props: Props): JSX.Element {
   return (
@@ -94,6 +94,7 @@ export function FrameResultPlace(props: Props): JSX.Element {
           component: 'CustomGameContent',
           testid: 'custom-game-content',
           phase: props.phase,
+          place: props.place.screen,
         }}
         notices={
           <FrameNoticesView connection={props.connection} error={props.error} />
@@ -115,6 +116,7 @@ export function FrameResultPlace(props: Props): JSX.Element {
             <NextActions {...props} />
           </StackVertical>
         }
+        aside={<FrameMovesCard {...props} listOnly />}
         status={
           <Show when={props.result}>
             {(result) => (
@@ -123,13 +125,7 @@ export function FrameResultPlace(props: Props): JSX.Element {
           </Show>
         }
       >
-        <GameBoardStage
-          viewportFit={props.boardFit}
-          align={props.boardAlign}
-          dataSet={{ ...props.boardState, testid: 'custom-game-public' }}
-        >
-          <FrameBoard {...props} />
-        </GameBoardStage>
+        <FrameStage {...props} />
       </GameSessionLayout>
     </GameScreen>
   );

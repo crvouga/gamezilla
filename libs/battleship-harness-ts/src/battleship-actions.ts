@@ -23,6 +23,7 @@ import {
   CUSTOM_GAME_BOARD,
   playOnCustomGameBoard,
 } from '@libs/game-session-harness-ts/custom-game-moves';
+import { openCustomGamePlace } from '@libs/game-session-harness-ts/custom-game-places';
 import { readCustomGameScreen } from '@libs/game-session-harness-ts/custom-game-screen';
 import { chooseCustomGame } from '@libs/game-session-harness-ts/custom-game-ui';
 import { actorPage } from '@libs/harness-ts/actor-page';
@@ -90,7 +91,31 @@ async function press(
   else await node.tap();
 }
 
+/** The lobby's row for the person's own fleet, which opens the setup board. */
+const FLEET_ROW = 'custom-game-setup-open';
+
+/**
+ * `actor` opens their fleet's setup board from the lobby, as a person does
+ * before arranging or looking at it; nothing when their screen offers no
+ * such row (they are there already, or the game is no longer set up).
+ */
+export async function openFleetSetup(
+  s: ProductHarness,
+  actor: string
+): Promise<void> {
+  const ui = await actorUi(s, actor);
+  if (!(await ui.get(FLEET_ROW).isVisible())) return;
+  await openCustomGamePlace(s, actor, FLEET_ROW, BATTLESHIP_SETUP_BOARD);
+}
+
+/** {@link openFleetSetup}, as a step of a scenario. */
+export const showFleetSetup = scenarioAction({
+  name: 'showFleetSetup',
+  act: openFleetSetup,
+});
+
 async function setupBoard(s: ProductHarness, actor: string) {
+  await openFleetSetup(s, actor);
   const ui = await actorUi(s, actor);
   return (await ui.get(BATTLESHIP_SETUP_BOARD).isVisible()) &&
     !(await ui.get(`${BATTLESHIP_SETUP_BOARD}-locked`).isVisible())
@@ -197,6 +222,7 @@ export const arrangeBattleshipFleet = scenarioAction({
 export const askForRandomFleet = scenarioAction({
   name: 'askForRandomFleet',
   act: async (s, actor: string) => {
+    await openFleetSetup(s, actor);
     const ui = await actorUi(s, actor);
     const random = ui.get('custom-game-setup-random');
     if (!(await random.isVisible())) return;

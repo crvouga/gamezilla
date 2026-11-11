@@ -107,7 +107,7 @@ export function FrameNoticesView(
 export function FramePlacePage(
   props: Pick<
     GameFrameScreenViewProps,
-    'connection' | 'error' | 'status' | 'phase'
+    'connection' | 'error' | 'status' | 'phase' | 'place'
   > & {
     /** `custom-game-${place}`. */
     readonly screenId: string;
@@ -125,7 +125,11 @@ export function FramePlacePage(
       <StackVertical
         gap="lg"
         testId="custom-game-content"
-        dataSet={{ component: 'CustomGameContent', phase: props.phase }}
+        dataSet={{
+          component: 'CustomGameContent',
+          phase: props.phase,
+          place: props.place.screen,
+        }}
       >
         <FrameNoticesView connection={props.connection} error={props.error} />
         {props.children}

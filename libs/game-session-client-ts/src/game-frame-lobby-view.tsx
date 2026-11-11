@@ -14,6 +14,7 @@ import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
+import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import { For, Index, type JSX, Show } from 'solid-js';
 import {
   FrameHolderAvatar,
@@ -258,13 +259,28 @@ function AgreedRows(
               leading={<LockIcon size={24} />}
               title={<Trans>Your private setup</Trans>}
               caption={<Trans>Only you see it</Trans>}
+              // The row shows one word; a listener hears the whole sentence.
               value={
-                <Show
-                  when={own().complete}
-                  fallback={<Trans>Incomplete</Trans>}
+                <Text
+                  variant="inherit"
+                  role="status"
+                  dataSet={{ testid: 'custom-game-setup-status' }}
                 >
-                  <Trans>Complete</Trans>
-                </Show>
+                  <Show
+                    when={own().complete}
+                    fallback={
+                      <Trans>
+                        <VisuallyHidden>Your private setup is </VisuallyHidden>
+                        incomplete<VisuallyHidden>.</VisuallyHidden>
+                      </Trans>
+                    }
+                  >
+                    <Trans>
+                      <VisuallyHidden>Your private setup is </VisuallyHidden>
+                      complete<VisuallyHidden>.</VisuallyHidden>
+                    </Trans>
+                  </Show>
+                </Text>
               }
               onClick={() => props.onOpen({ screen: 'private-setup' })}
               dataSet={{ testid: 'custom-game-setup-open' }}
@@ -338,6 +354,11 @@ export function FrameLobbyPlace(
         start={props.setup.start}
         onChoose={props.onChoose}
         onReady={props.onReady}
+        onArrange={
+          props.setup.privateSetup === null
+            ? undefined
+            : () => props.onOpen({ screen: 'private-setup' })
+        }
       />
     </FramePlacePage>
   );

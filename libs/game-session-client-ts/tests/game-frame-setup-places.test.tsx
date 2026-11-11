@@ -166,8 +166,9 @@ describe('the lobby', () => {
     expect(screen.getByTestId('custom-game-options').textContent).toContain(
       '5+3'
     );
-    expect(screen.getByTestId('custom-game-setup-open').textContent).toContain(
-      'Incomplete'
+    // The row shows one word; a listener hears the whole sentence.
+    expect(screen.getByTestId('custom-game-setup-status').textContent).toBe(
+      'Your private setup is incomplete.'
     );
     // Nothing is changed on the lobby itself.
     expect(shown('custom-game-minutes')).toBe(false);
@@ -211,6 +212,33 @@ describe('the lobby', () => {
     expect(screen.getByTestId('custom-game-startable').textContent).toBe(
       'Waiting for 1 person to be ready.'
     );
+  });
+
+  test('an incomplete private setup is the next thing to do, in place of a readiness that cannot be given', () => {
+    const opened: CustomGamePlace[] = [];
+    mountFrame(() =>
+      setupProps(
+        { screen: 'lobby' },
+        {
+          onOpen: (place) => opened.push(place),
+          setup: hostSetup({
+            privateSetup: { complete: false, locked: false },
+            start: {
+              reason: { kind: 'unready', count: 1 },
+              hostStarts: false,
+              readiness: { ready: false, blocked: true },
+              canStart: true,
+            },
+          }),
+        }
+      )
+    );
+    expect(filled().map((button) => button.dataset['testid'])).toEqual([
+      'custom-game-setup-arrange',
+    ]);
+    expect(shown('custom-game-ready')).toBe(false);
+    fireEvent.click(screen.getByTestId('custom-game-setup-arrange'));
+    expect(opened).toEqual([{ screen: 'private-setup' }]);
   });
 
   test('an invitation is answered where the invited person lands', () => {
