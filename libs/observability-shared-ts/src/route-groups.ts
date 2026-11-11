@@ -26,7 +26,10 @@ export const ROUTE_GROUPS = [
   'media',
   /** Any other thing a person or an operator asks of the app. */
   'app',
-  /** Telemetry the browser uploads. People do not wait for it. */
+  /**
+   * Telemetry the browser uploads, including the live-session reports the
+   * User Observatory shows. People do not wait for it.
+   */
   'telemetry',
   /** Machines: health probes and the synthetic population worker. */
   'machine',
@@ -80,6 +83,8 @@ export const ROUTE_RULES: readonly RouteRule[] = [
   { prefix: '/api/puzzle-management', group: 'app' },
   { prefix: '/api/admin', group: 'app' },
   { prefix: '/api/observability', group: 'telemetry' },
+  /** Every open app reports what its session shows; nobody waits on it. */
+  { prefix: '/api/observatory-live', group: 'telemetry' },
   { prefix: '/api/health', group: 'machine' },
   { prefix: '/api/synthetic-population-worker', group: 'machine' },
 ];
