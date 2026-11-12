@@ -10779,6 +10779,7 @@
                       "specs/feedback/debug-info.feature",
                       "specs/feedback/delivery.feature",
                       "specs/feedback/opening-a-bug-report.feature",
+                      "specs/feedback/receiving-bug-reports.feature",
                       "specs/feedback/reporting-a-bug.feature",
                       "specs/feedback/screenshots.feature",
                       "specs/feedback/ubiquitous-language.yml",
