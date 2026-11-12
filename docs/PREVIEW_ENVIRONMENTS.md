@@ -25,6 +25,11 @@ https://pr-<number>-<namespace>-preview.<account>.workers.dev/harness
   actor (UI, local database, logs), each API server (SQL notebook, logs), the
   load balancer, pub/sub topics and rooms, plus commands for crashing,
   restarting and partitioning nodes, controlling the clock, and snapshots.
+  Every node is a panel in a window manager: drag a panel's tab onto another
+  window to tab it there or onto a window edge to put the two side by side,
+  resize with the dividers, and maximize or close windows. The same moves work
+  from the keyboard and from each window's menu, and the arrangement is kept
+  in the page address, so a link reopens the same layout.
 - **The build.** A Preview bundle is the product bundle built with
   `VITE_HARNESS_ONLY=1`, which sends every path to `/harness` — the app at `/`
   would have no API to talk to. `preview.json` in the bundle names the Preview

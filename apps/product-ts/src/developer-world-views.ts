@@ -1,19 +1,68 @@
 import { ensureActor, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { openSettings } from '@libs/harness-ts/shell-actions';
-import { harnessConsoleLayoutFromBreakpoint } from '@pkgs/harness-console-client-ts/layout';
-import { resolveProductHarnessInstanceId } from '@pkgs/harness-console-client-ts/product-harness-kind-pane';
-import { selectUnifiedNode } from '@pkgs/harness-console-client-ts/select-unified-node';
-import { applyConsoleNavPatch, parseConsoleNav } from './console-nav';
+import {
+  arrangeHarnessLayout,
+  type HarnessArrangement,
+  harnessPanelId,
+  harnessPanels,
+  resolveHarnessLayout,
+  shownHarnessClients,
+} from '@pkgs/harness-console-shared-ts/harness-windows';
+import {
+  applyWindowLayoutCommand,
+  type WindowLayout,
+} from '@pkgs/ui-devtools-shared-ts/window-layout';
+import { serializeWindowLayout } from '@pkgs/ui-devtools-shared-ts/window-layout-codec';
+import {
+  applyConsoleNavPatch,
+  buildConsoleSearch,
+  DEFAULT_CONSOLE_NAV,
+  parseConsoleNav,
+} from './console-nav';
 import { tools } from './developer-tools-state';
+
+/** The console's panels for a world of these devices. */
+function worldPanels(devices: readonly string[]): readonly string[] {
+  return harnessPanels({ clients: devices, servers: [], rooms: [] }).map(
+    (panel) => panel.id
+  );
+}
+function worldLayout(s: ProductHarness): WindowLayout {
+  return resolveHarnessLayout(
+    tools(s).consoleNav.layout,
+    worldPanels([...s.actors.keys()])
+  );
+}
+function showWorld(s: ProductHarness, layout: WindowLayout): void {
+  const state = tools(s);
+  state.consoleNav = applyConsoleNavPatch(state.consoleNav, {
+    layout: serializeWindowLayout(layout),
+  });
+}
+function arrangeWorld(s: ProductHarness, arrangement: HarnessArrangement) {
+  showWorld(
+    s,
+    arrangeHarnessLayout(
+      worldPanels([...s.actors.keys()]),
+      arrangement,
+      worldLayout(s)
+    )
+  );
+}
+function chosen(layout: WindowLayout, device: string): WindowLayout {
+  return applyWindowLayoutCommand(layout, {
+    type: 'select',
+    panel: harnessPanelId('client', device),
+  });
+}
 export const provideWorldDevices = scenarioAction({
   name: 'provideWorldDevices',
   act: async (s, two: boolean) => {
     await ensureActor(s, 'alice');
     if (two) await ensureActor(s, 'bob');
-    const state = tools(s);
-    state.consoleNav = parseConsoleNav('');
-    state.consoleColumns = false;
+    tools(s).consoleNav = DEFAULT_CONSOLE_NAV;
+    arrangeWorld(s, 'tabs');
   },
 });
 export const giveDevicesDifferentPlaces = scenarioAction({
@@ -28,60 +77,32 @@ export const giveDevicesDifferentPlaces = scenarioAction({
 export const chooseWorldDevice = scenarioAction({
   name: 'chooseWorldDevice',
   act: (s, id: string, address = false) => {
-    const state = tools(s);
-    if (address) {
-      state.consoleNav = parseConsoleNav(`?instance=${id}`);
+    if (!address) {
+      showWorld(s, chosen(worldLayout(s), id));
       return;
     }
-    selectUnifiedNode(
-      {
-        chrome: {
-          ...state.consoleNav.harness,
-          onKindChange: (kind) => {
-            state.consoleNav = applyConsoleNavPatch(state.consoleNav, { kind });
-          },
-          onInstanceChange: (instance) => {
-            state.consoleNav = applyConsoleNavPatch(state.consoleNav, {
-              instance,
-            });
-          },
-          onPanePatch: (id, patch) => {
-            state.consoleNav = applyConsoleNavPatch(state.consoleNav, {
-              harness: { pane: { id, patch } },
-            });
-          },
-        },
-        onFocusedClientIdChange: () => {
-          /* Selection is read from the chrome instance in this host. */
-        },
-      },
-      { clients: [...s.actors.values()], servers: [], loadBalancerId: 'lb' },
+    // The address of a world that has the device, with the device on show.
+    const devices = [...new Set([...s.actors.keys(), id])];
+    const layout = chosen(
+      arrangeHarnessLayout(worldPanels(devices), 'tabs'),
       id
+    );
+    tools(s).consoleNav = parseConsoleNav(
+      buildConsoleSearch({
+        ...DEFAULT_CONSOLE_NAV,
+        layout: serializeWindowLayout(layout),
+      })
     );
   },
 });
 export const arrangeWorldDevices = scenarioAction({
   name: 'arrangeWorldDevices',
   act: (s, several: boolean) => {
-    tools(s).consoleColumns = harnessConsoleLayoutFromBreakpoint(
-      'desktop',
-      several ? 'columns' : 'tabs'
-    ).multiClientColumns;
+    arrangeWorld(s, several ? 'beside' : 'tabs');
   },
 });
-export const shownWorldDevices = (s: ProductHarness) => {
-  const state = tools(s);
-  const actors = [...s.actors.values()];
-  const chosen = resolveProductHarnessInstanceId(
-    state.consoleNav.harness.instance,
-    actors
-  );
-  return state.consoleColumns
-    ? actors.map((actor) => actor.id)
-    : chosen === null
-      ? []
-      : [chosen];
-};
+export const shownWorldDevices = (s: ProductHarness) =>
+  shownHarnessClients(worldLayout(s));
 export async function devicePlaceKept(s: ProductHarness, actor: string) {
   const device = s.actors.get(actor);
   if (device === undefined) throw new Error('Device missing');

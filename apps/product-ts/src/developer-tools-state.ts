@@ -31,7 +31,6 @@ export type ToolsState = {
   firstWorldPath: string | null;
   restoreFailure: 'none' | 'failed';
   consoleNav: ConsoleNavState;
-  consoleColumns: boolean;
   releaseEvidence: readonly ReleaseEvidence[];
   releaseVerdict: ReleaseVerdict | null;
 };
@@ -54,7 +53,6 @@ export function tools(s: ProductHarness): ToolsState {
       firstWorldPath: null,
       restoreFailure: 'none',
       consoleNav: DEFAULT_CONSOLE_NAV,
-      consoleColumns: false,
       releaseEvidence: [],
       releaseVerdict: null,
     } satisfies ToolsState;

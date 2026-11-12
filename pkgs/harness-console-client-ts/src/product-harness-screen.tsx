@@ -1,69 +1,48 @@
-import type { HarnessChromeKind } from '@pkgs/harness-console-shared-ts/node';
+import { harnessPanelKind } from '@pkgs/harness-console-shared-ts/harness-windows';
 import type {
-  ProductHarnessActor,
   ProductHarnessPaletteCommand,
   ProductHarnessSession,
 } from '@pkgs/harness-console-shared-ts/ports';
+import { WindowManager } from '@pkgs/ui-devtools-client-ts/window-manager';
 import { CommandPalette } from '@pkgs/ui-root-client-ts/command-palette';
 import { CommandRegistryProvider } from '@pkgs/ui-root-client-ts/command-registry-context';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
-import { KeyboardShortcutScope } from '@pkgs/ui-root-client-ts/keyboard-shortcut-scope';
+import {
+  Columns2Icon,
+  RotateCcwIcon,
+  SquareStackIcon,
+} from '@pkgs/ui-root-client-ts/icons';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { OverlayPortalProvider } from '@pkgs/ui-root-client-ts/overlay-portal';
+import { Pane } from '@pkgs/ui-root-client-ts/pane';
 import { RegisterCommand } from '@pkgs/ui-root-client-ts/register-command';
-import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { Surface } from '@pkgs/ui-root-client-ts/surface';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
+import { useTheme } from '@pkgs/ui-root-client-ts/theme-context';
+import { Toolbar } from '@pkgs/ui-root-client-ts/toolbar';
 import {
-  createEffect,
   createMemo,
   createSignal,
   For,
   type JSX,
   Match,
-  onCleanup,
   Switch,
 } from 'solid-js';
-import type {
-  DebuggerChromeNav,
-  PaneNavPatch,
-  PaneNavValue,
-} from './debugger-chrome';
-import { debuggerInstanceTabItem } from './debugger-chrome';
-import { DebuggerColumn } from './debugger-columns';
-import { DebuggerShell } from './debugger-shell';
+import type { HarnessConsoleNav } from './debugger-chrome';
+import { harnessWindowPanel } from './harness-node-window';
 import { ProductHarnessAppearanceCommands } from './product-harness-appearance-commands';
 import {
   ProductHarnessExitButton,
   ProductHarnessExitCommand,
 } from './product-harness-exit';
-import type { ProductHarnessClientColumnShellProps } from './product-harness-kind-pane';
-import {
-  ProductHarnessKindPane,
-  productHarnessInstancesForKind,
-  productHarnessPaneKey,
-  productHarnessViewsForKind,
-  resolveProductHarnessInstanceId,
-  resolveProductHarnessPane,
-} from './product-harness-kind-pane';
 import { ProductHarnessSnapshotChrome } from './product-harness-snapshot-chrome';
 import { ProductHarnessTopologyChrome } from './product-harness-topology-chrome';
-import { selectUnifiedNode } from './select-unified-node';
-import { useHarnessConsoleLayout } from './use-harness-console-layout';
+import { type HarnessWindows, useHarnessWindows } from './use-harness-windows';
 import type { ProductHarnessSessionState } from './use-product-harness-session';
 
 export function ProductHarnessScreen(props: {
   readonly state: ProductHarnessSessionState;
-  readonly kind: HarnessChromeKind;
-  readonly instance: string;
-  readonly panes: Readonly<Record<string, PaneNavValue>>;
-  readonly onKindChange: (kind: HarnessChromeKind) => void;
-  readonly onInstanceChange: (instance: string) => void;
-  readonly onPanePatch: (
-    id: string,
-    patch: PaneNavPatch,
-    mode?: 'push' | 'replace'
-  ) => void;
+  readonly nav: HarnessConsoleNav;
   /** Retry boot after an error (chunk load / harness init). */
   readonly onReload?: () => void;
   /** Leave the harness for the product app. */
@@ -93,17 +72,10 @@ export function ProductHarnessScreen(props: {
         {(state) => (
           <OverlayPortalProvider>
             <SurfaceStackProvider>
-              <FocusedProductHarnessScreen
+              <ReadyProductHarnessScreen
                 session={state().session}
+                nav={props.nav}
                 onExit={props.onExit}
-                chrome={{
-                  kind: props.kind,
-                  instance: props.instance,
-                  panes: props.panes,
-                  onKindChange: props.onKindChange,
-                  onInstanceChange: props.onInstanceChange,
-                  onPanePatch: props.onPanePatch,
-                }}
               />
             </SurfaceStackProvider>
           </OverlayPortalProvider>
@@ -128,268 +100,140 @@ function CenteredState(props: { readonly children: JSX.Element }) {
   );
 }
 
-function FocusedProductHarnessScreen(props: {
-  readonly session: ProductHarnessSession;
-  readonly chrome: DebuggerChromeNav;
-  readonly onExit: () => void;
-}) {
-  const layout = useHarnessConsoleLayout();
-  const [focusedClientId, setFocusedClientId] = createSignal<string | null>(
-    null
-  );
+type LayoutAction = {
+  readonly id: string;
+  readonly title: string;
+  readonly icon: typeof Columns2Icon;
+  readonly keywords: readonly string[];
+  readonly run: () => void;
+};
 
-  createEffect(() => {
-    if (props.chrome.kind !== 'client') setFocusedClientId(null);
-  });
-
-  // Harness registry owns shortcuts when no client panel does: non-client
-  // chrome, or column layout with no focused column. Tab layout always hands
-  // shortcuts to the visible client via the column `KeyboardShortcutScope`.
-  // Gate with reactive `enableDefaultShortcuts` (not a tree-wide scope) so the
-  // chrome search button can still `palette.open()` while a client is focused.
-  const harnessShortcutsActive = (): boolean =>
-    props.chrome.kind !== 'client' ||
-    (layout.multiClientColumns && focusedClientId() === null);
-
-  return (
-    <CommandRegistryProvider enableDefaultShortcuts={harnessShortcutsActive()}>
-      <ProductHarnessAppearanceCommands />
-      <ProductHarnessExitCommand onExit={props.onExit} />
-      <ReadyProductHarnessScreen
-        session={props.session}
-        chrome={props.chrome}
-        onExit={props.onExit}
-        focusedClientId={focusedClientId()}
-        onFocusedClientIdChange={setFocusedClientId}
-      />
-      <CommandPalette />
-    </CommandRegistryProvider>
-  );
+/** Whole-console arrangements, offered in the palette and every window menu. */
+function layoutActions(windows: HarnessWindows): readonly LayoutAction[] {
+  return [
+    {
+      id: 'harness-layout-beside',
+      title: 'Show clients side by side',
+      icon: Columns2Icon,
+      keywords: ['columns', 'clients', 'layout', 'split', 'windows'],
+      run: () => windows.arrange('beside'),
+    },
+    {
+      id: 'harness-layout-tabs',
+      title: 'Tab clients in one window',
+      icon: SquareStackIcon,
+      keywords: ['tabs', 'clients', 'layout', 'stack', 'windows'],
+      run: () => windows.arrange('tabs'),
+    },
+    {
+      id: 'harness-layout-reset',
+      title: 'Reset window layout',
+      icon: RotateCcwIcon,
+      keywords: ['reset', 'default', 'layout', 'windows', 'panels'],
+      run: windows.reset,
+    },
+  ];
 }
 
-function ProductHarnessClientColumnShell(
-  props: ProductHarnessClientColumnShellProps & { children?: JSX.Element }
-): JSX.Element {
-  void props.actor;
+function HarnessLayoutCommands(props: {
+  readonly actions: readonly LayoutAction[];
+}): JSX.Element {
   return (
-    <DebuggerColumn focused={props.focused} onActivate={props.onActivate}>
-      <KeyboardShortcutScope active={props.focused}>
-        {props.children}
-      </KeyboardShortcutScope>
-    </DebuggerColumn>
+    <For each={props.actions}>
+      {(action) => (
+        <RegisterCommand
+          id={action.id}
+          title={action.title}
+          category="Appearance"
+          icon={action.icon}
+          keywords={[...action.keywords]}
+          run={async () => {
+            action.run();
+          }}
+        />
+      )}
+    </For>
   );
 }
 
 /**
- * Clients always listed — not kind-scoped instances (tabs vanish otherwise).
- * The strip mirrors the request path: clients, the balancer, each API
- * instance, pubsub, then live rooms.
+ * The console: harness controls over a window manager with one panel per
+ * node. A client's app owns the keyboard while its panel is the focused
+ * one; the harness's own shortcuts apply otherwise, and after a press on
+ * the controls until the windows are used again.
  */
-function productHarnessUnifiedNodes(
-  session: ProductHarnessSession,
-  clients: readonly ProductHarnessActor[]
-) {
-  const nodes = [
-    ...clients.map((actor) => ({ id: actor.id, kind: 'client' })),
-    { id: session.loadBalancer.id, kind: 'lb' },
-    ...[...session.servers.values()].map((server) => ({
-      id: server.id,
-      kind: 'server',
-    })),
-    { id: 'events', kind: 'events' },
-    ...[...session.rooms.values()].map((room) => ({
-      id: room.id,
-      kind: 'room',
-    })),
-  ];
-  return nodes.map(debuggerInstanceTabItem);
-}
-
-function selectedUnifiedNodeId(
-  current: HarnessChromeKind,
-  instanceId: string | null
-): string | null {
-  if (current === 'client' || current === 'room' || current === 'server') {
-    return instanceId;
-  }
-  if (current === 'events') return 'events';
-  return current;
-}
-
-type ReadyScreenProps = {
+function ReadyProductHarnessScreen(props: {
   readonly session: ProductHarnessSession;
-  readonly chrome: DebuggerChromeNav;
+  readonly nav: HarnessConsoleNav;
   readonly onExit: () => void;
-  readonly focusedClientId: string | null;
-  readonly onFocusedClientIdChange: (id: string | null) => void;
-};
-
-/** Session maps mutate in place — topology reads must track `revision`. */
-function useReadyProductHarnessModel(props: ReadyScreenProps) {
-  const [revision, setRevision] = createSignal(props.session.revision);
-  createEffect(() => {
-    const session = props.session;
-    setRevision(session.revision);
-    const unsub = session.subscribe(() => setRevision(session.revision));
-    onCleanup(unsub);
+}) {
+  const theme = useTheme();
+  const windows = useHarnessWindows(() => props.session, props.nav);
+  const [controlsActive, setControlsActive] = createSignal(false);
+  const keyboardPanel = createMemo(() => {
+    const panel = windows.focusedPanel();
+    return controlsActive() || panel === null ? null : panel;
   });
-
-  const kind = () => props.chrome.kind;
-  const clients = createMemo(() => {
-    revision();
-    return props.session.snapshotRestoring
-      ? []
-      : [...props.session.clients.values()];
-  });
-  const servers = createMemo(() => {
-    revision();
-    return [...props.session.servers.values()];
-  });
-  const instances = createMemo(() => {
-    revision();
-    return productHarnessInstancesForKind(props.session, kind(), clients());
-  });
-  const instanceId = createMemo(() =>
-    resolveProductHarnessInstanceId(props.chrome.instance, instances())
-  );
-  const unifiedNodes = createMemo(() => {
-    servers();
-    return productHarnessUnifiedNodes(props.session, clients());
-  });
-  const selectedNode = createMemo(() =>
-    selectedUnifiedNodeId(kind(), instanceId())
-  );
-  const shellPaneKey = createMemo(() =>
-    productHarnessPaneKey(kind(), instanceId())
-  );
-  const shellPane = createMemo(() =>
-    resolveProductHarnessPane(props.chrome.panes, shellPaneKey(), kind())
-  );
-  // Client columns own their view strips; shell strip only for non-client.
-  const views = createMemo(() =>
-    kind() === 'client' ? [] : productHarnessViewsForKind(kind())
+  const clientOwnsKeyboard = () => {
+    const panel = keyboardPanel();
+    return panel !== null && harnessPanelKind(panel) === 'client';
+  };
+  const panels = createMemo(() =>
+    windows.panels().map((panel) =>
+      harnessWindowPanel(panel, {
+        session: () => props.session,
+        revision: windows.revision,
+        nav: props.nav,
+        keyboardPanel,
+      })
+    )
   );
   const paletteCommands = createMemo(() => {
-    revision();
+    windows.revision();
     return props.session.listPaletteCommands();
   });
-  return {
-    kind,
-    clients,
-    servers,
-    instances,
-    instanceId,
-    unifiedNodes,
-    selectedNode,
-    shellPaneKey,
-    shellPane,
-    views,
-    paletteCommands,
-    snapshotEpoch: () => props.session.snapshotEpoch,
-  };
-}
-
-function ReadyProductHarnessScreen(props: ReadyScreenProps) {
-  const model = useReadyProductHarnessModel(props);
-  const clearClientFocus = () => {
-    props.onFocusedClientIdChange(null);
-  };
+  const actions = layoutActions(windows);
   return (
-    <Surface tone="background" grow overflow="hidden">
-      <ProductHarnessPaletteRegistrations commands={model.paletteCommands()} />
-      <ProductHarnessDebuggerShell
-        session={props.session}
-        chrome={props.chrome}
-        onExit={props.onExit}
-        clients={model.clients()}
-        kind={model.kind}
-        instances={model.instances}
-        instanceId={model.instanceId}
-        unifiedNodes={model.unifiedNodes}
-        selectedNode={model.selectedNode}
-        onUnifiedNodeChange={(id) =>
-          selectUnifiedNode(
-            props,
-            {
-              clients: model.clients(),
-              servers: model.servers(),
-              loadBalancerId: props.session.loadBalancer.id,
-            },
-            id
-          )
-        }
-        views={model.views}
-        shellPane={model.shellPane}
-        shellPaneKey={model.shellPaneKey}
-        snapshotEpoch={model.snapshotEpoch}
-        focusedClientId={props.focusedClientId}
-        onFocusedClientIdChange={props.onFocusedClientIdChange}
-        clearClientFocus={clearClientFocus}
-      />
-    </Surface>
-  );
-}
-
-function ProductHarnessDebuggerShell(props: {
-  readonly session: ProductHarnessSession;
-  readonly chrome: DebuggerChromeNav;
-  readonly onExit: () => void;
-  readonly clients: readonly ProductHarnessActor[];
-  readonly kind: () => HarnessChromeKind;
-  readonly instances: () => readonly {
-    readonly id: string;
-    readonly kind: string;
-  }[];
-  readonly instanceId: () => string | null;
-  readonly unifiedNodes: () => readonly import('@pkgs/ui-devtools-client-ts/tab-strip-types').TabStripItem[];
-  readonly selectedNode: () => string | null;
-  readonly onUnifiedNodeChange: (id: string) => void;
-  readonly views: () => readonly import('@pkgs/harness-console-shared-ts/debugger-views').DebuggerViewId[];
-  readonly shellPane: () => PaneNavValue;
-  readonly shellPaneKey: () => string;
-  readonly snapshotEpoch: () => number;
-  readonly focusedClientId: string | null;
-  readonly onFocusedClientIdChange: (id: string | null) => void;
-  readonly clearClientFocus: () => void;
-}) {
-  return (
-    <DebuggerShell
-      onChromePointerDown={props.clearClientFocus}
-      kindTrailing={
-        <StackHorizontal align="center" gap="xs">
-          <ProductHarnessTopologyChrome session={props.session} />
-          <ProductHarnessSnapshotChrome session={props.session} />
-          <ProductHarnessExitButton onExit={props.onExit} />
-        </StackHorizontal>
-      }
-      kind={props.kind()}
-      onKindChange={props.chrome.onKindChange}
-      unifiedNodes={props.unifiedNodes()}
-      selectedNode={props.selectedNode() ?? ''}
-      onNodeChange={props.onUnifiedNodeChange}
-      instances={props.instances()}
-      instanceId={props.instanceId()}
-      onInstanceChange={props.chrome.onInstanceChange}
-      views={props.views()}
-      view={props.shellPane().view}
-      onViewChange={(next) =>
-        props.chrome.onPanePatch(props.shellPaneKey(), { view: next })
-      }
-    >
-      <ProductHarnessKindPane
-        session={props.session}
-        kind={props.kind()}
-        panes={props.chrome.panes}
-        instanceId={props.instanceId()}
-        clients={props.clients}
-        snapshotEpoch={props.snapshotEpoch()}
-        focusedClientId={props.focusedClientId}
-        onFocusedClientIdChange={props.onFocusedClientIdChange}
-        onPanePatch={props.chrome.onPanePatch}
-        onClientColumnsOutsidePointerDown={props.clearClientFocus}
-        clientColumnShell={ProductHarnessClientColumnShell}
-      />
-    </DebuggerShell>
+    <CommandRegistryProvider enableDefaultShortcuts={!clientOwnsKeyboard()}>
+      <ProductHarnessAppearanceCommands />
+      <ProductHarnessExitCommand onExit={props.onExit} />
+      <HarnessLayoutCommands actions={actions} />
+      <ProductHarnessPaletteRegistrations commands={paletteCommands()} />
+      <Surface tone="background" grow overflow="hidden">
+        <Pane
+          grow={false}
+          clip={false}
+          onActivate={() => setControlsActive(true)}
+        >
+          <Toolbar
+            density="regular"
+            justify="end"
+            aria-label="Harness controls"
+          >
+            <ProductHarnessTopologyChrome session={props.session} />
+            <ProductHarnessSnapshotChrome session={props.session} />
+            <ProductHarnessExitButton onExit={props.onExit} />
+          </Toolbar>
+        </Pane>
+        <Pane tone="background" onActivate={() => setControlsActive(false)}>
+          <WindowManager
+            aria-label="Harness nodes"
+            panels={panels()}
+            layout={windows.layout()}
+            onLayoutChange={windows.onLayoutChange}
+            compact={theme.breakpoint() === 'mobile'}
+            menuActions={actions.map((action, at) => ({
+              id: action.id,
+              label: action.title,
+              icon: action.icon,
+              onClick: action.run,
+              endsGroup: at === actions.length - 1,
+            }))}
+          />
+        </Pane>
+      </Surface>
+      <CommandPalette />
+    </CommandRegistryProvider>
   );
 }
 

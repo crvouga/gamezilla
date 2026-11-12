@@ -127,6 +127,7 @@
     "@pkgs/sync-engine-client-ts": "workspace:*",
     "@pkgs/sync-engine-server-ts": "workspace:*",
     "@pkgs/tailwind-shared-ts": "workspace:*",
+    "@pkgs/ui-devtools-shared-ts": "workspace:*",
     "@pkgs/ui-root-client-ts": "workspace:*",
     "@pkgs/ui-testing-bun-webview-server-ts": "workspace:*",
     "@pkgs/ui-testing-bun-webview-shared-ts": "workspace:*",

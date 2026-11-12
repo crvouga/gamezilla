@@ -36,17 +36,16 @@ function ConsoleBody(props: {
   return (
     <HarnessConsoleApp
       ports={props.ports}
-      kind={nav.state.harness.kind}
-      instance={nav.state.harness.instance}
-      panes={nav.state.harness.panes}
+      nav={{
+        layout: nav.state.layout,
+        panes: nav.state.panes,
+        onLayoutChange: (layout, mode) => nav.patch({ layout }, mode),
+        onPanePatch: (id, patch, mode = 'push') =>
+          nav.patch({ pane: { id, patch } }, mode),
+      }}
       onExit={() => {
         window.location.assign('/');
       }}
-      onKindChange={(kind) => nav.patch({ harness: { kind } })}
-      onInstanceChange={(instance) => nav.patch({ harness: { instance } })}
-      onPanePatch={(id, patch, mode = 'push') =>
-        nav.patch({ harness: { pane: { id, patch } } }, mode)
-      }
     />
   );
 }

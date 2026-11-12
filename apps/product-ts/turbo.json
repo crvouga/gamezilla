@@ -963,6 +963,7 @@
         "@pkgs/sync-engine-client-ts#src",
         "@pkgs/sync-engine-server-ts#src",
         "@pkgs/tailwind-shared-ts#src",
+        "@pkgs/ui-devtools-shared-ts#src",
         "@pkgs/ui-quality-check-server-ts#src",
         "@pkgs/ui-quality-check-shared-ts#src",
         "@pkgs/ui-root-client-ts#src",
