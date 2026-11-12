@@ -13,6 +13,7 @@ const meta = {
     message: 'SQLITE_CANTOPEN: unable to open database file',
     onReload: fn(),
     onReset: fn(async () => undefined),
+    onReportBug: fn(),
   },
 } satisfies Meta<typeof LocalDatabaseBootErrorScreenView>;
 export default meta;
@@ -61,5 +62,15 @@ export const ResetConfirmation: Story = {
       name: 'Reset local data',
     });
     await userEvent.click(reset);
+  },
+};
+
+/** An app that cannot start still lets a person report the bug. */
+export const ReportBug: Story = {
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    const report = await canvas.findByRole('button', { name: 'Report a bug' });
+    await userEvent.click(report);
+    await expect(args.onReportBug).toHaveBeenCalledOnce();
   },
 };

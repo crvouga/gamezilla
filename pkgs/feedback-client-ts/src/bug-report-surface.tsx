@@ -10,9 +10,12 @@ import {
 import { ResponsiveSurface } from '@pkgs/ui-root-client-ts/responsive-surface';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
-import { createMemo, createSignal, onCleanup } from 'solid-js';
+import { createMemo, createSignal, onCleanup, splitProps } from 'solid-js';
 import { render } from 'solid-js/web';
-import { BugReportFormView } from './bug-report-form';
+import {
+  BugReportFormView,
+  type BugReportFormViewProps,
+} from './bug-report-form';
 import type { BugReportController } from './controller';
 import { useBugReportState } from './use-bug-reports';
 
@@ -21,35 +24,52 @@ export type ThemePort = {
   subscribe(listener: () => void): () => void;
 };
 
-function BugReportSurface(props: { controller: BugReportController }) {
-  const state = useBugReportState(() => props.controller);
-  // Opening is told apart from every other change: a surface told again that
-  // it is open takes the focus back from the field a person is writing in.
-  const open = createMemo(() => state().open);
+export type BugReportSurfaceViewProps = BugReportFormViewProps & {
+  /** Whether the bug report is open. */
+  visible: boolean;
+};
+
+/**
+ * The bug report as a person meets it: a sheet on a phone and a dialog on a
+ * wider screen, titled and closable, holding `BugReportFormView`.
+ */
+export function BugReportSurfaceView(props: BugReportSurfaceViewProps) {
+  const [surface, form] = splitProps(props, ['visible']);
   return (
     <ResponsiveSurface
-      visible={open()}
-      onClose={props.controller.close}
+      visible={surface.visible}
+      onClose={form.onClose}
       title="Report a bug"
       size="medium"
       stackId="bug-report"
       dataSet={{ testid: 'bug-report' }}
       closeDataSet={{ testid: 'bug-report-close' }}
     >
-      <BugReportFormView
-        description={state().description}
-        screenshots={state().screenshots}
-        adding={state().adding}
-        phase={state().phase}
-        notice={state().notice}
-        waiting={state().waiting}
-        onDescribe={props.controller.describe}
-        onAddPicture={(picture) => void props.controller.addPicture(picture)}
-        onRemoveScreenshot={props.controller.removeScreenshot}
-        onSend={() => void props.controller.send()}
-        onClose={props.controller.close}
-      />
+      <BugReportFormView {...form} />
     </ResponsiveSurface>
+  );
+}
+
+function BugReportSurface(props: { controller: BugReportController }) {
+  const state = useBugReportState(() => props.controller);
+  // Opening is told apart from every other change: a surface told again that
+  // it is open takes the focus back from the field a person is writing in.
+  const open = createMemo(() => state().open);
+  return (
+    <BugReportSurfaceView
+      visible={open()}
+      description={state().description}
+      screenshots={state().screenshots}
+      adding={state().adding}
+      phase={state().phase}
+      notice={state().notice}
+      waiting={state().waiting}
+      onDescribe={props.controller.describe}
+      onAddPicture={(picture) => void props.controller.addPicture(picture)}
+      onRemoveScreenshot={props.controller.removeScreenshot}
+      onSend={() => void props.controller.send()}
+      onClose={props.controller.close}
+    />
   );
 }
 

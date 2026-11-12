@@ -6,7 +6,11 @@ import { CodeBlock } from '@pkgs/ui-root-client-ts/code-block';
 import { Collapsible } from '@pkgs/ui-root-client-ts/collapsible';
 import { Divider } from '@pkgs/ui-root-client-ts/divider';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
-import { CircleAlertIcon, RefreshCwIcon } from '@pkgs/ui-root-client-ts/icons';
+import {
+  BugIcon,
+  CircleAlertIcon,
+  RefreshCwIcon,
+} from '@pkgs/ui-root-client-ts/icons';
 import { Main } from '@pkgs/ui-root-client-ts/landmarks';
 import { ScrollView } from '@pkgs/ui-root-client-ts/scroll-view';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
@@ -29,6 +33,8 @@ export type CrashScreenViewProps = {
   readonly onGoToSpaces: () => void;
   readonly onReload: () => void;
   readonly onCopy: () => void;
+  /** Open a bug report: a crash is when a person most needs one. */
+  readonly onReportBug: () => void;
 };
 
 function CrashDetails(props: { readonly message: string }): JSX.Element {
@@ -63,7 +69,7 @@ export function useCrashTitle(): () => string {
 
 /**
  * The root error boundary's recovery screen, presentational: what happened,
- * Try again / Go to Spaces, a reference, reload and copy, and the error
+ * Try again / Go to Spaces, a reference, reload, copy and report a bug, and the error
  * details behind a disclosure. `CrashScreen` reports the error and copies.
  */
 export function CrashScreenView(props: CrashScreenViewProps): JSX.Element {
@@ -106,6 +112,13 @@ export function CrashScreenView(props: CrashScreenViewProps): JSX.Element {
                 <CrashCopyButton
                   phase={props.copyPhase}
                   onCopy={props.onCopy}
+                />
+                <Button
+                  title={t`Report a bug`}
+                  intent="neutral"
+                  variant="ghost"
+                  startIcon={<BugIcon size={BUTTON_ICON_SIZE} />}
+                  onClick={() => props.onReportBug()}
                 />
               </StackHorizontal>
               <CrashDetails message={props.message} />

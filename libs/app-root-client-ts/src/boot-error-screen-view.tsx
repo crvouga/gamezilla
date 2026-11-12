@@ -2,8 +2,11 @@
 
 import { PRODUCT_NAME } from '@libs/product-identity-shared-ts/product-identity';
 import { Trans, useLingui } from '@lingui/solid/macro';
+import { Button } from '@pkgs/ui-root-client-ts/button';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
+import { BugIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
+import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { Surface } from '@pkgs/ui-root-client-ts/surface';
 import { createSignal, type JSX, Match, Switch } from 'solid-js';
 
@@ -20,6 +23,8 @@ export type LocalDatabaseBootErrorScreenViewProps = {
   readonly message: string;
   readonly onReload: () => void;
   readonly onReset: () => Promise<void>;
+  /** Open a bug report; it runs apart from the app that failed to start. */
+  readonly onReportBug: () => void;
 };
 
 function BootErrorTitle(props: {
@@ -62,7 +67,8 @@ function BootErrorBody(
 /**
  * Full-screen boot failure of this device's local database, presentational:
  * reload first, with a separately confirmed local reset when another tab
- * stopped sharing the database. `LocalDatabaseBootErrorScreen` classifies
+ * stopped sharing the database, and a way to report the bug.
+ * `LocalDatabaseBootErrorScreen` classifies
  * the error and runs the recovery.
  */
 export function LocalDatabaseBootErrorScreenView(
@@ -87,6 +93,17 @@ export function LocalDatabaseBootErrorScreenView(
                 onClick: () => setConfirmReset(true),
               }
             : undefined
+        }
+        details={
+          <StackHorizontal justify="center">
+            <Button
+              title={t`Report a bug`}
+              intent="neutral"
+              variant="ghost"
+              startIcon={<BugIcon size={16} />}
+              onClick={() => props.onReportBug()}
+            />
+          </StackHorizontal>
         }
       />
       <MutationModal

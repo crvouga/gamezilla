@@ -24,9 +24,6 @@ export const NeedsPermission: Story = { args: { state: 'needs-permission' } };
 /** The phone refused: the person is told how to report a bug without shaking. */
 export const Refused: Story = { args: { state: 'refused' } };
 
-/** A device that cannot feel a shake shows no setting at all. */
-export const Unavailable: Story = { args: { state: 'unavailable' } };
-
 /** The switch asks for shake to be turned off. */
 export const TurnOff: Story = {
   play: async ({ args, canvasElement }) => {
