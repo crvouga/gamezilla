@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import type { Plugin } from 'vite';
 
 type DevReportModule = {
-  readonly FEEDBACK_PATH: string;
+  readonly BUG_REPORT_PATH: string;
   createDevReportDispatcher: (
     repoRoot: string
   ) => (request: IncomingMessage, response: ServerResponse) => Promise<void>;
@@ -15,7 +15,7 @@ export function feedbackDevPlugin(options: {
   readonly repoRoot: string;
 }): Plugin {
   return {
-    name: 'feedback',
+    name: 'bug-reports',
     apply: 'serve',
     async configureServer(server) {
       // Vite resolves workspace TypeScript; Node's config loader cannot.
@@ -26,8 +26,8 @@ export function feedbackDevPlugin(options: {
       server.middlewares.use((request, response, next) => {
         if (
           !(
-            request.url?.split('?')[0] === backend.FEEDBACK_PATH ||
-            request.url?.startsWith(`${backend.FEEDBACK_PATH}/`)
+            request.url?.split('?')[0] === backend.BUG_REPORT_PATH ||
+            request.url?.startsWith(`${backend.BUG_REPORT_PATH}/`)
           )
         ) {
           next();
@@ -36,7 +36,7 @@ export function feedbackDevPlugin(options: {
         void dispatch(request, response).catch(() => {
           if (response.writableEnded) return;
           response.statusCode = 503;
-          response.end('Could not save report');
+          response.end('Could not save bug report');
         });
       });
     },

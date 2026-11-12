@@ -2,7 +2,7 @@ import { requireNonEmpty, Secret } from './secret';
 
 export const FEEDBACK_GITHUB_TOKEN = new Secret({
   name: 'FEEDBACK_GITHUB_TOKEN',
-  hint: 'Fine-grained GitHub token with Issues write access to the feedback report repository only',
+  hint: 'Fine-grained GitHub token with Issues write access to the bug report repository only',
   optional: true,
   pushToApiWorker: true,
   validate: async (input) =>
@@ -11,7 +11,7 @@ export const FEEDBACK_GITHUB_TOKEN = new Secret({
 
 export const FEEDBACK_GITHUB_REPOSITORY = new Secret({
   name: 'FEEDBACK_GITHUB_REPOSITORY',
-  hint: 'Destination owner/repository for hosted feedback reports',
+  hint: 'Destination owner/repository for bug reports',
   optional: true,
   pushToApiWorker: true,
   validate: async (input) => {

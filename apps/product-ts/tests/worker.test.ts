@@ -52,7 +52,7 @@ describe('application Worker dispatch', () => {
       },
     };
     const response = await worker.fetch(
-      new Request('https://app.example.test/api/feedback', {
+      new Request('https://app.example.test/api/bug-reports', {
         headers: { 'Sec-Fetch-Mode': 'navigate' },
       }),
       env,
@@ -60,7 +60,7 @@ describe('application Worker dispatch', () => {
     );
     expect(response.status).toBe(503);
     expect(await response.json()).toEqual({
-      error: 'Feedback storage unavailable; keep your emergency copy',
+      error: 'Bug reports cannot be received right now',
     });
   });
 

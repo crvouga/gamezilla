@@ -117,9 +117,10 @@ Codex reads and `.claude/skills` links for Claude Code. Update them with
 
 ## Debugging
 
-Local feedback reports are stored under `.feedback/`. Before investigating reported
-defects, inspect that directory for open reports (`bun feedback --list`). Reporting
-architecture and recovery: [`docs/FEEDBACKING.md`](docs/FEEDBACKING.md).
+Bug reports people send become GitHub issues, each linking its full report;
+in development they are stored under `.feedback/`. Before investigating reported
+defects, read the open ones (`bun feedback --list`, `bun feedback --inspect <id>`).
+Reporting architecture: [`pkgs/feedback-client-ts/README.md`](pkgs/feedback-client-ts/README.md).
 
 Run `bun obs` before adding logs or rerunning a failure: `bun obs last` when
 it just happened, `bun obs find <any id>` otherwise. Workflow, sources and

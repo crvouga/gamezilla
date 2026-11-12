@@ -18,27 +18,21 @@
     "test:spec:0": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 0/1"
   },
   "dependencies": {
-    "@lingui/core": "catalog:",
-    "@lingui/solid": "catalog:",
-    "@pkgs/clock-client-ts": "workspace:*",
+    "@pkgs/clock-shared-ts": "workspace:*",
     "@pkgs/feedback-client-ts": "workspace:*",
     "@pkgs/feedback-server-ts": "workspace:*",
     "@pkgs/feedback-shared-ts": "workspace:*",
     "@pkgs/harness-root-shared-ts": "workspace:*",
+    "@pkgs/http-client-shared-ts": "workspace:*",
     "@pkgs/object-store-root-shared-ts": "workspace:*",
     "@pkgs/ui-root-client-ts": "workspace:*",
     "solid-js": "catalog:"
   },
   "devDependencies": {
     "@pkgs/bun-test-solid-client-ts": "workspace:*",
-    "@pkgs/clock-shared-ts": "workspace:*",
     "@pkgs/gherkin-shared-ts": "workspace:*",
-    "@pkgs/http-client-shared-ts": "workspace:*",
-    "@pkgs/object-store-node-fs-server-ts": "workspace:*",
-    "@pkgs/property-shared-ts": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
-    "fast-check": "catalog:",
     "typescript": "catalog:"
   },
   "category": "harness",

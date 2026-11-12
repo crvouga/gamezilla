@@ -21,6 +21,7 @@
         "^src",
         "@pkgs/assistant-client-ts#src",
         "@pkgs/collab-ui-client-ts#src",
+        "@pkgs/feedback-client-ts#src",
         "@pkgs/chess-board-root-client-ts#src",
         "@pkgs/ui-devtools-client-ts#src",
         "@libs/account-privacy-client-ts#src",
@@ -64,13 +65,13 @@
         "$TURBO_ROOT$/lingui.solid.config.ts",
         "$TURBO_ROOT$/lingui.config.ts",
         "$TURBO_ROOT$/libs/tools-harness-ts/scripts/lingui-scope.ts",
-        "$TURBO_ROOT$/pkgs/{ui-root,ui-devtools,chess-board-root,assistant,collab-ui}-client-ts/src/**/*.stories.tsx",
-        "$TURBO_ROOT$/pkgs/{ui-root,ui-devtools,chess-board-root,assistant,collab-ui}-client-ts/src/**/*.example.tsx",
+        "$TURBO_ROOT$/pkgs/{ui-root,ui-devtools,chess-board-root,assistant,collab-ui,feedback}-client-ts/src/**/*.stories.tsx",
+        "$TURBO_ROOT$/pkgs/{ui-root,ui-devtools,chess-board-root,assistant,collab-ui,feedback}-client-ts/src/**/*.example.tsx",
         "$TURBO_ROOT$/libs/{account-privacy,app-config,app-root,auth,battleship,billing,chess-puzzle,chess-root,chess-shared,connect-four,friends,game-matchmaking,game-menu,game-puzzle,game-session,hearts,light-cycles,moderation,notifications,numberlink,observatory,permissions,profile,pong,quoridor,search,sokoban,spaces,synthetic-population,user-search,word-tiles}-client-ts/src/**/*.stories.tsx",
         "$TURBO_ROOT$/libs/{account-privacy,app-config,app-root,auth,battleship,billing,chess-puzzle,chess-root,chess-shared,connect-four,friends,game-matchmaking,game-menu,game-puzzle,game-session,hearts,light-cycles,moderation,notifications,numberlink,observatory,permissions,profile,pong,quoridor,search,sokoban,spaces,synthetic-population,user-search,word-tiles}-client-ts/src/**/*.example.tsx",
         "$TURBO_ROOT$/pkgs/ui-root-client-ts/storybook/**",
         "scripts/storybook-dev.ts",
-        "$TURBO_ROOT$/pkgs/{ui-root,ui-devtools,chess-board-root,assistant,collab-ui}-client-ts/src/tsconfig.json",
+        "$TURBO_ROOT$/pkgs/{ui-root,ui-devtools,chess-board-root,assistant,collab-ui,feedback}-client-ts/src/tsconfig.json",
         "$TURBO_ROOT$/libs/tsconfig.json"
       ],
       "outputs": [".cache/storybook/**"]
@@ -99,7 +100,7 @@
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/turbo-platform-key.json",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/pkgs/{ui-root,ui-devtools,chess-board-root,assistant,collab-ui}-client-ts/src/**/baselines/**",
+        "$TURBO_ROOT$/pkgs/{ui-root,ui-devtools,chess-board-root,assistant,collab-ui,feedback}-client-ts/src/**/baselines/**",
         "$TURBO_ROOT$/libs/{account-privacy,app-config,app-root,auth,battleship,billing,chess-puzzle,chess-root,chess-shared,connect-four,friends,game-matchmaking,game-menu,game-puzzle,game-session,hearts,light-cycles,moderation,notifications,numberlink,observatory,permissions,profile,pong,quoridor,search,sokoban,spaces,synthetic-population,user-search,word-tiles}-client-ts/src/**/baselines/**"
       ],
       "outputs": [],
@@ -112,7 +113,7 @@
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/turbo-platform-key.json",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/pkgs/{ui-root,ui-devtools,chess-board-root,assistant,collab-ui}-client-ts/src/**/baselines/**",
+        "$TURBO_ROOT$/pkgs/{ui-root,ui-devtools,chess-board-root,assistant,collab-ui,feedback}-client-ts/src/**/baselines/**",
         "$TURBO_ROOT$/libs/{account-privacy,app-config,app-root,auth,battleship,billing,chess-puzzle,chess-root,chess-shared,connect-four,friends,game-matchmaking,game-menu,game-puzzle,game-session,hearts,light-cycles,moderation,notifications,numberlink,permissions,profile,pong,quoridor,search,sokoban,spaces,synthetic-population,user-search,word-tiles}-client-ts/src/**/baselines/**"
       ],
       "outputs": [],
@@ -125,7 +126,7 @@
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/turbo-platform-key.json",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/pkgs/{ui-root,ui-devtools,chess-board-root,assistant,collab-ui}-client-ts/src/**/baselines/**",
+        "$TURBO_ROOT$/pkgs/{ui-root,ui-devtools,chess-board-root,assistant,collab-ui,feedback}-client-ts/src/**/baselines/**",
         "$TURBO_ROOT$/libs/{account-privacy,app-config,app-root,auth,battleship,billing,chess-puzzle,chess-root,chess-shared,connect-four,friends,game-matchmaking,game-menu,game-puzzle,game-session,hearts,light-cycles,moderation,notifications,numberlink,permissions,profile,pong,quoridor,search,sokoban,spaces,synthetic-population,user-search,word-tiles}-client-ts/src/**/baselines/**"
       ],
       "outputs": [],
@@ -138,7 +139,7 @@
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/turbo-platform-key.json",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/pkgs/{ui-root,ui-devtools,chess-board-root,assistant,collab-ui}-client-ts/src/**/baselines/**",
+        "$TURBO_ROOT$/pkgs/{ui-root,ui-devtools,chess-board-root,assistant,collab-ui,feedback}-client-ts/src/**/baselines/**",
         "$TURBO_ROOT$/libs/{account-privacy,app-config,app-root,auth,battleship,billing,chess-puzzle,chess-root,chess-shared,connect-four,friends,game-matchmaking,game-menu,game-puzzle,game-session,hearts,light-cycles,moderation,notifications,numberlink,permissions,profile,pong,quoridor,search,sokoban,spaces,synthetic-population,user-search,word-tiles}-client-ts/src/**/baselines/**"
       ],
       "outputs": [],

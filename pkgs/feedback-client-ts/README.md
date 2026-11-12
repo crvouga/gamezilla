@@ -1,86 +1,72 @@
-# Feedback
+# Bug reports
 
-Behavior is defined in [feedback specs](../../specs/feedback/). This package is
-a self-contained feedback capability: its shared model, browser client, HTTP
-application, storage adapters and harness depend only on reusable `@pkgs/*`
-ports. It does not know the host application's routes, accounts, database,
-domain model or lifecycle. The ready-made browser adapter installs feedback
-before starting an application; lower-level consumers can compose the same
-controller and HTTP application directly.
+Behavior is defined in the [feedback specs](../../specs/feedback/). A person
+says what went wrong, the app adds a screenshot and the last five minutes of
+debug info, and the report becomes one GitHub issue an agent can reproduce
+from.
 
-## Public boundaries
+Four packages, none of which knows the host application's routes, accounts or
+domain model:
 
-- `@pkgs/feedback/shared` is the canonical report schema and domain ports.
-- `@pkgs/feedback/client` is the port-driven controller and browser UI.
-- `@pkgs/feedback/server` is the HTTP application and repository adapters.
-- `@pkgs/feedback/browser` is an optional browser composition adapter.
-- `@pkgs/feedback/context` is the narrow diagnostics-registration surface.
-- `@pkgs/feedback/vite` and `@pkgs/feedback/harness` are development surfaces.
+| Package | Holds |
+| --- | --- |
+| `@pkgs/feedback-shared-ts` | The report shape, its limits, the debug-info buffer and the diagnostics registry. |
+| `@pkgs/feedback-client-ts` | The controller, the bug report surface, shake detection and the browser adapter. |
+| `@pkgs/feedback-server-ts` | The HTTP application, the intake rules and the GitHub and local issue reporters. |
+| `@pkgs/feedback-harness-ts` | The example app and device the specs run against. |
 
-The browser adapter accepts the API endpoint, application starter, optional
-standalone path, optional application-error event and storage namespace. The
-HTTP application accepts an optional base path. These namespaces allow several
-hosts or embedded contexts to coexist without route or storage collisions.
+## On the device
+
+`bootBrowserBugReports` (`wall.ts`) installs bug reporting before the
+application starts, so a report can be sent from an app that crashed or never
+signed in. It mounts one surface in its own island and answers three ways of
+asking for it:
+
+- `requestBugReport()`, which the host calls from its own "Report a bug" option;
+- Ctrl/Cmd+Shift+B, registered through `bugReportCommand`;
+- shaking the device, on by default where the device allows it without asking.
+  Where the device asks first (iPhone), the person turns on "Shake to report a
+  bug" once; `bugReportsOf(document).shake` is the setting the host renders.
+
+Opening takes a screenshot of the app before the surface covers it. The person
+can remove it and add up to `MAX_SCREENSHOTS - 1` more. Pictures are recognised
+by their bytes, never by the name or type a file claims.
+
+Debug info is always recording into a rolling five-minute buffer
+(`debug-recording.ts`): where the person went, what they chose, troubles the
+app ran into, connection changes, the device and the app version. It records
+the name of a control, never what was typed into it. Other packages add
+facts through `registerFeedbackContext` and `recordFeedbackTrace` in
+`@pkgs/feedback-shared-ts/context`.
+
+A report that cannot be sent is kept on the device (`storage.ts`) and retried
+with backoff and when the connection returns; the draft survives closing the
+app. Sending the same report twice creates one issue.
+
+## On the server
+
+`createBugReportHttpApp({ reporter, store, clock, allowedOrigin })` serves
+`POST /api/bug-reports` and the archived reports under
+`/api/bug-reports/reports/`. Intake (`bug-report-intake.ts`) refuses anything
+that is not a description with at most four pictures of at most 5 MB each,
+allows `DAILY_BUG_REPORT_LIMIT` reports a day per device and
+`DAILY_BUG_REPORT_CEILING` a day in total, archives the report, then asks the
+`IssueReporter` for an issue.
+
+- `GitHubIssueReporter` opens the issue. It needs `FEEDBACK_GITHUB_TOKEN` and
+  `FEEDBACK_GITHUB_REPOSITORY`; without them the server answers 503 and
+  devices keep their reports until it can receive them.
+- `localIssueReporter` is development: the archive under `.feedback/` is the
+  issue. `bun feedback --list` and `bun feedback --inspect <id>` read it.
 
 ## Ports
 
-`FeedbackRepository` owns create, list, read, update and remove. Its adapters are
-`HttpIssueReporter`, `FakeIssueReporter`, `FileSystemIssueReporter` and
-`ArchivedIssueReporter` with `GitHubIssueReporter`. Application code uses the
-same controller and HTTP data port in every environment.
+Everything nondeterministic is injected (`ports.ts`): `ScreenshotPort`,
+`MotionPort`, `ConnectionPort`, `HttpClient`, `Clock`, `Timers`, an object
+store and `createId`. Wall implementations live only in `wall.ts` and
+`wall-screenshot.ts`.
 
-`FeedbackWorkspacePort` is a synchronous journal for documents, the active
-selection, wizard stage, management filters, position and uncertain submissions.
-The browser adapter uses namespaced local storage and imports older text drafts
-before retiring their old key. Binary evidence goes through an injected
-`ObjectStore`; the browser composition uses the same namespace for its Cache API
-adapter. Writing and stopped recordings remain journalled independently of UI
-mounting. Storage errors are visible and never cause the journal to be cleared.
+## Stories
 
-Authorship is a persisted, unlisted device scope, independent of app accounts.
-It filters management operations; it is not an authentication system. Sharing a
-report's unlisted bundle address shares its evidence.
-
-## Destinations
-
-Local Vite middleware mounts `/api/feedback` before host middleware and uses
-an ObjectStore rooted in the worktree's `.feedback/`. Tests substitute in-process
-adapters. The hosted Worker requires the existing object-store credentials and
-`FEEDBACK_GITHUB_TOKEN` / `FEEDBACK_GITHUB_REPOSITORY`. It archives the report,
-creates a GitHub issue and persists the destination receipt. A vendor failure
-retains the archive and the draft and is reported as a failed send.
-
-Management uses `/api/feedback/items` through the same HTTP port. Updates change
-the existing issue. Confirmed deletion uses GitHub's `deleteIssue` mutation and
-keeps an archive tombstone. The GitHub token must permit these issue operations.
-Local deletion also retains a tombstone rather than erasing an archive.
-
-`report.json` is the authoritative `feedback.report/v2` document. Its
-`body.source` preserves the author's Markdown verbatim and `body.sections`
-provides the same content as ordered `{ heading, content }` objects for agents.
-Markdown, diagnostics, ordered reproduction and the agent handoff are
-best-effort companion files. Attachment metadata is resolved from stored
-evidence rather than trusting submitted URLs. Readers canonicalize older
-stored reports at the boundary; writers only produce v2.
-
-## Evidence and isolation
-
-Recording installs interaction listeners only while active. Password, email,
-telephone, secret fields and feedback controls are excluded. Screen sharing is
-requested explicitly and microphone audio is disabled. Recording ports can
-supply video; action recording remains usable when video is unavailable.
-
-`registerFeedbackContext` from `@pkgs/feedback/context` contributes bounded,
-on-demand diagnostics. Clock, timers, IDs, HTTP, journals, video and binary
-storage are injected at the independent browser and Worker composition roots.
-
-```sh
-bun feedback problem '## Observation\n\nThe board stops after a move' 'Board movement'
-bun feedback --list
-bun feedback --inspect <report-id>
-```
-
-`FEEDBACK_API_URL` overrides the CLI's local API address. The CLI list reads
-archived reports directly, including reports whose companion writes failed.
-
-Verification and release policy: [repository checks](../../README.md#correctness-machinery).
+`Product/Bug report` and `Product/Shake to report` in the Storybook host
+(`pkgs/ui-root-harness-ts`) cover every state of the surface and the setting.

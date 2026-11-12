@@ -15,6 +15,7 @@
     "atlas:lint": "bun run libs/tools-harness-ts/scripts/turbo-ci-run.ts @libs/tools-harness-ts#ci:statecharts",
     "atlas:run": "turbo run //#task:atlas:run --",
     "atlas:viz": "turbo run //#task:atlas:viz --",
+    "billing:feedback": "turbo run @libs/billing-server-ts#billing:feedback --",
     "billing:sync": "bun run libs/secrets-server-ts/scripts/secrets-run.ts -- turbo run @libs/billing-server-ts#billing:sync --only --",
     "cache:explain": "turbo run //#task:cache:explain --",
     "cache:sync": "turbo run //#task:cache:sync --",
@@ -115,7 +116,7 @@
     "task:deploy": "bun run libs/tools-harness-ts/scripts/workflow-remote.ts deploy",
     "task:deps:graph": "bun run libs/tools-harness-ts/scripts/render-package-deps-graph.ts",
     "task:fc": "bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture --isolated -- bun run libs/tools-harness-ts/scripts/verify-local.ts",
-    "task:feedback": "bun run pkgs/feedback-harness-ts/scripts/report.ts",
+    "task:feedback": "bun run pkgs/feedback-server-ts/scripts/reports.ts",
     "task:gc": "bun run libs/tools-harness-ts/scripts/kill-dev-stack.ts --gc",
     "task:gh": "bun run libs/tools-harness-ts/scripts/open-actions.ts",
     "task:git:hygiene": "bun run libs/tools-harness-ts/scripts/git-hygiene.ts",
@@ -152,8 +153,7 @@
     "wipe": "turbo run //#task:wipe --",
     "workspace:install": "./libs/tools-harness-ts/workspace/step.sh install",
     "workspace:merge": "./libs/tools-harness-ts/workspace/step.sh merge",
-    "workspace:sync": "turbo run //#task:workspace:sync --",
-    "billing:feedback": "turbo run @libs/billing-server-ts#billing:feedback --"
+    "workspace:sync": "turbo run //#task:workspace:sync --"
   },
   "overrides": {
     "@babel/plugin-transform-modules-systemjs": "^7.29.4",
@@ -289,6 +289,7 @@
     "jose": "^6.2.13",
     "lucide-solid": "^1.60.0",
     "make-plural": "^8.1.0",
+    "modern-screenshot": "^4.7.0",
     "mqtt": "^5.16.1",
     "node-sql-parser": "^5.4.0",
     "oxlint": "^1.89.0",

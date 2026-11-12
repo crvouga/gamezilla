@@ -3,12 +3,17 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { resolve } from 'node:path';
 import { wallClock } from '@pkgs/clock-shared-ts/wall';
-import { MAX_EVIDENCE_BYTES } from '@pkgs/feedback-server-ts/evidence-handler';
-import { createFeedbackHttpApp } from '@pkgs/feedback-server-ts/feedback-http-app';
-import { FileSystemIssueReporter } from '@pkgs/feedback-server-ts/filesystem-issue-reporter';
-import { MAX_REPORT_BYTES } from '@pkgs/feedback-server-ts/http-handler';
+import {
+  BUG_REPORT_PATH,
+  createBugReportHttpApp,
+  MAX_REQUEST_BYTES,
+} from '@pkgs/feedback-server-ts/bug-report-http-app';
+import { localIssueReporter } from '@pkgs/feedback-server-ts/local-issue-reporter';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server-ts/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server-ts/wall-node-fs';
+import type { ObjectStore } from '@pkgs/object-store-root-shared-ts/interface';
+
+export { BUG_REPORT_PATH };
 
 export function createDevReportDispatcher(repoRoot: string) {
   const store = createNodeFsObjectStore({
@@ -16,18 +21,14 @@ export function createDevReportDispatcher(repoRoot: string) {
     fs: wallNodeFs(),
     layout: 'tree',
   });
-  const reporter = new FileSystemIssueReporter(store);
   return (request: IncomingMessage, response: ServerResponse) =>
-    dispatch(request, response, { reporter, store });
+    dispatch(request, response, store);
 }
 
 async function dispatch(
   req: IncomingMessage,
   res: ServerResponse,
-  options: {
-    reporter: FileSystemIssueReporter;
-    store: import('@pkgs/object-store-root-shared-ts/interface').ObjectStore;
-  }
+  store: ObjectStore
 ): Promise<void> {
   const origin = `http://${req.headers.host ?? 'localhost'}`;
   const hostname = new URL(origin).hostname;
@@ -41,12 +42,9 @@ async function dispatch(
   for await (const chunk of req) {
     const bytes = new Uint8Array(chunk as Uint8Array);
     size += bytes.byteLength;
-    if (
-      size >
-      (req.url?.includes('/evidence/') ? MAX_EVIDENCE_BYTES : MAX_REPORT_BYTES)
-    ) {
+    if (size > MAX_REQUEST_BYTES) {
       res.statusCode = 413;
-      res.end('Report too large');
+      res.end('Bug report too large');
       return;
     }
     chunks.push(bytes);
@@ -65,10 +63,11 @@ async function dispatch(
   const request = new Request(`${origin}${req.url}`, {
     method,
     headers,
-    ...(['POST', 'PATCH'].includes(method) ? { body } : {}),
+    ...(method === 'POST' ? { body } : {}),
   });
-  const response = await createFeedbackHttpApp({
-    ...options,
+  const response = await createBugReportHttpApp({
+    reporter: localIssueReporter,
+    store,
     clock: wallClock,
     allowedOrigin: origin,
   })(request);

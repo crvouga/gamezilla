@@ -1,4 +1,4 @@
-// @io-wall-ok — platform entrypoint; feedback never imports product bootstrap
+// @io-wall-ok — platform entrypoint; bug reporting never imports product bootstrap
 
 // The local listener opens its HTTP scope before loading the product lazily.
 // Install native context here so that first scope supports concurrent requests.
@@ -10,8 +10,8 @@ import type {
   ExportedHandler,
   ScheduledController,
 } from '@libs/app-root-shared-ts/worker-handler';
-import { FEEDBACK_PATH } from '@pkgs/feedback-server-ts/http-handler';
-import { handleRootFeedbackReport } from './root-feedback-boot';
+import { BUG_REPORT_PATH } from '@pkgs/feedback-server-ts/bug-report-http-app';
+import { handleRootBugReport } from './root-bug-report-boot';
 
 export { RoomServerDurableObject } from './room';
 
@@ -21,11 +21,12 @@ export default {
     env: ApiWorkerEnv,
     ctx: ExecutionContext
   ): Promise<Response> {
+    const { pathname } = new URL(request.url);
     if (
-      new URL(request.url).pathname === FEEDBACK_PATH ||
-      new URL(request.url).pathname.startsWith(`${FEEDBACK_PATH}/`)
+      pathname === BUG_REPORT_PATH ||
+      pathname.startsWith(`${BUG_REPORT_PATH}/`)
     )
-      return handleRootFeedbackReport(request, env);
+      return handleRootBugReport(request, env);
     const product = await import('./product-server');
     return product.default.fetch(request, env, ctx);
   },

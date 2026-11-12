@@ -10,7 +10,7 @@
  */
 
 import { useLingui } from '@lingui/solid/macro';
-import { feedbackCommand } from '@pkgs/feedback-client-ts/feedback-command';
+import { bugReportCommand } from '@pkgs/feedback-client-ts/request-bug-report';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
 import { useOpenExternalUrl } from '@pkgs/ui-root-client-ts/external-url';
 import {
@@ -140,13 +140,10 @@ function PerformanceCommands(): JSX.Element {
   return null;
 }
 
-function FeedbackCommands(): JSX.Element {
+function BugReportCommands(): JSX.Element {
   const { t } = useLingui();
   useRegisterCommands(() => [
-    feedbackCommand({
-      title: t`Open developer feedback`,
-      category: t`Developer`,
-    }),
+    bugReportCommand({ title: t`Report a bug`, category: t`Help` }),
   ]);
   return null;
 }
@@ -184,7 +181,7 @@ export function AppCommands(): JSX.Element {
       <AppearanceCommands />
       <PerformanceCommands />
       <NetworkCommands />
-      <FeedbackCommands />
+      <BugReportCommands />
     </>
   );
 }

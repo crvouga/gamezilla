@@ -1,80 +1,47 @@
 import { expect } from 'bun:test';
 import type { FeedbackReportingWorld } from '@pkgs/feedback-harness-ts/feedback';
 import {
-  applicationCondition,
-  closeApplication,
-  diagnosticsCondition,
-  readEmergencyReport,
-  readReport,
-  submitReport,
+  becomeGuest,
+  describeBug,
+  readDescription,
+  readNotice,
+  readTeamBugReport,
+  readTeamBugReportCount,
+  reopenApp,
+  sendBugReport,
+  sendBugReportSaying,
 } from '@pkgs/feedback-harness-ts/feedback';
 import { stepsFor } from '@pkgs/gherkin-shared-ts/registry';
 import type { Run } from '@pkgs/harness-root-shared-ts/run-types';
 
 const { Given, When, Then } = stepsFor<Run<FeedbackReportingWorld>>();
-Given("the team's app is working", (w) =>
-  w.apply(applicationCondition, 'working')
-);
-Given("the team's app stays loading", (w) =>
-  w.apply(applicationCondition, 'loading')
-);
-Given("the team's app has crashed", (w) =>
-  w.apply(applicationCondition, 'crashed')
-);
-Given("the team's app cannot open Settings", (w) =>
-  w.apply(applicationCondition, 'router')
-);
-Given("the team's app cannot sign in", (w) =>
-  w.apply(applicationCondition, 'auth')
-);
-Given("the team's device is offline", (w) =>
-  w.apply(applicationCondition, 'offline')
-);
-Given('some diagnostics are unavailable', (w) =>
-  w.apply(diagnosticsCondition, 'throws')
-);
-Given('some diagnostics never arrive', (w) =>
-  w.apply(diagnosticsCondition, 'hangs')
-);
-Given('the team has kept local feedback titled {string}', (w, title: string) =>
-  w.apply(submitReport, {
-    title,
-    body: 'The board stopped after my move',
-  })
-);
-When(
-  'the team submits feedback titled {string} saying {string}',
-  (w, title: string, body: string) => w.apply(submitReport, { title, body })
-);
-When("the team's app closes", (w) => w.apply(closeApplication));
-Then('the team can read the local feedback', async (w) => {
-  expect(await w.read(readReport)).not.toBeNull();
-});
-Then('the feedback contains the available diagnostics', async (w) => {
-  const report = await w.read(readReport);
-  expect(report?.diagnostics).toContainEqual({
-    name: 'context',
-    status: 'available',
-    value: { captured: true },
-  });
-});
-Then('the feedback identifies unavailable diagnostics', async (w) => {
-  const report = await w.read(readReport);
-  expect(report?.diagnostics).toContainEqual({
-    name: 'context',
-    status: 'unavailable',
-    reason: 'Unavailable',
-  });
-});
 
-Given('the team cannot send feedback', (w) =>
-  w.apply(applicationCondition, 'delivery-fails')
+Given('Alice is a guest', (w) => w.apply(becomeGuest));
+Given('Alice has described the bug as {string}', (w, description: string) =>
+  w.apply(describeBug, description)
 );
-Then('the team can copy the feedback to keep for later', async (w) => {
-  const report = await w.read(readEmergencyReport);
-  expect(report).toBeTruthy();
-  expect(report).toContain('body');
-});
-Then('the feedback has not been saved locally', async (w) => {
-  expect(await w.read(readReport)).toBeNull();
-});
+Given('Alice has sent a bug report saying {string}', (w, description: string) =>
+  w.apply(sendBugReportSaying, description)
+);
+When('Alice sends the bug report', (w) => w.apply(sendBugReport));
+Given('Alice has reopened the app', (w) => w.apply(reopenApp));
+Then('Alice is told the team has the bug report', async (w) =>
+  expect(await w.read(readNotice)).toBe('sent')
+);
+Then('Alice is told to describe the bug before sending', async (w) =>
+  expect(await w.read(readNotice)).toBe('describe')
+);
+Then(
+  'the team has a bug report from Alice saying {string}',
+  async (w, description: string) =>
+    expect((await w.read(readTeamBugReport))?.description).toBe(description)
+);
+Then('the team has no bug report from Alice', async (w) =>
+  expect(await w.read(readTeamBugReportCount)).toBe(0)
+);
+Then("Alice's bug report says {string}", async (w, description: string) =>
+  expect(await w.read(readDescription)).toBe(description)
+);
+Then("Alice's bug report has no description", async (w) =>
+  expect(await w.read(readDescription)).toBe('')
+);

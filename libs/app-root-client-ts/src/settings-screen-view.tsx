@@ -5,9 +5,11 @@ import { Trans, useLingui } from '@lingui/solid/macro';
 import type { IconComponent } from '@pkgs/ui-root-client-ts/create-icon';
 import {
   ActivityIcon,
+  BugIcon,
   CreditCardIcon,
   InfoIcon,
   PaintbrushIcon,
+  SmartphoneIcon,
   UserIcon,
   Volume2Icon,
   VolumeXIcon,
@@ -20,7 +22,7 @@ import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { Switch } from '@pkgs/ui-root-client-ts/switch';
 import type { ThemePreference } from '@pkgs/ui-root-client-ts/theme-preference';
 import type { Href } from '@pkgs/ui-root-shared-ts/href';
-import { type Accessor, For, type JSX } from 'solid-js';
+import { type Accessor, For, type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 
 const ROW_ICON_SIZE = 20;
@@ -31,10 +33,13 @@ type SettingsRow = {
   readonly value?: string | undefined;
   readonly icon: IconComponent;
   readonly href?: Href | undefined;
+  /** What a row that opens no page does when pressed. */
+  readonly onPress?: (() => void) | undefined;
   readonly toggle?: {
     readonly value: boolean;
     readonly onChange: (next: boolean) => void;
     readonly label: string;
+    readonly testid: string;
   };
   readonly testid?: string | undefined;
 };
@@ -66,6 +71,16 @@ export type SettingsScreenViewProps = {
   readonly version: string;
   /** Settings sections the composed subs contribute, after the shell's own. */
   readonly subSettings?: JSX.Element;
+  /** Bug reports kept on this device until they can be sent. */
+  readonly bugReportsWaiting: number;
+  /**
+   * Whether shaking the phone opens a bug report. `unavailable` on a device
+   * that cannot feel a shake, which is offered no switch; `refused` once the
+   * person or the phone said no.
+   */
+  readonly shakeToReport: 'on' | 'off' | 'refused' | 'unavailable';
+  readonly onShakeToReportChange: (on: boolean) => void;
+  readonly onReportBug: () => void;
   readonly onOfflineChange: (offline: boolean) => void;
   /** Open a settings sub-screen. */
   readonly onNavigate: (href: Href) => void;
@@ -179,6 +194,7 @@ function useConnectionGroup(
           value: props.offline,
           onChange: props.onOfflineChange,
           label: t`Work offline`,
+          testid: Handles.settingsWorkOfflineSwitch,
         },
         testid: Handles.settingsWorkOffline,
       },
@@ -209,6 +225,56 @@ function SettingsGroupView(props: {
       <For each={props.group.rows}>
         {(row) => <SettingsRowItem row={row} onNavigate={props.onNavigate} />}
       </For>
+    </MenuSection>
+  );
+}
+
+/**
+ * Reporting a bug, where a person looks when something went wrong: one row
+ * opens the bug report, and a phone that can feel a shake offers the switch
+ * for opening it that way.
+ */
+function HelpSection(props: SettingsScreenViewProps): JSX.Element {
+  const { t } = useLingui();
+  const waiting = (): string =>
+    props.bugReportsWaiting === 1
+      ? t`1 bug report is waiting to be sent`
+      : t`${props.bugReportsWaiting} bug reports are waiting to be sent`;
+  return (
+    <MenuSection title={t`Help`} description={t`Tell us what went wrong`}>
+      <SettingsRowItem
+        row={{
+          title: t`Report a bug`,
+          caption:
+            props.bugReportsWaiting > 0
+              ? waiting()
+              : t`A screenshot and debug info go with it`,
+          icon: BugIcon,
+          onPress: props.onReportBug,
+          testid: Handles.settingsReportBug,
+        }}
+        onNavigate={props.onNavigate}
+      />
+      <Show when={props.shakeToReport !== 'unavailable'}>
+        <SettingsRowItem
+          row={{
+            title: t`Shake to report a bug`,
+            caption:
+              props.shakeToReport === 'refused'
+                ? t`This phone did not allow it. You can still report a bug from here.`
+                : t`Shake your phone to open a bug report`,
+            icon: SmartphoneIcon,
+            toggle: {
+              value: props.shakeToReport === 'on',
+              onChange: props.onShakeToReportChange,
+              label: t`Shake to report a bug`,
+              testid: Handles.settingsShakeToReportSwitch,
+            },
+            testid: Handles.settingsShakeToReport,
+          }}
+          onNavigate={props.onNavigate}
+        />
+      </Show>
     </MenuSection>
   );
 }
@@ -252,7 +318,9 @@ function SettingsRowItem(props: {
 }): JSX.Element {
   const onClick = (): (() => void) | undefined => {
     const href = props.row.href;
-    return href === undefined ? undefined : () => props.onNavigate(href);
+    return href === undefined
+      ? props.row.onPress
+      : () => props.onNavigate(href);
   };
   return (
     <MenuRow
@@ -272,7 +340,7 @@ function SettingsRowItem(props: {
             value={props.row.toggle.value}
             onValueChange={props.row.toggle.onChange}
             aria-label={props.row.toggle.label}
-            dataSet={{ testid: Handles.settingsWorkOfflineSwitch }}
+            dataSet={{ testid: props.row.toggle.testid }}
           />
         )
       }
@@ -288,8 +356,8 @@ function SettingsRowItem(props: {
 /**
  * `/more`, presentational: the settings index — everyday account and
  * preference groups first, then whatever settings the composed subs
- * contribute, then About and Troubleshooting (a page of diagnostics:
- * connection, sync, client config and performance). `SettingsScreen` wires preferences, permissions and
+ * contribute, then reporting a bug, then About and Troubleshooting (a page
+ * of diagnostics: connection, sync, client config and performance). `SettingsScreen` wires preferences, permissions and
  * navigation.
  */
 export function SettingsScreenView(
@@ -310,6 +378,7 @@ export function SettingsScreenView(
         )}
       </For>
       {props.subSettings}
+      <HelpSection {...props} />
       <AboutSection {...props} />
     </MenuScreen>
   );
