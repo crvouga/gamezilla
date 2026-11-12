@@ -4,8 +4,7 @@ import {
   MAX_SCREENSHOT_BYTES,
   MAX_SCREENSHOTS,
 } from '@pkgs/feedback-shared-ts/bug-report';
-import type { IssueReporter } from '@pkgs/feedback-shared-ts/types';
-import type { ObjectStore } from '@pkgs/object-store-root-shared-ts/interface';
+import type { BugReportStore } from '@pkgs/feedback-shared-ts/types';
 import { readBoundedBody } from './bounded-body';
 import { createBugReportIntake } from './bug-report-intake';
 
@@ -14,8 +13,8 @@ export const MAX_REQUEST_BYTES =
   MAX_SCREENSHOTS * MAX_SCREENSHOT_BYTES + 1_000_000;
 
 type Options = {
-  readonly reporter: IssueReporter;
-  readonly store: ObjectStore;
+  /** Where received reports are recorded and their files kept. */
+  readonly store: BugReportStore;
   readonly clock: Clock;
   /** Every address the app itself is served from; no other page may send. */
   readonly allowedOrigins: readonly string[];
@@ -45,20 +44,17 @@ async function readForm(request: Request): Promise<FormData | null> {
 
 /** Reads back an archived report or one of its pictures by unlisted address. */
 async function readArchive(
-  store: ObjectStore,
+  store: BugReportStore,
   path: string,
   headers: Record<string, string>
 ): Promise<Response> {
   const [id = '', kind, index] = path.split('/');
-  const key =
-    kind === undefined
-      ? `reports/${id}/report.json`
-      : `reports/${id}/screenshots/${index}`;
+  const name = kind === undefined ? 'report.json' : `screenshots/${index}`;
   const known =
     BUG_REPORT_ID.test(id) &&
     (kind === undefined ||
       (kind === 'screenshots' && /^[1-9]$/.test(index ?? '')));
-  const object = known ? await store.get(key) : null;
+  const object = known ? await store.attachments.get(id, name) : null;
   if (!object) return new Response('Not found', { status: 404, headers });
   return new Response(object.body, {
     headers: {
@@ -81,21 +77,43 @@ function admit(
     : { allowed: false, answerTo: fallback };
 }
 
-/** Whether a bug report sent now would become an issue, without sending one. */
+/** One part a received report needs, and what the team is told when it fails. */
+async function ready(
+  options: Options,
+  part: () => Promise<void>,
+  reason: string
+): Promise<string | null> {
+  try {
+    await part();
+    return null;
+  } catch (error) {
+    options.onFailure?.(error);
+    return reason;
+  }
+}
+
+/** Whether a bug report sent now would be recorded, without sending one. */
 async function health(
   options: Options,
   headers: Record<string, string>
 ): Promise<Response> {
-  try {
-    await options.reporter.check?.();
+  const { records, attachments } = options.store;
+  const reasons = (
+    await Promise.all([
+      ready(options, () => records.check(), 'the issue destination refused'),
+      ready(
+        options,
+        () => attachments.check(),
+        'the attachment store is unreachable'
+      ),
+    ])
+  ).filter((reason) => reason !== null);
+  if (reasons.length === 0)
     return Response.json({ receiving: true }, { headers });
-  } catch (error) {
-    options.onFailure?.(error);
-    return Response.json(
-      { receiving: false, reason: 'the issue destination refused' },
-      { status: 503, headers }
-    );
-  }
+  return Response.json(
+    { receiving: false, reason: reasons.join('; ') },
+    { status: 503, headers }
+  );
 }
 
 /**

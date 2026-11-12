@@ -6,7 +6,7 @@
  * invariants OpenTofu cannot express across files — without credentials.
  */
 import { z } from 'zod';
-import { GLOBAL } from './global';
+import { GITHUB_REPOSITORY, GLOBAL } from './global';
 import { resolveEnvVars } from './tofu-vars';
 
 const slug = z.string().regex(/^[a-z0-9][a-z0-9-]*$/);
@@ -215,6 +215,7 @@ export function apiWorkerVars(env: EnvFile): Readonly<Record<string, string>> {
     OAUTH_CALLBACK_ORIGIN: authRelayOrigin(),
     OAUTH_STATE_TAG: env.env,
     BILLING_PROVIDER: env.billing.provider,
+    FEEDBACK_GITHUB_REPOSITORY: GITHUB_REPOSITORY,
     PUZZLE_MANAGER_ACCOUNT_IDS: JSON.stringify(
       env.worker.puzzle_manager_account_ids
     ),

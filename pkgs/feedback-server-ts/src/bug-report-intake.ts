@@ -8,20 +8,16 @@ import {
 } from '@pkgs/feedback-shared-ts/bug-report';
 import type {
   BugReport,
+  BugReportStore,
   BugReportSubmission,
-  IssueReporter,
   Screenshot,
 } from '@pkgs/feedback-shared-ts/types';
-import { readUtf8, writeUtf8 } from '@pkgs/object-store-root-shared-ts/helpers';
-import type { ObjectStore } from '@pkgs/object-store-root-shared-ts/interface';
-import { bugReportIssue } from './issue-body';
 
 /** Every device together, a day: a backstop against one sender posing as many. */
 export const DAILY_BUG_REPORT_CEILING = 500;
 
 export type IntakeOptions = {
-  readonly reporter: IssueReporter;
-  readonly store: ObjectStore;
+  readonly store: BugReportStore;
   readonly clock: Clock;
   /** Where this report's pictures and JSON are read back, without a trailing slash. */
   readonly reportsUrl: string;
@@ -32,11 +28,6 @@ export type IntakeOptions = {
 export type IntakeOutcome =
   | { readonly status: 200 | 201; readonly id: string }
   | { readonly status: 400 | 409 | 429 | 503; readonly error: string };
-
-/** Where the bug reports taken from one device on one day (`2026-03-02`, UTC) are counted. */
-function takenFromDevice(day: string, reporterId: string): string {
-  return `limits/${day}/reporters/${reporterId}/`;
-}
 
 type Picture = { readonly contentType: string; readonly bytes: Uint8Array };
 
@@ -69,20 +60,27 @@ async function readSubmission(
   };
 }
 
+/** The device a report kept but never recorded came from, if any. */
+async function keptSender(
+  store: BugReportStore,
+  id: string
+): Promise<string | null> {
+  const kept = await store.attachments.get(id, 'report.json');
+  if (!kept) return null;
+  const text = await new Response(kept.body).text();
+  return (JSON.parse(text) as BugReport).reporterId;
+}
+
 async function alreadyReceived(
-  store: ObjectStore,
+  store: BugReportStore,
   submission: BugReportSubmission
 ): Promise<IntakeOutcome | null> {
-  const archived = await readUtf8(
-    store,
-    `reports/${submission.id}/report.json`
-  );
-  if (archived === null) return null;
-  const report = JSON.parse(archived) as BugReport;
-  if (report.reporterId !== submission.reporterId)
-    return { status: 409, error: 'Bug report id already used' };
-  return (await store.head(`reports/${submission.id}/receipt.json`))
-    ? { status: 200, id: submission.id }
+  const sender = (await store.records.find(submission.id))?.reporterId ?? null;
+  if (sender === submission.reporterId)
+    return { status: 200, id: submission.id };
+  const used = sender ?? (await keptSender(store, submission.id));
+  return used !== null && used !== submission.reporterId
+    ? { status: 409, error: 'Bug report id already used' }
     : null;
 }
 
@@ -93,8 +91,9 @@ async function storePictures(
 ): Promise<readonly Screenshot[]> {
   const screenshots: Screenshot[] = [];
   for (const [index, picture] of pictures.entries()) {
-    await options.store.put(
-      `reports/${id}/screenshots/${index + 1}`,
+    await options.store.attachments.put(
+      id,
+      `screenshots/${index + 1}`,
       picture.bytes,
       picture.contentType
     );
@@ -116,38 +115,22 @@ async function receive(
   const received = await alreadyReceived(store, submission);
   if (received) return received;
   const day = new Date(options.clock.now()).toISOString().slice(0, 10);
-  const own = takenFromDevice(day, submission.reporterId);
-  const all = `limits/${day}/all/`;
-  if ((await store.listKeys(own)).length >= DAILY_BUG_REPORT_LIMIT)
+  const counted = await store.records.countOnDay(day, submission.reporterId);
+  if (counted.fromDevice >= DAILY_BUG_REPORT_LIMIT)
     return { status: 429, error: 'Daily bug report limit reached' };
-  if ((await store.listKeys(all)).length >= DAILY_BUG_REPORT_CEILING)
+  if (counted.total >= DAILY_BUG_REPORT_CEILING)
     return { status: 503, error: 'Bug reports cannot be received right now' };
   const report: BugReport = {
     ...submission,
     screenshots: await storePictures(options, submission.id, pictures),
   };
-  const folder = `reports/${report.id}`;
-  await writeUtf8(
-    store,
-    `${folder}/report.json`,
-    JSON.stringify(report),
+  await store.attachments.put(
+    report.id,
+    'report.json',
+    new TextEncoder().encode(JSON.stringify(report)),
     JSON_TYPE
   );
-  await writeUtf8(
-    store,
-    `${folder}/report.md`,
-    bugReportIssue(report).body,
-    'text/markdown; charset=utf-8'
-  );
-  const issue = await options.reporter.create(report);
-  await writeUtf8(
-    store,
-    `${folder}/receipt.json`,
-    JSON.stringify(issue),
-    JSON_TYPE
-  );
-  await writeUtf8(store, `${own}${report.id}`, '', 'text/plain');
-  await writeUtf8(store, `${all}${report.id}`, '', 'text/plain');
+  await store.records.record(report);
   return { status: 201, id: report.id };
 }
 

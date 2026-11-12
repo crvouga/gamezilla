@@ -198,7 +198,7 @@ export function infraEnv(infra: InfraAddresses): Record<string, string> {
     ...(infra.gitHubUrl === null
       ? {}
       : {
-          FEEDBACK_GITHUB_TOKEN: 'stack',
+          GITHUB_ADMIN_TOKEN: 'stack',
           FEEDBACK_GITHUB_REPOSITORY: `${BUG_REPORT_REPOSITORY.owner}/${BUG_REPORT_REPOSITORY.name}`,
           FEEDBACK_GITHUB_API_ORIGIN: infra.gitHubUrl,
         }),

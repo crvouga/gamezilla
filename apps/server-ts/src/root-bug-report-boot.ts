@@ -15,7 +15,11 @@ import {
   BUG_REPORT_PATH,
   createBugReportHttpApp,
 } from '@pkgs/feedback-server-ts/bug-report-http-app';
-import { GitHubIssueReporter } from '@pkgs/feedback-server-ts/github-issue-reporter';
+import {
+  GitHubBugReportRecords,
+  type GitHubBugReportRecordsOptions,
+} from '@pkgs/feedback-server-ts/github-bug-report-records';
+import { objectStoreBugReportAttachments } from '@pkgs/feedback-server-ts/object-store-bug-reports';
 
 class NotConfigured extends Error {}
 
@@ -23,9 +27,7 @@ const CHECK_EVERY_MS = 5 * 60_000;
 /** When the issue destination last answered a check, in this Worker's memory. */
 let destinationCheckedAt = 0;
 
-type Notes = NonNullable<
-  ConstructorParameters<typeof GitHubIssueReporter>[0]['notes']
->;
+type Notes = NonNullable<GitHubBugReportRecordsOptions['notes']>;
 
 const SESSION = /^[a-zA-Z0-9_-]{8,64}$/;
 
@@ -106,39 +108,46 @@ export async function handleRootBugReport(
         requireCredentials: true,
       })
     ).withPrefix('bug-reports');
-    const token = env.FEEDBACK_GITHUB_TOKEN?.trim();
+    // The repository admin token, used as is: GitHub mints no narrower
+    // token from it without a GitHub App.
+    const token = env.GITHUB_ADMIN_TOKEN?.trim();
     const repository = env.FEEDBACK_GITHUB_REPOSITORY?.trim();
     const apiOrigin = env.FEEDBACK_GITHUB_API_ORIGIN?.trim();
     const origin = new URL(request.url).origin;
     if (!token || !repository) throw new NotConfigured();
-    const github = new GitHubIssueReporter({
+    const github = new GitHubBugReportRecords({
       token,
       repository,
+      environment: env.DEPLOYMENT_ENVIRONMENT?.trim() || 'local',
       http,
       ...(apiOrigin ? { apiOrigin } : {}),
       reportBaseUrl: `${origin}${BUG_REPORT_PATH}/reports`,
       notes: agentNotes,
     });
     return await createBugReportHttpApp({
-      store,
+      store: {
+        records: {
+          find: (id) => github.find(id),
+          countOnDay: (day, reporterId) => github.countOnDay(day, reporterId),
+          record: (report) => github.record(report),
+          // Anyone may ask; GitHub is asked at most once in a while.
+          async check() {
+            if (wallClock.now() - destinationCheckedAt < CHECK_EVERY_MS) return;
+            await github.check();
+            destinationCheckedAt = wallClock.now();
+          },
+        },
+        attachments: objectStoreBugReportAttachments(store),
+      },
       clock: wallClock,
       allowedOrigins: appOrigins(env, origin),
       onFailure: (error) => console.error('bug report not received', error),
-      reporter: {
-        create: (report) => github.create(report),
-        // Anyone may ask; GitHub is asked at most once in a while.
-        async check() {
-          if (wallClock.now() - destinationCheckedAt < CHECK_EVERY_MS) return;
-          await github.check();
-          destinationCheckedAt = wallClock.now();
-        },
-      },
     })(request);
   } catch (error) {
     // Which part is missing is no secret, and it is what the team needs to hear.
     const reason =
       error instanceof NotConfigured
-        ? 'FEEDBACK_GITHUB_TOKEN or FEEDBACK_GITHUB_REPOSITORY is not set'
+        ? 'GITHUB_ADMIN_TOKEN or FEEDBACK_GITHUB_REPOSITORY is not set'
         : 'storage is unavailable';
     console.error('bug reports cannot be received', reason, error);
     return Response.json(

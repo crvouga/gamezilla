@@ -416,10 +416,12 @@ nothing is lost yet, but the team is not hearing about bugs.
 
 **First steps.** Ask the intake itself, which names what is missing:
 `curl https://<api>/api/bug-reports/health`. "is not set" or a refused
-destination means `FEEDBACK_GITHUB_TOKEN` or `FEEDBACK_GITHUB_REPOSITORY`:
-`bun run secrets:seed -- --env <env> FEEDBACK_GITHUB_TOKEN` checks a new
-token against GitHub before storing it. "storage is unavailable" is the
-environment's bucket credentials. Otherwise check GitHub's status page.
+destination means the shared `GITHUB_ADMIN_TOKEN` (the Worker opens issues
+with it, in the repository `libs/infra-shared-ts/tofu/global.tfvars.json`
+names): `bun run secrets:seed -- --env prd --force GITHUB_ADMIN_TOKEN` checks a new token
+against GitHub before storing it, and the next deploy pushes it. "storage is
+unavailable" or "the attachment store is unreachable" is the environment's
+bucket credentials. Otherwise check GitHub's status page.
 
 ## sent-bug-reports-are-decided
 
