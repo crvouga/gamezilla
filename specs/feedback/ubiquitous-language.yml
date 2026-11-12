@@ -15,16 +15,19 @@ terms:
       run into trouble, by shaking their phone, or by a three-finger press. A
       bug report from a
       signed-in person tells the team which account sent it, and a guest's
-      says it came from a guest. The team has a bug report once it is on the
-      team's list of work.
+      says it came from a guest. The team has a bug report once it has
+      received it, and the bug report then reaches the team's list of work by
+      itself.
     forms:
       [bug reports, bug report's, report a bug, reports a bug, reporting a bug]
     avoid: [feedback, ticket, support request, issue]
     model: [sendBugReport, chooseToReport, closeBugReport, openBugReports]
   - term: the team's list of work
     definition: >-
-      Where the team keeps everything it has to do. A bug report that reaches
-      the team lands here, and the team has it once, however long it waited.
+      Where the team keeps everything it has to do. Every bug report the team
+      has lands here once, however long it waited and however long the list
+      of work was unavailable.
+    forms: [list of work]
     avoid: [backlog, tracker, issue tracker, to-do list]
     model: [teamCopies]
   - term: description

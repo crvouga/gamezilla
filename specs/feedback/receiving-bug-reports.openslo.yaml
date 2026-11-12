@@ -8,7 +8,7 @@ metadata:
 spec:
   description: >-
     Of the team's regular checks from outside, the share in which a bug
-    report sent at that moment would have reached the team's list of work.
+    report sent at that moment would have been received.
     A check that did not run is not a pass.
   ratioMetric:
     counter: false
@@ -18,14 +18,14 @@ spec:
         spec:
           measures: >-
             The team's regular checks from outside in which a bug report
-            sent at that moment would have reached the team's list of work.
+            sent at that moment would have been received.
     total:
       metricSource:
         type: product
         spec:
           measures: >-
             Every one of the team's regular checks from outside of whether
-            bug reports can reach the team.
+            bug reports can be received.
 ---
 apiVersion: openslo/v1
 kind: SLO

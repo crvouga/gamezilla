@@ -83,3 +83,23 @@ Feature: Keep a bug report until the team has it
       And Alice's device has gone offline and come back online
       When the team can receive bug reports again
       Then the team has exactly one bug report from Alice saying "The board froze after a move"
+
+  Rule: A bug report the team has reaches the team's list of work once
+
+    Scenario: A bug report the team has lands on the team's list of work
+      Given Alice has described the bug as "The clock stopped"
+      When Alice sends the bug report
+      Then the team's list of work has exactly one bug report from Alice saying "The clock stopped"
+
+    Scenario: A bug report sent while the list of work is unavailable is still received
+      Given the team's list of work is unavailable
+      And Alice has described the bug as "The clock stopped"
+      When Alice sends the bug report
+      Then Alice is told the team has the bug report
+      And the team has a bug report from Alice saying "The clock stopped"
+      And the team's list of work has no bug report from Alice saying "The clock stopped"
+
+    Scenario: A bug report reaches the list of work once it is available again
+      Given Alice has sent a bug report saying "The clock stopped" while the team's list of work was unavailable
+      When the team's list of work is available again
+      Then the team's list of work has exactly one bug report from Alice saying "The clock stopped"
