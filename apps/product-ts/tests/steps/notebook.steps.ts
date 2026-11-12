@@ -8,7 +8,7 @@ import {
   savedNotebook,
   saveNotebookQuestion,
   shownNotebook,
-} from '@apps/product-ts/developer-notebook';
+} from '@apps/harness-ts/developer-notebook';
 import { Given, Then, When } from '@libs/harness-ts/define';
 import type { Actor } from '@libs/harness-ts/parameter-types';
 

@@ -6,7 +6,7 @@ import {
   DEFAULT_CONSOLE_NAV,
   parseConsoleNav,
   resolvePaneNav,
-} from '@apps/product-ts/console-nav';
+} from '@apps/harness-ts/console-nav';
 import { createWindowLayout } from '@pkgs/ui-devtools-shared-ts/window-layout';
 import { serializeWindowLayout } from '@pkgs/ui-devtools-shared-ts/window-layout-codec';
 

@@ -3,12 +3,12 @@
 /**
  * A pull request's Preview: the web bundle, served as static files from one
  * Cloudflare Worker Preview named `pr-<number>`, with the whole system running
- * in the visitor's browser at `/harness` (docs/PREVIEW_ENVIRONMENTS.md). The
+ * in the visitor's browser (docs/PREVIEW_ENVIRONMENTS.md). The
  * same commands run on a laptop (`mise run preview:<command>`) and in the
  * Preview workflow.
  *
  *   preview url                 the Preview URL, read from the pull request
- *   preview build               the harness-only bundle, built for that URL
+ *   preview build               the harness bundle, built for that URL
  *   preview deploy              build, upload, check what is served
  *   preview test                check the deployed Preview over HTTP
  *   preview destroy             delete the Preview, verify it is gone
@@ -23,7 +23,6 @@
 import { spawnSync } from 'node:child_process';
 import {
   appendFileSync,
-  copyFileSync,
   existsSync,
   mkdirSync,
   readdirSync,
@@ -48,7 +47,6 @@ import {
   upsertPreviewSection,
 } from '../src/pr-body-section';
 import {
-  PREVIEW_HARNESS_PATH,
   PREVIEW_MANIFEST_PATH,
   type PreviewCheck,
   type PreviewManifest,
@@ -71,7 +69,8 @@ import {
 
 const PACKAGE_DIR = join(import.meta.dirname, '..');
 const REPO_ROOT = join(PACKAGE_DIR, '../..');
-const PRODUCT_DIR = join(REPO_ROOT, 'apps/product-ts');
+const HARNESS_DIR = join(REPO_ROOT, 'apps/harness-ts');
+const HARNESS_DIST = join(HARNESS_DIR, 'dist');
 const CACHE_DIR = join(PACKAGE_DIR, '.cache');
 const WRANGLER = join(PACKAGE_DIR, 'node_modules/.bin/wrangler');
 const BUILD_MAX_OLD_SPACE_MB = 8192;
@@ -413,9 +412,9 @@ function headCommit(): { readonly sha: string; readonly date: string } {
 }
 
 /**
- * The harness-only web bundle. It is built for the Preview's own origin so
- * nothing in it names another deployment, and it carries no secret: every
- * value baked into it is public.
+ * The harness bundle (`apps/harness-ts`). It is built for the Preview's own
+ * origin so nothing in it names another deployment, and it carries no
+ * secret: every value baked into it is public.
  */
 async function build(pr: number, origin: string): Promise<void> {
   const commit = headCommit();
@@ -426,53 +425,37 @@ async function build(pr: number, origin: string): Promise<void> {
       envOf('NODE_OPTIONS') ??
       `--max-old-space-size=${String(BUILD_MAX_OLD_SPACE_MB)}`,
     VITE_API_URL: origin,
-    VITE_HARNESS_ONLY: '1',
     VITE_COMMIT_HASH: commit.sha,
     VITE_COMMIT_DATE: commit.date,
   };
-  const step = (label: string, args: readonly string[]): void => {
-    say(`▸ ${label}`);
-    const result = run('bun', args, { cwd: PRODUCT_DIR, env, inherit: true });
-    if (result.code !== 0) throw new Error(`${label} failed`);
-  };
-  removeTree(join(PRODUCT_DIR, 'dist'));
-  step('web client: build environment gate', [
-    'run',
-    'verify:live-env',
-    '--',
-    `--expected-origin=${origin}`,
-  ]);
-  step('web client: Vite build', ['run', 'build']);
-  const dist = join(PRODUCT_DIR, 'dist');
+  removeTree(HARNESS_DIST);
+  say('▸ harness: Vite build');
+  const built = run('bun', ['run', 'build'], {
+    cwd: HARNESS_DIR,
+    env,
+    inherit: true,
+  });
+  if (built.code !== 0) throw new Error('harness: Vite build failed');
   const manifest: PreviewManifest = {
     preview: previewNameOfPr(pr),
     commit: commit.sha,
   };
   writeFileSync(
-    join(dist, PREVIEW_MANIFEST_PATH.slice(1)),
+    join(HARNESS_DIST, PREVIEW_MANIFEST_PATH.slice(1)),
     `${JSON.stringify(manifest)}\n`,
     'utf8'
   );
-  // A Preview has no single-page fallback (Cloudflare applies none to an
-  // assets-only Preview), so the one route it serves is a file of its own.
-  copyFileSync(
-    join(dist, 'index.html'),
-    join(dist, `${PREVIEW_HARNESS_PATH.slice(1)}.html`)
-  );
-  const files = readdirSync(dist, { recursive: true, withFileTypes: true })
+  const files = readdirSync(HARNESS_DIST, {
+    recursive: true,
+    withFileTypes: true,
+  })
     .filter((entry) => entry.isFile())
     .map((entry) =>
       join(entry.parentPath, entry.name)
-        .slice(dist.length + 1)
+        .slice(HARNESS_DIST.length + 1)
         .replaceAll('\\', '/')
     );
-  writeFileSync(join(dist, '_headers'), distHeadersFile(files), 'utf8');
-  step('web client: built API origin gate', [
-    'run',
-    'verify:live-dist',
-    '--',
-    `--expected-origin=${origin}`,
-  ]);
+  writeFileSync(join(HARNESS_DIST, '_headers'), distHeadersFile(files), 'utf8');
   await gate(pr, commit.sha);
 }
 
@@ -549,7 +532,7 @@ async function gate(pr: number, sha: string): Promise<void> {
   say('▸ gate: the built bundle passes the Preview checks before upload');
   const checks = await runPreviewChecks({
     origin: 'https://bundle.invalid',
-    fetch: bundleFetch(join(PRODUCT_DIR, 'dist')),
+    fetch: bundleFetch(HARNESS_DIST),
     previewName: previewNameOfPr(pr),
     commit: sha,
   });
@@ -670,7 +653,7 @@ async function deploy(pr: number, deploymentSha: string | null): Promise<void> {
     throw error;
   }
   deploymentStatus(deployment, 'success', {
-    url: `${origin}${PREVIEW_HARNESS_PATH}`,
+    url: origin,
     description: `${previewNameOfPr(pr)} serves ${sha.slice(0, 12)}`,
   });
   publishSection(pr, {
@@ -679,7 +662,7 @@ async function deploy(pr: number, deploymentSha: string | null): Promise<void> {
     deployedSha: sha,
     detail: null,
   });
-  say(`✓ ${origin}${PREVIEW_HARNESS_PATH} serves ${sha.slice(0, 12)}`);
+  say(`✓ ${origin} serves ${sha.slice(0, 12)}`);
 }
 
 /**

@@ -132,7 +132,7 @@ description = "Print the Preview URL recorded in the pull request description"
 run = "bun run preview:url"
 
 [tasks."preview:build"]
-description = "Build the harness-only web bundle for this pull request's Preview URL"
+description = "Build the harness bundle for this pull request's Preview URL"
 run = "bun run preview:build"
 
 [tasks."preview:deploy"]

@@ -2,8 +2,8 @@ import { describe, expect, test } from 'bun:test';
 import {
   measureSnapshotTreeBytes,
   toSnapshotInfo,
-} from '@apps/product-ts/product-harness-snapshot-prune';
-import { productHarnessSnapshotInfoSchema } from '@apps/product-ts/product-harness-snapshot-schema';
+} from '@apps/harness-ts/product-harness-snapshot-prune';
+import { productHarnessSnapshotInfoSchema } from '@apps/harness-ts/product-harness-snapshot-schema';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared-ts/impl-in-memory';
 
 describe('measureSnapshotTreeBytes', () => {

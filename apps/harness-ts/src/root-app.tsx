@@ -43,9 +43,6 @@ function ConsoleBody(props: {
         onPanePatch: (id, patch, mode = 'push') =>
           nav.patch({ pane: { id, patch } }, mode),
       }}
-      onExit={() => {
-        window.location.assign('/');
-      }}
     />
   );
 }

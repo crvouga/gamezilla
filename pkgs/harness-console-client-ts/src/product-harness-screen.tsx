@@ -32,10 +32,6 @@ import {
 import type { HarnessConsoleNav } from './debugger-chrome';
 import { harnessWindowPanel } from './harness-node-window';
 import { ProductHarnessAppearanceCommands } from './product-harness-appearance-commands';
-import {
-  ProductHarnessExitButton,
-  ProductHarnessExitCommand,
-} from './product-harness-exit';
 import { ProductHarnessSnapshotChrome } from './product-harness-snapshot-chrome';
 import { ProductHarnessTopologyChrome } from './product-harness-topology-chrome';
 import { type HarnessWindows, useHarnessWindows } from './use-harness-windows';
@@ -46,8 +42,6 @@ export function ProductHarnessScreen(props: {
   readonly nav: HarnessConsoleNav;
   /** Retry boot after an error (chunk load / harness init). */
   readonly onReload?: () => void;
-  /** Leave the harness for the product app. */
-  readonly onExit: () => void;
 }) {
   const readyState = () =>
     props.state.status === 'ready' ? props.state : null;
@@ -76,7 +70,6 @@ export function ProductHarnessScreen(props: {
               <ReadyProductHarnessScreen
                 session={state().session}
                 nav={props.nav}
-                onExit={props.onExit}
               />
             </SurfaceStackProvider>
           </OverlayPortalProvider>
@@ -166,7 +159,6 @@ function HarnessLayoutCommands(props: {
 function ReadyProductHarnessScreen(props: {
   readonly session: ProductHarnessSession;
   readonly nav: HarnessConsoleNav;
-  readonly onExit: () => void;
 }) {
   const theme = useTheme();
   const windows = useHarnessWindows(
@@ -201,7 +193,6 @@ function ReadyProductHarnessScreen(props: {
   return (
     <CommandRegistryProvider enableDefaultShortcuts={!clientOwnsKeyboard()}>
       <ProductHarnessAppearanceCommands />
-      <ProductHarnessExitCommand onExit={props.onExit} />
       <HarnessLayoutCommands actions={actions} />
       <ProductHarnessPaletteRegistrations commands={paletteCommands()} />
       <Surface tone="background" grow overflow="hidden">
@@ -217,7 +208,6 @@ function ReadyProductHarnessScreen(props: {
           >
             <ProductHarnessTopologyChrome session={props.session} />
             <ProductHarnessSnapshotChrome session={props.session} />
-            <ProductHarnessExitButton onExit={props.onExit} />
           </Toolbar>
         </Pane>
         <Pane tone="background" onActivate={() => setControlsActive(false)}>

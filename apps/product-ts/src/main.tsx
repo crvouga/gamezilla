@@ -1,19 +1,8 @@
-// @io-wall-ok — browser composition root (super-app: App at `/`, Harness at `/harness`)
+// @io-wall-ok — browser composition root
 /**
- * Path-gated boot: `/harness` mounts the Harness screen; every other path
- * mounts the real wall
- * client (`wallClientEnv` + production/synced config). They are flat
- * siblings — the app and the harness reach each other through their command
- * palettes (`Open Harness` / `Exit harness`). Popstate remounts when
- * crossing a boundary (no nested routers). `?harness` on any other path
- * hands off to `/harness` before boot, so a launcher that can only open the
- * site root still lands in the harness. A bundle built with
- * `VITE_HARNESS_ONLY=1` (a pull request's Preview, which has no servers
- * behind it) hands every path off the same way.
- *
- * The application graph is imported eagerly. The harness is not application
- * code: its graph (in-browser servers, Postgres, the console) loads only when
- * the page opens on `/harness`, so opening the app never pays for it.
+ * Web entry: builds the wall `ClientEnv` from browser APIs, creates the
+ * client and mounts `client.App`. The harness is not part of the
+ * application: it is a site of its own (`apps/harness-ts`).
  */
 
 import { bootBrowserObservability } from '@libs/app-root-client-ts/boot-browser-observability';
@@ -30,35 +19,13 @@ import '@pkgs/tailwind-shared-ts/tailwind.css';
 import '@pkgs/ui-root-client-ts/fonts';
 import '@pkgs/ui-root-client-ts/tokens.css';
 import '@pkgs/ui-root-client-ts/hosts.css';
-import { createSignal, type JSX, Match, onCleanup, Switch } from 'solid-js';
+import { type JSX, onCleanup } from 'solid-js';
 import { render } from 'solid-js/web';
-import { HARNESS_PATH } from './console-nav-real';
 import './polyfill-entry';
 import './styles.css';
 
 const root = document.getElementById('root');
 assert.ok(root !== null, 'root element is missing');
-
-const HARNESS_FLAG = 'harness';
-/** Set by a build that is served with nothing behind it but its own files. */
-const HARNESS_ONLY = import.meta.env.VITE_HARNESS_ONLY === '1';
-
-function isHarnessPath(pathname: string): boolean {
-  return pathname === HARNESS_PATH || pathname.startsWith(`${HARNESS_PATH}/`);
-}
-
-/**
- * Navigates to `/harness` for `?harness`, or for any path of a harness-only
- * bundle; `true` means boot is handed off.
- */
-function redirectedToHarness(): boolean {
-  const { pathname, search } = window.location;
-  if (isHarnessPath(pathname)) return false;
-  if (!HARNESS_ONLY && !new URLSearchParams(search).has(HARNESS_FLAG))
-    return false;
-  window.location.replace(HARNESS_PATH);
-  return true;
-}
 
 function AppBoot(): JSX.Element {
   const offline = wallOfflineNetworkController();
@@ -90,54 +57,5 @@ function AppBoot(): JSX.Element {
   return <client.App />;
 }
 
-type Surface = 'app' | 'harness';
-
-function surfaceAt(pathname: string): Surface {
-  if (isHarnessPath(pathname)) return 'harness';
-  return 'app';
-}
-
-/**
- * The harness graph, when the page opened on it. Awaited before first render
- * so `root.ts`'s startup boundary owns the load: the `index.html` spinner
- * holds, and a failed import recovers or reports like the application's.
- */
-const HarnessBoot = isHarnessPath(window.location.pathname)
-  ? (await import('./harness-boot')).HarnessBoot
-  : null;
-
-function HarnessSurface(): JSX.Element {
-  const Harness = HarnessBoot;
-  assert.ok(Harness !== null, 'the harness graph is not loaded');
-  return <Harness />;
-}
-
-function Boot(): JSX.Element {
-  const [surface, setSurface] = createSignal(
-    surfaceAt(window.location.pathname)
-  );
-  const onPopState = (): void => {
-    const next = surfaceAt(window.location.pathname);
-    // History crossed into the harness from an application boot: its graph
-    // is not loaded, so open it as the document it is.
-    if (next === 'harness' && HarnessBoot === null) {
-      window.location.reload();
-      return;
-    }
-    setSurface(next);
-  };
-  window.addEventListener('popstate', onPopState);
-  onCleanup(() => window.removeEventListener('popstate', onPopState));
-  return (
-    <Switch fallback={<AppBoot />}>
-      <Match when={surface() === 'harness'}>
-        <HarnessSurface />
-      </Match>
-    </Switch>
-  );
-}
-
-if (!redirectedToHarness()) {
-  root.replaceChildren();
-  render(() => <Boot />, root);
-}
+root.replaceChildren();
+render(() => <AppBoot />, root);

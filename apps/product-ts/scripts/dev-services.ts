@@ -252,7 +252,7 @@ const DEV_SERVICES: { readonly [K in ServiceName]: Service<K> } = {
     return { value: { workers }, children, stop };
   },
 
-  /** The product web app (`/`, `/harness`, `/simulator`): Vite itself. */
+  /** The product web app (`/`, `/simulator`): Vite itself. */
   web: createWebStarter(startWeb),
 };
 

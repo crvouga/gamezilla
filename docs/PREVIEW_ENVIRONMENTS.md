@@ -5,7 +5,7 @@ the whole system. Nothing runs on a server: a Preview is static files, and the
 system runs inside the visitor's browser tab.
 
 ```
-https://pr-<number>-<namespace>-preview.<account>.workers.dev/harness
+https://pr-<number>-<namespace>-preview.<account>.workers.dev
 ```
 
 ## What a Preview is
@@ -14,8 +14,8 @@ https://pr-<number>-<namespace>-preview.<account>.workers.dev/harness
   with one [Worker Preview](https://developers.cloudflare.com/workers/previews/)
   per pull request, named `pr-<number>`. There is no Worker script, no Durable
   Object, no database, no bucket, no binding and no secret.
-- **The system.** The web bundle (`apps/product-ts`) already contains the
-  harness at `/harness`: `bootProductHarnessSession` runs `APP_SYSTEM` with
+- **The system.** The harness (`apps/harness-ts`) is a site of its own, apart
+  from the application: `bootProductHarnessSession` runs `APP_SYSTEM` with
   `runtime: 'in-process'` — the API server fleet behind its load balancer,
   Postgres, rooms, pub/sub and several client actors — in the tab. Everything
   external is a mockingbird emulator from `libs/harness-ts`: identity provider,
@@ -30,12 +30,11 @@ https://pr-<number>-<namespace>-preview.<account>.workers.dev/harness
   resize with the dividers, and maximize or close windows. The same moves work
   from the keyboard and from each window's menu, and the arrangement is kept
   in the page address, so a link reopens the same layout.
-- **The build.** A Preview bundle is the product bundle built with
-  `VITE_HARNESS_ONLY=1`, which sends every path to `/harness` — the app at `/`
-  would have no API to talk to. `preview.json` in the bundle names the Preview
-  and the commit it was built from. Cloudflare applies no single-page fallback
-  to an assets-only Preview, so the build also writes `harness.html`: `/` and
-  `/harness` are the two routes a Preview serves, and anything else is a 404.
+- **The build.** A Preview bundle is the built `apps/harness-ts`.
+  `preview.json` in the bundle names the Preview and the commit it was built
+  from. The harness is the one page at `/` and keeps its state in the query
+  string, so it needs no single-page fallback (Cloudflare applies none to an
+  assets-only Preview): anything else is a 404.
 
 ## Commands
 
@@ -46,7 +45,7 @@ The pull request is `PREVIEW_PR=<number>`, or the one for the current branch.
 | --- | --- | --- |
 | `mise run preview:url` | Print the Preview URL from the pull request description | `gh` |
 | `mise run preview:test` | Check the deployed Preview over HTTP | `gh` |
-| `mise run preview:build` | Build the harness-only bundle and gate it | Cloudflare read, or `PREVIEW_URL` |
+| `mise run preview:build` | Build the harness bundle and gate it | Cloudflare read, or `PREVIEW_URL` |
 | `mise run preview:deploy` | Build, gate, upload, check | Cloudflare deploy credential |
 | `mise run preview:destroy` | Delete the Preview; verify it is gone | Cloudflare deploy credential |
 | `mise run preview:sweep` | Delete orphaned and expired Previews | Cloudflare deploy credential |
@@ -106,15 +105,15 @@ Cloudflare outage cannot block a merge.
 
 ## For agents
 
-1. `mise run preview:url` — the URL, from pull request metadata. Open
-   `<url>/harness`.
+1. `mise run preview:url` — the URL, from pull request metadata. Open it.
 2. Drive it with any browser automation: it is an ordinary public page, and a
    fresh browser context is a fresh system.
 3. `mise run preview:test` — confirms which commit is deployed and that it
    serves.
 
-No local dev server is involved. The same harness is what `bun dev` serves at
-`/harness`, so what an agent sees is what the pull request built.
+No local dev server is involved. The same harness is what
+`bun run dev:harness` serves, so what an agent sees is what the pull request
+built.
 
 ## State and reset
 

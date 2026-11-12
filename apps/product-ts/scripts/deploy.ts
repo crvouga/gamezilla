@@ -2,8 +2,7 @@
 // @io-wall-ok — deploy CLI entry.
 /**
  * Super-app deploy for the environment in `SECRETS_ENV`: Vite build of
- * `@apps/product-ts` (App at `/`, Harness at `/harness`) against that
- * environment's API, then one version with assets, API and rooms. Hostnames are bound by
+ * `@apps/product-ts` against that environment's API, then one version with assets, API and rooms. Hostnames are bound by
  * the OpenTofu edge stack afterwards; `health` checks they serve.
  */
 import { readdirSync, writeFileSync } from 'node:fs';

@@ -7,8 +7,8 @@ run-name: "Preview · ${{ github.event_name == 'pull_request' && format('pr #{0}
 
 # Every pull request gets the web bundle as its own Cloudflare Worker Preview
 # (`pr-<number>`): static files only, with the whole system — API servers,
-# Postgres, rooms, simulated vendors — running in the visitor's browser at
-# `/harness`. No Worker script, no Durable Object, no secret is deployed.
+# Postgres, rooms, simulated vendors — running in the visitor's browser
+# (`apps/harness-ts`). No Worker script, no Durable Object, no secret is deployed.
 # - opened, reopened, new commit: build, check the bundle, upload, check again.
 # - closed or merged: delete the Preview and confirm Cloudflare reports it gone.
 # - schedule: remove Previews whose pull request is closed or went quiet.
@@ -72,7 +72,7 @@ jobs:
       - name: Decide what this pull request's Preview needs
         id: plan
         run: bun run apps/preview-ts/scripts/preview.ts ci plan
-      - name: Build the harness-only bundle and check it
+      - name: Build the harness bundle and check it
         if: ${{ steps.plan.outputs.action == 'deploy' }}
         env:
           PREVIEW_PR: ${{ steps.plan.outputs.pr }}

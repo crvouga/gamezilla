@@ -1,0 +1,72 @@
+{
+  "name": "@apps/harness-ts",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite",
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p tsconfig.json",
+    "test": "bun test tests"
+  },
+  "dependencies": {
+    "@libs/app-root-client-ts": "workspace:*",
+    "@libs/app-root-shared-ts": "workspace:*",
+    "@libs/chess-puzzle-harness-ts": "workspace:*",
+    "@libs/harness-ts": "workspace:*",
+    "@libs/runtime-harness-ts": "workspace:*",
+    "@libs/sub-shared-ts": "workspace:*",
+    "@lingui/core": "catalog:",
+    "@lingui/solid": "catalog:",
+    "@pkgs/assert-crash-browser-client-ts": "workspace:*",
+    "@pkgs/assert-root-shared-ts": "workspace:*",
+    "@pkgs/clock-client-ts": "workspace:*",
+    "@pkgs/clock-shared-ts": "workspace:*",
+    "@pkgs/conformance-shared-ts": "workspace:*",
+    "@pkgs/harness-console-client-ts": "workspace:*",
+    "@pkgs/harness-console-shared-ts": "workspace:*",
+    "@pkgs/harness-root-shared-ts": "workspace:*",
+    "@pkgs/http-client-client-ts": "workspace:*",
+    "@pkgs/http-client-shared-ts": "workspace:*",
+    "@pkgs/logger-shared-ts": "workspace:*",
+    "@pkgs/object-store-opfs-client-ts": "workspace:*",
+    "@pkgs/object-store-root-shared-ts": "workspace:*",
+    "@pkgs/polyfill-shared-ts": "workspace:*",
+    "@pkgs/pubsub-root-shared-ts": "workspace:*",
+    "@pkgs/sync-engine-client-ts": "workspace:*",
+    "@pkgs/sync-engine-server-ts": "workspace:*",
+    "@pkgs/tailwind-shared-ts": "workspace:*",
+    "@pkgs/ui-devtools-shared-ts": "workspace:*",
+    "@pkgs/ui-root-client-ts": "workspace:*",
+    "@pkgs/uuid-client-ts": "workspace:*",
+    "@pkgs/uuid-shared-ts": "workspace:*",
+    "@solidjs/router": "catalog:",
+    "solid-js": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@libs/product-identity-shared-ts": "workspace:*",
+    "@lingui/babel-plugin-lingui-macro": "catalog:",
+    "@lingui/conf": "catalog:",
+    "@pkgs/sql-client-sqlite-web-server-ts": "workspace:*",
+    "@pkgs/ui-root-shared-ts": "workspace:*",
+    "@pkgs/vite-workspace-resolver-server-ts": "workspace:*",
+    "@tailwindcss/vite": "catalog:",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plugin-solid": "catalog:"
+  },
+  "category": "harness",
+  "gameRegistry": true,
+  "language": "typescript"
+}

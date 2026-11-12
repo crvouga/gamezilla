@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f1115" />
+  <script>
+    // The console keeps no stored theme: it follows the system, set before
+    // first paint so boot never flashes from one scheme to the other.
+    document.documentElement.setAttribute(
+      'data-theme',
+      matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    );
+  </script>
+  <style>
+    /* Boot paint, before any stylesheet or script: the design tokens'
+       values written out (`tests/startup-shell.test.ts` holds every color to
+       `design-tokens.json` and the indicator to `activityIndicatorSvg`). The
+       tokens take over once their stylesheet loads. */
+    html,
+    body,
+    #root {
+      min-height: 100%;
+      margin: 0;
+    }
+
+    html,
+    body {
+      background: var(--ui-color-background, #0f1115);
+      color: var(--ui-color-text, #e8eaef);
+      color-scheme: dark;
+    }
+
+    html[data-theme="light"],
+    html[data-theme="light"] body {
+      background: var(--ui-color-background, #f5f6f8);
+      color: var(--ui-color-text, #151821);
+      color-scheme: light;
+    }
+
+    /* Mirrors the in-app BootLoadingShell (LoadingState size="lg"), so boot
+       shows one loading state from first paint to ready. */
+    .startup-shell {
+      align-items: center;
+      display: flex;
+      flex-direction: column;
+      font: 400 14px/20px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      gap: 8px;
+      inset: 0;
+      justify-content: center;
+      position: fixed;
+    }
+
+    .activity-indicator {
+      animation: activity-step 1000ms steps(12, end) infinite;
+      color: var(--ui-color-text-secondary, #9ca4b3);
+    }
+
+    html[data-theme="light"] .activity-indicator {
+      color: var(--ui-color-text-secondary, #566072);
+    }
+
+    .startup-shell-failed {
+      gap: 12px;
+    }
+
+    .startup-shell-mark {
+      align-items: center;
+      background: var(--ui-color-destructive-surface, #f8717121);
+      border-radius: 9999px;
+      color: var(--ui-color-destructive, #f87171);
+      display: flex;
+      font-size: 20px;
+      font-weight: 700;
+      height: 48px;
+      justify-content: center;
+      width: 48px;
+    }
+
+    .startup-shell-guidance {
+      color: var(--ui-color-text-secondary, #9ca4b3);
+    }
+
+    .startup-shell-detail {
+      color: var(--ui-color-destructive, #f87171);
+      max-width: min(640px, calc(100vw - 32px));
+      overflow-wrap: anywhere;
+      text-align: center;
+    }
+
+    .startup-shell-reload {
+      background: var(--ui-color-tint-active, #5c61f2);
+      border: 0;
+      border-radius: 9999px;
+      color: var(--ui-color-on-primary, #ffffff);
+      cursor: pointer;
+      font: inherit;
+      font-weight: 600;
+      margin-top: 4px;
+      min-height: 44px;
+      padding: 0 16px;
+    }
+
+    html[data-theme="light"] .startup-shell-mark {
+      background: var(--ui-color-destructive-surface, #dc262617);
+      color: var(--ui-color-destructive, #c81e1e);
+    }
+
+    html[data-theme="light"] .startup-shell-guidance {
+      color: var(--ui-color-text-secondary, #566072);
+    }
+
+    html[data-theme="light"] .startup-shell-detail {
+      color: var(--ui-color-destructive, #c81e1e);
+    }
+
+    html[data-theme="light"] .startup-shell-reload {
+      background: var(--ui-color-tint-active, #4f46e5);
+      color: var(--ui-color-on-primary, #ffffff);
+    }
+
+    @keyframes activity-step {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .activity-indicator {
+        animation: none;
+      }
+    }
+  </style>
+  <title>%BRAND_NAME% harness</title>
+</head>
+
+<body>
+  <div id="root">
+    <div class="startup-shell" role="status" aria-label="Loading %BRAND_NAME% harness" data-startup-shell>
+      <svg class="activity-indicator" width="40" height="40" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true"><rect x="45.5" y="6" width="9" height="26" rx="4.5" transform="rotate(0 50 50)" opacity="1"/><rect x="45.5" y="6" width="9" height="26" rx="4.5" transform="rotate(330 50 50)" opacity="0.923"/><rect x="45.5" y="6" width="9" height="26" rx="4.5" transform="rotate(300 50 50)" opacity="0.845"/><rect x="45.5" y="6" width="9" height="26" rx="4.5" transform="rotate(270 50 50)" opacity="0.768"/><rect x="45.5" y="6" width="9" height="26" rx="4.5" transform="rotate(240 50 50)" opacity="0.691"/><rect x="45.5" y="6" width="9" height="26" rx="4.5" transform="rotate(210 50 50)" opacity="0.614"/><rect x="45.5" y="6" width="9" height="26" rx="4.5" transform="rotate(180 50 50)" opacity="0.536"/><rect x="45.5" y="6" width="9" height="26" rx="4.5" transform="rotate(150 50 50)" opacity="0.459"/><rect x="45.5" y="6" width="9" height="26" rx="4.5" transform="rotate(120 50 50)" opacity="0.382"/><rect x="45.5" y="6" width="9" height="26" rx="4.5" transform="rotate(90 50 50)" opacity="0.305"/><rect x="45.5" y="6" width="9" height="26" rx="4.5" transform="rotate(60 50 50)" opacity="0.227"/><rect x="45.5" y="6" width="9" height="26" rx="4.5" transform="rotate(30 50 50)" opacity="0.15"/></svg>
+    </div>
+  </div>
+  <script type="module" src="./src/main.tsx"></script>
+</body>
+
+</html>

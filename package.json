@@ -43,6 +43,7 @@
     "deploy:prd": "SECRETS_ENV=prd TURBO_UI=tui bun run deploy:local",
     "deps:graph": "turbo run //#task:deps:graph --",
     "dev": "bun run apps/product-ts/scripts/dev-run.ts",
+    "dev:harness": "bun run own -- turbo run @apps/harness-ts#dev --",
     "dev:client": "SECRETS_ENV=dev bun run own -- bun run libs/secrets-server-ts/scripts/secrets-run.ts -- turbo run @apps/client-ts#dev --",
     "fc": "turbo run //#task:fc --",
     "feedback": "turbo run //#task:feedback --",

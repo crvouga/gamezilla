@@ -102,7 +102,6 @@ export default defineConfig(({ mode }) => {
       target: 'es2022',
       outDir: resolve(consoleDir, 'dist'),
       emptyOutDir: true,
-      manifest: true,
       sourcemap: false,
       cssCodeSplit: true,
       assetsInlineLimit: 0,

@@ -75,16 +75,6 @@ describe('boot theme', () => {
     }
   });
 
-  test('the harness console follows the system', () => {
-    expect(
-      bootTheme('product-ts', {
-        stored: storedScheme('dark'),
-        systemDark: false,
-        pathname: '/harness',
-      })
-    ).toBe('light');
-  });
-
   test('reads the row the theme preference writes and paints both schemes', () => {
     const preference = source(
       'pkgs/ui-root-client-ts/src/theme-preference/index.tsx'
@@ -120,10 +110,7 @@ describe('development client startup', () => {
     const main = source('apps/product-ts/src/main.tsx');
     const icons = source('pkgs/ui-root-client-ts/src/icons.ts');
 
-    expect(main).not.toMatch(/from ['"]\.\/root-app['"]/);
-    expect(main).not.toMatch(/from ['"]\.\/wall-console-env['"]/);
-    expect(main).not.toMatch(/from ['"]\.\/harness-boot['"]/);
-    expect(main).toContain("import('./harness-boot')");
+    expect(main).not.toMatch(/['"][^'"\n]*harness[^'"\n]*['"]/);
     expect(icons).not.toMatch(/from ['"]lucide-solid['"]/);
     expect(icons).toContain("from 'lucide-solid/icons/activity'");
   });

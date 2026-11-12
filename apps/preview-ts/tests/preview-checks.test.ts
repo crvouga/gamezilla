@@ -26,7 +26,7 @@ function staticSite(files: Site, shell: string | null = SHELL): HttpFetch {
     const path = new URL(new Request(input).url).pathname;
     const file =
       files[path] ??
-      (path === '/harness' && shell !== null
+      (path === '/' && shell !== null
         ? (['text/html; charset=utf-8', shell] as const)
         : undefined);
     if (file === undefined)
@@ -83,8 +83,7 @@ test('a shell whose script is missing fails the bundle check', async () => {
   ]);
 });
 
-test('a Preview that does not serve the harness route fails', async () => {
-  // The first real upload served `/` and answered 404 for `/harness`.
+test('a Preview that does not serve the harness page fails', async () => {
   expect(await failing(staticSite(GOOD, null))).toEqual([
     'harness page',
     'bundle',

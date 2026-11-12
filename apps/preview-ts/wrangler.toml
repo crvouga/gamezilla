@@ -2,7 +2,7 @@
 # requests' environments (`wrangler preview --name pr-<number>`). A Preview is
 # the web bundle and nothing else — no Worker script, no Durable Objects, no
 # bindings, no secrets. The whole system (API fleet, Postgres, rooms, simulated
-# vendors) runs in the visitor's browser at `/harness`.
+# vendors) runs in the visitor's browser.
 #
 # `{namespace}` resolves from the product identity when the preview scripts
 # render this file. The base Worker itself serves nothing: only its Previews
@@ -15,8 +15,8 @@ preview_urls = true
 # A Preview adds nothing to the Worker above: no vars, no bindings.
 [previews]
 
-# `apps/product-ts` built with `VITE_HARNESS_ONLY=1`. No `not_found_handling`:
-# Cloudflare applies no single-page fallback to an assets-only Preview, so the
-# build writes `harness.html` and the Preview serves `/harness` as that file.
+# The built `apps/harness-ts`. No `not_found_handling`: the harness is the one
+# page at `/` and keeps its state in the query string, so nothing needs a
+# single-page fallback (Cloudflare applies none to an assets-only Preview).
 [assets]
-directory = "../product-ts/dist"
+directory = "../harness-ts/dist"

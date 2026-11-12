@@ -8,7 +8,8 @@ import type { HttpFetch } from '@pkgs/http-client-shared-ts/types';
 
 /** Written into the bundle by `preview build`; names what is being served. */
 export const PREVIEW_MANIFEST_PATH = '/preview.json';
-export const PREVIEW_HARNESS_PATH = '/harness';
+/** The harness is the whole site: it is the page at the root. */
+const HARNESS_PATH = '/';
 /** An application route with no file behind it. */
 const API_PROBE_PATH = '/api/health';
 
@@ -70,7 +71,7 @@ async function harnessCheck(probe: Probe): Promise<{
   readonly check: PreviewCheck;
   readonly scripts: readonly string[];
 }> {
-  const response = await probe.fetch(`${probe.origin}${PREVIEW_HARNESS_PATH}`);
+  const response = await probe.fetch(`${probe.origin}${HARNESS_PATH}`);
   const html = await response.text();
   const ok =
     response.status === 200 &&
@@ -81,8 +82,8 @@ async function harnessCheck(probe: Probe): Promise<{
       name: 'harness page',
       ok,
       detail: ok
-        ? `${PREVIEW_HARNESS_PATH} serves the application shell`
-        : `${PREVIEW_HARNESS_PATH} answered HTTP ${String(response.status)} ${response.headers.get('content-type') ?? ''}`,
+        ? `${HARNESS_PATH} serves the harness shell`
+        : `${HARNESS_PATH} answered HTTP ${String(response.status)} ${response.headers.get('content-type') ?? ''}`,
     },
     scripts: entryScripts(html),
   };

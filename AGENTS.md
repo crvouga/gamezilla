@@ -289,7 +289,7 @@ Setup and server startup are separate stages. Never copy credentials from anothe
   see [workspace isolation](libs/tools-harness-ts/workspace/DEVELOPMENT_ENVIRONMENTS.md#isolation-data-and-credentials).
 - **Pull request Previews.** Every pull request serves its own build at the URL
   in the `## Preview` section of its description (`mise run preview:url`): the
-  whole system running in the browser at `/harness`, no local servers. Prefer it
+  whole system running in the browser, no local servers. Prefer it
   for looking at a change; see [preview environments](docs/PREVIEW_ENVIRONMENTS.md).
 - **Iterating.** `bun fmt`, `bunx turbo run tc test --filter=<pkg>` (cached),
   then push: hosted Verify PR runs the full gate.
@@ -311,10 +311,13 @@ Setup and server startup are separate stages. Never copy credentials from anothe
 - **`bun run dev`** — the localhost stack: Mockingbird Postgres, Mockingbird S3, Aedes
   MQTT, simulated Google, Apple and Stripe, and N Bun API instances running
   the production Worker handler behind a load balancer, with the product web
-  app in front (`/`, `/harness`, `/simulator`). `bun run stack` is the same
+  app in front (`/`, `/simulator`). `bun run stack` is the same
   command. Each process is its own Turborepo task (`@apps/product-ts#dev:*`).
   Tasks, ports and flags: [`README.md`](README.md#laptop).
 - **`bun run dev:client`** — `@apps/client-ts` alone.
+- **`bun run dev:harness`** — `@apps/harness-ts`: the whole system running in
+  the browser tab, with a console over each node. It needs no stack and is
+  what a pull request's Preview serves.
 - **`bun run sims:open`** — pick project simulators and open Simulator.app.
 - **`bun db:migrate`** reconciles `DATABASE_URL` to the declared schemas;
   **`bun run db:wipe:dev`** wipes a non-production database.
