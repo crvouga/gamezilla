@@ -93,7 +93,8 @@ describe('application Worker dispatch', () => {
         S3_BUCKET,
         S3_REGION,
         S3_ENDPOINT: s3.endpoint,
-        FEEDBACK_GITHUB_TOKEN: 'secret-token',
+        GITHUB_ADMIN_TOKEN: 'secret-token',
+        DEPLOYMENT_ENVIRONMENT: 'dev',
         FEEDBACK_GITHUB_REPOSITORY: 'team/app',
         FEEDBACK_GITHUB_API_ORIGIN: gitHub.url,
         API_URL: 'https://api-dev.example.test',
@@ -148,6 +149,7 @@ describe('application Worker dispatch', () => {
       expect(issues[0]?.labels.map((label) => label.name).sort()).toEqual([
         'bug',
         'bug-report',
+        'env:dev',
       ]);
       const screenshot = /!\[Screenshot 1\]\(([^)]+)\)/.exec(
         issues[0]?.body ?? ''

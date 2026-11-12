@@ -64,9 +64,59 @@ export type CreatedIssue = {
   readonly location?: string;
 };
 
-/** Where a bug report becomes an issue for the team. */
-export type IssueReporter = {
-  create(report: BugReport): Promise<CreatedIssue>;
-  /** Settles only if an issue could be created right now; creates none. */
-  check?(): Promise<void>;
+/** A bug report already received: the device that sent it, and where the team finds it. */
+export type ReceivedBugReport = {
+  readonly reporterId: string;
+  readonly issue: CreatedIssue;
+};
+
+/** Bug reports received on one day: from one device, and from every device. */
+export type DailyBugReports = {
+  readonly fromDevice: number;
+  readonly total: number;
+};
+
+/**
+ * Where received bug reports are recorded and looked up, so the intake never
+ * knows where that is: the team's issue tracker, a folder in development, or
+ * a database. Every adapter keeps the same promises.
+ */
+export type BugReportRecords = {
+  /** The report received under this id, or null when none was. */
+  find(id: string): Promise<ReceivedBugReport | null>;
+  /** The reports received on a UTC day (`2026-03-02`). */
+  countOnDay(day: string, reporterId: string): Promise<DailyBugReports>;
+  /** Records the report once; asked only after {@link find} answered null. */
+  record(report: BugReport): Promise<CreatedIssue>;
+  /** Settles only if a report could be recorded right now; records none. */
+  check(): Promise<void>;
+};
+
+/** A file kept with a bug report: its full JSON, or one of its pictures. */
+export type BugReportAttachment = {
+  readonly contentType: string;
+  readonly body: ReadableStream<Uint8Array>;
+  readonly size: number;
+};
+
+/**
+ * Where a bug report's files are kept and served back by unlisted address
+ * (`report.json`, `screenshots/1`).
+ */
+export type BugReportAttachments = {
+  put(
+    id: string,
+    name: string,
+    bytes: Uint8Array,
+    contentType: string
+  ): Promise<void>;
+  get(id: string, name: string): Promise<BugReportAttachment | null>;
+  /** Settles only if files could be kept right now; keeps none. */
+  check(): Promise<void>;
+};
+
+/** Everything a received bug report needs: its record and its files. */
+export type BugReportStore = {
+  readonly records: BugReportRecords;
+  readonly attachments: BugReportAttachments;
 };
