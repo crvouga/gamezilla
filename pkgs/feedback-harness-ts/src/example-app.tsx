@@ -163,6 +163,12 @@ export function createExampleApp(session: Session) {
       forgetAccount();
     },
     reopen: () => boot(),
+    /** The app as it is on the screen, crashed or not: where Alice's fingers land. */
+    surface(): HTMLElement {
+      const main = nodes[1];
+      if (!main) throw new Error('The app is not open');
+      return main;
+    },
     /** The draft this device holds, as bug reporting itself keeps it. */
     draft: () => new BugReportStorage(device, () => '').loadDraft(),
     /** Alice picks up another device of hers: nothing of the first one is on it. */

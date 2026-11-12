@@ -15,6 +15,7 @@ import {
 import { createBugReportSender } from './sender';
 import { ShakeControl } from './shake';
 import { BugReportStorage } from './storage';
+import { installThreeFingerPress } from './three-finger-press';
 
 export type MountBugReportsOptions = {
   readonly window: Window;
@@ -49,8 +50,9 @@ function shortcut(open: () => void): (event: Event) => void {
 
 /**
  * Starts bug reporting: debug info is kept from here on, and the bug report
- * opens on request, on a shake, or on Ctrl/Cmd+Shift+B. Mount it before the
- * app starts, so a bug in starting the app can itself be reported.
+ * opens on request, on a shake, on a three-finger press anywhere on
+ * `document`, or on Ctrl/Cmd+Shift+B. Mount it before the app starts, so a
+ * bug in starting the app can itself be reported.
  */
 export function mountBugReports(options: MountBugReportsOptions) {
   const { window, document, clock, timers } = options;
@@ -81,6 +83,7 @@ export function mountBugReports(options: MountBugReportsOptions) {
   const cleanups = [
     () => document.removeEventListener(BUG_REPORT_REQUEST_EVENT, open),
     () => document.removeEventListener('keydown', onShortcut),
+    installThreeFingerPress({ target: document, timers, onPress: open }),
     installDebugRecording({
       window,
       document,

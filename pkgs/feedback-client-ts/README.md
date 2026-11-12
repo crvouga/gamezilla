@@ -19,11 +19,13 @@ domain model:
 
 `bootBrowserBugReports` (`wall.ts`) installs bug reporting before the
 application starts, so a report can be sent from an app that crashed or never
-signed in. It mounts one surface in its own island and answers three ways of
+signed in. It mounts one surface in its own island and answers four ways of
 asking for it:
 
 - `requestBugReport()`, which the host calls from its own "Report a bug" option;
 - Ctrl/Cmd+Shift+B, registered through `bugReportCommand`;
+- a three-finger press: three fingers held still on the app for one second
+  (`three-finger-press.ts`), with no setting and nothing to allow;
 - shaking the device, on by default where the device allows it without asking.
   Where the device asks first (iPhone), the person turns on "Shake to report a
   bug" once; `bugReportsOf(document).shake` is the setting the host renders.

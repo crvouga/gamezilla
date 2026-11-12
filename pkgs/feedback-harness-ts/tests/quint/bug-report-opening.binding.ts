@@ -26,6 +26,7 @@ import {
   removeScreenshot,
   reopenApp,
   shakePhone,
+  threeFingerPress,
   turnOffShakeToReport,
   turnOnShakeToReport,
   waitMinutes,
@@ -52,6 +53,7 @@ bindQuintModel<World>({
       await w.apply(waitMinutes, 1);
       await w.apply(shakePhone);
     },
+    threeFingerPress: (w) => w.apply(threeFingerPress),
     closeBugReport: (w) => w.apply(closeBugReport),
     describeBug: (w) => w.apply(describeBug, 'The board froze after a move'),
     addPicture: (w, picks) =>

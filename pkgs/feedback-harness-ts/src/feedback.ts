@@ -19,6 +19,9 @@ import {
   screen,
 } from './example-person';
 
+const SECOND_MS = 1000;
+/** A hold that ends just short of a second. */
+const SHORT_HOLD_MS = 900;
 const MINUTE_MS = 60_000;
 const DAY_MS = 24 * 60 * MINUTE_MS;
 
@@ -121,6 +124,23 @@ export const shakePhone = defineAction({
     await world.app.phone.shake();
     await world.app.settle();
   },
+});
+/** Three fingers held still on the app for one second. */
+export const threeFingerPress = defineAction({
+  name: 'threeFingerPress',
+  act: (world: World) => world.alice.holdFingers(3, SECOND_MS),
+});
+/** This many fingers held still on the app for one second. */
+export const holdFingersStill = defineAction({
+  name: 'holdFingersStill',
+  act: (world: World, fingers: number) =>
+    world.alice.holdFingers(fingers, SECOND_MS),
+});
+/** This many fingers rested on the app and lifted before one second has passed. */
+export const liftFingersEarly = defineAction({
+  name: 'liftFingersEarly',
+  act: (world: World, fingers: number) =>
+    world.alice.holdFingers(fingers, SHORT_HOLD_MS),
 });
 export const turnOffShakeToReport = defineAction({
   name: 'turnOffShakeToReport',
@@ -355,6 +375,9 @@ export const feedbackReportingSystem = defineSystem<World>({
     sendBugReports,
     passDay,
     shakePhone,
+    threeFingerPress,
+    holdFingersStill,
+    liftFingersEarly,
     turnOffShakeToReport,
     turnOnShakeToReport,
     allowShakeToReport,
