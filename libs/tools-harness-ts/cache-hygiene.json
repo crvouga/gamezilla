@@ -26,7 +26,7 @@
     "@libs/game-matchmaking-shared-ts": 63,
     "@libs/game-puzzle-shared-ts": 61,
     "@libs/game-session-shared-ts": 56,
-    "@libs/infra-shared-ts": 51,
+    "@libs/infra-shared-ts": 50,
     "@libs/moderation-client-ts": 66,
     "@libs/moderation-shared-ts": 113,
     "@libs/notifications-shared-ts": 70,
@@ -154,6 +154,10 @@
         "files": 71,
         "reason": "predates the cache-hygiene gate; `bun run cache:explain` lists the files that reach few packages, which are the split"
       },
+      "@libs/infra-shared-ts": {
+        "files": 62,
+        "reason": "its size predates the cache-hygiene gate; it reached the hub threshold (50) when the harness became a package of its own (apps/harness-ts), through @libs/secrets-shared-ts. The infra-* files that reach one package are the split (`bun run cache:explain @libs/infra-shared-ts`)"
+      },
       "@libs/permissions-shared-ts": {
         "files": 38,
         "reason": "predates the cache-hygiene gate; it crossed the 100-package line when the User Observatory added its own server, client and harness packages, all of which decide access through it. `bun run cache:explain` lists the files that reach few packages, which are the split"
@@ -179,6 +183,10 @@
       "@libs/app-root-shared-ts": {
         "light": 13,
         "reason": "predates the cache-hygiene gate; the files that reach few packages are the split (`bun run cache:explain`)"
+      },
+      "@libs/infra-shared-ts": {
+        "light": 58,
+        "reason": "its size predates the cache-hygiene gate; it reached the hub threshold (50) when the harness became a package of its own (apps/harness-ts), through @libs/secrets-shared-ts. The infra-* files that reach one package are the split (`bun run cache:explain @libs/infra-shared-ts`)"
       },
       "@libs/observability-shared-ts": {
         "light": 17,
@@ -284,11 +292,6 @@
       "reason": "lints every file outside the packages"
     }
   },
-  "globalDependencies": [
-    "tsconfig.base.json",
-    "mise.toml"
-  ],
-  "globalEnv": [
-    "VERIFY_TIME_LIMITS"
-  ]
+  "globalDependencies": ["tsconfig.base.json", "mise.toml"],
+  "globalEnv": ["VERIFY_TIME_LIMITS"]
 }

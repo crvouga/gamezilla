@@ -34,10 +34,6 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { join } from 'node:path';
-import {
-  renderStorybookWranglerConfig,
-  type WranglerConfig,
-} from '@libs/infra-shared-ts/wrangler';
 import { resolveIdentityPlaceholders } from '@libs/product-identity-shared-ts/identity-placeholders';
 import { wallClock, wallTimers } from '@pkgs/clock-shared-ts/wall';
 import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
@@ -131,14 +127,39 @@ const HARNESS: Site = {
   deploysMain: true,
 };
 
+/**
+ * The Storybook site's Worker and hostname, as the release deploys them
+ * (`renderStorybookWranglerConfig`): named in `global.tfvars.json`, with
+ * Previews enabled on the hostname. Read from the file rather than through
+ * `@libs/infra-shared-ts`, which every edit would otherwise rebuild this for.
+ */
+function storybookConfig(): Wrangler {
+  const global = resolveIdentityPlaceholders(
+    JSON.parse(
+      readFileSync(
+        join(REPO_ROOT, 'libs/infra-shared-ts/tofu/global.tfvars.json'),
+        'utf8'
+      )
+    ) as { storybook: { worker: string; hostname: string } }
+  );
+  return {
+    ...resolveIdentityPlaceholders(
+      tomlOf(join(REPO_ROOT, 'apps/storybook-ts/wrangler.toml'))
+    ),
+    name: global.storybook.worker,
+    routes: [
+      {
+        pattern: global.storybook.hostname,
+        custom_domain: true,
+        previews_enabled: true,
+      },
+    ],
+  };
+}
+
 const STORYBOOK: Site = {
   key: 'storybook',
-  config: () =>
-    renderStorybookWranglerConfig(
-      tomlOf(
-        join(REPO_ROOT, 'apps/storybook-ts/wrangler.toml')
-      ) as WranglerConfig
-    ),
+  config: storybookConfig,
   dist: STORYBOOK_DIST,
   checks: runStorybookChecks,
   deploysMain: false,
