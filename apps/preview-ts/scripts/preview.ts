@@ -612,16 +612,27 @@ async function sleep(ms: number): Promise<void> {
   });
 }
 
+/** Answers in a row that must name the commit before it counts as served. */
+const SETTLED_ANSWERS = 3;
+
+/**
+ * Whether `origin` has settled on `sha`. Cloudflare's edge moves to a new
+ * upload machine by machine, so for a moment after the first answer naming
+ * it, another request can still be answered with the one before; only
+ * several answers in a row say the checks will read what was uploaded.
+ */
 async function serving(
   origin: string,
   sha: string,
   withinMs = 120_000
 ): Promise<boolean> {
   const deadline = wallClock.now() + withinMs;
+  let settled = 0;
   while (wallClock.now() < deadline) {
     // DNS and the edge take a moment after a first upload.
-    if ((await deployedCommit(origin)) === sha) return true;
-    await sleep(3000);
+    settled = (await deployedCommit(origin)) === sha ? settled + 1 : 0;
+    if (settled >= SETTLED_ANSWERS) return true;
+    await sleep(settled === 0 ? 3000 : 1000);
   }
   return false;
 }
