@@ -4,6 +4,15 @@ import worker, {
   RoomServerDurableObject,
   RoomStorageArchive,
 } from '@apps/product-ts/worker';
+import { createServer as createGitHubServer } from '@crvouga/mockingbird-service-github/server';
+
+import {
+  S3_ACCESS_KEY_ID,
+  S3_BUCKET,
+  S3_REGION,
+  S3_SECRET_ACCESS_KEY,
+  startS3Server,
+} from '@pkgs/s3-server-ts/s3-server';
 
 const context = {
   waitUntil: (_promise: Promise<unknown>) => undefined,
@@ -63,6 +72,97 @@ describe('application Worker dispatch', () => {
       error: 'Bug reports cannot be received right now',
       reason: 'storage is unavailable',
     });
+  });
+
+  test('a bug report sent to the Worker is a labelled GitHub issue with its screenshot kept', async () => {
+    const gitHub = await createGitHubServer();
+    const s3 = await startS3Server();
+    try {
+      await fetch(`${gitHub.url}/__admin/github/repositories`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ owner: 'team', name: 'app' }),
+      });
+      const env: AppWorkerEnv = {
+        ASSETS: {
+          fetch: async () => {
+            throw new Error('API request reached the SPA');
+          },
+        },
+        S3_ACCESS_KEY_ID,
+        S3_SECRET_ACCESS_KEY,
+        S3_BUCKET,
+        S3_REGION,
+        S3_ENDPOINT: s3.endpoint,
+        FEEDBACK_GITHUB_TOKEN: 'secret-token',
+        FEEDBACK_GITHUB_REPOSITORY: 'team/app',
+        FEEDBACK_GITHUB_API_ORIGIN: gitHub.url,
+        API_URL: 'https://api-dev.example.test',
+        WEB_CLIENT_ORIGIN: 'https://www-dev.example.test',
+      };
+      const origin = 'https://api-dev.example.test';
+      const app = 'https://www-dev.example.test';
+      const ask = (path: string, init?: RequestInit) =>
+        worker.fetch(
+          new Request(`${origin}/api/bug-reports${path}`, init),
+          env,
+          context
+        );
+      const health = await ask('/health');
+      expect(await health.json()).toEqual({ receiving: true });
+
+      const png = new Uint8Array([
+        0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
+      ]);
+      const form = new FormData();
+      form.set(
+        'report',
+        JSON.stringify({
+          schema: 'bug-report/v1',
+          id: '11111111-1111-4111-8111-000000000001',
+          reporterId: '22222222-2222-4222-8222-222222222222',
+          description: 'The board froze',
+          createdAt: '2026-03-02T10:00:00.000Z',
+          debugInfo: { events: [], details: [] },
+        })
+      );
+      form.append('screenshot', new Blob([png], { type: 'image/png' }), 'shot');
+      const send = (from: string) =>
+        ask('', { method: 'POST', body: form, headers: { Origin: from } });
+      expect((await send('https://elsewhere.example.test')).status).toBe(403);
+      const sent = await send(app);
+      expect(sent.status).toBe(201);
+      expect(sent.headers.get('Access-Control-Allow-Origin')).toBe(app);
+
+      const listed = await fetch(
+        `${gitHub.url}/repos/team/app/issues?labels=bug-report&state=open`,
+        { headers: { Authorization: 'Bearer secret-token' } }
+      );
+      const issues = (await listed.json()) as {
+        title: string;
+        body: string;
+        labels: { name: string }[];
+      }[];
+      expect(issues.map((issue) => issue.title)).toEqual([
+        'Bug report: The board froze',
+      ]);
+      expect(issues[0]?.labels.map((label) => label.name).sort()).toEqual([
+        'bug',
+        'bug-report',
+      ]);
+      const screenshot = /!\[Screenshot 1\]\(([^)]+)\)/.exec(
+        issues[0]?.body ?? ''
+      );
+      const read = await worker.fetch(
+        new Request(screenshot?.[1] ?? ''),
+        env,
+        context
+      );
+      expect(new Uint8Array(await read.arrayBuffer())).toEqual(png);
+    } finally {
+      await gitHub.close();
+      await s3.stop();
+    }
   });
 
   // regression: room-server-stale-game-registry-export

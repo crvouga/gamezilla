@@ -291,11 +291,6 @@ export const HOST_LIMITS: readonly HostLimit[] = [
     why: "it checks the deployed environment's database and settings through its secret store",
   },
   {
-    feature: 'specs/feedback/receiving-bug-reports.feature',
-    needs: 'deployment',
-    why: "it asks the deployed environment's bug report intake, which the localhost stack replaces with an archive",
-  },
-  {
     feature: 'specs/runtime/stored-files.feature',
     needs: 'deployment',
     why: "it reads the deployed environment's bucket from its secret store",

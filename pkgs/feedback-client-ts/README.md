@@ -45,7 +45,7 @@ app. Sending the same report twice creates one issue.
 
 ## On the server
 
-`createBugReportHttpApp({ reporter, store, clock, allowedOrigin })` serves
+`createBugReportHttpApp({ reporter, store, clock, allowedOrigins })` serves
 `POST /api/bug-reports` and the archived reports under
 `/api/bug-reports/reports/`. Intake (`bug-report-intake.ts`) refuses anything
 that is not a description with at most four pictures of at most 5 MB each,

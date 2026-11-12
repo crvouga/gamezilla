@@ -82,6 +82,7 @@
   "dependencies": {
     "@apps/server-ts": "workspace:*",
     "@crvouga/atlas": "catalog:",
+    "@crvouga/mockingbird-service-github": "catalog:",
     "@crvouga/mockingbird-service-oauth": "catalog:",
     "@crvouga/mockingbird-service-openai": "catalog:",
     "@crvouga/mockingbird-service-stripe": "catalog:",

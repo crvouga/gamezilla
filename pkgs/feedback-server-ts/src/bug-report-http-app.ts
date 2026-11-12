@@ -17,7 +17,8 @@ type Options = {
   readonly reporter: IssueReporter;
   readonly store: ObjectStore;
   readonly clock: Clock;
-  readonly allowedOrigin: string;
+  /** Every address the app itself is served from; no other page may send. */
+  readonly allowedOrigins: readonly string[];
   readonly basePath?: string;
   readonly onFailure?: (error: unknown) => void;
 };
@@ -68,6 +69,18 @@ async function readArchive(
   });
 }
 
+/** Whether the page asking is the app, and the one address the answer is for. */
+function admit(
+  origin: string | null,
+  allowedOrigins: readonly string[]
+): { readonly allowed: boolean; readonly answerTo: string } {
+  const fallback = allowedOrigins[0] ?? 'null';
+  if (origin === null) return { allowed: true, answerTo: fallback };
+  return allowedOrigins.includes(origin)
+    ? { allowed: true, answerTo: origin }
+    : { allowed: false, answerTo: fallback };
+}
+
 /** Whether a bug report sent now would become an issue, without sending one. */
 async function health(
   options: Options,
@@ -106,10 +119,14 @@ export function createBugReportHttpApp(options: Options) {
   };
   return async (request: Request): Promise<Response> => {
     const url = new URL(request.url);
+    const { allowed, answerTo } = admit(
+      request.headers.get('Origin'),
+      options.allowedOrigins
+    );
     const headers = {
       'Cache-Control': 'no-store',
       'X-Content-Type-Options': 'nosniff',
-      'Access-Control-Allow-Origin': options.allowedOrigin,
+      'Access-Control-Allow-Origin': answerTo,
       Vary: 'Origin',
       'Access-Control-Allow-Methods': 'POST, OPTIONS',
     };
@@ -124,8 +141,7 @@ export function createBugReportHttpApp(options: Options) {
         : Response.json({ error: 'Use GET' }, { status: 405, headers });
     if (url.pathname !== basePath)
       return Response.json({ error: 'Not found' }, { status: 404, headers });
-    const origin = request.headers.get('Origin');
-    if (origin !== null && origin !== options.allowedOrigin)
+    if (!allowed)
       return Response.json(
         { error: 'Origin refused' },
         { status: 403, headers }

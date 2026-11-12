@@ -69,7 +69,7 @@ async function dispatch(
     reporter: localIssueReporter,
     store,
     clock: wallClock,
-    allowedOrigin: origin,
+    allowedOrigins: [origin],
   })(request);
   res.statusCode = response.status;
   response.headers.forEach((value, name) => res.setHeader(name, value));

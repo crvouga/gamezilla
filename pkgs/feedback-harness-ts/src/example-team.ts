@@ -1,3 +1,4 @@
+import { createRuntime } from '@crvouga/mockingbird-service-github';
 import type { Clock } from '@pkgs/clock-shared-ts/types';
 import { createBugReportHttpApp } from '@pkgs/feedback-server-ts/bug-report-http-app';
 import { GitHubIssueReporter } from '@pkgs/feedback-server-ts/github-issue-reporter';
@@ -7,44 +8,75 @@ import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared-ts/impl-
 
 export const EXAMPLE_ORIGIN = 'http://local';
 
-/** A bug report on the team's list of work: what was sent, and the issue as written. */
+const GITHUB = 'http://github.mock';
+const REPOSITORY = 'team/app';
+const OUTAGE = 'example-team-not-receiving';
+
+/** A bug report on the team's list of work: what was sent, and the issue GitHub holds. */
 export type ReceivedBugReport = {
   readonly report: BugReport;
   readonly issue: string;
+  readonly labels: readonly string[];
 };
+
+/** Service time is the example's clock; the example moves it, never the service. */
+function serviceClock(clock: Clock) {
+  return {
+    now: () => clock.now(),
+    set: () => undefined,
+    advance: () => undefined,
+    freeze: () => undefined,
+    unfreeze: () => undefined,
+    reset: () => undefined,
+    state: () => ({ now: clock.now(), frozen: false, offsetMs: 0 }),
+  };
+}
 
 /**
  * The team's side, whole and in memory: the real intake and the real issue
- * writer, in front of a list of work that stands in for GitHub.
+ * writer, in front of a simulated GitHub that keeps the issues as GitHub does.
  */
 export function createExampleTeam(clock: Clock) {
   const received: ReceivedBugReport[] = [];
-  let issue = '';
-  let receiving = true;
+  const gitHub = createRuntime({ clock: serviceClock(clock), seed: 1 });
   const listOfWork: HttpClient = {
-    fetch(_input, init) {
-      if (!receiving)
-        return Promise.resolve(new Response('Unavailable', { status: 503 }));
-      const sent = typeof init?.body === 'string' ? init.body : '{}';
-      issue = (JSON.parse(sent) as { body?: string }).body ?? '';
-      const number = received.length + 1;
-      return Promise.resolve(
-        Response.json(
-          { number, html_url: `https://github.com/team/app/issues/${number}` },
-          { status: 201 }
-        )
-      );
-    },
+    fetch: (input, init) => gitHub.fetch(new Request(input, init)),
   };
+  const [owner, name] = REPOSITORY.split('/');
+  const repositoryMade = listOfWork.fetch(
+    `${GITHUB}/__admin/github/repositories`,
+    {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ owner, name }),
+    }
+  );
   const writer = new GitHubIssueReporter({
     http: listOfWork,
     token: 'example',
-    repository: 'team/app',
+    repository: REPOSITORY,
+    apiOrigin: GITHUB,
   });
+  /** The issue as anyone on the team would read it back from GitHub. */
+  async function readIssue(number: string) {
+    const response = await listOfWork.fetch(
+      `${GITHUB}/repos/${REPOSITORY}/issues/${number}`,
+      { headers: { Authorization: 'Bearer example' } }
+    );
+    const issue = (await response.json()) as {
+      body?: string | null;
+      labels?: readonly { name: string }[];
+    };
+    return {
+      issue: issue.body ?? '',
+      labels: (issue.labels ?? []).map((label) => label.name),
+    };
+  }
   const reporter: IssueReporter = {
     async create(report) {
+      await repositoryMade;
       const created = await writer.create(report);
-      received.push({ report, issue });
+      received.push({ report, ...(await readIssue(created.id)) });
       return created;
     },
   };
@@ -52,7 +84,7 @@ export function createExampleTeam(clock: Clock) {
     reporter,
     store: new ObjectStoreImplInMemory(),
     clock,
-    allowedOrigin: EXAMPLE_ORIGIN,
+    allowedOrigins: [EXAMPLE_ORIGIN],
   });
   const http: HttpClient = {
     fetch: (input, init) => server(new Request(input, init)),
@@ -61,7 +93,14 @@ export function createExampleTeam(clock: Clock) {
     http,
     received: (): readonly ReceivedBugReport[] => received,
     setReceiving(next: boolean): void {
-      receiving = next;
+      if (next) gitHub.faults.remove(OUTAGE);
+      else
+        gitHub.faults.add({
+          id: OUTAGE,
+          method: 'POST',
+          status: 503,
+          body: 'Unavailable',
+        });
     },
   };
 }

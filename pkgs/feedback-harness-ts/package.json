@@ -18,6 +18,7 @@
     "test:spec:0": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 0/1"
   },
   "dependencies": {
+    "@crvouga/mockingbird-service-github": "catalog:",
     "@pkgs/clock-shared-ts": "workspace:*",
     "@pkgs/feedback-client-ts": "workspace:*",
     "@pkgs/feedback-server-ts": "workspace:*",

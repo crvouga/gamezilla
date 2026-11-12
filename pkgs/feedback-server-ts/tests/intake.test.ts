@@ -34,7 +34,7 @@ function backend() {
     },
     store: new ObjectStoreImplInMemory(),
     clock,
-    allowedOrigin: ORIGIN,
+    allowedOrigins: [ORIGIN],
   });
   const send = (
     index: number,
@@ -234,7 +234,7 @@ test('the health address says whether a bug report sent now would become an issu
     reporter,
     store: new ObjectStoreImplInMemory(),
     clock: { now: () => 0 },
-    allowedOrigin: ORIGIN,
+    allowedOrigins: [ORIGIN],
   });
   const health = () => app(new Request(`${ORIGIN}${BUG_REPORT_PATH}/health`));
   expect(await (await health()).json()).toEqual({ receiving: true });

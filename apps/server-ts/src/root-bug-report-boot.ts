@@ -45,6 +45,26 @@ const agentNotes: Notes = (report) => {
 };
 
 /**
+ * Every address this environment serves the app from: the ones it declares,
+ * else the one its API address implies, and this address when the app and
+ * the API are served together.
+ */
+function appOrigins(env: ApiWorkerEnv, origin: string): readonly string[] {
+  const bindings = workerEnvToSecretRecord(env);
+  const declared = ['WEB_CLIENT_ORIGIN', 'WEB_CLIENT_APEX_ORIGIN']
+    .map((name) => bindings[name]?.trim() ?? '')
+    .filter((value) => value.length > 0);
+  return [
+    ...new Set([
+      ...(declared.length > 0
+        ? declared
+        : [resolveWebClientOrigin(env.API_URL?.trim() || origin)]),
+      origin,
+    ]),
+  ];
+}
+
+/**
  * Takes a bug report without starting the product, so a product that cannot
  * start can still be reported.
  */
@@ -83,19 +103,21 @@ export async function handleRootBugReport(
     ).withPrefix('bug-reports');
     const token = env.FEEDBACK_GITHUB_TOKEN?.trim();
     const repository = env.FEEDBACK_GITHUB_REPOSITORY?.trim();
+    const apiOrigin = env.FEEDBACK_GITHUB_API_ORIGIN?.trim();
     const origin = new URL(request.url).origin;
     if (!token || !repository) throw new NotConfigured();
     const github = new GitHubIssueReporter({
       token,
       repository,
       http,
+      ...(apiOrigin ? { apiOrigin } : {}),
       reportBaseUrl: `${origin}${BUG_REPORT_PATH}/reports`,
       notes: agentNotes,
     });
     return await createBugReportHttpApp({
       store,
       clock: wallClock,
-      allowedOrigin: resolveWebClientOrigin(env.API_URL?.trim() || origin),
+      allowedOrigins: appOrigins(env, origin),
       onFailure: (error) => console.error('bug report not received', error),
       reporter: {
         create: (report) => github.create(report),

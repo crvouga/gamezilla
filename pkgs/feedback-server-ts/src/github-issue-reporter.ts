@@ -9,6 +9,8 @@ import { type BugReportIssueOptions, bugReportIssue } from './issue-body';
 /** How the team and its agents find bug reports among the issues. */
 export const BUG_REPORT_LABELS: readonly string[] = ['bug', 'bug-report'];
 
+const GITHUB_API_ORIGIN = 'https://api.github.com';
+
 /** GitHub credentials and repository selection stay entirely on the backend. */
 export class GitHubIssueReporter implements IssueReporter {
   constructor(
@@ -16,6 +18,8 @@ export class GitHubIssueReporter implements IssueReporter {
       readonly http: HttpClient;
       readonly token: string;
       readonly repository: string;
+      /** GitHub itself unless a simulated GitHub is named. */
+      readonly apiOrigin?: string;
       /** Where the full report can be read back, without a trailing slash. */
       readonly reportBaseUrl?: string;
       readonly labels?: readonly string[];
@@ -26,11 +30,16 @@ export class GitHubIssueReporter implements IssueReporter {
       throw new Error('Invalid issue repository');
   }
 
+  private issuesUrl(): string {
+    const origin = this.options.apiOrigin ?? GITHUB_API_ORIGIN;
+    return `${origin}/repos/${this.options.repository}/issues`;
+  }
+
   private headers(): Record<string, string> {
     return {
       Accept: 'application/vnd.github+json',
       Authorization: `Bearer ${this.options.token}`,
-      'X-GitHub-Api-Version': '2022-11-28',
+      'X-GitHub-Api-Version': '2026-03-10',
       'User-Agent': 'bug-reports',
       'Content-Type': 'application/json',
     };
@@ -42,34 +51,36 @@ export class GitHubIssueReporter implements IssueReporter {
    * it has let the token write to the repository.
    */
   async check(): Promise<void> {
-    const response = await this.options.http.fetch(
-      `https://api.github.com/repos/${this.options.repository}/issues`,
-      { method: 'POST', headers: this.headers(), body: '{}' }
-    );
+    const response = await this.options.http.fetch(this.issuesUrl(), {
+      method: 'POST',
+      headers: this.headers(),
+      body: '{}',
+    });
+    // Only the status is the answer; the rest is let go so nothing is held.
+    await response.body?.cancel();
     if (response.status !== 422)
       throw new Error(`GitHub would not take an issue: ${response.status}`);
   }
 
   async create(report: BugReport): Promise<CreatedIssue> {
-    const response = await this.options.http.fetch(
-      `https://api.github.com/repos/${this.options.repository}/issues`,
-      {
-        method: 'POST',
-        headers: this.headers(),
-        body: JSON.stringify({
-          ...bugReportIssue(report, {
-            repository: this.options.repository,
-            ...(this.options.reportBaseUrl
-              ? { reportUrl: `${this.options.reportBaseUrl}/${report.id}` }
-              : {}),
-            ...(this.options.notes ? { notes: this.options.notes } : {}),
-          }),
-          labels: this.options.labels ?? BUG_REPORT_LABELS,
+    const response = await this.options.http.fetch(this.issuesUrl(), {
+      method: 'POST',
+      headers: this.headers(),
+      body: JSON.stringify({
+        ...bugReportIssue(report, {
+          repository: this.options.repository,
+          ...(this.options.reportBaseUrl
+            ? { reportUrl: `${this.options.reportBaseUrl}/${report.id}` }
+            : {}),
+          ...(this.options.notes ? { notes: this.options.notes } : {}),
         }),
-      }
-    );
-    if (!response.ok)
+        labels: this.options.labels ?? BUG_REPORT_LABELS,
+      }),
+    });
+    if (!response.ok) {
+      await response.body?.cancel();
       throw new Error(`GitHub refused the issue: ${response.status}`);
+    }
     const result = (await response.json()) as {
       number?: unknown;
       html_url?: unknown;

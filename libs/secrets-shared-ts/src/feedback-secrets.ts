@@ -7,7 +7,7 @@ function gitHubHeaders(token: string): Record<string, string> {
   return {
     Accept: 'application/vnd.github+json',
     Authorization: `Bearer ${token}`,
-    'X-GitHub-Api-Version': '2022-11-28',
+    'X-GitHub-Api-Version': '2026-03-10',
     'User-Agent': 'bug-reports',
     'Content-Type': 'application/json',
   };
@@ -26,6 +26,7 @@ export async function probeIssueWrite(
     `https://api.github.com/repos/${repository}/issues`,
     { method: 'POST', headers: gitHubHeaders(token), body: '{}' }
   );
+  await response.body?.cancel();
   if (response.status !== 422)
     throw new Error(
       `GitHub answered ${response.status} to ${repository}: the token needs Issues write access to that repository, which must take issues`
