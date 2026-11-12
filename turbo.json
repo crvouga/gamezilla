@@ -2393,6 +2393,11 @@
       "dependsOn": ["//#task:i18n:compile"],
       "passThroughEnv": ["*"]
     },
+    "//#task:preview:main": {
+      "cache": false,
+      "dependsOn": ["//#task:i18n:compile"],
+      "passThroughEnv": ["*"]
+    },
     "//#task:preview:test": {
       "cache": false,
       "passThroughEnv": ["*"]

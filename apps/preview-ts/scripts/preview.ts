@@ -10,6 +10,7 @@
  *   preview url                 the Preview URL, read from the pull request
  *   preview build               the harness bundle, built for that URL
  *   preview deploy              build, upload, check what is served
+ *   preview main                build and deploy this checkout as the main branch's
  *   preview test                check the deployed Preview over HTTP
  *   preview destroy             delete the Preview, verify it is gone
  *   preview sweep               delete Previews whose pull request is not open
@@ -54,6 +55,7 @@ import {
   runPreviewChecks,
 } from '../src/preview-checks';
 import {
+  decideMainAction,
   decidePreviewAction,
   PREVIEW_RETENTION_MS,
   type PreviewAction,
@@ -61,7 +63,9 @@ import {
   planSweep,
 } from '../src/preview-lifecycle';
 import {
+  customPreviewOrigin,
   isPreviewOriginOf,
+  MAIN_PREVIEW_NAME,
   previewNameOfPr,
   previewOrigin,
   prOfPreviewName,
@@ -315,6 +319,16 @@ function workerName(): string {
   return name;
 }
 
+/** The custom domain of `wrangler.toml` (`preview.<domain>`), when it has one. */
+function previewHost(): string | null {
+  const routes = committedConfig()['routes'];
+  if (!Array.isArray(routes)) return null;
+  for (const route of routes as readonly Wrangler[])
+    if (route['custom_domain'] === true && typeof route['pattern'] === 'string')
+      return route['pattern'];
+  return null;
+}
+
 type Account = {
   readonly accountId: string;
   readonly apiToken: string;
@@ -340,21 +354,54 @@ function account(): Account {
   };
 }
 
-/** The Preview URL, known before anything is built or uploaded. */
+/** Whether `origin` answers over HTTPS at all, whatever it answers. */
+async function answers(origin: string): Promise<boolean> {
+  try {
+    const response = await fetch(`${origin}${PREVIEW_MANIFEST_PATH}`);
+    await response.arrayBuffer();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+const origins = new Map<number, string>();
+
+/**
+ * The Preview URL, known before anything is built or uploaded: on the custom
+ * domain when that already answers for this Preview's name, and on
+ * workers.dev otherwise -- before the domain is attached, while its
+ * certificate is being issued, or if the account cannot serve it. A bundle
+ * is built for one origin, so the choice is made once per run.
+ */
 async function originOf(
   pr: number,
   cloudflare: Account | null
 ): Promise<string> {
   const given = envOf('PREVIEW_URL');
   if (given !== null) return new URL(given).origin;
+  const known = origins.get(pr);
+  if (known !== undefined) return known;
+  const origin = await chosenOrigin(pr, cloudflare);
+  origins.set(pr, origin);
+  return origin;
+}
+
+async function chosenOrigin(
+  pr: number,
+  cloudflare: Account | null
+): Promise<string> {
+  const previewName = previewNameOfPr(pr);
+  const host = previewHost();
+  if (host !== null) {
+    const custom = customPreviewOrigin({ previewName, host });
+    if (await answers(custom)) return custom;
+    say(`${custom} does not answer; using workers.dev`);
+  }
   const subdomain =
     envOf('PREVIEW_WORKERS_SUBDOMAIN') ??
     (await (cloudflare ?? account()).previews.subdomain());
-  return previewOrigin({
-    previewName: previewNameOfPr(pr),
-    workerName: workerName(),
-    subdomain,
-  });
+  return previewOrigin({ previewName, workerName: workerName(), subdomain });
 }
 
 function wrangler(
@@ -416,7 +463,7 @@ function headCommit(): { readonly sha: string; readonly date: string } {
  * origin so nothing in it names another deployment, and it carries no
  * secret: every value baked into it is public.
  */
-async function build(pr: number, origin: string): Promise<void> {
+async function build(previewName: string, origin: string): Promise<void> {
   const commit = headCommit();
   const env = {
     ...process.env,
@@ -437,7 +484,7 @@ async function build(pr: number, origin: string): Promise<void> {
   });
   if (built.code !== 0) throw new Error('harness: Vite build failed');
   const manifest: PreviewManifest = {
-    preview: previewNameOfPr(pr),
+    preview: previewName,
     commit: commit.sha,
   };
   writeFileSync(
@@ -456,7 +503,7 @@ async function build(pr: number, origin: string): Promise<void> {
         .replaceAll('\\', '/')
     );
   writeFileSync(join(HARNESS_DIST, '_headers'), distHeadersFile(files), 'utf8');
-  await gate(pr, commit.sha);
+  await gate(previewName, commit.sha);
 }
 
 async function sleep(ms: number): Promise<void> {
@@ -465,8 +512,12 @@ async function sleep(ms: number): Promise<void> {
   });
 }
 
-async function serving(origin: string, sha: string): Promise<boolean> {
-  const deadline = wallClock.now() + 120_000;
+async function serving(
+  origin: string,
+  sha: string,
+  withinMs = 120_000
+): Promise<boolean> {
+  const deadline = wallClock.now() + withinMs;
   while (wallClock.now() < deadline) {
     // DNS and the edge take a moment after a first upload.
     if ((await deployedCommit(origin)) === sha) return true;
@@ -528,12 +579,12 @@ function bundleFetch(dist: string): HttpFetch {
  * deployed Preview must. A commit that fails here is never uploaded, so the
  * Preview keeps serving its last working one.
  */
-async function gate(pr: number, sha: string): Promise<void> {
+async function gate(previewName: string, sha: string): Promise<void> {
   say('▸ gate: the built bundle passes the Preview checks before upload');
   const checks = await runPreviewChecks({
     origin: 'https://bundle.invalid',
     fetch: bundleFetch(HARNESS_DIST),
-    previewName: previewNameOfPr(pr),
+    previewName,
     commit: sha,
   });
   if (!printChecks(checks))
@@ -566,10 +617,11 @@ async function upload(
       '--json',
     ])
   );
+  // What proves the origin is the wait below; this only says so sooner.
   const urls = previewUrls(result.stdout);
   if (!urls.includes(origin))
-    throw new Error(
-      `Cloudflare serves the Preview at ${urls.join(', ') || 'no URL'}, but it was built for ${origin}`
+    say(
+      `! Cloudflare names ${urls.join(', ') || 'no URL'} for the Preview; it was built for ${origin}`
     );
   say(`▸ waiting for ${origin} to serve ${sha.slice(0, 12)}`);
   if (!(await serving(origin, sha)))
@@ -603,7 +655,7 @@ function previewUrls(stdout: string): readonly string[] {
  * Where the pull request's Preview is, for a command that only reads it: the
  * URL its description names (a laptop's identity can differ from the
  * deploy's), accepted only when it has the shape of this pull request's
- * Preview on workers.dev.
+ * Preview on the custom domain or on workers.dev.
  */
 function namedOrigin(pr: number): string {
   const named =
@@ -613,17 +665,78 @@ function namedOrigin(pr: number): string {
     URL.canParse(named) ? new URL(named).hostname : ''
   )?.[1];
   if (
-    subdomain === undefined ||
     !isPreviewOriginOf({
       origin: named,
       previewName: previewNameOfPr(pr),
-      subdomain,
+      subdomain: subdomain ?? '',
+      host: previewHost(),
     })
   )
-    fail(
-      `${named} is not a Preview URL of pull request #${String(pr)} on workers.dev`
-    );
+    fail(`${named} is not a Preview URL of pull request #${String(pr)}`);
   return new URL(named).origin;
+}
+
+/** How long a first deploy may wait for its DNS record and certificate. */
+const MAIN_READY_MS = 10 * 60 * 1000;
+
+function mainOrigin(): string {
+  const host = previewHost();
+  if (host === null) fail('wrangler.toml names no custom domain');
+  return `https://${host}`;
+}
+
+/** `wrangler deploy`: the Worker's own deployment, which the domain serves. */
+function deployWorker(cloudflare: Account, message: string): void {
+  say('▸ wrangler deploy');
+  must(
+    'wrangler deploy',
+    wrangler(cloudflare, [
+      'deploy',
+      '--config',
+      writeConfig(),
+      '--message',
+      message,
+    ])
+  );
+}
+
+/** Deploy the built bundle as the main branch's and prove it serves. */
+async function deployMain(sha: string): Promise<void> {
+  const cloudflare = account();
+  const origin = mainOrigin();
+  await gate(MAIN_PREVIEW_NAME, sha);
+  deployWorker(cloudflare, `main at ${sha.slice(0, 12)}`);
+  say(`▸ waiting for ${origin} to serve ${sha.slice(0, 12)}`);
+  if (!(await serving(origin, sha, MAIN_READY_MS)))
+    throw new Error(`${origin} did not serve ${sha.slice(0, 12)} in time`);
+  const checks = await runPreviewChecks({
+    origin,
+    fetch,
+    previewName: MAIN_PREVIEW_NAME,
+    commit: sha,
+  });
+  if (!printChecks(checks)) throw new Error(failed(checks));
+  say(`✓ ${origin} serves ${sha.slice(0, 12)}`);
+}
+
+/**
+ * The custom domain is attached by the Worker's own deployment, which a push
+ * to main makes. Until the first one there is no domain for any Preview, so
+ * a pull request's deploy makes it once, from the bundle it just uploaded;
+ * the next push to main replaces it. Never fatal: the Preview itself is
+ * already serving on the URL it was built for.
+ */
+async function ensureMainPreview(cloudflare: Account): Promise<void> {
+  const host = previewHost();
+  if (host === null || (await answers(`https://${host}`))) return;
+  say(`▸ ${host} is not served yet: attaching it with a first deployment`);
+  try {
+    deployWorker(cloudflare, 'first deployment: attach the custom domain');
+  } catch (error) {
+    say(
+      `! ${host} could not be attached (${error instanceof Error ? error.message : String(error)}); Previews stay on workers.dev`
+    );
+  }
 }
 
 async function deploy(pr: number, deploymentSha: string | null): Promise<void> {
@@ -635,8 +748,9 @@ async function deploy(pr: number, deploymentSha: string | null): Promise<void> {
   const deployment = createDeployment(pr, sha);
   deploymentStatus(deployment, 'in_progress', { url: origin });
   try {
-    await gate(pr, sha);
+    await gate(previewNameOfPr(pr), sha);
     await upload(cloudflare, pr, origin, sha);
+    await ensureMainPreview(cloudflare);
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);
     const unhealthy = error instanceof UnhealthyPreview;
@@ -784,6 +898,11 @@ function output(values: Readonly<Record<string, string>>): void {
 
 function trigger(): PreviewTrigger {
   const event = envOf('GITHUB_EVENT_NAME');
+  if (event === 'push') {
+    const sha = envOf('GITHUB_SHA');
+    if (sha === null) fail('GITHUB_SHA is not set');
+    return { kind: 'main', sha };
+  }
   if (event !== 'pull_request') return { kind: 'sweep' };
   const path = envOf('GITHUB_EVENT_PATH');
   if (path === null) fail('GITHUB_EVENT_PATH is not set');
@@ -806,9 +925,18 @@ function trigger(): PreviewTrigger {
   };
 }
 
+/** The main branch's head as GitHub has it now. */
+function mainHead(): string | null {
+  const result = run('gh', ['api', 'repos/{owner}/{repo}/commits/main']);
+  if (result.code !== 0) return null;
+  const sha = (JSON.parse(result.stdout) as { sha?: unknown }).sha;
+  return typeof sha === 'string' ? sha : null;
+}
+
 function plan(): PreviewAction {
   const from = trigger();
   if (from.kind === 'sweep') return { kind: 'sweep' };
+  if (from.kind === 'main') return decideMainAction(from.sha, mainHead());
   const pull = readPullRequest(from.pr);
   return decidePreviewAction(
     from,
@@ -821,7 +949,11 @@ async function ci(step: string | undefined): Promise<void> {
     const action = plan();
     if (action.kind === 'skip') say(`skip: ${action.reason}`);
     const origin =
-      action.kind === 'deploy' ? await originOf(action.pr, account()) : '';
+      action.kind === 'deploy'
+        ? await originOf(action.pr, account())
+        : action.kind === 'deploy-main'
+          ? mainOrigin()
+          : '';
     output({
       action: action.kind,
       pr: 'pr' in action ? String(action.pr) : '',
@@ -841,7 +973,8 @@ async function ci(step: string | undefined): Promise<void> {
   const action = envOf('PREVIEW_ACTION');
   const pr = Number(envOf('PREVIEW_PR') ?? '0');
   if (step === 'build') {
-    await build(pr, await originOf(pr, null));
+    if (action === 'deploy-main') await build(MAIN_PREVIEW_NAME, mainOrigin());
+    else await build(previewNameOfPr(pr), await originOf(pr, null));
     return;
   }
   if (step === 'apply') {
@@ -856,6 +989,11 @@ async function ci(step: string | undefined): Promise<void> {
         return;
       }
       await deploy(now.pr, now.sha);
+    } else if (action === 'deploy-main') {
+      // The plan was made before the build; main may have moved since.
+      const now = plan();
+      if (now.kind === 'deploy-main') await deployMain(now.sha);
+      else say(`skip: ${now.kind === 'skip' ? now.reason : now.kind}`);
     } else if (action === 'destroy') await destroy(account(), pr, 'removed');
     else if (action === 'sweep') await sweep();
     return;
@@ -892,13 +1030,17 @@ try {
       break;
     }
     case 'build': {
+      if (envOf('PREVIEW_ACTION') === 'deploy-main') {
+        await build(MAIN_PREVIEW_NAME, mainOrigin());
+        break;
+      }
       const pr = currentPr();
-      await build(pr, await originOf(pr, null));
+      await build(previewNameOfPr(pr), await originOf(pr, null));
       break;
     }
     case 'deploy': {
       const pr = currentPr();
-      await build(pr, await originOf(pr, null));
+      await build(previewNameOfPr(pr), await originOf(pr, null));
       await deploy(pr, null);
       break;
     }
@@ -917,6 +1059,10 @@ try {
       if (!ok) process.exit(1);
       break;
     }
+    case 'main':
+      await build(MAIN_PREVIEW_NAME, mainOrigin());
+      await deployMain(headCommit().sha);
+      break;
     case 'destroy':
       await destroy(account(), currentPr(), 'removed');
       break;
@@ -927,7 +1073,7 @@ try {
       await ci(argument);
       break;
     default:
-      fail('usage: preview <url|build|deploy|test|destroy|sweep|ci>');
+      fail('usage: preview <url|build|deploy|main|test|destroy|sweep|ci>');
   }
 } catch (error) {
   fail(error instanceof Error ? error.message : String(error));

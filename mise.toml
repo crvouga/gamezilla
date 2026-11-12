@@ -139,6 +139,10 @@ run = "bun run preview:build"
 description = "Build, upload and check this pull request's Preview (Cloudflare Worker Preview pr-<number>)"
 run = "bun run preview:deploy"
 
+[tasks."preview:main"]
+description = "Build and deploy this checkout as the main branch's Preview (preview.<domain>)"
+run = "bun run preview:main"
+
 [tasks."preview:test"]
 description = "Check the deployed Preview over HTTP (serves the harness, names its commit, runs no server)"
 run = "bun run preview:test"

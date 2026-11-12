@@ -3,13 +3,15 @@ name: Preview
 # Run title, identical shape in every workflow (enforced by
 # libs/tools-harness-ts/scripts/workflow-run-names.test.ts):
 #   <Workflow> · <trigger>
-run-name: "Preview · ${{ github.event_name == 'pull_request' && format('pr #{0}', github.event.pull_request.number) || github.event_name == 'schedule' && 'schedule' || 'manual' }}"
+run-name: "Preview · ${{ github.event_name == 'pull_request' && format('pr #{0}', github.event.pull_request.number) || github.event_name == 'push' && 'main' || github.event_name == 'schedule' && 'schedule' || 'manual' }}"
 
 # Every pull request gets the web bundle as its own Cloudflare Worker Preview
 # (`pr-<number>`): static files only, with the whole system — API servers,
 # Postgres, rooms, simulated vendors — running in the visitor's browser
 # (`apps/harness-ts`). No Worker script, no Durable Object, no secret is deployed.
 # - opened, reopened, new commit: build, check the bundle, upload, check again.
+# - push to main: the same build, deployed as the Worker itself, which is what
+#   `preview.<domain>` serves; pull requests are `pr-<number>.preview.<domain>`.
 # - closed or merged: delete the Preview and confirm Cloudflare reports it gone.
 # - schedule: remove Previews whose pull request is closed or went quiet.
 # Each step is one command of apps/preview-ts/scripts/preview.ts, the same
@@ -22,6 +24,8 @@ on:
   pull_request:
     branches: [main]
     types: [opened, reopened, synchronize, closed]
+  push:
+    branches: [main]
   schedule:
     - cron: "17 */6 * * *"
   workflow_dispatch:
@@ -33,7 +37,7 @@ permissions:
 # flight finishes, and the next run re-reads the head before it uploads, so an
 # older commit never replaces a newer one.
 concurrency:
-  group: ${{ github.event_name == 'pull_request' && format('preview-pr-{0}', github.event.pull_request.number) || 'preview-sweep' }}
+  group: ${{ github.event_name == 'pull_request' && format('preview-pr-{0}', github.event.pull_request.number) || github.event_name == 'push' && 'preview-main' || 'preview-sweep' }}
   cancel-in-progress: false
 
 defaults:
@@ -73,8 +77,9 @@ jobs:
         id: plan
         run: bun run apps/preview-ts/scripts/preview.ts ci plan
       - name: Build the harness bundle and check it
-        if: ${{ steps.plan.outputs.action == 'deploy' }}
+        if: ${{ steps.plan.outputs.action == 'deploy' || steps.plan.outputs.action == 'deploy-main' }}
         env:
+          PREVIEW_ACTION: ${{ steps.plan.outputs.action }}
           PREVIEW_PR: ${{ steps.plan.outputs.pr }}
           PREVIEW_URL: ${{ steps.plan.outputs.url }}
         run: bun run preview:build

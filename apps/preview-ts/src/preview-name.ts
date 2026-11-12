@@ -19,6 +19,20 @@ export function prOfPreviewName(name: string): number | null {
   return match?.[1] === undefined ? null : Number(match[1]);
 }
 
+/** What the main branch's deployment calls itself in `preview.json`. */
+export const MAIN_PREVIEW_NAME = 'main';
+
+/**
+ * `https://<preview>.<host>`: a Preview on the custom domain, where `host`
+ * (`preview.example.com`) itself serves the main branch.
+ */
+export function customPreviewOrigin(args: {
+  readonly previewName: string;
+  readonly host: string;
+}): string {
+  return `https://${args.previewName}.${args.host}`;
+}
+
 /** `https://<preview>-<worker>.<account subdomain>.workers.dev` */
 export function previewOrigin(args: {
   readonly previewName: string;
@@ -34,14 +48,16 @@ export function previewOrigin(args: {
 }
 
 /**
- * Whether `origin` is this pull request's Preview on our own account. A pull
- * request description is editable by its author, so a URL read from one is
- * only sent the admin token after this says the host is ours.
+ * Whether `origin` is this pull request's Preview on our own account or our
+ * own custom domain (`host`, when there is one). A pull request description
+ * is editable by its author, so a URL read from one is only sent the admin
+ * token after this says the host is ours.
  */
 export function isPreviewOriginOf(args: {
   readonly origin: string;
   readonly previewName: string;
   readonly subdomain: string;
+  readonly host?: string | null;
 }): boolean {
   let url: URL;
   try {
@@ -50,6 +66,12 @@ export function isPreviewOriginOf(args: {
     return false;
   }
   if (url.protocol !== 'https:' || url.port !== '') return false;
+  if (
+    args.host !== undefined &&
+    args.host !== null &&
+    url.hostname === `${args.previewName}.${args.host}`
+  )
+    return true;
   const suffix = `.${args.subdomain}.workers.dev`;
   if (!url.hostname.endsWith(suffix)) return false;
   const label = url.hostname.slice(0, -suffix.length);

@@ -16,6 +16,8 @@ export type PreviewTrigger =
       readonly sha: string;
       readonly fromFork: boolean;
     }
+  /** A push to the main branch; `sha` is the commit this run checked out. */
+  | { readonly kind: 'main'; readonly sha: string }
   | { readonly kind: 'sweep' };
 
 export type PullRequestNow = {
@@ -26,11 +28,30 @@ export type PullRequestNow = {
 export type PreviewAction =
   | { readonly kind: 'deploy'; readonly pr: number; readonly sha: string }
   | { readonly kind: 'destroy'; readonly pr: number }
+  | { readonly kind: 'deploy-main'; readonly sha: string }
   | { readonly kind: 'sweep' }
   | { readonly kind: 'skip'; readonly reason: string };
 
+/**
+ * What a push to the main branch does, given the branch's head as it is now:
+ * like a pull request's, an older commit never replaces a newer one.
+ */
+export function decideMainAction(
+  sha: string,
+  headSha: string | null
+): PreviewAction {
+  if (headSha === null)
+    return { kind: 'skip', reason: 'the main branch could not be read' };
+  if (headSha !== sha)
+    return {
+      kind: 'skip',
+      reason: `commit ${sha.slice(0, 12)} is no longer the head of main (${headSha.slice(0, 12)})`,
+    };
+  return { kind: 'deploy-main', sha };
+}
+
 export function decidePreviewAction(
-  trigger: PreviewTrigger,
+  trigger: Exclude<PreviewTrigger, { readonly kind: 'main' }>,
   now: PullRequestNow | null
 ): PreviewAction {
   if (trigger.kind === 'sweep') return { kind: 'sweep' };

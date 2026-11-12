@@ -2,11 +2,13 @@ import { expect, test } from 'bun:test';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import fc from 'fast-check';
 import {
+  decideMainAction,
   decidePreviewAction,
   type PreviewTrigger,
   planSweep,
 } from '../src/preview-lifecycle';
 import {
+  customPreviewOrigin,
   isPreviewOriginOf,
   previewNameOfPr,
   previewOrigin,
@@ -161,6 +163,19 @@ test('the preview origin is the Cloudflare preview host', () => {
   ).toThrow();
 });
 
+test('a Preview on the custom domain is named under the main branch’s host', () => {
+  expect(
+    customPreviewOrigin({ previewName: 'pr-12', host: 'preview.acme.app' })
+  ).toBe('https://pr-12.preview.acme.app');
+});
+
+test('a push to main deploys only while it is still the head of main', () => {
+  const sha = 'a'.repeat(40);
+  expect(decideMainAction(sha, sha)).toEqual({ kind: 'deploy-main', sha });
+  expect(decideMainAction(sha, 'b'.repeat(40)).kind).toBe('skip');
+  expect(decideMainAction(sha, null).kind).toBe('skip');
+});
+
 test('a sweep removes exactly the Previews it made whose pull request is not open or went unused', () => {
   const day = 24 * 60 * 60 * 1000;
   assertProperty(
@@ -211,4 +226,14 @@ test('only a host on our own account is this pull request’s Preview', () => {
   expect(yes('http://pr-7-app-preview.acme.workers.dev')).toBe(false);
   expect(yes('https://pr-7-app-preview.acme.workers.dev:8443')).toBe(false);
   expect(yes('not a url')).toBe(false);
+  // The custom domain is ours only when the tooling names it.
+  expect(yes('https://pr-7.preview.acme.app')).toBe(false);
+  const custom = (origin: string) =>
+    isPreviewOriginOf({ origin, ...ours, host: 'preview.acme.app' });
+  expect(custom('https://pr-7.preview.acme.app')).toBe(true);
+  expect(custom('https://pr-7-app-preview.acme.workers.dev')).toBe(true);
+  expect(custom('https://pr-70.preview.acme.app')).toBe(false);
+  expect(custom('https://preview.acme.app')).toBe(false);
+  expect(custom('https://pr-7.preview.acme.app.evil.example')).toBe(false);
+  expect(custom('http://pr-7.preview.acme.app')).toBe(false);
 });

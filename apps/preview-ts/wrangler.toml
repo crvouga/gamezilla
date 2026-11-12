@@ -5,12 +5,19 @@
 # vendors) runs in the visitor's browser.
 #
 # `{namespace}` resolves from the product identity when the preview scripts
-# render this file. The base Worker itself serves nothing: only its Previews
-# are reachable.
+# render this file. The Worker's own deployment is the main branch's build.
 name = "{namespace}-preview"
 compatibility_date = "2026-09-21"
 workers_dev = false
 preview_urls = true
+
+# `preview.{domain}` serves the main branch and each pull request's Preview is
+# `pr-<number>.preview.{domain}`: Cloudflare gives every Preview of a Worker a
+# name under a custom domain that has Previews enabled.
+[[routes]]
+pattern = "preview.{domain}"
+custom_domain = true
+previews_enabled = true
 
 # A Preview adds nothing to the Worker above: no vars, no bindings.
 [previews]

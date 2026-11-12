@@ -5,8 +5,25 @@ the whole system. Nothing runs on a server: a Preview is static files, and the
 system runs inside the visitor's browser tab.
 
 ```
-https://pr-<number>-<namespace>-preview.<account>.workers.dev
+https://preview.<domain>                 the main branch
+https://pr-<number>.preview.<domain>     a pull request
 ```
+
+- **The domain.** `preview.<domain>` is a custom domain of the preview Worker
+  with Previews enabled (`apps/preview-ts/wrangler.toml`), so Cloudflare
+  serves the Worker's own deployment there and each Preview under its name.
+  A push to main deploys the Worker (`mise run preview:main`); that
+  deployment is also what attaches the domain, so until the first one a pull
+  request's deploy makes it once from its own bundle.
+- **The fallback.** A pull request's URL is chosen before its bundle is built:
+  the custom domain when `pr-<number>.preview.<domain>` already answers over
+  HTTPS, and otherwise
+  `https://pr-<number>-<namespace>-preview.<account>.workers.dev` — before the
+  domain is attached, while its certificate is being issued, or if the
+  account cannot issue one for a name two levels below the zone (Cloudflare's
+  free certificates cover one level; deeper names can need Advanced
+  Certificate Manager). The `## Preview` section always names the URL the
+  bundle was built for.
 
 ## What a Preview is
 
@@ -47,6 +64,7 @@ The pull request is `PREVIEW_PR=<number>`, or the one for the current branch.
 | `mise run preview:test` | Check the deployed Preview over HTTP | `gh` |
 | `mise run preview:build` | Build the harness bundle and gate it | Cloudflare read, or `PREVIEW_URL` |
 | `mise run preview:deploy` | Build, gate, upload, check | Cloudflare deploy credential |
+| `mise run preview:main` | Build this checkout and deploy it as the main branch's | Cloudflare deploy credential |
 | `mise run preview:destroy` | Delete the Preview; verify it is gone | Cloudflare deploy credential |
 | `mise run preview:sweep` | Delete orphaned and expired Previews | Cloudflare deploy credential |
 
