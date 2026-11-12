@@ -102,7 +102,5 @@ Feature: Report a bug
 
     Scenario: A discarded draft does not come back
       Given Alice has discarded the draft
-      And Alice has reopened the app
-      When Alice chooses to report a bug
-      Then Alice's bug report has no description
-      And Alice's bug report has 1 screenshot
+      When Alice reopens the app
+      Then Alice has no draft

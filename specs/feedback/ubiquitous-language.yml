@@ -19,11 +19,11 @@ terms:
     forms:
       [bug reports, bug report's, report a bug, reports a bug, reporting a bug]
     avoid: [feedback, ticket, support request, issue]
-    model: [sendBugReport]
+    model: [sendBugReport, chooseToReport, closeBugReport, openBugReports]
   - term: the team's list of work
     definition: >-
       Where the team keeps everything it has to do. A bug report that reaches
-      the team lands here, once, however many times a device sends it.
+      the team lands here, and the team has it once, however long it waited.
     avoid: [backlog, tracker, issue tracker, to-do list]
     model: [teamCopies]
   - term: description
@@ -33,7 +33,7 @@ terms:
       description is full, and nothing more is added.
     forms: [describe, describes, described, describing, description's]
     avoid: [summary, title, body, comment]
-    model: [describeBug]
+    model: [describeBug, described]
   - term: draft
     definition: >-
       A bug report its person has not sent yet. The device keeps one draft,
@@ -54,9 +54,7 @@ terms:
       because the device is offline, the team cannot receive bug reports
       right now, or the device is past the daily bug report limit. The device
       keeps it, through reopening the app, and sends it for the person as
-      soon as it can reach the team, so it is never lost. A bug report that
-      can never be sent is not kept this way: it stays a draft and its person
-      is told it could not be sent.
+      soon as it can reach the team, so it is never lost.
     forms: [kept bug reports]
     model: [kept]
   - term: screenshot
@@ -67,12 +65,14 @@ terms:
       screenshot. A bug report carries at most 4.
     forms: [screenshots]
     avoid: [screen capture, image, attachment, recording]
+    model: [screenshots, removeScreenshot]
   - term: picture
     definition: >-
       A photo or drawing a person has on their device. A picture of at most
       5 MB added to a bug report becomes one of its screenshots.
     forms: [pictures]
     avoid: [image, file, attachment]
+    model: [addPicture]
   - term: debug info
     definition: >-
       A record the app always keeps of the last 5 minutes on a device: where
@@ -88,22 +88,38 @@ terms:
       Moving a phone quickly back and forth, which opens a bug report while
       shake to report is on.
     forms: [shakes, shaking, shaken]
+    model: [shakePhone]
   - term: shake to report
     definition: >-
       The choice that lets a shake open a bug report. It is on unless the
       person turns it off, it stays as the person set it when the app is
       reopened, and the person can turn it back on. A phone that asks before
       the app may notice shaking waits for the person to allow it.
+    model:
+      [
+        shakeToReport,
+        turnOffShakeToReport,
+        turnOnShakeToReport,
+        allowShakeToReport,
+        refuseShakeToReport,
+        phoneAllows,
+      ]
   - term: reproduce
     definition: Do what leads to the same bug again.
     forms: [reproducing, reproduced]
   - term: daily bug report limit
     definition: >-
       The 10 bug reports the team takes from one device in a day, whoever is
-      using it, guest or signed in. A bug report sent past it is a kept bug
-      report, and reaches the team once the limit starts again the next day.
-    forms: [the next day starts]
-    model: [takenToday, dayPasses]
+      using it, guest or signed in. The day turns at midnight UTC. A bug
+      report sent past it is a kept bug report, and reaches the team once the
+      limit starts again the next day.
+    model: [takenToday]
+  - term: the next day
+    definition: >-
+      The day after today. For bug reports a day turns at midnight UTC, and
+      the daily bug report limit starts again then.
+    forms: [the next day starts, next day]
+    model: [dayPasses]
   - term: run into trouble
     from: runtime
   - term: Settings
@@ -112,6 +128,7 @@ terms:
     from: runtime
   - term: keyboard
     from: runtime
+    model: [moveKeyboardThrough]
   - term: control
     from: runtime
   - term: listen to the app
@@ -126,6 +143,9 @@ terms:
   - term: the app
     from: kernel
     model: [reopenApp]
+  - term: the team
+    from: kernel
+    model: [teamCannotReceive, teamCanReceiveAgain]
   - term: connection
     from: kernel
     model: [loseConnection, connectionReturns]

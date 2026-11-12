@@ -264,7 +264,6 @@
       "Reports another bug": "user",
       "Sends a bug report without a description": "user",
       "Sends the described bug report": "user",
-      "The bug report can never be sent": "system",
       "The bug report cannot reach the team yet": "system",
       "The daily bug report limit refuses the bug report": "system",
       "The kept bug report reaches the team": "system",
@@ -10779,6 +10778,7 @@
                     "confidence": "assumed",
                     "source": [
                       "specs/feedback/bug-report-accessibility.feature",
+                      "specs/feedback/bug-report-opening.qnt",
                       "specs/feedback/bug-report.qnt",
                       "specs/feedback/daily-bug-report-limit.dmn",
                       "specs/feedback/debug-info.feature",
@@ -10808,14 +10808,15 @@
                           "specs/feedback/opening-a-bug-report.feature:28",
                           "specs/feedback/opening-a-bug-report.feature:46",
                           "specs/feedback/opening-a-bug-report.feature:61",
-                          "specs/feedback/opening-a-bug-report.feature:79",
+                          "specs/feedback/opening-a-bug-report.feature:73",
+                          "specs/feedback/opening-a-bug-report.feature:95",
                           "specs/feedback/reporting-a-bug.feature:21",
                           "specs/feedback/reporting-a-bug.feature:65",
                           "specs/feedback/reporting-a-bug.feature:91",
                           "specs/feedback/screenshots.feature:6",
-                          "specs/feedback/screenshots.feature:36",
-                          "specs/feedback/screenshots.feature:49",
-                          "specs/feedback/screenshots.feature:63",
+                          "specs/feedback/screenshots.feature:40",
+                          "specs/feedback/screenshots.feature:53",
+                          "specs/feedback/screenshots.feature:67",
                           "specs/feedback/debug-info.feature:81",
                           "specs/feedback/bug-report-accessibility.feature:7",
                           "specs/feedback/bug-report-accessibility.feature:28",
@@ -10890,8 +10891,7 @@
                           "specs/feedback/debug-info.feature:35",
                           "specs/feedback/debug-info.feature:50",
                           "specs/feedback/reporting-a-bug.feature:41",
-                          "specs/feedback/reporting-a-bug.feature:50",
-                          "specs/feedback/delivery.feature:92"
+                          "specs/feedback/reporting-a-bug.feature:50"
                         ],
                         "events": []
                       },
@@ -10904,9 +10904,6 @@
                         },
                         "The daily bug report limit refuses the bug report": {
                           "target": "#Bug report: Daily limit reached"
-                        },
-                        "The bug report can never be sent": {
-                          "target": "#Bug report: Ready to send"
                         }
                       }
                     },

@@ -11,7 +11,7 @@
 // reach the team in the order she sent them, and each one the team takes
 // counts toward the daily bug report limit of the day it arrives.
 //
-// However many times her phone sends a bug report, the team has it once.
+// The team has each bug report once, however long it waited on her phone.
 // Reopening the app changes nothing: the draft and every kept bug report are
 // still on the phone. The next day the daily bug report limit starts again.
 //
@@ -100,8 +100,9 @@ module bug_report {
     }
   }
 
-  /// Describe a bug. This starts the one draft the phone keeps. Refused
-  /// while a draft is already there: that draft is the bug report.
+  /// Start describing a bug. This starts the one draft the phone keeps.
+  /// While a draft is already there, writing more changes that draft and
+  /// never starts a second one.
   action describeBug(device: str, report: int): bool = all {
     DEVICES.contains(device),
     draft == Set(),
@@ -160,15 +161,16 @@ module bug_report {
       _offline.exclude(Set(device)), _teamAway),
   }
 
-  /// The team stops being able to receive bug reports for a while.
-  action _teamStopsReceiving: bool = all {
+  /// The team cannot receive bug reports for a while. Refused while that
+  /// is already so.
+  action teamCannotReceive: bool = all {
     not(_teamAway),
     _settle(draft, kept, takenToday, _written, _sent, _discarded,
       _sentOffline, _offline, true),
   }
 
-  /// The team can receive bug reports again.
-  action _teamReceivesAgain: bool = all {
+  /// The team can receive bug reports again. Refused while it already can.
+  action teamCanReceiveAgain: bool = all {
     _teamAway,
     _settle(draft, kept, takenToday, _written, _sent, _discarded,
       _sentOffline, _offline, false),
@@ -194,8 +196,8 @@ module bug_report {
       dayPasses,
       loseConnection(device),
       connectionReturns(device),
-      _teamStopsReceiving,
-      _teamReceivesAgain,
+      teamCannotReceive,
+      teamCanReceiveAgain,
       _deviceSendsAgain(device),
     }
   }

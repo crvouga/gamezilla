@@ -58,6 +58,18 @@ Feature: Open a bug report from anywhere
       When Alice shakes the phone
       Then Alice has one bug report open
 
+  Rule: A person can turn shake to report off and back on
+    No counter-example: turning shake to report off or back on is the person's own choice and is never refused.
+
+    Scenario: Shake to report turned off shows as off
+      When Alice turns off shake to report
+      Then Alice sees that shake to report is off
+
+    Scenario: Shake to report turned back on shows as on
+      Given Alice has turned off shake to report
+      When Alice turns shake to report back on
+      Then Alice sees that shake to report is on
+
   Rule: A phone that asks before the app may notice shaking waits for the person
 
     Background:
@@ -71,6 +83,10 @@ Feature: Open a bug report from anywhere
       Given Alice has allowed shake to report
       When Alice shakes the phone
       Then Alice has one bug report open
+
+    Scenario: A person who allows shaking keeps shake to report on
+      When Alice allows shake to report
+      Then Alice sees that shake to report is on
 
     Scenario: A person who refuses shaking is told how to report a bug
       When Alice refuses to allow shake to report

@@ -28,6 +28,10 @@ Feature: Screenshots on a bug report
       When Alice sends the bug report
       Then the team's bug report from Alice has 1 screenshot
 
+    Scenario: A removed screenshot is no longer on the bug report
+      When Alice removes the screenshot
+      Then Alice's bug report has 0 screenshots
+
     Scenario: A removed screenshot never reaches the team
       Given Alice has removed the screenshot
       When Alice sends the bug report

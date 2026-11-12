@@ -71,12 +71,7 @@ Feature: Keep a bug report until the team has it
       Then the team has a bug report from Alice saying "The hint never appeared"
 
   Rule: The team gets each bug report once
-    No counter-example: sending a bug report again is never refused; it changes nothing.
-
-    Scenario: A bug report the device sends twice reaches the team once
-      Given Alice has sent a bug report saying "The board froze after a move"
-      When Alice's device sends the same bug report again
-      Then the team has exactly one bug report from Alice saying "The board froze after a move"
+    No counter-example: nothing a person does gives the team the same bug report twice.
 
     Scenario: A bug report the team has stays one bug report after reopening the app
       Given Alice has sent a bug report saying "The board froze after a move"
@@ -88,13 +83,3 @@ Feature: Keep a bug report until the team has it
       And Alice's device has gone offline and come back online
       When the team can receive bug reports again
       Then the team has exactly one bug report from Alice saying "The board froze after a move"
-
-  Rule: A bug report that can never be sent stays a draft
-    No counter-example: a bug report that can be sent is every other rule here.
-
-    Scenario: A bug report that can never be sent is given back to its person
-      Given a bug report from Alice's device can never be sent
-      And Alice has described the bug as "The board froze after a move"
-      When Alice sends the bug report
-      Then Alice is told the bug report could not be sent
-      And Alice's bug report says "The board froze after a move"
