@@ -32,6 +32,7 @@ import {
   createSignal,
   type JSX,
   onCleanup,
+  untrack,
 } from 'solid-js';
 
 type SearchHitRow = {
@@ -94,8 +95,11 @@ function useDebouncedSearchQuery(
 ): Accessor<string> {
   const timers = useTimers();
   const [debouncedQuery, setDebouncedQuery] = createSignal('');
+  // What is searched for. A space after the name (a phone's keyboard adds one
+  // with every suggestion it completes) is the same search, not a new one.
+  const wanted = createMemo(() => query().trim());
   createEffect(() => {
-    const trimmed = query().trim();
+    const trimmed = wanted();
     if (!canSearch() || trimmed.length === 0) {
       setDebouncedQuery('');
       setAwaitingSync(false);
@@ -105,6 +109,10 @@ function useDebouncedSearchQuery(
     const handle = timers.setTimeout(() => {
       // The in-flight flag lands with the query. A render in between would
       // show the previous person, or nobody, before this search is sent.
+      // Only a search that goes out is awaited. Typing on and back to the
+      // name already being searched sends nothing, so nothing would ever
+      // answer it and the screen would say "Searching…" for good.
+      if (untrack(debouncedQuery) === trimmed) return;
       batch(() => {
         setDebouncedQuery(trimmed);
         setAwaitingSync(true);
