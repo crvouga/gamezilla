@@ -51,7 +51,15 @@ function StageView(props: {
   return (
     <section
       class="box absolute inset-0 overflow-hidden bg-background"
-      classList={{ hidden: !props.shown }}
+      // Out of sight, not out of the layout: a view that is not on show
+      // keeps its size, so an app that lays itself out by the room it has
+      // is already laid out when its turn comes, with nothing to flash.
+      classList={{
+        'invisible pointer-events-none z-0': !props.shown,
+        'z-1': props.shown,
+      }}
+      inert={!props.shown}
+      aria-hidden={!props.shown}
       aria-label={props.view.title}
       data-component={componentId('AppStageView')}
       {...dataAttrs({
@@ -79,9 +87,10 @@ function StageView(props: {
  * - **Drag the handle** out of the way; let go and it rests against the
  *   nearer side, where it stays through a resize or a turn of the screen.
  *
- * Views never move in the document and a hidden view stays mounted, so an
- * app keeps its state, its scroll position and its connections while another
- * is on show. A `live` view is mounted from the start; any other is mounted
+ * Views never move in the document and a hidden view stays mounted and laid
+ * out at full size (it is only made invisible and inert), so an app keeps its
+ * state, its scroll position and its connections while another is on show,
+ * and is already the right shape the moment it is shown. A `live` view is mounted from the start; any other is mounted
  * the first time it is shown.
  *
  * The stage is controlled: it shows `shown` and reports presses; the caller
