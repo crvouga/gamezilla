@@ -13,7 +13,7 @@ import {
   saveCheckpoint,
   stillBeforeRestore,
   stillKept,
-} from '@apps/product-ts/developer-checkpoints';
+} from '@apps/harness-ts/developer-checkpoints';
 import { Given, Then, When } from '@libs/harness-ts/define';
 
 Given(

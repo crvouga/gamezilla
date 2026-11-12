@@ -9,7 +9,7 @@
       "inputs": ["$TURBO_EXTENDS$"]
     },
     "test": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "generate:brand-artifacts"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -89,7 +89,7 @@
       "inputs": [
         "scripts/materialize-product-identity.ts",
         "scripts/materialize-product-identity-input.ts",
-        "$TURBO_ROOT$/libs/product-identity-shared-ts/src/identity-input.ts",
+        "$TURBO_ROOT$/libs/product-brand-shared-ts/src/identity-input.ts",
         "$TURBO_ROOT$/libs/product-identity-shared-ts/src/identity-schema.ts",
         "$TURBO_ROOT$/libs/product-identity/fixtures/**"
       ],
@@ -175,7 +175,7 @@
         "$TURBO_ROOT$/lingui.config.ts",
         "$TURBO_ROOT$/lingui.solid.config.ts",
         "$TURBO_ROOT$/libs/app-root-shared-ts/locales/**",
-        "$TURBO_ROOT$/apps/client-ts/babel.config.js",
+        "$TURBO_ROOT$/apps/client-ts/vite.config.mts",
         "$TURBO_ROOT$/pkgs/bun-test-solid-client-ts/src/babel.config.cjs",
         "$TURBO_ROOT$/libs/tools-harness-ts/scripts/ci-i18n.ts",
         "$TURBO_ROOT$/libs/tools-harness-ts/scripts/lingui-scope.ts"
@@ -236,7 +236,8 @@
         "$TURBO_ROOT$/libs/tools-harness-ts/scripts/biome-scope-slices.ts",
         "!$TURBO_ROOT$/**/node_modules/**",
         "!$TURBO_ROOT$/**/*.test.{ts,tsx}",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/production-source.ts"
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/production-source.ts",
+        "$TURBO_ROOT$/.gitignore"
       ],
       "outputs": [],
       "outputLogs": "errors-only"
@@ -512,14 +513,11 @@
         "$TURBO_ROOT$/libs/app-root-client-ts/src/route-table.ts",
         "$TURBO_ROOT$/libs/runtime-client-ts/src/app-sub-clients.ts",
         "$TURBO_ROOT$/libs/*-client-ts/src/sub-client.{ts,tsx}",
-        "$TURBO_ROOT$/libs/chess-puzzle-client-ts/src/personal-chess-stats-client.tsx",
         "$TURBO_ROOT$/libs/game-puzzle-client-ts/src/puzzle-link-client.ts",
         "$TURBO_ROOT$/libs/game-puzzle-shared-ts/src/puzzle-link.ts",
         "$TURBO_ROOT$/libs/game-matchmaking-client-ts/src/multiplayer-link-client.tsx",
         "$TURBO_ROOT$/libs/game-matchmaking-shared-ts/src/multiplayer-link.ts",
-        "$TURBO_ROOT$/libs/observatory-shared-ts/src/observatory-routes.ts",
-        "$TURBO_ROOT$/apps/product-ts/src/main.tsx",
-        "$TURBO_ROOT$/apps/product-ts/src/console-nav-real.ts"
+        "$TURBO_ROOT$/libs/observatory-shared-ts/src/observatory-routes.ts"
       ],
       "outputs": [".cache/product-statechart/**"],
       "outputLogs": "errors-only"
@@ -532,6 +530,7 @@
         "scripts/brand-image-catalog.ts",
         "brand/web-image-artifacts/**",
         "$TURBO_ROOT$/libs/product-identity-shared-ts/src/**",
+        "$TURBO_ROOT$/libs/product-brand-shared-ts/src/**",
         "$TURBO_ROOT$/libs/product-identity/product-identity.json",
         "package.json"
       ],

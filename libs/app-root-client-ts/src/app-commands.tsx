@@ -12,10 +12,8 @@
 import { useLingui } from '@lingui/solid/macro';
 import { bugReportCommand } from '@pkgs/feedback-client-ts/request-bug-report';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
-import { useOpenExternalUrl } from '@pkgs/ui-root-client-ts/external-url';
 import {
   GaugeIcon,
-  MonitorPlayIcon,
   PaintbrushIcon,
   WifiIcon,
   WifiOffIcon,
@@ -25,7 +23,6 @@ import { useThemePreference } from '@pkgs/ui-root-client-ts/theme-preference';
 import type { Command } from '@pkgs/ui-root-client-ts/types';
 import type { JSX } from 'solid-js';
 
-import { useEmbeddedApp } from './embedded-app-context';
 import { useOfflinePreference } from './offline-preference';
 import { usePerfHudPreference } from './perf-hud-preference';
 
@@ -49,16 +46,11 @@ const NAV_TARGETS: readonly {
   { href: '/client/events', title: 'Client events' },
 ];
 
-/** Super-app Harness screen (`apps/product-ts`), a sibling of the app. */
-const HARNESS_PATH = '/harness';
-
 function NavigationCommands(): JSX.Element {
   const { t } = useLingui();
   const router = useRouter();
-  const openExternalUrl = useOpenExternalUrl();
-  const embedded = useEmbeddedApp();
-  useRegisterCommands(() => [
-    ...NAV_TARGETS.map(
+  useRegisterCommands(() =>
+    NAV_TARGETS.map(
       (node): Command => ({
         id: `nav:${node.href}`,
         title: t`Go to ${node.title}`,
@@ -67,18 +59,8 @@ function NavigationCommands(): JSX.Element {
           router.push(node.href);
         },
       })
-    ),
-    {
-      id: `nav:${HARNESS_PATH}`,
-      title: t`Open Harness`,
-      category: t`Navigation`,
-      icon: MonitorPlayIcon,
-      keywords: [t`harness`, t`harness`, t`dev`, t`debug`],
-      // Embedded actors already live inside the harness.
-      visible: !embedded,
-      run: () => openExternalUrl(HARNESS_PATH),
-    },
-  ]);
+    )
+  );
   return null;
 }
 

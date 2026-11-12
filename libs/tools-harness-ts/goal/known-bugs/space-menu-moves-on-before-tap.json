@@ -1,0 +1,4 @@
+{
+  "summary": "Reaching a space's custom games tapped the game menu entry it had just seen; on a live-browser stack the space's screen can move on by itself before the tap lands (the host's chosen game arrives, the menu settles), and the tap then waited 5 s for an entry that was gone ('node game-menu-hearts tap: Timed out', 'element is gone'). A tap whose target has gone now looks again at what the space shows.",
+  "regressionTest": "libs/game-session-harness-ts/tests/show-custom-games.test.ts"
+}

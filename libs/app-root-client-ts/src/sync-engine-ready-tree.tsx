@@ -10,11 +10,13 @@
  * not static-import mutation hubs / dicebear.
  */
 
+import { exposeMutationsForTests } from '@libs/app-root-shared-ts/test-mutations';
 import { AuthModalsProvider } from '@libs/auth-client-ts/auth-modals-provider';
 import { AuthSyncBridge } from '@libs/auth-client-ts/auth-sync-bridge';
 import { MutationClientProvider } from '@libs/auth-client-ts/mutation-client-provider';
 import { SignedOutNoticeBanner } from '@libs/auth-client-ts/signed-out-notice-banner';
 import { SqlClientProvider } from '@pkgs/sql-client-root-client-ts/solid';
+import { useMutationClient } from '@pkgs/sync-engine-client-ts/mutation-client-context';
 import {
   SyncEnginePaintGateProvider,
   SyncEngineProvider,
@@ -39,6 +41,19 @@ function SyncStatusBridge(props: {
       {props.children}
     </SyncStatusLiveBridge>
   );
+}
+
+/** Test builds: the harness may write through this client (`__testMutations`). */
+function MutationsTestHook(props: {
+  readonly ready: ReadySyncEngine;
+}): JSX.Element {
+  const client = useMutationClient();
+  // Keyed per engine, like the tree around it: static for this instance.
+  exposeMutationsForTests(
+    client.mutate,
+    untrack(() => props.ready.registry)
+  );
+  return null;
 }
 
 /**
@@ -82,6 +97,7 @@ export default function ReadyEngineTree(
                 registry={ready.registry}
                 turnGames={ready.turnGames}
               >
+                <MutationsTestHook ready={ready} />
                 <AppSignInCapabilities>
                   {/* Sign-in modal needs the outer AppUiPortals surface
                         stack plus this session chrome (palette / banners). */}

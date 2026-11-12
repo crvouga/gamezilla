@@ -17,9 +17,10 @@ async function openNarrowPlay(page: Page) {
 
 // regression: game-frame-move-strip-under-chevron
 // A strip of moves pinned above a 320px board ran its last move under the
-// strip's chevron. Nothing about the moves is pinned above the board any
-// more: they are one card after it, every move inside the card.
-test('storybook integration: game frame 320 keeps its moves in one card after the board, none clipped', async ({
+// strip's chevron. A phone's game is one fixed view with the moves as one
+// line over the board, the latest in view: that move lies whole inside the
+// line, nothing over it, and the line within the screen.
+test('storybook integration: game frame 320 keeps its latest move whole on the line over the board', async ({
   page,
 }) => {
   await openNarrowPlay(page);
@@ -29,24 +30,48 @@ test('storybook integration: game frame 320 keeps its moves in one card after th
   const edges = await page.evaluate(() => {
     const record = document.querySelector('[data-testid="custom-game-record"]');
     const stage = document.querySelector('[data-component="GameBoardStage"]');
-    if (!record || !stage) throw new Error('Missing the moves card or board');
-    const card = record.getBoundingClientRect();
+    if (!record || !stage) throw new Error('Missing the moves line or board');
+    const line = record.getBoundingClientRect();
     const moves = [
       ...record.querySelectorAll('[data-testid^="custom-game-review-move-"]'),
-    ].map((move) => move.getBoundingClientRect());
+    ];
+    const latest = moves.at(-1);
+    if (!latest) throw new Error('Missing the latest move');
+    const move = latest.getBoundingClientRect();
+    // Whatever clips the moves (the line's scroller) bounds what is seen.
+    let seen = line;
+    for (
+      let node = latest.parentElement;
+      node && node !== record;
+      node = node.parentElement
+    )
+      if (getComputedStyle(node).overflowX !== 'visible')
+        seen = node.getBoundingClientRect();
+    const covered = [
+      [move.left + 2, move.top + 2],
+      [move.right - 2, move.top + 2],
+      [move.left + 2, move.bottom - 2],
+      [move.right - 2, move.bottom - 2],
+    ].some(([x, y]) => {
+      const hit = document.elementFromPoint(x ?? 0, y ?? 0);
+      return hit === null || !latest.contains(hit);
+    });
     return {
-      cardTop: card.top,
-      stageBottom: stage.getBoundingClientRect().bottom,
-      cardLeft: card.left,
-      cardRight: card.right,
-      movesLeft: Math.min(...moves.map((move) => move.left)),
-      movesRight: Math.max(...moves.map((move) => move.right)),
       count: moves.length,
+      lineBottom: line.bottom,
+      lineRight: line.right,
+      stageTop: stage.getBoundingClientRect().top,
+      moveLeft: move.left,
+      moveRight: move.right,
+      seenLeft: seen.left,
+      seenRight: seen.right,
+      covered,
     };
   });
   expect(edges.count).toBeGreaterThan(0);
-  expect(edges.cardTop).toBeGreaterThanOrEqual(edges.stageBottom);
-  expect(edges.movesLeft).toBeGreaterThanOrEqual(edges.cardLeft);
-  expect(edges.movesRight).toBeLessThanOrEqual(edges.cardRight);
-  expect(edges.cardRight).toBeLessThanOrEqual(320);
+  expect(edges.lineBottom).toBeLessThanOrEqual(edges.stageTop);
+  expect(edges.moveLeft).toBeGreaterThanOrEqual(edges.seenLeft);
+  expect(edges.moveRight).toBeLessThanOrEqual(edges.seenRight);
+  expect(edges.covered).toBe(false);
+  expect(edges.lineRight).toBeLessThanOrEqual(320);
 });

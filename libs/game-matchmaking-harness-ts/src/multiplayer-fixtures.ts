@@ -15,6 +15,7 @@ import type { MutationEnv } from '@pkgs/sync-engine-shared-ts/mutations-types';
 import { multiplayerFixture } from './multiplayer-fixtures-core';
 import { chooseKnownSetups } from './multiplayer-setups';
 import { multiplayerSpaceId } from './multiplayer-spaces';
+import { holdOpponentPool } from './opponent-pool-hold';
 
 /** Fixture writes are actual mutation bodies, with normal captured sync pushes. */
 export const givenOpponentSearch = scenarioAction<
@@ -27,6 +28,7 @@ export const givenOpponentSearch = scenarioAction<
     timeControl: string,
     requestId = s.session.ports.createId()
   ) => {
+    await holdOpponentPool(s);
     const spaceId = await multiplayerSpaceId(s, actor);
     return multiplayerFixture(s, actor, async (tx, env) => {
       await findOpponentMutation.run(
@@ -47,6 +49,7 @@ export const pairGameOpponents = scenarioAction<
 >({
   name: 'pairGameOpponents',
   act: async (s, actor = 'alice', firstIsWhite?: boolean) => {
+    await holdOpponentPool(s);
     // The pass may run again after its first attempt: keep everyone it formed.
     const formed = new Set<string>();
     await multiplayerFixture(s, actor, async (tx) => {

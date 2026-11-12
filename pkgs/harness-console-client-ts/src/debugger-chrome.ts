@@ -1,14 +1,4 @@
 import type { DebuggerViewId } from '@pkgs/harness-console-shared-ts/debugger-views';
-import type {
-  HarnessChromeKind,
-  HarnessNodeKind,
-} from '@pkgs/harness-console-shared-ts/node';
-import {
-  coerceHarnessNodeKind,
-  formatHarnessNodeLabel,
-  HARNESS_CHROME_KINDS,
-  HARNESS_NODE_LABELS,
-} from '@pkgs/harness-console-shared-ts/node';
 import type { TabStripItem } from '@pkgs/ui-devtools-client-ts/tab-strip-types';
 import type { IconComponent } from '@pkgs/ui-root-client-ts/create-icon';
 import {
@@ -19,7 +9,6 @@ import {
   ShuffleIcon,
   TerminalIcon,
 } from '@pkgs/ui-root-client-ts/icons';
-import { harnessNodeIcon } from './node-chrome';
 
 export type PaneNavValue = {
   readonly view: DebuggerViewId;
@@ -29,17 +18,24 @@ export type PaneNavPatch = {
   readonly view?: string;
 };
 
-export type DebuggerChromeNav = {
-  readonly kind: HarnessChromeKind;
-  readonly instance: string;
+export type PaneNavHistoryMode = 'push' | 'replace';
+
+/**
+ * Where the console is, held by the host so it can live in the address: the
+ * serialized window layout (`null` for the starting arrangement) and the
+ * view each node's panel shows, keyed by panel id.
+ */
+export type HarnessConsoleNav = {
+  readonly layout: string | null;
   readonly panes: Readonly<Record<string, PaneNavValue>>;
-  readonly onKindChange: (kind: HarnessChromeKind) => void;
-  readonly onInstanceChange: (instance: string) => void;
-  /** Patch one node's pane; `replace` for high-frequency table selection. */
+  readonly onLayoutChange: (
+    layout: string | null,
+    mode: PaneNavHistoryMode
+  ) => void;
   readonly onPanePatch: (
     id: string,
     patch: PaneNavPatch,
-    mode?: 'push' | 'replace'
+    mode?: PaneNavHistoryMode
   ) => void;
 };
 
@@ -57,30 +53,7 @@ const VIEW_CHROME: Readonly<
   routes: { label: 'Routes', icon: ShuffleIcon },
 };
 
-export const DEBUGGER_KIND_TABS: readonly TabStripItem[] =
-  HARNESS_CHROME_KINDS.map((id: HarnessChromeKind) => ({
-    id,
-    label: HARNESS_NODE_LABELS[id],
-    icon: harnessNodeIcon(id),
-  }));
-
 export function debuggerViewTabItem(view: DebuggerViewId): TabStripItem {
   const chrome = VIEW_CHROME[view];
   return { id: view, label: chrome.label, icon: chrome.icon };
-}
-
-export function debuggerInstanceTabItem(args: {
-  readonly id: string;
-  readonly kind: string;
-}): TabStripItem {
-  const kind =
-    coerceHarnessNodeKind(args.kind) ??
-    coerceHarnessNodeKind(args.id.split(':')[0] ?? '');
-  return {
-    id: args.id,
-    label: formatHarnessNodeLabel({ id: args.id, kind: kind ?? args.kind }),
-    ...(kind !== null
-      ? { icon: harnessNodeIcon(kind as HarnessNodeKind) }
-      : {}),
-  };
 }

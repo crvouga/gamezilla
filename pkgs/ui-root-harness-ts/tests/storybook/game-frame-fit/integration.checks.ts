@@ -26,11 +26,17 @@ test('storybook integration: game frame fit 768x900 keeps Offer draw and Resign 
 }) => {
   await page.setViewportSize({ width: 768, height: 900 });
   await openStory(page, 'screens-games-chess-board--your-turn');
-  for (const name of [/^Offer draw/, /^Resign/]) {
+  // During play Offer draw and Resign wait behind Game menu, the play
+  // screen's one way to the game's commands: it is in the first view, and
+  // so are both commands once it is pressed.
+  const inView = async (name: RegExp) => {
     const action = await page.getByRole('button', { name }).boundingBox();
     if (!action) throw new Error(`Missing ${String(name)}`);
     expect(action.y + action.height).toBeLessThanOrEqual(900);
-  }
+  };
+  await inView(/^Game menu/);
+  await page.getByRole('button', { name: /^Game menu/ }).click();
+  for (const name of [/^Offer a draw/, /^Resign/]) await inView(name);
 });
 
 // regression: game-frame-finished-board-shrinks-under-result

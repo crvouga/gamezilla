@@ -12,6 +12,7 @@ import {
   MORGAN,
   ROBIN,
 } from '@libs/spaces-client-ts/spaces-story.example';
+import { stageOverlayOpening } from '@pkgs/turn-game-client-ts/stage-overlay';
 import type { GameFrameBoardProps } from '@pkgs/turn-game-shared-ts/game-frame';
 import type {
   GameBoardProps,
@@ -303,8 +304,11 @@ function GameFrameTable(props: TableProps): JSX.Element {
       error={props.error ?? ''}
       boardFit={props.presentation.frame.boardFit}
       boardAlign={props.presentation.frame.boardAlign}
+      boardWorkspace={props.presentation.frame.boardWorkspace === true}
       connection={props.connection ?? 'online'}
       phase={phase()}
+      // Opened as the app opens a game: one already over under its result.
+      overlay={stageOverlayOpening(over() ? 'over' : 'play')}
       viewerSide={viewer()}
       status={tableStatus(props)}
       table={{

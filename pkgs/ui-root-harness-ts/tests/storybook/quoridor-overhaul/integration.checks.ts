@@ -43,6 +43,8 @@ const journeys = {
 /** Throttled phone cases repeat three times so timing is not one sample. */
 const repeats = (width: number) => (width === 390 ? [1, 2, 3] : [1]);
 
+// The phone's fixed game view clipped a proposed wall's Place under its
+// command bar (precise-coordinates at 390); Quoridor keeps the flowing page.
 for (const variant of ['classic', 'hill'] as const)
   for (const width of [390, 768, 1440])
     for (const theme of ['light', 'dark'])

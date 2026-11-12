@@ -1,4 +1,4 @@
 {
   "summary": "A rebrand required editing committed identity values and committing generated web/native assets. External configuration now supplies validated identity, build outputs are ignored, and the synthetic rebrand must leave every tracked file unchanged. Configured builds reject absent or malformed input instead of using the verification fixture.",
-  "regressionTest": "libs/product-identity-shared-ts/tests/identity-input.test.ts"
+  "regressionTest": "libs/product-brand-shared-ts/tests/identity-input.test.ts"
 }

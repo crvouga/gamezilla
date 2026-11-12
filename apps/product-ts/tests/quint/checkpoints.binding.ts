@@ -13,7 +13,7 @@ import {
   reopenTestingTool,
   saveCheckpoint,
   sharedCheckpointView,
-} from '@apps/product-ts/developer-checkpoints';
+} from '@apps/harness-ts/developer-checkpoints';
 import type { QuintHarnessWorld } from '@libs/harness-ts/quint-world';
 import { bindQuintModel } from '@pkgs/quint-shared-ts/registry';
 import interruptedAfterFailure from './fixtures/checkpoint-interrupted-save-clears-restore-failure.itf.json';

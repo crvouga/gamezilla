@@ -2383,6 +2383,42 @@
       "cache": false,
       "passThroughEnv": ["*"]
     },
+    "//#task:preview:build": {
+      "cache": false,
+      "dependsOn": [
+        "//#task:i18n:compile",
+        "@pkgs/ui-root-harness-ts#storybook:build"
+      ],
+      "passThroughEnv": ["*"]
+    },
+    "//#task:preview:deploy": {
+      "cache": false,
+      "dependsOn": [
+        "//#task:i18n:compile",
+        "@pkgs/ui-root-harness-ts#storybook:build"
+      ],
+      "passThroughEnv": ["*"]
+    },
+    "//#task:preview:main": {
+      "cache": false,
+      "dependsOn": [
+        "//#task:i18n:compile",
+        "@pkgs/ui-root-harness-ts#storybook:build"
+      ],
+      "passThroughEnv": ["*"]
+    },
+    "//#task:preview:test": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "//#task:preview:destroy": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "//#task:preview:sweep": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
     "//#task:inspect": {
       "cache": false,
       "passThroughEnv": ["*"]
@@ -5830,6 +5866,10 @@
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-180/**"]
+    },
+    "//#task:alerts": {
+      "cache": false,
+      "passThroughEnv": ["*"]
     }
   }
 }

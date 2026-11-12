@@ -16,6 +16,9 @@
  *   slices only narrow what an edit reruns while they match what they are
  *   derived from.
  *
+ * One rule guards the other direction, a cache hit that should have missed:
+ * **an input naming a file that does not exist** (`missing-input`).
+ *
  * Every message says what is wrong, why it costs cache hits, and what to do.
  */
 import type { Blast, GraphPackage } from './cache-graph';
@@ -258,6 +261,41 @@ export function broadInputViolations(
         '  Why: an edit to any matching file in any package reruns the task, so one dependency bump somewhere misses the cache here.',
         '  Fix: name the packages the task reads, as a brace list (`$TURBO_ROOT$/libs/{a,b}/package.json`), and add a test that fails when a package it should read is not listed, as `cache-package-paths.test.ts` does for the game manifests.',
         '  A task that scans the whole workspace on purpose (a repository gate) goes in `broadInputs` in cache-hygiene.json, with the number of globs and the reason.',
+      ].join('\n'),
+    });
+  }
+  return violations;
+}
+
+const GLOB_CHAR = /[*?{}[\]]/;
+
+/**
+ * The repository paths a task's inputs name exactly (`$TURBO_ROOT$/x/y.ts`,
+ * no wildcard). Turborepo hashes a named file that does not exist as
+ * nothing, so a renamed source silently drops out of the task's hash.
+ */
+export function namedInputs(inputs: readonly string[]): string[] {
+  return inputs
+    .filter((input) => input.startsWith('$TURBO_ROOT$/'))
+    .map((input) => input.slice('$TURBO_ROOT$/'.length))
+    .filter((path) => !GLOB_CHAR.test(path));
+}
+
+export function missingInputViolations(
+  tasks: readonly TaskInputs[],
+  exists: (repoPath: string) => boolean
+): Violation[] {
+  const violations: Violation[] = [];
+  for (const { task, inputs } of tasks) {
+    const missing = namedInputs(inputs).filter((path) => !exists(path));
+    if (missing.length === 0) continue;
+    violations.push({
+      rule: 'missing-input',
+      subject: task,
+      message: [
+        `${task} names inputs that do not exist: ${missing.map((p) => `\`${p}\``).join(', ')}.`,
+        '  Why: Turborepo hashes a missing file as nothing, so the file the task really reads (renamed or moved) is not in its hash, and an edit to it replays a stale cached verdict.',
+        '  Fix: name the file the task reads now, or remove the input if the task no longer reads one.',
       ].join('\n'),
     });
   }

@@ -55,6 +55,7 @@ test('main requires verified PRs without approvals a solo maintainer cannot give
         readonly context: string;
         readonly integration_id: number;
         readonly outage_tolerant?: boolean;
+        readonly advisory?: boolean;
       }
   );
   // regression: codeql-bundle-download-504 — enforced by verify:end instead.
@@ -70,6 +71,8 @@ test('main requires verified PRs without approvals a solo maintainer cannot give
       outage_tolerant: true,
     },
     { context: 'CodeQL', integration_id: 57789, outage_tolerant: true },
+    // A Preview that could not deploy is reported on the PR, not a merge block.
+    { context: 'preview', integration_id: 15368, advisory: true },
     { context: 'verify:end', integration_id: 15368 },
     { context: 'verify:start', integration_id: 15368 },
   ]);

@@ -10,11 +10,9 @@
     // first paint so boot never flashes from one scheme to the other.
     (function () {
       var scheme;
-      // The harness console keeps no stored preference: it follows the system.
-      var harness = /^\/harness(\/|$)/.test(location.pathname);
       try {
         var stored = JSON.parse(localStorage.getItem('ui.prefs/color-scheme'));
-        scheme = !harness && stored && stored['ui.prefs/value'];
+        scheme = stored && stored['ui.prefs/value'];
       } catch (_) {}
       if (scheme !== 'light' && scheme !== 'dark') {
         scheme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';

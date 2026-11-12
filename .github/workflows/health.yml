@@ -34,13 +34,22 @@ run-name: "Health · ${{ github.event_name == 'schedule' && 'schedule' || 'manua
 # answered quickly, all read from Grafana Cloud's Prometheus API with the
 # environment's read secrets. Each objective is judged over its last
 # 7 days and by its burn-rate alert policies; a policy that fires fails this
-# job with the owner, runbook and `bun obs` command in the log, which is how an
-# alert reaches people while no Grafana instance is active
+# job with the environment, objective file, owner, runbook and `bun obs`
+# command in the log, which is how an alert reaches people while no Grafana
+# instance is active
 # (libs/observability-server-ts/README.md, "Service level objectives"). Objectives
 # never run inside `health`, which gates every deploy: a bad month must not
 # block a fix. Branch Health runs verify current probes without attaching that
 # historical deficit to the fix's PR. Scheduled and manual main runs retain the
 # objective.
+#
+# Then health:objectives turns every failing objective into one work item per
+# environment (libs/observability-server-ts/scripts/health-alerts.ts): the
+# numbers, the objective file, the runbook, and the evidence its `bun obs`
+# query finds with this job's credentials. They go to the job summary, the
+# job log (where `bun alerts` reads them with nothing but gh) and the CI
+# artifact `health-alerts-<run id>`. That step never decides the job: the
+# objectives step does.
 
 # Least privilege: read the code and run metadata. Jobs that read secrets or
 # AWS add the OIDC token they trust.
@@ -258,7 +267,7 @@ jobs:
     needs: [health-matrix, health-env]
     if: ${{ !cancelled() && github.ref == 'refs/heads/main' && needs.health-matrix.outputs.all != '[]' }}
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 25
     permissions:
       contents: read # check out the code
       id-token: write # mint the OIDC token Infisical and AWS trust
@@ -284,3 +293,21 @@ jobs:
             SECRETS_ENV="$env" bun run --filter @apps/product-ts health:objectives || status=1
           done
           exit "$status"
+
+      # One work item per failing objective per environment, with the evidence
+      # its read-only `bun obs` query finds. Never decides the job.
+      - name: Collect alert evidence
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        timeout-minutes: 8
+        run: bun run libs/observability-server-ts/scripts/health-alerts.ts
+
+      # The bucket's credentials come from the first environment's secrets
+      # (every environment imports the shared ones), for this step only.
+      - name: Upload alert work items
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        run: |
+          SECRETS_ENV="$(bun -p 'JSON.parse(process.env.ENVS)[0]')" \
+            bun run libs/secrets-server-ts/scripts/ci-artifacts-run.ts \
+            upload health-alerts-"${GITHUB_RUN_ID}" .cache/health-alerts

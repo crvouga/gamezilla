@@ -47,6 +47,10 @@ export async function measureSokoban(
   const step = typeof plan === 'number' ? walking(plan) : plan.step;
   const name = typeof plan === 'number' ? 'responsiveness' : plan.name;
   const cdp = await page.context().newCDPSession(page);
+  // Garbage left by the steps before timing (captures, video and trace) is
+  // not a move's: collected now, it cannot land as a long task on the first
+  // timed moves (a lone ~90 ms task on the hosted runner, runs 43126884057).
+  await cdp.send('HeapProfiler.collectGarbage');
   await cdp.send('Emulation.setCPUThrottlingRate', { rate });
   try {
     await page.evaluate(() => {

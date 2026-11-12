@@ -206,8 +206,16 @@ test('health generates feature and objective stubs with resolvable declared brid
     );
     const objectiveStubs = writeSloStubs(
       [join(REPO_ROOT, 'specs/runtime/availability.openslo.yaml')],
-      dirs
+      dirs,
+      'prd'
     );
+    // regression: objective-failures-unnamed-environment
+    expect(
+      readFileSync(
+        resolve(import.meta.dir, '..', objectiveStubs[0] ?? ''),
+        'utf8'
+      )
+    ).toContain('environment: "prd"');
     const manifest = JSON.parse(
       readFileSync(join(import.meta.dir, '../package.json'), 'utf8')
     ) as { readonly devDependencies: Readonly<Record<string, string>> };

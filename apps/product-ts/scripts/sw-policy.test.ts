@@ -1,7 +1,7 @@
 /**
  * The offline-shell analysis over built output: what the wall client can load
- * (static, lazy and preload edges from `index.html`, never entering the
- * harness boot) must all be in the Workbox precache. `verify:offline-shell`
+ * (static, lazy and preload edges from `index.html`) must all be in the
+ * Workbox precache. `verify:offline-shell`
  * runs the same analysis against the real `dist/`.
  */
 import { describe, expect, test } from 'bun:test';
@@ -121,22 +121,18 @@ function input(
     chunkSources: new Map(Object.entries(chunks)),
     indexHtml: INDEX_HTML,
     swSource: sw(precached),
-    excludedRoots: ['assets/harness-boot.js'],
     extraRoots: [],
   };
 }
 
 describe('offline-shell verdict', () => {
   const chunks = {
-    'assets/index-A1.js': `${viteChunk(['web-B2'], ['harness-boot', 'lazy'])}`,
+    'assets/index-A1.js': viteChunk(['web-B2'], ['lazy']),
     'assets/web-B2.js': viteChunk(['shared'], []),
     'assets/shared.js': '',
     'assets/lazy.js': viteChunk(['heavy'], []),
     'assets/lazy.css': '',
     'assets/heavy.js': '',
-    'assets/harness-boot.js': viteChunk(['shared', 'harness-only'], []),
-    'assets/harness-boot.css': '',
-    'assets/harness-only.js': '',
   };
   const wallShell = [
     'index.html',
@@ -162,7 +158,7 @@ describe('offline-shell verdict', () => {
     ]);
   });
 
-  test('what only the harness reaches is not required', () => {
+  test('a precache of every reachable file passes', () => {
     const report = analyzeOfflineShell(input(chunks, wallShell));
     expect(report.reachable).toEqual([...wallShell].sort());
     expect(report.notPrecached).toEqual([]);
@@ -201,7 +197,6 @@ describe('offline-shell verdict', () => {
 type Graph = {
   readonly statics: readonly (readonly number[])[];
   readonly lazies: readonly (readonly number[])[];
-  readonly harness: number;
 };
 
 /** Random chunk graphs: chunk 0 is the entry, edges point anywhere. */
@@ -210,11 +205,7 @@ const graphArb = fc.integer({ min: 2, max: 12 }).chain((size) => {
     fc.uniqueArray(fc.nat({ max: size - 1 }), { maxLength: 3 }),
     { minLength: size, maxLength: size }
   );
-  return fc.record({
-    statics: edges,
-    lazies: edges,
-    harness: fc.integer({ min: 1, max: size - 1 }),
-  });
+  return fc.record({ statics: edges, lazies: edges });
 });
 
 const chunkName = (i: number): string => `c${String(i)}`;
@@ -229,7 +220,7 @@ function oracle(graph: Graph): string[] {
   const stack = [0];
   while (stack.length > 0) {
     const node = stack.pop() as number;
-    if (seen.has(node) || node === graph.harness) continue;
+    if (seen.has(node)) continue;
     seen.add(node);
     stack.push(...(graph.statics[node] ?? []), ...(graph.lazies[node] ?? []));
   }
@@ -258,7 +249,6 @@ function graphInput(graph: Graph): Omit<OfflineShellInput, 'swSource'> {
     files,
     chunkSources,
     indexHtml: `<script type="module" src="/assets/${chunkName(0)}.js"></script>`,
-    excludedRoots: [`assets/${chunkName(graph.harness)}.js`],
     extraRoots: [],
   };
 }
@@ -326,40 +316,5 @@ test('precaches the eager entry graph without requiring separate surface chunks'
     'assets/main.js',
     'index.html',
     'sql-workers/sqlite3.wasm',
-  ]);
-});
-
-test('keeps what only the harness reaches out of the wall shell', async () => {
-  const store = new ObjectStoreImplInMemory();
-  await writeUtf8(
-    store,
-    'index.html',
-    '<script type="module" src="/assets/index.js"></script>'
-  );
-  await writeUtf8(
-    store,
-    'assets/index.js',
-    'import"./shared.js";const h=()=>import(`./harness-boot.js`);export{h};'
-  );
-  await writeUtf8(
-    store,
-    'assets/harness-boot.js',
-    'import"./shared.js";import"./postgres.js";export{};'
-  );
-  await writeUtf8(store, 'assets/shared.js', 'export{};');
-  await writeUtf8(store, 'assets/postgres.js', 'export{};');
-  await writeUtf8(
-    store,
-    '.vite/manifest.json',
-    JSON.stringify({
-      'src/harness-boot.tsx': { file: 'assets/harness-boot.js' },
-    })
-  );
-  const graph = await readDistGraph(store);
-  expect(graph.excludedRoots).toEqual(['assets/harness-boot.js']);
-  expect(wallReachable(graph)).toEqual([
-    'assets/index.js',
-    'assets/shared.js',
-    'index.html',
   ]);
 });

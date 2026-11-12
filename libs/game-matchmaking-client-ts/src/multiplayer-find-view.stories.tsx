@@ -16,7 +16,7 @@ const meta = {
   component: MultiplayerScreenView,
   tags: ['autodocs'],
   parameters: STORY_PARAMETERS,
-  render: renderStory(),
+  render: (args) => renderStory()(args),
   args: {
     ...storyArgs(),
     stage: 'idle',

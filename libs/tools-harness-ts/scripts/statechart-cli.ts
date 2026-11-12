@@ -16,6 +16,7 @@ import { guideIntegrityProblems } from './statechart-integrity';
 import { guideNotes, languageContracts } from './statechart-language';
 import {
   declaredProductRoutes,
+  PRODUCT_LINK_SOURCES,
   PRODUCT_ROUTE_ROOTS,
   routeCoverageProblems,
 } from './statechart-routes';
@@ -70,11 +71,7 @@ function sourceFiles(): Map<string, string> {
       }),
       slashPath
     ),
-    'libs/game-puzzle-client-ts/src/puzzle-link-client.ts',
-    'libs/game-puzzle-shared-ts/src/puzzle-link.ts',
-    'libs/game-matchmaking-client-ts/src/multiplayer-link-client.tsx',
-    'libs/game-matchmaking-shared-ts/src/multiplayer-link.ts',
-    'libs/observatory-shared-ts/src/observatory-routes.ts',
+    ...PRODUCT_LINK_SOURCES,
   ]);
   for (const path of routes)
     sources.set(path, readFileSync(join(ROOT, path), 'utf8'));

@@ -30,7 +30,7 @@ const meta = {
   component: MultiplayerScreenView,
   tags: ['autodocs'],
   parameters: STORY_PARAMETERS,
-  render: renderStory({ result: WON }),
+  render: (args) => renderStory({ result: WON })(args),
   args: {
     ...storyArgs(),
     stage: 'finished',
@@ -47,54 +47,58 @@ export const AfterTheGame: Story = {};
 
 /** A rematch offered to the person is the one filled command. */
 export const RematchOffered: Story = {
-  render: renderStory({
-    result: {
-      tone: 'lost',
-      title: 'Your opponent won.',
-      caption: caption(
-        'By resignation. Bob offered you a multiplayer rematch.',
-        'destructive',
-        '-8'
-      ),
-    },
-  }),
+  render: (args) =>
+    renderStory({
+      result: {
+        tone: 'lost',
+        title: 'Your opponent won.',
+        caption: caption(
+          'By resignation. Bob offered you a multiplayer rematch.',
+          'destructive',
+          '-8'
+        ),
+      },
+    })(args),
   args: { game: { ...STORY_FINISHED_GAME, rematch: 'answer' } },
 };
 
 /** A drawn game says so, in its own tone. */
 export const Drawn: Story = {
-  render: renderStory({
-    result: {
-      tone: 'drawn',
-      title: 'The game is drawn.',
-      caption: caption('Drawn by agreement.', 'neutral', '0'),
-    },
-  }),
+  render: (args) =>
+    renderStory({
+      result: {
+        tone: 'drawn',
+        title: 'The game is drawn.',
+        caption: caption('Drawn by agreement.', 'neutral', '0'),
+      },
+    })(args),
 };
 
 /** An aborted game has no result to rematch and no record to keep. */
 export const Aborted: Story = {
-  render: renderStory({
-    result: {
-      tone: 'neutral',
-      aborted: true,
-      title: 'The game was aborted.',
-      caption: "The first move wasn't made in time.",
-    },
-  }),
+  render: (args) =>
+    renderStory({
+      result: {
+        tone: 'neutral',
+        aborted: true,
+        title: 'The game was aborted.',
+        caption: "The first move wasn't made in time.",
+      },
+    })(args),
   args: { game: { ...STORY_FINISHED_GAME, rematch: 'none', record: null } },
 };
 
 /** A watcher reads the result and may step through the moves. */
 export const Watching: Story = {
-  render: renderStory({
-    result: {
-      tone: 'neutral',
-      title:
-        'Watching multiplayer Connect Four. alice won the multiplayer game.',
-      caption: 'By resignation.',
-    },
-  }),
+  render: (args) =>
+    renderStory({
+      result: {
+        tone: 'neutral',
+        title:
+          'Watching multiplayer Connect Four. alice won the multiplayer game.',
+        caption: 'By resignation.',
+      },
+    })(args),
   args: {
     game: { ...STORY_FINISHED_GAME, rematch: 'none', newOpponent: false },
   },

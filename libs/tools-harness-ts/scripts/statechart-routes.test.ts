@@ -1,10 +1,13 @@
 import { describe, expect, test } from 'bun:test';
+import { join } from 'node:path';
 import type { MachineConfig } from '@crvouga/atlas';
 import {
   declaredProductRoutes,
+  PRODUCT_LINK_SOURCES,
   PRODUCT_ROUTE_ROOTS,
   routeCoverageProblems,
 } from './statechart-routes';
+import { readTurboTasks } from './turbo-config';
 
 function sources(): Map<string, string> {
   return new Map([
@@ -39,20 +42,6 @@ function sources(): Map<string, string> {
       'libs/example-shared/src/paths.ts',
       "export const DETAIL = '/example/:id';",
     ],
-    [
-      PRODUCT_ROUTE_ROOTS[2],
-      `
-      import { HARNESS_PATH } from './console-nav-real';
-      function isHarnessPath(pathname: string) {
-        return pathname === HARNESS_PATH || pathname.startsWith(HARNESS_PATH + '/');
-      }
-      function surfaceAt(pathname: string) {
-        if (isHarnessPath(pathname)) return 'harness';
-        return 'app';
-      }
-    `,
-    ],
-    [PRODUCT_ROUTE_ROOTS[3], "export const HARNESS_PATH = '/harness';"],
   ]);
 }
 
@@ -64,7 +53,7 @@ function chart(): MachineConfig {
       Home: { meta: { route: '/' } },
       Detail: {
         meta: {
-          routes: ['/example/:id', '/*all', '/harness'],
+          routes: ['/example/:id', '/*all'],
         },
       },
     },
@@ -72,13 +61,12 @@ function chart(): MachineConfig {
 }
 
 describe('declared product route closure', () => {
-  test('resolves the actual composition, aliases, shared constants and surface patterns without loading product code', () => {
+  test('resolves the actual composition, aliases and shared constants without loading product code', () => {
     const routes = declaredProductRoutes(sources());
     expect(routes.map((route) => route.path)).toEqual([
       '/',
       '/*all',
       '/example/:id',
-      '/harness',
     ]);
     expect(routes.find((route) => route.path === '/example/:id')?.source).toBe(
       'libs/example-client/src/sub-client.tsx'
@@ -142,11 +130,11 @@ describe('declared product route closure', () => {
       source: 'libs/example-client/src/sub-client.tsx',
     });
     const detail = {
-      meta: { routes: ['/more/:id-stats', '/*all', '/harness'] },
+      meta: { routes: ['/more/:id-stats', '/*all'] },
     };
     const owned = { ...chart(), states: { ...chart().states, Detail: detail } };
     expect(routeCoverageProblems(owned, routes)).toEqual([]);
-    detail.meta.routes = ['/more/example-stats', '/*all', '/harness'];
+    detail.meta.routes = ['/more/example-stats', '/*all'];
     expect(
       routeCoverageProblems(owned, routes).some((issue) =>
         issue.message.includes('no chart state owns')
@@ -209,26 +197,13 @@ describe('declared product route closure', () => {
     );
   });
 
-  test('rejects route overrides and unrecognized product surfaces', () => {
+  test('rejects route overrides', () => {
     const files = sources();
     files.set(
       PRODUCT_ROUTE_ROOTS[0],
       "export const SHELL_ROUTE_TABLE = [{ path: '/', ...extra }]; export const NOT_FOUND_ROUTE_PATH = '/*all';"
     );
     expect(() => declaredProductRoutes(files)).toThrow('Route object spreads');
-    files.set(PRODUCT_ROUTE_ROOTS[0], sources().get(PRODUCT_ROUTE_ROOTS[0])!);
-    files.set(
-      PRODUCT_ROUTE_ROOTS[2],
-      sources()
-        .get(PRODUCT_ROUTE_ROOTS[2])!
-        .replace(
-          "return 'app';",
-          "if (isSimulatorPath(pathname)) return 'simulator'; return 'app';"
-        )
-    );
-    expect(() => declaredProductRoutes(files)).toThrow(
-      'declare every public surface'
-    );
   });
 
   test('reports unowned and invented screen addresses while allowing several outcomes on one route', () => {
@@ -245,38 +220,9 @@ describe('declared product route closure', () => {
     ).toBe(true);
     expect(
       problems.some((problem) =>
-        problem.message.includes('/harness: no chart state')
+        problem.message.includes('/*all: no chart state')
       )
     ).toBe(true);
-  });
-
-  test('detects additional literal top-level addresses and rejects unresolved path predicates', () => {
-    const files = sources();
-    const original = files.get(PRODUCT_ROUTE_ROOTS[2])!;
-    files.set(
-      PRODUCT_ROUTE_ROOTS[2],
-      original.replace(
-        'pathname === HARNESS_PATH ||',
-        "pathname === '/simulator' || pathname === HARNESS_PATH ||"
-      )
-    );
-    const routes = declaredProductRoutes(files);
-    expect(routes.some((route) => route.path === '/simulator')).toBe(true);
-    expect(
-      routeCoverageProblems(chart(), routes).some((problem) =>
-        problem.message.includes('/simulator: no chart state')
-      )
-    ).toBe(true);
-    files.set(
-      PRODUCT_ROUTE_ROOTS[2],
-      original.replace(
-        'pathname === HARNESS_PATH || pathname.startsWith(HARNESS_PATH +',
-        'pathname === unknownRoute || pathname.startsWith(HARNESS_PATH +'
-      )
-    );
-    expect(() => declaredProductRoutes(files)).toThrow(
-      'Unresolved route binding'
-    );
   });
 
   test('rejects malformed or repeated metadata instead of accepting it as route coverage', () => {
@@ -297,4 +243,21 @@ describe('declared product route closure', () => {
       )
     ).toBe(true);
   });
+});
+
+// regression: gate-inputs-name-missing-files
+test('turbo hashes every source the statechart verification reads', () => {
+  const inputs = (
+    readTurboTasks(join(import.meta.dirname, '../../..'))[
+      '@libs/tools-harness-ts#ci:statecharts'
+    ]?.inputs ?? []
+  ).map((input) => input.replace('$TURBO_ROOT$/', ''));
+  const unhashed = [
+    ...PRODUCT_ROUTE_ROOTS,
+    ...PRODUCT_LINK_SOURCES,
+    'libs/example-client-ts/src/sub-client.tsx',
+    'specs/example/example.feature',
+    'docs/statecharts/README.md',
+  ].filter((path) => !inputs.some((input) => new Bun.Glob(input).match(path)));
+  expect(unhashed).toEqual([]);
 });

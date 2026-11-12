@@ -20,6 +20,7 @@
       "!.superset/config.json",
       "!.super.engineering/config.json",
       "!apps/product-ts/public/sql-workers/**/*.js",
+      "!apps/harness-ts/public/sql-workers/**/*.js",
       "!docs/statecharts/index.html",
       "!.agents/skills/**/assets",
       "!.agents/skills/impeccable",
@@ -76,6 +77,7 @@
       "!**/*.html",
       "!apps/client-ts/public/sql-workers/**/*.js",
       "!apps/product-ts/public/sql-workers/**/*.js",
+      "!apps/harness-ts/public/sql-workers/**/*.js",
       "!.agents/skills/**/assets",
       "!pkgs/babel-plugins/**"
     ],
@@ -194,6 +196,7 @@
         "!**/*.test.{ts,tsx}",
         "!**/*-harness-ts/**",
         "!**/apps/product-ts/src/**",
+        "!**/apps/harness-ts/src/**",
         "!**/libs/harness-ts/src/**"
       ]
     },
@@ -285,6 +288,7 @@
         "!**/*.test.{ts,tsx}",
         "!**/*-harness-ts/**",
         "!**/apps/product-ts/src/**",
+        "!**/apps/harness-ts/src/**",
         "!**/libs/harness-ts/src/**"
       ]
     },
@@ -376,6 +380,7 @@
         "!**/*.test.{ts,tsx}",
         "!**/*-harness-ts/**",
         "!**/apps/product-ts/src/**",
+        "!**/apps/harness-ts/src/**",
         "!**/libs/harness-ts/src/**"
       ]
     },
@@ -408,6 +413,7 @@
         "!**/*.test.{ts,tsx}",
         "!**/*-harness-ts/**",
         "!**/apps/product-ts/src/**",
+        "!**/apps/harness-ts/src/**",
         "!**/libs/harness-ts/src/**"
       ]
     },
@@ -429,6 +435,7 @@
         "!**/*.test.{ts,tsx}",
         "!**/*-harness-ts/**",
         "!**/apps/product-ts/src/**",
+        "!**/apps/harness-ts/src/**",
         "!**/libs/harness-ts/src/**"
       ]
     },
@@ -617,6 +624,7 @@
         "!**/*.test.{ts,tsx}",
         "!**/*-harness-ts/**",
         "!**/apps/product-ts/src/**",
+        "!**/apps/harness-ts/src/**",
         "!**/libs/harness-ts/src/**"
       ]
     },
@@ -627,6 +635,7 @@
         "**/libs/**/*.{ts,tsx}",
         "!**/*-harness-ts/**",
         "!**/apps/product-ts/src/**",
+        "!**/apps/harness-ts/src/**",
         "!**/libs/harness-ts/src/**"
       ]
     },
@@ -690,6 +699,7 @@
         "!**/*.test.{ts,tsx}",
         "!**/*-harness-ts/**",
         "!**/apps/product-ts/src/**",
+        "!**/apps/harness-ts/src/**",
         "!**/libs/harness-ts/src/**"
       ]
     },
@@ -866,6 +876,7 @@
         "!**/*.test.{ts,tsx}",
         "!**/*-harness-ts/**",
         "!**/apps/product-ts/src/**",
+        "!**/apps/harness-ts/src/**",
         "!**/libs/harness-ts/src/**"
       ]
     },
@@ -920,6 +931,7 @@
         "!**/*.test.{ts,tsx}",
         "!**/*-harness-ts/**",
         "!**/apps/product-ts/src/**",
+        "!**/apps/harness-ts/src/**",
         "!**/libs/harness-ts/src/**"
       ]
     },
@@ -975,6 +987,7 @@
         "!**/*.test.{ts,tsx}",
         "!**/*-harness-ts/**",
         "!**/apps/product-ts/src/**",
+        "!**/apps/harness-ts/src/**",
         "!**/libs/harness-ts/src/**"
       ]
     },
@@ -1056,6 +1069,7 @@
         "!**/*.test.{ts,tsx}",
         "!**/*-harness-ts/**",
         "!**/apps/product-ts/src/**",
+        "!**/apps/harness-ts/src/**",
         "!**/libs/harness-ts/src/**"
       ]
     },
@@ -1146,6 +1160,7 @@
         "!**/*.test.{ts,tsx}",
         "!**/*-harness-ts/**",
         "!**/apps/product-ts/src/**",
+        "!**/apps/harness-ts/src/**",
         "!**/libs/harness-ts/src/**",
         "!**/pkgs/feedback-server-ts/src/vite-handler.ts",
         "!**/libs/db-server-ts/src/database-url-policy-tooling.ts"
@@ -1166,6 +1181,7 @@
         "!**/*.test.{ts,tsx}",
         "!**/*-harness-ts/**",
         "!**/apps/product-ts/src/**",
+        "!**/apps/harness-ts/src/**",
         "!**/libs/harness-ts/src/**"
       ]
     },
@@ -1222,6 +1238,7 @@
         "!**/*.test.{ts,tsx}",
         "!**/*-harness-ts/**",
         "!**/apps/product-ts/src/**",
+        "!**/apps/harness-ts/src/**",
         "!**/libs/harness-ts/src/**"
       ]
     },
@@ -1500,6 +1517,7 @@
         "!**/apps/server-ts/src/product-server.ts",
         "!**/apps/server-ts/src/worker-telemetry.ts",
         "!**/apps/product-ts/**",
+        "!**/apps/harness-ts/**",
         "!**/libs/harness-ts/src/**",
         "!**/libs/secrets-shared-ts/src/**",
         "!**/libs/secrets-server-ts/scripts/**",
@@ -1508,6 +1526,7 @@
         "!**/libs/secrets-shared-ts/tests/**",
         "!**/*-harness-ts/**",
         "!**/apps/product-ts/src/**",
+        "!**/apps/harness-ts/src/**",
         "!**/scripts/**",
         "!**/*.test.{ts,tsx}",
         "!**/tests/**"
@@ -1595,9 +1614,11 @@
         "!**/libs/app-root-client-ts/src/wall-client-env.ts",
         "!**/libs/app-root-shared-ts/src/auth-client-storage.ts",
         "!**/apps/product-ts/**",
+        "!**/apps/harness-ts/**",
         "!**/libs/harness-ts/src/**",
         "!**/*-harness-ts/**",
         "!**/apps/product-ts/src/**",
+        "!**/apps/harness-ts/src/**",
         "!**/scripts/**",
         "!**/*.test.{ts,tsx}",
         "!**/tests/**"
@@ -1610,9 +1631,11 @@
         "**/libs/**/*.{ts,tsx}",
         "!**/*-harness-ts/**",
         "!**/apps/product-ts/src/**",
+        "!**/apps/harness-ts/src/**",
         "!**/libs/harness-ts/src/**",
         "!**/libs/harness-ts/scripts/**",
         "!**/apps/product-ts/**",
+        "!**/apps/harness-ts/**",
         "!**/*.test.{ts,tsx}",
         "!**/*.spec.{ts,tsx}",
         "!**/tests/**"

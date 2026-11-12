@@ -12,14 +12,19 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { readEvidence } from '@pkgs/conformance-server-ts/evidence-store';
 import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
+import { readFailures } from '@pkgs/openslo-server-ts/failures';
 import { sloStubFileName, sloStubSource } from '@pkgs/openslo-shared-ts/stubs';
 
 const PACKAGE_DIR = join(import.meta.dir, '..');
 const SPEC_URI =
   'pkgs/openslo-server-ts/tests/fixtures/requests-served.openslo.yaml';
 
-function runStub(entryDir: string) {
-  const outDir = join(PACKAGE_DIR, '.cache/test-alert-stubs', entryDir);
+function runStub(entryDir: string, environment?: string) {
+  const outDir = join(
+    PACKAGE_DIR,
+    '.cache/test-alert-stubs',
+    `${entryDir}${environment === undefined ? '' : `-${environment}`}`
+  );
   removeTree(outDir, { whenLocked: 'leave' });
   mkdirSync(outDir, { recursive: true });
   const stub = join(outDir, sloStubFileName(SPEC_URI));
@@ -33,6 +38,7 @@ function runStub(entryDir: string) {
       entry: join(import.meta.dir, entryDir, 'index.ts'),
       bridge: join(PACKAGE_DIR, 'src/bun-test.ts'),
       reportDir,
+      ...(environment === undefined ? {} : { environment }),
     })
   );
   const run = spawnSync(process.execPath, ['test', stub], {
@@ -47,6 +53,7 @@ function runStub(entryDir: string) {
     status: run.status,
     output: `${run.stdout}${run.stderr}`,
     obligations: evidence.obligations,
+    failures: readFailures(reportDir),
   };
 }
 
@@ -81,5 +88,65 @@ describe('alerts through the generated stub', () => {
     );
     expect(run.output).toContain('Owner: runtime');
     expect(run.output).toContain('Investigate with: bun obs errors --since 1h');
+  }, 30_000);
+});
+
+// regression: objective-failures-unnamed-environment
+describe('a failure says where it failed', () => {
+  test('every message and obligation names the environment and the objective file', () => {
+    const run = runStub('openslo-degraded-requests', 'prd');
+    expect(run.status).not.toBe(0);
+    const where = `[prd] ${SPEC_URI}:`;
+    expect(run.output).toContain(
+      `${where} PAGE requests-are-answered (requests-are-answered-slow-burn) is firing`
+    );
+    const failed = run.obligations.filter((o) => o.status === 'fail');
+    expect(failed.map((o) => o.id)).toEqual([DRIFT, DAILY, SLOW]);
+    for (const obligation of failed)
+      expect(obligation.detail?.startsWith(where)).toBe(true);
+  }, 30_000);
+
+  test('every firing policy leaves its numbers and response for whoever answers it', () => {
+    const run = runStub('openslo-degraded-requests', 'prd');
+    expect(
+      run.failures
+        .map((f) => [
+          f.environment,
+          f.specUri,
+          f.check.kind === 'alert' ? f.check.policy : '',
+        ])
+        .sort()
+    ).toEqual(
+      [DRIFT, DAILY, SLOW]
+        .map((id) => [
+          'prd',
+          SPEC_URI,
+          id.slice('alert:requests-are-answered:'.length),
+        ])
+        .sort()
+    );
+    const slow = run.failures.find(
+      (f) =>
+        f.check.kind === 'alert' &&
+        f.check.policy === 'requests-are-answered-slow-burn'
+    );
+    expect(slow?.check).toEqual({
+      kind: 'alert',
+      policy: 'requests-are-answered-slow-burn',
+      severity: 'page',
+    });
+    expect(slow?.response?.owner).toBe('runtime');
+    expect(slow?.readings.length).toBeGreaterThan(0);
+    expect(slow?.readings.every((r) => r.burn !== null)).toBe(true);
+    expect(slow?.budgetRemaining).not.toBeNull();
+    expect(slow?.window).toBe('28d');
+  }, 30_000);
+
+  test('a run that names no environment still names the objective file', () => {
+    const run = runStub('openslo-degraded-requests');
+    expect(run.output).toContain(
+      `${SPEC_URI}: PAGE requests-are-answered (requests-are-answered-slow-burn) is firing`
+    );
+    expect(run.failures.every((f) => f.environment === null)).toBe(true);
   }, 30_000);
 });

@@ -83,6 +83,14 @@ export const backToTabs = scenarioAction({
     await ui
       .get(Handles.statusCurrentUser)
       .expect.visible({ timeoutMs: WAIT_MS });
+    // A sign-in that ended on "Sign-in failed" leaves its modal over the
+    // screen: say what it reports instead of timing out on a covered Back.
+    const signInFailed = ui.get(Handles.authSignInFailed);
+    if (await signInFailed.isVisible()) {
+      throw new Error(
+        `${actorId}'s sign-in failed: ${await signInFailed.text()}`
+      );
+    }
     for (let pops = 0; pops < 4; pops++) {
       if (await ui.get(Handles.tabProfile).isVisible()) break;
       if (await ui.get(Handles.navBack).isVisible()) {

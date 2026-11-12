@@ -1,6 +1,13 @@
 import { expect, test } from 'bun:test';
-import { readFileSync, realpathSync } from 'node:fs';
+import {
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  realpathSync,
+  writeFileSync,
+} from 'node:fs';
 import { join, relative } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import type { BunPlugin } from 'bun';
 import { isolatedFrameworkProof } from './isolated-framework';
@@ -49,13 +56,23 @@ test('the framework builds and executes with zero production games available', a
   expect(built.success).toBe(true);
   expect(built.logs).toEqual([]);
   expect(built.outputs).toHaveLength(1);
-  const bundle = await built.outputs[0]!.text();
-  const consumer = (await import(
-    `data:text/javascript;base64,${Buffer.from(bundle).toString('base64')}`
-  )) as {
-    readonly isolatedFrameworkProof: typeof isolatedFrameworkProof;
-  };
-  const result = consumer.isolatedFrameworkProof();
+  // regression: framework-bundle-data-url-crashes-coverage
+  // Bun's coverage run aborts on a large module imported from a data: URL,
+  // so the built bundle is executed from a file of its own instead.
+  const cache = join(import.meta.dir, '../.cache');
+  mkdirSync(cache, { recursive: true });
+  const directory = mkdtempSync(join(cache, 'framework-build-'));
+  const bundlePath = join(directory, 'isolated-framework.js');
+  writeFileSync(bundlePath, await built.outputs[0]!.text());
+  let result: ReturnType<typeof isolatedFrameworkProof>;
+  try {
+    const consumer = (await import(bundlePath)) as {
+      readonly isolatedFrameworkProof: typeof isolatedFrameworkProof;
+    };
+    result = consumer.isolatedFrameworkProof();
+  } finally {
+    removeTree(directory, { whenLocked: 'leave' });
+  }
   expect(result).toEqual(isolatedFrameworkProof());
   expect(result).toMatchObject({
     emptyGames: 0,

@@ -1,0 +1,4 @@
+{
+  "summary": "Since the space bar (with its ⋯) tops every space state, the loading shell /space/:id shows before the app knows whether the person is in the space also shows the ⋯ the harness read as 'inside the space'. Opening a link then settled at once on 'inside', and the following wait for the join prompt, the game menu or custom games ran out on a slow live-browser stack (the nightly's 'node space-join expect.visible: Timed out after 5000ms'). The loading body now carries the space-loading handle, and the ⋯ means inside only once it is gone.",
+  "regressionTest": "libs/spaces-harness-ts/tests/space-loading-outcome.test.ts"
+}

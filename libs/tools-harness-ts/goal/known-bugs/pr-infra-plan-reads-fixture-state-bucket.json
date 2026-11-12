@@ -1,0 +1,4 @@
+{
+  "summary": "Once a fixture job carried PRODUCT_IDENTITY_MODE=fixture into every later step, Verify PR's infrastructure plans materialized the fixture identity, named the fixture's OpenTofu state bucket and were refused with HTTP 403, so every pull request that touched infrastructure went red. The plan steps now run with the configured identity.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workflow-rehearsal.test.ts"
+}

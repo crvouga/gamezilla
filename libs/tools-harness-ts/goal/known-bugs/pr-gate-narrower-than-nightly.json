@@ -1,0 +1,4 @@
+{
+  "summary": "Verify PR and Release ran only a blocking subset of the gate catalog (ci-stage.ts: tc, lint, a few verify tasks, named security tests, release journeys; 746 task identities against nightly's 1540), so package test suites, spec parts, contract models, branding and Storybook checks never ran before merge. PR #287 merged a legacy brand slug verify:brand-policy rejects, e2cc4c093 a stale server contract manifest, PR #288 a ci:specs failure, all green, and nightly's gate on 93782bb0a went red on about thirteen tasks. Every stage now runs the whole catalog, executing only cache misses, and gate shards install the full pinned toolchain.",
+  "regressionTest": "libs/tools-harness-ts/scripts/ci-stage.test.ts"
+}

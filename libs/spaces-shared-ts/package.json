@@ -36,6 +36,7 @@
   },
   "devDependencies": {
     "@pkgs/property-shared-ts": "workspace:*",
+    "@pkgs/sql-client-postgres-server-ts": "workspace:*",
     "@pkgs/sql-client-sqlite-root-server-ts": "workspace:*",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",

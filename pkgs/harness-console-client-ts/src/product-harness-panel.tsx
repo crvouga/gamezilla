@@ -81,22 +81,10 @@ function resolvePane(
 
 export function ClientProductHarnessPanel(props: {
   readonly actor: ProductHarnessActor;
-  readonly session: ProductHarnessSession;
-  readonly snapshotEpoch?: number;
-  readonly reloadToken?: number;
-  readonly pane: PaneNavValue | undefined;
-  readonly onPanePatch: (
-    patch: PaneNavPatch,
-    mode?: 'push' | 'replace'
-  ) => void;
+  /** Bumps when a snapshot is restored; the client's app is then rebuilt. */
+  readonly snapshotEpoch: number;
 }) {
-  void props.session;
-  void props.reloadToken;
-  void props.pane;
-  void props.onPanePatch;
-  const productKey = () => `${props.actor.id}:${props.snapshotEpoch ?? 0}`;
-  void props.reloadToken;
-
+  const productKey = () => `${props.actor.id}:${props.snapshotEpoch}`;
   return (
     <Surface
       tone="surface"

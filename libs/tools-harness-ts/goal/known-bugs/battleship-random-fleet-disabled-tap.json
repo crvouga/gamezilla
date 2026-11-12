@@ -1,0 +1,4 @@
+{
+  "summary": "Verify Nightly browser run 42781981474: 'A ready player cannot ask for a random fleet' failed because the harness pressed the setup's 'Random fleet' control whenever it was visible. Once the player is ready the control is shown disabled, and a real browser never delivers a press to it ('native click never delivered a whole press after 200 attempts; disabled=true'). Asking now presses the control only when a person could, as the other setup gestures already do.",
+  "regressionTest": "libs/battleship-harness-ts/tests/random-fleet-refusal.test.ts"
+}

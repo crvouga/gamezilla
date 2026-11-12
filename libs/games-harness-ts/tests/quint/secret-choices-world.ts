@@ -35,6 +35,8 @@ export const CHOICE_OBSERVER = 'charlie';
 export const MODEL_SIDES = ['first', 'second', 'third', 'fourth'] as const;
 /** The model's bound on moves between rounds of secret choices. */
 const MAX_MOVES = 2;
+/** Who created the custom game and hosts the space. */
+const CHOICE_HOST = 'alice';
 /** The participants a stand-in can play for: everyone on a side but the host. */
 const STAND_IN_PEOPLE: readonly string[] = ['bob', 'carol'];
 /**
@@ -44,6 +46,14 @@ const STAND_IN_PEOPLE: readonly string[] = ['bob', 'carol'];
  * still this far off.
  */
 const DEPARTURE_GAP_MS = 20_000;
+/**
+ * Time that passes when the host comes back while a participant who left
+ * during her absence is still away with no stand-in. Their time away starts
+ * counting only now, so whoever leaves after this step leaves later, as the
+ * model orders it (`_awayMoment`), instead of at the same instant. Small
+ * beside the stand-in delay, so it never brings a stand-in by itself.
+ */
+const HOST_RETURN_GAP_MS = 5_000;
 /** How long a decision may take to reach the observer. */
 const SHOWN_WITHIN_MS = 10_000;
 /** How long play may take to reach the next round or the end. */
@@ -293,10 +303,28 @@ export async function takeBackModelSide(
   await w.s.apply(operateCustomGame, actor, { operation: 'reclaim' });
 }
 
+/** The people away now, and those of them who left while the host was away. */
+function departures(w: QuintHarnessWorld): {
+  readonly away: Set<string>;
+  readonly duringHostAbsence: Set<string>;
+} {
+  const known = w.memo.get('choice-departures');
+  if (known !== undefined) return known as ReturnType<typeof departures>;
+  const fresh = {
+    away: new Set<string>(),
+    duringHostAbsence: new Set<string>(),
+  };
+  w.memo.set('choice-departures', fresh);
+  return fresh;
+}
+
 export async function loseModelConnection(
   w: QuintHarnessWorld,
   actor: string
 ): Promise<void> {
+  const { away, duringHostAbsence } = departures(w);
+  if (away.has(CHOICE_HOST)) duringHostAbsence.add(actor);
+  away.add(actor);
   await w.s.apply(partition, actor);
   await w.s.apply(refreshActorConnection, actor);
   // The model orders departures by step (`_awayMoment`); a stand-in comes
@@ -312,9 +340,26 @@ export async function modelConnectionReturns(
   w: QuintHarnessWorld,
   actor: string
 ): Promise<void> {
+  const { away, duringHostAbsence } = departures(w);
+  away.delete(actor);
   await w.s.apply(restoreActorConnection, actor);
   await w.s.until((s) => readCustomGameProbe(s, actor), {
     pred: (shown) => shown?.connected === true,
     maxMs: SHOWN_WITHIN_MS,
   });
+  if (actor !== CHOICE_HOST) return;
+  // regression: secret-choice-host-return-orders-departures
+  const game = await shownGame(w);
+  const waiting = [...duringHostAbsence].some(
+    (person) =>
+      STAND_IN_PEOPLE.includes(person) &&
+      away.has(person) &&
+      game.sides.every(
+        (side) =>
+          choicePeople(w).get(game[side].person) !== person ||
+          !game.standIns.includes(side)
+      )
+  );
+  duringHostAbsence.clear();
+  if (waiting) await w.s.advanceTime(HOST_RETURN_GAP_MS);
 }

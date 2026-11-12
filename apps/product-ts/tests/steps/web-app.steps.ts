@@ -19,10 +19,6 @@ Then('people can open the app at its address', async (w) => {
   await expectPageAt(w, '/');
 });
 
-Then('the team can open the testing tool at its address', async (w) => {
-  await expectPageAt(w, '/harness');
-});
-
 Then('the address without "www" leads people to the app', async (w) => {
   const result = await httpProbe(`${w.origins.apex}/`, PROBE_TIMEOUT_MS);
   expect(result.status ?? 0).toBeGreaterThanOrEqual(200);

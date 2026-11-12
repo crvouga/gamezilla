@@ -1,6 +1,7 @@
 import { readEmbeddedHref } from '@libs/app-root-shared-ts/embedded-href';
 import {
   DEVICE_ID_KEY,
+  LAST_LOCAL_ACCOUNT_ID_KEY,
   SESSION_TOKEN_KEY,
 } from '@libs/auth-shared-ts/auth-storage-keys';
 import { createSignal } from 'solid-js';
@@ -31,6 +32,7 @@ import { solidActorRoot } from './solid-actor-root';
 import { createHarnessWaitPump } from './wait-pump';
 import { webviewCheckpoint } from './webview-checkpoint';
 import { webviewLocalSql, webviewSqlStatements } from './webview-local-sql';
+import { webviewMutations } from './webview-mutations';
 
 export type ActorEntry = {
   readonly handle: HarnessActor;
@@ -143,18 +145,16 @@ async function launchWebview(
   });
   const view = browser.view;
   const device = webviewDevice(view);
-  const sessionToken = async () => {
+  // The web app's secure storage is the page's localStorage.
+  const stored = (key: string) => async () => {
     const value = await view.evaluate(
-      `localStorage.getItem(${JSON.stringify(SESSION_TOKEN_KEY)})`
+      `localStorage.getItem(${JSON.stringify(key)})`
     );
     return typeof value === 'string' ? value : null;
   };
-  const deviceId = async () => {
-    const value = await view.evaluate(
-      `localStorage.getItem(${JSON.stringify(DEVICE_ID_KEY)})`
-    );
-    return typeof value === 'string' ? value : null;
-  };
+  const sessionToken = stored(SESSION_TOKEN_KEY);
+  const deviceId = stored(DEVICE_ID_KEY);
+  const memberId = stored(LAST_LOCAL_ACCOUNT_ID_KEY);
   const raw = browser.driver;
   const pageSql = webviewLocalSql(view);
   const localSql = () => pageSql;
@@ -185,6 +185,7 @@ async function launchWebview(
     screenshot: () => view.screenshot({ encoding: 'buffer' }),
     checkpoint: webviewCheckpoint(view, openLink),
     executeStatements: webviewSqlStatements(view),
+    mutations: webviewMutations(view),
     closeResources,
     openLink,
     currentPath,
@@ -192,6 +193,7 @@ async function launchWebview(
     device,
     sessionToken,
     deviceId,
+    memberId,
   };
 }
 
@@ -207,18 +209,15 @@ async function launchSolid(
   const runFor = args.ui.runFor;
   const history = await actorHistory(args.harness, args.id);
   const device = inProcessDevice(await args.harness.client(args.id));
-  const sessionToken = async () => {
+  const stored = (key: string) => async () => {
     const value = (await args.harness.client(args.id)).secureStorage.getValue(
-      SESSION_TOKEN_KEY
+      key
     );
     return typeof value === 'string' ? value : null;
   };
-  const deviceId = async () => {
-    const value = (await args.harness.client(args.id)).secureStorage.getValue(
-      DEVICE_ID_KEY
-    );
-    return typeof value === 'string' ? value : null;
-  };
+  const sessionToken = stored(SESSION_TOKEN_KEY);
+  const deviceId = stored(DEVICE_ID_KEY);
+  const memberId = stored(LAST_LOCAL_ACCOUNT_ID_KEY);
   const { viewport, changeViewport } = reactiveViewport(runFor);
   const setViewport = changeViewport;
   const localSql = () => args.harness.clientSql(args.id)?.sqlClient ?? null;
@@ -259,6 +258,7 @@ async function launchSolid(
     device,
     sessionToken,
     deviceId,
+    memberId,
   };
 }
 

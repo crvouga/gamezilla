@@ -1,0 +1,4 @@
+{
+  "summary": "Against a separately booted stack the rooms run in the stack's processes, so queued room draws (a game's known deal, a chosen bot move) went to the test process's unused room node; Hearts scenarios then saw a random deal and failed on cards the player never held. Queuing draws on a stack host now ends the scenario as a host limit.",
+  "regressionTest": "libs/game-session-harness-ts/tests/stack-host-limits.test.ts"
+}

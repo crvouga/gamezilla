@@ -252,13 +252,38 @@ function useRevalidateSession(args: {
   port: AuthClientPort;
 }): void {
   const timers = useTimers();
+  const origin = useOptionalOriginAvailability();
   createEffect(() => {
     if (!args.enabled()) return;
+    // regression: privacy-proof-unknown-after-reopen
+    // A reopened app knows its session only from storage. Ask the server as
+    // soon as it can be reached, not a minute from now: until it answers, the
+    // device cannot tell when the person last signed in, and choices that
+    // need a recent sign-in (export, deletion) are refused as if they had not.
+    if (!args.port.session.getSnapshot().isHydrated) {
+      const boot = new AbortController();
+      void hydrateSessionWhenReachable(args.port, origin, boot.signal);
+      onCleanup(() => boot.abort());
+    }
     const id = timers.setInterval(() => {
       void args.port.session.refresh();
     }, SESSION_REVALIDATE_MS);
     onCleanup(() => timers.clearInterval(id));
   });
+}
+
+async function hydrateSessionWhenReachable(
+  port: AuthClientPort,
+  origin: ReturnType<typeof useOptionalOriginAvailability>,
+  signal: AbortSignal
+): Promise<void> {
+  try {
+    await origin?.waitUntilAvailable(signal);
+  } catch {
+    return;
+  }
+  if (signal.aborted || port.session.getSnapshot().isHydrated) return;
+  await port.session.refresh();
 }
 
 /** The minute interval is the backstop. A returning connection asks at once. */

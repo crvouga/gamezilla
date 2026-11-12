@@ -19,6 +19,7 @@
   "dependencies": {
     "@libs/observability-shared-ts": "workspace:*",
     "@libs/product-identity-shared-ts": "workspace:*",
+    "@pkgs/clock-shared-ts": "workspace:*",
     "@pkgs/feedback-server-ts": "workspace:*",
     "@pkgs/http-client-shared-ts": "workspace:*",
     "@pkgs/observability-root-shared-ts": "workspace:*",

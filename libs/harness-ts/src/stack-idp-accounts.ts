@@ -21,7 +21,10 @@ async function addAccount(
   const givenName = handle.charAt(0).toUpperCase() + handle.slice(1);
   const response = await fetch(`${origin}/__admin/accounts`, {
     method: 'POST',
-    headers: { 'content-type': 'application/json' },
+    // A socket the provider already closed while it sat idle in the pool
+    // fails the next setup call with ECONNRESET; setup is rare, so it opens
+    // a fresh connection each time instead of reusing one.
+    headers: { 'content-type': 'application/json', connection: 'close' },
     body: JSON.stringify({
       id: harnessIdpAccountId(email),
       email,

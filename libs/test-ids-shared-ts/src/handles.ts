@@ -80,6 +80,8 @@ export const Handles = {
   spaceClose: 'space-close',
   /** A phone's ‹ at the room's root: back to Spaces (the space goes on, small). */
   spaceBackToSpaces: 'space-back-to-spaces',
+  /** A space's body while it is still finding out whether this person is in it. */
+  spaceLoading: 'space-loading',
   /** Space chrome overflow trigger — actions that do not fit collapse here. */
   spaceChromeOverflow: 'space-chrome-overflow-menu',
   spaceLeave: 'space-leave',

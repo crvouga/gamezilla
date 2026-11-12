@@ -10,6 +10,12 @@ import { turnHarnessGameOf } from './harness-game-of';
 export const CUSTOM_GAME_BOARD = 'custom-game-board';
 
 /**
+ * The lobby's small preview of the game's board while it is set up: never
+ * played on, so it never reads as the live board.
+ */
+export const CUSTOM_GAME_BOARD_PREVIEW = 'custom-game-board-preview';
+
+/**
  * A legal move of the position by the game's own rules; from a finished
  * position, which has none, the game's known opening (a move legal at the
  * start of a game).

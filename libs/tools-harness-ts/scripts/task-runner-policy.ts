@@ -38,6 +38,7 @@ export type TurboTasks = Readonly<Record<string, TurboTask>>;
 export const ROOT_TERMINAL_COMMANDS: Readonly<Record<string, string>> = {
   obs: 'its stdout is the data agents parse (`--json`)',
   own: 'supervises an arbitrary command it is handed',
+  'preview:url': 'its stdout is the Preview URL agents and scripts read',
   psql: 'an interactive SQL prompt',
   'secrets:login':
     'interactive Infisical login reads the terminal and receives a browser callback',

@@ -66,6 +66,7 @@ export function serveBrowserProcess<Open>(
       process.send?.({
         id: request.id,
         error: cause instanceof Error ? cause.message : String(cause),
+        errorName: cause instanceof Error ? cause.name : 'Error',
       });
     }
   });

@@ -19,7 +19,7 @@ export async function pongLocalCourts(s: ProductHarness) {
   for (const person of ['alice', 'carol']) {
     const local = person === 'alice' ? alice : await pongLocalView(s, person);
     const court = await pongSharedView(s, person);
-    gameShown.set(person, court.gameShown);
+    gameShown.set(person, local.gameShown);
     controlledPaddles.set(person, new Set(court.controlledPaddles));
     paddlePlace.set(
       person,

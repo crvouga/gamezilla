@@ -235,6 +235,26 @@ objective; every objective has a runbook section.
 Metric names are derived from the instrument contracts (`emitted-metrics.ts`,
 `prometheusSeries`), never typed.
 
+## Open alerts as work items
+
+Health's `health:objectives` job checks every environment's objectives.
+Each failing check fails its test with `[<env>] <objective file>:` in front
+and leaves an `ObjectiveFailure` (`@pkgs/openslo-shared-ts/failure`): the
+numbers, the burn readings and the binding's response, whose `bun obs`
+command names the environment (`--env <env>`). The job's evidence step,
+[`scripts/health-alerts.ts`](scripts/health-alerts.ts), groups them into one
+work item per failing objective per environment (`src/alert-work-items.ts`),
+runs each item's read-only `bun obs` search with CI's credentials (`--json`,
+the command's window capped at a day, the store's result limit, a few traces
+opened, five minutes in all) and writes the items to the job summary, the CI
+artifact `health-alerts-<run id>`, and one `HEALTH_ALERTS_V1` line in the job
+log. Messages are redacted (credentials, tokens, addresses). The step never
+decides the job.
+
+`bun alerts` ([`scripts/alerts.ts`](scripts/alerts.ts), `src/open-alerts.ts`)
+reads that line back with nothing but `gh`, so an agent without the secret
+store starts there: `bun alerts`, `bun alerts --env prd`, `bun alerts --json`.
+
 ## Alert runbooks
 
 These rules are pipeline alerts in `src/pipeline-alerts.ts`, generated with the

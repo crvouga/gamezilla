@@ -1,0 +1,4 @@
+{
+  "summary": "ci:i18n, ci:specs and ci:statecharts ran only in Verify Nightly, so pull requests that left the Lingui catalog stale, published Hearts words other contexts use as plain English, and added contracts no chart owned merged green and kept every later nightly run red.",
+  "regressionTest": "libs/tools-harness-ts/scripts/ci-stage.test.ts"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "After a matched game ended, the harness could not walk back to the game's puzzle stats: it recognized the matched-games screen by its Find an opponent control, which the result place no longer carries now that finding an opponent is a set of small places, so it waited for a game choice that never came. Fixed by recognizing the screen by the mark every one of its places shares.",
+  "regressionTest": "libs/game-session-harness-ts/tests/stats-from-matched-result.test.ts"
+}

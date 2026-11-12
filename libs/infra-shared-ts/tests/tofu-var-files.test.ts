@@ -10,6 +10,7 @@ import {
 } from '@libs/infra-shared-ts/tofu-command';
 import { resolvedVarFiles } from '@libs/infra-shared-ts/tofu-var-files';
 import { resolveGlobalVars } from '@libs/infra-shared-ts/tofu-vars';
+import { syntheticIdentity } from '@libs/product-brand-shared-ts/synthetic-identity';
 import {
   apiHost,
   brandHost,
@@ -21,7 +22,6 @@ import {
   PRODUCT,
   PRODUCT_NAME,
 } from '@libs/product-identity-shared-ts/product-identity';
-import { syntheticIdentity } from '@libs/product-identity-shared-ts/synthetic-identity';
 import { technicalName } from '@libs/product-identity-shared-ts/technical-names';
 
 /**

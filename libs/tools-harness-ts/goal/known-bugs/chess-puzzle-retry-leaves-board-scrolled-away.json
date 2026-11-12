@@ -1,0 +1,4 @@
+{
+  "summary": "On a 320x640 phone the puzzle play screen's line and settings rows made the screen taller than the window, so reaching Retry under a wrong move's coaching scrolled the board's top ranks away and Retry left them there. Retry now brings the whole board back into view.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/chess/integration.checks.ts"
+}

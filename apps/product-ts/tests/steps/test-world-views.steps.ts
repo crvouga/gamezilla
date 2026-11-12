@@ -6,7 +6,7 @@ import {
   giveDevicesDifferentPlaces,
   provideWorldDevices,
   shownWorldDevices,
-} from '@apps/product-ts/developer-world-views';
+} from '@apps/harness-ts/developer-world-views';
 import { Given, Then, When } from '@libs/harness-ts/define';
 
 Given(

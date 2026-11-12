@@ -53,10 +53,14 @@ export type AlertingBinding = {
    * enough to hold a sample.
    */
   readonly tiers?: (slo: Slo) => readonly BurnTier[];
+  /**
+   * Who answers the SLO and how. Asked for a firing policy (with the
+   * longest window it looks back over, `1h`), and for a missed objective
+   * (no policy, the objective's own window).
+   */
   readonly respond: (input: {
     readonly slo: Slo;
-    readonly policy: AlertPolicy;
-    /** The longest window the policy looks back over (`1h`). */
+    readonly policy?: AlertPolicy;
     readonly lookbackWindow: string;
   }) => AlertResponse;
 };

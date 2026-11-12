@@ -46,7 +46,11 @@ function useTrapLifecycle(props: FocusTrapProps, host: () => HTMLElement) {
       document.activeElement instanceof HTMLElement
         ? document.activeElement
         : null;
-    if (untrack(() => props.autoFocus ?? true)) focusInto(el);
+    // Untracked: moving focus runs other components' focus listeners right
+    // here, and a signal one of them reads must not start this trap over.
+    untrack(() => {
+      if (props.autoFocus ?? true) focusInto(el);
+    });
 
     const onKeyDown = (ev: KeyboardEvent) => {
       if (ev.key !== 'Tab') return;

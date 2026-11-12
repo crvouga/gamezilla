@@ -102,7 +102,7 @@ export function FrameResultPlace(props: Props): JSX.Element {
         }
         boardFocus
         actionsBeside
-        fixedStage
+        fixedStage={props.boardWorkspace !== true}
         status={
           <>
             {/* The card says how the game ended; a listener hears it from

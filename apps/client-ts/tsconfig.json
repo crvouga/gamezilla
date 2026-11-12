@@ -18,6 +18,7 @@
     "paths": {
       "@apps/auth-relay-ts/*": ["../../apps/auth-relay-ts/src/*"],
       "@apps/client-ts/*": ["../../apps/client-ts/src/*"],
+      "@apps/harness-ts/*": ["../../apps/harness-ts/src/*"],
       "@apps/product-ts/*": ["../../apps/product-ts/src/*"],
       "@apps/server-ts/*": ["../../apps/server-ts/src/*"],
       "@libs/account-privacy-client-ts/*": [

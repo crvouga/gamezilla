@@ -8,6 +8,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { type LoadReport, loadReport, readLoadInput } from './ci-load';
 import { isBlockingCiTask } from './ci-stage';
+import { MAIN_VERIFY_TASKS } from './turbo-ci-run';
 import { createTaskEstimator } from './verify-task-estimates';
 
 export type TaskRow = {
@@ -66,8 +67,12 @@ export function readWorkload(root: string): Workload {
 
 /** Estimated leaf work by stage, excluding setup and prerequisite builds. */
 export function profileSplit(rows: readonly TaskRow[]): ProfileSplit {
-  const blocking = rows.filter((row) => isBlockingCiTask(row.id));
-  const nightly = rows.filter((row) => !isBlockingCiTask(row.id));
+  const blocking = rows.filter((row) =>
+    isBlockingCiTask(row.id, MAIN_VERIFY_TASKS)
+  );
+  const nightly = rows.filter(
+    (row) => !isBlockingCiTask(row.id, MAIN_VERIFY_TASKS)
+  );
   return {
     prSeconds: sum(blocking),
     nightlyOnlySeconds: sum(nightly),

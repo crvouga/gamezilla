@@ -1,0 +1,123 @@
+/**
+ * The Preview section of a pull request description: one marker-delimited
+ * block this tooling owns. Everything outside the markers is the author's and
+ * is returned byte for byte.
+ */
+
+export const PREVIEW_SECTION_START = '<!-- preview:start -->';
+export const PREVIEW_SECTION_END = '<!-- preview:end -->';
+
+export type PreviewSectionFacts = {
+  readonly pr: number;
+  readonly status:
+    | 'deploying'
+    | 'live'
+    | 'failed'
+    | 'unhealthy'
+    | 'removed'
+    | 'expired';
+  readonly url: string | null;
+  /** The pull request's Storybook, a second site beside the Preview. */
+  readonly storybookUrl: string | null;
+  /** The commit the Preview is serving, when one is. */
+  readonly deployedSha: string | null;
+  /** The commit this run tried to deploy. */
+  readonly attemptedSha: string | null;
+  readonly runUrl: string | null;
+  readonly detail: string | null;
+};
+
+const STATUS_LINE: Record<PreviewSectionFacts['status'], string> = {
+  deploying: '🟡 deploying',
+  live: '🟢 live',
+  failed: '🔴 deploy failed — the last working version is still serving',
+  unhealthy: '🔴 deployed, but failing its checks',
+  removed: '⚪ removed (pull request closed)',
+  expired: '⚪ removed after going unused — push a commit or reopen to restore',
+};
+
+function short(sha: string | null): string {
+  return sha === null ? '—' : `\`${sha.slice(0, 12)}\``;
+}
+
+export function renderPreviewSection(facts: PreviewSectionFacts): string {
+  const pr = String(facts.pr);
+  const rows = [
+    `| Status | ${
+      facts.status === 'failed' && facts.deployedSha === null
+        ? '🔴 deploy failed — nothing has been deployed yet'
+        : STATUS_LINE[facts.status]
+    } |`,
+    `| URL | ${facts.url ?? '—'} |`,
+    ...(facts.storybookUrl === null
+      ? []
+      : [`| Storybook | ${facts.storybookUrl} |`]),
+    `| Deployed commit | ${short(facts.deployedSha)} |`,
+  ];
+  if (facts.attemptedSha !== null && facts.attemptedSha !== facts.deployedSha)
+    rows.push(`| Attempted commit | ${short(facts.attemptedSha)} |`);
+  if (facts.runUrl !== null) rows.push(`| Deploy run | ${facts.runUrl} |`);
+  const lines = [
+    PREVIEW_SECTION_START,
+    '## Preview',
+    '',
+    '| | |',
+    '| --- | --- |',
+    ...rows,
+  ];
+  if (facts.detail !== null) lines.push('', `> ${facts.detail}`);
+  if (facts.status !== 'removed' && facts.status !== 'expired')
+    lines.push(
+      '',
+      '**What this is:** the whole system — API servers, Postgres, rooms, and simulated identity, billing, storage and LLM vendors — running inside your browser tab. The URL serves static files only: no server, no secrets, no production data. Each panel of the console looks into one node.',
+      ...(facts.storybookUrl === null
+        ? []
+        : [
+            '',
+            "**Storybook:** this pull request's build of the component library, at the same commit.",
+          ]),
+      '',
+      '**Sign in:** nothing to sign in to. The system starts with two people, `alice` and `bob`, each signed in on a device of their own and already friends; drive them from the console.',
+      '',
+      '**Reset:** state lives only in your browser, under this URL. Clear the site data for it (or open it in a fresh browser profile) to start clean; nothing is stored anywhere else.',
+      '',
+      `**Diagnostics:** \`PREVIEW_PR=${pr} mise run preview:test\` checks what is deployed; node logs are in the console panels (docs/PREVIEW_ENVIRONMENTS.md).`
+    );
+  lines.push(PREVIEW_SECTION_END);
+  return lines.join('\n');
+}
+
+/** Replace the section in place, or append it; the rest is untouched. */
+export function upsertPreviewSection(body: string, section: string): string {
+  const start = body.indexOf(PREVIEW_SECTION_START);
+  const end = body.indexOf(PREVIEW_SECTION_END, Math.max(start, 0));
+  if (start === -1 || end === -1) {
+    if (body.trim() === '') return section;
+    return `${body.replace(/\s+$/, '')}\n\n${section}`;
+  }
+  return (
+    body.slice(0, start) +
+    section +
+    body.slice(end + PREVIEW_SECTION_END.length)
+  );
+}
+
+function urlInBody(body: string, row: 'URL' | 'Storybook'): string | null {
+  const start = body.indexOf(PREVIEW_SECTION_START);
+  const end = body.indexOf(PREVIEW_SECTION_END, Math.max(start, 0));
+  if (start === -1 || end === -1) return null;
+  const match = new RegExp(`\\| ${row} \\| (https://[^\\s|]+) \\|`).exec(
+    body.slice(start, end)
+  );
+  return match?.[1] ?? null;
+}
+
+/** The Preview URL in a description — how an agent finds it from PR metadata. */
+export function previewUrlInBody(body: string): string | null {
+  return urlInBody(body, 'URL');
+}
+
+/** The Storybook URL in a description, when the section names one. */
+export function storybookUrlInBody(body: string): string | null {
+  return urlInBody(body, 'Storybook');
+}

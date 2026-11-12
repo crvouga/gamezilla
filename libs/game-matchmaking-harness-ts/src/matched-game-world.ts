@@ -10,6 +10,7 @@ import type { MultiplayerGame } from '@libs/game-matchmaking-shared-ts/game-stat
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { accountIdOf } from '@libs/harness-ts/identity';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
+import { readCurrent } from '@pkgs/matchmaking-sql-shared-ts/search-read';
 import {
   multiplayerCommandReply,
   sendMultiplayerCommand,
@@ -19,7 +20,7 @@ import {
   awaitGameMatch,
   givenOpponentSearch,
 } from './multiplayer-fixtures';
-import { multiplayerView } from './multiplayer-reads';
+import { multiplayerGameCaughtUp, multiplayerView } from './multiplayer-reads';
 
 /** Each named person has an account and a space to play in. */
 export type ReadyPeople = (
@@ -41,6 +42,18 @@ export function inMatchedGame(w: HarnessWorld): boolean {
   return w.memo.has('multiplayer:game');
 }
 
+/** Whether the server holds a search for `actor` that is still waiting. */
+async function searchHeld(s: ProductHarness, actor: string): Promise<boolean> {
+  const owner = await accountIdOf(s, actor);
+  if (owner === null) return false;
+  const current = await readCurrent(
+    s.harness.serverSql.sqlClient,
+    owner,
+    s.harness.clock.now()
+  );
+  return current?.result?.status === 'waiting';
+}
+
 /** A search the scenario set up, remembered with its time control. */
 export async function searchFor(
   w: HarnessWorld,
@@ -49,6 +62,12 @@ export async function searchFor(
 ) {
   await w.s.apply(givenOpponentSearch, actor, timeControl);
   w.memo.set(`multiplayer:searching:${actor}`, timeControl);
+  // The search is made on the server; a device shows it once it syncs.
+  await w.s.until(
+    async (s) =>
+      !(await searchHeld(s, actor)) ||
+      (await multiplayerView(s, actor)).search !== null
+  );
   const search = (await w.s.read(multiplayerView, actor)).search;
   if (search !== null) w.memo.set('multiplayer:original-search', search);
 }
@@ -61,6 +80,8 @@ export async function pairMatchedGame(w: HarnessWorld, pairing: Pairing) {
   await w.s.advanceTime(1);
   await w.s.apply(givenOpponentSearch, second, timeControl);
   await w.s.apply(awaitGameMatch, first, second, true);
+  // Ready to play once the chosen private setups have reached a device.
+  await w.s.until((s) => multiplayerGameCaughtUp(s, first));
   await sameBoards(w, first, second);
   const game = (await w.s.read(multiplayerView, first)).game!;
   expect(game.white_id).toBe(await ownerOf(w, first));
@@ -84,6 +105,7 @@ export async function groupMatchedGame(
     await w.s.advanceTime(1);
   }
   await w.s.apply(awaitGameGroup, input.participants);
+  await w.s.until((s) => multiplayerGameCaughtUp(s, input.participants[0]!));
   const game = await groupBoards(w, input.participants);
   w.memo.set('multiplayer:game', game);
   w.memo.set('multiplayer:pair', input.participants.slice(0, 2));

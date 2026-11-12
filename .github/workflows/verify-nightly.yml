@@ -206,7 +206,7 @@ jobs:
         run: bun run storybook:test --grep "$STORYBOOK_PATTERN"
       - name: Compare PR Storybook states
         if: ${{ !inputs.storybook-evidence-run && !inputs.update-storybook-baselines }}
-        run: bunx turbo run ci:storybook:0 ci:storybook:1 ci:storybook:2 ci:storybook:3 --filter=@pkgs/ui-root-harness-ts --concurrency=1
+        run: bunx turbo run ci:storybook:0 ci:storybook:1 ci:storybook:2 ci:storybook:3 ci:storybook:4 ci:storybook:5 ci:storybook:6 ci:storybook:7 ci:storybook:8 ci:storybook:9 ci:storybook:10 ci:storybook:11 ci:storybook:12 ci:storybook:13 --filter=@pkgs/ui-root-harness-ts --concurrency=1
       - name: Retain Storybook comparisons and reference patch
         if: ${{ always() && !cancelled() && !inputs.storybook-evidence-run }}
         run: >-
@@ -226,6 +226,17 @@ jobs:
       id-token: write # mint the OIDC token Infisical and AWS trust
     steps:
       - *checkout
+      # Judging every recorded state replays every spec part's cached
+      # report (frames and page snapshots) next to the visual model; once
+      # every part passed, that filled the runner's disk (ENOSPC, Verify
+      # Nightly run 43088243094). The runner's preinstalled toolchains this
+      # job never uses make room first.
+      - name: Free runner disk for the recorded states
+        run: |
+          set -euo pipefail
+          df -h /
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL
+          df -h /
       - *setup
       - *renderer
       # The pinned model is larger than the remote cache's artifact limit.
