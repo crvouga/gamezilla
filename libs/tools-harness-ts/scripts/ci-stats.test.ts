@@ -279,16 +279,17 @@ describe('workload', () => {
     ]);
   });
 
-  test('slow behavioral verification is accounted to nightly, not Release', () => {
+  test('gate tasks are accounted to PR and Release; deeper groups to nightly', () => {
     const split = profileSplit([
       { id: '@a#lint', seconds: 10, source: 'history' },
       { id: '@a#test:spec:0', seconds: 200, source: 'history' },
+      { id: '@a#bench:room', seconds: 300, source: 'history' },
     ]);
-    expect(split.prSeconds).toBe(10);
-    expect(split.prTasks).toBe(1);
-    expect(split.nightlyOnlySeconds).toBe(200);
-    expect(split.longest[0]?.id).toBe('@a#test:spec:0');
-    expect(split.longestPr[0]?.id).toBe('@a#lint');
+    expect(split.prSeconds).toBe(210);
+    expect(split.prTasks).toBe(2);
+    expect(split.nightlyOnlySeconds).toBe(300);
+    expect(split.longest[0]?.id).toBe('@a#bench:room');
+    expect(split.longestPr[0]?.id).toBe('@a#test:spec:0');
   });
 
   test('this repository has a workload and the four workflow files', () => {

@@ -1,8 +1,10 @@
 name: Verify PR
 run-name: "Verify PR · ${{ github.event_name == 'pull_request' && format('pr #{0}', github.event.pull_request.number) || 'manual' }}"
 
-# The blocking task selection lives in ci-stage.ts. Nightly uses the complete
-# task catalog through these same jobs. Keep verify:end stable for branch rules.
+# Every profile runs the whole gate catalog (ci-stage.ts): a pull request is
+# held to every gate task nightly runs, and only tasks whose inputs it changed
+# execute. Profiles differ in depth (verify-profile.ts); nightly adds deeper
+# groups outside the gate. Keep verify:end stable for branch rules.
 # Required checks are declared in the repository policy registry.
 # See docs/CI_STAGE_POLICY.md for risk justifications and coverage ownership.
 
@@ -52,7 +54,7 @@ on:
         type: string
         default: normal
       profile:
-        description: release (safety checks and critical journeys) or nightly (complete catalog, deeper budgets, retained reports)
+        description: release (the whole gate at bounded depth) or nightly (the whole gate deeper, retained reports)
         type: string
         default: release
       advisories:
@@ -230,7 +232,6 @@ jobs:
       - uses: ./.github/actions/setup
         with:
           product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
-          tools: ${{ inputs.profile == 'nightly' && '--include-lazy' || 'bun node gh opentofu conftest tflint gitleaks actionlint zizmor' }}
           secrets-environment: dev
           secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
@@ -307,7 +308,6 @@ jobs:
       - uses: ./.github/actions/setup
         with:
           product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
-          tools: ${{ inputs.profile == 'nightly' && '--include-lazy' || 'bun node gh opentofu conftest tflint gitleaks actionlint zizmor' }}
           secrets-environment: dev
           secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
@@ -337,9 +337,14 @@ jobs:
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
+      # The job verified against the fixture identity, and that mode carries
+      # into every later step; a plan reads the real stacks, so it plans with
+      # the configured identity (its namespace names the state bucket).
       - name: Plan the fleet stack
         if: always() && !cancelled() && steps.infra.outputs.changed == 'true'
         timeout-minutes: 15
+        env:
+          PRODUCT_IDENTITY_MODE: configured
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run --filter @libs/infra-server-ts plan:fleet
       # Foundation also reads AWS. Bootstrap sets the variable in the same
       # apply that lets the read-only role trust a pull request.
@@ -348,6 +353,7 @@ jobs:
         timeout-minutes: 15
         env:
           AWS_ROLE_ARN: ${{ vars.AWS_HEALTH_ROLE_ARN }}
+          PRODUCT_IDENTITY_MODE: configured
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run --filter @libs/infra-server-ts plan:foundation
       - name: Upload queryable trace artifacts
         if: always() && !cancelled() && env.VERIFY_PROFILE == 'nightly'

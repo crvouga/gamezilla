@@ -214,9 +214,10 @@
     "traces": 128,
     "cover": [2, 6],
     "replayed": [2, 6],
-    "regressions": 4,
+    "regressions": 5,
     "determinism": false,
-    "variants": 1
+    "variants": 1,
+    "nightlyReplayCost": 5
   },
   "space-follow": {
     "seed": "0x67932",

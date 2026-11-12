@@ -1,3 +1,4 @@
+import { Handles } from '@libs/test-ids-shared-ts/handles';
 import {
   useAppFrameGlobalTrailing,
   useSetAppFrameHeader,
@@ -167,7 +168,10 @@ export function SpaceDetailScreenView(
 ): JSX.Element {
   const mode = useLayoutMode();
   const body = (): JSX.Element => (
-    <Show when={props.status === 'ready'} fallback={<LoadingState />}>
+    <Show
+      when={props.status === 'ready'}
+      fallback={<LoadingState dataSet={{ testid: Handles.spaceLoading }} />}
+    >
       {props.children}
     </Show>
   );

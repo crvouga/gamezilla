@@ -20,19 +20,28 @@ import {
   specificationGames,
 } from '@libs/games-harness-ts/game-conformance';
 import { HARNESS_GAMES } from '@libs/games-harness-ts/harness-games';
-import type { OpenHarnessOptions } from '@libs/harness-ts/mode';
+import {
+  isLiveBrowserMode,
+  type OpenHarnessOptions,
+  resolveHarnessMode,
+} from '@libs/harness-ts/mode';
 import type { OpenHarness } from '@libs/harness-ts/open-harness';
 import { recordVariantRequirements } from '@pkgs/conformance-server-ts/evidence-store';
 import { SOLO_COUNT_GAME } from './probes/solo-count-game';
 import { COUNTING_RACE_GAME } from './reference-game/counting-race-game';
 import { SECRET_PICK_GAME } from './reference-game/secret-pick-game';
 
-export const CONFORMANCE_GAMES: readonly HarnessGame[] = [
-  ...HARNESS_GAMES,
-  COUNTING_RACE_GAME,
-  SOLO_COUNT_GAME,
-  SECRET_PICK_GAME,
-];
+/**
+ * A live browser loads the app as it ships, which registers the production
+ * games only: the test-only reference games exist in the in-process world
+ * alone, so a browser run holds the shared specifications to the games it
+ * can open.
+ */
+export const CONFORMANCE_GAMES: readonly HarnessGame[] = isLiveBrowserMode(
+  resolveHarnessMode()
+)
+  ? HARNESS_GAMES
+  : [...HARNESS_GAMES, COUNTING_RACE_GAME, SOLO_COUNT_GAME, SECRET_PICK_GAME];
 
 /**
  * The games a shared specification (`specs/games/<file>`, any kind) holds

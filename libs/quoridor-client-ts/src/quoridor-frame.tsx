@@ -61,6 +61,10 @@ export function quoridorFrame(hill: boolean): GameFrame<JSX.Element> {
   const sides = hill ? QUORIDOR_SIDES : QUORIDOR_SIDES.slice(0, 2);
   return {
     drawOffers: true,
+    // The board, its wall tools, the target picker and a proposed wall's
+    // Place and Cancel fit themselves: the fixed view's stage clipped Place
+    // under the command bar once a wall was proposed.
+    boardWorkspace: true,
     players: fixedPlayers(hill ? 4 : 2),
     options: [],
     seats: {

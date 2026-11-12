@@ -1,7 +1,11 @@
 import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { linguiCommand, scratchConfigSource } from './ci-i18n';
+import {
+  BABEL_CONFIG_RELS,
+  linguiCommand,
+  scratchConfigSource,
+} from './ci-i18n';
 import {
   LINGUI_CATALOG_SOURCES,
   macrosOutsideCatalog,
@@ -53,6 +57,14 @@ describe('lingui catalog scope', () => {
       expect(sources).toEqual([...LINGUI_CATALOG_SOURCES].sort());
     });
   }
+
+  // regression: gate-inputs-name-missing-files
+  test('ci:i18n hashes the config files the gate reads', () => {
+    const inputs =
+      readTurboTasks(REPO_ROOT)['@libs/tools-harness-ts#ci:i18n']?.inputs ?? [];
+    for (const config of BABEL_CONFIG_RELS)
+      expect(inputs).toContain(`$TURBO_ROOT$/${config}`);
+  });
 
   test('the extracted catalog is never committed', () => {
     // regression: committed-lingui-catalog-merge-conflicts

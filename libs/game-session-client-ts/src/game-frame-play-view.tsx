@@ -309,7 +309,7 @@ export function FramePlayPlace(props: Props): JSX.Element {
         notices={<FrameConnectionView connection={props.connection} />}
         boardFocus
         actionsBeside
-        fixedStage
+        fixedStage={props.boardWorkspace !== true}
         // A refused choice is said with the game's commands (under a
         // phone's board, heading the rail beside a wide one), never above
         // the board, so the board does not move when it appears or clears.

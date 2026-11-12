@@ -1,10 +1,13 @@
 import { describe, expect, test } from 'bun:test';
+import { join } from 'node:path';
 import type { MachineConfig } from '@crvouga/atlas';
 import {
   declaredProductRoutes,
+  PRODUCT_LINK_SOURCES,
   PRODUCT_ROUTE_ROOTS,
   routeCoverageProblems,
 } from './statechart-routes';
+import { readTurboTasks } from './turbo-config';
 
 function sources(): Map<string, string> {
   return new Map([
@@ -297,4 +300,21 @@ describe('declared product route closure', () => {
       )
     ).toBe(true);
   });
+});
+
+// regression: gate-inputs-name-missing-files
+test('turbo hashes every source the statechart verification reads', () => {
+  const inputs = (
+    readTurboTasks(join(import.meta.dirname, '../../..'))[
+      '@libs/tools-harness-ts#ci:statecharts'
+    ]?.inputs ?? []
+  ).map((input) => input.replace('$TURBO_ROOT$/', ''));
+  const unhashed = [
+    ...PRODUCT_ROUTE_ROOTS,
+    ...PRODUCT_LINK_SOURCES,
+    'libs/example-client-ts/src/sub-client.tsx',
+    'specs/example/example.feature',
+    'docs/statecharts/README.md',
+  ].filter((path) => !inputs.some((input) => new Bun.Glob(input).match(path)));
+  expect(unhashed).toEqual([]);
 });

@@ -28,7 +28,7 @@ import { createSecureStorageStore } from '@pkgs/secure-storage-root-shared-ts/se
 import { IdProvider } from '@pkgs/uuid-client-ts/solid';
 import { render } from '@solidjs/testing-library';
 
-function recoveringPort() {
+function recoveringPort(onRefresh: () => void = () => undefined) {
   let state: AuthSessionState = AUTH_SESSION_INITIAL;
   const listeners = new Set<() => void>();
   return {
@@ -40,6 +40,7 @@ function recoveringPort() {
         return () => listeners.delete(listener);
       },
       refresh: async () => {
+        onRefresh();
         state = {
           isHydrated: true,
           error: null,
@@ -57,7 +58,7 @@ function recoveringPort() {
   } as unknown as AuthClientPort;
 }
 
-async function recovery() {
+async function recovery(onSessionRefresh?: () => void) {
   const time = createHarnessClock();
   const store = createSecureStorageStore(createInMemorySecureStorage());
   await store.write(SESSION_TOKEN_KEY, 'saved-session');
@@ -84,7 +85,7 @@ async function recovery() {
               <ConfigServiceProvider
                 value={{ getApiUrl: () => 'http://localhost' }}
               >
-                <AuthClientProvider port={recoveringPort()}>
+                <AuthClientProvider port={recoveringPort(onSessionRefresh)}>
                   <AuthBridge>
                     <div />
                   </AuthBridge>
@@ -128,5 +129,19 @@ test('a saved session with no account recovers after its first refresh fails', a
     'restored-account'
   );
   expect(boot.store.getValue(SESSION_TOKEN_KEY)).toBe('saved-session');
+  boot.unmount();
+});
+
+// regression: privacy-proof-unknown-after-reopen
+test('a reopened app asks the server about its saved session at once', async () => {
+  let sessionChecks = 0;
+  const boot = await recovery(() => {
+    sessionChecks += 1;
+  });
+  for (let turn = 0; turn < 100 && sessionChecks === 0; turn += 1) {
+    await Promise.resolve();
+  }
+  // No time has passed: the minute-long revalidation has not fired yet.
+  expect(sessionChecks).toBe(1);
   boot.unmount();
 });

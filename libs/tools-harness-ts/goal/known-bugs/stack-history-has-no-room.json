@@ -1,0 +1,4 @@
+{
+  "summary": "Against a separately booted stack the space rooms run in the stack's API processes, so a scenario arranging an earlier game history (castling rights, en passant, promotion) sent its moves to the test process's own room node, which held no room; the step failed with 'history has no room'. Sending a history on a stack host now ends the scenario as a host limit.",
+  "regressionTest": "libs/game-session-harness-ts/tests/stack-host-limits.test.ts"
+}

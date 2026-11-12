@@ -144,6 +144,136 @@
       "outputs": [],
       "env": ["BUN_CHROME_PATH"],
       "passThroughEnv": ["STORYBOOK_TEST_PORT"]
+    },
+    "ci:storybook:4": {
+      "dependsOn": ["storybook:build"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/pkgs/{ui-root,ui-devtools,chess-board-root,assistant,collab-ui}-client-ts/src/**/baselines/**",
+        "$TURBO_ROOT$/libs/{account-privacy,app-config,app-root,auth,battleship,billing,chess-puzzle,chess-root,chess-shared,connect-four,friends,game-matchmaking,game-menu,game-puzzle,game-session,hearts,light-cycles,moderation,notifications,numberlink,permissions,profile,pong,quoridor,search,sokoban,spaces,synthetic-population,user-search,word-tiles}-client-ts/src/**/baselines/**"
+      ],
+      "outputs": [],
+      "env": ["BUN_CHROME_PATH"],
+      "passThroughEnv": ["STORYBOOK_TEST_PORT"]
+    },
+    "ci:storybook:5": {
+      "dependsOn": ["storybook:build"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/pkgs/{ui-root,ui-devtools,chess-board-root,assistant,collab-ui}-client-ts/src/**/baselines/**",
+        "$TURBO_ROOT$/libs/{account-privacy,app-config,app-root,auth,battleship,billing,chess-puzzle,chess-root,chess-shared,connect-four,friends,game-matchmaking,game-menu,game-puzzle,game-session,hearts,light-cycles,moderation,notifications,numberlink,permissions,profile,pong,quoridor,search,sokoban,spaces,synthetic-population,user-search,word-tiles}-client-ts/src/**/baselines/**"
+      ],
+      "outputs": [],
+      "env": ["BUN_CHROME_PATH"],
+      "passThroughEnv": ["STORYBOOK_TEST_PORT"]
+    },
+    "ci:storybook:6": {
+      "dependsOn": ["storybook:build"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/pkgs/{ui-root,ui-devtools,chess-board-root,assistant,collab-ui}-client-ts/src/**/baselines/**",
+        "$TURBO_ROOT$/libs/{account-privacy,app-config,app-root,auth,battleship,billing,chess-puzzle,chess-root,chess-shared,connect-four,friends,game-matchmaking,game-menu,game-puzzle,game-session,hearts,light-cycles,moderation,notifications,numberlink,permissions,profile,pong,quoridor,search,sokoban,spaces,synthetic-population,user-search,word-tiles}-client-ts/src/**/baselines/**"
+      ],
+      "outputs": [],
+      "env": ["BUN_CHROME_PATH"],
+      "passThroughEnv": ["STORYBOOK_TEST_PORT"]
+    },
+    "ci:storybook:7": {
+      "dependsOn": ["storybook:build"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/pkgs/{ui-root,ui-devtools,chess-board-root,assistant,collab-ui}-client-ts/src/**/baselines/**",
+        "$TURBO_ROOT$/libs/{account-privacy,app-config,app-root,auth,battleship,billing,chess-puzzle,chess-root,chess-shared,connect-four,friends,game-matchmaking,game-menu,game-puzzle,game-session,hearts,light-cycles,moderation,notifications,numberlink,permissions,profile,pong,quoridor,search,sokoban,spaces,synthetic-population,user-search,word-tiles}-client-ts/src/**/baselines/**"
+      ],
+      "outputs": [],
+      "env": ["BUN_CHROME_PATH"],
+      "passThroughEnv": ["STORYBOOK_TEST_PORT"]
+    },
+    "ci:storybook:8": {
+      "dependsOn": ["storybook:build"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/pkgs/{ui-root,ui-devtools,chess-board-root,assistant,collab-ui}-client-ts/src/**/baselines/**",
+        "$TURBO_ROOT$/libs/{account-privacy,app-config,app-root,auth,battleship,billing,chess-puzzle,chess-root,chess-shared,connect-four,friends,game-matchmaking,game-menu,game-puzzle,game-session,hearts,light-cycles,moderation,notifications,numberlink,permissions,profile,pong,quoridor,search,sokoban,spaces,synthetic-population,user-search,word-tiles}-client-ts/src/**/baselines/**"
+      ],
+      "outputs": [],
+      "env": ["BUN_CHROME_PATH"],
+      "passThroughEnv": ["STORYBOOK_TEST_PORT"]
+    },
+    "ci:storybook:9": {
+      "dependsOn": ["storybook:build"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/pkgs/{ui-root,ui-devtools,chess-board-root,assistant,collab-ui}-client-ts/src/**/baselines/**",
+        "$TURBO_ROOT$/libs/{account-privacy,app-config,app-root,auth,battleship,billing,chess-puzzle,chess-root,chess-shared,connect-four,friends,game-matchmaking,game-menu,game-puzzle,game-session,hearts,light-cycles,moderation,notifications,numberlink,permissions,profile,pong,quoridor,search,sokoban,spaces,synthetic-population,user-search,word-tiles}-client-ts/src/**/baselines/**"
+      ],
+      "outputs": [],
+      "env": ["BUN_CHROME_PATH"],
+      "passThroughEnv": ["STORYBOOK_TEST_PORT"]
+    },
+    "ci:storybook:10": {
+      "dependsOn": ["storybook:build"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/pkgs/{ui-root,ui-devtools,chess-board-root,assistant,collab-ui}-client-ts/src/**/baselines/**",
+        "$TURBO_ROOT$/libs/{account-privacy,app-config,app-root,auth,battleship,billing,chess-puzzle,chess-root,chess-shared,connect-four,friends,game-matchmaking,game-menu,game-puzzle,game-session,hearts,light-cycles,moderation,notifications,numberlink,permissions,profile,pong,quoridor,search,sokoban,spaces,synthetic-population,user-search,word-tiles}-client-ts/src/**/baselines/**"
+      ],
+      "outputs": [],
+      "env": ["BUN_CHROME_PATH"],
+      "passThroughEnv": ["STORYBOOK_TEST_PORT"]
+    },
+    "ci:storybook:11": {
+      "dependsOn": ["storybook:build"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/pkgs/{ui-root,ui-devtools,chess-board-root,assistant,collab-ui}-client-ts/src/**/baselines/**",
+        "$TURBO_ROOT$/libs/{account-privacy,app-config,app-root,auth,battleship,billing,chess-puzzle,chess-root,chess-shared,connect-four,friends,game-matchmaking,game-menu,game-puzzle,game-session,hearts,light-cycles,moderation,notifications,numberlink,permissions,profile,pong,quoridor,search,sokoban,spaces,synthetic-population,user-search,word-tiles}-client-ts/src/**/baselines/**"
+      ],
+      "outputs": [],
+      "env": ["BUN_CHROME_PATH"],
+      "passThroughEnv": ["STORYBOOK_TEST_PORT"]
+    },
+    "ci:storybook:12": {
+      "dependsOn": ["storybook:build"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/pkgs/{ui-root,ui-devtools,chess-board-root,assistant,collab-ui}-client-ts/src/**/baselines/**",
+        "$TURBO_ROOT$/libs/{account-privacy,app-config,app-root,auth,battleship,billing,chess-puzzle,chess-root,chess-shared,connect-four,friends,game-matchmaking,game-menu,game-puzzle,game-session,hearts,light-cycles,moderation,notifications,numberlink,permissions,profile,pong,quoridor,search,sokoban,spaces,synthetic-population,user-search,word-tiles}-client-ts/src/**/baselines/**"
+      ],
+      "outputs": [],
+      "env": ["BUN_CHROME_PATH"],
+      "passThroughEnv": ["STORYBOOK_TEST_PORT"]
+    },
+    "ci:storybook:13": {
+      "dependsOn": ["storybook:build"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/pkgs/{ui-root,ui-devtools,chess-board-root,assistant,collab-ui}-client-ts/src/**/baselines/**",
+        "$TURBO_ROOT$/libs/{account-privacy,app-config,app-root,auth,battleship,billing,chess-puzzle,chess-root,chess-shared,connect-four,friends,game-matchmaking,game-menu,game-puzzle,game-session,hearts,light-cycles,moderation,notifications,numberlink,permissions,profile,pong,quoridor,search,sokoban,spaces,synthetic-population,user-search,word-tiles}-client-ts/src/**/baselines/**"
+      ],
+      "outputs": [],
+      "env": ["BUN_CHROME_PATH"],
+      "passThroughEnv": ["STORYBOOK_TEST_PORT"]
     }
   }
 }

@@ -14,11 +14,12 @@ const meta = {
   component: MultiplayerScreenView,
   tags: ['autodocs'],
   parameters: STORY_PARAMETERS,
-  render: renderStory({
-    shown: 0,
-    announcement: { title: 'Game in progress.' },
-    setup: { status: 'Your private setup is incomplete.', choosing: true },
-  }),
+  render: (args) =>
+    renderStory({
+      shown: 0,
+      announcement: { title: 'Game in progress.' },
+      setup: { status: 'Your private setup is incomplete.', choosing: true },
+    })(args),
   args: {
     ...storyArgs(),
     title: 'Battleship',
@@ -35,20 +36,22 @@ export const Choosing: Story = {};
 
 /** Chosen: waiting for the other player, with nothing left to arrange. */
 export const Waiting: Story = {
-  render: renderStory({
-    shown: 0,
-    announcement: { title: 'Game in progress.' },
-    setup: { status: 'You are ready. Waiting for the other player.' },
-  }),
+  render: (args) =>
+    renderStory({
+      shown: 0,
+      announcement: { title: 'Game in progress.' },
+      setup: { status: 'You are ready. Waiting for the other player.' },
+    })(args),
 };
 
 /** A watcher sees who is ready, never a setup. */
 export const Watching: Story = {
-  render: renderStory({
-    shown: 0,
-    announcement: { title: 'Game in progress.' },
-    setup: { status: 'The players are choosing their private setups.' },
-  }),
+  render: (args) =>
+    renderStory({
+      shown: 0,
+      announcement: { title: 'Game in progress.' },
+      setup: { status: 'The players are choosing their private setups.' },
+    })(args),
   args: {
     game: { ...STORY_GAME, leave: null, draw: 'none', flip: null, moves: null },
   },

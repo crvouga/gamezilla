@@ -24,7 +24,7 @@ import {
   renderStorybookWranglerConfig,
   renderWranglerConfig,
 } from '@libs/infra-shared-ts/wrangler';
-import { requireConfiguredIdentity } from '@libs/product-identity-shared-ts/identity-input';
+import { requireConfiguredIdentity } from '@libs/product-brand-shared-ts/identity-input';
 import { PRODUCT } from '@libs/product-identity-shared-ts/product-identity';
 
 export function activeEnvFile(): EnvFile {

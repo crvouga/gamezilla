@@ -1,0 +1,4 @@
+{
+  "summary": "Since browser devices run in their own processes, a driver failure crossed back as a plain Error carrying only its message, so harness reads that treat a missing element as 'not shown yet' (readCustomGameProbe's ElementNotFoundError, the puzzle screen's) threw instead on every live-browser run ('node custom-game-debug text: Element not found'). The process now sends the error's name and the channel revives the UI-testing error class, keeping it through the call's wrapping message.",
+  "regressionTest": "pkgs/ui-testing-bun-webview-server-ts/tests/isolated-browser.test.ts"
+}

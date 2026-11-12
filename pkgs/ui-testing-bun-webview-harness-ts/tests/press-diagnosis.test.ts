@@ -120,3 +120,47 @@ test('a control buried under a stacked screen names both screens', async () => {
     document.elementFromPoint = previousHit;
   }
 });
+
+test('a control under a modal names the modal by its components', async () => {
+  document.body.innerHTML =
+    '<section data-screen="account"><button data-testid="nav-back">Back</button></section>' +
+    '<div data-component="SurfaceStackLayer"><div data-component="ModalRoot"><div>' +
+    '<div data-component="FocusTrap"><div data-component="ResponsiveSurface">' +
+    '<div data-component="ModalScrim"></div></div></div></div></div></div>';
+  const back = document.querySelector('button')!;
+  back.scrollIntoView = () => {};
+  back.getBoundingClientRect = () => new DOMRect(8, 4, 44, 44);
+  const previousFrame = globalThis.requestAnimationFrame;
+  const previousHit = document.elementFromPoint;
+  document.elementFromPoint = () =>
+    document.querySelector('[data-component="ModalScrim"]')!;
+  globalThis.requestAnimationFrame = (callback) => {
+    queueMicrotask(() => callback(0));
+    return 1;
+  };
+  const view = {
+    evaluate: async (script: string) => runInThisContext(script),
+    click: async () => {
+      throw new Error('timeout waiting for \'[data-testid="nav-back"]\'');
+    },
+    close: () => {},
+  } as unknown as BunWebView;
+  try {
+    const message = await new BunWebviewDriver({
+      view,
+      timers: createHarnessClock().timers,
+    })
+      .get('nav-back')
+      .tap()
+      .then(
+        () => 'tapped',
+        (error: unknown) => String(error)
+      );
+    expect(message).toContain('hits <div ModalScrim position=');
+    expect(message).toContain('< <div ModalRoot position=');
+    expect(message).toContain('< <div SurfaceStackLayer position=');
+  } finally {
+    globalThis.requestAnimationFrame = previousFrame;
+    document.elementFromPoint = previousHit;
+  }
+});

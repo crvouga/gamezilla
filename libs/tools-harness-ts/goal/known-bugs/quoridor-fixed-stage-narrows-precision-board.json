@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone the fixed game stage narrowed a board taller than its room one shown pass at a time, as if its height followed its width. Quoridor's board carries its wall tools and target picker, so at 390x844 it was shown at 350px and then 323px (below its 358px precision floor, its tools wrapping taller), and then given its width back: the board jumped on first paint and the place-a-wall story measured it narrowed. Narrowings are now laid out and measured before one is shown; a board that grows no shorter when narrowed keeps its width.",
+  "regressionTest": "pkgs/ui-root-client-ts/tests/game-board-room-fit.test.ts"
+}

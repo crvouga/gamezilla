@@ -123,7 +123,7 @@ async function readPending(
   return rows;
 }
 
-async function storeRejection(
+export async function storeRejection(
   tx: SqlClient,
   clientId: string,
   verdict: Extract<MutationUploadVerdict, { status: 'rejected' }>,

@@ -37,6 +37,7 @@ import {
   joinFromPrompt,
   openSpaceLink,
 } from '@libs/spaces-harness-ts/space-actions';
+import { expectJoinPrompt } from '@libs/spaces-harness-ts/space-ui';
 import { readSpaceLink } from '@libs/spaces-harness-ts/spaces-ui-reads';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { type HeartsLine, heartsLineDraws } from './hearts-lines';
@@ -118,7 +119,7 @@ async function joinSpace(
   if (link === null) throw new Error(`${host} is not in a space`);
   await signIn(s, person);
   await Promise.resolve(openSpaceLink.act(s, person, link));
-  await (await actorUi(s, person)).get('space-join').expect.visible();
+  await expectJoinPrompt(s, person, link);
   await Promise.resolve(joinFromPrompt.act(s, person));
 }
 

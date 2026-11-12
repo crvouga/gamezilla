@@ -1,0 +1,4 @@
+{
+  "summary": "During play the desktop game frame bounded every board's column by the window's height, so at 1440x900 and 1440x844 the Word Tiles workspace was too narrow for its wide layout: the rack and Play word fell above a 23rem board under the opponent's seat, the own seat dropped below an 844px window, and the view controls covered the draft's status line. A compact word board's column is no longer bounded by the window's height.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/word-tiles/integration.checks.ts"
+}

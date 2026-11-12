@@ -22,8 +22,13 @@ import {
 import type { Counts } from './burn-rate';
 import { budgetRemaining } from './burn-rate';
 import type { Measurement } from './evaluate';
+import type { BurnReading } from './failure';
 import type { AlertPolicy, OpenSloDoc, Slo } from './model';
-import type { AlertingBinding, ObjectivesBinding } from './registry';
+import type {
+  AlertingBinding,
+  AlertResponse,
+  ObjectivesBinding,
+} from './registry';
 import { parseDuration, withinBounds } from './window';
 
 export type AlertResult = {
@@ -36,6 +41,13 @@ export type AlertResult = {
   readonly detail: string;
   /** Nothing was counted at all: not ok, but nothing failed either. */
   readonly noEvidence?: true;
+  /** A firing policy's numbers and response, for whoever answers it. */
+  readonly firing?: {
+    readonly severity: string;
+    readonly readings: readonly BurnReading[];
+    readonly budgetRemaining: number | null;
+    readonly response: AlertResponse;
+  };
 };
 
 export function alertId(slo: string, policy: string): string {
@@ -140,7 +152,8 @@ function policyResult(input: {
 }): AlertResult {
   const { slo, policy, evaluation, target, alerting, windowCounts } = input;
   const readings = describeReadings(evaluation.readings, target);
-  const budget = `${percent(budgetRemaining(windowCounts, target))} of the ${slo.timeWindow.duration} error budget remains`;
+  const remaining = budgetRemaining(windowCounts, target);
+  const budget = `${percent(remaining)} of the ${slo.timeWindow.duration} error budget remains`;
   const severity = evaluation.readings[0]?.condition.severity ?? 'alert';
   if (evaluation.state === 'firing') {
     const response = alerting.respond({
@@ -148,12 +161,25 @@ function policyResult(input: {
       policy,
       lookbackWindow: longestLookback(evaluation.readings),
     });
-    return result(
-      slo,
-      policy,
-      false,
-      `${severity.toUpperCase()} ${slo.name} (${policy.name}) is firing: ${readings}; ${budget}. Owner: ${response.owner}. Runbook: ${response.runbook}. Investigate with: ${response.command}`
-    );
+    return {
+      ...result(
+        slo,
+        policy,
+        false,
+        `${severity.toUpperCase()} ${slo.name} (${policy.name}) is firing: ${readings}; ${budget}. Owner: ${response.owner}. Runbook: ${response.runbook}. Investigate with: ${response.command}`
+      ),
+      firing: {
+        severity,
+        readings: evaluation.readings.map((r) => ({
+          lookbackWindow: r.condition.lookbackWindow,
+          burn: r.burn,
+          threshold: r.condition.threshold,
+          events: r.counts.total,
+        })),
+        budgetRemaining: remaining,
+        response,
+      },
+    };
   }
   // Nothing in the policy's windows while the objective's window has events
   // is quiet traffic, not missing evidence: a burn rate cannot be judged,

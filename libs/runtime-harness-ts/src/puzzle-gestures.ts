@@ -43,7 +43,8 @@ async function expectedMove(ui: Driver): Promise<string> {
 async function nextMove(ui: Driver, played: string): Promise<string | null> {
   for (let look = 0; look < LOOK_LIMIT; look += 1) {
     if (await solved(ui)) return null;
-    await ui.get(Handles.chessPuzzleBoardFrame).layout();
+    const frame = ui.get(Handles.chessPuzzleBoardFrame);
+    if (await frame.isVisible()) await frame.layout();
     const uci = await expectedMove(ui);
     if (uci.length >= 4 && uci !== played) return uci;
     await ui

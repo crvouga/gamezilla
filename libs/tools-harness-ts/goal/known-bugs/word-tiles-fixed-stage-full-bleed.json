@@ -1,0 +1,4 @@
+{
+  "summary": "The phone game frame's fixed view (#379) took Word Tiles' whole workspace (rack, board and view controls) to the screen's edge as if it were one full-width board: at 390px the rack and its prompt sat at 0px instead of the 16px page edge, the stage narrowed and widened the workspace on first paint so the board's rounded corners clipped the rack, and the own seat fell under the command bar on narrow tables. A game whose board is its own workspace (GameFrame.boardWorkspace) keeps the flowing page on phones.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/word-tiles/integration.checks.ts"
+}

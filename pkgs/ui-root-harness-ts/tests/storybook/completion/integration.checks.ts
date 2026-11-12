@@ -25,6 +25,18 @@ async function box(locator: Locator) {
   return value;
 }
 
+type Box = Awaited<ReturnType<typeof box>>;
+
+/** Whether two boxes share no area: a command above, beside or under the board, never on it. */
+function apart(a: Box, b: Box): boolean {
+  return (
+    a.x + a.width <= b.x ||
+    b.x + b.width <= a.x ||
+    a.y + a.height <= b.y ||
+    b.y + b.height <= a.y
+  );
+}
+
 // regression: completed-game-next-actions-below-board
 for (const screen of [
   { width: 390, height: 844 },
@@ -52,9 +64,14 @@ for (const screen of [
         const last = await box(actions.last());
         expect(first.y).toBeGreaterThanOrEqual(0);
         expect(last.y + last.height).toBeLessThanOrEqual(screen.height);
-        // The outcome and what comes next lead the final board on every size.
+        // The outcome and what comes next lead on every size: the outcome's
+        // card lies over the final board in the first view, and every next
+        // action is in the game's command bar (under a phone's board,
+        // beside a wide one), in the first view and never on the board.
+        await expect(headline).toBeInViewport({ ratio: 1 });
         const board = await box(page.getByTestId('custom-game-public'));
-        expect(last.y + last.height).toBeLessThanOrEqual(board.y);
+        for (const action of await actions.all())
+          expect(apart(await box(action), board)).toBe(true);
         for (const id of [
           'custom-game-rematch',
           'custom-game-new',
@@ -85,7 +102,7 @@ for (const screen of [
 // not ordinary says so in its own words.
 for (const sample of [
   { story: 'play--your-turn', says: null },
-  { story: 'play--connection-needed', says: 'Connection needed' },
+  { story: 'play--connection-needed', says: 'You are offline' },
   { story: 'play--offline-local', says: 'Your local game can continue' },
   { story: 'play--move-waiting', says: 'when the connection returns' },
   { story: 'play--stopped', says: 'The game stopped' },
@@ -155,7 +172,8 @@ test('storybook integration: resigning from the game menu keeps one outcome and 
   await expect(page.getByTestId('custom-game-result-headline')).toContainText(
     'You came 2nd'
   );
-  await expect(page.getByTestId('custom-game-result-headline')).toContainText(
+  // How it ended is the result card's caption, under its headline.
+  await expect(page.getByTestId('custom-game-outcome')).toContainText(
     'You resigned.'
   );
   await done.click();
@@ -249,10 +267,8 @@ for (const story of [
       const board = page.getByTestId('custom-game-board');
       for (const action of await actions.all()) {
         await expect(action).toBeInViewport({ ratio: 1 });
-        const actionBox = await box(action);
-        expect(actionBox.y + actionBox.height).toBeLessThan(
-          (await box(board)).y
-        );
+        // Beside the wide board, in the game's command bar: never on it.
+        expect(apart(await box(action), await box(board))).toBe(true);
       }
       await expect(board.locator('[data-winning="true"]')).toHaveCount(
         story.endsWith('--drawn') ? 0 : 4

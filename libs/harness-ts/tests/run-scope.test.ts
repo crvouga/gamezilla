@@ -1,5 +1,9 @@
 import { expect, test } from 'bun:test';
-import { taggedCreateId, taggedUsername } from '@libs/harness-ts/run-scope';
+import {
+  taggedActorUsername,
+  taggedCreateId,
+  taggedUsername,
+} from '@libs/harness-ts/run-scope';
 import { createHarnessIds } from '@pkgs/uuid-shared-ts/seeded-create-id';
 
 const UUID =
@@ -29,4 +33,14 @@ test('a run tag is the eight hex digits a stack run draws', () => {
   expect(() =>
     taggedCreateId(createHarnessIds(1).createId, 'not-a-tag')
   ).toThrow();
+});
+
+test("an actor's name carries the run's tag on a shared stack; other names do not", () => {
+  expect(taggedActorUsername('alice', null)).toBe('alice');
+  expect(taggedActorUsername('alice', '0a1b2c3d')).toBe('alice_0a1b2c3d');
+  expect(taggedActorUsername('robert_1', '0a1b2c3d')).toBe('robert_1');
+  // Already tagged: the same name, not tagged twice.
+  expect(taggedActorUsername('alice_0a1b2c3d', '0a1b2c3d')).toBe(
+    'alice_0a1b2c3d'
+  );
 });

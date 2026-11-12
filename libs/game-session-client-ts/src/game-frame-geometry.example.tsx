@@ -37,9 +37,16 @@ export async function expectTerminalVisible(canvasElement: HTMLElement) {
   await expect(rematch.getBoundingClientRect().bottom).toBeLessThan(
     view.innerHeight
   );
-  await expect(rematch.getBoundingClientRect().bottom).toBeLessThan(
-    board.getBoundingClientRect().top
-  );
+  // Since #379 the result card may sit under the board; its next action
+  // stays in the first view and never covers the board.
+  const action = rematch.getBoundingClientRect();
+  const square = board.getBoundingClientRect();
+  await expect(
+    action.bottom <= square.top ||
+      action.top >= square.bottom ||
+      action.right <= square.left ||
+      action.left >= square.right
+  ).toBe(true);
   await expect(canvas.getAllByTestId('custom-game-rematch')).toHaveLength(1);
   await expect(canvas.getAllByTestId('custom-game-history-stats')).toHaveLength(
     1

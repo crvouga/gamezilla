@@ -1,0 +1,4 @@
+{
+  "summary": "Verify Nightly browser run 42781981474: while the stack's API answered /api/query with HTTP 500 (its database connection timed out), a device's first hydration sweep failed and the client only retried network errors, so synced rows such as client_config stayed missing until the 30-second reconciliation tick. The sign-in modal kept 'Loading sign-in methods…' and the Google method never appeared within the 15-second tap (26 scenarios). A read the server failed (5xx) is now retried with the same bounded backoff as a network failure, starting after one second.",
+  "regressionTest": "pkgs/sync-engine-harness-ts/tests/transient-query-recovery.test.ts"
+}

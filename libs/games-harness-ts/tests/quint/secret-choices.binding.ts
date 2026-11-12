@@ -3,6 +3,7 @@ import type { Picks } from '@pkgs/quint-shared-ts/registry';
 import { bindQuintModel } from '@pkgs/quint-shared-ts/registry';
 import departuresTrace from './fixtures/secret-choice-departures-ordered.itf.json';
 import hostAwayTrace from './fixtures/secret-choice-host-away-counted.itf.json';
+import hostReturnTrace from './fixtures/secret-choice-host-return-orders-departures.itf.json';
 import offlineTrace from './fixtures/secret-choice-offline-replay.itf.json';
 import resentPassTrace from './fixtures/secret-choice-refused-pass-resent.itf.json';
 import { observeChoiceModel } from './secret-choices-observe';
@@ -55,6 +56,13 @@ bindQuintModel<QuintHarnessWorld>({
       title: 'Time away while the host is away brings no stand-in',
       seed: '0x67932',
       itf: hostAwayTrace,
+    },
+    {
+      // regression: secret-choice-host-return-orders-departures
+      id: 'secret-choice-host-return-orders-departures',
+      title: 'Whoever leaves after the host is back gets a stand-in later',
+      seed: '0x67932',
+      itf: hostReturnTrace,
     },
   ],
   actions: {

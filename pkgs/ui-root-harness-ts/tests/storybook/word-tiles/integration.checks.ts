@@ -182,6 +182,7 @@ test('storybook integration: word-tiles placing tiles does not move the board', 
 });
 
 // regression: word-tiles-390-edge-inset
+// regression: word-tiles-fixed-stage-full-bleed
 test('storybook integration: word-tiles keeps a 16px edge at 390 and 4px only at 320', async ({
   page,
 }) => {
@@ -195,6 +196,7 @@ test('storybook integration: word-tiles keeps a 16px edge at 390 and 4px only at
 });
 
 // regression: word-tiles-desktop-rack-under-opponent
+// regression: word-tiles-desktop-board-bounded-by-window-height
 test('storybook integration: word-tiles desktop rack sits under a larger board beside the own seat', async ({
   page,
 }) => {

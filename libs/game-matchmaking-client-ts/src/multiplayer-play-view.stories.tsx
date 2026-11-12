@@ -15,7 +15,8 @@ const meta = {
   component: MultiplayerScreenView,
   tags: ['autodocs'],
   parameters: STORY_PARAMETERS,
-  render: renderStory({ announcement: { title: 'Your turn.' } }),
+  render: (args) =>
+    renderStory({ announcement: { title: 'Your turn.' } })(args),
   args: {
     ...storyArgs(),
     stage: 'playing',
@@ -38,10 +39,14 @@ export const Versus: Story = {
     overlay: { kind: 'versus', count: 3 },
     game: { ...STORY_GAME, leave: 'abort', moves: storyMoves(0) },
   },
-  render: renderStory({ shown: 0, announcement: { title: 'Your turn.' } }),
+  render: (args) =>
+    renderStory({ shown: 0, announcement: { title: 'Your turn.' } })(args),
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(await canvas.findByTestId('multiplayer-versus'));
+    const card = await canvas.findByTestId('multiplayer-versus');
+    await userEvent.click(
+      within(card).getByRole('button', { name: 'Start now' })
+    );
     await expect(args.onOverlay).toHaveBeenCalledWith({ type: 'skip' });
     await expect(canvas.queryByTestId('multiplayer-versus')).toBeNull();
   },
@@ -53,7 +58,8 @@ export const VersusCount: Story = {
     overlay: { kind: 'versus', count: 3 },
     game: { ...STORY_GAME, leave: 'abort', moves: storyMoves(0) },
   },
-  render: renderStory({ shown: 0, announcement: { title: 'Your turn.' } }),
+  render: (args) =>
+    renderStory({ shown: 0, announcement: { title: 'Your turn.' } })(args),
 };
 
 /**
@@ -61,26 +67,29 @@ export const VersusCount: Story = {
  * its one line, the seat keeps its height and the board its full width.
  */
 export const LongName: Story = {
-  render: renderStory({
-    ownName: 'XenaciousPuffin162',
-    announcement: { title: 'Your turn.' },
-  }),
+  render: (args) =>
+    renderStory({
+      ownName: 'XenaciousPuffin162',
+      announcement: { title: 'Your turn.' },
+    })(args),
 };
 
 /** A draw offered to the person waits for their answer under the board. */
 export const DrawOffered: Story = {
-  render: renderStory({
-    announcement: {
-      title: 'Your turn.',
-      detail: 'Bob offered you a multiplayer draw.',
-    },
-  }),
+  render: (args) =>
+    renderStory({
+      announcement: {
+        title: 'Your turn.',
+        detail: 'Bob offered you a multiplayer draw.',
+      },
+    })(args),
   args: { game: { ...STORY_GAME, draw: 'answer' } },
 };
 
 /** Before the first move there are no moves to list. */
 export const NoMovesYet: Story = {
-  render: renderStory({ shown: 0, announcement: { title: 'Your turn.' } }),
+  render: (args) =>
+    renderStory({ shown: 0, announcement: { title: 'Your turn.' } })(args),
   args: { game: { ...STORY_GAME, leave: 'abort', moves: storyMoves(0) } },
 };
 
@@ -91,9 +100,10 @@ export const WithoutTurns: Story = {
 
 /** A watcher has nothing to resign or offer; the moves stay one press away. */
 export const Watching: Story = {
-  render: renderStory({
-    announcement: { title: 'Watching multiplayer Connect Four.' },
-  }),
+  render: (args) =>
+    renderStory({
+      announcement: { title: 'Watching multiplayer Connect Four.' },
+    })(args),
   args: { game: { ...STORY_GAME, leave: null, draw: 'none' } },
 };
 

@@ -19,7 +19,11 @@ export function pressDiagnosisScript(selector: string): string {
   return `(async function(){
     function one(node) {
       var style = getComputedStyle(node);
+      // The design-system component it is (test hooks keep \`data-component\`):
+      // anonymous layout boxes alone cannot tell a sheet from a banner.
+      var component = node.getAttribute('data-component');
       return '<' + node.tagName.toLowerCase().slice(0, 32) +
+        (component === null ? '' : ' ' + component.slice(0, 40)) +
         ' position=' + style.position.slice(0, 12) +
         ' z=' + style.zIndex.slice(0, 12) + '>';
     }
@@ -27,7 +31,7 @@ export function pressDiagnosisScript(selector: string): string {
       if (node === null) return 'nothing';
       // An overlay is often a portal with no test id: name its ancestry.
       var chain = [];
-      for (var at = node; at !== null && at !== document.body && chain.length < 4; at = at.parentElement)
+      for (var at = node; at !== null && at !== document.body && chain.length < 6; at = at.parentElement)
         chain.push(one(at));
       // The screen it belongs to, by its test-hook \`data-screen\` (stripped
       // from production builds): a stacked screen covering a buried one's

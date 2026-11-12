@@ -1,0 +1,4 @@
+{
+  "summary": "Since the finding-an-opponent screen became small places (#377), a finished game shows its result with Find one row away (multiplayer-open-find) instead of on the same screen. A Synthetic User that had just finished a game no longer saw Find, went back to its spaces and idled, so it never looked for its next opponent (finding-opponents regression finding-opponents-synthetic-game-first-move-abort: syntheticLooking 0 where the model has 1). It now opens the search's hub from the result's row and finds an opponent there.",
+  "regressionTest": "libs/synthetic-population-behavior-shared-ts/tests/game-automation.test.ts"
+}

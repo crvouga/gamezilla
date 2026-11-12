@@ -1,0 +1,4 @@
+{
+  "summary": "The production Grafana restore ran `tofu untaint -input=false …`; untaint takes no -input flag, so it failed to parse its options and Release 42950298563 stopped at the prd foundation apply. The untaint command now passes only flags untaint accepts.",
+  "regressionTest": "libs/infra-shared-ts/tests/grafana-restore.test.ts"
+}

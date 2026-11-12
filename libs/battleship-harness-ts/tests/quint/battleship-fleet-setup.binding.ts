@@ -26,6 +26,7 @@ import {
   byPlayer,
   cellOf,
   PLAYERS,
+  type Player,
   player,
   SIDES,
   WATCHER,
@@ -143,9 +144,14 @@ bindQuintModel<QuintHarnessWorld>({
   },
   observe: async (w) => {
     const { seen, game, phase } = await watchGame(w);
+    // A player's fleet is where their own device shows it: on the setup
+    // board while their device still has the game set up (a device without
+    // a connection has not heard of the start), on their own board after.
+    const stillSetUp = (p: Player) =>
+      seen[p].screen.current?.status === 'configuring';
     return {
       fleet: byPlayer((p) =>
-        shownFleet(phase === 'setup' ? seen[p].setup : seen[p].own)
+        shownFleet(stillSetUp(p) ? seen[p].setup : seen[p].own)
       ),
       ready: byPlayer((p) => game.ready.includes(SIDES[p])),
       phase,

@@ -1,5 +1,6 @@
 import { actorUi } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
+import { actorUsername } from '@libs/harness-ts/run-scope';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 
 const WAIT_MS = 10_000;
@@ -13,7 +14,7 @@ export async function searchResultVisible(
   try {
     const ui = await actorUi(s, actorId);
     await ui
-      .get(Handles.searchUserResult(username))
+      .get(Handles.searchUserResult(actorUsername(s, username)))
       .expect.visible({ timeoutMs: WAIT_MS });
     return true;
   } catch {

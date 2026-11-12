@@ -8,6 +8,7 @@ import type { BrowserNavigation } from './browser-navigation';
 import type { ActorCheckpointPort } from './client-checkpoint';
 import type { Harness } from './create-harness';
 import type { ProductExtra } from './ports';
+import type { DeviceMutations } from './webview-mutations';
 
 export type HarnessDevice = {
   readonly audioState: () => Promise<
@@ -25,6 +26,12 @@ export type HarnessActor = {
   readonly device: HarnessDevice;
   readonly id: string;
   readonly ui: Driver;
+  /**
+   * A live browser's own mutation client, a write sent from the page as its
+   * screen sends it; absent in the in-process host, whose client the
+   * harness holds itself.
+   */
+  readonly mutations?: DeviceMutations;
   /** A native rendered frame, available only on real browser actors. */
   readonly screenshot?: () => Promise<Uint8Array>;
   /**
@@ -36,6 +43,8 @@ export type HarnessActor = {
   /** Private session probe for server-verdict reads; never recorded in reports. */
   readonly sessionToken: () => Promise<string | null>;
   readonly deviceId: () => Promise<string | null>;
+  /** The identity the device keeps for local work, a guest's included. */
+  readonly memberId: () => Promise<string | null>;
   /** Open an app link (`/space/<id>`) the way a person pastes one. */
   readonly openLink: (path: string) => Promise<void>;
   /** The app route the actor is on — what "Copy link" would hand out. */

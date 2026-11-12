@@ -8,6 +8,7 @@
  */
 
 import { Handles } from '@libs/test-ids-shared-ts/handles';
+import { hostLimit } from '@pkgs/gherkin-shared-ts/registry';
 import { actorUi, pollUntil, scenarioAction } from './actor-ui';
 import { dismissSignedIn, openSignInModal } from './auth-actions';
 import type { ProductHarness } from './harness';
@@ -23,9 +24,11 @@ const WAIT_MS = 20_000;
 export const hostSyntheticUser = scenarioAction({
   name: 'hostSyntheticUser',
   act: (s, actorId: string) => {
+    // A browser cannot be that host, so the scenario ends here rather than
+    // failing: there is nothing about the product it could show.
     if (productExtra(s).ui.kind !== 'solid-dom')
-      throw new Error(
-        "Email sign-in is offered only by a Synthetic User's application host; a browser device runs the app people use"
+      throw hostLimit(
+        "email sign-in is offered only by a Synthetic User's application host; a browser device runs the app people use"
       );
     if (s.actors.has(actorId))
       throw new Error(`${actorId}'s app is already running`);

@@ -9,6 +9,7 @@
 import type { CreateId } from '@pkgs/uuid-shared-ts/create-id';
 import type { ProductHarness } from './harness';
 import { productExtra } from './harness';
+import { ACTOR_IDS } from './parameter-types';
 
 /** The run's tag on a shared stack, or `null` on a server of the world's own. */
 export function runTag(s: ProductHarness): string | null {
@@ -33,6 +34,23 @@ export function taggedCreateId(
 /** A name a scenario claims, unique to the run on a shared server. */
 export function taggedUsername(name: string, tag: string | null): string {
   return tag === null ? name : `${name}_${tag}`;
+}
+
+const ACTOR_USERNAMES: ReadonlySet<string> = new Set(Object.values(ACTOR_IDS));
+
+/**
+ * The username `name` stands for in `tag`'s run: an actor's own name (`alice`
+ * is Alice's username) carries the tag on a shared server, so it names this
+ * scenario's Alice and not one an earlier scenario left behind. Any other
+ * name, and a name that already carries the tag, is the name as typed.
+ */
+export function taggedActorUsername(name: string, tag: string | null): string {
+  return ACTOR_USERNAMES.has(name) ? taggedUsername(name, tag) : name;
+}
+
+/** The username `name` stands for in this run (see {@link taggedActorUsername}). */
+export function actorUsername(s: ProductHarness, name: string): string {
+  return taggedActorUsername(name, runTag(s));
 }
 
 /** Ids for rows a fixture writes into the server, unique to this run. */

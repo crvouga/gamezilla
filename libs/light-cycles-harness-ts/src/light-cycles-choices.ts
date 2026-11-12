@@ -10,11 +10,13 @@ import type { ProductHarness } from '@libs/harness-ts/harness';
 import {
   LIGHT_CYCLES_RIDER_NAMES,
   type LightCyclesRiderName,
+  lightCyclesBoard,
 } from './light-cycles-board-view';
 import {
   LIGHT_CYCLES_SIDES,
   type LightCyclesBotLevel,
   lightCyclesLineup,
+  lightCyclesObserver,
   rememberLineup,
 } from './light-cycles-lineup';
 
@@ -89,6 +91,24 @@ export const chooseTargetScore = scenarioAction({
     }
   },
 });
+
+/**
+ * The target score the game's creator sees, or `actor`: the arena's round
+ * line once the game shows its arena. Before the game starts there is no
+ * arena, only the lobby, so it is read where a person looks for it — the
+ * game options, opened by the lobby's row.
+ */
+export async function targetScoreShown(
+  s: ProductHarness,
+  actor?: string
+): Promise<number> {
+  const who = actor ?? lightCyclesObserver(s);
+  const board = await lightCyclesBoard(s, who);
+  if (board !== null) return board.targetScore;
+  if (!(await openCustomGamePlace(s, who, OPTIONS_ROW, TARGET_VALUE)))
+    throw new Error(`${who} sees no target score`);
+  return (await readTargetStepper(s, who)).value;
+}
 
 /** Whether `actor`'s game options say the target score must be from 1 to 9. */
 export async function targetScoreRefusalShown(

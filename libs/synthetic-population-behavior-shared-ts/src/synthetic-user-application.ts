@@ -28,6 +28,7 @@ import {
   findOpponentFor,
   gameForPosition,
   openMultiplayer,
+  reachSearchHub,
 } from './game-automation';
 import { MovePacing } from './move-pacing';
 import {
@@ -287,10 +288,11 @@ export class SyntheticUserApplication {
     );
     // Which game a find screen is for is unknown: while people wait for
     // another Synthetic User, it finds an opponent only where it was sent.
+    // After a game, Find is one row from the game's result.
     if (
       this.reserved.length === 0 &&
-      (await this.driver.get('multiplayer-find').isVisible()) &&
-      decision.activity !== 'browsing'
+      decision.activity !== 'browsing' &&
+      (await reachSearchHub(this.driver))
     ) {
       this.transition({ type: 'READY' });
       await this.driver.get('multiplayer-find').tap();
