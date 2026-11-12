@@ -10780,7 +10780,6 @@
                       "specs/feedback/bug-report-accessibility.feature",
                       "specs/feedback/bug-report-opening.qnt",
                       "specs/feedback/bug-report.qnt",
-                      "specs/feedback/daily-bug-report-limit.dmn",
                       "specs/feedback/debug-info.feature",
                       "specs/feedback/delivery.feature",
                       "specs/feedback/opening-a-bug-report.feature",
