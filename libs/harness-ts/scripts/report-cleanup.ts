@@ -7,7 +7,7 @@ import type {
   CleanupBranch,
   CleanupPull,
 } from './branch-cleanup';
-import { cleanupBranches } from './branch-cleanup';
+import { ARCHIVE_BRANCH, cleanupBranches } from './branch-cleanup';
 import { branchComparison } from './branch-comparison';
 import { reportsStore } from './report-store';
 
@@ -22,6 +22,57 @@ function gh<T>(args: readonly string[]): T {
   if (result.status !== 0)
     throw new Error(`GitHub maintenance failed: ${result.stderr}`);
   return JSON.parse(result.stdout) as T;
+}
+
+async function archiveTip(
+  root: string,
+  branch: string,
+  sha: string
+): Promise<void> {
+  const ref = `heads/${ARCHIVE_BRANCH}`;
+  const current = capture('gh', ['api', `${root}/git/ref/${ref}`]);
+  if (current.status !== 0) {
+    if (!current.stderr.includes('(HTTP 404)'))
+      throw new Error(`GitHub maintenance failed: ${current.stderr}`);
+    gh([
+      'api',
+      `${root}/git/refs`,
+      '-f',
+      `ref=refs/${ref}`,
+      '-f',
+      `sha=${sha}`,
+    ]);
+    return;
+  }
+  const head = (JSON.parse(current.stdout) as { object: { sha: string } })
+    .object.sha;
+  const tree = gh<{ tree: { sha: string } }>([
+    'api',
+    `${root}/git/commits/${head}`,
+  ]).tree.sha;
+  const commit = gh<{ sha: string }>([
+    'api',
+    `${root}/git/commits`,
+    '-f',
+    `message=chore(archive): ${branch}`,
+    '-f',
+    `tree=${tree}`,
+    '-f',
+    `parents[]=${head}`,
+    '-f',
+    `parents[]=${sha}`,
+  ]).sha;
+  // Fast-forward only: a concurrent archive fails instead of dropping a tip.
+  gh([
+    'api',
+    '-X',
+    'PATCH',
+    `${root}/git/refs/${ref}`,
+    '-f',
+    `sha=${commit}`,
+    '-F',
+    'force=false',
+  ]);
 }
 
 function githubPort(repo: string): BranchCleanupPort {
@@ -72,6 +123,16 @@ function githubPort(repo: string): BranchCleanupPort {
         `${root}/git/ref/heads/${encodeURIComponent(branch)}`,
       ]).object.sha;
     },
+    async committedAt(sha) {
+      return Date.parse(
+        gh<{ committer: { date: string } }>([
+          'api',
+          `${root}/git/commits/${sha}`,
+        ]).committer.date
+      );
+    },
+    archive: (branch, sha) => archiveTip(root, branch, sha),
+    now: () => Date.now(),
     async remove(branch, expectedSha) {
       // A lease makes deletion atomic: a concurrent push cannot lose work.
       const ref = `refs/heads/${branch}`;

@@ -898,9 +898,13 @@ Its schedule is machine-owned; it does not replace the hosted gate or native cle
 Link every created or updated PR to its T3 thread so merging settles that thread.
 The existing settlement action stops checkout-owned services before removal.
 
-Scheduled Health maintenance inventories remote branches, retains closed unmerged
-PRs and open work, and deletes only integrated or merged heads. Its deletion uses
-an expected-SHA lease, so a branch changed concurrently is retained by Git.
-The log records branches requiring disposition; it never deletes unknown unmerged
-work. Never remove a dirty or locked worktree, a live compatibility link, a stash,
+Hourly Health maintenance keeps the remote branch list to `main`, `archive` and
+branches with an open PR. It deletes integrated or merged heads. An unmerged
+branch with no open PR (closed, diverged after merge, or never opened) and no
+commit for 3 days is archived first: its tip becomes a parent of a commit on
+`archive`, an orphan branch that only fast-forwards and cannot be deleted. SHA-pinned
+links and abandoned work stay reachable, and `git push origin <sha>:refs/heads/<name>`
+restores a branch. Deletion uses an expected-SHA lease, so a branch changed
+concurrently is retained by Git. Evidence such as screenshots goes in PR comments
+(`gh pr comment --attach`), never on a branch of its own. Never remove a dirty or locked worktree, a live compatibility link, a stash,
 or unpushed work to make a cleanup report green.

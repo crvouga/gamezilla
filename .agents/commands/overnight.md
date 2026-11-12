@@ -211,20 +211,7 @@ xychart-beta
 
 Use `sequenceDiagram` for interleavings and `stateDiagram-v2` for stuck states.
 
-**Evidence hosting.** Evidence never goes into the product tree or the PR's diff. It lives on one long-lived orphan branch, `overnight-evidence`, that is never merged:
-
-```sh
-# once per run
-git fetch origin overnight-evidence \
-  && git worktree add "$WT_ROOT/evidence" overnight-evidence \
-  || git worktree add --orphan -b overnight-evidence "$WT_ROOT/evidence"
-# per item: copy files to "$WT_ROOT/evidence/<date>/<slug>/", then
-git -C "$WT_ROOT/evidence" add "<date>/<slug>" \
-  && git -C "$WT_ROOT/evidence" commit -m "chore(evidence): <slug>" \
-  && git -C "$WT_ROOT/evidence" push origin overnight-evidence
-```
-
-Embed by commit SHA so links never move: `https://github.com/<owner>/<repo>/blob/<evidence-sha>/<date>/<slug>/<file>?raw=true` (`gh repo view --json nameWithOwner -q .nameWithOwner` gives `<owner>/<repo>`). Every image has alt text describing what it shows.
+**Evidence hosting.** Evidence never goes into the product tree, the PR's diff or a branch of its own. Attach files to the PR comment that shows them: `gh pr comment <n> --body-file <comment.md> --attach './before.png#<alt text>' --attach './after.png#<alt text>'` (gh 2.99+, up to 50 files per command). gh uploads each file to GitHub's immutable `user-attachments` and rewrites the body's `./…` references. Every image has alt text describing what it shows.
 
 ## Labels
 

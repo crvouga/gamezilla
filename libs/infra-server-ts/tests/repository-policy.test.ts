@@ -406,6 +406,9 @@ test('release tags cannot be moved or deleted, and fixed labels are declared one
   expect(repository).toMatch(
     /resource "github_repository_ruleset" "release_tags" \{[\s\S]*?target\s*=\s*"tag"[\s\S]*?include\s*=\s*\["refs\/tags\/release-\*"\][\s\S]*?deletion\s*=\s*true[\s\S]*?update\s*=\s*true/
   );
+  expect(repository).toMatch(
+    /resource "github_repository_ruleset" "archive" \{[\s\S]*?include\s*=\s*\["refs\/heads\/archive"\][\s\S]*?deletion\s*=\s*true[\s\S]*?non_fast_forward\s*=\s*true/
+  );
   const directory = join(TOFU, 'modules/repository/labels');
   const labels = readdirSync(directory).map(
     (file) =>

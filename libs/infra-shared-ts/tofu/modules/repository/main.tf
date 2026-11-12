@@ -205,6 +205,28 @@ resource "github_repository_ruleset" "release_tags" {
   }
 }
 
+# `archive` holds the tip of every unmerged branch Health maintenance deletes
+# (libs/harness-ts/scripts/branch-cleanup.ts), so it only fast-forwards and is
+# never deleted.
+resource "github_repository_ruleset" "archive" {
+  name        = "archive"
+  repository  = github_repository.this.name
+  target      = "branch"
+  enforcement = "active"
+
+  conditions {
+    ref_name {
+      include = ["refs/heads/archive"]
+      exclude = []
+    }
+  }
+
+  rules {
+    deletion         = true
+    non_fast_forward = true
+  }
+}
+
 # One file per label (labels/<slug>.json), so concurrent PRs never edit one
 # shared list. Labels outside this set, such as the dated `overnight:<date>`
 # labels /overnight creates, are left alone: an authoritative set would delete
