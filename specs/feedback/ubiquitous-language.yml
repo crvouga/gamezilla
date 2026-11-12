@@ -12,7 +12,8 @@ terms:
       What a person sends the team about a bug: a description, screenshots and
       debug info. A person opens one by choosing to report a bug, which the
       app offers in Settings, among its actions and wherever it says it has
-      run into trouble, or by shaking their phone. A bug report from a
+      run into trouble, by shaking their phone, or by a three-finger press. A
+      bug report from a
       signed-in person tells the team which account sent it, and a guest's
       says it came from a guest. The team has a bug report once it is on the
       team's list of work.
@@ -104,6 +105,16 @@ terms:
         refuseShakeToReport,
         phoneAllows,
       ]
+  - term: three-finger press
+    definition: >-
+      Three fingers held still on the app for one second, which opens a bug
+      report. Fewer or more fingers, a shorter hold, or fingers that move are
+      not one. It works on any device a person uses by touch and needs
+      nothing from the device: no choice to turn on and nothing the person
+      has to allow. It is how a person reports a bug with their hands where
+      a shake cannot open one.
+    forms: [holds three fingers still on the app for one second]
+    model: [threeFingerPress]
   - term: reproduce
     definition: Do what leads to the same bug again.
     forms: [reproducing, reproduced]

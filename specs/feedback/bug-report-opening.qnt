@@ -1,8 +1,13 @@
 // @model-profile: local
 // Alice reports a bug from her phone. She opens a bug report by choosing to
-// report a bug or by shaking the phone, and closes it whenever she likes.
-// Only one bug report is ever open: choosing to report a bug or shaking the
-// phone while one is open keeps the same bug report.
+// report a bug, by shaking the phone or by a three-finger press, and closes
+// it whenever she likes. Only one bug report is ever open: choosing to report
+// a bug, shaking the phone or a three-finger press while one is open keeps
+// the same bug report.
+//
+// A three-finger press is three fingers held still on the app for one
+// second. It opens a bug report whatever shake to report is set to and
+// whatever the phone allows.
 //
 // A shake opens a bug report only while shake to report is on and the phone
 // allows it. Shake to report is on until Alice turns it off, and she can turn
@@ -138,6 +143,11 @@ module bug_report_opening {
   action shakePhone: bool =
     if (shakeToReport and phoneAllows == "allowed") _opens(true) else _stays
 
+  /// Make a three-finger press. Like choosing to report a bug, this opens a
+  /// bug report, or keeps the one already open, whatever shake to report is
+  /// set to and whatever the phone allows.
+  action threeFingerPress: bool = _opens(false)
+
   /// Close the bug report. Its description and screenshots are kept as a draft.
   action closeBugReport: bool = all {
     openBugReports == 1,
@@ -228,6 +238,7 @@ module bug_report_opening {
     any {
       chooseToReport,
       shakePhone,
+      threeFingerPress,
       closeBugReport,
       describeBug,
       addPicture(kind, megabytes),

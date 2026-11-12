@@ -92,6 +92,35 @@ Feature: Open a bug report from anywhere
       When Alice refuses to allow shake to report
       Then Alice is told to choose to report a bug instead of shaking
 
+  Rule: A three-finger press opens a bug report
+
+    Scenario: A three-finger press opens a bug report with a screenshot
+      Given Alice's app is working
+      When Alice holds three fingers still on the app for one second
+      Then Alice has one bug report open
+      And the screenshot shows the app as it was before the bug report opened
+
+    Scenario: Two fingers held still for one second open nothing
+      Given Alice's app is working
+      When Alice holds two fingers still on the app for one second
+      Then Alice still has no bug report open
+
+    Scenario: Three fingers lifted before one second has passed open nothing
+      Given Alice's app is working
+      When Alice lifts three fingers from the app before one second has passed
+      Then Alice still has no bug report open
+
+    Scenario: A three-finger press with shake to report turned off opens a bug report
+      Given Alice has turned off shake to report
+      When Alice holds three fingers still on the app for one second
+      Then Alice has one bug report open
+
+    Scenario: A three-finger press while a bug report is open keeps the same bug report
+      Given Alice has described the bug as "The board froze after a move"
+      When Alice holds three fingers still on the app for one second
+      Then Alice has one bug report open
+      And Alice's bug report says "The board froze after a move"
+
   Rule: A bug report opens even when the app is unusable
     No counter-example: trouble in the app never takes away reporting a bug.
 
@@ -108,4 +137,9 @@ Feature: Open a bug report from anywhere
     Scenario: An app that cannot sign in still opens a bug report
       Given Alice's app cannot sign in
       When Alice chooses to report a bug
+      Then Alice has one bug report open
+
+    Scenario: A three-finger press on an app that has crashed still opens a bug report
+      Given Alice's app has crashed
+      When Alice holds three fingers still on the app for one second
       Then Alice has one bug report open
