@@ -835,8 +835,26 @@ async function ensureMainPreview(
   }
 }
 
+/**
+ * A site these commands never deploy gets its Preview settings from the
+ * release that does. Until that release has run they are applied here, as the
+ * same two settings and nothing else. Never fatal: without them the Preview
+ * is uploaded but not served, which the checks then report.
+ */
+async function servePreviews(cloudflare: Account, site: Site): Promise<void> {
+  if (site.deploysMain) return;
+  try {
+    await cloudflare.previews(site).servePreviews(previewHost(site));
+  } catch (error) {
+    say(
+      `! ${site.key}: Previews could not be enabled (${error instanceof Error ? error.message : String(error)})`
+    );
+  }
+}
+
 async function deploy(pr: number, deploymentSha: string | null): Promise<void> {
   const cloudflare = account();
+  for (const site of SITES) await servePreviews(cloudflare, site);
   const origin = await originOf(HARNESS, pr, cloudflare);
   const storybook = await originOf(STORYBOOK, pr, cloudflare);
   const sha = deploymentSha ?? headCommit().sha;

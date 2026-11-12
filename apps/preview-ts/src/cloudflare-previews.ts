@@ -30,6 +30,14 @@ export type CloudflarePreviews = {
   names(): Promise<readonly string[] | null>;
   /** Deleting a Preview that is already gone succeeds. */
   remove(name: string): Promise<void>;
+  /**
+   * Have the Worker serve its Previews, without deploying it: on workers.dev,
+   * and under `host` (its custom domain) when it has one. These are the two
+   * settings `wrangler deploy` applies from `preview_urls` and a route's
+   * `previews_enabled`; a Worker deployed before it had them serves no
+   * Preview until one of the two is on.
+   */
+  servePreviews(host: string | null): Promise<void>;
 };
 
 function record(value: unknown): Record<string, unknown> {
@@ -39,13 +47,23 @@ function record(value: unknown): Record<string, unknown> {
 }
 
 type Got = { readonly status: number; readonly body: Envelope };
-type Call = (method: string, path: string) => Promise<Got>;
+type Call = (method: string, path: string, payload?: unknown) => Promise<Got>;
+
+/** The version of the Worker settings API whose subdomain has Previews. */
+const SCRIPT_API_DATE = '2025-08-01';
 
 function caller(send: HttpFetch, apiToken: string): Call {
-  return async (method, path) => {
+  return async (method, path, payload) => {
     const response = await send(`${API}${path}`, {
       method,
-      headers: { authorization: `Bearer ${apiToken}` },
+      headers: {
+        authorization: `Bearer ${apiToken}`,
+        'cloudflare-workers-script-api-date': SCRIPT_API_DATE,
+        ...(payload === undefined
+          ? {}
+          : { 'content-type': 'application/json' }),
+      },
+      ...(payload === undefined ? {} : { body: JSON.stringify(payload) }),
     });
     const text = await response.text();
     let body: Envelope = {};
@@ -105,6 +123,7 @@ export function createCloudflarePreviews(args: {
   readonly fetch: HttpFetch;
 }): CloudflarePreviews {
   const worker = `/accounts/${args.accountId}/workers/workers/${args.workerName}`;
+  const script = `/accounts/${args.accountId}/workers/scripts/${args.workerName}`;
   const call = caller(args.fetch, args.apiToken);
   return {
     subdomain: async () => {
@@ -131,6 +150,29 @@ export function createCloudflarePreviews(args: {
       return { name };
     },
     names: () => listNames(call, worker),
+    servePreviews: async (host) => {
+      const before = await call('GET', `${script}/subdomain`);
+      if (before.status !== 200) throw failure('worker subdomain', before);
+      const subdomain = record(before.body.result);
+      if (subdomain['previews_enabled'] !== true) {
+        // The Worker's own workers.dev address stays as it is.
+        const set = await call('POST', `${script}/subdomain`, {
+          enabled: subdomain['enabled'] === true,
+          previews_enabled: true,
+        });
+        if (set.status !== 200) throw failure('enable preview URLs', set);
+      }
+      if (host === null) return;
+      // The hostname is already this Worker's; only its Previews are new.
+      const domain = await call('PUT', `${script}/domains/records`, {
+        override_scope: true,
+        override_existing_origin: true,
+        override_existing_dns_record: true,
+        origins: [{ hostname: host, previews_enabled: true }],
+      });
+      if (domain.status !== 200)
+        throw failure(`enable Previews on ${host}`, domain);
+    },
     remove: async (name) => {
       const got = await call(
         'DELETE',

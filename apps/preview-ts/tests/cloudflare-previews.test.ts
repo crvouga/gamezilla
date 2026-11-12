@@ -93,3 +93,48 @@ test('a refused credential is an error, never "no Preview"', async () => {
   await expect(client.preview('pr-1')).rejects.toThrow('Authentication error');
   await expect(client.remove('pr-1')).rejects.toThrow('403');
 });
+
+test('a Worker is told to serve its Previews without being deployed', async () => {
+  const sent: { call: string; body: unknown }[] = [];
+  let previews = false;
+  const reply = (result: unknown): Response =>
+    Response.json({ success: true, result, errors: [] });
+  const client = createCloudflarePreviews({
+    accountId: 'acct',
+    apiToken: 'token',
+    workerName: 'acme-storybook',
+    fetch: async (input, init) => {
+      const request = new Request(input, init);
+      const path = new URL(request.url).pathname.replace(
+        '/client/v4/accounts/acct/workers/scripts/acme-storybook',
+        ''
+      );
+      const body = request.method === 'GET' ? null : await request.json();
+      sent.push({ call: `${request.method} ${path}`, body });
+      if (request.method === 'POST') previews = true;
+      return reply({ enabled: false, previews_enabled: previews });
+    },
+  });
+  await client.servePreviews('storybook.acme.example');
+  expect(sent).toEqual([
+    { call: 'GET /subdomain', body: null },
+    {
+      call: 'POST /subdomain',
+      body: { enabled: false, previews_enabled: true },
+    },
+    {
+      call: 'PUT /domains/records',
+      body: {
+        override_scope: true,
+        override_existing_origin: true,
+        override_existing_dns_record: true,
+        origins: [
+          { hostname: 'storybook.acme.example', previews_enabled: true },
+        ],
+      },
+    },
+  ]);
+  sent.length = 0;
+  await client.servePreviews(null);
+  expect(sent.map((each) => each.call)).toEqual(['GET /subdomain']);
+});
