@@ -9,6 +9,9 @@
 // second. It opens a bug report whatever shake to report is set to and
 // whatever the phone allows.
 //
+// On a computer, Alice can also report a bug about one thing on the screen.
+// That opens a bug report the same way, or keeps the one already open.
+//
 // A shake opens a bug report only while shake to report is on and the phone
 // allows it. Shake to report is on until Alice turns it off, and she can turn
 // it back on. A phone that asks before the app may notice shaking waits for
@@ -148,6 +151,10 @@ module bug_report_opening {
   /// set to and whatever the phone allows.
   action threeFingerPress: bool = _opens(false)
 
+  /// Report a bug about one thing on the screen. Like choosing to report a
+  /// bug, this opens a bug report, or keeps the one already open.
+  action reportBugAbout: bool = _opens(false)
+
   /// Close the bug report. Its description and screenshots are kept as a draft.
   action closeBugReport: bool = all {
     openBugReports == 1,
@@ -239,6 +246,7 @@ module bug_report_opening {
       chooseToReport,
       shakePhone,
       threeFingerPress,
+      reportBugAbout,
       closeBugReport,
       describeBug,
       addPicture(kind, megabytes),

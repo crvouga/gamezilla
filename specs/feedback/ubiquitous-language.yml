@@ -12,8 +12,8 @@ terms:
       What a person sends the team about a bug: a description, screenshots and
       debug info. A person opens one by choosing to report a bug, which the
       app offers in Settings, among its actions and wherever it says it has
-      run into trouble, by shaking their phone, or by a three-finger press. A
-      bug report from a
+      run into trouble, by shaking their phone, by a three-finger press, or
+      by reporting a bug about one thing on the screen. A bug report from a
       signed-in person tells the team which account sent it, and a guest's
       says it came from a guest. The team has a bug report once it is on the
       team's list of work.
@@ -115,6 +115,17 @@ terms:
       a shake cannot open one.
     forms: [holds three fingers still on the app for one second]
     model: [threeFingerPress]
+  - term: report a bug about
+    definition: >-
+      Start a bug report about one thing on the screen, on a computer: a
+      right-click on that thing, with the mouse, offers "Report a bug about
+      this". The team's bug report says which thing it is about, and its
+      screenshot marks that thing. A bug report opened any other way is about
+      nothing in particular. What a person typed into the thing is never
+      part of it.
+    forms:
+      [reports a bug about, reported a bug about, reporting a bug about, is about, marks]
+    model: [reportBugAbout]
   - term: reproduce
     definition: Do what leads to the same bug again.
     forms: [reproducing, reproduced]
