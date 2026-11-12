@@ -15,6 +15,7 @@
     "test": "bun test"
   },
   "dependencies": {
+    "@libs/infra-shared-ts": "workspace:*",
     "@libs/product-identity-shared-ts": "workspace:*",
     "@pkgs/clock-shared-ts": "workspace:*",
     "@pkgs/fs-server-ts": "workspace:*",

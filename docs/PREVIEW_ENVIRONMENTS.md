@@ -5,8 +5,10 @@ the whole system. Nothing runs on a server: a Preview is static files, and the
 system runs inside the visitor's browser tab.
 
 ```
-https://preview.<domain>                 the main branch
-https://pr-<number>.preview.<domain>     a pull request
+https://preview.<domain>                   the main branch
+https://pr-<number>.preview.<domain>       a pull request
+https://storybook.<domain>                 the main branch's Storybook
+https://pr-<number>.storybook.<domain>     a pull request's Storybook
 ```
 
 - **The domain.** `preview.<domain>` is a custom domain of the preview Worker
@@ -24,6 +26,15 @@ https://pr-<number>.preview.<domain>     a pull request
   free certificates cover one level; deeper names can need Advanced
   Certificate Manager). The `## Preview` section always names the URL the
   bundle was built for.
+- **Storybook.** `storybook.<domain>` is the Storybook site
+  (`apps/storybook-ts`), which the Release workflow deploys from main; the
+  preview commands never deploy it. Its hostname is a custom domain with
+  Previews enabled (`renderStorybookWranglerConfig`), which that release
+  deployment applies, so a pull request's Storybook is
+  `pr-<number>.storybook.<domain>` once it answers, and
+  `https://pr-<number>-<namespace>-storybook.<account>.workers.dev` until
+  then. Storybook is not built for an origin, so its URL is chosen when it is
+  uploaded.
 
 ## What a Preview is
 
@@ -52,6 +63,14 @@ https://pr-<number>.preview.<domain>     a pull request
   from. The harness is the one page at `/` and keeps its state in the query
   string, so it needs no single-page fallback (Cloudflare applies none to an
   assets-only Preview): anything else is a 404.
+- **Storybook.** Each pull request also gets its build of the component
+  library: a Preview, of the same name `pr-<number>`, of the Storybook site's
+  own Worker (`apps/storybook-ts`). It serves a copy of the canonical
+  Storybook build (`@pkgs/ui-root-harness-ts#storybook:build`, which Turborepo
+  builds or restores before the preview commands run) plus its own
+  `preview.json`. A Preview never changes what `storybook.<domain>` serves;
+  only a release does. Built, gated, uploaded, checked, removed and swept
+  together with the harness Preview: one deploy is both sites.
 
 ## Commands
 
@@ -61,8 +80,8 @@ The pull request is `PREVIEW_PR=<number>`, or the one for the current branch.
 | Command | What it does | Needs |
 | --- | --- | --- |
 | `mise run preview:url` | Print the Preview URL from the pull request description | `gh` |
-| `mise run preview:test` | Check the deployed Preview over HTTP | `gh` |
-| `mise run preview:build` | Build the harness bundle and gate it | Cloudflare read, or `PREVIEW_URL` |
+| `mise run preview:test` | Check the deployed Preview and Storybook over HTTP | `gh` |
+| `mise run preview:build` | Build the harness bundle and Storybook, and gate them | Cloudflare read, or `PREVIEW_URL` |
 | `mise run preview:deploy` | Build, gate, upload, check | Cloudflare deploy credential |
 | `mise run preview:main` | Build this checkout and deploy it as the main branch's | Cloudflare deploy credential |
 | `mise run preview:destroy` | Delete the Preview; verify it is gone | Cloudflare deploy credential |
@@ -102,7 +121,7 @@ wipe, and there is no server to inspect — see "State and reset".
   failing its checks`.
 - **Idempotent.** Deploying the same commit again uploads the same files;
   deleting a Preview that is gone succeeds.
-- **Orphans.** The sweep lists the Worker's Previews and deletes every `pr-<n>`
+- **Orphans.** The sweep lists both Workers' Previews and deletes every `pr-<n>`
   whose pull request is not open, and every one whose pull request has had no
   activity for 14 days (`PREVIEW_RETENTION_MS`). An expired Preview comes back
   with the next commit or a reopen.
@@ -111,7 +130,7 @@ wipe, and there is no server to inspect — see "State and reset".
 
 The workflow owns one block of the description, between
 `<!-- preview:start -->` and `<!-- preview:end -->`; the rest is returned byte
-for byte. It carries the status, the URL, the deployed commit (and the
+for byte. It carries the status, the URL, the Storybook URL, the deployed commit (and the
 attempted one when they differ), the deploy run, and how to reset. Each deploy
 is also a GitHub deployment in the transient `preview` environment, with
 `in_progress`, `success` or `failure` and a link to the run; removal marks
@@ -171,7 +190,8 @@ own.
 | Files per upload | 20,000 | 100,000 |
 | File size | 25 MiB | 25 MiB |
 
-The bundle is about 330 files and 26 MB, its largest file under 9 MB. There is
+The bundle is about 330 files and 26 MB, its largest file under 9 MB; Storybook
+is about 900 files and 26 MB. There is
 no compute, storage or egress charge at any traffic level, and nothing runs
 while nobody is looking. The binding limit is open pull requests at once (100
 on the free plan); the 14-day retention keeps well under it. GitHub Actions

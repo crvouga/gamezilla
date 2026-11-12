@@ -1,7 +1,8 @@
 /**
  * What a deployed Preview must be, checked over plain HTTP: the harness page,
  * the bundle it loads, the commit it was built from, and — because a Preview
- * is files and nothing else — no server answering behind it.
+ * is files and nothing else — no server answering behind it. The pull
+ * request's Storybook is a second static site held to the same standard.
  */
 
 import type { HttpFetch } from '@pkgs/http-client-shared-ts/types';
@@ -165,13 +166,21 @@ async function guarded(
   }
 }
 
-export async function runPreviewChecks(args: {
+export type PreviewChecksArgs = {
   readonly origin: string;
   readonly fetch: HttpFetch;
   readonly previewName: string;
   /** `null` accepts whichever commit the Preview names. */
   readonly commit: string | null;
-}): Promise<readonly PreviewCheck[]> {
+};
+
+export type PreviewChecks = (
+  args: PreviewChecksArgs
+) => Promise<readonly PreviewCheck[]>;
+
+export async function runPreviewChecks(
+  args: PreviewChecksArgs
+): Promise<readonly PreviewCheck[]> {
   const probe: Probe = { origin: args.origin, fetch: args.fetch };
   let scripts: readonly string[] = [];
   const harness = await guarded('harness page', async () => {
@@ -182,6 +191,85 @@ export async function runPreviewChecks(args: {
   return [
     harness,
     await guarded('bundle', () => bundleCheck(probe, scripts)),
+    await guarded('deployed commit', () => commitCheck(probe, args)),
+    await guarded('no server', () => staticOnlyCheck(probe)),
+  ];
+}
+
+/** Storybook's manager page, the frame stories render in, and its story index. */
+const STORYBOOK_MANAGER_PATH = '/';
+const STORYBOOK_FRAME_PATH = '/iframe.html';
+const STORYBOOK_INDEX_PATH = '/index.json';
+
+async function storybookPageCheck(
+  probe: Probe,
+  page: {
+    readonly name: string;
+    readonly path: string;
+    readonly marker: string;
+  }
+): Promise<PreviewCheck> {
+  const response = await probe.fetch(`${probe.origin}${page.path}`);
+  const html = await response.text();
+  const ok =
+    response.status === 200 &&
+    isOf(response, 'text/html') &&
+    html.includes(page.marker);
+  return {
+    name: page.name,
+    ok,
+    detail: ok
+      ? `${page.path} serves Storybook`
+      : `${page.path} answered HTTP ${String(response.status)} ${response.headers.get('content-type') ?? ''}`,
+  };
+}
+
+/** The number of stories and docs pages in a Storybook `index.json`. */
+export function storyCount(text: string): number {
+  try {
+    const value: unknown = JSON.parse(text);
+    if (value === null || typeof value !== 'object') return 0;
+    const { entries } = value as Record<string, unknown>;
+    return entries !== null && typeof entries === 'object'
+      ? Object.keys(entries).length
+      : 0;
+  } catch {
+    return 0;
+  }
+}
+
+async function storyIndexCheck(probe: Probe): Promise<PreviewCheck> {
+  const name = 'story index';
+  const response = await probe.fetch(`${probe.origin}${STORYBOOK_INDEX_PATH}`);
+  const count = storyCount(await response.text());
+  if (response.status !== 200 || count === 0)
+    return {
+      name,
+      ok: false,
+      detail: `${STORYBOOK_INDEX_PATH} lists no stories (HTTP ${String(response.status)})`,
+    };
+  return { name, ok: true, detail: `${String(count)} entries` };
+}
+
+/** The checks of a pull request's Storybook site. */
+export async function runStorybookChecks(
+  args: PreviewChecksArgs
+): Promise<readonly PreviewCheck[]> {
+  const probe: Probe = { origin: args.origin, fetch: args.fetch };
+  const manager = {
+    name: 'storybook page',
+    path: STORYBOOK_MANAGER_PATH,
+    marker: 'id="root"',
+  };
+  const frame = {
+    name: 'story frame',
+    path: STORYBOOK_FRAME_PATH,
+    marker: 'id="storybook-root"',
+  };
+  return [
+    await guarded(manager.name, () => storybookPageCheck(probe, manager)),
+    await guarded(frame.name, () => storybookPageCheck(probe, frame)),
+    await guarded('story index', () => storyIndexCheck(probe)),
     await guarded('deployed commit', () => commitCheck(probe, args)),
     await guarded('no server', () => staticOnlyCheck(probe)),
   ];

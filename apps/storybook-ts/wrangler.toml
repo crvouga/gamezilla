@@ -4,10 +4,19 @@
 # tofu/global.tfvars.json, and the OpenTofu fleet stack binds its hostname.
 # `{namespace}` resolves from the product identity when libs/infra renders
 # this file.
+#
+# Each pull request's Storybook is a Preview of this Worker, named
+# `pr-<number>` and served at `pr-<number>.storybook.<zone>`
+# (apps/preview-ts, docs/PREVIEW_ENVIRONMENTS.md). libs/infra adds the
+# hostname as a custom domain with Previews enabled; `preview_urls` is the
+# workers.dev address a Preview has until that domain serves it.
 name = "{namespace}-storybook"
 compatibility_date = "2026-09-21"
 workers_dev = false
-preview_urls = false
+preview_urls = true
+
+# A Preview adds nothing to the Worker above: no vars, no bindings.
+[previews]
 
 # No Worker script: every request is a static asset, served from the CDN
 # without compute. Storybook has no client-side routes, so an unknown path

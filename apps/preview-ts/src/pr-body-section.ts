@@ -17,6 +17,8 @@ export type PreviewSectionFacts = {
     | 'removed'
     | 'expired';
   readonly url: string | null;
+  /** The pull request's Storybook, a second site beside the Preview. */
+  readonly storybookUrl: string | null;
   /** The commit the Preview is serving, when one is. */
   readonly deployedSha: string | null;
   /** The commit this run tried to deploy. */
@@ -47,6 +49,9 @@ export function renderPreviewSection(facts: PreviewSectionFacts): string {
         : STATUS_LINE[facts.status]
     } |`,
     `| URL | ${facts.url ?? '—'} |`,
+    ...(facts.storybookUrl === null
+      ? []
+      : [`| Storybook | ${facts.storybookUrl} |`]),
     `| Deployed commit | ${short(facts.deployedSha)} |`,
   ];
   if (facts.attemptedSha !== null && facts.attemptedSha !== facts.deployedSha)
@@ -65,6 +70,12 @@ export function renderPreviewSection(facts: PreviewSectionFacts): string {
     lines.push(
       '',
       '**What this is:** the whole system — API servers, Postgres, rooms, and simulated identity, billing, storage and LLM vendors — running inside your browser tab. The URL serves static files only: no server, no secrets, no production data. Each panel of the console looks into one node.',
+      ...(facts.storybookUrl === null
+        ? []
+        : [
+            '',
+            "**Storybook:** this pull request's build of the component library, at the same commit.",
+          ]),
       '',
       '**Sign in:** nothing to sign in to. The harness starts its own client actors with simulated identities; drive them from the console.',
       '',
@@ -91,11 +102,22 @@ export function upsertPreviewSection(body: string, section: string): string {
   );
 }
 
-/** The Preview URL in a description — how an agent finds it from PR metadata. */
-export function previewUrlInBody(body: string): string | null {
+function urlInBody(body: string, row: 'URL' | 'Storybook'): string | null {
   const start = body.indexOf(PREVIEW_SECTION_START);
   const end = body.indexOf(PREVIEW_SECTION_END, Math.max(start, 0));
   if (start === -1 || end === -1) return null;
-  const match = /\| URL \| (https:\/\/[^\s|]+) \|/.exec(body.slice(start, end));
+  const match = new RegExp(`\\| ${row} \\| (https://[^\\s|]+) \\|`).exec(
+    body.slice(start, end)
+  );
   return match?.[1] ?? null;
+}
+
+/** The Preview URL in a description — how an agent finds it from PR metadata. */
+export function previewUrlInBody(body: string): string | null {
+  return urlInBody(body, 'URL');
+}
+
+/** The Storybook URL in a description, when the section names one. */
+export function storybookUrlInBody(body: string): string | null {
+  return urlInBody(body, 'Storybook');
 }

@@ -9,9 +9,13 @@ run-name: "Preview · ${{ github.event_name == 'pull_request' && format('pr #{0}
 # (`pr-<number>`): static files only, with the whole system — API servers,
 # Postgres, rooms, simulated vendors — running in the visitor's browser
 # (`apps/harness-ts`). No Worker script, no Durable Object, no secret is deployed.
+# Beside it, under the same name, the pull request's Storybook: a Preview of
+# the Storybook site's Worker (`apps/storybook-ts`), with the same lifecycle.
 # - opened, reopened, new commit: build, check the bundle, upload, check again.
 # - push to main: the same build, deployed as the Worker itself, which is what
 #   `preview.<domain>` serves; pull requests are `pr-<number>.preview.<domain>`.
+#   Storybook Previews are `pr-<number>.storybook.<domain>`; the Storybook site
+#   itself is the Release workflow's to deploy, never this one's.
 # - closed or merged: delete the Preview and confirm Cloudflare reports it gone.
 # - schedule: remove Previews whose pull request is closed or went quiet.
 # Each step is one command of apps/preview-ts/scripts/preview.ts, the same
@@ -76,7 +80,7 @@ jobs:
       - name: Decide what this pull request's Preview needs
         id: plan
         run: bun run apps/preview-ts/scripts/preview.ts ci plan
-      - name: Build the harness bundle and check it
+      - name: Build the harness bundle and Storybook, and check them
         if: ${{ steps.plan.outputs.action == 'deploy' || steps.plan.outputs.action == 'deploy-main' }}
         env:
           PREVIEW_ACTION: ${{ steps.plan.outputs.action }}

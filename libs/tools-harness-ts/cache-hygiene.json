@@ -26,7 +26,7 @@
     "@libs/game-matchmaking-shared-ts": 63,
     "@libs/game-puzzle-shared-ts": 61,
     "@libs/game-session-shared-ts": 56,
-    "@libs/infra-shared-ts": 50,
+    "@libs/infra-shared-ts": 51,
     "@libs/moderation-client-ts": 66,
     "@libs/moderation-shared-ts": 113,
     "@libs/notifications-shared-ts": 70,
@@ -284,6 +284,11 @@
       "reason": "lints every file outside the packages"
     }
   },
-  "globalDependencies": ["tsconfig.base.json", "mise.toml"],
-  "globalEnv": ["VERIFY_TIME_LIMITS"]
+  "globalDependencies": [
+    "tsconfig.base.json",
+    "mise.toml"
+  ],
+  "globalEnv": [
+    "VERIFY_TIME_LIMITS"
+  ]
 }

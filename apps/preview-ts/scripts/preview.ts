@@ -3,9 +3,10 @@
 /**
  * A pull request's Preview: the web bundle, served as static files from one
  * Cloudflare Worker Preview named `pr-<number>`, with the whole system running
- * in the visitor's browser (docs/PREVIEW_ENVIRONMENTS.md). The
- * same commands run on a laptop (`mise run preview:<command>`) and in the
- * Preview workflow.
+ * in the visitor's browser (docs/PREVIEW_ENVIRONMENTS.md), and beside it the
+ * pull request's Storybook, a Preview of the same name on the Storybook
+ * site's own Worker (`apps/storybook-ts`), with the same lifecycle. The same commands run on a laptop (`mise run preview:<command>`)
+ * and in the Preview workflow.
  *
  *   preview url                 the Preview URL, read from the pull request
  *   preview build               the harness bundle, built for that URL
@@ -24,6 +25,7 @@
 import { spawnSync } from 'node:child_process';
 import {
   appendFileSync,
+  cpSync,
   existsSync,
   mkdirSync,
   readdirSync,
@@ -32,6 +34,10 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { join } from 'node:path';
+import {
+  renderStorybookWranglerConfig,
+  type WranglerConfig,
+} from '@libs/infra-shared-ts/wrangler';
 import { resolveIdentityPlaceholders } from '@libs/product-identity-shared-ts/identity-placeholders';
 import { wallClock, wallTimers } from '@pkgs/clock-shared-ts/wall';
 import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
@@ -45,14 +51,17 @@ import {
   type PreviewSectionFacts,
   previewUrlInBody,
   renderPreviewSection,
+  storybookUrlInBody,
   upsertPreviewSection,
 } from '../src/pr-body-section';
 import {
   PREVIEW_MANIFEST_PATH,
   type PreviewCheck,
+  type PreviewChecks,
   type PreviewManifest,
   readPreviewManifest,
   runPreviewChecks,
+  runStorybookChecks,
 } from '../src/preview-checks';
 import {
   decideMainAction,
@@ -76,11 +85,67 @@ const REPO_ROOT = join(PACKAGE_DIR, '../..');
 const HARNESS_DIR = join(REPO_ROOT, 'apps/harness-ts');
 const HARNESS_DIST = join(HARNESS_DIR, 'dist');
 const CACHE_DIR = join(PACKAGE_DIR, '.cache');
+/** The canonical Storybook build (`@pkgs/ui-root-harness-ts#storybook:build`). */
+const STORYBOOK_BUILD = join(
+  REPO_ROOT,
+  'pkgs/ui-root-harness-ts/.cache/storybook'
+);
+const STORYBOOK_DIST = join(CACHE_DIR, 'storybook-site');
 const WRANGLER = join(PACKAGE_DIR, 'node_modules/.bin/wrangler');
 const BUILD_MAX_OLD_SPACE_MB = 8192;
 /** One GitHub environment for every Preview; each deployment is transient. */
 const GITHUB_ENVIRONMENT = 'preview';
 const DEPLOYING_MARK = '🟡 deploying';
+
+type Wrangler = Record<string, unknown>;
+
+/**
+ * A static site a pull request gets: one assets-only Worker, whose Previews
+ * are the pull requests' and whose own deployment is the main branch's.
+ */
+type Site = {
+  readonly key: 'harness' | 'storybook';
+  /** Its wrangler config, with the identity resolved. */
+  config(): Wrangler;
+  /** The built files a Preview uploads. */
+  readonly dist: string;
+  readonly checks: PreviewChecks;
+  /**
+   * Whether these commands deploy the Worker itself, for the main branch.
+   * Storybook's is the released site: the Release workflow deploys it, and
+   * nothing here ever replaces it.
+   */
+  readonly deploysMain: boolean;
+};
+
+function tomlOf(path: string): Wrangler {
+  return Bun.TOML.parse(readFileSync(path, 'utf8')) as Wrangler;
+}
+
+const HARNESS: Site = {
+  key: 'harness',
+  config: () =>
+    resolveIdentityPlaceholders(tomlOf(join(PACKAGE_DIR, 'wrangler.toml'))),
+  dist: HARNESS_DIST,
+  checks: runPreviewChecks,
+  deploysMain: true,
+};
+
+const STORYBOOK: Site = {
+  key: 'storybook',
+  config: () =>
+    renderStorybookWranglerConfig(
+      tomlOf(
+        join(REPO_ROOT, 'apps/storybook-ts/wrangler.toml')
+      ) as WranglerConfig
+    ),
+  dist: STORYBOOK_DIST,
+  checks: runStorybookChecks,
+  deploysMain: false,
+};
+
+const SITES: readonly Site[] = [HARNESS, STORYBOOK];
+
 function say(message: string): void {
   process.stdout.write(`${message}\n`);
 }
@@ -303,25 +368,15 @@ function deactivateDeployments(pr: number): void {
 
 // ── Cloudflare ───────────────────────────────────────────────────────────
 
-type Wrangler = Record<string, unknown>;
-
-function committedConfig(): Wrangler {
-  return resolveIdentityPlaceholders(
-    Bun.TOML.parse(
-      readFileSync(join(PACKAGE_DIR, 'wrangler.toml'), 'utf8')
-    ) as Wrangler
-  );
-}
-
-function workerName(): string {
-  const name = committedConfig()['name'];
-  if (typeof name !== 'string') fail('wrangler.toml has no name');
+function workerName(site: Site): string {
+  const name = site.config()['name'];
+  if (typeof name !== 'string') fail(`the ${site.key} config has no name`);
   return name;
 }
 
-/** The custom domain of `wrangler.toml` (`preview.<domain>`), when it has one. */
-function previewHost(): string | null {
-  const routes = committedConfig()['routes'];
+/** The custom domain of a site's config (`preview.<domain>`), when it has one. */
+function previewHost(site: Site): string | null {
+  const routes = site.config()['routes'];
   if (!Array.isArray(routes)) return null;
   for (const route of routes as readonly Wrangler[])
     if (route['custom_domain'] === true && typeof route['pattern'] === 'string')
@@ -332,7 +387,8 @@ function previewHost(): string | null {
 type Account = {
   readonly accountId: string;
   readonly apiToken: string;
-  readonly previews: CloudflarePreviews;
+  /** The Previews of one site's Worker. */
+  previews(site: Site): CloudflarePreviews;
 };
 
 function account(): Account {
@@ -345,12 +401,13 @@ function account(): Account {
   return {
     accountId,
     apiToken,
-    previews: createCloudflarePreviews({
-      accountId,
-      apiToken,
-      workerName: workerName(),
-      fetch,
-    }),
+    previews: (site) =>
+      createCloudflarePreviews({
+        accountId,
+        apiToken,
+        workerName: workerName(site),
+        fetch,
+      }),
   };
 }
 
@@ -365,34 +422,38 @@ async function answers(origin: string): Promise<boolean> {
   }
 }
 
-const origins = new Map<number, string>();
+const origins = new Map<string, string>();
 
 /**
- * The Preview URL, known before anything is built or uploaded: on the custom
- * domain when that already answers for this Preview's name, and on
- * workers.dev otherwise -- before the domain is attached, while its
- * certificate is being issued, or if the account cannot serve it. A bundle
- * is built for one origin, so the choice is made once per run.
+ * A site's URL for a pull request, known before anything is built or
+ * uploaded: on the custom domain when that already answers for this
+ * Preview's name, and on workers.dev otherwise -- before the domain is
+ * attached, while its certificate is being issued, or if the account cannot
+ * serve it. The harness bundle is built for one origin, so the choice is made
+ * once per run (`PREVIEW_URL` carries it between the workflow's steps).
  */
 async function originOf(
+  site: Site,
   pr: number,
   cloudflare: Account | null
 ): Promise<string> {
-  const given = envOf('PREVIEW_URL');
+  const given = site === HARNESS ? envOf('PREVIEW_URL') : null;
   if (given !== null) return new URL(given).origin;
-  const known = origins.get(pr);
+  const key = `${site.key}:${String(pr)}`;
+  const known = origins.get(key);
   if (known !== undefined) return known;
-  const origin = await chosenOrigin(pr, cloudflare);
-  origins.set(pr, origin);
+  const origin = await chosenOrigin(site, pr, cloudflare);
+  origins.set(key, origin);
   return origin;
 }
 
 async function chosenOrigin(
+  site: Site,
   pr: number,
   cloudflare: Account | null
 ): Promise<string> {
   const previewName = previewNameOfPr(pr);
-  const host = previewHost();
+  const host = previewHost(site);
   if (host !== null) {
     const custom = customPreviewOrigin({ previewName, host });
     if (await answers(custom)) return custom;
@@ -400,8 +461,12 @@ async function chosenOrigin(
   }
   const subdomain =
     envOf('PREVIEW_WORKERS_SUBDOMAIN') ??
-    (await (cloudflare ?? account()).previews.subdomain());
-  return previewOrigin({ previewName, workerName: workerName(), subdomain });
+    (await (cloudflare ?? account()).previews(site).subdomain());
+  return previewOrigin({
+    previewName,
+    workerName: workerName(site),
+    subdomain,
+  });
 }
 
 function wrangler(
@@ -420,24 +485,18 @@ function wrangler(
   });
 }
 
-/** A path relative to the package, seen from `.cache/` below it. */
-function reRoot(path: unknown): unknown {
-  if (typeof path !== 'string' || path.startsWith('/')) return path;
-  return `../${path.replace(/^\.\//, '')}`;
-}
-
-/** `wrangler.toml` with the identity resolved, as wrangler reads it. */
-function writeConfig(): string {
-  const committed = committedConfig();
+/** A site's config with the identity resolved, as wrangler reads it. */
+function writeConfig(site: Site): string {
+  const committed = site.config();
   const assets = committed['assets'] as Wrangler;
   mkdirSync(CACHE_DIR, { recursive: true });
-  const path = join(CACHE_DIR, 'preview.wrangler.json');
+  const path = join(CACHE_DIR, `${site.key}.wrangler.json`);
   writeFileSync(
     path,
     JSON.stringify(
       {
         ...committed,
-        assets: { ...assets, directory: reRoot(assets['directory']) },
+        assets: { ...assets, directory: site.dist },
         previews: committed['previews'] ?? {},
       },
       null,
@@ -483,15 +542,7 @@ async function build(previewName: string, origin: string): Promise<void> {
     inherit: true,
   });
   if (built.code !== 0) throw new Error('harness: Vite build failed');
-  const manifest: PreviewManifest = {
-    preview: previewName,
-    commit: commit.sha,
-  };
-  writeFileSync(
-    join(HARNESS_DIST, PREVIEW_MANIFEST_PATH.slice(1)),
-    `${JSON.stringify(manifest)}\n`,
-    'utf8'
-  );
+  writeManifest(HARNESS, previewName, commit.sha);
   const files = readdirSync(HARNESS_DIST, {
     recursive: true,
     withFileTypes: true,
@@ -503,7 +554,35 @@ async function build(previewName: string, origin: string): Promise<void> {
         .replaceAll('\\', '/')
     );
   writeFileSync(join(HARNESS_DIST, '_headers'), distHeadersFile(files), 'utf8');
+  stageStorybook(previewName, commit.sha);
   await gate(previewName, commit.sha);
+}
+
+/** `preview.json` names the Preview and the commit a site was built from. */
+function writeManifest(site: Site, previewName: string, sha: string): void {
+  const manifest: PreviewManifest = { preview: previewName, commit: sha };
+  writeFileSync(
+    join(site.dist, PREVIEW_MANIFEST_PATH.slice(1)),
+    `${JSON.stringify(manifest)}\n`,
+    'utf8'
+  );
+}
+
+/**
+ * The Storybook site: a copy of the canonical build, which Turborepo makes
+ * (and restores from its cache) before this command runs, plus the manifest.
+ * A copy, so the cached build output is never written to.
+ */
+function stageStorybook(previewName: string, sha: string): void {
+  if (!existsSync(join(STORYBOOK_BUILD, 'index.html')))
+    throw new Error(
+      'Storybook is not built; run through `mise run preview:<command>`, which builds it first (@pkgs/ui-root-harness-ts#storybook:build)'
+    );
+  say('▸ storybook: staging the canonical build');
+  removeTree(STORYBOOK_DIST);
+  mkdirSync(CACHE_DIR, { recursive: true });
+  cpSync(STORYBOOK_BUILD, STORYBOOK_DIST, { recursive: true });
+  writeManifest(STORYBOOK, previewName, sha);
 }
 
 async function sleep(ms: number): Promise<void> {
@@ -575,33 +654,35 @@ function bundleFetch(dist: string): HttpFetch {
 }
 
 /**
- * The gate before an upload: the bundle on disk passes the same checks the
+ * The gate before an upload: each site on disk passes the same checks its
  * deployed Preview must. A commit that fails here is never uploaded, so the
  * Preview keeps serving its last working one.
  */
 async function gate(previewName: string, sha: string): Promise<void> {
-  say('▸ gate: the built bundle passes the Preview checks before upload');
-  const checks = await runPreviewChecks({
-    origin: 'https://bundle.invalid',
-    fetch: bundleFetch(HARNESS_DIST),
-    previewName,
-    commit: sha,
-  });
-  if (!printChecks(checks))
-    throw new Error(`the bundle failed its gate — ${failed(checks)}`);
+  for (const site of SITES) {
+    say(`▸ gate: the built ${site.key} passes its checks before upload`);
+    const checks = await site.checks({
+      origin: 'https://bundle.invalid',
+      fetch: bundleFetch(site.dist),
+      previewName,
+      commit: sha,
+    });
+    if (!printChecks(checks))
+      throw new Error(`the ${site.key} failed its gate — ${failed(checks)}`);
+  }
 }
 
 class UnhealthyPreview extends Error {}
 
-/** Upload one commit to the pull request's Preview and prove it serves. */
+/** Upload one commit to a site's Preview of the pull request and prove it serves. */
 async function upload(
   cloudflare: Account,
-  pr: number,
-  origin: string,
-  sha: string
+  site: Site,
+  target: { readonly pr: number; readonly origin: string; readonly sha: string }
 ): Promise<void> {
+  const { pr, origin, sha } = target;
   const name = previewNameOfPr(pr);
-  say(`▸ wrangler preview --name ${name}`);
+  say(`▸ ${site.key}: wrangler preview --name ${name}`);
   const result = must(
     'wrangler preview',
     wrangler(cloudflare, [
@@ -609,7 +690,7 @@ async function upload(
       '--name',
       name,
       '--config',
-      writeConfig(),
+      writeConfig(site),
       '--tag',
       sha.slice(0, 12),
       '--message',
@@ -628,7 +709,7 @@ async function upload(
     throw new UnhealthyPreview(
       `${origin} did not serve ${sha.slice(0, 12)} within two minutes`
     );
-  const checks = await runPreviewChecks({
+  const checks = await site.checks({
     origin,
     fetch,
     previewName: name,
@@ -652,15 +733,19 @@ function previewUrls(stdout: string): readonly string[] {
 }
 
 /**
- * Where the pull request's Preview is, for a command that only reads it: the
+ * Where a site of the pull request is, for a command that only reads it: the
  * URL its description names (a laptop's identity can differ from the
  * deploy's), accepted only when it has the shape of this pull request's
- * Preview on the custom domain or on workers.dev.
+ * Preview on the custom domain or on workers.dev. `null` when the
+ * description names none.
  */
-function namedOrigin(pr: number): string {
+function namedOrigin(site: Site, pr: number): string | null {
+  const body = readPullRequest(pr)?.body ?? '';
   const named =
-    envOf('PREVIEW_URL') ?? previewUrlInBody(readPullRequest(pr)?.body ?? '');
-  if (named === null) fail('the pull request names no Preview URL yet');
+    site === HARNESS
+      ? (envOf('PREVIEW_URL') ?? previewUrlInBody(body))
+      : storybookUrlInBody(body);
+  if (named === null) return null;
   const subdomain = /^[^.]+\.([^.]+)\.workers\.dev$/.exec(
     URL.canParse(named) ? new URL(named).hostname : ''
   )?.[1];
@@ -669,7 +754,7 @@ function namedOrigin(pr: number): string {
       origin: named,
       previewName: previewNameOfPr(pr),
       subdomain: subdomain ?? '',
-      host: previewHost(),
+      host: previewHost(site),
     })
   )
     fail(`${named} is not a Preview URL of pull request #${String(pr)}`);
@@ -679,44 +764,46 @@ function namedOrigin(pr: number): string {
 /** How long a first deploy may wait for its DNS record and certificate. */
 const MAIN_READY_MS = 10 * 60 * 1000;
 
-function mainOrigin(): string {
-  const host = previewHost();
-  if (host === null) fail('wrangler.toml names no custom domain');
+function mainOrigin(site: Site = HARNESS): string {
+  const host = previewHost(site);
+  if (host === null) fail(`the ${site.key} config names no custom domain`);
   return `https://${host}`;
 }
 
 /** `wrangler deploy`: the Worker's own deployment, which the domain serves. */
-function deployWorker(cloudflare: Account, message: string): void {
-  say('▸ wrangler deploy');
+function deployWorker(cloudflare: Account, site: Site, message: string): void {
+  say(`▸ ${site.key}: wrangler deploy`);
   must(
     'wrangler deploy',
     wrangler(cloudflare, [
       'deploy',
       '--config',
-      writeConfig(),
+      writeConfig(site),
       '--message',
       message,
     ])
   );
 }
 
-/** Deploy the built bundle as the main branch's and prove it serves. */
+/** Deploy the built sites as the main branch's and prove they serve. */
 async function deployMain(sha: string): Promise<void> {
   const cloudflare = account();
-  const origin = mainOrigin();
   await gate(MAIN_PREVIEW_NAME, sha);
-  deployWorker(cloudflare, `main at ${sha.slice(0, 12)}`);
-  say(`▸ waiting for ${origin} to serve ${sha.slice(0, 12)}`);
-  if (!(await serving(origin, sha, MAIN_READY_MS)))
-    throw new Error(`${origin} did not serve ${sha.slice(0, 12)} in time`);
-  const checks = await runPreviewChecks({
-    origin,
-    fetch,
-    previewName: MAIN_PREVIEW_NAME,
-    commit: sha,
-  });
-  if (!printChecks(checks)) throw new Error(failed(checks));
-  say(`✓ ${origin} serves ${sha.slice(0, 12)}`);
+  for (const site of SITES.filter((each) => each.deploysMain)) {
+    const origin = mainOrigin(site);
+    deployWorker(cloudflare, site, `main at ${sha.slice(0, 12)}`);
+    say(`▸ waiting for ${origin} to serve ${sha.slice(0, 12)}`);
+    if (!(await serving(origin, sha, MAIN_READY_MS)))
+      throw new Error(`${origin} did not serve ${sha.slice(0, 12)} in time`);
+    const checks = await site.checks({
+      origin,
+      fetch,
+      previewName: MAIN_PREVIEW_NAME,
+      commit: sha,
+    });
+    if (!printChecks(checks)) throw new Error(failed(checks));
+    say(`✓ ${origin} serves ${sha.slice(0, 12)}`);
+  }
 }
 
 /**
@@ -724,14 +811,23 @@ async function deployMain(sha: string): Promise<void> {
  * to main makes. Until the first one there is no domain for any Preview, so
  * a pull request's deploy makes it once, from the bundle it just uploaded;
  * the next push to main replaces it. Never fatal: the Preview itself is
- * already serving on the URL it was built for.
+ * already serving on the URL it was built for. Storybook's domain is the
+ * released site's and is never attached from here.
  */
-async function ensureMainPreview(cloudflare: Account): Promise<void> {
-  const host = previewHost();
+async function ensureMainPreview(
+  cloudflare: Account,
+  site: Site
+): Promise<void> {
+  const host = previewHost(site);
+  if (!site.deploysMain) return;
   if (host === null || (await answers(`https://${host}`))) return;
   say(`▸ ${host} is not served yet: attaching it with a first deployment`);
   try {
-    deployWorker(cloudflare, 'first deployment: attach the custom domain');
+    deployWorker(
+      cloudflare,
+      site,
+      'first deployment: attach the custom domain'
+    );
   } catch (error) {
     say(
       `! ${host} could not be attached (${error instanceof Error ? error.message : String(error)}); Previews stay on workers.dev`
@@ -741,16 +837,22 @@ async function ensureMainPreview(cloudflare: Account): Promise<void> {
 
 async function deploy(pr: number, deploymentSha: string | null): Promise<void> {
   const cloudflare = account();
-  const origin = await originOf(pr, cloudflare);
+  const origin = await originOf(HARNESS, pr, cloudflare);
+  const storybook = await originOf(STORYBOOK, pr, cloudflare);
   const sha = deploymentSha ?? headCommit().sha;
-  const facts = { url: origin, attemptedSha: sha, runUrl: runUrl() };
-  const before = await deployedCommit(origin);
+  const facts = {
+    url: origin,
+    storybookUrl: storybook,
+    attemptedSha: sha,
+    runUrl: runUrl(),
+  };
   const deployment = createDeployment(pr, sha);
   deploymentStatus(deployment, 'in_progress', { url: origin });
   try {
     await gate(previewNameOfPr(pr), sha);
-    await upload(cloudflare, pr, origin, sha);
-    await ensureMainPreview(cloudflare);
+    await upload(cloudflare, HARNESS, { pr, origin, sha });
+    await upload(cloudflare, STORYBOOK, { pr, origin: storybook, sha });
+    for (const site of SITES) await ensureMainPreview(cloudflare, site);
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);
     const unhealthy = error instanceof UnhealthyPreview;
@@ -761,7 +863,8 @@ async function deploy(pr: number, deploymentSha: string | null): Promise<void> {
     publishSection(pr, {
       ...facts,
       status: unhealthy ? 'unhealthy' : 'failed',
-      deployedSha: unhealthy ? await deployedCommit(origin) : before,
+      // Read back, not assumed: one site can be up when the other failed.
+      deployedSha: await deployedCommit(origin),
       detail: detail.replaceAll('\n', ' ').slice(0, 600),
     });
     throw error;
@@ -791,25 +894,29 @@ async function destroy(
   status: 'removed' | 'expired'
 ): Promise<void> {
   const name = previewNameOfPr(pr);
-  if ((await cloudflare.previews.preview(name)) === null) {
-    say(`✓ ${name}: no such Preview (already removed)`);
-  } else {
-    await cloudflare.previews.remove(name);
+  for (const site of SITES) {
+    const previews = cloudflare.previews(site);
+    if ((await previews.preview(name)) === null) {
+      say(`✓ ${site.key} ${name}: no such Preview (already removed)`);
+      continue;
+    }
+    await previews.remove(name);
     let gone = false;
     for (let attempt = 0; attempt < 10 && !gone; attempt += 1) {
-      gone = (await cloudflare.previews.preview(name)) === null;
+      gone = (await previews.preview(name)) === null;
       if (!gone) await sleep(2000);
     }
     if (!gone)
       throw new Error(
-        `${name}: Cloudflare still reports the Preview after delete`
+        `${site.key} ${name}: Cloudflare still reports the Preview after delete`
       );
-    say(`✓ ${name}: Preview deleted and confirmed gone`);
+    say(`✓ ${site.key} ${name}: Preview deleted and confirmed gone`);
   }
   deactivateDeployments(pr);
   publishSection(pr, {
     status,
     url: null,
+    storybookUrl: null,
     deployedSha: null,
     attemptedSha: null,
     runUrl: runUrl(),
@@ -818,6 +925,33 @@ async function destroy(
 }
 
 type Listed = { readonly number: number; readonly updatedAt: string };
+
+/** Every Preview name any site holds: a pull request can be left with one. */
+async function previewNames(
+  cloudflare: Account,
+  open: readonly Listed[]
+): Promise<readonly string[]> {
+  const names = new Set<string>();
+  let closed: readonly Listed[] | null = null;
+  for (const site of SITES) {
+    const previews = cloudflare.previews(site);
+    const listed = await previews.names();
+    if (listed !== null) {
+      for (const name of listed) names.add(name);
+      continue;
+    }
+    // Cloudflare would not list: ask about each recently closed pull request.
+    say(
+      `Cloudflare did not list the ${site.key} Previews; probing recently closed pull requests`
+    );
+    closed ??= listPullRequests('closed', 200);
+    for (const pull of [...closed, ...open]) {
+      const name = previewNameOfPr(pull.number);
+      if ((await previews.preview(name)) !== null) names.add(name);
+    }
+  }
+  return [...names];
+}
 
 function listPullRequests(
   state: 'open' | 'closed',
@@ -840,19 +974,7 @@ function listPullRequests(
 async function sweep(): Promise<void> {
   const cloudflare = account();
   const open = listPullRequests('open', 1000);
-  let names = await cloudflare.previews.names();
-  if (names === null) {
-    // Cloudflare would not list: ask about each recently closed pull request.
-    say(
-      'Cloudflare did not list Previews; probing recently closed pull requests'
-    );
-    const found: string[] = [];
-    for (const pull of [...listPullRequests('closed', 200), ...open]) {
-      const name = previewNameOfPr(pull.number);
-      if ((await cloudflare.previews.preview(name)) !== null) found.push(name);
-    }
-    names = found;
-  }
+  const names = await previewNames(cloudflare, open);
   const plan = planSweep({
     previewNames: names,
     open: open.map((pull) => ({
@@ -948,9 +1070,10 @@ async function ci(step: string | undefined): Promise<void> {
   if (step === 'plan') {
     const action = plan();
     if (action.kind === 'skip') say(`skip: ${action.reason}`);
+    const cloudflare = action.kind === 'deploy' ? account() : null;
     const origin =
       action.kind === 'deploy'
-        ? await originOf(action.pr, account())
+        ? await originOf(HARNESS, action.pr, cloudflare)
         : action.kind === 'deploy-main'
           ? mainOrigin()
           : '';
@@ -963,6 +1086,7 @@ async function ci(step: string | undefined): Promise<void> {
       publishSection(action.pr, {
         status: 'deploying',
         url: origin,
+        storybookUrl: await originOf(STORYBOOK, action.pr, cloudflare),
         deployedSha: await deployedCommit(origin),
         attemptedSha: action.sha,
         runUrl: runUrl(),
@@ -974,7 +1098,7 @@ async function ci(step: string | undefined): Promise<void> {
   const pr = Number(envOf('PREVIEW_PR') ?? '0');
   if (step === 'build') {
     if (action === 'deploy-main') await build(MAIN_PREVIEW_NAME, mainOrigin());
-    else await build(previewNameOfPr(pr), await originOf(pr, null));
+    else await build(previewNameOfPr(pr), await originOf(HARNESS, pr, null));
     return;
   }
   if (step === 'apply') {
@@ -1004,10 +1128,12 @@ async function ci(step: string | undefined): Promise<void> {
     const pull = readPullRequest(pr);
     // `deploy` publishes its own outcome; only an unfinished one is ours.
     if (pull === null || !pull.body.includes(DEPLOYING_MARK)) return;
-    const origin = previewUrlInBody(pull.body) ?? (await originOf(pr, null));
+    const origin =
+      previewUrlInBody(pull.body) ?? (await originOf(HARNESS, pr, null));
     publishSection(pr, {
       status: 'failed',
       url: origin,
+      storybookUrl: storybookUrlInBody(pull.body),
       deployedSha: await deployedCommit(origin),
       attemptedSha: envOf('GITHUB_SHA'),
       runUrl: runUrl(),
@@ -1035,27 +1161,37 @@ try {
         break;
       }
       const pr = currentPr();
-      await build(previewNameOfPr(pr), await originOf(pr, null));
+      await build(previewNameOfPr(pr), await originOf(HARNESS, pr, null));
       break;
     }
     case 'deploy': {
       const pr = currentPr();
-      await build(previewNameOfPr(pr), await originOf(pr, null));
+      await build(previewNameOfPr(pr), await originOf(HARNESS, pr, null));
       await deploy(pr, null);
       break;
     }
     case 'test': {
       const pr = currentPr();
-      const origin = namedOrigin(pr);
-      say(`▸ checking ${origin}`);
-      const ok = printChecks(
-        await runPreviewChecks({
-          origin,
-          fetch,
-          previewName: previewNameOfPr(pr),
-          commit: null,
-        })
-      );
+      let ok = true;
+      for (const site of SITES) {
+        const origin = namedOrigin(site, pr);
+        if (origin === null) {
+          // A description from before Storybook had a Preview names only one.
+          if (site === HARNESS)
+            fail('the pull request names no Preview URL yet');
+          continue;
+        }
+        say(`▸ checking ${origin}`);
+        const passed = printChecks(
+          await site.checks({
+            origin,
+            fetch,
+            previewName: previewNameOfPr(pr),
+            commit: null,
+          })
+        );
+        ok = ok && passed;
+      }
       if (!ok) process.exit(1);
       break;
     }

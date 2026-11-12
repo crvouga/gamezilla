@@ -2385,17 +2385,26 @@
     },
     "//#task:preview:build": {
       "cache": false,
-      "dependsOn": ["//#task:i18n:compile"],
+      "dependsOn": [
+        "//#task:i18n:compile",
+        "@pkgs/ui-root-harness-ts#storybook:build"
+      ],
       "passThroughEnv": ["*"]
     },
     "//#task:preview:deploy": {
       "cache": false,
-      "dependsOn": ["//#task:i18n:compile"],
+      "dependsOn": [
+        "//#task:i18n:compile",
+        "@pkgs/ui-root-harness-ts#storybook:build"
+      ],
       "passThroughEnv": ["*"]
     },
     "//#task:preview:main": {
       "cache": false,
-      "dependsOn": ["//#task:i18n:compile"],
+      "dependsOn": [
+        "//#task:i18n:compile",
+        "@pkgs/ui-root-harness-ts#storybook:build"
+      ],
       "passThroughEnv": ["*"]
     },
     "//#task:preview:test": {

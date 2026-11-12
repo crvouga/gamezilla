@@ -7,6 +7,7 @@ import {
   type PreviewSectionFacts,
   previewUrlInBody,
   renderPreviewSection,
+  storybookUrlInBody,
   upsertPreviewSection,
 } from '../src/pr-body-section';
 
@@ -14,6 +15,7 @@ const facts: PreviewSectionFacts = {
   pr: 12,
   status: 'live',
   url: 'https://pr-12-acme-preview.acme.workers.dev',
+  storybookUrl: 'https://pr-12.storybook-preview.acme.example',
   deployedSha: 'a'.repeat(40),
   attemptedSha: 'a'.repeat(40),
   runUrl: 'https://github.com/acme/app/actions/runs/1',
@@ -69,6 +71,7 @@ test('a removed Preview offers no sign-in', () => {
     ...facts,
     status: 'removed',
     url: null,
+    storybookUrl: null,
   });
   expect(section).not.toContain('Sign in');
   expect(previewUrlInBody(section)).toBeNull();
@@ -100,4 +103,14 @@ test('a description without the section gains it after the author’s text', () 
       expect(upsertPreviewSection(updated, section)).toBe(updated);
     })
   );
+});
+
+test('the section names the Storybook beside the Preview, each read back as its own', () => {
+  const section = renderPreviewSection(facts);
+  expect(previewUrlInBody(section)).toBe(facts.url);
+  expect(storybookUrlInBody(section)).toBe(facts.storybookUrl);
+  const without = renderPreviewSection({ ...facts, storybookUrl: null });
+  expect(without).not.toContain('Storybook');
+  expect(storybookUrlInBody(without)).toBeNull();
+  expect(previewUrlInBody(without)).toBe(facts.url);
 });

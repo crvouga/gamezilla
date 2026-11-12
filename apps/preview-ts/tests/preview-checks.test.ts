@@ -4,6 +4,8 @@ import {
   entryScripts,
   parsePreviewManifest,
   runPreviewChecks,
+  runStorybookChecks,
+  storyCount,
 } from '../src/preview-checks';
 
 const ORIGIN = 'https://pr-7-acme-preview.acme.workers.dev';
@@ -121,4 +123,58 @@ test('manifests and entry scripts are read strictly', () => {
   expect(
     entryScripts('<script src="https://evil.example/x.js"></script>')
   ).toEqual([]);
+});
+
+const STORYBOOK: Site = {
+  '/iframe.html': ['text/html', '<div id="storybook-root"></div>'],
+  '/index.json': [
+    'application/json',
+    JSON.stringify({ v: 5, entries: { 'button--primary': {} } }),
+  ],
+  '/preview.json': [
+    'application/json',
+    JSON.stringify({ preview: 'pr-7', commit: 'a'.repeat(40) }),
+  ],
+};
+
+async function failingStorybook(site: HttpFetch) {
+  const checks = await runStorybookChecks({
+    origin: 'https://pr-7.storybook-preview.acme.example',
+    fetch: site,
+    previewName: 'pr-7',
+    commit: 'a'.repeat(40),
+  });
+  return checks.filter((check) => !check.ok).map((check) => check.name);
+}
+
+test('a deployed Storybook passes every check', async () => {
+  expect(await failingStorybook(staticSite(STORYBOOK))).toEqual([]);
+});
+
+test('a Storybook with no stories, no frame or another commit fails', async () => {
+  const empty: Site = {
+    ...STORYBOOK,
+    '/index.json': ['application/json', '{"v":5,"entries":{}}'],
+  };
+  expect(await failingStorybook(staticSite(empty))).toEqual(['story index']);
+  const { '/iframe.html': _, ...frameless } = STORYBOOK;
+  expect(await failingStorybook(staticSite(frameless))).toEqual([
+    'story frame',
+  ]);
+  const stale: Site = {
+    ...STORYBOOK,
+    '/preview.json': [
+      'application/json',
+      JSON.stringify({ preview: 'pr-7', commit: 'b'.repeat(40) }),
+    ],
+  };
+  expect(await failingStorybook(staticSite(stale))).toEqual([
+    'deployed commit',
+  ]);
+});
+
+test('a story index is counted strictly', () => {
+  expect(storyCount('{"entries":{"a":{},"b":{}}}')).toBe(2);
+  expect(storyCount('{"entries":null}')).toBe(0);
+  expect(storyCount('<html>')).toBe(0);
 });
