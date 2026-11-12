@@ -50,7 +50,7 @@ Feature: Debug info on a bug report
   Rule: A person is told that debug info is sent
     No counter-example: a bug report never carries debug info without saying so.
 
-    Scenario: An open bug report says it includes debug info
+    Scenario: An open bug report tells its person it includes debug info
       Given Alice's app is working
       When Alice chooses to report a bug
       Then Alice is told the bug report includes debug info and never what Alice typed

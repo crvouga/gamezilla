@@ -8,11 +8,11 @@ metadata:
 spec:
   description: >-
     Each time a person's device sends a bug report, the app either decides
-    (it takes the bug report to the team's list of work, sees that the team
-    already has it, or turns it down for good, as it does past the daily bug
-    report limit) or fails on its own side, and the device keeps the bug
-    report to send later. This is the share of sends the app decides. A bug
-    report turned down for good is a correct decision, never a failure.
+    (it takes the bug report to the team's list of work, or turns it down
+    for good, as it does past the daily bug report limit) or fails on its
+    own side, and the device keeps the bug report to send later. This is the
+    share of sends the app decides. A bug report turned down for good is a
+    correct decision, never a failure.
   ratioMetric:
     counter: true
     good:
@@ -21,7 +21,7 @@ spec:
         spec:
           measures: >-
             Bug reports sent from people's devices that the app took to the
-            team's list of work, already had, or turned down for good.
+            team's list of work or turned down for good.
     total:
       metricSource:
         type: product
@@ -83,16 +83,16 @@ spec:
 apiVersion: openslo/v1
 kind: SLO
 metadata:
-  name: sent-bug-reports-reach-the-team
-  displayName: A bug report a person sends reaches the team
+  name: sent-bug-reports-are-decided
+  displayName: The app decides every bug report people send
   labels:
     tier: "1"
 spec:
   description: >-
-    A bug report a person sends reaches the team on that send. At least
-    99.9% of bug reports people send are decided by the app without failing
-    on its own side, over the last seven days. A bug report the app fails is
-    kept on the device and sent later, so it is late, not lost.
+    The app does not fail a bug report a person sends. At least 99.9% of
+    bug reports people send are decided by the app without failing on its
+    own side, over the last seven days. A bug report the app fails is kept
+    on the device and sent later, so it is late, not lost.
   service: feedback
   indicatorRef: bug-reports-taken
   timeWindow:
@@ -106,15 +106,17 @@ spec:
 apiVersion: openslo/v1
 kind: SLO
 metadata:
-  name: sending-a-bug-report-is-quick
-  displayName: Sending a bug report is quick
+  name: sent-bug-reports-are-answered-quickly
+  displayName: Sent bug reports are answered quickly
   labels:
     tier: "1"
 spec:
   description: >-
-    A person who sends a bug report is not kept waiting to hear the team has
-    it. At least 95% of bug reports people send are answered within five
-    seconds, over the last seven days.
+    Once a bug report a person sends has reached the app, the app answers
+    quickly. At least 95% of bug reports people send are answered within
+    five seconds of reaching the app, over the last seven days. The time a
+    device takes to send the screenshots over its own connection is not
+    counted.
   service: feedback
   indicatorRef: bug-reports-answered-within-five-seconds
   timeWindow:
@@ -128,14 +130,15 @@ spec:
 apiVersion: openslo/v1
 kind: SLO
 metadata:
-  name: sending-a-bug-report-never-stalls
-  displayName: Sending a bug report never stalls
+  name: sent-bug-reports-rarely-wait-long
+  displayName: Sent bug reports rarely wait long for an answer
   labels:
     tier: "1"
 spec:
   description: >-
-    No send of a bug report hangs. At least 99% of bug reports people send
-    are answered within ten seconds, over the last seven days.
+    A bug report that has reached the app rarely waits long. At least 99%
+    of bug reports people send are answered within ten seconds of reaching
+    the app, over the last seven days.
   service: feedback
   indicatorRef: bug-reports-answered-within-ten-seconds
   timeWindow:
