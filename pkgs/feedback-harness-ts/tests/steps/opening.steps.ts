@@ -5,12 +5,15 @@ import {
   applicationCondition,
   chooseToReport,
   closeBugReport,
+  holdFingersStill,
+  liftFingersEarly,
   phoneAsksBeforeShaking,
   readOpenBugReports,
   readShakeToReport,
   readToldToReportWithoutShaking,
   refuseShakeToReport,
   shakePhone,
+  threeFingerPress,
   turnOffShakeToReport,
   turnOnShakeToReport,
 } from '@pkgs/feedback-harness-ts/feedback';
@@ -47,6 +50,16 @@ Given('Alice has turned shake to report back on', async (w) => {
 When('Alice chooses to report a bug', (w) => w.apply(chooseToReport));
 When('Alice closes the bug report', (w) => w.apply(closeBugReport));
 When('Alice shakes the phone', (w) => w.apply(shakePhone));
+When('Alice holds three fingers still on the app for one second', (w) =>
+  w.apply(threeFingerPress)
+);
+When('Alice holds two fingers still on the app for one second', (w) =>
+  w.apply(holdFingersStill, 2)
+);
+When(
+  'Alice lifts three fingers from the app before one second has passed',
+  (w) => w.apply(liftFingersEarly, 3)
+);
 When('Alice turns off shake to report', (w) => w.apply(turnOffShakeToReport));
 When('Alice turns shake to report back on', (w) =>
   w.apply(turnOnShakeToReport)

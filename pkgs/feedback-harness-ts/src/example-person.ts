@@ -33,6 +33,10 @@ const NOTICES: readonly BugReportNotice[] = [
 const MEGABYTE = 1024 * 1024;
 /** More bug reports than any example keeps waiting. */
 const MOST_WAITING = 100;
+/** Where Alice's fingers rest on the app, in CSS px. */
+const FIRST_FINGER_X = 100;
+const FINGER_APART = 60;
+const FINGER_Y = 300;
 /** Everything said aloud as it changes. */
 const SAID = '[role="status"], [role="alert"], [aria-live]';
 
@@ -296,8 +300,41 @@ export function createExamplePerson(session: Session, app: ExampleApp) {
       await choose(toggle);
     await app.settle();
   }
+  /** Tells the app which fingers are on it, as a touch screen does. */
+  function touch(type: string, on: Touch[], changed: Touch[]): void {
+    app.surface().dispatchEvent(
+      new TouchEvent(type, {
+        touches: on,
+        targetTouches: on,
+        changedTouches: changed,
+        bubbles: true,
+        cancelable: true,
+      })
+    );
+  }
+  /** Rests fingers on the app without moving them, one landing after another, then lifts them. */
+  async function holdFingers(count: number, ms: number): Promise<void> {
+    const target = app.surface();
+    const fingers = Array.from(
+      { length: count },
+      (_, identifier) =>
+        new Touch({
+          identifier,
+          target,
+          clientX: FIRST_FINGER_X + identifier * FINGER_APART,
+          clientY: FINGER_Y,
+        })
+    );
+    for (const [index, finger] of fingers.entries())
+      touch('touchstart', fingers.slice(0, index + 1), [finger]);
+    await session.advanceTime(ms);
+    for (const [index, finger] of fingers.entries())
+      touch('touchend', fingers.slice(index + 1), [finger]);
+    await app.settle();
+  }
   return {
     press,
+    holdFingers,
     chooseToReport,
     describe,
     send,
