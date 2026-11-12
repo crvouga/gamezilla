@@ -77,7 +77,7 @@ export function renderPreviewSection(facts: PreviewSectionFacts): string {
             "**Storybook:** this pull request's build of the component library, at the same commit.",
           ]),
       '',
-      '**Sign in:** nothing to sign in to. The harness starts its own client actors with simulated identities; drive them from the console.',
+      '**Sign in:** nothing to sign in to. The system starts with two people, `alice` and `bob`, each signed in on a device of their own and already friends; drive them from the console.',
       '',
       '**Reset:** state lives only in your browser, under this URL. Clear the site data for it (or open it in a fresh browser profile) to start clean; nothing is stored anywhere else.',
       '',

@@ -101,7 +101,24 @@ export type ProductHarnessSessionBuildArgs = {
   readonly bindDomainWake?: (fire: (label: string) => void) => void;
   /** When set, actor panels embed this origin as a URL view (not the Solid App). */
   readonly actorWebOrigin?: string;
+  /**
+   * Prepares a world nobody has visited before (no snapshot to restore) and
+   * names the clients to open on it, each closed but with its device intact.
+   */
+  readonly seedFreshWorld?: () => Promise<readonly string[]>;
 };
+
+async function freshClientIds(
+  args: ProductHarnessSessionBuildArgs
+): Promise<readonly string[]> {
+  if (args.seedFreshWorld === undefined) return DEFAULT_CLIENT_IDS;
+  try {
+    return await args.seedFreshWorld();
+  } catch {
+    // An unseeded world is still a working one.
+    return DEFAULT_CLIENT_IDS;
+  }
+}
 
 function liveToActor(args: {
   id: string;
@@ -417,7 +434,7 @@ async function bootClients(
     }
   }
   if (maps.clients.size === 0) {
-    for (const id of DEFAULT_CLIENT_IDS) {
+    for (const id of await freshClientIds(args)) {
       await spawnClient(args, maps, id);
     }
   }

@@ -49,6 +49,12 @@ https://pr-<number>.storybook.<domain>     a pull request's Storybook
   external is a mockingbird emulator from `libs/harness-ts`: identity provider,
   billing, object store, LLM and the clock. These are the same abstractions the
   test suites drive; a Preview adds none of its own.
+- **The seed.** A world nobody has opened before starts with two people,
+  `alice` and `bob`, each signed in on their own device and already friends
+  (`apps/harness-ts/src/product-harness-friends-seed.ts`): each walks the
+  emulated identity provider's sign-in and the friendship is the ordinary
+  request and its acceptance, sent to the in-tab API. A world restored from
+  the browser's saved snapshot is left as it was.
 - **The console.** The page is the harness console: panels for each client
   actor (UI, local database, logs), each API server (SQL notebook, logs), the
   load balancer, pub/sub topics and rooms, plus commands for crashing,
