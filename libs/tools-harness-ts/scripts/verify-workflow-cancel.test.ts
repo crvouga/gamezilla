@@ -138,9 +138,8 @@ describe('Verify workflow cancellation', () => {
     const end = workflow.jobs['verify-end']!.steps;
     const cleanup = end.at(-1)!;
     expect(cleanup.name).toBe('Delete transfer artifacts');
-    expect(cleanup.if).toBe(
-      "always() && !cancelled() && env.VERIFY_PROFILE != 'nightly'"
-    );
+    // regression: verify-rerun-missing-plan
+    expect(cleanup.if).toBe("success() && env.VERIFY_PROFILE != 'nightly'");
     expect(cleanup.run?.trim()).toBe(
       'bun run libs/tools-harness-ts/scripts/ci-artifacts.ts delete verify-'
     );

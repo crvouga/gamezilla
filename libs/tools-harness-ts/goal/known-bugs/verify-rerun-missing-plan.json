@@ -1,0 +1,4 @@
+{
+  "summary": "verify:end deleted the run's transfer artifacts even when the run failed, so re-running a failed Verify PR shard aborted with 'No CI artifact verify-plan'. Delete them only after a passing run.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-workflow-cancel.test.ts"
+}

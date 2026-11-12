@@ -411,6 +411,8 @@ jobs:
         run: >-
           bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload verify-ci-details
           .cache/verify-ci/plan.json .cache/verify-ci/planning.json .cache/verify-ci/profile.json '.cache/verify-ci/results/*.json'
+      # Only after a pass: "Re-run failed jobs" downloads verify-plan again, and
+      # the bucket expires leftovers after a week.
       - name: Delete transfer artifacts
-        if: always() && !cancelled() && env.VERIFY_PROFILE != 'nightly'
+        if: success() && env.VERIFY_PROFILE != 'nightly'
         run: bun run libs/tools-harness-ts/scripts/ci-artifacts.ts delete verify-
