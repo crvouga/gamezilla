@@ -3,7 +3,7 @@ import { expect, test } from 'bun:test';
 import { BattleshipBoard } from '@libs/battleship-client-ts/battleship-board';
 import { CELLS } from '@libs/battleship-shared-ts/battleship-board';
 import { BATTLESHIP_PREFIX } from '@libs/battleship-shared-ts/battleship-position';
-import { GameBoardPreviewContext } from '@pkgs/ui-root-client-ts/game-board-stage/board-preview';
+import { GameBoardPreviewContext } from '@pkgs/ui-root-client-ts/game-board-stage';
 import { byTestId, renderBoard } from './render';
 
 // regression: battleship-lobby-picture-collapses

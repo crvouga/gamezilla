@@ -22,7 +22,7 @@ import {
   CellGridLegend,
   type CellGridLegendItem,
 } from '@pkgs/ui-root-client-ts/cell-grid-board';
-import { useGameBoardPreview } from '@pkgs/ui-root-client-ts/game-board-stage/board-preview';
+import { useGameBoardPreview } from '@pkgs/ui-root-client-ts/game-board-stage';
 import { PairedPanels } from '@pkgs/ui-root-client-ts/paired-panels';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
