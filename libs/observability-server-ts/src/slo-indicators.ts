@@ -26,6 +26,10 @@ import {
   PEOPLE_ROUTE_GROUPS,
 } from '@libs/observability-shared-ts/route-groups';
 import {
+  BUG_REPORT_SEND_DURATION_METRIC,
+  BUG_REPORT_SENDS_METRIC,
+} from '@pkgs/observability-root-shared-ts/bug-report-metrics';
+import {
   HTTP_DURATION_METRIC,
   HTTP_REQUESTS_METRIC,
 } from '@pkgs/observability-root-shared-ts/http-metrics';
@@ -212,6 +216,28 @@ function under(input: {
   };
 }
 
+function bugReportSendsUnder(input: {
+  readonly sli: string;
+  readonly seconds: number;
+  readonly failureCounts?: FailureCount;
+}): HistogramUnderIndicator {
+  return {
+    ...(input.failureCounts === undefined
+      ? {}
+      : { failureCounts: input.failureCounts }),
+    kind: 'histogram-under',
+    sli: input.sli,
+    owner: 'feedback',
+    minimumEventsPerHour: 1,
+    investigate: 'slow',
+    sliceBy: null,
+    cadence: 'standard',
+    metric: BUG_REPORT_SEND_DURATION_METRIC.name,
+    scope: [],
+    underSeconds: input.seconds,
+  };
+}
+
 /** The checks that say the app opens: its shell, and the API ready to serve. */
 const OPENING: readonly ProbeCheck[] = ['app-shell', 'api-ready'];
 
@@ -385,6 +411,35 @@ export const INDICATORS: readonly Indicator[] = [
     sli: 'payment-checks-passing',
     owner: 'billing',
     checks: ['billing.payments'],
+  }),
+  healthChecks({
+    sli: 'bug-report-checks-passing',
+    owner: 'feedback',
+    checks: ['feedback.receiving-bug-reports'],
+  }),
+  {
+    kind: 'counter-ratio',
+    sli: 'bug-reports-taken',
+    owner: 'feedback',
+    // A bug report is rare: one an hour is already a busy hour.
+    minimumEventsPerHour: 1,
+    investigate: 'errors',
+    sliceBy: null,
+    cadence: 'standard',
+    // The device sends it again, but the team is hearing of a bug late.
+    failureCounts: { window: '1h', push: 1, page: 3 },
+    metric: BUG_REPORT_SENDS_METRIC.name,
+    scope: [],
+    good: [{ dimension: 'app.outcome', op: 'is-not', values: ['failed'] }],
+  },
+  bugReportSendsUnder({
+    sli: 'bug-reports-answered-within-five-seconds',
+    seconds: 5,
+  }),
+  bugReportSendsUnder({
+    sli: 'bug-reports-answered-within-ten-seconds',
+    seconds: 10,
+    failureCounts: { window: '1h', push: 1, page: 3 },
   }),
   healthChecks({
     sli: 'team-tool-checks-passing',

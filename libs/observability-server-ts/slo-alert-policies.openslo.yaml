@@ -129,6 +129,370 @@ spec:
 apiVersion: openslo/v1
 kind: AlertCondition
 metadata:
+  name: bug-reports-reach-the-team-fast-burn-over-12h
+spec:
+  description: "The budget burns at 10x or more over the last 12h."
+  severity: page
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 10
+    lookbackWindow: "12h"
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: bug-reports-reach-the-team-fast-burn-over-4h
+spec:
+  description: "The budget burns at 10x or more over the last 4h."
+  severity: page
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 10
+    lookbackWindow: "4h"
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: bug-reports-reach-the-team-budget-drift-over-3d
+spec:
+  description: "The budget burns at 1x or more over the last 3d."
+  severity: ticket
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 1
+    lookbackWindow: "3d"
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: bug-reports-reach-the-team-budget-drift-over-12h
+spec:
+  description: "The budget burns at 1x or more over the last 12h."
+  severity: ticket
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 1
+    lookbackWindow: "12h"
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: sent-bug-reports-reach-the-team-fast-burn-over-1h
+spec:
+  description: "The budget burns at 3.36x or more over the last 1h."
+  severity: page
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 3.36
+    lookbackWindow: "1h"
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: sent-bug-reports-reach-the-team-fast-burn-over-5m
+spec:
+  description: "The budget burns at 3.36x or more over the last 5m."
+  severity: page
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 3.36
+    lookbackWindow: "5m"
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: sent-bug-reports-reach-the-team-slow-burn-over-6h
+spec:
+  description: "The budget burns at 1.4x or more over the last 6h."
+  severity: page
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 1.4
+    lookbackWindow: "6h"
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: sent-bug-reports-reach-the-team-slow-burn-over-30m
+spec:
+  description: "The budget burns at 1.4x or more over the last 30m."
+  severity: page
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 1.4
+    lookbackWindow: "30m"
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: sent-bug-reports-reach-the-team-daily-burn-over-1d
+spec:
+  description: "The budget burns at 0.7x or more over the last 1d."
+  severity: ticket
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 0.7
+    lookbackWindow: "1d"
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: sent-bug-reports-reach-the-team-daily-burn-over-2h
+spec:
+  description: "The budget burns at 0.7x or more over the last 2h."
+  severity: ticket
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 0.7
+    lookbackWindow: "2h"
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: sent-bug-reports-reach-the-team-budget-drift-over-3d
+spec:
+  description: "The budget burns at 1x or more over the last 3d."
+  severity: ticket
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 1
+    lookbackWindow: "3d"
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: sent-bug-reports-reach-the-team-budget-drift-over-6h
+spec:
+  description: "The budget burns at 1x or more over the last 6h."
+  severity: ticket
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 1
+    lookbackWindow: "6h"
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: sending-a-bug-report-is-quick-fast-burn-over-1h
+spec:
+  description: "The budget burns at 3.36x or more over the last 1h."
+  severity: page
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 3.36
+    lookbackWindow: "1h"
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: sending-a-bug-report-is-quick-fast-burn-over-5m
+spec:
+  description: "The budget burns at 3.36x or more over the last 5m."
+  severity: page
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 3.36
+    lookbackWindow: "5m"
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: sending-a-bug-report-is-quick-slow-burn-over-6h
+spec:
+  description: "The budget burns at 1.4x or more over the last 6h."
+  severity: page
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 1.4
+    lookbackWindow: "6h"
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: sending-a-bug-report-is-quick-slow-burn-over-30m
+spec:
+  description: "The budget burns at 1.4x or more over the last 30m."
+  severity: page
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 1.4
+    lookbackWindow: "30m"
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: sending-a-bug-report-is-quick-daily-burn-over-1d
+spec:
+  description: "The budget burns at 0.7x or more over the last 1d."
+  severity: ticket
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 0.7
+    lookbackWindow: "1d"
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: sending-a-bug-report-is-quick-daily-burn-over-2h
+spec:
+  description: "The budget burns at 0.7x or more over the last 2h."
+  severity: ticket
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 0.7
+    lookbackWindow: "2h"
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: sending-a-bug-report-is-quick-budget-drift-over-3d
+spec:
+  description: "The budget burns at 1x or more over the last 3d."
+  severity: ticket
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 1
+    lookbackWindow: "3d"
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: sending-a-bug-report-is-quick-budget-drift-over-6h
+spec:
+  description: "The budget burns at 1x or more over the last 6h."
+  severity: ticket
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 1
+    lookbackWindow: "6h"
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: sending-a-bug-report-never-stalls-fast-burn-over-1h
+spec:
+  description: "The budget burns at 3.36x or more over the last 1h."
+  severity: page
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 3.36
+    lookbackWindow: "1h"
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: sending-a-bug-report-never-stalls-fast-burn-over-5m
+spec:
+  description: "The budget burns at 3.36x or more over the last 5m."
+  severity: page
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 3.36
+    lookbackWindow: "5m"
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: sending-a-bug-report-never-stalls-slow-burn-over-6h
+spec:
+  description: "The budget burns at 1.4x or more over the last 6h."
+  severity: page
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 1.4
+    lookbackWindow: "6h"
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: sending-a-bug-report-never-stalls-slow-burn-over-30m
+spec:
+  description: "The budget burns at 1.4x or more over the last 30m."
+  severity: page
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 1.4
+    lookbackWindow: "30m"
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: sending-a-bug-report-never-stalls-daily-burn-over-1d
+spec:
+  description: "The budget burns at 0.7x or more over the last 1d."
+  severity: ticket
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 0.7
+    lookbackWindow: "1d"
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: sending-a-bug-report-never-stalls-daily-burn-over-2h
+spec:
+  description: "The budget burns at 0.7x or more over the last 2h."
+  severity: ticket
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 0.7
+    lookbackWindow: "2h"
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: sending-a-bug-report-never-stalls-budget-drift-over-3d
+spec:
+  description: "The budget burns at 1x or more over the last 3d."
+  severity: ticket
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 1
+    lookbackWindow: "3d"
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: sending-a-bug-report-never-stalls-budget-drift-over-6h
+spec:
+  description: "The budget burns at 1x or more over the last 6h."
+  severity: ticket
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 1
+    lookbackWindow: "6h"
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
   name: people-can-play-games-end-to-end-fast-burn-over-12h
 spec:
   description: "The budget burns at 10x or more over the last 12h."
@@ -1722,6 +2086,328 @@ spec:
   alertWhenBreaching: true
   conditions:
     - conditionRef: people-can-pay-budget-drift-over-3d
+  notificationTargets:
+    - targetRef: health-job-failure
+    - targetRef: grafana-irm-push
+---
+apiVersion: openslo/v1
+kind: AlertPolicy
+metadata:
+  name: bug-reports-reach-the-team-fast-burn
+  displayName: "Bug reports reach the team: fast-burn"
+  labels:
+    slo: bug-reports-reach-the-team
+    severity: page
+    tier: "1"
+    route: page
+  annotations:
+    openslo-alerting/and-conditions: bug-reports-reach-the-team-fast-burn-over-4h
+spec:
+  description: "page: Bug reports reach the team is failing its checks from outside often enough to end its error budget within a day: \"At least 99.99% meet this promise\" burns at 10x or more over 12h and over 4h."
+  alertWhenNoData: false
+  alertWhenResolved: true
+  alertWhenBreaching: true
+  conditions:
+    - conditionRef: bug-reports-reach-the-team-fast-burn-over-12h
+  notificationTargets:
+    - targetRef: health-job-failure
+    - targetRef: grafana-irm-page
+---
+apiVersion: openslo/v1
+kind: AlertPolicy
+metadata:
+  name: bug-reports-reach-the-team-budget-drift
+  displayName: "Bug reports reach the team: budget-drift"
+  labels:
+    slo: bug-reports-reach-the-team
+    severity: ticket
+    tier: "1"
+    route: push
+  annotations:
+    openslo-alerting/and-conditions: bug-reports-reach-the-team-budget-drift-over-12h
+spec:
+  description: "ticket: Bug reports reach the team is spending its error budget faster than the window renews it: \"At least 99.99% meet this promise\" burns at 1x or more over 3d and over 12h."
+  alertWhenNoData: false
+  alertWhenResolved: true
+  alertWhenBreaching: true
+  conditions:
+    - conditionRef: bug-reports-reach-the-team-budget-drift-over-3d
+  notificationTargets:
+    - targetRef: health-job-failure
+    - targetRef: grafana-irm-push
+---
+apiVersion: openslo/v1
+kind: AlertPolicy
+metadata:
+  name: sent-bug-reports-reach-the-team-fast-burn
+  displayName: "A bug report a person sends reaches the team: fast-burn"
+  labels:
+    slo: sent-bug-reports-reach-the-team
+    severity: page
+    tier: "1"
+    route: page
+  annotations:
+    openslo-alerting/and-conditions: sent-bug-reports-reach-the-team-fast-burn-over-5m
+spec:
+  description: "page: A bug report a person sends reaches the team is spending its error budget at a rate that ends it within hours: \"At least 99.9% of sends are decided\" burns at 3.36x or more over 1h and over 5m."
+  alertWhenNoData: false
+  alertWhenResolved: true
+  alertWhenBreaching: true
+  conditions:
+    - conditionRef: sent-bug-reports-reach-the-team-fast-burn-over-1h
+  notificationTargets:
+    - targetRef: health-job-failure
+    - targetRef: grafana-irm-page
+---
+apiVersion: openslo/v1
+kind: AlertPolicy
+metadata:
+  name: sent-bug-reports-reach-the-team-slow-burn
+  displayName: "A bug report a person sends reaches the team: slow-burn"
+  labels:
+    slo: sent-bug-reports-reach-the-team
+    severity: page
+    tier: "1"
+    route: page
+  annotations:
+    openslo-alerting/and-conditions: sent-bug-reports-reach-the-team-slow-burn-over-30m
+spec:
+  description: "page: A bug report a person sends reaches the team is spending its error budget steadily enough to end it within days: \"At least 99.9% of sends are decided\" burns at 1.4x or more over 6h and over 30m."
+  alertWhenNoData: false
+  alertWhenResolved: true
+  alertWhenBreaching: true
+  conditions:
+    - conditionRef: sent-bug-reports-reach-the-team-slow-burn-over-6h
+  notificationTargets:
+    - targetRef: health-job-failure
+    - targetRef: grafana-irm-page
+---
+apiVersion: openslo/v1
+kind: AlertPolicy
+metadata:
+  name: sent-bug-reports-reach-the-team-daily-burn
+  displayName: "A bug report a person sends reaches the team: daily-burn"
+  labels:
+    slo: sent-bug-reports-reach-the-team
+    severity: ticket
+    tier: "1"
+    route: push
+  annotations:
+    openslo-alerting/and-conditions: sent-bug-reports-reach-the-team-daily-burn-over-2h
+spec:
+  description: "ticket: A bug report a person sends reaches the team is spending its error budget fast enough to end it within the window: \"At least 99.9% of sends are decided\" burns at 0.7x or more over 1d and over 2h."
+  alertWhenNoData: false
+  alertWhenResolved: true
+  alertWhenBreaching: true
+  conditions:
+    - conditionRef: sent-bug-reports-reach-the-team-daily-burn-over-1d
+  notificationTargets:
+    - targetRef: health-job-failure
+    - targetRef: grafana-irm-push
+---
+apiVersion: openslo/v1
+kind: AlertPolicy
+metadata:
+  name: sent-bug-reports-reach-the-team-budget-drift
+  displayName: "A bug report a person sends reaches the team: budget-drift"
+  labels:
+    slo: sent-bug-reports-reach-the-team
+    severity: ticket
+    tier: "1"
+    route: push
+  annotations:
+    openslo-alerting/and-conditions: sent-bug-reports-reach-the-team-budget-drift-over-6h
+spec:
+  description: "ticket: A bug report a person sends reaches the team is spending its error budget faster than the window renews it: \"At least 99.9% of sends are decided\" burns at 1x or more over 3d and over 6h."
+  alertWhenNoData: false
+  alertWhenResolved: true
+  alertWhenBreaching: true
+  conditions:
+    - conditionRef: sent-bug-reports-reach-the-team-budget-drift-over-3d
+  notificationTargets:
+    - targetRef: health-job-failure
+    - targetRef: grafana-irm-push
+---
+apiVersion: openslo/v1
+kind: AlertPolicy
+metadata:
+  name: sending-a-bug-report-is-quick-fast-burn
+  displayName: "Sending a bug report is quick: fast-burn"
+  labels:
+    slo: sending-a-bug-report-is-quick
+    severity: page
+    tier: "1"
+    route: page
+  annotations:
+    openslo-alerting/and-conditions: sending-a-bug-report-is-quick-fast-burn-over-5m
+spec:
+  description: "page: Sending a bug report is quick is spending its error budget at a rate that ends it within hours: \"At least 95% answered within five seconds\" burns at 3.36x or more over 1h and over 5m."
+  alertWhenNoData: false
+  alertWhenResolved: true
+  alertWhenBreaching: true
+  conditions:
+    - conditionRef: sending-a-bug-report-is-quick-fast-burn-over-1h
+  notificationTargets:
+    - targetRef: health-job-failure
+    - targetRef: grafana-irm-page
+---
+apiVersion: openslo/v1
+kind: AlertPolicy
+metadata:
+  name: sending-a-bug-report-is-quick-slow-burn
+  displayName: "Sending a bug report is quick: slow-burn"
+  labels:
+    slo: sending-a-bug-report-is-quick
+    severity: page
+    tier: "1"
+    route: page
+  annotations:
+    openslo-alerting/and-conditions: sending-a-bug-report-is-quick-slow-burn-over-30m
+spec:
+  description: "page: Sending a bug report is quick is spending its error budget steadily enough to end it within days: \"At least 95% answered within five seconds\" burns at 1.4x or more over 6h and over 30m."
+  alertWhenNoData: false
+  alertWhenResolved: true
+  alertWhenBreaching: true
+  conditions:
+    - conditionRef: sending-a-bug-report-is-quick-slow-burn-over-6h
+  notificationTargets:
+    - targetRef: health-job-failure
+    - targetRef: grafana-irm-page
+---
+apiVersion: openslo/v1
+kind: AlertPolicy
+metadata:
+  name: sending-a-bug-report-is-quick-daily-burn
+  displayName: "Sending a bug report is quick: daily-burn"
+  labels:
+    slo: sending-a-bug-report-is-quick
+    severity: ticket
+    tier: "1"
+    route: push
+  annotations:
+    openslo-alerting/and-conditions: sending-a-bug-report-is-quick-daily-burn-over-2h
+spec:
+  description: "ticket: Sending a bug report is quick is spending its error budget fast enough to end it within the window: \"At least 95% answered within five seconds\" burns at 0.7x or more over 1d and over 2h."
+  alertWhenNoData: false
+  alertWhenResolved: true
+  alertWhenBreaching: true
+  conditions:
+    - conditionRef: sending-a-bug-report-is-quick-daily-burn-over-1d
+  notificationTargets:
+    - targetRef: health-job-failure
+    - targetRef: grafana-irm-push
+---
+apiVersion: openslo/v1
+kind: AlertPolicy
+metadata:
+  name: sending-a-bug-report-is-quick-budget-drift
+  displayName: "Sending a bug report is quick: budget-drift"
+  labels:
+    slo: sending-a-bug-report-is-quick
+    severity: ticket
+    tier: "1"
+    route: push
+  annotations:
+    openslo-alerting/and-conditions: sending-a-bug-report-is-quick-budget-drift-over-6h
+spec:
+  description: "ticket: Sending a bug report is quick is spending its error budget faster than the window renews it: \"At least 95% answered within five seconds\" burns at 1x or more over 3d and over 6h."
+  alertWhenNoData: false
+  alertWhenResolved: true
+  alertWhenBreaching: true
+  conditions:
+    - conditionRef: sending-a-bug-report-is-quick-budget-drift-over-3d
+  notificationTargets:
+    - targetRef: health-job-failure
+    - targetRef: grafana-irm-push
+---
+apiVersion: openslo/v1
+kind: AlertPolicy
+metadata:
+  name: sending-a-bug-report-never-stalls-fast-burn
+  displayName: "Sending a bug report never stalls: fast-burn"
+  labels:
+    slo: sending-a-bug-report-never-stalls
+    severity: page
+    tier: "1"
+    route: page
+  annotations:
+    openslo-alerting/and-conditions: sending-a-bug-report-never-stalls-fast-burn-over-5m
+spec:
+  description: "page: Sending a bug report never stalls is spending its error budget at a rate that ends it within hours: \"At least 99% answered within ten seconds\" burns at 3.36x or more over 1h and over 5m."
+  alertWhenNoData: false
+  alertWhenResolved: true
+  alertWhenBreaching: true
+  conditions:
+    - conditionRef: sending-a-bug-report-never-stalls-fast-burn-over-1h
+  notificationTargets:
+    - targetRef: health-job-failure
+    - targetRef: grafana-irm-page
+---
+apiVersion: openslo/v1
+kind: AlertPolicy
+metadata:
+  name: sending-a-bug-report-never-stalls-slow-burn
+  displayName: "Sending a bug report never stalls: slow-burn"
+  labels:
+    slo: sending-a-bug-report-never-stalls
+    severity: page
+    tier: "1"
+    route: page
+  annotations:
+    openslo-alerting/and-conditions: sending-a-bug-report-never-stalls-slow-burn-over-30m
+spec:
+  description: "page: Sending a bug report never stalls is spending its error budget steadily enough to end it within days: \"At least 99% answered within ten seconds\" burns at 1.4x or more over 6h and over 30m."
+  alertWhenNoData: false
+  alertWhenResolved: true
+  alertWhenBreaching: true
+  conditions:
+    - conditionRef: sending-a-bug-report-never-stalls-slow-burn-over-6h
+  notificationTargets:
+    - targetRef: health-job-failure
+    - targetRef: grafana-irm-page
+---
+apiVersion: openslo/v1
+kind: AlertPolicy
+metadata:
+  name: sending-a-bug-report-never-stalls-daily-burn
+  displayName: "Sending a bug report never stalls: daily-burn"
+  labels:
+    slo: sending-a-bug-report-never-stalls
+    severity: ticket
+    tier: "1"
+    route: push
+  annotations:
+    openslo-alerting/and-conditions: sending-a-bug-report-never-stalls-daily-burn-over-2h
+spec:
+  description: "ticket: Sending a bug report never stalls is spending its error budget fast enough to end it within the window: \"At least 99% answered within ten seconds\" burns at 0.7x or more over 1d and over 2h."
+  alertWhenNoData: false
+  alertWhenResolved: true
+  alertWhenBreaching: true
+  conditions:
+    - conditionRef: sending-a-bug-report-never-stalls-daily-burn-over-1d
+  notificationTargets:
+    - targetRef: health-job-failure
+    - targetRef: grafana-irm-push
+---
+apiVersion: openslo/v1
+kind: AlertPolicy
+metadata:
+  name: sending-a-bug-report-never-stalls-budget-drift
+  displayName: "Sending a bug report never stalls: budget-drift"
+  labels:
+    slo: sending-a-bug-report-never-stalls
+    severity: ticket
+    tier: "1"
+    route: push
+  annotations:
+    openslo-alerting/and-conditions: sending-a-bug-report-never-stalls-budget-drift-over-6h
+spec:
+  description: "ticket: Sending a bug report never stalls is spending its error budget faster than the window renews it: \"At least 99% answered within ten seconds\" burns at 1x or more over 3d and over 6h."
+  alertWhenNoData: false
+  alertWhenResolved: true
+  alertWhenBreaching: true
+  conditions:
+    - conditionRef: sending-a-bug-report-never-stalls-budget-drift-over-3d
   notificationTargets:
     - targetRef: health-job-failure
     - targetRef: grafana-irm-push

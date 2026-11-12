@@ -5,7 +5,12 @@ import type { ApiWorkerEnv } from '@libs/app-root-shared-ts/env';
 import { workerEnvToSecretRecord } from '@libs/app-root-shared-ts/env';
 import { createApiSecretStore } from '@libs/app-root-shared-ts/secret-store';
 import { resolveWebClientOrigin } from '@libs/app-root-shared-ts/web-client-origin';
-import { wallClock, wallTimers } from '@pkgs/clock-shared-ts/wall';
+import type { ExecutionContext } from '@libs/app-root-shared-ts/worker-handler';
+import {
+  monotonicClock,
+  wallClock,
+  wallTimers,
+} from '@pkgs/clock-shared-ts/wall';
 import {
   BUG_REPORT_PATH,
   createBugReportHttpApp,
@@ -141,4 +146,43 @@ export async function handleRootBugReport(
       { status: 503 }
     );
   }
+}
+
+let recordSend:
+  | ((sent: { readonly status: number; readonly durationMs: number }) => void)
+  | null = null;
+
+/**
+ * One bug report sent from a device, counted for the objectives in
+ * `specs/feedback/sending-bug-reports.openslo.yaml`. Counting loads the
+ * telemetry only after the answer is ready and never changes it, so a
+ * product whose telemetry cannot start still takes bug reports.
+ */
+export async function countedBugReportSend(
+  request: Request,
+  env: ApiWorkerEnv,
+  ctx: ExecutionContext
+): Promise<Response> {
+  const started = monotonicClock.now();
+  const response = await handleRootBugReport(request, env);
+  const durationMs = monotonicClock.now() - started;
+  try {
+    const [{ ensureWorkerTelemetry }, metrics, { createGlobalHttpClient }] =
+      await Promise.all([
+        import('./worker-telemetry'),
+        import('@pkgs/observability-root-shared-ts/bug-report-metrics'),
+        import('@pkgs/http-client-shared-ts/global'),
+      ]);
+    const telemetry = ensureWorkerTelemetry(
+      env,
+      () => crypto.randomUUID(),
+      createGlobalHttpClient()
+    );
+    recordSend ??= metrics.createBugReportSendMetrics();
+    recordSend({ status: response.status, durationMs });
+    telemetry.flushWith(ctx.waitUntil.bind(ctx));
+  } catch (error) {
+    console.error('bug report send not counted', error);
+  }
+  return response;
 }

@@ -381,6 +381,74 @@ paid for.
 **First steps.** The README's "Billing provider callbacks are being
 refused"; the Stripe dashboard's webhook deliveries.
 
+## bug-reports-reach-the-team
+
+**Measures.** The Health run's `feedback.receiving-bug-reports` check: the
+environment's bug report intake, asked whether a bug report sent now would
+become an issue.
+
+**Target and window:** [bug-reports-reach-the-team](../specs/feedback/receiving-bug-reports.openslo.yaml).
+Use the declared objective and generated alert thresholds; historical baseline
+measurements are not the reliability requirement.
+
+**Breach means.** Bug reports people send are not reaching the team's list
+of work. They wait on each person's device and are sent again later, so
+nothing is lost yet, but the team is not hearing about bugs.
+
+**First steps.** Ask the intake itself, which names what is missing:
+`curl https://<api>/api/bug-reports/health`. "is not set" or a refused
+destination means `FEEDBACK_GITHUB_TOKEN` or `FEEDBACK_GITHUB_REPOSITORY`:
+`bun run secrets:seed -- --env <env> FEEDBACK_GITHUB_TOKEN` checks a new
+token against GitHub before storing it. "storage is unavailable" is the
+environment's bucket credentials. Otherwise check GitHub's status page.
+
+## sent-bug-reports-reach-the-team
+
+**Measures.** Every bug report a device sends to the live app
+(`feedback.bug_report.sends`), by what became of it: taken, refused for good
+(the daily limit, a send that is not from the app), or failed on the app's
+side. Only `failed` is bad.
+
+**Target and window:** [sent-bug-reports-reach-the-team](../specs/feedback/sending-bug-reports.openslo.yaml).
+Use the declared objective and generated alert thresholds; historical baseline
+measurements are not the reliability requirement.
+
+**Breach means.** People pressed send and were told the team cannot receive
+bug reports yet. Their devices keep the bug report and send it again, so it
+arrives late.
+
+**First steps.** The same as [bug-reports-reach-the-team](#bug-reports-reach-the-team):
+`curl https://<api>/api/bug-reports/health` names what is missing. The
+Worker's logs carry `bug report not received` with the cause of each failed
+send.
+
+## sending-a-bug-report-is-quick
+
+**Measures.** How long the app took to answer each sent bug report
+(`feedback.bug_report.send.duration`), from the send reaching it: storing
+the screenshots and writing the bug report to the team's list of work.
+
+**Target and window:** [sending-a-bug-report-is-quick](../specs/feedback/sending-bug-reports.openslo.yaml).
+The thresholds were set before any real send was measured; revisit them once
+a month of sends exists.
+
+**Breach means.** People wait on the sending notice longer than five
+seconds.
+
+**First steps.** Most of a send is two outside calls: the bucket and GitHub.
+Check GitHub's status page and the bucket's latency before the app.
+
+## sending-a-bug-report-never-stalls
+
+**Measures.** The same durations, against ten seconds.
+
+**Target and window:** [sending-a-bug-report-never-stalls](../specs/feedback/sending-bug-reports.openslo.yaml).
+
+**Breach means.** Sends hang. The app gives GitHub eight seconds before it
+gives up, so a send past ten is usually GitHub not answering.
+
+**First steps.** As for [sending-a-bug-report-is-quick](#sending-a-bug-report-is-quick).
+
 ## the-team-can-see-what-happened
 
 **Measures.** The Health run's `runtime.request-records`,

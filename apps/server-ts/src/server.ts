@@ -11,7 +11,10 @@ import type {
   ScheduledController,
 } from '@libs/app-root-shared-ts/worker-handler';
 import { BUG_REPORT_PATH } from '@pkgs/feedback-server-ts/bug-report-http-app';
-import { handleRootBugReport } from './root-bug-report-boot';
+import {
+  countedBugReportSend,
+  handleRootBugReport,
+} from './root-bug-report-boot';
 
 export { RoomServerDurableObject } from './room';
 
@@ -22,6 +25,8 @@ export default {
     ctx: ExecutionContext
   ): Promise<Response> {
     const { pathname } = new URL(request.url);
+    if (pathname === BUG_REPORT_PATH && request.method === 'POST')
+      return countedBugReportSend(request, env, ctx);
     if (
       pathname === BUG_REPORT_PATH ||
       pathname.startsWith(`${BUG_REPORT_PATH}/`)
