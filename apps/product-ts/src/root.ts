@@ -11,8 +11,8 @@ import {
 } from '@libs/app-root-client-ts/wall-client-env';
 import { wallOfflineNetworkController } from '@libs/app-root-client-ts/wall-offline-network';
 import { technicalKey } from '@libs/product-identity-shared-ts/technical-names';
-import { feedbackEndpoint } from '@pkgs/feedback-client-ts/endpoint';
-import { bootBrowserFeedback } from '@pkgs/feedback-client-ts/wall';
+import { bugReportEndpoint } from '@pkgs/feedback-client-ts/sender';
+import { bootBrowserBugReports } from '@pkgs/feedback-client-ts/wall';
 
 const STARTUP_RECOVERY_KEY = technicalKey('dev-startup-recovery', ':');
 const offline = wallOfflineNetworkController();
@@ -45,11 +45,11 @@ function startApplication(): Promise<void> {
   });
 }
 
-bootBrowserFeedback({
+bootBrowserBugReports({
   build: import.meta.env.VITE_COMMIT_HASH ?? 'unknown',
   endpoint: import.meta.env.DEV
-    ? '/api/feedback'
-    : feedbackEndpoint(import.meta.env.VITE_API_URL || location.origin),
+    ? '/api/bug-reports'
+    : bugReportEndpoint(import.meta.env.VITE_API_URL || location.origin),
   applicationErrorEvent: 'product-crash',
   http: startupHttp,
   startApplication,

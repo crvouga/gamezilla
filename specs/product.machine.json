@@ -55,7 +55,7 @@
       "Opens an app update notice": "user",
       "Opens an unknown app address": "user",
       "Opens people search": "user",
-      "Opens product feedback": "user",
+      "Opens a bug report": "user",
       "Opens the testing tool": "user",
       "Reopens the app": "user",
       "Returns to Spaces": "user",
@@ -257,40 +257,17 @@
       "Requests another person’s forbidden private material": "user",
       "Retention ends for investigation material": "time",
       "Returns to environment information": "user",
-      "A forbidden feedback change is refused": "system",
-      "Adds a nonblank feedback summary": "user",
-      "Attaches the reproduction recording": "user",
-      "Cancels deleting authored feedback": "user",
-      "Changes authored feedback writing": "user",
-      "Chooses a feedback kind": "user",
-      "Chooses a suggested feedback template": "user",
-      "Chooses an optional feedback template while keeping writing": "user",
-      "Chooses to delete authored feedback": "user",
-      "Closes the feedback wizard": "user",
-      "Confirms deleting authored feedback": "user",
-      "Continues feedback without a recording": "user",
-      "Copies feedback to keep for later": "user",
-      "Discards the reproduction recording": "user",
-      "Edits the feedback draft": "user",
-      "Edits the preserved feedback": "user",
-      "Feedback submission fails": "system",
-      "Feedback submission succeeds": "system",
-      "Formats the feedback writing": "user",
-      "Keeps an unknown template command in the writing": "user",
-      "Keeps local feedback offline": "user",
-      "Keeps local feedback while the app is unusable": "user",
-      "Local reporting cannot be reached": "system",
-      "Opens saved feedback": "user",
-      "Recording is unavailable": "system",
-      "Requests a reproduction recording": "user",
-      "Returns to saved feedback": "user",
-      "Sends blank feedback": "user",
-      "Sends nonblank feedback": "user",
-      "Sends the preserved feedback again": "user",
-      "Starts another feedback draft": "user",
-      "Stops recording the reproduction": "user",
-      "Tries keeping feedback again": "user",
-      "Writes a matching template command": "user",
+      "Adds or removes a screenshot": "user",
+      "Closes the bug report": "user",
+      "Discards the draft": "user",
+      "Describes the bug": "user",
+      "Reports another bug": "user",
+      "Sends a bug report without a description": "user",
+      "Sends the described bug report": "user",
+      "The bug report cannot reach the team yet": "system",
+      "The daily bug report limit refuses the bug report": "system",
+      "The kept bug report reaches the team": "system",
+      "The team has the bug report": "system",
       "Accepts the friend request": "user",
       "BecameFriends": "system",
       "Blocks this friend": "user",
@@ -10793,423 +10770,194 @@
                     }
                   }
                 },
-                "App: Feedback": {
-                  "id": "App: Feedback",
+                "App: Bug report": {
+                  "id": "App: Bug report",
                   "meta": {
-                    "description": "The person keeps a draft, optionally records reproduction, and sees submission and management outcomes.",
-                    "snapshot": "The person can describe trouble and submit permitted feedback.",
+                    "description": "The person describes a bug, chooses its screenshots and sends it with debug info, or discards the draft; a bug report that cannot be sent yet is kept and sent later, and the team gets it once.",
+                    "snapshot": "The person can report a bug to the team from anywhere in the app.",
                     "confidence": "assumed",
                     "source": [
-                      "specs/feedback/availability.feature",
-                      "specs/feedback/drafts.feature",
-                      "specs/feedback/feedback-wizard.feature",
-                      "specs/feedback/giving-feedback.feature",
-                      "specs/feedback/managing-feedback.feature",
-                      "specs/feedback/recording.feature",
+                      "specs/feedback/bug-report-accessibility.feature",
+                      "specs/feedback/bug-report-opening.qnt",
+                      "specs/feedback/bug-report.qnt",
+                      "specs/feedback/debug-info.feature",
+                      "specs/feedback/delivery.feature",
+                      "specs/feedback/opening-a-bug-report.feature",
+                      "specs/feedback/receiving-bug-reports.feature",
+                      "specs/feedback/receiving-bug-reports.openslo.yaml",
+                      "specs/feedback/reporting-a-bug.feature",
+                      "specs/feedback/screenshots.feature",
+                      "specs/feedback/sending-bug-reports.openslo.yaml",
                       "specs/feedback/ubiquitous-language.yml",
                       "specs/ubiquitous-language.yml"
                     ],
                     "events": []
                   },
-                  "initial": "Feedback: Writing a draft",
+                  "initial": "Bug report: Draft",
                   "states": {
-                    "Feedback: Writing a draft": {
-                      "id": "Feedback: Writing a draft",
+                    "Bug report: Draft": {
+                      "id": "Bug report: Draft",
                       "meta": {
-                        "description": "Feedback writing stays intact when the person closes and returns to the wizard.",
-                        "snapshot": "Feedback writing stays intact when the person closes and returns to the wizard.",
+                        "description": "An open bug report starts with a screenshot, says it includes debug info, and keeps its description and screenshots as a draft until it is sent or discarded.",
+                        "snapshot": "An open bug report starts with a screenshot, says it includes debug info, and keeps its description and screenshots as a draft until it is sent or discarded.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/feedback/drafts.feature:6",
-                          "specs/feedback/drafts.feature:14",
-                          "specs/feedback/drafts.feature:22",
-                          "specs/feedback/drafts.feature:30",
-                          "specs/feedback/drafts.feature:48",
-                          "specs/feedback/feedback-wizard.feature:6",
-                          "specs/feedback/feedback-wizard.feature:19",
-                          "specs/feedback/feedback-wizard.feature:27",
-                          "specs/feedback/feedback-wizard.feature:35",
-                          "specs/feedback/giving-feedback.feature:6",
-                          "specs/feedback/giving-feedback.feature:20",
-                          "specs/feedback/giving-feedback.feature:34",
-                          "specs/feedback/giving-feedback.feature:42",
-                          "specs/feedback/giving-feedback.feature:55"
+                          "specs/feedback/opening-a-bug-report.feature:6",
+                          "specs/feedback/opening-a-bug-report.feature:20",
+                          "specs/feedback/opening-a-bug-report.feature:28",
+                          "specs/feedback/opening-a-bug-report.feature:46",
+                          "specs/feedback/opening-a-bug-report.feature:61",
+                          "specs/feedback/opening-a-bug-report.feature:73",
+                          "specs/feedback/opening-a-bug-report.feature:95",
+                          "specs/feedback/reporting-a-bug.feature:21",
+                          "specs/feedback/reporting-a-bug.feature:65",
+                          "specs/feedback/reporting-a-bug.feature:91",
+                          "specs/feedback/screenshots.feature:6",
+                          "specs/feedback/screenshots.feature:40",
+                          "specs/feedback/screenshots.feature:53",
+                          "specs/feedback/screenshots.feature:67",
+                          "specs/feedback/debug-info.feature:81",
+                          "specs/feedback/bug-report-accessibility.feature:7",
+                          "specs/feedback/bug-report-accessibility.feature:28",
+                          "specs/feedback/bug-report-accessibility.feature:39",
+                          "specs/feedback/bug-report-accessibility.feature:48"
                         ],
                         "events": []
                       },
                       "on": {
-                        "Chooses an optional feedback template while keeping writing": {
-                          "target": "#Feedback: Writing a draft"
+                        "Describes the bug": {
+                          "target": "#Bug report: Ready to send"
                         },
-                        "Formats the feedback writing": {
-                          "target": "#Feedback: Writing a draft"
+                        "Adds or removes a screenshot": {
+                          "target": "#Bug report: Draft"
                         },
-                        "Writes a matching template command": {
-                          "target": "#Feedback: Template suggestions"
+                        "Sends a bug report without a description": {
+                          "target": "#Bug report: Description needed"
                         },
-                        "Chooses a feedback kind": {
-                          "target": "#Feedback: Writing a draft"
-                        },
-                        "Adds a nonblank feedback summary": {
-                          "target": "#Feedback: Ready to send"
-                        },
-                        "Requests a reproduction recording": {
-                          "target": "#Feedback: Recording"
-                        },
-                        "Opens saved feedback": {
-                          "target": "#Feedback: Saved feedback"
-                        },
-                        "Closes the feedback wizard": {
+                        "Closes the bug report": {
                           "target": "#App: Spaces"
-                        },
-                        "Keeps local feedback while the app is unusable": {
-                          "target": "#Feedback: Local feedback kept"
                         }
                       }
                     },
-                    "Feedback: Ready to send": {
-                      "id": "Feedback: Ready to send",
+                    "Bug report: Ready to send": {
+                      "id": "Bug report: Ready to send",
                       "meta": {
-                        "description": "The feedback has the supplied content and optional recording.",
-                        "snapshot": "The feedback has the supplied content and optional recording.",
+                        "description": "The bug report has a description and the screenshots the person chose.",
+                        "snapshot": "The bug report has a description and the screenshots the person chose.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/feedback/recording.feature:6",
-                          "specs/feedback/recording.feature:14",
-                          "specs/feedback/recording.feature:28",
-                          "specs/feedback/recording.feature:40"
+                          "specs/feedback/reporting-a-bug.feature:7",
+                          "specs/feedback/screenshots.feature:21"
                         ],
                         "events": []
                       },
                       "on": {
-                        "Sends nonblank feedback": {
-                          "target": "#Feedback: Sending"
+                        "Sends the described bug report": {
+                          "target": "#Bug report: Sending"
                         },
-                        "Sends blank feedback": {
-                          "target": "#Feedback: Blank feedback refused"
+                        "Discards the draft": {
+                          "target": "#Bug report: Draft"
                         },
-                        "Keeps local feedback offline": {
-                          "target": "#Feedback: Local feedback kept"
-                        },
-                        "Edits the feedback draft": {
-                          "target": "#Feedback: Writing a draft"
+                        "Closes the bug report": {
+                          "target": "#App: Spaces"
                         }
                       }
                     },
-                    "Feedback: Template suggestions": {
-                      "id": "Feedback: Template suggestions",
+                    "Bug report: Description needed": {
+                      "id": "Bug report: Description needed",
                       "meta": {
-                        "description": "Matching template commands offer optional templates while keeping all existing writing.",
-                        "snapshot": "Matching template commands offer optional templates while keeping all existing writing.",
+                        "description": "The person is told to describe the bug before sending.",
+                        "snapshot": "The person is told to describe the bug before sending.",
+                        "confidence": "assumed",
+                        "source": ["specs/feedback/reporting-a-bug.feature:7"],
+                        "events": []
+                      },
+                      "on": {
+                        "Describes the bug": {
+                          "target": "#Bug report: Ready to send"
+                        }
+                      }
+                    },
+                    "Bug report: Sending": {
+                      "id": "Bug report: Sending",
+                      "meta": {
+                        "description": "The bug report is on its way to the team with its debug info.",
+                        "snapshot": "The bug report is on its way to the team with its debug info.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/feedback/availability.feature",
-                          "specs/feedback/drafts.feature",
-                          "specs/feedback/feedback-wizard.feature",
-                          "specs/feedback/giving-feedback.feature",
-                          "specs/feedback/managing-feedback.feature",
-                          "specs/feedback/recording.feature"
+                          "specs/feedback/debug-info.feature:6",
+                          "specs/feedback/debug-info.feature:26",
+                          "specs/feedback/debug-info.feature:35",
+                          "specs/feedback/debug-info.feature:50",
+                          "specs/feedback/reporting-a-bug.feature:41",
+                          "specs/feedback/reporting-a-bug.feature:50"
                         ],
                         "events": []
                       },
                       "on": {
-                        "Chooses a suggested feedback template": {
-                          "target": "#Feedback: Writing a draft"
+                        "The team has the bug report": {
+                          "target": "#Bug report: Sent"
                         },
-                        "Keeps an unknown template command in the writing": {
-                          "target": "#Feedback: Writing a draft"
+                        "The bug report cannot reach the team yet": {
+                          "target": "#Bug report: Waiting to be sent"
+                        },
+                        "The daily bug report limit refuses the bug report": {
+                          "target": "#Bug report: Daily limit reached"
                         }
                       }
                     },
-                    "Feedback: Local feedback kept": {
-                      "id": "Feedback: Local feedback kept",
+                    "Bug report: Waiting to be sent": {
+                      "id": "Bug report: Waiting to be sent",
                       "meta": {
-                        "description": "The team can read the local feedback offline, after closing the app, or when the app is unusable; missing diagnostics do not block it.",
-                        "snapshot": "The team can read the local feedback offline, after closing the app, or when the app is unusable; missing diagnostics do not block it.",
+                        "description": "The bug report is kept on the device and sent for the person once it can reach the team.",
+                        "snapshot": "The bug report is kept on the device and sent for the person once it can reach the team.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/feedback/availability.feature:6",
-                          "specs/feedback/availability.feature:35",
-                          "specs/feedback/availability.feature:49",
-                          "specs/feedback/availability.feature:62"
+                          "specs/feedback/delivery.feature:6",
+                          "specs/feedback/delivery.feature:26",
+                          "specs/feedback/delivery.feature:73"
                         ],
                         "events": []
                       },
                       "on": {
-                        "Opens saved feedback": {
-                          "target": "#Feedback: Saved feedback"
-                        },
-                        "Starts another feedback draft": {
-                          "target": "#Feedback: Writing a draft"
+                        "The kept bug report reaches the team": {
+                          "target": "#Bug report: Sent"
                         }
                       }
                     },
-                    "Feedback: Blank feedback refused": {
-                      "id": "Feedback: Blank feedback refused",
+                    "Bug report: Sent": {
+                      "id": "Bug report: Sent",
                       "meta": {
-                        "description": "Blank writing cannot be submitted and the draft remains available.",
-                        "snapshot": "Blank writing cannot be submitted and the draft remains available.",
+                        "description": "The person is told the team has the bug report.",
+                        "snapshot": "The person is told the team has the bug report.",
                         "confidence": "assumed",
-                        "source": [
-                          "specs/feedback/availability.feature",
-                          "specs/feedback/drafts.feature",
-                          "specs/feedback/feedback-wizard.feature",
-                          "specs/feedback/giving-feedback.feature",
-                          "specs/feedback/managing-feedback.feature",
-                          "specs/feedback/recording.feature"
-                        ],
+                        "source": ["specs/feedback/reporting-a-bug.feature:7"],
                         "events": []
                       },
                       "on": {
-                        "Edits the feedback draft": {
-                          "target": "#Feedback: Writing a draft"
+                        "Reports another bug": {
+                          "target": "#Bug report: Draft"
+                        },
+                        "Closes the bug report": {
+                          "target": "#App: Spaces"
                         }
                       }
                     },
-                    "Feedback: Sending": {
-                      "id": "Feedback: Sending",
+                    "Bug report: Daily limit reached": {
+                      "id": "Bug report: Daily limit reached",
                       "meta": {
-                        "description": "The feedback is being kept with progress shown; available diagnostics help but are not required.",
-                        "snapshot": "The feedback is being kept with progress shown; available diagnostics help but are not required.",
+                        "description": "The daily bug report limit is reached; the bug report is kept on the device and reaches the team once the limit starts again.",
+                        "snapshot": "The daily bug report limit is reached; the bug report is kept on the device and reaches the team once the limit starts again.",
                         "confidence": "assumed",
-                        "source": [
-                          "specs/feedback/availability.feature",
-                          "specs/feedback/drafts.feature",
-                          "specs/feedback/feedback-wizard.feature",
-                          "specs/feedback/giving-feedback.feature",
-                          "specs/feedback/managing-feedback.feature",
-                          "specs/feedback/recording.feature"
-                        ],
+                        "source": ["specs/feedback/delivery.feature:41"],
                         "events": []
                       },
                       "on": {
-                        "Feedback submission succeeds": {
-                          "target": "#Feedback: Sent"
+                        "The kept bug report reaches the team": {
+                          "target": "#Bug report: Sent"
                         },
-                        "Local reporting cannot be reached": {
-                          "target": "#Feedback: Copy available"
-                        },
-                        "Feedback submission fails": {
-                          "target": "#Feedback: Sending failed"
-                        }
-                      }
-                    },
-                    "Feedback: Sending failed": {
-                      "id": "Feedback: Sending failed",
-                      "meta": {
-                        "description": "Submission failed plainly and preserves the person’s writing.",
-                        "snapshot": "Submission failed plainly and preserves the person’s writing.",
-                        "confidence": "assumed",
-                        "source": [
-                          "specs/feedback/availability.feature",
-                          "specs/feedback/drafts.feature",
-                          "specs/feedback/feedback-wizard.feature",
-                          "specs/feedback/giving-feedback.feature",
-                          "specs/feedback/managing-feedback.feature",
-                          "specs/feedback/recording.feature"
-                        ],
-                        "events": []
-                      },
-                      "on": {
-                        "Sends the preserved feedback again": {
-                          "target": "#Feedback: Sending"
-                        },
-                        "Edits the preserved feedback": {
-                          "target": "#Feedback: Writing a draft"
-                        }
-                      }
-                    },
-                    "Feedback: Sent": {
-                      "id": "Feedback: Sent",
-                      "meta": {
-                        "description": "The saved feedback is acknowledged and remains available to manage.",
-                        "snapshot": "The saved feedback is acknowledged and remains available to manage.",
-                        "confidence": "assumed",
-                        "source": [
-                          "specs/feedback/managing-feedback.feature:6",
-                          "specs/feedback/managing-feedback.feature:18",
-                          "specs/feedback/managing-feedback.feature:35"
-                        ],
-                        "events": []
-                      },
-                      "on": {
-                        "Starts another feedback draft": {
-                          "target": "#Feedback: Writing a draft"
-                        },
-                        "Opens saved feedback": {
-                          "target": "#Feedback: Saved feedback"
-                        }
-                      }
-                    },
-                    "Feedback: Recording": {
-                      "id": "Feedback: Recording",
-                      "meta": {
-                        "description": "The person is recording the actions that reproduce the reported trouble.",
-                        "snapshot": "The person is recording the actions that reproduce the reported trouble.",
-                        "confidence": "assumed",
-                        "source": [
-                          "specs/feedback/availability.feature",
-                          "specs/feedback/drafts.feature",
-                          "specs/feedback/feedback-wizard.feature",
-                          "specs/feedback/giving-feedback.feature",
-                          "specs/feedback/managing-feedback.feature",
-                          "specs/feedback/recording.feature"
-                        ],
-                        "events": []
-                      },
-                      "on": {
-                        "Stops recording the reproduction": {
-                          "target": "#Feedback: Reviewing a recording"
-                        },
-                        "Recording is unavailable": {
-                          "target": "#Feedback: Recording unavailable"
-                        }
-                      }
-                    },
-                    "Feedback: Reviewing a recording": {
-                      "id": "Feedback: Reviewing a recording",
-                      "meta": {
-                        "description": "Recorded steps may be attached or discarded without replacing the writing.",
-                        "snapshot": "Recorded steps may be attached or discarded without replacing the writing.",
-                        "confidence": "assumed",
-                        "source": [
-                          "specs/feedback/availability.feature",
-                          "specs/feedback/drafts.feature",
-                          "specs/feedback/feedback-wizard.feature",
-                          "specs/feedback/giving-feedback.feature",
-                          "specs/feedback/managing-feedback.feature",
-                          "specs/feedback/recording.feature"
-                        ],
-                        "events": []
-                      },
-                      "on": {
-                        "Attaches the reproduction recording": {
-                          "target": "#Feedback: Ready to send"
-                        },
-                        "Discards the reproduction recording": {
-                          "target": "#Feedback: Writing a draft"
-                        }
-                      }
-                    },
-                    "Feedback: Recording unavailable": {
-                      "id": "Feedback: Recording unavailable",
-                      "meta": {
-                        "description": "Recording is unavailable and the person can still describe the problem.",
-                        "snapshot": "Recording is unavailable and the person can still describe the problem.",
-                        "confidence": "assumed",
-                        "source": [
-                          "specs/feedback/availability.feature",
-                          "specs/feedback/drafts.feature",
-                          "specs/feedback/feedback-wizard.feature",
-                          "specs/feedback/giving-feedback.feature",
-                          "specs/feedback/managing-feedback.feature",
-                          "specs/feedback/recording.feature"
-                        ],
-                        "events": []
-                      },
-                      "on": {
-                        "Continues feedback without a recording": {
-                          "target": "#Feedback: Writing a draft"
-                        }
-                      }
-                    },
-                    "Feedback: Saved feedback": {
-                      "id": "Feedback: Saved feedback",
-                      "meta": {
-                        "description": "Permitted feedback can be read and managed without exposing another person’s private material.",
-                        "snapshot": "Permitted feedback can be read and managed without exposing another person’s private material.",
-                        "confidence": "assumed",
-                        "source": [
-                          "specs/feedback/availability.feature",
-                          "specs/feedback/drafts.feature",
-                          "specs/feedback/feedback-wizard.feature",
-                          "specs/feedback/giving-feedback.feature",
-                          "specs/feedback/managing-feedback.feature",
-                          "specs/feedback/recording.feature"
-                        ],
-                        "events": []
-                      },
-                      "on": {
-                        "Changes authored feedback writing": {
-                          "target": "#Feedback: Saved feedback"
-                        },
-                        "Chooses to delete authored feedback": {
-                          "target": "#Feedback: Confirming feedback deletion"
-                        },
-                        "A forbidden feedback change is refused": {
-                          "target": "#Feedback: Management refused"
-                        }
-                      }
-                    },
-                    "Feedback: Confirming feedback deletion": {
-                      "id": "Feedback: Confirming feedback deletion",
-                      "meta": {
-                        "description": "Deleting an authored draft or report requires confirmation.",
-                        "snapshot": "Deleting an authored draft or report requires confirmation.",
-                        "confidence": "assumed",
-                        "source": [
-                          "specs/feedback/availability.feature",
-                          "specs/feedback/drafts.feature",
-                          "specs/feedback/feedback-wizard.feature",
-                          "specs/feedback/giving-feedback.feature",
-                          "specs/feedback/managing-feedback.feature",
-                          "specs/feedback/recording.feature"
-                        ],
-                        "events": []
-                      },
-                      "on": {
-                        "Confirms deleting authored feedback": {
-                          "target": "#Feedback: Writing a draft"
-                        },
-                        "Cancels deleting authored feedback": {
-                          "target": "#Feedback: Saved feedback"
-                        }
-                      }
-                    },
-                    "Feedback: Management refused": {
-                      "id": "Feedback: Management refused",
-                      "meta": {
-                        "description": "The feedback change is refused under the current permission decision.",
-                        "snapshot": "The feedback change is refused under the current permission decision.",
-                        "confidence": "assumed",
-                        "source": [
-                          "specs/feedback/availability.feature",
-                          "specs/feedback/drafts.feature",
-                          "specs/feedback/feedback-wizard.feature",
-                          "specs/feedback/giving-feedback.feature",
-                          "specs/feedback/managing-feedback.feature",
-                          "specs/feedback/recording.feature"
-                        ],
-                        "events": []
-                      },
-                      "on": {
-                        "Returns to saved feedback": {
-                          "target": "#Feedback: Saved feedback"
-                        }
-                      }
-                    },
-                    "Feedback: Copy available": {
-                      "id": "Feedback: Copy available",
-                      "meta": {
-                        "description": "When reporting cannot be reached the title and writing can be copied; no local save is claimed.",
-                        "snapshot": "When reporting cannot be reached the title and writing can be copied; no local save is claimed.",
-                        "confidence": "assumed",
-                        "source": [
-                          "specs/feedback/availability.feature",
-                          "specs/feedback/drafts.feature",
-                          "specs/feedback/feedback-wizard.feature",
-                          "specs/feedback/giving-feedback.feature",
-                          "specs/feedback/managing-feedback.feature",
-                          "specs/feedback/recording.feature"
-                        ],
-                        "events": []
-                      },
-                      "on": {
-                        "Copies feedback to keep for later": {
-                          "target": "#Feedback: Writing a draft"
-                        },
-                        "Tries keeping feedback again": {
-                          "target": "#Feedback: Sending"
+                        "Closes the bug report": {
+                          "target": "#App: Spaces"
                         }
                       }
                     }
@@ -14539,8 +14287,8 @@
                 "Starts signing in": {
                   "target": "#App: Signing in"
                 },
-                "Opens product feedback": {
-                  "target": "#App: Feedback"
+                "Opens a bug report": {
+                  "target": "#App: Bug report"
                 },
                 "Opens the testing tool": {
                   "target": "#App: Tools"

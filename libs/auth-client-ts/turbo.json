@@ -12,6 +12,7 @@
         "@pkgs/clock-client-ts#src",
         "@pkgs/clock-shared-ts#src",
         "@pkgs/device-client-ts#src",
+        "@pkgs/feedback-shared-ts#src",
         "@pkgs/http-client-client-ts#src",
         "@pkgs/http-client-shared-ts#src",
         "@pkgs/logger-client-ts#src",

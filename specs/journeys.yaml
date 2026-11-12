@@ -623,24 +623,19 @@ journeys:
     gherkin:
     - specs/games/custom-game-away.feature
     tour: true
-  Feedback retry preserves writing and the recording:
-    description: A failed send keeps its writing and recording, then succeeds on another attempt.
+  A bug report that cannot be sent yet still reaches the team:
+    description: A bug report that cannot reach the team is kept on the device, then reaches the team without being reported again.
     events:
-    - Opens product feedback
-    - Requests a reproduction recording
-    - Stops recording the reproduction
-    - Attaches the reproduction recording
-    - Sends nonblank feedback
-    - Feedback submission fails
-    - Sends the preserved feedback again
-    - Feedback submission succeeds
-    - Opens saved feedback
+    - Opens a bug report
+    - Describes the bug
+    - Sends the described bug report
+    - The bug report cannot reach the team yet
+    - The kept bug report reaches the team
     endsIn:
-    - 'Feedback: Saved feedback'
+    - 'Bug report: Sent'
     gherkin:
-    - specs/feedback/drafts.feature
-    - specs/feedback/recording.feature
-    - specs/feedback/giving-feedback.feature
+    - specs/feedback/reporting-a-bug.feature
+    - specs/feedback/delivery.feature
     tour: true
   Opening offline and updating keep an app to return to:
     description: A fresh device needs a connection; an old app preserves data until it updates.
@@ -938,10 +933,10 @@ journeys:
     - Finds an opponent with an account online
     - MatchFormed
     - A multiplayer player resigns
-    - Opens product feedback
-    - Adds a nonblank feedback summary
-    - Sends nonblank feedback
-    - Feedback submission succeeds
+    - Opens a bug report
+    - Describes the bug
+    - Sends the described bug report
+    - The team has the bug report
     - Opens a returning device offline
     - Connection returns
     - Opens Settings

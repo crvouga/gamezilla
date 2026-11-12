@@ -1,0 +1,111 @@
+@domain:feedback
+Feature: Open a bug report from anywhere
+  When a person notices a bug, the person wants to start a bug report from
+  wherever they are, so the bug is reported while it is still in front of them.
+
+  Rule: Choosing to report a bug opens one bug report
+    No counter-example: choosing to report a bug always opens one, and only one.
+
+    Scenario: Choosing to report a bug opens a bug report
+      Given Alice's app is working
+      When Alice chooses to report a bug
+      Then Alice has one bug report open
+
+    Scenario: Choosing to report a bug again keeps the same bug report
+      Given Alice has described the bug as "The board froze after a move"
+      When Alice chooses to report a bug
+      Then Alice has one bug report open
+      And Alice's bug report says "The board froze after a move"
+
+  Rule: A person can close a bug report at any time
+    No counter-example: closing a bug report is never refused.
+
+    Scenario: A closed bug report takes no place in the app
+      Given Alice has opened a bug report
+      When Alice closes the bug report
+      Then Alice has no bug report open
+
+  Rule: Shaking a phone opens a bug report
+
+    Scenario: A shake opens a bug report
+      Given Alice's app is working
+      When Alice shakes the phone
+      Then Alice has one bug report open
+
+    Scenario: A shake with shake to report turned off opens nothing
+      Given Alice has turned off shake to report
+      When Alice shakes the phone
+      Then Alice still has no bug report open
+
+    Scenario: A shake while a bug report is open keeps the same bug report
+      Given Alice has described the bug as "The board froze after a move"
+      When Alice shakes the phone
+      Then Alice has one bug report open
+      And Alice's bug report says "The board froze after a move"
+
+  Rule: Shake to report stays as the person set it
+
+    Background:
+      Given Alice has turned off shake to report
+
+    Scenario: Shake to report stays off after reopening the app
+      Given Alice has reopened the app
+      When Alice shakes the phone
+      Then Alice still has no bug report open
+
+    Scenario: Shake to report turned back on opens a bug report again
+      Given Alice has turned shake to report back on
+      When Alice shakes the phone
+      Then Alice has one bug report open
+
+  Rule: A person can turn shake to report off and back on
+    No counter-example: turning shake to report off or back on is the person's own choice and is never refused.
+
+    Scenario: Shake to report turned off shows as off
+      When Alice turns off shake to report
+      Then Alice sees that shake to report is off
+
+    Scenario: Shake to report turned back on shows as on
+      Given Alice has turned off shake to report
+      When Alice turns shake to report back on
+      Then Alice sees that shake to report is on
+
+  Rule: A phone that asks before the app may notice shaking waits for the person
+
+    Background:
+      Given Alice's phone asks before the app may notice shaking
+
+    Scenario: A shake the phone has not allowed opens nothing
+      When Alice shakes the phone
+      Then Alice still has no bug report open
+
+    Scenario: A shake the person has allowed opens a bug report
+      Given Alice has allowed shake to report
+      When Alice shakes the phone
+      Then Alice has one bug report open
+
+    Scenario: A person who allows shaking keeps shake to report on
+      When Alice allows shake to report
+      Then Alice sees that shake to report is on
+
+    Scenario: A person who refuses shaking is told how to report a bug
+      When Alice refuses to allow shake to report
+      Then Alice is told to choose to report a bug instead of shaking
+
+  Rule: A bug report opens even when the app is unusable
+    No counter-example: trouble in the app never takes away reporting a bug.
+
+    Scenario: An app that has crashed still opens a bug report
+      Given Alice's app has crashed
+      When Alice chooses to report a bug
+      Then Alice has one bug report open
+
+    Scenario: An app that stays loading still opens a bug report
+      Given Alice's app stays loading
+      When Alice shakes the phone
+      Then Alice has one bug report open
+
+    Scenario: An app that cannot sign in still opens a bug report
+      Given Alice's app cannot sign in
+      When Alice chooses to report a bug
+      Then Alice has one bug report open

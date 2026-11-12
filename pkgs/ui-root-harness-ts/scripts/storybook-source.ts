@@ -118,12 +118,7 @@ export function componentModule(path: string): string | null {
     return null;
   const match =
     /^(pkgs|libs)\/([^/]+-client-ts)\/src\/(.+?)(?:\.[cm]?tsx?)?$/.exec(path);
-  if (
-    !match ||
-    match[2] === 'feedback-client-ts' ||
-    match[2] === 'harness-console-client-ts'
-  )
-    return null;
+  if (!match || match[2] === 'harness-console-client-ts') return null;
   const segments = match[3]!.split('/');
   const module =
     segments.length === 2 &&

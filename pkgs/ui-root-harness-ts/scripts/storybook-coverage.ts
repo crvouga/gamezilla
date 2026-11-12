@@ -251,7 +251,7 @@ for (const ref of references) {
       `${ref.path}: use the supported public @pkgs/ui-root-client-ts module exports`
     );
   if (
-    /^@pkgs\/(ui-root|ui-devtools|chess-board-root|assistant|collab-ui)-client-ts\/[^/]+\//.test(
+    /^@pkgs\/(ui-root|ui-devtools|chess-board-root|assistant|collab-ui|feedback)-client-ts\/[^/]+\//.test(
       ref.originalModule
     )
   )

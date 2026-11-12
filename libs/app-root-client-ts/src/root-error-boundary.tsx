@@ -15,7 +15,7 @@ export function RootErrorBoundary(props: {
         const normalized =
           error instanceof Error ? error : new Error(String(error));
         try {
-          globalThis.dispatchEvent(
+          document.dispatchEvent(
             new CustomEvent('product-crash', { detail: normalized })
           );
         } catch {

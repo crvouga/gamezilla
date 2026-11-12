@@ -4,6 +4,7 @@ import '@libs/runtime-harness-ts/quoridor-journey.steps';
 import './api.steps';
 import './battleship.steps';
 import './billing.steps';
+import './bug-reports.steps';
 import './client-config.steps';
 import './connect-four.steps';
 import './quoridor.steps';

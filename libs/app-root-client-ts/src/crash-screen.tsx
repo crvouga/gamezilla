@@ -8,6 +8,7 @@ import {
 } from '@libs/app-root-shared-ts/app-metadata';
 import { reloadApp } from '@libs/app-root-shared-ts/reload-app';
 import { useTimers } from '@pkgs/clock-client-ts/solid';
+import { requestBugReport } from '@pkgs/feedback-client-ts/request-bug-report';
 import {
   createEffect,
   createSignal,
@@ -113,6 +114,7 @@ export function CrashScreen(props: CrashScreenProps): JSX.Element {
       onTryAgain={() => props.reset()}
       onGoToSpaces={() => props.goToSpaces(props.reset)}
       onReload={reloadApp}
+      onReportBug={() => requestBugReport()}
       onCopy={() => {
         void copier.copy(
           crashCopyText({

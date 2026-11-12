@@ -354,7 +354,12 @@ type LiveScenario = LiveWorld & { readonly browsing: Browsing };
 /** Register the live world for this package's `liveDomains` features. */
 export function useLiveWorld(target?: LiveTarget): void {
   const env = envFile(process.env['SECRETS_ENV']?.trim() || 'dev');
-  const origins = envOrigins(env);
+  const deployed = envOrigins(env);
+  // The world under test answers where its target does, deployed or local.
+  const origins: EnvOrigins =
+    target === undefined
+      ? deployed
+      : { ...deployed, web: target.webOrigin, api: target.apiOrigin };
   // Requests here are minutes apart, between browser steps; an idle pooled
   // connection to the live edge can be dropped under them.
   const http = withFreshConnections(createGlobalHttpClient());

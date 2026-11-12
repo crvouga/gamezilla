@@ -78,7 +78,7 @@ This file is the single source of truth. `bun run agents:sync` projects it into 
 
 1. **Read** the three rulebooks, the spec index ([`README.md`](../../README.md#spec-index)), [`specs/conformance.yaml`](../../specs/conformance.yaml), each context's `ubiquitous-language.yml`, the critical journeys in `specs/journeys/`, [`pkgs/ui-root-client-ts/README.md`](../../pkgs/ui-root-client-ts/README.md) (how the product looks), root `package.json`, and the last ~50 commits on `origin/main`.
 2. **Collect every real defect signal before inventing any.** These outrank anything an auditor imagines, because they already hurt someone:
-   - open feedback reports: `bun feedback --list`, then `bun feedback --inspect <id>` and any `reproduction.json` beside it;
+   - bug reports people sent: the open GitHub issues they became (`gh issue list --state open`), and in development `bun feedback --list`, then `bun feedback --inspect <id>`;
    - production and recent failures: `bun obs last`, `bun obs find <id>`;
    - red runs: the open "Verify Nightly is failing on main" issue, and recent Health and Release failures (`gh run list --workflow health.yml --status failure`, then `gh run view <id> --log-failed`);
    - verification gaps: obligations in `specs/conformance.yaml` nothing proves yet, scenarios or model actions without bindings;

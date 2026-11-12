@@ -17,7 +17,7 @@ every rule in a feature.
 | [Chessboard](../../specs/chess-board/) | Independent chessboard contract |
 | [Database maintenance](../../specs/db-indexes/) | Maintenance contract |
 | [Developer tools](../../specs/developer-tools/) | Test worlds, notebooks, release evidence, inspection scope |
-| [Feedback](../../specs/feedback/) | Feedback |
+| [Bug reports](../../specs/feedback/) | Bug report |
 | [Friends](../../specs/friends/) | Friendships, inbox |
 | [Games](../../specs/games/) | Game choices, Custom Games, multiplayer, finding a Pong opponent without a clock and matched Pong without turns |
 | [Journeys](../../specs/journeys/) | Whole-product root, Pong, Sokoban and puzzle content |

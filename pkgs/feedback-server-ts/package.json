@@ -21,14 +21,14 @@
     "@pkgs/feedback-shared-ts": "workspace:*",
     "@pkgs/http-client-shared-ts": "workspace:*",
     "@pkgs/object-store-node-fs-server-ts": "workspace:*",
-    "@pkgs/object-store-root-shared-ts": "workspace:*"
+    "@pkgs/object-store-root-shared-ts": "workspace:*",
+    "@pkgs/observability-root-shared-ts": "workspace:*"
   },
   "devDependencies": {
+    "@crvouga/mockingbird-service-github": "catalog:",
     "@pkgs/os-server-ts": "workspace:*",
-    "@pkgs/property-shared-ts": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
-    "fast-check": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:"
   },

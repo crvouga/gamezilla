@@ -20,6 +20,7 @@ export const SYNTHETIC_CHECKS = [
   'battleship.battleship-health',
   'billing.payments',
   'connect-four.connect-four-health',
+  'feedback.receiving-bug-reports',
   'journeys.battleship-game',
   'journeys.connect-four-game',
   'journeys.critical-journeys',

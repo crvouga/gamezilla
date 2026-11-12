@@ -1,5 +1,5 @@
 ---
-description: "Find the feedback report that best matches a title or body excerpt, then implement it completely with regression coverage and a green Verification"
+description: "Find the bug report that best matches a title or description excerpt, then implement it completely with regression coverage and a green Verification"
 agent: agent
 ---
 

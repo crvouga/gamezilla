@@ -25,6 +25,7 @@
     "@pkgs/clock-client-ts": "workspace:*",
     "@pkgs/clock-shared-ts": "workspace:*",
     "@pkgs/device-client-ts": "workspace:*",
+    "@pkgs/feedback-shared-ts": "workspace:*",
     "@pkgs/http-client-client-ts": "workspace:*",
     "@pkgs/http-client-shared-ts": "workspace:*",
     "@pkgs/logger-client-ts": "workspace:*",

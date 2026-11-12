@@ -6,6 +6,7 @@
  */
 
 import { setBrowserLocalIdentity } from '@libs/app-env-client-ts/browser-identity';
+import { useBugReportAccount } from '@libs/auth-client-ts/bug-report-account';
 import {
   DEVICE_ID_KEY,
   LAST_LOCAL_ACCOUNT_ID_KEY,
@@ -52,6 +53,7 @@ export function LocalIdentityProvider(props: {
   createEffect(() => {
     setBrowserLocalIdentity(userId(), deviceId());
   });
+  useBugReportAccount();
   return (
     <LocalIdentityContext.Provider value={value}>
       {props.children}

@@ -1,0 +1,4 @@
+{
+  "extends": "../tsconfig.tc.json",
+  "exclude": ["../tests/**", "../node_modules/**"]
+}

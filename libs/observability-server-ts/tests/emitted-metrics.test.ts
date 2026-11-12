@@ -11,6 +11,10 @@ describe('the emitted metrics', () => {
   test('are stored under the names the dashboards and alerts have always read', () => {
     expect([...emittedSeriesNames()].sort()).toEqual([
       'billing_callbacks_total',
+      'feedback_bug_report_send_duration_seconds_bucket',
+      'feedback_bug_report_send_duration_seconds_count',
+      'feedback_bug_report_send_duration_seconds_sum',
+      'feedback_bug_report_sends_total',
       'http_server_request_duration_seconds_bucket',
       'http_server_request_duration_seconds_count',
       'http_server_request_duration_seconds_sum',

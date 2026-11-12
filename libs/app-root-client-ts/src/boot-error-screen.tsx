@@ -3,6 +3,7 @@
 import { OPFS_WIPE_CHANNEL } from '@libs/app-env-client-ts/open-main-sql-client';
 import { reloadApp } from '@libs/app-root-shared-ts/reload-app';
 import { useTimers } from '@pkgs/clock-client-ts/solid';
+import { requestBugReport } from '@pkgs/feedback-client-ts/request-bug-report';
 import { useLogger } from '@pkgs/logger-client-ts/solid';
 import { runWebOpfsRecoveryAndReload } from '@pkgs/sql-client-sqlite-web-client-ts/recover-in-process';
 import { isLeaderLostError } from '@pkgs/sql-client-sqlite-web-shared-ts/rpc';
@@ -62,6 +63,7 @@ export function LocalDatabaseBootErrorScreen(props: {
       message={props.error.message}
       onReload={reloadApp}
       onReset={onReset}
+      onReportBug={() => requestBugReport()}
     />
   );
 }

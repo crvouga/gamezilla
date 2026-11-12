@@ -25,6 +25,7 @@ function mount(onReload: () => void, onReset: () => Promise<void>) {
               message="E_LEADER_LOST"
               onReload={onReload}
               onReset={onReset}
+              onReportBug={() => undefined}
             />
           </SurfaceStackProvider>
         </OverlayPortalProvider>

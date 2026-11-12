@@ -3,6 +3,7 @@
 /** The backing services an API instance shares with its peers. */
 
 import { join } from 'node:path';
+import { createServer as createGitHubServer } from '@crvouga/mockingbird-service-github/server';
 import { DEFAULT_TOKEN } from '@crvouga/mockingbird-service-openai';
 import { createServer as createOpenAiServer } from '@crvouga/mockingbird-service-openai/server';
 import { admitIotClient } from '@libs/infra-shared-ts/iot-session-admission';
@@ -131,10 +132,53 @@ export function startOpenAi(args: { readonly port: number }) {
   return createOpenAiServer({ port: args.port });
 }
 
+/** Where the stack's bug reports become issues: a repository on a simulated GitHub. */
+const BUG_REPORT_REPOSITORY = { owner: 'localhost', name: 'bug-reports' };
+
+/**
+ * GitHub, simulated (`@crvouga/mockingbird-service-github`), holding the one
+ * repository the stack's bug reports are written to as issues.
+ */
+export async function startGitHub(args: { readonly port: number }) {
+  const server = await createGitHubServer({ port: args.port });
+  const made = await fetch(`${server.url}/__admin/github/repositories`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(BUG_REPORT_REPOSITORY),
+  });
+  if (!made.ok) {
+    await server.close();
+    throw new Error(
+      `bug reports: the simulated GitHub made no repository (${String(made.status)})`
+    );
+  }
+  return server;
+}
+
+/** The outside services every stack simulates: OpenAI and GitHub. */
+async function startOutsideServices() {
+  const openai = await startOpenAi({ port: await freshPort() });
+  try {
+    const gitHub = await startGitHub({ port: await freshPort() });
+    return {
+      openAiUrl: openai.url,
+      gitHubUrl: gitHub.url,
+      async close() {
+        await gitHub.close();
+        await openai.close();
+      },
+    };
+  } catch (error) {
+    await openai.close();
+    throw error;
+  }
+}
+
 /** Where each backing service answers; null for one this stack runs without. */
 export type InfraAddresses = {
   readonly databaseUrl: string;
   readonly openAiUrl: string;
+  readonly gitHubUrl: string | null;
   readonly s3Endpoint: string | null;
   readonly mqtt: { readonly wssUrl: string; readonly mqttUrl: string } | null;
   readonly observability: {
@@ -151,6 +195,13 @@ export function infraEnv(infra: InfraAddresses): Record<string, string> {
     DATABASE_URL: infra.databaseUrl,
     OPENAI_API_KEY: DEFAULT_TOKEN,
     OPENAI_BASE_URL: infra.openAiUrl,
+    ...(infra.gitHubUrl === null
+      ? {}
+      : {
+          FEEDBACK_GITHUB_TOKEN: 'stack',
+          FEEDBACK_GITHUB_REPOSITORY: `${BUG_REPORT_REPOSITORY.owner}/${BUG_REPORT_REPOSITORY.name}`,
+          FEEDBACK_GITHUB_API_ORIGIN: infra.gitHubUrl,
+        }),
     ...objectStoreEnv(infra.s3Endpoint),
     ...(infra.mqtt === null
       ? {}
@@ -184,7 +235,7 @@ export async function bootInfra(args: {
     port: await freshPort(),
     dataDir: args.dataDir,
   });
-  let openai: Awaited<ReturnType<typeof createOpenAiServer>> | null = null;
+  let outside: Awaited<ReturnType<typeof startOutsideServices>> | null = null;
   let s3: Awaited<ReturnType<typeof startS3>> | null = null;
   let mqtt: Awaited<ReturnType<typeof startMqtt>> | null = null;
   let observability: Awaited<
@@ -203,7 +254,7 @@ export async function bootInfra(args: {
             : {}),
         })
       : null;
-    openai = await startOpenAi({ port: await freshPort() });
+    outside = await startOutsideServices();
     s3 = args.options.withS3
       ? await startS3({ port: await freshPort() })
       : null;
@@ -226,7 +277,7 @@ export async function bootInfra(args: {
       databaseLink?.stop(),
       mqtt?.stop(),
       s3?.stop(),
-      openai?.close(),
+      outside?.close(),
       postgres.stop(),
     ]);
     throw error;
@@ -245,7 +296,8 @@ export async function bootInfra(args: {
     observabilityGrafanaUrl: observability?.grafanaUrl ?? null,
     env: infraEnv({
       databaseUrl: postgres.url,
-      openAiUrl: openai.url,
+      openAiUrl: outside.openAiUrl,
+      gitHubUrl: outside.gitHubUrl,
       s3Endpoint: s3?.endpoint ?? null,
       mqtt,
       observability,
@@ -254,7 +306,7 @@ export async function bootInfra(args: {
       await observability?.stop();
       await mqtt?.stop();
       await s3?.stop();
-      await openai?.close();
+      await outside?.close();
       await databaseLink?.stop();
       await postgres.stop();
     },

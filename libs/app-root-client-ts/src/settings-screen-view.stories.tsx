@@ -16,6 +16,11 @@ const meta = {
     offline: false,
     canViewBilling: false,
     version: '1.0.0',
+    bugReportsWaiting: 0,
+    shakeToReport: 'unavailable',
+    onShakeToReportChange: fn(),
+    onAllowShakeToReport: fn(),
+    onReportBug: fn(),
     onOfflineChange: fn(),
     onNavigate: fn(),
   },
@@ -50,6 +55,51 @@ export const WithSubSettings: Story = {
       }
     />
   ),
+};
+
+/** On a phone, shaking opens a bug report unless the person turns it off. */
+export const ShakeToReport: Story = { args: { shakeToReport: 'on' } };
+
+/** A phone that asks first: on, with a row that has the phone ask the person. */
+export const AllowShakeToReport: Story = {
+  args: { shakeToReport: 'needs-permission' },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    const target = await canvas.findByText('Allow shaking');
+    await userEvent.click(target);
+    await expect(args.onAllowShakeToReport).toHaveBeenCalled();
+  },
+};
+
+/** A phone that refused says a bug can still be reported from here. */
+export const ShakeToReportRefused: Story = {
+  args: { shakeToReport: 'refused' },
+};
+
+/** Bug reports that could not be sent yet are counted on the row. */
+export const BugReportsWaiting: Story = { args: { bugReportsWaiting: 2 } };
+
+/** Report a bug opens the bug report. */
+export const ReportBug: Story = {
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    const target = await canvas.findByText('Report a bug');
+    await userEvent.click(target);
+    await expect(args.onReportBug).toHaveBeenCalled();
+  },
+};
+
+/** Turning the switch back on is also where a phone asks to notice motion. */
+export const TurnOnShakeToReport: Story = {
+  args: { shakeToReport: 'off' },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    const target = await canvas.findByRole('switch', {
+      name: 'Shake to report a bug',
+    });
+    await userEvent.click(target);
+    await expect(args.onShakeToReportChange).toHaveBeenCalledWith(true);
+  },
 };
 
 /** The Work offline switch asks to stop every connection. */

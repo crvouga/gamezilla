@@ -8,7 +8,8 @@
         "@pkgs/feedback-shared-ts#src",
         "@pkgs/http-client-shared-ts#src",
         "@pkgs/object-store-node-fs-server-ts#src",
-        "@pkgs/object-store-root-shared-ts#src"
+        "@pkgs/object-store-root-shared-ts#src",
+        "@pkgs/observability-root-shared-ts#src"
       ]
     }
   }

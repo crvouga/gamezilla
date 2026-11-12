@@ -10,101 +10,63 @@ export type Diagnostic =
       readonly reason: string;
     };
 
-export type FeedbackKind = 'problem' | 'feature' | 'gap' | 'polish';
-
-export type FeedbackDraft = {
-  readonly kind: FeedbackKind;
-  readonly title: string;
-  readonly body: string;
-};
-
-export type FeedbackSection = {
-  readonly heading: string | null;
-  readonly content: string;
-};
-
-export type FeedbackBody = {
-  readonly format: 'markdown';
-  readonly source: string;
-  readonly sections: readonly FeedbackSection[];
-};
-
-export type ReproductionAction = {
-  readonly atMs: number;
-  readonly type:
-    | 'click'
-    | 'input'
-    | 'navigation'
-    | 'pointerdown'
-    | 'pointerup'
-    | 'keydown';
-  readonly path: string;
-  readonly target: string;
-  readonly label: string;
-  readonly value: string | null;
-  readonly point: { readonly x: number; readonly y: number } | null;
-};
-
-export type ReproductionRecording = {
-  readonly version: 1;
-  readonly startedAt: string;
-  readonly durationMs: number;
-  readonly initialContext: readonly Diagnostic[];
-  readonly finalContext: readonly Diagnostic[];
-  readonly actions: readonly ReproductionAction[];
-  readonly truncated: boolean;
-};
-
-export type EvidenceFile = {
+export type DiagnosticProvider = {
   readonly name: string;
+  collect(signal: AbortSignal): unknown;
+};
+
+export type DebugEventKind = 'navigation' | 'choice' | 'trouble' | 'connection';
+
+/** One thing that happened in the app. Never holds what a person typed. */
+export type DebugEvent = {
+  readonly at: string;
+  readonly kind: DebugEventKind;
+  readonly text: string;
+};
+
+/** What led up to a bug report: recent events, and details of the device and app. */
+export type DebugInfo = {
+  readonly events: readonly DebugEvent[];
+  readonly details: readonly Diagnostic[];
+};
+
+/** A picture as the person's device holds it, before the team has it. */
+export type ScreenshotFile = {
   readonly contentType: string;
   readonly bytes: Uint8Array;
 };
 
-export type FeedbackAttachment = {
-  readonly id: string;
-  readonly name: string;
+/** A picture the team holds, at an unlisted address. */
+export type Screenshot = {
   readonly contentType: string;
   readonly size: number;
   readonly url: string;
 };
 
-export type FeedbackReport = {
-  readonly schema: 'feedback.report/v2';
+/** What a device sends: everything in a bug report except its pictures, which travel beside it. */
+export type BugReportSubmission = {
+  readonly schema: 'bug-report/v1';
   readonly id: string;
-  readonly title: string;
-  readonly kind: FeedbackKind;
-  readonly body: FeedbackBody;
+  /** A device identity independent of sign-in, so a guest can report. */
+  readonly reporterId: string;
+  readonly description: string;
   readonly createdAt: string;
-  readonly status: 'open' | 'deleted';
-  readonly authorId: string;
-  readonly diagnostics: readonly Diagnostic[];
-  readonly recording: ReproductionRecording | null;
-  readonly attachments: readonly FeedbackAttachment[];
+  readonly debugInfo: DebugInfo;
+};
+
+export type BugReport = BugReportSubmission & {
+  readonly screenshots: readonly Screenshot[];
 };
 
 export type CreatedIssue = {
   readonly id: string;
   readonly url?: string;
   readonly location?: string;
-  readonly nodeId?: string;
 };
 
-/** Destination-neutral port. Enrichment is optional and never affects creation. */
+/** Where a bug report becomes an issue for the team. */
 export type IssueReporter = {
-  create(report: FeedbackReport): Promise<CreatedIssue>;
-  enrich?(issue: CreatedIssue, report: FeedbackReport): Promise<void>;
-};
-
-export type DiagnosticProvider = {
-  readonly name: string;
-  collect(signal: AbortSignal): unknown;
-};
-
-/** Authorship scope is an unlisted device identity, independent of app accounts. */
-export type FeedbackRepository = IssueReporter & {
-  list(authorId: string): Promise<readonly FeedbackReport[]>;
-  read(id: string, authorId: string): Promise<FeedbackReport | null>;
-  update(report: FeedbackReport): Promise<CreatedIssue>;
-  remove(id: string, authorId: string): Promise<void>;
+  create(report: BugReport): Promise<CreatedIssue>;
+  /** Settles only if an issue could be created right now; creates none. */
+  check?(): Promise<void>;
 };

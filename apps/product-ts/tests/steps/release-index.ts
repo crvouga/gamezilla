@@ -2,6 +2,7 @@
 import '@libs/runtime-harness-ts/journeys.steps';
 import '@libs/runtime-harness-ts/quoridor-journey.steps';
 import './battleship.steps';
+import './bug-reports.steps';
 import './connect-four.steps';
 import './quoridor.steps';
 import { readFileSync } from 'node:fs';

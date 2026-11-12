@@ -16,6 +16,7 @@ const meta = {
     onGoToSpaces: fn(),
     onReload: fn(),
     onCopy: fn(),
+    onReportBug: fn(),
   },
 } satisfies Meta<typeof CrashScreenView>;
 export default meta;
@@ -53,5 +54,15 @@ export const LongMessageDetails: Story = {
       name: 'Error message',
     });
     await expect(details).toBeVisible();
+  },
+};
+
+/** A crash is reported from the crash screen itself. */
+export const ReportBug: Story = {
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    const report = await canvas.findByRole('button', { name: 'Report a bug' });
+    await userEvent.click(report);
+    await expect(args.onReportBug).toHaveBeenCalledOnce();
   },
 };
