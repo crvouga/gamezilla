@@ -61,7 +61,7 @@ describe('AppStage', () => {
     expect(screen.getByText('alice app')).toBeInTheDocument();
   });
 
-  test('a press goes on; a hold asks for more and is not also a press', async () => {
+  test('a press goes on; a hold asks for more and is not also a press', () => {
     const { handle, onTap, onHold, clock } = mount();
     fireEvent.pointerDown(handle, { button: 0, pointerId: 1 });
     fireEvent.pointerUp(handle, { button: 0, pointerId: 1 });
@@ -69,13 +69,13 @@ describe('AppStage', () => {
     expect(onHold).not.toHaveBeenCalled();
 
     fireEvent.pointerDown(handle, { button: 0, pointerId: 2 });
-    await clock.advance(APP_STAGE_HOLD_MS);
+    clock.advance(APP_STAGE_HOLD_MS);
     expect(onHold).toHaveBeenCalledTimes(1);
     fireEvent.pointerUp(handle, { button: 0, pointerId: 2 });
     expect(onTap).toHaveBeenCalledTimes(1);
   });
 
-  test('a drag moves the handle and is neither a press nor a hold', async () => {
+  test('a drag moves the handle and is neither a press nor a hold', () => {
     const { handle, onTap, onHold, clock } = mount();
     fireEvent.pointerDown(handle, {
       button: 0,
@@ -85,7 +85,7 @@ describe('AppStage', () => {
     });
     fireEvent.pointerMove(handle, { pointerId: 1, clientX: 120, clientY: 200 });
     expect(handle).toHaveAttribute('data-dragging', 'true');
-    await clock.advance(APP_STAGE_HOLD_MS);
+    clock.advance(APP_STAGE_HOLD_MS);
     fireEvent.pointerUp(handle, { pointerId: 1, clientX: 120, clientY: 200 });
     expect(handle).toHaveAttribute('data-dragging', 'false');
     expect(onTap).not.toHaveBeenCalled();

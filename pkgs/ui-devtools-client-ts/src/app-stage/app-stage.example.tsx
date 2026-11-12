@@ -5,7 +5,7 @@ import {
   type AppStageView,
 } from '@pkgs/ui-devtools-client-ts/app-stage';
 import { ScrollTextIcon } from '@pkgs/ui-root-client-ts/icons';
-import { createSignal, type JSX } from 'solid-js';
+import { createSignal, type JSX, untrack } from 'solid-js';
 import { ExampleRoot } from '../../../ui-root-client-ts/storybook/fixtures/example-root';
 
 /** A stand-in for a whole app: a title, and a count that shows it kept its state. */
@@ -20,8 +20,7 @@ function Screen(props: {
       <p class="text textBody text-text-secondary">{props.note}</p>
       <button
         type="button"
-        class="button self-start"
-        data-face="secondary"
+        class="self-start"
         onClick={() => setCount(count() + 1)}
       >
         {`${props.name} kept its state: ${String(count())}`}
@@ -65,7 +64,7 @@ export type AppStageExampleProps = {
 
 /** A stage with two live devices and one view behind them. */
 export function AppStageDemo(props: AppStageExampleProps): JSX.Element {
-  const [shown, setShown] = createSignal(props.shown ?? 'alice');
+  const [shown, setShown] = createSignal(untrack(() => props.shown) ?? 'alice');
   const [held, setHeld] = createSignal(false);
   const title = () => VIEWS.find((view) => view.id === shown())?.title ?? '';
   return (
