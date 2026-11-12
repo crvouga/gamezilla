@@ -21,52 +21,55 @@ Feature: Screenshots on a bug report
   Rule: The person decides which screenshots the team gets
     No counter-example: the team only ever gets the screenshots still on the bug report.
 
-    Scenario: A screenshot kept on the bug report reaches the team
+    Background:
       Given Alice has described the bug as "The board froze after a move"
+
+    Scenario: A screenshot kept on the bug report reaches the team
       When Alice sends the bug report
       Then the team's bug report from Alice has 1 screenshot
 
     Scenario: A removed screenshot never reaches the team
-      Given Alice has described the bug as "The board froze after a move"
-      And Alice has removed the screenshot
+      Given Alice has removed the screenshot
       When Alice sends the bug report
       Then the team's bug report from Alice has 0 screenshots
 
   Rule: A bug report carries at most 4 screenshots
 
-    Scenario: A fourth screenshot is added
+    Scenario: A picture added to 3 screenshots becomes the fourth screenshot
       Given Alice has a bug report with 3 screenshots
       When Alice adds a picture
       Then Alice's bug report has 4 screenshots
 
-    Scenario: A fifth screenshot is refused
+    Scenario: A picture added to 4 screenshots is refused
       Given Alice has a bug report with 4 screenshots
       When Alice adds a picture
       Then Alice is told a bug report carries at most 4 screenshots
       And Alice's bug report has 4 screenshots
 
-  Rule: Only a picture can be added to a bug report
+  Rule: Only a picture can be added to a bug report, and it becomes a screenshot
 
-    Scenario: A picture is added
+    Background:
       Given Alice has opened a bug report
+
+    Scenario: An added picture becomes one more screenshot
       When Alice adds a picture
       Then Alice's bug report has 2 screenshots
 
     Scenario: Something that is not a picture is refused
-      Given Alice has opened a bug report
       When Alice adds something that is not a picture
       Then Alice is told only pictures can be added
       And Alice's bug report has 1 screenshot
 
   Rule: A picture added to a bug report is at most 5 MB
 
-    Scenario: A picture of 5 MB is added
+    Background:
       Given Alice has opened a bug report
+
+    Scenario: A picture of 5 MB is added
       When Alice adds a picture of 5 MB
       Then Alice's bug report has 2 screenshots
 
     Scenario: A picture of 6 MB is refused
-      Given Alice has opened a bug report
       When Alice adds a picture of 6 MB
       Then Alice is told a picture can be up to 5 MB
       And Alice's bug report has 1 screenshot

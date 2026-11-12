@@ -17,6 +17,9 @@ Feature: Open a bug report from anywhere
       Then Alice has one bug report open
       And Alice's bug report says "The board froze after a move"
 
+  Rule: A person can close a bug report at any time
+    No counter-example: closing a bug report is never refused.
+
     Scenario: A closed bug report takes no place in the app
       Given Alice has opened a bug report
       When Alice closes the bug report
@@ -40,21 +43,36 @@ Feature: Open a bug report from anywhere
       Then Alice has one bug report open
       And Alice's bug report says "The board froze after a move"
 
+  Rule: Shake to report stays as the person set it
+
+    Background:
+      Given Alice has turned off shake to report
+
+    Scenario: Shake to report stays off after reopening the app
+      Given Alice has reopened the app
+      When Alice shakes the phone
+      Then Alice still has no bug report open
+
+    Scenario: Shake to report turned back on opens a bug report again
+      Given Alice has turned shake to report back on
+      When Alice shakes the phone
+      Then Alice has one bug report open
+
   Rule: A phone that asks before the app may notice shaking waits for the person
 
-    Scenario: A shake the phone has not allowed opens nothing
+    Background:
       Given Alice's phone asks before the app may notice shaking
+
+    Scenario: A shake the phone has not allowed opens nothing
       When Alice shakes the phone
       Then Alice still has no bug report open
 
     Scenario: A shake the person has allowed opens a bug report
-      Given Alice's phone asks before the app may notice shaking
-      And Alice has allowed shake to report
+      Given Alice has allowed shake to report
       When Alice shakes the phone
       Then Alice has one bug report open
 
     Scenario: A person who refuses shaking is told how to report a bug
-      Given Alice's phone asks before the app may notice shaking
       When Alice refuses to allow shake to report
       Then Alice is told to choose to report a bug instead of shaking
 

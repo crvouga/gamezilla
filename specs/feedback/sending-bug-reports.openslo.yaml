@@ -8,11 +8,11 @@ metadata:
 spec:
   description: >-
     Each time a person's device sends a bug report, the app either decides
-    (it takes the bug report to the team's list of work, or turns it down
-    for good, as it does past the daily bug report limit) or fails on its
-    own side, and the device keeps the bug report to send later. This is the
-    share of sends the app decides. A bug report turned down for good is a
-    correct decision, never a failure.
+    (it takes the bug report to the team's list of work, or turns it down,
+    as it does past the daily bug report limit) or fails on its own side.
+    Either way the device keeps a bug report the team does not have yet.
+    This is the share of sends the app decides. A bug report turned down by
+    the rules is a correct decision, never a failure.
   ratioMetric:
     counter: true
     good:
@@ -21,7 +21,7 @@ spec:
         spec:
           measures: >-
             Bug reports sent from people's devices that the app took to the
-            team's list of work or turned down for good.
+            team's list of work or turned down by the rules.
     total:
       metricSource:
         type: product

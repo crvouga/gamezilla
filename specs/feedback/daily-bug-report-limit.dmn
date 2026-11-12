@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="daily-bug-report-limit-decisions" name="The daily bug report limit" namespace="urn:product:decisions">
+  <decision id="daily-bug-report-limit" name="May this device send the team another bug report today?">
+    <description>The team takes at most 10 bug reports a day from one device, and the day starts again at midnight UTC; bug reports taken before today never count. The daily bug report limit belongs to the device, never to an account: a guest and a signed-in person on the same device share it, and signing in does not start it again. A bug report sent past the limit is a kept bug report: the device keeps it and it reaches the team once the limit starts again.</description>
+    <decisionTable id="daily-bug-report-limit-table" hitPolicy="UNIQUE">
+      <input id="who" label="who is sending">
+        <inputExpression id="who-expression" typeRef="string"><text>who is sending</text></inputExpression>
+        <inputValues id="who-values"><text>"guest","signed-in person"</text></inputValues>
+      </input>
+      <input id="today" label="bug reports the team took from this device today">
+        <inputExpression id="today-expression" typeRef="number"><text>bug reports the team took from this device today</text></inputExpression>
+        <inputValues id="today-values"><text>[0..100]</text></inputValues>
+      </input>
+      <input id="earlier" label="bug reports the team took from this device before today">
+        <inputExpression id="earlier-expression" typeRef="number"><text>bug reports the team took from this device before today</text></inputExpression>
+        <inputValues id="earlier-values"><text>[0..100]</text></inputValues>
+      </input>
+      <output id="answer" name="answer" typeRef="string">
+        <outputValues id="answer-values"><text>"yes","no"</text></outputValues>
+      </output>
+      <output id="reason" name="reason" typeRef="string">
+        <outputValues id="reason-values"><text>"none","daily bug report limit reached"</text></outputValues>
+      </output>
+      <rule id="device-below-limit">
+        <description>A device the team took fewer than 10 bug reports from today may send another, whoever is using it.</description>
+        <inputEntry id="device-below-limit-in-1"><text>-</text></inputEntry>
+        <inputEntry id="device-below-limit-in-2"><text>&lt; 10</text></inputEntry>
+        <inputEntry id="device-below-limit-in-3"><text>-</text></inputEntry>
+        <outputEntry id="device-below-limit-out-1"><text>"yes"</text></outputEntry>
+        <outputEntry id="device-below-limit-out-2"><text>"none"</text></outputEntry>
+      </rule>
+      <rule id="device-at-limit">
+        <description>A device the team took 10 bug reports from today has reached the daily bug report limit, whoever is using it; the bug report is kept until the limit starts again.</description>
+        <inputEntry id="device-at-limit-in-1"><text>-</text></inputEntry>
+        <inputEntry id="device-at-limit-in-2"><text>&gt;= 10</text></inputEntry>
+        <inputEntry id="device-at-limit-in-3"><text>-</text></inputEntry>
+        <outputEntry id="device-at-limit-out-1"><text>"no"</text></outputEntry>
+        <outputEntry id="device-at-limit-out-2"><text>"daily bug report limit reached"</text></outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+</definitions>

@@ -47,6 +47,37 @@ Feature: Debug info on a bug report
       When Alice sends the bug report
       Then the team's bug report from Alice does not show that Alice opened Settings
 
+  Rule: A draft sent later carries the debug info from before it was first opened and from before it is sent
+    No counter-example: what was done at any other time is not included, and nothing is refused.
+
+    Scenario: Something done 4 minutes before a draft was first opened is in the debug info
+      Given Alice opened Settings 4 minutes before opening a bug report
+      And Alice has described the bug as "Settings looks empty"
+      And Alice has come back to the draft after 60 minutes
+      When Alice sends the bug report
+      Then the team's bug report from Alice shows that Alice opened Settings
+
+    Scenario: Something done 6 minutes before a draft was first opened is not in the debug info
+      Given Alice opened Settings 6 minutes before opening a bug report
+      And Alice has described the bug as "The board froze after a move"
+      And Alice has come back to the draft after 60 minutes
+      When Alice sends the bug report
+      Then the team's bug report from Alice does not show that Alice opened Settings
+
+    Scenario: Something done 4 minutes before a draft is sent is in the debug info
+      Given Alice has described the bug as "Settings looks empty"
+      And Alice has come back to the draft after 60 minutes
+      And Alice opened Settings 4 minutes ago
+      When Alice sends the bug report
+      Then the team's bug report from Alice shows that Alice opened Settings
+
+    Scenario: Something done while a draft waited is not in the debug info
+      Given Alice has described the bug as "The board froze after a move"
+      And Alice opened Settings 10 minutes later
+      And Alice has come back to the draft after 60 minutes
+      When Alice sends the bug report
+      Then the team's bug report from Alice does not show that Alice opened Settings
+
   Rule: A person is told that debug info is sent
     No counter-example: a bug report never carries debug info without saying so.
 

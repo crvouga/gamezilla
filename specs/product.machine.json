@@ -259,10 +259,12 @@
       "Returns to environment information": "user",
       "Adds or removes a screenshot": "user",
       "Closes the bug report": "user",
+      "Discards the draft": "user",
       "Describes the bug": "user",
       "Reports another bug": "user",
       "Sends a bug report without a description": "user",
       "Sends the described bug report": "user",
+      "The bug report can never be sent": "system",
       "The bug report cannot reach the team yet": "system",
       "The daily bug report limit refuses the bug report": "system",
       "The kept bug report reaches the team": "system",
@@ -10772,10 +10774,13 @@
                 "App: Bug report": {
                   "id": "App: Bug report",
                   "meta": {
-                    "description": "The person describes a bug, chooses its screenshots and sends it with debug info; a bug report that cannot be sent yet is kept and sent later.",
+                    "description": "The person describes a bug, chooses its screenshots and sends it with debug info, or discards the draft; a bug report that cannot be sent yet is kept and sent later, and the team gets it once.",
                     "snapshot": "The person can report a bug to the team from anywhere in the app.",
                     "confidence": "assumed",
                     "source": [
+                      "specs/feedback/bug-report-accessibility.feature",
+                      "specs/feedback/bug-report.qnt",
+                      "specs/feedback/daily-bug-report-limit.dmn",
                       "specs/feedback/debug-info.feature",
                       "specs/feedback/delivery.feature",
                       "specs/feedback/opening-a-bug-report.feature",
@@ -10794,20 +10799,28 @@
                     "Bug report: Draft": {
                       "id": "Bug report: Draft",
                       "meta": {
-                        "description": "An open bug report starts with a screenshot, says it includes debug info, and keeps its description as a draft.",
-                        "snapshot": "An open bug report starts with a screenshot, says it includes debug info, and keeps its description as a draft.",
+                        "description": "An open bug report starts with a screenshot, says it includes debug info, and keeps its description and screenshots as a draft until it is sent or discarded.",
+                        "snapshot": "An open bug report starts with a screenshot, says it includes debug info, and keeps its description and screenshots as a draft until it is sent or discarded.",
                         "confidence": "assumed",
                         "source": [
                           "specs/feedback/opening-a-bug-report.feature:6",
-                          "specs/feedback/opening-a-bug-report.feature:25",
-                          "specs/feedback/opening-a-bug-report.feature:43",
+                          "specs/feedback/opening-a-bug-report.feature:20",
+                          "specs/feedback/opening-a-bug-report.feature:28",
+                          "specs/feedback/opening-a-bug-report.feature:46",
                           "specs/feedback/opening-a-bug-report.feature:61",
-                          "specs/feedback/reporting-a-bug.feature:30",
+                          "specs/feedback/opening-a-bug-report.feature:79",
+                          "specs/feedback/reporting-a-bug.feature:21",
+                          "specs/feedback/reporting-a-bug.feature:65",
+                          "specs/feedback/reporting-a-bug.feature:91",
                           "specs/feedback/screenshots.feature:6",
-                          "specs/feedback/screenshots.feature:35",
-                          "specs/feedback/screenshots.feature:48",
-                          "specs/feedback/screenshots.feature:61",
-                          "specs/feedback/debug-info.feature:50"
+                          "specs/feedback/screenshots.feature:36",
+                          "specs/feedback/screenshots.feature:49",
+                          "specs/feedback/screenshots.feature:63",
+                          "specs/feedback/debug-info.feature:81",
+                          "specs/feedback/bug-report-accessibility.feature:7",
+                          "specs/feedback/bug-report-accessibility.feature:28",
+                          "specs/feedback/bug-report-accessibility.feature:39",
+                          "specs/feedback/bug-report-accessibility.feature:48"
                         ],
                         "events": []
                       },
@@ -10842,6 +10855,9 @@
                         "Sends the described bug report": {
                           "target": "#Bug report: Sending"
                         },
+                        "Discards the draft": {
+                          "target": "#Bug report: Draft"
+                        },
                         "Closes the bug report": {
                           "target": "#App: Spaces"
                         }
@@ -10872,7 +10888,10 @@
                           "specs/feedback/debug-info.feature:6",
                           "specs/feedback/debug-info.feature:26",
                           "specs/feedback/debug-info.feature:35",
-                          "specs/feedback/reporting-a-bug.feature:21"
+                          "specs/feedback/debug-info.feature:50",
+                          "specs/feedback/reporting-a-bug.feature:41",
+                          "specs/feedback/reporting-a-bug.feature:50",
+                          "specs/feedback/delivery.feature:92"
                         ],
                         "events": []
                       },
@@ -10885,6 +10904,9 @@
                         },
                         "The daily bug report limit refuses the bug report": {
                           "target": "#Bug report: Daily limit reached"
+                        },
+                        "The bug report can never be sent": {
+                          "target": "#Bug report: Ready to send"
                         }
                       }
                     },
@@ -10896,7 +10918,8 @@
                         "confidence": "assumed",
                         "source": [
                           "specs/feedback/delivery.feature:6",
-                          "specs/feedback/delivery.feature:26"
+                          "specs/feedback/delivery.feature:26",
+                          "specs/feedback/delivery.feature:73"
                         ],
                         "events": []
                       },
@@ -10927,13 +10950,16 @@
                     "Bug report: Daily limit reached": {
                       "id": "Bug report: Daily limit reached",
                       "meta": {
-                        "description": "The daily bug report limit is reached; the description is kept as a draft until tomorrow.",
-                        "snapshot": "The daily bug report limit is reached; the description is kept as a draft until tomorrow.",
+                        "description": "The daily bug report limit is reached; the bug report is kept on the device and reaches the team once the limit starts again.",
+                        "snapshot": "The daily bug report limit is reached; the bug report is kept on the device and reaches the team once the limit starts again.",
                         "confidence": "assumed",
                         "source": ["specs/feedback/delivery.feature:41"],
                         "events": []
                       },
                       "on": {
+                        "The kept bug report reaches the team": {
+                          "target": "#Bug report: Sent"
+                        },
                         "Closes the bug report": {
                           "target": "#App: Spaces"
                         }
