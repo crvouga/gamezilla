@@ -5,8 +5,11 @@ import { branchComparison } from './branch-comparison';
 
 // regression: git-cleanup-closed-unmerged
 // regression: health-cleanup-unrelated-history
-test('branch cleanup preserves closed unmerged work, open work, protected refs and changed heads', async () => {
+test('branch cleanup archives idle unmerged work before deleting it and keeps open, recent, protected and changed heads', async () => {
   const removed: string[] = [];
+  const archived: string[] = [];
+  const now = Date.parse('2026-11-12T00:00:00Z');
+  const day = 24 * 60 * 60 * 1000;
   const names = [
     'main',
     'protected',
@@ -18,6 +21,8 @@ test('branch cleanup preserves closed unmerged work, open work, protected refs a
     'unknown',
     'orphan',
     'moved',
+    'recent',
+    'archive',
   ];
   const port: BranchCleanupPort = {
     async branches() {
@@ -81,23 +86,43 @@ test('branch cleanup preserves closed unmerged work, open work, protected refs a
     async head(name) {
       return name === 'moved' ? 'new-work' : name;
     },
+    async committedAt(sha) {
+      return sha === 'recent' ? now - day : now - 10 * day;
+    },
+    async archive(name, sha) {
+      expect(sha).toBe(name);
+      expect(removed).not.toContain(name);
+      archived.push(name);
+    },
     async remove(name, expectedSha) {
       expect(expectedSha).toBe(name);
       removed.push(name);
     },
+    now: () => now,
   };
   const preview = await cleanupBranches(port, false);
-  expect(preview.eligible).toEqual(['merged', 'integrated']);
+  const swept = [
+    'merged',
+    'abandoned',
+    'reused',
+    'integrated',
+    'unknown',
+    'orphan',
+  ];
+  expect(preview.eligible).toEqual(swept);
   expect(preview.removed).toEqual([]);
-  expect(preview.retained).toContainEqual({
-    branch: 'abandoned',
-    reason: 'closed unmerged PR; explicit abandonment required',
-  });
+  expect(preview.retained).toEqual([
+    { branch: 'main', reason: 'protected, default or archive branch' },
+    { branch: 'protected', reason: 'protected, default or archive branch' },
+    { branch: 'open', reason: 'open PR' },
+    { branch: 'moved', reason: 'head advanced during inventory' },
+    { branch: 'recent', reason: 'unmerged, no open PR, active within 3 days' },
+    { branch: 'archive', reason: 'protected, default or archive branch' },
+  ]);
   expect(removed).toEqual([]);
-  expect(preview.retained).toContainEqual({
-    branch: 'orphan',
-    reason: 'no merged or integrated proof; disposition required',
-  });
-  await cleanupBranches(port, true);
-  expect(removed).toEqual(['merged', 'integrated']);
+  expect(archived).toEqual([]);
+  const applied = await cleanupBranches(port, true);
+  expect(removed).toEqual(swept);
+  expect(archived).toEqual(['abandoned', 'reused', 'unknown', 'orphan']);
+  expect(applied.archived).toEqual(archived);
 });
