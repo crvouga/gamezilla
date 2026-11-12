@@ -31,7 +31,6 @@
     "solid-js": "catalog:"
   },
   "devDependencies": {
-    "@pkgs/dmn-shared-ts": "workspace:*",
     "@pkgs/gherkin-shared-ts": "workspace:*",
     "@pkgs/quint-shared-ts": "workspace:*",
     "@types/bun": "catalog:",

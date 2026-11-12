@@ -38,16 +38,8 @@ function listedCapabilities(decision: DmnDecision): readonly string[] | null {
   return input.domain.values.map(String);
 }
 
-/**
- * Yes/no tables that protect the team rather than decide what a person may
- * do. The daily bug report limit belongs to a device, whoever is using it,
- * so it is no capability of an account and the manifest lists none for it.
- */
-const PROTECTIONS: readonly string[] = ['daily-bug-report-limit'];
-
 /** Access tables answer yes/no; other tables decide product behavior. */
 function isPermissionDecision(decision: DmnDecision): boolean {
-  if (PROTECTIONS.includes(decision.id)) return false;
   return decision.outputs.some(
     (output) =>
       output.name === 'answer' &&
@@ -153,18 +145,6 @@ describe('closed world: manifest ↔ permission catalog', () => {
           listed: owned,
         });
       }
-    }
-  });
-
-  test('a protection is a decision table no capability is decided by', async () => {
-    const capabilities = await manifestCapabilities();
-    const decisions = (await allDecisions()).map((decision) => decision.id);
-    for (const protection of PROTECTIONS) {
-      expect({
-        protection,
-        found: decisions.includes(protection),
-        owned: decidedBy(capabilities, protection),
-      }).toEqual({ protection, found: true, owned: [] });
     }
   });
 

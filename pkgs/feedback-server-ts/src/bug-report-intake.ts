@@ -34,7 +34,7 @@ export type IntakeOutcome =
   | { readonly status: 400 | 409 | 429 | 503; readonly error: string };
 
 /** Where the bug reports taken from one device on one day (`2026-03-02`, UTC) are counted. */
-export function takenFromDevice(day: string, reporterId: string): string {
+function takenFromDevice(day: string, reporterId: string): string {
   return `limits/${day}/reporters/${reporterId}/`;
 }
 
