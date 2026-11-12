@@ -1,0 +1,4 @@
+{
+  "summary": "Bug reports made FEEDBACK_GITHUB_TOKEN and FEEDBACK_GITHUB_REPOSITORY required API Worker secrets that a person had to enter, but nobody did, so every Release stopped at `Worker deploy: missing secret FEEDBACK_GITHUB_TOKEN`. The OpenTofu fleet stack now writes both into the shared environment from GITHUB_ADMIN_TOKEN and the repository.",
+  "regressionTest": "libs/secrets-server-ts/tests/secrets-registry.test.ts"
+}

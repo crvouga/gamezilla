@@ -57,7 +57,8 @@ allows `DAILY_BUG_REPORT_LIMIT` reports a day per device and
 
 - `GitHubIssueReporter` opens the issue, labelled `bug` and `bug-report`. It
   needs `FEEDBACK_GITHUB_TOKEN` and `FEEDBACK_GITHUB_REPOSITORY`, both required
-  account-wide secrets whose validation asks GitHub whether the token may
+  account-wide secrets the OpenTofu fleet stack writes (the repository admin
+  token and this repository) and whose validation asks GitHub whether the token may
   open issues there; without them the server answers 503 with the reason and
   devices keep their reports until it can receive them. `GET /api/bug-reports/health` says whether a report
   sent now would become an issue, and production's health run asks it

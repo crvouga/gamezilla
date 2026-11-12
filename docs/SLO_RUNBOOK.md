@@ -416,9 +416,11 @@ nothing is lost yet, but the team is not hearing about bugs.
 
 **First steps.** Ask the intake itself, which names what is missing:
 `curl https://<api>/api/bug-reports/health`. "is not set" or a refused
-destination means `FEEDBACK_GITHUB_TOKEN` or `FEEDBACK_GITHUB_REPOSITORY`:
-`bun run secrets:seed -- --env <env> FEEDBACK_GITHUB_TOKEN` checks a new
-token against GitHub before storing it. "storage is unavailable" is the
+destination means `FEEDBACK_GITHUB_TOKEN` or `FEEDBACK_GITHUB_REPOSITORY`.
+The fleet stack writes both from `GITHUB_ADMIN_TOKEN` and this repository
+(`libs/infra-shared-ts/tofu/stacks/fleet/feedback.tf`): rotate
+`GITHUB_ADMIN_TOKEN` in the shared environment and the next Release carries
+it over. "storage is unavailable" is the
 environment's bucket credentials. Otherwise check GitHub's status page.
 
 ## sent-bug-reports-are-decided

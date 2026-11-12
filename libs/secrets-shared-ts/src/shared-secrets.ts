@@ -16,6 +16,7 @@ export const SHARED_SECRET_NAMES: readonly string[] = [
   ...FOUNDATION_SECRETS.shared,
   ...FOUNDATION_SECRETS.shared_derived,
   ...FOUNDATION_SECRETS.ci_derived,
+  ...FOUNDATION_SECRETS.feedback_derived,
   ...FOUNDATION_SECRETS.bootstrap,
 ];
 
