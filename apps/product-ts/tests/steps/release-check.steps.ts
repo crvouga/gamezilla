@@ -4,7 +4,7 @@ import {
   provideReleaseEvidence,
   releaseResult,
   runReleaseCheck,
-} from '@apps/product-ts/developer-release';
+} from '@apps/harness-ts/developer-release';
 import { Given, Then, When } from '@libs/harness-ts/define';
 
 Given(

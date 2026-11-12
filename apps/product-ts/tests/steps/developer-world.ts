@@ -41,13 +41,13 @@ import {
   editNotebookQuestion,
   openNotebook,
   saveNotebookQuestion,
-} from '@apps/product-ts/developer-notebook';
+} from '@apps/harness-ts/developer-notebook';
 
 import './release-check.steps';
 import {
   provideReleaseEvidence,
   runReleaseCheck,
-} from '@apps/product-ts/developer-release';
+} from '@apps/harness-ts/developer-release';
 
 import './checkpoints.steps';
 import {
@@ -55,7 +55,7 @@ import {
   checkpointOperation,
   investigatePeople,
   saveCheckpoint,
-} from '@apps/product-ts/developer-checkpoints';
+} from '@apps/harness-ts/developer-checkpoints';
 
 import './test-world-views.steps';
 import {
@@ -63,4 +63,4 @@ import {
   chooseWorldDevice,
   giveDevicesDifferentPlaces,
   provideWorldDevices,
-} from '@apps/product-ts/developer-world-views';
+} from '@apps/harness-ts/developer-world-views';

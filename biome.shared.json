@@ -74,6 +74,7 @@
       "!**/*.html",
       "!apps/client-ts/public/sql-workers/**/*.js",
       "!apps/product-ts/public/sql-workers/**/*.js",
+      "!apps/harness-ts/public/sql-workers/**/*.js",
       "!.agents/skills/**/assets",
       "!pkgs/babel-plugins/**"
     ],

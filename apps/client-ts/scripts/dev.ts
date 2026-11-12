@@ -1,5 +1,5 @@
 // @io-wall-ok
-/** Product web app only; the harness console lives in @apps/product-ts. */
+/** Product web app only; the harness console lives in @apps/harness-ts. */
 import { join } from 'node:path';
 import { run } from '@pkgs/os-server-ts/command';
 

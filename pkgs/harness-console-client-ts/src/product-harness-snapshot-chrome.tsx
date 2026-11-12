@@ -1,23 +1,19 @@
 import type { ProductHarnessSession } from '@pkgs/harness-console-shared-ts/ports';
 import { IconButton } from '@pkgs/ui-root-client-ts/icon-button';
 import {
-  Columns2Icon,
   RotateCcwIcon,
   SaveIcon,
   SearchIcon,
   SlidersHorizontalIcon,
-  SquareStackIcon,
   Trash2Icon,
 } from '@pkgs/ui-root-client-ts/icons';
 import { ResponsiveSurface } from '@pkgs/ui-root-client-ts/responsive-surface';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { useTheme } from '@pkgs/ui-root-client-ts/theme-context';
 import { useCommandPalette } from '@pkgs/ui-root-client-ts/use-command-palette';
 import { createSignal } from 'solid-js';
-import { useClientLayoutPreference } from './client-layout-preference';
-import type { ClientLayoutMode } from './layout';
 import { SnapshotChromeModals } from './product-harness-snapshot-modals';
 import { SnapshotSelect } from './product-harness-snapshot-select';
-import { useHarnessConsoleLayout } from './use-harness-console-layout';
 import { useProductHarnessSnapshots } from './use-product-harness-snapshots';
 import { useSnapshotChromeState } from './use-snapshot-chrome-state';
 
@@ -81,43 +77,12 @@ function SnapshotChromeActions(props: {
     </>
   );
 }
-function ClientLayoutToggle(props: {
-  readonly preference: ClientLayoutMode;
-  readonly onSelect: (mode: ClientLayoutMode) => void;
-}) {
-  return (
-    <StackHorizontal align="center">
-      <IconButton
-        label="Tab clients"
-        size={ICON_SIZE}
-        {...(props.preference === 'tabs' ? { background: 'tintSubtle' } : {})}
-        onClick={() => {
-          props.onSelect('tabs');
-        }}
-      >
-        <SquareStackIcon size={GLYPH_SIZE} color="icon" />
-      </IconButton>
-      <IconButton
-        label="Column clients"
-        size={ICON_SIZE}
-        {...(props.preference === 'columns'
-          ? { background: 'tintSubtle' }
-          : {})}
-        onClick={() => {
-          props.onSelect('columns');
-        }}
-      >
-        <Columns2Icon size={GLYPH_SIZE} color="icon" />
-      </IconButton>
-    </StackHorizontal>
-  );
-}
 /** Snapshot Select + save / reload / palette icon buttons. */
 export function ProductHarnessSnapshotChrome(props: {
   readonly session: ProductHarnessSession;
 }) {
-  const layout = useHarnessConsoleLayout();
-  const preference = useClientLayoutPreference();
+  const theme = useTheme();
+  const compact = () => theme.breakpoint() === 'mobile';
   const list = useProductHarnessSnapshots(() => props.session);
   const state = useSnapshotChromeState(list);
   const palette = useCommandPalette();
@@ -129,12 +94,12 @@ export function ProductHarnessSnapshotChrome(props: {
   };
   return (
     <StackHorizontal
-      grow={layout.compactChrome}
+      grow={compact()}
       align="center"
-      justify={layout.compactChrome ? 'start' : 'end'}
+      justify={compact() ? 'start' : 'end'}
       gap="xs"
     >
-      {layout.compactChrome ? (
+      {compact() ? (
         <IconButton
           label="Open harness controls"
           size={ICON_SIZE}
@@ -143,12 +108,6 @@ export function ProductHarnessSnapshotChrome(props: {
           <SlidersHorizontalIcon size={GLYPH_SIZE} color="icon" />
         </IconButton>
       ) : (
-        <ClientLayoutToggle
-          preference={preference.preference}
-          onSelect={preference.setPreference}
-        />
-      )}
-      {layout.compactChrome ? null : (
         <SnapshotSelect
           list={list}
           sortedSnaps={state.sortedSnaps}
@@ -157,7 +116,7 @@ export function ProductHarnessSnapshotChrome(props: {
           sort={state.sort}
           nowMs={nowMs()}
           checkedIds={state.checkedIds}
-          compact={layout.compactChrome}
+          compact={compact()}
           onSelectId={state.setSelectedId}
           onSort={state.setSort}
           onToggleChecked={state.onToggleChecked}
@@ -167,11 +126,10 @@ export function ProductHarnessSnapshotChrome(props: {
           }
         />
       )}
-      {layout.compactChrome ? (
+      {compact() ? (
         <CompactSnapshotSurface
           open={compactOpen}
           setOpen={setCompactOpen}
-          preference={preference}
           list={list}
           state={state}
           palette={palette}
@@ -195,7 +153,6 @@ export function ProductHarnessSnapshotChrome(props: {
 function CompactSnapshotSurface(props: {
   readonly open: () => boolean;
   readonly setOpen: (value: boolean) => void;
-  readonly preference: ReturnType<typeof useClientLayoutPreference>;
   readonly list: SnapshotListApi;
   readonly state: ReturnType<typeof useSnapshotChromeState>;
   readonly palette: ReturnType<typeof useCommandPalette>;
@@ -211,10 +168,6 @@ function CompactSnapshotSurface(props: {
       stackId="product-harness-snapshot-controls"
     >
       <StackVertical gap="lg">
-        <ClientLayoutToggle
-          preference={props.preference.preference}
-          onSelect={props.preference.setPreference}
-        />
         <SnapshotSelect
           list={props.list}
           sortedSnaps={props.state.sortedSnaps}

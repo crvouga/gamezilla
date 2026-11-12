@@ -1,0 +1,7 @@
+.cache/
+public/generated/
+
+# @pkgs/sql-client-sqlite-web build:web-workers outputs
+public/sql-workers/**/*.js
+public/sql-workers/**/*.html
+public/sql-workers/*.wasm

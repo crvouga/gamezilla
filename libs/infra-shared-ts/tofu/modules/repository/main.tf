@@ -109,7 +109,9 @@ locals {
   # CodeQL's checks depend on GitHub downloading the scanner. The final PR
   # gate (verify:end) enforces them instead: findings block, an unavailable
   # scanner only warns, so a download outage cannot block merging.
-  ruleset_checks = [for check in local.required_checks : check if !try(check.outage_tolerant, false)]
+  # An advisory check (the pull request's Preview) is awaited there too, and
+  # never blocks.
+  ruleset_checks = [for check in local.required_checks : check if !try(check.outage_tolerant, false) && !try(check.advisory, false)]
 }
 
 resource "github_repository_ruleset" "main" {

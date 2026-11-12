@@ -7,10 +7,10 @@
  * a runtime cache rule helps only a chunk that happened to be fetched while
  * online, and a lazy chunk never opened online is simply absent offline. So
  * the policy is one rule: **precache every file the wall client can load**
- * (`index.html`, its whole module graph, the URL-loaded SQL
- * workers) and nothing the harness alone reaches. `build-sw.ts` applies it
- * to Workbox's manifest; `verify-offline-shell.ts` re-derives it from the
- * emitted `dist/sw.js` and fails on any gap or on {@link PRECACHE_BUDGET_BYTES}.
+ * (`index.html`, its whole module graph, the URL-loaded SQL workers).
+ * `build-sw.ts` applies it to Workbox's manifest; `verify-offline-shell.ts`
+ * re-derives it from the emitted `dist/sw.js` and fails on any gap or on
+ * {@link PRECACHE_BUDGET_BYTES}.
  *
  * The module graph is read from the build output itself, the way the browser
  * sees it:
@@ -24,20 +24,7 @@
  *   chunk's dynamic imports is attributed to the importer (conservative).
  * - the entry: `index.html` `<script src>`, `modulepreload` and stylesheet
  *   links.
- *
- * The application is imported eagerly, so its whole entry graph is precached.
- * The harness (`/harness`) is booted by one lazy chunk, identified by its
- * *source* path through Vite's manifest (not by a chunk-name glob). That
- * chunk is never entered, so what only the harness reaches (in-browser
- * Postgres, harness seeds, the console) stays out of first-install precache,
- * while anything the wall client also reaches is still required.
  */
-
-/** Vite's build manifest (source module → emitted chunk), `build.manifest`. */
-export const VITE_MANIFEST = '.vite/manifest.json';
-
-/** The harness boot; its exclusive subgraph is not part of the wall client. */
-export const HARNESS_BOOT_SOURCE = 'src/harness-boot.tsx';
 
 /** Public dirs the wall client loads by URL (`new Worker('/sql-workers/…')`). */
 export const URL_LOADED_DIRS: readonly string[] = ['sql-workers/'];
@@ -87,8 +74,6 @@ export type OfflineShellInput = {
   readonly chunkSources: ReadonlyMap<string, string>;
   readonly indexHtml: string;
   readonly swSource: string;
-  /** Chunks whose subgraph is not part of the wall client (dev surfaces). */
-  readonly excludedRoots: readonly string[];
   /** Files the wall client loads by URL rather than by import (workers). */
   readonly extraRoots: readonly string[];
 };
@@ -215,20 +200,19 @@ function edgesOf(sources: ReadonlyMap<string, string>): Map<string, string[]> {
   return edges;
 }
 
-/** Every node reachable from `roots` without entering `excluded`. */
+/** Every node reachable from `roots`. */
 export function reachableFrom(args: {
   readonly edges: ReadonlyMap<string, readonly string[]>;
   readonly roots: readonly string[];
-  readonly excluded: ReadonlySet<string>;
 }): Set<string> {
   const seen = new Set<string>();
-  const stack = args.roots.filter((root) => !args.excluded.has(root));
+  const stack = [...args.roots];
   while (stack.length > 0) {
     const node = stack.pop() as string;
     if (seen.has(node)) continue;
     seen.add(node);
     for (const next of args.edges.get(node) ?? []) {
-      if (!seen.has(next) && !args.excluded.has(next)) stack.push(next);
+      if (!seen.has(next)) stack.push(next);
     }
   }
   return seen;
@@ -247,13 +231,7 @@ export function wallReachable(
     ...parseEntryHtml(input.indexHtml),
     ...input.extraRoots,
   ];
-  return sorted(
-    reachableFrom({
-      edges: edgesOf(input.chunkSources),
-      roots,
-      excluded: new Set(input.excludedRoots),
-    })
-  );
+  return sorted(reachableFrom({ edges: edgesOf(input.chunkSources), roots }));
 }
 
 export function analyzeOfflineShell(

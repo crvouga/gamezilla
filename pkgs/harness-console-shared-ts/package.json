@@ -18,6 +18,7 @@
     "@pkgs/clock-shared-ts": "workspace:*",
     "@pkgs/object-store-root-shared-ts": "workspace:*",
     "@pkgs/sql-client-root-shared-ts": "workspace:*",
+    "@pkgs/ui-devtools-shared-ts": "workspace:*",
     "solid-js": "catalog:"
   },
   "devDependencies": {

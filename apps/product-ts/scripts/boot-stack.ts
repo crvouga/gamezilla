@@ -67,7 +67,7 @@ import {
 const REPO_ROOT = join(import.meta.dir, '../../..');
 const BILLING_SECRET_KEY = 'sk_test_localhost_stack';
 /**
- * The product web app (`/` and `/harness`). This is Vite itself: the package
+ * The product web app. This is Vite itself: the package
  * `dev` script is this stack, so the web child must not call it.
  */
 const PRODUCT_DEV_ARGS = [
@@ -241,7 +241,7 @@ export async function startWeb(args: {
     },
   });
   observeChildFailures(child, args, `${NAMESPACE}-web`);
-  await waitForHttp(`${args.origin}/harness`);
+  await waitForHttp(`${args.origin}/`);
   return child;
 }
 
@@ -600,7 +600,7 @@ export async function bootLocalhostStack(
   const billingOrigin = loopback(billingReservation.port);
 
   // Infra and the simulated providers boot independently; the product Vite
-  // server starts after the API origin is available and serves `/harness`.
+  // server starts after the API origin is available.
   const { infra, idps } = await bootInfraAndIdps({
     options,
     dataDir,

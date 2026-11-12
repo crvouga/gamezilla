@@ -1,0 +1,37 @@
+/* The divider is an invisible strip in the gap between two windows; a
+   hairline appears on hover, on keyboard focus and while it is dragged. */
+
+.separator {
+  outline: none;
+}
+
+.separator::after {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  border-radius: 1px;
+  background: transparent;
+}
+
+.separator:hover::after,
+.separator:focus-visible::after,
+.separator[data-active="true"]::after {
+  background: var(--color-tint);
+}
+
+/* A window's controls stay quiet until the window is used. */
+.controls {
+  opacity: 0.55;
+}
+
+.window:hover .controls,
+.window:focus-within .controls,
+.window[data-window-focused="true"] .controls {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .controls {
+    opacity: 1;
+  }
+}

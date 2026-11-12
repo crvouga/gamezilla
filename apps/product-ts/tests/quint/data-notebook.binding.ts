@@ -9,7 +9,7 @@ import {
   openNotebook,
   saveNotebookQuestion,
   shownNotebook,
-} from '@apps/product-ts/developer-notebook';
+} from '@apps/harness-ts/developer-notebook';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import type { QuintHarnessWorld } from '@libs/harness-ts/quint-world';
 import { bindQuintModel } from '@pkgs/quint-shared-ts/registry';

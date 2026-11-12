@@ -18,8 +18,6 @@ export type ProductRoute = { path: string; source: string };
 export const PRODUCT_ROUTE_ROOTS = [
   'libs/app-root-client-ts/src/route-table.ts',
   'libs/runtime-client-ts/src/app-sub-clients.ts',
-  'apps/product-ts/src/main.tsx',
-  'apps/product-ts/src/console-nav-real.ts',
 ] as const;
 
 /**
@@ -217,82 +215,6 @@ function routesInArray(
   });
 }
 
-function predicatePaths(location: Location, sources: RouteSources): string[] {
-  if (!ts.isFunctionDeclaration(location.node) || !location.node.body)
-    fail(location, 'Public surface predicate must be a static function');
-  const parameter = location.node.parameters[0]?.name;
-  const returns = location.node.body.statements.filter(ts.isReturnStatement);
-  if (
-    !parameter ||
-    !ts.isIdentifier(parameter) ||
-    returns.length !== 1 ||
-    !returns[0]!.expression
-  )
-    fail(location, 'Public surface predicate must declare its path patterns');
-  const choices = (expression: ts.Expression): string[] => {
-    const node = unwrapped(expression);
-    if (
-      ts.isBinaryExpression(node) &&
-      node.operatorToken.kind === ts.SyntaxKind.BarBarToken
-    )
-      return [...choices(node.left), ...choices(node.right)];
-    if (
-      ts.isBinaryExpression(node) &&
-      node.operatorToken.kind === ts.SyntaxKind.EqualsEqualsEqualsToken &&
-      ts.isIdentifier(node.left) &&
-      node.left.text === parameter.text
-    )
-      return [routeText({ ...location, node: node.right }, sources)];
-    if (
-      ts.isCallExpression(node) &&
-      ts.isPropertyAccessExpression(node.expression) &&
-      ts.isIdentifier(node.expression.expression) &&
-      node.expression.expression.text === parameter.text &&
-      node.expression.name.text === 'startsWith' &&
-      node.arguments.length === 1
-    ) {
-      const prefix = routeText(
-        { ...location, node: node.arguments[0]! },
-        sources
-      );
-      if (!prefix.endsWith('/'))
-        fail(location, 'Public surface prefix must end at a path boundary');
-      return [prefix.slice(0, -1)];
-    }
-    fail({ ...location, node }, 'Unresolved public surface path condition');
-  };
-  return [...new Set(choices(returns[0]!.expression!))];
-}
-
-function productSurfaceRoutes(sources: RouteSources): ProductRoute[] {
-  const file = parsed(PRODUCT_ROUTE_ROOTS[2], sources);
-  const surface = binding(file, 'surfaceAt', sources);
-  if (!ts.isFunctionDeclaration(surface.node) || !surface.node.body)
-    fail(surface, 'Product surface routing is missing');
-  const predicates = surface.node.body.statements
-    .filter(ts.isIfStatement)
-    .map((statement) => {
-      if (
-        !ts.isCallExpression(statement.expression) ||
-        !ts.isIdentifier(statement.expression.expression)
-      )
-        fail(
-          { file, node: statement },
-          'Unknown product surface route predicate'
-        );
-      return statement.expression.expression.text;
-    });
-  if (predicates.length !== 1 || !predicates.includes('isHarnessPath'))
-    fail(
-      surface,
-      'Product surface routing changed; declare every public surface'
-    );
-  const harness = parsed(PRODUCT_ROUTE_ROOTS[3], sources);
-  return predicatePaths(binding(file, 'isHarnessPath', sources), sources).map(
-    (path) => ({ path, source: harness.fileName })
-  );
-}
-
 /** Resolve declared public routes from injected TypeScript; never import the app. */
 export function declaredProductRoutes(sources: RouteSources): ProductRoute[] {
   const shell = parsed(PRODUCT_ROUTE_ROOTS[0], sources);
@@ -312,13 +234,10 @@ export function declaredProductRoutes(sources: RouteSources): ProductRoute[] {
         ...routesInArray({ ...subClient, node: contributions }, sources)
       );
   }
-  routes.push(
-    {
-      path: routeText(binding(shell, 'NOT_FOUND_ROUTE_PATH', sources), sources),
-      source: shell.fileName,
-    },
-    ...productSurfaceRoutes(sources)
-  );
+  routes.push({
+    path: routeText(binding(shell, 'NOT_FOUND_ROUTE_PATH', sources), sources),
+    source: shell.fileName,
+  });
   const paths = new Set<string>();
   for (const route of routes) {
     if (!route.path.startsWith('/') || /[?#\s]/.test(route.path))

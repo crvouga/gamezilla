@@ -78,8 +78,7 @@ export async function buildServiceWorker(distDir: string): Promise<void> {
     globDirectory: distDir,
     /**
      * Offline shell (`sw-policy.ts`): precache every file the wall client can
-     * load, including the complete eager entry graph, and drop what only the
-     * harness reaches.
+     * load, including the complete eager entry graph.
      * No per-file cap below the total budget, so Workbox never silently skips
      * a large chunk; `verify:offline-shell` enforces the budget on the result.
      */

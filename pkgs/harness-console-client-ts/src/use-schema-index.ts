@@ -29,7 +29,10 @@ export function useSchemaIndex(args: {
   readonly reloadToken?: Accessor<number>;
   readonly subscribeDomainWake?: Accessor<SchemaWakeSubscribe | undefined>;
 }): SchemaIndex {
-  const { sqlClient, active, reloadToken, subscribeDomainWake } = args;
+  const { sqlClient, reloadToken, subscribeDomainWake } = args;
+  // A memo: a caller's `active` may be notified without having changed, and
+  // reading the whole schema again is too much work to do for nothing.
+  const active = createMemo(() => args.active());
   const timers = useTimers();
   const [tables, setTables] = createSignal<readonly SchemaRow[]>([]);
   const [columnsByTable, setColumnsByTable] = createSignal<

@@ -8,6 +8,7 @@ import {
   type PrCheck,
   type RequiredPrCheck,
   requiredPrCheckFailures,
+  unavailableScannerWarnings,
 } from './required-pr-checks';
 
 const directory = join(
@@ -252,4 +253,56 @@ test('reusable verification callers grant the read permissions required by the P
       expect(caller.permissions?.['statuses']).toBe('read');
     }
   }
+});
+
+const PREVIEW_POLICY: RequiredPrCheck = {
+  context: 'preview',
+  integration_id: 15368,
+  advisory: true,
+};
+const preview = (status: string, conclusion: string | null): PrCheck => ({
+  name: 'preview',
+  appId: 15368,
+  status,
+  conclusion,
+});
+
+test('the Preview check is declared advisory', () => {
+  expect(CONFIGURED).toContainEqual(PREVIEW_POLICY);
+});
+
+test('an advisory check that is absent, skipped or failed never blocks', () => {
+  const required = [
+    { context: 'verify:start', integration_id: 15368 },
+    PREVIEW_POLICY,
+  ];
+  expect(requiredPrCheckFailures(required, [START, END], false)).toEqual([]);
+  for (const conclusion of ['success', 'failure', 'skipped', 'cancelled'])
+    expect(
+      requiredPrCheckFailures(
+        required,
+        [START, END, preview('completed', conclusion)],
+        false
+      )
+    ).toEqual([]);
+  expect(
+    unavailableScannerWarnings(required, [preview('completed', 'failure')])
+  ).toEqual(['preview did not pass (failure); advisory, not blocking']);
+  expect(
+    unavailableScannerWarnings(required, [preview('completed', 'success')])
+  ).toEqual([]);
+});
+
+test('an advisory check still running is waited for, not passed', () => {
+  const required = [
+    { context: 'verify:start', integration_id: 15368 },
+    PREVIEW_POLICY,
+  ];
+  expect(
+    requiredPrCheckFailures(
+      required,
+      [START, END, preview('in_progress', null)],
+      false
+    )
+  ).toEqual(['Required check did not pass: preview (in_progress)']);
 });

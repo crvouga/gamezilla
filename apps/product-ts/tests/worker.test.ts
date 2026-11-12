@@ -33,7 +33,6 @@ describe('application Worker dispatch', () => {
     for (const path of [
       '/',
       '/space/example',
-      '/harness',
       '/assets/missing.js',
       '/apiculture',
     ]) {
