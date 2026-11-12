@@ -56,6 +56,21 @@ test('a failed deploy shows the commit still serving beside the one attempted', 
   expect(section).toContain('> wrangler preview exited 1');
 });
 
+test('a commit uploaded despite failing checks is the one serving, with the reasons', () => {
+  const section = renderPreviewSection({
+    ...facts,
+    status: 'unhealthy',
+    detail: 'before upload: bundle: /assets/index.js answered HTTP 404',
+  });
+  expect(section).toContain('🔴 deployed, but failing its checks');
+  expect(section).toContain('| Deployed commit | `aaaaaaaaaaaa` |');
+  expect(section).not.toContain('Attempted commit');
+  expect(section).not.toContain('last working version');
+  expect(section).toContain(
+    '> before upload: bundle: /assets/index.js answered HTTP 404'
+  );
+});
+
 test('a first deploy that fails claims no working version', () => {
   const section = renderPreviewSection({
     ...facts,

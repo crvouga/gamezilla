@@ -5,7 +5,7 @@
  * what keeps a run that waited in that queue from acting on stale facts.
  */
 
-import { prOfPreviewName } from './preview-name';
+import { MAIN_PREVIEW_NAME, prOfPreviewName } from './preview-name';
 
 export type PreviewTrigger =
   | {
@@ -73,6 +73,32 @@ export function decidePreviewAction(
       reason: `commit ${trigger.sha.slice(0, 12)} is no longer the head (${now.headSha.slice(0, 12)})`,
     };
   return { kind: 'deploy', pr: trigger.pr, sha: trigger.sha };
+}
+
+/**
+ * Whether a bundle that fails its checks on disk (the gate) is still
+ * uploaded. A pull request's Preview is best effort: whatever was built goes
+ * up, so the Preview always shows the latest commit, failing checks and all.
+ * The main branch's is strict: a commit that fails its gate never replaces
+ * the last working `preview.<domain>`.
+ */
+export function uploadsDespiteGate(previewName: string): boolean {
+  return previewName !== MAIN_PREVIEW_NAME;
+}
+
+/**
+ * Why an uploaded site is failing its checks, from the gate on disk and the
+ * checks of what is served; `null` when both passed.
+ */
+export function failingChecks(checks: {
+  readonly gate: string | null;
+  readonly served: string | null;
+}): string | null {
+  const reasons = [
+    ...(checks.gate === null ? [] : [`before upload: ${checks.gate}`]),
+    ...(checks.served === null ? [] : [`served: ${checks.served}`]),
+  ];
+  return reasons.length === 0 ? null : reasons.join('; ');
 }
 
 /**

@@ -62,10 +62,12 @@ import {
 import {
   decideMainAction,
   decidePreviewAction,
+  failingChecks,
   PREVIEW_RETENTION_MS,
   type PreviewAction,
   type PreviewTrigger,
   planSweep,
+  uploadsDespiteGate,
 } from '../src/preview-lifecycle';
 import {
   customPreviewOrigin,
@@ -622,6 +624,8 @@ async function build(previewName: string, origin: string): Promise<void> {
         .replaceAll('\\', '/')
     );
   writeFileSync(join(HARNESS_DIST, '_headers'), distHeadersFile(files), 'utf8');
+  // Fatal only for the main branch: a pull request's bundle is uploaded
+  // whatever its gate says, so its build step succeeds once a bundle exists.
   await gate(HARNESS, previewName, commit.sha);
 }
 
@@ -638,7 +642,7 @@ function writeManifest(site: Site, previewName: string, sha: string): void {
 /**
  * The Storybook site: the canonical build, which Turborepo makes or restores
  * from its cache, copied (so the cached output is never written to) with its
- * manifest. It is not built for an origin and nothing in the harness waits
+ * manifest. It is gated where it is uploaded. It is not built for an origin and nothing in the harness waits
  * for it, so a deploy runs this beside the harness upload: a commit that
  * changes no story restores in seconds, and one that does never holds the
  * Preview back.
@@ -662,7 +666,6 @@ async function buildStorybook(previewName: string, sha: string): Promise<void> {
   mkdirSync(CACHE_DIR, { recursive: true });
   cpSync(STORYBOOK_BUILD, STORYBOOK_DIST, { recursive: true });
   writeManifest(STORYBOOK, previewName, sha);
-  await gate(STORYBOOK, previewName, sha);
 }
 
 async function sleep(ms: number): Promise<void> {
@@ -745,24 +748,32 @@ function bundleFetch(dist: string): HttpFetch {
 }
 
 /**
- * The gate before an upload: a site on disk passes the same checks its
- * deployed Preview must. A commit that fails here is never uploaded, so the
- * Preview keeps serving its last working one.
+ * The gate before an upload: a site on disk runs the same checks its
+ * deployed Preview must. On the main branch a failure stops the upload, so
+ * `preview.<domain>` keeps its last working version. A pull request's
+ * Preview is best effort (`uploadsDespiteGate`): the failure is a warning,
+ * returned so the deploy can report it, and the bundle goes up anyway.
  */
 async function gate(
   site: Site,
   previewName: string,
   sha: string
-): Promise<void> {
+): Promise<string | null> {
   const checks = await site.checks({
     origin: 'https://bundle.invalid',
     fetch: bundleFetch(site.dist),
     previewName,
     commit: sha,
   });
-  say(`▸ gate: the built ${site.key} passes its checks before upload`);
-  if (!printChecks(checks))
-    throw new Error(`the ${site.key} failed its gate — ${failed(checks)}`);
+  say(`▸ gate: the built ${site.key} runs its checks before upload`);
+  if (printChecks(checks)) return null;
+  const failures = failed(checks);
+  if (!uploadsDespiteGate(previewName))
+    throw new Error(`the ${site.key} failed its gate — ${failures}`);
+  say(
+    `! the ${site.key} failed its gate; uploading it anyway (best effort) — ${failures}`
+  );
+  return failures;
 }
 
 class UnhealthyPreview extends Error {}
@@ -772,7 +783,7 @@ const AGREED_WITHIN_MS = 60_000;
 
 /**
  * The checks of a site just uploaded, read from its origin. The upload
- * already passed them on disk (`gate`), and the edge moves to it machine by
+ * usually passed them on disk (`gate`), and the edge moves to it machine by
  * machine: a page from the new upload can ask a machine still on the one
  * before for its script, which that machine does not have. So a failure here
  * is read again until the edge agrees, and reported only if it never does.
@@ -794,13 +805,22 @@ async function servedChecks(
   }
 }
 
-/** Upload one commit to a site's Preview of the pull request and prove it serves. */
+/**
+ * Upload one commit to a site's Preview of the pull request and prove it
+ * serves. `gated` is what its gate found failing, if anything: the upload
+ * goes on, and is reported as failing its checks with the served ones.
+ */
 async function upload(
   cloudflare: Account,
   site: Site,
-  target: { readonly pr: number; readonly origin: string; readonly sha: string }
+  target: {
+    readonly pr: number;
+    readonly origin: string;
+    readonly sha: string;
+    readonly gated: string | null;
+  }
 ): Promise<void> {
-  const { pr, origin, sha } = target;
+  const { pr, origin, sha, gated } = target;
   const name = previewNameOfPr(pr);
   say(`▸ ${site.key}: wrangler preview --name ${name}`);
   const result = must(
@@ -831,14 +851,21 @@ async function upload(
   say(`▸ waiting for ${origin} to serve ${sha.slice(0, 12)}`);
   if (!(await serving(origin, sha)))
     throw new UnhealthyPreview(
-      `${origin} did not serve ${sha.slice(0, 12)} within two minutes`
+      failingChecks({
+        gate: gated,
+        served: `${origin} did not serve ${sha.slice(0, 12)} within two minutes`,
+      }) ?? ''
     );
   const checks = await servedChecks(site, {
     origin,
     previewName: name,
     commit: sha,
   });
-  if (!printChecks(checks)) throw new UnhealthyPreview(failed(checks));
+  const failing = failingChecks({
+    gate: gated,
+    served: printChecks(checks) ? null : failed(checks),
+  });
+  if (failing !== null) throw new UnhealthyPreview(failing);
 }
 
 /** `wrangler preview --json` prints `{ preview: { urls }, deployment }`. */
@@ -997,16 +1024,24 @@ async function deploy(pr: number, deploymentSha: string | null): Promise<void> {
   try {
     // The two sites go up beside one another. The harness is what a reviewer
     // opens, so the pull request says it is live the moment it is, whatever
-    // Storybook is still doing.
+    // Storybook is still doing. Each goes up whatever its gate says: a site
+    // failing its checks is still uploaded and reported as unhealthy.
+    const name = previewNameOfPr(pr);
     const [harness, stories] = await Promise.allSettled([
       (async () => {
-        await gate(HARNESS, previewNameOfPr(pr), sha);
-        await upload(cloudflare, HARNESS, { pr, origin, sha });
+        const gated = await gate(HARNESS, name, sha);
+        await upload(cloudflare, HARNESS, { pr, origin, sha, gated });
         publishSection(pr, live);
       })(),
       (async () => {
-        await buildStorybook(previewNameOfPr(pr), sha);
-        await upload(cloudflare, STORYBOOK, { pr, origin: storybook, sha });
+        await buildStorybook(name, sha);
+        const gated = await gate(STORYBOOK, name, sha);
+        await upload(cloudflare, STORYBOOK, {
+          pr,
+          origin: storybook,
+          sha,
+          gated,
+        });
       })(),
     ]);
     if (harness.status === 'rejected') throw harness.reason;
