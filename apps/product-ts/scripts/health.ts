@@ -292,8 +292,8 @@ export const HOST_LIMITS: readonly HostLimit[] = [
   },
   {
     feature: 'specs/feedback/receiving-bug-reports.feature',
-    needs: 'production',
-    why: 'only production takes bug reports to the list of work; elsewhere they stay in the archive',
+    needs: 'deployment',
+    why: "it asks the deployed environment's bug report intake, which the localhost stack replaces with an archive",
   },
   {
     feature: 'specs/runtime/stored-files.feature',

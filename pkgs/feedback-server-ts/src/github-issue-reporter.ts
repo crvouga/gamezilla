@@ -36,14 +36,18 @@ export class GitHubIssueReporter implements IssueReporter {
     };
   }
 
-  /** The token still reads the repository's issues, and the repository still takes them. */
+  /**
+   * Whether an issue could be opened right now, asked without opening one:
+   * GitHub refuses an issue with no title as unprocessable (422) only after
+   * it has let the token write to the repository.
+   */
   async check(): Promise<void> {
     const response = await this.options.http.fetch(
-      `https://api.github.com/repos/${this.options.repository}/issues?per_page=1`,
-      { headers: this.headers() }
+      `https://api.github.com/repos/${this.options.repository}/issues`,
+      { method: 'POST', headers: this.headers(), body: '{}' }
     );
-    if (!response.ok)
-      throw new Error(`GitHub refused to list issues: ${response.status}`);
+    if (response.status !== 422)
+      throw new Error(`GitHub would not take an issue: ${response.status}`);
   }
 
   async create(report: BugReport): Promise<CreatedIssue> {

@@ -222,7 +222,7 @@ test('a repository that is not owner/name is refused before anything is sent', (
 });
 
 test('the health address says whether a bug report sent now would become an issue', async () => {
-  let listing = 200;
+  let listing = 422;
   const reporter = new GitHubIssueReporter({
     http: {
       fetch: () => Promise.resolve(new Response('[]', { status: listing })),
