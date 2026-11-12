@@ -1,0 +1,4 @@
+{
+  "summary": "The Synthetic Population Worker release uploaded the whole commit to Railway, and the visual-test baseline images grew it past Railway's request size limit, so `railway up` failed with 413 Payload Too Large. The release archive now leaves out every baselines directory, which the worker never reads.",
+  "regressionTest": "libs/infra-server-ts/tests/population-release.test.ts"
+}

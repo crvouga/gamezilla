@@ -38,6 +38,27 @@ export function populationDockerfile(): string {
 }
 
 /**
+ * The source Railway builds from: the commit without its visual-test
+ * baselines. They are most of the repository's bytes, the worker never reads
+ * them, and with them the upload exceeds Railway's request size limit.
+ */
+export function populationArchiveArgs(
+  version: string,
+  archive: string
+): readonly string[] {
+  return [
+    'git',
+    'archive',
+    '--format=tar',
+    `--output=${archive}`,
+    version,
+    '--',
+    '.',
+    ':(exclude,glob)**/baselines/**',
+  ];
+}
+
+/**
  * Set the commit as the runtime version, then upload the archive.
  * `--skip-deploys` keeps the variable write from starting a second deploy.
  * CLI 5.64.2 accepts `--ci` on `up`, not on `variable set`.

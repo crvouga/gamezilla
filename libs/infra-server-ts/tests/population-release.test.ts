@@ -6,6 +6,7 @@ import {
   POPULATION_BUN_VERSION,
   POPULATION_NODE_VERSION,
   POPULATION_START_COMMAND,
+  populationArchiveArgs,
   populationDockerfile,
   populationReleaseArgs,
   railwayCliEnvironment,
@@ -34,6 +35,19 @@ test('the image uses the Bun and Node versions the repository pins', () => {
   );
   expect(mise).toContain(`bun = "${POPULATION_BUN_VERSION}"`);
   expect(mise).toContain(`node = "${POPULATION_NODE_VERSION}"`);
+});
+
+// regression: railway-worker-upload-too-large
+test('the release archive leaves out visual-test baselines', () => {
+  const args = populationArchiveArgs(VERSION, '/tmp/stage.tar');
+  expect(args.slice(0, 5)).toEqual([
+    'git',
+    'archive',
+    '--format=tar',
+    '--output=/tmp/stage.tar',
+    VERSION,
+  ]);
+  expect(args.slice(5)).toEqual(['--', '.', ':(exclude,glob)**/baselines/**']);
 });
 
 test('the release sets the commit version before uploading the archive', () => {
