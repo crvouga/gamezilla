@@ -132,7 +132,6 @@
         "@pkgs/sync-engine-server-ts": "workspace:*",
         "@pkgs/sync-engine-shared-ts": "workspace:*",
         "@pkgs/tailwind-shared-ts": "workspace:*",
-        "@pkgs/ui-devtools-shared-ts": "workspace:*",
         "@pkgs/ui-root-client-ts": "workspace:*",
         "@pkgs/uuid-client-ts": "workspace:*",
         "@pkgs/uuid-shared-ts": "workspace:*",
@@ -5561,7 +5560,6 @@
         "@pkgs/clock-shared-ts": "workspace:*",
         "@pkgs/object-store-root-shared-ts": "workspace:*",
         "@pkgs/sql-client-root-shared-ts": "workspace:*",
-        "@pkgs/ui-devtools-shared-ts": "workspace:*",
         "solid-js": "catalog:",
       },
       "devDependencies": {

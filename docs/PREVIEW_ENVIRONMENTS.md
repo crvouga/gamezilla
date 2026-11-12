@@ -55,18 +55,16 @@ https://pr-<number>.storybook.<domain>     a pull request's Storybook
   emulated identity provider's sign-in and the friendship is the ordinary
   request and its acceptance, sent to the in-tab API. A world restored from
   the browser's saved snapshot is left as it was.
-- **The console.** The page is the harness console: panels for each client
-  actor (UI, local database, logs), each API server (SQL notebook, logs), the
-  load balancer, pub/sub topics and rooms, plus commands for crashing,
-  restarting and partitioning nodes, controlling the clock, and snapshots.
-  Every node is a panel in a window manager: drag a panel's tab onto another
-  window to tab it there or onto a window edge to put the two side by side,
-  resize with the dividers, and maximize or close windows. The same moves work
-  from the keyboard and from each window's menu, and the arrangement is kept
-  in the page address, so a link reopens the same layout. Nothing sits above
-  the windows: a window's tab bar is the only bar, and the harness's own
-  controls (nodes, snapshots, commands, arrangements) are in each window's
-  menu.
+- **The console.** The page shows one client's app at a time, edge to edge,
+  with nothing around it, under one small button that floats over it and can
+  be dragged out of the way. A tap on the button goes on to the next client's
+  app; holding it (or a right click, or Down on the keyboard) opens the menu:
+  every client and every node behind the apps by name (the load balancer with
+  its routes, each API server with its SQL notebook and logs, pub/sub topics,
+  rooms), adding a client, and the harness's own tools (nodes, snapshots, and
+  commands for crashing, restarting and partitioning nodes and controlling the
+  clock). Every client's app keeps running while another is on show, and
+  which panel is on show is kept in the page address, so a link reopens it.
 - **The build.** A Preview bundle is the built `apps/harness-ts`.
   `preview.json` in the bundle names the Preview and the commit it was built
   from. The harness is the one page at `/` and keeps its state in the query

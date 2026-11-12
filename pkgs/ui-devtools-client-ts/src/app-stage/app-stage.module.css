@@ -1,0 +1,39 @@
+/* The handle floats over someone else's screen: quiet until it is reached
+   for, and it glides to the side it comes to rest against. */
+
+.handle {
+  cursor: grab;
+  opacity: 0.8;
+  color: var(--color-text);
+  /* It floats over the view, so it is the one thing here with a shadow. */
+  box-shadow: var(--ui-shadow-float);
+  transition:
+    left 150ms ease-out,
+    right 150ms ease-out,
+    top 150ms ease-out,
+    opacity 150ms ease-out;
+  -webkit-touch-callout: none;
+}
+
+.handle:hover,
+.handle:focus-visible,
+.handle[aria-expanded="true"] {
+  opacity: 1;
+}
+
+.handle[data-dragging="true"] {
+  cursor: grabbing;
+  opacity: 1;
+  transition: none;
+}
+
+.handleText {
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .handle {
+    transition: none;
+  }
+}

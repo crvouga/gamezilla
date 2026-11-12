@@ -1,29 +1,25 @@
-import { useTimers } from '@pkgs/clock-client-ts/solid';
-import { harnessPanelKind } from '@pkgs/harness-console-shared-ts/harness-windows';
+import {
+  type HarnessPanelRef,
+  harnessPanelId,
+} from '@pkgs/harness-console-shared-ts/harness-windows';
 import type {
   ProductHarnessPaletteCommand,
   ProductHarnessSession,
 } from '@pkgs/harness-console-shared-ts/ports';
-import { WindowManager } from '@pkgs/ui-devtools-client-ts/window-manager';
-import type { WindowPanel } from '@pkgs/ui-devtools-client-ts/window-manager-types';
+import {
+  AppStage,
+  type AppStageView,
+} from '@pkgs/ui-devtools-client-ts/app-stage';
 import { CommandPalette } from '@pkgs/ui-root-client-ts/command-palette';
 import { CommandRegistryProvider } from '@pkgs/ui-root-client-ts/command-registry-context';
+import type { IconComponent } from '@pkgs/ui-root-client-ts/create-icon';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
-import {
-  Columns2Icon,
-  RotateCcwIcon,
-  SaveIcon,
-  SearchIcon,
-  ServerIcon,
-  SquareStackIcon,
-} from '@pkgs/ui-root-client-ts/icons';
+import { MonitorIcon, PlusIcon } from '@pkgs/ui-root-client-ts/icons';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
-import type { OverflowMenuAction } from '@pkgs/ui-root-client-ts/overflow-menu-button';
 import { OverlayPortalProvider } from '@pkgs/ui-root-client-ts/overlay-portal';
 import { RegisterCommand } from '@pkgs/ui-root-client-ts/register-command';
 import { Surface } from '@pkgs/ui-root-client-ts/surface';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
-import { useTheme } from '@pkgs/ui-root-client-ts/theme-context';
 import { useCommandPalette } from '@pkgs/ui-root-client-ts/use-command-palette';
 import {
   createMemo,
@@ -34,11 +30,16 @@ import {
   Switch,
 } from 'solid-js';
 import type { HarnessConsoleNav } from './debugger-chrome';
-import { harnessWindowPanel } from './harness-node-window';
+import { HarnessDevMenu } from './harness-dev-menu';
+import {
+  type HarnessNodeWindowContext,
+  HarnessPanelView,
+} from './harness-node-window';
+import { harnessNodeIcon } from './node-chrome';
 import { ProductHarnessAppearanceCommands } from './product-harness-appearance-commands';
 import { ProductHarnessSnapshotSurface } from './product-harness-snapshot-chrome';
 import { ProductHarnessTopologySurface } from './product-harness-topology-chrome';
-import { type HarnessWindows, useHarnessWindows } from './use-harness-windows';
+import { type HarnessView, useHarnessView } from './use-harness-view';
 import type { ProductHarnessSessionState } from './use-product-harness-session';
 
 export function ProductHarnessScreen(props: {
@@ -98,179 +99,195 @@ function CenteredState(props: { readonly children: JSX.Element }) {
   );
 }
 
-type LayoutAction = {
-  readonly id: string;
-  readonly title: string;
-  readonly icon: typeof Columns2Icon;
-  readonly keywords: readonly string[];
-  readonly run: () => void;
-};
+/** The harness's own controls, each a surface opened from its menu. */
+type HarnessControls = 'menu' | 'nodes' | 'snapshots';
 
-/** Whole-console arrangements, offered in the palette and every window menu. */
-function layoutActions(windows: HarnessWindows): readonly LayoutAction[] {
-  return [
-    {
-      id: 'harness-layout-beside',
-      title: 'Show clients side by side',
-      icon: Columns2Icon,
-      keywords: ['columns', 'clients', 'layout', 'split', 'windows'],
-      run: () => windows.arrange('beside'),
-    },
-    {
-      id: 'harness-layout-tabs',
-      title: 'Tab clients in one window',
-      icon: SquareStackIcon,
-      keywords: ['tabs', 'clients', 'layout', 'stack', 'windows'],
-      run: () => windows.arrange('tabs'),
-    },
-    {
-      id: 'harness-layout-reset',
-      title: 'Reset window layout',
-      icon: RotateCcwIcon,
-      keywords: ['reset', 'default', 'layout', 'windows', 'panels'],
-      run: windows.reset,
-    },
-  ];
+/** What the button says of the panel on show: a client by its initials. */
+function buttonText(panel: HarnessPanelRef | null): string | undefined {
+  return panel?.kind === 'client' ? panel.title.slice(0, 2) : undefined;
 }
 
-function HarnessLayoutCommands(props: {
-  readonly actions: readonly LayoutAction[];
-}): JSX.Element {
-  return (
-    <For each={props.actions}>
-      {(action) => (
-        <RegisterCommand
-          id={action.id}
-          title={action.title}
-          category="Appearance"
-          icon={action.icon}
-          keywords={[...action.keywords]}
-          run={async () => {
-            action.run();
-          }}
-        />
-      )}
-    </For>
-  );
+/** A node behind the apps is shown by its kind's icon. */
+function buttonIcon(panel: HarnessPanelRef | null): IconComponent | undefined {
+  return panel === null || panel.kind === 'client'
+    ? undefined
+    : harnessNodeIcon(panel.kind);
+}
+
+function buttonLabel(panel: HarnessPanelRef | null): string {
+  const showing = panel === null ? 'Nothing' : panel.title;
+  return `${showing} is on show. Press for the next client, hold or press Down for the harness menu.`;
 }
 
 /**
- * The console: a window manager with one panel per node, and nothing above
- * it. A client's app owns the keyboard while its panel is the focused one;
- * the harness's own shortcuts apply otherwise, and while one of its controls
+ * The console: one app at a time, edge to edge, and one small button over
+ * it. A tap on the button goes on to the next client's app; holding it opens
+ * the menu, with every client and every node behind the apps by name and
+ * the harness's own tools. A client's app owns the keyboard while it is on
+ * show; the harness's shortcuts apply otherwise, and while one of its
  * surfaces is open.
  */
 function ReadyProductHarnessScreen(props: {
   readonly session: ProductHarnessSession;
   readonly nav: HarnessConsoleNav;
 }) {
-  const windows = useHarnessWindows(
+  const view = useHarnessView(
     () => props.session,
-    () => props.nav,
-    useTimers()
+    () => props.nav
   );
-  const keyboardPanel = createMemo(() => windows.focusedPanel());
-  const panels = createMemo(() =>
-    windows.panels().map((panel) =>
-      harnessWindowPanel(panel, {
-        session: () => props.session,
-        revision: windows.revision,
-        nav: () => props.nav,
-        keyboardPanel,
+  const [controls, setControls] = createSignal<HarnessControls | null>(null);
+  const [busy, setBusy] = createSignal(false);
+  const keyboardPanel = createMemo(() =>
+    controls() === null ? (view.shown()?.id ?? null) : null
+  );
+  const clientOwnsKeyboard = () => view.shown()?.kind === 'client';
+  const context: HarnessNodeWindowContext = {
+    session: () => props.session,
+    revision: view.revision,
+    nav: () => props.nav,
+    keyboardPanel,
+  };
+  // A client's app runs from the start and keeps running while another is
+  // on show, as a phone left on a table does.
+  const views = createMemo(() =>
+    view.panels().map(
+      (panel): AppStageView => ({
+        id: panel.id,
+        title: panel.title,
+        live: panel.kind === 'client',
+        content: () => <HarnessPanelView panel={panel} context={context} />,
       })
     )
   );
   const paletteCommands = createMemo(() => {
-    windows.revision();
+    view.revision();
     return props.session.listPaletteCommands();
   });
-  const [controls, setControls] = createSignal<HarnessControls | null>(null);
-  // An open controls surface has the keyboard, whichever panel has focus.
-  const clientOwnsKeyboard = () => {
-    const panel = controls() === null ? keyboardPanel() : null;
-    return panel !== null && harnessPanelKind(panel) === 'client';
+  const addClient = (): void => {
+    setBusy(true);
+    void props.session
+      .addClient()
+      .then((actor) => view.show(harnessPanelId('client', actor.id)))
+      .catch(() => undefined)
+      .finally(() => setBusy(false));
   };
   return (
-    <CommandRegistryProvider enableDefaultShortcuts={!clientOwnsKeyboard()}>
+    <CommandRegistryProvider
+      enableDefaultShortcuts={controls() !== null || !clientOwnsKeyboard()}
+    >
       <ProductHarnessAppearanceCommands />
-      <HarnessLayoutCommands actions={layoutActions(windows)} />
+      <HarnessViewCommands view={view} onAddClient={addClient} />
       <ProductHarnessPaletteRegistrations commands={paletteCommands()} />
       <Surface tone="background" grow overflow="hidden">
-        <HarnessWindowManager
-          windows={windows}
-          panels={panels()}
-          onControls={setControls}
+        <AppStage
+          aria-label="Harness"
+          shown={view.shown()?.id ?? null}
+          views={views()}
+          handle={{
+            label: buttonLabel(view.shown()),
+            text: buttonText(view.shown()),
+            icon: buttonIcon(view.shown()),
+            expanded: controls() === 'menu',
+            onTap: view.next,
+            onHold: () => setControls('menu'),
+          }}
         />
       </Surface>
-      <ProductHarnessTopologySurface
+      <HarnessControlSurfaces
         session={props.session}
-        open={controls() === 'nodes'}
-        onClose={() => setControls(null)}
-      />
-      <ProductHarnessSnapshotSurface
-        session={props.session}
-        open={controls() === 'snapshots'}
-        onClose={() => setControls(null)}
+        view={view}
+        controls={controls()}
+        busy={busy()}
+        setControls={setControls}
+        onAddClient={addClient}
       />
       <CommandPalette />
     </CommandRegistryProvider>
   );
 }
 
-/** The harness's own controls, each a surface opened from a window's menu. */
-type HarnessControls = 'nodes' | 'snapshots';
-
-/**
- * The windows fill the screen: each window's tab bar is the only bar there
- * is. What the harness itself offers (its nodes, its snapshots, its
- * commands, the arrangements) is in every window's menu.
- */
-function HarnessWindowManager(props: {
-  readonly windows: HarnessWindows;
-  readonly panels: readonly WindowPanel[];
-  readonly onControls: (controls: HarnessControls) => void;
+/** The menu and the surfaces it opens; under the command registry. */
+function HarnessControlSurfaces(props: {
+  readonly session: ProductHarnessSession;
+  readonly view: HarnessView;
+  readonly controls: HarnessControls | null;
+  readonly busy: boolean;
+  readonly setControls: (controls: HarnessControls | null) => void;
+  readonly onAddClient: () => void;
 }): JSX.Element {
-  const theme = useTheme();
   const palette = useCommandPalette();
-  const menuActions = createMemo((): readonly OverflowMenuAction[] => {
-    const layout = layoutActions(props.windows);
-    return [
-      ...layout.map((action) => ({
-        id: action.id,
-        label: action.title,
-        icon: action.icon,
-        onClick: action.run,
-        endsGroup: action === layout.at(-1),
-      })),
-      {
-        id: 'harness-nodes',
-        label: 'Nodes',
-        icon: ServerIcon,
-        onClick: () => props.onControls('nodes'),
-      },
-      {
-        id: 'harness-snapshots',
-        label: 'Snapshots',
-        icon: SaveIcon,
-        onClick: () => props.onControls('snapshots'),
-      },
-      {
-        id: 'harness-commands',
-        label: 'Commands',
-        icon: SearchIcon,
-        onClick: palette.open,
-      },
-    ];
-  });
+  const close = (): void => props.setControls(null);
   return (
-    <WindowManager
-      aria-label="Harness nodes"
-      panels={[...props.panels]}
-      layout={props.windows.layout()}
-      onLayoutChange={props.windows.onLayoutChange}
-      compact={theme.breakpoint() === 'mobile'}
-      menuActions={menuActions()}
-    />
+    <>
+      <HarnessDevMenu
+        open={props.controls === 'menu'}
+        onClose={close}
+        panels={props.view.panels()}
+        shown={props.view.shown()?.id ?? null}
+        busy={props.busy}
+        onShow={props.view.show}
+        onAction={(action) => {
+          if (action === 'add-client') props.onAddClient();
+          else if (action === 'commands') palette.open();
+          else props.setControls(action);
+        }}
+      />
+      <ProductHarnessTopologySurface
+        session={props.session}
+        open={props.controls === 'nodes'}
+        onClose={close}
+      />
+      <ProductHarnessSnapshotSurface
+        session={props.session}
+        open={props.controls === 'snapshots'}
+        onClose={close}
+      />
+    </>
+  );
+}
+
+/** Moving between panels from the palette, for a keyboard. */
+function HarnessViewCommands(props: {
+  readonly view: HarnessView;
+  readonly onAddClient: () => void;
+}): JSX.Element {
+  return (
+    <>
+      <RegisterCommand
+        id="harness-next-client"
+        title="Show the next client"
+        category="Harness"
+        icon={MonitorIcon}
+        keywords={['next', 'client', 'switch', 'cycle', 'app']}
+        run={async () => {
+          props.view.next();
+        }}
+      />
+      <RegisterCommand
+        id="harness-add-client"
+        title="Add a client"
+        category="Harness"
+        icon={PlusIcon}
+        keywords={['add', 'client', 'new', 'device']}
+        run={async () => {
+          props.onAddClient();
+        }}
+      />
+      <For each={props.view.panels()}>
+        {(panel) => (
+          <RegisterCommand
+            id={`harness-show-${panel.id}`}
+            title={`Show ${panel.title}`}
+            category="Harness"
+            icon={harnessNodeIcon(panel.kind)}
+            keywords={['show', 'open', 'panel', panel.kind, panel.title]}
+            run={async () => {
+              props.view.show(panel.id);
+            }}
+          />
+        )}
+      </For>
+    </>
   );
 }
 

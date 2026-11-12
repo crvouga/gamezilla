@@ -1,24 +1,14 @@
 import { describe, expect, test } from 'bun:test';
 import {
-  admitHarnessPanels,
-  arrangeHarnessLayout,
   harnessPanelKind,
   harnessPanels,
-  resolveHarnessLayout,
-  shownHarnessClients,
+  nextHarnessClient,
+  resolveHarnessView,
+  shownHarnessClient,
 } from '@pkgs/harness-console-shared-ts/harness-windows';
-import {
-  applyWindowLayoutCommand,
-  windowGroups,
-  windowOfPanel,
-  windowPanels,
-} from '@pkgs/ui-devtools-shared-ts/window-layout';
-import { serializeWindowLayout } from '@pkgs/ui-devtools-shared-ts/window-layout-codec';
 
 const WORLD = { clients: ['alice', 'bob'], servers: ['server-a'], rooms: [] };
 const ids = (topology = WORLD) => harnessPanels(topology).map(({ id }) => id);
-const tabs = (layout: ReturnType<typeof arrangeHarnessLayout>) =>
-  windowGroups(layout).map((group) => group.tabs);
 
 describe('harnessPanels', () => {
   test('lists one panel per node along the request path', () => {
@@ -49,124 +39,48 @@ describe('harnessPanels', () => {
   });
 });
 
-describe('arrangeHarnessLayout', () => {
-  test('beside gives each client a window and tabs the rest', () => {
-    expect(tabs(arrangeHarnessLayout(ids(), 'beside'))).toEqual([
-      ['client:alice'],
-      ['client:bob'],
-      ['lb', 'server:server-a', 'events'],
-    ]);
+describe('resolveHarnessView', () => {
+  test('a wanted panel that exists is the one on show', () => {
+    expect(resolveHarnessView('client:bob', ids())).toBe('client:bob');
+    expect(resolveHarnessView('server:server-a', ids())).toBe(
+      'server:server-a'
+    );
   });
 
-  test('tabs puts the clients in one window', () => {
-    expect(tabs(arrangeHarnessLayout(ids(), 'tabs'))).toEqual([
-      ['client:alice', 'client:bob'],
-      ['lb', 'server:server-a', 'events'],
-    ]);
+  test('no choice, or one that is gone, falls back to the first client', () => {
+    expect(resolveHarnessView(null, ids())).toBe('client:alice');
+    expect(resolveHarnessView('client:zed', ids())).toBe('client:alice');
+    expect(resolveHarnessView('room:closed', ids())).toBe('client:alice');
   });
 
-  test('rearranging keeps the focused panel on show', () => {
-    const beside = applyWindowLayoutCommand(
-      arrangeHarnessLayout(ids(), 'beside'),
-      { type: 'select', panel: 'client:bob' }
-    );
-    const tabbed = arrangeHarnessLayout(ids(), 'tabs', beside);
-    expect(shownHarnessClients(tabbed)).toEqual(['bob']);
-    expect(windowOfPanel(tabbed, 'client:bob')?.id ?? null).toBe(
-      tabbed.focused
-    );
+  test('a system with no client shows its first panel, and none shows nothing', () => {
+    expect(resolveHarnessView(null, ids({ ...WORLD, clients: [] }))).toBe('lb');
+    expect(resolveHarnessView('client:alice', [])).toBeNull();
   });
 });
 
-describe('resolveHarnessLayout', () => {
-  test('missing or unreadable text gives the starting arrangement', () => {
-    const start = arrangeHarnessLayout(ids(), 'beside');
-    expect(resolveHarnessLayout(null, ids())).toEqual(start);
-    expect(resolveHarnessLayout('not a layout', ids())).toEqual(start);
+describe('nextHarnessClient', () => {
+  test('goes to the client after the one on show, and around again', () => {
+    expect(nextHarnessClient('client:alice', ids())).toBe('client:bob');
+    expect(nextHarnessClient('client:bob', ids())).toBe('client:alice');
   });
 
-  test('drops panels whose node is gone and falls back to one that exists', () => {
-    const forBob = serializeWindowLayout(
-      applyWindowLayoutCommand(arrangeHarnessLayout(ids(), 'tabs'), {
-        type: 'select',
-        panel: 'client:bob',
-      })
-    );
+  test('from a panel that is not a client it is the first client', () => {
+    expect(nextHarnessClient('server:server-a', ids())).toBe('client:alice');
+    expect(nextHarnessClient(null, ids())).toBe('client:alice');
+  });
+
+  test('a lone client stays on show, and no client gives none', () => {
     const alone = ids({ ...WORLD, clients: ['alice'] });
-    expect(shownHarnessClients(resolveHarnessLayout(forBob, alone))).toEqual([
-      'alice',
-    ]);
-  });
-
-  test('keeps a layout the team emptied on purpose', () => {
-    expect(resolveHarnessLayout('{"r":null}', ids()).root).toBeNull();
-  });
-
-  test('a layout of nodes that are all gone starts over', () => {
-    expect(
-      windowPanels(resolveHarnessLayout('{"r":{"t":["client:zed"]}}', ids()))
-    ).toEqual(ids());
+    expect(nextHarnessClient('client:alice', alone)).toBe('client:alice');
+    expect(nextHarnessClient('lb', ids({ ...WORLD, clients: [] }))).toBeNull();
   });
 });
 
-describe('admitHarnessPanels', () => {
-  test('a new client gets a window beside the last client', () => {
-    const layout = admitHarnessPanels(arrangeHarnessLayout(ids(), 'beside'), [
-      'client:carol',
-    ]);
-    expect(tabs(layout)).toEqual([
-      ['client:alice'],
-      ['client:bob'],
-      ['client:carol'],
-      ['lb', 'server:server-a', 'events'],
-    ]);
-  });
-
-  test('a new client joins the window that tabs clients', () => {
-    const layout = admitHarnessPanels(arrangeHarnessLayout(ids(), 'tabs'), [
-      'client:carol',
-    ]);
-    expect(tabs(layout)[0]).toEqual([
-      'client:alice',
-      'client:bob',
-      'client:carol',
-    ]);
-    expect(shownHarnessClients(layout)).toEqual(['alice']);
-  });
-
-  test('a new room joins the rest of the system without taking focus', () => {
-    const start = arrangeHarnessLayout(ids(), 'beside');
-    const layout = admitHarnessPanels(start, ['room:lobby', 'lb']);
-    expect(tabs(layout).at(-1)).toEqual([
-      'lb',
-      'server:server-a',
-      'events',
-      'room:lobby',
-    ]);
-    expect(windowGroups(layout).at(-1)?.active).toBe('lb');
-    expect(layout.focused).toBe(start.focused);
-  });
-
-  test('opens a window when nothing is open', () => {
-    const layout = admitHarnessPanels(resolveHarnessLayout('{"r":null}', []), [
-      'client:alice',
-    ]);
-    expect(tabs(layout)).toEqual([['client:alice']]);
-  });
-});
-
-describe('shownHarnessClients', () => {
-  test('a maximized window is the only one on show', () => {
-    const beside = arrangeHarnessLayout(ids(), 'beside');
-    const bob = windowOfPanel(beside, 'client:bob');
-    expect(shownHarnessClients(beside)).toEqual(['alice', 'bob']);
-    expect(
-      shownHarnessClients(
-        applyWindowLayoutCommand(beside, {
-          type: 'maximize',
-          window: bob?.id ?? '',
-        })
-      )
-    ).toEqual(['bob']);
+describe('shownHarnessClient', () => {
+  test("names the client whose app is on show, when a client's is", () => {
+    expect(shownHarnessClient('client:bob')).toBe('bob');
+    expect(shownHarnessClient('server:server-a')).toBeNull();
+    expect(shownHarnessClient(null)).toBeNull();
   });
 });

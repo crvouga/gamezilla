@@ -69,7 +69,7 @@ export function renderPreviewSection(facts: PreviewSectionFacts): string {
   if (facts.status !== 'removed' && facts.status !== 'expired')
     lines.push(
       '',
-      '**What this is:** the whole system — API servers, Postgres, rooms, and simulated identity, billing, storage and LLM vendors — running inside your browser tab. The URL serves static files only: no server, no secrets, no production data. Each panel of the console looks into one node.',
+      '**What this is:** the whole system — API servers, Postgres, rooms, and simulated identity, billing, storage and LLM vendors — running inside your browser tab. The URL serves static files only: no server, no secrets, no production data. It shows one app at a time: tap the floating button for the next person, hold it for everything else.',
       ...(facts.storybookUrl === null
         ? []
         : [
@@ -77,11 +77,11 @@ export function renderPreviewSection(facts: PreviewSectionFacts): string {
             "**Storybook:** this pull request's build of the component library, at the same commit.",
           ]),
       '',
-      '**Sign in:** nothing to sign in to. The system starts with two people, `alice` and `bob`, each signed in on a device of their own and already friends; drive them from the console.',
+      '**Sign in:** nothing to sign in to. The system starts with two people, `alice` and `bob`, each signed in on a device of their own and already friends; tap the floating button to go from one to the other.',
       '',
       '**Reset:** state lives only in your browser, under this URL. Clear the site data for it (or open it in a fresh browser profile) to start clean; nothing is stored anywhere else.',
       '',
-      `**Diagnostics:** \`PREVIEW_PR=${pr} mise run preview:test\` checks what is deployed; node logs are in the console panels (docs/PREVIEW_ENVIRONMENTS.md).`
+      `**Diagnostics:** \`PREVIEW_PR=${pr} mise run preview:test\` checks what is deployed; node logs are in the menu the floating button opens (docs/PREVIEW_ENVIRONMENTS.md).`
     );
   lines.push(PREVIEW_SECTION_END);
   return lines.join('\n');

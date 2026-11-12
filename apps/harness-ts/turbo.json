@@ -31,7 +31,6 @@
         "@pkgs/sync-engine-server-ts#src",
         "@pkgs/sync-engine-shared-ts#src",
         "@pkgs/tailwind-shared-ts#src",
-        "@pkgs/ui-devtools-shared-ts#src",
         "@pkgs/ui-root-client-ts#src",
         "@pkgs/uuid-client-ts#src",
         "@pkgs/uuid-shared-ts#src"

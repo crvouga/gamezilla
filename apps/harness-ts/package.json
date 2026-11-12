@@ -48,7 +48,6 @@
     "@pkgs/sync-engine-server-ts": "workspace:*",
     "@pkgs/sync-engine-shared-ts": "workspace:*",
     "@pkgs/tailwind-shared-ts": "workspace:*",
-    "@pkgs/ui-devtools-shared-ts": "workspace:*",
     "@pkgs/ui-root-client-ts": "workspace:*",
     "@pkgs/uuid-client-ts": "workspace:*",
     "@pkgs/uuid-shared-ts": "workspace:*",

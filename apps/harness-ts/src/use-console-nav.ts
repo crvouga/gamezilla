@@ -44,8 +44,8 @@ export function useConsoleNav(): UseConsoleNavResult {
     patch(partial, mode = 'push') {
       const next = applyConsoleNavPatch(state(), partial);
       if (consoleNavEqual(state(), next)) return;
-      // A view change hands the keyboard back; a window command keeps the
-      // tab or divider it was made from focused.
+      // A view change hands the keyboard back; a change of panel keeps the
+      // control it was made from focused.
       if (partial.pane !== undefined) releaseConsoleFocus();
       writeConsoleNavUrl(
         buildConsoleSearch(next, readConsoleNavSearch()),

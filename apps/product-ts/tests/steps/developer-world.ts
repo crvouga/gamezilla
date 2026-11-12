@@ -21,9 +21,7 @@ const TOOLS_SYSTEM = defineProductSystem({
     changeInvestigatedApp,
     checkpointOperation,
     provideWorldDevices,
-    giveDevicesDifferentPlaces,
     chooseWorldDevice,
-    arrangeWorldDevices,
   ],
 });
 export const openDeveloperHarness = (
@@ -59,8 +57,6 @@ import {
 
 import './test-world-views.steps';
 import {
-  arrangeWorldDevices,
   chooseWorldDevice,
-  giveDevicesDifferentPlaces,
   provideWorldDevices,
 } from '@apps/harness-ts/developer-world-views';
