@@ -6,6 +6,7 @@ import type {
 } from '@pkgs/feedback-shared-ts/types';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared-ts/impl-in-memory';
 import { BugReportController, type ChosenPicture } from '../src/controller';
+import type { ScreenshotOptions } from '../src/ports';
 import type { SendOutcome } from '../src/sender';
 import { BugReportStorage } from '../src/storage';
 
@@ -39,6 +40,8 @@ export function createDevice(store = new ObjectStoreImplInMemory()) {
     clock,
     sent,
     answer: 'sent' as SendOutcome,
+    /** What each screenshot was asked to mark, in the order taken. */
+    highlights: [] as (ScreenshotOptions['highlight'] | null)[],
     capture: (): Promise<ScreenshotFile | null> =>
       Promise.resolve({ contentType: 'image/png', bytes: PNG }),
   };
@@ -50,7 +53,12 @@ export function createDevice(store = new ObjectStoreImplInMemory()) {
       sent.push({ submission, pictures });
       return Promise.resolve(world.answer);
     },
-    screenshot: { capture: () => world.capture() },
+    screenshot: {
+      capture: (options) => {
+        world.highlights.push(options?.highlight ?? null);
+        return world.capture();
+      },
+    },
     connection: { online: () => true, subscribe: () => () => undefined },
     debug: createDebugBuffer({ clock }),
     providers: () => [],

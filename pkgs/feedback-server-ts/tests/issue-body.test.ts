@@ -169,3 +169,30 @@ test('the issue says a guest sent it when the app names no account', () => {
   expect(sentWith({ id: null })).toContain(guest);
   expect(sentWith(null)).toContain(guest);
 });
+
+test('a bug report about one thing names it the way the app does', () => {
+  const { body } = bugReportIssue({
+    ...REPORT,
+    subject: {
+      testIds: ['example-settings', 'home'],
+      component: 'Button',
+      screen: 'home',
+      name: 'Settings`\n@everyone',
+      role: 'button',
+      box: { x: 10, y: 20, width: 120, height: 44 },
+      viewport: { width: 1280, height: 800 },
+      pointer: { x: 40, y: 30 },
+      selectedText: 'castling ```rights',
+    },
+  });
+  expect(body).toContain(
+    'Name `Settings  @everyone` · Role `button` · Test ids `example-settings` › `home` · Component `Button` · Screen `home` · Box `10,20 120x44` in window `1280x800` · Pointer `40,30`'
+  );
+  expect(body).toContain('````text\ncastling ```rights\n````');
+});
+
+test('a bug report opened any other way is about nothing in particular', () => {
+  expect(bugReportIssue(REPORT).body).toContain(
+    '**About** nothing in particular'
+  );
+});

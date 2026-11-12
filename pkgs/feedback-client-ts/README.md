@@ -19,7 +19,7 @@ domain model:
 
 `bootBrowserBugReports` (`wall.ts`) installs bug reporting before the
 application starts, so a report can be sent from an app that crashed or never
-signed in. It mounts one surface in its own island and answers four ways of
+signed in. It mounts one surface in its own island and answers five ways of
 asking for it:
 
 - `requestBugReport()`, which the host calls from its own "Report a bug" option;
@@ -29,6 +29,24 @@ asking for it:
 - shaking the device, on by default where the device allows it without asking.
   Where the device asks first (iPhone), the person turns on "Shake to report a
   bug" once; `bugReportsOf(document).shake` is the setting the host renders.
+- "Report a bug about this" in the app's own right-click menu on a computer
+  (`context-menu.ts`). The bug report then carries a `subject`: the thing's
+  `data-testid` chain, `data-component`, `data-screen`, accessible name, role,
+  box and the window size in CSS px, the pointer and any words selected on the
+  page — never what was typed into a field. The screenshot is drawn with that
+  box marked, and the issue says what the report is about.
+
+The right-click menu replaces the browser's for a mouse only (a finger or a pen
+keeps its long press) and offers what the browser's own does that a page may
+do: copy, search the web and select all for selected words; undo, redo, cut,
+copy, paste and select all in a field; open, open in a new tab and copy the
+address of a link; open, copy and save a picture; back, forward, reload, copy
+the page link and print on the page itself. The ContextMenu key and Shift+F10
+open it at the focused thing. Shift+right-click, a second right-click while it
+is open, a right-click the page already handled (`preventDefault`, as the chess
+board does for its arrows) and anything inside `data-native-context-menu` get
+the browser's own menu. Everything it does to the browser goes through
+`BrowserPort` (`wall-browser.ts`).
 
 Opening takes a screenshot of the app before the surface covers it. The person
 can remove it and add up to `MAX_SCREENSHOTS - 1` more. Pictures are recognised
@@ -62,8 +80,8 @@ allows `DAILY_BUG_REPORT_LIMIT` reports a day per device and
   devices keep their reports until it can receive them. `GET /api/bug-reports/health` says whether a report
   sent now would become an issue, and production's health run asks it
   ([`receiving-bug-reports.feature`](../../specs/feedback/receiving-bug-reports.feature)).
-- The issue is written for whoever fixes the bug (`issue-body.ts`): where it
-  happened and the commit, the timeline with the `data-testid` of each choice,
+- The issue is written for whoever fixes the bug (`issue-body.ts`): the one
+  thing it is about, where it happened and the commit, the timeline with the `data-testid` of each choice,
   every stack and failed request, the device and session, and the link to the
   full report as JSON.
 - `localIssueReporter` is development: the archive under `.feedback/` is the
@@ -72,9 +90,9 @@ allows `DAILY_BUG_REPORT_LIMIT` reports a day per device and
 ## Ports
 
 Everything nondeterministic is injected (`ports.ts`): `ScreenshotPort`,
-`MotionPort`, `ConnectionPort`, `HttpClient`, `Clock`, `Timers`, an object
-store and `createId`. Wall implementations live only in `wall.ts` and
-`wall-screenshot.ts`.
+`MotionPort`, `ConnectionPort`, `BrowserPort`, `HttpClient`, `Clock`, `Timers`,
+an object store and `createId`. Wall implementations live only in `wall.ts`,
+`wall-screenshot.ts` and `wall-browser.ts`.
 
 ## Stories
 

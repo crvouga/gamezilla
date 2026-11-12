@@ -5,12 +5,19 @@ import type { DiagnosticProvider } from '@pkgs/feedback-shared-ts/types';
 import type { HttpClient } from '@pkgs/http-client-shared-ts/types';
 import type { ObjectStore } from '@pkgs/object-store-root-shared-ts/interface';
 import { renderBugReportSurface, type ThemePort } from './bug-report-surface';
+import { installContextMenu } from './context-menu';
 import { BugReportController } from './controller';
 import { installDebugRecording } from './debug-recording';
-import type { ConnectionPort, MotionPort, ScreenshotPort } from './ports';
+import type {
+  BrowserPort,
+  ConnectionPort,
+  MotionPort,
+  ScreenshotPort,
+} from './ports';
 import {
   BUG_REPORT_REQUEST_EVENT,
   registerBugReports,
+  requestedSubject,
 } from './request-bug-report';
 import { createBugReportSender } from './sender';
 import { ShakeControl } from './shake';
@@ -36,6 +43,11 @@ export type MountBugReportsOptions = {
   readonly providers: readonly DiagnosticProvider[];
   /** An event the app dispatches on the document, carrying trouble it caught itself. */
   readonly applicationErrorEvent?: string;
+  /**
+   * What the browser's own right-click menu does. Given, a right-click with
+   * a mouse opens the app's menu instead, with "Report a bug about this".
+   */
+  readonly browser?: BrowserPort;
 };
 
 function shortcut(open: () => void): (event: Event) => void {
@@ -51,8 +63,9 @@ function shortcut(open: () => void): (event: Event) => void {
 /**
  * Starts bug reporting: debug info is kept from here on, and the bug report
  * opens on request, on a shake, on a three-finger press anywhere on
- * `document`, or on Ctrl/Cmd+Shift+B. Mount it before the app starts, so a
- * bug in starting the app can itself be reported.
+ * `document`, on Ctrl/Cmd+Shift+B, or from the right-click menu about one
+ * thing on the screen. Mount it before the app starts, so a bug in starting
+ * the app can itself be reported.
  */
 export function mountBugReports(options: MountBugReportsOptions) {
   const { window, document, clock, timers } = options;
@@ -70,6 +83,15 @@ export function mountBugReports(options: MountBugReportsOptions) {
     createId: options.createId,
   });
   const open = (): void => void controller.open();
+  const onRequest = (event: Event): void =>
+    void controller.open(requestedSubject(event));
+  const contextMenu =
+    options.browser &&
+    installContextMenu({
+      document,
+      browser: options.browser,
+      onReport: (subject) => void controller.open(subject),
+    });
   const shake = new ShakeControl({
     motion: options.motion,
     storage,
@@ -78,10 +100,10 @@ export function mountBugReports(options: MountBugReportsOptions) {
   });
   const restored = storage.loadTrail().then(debug.restore, () => undefined);
   const onShortcut = shortcut(open);
-  document.addEventListener(BUG_REPORT_REQUEST_EVENT, open);
+  document.addEventListener(BUG_REPORT_REQUEST_EVENT, onRequest);
   document.addEventListener('keydown', onShortcut);
   const cleanups = [
-    () => document.removeEventListener(BUG_REPORT_REQUEST_EVENT, open),
+    () => document.removeEventListener(BUG_REPORT_REQUEST_EVENT, onRequest),
     () => document.removeEventListener('keydown', onShortcut),
     installThreeFingerPress({ target: document, timers, onPress: open }),
     installDebugRecording({
@@ -98,7 +120,11 @@ export function mountBugReports(options: MountBugReportsOptions) {
       if (options.connection.online()) void controller.flush();
     }),
     registerBugReports(document, { controller, shake }),
-    renderBugReportSurface(options.host, controller, options),
+    renderBugReportSurface(options.host, controller, {
+      ...options,
+      contextMenu,
+    }),
+    () => contextMenu?.dispose(),
   ];
   return {
     controller,

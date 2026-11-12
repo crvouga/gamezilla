@@ -43,6 +43,37 @@ export type Screenshot = {
   readonly url: string;
 };
 
+/** A box on the screen, in CSS px from the top left of the window. */
+export type ScreenBox = {
+  readonly x: number;
+  readonly y: number;
+  readonly width: number;
+  readonly height: number;
+};
+
+/**
+ * The one thing on the screen a bug report is about, as the person pointed
+ * at it. Names it the way the app does and never holds what a person typed.
+ */
+export type BugReportSubject = {
+  /** The `data-testid` of the thing and of each thing holding it, nearest first. */
+  readonly testIds: readonly string[];
+  /** The nearest `data-component`, where the build keeps them. */
+  readonly component: string | null;
+  /** The nearest `data-screen`, where the build keeps them. */
+  readonly screen: string | null;
+  /** What a screen reader calls it. */
+  readonly name: string | null;
+  readonly role: string | null;
+  readonly box: ScreenBox;
+  /** The window it was in, in CSS px. */
+  readonly viewport: { readonly width: number; readonly height: number };
+  /** Where the pointer was; `null` when the keyboard asked. */
+  readonly pointer: { readonly x: number; readonly y: number } | null;
+  /** Words the person had selected on the page, never in a field. */
+  readonly selectedText: string | null;
+};
+
 /** What a device sends: everything in a bug report except its pictures, which travel beside it. */
 export type BugReportSubmission = {
   readonly schema: 'bug-report/v1';
@@ -52,6 +83,8 @@ export type BugReportSubmission = {
   readonly description: string;
   readonly createdAt: string;
   readonly debugInfo: DebugInfo;
+  /** Present when the person reported a bug about one thing on the screen. */
+  readonly subject?: BugReportSubject;
 };
 
 export type BugReport = BugReportSubmission & {

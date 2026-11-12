@@ -10,6 +10,7 @@ import {
 import type { DebugBuffer } from '@pkgs/feedback-shared-ts/debug-buffer';
 import { collectDiagnostics } from '@pkgs/feedback-shared-ts/diagnostics';
 import type {
+  BugReportSubject,
   DebugEvent,
   DiagnosticProvider,
 } from '@pkgs/feedback-shared-ts/types';
@@ -163,13 +164,19 @@ export class BugReportController {
     });
   }
 
-  /** Replaces the app's own screenshot with one of what is showing now. */
+  /**
+   * Replaces the app's own screenshot with one of what is showing now,
+   * marking the thing the bug report is about.
+   */
   private async takeScreenshot(draft: Draft): Promise<void> {
     const { storage, screenshot, timers } = this.options;
     for (const { id } of draft.screenshots) await storage.deletePicture(id);
     draft.screenshots = [];
+    const highlight = draft.subject?.box;
     const file = await withDeadline(
-      Promise.resolve().then(() => screenshot.capture()),
+      Promise.resolve().then(() =>
+        screenshot.capture(highlight ? { highlight } : undefined)
+      ),
       timers,
       SCREENSHOT_DEADLINE_MS,
       null
@@ -185,9 +192,10 @@ export class BugReportController {
    * Opens the bug report. One the person has not started takes a fresh
    * screenshot and the debug info up to now; one already started keeps what
    * it had, so reporting again never loses a word and the debug info still
-   * tells of when the bug happened.
+   * tells of when the bug happened. A bug report about one thing on the
+   * screen names it, and its screenshot marks it.
    */
-  readonly open = (): Promise<void> =>
+  readonly open = (subject?: BugReportSubject): Promise<void> =>
     this.enqueue(async () => {
       const draft = this.draft;
       if (this.current.open || !draft || this.disposed) return;
@@ -201,6 +209,8 @@ export class BugReportController {
         draft.screenshots.some((screenshot) => !screenshot.auto);
       if (!started) {
         draft.events = this.options.debug.snapshot();
+        if (subject) draft.subject = subject;
+        else delete draft.subject;
         await this.takeScreenshot(draft).catch(() => undefined);
       }
       await this.options.storage.saveDraft(draft);
@@ -340,6 +350,7 @@ export class BugReportController {
             DETAILS_DEADLINE_MS
           ),
         },
+        ...(draft.subject ? { subject: draft.subject } : {}),
       },
       pictures,
     };

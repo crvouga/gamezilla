@@ -1,8 +1,10 @@
 import type {
+  BugReportSubject,
   BugReportSubmission,
   DebugEvent,
   DebugEventKind,
   Diagnostic,
+  ScreenBox,
 } from './types';
 
 export const MAX_DESCRIPTION_LENGTH = 4000;
@@ -33,6 +35,12 @@ export const BUG_REPORT_ID =
   /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
 
 const MAX_DEBUG_EVENTS = 300;
+/** How many enclosing `data-testid`s a subject names. */
+export const MAX_SUBJECT_TEST_IDS = 12;
+const MAX_SUBJECT_TEXT = 200;
+export const MAX_SUBJECT_SELECTION = 1000;
+/** Further than any screen reaches, in CSS px. */
+const MAX_SCREEN_PX = 100_000;
 const MAX_DEBUG_DETAILS = 20;
 const EVENT_KINDS: readonly DebugEventKind[] = [
   'navigation',
@@ -98,6 +106,53 @@ function readDetails(value: unknown): readonly Diagnostic[] {
   });
 }
 
+function maybeText(value: unknown, max: number): string | null {
+  return value === null || value === undefined ? null : text(value, max);
+}
+
+function px(value: unknown): number {
+  if (
+    typeof value !== 'number' ||
+    !Number.isFinite(value) ||
+    Math.abs(value) > MAX_SCREEN_PX
+  )
+    throw new Error('Invalid bug report subject');
+  return value;
+}
+
+function readBox(value: unknown): ScreenBox {
+  const box = record(value);
+  return {
+    x: px(box['x']),
+    y: px(box['y']),
+    width: px(box['width']),
+    height: px(box['height']),
+  };
+}
+
+function readSubject(value: unknown): BugReportSubject {
+  const subject = record(value);
+  const testIds = subject['testIds'];
+  if (!Array.isArray(testIds) || testIds.length > MAX_SUBJECT_TEST_IDS)
+    throw new Error('Invalid bug report subject');
+  const viewport = record(subject['viewport']);
+  const pointer =
+    subject['pointer'] === null || subject['pointer'] === undefined
+      ? null
+      : record(subject['pointer']);
+  return {
+    testIds: testIds.map((id: unknown) => text(id, MAX_SUBJECT_TEXT)),
+    component: maybeText(subject['component'], MAX_SUBJECT_TEXT),
+    screen: maybeText(subject['screen'], MAX_SUBJECT_TEXT),
+    name: maybeText(subject['name'], MAX_SUBJECT_TEXT),
+    role: maybeText(subject['role'], MAX_SUBJECT_TEXT),
+    box: readBox(subject['box']),
+    viewport: { width: px(viewport['width']), height: px(viewport['height']) },
+    pointer: pointer && { x: px(pointer['x']), y: px(pointer['y']) },
+    selectedText: maybeText(subject['selectedText'], MAX_SUBJECT_SELECTION),
+  };
+}
+
 /** The one reader of a bug report that crossed a boundary; anything else is refused. */
 export function readBugReportSubmission(value: unknown): BugReportSubmission {
   const input = record(value);
@@ -122,5 +177,8 @@ export function readBugReportSubmission(value: unknown): BugReportSubmission {
       events: readEvents(debugInfo['events']),
       details: readDetails(debugInfo['details']),
     },
+    ...(input['subject'] === undefined || input['subject'] === null
+      ? {}
+      : { subject: readSubject(input['subject']) }),
   };
 }

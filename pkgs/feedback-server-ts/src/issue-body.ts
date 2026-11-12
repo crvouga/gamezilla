@@ -118,6 +118,42 @@ function where(report: BugReport, repository: string | undefined): string[] {
   return facts.length ? ['**Where**', '', facts.join(' · '), ''] : [];
 }
 
+/**
+ * The one thing on the screen the person reported a bug about, named the
+ * way the app names it, or nothing in particular. Its box is marked on the
+ * first screenshot.
+ */
+function about(report: BugReport): string[] {
+  const subject = report.subject;
+  if (!subject) return ['**About** nothing in particular', ''];
+  const { box, viewport, pointer } = subject;
+  const testIds = subject.testIds
+    .map(inline)
+    .filter((id) => id !== null)
+    .join(' › ');
+  const facts = [
+    ['Name', inline(subject.name)],
+    ['Role', inline(subject.role)],
+    ['Test ids', testIds || null],
+    ['Component', inline(subject.component)],
+    ['Screen', inline(subject.screen)],
+    [
+      'Box',
+      `${inline(`${box.x},${box.y} ${box.width}x${box.height}`)} in window ${inline(`${viewport.width}x${viewport.height}`)}`,
+    ],
+    ['Pointer', pointer ? inline(`${pointer.x},${pointer.y}`) : null],
+  ].flatMap(([name, value]) => (value ? [`${name} ${value}`] : []));
+  return [
+    '**About** one thing on the screen, marked on the first screenshot',
+    '',
+    facts.join(' · '),
+    '',
+    ...(subject.selectedText
+      ? ['Selected words:', '', fenced(subject.selectedText, 'text'), '']
+      : []),
+  ];
+}
+
 /** The timeline in order; trouble keeps one line here and its stack below. */
 function timeline(report: BugReport): string[] {
   const lines = report.debugInfo.events.map((event) => {
@@ -193,6 +229,7 @@ export function bugReportIssue(
     fenced(report.description, 'text'),
     '',
     ...sentBy(report),
+    ...about(report),
     ...where(report, options.repository),
     `**Screenshots** (${report.screenshots.length})`,
     '',

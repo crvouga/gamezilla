@@ -252,3 +252,56 @@ describe('a draft', () => {
     expect(device.controller.state().notice).toBe('describe');
   });
 });
+
+describe('a bug report about one thing on the screen', () => {
+  const SUBJECT = {
+    testIds: ['example-settings'],
+    component: null,
+    screen: null,
+    name: 'Settings',
+    role: 'button',
+    box: { x: 10, y: 20, width: 100, height: 40 },
+    viewport: { width: 1280, height: 800 },
+    pointer: { x: 30, y: 30 },
+    selectedText: null,
+  };
+
+  test('its screenshot marks the thing and the team is told which thing it is', async () => {
+    const device = createDevice();
+    await device.controller.open(SUBJECT);
+    expect(device.highlights).toEqual([SUBJECT.box]);
+    device.controller.describe('Settings does nothing');
+    await device.controller.send();
+    expect(device.sent[0]?.submission.subject).toEqual(SUBJECT);
+  });
+
+  test('one opened any other way marks nothing and is about nothing in particular', async () => {
+    const device = createDevice();
+    await device.controller.open();
+    expect(device.highlights).toEqual([null]);
+    device.controller.describe('The board froze');
+    await device.controller.send();
+    expect('subject' in (device.sent[0]?.submission ?? {})).toBe(false);
+  });
+
+  test('a draft already started keeps what it was about', async () => {
+    const device = createDevice();
+    await device.controller.open();
+    device.controller.describe('The board froze');
+    device.controller.close();
+    await device.controller.open(SUBJECT);
+    expect(device.highlights).toEqual([null]);
+    await device.controller.send();
+    expect('subject' in (device.sent[0]?.submission ?? {})).toBe(false);
+  });
+
+  test('a fresh draft forgets the thing an earlier, unstarted one was about', async () => {
+    const device = createDevice();
+    await device.controller.open(SUBJECT);
+    device.controller.close();
+    await device.controller.open();
+    device.controller.describe('The board froze');
+    await device.controller.send();
+    expect('subject' in (device.sent[0]?.submission ?? {})).toBe(false);
+  });
+});

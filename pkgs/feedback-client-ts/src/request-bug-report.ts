@@ -1,12 +1,31 @@
+import type { BugReportSubject } from '@pkgs/feedback-shared-ts/types';
 import type { Command } from '@pkgs/ui-root-client-ts/types';
 import type { BugReportController } from './controller';
 import type { ShakeControl } from './shake';
 
 export const BUG_REPORT_REQUEST_EVENT = 'bug-report:open';
 
-/** Asks for the bug report from anywhere in the app, whatever state the app is in. */
-export function requestBugReport(target: EventTarget = document): void {
-  target.dispatchEvent(new Event(BUG_REPORT_REQUEST_EVENT));
+/**
+ * Asks for the bug report from anywhere in the app, whatever state the app
+ * is in; about one thing on the screen when `subject` names it.
+ */
+export function requestBugReport(
+  target: EventTarget = document,
+  subject?: BugReportSubject
+): void {
+  target.dispatchEvent(
+    new CustomEvent<BugReportSubject | null>(BUG_REPORT_REQUEST_EVENT, {
+      detail: subject ?? null,
+    })
+  );
+}
+
+/** The thing a request for the bug report is about, if it names one. */
+export function requestedSubject(event: Event): BugReportSubject | undefined {
+  const detail = (event as CustomEvent<unknown>).detail;
+  return typeof detail === 'object' && detail !== null
+    ? (detail as BugReportSubject)
+    : undefined;
 }
 
 export function bugReportCommand(labels: {

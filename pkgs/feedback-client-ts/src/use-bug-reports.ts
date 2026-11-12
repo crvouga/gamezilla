@@ -7,7 +7,7 @@ type Source<T> = {
   subscribe(listener: () => void): () => void;
 };
 
-function useSource<T>(source: Accessor<Source<T>>): Accessor<T> {
+export function useSource<T>(source: Accessor<Source<T>>): Accessor<T> {
   const [state, setState] = createSignal<{ value: T }>();
   createEffect(() => {
     const current = source();

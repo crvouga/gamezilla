@@ -1,3 +1,4 @@
+import { accessibleName } from '@pkgs/a11y-shared-ts/accessible-name';
 import { auditTree, formatFailure } from '@pkgs/a11y-shared-ts/audit';
 import {
   controlsIn,
@@ -94,6 +95,16 @@ function said(): string[] {
 
 /** What Alice sees of bug reporting, read off the screen. */
 export const screen = {
+  /** The one thing in the app, outside bug reporting, that a listener hears called `name`. */
+  named(name: string): HTMLElement {
+    const things = [
+      ...document.querySelectorAll<HTMLElement>('main button, main input'),
+    ].filter((thing) => accessibleName(thing) === name);
+    const [thing, ...others] = things;
+    if (!thing || others.length > 0)
+      throw new Error(`${things.length} things in the app are called ${name}`);
+    return thing;
+  },
   openBugReports: (): number =>
     all('bug-report-form').length + all('bug-report-done').length,
   description: (): string => descriptionField().value,
@@ -332,8 +343,27 @@ export function createExamplePerson(session: Session, app: ExampleApp) {
       touch('touchend', fingers.slice(index + 1), [finger]);
     await app.settle();
   }
+  /** Right-clicks the thing the app calls `name` with a mouse, and reports a bug about it. */
+  async function reportBugAbout(name: string): Promise<void> {
+    const thing = screen.named(name);
+    const box = thing.getBoundingClientRect();
+    const at = { clientX: box.x + 4, clientY: box.y + 4, bubbles: true };
+    thing.dispatchEvent(
+      new PointerEvent('pointerdown', {
+        ...at,
+        button: 2,
+        pointerType: 'mouse',
+      })
+    );
+    thing.dispatchEvent(
+      new MouseEvent('contextmenu', { ...at, button: 2, cancelable: true })
+    );
+    await app.settle();
+    await choose(must('context-menu-report-bug'));
+  }
   return {
     press,
+    reportBugAbout,
     holdFingers,
     chooseToReport,
     describe,

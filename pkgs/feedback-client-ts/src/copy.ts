@@ -70,3 +70,42 @@ export const SHAKE_WAITING =
   'This phone asks before the app may notice shaking. Until you allow it, choose Report a bug instead.';
 
 export const SHAKE_ALLOW = 'Allow shaking';
+
+/** The words of the menu a right-click opens on a computer. */
+export const CONTEXT_MENU = {
+  label: 'Actions',
+  reportBug: 'Report a bug about this',
+  copy: 'Copy',
+  cut: 'Cut',
+  paste: 'Paste',
+  selectAll: 'Select all',
+  undo: 'Undo',
+  redo: 'Redo',
+  openLink: 'Open link',
+  openLinkInNewTab: 'Open link in new tab',
+  copyLink: 'Copy link address',
+  openImageInNewTab: 'Open image in new tab',
+  copyImage: 'Copy image',
+  saveImage: 'Save image',
+  back: 'Back',
+  forward: 'Forward',
+  reload: 'Reload',
+  copyPageLink: 'Copy page link',
+  print: 'Print…',
+  pasteRefused:
+    'This browser does not let the app paste. Press Ctrl+V (⌘V on a Mac) instead.',
+  copyFailed:
+    'This browser did not let the app copy. Select it and press Ctrl+C (⌘C on a Mac) instead.',
+} as const;
+
+/** How much of the selected words "Search the web for" quotes. */
+const SEARCH_QUOTE_LENGTH = 24;
+
+export function searchText(selected: string): string {
+  const words = selected.replace(/\s+/g, ' ').trim();
+  const quote =
+    words.length > SEARCH_QUOTE_LENGTH
+      ? `${words.slice(0, SEARCH_QUOTE_LENGTH - 1).trimEnd()}…`
+      : words;
+  return `Search the web for “${quote}”`;
+}

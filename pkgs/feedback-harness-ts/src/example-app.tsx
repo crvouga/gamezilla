@@ -1,6 +1,7 @@
 /** @jsxImportSource solid-js */
 import { browserDetails } from '@pkgs/feedback-client-ts/browser-details';
 import { mountBugReports } from '@pkgs/feedback-client-ts/mount-bug-reports';
+import type { BrowserPort } from '@pkgs/feedback-client-ts/ports';
 import {
   bugReportsOf,
   requestBugReport,
@@ -33,12 +34,43 @@ const FAILURES: Partial<Record<ApplicationCondition, string>> = {
   'cannot-sign-in': 'Signing in failed',
 };
 
+/** Where the next thing the app shows is laid out, in CSS px. */
+let nextRow = 0;
+const ROW_PX = 48;
+
+/** Lays a thing out on its own row, as a browser would, so each has a box of its own. */
+function placed<T extends HTMLElement>(node: T): T {
+  const box = new DOMRect(16, 16 + nextRow * ROW_PX, 240, 40);
+  nextRow += 1;
+  node.getBoundingClientRect = () => box;
+  return node;
+}
+
 function control(tag: string, testid: string, text: string): HTMLElement {
-  const node = document.createElement(tag);
+  const node = placed(document.createElement(tag));
   node.dataset['testid'] = testid;
   node.textContent = text;
   return node;
 }
+
+/** What Alice's browser does from its own right-click menu, kept so nothing leaves the example. */
+const exampleBrowser: BrowserPort = {
+  writeText: () => Promise.resolve(true),
+  readText: () => Promise.resolve(null),
+  edit: () => true,
+  insertText: () => true,
+  copyImage: () => Promise.resolve(true),
+  saveImage: () => undefined,
+  openInNewTab: () => undefined,
+  search: () => undefined,
+  follow: () => undefined,
+  history: () => ({ back: false, forward: false }),
+  back: () => undefined,
+  forward: () => undefined,
+  reload: () => undefined,
+  print: () => undefined,
+  pageUrl: () => `${EXAMPLE_ORIGIN}/`,
+};
 
 /** The app's own offer to report a bug. */
 function reportOffer(): HTMLElement {
@@ -48,7 +80,7 @@ function reportOffer(): HTMLElement {
 }
 
 function workingScreen(): HTMLElement[] {
-  const note = document.createElement('input');
+  const note = placed(document.createElement('input'));
   note.dataset['testid'] = 'example-note';
   note.setAttribute('aria-label', 'Note');
   const settings = document.createElement('section');
@@ -122,6 +154,7 @@ export function createExampleApp(session: Session) {
   async function boot(next: ApplicationCondition = condition): Promise<void> {
     close();
     condition = next;
+    nextRow = 0;
     const host = document.createElement('aside');
     const main = document.createElement('main');
     document.body.append(host, main);
@@ -142,6 +175,7 @@ export function createExampleApp(session: Session) {
       theme: { read: () => 'light', subscribe: () => () => undefined },
       providers: providers(),
       applicationErrorEvent: TROUBLE_EVENT,
+      browser: exampleBrowser,
     });
     startApplication(main);
     await settle();

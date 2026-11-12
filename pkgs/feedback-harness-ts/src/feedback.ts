@@ -1,3 +1,4 @@
+import { accessibleName } from '@pkgs/a11y-shared-ts/accessible-name';
 import { MAX_RETRY_MS } from '@pkgs/feedback-client-ts/controller';
 import { defineAction } from '@pkgs/harness-root-shared-ts/define-action';
 import { defineRuntime } from '@pkgs/harness-root-shared-ts/define-runtime';
@@ -142,6 +143,11 @@ export const liftFingersEarly = defineAction({
   act: (world: World, fingers: number) =>
     world.alice.holdFingers(fingers, SHORT_HOLD_MS),
 });
+/** A right-click with the mouse on the thing the app calls this, then "Report a bug about this". */
+export const reportBugAbout = defineAction({
+  name: 'reportBugAbout',
+  act: (world: World, name: string) => world.alice.reportBugAbout(name),
+});
 export const turnOffShakeToReport = defineAction({
   name: 'turnOffShakeToReport',
   act: (world: World) => world.alice.setShake(false),
@@ -255,6 +261,26 @@ export const readToldToReportWithoutShaking = (_world: World) =>
 export const readScreenshotShowsBugReport = (world: World) =>
   world.app.phone.lastScreenshotShowsBugReport();
 
+/** What the last screenshot marks, by the name of the thing it marks; `null` for nothing. */
+export const readScreenshotMarks = (world: World): string | null => {
+  const marked = world.app.phone.lastScreenshotMarks();
+  if (marked === undefined) throw new Error('No screenshot was taken');
+  if (marked === null) return null;
+  const things = [
+    ...document.querySelectorAll<HTMLElement>('main button, main input'),
+  ].filter((thing) => {
+    const box = thing.getBoundingClientRect();
+    return (
+      box.x === marked.x &&
+      box.y === marked.y &&
+      box.width === marked.width &&
+      box.height === marked.height
+    );
+  });
+  const [thing, ...others] = things;
+  return thing && others.length === 0 ? accessibleName(thing) : '';
+};
+
 export const readKeptBugReports = (world: World) => world.alice.kept();
 export const readDescriptionFull = (_world: World) =>
   screen.toldDescriptionIsFull();
@@ -278,6 +304,12 @@ function under(issue: string, heading: string): string {
   const from = issue.indexOf(heading);
   if (from < 0) return '';
   return /`{3,}\w*\n([\s\S]*?)\n`{3,}/.exec(issue.slice(from))?.[1] ?? '';
+}
+
+/** What the issue says the bug report is about: the thing's name, or `null` for nothing in particular. */
+function aboutIn(issue: string): string | null {
+  if (issue.includes('**About** nothing in particular')) return null;
+  return /\nName `([^`]*)`/.exec(issue)?.[1] ?? '';
 }
 
 const describedIn = (issue: string): string =>
@@ -327,6 +359,7 @@ export const readTeamBugReport = async (world: World) => {
   const sender = sentBy(issue);
   return {
     description: describedIn(issue),
+    about: aboutIn(issue),
     screenshots: (issue.match(/!\[Screenshot \d+\]/g) ?? []).length,
     ledUpTo,
     showsTrouble: ledUpTo.includes(EXAMPLE_TROUBLE),
@@ -378,6 +411,7 @@ export const feedbackReportingSystem = defineSystem<World>({
     threeFingerPress,
     holdFingersStill,
     liftFingersEarly,
+    reportBugAbout,
     turnOffShakeToReport,
     turnOnShakeToReport,
     allowShakeToReport,
