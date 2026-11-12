@@ -63,7 +63,10 @@ https://pr-<number>.storybook.<domain>     a pull request's Storybook
   window to tab it there or onto a window edge to put the two side by side,
   resize with the dividers, and maximize or close windows. The same moves work
   from the keyboard and from each window's menu, and the arrangement is kept
-  in the page address, so a link reopens the same layout.
+  in the page address, so a link reopens the same layout. Nothing sits above
+  the windows: a window's tab bar is the only bar, and the harness's own
+  controls (nodes, snapshots, commands, arrangements) are in each window's
+  menu.
 - **The build.** A Preview bundle is the built `apps/harness-ts`.
   `preview.json` in the bundle names the Preview and the commit it was built
   from. The harness is the one page at `/` and keeps its state in the query
@@ -73,7 +76,7 @@ https://pr-<number>.storybook.<domain>     a pull request's Storybook
   library: a Preview, of the same name `pr-<number>`, of the Storybook site's
   own Worker (`apps/storybook-ts`). It serves a copy of the canonical
   Storybook build (`@pkgs/ui-root-harness-ts#storybook:build`, which Turborepo
-  builds or restores before the preview commands run) plus its own
+  builds or restores while the harness uploads) plus its own
   `preview.json`. A Preview never changes what `storybook.<domain>` serves;
   only a release does. Built, gated, uploaded, checked, removed and swept
   together with the harness Preview: one deploy is both sites.
@@ -87,7 +90,7 @@ The pull request is `PREVIEW_PR=<number>`, or the one for the current branch.
 | --- | --- | --- |
 | `mise run preview:url` | Print the Preview URL from the pull request description | `gh` |
 | `mise run preview:test` | Check the deployed Preview and Storybook over HTTP | `gh` |
-| `mise run preview:build` | Build the harness bundle and Storybook, and gate them | Cloudflare read, or `PREVIEW_URL` |
+| `mise run preview:build` | Build the harness bundle and gate it | Cloudflare read, or `PREVIEW_URL` |
 | `mise run preview:deploy` | Build, gate, upload, check | Cloudflare deploy credential |
 | `mise run preview:main` | Build this checkout and deploy it as the main branch's | Cloudflare deploy credential |
 | `mise run preview:destroy` | Delete the Preview; verify it is gone | Cloudflare deploy credential |
@@ -116,8 +119,13 @@ wipe, and there is no server to inspect — see "State and reset".
   closed removes instead of deploying. The plan is taken again immediately
   before the upload.
 - **Older never replaces newer.** Runs for one pull request share a concurrency
-  group and are never cancelled, so they finish in order; with the re-read
-  above, a queued run for an older commit skips.
+  group, and a newer commit cancels the run for the one before it, so the
+  latest commit is what gets built, at once. With the re-read above, a run for
+  an older commit that got as far as uploading skips instead.
+- **Fast, every commit.** The checkout leaves out the reference screenshots
+  (four fifths of the repository). The harness is built alone and uploaded
+  while Storybook is built or restored from the Turborepo cache and uploaded
+  beside it; the pull request says the harness is live the moment it is.
 - **A failed deploy keeps the last working version.** The bundle is checked on
   disk with the same checks the deployed Preview must pass, before anything is
   uploaded. A commit that does not build or fails that gate is never uploaded,
@@ -127,9 +135,12 @@ wipe, and there is no server to inspect — see "State and reset".
   failing its checks`.
 - **Idempotent.** Deploying the same commit again uploads the same files;
   deleting a Preview that is gone succeeds.
+- **Nothing accumulates.** Closing or merging a pull request deletes both of
+  its Previews and its GitHub deployments, and each deploy deletes the
+  deployments of the commits before it.
 - **Orphans.** The sweep lists both Workers' Previews and deletes every `pr-<n>`
   whose pull request is not open, and every one whose pull request has had no
-  activity for 14 days (`PREVIEW_RETENTION_MS`). An expired Preview comes back
+  activity for 7 days (`PREVIEW_RETENTION_MS`). An expired Preview comes back
   with the next commit or a reopen.
 
 ## On the pull request
@@ -200,7 +211,7 @@ The bundle is about 330 files and 26 MB, its largest file under 9 MB; Storybook
 is about 900 files and 26 MB. There is
 no compute, storage or egress charge at any traffic level, and nothing runs
 while nobody is looking. The binding limit is open pull requests at once (100
-on the free plan); the 14-day retention keeps well under it. GitHub Actions
+on the free plan); the 7-day retention keeps well under it. GitHub Actions
 time is the only recurring cost: one build per push.
 
 ## Limits of this design

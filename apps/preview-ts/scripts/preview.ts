@@ -22,7 +22,7 @@
  *
  * The pull request is `PREVIEW_PR`, or the one for the current branch.
  */
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import {
   appendFileSync,
   cpSync,
@@ -208,6 +208,35 @@ function run(
   };
 }
 
+/** `run`, without holding the thread: two of these make progress at once. */
+async function runAsync(
+  cmd: string,
+  args: readonly string[],
+  options: { readonly cwd?: string; readonly env?: NodeJS.ProcessEnv } = {}
+): Promise<ReturnType<typeof run>> {
+  return await new Promise((resolve) => {
+    const child = spawn(cmd, [...args], {
+      cwd: options.cwd ?? REPO_ROOT,
+      env: options.env ?? process.env,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    let stdout = '';
+    let stderr = '';
+    child.stdout.on('data', (chunk: Buffer) => {
+      stdout += chunk.toString('utf8');
+    });
+    child.stderr.on('data', (chunk: Buffer) => {
+      stderr += chunk.toString('utf8');
+    });
+    child.on('error', (error) => {
+      resolve({ code: 1, stdout, stderr: stderr || error.message });
+    });
+    child.on('close', (code) => {
+      resolve({ code: code ?? 1, stdout, stderr });
+    });
+  });
+}
+
 function must(
   what: string,
   result: ReturnType<typeof run>
@@ -367,7 +396,12 @@ function deploymentStatus(
     );
 }
 
-function deactivateDeployments(pr: number): void {
+/**
+ * A pull request's GitHub deployments, but for `keep`: marked inactive and
+ * deleted. Each commit makes one, so without this a long-lived pull request
+ * leaves a record per push behind it, and a closed one leaves them all.
+ */
+function pruneDeployments(pr: number, keep: number | null): void {
   if (envOf('GITHUB_ACTIONS') === null) return;
   const result = run('gh', [
     'api',
@@ -380,10 +414,19 @@ function deactivateDeployments(pr: number): void {
   }[];
   for (const deployment of deployments) {
     const payload = deployment.payload;
-    if (typeof payload === 'object' && payload.pr === pr)
-      deploymentStatus(deployment.id, 'inactive', {
-        description: 'Preview removed',
-      });
+    if (typeof payload !== 'object' || payload.pr !== pr) continue;
+    if (deployment.id === keep) continue;
+    deploymentStatus(deployment.id, 'inactive', {
+      description: 'Preview replaced or removed',
+    });
+    // GitHub deletes only an inactive deployment; one it keeps is harmless.
+    run('gh', [
+      'api',
+      '-X',
+      'DELETE',
+      `repos/{owner}/{repo}/deployments/${String(deployment.id)}`,
+      '--silent',
+    ]);
   }
 }
 
@@ -490,19 +533,23 @@ async function chosenOrigin(
   });
 }
 
+function wranglerEnv(cloudflare: Account): NodeJS.ProcessEnv {
+  return {
+    ...process.env,
+    CLOUDFLARE_ACCOUNT_ID: cloudflare.accountId,
+    CLOUDFLARE_API_TOKEN: cloudflare.apiToken,
+    WRANGLER_SEND_METRICS: 'false',
+    CI: 'true',
+  };
+}
+
 function wrangler(
   cloudflare: Account,
   args: readonly string[]
 ): ReturnType<typeof run> {
   return run(WRANGLER, args, {
     cwd: PACKAGE_DIR,
-    env: {
-      ...process.env,
-      CLOUDFLARE_ACCOUNT_ID: cloudflare.accountId,
-      CLOUDFLARE_API_TOKEN: cloudflare.apiToken,
-      WRANGLER_SEND_METRICS: 'false',
-      CI: 'true',
-    },
+    env: wranglerEnv(cloudflare),
   });
 }
 
@@ -575,8 +622,7 @@ async function build(previewName: string, origin: string): Promise<void> {
         .replaceAll('\\', '/')
     );
   writeFileSync(join(HARNESS_DIST, '_headers'), distHeadersFile(files), 'utf8');
-  stageStorybook(previewName, commit.sha);
-  await gate(previewName, commit.sha);
+  await gate(HARNESS, previewName, commit.sha);
 }
 
 /** `preview.json` names the Preview and the commit a site was built from. */
@@ -590,20 +636,33 @@ function writeManifest(site: Site, previewName: string, sha: string): void {
 }
 
 /**
- * The Storybook site: a copy of the canonical build, which Turborepo makes
- * (and restores from its cache) before this command runs, plus the manifest.
- * A copy, so the cached build output is never written to.
+ * The Storybook site: the canonical build, which Turborepo makes or restores
+ * from its cache, copied (so the cached output is never written to) with its
+ * manifest. It is not built for an origin and nothing in the harness waits
+ * for it, so a deploy runs this beside the harness upload: a commit that
+ * changes no story restores in seconds, and one that does never holds the
+ * Preview back.
  */
-function stageStorybook(previewName: string, sha: string): void {
-  if (!existsSync(join(STORYBOOK_BUILD, 'index.html')))
+async function buildStorybook(previewName: string, sha: string): Promise<void> {
+  say('▸ storybook: canonical build (Turborepo builds or restores it)');
+  const built = await runAsync('bun', [
+    'run',
+    'libs/secrets-server-ts/scripts/secrets-run.ts',
+    '--',
+    'turbo',
+    'run',
+    '@pkgs/ui-root-harness-ts#storybook:build',
+    '--output-logs=errors-only',
+  ]);
+  if (built.code !== 0 || !existsSync(join(STORYBOOK_BUILD, 'index.html')))
     throw new Error(
-      'Storybook is not built; run through `mise run preview:<command>`, which builds it first (@pkgs/ui-root-harness-ts#storybook:build)'
+      `storybook: build failed: ${(built.stderr || built.stdout).trim().slice(-2000)}`
     );
-  say('▸ storybook: staging the canonical build');
   removeTree(STORYBOOK_DIST);
   mkdirSync(CACHE_DIR, { recursive: true });
   cpSync(STORYBOOK_BUILD, STORYBOOK_DIST, { recursive: true });
   writeManifest(STORYBOOK, previewName, sha);
+  await gate(STORYBOOK, previewName, sha);
 }
 
 async function sleep(ms: number): Promise<void> {
@@ -686,22 +745,24 @@ function bundleFetch(dist: string): HttpFetch {
 }
 
 /**
- * The gate before an upload: each site on disk passes the same checks its
+ * The gate before an upload: a site on disk passes the same checks its
  * deployed Preview must. A commit that fails here is never uploaded, so the
  * Preview keeps serving its last working one.
  */
-async function gate(previewName: string, sha: string): Promise<void> {
-  for (const site of SITES) {
-    say(`▸ gate: the built ${site.key} passes its checks before upload`);
-    const checks = await site.checks({
-      origin: 'https://bundle.invalid',
-      fetch: bundleFetch(site.dist),
-      previewName,
-      commit: sha,
-    });
-    if (!printChecks(checks))
-      throw new Error(`the ${site.key} failed its gate — ${failed(checks)}`);
-  }
+async function gate(
+  site: Site,
+  previewName: string,
+  sha: string
+): Promise<void> {
+  const checks = await site.checks({
+    origin: 'https://bundle.invalid',
+    fetch: bundleFetch(site.dist),
+    previewName,
+    commit: sha,
+  });
+  say(`▸ gate: the built ${site.key} passes its checks before upload`);
+  if (!printChecks(checks))
+    throw new Error(`the ${site.key} failed its gate — ${failed(checks)}`);
 }
 
 class UnhealthyPreview extends Error {}
@@ -717,18 +778,22 @@ async function upload(
   say(`▸ ${site.key}: wrangler preview --name ${name}`);
   const result = must(
     'wrangler preview',
-    wrangler(cloudflare, [
-      'preview',
-      '--name',
-      name,
-      '--config',
-      writeConfig(site),
-      '--tag',
-      sha.slice(0, 12),
-      '--message',
-      `PR #${String(pr)} at ${sha.slice(0, 12)}`,
-      '--json',
-    ])
+    await runAsync(
+      WRANGLER,
+      [
+        'preview',
+        '--name',
+        name,
+        '--config',
+        writeConfig(site),
+        '--tag',
+        sha.slice(0, 12),
+        '--message',
+        `PR #${String(pr)} at ${sha.slice(0, 12)}`,
+        '--json',
+      ],
+      { cwd: PACKAGE_DIR, env: wranglerEnv(cloudflare) }
+    )
   );
   // What proves the origin is the wait below; this only says so sooner.
   const urls = previewUrls(result.stdout);
@@ -820,8 +885,8 @@ function deployWorker(cloudflare: Account, site: Site, message: string): void {
 /** Deploy the built sites as the main branch's and prove they serve. */
 async function deployMain(sha: string): Promise<void> {
   const cloudflare = account();
-  await gate(MAIN_PREVIEW_NAME, sha);
   for (const site of SITES.filter((each) => each.deploysMain)) {
+    await gate(site, MAIN_PREVIEW_NAME, sha);
     const origin = mainOrigin(site);
     deployWorker(cloudflare, site, `main at ${sha.slice(0, 12)}`);
     say(`▸ waiting for ${origin} to serve ${sha.slice(0, 12)}`);
@@ -898,11 +963,31 @@ async function deploy(pr: number, deploymentSha: string | null): Promise<void> {
   };
   const deployment = createDeployment(pr, sha);
   deploymentStatus(deployment, 'in_progress', { url: origin });
+  const live = {
+    ...facts,
+    status: 'live',
+    deployedSha: sha,
+    detail: null,
+  } as const;
   try {
-    await gate(previewNameOfPr(pr), sha);
-    await upload(cloudflare, HARNESS, { pr, origin, sha });
-    await upload(cloudflare, STORYBOOK, { pr, origin: storybook, sha });
+    // The two sites go up beside one another. The harness is what a reviewer
+    // opens, so the pull request says it is live the moment it is, whatever
+    // Storybook is still doing.
+    const [harness, stories] = await Promise.allSettled([
+      (async () => {
+        await gate(HARNESS, previewNameOfPr(pr), sha);
+        await upload(cloudflare, HARNESS, { pr, origin, sha });
+        publishSection(pr, live);
+      })(),
+      (async () => {
+        await buildStorybook(previewNameOfPr(pr), sha);
+        await upload(cloudflare, STORYBOOK, { pr, origin: storybook, sha });
+      })(),
+    ]);
+    if (harness.status === 'rejected') throw harness.reason;
+    if (stories.status === 'rejected') throw stories.reason;
     for (const site of SITES) await ensureMainPreview(cloudflare, site);
+    pruneDeployments(pr, deployment);
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);
     const unhealthy = error instanceof UnhealthyPreview;
@@ -923,12 +1008,7 @@ async function deploy(pr: number, deploymentSha: string | null): Promise<void> {
     url: origin,
     description: `${previewNameOfPr(pr)} serves ${sha.slice(0, 12)}`,
   });
-  publishSection(pr, {
-    ...facts,
-    status: 'live',
-    deployedSha: sha,
-    detail: null,
-  });
+  publishSection(pr, live);
   say(`✓ ${origin} serves ${sha.slice(0, 12)}`);
 }
 
@@ -962,7 +1042,7 @@ async function destroy(
       );
     say(`✓ ${site.key} ${name}: Preview deleted and confirmed gone`);
   }
-  deactivateDeployments(pr);
+  pruneDeployments(pr, null);
   publishSection(pr, {
     status,
     url: null,
