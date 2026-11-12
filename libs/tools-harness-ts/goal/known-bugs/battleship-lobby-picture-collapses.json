@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone-width screen the picture on Battleship's custom game card was a sliver one pixel wide. The card fits its picture to the room over its words by the board's shape, and Battleship drew its whole playing surface there: both boards' switch, a key and a grid, which is never shorter than about 300px however narrow it gets, so each fit made it narrower. As a picture the game is now one side's waters alone.",
+  "regressionTest": "libs/battleship-client-ts/tests/board-preview.test.tsx"
+}

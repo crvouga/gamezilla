@@ -49,7 +49,8 @@ function layerStyle(mono: string): JSX.CSSProperties {
     'padding-top': `${pad}px`,
     'padding-bottom': `${pad}px`,
     'font-family': mono,
-    'font-size': `${CODE_EDITOR_FONT_SIZE}px`,
+    // The size a phone does not zoom into, where one is set (text-entry.css).
+    'font-size': `var(--ui-input-min-font-size, ${CODE_EDITOR_FONT_SIZE}px)`,
     'line-height': `${CODE_EDITOR_LINE_HEIGHT}px`,
   };
 }

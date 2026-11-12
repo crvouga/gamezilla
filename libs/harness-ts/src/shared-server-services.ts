@@ -5,6 +5,7 @@ import type { Clock } from '@pkgs/clock-shared-ts/types';
 import { KvImplPostgres } from '@pkgs/kv-postgres-shared-ts/impl-postgres';
 import { createRecordSecretStore } from '@pkgs/secret-store-shared-ts/record-secret-store';
 import { InMemoryTtsProvider } from '@pkgs/tts-root-server-ts/in-memory-tts-provider';
+import type { HarnessEmulator } from './emulators';
 import { type AppleClientKeys, harnessIdpSecrets } from './idp';
 import { createHarnessLlm } from './mockingbird-llm';
 import { createHarnessObjectStore } from './mockingbird-object-store';
@@ -25,6 +26,8 @@ export type SharedServerServices = {
   readonly auth: ServerEnv['auth'];
   readonly moderation: ServerEnv['moderation'];
   readonly sqlClient: Awaited<ReturnType<ServerEnv['openSqlClient']>>;
+  /** The vendor emulators behind `blob` and `llm`. */
+  readonly emulators: readonly HarnessEmulator[];
 };
 
 export function buildSharedServerServices(args: {
@@ -42,17 +45,17 @@ export function buildSharedServerServices(args: {
     ...harnessIdpSecrets(args.appleKeys),
     ...args.secretValues,
   });
+  const objects = createHarnessObjectStore(args.clock);
+  const llm = createHarnessLlm({ clock: args.clock });
   return {
     kv: new KvImplPostgres(args.serverSql.sqlClient, () => args.clock.now()),
     blob:
       args.sharedDataStore === undefined
-        ? createHarnessObjectStore(args.clock)
-        : new SharedObjectStore(
-            createHarnessObjectStore(args.clock),
-            args.sharedDataStore
-          ),
+        ? objects
+        : new SharedObjectStore(objects, args.sharedDataStore),
     tts: new InMemoryTtsProvider(),
-    llm: createHarnessLlm({ clock: args.clock }).provider,
+    llm: llm.provider,
+    emulators: [objects.emulator, llm.emulator],
     secrets,
     // The simulated deployment signs in through the in-house IdP.
     auth: args.auth,

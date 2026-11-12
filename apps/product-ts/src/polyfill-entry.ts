@@ -5,6 +5,7 @@ import { setHotAssertsEnabled } from '@pkgs/assert-root-shared-ts/hot-asserts';
 import { assert } from '@pkgs/assert-root-shared-ts/singleton';
 import { wallTimers } from '@pkgs/clock-shared-ts/wall';
 import { polyfillBuffer } from '@pkgs/polyfill-shared-ts/buffer';
+import { polyfillDisposal } from '@pkgs/polyfill-shared-ts/disposal';
 
 const forceHotAsserts = import.meta.env.VITE_FORCE_HOT_ASSERTS;
 if (forceHotAsserts === '1' || forceHotAsserts === 'true') {
@@ -14,4 +15,5 @@ if (forceHotAsserts === '1' || forceHotAsserts === 'true') {
 }
 
 polyfillBuffer();
+polyfillDisposal();
 assert.registerCrashHandler(new BrowserCrashHandler(wallTimers));

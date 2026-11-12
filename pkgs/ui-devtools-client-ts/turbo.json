@@ -6,6 +6,7 @@
       "inputs": ["$TURBO_EXTENDS$", "!src/tsconfig.json"],
       "dependsOn": [
         "@pkgs/async-root-client-ts#src",
+        "@pkgs/clock-client-ts#src",
         "@pkgs/ui-devtools-shared-ts#src",
         "@pkgs/ui-root-client-ts#src",
         "@pkgs/ui-root-shared-ts#src"

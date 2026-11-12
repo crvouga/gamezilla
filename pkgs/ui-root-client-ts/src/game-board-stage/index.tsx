@@ -11,6 +11,8 @@ import { createStageRoomFit } from './room-fit';
 import { createViewportSquareFit } from './viewport-fit';
 import fit from './viewport-fit.module.css';
 
+export { GameBoardPreviewContext, useGameBoardPreview } from './board-preview';
+
 /**
  * The play surface and the people around it. The game supplies the
  * interactive surface; the stage keeps it the largest thing on the screen,

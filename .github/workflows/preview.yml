@@ -11,6 +11,8 @@ run-name: "Preview · ${{ github.event_name == 'pull_request' && format('pr #{0}
 # (`apps/harness-ts`). No Worker script, no Durable Object, no secret is deployed.
 # Beside it, under the same name, the pull request's Storybook: a Preview of
 # the Storybook site's Worker (`apps/storybook-ts`), with the same lifecycle.
+# It is built (or restored from the Turborepo cache) and uploaded while the
+# harness uploads, so it never holds the harness Preview back.
 # - opened, reopened, new commit: build, check the bundle, upload, check again.
 # - push to main: the same build, deployed as the Worker itself, which is what
 #   `preview.<domain>` serves; pull requests are `pr-<number>.preview.<domain>`.
@@ -37,12 +39,13 @@ on:
 permissions:
   contents: read
 
-# One run at a time per pull request, in order, never cancelled: an upload in
-# flight finishes, and the next run re-reads the head before it uploads, so an
-# older commit never replaces a newer one.
+# One run at a time per pull request. A newer commit cancels the run for the
+# one before it, so the latest is what gets built, at once; a run re-reads the
+# head before it uploads, so an older commit never replaces a newer one. The
+# main branch's deploy and the sweep are never cancelled.
 concurrency:
   group: ${{ github.event_name == 'pull_request' && format('preview-pr-{0}', github.event.pull_request.number) || github.event_name == 'push' && 'preview-main' || 'preview-sweep' }}
-  cancel-in-progress: false
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 defaults:
   run:
@@ -69,6 +72,14 @@ jobs:
           # The head itself, not the merge with main: the deployed commit is
           # the one the pull request shows.
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          # Every commit pays for this checkout, and four fifths of the
+          # repository is reference screenshots no Preview reads: they are
+          # neither fetched nor written out.
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !**/baselines/**
       - uses: ./.github/actions/setup
         with:
           tools: bun node gh
@@ -80,7 +91,7 @@ jobs:
       - name: Decide what this pull request's Preview needs
         id: plan
         run: bun run apps/preview-ts/scripts/preview.ts ci plan
-      - name: Build the harness bundle and Storybook, and check them
+      - name: Build the harness bundle and check it
         if: ${{ steps.plan.outputs.action == 'deploy' || steps.plan.outputs.action == 'deploy-main' }}
         env:
           PREVIEW_ACTION: ${{ steps.plan.outputs.action }}

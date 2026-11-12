@@ -1,0 +1,41 @@
+/* Text entry: what every field a person types into shares, apart from the
+ * `.input` look in hosts.css. */
+
+@layer components {
+  .inputTextarea {
+    resize: vertical;
+  }
+}
+
+/*
+ * A phone's browser zooms the whole page into a field it focuses when the
+ * field's text is under 16px, and does not zoom back out. So text entered by
+ * touch is never smaller than that, whatever the type scale gives the field:
+ * the field grows instead. Outside every layer, so no utility on a field
+ * undoes it. `--ui-input-min-font-size` exists only where that floor applies,
+ * for a smaller field that sets its size inline (the code editor): it reads
+ * the variable with its own size as the fallback.
+ */
+
+@media (pointer: coarse) {
+  :root {
+    --ui-input-min-font-size: 16px;
+  }
+
+  input:not(
+    [type="checkbox"],
+    [type="radio"],
+    [type="range"],
+    [type="file"],
+    [type="color"],
+    [type="button"],
+    [type="submit"],
+    [type="reset"],
+    [type="image"]
+  ),
+  textarea,
+  select,
+  [contenteditable]:not([contenteditable="false"]) {
+    font-size: max(16px, 1em);
+  }
+}

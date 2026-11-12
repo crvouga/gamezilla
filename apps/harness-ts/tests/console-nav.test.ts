@@ -7,15 +7,8 @@ import {
   parseConsoleNav,
   resolvePaneNav,
 } from '@apps/harness-ts/console-nav';
-import { createWindowLayout } from '@pkgs/ui-devtools-shared-ts/window-layout';
-import { serializeWindowLayout } from '@pkgs/ui-devtools-shared-ts/window-layout-codec';
 
-const LAYOUT = serializeWindowLayout(
-  createWindowLayout({
-    direction: 'row',
-    children: [['client:alice'], ['lb', 'server:server-a']],
-  })
-);
+const SHOW = 'client:bob';
 
 describe('parseConsoleNav', () => {
   test('defaults when search empty', () => {
@@ -23,13 +16,17 @@ describe('parseConsoleNav', () => {
     expect(parseConsoleNav('?')).toEqual(DEFAULT_CONSOLE_NAV);
   });
 
-  test('reads the window layout', () => {
-    const search = `?layout=${encodeURIComponent(LAYOUT)}`;
-    expect(parseConsoleNav(search).layout).toBe(LAYOUT);
+  test('reads the panel on show', () => {
+    const search = `?show=${encodeURIComponent(SHOW)}`;
+    expect(parseConsoleNav(search).show).toBe(SHOW);
+    expect(parseConsoleNav('?show=server%3Aserver-a').show).toBe(
+      'server:server-a'
+    );
   });
 
-  test('text that is not a layout is the starting arrangement', () => {
-    expect(parseConsoleNav('?layout=nonsense').layout).toBeNull();
+  test('an empty choice is the first client', () => {
+    expect(parseConsoleNav('?show=').show).toBeNull();
+    expect(parseConsoleNav('?show=%20').show).toBeNull();
   });
 
   test('cv gives each panel its view', () => {
@@ -52,7 +49,7 @@ describe('buildConsoleSearch', () => {
   test('omits defaults and drops its keys when back at them', () => {
     expect(buildConsoleSearch(DEFAULT_CONSOLE_NAV)).toBe('');
     expect(
-      buildConsoleSearch(DEFAULT_CONSOLE_NAV, '?layout=x&cv=lb:events')
+      buildConsoleSearch(DEFAULT_CONSOLE_NAV, '?show=x&cv=lb:events')
     ).toBe('');
   });
 
@@ -62,9 +59,9 @@ describe('buildConsoleSearch', () => {
     );
   });
 
-  test('round-trips layout and panes', () => {
+  test('round-trips the panel on show and panes', () => {
     const state = {
-      layout: LAYOUT,
+      show: SHOW,
       panes: {
         'server:server-a': { view: 'events' },
         'room:lobby': { view: 'events' },
@@ -75,10 +72,10 @@ describe('buildConsoleSearch', () => {
 });
 
 describe('applyConsoleNavPatch', () => {
-  test('sets and clears the layout', () => {
-    const set = applyConsoleNavPatch(DEFAULT_CONSOLE_NAV, { layout: LAYOUT });
-    expect(set.layout).toBe(LAYOUT);
-    expect(applyConsoleNavPatch(set, { layout: null })).toEqual(
+  test('sets and clears the panel on show', () => {
+    const set = applyConsoleNavPatch(DEFAULT_CONSOLE_NAV, { show: SHOW });
+    expect(set.show).toBe(SHOW);
+    expect(applyConsoleNavPatch(set, { show: null })).toEqual(
       DEFAULT_CONSOLE_NAV
     );
   });

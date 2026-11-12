@@ -2,7 +2,7 @@ import { openCustomGames } from '@libs/game-session-harness-ts/game-navigation';
 import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront } from '@libs/harness-ts/observations';
-import { otherDevice } from '@libs/harness-ts/platform';
+import { otherDevice } from '@libs/harness-ts/other-device';
 import { joinViaLink } from '@libs/spaces-harness-ts/space-actions';
 import { readSpaceLink } from '@libs/spaces-harness-ts/spaces-ui-reads';
 import { lightCyclesBoardId } from './light-cycles-board-view';

@@ -37,9 +37,9 @@ function ConsoleBody(props: {
     <HarnessConsoleApp
       ports={props.ports}
       nav={{
-        layout: nav.state.layout,
+        show: nav.state.show,
         panes: nav.state.panes,
-        onLayoutChange: (layout, mode) => nav.patch({ layout }, mode),
+        onShow: (show, mode) => nav.patch({ show }, mode),
         onPanePatch: (id, patch, mode = 'push') =>
           nav.patch({ pane: { id, patch } }, mode),
       }}

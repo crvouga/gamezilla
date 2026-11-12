@@ -4,14 +4,11 @@ import {
   RotateCcwIcon,
   SaveIcon,
   SearchIcon,
-  SlidersHorizontalIcon,
   Trash2Icon,
 } from '@pkgs/ui-root-client-ts/icons';
 import { ResponsiveSurface } from '@pkgs/ui-root-client-ts/responsive-surface';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { useTheme } from '@pkgs/ui-root-client-ts/theme-context';
 import { useCommandPalette } from '@pkgs/ui-root-client-ts/use-command-palette';
-import { createSignal } from 'solid-js';
 import { SnapshotChromeModals } from './product-harness-snapshot-modals';
 import { SnapshotSelect } from './product-harness-snapshot-select';
 import { useProductHarnessSnapshots } from './use-product-harness-snapshots';
@@ -77,77 +74,38 @@ function SnapshotChromeActions(props: {
     </>
   );
 }
-/** Snapshot Select + save / reload / palette icon buttons. */
-export function ProductHarnessSnapshotChrome(props: {
+/**
+ * The harness's own controls, on one surface: pick, save, reload and delete
+ * snapshots, and open the command palette. Opened from a window's menu, so
+ * the console spends no row of the screen on them.
+ */
+export function ProductHarnessSnapshotSurface(props: {
   readonly session: ProductHarnessSession;
+  readonly open: boolean;
+  readonly onClose: () => void;
 }) {
-  const theme = useTheme();
-  const compact = () => theme.breakpoint() === 'mobile';
   const list = useProductHarnessSnapshots(() => props.session);
   const state = useSnapshotChromeState(list);
   const palette = useCommandPalette();
-  const [compactOpen, setCompactOpen] = createSignal(false);
   const nowMs = () => {
     list.snaps;
     list.busy;
     return props.session.clock.now();
   };
   return (
-    <StackHorizontal
-      grow={compact()}
-      align="center"
-      justify={compact() ? 'start' : 'end'}
-      gap="xs"
-    >
-      {compact() ? (
-        <IconButton
-          label="Open harness controls"
-          size={ICON_SIZE}
-          onClick={() => setCompactOpen(true)}
-        >
-          <SlidersHorizontalIcon size={GLYPH_SIZE} color="icon" />
-        </IconButton>
-      ) : (
-        <SnapshotSelect
-          list={list}
-          sortedSnaps={state.sortedSnaps}
-          snapById={state.snapById}
-          selectValue={state.selectedId ?? ''}
-          sort={state.sort}
-          nowMs={nowMs()}
-          checkedIds={state.checkedIds}
-          compact={compact()}
-          onSelectId={state.setSelectedId}
-          onSort={state.setSort}
-          onToggleChecked={state.onToggleChecked}
-          onToggleAll={state.onToggleAll}
-          onDeleteChecked={() =>
-            state.setPendingDeleteIds([...state.checkedIds])
-          }
-        />
-      )}
-      {compact() ? (
-        <CompactSnapshotSurface
-          open={compactOpen}
-          setOpen={setCompactOpen}
-          list={list}
-          state={state}
-          palette={palette}
-          nowMs={nowMs}
-        />
-      ) : (
-        <SnapshotChromeActions
-          list={list}
-          hasCompatibleSelection={state.hasCompatibleSelection}
-          selectedId={state.selectedId}
-          hasIncompatible={state.hasIncompatible}
-          onSaved={state.setSelectedId}
-          onPurge={() => state.setPurgeOpen(true)}
-          openPalette={palette.open}
-        />
-      )}
+    <>
+      <CompactSnapshotSurface
+        open={() => props.open}
+        setOpen={(value) => {
+          if (!value) props.onClose();
+        }}
+        list={list}
+        state={state}
+        palette={palette}
+        nowMs={nowMs}
+      />
       <SnapshotChromeModals state={state} />
-    </StackHorizontal>
+    </>
   );
 }
 function CompactSnapshotSurface(props: {
@@ -162,8 +120,8 @@ function CompactSnapshotSurface(props: {
     <ResponsiveSurface
       visible={props.open()}
       onClose={() => props.setOpen(false)}
-      title="Harness controls"
-      label="Harness controls"
+      title="Snapshots"
+      label="Harness snapshots"
       size="small"
       stackId="product-harness-snapshot-controls"
     >
@@ -185,15 +143,17 @@ function CompactSnapshotSurface(props: {
             props.state.setPendingDeleteIds([...props.state.checkedIds])
           }
         />
-        <SnapshotChromeActions
-          list={props.list}
-          hasCompatibleSelection={props.state.hasCompatibleSelection}
-          selectedId={props.state.selectedId}
-          hasIncompatible={props.state.hasIncompatible}
-          onSaved={props.state.setSelectedId}
-          onPurge={() => props.state.setPurgeOpen(true)}
-          openPalette={props.palette.open}
-        />
+        <StackHorizontal align="center" gap="xs">
+          <SnapshotChromeActions
+            list={props.list}
+            hasCompatibleSelection={props.state.hasCompatibleSelection}
+            selectedId={props.state.selectedId}
+            hasIncompatible={props.state.hasIncompatible}
+            onSaved={props.state.setSelectedId}
+            onPurge={() => props.state.setPurgeOpen(true)}
+            openPalette={props.palette.open}
+          />
+        </StackHorizontal>
       </StackVertical>
     </ResponsiveSurface>
   );

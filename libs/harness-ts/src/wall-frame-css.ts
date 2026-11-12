@@ -40,6 +40,7 @@ function uiCss(repoRoot: string): readonly string[] {
   return [
     join(repoRoot, 'pkgs/ui-root-client-ts/src/tokens.css'),
     join(repoRoot, 'pkgs/ui-root-client-ts/skin.css'),
+    join(repoRoot, 'pkgs/ui-root-client-ts/src/text-entry.css'),
     join(repoRoot, 'pkgs/ui-root-client-ts/src/hosts.css'),
   ];
 }
@@ -58,8 +59,8 @@ function listModuleCss(dir: string, out: string[]): void {
 /**
  * Stylesheet the phone snapshots share: Tailwind, tokens, skin, hosts, and
  * every `pkgs/` CSS module, compiled with the DOM preload's isolated names.
- * `hosts.css` `@import`s skin,
- * which a sheet concatenated after Tailwind drops, so skin is inlined above.
+ * `hosts.css` `@import`s skin and the text-entry rules, which a sheet
+ * concatenated after Tailwind drops, so both are inlined above.
  *
  * The bytes are a function of those files. A content-addressed cache skips
  * the Tailwind CLI on every later report collect in this checkout.

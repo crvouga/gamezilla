@@ -677,12 +677,10 @@ journeys:
     - specs/runtime/settings.feature
     tour: true
   Test worlds and checkpoints keep independent devices:
-    description: Changing the arrangement does not act in the apps; a compatible checkpoint restores the world.
+    description: Selecting a device does not act in the apps; a compatible checkpoint restores the world.
     events:
     - Opens the testing tool
     - Opens test worlds
-    - Shows several test devices
-    - Shows one test device
     - Opens test checkpoints
     - Saves the current test world as a checkpoint
     - Selects an incompatible checkpoint

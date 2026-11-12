@@ -22,6 +22,7 @@ import {
   CellGridLegend,
   type CellGridLegendItem,
 } from '@pkgs/ui-root-client-ts/cell-grid-board';
+import { useGameBoardPreview } from '@pkgs/ui-root-client-ts/game-board-stage';
 import { PairedPanels } from '@pkgs/ui-root-client-ts/paired-panels';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
@@ -130,11 +131,51 @@ function panelLabels(
 }
 
 /**
+ * The game as a picture of what is about to be played (a lobby's card):
+ * one side's waters and nothing else. The pair's switch, its key and the
+ * second board are for playing, and together they are taller than any room
+ * a picture is given.
+ */
+function BattleshipPreviewWaters(props: GameBoardProps): JSX.Element {
+  const cells = createMemo(() =>
+    shotGridCells({
+      shots: (
+        readBattleshipPosition(props.position) ??
+        decodeBattleshipPosition(BATTLESHIP_PREFIX)
+      ).shots[otherSide(requireTwoPlayerSide(props.orientation))],
+      interactive: false,
+      aiming: null,
+    })
+  );
+  return (
+    <CellGridBoard
+      fill
+      label={t`${sideName(props.orientation)} waters`}
+      testId={props.testId}
+      cellTestId={(cell) => `${props.testId}-${cell}`}
+      columnLabels={COLUMN_LABELS}
+      rowLabels={ROW_LABELS}
+      cells={cells()}
+    />
+  );
+}
+
+/**
  * Two boards: the viewer's own waters (their fleet, from their own setup
  * only, and the shots fired at it) and the rival's (only the public shots).
- * A watcher sees both as public shot boards, named by side.
+ * A watcher sees both as public shot boards, named by side. As a preview
+ * (`useGameBoardPreview`) it is one side's waters alone.
  */
 export function BattleshipBoard(props: GameBoardProps): JSX.Element {
+  const preview = useGameBoardPreview();
+  return (
+    <Show when={preview()} fallback={<BattleshipPlayBoard {...props} />}>
+      <BattleshipPreviewWaters {...props} />
+    </Show>
+  );
+}
+
+function BattleshipPlayBoard(props: GameBoardProps): JSX.Element {
   const battle = createMemo(
     () =>
       readBattleshipPosition(props.position) ??

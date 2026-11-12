@@ -23,6 +23,7 @@ import { browserLookup } from './browser';
 import { makeHarnessClientEnv } from './client-env';
 import { createHarnessClientNamespaces } from './client-namespace';
 import type { HarnessComposition, HarnessRoomNode } from './composition';
+import { type HarnessEmulator, harnessEmulators } from './emulators';
 import { harnessAuthProvider } from './harness-auth-provider';
 import { buildServerEnv } from './harness-server-env';
 import { serverHandles } from './harness-server-handles';
@@ -98,6 +99,8 @@ export type Harness = {
   readonly idps: HarnessIdps;
   /** The payment providers, when the composition sells something. */
   readonly billing: HarnessBillingProviders | null;
+  /** Every simulated vendor, for an operator looking into one. */
+  emulators(): readonly HarnessEmulator[];
   /** Releases of the team's rules, installed on connected devices. */
   readonly teamRules: HarnessTeamRules;
   /** Auth directory entry + env; the account row is written on first use. */
@@ -164,6 +167,8 @@ type HarnessKernel = {
   readonly composition: HarnessComposition;
   readonly idps: HarnessIdps;
   readonly billing: HarnessBillingProviders | null;
+  /** Read when asked: a payment provider can be booted later. */
+  readonly emulators: () => readonly HarnessEmulator[];
   readonly teamRules: HarnessTeamRules;
   readonly seed: bigint;
   readonly timers: Timers;
@@ -348,6 +353,8 @@ async function bootHarnessKernel(
     composition,
     idps,
     billing,
+    emulators: () =>
+      harnessEmulators({ idps, billing, shared: shared.emulators }),
     teamRules,
     seed,
     timers,
@@ -436,6 +443,7 @@ function createHarnessHandle(kernel: HarnessKernel): Harness {
     loadBalancer: kernel.loadBalancer,
     idps,
     billing: kernel.billing,
+    emulators: kernel.emulators,
     teamRules: kernel.teamRules,
     client,
     browser: browserLookup(browsers),

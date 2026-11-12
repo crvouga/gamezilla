@@ -1,3 +1,4 @@
+import { useTimers } from '@pkgs/clock-client-ts/solid';
 import type { DebuggerViewId } from '@pkgs/harness-console-shared-ts/debugger-views';
 import {
   coerceDebuggerView,
@@ -6,7 +7,6 @@ import {
 import type { HarnessPanelRef } from '@pkgs/harness-console-shared-ts/harness-windows';
 import type { ProductHarnessSession } from '@pkgs/harness-console-shared-ts/ports';
 import { TabStrip } from '@pkgs/ui-devtools-client-ts/tab-strip';
-import type { WindowPanel } from '@pkgs/ui-devtools-client-ts/window-manager-types';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { KeyboardShortcutScope } from '@pkgs/ui-root-client-ts/keyboard-shortcut-scope';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
@@ -14,8 +14,10 @@ import { Surface } from '@pkgs/ui-root-client-ts/surface';
 import {
   type Accessor,
   createMemo,
+  createSignal,
   type JSX,
   Match,
+  onCleanup,
   Show,
   Switch,
 } from 'solid-js';
@@ -26,7 +28,6 @@ import type {
   PaneNavValue,
 } from './debugger-chrome';
 import { debuggerViewTabItem } from './debugger-chrome';
-import { harnessNodeIcon } from './node-chrome';
 import {
   ClientProductHarnessPanel,
   LoadBalancerProductHarnessPanel,
@@ -45,7 +46,7 @@ export type HarnessNodeWindowContext = {
   readonly keyboardPanel: Accessor<string | null>;
 };
 
-type NodeWindowProps = {
+export type NodeWindowProps = {
   readonly panel: HarnessPanelRef;
   readonly context: HarnessNodeWindowContext;
 };
@@ -185,22 +186,54 @@ function NodeWindow(props: NodeWindowProps): JSX.Element {
   );
 }
 
-/** The window-manager panel for one node of the session. */
-export function harnessWindowPanel(
-  panel: HarnessPanelRef,
-  context: HarnessNodeWindowContext
-): WindowPanel {
-  return {
-    id: panel.id,
-    title: panel.title,
-    icon: harnessNodeIcon(panel.kind),
-    content: () => (
-      <Show
-        when={panel.kind === 'client'}
-        fallback={<NodeWindow panel={panel} context={context} />}
-      >
-        <ClientWindow panel={panel} context={context} />
-      </Show>
-    ),
+const mounts: (() => void)[] = [];
+let mounting = false;
+
+/**
+ * Mounts its children on a turn of their own. Every panel opens in the same
+ * moment when the console starts, and a client's panel is a whole app:
+ * mounted together they hold the thread long enough to drop frames, where
+ * one per turn lets the page paint in between.
+ */
+function MountInTurn(props: { readonly children: JSX.Element }): JSX.Element {
+  const timers = useTimers();
+  const [ready, setReady] = createSignal(false);
+  let gone = false;
+  onCleanup(() => {
+    gone = true;
+  });
+  mounts.push(() => {
+    if (!gone) setReady(true);
+  });
+  const next = (): void => {
+    const mount = mounts.shift();
+    if (mount === undefined) {
+      mounting = false;
+      return;
+    }
+    mount();
+    timers.setTimeout(next, 0);
   };
+  if (!mounting) {
+    mounting = true;
+    timers.setTimeout(next, 0);
+  }
+  return <Show when={ready()}>{props.children}</Show>;
+}
+
+/**
+ * One node's panel, filling the room it is given: a client's app, or the
+ * views of a node behind the apps.
+ */
+export function HarnessPanelView(props: NodeWindowProps): JSX.Element {
+  return (
+    <MountInTurn>
+      <Show
+        when={props.panel.kind === 'client'}
+        fallback={<NodeWindow panel={props.panel} context={props.context} />}
+      >
+        <ClientWindow panel={props.panel} context={props.context} />
+      </Show>
+    </MountInTurn>
+  );
 }

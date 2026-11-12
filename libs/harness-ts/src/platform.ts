@@ -27,6 +27,7 @@ import { Given, Then, When } from './define';
 import { accountIdOf, signedInAccountOf } from './identity';
 import { connectionMissing } from './network-notices';
 import { caps } from './observations';
+import { otherDevice } from './other-device';
 import type { Actor } from './parameter-types';
 import { focusActor, openAccount } from './shell-actions';
 import type { HarnessWorld } from './spec-world';
@@ -49,10 +50,7 @@ export async function notePhoneOffline(
   if (phoneOfflineHook !== null) await phoneOfflineHook(w, actor);
 }
 
-/** The actor id of `actor`'s second device, signed into the same account. */
-export function otherDevice(actor: string): string {
-  return `${actor}_phone`;
-}
+export { otherDevice };
 
 /**
  * Cut `actor` off from the server. A host that models the network partitions

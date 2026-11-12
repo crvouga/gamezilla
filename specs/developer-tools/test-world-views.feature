@@ -16,17 +16,3 @@ Feature: Investigate people in a test world
       Given the testing tool has a test world with Alice's phone only
       When the team opens the test world's address for Bob's phone
       Then the team sees Alice's app
-
-  Rule: Changing how people are shown preserves their apps
-    No counter-example: the arrangement changes the team's view, without acting in any person's app.
-
-    Scenario: Several people appear together
-      Given the testing tool has a test world with Alice's phone and Bob's phone
-      When the team shows several devices in the test world
-      Then the team sees Alice's app beside Bob's app
-
-    Scenario: Returning to one person keeps the other person's place
-      Given the testing tool shows Alice's phone beside Bob's phone
-      And Bob's app has a place different from Alice's app
-      When the team shows only Alice's phone in the test world
-      Then Bob's phone still keeps Bob's place in the app

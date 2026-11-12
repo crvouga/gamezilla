@@ -1,0 +1,4 @@
+{
+  "summary": "Going from one client's app to the next in the harness console flashed the phone layout for a few frames before the desktop one. A view that was not on show was `display: none`, so it had no size and the app inside had laid itself out for no room; shown, it measured its real width and laid out again in sight. AppStage now keeps a hidden view in the layout at full size, invisible and inert, so it is already the right shape when its turn comes.",
+  "regressionTest": "pkgs/ui-devtools-client-ts/tests/app-stage-layout.test.tsx"
+}

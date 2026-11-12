@@ -2,7 +2,7 @@ import { actorUi } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { actorLocalSql, deviceMemberIdOf } from '@libs/harness-ts/identity';
 import { actorHtml, bringToFront } from '@libs/harness-ts/observations';
-import { otherDevice } from '@libs/harness-ts/platform';
+import { otherDevice } from '@libs/harness-ts/other-device';
 import { spaceBarShown } from '@libs/harness-ts/shell-actions';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import sql from '@pkgs/sql-root-shared-ts/sql';

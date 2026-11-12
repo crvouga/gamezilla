@@ -48,7 +48,9 @@ describe('CodeEditor', () => {
     // happy-dom's cssText parser drops quoted font stacks, so the mono
     // `font-family` cannot be asserted here; metrics + parity are.
     expect(cssOf(field)).toContain(`line-height:${CODE_EDITOR_LINE_HEIGHT}px`);
-    expect(cssOf(field)).toContain('font-size:13px');
+    expect(cssOf(field)).toContain(
+      'font-size:var(--ui-input-min-font-size,13px)'
+    );
     const mirror = mustQuery('[data-component="CodeEditorMirror"]');
     expect(mirror.tagName).toBe('PRE');
     expect(mirror.getAttribute('aria-hidden')).toBe('true');

@@ -2,7 +2,10 @@ import { createRuntime } from '@crvouga/mockingbird-service-s3';
 import type { Clock } from '@pkgs/clock-shared-ts/types';
 import type { ObjectStore } from '@pkgs/object-store-root-shared-ts/interface';
 import { createS3ObjectStore } from '@pkgs/object-store-s3-server-ts/impl-s3';
+import type { HarnessEmulator } from './emulators';
 import { mockingbirdClock } from './mockingbird-clock';
+
+const S3_ORIGIN = 'http://s3.mock';
 
 /** Real S3 commands and signing against an isolated Mockingbird runtime, with no sockets. */
 export function createHarnessObjectStore(clock: Clock) {
@@ -15,12 +18,19 @@ export function createHarnessObjectStore(clock: Clock) {
     accessKeyId: 'fixture',
     secretAccessKey: 'fixture',
     bucket: 'harness',
-    endpoint: 'http://s3.mock',
+    endpoint: S3_ORIGIN,
     region: 'us-east-1',
     rootPrefix: 'harness/',
     http: { fetch: (input, init) => runtime.fetch(new Request(input, init)) },
   });
   return Object.assign(store, {
+    /** The emulator itself, for an operator looking into it. */
+    emulator: {
+      id: 's3',
+      title: 'Object storage (S3)',
+      origin: S3_ORIGIN,
+      fetch: (input, init) => runtime.fetch(new Request(input, init)),
+    } satisfies HarnessEmulator,
     failNextWrite: () =>
       runtime.faults.add({
         id: 'harness-next-object-write',

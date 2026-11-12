@@ -15,12 +15,15 @@ import { technicalKey } from '@libs/product-identity-shared-ts/technical-names';
 import { APP_SUB_CLIENTS } from '@libs/runtime-client-ts/app-sub-clients';
 import { APP } from '@libs/runtime-shared-ts/app-subs';
 import { wallSpaceRoomTransport } from '@libs/spaces-client-ts/wall-room-transport';
+import { polyfillDisposal } from '@pkgs/polyfill-shared-ts/disposal';
 import '@pkgs/tailwind-shared-ts/tailwind.css';
 import '@pkgs/ui-root-client-ts/fonts';
 import '@pkgs/ui-root-client-ts/hosts.css';
 import '@pkgs/ui-root-client-ts/tokens.css';
 import { render } from 'solid-js/web';
 
+// Before anything runs a `using`: the native shell's web view is Safari's.
+polyfillDisposal();
 const offline = wallOfflineNetworkController();
 const clientEnv = wallClientEnv({
   http: { fetch: (input, init) => globalThis.fetch(input, init) },

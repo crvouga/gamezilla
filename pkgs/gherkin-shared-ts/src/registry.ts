@@ -161,9 +161,14 @@ export function isHostLimit(error: unknown): boolean {
   return typeof error === 'object' && error !== null && HOST_LIMIT in error;
 }
 
-/** `file:line` of the first stack frame outside this module. */
-function callerLocation(): string {
-  const stack = new Error().stack ?? '';
+/**
+ * `file:line` of the first frame of `at` outside this module. Reading a
+ * stack as text makes the engine work out source positions for the whole
+ * script, which in a large bundle stalls the page; an error only holds its
+ * frames until then, so the caller captures one and reads it here on demand.
+ */
+function callerLocation(at: Error): string {
+  const stack = at.stack ?? '';
   const frames = stack.split('\n').slice(1);
   for (const frame of frames) {
     const match = /\(?((?:\/|[A-Za-z]:\\)[^():]+):(\d+)(?::\d+)?\)?$/.exec(
@@ -208,12 +213,17 @@ export function defineParameterType(spec: ParameterTypeSpec): void {
 
 function define(kind: StepKind, text: string, body: AnyStepBody): void {
   const reg = registry();
+  const at = new Error();
+  let location: string | null = null;
   reg.definitions.push({
     kind,
     text,
     expression: new CucumberExpression(text, reg.parameterTypes),
     body,
-    location: callerLocation(),
+    get location() {
+      location ??= callerLocation(at);
+      return location;
+    },
     pending: isPending(body),
   });
 }

@@ -4,6 +4,7 @@ import { wallClock, wallTimers } from '@pkgs/clock-shared-ts/wall';
 import { createGlobalHttpClient } from '@pkgs/http-client-shared-ts/global';
 import { createBrowserObjectStore } from '@pkgs/object-store-opfs-client-ts/wall-browser-fs';
 import { bootProductHarnessSession } from './boot-product-harness';
+import { openEmulatorGateway } from './emulator-gateway';
 import type { ConsoleEnv } from './root-app';
 
 /** Wall services for the console, never for the actors' in-process HTTP. */
@@ -22,7 +23,12 @@ export function wallConsoleEnv(): ConsoleEnv {
       fetch: http.fetch,
       async bootProductHarness(options) {
         return bootProductHarnessSession(
-          { clock: wallClock, timers: wallTimers, snapshotStore },
+          {
+            clock: wallClock,
+            timers: wallTimers,
+            snapshotStore,
+            openEmulatorGateway,
+          },
           options
         );
       },

@@ -2,12 +2,7 @@ import type { ProductHarnessSession } from '@pkgs/harness-console-shared-ts/port
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { IconButton } from '@pkgs/ui-root-client-ts/icon-button';
-import {
-  MonitorIcon,
-  PlusIcon,
-  ServerIcon,
-  XIcon,
-} from '@pkgs/ui-root-client-ts/icons';
+import { MonitorIcon, ServerIcon, XIcon } from '@pkgs/ui-root-client-ts/icons';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { ResponsiveSurface } from '@pkgs/ui-root-client-ts/responsive-surface';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
@@ -85,10 +80,11 @@ function useTopologyRows(session: () => ProductHarnessSession) {
  * The last client and the last server instance are not removable: an empty
  * fleet is a crash (`crash server` in the palette), not a topology change.
  */
-export function ProductHarnessTopologyChrome(props: {
+export function ProductHarnessTopologySurface(props: {
   readonly session: ProductHarnessSession;
+  readonly open: boolean;
+  readonly onClose: () => void;
 }) {
-  const [open, setOpen] = createSignal(false);
   const [busy, setBusy] = createSignal(false);
   const [error, setError] = createSignal<string | null>(null);
   const rows = useTopologyRows(() => props.session);
@@ -113,16 +109,9 @@ export function ProductHarnessTopologyChrome(props: {
 
   return (
     <>
-      <IconButton
-        label="Add or remove harness nodes"
-        size={ICON_SIZE}
-        onClick={() => setOpen(true)}
-      >
-        <PlusIcon size={GLYPH_SIZE} color="icon" />
-      </IconButton>
       <ResponsiveSurface
-        visible={open()}
-        onClose={() => setOpen(false)}
+        visible={props.open}
+        onClose={props.onClose}
         title="Nodes"
         label="Harness nodes"
         size="small"

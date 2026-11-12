@@ -55,15 +55,25 @@ https://pr-<number>.storybook.<domain>     a pull request's Storybook
   emulated identity provider's sign-in and the friendship is the ordinary
   request and its acceptance, sent to the in-tab API. A world restored from
   the browser's saved snapshot is left as it was.
-- **The console.** The page is the harness console: panels for each client
-  actor (UI, local database, logs), each API server (SQL notebook, logs), the
-  load balancer, pub/sub topics and rooms, plus commands for crashing,
-  restarting and partitioning nodes, controlling the clock, and snapshots.
-  Every node is a panel in a window manager: drag a panel's tab onto another
-  window to tab it there or onto a window edge to put the two side by side,
-  resize with the dividers, and maximize or close windows. The same moves work
-  from the keyboard and from each window's menu, and the arrangement is kept
-  in the page address, so a link reopens the same layout.
+- **The console.** The page shows one client's app at a time, edge to edge,
+  with nothing around it, under one small button that floats over it and can
+  be dragged out of the way. A tap on the button goes on to the next client's
+  app; holding it (or a right click, or Down on the keyboard) opens the menu:
+  every client and every node behind the apps by name (the load balancer with
+  its routes, each API server with its SQL notebook and logs, pub/sub topics,
+  rooms), adding a client, and the harness's own tools (nodes, snapshots, and
+  commands for crashing, restarting and partitioning nodes and controlling the
+  clock). Every client's app keeps running while another is on show, and
+  which panel is on show is kept in the page address, so a link reopens it.
+- **Clients and emulators.** The menu adds a client and removes one (the
+  last stays). It also lists every vendor emulator (Google and Apple sign-in,
+  payments, object storage, the language model): choosing one shows that
+  Mockingbird emulator's own dashboard, with its state, journal, clock,
+  latency and faults. The emulators run in the page, so a small service
+  worker (`apps/harness-ts/public/emulator-gateway-sw.js`) gives each an
+  address under `/__emulators/` and hands those requests to the page; it
+  touches nothing else. The harness sends no email, SMS or push through an
+  emulator yet, so there is no notification inbox to show.
 - **The build.** A Preview bundle is the built `apps/harness-ts`.
   `preview.json` in the bundle names the Preview and the commit it was built
   from. The harness is the one page at `/` and keeps its state in the query
@@ -73,7 +83,7 @@ https://pr-<number>.storybook.<domain>     a pull request's Storybook
   library: a Preview, of the same name `pr-<number>`, of the Storybook site's
   own Worker (`apps/storybook-ts`). It serves a copy of the canonical
   Storybook build (`@pkgs/ui-root-harness-ts#storybook:build`, which Turborepo
-  builds or restores before the preview commands run) plus its own
+  builds or restores while the harness uploads) plus its own
   `preview.json`. A Preview never changes what `storybook.<domain>` serves;
   only a release does. Built, gated, uploaded, checked, removed and swept
   together with the harness Preview: one deploy is both sites.
@@ -87,7 +97,7 @@ The pull request is `PREVIEW_PR=<number>`, or the one for the current branch.
 | --- | --- | --- |
 | `mise run preview:url` | Print the Preview URL from the pull request description | `gh` |
 | `mise run preview:test` | Check the deployed Preview and Storybook over HTTP | `gh` |
-| `mise run preview:build` | Build the harness bundle and Storybook, and gate them | Cloudflare read, or `PREVIEW_URL` |
+| `mise run preview:build` | Build the harness bundle and gate it | Cloudflare read, or `PREVIEW_URL` |
 | `mise run preview:deploy` | Build, gate, upload, check | Cloudflare deploy credential |
 | `mise run preview:main` | Build this checkout and deploy it as the main branch's | Cloudflare deploy credential |
 | `mise run preview:destroy` | Delete the Preview; verify it is gone | Cloudflare deploy credential |
@@ -116,8 +126,13 @@ wipe, and there is no server to inspect — see "State and reset".
   closed removes instead of deploying. The plan is taken again immediately
   before the upload.
 - **Older never replaces newer.** Runs for one pull request share a concurrency
-  group and are never cancelled, so they finish in order; with the re-read
-  above, a queued run for an older commit skips.
+  group, and a newer commit cancels the run for the one before it, so the
+  latest commit is what gets built, at once. With the re-read above, a run for
+  an older commit that got as far as uploading skips instead.
+- **Fast, every commit.** The checkout leaves out the reference screenshots
+  (four fifths of the repository). The harness is built alone and uploaded
+  while Storybook is built or restored from the Turborepo cache and uploaded
+  beside it; the pull request says the harness is live the moment it is.
 - **A failed deploy keeps the last working version.** The bundle is checked on
   disk with the same checks the deployed Preview must pass, before anything is
   uploaded. A commit that does not build or fails that gate is never uploaded,
@@ -127,20 +142,25 @@ wipe, and there is no server to inspect — see "State and reset".
   failing its checks`.
 - **Idempotent.** Deploying the same commit again uploads the same files;
   deleting a Preview that is gone succeeds.
+- **Nothing accumulates.** Closing or merging a pull request deletes both of
+  its Previews and its GitHub deployments, and each deploy deletes the
+  deployments of the commits before it.
 - **Orphans.** The sweep lists both Workers' Previews and deletes every `pr-<n>`
   whose pull request is not open, and every one whose pull request has had no
-  activity for 14 days (`PREVIEW_RETENTION_MS`). An expired Preview comes back
+  activity for 7 days (`PREVIEW_RETENTION_MS`). An expired Preview comes back
   with the next commit or a reopen.
 
 ## On the pull request
 
 The workflow owns one block of the description, between
-`<!-- preview:start -->` and `<!-- preview:end -->`; the rest is returned byte
-for byte. It carries the status, the URL, the Storybook URL, the deployed commit (and the
-attempted one when they differ), the deploy run, and how to reset. Each deploy
-is also a GitHub deployment in the transient `preview` environment, with
-`in_progress`, `success` or `failure` and a link to the run; removal marks
-them `inactive`.
+`<!-- preview:start -->` and `<!-- preview:end -->`, and keeps it at the very
+top: put there when missing, moved there when found elsewhere. Its first line
+is the status and the links to the Preview and its Storybook, so they are one
+glance away on every pull request; a failure's reason is said under it; the
+commits, the deploy run and how to use a Preview are folded below. The
+author's text follows the block as written. Each deploy is also a GitHub
+deployment in the transient `preview` environment, with `in_progress`,
+`success` or `failure` and a link to the run; removal deletes them.
 
 The `preview` check is **advisory** (`required-checks/preview.json`):
 `verify:end` waits for it and reports it, and never fails on it, so a
@@ -200,7 +220,7 @@ The bundle is about 330 files and 26 MB, its largest file under 9 MB; Storybook
 is about 900 files and 26 MB. There is
 no compute, storage or egress charge at any traffic level, and nothing runs
 while nobody is looking. The binding limit is open pull requests at once (100
-on the free plan); the 14-day retention keeps well under it. GitHub Actions
+on the free plan); the 7-day retention keeps well under it. GitHub Actions
 time is the only recurring cost: one build per push.
 
 ## Limits of this design
@@ -210,9 +230,6 @@ time is the only recurring cost: one build per push.
   one tab, not between visitors.
 - **Emulated vendors only.** Real identity providers, payments and LLMs are not
   reachable, by design.
-- **Vendors have no panels yet.** The console shows clients, servers, the load
-  balancer, pub/sub and rooms; the identity, billing, storage and LLM emulators
-  are running but not yet inspectable as nodes.
 - **Remote checks are HTTP only.** `preview:test` proves what is served, not
   that the harness boots in a browser. Open it, or drive it with browser
   automation, for that.

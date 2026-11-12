@@ -2,6 +2,9 @@
 Keep every `##` section with real content; the HTML comments are guidance.
 Stay high level: everything above the checklist fits in ~120 words.
 Verify a box only when it is true.
+The Preview workflow writes a `## Preview` block above everything here, with
+the link to this pull request's Preview on its first line: leave it at the top.
+PR Hygiene holds a pull request whose description lacks one of these sections.
 -->
 
 ## Summary

@@ -59,6 +59,36 @@ export async function loadColumnNames(
   }
 }
 
+/**
+ * Every table's column names, in one read where the database can answer it
+ * that way: asking table by table costs a catalogue scan per table, which on
+ * the in-tab Postgres stalls the page for the length of the schema.
+ */
+export async function loadColumnNamesByTable(
+  sqlClient: SqlClient,
+  tableNames: readonly string[]
+): Promise<Readonly<Record<string, readonly string[]>>> {
+  const columns: Record<string, string[]> = {};
+  for (const name of tableNames) columns[name] = [];
+  if (!isPostgresSqlClient(sqlClient)) {
+    for (const name of tableNames)
+      columns[name] = [...(await loadColumnNames(sqlClient, name))];
+    return columns;
+  }
+  try {
+    const rows = await sqlClient.query<{ tbl: string; name: string }>(sql`
+      SELECT table_name AS tbl, column_name AS name
+      FROM information_schema.columns
+      WHERE table_schema = 'public'
+      ORDER BY table_name, ordinal_position
+    `);
+    for (const row of rows) columns[row.tbl]?.push(row.name);
+  } catch {
+    // Tables without columns still complete; the next refresh asks again.
+  }
+  return columns;
+}
+
 export function formatProductHarnessDbCell(value: unknown): string {
   if (value == null) return 'NULL';
   if (typeof value === 'string') return value;

@@ -22,16 +22,13 @@ export type PaneNavHistoryMode = 'push' | 'replace';
 
 /**
  * Where the console is, held by the host so it can live in the address: the
- * serialized window layout (`null` for the starting arrangement) and the
- * view each node's panel shows, keyed by panel id.
+ * panel on show (`null` for the first client's) and the view each node's
+ * panel shows, keyed by panel id.
  */
 export type HarnessConsoleNav = {
-  readonly layout: string | null;
+  readonly show: string | null;
   readonly panes: Readonly<Record<string, PaneNavValue>>;
-  readonly onLayoutChange: (
-    layout: string | null,
-    mode: PaneNavHistoryMode
-  ) => void;
+  readonly onShow: (panel: string | null, mode: PaneNavHistoryMode) => void;
   readonly onPanePatch: (
     id: string,
     patch: PaneNavPatch,

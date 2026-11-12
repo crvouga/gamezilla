@@ -75,8 +75,12 @@ export function decidePreviewAction(
   return { kind: 'deploy', pr: trigger.pr, sha: trigger.sha };
 }
 
-/** Previews of open pull requests are kept this long after their last update. */
-export const PREVIEW_RETENTION_MS = 14 * 24 * 60 * 60 * 1000;
+/**
+ * Previews of open pull requests are kept this long after their last update.
+ * A week: a pull request nobody has touched for that long is not being
+ * reviewed from its Preview, and the next commit or a reopen brings it back.
+ */
+export const PREVIEW_RETENTION_MS = 7 * 24 * 60 * 60 * 1000;
 
 export type OpenPullRequest = {
   readonly pr: number;

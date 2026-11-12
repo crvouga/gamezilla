@@ -8,7 +8,10 @@ import {
   onCleanup,
 } from 'solid-js';
 import type { SchemaRow } from './sql-schema-query';
-import { listProductHarnessTables, loadColumnNames } from './sql-schema-query';
+import {
+  listProductHarnessTables,
+  loadColumnNamesByTable,
+} from './sql-schema-query';
 
 export type SchemaWakeSubscribe = (
   listener: (label: string) => void
@@ -52,10 +55,10 @@ export function useSchemaIndex(args: {
     void (async () => {
       try {
         const nextTables = await listProductHarnessTables(sqlClient);
-        const cols: Record<string, readonly string[]> = {};
-        for (const t of nextTables) {
-          cols[t.name] = await loadColumnNames(sqlClient, t.name);
-        }
+        const cols = await loadColumnNamesByTable(
+          sqlClient,
+          nextTables.map((t) => t.name)
+        );
         if (my !== gen) return;
         setTables(nextTables);
         setColumnsByTable(cols);

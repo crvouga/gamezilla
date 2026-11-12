@@ -27,6 +27,7 @@
     "@libs/spaces-client-ts": "workspace:*",
     "@pkgs/feedback-client-ts": "workspace:*",
     "@pkgs/http-client-shared-ts": "workspace:*",
+    "@pkgs/polyfill-shared-ts": "workspace:*",
     "@pkgs/tailwind-shared-ts": "workspace:*",
     "@pkgs/ui-root-client-ts": "workspace:*",
     "solid-js": "catalog:"

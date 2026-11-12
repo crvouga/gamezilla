@@ -1,0 +1,4 @@
+{
+  "summary": "People search stayed on \"Searching…\" for good when the text changed without the search changing: a space typed after the name (a phone's keyboard adds one with every word it completes), or typing on and back within the debounce. The debounce marked a search as in flight but sent nothing, since the trimmed query was the one already searched, so nothing ever answered it. Fixed in useDebouncedSearchQuery: only a search that goes out is awaited.",
+  "regressionTest": "libs/friends-harness-ts/tests/people-search-trailing-space.test.ts"
+}

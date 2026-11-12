@@ -93,6 +93,24 @@ export default defineConfig(({ mode }) => {
       sourcemap: false,
       cssCodeSplit: true,
       assetsInlineLimit: 0,
+      rolldownOptions: {
+        output: {
+          // The vendor emulators are most of the bundle. In one chunk with
+          // the system, the page spends its first second on a single script:
+          // apart, the browser compiles them beside one another, off the
+          // main thread, and each is small enough to run between frames.
+          codeSplitting: {
+            groups: [
+              {
+                name: (id: string) =>
+                  /mockingbird-service-([a-z0-9]+)/.exec(id)?.[1] ?? null,
+                test: /[\\/]@crvouga[\\/]mockingbird-service-/,
+                maxSize: 600_000,
+              },
+            ],
+          },
+        },
+      },
     },
   };
 });
