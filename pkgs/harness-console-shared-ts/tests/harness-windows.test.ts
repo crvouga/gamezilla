@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import {
+  harnessEmulatorPanelId,
   harnessPanelKind,
   harnessPanels,
   nextHarnessClient,
@@ -66,6 +67,14 @@ describe('nextHarnessClient', () => {
   });
 
   test('from a panel that is not a client it is the first client', () => {
+    const withEmulator = [...ids(), harnessEmulatorPanelId('google')];
+    expect(nextHarnessClient('emulator:google', withEmulator)).toBe(
+      'client:alice'
+    );
+    expect(resolveHarnessView('emulator:google', withEmulator)).toBe(
+      'emulator:google'
+    );
+    expect(shownHarnessClient('emulator:google')).toBeNull();
     expect(nextHarnessClient('server:server-a', ids())).toBe('client:alice');
     expect(nextHarnessClient(null, ids())).toBe('client:alice');
   });

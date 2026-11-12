@@ -1,10 +1,14 @@
 import type { HarnessPanelRef } from '@pkgs/harness-console-shared-ts/harness-windows';
+import type { IconComponent } from '@pkgs/ui-root-client-ts/create-icon';
+import { IconButton } from '@pkgs/ui-root-client-ts/icon-button';
 import {
   CheckIcon,
+  FlaskConicalIcon,
   PlusIcon,
   SaveIcon,
   SearchIcon,
   ServerIcon,
+  XIcon,
 } from '@pkgs/ui-root-client-ts/icons';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
@@ -20,16 +24,24 @@ export type HarnessDevMenuAction =
   | 'snapshots'
   | 'commands';
 
-function PanelRow(props: {
-  readonly panel: HarnessPanelRef;
+/** A view the menu can show: a node's panel or an emulator's dashboard. */
+export type HarnessDevMenuView = {
+  readonly id: string;
+  readonly title: string;
+};
+
+function ViewRow(props: {
+  readonly view: HarnessDevMenuView;
+  readonly icon: IconComponent;
   readonly shown: boolean;
-  readonly onShow: (panel: string) => void;
+  readonly onShow: (view: string) => void;
+  /** A control of its own beside the row (remove this client). */
+  readonly accessory?: JSX.Element;
 }): JSX.Element {
-  const Icon = harnessNodeIcon(props.panel.kind);
   return (
     <MenuRow
-      title={props.panel.title}
-      leading={<Icon size={18} color="icon" />}
+      title={props.view.title}
+      leading={<props.icon size={18} color="icon" />}
       selected={props.shown}
       hideChevron
       trailing={
@@ -37,24 +49,53 @@ function PanelRow(props: {
           <CheckIcon size={18} color="icon" />
         </Show>
       }
-      dataSet={{ 'harness-part': 'menu-panel', 'panel-id': props.panel.id }}
-      onClick={() => props.onShow(props.panel.id)}
+      accessory={props.accessory}
+      dataSet={{ 'harness-part': 'menu-panel', 'panel-id': props.view.id }}
+      onClick={() => props.onShow(props.view.id)}
     />
+  );
+}
+
+/** Takes a client out of the world. The last one stays: a world has a client. */
+function RemoveClient(props: {
+  readonly client: HarnessPanelRef;
+  readonly disabled: boolean;
+  readonly onRemove: (id: string) => void;
+}): JSX.Element {
+  return (
+    <IconButton
+      label={`Remove ${props.client.title}`}
+      size={32}
+      disabled={props.disabled}
+      dataSet={{
+        'harness-part': 'menu-remove-client',
+        'panel-id': props.client.id,
+      }}
+      onClick={() => {
+        if (props.client.node !== null) props.onRemove(props.client.node);
+      }}
+    >
+      <XIcon size={16} color="icon" />
+    </IconButton>
   );
 }
 
 /**
  * Everything the harness offers that a tap on its button does not: any
- * client's app or any node behind the apps by name, another client, and the
- * harness's own tools. Choosing a row closes it.
+ * client's app, any node behind the apps or any vendor emulator's dashboard
+ * by name, adding and removing clients, and the harness's own tools.
+ * Choosing a row closes it.
  */
 export function HarnessDevMenu(props: {
   readonly open: boolean;
   readonly onClose: () => void;
   readonly panels: readonly HarnessPanelRef[];
+  /** The vendor emulators that have a dashboard to show. */
+  readonly emulators: readonly HarnessDevMenuView[];
   readonly shown: string | null;
   readonly busy: boolean;
   readonly onShow: (panel: string) => void;
+  readonly onRemoveClient: (id: string) => void;
   readonly onAction: (action: HarnessDevMenuAction) => void;
 }): JSX.Element {
   const clients = () => props.panels.filter((panel) => panel.kind === 'client');
@@ -81,10 +122,18 @@ export function HarnessDevMenu(props: {
         <MenuSection title="Clients">
           <For each={clients()}>
             {(panel) => (
-              <PanelRow
-                panel={panel}
+              <ViewRow
+                view={panel}
+                icon={harnessNodeIcon(panel.kind)}
                 shown={panel.id === props.shown}
                 onShow={show}
+                accessory={
+                  <RemoveClient
+                    client={panel}
+                    disabled={props.busy || clients().length < 2}
+                    onRemove={props.onRemoveClient}
+                  />
+                }
               />
             )}
           </For>
@@ -100,14 +149,29 @@ export function HarnessDevMenu(props: {
         <MenuSection title="Behind the apps">
           <For each={system()}>
             {(panel) => (
-              <PanelRow
-                panel={panel}
+              <ViewRow
+                view={panel}
+                icon={harnessNodeIcon(panel.kind)}
                 shown={panel.id === props.shown}
                 onShow={show}
               />
             )}
           </For>
         </MenuSection>
+        <Show when={props.emulators.length > 0}>
+          <MenuSection title="Emulators">
+            <For each={props.emulators}>
+              {(emulator) => (
+                <ViewRow
+                  view={emulator}
+                  icon={FlaskConicalIcon}
+                  shown={emulator.id === props.shown}
+                  onShow={show}
+                />
+              )}
+            </For>
+          </MenuSection>
+        </Show>
         <MenuSection title="Harness">
           <MenuRow
             title="Nodes"

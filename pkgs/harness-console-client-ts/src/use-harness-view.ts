@@ -20,7 +20,9 @@ export type HarnessView = {
   readonly revision: Accessor<number>;
   /** One panel per node, in a stable order. */
   readonly panels: Accessor<readonly HarnessPanelRef[]>;
-  /** The one panel on show. */
+  /** The id of what is on show: a panel's, or one of the extra views'. */
+  readonly shownId: Accessor<string | null>;
+  /** The panel on show, when what is on show is a node's panel. */
   readonly shown: Accessor<HarnessPanelRef | null>;
   readonly show: (panel: string) => void;
   /** On to the next client's app, around to the first again. */
@@ -88,11 +90,16 @@ function useHarnessPanels(
  */
 export function useHarnessView(
   session: Accessor<HarnessViewSession>,
-  nav: Accessor<HarnessConsoleNav>
+  nav: Accessor<HarnessConsoleNav>,
+  /** Ids of views that are not a node's panel (an emulator's dashboard). */
+  extra: Accessor<readonly string[]> = () => []
 ): HarnessView {
   const revision = useSessionRevision(session);
   const panels = useHarnessPanels(session, revision);
-  const ids = createMemo(() => panels().map((panel) => panel.id));
+  const ids = createMemo(() => [
+    ...panels().map((panel) => panel.id),
+    ...extra(),
+  ]);
   const shownId = createMemo(() => resolveHarnessView(nav().show, ids()));
   const show = (panel: string): void => {
     if (panel !== untrack(shownId)) untrack(nav).onShow(panel, 'push');
@@ -100,6 +107,7 @@ export function useHarnessView(
   return {
     revision,
     panels,
+    shownId,
     shown: createMemo(
       () => panels().find((panel) => panel.id === shownId()) ?? null
     ),

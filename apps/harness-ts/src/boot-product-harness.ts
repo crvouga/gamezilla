@@ -1,4 +1,5 @@
 import type { Harness } from '@libs/harness-ts/create-harness';
+import type { HarnessEmulator } from '@libs/harness-ts/emulators';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { productExtra } from '@libs/harness-ts/harness';
 import { APP_SYSTEM } from '@libs/runtime-harness-ts/app-composition';
@@ -8,6 +9,7 @@ import { createProductHarnessLogBuffer } from '@pkgs/harness-console-shared-ts/p
 import { defineAction } from '@pkgs/harness-root-shared-ts/define-action';
 import type { Run } from '@pkgs/harness-root-shared-ts/run-types';
 import type { ObjectStore } from '@pkgs/object-store-root-shared-ts/interface';
+import type { EmulatorGateway } from './emulator-gateway';
 import { createBreathe } from './product-harness-breathing-fetch';
 import { seedFriends } from './product-harness-friends-seed';
 import type { BootProductHarnessOptions } from './product-harness-session';
@@ -17,6 +19,10 @@ export type ProductHarnessBootEnv = {
   readonly clock: Clock;
   readonly timers: Timers;
   readonly snapshotStore: ObjectStore;
+  /** Gives the in-page emulators addresses a frame can load. */
+  readonly openEmulatorGateway?: (
+    emulators: () => readonly HarnessEmulator[]
+  ) => EmulatorGateway;
 };
 
 function startHarnessClockTick(
@@ -99,14 +105,17 @@ export async function bootProductHarnessSession(
     fire() {},
   };
   const breathe = createBreathe(env.clock, env.timers);
+  const gateway = env.openEmulatorGateway?.(() => harness.emulators());
   const session = await buildProductHarnessSession({
     harness,
     balancerLogs: createProductHarnessLogBuffer(),
     pubsubLogs: createProductHarnessLogBuffer(),
     roomLogs: createProductHarnessLogBuffer(),
     snapshotStore: env.snapshotStore,
+    emulatorDashboardUrl: (emulator) => gateway?.dashboardUrl(emulator) ?? null,
     disposeTick: () => {
       clock.disposeTick();
+      gateway?.dispose();
       if (httpListener !== null) {
         void httpListener.stop();
       }

@@ -112,6 +112,8 @@ export type ProductHarnessSessionBuildArgs = {
   readonly seedFreshWorld?: () => Promise<readonly string[]>;
   /** Lets the page paint between the clients' requests. */
   readonly breathe: Breathe;
+  /** Where a frame loads an emulator's dashboard from, when anywhere. */
+  readonly emulatorDashboardUrl: (emulator: string) => string | null;
 };
 
 async function freshClientIds(
@@ -356,6 +358,14 @@ function attachSessionApi(api: SessionApiAttachArgs): ProductHarnessSession {
       buildArgs.pubsubLogs
     ),
     rooms: maps.rooms,
+    // Read when asked: a payment provider can be booted later.
+    get emulators() {
+      return buildArgs.harness.emulators().map((emulator) => ({
+        id: emulator.id,
+        title: emulator.title,
+        dashboardUrl: buildArgs.emulatorDashboardUrl(emulator.id),
+      }));
+    },
     get revision() {
       return maps.revision;
     },

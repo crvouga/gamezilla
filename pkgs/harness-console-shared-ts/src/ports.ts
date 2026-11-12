@@ -197,6 +197,16 @@ export type ProductHarnessClock = {
   readonly reset: (ms: number) => void;
 };
 
+/** A simulated vendor (sign-in, payments, storage, …) and where to look into it. */
+export type ProductHarnessEmulator = {
+  /** Stable, URL-safe id (`google`, `stripe`, `s3`, …). */
+  readonly id: string;
+  /** What the vendor is to the product. */
+  readonly title: string;
+  /** An address a frame loads its dashboard from; `null` when there is none. */
+  readonly dashboardUrl: string | null;
+};
+
 export type ProductHarnessSession = {
   readonly clock: ProductHarnessClock;
   crash(id: string): void;
@@ -209,6 +219,8 @@ export type ProductHarnessSession = {
   readonly loadBalancer: ProductHarnessLoadBalancerNode;
   readonly pubsub: ProductHarnessPubSubNode;
   readonly rooms: ReadonlyMap<string, ProductHarnessRoomNode>;
+  /** The simulated vendors, each with a dashboard of its own. */
+  readonly emulators: readonly ProductHarnessEmulator[];
   readonly revision: number;
   readonly snapshotEpoch: number;
   readonly snapshotRestoring: boolean;

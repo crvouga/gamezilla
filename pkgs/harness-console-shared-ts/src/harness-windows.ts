@@ -67,8 +67,14 @@ export function harnessPanels(
   ];
 }
 
+/** The id of the view that shows an emulator's dashboard. */
+export function harnessEmulatorPanelId(emulator: string): string {
+  return `emulator:${emulator}`;
+}
+
 function isClient(panel: string): boolean {
-  return harnessPanelKind(panel) === 'client';
+  // By its own prefix: an id of no known kind is not a client's.
+  return parseHarnessNodeAddress(panel).kind === 'client';
 }
 
 /**

@@ -65,6 +65,15 @@ https://pr-<number>.storybook.<domain>     a pull request's Storybook
   commands for crashing, restarting and partitioning nodes and controlling the
   clock). Every client's app keeps running while another is on show, and
   which panel is on show is kept in the page address, so a link reopens it.
+- **Clients and emulators.** The menu adds a client and removes one (the
+  last stays). It also lists every vendor emulator (Google and Apple sign-in,
+  payments, object storage, the language model): choosing one shows that
+  Mockingbird emulator's own dashboard, with its state, journal, clock,
+  latency and faults. The emulators run in the page, so a small service
+  worker (`apps/harness-ts/public/emulator-gateway-sw.js`) gives each an
+  address under `/__emulators/` and hands those requests to the page; it
+  touches nothing else. The harness sends no email, SMS or push through an
+  emulator yet, so there is no notification inbox to show.
 - **The build.** A Preview bundle is the built `apps/harness-ts`.
   `preview.json` in the bundle names the Preview and the commit it was built
   from. The harness is the one page at `/` and keeps its state in the query
@@ -219,9 +228,6 @@ time is the only recurring cost: one build per push.
   one tab, not between visitors.
 - **Emulated vendors only.** Real identity providers, payments and LLMs are not
   reachable, by design.
-- **Vendors have no panels yet.** The console shows clients, servers, the load
-  balancer, pub/sub and rooms; the identity, billing, storage and LLM emulators
-  are running but not yet inspectable as nodes.
 - **Remote checks are HTTP only.** `preview:test` proves what is served, not
   that the harness boots in a browser. Open it, or drive it with browser
   automation, for that.
