@@ -60,6 +60,37 @@ export function boardRoomFit(
   return limit;
 }
 
+/** The room and board `boardRoomFit` measured, and what it found. */
+type RoomFitCache = {
+  readonly key: string;
+  readonly fit: number | undefined;
+};
+
+/**
+ * `boardRoomFit`, tried again only when the room or the board changed: a
+ * board that redraws itself (a move, a highlight) without changing its
+ * room or its size reuses the last fit instead of laying out its tries
+ * again before the next paint.
+ */
+export function createBoardRoomFitter(): (
+  room: Parameters<typeof boardRoomFit>[0]
+) => number | undefined {
+  let cache: RoomFitCache | undefined;
+  return (room) => {
+    const key = [
+      room.width,
+      room.height,
+      room.chrome,
+      room.boardWidth,
+      room.boardHeight,
+    ].join(' ');
+    if (cache?.key === key) return cache.fit;
+    const fit = boardRoomFit(room);
+    cache = { key, fit };
+    return fit;
+  };
+}
+
 /**
  * The board's height at `width`, laid out and read before the next paint
  * and then put back, so nobody sees the try.
@@ -103,6 +134,7 @@ export function createStageRoomFit(
     // it failed to shorten it, for the room's width that was measured at.
     let whole: { width: number; height: number } | undefined;
     let rigid = false;
+    const fit = createBoardRoomFitter();
     const read = () => {
       if (whole !== undefined && whole.width !== cell.clientWidth) {
         whole = undefined;
@@ -120,7 +152,7 @@ export function createStageRoomFit(
         setLimit(undefined);
         return;
       }
-      const next = boardRoomFit({
+      const next = fit({
         width: cell.clientWidth,
         height: cell.clientHeight,
         chrome: stage.offsetHeight - surface.offsetHeight,

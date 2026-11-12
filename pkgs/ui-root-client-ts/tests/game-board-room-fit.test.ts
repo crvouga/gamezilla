@@ -1,5 +1,9 @@
 import { expect, test } from 'bun:test';
-import { boardRoomFit, boardRoomLimit } from '../src/game-board-stage/room-fit';
+import {
+  boardRoomFit,
+  boardRoomLimit,
+  createBoardRoomFitter,
+} from '../src/game-board-stage/room-fit';
 
 // regression: chess-fixed-stage-board-below-playable
 test('a chess board in a 320 x 640 room stays large enough to take moves', () => {
@@ -41,4 +45,29 @@ test('a board whose tools wrap when narrowed keeps its width', () => {
   };
   expect(boardRoomLimit(quoridor)).toBe(350);
   expect(boardRoomFit({ ...quoridor, heightAt })).toBeUndefined();
+});
+
+test('a board that redraws in the same room is not laid out again', () => {
+  // A move redraws the board and its observers read the room again; the
+  // tries cost a layout each, so the same room and board reuse the fit.
+  const fit = createBoardRoomFitter();
+  const room = {
+    width: 320,
+    height: 360,
+    chrome: 51,
+    boardWidth: 320,
+    boardHeight: 431,
+  };
+  let tries = 0;
+  const heightAt = (width: number) => {
+    tries++;
+    return Math.round(width * 1.21 + 44);
+  };
+  const first = fit({ ...room, heightAt });
+  const measured = tries;
+  expect(measured).toBeGreaterThan(0);
+  expect(fit({ ...room, heightAt })).toBe(first);
+  expect(tries).toBe(measured);
+  fit({ ...room, height: 340, heightAt });
+  expect(tries).toBeGreaterThan(measured);
 });
