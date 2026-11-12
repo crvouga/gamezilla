@@ -21,7 +21,10 @@ test('a fresh world starts with alice and bob signed in and friends', async () =
   );
   const harness = (surface as unknown as ProductHarness).harness;
 
-  expect(await seedFriends(harness)).toEqual(['alice', 'bob']);
+  expect(await seedFriends(harness, async () => undefined)).toEqual([
+    'alice',
+    'bob',
+  ]);
 
   const accounts: string[] = [];
   for (const id of ['alice', 'bob']) {

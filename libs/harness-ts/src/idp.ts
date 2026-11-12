@@ -184,6 +184,17 @@ function titleCase(raw: string): string {
   return raw.charAt(0).toUpperCase() + raw.slice(1);
 }
 
+/**
+ * Whether the providers derive their keys and tokens from the seed. A test
+ * run does, so two worlds agree and a failure replays. A live page (the
+ * harness console in a browser, which has no `process`) does not: deriving an
+ * RSA key from a seed is a long prime search in script, which stalls the page
+ * while it opens, where the browser mints one natively off the main thread.
+ */
+function reproducibleCredentials(): boolean {
+  return typeof process !== 'undefined';
+}
+
 function createHarnessIdp(
   provider: HarnessIdpProvider,
   options: Pick<
@@ -196,7 +207,7 @@ function createHarnessIdp(
     provider,
     issuer: origin,
     seed: `harness-idp:${provider}`,
-    deterministicCredentials: true,
+    deterministicCredentials: reproducibleCredentials(),
     ...options,
   });
   return {

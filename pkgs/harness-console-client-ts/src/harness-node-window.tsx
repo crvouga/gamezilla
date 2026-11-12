@@ -1,3 +1,4 @@
+import { useTimers } from '@pkgs/clock-client-ts/solid';
 import type { DebuggerViewId } from '@pkgs/harness-console-shared-ts/debugger-views';
 import {
   coerceDebuggerView,
@@ -14,8 +15,10 @@ import { Surface } from '@pkgs/ui-root-client-ts/surface';
 import {
   type Accessor,
   createMemo,
+  createSignal,
   type JSX,
   Match,
+  onCleanup,
   Show,
   Switch,
 } from 'solid-js';
@@ -185,6 +188,41 @@ function NodeWindow(props: NodeWindowProps): JSX.Element {
   );
 }
 
+const mounts: (() => void)[] = [];
+let mounting = false;
+
+/**
+ * Mounts its children on a turn of their own. Every panel opens in the same
+ * moment when the console starts, and a client's panel is a whole app:
+ * mounted together they hold the thread long enough to drop frames, where
+ * one per turn lets the page paint in between.
+ */
+function MountInTurn(props: { readonly children: JSX.Element }): JSX.Element {
+  const timers = useTimers();
+  const [ready, setReady] = createSignal(false);
+  let gone = false;
+  onCleanup(() => {
+    gone = true;
+  });
+  mounts.push(() => {
+    if (!gone) setReady(true);
+  });
+  const next = (): void => {
+    const mount = mounts.shift();
+    if (mount === undefined) {
+      mounting = false;
+      return;
+    }
+    mount();
+    timers.setTimeout(next, 0);
+  };
+  if (!mounting) {
+    mounting = true;
+    timers.setTimeout(next, 0);
+  }
+  return <Show when={ready()}>{props.children}</Show>;
+}
+
 /** The window-manager panel for one node of the session. */
 export function harnessWindowPanel(
   panel: HarnessPanelRef,
@@ -195,12 +233,14 @@ export function harnessWindowPanel(
     title: panel.title,
     icon: harnessNodeIcon(panel.kind),
     content: () => (
-      <Show
-        when={panel.kind === 'client'}
-        fallback={<NodeWindow panel={panel} context={context} />}
-      >
-        <ClientWindow panel={panel} context={context} />
-      </Show>
+      <MountInTurn>
+        <Show
+          when={panel.kind === 'client'}
+          fallback={<NodeWindow panel={panel} context={context} />}
+        >
+          <ClientWindow panel={panel} context={context} />
+        </Show>
+      </MountInTurn>
     ),
   };
 }

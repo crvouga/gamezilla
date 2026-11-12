@@ -27,6 +27,10 @@ import type { Topic } from '@pkgs/pubsub-root-shared-ts/topic';
 import { notifyChannels } from '@pkgs/sync-engine-server-ts/notify-channels';
 import { createMemoryHistory } from '@solidjs/router';
 import {
+  type Breathe,
+  breathingFetch,
+} from './product-harness-breathing-fetch';
+import {
   captureCheckpoint,
   restoreCheckpoint,
 } from './product-harness-checkpoint';
@@ -106,6 +110,8 @@ export type ProductHarnessSessionBuildArgs = {
    * names the clients to open on it, each closed but with its device intact.
    */
   readonly seedFreshWorld?: () => Promise<readonly string[]>;
+  /** Lets the page paint between the clients' requests. */
+  readonly breathe: Breathe;
 };
 
 async function freshClientIds(
@@ -236,8 +242,11 @@ async function spawnClient(
   const base = await args.harness.client(instanceId);
   const live = await args.harness.spawnClient(instanceId, {
     ...base,
-    server: loggingFetch(base.server, actorLogs, args.balancerLogs, () =>
-      args.harness.clock.now()
+    server: loggingFetch(
+      breathingFetch(base.server, args.breathe),
+      actorLogs,
+      args.balancerLogs,
+      () => args.harness.clock.now()
     ),
   });
   await live.env.openSqlClient();

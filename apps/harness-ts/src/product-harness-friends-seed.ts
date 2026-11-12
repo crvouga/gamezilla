@@ -28,6 +28,10 @@ import {
   SYNC_PROTOCOL_HEADER,
   SYNC_PROTOCOL_VERSION,
 } from '@pkgs/sync-engine-shared-ts/v2';
+import {
+  type Breathe,
+  breathingFetch,
+} from './product-harness-breathing-fetch';
 
 /** The two people, by the name each is known by; also their device's id. */
 export const SEEDED_FRIENDS = ['alice', 'bob'] as const;
@@ -149,15 +153,20 @@ function mutator(args: {
 }
 
 /** Sign one person in on their own device and leave the device signed in. */
-async function signIn(harness: Harness, id: string): Promise<SignedIn> {
+async function signIn(
+  harness: Harness,
+  id: string,
+  breathe: Breathe
+): Promise<SignedIn> {
   const env = await harness.client(id);
-  const session = await providerSession(harness, id, env.server);
+  const server = breathingFetch(env.server, breathe);
+  const session = await providerSession(harness, id, server);
   const deviceId = harness.server.createId();
   const { accountId } = await refreshAuth({
     apiUrl: HARNESS_SERVER_URL,
     bearerToken: session.token,
     deviceId,
-    fetchFn: env.server,
+    fetchFn: server,
     deviceSnapshot: {},
   });
   await env.secureStorage.write(DEVICE_ID_KEY, deviceId);
@@ -169,7 +178,7 @@ async function signIn(harness: Harness, id: string): Promise<SignedIn> {
   const mutate = mutator({
     harness,
     id,
-    server: env.server,
+    server,
     token: session.token,
     deviceId,
   });
@@ -180,11 +189,12 @@ async function signIn(harness: Harness, id: string): Promise<SignedIn> {
 
 /** Returns the devices to open, in order. */
 export async function seedFriends(
-  harness: Harness
+  harness: Harness,
+  breathe: Breathe
 ): Promise<readonly string[]> {
   const [alice, bob] = [
-    await signIn(harness, SEEDED_FRIENDS[0]),
-    await signIn(harness, SEEDED_FRIENDS[1]),
+    await signIn(harness, SEEDED_FRIENDS[0], breathe),
+    await signIn(harness, SEEDED_FRIENDS[1], breathe),
   ];
   const requestId = harness.server.createId();
   await alice.mutate('sendFriendRequest', {

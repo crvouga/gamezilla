@@ -8,6 +8,7 @@ import { createProductHarnessLogBuffer } from '@pkgs/harness-console-shared-ts/p
 import { defineAction } from '@pkgs/harness-root-shared-ts/define-action';
 import type { Run } from '@pkgs/harness-root-shared-ts/run-types';
 import type { ObjectStore } from '@pkgs/object-store-root-shared-ts/interface';
+import { createBreathe } from './product-harness-breathing-fetch';
 import { seedFriends } from './product-harness-friends-seed';
 import type { BootProductHarnessOptions } from './product-harness-session';
 import { buildProductHarnessSession } from './product-harness-session';
@@ -97,6 +98,7 @@ export async function bootProductHarnessSession(
   const domainWake: { fire: (label: string) => void } = {
     fire() {},
   };
+  const breathe = createBreathe(env.clock, env.timers);
   const session = await buildProductHarnessSession({
     harness,
     balancerLogs: createProductHarnessLogBuffer(),
@@ -116,7 +118,8 @@ export async function bootProductHarnessSession(
     bindDomainWake: (fire) => {
       domainWake.fire = fire;
     },
-    seedFreshWorld: () => seedFriends(harness),
+    seedFreshWorld: () => seedFriends(harness, breathe),
+    breathe,
     ...(actorWebOrigin !== undefined ? { actorWebOrigin } : {}),
   });
   return session;
