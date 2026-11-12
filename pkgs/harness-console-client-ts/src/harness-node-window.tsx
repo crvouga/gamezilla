@@ -11,7 +11,14 @@ import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { KeyboardShortcutScope } from '@pkgs/ui-root-client-ts/keyboard-shortcut-scope';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Surface } from '@pkgs/ui-root-client-ts/surface';
-import { type Accessor, type JSX, Match, Show, Switch } from 'solid-js';
+import {
+  type Accessor,
+  createMemo,
+  type JSX,
+  Match,
+  Show,
+  Switch,
+} from 'solid-js';
 import type {
   HarnessConsoleNav,
   PaneNavHistoryMode,
@@ -32,7 +39,8 @@ import {
 export type HarnessNodeWindowContext = {
   readonly session: Accessor<ProductHarnessSession>;
   readonly revision: Accessor<number>;
-  readonly nav: HarnessConsoleNav;
+  /** An accessor: the host hands over a fresh value on every change. */
+  readonly nav: Accessor<HarnessConsoleNav>;
   /** The panel that owns the keyboard, when a panel does. */
   readonly keyboardPanel: Accessor<string | null>;
 };
@@ -147,14 +155,17 @@ function NodeBody(
 /** A server-side node: its views in a tab strip over the view on show. */
 function NodeWindow(props: NodeWindowProps): JSX.Element {
   const views = () => viewsForKind(props.panel.kind);
-  const pane = (): PaneNavValue => ({
-    view: coerceDebuggerView(
+  // A memo: the host hands over a fresh nav on every change, and a view
+  // that reads the pane must not start over when another window moved.
+  const view = createMemo(() =>
+    coerceDebuggerView(
       props.panel.kind,
-      props.context.nav.panes[props.panel.id]?.view
-    ),
-  });
+      props.context.nav().panes[props.panel.id]?.view
+    )
+  );
+  const pane = createMemo((): PaneNavValue => ({ view: view() }));
   const patch = (next: PaneNavPatch, mode?: PaneNavHistoryMode): void => {
-    props.context.nav.onPanePatch(props.panel.id, next, mode);
+    props.context.nav().onPanePatch(props.panel.id, next, mode);
   };
   return (
     <StackVertical grow>

@@ -1,3 +1,4 @@
+import { useTimers } from '@pkgs/clock-client-ts/solid';
 import { harnessPanelKind } from '@pkgs/harness-console-shared-ts/harness-windows';
 import type {
   ProductHarnessPaletteCommand,
@@ -168,7 +169,11 @@ function ReadyProductHarnessScreen(props: {
   readonly onExit: () => void;
 }) {
   const theme = useTheme();
-  const windows = useHarnessWindows(() => props.session, props.nav);
+  const windows = useHarnessWindows(
+    () => props.session,
+    () => props.nav,
+    useTimers()
+  );
   const [controlsActive, setControlsActive] = createSignal(false);
   const keyboardPanel = createMemo(() => {
     const panel = windows.focusedPanel();
@@ -183,7 +188,7 @@ function ReadyProductHarnessScreen(props: {
       harnessWindowPanel(panel, {
         session: () => props.session,
         revision: windows.revision,
-        nav: props.nav,
+        nav: () => props.nav,
         keyboardPanel,
       })
     )
