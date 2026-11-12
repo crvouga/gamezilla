@@ -100,6 +100,11 @@ export const screen = {
   },
   toldAboutDebugInfo: (): boolean =>
     find('bug-report-debug-info')?.textContent.trim() === DEBUG_INFO_NOTE,
+  /** Whether the shake to report setting shows as on. */
+  shakeToReport: (): boolean =>
+    inner('shake-setting-switch', '[role="switch"]').getAttribute(
+      'aria-checked'
+    ) === 'true',
   toldToReportWithoutShaking: (): boolean =>
     find('shake-setting-refused')?.textContent.trim() === SHAKE_REFUSED,
   /** How many bug reports the device says are waiting to be sent. */
@@ -185,9 +190,11 @@ export function createExamplePerson(session: Session, app: ExampleApp) {
   async function choose(control: HTMLElement): Promise<void> {
     if (keyboardAlone) {
       await tabTo(control);
-      if (control.dispatchEvent(key('keydown', 'Enter'))) control.click();
+      app.phone.duringPress(() => {
+        if (control.dispatchEvent(key('keydown', 'Enter'))) control.click();
+      });
       control.dispatchEvent(key('keyup', 'Enter'));
-    } else control.click();
+    } else app.phone.duringPress(() => control.click());
     await app.settle();
   }
   /** Writes into a field as far as the field lets anyone write. */
@@ -337,6 +344,12 @@ export function createExamplePerson(session: Session, app: ExampleApp) {
     addPicture,
     type,
     setShake,
+    /** Answers her phone about shaking, having the app ask it where the app offers to. */
+    async answerPhoneAboutShaking(allowed: boolean): Promise<void> {
+      app.phone.answerMotion(allowed);
+      await app.settle();
+      if (find('shake-setting-allow')) await press('shake-setting-allow');
+    },
     async sendMany(count: number): Promise<void> {
       for (let sent = 1; sent <= count; sent++)
         await sendSaying(`Bug number ${sent}`);

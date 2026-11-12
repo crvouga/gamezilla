@@ -70,8 +70,8 @@ bindQuintModel<World>({
     dayPasses: (w) => w.apply(passDay),
     loseConnection: (w) => w.apply(connection, false),
     connectionReturns: (w) => w.apply(connection, true),
-    _teamStopsReceiving: (w) => w.apply(teamStopsReceiving),
-    _teamReceivesAgain: (w) => w.apply(teamReceivesAgain),
+    teamCannotReceive: (w) => w.apply(teamStopsReceiving),
+    teamCanReceiveAgain: (w) => w.apply(teamReceivesAgain),
     _deviceSendsAgain: (w) => w.apply(deviceSendsAgain),
   },
   observe: async (w) => {

@@ -3,14 +3,13 @@ import type { FeedbackReportingWorld } from '@pkgs/feedback-harness-ts/feedback'
 import {
   addToDescription,
   becomeGuest,
-  chooseToReport,
   describeBug,
   describeBugAtLength,
   discardDraft,
   readDescription,
   readDescriptionFull,
+  readDraft,
   readNotice,
-  readScreenshots,
   readTeamBugReport,
   readTeamBugReportCount,
   reopenApp,
@@ -77,9 +76,6 @@ Then("the team's bug report from Alice names Alice's account", async (w) =>
 Then("the team's bug report from Alice says it came from a guest", async (w) =>
   expect((await w.read(readTeamBugReport))?.fromGuest).toBe(true)
 );
-// A bug report opened now starts afresh: no words, and only the screenshot it opens with.
-Then('Alice has no draft', async (w) => {
-  await w.apply(chooseToReport);
-  expect(await w.read(readDescription)).toBe('');
-  expect(await w.read(readScreenshots)).toBe(1);
-});
+Then('Alice has no draft', async (w) =>
+  expect(await w.read(readDraft)).toBeNull()
+);

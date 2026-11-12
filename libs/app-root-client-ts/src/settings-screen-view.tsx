@@ -74,12 +74,20 @@ export type SettingsScreenViewProps = {
   /** Bug reports kept on this device until they can be sent. */
   readonly bugReportsWaiting: number;
   /**
-   * Whether shaking the phone opens a bug report. `unavailable` on a device
-   * that cannot feel a shake, which is offered no switch; `refused` once the
-   * person or the phone said no.
+   * Shake to report, on unless the person turned it `off`. `unavailable` on
+   * a device that cannot feel a shake, which is offered no switch;
+   * `needs-permission` while the phone asks the person first and has no
+   * answer yet; `refused` once the person or the phone said no.
    */
-  readonly shakeToReport: 'on' | 'off' | 'refused' | 'unavailable';
+  readonly shakeToReport:
+    | 'on'
+    | 'off'
+    | 'needs-permission'
+    | 'refused'
+    | 'unavailable';
   readonly onShakeToReportChange: (on: boolean) => void;
+  /** The person asks the phone to ask them. */
+  readonly onAllowShakeToReport: () => void;
   readonly onReportBug: () => void;
   readonly onOfflineChange: (offline: boolean) => void;
   /** Open a settings sub-screen. */
@@ -265,12 +273,24 @@ function HelpSection(props: SettingsScreenViewProps): JSX.Element {
                 : t`Shake your phone to open a bug report`,
             icon: SmartphoneIcon,
             toggle: {
-              value: props.shakeToReport === 'on',
+              value: props.shakeToReport !== 'off',
               onChange: props.onShakeToReportChange,
               label: t`Shake to report a bug`,
               testid: Handles.settingsShakeToReportSwitch,
             },
             testid: Handles.settingsShakeToReport,
+          }}
+          onNavigate={props.onNavigate}
+        />
+      </Show>
+      <Show when={props.shakeToReport === 'needs-permission'}>
+        <SettingsRowItem
+          row={{
+            title: t`Allow shaking`,
+            caption: t`This phone asks before the app may notice shaking`,
+            icon: SmartphoneIcon,
+            onPress: props.onAllowShakeToReport,
+            testid: Handles.settingsShakeToReportAllow,
           }}
           onNavigate={props.onNavigate}
         />

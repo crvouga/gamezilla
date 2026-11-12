@@ -6,6 +6,7 @@ import {
   requestBugReport,
 } from '@pkgs/feedback-client-ts/request-bug-report';
 import { ShakeSetting } from '@pkgs/feedback-client-ts/shake-setting';
+import { BugReportStorage } from '@pkgs/feedback-client-ts/storage';
 import { registerFeedbackContext } from '@pkgs/feedback-shared-ts/context';
 import type { DiagnosticProvider } from '@pkgs/feedback-shared-ts/types';
 import type { Session } from '@pkgs/harness-root-shared-ts/runtime-types';
@@ -23,7 +24,7 @@ export type ApplicationCondition =
 
 export const EXAMPLE_VERSION = 'example-1.4.0';
 export const EXAMPLE_TROUBLE = 'The hint could not be shown';
-/** The account Alice is signed in to, and the id her app has with or without one. */
+/** The account Alice has once she signs in, and the id her app has with or without one. */
 export const EXAMPLE_ACCOUNT = 'account-alice';
 const EXAMPLE_LOCAL_ID = 'local-alice';
 const TROUBLE_EVENT = 'example-trouble';
@@ -79,7 +80,8 @@ export function createExampleApp(session: Session) {
   const team = createExampleTeam(clock);
   const phone = createExamplePhone(session);
   let condition: ApplicationCondition = 'working';
-  let guest = false;
+  // A person is a guest until they sign in.
+  let guest = true;
   let mounted: ReturnType<typeof mountBugReports> | null = null;
   let nodes: HTMLElement[] = [];
   // Who is using the app reaches a bug report the way a real app says it:
@@ -161,6 +163,8 @@ export function createExampleApp(session: Session) {
       forgetAccount();
     },
     reopen: () => boot(),
+    /** The draft this device holds, as bug reporting itself keeps it. */
+    draft: () => new BugReportStorage(device, () => '').loadDraft(),
     /** Alice picks up another device of hers: nothing of the first one is on it. */
     useAnotherDevice(): Promise<void> {
       device = new ObjectStoreImplInMemory();

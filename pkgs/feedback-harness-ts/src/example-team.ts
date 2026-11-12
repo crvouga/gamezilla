@@ -49,7 +49,6 @@ function serviceClock(clock: Clock) {
  */
 export function createExampleTeam(clock: Clock) {
   const reports = new Map<string, BugReport>();
-  let takes = true;
   let lastSent: (() => Promise<Response>) | null = null;
   const gitHub = createRuntime({ clock: serviceClock(clock), seed: 1 });
   const listOfWork: HttpClient = {
@@ -101,10 +100,6 @@ export function createExampleTeam(clock: Clock) {
   });
   const http: HttpClient = {
     fetch(input, init) {
-      if (!takes)
-        return Promise.resolve(
-          Response.json({ error: 'Invalid bug report' }, { status: 400 })
-        );
       // Without the device's own deadline, so it can be sent again after it.
       const { signal: _signal, ...sent } = init ?? {};
       lastSent = () => server(new Request(input, sent));
@@ -125,10 +120,6 @@ export function createExampleTeam(clock: Clock) {
     /** What the device last sent arrives once more, as after an answer that got lost. */
     async receiveAgain(): Promise<void> {
       await lastSent?.();
-    },
-    /** Whether the team's side answers that a bug report can never be taken as it is. */
-    setTakes(next: boolean): void {
-      takes = next;
     },
     setReceiving(next: boolean): void {
       if (next) gitHub.faults.remove(OUTAGE);

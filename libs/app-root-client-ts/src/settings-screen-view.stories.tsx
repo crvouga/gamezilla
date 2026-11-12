@@ -19,6 +19,7 @@ const meta = {
     bugReportsWaiting: 0,
     shakeToReport: 'unavailable',
     onShakeToReportChange: fn(),
+    onAllowShakeToReport: fn(),
     onReportBug: fn(),
     onOfflineChange: fn(),
     onNavigate: fn(),
@@ -59,6 +60,17 @@ export const WithSubSettings: Story = {
 /** On a phone, shaking opens a bug report unless the person turns it off. */
 export const ShakeToReport: Story = { args: { shakeToReport: 'on' } };
 
+/** A phone that asks first: on, with a row that has the phone ask the person. */
+export const AllowShakeToReport: Story = {
+  args: { shakeToReport: 'needs-permission' },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    const target = await canvas.findByText('Allow shaking');
+    await userEvent.click(target);
+    await expect(args.onAllowShakeToReport).toHaveBeenCalled();
+  },
+};
+
 /** A phone that refused says a bug can still be reported from here. */
 export const ShakeToReportRefused: Story = {
   args: { shakeToReport: 'refused' },
@@ -77,7 +89,7 @@ export const ReportBug: Story = {
   },
 };
 
-/** Turning the switch on is where a phone asks to notice motion. */
+/** Turning the switch back on is also where a phone asks to notice motion. */
 export const TurnOnShakeToReport: Story = {
   args: { shakeToReport: 'off' },
   play: async ({ args, canvasElement }) => {

@@ -65,3 +65,8 @@ export const DEBUG_INFO_NOTE =
 
 export const SHAKE_REFUSED =
   'This phone does not allow the app to notice shaking. Choose Report a bug instead.';
+
+export const SHAKE_WAITING =
+  'This phone asks before the app may notice shaking. Until you allow it, choose Report a bug instead.';
+
+export const SHAKE_ALLOW = 'Allow shaking';

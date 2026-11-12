@@ -45,6 +45,7 @@ export const Handles = {
   settingsReportBug: 'settings-report-bug',
   settingsShakeToReport: 'settings-shake-to-report',
   settingsShakeToReportSwitch: 'settings-shake-to-report-switch',
+  settingsShakeToReportAllow: 'settings-shake-to-report-allow',
   /** "Connection" row in Settings (→ the connection status screen). */
   settingsConnection: 'settings-server-status',
   /** Connection status screen: whether the app is connected right now. */

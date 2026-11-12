@@ -48,10 +48,6 @@ export function SettingsScreen(): JSX.Element {
   const bugReports = bugReportsOf();
   const bugReport = useBugReporting(bugReports?.controller, null);
   const shake = useBugReporting(bugReports?.shake, 'unavailable');
-  const shakeToReport = () => {
-    const state = shake();
-    return state === 'needs-permission' ? 'off' : state;
-  };
   return (
     <SettingsScreenView
       theme={preference()}
@@ -61,10 +57,11 @@ export function SettingsScreen(): JSX.Element {
       version={APP_VERSION}
       subSettings={<For each={subs.settings}>{(Settings) => <Settings />}</For>}
       bugReportsWaiting={bugReport()?.waiting ?? 0}
-      shakeToReport={shakeToReport()}
+      shakeToReport={shake()}
       onShakeToReportChange={(on) =>
         void (on ? bugReports?.shake.turnOn() : bugReports?.shake.turnOff())
       }
+      onAllowShakeToReport={() => void bugReports?.shake.allow()}
       onReportBug={() => requestBugReport()}
       onOfflineChange={setOffline}
       onNavigate={(href) => router.push(href)}

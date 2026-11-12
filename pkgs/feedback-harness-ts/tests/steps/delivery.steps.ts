@@ -3,7 +3,6 @@ import type { FeedbackReportingWorld } from '@pkgs/feedback-harness-ts/feedback'
 import {
   connection,
   describeBug,
-  deviceSendsAgain,
   passDay,
   readNotice,
   readTeamBugReportsSaying,
@@ -11,7 +10,6 @@ import {
   sendBugReport,
   sendBugReportSaying,
   sendBugReports,
-  teamNeverTakes,
   teamReceivesAgain,
   teamStopsReceiving,
   useAnotherDevice,
@@ -64,15 +62,9 @@ Given("Alice's device has gone offline and come back online", async (w) => {
   await w.apply(connection, false);
   await w.apply(connection, true);
 });
-Given("a bug report from Alice's device can never be sent", (w) =>
-  w.apply(teamNeverTakes)
-);
 When('the next day starts', (w) => w.apply(passDay));
 When('Alice sends the bug report from the other device', (w) =>
   w.apply(sendBugReport)
-);
-When("Alice's device sends the same bug report again", (w) =>
-  w.apply(deviceSendsAgain)
 );
 When('Alice reopens the app', (w) => w.apply(reopenApp));
 When("Alice's device is back online", (w) => w.apply(connection, true));
@@ -89,9 +81,6 @@ Then('Alice is told the bug report is kept and will be sent later', async (w) =>
 Then(
   'Alice is told the daily bug report limit is reached until tomorrow',
   async (w) => expect(await w.read(readNotice)).toBe('limit')
-);
-Then('Alice is told the bug report could not be sent', async (w) =>
-  expect(await w.read(readNotice)).toBe('failed')
 );
 Then(
   'the team has no bug report from Alice saying {string}',

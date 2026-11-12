@@ -197,6 +197,7 @@ export class BugReportController {
       }
       const started =
         draft.description.trim() !== '' ||
+        draft.screenshotRemoved === true ||
         draft.screenshots.some((screenshot) => !screenshot.auto);
       if (!started) {
         draft.events = this.options.debug.snapshot();
@@ -290,6 +291,7 @@ export class BugReportController {
     const draft = this.draft;
     if (!draft || this.current.phase !== 'draft') return;
     draft.screenshots = draft.screenshots.filter((entry) => entry.id !== id);
+    draft.screenshotRemoved = true;
     this.set({
       screenshots: this.current.screenshots.filter((entry) => entry.id !== id),
       notice: null,

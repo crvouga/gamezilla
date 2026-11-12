@@ -23,6 +23,8 @@ export type Draft = {
   readonly reportId: string;
   description: string;
   screenshots: DraftScreenshot[];
+  /** The person removed a screenshot: opening the bug report again takes no new one. */
+  screenshotRemoved?: boolean;
   /** The debug info kept before the bug report was opened. */
   events: readonly DebugEvent[];
 };

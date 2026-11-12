@@ -174,6 +174,32 @@ describe('a bug report sent past the daily limit', () => {
   });
 });
 
+describe('a bug report the team refuses for good', () => {
+  test('is given back: its person is told, and the draft keeps its description', async () => {
+    const device = createDevice();
+    device.answer = 'failed';
+    await device.controller.open();
+    device.controller.describe('The board froze after a move');
+    await device.controller.send();
+    await device.controller.settled();
+    expect(device.sent).toHaveLength(1);
+    expect(device.controller.state()).toMatchObject({
+      open: true,
+      phase: 'draft',
+      notice: 'failed',
+      description: 'The board froze after a move',
+      waiting: 0,
+    });
+    const reopened = createDevice(device.store);
+    await reopened.controller.ready;
+    await reopened.controller.settled();
+    expect(reopened.controller.state().description).toBe(
+      'The board froze after a move'
+    );
+    expect(reopened.sent).toHaveLength(0);
+  });
+});
+
 describe('a draft', () => {
   test('survives the app being opened again', async () => {
     const device = createDevice();
@@ -183,6 +209,20 @@ describe('a draft', () => {
     const reopened = createDevice(device.store);
     await reopened.controller.ready;
     expect(reopened.controller.state().description).toBe('Half a thought');
+  });
+
+  test('keeps a screenshot removed when it is opened again', async () => {
+    const device = createDevice();
+    await device.controller.open();
+    const [taken] = device.controller.state().screenshots;
+    device.controller.removeScreenshot(taken?.id ?? '');
+    device.controller.close();
+    await device.controller.open();
+    expect(device.controller.state().screenshots).toHaveLength(0);
+    await device.controller.settled();
+    const reopened = createDevice(device.store);
+    await reopened.controller.open();
+    expect(reopened.controller.state().screenshots).toHaveLength(0);
   });
 
   test('is gone from the device once discarded', async () => {

@@ -86,6 +86,16 @@ describe('sending a bug report', () => {
     expect(await send(SUBMISSION, [])).toBe('later');
   });
 
+  test.each([400, 409, 413, 415])(
+    'an answer of %i means the bug report can never be sent as it is',
+    async (status) => {
+      const { send } = sender({
+        fetch: () => Promise.resolve(new Response(null, { status })),
+      });
+      expect(await send(SUBMISSION, [])).toBe('failed');
+    }
+  );
+
   test('a malformed app address still reaches bug reporting', () => {
     expect(bugReportEndpoint('https://api.example.com')).toBe(
       'https://api.example.com/api/bug-reports'

@@ -22,6 +22,7 @@ Given('Alice has removed the screenshot', (w) => w.apply(removeScreenshot));
 Given('Alice has a bug report with {int} screenshots', (w, count: number) =>
   w.apply(haveScreenshots, count)
 );
+When('Alice removes the screenshot', (w) => w.apply(removeScreenshot));
 When('Alice adds a picture', (w) =>
   w.apply(addPicture, { contentType: 'image/png' })
 );

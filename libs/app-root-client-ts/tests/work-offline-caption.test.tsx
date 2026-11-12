@@ -19,6 +19,7 @@ function mountSettings(offline: boolean): void {
       bugReportsWaiting={0}
       shakeToReport="unavailable"
       onShakeToReportChange={() => undefined}
+      onAllowShakeToReport={() => undefined}
       onReportBug={() => undefined}
       onOfflineChange={() => undefined}
       onNavigate={() => undefined}
@@ -81,6 +82,7 @@ test('on a desktop every settings group says what it holds in a short line', () 
         bugReportsWaiting={0}
         shakeToReport="unavailable"
         onShakeToReportChange={() => undefined}
+        onAllowShakeToReport={() => undefined}
         onReportBug={() => undefined}
         onOfflineChange={() => undefined}
         onNavigate={() => undefined}

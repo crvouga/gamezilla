@@ -7,10 +7,12 @@ import {
   closeBugReport,
   phoneAsksBeforeShaking,
   readOpenBugReports,
+  readShakeToReport,
   readToldToReportWithoutShaking,
   refuseShakeToReport,
   shakePhone,
   turnOffShakeToReport,
+  turnOnShakeToReport,
 } from '@pkgs/feedback-harness-ts/feedback';
 import { stepsFor } from '@pkgs/gherkin-shared-ts/registry';
 import type { Run } from '@pkgs/harness-root-shared-ts/run-types';
@@ -38,12 +40,18 @@ Given("Alice's phone asks before the app may notice shaking", (w) =>
   w.apply(phoneAsksBeforeShaking)
 );
 Given('Alice has allowed shake to report', (w) => w.apply(allowShakeToReport));
-Given('Alice has turned shake to report back on', (w) =>
-  w.apply(allowShakeToReport)
-);
+Given('Alice has turned shake to report back on', async (w) => {
+  await w.apply(turnOffShakeToReport);
+  await w.apply(turnOnShakeToReport);
+});
 When('Alice chooses to report a bug', (w) => w.apply(chooseToReport));
 When('Alice closes the bug report', (w) => w.apply(closeBugReport));
 When('Alice shakes the phone', (w) => w.apply(shakePhone));
+When('Alice turns off shake to report', (w) => w.apply(turnOffShakeToReport));
+When('Alice turns shake to report back on', (w) =>
+  w.apply(turnOnShakeToReport)
+);
+When('Alice allows shake to report', (w) => w.apply(allowShakeToReport));
 When('Alice refuses to allow shake to report', (w) =>
   w.apply(refuseShakeToReport)
 );
@@ -52,6 +60,12 @@ Then('Alice has one bug report open', async (w) =>
 );
 Then('Alice (still )has no bug report open', async (w) =>
   expect(await w.read(readOpenBugReports)).toBe(0)
+);
+Then('Alice sees that shake to report is on', async (w) =>
+  expect(await w.read(readShakeToReport)).toBe(true)
+);
+Then('Alice sees that shake to report is off', async (w) =>
+  expect(await w.read(readShakeToReport)).toBe(false)
 );
 Then('Alice is told to choose to report a bug instead of shaking', async (w) =>
   expect(await w.read(readToldToReportWithoutShaking)).toBe(true)

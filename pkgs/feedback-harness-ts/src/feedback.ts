@@ -126,13 +126,14 @@ export const turnOffShakeToReport = defineAction({
   name: 'turnOffShakeToReport',
   act: (world: World) => world.alice.setShake(false),
 });
-/** Turns shake to report on, and says yes when the phone asks. */
+export const turnOnShakeToReport = defineAction({
+  name: 'turnOnShakeToReport',
+  act: (world: World) => world.alice.setShake(true),
+});
+/** Alice tells her phone the app may notice shaking. */
 export const allowShakeToReport = defineAction({
   name: 'allowShakeToReport',
-  act: (world: World) => {
-    world.app.phone.setAllowsMotion(true);
-    return world.alice.setShake(true);
-  },
+  act: (world: World) => world.alice.answerPhoneAboutShaking(true),
 });
 export const phoneAsksBeforeShaking = defineAction({
   name: 'phoneAsksBeforeShaking',
@@ -143,10 +144,7 @@ export const phoneAsksBeforeShaking = defineAction({
 });
 export const refuseShakeToReport = defineAction({
   name: 'refuseShakeToReport',
-  act: (world: World) => {
-    world.app.phone.setAllowsMotion(false);
-    return world.alice.setShake(true);
-  },
+  act: (world: World) => world.alice.answerPhoneAboutShaking(false),
 });
 
 export const deviceTakesNoScreenshot = defineAction({
@@ -203,11 +201,6 @@ export const teamReceivesAgain = defineAction({
     return world.alice.wait(MAX_RETRY_MS);
   },
 });
-/** The team's side answers that a bug report from this device can never be taken. */
-export const teamNeverTakes = defineAction({
-  name: 'teamNeverTakes',
-  act: (world: World) => world.app.team.setTakes(false),
-});
 /** The device sends once more what it last sent, as after an answer that got lost. */
 export const deviceSendsAgain = defineAction({
   name: 'deviceSendsAgain',
@@ -225,6 +218,18 @@ export const readScreenshots = (_world: World) => screen.screenshots();
 export const readNotice = (_world: World) => screen.notice();
 export const readToldAboutDebugInfo = (_world: World) =>
   screen.toldAboutDebugInfo();
+export const readShakeToReport = (_world: World) => screen.shakeToReport();
+/** What Alice's phone says about the app noticing shaking. */
+export const readPhoneAllows = (world: World) => world.app.phone.allowsMotion();
+/** The draft Alice's device holds, or `null` when it holds none. */
+export const readDraft = async (world: World) => {
+  const draft = await world.app.draft();
+  const kept = {
+    described: draft.description !== '',
+    screenshots: draft.screenshots.length,
+  };
+  return kept.described || kept.screenshots > 0 ? kept : null;
+};
 export const readToldToReportWithoutShaking = (_world: World) =>
   screen.toldToReportWithoutShaking();
 export const readScreenshotShowsBugReport = (world: World) =>
@@ -351,6 +356,7 @@ export const feedbackReportingSystem = defineSystem<World>({
     passDay,
     shakePhone,
     turnOffShakeToReport,
+    turnOnShakeToReport,
     allowShakeToReport,
     phoneAsksBeforeShaking,
     refuseShakeToReport,
@@ -365,7 +371,6 @@ export const feedbackReportingSystem = defineSystem<World>({
     connection,
     teamStopsReceiving,
     teamReceivesAgain,
-    teamNeverTakes,
     deviceSendsAgain,
   ],
 });

@@ -35,8 +35,10 @@ export function createShakeDetector(
 }
 
 /**
- * `needs-permission`: the phone asks the person first, and has not yet.
- * `refused`: the person, or the phone, said no.
+ * Shake to report is the person's own choice: on unless they turned it `off`.
+ * While it is on, `on` means a shake opens a bug report; `needs-permission`
+ * that the phone asks the person first and has no answer yet; `refused` that
+ * the person, or the phone, said no.
  */
 export type ShakeState =
   | 'on'
@@ -45,10 +47,16 @@ export type ShakeState =
   | 'refused'
   | 'unavailable';
 
-/** Shake to report: on wherever the phone allows it without asking. */
+type PhoneAnswer = 'allowed' | 'waiting' | 'refused';
+
+/** Shake to report: on unless the person turns it off, wherever the phone allows it. */
 export class ShakeControl {
-  private current: ShakeState = 'unavailable';
+  private started = false;
+  /** The person's choice, which no answer of the phone changes. */
+  private wanted = true;
+  private phone: PhoneAnswer = 'waiting';
   private stop: (() => void) | null = null;
+  private disposed = false;
   private readonly listeners = new Set<() => void>();
   readonly ready: Promise<void>;
 
@@ -63,79 +71,95 @@ export class ShakeControl {
     this.ready = this.start().catch(() => undefined);
   }
 
-  readonly state = (): ShakeState => this.current;
+  readonly state = (): ShakeState => {
+    if (!this.started) return 'unavailable';
+    if (!this.wanted) return 'off';
+    if (this.phone === 'allowed') return 'on';
+    return this.phone === 'refused' ? 'refused' : 'needs-permission';
+  };
 
   subscribe(listener: () => void): () => void {
     this.listeners.add(listener);
     return () => this.listeners.delete(listener);
   }
 
-  private set(state: ShakeState): void {
-    this.current = state;
-    for (const listener of this.listeners) listener();
-  }
-
   private allowed(): Promise<boolean> {
     return this.options.motion.requestPermission().catch(() => false);
   }
 
-  private listen(): void {
-    this.stop?.();
-    const shaken = createShakeDetector(this.options.clock);
-    this.stop = this.options.motion.subscribe((sample) => {
-      if (shaken(sample)) this.options.onShake();
-    });
-    this.set('on');
+  /** Feels for a shake exactly while the person wants it and the phone allows it. */
+  private sync(): void {
+    const feel = this.wanted && this.phone === 'allowed' && !this.disposed;
+    if (feel && this.stop === null) {
+      const shaken = createShakeDetector(this.options.clock);
+      this.stop = this.options.motion.subscribe((sample) => {
+        if (shaken(sample)) this.options.onShake();
+      });
+    } else if (!feel) {
+      this.stop?.();
+      this.stop = null;
+    }
+    for (const listener of this.listeners) listener();
   }
 
   private async start(): Promise<void> {
     const { motion, storage } = this.options;
     if (!motion.available) return;
     const preference = await storage.shakePreference();
-    if (preference === 'off') {
-      this.set('off');
-      return;
-    }
-    if (!motion.needsPermission) {
-      this.listen();
-      return;
-    }
+    this.wanted = preference !== 'off';
     // A person who allowed it before is not asked again where the phone remembers.
-    if (preference === 'on' && (await this.allowed())) {
-      this.listen();
-      return;
-    }
-    this.set('needs-permission');
+    if (!motion.needsPermission) this.phone = 'allowed';
+    else if (preference === 'on' && (await this.allowed()))
+      this.phone = 'allowed';
+    this.started = true;
+    this.sync();
   }
 
-  /** Call from the person's own press: a phone only asks then. */
-  readonly turnOn = async (): Promise<void> => {
+  /**
+   * Takes the phone's answer. Asked before anything is awaited, while the
+   * press still counts as the person's: a phone only asks then.
+   */
+  private async ask(): Promise<void> {
     const { motion, storage } = this.options;
     if (!motion.available) return;
-    // Asked before anything is awaited, while the press still counts as the person's.
-    const allowed = motion.needsPermission
-      ? this.allowed()
-      : Promise.resolve(true);
+    const answer =
+      motion.needsPermission && this.phone !== 'allowed'
+        ? this.allowed()
+        : Promise.resolve(true);
     await this.ready;
-    if (!(await allowed)) {
-      this.set('refused');
-      return;
-    }
-    await storage.setShakePreference('on');
-    this.listen();
+    this.phone = (await answer) ? 'allowed' : 'refused';
+    // Kept, so the phone's yes is found again when the app is reopened.
+    if (this.wanted && this.phone === 'allowed')
+      await storage.setShakePreference('on');
+    this.sync();
+  }
+
+  /** Call from the person's own press. Has the phone ask the person, and nothing else. */
+  readonly allow = (): Promise<void> => this.ask();
+
+  /** Call from the person's own press. It is on from here, whatever the phone then answers. */
+  readonly turnOn = async (): Promise<void> => {
+    if (!this.options.motion.available) return;
+    const asked = this.ask();
+    await this.ready;
+    this.wanted = true;
+    this.sync();
+    await this.options.storage.setShakePreference('on');
+    await asked;
   };
 
   readonly turnOff = async (): Promise<void> => {
     await this.ready;
     if (!this.options.motion.available) return;
-    this.stop?.();
-    this.stop = null;
+    this.wanted = false;
+    this.sync();
     await this.options.storage.setShakePreference('off');
-    this.set('off');
   };
 
   dispose(): void {
+    this.disposed = true;
     this.stop?.();
+    this.stop = null;
     this.listeners.clear();
   }
 }

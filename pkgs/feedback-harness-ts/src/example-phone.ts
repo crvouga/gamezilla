@@ -18,8 +18,12 @@ export function createExamplePhone(session: Session) {
   let online = true;
   let takesScreenshots = true;
   let asksBeforeMotion = false;
-  let allowsMotion = true;
-  let motionDecision: boolean | null = null;
+  /** What Alice answered her phone about shaking, once she has. */
+  let motionAnswer: boolean | null = null;
+  /** Whether Alice is pressing something right now: a phone asks only then. */
+  let pressing = false;
+  /** The app's askings the phone is still showing Alice. */
+  let asking: ((allowed: boolean) => void)[] = [];
   const connectionListeners = new Set<() => void>();
   const motionListeners = new Set<(sample: MotionSample) => void>();
   const screenshotsTakenWhileOpen: boolean[] = [];
@@ -39,18 +43,24 @@ export function createExamplePhone(session: Session) {
       return () => connectionListeners.delete(listener);
     },
   };
-  const motion = (): MotionPort => ({
-    available: true,
-    needsPermission: asksBeforeMotion,
-    requestPermission() {
-      motionDecision ??= allowsMotion;
-      return Promise.resolve(motionDecision);
-    },
-    subscribe(listener) {
-      motionListeners.add(listener);
-      return () => motionListeners.delete(listener);
-    },
-  });
+  /** The phone as an app just opened finds it: whatever it was asking is put away. */
+  const motion = (): MotionPort => {
+    asking = [];
+    return {
+      available: true,
+      needsPermission: asksBeforeMotion,
+      requestPermission() {
+        if (motionAnswer !== null) return Promise.resolve(motionAnswer);
+        // No press, no question: the phone has no yes to give.
+        if (!pressing) return Promise.resolve(false);
+        return new Promise((resolve) => asking.push(resolve));
+      },
+      subscribe(listener) {
+        motionListeners.add(listener);
+        return () => motionListeners.delete(listener);
+      },
+    };
+  };
   return {
     screenshot,
     connection,
@@ -66,8 +76,25 @@ export function createExamplePhone(session: Session) {
     setAsksBeforeMotion(next: boolean): void {
       asksBeforeMotion = next;
     },
-    setAllowsMotion(next: boolean): void {
-      allowsMotion = next;
+    /** Alice answers her phone, which remembers it and tells whoever it was asking for. */
+    answerMotion(allowed: boolean): void {
+      motionAnswer = allowed;
+      for (const tell of asking.splice(0)) tell(allowed);
+    },
+    /** What the phone says about the app noticing shaking. */
+    allowsMotion(): 'waiting' | 'allowed' | 'refused' {
+      if (!asksBeforeMotion) return 'allowed';
+      if (motionAnswer === null) return 'waiting';
+      return motionAnswer ? 'allowed' : 'refused';
+    },
+    /** Something Alice presses: what the app asks the phone meanwhile, the phone asks her. */
+    duringPress(act: () => void): void {
+      pressing = true;
+      try {
+        act();
+      } finally {
+        pressing = false;
+      }
     },
     /** Whether the last screenshot was taken with the bug report already showing. */
     lastScreenshotShowsBugReport: (): boolean | null =>
