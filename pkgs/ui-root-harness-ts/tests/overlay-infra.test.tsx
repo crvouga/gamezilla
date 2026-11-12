@@ -62,6 +62,33 @@ describe('FocusTrap', () => {
     expect(onEscape).toHaveBeenCalledTimes(1);
     setOpen(false);
   });
+
+  test('does not start over when a focus listener reads a signal', () => {
+    const [seen, setSeen] = createSignal(0);
+    const [open, setOpen] = createSignal(true);
+    let focused = 0;
+    renderUi(() => (
+      <div
+        class="box"
+        onFocusIn={() => {
+          seen();
+          focused += 1;
+        }}
+      >
+        <FocusTrap active={open()} label="Dialog">
+          <button class="clickable clickableTint" data-testid="a" type="button">
+            a
+          </button>
+        </FocusTrap>
+      </div>
+    ));
+    expect(focused).toBe(1);
+    screen.getByTestId('a').blur();
+    setSeen(1);
+    expect(screen.getByTestId('a')).not.toHaveFocus();
+    expect(focused).toBe(1);
+    setOpen(false);
+  });
 });
 
 describe('keyboard shortcuts', () => {
