@@ -181,7 +181,7 @@ spec:
 apiVersion: openslo/v1
 kind: AlertCondition
 metadata:
-  name: sent-bug-reports-reach-the-team-fast-burn-over-1h
+  name: sent-bug-reports-are-decided-fast-burn-over-1h
 spec:
   description: "The budget burns at 3.36x or more over the last 1h."
   severity: page
@@ -194,7 +194,7 @@ spec:
 apiVersion: openslo/v1
 kind: AlertCondition
 metadata:
-  name: sent-bug-reports-reach-the-team-fast-burn-over-5m
+  name: sent-bug-reports-are-decided-fast-burn-over-5m
 spec:
   description: "The budget burns at 3.36x or more over the last 5m."
   severity: page
@@ -207,7 +207,7 @@ spec:
 apiVersion: openslo/v1
 kind: AlertCondition
 metadata:
-  name: sent-bug-reports-reach-the-team-slow-burn-over-6h
+  name: sent-bug-reports-are-decided-slow-burn-over-6h
 spec:
   description: "The budget burns at 1.4x or more over the last 6h."
   severity: page
@@ -220,7 +220,7 @@ spec:
 apiVersion: openslo/v1
 kind: AlertCondition
 metadata:
-  name: sent-bug-reports-reach-the-team-slow-burn-over-30m
+  name: sent-bug-reports-are-decided-slow-burn-over-30m
 spec:
   description: "The budget burns at 1.4x or more over the last 30m."
   severity: page
@@ -233,7 +233,7 @@ spec:
 apiVersion: openslo/v1
 kind: AlertCondition
 metadata:
-  name: sent-bug-reports-reach-the-team-daily-burn-over-1d
+  name: sent-bug-reports-are-decided-daily-burn-over-1d
 spec:
   description: "The budget burns at 0.7x or more over the last 1d."
   severity: ticket
@@ -246,7 +246,7 @@ spec:
 apiVersion: openslo/v1
 kind: AlertCondition
 metadata:
-  name: sent-bug-reports-reach-the-team-daily-burn-over-2h
+  name: sent-bug-reports-are-decided-daily-burn-over-2h
 spec:
   description: "The budget burns at 0.7x or more over the last 2h."
   severity: ticket
@@ -259,7 +259,7 @@ spec:
 apiVersion: openslo/v1
 kind: AlertCondition
 metadata:
-  name: sent-bug-reports-reach-the-team-budget-drift-over-3d
+  name: sent-bug-reports-are-decided-budget-drift-over-3d
 spec:
   description: "The budget burns at 1x or more over the last 3d."
   severity: ticket
@@ -272,7 +272,7 @@ spec:
 apiVersion: openslo/v1
 kind: AlertCondition
 metadata:
-  name: sent-bug-reports-reach-the-team-budget-drift-over-6h
+  name: sent-bug-reports-are-decided-budget-drift-over-6h
 spec:
   description: "The budget burns at 1x or more over the last 6h."
   severity: ticket
@@ -285,7 +285,7 @@ spec:
 apiVersion: openslo/v1
 kind: AlertCondition
 metadata:
-  name: sending-a-bug-report-is-quick-fast-burn-over-1h
+  name: sent-bug-reports-are-answered-quickly-fast-burn-over-1h
 spec:
   description: "The budget burns at 3.36x or more over the last 1h."
   severity: page
@@ -298,7 +298,7 @@ spec:
 apiVersion: openslo/v1
 kind: AlertCondition
 metadata:
-  name: sending-a-bug-report-is-quick-fast-burn-over-5m
+  name: sent-bug-reports-are-answered-quickly-fast-burn-over-5m
 spec:
   description: "The budget burns at 3.36x or more over the last 5m."
   severity: page
@@ -311,7 +311,7 @@ spec:
 apiVersion: openslo/v1
 kind: AlertCondition
 metadata:
-  name: sending-a-bug-report-is-quick-slow-burn-over-6h
+  name: sent-bug-reports-are-answered-quickly-slow-burn-over-6h
 spec:
   description: "The budget burns at 1.4x or more over the last 6h."
   severity: page
@@ -324,7 +324,7 @@ spec:
 apiVersion: openslo/v1
 kind: AlertCondition
 metadata:
-  name: sending-a-bug-report-is-quick-slow-burn-over-30m
+  name: sent-bug-reports-are-answered-quickly-slow-burn-over-30m
 spec:
   description: "The budget burns at 1.4x or more over the last 30m."
   severity: page
@@ -337,7 +337,7 @@ spec:
 apiVersion: openslo/v1
 kind: AlertCondition
 metadata:
-  name: sending-a-bug-report-is-quick-daily-burn-over-1d
+  name: sent-bug-reports-are-answered-quickly-daily-burn-over-1d
 spec:
   description: "The budget burns at 0.7x or more over the last 1d."
   severity: ticket
@@ -350,7 +350,7 @@ spec:
 apiVersion: openslo/v1
 kind: AlertCondition
 metadata:
-  name: sending-a-bug-report-is-quick-daily-burn-over-2h
+  name: sent-bug-reports-are-answered-quickly-daily-burn-over-2h
 spec:
   description: "The budget burns at 0.7x or more over the last 2h."
   severity: ticket
@@ -363,7 +363,7 @@ spec:
 apiVersion: openslo/v1
 kind: AlertCondition
 metadata:
-  name: sending-a-bug-report-is-quick-budget-drift-over-3d
+  name: sent-bug-reports-are-answered-quickly-budget-drift-over-3d
 spec:
   description: "The budget burns at 1x or more over the last 3d."
   severity: ticket
@@ -376,7 +376,7 @@ spec:
 apiVersion: openslo/v1
 kind: AlertCondition
 metadata:
-  name: sending-a-bug-report-is-quick-budget-drift-over-6h
+  name: sent-bug-reports-are-answered-quickly-budget-drift-over-6h
 spec:
   description: "The budget burns at 1x or more over the last 6h."
   severity: ticket
@@ -389,7 +389,7 @@ spec:
 apiVersion: openslo/v1
 kind: AlertCondition
 metadata:
-  name: sending-a-bug-report-never-stalls-fast-burn-over-1h
+  name: sent-bug-reports-rarely-wait-long-fast-burn-over-1h
 spec:
   description: "The budget burns at 3.36x or more over the last 1h."
   severity: page
@@ -402,7 +402,7 @@ spec:
 apiVersion: openslo/v1
 kind: AlertCondition
 metadata:
-  name: sending-a-bug-report-never-stalls-fast-burn-over-5m
+  name: sent-bug-reports-rarely-wait-long-fast-burn-over-5m
 spec:
   description: "The budget burns at 3.36x or more over the last 5m."
   severity: page
@@ -415,7 +415,7 @@ spec:
 apiVersion: openslo/v1
 kind: AlertCondition
 metadata:
-  name: sending-a-bug-report-never-stalls-slow-burn-over-6h
+  name: sent-bug-reports-rarely-wait-long-slow-burn-over-6h
 spec:
   description: "The budget burns at 1.4x or more over the last 6h."
   severity: page
@@ -428,7 +428,7 @@ spec:
 apiVersion: openslo/v1
 kind: AlertCondition
 metadata:
-  name: sending-a-bug-report-never-stalls-slow-burn-over-30m
+  name: sent-bug-reports-rarely-wait-long-slow-burn-over-30m
 spec:
   description: "The budget burns at 1.4x or more over the last 30m."
   severity: page
@@ -441,7 +441,7 @@ spec:
 apiVersion: openslo/v1
 kind: AlertCondition
 metadata:
-  name: sending-a-bug-report-never-stalls-daily-burn-over-1d
+  name: sent-bug-reports-rarely-wait-long-daily-burn-over-1d
 spec:
   description: "The budget burns at 0.7x or more over the last 1d."
   severity: ticket
@@ -454,7 +454,7 @@ spec:
 apiVersion: openslo/v1
 kind: AlertCondition
 metadata:
-  name: sending-a-bug-report-never-stalls-daily-burn-over-2h
+  name: sent-bug-reports-rarely-wait-long-daily-burn-over-2h
 spec:
   description: "The budget burns at 0.7x or more over the last 2h."
   severity: ticket
@@ -467,7 +467,7 @@ spec:
 apiVersion: openslo/v1
 kind: AlertCondition
 metadata:
-  name: sending-a-bug-report-never-stalls-budget-drift-over-3d
+  name: sent-bug-reports-rarely-wait-long-budget-drift-over-3d
 spec:
   description: "The budget burns at 1x or more over the last 3d."
   severity: ticket
@@ -480,7 +480,7 @@ spec:
 apiVersion: openslo/v1
 kind: AlertCondition
 metadata:
-  name: sending-a-bug-report-never-stalls-budget-drift-over-6h
+  name: sent-bug-reports-rarely-wait-long-budget-drift-over-6h
 spec:
   description: "The budget burns at 1x or more over the last 6h."
   severity: ticket
@@ -2139,22 +2139,22 @@ spec:
 apiVersion: openslo/v1
 kind: AlertPolicy
 metadata:
-  name: sent-bug-reports-reach-the-team-fast-burn
-  displayName: "A bug report a person sends reaches the team: fast-burn"
+  name: sent-bug-reports-are-decided-fast-burn
+  displayName: "The app decides every bug report people send: fast-burn"
   labels:
-    slo: sent-bug-reports-reach-the-team
+    slo: sent-bug-reports-are-decided
     severity: page
     tier: "1"
     route: page
   annotations:
-    openslo-alerting/and-conditions: sent-bug-reports-reach-the-team-fast-burn-over-5m
+    openslo-alerting/and-conditions: sent-bug-reports-are-decided-fast-burn-over-5m
 spec:
-  description: "page: A bug report a person sends reaches the team is spending its error budget at a rate that ends it within hours: \"At least 99.9% of sends are decided\" burns at 3.36x or more over 1h and over 5m."
+  description: "page: The app decides every bug report people send is spending its error budget at a rate that ends it within hours: \"At least 99.9% of sends are decided\" burns at 3.36x or more over 1h and over 5m."
   alertWhenNoData: false
   alertWhenResolved: true
   alertWhenBreaching: true
   conditions:
-    - conditionRef: sent-bug-reports-reach-the-team-fast-burn-over-1h
+    - conditionRef: sent-bug-reports-are-decided-fast-burn-over-1h
   notificationTargets:
     - targetRef: health-job-failure
     - targetRef: grafana-irm-page
@@ -2162,22 +2162,22 @@ spec:
 apiVersion: openslo/v1
 kind: AlertPolicy
 metadata:
-  name: sent-bug-reports-reach-the-team-slow-burn
-  displayName: "A bug report a person sends reaches the team: slow-burn"
+  name: sent-bug-reports-are-decided-slow-burn
+  displayName: "The app decides every bug report people send: slow-burn"
   labels:
-    slo: sent-bug-reports-reach-the-team
+    slo: sent-bug-reports-are-decided
     severity: page
     tier: "1"
     route: page
   annotations:
-    openslo-alerting/and-conditions: sent-bug-reports-reach-the-team-slow-burn-over-30m
+    openslo-alerting/and-conditions: sent-bug-reports-are-decided-slow-burn-over-30m
 spec:
-  description: "page: A bug report a person sends reaches the team is spending its error budget steadily enough to end it within days: \"At least 99.9% of sends are decided\" burns at 1.4x or more over 6h and over 30m."
+  description: "page: The app decides every bug report people send is spending its error budget steadily enough to end it within days: \"At least 99.9% of sends are decided\" burns at 1.4x or more over 6h and over 30m."
   alertWhenNoData: false
   alertWhenResolved: true
   alertWhenBreaching: true
   conditions:
-    - conditionRef: sent-bug-reports-reach-the-team-slow-burn-over-6h
+    - conditionRef: sent-bug-reports-are-decided-slow-burn-over-6h
   notificationTargets:
     - targetRef: health-job-failure
     - targetRef: grafana-irm-page
@@ -2185,22 +2185,22 @@ spec:
 apiVersion: openslo/v1
 kind: AlertPolicy
 metadata:
-  name: sent-bug-reports-reach-the-team-daily-burn
-  displayName: "A bug report a person sends reaches the team: daily-burn"
+  name: sent-bug-reports-are-decided-daily-burn
+  displayName: "The app decides every bug report people send: daily-burn"
   labels:
-    slo: sent-bug-reports-reach-the-team
+    slo: sent-bug-reports-are-decided
     severity: ticket
     tier: "1"
     route: push
   annotations:
-    openslo-alerting/and-conditions: sent-bug-reports-reach-the-team-daily-burn-over-2h
+    openslo-alerting/and-conditions: sent-bug-reports-are-decided-daily-burn-over-2h
 spec:
-  description: "ticket: A bug report a person sends reaches the team is spending its error budget fast enough to end it within the window: \"At least 99.9% of sends are decided\" burns at 0.7x or more over 1d and over 2h."
+  description: "ticket: The app decides every bug report people send is spending its error budget fast enough to end it within the window: \"At least 99.9% of sends are decided\" burns at 0.7x or more over 1d and over 2h."
   alertWhenNoData: false
   alertWhenResolved: true
   alertWhenBreaching: true
   conditions:
-    - conditionRef: sent-bug-reports-reach-the-team-daily-burn-over-1d
+    - conditionRef: sent-bug-reports-are-decided-daily-burn-over-1d
   notificationTargets:
     - targetRef: health-job-failure
     - targetRef: grafana-irm-push
@@ -2208,22 +2208,22 @@ spec:
 apiVersion: openslo/v1
 kind: AlertPolicy
 metadata:
-  name: sent-bug-reports-reach-the-team-budget-drift
-  displayName: "A bug report a person sends reaches the team: budget-drift"
+  name: sent-bug-reports-are-decided-budget-drift
+  displayName: "The app decides every bug report people send: budget-drift"
   labels:
-    slo: sent-bug-reports-reach-the-team
+    slo: sent-bug-reports-are-decided
     severity: ticket
     tier: "1"
     route: push
   annotations:
-    openslo-alerting/and-conditions: sent-bug-reports-reach-the-team-budget-drift-over-6h
+    openslo-alerting/and-conditions: sent-bug-reports-are-decided-budget-drift-over-6h
 spec:
-  description: "ticket: A bug report a person sends reaches the team is spending its error budget faster than the window renews it: \"At least 99.9% of sends are decided\" burns at 1x or more over 3d and over 6h."
+  description: "ticket: The app decides every bug report people send is spending its error budget faster than the window renews it: \"At least 99.9% of sends are decided\" burns at 1x or more over 3d and over 6h."
   alertWhenNoData: false
   alertWhenResolved: true
   alertWhenBreaching: true
   conditions:
-    - conditionRef: sent-bug-reports-reach-the-team-budget-drift-over-3d
+    - conditionRef: sent-bug-reports-are-decided-budget-drift-over-3d
   notificationTargets:
     - targetRef: health-job-failure
     - targetRef: grafana-irm-push
@@ -2231,22 +2231,22 @@ spec:
 apiVersion: openslo/v1
 kind: AlertPolicy
 metadata:
-  name: sending-a-bug-report-is-quick-fast-burn
-  displayName: "Sending a bug report is quick: fast-burn"
+  name: sent-bug-reports-are-answered-quickly-fast-burn
+  displayName: "Sent bug reports are answered quickly: fast-burn"
   labels:
-    slo: sending-a-bug-report-is-quick
+    slo: sent-bug-reports-are-answered-quickly
     severity: page
     tier: "1"
     route: page
   annotations:
-    openslo-alerting/and-conditions: sending-a-bug-report-is-quick-fast-burn-over-5m
+    openslo-alerting/and-conditions: sent-bug-reports-are-answered-quickly-fast-burn-over-5m
 spec:
-  description: "page: Sending a bug report is quick is spending its error budget at a rate that ends it within hours: \"At least 95% answered within five seconds\" burns at 3.36x or more over 1h and over 5m."
+  description: "page: Sent bug reports are answered quickly is spending its error budget at a rate that ends it within hours: \"At least 95% answered within five seconds\" burns at 3.36x or more over 1h and over 5m."
   alertWhenNoData: false
   alertWhenResolved: true
   alertWhenBreaching: true
   conditions:
-    - conditionRef: sending-a-bug-report-is-quick-fast-burn-over-1h
+    - conditionRef: sent-bug-reports-are-answered-quickly-fast-burn-over-1h
   notificationTargets:
     - targetRef: health-job-failure
     - targetRef: grafana-irm-page
@@ -2254,22 +2254,22 @@ spec:
 apiVersion: openslo/v1
 kind: AlertPolicy
 metadata:
-  name: sending-a-bug-report-is-quick-slow-burn
-  displayName: "Sending a bug report is quick: slow-burn"
+  name: sent-bug-reports-are-answered-quickly-slow-burn
+  displayName: "Sent bug reports are answered quickly: slow-burn"
   labels:
-    slo: sending-a-bug-report-is-quick
+    slo: sent-bug-reports-are-answered-quickly
     severity: page
     tier: "1"
     route: page
   annotations:
-    openslo-alerting/and-conditions: sending-a-bug-report-is-quick-slow-burn-over-30m
+    openslo-alerting/and-conditions: sent-bug-reports-are-answered-quickly-slow-burn-over-30m
 spec:
-  description: "page: Sending a bug report is quick is spending its error budget steadily enough to end it within days: \"At least 95% answered within five seconds\" burns at 1.4x or more over 6h and over 30m."
+  description: "page: Sent bug reports are answered quickly is spending its error budget steadily enough to end it within days: \"At least 95% answered within five seconds\" burns at 1.4x or more over 6h and over 30m."
   alertWhenNoData: false
   alertWhenResolved: true
   alertWhenBreaching: true
   conditions:
-    - conditionRef: sending-a-bug-report-is-quick-slow-burn-over-6h
+    - conditionRef: sent-bug-reports-are-answered-quickly-slow-burn-over-6h
   notificationTargets:
     - targetRef: health-job-failure
     - targetRef: grafana-irm-page
@@ -2277,22 +2277,22 @@ spec:
 apiVersion: openslo/v1
 kind: AlertPolicy
 metadata:
-  name: sending-a-bug-report-is-quick-daily-burn
-  displayName: "Sending a bug report is quick: daily-burn"
+  name: sent-bug-reports-are-answered-quickly-daily-burn
+  displayName: "Sent bug reports are answered quickly: daily-burn"
   labels:
-    slo: sending-a-bug-report-is-quick
+    slo: sent-bug-reports-are-answered-quickly
     severity: ticket
     tier: "1"
     route: push
   annotations:
-    openslo-alerting/and-conditions: sending-a-bug-report-is-quick-daily-burn-over-2h
+    openslo-alerting/and-conditions: sent-bug-reports-are-answered-quickly-daily-burn-over-2h
 spec:
-  description: "ticket: Sending a bug report is quick is spending its error budget fast enough to end it within the window: \"At least 95% answered within five seconds\" burns at 0.7x or more over 1d and over 2h."
+  description: "ticket: Sent bug reports are answered quickly is spending its error budget fast enough to end it within the window: \"At least 95% answered within five seconds\" burns at 0.7x or more over 1d and over 2h."
   alertWhenNoData: false
   alertWhenResolved: true
   alertWhenBreaching: true
   conditions:
-    - conditionRef: sending-a-bug-report-is-quick-daily-burn-over-1d
+    - conditionRef: sent-bug-reports-are-answered-quickly-daily-burn-over-1d
   notificationTargets:
     - targetRef: health-job-failure
     - targetRef: grafana-irm-push
@@ -2300,22 +2300,22 @@ spec:
 apiVersion: openslo/v1
 kind: AlertPolicy
 metadata:
-  name: sending-a-bug-report-is-quick-budget-drift
-  displayName: "Sending a bug report is quick: budget-drift"
+  name: sent-bug-reports-are-answered-quickly-budget-drift
+  displayName: "Sent bug reports are answered quickly: budget-drift"
   labels:
-    slo: sending-a-bug-report-is-quick
+    slo: sent-bug-reports-are-answered-quickly
     severity: ticket
     tier: "1"
     route: push
   annotations:
-    openslo-alerting/and-conditions: sending-a-bug-report-is-quick-budget-drift-over-6h
+    openslo-alerting/and-conditions: sent-bug-reports-are-answered-quickly-budget-drift-over-6h
 spec:
-  description: "ticket: Sending a bug report is quick is spending its error budget faster than the window renews it: \"At least 95% answered within five seconds\" burns at 1x or more over 3d and over 6h."
+  description: "ticket: Sent bug reports are answered quickly is spending its error budget faster than the window renews it: \"At least 95% answered within five seconds\" burns at 1x or more over 3d and over 6h."
   alertWhenNoData: false
   alertWhenResolved: true
   alertWhenBreaching: true
   conditions:
-    - conditionRef: sending-a-bug-report-is-quick-budget-drift-over-3d
+    - conditionRef: sent-bug-reports-are-answered-quickly-budget-drift-over-3d
   notificationTargets:
     - targetRef: health-job-failure
     - targetRef: grafana-irm-push
@@ -2323,22 +2323,22 @@ spec:
 apiVersion: openslo/v1
 kind: AlertPolicy
 metadata:
-  name: sending-a-bug-report-never-stalls-fast-burn
-  displayName: "Sending a bug report never stalls: fast-burn"
+  name: sent-bug-reports-rarely-wait-long-fast-burn
+  displayName: "Sent bug reports rarely wait long for an answer: fast-burn"
   labels:
-    slo: sending-a-bug-report-never-stalls
+    slo: sent-bug-reports-rarely-wait-long
     severity: page
     tier: "1"
     route: page
   annotations:
-    openslo-alerting/and-conditions: sending-a-bug-report-never-stalls-fast-burn-over-5m
+    openslo-alerting/and-conditions: sent-bug-reports-rarely-wait-long-fast-burn-over-5m
 spec:
-  description: "page: Sending a bug report never stalls is spending its error budget at a rate that ends it within hours: \"At least 99% answered within ten seconds\" burns at 3.36x or more over 1h and over 5m."
+  description: "page: Sent bug reports rarely wait long for an answer is spending its error budget at a rate that ends it within hours: \"At least 99% answered within ten seconds\" burns at 3.36x or more over 1h and over 5m."
   alertWhenNoData: false
   alertWhenResolved: true
   alertWhenBreaching: true
   conditions:
-    - conditionRef: sending-a-bug-report-never-stalls-fast-burn-over-1h
+    - conditionRef: sent-bug-reports-rarely-wait-long-fast-burn-over-1h
   notificationTargets:
     - targetRef: health-job-failure
     - targetRef: grafana-irm-page
@@ -2346,22 +2346,22 @@ spec:
 apiVersion: openslo/v1
 kind: AlertPolicy
 metadata:
-  name: sending-a-bug-report-never-stalls-slow-burn
-  displayName: "Sending a bug report never stalls: slow-burn"
+  name: sent-bug-reports-rarely-wait-long-slow-burn
+  displayName: "Sent bug reports rarely wait long for an answer: slow-burn"
   labels:
-    slo: sending-a-bug-report-never-stalls
+    slo: sent-bug-reports-rarely-wait-long
     severity: page
     tier: "1"
     route: page
   annotations:
-    openslo-alerting/and-conditions: sending-a-bug-report-never-stalls-slow-burn-over-30m
+    openslo-alerting/and-conditions: sent-bug-reports-rarely-wait-long-slow-burn-over-30m
 spec:
-  description: "page: Sending a bug report never stalls is spending its error budget steadily enough to end it within days: \"At least 99% answered within ten seconds\" burns at 1.4x or more over 6h and over 30m."
+  description: "page: Sent bug reports rarely wait long for an answer is spending its error budget steadily enough to end it within days: \"At least 99% answered within ten seconds\" burns at 1.4x or more over 6h and over 30m."
   alertWhenNoData: false
   alertWhenResolved: true
   alertWhenBreaching: true
   conditions:
-    - conditionRef: sending-a-bug-report-never-stalls-slow-burn-over-6h
+    - conditionRef: sent-bug-reports-rarely-wait-long-slow-burn-over-6h
   notificationTargets:
     - targetRef: health-job-failure
     - targetRef: grafana-irm-page
@@ -2369,22 +2369,22 @@ spec:
 apiVersion: openslo/v1
 kind: AlertPolicy
 metadata:
-  name: sending-a-bug-report-never-stalls-daily-burn
-  displayName: "Sending a bug report never stalls: daily-burn"
+  name: sent-bug-reports-rarely-wait-long-daily-burn
+  displayName: "Sent bug reports rarely wait long for an answer: daily-burn"
   labels:
-    slo: sending-a-bug-report-never-stalls
+    slo: sent-bug-reports-rarely-wait-long
     severity: ticket
     tier: "1"
     route: push
   annotations:
-    openslo-alerting/and-conditions: sending-a-bug-report-never-stalls-daily-burn-over-2h
+    openslo-alerting/and-conditions: sent-bug-reports-rarely-wait-long-daily-burn-over-2h
 spec:
-  description: "ticket: Sending a bug report never stalls is spending its error budget fast enough to end it within the window: \"At least 99% answered within ten seconds\" burns at 0.7x or more over 1d and over 2h."
+  description: "ticket: Sent bug reports rarely wait long for an answer is spending its error budget fast enough to end it within the window: \"At least 99% answered within ten seconds\" burns at 0.7x or more over 1d and over 2h."
   alertWhenNoData: false
   alertWhenResolved: true
   alertWhenBreaching: true
   conditions:
-    - conditionRef: sending-a-bug-report-never-stalls-daily-burn-over-1d
+    - conditionRef: sent-bug-reports-rarely-wait-long-daily-burn-over-1d
   notificationTargets:
     - targetRef: health-job-failure
     - targetRef: grafana-irm-push
@@ -2392,22 +2392,22 @@ spec:
 apiVersion: openslo/v1
 kind: AlertPolicy
 metadata:
-  name: sending-a-bug-report-never-stalls-budget-drift
-  displayName: "Sending a bug report never stalls: budget-drift"
+  name: sent-bug-reports-rarely-wait-long-budget-drift
+  displayName: "Sent bug reports rarely wait long for an answer: budget-drift"
   labels:
-    slo: sending-a-bug-report-never-stalls
+    slo: sent-bug-reports-rarely-wait-long
     severity: ticket
     tier: "1"
     route: push
   annotations:
-    openslo-alerting/and-conditions: sending-a-bug-report-never-stalls-budget-drift-over-6h
+    openslo-alerting/and-conditions: sent-bug-reports-rarely-wait-long-budget-drift-over-6h
 spec:
-  description: "ticket: Sending a bug report never stalls is spending its error budget faster than the window renews it: \"At least 99% answered within ten seconds\" burns at 1x or more over 3d and over 6h."
+  description: "ticket: Sent bug reports rarely wait long for an answer is spending its error budget faster than the window renews it: \"At least 99% answered within ten seconds\" burns at 1x or more over 3d and over 6h."
   alertWhenNoData: false
   alertWhenResolved: true
   alertWhenBreaching: true
   conditions:
-    - conditionRef: sending-a-bug-report-never-stalls-budget-drift-over-3d
+    - conditionRef: sent-bug-reports-rarely-wait-long-budget-drift-over-3d
   notificationTargets:
     - targetRef: health-job-failure
     - targetRef: grafana-irm-push

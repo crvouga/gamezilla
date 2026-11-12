@@ -402,14 +402,14 @@ destination means `FEEDBACK_GITHUB_TOKEN` or `FEEDBACK_GITHUB_REPOSITORY`:
 token against GitHub before storing it. "storage is unavailable" is the
 environment's bucket credentials. Otherwise check GitHub's status page.
 
-## sent-bug-reports-reach-the-team
+## sent-bug-reports-are-decided
 
 **Measures.** Every bug report a device sends to the live app
 (`feedback.bug_report.sends`), by what became of it: taken, refused for good
 (the daily limit, a send that is not from the app), or failed on the app's
 side. Only `failed` is bad.
 
-**Target and window:** [sent-bug-reports-reach-the-team](../specs/feedback/sending-bug-reports.openslo.yaml).
+**Target and window:** [sent-bug-reports-are-decided](../specs/feedback/sending-bug-reports.openslo.yaml).
 Use the declared objective and generated alert thresholds; historical baseline
 measurements are not the reliability requirement.
 
@@ -422,13 +422,13 @@ arrives late.
 Worker's logs carry `bug report not received` with the cause of each failed
 send.
 
-## sending-a-bug-report-is-quick
+## sent-bug-reports-are-answered-quickly
 
 **Measures.** How long the app took to answer each sent bug report
 (`feedback.bug_report.send.duration`), from the send reaching it: storing
 the screenshots and writing the bug report to the team's list of work.
 
-**Target and window:** [sending-a-bug-report-is-quick](../specs/feedback/sending-bug-reports.openslo.yaml).
+**Target and window:** [sent-bug-reports-are-answered-quickly](../specs/feedback/sending-bug-reports.openslo.yaml).
 The thresholds were set before any real send was measured; revisit them once
 a month of sends exists.
 
@@ -438,16 +438,16 @@ seconds.
 **First steps.** Most of a send is two outside calls: the bucket and GitHub.
 Check GitHub's status page and the bucket's latency before the app.
 
-## sending-a-bug-report-never-stalls
+## sent-bug-reports-rarely-wait-long
 
 **Measures.** The same durations, against ten seconds.
 
-**Target and window:** [sending-a-bug-report-never-stalls](../specs/feedback/sending-bug-reports.openslo.yaml).
+**Target and window:** [sent-bug-reports-rarely-wait-long](../specs/feedback/sending-bug-reports.openslo.yaml).
 
 **Breach means.** Sends hang. The app gives GitHub eight seconds before it
 gives up, so a send past ten is usually GitHub not answering.
 
-**First steps.** As for [sending-a-bug-report-is-quick](#sending-a-bug-report-is-quick).
+**First steps.** As for [sent-bug-reports-are-answered-quickly](#sent-bug-reports-are-answered-quickly).
 
 ## the-team-can-see-what-happened
 
