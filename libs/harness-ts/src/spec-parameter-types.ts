@@ -5,6 +5,11 @@ type Entry = { readonly PARAMETER_TYPES: readonly ParameterTypeSpec[] };
 
 const PATTERN = 'parameter-types*.ts';
 
+/** Vite's build-time glob, typed here because this package has no Vite types. */
+type BundlerMeta = {
+  glob<T>(pattern: string, options: { eager: true }): Record<string, T>;
+};
+
 /**
  * Each domain owns one flat source entry; vocabulary is discovered, never
  * appended here. Bun scans the directory; the browser bundle has no
@@ -12,9 +17,12 @@ const PATTERN = 'parameter-types*.ts';
  */
 async function discover(): Promise<readonly Entry[]> {
   if (typeof Bun === 'undefined') {
-    const found = import.meta.glob<Entry>('./parameter-types*.ts', {
-      eager: true,
-    });
+    const found = (import.meta as unknown as BundlerMeta).glob<Entry>(
+      './parameter-types*.ts',
+      {
+        eager: true,
+      }
+    );
     return Object.keys(found)
       .sort()
       .flatMap((file) => found[file] ?? []);
