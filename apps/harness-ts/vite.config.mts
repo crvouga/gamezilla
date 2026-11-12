@@ -1,7 +1,7 @@
 // @io-wall-ok — build-tool composition root
 import { execFileSync } from 'node:child_process';
 import { resolve } from 'node:path';
-import { brandHtmlPlugin } from '@libs/product-identity-shared-ts/brand-html';
+import { brandHtmlPlugin } from '@libs/product-brand-shared-ts/brand-html';
 import { getConfig } from '@lingui/conf';
 import { sqliteWebAssets } from '@pkgs/sql-client-sqlite-web-server-ts/sqlite-web-assets';
 import { artifactProtection } from '@pkgs/vite-workspace-resolver-server-ts/artifact-protection';

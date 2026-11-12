@@ -107,7 +107,7 @@
         "@libs/auth-shared-ts": "workspace:*",
         "@libs/chess-puzzle-harness-ts": "workspace:*",
         "@libs/harness-ts": "workspace:*",
-        "@libs/product-identity-shared-ts": "workspace:*",
+        "@libs/product-brand-shared-ts": "workspace:*",
         "@libs/runtime-harness-ts": "workspace:*",
         "@libs/sub-shared-ts": "workspace:*",
         "@lingui/core": "catalog:",
