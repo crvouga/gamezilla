@@ -19,6 +19,7 @@ type Options = {
   readonly clock: Clock;
   readonly allowedOrigin: string;
   readonly basePath?: string;
+  readonly onFailure?: (error: unknown) => void;
 };
 
 function validBasePath(value: string): string {
@@ -67,10 +68,28 @@ async function readArchive(
   });
 }
 
+/** Whether a bug report sent now would become an issue, without sending one. */
+async function health(
+  options: Options,
+  headers: Record<string, string>
+): Promise<Response> {
+  try {
+    await options.reporter.check?.();
+    return Response.json({ receiving: true }, { headers });
+  } catch (error) {
+    options.onFailure?.(error);
+    return Response.json(
+      { receiving: false, reason: 'the issue destination refused' },
+      { status: 503, headers }
+    );
+  }
+}
+
 /**
  * The whole backend of bug reporting: one address takes a report with its
  * pictures, and the archive under it serves them back to whoever holds the
  * issue. It needs no sign-in, so a person whose sign-in is broken can report.
+ * `/health` under it answers once everything a report needs is in place.
  */
 export function createBugReportHttpApp(options: Options) {
   const basePath = validBasePath(options.basePath ?? BUG_REPORT_PATH);
@@ -94,6 +113,7 @@ export function createBugReportHttpApp(options: Options) {
       Vary: 'Origin',
       'Access-Control-Allow-Methods': 'POST, OPTIONS',
     };
+    if (url.pathname === `${basePath}/health`) return health(options, headers);
     if (url.pathname.startsWith(`${basePath}/reports/`))
       return request.method === 'GET'
         ? readArchive(

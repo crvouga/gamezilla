@@ -17,6 +17,9 @@ export function browserDetails(
         height: window.innerHeight,
         pixelRatio: window.devicePixelRatio,
         language: window.navigator.language,
+        languages: window.navigator.languages,
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        touch: window.navigator.maxTouchPoints > 0,
         online: window.navigator.onLine,
         installed: window.matchMedia('(display-mode: standalone)').matches,
       }),
@@ -25,6 +28,8 @@ export function browserDetails(
       name: 'app',
       collect: () => ({
         version: build,
+        // Which deployment, and only the path: a ? or # can carry sign-in secrets.
+        origin: window.location.origin,
         path: window.location.pathname,
         theme: window.document.documentElement.dataset['theme'] ?? null,
       }),

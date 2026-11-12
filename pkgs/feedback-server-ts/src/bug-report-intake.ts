@@ -25,6 +25,8 @@ export type IntakeOptions = {
   readonly clock: Clock;
   /** Where this report's pictures and JSON are read back, without a trailing slash. */
   readonly reportsUrl: string;
+  /** Told why a bug report could not be received, so the team hears of it. */
+  readonly onFailure?: (error: unknown) => void;
 };
 
 export type IntakeOutcome =
@@ -161,12 +163,13 @@ export function createBugReportIntake(options: IntakeOptions) {
     const inFlight = receiving.get(id);
     if (inFlight) return inFlight;
     const outcome = receive(options, input.submission, input.pictures)
-      .catch(
-        (): IntakeOutcome => ({
+      .catch((error: unknown): IntakeOutcome => {
+        options.onFailure?.(error);
+        return {
           status: 503,
           error: 'Bug reports cannot be received right now',
-        })
-      )
+        };
+      })
       .finally(() => receiving.delete(id));
     receiving.set(id, outcome);
     return outcome;

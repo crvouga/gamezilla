@@ -53,9 +53,16 @@ allows `DAILY_BUG_REPORT_LIMIT` reports a day per device and
 `DAILY_BUG_REPORT_CEILING` a day in total, archives the report, then asks the
 `IssueReporter` for an issue.
 
-- `GitHubIssueReporter` opens the issue. It needs `FEEDBACK_GITHUB_TOKEN` and
-  `FEEDBACK_GITHUB_REPOSITORY`; without them the server answers 503 and
-  devices keep their reports until it can receive them.
+- `GitHubIssueReporter` opens the issue, labelled `bug` and `bug-report`. It
+  needs `FEEDBACK_GITHUB_TOKEN` and `FEEDBACK_GITHUB_REPOSITORY`; without them
+  the server answers 503 with the reason and devices keep their reports until
+  it can receive them. `GET /api/bug-reports/health` says whether a report
+  sent now would become an issue, and production's health run asks it
+  ([`receiving-bug-reports.feature`](../../specs/feedback/receiving-bug-reports.feature)).
+- The issue is written for whoever fixes the bug (`issue-body.ts`): where it
+  happened and the commit, the timeline with the `data-testid` of each choice,
+  every stack and failed request, the device and session, and the link to the
+  full report as JSON.
 - `localIssueReporter` is development: the archive under `.feedback/` is the
   issue. `bun feedback --list` and `bun feedback --inspect <id>` read it.
 

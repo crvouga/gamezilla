@@ -1,4 +1,7 @@
-import { recordFeedbackTrace } from '@pkgs/feedback-shared-ts/context';
+import {
+  recordFeedbackTrace,
+  registerFeedbackContext,
+} from '@pkgs/feedback-shared-ts/context';
 import type { ObservabilityIdentity } from '@pkgs/observability-root-shared-ts/identity';
 
 let identity: ObservabilityIdentity = {};
@@ -71,6 +74,14 @@ export function recordRecentTraceId(traceId: string): void {
 }
 
 export function installBrowserObsHelper(): void {
+  // A bug report names the same visit telemetry does, so one finds the other.
+  registerFeedbackContext({
+    name: 'session',
+    collect: () => ({
+      ...browserObservabilityIdentity(),
+      startupPending: pendingBrowserStartup(),
+    }),
+  });
   const host = window as unknown as { __obs?: () => string };
   host.__obs = () => {
     const traceId = recentTraceId ?? 'unavailable';

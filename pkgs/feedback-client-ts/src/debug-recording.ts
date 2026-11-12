@@ -48,6 +48,82 @@ export function troubleText(trouble: unknown): string {
   }
 }
 
+const TRACE = /^[0-9a-f]{2}-([0-9a-f]{32})-/;
+
+/** A request by its method and address, without what follows a ? or #. */
+function requestLabel(
+  window: Window,
+  input: RequestInfo | URL,
+  init: RequestInit | undefined
+): string {
+  const request = typeof input === 'object' && 'url' in input ? input : null;
+  const method = (init?.method ?? request?.method ?? 'GET').toUpperCase();
+  const address =
+    request?.url ?? (typeof input === 'string' ? input : (input as URL).href);
+  try {
+    const url = new URL(address, window.location.href);
+    return `${method} ${url.origin}${url.pathname}`;
+  } catch {
+    return `${method} an address that could not be read`;
+  }
+}
+
+/**
+ * Records every request the app made that failed, and the server's trace of
+ * it when the server names one. A request repeated with the same outcome is
+ * recorded once, so retrying while offline cannot crowd out what came before.
+ */
+function recordFailedRequests(window: Window, debug: DebugBuffer): () => void {
+  const original = window.fetch;
+  let last = '';
+  const failed = (text: string): void => {
+    if (text === last) return;
+    last = text;
+    debug.record('trouble', text);
+  };
+  const recording: typeof window.fetch = async (input, init) => {
+    const label = requestLabel(window, input, init);
+    try {
+      const response = await original.call(window, input, init);
+      if (!response.ok) {
+        const trace = TRACE.exec(response.headers.get('traceparent') ?? '');
+        failed(
+          `Request failed: ${label} answered ${response.status}${trace ? ` (trace ${trace[1]})` : ''}`
+        );
+      }
+      return response;
+    } catch (error) {
+      // A request the app itself gave up on is not trouble.
+      if (!(error instanceof Error && error.name === 'AbortError'))
+        failed(
+          `Request failed: ${label} never answered (${troubleText(error).split('\n')[0]})`
+        );
+      throw error;
+    }
+  };
+  window.fetch = recording;
+  return () => {
+    if (window.fetch === recording) window.fetch = original;
+  };
+}
+
+/** Records what the app itself reported as an error, alongside what it threw. */
+function recordReportedErrors(window: Window, debug: DebugBuffer): () => void {
+  const console = (window as Window & { console: Console }).console;
+  const original = console.error;
+  const recording = (...parts: unknown[]): void => {
+    debug.record(
+      'trouble',
+      `Error reported: ${parts.map(troubleText).join(' ')}`
+    );
+    original.apply(console, parts);
+  };
+  console.error = recording;
+  return () => {
+    if (console.error === recording) console.error = original;
+  };
+}
+
 type Recording = {
   readonly window: Window;
   readonly document: Document;
@@ -132,15 +208,21 @@ function listeners(options: Recording): [EventTarget, string, EventListener][] {
 
 /**
  * Keeps debug info all the time, whether or not a bug is ever reported:
- * where the person went, what they chose, trouble the app ran into, and the
- * connection coming and going. What a person types is never listened to.
+ * where the person went, what they chose, trouble the app ran into (errors
+ * it threw or reported, and requests that failed), and the connection coming
+ * and going. What a person types is never listened to.
  */
 export function installDebugRecording(options: Recording): () => void {
   const installed = listeners(options);
   for (const [target, type, listener] of installed)
     target.addEventListener(type, listener, true);
+  const restore = [
+    recordFailedRequests(options.window, options.debug),
+    recordReportedErrors(options.window, options.debug),
+  ];
   return () => {
     for (const [target, type, listener] of installed)
       target.removeEventListener(type, listener, true);
+    for (const undo of restore) undo();
   };
 }

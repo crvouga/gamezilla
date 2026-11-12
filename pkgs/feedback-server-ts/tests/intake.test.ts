@@ -205,6 +205,7 @@ test('the GitHub issue is written with the token kept out of its text', async ()
   expect(body).not.toContain('secret-token');
   expect(JSON.parse(body)).toMatchObject({
     title: 'Bug report: The board froze',
+    labels: ['bug', 'bug-report'],
   });
   expect(body).toContain(`${BUG_REPORT_PATH}/reports/${reportId(1)}`);
 });
@@ -218,4 +219,30 @@ test('a repository that is not owner/name is refused before anything is sent', (
         repository: 'team/app/../../user',
       })
   ).toThrow();
+});
+
+test('the health address says whether a bug report sent now would become an issue', async () => {
+  let listing = 200;
+  const reporter = new GitHubIssueReporter({
+    http: {
+      fetch: () => Promise.resolve(new Response('[]', { status: listing })),
+    },
+    token: 'secret-token',
+    repository: 'team/app',
+  });
+  const app = createBugReportHttpApp({
+    reporter,
+    store: new ObjectStoreImplInMemory(),
+    clock: { now: () => 0 },
+    allowedOrigin: ORIGIN,
+  });
+  const health = () => app(new Request(`${ORIGIN}${BUG_REPORT_PATH}/health`));
+  expect(await (await health()).json()).toEqual({ receiving: true });
+  listing = 401;
+  const refused = await health();
+  expect(refused.status).toBe(503);
+  expect(await refused.json()).toEqual({
+    receiving: false,
+    reason: 'the issue destination refused',
+  });
 });

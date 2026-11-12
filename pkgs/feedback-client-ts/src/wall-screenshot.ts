@@ -26,9 +26,11 @@ async function capture(document: Document): Promise<ScreenshotFile | null> {
     style: {
       transform: `translate(${-view.scrollX}px, ${-view.scrollY}px)`,
     },
+    // Left out: the bug report, what an app marks private, and the words a
+    // page keeps for a browser without scripts, which a clone would show.
     filter: (node) =>
       !(node instanceof view.Element) ||
-      !node.matches('[data-feedback-root], [data-feedback-private]'),
+      !node.matches('[data-feedback-root], [data-feedback-private], noscript'),
   });
   return {
     contentType: 'image/jpeg',

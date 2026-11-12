@@ -67,4 +67,6 @@ export type CreatedIssue = {
 /** Where a bug report becomes an issue for the team. */
 export type IssueReporter = {
   create(report: BugReport): Promise<CreatedIssue>;
+  /** Settles only if an issue could be created right now; creates none. */
+  check?(): Promise<void>;
 };

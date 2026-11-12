@@ -92,6 +92,71 @@ describe('debug info', () => {
     expect(app.kept()).toBe(1);
   });
 
+  test('records a request that failed, without what follows its ?', async () => {
+    const before = window.fetch;
+    window.fetch = (() =>
+      Promise.resolve(
+        new Response('no', {
+          status: 500,
+          headers: {
+            traceparent:
+              '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01',
+          },
+        })
+      )) as unknown as typeof window.fetch;
+    try {
+      const app = record('');
+      await window.fetch('https://api.example/games/7?token=secret', {
+        method: 'post',
+      });
+      await window.fetch('https://api.example/games/7?token=secret', {
+        method: 'post',
+      });
+      expect(app.texts()).toEqual([
+        'trouble: Request failed: POST https://api.example/games/7 answered 500 (trace 4bf92f3577b34da6a3ce929d0e0e4736)',
+      ]);
+      stop();
+    } finally {
+      window.fetch = before;
+    }
+  });
+
+  test('records a request that never answered, but not one the app gave up on', async () => {
+    const before = window.fetch;
+    const outcomes = [
+      new TypeError('Failed to fetch'),
+      new DOMException('Gave up', 'AbortError'),
+    ];
+    window.fetch = (() =>
+      Promise.reject(outcomes.shift())) as unknown as typeof window.fetch;
+    try {
+      const app = record('');
+      await window.fetch('/api/sync').catch(() => undefined);
+      await window.fetch('/api/sync').catch(() => undefined);
+      expect(app.texts()).toEqual([
+        `trouble: Request failed: GET ${window.location.origin}/api/sync never answered (TypeError: Failed to fetch)`,
+      ]);
+      stop();
+    } finally {
+      window.fetch = before;
+    }
+  });
+
+  test('records an error the app reported itself', () => {
+    const before = console.error;
+    console.error = () => undefined;
+    try {
+      const app = record('');
+      console.error('sync refused', new Error('No lease'));
+      expect(app.texts()[0]).toStartWith(
+        'trouble: Error reported: sync refused Error: No lease'
+      );
+      stop();
+    } finally {
+      console.error = before;
+    }
+  });
+
   test('stops recording once uninstalled', () => {
     const app = record('<button>Play</button>');
     stop();

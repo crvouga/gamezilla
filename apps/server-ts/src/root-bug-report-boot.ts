@@ -12,6 +12,38 @@ import {
 } from '@pkgs/feedback-server-ts/bug-report-http-app';
 import { GitHubIssueReporter } from '@pkgs/feedback-server-ts/github-issue-reporter';
 
+class NotConfigured extends Error {}
+
+const CHECK_EVERY_MS = 5 * 60_000;
+/** When the issue destination last answered a check, in this Worker's memory. */
+let destinationCheckedAt = 0;
+
+type Notes = NonNullable<
+  ConstructorParameters<typeof GitHubIssueReporter>[0]['notes']
+>;
+
+const SESSION = /^[a-zA-Z0-9_-]{8,64}$/;
+
+/** What this repository's own tools make of a bug report. */
+const agentNotes: Notes = (report) => {
+  const session = report.debugInfo.details.find(
+    (detail) => detail.name === 'session'
+  );
+  const value =
+    session?.status === 'available'
+      ? (session.value as { sessionId?: unknown } | null)
+      : null;
+  const sessionId = value?.sessionId;
+  return [
+    ...(typeof sessionId === 'string' && SESSION.test(sessionId)
+      ? [
+          `Telemetry of the same visit: \`bun obs find ${sessionId} --source prod\`.`,
+        ]
+      : []),
+    "To fix it, run `/feedback-implement` with this issue's number.",
+  ];
+};
+
 /**
  * Takes a bug report without starting the product, so a product that cannot
  * start can still be reported.
@@ -52,22 +84,38 @@ export async function handleRootBugReport(
     const token = env.FEEDBACK_GITHUB_TOKEN?.trim();
     const repository = env.FEEDBACK_GITHUB_REPOSITORY?.trim();
     const origin = new URL(request.url).origin;
-    if (!token || !repository)
-      throw new Error('GitHub bug report destination is not configured');
+    if (!token || !repository) throw new NotConfigured();
+    const github = new GitHubIssueReporter({
+      token,
+      repository,
+      http,
+      reportBaseUrl: `${origin}${BUG_REPORT_PATH}/reports`,
+      notes: agentNotes,
+    });
     return await createBugReportHttpApp({
       store,
       clock: wallClock,
       allowedOrigin: resolveWebClientOrigin(env.API_URL?.trim() || origin),
-      reporter: new GitHubIssueReporter({
-        token,
-        repository,
-        http,
-        reportBaseUrl: `${origin}${BUG_REPORT_PATH}/reports`,
-      }),
+      onFailure: (error) => console.error('bug report not received', error),
+      reporter: {
+        create: (report) => github.create(report),
+        // Anyone may ask; GitHub is asked at most once in a while.
+        async check() {
+          if (wallClock.now() - destinationCheckedAt < CHECK_EVERY_MS) return;
+          await github.check();
+          destinationCheckedAt = wallClock.now();
+        },
+      },
     })(request);
-  } catch {
+  } catch (error) {
+    // Which part is missing is no secret, and it is what the team needs to hear.
+    const reason =
+      error instanceof NotConfigured
+        ? 'FEEDBACK_GITHUB_TOKEN or FEEDBACK_GITHUB_REPOSITORY is not set'
+        : 'storage is unavailable';
+    console.error('bug reports cannot be received', reason, error);
     return Response.json(
-      { error: 'Bug reports cannot be received right now' },
+      { error: 'Bug reports cannot be received right now', reason },
       { status: 503 }
     );
   }

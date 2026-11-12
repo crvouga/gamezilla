@@ -61,6 +61,7 @@ describe('application Worker dispatch', () => {
     expect(response.status).toBe(503);
     expect(await response.json()).toEqual({
       error: 'Bug reports cannot be received right now',
+      reason: 'storage is unavailable',
     });
   });
 
