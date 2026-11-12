@@ -10,7 +10,10 @@ import { defineAction } from '@pkgs/harness-root-shared-ts/define-action';
 import type { Run } from '@pkgs/harness-root-shared-ts/run-types';
 import type { ObjectStore } from '@pkgs/object-store-root-shared-ts/interface';
 import type { EmulatorGateway } from './emulator-gateway';
-import { createBreathe } from './product-harness-breathing-fetch';
+import {
+  createBreathe,
+  createHandBack,
+} from './product-harness-breathing-fetch';
 import { seedFriends } from './product-harness-friends-seed';
 import type { BootProductHarnessOptions } from './product-harness-session';
 import { buildProductHarnessSession } from './product-harness-session';
@@ -104,7 +107,7 @@ export async function bootProductHarnessSession(
   const domainWake: { fire: (label: string) => void } = {
     fire() {},
   };
-  const breathe = createBreathe(env.clock, env.timers);
+  const breathe = createBreathe(env.clock, createHandBack(env.timers));
   const gateway = env.openEmulatorGateway?.(() => harness.emulators());
   const session = await buildProductHarnessSession({
     harness,

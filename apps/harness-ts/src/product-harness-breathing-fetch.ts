@@ -13,13 +13,39 @@ const BREATH_EVERY_MS = 8;
  */
 export type Breathe = () => Promise<void>;
 
-export function createBreathe(clock: Clock, timers: Timers): Breathe {
+/** Hands the thread back to the page for one turn of the event loop. */
+export type HandBack = () => Promise<void>;
+
+/**
+ * A turn of the event loop that a browser does not slow down. A tab that is
+ * in the background, or shown inside another app's panel, has its timers
+ * held to one a second or worse; a breath on a timer then makes every
+ * request take seconds, and what a person does (joining a space) is given
+ * up on before the server has answered. A message between two ports is
+ * delivered on the next turn whatever the tab's standing. Timers are what is
+ * left where there are no ports.
+ */
+export function createHandBack(timers: Timers): HandBack {
+  if (typeof MessageChannel === 'undefined')
+    return () =>
+      new Promise<void>((resolve) => {
+        timers.setTimeout(resolve, 0);
+      });
+  const channel = new MessageChannel();
+  const waiting: (() => void)[] = [];
+  channel.port1.onmessage = () => waiting.shift()?.();
+  return () =>
+    new Promise<void>((resolve) => {
+      waiting.push(resolve);
+      channel.port2.postMessage(null);
+    });
+}
+
+export function createBreathe(clock: Clock, handBack: HandBack): Breathe {
   let last = clock.now();
   return async () => {
     if (clock.now() - last < BREATH_EVERY_MS) return;
-    await new Promise<void>((resolve) => {
-      timers.setTimeout(resolve, 0);
-    });
+    await handBack();
     last = clock.now();
   };
 }

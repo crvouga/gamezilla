@@ -1,0 +1,4 @@
+{
+  "summary": "Joining a space in a Preview sat on \"Joining…\" and then said \"Not confirmed. Check again\". The in-tab server hands the thread back to the page between requests, and did so on a zero-delay timer. A tab in the background, or shown inside another app's panel, has its timers held to one a second or worse, so every request took seconds and the join was given up on before the server answered. The thread is now handed back through a message port, which a browser does not slow down.",
+  "regressionTest": "apps/harness-ts/tests/breathing-fetch.test.ts"
+}
