@@ -717,8 +717,6 @@
       "Selects an incompatible checkpoint": "user",
       "Selects an unavailable test device": "user",
       "Selects another available test device": "user",
-      "Shows one test device": "user",
-      "Shows several test devices": "user",
       "Opens data notebooks": "user",
       "Opens database maintenance evidence": "user",
       "Opens environment information": "user",
@@ -11437,7 +11435,7 @@
                     "Tools: Test worlds": {
                       "id": "Tools: Test worlds",
                       "meta": {
-                        "description": "The team selects independent devices, changes their arrangement and saves or restores compatible checkpoints.",
+                        "description": "The team selects independent devices and saves or restores compatible checkpoints.",
                         "snapshot": "The team investigates separate people’s apps and checkpoints.",
                         "confidence": "assumed",
                         "source": [
@@ -11468,30 +11466,6 @@
                               "target": "#Test Worlds: Selected device"
                             },
                             "Selects an unavailable test device": {
-                              "target": "#Test Worlds: Selected device"
-                            },
-                            "Shows several test devices": {
-                              "target": "#Test Worlds: Several devices"
-                            },
-                            "Opens test checkpoints": {
-                              "target": "#Test Worlds: Checkpoints"
-                            }
-                          }
-                        },
-                        "Test Worlds: Several devices": {
-                          "id": "Test Worlds: Several devices",
-                          "meta": {
-                            "description": "Several people’s devices appear together without acting in their apps.",
-                            "snapshot": "Several people’s devices appear together without acting in their apps.",
-                            "confidence": "assumed",
-                            "source": [
-                              "specs/developer-tools/checkpoints.feature",
-                              "specs/developer-tools/test-world-views.feature"
-                            ],
-                            "events": []
-                          },
-                          "on": {
-                            "Shows one test device": {
                               "target": "#Test Worlds: Selected device"
                             },
                             "Opens test checkpoints": {
