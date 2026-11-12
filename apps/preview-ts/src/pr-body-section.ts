@@ -40,14 +40,58 @@ function short(sha: string | null): string {
   return sha === null ? '—' : `\`${sha.slice(0, 12)}\``;
 }
 
+/** The address without its scheme: what a link to it is called. */
+function host(url: string): string {
+  return url.replace(/^https?:\/\//, '');
+}
+
+function statusOf(facts: PreviewSectionFacts): string {
+  return facts.status === 'failed' && facts.deployedSha === null
+    ? '🔴 deploy failed — nothing has been deployed yet'
+    : STATUS_LINE[facts.status];
+}
+
+/**
+ * The one line a reader came for: the status and the links, before anything
+ * else in the description.
+ */
+function leadLine(facts: PreviewSectionFacts): string {
+  return [
+    statusOf(facts),
+    ...(facts.url === null ? [] : [`**[${host(facts.url)}](${facts.url})**`]),
+    ...(facts.storybookUrl === null
+      ? []
+      : [`[Storybook](${facts.storybookUrl})`]),
+  ].join(' · ');
+}
+
+function howToUse(facts: PreviewSectionFacts): readonly string[] {
+  return [
+    '',
+    '**What this is:** the whole system — API servers, Postgres, rooms, and simulated identity, billing, storage and LLM vendors — running inside your browser tab. The URL serves static files only: no server, no secrets, no production data. It shows one app at a time: tap the floating button for the next person, hold it for everything else.',
+    ...(facts.storybookUrl === null
+      ? []
+      : [
+          '',
+          "**Storybook:** this pull request's build of the component library, at the same commit.",
+        ]),
+    '',
+    '**Sign in:** nothing to sign in to. The system starts with two people, `alice` and `bob`, each signed in on a device of their own and already friends; tap the floating button to go from one to the other.',
+    '',
+    '**Reset:** state lives only in your browser, under this URL. Clear the site data for it (or open it in a fresh browser profile) to start clean; nothing is stored anywhere else.',
+    '',
+    `**Diagnostics:** \`PREVIEW_PR=${String(facts.pr)} mise run preview:test\` checks what is deployed; node logs are in the menu the floating button opens (docs/PREVIEW_ENVIRONMENTS.md).`,
+  ];
+}
+
+/**
+ * The section: the status and the links on its first line, a failure's
+ * reason under it, and everything else (commits, the deploy run, how to use
+ * a Preview) folded away so it never pushes the description down.
+ */
 export function renderPreviewSection(facts: PreviewSectionFacts): string {
-  const pr = String(facts.pr);
   const rows = [
-    `| Status | ${
-      facts.status === 'failed' && facts.deployedSha === null
-        ? '🔴 deploy failed — nothing has been deployed yet'
-        : STATUS_LINE[facts.status]
-    } |`,
+    `| Status | ${statusOf(facts)} |`,
     `| URL | ${facts.url ?? '—'} |`,
     ...(facts.storybookUrl === null
       ? []
@@ -57,49 +101,41 @@ export function renderPreviewSection(facts: PreviewSectionFacts): string {
   if (facts.attemptedSha !== null && facts.attemptedSha !== facts.deployedSha)
     rows.push(`| Attempted commit | ${short(facts.attemptedSha)} |`);
   if (facts.runUrl !== null) rows.push(`| Deploy run | ${facts.runUrl} |`);
-  const lines = [
+  const live = facts.status !== 'removed' && facts.status !== 'expired';
+  return [
     PREVIEW_SECTION_START,
     '## Preview',
+    '',
+    leadLine(facts),
+    ...(facts.detail === null ? [] : ['', `> ${facts.detail}`]),
+    '',
+    '<details><summary>Commits, the deploy run and how to use it</summary>',
     '',
     '| | |',
     '| --- | --- |',
     ...rows,
-  ];
-  if (facts.detail !== null) lines.push('', `> ${facts.detail}`);
-  if (facts.status !== 'removed' && facts.status !== 'expired')
-    lines.push(
-      '',
-      '**What this is:** the whole system — API servers, Postgres, rooms, and simulated identity, billing, storage and LLM vendors — running inside your browser tab. The URL serves static files only: no server, no secrets, no production data. It shows one app at a time: tap the floating button for the next person, hold it for everything else.',
-      ...(facts.storybookUrl === null
-        ? []
-        : [
-            '',
-            "**Storybook:** this pull request's build of the component library, at the same commit.",
-          ]),
-      '',
-      '**Sign in:** nothing to sign in to. The system starts with two people, `alice` and `bob`, each signed in on a device of their own and already friends; tap the floating button to go from one to the other.',
-      '',
-      '**Reset:** state lives only in your browser, under this URL. Clear the site data for it (or open it in a fresh browser profile) to start clean; nothing is stored anywhere else.',
-      '',
-      `**Diagnostics:** \`PREVIEW_PR=${pr} mise run preview:test\` checks what is deployed; node logs are in the menu the floating button opens (docs/PREVIEW_ENVIRONMENTS.md).`
-    );
-  lines.push(PREVIEW_SECTION_END);
-  return lines.join('\n');
+    ...(live ? howToUse(facts) : []),
+    '',
+    '</details>',
+    PREVIEW_SECTION_END,
+  ].join('\n');
 }
 
-/** Replace the section in place, or append it; the rest is untouched. */
+/**
+ * The description with the section at its very top, where the link is one
+ * glance away: put there when it is missing, moved there when it was
+ * elsewhere, replaced in place when it is there already. The author's text
+ * follows it, as written.
+ */
 export function upsertPreviewSection(body: string, section: string): string {
   const start = body.indexOf(PREVIEW_SECTION_START);
   const end = body.indexOf(PREVIEW_SECTION_END, Math.max(start, 0));
-  if (start === -1 || end === -1) {
-    if (body.trim() === '') return section;
-    return `${body.replace(/\s+$/, '')}\n\n${section}`;
-  }
-  return (
-    body.slice(0, start) +
-    section +
-    body.slice(end + PREVIEW_SECTION_END.length)
-  );
+  const found = start !== -1 && end !== -1;
+  const before = found ? body.slice(0, start) : body;
+  const after = found ? body.slice(end + PREVIEW_SECTION_END.length) : '';
+  if (found && before.trim() === '') return `${section}${after}`;
+  const authored = `${before.replace(/\s+$/, '')}${after}`.replace(/^\s+/, '');
+  return authored === '' ? section : `${section}\n\n${authored}`;
 }
 
 function urlInBody(body: string, row: 'URL' | 'Storybook'): string | null {

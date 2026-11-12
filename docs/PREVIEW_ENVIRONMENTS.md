@@ -153,12 +153,14 @@ wipe, and there is no server to inspect — see "State and reset".
 ## On the pull request
 
 The workflow owns one block of the description, between
-`<!-- preview:start -->` and `<!-- preview:end -->`; the rest is returned byte
-for byte. It carries the status, the URL, the Storybook URL, the deployed commit (and the
-attempted one when they differ), the deploy run, and how to reset. Each deploy
-is also a GitHub deployment in the transient `preview` environment, with
-`in_progress`, `success` or `failure` and a link to the run; removal marks
-them `inactive`.
+`<!-- preview:start -->` and `<!-- preview:end -->`, and keeps it at the very
+top: put there when missing, moved there when found elsewhere. Its first line
+is the status and the links to the Preview and its Storybook, so they are one
+glance away on every pull request; a failure's reason is said under it; the
+commits, the deploy run and how to use a Preview are folded below. The
+author's text follows the block as written. Each deploy is also a GitHub
+deployment in the transient `preview` environment, with `in_progress`,
+`success` or `failure` and a link to the run; removal deletes them.
 
 The `preview` check is **advisory** (`required-checks/preview.json`):
 `verify:end` waits for it and reports it, and never fails on it, so a

@@ -77,28 +77,61 @@ test('a removed Preview offers no sign-in', () => {
   expect(previewUrlInBody(section)).toBeNull();
 });
 
-test('everything outside the markers survives any number of updates', () => {
+test('the link is on the first line of the section, before anything folded away', () => {
+  const lines = renderPreviewSection(facts).split('\n');
+  expect(lines.slice(0, 4)).toEqual([
+    PREVIEW_SECTION_START,
+    '## Preview',
+    '',
+    `🟢 live · **[pr-12-acme-preview.acme.workers.dev](${facts.url ?? ''})** · [Storybook](${facts.storybookUrl ?? ''})`,
+  ]);
+  const failed = renderPreviewSection({
+    ...facts,
+    status: 'failed',
+    detail: 'boom',
+  });
+  // A failure's reason is said outright, not folded away.
+  expect(failed.indexOf('> boom')).toBeLessThan(failed.indexOf('<details>'));
+});
+
+test('the section at the top is replaced in place and the text after it survives', () => {
   assertProperty(
     'preview section update preserves authored text',
-    fc.property(authored, authored, (before, after) => {
+    fc.property(authored, (after) => {
       const first = renderPreviewSection(facts);
       const second = renderPreviewSection({ ...facts, status: 'deploying' });
-      const body = `${before}${first}${after}`;
-      const updated = upsertPreviewSection(body, second);
-      expect(updated).toBe(`${before}${second}${after}`);
+      const updated = upsertPreviewSection(`${first}${after}`, second);
+      expect(updated).toBe(`${second}${after}`);
       expect(upsertPreviewSection(updated, second)).toBe(updated);
     })
   );
 });
 
-test('a description without the section gains it after the author’s text', () => {
+test('a section found anywhere else moves to the very top, around the same text', () => {
   assertProperty(
-    'preview section appends after authored text',
+    'preview section moves to the top',
+    fc.property(authored, authored, (before, after) => {
+      fc.pre(before.trim() !== '');
+      const section = renderPreviewSection(facts);
+      const updated = upsertPreviewSection(
+        `${before}${section}${after}`,
+        section
+      );
+      const text = `${before.replace(/\s+$/, '')}${after}`.replace(/^\s+/, '');
+      expect(updated).toBe(`${section}\n\n${text}`);
+      expect(upsertPreviewSection(updated, section)).toBe(updated);
+    })
+  );
+});
+
+test('a description without the section gains it above the author’s text', () => {
+  assertProperty(
+    'preview section goes above authored text',
     fc.property(authored, (body) => {
       const section = renderPreviewSection(facts);
       const updated = upsertPreviewSection(body, section);
-      expect(updated.endsWith(section)).toBe(true);
-      expect(updated.startsWith(body.replace(/\s+$/, ''))).toBe(true);
+      expect(updated.startsWith(section)).toBe(true);
+      expect(updated.endsWith(body.trim())).toBe(true);
       expect(previewUrlInBody(updated)).toBe(facts.url);
       expect(upsertPreviewSection(updated, section)).toBe(updated);
     })

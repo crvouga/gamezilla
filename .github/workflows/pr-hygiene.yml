@@ -9,6 +9,8 @@ run-name: "PR Hygiene · ${{ github.event_name == 'schedule' && 'schedule' || 'm
 # - `do-not-merge` turns auto-merge off.
 # - A PR that conflicts with main gets `needs-human` and one comment naming the
 #   conflicting files; the label comes off once the conflict is resolved.
+# - A PR whose description lacks a section of the template is told which, once,
+#   and has auto-merge turned off until it follows the template.
 # - A PR with no activity for 2 days gets `stale`; 3 days later it is closed.
 #   `hotfix` PRs are exempt.
 #
@@ -82,6 +84,35 @@ jobs:
                 echo "PR #${number}: conflict resolved, removing needs-human"
                 gh pr edit "$number" --remove-label needs-human
               fi
+            fi
+          done
+      # Every description has the sections of the template, so a reviewer finds
+      # the same thing in the same place on every PR. One that does not is told
+      # which sections it lacks, once, and cannot merge unattended until it has
+      # them. Bots (dependency updates) write their own descriptions.
+      - name: Hold PRs whose description is off the template
+        run: |
+          set -euo pipefail
+          marker='<!-- pr-hygiene:template -->'
+          tick='`'
+          mapfile -t sections < <(grep -E '^## ' .github/PULL_REQUEST_TEMPLATE.md)
+          gh pr list --state open --base main --limit 200 \
+            --json number,author,autoMergeRequest \
+            --jq '.[] | select(.author.is_bot | not) | [.number, (.autoMergeRequest != null)] | @tsv' |
+          while IFS=$'\t' read -r number automerge; do
+            description=$(gh pr view "$number" --json body --jq '.body' | tr -d '\r')
+            missing=''
+            for section in "${sections[@]}"; do
+              grep -qxF -- "$section" <<<"$description" || missing+="- ${tick}${section}${tick}"$'\n'
+            done
+            [ -n "$missing" ] || continue
+            if [ "$automerge" = "true" ]; then
+              echo "PR #${number}: description is off the template, turning auto-merge off"
+              gh pr merge "$number" --disable-auto
+            fi
+            if ! gh pr view "$number" --json comments --jq '.comments[].body' | grep -qF "$marker"; then
+              echo "PR #${number}: description is off the template, saying so"
+              gh pr comment "$number" --body "$(printf '%s\nThis description does not follow %s.github/PULL_REQUEST_TEMPLATE.md%s. It lacks:\n\n%s\nKeep every section, in the order of the template. Auto-merge stays off until it does.\n' "$marker" "$tick" "$tick" "$missing")"
             fi
           done
       - name: Mark and close inactive PRs
