@@ -10783,6 +10783,7 @@
                       "specs/feedback/receiving-bug-reports.openslo.yaml",
                       "specs/feedback/reporting-a-bug.feature",
                       "specs/feedback/screenshots.feature",
+                      "specs/feedback/sending-bug-reports.openslo.yaml",
                       "specs/feedback/ubiquitous-language.yml",
                       "specs/ubiquitous-language.yml"
                     ],

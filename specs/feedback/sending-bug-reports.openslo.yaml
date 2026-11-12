@@ -1,0 +1,147 @@
+# live
+# Reliability is judged from observed outcomes; missing evidence is not a pass.
+apiVersion: openslo/v1
+kind: SLI
+metadata:
+  name: bug-reports-taken
+  displayName: Bug reports people send that the app does not fail
+spec:
+  description: >-
+    Each time a person's device sends a bug report, the app either decides
+    (it takes the bug report to the team's list of work, sees that the team
+    already has it, or turns it down for good, as it does past the daily bug
+    report limit) or fails on its own side, and the device keeps the bug
+    report to send later. This is the share of sends the app decides. A bug
+    report turned down for good is a correct decision, never a failure.
+  ratioMetric:
+    counter: true
+    good:
+      metricSource:
+        type: product
+        spec:
+          measures: >-
+            Bug reports sent from people's devices that the app took to the
+            team's list of work, already had, or turned down for good.
+    total:
+      metricSource:
+        type: product
+        spec:
+          measures: >-
+            Every bug report sent from a person's device to the live app.
+---
+apiVersion: openslo/v1
+kind: SLI
+metadata:
+  name: bug-reports-answered-within-five-seconds
+  displayName: Bug reports sent that are answered within five seconds
+spec:
+  description: >-
+    Of the bug reports people's devices send, with their screenshots and
+    debug info, the share the app answers within five seconds of the send
+    reaching it.
+  ratioMetric:
+    counter: true
+    good:
+      metricSource:
+        type: product
+        spec:
+          measures: >-
+            Bug reports sent from people's devices that the app answered
+            within five seconds.
+    total:
+      metricSource:
+        type: product
+        spec:
+          measures: >-
+            Every bug report sent from a person's device to the live app.
+---
+apiVersion: openslo/v1
+kind: SLI
+metadata:
+  name: bug-reports-answered-within-ten-seconds
+  displayName: Bug reports sent that are answered within ten seconds
+spec:
+  description: >-
+    The same sends, counted by the share the app answers within ten
+    seconds.
+  ratioMetric:
+    counter: true
+    good:
+      metricSource:
+        type: product
+        spec:
+          measures: >-
+            Bug reports sent from people's devices that the app answered
+            within ten seconds.
+    total:
+      metricSource:
+        type: product
+        spec:
+          measures: >-
+            Every bug report sent from a person's device to the live app.
+---
+apiVersion: openslo/v1
+kind: SLO
+metadata:
+  name: sent-bug-reports-reach-the-team
+  displayName: A bug report a person sends reaches the team
+  labels:
+    tier: "1"
+spec:
+  description: >-
+    A bug report a person sends reaches the team on that send. At least
+    99.9% of bug reports people send are decided by the app without failing
+    on its own side, over the last seven days. A bug report the app fails is
+    kept on the device and sent later, so it is late, not lost.
+  service: feedback
+  indicatorRef: bug-reports-taken
+  timeWindow:
+    - duration: 7d
+      isRolling: true
+  budgetingMethod: Occurrences
+  objectives:
+    - displayName: At least 99.9% of sends are decided
+      target: 0.999
+---
+apiVersion: openslo/v1
+kind: SLO
+metadata:
+  name: sending-a-bug-report-is-quick
+  displayName: Sending a bug report is quick
+  labels:
+    tier: "1"
+spec:
+  description: >-
+    A person who sends a bug report is not kept waiting to hear the team has
+    it. At least 95% of bug reports people send are answered within five
+    seconds, over the last seven days.
+  service: feedback
+  indicatorRef: bug-reports-answered-within-five-seconds
+  timeWindow:
+    - duration: 7d
+      isRolling: true
+  budgetingMethod: Occurrences
+  objectives:
+    - displayName: At least 95% answered within five seconds
+      target: 0.95
+---
+apiVersion: openslo/v1
+kind: SLO
+metadata:
+  name: sending-a-bug-report-never-stalls
+  displayName: Sending a bug report never stalls
+  labels:
+    tier: "1"
+spec:
+  description: >-
+    No send of a bug report hangs. At least 99% of bug reports people send
+    are answered within ten seconds, over the last seven days.
+  service: feedback
+  indicatorRef: bug-reports-answered-within-ten-seconds
+  timeWindow:
+    - duration: 7d
+      isRolling: true
+  budgetingMethod: Occurrences
+  objectives:
+    - displayName: At least 99% answered within ten seconds
+      target: 0.99
