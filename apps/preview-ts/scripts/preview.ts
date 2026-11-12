@@ -767,6 +767,33 @@ async function gate(
 
 class UnhealthyPreview extends Error {}
 
+/** How long the edge may take to answer every request with one upload. */
+const AGREED_WITHIN_MS = 60_000;
+
+/**
+ * The checks of a site just uploaded, read from its origin. The upload
+ * already passed them on disk (`gate`), and the edge moves to it machine by
+ * machine: a page from the new upload can ask a machine still on the one
+ * before for its script, which that machine does not have. So a failure here
+ * is read again until the edge agrees, and reported only if it never does.
+ */
+async function servedChecks(
+  site: Site,
+  target: {
+    readonly origin: string;
+    readonly previewName: string;
+    readonly commit: string;
+  }
+): Promise<readonly PreviewCheck[]> {
+  const deadline = wallClock.now() + AGREED_WITHIN_MS;
+  for (;;) {
+    const checks = await site.checks({ ...target, fetch });
+    if (checks.every((check) => check.ok) || wallClock.now() >= deadline)
+      return checks;
+    await sleep(3000);
+  }
+}
+
 /** Upload one commit to a site's Preview of the pull request and prove it serves. */
 async function upload(
   cloudflare: Account,
@@ -806,9 +833,8 @@ async function upload(
     throw new UnhealthyPreview(
       `${origin} did not serve ${sha.slice(0, 12)} within two minutes`
     );
-  const checks = await site.checks({
+  const checks = await servedChecks(site, {
     origin,
-    fetch,
     previewName: name,
     commit: sha,
   });
@@ -892,9 +918,8 @@ async function deployMain(sha: string): Promise<void> {
     say(`▸ waiting for ${origin} to serve ${sha.slice(0, 12)}`);
     if (!(await serving(origin, sha, MAIN_READY_MS)))
       throw new Error(`${origin} did not serve ${sha.slice(0, 12)} in time`);
-    const checks = await site.checks({
+    const checks = await servedChecks(site, {
       origin,
-      fetch,
       previewName: MAIN_PREVIEW_NAME,
       commit: sha,
     });
