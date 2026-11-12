@@ -14,6 +14,7 @@ import { validateWireQueryBatch } from './query-wire-validation';
 import type { QueryRequest } from './subscription-runtime';
 import { SyncHttpPayloadTooLargeError } from './sync-http-payload-too-large-error';
 import { SyncHttpRateLimitError } from './sync-http-rate-limit-error';
+import { SyncHttpServerError } from './sync-http-server-error';
 import { validMutationResponse } from './valid-mutation-response';
 
 export type SyncHttpFetch = (
@@ -228,6 +229,10 @@ async function throwForFailure(response: Response, path: string) {
     throw new SyncHttpPayloadTooLargeError(
       typeof json.maxBytes === 'number' ? json.maxBytes : null
     );
+  }
+  if (response.status >= 500) {
+    const text = await response.text().catch(() => '');
+    throw new SyncHttpServerError(path, response.status, text);
   }
   if (!response.ok) {
     const text = await response.text().catch(() => '');

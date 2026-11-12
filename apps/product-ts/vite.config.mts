@@ -1,6 +1,6 @@
 // @io-wall-ok — build-tool composition root
 import { resolve } from 'node:path';
-import { brandHtmlPlugin } from '@libs/product-identity-shared-ts/brand-html';
+import { brandHtmlPlugin } from '@libs/product-brand-shared-ts/brand-html';
 import { getConfig } from '@lingui/conf';
 import { feedbackDevPlugin } from '@pkgs/feedback-server-ts/vite';
 import { sqliteWebAssets } from '@pkgs/sql-client-sqlite-web-server-ts/sqlite-web-assets';

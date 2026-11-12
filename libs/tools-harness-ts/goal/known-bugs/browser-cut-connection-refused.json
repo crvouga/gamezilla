@@ -1,0 +1,4 @@
+{
+  "summary": "On a live browser (HARNESS_MODE=real|stack) the shared offline steps ('{actor} is offline', '{actor} loses the connection', Quint loseConnection) expected the partition action to be refused, but browser devices go offline through the app's Work offline command, so every such step failed with 'expect(received).toBeInstanceOf(ActionNotEnabled)'. cutConnection now takes the device offline when the host can, and ends the scenario as a host limit only when it cannot.",
+  "regressionTest": "libs/harness-ts/tests/cut-connection.test.ts"
+}

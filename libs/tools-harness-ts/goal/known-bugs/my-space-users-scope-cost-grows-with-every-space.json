@@ -1,0 +1,4 @@
+{
+  "summary": "The mySpaceUsers scope read filtered spaces_users through nested OR / IN subqueries that the server database evaluated again for every membership row: a person's seats cost reads proportional to the cube of all memberships ever made (253,980 row reads for 90 memberships). Every client hydrates it on connect, so a long-lived stack's database stalled until new connections timed out ('timeout expired'), sign-in failed and the sign-in methods never loaded. Read the actor's spaces once as a derived UNION and join their seats.",
+  "regressionTest": "libs/spaces-shared-ts/tests/my-space-users-read-cost.test.ts"
+}

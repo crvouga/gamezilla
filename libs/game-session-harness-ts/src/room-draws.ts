@@ -1,5 +1,6 @@
 import type { HarnessRoomNode } from '@libs/harness-ts/composition';
-import type { ProductHarness } from '@libs/harness-ts/harness';
+import { type ProductHarness, productExtra } from '@libs/harness-ts/harness';
+import { hostLimit } from '@pkgs/gherkin-shared-ts/registry';
 import { readCustomGameProbe } from './custom-game-probe';
 import { isTurnHarnessGame } from './harness-game';
 import { harnessGameAt } from './harness-game-of';
@@ -25,11 +26,19 @@ export function queuedRandom(env: { readonly random: () => number }): {
   };
 }
 
-/** Queue `draws` for the room's next random draws. */
+/**
+ * Queue `draws` for the room's next random draws. Against a separately booted
+ * stack (`HARNESS_MODE=stack`) the rooms run in the stack's own processes,
+ * whose random port this process cannot reach: the room would draw its own
+ * deal or bot move, so the scenario ends there as a host limit.
+ */
 export function queueRoomDraws(
   s: ProductHarness,
   draws: readonly number[]
 ): void {
+  // regression: stack-room-draws-ignored
+  if (productExtra(s).http.kind === 'stack')
+    throw hostLimit("this host cannot choose the stack room's random draws");
   const queue = queues.get(s.harness.roomNode);
   if (queue === undefined)
     throw new Error('Room random choice was not injected');

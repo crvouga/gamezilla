@@ -1,5 +1,6 @@
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
+import { actorUsername } from '@libs/harness-ts/run-scope';
 import { peopleSearchShowsAnswer } from '@libs/search-shared-ts/search-result-phase';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { USER_SEARCH_DEBOUNCE_MS } from '@libs/user-search-shared-ts/user-search-types';
@@ -48,7 +49,7 @@ export const searchUsername = scenarioAction({
     // row cannot be mistaken for this search's answer.
     await input.clear();
     await s.session.waitForIdle();
-    await input.input(username);
+    await input.input(actorUsername(s, username));
     await s.session.waitForIdle();
     // The previous person is still painted until this keystroke's debounce
     // commits. Probing first would accept that person, and the next step's

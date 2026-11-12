@@ -1,0 +1,4 @@
+{
+  "summary": "Once app Settings stopped offering a game's puzzle stats, opening them from someone else's space whose host was offline kept tapping Back in a space only its host steers and never reached the watcher's own stats, which live in a space the watcher hosts.",
+  "regressionTest": "libs/games-harness-ts/tests/probes/watcher-own-stats.test.ts"
+}

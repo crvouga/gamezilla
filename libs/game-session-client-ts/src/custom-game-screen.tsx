@@ -128,8 +128,12 @@ function useFramePresentationFacts(model: FrameProps['model']) {
   return {
     /** How the game is won, in one sentence. */
     goal: (): string | undefined => shown()?.goal?.(),
-    boardAlign: (): 'start' | undefined => shown()?.frame.boardAlign,
-    boardFit: (): 'square' | undefined => shown()?.frame.boardFit,
+    /** How the frame holds the board: its fit, alignment and workspace. */
+    board: () => ({
+      boardFit: shown()?.frame.boardFit,
+      boardAlign: shown()?.frame.boardAlign,
+      boardWorkspace: shown()?.frame.boardWorkspace === true,
+    }),
   };
 }
 
@@ -197,8 +201,7 @@ function CustomGameFrame(props: FrameProps): JSX.Element {
         boardPreview={props.boardPreview}
         setupBoard={<CustomGameSetupBoard model={model} />}
         boardState={boardState()}
-        boardFit={shown.boardFit()}
-        boardAlign={shown.boardAlign()}
+        {...shown.board()}
         people={PEOPLE}
         onChoose={model.choose}
         onReady={model.ready}

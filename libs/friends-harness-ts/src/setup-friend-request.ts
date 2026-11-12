@@ -1,6 +1,7 @@
 import { signInWithGoogle } from '@libs/harness-ts/auth-actions';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { signedInAccountOf } from '@libs/harness-ts/identity';
+import { actorUsername } from '@libs/harness-ts/run-scope';
 import { backToTabs } from '@libs/harness-ts/shell-actions';
 import {
   openProfileEdit,
@@ -12,6 +13,14 @@ import type { Run } from '@pkgs/harness-root-shared-ts/run-types';
 import { addFriend } from './friends-actions';
 import { pendingRequestStored } from './relationship-reads';
 
+/** The username `actor` claims in this run. */
+export function actorUsernameOf(
+  s: ProductHarness,
+  actor: string
+): Promise<string> {
+  return Promise.resolve(actorUsername(s, actor));
+}
+
 export async function prepareNamedFriend(
   harness: Pick<Run<ProductHarness>, 'read' | 'apply'>,
   actor: string
@@ -20,9 +29,12 @@ export async function prepareNamedFriend(
     await harness.apply(signInWithGoogle, actor);
   await harness.apply(backToTabs, actor);
   // regression: named-friend-offline-profile-read
-  if ((await harness.read(readProfileTabUsername, actor)) !== actor) {
+  // On a shared stack the name carries the run's tag: another scenario's
+  // Alice may already hold the bare one.
+  const username = await harness.read(actorUsernameOf, actor);
+  if ((await harness.read(readProfileTabUsername, actor)) !== username) {
     await harness.apply(openProfileEdit, actor);
-    await harness.apply(setUsername, actor, actor);
+    await harness.apply(setUsername, actor, username);
   }
 }
 

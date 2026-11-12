@@ -90,6 +90,11 @@ export type GameFrameScreenData = FrameReviewHandlers & {
   readonly boardFit?: 'square' | undefined;
   /** Where the board sits on one column (`GameFrame.boardAlign`); absent: centred. */
   readonly boardAlign?: 'start' | undefined;
+  /**
+   * The board is its own workspace (`GameFrame.boardWorkspace`): a phone
+   * keeps the page flowing around it instead of the fixed view.
+   */
+  readonly boardWorkspace?: boolean | undefined;
   readonly people?: FramePeople | undefined;
   /** Every choice about the game, as the room accepts it. */
   readonly onChoose: (input: CustomGameInput) => Promise<void>;

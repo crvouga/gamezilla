@@ -1,4 +1,4 @@
-import { renderBrandMark } from '@libs/product-identity-shared-ts/brand-mark';
+import { renderBrandMark } from '@libs/product-brand-shared-ts/brand-mark';
 import type { ProductIdentity } from '@libs/product-identity-shared-ts/product-identity';
 import sharp from 'sharp';
 

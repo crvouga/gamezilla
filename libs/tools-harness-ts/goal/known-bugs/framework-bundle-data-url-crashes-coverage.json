@@ -1,0 +1,4 @@
+{
+  "summary": "Verify Nightly's coverage group was red every night: Bun 1.4.3 aborts (panic: range end index out of range for slice of length 4096) when a coverage run imports the ~110 KB framework bundle from a data: URL, so @libs/game-session-shared-ts exited 134 under --coverage. The framework-build test now executes the built bundle from a file of its own, which still proves the framework builds and runs with zero production games.",
+  "regressionTest": "libs/game-session-shared-ts/tests/framework-build.test.ts"
+}

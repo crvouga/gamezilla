@@ -21,13 +21,15 @@ export async function startChessPuzzle(ui: Driver): Promise<void> {
 /**
  * The board mounts once its frame has a size, and the frame re-mounts when
  * the puzzle arrives: measure, look, repeat — a real browser lays out on its
- * own, the harness's DOM measures when asked. Then the board must have a size.
+ * own, the harness's DOM measures when asked. Until a puzzle arrives the
+ * puzzles show their status place, which has no board frame to measure.
+ * Then the board must have a size.
  */
 async function expectBoardLaidOut(ui: Driver): Promise<void> {
   const frame = ui.get(Handles.chessPuzzleBoardFrame);
   const board = ui.get(Handles.chessPuzzleBoard);
   for (let attempt = 0; attempt < BOARD_MEASURE_LIMIT; attempt += 1) {
-    await frame.layout();
+    if (await frame.isVisible()) await frame.layout();
     try {
       await board.expect.visible({ timeoutMs: BOARD_SETTLE_MS });
       break;

@@ -2,7 +2,7 @@
  * Opt-in (`GameSessionLayout`'s `fixedStage`): on a phone the game is one
  * fixed view, never a page that scrolls. The column fills the frame under
  * the host's bar; the board takes the frame's whole width with the seats against it,
- * a third of the spare room above it and the rest below; the game's commands
+ * at the top of the room and the spare room below it; the game's commands
  * are a bar held at the bottom edge; the rail (the move list) is one line of
  * moves over the stage. `GameBoardStage` narrows a board taller than the room
  * (`--game-board-room`), so nothing is cut off and nothing moves. Wider
@@ -53,24 +53,22 @@
     overflow: hidden auto;
   }
   /*
-   * The room a tall phone has to spare: a third above the stage, the rest
-   * below it, over the commands. The seats sit against the board and the
-   * top seat near the game's name, so no empty band parts them. Spacers,
-   * not auto margins: the stage keeps its own height (the board's fit
-   * measures it) and a taller stage's top is never cut off.
+   * The room a tall phone has to spare lies below the stage, over the
+   * commands. The seats sit against the board and the top seat near the
+   * game's name, so no empty band parts them. None of it goes above the
+   * stage: a refusal or notice that grows the command bar takes its room
+   * from below, so the board never moves when one appears or clears. A
+   * spacer, not an auto margin: the stage keeps its own height (the
+   * board's fit measures it) and a taller stage's top is never cut off.
    */
   .fixed [data-game-slot="stage"] {
     display: flex;
     flex-direction: column;
     gap: 0;
   }
-  .fixed [data-game-slot="stage"]::before,
   .fixed [data-game-slot="stage"]::after {
     content: "";
     flex: 1 1 0;
-  }
-  .fixed [data-game-slot="stage"]::after {
-    flex-grow: 2;
   }
   .fixed [data-game-slot="stage"] > [data-game-board-stage] {
     flex: none;

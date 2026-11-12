@@ -8,6 +8,7 @@ import {
   grafanaRestoreEnv,
   grafanaUntaintArgs,
   needsGrafanaRestore,
+  UNTAINT_FLAGS,
 } from '@libs/infra-shared-ts/grafana-restore';
 import { hasGrafanaRetirement } from '@libs/infra-shared-ts/grafana-retirement';
 import type { PlanJson } from '@libs/infra-shared-ts/plan-policy';
@@ -149,6 +150,14 @@ test('only a view is ever untainted, through its own state-only command', () => 
   expect(args).toContain('untaint');
   expect(args.at(-1)).toBe(FOLDER);
   expect(args.some((arg) => arg.startsWith('-var-file='))).toBe(true);
+  // regression: grafana-untaint-input-flag
+  // Release 42950298563 failed on prd: `tofu untaint` has no -input flag.
+  const flags = args
+    .slice(2, -1)
+    .map((arg) => arg.slice(0, arg.indexOf('=') >>> 0));
+  for (const flag of flags)
+    expect(UNTAINT_FLAGS as readonly string[]).toContain(flag);
+  expect(args.some((arg) => arg.startsWith('-input'))).toBe(false);
   expect(() => grafanaUntaintArgs(PATHS, target, ACCOUNT)).toThrow();
   expect(() =>
     grafanaUntaintArgs(PATHS, { stack: 'edge', env: 'prd' }, FOLDER)

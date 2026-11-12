@@ -82,6 +82,31 @@ export async function multiplayerView(
 }
 
 /**
+ * Whether `actor`'s device shows their matched game as the server holds it:
+ * the same accepted moves and the same private setups ready. A device syncs
+ * after the server changes, so two devices can agree on a game the server
+ * has already moved on from.
+ */
+export async function multiplayerGameCaughtUp(
+  s: ProductHarness,
+  actor: string
+): Promise<boolean> {
+  const shown = (await multiplayerView(s, actor)).game;
+  if (shown === null) return false;
+  const held = await s.harness.serverSql.sqlClient.query(sql<{
+    revision: number;
+    setup_ready: string | null;
+  }>`SELECT revision, setup_ready FROM chess_multiplayer_games
+    WHERE id = ${shown.id} AND deleted_at IS NULL`);
+  const game = held[0];
+  return (
+    game !== undefined &&
+    Number(game.revision) === shown.revision &&
+    (game.setup_ready ?? '') === (shown.setup_ready ?? '')
+  );
+}
+
+/**
  * The person's own rating at one speed (`blitz`) of the game whose time
  * controls are in `clockNamespace`, or `null` before they have one.
  */

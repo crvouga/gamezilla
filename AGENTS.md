@@ -216,7 +216,7 @@ Four workflows, one contract each. Details:
 
 | Workflow | Command | Contract |
 | --- | --- | --- |
-| Verify PR (`verify-pr.yml`) | `bun verify` | Deterministic, merge-blocking safety validation selected by `ci-stage.ts`; Release restores identical results from the remote cache. Keeps no test report or artifact: a failure is read from the job log. |
+| Verify PR (`verify-pr.yml`) | `bun verify` | Deterministic, merge-blocking run of the whole gate catalog (`ci-stage.ts`) at release depth; only cache misses execute, and Release restores identical results from the remote cache. Keeps no test report or artifact: a failure is read from the job log. |
 | Verify Nightly (`verify-nightly.yml`) | `bun verify-nightly` | Comprehensive verification and exploration on `main`, every night. Owns test reports, diagnostics and reproducibility. Never gates a merge or a deploy. |
 | Release (`deploy.yml`) | `bun deploy` | Continuous production release: verify the selected main commit with the safety gate, then deploy with live safeguards. Newer pending commits supersede older pending releases; active releases finish. |
 | Health (`health.yml`) | `bun health` | Scheduled verification that production is available and correct. Releases nothing. |
@@ -241,7 +241,7 @@ Four workflows, one contract each. Details:
   write a test that exists only for one profile.
 - **A nightly finding is promoted.** Pin the failing trace in the model
   binding's `regressions`, or the shrunk input as a `// regression: <bug-id>`
-  example. Security or irreversible-change regressions also join the blocking safety selection; other findings remain in comprehensive verification.
+  example. The pinned regression lives in a gate suite, which every pull request and Release runs.
 - **The required status is `verify:end`.** Verify PR is three jobs
   (`verify:start`, `verify:shards (N)`, `verify:end`). They keep the `verify:`
   prefix wherever the gate runs (a pull request, Release's verification, the

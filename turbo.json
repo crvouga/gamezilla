@@ -5866,6 +5866,10 @@
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-180/**"]
+    },
+    "//#task:alerts": {
+      "cache": false,
+      "passThroughEnv": ["*"]
     }
   }
 }

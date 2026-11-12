@@ -72,6 +72,9 @@ async function heartbeatReceived(
   return rows.length > 0;
 }
 
+/** How long the User Observatory may take to open. */
+const OPEN_MS = 10_000;
+
 /**
  * The person opens the User Observatory and, from its hub, Online now, as
  * a person does to see who is online now. A person without permission is
@@ -83,8 +86,19 @@ export const openUserObservatory = scenarioAction({
     const ui = await actorUi(s, actor);
     await s.actors.get(actor)!.openLink(OBSERVATORY_PATH);
     await s.session.waitForIdle();
+    // A browser loads the page after the link opens: wait for the hub's way
+    // to Online now, or for the refusal a person without permission sees.
     const onlineNow = ui.get('observatory-online-now');
-    if (!(await onlineNow.isVisible())) return;
+    const shown = await pollUntil(
+      s,
+      async () => {
+        if (await onlineNow.isVisible()) return 'hub';
+        if (await ui.get('observatory-denied').isVisible()) return 'denied';
+        return null;
+      },
+      { maxMs: OPEN_MS, description: 'the User Observatory or its refusal' }
+    );
+    if (shown !== 'hub') return;
     await onlineNow.tap();
     await s.session.waitForIdle();
   },

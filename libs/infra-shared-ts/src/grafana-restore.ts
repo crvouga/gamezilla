@@ -85,6 +85,20 @@ export function needsGrafanaRestore(restore: GrafanaRestore): boolean {
   );
 }
 
+/**
+ * Flags `tofu untaint` accepts (`tofu untaint -help`). It edits state only and
+ * prompts for nothing, so it has no `-input`: passing one fails the command.
+ */
+export const UNTAINT_FLAGS = [
+  '-allow-missing',
+  '-lock',
+  '-lock-timeout',
+  '-var',
+  '-var-file',
+  '-ignore-remote-version',
+  '-no-color',
+] as const;
+
 /** Clears the taint on one view; state only, never a remote change. */
 export function grafanaUntaintArgs(
   paths: TofuPaths,
@@ -97,8 +111,8 @@ export function grafanaUntaintArgs(
     throw new Error(`Grafana restore untaints only views, not ${address}`);
   return [
     `-chdir=${stackDir(paths, target.stack)}`,
+    // `untaint` defines no `-input` flag; passing one fails the parse.
     'untaint',
-    '-input=false',
     ...varFileArgs(paths, target),
     address,
   ];

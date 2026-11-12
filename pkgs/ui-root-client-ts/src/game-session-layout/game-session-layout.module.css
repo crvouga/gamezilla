@@ -100,6 +100,17 @@
       minmax(0, var(--game-board-measure))
       minmax(var(--game-arena-rail-measure), 1fr);
   }
+  /* A compact word board is not a square that grows with its column: its
+     workspace sets the board beside its own view controls and sizes it to
+     keep the own seat in an 844px window. Bounding its column by the
+     window's height left too little room for that workspace, so the rack
+     fell back above a smaller board, under the opponent's seat. */
+  .session[data-board-focus="true"][data-phase="active"]
+  > [data-has-stage="true"][data-has-aside="true"]:has(
+    [data-measure="compact"]
+  ) {
+    --game-board-measure: var(--ui-max-width-prose);
+  }
 }
 
 .session[data-board-focus="true"] {

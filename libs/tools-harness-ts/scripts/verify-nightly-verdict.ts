@@ -141,7 +141,7 @@ export function formatNightlyMarkdown(
     ...(failed.length === 0
       ? []
       : [
-          'Check out the commit above and run the command of a red group. Its job log names the failing task, the seed it drew and the replay command; its artifact holds the reports. Pin what it found as a regression in the suite that found it, so future verification replays it. Classify security exposure or data loss as P1 (immediate containment); other regressions as P2 (triage by the next working day). Promote security or irreversible-change regressions into the blocking safety selection. The assigned owner must resolve or explicitly track remaining failures; a diagnostic rerun cannot close this issue.',
+          'Check out the commit above and run the command of a red group. Its job log names the failing task, the seed it drew and the replay command; its artifact holds the reports. Pin what it found as a regression in the suite that found it, so future verification replays it. Classify security exposure or data loss as P1 (immediate containment); other regressions as P2 (triage by the next working day). The pinned regression is a gate test, which every pull request then runs. The assigned owner must resolve or explicitly track remaining failures; a diagnostic rerun cannot close this issue.',
           '',
         ]),
   ].join('\n');

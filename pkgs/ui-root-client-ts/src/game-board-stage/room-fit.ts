@@ -1,8 +1,12 @@
 import { type Accessor, createEffect, createSignal, onCleanup } from 'solid-js';
 import { createFrameResizeObserver } from '../observe-element-resize';
 
-/** Below this a board is too small to play; the stage scrolls instead. */
-const SMALLEST_BOARD = 184;
+/**
+ * Below this a board is too small to play; the stage scrolls instead. A
+ * chess board takes no moves under 196px inside its 2px border, so a
+ * narrower one would show a board nobody can move on.
+ */
+const SMALLEST_BOARD = 200;
 
 /**
  * The widest the board may be and still leave the stage inside its room.
@@ -21,6 +25,89 @@ export function boardRoomLimit(room: {
   return Math.max(SMALLEST_BOARD, Math.min(Math.floor(room.width), fitted));
 }
 
+/** Narrowings tried before one is shown; a board that settles needs few. */
+const FIT_TRIES = 8;
+
+/**
+ * `boardRoomLimit`, tried before it is shown: `heightAt` is the board's
+ * height laid out at a width. Each narrowing is measured, and the limit
+ * taken again from the board's measured shape, until the stage fits its
+ * room or the board is at its smallest; only that width is shown, so the
+ * board never steps through the tries. A board that grows no shorter when
+ * narrowed (its own tools wrapping under it) keeps its width, and the
+ * stage scrolls for the rest. Widening is not tried: it only gives back
+ * room.
+ */
+export function boardRoomFit(
+  room: Parameters<typeof boardRoomLimit>[0] & {
+    heightAt: (width: number) => number;
+  }
+): number | undefined {
+  let board = { width: room.boardWidth, height: room.boardHeight };
+  let limit = boardRoomLimit(room);
+  for (let tries = 0; tries < FIT_TRIES; tries++) {
+    if (limit === undefined || limit >= board.width) return limit;
+    const height = room.heightAt(limit);
+    if (height >= board.height) return undefined;
+    board = { width: limit, height };
+    if (height + room.chrome <= room.height) return limit;
+    limit = boardRoomLimit({
+      ...room,
+      boardWidth: board.width,
+      boardHeight: board.height,
+    });
+  }
+  return limit;
+}
+
+/** The room and board `boardRoomFit` measured, and what it found. */
+type RoomFitCache = {
+  readonly key: string;
+  readonly fit: number | undefined;
+};
+
+/**
+ * `boardRoomFit`, tried again only when the room or the board changed: a
+ * board that redraws itself (a move, a highlight) without changing its
+ * room or its size reuses the last fit instead of laying out its tries
+ * again before the next paint.
+ */
+export function createBoardRoomFitter(): (
+  room: Parameters<typeof boardRoomFit>[0]
+) => number | undefined {
+  let cache: RoomFitCache | undefined;
+  return (room) => {
+    const key = [
+      room.width,
+      room.height,
+      room.chrome,
+      room.boardWidth,
+      room.boardHeight,
+    ].join(' ');
+    if (cache?.key === key) return cache.fit;
+    const fit = boardRoomFit(room);
+    cache = { key, fit };
+    return fit;
+  };
+}
+
+/**
+ * The board's height at `width`, laid out and read before the next paint
+ * and then put back, so nobody sees the try.
+ */
+function heightAt(
+  stage: HTMLElement,
+  surface: HTMLElement,
+  width: number
+): number {
+  const prior = stage.style.getPropertyValue('--game-board-room');
+  stage.style.setProperty('--game-board-room', `${width}px`);
+  const height = surface.offsetHeight;
+  if (prior === '') stage.style.removeProperty('--game-board-room');
+  else stage.style.setProperty('--game-board-room', prior);
+  return height;
+}
+
 /**
  * A fixed stage (`GameSessionLayout`'s `fixedStage` on a phone) gives the
  * board a room of a set height. This measures the room, the seats around
@@ -28,8 +115,9 @@ export function boardRoomLimit(room: {
  * so a board taller than the room narrows instead of pushing its seats or
  * the commands off the screen. The layout says when it applies
  * (`--game-stage-room`); anywhere else the board keeps its measure. A
- * board that grows no shorter when narrowed (a card table, whose rows
- * wrap) keeps the room's width, and the stage scrolls for the rest.
+ * board that would not keep its shape narrowed (`boardRoomFit`), or that
+ * grows no shorter when narrowed (a card table, whose rows wrap), keeps
+ * the room's width, and the stage scrolls for the rest.
  */
 export function createStageRoomFit(
   root: Accessor<HTMLElement | undefined>,
@@ -46,6 +134,7 @@ export function createStageRoomFit(
     // it failed to shorten it, for the room's width that was measured at.
     let whole: { width: number; height: number } | undefined;
     let rigid = false;
+    const fit = createBoardRoomFitter();
     const read = () => {
       if (whole !== undefined && whole.width !== cell.clientWidth) {
         whole = undefined;
@@ -63,12 +152,13 @@ export function createStageRoomFit(
         setLimit(undefined);
         return;
       }
-      const next = boardRoomLimit({
+      const next = fit({
         width: cell.clientWidth,
         height: cell.clientHeight,
         chrome: stage.offsetHeight - surface.offsetHeight,
         boardWidth: surface.offsetWidth,
         boardHeight: surface.offsetHeight,
+        heightAt: (width) => heightAt(stage, surface, width),
       });
       // A pixel of rounding never starts another pass.
       setLimit((last) =>

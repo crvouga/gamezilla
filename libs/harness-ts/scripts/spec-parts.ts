@@ -34,8 +34,29 @@ export type SpecUnit = {
   readonly replays?: ModelReplays | undefined;
 };
 
-/** Trace replays under the pull-request gate and under the nightly run. */
-export type ModelReplays = { readonly pr: number; readonly nightly: number };
+/**
+ * Trace replays under the pull-request gate and under the nightly run, and
+ * what one nightly replay costs in standard replays when its model measured
+ * heavier ({@link PlannedModel}).
+ */
+export type ModelReplays = {
+  readonly pr: number;
+  readonly nightly: number;
+  readonly nightlyCost?: number;
+};
+
+/**
+ * A model's entry in its package's plan: the {@link ReplayPlan} its draw is
+ * checked against, and optionally `nightlyReplayCost` — how many standard
+ * replays (the ~28 s on the 2-core runner that {@link PART_REPLAYS} assumes)
+ * one of its nightly replays costs on average, measured on the hosted
+ * runner. It sizes the model's nightly files and parts only: the gate
+ * replays its cover, at most {@link MODEL_FILE_REPLAYS} per file, as before.
+ * `model-replays.ts --write` keeps it; the draw never produces it.
+ */
+export type PlannedModel = ReplayPlan & {
+  readonly nightlyReplayCost?: number;
+};
 
 /** Scenarios per feature slice. */
 export const SLICE_SCENARIOS = 6;
@@ -66,7 +87,9 @@ const MAX_MODEL_FILES = 64;
  * Most pull-request replays one part runs: a part of twelve took at most
  * 332 s on the 2-core runner replaying every one (Verify run 38187450396), so
  * sixteen stay near 443 s inside the 600 s cap; twenty was the miss. A
- * nightly part may run {@link NIGHTLY_REPLAY_SCALE} times as many.
+ * nightly part may run {@link NIGHTLY_REPLAY_SCALE} times as many, counted
+ * in such standard replays: a model whose replays measured heavier records
+ * its `nightlyReplayCost` ({@link PlannedModel}).
  */
 export const PART_REPLAYS = 16;
 /**
@@ -115,7 +138,7 @@ export function specUnits(
   path: string,
   source: string,
   partCount = 1,
-  plan?: ReplayPlan | null
+  plan?: PlannedModel | null
 ): readonly SpecUnit[] {
   if (path.endsWith('.qnt') && plan !== undefined && plan !== null)
     return plannedModelUnits(path, plan);
@@ -140,36 +163,46 @@ export function specUnits(
 /**
  * A planned model's files: the fewest whose every file holds at most
  * {@link MODEL_FILE_REPLAYS} gate replays, each weighed by the heavier of its
- * gate load and its nightly load over the nightly budget.
+ * gate load and its nightly load (in standard replays) over the nightly
+ * budget.
  */
 export function plannedModelUnits(
   path: string,
-  plan: ReplayPlan
+  plan: PlannedModel
 ): readonly SpecUnit[] {
   const count = plannedModelFiles(plan);
+  const cost = plan.nightlyReplayCost;
   return Array.from({ length: count }, (_, index) => {
     const slice = { index, count };
-    const replays = {
+    const replays: ModelReplays = {
       pr: sliceReplays(plan, 'pr', slice),
       nightly: sliceReplays(plan, 'nightly', slice),
+      ...(cost === undefined ? {} : { nightlyCost: cost }),
     };
     return {
       path,
       ...(count === 1 ? {} : { slice }),
       weight:
         TRACE_WEIGHT *
-        Math.max(replays.pr, replays.nightly / NIGHTLY_REPLAY_SCALE),
+        Math.max(replays.pr, nightlyLoad(replays) / NIGHTLY_REPLAY_SCALE),
       replays,
     };
   });
 }
 
+/** A file's nightly replays in standard replays. */
+function nightlyLoad(replays: ModelReplays): number {
+  return replays.nightly * (replays.nightlyCost ?? 1);
+}
+
 /**
  * The fewest files whose gate replays each stay within MODEL_FILE_REPLAYS and
- * whose nightly replays each fit one part: a model that draws far more traces
- * than it covers replays them all nightly, which one file cannot hold.
+ * whose nightly replays, in standard replays, each fit one part: a model that
+ * draws far more traces than it covers replays them all nightly, which one
+ * file cannot hold.
  */
-function plannedModelFiles(plan: ReplayPlan): number {
+export function plannedModelFiles(plan: PlannedModel): number {
+  const cost = plan.nightlyReplayCost ?? 1;
   const heaviest = (profile: 'pr' | 'nightly', count: number) =>
     Math.max(
       ...Array.from({ length: count }, (_, index) =>
@@ -179,14 +212,18 @@ function plannedModelFiles(plan: ReplayPlan): number {
   for (let count = 1; count < MAX_MODEL_FILES; count++) {
     if (
       heaviest('pr', count) <= MODEL_FILE_REPLAYS &&
-      heaviest('nightly', count) <= PART_REPLAYS * NIGHTLY_REPLAY_SCALE
+      heaviest('nightly', count) * cost <= PART_REPLAYS * NIGHTLY_REPLAY_SCALE
     )
       return count;
   }
   return MAX_MODEL_FILES;
 }
 
-/** A part's scenario units and its trace replays in each check profile. */
+/**
+ * A part's scenario units and its trace replays in each check profile; its
+ * nightly replays count in standard replays, each weighed by its model's
+ * measured cost.
+ */
 export function partLoad(units: readonly SpecUnit[]): {
   readonly load: number;
   readonly pr: number;
@@ -201,7 +238,7 @@ export function partLoad(units: readonly SpecUnit[]): {
       continue;
     }
     pr += unit.replays.pr;
-    nightly += unit.replays.nightly;
+    nightly += nightlyLoad(unit.replays);
   }
   return { load: load + TRACE_WEIGHT * pr, pr, nightly };
 }

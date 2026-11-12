@@ -12,6 +12,25 @@ the coverage matrix, baselines, fault-injection plan and known gaps are in
 
 ## Answering any alert
 
+Start with `bun alerts` (only `gh` needed, no secret store). It reads the
+newest Health run on `main` that checked the objectives (walking past newer
+runs that yielded to a deploy, and saying which run it read and how old it
+is) and prints one work item per failing objective per environment, id
+`<env>:<slo>`: what is broken in plain words, the numbers (observed against
+target over the window, burn rates, budget left), the objective file, the
+owner and the section below, the evidence Health's `bun obs` query found with
+CI's credentials (failing routes, error messages and example trace ids,
+counted), commands to look further, and what proves it fixed. It also lists
+the run's failing check jobs (`health:<env>`) with their failing scenarios and
+log. `bun alerts --env prd` narrows to one environment; `--json` is for
+agents. The same items are in the Health run's summary and its CI artifact
+`health-alerts-<run id>`. Pick one item and work from it; a fix is proven when
+`bun alerts` no longer lists the item after a Health run on `main`.
+
+Every failure in Health's `health:objectives` log starts with
+`[<env>] <objective file>:`, and its investigate command reads that
+environment (`bun obs errors --since 1d --source prod --env dev`).
+
 Every alert carries:
 
 - `summary`: which objective (or source of evidence), how fast its budget is

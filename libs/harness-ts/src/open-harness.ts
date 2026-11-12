@@ -26,6 +26,7 @@ import type { TestCallSite } from './report';
 import { getReportStore, HARNESS_REPORT_RUN_ID, testCallSite } from './report';
 import { readHarnessSystemSnapshot } from './snapshot-fixture';
 import type { HarnessSql } from './sql-types';
+import { stackRunSeed } from './stack-manifest';
 import type { SystemSnapshotCtx } from './system-snapshot';
 import { restoreSystemSnapshot } from './system-snapshot';
 import { wireProductRuntime } from './wire-product-runtime';
@@ -110,7 +111,7 @@ export async function openHarness(
         }
       : testCallSite(new Error().stack);
   const s = await system.run({
-    seed: options?.seed ?? 1,
+    seed: options?.seed ?? (mode === 'stack' ? stackRunSeed() : 1),
     runtime: resolveHostName(options),
     report: {
       store: getReportStore(),

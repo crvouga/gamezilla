@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { syntheticIdentity } from '@libs/product-identity-shared-ts/synthetic-identity';
+import { syntheticIdentity } from '@libs/product-brand-shared-ts/synthetic-identity';
 import {
   brandTokens,
   brandViolations,

@@ -1,6 +1,11 @@
 import { expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
-import { STORYBOOK_PARTS, STORYBOOK_TASKS } from './turbo-ci-run';
+import {
+  STORYBOOK_GENERAL_PARTS,
+  STORYBOOK_JOURNEY_PARTS,
+  STORYBOOK_PARTS,
+  STORYBOOK_TASKS,
+} from './turbo-ci-run';
 import { balanceShards, type VerifyTask } from './verify-shards';
 import { publishedTasks, requiredTasks } from './verify-stage-cache';
 
@@ -62,4 +67,43 @@ test('uncached Storybook coverage stays with its gate while units and the other 
     ]).map((task) => task.taskId)
   ).toEqual([`${owner}#storybook:build`]);
   expect(plan.shards.flatMap((item) => item.tasks)).toHaveLength(names.length);
+});
+
+// regression: storybook-part-exceeds-release-task-budget
+test('every Storybook part is a script and a task that runs its own shard', () => {
+  const read = (file: string) =>
+    JSON.parse(
+      readFileSync(
+        new URL(`../../../pkgs/ui-root-harness-ts/${file}`, import.meta.url),
+        'utf8'
+      )
+    ) as {
+      scripts?: Record<string, string>;
+      tasks?: Record<string, unknown>;
+    };
+  const scripts = read('package.json').scripts ?? {};
+  const tasks = read('turbo.json').tasks ?? {};
+  const parts = Object.keys(scripts).filter((name) =>
+    name.startsWith('ci:storybook:')
+  );
+  expect(parts).toHaveLength(STORYBOOK_PARTS);
+  const journeys = "'storybook integration: quoridor overhaul (classic|hill) '";
+  for (let part = 0; part < STORYBOOK_PARTS; part++) {
+    const name = `ci:storybook:${String(part)}`;
+    const script = scripts[name] ?? '';
+    // The throttled journeys run apart: Playwright shards contiguous runs of
+    // tests, so in the general parts they would all land in one.
+    if (part < STORYBOOK_GENERAL_PARTS) {
+      expect(script).toContain(`--grep-invert ${journeys}`);
+      expect(script).toContain(
+        `--shard=${String(part + 1)}/${String(STORYBOOK_GENERAL_PARTS)}`
+      );
+    } else {
+      expect(script).toContain(`--grep ${journeys}`);
+      expect(script).toContain(
+        `--shard=${String(part - STORYBOOK_GENERAL_PARTS + 1)}/${String(STORYBOOK_JOURNEY_PARTS)}`
+      );
+    }
+    expect(tasks[name]).toBeDefined();
+  }
 });

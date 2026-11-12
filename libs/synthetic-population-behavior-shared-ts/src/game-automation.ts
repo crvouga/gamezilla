@@ -52,6 +52,21 @@ async function openSearchHub(driver: Driver): Promise<void> {
 }
 
 /**
+ * The search's hub when the screen shows it or the row to it (a finished
+ * game's result keeps Find one row away). `false`, without moving, when
+ * neither is on screen.
+ */
+export async function reachSearchHub(driver: Driver): Promise<boolean> {
+  const hub = driver.get('multiplayer-find');
+  if (await hub.isVisible()) return true;
+  const row = driver.get('multiplayer-open-find');
+  if (!(await row.isVisible())) return false;
+  await row.tap();
+  await hub.wait('visible');
+  return true;
+}
+
+/**
  * The person's clock, chosen on its own place one row from the hub, which
  * returns to the hub with it. A game without clock choices has no such row,
  * and a clock the game does not offer leaves the hub's own choice.

@@ -25,6 +25,7 @@
   },
   "devDependencies": {
     "@huggingface/jinja": "catalog:",
+    "@libs/product-brand-shared-ts": "workspace:*",
     "@pkgs/property-shared-ts": "workspace:*",
     "@pkgs/resource-naming-shared-ts": "workspace:*",
     "@types/bun": "catalog:",

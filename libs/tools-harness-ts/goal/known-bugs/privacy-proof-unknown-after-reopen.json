@@ -1,0 +1,4 @@
+{
+  "summary": "After the app was reopened or reloaded, it did not ask the server about its saved sign-in until the one-minute revalidation, so it could not tell when the person last signed in. Export and account deletion were refused with \"Prove the account again\" right after a fresh sign-in. Fixed in AuthBridge: a device with a saved session checks it with the server as soon as it boots.",
+  "regressionTest": "libs/app-root-client-ts/tests/auth-bridge-boot-recovery.test.tsx"
+}

@@ -62,7 +62,10 @@ export const attemptCustomGameBoundary = scenarioAction({
       throw new Error('modified device has no room transport');
     const node = { ...s.harness.roomNode, createTransport: env.room };
     const identity = await readCustomGameIdentity(s, actor);
-    const installId = env.secureStorage.getValue(DEVICE_ID_KEY);
+    // The device's own install id: a live browser keeps it in its storage.
+    const installId =
+      (await s.actors.get(actor)?.deviceId()) ??
+      env.secureStorage.getValue(DEVICE_ID_KEY);
     if (installId === null)
       throw new Error('modified device has no install identity');
     try {

@@ -1,0 +1,4 @@
+{
+  "summary": "When a lost connection was established, every queued online-only action got the offline verdict, including one sent while the connection still worked (a puzzle-load stop confirmed before going offline showed \"This action needs a connection\" instead of still being stopped). Only actions taken since the trouble began are refused; earlier ones keep waiting for the server's verdict.",
+  "regressionTest": "pkgs/sync-engine-harness-ts/tests/online-only-after-hiccup.test.ts"
+}

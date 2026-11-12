@@ -2,7 +2,7 @@ import { expect, type Page, test } from '@playwright/test';
 
 test.use({ video: 'on', trace: 'on' });
 
-/** Where the board starts, and whether the moves card comes after its stage. */
+/** Where the board starts, and the moves' line over it. */
 async function boardGeometry(page: Page, story: string) {
   await page.goto(
     `/iframe.html?id=screens-games-battleship-board--${story}&viewMode=story&globals=theme:light`
@@ -20,16 +20,18 @@ async function boardGeometry(page: Page, story: string) {
     const record = box('[data-testid="custom-game-record"]');
     return {
       boardTop: (board?.top ?? Number.NaN) + window.scrollY,
-      recordAfterStage:
-        stage !== null && record !== null && record.top >= stage.bottom,
+      recordHeight: record?.height ?? Number.NaN,
+      recordBeforeStage:
+        stage !== null && record !== null && record.bottom <= stage.top,
     };
   });
 }
 
 // regression: phone-strip-first-move-reflow
 // The record card above a phone's board rearranged itself when the first
-// move landed, and the board dropped. The moves are a card after the board,
-// so the first moves cannot move it at all.
+// move landed, and the board dropped. A phone's game is one fixed view with
+// the moves as one line over the stage: that line keeps its height from no
+// moves to the first moves, so the board under it never moves.
 test('storybook integration: the phone board stays where it is from no moves to the first moves', async ({
   page,
 }) => {
@@ -43,9 +45,12 @@ test('storybook integration: the phone board stays where it is from no moves to 
   await expect(page.getByTestId('custom-game-record')).not.toContainText(
     'No moves yet.'
   );
-  expect([empty.recordAfterStage, played.recordAfterStage]).toEqual([
+  expect([empty.recordBeforeStage, played.recordBeforeStage]).toEqual([
     true,
     true,
   ]);
+  expect(
+    Math.abs(played.recordHeight - empty.recordHeight)
+  ).toBeLessThanOrEqual(1);
   expect(Math.abs(played.boardTop - empty.boardTop)).toBeLessThanOrEqual(1);
 });

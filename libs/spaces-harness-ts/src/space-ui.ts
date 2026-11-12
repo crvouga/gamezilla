@@ -38,11 +38,28 @@ export async function waitActiveSpace(
   s: ProductHarness,
   actorId: string
 ): Promise<void> {
-  const ui = await actorUi(s, actorId);
-  // The space's bar is up: its ⋯ is on it on every screen and size.
-  await ui
-    .get(Handles.spaceChromeOverflow)
-    .expect.visible({ timeoutMs: SPACE_WAIT_MS });
+  await waitForOneOf(
+    s,
+    actorId,
+    [Handles.spaceChromeOverflow],
+    `${actorId} inside the space`
+  );
+}
+
+type Ui = Awaited<ReturnType<typeof actorUi>>;
+
+/**
+ * Whether `handle` shows. The space's bar (its ⋯) also tops the shell a
+ * space shows while it is still finding out whether this person is in it,
+ * so the bar means inside only once that loading body is gone.
+ */
+async function outcomeShown(ui: Ui, handle: string): Promise<boolean> {
+  if (!(await ui.get(handle).isVisible())) return false;
+  // regression: space-loading-shell-reads-as-inside
+  return (
+    handle !== Handles.spaceChromeOverflow ||
+    !(await ui.get(Handles.spaceLoading).isVisible())
+  );
 }
 
 export async function waitForLobbyCard(
@@ -225,7 +242,7 @@ export async function waitForOneOf(
     s,
     async () => {
       for (const handle of handles) {
-        if (await ui.get(handle).isVisible()) return handle;
+        if (await outcomeShown(ui, handle)) return handle;
       }
       return null;
     },
@@ -240,6 +257,24 @@ export function waitSpaceOutcome(
   description: string
 ): Promise<string> {
   return waitForOneOf(s, actorId, SPACE_OUTCOMES, description);
+}
+
+/**
+ * After a space link opened: the join prompt shows, or the person is
+ * already in the space. Anything else (no connection, the host offline, an
+ * ended space) fails, naming what the person saw.
+ */
+export async function expectJoinPrompt(
+  s: ProductHarness,
+  actorId: string,
+  link: string
+): Promise<void> {
+  const outcome = await waitSpaceOutcome(s, actorId, `space link ${link}`);
+  if (outcome === Handles.spaceJoin || outcome === Handles.spaceChromeOverflow)
+    return;
+  throw new Error(
+    `${actorId} opened ${link} and saw ${outcome} instead of the join prompt`
+  );
 }
 
 /**

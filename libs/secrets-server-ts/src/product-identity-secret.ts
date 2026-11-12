@@ -1,4 +1,4 @@
-import { identityInput } from '@libs/product-identity-shared-ts/identity-input';
+import { identityInput } from '@libs/product-brand-shared-ts/identity-input';
 import { Secret } from '@libs/secrets-shared-ts/secret';
 
 /** Optional Infisical override for public deployment configuration. */

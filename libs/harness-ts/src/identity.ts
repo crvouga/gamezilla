@@ -77,6 +77,9 @@ export async function deviceMemberIdOf(
   s: ProductHarness,
   actorId: string
 ): Promise<string | null> {
+  // A live browser keeps it in its own storage, not the in-process client's.
+  const actor = s.actors.get(actorId);
+  if (actor !== undefined) return actor.memberId();
   const env = await s.harness.client(actorId);
   const id = env.secureStorage.getValue(LAST_LOCAL_ACCOUNT_ID_KEY);
   return typeof id === 'string' ? id : null;

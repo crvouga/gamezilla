@@ -3,11 +3,13 @@ import { ChangeCustomGame } from '@libs/game-session-shared-ts/custom-game-comma
 import type { CustomGame } from '@libs/game-session-shared-ts/custom-game-state';
 import { CustomGamesAttr } from '@libs/game-session-shared-ts/custom-game-state';
 import { scenarioAction } from '@libs/harness-ts/actor-ui';
+import { productExtra } from '@libs/harness-ts/harness';
 import {
   openRoomCommandProbe,
   type RoomAnswer,
   type RoomCommandProbe,
 } from '@libs/spaces-harness-ts/room-command-probe';
+import { hostLimit } from '@pkgs/gherkin-shared-ts/registry';
 import { splitCommittedProposal } from './played-rules';
 
 /**
@@ -73,6 +75,11 @@ export const playCustomGameHistory = scenarioAction({
       moves: readonly string[];
     }
   ) => {
+    // regression: stack-history-has-no-room
+    if (productExtra(s).http.kind === 'stack')
+      throw hostLimit(
+        "this host cannot send a history's moves to the stack room"
+      );
     const devices = new Map<
       string,
       Awaited<ReturnType<typeof s.harness.client>>
