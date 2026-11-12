@@ -4,6 +4,7 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, join, resolve } from 'node:path';
 import {
+  populationArchiveArgs,
   populationDockerfile,
   populationReleaseArgs,
   railwayCliEnvironment,
@@ -91,10 +92,7 @@ if (
 const stage = mkdtempSync(join(tmpdir(), 'synthetic-population-release-'));
 try {
   const archive = `${stage}.tar`;
-  artifactCommand(
-    ['git', 'archive', '--format=tar', `--output=${archive}`, version],
-    root
-  );
+  artifactCommand(populationArchiveArgs(version, archive), root);
   // Relative to the stage: GNU tar (Git for Windows) reads `C:\…` as host:path.
   artifactCommand(['tar', '-xf', `../${basename(archive)}`], stage);
   writeFileSync(join(stage, 'Dockerfile'), populationDockerfile());
