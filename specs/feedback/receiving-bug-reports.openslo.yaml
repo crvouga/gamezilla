@@ -1,0 +1,52 @@
+# live
+# Reliability is judged from observed outcomes; missing evidence is not a pass.
+apiVersion: openslo/v1
+kind: SLI
+metadata:
+  name: bug-report-checks-passing
+  displayName: The team's checks that bug reports can reach the team
+spec:
+  description: >-
+    Of the team's regular checks from outside, the share in which a bug
+    report sent at that moment would have reached the team's list of work.
+    A check that did not run is not a pass.
+  ratioMetric:
+    counter: false
+    good:
+      metricSource:
+        type: product
+        spec:
+          measures: >-
+            The team's regular checks from outside in which a bug report
+            sent at that moment would have reached the team's list of work.
+    total:
+      metricSource:
+        type: product
+        spec:
+          measures: >-
+            Every one of the team's regular checks from outside of whether
+            bug reports can reach the team.
+---
+apiVersion: openslo/v1
+kind: SLO
+metadata:
+  name: bug-reports-reach-the-team
+  displayName: Bug reports reach the team
+  labels:
+    tier: "1"
+spec:
+  description: >-
+    Bug reports reach the team. At least 99.99% of eligible outcomes meet
+    this promise over the last seven days. Every failed check counts;
+    missing evidence cannot establish that the promise is kept.
+  service: feedback
+  indicatorRef: bug-report-checks-passing
+  timeWindow:
+    - duration: 7d
+      isRolling: true
+  budgetingMethod: Timeslices
+  objectives:
+    - displayName: At least 99.99% meet this promise
+      target: 0.9999
+      timeSliceTarget: 1
+      timeSliceWindow: 1h
