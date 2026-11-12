@@ -11235,7 +11235,6 @@
                     "Tools: Tool home": {
                       "id": "Tools: Tool home",
                       "meta": {
-                        "routes": ["/harness"],
                         "description": "The team can choose a test world, evidence, the User Observatory or an independent framework example.",
                         "snapshot": "The team can choose a test world, evidence, the User Observatory or an independent framework example.",
                         "confidence": "assumed",
@@ -11245,8 +11244,7 @@
                         ],
                         "events": [],
                         "hints": [
-                          "Room, notes, matchmaking, chessboard and maintenance are independently scoped framework contracts, grouped for exploration; these links are not promises of player tabs.",
-                          "App address: /harness"
+                          "Room, notes, matchmaking, chessboard and maintenance are independently scoped framework contracts, grouped for exploration; these links are not promises of player tabs."
                         ]
                       },
                       "on": {

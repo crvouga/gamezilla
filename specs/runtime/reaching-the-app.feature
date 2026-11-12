@@ -15,8 +15,5 @@ Feature: Reaching the app
     Scenario: People can open the app at its address
       Then people can open the app at its address
 
-    Scenario: The team can open the testing tool at its address
-      Then the team can open the testing tool at its address
-
     Scenario: The address without "www" still leads people to the app
       Then the address without "www" leads people to the app
