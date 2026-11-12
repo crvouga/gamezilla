@@ -33,6 +33,11 @@ export type IntakeOutcome =
   | { readonly status: 200 | 201; readonly id: string }
   | { readonly status: 400 | 409 | 429 | 503; readonly error: string };
 
+/** Where the bug reports taken from one device on one day (`2026-03-02`, UTC) are counted. */
+export function takenFromDevice(day: string, reporterId: string): string {
+  return `limits/${day}/reporters/${reporterId}/`;
+}
+
 type Picture = { readonly contentType: string; readonly bytes: Uint8Array };
 
 const JSON_TYPE = 'application/json';
@@ -111,7 +116,7 @@ async function receive(
   const received = await alreadyReceived(store, submission);
   if (received) return received;
   const day = new Date(options.clock.now()).toISOString().slice(0, 10);
-  const own = `limits/${day}/reporters/${submission.reporterId}/`;
+  const own = takenFromDevice(day, submission.reporterId);
   const all = `limits/${day}/all/`;
   if ((await store.listKeys(own)).length >= DAILY_BUG_REPORT_LIMIT)
     return { status: 429, error: 'Daily bug report limit reached' };

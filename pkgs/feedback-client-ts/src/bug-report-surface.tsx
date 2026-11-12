@@ -68,6 +68,7 @@ function BugReportSurface(props: { controller: BugReportController }) {
       onAddPicture={(picture) => void props.controller.addPicture(picture)}
       onRemoveScreenshot={props.controller.removeScreenshot}
       onSend={() => void props.controller.send()}
+      onDiscard={() => void props.controller.discard()}
       onClose={props.controller.close}
     />
   );

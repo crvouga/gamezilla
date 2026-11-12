@@ -170,7 +170,7 @@ export async function countedBugReportSend(
     const [{ ensureWorkerTelemetry }, metrics, { createGlobalHttpClient }] =
       await Promise.all([
         import('./worker-telemetry'),
-        import('@pkgs/observability-root-shared-ts/bug-report-metrics'),
+        import('@pkgs/feedback-server-ts/send-metrics'),
         import('@pkgs/http-client-shared-ts/global'),
       ]);
     const telemetry = ensureWorkerTelemetry(

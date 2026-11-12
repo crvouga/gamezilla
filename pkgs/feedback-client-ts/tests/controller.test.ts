@@ -115,18 +115,62 @@ describe('a bug report the team could not be reached for', () => {
     expect(device.sent).toHaveLength(3);
   });
 
-  test('stops being tried once today’s limit is reached', async () => {
+  test('gives way to the bug reports kept before it', async () => {
     const device = createDevice();
     await sendUnanswered(device);
-    device.answer = 'limit';
+    device.controller.close();
+    await device.controller.open();
+    device.controller.describe('The hint never appeared');
+    await device.controller.send();
+    await device.controller.settled();
+    expect(device.controller.state().waiting).toBe(2);
+    device.answer = 'sent';
     device.clock.advance(RETRY_MS);
     await settle();
     await device.controller.settled();
-    device.clock.advance(24 * 60 * RETRY_MS);
+    expect(device.controller.state().waiting).toBe(0);
+    expect(
+      device.sent.slice(-2).map((sent) => sent.submission.description)
+    ).toEqual(['The board froze', 'The hint never appeared']);
+  });
+});
+
+describe('a bug report sent past the daily limit', () => {
+  const HOUR_MS = 60 * RETRY_MS;
+
+  test('is kept, and reaches the team once the next day starts', async () => {
+    const device = createDevice();
+    device.answer = 'limit';
+    await device.controller.open();
+    device.controller.describe('The board froze');
+    await device.controller.send();
+    await device.controller.settled();
+    expect(device.controller.state()).toMatchObject({
+      phase: 'done',
+      notice: 'limit',
+      waiting: 1,
+      description: '',
+    });
+    // The team would take it at any moment; the device still waits for the day.
+    device.answer = 'sent';
+    const day = new Date(device.clock.now()).getUTCDate();
+    const nextHourIsToday = () =>
+      new Date(device.clock.now() + HOUR_MS).getUTCDate() === day;
+    while (nextHourIsToday()) {
+      device.clock.advance(HOUR_MS);
+      await settle();
+      await device.controller.settled();
+    }
+    expect(device.sent).toHaveLength(1);
+    expect(device.controller.state().waiting).toBe(1);
+    device.clock.advance(2 * HOUR_MS);
     await settle();
     await device.controller.settled();
     expect(device.sent).toHaveLength(2);
-    expect(device.controller.state().waiting).toBe(1);
+    expect(device.controller.state().waiting).toBe(0);
+    expect(device.sent.at(-1)?.submission.id).toBe(
+      device.sent[0]?.submission.id
+    );
   });
 });
 
@@ -139,6 +183,24 @@ describe('a draft', () => {
     const reopened = createDevice(device.store);
     await reopened.controller.ready;
     expect(reopened.controller.state().description).toBe('Half a thought');
+  });
+
+  test('is gone from the device once discarded', async () => {
+    const device = createDevice();
+    await device.controller.open();
+    device.controller.describe('Half a thought');
+    await device.controller.addPicture(chosen());
+    await device.controller.discard();
+    expect(device.controller.state()).toMatchObject({
+      open: false,
+      description: '',
+      screenshots: [],
+    });
+    expect(await device.store.listKeys('')).toEqual([]);
+    const reopened = createDevice(device.store);
+    await reopened.controller.ready;
+    expect(reopened.controller.state().description).toBe('');
+    expect(reopened.sent).toHaveLength(0);
   });
 
   test('is not sent without a description', async () => {

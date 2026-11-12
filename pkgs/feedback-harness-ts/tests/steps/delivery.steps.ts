@@ -2,12 +2,19 @@ import { expect } from 'bun:test';
 import type { FeedbackReportingWorld } from '@pkgs/feedback-harness-ts/feedback';
 import {
   connection,
+  describeBug,
+  deviceSendsAgain,
   passDay,
   readNotice,
+  readTeamBugReportsSaying,
+  reopenApp,
+  sendBugReport,
   sendBugReportSaying,
   sendBugReports,
+  teamNeverTakes,
   teamReceivesAgain,
   teamStopsReceiving,
+  useAnotherDevice,
 } from '@pkgs/feedback-harness-ts/feedback';
 import { stepsFor } from '@pkgs/gherkin-shared-ts/registry';
 import type { Run } from '@pkgs/harness-root-shared-ts/run-types';
@@ -39,6 +46,35 @@ Given('Alice sent 10 bug reports yesterday', async (w) => {
   await w.apply(sendBugReports, 10);
   await w.apply(passDay);
 });
+Given(
+  'Alice has sent a bug report saying {string} past the daily bug report limit',
+  async (w, description: string) => {
+    await w.apply(sendBugReports, 10);
+    await w.apply(sendBugReportSaying, description);
+  }
+);
+Given(
+  'Alice has described the bug as {string} on another device',
+  async (w, description: string) => {
+    await w.apply(useAnotherDevice);
+    await w.apply(describeBug, description);
+  }
+);
+Given("Alice's device has gone offline and come back online", async (w) => {
+  await w.apply(connection, false);
+  await w.apply(connection, true);
+});
+Given("a bug report from Alice's device can never be sent", (w) =>
+  w.apply(teamNeverTakes)
+);
+When('the next day starts', (w) => w.apply(passDay));
+When('Alice sends the bug report from the other device', (w) =>
+  w.apply(sendBugReport)
+);
+When("Alice's device sends the same bug report again", (w) =>
+  w.apply(deviceSendsAgain)
+);
+When('Alice reopens the app', (w) => w.apply(reopenApp));
 When("Alice's device is back online", (w) => w.apply(connection, true));
 When('the team can receive bug reports again', (w) =>
   w.apply(teamReceivesAgain)
@@ -53,4 +89,17 @@ Then('Alice is told the bug report is kept and will be sent later', async (w) =>
 Then(
   'Alice is told the daily bug report limit is reached until tomorrow',
   async (w) => expect(await w.read(readNotice)).toBe('limit')
+);
+Then('Alice is told the bug report could not be sent', async (w) =>
+  expect(await w.read(readNotice)).toBe('failed')
+);
+Then(
+  'the team has no bug report from Alice saying {string}',
+  async (w, description: string) =>
+    expect(await w.read(readTeamBugReportsSaying, description)).toBe(0)
+);
+Then(
+  'the team has exactly one bug report from Alice saying {string}',
+  async (w, description: string) =>
+    expect(await w.read(readTeamBugReportsSaying, description)).toBe(1)
 );

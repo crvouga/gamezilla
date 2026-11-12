@@ -768,6 +768,7 @@
         "@pkgs/clock-client-ts": "workspace:*",
         "@pkgs/clock-shared-ts": "workspace:*",
         "@pkgs/device-client-ts": "workspace:*",
+        "@pkgs/feedback-shared-ts": "workspace:*",
         "@pkgs/http-client-client-ts": "workspace:*",
         "@pkgs/http-client-shared-ts": "workspace:*",
         "@pkgs/logger-client-ts": "workspace:*",
@@ -2729,6 +2730,7 @@
       "dependencies": {
         "@libs/observability-shared-ts": "workspace:*",
         "@libs/product-identity-shared-ts": "workspace:*",
+        "@pkgs/feedback-server-ts": "workspace:*",
         "@pkgs/http-client-shared-ts": "workspace:*",
         "@pkgs/observability-root-shared-ts": "workspace:*",
         "@pkgs/openslo-shared-ts": "workspace:*",
@@ -5300,6 +5302,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@crvouga/mockingbird-service-github": "catalog:",
+        "@pkgs/a11y-shared-ts": "workspace:*",
         "@pkgs/clock-shared-ts": "workspace:*",
         "@pkgs/feedback-client-ts": "workspace:*",
         "@pkgs/feedback-server-ts": "workspace:*",
@@ -5311,8 +5314,9 @@
         "solid-js": "catalog:",
       },
       "devDependencies": {
-        "@pkgs/bun-test-solid-client-ts": "workspace:*",
+        "@pkgs/dmn-shared-ts": "workspace:*",
         "@pkgs/gherkin-shared-ts": "workspace:*",
+        "@pkgs/quint-shared-ts": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
@@ -5327,6 +5331,7 @@
         "@pkgs/http-client-shared-ts": "workspace:*",
         "@pkgs/object-store-node-fs-server-ts": "workspace:*",
         "@pkgs/object-store-root-shared-ts": "workspace:*",
+        "@pkgs/observability-root-shared-ts": "workspace:*",
       },
       "devDependencies": {
         "@crvouga/mockingbird-service-github": "catalog:",
@@ -8313,7 +8318,7 @@
 
     "@crvouga/mockingbird-service-s3": ["@crvouga/mockingbird-service-s3@3.8.0", "", { "dependencies": { "@crvouga/mockingbird-service-sqlite": "3.3.0" }, "bin": { "mockingbird-s3": "dist/cli.js" } }, "sha512-+k1pYdb4uc7k5/wrJCV7au/lx1os0Ui9YOV9blqnNMFimcpbym7xjW9oZunjNM0eDNysOf5Ma1j/nXa4XMsIVg=="],
 
-    "@crvouga/mockingbird-service-sqlite": ["@crvouga/mockingbird-service-sqlite@3.3.0", "", { "bin": { "mockingbird-sqlite": "dist/socket/cli.js" } }, "sha512-SoNjnHvnliuDOxeB20dxu8EL/UiH5jC9LbqMAeONpoOoN/VE+AhhtUCFRf4DqGiGgunKKUv96+MtY07V2bkmLw=="],
+    "@crvouga/mockingbird-service-sqlite": ["@crvouga/mockingbird-service-sqlite@3.4.2", "", { "bin": { "mockingbird-sqlite": "dist/socket/cli.js" } }, "sha512-h1A9/c8BlPkNR1Tr5DJ0iOe6tD7x9zzPu4GV75t8KQkjd/bahFxo2Ley/zYFS02/K77zfBOJSu4ySYpgmUBWYQ=="],
 
     "@crvouga/mockingbird-service-stripe": ["@crvouga/mockingbird-service-stripe@3.8.0", "", { "dependencies": { "@crvouga/mockingbird-service-sqlite": "3.3.0", "hono": "4.11.9" }, "bin": { "mockingbird-stripe": "dist/cli.js" } }, "sha512-5832kps3XcuDSGGZf4tmsAWZ+l6A6W9Y0+XSAJcBMU6jzrpB51tWbnQxMClrgf2e5M+yKSLpvNx48spwI4T0Lg=="],
 
@@ -11287,9 +11292,17 @@
 
     "@crvouga/atlas/vite": ["vite@7.3.7", "", { "dependencies": { "esbuild": "^0.27.0 || ^0.28.0", "fdir": "^6.5.0", "picomatch": "^4.0.3", "postcss": "^8.5.6", "rollup": "^4.43.0", "tinyglobby": "^0.2.15" }, "optionalDependencies": { "fsevents": "~2.3.3" }, "peerDependencies": { "@types/node": "^20.19.0 || >=22.12.0", "jiti": ">=1.21.0", "less": "^4.0.0", "lightningcss": "^1.21.0", "sass": "^1.70.0", "sass-embedded": "^1.70.0", "stylus": ">=0.54.8", "sugarss": "^5.0.0", "terser": "^5.16.0", "tsx": "^4.8.1", "yaml": "^2.4.2" }, "optionalPeers": ["@types/node", "jiti", "less", "lightningcss", "sass", "sass-embedded", "stylus", "sugarss", "terser", "tsx", "yaml"], "bin": { "vite": "bin/vite.js" } }, "sha512-AHEzTORMbi7/7aXp7w7KZ5+DCUdSeLsJz0grY8xHpc9DHdYb0vQu6DqJfm2tOw3gDExNgPgnJTXxM6syYFHaCA=="],
 
-    "@crvouga/mockingbird-service-github/@crvouga/mockingbird-service-sqlite": ["@crvouga/mockingbird-service-sqlite@3.4.2", "", { "bin": { "mockingbird-sqlite": "dist/socket/cli.js" } }, "sha512-h1A9/c8BlPkNR1Tr5DJ0iOe6tD7x9zzPu4GV75t8KQkjd/bahFxo2Ley/zYFS02/K77zfBOJSu4ySYpgmUBWYQ=="],
-
     "@crvouga/mockingbird-service-github/jose": ["jose@6.2.2", "", {}, "sha512-d7kPDd34KO/YnzaDOlikGpOurfF0ByC2sEV4cANCtdqLlTfBlw2p14O/5d/zv40gJPbIQxfES3nSx1/oYNyuZQ=="],
+
+    "@crvouga/mockingbird-service-oauth/@crvouga/mockingbird-service-sqlite": ["@crvouga/mockingbird-service-sqlite@3.3.0", "", { "bin": { "mockingbird-sqlite": "dist/socket/cli.js" } }, "sha512-SoNjnHvnliuDOxeB20dxu8EL/UiH5jC9LbqMAeONpoOoN/VE+AhhtUCFRf4DqGiGgunKKUv96+MtY07V2bkmLw=="],
+
+    "@crvouga/mockingbird-service-openai/@crvouga/mockingbird-service-sqlite": ["@crvouga/mockingbird-service-sqlite@3.3.0", "", { "bin": { "mockingbird-sqlite": "dist/socket/cli.js" } }, "sha512-SoNjnHvnliuDOxeB20dxu8EL/UiH5jC9LbqMAeONpoOoN/VE+AhhtUCFRf4DqGiGgunKKUv96+MtY07V2bkmLw=="],
+
+    "@crvouga/mockingbird-service-paddle/@crvouga/mockingbird-service-sqlite": ["@crvouga/mockingbird-service-sqlite@3.3.0", "", { "bin": { "mockingbird-sqlite": "dist/socket/cli.js" } }, "sha512-SoNjnHvnliuDOxeB20dxu8EL/UiH5jC9LbqMAeONpoOoN/VE+AhhtUCFRf4DqGiGgunKKUv96+MtY07V2bkmLw=="],
+
+    "@crvouga/mockingbird-service-s3/@crvouga/mockingbird-service-sqlite": ["@crvouga/mockingbird-service-sqlite@3.3.0", "", { "bin": { "mockingbird-sqlite": "dist/socket/cli.js" } }, "sha512-SoNjnHvnliuDOxeB20dxu8EL/UiH5jC9LbqMAeONpoOoN/VE+AhhtUCFRf4DqGiGgunKKUv96+MtY07V2bkmLw=="],
+
+    "@crvouga/mockingbird-service-stripe/@crvouga/mockingbird-service-sqlite": ["@crvouga/mockingbird-service-sqlite@3.3.0", "", { "bin": { "mockingbird-sqlite": "dist/socket/cli.js" } }, "sha512-SoNjnHvnliuDOxeB20dxu8EL/UiH5jC9LbqMAeONpoOoN/VE+AhhtUCFRf4DqGiGgunKKUv96+MtY07V2bkmLw=="],
 
     "@cspotcode/source-map-support/@jridgewell/trace-mapping": ["@jridgewell/trace-mapping@0.3.9", "", { "dependencies": { "@jridgewell/resolve-uri": "^3.0.3", "@jridgewell/sourcemap-codec": "^1.4.10" } }, "sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ=="],
 

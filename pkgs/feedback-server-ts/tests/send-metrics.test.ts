@@ -4,7 +4,7 @@ import {
   BUG_REPORT_SENDS_METRIC,
   bugReportSendOutcome,
   createBugReportSendMetrics,
-} from '@pkgs/observability-root-shared-ts/bug-report-metrics';
+} from '@pkgs/feedback-server-ts/send-metrics';
 import { HISTOGRAM_BOUNDARIES } from '@pkgs/observability-root-shared-ts/metric-contract';
 
 test('only a send the server could not take counts as failed', () => {

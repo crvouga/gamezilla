@@ -6,6 +6,7 @@ import {
   requestBugReport,
 } from '@pkgs/feedback-client-ts/request-bug-report';
 import { ShakeSetting } from '@pkgs/feedback-client-ts/shake-setting';
+import { registerFeedbackContext } from '@pkgs/feedback-shared-ts/context';
 import type { DiagnosticProvider } from '@pkgs/feedback-shared-ts/types';
 import type { Session } from '@pkgs/harness-root-shared-ts/runtime-types';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared-ts/impl-in-memory';
@@ -22,6 +23,9 @@ export type ApplicationCondition =
 
 export const EXAMPLE_VERSION = 'example-1.4.0';
 export const EXAMPLE_TROUBLE = 'The hint could not be shown';
+/** The account Alice is signed in to, and the id her app has with or without one. */
+export const EXAMPLE_ACCOUNT = 'account-alice';
+const EXAMPLE_LOCAL_ID = 'local-alice';
 const TROUBLE_EVENT = 'example-trouble';
 const FAILURES: Partial<Record<ApplicationCondition, string>> = {
   crashed: 'The app crashed while starting',
@@ -71,16 +75,25 @@ function workingScreen(): HTMLElement[] {
  */
 export function createExampleApp(session: Session) {
   const { clock, timers, createId } = session.ports;
-  const device = new ObjectStoreImplInMemory();
+  let device = new ObjectStoreImplInMemory();
   const team = createExampleTeam(clock);
   const phone = createExamplePhone(session);
   let condition: ApplicationCondition = 'working';
   let guest = false;
   let mounted: ReturnType<typeof mountBugReports> | null = null;
   let nodes: HTMLElement[] = [];
+  // Who is using the app reaches a bug report the way a real app says it:
+  // every visit has an id of its own, and only a signed-in person an account.
+  const forgetVisit = registerFeedbackContext({
+    name: 'session',
+    collect: () => ({ sessionId: 'example-visit', userId: EXAMPLE_LOCAL_ID }),
+  });
+  const forgetAccount = registerFeedbackContext({
+    name: 'account',
+    collect: () => (guest ? {} : { id: EXAMPLE_ACCOUNT }),
+  });
   const providers = (): DiagnosticProvider[] => [
     ...browserDetails(window, EXAMPLE_VERSION),
-    { name: 'person', collect: () => ({ guest }) },
     {
       name: 'connection',
       collect: () => ({ online: phone.connection.online() }),
@@ -142,8 +155,17 @@ export function createExampleApp(session: Session) {
     phone,
     boot,
     settle,
-    close,
+    close(): void {
+      close();
+      forgetVisit();
+      forgetAccount();
+    },
     reopen: () => boot(),
+    /** Alice picks up another device of hers: nothing of the first one is on it. */
+    useAnotherDevice(): Promise<void> {
+      device = new ObjectStoreImplInMemory();
+      return boot();
+    },
     setGuest(next: boolean): void {
       guest = next;
     },

@@ -23,6 +23,7 @@ const meta = {
     onAddPicture: fn(),
     onRemoveScreenshot: fn(),
     onSend: fn(),
+    onDiscard: fn(),
     onClose: fn(),
   },
 } satisfies Meta<typeof BugReportSurfaceView>;

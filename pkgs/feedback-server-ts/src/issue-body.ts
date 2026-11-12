@@ -86,6 +86,15 @@ function commitOf(report: BugReport): string | null {
   return typeof version === 'string' && COMMIT.test(version) ? version : null;
 }
 
+/**
+ * Who sent the bug report: the account the app named, which it does only
+ * for a signed-in person, or else a guest.
+ */
+function sentBy(report: BugReport): string[] {
+  const account = inline(detail(report, 'account')['id']);
+  return [`**Sent by** ${account ? `account ${account}` : 'a guest'}`, ''];
+}
+
 /** One line saying where the bug was: the screen, the version and the device. */
 function where(report: BugReport, repository: string | undefined): string[] {
   const app = detail(report, 'app');
@@ -183,6 +192,7 @@ export function bugReportIssue(
     '',
     fenced(report.description, 'text'),
     '',
+    ...sentBy(report),
     ...where(report, options.repository),
     `**Screenshots** (${report.screenshots.length})`,
     '',

@@ -1,6 +1,8 @@
 import { expect } from 'bun:test';
 import type { FeedbackReportingWorld } from '@pkgs/feedback-harness-ts/feedback';
 import {
+  chooseToReport,
+  comeBackToDraft,
   openSettings,
   readTeamBugReport,
   readToldAboutDebugInfo,
@@ -18,6 +20,25 @@ Given('Alice opened Settings {int} minutes ago', async (w, minutes: number) => {
   await w.apply(openSettings);
   await w.apply(waitMinutes, minutes);
 });
+Given(
+  'Alice opened Settings {int} minutes before opening a bug report',
+  async (w, minutes: number) => {
+    await w.apply(openSettings);
+    await w.apply(waitMinutes, minutes);
+    await w.apply(chooseToReport);
+  }
+);
+Given(
+  'Alice opened Settings {int} minutes later',
+  async (w, minutes: number) => {
+    await w.apply(waitMinutes, minutes);
+    await w.apply(openSettings);
+  }
+);
+Given(
+  'Alice has come back to the draft after {int} minutes',
+  (w, minutes: number) => w.apply(comeBackToDraft, minutes)
+);
 Given("Alice's app has run into trouble", (w) => w.apply(runIntoTrouble));
 Given('Alice has typed {string} in the app', (w, text: string) =>
   w.apply(typeInApp, text)

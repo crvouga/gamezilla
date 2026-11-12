@@ -146,3 +146,26 @@ test('a long timeline folds away under the words and pictures', () => {
     '<details><summary>What led up to it (61 events, oldest first)</summary>'
   );
 });
+
+function sentWith(account: Record<string, unknown> | null): string {
+  const details = account
+    ? [{ name: 'account', status: 'available' as const, value: account }]
+    : [];
+  return bugReportIssue({
+    ...REPORT,
+    debugInfo: { ...REPORT.debugInfo, details },
+  }).body;
+}
+
+test('the issue names the account of a signed-in person', () => {
+  expect(sentWith({ id: 'account-7' })).toContain(
+    '**Sent by** account `account-7`'
+  );
+});
+
+test('the issue says a guest sent it when the app names no account', () => {
+  const guest = '**Sent by** a guest';
+  expect(sentWith({})).toContain(guest);
+  expect(sentWith({ id: null })).toContain(guest);
+  expect(sentWith(null)).toContain(guest);
+});

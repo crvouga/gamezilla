@@ -2,6 +2,7 @@ import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { BugReportFormView } from './bug-report-form';
 import { autoScreenshot, fullScreenshots } from './bug-report-form.example';
+import { DISCARD } from './copy';
 
 const meta = {
   id: 'product-bug-report',
@@ -19,6 +20,7 @@ const meta = {
     onAddPicture: fn(),
     onRemoveScreenshot: fn(),
     onSend: fn(),
+    onDiscard: fn(),
     onClose: fn(),
   },
 } satisfies Meta<typeof BugReportFormView>;
@@ -89,9 +91,14 @@ export const KeptForLater: Story = {
 /** Earlier bug reports are still waiting to be sent. */
 export const OthersWaiting: Story = { args: { waiting: 2 } };
 
-/** Ten bug reports today: this one is kept as written until tomorrow. */
+/** Ten bug reports today: this one is kept, and sent once the limit starts again. */
 export const DailyLimitReached: Story = {
-  args: { description: described, notice: 'limit' },
+  args: { phase: 'done', notice: 'limit', waiting: 1 },
+};
+
+/** A description at its 4,000 characters says it is full. */
+export const DescriptionFull: Story = {
+  args: { description: 'The board froze. '.repeat(236).slice(0, 4000) },
 };
 
 /** The bug report could not be sent at all; nothing written is lost. */
@@ -112,6 +119,47 @@ export const DescribeAndSend: Story = {
       canvas.getByRole('button', { name: 'Send bug report' })
     );
     await expect(args.onSend).toHaveBeenCalledOnce();
+  },
+};
+
+/** Discarding a draft asks first: it cannot be undone. */
+export const DiscardAsked: Story = {
+  args: { description: described },
+  play: async ({ args, canvasElement }) => {
+    const page = within(canvasElement.ownerDocument.body);
+    await userEvent.click(
+      await page.findByRole('button', { name: DISCARD.action })
+    );
+    await expect(await page.findByText(DISCARD.title)).toBeVisible();
+    await expect(args.onDiscard).not.toHaveBeenCalled();
+  },
+};
+
+/** Confirming gives the draft up for good. */
+export const Discarded: Story = {
+  args: { description: described },
+  play: async ({ args, canvasElement }) => {
+    const page = within(canvasElement.ownerDocument.body);
+    await userEvent.click(
+      await page.findByRole('button', { name: DISCARD.action })
+    );
+    await userEvent.click(
+      await page.findByTestId('bug-report-discard-confirm')
+    );
+    await expect(args.onDiscard).toHaveBeenCalledOnce();
+  },
+};
+
+/** Keeping the draft leaves it as it was. */
+export const DiscardDeclined: Story = {
+  args: { description: described },
+  play: async ({ args, canvasElement }) => {
+    const page = within(canvasElement.ownerDocument.body);
+    await userEvent.click(
+      await page.findByRole('button', { name: DISCARD.action })
+    );
+    await userEvent.click(await page.findByTestId('bug-report-discard-keep'));
+    await expect(args.onDiscard).not.toHaveBeenCalled();
   },
 };
 

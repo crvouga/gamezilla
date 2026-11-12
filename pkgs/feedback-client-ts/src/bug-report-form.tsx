@@ -3,6 +3,7 @@
 import { MAX_DESCRIPTION_LENGTH } from '@pkgs/feedback-shared-ts/bug-report';
 import { asLocalized } from '@pkgs/i18n-shared-ts/localized-string';
 import { Button } from '@pkgs/ui-root-client-ts/button';
+import { ConfirmationModal } from '@pkgs/ui-root-client-ts/confirmation-modal';
 import { FileTrigger } from '@pkgs/ui-root-client-ts/file-trigger';
 import { Form } from '@pkgs/ui-root-client-ts/form';
 import { IconButton } from '@pkgs/ui-root-client-ts/icon-button';
@@ -12,12 +13,16 @@ import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { Textarea } from '@pkgs/ui-root-client-ts/textarea';
-import { For, Match, Show, Switch } from 'solid-js';
+import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
+import { createSignal, For, Match, Show, Switch } from 'solid-js';
 import type { BugReportState, ChosenPicture } from './controller';
 import {
   type BugReportNotice,
   DEBUG_INFO_NOTE,
+  DESCRIPTION_FULL,
+  DISCARD,
   noticeText,
+  screenshotsText,
   waitingText,
 } from './copy';
 
@@ -34,8 +39,13 @@ export type BugReportFormViewProps = {
   onAddPicture: (picture: ChosenPicture) => void;
   onRemoveScreenshot: (id: string) => void;
   onSend: () => void;
+  /** Gives the draft up for good; asked only once the person has confirmed. */
+  onDiscard: () => void;
   onClose: () => void;
 };
+
+const NOTICE_ID = 'bug-report-notice';
+const FULL_ID = 'bug-report-description-full';
 
 function chosen(file: File): ChosenPicture {
   return {
@@ -112,7 +122,45 @@ function Screenshots(props: BugReportFormViewProps) {
   );
 }
 
+/** Discarding cannot be undone, so it asks before it does. */
+function Discard(props: BugReportFormViewProps) {
+  const [asking, setAsking] = createSignal(false);
+  return (
+    <>
+      <Button
+        title={DISCARD.action}
+        intent="danger"
+        variant="ghost"
+        fullWidth
+        disabled={props.phase === 'sending'}
+        onClick={() => setAsking(true)}
+        dataSet={{ testid: 'bug-report-discard' }}
+      />
+      <ConfirmationModal
+        visible={asking()}
+        title={DISCARD.title}
+        message={DISCARD.message}
+        confirmLabel={DISCARD.action}
+        cancelLabel={DISCARD.keep}
+        variant="destructive"
+        confirmDataSet={{ testid: 'bug-report-discard-confirm' }}
+        cancelDataSet={{ testid: 'bug-report-discard-keep' }}
+        onConfirm={() => {
+          setAsking(false);
+          props.onDiscard();
+        }}
+        onCancel={() => setAsking(false)}
+      />
+    </>
+  );
+}
+
 function Draft(props: BugReportFormViewProps) {
+  const full = () => props.description.length >= MAX_DESCRIPTION_LENGTH;
+  const describedBy = () =>
+    [full() ? FULL_ID : null, props.notice === 'describe' ? NOTICE_ID : null]
+      .filter((id) => id !== null)
+      .join(' ') || undefined;
   return (
     <Form
       gap="md"
@@ -125,6 +173,7 @@ function Draft(props: BugReportFormViewProps) {
         autoGrow
         maxLength={MAX_DESCRIPTION_LENGTH}
         aria-label={asLocalized('What happened?')}
+        aria-describedby={describedBy()}
         placeholder={asLocalized(
           'What happened, and what did you expect instead?'
         )}
@@ -134,10 +183,25 @@ function Draft(props: BugReportFormViewProps) {
         invalid={props.notice === 'describe'}
         testId="bug-report-description"
       />
+      <Show when={full()}>
+        <P
+          variant="caption"
+          tone="secondary"
+          role="status"
+          id={FULL_ID}
+          testId="bug-report-description-full"
+        >
+          {DESCRIPTION_FULL}
+        </P>
+      </Show>
       <Screenshots {...props} />
       <Show when={props.notice}>
         {(notice) => (
-          <Notice tone="error" dataSet={{ testid: 'bug-report-notice' }}>
+          <Notice
+            tone="error"
+            id={NOTICE_ID}
+            dataSet={{ testid: 'bug-report-notice' }}
+          >
             {noticeText(notice())}
           </Notice>
         )}
@@ -159,6 +223,7 @@ function Draft(props: BugReportFormViewProps) {
         loading={props.phase === 'sending'}
         dataSet={{ testid: 'bug-report-send' }}
       />
+      <Discard {...props} />
     </Form>
   );
 }
@@ -191,14 +256,25 @@ function Done(props: BugReportFormViewProps) {
  * it, and send. Nothing else is asked of a person who just hit a bug.
  */
 export function BugReportFormView(props: BugReportFormViewProps) {
+  // Said aloud as it changes: what became of the bug report once it is sent,
+  // and until then how many screenshots it has. A refusal says itself.
+  const said = () =>
+    props.phase === 'done'
+      ? props.notice && noticeText(props.notice)
+      : screenshotsText(props.screenshots.length);
   return (
-    <Switch>
-      <Match when={props.phase === 'done'}>
-        <Done {...props} />
-      </Match>
-      <Match when={props.phase !== 'done'}>
-        <Draft {...props} />
-      </Match>
-    </Switch>
+    <>
+      <VisuallyHidden role="status" aria-atomic testId="bug-report-said">
+        {said()}
+      </VisuallyHidden>
+      <Switch>
+        <Match when={props.phase === 'done'}>
+          <Done {...props} />
+        </Match>
+        <Match when={props.phase !== 'done'}>
+          <Draft {...props} />
+        </Match>
+      </Switch>
+    </>
   );
 }

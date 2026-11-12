@@ -59,7 +59,10 @@ export type BugReportControllerOptions = {
 export const SCREENSHOT_DEADLINE_MS = 2500;
 const DETAILS_DEADLINE_MS = 1500;
 export const RETRY_MS = 60_000;
-const MAX_RETRY_MS = 30 * 60_000;
+export const MAX_RETRY_MS = 30 * 60_000;
+/** How soon after its own midnight a device whose clock runs ahead asks again. */
+const LIMIT_RETRY_MS = 60 * 60_000;
+const DAY_MS = 24 * 60 * 60_000;
 const MAX_KEPT_EVENTS = 300;
 
 const INITIAL: BugReportState = {
@@ -99,8 +102,10 @@ export class BugReportController {
   private flushing: Promise<void> | null = null;
   private saveQueued = false;
   private retry: unknown = null;
-  /** Grows while the team cannot be reached; `null` once trying again today is pointless. */
-  private retryMs: number | null = RETRY_MS;
+  /** Grows while the team cannot be reached; past the daily limit it reaches for the next day. */
+  private retryMs = RETRY_MS;
+  /** Why the bug reports kept on the device last stopped short of the team. */
+  private held: 'later' | 'limit' | null = null;
   private disposed = false;
   /** Settles once the draft and waiting bug reports of the last visit are known. */
   readonly ready: Promise<void>;
@@ -179,7 +184,8 @@ export class BugReportController {
   /**
    * Opens the bug report. One the person has not started takes a fresh
    * screenshot and the debug info up to now; one already started keeps what
-   * it had, so reporting again never loses a word.
+   * it had, so reporting again never loses a word and the debug info still
+   * tells of when the bug happened.
    */
   readonly open = (): Promise<void> =>
     this.enqueue(async () => {
@@ -189,13 +195,11 @@ export class BugReportController {
         this.set({ open: true });
         return;
       }
-      const events = this.options.debug.snapshot();
       const started =
         draft.description.trim() !== '' ||
         draft.screenshots.some((screenshot) => !screenshot.auto);
-      if (started) draft.events = mergeEvents(draft.events, events);
-      else {
-        draft.events = events;
+      if (!started) {
+        draft.events = this.options.debug.snapshot();
         await this.takeScreenshot(draft).catch(() => undefined);
       }
       await this.options.storage.saveDraft(draft);
@@ -224,6 +228,20 @@ export class BugReportController {
     this.saveSoon();
   };
 
+  /**
+   * Discards the draft: its description and pictures leave the device for
+   * good. A bug report already sent or kept to send is not a draft.
+   */
+  readonly discard = (): Promise<void> => {
+    const draft = this.draft;
+    if (!draft || this.current.phase !== 'draft') return Promise.resolve();
+    return this.enqueue(async () => {
+      this.draft = await this.options.storage.clearDraft(draft);
+      this.urls.clear();
+      this.set({ open: false, description: '', screenshots: [], notice: null });
+    });
+  };
+
   /** Pictures still being saved count towards the limit, so two added at once cannot pass it. */
   readonly addPicture = (picture: ChosenPicture): Promise<void> => {
     const draft = this.draft;
@@ -236,6 +254,8 @@ export class BugReportController {
     this.set({ adding: this.current.adding + 1, notice: null });
     return this.enqueue(async () => {
       try {
+        // Discarded while this picture waited its turn: it goes with the draft.
+        if (this.draft !== draft) return;
         const bytes = await picture.read();
         // Told from the bytes, as the team will tell it: a name is only a name.
         const contentType = pictureType(bytes);
@@ -276,7 +296,7 @@ export class BugReportController {
     });
     void this.enqueue(async () => {
       await this.options.storage.deletePicture(id);
-      await this.options.storage.saveDraft(draft);
+      if (this.draft === draft) await this.options.storage.saveDraft(draft);
     });
   };
 
@@ -296,7 +316,7 @@ export class BugReportController {
   };
 
   private async payload(draft: Draft): Promise<KeptBugReport> {
-    const { storage, clock, timers, providers } = this.options;
+    const { storage, clock, timers, providers, debug } = this.options;
     const pictures = [];
     for (const screenshot of draft.screenshots) {
       const picture = await storage.readPicture(screenshot);
@@ -310,7 +330,8 @@ export class BugReportController {
         description: draft.description.trim(),
         createdAt: new Date(clock.now()).toISOString(),
         debugInfo: {
-          events: draft.events,
+          // What led up to the bug, and what led up to sending it.
+          events: mergeEvents(draft.events, debug.snapshot()),
           details: await collectDiagnostics(
             providers(),
             timers,
@@ -334,9 +355,16 @@ export class BugReportController {
       return;
     }
     const outcome = this.options.connection.online()
-      ? await this.options.send(ready.submission, ready.pictures)
+      ? await this.sendInTurn(ready)
       : 'offline';
     await this.enqueue(() => this.settle(draft, ready, outcome));
+  }
+
+  /** Bug reports kept earlier go first, so the team gets them in the order they were sent. */
+  private async sendInTurn(report: KeptBugReport): Promise<SendOutcome> {
+    if (this.current.waiting > 0) await this.flush();
+    if (this.current.waiting > 0 && this.held !== null) return this.held;
+    return this.options.send(report.submission, report.pictures);
   }
 
   private async settle(
@@ -345,7 +373,7 @@ export class BugReportController {
     outcome: SendOutcome | 'offline'
   ): Promise<void> {
     const { storage } = this.options;
-    if (outcome === 'limit' || outcome === 'failed') {
+    if (outcome === 'failed') {
       this.set({ phase: 'draft', notice: outcome });
       return;
     }
@@ -366,14 +394,26 @@ export class BugReportController {
       screenshots: [],
       waiting: (await storage.waitingIds()).length,
     });
-    this.retryMs ??= RETRY_MS;
+    if (outcome === 'limit') this.retryMs = this.untilLimitStartsAgain();
     this.retrySoon();
+  }
+
+  /**
+   * The daily limit starts again at midnight UTC, as the team counts days.
+   * Asking sooner would only send the screenshots again to be refused, so
+   * the device waits for midnight; refused just after its own midnight, its
+   * clock may run ahead of the team's, and it asks once more in an hour.
+   */
+  private untilLimitStartsAgain(): number {
+    const sinceMidnight = this.options.clock.now() % DAY_MS;
+    return sinceMidnight < LIMIT_RETRY_MS
+      ? LIMIT_RETRY_MS
+      : DAY_MS - sinceMidnight;
   }
 
   private retrySoon(): void {
     if (this.retry !== null || this.disposed || this.current.waiting === 0)
       return;
-    if (this.retryMs === null) return;
     this.retry = this.options.timers.setTimeout(() => {
       this.retry = null;
       void this.flush();
@@ -393,19 +433,22 @@ export class BugReportController {
 
   private async sendWaiting(): Promise<void> {
     const { storage, connection, send } = this.options;
-    let next: number | null = RETRY_MS;
+    let next = RETRY_MS;
+    this.held = null;
     for (const id of await storage.waitingIds()) {
       if (this.disposed || !connection.online()) break;
       const kept = await storage.readWaiting(id);
       const outcome = kept
         ? await send(kept.submission, kept.pictures)
         : 'failed';
-      // Past today's limit nothing more gets through until the app is next opened.
-      if (outcome === 'limit') next = null;
+      // Past today's limit nothing more gets through until the next day.
+      if (outcome === 'limit') next = this.untilLimitStartsAgain();
+      if (outcome === 'limit' || outcome === 'later') this.held = outcome;
       if (outcome === 'limit') break;
-      if (outcome === 'later')
-        next = Math.min((this.retryMs ?? RETRY_MS) * 2, MAX_RETRY_MS);
-      else await storage.dropWaiting(id);
+      // One the team cannot take yet holds back those sent after it.
+      if (outcome === 'later') next = Math.min(this.retryMs * 2, MAX_RETRY_MS);
+      if (outcome === 'later') break;
+      await storage.dropWaiting(id);
     }
     this.retryMs = next;
     this.set({ waiting: (await storage.waitingIds()).length });

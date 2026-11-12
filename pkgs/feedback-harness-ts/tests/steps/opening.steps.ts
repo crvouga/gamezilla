@@ -38,6 +38,9 @@ Given("Alice's phone asks before the app may notice shaking", (w) =>
   w.apply(phoneAsksBeforeShaking)
 );
 Given('Alice has allowed shake to report', (w) => w.apply(allowShakeToReport));
+Given('Alice has turned shake to report back on', (w) =>
+  w.apply(allowShakeToReport)
+);
 When('Alice chooses to report a bug', (w) => w.apply(chooseToReport));
 When('Alice closes the bug report', (w) => w.apply(closeBugReport));
 When('Alice shakes the phone', (w) => w.apply(shakePhone));

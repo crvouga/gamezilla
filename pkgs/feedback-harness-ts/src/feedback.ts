@@ -1,4 +1,4 @@
-import { RETRY_MS } from '@pkgs/feedback-client-ts/controller';
+import { MAX_RETRY_MS } from '@pkgs/feedback-client-ts/controller';
 import { defineAction } from '@pkgs/harness-root-shared-ts/define-action';
 import { defineRuntime } from '@pkgs/harness-root-shared-ts/define-runtime';
 import { defineSystem } from '@pkgs/harness-root-shared-ts/define-system';
@@ -7,6 +7,7 @@ import { virtualTimeRuntime } from '@pkgs/harness-root-shared-ts/virtual-time-ru
 import {
   type ApplicationCondition,
   createExampleApp,
+  EXAMPLE_ACCOUNT,
   EXAMPLE_TROUBLE,
   EXAMPLE_VERSION,
   type ExampleApp,
@@ -41,6 +42,27 @@ export const becomeGuest = defineAction({
   name: 'becomeGuest',
   act: (world: World) => world.app.setGuest(true),
 });
+export const signIn = defineAction({
+  name: 'signIn',
+  act: (world: World) => world.app.setGuest(false),
+});
+export const useAnotherDevice = defineAction({
+  name: 'useAnotherDevice',
+  act: (world: World) => world.app.useAnotherDevice(),
+});
+export const useKeyboardAlone = defineAction({
+  name: 'useKeyboardAlone',
+  act: (world: World) => world.alice.useKeyboardAlone(),
+});
+/** Alice only listens; what she hears is read off what the app says aloud. */
+export const listenToApp = defineAction({
+  name: 'listenToApp',
+  act: (world: World) => world.app.settle(),
+});
+export const moveKeyboardThroughBugReport = defineAction({
+  name: 'moveKeyboardThroughBugReport',
+  act: (world: World) => world.alice.moveKeyboardThroughBugReport(),
+});
 export const chooseToReport = defineAction({
   name: 'chooseToReport',
   act: (world: World) => world.alice.chooseToReport(),
@@ -52,6 +74,27 @@ export const closeBugReport = defineAction({
 export const describeBug = defineAction({
   name: 'describeBug',
   act: (world: World, description: string) => world.alice.describe(description),
+});
+/** A description of exactly this many characters. */
+export const describeBugAtLength = defineAction({
+  name: 'describeBugAtLength',
+  act: (world: World, characters: number) =>
+    world.alice.describe(
+      'The board froze. '.repeat(characters).slice(0, characters)
+    ),
+});
+export const addToDescription = defineAction({
+  name: 'addToDescription',
+  act: (world: World) => world.alice.addToDescription(' And once more.'),
+});
+export const discardDraft = defineAction({
+  name: 'discardDraft',
+  act: (world: World) => world.alice.discardDraft(),
+});
+export const comeBackToDraft = defineAction({
+  name: 'comeBackToDraft',
+  act: (world: World, minutes: number) =>
+    world.alice.comeBackAfter(minutes * MINUTE_MS),
 });
 export const sendBugReport = defineAction({
   name: 'sendBugReport',
@@ -157,7 +200,22 @@ export const teamReceivesAgain = defineAction({
   name: 'teamReceivesAgain',
   act: (world: World) => {
     world.app.team.setReceiving(true);
-    return world.alice.wait(RETRY_MS);
+    return world.alice.wait(MAX_RETRY_MS);
+  },
+});
+/** The team's side answers that a bug report from this device can never be taken. */
+export const teamNeverTakes = defineAction({
+  name: 'teamNeverTakes',
+  act: (world: World) => world.app.team.setTakes(false),
+});
+/** The device sends once more what it last sent, as after an answer that got lost. */
+export const deviceSendsAgain = defineAction({
+  name: 'deviceSendsAgain',
+  act: async (world: World) => {
+    // An offline device sends nothing, again or otherwise.
+    if (!world.app.phone.connection.online()) return;
+    await world.app.team.receiveAgain();
+    await world.app.settle();
   },
 });
 
@@ -172,8 +230,23 @@ export const readToldToReportWithoutShaking = (_world: World) =>
 export const readScreenshotShowsBugReport = (world: World) =>
   world.app.phone.lastScreenshotShowsBugReport();
 
-export const readTeamBugReportCount = (world: World) =>
-  world.app.team.received().length;
+export const readKeptBugReports = (world: World) => world.alice.kept();
+export const readDescriptionFull = (_world: World) =>
+  screen.toldDescriptionIsFull();
+export const readKeyboardInBugReport = (_world: World) =>
+  screen.keyboardInBugReport();
+export const readKeyboardOnDescription = (_world: World) =>
+  screen.keyboardOnDescription();
+export const readKeyboardPlace = (_world: World) => screen.keyboardPlace();
+export const readKeyboardBeforeOpening = (world: World) =>
+  world.alice.keyboardBeforeOpening();
+export const readKeyboardVisits = (world: World) =>
+  world.alice.keyboardVisits();
+export const readKeyboardStops = (_world: World) => screen.keyboardStops();
+export const readHeardControls = (_world: World) => screen.heardControls();
+export const readHeardNotice = (_world: World) => screen.heardNotice();
+export const readHeardScreenshots = (_world: World) =>
+  screen.heardScreenshots();
 
 /** What the issue holds under a heading: the text inside the fence that follows it. */
 function under(issue: string, heading: string): string {
@@ -182,9 +255,43 @@ function under(issue: string, heading: string): string {
   return /`{3,}\w*\n([\s\S]*?)\n`{3,}/.exec(issue.slice(from))?.[1] ?? '';
 }
 
+const describedIn = (issue: string): string =>
+  under(issue, '**What happened**');
+
+export const readTeamBugReportCount = async (world: World) =>
+  (await world.app.team.received()).length;
+
+/** How many bug reports on the team's list of work say exactly this. */
+export const readTeamBugReportsSaying = async (
+  world: World,
+  description: string
+) =>
+  (await world.app.team.received()).filter(
+    (received) => describedIn(received.issue) === description
+  ).length;
+
+/** How many bug reports landed on the team's list of work today, as the team counts days. */
+export const readTeamBugReportsToday = async (world: World) => {
+  const today = new Date(world.session.ports.clock.now())
+    .toISOString()
+    .slice(0, 10);
+  return (await world.app.team.received()).filter((received) =>
+    received.receivedAt.startsWith(today)
+  ).length;
+};
+
+/** Who the issue says sent it: an account by name, or a guest. */
+function sentBy(issue: string) {
+  const said = /\*\*Sent by\*\* (.*)/.exec(issue)?.[1] ?? '';
+  return {
+    guest: said === 'a guest',
+    account: /^account `(.*)`$/.exec(said)?.[1] ?? null,
+  };
+}
+
 /** The newest bug report on the team's list of work, read off the issue itself. */
-export const readTeamBugReport = (world: World) => {
-  const newest = world.app.team.received().at(-1);
+export const readTeamBugReport = async (world: World) => {
+  const newest = (await world.app.team.received()).at(-1);
   if (!newest) return null;
   const { report, issue } = newest;
   const ledUpTo = under(issue, 'What led up to it');
@@ -192,13 +299,16 @@ export const readTeamBugReport = (world: World) => {
     string,
     Record<string, unknown> | undefined
   >;
+  const sender = sentBy(issue);
   return {
-    description: under(issue, '**What happened**'),
+    description: describedIn(issue),
     screenshots: (issue.match(/!\[Screenshot \d+\]/g) ?? []).length,
     ledUpTo,
     showsTrouble: ledUpTo.includes(EXAMPLE_TROUBLE),
     namesDevice: details['device']?.['agent'] === window.navigator.userAgent,
     namesVersion: details['app']?.['version'] === EXAMPLE_VERSION,
+    fromGuest: sender.guest,
+    namesAccount: sender.account === EXAMPLE_ACCOUNT,
     /** The issue and the full report it links to: all the team can ever read. */
     everything: `${issue}\n${JSON.stringify(report)}`,
   };
@@ -223,9 +333,18 @@ export const feedbackReportingSystem = defineSystem<World>({
     applicationCondition,
     reopenApp,
     becomeGuest,
+    signIn,
+    useAnotherDevice,
+    useKeyboardAlone,
+    listenToApp,
+    moveKeyboardThroughBugReport,
     chooseToReport,
     closeBugReport,
     describeBug,
+    describeBugAtLength,
+    addToDescription,
+    discardDraft,
+    comeBackToDraft,
     sendBugReport,
     sendBugReportSaying,
     sendBugReports,
@@ -246,5 +365,7 @@ export const feedbackReportingSystem = defineSystem<World>({
     connection,
     teamStopsReceiving,
     teamReceivesAgain,
+    teamNeverTakes,
+    deviceSendsAgain,
   ],
 });

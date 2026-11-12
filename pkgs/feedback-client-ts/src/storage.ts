@@ -35,6 +35,8 @@ export type KeptBugReport = {
 export type ShakePreference = 'on' | 'off';
 
 const JSON_TYPE = 'application/json';
+/** Wide enough that the order kept bug reports were sent in is the order of their names. */
+const TURN_DIGITS = 12;
 
 /**
  * Everything bug reporting keeps on the device: the draft, bug reports
@@ -117,9 +119,11 @@ export class BugReportStorage {
     return bytes ? { contentType: screenshot.contentType, bytes } : null;
   }
 
-  /** Keeps a bug report that could not be sent, to send it later. */
+  /** Keeps a bug report that could not be sent, to send it later, after those kept before it. */
   async keep(kept: KeptBugReport): Promise<void> {
-    const folder = `waiting/${kept.submission.id}`;
+    const last = (await this.waitingIds()).at(-1);
+    const turn = last === undefined ? 1 : Number.parseInt(last, 10) + 1;
+    const folder = `waiting/${String(turn).padStart(TURN_DIGITS, '0')}-${kept.submission.id}`;
     for (const [index, picture] of kept.pictures.entries())
       await this.store.put(
         `${folder}/pictures/${index}`,
@@ -130,11 +134,13 @@ export class BugReportStorage {
     await this.writeJson(`${folder}/report.json`, kept.submission);
   }
 
+  /** The bug reports kept to send, in the order they were sent. */
   async waitingIds(): Promise<readonly string[]> {
     const keys = await this.store.listKeys('waiting/').catch(() => []);
     return keys
       .filter((key) => key.endsWith('/report.json'))
-      .map((key) => key.split('/')[1] ?? '');
+      .map((key) => key.split('/')[1] ?? '')
+      .sort();
   }
 
   async readWaiting(id: string): Promise<KeptBugReport | null> {

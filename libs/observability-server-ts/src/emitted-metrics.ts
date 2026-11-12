@@ -9,11 +9,11 @@ import { SYNC_TARGET_METRIC } from '@pkgs/observability-root-shared-ts/metric-co
  */
 
 import { ROUTE_GROUPS } from '@libs/observability-shared-ts/route-groups';
-import { BILLING_CALLBACKS_METRIC } from '@pkgs/observability-root-shared-ts/billing-metrics';
 import {
   BUG_REPORT_SEND_DURATION_METRIC,
   BUG_REPORT_SENDS_METRIC,
-} from '@pkgs/observability-root-shared-ts/bug-report-metrics';
+} from '@pkgs/feedback-server-ts/send-metrics';
+import { BILLING_CALLBACKS_METRIC } from '@pkgs/observability-root-shared-ts/billing-metrics';
 import { httpMetricContracts } from '@pkgs/observability-root-shared-ts/http-metrics';
 import type { MetricContract } from '@pkgs/observability-root-shared-ts/metric-contract';
 import { MUTATION_REPLAYS_METRIC } from '@pkgs/observability-root-shared-ts/mutation-metrics';

@@ -28,7 +28,7 @@ import {
 import {
   BUG_REPORT_SEND_DURATION_METRIC,
   BUG_REPORT_SENDS_METRIC,
-} from '@pkgs/observability-root-shared-ts/bug-report-metrics';
+} from '@pkgs/feedback-server-ts/send-metrics';
 import {
   HTTP_DURATION_METRIC,
   HTTP_REQUESTS_METRIC,

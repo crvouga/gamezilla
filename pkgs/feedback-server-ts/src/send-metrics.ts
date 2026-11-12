@@ -1,5 +1,5 @@
-import type { MetricContract } from './metric-contract';
-import { createMetric } from './metric-contract';
+import type { MetricContract } from '@pkgs/observability-root-shared-ts/metric-contract';
+import { createMetric } from '@pkgs/observability-root-shared-ts/metric-contract';
 
 /**
  * What became of one bug report a person's device sent.
