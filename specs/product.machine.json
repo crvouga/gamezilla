@@ -11512,8 +11512,7 @@
                             "snapshot": "The compatible checkpoint restored the saved people and their apps.",
                             "confidence": "assumed",
                             "source": [
-                              "specs/developer-tools/test-world-views.feature:6",
-                              "specs/developer-tools/test-world-views.feature:20"
+                              "specs/developer-tools/test-world-views.feature:6"
                             ],
                             "events": []
                           },
