@@ -18,6 +18,7 @@
         "@pkgs/clock-shared-ts#src",
         "@pkgs/feedback-client-ts#src",
         "@pkgs/http-client-shared-ts#src",
+        "@pkgs/polyfill-shared-ts#src",
         "@pkgs/tailwind-shared-ts#src",
         "@pkgs/ui-root-client-ts#src"
       ]
