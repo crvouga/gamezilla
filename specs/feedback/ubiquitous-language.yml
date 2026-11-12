@@ -1,74 +1,65 @@
-context: Product feedback
+context: Bug reports
 purpose: >-
-  Help people and the team describe bugs, feature requests, gaps and polish,
-  with enough context to reproduce trouble and understand the improvement.
+  Let anyone tell the team about a bug in a few moments, with screenshots and
+  debug info that let the team reproduce it without asking the person again.
 terms:
-  - term: feedback management
-    definition: The list of drafts and reports an author can read, change and delete.
-  - term: developer
-    definition: A member of the team who builds and improves the app.
-    forms: [developers]
-  - term: draft
-    definition: Feedback its author is still writing and has not sent.
-    forms: [drafts]
-  - term: wizard
-    definition: The single place to write, review and manage feedback.
-  - term: Markdown
-    definition: Writing that can include headings, lists, links and freely arranged text.
-  - term: template
-    definition: Optional starting text for a bug, feature request, gap or polish.
-    forms: [templates]
-  - term: command palette
-    definition: The app's searchable list of actions, including opening the feedback wizard.
-  - term: widget
-    definition: The movable feedback wizard that stays out of the way while using the app on a computer.
-  - term: feedback
-    definition: >-
-      A description of a bug, feature request, gap or polish, the intended
-      improvement and the available diagnostics, kept for the team to act on.
-    forms: [product feedback, report, reports, feedback's]
-  - term: Support
-    definition: The way a person opens feedback, even when the app is unusable.
-    forms: [support]
   - term: bug
     definition: Something the app does differently from what a person expects.
-    forms: [bugs, problem, problems]
-  - term: feature request
-    definition: Something a person wants to do that the app does not yet offer.
-    forms: [feature requests]
-  - term: gap
-    definition: Something missing from an existing experience.
-    forms: [gaps]
-  - term: polish
-    definition: An improvement to how an existing experience looks or feels.
+    forms: [bugs]
+    avoid: [defect, glitch, issue]
+  - term: bug report
+    definition: >-
+      What a person sends the team about a bug: a description, screenshots and
+      debug info. A person opens one by choosing to report a bug, which the
+      app offers in Settings, among its actions and wherever it says it has
+      run into trouble, or by shaking their phone. The team has a bug report
+      once it is on the team's list of work.
+    forms:
+      [bug reports, bug report's, report a bug, reports a bug, reporting a bug]
+    avoid: [feedback, ticket, support request, issue]
+  - term: description
+    definition: What the person writes, in their own words, about the bug.
+    forms: [describe, describes, described, describing, says, saying]
+    avoid: [summary, title, body, comment]
+  - term: draft
+    definition: >-
+      A bug report its person has not sent yet. The device keeps one draft,
+      with its description and screenshots, until it is sent.
+    forms: [drafts]
+  - term: screenshot
+    definition: >-
+      A picture of what the app was showing. A bug report starts with one the
+      app takes as the bug report opens, and the person can remove it or add
+      pictures of their own, each of at most 5 MB.
+    forms: [screenshots, picture, pictures]
+    avoid: [screen capture, image, attachment, recording]
+  - term: debug info
+    definition: >-
+      A record the app always keeps of the last 5 minutes on a device: where
+      the person went, what they chose, the trouble the app ran into, the
+      connection, the device and the version of the app. It never holds what a
+      person typed. Every bug report carries it so the team can reproduce the
+      bug.
+    avoid: [diagnostics, logs, telemetry, trace]
+  - term: shake
+    definition: >-
+      Moving a phone quickly back and forth. Shake to report is the choice
+      that lets a shake open a bug report; it is on unless the person turns
+      it off, and a phone that asks before the app may notice shaking waits
+      for the person to allow it.
+    forms: [shakes, shaking, shaken, shake to report]
   - term: reproduce
-    definition: Do the actions that lead to the same bug again.
-    forms: [reproducing, reproduced, reproduction, reproduction steps]
-  - term: recording
-    definition: >-
-      A reviewable account of the actions a person took while reproducing
-      a bug, with video when their device can provide it.
-    forms: [recordings, record, recorded, records, recording's]
-  - term: video
-    definition: A moving picture of what the person chose to share while reproducing a bug.
-  - term: diagnostics
-    definition: Details about what happened that help the team act on feedback.
-  - term: local feedback
-    definition: >-
-      Feedback kept with the team's working repository, readable without
-      an account or a connection.
-    forms: [repository]
+    definition: Do what leads to the same bug again.
+    forms: [reproducing, reproduced]
+  - term: daily bug report limit
+    definition: The 10 bug reports one person can send in a day.
   - term: run into trouble
+    from: runtime
+  - term: Settings
+    from: runtime
+  - term: version of the app
     from: runtime
   - term: sign in
     from: profile
-  - term: Settings
-    from: runtime
-
-  - term: author
-    definition: >-
-      The person who wrote the feedback or its draft.
-
-  - term: progress
-    definition: >-
-      How far the person has written their unfinished feedback.
+  - term: guest
+    from: profile

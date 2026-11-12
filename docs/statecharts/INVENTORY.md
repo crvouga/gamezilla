@@ -10,7 +10,7 @@ This inventory describes the authored source families that the product explorer 
 | [chess-board](../../specs/chess-board/) | 14 | 55 | 237 |
 | [db-indexes](../../specs/db-indexes/) | 6 | 17 | 30 |
 | [developer-tools](../../specs/developer-tools/) | 9 | 30 | 60 |
-| [feedback](../../specs/feedback/) | 6 | 25 | 42 |
+| [feedback](../../specs/feedback/) | 5 | 20 | 42 |
 | [friends](../../specs/friends/) | 13 | 22 | 54 |
 | [journeys](../../specs/journeys/) | 4 | 6 | 19 |
 | [matchmaking](../../specs/matchmaking/) | 11 | 35 | 85 |
@@ -20,7 +20,7 @@ This inventory describes the authored source families that the product explorer 
 | [spaces](../../specs/spaces/) | 16 | 26 | 53 |
 | [sync-engine](../../specs/sync-engine/) | 14 | 26 | 52 |
 
-Total: 231 feature files, 576 rule declarations and 1,520 scenario declarations. Expanding the outline rows yields 1,636 concrete example cards with their background included. [GHERKIN_MAPPING.md](GHERKIN_MAPPING.md) explains capability ownership rather than assigning complete features to arbitrary leaf states.
+Total: 230 feature files, 571 rule declarations and 1,520 scenario declarations. Expanding the outline rows yields 1,636 concrete example cards with their background included. [GHERKIN_MAPPING.md](GHERKIN_MAPPING.md) explains capability ownership rather than assigning complete features to arbitrary leaf states.
 
 | Catalog source | Files | Inline cards |
 | --- | --- | --- |

@@ -1144,7 +1144,7 @@ terms:
 | Database indexing | `db-indexes` | automatic index ownership, planning, retirement, interrupted maintenance and recovery | technical maintenance |
 | App | `runtime` | the app itself: opening it, tabs, Settings, addresses, updates, reconnecting, and the promises a live environment keeps about reaching and answering people | generic |
 | Developer tools | `developer-tools` | the team's testing tool, test worlds, checkpoints, data notebooks, test runs, test reports, recorded moments, and release checks | supporting |
-| Product feedback | `feedback` | bugs, feature requests, gaps and polish, with recordings and diagnostics that help the team reproduce trouble | supporting |
+| Bug reports | `feedback` | reporting a bug from anywhere in the app, by choosing to or by shaking a phone: the description, screenshots, the debug info that lets the team reproduce it, drafts, bug reports kept until the team has them, and the daily bug report limit | supporting |
 | Synthetic Population | `synthetic-population` | persistent automated opponents: their personas, daily schedules, human-like play, finding multiplayer opponents for people and each other, their activities, recovery and disclosure; and the Synthetic Population panel of the User Observatory: their personas, the desired synthetic population and their control panels | supporting |
 | Observatory | `observatory` | the User Observatory: who is online now, people and Synthetic Users, with what each is doing; watching anyone live; never showing a person's private details | supporting |
 | Journeys | `journeys` | the critical journeys across every context | — |
