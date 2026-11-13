@@ -134,6 +134,11 @@ wipe, and there is no server to inspect — see "State and reset".
   group, and a newer commit cancels the run for the one before it, so the
   latest commit is what gets built, at once. With the re-read above, a run for
   an older commit that got as far as uploading skips instead.
+- **Never broken by a change to the workflow.** GitHub runs the workflow of
+  the pull request's merge with main, and the workflow runs a command of the
+  commit it checks out. A head whose `preview.yml` differs from the one
+  running is therefore built from that merge, where the two agree, and the
+  run says so in a notice; every other head is built as it is.
 - **Fast, every commit.** A commit is live about 25 seconds after it is
   pushed when it changes nothing a bundle reads, and about 30 to 35 when it
   does; five of those are GitHub starting the machine. Nothing waits for

@@ -45,6 +45,25 @@ test('the Preview installs frozen dependencies with no script, before any secret
   for (const step of steps) expect(step.run).not.toMatch(/GITHUB_(PATH|ENV)/);
 });
 
+// GitHub runs the workflow of the pull request's merge with main, and the
+// step runs a command of the commit it checks out. A head that has another
+// version of the workflow would be handed a command it does not have (the
+// Preview of every open pull request failed when the command was renamed).
+test('a head with another Preview workflow than the one running is built from the merge', () => {
+  const start = previewSteps()[0]!.run ?? '';
+  const lines = start.split('\n').map((line) => line.trim());
+  const compared = lines.indexOf(
+    'if ! cmp -s "$BOOT/head.yml" "$BOOT/merge.yml"; then'
+  );
+  expect(compared).toBeGreaterThan(-1);
+  expect(start).toContain('"$raw/$PREVIEW_SHA/.github/workflows/preview.yml"');
+  expect(start).toContain('"$raw/$GITHUB_SHA/.github/workflows/preview.yml"');
+  const merged = lines.indexOf('PREVIEW_SHA="$GITHUB_SHA"');
+  expect(merged).toBeGreaterThan(compared);
+  // Decided before anything reads the commit: the checkout and the tools.
+  expect(lines.indexOf('checkout &')).toBeGreaterThan(merged);
+});
+
 test('the Preview installs the tools mise.toml pins, with the mise the setup action pins, held to a checksum', () => {
   const start = previewSteps()[0]!;
   const setup = readFileSync(
