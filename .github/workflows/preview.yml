@@ -172,7 +172,8 @@ jobs:
           [ "$(cat "$BOOT/code")" = 0 ]
           cat "$BOOT/paths" >> "$GITHUB_PATH"
           PATH="$(paste -sd: "$BOOT/paths"):$PATH"
-          remembered() { find apps/harness-ts/.cache/vite-transform -type f 2>/dev/null | sort | sha256sum; }
+          mkdir -p apps/harness-ts/.cache/vite-transform
+          remembered() { find apps/harness-ts/.cache/vite-transform -type f | sort | sha256sum; }
           before="$(remembered)"
           bun run apps/preview-ts/scripts/ci.ts run
           [ "$(remembered)" = "$before" ] || echo "remembered=more" >> "$GITHUB_OUTPUT"
