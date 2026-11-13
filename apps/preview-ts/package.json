@@ -23,7 +23,8 @@
     "@pkgs/object-store-node-fs-server-ts": "workspace:*",
     "@pkgs/secret-provider-server-ts": "workspace:*",
     "@pkgs/secret-provider-shared-ts": "workspace:*",
-    "@pkgs/secrets-config-server-ts": "workspace:*"
+    "@pkgs/secrets-config-server-ts": "workspace:*",
+    "@pkgs/vite-workspace-resolver-server-ts": "workspace:*"
   },
   "devDependencies": {
     "@pkgs/property-shared-ts": "workspace:*",

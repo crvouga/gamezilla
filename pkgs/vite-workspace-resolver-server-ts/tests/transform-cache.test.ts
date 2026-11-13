@@ -5,8 +5,10 @@ import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import fc from 'fast-check';
 import type { Plugin } from 'vite';
 import {
+  packTransforms,
   rememberTransforms,
   type TransformStore,
+  unpackTransforms,
 } from '../src/transform-cache';
 import { directoryTransformStore } from '../src/transform-cache-directory';
 
@@ -186,4 +188,58 @@ test('a directory keeps what a build remembers for the next process', async () =
   } finally {
     removeTree(dir);
   }
+});
+
+test('what one machine remembered, packed, is what another starts from', async () => {
+  await assertProperty(
+    'a packed store unpacks to the same builds, transforming nothing',
+    fc.asyncProperty(modules, async (round) => {
+      const here = memoryStore();
+      const first = compiler();
+      const built = await build(
+        rememberTransforms(first.plugin, options(here)),
+        round
+      );
+      const there = memoryStore();
+      const kept = round.filter((module) => module.id.endsWith('.tsx'));
+      expect(unpackTransforms(there, packTransforms(here))).toBe(kept.length);
+      const second = compiler();
+      expect(
+        await build(rememberTransforms(second.plugin, options(there)), round)
+      ).toEqual(built);
+      expect(second.ran).toHaveLength(round.length - kept.length);
+    })
+  );
+});
+
+test('only what a store packed is unpacked: nothing else names a file in it', () => {
+  const store = memoryStore();
+  const gzip = (value: unknown) => Bun.gzipSync(JSON.stringify(value));
+  expect(unpackTransforms(store, new TextEncoder().encode('not gzip'))).toBe(0);
+  expect(unpackTransforms(store, gzip(['a']))).toBe(0);
+  expect(
+    unpackTransforms(
+      store,
+      gzip({
+        '../../outside': '{"code":"x"}',
+        [`${'a'.repeat(63)}/`]: '{"code":"x"}',
+        ['b'.repeat(64)]: 7,
+        ['c'.repeat(64)]: '{"code":"kept"}',
+      })
+    )
+  ).toBe(1);
+  expect([...store.held.keys()]).toEqual(['c'.repeat(64)]);
+});
+
+test('half an answer is no answer: the module is transformed again', async () => {
+  const store = memoryStore();
+  const { plugin, ran } = compiler();
+  const remembered = rememberTransforms(plugin, options(store));
+  const app = [{ id: '/repo/app.tsx', source: 'a' }];
+  await build(remembered, app);
+  for (const key of store.keys()) store.write(key, '{"code":"/* comp');
+  expect(await build(remembered, app)).toEqual([
+    '/* compiled /repo/app.tsx */ a',
+  ]);
+  expect(ran).toHaveLength(2);
 });

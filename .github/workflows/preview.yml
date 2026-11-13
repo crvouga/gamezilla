@@ -70,12 +70,11 @@ jobs:
       SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
       REPOSITORY_IDENTITY_JSON: ${{ vars.PRODUCT_IDENTITY_JSON }}
     steps:
-      # Nothing here waits for anything it does not need. A checkout, then
-      # the tools, then the dependencies, then the secrets, each after the
-      # one before, was half of every deploy. Here the checkout and the
-      # install start together and run on while the next step restores what
-      # the last build remembered, and the command reads its own three
-      # secrets while it starts the build.
+      # One step, and no action: nothing waits for anything it does not need.
+      # A checkout, then the tools, then the dependencies, then the secrets,
+      # each after the one before, was half of every deploy. Here the
+      # checkout and the install run side by side, and the command reads its
+      # own three secrets while it starts the build.
       #
       # - The checkout is the head itself, not the merge with main: the
       #   deployed commit is the one the pull request shows. It never fetches
@@ -85,22 +84,21 @@ jobs:
       #   repository is public, so it needs no token and leaves none in
       #   `.git/config`.
       # - The tools are the versions `mise.toml` pins, installed by a mise
-      #   binary held to its published checksum.
+      #   binary held to its published checksum. They are on this step's own
+      #   PATH and nowhere else.
       # - The install is straight from the registry (faster on a fresh
       #   machine than restoring a cache of it), runs no script of any
       #   dependency and none of the repository's postinstall generation,
       #   and finishes before any secret exists in the job. The build
       #   generates the derived files a bundle reads, and only those.
-      - name: Start the checkout and the install
+      - name: Check out, install, then deploy, remove or sweep
         env:
           PREVIEW_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
           MISE_VERSION: 2026.9.13
           MISE_SHA256: 68b437f5f7065a9ed43bc65324b7e9b339ffc59104147bb2b2568585495c5c75
         run: |
-          export BOOT="$RUNNER_TEMP/boot"
+          BOOT="$RUNNER_TEMP/boot"
           mkdir -p "$BOOT"
-          cat > "$BOOT/start.sh" <<'SH'
-          set -euo pipefail
           at() { echo "[$(date +%T.%3N)] $*"; }
           checkout() {
             git init -q
@@ -149,42 +147,8 @@ jobs:
           installing=$!
           wait "$checking_out"
           wait "$installing"
-          SH
-          nohup bash -c "bash '$BOOT/start.sh'; echo \$? > '$BOOT/code'" > "$BOOT/log" 2>&1 < /dev/null &
-      # What the last build made of each module (Solid's JSX, the Lingui
-      # macro), so this one transforms only the modules that changed. The
-      # newest there is: the main branch's, or this pull request's own.
-      - name: Restore what the last build remembered
-        id: remembered
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: apps/harness-ts/.cache/vite-transform
-          key: preview-transforms-v1-${{ github.run_id }}-${{ github.run_attempt }}
-          restore-keys: preview-transforms-v1-
-      # One command for the whole of it (decide, build, upload, check; or
-      # remove; or sweep), so nothing waits on a step boundary.
-      - name: Deploy, remove or sweep
-        id: deploy
-        run: |  # zizmor: ignore[github-env] -- the paths of the tools mise just installed
-          BOOT="$RUNNER_TEMP/boot"
-          timeout 900 bash -c "until [ -e '$BOOT/code' ]; do sleep 0.1; done" || true
-          cat "$BOOT/log"
-          [ "$(cat "$BOOT/code")" = 0 ]
-          cat "$BOOT/paths" >> "$GITHUB_PATH"
-          PATH="$(paste -sd: "$BOOT/paths"):$PATH"
-          mkdir -p apps/harness-ts/.cache/vite-transform
-          remembered() { find apps/harness-ts/.cache/vite-transform -type f | sort | sha256sum; }
-          before="$(remembered)"
-          bun run apps/preview-ts/scripts/ci.ts run
-          [ "$(remembered)" = "$before" ] || echo "remembered=more" >> "$GITHUB_OUTPUT"
-      # The main branch's build is what every pull request starts from; a
-      # pull request saves its own only when there was none to start from.
-      - name: Keep what this build remembered
-        if: ${{ steps.deploy.outputs.remembered == 'more' && (github.event_name == 'push' || steps.remembered.outputs.cache-matched-key == '') }}
-        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: apps/harness-ts/.cache/vite-transform
-          key: ${{ steps.remembered.outputs.cache-primary-key }}
+          PATH="$(paste -sd: "$BOOT/paths"):$PATH" bun run apps/preview-ts/scripts/ci.ts run
       - name: Report a run that failed before the upload
         if: ${{ failure() && github.event_name == 'pull_request' }}
-        run: bun run apps/preview-ts/scripts/ci.ts failed
+        run: |
+          PATH="$(paste -sd: "$RUNNER_TEMP/boot/paths"):$PATH" bun run apps/preview-ts/scripts/ci.ts failed

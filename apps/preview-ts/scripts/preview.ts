@@ -37,6 +37,11 @@ import { resolveIdentityPlaceholders } from '@libs/product-identity-shared-ts/id
 import { wallClock, wallTimers } from '@pkgs/clock-shared-ts/wall';
 import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import type { HttpFetch } from '@pkgs/http-client-shared-ts/types';
+import {
+  packTransforms,
+  unpackTransforms,
+} from '@pkgs/vite-workspace-resolver-server-ts/transform-cache';
+import { directoryTransformStore } from '@pkgs/vite-workspace-resolver-server-ts/transform-cache-directory';
 import { distHeadersFile } from '../../product-ts/scripts/dist-headers';
 import { stampedPage } from '../src/build-stamp';
 import { deployPreview, type SiteFile } from '../src/cloudflare-deploy';
@@ -97,6 +102,15 @@ const STORYBOOK_BUILD = join(
   'pkgs/ui-root-harness-ts/.cache/storybook'
 );
 const STORYBOOK_DIST = join(CACHE_DIR, 'storybook-site');
+/**
+ * What the harness build remembers of each module it transformed
+ * (`apps/harness-ts/vite.config.mts`), and where the main branch's Preview
+ * serves it: every pull request's build starts from the main branch's.
+ */
+const TRANSFORMS = directoryTransformStore(
+  join(HARNESS_DIR, '.cache/vite-transform')
+);
+const TRANSFORMS_PATH = '/transforms.bin';
 /** The compiled message catalog (`//#task:i18n:compile`). */
 const MESSAGES_SOURCE = join(
   REPO_ROOT,
@@ -730,6 +744,12 @@ async function build(previewName: string): Promise<void> {
     ),
     'utf8'
   );
+  // The main branch's Preview also carries what its build remembered.
+  if (previewName === MAIN_PREVIEW_NAME)
+    writeFileSync(
+      join(HARNESS_DIST, TRANSFORMS_PATH.slice(1)),
+      packTransforms(TRANSFORMS)
+    );
   writeManifest(HARNESS, previewName, commit.sha);
   const files = bundleFiles(HARNESS_DIST).map((file) => file.path);
   writeFileSync(join(HARNESS_DIST, '_headers'), distHeadersFile(files), 'utf8');
@@ -1379,6 +1399,30 @@ async function plan(): Promise<PreviewAction> {
 }
 
 /**
+ * Start this machine's build from what the main branch's remembered: most of
+ * a build is Babel over modules a pull request did not touch. Beside the
+ * build, never before it, and never an error: a module that is not there in
+ * time, or at all, is transformed as it would have been.
+ */
+async function seedTransforms(): Promise<void> {
+  const host = previewHost(HARNESS);
+  if (host === null) return;
+  try {
+    const response = await fetch(`https://${host}${TRANSFORMS_PATH}`, {
+      signal: AbortSignal.timeout(5000),
+    });
+    if (!response.ok) return;
+    const modules = unpackTransforms(
+      TRANSFORMS,
+      new Uint8Array(await response.arrayBuffer())
+    );
+    say(`▸ harness: starting from ${String(modules)} modules main remembered`);
+  } catch {
+    // Nothing to start from.
+  }
+}
+
+/**
  * Turborepo building or restoring the harness bundle (after generating the
  * derived files it reads), beside this process: nothing here waits for it
  * until it has nothing else to do.
@@ -1418,11 +1462,13 @@ const PLAN_HOLDS_MS = 5000;
  */
 async function ciRun(): Promise<void> {
   const from = trigger();
-  const building =
+  const builds =
     from.kind === 'main' ||
-    (from.kind === 'pull-request' && from.action !== 'closed' && !from.fromFork)
-      ? startBuild()
-      : null;
+    (from.kind === 'pull-request' &&
+      from.action !== 'closed' &&
+      !from.fromFork);
+  if (builds) void seedTransforms();
+  const building = builds ? startBuild() : null;
   const action = await plan();
   const plannedMs = wallClock.now();
   if (action.kind !== 'deploy' && action.kind !== 'deploy-main')

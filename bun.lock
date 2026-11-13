@@ -170,6 +170,7 @@
         "@pkgs/secret-provider-server-ts": "workspace:*",
         "@pkgs/secret-provider-shared-ts": "workspace:*",
         "@pkgs/secrets-config-server-ts": "workspace:*",
+        "@pkgs/vite-workspace-resolver-server-ts": "workspace:*",
       },
       "devDependencies": {
         "@pkgs/property-shared-ts": "workspace:*",
@@ -7924,11 +7925,11 @@
       "name": "@pkgs/vite-workspace-resolver-server-ts",
       "version": "0.0.0",
       "dependencies": {
+        "@pkgs/fs-server-ts": "workspace:*",
         "@pkgs/os-shared-ts": "workspace:*",
         "vite": "catalog:",
       },
       "devDependencies": {
-        "@pkgs/fs-server-ts": "workspace:*",
         "@pkgs/property-shared-ts": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",

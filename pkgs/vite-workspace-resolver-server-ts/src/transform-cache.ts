@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { relative } from 'node:path';
+import { gunzipSync, gzipSync } from 'node:zlib';
 import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import type { Plugin } from 'vite';
 
@@ -43,6 +44,23 @@ function keyOf(salt: string, name: string, source: string): string {
     .digest('hex');
 }
 
+/**
+ * What the store holds for a module; `undefined` when it holds nothing, or
+ * something that is not a whole answer (a store another process is still
+ * filling), which is transformed again like any module never seen.
+ */
+function keptOf(text: string | null): Transformed | undefined {
+  if (text === null) return undefined;
+  try {
+    const value: unknown = JSON.parse(text);
+    if (value === null) return null;
+    const code = (value as { code?: unknown }).code;
+    return typeof code === 'string' ? { code } : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 function transformedOf(result: unknown): Transformed {
   if (typeof result === 'string') return { code: result };
   if (result === null || typeof result !== 'object') return null;
@@ -78,8 +96,8 @@ export function rememberTransforms(
       const name = slashPath(relative(options.root, file));
       const key = keyOf(options.salt, name, source);
       asked.add(key);
-      const kept = options.store.read(key);
-      if (kept !== null) return JSON.parse(kept) as Transformed;
+      const kept = keptOf(options.store.read(key));
+      if (kept !== undefined) return kept;
       const made = transformedOf(await run());
       options.store.write(
         key,
@@ -96,4 +114,41 @@ export function rememberTransforms(
       if (typeof buildEnd === 'function') await buildEnd.call(this, error);
     },
   };
+}
+
+const KEY = /^[0-9a-f]{64}$/;
+
+/** Everything a store remembers, as one file to carry to another machine. */
+export function packTransforms(store: TransformStore): Uint8Array<ArrayBuffer> {
+  const all: Record<string, string> = {};
+  for (const key of store.keys().toSorted()) {
+    const value = KEY.test(key) ? store.read(key) : null;
+    if (value !== null) all[key] = value;
+  }
+  return new Uint8Array(gzipSync(JSON.stringify(all)));
+}
+
+/**
+ * Put what `packTransforms` packed into `store`; how many modules that was.
+ * Anything that is not such a file adds nothing: a key is only ever the
+ * digest it was stored under, so no file names a place outside the store.
+ */
+export function unpackTransforms(
+  store: TransformStore,
+  packed: Uint8Array
+): number {
+  let all: unknown;
+  try {
+    all = JSON.parse(gunzipSync(packed).toString('utf8'));
+  } catch {
+    return 0;
+  }
+  if (all === null || typeof all !== 'object' || Array.isArray(all)) return 0;
+  let count = 0;
+  for (const [key, value] of Object.entries(all)) {
+    if (!KEY.test(key) || typeof value !== 'string') continue;
+    store.write(key, value);
+    count += 1;
+  }
+  return count;
 }

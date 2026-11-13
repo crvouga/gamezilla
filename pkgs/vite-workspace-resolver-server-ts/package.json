@@ -16,11 +16,11 @@
     "test": "bun test tests"
   },
   "dependencies": {
+    "@pkgs/fs-server-ts": "workspace:*",
     "@pkgs/os-shared-ts": "workspace:*",
     "vite": "catalog:"
   },
   "devDependencies": {
-    "@pkgs/fs-server-ts": "workspace:*",
     "@pkgs/property-shared-ts": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",

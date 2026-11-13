@@ -26,32 +26,23 @@ function previewSteps(): readonly Step[] {
 test('the Preview installs frozen dependencies with no script, before any secret', () => {
   const steps = previewSteps();
   const start = steps[0]!.run ?? '';
-  const installs = steps
-    .flatMap((step) => (step.run ?? '').split('\n'))
-    .filter((line) => line.includes('bun install'));
-  expect(installs).toHaveLength(1);
-  expect(installs[0]).toEndWith(
+  const lines = start.split('\n').map((line) => line.trim());
+  const install = lines.findIndex((line) => line.includes('bun install'));
+  expect(lines[install]).toEndWith(
     'bun install --frozen-lockfile --ignore-scripts'
   );
-  expect(start).toContain(installs[0]!);
-  // The command that reads the secrets starts once the install has ended:
-  // it is a later step's, after that step has seen the start's exit code.
-  const deploy = steps.findIndex((step) =>
-    step.run?.includes('bun run apps/preview-ts/scripts/ci.ts run')
+  // The command that reads the secrets starts after the install has ended.
+  const secrets = lines.findIndex((line) =>
+    line.endsWith('bun run apps/preview-ts/scripts/ci.ts run')
   );
-  expect(deploy).toBeGreaterThan(0);
-  const lines = steps[deploy]!.run!.split('\n').map((line) => line.trim());
-  expect(lines.indexOf('[ "$(cat "$BOOT/code")" = 0 ]')).toBeGreaterThan(-1);
-  expect(
-    lines.indexOf('bun run apps/preview-ts/scripts/ci.ts run')
-  ).toBeGreaterThan(lines.indexOf('[ "$(cat "$BOOT/code")" = 0 ]'));
-  // The only actions in the job restore and keep a build cache; none is
-  // handed a secret, and the checkout never has a credential to leave behind.
-  expect(steps.flatMap((step) => step.uses?.split('@')[0] ?? [])).toEqual([
-    'actions/cache/restore',
-    'actions/cache/save',
-  ]);
+  expect(lines.indexOf('wait "$installing"')).toBeGreaterThan(install);
+  expect(secrets).toBeGreaterThan(lines.indexOf('wait "$installing"'));
+  // No action runs in the job, so none is handed its token; the checkout
+  // never has a credential to leave behind; and nothing the checkout wrote
+  // names a tool for a later step (no `GITHUB_PATH`, no `GITHUB_ENV`).
+  expect(steps.filter((step) => step.uses !== undefined)).toEqual([]);
   expect(start).not.toMatch(/token|extraheader/i);
+  for (const step of steps) expect(step.run).not.toMatch(/GITHUB_(PATH|ENV)/);
 });
 
 test('the Preview installs the tools mise.toml pins, with the mise the setup action pins, held to a checksum', () => {
