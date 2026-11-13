@@ -193,11 +193,14 @@ export async function runPreviewChecks(
     scripts = result.scripts;
     return result.check;
   });
+  // Independent of one another once the page has named its scripts.
   return [
     harness,
-    await guarded('bundle', () => bundleCheck(probe, scripts)),
-    await guarded('deployed commit', () => commitCheck(probe, args)),
-    await guarded('no server', () => staticOnlyCheck(probe)),
+    ...(await Promise.all([
+      guarded('bundle', () => bundleCheck(probe, scripts)),
+      guarded('deployed commit', () => commitCheck(probe, args)),
+      guarded('no server', () => staticOnlyCheck(probe)),
+    ])),
   ];
 }
 

@@ -938,11 +938,13 @@ async function servedChecks(
   }
 ): Promise<readonly PreviewCheck[]> {
   const deadline = wallClock.now() + AGREED_WITHIN_MS;
-  for (;;) {
+  for (let reads = 1; ; reads += 1) {
     const checks = await site.checks({ ...target, fetch });
     if (checks.every((check) => check.ok) || wallClock.now() >= deadline)
       return checks;
-    await sleep(3000);
+    if (reads === 1)
+      say(`▸ ${site.key}: the edge does not agree yet — ${failed(checks)}`);
+    await sleep(500);
   }
 }
 
@@ -1405,6 +1407,9 @@ function startBuild(): {
   return { done, stop: () => child.kill() };
 }
 
+/** How long a reading of the pull request stands in for reading it again. */
+const PLAN_HOLDS_MS = 5000;
+
 /**
  * The workflow's one step: decide, then build and deploy, remove or sweep.
  * A commit pushed or a pull request opened almost always deploys, so the
@@ -1419,6 +1424,7 @@ async function ciRun(): Promise<void> {
       ? startBuild()
       : null;
   const action = await plan();
+  const plannedMs = wallClock.now();
   if (action.kind !== 'deploy' && action.kind !== 'deploy-main')
     building?.stop();
   if (action.kind === 'skip') return say(`skip: ${action.reason}`);
@@ -1449,8 +1455,10 @@ async function ciRun(): Promise<void> {
   });
   await building.done;
   await build(previewNameOfPr(action.pr));
-  // The plan was made before the build; the head may have moved since.
-  const now = await plan();
+  // The plan was made before the build; the head may have moved since. A
+  // bundle restored in a second or two is deployed on the plan just made.
+  const now =
+    wallClock.now() - plannedMs < PLAN_HOLDS_MS ? action : await plan();
   if (now.kind === 'deploy') return await deploy(now.pr, now.sha);
   say(
     `skip: ${now.kind === 'skip' ? now.reason : `pull request now needs ${now.kind}`}`
