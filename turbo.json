@@ -2385,17 +2385,17 @@
     },
     "//#task:preview:build": {
       "cache": false,
-      "dependsOn": ["//#task:i18n:compile"],
+      "dependsOn": ["@apps/harness-ts#build", "//#task:i18n:compile"],
       "passThroughEnv": ["*"]
     },
     "//#task:preview:deploy": {
       "cache": false,
-      "dependsOn": ["//#task:i18n:compile"],
+      "dependsOn": ["@apps/harness-ts#build", "//#task:i18n:compile"],
       "passThroughEnv": ["*"]
     },
     "//#task:preview:main": {
       "cache": false,
-      "dependsOn": ["//#task:i18n:compile"],
+      "dependsOn": ["@apps/harness-ts#build", "//#task:i18n:compile"],
       "passThroughEnv": ["*"]
     },
     "//#task:preview:test": {

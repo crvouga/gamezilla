@@ -3,7 +3,7 @@
   "extends": ["//"],
   "tasks": {
     "src": {
-      "dependsOn": ["@pkgs/os-shared-ts#src"]
+      "dependsOn": ["@pkgs/fs-server-ts#src", "@pkgs/os-shared-ts#src"]
     }
   }
 }
