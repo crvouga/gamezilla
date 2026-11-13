@@ -74,11 +74,16 @@ https://pr-<number>.storybook.<domain>     a pull request's Storybook
   address under `/__emulators/` and hands those requests to the page; it
   touches nothing else. The harness sends no email, SMS or push through an
   emulator yet, so there is no notification inbox to show.
-- **The build.** A Preview bundle is the built `apps/harness-ts`.
-  `preview.json` in the bundle names the Preview and the commit it was built
-  from. The harness is the one page at `/` and keeps its state in the query
-  string, so it needs no single-page fallback (Cloudflare applies none to an
-  assets-only Preview): anything else is a 404.
+- **The build.** A Preview bundle is the built `apps/harness-ts`, which
+  depends on its sources alone: it names no commit and no address (the API is
+  the page's own origin, read where the bundle runs), so Turborepo restores
+  it for every commit that changes none of them. The deploy adds what does
+  depend on the commit: a stamp in the page (`globalThis.__BUILD__`),
+  `preview.json` (the Preview and its commit), and the compiled messages at
+  `/messages.js`, which the bundle loads instead of carrying. The harness is
+  the one page at `/` and keeps its state in the query string, so it needs no
+  single-page fallback (Cloudflare applies none to an assets-only Preview):
+  anything else is a 404.
 - **Storybook.** Each pull request also gets its build of the component
   library: a Preview, of the same name `pr-<number>`, of the Storybook site's
   own Worker (`apps/storybook-ts`). It serves a copy of the canonical
@@ -97,7 +102,7 @@ The pull request is `PREVIEW_PR=<number>`, or the one for the current branch.
 | --- | --- | --- |
 | `mise run preview:url` | Print the Preview URL from the pull request description | `gh` |
 | `mise run preview:test` | Check the deployed Preview and Storybook over HTTP | `gh` |
-| `mise run preview:build` | Build the harness bundle and gate it (fatal only for main) | Cloudflare read, or `PREVIEW_URL` |
+| `mise run preview:build` | Build or restore the harness bundle, make it this Preview's and gate it (fatal only for main) | `gh` |
 | `mise run preview:deploy` | Build, gate, upload, check | Cloudflare deploy credential |
 | `mise run preview:main` | Build this checkout and deploy it as the main branch's | Cloudflare deploy credential |
 | `mise run preview:destroy` | Delete the Preview; verify it is gone | Cloudflare deploy credential |
@@ -116,23 +121,48 @@ wipe, and there is no server to inspect — see "State and reset".
 
 | Event | Action |
 | --- | --- |
-| Pull request opened, reopened, new commit | build → gate (warns) → upload → check |
+| Pull request opened, reopened, new commit | build or restore → gate (warns) → upload → check |
 | Pull request closed or merged | delete the Preview, confirm it is gone |
 | Every six hours, or manual dispatch | sweep |
 
-- **Decided from now, not from the event.** `ci plan` reads the pull request as
-  it is when the run starts (`decidePreviewAction`): a run for a commit that is
+- **Decided from now, not from the event.** The run reads the pull request as
+  it is when it starts (`decidePreviewAction`): a run for a commit that is
   no longer the head is skipped, and a run for a pull request that has since
-  closed removes instead of deploying. The plan is taken again immediately
-  before the upload.
+  closed removes instead of deploying. The pull request is read again before
+  the upload, unless the bundle was ready within seconds of the first read.
 - **Older never replaces newer.** Runs for one pull request share a concurrency
   group, and a newer commit cancels the run for the one before it, so the
   latest commit is what gets built, at once. With the re-read above, a run for
   an older commit that got as far as uploading skips instead.
-- **Fast, every commit.** The checkout leaves out the reference screenshots
-  (four fifths of the repository). The harness is built alone and uploaded
-  while Storybook is built or restored from the Turborepo cache and uploaded
-  beside it; the pull request says the harness is live the moment it is.
+- **Fast, every commit.** A commit is live about 25 seconds after it is
+  pushed when it changes nothing a bundle reads, and about 30 to 35 when it
+  does; five of those are GitHub starting the machine. Nothing waits for
+  anything it does not need:
+  - *One step, no action.* The checkout and the install start together. The
+    checkout leaves out the reference screenshots (four fifths of the
+    repository) and writes the package manifests first, which is all the
+    install reads. The install is straight from the registry, runs no
+    script, and runs none of the repository's postinstall generation.
+  - *Secrets in half a second.* The command reads the three secrets a deploy
+    uses over the run's own OIDC token, not the environment through an
+    action. The Cloudflare credential never reaches a build.
+  - *The build starts first.* A push almost always deploys, so the build
+    starts before the pull request is read, and is stopped on the rare run
+    that needs none. GitHub is told over HTTP, beside the work, never before
+    it.
+  - *A bundle is restored unless its sources changed* (above).
+  - *A changed bundle is built from what did not change.* Most of a build is
+    Babel over modules a pull request never touched; the build keeps what it
+    made of each (`.cache/vite-transform`), the main branch's Preview serves
+    that as `/transforms.bin`, and every run starts from it. The messages
+    compile beside the bundle, not before it.
+  - *Three round trips to deploy.* A site goes to its Preview through the
+    Cloudflare API directly (`src/cloudflare-deploy.ts`): which files are
+    missing, those files, the deployment. Only the Worker itself, on a push
+    to main, is deployed with `wrangler`.
+  - *Storybook beside it.* The harness is uploaded while Storybook is built
+    or restored and uploaded; the pull request says the harness is live the
+    moment it is.
 - **Best effort: whatever builds is deployed.** The bundle is checked on disk
   with the same checks the deployed Preview must pass, before it is uploaded.
   For a pull request a failing check is a warning, not a stop: the bundle is
@@ -156,7 +186,9 @@ wipe, and there is no server to inspect — see "State and reset".
   deployments of the commits before it.
 - **Orphans.** The sweep lists both Workers' Previews and deletes every `pr-<n>`
   whose pull request is not open, and every one whose pull request has had no
-  activity for 7 days (`PREVIEW_RETENTION_MS`). An expired Preview comes back
+  activity for 7 days (`PREVIEW_RETENTION_MS`). Past 80 Previews at once
+  (`PREVIEW_CAPACITY`, under the free plan's 100) it also removes those of
+  the pull requests longest without a change. An expired Preview comes back
   with the next commit or a reopen.
 
 ## On the pull request
@@ -210,10 +242,12 @@ own.
 - **Forks never deploy.** The job is skipped for pull requests from forks, and
   `decidePreviewAction` refuses them again; GitHub withholds OIDC and secrets
   from fork runs regardless.
-- **Credentials.** The job reads the `dev` secrets environment through OIDC,
-  never production. Pull request code from this repository does build in a job
-  holding the Cloudflare deploy credential, as it does in Verify PR; scope that
-  token to Workers Scripts on the one account.
+- **Credentials.** The job reads three secrets of the `dev` environment
+  (Cloudflare's account and token, the Turborepo cache token) through OIDC,
+  never production, and only after the install has ended. Pull request code
+  from this repository builds in that job, and a build is given the cache
+  token alone: the Cloudflare and GitHub tokens stay with the process that
+  deploys. Scope the Cloudflare token to Workers Scripts on the one account.
 - **No admin surface.** There are no reset or diagnostic endpoints to protect.
 
 ## Cost and limits
@@ -229,8 +263,19 @@ The bundle is about 330 files and 26 MB, its largest file under 9 MB; Storybook
 is about 900 files and 26 MB. There is
 no compute, storage or egress charge at any traffic level, and nothing runs
 while nobody is looking. The binding limit is open pull requests at once (100
-on the free plan); the 7-day retention keeps well under it. GitHub Actions
-time is the only recurring cost: one build per push.
+on the free plan); the 7-day retention and the sweep's capacity keep under
+it. GitHub Actions time is one build per push, on standard runners, which
+cost a public repository nothing.
+
+Previews stay on the free plan by construction (`apps/preview-ts/src/free-plan.ts`):
+
+- **Static files only.** A deploy refuses a Worker config that declares
+  anything else (a Worker script, a binding, a Durable Object, a variable, any
+  setting not known to be free), for both sites.
+- **Within the free limits.** The `free plan` check of the gate fails a built
+  site with more files, or a larger file, than one free upload takes, so the
+  answer to a bundle that grew is a smaller bundle, never a paid plan.
+- **Never more Previews than the plan holds.** The sweep's capacity, above.
 
 ## Limits of this design
 

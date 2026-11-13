@@ -5,17 +5,21 @@
  * Cloudflare Worker Preview named `pr-<number>`, with the whole system running
  * in the visitor's browser (docs/PREVIEW_ENVIRONMENTS.md), and beside it the
  * pull request's Storybook, a Preview of the same name on the Storybook
- * site's own Worker (`apps/storybook-ts`), with the same lifecycle. The same commands run on a laptop (`mise run preview:<command>`)
- * and in the Preview workflow.
+ * site's own Worker (`apps/storybook-ts`), with the same lifecycle. The same
+ * commands run on a laptop (`mise run preview:<command>`) and in the Preview
+ * workflow (through `ci.ts`).
  *
  *   preview url                 the Preview URL, read from the pull request
- *   preview build               the harness bundle, built for that URL
- *   preview deploy              build, upload, check what is served
- *   preview main                build and deploy this checkout as the main branch's
+ *   preview build               make the built harness bundle this Preview's
+ *   preview deploy              that, then upload and check what is served
+ *   preview main                deploy this checkout as the main branch's
  *   preview test                check the deployed Preview over HTTP
  *   preview destroy             delete the Preview, verify it is gone
  *   preview sweep               delete Previews whose pull request is not open
- *   preview ci <plan|build|apply|failed>   the workflow's steps
+ *   preview ci <run|failed>     the workflow's steps
+ *
+ * The bundle itself is Turborepo's to build or restore (`@apps/harness-ts#build`,
+ * which every `mise` task here depends on): it depends on its sources alone.
  *
  * There is no seed, reset or inspect: a Preview has no server and no stored
  * state. What a visitor creates lives in their own browser.
@@ -24,7 +28,6 @@
  */
 import { spawn, spawnSync } from 'node:child_process';
 import {
-  appendFileSync,
   cpSync,
   existsSync,
   mkdirSync,
@@ -38,11 +41,23 @@ import { resolveIdentityPlaceholders } from '@libs/product-identity-shared-ts/id
 import { wallClock, wallTimers } from '@pkgs/clock-shared-ts/wall';
 import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import type { HttpFetch } from '@pkgs/http-client-shared-ts/types';
+import {
+  packTransforms,
+  unpackTransforms,
+} from '@pkgs/vite-workspace-resolver-server-ts/transform-cache';
+import { directoryTransformStore } from '@pkgs/vite-workspace-resolver-server-ts/transform-cache-directory';
 import { distHeadersFile } from '../../product-ts/scripts/dist-headers';
+import { stampedPage } from '../src/build-stamp';
+import { deployPreview, type SiteFile } from '../src/cloudflare-deploy';
 import {
   type CloudflarePreviews,
   createCloudflarePreviews,
 } from '../src/cloudflare-previews';
+import {
+  type BundleFile,
+  billableSettings,
+  freePlanCheck,
+} from '../src/free-plan';
 import {
   type PreviewSectionFacts,
   previewUrlInBody,
@@ -51,6 +66,7 @@ import {
   upsertPreviewSection,
 } from '../src/pr-body-section';
 import {
+  MESSAGES_PATH,
   PREVIEW_MANIFEST_PATH,
   type PreviewCheck,
   type PreviewChecks,
@@ -63,6 +79,7 @@ import {
   decideMainAction,
   decidePreviewAction,
   failingChecks,
+  PREVIEW_CAPACITY,
   PREVIEW_RETENTION_MS,
   type PreviewAction,
   type PreviewTrigger,
@@ -89,8 +106,22 @@ const STORYBOOK_BUILD = join(
   'pkgs/ui-root-harness-ts/.cache/storybook'
 );
 const STORYBOOK_DIST = join(CACHE_DIR, 'storybook-site');
+/**
+ * What the harness build remembers of each module it transformed
+ * (`apps/harness-ts/vite.config.mts`), and where the main branch's Preview
+ * serves it: every pull request's build starts from the main branch's.
+ */
+const TRANSFORMS = directoryTransformStore(
+  join(HARNESS_DIR, '.cache/vite-transform')
+);
+const TRANSFORMS_PATH = '/transforms.bin';
+/** The compiled message catalog (`//#task:i18n:compile`). */
+const MESSAGES_SOURCE = join(
+  REPO_ROOT,
+  'libs/app-root-shared-ts/locales/en/messages.ts'
+);
 const WRANGLER = join(PACKAGE_DIR, 'node_modules/.bin/wrangler');
-const BUILD_MAX_OLD_SPACE_MB = 8192;
+const TURBO = join(REPO_ROOT, 'node_modules/.bin/turbo');
 /** One GitHub environment for every Preview; each deployment is transient. */
 const GITHUB_ENVIRONMENT = 'preview';
 const DEPLOYING_MARK = '🟡 deploying';
@@ -169,8 +200,12 @@ const STORYBOOK: Site = {
 
 const SITES: readonly Site[] = [HARNESS, STORYBOOK];
 
+const STARTED_MS = wallClock.now();
+
+/** Each line says when it was written: where a deploy's seconds went. */
 function say(message: string): void {
-  process.stdout.write(`${message}\n`);
+  const elapsed = ((wallClock.now() - STARTED_MS) / 1000).toFixed(1);
+  process.stdout.write(`[${elapsed.padStart(5)}s] ${message}\n`);
 }
 
 function fail(message: string): never {
@@ -214,20 +249,25 @@ function run(
 async function runAsync(
   cmd: string,
   args: readonly string[],
-  options: { readonly cwd?: string; readonly env?: NodeJS.ProcessEnv } = {}
+  options: {
+    readonly cwd?: string;
+    readonly env?: NodeJS.ProcessEnv;
+    readonly input?: string;
+  } = {}
 ): Promise<ReturnType<typeof run>> {
   return await new Promise((resolve) => {
     const child = spawn(cmd, [...args], {
       cwd: options.cwd ?? REPO_ROOT,
       env: options.env ?? process.env,
-      stdio: ['ignore', 'pipe', 'pipe'],
+      stdio: [options.input === undefined ? 'ignore' : 'pipe', 'pipe', 'pipe'],
     });
+    child.stdin?.end(options.input);
     let stdout = '';
     let stderr = '';
-    child.stdout.on('data', (chunk: Buffer) => {
+    child.stdout?.on('data', (chunk: Buffer) => {
       stdout += chunk.toString('utf8');
     });
-    child.stderr.on('data', (chunk: Buffer) => {
+    child.stderr?.on('data', (chunk: Buffer) => {
       stderr += chunk.toString('utf8');
     });
     child.on('error', (error) => {
@@ -252,11 +292,88 @@ function must(
 
 // ── GitHub ───────────────────────────────────────────────────────────────
 
-function gh(args: readonly string[], input?: string): string {
-  return must(
-    `gh ${args.slice(0, 3).join(' ')}`,
-    run('gh', args, input === undefined ? {} : { input })
-  ).stdout;
+function gh(args: readonly string[]): string {
+  return must(`gh ${args.slice(0, 3).join(' ')}`, run('gh', args)).stdout;
+}
+
+type GitHubAnswer = {
+  readonly ok: boolean;
+  /** The parsed body; `null` when there is none or it is not JSON. */
+  readonly body: unknown;
+  readonly error: string;
+};
+
+function parsed(text: string): unknown {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * One call of GitHub's REST API on this repository (`path` is under
+ * `repos/<owner>/<repo>/`). A workflow run calls it with its own token, over
+ * HTTP and without holding this process, so a deploy is never waiting on a
+ * child process to tell the pull request something; a laptop has no token
+ * in its environment and goes through the `gh` CLI's login.
+ */
+async function github(
+  method: string,
+  path: string,
+  payload?: unknown
+): Promise<GitHubAnswer> {
+  const token = envOf('GH_TOKEN');
+  const repository = envOf('GH_REPO') ?? envOf('GITHUB_REPOSITORY');
+  if (token === null || repository === null) {
+    const result = await runAsync(
+      'gh',
+      [
+        'api',
+        '-X',
+        method,
+        `repos/{owner}/{repo}/${path}`,
+        ...(payload === undefined ? [] : ['--input', '-']),
+      ],
+      payload === undefined ? {} : { input: JSON.stringify(payload) }
+    );
+    return {
+      ok: result.code === 0,
+      body: parsed(result.stdout),
+      error: result.stderr.trim(),
+    };
+  }
+  try {
+    const response = await fetch(
+      `${envOf('GITHUB_API_URL') ?? 'https://api.github.com'}/repos/${repository}/${path}`,
+      {
+        method,
+        headers: {
+          accept: 'application/vnd.github+json',
+          authorization: `Bearer ${token}`,
+          'x-github-api-version': '2022-11-28',
+          ...(payload === undefined
+            ? {}
+            : { 'content-type': 'application/json' }),
+        },
+        ...(payload === undefined ? {} : { body: JSON.stringify(payload) }),
+      }
+    );
+    const text = await response.text();
+    return {
+      ok: response.ok,
+      body: parsed(text),
+      error: response.ok
+        ? ''
+        : `HTTP ${String(response.status)} ${text.slice(0, 200)}`,
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      body: null,
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
 }
 
 type PullRequest = {
@@ -267,28 +384,22 @@ type PullRequest = {
   readonly fromFork: boolean;
 };
 
-function readPullRequest(pr: number | null): PullRequest | null {
-  const result = run('gh', [
-    'pr',
-    'view',
-    ...(pr === null ? [] : [String(pr)]),
-    '--json',
-    'number,state,headRefOid,body,isCrossRepository',
-  ]);
-  if (result.code !== 0) return null;
-  const value = JSON.parse(result.stdout) as {
+async function readPullRequest(pr: number): Promise<PullRequest | null> {
+  const got = await github('GET', `pulls/${String(pr)}`);
+  if (!got.ok || got.body === null) return null;
+  const value = got.body as {
     number: number;
     state: string;
-    headRefOid: string;
-    body: string;
-    isCrossRepository: boolean;
+    body: string | null;
+    head: { sha: string; repo: { full_name: string } | null };
+    base: { repo: { full_name: string } };
   };
   return {
     number: value.number,
-    open: value.state === 'OPEN',
-    headSha: value.headRefOid,
-    body: value.body,
-    fromFork: value.isCrossRepository,
+    open: value.state === 'open',
+    headSha: value.head.sha,
+    body: value.body ?? '',
+    fromFork: value.head.repo?.full_name !== value.base.repo.full_name,
   };
 }
 
@@ -300,34 +411,41 @@ function currentPr(): number {
       fail(`PREVIEW_PR is not a pull request number: ${named}`);
     return pr;
   }
-  const pull = readPullRequest(null);
-  if (pull === null)
+  // Which pull request a branch belongs to is the `gh` CLI's to say.
+  const result = run('gh', ['pr', 'view', '--json', 'number']);
+  if (result.code !== 0)
     fail('no pull request for this branch; set PREVIEW_PR=<number>');
-  return pull.number;
+  return (JSON.parse(result.stdout) as { number: number }).number;
 }
 
-/** Rewrite only the Preview section; the author's text is returned as read. */
+/**
+ * What the pull request is told, one after another: a status published
+ * later is written later, however long an earlier one takes.
+ */
+let published: Promise<void> = Promise.resolve();
+
+/**
+ * Rewrite only the Preview section; the author's text is returned as read.
+ * A deploy does not wait for this unless it awaits it: telling the pull
+ * request is never what the Preview waits for.
+ */
 function publishSection(
   pr: number,
   facts: Omit<PreviewSectionFacts, 'pr'>
-): void {
-  const pull = readPullRequest(pr);
-  if (pull === null) return;
-  const section = renderPreviewSection({ ...facts, pr });
-  const body = upsertPreviewSection(pull.body, section);
-  if (body === pull.body) return;
-  gh(
-    [
-      'api',
-      '-X',
-      'PATCH',
-      `repos/{owner}/{repo}/pulls/${String(pr)}`,
-      '--input',
-      '-',
-      '--silent',
-    ],
-    JSON.stringify({ body })
-  );
+): Promise<void> {
+  published = published.then(async () => {
+    const pull = await readPullRequest(pr);
+    if (pull === null) return;
+    const section = renderPreviewSection({ ...facts, pr });
+    const body = upsertPreviewSection(pull.body, section);
+    if (body === pull.body) return;
+    const set = await github('PATCH', `pulls/${String(pr)}`, { body });
+    if (!set.ok)
+      say(
+        `warning: the pull request was not told (${facts.status}): ${set.error}`
+      );
+  });
+  return published;
 }
 
 function runUrl(): string | null {
@@ -342,60 +460,44 @@ function runUrl(): string | null {
 type DeploymentState = 'in_progress' | 'success' | 'failure' | 'inactive';
 
 /** GitHub deployments are published from CI only; a laptop deploy has no run. */
-function createDeployment(pr: number, sha: string): number | null {
+async function createDeployment(
+  pr: number,
+  sha: string
+): Promise<number | null> {
   if (envOf('GITHUB_ACTIONS') === null) return null;
-  const result = run(
-    'gh',
-    ['api', 'repos/{owner}/{repo}/deployments', '--input', '-'],
-    {
-      input: JSON.stringify({
-        ref: sha,
-        environment: GITHUB_ENVIRONMENT,
-        transient_environment: true,
-        production_environment: false,
-        auto_merge: false,
-        required_contexts: [],
-        description: previewNameOfPr(pr),
-        payload: { pr },
-      }),
-    }
-  );
-  if (result.code !== 0) {
-    say(`warning: GitHub deployment not created: ${result.stderr.trim()}`);
+  const made = await github('POST', 'deployments', {
+    ref: sha,
+    environment: GITHUB_ENVIRONMENT,
+    transient_environment: true,
+    production_environment: false,
+    auto_merge: false,
+    required_contexts: [],
+    description: previewNameOfPr(pr),
+    payload: { pr },
+  });
+  const id = (made.body as { id?: unknown } | null)?.id;
+  if (!made.ok || typeof id !== 'number') {
+    say(`warning: GitHub deployment not created: ${made.error}`);
     return null;
   }
-  return (JSON.parse(result.stdout) as { id: number }).id;
+  return id;
 }
 
-function deploymentStatus(
+async function deploymentStatus(
   id: number | null,
   state: DeploymentState,
   detail: { readonly url?: string; readonly description?: string } = {}
-): void {
+): Promise<void> {
   if (id === null) return;
-  const result = run(
-    'gh',
-    [
-      'api',
-      `repos/{owner}/{repo}/deployments/${String(id)}/statuses`,
-      '--input',
-      '-',
-      '--silent',
-    ],
-    {
-      input: JSON.stringify({
-        state,
-        auto_inactive: false,
-        ...(detail.url === undefined ? {} : { environment_url: detail.url }),
-        ...(runUrl() === null ? {} : { log_url: runUrl() }),
-        description: (detail.description ?? '').slice(0, 140),
-      }),
-    }
-  );
-  if (result.code !== 0)
-    say(
-      `warning: GitHub deployment status not published: ${result.stderr.trim()}`
-    );
+  const set = await github('POST', `deployments/${String(id)}/statuses`, {
+    state,
+    auto_inactive: false,
+    ...(detail.url === undefined ? {} : { environment_url: detail.url }),
+    ...(runUrl() === null ? {} : { log_url: runUrl() }),
+    description: (detail.description ?? '').slice(0, 140),
+  });
+  if (!set.ok)
+    say(`warning: GitHub deployment status not published: ${set.error}`);
 }
 
 /**
@@ -403,33 +505,32 @@ function deploymentStatus(
  * deleted. Each commit makes one, so without this a long-lived pull request
  * leaves a record per push behind it, and a closed one leaves them all.
  */
-function pruneDeployments(pr: number, keep: number | null): void {
+async function pruneDeployments(
+  pr: number,
+  keep: number | null
+): Promise<void> {
   if (envOf('GITHUB_ACTIONS') === null) return;
-  const result = run('gh', [
-    'api',
-    `repos/{owner}/{repo}/deployments?environment=${GITHUB_ENVIRONMENT}&per_page=100`,
-  ]);
-  if (result.code !== 0) return;
-  const deployments = JSON.parse(result.stdout) as readonly {
+  const listed = await github(
+    'GET',
+    `deployments?environment=${GITHUB_ENVIRONMENT}&per_page=100`
+  );
+  if (!listed.ok || !Array.isArray(listed.body)) return;
+  const deployments = listed.body as readonly {
     readonly id: number;
     readonly payload?: { readonly pr?: number } | string;
   }[];
-  for (const deployment of deployments) {
-    const payload = deployment.payload;
-    if (typeof payload !== 'object' || payload.pr !== pr) continue;
-    if (deployment.id === keep) continue;
-    deploymentStatus(deployment.id, 'inactive', {
-      description: 'Preview replaced or removed',
-    });
-    // GitHub deletes only an inactive deployment; one it keeps is harmless.
-    run('gh', [
-      'api',
-      '-X',
-      'DELETE',
-      `repos/{owner}/{repo}/deployments/${String(deployment.id)}`,
-      '--silent',
-    ]);
-  }
+  await Promise.all(
+    deployments.map(async (deployment) => {
+      const payload = deployment.payload;
+      if (typeof payload !== 'object' || payload.pr !== pr) return;
+      if (deployment.id === keep) return;
+      await deploymentStatus(deployment.id, 'inactive', {
+        description: 'Preview replaced or removed',
+      });
+      // GitHub deletes only an inactive deployment; one it keeps is harmless.
+      await github('DELETE', `deployments/${String(deployment.id)}`);
+    })
+  );
 }
 
 // ── Cloudflare ───────────────────────────────────────────────────────────
@@ -495,8 +596,8 @@ const origins = new Map<string, string>();
  * uploaded: on the custom domain when that already answers for this
  * Preview's name, and on workers.dev otherwise -- before the domain is
  * attached, while its certificate is being issued, or if the account cannot
- * serve it. The harness bundle is built for one origin, so the choice is made
- * once per run (`PREVIEW_URL` carries it between the workflow's steps).
+ * serve it. The choice is made once per run, so the pull request is told the
+ * address the deploy then checks (`PREVIEW_URL` names one outright).
  */
 async function originOf(
   site: Site,
@@ -555,9 +656,21 @@ function wrangler(
   });
 }
 
+/** A site's config, refused unless static files are all it declares. */
+function freeConfig(site: Site): Wrangler {
+  const committed = site.config();
+  // Static files are free at any traffic; anything more could be billed.
+  const billable = billableSettings(committed);
+  if (billable.length > 0)
+    throw new Error(
+      `the ${site.key} config declares more than static files (${billable.join(', ')}); a Preview must stay free`
+    );
+  return committed;
+}
+
 /** A site's config with the identity resolved, as wrangler reads it. */
 function writeConfig(site: Site): string {
-  const committed = site.config();
+  const committed = freeConfig(site);
   const assets = committed['assets'] as Wrangler;
   mkdirSync(CACHE_DIR, { recursive: true });
   const path = join(CACHE_DIR, `${site.key}.wrangler.json`);
@@ -588,45 +701,90 @@ function headCommit(): { readonly sha: string; readonly date: string } {
 }
 
 /**
- * The harness bundle (`apps/harness-ts`). It is built for the Preview's own
- * origin so nothing in it names another deployment, and it carries no
- * secret: every value baked into it is public.
+ * What a child process that builds is given: everything but the credentials
+ * a build has no use for. Pull request code runs in a build; the Cloudflare
+ * and GitHub tokens stay with the process that deploys.
  */
-async function build(previewName: string, origin: string): Promise<void> {
+function buildEnv(): NodeJS.ProcessEnv {
+  const {
+    CLOUDFLARE_ACCOUNT_ID: _account,
+    CLOUDFLARE_API_TOKEN: _token,
+    GH_TOKEN: _gh,
+    GITHUB_TOKEN: _github,
+    ...env
+  } = process.env;
+  return env;
+}
+
+/**
+ * The harness bundle, made a Preview's: Turborepo has built or restored
+ * `apps/harness-ts` (the `build` task every command here depends on), from
+ * its sources alone, so it names no commit and no address. This writes what
+ * does (the page's build stamp, `preview.json`), the compiled messages the
+ * page loads, and the response headers. It
+ * carries no secret: every value in it is public.
+ */
+async function build(previewName: string): Promise<void> {
   const commit = headCommit();
-  const env = {
-    ...process.env,
-    // The client build needs more heap than Node's default.
-    NODE_OPTIONS:
-      envOf('NODE_OPTIONS') ??
-      `--max-old-space-size=${String(BUILD_MAX_OLD_SPACE_MB)}`,
-    VITE_API_URL: origin,
-    VITE_COMMIT_HASH: commit.sha,
-    VITE_COMMIT_DATE: commit.date,
-  };
-  removeTree(HARNESS_DIST);
-  say('▸ harness: Vite build');
-  const built = run('bun', ['run', 'build'], {
-    cwd: HARNESS_DIR,
-    env,
-    inherit: true,
-  });
-  if (built.code !== 0) throw new Error('harness: Vite build failed');
-  writeManifest(HARNESS, previewName, commit.sha);
-  const files = readdirSync(HARNESS_DIST, {
-    recursive: true,
-    withFileTypes: true,
-  })
-    .filter((entry) => entry.isFile())
-    .map((entry) =>
-      join(entry.parentPath, entry.name)
-        .slice(HARNESS_DIST.length + 1)
-        .replaceAll('\\', '/')
+  const page = join(HARNESS_DIST, 'index.html');
+  if (!existsSync(page))
+    throw new Error(
+      'apps/harness-ts is not built; run this through `mise run preview:<command>`'
     );
+  writeFileSync(
+    page,
+    stampedPage(readFileSync(page, 'utf8'), {
+      commit: commit.sha,
+      date: commit.date,
+    }),
+    'utf8'
+  );
+  // The messages are compiled beside the bundle, not into it, so a bundle
+  // never waits for them: the page loads them from here.
+  writeFileSync(
+    join(HARNESS_DIST, MESSAGES_PATH.slice(1)),
+    new Bun.Transpiler({ loader: 'ts' }).transformSync(
+      readFileSync(MESSAGES_SOURCE, 'utf8')
+    ),
+    'utf8'
+  );
+  // The main branch's Preview also carries what its build remembered.
+  if (previewName === MAIN_PREVIEW_NAME)
+    writeFileSync(
+      join(HARNESS_DIST, TRANSFORMS_PATH.slice(1)),
+      packTransforms(TRANSFORMS)
+    );
+  writeManifest(HARNESS, previewName, commit.sha);
+  const files = bundleFiles(HARNESS_DIST).map((file) => file.path);
   writeFileSync(join(HARNESS_DIST, '_headers'), distHeadersFile(files), 'utf8');
   // Fatal only for the main branch: a pull request's bundle is uploaded
   // whatever its gate says, so its build step succeeds once a bundle exists.
   await gate(HARNESS, previewName, commit.sha);
+}
+
+/** Every file of a built site, by its path in the site. */
+function bundleFiles(dist: string): readonly BundleFile[] {
+  return readdirSync(dist, { recursive: true, withFileTypes: true })
+    .filter((entry) => entry.isFile())
+    .map((entry) => {
+      const file = join(entry.parentPath, entry.name);
+      return {
+        path: file.slice(dist.length + 1).replaceAll('\\', '/'),
+        bytes: statSync(file).size,
+      };
+    });
+}
+
+/** Every file of a built site, as Cloudflare is to serve it. */
+function siteFiles(dist: string): readonly SiteFile[] {
+  return bundleFiles(dist).map((file) => {
+    const onDisk = join(dist, file.path);
+    return {
+      path: `/${file.path}`,
+      bytes: readFileSync(onDisk),
+      contentType: Bun.file(onDisk).type,
+    };
+  });
 }
 
 /** `preview.json` names the Preview and the commit a site was built from. */
@@ -645,19 +803,21 @@ function writeManifest(site: Site, previewName: string, sha: string): void {
  * manifest. It is gated where it is uploaded. It is not built for an origin and nothing in the harness waits
  * for it, so a deploy runs this beside the harness upload: a commit that
  * changes no story restores in seconds, and one that does never holds the
- * Preview back.
+ * Preview back. Turborepo is run as it is: whatever ran this command (the
+ * `mise` task, the workflow's setup) already injected the secrets and
+ * configured the identity, and doing so again costs seconds of every deploy.
  */
 async function buildStorybook(previewName: string, sha: string): Promise<void> {
   say('▸ storybook: canonical build (Turborepo builds or restores it)');
-  const built = await runAsync('bun', [
-    'run',
-    'libs/secrets-server-ts/scripts/secrets-run.ts',
-    '--',
-    'turbo',
-    'run',
-    '@pkgs/ui-root-harness-ts#storybook:build',
-    '--output-logs=errors-only',
-  ]);
+  const built = await runAsync(
+    TURBO,
+    [
+      'run',
+      '@pkgs/ui-root-harness-ts#storybook:build',
+      '--output-logs=errors-only',
+    ],
+    { env: buildEnv() }
+  );
   if (built.code !== 0 || !existsSync(join(STORYBOOK_BUILD, 'index.html')))
     throw new Error(
       `storybook: build failed: ${(built.stderr || built.stdout).trim().slice(-2000)}`
@@ -675,13 +835,14 @@ async function sleep(ms: number): Promise<void> {
 }
 
 /** Answers in a row that must name the commit before it counts as served. */
-const SETTLED_ANSWERS = 3;
+const SETTLED_ANSWERS = 2;
 
 /**
  * Whether `origin` has settled on `sha`. Cloudflare's edge moves to a new
  * upload machine by machine, so for a moment after the first answer naming
  * it, another request can still be answered with the one before; only
- * several answers in a row say the checks will read what was uploaded.
+ * answers in a row say the checks will likely read what was uploaded
+ * (`servedChecks` reads again where they do not).
  */
 async function serving(
   origin: string,
@@ -691,10 +852,11 @@ async function serving(
   const deadline = wallClock.now() + withinMs;
   let settled = 0;
   while (wallClock.now() < deadline) {
-    // DNS and the edge take a moment after a first upload.
+    // DNS and the edge take a moment after a first upload; an upload over
+    // an earlier one is usually served within a second or two.
     settled = (await deployedCommit(origin)) === sha ? settled + 1 : 0;
     if (settled >= SETTLED_ANSWERS) return true;
-    await sleep(settled === 0 ? 3000 : 1000);
+    await sleep(settled === 0 ? 400 : 200);
   }
   return false;
 }
@@ -749,7 +911,7 @@ function bundleFetch(dist: string): HttpFetch {
 
 /**
  * The gate before an upload: a site on disk runs the same checks its
- * deployed Preview must. On the main branch a failure stops the upload, so
+ * deployed Preview must, and must fit the free plan. On the main branch a failure stops the upload, so
  * `preview.<domain>` keeps its last working version. A pull request's
  * Preview is best effort (`uploadsDespiteGate`): the failure is a warning,
  * returned so the deploy can report it, and the bundle goes up anyway.
@@ -759,12 +921,15 @@ async function gate(
   previewName: string,
   sha: string
 ): Promise<string | null> {
-  const checks = await site.checks({
-    origin: 'https://bundle.invalid',
-    fetch: bundleFetch(site.dist),
-    previewName,
-    commit: sha,
-  });
+  const checks = [
+    ...(await site.checks({
+      origin: 'https://bundle.invalid',
+      fetch: bundleFetch(site.dist),
+      previewName,
+      commit: sha,
+    })),
+    freePlanCheck(bundleFiles(site.dist)),
+  ];
   say(`▸ gate: the built ${site.key} runs its checks before upload`);
   if (printChecks(checks)) return null;
   const failures = failed(checks);
@@ -797,11 +962,13 @@ async function servedChecks(
   }
 ): Promise<readonly PreviewCheck[]> {
   const deadline = wallClock.now() + AGREED_WITHIN_MS;
-  for (;;) {
+  for (let reads = 1; ; reads += 1) {
     const checks = await site.checks({ ...target, fetch });
     if (checks.every((check) => check.ok) || wallClock.now() >= deadline)
       return checks;
-    await sleep(3000);
+    if (reads === 1)
+      say(`▸ ${site.key}: the edge does not agree yet — ${failed(checks)}`);
+    await sleep(500);
   }
 }
 
@@ -822,28 +989,24 @@ async function upload(
 ): Promise<void> {
   const { pr, origin, sha, gated } = target;
   const name = previewNameOfPr(pr);
-  say(`▸ ${site.key}: wrangler preview --name ${name}`);
-  const result = must(
-    'wrangler preview',
-    await runAsync(
-      WRANGLER,
-      [
-        'preview',
-        '--name',
-        name,
-        '--config',
-        writeConfig(site),
-        '--tag',
-        sha.slice(0, 12),
-        '--message',
-        `PR #${String(pr)} at ${sha.slice(0, 12)}`,
-        '--json',
-      ],
-      { cwd: PACKAGE_DIR, env: wranglerEnv(cloudflare) }
-    )
-  );
+  say(`▸ ${site.key}: deploying to the Preview ${name}`);
+  const committed = freeConfig(site);
+  const { directory: _directory, ...assets } = committed['assets'] as Wrangler;
+  const urls = (
+    await deployPreview({
+      accountId: cloudflare.accountId,
+      apiToken: cloudflare.apiToken,
+      workerName: workerName(site),
+      previewName: name,
+      files: siteFiles(site.dist),
+      assets,
+      compatibilityDate: String(committed['compatibility_date']),
+      commit: sha,
+      message: `PR #${String(pr)} at ${sha.slice(0, 12)}`,
+      fetch,
+    })
+  ).map((url) => new URL(url).origin);
   // What proves the origin is the wait below; this only says so sooner.
-  const urls = previewUrls(result.stdout);
   if (!urls.includes(origin))
     say(
       `! Cloudflare names ${urls.join(', ') || 'no URL'} for the Preview; it was built for ${origin}`
@@ -868,20 +1031,6 @@ async function upload(
   if (failing !== null) throw new UnhealthyPreview(failing);
 }
 
-/** `wrangler preview --json` prints `{ preview: { urls }, deployment }`. */
-function previewUrls(stdout: string): readonly string[] {
-  const start = stdout.indexOf('{');
-  if (start === -1) return [];
-  try {
-    const value = JSON.parse(stdout.slice(start)) as {
-      preview?: { urls?: readonly string[] };
-    };
-    return (value.preview?.urls ?? []).map((url) => new URL(url).origin);
-  } catch {
-    return [];
-  }
-}
-
 /**
  * Where a site of the pull request is, for a command that only reads it: the
  * URL its description names (a laptop's identity can differ from the
@@ -889,8 +1038,8 @@ function previewUrls(stdout: string): readonly string[] {
  * Preview on the custom domain or on workers.dev. `null` when the
  * description names none.
  */
-function namedOrigin(site: Site, pr: number): string | null {
-  const body = readPullRequest(pr)?.body ?? '';
+async function namedOrigin(site: Site, pr: number): Promise<string | null> {
+  const body = (await readPullRequest(pr))?.body ?? '';
   const named =
     site === HARNESS
       ? (envOf('PREVIEW_URL') ?? previewUrlInBody(body))
@@ -1003,18 +1152,29 @@ async function servePreviews(cloudflare: Account, site: Site): Promise<void> {
 
 async function deploy(pr: number, deploymentSha: string | null): Promise<void> {
   const cloudflare = account();
-  for (const site of SITES) await servePreviews(cloudflare, site);
   const origin = await originOf(HARNESS, pr, cloudflare);
-  const storybook = await originOf(STORYBOOK, pr, cloudflare);
   const sha = deploymentSha ?? headCommit().sha;
+  const name = previewNameOfPr(pr);
+  // The harness is what a reviewer opens, so its upload starts before
+  // anything else here and waits for nothing: the bookkeeping below, and
+  // Storybook, go on beside it. It goes up whatever its gate says: a site
+  // failing its checks is still uploaded and reported as unhealthy.
+  const harness = (async () => {
+    const gated = await gate(HARNESS, name, sha);
+    await upload(cloudflare, HARNESS, { pr, origin, sha, gated });
+  })();
+  // Settled with Storybook below; a failure before then is not unhandled.
+  harness.catch(() => undefined);
+  for (const site of SITES) await servePreviews(cloudflare, site);
+  const storybook = await originOf(STORYBOOK, pr, cloudflare);
   const facts = {
     url: origin,
     storybookUrl: storybook,
     attemptedSha: sha,
     runUrl: runUrl(),
   };
-  const deployment = createDeployment(pr, sha);
-  deploymentStatus(deployment, 'in_progress', { url: origin });
+  const deployment = await createDeployment(pr, sha);
+  await deploymentStatus(deployment, 'in_progress', { url: origin });
   const live = {
     ...facts,
     status: 'live',
@@ -1022,17 +1182,10 @@ async function deploy(pr: number, deploymentSha: string | null): Promise<void> {
     detail: null,
   } as const;
   try {
-    // The two sites go up beside one another. The harness is what a reviewer
-    // opens, so the pull request says it is live the moment it is, whatever
-    // Storybook is still doing. Each goes up whatever its gate says: a site
-    // failing its checks is still uploaded and reported as unhealthy.
-    const name = previewNameOfPr(pr);
-    const [harness, stories] = await Promise.allSettled([
-      (async () => {
-        const gated = await gate(HARNESS, name, sha);
-        await upload(cloudflare, HARNESS, { pr, origin, sha, gated });
-        publishSection(pr, live);
-      })(),
+    // The pull request says the harness is live the moment it is, whatever
+    // Storybook is still doing.
+    const [harnessUp, stories] = await Promise.allSettled([
+      harness.then(() => publishSection(pr, live)),
       (async () => {
         await buildStorybook(name, sha);
         const gated = await gate(STORYBOOK, name, sha);
@@ -1044,18 +1197,18 @@ async function deploy(pr: number, deploymentSha: string | null): Promise<void> {
         });
       })(),
     ]);
-    if (harness.status === 'rejected') throw harness.reason;
+    if (harnessUp.status === 'rejected') throw harnessUp.reason;
     if (stories.status === 'rejected') throw stories.reason;
     for (const site of SITES) await ensureMainPreview(cloudflare, site);
-    pruneDeployments(pr, deployment);
+    await pruneDeployments(pr, deployment);
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);
     const unhealthy = error instanceof UnhealthyPreview;
-    deploymentStatus(deployment, 'failure', {
+    await deploymentStatus(deployment, 'failure', {
       url: origin,
       description: detail,
     });
-    publishSection(pr, {
+    await publishSection(pr, {
       ...facts,
       status: unhealthy ? 'unhealthy' : 'failed',
       // Read back, not assumed: one site can be up when the other failed.
@@ -1064,11 +1217,12 @@ async function deploy(pr: number, deploymentSha: string | null): Promise<void> {
     });
     throw error;
   }
-  deploymentStatus(deployment, 'success', {
+  await deploymentStatus(deployment, 'success', {
     url: origin,
     description: `${previewNameOfPr(pr)} serves ${sha.slice(0, 12)}`,
   });
-  publishSection(pr, live);
+  // Everything the pull request was told has been written.
+  await published;
   say(`✓ ${origin} serves ${sha.slice(0, 12)}`);
 }
 
@@ -1102,8 +1256,8 @@ async function destroy(
       );
     say(`✓ ${site.key} ${name}: Preview deleted and confirmed gone`);
   }
-  pruneDeployments(pr, null);
-  publishSection(pr, {
+  await pruneDeployments(pr, null);
+  await publishSection(pr, {
     status,
     url: null,
     storybookUrl: null,
@@ -1173,6 +1327,7 @@ async function sweep(): Promise<void> {
     })),
     nowMs: wallClock.now(),
     retentionMs: PREVIEW_RETENTION_MS,
+    capacity: PREVIEW_CAPACITY,
   });
   say(
     `${String(names.length)} Preview(s); ${String(plan.orphaned.length)} orphaned, ${String(plan.expired.length)} expired`
@@ -1199,14 +1354,6 @@ async function sweep(): Promise<void> {
 }
 
 // ── The workflow's steps ─────────────────────────────────────────────────
-
-function output(values: Readonly<Record<string, string>>): void {
-  const file = envOf('GITHUB_OUTPUT');
-  for (const [key, value] of Object.entries(values)) {
-    say(`${key}=${value}`);
-    if (file !== null) appendFileSync(file, `${key}=${value}\n`);
-  }
-}
 
 function trigger(): PreviewTrigger {
   const event = envOf('GITHUB_EVENT_NAME');
@@ -1238,125 +1385,184 @@ function trigger(): PreviewTrigger {
 }
 
 /** The main branch's head as GitHub has it now. */
-function mainHead(): string | null {
-  const result = run('gh', ['api', 'repos/{owner}/{repo}/commits/main']);
-  if (result.code !== 0) return null;
-  const sha = (JSON.parse(result.stdout) as { sha?: unknown }).sha;
-  return typeof sha === 'string' ? sha : null;
+async function mainHead(): Promise<string | null> {
+  const got = await github('GET', 'commits/main');
+  const sha = (got.body as { sha?: unknown } | null)?.sha;
+  return got.ok && typeof sha === 'string' ? sha : null;
 }
 
-function plan(): PreviewAction {
+async function plan(): Promise<PreviewAction> {
   const from = trigger();
   if (from.kind === 'sweep') return { kind: 'sweep' };
-  if (from.kind === 'main') return decideMainAction(from.sha, mainHead());
-  const pull = readPullRequest(from.pr);
+  if (from.kind === 'main') return decideMainAction(from.sha, await mainHead());
+  const pull = await readPullRequest(from.pr);
   return decidePreviewAction(
     from,
     pull === null ? null : { open: pull.open, headSha: pull.headSha }
   );
 }
 
+/**
+ * Start this machine's build from what the main branch's remembered: most of
+ * a build is Babel over modules a pull request did not touch. Beside the
+ * build, never before it, and never an error: a module that is not there in
+ * time, or at all, is transformed as it would have been.
+ */
+async function seedTransforms(): Promise<void> {
+  const host = previewHost(HARNESS);
+  if (host === null) return;
+  try {
+    const response = await fetch(`https://${host}${TRANSFORMS_PATH}`, {
+      signal: AbortSignal.timeout(5000),
+    });
+    if (!response.ok) return;
+    const modules = unpackTransforms(
+      TRANSFORMS,
+      new Uint8Array(await response.arrayBuffer())
+    );
+    say(`▸ harness: starting from ${String(modules)} modules main remembered`);
+  } catch {
+    // Nothing to start from.
+  }
+}
+
+/**
+ * Turborepo building or restoring the harness bundle (after generating the
+ * derived files it reads), beside this process: nothing here waits for it
+ * until it has nothing else to do.
+ */
+function startBuild(): {
+  readonly done: Promise<void>;
+  stop(): void;
+} {
+  say('▸ harness: build (Turborepo builds or restores it)');
+  // The messages compile beside the bundle; neither waits for the other.
+  const tasks = ['@apps/harness-ts#build', '//#task:i18n:compile'];
+  const child = spawn(TURBO, ['run', ...tasks], {
+    cwd: REPO_ROOT,
+    env: buildEnv(),
+    stdio: ['ignore', 'inherit', 'inherit'],
+  });
+  const done = new Promise<void>((resolve, reject) => {
+    child.on('error', reject);
+    child.on('close', (code) => {
+      if (code === 0) resolve();
+      else reject(new Error('the harness build failed'));
+    });
+  });
+  // Awaited by whoever goes on to deploy; a run that stops it does not.
+  done.catch(() => undefined);
+  return { done, stop: () => child.kill() };
+}
+
+/** How long a reading of the pull request stands in for reading it again. */
+const PLAN_HOLDS_MS = 5000;
+
+/**
+ * The workflow's one step: decide, then build and deploy, remove or sweep.
+ * A commit pushed or a pull request opened almost always deploys, so the
+ * build starts before the pull request is read to decide it, and is stopped
+ * on the rare run that turns out to need none.
+ */
+async function ciRun(): Promise<void> {
+  const from = trigger();
+  const builds =
+    from.kind === 'main' ||
+    (from.kind === 'pull-request' &&
+      from.action !== 'closed' &&
+      !from.fromFork);
+  if (builds) void seedTransforms();
+  const building = builds ? startBuild() : null;
+  const action = await plan();
+  const plannedMs = wallClock.now();
+  if (action.kind !== 'deploy' && action.kind !== 'deploy-main')
+    building?.stop();
+  if (action.kind === 'skip') return say(`skip: ${action.reason}`);
+  if (action.kind === 'sweep') return await sweep();
+  if (action.kind === 'destroy')
+    return await destroy(account(), action.pr, 'removed');
+  if (building === null) throw new Error(`nothing was built to ${action.kind}`);
+  if (action.kind === 'deploy-main') {
+    await building.done;
+    await build(MAIN_PREVIEW_NAME);
+    // The plan was made before the build; main may have moved since.
+    const now = await plan();
+    if (now.kind === 'deploy-main') await deployMain(now.sha);
+    else say(`skip: ${now.kind === 'skip' ? now.reason : now.kind}`);
+    return;
+  }
+  // While the bundle builds: where it will be, and the pull request told.
+  const cloudflare = account();
+  const origin = await originOf(HARNESS, action.pr, cloudflare);
+  void publishSection(action.pr, {
+    status: 'deploying',
+    url: origin,
+    storybookUrl: await originOf(STORYBOOK, action.pr, cloudflare),
+    deployedSha: await deployedCommit(origin),
+    attemptedSha: action.sha,
+    runUrl: runUrl(),
+    detail: null,
+  });
+  await building.done;
+  await build(previewNameOfPr(action.pr));
+  // The plan was made before the build; the head may have moved since. A
+  // bundle restored in a second or two is deployed on the plan just made.
+  const now =
+    wallClock.now() - plannedMs < PLAN_HOLDS_MS ? action : await plan();
+  if (now.kind === 'deploy') return await deploy(now.pr, now.sha);
+  say(
+    `skip: ${now.kind === 'skip' ? now.reason : `pull request now needs ${now.kind}`}`
+  );
+  if (now.kind === 'destroy') await destroy(cloudflare, now.pr, 'removed');
+}
+
+/** A run that failed before the upload (install, build): say so on the PR. */
+async function ciFailed(): Promise<void> {
+  const from = trigger();
+  if (from.kind !== 'pull-request') return;
+  const pull = await readPullRequest(from.pr);
+  // `deploy` publishes its own outcome; only an unfinished one is ours.
+  if (pull === null || !pull.body.includes(DEPLOYING_MARK)) return;
+  const origin =
+    previewUrlInBody(pull.body) ?? (await originOf(HARNESS, from.pr, null));
+  await publishSection(from.pr, {
+    status: 'failed',
+    url: origin,
+    storybookUrl: storybookUrlInBody(pull.body),
+    deployedSha: await deployedCommit(origin),
+    attemptedSha: from.sha,
+    runUrl: runUrl(),
+    detail: 'The run failed before anything was uploaded; see the deploy run.',
+  });
+}
+
 async function ci(step: string | undefined): Promise<void> {
-  if (step === 'plan') {
-    const action = plan();
-    if (action.kind === 'skip') say(`skip: ${action.reason}`);
-    const cloudflare = action.kind === 'deploy' ? account() : null;
-    const origin =
-      action.kind === 'deploy'
-        ? await originOf(HARNESS, action.pr, cloudflare)
-        : action.kind === 'deploy-main'
-          ? mainOrigin()
-          : '';
-    output({
-      action: action.kind,
-      pr: 'pr' in action ? String(action.pr) : '',
-      url: origin,
-    });
-    if (action.kind === 'deploy')
-      publishSection(action.pr, {
-        status: 'deploying',
-        url: origin,
-        storybookUrl: await originOf(STORYBOOK, action.pr, cloudflare),
-        deployedSha: await deployedCommit(origin),
-        attemptedSha: action.sha,
-        runUrl: runUrl(),
-        detail: null,
-      });
-    return;
-  }
-  const action = envOf('PREVIEW_ACTION');
-  const pr = Number(envOf('PREVIEW_PR') ?? '0');
-  if (step === 'build') {
-    if (action === 'deploy-main') await build(MAIN_PREVIEW_NAME, mainOrigin());
-    else await build(previewNameOfPr(pr), await originOf(HARNESS, pr, null));
-    return;
-  }
-  if (step === 'apply') {
-    if (action === 'deploy') {
-      // The plan was made before the build; the head may have moved since.
-      const now = plan();
-      if (now.kind !== 'deploy') {
-        say(
-          `skip: ${now.kind === 'skip' ? now.reason : `pull request now needs ${now.kind}`}`
-        );
-        if (now.kind === 'destroy') await destroy(account(), now.pr, 'removed');
-        return;
-      }
-      await deploy(now.pr, now.sha);
-    } else if (action === 'deploy-main') {
-      // The plan was made before the build; main may have moved since.
-      const now = plan();
-      if (now.kind === 'deploy-main') await deployMain(now.sha);
-      else say(`skip: ${now.kind === 'skip' ? now.reason : now.kind}`);
-    } else if (action === 'destroy') await destroy(account(), pr, 'removed');
-    else if (action === 'sweep') await sweep();
-    return;
-  }
-  if (step === 'failed') {
-    // A step before the upload failed (install, build): say so on the PR.
-    if (action !== 'deploy') return;
-    const pull = readPullRequest(pr);
-    // `deploy` publishes its own outcome; only an unfinished one is ours.
-    if (pull === null || !pull.body.includes(DEPLOYING_MARK)) return;
-    const origin =
-      previewUrlInBody(pull.body) ?? (await originOf(HARNESS, pr, null));
-    publishSection(pr, {
-      status: 'failed',
-      url: origin,
-      storybookUrl: storybookUrlInBody(pull.body),
-      deployedSha: await deployedCommit(origin),
-      attemptedSha: envOf('GITHUB_SHA'),
-      runUrl: runUrl(),
-      detail:
-        'The run failed before anything was uploaded; see the deploy run.',
-    });
-    return;
-  }
+  if (step === 'run') return await ciRun();
+  if (step === 'failed') return await ciFailed();
   fail(`unknown ci step: ${String(step)}`);
 }
 
-const [command, argument] = process.argv.slice(2);
-try {
+/** One command of the CLI; the workflow's entry (`ci.ts`) calls it too. */
+export async function main(argv: readonly string[]): Promise<void> {
+  const [command, argument] = argv;
   switch (command) {
     case 'url': {
-      const pull = readPullRequest(currentPr());
+      const pull = await readPullRequest(currentPr());
       const url = pull === null ? null : previewUrlInBody(pull.body);
       if (url === null) fail('the pull request names no Preview URL yet');
-      say(url);
+      process.stdout.write(`${url}\n`);
       break;
     }
-    case 'build': {
-      if (envOf('PREVIEW_ACTION') === 'deploy-main') {
-        await build(MAIN_PREVIEW_NAME, mainOrigin());
-        break;
-      }
-      const pr = currentPr();
-      await build(previewNameOfPr(pr), await originOf(HARNESS, pr, null));
+    case 'build':
+      await build(
+        envOf('PREVIEW_ACTION') === 'deploy-main'
+          ? MAIN_PREVIEW_NAME
+          : previewNameOfPr(currentPr())
+      );
       break;
-    }
     case 'deploy': {
       const pr = currentPr();
-      await build(previewNameOfPr(pr), await originOf(HARNESS, pr, null));
+      await build(previewNameOfPr(pr));
       await deploy(pr, null);
       break;
     }
@@ -1364,7 +1570,7 @@ try {
       const pr = currentPr();
       let ok = true;
       for (const site of SITES) {
-        const origin = namedOrigin(site, pr);
+        const origin = await namedOrigin(site, pr);
         if (origin === null) {
           // A description from before Storybook had a Preview names only one.
           if (site === HARNESS)
@@ -1386,7 +1592,7 @@ try {
       break;
     }
     case 'main':
-      await build(MAIN_PREVIEW_NAME, mainOrigin());
+      await build(MAIN_PREVIEW_NAME);
       await deployMain(headCommit().sha);
       break;
     case 'destroy':
@@ -1401,6 +1607,11 @@ try {
     default:
       fail('usage: preview <url|build|deploy|main|test|destroy|sweep|ci>');
   }
-} catch (error) {
-  fail(error instanceof Error ? error.message : String(error));
 }
+
+if (import.meta.main)
+  try {
+    await main(process.argv.slice(2));
+  } catch (error) {
+    fail(error instanceof Error ? error.message : String(error));
+  }

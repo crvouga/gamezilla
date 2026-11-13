@@ -122,3 +122,56 @@ describe('InfisicalSecretStore.setSecret', () => {
     );
   });
 });
+
+describe('InfisicalSecretStore imports', () => {
+  const listed = {
+    secrets: [{ secretKey: 'OWN', secretValue: 'own' }],
+    imports: [
+      {
+        secrets: [
+          { secretKey: 'OWN', secretValue: 'imported-first' },
+          { secretKey: 'SHARED', secretValue: 'first' },
+          { secretKey: 'ONLY_FIRST', secretValue: 'only-first' },
+        ],
+      },
+      { secrets: [{ secretKey: 'SHARED', secretValue: 'last' }] },
+    ],
+  };
+
+  it("reads only the environment's own secrets unless asked for its imports", async () => {
+    const { fetchFn, calls } = createRecordingFetch(() =>
+      jsonResponse(200, { secrets: listed.secrets })
+    );
+    const store = createStore(fetchFn);
+    expect(await store.getOptional('SHARED')).toBeNull();
+    expect(calls[0]?.url).not.toContain('include_imports');
+  });
+
+  it('asked for imports, its own secret wins and a later import wins over an earlier', async () => {
+    const { fetchFn, calls } = createRecordingFetch(() =>
+      jsonResponse(200, listed)
+    );
+    const store = new InfisicalSecretStore({
+      domain: 'https://app.infisical.com',
+      workspaceId: 'ws-1',
+      env: 'dev',
+      token: 'tok',
+      fetchFn,
+      includeImports: true,
+    });
+    const values = await store.getOptionalMany([
+      'OWN',
+      'SHARED',
+      'ONLY_FIRST',
+      'ABSENT',
+    ]);
+    expect(new URL(calls[0]!.url).searchParams.get('include_imports')).toBe(
+      'true'
+    );
+    expect(values['OWN']?.readSecretValue()).toBe('own');
+    expect(values['SHARED']?.readSecretValue()).toBe('last');
+    expect(values['ONLY_FIRST']?.readSecretValue()).toBe('only-first');
+    expect(values['ABSENT']).toBeNull();
+    expect(calls).toHaveLength(1);
+  });
+});
