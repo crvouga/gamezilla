@@ -119,6 +119,7 @@
         "@pkgs/clock-client-ts": "workspace:*",
         "@pkgs/clock-shared-ts": "workspace:*",
         "@pkgs/conformance-shared-ts": "workspace:*",
+        "@pkgs/feedback-client-ts": "workspace:*",
         "@pkgs/harness-console-client-ts": "workspace:*",
         "@pkgs/harness-console-shared-ts": "workspace:*",
         "@pkgs/harness-root-shared-ts": "workspace:*",
