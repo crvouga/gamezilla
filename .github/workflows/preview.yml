@@ -13,16 +13,17 @@ run-name: "Preview · ${{ github.event_name == 'pull_request' && format('pr #{0}
 # the Storybook site's Worker (`apps/storybook-ts`), with the same lifecycle.
 # It is built (or restored from the Turborepo cache) and uploaded while the
 # harness uploads, so it never holds the harness Preview back.
-# - opened, reopened, new commit: build, check the bundle, upload, check again.
+# - opened, reopened, new commit: build (or restore: a bundle depends on its
+#   sources alone), check the bundle, deploy it, check again.
 # - push to main: the same build, deployed as the Worker itself, which is what
 #   `preview.<domain>` serves; pull requests are `pr-<number>.preview.<domain>`.
 #   Storybook Previews are `pr-<number>.storybook.<domain>`; the Storybook site
 #   itself is the Release workflow's to deploy, never this one's.
 # - closed or merged: delete the Preview and confirm Cloudflare reports it gone.
 # - schedule: remove Previews whose pull request is closed or went quiet.
-# Each step is one command of apps/preview-ts/scripts/preview.ts, the same
-# program `mise run preview:<command>` runs on a laptop. See
-# docs/PREVIEW_ENVIRONMENTS.md.
+# The job is one command, apps/preview-ts/scripts/ci.ts, over the same
+# program `mise run preview:<command>` runs on a laptop
+# (apps/preview-ts/scripts/preview.ts). See docs/PREVIEW_ENVIRONMENTS.md.
 #
 # A pull request from a fork is skipped: GitHub withholds OIDC and secrets from
 # it, and its code never runs beside the Cloudflare credential.
@@ -58,7 +59,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     permissions:
-      contents: read # check out the code
+      contents: read # read the pull request and the main branch's head
       id-token: write # the OIDC token the secrets backend trusts
       pull-requests: write # the preview section of the pull request description
       deployments: write # deployment statuses for the preview environment

@@ -5,17 +5,21 @@
  * Cloudflare Worker Preview named `pr-<number>`, with the whole system running
  * in the visitor's browser (docs/PREVIEW_ENVIRONMENTS.md), and beside it the
  * pull request's Storybook, a Preview of the same name on the Storybook
- * site's own Worker (`apps/storybook-ts`), with the same lifecycle. The same commands run on a laptop (`mise run preview:<command>`)
- * and in the Preview workflow.
+ * site's own Worker (`apps/storybook-ts`), with the same lifecycle. The same
+ * commands run on a laptop (`mise run preview:<command>`) and in the Preview
+ * workflow (through `ci.ts`).
  *
  *   preview url                 the Preview URL, read from the pull request
- *   preview build               the harness bundle, built for that URL
- *   preview deploy              build, upload, check what is served
- *   preview main                build and deploy this checkout as the main branch's
+ *   preview build               make the built harness bundle this Preview's
+ *   preview deploy              that, then upload and check what is served
+ *   preview main                deploy this checkout as the main branch's
  *   preview test                check the deployed Preview over HTTP
  *   preview destroy             delete the Preview, verify it is gone
  *   preview sweep               delete Previews whose pull request is not open
  *   preview ci <run|failed>     the workflow's steps
+ *
+ * The bundle itself is Turborepo's to build or restore (`@apps/harness-ts#build`,
+ * which every `mise` task here depends on): it depends on its sources alone.
  *
  * There is no seed, reset or inspect: a Preview has no server and no stored
  * state. What a visitor creates lives in their own browser.

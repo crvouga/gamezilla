@@ -1,5 +1,5 @@
 # PR previews: one assets-only Worker whose Cloudflare Previews are the pull
-# requests' environments (`wrangler preview --name pr-<number>`). A Preview is
+# requests' environments, each named `pr-<number>`. A Preview is
 # the web bundle and nothing else — no Worker script, no Durable Objects, no
 # bindings, no secrets. The whole system (API fleet, Postgres, rooms, simulated
 # vendors) runs in the visitor's browser.
