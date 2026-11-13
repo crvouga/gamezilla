@@ -56,6 +56,36 @@ export async function recordCheckResults(input: {
   if (results.length === 0) {
     return { recorded: false, reason: 'the run selected no live feature' };
   }
+  const body = JSON.stringify(
+    checkResultsRequest({
+      results,
+      environment: input.environment,
+      atMs: input.nowMs,
+      version: input.version,
+    })
+  );
+  const sent = await sendMetrics({
+    body,
+    secrets: input.secrets,
+    fetch: input.fetch,
+  });
+  if (!sent.recorded) return sent;
+  return { recorded: true, checks: results.length };
+}
+
+/**
+ * POST one OTLP/JSON metrics request to the environment's metrics backend,
+ * with the collector credentials its secrets hold. Never throws: an outcome
+ * that did not record says why.
+ */
+export async function sendMetrics(input: {
+  readonly body: string;
+  readonly secrets: ReadonlyMap<string, string>;
+  readonly fetch: HttpFetch;
+}): Promise<
+  | { readonly recorded: true }
+  | { readonly recorded: false; readonly reason: string }
+> {
   const url = input.secrets.get(COLLECTOR.url)?.trim() ?? '';
   const authorization = otlpAuthorization({
     user: input.secrets.get(COLLECTOR.user),
@@ -67,20 +97,12 @@ export async function recordCheckResults(input: {
       reason: `${COLLECTOR.url} and ${COLLECTOR.token} must be set in the environment's secrets`,
     };
   }
-  const body = JSON.stringify(
-    checkResultsRequest({
-      results,
-      environment: input.environment,
-      atMs: input.nowMs,
-      version: input.version,
-    })
-  );
   let response: Response;
   try {
     response = await input.fetch(metricsEndpoint(url), {
       method: 'POST',
       headers: { authorization, 'content-type': 'application/json' },
-      body,
+      body: input.body,
     });
   } catch (cause) {
     const reason = cause instanceof Error ? cause.message : String(cause);
@@ -103,5 +125,5 @@ export async function recordCheckResults(input: {
       reason: `the metrics backend refused some samples: ${text.slice(0, 240)}`,
     };
   }
-  return { recorded: true, checks: results.length };
+  return { recorded: true };
 }

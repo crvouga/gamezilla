@@ -153,11 +153,11 @@ describe('every alert rule', () => {
     }
   });
 
-  test('pages only for a tier 0 or 1 objective, or the pipeline that measures them', () => {
+  test('pages only for a tier 0 or 1 objective, the pipeline that measures them, or the CI that releases them', () => {
     for (const rule of rules()) {
       if (rule.route !== 'page') continue;
       expect(rule.severity).toBe('critical');
-      if (rule.capability !== 'pipeline')
+      if (rule.capability !== 'pipeline' && rule.capability !== 'ci')
         expect(['0', '1']).toContain(rule.tier);
     }
     for (const rule of rules().filter((rule) => rule.severity === 'warning')) {

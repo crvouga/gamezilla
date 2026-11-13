@@ -77,6 +77,7 @@ describe('WORKFLOW_DISPATCH', () => {
     expect(deploy.jobs['deploy-fleet']!.needs).toEqual([
       'deploy-verify',
       'deploy-repository-policy',
+      'deploy-await-health',
     ]);
     expect(deploy.jobs['deploy-dev']!.needs).toBe('deploy-fleet');
     expect(deploy.jobs['deploy-prd']!.needs).toBe('deploy-dev');

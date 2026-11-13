@@ -305,7 +305,9 @@ describe('Verify Nightly workflow', () => {
         .sort()
     );
     expect(end.if).toBe('always() && !cancelled()');
-    expect(end.steps!.at(-1)!.run).toContain('verify-nightly-verdict.ts');
+    expect(
+      end.steps!.find((step) => step.name === 'verify-nightly:end')!.run
+    ).toContain('verify-nightly-verdict.ts');
     const needs = {
       'verify-nightly-gate': { result: 'success' },
       'verify-nightly-random': { result: 'failure' },
