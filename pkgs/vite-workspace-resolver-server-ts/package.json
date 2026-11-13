@@ -21,8 +21,10 @@
   },
   "devDependencies": {
     "@pkgs/fs-server-ts": "workspace:*",
+    "@pkgs/property-shared-ts": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
     "typescript": "catalog:"
   },
   "category": "server",

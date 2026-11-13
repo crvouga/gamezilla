@@ -1,17 +1,21 @@
 // @io-wall-ok — build-tool composition root
 import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { brandHtmlPlugin } from '@libs/product-brand-shared-ts/brand-html';
 import { getConfig } from '@lingui/conf';
 import { sqliteWebAssets } from '@pkgs/sql-client-sqlite-web-server-ts/sqlite-web-assets';
 import { artifactProtection } from '@pkgs/vite-workspace-resolver-server-ts/artifact-protection';
+import { rememberTransforms } from '@pkgs/vite-workspace-resolver-server-ts/transform-cache';
+import { directoryTransformStore } from '@pkgs/vite-workspace-resolver-server-ts/transform-cache-directory';
 import {
   DEFAULT_WORKSPACE_SCOPES,
   workspaceExportsResolver,
 } from '@pkgs/vite-workspace-resolver-server-ts/vite-workspace-resolver';
 import { workspaceWatchOptions } from '@pkgs/vite-workspace-resolver-server-ts/workspace-watch';
 import tailwindcss from '@tailwindcss/vite';
-import { defineConfig, type PluginOption } from 'vite';
+import { defineConfig, type Plugin, type PluginOption } from 'vite';
 import solid from 'vite-plugin-solid';
 
 const harnessDir = import.meta.dirname;
@@ -79,9 +83,46 @@ function messagesBesideTheBundle(): PluginOption {
   };
 }
 
+/**
+ * Most of a build's time is Babel (Solid's JSX and the Lingui macro) over
+ * modules that have not changed since the build before. A build remembers
+ * what it made of each one in `.cache/vite-transform`, which the Preview
+ * workflow carries from the main branch's build to every pull request's.
+ * Whatever decides the output besides a module's own text is in the salt:
+ * every dependency's version, this file, the Lingui configuration, the mode.
+ */
+function rememberedBetweenBuilds(plugin: Plugin, mode: string): Plugin {
+  const salt = createHash('sha256');
+  for (const part of [
+    readFileSync(resolve(repoRoot, 'bun.lock')),
+    readFileSync(resolve(harnessDir, 'vite.config.mts')),
+    JSON.stringify(linguiConfig),
+    mode,
+  ])
+    salt.update(part).update('\0');
+  return rememberTransforms(plugin, {
+    store: directoryTransformStore(
+      resolve(harnessDir, '.cache/vite-transform')
+    ),
+    salt: salt.digest('hex'),
+    include: /\.[mc]?[tj]sx$/i,
+    root: repoRoot,
+  });
+}
+
 export default defineConfig(({ mode, command }) => {
   const built = command === 'build';
   if (!built) servedBuildEnv();
+  const solidPlugin = solid({
+    babel: {
+      plugins: [
+        [
+          '@lingui/babel-plugin-lingui-macro',
+          { descriptorFields: 'all', linguiConfig },
+        ],
+      ],
+    },
+  });
   const plugins: PluginOption[] = [
     // `index.html` spells `%BRAND_NAME%`; the identity fills it in.
     brandHtmlPlugin(),
@@ -94,16 +135,7 @@ export default defineConfig(({ mode, command }) => {
       sqliteWasmDir: resolve(publicDir, 'generated/sqlite-wasm'),
     }),
     tailwindcss(),
-    solid({
-      babel: {
-        plugins: [
-          [
-            '@lingui/babel-plugin-lingui-macro',
-            { descriptorFields: 'all', linguiConfig },
-          ],
-        ],
-      },
-    }),
+    built ? rememberedBetweenBuilds(solidPlugin, mode) : solidPlugin,
   ];
   return {
     root: harnessDir,
