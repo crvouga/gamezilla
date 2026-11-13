@@ -57,15 +57,7 @@ test('setup installs frozen dependencies on every run and never archives the lin
     (step) => step.run === 'bun install --frozen-lockfile'
   );
   expect(install).toBeGreaterThan(-1);
-  // A job that generates what it reads itself (the Preview) installs the
-  // same frozen dependencies without the postinstall generation: exactly one
-  // of the two installs runs, whatever the job asked for.
-  const alone = steps.findIndex(
-    (step) => step.run === 'bun install --frozen-lockfile --ignore-scripts'
-  );
-  expect(alone).toBeGreaterThan(-1);
-  expect(steps[install]!.if).toBe("inputs.generate == 'true'");
-  expect(steps[alone]!.if).toBe("inputs.generate != 'true'");
+  expect(steps[install]!.if).toBeUndefined();
   expect(source).toMatch(/uses: jdx\/mise-action@[0-9a-f]{40} # v5\./);
   // No cache key depends on the ref.
   expect(source).not.toMatch(/github\.(ref|head_ref|base_ref)|GITHUB_REF/);
@@ -142,45 +134,12 @@ test('setup installs with no secret in the environment, restoring generation fro
   expect(restore).toBeGreaterThan(-1);
   expect(restore).toBeLessThan(install);
   expect(save).toBeGreaterThan(install);
-  expect(steps[restore]!.if).toBe("inputs.generate == 'true'");
+  expect(steps[restore]!.if).toBeUndefined();
   expect(steps[install]!.env?.['TURBO_CACHE_DIR']).toBe(
     '.cache/setup-generation'
   );
-  expect(steps[install]!.if).toBe("inputs.generate == 'true'");
-  expect(steps[save]!.if).toBe(
-    "inputs.generate == 'true' && steps.generation.outputs.cache-hit != 'true'"
-  );
-  // The install without generation sees no secret either.
-  const alone = steps.findIndex(
-    (step) => step.run === 'bun install --frozen-lockfile --ignore-scripts'
-  );
-  expect(alone).toBeGreaterThan(-1);
-  expect(inject).toBeGreaterThan(alone);
-});
-
-test('only the Preview installs without the postinstall generation', () => {
-  const withoutGeneration = [
-    'deploy.yml',
-    'health.yml',
-    'pr-hygiene.yml',
-    'preview.yml',
-    'verify-nightly.yml',
-    'verify-pr.yml',
-  ].filter((file) =>
-    /^\s+generate: 'false'$/m.test(
-      readFileSync(join(root, '.github/workflows', file), 'utf8')
-    )
-  );
-  expect(withoutGeneration).toEqual(['preview.yml']);
-  // What the install no longer generates, the build generates itself.
-  const tasks = readTurboTasks(root);
-  for (const task of ['build', 'deploy', 'main'])
-    expect(tasks[`//#task:preview:${task}`]?.dependsOn).toEqual([
-      '//#task:i18n:compile',
-      '//#task:tokens:generate',
-      '//#task:sounds:generate',
-      '@pkgs/object-store-s3-server-ts#generate:browser',
-    ]);
+  expect(steps[install]!.if).toBeUndefined();
+  expect(steps[save]!.if).toBe("steps.generation.outputs.cache-hit != 'true'");
 });
 
 test('every job that injects secrets does it in setup, after the install', () => {

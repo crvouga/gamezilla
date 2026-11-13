@@ -66,54 +66,93 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       GH_REPO: ${{ github.repository }}
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-          # The head itself, not the merge with main: the deployed commit is
-          # the one the pull request shows.
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
-          # Every commit pays for this checkout, and four fifths of the
-          # repository is reference screenshots no Preview reads: they are
-          # neither fetched nor written out.
-          filter: blob:none
-          sparse-checkout-cone-mode: false
-          sparse-checkout: |
-            /*
-            !**/baselines/**
-      - uses: ./.github/actions/setup
-        with:
-          tools: bun node gh
-          # The build below generates the derived files a bundle reads; the
-          # install generates none of the repository's others.
-          generate: 'false'
-          product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
-          product-identity-mode: configured
-          secrets-environment: dev
-          secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
-          secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
-      - name: Decide what this pull request's Preview needs
-        id: plan
-        run: bun run apps/preview-ts/scripts/preview.ts ci plan
-      - name: Build the harness bundle and check it
-        if: ${{ steps.plan.outputs.action == 'deploy' || steps.plan.outputs.action == 'deploy-main' }}
+      # Nothing below waits for anything it does not need. A checkout, then
+      # the tools, then the dependencies, each after the one before, was a
+      # third of every deploy; here the three run side by side, and the
+      # secrets are fetched while the dependencies still install.
+      #
+      # - The checkout is the head itself, not the merge with main: the
+      #   deployed commit is the one the pull request shows. It never fetches
+      #   or writes the reference screenshots (four fifths of the
+      #   repository), and it writes the package manifests first, which is
+      #   all the install reads. The repository is public, so it needs no
+      #   token and leaves none in `.git/config`.
+      # - The tools are the versions `mise.toml` pins, installed by a mise
+      #   binary held to its published checksum.
+      # - The install runs no script of any dependency and none of the
+      #   repository's postinstall generation, and it starts before any secret
+      #   is in the environment. The build generates the derived files a
+      #   bundle reads, and only those.
+      - name: Start the checkout, the tools and the install side by side
         env:
-          PREVIEW_ACTION: ${{ steps.plan.outputs.action }}
-          PREVIEW_PR: ${{ steps.plan.outputs.pr }}
-          PREVIEW_URL: ${{ steps.plan.outputs.url }}
-        # Turborepo directly: the setup above already injected the secrets
-        # and configured the identity `bun run preview:build` would again.
-        run: bunx turbo run //#task:preview:build
+          PREVIEW_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          MISE_VERSION: 2026.9.13
+          MISE_SHA256: a72f49916b33ba952ba398046c5cc91a58238f0b718fee1d938206ef2af21c6d
+        run: |
+          export BOOT="$RUNNER_TEMP/boot"
+          mkdir -p "$BOOT"
+          cat > "$BOOT/checkout.sh" <<'SH'
+          set -euo pipefail
+          cd "$GITHUB_WORKSPACE"
+          git init -q
+          git remote add origin "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY"
+          git fetch -q --no-tags --depth=1 --filter=blob:none origin "$PREVIEW_SHA"
+          git sparse-checkout set --no-cone /mise.toml /bun.lock /bunfig.toml /package.json '/apps/*/package.json' '/libs/*/package.json' '/pkgs/*/package.json'
+          git -c advice.detachedHead=false checkout -q --detach FETCH_HEAD
+          touch "$BOOT/manifests"
+          git sparse-checkout set --no-cone '/*' '!**/baselines/**'
+          SH
+          cat > "$BOOT/install.sh" <<'SH'
+          set -euo pipefail
+          curl -fsSL --retry 3 -o "$BOOT/mise" "https://github.com/jdx/mise/releases/download/v$MISE_VERSION/mise-v$MISE_VERSION-linux-x64"
+          echo "$MISE_SHA256  $BOOT/mise" | sha256sum --check --quiet
+          chmod +x "$BOOT/mise"
+          until [ -e "$BOOT/manifests" ]; do
+            [ ! -e "$BOOT/checkout.code" ] || exit 1
+            sleep 0.1
+          done
+          cd "$GITHUB_WORKSPACE"
+          export MISE_TRUSTED_CONFIG_PATHS="$GITHUB_WORKSPACE" MISE_YES=1
+          "$BOOT/mise" install bun node
+          "$BOOT/mise" bin-paths bun node > "$BOOT/paths"
+          touch "$BOOT/tools"
+          PATH="$(paste -sd: "$BOOT/paths"):$PATH"
+          bun install --frozen-lockfile --ignore-scripts
+          SH
+          for part in checkout install; do
+            nohup bash -c "bash '$BOOT/$part.sh'; echo \$? > '$BOOT/$part.code'" > "$BOOT/$part.log" 2>&1 < /dev/null &
+          done
+      - name: Wait for the checkout and the tools
+        run: |  # zizmor: ignore[github-env] -- the paths of the tools mise just installed
+          BOOT="$RUNNER_TEMP/boot"
+          timeout 300 bash -c "until [ -e '$BOOT/checkout.code' ] && { [ -e '$BOOT/tools' ] || [ -e '$BOOT/install.code' ]; }; do sleep 0.1; done" || true
+          cat "$BOOT/checkout.log"
+          [ "$(cat "$BOOT/checkout.code")" = 0 ]
+          [ -e "$BOOT/tools" ] || { cat "$BOOT/install.log"; exit 1; }
+          cat "$BOOT/paths" >> "$GITHUB_PATH"
+      - name: Inject secrets
+        uses: ./.github/actions/secrets-auth
+        with:
+          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          project-id: ${{ vars.SECRETS_PROJECT_ID }}
+          environment: dev
+      - name: Wait for the install and name the build's identity
+        env:
+          REPOSITORY_IDENTITY_JSON: ${{ vars.PRODUCT_IDENTITY_JSON }}
+          PRODUCT_IDENTITY_MODE: configured
+        run: |
+          BOOT="$RUNNER_TEMP/boot"
+          timeout 600 bash -c "until [ -e '$BOOT/install.code' ]; do sleep 0.1; done" || true
+          cat "$BOOT/install.log"
+          [ "$(cat "$BOOT/install.code")" = 0 ]
+          bun run libs/secrets-server-ts/scripts/export-product-identity.ts
+      # One command for the whole of it (decide, build, upload, check; or
+      # remove; or sweep), so nothing waits on a step boundary: the pull
+      # request is told while the bundle builds.
       - name: Deploy, remove or sweep
-        if: ${{ steps.plan.outputs.action != 'skip' }}
-        env:
-          PREVIEW_ACTION: ${{ steps.plan.outputs.action }}
-          PREVIEW_PR: ${{ steps.plan.outputs.pr }}
-          PREVIEW_URL: ${{ steps.plan.outputs.url }}
-        run: bun run apps/preview-ts/scripts/preview.ts ci apply
+        run: |
+          bun run libs/tools-harness-ts/scripts/materialize-product-identity.ts
+          bun run apps/preview-ts/scripts/preview.ts ci run
       - name: Report a run that failed before the upload
-        if: ${{ failure() && steps.plan.outputs.action == 'deploy' }}
-        env:
-          PREVIEW_ACTION: ${{ steps.plan.outputs.action }}
-          PREVIEW_PR: ${{ steps.plan.outputs.pr }}
-          PREVIEW_URL: ${{ steps.plan.outputs.url }}
+        if: ${{ failure() && github.event_name == 'pull_request' }}
         run: bun run apps/preview-ts/scripts/preview.ts ci failed

@@ -15,7 +15,7 @@
  *   preview test                check the deployed Preview over HTTP
  *   preview destroy             delete the Preview, verify it is gone
  *   preview sweep               delete Previews whose pull request is not open
- *   preview ci <plan|build|apply|failed>   the workflow's steps
+ *   preview ci <run|failed>     the workflow's steps
  *
  * There is no seed, reset or inspect: a Preview has no server and no stored
  * state. What a visitor creates lives in their own browser.
@@ -24,7 +24,6 @@
  */
 import { spawn, spawnSync } from 'node:child_process';
 import {
-  appendFileSync,
   cpSync,
   existsSync,
   mkdirSync,
@@ -221,20 +220,26 @@ function run(
 async function runAsync(
   cmd: string,
   args: readonly string[],
-  options: { readonly cwd?: string; readonly env?: NodeJS.ProcessEnv } = {}
+  options: {
+    readonly cwd?: string;
+    readonly env?: NodeJS.ProcessEnv;
+    readonly inherit?: boolean;
+  } = {}
 ): Promise<ReturnType<typeof run>> {
   return await new Promise((resolve) => {
     const child = spawn(cmd, [...args], {
       cwd: options.cwd ?? REPO_ROOT,
       env: options.env ?? process.env,
-      stdio: ['ignore', 'pipe', 'pipe'],
+      stdio: options.inherit
+        ? ['ignore', 'inherit', 'inherit']
+        : ['ignore', 'pipe', 'pipe'],
     });
     let stdout = '';
     let stderr = '';
-    child.stdout.on('data', (chunk: Buffer) => {
+    child.stdout?.on('data', (chunk: Buffer) => {
       stdout += chunk.toString('utf8');
     });
-    child.stderr.on('data', (chunk: Buffer) => {
+    child.stderr?.on('data', (chunk: Buffer) => {
       stderr += chunk.toString('utf8');
     });
     child.on('error', (error) => {
@@ -690,13 +695,14 @@ async function sleep(ms: number): Promise<void> {
 }
 
 /** Answers in a row that must name the commit before it counts as served. */
-const SETTLED_ANSWERS = 3;
+const SETTLED_ANSWERS = 2;
 
 /**
  * Whether `origin` has settled on `sha`. Cloudflare's edge moves to a new
  * upload machine by machine, so for a moment after the first answer naming
  * it, another request can still be answered with the one before; only
- * several answers in a row say the checks will read what was uploaded.
+ * answers in a row say the checks will likely read what was uploaded
+ * (`servedChecks` reads again where they do not).
  */
 async function serving(
   origin: string,
@@ -710,7 +716,7 @@ async function serving(
     // an earlier one is usually served within a second or two.
     settled = (await deployedCommit(origin)) === sha ? settled + 1 : 0;
     if (settled >= SETTLED_ANSWERS) return true;
-    await sleep(settled === 0 ? 1000 : 500);
+    await sleep(settled === 0 ? 400 : 200);
   }
   return false;
 }
@@ -1022,10 +1028,21 @@ async function servePreviews(cloudflare: Account, site: Site): Promise<void> {
 
 async function deploy(pr: number, deploymentSha: string | null): Promise<void> {
   const cloudflare = account();
-  for (const site of SITES) await servePreviews(cloudflare, site);
   const origin = await originOf(HARNESS, pr, cloudflare);
-  const storybook = await originOf(STORYBOOK, pr, cloudflare);
   const sha = deploymentSha ?? headCommit().sha;
+  const name = previewNameOfPr(pr);
+  // The harness is what a reviewer opens, so its upload starts before
+  // anything else here and waits for nothing: the bookkeeping below, and
+  // Storybook, go on beside it. It goes up whatever its gate says: a site
+  // failing its checks is still uploaded and reported as unhealthy.
+  const harness = (async () => {
+    const gated = await gate(HARNESS, name, sha);
+    await upload(cloudflare, HARNESS, { pr, origin, sha, gated });
+  })();
+  // Settled with Storybook below; a failure before then is not unhandled.
+  harness.catch(() => undefined);
+  for (const site of SITES) await servePreviews(cloudflare, site);
+  const storybook = await originOf(STORYBOOK, pr, cloudflare);
   const facts = {
     url: origin,
     storybookUrl: storybook,
@@ -1041,17 +1058,10 @@ async function deploy(pr: number, deploymentSha: string | null): Promise<void> {
     detail: null,
   } as const;
   try {
-    // The two sites go up beside one another. The harness is what a reviewer
-    // opens, so the pull request says it is live the moment it is, whatever
-    // Storybook is still doing. Each goes up whatever its gate says: a site
-    // failing its checks is still uploaded and reported as unhealthy.
-    const name = previewNameOfPr(pr);
-    const [harness, stories] = await Promise.allSettled([
-      (async () => {
-        const gated = await gate(HARNESS, name, sha);
-        await upload(cloudflare, HARNESS, { pr, origin, sha, gated });
-        publishSection(pr, live);
-      })(),
+    // The pull request says the harness is live the moment it is, whatever
+    // Storybook is still doing.
+    const [harnessUp, stories] = await Promise.allSettled([
+      harness.then(() => publishSection(pr, live)),
       (async () => {
         await buildStorybook(name, sha);
         const gated = await gate(STORYBOOK, name, sha);
@@ -1063,7 +1073,7 @@ async function deploy(pr: number, deploymentSha: string | null): Promise<void> {
         });
       })(),
     ]);
-    if (harness.status === 'rejected') throw harness.reason;
+    if (harnessUp.status === 'rejected') throw harnessUp.reason;
     if (stories.status === 'rejected') throw stories.reason;
     for (const site of SITES) await ensureMainPreview(cloudflare, site);
     pruneDeployments(pr, deployment);
@@ -1087,7 +1097,6 @@ async function deploy(pr: number, deploymentSha: string | null): Promise<void> {
     url: origin,
     description: `${previewNameOfPr(pr)} serves ${sha.slice(0, 12)}`,
   });
-  publishSection(pr, live);
   say(`✓ ${origin} serves ${sha.slice(0, 12)}`);
 }
 
@@ -1220,14 +1229,6 @@ async function sweep(): Promise<void> {
 
 // ── The workflow's steps ─────────────────────────────────────────────────
 
-function output(values: Readonly<Record<string, string>>): void {
-  const file = envOf('GITHUB_OUTPUT');
-  for (const [key, value] of Object.entries(values)) {
-    say(`${key}=${value}`);
-    if (file !== null) appendFileSync(file, `${key}=${value}\n`);
-  }
-}
-
 function trigger(): PreviewTrigger {
   const event = envOf('GITHUB_EVENT_NAME');
   if (event === 'push') {
@@ -1276,82 +1277,87 @@ function plan(): PreviewAction {
   );
 }
 
-async function ci(step: string | undefined): Promise<void> {
-  if (step === 'plan') {
-    const action = plan();
-    if (action.kind === 'skip') say(`skip: ${action.reason}`);
-    const cloudflare = action.kind === 'deploy' ? account() : null;
-    const origin =
-      action.kind === 'deploy'
-        ? await originOf(HARNESS, action.pr, cloudflare)
-        : action.kind === 'deploy-main'
-          ? mainOrigin()
-          : '';
-    output({
-      action: action.kind,
-      pr: 'pr' in action ? String(action.pr) : '',
-      url: origin,
-    });
-    if (action.kind === 'deploy')
+/**
+ * The harness bundle, built by Turborepo (which first generates the derived
+ * files a bundle reads) without holding this process: what the pull request
+ * is told meanwhile costs the build nothing.
+ */
+async function buildBeside(
+  env: Readonly<Record<string, string>>,
+  meanwhile: () => void
+): Promise<void> {
+  const building = runAsync(TURBO, ['run', '//#task:preview:build'], {
+    env: { ...process.env, ...env },
+    inherit: true,
+  });
+  meanwhile();
+  if ((await building).code !== 0) throw new Error('the build failed');
+}
+
+/** The workflow's one step: decide, then build and deploy, remove or sweep. */
+async function ciRun(): Promise<void> {
+  const action = plan();
+  if (action.kind === 'skip') return say(`skip: ${action.reason}`);
+  if (action.kind === 'sweep') return await sweep();
+  if (action.kind === 'destroy')
+    return await destroy(account(), action.pr, 'removed');
+  if (action.kind === 'deploy-main') {
+    await buildBeside({ PREVIEW_ACTION: 'deploy-main' }, () => undefined);
+    // The plan was made before the build; main may have moved since.
+    const now = plan();
+    if (now.kind === 'deploy-main') await deployMain(now.sha);
+    else say(`skip: ${now.kind === 'skip' ? now.reason : now.kind}`);
+    return;
+  }
+  const cloudflare = account();
+  const origin = await originOf(HARNESS, action.pr, cloudflare);
+  const storybook = await originOf(STORYBOOK, action.pr, cloudflare);
+  const deployed = await deployedCommit(origin);
+  await buildBeside(
+    { PREVIEW_PR: String(action.pr), PREVIEW_URL: origin },
+    () =>
       publishSection(action.pr, {
         status: 'deploying',
         url: origin,
-        storybookUrl: await originOf(STORYBOOK, action.pr, cloudflare),
-        deployedSha: await deployedCommit(origin),
+        storybookUrl: storybook,
+        deployedSha: deployed,
         attemptedSha: action.sha,
         runUrl: runUrl(),
         detail: null,
-      });
-    return;
-  }
-  const action = envOf('PREVIEW_ACTION');
-  const pr = Number(envOf('PREVIEW_PR') ?? '0');
-  if (step === 'build') {
-    if (action === 'deploy-main') await build(MAIN_PREVIEW_NAME, mainOrigin());
-    else await build(previewNameOfPr(pr), await originOf(HARNESS, pr, null));
-    return;
-  }
-  if (step === 'apply') {
-    if (action === 'deploy') {
-      // The plan was made before the build; the head may have moved since.
-      const now = plan();
-      if (now.kind !== 'deploy') {
-        say(
-          `skip: ${now.kind === 'skip' ? now.reason : `pull request now needs ${now.kind}`}`
-        );
-        if (now.kind === 'destroy') await destroy(account(), now.pr, 'removed');
-        return;
-      }
-      await deploy(now.pr, now.sha);
-    } else if (action === 'deploy-main') {
-      // The plan was made before the build; main may have moved since.
-      const now = plan();
-      if (now.kind === 'deploy-main') await deployMain(now.sha);
-      else say(`skip: ${now.kind === 'skip' ? now.reason : now.kind}`);
-    } else if (action === 'destroy') await destroy(account(), pr, 'removed');
-    else if (action === 'sweep') await sweep();
-    return;
-  }
-  if (step === 'failed') {
-    // A step before the upload failed (install, build): say so on the PR.
-    if (action !== 'deploy') return;
-    const pull = readPullRequest(pr);
-    // `deploy` publishes its own outcome; only an unfinished one is ours.
-    if (pull === null || !pull.body.includes(DEPLOYING_MARK)) return;
-    const origin =
-      previewUrlInBody(pull.body) ?? (await originOf(HARNESS, pr, null));
-    publishSection(pr, {
-      status: 'failed',
-      url: origin,
-      storybookUrl: storybookUrlInBody(pull.body),
-      deployedSha: await deployedCommit(origin),
-      attemptedSha: envOf('GITHUB_SHA'),
-      runUrl: runUrl(),
-      detail:
-        'The run failed before anything was uploaded; see the deploy run.',
-    });
-    return;
-  }
+      })
+  );
+  // The plan was made before the build; the head may have moved since.
+  const now = plan();
+  if (now.kind === 'deploy') return await deploy(now.pr, now.sha);
+  say(
+    `skip: ${now.kind === 'skip' ? now.reason : `pull request now needs ${now.kind}`}`
+  );
+  if (now.kind === 'destroy') await destroy(cloudflare, now.pr, 'removed');
+}
+
+/** A run that failed before the upload (install, build): say so on the PR. */
+async function ciFailed(): Promise<void> {
+  const from = trigger();
+  if (from.kind !== 'pull-request') return;
+  const pull = readPullRequest(from.pr);
+  // `deploy` publishes its own outcome; only an unfinished one is ours.
+  if (pull === null || !pull.body.includes(DEPLOYING_MARK)) return;
+  const origin =
+    previewUrlInBody(pull.body) ?? (await originOf(HARNESS, from.pr, null));
+  publishSection(from.pr, {
+    status: 'failed',
+    url: origin,
+    storybookUrl: storybookUrlInBody(pull.body),
+    deployedSha: await deployedCommit(origin),
+    attemptedSha: from.sha,
+    runUrl: runUrl(),
+    detail: 'The run failed before anything was uploaded; see the deploy run.',
+  });
+}
+
+async function ci(step: string | undefined): Promise<void> {
+  if (step === 'run') return await ciRun();
+  if (step === 'failed') return await ciFailed();
   fail(`unknown ci step: ${String(step)}`);
 }
 
