@@ -182,6 +182,35 @@ describe('run reporting', () => {
     expect(index.runs.some((r) => r.id === 'latest_run')).toBe(true);
   });
 
+  test('a part unchanged since an earlier frame reuses its stored file', async () => {
+    // regression: report-frames-rewrite-unchanged-parts
+    const store = new ObjectStoreImplInMemory();
+    await using s = await sys.run({
+      seed: 1,
+      report: { store, testId: 'reuse', runId: 'r1', now: () => 0 },
+    });
+    await s.apply(put, 'x', '1');
+    await s.apply(put, 'y', '2');
+    const report = s.report()!;
+    const first = report.steps[0]!.frames.at(-1)!.snapshots;
+    const second = report.steps[1]!.frames.at(-1)!.snapshots;
+    const file = (blobs: typeof first, name: string, nodeId?: string) =>
+      blobs.find((b) => b.name === name && b.nodeId === nodeId)?.file;
+    expect(file(second, 'store')).not.toBe(file(first, 'store'));
+    expect(file(second, 'html', 'alice')).toBe(file(first, 'html', 'alice'));
+    expect(file(second, 'html', 'bob')).toBe(file(first, 'html', 'bob'));
+    expect(file(second, 'screen')).toBe(file(first, 'screen'));
+    const frameFiles = (await store.listKeys('')).filter((key) =>
+      key.includes('/frames/')
+    );
+    const referenced = new Set(
+      report.steps.flatMap((step) =>
+        step.frames.flatMap((frame) => frame.snapshots.map((b) => b.file))
+      )
+    );
+    expect(frameFiles.length).toBe(referenced.size);
+  });
+
   test('png snapshot encodes Uint8Array', async () => {
     const store = new ObjectStoreImplInMemory();
     await using s = await sys.run({

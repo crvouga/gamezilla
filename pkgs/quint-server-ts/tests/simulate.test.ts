@@ -45,6 +45,29 @@ describe('simulate', () => {
   );
 
   test(
+    'a draw for no report directory returns the same traces and writes none',
+    () => {
+      // regression: quint-slices-copy-every-trace
+      const door = join(FIXTURES, 'door.qnt');
+      const copied = simulate({
+        specPath: door,
+        seed: '0x2a',
+        traces: 4,
+        maxSteps: 6,
+        outDir: join(OUT, 'copied'),
+      });
+      const shared = simulate({
+        specPath: door,
+        seed: '0x2a',
+        traces: 4,
+        maxSteps: 6,
+      });
+      expect(shared).toEqual(copied);
+    },
+    DRAW_TIMEOUT_MS
+  );
+
+  test(
     'every trace starts at init and follows the model',
     () => {
       const [first] = steps(join(FIXTURES, 'door.qnt'), '0x2a', 'c');

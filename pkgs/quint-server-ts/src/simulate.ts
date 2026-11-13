@@ -50,8 +50,12 @@ export type SimulateOptions = {
   readonly traces: number;
   /** Steps after `init` in each trace, at most. */
   readonly maxSteps: number;
-  /** Where the `.itf.json` files are written (emptied first). */
-  readonly outDir: string;
+  /**
+   * Where the `.itf.json` files are copied for the report (emptied first).
+   * Omitted, nothing is written: the traces load from the shared draw, so a
+   * model's other slices do not each keep a copy of every trace.
+   */
+  readonly outDir?: string;
   /** Default: {@link quintSeed}. */
   readonly seed?: string;
   /** Exact assignments for every bool constant declared by the main module. */
@@ -104,6 +108,9 @@ export function simulate(options: SimulateOptions): SimulateResult {
       loadTraces(dir, options.specPath);
     },
   });
+  if (options.outDir === undefined) {
+    return { seed, invariants, traces: loadTraces(itfDir, options.specPath) };
+  }
   removeTree(options.outDir);
   mkdirSync(options.outDir, { recursive: true });
   copyItf(itfDir, options.outDir, options.specPath);

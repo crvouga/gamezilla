@@ -66,17 +66,52 @@ type PlannedPart = {
   readonly file: string;
 };
 
-/** Mint frame files for the parts and persist them when a store is set. */
+/** A part one test already stored, by {@link storedPartKey}. */
+export type StoredParts = Map<
+  string,
+  { readonly bytes: Uint8Array; readonly blob: ReportSnapshotBlob }
+>;
+
+function storedPartKey(part: CapturedPart): string {
+  return `${part.name}\0${part.nodeId ?? ''}\0${part.encoded.hash}`;
+}
+
+function sameBytes(a: Uint8Array, b: Uint8Array): boolean {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
+  return true;
+}
+
+/**
+ * Mint frame files for the parts and persist them when a store is set. A part
+ * the test already stored byte for byte reuses that file: one person's screen
+ * is unchanged while another person acts far more often than not.
+ */
 export async function persistSnapshotParts(args: {
   readonly parts: readonly CapturedPart[];
   readonly store: ObjectStore | undefined;
   readonly runId: string;
   readonly testId: string;
   readonly nextSeq: () => number;
+  readonly stored: StoredParts;
 }): Promise<ReportSnapshotBlob[]> {
-  const planned = args.parts.map((part) => planPart(args, part));
+  const blobs: ReportSnapshotBlob[] = [];
+  const planned: PlannedPart[] = [];
+  for (const part of args.parts) {
+    const key = storedPartKey(part);
+    const known = args.stored.get(key);
+    if (known !== undefined && sameBytes(known.bytes, part.encoded.bytes)) {
+      blobs.push(known.blob);
+      continue;
+    }
+    const item = planPart(args, part);
+    const blob = blobOf(item);
+    planned.push(item);
+    blobs.push(blob);
+    args.stored.set(key, { bytes: part.encoded.bytes, blob });
+  }
   await putPlanned(args, planned);
-  return planned.map((item) => blobOf(item));
+  return blobs;
 }
 
 function planPart(
