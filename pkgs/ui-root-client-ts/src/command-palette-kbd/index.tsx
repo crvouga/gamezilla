@@ -44,6 +44,8 @@ export function shortcutTokens(shortcut: string): string[] {
 
 export type CommandPaletteKbdProps = {
   shortcut: string;
+  /** `caps` (default): one chip per key. `inline`: quiet text, as a menu shows it. */
+  variant?: 'caps' | 'inline';
 };
 
 /**
@@ -54,19 +56,32 @@ export function CommandPaletteKbd(props: CommandPaletteKbdProps): JSX.Element {
   const parts = createMemo(() => shortcutTokens(props.shortcut));
   return (
     <Show when={parts().length > 0}>
-      <span
-        class="box flex-row items-center gap-1 shrink-0"
-        data-component="CommandPaletteKbd"
-        aria-label={parts().join(' ')}
+      <Show
+        when={props.variant !== 'inline'}
+        fallback={
+          <p
+            class="text textCaption text-text-secondary shrink-0"
+            data-component="CommandPaletteKbd"
+            aria-label={parts().join(' ')}
+          >
+            {parts().join('+')}
+          </p>
+        }
       >
-        <For each={parts()}>
-          {(part) => (
-            <div class="box px-2 py-1 rounded-sm border border-border bg-surface-muted">
-              <p class="text textCaption text-text-secondary">{part}</p>
-            </div>
-          )}
-        </For>
-      </span>
+        <span
+          class="box flex-row items-center gap-1 shrink-0"
+          data-component="CommandPaletteKbd"
+          aria-label={parts().join(' ')}
+        >
+          <For each={parts()}>
+            {(part) => (
+              <div class="box px-2 py-1 rounded-sm border border-border bg-surface-muted">
+                <p class="text textCaption text-text-secondary">{part}</p>
+              </div>
+            )}
+          </For>
+        </span>
+      </Show>
     </Show>
   );
 }

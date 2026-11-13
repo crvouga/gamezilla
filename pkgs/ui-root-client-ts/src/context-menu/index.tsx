@@ -10,7 +10,10 @@ import type {
   FloatingMenuContentRow,
 } from '../floating-menu-content';
 
-/** Wide enough for "Search the web for" and a short quote on one line. */
+/**
+ * Wide enough for "Search the web for" and a short quote, and for "Report a
+ * bug about this" beside its shortcut, on one line.
+ */
 export const CONTEXT_MENU_WIDTH = 340;
 
 export type ContextMenuItem = {
@@ -67,7 +70,7 @@ function rowsOf(
         disabled: item.disabled,
         trailing:
           item.shortcut === undefined ? undefined : (
-            <CommandPaletteKbd shortcut={item.shortcut} />
+            <CommandPaletteKbd shortcut={item.shortcut} variant="inline" />
           ),
         dataSet: { testid: `context-menu-${item.id}` },
         // Close first, so focus is back on what the person pointed at
