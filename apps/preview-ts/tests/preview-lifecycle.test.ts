@@ -4,12 +4,15 @@ import fc from 'fast-check';
 import {
   decideMainAction,
   decidePreviewAction,
+  failingChecks,
   type PreviewTrigger,
   planSweep,
+  uploadsDespiteGate,
 } from '../src/preview-lifecycle';
 import {
   customPreviewOrigin,
   isPreviewOriginOf,
+  MAIN_PREVIEW_NAME,
   previewNameOfPr,
   previewOrigin,
   prOfPreviewName,
@@ -236,4 +239,25 @@ test('only a host on our own account is this pull request’s Preview', () => {
   expect(custom('https://preview.acme.app')).toBe(false);
   expect(custom('https://pr-7.preview.acme.app.evil.example')).toBe(false);
   expect(custom('http://pr-7.preview.acme.app')).toBe(false);
+});
+
+test('a pull request uploads whatever was built; the main branch only what passes its gate', () => {
+  assertProperty(
+    'every pull request Preview is best effort',
+    fc.property(pr, (number) => uploadsDespiteGate(previewNameOfPr(number)))
+  );
+  expect(uploadsDespiteGate(MAIN_PREVIEW_NAME)).toBe(false);
+});
+
+test('an uploaded site fails its checks when its gate or its served checks failed', () => {
+  expect(failingChecks({ gate: null, served: null })).toBeNull();
+  expect(
+    failingChecks({ gate: 'bundle: /assets/index.js 404', served: null })
+  ).toBe('before upload: bundle: /assets/index.js 404');
+  expect(failingChecks({ gate: null, served: 'shell: 500' })).toBe(
+    'served: shell: 500'
+  );
+  expect(failingChecks({ gate: 'bundle: 404', served: 'shell: 500' })).toBe(
+    'before upload: bundle: 404; served: shell: 500'
+  );
 });
