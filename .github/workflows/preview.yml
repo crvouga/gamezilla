@@ -93,7 +93,7 @@ jobs:
         env:
           PREVIEW_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
           MISE_VERSION: 2026.9.13
-          MISE_SHA256: a72f49916b33ba952ba398046c5cc91a58238f0b718fee1d938206ef2af21c6d
+          MISE_SHA256: 68b437f5f7065a9ed43bc65324b7e9b339ffc59104147bb2b2568585495c5c75
         run: |  # zizmor: ignore[github-env] -- the paths of the tools mise just installed
           BOOT="$RUNNER_TEMP/boot"
           mkdir -p "$BOOT"
@@ -110,17 +110,22 @@ jobs:
             at "checkout: done"
           }
           install() {
-            curl -fsSL --retry 3 -o "$BOOT/mise" "https://github.com/jdx/mise/releases/download/v$MISE_VERSION/mise-v$MISE_VERSION-linux-x64"
-            echo "$MISE_SHA256  $BOOT/mise" | sha256sum --check --quiet
-            chmod +x "$BOOT/mise"
+            curl -fsSL --retry 3 -o "$BOOT/mise.tar.zst" "https://github.com/jdx/mise/releases/download/v$MISE_VERSION/mise-v$MISE_VERSION-linux-x64.tar.zst"
+            echo "$MISE_SHA256  $BOOT/mise.tar.zst" | sha256sum --check --quiet
+            tar --zstd -xf "$BOOT/mise.tar.zst" -C "$BOOT"
+            mise() { MISE_TRUSTED_CONFIG_PATHS="$GITHUB_WORKSPACE" MISE_YES=1 "$BOOT/mise/bin/mise" "$@"; }
             until [ -e "$BOOT/manifests" ]; do
               kill -0 "$1" 2>/dev/null || [ -e "$BOOT/manifests" ] || exit 1
               sleep 0.1
             done
-            MISE_TRUSTED_CONFIG_PATHS="$GITHUB_WORKSPACE" MISE_YES=1 "$BOOT/mise" install bun node
-            MISE_TRUSTED_CONFIG_PATHS="$GITHUB_WORKSPACE" "$BOOT/mise" bin-paths bun node > "$BOOT/paths"
-            at "install: the tools"
-            PATH="$(paste -sd: "$BOOT/paths"):$PATH" bun install --frozen-lockfile --ignore-scripts
+            # The install needs Bun alone; Node arrives while it runs.
+            mise install bun
+            mise install node &
+            node=$!
+            at "install: bun"
+            PATH="$(mise bin-paths bun):$PATH" bun install --frozen-lockfile --ignore-scripts
+            wait "$node"
+            mise bin-paths bun node > "$BOOT/paths"
             at "install: done"
           }
           at "start"

@@ -18,11 +18,13 @@ import { join } from 'node:path';
 import { configuredIdentity } from '@libs/product-brand-shared-ts/identity-input';
 import { wallClock } from '@pkgs/clock-shared-ts/wall';
 import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs-server-ts/repo-tree-store';
-import { createConfiguredSecretStore } from '@pkgs/secret-provider-server-ts/create-configured-secret-store';
 import {
   MINTED_TOKEN_EXPIRES_AT,
   resolveInfisicalAccessTokenForWrites,
 } from '@pkgs/secret-provider-server-ts/oidc-access-token';
+import { createInfisicalSecretStore } from '@pkgs/secret-provider-shared-ts/http-secret-store';
+import { resolveInfisicalEndpoint } from '@pkgs/secret-provider-shared-ts/resolve-endpoint';
+import { resolveSecretsScope } from '@pkgs/secrets-config-server-ts/secrets-scope';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 /** Never production: a pull request's code builds in this job. */
@@ -55,13 +57,15 @@ async function injectSecrets(): Promise<void> {
       'no OIDC token for the secrets backend (a job without `id-token: write`, or SECRETS_IDENTITY_ID unset)'
     );
   mask(token);
-  const store = await createConfiguredSecretStore({
-    repoRoot: REPO_ROOT,
-    configStore,
-    envOverride: SECRETS_ENV,
+  const scope = await resolveSecretsScope(configStore, SECRETS_ENV);
+  const store = createInfisicalSecretStore({
+    domain: resolveInfisicalEndpoint(scope),
+    workspaceId: scope.projectId,
+    env: scope.env,
     token,
     fetchFn: fetch,
-    clock: wallClock,
+    // Shared credentials are imported into `dev`, not stored in it.
+    includeImports: true,
   });
   const values = await store.getOptionalMany([...SECRETS, IDENTITY]);
   // The token reads the whole environment; nothing after this needs it.

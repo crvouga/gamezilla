@@ -52,9 +52,11 @@ test('the Preview installs the tools mise.toml pins, with the mise the setup act
   );
   expect(String(start.env?.['MISE_SHA256'])).toMatch(/^[0-9a-f]{64}$/);
   expect(start.run).toContain(
-    'echo "$MISE_SHA256  $BOOT/mise" | sha256sum --check --quiet'
+    'echo "$MISE_SHA256  $BOOT/mise.tar.zst" | sha256sum --check --quiet'
   );
-  expect(start.run).toContain('"$BOOT/mise" install bun node');
+  // Named tools only: each at the version mise.toml pins.
+  expect(start.run).toContain('mise install bun\n');
+  expect(start.run).toContain('mise install node &\n');
 });
 
 test('the bundle is built from everything it reads and nothing a deploy decides', () => {

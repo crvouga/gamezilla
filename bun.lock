@@ -168,6 +168,8 @@
         "@pkgs/http-client-shared-ts": "workspace:*",
         "@pkgs/object-store-node-fs-server-ts": "workspace:*",
         "@pkgs/secret-provider-server-ts": "workspace:*",
+        "@pkgs/secret-provider-shared-ts": "workspace:*",
+        "@pkgs/secrets-config-server-ts": "workspace:*",
       },
       "devDependencies": {
         "@pkgs/property-shared-ts": "workspace:*",
