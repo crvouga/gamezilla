@@ -1,8 +1,6 @@
 {
   "$schema": "https://v2-11-3.turborepo.dev/schema.json",
-  "extends": [
-    "//"
-  ],
+  "extends": ["//"],
   "tasks": {
     "src": {
       "dependsOn": [
@@ -40,14 +38,10 @@
       ]
     },
     "dev": {
-      "dependsOn": [
-        "//#task:i18n:compile"
-      ],
+      "dependsOn": ["//#task:i18n:compile"],
       "persistent": true,
       "cache": false,
-      "passThroughEnv": [
-        "*"
-      ]
+      "passThroughEnv": ["*"]
     }
   }
 }
