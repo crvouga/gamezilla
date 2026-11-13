@@ -1,6 +1,8 @@
 {
   "$schema": "https://v2-11-3.turborepo.dev/schema.json",
-  "extends": ["//"],
+  "extends": [
+    "//"
+  ],
   "tasks": {
     "src": {
       "dependsOn": [
@@ -17,6 +19,7 @@
         "@pkgs/clock-client-ts#src",
         "@pkgs/clock-shared-ts#src",
         "@pkgs/conformance-shared-ts#src",
+        "@pkgs/feedback-client-ts#src",
         "@pkgs/harness-console-client-ts#src",
         "@pkgs/harness-console-shared-ts#src",
         "@pkgs/harness-root-shared-ts#src",
@@ -37,10 +40,14 @@
       ]
     },
     "dev": {
-      "dependsOn": ["//#task:i18n:compile"],
+      "dependsOn": [
+        "//#task:i18n:compile"
+      ],
       "persistent": true,
       "cache": false,
-      "passThroughEnv": ["*"]
+      "passThroughEnv": [
+        "*"
+      ]
     }
   }
 }
