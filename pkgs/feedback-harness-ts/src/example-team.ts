@@ -1,8 +1,12 @@
 import { createRuntime } from '@crvouga/mockingbird-service-github';
 import type { Clock } from '@pkgs/clock-shared-ts/types';
 import { createBugReportHttpApp } from '@pkgs/feedback-server-ts/bug-report-http-app';
-import { GitHubIssueReporter } from '@pkgs/feedback-server-ts/github-issue-reporter';
-import type { BugReport, IssueReporter } from '@pkgs/feedback-shared-ts/types';
+import { GitHubBugReportRecords } from '@pkgs/feedback-server-ts/github-bug-report-records';
+import { objectStoreBugReportAttachments } from '@pkgs/feedback-server-ts/object-store-bug-reports';
+import type {
+  BugReport,
+  BugReportRecords,
+} from '@pkgs/feedback-shared-ts/types';
 import type { HttpClient } from '@pkgs/http-client-shared-ts/types';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared-ts/impl-in-memory';
 
@@ -63,10 +67,11 @@ export function createExampleTeam(clock: Clock) {
       body: JSON.stringify({ owner, name }),
     }
   );
-  const writer = new GitHubIssueReporter({
+  const writer = new GitHubBugReportRecords({
     http: listOfWork,
     token: 'example',
     repository: REPOSITORY,
+    environment: 'example',
     apiOrigin: GITHUB,
   });
   /** Every issue on the list of work, as anyone on the team would read them back from GitHub. */
@@ -84,17 +89,30 @@ export function createExampleTeam(clock: Clock) {
     }
     return issues.sort((a, b) => a.number - b.number);
   }
-  const reporter: IssueReporter = {
-    async create(report) {
+  const records: BugReportRecords = {
+    async find(id) {
       await repositoryMade;
-      const created = await writer.create(report);
+      return writer.find(id);
+    },
+    async countOnDay(day, reporterId) {
+      await repositoryMade;
+      return writer.countOnDay(day, reporterId);
+    },
+    async record(report) {
+      await repositoryMade;
+      const created = await writer.record(report);
       reports.set(created.id, report);
       return created;
     },
+    check: () => writer.check(),
   };
   const server = createBugReportHttpApp({
-    reporter,
-    store: new ObjectStoreImplInMemory(),
+    store: {
+      records,
+      attachments: objectStoreBugReportAttachments(
+        new ObjectStoreImplInMemory()
+      ),
+    },
     clock,
     allowedOrigins: [EXAMPLE_ORIGIN],
   });

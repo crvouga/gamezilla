@@ -64,7 +64,9 @@ export type ApiWorkerEnv = {
   PUZZLE_MANAGER_ACCOUNT_IDS?: string;
   POPULATION_OPERATOR_ACCOUNT_IDS?: string;
   BUILD_SHA?: string;
-  FEEDBACK_GITHUB_TOKEN?: string;
+  /** Repository admin token; the API Worker opens bug report issues with it. */
+  GITHUB_ADMIN_TOKEN?: string;
+  /** Where bug reports become issues: the repository the app is built from. */
   FEEDBACK_GITHUB_REPOSITORY?: string;
   /** A simulated GitHub's address; unset wherever GitHub itself is meant. */
   FEEDBACK_GITHUB_API_ORIGIN?: string;

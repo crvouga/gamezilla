@@ -8,7 +8,7 @@ import {
   createBugReportHttpApp,
   MAX_REQUEST_BYTES,
 } from '@pkgs/feedback-server-ts/bug-report-http-app';
-import { localIssueReporter } from '@pkgs/feedback-server-ts/local-issue-reporter';
+import { objectStoreBugReportStore } from '@pkgs/feedback-server-ts/object-store-bug-reports';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server-ts/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server-ts/wall-node-fs';
 import type { ObjectStore } from '@pkgs/object-store-root-shared-ts/interface';
@@ -66,8 +66,7 @@ async function dispatch(
     ...(method === 'POST' ? { body } : {}),
   });
   const response = await createBugReportHttpApp({
-    reporter: localIssueReporter,
-    store,
+    store: objectStoreBugReportStore(store, wallClock),
     clock: wallClock,
     allowedOrigins: [origin],
   })(request);
