@@ -18,6 +18,7 @@
   "dependencies": {
     "@lingui/core": "catalog:",
     "@lingui/solid": "catalog:",
+    "@pkgs/a11y-shared-ts": "workspace:*",
     "@pkgs/clock-client-ts": "workspace:*",
     "@pkgs/clock-shared-ts": "workspace:*",
     "@pkgs/feedback-shared-ts": "workspace:*",

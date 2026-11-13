@@ -4,6 +4,7 @@ import type {
   MotionSample,
   ScreenshotPort,
 } from '@pkgs/feedback-client-ts/ports';
+import type { ScreenBox } from '@pkgs/feedback-shared-ts/types';
 import type { Session } from '@pkgs/harness-root-shared-ts/runtime-types';
 
 /** The smallest picture a device could take. */
@@ -27,9 +28,12 @@ export function createExamplePhone(session: Session) {
   const connectionListeners = new Set<() => void>();
   const motionListeners = new Set<(sample: MotionSample) => void>();
   const screenshotsTakenWhileOpen: boolean[] = [];
+  /** What each screenshot taken was asked to mark, `null` for nothing. */
+  const marked: (ScreenBox | null)[] = [];
   const screenshot: ScreenshotPort = {
-    capture() {
+    capture(options) {
       if (!takesScreenshots) return Promise.resolve(null);
+      marked.push(options?.highlight ?? null);
       screenshotsTakenWhileOpen.push(
         document.querySelector('[data-testid="bug-report-form"]') !== null
       );
@@ -96,6 +100,8 @@ export function createExamplePhone(session: Session) {
         pressing = false;
       }
     },
+    /** What the last screenshot marks: `undefined` when none was taken. */
+    lastScreenshotMarks: (): ScreenBox | null | undefined => marked.at(-1),
     /** Whether the last screenshot was taken with the bug report already showing. */
     lastScreenshotShowsBugReport: (): boolean | null =>
       screenshotsTakenWhileOpen.at(-1) ?? null,

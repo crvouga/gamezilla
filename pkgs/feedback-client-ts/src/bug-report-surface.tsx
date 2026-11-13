@@ -10,12 +10,20 @@ import {
 import { ResponsiveSurface } from '@pkgs/ui-root-client-ts/responsive-surface';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
-import { createMemo, createSignal, onCleanup, splitProps } from 'solid-js';
+import {
+  createMemo,
+  createSignal,
+  onCleanup,
+  Show,
+  splitProps,
+} from 'solid-js';
 import { render } from 'solid-js/web';
 import {
   BugReportFormView,
   type BugReportFormViewProps,
 } from './bug-report-form';
+import type { ContextMenuControl } from './context-menu';
+import { BugReportContextMenu } from './context-menu-view';
 import type { BugReportController } from './controller';
 import { useBugReportState } from './use-bug-reports';
 
@@ -85,6 +93,8 @@ export function renderBugReportSurface(
     readonly clock: Clock;
     readonly timers: Timers;
     readonly theme: ThemePort;
+    /** The app's right-click menu, where the device has a mouse to use it. */
+    readonly contextMenu?: ContextMenuControl | undefined;
   }
 ): () => void {
   const i18n = setupI18n({ locale: 'en', messages: { en: {} } });
@@ -105,6 +115,9 @@ export function renderBugReportSurface(
             <OverlayPortalProvider>
               <SurfaceStackProvider>
                 <BugReportSurface controller={controller} />
+                <Show when={ports.contextMenu}>
+                  {(control) => <BugReportContextMenu control={control()} />}
+                </Show>
               </SurfaceStackProvider>
             </OverlayPortalProvider>
           </ThemeProvider>

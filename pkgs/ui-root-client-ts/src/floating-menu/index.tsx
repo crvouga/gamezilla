@@ -64,6 +64,12 @@ export type FloatingMenuProps = {
   content: FloatingMenuContent;
   /** Accessible name for the menu. */
   label?: string | undefined;
+  /**
+   * One plain sentence in a card of its own under the menu, outside its
+   * items: why an item could not do what it offered. The caller says it
+   * aloud through a status region that outlives the menu.
+   */
+  notice?: string | undefined;
   /** Stable surface-stack id. Defaults to a generated unique id. */
   stackId?: string | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
@@ -137,6 +143,7 @@ function FloatingMenuPanel(props: {
   width: number;
   content: FloatingMenuContent;
   label: string | undefined;
+  notice: string | undefined;
   active: boolean;
   onClose: () => void;
 }): JSX.Element {
@@ -184,6 +191,16 @@ function FloatingMenuPanel(props: {
             )}
           </For>
         </div>
+        <Show when={props.notice}>
+          {(notice) => (
+            <p
+              class="text textCaption text-text-secondary mt-2 px-4 py-3 rounded-card border border-border bg-surface-overlay shadow-float"
+              data-component="FloatingMenuNotice"
+            >
+              {notice()}
+            </p>
+          )}
+        </Show>
       </OnColorReset>
     </div>
   );
@@ -268,6 +285,7 @@ export function FloatingMenu(props: FloatingMenuProps): JSX.Element {
               width={width()}
               content={props.content}
               label={props.label}
+              notice={props.notice}
               active={isTop()}
               onClose={props.onClose}
             />

@@ -11,6 +11,7 @@ import { browserDetails } from './browser-details';
 import type { ThemePort } from './bug-report-surface';
 import { mountBugReports } from './mount-bug-reports';
 import type { ConnectionPort, MotionPort } from './ports';
+import { browserPort } from './wall-browser';
 import { browserScreenshotPort } from './wall-screenshot';
 
 /** Long enough after starting that it never competes with the app for the connection. */
@@ -105,6 +106,8 @@ export function bootBrowserBugReports(options: {
     motion: browserMotion(),
     theme: browserTheme,
     providers: browserDetails(window, options.build ?? 'unknown'),
+    // A device with a mouse gets the app's right-click menu; a finger keeps its own.
+    browser: browserPort(window),
     ...(options.applicationErrorEvent
       ? { applicationErrorEvent: options.applicationErrorEvent }
       : {}),

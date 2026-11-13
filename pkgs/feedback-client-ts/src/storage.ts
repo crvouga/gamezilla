@@ -1,4 +1,5 @@
 import type {
+  BugReportSubject,
   BugReportSubmission,
   DebugEvent,
   ScreenshotFile,
@@ -27,6 +28,8 @@ export type Draft = {
   screenshotRemoved?: boolean;
   /** The debug info kept before the bug report was opened. */
   events: readonly DebugEvent[];
+  /** The one thing on the screen it is about, when the person reported a bug about one. */
+  subject?: BugReportSubject;
 };
 
 export type KeptBugReport = {

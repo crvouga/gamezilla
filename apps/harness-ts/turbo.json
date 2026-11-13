@@ -17,6 +17,7 @@
         "@pkgs/clock-client-ts#src",
         "@pkgs/clock-shared-ts#src",
         "@pkgs/conformance-shared-ts#src",
+        "@pkgs/feedback-client-ts#src",
         "@pkgs/harness-console-client-ts#src",
         "@pkgs/harness-console-shared-ts#src",
         "@pkgs/harness-root-shared-ts#src",

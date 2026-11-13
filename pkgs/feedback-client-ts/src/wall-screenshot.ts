@@ -1,7 +1,7 @@
 // @io-wall-ok — browser screenshot adapter
 
-import type { ScreenshotFile } from '@pkgs/feedback-shared-ts/types';
-import type { ScreenshotPort } from './ports';
+import type { ScreenBox, ScreenshotFile } from '@pkgs/feedback-shared-ts/types';
+import type { ScreenshotOptions, ScreenshotPort } from './ports';
 
 /** Wide enough to read, small enough to send over a poor connection. */
 const MAX_WIDTH = 1280;
@@ -9,15 +9,43 @@ const QUALITY = 0.8;
 
 const library = () => import('modern-screenshot');
 
-async function capture(document: Document): Promise<ScreenshotFile | null> {
-  const { domToBlob } = await library();
+/** How thick the mark around the thing a bug report is about is, in CSS px. */
+const MARK_PX = 3;
+
+/** Draws a box around `highlight`, in the colour the app gives to what is wrong. */
+function mark(
+  canvas: HTMLCanvasElement,
+  view: Window,
+  width: number,
+  highlight: ScreenBox
+): void {
+  const context = canvas.getContext('2d');
+  if (!context) return;
+  const scale = canvas.width / width;
+  const root = view.getComputedStyle(view.document.documentElement);
+  context.strokeStyle =
+    root.getPropertyValue('--color-destructive').trim() ||
+    view.getComputedStyle(view.document.body).color;
+  context.lineWidth = MARK_PX * scale;
+  const inset = (MARK_PX / 2) * scale;
+  context.strokeRect(
+    highlight.x * scale - inset,
+    highlight.y * scale - inset,
+    highlight.width * scale + inset * 2,
+    highlight.height * scale + inset * 2
+  );
+}
+
+async function capture(
+  document: Document,
+  options: ScreenshotOptions | undefined
+): Promise<ScreenshotFile | null> {
+  const { domToCanvas } = await library();
   const view = document.defaultView;
   if (!view) return null;
   const width = view.innerWidth;
   const height = view.innerHeight;
-  const blob = await domToBlob(document.documentElement, {
-    type: 'image/jpeg',
-    quality: QUALITY,
+  const canvas = await domToCanvas(document.documentElement, {
     width,
     height,
     scale: Math.min(view.devicePixelRatio || 1, MAX_WIDTH / width),
@@ -32,6 +60,11 @@ async function capture(document: Document): Promise<ScreenshotFile | null> {
       !(node instanceof view.Element) ||
       !node.matches('[data-feedback-root], [data-feedback-private], noscript'),
   });
+  if (options?.highlight) mark(canvas, view, width, options.highlight);
+  const blob = await new Promise<Blob | null>((resolve) =>
+    canvas.toBlob(resolve, 'image/jpeg', QUALITY)
+  );
+  if (!blob) return null;
   return {
     contentType: 'image/jpeg',
     bytes: new Uint8Array(await blob.arrayBuffer()),
@@ -40,7 +73,8 @@ async function capture(document: Document): Promise<ScreenshotFile | null> {
 
 /**
  * Draws what the app is showing into a picture, without asking the person
- * for anything. Parts an app marks private are left out. A device that
+ * for anything, with the thing a bug report is about marked. Parts an app
+ * marks private are left out. A device that
  * cannot draw it yields no screenshot, never an error.
  */
 export function browserScreenshotPort(document: Document): ScreenshotPort & {
@@ -48,7 +82,7 @@ export function browserScreenshotPort(document: Document): ScreenshotPort & {
   prepare(): void;
 } {
   return {
-    capture: () => capture(document).catch(() => null),
+    capture: (options) => capture(document, options).catch(() => null),
     prepare: () => void library().catch(() => undefined),
   };
 }

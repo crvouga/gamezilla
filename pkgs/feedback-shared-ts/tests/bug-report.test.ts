@@ -113,3 +113,43 @@ test('a picture is told from its bytes', () => {
   expect(pictureType(new TextEncoder().encode('<svg xmlns="x"/>'))).toBeNull();
   expect(pictureType(bytes())).toBeNull();
 });
+
+const SUBJECT = {
+  testIds: ['example-settings', 'example-home'],
+  component: 'Button',
+  screen: 'home',
+  name: 'Settings',
+  role: 'button',
+  box: { x: 10, y: 20, width: 120, height: 44 },
+  viewport: { width: 1280, height: 800 },
+  pointer: { x: 40, y: 30 },
+  selectedText: null,
+  extra: 'dropped',
+} as const;
+
+test('a bug report about one thing is read with exactly the subject fields', () => {
+  const { extra: _extra, ...kept } = SUBJECT;
+  expect(
+    readBugReportSubmission({ ...VALID, subject: SUBJECT }).subject
+  ).toEqual(kept);
+});
+
+test('a bug report about nothing in particular has no subject', () => {
+  expect('subject' in readBugReportSubmission(VALID)).toBe(false);
+});
+
+test.each([
+  ['a box off any screen', { box: { x: 1e9, y: 0, width: 1, height: 1 } }],
+  [
+    'a box that is not a number',
+    { box: { x: '1', y: 0, width: 1, height: 1 } },
+  ],
+  ['too many test ids', { testIds: Array.from({ length: 13 }, () => 'a') }],
+  ['a name too long', { name: 'x'.repeat(201) }],
+  ['a selection too long', { selectedText: 'x'.repeat(1001) }],
+  ['no viewport', { viewport: null }],
+])('a subject with %s is refused', (_name, change) => {
+  expect(() =>
+    readBugReportSubmission({ ...VALID, subject: { ...SUBJECT, ...change } })
+  ).toThrow();
+});
