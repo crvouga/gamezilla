@@ -1,3 +1,5 @@
+import { GITHUB_REPOSITORY } from '@libs/infra-shared-ts/global';
+import { probeIssueWrite } from './feedback-secrets';
 import type { SecretInput } from './secret';
 import { requireNonEmpty, Secret } from './secret';
 
@@ -62,12 +64,22 @@ export const PLANETSCALE_SERVICE_TOKEN = new Secret({
     validateMinLength(input, 'PLANETSCALE_SERVICE_TOKEN', 16),
 });
 
+/**
+ * Also the API Worker's bug report token, pushed to it as is: GitHub mints no
+ * narrower token from a token without a GitHub App. Bug reports are business
+ * critical, so it is required, and checked against GitHub itself so a
+ * revoked or expired token fails the secrets check and the health run.
+ */
 export const GITHUB_ADMIN_TOKEN = new Secret({
   name: 'GITHUB_ADMIN_TOKEN',
   hint: [
     'GitHub token with repository admin rights: the bootstrap stack manages the',
-    'repository, branch protection and Actions variables (libs/infra-shared-ts/tofu/modules/repository).',
+    'repository, branch protection and Actions variables (libs/infra-shared-ts/tofu/modules/repository),',
+    `and the API Worker opens bug report issues in ${GITHUB_REPOSITORY} with it.`,
   ].join('\n'),
-  optional: true,
-  validate: (input) => validateMinLength(input, 'GITHUB_ADMIN_TOKEN', 20),
+  pushToApiWorker: true,
+  validate: async (input) => {
+    await validateMinLength(input, 'GITHUB_ADMIN_TOKEN', 20);
+    await probeIssueWrite(input.secretValue.trim(), GITHUB_REPOSITORY);
+  },
 });

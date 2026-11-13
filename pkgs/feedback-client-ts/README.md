@@ -65,27 +65,46 @@ app. Sending the same report twice creates one issue.
 
 ## On the server
 
-`createBugReportHttpApp({ reporter, store, clock, allowedOrigins })` serves
+`createBugReportHttpApp({ store, clock, allowedOrigins })` serves
 `POST /api/bug-reports` and the archived reports under
 `/api/bug-reports/reports/`. Intake (`bug-report-intake.ts`) refuses anything
 that is not a description with at most four pictures of at most 5 MB each,
 allows `DAILY_BUG_REPORT_LIMIT` reports a day per device and
-`DAILY_BUG_REPORT_CEILING` a day in total, archives the report, then asks the
-`IssueReporter` for an issue.
+`DAILY_BUG_REPORT_CEILING` a day in total, keeps the report's files, then
+records it.
 
-- `GitHubIssueReporter` opens the issue, labelled `bug` and `bug-report`. It
-  needs `FEEDBACK_GITHUB_TOKEN` and `FEEDBACK_GITHUB_REPOSITORY`, both required
-  account-wide secrets whose validation asks GitHub whether the token may
-  open issues there; without them the server answers 503 with the reason and
-  devices keep their reports until it can receive them. `GET /api/bug-reports/health` says whether a report
-  sent now would become an issue, and production's health run asks it
+Where reports go is behind one port, `BugReportStore` in
+`@pkgs/feedback-shared-ts/types`: `records` (`BugReportRecords`: find a report
+by id and the device that sent it, count a day's reports per device and in
+total, record one, and say whether one could be recorded now) and
+`attachments` (`BugReportAttachments`: keep and serve the full report JSON and
+its pictures). A database-backed adapter would be one more implementation of
+the same two types; the intake and the HTTP app never change.
+
+- `GitHubBugReportRecords` makes GitHub the record: each report is an issue
+  labelled `bug`, `bug-report` and `env:<environment>` (`env:prd`, `env:dev`),
+  whose body opens with a hidden marker naming the report and its device. A
+  report sent again is found by that marker (the newest issues, then issue
+  search), and a day's counts come from the newest issues of that environment.
+  The API Worker uses the repository admin token, `GITHUB_ADMIN_TOKEN`, as is
+  (GitHub mints no narrower token without a GitHub App), and
+  `FEEDBACK_GITHUB_REPOSITORY` is the repository `tofu/global.tfvars.json`
+  names. The secrets check asks GitHub whether the token may open issues
+  there; without either the server answers 503 with the reason and devices
+  keep their reports until it can receive them.
+- `objectStoreBugReportAttachments` keeps the files in the environment's
+  object store: GitHub has no API to attach a picture to an issue, and the
+  bucket already serves them at an unlisted address.
+- `GET /api/bug-reports/health` asks both whether a report sent now would be
+  recorded, and names what is not ready; production's health run asks it
   ([`receiving-bug-reports.feature`](../../specs/feedback/receiving-bug-reports.feature)).
 - The issue is written for whoever fixes the bug (`issue-body.ts`): the one
   thing it is about, where it happened and the commit, the timeline with the `data-testid` of each choice,
   every stack and failed request, the device and session, and the link to the
   full report as JSON.
-- `localIssueReporter` is development: the archive under `.feedback/` is the
-  issue. `bun feedback --list` and `bun feedback --inspect <id>` read it.
+- `objectStoreBugReportStore` is development and tests: records and files in
+  one object store, the archive under `.feedback/` standing in for the issue.
+  `bun feedback --list` and `bun feedback --inspect <id>` read it.
 
 ## Ports
 

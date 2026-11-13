@@ -148,3 +148,9 @@ function parseGlobalFile(source: unknown): GlobalFile {
 }
 
 export const GLOBAL: GlobalFile = parseGlobalFile(GLOBAL_SOURCE);
+
+/**
+ * The repository (`owner/name`) the repository-policy module manages: the
+ * app's source, and where its bug reports become issues.
+ */
+export const GITHUB_REPOSITORY = `${GLOBAL.github.owner}/${GLOBAL.github.repo}`;

@@ -97,7 +97,7 @@ The pull request is `PREVIEW_PR=<number>`, or the one for the current branch.
 | --- | --- | --- |
 | `mise run preview:url` | Print the Preview URL from the pull request description | `gh` |
 | `mise run preview:test` | Check the deployed Preview and Storybook over HTTP | `gh` |
-| `mise run preview:build` | Build the harness bundle and gate it | Cloudflare read, or `PREVIEW_URL` |
+| `mise run preview:build` | Build the harness bundle and gate it (fatal only for main) | Cloudflare read, or `PREVIEW_URL` |
 | `mise run preview:deploy` | Build, gate, upload, check | Cloudflare deploy credential |
 | `mise run preview:main` | Build this checkout and deploy it as the main branch's | Cloudflare deploy credential |
 | `mise run preview:destroy` | Delete the Preview; verify it is gone | Cloudflare deploy credential |
@@ -116,7 +116,7 @@ wipe, and there is no server to inspect — see "State and reset".
 
 | Event | Action |
 | --- | --- |
-| Pull request opened, reopened, new commit | build → gate → upload → check |
+| Pull request opened, reopened, new commit | build → gate (warns) → upload → check |
 | Pull request closed or merged | delete the Preview, confirm it is gone |
 | Every six hours, or manual dispatch | sweep |
 
@@ -133,13 +133,22 @@ wipe, and there is no server to inspect — see "State and reset".
   (four fifths of the repository). The harness is built alone and uploaded
   while Storybook is built or restored from the Turborepo cache and uploaded
   beside it; the pull request says the harness is live the moment it is.
-- **A failed deploy keeps the last working version.** The bundle is checked on
-  disk with the same checks the deployed Preview must pass, before anything is
-  uploaded. A commit that does not build or fails that gate is never uploaded,
-  and the pull request shows the commit still serving beside the one attempted.
-  The same checks run again against the deployed URL; if they fail there, the
-  new commit is already serving and the pull request says `deployed, but
-  failing its checks`.
+- **Best effort: whatever builds is deployed.** The bundle is checked on disk
+  with the same checks the deployed Preview must pass, before it is uploaded.
+  For a pull request a failing check is a warning, not a stop: the bundle is
+  uploaded anyway, so the Preview always shows the latest commit that built,
+  and failing pull request checks never hold it back. The same checks run
+  again against the deployed URL. If either run failed, the new commit is
+  serving and the pull request says `deployed, but failing its checks` with
+  the reasons; the GitHub deployment is marked failed and the run ends red,
+  after the upload. Storybook follows the same rule, and never holds the
+  harness Preview back.
+- **Nothing built keeps the last working version.** Only a commit that does
+  not build (the Vite build fails) has nothing to upload; the Preview keeps
+  serving its previous commit and the pull request shows it beside the one
+  attempted.
+- **The main branch's Preview is strict.** `preview.<domain>` is deployed only
+  from a commit that passes the gate, so it keeps its last working version.
 - **Idempotent.** Deploying the same commit again uploads the same files;
   deleting a Preview that is gone succeeds.
 - **Nothing accumulates.** Closing or merging a pull request deletes both of

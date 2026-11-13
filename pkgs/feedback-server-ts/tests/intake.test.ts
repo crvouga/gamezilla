@@ -4,7 +4,11 @@ import {
   BUG_REPORT_PATH,
   createBugReportHttpApp,
 } from '@pkgs/feedback-server-ts/bug-report-http-app';
-import { GitHubIssueReporter } from '@pkgs/feedback-server-ts/github-issue-reporter';
+import { GitHubBugReportRecords } from '@pkgs/feedback-server-ts/github-bug-report-records';
+import {
+  objectStoreBugReportAttachments,
+  objectStoreBugReportStore,
+} from '@pkgs/feedback-server-ts/object-store-bug-reports';
 import type { BugReport } from '@pkgs/feedback-shared-ts/types';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared-ts/impl-in-memory';
 
@@ -24,15 +28,22 @@ function backend() {
   });
   const issues: BugReport[] = [];
   let failing = false;
+  const { records, attachments } = objectStoreBugReportStore(
+    new ObjectStoreImplInMemory(),
+    clock
+  );
   const app = createBugReportHttpApp({
-    reporter: {
-      create(report) {
-        if (failing) return Promise.reject(new Error('down'));
-        issues.push(report);
-        return Promise.resolve({ id: String(issues.length) });
+    store: {
+      records: {
+        ...records,
+        record(report) {
+          if (failing) return Promise.reject(new Error('down'));
+          issues.push(report);
+          return records.record(report);
+        },
       },
+      attachments,
     },
-    store: new ObjectStoreImplInMemory(),
     clock,
     allowedOrigins: [ORIGIN],
   });
@@ -167,7 +178,7 @@ test('only the app itself may send, and only what the archive holds is read', as
 
 test('the GitHub issue is written with the token kept out of its text', async () => {
   const requests: { url: string; init: RequestInit }[] = [];
-  const reporter = new GitHubIssueReporter({
+  const records = new GitHubBugReportRecords({
     http: {
       fetch(input, init) {
         requests.push({ url: String(input), init: init ?? {} });
@@ -181,9 +192,10 @@ test('the GitHub issue is written with the token kept out of its text', async ()
     },
     token: 'secret-token',
     repository: 'team/app',
+    environment: 'dev',
     reportBaseUrl: `${ORIGIN}${BUG_REPORT_PATH}/reports`,
   });
-  const created = await reporter.create({
+  const created = await records.record({
     schema: 'bug-report/v1',
     id: reportId(1),
     reporterId: ALICE,
@@ -205,34 +217,53 @@ test('the GitHub issue is written with the token kept out of its text', async ()
   expect(body).not.toContain('secret-token');
   expect(JSON.parse(body)).toMatchObject({
     title: 'Bug report: The board froze',
-    labels: ['bug', 'bug-report'],
+    labels: ['bug', 'bug-report', 'env:dev'],
   });
   expect(body).toContain(`${BUG_REPORT_PATH}/reports/${reportId(1)}`);
+  expect((JSON.parse(body) as { body: string }).body).toStartWith(
+    `<!-- bug-report id=${reportId(1)} reporter=${ALICE} -->`
+  );
 });
 
-test('a repository that is not owner/name is refused before anything is sent', () => {
+test('a repository that is not owner/name, or an environment that is no label, is refused before anything is sent', () => {
+  const http = { fetch: () => Promise.reject(new Error('unused')) };
   expect(
     () =>
-      new GitHubIssueReporter({
-        http: { fetch: () => Promise.reject(new Error('unused')) },
+      new GitHubBugReportRecords({
+        http,
         token: 't',
         repository: 'team/app/../../user',
+        environment: 'prd',
+      })
+  ).toThrow();
+  expect(
+    () =>
+      new GitHubBugReportRecords({
+        http,
+        token: 't',
+        repository: 'team/app',
+        environment: 'prd label:other',
       })
   ).toThrow();
 });
 
 test('the health address says whether a bug report sent now would become an issue', async () => {
   let listing = 422;
-  const reporter = new GitHubIssueReporter({
+  const records = new GitHubBugReportRecords({
     http: {
       fetch: () => Promise.resolve(new Response('[]', { status: listing })),
     },
     token: 'secret-token',
     repository: 'team/app',
+    environment: 'prd',
   });
   const app = createBugReportHttpApp({
-    reporter,
-    store: new ObjectStoreImplInMemory(),
+    store: {
+      records,
+      attachments: objectStoreBugReportAttachments(
+        new ObjectStoreImplInMemory()
+      ),
+    },
     clock: { now: () => 0 },
     allowedOrigins: [ORIGIN],
   });
