@@ -234,17 +234,16 @@ async function runAsync(
   options: {
     readonly cwd?: string;
     readonly env?: NodeJS.ProcessEnv;
-    readonly inherit?: boolean;
+    readonly input?: string;
   } = {}
 ): Promise<ReturnType<typeof run>> {
   return await new Promise((resolve) => {
     const child = spawn(cmd, [...args], {
       cwd: options.cwd ?? REPO_ROOT,
       env: options.env ?? process.env,
-      stdio: options.inherit
-        ? ['ignore', 'inherit', 'inherit']
-        : ['ignore', 'pipe', 'pipe'],
+      stdio: [options.input === undefined ? 'ignore' : 'pipe', 'pipe', 'pipe'],
     });
+    child.stdin?.end(options.input);
     let stdout = '';
     let stderr = '';
     child.stdout?.on('data', (chunk: Buffer) => {
@@ -275,11 +274,88 @@ function must(
 
 // ── GitHub ───────────────────────────────────────────────────────────────
 
-function gh(args: readonly string[], input?: string): string {
-  return must(
-    `gh ${args.slice(0, 3).join(' ')}`,
-    run('gh', args, input === undefined ? {} : { input })
-  ).stdout;
+function gh(args: readonly string[]): string {
+  return must(`gh ${args.slice(0, 3).join(' ')}`, run('gh', args)).stdout;
+}
+
+type GitHubAnswer = {
+  readonly ok: boolean;
+  /** The parsed body; `null` when there is none or it is not JSON. */
+  readonly body: unknown;
+  readonly error: string;
+};
+
+function parsed(text: string): unknown {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * One call of GitHub's REST API on this repository (`path` is under
+ * `repos/<owner>/<repo>/`). A workflow run calls it with its own token, over
+ * HTTP and without holding this process, so a deploy is never waiting on a
+ * child process to tell the pull request something; a laptop has no token
+ * in its environment and goes through the `gh` CLI's login.
+ */
+async function github(
+  method: string,
+  path: string,
+  payload?: unknown
+): Promise<GitHubAnswer> {
+  const token = envOf('GH_TOKEN');
+  const repository = envOf('GH_REPO') ?? envOf('GITHUB_REPOSITORY');
+  if (token === null || repository === null) {
+    const result = await runAsync(
+      'gh',
+      [
+        'api',
+        '-X',
+        method,
+        `repos/{owner}/{repo}/${path}`,
+        ...(payload === undefined ? [] : ['--input', '-']),
+      ],
+      payload === undefined ? {} : { input: JSON.stringify(payload) }
+    );
+    return {
+      ok: result.code === 0,
+      body: parsed(result.stdout),
+      error: result.stderr.trim(),
+    };
+  }
+  try {
+    const response = await fetch(
+      `${envOf('GITHUB_API_URL') ?? 'https://api.github.com'}/repos/${repository}/${path}`,
+      {
+        method,
+        headers: {
+          accept: 'application/vnd.github+json',
+          authorization: `Bearer ${token}`,
+          'x-github-api-version': '2022-11-28',
+          ...(payload === undefined
+            ? {}
+            : { 'content-type': 'application/json' }),
+        },
+        ...(payload === undefined ? {} : { body: JSON.stringify(payload) }),
+      }
+    );
+    const text = await response.text();
+    return {
+      ok: response.ok,
+      body: parsed(text),
+      error: response.ok
+        ? ''
+        : `HTTP ${String(response.status)} ${text.slice(0, 200)}`,
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      body: null,
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
 }
 
 type PullRequest = {
@@ -290,28 +366,22 @@ type PullRequest = {
   readonly fromFork: boolean;
 };
 
-function readPullRequest(pr: number | null): PullRequest | null {
-  const result = run('gh', [
-    'pr',
-    'view',
-    ...(pr === null ? [] : [String(pr)]),
-    '--json',
-    'number,state,headRefOid,body,isCrossRepository',
-  ]);
-  if (result.code !== 0) return null;
-  const value = JSON.parse(result.stdout) as {
+async function readPullRequest(pr: number): Promise<PullRequest | null> {
+  const got = await github('GET', `pulls/${String(pr)}`);
+  if (!got.ok || got.body === null) return null;
+  const value = got.body as {
     number: number;
     state: string;
-    headRefOid: string;
-    body: string;
-    isCrossRepository: boolean;
+    body: string | null;
+    head: { sha: string; repo: { full_name: string } | null };
+    base: { repo: { full_name: string } };
   };
   return {
     number: value.number,
-    open: value.state === 'OPEN',
-    headSha: value.headRefOid,
-    body: value.body,
-    fromFork: value.isCrossRepository,
+    open: value.state === 'open',
+    headSha: value.head.sha,
+    body: value.body ?? '',
+    fromFork: value.head.repo?.full_name !== value.base.repo.full_name,
   };
 }
 
@@ -323,34 +393,41 @@ function currentPr(): number {
       fail(`PREVIEW_PR is not a pull request number: ${named}`);
     return pr;
   }
-  const pull = readPullRequest(null);
-  if (pull === null)
+  // Which pull request a branch belongs to is the `gh` CLI's to say.
+  const result = run('gh', ['pr', 'view', '--json', 'number']);
+  if (result.code !== 0)
     fail('no pull request for this branch; set PREVIEW_PR=<number>');
-  return pull.number;
+  return (JSON.parse(result.stdout) as { number: number }).number;
 }
 
-/** Rewrite only the Preview section; the author's text is returned as read. */
+/**
+ * What the pull request is told, one after another: a status published
+ * later is written later, however long an earlier one takes.
+ */
+let published: Promise<void> = Promise.resolve();
+
+/**
+ * Rewrite only the Preview section; the author's text is returned as read.
+ * A deploy does not wait for this unless it awaits it: telling the pull
+ * request is never what the Preview waits for.
+ */
 function publishSection(
   pr: number,
   facts: Omit<PreviewSectionFacts, 'pr'>
-): void {
-  const pull = readPullRequest(pr);
-  if (pull === null) return;
-  const section = renderPreviewSection({ ...facts, pr });
-  const body = upsertPreviewSection(pull.body, section);
-  if (body === pull.body) return;
-  gh(
-    [
-      'api',
-      '-X',
-      'PATCH',
-      `repos/{owner}/{repo}/pulls/${String(pr)}`,
-      '--input',
-      '-',
-      '--silent',
-    ],
-    JSON.stringify({ body })
-  );
+): Promise<void> {
+  published = published.then(async () => {
+    const pull = await readPullRequest(pr);
+    if (pull === null) return;
+    const section = renderPreviewSection({ ...facts, pr });
+    const body = upsertPreviewSection(pull.body, section);
+    if (body === pull.body) return;
+    const set = await github('PATCH', `pulls/${String(pr)}`, { body });
+    if (!set.ok)
+      say(
+        `warning: the pull request was not told (${facts.status}): ${set.error}`
+      );
+  });
+  return published;
 }
 
 function runUrl(): string | null {
@@ -365,60 +442,44 @@ function runUrl(): string | null {
 type DeploymentState = 'in_progress' | 'success' | 'failure' | 'inactive';
 
 /** GitHub deployments are published from CI only; a laptop deploy has no run. */
-function createDeployment(pr: number, sha: string): number | null {
+async function createDeployment(
+  pr: number,
+  sha: string
+): Promise<number | null> {
   if (envOf('GITHUB_ACTIONS') === null) return null;
-  const result = run(
-    'gh',
-    ['api', 'repos/{owner}/{repo}/deployments', '--input', '-'],
-    {
-      input: JSON.stringify({
-        ref: sha,
-        environment: GITHUB_ENVIRONMENT,
-        transient_environment: true,
-        production_environment: false,
-        auto_merge: false,
-        required_contexts: [],
-        description: previewNameOfPr(pr),
-        payload: { pr },
-      }),
-    }
-  );
-  if (result.code !== 0) {
-    say(`warning: GitHub deployment not created: ${result.stderr.trim()}`);
+  const made = await github('POST', 'deployments', {
+    ref: sha,
+    environment: GITHUB_ENVIRONMENT,
+    transient_environment: true,
+    production_environment: false,
+    auto_merge: false,
+    required_contexts: [],
+    description: previewNameOfPr(pr),
+    payload: { pr },
+  });
+  const id = (made.body as { id?: unknown } | null)?.id;
+  if (!made.ok || typeof id !== 'number') {
+    say(`warning: GitHub deployment not created: ${made.error}`);
     return null;
   }
-  return (JSON.parse(result.stdout) as { id: number }).id;
+  return id;
 }
 
-function deploymentStatus(
+async function deploymentStatus(
   id: number | null,
   state: DeploymentState,
   detail: { readonly url?: string; readonly description?: string } = {}
-): void {
+): Promise<void> {
   if (id === null) return;
-  const result = run(
-    'gh',
-    [
-      'api',
-      `repos/{owner}/{repo}/deployments/${String(id)}/statuses`,
-      '--input',
-      '-',
-      '--silent',
-    ],
-    {
-      input: JSON.stringify({
-        state,
-        auto_inactive: false,
-        ...(detail.url === undefined ? {} : { environment_url: detail.url }),
-        ...(runUrl() === null ? {} : { log_url: runUrl() }),
-        description: (detail.description ?? '').slice(0, 140),
-      }),
-    }
-  );
-  if (result.code !== 0)
-    say(
-      `warning: GitHub deployment status not published: ${result.stderr.trim()}`
-    );
+  const set = await github('POST', `deployments/${String(id)}/statuses`, {
+    state,
+    auto_inactive: false,
+    ...(detail.url === undefined ? {} : { environment_url: detail.url }),
+    ...(runUrl() === null ? {} : { log_url: runUrl() }),
+    description: (detail.description ?? '').slice(0, 140),
+  });
+  if (!set.ok)
+    say(`warning: GitHub deployment status not published: ${set.error}`);
 }
 
 /**
@@ -426,33 +487,32 @@ function deploymentStatus(
  * deleted. Each commit makes one, so without this a long-lived pull request
  * leaves a record per push behind it, and a closed one leaves them all.
  */
-function pruneDeployments(pr: number, keep: number | null): void {
+async function pruneDeployments(
+  pr: number,
+  keep: number | null
+): Promise<void> {
   if (envOf('GITHUB_ACTIONS') === null) return;
-  const result = run('gh', [
-    'api',
-    `repos/{owner}/{repo}/deployments?environment=${GITHUB_ENVIRONMENT}&per_page=100`,
-  ]);
-  if (result.code !== 0) return;
-  const deployments = JSON.parse(result.stdout) as readonly {
+  const listed = await github(
+    'GET',
+    `deployments?environment=${GITHUB_ENVIRONMENT}&per_page=100`
+  );
+  if (!listed.ok || !Array.isArray(listed.body)) return;
+  const deployments = listed.body as readonly {
     readonly id: number;
     readonly payload?: { readonly pr?: number } | string;
   }[];
-  for (const deployment of deployments) {
-    const payload = deployment.payload;
-    if (typeof payload !== 'object' || payload.pr !== pr) continue;
-    if (deployment.id === keep) continue;
-    deploymentStatus(deployment.id, 'inactive', {
-      description: 'Preview replaced or removed',
-    });
-    // GitHub deletes only an inactive deployment; one it keeps is harmless.
-    run('gh', [
-      'api',
-      '-X',
-      'DELETE',
-      `repos/{owner}/{repo}/deployments/${String(deployment.id)}`,
-      '--silent',
-    ]);
-  }
+  await Promise.all(
+    deployments.map(async (deployment) => {
+      const payload = deployment.payload;
+      if (typeof payload !== 'object' || payload.pr !== pr) return;
+      if (deployment.id === keep) return;
+      await deploymentStatus(deployment.id, 'inactive', {
+        description: 'Preview replaced or removed',
+      });
+      // GitHub deletes only an inactive deployment; one it keeps is harmless.
+      await github('DELETE', `deployments/${String(deployment.id)}`);
+    })
+  );
 }
 
 // ── Cloudflare ───────────────────────────────────────────────────────────
@@ -952,8 +1012,8 @@ async function upload(
  * Preview on the custom domain or on workers.dev. `null` when the
  * description names none.
  */
-function namedOrigin(site: Site, pr: number): string | null {
-  const body = readPullRequest(pr)?.body ?? '';
+async function namedOrigin(site: Site, pr: number): Promise<string | null> {
+  const body = (await readPullRequest(pr))?.body ?? '';
   const named =
     site === HARNESS
       ? (envOf('PREVIEW_URL') ?? previewUrlInBody(body))
@@ -1087,8 +1147,8 @@ async function deploy(pr: number, deploymentSha: string | null): Promise<void> {
     attemptedSha: sha,
     runUrl: runUrl(),
   };
-  const deployment = createDeployment(pr, sha);
-  deploymentStatus(deployment, 'in_progress', { url: origin });
+  const deployment = await createDeployment(pr, sha);
+  await deploymentStatus(deployment, 'in_progress', { url: origin });
   const live = {
     ...facts,
     status: 'live',
@@ -1114,15 +1174,15 @@ async function deploy(pr: number, deploymentSha: string | null): Promise<void> {
     if (harnessUp.status === 'rejected') throw harnessUp.reason;
     if (stories.status === 'rejected') throw stories.reason;
     for (const site of SITES) await ensureMainPreview(cloudflare, site);
-    pruneDeployments(pr, deployment);
+    await pruneDeployments(pr, deployment);
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);
     const unhealthy = error instanceof UnhealthyPreview;
-    deploymentStatus(deployment, 'failure', {
+    await deploymentStatus(deployment, 'failure', {
       url: origin,
       description: detail,
     });
-    publishSection(pr, {
+    await publishSection(pr, {
       ...facts,
       status: unhealthy ? 'unhealthy' : 'failed',
       // Read back, not assumed: one site can be up when the other failed.
@@ -1131,10 +1191,12 @@ async function deploy(pr: number, deploymentSha: string | null): Promise<void> {
     });
     throw error;
   }
-  deploymentStatus(deployment, 'success', {
+  await deploymentStatus(deployment, 'success', {
     url: origin,
     description: `${previewNameOfPr(pr)} serves ${sha.slice(0, 12)}`,
   });
+  // Everything the pull request was told has been written.
+  await published;
   say(`✓ ${origin} serves ${sha.slice(0, 12)}`);
 }
 
@@ -1168,8 +1230,8 @@ async function destroy(
       );
     say(`✓ ${site.key} ${name}: Preview deleted and confirmed gone`);
   }
-  pruneDeployments(pr, null);
-  publishSection(pr, {
+  await pruneDeployments(pr, null);
+  await publishSection(pr, {
     status,
     url: null,
     storybookUrl: null,
@@ -1297,18 +1359,17 @@ function trigger(): PreviewTrigger {
 }
 
 /** The main branch's head as GitHub has it now. */
-function mainHead(): string | null {
-  const result = run('gh', ['api', 'repos/{owner}/{repo}/commits/main']);
-  if (result.code !== 0) return null;
-  const sha = (JSON.parse(result.stdout) as { sha?: unknown }).sha;
-  return typeof sha === 'string' ? sha : null;
+async function mainHead(): Promise<string | null> {
+  const got = await github('GET', 'commits/main');
+  const sha = (got.body as { sha?: unknown } | null)?.sha;
+  return got.ok && typeof sha === 'string' ? sha : null;
 }
 
-function plan(): PreviewAction {
+async function plan(): Promise<PreviewAction> {
   const from = trigger();
   if (from.kind === 'sweep') return { kind: 'sweep' };
-  if (from.kind === 'main') return decideMainAction(from.sha, mainHead());
-  const pull = readPullRequest(from.pr);
+  if (from.kind === 'main') return decideMainAction(from.sha, await mainHead());
+  const pull = await readPullRequest(from.pr);
   return decidePreviewAction(
     from,
     pull === null ? null : { open: pull.open, headSha: pull.headSha }
@@ -1357,7 +1418,7 @@ async function ciRun(): Promise<void> {
     (from.kind === 'pull-request' && from.action !== 'closed' && !from.fromFork)
       ? startBuild()
       : null;
-  const action = plan();
+  const action = await plan();
   if (action.kind !== 'deploy' && action.kind !== 'deploy-main')
     building?.stop();
   if (action.kind === 'skip') return say(`skip: ${action.reason}`);
@@ -1369,7 +1430,7 @@ async function ciRun(): Promise<void> {
     await building.done;
     await build(MAIN_PREVIEW_NAME);
     // The plan was made before the build; main may have moved since.
-    const now = plan();
+    const now = await plan();
     if (now.kind === 'deploy-main') await deployMain(now.sha);
     else say(`skip: ${now.kind === 'skip' ? now.reason : now.kind}`);
     return;
@@ -1377,7 +1438,7 @@ async function ciRun(): Promise<void> {
   // While the bundle builds: where it will be, and the pull request told.
   const cloudflare = account();
   const origin = await originOf(HARNESS, action.pr, cloudflare);
-  publishSection(action.pr, {
+  void publishSection(action.pr, {
     status: 'deploying',
     url: origin,
     storybookUrl: await originOf(STORYBOOK, action.pr, cloudflare),
@@ -1389,7 +1450,7 @@ async function ciRun(): Promise<void> {
   await building.done;
   await build(previewNameOfPr(action.pr));
   // The plan was made before the build; the head may have moved since.
-  const now = plan();
+  const now = await plan();
   if (now.kind === 'deploy') return await deploy(now.pr, now.sha);
   say(
     `skip: ${now.kind === 'skip' ? now.reason : `pull request now needs ${now.kind}`}`
@@ -1401,12 +1462,12 @@ async function ciRun(): Promise<void> {
 async function ciFailed(): Promise<void> {
   const from = trigger();
   if (from.kind !== 'pull-request') return;
-  const pull = readPullRequest(from.pr);
+  const pull = await readPullRequest(from.pr);
   // `deploy` publishes its own outcome; only an unfinished one is ours.
   if (pull === null || !pull.body.includes(DEPLOYING_MARK)) return;
   const origin =
     previewUrlInBody(pull.body) ?? (await originOf(HARNESS, from.pr, null));
-  publishSection(from.pr, {
+  await publishSection(from.pr, {
     status: 'failed',
     url: origin,
     storybookUrl: storybookUrlInBody(pull.body),
@@ -1428,7 +1489,7 @@ export async function main(argv: readonly string[]): Promise<void> {
   const [command, argument] = argv;
   switch (command) {
     case 'url': {
-      const pull = readPullRequest(currentPr());
+      const pull = await readPullRequest(currentPr());
       const url = pull === null ? null : previewUrlInBody(pull.body);
       if (url === null) fail('the pull request names no Preview URL yet');
       process.stdout.write(`${url}\n`);
@@ -1451,7 +1512,7 @@ export async function main(argv: readonly string[]): Promise<void> {
       const pr = currentPr();
       let ok = true;
       for (const site of SITES) {
-        const origin = namedOrigin(site, pr);
+        const origin = await namedOrigin(site, pr);
         if (origin === null) {
           // A description from before Storybook had a Preview names only one.
           if (site === HARNESS)

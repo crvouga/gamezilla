@@ -114,19 +114,25 @@ jobs:
             at "checkout: done"
           }
           install() {
+            # The tools are named by `mise.toml` alone, so they start from that
+            # one file, fetched by itself, before the checkout has written it.
+            mkdir -p "$BOOT/tools"
+            curl -fsSL --retry 3 -o "$BOOT/tools/mise.toml" "https://raw.githubusercontent.com/$GITHUB_REPOSITORY/$PREVIEW_SHA/mise.toml" &
+            pinned=$!
             curl -fsSL --retry 3 -o "$BOOT/mise.tar.zst" "https://github.com/jdx/mise/releases/download/v$MISE_VERSION/mise-v$MISE_VERSION-linux-x64.tar.zst"
             echo "$MISE_SHA256  $BOOT/mise.tar.zst" | sha256sum --check --quiet
             tar --zstd -xf "$BOOT/mise.tar.zst" -C "$BOOT"
-            mise() { MISE_TRUSTED_CONFIG_PATHS="$GITHUB_WORKSPACE" MISE_YES=1 "$BOOT/mise/bin/mise" "$@"; }
-            until [ -e "$BOOT/manifests" ]; do
-              kill -0 "$1" 2>/dev/null || [ -e "$BOOT/manifests" ] || exit 1
-              sleep 0.1
-            done
+            wait "$pinned"
+            mise() { (cd "$BOOT/tools" && MISE_TRUSTED_CONFIG_PATHS="$BOOT/tools" MISE_YES=1 "$BOOT/mise/bin/mise" "$@"); }
             # The install needs Bun alone; Node arrives while it runs.
             mise install bun
             mise install node &
             node=$!
             at "install: bun"
+            until [ -e "$BOOT/manifests" ]; do
+              kill -0 "$1" 2>/dev/null || [ -e "$BOOT/manifests" ] || exit 1
+              sleep 0.1
+            done
             PATH="$(mise bin-paths bun):$PATH" bun install --frozen-lockfile --ignore-scripts
             wait "$node"
             mise bin-paths bun node > "$BOOT/paths"
