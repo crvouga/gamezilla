@@ -28,10 +28,13 @@ import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import type { Environment } from './health';
 import {
   allSpecs,
+  BROWSER_FREE_FEATURES,
   HOST_LIMITS,
+  healthLanes,
   healthTestArguments,
   healthTestEnvironment,
   hostSkips,
+  lanesStatus,
   parseCli,
   scopedSpecs,
   selectSpecs,
@@ -360,6 +363,58 @@ test(${JSON.stringify(scenario)}, async () => {
   } finally {
     removeTree(dir, { whenLocked: 'leave' });
   }
+});
+
+// regression: health-serial-lanes-over-budget
+describe('the browser-free lane runs beside the journeys', () => {
+  const uri = (path: string) => slashPath(relative(REPO_ROOT, path));
+
+  test('every browser-free feature is a live feature outside the journeys', () => {
+    const live = allSpecs().map(uri);
+    for (const feature of BROWSER_FREE_FEATURES) {
+      expect(live).toContain(feature);
+      expect(feature.startsWith('specs/journeys/')).toBe(false);
+    }
+  });
+
+  test('the Tempo and OpenTofu waits leave the serial browser lane', () => {
+    const lanes = healthLanes(
+      allSpecs().filter((path) => path.endsWith('.feature'))
+    );
+    const browserFree = lanes.browserFree.map(uri);
+    expect(browserFree).toContain('specs/profile/finding-a-person.feature');
+    expect(browserFree).toContain('specs/runtime/declared-environment.feature');
+    const browser = lanes.browser.map(uri);
+    expect(browser).toContain('specs/journeys/numberlink-packs.feature');
+    expect(browser).toContain('specs/battleship/battleship-health.feature');
+    expect(browser.filter((path) => browserFree.includes(path))).toEqual([]);
+  });
+
+  test('only the browser-free lane forbids a browser', () => {
+    const lane = (browser?: boolean) =>
+      healthTestEnvironment({
+        environment: 'dev',
+        tags: '',
+        vars: {},
+        secrets: new Map(),
+        ...(browser === undefined ? {} : { browser }),
+      })['LIVE_BROWSER'];
+    expect(lane(false)).toBe('0');
+    expect(lane(true)).toBeUndefined();
+    expect(lane()).toBeUndefined();
+  });
+
+  test('a browser-free scenario that reaches for a device fails by name', async () => {
+    const { browserFreeJourney } = await import('../tests/steps/live-world');
+    expect(() => browserFreeJourney().open).toThrow('BROWSER_FREE_FEATURES');
+  });
+
+  test('the run fails when either lane fails', () => {
+    expect(lanesStatus([0, 0])).toBe(0);
+    expect(lanesStatus([0, 2])).toBe(2);
+    expect(lanesStatus([1, 0])).toBe(1);
+    expect(lanesStatus([null, 0])).toBe(1);
+  });
 });
 
 describe('health host limits', () => {

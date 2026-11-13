@@ -156,6 +156,31 @@ async function ensureHost(
   return requireDevice(devices.host, 'device');
 }
 
+/** A step's gestures slower than this are named in the log, with how long they took. */
+const SLOW_ACT_MS = 15_000;
+
+/**
+ * Act on `device`, naming a slow act: a passing health run otherwise says
+ * only how long each whole scenario took, not which of its acts spent it.
+ */
+async function timedAct(
+  devices: LiveDevices,
+  device: Device,
+  gestures: JourneyGestures,
+  name: string
+): Promise<void> {
+  const started = wallClock.now();
+  try {
+    await actOnLiveDevice(devices, device, gestures, name);
+  } finally {
+    const tookMs = wallClock.now() - started;
+    if (tookMs > SLOW_ACT_MS)
+      console.error(
+        `journey act ${name} took ${String(Math.round(tookMs / 1000))}s`
+      );
+  }
+}
+
 function liveJourneyHost(
   target: LiveTarget,
   devices: LiveDevices,
@@ -186,11 +211,11 @@ function liveJourneyHost(
     openPeer: peer.open,
     act: async (name, gestures) => {
       const current = await ensureHost(target, devices);
-      await actOnLiveDevice(devices, current, gestures, name);
+      await timedAct(devices, current, gestures, name);
     },
     actAsGuest: async (name, gestures) => {
       const current = requireDevice(devices.guest, 'guest');
-      await actOnLiveDevice(devices, current, gestures, name);
+      await timedAct(devices, current, gestures, name);
     },
     spaceLink: async () =>
       spaceLinkFromLocation(
@@ -351,6 +376,21 @@ function browsing(
 
 type LiveScenario = LiveWorld & { readonly browsing: Browsing };
 
+/**
+ * The browser-free health lane runs beside the journeys (`LIVE_BROWSER=0`,
+ * `scripts/health.ts`). A step there that reached for a device would share
+ * the monitor account and Chrome with them, so it fails instead.
+ */
+export function browserFreeJourney(): JourneyHost {
+  return new Proxy({} as JourneyHost, {
+    get: (_target, key) => {
+      throw new Error(
+        `this feature opens a browser (journey.${String(key)}): take it off BROWSER_FREE_FEATURES in apps/product-ts/scripts/health.ts`
+      );
+    },
+  });
+}
+
 /** Register the live world for this package's `liveDomains` features. */
 export function useLiveWorld(target?: LiveTarget): void {
   const env = envFile(process.env['SECRETS_ENV']?.trim() || 'dev');
@@ -390,7 +430,10 @@ export function useLiveWorld(target?: LiveTarget): void {
         origins,
         http,
         memo: new Map(),
-        journey: scenario.host,
+        journey:
+          process.env['LIVE_BROWSER'] === '0'
+            ? browserFreeJourney()
+            : scenario.host,
         browsing: scenario,
       });
     },

@@ -15,6 +15,8 @@ export type JourneyScreens = {
   /** The screen a wait settles into, for one that is still arriving. */
   readonly arrives?: Readonly<Record<string, string>>;
   readonly attribute?: (id: string, name: string) => string | null;
+  /** `<screen>:<handle>` to the screen a text wait on that handle sees arrive. */
+  readonly textArrives?: Readonly<Record<string, string>>;
   readonly expectText?: (
     at: { readonly id: string; readonly screen: string },
     value: string,
@@ -82,6 +84,7 @@ export function journeyScreensDriver(model: JourneyScreens) {
         text: async (value, options) => {
           requireVisible(id);
           model.expectText?.({ id, screen }, value, options);
+          screen = model.textArrives?.[`${screen}:${id}`] ?? screen;
         },
       },
     }),

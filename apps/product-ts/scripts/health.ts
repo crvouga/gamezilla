@@ -33,7 +33,7 @@
  *   health --objectives specs/runtime/availability.openslo.yaml   one objective
  */
 
-import { spawnSync } from 'node:child_process';
+import { spawn } from 'node:child_process';
 import {
   existsSync,
   mkdirSync,
@@ -318,6 +318,46 @@ export const HOST_LIMITS: readonly HostLimit[] = [
   },
 ];
 
+/**
+ * Features that open no browser and never sign in the monitor account. They
+ * run in a second `bun test` beside the browser journeys, so their waits
+ * (Tempo indexing a planted trail, an OpenTofu plan) overlap the journeys
+ * instead of adding to them. A feature left off this list runs with the
+ * journeys, one scenario at a time; one listed here that opens a browser
+ * fails (`LIVE_BROWSER=0`, `tests/steps/live-world.ts`). A test checks every
+ * entry still names a real feature.
+ */
+export const BROWSER_FREE_FEATURES: readonly string[] = [
+  'specs/auth/sign-in.feature',
+  'specs/billing/payments.feature',
+  'specs/feedback/receiving-bug-reports.feature',
+  'specs/profile/finding-a-person.feature',
+  'specs/runtime/connected-services.feature',
+  'specs/runtime/declared-environment.feature',
+  'specs/runtime/reaching-the-app.feature',
+  'specs/runtime/request-records.feature',
+  'specs/runtime/serving-people.feature',
+  'specs/runtime/stored-files.feature',
+  'specs/spaces/live-updates.feature',
+  'specs/spaces/spaces.feature',
+];
+
+/** A feature run's two lanes: the browser journeys, and everything else. */
+export type HealthLanes = {
+  readonly browser: readonly string[];
+  readonly browserFree: readonly string[];
+};
+
+/** Splits absolute feature paths by `BROWSER_FREE_FEATURES`. */
+export function healthLanes(features: readonly string[]): HealthLanes {
+  const free = (path: string) =>
+    BROWSER_FREE_FEATURES.includes(slashPath(relative(REPO_ROOT, path)));
+  return {
+    browser: features.filter((path) => !free(path)),
+    browserFree: features.filter(free),
+  };
+}
+
 /** What `env` cannot run in `featureUri`: the whole feature, or some scenarios. */
 export function hostSkips(
   env: Environment,
@@ -460,11 +500,14 @@ function environmentOffers(): {
   };
 }
 
-/** The stubs to run, and the repo-relative features they run. */
+/**
+ * The stubs to run, by lane, and the repo-relative features they run. An
+ * objectives run opens no browser, so its stubs are one lane.
+ */
 function writeStubs(
   cli: Cli,
   environment: { readonly name: string; readonly offers: Environment }
-): { readonly stubs: readonly string[]; readonly features: readonly string[] } {
+): { readonly lanes: HealthLanes; readonly features: readonly string[] } {
   const { offers } = environment;
   const selection = selectSpecs({ all: scopedSpecs(cli), cli });
   if (!selection.ok) {
@@ -474,12 +517,23 @@ function writeStubs(
   freshDirs(cli.objectives ? OBJECTIVE_DIRS : FEATURE_DIRS);
   if (cli.objectives) {
     return {
-      stubs: writeSloStubs(selection.specs, OBJECTIVE_DIRS, environment.name),
+      lanes: {
+        browser: writeSloStubs(
+          selection.specs,
+          OBJECTIVE_DIRS,
+          environment.name
+        ),
+        browserFree: [],
+      },
       features: [],
     };
   }
+  const lanes = healthLanes(selection.specs);
   return {
-    stubs: writeFeatureStubs(offers, selection.specs, FEATURE_DIRS),
+    lanes: {
+      browser: writeFeatureStubs(offers, lanes.browser, FEATURE_DIRS),
+      browserFree: writeFeatureStubs(offers, lanes.browserFree, FEATURE_DIRS),
+    },
     features: selection.specs
       .map((path) => slashPath(relative(REPO_ROOT, path)))
       .filter((uri) => !hostSkips(offers, uri).wholeFeature),
@@ -554,6 +608,8 @@ export function healthTestEnvironment(input: {
   readonly tags: string;
   readonly vars: NodeJS.ProcessEnv;
   readonly secrets: ReadonlyMap<string, string>;
+  /** `false` for the browser-free lane: a step that opens a browser fails. */
+  readonly browser?: boolean;
 }): NodeJS.ProcessEnv {
   return {
     ...input.vars,
@@ -561,7 +617,35 @@ export function healthTestEnvironment(input: {
     SPEC_TAGS: input.tags,
     SPEC_WORLD: 'live',
     SECRETS_ENV: input.environment,
+    ...(input.browser === false ? { LIVE_BROWSER: '0' } : {}),
   };
+}
+
+/** The run's exit status: the first lane that failed, else success. */
+export function lanesStatus(statuses: readonly (number | null)[]): number {
+  for (const status of statuses) if (status !== 0) return status ?? 1;
+  return 0;
+}
+
+/** One `bun test` per non-empty lane, side by side; their exit statuses. */
+async function runLanes(
+  cli: Cli,
+  lanes: HealthLanes,
+  environment: Omit<Parameters<typeof healthTestEnvironment>[0], 'browser'>
+): Promise<readonly (number | null)[]> {
+  const run = (stubs: readonly string[], browser: boolean) =>
+    stubs.length === 0
+      ? Promise.resolve(0)
+      : new Promise<number | null>((done) => {
+          spawn('bun', healthTestArguments(cli, stubs), {
+            cwd: PACKAGE_DIR,
+            stdio: 'inherit',
+            env: healthTestEnvironment({ ...environment, browser }),
+          })
+            .on('error', () => done(1))
+            .on('exit', (code) => done(code));
+        });
+  return Promise.all([run(lanes.browser, true), run(lanes.browserFree, false)]);
 }
 
 if (import.meta.main) {
@@ -584,23 +668,19 @@ if (import.meta.main) {
   console.log(
     `${label}${cli.objectives ? ' objectives' : ''}: ${name}${missing.length > 0 ? ` — without ${missing.join(', ')}` : ''}${tags.length > 0 ? ` — ${tags}` : ''}`
   );
-  const { stubs, features } = writeStubs(cli, { name, offers });
-  if (stubs.length === 0) {
+  const { lanes, features } = writeStubs(cli, { name, offers });
+  if (lanes.browser.length + lanes.browserFree.length === 0) {
     console.error('health: nothing to run');
     process.exit(1);
   }
   const secrets = await exportSecretsMapLive(name);
-  const result = spawnSync('bun', healthTestArguments(cli, stubs), {
-    cwd: PACKAGE_DIR,
-    stdio: 'inherit',
-    env: healthTestEnvironment({
-      environment: name,
-      tags,
-      vars: process.env,
-      secrets,
-    }),
+  const statuses = await runLanes(cli, lanes, {
+    environment: name,
+    tags,
+    vars: process.env,
+    secrets,
   });
   await recordChecks({ cli, environment: name, features, secrets });
   if (cli.objectives) keepObjectiveFailures(name);
-  process.exit(result.status ?? 1);
+  process.exit(lanesStatus(statuses));
 }
