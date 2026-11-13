@@ -1,7 +1,11 @@
 import {
+  HARNESS_APP_VIEW,
+  HARNESS_SWITCH_KEYS,
   type HarnessPanelRef,
   harnessEmulatorPanelId,
   harnessPanelId,
+  harnessSwitchOf,
+  harnessSwitchTarget,
 } from '@pkgs/harness-console-shared-ts/harness-windows';
 import type {
   ProductHarnessPaletteCommand,
@@ -11,15 +15,14 @@ import {
   AppStage,
   type AppStageView,
 } from '@pkgs/ui-devtools-client-ts/app-stage';
-import type { AppStageHandleProps } from '@pkgs/ui-devtools-client-ts/app-stage-handle';
 import { CommandPalette } from '@pkgs/ui-root-client-ts/command-palette';
 import { CommandRegistryProvider } from '@pkgs/ui-root-client-ts/command-registry-context';
 import { EmbeddedFrame } from '@pkgs/ui-root-client-ts/embedded-frame';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import {
-  FlaskConicalIcon,
-  MonitorIcon,
+  ArrowLeftRightIcon,
   PlusIcon,
+  SlidersHorizontalIcon,
 } from '@pkgs/ui-root-client-ts/icons';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { OverlayPortalProvider } from '@pkgs/ui-root-client-ts/overlay-portal';
@@ -27,7 +30,9 @@ import { RegisterCommand } from '@pkgs/ui-root-client-ts/register-command';
 import { Surface } from '@pkgs/ui-root-client-ts/surface';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { useCommandPalette } from '@pkgs/ui-root-client-ts/use-command-palette';
+import { useDocumentShortcuts } from '@pkgs/ui-root-client-ts/use-document-shortcuts';
 import {
+  createEffect,
   createMemo,
   createSignal,
   For,
@@ -36,7 +41,7 @@ import {
   Switch,
 } from 'solid-js';
 import type { HarnessConsoleNav } from './debugger-chrome';
-import { HarnessDevMenu } from './harness-dev-menu';
+import { HarnessHome, type HarnessHomeTool } from './harness-home';
 import {
   type HarnessNodeWindowContext,
   HarnessPanelView,
@@ -105,8 +110,8 @@ function CenteredState(props: { readonly children: JSX.Element }) {
   );
 }
 
-/** The harness's own controls, each a surface opened from its menu. */
-type HarnessControls = 'menu' | 'nodes' | 'snapshots';
+/** The harness's own controls, each a surface its app opens. */
+type HarnessControls = 'nodes' | 'snapshots';
 
 /** An emulator's dashboard, as a view of its own beside the panels. */
 type EmulatorView = {
@@ -132,13 +137,15 @@ function emulatorViews(session: ProductHarnessSession): EmulatorView[] {
 
 /**
  * Every view of the stage. A client's app runs from the start and keeps
- * running while another is on show, as a phone left on a table does; a node
- * behind the apps, or an emulator's dashboard, opens when first looked at.
+ * running while another is on show, as a phone left on a table does; the
+ * harness's own app, a node behind the apps, or an emulator's dashboard,
+ * opens when first looked at.
  */
 function stageViews(
   panels: readonly HarnessPanelRef[],
   emulators: readonly EmulatorView[],
-  context: HarnessNodeWindowContext
+  context: HarnessNodeWindowContext,
+  home: () => JSX.Element
 ): AppStageView[] {
   return [
     ...panels.map(
@@ -158,43 +165,58 @@ function stageViews(
         ),
       })
     ),
+    { id: HARNESS_APP_VIEW, title: 'Harness', content: home },
   ];
 }
 
+/** What a view is called: a node's panel, an emulator, or the harness app. */
+function viewTitle(
+  id: string | null,
+  panels: readonly HarnessPanelRef[],
+  emulators: readonly EmulatorView[]
+): string {
+  if (id === HARNESS_APP_VIEW) return 'Harness';
+  return (
+    panels.find((panel) => panel.id === id)?.title ??
+    emulators.find((emulator) => emulator.id === id)?.title ??
+    'Nothing'
+  );
+}
+
 /**
- * What the button says of what is on show: a client by its initials, a node
- * behind the apps or an emulator by an icon.
+ * Switching apps from the keyboard, whatever is on show: a client's app owns
+ * every other key while it is, and these are the way out of it.
  */
-function handleFace(
-  panel: HarnessPanelRef | null,
-  emulator: EmulatorView | undefined
-): Pick<AppStageHandleProps, 'label' | 'text' | 'icon'> {
-  const showing = panel?.title ?? emulator?.title ?? 'Nothing';
-  const label = `${showing} is on show. Press for the next client, hold or press Down for the harness menu.`;
-  if (panel?.kind === 'client') return { label, text: panel.title.slice(0, 2) };
-  return {
-    label,
-    icon: panel === null ? FlaskConicalIcon : harnessNodeIcon(panel.kind),
-  };
+function useSwitchKeys(view: HarnessView): void {
+  useDocumentShortcuts({
+    enabled: () => true,
+    onKeyDown: (event) => {
+      const asked = event.repeat ? null : harnessSwitchOf(event);
+      if (asked === null) return false;
+      view.switchTo(asked);
+      return true;
+    },
+  });
 }
 
 /**
  * The console: one app at a time, edge to edge, and one small button over
- * it. A tap on the button goes on to the next client's app; holding it opens
- * the menu, with every client and every node behind the apps by name and
- * the harness's own tools. A client's app owns the keyboard while it is on
- * show; the harness's shortcuts apply otherwise, and while one of its
- * surfaces is open.
+ * it that switches to the next: each client's app, then the harness's own,
+ * where the world is set up and everything behind the apps is opened from.
+ * A client's app owns the keyboard while it is on show, but for the keys
+ * that switch apps; the harness's other shortcuts apply otherwise, and
+ * while one of its surfaces is open.
  */
 function ReadyProductHarnessScreen(props: {
   readonly session: ProductHarnessSession;
   readonly nav: HarnessConsoleNav;
 }) {
   const [controls, setControls] = createSignal<HarnessControls | null>(null);
-  const [busy, setBusy] = createSignal(false);
-  // Read again whenever the menu opens: a payment provider can boot later.
+  // Read again whenever the harness app is looked at: a payment provider
+  // can boot later.
+  const [looked, setLooked] = createSignal(0);
   const emulators = createMemo(() => {
-    controls();
+    looked();
     return emulatorViews(props.session);
   });
   const view = useHarnessView(
@@ -202,6 +224,10 @@ function ReadyProductHarnessScreen(props: {
     () => props.nav,
     () => emulators().map((emulator) => emulator.id)
   );
+  createEffect(() => {
+    if (view.shownId() === HARNESS_APP_VIEW) setLooked((count) => count + 1);
+  });
+  useSwitchKeys(view);
   const keyboardPanel = createMemo(() =>
     controls() === null ? (view.shown()?.id ?? null) : null
   );
@@ -213,30 +239,34 @@ function ReadyProductHarnessScreen(props: {
     keyboardPanel,
   };
   const views = createMemo(() =>
-    stageViews(view.panels(), emulators(), context)
+    stageViews(view.panels(), emulators(), context, () => (
+      <HarnessHomeApp
+        view={view}
+        emulators={emulators}
+        onOpen={(tool) => setControls(tool)}
+      />
+    ))
   );
-  const face = createMemo(() =>
-    handleFace(
-      view.shown(),
-      emulators().find((emulator) => emulator.id === view.shownId())
-    )
-  );
+  const label = createMemo(() => {
+    const ids = [
+      ...view.panels().map((panel) => panel.id),
+      ...emulators().map((emulator) => emulator.id),
+      HARNESS_APP_VIEW,
+    ];
+    const title = (id: string | null) =>
+      viewTitle(id, view.panels(), emulators());
+    const next = harnessSwitchTarget({ to: 'next' }, view.shownId(), ids);
+    return `${title(view.shownId())} is on show. Switch to ${title(next)}.`;
+  });
   const paletteCommands = createMemo(() => {
     view.revision();
     return props.session.listPaletteCommands();
   });
-  const change = (work: Promise<unknown>): void => {
-    setBusy(true);
-    void work.catch(() => undefined).finally(() => setBusy(false));
-  };
   const addClient = (): void =>
-    change(
-      props.session
-        .addClient()
-        .then((actor) => view.show(harnessPanelId('client', actor.id)))
-    );
-  const removeClient = (id: string): void =>
-    change(props.session.removeClient(id));
+    void props.session
+      .addClient()
+      .then((actor) => view.show(harnessPanelId('client', actor.id)))
+      .catch(() => undefined);
   return (
     <CommandRegistryProvider
       enableDefaultShortcuts={controls() !== null || !clientOwnsKeyboard()}
@@ -250,73 +280,47 @@ function ReadyProductHarnessScreen(props: {
           shown={view.shownId()}
           views={views()}
           handle={{
-            ...face(),
-            expanded: controls() === 'menu',
-            onTap: view.next,
-            onHold: () => setControls('menu'),
+            label: label(),
+            onTap: () => view.switchTo({ to: 'next' }),
           }}
         />
       </Surface>
-      <HarnessControlSurfaces
+      <ProductHarnessTopologySurface
         session={props.session}
-        view={view}
-        emulators={emulators()}
-        controls={controls()}
-        busy={busy()}
-        setControls={setControls}
-        onAddClient={addClient}
-        onRemoveClient={removeClient}
+        open={controls() === 'nodes'}
+        onClose={() => setControls(null)}
+      />
+      <ProductHarnessSnapshotSurface
+        session={props.session}
+        open={controls() === 'snapshots'}
+        onClose={() => setControls(null)}
       />
       <CommandPalette />
     </CommandRegistryProvider>
   );
 }
 
-/** The menu and the surfaces it opens; under the command registry. */
-function HarnessControlSurfaces(props: {
-  readonly session: ProductHarnessSession;
+/** The harness's own app, opening its tools; under the command registry. */
+function HarnessHomeApp(props: {
   readonly view: HarnessView;
-  readonly emulators: readonly EmulatorView[];
-  readonly controls: HarnessControls | null;
-  readonly busy: boolean;
-  readonly setControls: (controls: HarnessControls | null) => void;
-  readonly onAddClient: () => void;
-  readonly onRemoveClient: (id: string) => void;
+  readonly emulators: () => readonly EmulatorView[];
+  readonly onOpen: (tool: Exclude<HarnessHomeTool, 'commands'>) => void;
 }): JSX.Element {
   const palette = useCommandPalette();
-  const close = (): void => props.setControls(null);
   return (
-    <>
-      <HarnessDevMenu
-        open={props.controls === 'menu'}
-        onClose={close}
-        panels={props.view.panels()}
-        emulators={props.emulators}
-        shown={props.view.shownId()}
-        busy={props.busy}
-        onShow={props.view.show}
-        onRemoveClient={props.onRemoveClient}
-        onAction={(action) => {
-          if (action === 'add-client') props.onAddClient();
-          else if (action === 'commands') palette.open();
-          else props.setControls(action);
-        }}
-      />
-      <ProductHarnessTopologySurface
-        session={props.session}
-        open={props.controls === 'nodes'}
-        onClose={close}
-      />
-      <ProductHarnessSnapshotSurface
-        session={props.session}
-        open={props.controls === 'snapshots'}
-        onClose={close}
-      />
-    </>
+    <HarnessHome
+      panels={props.view.panels()}
+      emulators={props.emulators()}
+      onShow={props.view.show}
+      onOpen={(tool) => {
+        if (tool === 'commands') palette.open();
+        else props.onOpen(tool);
+      }}
+    />
   );
 }
 
-/** Moving between panels from the palette, for a keyboard. */
+/** Moving between views from the palette, for a keyboard. */
 function HarnessViewCommands(props: {
   readonly view: HarnessView;
   readonly onAddClient: () => void;
@@ -324,13 +328,36 @@ function HarnessViewCommands(props: {
   return (
     <>
       <RegisterCommand
-        id="harness-next-client"
-        title="Show the next client"
+        id="harness-next-app"
+        title="Switch to the next app"
         category="Harness"
-        icon={MonitorIcon}
+        icon={ArrowLeftRightIcon}
         keywords={['next', 'client', 'switch', 'cycle', 'app']}
+        shortcut={HARNESS_SWITCH_KEYS.next}
         run={async () => {
-          props.view.next();
+          props.view.switchTo({ to: 'next' });
+        }}
+      />
+      <RegisterCommand
+        id="harness-previous-app"
+        title="Switch to the previous app"
+        category="Harness"
+        icon={ArrowLeftRightIcon}
+        keywords={['previous', 'back', 'client', 'switch', 'cycle', 'app']}
+        shortcut={HARNESS_SWITCH_KEYS.previous}
+        run={async () => {
+          props.view.switchTo({ to: 'previous' });
+        }}
+      />
+      <RegisterCommand
+        id="harness-show-harness"
+        title="Show the harness app"
+        category="Harness"
+        icon={SlidersHorizontalIcon}
+        keywords={['harness', 'configure', 'setup', 'settings', 'menu']}
+        shortcut={HARNESS_SWITCH_KEYS.harness}
+        run={async () => {
+          props.view.switchTo({ to: 'harness' });
         }}
       />
       <RegisterCommand

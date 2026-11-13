@@ -71,21 +71,34 @@ describe('useHarnessView', () => {
     expect(view.shown()?.id).toBe('server:server-a');
   });
 
-  test('next goes round the clients and comes back to them from behind', () => {
+  test('the switcher goes round the clients and the harness app, and back to it from behind', () => {
     const w = world();
     const view = mounted(() => useHarnessView(w.session, w.nav));
-    view.next();
+    view.switchTo({ to: 'next' });
     expect(view.shown()?.id).toBe('client:bob');
-    view.next();
+    view.switchTo({ to: 'next' });
+    // The harness app is a view of its own, not a node's panel.
+    expect(view.shownId()).toBe('harness');
+    expect(view.shown()).toBeNull();
+    view.switchTo({ to: 'next' });
     expect(view.shown()?.id).toBe('client:alice');
     view.show('lb');
-    view.next();
-    expect(view.shown()?.id).toBe('client:alice');
+    view.switchTo({ to: 'next' });
+    expect(view.shownId()).toBe('harness');
+    view.switchTo({ to: 'previous' });
+    expect(view.shown()?.id).toBe('client:bob');
+    view.switchTo({ to: 'app', at: 0 });
+    view.switchTo({ to: 'app', at: 8 });
+    view.switchTo({ to: 'harness' });
     expect(w.writes).toEqual([
       'client:bob',
+      'harness',
       'client:alice',
       'lb',
+      'harness',
+      'client:bob',
       'client:alice',
+      'harness',
     ]);
   });
 
@@ -103,7 +116,7 @@ describe('useHarnessView', () => {
     w.change((clients) => clients.delete('bob'));
     expect(view.shown()?.id).toBe('client:alice');
     w.change((clients) => clients.set('carol', {}));
-    view.next();
+    view.switchTo({ to: 'next' });
     expect(view.shown()?.id).toBe('client:carol');
   });
 });

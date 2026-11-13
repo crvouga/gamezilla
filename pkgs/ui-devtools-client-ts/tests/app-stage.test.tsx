@@ -2,7 +2,6 @@
 
 import { describe, expect, mock, test } from 'bun:test';
 import { AppStage } from '@pkgs/ui-devtools-client-ts/app-stage';
-import { APP_STAGE_HOLD_MS } from '@pkgs/ui-devtools-client-ts/app-stage-handle';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import { createSignal } from 'solid-js';
 import { renderUi } from './render';
@@ -10,7 +9,6 @@ import { renderUi } from './render';
 function mount(start = 'alice') {
   const mounts: Record<string, number> = {};
   const onTap = mock();
-  const onHold = mock();
   const [shown, setShown] = createSignal<string | null>(start);
   const view = (id: string, live: boolean) => ({
     id,
@@ -26,17 +24,11 @@ function mount(start = 'alice') {
       aria-label="Devices"
       shown={shown()}
       views={[view('alice', true), view('bob', true), view('logs', false)]}
-      handle={{
-        label: 'Next device',
-        text: 'al',
-        expanded: false,
-        onTap,
-        onHold,
-      }}
+      handle={{ label: 'Next device', onTap }}
     />
   ));
   const handle = screen.getByRole('button', { name: 'Next device' });
-  return { ...ui, mounts, onTap, onHold, setShown, handle };
+  return { ...ui, mounts, onTap, setShown, handle };
 }
 
 const shownViews = (): (string | null)[] =>
@@ -61,22 +53,24 @@ describe('AppStage', () => {
     expect(screen.getByText('alice app')).toBeInTheDocument();
   });
 
-  test('a press goes on; a hold asks for more and is not also a press', () => {
-    const { handle, onTap, onHold, clock } = mount();
+  test('a press switches, however long it is held: it is a switcher and nothing else', () => {
+    const { handle, onTap, clock } = mount();
     fireEvent.pointerDown(handle, { button: 0, pointerId: 1 });
     fireEvent.pointerUp(handle, { button: 0, pointerId: 1 });
     expect(onTap).toHaveBeenCalledTimes(1);
-    expect(onHold).not.toHaveBeenCalled();
 
     fireEvent.pointerDown(handle, { button: 0, pointerId: 2 });
-    clock.advance(APP_STAGE_HOLD_MS);
-    expect(onHold).toHaveBeenCalledTimes(1);
-    fireEvent.pointerUp(handle, { button: 0, pointerId: 2 });
+    clock.advance(5000);
     expect(onTap).toHaveBeenCalledTimes(1);
+    fireEvent.pointerUp(handle, { button: 0, pointerId: 2 });
+    expect(onTap).toHaveBeenCalledTimes(2);
+    // It opens nothing, so it says it opens nothing.
+    expect(handle).not.toHaveAttribute('aria-haspopup');
+    expect(handle).not.toHaveAttribute('aria-expanded');
   });
 
-  test('a drag moves the handle and is neither a press nor a hold', () => {
-    const { handle, onTap, onHold, clock } = mount();
+  test('a drag moves the handle and is not a press', () => {
+    const { handle, onTap } = mount();
     fireEvent.pointerDown(handle, {
       button: 0,
       pointerId: 1,
@@ -85,22 +79,19 @@ describe('AppStage', () => {
     });
     fireEvent.pointerMove(handle, { pointerId: 1, clientX: 120, clientY: 200 });
     expect(handle).toHaveAttribute('data-dragging', 'true');
-    clock.advance(APP_STAGE_HOLD_MS);
     fireEvent.pointerUp(handle, { pointerId: 1, clientX: 120, clientY: 200 });
     expect(handle).toHaveAttribute('data-dragging', 'false');
     expect(onTap).not.toHaveBeenCalled();
-    expect(onHold).not.toHaveBeenCalled();
   });
 
-  test('the keyboard and the context menu reach both actions', () => {
-    const { handle, onTap, onHold } = mount();
+  test('Enter and Space switch; no other key and no second click does', () => {
+    const { handle, onTap } = mount();
     fireEvent.keyDown(handle, { key: 'Enter' });
     fireEvent.keyDown(handle, { key: ' ' });
     expect(onTap).toHaveBeenCalledTimes(2);
     fireEvent.keyDown(handle, { key: 'ArrowDown' });
-    fireEvent.contextMenu(handle);
-    expect(onHold).toHaveBeenCalledTimes(2);
-    // The click a pointer or a key also makes does not go on again.
+    fireEvent.keyDown(handle, { key: 'Enter', repeat: true });
+    // The click a pointer or a key also makes does not switch again.
     fireEvent.click(handle);
     expect(onTap).toHaveBeenCalledTimes(2);
   });

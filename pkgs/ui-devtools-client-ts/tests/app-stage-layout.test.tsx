@@ -16,12 +16,7 @@ test('a view that is not on show stays in the layout, out of sight and out of re
         live: true,
         content: () => <p>{`${id} app`}</p>,
       }))}
-      handle={{
-        label: 'Next device',
-        expanded: false,
-        onTap: () => undefined,
-        onHold: () => undefined,
-      }}
+      handle={{ label: 'Next device', onTap: () => undefined }}
     />
   ));
   const view = (id: string): HTMLElement => {

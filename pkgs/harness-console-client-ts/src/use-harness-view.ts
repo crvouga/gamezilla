@@ -1,7 +1,9 @@
 import {
+  HARNESS_APP_VIEW,
   type HarnessPanelRef,
+  type HarnessSwitch,
   harnessPanels,
-  nextHarnessClient,
+  harnessSwitchTarget,
   resolveHarnessView,
 } from '@pkgs/harness-console-shared-ts/harness-windows';
 import type { ProductHarnessSession } from '@pkgs/harness-console-shared-ts/ports';
@@ -25,8 +27,11 @@ export type HarnessView = {
   /** The panel on show, when what is on show is a node's panel. */
   readonly shown: Accessor<HarnessPanelRef | null>;
   readonly show: (panel: string) => void;
-  /** On to the next client's app, around to the first again. */
-  readonly next: () => void;
+  /**
+   * Switch apps: on to the next or back to the one before (each client's,
+   * then the harness's own, around again), or straight to one.
+   */
+  readonly switchTo: (asked: HarnessSwitch) => void;
 };
 
 /** The part of a session the panels are derived from. */
@@ -83,10 +88,11 @@ function useHarnessPanels(
 }
 
 /**
- * What the console shows: a panel per node of the session, one of them at a
- * time. Which one lives with the host as text (`nav().show`), so a link
- * reopens it; a choice that is gone falls back to the first client. `nav` is
- * an accessor because the host hands over a fresh value on every change.
+ * What the console shows: a panel per node of the session and the harness's
+ * own app, one of them at a time. Which one lives with the host as text
+ * (`nav().show`), so a link reopens it; a choice that is gone falls back to
+ * the first client. `nav` is an accessor because the host hands over a fresh
+ * value on every change.
  */
 export function useHarnessView(
   session: Accessor<HarnessViewSession>,
@@ -99,6 +105,7 @@ export function useHarnessView(
   const ids = createMemo(() => [
     ...panels().map((panel) => panel.id),
     ...extra(),
+    HARNESS_APP_VIEW,
   ]);
   const shownId = createMemo(() => resolveHarnessView(nav().show, ids()));
   const show = (panel: string): void => {
@@ -112,9 +119,9 @@ export function useHarnessView(
       () => panels().find((panel) => panel.id === shownId()) ?? null
     ),
     show,
-    next: () => {
-      const next = nextHarnessClient(untrack(shownId), untrack(ids));
-      if (next !== null) show(next);
+    switchTo: (asked) => {
+      const to = harnessSwitchTarget(asked, untrack(shownId), untrack(ids));
+      if (to !== null) show(to);
     },
   };
 }

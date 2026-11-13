@@ -1,12 +1,16 @@
 {
   "$schema": "https://v2-11-3.turborepo.dev/schema.json",
-  "extends": ["//"],
+  "extends": [
+    "//"
+  ],
   "tasks": {
     "src": {
-      "inputs": ["$TURBO_EXTENDS$", "!src/tsconfig.json"],
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "!src/tsconfig.json"
+      ],
       "dependsOn": [
         "@pkgs/async-root-client-ts#src",
-        "@pkgs/clock-client-ts#src",
         "@pkgs/ui-devtools-shared-ts#src",
         "@pkgs/ui-root-client-ts#src",
         "@pkgs/ui-root-shared-ts#src"

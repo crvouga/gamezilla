@@ -35,7 +35,7 @@ export type AppStageProps = {
   readonly shown: string | null;
   /** Accessible name of the whole stage. */
   readonly 'aria-label': string;
-  /** The floating handle: what it says, and what a press and a hold do. */
+  /** The floating handle: what it says, and where a press goes. */
   readonly handle: AppStageHandleProps;
   readonly dataSet?: ComponentDataSet | undefined;
 };
@@ -81,9 +81,9 @@ function StageView(props: {
  * device in a test world) where any chrome around the app would be in its
  * way: there is no bar, no border and no tab; the handle is all there is.
  *
- * - **Press the handle** to go on (`handle.onTap`, usually to the next
- *   view). **Hold it**, right-click it, or press Up / Down on it to ask for
- *   more (`handle.onHold`, usually a menu of every view and the tools).
+ * - **Press the handle** to switch (`handle.onTap`, to the next view): it is
+ *   a plain switcher and nothing else, however long it is held. Anything
+ *   more than switching belongs in a view of its own that it switches to.
  * - **Drag the handle** out of the way; let go and it rests against the
  *   nearer side, where it stays through a resize or a turn of the screen.
  *
@@ -110,11 +110,8 @@ function StageView(props: {
  *     { id: 'logs', title: t`Logs`, content: () => <Logs /> },
  *   ]}
  *   handle={{
- *     label: t`Alice is on show. Press for the next device, hold for the menu.`,
- *     text: 'al',
- *     expanded: menuOpen(),
- *     onTap: () => setShown(shown() === 'alice' ? 'bob' : 'alice'),
- *     onHold: () => setMenuOpen(true),
+ *     label: t`Alice is on show. Press for the next.`,
+ *     onTap: () => setShown(next(shown())),
  *   }}
  * />
  * ```
