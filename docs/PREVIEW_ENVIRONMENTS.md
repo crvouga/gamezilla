@@ -130,7 +130,11 @@ wipe, and there is no server to inspect — see "State and reset".
   latest commit is what gets built, at once. With the re-read above, a run for
   an older commit that got as far as uploading skips instead.
 - **Fast, every commit.** The checkout leaves out the reference screenshots
-  (four fifths of the repository). The harness is built alone and uploaded
+  (four fifths of the repository). The install runs no postinstall generation
+  (`generate: 'false'` on the setup action): the build's own Turborepo tasks
+  generate the derived files a bundle reads (messages, tokens, sounds, the
+  browser object store) and none of the repository's others. The identity is
+  configured once, by the setup. The harness is built alone and uploaded
   while Storybook is built or restored from the Turborepo cache and uploaded
   beside it; the pull request says the harness is live the moment it is.
 - **Best effort: whatever builds is deployed.** The bundle is checked on disk
@@ -156,7 +160,9 @@ wipe, and there is no server to inspect — see "State and reset".
   deployments of the commits before it.
 - **Orphans.** The sweep lists both Workers' Previews and deletes every `pr-<n>`
   whose pull request is not open, and every one whose pull request has had no
-  activity for 7 days (`PREVIEW_RETENTION_MS`). An expired Preview comes back
+  activity for 7 days (`PREVIEW_RETENTION_MS`). Past 80 Previews at once
+  (`PREVIEW_CAPACITY`, under the free plan's 100) it also removes those of
+  the pull requests longest without a change. An expired Preview comes back
   with the next commit or a reopen.
 
 ## On the pull request
@@ -229,8 +235,19 @@ The bundle is about 330 files and 26 MB, its largest file under 9 MB; Storybook
 is about 900 files and 26 MB. There is
 no compute, storage or egress charge at any traffic level, and nothing runs
 while nobody is looking. The binding limit is open pull requests at once (100
-on the free plan); the 7-day retention keeps well under it. GitHub Actions
-time is the only recurring cost: one build per push.
+on the free plan); the 7-day retention and the sweep's capacity keep under
+it. GitHub Actions time is one build per push, on standard runners, which
+cost a public repository nothing.
+
+Previews stay on the free plan by construction (`apps/preview-ts/src/free-plan.ts`):
+
+- **Static files only.** A deploy refuses a wrangler config that declares
+  anything else (a Worker script, a binding, a Durable Object, a variable, any
+  setting not known to be free), for both sites.
+- **Within the free limits.** The `free plan` check of the gate fails a built
+  site with more files, or a larger file, than one free upload takes, so the
+  answer to a bundle that grew is a smaller bundle, never a paid plan.
+- **Never more Previews than the plan holds.** The sweep's capacity, above.
 
 ## Limits of this design
 

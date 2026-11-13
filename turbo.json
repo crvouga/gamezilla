@@ -2385,17 +2385,32 @@
     },
     "//#task:preview:build": {
       "cache": false,
-      "dependsOn": ["//#task:i18n:compile"],
+      "dependsOn": [
+        "//#task:i18n:compile",
+        "//#task:tokens:generate",
+        "//#task:sounds:generate",
+        "@pkgs/object-store-s3-server-ts#generate:browser"
+      ],
       "passThroughEnv": ["*"]
     },
     "//#task:preview:deploy": {
       "cache": false,
-      "dependsOn": ["//#task:i18n:compile"],
+      "dependsOn": [
+        "//#task:i18n:compile",
+        "//#task:tokens:generate",
+        "//#task:sounds:generate",
+        "@pkgs/object-store-s3-server-ts#generate:browser"
+      ],
       "passThroughEnv": ["*"]
     },
     "//#task:preview:main": {
       "cache": false,
-      "dependsOn": ["//#task:i18n:compile"],
+      "dependsOn": [
+        "//#task:i18n:compile",
+        "//#task:tokens:generate",
+        "//#task:sounds:generate",
+        "@pkgs/object-store-s3-server-ts#generate:browser"
+      ],
       "passThroughEnv": ["*"]
     },
     "//#task:preview:test": {

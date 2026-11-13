@@ -83,6 +83,9 @@ jobs:
       - uses: ./.github/actions/setup
         with:
           tools: bun node gh
+          # The build below generates the derived files a bundle reads; the
+          # install generates none of the repository's others.
+          generate: 'false'
           product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
           product-identity-mode: configured
           secrets-environment: dev
@@ -97,7 +100,9 @@ jobs:
           PREVIEW_ACTION: ${{ steps.plan.outputs.action }}
           PREVIEW_PR: ${{ steps.plan.outputs.pr }}
           PREVIEW_URL: ${{ steps.plan.outputs.url }}
-        run: bun run preview:build
+        # Turborepo directly: the setup above already injected the secrets
+        # and configured the identity `bun run preview:build` would again.
+        run: bunx turbo run //#task:preview:build
       - name: Deploy, remove or sweep
         if: ${{ steps.plan.outputs.action != 'skip' }}
         env:

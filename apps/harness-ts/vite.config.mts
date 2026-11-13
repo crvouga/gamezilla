@@ -91,6 +91,9 @@ export default defineConfig(({ mode }) => {
       outDir: resolve(harnessDir, 'dist'),
       emptyOutDir: true,
       sourcemap: false,
+      // Compressing the whole bundle again, only to print its sizes, is
+      // time every Preview deploy would wait for.
+      reportCompressedSize: false,
       cssCodeSplit: true,
       assetsInlineLimit: 0,
       rolldownOptions: {

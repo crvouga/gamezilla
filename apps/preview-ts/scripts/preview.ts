@@ -44,6 +44,11 @@ import {
   createCloudflarePreviews,
 } from '../src/cloudflare-previews';
 import {
+  type BundleFile,
+  billableSettings,
+  freePlanCheck,
+} from '../src/free-plan';
+import {
   type PreviewSectionFacts,
   previewUrlInBody,
   renderPreviewSection,
@@ -63,6 +68,7 @@ import {
   decideMainAction,
   decidePreviewAction,
   failingChecks,
+  PREVIEW_CAPACITY,
   PREVIEW_RETENTION_MS,
   type PreviewAction,
   type PreviewTrigger,
@@ -90,6 +96,7 @@ const STORYBOOK_BUILD = join(
 );
 const STORYBOOK_DIST = join(CACHE_DIR, 'storybook-site');
 const WRANGLER = join(PACKAGE_DIR, 'node_modules/.bin/wrangler');
+const TURBO = join(REPO_ROOT, 'node_modules/.bin/turbo');
 const BUILD_MAX_OLD_SPACE_MB = 8192;
 /** One GitHub environment for every Preview; each deployment is transient. */
 const GITHUB_ENVIRONMENT = 'preview';
@@ -558,6 +565,12 @@ function wrangler(
 /** A site's config with the identity resolved, as wrangler reads it. */
 function writeConfig(site: Site): string {
   const committed = site.config();
+  // Static files are free at any traffic; anything more could be billed.
+  const billable = billableSettings(committed);
+  if (billable.length > 0)
+    throw new Error(
+      `the ${site.key} config declares more than static files (${billable.join(', ')}); a Preview must stay free`
+    );
   const assets = committed['assets'] as Wrangler;
   mkdirSync(CACHE_DIR, { recursive: true });
   const path = join(CACHE_DIR, `${site.key}.wrangler.json`);
@@ -613,20 +626,24 @@ async function build(previewName: string, origin: string): Promise<void> {
   });
   if (built.code !== 0) throw new Error('harness: Vite build failed');
   writeManifest(HARNESS, previewName, commit.sha);
-  const files = readdirSync(HARNESS_DIST, {
-    recursive: true,
-    withFileTypes: true,
-  })
-    .filter((entry) => entry.isFile())
-    .map((entry) =>
-      join(entry.parentPath, entry.name)
-        .slice(HARNESS_DIST.length + 1)
-        .replaceAll('\\', '/')
-    );
+  const files = bundleFiles(HARNESS_DIST).map((file) => file.path);
   writeFileSync(join(HARNESS_DIST, '_headers'), distHeadersFile(files), 'utf8');
   // Fatal only for the main branch: a pull request's bundle is uploaded
   // whatever its gate says, so its build step succeeds once a bundle exists.
   await gate(HARNESS, previewName, commit.sha);
+}
+
+/** Every file of a built site, by its path in the site. */
+function bundleFiles(dist: string): readonly BundleFile[] {
+  return readdirSync(dist, { recursive: true, withFileTypes: true })
+    .filter((entry) => entry.isFile())
+    .map((entry) => {
+      const file = join(entry.parentPath, entry.name);
+      return {
+        path: file.slice(dist.length + 1).replaceAll('\\', '/'),
+        bytes: statSync(file).size,
+      };
+    });
 }
 
 /** `preview.json` names the Preview and the commit a site was built from. */
@@ -645,15 +662,13 @@ function writeManifest(site: Site, previewName: string, sha: string): void {
  * manifest. It is gated where it is uploaded. It is not built for an origin and nothing in the harness waits
  * for it, so a deploy runs this beside the harness upload: a commit that
  * changes no story restores in seconds, and one that does never holds the
- * Preview back.
+ * Preview back. Turborepo is run as it is: whatever ran this command (the
+ * `mise` task, the workflow's setup) already injected the secrets and
+ * configured the identity, and doing so again costs seconds of every deploy.
  */
 async function buildStorybook(previewName: string, sha: string): Promise<void> {
   say('▸ storybook: canonical build (Turborepo builds or restores it)');
-  const built = await runAsync('bun', [
-    'run',
-    'libs/secrets-server-ts/scripts/secrets-run.ts',
-    '--',
-    'turbo',
+  const built = await runAsync(TURBO, [
     'run',
     '@pkgs/ui-root-harness-ts#storybook:build',
     '--output-logs=errors-only',
@@ -691,10 +706,11 @@ async function serving(
   const deadline = wallClock.now() + withinMs;
   let settled = 0;
   while (wallClock.now() < deadline) {
-    // DNS and the edge take a moment after a first upload.
+    // DNS and the edge take a moment after a first upload; an upload over
+    // an earlier one is usually served within a second or two.
     settled = (await deployedCommit(origin)) === sha ? settled + 1 : 0;
     if (settled >= SETTLED_ANSWERS) return true;
-    await sleep(settled === 0 ? 3000 : 1000);
+    await sleep(settled === 0 ? 1000 : 500);
   }
   return false;
 }
@@ -749,7 +765,7 @@ function bundleFetch(dist: string): HttpFetch {
 
 /**
  * The gate before an upload: a site on disk runs the same checks its
- * deployed Preview must. On the main branch a failure stops the upload, so
+ * deployed Preview must, and must fit the free plan. On the main branch a failure stops the upload, so
  * `preview.<domain>` keeps its last working version. A pull request's
  * Preview is best effort (`uploadsDespiteGate`): the failure is a warning,
  * returned so the deploy can report it, and the bundle goes up anyway.
@@ -759,12 +775,15 @@ async function gate(
   previewName: string,
   sha: string
 ): Promise<string | null> {
-  const checks = await site.checks({
-    origin: 'https://bundle.invalid',
-    fetch: bundleFetch(site.dist),
-    previewName,
-    commit: sha,
-  });
+  const checks = [
+    ...(await site.checks({
+      origin: 'https://bundle.invalid',
+      fetch: bundleFetch(site.dist),
+      previewName,
+      commit: sha,
+    })),
+    freePlanCheck(bundleFiles(site.dist)),
+  ];
   say(`▸ gate: the built ${site.key} runs its checks before upload`);
   if (printChecks(checks)) return null;
   const failures = failed(checks);
@@ -1173,6 +1192,7 @@ async function sweep(): Promise<void> {
     })),
     nowMs: wallClock.now(),
     retentionMs: PREVIEW_RETENTION_MS,
+    capacity: PREVIEW_CAPACITY,
   });
   say(
     `${String(names.length)} Preview(s); ${String(plan.orphaned.length)} orphaned, ${String(plan.expired.length)} expired`

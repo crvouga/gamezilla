@@ -1,10 +1,12 @@
 import { expect, test } from 'bun:test';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import fc from 'fast-check';
+import { FREE_PLAN } from '../src/free-plan';
 import {
   decideMainAction,
   decidePreviewAction,
   failingChecks,
+  PREVIEW_CAPACITY,
   type PreviewTrigger,
   planSweep,
   uploadsDespiteGate,
@@ -201,6 +203,7 @@ test('a sweep removes exactly the Previews it made whose pull request is not ope
           })),
           nowMs,
           retentionMs: 14 * day,
+          capacity: Number.MAX_SAFE_INTEGER,
         });
         const removed = [...plan.orphaned, ...plan.expired];
         expect(new Set(removed).size).toBe(removed.length);
@@ -212,6 +215,50 @@ test('a sweep removes exactly the Previews it made whose pull request is not ope
           expect(plan.orphaned.includes(name)).toBe(!isOpen);
           expect(plan.expired.includes(name)).toBe(isOpen && ageDays > 14);
         }
+      }
+    )
+  );
+});
+
+test('a sweep leaves no more Previews than the free plan holds, removing the longest unchanged', () => {
+  expect(PREVIEW_CAPACITY).toBeLessThan(FREE_PLAN.previewsPerWorker);
+  const hour = 60 * 60 * 1000;
+  assertProperty(
+    'sweep keeps the most recently changed within capacity',
+    fc.property(
+      fc.uniqueArray(
+        fc.record({ pr, ageHours: fc.integer({ min: 0, max: 100 }) }),
+        { maxLength: 30, selector: (pull) => pull.pr }
+      ),
+      fc.integer({ min: 0, max: 3 }),
+      fc.integer({ min: 3, max: 20 }),
+      (pulls, foreign, capacity) => {
+        const nowMs = 1_000_000 * hour;
+        const ageOf = new Map(pulls.map((pull) => [pull.pr, pull.ageHours]));
+        const plan = planSweep({
+          previewNames: [
+            ...pulls.map((pull) => previewNameOfPr(pull.pr)),
+            ...Array.from({ length: foreign }, (_, i) => `theirs-${String(i)}`),
+          ],
+          open: pulls.map((pull) => ({
+            pr: pull.pr,
+            updatedAtMs: nowMs - pull.ageHours * hour,
+          })),
+          nowMs,
+          retentionMs: 1_000 * hour,
+          capacity,
+        });
+        expect(plan.orphaned).toEqual([]);
+        const removed = plan.expired.map((name) => prOfPreviewName(name)!);
+        expect(new Set(removed).size).toBe(removed.length);
+        // Exactly as many as are over, and never a name it did not make.
+        expect(removed.length).toBe(
+          Math.max(0, pulls.length + foreign - capacity)
+        );
+        const kept = pulls.filter((pull) => !removed.includes(pull.pr));
+        for (const gone of removed)
+          for (const stays of kept)
+            expect(ageOf.get(gone)!).toBeGreaterThanOrEqual(stays.ageHours);
       }
     )
   );

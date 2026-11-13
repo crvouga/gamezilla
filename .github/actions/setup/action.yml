@@ -37,6 +37,10 @@ inputs:
     description: Restore and save the OpenTofu provider cache (jobs that run tofu init)
     required: false
     default: 'false'
+  generate:
+    description: Generate every derived file after the install (postinstall); false installs the dependencies alone, for a job whose own Turbo tasks generate the few it reads
+    required: false
+    default: 'true'
 
 runs:
   using: composite
@@ -163,6 +167,7 @@ runs:
         restore-keys: bun-install-v1-${{ runner.os }}-${{ runner.arch }}-
 
     - name: Restore generation artifacts
+      if: inputs.generate == 'true'
       # Reuse only Turbo's immutable generation artifacts. Turbo still hashes
       # current inputs and restores outputs; frozen install still runs below.
       # This cache is separate from the verification artifacts and verdicts.
@@ -174,14 +179,25 @@ runs:
         restore-keys: setup-generation-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('bun.lock', 'mise.toml') }}-
 
     - name: Install dependencies and restore generated outputs
+      if: inputs.generate == 'true'
       shell: bash
       env:
         ONNXRUNTIME_NODE_INSTALL: skip
         TURBO_CACHE_DIR: .cache/setup-generation
       run: bun install --frozen-lockfile
 
+    # The postinstall generation writes every derived file in the repository
+    # (catalogs, spec inputs, maps), and a changed source is a cache miss that
+    # runs it again. A job that reads a few of them (the Preview) skips it and
+    # lets the Turbo tasks it runs generate those, once. No dependency this
+    # skips an install script for is one such a job runs.
+    - name: Install dependencies alone
+      if: inputs.generate != 'true'
+      shell: bash
+      run: bun install --frozen-lockfile --ignore-scripts
+
     - name: Save generation artifacts
-      if: steps.generation.outputs.cache-hit != 'true'
+      if: inputs.generate == 'true' && steps.generation.outputs.cache-hit != 'true'
       uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: .cache/setup-generation

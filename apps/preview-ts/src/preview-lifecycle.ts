@@ -5,6 +5,7 @@
  * what keeps a run that waited in that queue from acting on stale facts.
  */
 
+import { FREE_PLAN } from './free-plan';
 import { MAIN_PREVIEW_NAME, prOfPreviewName } from './preview-name';
 
 export type PreviewTrigger =
@@ -108,6 +109,13 @@ export function failingChecks(checks: {
  */
 export const PREVIEW_RETENTION_MS = 7 * 24 * 60 * 60 * 1000;
 
+/**
+ * The most Previews kept at once. The free plan holds a fixed number per
+ * Worker and refuses the upload after it, so a sweep keeps under it with
+ * room for the pull requests opened before the next one.
+ */
+export const PREVIEW_CAPACITY = FREE_PLAN.previewsPerWorker - 20;
+
 export type OpenPullRequest = {
   readonly pr: number;
   readonly updatedAtMs: number;
@@ -116,7 +124,10 @@ export type OpenPullRequest = {
 export type SweepPlan = {
   /** The pull request is closed, merged or gone. */
   readonly orphaned: readonly string[];
-  /** The pull request is open but has not changed within the retention. */
+  /**
+   * The pull request is open but has not changed within the retention, or
+   * is among the least recently changed of more than the capacity.
+   */
   readonly expired: readonly string[];
 };
 
@@ -129,16 +140,30 @@ export function planSweep(args: {
   readonly open: readonly OpenPullRequest[];
   readonly nowMs: number;
   readonly retentionMs: number;
+  /** The most Previews left standing, counting the names it never made. */
+  readonly capacity: number;
 }): SweepPlan {
   const open = new Map(args.open.map((pull) => [pull.pr, pull.updatedAtMs]));
   const orphaned: string[] = [];
   const expired: string[] = [];
+  const kept: { readonly name: string; readonly updatedAtMs: number }[] = [];
+  let foreign = 0;
   for (const name of args.previewNames.toSorted()) {
     const pr = prOfPreviewName(name);
-    if (pr === null) continue;
+    if (pr === null) {
+      foreign += 1;
+      continue;
+    }
     const updatedAtMs = open.get(pr);
     if (updatedAtMs === undefined) orphaned.push(name);
     else if (args.nowMs - updatedAtMs > args.retentionMs) expired.push(name);
+    else kept.push({ name, updatedAtMs });
   }
-  return { orphaned, expired };
+  // Over capacity, the pull requests longest without a change go first.
+  const crowded = Math.max(0, kept.length + foreign - args.capacity);
+  const longestUnchanged = kept.toSorted(
+    (a, b) => a.updatedAtMs - b.updatedAtMs
+  );
+  for (const { name } of longestUnchanged.slice(0, crowded)) expired.push(name);
+  return { orphaned, expired: expired.toSorted() };
 }
