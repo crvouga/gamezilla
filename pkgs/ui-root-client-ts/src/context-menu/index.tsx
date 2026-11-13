@@ -11,7 +11,7 @@ import type {
 } from '../floating-menu-content';
 
 /** Wide enough for "Search the web for" and a short quote on one line. */
-export const CONTEXT_MENU_WIDTH = 280;
+export const CONTEXT_MENU_WIDTH = 340;
 
 export type ContextMenuItem = {
   /** Stable key; the row's `data-testid` is `context-menu-<id>`. */
