@@ -65,18 +65,19 @@ test('the bundle is built from everything it reads and nothing a deploy decides'
   for (const task of ['build', 'deploy', 'main'])
     expect(tasks[`//#task:preview:${task}`]?.dependsOn).toEqual([
       '@apps/harness-ts#build',
+      '//#task:i18n:compile',
     ]);
   const build = tasks['@apps/harness-ts#build']!;
   expect(build.cache).not.toBe(false);
   expect(build.outputs).toEqual(['dist/**']);
   // The install generates nothing, so the build declares what it reads: its
   // own sources and every package's below it, what its Vite config loads,
-  // and the derived files.
+  // and the derived files. The messages are not among them: they compile
+  // beside the bundle, which loads them from the page.
   expect(build.dependsOn).toEqual([
     'src',
     '@pkgs/sql-client-sqlite-web-server-ts#src',
     '@pkgs/vite-workspace-resolver-server-ts#src',
-    '//#task:i18n:compile',
     '//#task:tokens:generate',
     '//#task:sounds:generate',
     '@pkgs/object-store-s3-server-ts#generate:browser',

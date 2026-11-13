@@ -39,6 +39,7 @@ import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import type { HttpFetch } from '@pkgs/http-client-shared-ts/types';
 import { distHeadersFile } from '../../product-ts/scripts/dist-headers';
 import { stampedPage } from '../src/build-stamp';
+import { deployPreview, type SiteFile } from '../src/cloudflare-deploy';
 import {
   type CloudflarePreviews,
   createCloudflarePreviews,
@@ -56,6 +57,7 @@ import {
   upsertPreviewSection,
 } from '../src/pr-body-section';
 import {
+  MESSAGES_PATH,
   PREVIEW_MANIFEST_PATH,
   type PreviewCheck,
   type PreviewChecks,
@@ -95,6 +97,11 @@ const STORYBOOK_BUILD = join(
   'pkgs/ui-root-harness-ts/.cache/storybook'
 );
 const STORYBOOK_DIST = join(CACHE_DIR, 'storybook-site');
+/** The compiled message catalog (`//#task:i18n:compile`). */
+const MESSAGES_SOURCE = join(
+  REPO_ROOT,
+  'libs/app-root-shared-ts/locales/en/messages.ts'
+);
 const WRANGLER = join(PACKAGE_DIR, 'node_modules/.bin/wrangler');
 const TURBO = join(REPO_ROOT, 'node_modules/.bin/turbo');
 /** One GitHub environment for every Preview; each deployment is transient. */
@@ -571,8 +578,8 @@ function wrangler(
   });
 }
 
-/** A site's config with the identity resolved, as wrangler reads it. */
-function writeConfig(site: Site): string {
+/** A site's config, refused unless static files are all it declares. */
+function freeConfig(site: Site): Wrangler {
   const committed = site.config();
   // Static files are free at any traffic; anything more could be billed.
   const billable = billableSettings(committed);
@@ -580,6 +587,12 @@ function writeConfig(site: Site): string {
     throw new Error(
       `the ${site.key} config declares more than static files (${billable.join(', ')}); a Preview must stay free`
     );
+  return committed;
+}
+
+/** A site's config with the identity resolved, as wrangler reads it. */
+function writeConfig(site: Site): string {
+  const committed = freeConfig(site);
   const assets = committed['assets'] as Wrangler;
   mkdirSync(CACHE_DIR, { recursive: true });
   const path = join(CACHE_DIR, `${site.key}.wrangler.json`);
@@ -629,7 +642,8 @@ function buildEnv(): NodeJS.ProcessEnv {
  * The harness bundle, made a Preview's: Turborepo has built or restored
  * `apps/harness-ts` (the `build` task every command here depends on), from
  * its sources alone, so it names no commit and no address. This writes what
- * does: the page's build stamp, `preview.json`, and the response headers. It
+ * does (the page's build stamp, `preview.json`), the compiled messages the
+ * page loads, and the response headers. It
  * carries no secret: every value in it is public.
  */
 async function build(previewName: string): Promise<void> {
@@ -645,6 +659,15 @@ async function build(previewName: string): Promise<void> {
       commit: commit.sha,
       date: commit.date,
     }),
+    'utf8'
+  );
+  // The messages are compiled beside the bundle, not into it, so a bundle
+  // never waits for them: the page loads them from here.
+  writeFileSync(
+    join(HARNESS_DIST, MESSAGES_PATH.slice(1)),
+    new Bun.Transpiler({ loader: 'ts' }).transformSync(
+      readFileSync(MESSAGES_SOURCE, 'utf8')
+    ),
     'utf8'
   );
   writeManifest(HARNESS, previewName, commit.sha);
@@ -666,6 +689,18 @@ function bundleFiles(dist: string): readonly BundleFile[] {
         bytes: statSync(file).size,
       };
     });
+}
+
+/** Every file of a built site, as Cloudflare is to serve it. */
+function siteFiles(dist: string): readonly SiteFile[] {
+  return bundleFiles(dist).map((file) => {
+    const onDisk = join(dist, file.path);
+    return {
+      path: `/${file.path}`,
+      bytes: readFileSync(onDisk),
+      contentType: Bun.file(onDisk).type,
+    };
+  });
 }
 
 /** `preview.json` names the Preview and the commit a site was built from. */
@@ -868,28 +903,24 @@ async function upload(
 ): Promise<void> {
   const { pr, origin, sha, gated } = target;
   const name = previewNameOfPr(pr);
-  say(`▸ ${site.key}: wrangler preview --name ${name}`);
-  const result = must(
-    'wrangler preview',
-    await runAsync(
-      WRANGLER,
-      [
-        'preview',
-        '--name',
-        name,
-        '--config',
-        writeConfig(site),
-        '--tag',
-        sha.slice(0, 12),
-        '--message',
-        `PR #${String(pr)} at ${sha.slice(0, 12)}`,
-        '--json',
-      ],
-      { cwd: PACKAGE_DIR, env: wranglerEnv(cloudflare) }
-    )
-  );
+  say(`▸ ${site.key}: deploying to the Preview ${name}`);
+  const committed = freeConfig(site);
+  const { directory: _directory, ...assets } = committed['assets'] as Wrangler;
+  const urls = (
+    await deployPreview({
+      accountId: cloudflare.accountId,
+      apiToken: cloudflare.apiToken,
+      workerName: workerName(site),
+      previewName: name,
+      files: siteFiles(site.dist),
+      assets,
+      compatibilityDate: String(committed['compatibility_date']),
+      commit: sha,
+      message: `PR #${String(pr)} at ${sha.slice(0, 12)}`,
+      fetch,
+    })
+  ).map((url) => new URL(url).origin);
   // What proves the origin is the wait below; this only says so sooner.
-  const urls = previewUrls(result.stdout);
   if (!urls.includes(origin))
     say(
       `! Cloudflare names ${urls.join(', ') || 'no URL'} for the Preview; it was built for ${origin}`
@@ -912,20 +943,6 @@ async function upload(
     served: printChecks(checks) ? null : failed(checks),
   });
   if (failing !== null) throw new UnhealthyPreview(failing);
-}
-
-/** `wrangler preview --json` prints `{ preview: { urls }, deployment }`. */
-function previewUrls(stdout: string): readonly string[] {
-  const start = stdout.indexOf('{');
-  if (start === -1) return [];
-  try {
-    const value = JSON.parse(stdout.slice(start)) as {
-      preview?: { urls?: readonly string[] };
-    };
-    return (value.preview?.urls ?? []).map((url) => new URL(url).origin);
-  } catch {
-    return [];
-  }
 }
 
 /**
@@ -1308,7 +1325,9 @@ function startBuild(): {
   stop(): void;
 } {
   say('▸ harness: build (Turborepo builds or restores it)');
-  const child = spawn(TURBO, ['run', '@apps/harness-ts#build'], {
+  // The messages compile beside the bundle; neither waits for the other.
+  const tasks = ['@apps/harness-ts#build', '//#task:i18n:compile'];
+  const child = spawn(TURBO, ['run', ...tasks], {
     cwd: REPO_ROOT,
     env: buildEnv(),
     stdio: ['ignore', 'inherit', 'inherit'],

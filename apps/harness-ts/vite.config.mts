@@ -1,6 +1,6 @@
 // @io-wall-ok — build-tool composition root
 import { execFileSync } from 'node:child_process';
-import { resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
 import { brandHtmlPlugin } from '@libs/product-brand-shared-ts/brand-html';
 import { getConfig } from '@lingui/conf';
 import { sqliteWebAssets } from '@pkgs/sql-client-sqlite-web-server-ts/sqlite-web-assets';
@@ -53,12 +53,39 @@ const BUILT_ANYWHERE = {
   'import.meta.env.VITE_COMMIT_DATE': 'globalThis.__BUILD__?.date',
 };
 
+/** The compiled message catalog, as `@libs/app-root-shared-ts` imports it. */
+const MESSAGES = resolve(
+  repoRoot,
+  'libs/app-root-shared-ts/locales/en/messages'
+);
+
+/**
+ * A built bundle loads the compiled messages from the page's own
+ * `/messages.js` instead of carrying them: extracting and compiling them
+ * takes as long as half the bundle, and this way the two run side by side.
+ * Whoever deploys the bundle puts the compiled catalog at that address.
+ */
+function messagesBesideTheBundle(): PluginOption {
+  return {
+    name: 'messages-beside-the-bundle',
+    apply: 'build',
+    enforce: 'pre',
+    resolveId(source, importer) {
+      if (importer === undefined || !source.startsWith('.')) return null;
+      return resolve(dirname(importer), source) === MESSAGES
+        ? { id: '/messages.js', external: 'absolute' }
+        : null;
+    },
+  };
+}
+
 export default defineConfig(({ mode, command }) => {
   const built = command === 'build';
   if (!built) servedBuildEnv();
   const plugins: PluginOption[] = [
     // `index.html` spells `%BRAND_NAME%`; the identity fills it in.
     brandHtmlPlugin(),
+    messagesBesideTheBundle(),
     artifactProtection(),
     workspaceExportsResolver({ repoRoot, scopes: DEFAULT_WORKSPACE_SCOPES }),
     sqliteWebAssets({

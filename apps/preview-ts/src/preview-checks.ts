@@ -9,6 +9,11 @@ import type { HttpFetch } from '@pkgs/http-client-shared-ts/types';
 
 /** Written into the bundle by `preview build`; names what is being served. */
 export const PREVIEW_MANIFEST_PATH = '/preview.json';
+/**
+ * The compiled messages, a module of their own the bundle imports by this
+ * address: they are compiled beside the bundle, never into it.
+ */
+export const MESSAGES_PATH = '/messages.js';
 /** The harness is the whole site: it is the page at the root. */
 const HARNESS_PATH = '/';
 /** An application route with no file behind it. */
@@ -97,7 +102,7 @@ async function bundleCheck(
   const name = 'bundle';
   if (scripts.length === 0)
     return { name, ok: false, detail: 'the page loads no script' };
-  for (const script of scripts) {
+  for (const script of [...scripts, MESSAGES_PATH]) {
     const response = await probe.fetch(`${probe.origin}${script}`);
     await response.arrayBuffer();
     if (response.status !== 200 || !isOf(response, 'javascript'))
@@ -110,7 +115,7 @@ async function bundleCheck(
   return {
     name,
     ok: true,
-    detail: `${String(scripts.length)} entry script(s) served`,
+    detail: `${String(scripts.length)} entry script(s) and the messages served`,
   };
 }
 

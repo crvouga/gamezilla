@@ -16,6 +16,7 @@ type Site = Readonly<Record<string, readonly [string, string]>>;
 
 const GOOD: Site = {
   '/assets/index-abc.js': ['text/javascript', 'export {}'],
+  '/messages.js': ['text/javascript', 'export const messages = {}'],
   '/preview.json': [
     'application/json',
     JSON.stringify({ preview: 'pr-7', commit: 'a'.repeat(40) }),
