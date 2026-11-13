@@ -79,8 +79,8 @@ jobs:
       # - The checkout is the head itself, not the merge with main: the
       #   deployed commit is the one the pull request shows. It never fetches
       #   or writes the reference screenshots (four fifths of the
-      #   repository), and it writes the package manifests first, which is
-      #   all the install reads. The repository is public, so it needs no
+      #   repository), and it writes first what the install reads: the
+      #   package manifests and any folder one of them depends on. The repository is public, so it needs no
       #   token and leaves none in `.git/config`.
       # - The tools are the versions `mise.toml` pins, installed by a mise
       #   binary held to its published checksum.
@@ -104,6 +104,10 @@ jobs:
             git fetch -q --no-tags --depth=1 --filter=blob:none origin "$PREVIEW_SHA"
             git sparse-checkout set --no-cone /mise.toml /bun.lock /bunfig.toml /package.json '/apps/*/package.json' '/libs/*/package.json' '/pkgs/*/package.json'
             git -c advice.detachedHead=false checkout -q --detach FETCH_HEAD
+            # A dependency that is a folder of the repository (`file:./…`) is
+            # copied by the install, so that folder is written first too.
+            mapfile -t folders < <(grep -ho '"file:\./[^"]*"' package.json ./*/*/package.json | sed -E 's|"file:\.(/[^"]*)"|\1/|' | sort -u)
+            [ "${#folders[@]}" -eq 0 ] || git sparse-checkout add "${folders[@]}"
             touch "$BOOT/manifests"
             at "checkout: the manifests"
             git sparse-checkout set --no-cone '/*' '!**/baselines/**'
