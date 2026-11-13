@@ -90,6 +90,18 @@ function cloudflare(options: {
     return answer(jwt === undefined ? 202 : 201, { jwt });
   };
   const deployTo = async (request: Request, id: string): Promise<Response> => {
+    // The API refuses a `_headers` file of any type but `text/plain`, exactly.
+    for (const type of (await request.clone().text()).matchAll(
+      /filename="_headers"\r\nContent-Type: ([^\r\n]*)/g
+    ))
+      if (type[1] !== 'text/plain')
+        return new Response(
+          JSON.stringify({
+            success: false,
+            errors: [{ code: 10021, message: `_headers is ${type[1]!}` }],
+          }),
+          { status: 400 }
+        );
     const form = await request.formData();
     const files: Record<string, string> = {};
     for (const file of form.getAll('files'))

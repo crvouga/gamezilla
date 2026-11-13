@@ -261,6 +261,47 @@ async function preview(
   };
 }
 
+type Part = {
+  readonly name: string;
+  readonly filename?: string;
+  readonly contentType?: string;
+  readonly body: string;
+};
+
+/**
+ * A form, written out: the deployment API takes a file's content type as
+ * given (`text/plain`, exactly), and a runtime's own form encoder is free to
+ * add to it.
+ */
+function multipart(parts: readonly Part[]): {
+  readonly body: string;
+  readonly contentType: string;
+} {
+  const boundary = `----preview-${createHash('sha256')
+    .update(parts.map((part) => part.body).join('\n'))
+    .digest('hex')
+    .slice(0, 32)}`;
+  const body = parts
+    .map((part) =>
+      [
+        `--${boundary}`,
+        `Content-Disposition: form-data; name="${part.name}"${
+          part.filename === undefined ? '' : `; filename="${part.filename}"`
+        }`,
+        ...(part.contentType === undefined
+          ? []
+          : [`Content-Type: ${part.contentType}`]),
+        '',
+        part.body,
+      ].join('\r\n')
+    )
+    .join('\r\n');
+  return {
+    body: `${body}\r\n--${boundary}--\r\n`,
+    contentType: `multipart/form-data; boundary=${boundary}`,
+  };
+}
+
 /** Deploy the site to its Preview; the addresses Cloudflare serves it at. */
 export async function deployPreview(
   args: PreviewDeploy
@@ -270,29 +311,36 @@ export async function deployPreview(
     uploadAssets(args),
     preview(args),
   ]);
-  const form = new FormData();
-  form.set(
-    'metadata',
-    JSON.stringify({
-      assets: { jwt: assets, config: args.assets },
-      compatibility_date: args.compatibilityDate,
-      annotations: {
-        'workers/commit_sha': args.commit,
-        'workers/message': args.message,
-        'workers/tag': args.commit.slice(0, 12),
-      },
-    })
-  );
   const headers = args.files.find((file) => file.path === '/_headers');
-  if (headers !== undefined)
-    form.append(
-      'files',
-      new File([headers.bytes], '_headers', { type: 'text/plain' })
-    );
+  const form = multipart([
+    {
+      name: 'metadata',
+      body: JSON.stringify({
+        assets: { jwt: assets, config: args.assets },
+        compatibility_date: args.compatibilityDate,
+        annotations: {
+          'workers/commit_sha': args.commit,
+          'workers/message': args.message,
+          'workers/tag': args.commit.slice(0, 12),
+        },
+      }),
+    },
+    // The response headers configure the site; they are never an asset.
+    ...(headers === undefined
+      ? []
+      : [
+          {
+            name: 'files',
+            filename: '_headers',
+            contentType: 'text/plain',
+            body: new TextDecoder().decode(headers.bytes),
+          },
+        ]),
+  ]);
   const deployed = await send(args.fetch, args.apiToken, {
     method: 'POST',
     path: `/accounts/${args.accountId}/workers/workers/${args.workerName}/previews/${encodeURIComponent(id)}/deployments`,
-    body: form,
+    ...form,
   });
   if (!ok(deployed)) throw failure(`deploy ${args.previewName}`, deployed);
   return urls;
