@@ -20,31 +20,25 @@ function previewSteps(): readonly Step[] {
   return workflow.jobs.preview.steps;
 }
 
-// The Preview job starts its checkout, tools and install itself, side by
-// side, instead of through the setup action. What that action guarantees
-// still holds here.
+// The Preview job checks out, installs and reads its secrets itself, side by
+// side, instead of through the checkout, setup and secrets actions. What
+// those guarantee still holds here.
 test('the Preview installs frozen dependencies with no script, before any secret', () => {
   const steps = previewSteps();
-  const start = steps.findIndex((step) =>
-    step.run?.includes('bun install --frozen-lockfile --ignore-scripts')
+  const start = steps[0]!.run ?? '';
+  const lines = start.split('\n').map((line) => line.trim());
+  const install = lines.findIndex((line) => line.includes('bun install'));
+  const secrets = lines.indexOf('bun run apps/preview-ts/scripts/ci.ts run');
+  expect(lines[install]).toEndWith(
+    'bun install --frozen-lockfile --ignore-scripts'
   );
-  const secrets = steps.findIndex(
-    (step) => step.uses === './.github/actions/secrets-auth'
-  );
-  expect(start).toBe(0);
-  expect(secrets).toBeGreaterThan(start);
-  // Every install in the job is that one.
-  for (const step of steps)
-    for (const line of (step.run ?? '').split('\n'))
-      if (line.includes('bun install'))
-        expect(line.trim()).toBe(
-          'bun install --frozen-lockfile --ignore-scripts'
-        );
-  // The checkout leaves no credential behind: it never had one.
-  expect(steps.some((step) => step.uses?.startsWith('actions/checkout'))).toBe(
-    false
-  );
-  expect(steps[start]!.run).not.toMatch(/token|GH_TOKEN|extraheader/i);
+  // The command that reads the secrets starts after the install has ended.
+  expect(lines.indexOf('wait "$installing"')).toBeGreaterThan(install);
+  expect(secrets).toBeGreaterThan(lines.indexOf('wait "$installing"'));
+  // No action runs in the job, so none is handed its token; the checkout
+  // never has a credential to leave behind.
+  expect(steps.filter((step) => step.uses !== undefined)).toEqual([]);
+  expect(start).not.toMatch(/token|extraheader/i);
 });
 
 test('the Preview installs the tools mise.toml pins, with the mise the setup action pins, held to a checksum', () => {
@@ -63,14 +57,41 @@ test('the Preview installs the tools mise.toml pins, with the mise the setup act
   expect(start.run).toContain('"$BOOT/mise" install bun node');
 });
 
-test('the Preview build generates the derived files a bundle reads', () => {
-  // The install generates nothing, so the build declares what it needs.
+test('the bundle is built from everything it reads and nothing a deploy decides', () => {
   const tasks = readTurboTasks(root);
+  // Every Preview command starts from the one cached bundle.
   for (const task of ['build', 'deploy', 'main'])
     expect(tasks[`//#task:preview:${task}`]?.dependsOn).toEqual([
-      '//#task:i18n:compile',
-      '//#task:tokens:generate',
-      '//#task:sounds:generate',
-      '@pkgs/object-store-s3-server-ts#generate:browser',
+      '@apps/harness-ts#build',
     ]);
+  const build = tasks['@apps/harness-ts#build']!;
+  expect(build.cache).not.toBe(false);
+  expect(build.outputs).toEqual(['dist/**']);
+  // The install generates nothing, so the build declares what it reads: its
+  // own sources and every package's below it, what its Vite config loads,
+  // and the derived files.
+  expect(build.dependsOn).toEqual([
+    'src',
+    '@pkgs/sql-client-sqlite-web-server-ts#src',
+    '@pkgs/vite-workspace-resolver-server-ts#src',
+    '//#task:i18n:compile',
+    '//#task:tokens:generate',
+    '//#task:sounds:generate',
+    '@pkgs/object-store-s3-server-ts#generate:browser',
+  ]);
+  // A restored bundle is right for any commit and any address only because
+  // it names neither: both are read where it runs.
+  const config = readFileSync(
+    join(root, 'apps/harness-ts/vite.config.mts'),
+    'utf8'
+  );
+  expect(config).toContain(
+    "'import.meta.env.VITE_API_URL': 'globalThis.location.origin'"
+  );
+  expect(config).toContain(
+    "'import.meta.env.VITE_COMMIT_HASH': 'globalThis.__BUILD__?.commit'"
+  );
+  expect(config).toContain(
+    "'import.meta.env.VITE_COMMIT_DATE': 'globalThis.__BUILD__?.date'"
+  );
 });

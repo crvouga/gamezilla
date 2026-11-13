@@ -37,6 +37,17 @@
         "@pkgs/uuid-shared-ts#src"
       ]
     },
+    "build": {
+      "dependsOn": [
+        "src",
+        "@pkgs/sql-client-sqlite-web-server-ts#src",
+        "@pkgs/vite-workspace-resolver-server-ts#src",
+        "//#task:i18n:compile",
+        "//#task:tokens:generate",
+        "//#task:sounds:generate",
+        "@pkgs/object-store-s3-server-ts#generate:browser"
+      ]
+    },
     "dev": {
       "dependsOn": ["//#task:i18n:compile"],
       "persistent": true,

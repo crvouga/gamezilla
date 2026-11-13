@@ -2385,32 +2385,17 @@
     },
     "//#task:preview:build": {
       "cache": false,
-      "dependsOn": [
-        "//#task:i18n:compile",
-        "//#task:tokens:generate",
-        "//#task:sounds:generate",
-        "@pkgs/object-store-s3-server-ts#generate:browser"
-      ],
+      "dependsOn": ["@apps/harness-ts#build"],
       "passThroughEnv": ["*"]
     },
     "//#task:preview:deploy": {
       "cache": false,
-      "dependsOn": [
-        "//#task:i18n:compile",
-        "//#task:tokens:generate",
-        "//#task:sounds:generate",
-        "@pkgs/object-store-s3-server-ts#generate:browser"
-      ],
+      "dependsOn": ["@apps/harness-ts#build"],
       "passThroughEnv": ["*"]
     },
     "//#task:preview:main": {
       "cache": false,
-      "dependsOn": [
-        "//#task:i18n:compile",
-        "//#task:tokens:generate",
-        "//#task:sounds:generate",
-        "@pkgs/object-store-s3-server-ts#generate:browser"
-      ],
+      "dependsOn": ["@apps/harness-ts#build"],
       "passThroughEnv": ["*"]
     },
     "//#task:preview:test": {

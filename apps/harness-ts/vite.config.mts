@@ -29,18 +29,33 @@ function git(args: readonly string[]): string {
 }
 
 /**
- * What the embedded application reads from its build. The harness has no
- * servers behind it, so its API is its own origin (answered in the tab) and
- * the commit is the checkout's; a deploy sets all three itself.
+ * What the embedded application reads from its build, when served by `vite`.
+ * The harness has no servers behind it, so its API is its own origin
+ * (answered in the tab) and the commit is the checkout's.
  */
-function applicationBuildEnv(): void {
+function servedBuildEnv(): void {
   process.env['VITE_API_URL'] ??= `http://localhost:${String(DEV_PORT)}`;
   process.env['VITE_COMMIT_HASH'] ??= git(['rev-parse', 'HEAD']);
   process.env['VITE_COMMIT_DATE'] ??= git(['log', '-1', '--format=%cI']);
 }
 
-export default defineConfig(({ mode }) => {
-  applicationBuildEnv();
+/**
+ * The same three in a built bundle, read where it runs instead of written
+ * in: the API is the page's own origin, and the commit is what the deploy
+ * stamps into the page (`globalThis.__BUILD__`, absent in a bundle nobody
+ * deployed). A bundle therefore depends on its sources alone, never on the
+ * commit or the address it is deployed for, so Turborepo restores it for
+ * every commit that changes none of them.
+ */
+const BUILT_ANYWHERE = {
+  'import.meta.env.VITE_API_URL': 'globalThis.location.origin',
+  'import.meta.env.VITE_COMMIT_HASH': 'globalThis.__BUILD__?.commit',
+  'import.meta.env.VITE_COMMIT_DATE': 'globalThis.__BUILD__?.date',
+};
+
+export default defineConfig(({ mode, command }) => {
+  const built = command === 'build';
+  if (!built) servedBuildEnv();
   const plugins: PluginOption[] = [
     // `index.html` spells `%BRAND_NAME%`; the identity fills it in.
     brandHtmlPlugin(),
@@ -70,6 +85,7 @@ export default defineConfig(({ mode }) => {
     plugins,
     define: {
       'import.meta.env.MODE': JSON.stringify(mode),
+      ...(built ? BUILT_ANYWHERE : {}),
     },
     server: {
       port: DEV_PORT,

@@ -38,6 +38,7 @@ import { wallClock, wallTimers } from '@pkgs/clock-shared-ts/wall';
 import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import type { HttpFetch } from '@pkgs/http-client-shared-ts/types';
 import { distHeadersFile } from '../../product-ts/scripts/dist-headers';
+import { stampedPage } from '../src/build-stamp';
 import {
   type CloudflarePreviews,
   createCloudflarePreviews,
@@ -96,7 +97,6 @@ const STORYBOOK_BUILD = join(
 const STORYBOOK_DIST = join(CACHE_DIR, 'storybook-site');
 const WRANGLER = join(PACKAGE_DIR, 'node_modules/.bin/wrangler');
 const TURBO = join(REPO_ROOT, 'node_modules/.bin/turbo');
-const BUILD_MAX_OLD_SPACE_MB = 8192;
 /** One GitHub environment for every Preview; each deployment is transient. */
 const GITHUB_ENVIRONMENT = 'preview';
 const DEPLOYING_MARK = '🟡 deploying';
@@ -175,8 +175,12 @@ const STORYBOOK: Site = {
 
 const SITES: readonly Site[] = [HARNESS, STORYBOOK];
 
+const STARTED_MS = wallClock.now();
+
+/** Each line says when it was written: where a deploy's seconds went. */
 function say(message: string): void {
-  process.stdout.write(`${message}\n`);
+  const elapsed = ((wallClock.now() - STARTED_MS) / 1000).toFixed(1);
+  process.stdout.write(`[${elapsed.padStart(5)}s] ${message}\n`);
 }
 
 function fail(message: string): never {
@@ -507,8 +511,8 @@ const origins = new Map<string, string>();
  * uploaded: on the custom domain when that already answers for this
  * Preview's name, and on workers.dev otherwise -- before the domain is
  * attached, while its certificate is being issued, or if the account cannot
- * serve it. The harness bundle is built for one origin, so the choice is made
- * once per run (`PREVIEW_URL` carries it between the workflow's steps).
+ * serve it. The choice is made once per run, so the pull request is told the
+ * address the deploy then checks (`PREVIEW_URL` names one outright).
  */
 async function originOf(
   site: Site,
@@ -606,30 +610,43 @@ function headCommit(): { readonly sha: string; readonly date: string } {
 }
 
 /**
- * The harness bundle (`apps/harness-ts`). It is built for the Preview's own
- * origin so nothing in it names another deployment, and it carries no
- * secret: every value baked into it is public.
+ * What a child process that builds is given: everything but the credentials
+ * a build has no use for. Pull request code runs in a build; the Cloudflare
+ * and GitHub tokens stay with the process that deploys.
  */
-async function build(previewName: string, origin: string): Promise<void> {
+function buildEnv(): NodeJS.ProcessEnv {
+  const {
+    CLOUDFLARE_ACCOUNT_ID: _account,
+    CLOUDFLARE_API_TOKEN: _token,
+    GH_TOKEN: _gh,
+    GITHUB_TOKEN: _github,
+    ...env
+  } = process.env;
+  return env;
+}
+
+/**
+ * The harness bundle, made a Preview's: Turborepo has built or restored
+ * `apps/harness-ts` (the `build` task every command here depends on), from
+ * its sources alone, so it names no commit and no address. This writes what
+ * does: the page's build stamp, `preview.json`, and the response headers. It
+ * carries no secret: every value in it is public.
+ */
+async function build(previewName: string): Promise<void> {
   const commit = headCommit();
-  const env = {
-    ...process.env,
-    // The client build needs more heap than Node's default.
-    NODE_OPTIONS:
-      envOf('NODE_OPTIONS') ??
-      `--max-old-space-size=${String(BUILD_MAX_OLD_SPACE_MB)}`,
-    VITE_API_URL: origin,
-    VITE_COMMIT_HASH: commit.sha,
-    VITE_COMMIT_DATE: commit.date,
-  };
-  removeTree(HARNESS_DIST);
-  say('▸ harness: Vite build');
-  const built = run('bun', ['run', 'build'], {
-    cwd: HARNESS_DIR,
-    env,
-    inherit: true,
-  });
-  if (built.code !== 0) throw new Error('harness: Vite build failed');
+  const page = join(HARNESS_DIST, 'index.html');
+  if (!existsSync(page))
+    throw new Error(
+      'apps/harness-ts is not built; run this through `mise run preview:<command>`'
+    );
+  writeFileSync(
+    page,
+    stampedPage(readFileSync(page, 'utf8'), {
+      commit: commit.sha,
+      date: commit.date,
+    }),
+    'utf8'
+  );
   writeManifest(HARNESS, previewName, commit.sha);
   const files = bundleFiles(HARNESS_DIST).map((file) => file.path);
   writeFileSync(join(HARNESS_DIST, '_headers'), distHeadersFile(files), 'utf8');
@@ -673,11 +690,15 @@ function writeManifest(site: Site, previewName: string, sha: string): void {
  */
 async function buildStorybook(previewName: string, sha: string): Promise<void> {
   say('▸ storybook: canonical build (Turborepo builds or restores it)');
-  const built = await runAsync(TURBO, [
-    'run',
-    '@pkgs/ui-root-harness-ts#storybook:build',
-    '--output-logs=errors-only',
-  ]);
+  const built = await runAsync(
+    TURBO,
+    [
+      'run',
+      '@pkgs/ui-root-harness-ts#storybook:build',
+      '--output-logs=errors-only',
+    ],
+    { env: buildEnv() }
+  );
   if (built.code !== 0 || !existsSync(join(STORYBOOK_BUILD, 'index.html')))
     throw new Error(
       `storybook: build failed: ${(built.stderr || built.stdout).trim().slice(-2000)}`
@@ -1278,54 +1299,76 @@ function plan(): PreviewAction {
 }
 
 /**
- * The harness bundle, built by Turborepo (which first generates the derived
- * files a bundle reads) without holding this process: what the pull request
- * is told meanwhile costs the build nothing.
+ * Turborepo building or restoring the harness bundle (after generating the
+ * derived files it reads), beside this process: nothing here waits for it
+ * until it has nothing else to do.
  */
-async function buildBeside(
-  env: Readonly<Record<string, string>>,
-  meanwhile: () => void
-): Promise<void> {
-  const building = runAsync(TURBO, ['run', '//#task:preview:build'], {
-    env: { ...process.env, ...env },
-    inherit: true,
+function startBuild(): {
+  readonly done: Promise<void>;
+  stop(): void;
+} {
+  say('▸ harness: build (Turborepo builds or restores it)');
+  const child = spawn(TURBO, ['run', '@apps/harness-ts#build'], {
+    cwd: REPO_ROOT,
+    env: buildEnv(),
+    stdio: ['ignore', 'inherit', 'inherit'],
   });
-  meanwhile();
-  if ((await building).code !== 0) throw new Error('the build failed');
+  const done = new Promise<void>((resolve, reject) => {
+    child.on('error', reject);
+    child.on('close', (code) => {
+      if (code === 0) resolve();
+      else reject(new Error('the harness build failed'));
+    });
+  });
+  // Awaited by whoever goes on to deploy; a run that stops it does not.
+  done.catch(() => undefined);
+  return { done, stop: () => child.kill() };
 }
 
-/** The workflow's one step: decide, then build and deploy, remove or sweep. */
+/**
+ * The workflow's one step: decide, then build and deploy, remove or sweep.
+ * A commit pushed or a pull request opened almost always deploys, so the
+ * build starts before the pull request is read to decide it, and is stopped
+ * on the rare run that turns out to need none.
+ */
 async function ciRun(): Promise<void> {
+  const from = trigger();
+  const building =
+    from.kind === 'main' ||
+    (from.kind === 'pull-request' && from.action !== 'closed' && !from.fromFork)
+      ? startBuild()
+      : null;
   const action = plan();
+  if (action.kind !== 'deploy' && action.kind !== 'deploy-main')
+    building?.stop();
   if (action.kind === 'skip') return say(`skip: ${action.reason}`);
   if (action.kind === 'sweep') return await sweep();
   if (action.kind === 'destroy')
     return await destroy(account(), action.pr, 'removed');
+  if (building === null) throw new Error(`nothing was built to ${action.kind}`);
   if (action.kind === 'deploy-main') {
-    await buildBeside({ PREVIEW_ACTION: 'deploy-main' }, () => undefined);
+    await building.done;
+    await build(MAIN_PREVIEW_NAME);
     // The plan was made before the build; main may have moved since.
     const now = plan();
     if (now.kind === 'deploy-main') await deployMain(now.sha);
     else say(`skip: ${now.kind === 'skip' ? now.reason : now.kind}`);
     return;
   }
+  // While the bundle builds: where it will be, and the pull request told.
   const cloudflare = account();
   const origin = await originOf(HARNESS, action.pr, cloudflare);
-  const storybook = await originOf(STORYBOOK, action.pr, cloudflare);
-  const deployed = await deployedCommit(origin);
-  await buildBeside(
-    { PREVIEW_PR: String(action.pr), PREVIEW_URL: origin },
-    () =>
-      publishSection(action.pr, {
-        status: 'deploying',
-        url: origin,
-        storybookUrl: storybook,
-        deployedSha: deployed,
-        attemptedSha: action.sha,
-        runUrl: runUrl(),
-        detail: null,
-      })
-  );
+  publishSection(action.pr, {
+    status: 'deploying',
+    url: origin,
+    storybookUrl: await originOf(STORYBOOK, action.pr, cloudflare),
+    deployedSha: await deployedCommit(origin),
+    attemptedSha: action.sha,
+    runUrl: runUrl(),
+    detail: null,
+  });
+  await building.done;
+  await build(previewNameOfPr(action.pr));
   // The plan was made before the build; the head may have moved since.
   const now = plan();
   if (now.kind === 'deploy') return await deploy(now.pr, now.sha);
@@ -1361,28 +1404,27 @@ async function ci(step: string | undefined): Promise<void> {
   fail(`unknown ci step: ${String(step)}`);
 }
 
-const [command, argument] = process.argv.slice(2);
-try {
+/** One command of the CLI; the workflow's entry (`ci.ts`) calls it too. */
+export async function main(argv: readonly string[]): Promise<void> {
+  const [command, argument] = argv;
   switch (command) {
     case 'url': {
       const pull = readPullRequest(currentPr());
       const url = pull === null ? null : previewUrlInBody(pull.body);
       if (url === null) fail('the pull request names no Preview URL yet');
-      say(url);
+      process.stdout.write(`${url}\n`);
       break;
     }
-    case 'build': {
-      if (envOf('PREVIEW_ACTION') === 'deploy-main') {
-        await build(MAIN_PREVIEW_NAME, mainOrigin());
-        break;
-      }
-      const pr = currentPr();
-      await build(previewNameOfPr(pr), await originOf(HARNESS, pr, null));
+    case 'build':
+      await build(
+        envOf('PREVIEW_ACTION') === 'deploy-main'
+          ? MAIN_PREVIEW_NAME
+          : previewNameOfPr(currentPr())
+      );
       break;
-    }
     case 'deploy': {
       const pr = currentPr();
-      await build(previewNameOfPr(pr), await originOf(HARNESS, pr, null));
+      await build(previewNameOfPr(pr));
       await deploy(pr, null);
       break;
     }
@@ -1412,7 +1454,7 @@ try {
       break;
     }
     case 'main':
-      await build(MAIN_PREVIEW_NAME, mainOrigin());
+      await build(MAIN_PREVIEW_NAME);
       await deployMain(headCommit().sha);
       break;
     case 'destroy':
@@ -1427,6 +1469,11 @@ try {
     default:
       fail('usage: preview <url|build|deploy|main|test|destroy|sweep|ci>');
   }
-} catch (error) {
-  fail(error instanceof Error ? error.message : String(error));
 }
+
+if (import.meta.main)
+  try {
+    await main(process.argv.slice(2));
+  } catch (error) {
+    fail(error instanceof Error ? error.message : String(error));
+  }
