@@ -115,7 +115,15 @@ function SourceChoice(props: CatalogueLoadSourceViewProps): JSX.Element {
   );
 }
 
-/** The saved or chosen file, by name. */
+/** No file is saved: the place asks for one, and its picker names the choice. */
+function choosingFile(source: CatalogueSourceView): boolean {
+  return source.status === 'missing' || source.status === 'chosen';
+}
+
+/**
+ * The saved file, by name; a chosen one too while the picker is not shown
+ * (it is uploading, or being checked for).
+ */
 function SourceFiles(props: {
   source: CatalogueSourceView;
   sourceName: string;
@@ -124,7 +132,7 @@ function SourceFiles(props: {
     <Show
       when={
         props.source.filename !== null ||
-        (props.source.status === 'uploading' && props.source.chosen !== null)
+        (!choosingFile(props.source) && props.source.chosen !== null)
       }
     >
       <MenuSection>
@@ -140,7 +148,7 @@ function SourceFiles(props: {
         <Show
           when={
             props.source.filename === null &&
-            props.source.status === 'uploading' &&
+            !choosingFile(props.source) &&
             props.source.chosen
           }
           keyed
@@ -202,7 +210,7 @@ export function CatalogueLoadSourceView(
 ): JSX.Element {
   const { t } = useLingui();
   const status = () => props.source.status;
-  const choosing = () => status() === 'missing' || status() === 'chosen';
+  const choosing = () => choosingFile(props.source);
   const recheckOffered = () =>
     status() === 'check-failed' || status() === 'saved' || choosing();
   return (
