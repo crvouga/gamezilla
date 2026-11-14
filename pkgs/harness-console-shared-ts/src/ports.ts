@@ -197,14 +197,29 @@ export type ProductHarnessClock = {
   readonly reset: (ms: number) => void;
 };
 
-/** A simulated vendor (sign-in, payments, storage, …) and where to look into it. */
+/**
+ * A simulated vendor (sign-in, payments, storage, …), or what the simulated
+ * vendors deliver (notifications), and where to look into it.
+ */
 export type ProductHarnessEmulator = {
-  /** Stable, URL-safe id (`google`, `stripe`, `s3`, …). */
+  /** Stable, URL-safe id (`google`, `stripe`, `s3`, `notifications`, …). */
   readonly id: string;
   /** What the vendor is to the product. */
   readonly title: string;
   /** An address a frame loads its dashboard from; `null` when there is none. */
   readonly dashboardUrl: string | null;
+  /**
+   * Opens the dashboard as an element of this page, for an emulator with no
+   * address a frame could load. Called once, when it is first looked at.
+   */
+  readonly open?: (() => ProductHarnessEmulatorElement) | undefined;
+};
+
+/** An emulator's dashboard, drawn in this page. */
+export type ProductHarnessEmulatorElement = {
+  /** What to put on the page; it fills the room it is given. */
+  readonly element: Node;
+  readonly dispose: () => void;
 };
 
 export type ProductHarnessSession = {
@@ -214,7 +229,7 @@ export type ProductHarnessSession = {
   partition(a: string, b: string): void;
   heal(a?: string, b?: string): void;
   readonly clients: ReadonlyMap<string, ProductHarnessActor>;
-  /** Live API instances, in balancer rotation order. All share one DB. */
+  /** Live API instances, in balancer rotation order; none is a fleet too. All share one DB. */
   readonly servers: ReadonlyMap<string, ProductHarnessSqlNode>;
   readonly loadBalancer: ProductHarnessLoadBalancerNode;
   readonly pubsub: ProductHarnessPubSubNode;
@@ -229,7 +244,10 @@ export type ProductHarnessSession = {
   removeClient(id: string): Promise<void>;
   /** Boot another API instance into the rotation (`server-b`, `server-c`, …). */
   addServer(id?: string): Promise<ProductHarnessSqlNode>;
-  /** Retire an API instance. Rejects on the last one — crash it instead. */
+  /**
+   * Retire an API instance. The last one may go too: the balancer then has
+   * nothing behind it, and every request fails as one to a missing server.
+   */
   removeServer(id: string): Promise<void>;
   listCommands(): readonly ProductHarnessCommand[];
   runCommand(id: string): Promise<void>;

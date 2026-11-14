@@ -16,8 +16,7 @@
 }
 
 .handle:hover,
-.handle:focus-visible,
-.handle[aria-expanded="true"] {
+.handle:focus-visible {
   opacity: 1;
 }
 
@@ -25,11 +24,6 @@
   cursor: grabbing;
   opacity: 1;
   transition: none;
-}
-
-.handleText {
-  text-transform: uppercase;
-  line-height: 1;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -41,10 +41,10 @@ async function press(element: HTMLElement): Promise<void> {
 /** One device, edge to edge, under the handle. */
 export const Device: Story = {};
 
-/** A view behind the devices: the handle shows what it is by an icon. */
+/** A view behind the devices, under the same handle. */
 export const BehindTheDevices: Story = { args: { shown: 'logs' } };
 
-/** A press goes on to the next device, and the one left keeps its state. */
+/** A press switches to the next view, around again, and a view left keeps its state. */
 export const PressForTheNext: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -59,6 +59,11 @@ export const PressForTheNext: Story = {
     await press(handle(canvasElement));
     await expect(stage(canvasElement)).toHaveAttribute(
       'data-shown-view',
+      'logs'
+    );
+    await press(handle(canvasElement));
+    await expect(stage(canvasElement)).toHaveAttribute(
+      'data-shown-view',
       'alice'
     );
     await expect(
@@ -67,7 +72,7 @@ export const PressForTheNext: Story = {
   },
 };
 
-/** The keyboard does both: Enter goes on, Down asks for more. */
+/** The keyboard switches too: Enter or Space on the handle. */
 export const WithTheKeyboard: Story = {
   play: async ({ canvasElement }) => {
     const button = handle(canvasElement);
@@ -77,11 +82,10 @@ export const WithTheKeyboard: Story = {
       'data-shown-view',
       'bob'
     );
-    await fireEvent.keyDown(button, { key: 'ArrowDown' });
+    await fireEvent.keyDown(button, { key: ' ' });
     await expect(stage(canvasElement)).toHaveAttribute(
       'data-shown-view',
       'logs'
     );
-    await expect(button).toHaveAttribute('aria-expanded', 'true');
   },
 };

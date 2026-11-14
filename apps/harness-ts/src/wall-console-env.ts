@@ -5,6 +5,7 @@ import { createGlobalHttpClient } from '@pkgs/http-client-shared-ts/global';
 import { createBrowserObjectStore } from '@pkgs/object-store-opfs-client-ts/wall-browser-fs';
 import { bootProductHarnessSession } from './boot-product-harness';
 import { openEmulatorGateway } from './emulator-gateway';
+import { openNotificationsEmulator } from './notifications-emulator';
 import type { ConsoleEnv } from './root-app';
 
 /** Wall services for the console, never for the actors' in-process HTTP. */
@@ -28,6 +29,7 @@ export function wallConsoleEnv(): ConsoleEnv {
             timers: wallTimers,
             snapshotStore,
             openEmulatorGateway,
+            openNotifications: openNotificationsEmulator,
           },
           options
         );

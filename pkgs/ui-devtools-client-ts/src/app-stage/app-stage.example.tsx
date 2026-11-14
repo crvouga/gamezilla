@@ -4,7 +4,6 @@ import {
   AppStage,
   type AppStageView,
 } from '@pkgs/ui-devtools-client-ts/app-stage';
-import { ScrollTextIcon } from '@pkgs/ui-root-client-ts/icons';
 import { createSignal, type JSX, untrack } from 'solid-js';
 import { ExampleRoot } from '../../../ui-root-client-ts/storybook/fixtures/example-root';
 
@@ -43,7 +42,10 @@ const VIEWS: readonly AppStageView[] = [
     title: 'Bob',
     live: true,
     content: () => (
-      <Screen name="Bob" note="Hold the handle for everything else." />
+      <Screen
+        name="Bob"
+        note="Its app keeps running while another is on show."
+      />
     ),
   },
   {
@@ -55,8 +57,6 @@ const VIEWS: readonly AppStageView[] = [
   },
 ];
 
-const DEVICES = ['alice', 'bob'];
-
 export type AppStageExampleProps = {
   /** The view on show when the example opens. Default `alice`. */
   readonly shown?: string | undefined;
@@ -65,8 +65,8 @@ export type AppStageExampleProps = {
 /** A stage with two live devices and one view behind them. */
 export function AppStageDemo(props: AppStageExampleProps): JSX.Element {
   const [shown, setShown] = createSignal(untrack(() => props.shown) ?? 'alice');
-  const [held, setHeld] = createSignal(false);
-  const title = () => VIEWS.find((view) => view.id === shown())?.title ?? '';
+  const at = () => VIEWS.findIndex((view) => view.id === shown());
+  const next = () => VIEWS[(at() + 1) % VIEWS.length] ?? VIEWS[0];
   return (
     <div class="box h-96 border border-solid border-border">
       <AppStage
@@ -74,22 +74,8 @@ export function AppStageDemo(props: AppStageExampleProps): JSX.Element {
         shown={shown()}
         views={[...VIEWS]}
         handle={{
-          label: `${title()} is on show. Press for the next device, hold for the menu.`,
-          text: shown() === 'logs' ? undefined : title().slice(0, 2),
-          icon: shown() === 'logs' ? ScrollTextIcon : undefined,
-          expanded: held(),
-          onTap: () => {
-            setHeld(false);
-            setShown(
-              DEVICES[(DEVICES.indexOf(shown()) + 1) % DEVICES.length] ??
-                'alice'
-            );
-          },
-          // A menu would open here; the example goes behind the devices.
-          onHold: () => {
-            setHeld(true);
-            setShown('logs');
-          },
+          label: `${VIEWS[at()]?.title ?? ''} is on show. Press for ${next()?.title ?? ''}.`,
+          onTap: () => setShown(next()?.id ?? 'alice'),
         }}
       />
     </div>

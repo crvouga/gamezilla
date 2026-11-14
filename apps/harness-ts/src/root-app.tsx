@@ -39,9 +39,13 @@ function ConsoleBody(props: {
       nav={{
         show: nav.state.show,
         panes: nav.state.panes,
+        switcher: nav.state.switcher,
         onShow: (show, mode) => nav.patch({ show }, mode),
         onPanePatch: (id, patch, mode = 'push') =>
           nav.patch({ pane: { id, patch } }, mode),
+        // Not a place to go back to: the address keeps it, the history does not.
+        onSwitcher: (view, on) =>
+          nav.patch({ switcher: { view, on } }, 'replace'),
       }}
     />
   );

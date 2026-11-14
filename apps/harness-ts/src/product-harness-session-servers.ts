@@ -89,7 +89,9 @@ export async function addProductHarnessServer(
     throw new Error(`harness server '${requested}' already exists`);
   }
   await harness.spawnServer(requested === '' ? undefined : requested);
-  return refreshProductHarnessServers(harness, maps);
+  const added = refreshProductHarnessServers(harness, maps);
+  if (added === null) throw new Error('harness server did not boot');
+  return added;
 }
 
 export async function removeProductHarnessServer(
@@ -98,11 +100,8 @@ export async function removeProductHarnessServer(
   id: string
 ): Promise<void> {
   if (!maps.servers.has(id)) return;
-  if (maps.servers.size <= 1) {
-    throw new Error(
-      `cannot remove '${id}': the fleet needs one instance — crash it instead`
-    );
-  }
+  // The last instance may go: the balancer then answers every request as
+  // one to a server that is not there.
   await harness.dropServer(id);
   // Clear faults keyed to a retired address so a respawn starts clean.
   harness.heal(id);
@@ -113,12 +112,13 @@ export async function removeProductHarnessServer(
 
 /**
  * Rebuild the server node map from the fabric (spawn / drop / snapshot load).
- * Returns the node for the most recently added instance.
+ * Returns the node for the most recently added instance, or `null` for a
+ * fleet with none.
  */
 export function refreshProductHarnessServers(
   harness: Harness,
   maps: SessionMaps
-): ProductHarnessSqlNode {
+): ProductHarnessSqlNode | null {
   const ids = harness.serverIds();
   maps.servers.clear();
   for (const serverId of ids) {
@@ -127,9 +127,5 @@ export function refreshProductHarnessServers(
   notify(maps);
   fireDomainWake(maps, 'topology');
   const last = ids.at(-1);
-  const node = last === undefined ? undefined : maps.servers.get(last);
-  if (node === undefined) {
-    throw new Error('harness server fleet is empty');
-  }
-  return node;
+  return last === undefined ? null : (maps.servers.get(last) ?? null);
 }

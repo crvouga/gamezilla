@@ -76,16 +76,14 @@ function topologyCommands(
       run: () => session.removeClient(id),
     });
   }
-  if (session.servers.size > 1) {
-    for (const id of session.servers.keys()) {
-      out.push({
-        id: `topology:remove-server:${id}`,
-        title: `${id} · remove server`,
-        category: 'Topology',
-        keywords: ['remove', 'server', 'instance', id],
-        run: () => session.removeServer(id),
-      });
-    }
+  for (const id of session.servers.keys()) {
+    out.push({
+      id: `topology:remove-server:${id}`,
+      title: `${id} · remove server`,
+      category: 'Topology',
+      keywords: ['remove', 'server', 'instance', id],
+      run: () => session.removeServer(id),
+    });
   }
   return out;
 }

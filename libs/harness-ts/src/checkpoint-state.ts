@@ -194,17 +194,14 @@ export async function importCheckpointSql(
 }
 
 /**
- * Resize the API fleet back to the captured shape. An empty list means the
- * capture predates dynamic fleets, so fall back to a single instance.
+ * Resize the API fleet back to the captured shape: its instances, or none
+ * when the capture had none.
  */
 export async function restoreCheckpointServers(
   ctx: CheckpointSessionCtx,
   checkpoint: HarnessCheckpoint
 ): Promise<void> {
-  const want =
-    checkpoint.serverIds.length > 0
-      ? checkpoint.serverIds
-      : [HARNESS_PRIMARY_SERVER_ID];
+  const want = checkpoint.serverIds;
   for (const id of ctx.harness.serverIds()) {
     if (!want.includes(id)) await ctx.harness.dropServer(id);
   }

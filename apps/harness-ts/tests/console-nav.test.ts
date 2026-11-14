@@ -62,6 +62,7 @@ describe('buildConsoleSearch', () => {
   test('round-trips the panel on show and panes', () => {
     const state = {
       show: SHOW,
+      switcher: DEFAULT_CONSOLE_NAV.switcher,
       panes: {
         'server:server-a': { view: 'events' },
         'room:lobby': { view: 'events' },
@@ -104,5 +105,48 @@ describe('applyConsoleNavPatch', () => {
     });
     expect(consoleNavEqual(away, DEFAULT_CONSOLE_NAV)).toBe(false);
     expect(consoleNavEqual(back, DEFAULT_CONSOLE_NAV)).toBe(true);
+  });
+});
+
+describe('the switcher in the address', () => {
+  test('nothing is written while it is every client and the harness app', () => {
+    expect(parseConsoleNav('').switcher).toEqual({ added: [], removed: [] });
+    expect(buildConsoleSearch(DEFAULT_CONSOLE_NAV, '?sw=lb')).toBe('');
+  });
+
+  test('a view put in and a client taken out survive the address', () => {
+    let state = DEFAULT_CONSOLE_NAV;
+    for (const [view, on] of [
+      ['server:server-a', true],
+      ['emulator:google', true],
+      ['client:bob', false],
+    ] as const)
+      state = applyConsoleNavPatch(state, { switcher: { view, on } });
+    const search = buildConsoleSearch(state);
+    expect(search).toBe(
+      '?sw=emulator%253Agoogle%2Cserver%253Aserver-a%2C-client%253Abob'
+    );
+    expect(consoleNavEqual(parseConsoleNav(search), state)).toBe(true);
+    expect(parseConsoleNav(search).switcher).toEqual({
+      added: ['emulator:google', 'server:server-a'],
+      removed: ['client:bob'],
+    });
+  });
+
+  test('what changes nothing is left out: a client put in, another view taken out', () => {
+    expect(parseConsoleNav('?sw=client%3Aalice,-lb,,-').switcher).toEqual({
+      added: [],
+      removed: [],
+    });
+  });
+
+  test('a change to it keeps the panel on show and its views', () => {
+    const state = applyConsoleNavPatch(
+      parseConsoleNav('?show=lb&cv=lb:events'),
+      { switcher: { view: 'lb', on: true } }
+    );
+    expect(state.show).toBe('lb');
+    expect(state.panes).toEqual({ lb: { view: 'events' } });
+    expect(state.switcher.added).toEqual(['lb']);
   });
 });
