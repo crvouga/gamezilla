@@ -65,13 +65,19 @@ function ResultCaption(props: PuzzlePlayScreenViewProps): JSX.Element {
   );
 }
 
-/** The puzzle's own facts, each a quiet tag: the streak it kept, its rating and its themes. */
-function ResultFacts(props: PuzzlePlayScreenViewProps): JSX.Element {
+/**
+ * The finished puzzle's own facts, each a quiet tag, under the coach's
+ * words: the streak it kept, its rating and its themes. The docked card
+ * keeps to the outcome, so the coach stays in view above it.
+ */
+export function PuzzleResultFacts(
+  props: PuzzlePlayScreenViewProps
+): JSX.Element {
   const themeLabel = (theme: string): string =>
     props.feed.themes?.label(theme) ?? theme;
   const streak = (): number => props.result.completion?.streak ?? 0;
   return (
-    <StackHorizontal wrap gap="sm">
+    <StackHorizontal wrap gap="sm" paddingX="lg">
       <Show when={streak() > 1}>
         <Badge
           intent="success"
@@ -186,9 +192,9 @@ export function PuzzleResultDock(
 }
 
 /**
- * The `result` place's card, under the board that keeps the puzzle's last
- * move: how it went (solved, the solution shown, skipped) and why, the
- * rating it made beside that, and the puzzle's facts under it. The status
+ * The `result` place's card, docked under the board that keeps the
+ * puzzle's last move: how it went (solved, the solution shown, skipped)
+ * and why, and the rating it made beside that. The status
  * line over the board carries the coach's words about it, and what the
  * attempt did to the rating when it has no rated summary (a skip).
  */
@@ -220,7 +226,6 @@ function PuzzleResultSummary(props: PuzzlePlayScreenViewProps): JSX.Element {
           )}
         </Show>
       </StackHorizontal>
-      <ResultFacts {...props} />
     </Surface>
   );
 }
