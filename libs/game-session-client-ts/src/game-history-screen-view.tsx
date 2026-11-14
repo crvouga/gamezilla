@@ -255,7 +255,20 @@ function RecordRow(props: {
         caption: <RecordCaption record={props.record} people={props.people} />,
         trailing: (
           <StackHorizontal align="center" gap="sm">
-            <Show when={props.record.outcome}>
+            <Show
+              when={props.record.outcome}
+              fallback={
+                <Badge
+                  size="md"
+                  intent="info"
+                  dataSet={{
+                    testid: 'game-history-outcome',
+                    outcome: 'watched',
+                  }}
+                  label={<Trans>Watched</Trans>}
+                />
+              }
+            >
               {(outcome) => <OutcomeBadge outcome={outcome()} />}
             </Show>
             <ChevronRightIcon size={20} color="icon" />

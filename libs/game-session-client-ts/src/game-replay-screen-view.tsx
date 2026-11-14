@@ -14,7 +14,6 @@ import {
 } from '@pkgs/ui-root-client-ts/game-seat-swatch';
 import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
-import { GameTurnPill } from '@pkgs/ui-root-client-ts/game-turn-pill';
 import { IconButton } from '@pkgs/ui-root-client-ts/icon-button';
 import {
   ArrowLeftIcon,
@@ -92,36 +91,29 @@ const STEP_PLATE = 'surfaceMuted';
 function ShownPosition(props: GameReplayScreenViewProps): JSX.Element {
   const last = () => props.moves.length;
   return (
-    <GameTurnPill
-      live
-      tone="neutral"
-      dataSet={{
-        testid: 'game-history-review-move',
-        'shown-position': props.position,
-        ply: String(props.ply),
-      }}
-      title={
+    <StackVertical
+      align="center"
+      role="status"
+      testId="game-history-review-move"
+      dataSet={{ 'shown-position': props.position, ply: String(props.ply) }}
+    >
+      <P variant="label">
         <Show when={last() > 0} fallback={<Trans>No moves were played</Trans>}>
-          <Show
-            when={props.ply > 0}
-            fallback={<Trans>Starting position</Trans>}
-          >
-            <Show
-              when={props.ply < last()}
-              fallback={
-                <Trans>
-                  Final position, move {props.ply} of {last()}
-                </Trans>
-              }
-            >
-              <Trans>
-                After move {props.ply} of {last()}
-              </Trans>
-            </Show>
+          <Show when={props.ply > 0} fallback={<Trans>Start</Trans>}>
+            <Trans>
+              Move {props.ply} of {last()}
+            </Trans>
           </Show>
         </Show>
-      }
-    />
+      </P>
+      <Show when={last() > 0 && (props.ply === 0 || props.ply === last())}>
+        <P variant="caption" tone="secondary">
+          <Show when={props.ply === 0} fallback={<Trans>Final position</Trans>}>
+            <Trans>Before the first move</Trans>
+          </Show>
+        </P>
+      </Show>
+    </StackVertical>
   );
 }
 
@@ -146,54 +138,63 @@ function ReplaySteps(props: GameReplayScreenViewProps): JSX.Element {
   });
   const keyboard = useHoverCapable();
   return (
-    <Show when={last() > 0}>
-      <StackVertical gap="xs" align="center">
+    <Show when={last() > 0} fallback={<ShownPosition {...props} />}>
+      <StackVertical gap="xs" align="stretch">
         <StackHorizontal
           gap="sm"
           align="center"
-          justify="center"
+          justify="between"
           testId="game-history-review-steps"
         >
-          <IconButton
-            label={t`Go to the start`}
-            size={STEP_SIZE}
-            background={STEP_PLATE}
-            disabled={props.ply === 0}
-            onClick={() => seek(0)}
-            dataSet={{ testid: 'game-history-review-first' }}
-          >
-            <ChevronsLeftIcon />
-          </IconButton>
-          <IconButton
-            label={t`Previous move`}
-            size={STEP_SIZE}
-            background={STEP_PLATE}
-            disabled={props.ply === 0}
-            onClick={() => seek(props.ply - 1)}
-            dataSet={{ testid: 'game-history-review-back' }}
-          >
-            <ChevronLeftIcon />
-          </IconButton>
-          <IconButton
-            label={t`Next move`}
-            size={STEP_SIZE}
-            background={STEP_PLATE}
-            disabled={props.ply === last()}
-            onClick={() => seek(props.ply + 1)}
-            dataSet={{ testid: 'game-history-review-forward' }}
-          >
-            <ChevronRightIcon />
-          </IconButton>
-          <IconButton
-            label={t`Go to the final position`}
-            size={STEP_SIZE}
-            background={STEP_PLATE}
-            disabled={props.ply === last()}
-            onClick={() => seek(last())}
-            dataSet={{ testid: 'game-history-review-last' }}
-          >
-            <ChevronsRightIcon />
-          </IconButton>
+          <StackHorizontal gap="sm" align="center">
+            <IconButton
+              label={t`Go to the start`}
+              size={STEP_SIZE}
+              background={STEP_PLATE}
+              disabled={props.ply === 0}
+              onClick={() => seek(0)}
+              dataSet={{ testid: 'game-history-review-first' }}
+            >
+              <ChevronsLeftIcon />
+            </IconButton>
+
+            <IconButton
+              label={t`Previous move`}
+              size={STEP_SIZE}
+              background={STEP_PLATE}
+              disabled={props.ply === 0}
+              onClick={() => seek(props.ply - 1)}
+              dataSet={{ testid: 'game-history-review-back' }}
+            >
+              <ChevronLeftIcon />
+            </IconButton>
+          </StackHorizontal>
+          <StackVertical grow align="center">
+            <ShownPosition {...props} />
+          </StackVertical>
+          <StackHorizontal gap="sm" align="center">
+            <IconButton
+              label={t`Next move`}
+              size={STEP_SIZE}
+              background={STEP_PLATE}
+              disabled={props.ply === last()}
+              onClick={() => seek(props.ply + 1)}
+              dataSet={{ testid: 'game-history-review-forward' }}
+            >
+              <ChevronRightIcon />
+            </IconButton>
+
+            <IconButton
+              label={t`Go to the final position`}
+              size={STEP_SIZE}
+              background={STEP_PLATE}
+              disabled={props.ply === last()}
+              onClick={() => seek(last())}
+              dataSet={{ testid: 'game-history-review-last' }}
+            >
+              <ChevronsRightIcon />
+            </IconButton>
+          </StackHorizontal>
         </StackHorizontal>
         <Show when={keyboard()}>
           <KeyHints
@@ -213,7 +214,6 @@ function ReplayPlayers(props: GameReplayScreenViewProps): JSX.Element {
   return (
     <StackHorizontal
       align="center"
-      justify="center"
       gap="md"
       wrap
       testId="game-history-review-players"
@@ -268,7 +268,7 @@ function ReplayMoves(props: GameReplayScreenViewProps): JSX.Element {
     }))
   );
   return (
-    <GameSection title={<Trans>Moves</Trans>} fill={props.moves.length > 0}>
+    <GameSection title={<Trans>Moves</Trans>}>
       <Show
         when={props.moves.length > 0}
         fallback={
@@ -347,10 +347,7 @@ export function GameReplayScreenView(
         }
         aside={<ReplayMoves {...props} />}
       >
-        <GameBoardStage
-          others={<ReplayPlayers {...props} />}
-          turn={<ShownPosition {...props} />}
-        >
+        <GameBoardStage others={<ReplayPlayers {...props} />}>
           {props.board}
         </GameBoardStage>
       </GameSessionLayout>
