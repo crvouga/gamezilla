@@ -192,9 +192,11 @@ test('a provisional rating keeps its "?" quietly, explained once under it', () =
   ).toBeNull();
   const row = screen.getByTestId('multiplayer-rating-game');
   expect(row.querySelector('[data-component="Badge"]')).toBeNull();
+  // The rows never repeat it: the list's one footnote says what "?" means.
+  expect(screen.queryByTestId('multiplayer-rating-game-settles')).toBeNull();
   expect(
-    screen.getByTestId('multiplayer-rating-game-settles').textContent
-  ).toBe('the “?” goes once your rating settles');
+    screen.getByText(/A “\?” marks a rating that settles after 12 rated games/)
+  ).toBeTruthy();
 });
 
 // regression: provisional-rating-loud — beside Find an opponent the
@@ -282,4 +284,19 @@ test('a bigger game says how many players it finds, and names its command so', (
   expect(screen.getByTestId('multiplayer-find').textContent).toContain(
     'Find players'
   );
+});
+
+// regression: search-stop-silent — after Stop searching the hub came back
+// with nothing to say the search had ended.
+test('a search this device stopped is said so on the hub, until the next search', async () => {
+  const view = mountPlaces({ stage: 'searching' });
+  screen.getByTestId('multiplayer-stop').click();
+  await Promise.resolve();
+  await Promise.resolve();
+  view.setStage('idle');
+  const told = await screen.findByTestId('multiplayer-stopped');
+  expect(told.textContent).toContain('Search stopped.');
+  screen.getByTestId('multiplayer-find').click();
+  await Promise.resolve();
+  expect(screen.queryByTestId('multiplayer-stopped')).toBeNull();
 });

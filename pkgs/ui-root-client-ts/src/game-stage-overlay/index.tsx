@@ -264,6 +264,7 @@ export function GameStageOverlayFrame(props: {
       ref={(el) => onMount(() => setCorner(boardCornerUnder(el)))}
       class={styles['overlay']}
       style={{ '--game-board-corner': corner() }}
+      data-stage-overlay
       {...dataAttrs({ component: 'GameStageOverlay' })}
     >
       {props.children}

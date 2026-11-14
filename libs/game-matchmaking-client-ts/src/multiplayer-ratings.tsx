@@ -83,8 +83,8 @@ export function MultiplayerRatingPoolName(props: {
 
 /**
  * How many rated games stand behind a rating and, while it is provisional,
- * how many of the games that settle it are played (`7 of 12 rated games`)
- * and, once, what the "?" beside the number means, in plain words.
+ * how many of the games that settle it are played (`7 of 12 rated games`).
+ * What the "?" means is said once, under the list.
  */
 export function MultiplayerRatingGames(props: {
   readonly rating: MultiplayerRatingView;
@@ -110,15 +110,6 @@ export function MultiplayerRatingGames(props: {
           </Trans>
         </Show>
       </Text>
-      <Show when={isProvisional(props.rating)}>
-        {' · '}
-        <Text
-          variant="inherit"
-          testId={`multiplayer-rating-${props.rating.pool}-settles`}
-        >
-          <Trans>the “?” goes once your rating settles</Trans>
-        </Text>
-      </Show>
     </>
   );
 }

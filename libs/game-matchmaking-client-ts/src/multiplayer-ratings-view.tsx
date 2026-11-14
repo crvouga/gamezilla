@@ -1,3 +1,4 @@
+import { MULTIPLAYER_SETTLED_GAMES } from '@libs/game-matchmaking-shared-ts/multiplayer-rating';
 import { Trans } from '@lingui/solid/macro';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
@@ -30,7 +31,9 @@ export function MultiplayerRatingsView(
       <MenuSection
         footer={
           <Trans>
-            Every matched game is rated. A rating moves once when its game ends.
+            Every matched game is rated, and a rating moves once when its game
+            ends. A “?” marks a rating that settles after{' '}
+            {MULTIPLAYER_SETTLED_GAMES} rated games.
           </Trans>
         }
       >

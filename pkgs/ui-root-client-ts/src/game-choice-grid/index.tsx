@@ -16,6 +16,12 @@ export function GameChoiceGrid(props: {
   choices: readonly GameChoice[];
   value: string;
   onChange: (value: string) => void;
+  /**
+   * A choice pressed (a click, a tap, or Space), even the one already
+   * chosen; arrow keys only change the choice. For a list that is left
+   * once something is picked.
+   */
+  onPress?: ((value: string) => void) | undefined;
   disabled?: boolean;
 }): JSX.Element {
   const name = createUniqueId();
@@ -42,6 +48,7 @@ export function GameChoiceGrid(props: {
                 value={choice.value}
                 checked={props.value === choice.value}
                 onChange={() => props.onChange(choice.value)}
+                onClick={() => props.onPress?.(choice.value)}
                 {...dataAttrs({ component: 'GameChoice', ...choice.dataSet })}
               />
               <span class={`${styles['choiceTitle']} text textLabel`}>

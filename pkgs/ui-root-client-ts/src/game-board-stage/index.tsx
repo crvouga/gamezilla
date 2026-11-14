@@ -1,6 +1,6 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createSignal, type JSX, Show } from 'solid-js';
+import { createEffect, createSignal, type JSX, Show } from 'solid-js';
 import precision from '../game-screen/game-precision.module.css';
 import { GameStageOverlayFrame } from '../game-stage-overlay/index';
 import styles from '../game-ui.module.css';
@@ -61,6 +61,15 @@ export function GameBoardStage(props: {
   const limit = createViewportSquareFit(() => root, square);
   const [surface, setSurface] = createSignal<HTMLDivElement>();
   const room = createStageRoomFit(() => root, surface);
+  // An overlay (a versus card, a result) covers the board: what lies under
+  // it is out of reach, for the keyboard and the screen reader too.
+  createEffect(() => {
+    const covered = overlay.present();
+    for (const child of surface()?.children ?? []) {
+      if (child.hasAttribute('data-stage-overlay')) continue;
+      (child as HTMLElement).inert = covered;
+    }
+  });
   // Narrower than its room: the board stands clear of the screen's edges.
   const narrowed = (): boolean => {
     const limit = room();

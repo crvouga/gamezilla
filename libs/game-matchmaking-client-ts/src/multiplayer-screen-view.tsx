@@ -5,7 +5,14 @@ import type {
   StageOverlayEvent,
 } from '@pkgs/turn-game-client-ts/stage-overlay';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
-import { type JSX, Match, Show, Switch } from 'solid-js';
+import {
+  createSignal,
+  type JSX,
+  Match,
+  mergeProps,
+  Show,
+  Switch,
+} from 'solid-js';
 import { MultiplayerCommandsView } from './multiplayer-commands-view';
 import {
   type MultiplayerFindChoice,
@@ -134,7 +141,14 @@ function ConfirmModal(props: Props): JSX.Element {
       }
       operation={() => props.onConfirm()}
       submitLabel={<Trans>Confirm</Trans>}
-      successTitle={<Trans>Multiplayer command accepted</Trans>}
+      successTitle={
+        <Show
+          when={props.confirming === 'abort'}
+          fallback={<Trans>You resigned. The result is on the board.</Trans>}
+        >
+          <Trans>Game aborted. No rating changed.</Trans>
+        </Show>
+      }
       variant="destructive"
       submitDataSet={{ testid: 'multiplayer-confirm' }}
       dismissDataSet={{ testid: 'multiplayer-dismiss' }}
@@ -180,7 +194,7 @@ function StatusPlace(props: Props): JSX.Element {
 }
 
 /** The search's hub. */
-function FindPlace(props: Props): JSX.Element {
+function FindPlace(props: Props & { readonly stopped: boolean }): JSX.Element {
   return (
     <MultiplayerFindView
       {...frameOf(props)}
@@ -194,6 +208,7 @@ function FindPlace(props: Props): JSX.Element {
       onFind={props.onFind}
       online={props.online}
       blocked={props.commandDenial !== undefined}
+      stopped={props.stopped && props.stage === 'idle'}
     />
   );
 }
@@ -204,6 +219,7 @@ function TimeControlPlace(props: Props): JSX.Element {
     <MultiplayerTimeControlView
       {...frameOf(props)}
       timeControl={props.find.timeControl}
+      onChange={props.onChooseTimeControl}
       onChoose={(timeControl) => {
         props.onChooseTimeControl(timeControl);
         props.onBack();
@@ -334,7 +350,7 @@ function ResultPlace(props: Props): JSX.Element {
 }
 
 /** The one switch: the place shown, each a small screen of its own. */
-function Places(props: Props): JSX.Element {
+function Places(props: Props & { readonly stopped: boolean }): JSX.Element {
   return (
     <Switch>
       <Match when={props.place.screen === 'status'}>
@@ -389,9 +405,22 @@ function Places(props: Props): JSX.Element {
  * private setup are slots; `MultiplayerScreen` wires it all to matchmaking.
  */
 export function MultiplayerScreenView(props: Props): JSX.Element {
+  // A search this device stopped is said so on the hub it returns to,
+  // until the next search.
+  const [stopped, setStopped] = createSignal(false);
+  const shown = mergeProps(props, {
+    onStop: async () => {
+      await props.onStop();
+      setStopped(true);
+    },
+    onFind: async (timeControl: string | undefined) => {
+      setStopped(false);
+      await props.onFind(timeControl);
+    },
+  });
   return (
     <>
-      <Places {...props} />
+      <Places {...shown} stopped={stopped()} />
       <ConfirmModal {...props} />
     </>
   );

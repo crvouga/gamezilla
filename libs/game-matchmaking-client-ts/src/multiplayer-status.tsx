@@ -339,7 +339,7 @@ export function MultiplayerRatingChange(props: {
   readonly after: number | null;
 }): JSX.Element {
   return (
-    <>
+    <Text variant="inherit" wrap="nowrap">
       <Text variant="inherit" aria-hidden>
         <Trans>Rating</Trans>{' '}
       </Text>
@@ -373,7 +373,7 @@ export function MultiplayerRatingChange(props: {
           </Text>
         )}
       </Show>
-    </>
+    </Text>
   );
 }
 

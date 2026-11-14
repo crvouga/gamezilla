@@ -161,7 +161,7 @@ function Onward(props: ResultProps): JSX.Element {
       <Show when={props.game.newOpponent}>
         <Button
           title={<Trans>Game options</Trans>}
-          aria-label={t`New game: choose what to play for next`}
+          aria-label={t`Game options: choose what to play next`}
           variant="outline"
           intent="neutral"
           onClick={() => props.onOpen({ screen: 'find' })}

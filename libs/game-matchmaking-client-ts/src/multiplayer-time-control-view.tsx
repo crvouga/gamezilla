@@ -1,29 +1,35 @@
 import {
+  isDailyTimeControl,
   MULTIPLAYER_SPEEDS,
   TIME_CONTROLS,
   timeControlKey,
 } from '@libs/game-matchmaking-shared-ts/time-control';
 import { Trans } from '@lingui/solid/macro';
-import { CheckIcon } from '@pkgs/ui-root-client-ts/icons';
-import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
-import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
+import { GameChoiceGrid } from '@pkgs/ui-root-client-ts/game-choice-grid';
 import { For, type JSX, Show } from 'solid-js';
 import {
   MultiplayerMenuPlace,
   type MultiplayerPlaceFrame,
 } from './multiplayer-place-frame';
 import { SpeedName } from './speed-name';
-import { timeControlWords } from './time-control-name';
+import { timeControlChoiceText, timeControlWords } from './time-control-name';
+
+/** A time control without the game's prefix (`chess/5+0` is `5+0`). */
+function plainClock(id: string): string {
+  return id.split('/').at(-1) ?? id;
+}
 
 /**
- * The clock a search is for: every offered time control, grouped by its
- * speed, the chosen one marked. Pressing one chooses it and returns to
- * finding an opponent; Back keeps the choice as it was.
+ * Every offered clock, as tiles grouped by speed, the chosen one checked.
+ * Pressing a tile chooses it and returns to finding an opponent; arrow keys
+ * move the choice and stay. Back keeps the choice as it was.
  */
 export function MultiplayerTimeControlView(
   props: MultiplayerPlaceFrame & {
     /** The time control chosen now. */
     readonly timeControl: string;
+    /** Chooses a time control, staying here. */
+    readonly onChange: (timeControl: string) => void;
     /** Chooses a time control and returns to finding an opponent. */
     readonly onChoose: (timeControl: string) => void;
   }
@@ -33,34 +39,40 @@ export function MultiplayerTimeControlView(
       {...props}
       title={<Trans>Time control</Trans>}
       subtitle={
-        <Trans>
-          Each player's time for the whole game, plus seconds added every move.
-          Chosen now: {timeControlWords(props.timeControl)}.
-        </Trans>
+        <Show
+          when={isDailyTimeControl(props.timeControl)}
+          fallback={
+            <Trans>
+              Chosen: {timeControlWords(props.timeControl)}. The first figure is
+              each player's minutes for the game; the second, seconds added
+              after every move.
+            </Trans>
+          }
+        >
+          <Trans>
+            Chosen: {timeControlWords(props.timeControl)}. In a daily game each
+            player has that long for every move.
+          </Trans>
+        </Show>
       }
     >
       <For each={MULTIPLAYER_SPEEDS}>
         {(speed) => (
-          <MenuSection title={<SpeedName speed={speed} />}>
-            <For each={TIME_CONTROLS.filter((c) => c.speed === speed)}>
-              {(control) => (
-                <MenuRow
-                  title={timeControlWords(control.id)}
-                  trailing={
-                    <Show when={props.timeControl === control.id}>
-                      <CheckIcon size={20} color="tint" />
-                    </Show>
-                  }
-                  selected={props.timeControl === control.id}
-                  hideChevron
-                  onClick={() => props.onChoose(control.id)}
-                  dataSet={{
-                    testid: `multiplayer-time-control-${timeControlKey(control.id)}`,
-                  }}
-                />
-              )}
-            </For>
-          </MenuSection>
+          <GameChoiceGrid
+            label={<SpeedName speed={speed} />}
+            choices={TIME_CONTROLS.filter((c) => c.speed === speed).map(
+              (control) => ({
+                value: control.id,
+                title: timeControlChoiceText(control.id),
+                dataSet: {
+                  testid: `multiplayer-time-control-${timeControlKey(control.id)}`,
+                },
+              })
+            )}
+            value={plainClock(props.timeControl)}
+            onChange={(id) => props.onChange(id)}
+            onPress={(id) => props.onChoose(id)}
+          />
         )}
       </For>
     </MultiplayerMenuPlace>

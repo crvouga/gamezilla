@@ -74,6 +74,13 @@ export function storyMoves(shownPly = DROPS.length): MultiplayerMovesShown {
   };
 }
 
+/** A game that has just been matched: no move made yet. */
+export const STORY_NO_MOVES: MultiplayerMovesShown = {
+  moves: [],
+  shownPly: 0,
+  reviewing: null,
+};
+
 /** A two-player game in play, as the person to move may act on it. */
 export const STORY_GAME: MultiplayerGameView = {
   players: 2,

@@ -14,6 +14,7 @@ import {
   GameModeCard,
   type GameModeFact,
 } from '@pkgs/ui-root-client-ts/game-lobby';
+import { CircleCheckIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
@@ -67,6 +68,8 @@ type FindProps = MultiplayerPlaceFrame & {
    * above says why, and the command here is a quiet try again.
    */
   readonly blocked: boolean;
+  /** This device just stopped its search. */
+  readonly stopped?: boolean | undefined;
 };
 
 /** The clocks offered on the screen itself, one or two of every speed. */
@@ -310,6 +313,18 @@ export function MultiplayerFindView(props: FindProps): JSX.Element {
         <P variant="caption" tone="secondary" testId="multiplayer-find-players">
           <PlayersNeeded find={props.find} />
         </P>
+      </Show>
+      <Show when={props.stopped === true}>
+        <Notice
+          icon={CircleCheckIcon}
+          dataSet={{ testid: 'multiplayer-stopped' }}
+        >
+          <Text variant="inherit" role="status">
+            <Trans>
+              Search stopped. You can search again whenever you like.
+            </Trans>
+          </Text>
+        </Notice>
       </Show>
       <Show when={props.find.fresh === true}>
         <Notice dataSet={{ testid: 'multiplayer-unavailable' }}>

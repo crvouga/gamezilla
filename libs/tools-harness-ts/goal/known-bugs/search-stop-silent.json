@@ -1,0 +1,4 @@
+{
+  "summary": "After Stop searching, finding an opponent came back to its hub with nothing to say the search had ended, so a person could not tell whether stopping worked. The hub now says the search stopped until the next search.",
+  "regressionTest": "libs/game-matchmaking-client-ts/tests/multiplayer-find-layout.test.tsx"
+}

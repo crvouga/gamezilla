@@ -4,6 +4,7 @@ import { MultiplayerScreenView } from './multiplayer-screen-view';
 import {
   renderStory,
   STORY_GAME,
+  STORY_NO_MOVES,
   STORY_PARAMETERS,
   storyArgs,
   storyMoves,
@@ -37,7 +38,7 @@ export const Matched: Story = {};
 export const Versus: Story = {
   args: {
     overlay: { kind: 'versus', count: 3 },
-    game: { ...STORY_GAME, leave: 'abort', moves: storyMoves(0) },
+    game: { ...STORY_GAME, leave: 'abort', moves: STORY_NO_MOVES },
   },
   render: (args) =>
     renderStory({ shown: 0, announcement: { title: 'Your turn.' } })(args),
@@ -56,7 +57,7 @@ export const Versus: Story = {
 export const VersusCount: Story = {
   args: {
     overlay: { kind: 'versus', count: 3 },
-    game: { ...STORY_GAME, leave: 'abort', moves: storyMoves(0) },
+    game: { ...STORY_GAME, leave: 'abort', moves: STORY_NO_MOVES },
   },
   render: (args) =>
     renderStory({ shown: 0, announcement: { title: 'Your turn.' } })(args),
