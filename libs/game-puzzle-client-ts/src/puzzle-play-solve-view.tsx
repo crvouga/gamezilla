@@ -1,9 +1,14 @@
 import { PUZZLE_NAV_INTENT } from '@libs/game-puzzle-shared-ts/puzzle-nav';
-import { Trans } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
-import { ListOrderedIcon } from '@pkgs/ui-root-client-ts/icons';
+import { IconButton } from '@pkgs/ui-root-client-ts/icon-button';
+import {
+  ListOrderedIcon,
+  SlidersHorizontalIcon,
+} from '@pkgs/ui-root-client-ts/icons';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { MoveStrip } from '@pkgs/ui-root-client-ts/move-strip';
+import { PuzzleScreenFold } from '@pkgs/ui-root-client-ts/puzzle-screen';
 import { SpectatorIndicator } from '@pkgs/ui-root-client-ts/spectator-indicator';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
@@ -41,17 +46,44 @@ export function SpectatorAllowance(props: { label: string }): JSX.Element {
  * (`buildPuzzleActionBarPlan`), docked in reach of the thumb.
  */
 export function PuzzleSolveDock(props: PuzzlePlayScreenViewProps): JSX.Element {
+  const { t } = useLingui();
   return (
-    <PuzzleActionBar
-      status={props.status}
-      hintStage={props.hintStage}
-      canGoForward={props.canGoForward}
-      onHint={props.onHint}
-      onSolution={props.onSolution}
-      onRetry={props.onRetry}
-      onSkip={props.onSkip}
-      onNext={props.onNext}
-    />
+    <StackVertical gap="sm">
+      {/* A wrong move's cost is said before the choice, not after it. */}
+      <Show when={props.status === 'wrong'}>
+        <P variant="caption" tone="secondary" testId="chess-puzzle-wrong-cost">
+          <Trans>
+            This attempt now counts as failed. Retry to finish the line.
+          </Trans>
+        </P>
+      </Show>
+      <PuzzleActionBar
+        status={props.status}
+        hintStage={props.hintStage}
+        canGoForward={props.canGoForward}
+        onHint={props.onHint}
+        onSolution={props.onSolution}
+        onRetry={props.onRetry}
+        onSkip={props.onSkip}
+        onNext={props.onNext}
+        extra={
+          // A short phone has no room for the settings row: its way to the
+          // settings is here, beside the commands.
+          <Show when={props.status !== 'wrong'}>
+            <PuzzleScreenFold on="short">
+              <IconButton
+                label={t`Puzzle settings`}
+                background="surfaceMuted"
+                onClick={() => props.onOpen({ screen: 'feed' })}
+                dataSet={{ testid: 'chess-puzzle-feed-summary-compact' }}
+              >
+                <SlidersHorizontalIcon />
+              </IconButton>
+            </PuzzleScreenFold>
+          </Show>
+        }
+      />
+    </StackVertical>
   );
 }
 
@@ -134,15 +166,17 @@ export function PuzzleSolveLine(props: PuzzlePlayScreenViewProps): JSX.Element {
       {/* While a wrong move waits on Retry, Reveal or Skip, the settings
           step aside: the choice and the dock keep the first view. */}
       <Show when={!props.spectator && props.status !== 'wrong'}>
-        <StackVertical paddingX="lg">
-          <MenuSection>
-            <PuzzleSettingsRow
-              feed={props.feed}
-              allowanceLabel={props.allowanceLabel}
-              onOpen={() => props.onOpen({ screen: 'feed' })}
-            />
-          </MenuSection>
-        </StackVertical>
+        <PuzzleScreenFold on="tall">
+          <StackVertical paddingX="lg">
+            <MenuSection>
+              <PuzzleSettingsRow
+                feed={props.feed}
+                allowanceLabel={props.allowanceLabel}
+                onOpen={() => props.onOpen({ screen: 'feed' })}
+              />
+            </MenuSection>
+          </StackVertical>
+        </PuzzleScreenFold>
       </Show>
     </StackVertical>
   );

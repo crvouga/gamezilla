@@ -164,3 +164,25 @@ export function PuzzleScreen(props: PuzzleScreenProps): JSX.Element {
     </div>
   );
 }
+
+/**
+ * `PuzzleScreenFold` -- inside a `PuzzleScreen`, what shows only on a tall
+ * phone and wide (`on="tall"`), or only on a phone shorter than 700px
+ * (`on="short"`): a secondary entry (a screen's settings row) gives way on
+ * a short phone to a compact one in the dock, so nothing is cut under the
+ * docked commands.
+ */
+export function PuzzleScreenFold(props: {
+  on: 'tall' | 'short';
+  children: JSX.Element;
+}): JSX.Element {
+  return (
+    <div
+      class={heightStyles['fold']}
+      data-fold={props.on}
+      {...dataAttrs({ component: 'PuzzleScreenFold' })}
+    >
+      {props.children}
+    </div>
+  );
+}

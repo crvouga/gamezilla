@@ -1,9 +1,8 @@
 import { formatPuzzleRating } from '@libs/game-puzzle-shared-ts/rating';
-import { Trans } from '@lingui/solid/macro';
 import { H3 } from '@pkgs/ui-root-client-ts/heading';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import type { ColorTone } from '@pkgs/ui-root-shared-ts/token-names';
-import type { JSX } from 'solid-js';
+import { type JSX, Show } from 'solid-js';
 
 function formatSignedDelta(delta: number): string {
   if (delta > 0) return `+${delta}`;
@@ -36,15 +35,18 @@ export function PuzzleRatingDelta(props: PuzzleRatingDeltaProps): JSX.Element {
           provisional: props.provisional,
         })}
       </H3>
-      <P
-        variant="bodyBold"
-        align="end"
-        numeral
-        tone={deltaTone(props)}
-        testId="chess-puzzle-summary-delta"
-      >
-        {props.rated ? formatSignedDelta(props.delta) : <Trans>Unrated</Trans>}
-      </P>
+      {/* Unrated says so once, on the status line; the card says why. */}
+      <Show when={props.rated}>
+        <P
+          variant="bodyBold"
+          align="end"
+          numeral
+          tone={deltaTone(props)}
+          testId="chess-puzzle-summary-delta"
+        >
+          {formatSignedDelta(props.delta)}
+        </P>
+      </Show>
     </>
   );
 }

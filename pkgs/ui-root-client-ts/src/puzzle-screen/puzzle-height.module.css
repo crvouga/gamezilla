@@ -23,3 +23,25 @@
     }
   }
 }
+
+/* `PuzzleScreenFold`: what a puzzle screen shows only on a tall phone (and
+   wide), or only on a short phone, so a secondary entry can step from its
+   own row into the dock instead of being cut under it. A short-only part
+   keeps its own size among growing commands. */
+.fold[data-fold="tall"] {
+  display: contents;
+}
+.fold[data-fold="short"] {
+  display: none;
+  flex: none;
+}
+@media (max-height: 699px) {
+  @container puzzle-frame (width < 880px) {
+    .fold[data-fold="tall"] {
+      display: none;
+    }
+    .fold[data-fold="short"] {
+      display: flex;
+    }
+  }
+}

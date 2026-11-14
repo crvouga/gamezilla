@@ -9,7 +9,10 @@ import {
   PuzzleSkipButton,
 } from './puzzle-action-bar-items';
 
-export type PuzzleActionBarProps = PuzzleActionBarModel;
+export type PuzzleActionBarProps = PuzzleActionBarModel & {
+  /** After the rest, on their line (a compact way to the settings). */
+  readonly extra?: JSX.Element;
+};
 
 /**
  * The one command the state leads with (Next once it is over, Retry after a
@@ -45,6 +48,7 @@ export function PuzzleActionBar(props: PuzzleActionBarProps): JSX.Element {
         <For each={rest()}>
           {(slot) => <SlotButton slot={slot} model={props} />}
         </For>
+        {props.extra}
       </GameActions>
     </StackVertical>
   );

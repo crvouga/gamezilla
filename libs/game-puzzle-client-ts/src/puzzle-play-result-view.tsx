@@ -33,7 +33,7 @@ function ResultTitle(props: PuzzlePlayScreenViewProps): JSX.Element {
           props.result.completion?.outcome === 'failed'
         }
       >
-        <Trans>Solved after a wrong move</Trans>
+        <Trans>Counts as failed</Trans>
       </Match>
       <Match when={props.status === 'solved'}>
         <Text variant="inherit" tone="success">
@@ -59,7 +59,7 @@ function ResultCaption(props: PuzzlePlayScreenViewProps): JSX.Element {
           props.result.completion?.outcome === 'failed'
         }
       >
-        <Trans>The attempt counts as failed.</Trans>
+        <Trans>You finished the line after a wrong move.</Trans>
       </Match>
       <Match
         when={

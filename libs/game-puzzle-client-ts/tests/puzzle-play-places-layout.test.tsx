@@ -52,6 +52,12 @@ test('play: the status line, the board, what solving allows, the line and one wa
   expect(dock.contains(screen.getByTestId('chess-puzzle-action-skip'))).toBe(
     true
   );
+  // A short phone's way to the settings waits in the dock (shown by CSS
+  // only under 700px of height); the full row stays under the moves.
+  expect(
+    dock.contains(screen.getByTestId('chess-puzzle-feed-summary-compact'))
+  ).toBe(true);
+  expect(shown('chess-puzzle-wrong-cost')).toBe(false);
   expect(shown('chess-puzzle-move-ply-1')).toBe(true);
   expect(shown('chess-puzzle-line-open')).toBe(true);
   expect(shown('chess-puzzle-feed-summary')).toBe(true);
@@ -110,6 +116,12 @@ test('play: a wrong move is named, and Retry is the one filled command', () => {
   expect(shown('chess-puzzle-action-solution')).toBe(true);
   expect(shown('chess-puzzle-action-skip')).toBe(true);
   expect(shown('chess-puzzle-action-next')).toBe(false);
+  // The cost is said before the choice; the settings step aside for it.
+  expect(screen.getByTestId('chess-puzzle-wrong-cost').textContent).toContain(
+    'counts as failed'
+  );
+  expect(shown('chess-puzzle-feed-summary')).toBe(false);
+  expect(shown('chess-puzzle-feed-summary-compact')).toBe(false);
   expect(filledCommands()).toEqual(['Retry']);
 });
 
