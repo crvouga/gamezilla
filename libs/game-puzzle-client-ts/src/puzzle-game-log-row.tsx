@@ -1,6 +1,10 @@
 import type { PuzzleGameLogEntry } from '@libs/game-puzzle-shared-ts/stats';
 import { Trans } from '@lingui/solid/macro';
-import { CircleCheckIcon, XIcon } from '@pkgs/ui-root-client-ts/icons';
+import {
+  CircleCheckIcon,
+  CircleStopIcon,
+  XIcon,
+} from '@pkgs/ui-root-client-ts/icons';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { useRelativeTimeLabel } from '@pkgs/ui-root-client-ts/relative-time';
 import { Text } from '@pkgs/ui-root-client-ts/text';
@@ -66,12 +70,16 @@ export function PuzzleGameLogRow(props: PuzzleGameLogRowProps): JSX.Element {
       dataSet={{ testid: `chess-game-log-row-${props.entry.puzzleId}` }}
       onClick={props.onClick}
       leading={
-        <Show
-          when={solved()}
-          fallback={<XIcon size={20} color="destructive" />}
-        >
-          <CircleCheckIcon size={20} color="success" />
-        </Show>
+        // Solved, failed and left each have their own mark: leaving a
+        // puzzle is not failing it.
+        <Switch fallback={<CircleStopIcon size={20} color="textSecondary" />}>
+          <Match when={solved()}>
+            <CircleCheckIcon size={20} color="success" />
+          </Match>
+          <Match when={props.entry.outcome === 'failed'}>
+            <XIcon size={20} color="destructive" />
+          </Match>
+        </Switch>
       }
       title={
         // The puzzle's own rating follows the outcome, a tone quieter.

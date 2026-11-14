@@ -1,6 +1,14 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createMemo, type JSX, Show } from 'solid-js';
+import {
+  createMemo,
+  createSignal,
+  type JSX,
+  onCleanup,
+  onMount,
+  Show,
+} from 'solid-js';
+import { ChevronDownIcon } from '../icons';
 import { useScreenFocus } from '../screen-focus/index';
 import { ScreenIntro } from '../screen-intro/index';
 import styles from '../screen-layouts.module.css';
@@ -96,12 +104,39 @@ function PuzzleFixedRegion(props: {
  * prompt), the actions right under the prompt, the move list, the legend.
  * A square board's panel runs to the column's end, as a game's rail does.
  */
+/**
+ * Whether the scrolling column holds more below what is in view (what the
+ * dock covers), kept as the column scrolls and as it or its regions resize.
+ */
+function createMoreBelow(target: () => HTMLElement | undefined) {
+  const [more, setMore] = createSignal(false);
+  const measure = (): void => {
+    const element = target();
+    if (element === undefined) return;
+    setMore(
+      element.scrollHeight - element.scrollTop - element.clientHeight > 1
+    );
+  };
+  onMount(() => {
+    const element = target();
+    if (element === undefined || typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(measure);
+    observer.observe(element);
+    for (const child of Array.from(element.children)) observer.observe(child);
+    measure();
+    onCleanup(() => observer.disconnect());
+  });
+  return { more, measure };
+}
+
 export function PuzzleScreen(props: PuzzleScreenProps): JSX.Element {
   const ratio = createMemo(() =>
     requireBoardAspectRatio(props.boardAspectRatio)
   );
   const facts = createScreenSlot(() => props.facts);
+  const dock = createScreenSlot(() => props.dock);
   let root: HTMLDivElement | undefined;
+  const below = createMoreBelow(() => root);
   useScreenFocus(
     () => root,
     () => props.screenId
@@ -114,6 +149,8 @@ export function PuzzleScreen(props: PuzzleScreenProps): JSX.Element {
         style={{ '--ui-puzzle-column-ratio': ratio() }}
         data-square={ratio() === 1}
         data-board-sizing={props.boardSizing ?? 'fit'}
+        data-more-below={below.more()}
+        onScroll={() => below.measure()}
         {...dataAttrs({
           component: 'PuzzleScreen',
           ...props.dataSet,
@@ -160,7 +197,14 @@ export function PuzzleScreen(props: PuzzleScreenProps): JSX.Element {
         {/* After the move list in reading and focus order, as a phone shows
             it; wide, the grid sets it under the actions. */}
         <PuzzleFixedRegion name="PuzzleDock" area="dock">
-          {props.dock}
+          {/* A cue on the dock's edge while more is below what is in view;
+              the content says itself, so listeners do not hear it. */}
+          <Show when={dock.present()}>
+            <span class={dockStyles['moreCue']} aria-hidden="true">
+              <ChevronDownIcon size={16} />
+            </span>
+          </Show>
+          {dock.content()}
         </PuzzleFixedRegion>
         <div class={styles['overlay']}>{props.overlay}</div>
       </div>

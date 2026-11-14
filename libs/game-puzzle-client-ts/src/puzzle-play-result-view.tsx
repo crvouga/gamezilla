@@ -20,6 +20,7 @@ import { createMemo, type JSX, Match, Show, Switch } from 'solid-js';
 import type { PuzzlePlayScreenViewProps } from './puzzle-play-screen-model';
 import { PuzzleSettingsButton, PuzzleSettingsRow } from './puzzle-settings-row';
 import { PuzzleShareLabel } from './puzzle-share-label';
+import { StatusLineTrailing } from './puzzle-status-line';
 import { PuzzleSummaryCard } from './puzzle-summary-card';
 
 /** How the puzzle ended, in the tone of its outcome. */
@@ -249,6 +250,16 @@ function PuzzleResultSummary(props: PuzzlePlayScreenViewProps): JSX.Element {
             <ResultCaption {...props} />
           </P>
           <ResultFacts {...props} />
+          <Show
+            when={props.result.provisional && props.result.completion !== null}
+          >
+            <P variant="caption" tone="secondary">
+              <Trans>
+                The ? marks a provisional rating: it settles after a few more
+                rated puzzles.
+              </Trans>
+            </P>
+          </Show>
         </StackVertical>
         <StackVertical gap="none" align="end">
           <Show when={props.result.completion} keyed>
@@ -261,6 +272,11 @@ function PuzzleResultSummary(props: PuzzlePlayScreenViewProps): JSX.Element {
             )}
           </Show>
           <ResultStreak {...props} />
+          {/* The clock, and what a rating-less ending did (a skip's cost,
+              an unrated repeat): the coach's line leaves them to the card. */}
+          <StackHorizontal gap="xs" align="center" justify="end" wrap>
+            <StatusLineTrailing {...props} />
+          </StackHorizontal>
         </StackVertical>
       </StackHorizontal>
     </Surface>

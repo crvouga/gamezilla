@@ -19,7 +19,9 @@ function formatSignedDelta(delta: number): string {
  * repeat, §9); then the clock. Someone watching is marked over the line
  * (`SpectatorAllowance`), so the turn pill keeps its whole label.
  */
-function StatusLineTrailing(props: PuzzlePlayScreenViewProps): JSX.Element {
+export function StatusLineTrailing(
+  props: PuzzlePlayScreenViewProps
+): JSX.Element {
   // A finished puzzle's rated summary says the change itself.
   const change = (): number | null =>
     typeof props.ratingChange === 'number' &&
@@ -67,16 +69,19 @@ export function PuzzleStatusLine(
       data-observation={handles()?.observation}
       data-purpose={handles()?.purpose}
       data-puzzle={handles()?.puzzleId}
+      // A finished puzzle's card headlines it and carries these facts, so
+      // the coach's bubble on the result is its words alone.
       header={
-        <PuzzleStatusHeader
-          kind={props.statusKind}
-          solutionShown={props.status === 'revealed'}
-          flawed={props.result.completion?.outcome === 'failed'}
-          quiet={props.place.screen === 'result'}
-          solverSide={props.solverSide ?? null}
-          correct={props.correct}
-          trailing={<StatusLineTrailing {...props} />}
-        />
+        props.place.screen === 'result' ? undefined : (
+          <PuzzleStatusHeader
+            kind={props.statusKind}
+            solutionShown={props.status === 'revealed'}
+            flawed={props.result.completion?.outcome === 'failed'}
+            solverSide={props.solverSide ?? null}
+            correct={props.correct}
+            trailing={<StatusLineTrailing {...props} />}
+          />
+        )
       }
       numberOfLines={2}
       avatarSize={AVATAR_SIZE}

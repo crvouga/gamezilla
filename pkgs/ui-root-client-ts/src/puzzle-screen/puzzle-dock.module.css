@@ -9,12 +9,32 @@
   bottom: 0;
   z-index: 1;
   order: 7;
+  /* On the bottom edge even when what is above it is short. */
+  margin-top: auto;
   padding-inline: var(--ui-space-lg);
   padding-block: var(--ui-space-2) var(--ui-space-3);
   background: var(--ui-color-background);
   border-top: 1px solid var(--ui-color-border);
   /* A bar over what scrolls: a clear edge, never a fade into it. */
   box-shadow: var(--ui-shadow-float);
+}
+/* While more is below what is in view, a small chevron rides the dock's
+   top edge: what continues under the bar is there to scroll to. */
+.moreCue {
+  display: none;
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  translate: -50% 50%;
+  padding: var(--ui-space-1);
+  border: 1px solid var(--ui-color-border);
+  border-radius: var(--ui-radius-full);
+  background: var(--ui-color-background);
+  color: var(--ui-color-text-secondary);
+  pointer-events: none;
+}
+[data-more-below="true"] .moreCue {
+  display: flex;
 }
 /* Wide: in the panel, right under the actions, on the panel's card. */
 @container puzzle-frame (min-width: 880px) {
@@ -26,5 +46,9 @@
     background: none;
     border-top: none;
     box-shadow: none;
+    margin-top: 0;
+  }
+  [data-more-below="true"] .moreCue {
+    display: none;
   }
 }

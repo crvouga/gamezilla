@@ -158,7 +158,13 @@ function StatsRows(props: PuzzleStatsScreenViewProps): JSX.Element {
               </Text>
             }
           >
-            {(latest) => <LatestPuzzle entry={latest} />}
+            {(latest) => (
+              // How many, then the latest: "6 played · last Solved 1622".
+              <Text variant="inherit">
+                <Trans>{props.gameLog.length} played · last</Trans>{' '}
+                <LatestPuzzle entry={latest} />
+              </Text>
+            )}
           </Show>
         }
         onClick={() => props.onOpen({ screen: 'log' })}
