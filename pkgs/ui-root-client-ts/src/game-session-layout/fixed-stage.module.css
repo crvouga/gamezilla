@@ -66,6 +66,11 @@
     flex-direction: column;
     gap: 0;
   }
+  /* A finished game's board takes no moves: beside its result it may
+     narrow below a playable size, so its seats and the result stay in view. */
+  .fixed:has([data-component="GameResultCard"]) [data-game-slot="stage"] {
+    --game-board-smallest: 160;
+  }
   .fixed [data-game-slot="stage"]::after {
     content: "";
     flex: 1 1 0;

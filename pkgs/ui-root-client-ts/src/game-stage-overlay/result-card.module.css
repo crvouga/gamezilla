@@ -146,9 +146,19 @@ section.docked[data-tone="lost"] {
     font-size: var(--ui-font-size-sm);
   }
 }
-/* A short phone: a tighter block, so the board keeps its room. */
+/* A short phone: a tighter block, so the board keeps its room. The headline
+   and its reason share a line where they fit; quiet commands are 36px. */
 @media (max-width: 767px) and (max-height: 700px) {
   section.docked {
     padding-block: var(--ui-space-2);
+  }
+  .docked > :first-child > :first-child {
+    flex-flow: row wrap;
+    align-items: baseline;
+    column-gap: var(--ui-space-2);
+  }
+  .docked.quiet :global(.btn[data-variant="ghost"]),
+  .docked.quiet :global(.btn[data-variant="outline"]) {
+    min-height: 36px;
   }
 }
