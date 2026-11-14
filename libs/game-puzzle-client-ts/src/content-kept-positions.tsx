@@ -126,8 +126,12 @@ export function ContentKeptPositionsView(props: {
                 ) : undefined
               }
               hideChevron={position(id)?.current === true}
-              disabled={props.disabled || position(id)?.current === true}
-              onClick={() => props.onSelect(id)}
+              disabled={props.disabled}
+              onClick={
+                position(id)?.current === true
+                  ? undefined
+                  : () => props.onSelect(id)
+              }
               dataSet={{ testid: `content-position-${id}`, kept: 'position' }}
             />
           )}

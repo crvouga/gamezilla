@@ -1,3 +1,4 @@
+import { readAttemptLibrary } from '@libs/game-puzzle-shared-ts/attempt-library';
 import { readContentLibrary } from '@libs/game-puzzle-shared-ts/content-library';
 import { defineAction } from '@pkgs/harness-root-shared-ts/define-action';
 import { fireEvent } from '@solidjs/testing-library';
@@ -84,12 +85,13 @@ export const EDITION_RULES_ACTIONS = [
  * Opens the device's saved attempt under rules this app lacks and presses
  * the notice's Update the app: the app is asked to load its newest version
  * (as its update banner does), with no unusable board or commands shown.
+ * The updated app (one with the attempt's rules) then reopens the same
+ * attempt at its saved position, and a move is played and kept.
  */
 export const updateAppFromAttempt = defineAction({
   name: 'updateAppFromAttempt',
   act: async (s: ContentHarness, clientId: string) => {
     const selection = selectedPlay(s, clientId);
-    const view = await mountContentExample(s, clientId);
     const location = globalThis.location;
     const reload = location.reload;
     let reloads = 0;
@@ -99,32 +101,80 @@ export const updateAppFromAttempt = defineAction({
         reloads += 1;
       },
     });
+    const before = await mountContentExample(s, clientId);
     try {
       await openLibraryEntry(
         contentWait(s),
-        view,
+        before,
         `content-attempt-${selection.attemptId}`
       );
       await waitForContent(s, () =>
         Promise.resolve(
-          view.queryByTestId('content-attempt-rules-changed') !== null
+          before.queryByTestId('content-attempt-rules-changed') !== null
         )
       );
       s.notices.set(
         'rules-changed-shows-board',
         String(
-          view.queryByTestId('counting-step-one') !== null ||
-            view.queryByTestId('content-undo') !== null
+          before.queryByTestId('counting-step-one') !== null ||
+            before.queryByTestId('content-undo') !== null
         )
       );
-      fireEvent.click(view.getByRole('button', { name: 'Update the app' }));
+      fireEvent.click(before.getByRole('button', { name: 'Update the app' }));
       s.notices.set('rules-changed-update-requests', String(reloads));
     } finally {
       Object.defineProperty(location, 'reload', {
         configurable: true,
         value: reload,
       });
-      view.unmount();
+      before.unmount();
     }
+    await resumeAfterUpdate(s, clientId);
   },
 });
+
+/** The updated app has the attempt's rules: the same attempt reopens and plays on. */
+async function resumeAfterUpdate(
+  s: ContentHarness,
+  clientId: string
+): Promise<void> {
+  const selection = selectedPlay(s, clientId);
+  const db = contentClient(s, clientId).db;
+  const saved = (await readAttemptLibrary(db)).attempts.find(
+    (attempt) => attempt.id === selection.attemptId
+  );
+  if (saved === undefined) throw new Error('The saved attempt was lost');
+  s.rules.version = saved.rules_version;
+  const after = await mountContentExample(s, clientId);
+  try {
+    await openLibraryEntry(
+      contentWait(s),
+      after,
+      `content-attempt-${saved.id}`
+    );
+    await waitForContent(s, () => {
+      const step = after.queryByTestId<HTMLButtonElement>('counting-step-one');
+      return Promise.resolve(step !== null && !step.disabled);
+    });
+    s.notices.set(
+      'rules-updated-same-attempt',
+      String(
+        after.getByTestId('content-attempt').getAttribute('data-attemptid') ===
+          saved.id
+      )
+    );
+    fireEvent.click(after.getByTestId('counting-step-one'));
+    await waitForContent(s, async () => {
+      const current = (await readAttemptLibrary(db)).attempts.find(
+        (attempt) => attempt.id === saved.id
+      );
+      return (
+        current !== undefined &&
+        current.current_position_id !== saved.current_position_id
+      );
+    });
+    s.notices.set('rules-updated-move-kept', 'true');
+  } finally {
+    after.unmount();
+  }
+}
