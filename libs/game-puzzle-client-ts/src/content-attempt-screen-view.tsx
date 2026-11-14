@@ -465,6 +465,7 @@ function AttemptStage(props: ContentAttemptScreenViewProps): JSX.Element {
         aside={<AttemptAside {...props} />}
         actionsBeside
         fixedStage
+        stageFit="compact"
         stageAlign={props.stageAlign}
       >
         {/* The stage narrows the game's board to the room a phone's fixed

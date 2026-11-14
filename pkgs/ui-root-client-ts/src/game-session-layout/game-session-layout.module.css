@@ -122,3 +122,15 @@
 .session[data-board-focus="true"]:has([data-board-theme="quoridor"]) {
   gap: 0;
 }
+
+/* A compact stage (a puzzle player, whose boards stop well short of a
+   game's board measure): its column is capped at a puzzle board's size, so
+   the rail sits beside the board instead of where a full board would end. */
+@container game-column (min-width: 880px) {
+  .session[data-stage-fit="compact"]
+    > [data-has-stage="true"][data-has-aside="true"] {
+    grid-template-columns:
+      minmax(0, min(var(--game-board-measure), 27.5rem))
+      minmax(280px, var(--ui-max-width-panel));
+  }
+}

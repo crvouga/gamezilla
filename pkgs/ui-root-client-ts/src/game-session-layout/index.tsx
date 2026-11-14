@@ -60,6 +60,13 @@ export type GameSessionLayoutProps = {
    * `actionsBeside`. Wider windows are unchanged.
    */
   fixedStage?: boolean | undefined;
+  /**
+   * `compact`: on wide screens the stage's column is capped at a puzzle
+   * board's size (a player whose board stops short of a game's board
+   * measure), so the rail sits beside it. Default: the board measure every
+   * game's board uses.
+   */
+  stageFit?: 'measure' | 'compact' | undefined;
   /** Where a narrower stage sits in a one-column layout. See `GameLayout`. */
   stageAlign?: 'start' | 'center' | undefined;
   /** After everything: a `GameWatchingFooter` for someone watching. */
@@ -113,6 +120,7 @@ export function GameSessionLayout(props: GameSessionLayoutProps): JSX.Element {
       class={`box gap-4 min-w-0 pb-6 ${styles['session']}`}
       classList={{ [fixed['fixed'] ?? '']: props.fixedStage === true }}
       data-board-focus={props.boardFocus === true}
+      data-stage-fit={props.stageFit ?? 'measure'}
       data-game-fixed={props.fixedStage === true}
       {...dataAttrs({ component: 'GameSessionLayout', ...props.dataSet })}
     >

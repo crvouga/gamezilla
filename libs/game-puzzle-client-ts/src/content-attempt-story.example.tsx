@@ -325,7 +325,12 @@ export function StoryPackAttempt(props: {
         rulesChanged={false}
         unopenable={false}
         player={props.player}
-        packSolved={props.packSolved}
+        packSolved={
+          props.packSolved ??
+          (props.puzzle.pack === null
+            ? undefined
+            : props.puzzle.pack.position - (props.complete === true ? 0 : 1))
+        }
         wayOn={props.wayOn ?? <StoryPackActions />}
         onward={props.onward ?? <StoryPackOnward next={props.next} />}
         controls={
