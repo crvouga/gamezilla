@@ -142,7 +142,7 @@ section.docked[data-tone="lost"] {
     display: -webkit-box;
     overflow: hidden;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 3;
     font-size: var(--ui-font-size-sm);
   }
 }

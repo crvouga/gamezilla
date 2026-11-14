@@ -112,23 +112,6 @@ export const ManyPlayers: Story = {
 /** Offline: a rematch waits for the connection. */
 export const Offline: Story = { args: { online: false } };
 
-/** The result card closed: the final board, with the result one press away. */
-export const ResultClosed: Story = { args: { overlay: { kind: 'board' } } };
-
-/** Closing the result card shows the final board; one press brings it back. */
-export const CloseAndReopen: Story = {
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await userEvent.click(
-      await canvas.findByRole('button', { name: 'Show the board' })
-    );
-    await userEvent.click(await canvas.findByTestId('multiplayer-show-result'));
-    await expect(
-      await canvas.findByRole('button', { name: 'Show the board' })
-    ).toBeVisible();
-  },
-};
-
 /** A new search was refused: finish the other game first. */
 export const CommandRefused: Story = {
   args: { error: 'Multiplayer game could not accept that command.' },

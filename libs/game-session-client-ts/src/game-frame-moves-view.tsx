@@ -42,7 +42,7 @@ type RecordProps = Props & { readonly record: FrameRecord };
 
 /** A step through the moves is a full touch target. */
 const STEP_SIZE = 44;
-const STEP_PLATE = 'surfaceMuted';
+const STEP_PLATE = 'border';
 
 /** How many of the latest moves the list holds; earlier ones are reached by number. */
 const LISTED_MOVES = 40;
@@ -317,6 +317,21 @@ function RecordSelect(props: RecordProps): JSX.Element {
   );
 }
 
+/**
+ * The turn the shown move belongs to and who made it, as the list numbers
+ * its rows, when a turn holds more than one move; else `null`.
+ */
+function turnOf(
+  record: FrameRecord
+): { readonly number: number; readonly side: string } | null {
+  const mover = record.movers[record.displayedPly - 1];
+  if (record.perTurn <= 1 || mover === undefined) return null;
+  return {
+    number: Math.ceil(record.displayedPly / record.perTurn),
+    side: mover.sideLabel,
+  };
+}
+
 /** Which position the board shows, in words. */
 function ReviewingLine(props: { readonly record: FrameRecord }): JSX.Element {
   return (
@@ -337,10 +352,23 @@ function ReviewingLine(props: { readonly record: FrameRecord }): JSX.Element {
               </Trans>
             }
           >
-            <Trans>
-              After move {props.record.displayedPly} of{' '}
-              {props.record.moves.length}
-            </Trans>
+            <Show
+              when={turnOf(props.record)}
+              fallback={
+                <Trans>
+                  After move {props.record.displayedPly} of{' '}
+                  {props.record.moves.length}
+                </Trans>
+              }
+            >
+              {(turn) => (
+                // Counted as the list counts: by turn, then whose move.
+                <Trans>
+                  Move {turn().number}, {turn().side} (
+                  {props.record.displayedPly} of {props.record.moves.length})
+                </Trans>
+              )}
+            </Show>
           </Show>
         </Show>
       }

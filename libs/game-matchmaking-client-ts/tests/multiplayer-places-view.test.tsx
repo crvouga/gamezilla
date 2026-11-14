@@ -448,7 +448,11 @@ const FILLED_COMMAND =
 
 describe('the result', () => {
   test('holds the outcome, a rematch and a new opponent, with the moves and ratings one row away', () => {
-    const view = mountPlaces({ stage: 'finished', props: { game: FINISHED } });
+    const view = mountPlaces({
+      stage: 'finished',
+      width: 1440,
+      props: { game: FINISHED },
+    });
     expect(
       ids(
         'multiplayer-announcement',
@@ -483,36 +487,33 @@ describe('the result', () => {
 
   // regression: matchmaking-result-pushes-board — the result's headline and
   // rows stood above and below the board, which moved as the game ended.
-  test('the result lies over the final board, is closed to see it, and is one press from coming back', () => {
+  test('the result is told beside the final board, which stays whole, with nothing to close', () => {
     const view = mountPlaces({ stage: 'playing' });
     view.set({ game: FINISHED });
     view.setStage('finished');
-    expect(view.overlay()).toEqual({ kind: 'outcome' });
     const card = screen.getByTestId('multiplayer-announcement');
     expect(card.textContent).toContain('Victory');
     expect(card.textContent).toContain('You won the multiplayer game.');
     expect(card.textContent).toContain('By resignation.');
-    // The word, the sentence and why are announced as one. The sentence is
-    // the headline, which a small board keeps when it drops the reason.
+    // The word, the sentence and why are announced as one.
     expect(card.querySelector('[role="status"]')?.textContent).toBe(
       'VictoryYou won the multiplayer game.By resignation.'
     );
     expect(card.querySelector('h2')?.textContent).toBe(
       'You won the multiplayer game.'
     );
-    expect(ids('multiplayer-show-result')).toEqual([]);
-    screen.getByRole('button', { name: 'Show the board' }).click();
-    expect(view.overlay()).toEqual({ kind: 'board' });
-    // How it ended is still said, and the commands are still there.
-    expect(
-      screen.getByTestId('multiplayer-announcement').textContent
-    ).toContain('You won the multiplayer game.');
+    // Never over the board: the board's slot does not hold it.
+    expect(screen.getByTestId('slot-board').contains(card)).toBe(false);
+    expect(screen.queryByRole('button', { name: 'Show the board' })).toBeNull();
     expect(
       ids('slot-board', 'multiplayer-new-opponent', 'multiplayer-offer-rematch')
     ).toHaveLength(3);
-    screen.getByTestId('multiplayer-show-result').click();
-    expect(view.overlay()).toEqual({ kind: 'outcome' });
-    expect(ids('multiplayer-show-result')).toEqual([]);
+  });
+
+  test("a phone's result keeps its room for the board: the moves are one press away, not a line over it", () => {
+    mountPlaces({ stage: 'finished', width: 390, props: { game: FINISHED } });
+    expect(ids('multiplayer-move-1')).toEqual([]);
+    expect(ids('multiplayer-open-moves')).toHaveLength(1);
   });
 
   test('a game lost, drawn or aborted is named as that on its card', () => {

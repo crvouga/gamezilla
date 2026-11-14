@@ -1,5 +1,6 @@
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
+import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameLobbyDock } from '@pkgs/ui-root-client-ts/game-lobby';
 import { GameOptionField } from '@pkgs/ui-root-client-ts/game-option-field';
@@ -203,7 +204,6 @@ export function FramePrivateSetupPlace(
     <FrameLobbyPage
       {...props}
       screenId="custom-game-private-setup"
-      back={<Trans>Back to setup</Trans>}
       dock={
         <GameLobbyDock
           status={
@@ -233,13 +233,25 @@ export function FramePrivateSetupPlace(
               />
             )}
           </Show>
-          <GameActionButton
-            title={<Trans>Random setup</Trans>}
-            size="lg"
-            dataSet={{ testid: 'custom-game-setup-random' }}
-            disabled={props.own.locked}
-            operation={() => props.onRandomSetup()}
-          />
+          {/* The way back sits in the dock beside the random setup, so the
+              footer never hides it. */}
+          <GameActions sizing="fill">
+            <GameActionButton
+              title={<Trans>Random setup</Trans>}
+              size="lg"
+              dataSet={{ testid: 'custom-game-setup-random' }}
+              disabled={props.own.locked}
+              operation={() => props.onRandomSetup()}
+            />
+            <Button
+              title={<Trans>Back to setup</Trans>}
+              variant="outline"
+              intent="neutral"
+              size="lg"
+              onClick={() => props.onClose()}
+              dataSet={{ testid: 'custom-game-place-back' }}
+            />
+          </GameActions>
         </GameLobbyDock>
       }
     >

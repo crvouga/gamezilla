@@ -180,6 +180,8 @@
   border-radius: 50%;
   background: var(--disc-hole);
   overflow: visible;
+  /* The mark scales with the cell, so a small board's disc holds it whole. */
+  container-type: inline-size;
 }
 .disc {
   display: grid;
@@ -187,7 +189,7 @@
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  font-size: var(--ui-font-size-xl);
+  font-size: min(var(--ui-font-size-xl), 48cqi);
   line-height: 1;
   transition: opacity var(--ui-duration-slow) var(--ui-easing-standard);
 }
@@ -240,6 +242,7 @@
 .cell[data-winning="true"] .disc {
   inline-size: 68%;
   block-size: 68%;
+  font-size: min(var(--ui-font-size-xl), 34cqi);
 }
 /* The last disc played falls the column's height under gravity: slow at
    the top, fastest as it lands. */

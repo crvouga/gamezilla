@@ -172,8 +172,7 @@
   align-items: center;
   justify-content: center;
   min-width: 0;
-  /* Never so small that the board hides and leaves an empty band. */
-  min-height: 112px;
+  min-height: 0;
   overflow: hidden;
   container-type: size;
   pointer-events: none;

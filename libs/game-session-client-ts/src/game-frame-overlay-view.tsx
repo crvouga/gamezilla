@@ -8,7 +8,6 @@ import {
   GameVersusOverlay,
   type GameVersusSide,
 } from '@pkgs/ui-root-client-ts/game-stage-overlay';
-import { P } from '@pkgs/ui-root-client-ts/text';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { type JSX, Show } from 'solid-js';
 import { FrameHolderAvatar, FrameHolderName } from './game-frame-people';
@@ -116,18 +115,14 @@ function eyebrow(tone: GameResultCardProps['tone']): string {
   return t`Game over`;
 }
 
-/** The result's own note (`Host starts the rematch.`), or nothing. */
-function outcomeNote(props: Props): string {
-  return props.result?.note ?? '';
-}
-
 /**
  * Under the headline: how the game ended (`Black wins by resignation.`),
- * then, where there is room, the game's note.
+ * then the game's note (`Host starts the rematch.`), which says why
+ * someone has no Rematch of their own.
  */
-function outcomeCaption(props: Props, roomy: boolean): string | undefined {
+function outcomeCaption(props: Props): string | undefined {
   const reason = props.result === null ? '' : (props.status?.description ?? '');
-  const note = roomy ? outcomeNote(props) : '';
+  const note = props.result?.note ?? '';
   const caption = [reason, note].filter((part) => part !== '').join(' ');
   return caption === '' ? undefined : caption;
 }
@@ -140,7 +135,6 @@ function outcomeCaption(props: Props, roomy: boolean): string | undefined {
 export function FrameOutcomeCard(props: Props): JSX.Element {
   const tone = () => frameResultTone(props.result);
   const mode = useLayoutMode();
-  const roomy = (): boolean => mode() === 'wide';
   return (
     <GameResultCard
       tone={tone()}
@@ -148,21 +142,16 @@ export function FrameOutcomeCard(props: Props): JSX.Element {
       title={
         props.result?.headline ?? props.status?.description ?? t`Game finished`
       }
-      caption={outcomeCaption(props, roomy())}
-      detailsLabel={props.result === null || roomy() ? undefined : t`Standings`}
+      caption={outcomeCaption(props)}
+      detailsLabel={
+        props.result === null || mode() === 'wide' ? undefined : t`Standings`
+      }
       titleDataSet={{ testid: 'custom-game-result-headline' }}
       dataSet={{ testid: 'custom-game-outcome' }}
     >
       <Show when={props.result}>
         {(result) => (
-          <>
-            <Show when={!roomy() && outcomeNote(props) !== ''}>
-              <P variant="caption" tone="secondary">
-                {outcomeNote(props)}
-              </P>
-            </Show>
-            <FrameResultView result={result()} people={props.people} />
-          </>
+          <FrameResultView result={result()} people={props.people} />
         )}
       </Show>
     </GameResultCard>

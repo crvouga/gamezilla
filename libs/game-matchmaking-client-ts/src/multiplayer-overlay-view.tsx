@@ -6,12 +6,12 @@ import type {
   StageOverlayPhase,
 } from '@pkgs/turn-game-client-ts/stage-overlay';
 import {
-  GameResultOverlay,
-  type GameResultOverlayProps,
+  GameResultCard,
+  type GameResultCardProps,
   GameVersusOverlay,
   type GameVersusSide,
 } from '@pkgs/ui-root-client-ts/game-stage-overlay';
-import { type JSX, Match, Switch } from 'solid-js';
+import { type JSX, Match, Show, Switch } from 'solid-js';
 import type { MultiplayerStage } from './multiplayer-places';
 
 /**
@@ -41,7 +41,7 @@ export type MultiplayerVersusShown = {
 
 /** How the matched game ended, as the result card says it. */
 export type MultiplayerResultShown = {
-  readonly tone: GameResultOverlayProps['tone'];
+  readonly tone: GameResultCardProps['tone'];
   /** The game was aborted: there is no result. */
   readonly aborted?: boolean | undefined;
   /** Who won, in a sentence. */
@@ -94,9 +94,9 @@ function VersusCard(
 /**
  * What lies over the matched game's board, as the stage's overlay machine
  * says (`StageOverlay`): the versus card and its count when an opponent is
- * found on this device, the result card once the game is over, else
- * nothing. The result card is the screen's announcement of how the game
- * ended.
+ * found on this device, else nothing. How the game ended is told beside
+ * the board (`MultiplayerResultCard`), so the final position is never
+ * covered.
  */
 export function MultiplayerOverlayView(props: OverlayProps): JSX.Element {
   const versus = () =>
@@ -110,22 +110,35 @@ export function MultiplayerOverlayView(props: OverlayProps): JSX.Element {
           <VersusCard {...props} versus={card().shown} count={card().count} />
         )}
       </Match>
-      <Match when={props.overlay.kind === 'outcome' ? props.result : undefined}>
-        {(result) => (
-          <GameResultOverlay
-            live
-            tone={result().tone}
-            eyebrow={headline(result())}
-            title={result().title}
-            caption={result().caption}
-            dismissLabel={t`Show the board`}
-            onDismiss={() => props.onOverlay({ type: 'dismiss' })}
-            dataSet={{ testid: 'multiplayer-announcement' }}
-          >
-            {props.children}
-          </GameResultOverlay>
-        )}
-      </Match>
     </Switch>
+  );
+}
+
+/**
+ * How the matched game ended, beside the final board (under it on a
+ * phone, heading the rail beside a wide one), never over it: the word, the
+ * sentence, why and the rating change, then where else it leads. It is the
+ * screen's announcement of how the game ended.
+ */
+export function MultiplayerResultCard(props: {
+  readonly result: MultiplayerResultShown | undefined;
+  /** Under the result: where else it leads. */
+  readonly children?: JSX.Element | undefined;
+}): JSX.Element {
+  return (
+    <Show when={props.result}>
+      {(result) => (
+        <GameResultCard
+          live
+          tone={result().tone}
+          eyebrow={headline(result())}
+          title={result().title}
+          caption={result().caption}
+          dataSet={{ testid: 'multiplayer-announcement' }}
+        >
+          {props.children}
+        </GameResultCard>
+      )}
+    </Show>
   );
 }

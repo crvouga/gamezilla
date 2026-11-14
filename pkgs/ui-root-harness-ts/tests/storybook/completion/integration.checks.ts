@@ -112,7 +112,7 @@ for (const sample of [
   { story: 'play--offline-local', says: 'Your local game can continue' },
   { story: 'play--move-waiting', says: 'when the connection returns' },
   { story: 'play--stopped', says: 'The game stopped' },
-  { story: 'moves--earlier-move', says: 'After move 3 of 8' },
+  { story: 'moves--earlier-move', says: 'Move 2, Red circle (3 of 8)' },
   { story: 'moves--earlier-game', says: 'An earlier game, after move 3' },
   { story: 'result--you-win', says: 'You win' },
 ])
