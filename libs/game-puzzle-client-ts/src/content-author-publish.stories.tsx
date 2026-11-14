@@ -118,7 +118,7 @@ export const Saving: Story = {
   args: { save: { saving: true, dirty: true, error: null }, disabled: true },
 };
 
-/** Withdrawing asks first, in a destructive confirm the shell owns. */
+/** Withdrawing asks first, naming the puzzle, in a destructive confirm the shell owns. */
 export const ConfirmWithdraw: Story = {
   ...Published,
   play: async ({ canvasElement }) => {
@@ -126,7 +126,7 @@ export const ConfirmWithdraw: Story = {
     await userEvent.click(await canvas.findByTestId('content-withdraw'));
     const page = within(canvasElement.ownerDocument.body);
     await expect(
-      await page.findByText('Withdraw this publication?')
+      await page.findByText('Withdraw “Count to seven”?')
     ).toBeVisible();
   },
 };
