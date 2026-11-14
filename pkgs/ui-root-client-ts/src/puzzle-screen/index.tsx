@@ -15,7 +15,8 @@ export type PuzzleScreenProps = {
   /**
    * The screen's title, as every game screen opens (`ScreenIntro`): above
    * the board and its panel when wide, at the top of a phone's column, so
-   * the mode is named on every size.
+   * the mode is named on every size. A width-sized phone column keeps it
+   * for listeners only: the host bar names the place there.
    */
   title?: JSX.Element | undefined;
   /**

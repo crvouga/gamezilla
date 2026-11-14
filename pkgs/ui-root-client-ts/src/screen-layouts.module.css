@@ -545,7 +545,7 @@
     order: 7;
   }
 }
-/* How a width-sized board yields height on a phone: `puzzle-screen/
+/* How a width-sized board is sized on a phone: `puzzle-screen/
    puzzle-height.module.css`. A short landscape window puts the board in a
    left column at the window height (less the 53px bar, the board's 48px
    guidance and 3px); the rest reads down the right. */

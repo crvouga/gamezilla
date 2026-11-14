@@ -1,25 +1,25 @@
-/* A width-sized board on a phone yields height, so the coach, the result
-   and the docked commands share the first view (about 520px for the bars,
-   the title, the coach, the guidance and the dock), never under 256px:
-   eight 32px squares. A short phone keeps the title for listeners only. */
+/* A width-sized board on a phone keeps the column's width (at least 320px,
+   so a 390px phone's squares are 40px; `chess-puzzle-phone-board-too-small`)
+   and stops pushing what follows below the fold on a tall host (about 420px
+   for the coach, guidance and dock). The title is the host bar's job on a
+   phone: it stays for listeners only, giving the coach and the dock its
+   row. A short phone sits its regions closer. */
 @container puzzle-frame (width < 880px) {
   [data-board-sizing="width"] .board {
-    max-width: max(256px, calc(100dvh - 520px));
+    max-width: max(320px, calc(100dvh - 420px));
+  }
+  [data-board-sizing="width"] > .title {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
   }
 }
 @media (max-height: 760px) {
   @container puzzle-frame (width < 880px) {
-    /* Tighter breaths between the regions, so what is under the board
-       clears the dock. */
     [data-board-sizing="width"][data-square] {
       gap: var(--ui-space-2);
-    }
-    [data-board-sizing="width"] > .title {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      overflow: hidden;
-      clip-path: inset(50%);
     }
   }
 }
