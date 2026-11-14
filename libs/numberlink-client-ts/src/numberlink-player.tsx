@@ -12,14 +12,18 @@ import type {
   NumberlinkDefinition,
   NumberlinkState,
 } from '@libs/numberlink-shared-ts/numberlink-types';
-import { Trans } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@lingui/solid/macro';
+import { Collapsible } from '@pkgs/ui-root-client-ts/collapsible';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { createMemo, type JSX, Show } from 'solid-js';
 import { createNumberlinkDrawing } from './create-numberlink-drawing';
 import { NumberlinkBoard } from './numberlink-board';
-import { NumberlinkDrawingHelp } from './numberlink-drawing-help';
+import {
+  NumberlinkDrawingHelp,
+  NumberlinkDrawingHelpBody,
+} from './numberlink-drawing-help';
 import { NumberlinkRecovery } from './numberlink-recovery';
 
 function Drawing(props: {
@@ -30,6 +34,7 @@ function Drawing(props: {
   /** The screen says the puzzle is solved itself. */
   shellSaysSolved: boolean;
 }): JSX.Element {
+  const { t } = useLingui();
   const drawing = createNumberlinkDrawing({
     definition: () => props.definition,
     state: () => props.state,
@@ -123,12 +128,35 @@ function Drawing(props: {
             </Show>
           )}
         </P>
-        <NumberlinkRecovery
-          definition={props.definition}
-          state={props.state}
-          onAction={props.onAction}
-        />
-        <NumberlinkDrawingHelp />
+        <Show
+          when={props.shellSaysSolved}
+          fallback={
+            <>
+              <NumberlinkRecovery
+                definition={props.definition}
+                state={props.state}
+                onAction={props.onAction}
+              />
+              <NumberlinkDrawingHelp />
+            </>
+          }
+        >
+          {/* Inside the attempt screen (which a phone holds in one view),
+              the tools and help fold into one labelled row under the board. */}
+          <Collapsible
+            title={t`Tools and help`}
+            dataSet={{ testid: 'numberlink-tools' }}
+          >
+            <StackVertical gap="md">
+              <NumberlinkRecovery
+                definition={props.definition}
+                state={props.state}
+                onAction={props.onAction}
+              />
+              <NumberlinkDrawingHelpBody />
+            </StackVertical>
+          </Collapsible>
+        </Show>
       </Show>
       <Show when={drawing.error()}>
         {(error) => <Notice tone="error">{error()}</Notice>}

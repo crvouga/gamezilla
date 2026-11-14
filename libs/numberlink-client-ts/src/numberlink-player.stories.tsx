@@ -369,3 +369,30 @@ export const ChoosePathToRemove: Story = {
     }
   },
 };
+
+/**
+ * Partway, inside the attempt screen as production passes it (the screen
+ * says when the puzzle is solved): the tools and help fold into one row.
+ */
+export const InAttemptScreen: Story = {
+  args: { ...InProgress.args },
+  render: (args) => (
+    <StoryPackAttempt
+      puzzle={PUZZLE}
+      player={
+        <NumberlinkPlayer
+          {...args}
+          context={{
+            kind: 'pack',
+            shellOffersWayOn: true,
+            shellSaysSolved: true,
+          }}
+        />
+      }
+    />
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId('numberlink-tools')).toBeVisible();
+  },
+};
