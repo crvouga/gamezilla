@@ -51,6 +51,7 @@ import { evaluatePlanPolicy } from '@libs/infra-shared-ts/plan-policy';
 import {
   planReadFailed,
   providerFailureIsTransient,
+  providerRetryWaitMs,
 } from '@libs/infra-shared-ts/plan-retry';
 import { redactInfraOutput } from '@libs/infra-shared-ts/redact-output';
 import {
@@ -194,8 +195,6 @@ function teardownScope(target: Target, cli: Cli): readonly string[] {
 }
 
 const PLAN_ATTEMPTS = 3;
-/** A dropped provider connection is often up again a moment later. */
-const PLAN_RETRY_WAIT_MS = 1_000;
 
 /** Apply/destroy keep the lock; plan/drift must not abandon one when killed. */
 function planOptionsFor(cli: Cli) {
@@ -235,10 +234,11 @@ async function planTarget(
     if (!planReadFailed(result.status)) return result.status;
     const retry = providerFailureIsTransient(output) && attempt < PLAN_ATTEMPTS;
     if (!retry) break;
+    const waitMs = providerRetryWaitMs(output);
     console.error(
-      `[infra] ${target.stack}: plan read failed, retrying (${String(attempt)})`
+      `[infra] ${target.stack}: plan read failed, retrying (${String(attempt)}) after ${String(waitMs)}ms`
     );
-    await Bun.sleep(PLAN_RETRY_WAIT_MS);
+    await Bun.sleep(waitMs);
   }
   fail(`${target.stack}: tofu plan failed`);
 }

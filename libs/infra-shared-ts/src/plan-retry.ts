@@ -4,6 +4,7 @@ export function planReadFailed(status: number): boolean {
 }
 
 const TRANSIENT_PROVIDER_FAILURE = [
+  '429 Too Many Requests',
   'Client Error',
   'connection reset',
   'connection refused',
@@ -21,6 +22,21 @@ const TRANSIENT_PROVIDER_FAILURE = [
  */
 export function providerFailureIsTransient(output: string): boolean {
   return TRANSIENT_PROVIDER_FAILURE.some((needle) => output.includes(needle));
+}
+
+/** Respect Railway's rate-limit reset instead of spending retries immediately. */
+export function providerRetryWaitMs(output: string): number {
+  let waitMs = 1_000;
+  if (!output.includes('429 Too Many Requests')) return waitMs;
+  for (const match of output.matchAll(
+    /try again in (\d+(?:\.\d+)?) seconds/gi
+  )) {
+    const duration = Math.ceil(Number(match[1]) * 1_000);
+    if (!Number.isSafeInteger(duration))
+      throw new Error('Provider returned an invalid rate-limit reset duration');
+    waitMs = Math.max(waitMs, duration);
+  }
+  return waitMs;
 }
 
 const TRANSIENT_INSTALL_FAILURE = [

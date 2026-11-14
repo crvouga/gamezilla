@@ -1,0 +1,4 @@
+{
+  "summary": "Release 43543869285 exhausted three fleet plan attempts within seconds despite Railway's HTTP 429 asking to wait 751.962 seconds. Honor the advertised reset before retrying the plan.",
+  "regressionTest": "libs/infra-shared-ts/tests/plan-retry.test.ts"
+}
