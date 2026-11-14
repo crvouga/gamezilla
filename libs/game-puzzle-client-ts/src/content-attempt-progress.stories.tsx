@@ -7,6 +7,7 @@ import {
 import {
   ATTEMPT_STORY_ARGS,
   ATTEMPT_STORY_PARAMETERS,
+  StoryAttemptOnward,
   StoryPackActions,
 } from './content-attempt-story.example';
 import { StoryKeptPositions } from './content-story.example';
@@ -17,6 +18,7 @@ function render(args: ContentAttemptScreenViewProps) {
     <ContentAttemptScreenView
       {...args}
       wayOn={args.wayOn}
+      onward={<StoryAttemptOnward args={args} />}
       keptPositions={<StoryKeptPositions />}
     />
   );
