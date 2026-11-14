@@ -123,6 +123,49 @@ export const LongNames: Story = {
   },
 };
 
+const OPPONENTS = [PEOPLE.jordan, PEOPLE.morgan, PEOPLE.robin, ''] as const;
+const ENDINGS = [
+  'Red circle wins by four in a row.',
+  'Yellow diamond wins by four in a row.',
+  'Game drawn.',
+  'Red circle wins by resignation.',
+  'Yellow diamond wins by time.',
+] as const;
+
+/** A season of play: two dozen finished games, newest first. */
+const MANY_RECORDS: readonly GameHistoryRow[] = Array.from(
+  { length: 24 },
+  (_, index) => ({
+    id: `game-many-${String(24 - index)}`,
+    players: [
+      { person: PEOPLE.avery, plainName: 'avery', bot: false, local: false },
+      {
+        person: OPPONENTS[index % OPPONENTS.length] ?? '',
+        plainName: '',
+        bot: OPPONENTS[index % OPPONENTS.length] === '',
+        local: false,
+      },
+    ],
+    label: ENDINGS[index % ENDINGS.length] ?? 'Game drawn.',
+  })
+);
+
+/** Many finished games: the list is long enough to scroll. */
+export const Many: Story = {
+  args: {
+    records: MANY_RECORDS,
+    statistics: { wins: 11, losses: 8, draws: 5 },
+  },
+};
+
+/** One finished game. */
+export const Single: Story = {
+  args: {
+    records: RECORDS.slice(0, 1),
+    statistics: { wins: 1, losses: 0, draws: 0 },
+  },
+};
+
 /** Someone who may not see this space's games sees the way forward instead. */
 export const Denied: Story = {
   args: {

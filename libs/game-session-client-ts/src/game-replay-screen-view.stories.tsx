@@ -55,3 +55,8 @@ export const MidGame: Story = { args: { ply: 3 } };
 
 /** The starting position: Previous is held back. */
 export const Start: Story = { args: { ply: 0 } };
+
+/** A game cancelled before its first move: there is nothing to step through. */
+export const NoMoves: Story = {
+  args: { ply: 0, moves: 0, label: 'Game cancelled.' },
+};
