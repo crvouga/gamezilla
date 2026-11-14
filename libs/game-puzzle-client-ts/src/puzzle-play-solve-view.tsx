@@ -1,6 +1,7 @@
 import { PUZZLE_NAV_INTENT } from '@libs/game-puzzle-shared-ts/puzzle-nav';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
+import { ListOrderedIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { MoveStrip, MoveStripSlot } from '@pkgs/ui-root-client-ts/move-strip';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
@@ -32,40 +33,46 @@ export function SpectatorAllowance(props: { label: string }): JSX.Element {
 
 /**
  * What is done about the puzzle, as the solve state allows it
- * (`buildPuzzleActionBarPlan`). While the board shows an earlier move the
- * hint waits, and the way back to the latest move is offered under it.
+ * (`buildPuzzleActionBarPlan`), docked in reach of the thumb.
+ */
+export function PuzzleSolveDock(props: PuzzlePlayScreenViewProps): JSX.Element {
+  return (
+    <PuzzleActionBar
+      status={props.status}
+      hintStage={props.hintStage}
+      canGoForward={props.canGoForward}
+      onHint={props.onHint}
+      onSolution={props.onSolution}
+      onRetry={props.onRetry}
+      onSkip={props.onSkip}
+      onNext={props.onNext}
+    />
+  );
+}
+
+/**
+ * While the board shows an earlier move the hint waits, and the way back
+ * to the latest move is offered under the board.
  */
 export function PuzzleSolveActions(
   props: PuzzlePlayScreenViewProps
 ): JSX.Element {
   return (
-    <StackVertical paddingX="lg" gap="sm">
-      <PuzzleActionBar
-        status={props.status}
-        hintStage={props.hintStage}
-        canGoForward={props.canGoForward}
-        onHint={props.onHint}
-        onSolution={props.onSolution}
-        onRetry={props.onRetry}
-        onSkip={props.onSkip}
-        onNext={props.onNext}
-      />
-      <Show when={props.canGoForward}>
-        <StackHorizontal align="center" gap="sm" wrap>
-          <P variant="caption" tone="secondary">
-            <Trans>The board shows an earlier move.</Trans>
-          </P>
-          <Button
-            title={<Trans>Back to the latest move</Trans>}
-            intent="neutral"
-            variant="ghost"
-            size="sm"
-            onClick={() => props.line.nav.onNavigate(PUZZLE_NAV_INTENT.end)}
-            dataSet={{ testid: 'chess-puzzle-return-live' }}
-          />
-        </StackHorizontal>
-      </Show>
-    </StackVertical>
+    <Show when={props.canGoForward}>
+      <StackHorizontal align="center" gap="sm" wrap paddingX="lg">
+        <P variant="caption" tone="secondary">
+          <Trans>The board shows an earlier move.</Trans>
+        </P>
+        <Button
+          title={<Trans>Back to the latest move</Trans>}
+          intent="neutral"
+          variant="ghost"
+          size="sm"
+          onClick={() => props.line.nav.onNavigate(PUZZLE_NAV_INTENT.end)}
+          dataSet={{ testid: 'chess-puzzle-return-live' }}
+        />
+      </StackHorizontal>
+    </Show>
   );
 }
 
@@ -108,10 +115,11 @@ function CompactLine(props: PuzzlePlayScreenViewProps): JSX.Element {
       </StackVertical>
       <Show when={hasPlies() && !props.spectator}>
         <Button
-          title={<Trans>Look back</Trans>}
+          title={<Trans>Review moves</Trans>}
           intent="neutral"
-          variant="ghost"
+          variant="outline"
           size="sm"
+          icon={ListOrderedIcon}
           onClick={() => props.onOpen({ screen: 'line' })}
           dataSet={{ testid: 'chess-puzzle-line-open' }}
         />

@@ -7,6 +7,7 @@
 import {
   DEFAULT_PUZZLE_FEED_CONFIG,
   type PuzzleFeedConfig,
+  resolveEffectivePuzzleRating,
 } from '@libs/game-puzzle-shared-ts/feed-config';
 import { useScreenPlace } from '@pkgs/turn-game-client-ts/use-screen-place';
 import { createComputed, createMemo, createSignal, on } from 'solid-js';
@@ -113,10 +114,12 @@ export function useStoryFeedSettings(
       ...feed(),
       saved: { ...feed().saved, ...saved() },
       draft,
-      draftTarget:
-        draft.mode === 'custom'
-          ? draft.customRating
-          : feed().profileRating + draft.autoOffset,
+      // The target the app shows: a new player's automatic target starts
+      // from the default rating.
+      draftTarget: resolveEffectivePuzzleRating({
+        config: draft,
+        profileRating: feed().profileRating,
+      }),
       onChange: (patch) => {
         feed().onChange(patch);
         setEdit((current) => ({ ...current, ...patch }));

@@ -16,15 +16,20 @@ export type PuzzleBoardFrameProps = {
   readonly lead?: JSX.Element;
   /** What is done about the puzzle, under the board. */
   readonly actions?: JSX.Element;
+  /**
+   * The commands that move the puzzle on (Next, Retry, Hint, Skip): kept in
+   * reach at a phone's bottom edge, right under the actions when wide.
+   */
+  readonly dock?: JSX.Element;
   /** The line played, and what follows it. */
   readonly timeline?: JSX.Element;
 };
 
 /**
  * A puzzle's stage: the title, the one status line, the board in the room
- * the rest leaves, and under it what the screen adds: its actions and the
- * line. The board's screens (`play`, `line`) are this frame with their own
- * actions and line.
+ * the rest leaves, and under it what the screen adds: its actions, the
+ * commands docked in reach, and the line. The board's screens (`play`,
+ * `line`, `result`) are this frame with their own of each.
  */
 export function PuzzleBoardFrame(props: PuzzleBoardFrameProps): JSX.Element {
   const boardMeasure = createMeasure();
@@ -60,6 +65,7 @@ export function PuzzleBoardFrame(props: PuzzleBoardFrameProps): JSX.Element {
       }
       legend={props.view.legend}
       actions={props.actions}
+      dock={props.dock}
       timeline={props.timeline}
     >
       <Show

@@ -9,6 +9,7 @@ import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
+import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import {
   autoAdvanceLabel,
@@ -138,10 +139,14 @@ export function PuzzleFeedHubView(
       screenId="chess-puzzle-feed"
       title={<Trans>Puzzle settings</Trans>}
       subtitle={
-        // What is saved now, beside the draft the rows below hold.
-        <Text variant="inherit" testId="chess-puzzle-feed-description">
-          <Trans>Saved now: {savedFeedSpoken(props.feed)}</Trans>
-        </Text>
+        <>
+          <Trans>Changes apply when you save.</Trans>
+          {/* What is saved now, for someone listening, beside the draft
+              the rows below hold. */}
+          <VisuallyHidden testId="chess-puzzle-feed-description">
+            <Trans>Saved now: {savedFeedSpoken(props.feed)}</Trans>
+          </VisuallyHidden>
+        </>
       }
     >
       <StackVertical gap="xl">
@@ -149,15 +154,13 @@ export function PuzzleFeedHubView(
         <Show when={props.feed.status === 'ready'}>
           <StackVertical gap="sm">
             <Button
-              title={<Trans>Done</Trans>}
+              title={<Trans>Save settings</Trans>}
               fullWidth
               onClick={() => props.feed.onDone()}
               dataSet={{ testid: Handles.chessPuzzleFeedDone }}
             />
             <P variant="caption" tone="secondary" align="center">
-              <Trans>
-                Done saves these settings. Going back keeps the feed as it was.
-              </Trans>
+              <Trans>Going back keeps the feed as it was.</Trans>
             </P>
           </StackVertical>
         </Show>

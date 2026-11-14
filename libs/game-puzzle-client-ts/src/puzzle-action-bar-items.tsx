@@ -57,16 +57,18 @@ function HintButton(props: {
 
 function RetryButton(props: {
   slot: Slot<'retry'>;
+  lead: boolean;
   onRetry: () => void;
 }): JSX.Element {
-  // After a wrong move retrying is the thing to do; once the puzzle is
-  // over it is the quieter second choice beside Next.
-  const prominent = (): boolean => props.slot.type === 'button';
+  // After a wrong move retrying is the thing to do, so it leads, filled;
+  // once the puzzle is over it is the quieter second choice beside Next.
   return (
     <Button
       title={<Trans>Retry</Trans>}
-      intent={prominent() ? 'danger' : 'neutral'}
-      variant={prominent() ? 'solid' : 'outline'}
+      intent={props.lead ? 'primary' : 'neutral'}
+      variant={props.lead ? 'solid' : 'outline'}
+      size={props.lead ? 'lg' : 'md'}
+      fullWidth={props.lead}
       icon={RotateCcwIcon}
       disabled={props.slot.type === 'action' && props.slot.disabled}
       onClick={() => props.onRetry()}
@@ -75,10 +77,14 @@ function RetryButton(props: {
   );
 }
 
-/** One slot of the plan as its button; Skip is drawn after them. */
+/**
+ * One slot of the plan as its button; Skip is drawn after them. `lead`:
+ * the one command the state leads with, filled and the bar's full width.
+ */
 export function PuzzleActionButton(props: {
   slot: Exclude<PuzzleActionBarSlot, { id: 'skip' }>;
   model: PuzzleActionBarModel;
+  lead?: boolean | undefined;
 }): JSX.Element {
   return (
     <Switch>
@@ -105,12 +111,20 @@ export function PuzzleActionButton(props: {
         )}
       </Match>
       <Match when={props.slot.id === 'retry' && props.slot} keyed>
-        {(slot) => <RetryButton slot={slot} onRetry={props.model.onRetry} />}
+        {(slot) => (
+          <RetryButton
+            slot={slot}
+            lead={props.lead === true}
+            onRetry={props.model.onRetry}
+          />
+        )}
       </Match>
       <Match when={props.slot.id === 'next'}>
         <Button
-          title={<Trans>Next</Trans>}
+          title={<Trans>Next puzzle</Trans>}
           intent="primary"
+          size={props.lead === true ? 'lg' : 'md'}
+          fullWidth={props.lead === true}
           endIcon={<ChevronRightIcon />}
           onClick={() => props.model.onNext()}
           dataSet={{ testid: 'chess-puzzle-action-next' }}
@@ -120,7 +134,7 @@ export function PuzzleActionButton(props: {
   );
 }
 
-/** Leaving this puzzle for the next: a quiet text button after help. */
+/** Leaving this puzzle for the next: as plain a command as help beside it. */
 export function PuzzleSkipButton(props: {
   disabled: boolean;
   onSkip: () => void;
@@ -129,7 +143,7 @@ export function PuzzleSkipButton(props: {
     <Button
       title={<Trans>Skip puzzle</Trans>}
       intent="neutral"
-      variant="ghost"
+      variant="outline"
       disabled={props.disabled}
       onClick={() => props.onSkip()}
       dataSet={{ testid: 'chess-puzzle-action-skip' }}

@@ -8,12 +8,13 @@ import { GameActions } from '@pkgs/ui-root-client-ts/game-section';
 import { H2 } from '@pkgs/ui-root-client-ts/heading';
 import {
   ChevronRightIcon,
+  ListOrderedIcon,
   RotateCcwIcon,
   ShareIcon,
 } from '@pkgs/ui-root-client-ts/icons';
-import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { Surface } from '@pkgs/ui-root-client-ts/surface';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { createMemo, type JSX, Match, Show, Switch } from 'solid-js';
 import type { PuzzlePlayScreenViewProps } from './puzzle-play-screen-model';
@@ -64,12 +65,19 @@ function ResultCaption(props: PuzzlePlayScreenViewProps): JSX.Element {
   );
 }
 
-/** The puzzle's own facts, each a quiet tag: its rating and its themes. */
+/** The puzzle's own facts, each a quiet tag: the streak it kept, its rating and its themes. */
 function ResultFacts(props: PuzzlePlayScreenViewProps): JSX.Element {
   const themeLabel = (theme: string): string =>
     props.feed.themes?.label(theme) ?? theme;
+  const streak = (): number => props.result.completion?.streak ?? 0;
   return (
-    <StackHorizontal wrap gap="sm" justify="center">
+    <StackHorizontal wrap gap="sm">
+      <Show when={streak() > 1}>
+        <Badge
+          intent="success"
+          label={<Trans>{streak()} puzzle streak</Trans>}
+        />
+      </Show>
       <Show when={props.result.puzzleRating > 0}>
         <PuzzleRatingBadge
           rating={props.result.puzzleRating}
@@ -88,18 +96,13 @@ function ResultFacts(props: PuzzlePlayScreenViewProps): JSX.Element {
   );
 }
 
-/** Onward from the result: the line on the board, and the puzzle settings. */
+/** Onward from the result: the puzzle settings, under the commands. */
 export function PuzzleResultRows(
   props: PuzzlePlayScreenViewProps
 ): JSX.Element {
   return (
     <StackVertical paddingX="lg">
       <MenuSection>
-        <MenuRow
-          title={<Trans>Step through the line</Trans>}
-          onClick={() => props.onOpen({ screen: 'line' })}
-          dataSet={{ testid: Handles.chessPuzzleSummaryClose }}
-        />
         <PuzzleSettingsRow
           feed={props.feed}
           allowanceLabel={props.allowanceLabel}
@@ -111,11 +114,13 @@ export function PuzzleResultRows(
 }
 
 /**
- * What to do next, as the solve state allows it
- * (`buildPuzzleActionBarPlan`): the next puzzle is the one filled command;
- * retrying and sharing the puzzle are quieter beside it.
+ * What to do next, docked in reach (`buildPuzzleActionBarPlan`): the next
+ * puzzle is the one filled command; on one line under it, retrying, the
+ * moves of the line and sharing the puzzle.
  */
-function ResultCommands(props: PuzzlePlayScreenViewProps): JSX.Element {
+export function PuzzleResultDock(
+  props: PuzzlePlayScreenViewProps
+): JSX.Element {
   const slots = createMemo(() =>
     buildPuzzleActionBarPlan({
       status: props.status,
@@ -126,7 +131,7 @@ function ResultCommands(props: PuzzlePlayScreenViewProps): JSX.Element {
   const offers = (id: 'next' | 'retry'): boolean =>
     slots().some((slot) => slot.id === id);
   return (
-    <StackVertical gap="md">
+    <StackVertical gap="sm">
       <Show when={offers('next')}>
         <Button
           title={<Trans>Next puzzle</Trans>}
@@ -137,7 +142,7 @@ function ResultCommands(props: PuzzlePlayScreenViewProps): JSX.Element {
           dataSet={{ testid: Handles.chessPuzzleSummaryNext }}
         />
       </Show>
-      <GameActions sizing="share">
+      <GameActions sizing="fill">
         <Show when={offers('retry')}>
           <Button
             title={<Trans>Retry</Trans>}
@@ -148,10 +153,18 @@ function ResultCommands(props: PuzzlePlayScreenViewProps): JSX.Element {
             dataSet={{ testid: Handles.chessPuzzleActionRetry }}
           />
         </Show>
+        <Button
+          title={<Trans>Moves</Trans>}
+          intent="neutral"
+          variant="outline"
+          icon={ListOrderedIcon}
+          onClick={() => props.onOpen({ screen: 'line' })}
+          dataSet={{ testid: Handles.chessPuzzleSummaryClose }}
+        />
         <Show when={props.share} keyed>
           {(share) => (
             <Button
-              title={<PuzzleShareLabel state={share.state} />}
+              title={<PuzzleShareLabel state={share.state} short />}
               intent="neutral"
               variant="outline"
               icon={ShareIcon}
@@ -167,41 +180,45 @@ function ResultCommands(props: PuzzlePlayScreenViewProps): JSX.Element {
 
 /**
  * The `result` place, under the board that keeps the puzzle's last move:
- * how it went (solved, the solution shown, skipped), the rating it made,
- * and what next. The status line over the board carries the coach's words
- * about it, and what the attempt did to the rating when it has no rated
- * summary (a skip).
+ * one card saying how it went (solved, the solution shown, skipped) and
+ * why, the rating it made beside that, and the puzzle's facts under it.
+ * What next is docked (`PuzzleResultDock`). The status line over the board
+ * carries the coach's words about it, and what the attempt did to the
+ * rating when it has no rated summary (a skip).
  */
 export function PuzzleResultSummary(
   props: PuzzlePlayScreenViewProps
 ): JSX.Element {
   return (
-    <StackVertical
-      paddingX="lg"
-      gap="lg"
-      dataSet={{ testid: Handles.chessPuzzleSummary, outcome: props.status }}
-    >
-      <StackVertical gap="md" align="center">
-        <StackVertical gap="xs" align="center">
-          <H2 size="heading" align="center">
-            <ResultTitle {...props} />
-          </H2>
-          <P variant="caption" tone="secondary" align="center">
-            <ResultCaption {...props} />
-          </P>
-        </StackVertical>
-        <Show when={props.result.completion} keyed>
-          {(completion) => (
-            <PuzzleSummaryCard
-              completion={completion}
-              displayRating={props.result.displayRating}
-              provisional={props.result.provisional}
-            />
-          )}
-        </Show>
+    <StackVertical paddingX="lg">
+      <Surface
+        tone="muted"
+        radius="card"
+        padding="md"
+        gap="sm"
+        dataSet={{ testid: Handles.chessPuzzleSummary, outcome: props.status }}
+      >
+        <StackHorizontal gap="md" align="center" justify="between">
+          <StackVertical gap="xs" grow>
+            <H2 size="heading">
+              <ResultTitle {...props} />
+            </H2>
+            <P variant="caption" tone="secondary">
+              <ResultCaption {...props} />
+            </P>
+          </StackVertical>
+          <Show when={props.result.completion} keyed>
+            {(completion) => (
+              <PuzzleSummaryCard
+                completion={completion}
+                displayRating={props.result.displayRating}
+                provisional={props.result.provisional}
+              />
+            )}
+          </Show>
+        </StackHorizontal>
         <ResultFacts {...props} />
-      </StackVertical>
-      <ResultCommands {...props} />
+      </Surface>
     </StackVertical>
   );
 }

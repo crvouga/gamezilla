@@ -3,6 +3,7 @@ import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { createUniqueId, type JSX, Show } from 'solid-js';
 import styles from '../game-ui.module.css';
 import { createScreenSlot } from '../screen-slot';
+import fill from './game-actions-fill.module.css';
 import split from './game-section-media.module.css';
 
 /**
@@ -99,16 +100,23 @@ export function GameSection(props: {
  * commands split the row evenly, each at most a primary command's width
  * (320px), so one prominent command (Start) and its companion (I'm not
  * ready) read as a pair instead of a stretched bar and a stray link.
+ * `fill`: each command keeps its whole label, a command that does not fit
+ * starts the next line, and the commands of a line share it to its end, so
+ * a docked bar has no ragged edge and no label is ever cut.
  */
 export function GameActions(props: {
   children: JSX.Element;
-  sizing?: 'content' | 'share' | undefined;
+  sizing?: 'content' | 'share' | 'fill' | undefined;
 }): JSX.Element {
   const content = createScreenSlot(() => props.children);
   return (
     <Show when={content.present()}>
       <div
-        class={styles['actions']}
+        class={
+          props.sizing === 'fill'
+            ? `${styles['actions']} ${fill['fill']}`
+            : styles['actions']
+        }
         data-sizing={props.sizing ?? 'content'}
         {...dataAttrs({ component: 'GameActions' })}
       >

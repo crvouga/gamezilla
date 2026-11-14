@@ -5,6 +5,7 @@ import {
   PUZZLE_FEED_AUTO_OFFSET_MAX,
   PUZZLE_FEED_AUTO_OFFSET_MIN,
   PUZZLE_FEED_AUTO_OFFSET_STEP,
+  PUZZLE_FEED_RATING_DEFAULT,
   PUZZLE_FEED_RATING_MAX,
   PUZZLE_FEED_RATING_MIN,
 } from '@libs/game-puzzle-shared-ts/feed-config';
@@ -16,7 +17,7 @@ import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { NumberStepper } from '@pkgs/ui-root-client-ts/number-stepper';
-import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Show } from 'solid-js';
 import type { PuzzlePlayScreenViewProps } from './puzzle-play-screen-model';
@@ -26,14 +27,25 @@ const CUSTOM_RATING_STEP = 50;
 
 /** How the target is found: from the player's rating, or fixed. */
 function TargetMode(props: PuzzlePlayScreenViewProps): JSX.Element {
-  const rating = (): string =>
-    props.feed.profileRating > 0 ? String(props.feed.profileRating) : '—';
+  const rating = (): number => props.feed.profileRating;
   const choose = (mode: PuzzleFeedMode): void => props.feed.onChange({ mode });
   return (
     <MenuSection title={<Trans>Difficulty</Trans>}>
       <MenuRow
         title={<Trans>Automatic</Trans>}
-        caption={<Trans>Your rating ({rating()}), plus an offset.</Trans>}
+        caption={
+          <Show
+            when={props.feed.profileRating > 0}
+            fallback={
+              <Trans>
+                Starts at {PUZZLE_FEED_RATING_DEFAULT} until you have a rating,
+                plus an offset.
+              </Trans>
+            }
+          >
+            <Trans>Your rating ({rating()}), plus an offset.</Trans>
+          </Show>
+        }
         selected={props.feed.draft.mode === 'auto'}
         hideChevron
         onClick={() => choose('auto')}
@@ -111,15 +123,12 @@ export function PuzzleFeedTargetView(
       <StackVertical gap="xl">
         <TargetMode {...props} />
         <TargetStepper {...props} />
-        <StackHorizontal>
-          <Button
-            title={<Trans>Back to settings</Trans>}
-            intent="neutral"
-            variant="outline"
-            onClick={() => props.onBack()}
-            dataSet={{ testid: 'chess-puzzle-feed-target-done' }}
-          />
-        </StackHorizontal>
+        <Button
+          title={<Trans>Done</Trans>}
+          fullWidth
+          onClick={() => props.onBack()}
+          dataSet={{ testid: 'chess-puzzle-feed-target-done' }}
+        />
       </StackVertical>
     </EmbeddedScreen>
   );

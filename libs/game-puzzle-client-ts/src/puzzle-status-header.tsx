@@ -22,7 +22,9 @@ function statusLabel(kind: PuzzleStatusKind): JSX.Element | null {
     case 'started':
       return <Trans>Started</Trans>;
     case 'failed':
-      return <Trans>Failed</Trans>;
+      // A wrong move can still be retried: it names the move, not the
+      // attempt, so it never contradicts the Retry under it.
+      return <Trans>Wrong move</Trans>;
     case 'skipped':
       return <Trans>Skipped</Trans>;
     case 'solved':

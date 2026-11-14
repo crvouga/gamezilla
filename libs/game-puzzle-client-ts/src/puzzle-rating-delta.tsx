@@ -30,12 +30,7 @@ function deltaTone(props: PuzzleRatingDeltaProps): ColorTone {
 export function PuzzleRatingDelta(props: PuzzleRatingDeltaProps): JSX.Element {
   return (
     <>
-      <H3
-        size="heading"
-        align="center"
-        numeral
-        testId="chess-puzzle-summary-rating"
-      >
+      <H3 size="title" align="end" numeral testId="chess-puzzle-summary-rating">
         {formatPuzzleRating({
           rating: props.displayRating,
           provisional: props.provisional,
@@ -43,7 +38,7 @@ export function PuzzleRatingDelta(props: PuzzleRatingDeltaProps): JSX.Element {
       </H3>
       <P
         variant="bodyBold"
-        align="center"
+        align="end"
         numeral
         tone={deltaTone(props)}
         testId="chess-puzzle-summary-delta"

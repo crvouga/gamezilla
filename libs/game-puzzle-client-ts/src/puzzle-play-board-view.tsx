@@ -2,12 +2,14 @@ import { type JSX, Match, Show, Switch } from 'solid-js';
 import { PuzzleBoardFrame } from './puzzle-board-frame';
 import { PuzzleLineActions, PuzzleLineMoves } from './puzzle-play-line-view';
 import {
+  PuzzleResultDock,
   PuzzleResultRows,
   PuzzleResultSummary,
 } from './puzzle-play-result-view';
 import type { PuzzlePlayScreenViewProps } from './puzzle-play-screen-model';
 import {
   PuzzleSolveActions,
+  PuzzleSolveDock,
   PuzzleSolveLine,
   SpectatorAllowance,
 } from './puzzle-play-solve-view';
@@ -17,12 +19,13 @@ import {
  * same from one to the next: a puzzle's last move is still played (and
  * heard) as its result arrives, and opening the line never redraws it.
  *
- * - `play`: solve the puzzle. What the solve state allows, the line so far
- *   and the one row to the puzzle settings; a watcher gets the board, the
- *   status line and the line only.
+ * - `play`: solve the puzzle. What the solve state allows, docked in reach,
+ *   the line so far and the one row to the puzzle settings; a watcher gets
+ *   the board, the status line and the line only.
  * - `line`: step through the moves played. The board takes no move here.
- * - `result`: how the finished puzzle went, the rating it made and what
- *   next, with rows on to the line and the puzzle settings.
+ * - `result`: how the finished puzzle went and the rating it made; what
+ *   next (the next puzzle, retry, the moves, share) docked in reach, and
+ *   the row to the puzzle settings.
  */
 export function PuzzlePlayBoardView(
   props: PuzzlePlayScreenViewProps
@@ -44,11 +47,21 @@ export function PuzzlePlayBoardView(
           <Match when={place() === 'play' && !props.spectator}>
             <PuzzleSolveActions {...props} />
           </Match>
+          <Match when={place() === 'result'}>
+            <PuzzleResultSummary {...props} />
+          </Match>
+        </Switch>
+      }
+      dock={
+        <Switch>
+          <Match when={place() === 'play' && !props.spectator}>
+            <PuzzleSolveDock {...props} />
+          </Match>
           <Match when={place() === 'line'}>
             <PuzzleLineActions {...props} />
           </Match>
           <Match when={place() === 'result'}>
-            <PuzzleResultSummary {...props} />
+            <PuzzleResultDock {...props} />
           </Match>
         </Switch>
       }

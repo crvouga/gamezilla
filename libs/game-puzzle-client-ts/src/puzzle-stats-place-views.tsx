@@ -9,13 +9,31 @@ import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { Sparkline } from '@pkgs/ui-root-client-ts/sparkline';
-import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import { PuzzleGameLog } from './puzzle-game-log';
 import { PuzzleRatingHistory } from './puzzle-rating-history';
 import { PuzzleStatsCards } from './puzzle-stats-cards';
 import type { PuzzleStatsScreenViewProps } from './puzzle-stats-screen-view';
+
+/** The chart's scale in words: the lowest and highest rating it draws. */
+function TrendRange(props: { series: readonly number[] }): JSX.Element {
+  const low = (): number => Math.min(...props.series);
+  const high = (): number => Math.max(...props.series);
+  return (
+    <Show when={props.series.length > 1}>
+      <StackHorizontal justify="between">
+        <P variant="caption" tone="secondary" numeral>
+          <Trans>Low {low()}</Trans>
+        </P>
+        <P variant="caption" tone="secondary" numeral>
+          <Trans>High {high()}</Trans>
+        </P>
+      </StackHorizontal>
+    </Show>
+  );
+}
 
 /** A screen's own title, unless the host's bar already names it. */
 function titleOf(
@@ -38,6 +56,14 @@ function StatsRating(props: PuzzleStatsScreenViewProps): JSX.Element {
           provisional: props.stats.provisional,
         })}
       </H2>
+      <Show when={props.stats.provisional}>
+        <P variant="caption" tone="secondary" align="center">
+          <Trans>
+            The ? marks a provisional rating. It settles after a few more rated
+            puzzles.
+          </Trans>
+        </P>
+      </Show>
     </StackVertical>
   );
 }
@@ -157,11 +183,15 @@ export function PuzzleStatsTrendView(
         }
       >
         <StackVertical gap="xl">
-          <StackVertical width="full" maxWidth="form" self="center">
+          <StackVertical width="full" maxWidth="form" self="center" gap="sm">
+            <P variant="caption" tone="secondary">
+              <Trans>Your rating, oldest puzzle on the left</Trans>
+            </P>
             <Sparkline
               values={props.stats.ratingSeries}
               testId="chess-stats-sparkline"
             />
+            <TrendRange series={props.stats.ratingSeries} />
           </StackVertical>
           <PuzzleRatingHistory entries={props.gameLog} />
         </StackVertical>

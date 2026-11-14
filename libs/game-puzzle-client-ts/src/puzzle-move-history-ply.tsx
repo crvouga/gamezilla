@@ -31,47 +31,58 @@ function MoveNumberLabel(props: { label: string }): JSX.Element {
   );
 }
 
+/** The move as it reads: its number, quiet, then the move. */
+function PlyFace(
+  props: HistoryPlyChipProps & { testId?: string }
+): JSX.Element {
+  return (
+    // The move on the board is what is chosen, in the selection's blue,
+    // never the green that says a move was correct.
+    <Surface
+      tone={props.selected ? 'tint-subtle' : 'transparent'}
+      radius="sm"
+      paddingX="sm"
+      direction="horizontal"
+      align="baseline"
+      testId={props.testId}
+    >
+      {props.prefix !== null ? <MoveNumberLabel label={props.prefix} /> : null}
+      <Code variant="label" numeral tone={props.selected ? 'tint' : undefined}>
+        {props.writing.format(props.ply.label)}
+      </Code>
+    </Surface>
+  );
+}
+
 function HistoryPlyChip(props: HistoryPlyChipProps): JSX.Element {
   // The current move is already shown: pressing it again does nothing.
   const handlePress = (): void => {
     if (props.selected) return;
     props.onSeek(props.ply.solveIdxAfter);
   };
+  const testId = (): string => `chess-puzzle-move-ply-${props.ply.plyIndex}`;
+  // A strip that is read, not pressed, shows its moves at full strength:
+  // a disabled control's fade would make the line look unavailable.
   return (
-    <Pressable
-      radius="sm"
-      tint={!props.selected}
-      testId={`chess-puzzle-move-ply-${props.ply.plyIndex}`}
-      disabled={!props.interactive}
-      onPress={handlePress}
-      pressed={props.selected}
-      aria-label={
-        props.prefix === null
-          ? props.ply.label
-          : `${props.prefix} ${props.ply.label}`
-      }
+    <Show
+      when={props.interactive}
+      fallback={<PlyFace {...props} testId={testId()} />}
     >
-      {/* The move on the board is what is chosen, in the selection's blue,
-          never the green that says a move was correct. */}
-      <Surface
-        tone={props.selected ? 'tint-subtle' : 'transparent'}
+      <Pressable
         radius="sm"
-        paddingX="sm"
-        direction="horizontal"
-        align="baseline"
+        tint={!props.selected}
+        testId={testId()}
+        onPress={handlePress}
+        pressed={props.selected}
+        aria-label={
+          props.prefix === null
+            ? props.ply.label
+            : `${props.prefix} ${props.ply.label}`
+        }
       >
-        {props.prefix !== null ? (
-          <MoveNumberLabel label={props.prefix} />
-        ) : null}
-        <Code
-          variant="label"
-          numeral
-          tone={props.selected ? 'tint' : undefined}
-        >
-          {props.writing.format(props.ply.label)}
-        </Code>
-      </Surface>
-    </Pressable>
+        <PlyFace {...props} />
+      </Pressable>
+    </Show>
   );
 }
 

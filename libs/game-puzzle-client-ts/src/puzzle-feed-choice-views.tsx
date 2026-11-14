@@ -93,6 +93,7 @@ export function PuzzleFeedHistoryView(
     <EmbeddedScreen
       screenId="chess-puzzle-feed-history"
       title={<Trans>Play history</Trans>}
+      subtitle={<Trans>Choose one to go back to the settings.</Trans>}
     >
       <ChoiceRows
         choices={HISTORY}
@@ -118,6 +119,7 @@ export function PuzzleFeedAdvanceView(
     <EmbeddedScreen
       screenId="chess-puzzle-feed-advance"
       title={<Trans>After solving</Trans>}
+      subtitle={<Trans>Choose one to go back to the settings.</Trans>}
     >
       <ChoiceRows
         choices={ADVANCE}

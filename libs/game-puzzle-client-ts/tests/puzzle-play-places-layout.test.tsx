@@ -44,11 +44,12 @@ test('play: the status line, the board, what solving allows, the line and one wa
   expect(header.textContent).toContain('Something on the board is undefended.');
   expect(header.contains(screen.getByTestId('chess-puzzle-clock'))).toBe(true);
   expect(shown('board')).toBe(true);
-  const actions = region('PuzzleActions');
-  expect(actions.contains(screen.getByTestId('chess-puzzle-action-hint'))).toBe(
+  // What solving allows is docked, in reach of the thumb.
+  const dock = region('PuzzleDock');
+  expect(dock.contains(screen.getByTestId('chess-puzzle-action-hint'))).toBe(
     true
   );
-  expect(actions.contains(screen.getByTestId('chess-puzzle-action-skip'))).toBe(
+  expect(dock.contains(screen.getByTestId('chess-puzzle-action-skip'))).toBe(
     true
   );
   expect(shown('chess-puzzle-move-ply-1')).toBe(true);
@@ -92,19 +93,19 @@ test('the same screen on a phone and a desktop: only the status line is over the
 test('play: the line is read, not pressed, and one control opens it', () => {
   const opened: string[] = [];
   mountPlay('play', { onOpen: (place) => opened.push(place.screen) });
-  expect(screen.getByTestId('chess-puzzle-move-ply-0')).toHaveProperty(
-    'disabled',
-    true
+  // The strip is read, not pressed: its moves are no control at all.
+  expect(screen.getByTestId('chess-puzzle-move-ply-0').tagName).not.toBe(
+    'BUTTON'
   );
   fireEvent.click(screen.getByTestId('chess-puzzle-line-open'));
   fireEvent.click(screen.getByTestId('chess-puzzle-feed-summary'));
   expect(opened).toEqual(['line', 'feed']);
 });
 
-test('play: a wrong move reports failure, and Retry is the one filled command', () => {
+test('play: a wrong move is named, and Retry is the one filled command', () => {
   mountPlay('play', { statusKind: 'failed', status: 'wrong' });
   expect(screen.getByTestId('chess-puzzle-status-label').textContent).toBe(
-    'Failed'
+    'Wrong move'
   );
   expect(shown('chess-puzzle-action-solution')).toBe(true);
   expect(shown('chess-puzzle-action-skip')).toBe(true);
@@ -203,14 +204,14 @@ test('line, once the solution is shown: it says Solution shown and keeps retry a
   expect(screen.getByTestId('chess-puzzle-status-label').textContent).toBe(
     'Solution shown'
   );
-  expect(screen.queryByText('Failed')).toBeNull();
+  expect(screen.queryByText('Wrong move')).toBeNull();
   expect(shown('chess-puzzle-action-retry')).toBe(true);
   expect(shown('chess-puzzle-action-next')).toBe(true);
   expect(shown('chess-puzzle-line-close')).toBe(false);
   expect(
     screen.getByText('Knight takes e5, even with the queen pinned.')
   ).toBeTruthy();
-  expect(filledCommands()).toEqual(['Next']);
+  expect(filledCommands()).toEqual(['Next puzzle']);
 });
 
 test('result: how it went, the rating it made, and Next puzzle as the one filled command', () => {
@@ -236,6 +237,15 @@ test('result: how it went, the rating it made, and Next puzzle as the one filled
     'chess-puzzle-feed-summary',
   ])
     expect(shown(command)).toBe(true);
+  // What next is docked, so a phone never scrolls to reach it.
+  const dock = region('PuzzleDock');
+  for (const command of [
+    'chess-puzzle-summary-next',
+    'chess-puzzle-action-retry',
+    'chess-puzzle-summary-close',
+    'chess-puzzle-share-link',
+  ])
+    expect(dock.contains(screen.getByTestId(command))).toBe(true);
   // The board keeps the puzzle's last move under the coach's words on it.
   expect(shown('board')).toBe(true);
   expect(region('PuzzleHeader').textContent).toContain(

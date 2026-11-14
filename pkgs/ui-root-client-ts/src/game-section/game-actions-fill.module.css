@@ -1,0 +1,6 @@
+/* `GameActions` sizing `fill`: each command keeps its whole label, a
+   command that does not fit starts the next line, and the commands of a
+   line share it to its end. */
+.fill > * {
+  flex: 1 1 auto;
+}

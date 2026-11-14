@@ -81,7 +81,7 @@ export function PuzzleGameLogRow(props: PuzzleGameLogRowProps): JSX.Element {
         >
           <GameLogOutcome outcome={props.entry.outcome} />{' '}
           <Text variant="inherit" numeral tone="secondary">
-            {props.entry.puzzleRating}
+            <Trans>· puzzle {props.entry.puzzleRating}</Trans>
           </Text>
         </Text>
       }

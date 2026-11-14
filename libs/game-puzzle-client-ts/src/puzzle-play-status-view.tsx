@@ -140,7 +140,10 @@ export function PuzzlePlayStatusView(
           <MenuSection>
             <PuzzleSettingsRow
               feed={props.feed}
-              allowanceLabel={props.allowanceLabel}
+              // At the limit the screen already says none are left today.
+              allowanceLabel={
+                props.stage === 'limited' ? '' : props.allowanceLabel
+              }
               onOpen={() => props.onOpen({ screen: 'feed' })}
             />
           </MenuSection>

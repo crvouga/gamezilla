@@ -6,7 +6,7 @@ import { ChipGroup } from '@pkgs/ui-root-client-ts/chip-group';
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { SearchIcon } from '@pkgs/ui-root-client-ts/icons';
-import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
 import { createMemo, createSignal, type JSX, Show } from 'solid-js';
@@ -118,15 +118,12 @@ export function PuzzleFeedThemesView(
             }
           />
         </Show>
-        <StackHorizontal>
-          <Button
-            title={<Trans>Back to settings</Trans>}
-            intent="neutral"
-            variant="outline"
-            onClick={() => props.onBack()}
-            dataSet={{ testid: Handles.chessPuzzleFeedThemeDone }}
-          />
-        </StackHorizontal>
+        <Button
+          title={<Trans>Done</Trans>}
+          fullWidth
+          onClick={() => props.onBack()}
+          dataSet={{ testid: Handles.chessPuzzleFeedThemeDone }}
+        />
       </StackVertical>
     </EmbeddedScreen>
   );

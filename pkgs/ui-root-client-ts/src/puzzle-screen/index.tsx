@@ -5,6 +5,7 @@ import { useScreenFocus } from '../screen-focus/index';
 import { ScreenIntro } from '../screen-intro/index';
 import styles from '../screen-layouts.module.css';
 import { createScreenSlot } from '../screen-slot';
+import dockStyles from './puzzle-dock.module.css';
 
 export type PuzzleScreenProps = {
   screenId: string;
@@ -30,6 +31,13 @@ export type PuzzleScreenProps = {
   legend?: JSX.Element | undefined;
   timeline?: JSX.Element | undefined;
   actions?: JSX.Element | undefined;
+  /**
+   * The commands that move the puzzle on (Next, Retry, Hint, Skip). On a
+   * phone they stay in reach: after the actions, held to the column's
+   * bottom edge while the rest scrolls under them. Wide, right under the
+   * actions in the panel.
+   */
+  dock?: JSX.Element | undefined;
   /** Announcements, completion feedback, and optional dialogs. */
   overlay?: JSX.Element | undefined;
   dataSet?: ComponentDataSet | undefined;
@@ -43,7 +51,13 @@ function requireBoardAspectRatio(value: number | undefined): number {
   return ratio;
 }
 
-type PuzzleArea = 'title' | 'header' | 'legend' | 'timeline' | 'actions';
+type PuzzleArea =
+  | 'title'
+  | 'header'
+  | 'legend'
+  | 'timeline'
+  | 'actions'
+  | 'dock';
 
 function PuzzleFixedRegion(props: {
   children: JSX.Element;
@@ -54,7 +68,7 @@ function PuzzleFixedRegion(props: {
   return (
     <Show when={slot.present()}>
       <div
-        class={`${styles['fixed']} ${styles[props.area]}`}
+        class={`${styles['fixed']} ${props.area === 'dock' ? dockStyles['dock'] : styles[props.area]}`}
         {...dataAttrs({ component: props.name })}
       >
         {slot.content()}
@@ -130,6 +144,9 @@ export function PuzzleScreen(props: PuzzleScreenProps): JSX.Element {
             between the board and them. Wide, the grid places each. */}
         <PuzzleFixedRegion name="PuzzleActions" area="actions">
           {props.actions}
+        </PuzzleFixedRegion>
+        <PuzzleFixedRegion name="PuzzleDock" area="dock">
+          {props.dock}
         </PuzzleFixedRegion>
         <PuzzleFixedRegion name="PuzzleTimeline" area="timeline">
           {props.timeline}

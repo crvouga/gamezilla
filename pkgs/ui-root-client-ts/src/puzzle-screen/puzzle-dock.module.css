@@ -1,0 +1,27 @@
+/* The commands that move a puzzle on (Next, Retry, Hint, Skip). On a phone
+   they are held to the bottom of the scrolling column on the page's own
+   background, so the board and the move list scroll under them and Next is
+   never below the fold; in a width-sized column they come after the
+   actions and before the move list (`screen-layouts.module.css` orders
+   the rest). A hairline on top says it is a bar, over what scrolls. */
+.dock {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  order: 5;
+  padding-inline: var(--ui-space-lg);
+  padding-block: var(--ui-space-2) var(--ui-space-3);
+  background: var(--ui-color-background);
+  border-top: 1px solid var(--ui-color-border);
+}
+/* Wide: in the panel, right under the actions, on the panel's card. */
+@container puzzle-frame (min-width: 880px) {
+  .dock {
+    grid-area: dock;
+    position: static;
+    padding-inline: var(--ui-space-4);
+    padding-block: 0 var(--ui-space-3);
+    background: none;
+    border-top: none;
+  }
+}

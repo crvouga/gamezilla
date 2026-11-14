@@ -1,7 +1,8 @@
 import type { PuzzleActionBarSlot } from '@libs/game-puzzle-shared-ts/action-bar-plan';
 import { buildPuzzleActionBarPlan } from '@libs/game-puzzle-shared-ts/action-bar-plan';
-import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
-import { createMemo, For, type JSX, Show } from 'solid-js';
+import { GameActions } from '@pkgs/ui-root-client-ts/game-section';
+import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { createMemo, For, type JSX, Match, Show, Switch } from 'solid-js';
 import {
   type PuzzleActionBarModel,
   PuzzleActionButton,
@@ -10,13 +11,19 @@ import {
 
 export type PuzzleActionBarProps = PuzzleActionBarModel;
 
-type ActionSlot = Exclude<PuzzleActionBarSlot, { id: 'skip' }>;
+/**
+ * The one command the state leads with (Next once it is over, Retry after a
+ * wrong move); while solving there is none, help and Skip share the row.
+ */
+function isLead(slot: PuzzleActionBarSlot): boolean {
+  return slot.type === 'button';
+}
 
 /**
- * What is done about the puzzle, in one group: help, retrying or moving on,
- * then skipping the puzzle — a different kind of choice — as a quiet text
- * button right beside them, never stranded at the row's far end. Moving
- * through the line is the move list's own row.
+ * What is done about the puzzle, as one docked group: the command the
+ * state leads with on a line of its own and filled, then the rest (help,
+ * retrying a finished puzzle, skipping it) on one even line, each label
+ * whole, wrapping only when a line cannot hold them.
  */
 export function PuzzleActionBar(props: PuzzleActionBarProps): JSX.Element {
   const slots = createMemo(() =>
@@ -26,23 +33,53 @@ export function PuzzleActionBar(props: PuzzleActionBarProps): JSX.Element {
       canGoForward: props.canGoForward,
     })
   );
-  const actions = (): ActionSlot[] =>
-    slots().filter((slot): slot is ActionSlot => slot.id !== 'skip');
-  const skip = (): Extract<PuzzleActionBarSlot, { id: 'skip' }> | undefined =>
-    slots().find(
-      (slot): slot is Extract<PuzzleActionBarSlot, { id: 'skip' }> =>
-        slot.id === 'skip'
-    );
+  const lead = (): PuzzleActionBarSlot | undefined => slots().find(isLead);
+  const rest = (): PuzzleActionBarSlot[] =>
+    slots().filter((slot) => !isLead(slot));
   return (
-    <StackHorizontal gap="sm" align="center" wrap>
-      <For each={actions()}>
-        {(slot) => <PuzzleActionButton slot={slot} model={props} />}
-      </For>
-      <Show when={skip()}>
-        {(slot) => (
-          <PuzzleSkipButton disabled={slot().disabled} onSkip={props.onSkip} />
-        )}
+    <StackVertical gap="sm" testId="chess-puzzle-action-bar">
+      <Show when={lead()} keyed>
+        {(slot) => <SlotButton slot={slot} model={props} lead />}
       </Show>
-    </StackHorizontal>
+      <GameActions sizing="fill">
+        <For each={rest()}>
+          {(slot) => <SlotButton slot={slot} model={props} />}
+        </For>
+      </GameActions>
+    </StackVertical>
+  );
+}
+
+type ActionSlot = Exclude<PuzzleActionBarSlot, { id: 'skip' }>;
+
+function actionSlot(slot: PuzzleActionBarSlot): ActionSlot | false {
+  return slot.id === 'skip' ? false : slot;
+}
+
+function SlotButton(props: {
+  slot: PuzzleActionBarSlot;
+  model: PuzzleActionBarModel;
+  lead?: boolean;
+}): JSX.Element {
+  return (
+    <Switch>
+      <Match when={props.slot.id === 'skip' && props.slot} keyed>
+        {(slot) => (
+          <PuzzleSkipButton
+            disabled={slot.disabled}
+            onSkip={props.model.onSkip}
+          />
+        )}
+      </Match>
+      <Match when={actionSlot(props.slot)} keyed>
+        {(slot) => (
+          <PuzzleActionButton
+            slot={slot}
+            model={props.model}
+            lead={props.lead === true}
+          />
+        )}
+      </Match>
+    </Switch>
   );
 }
