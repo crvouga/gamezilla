@@ -223,7 +223,7 @@ function useSolvedCaption(props: ContentAttemptScreenViewProps): () => string {
       return props.packSolved >= pack.total
         ? t`Pack complete: every puzzle in ${pack.title} is solved.`
         : t`${props.packSolved} of ${pack.total} solved in ${pack.title}.`;
-    return t`You can keep playing or choose another puzzle.`;
+    return t`Restart to play it again, or choose another puzzle.`;
   };
 }
 
@@ -342,7 +342,7 @@ function AttemptStatus(props: ContentAttemptScreenViewProps): JSX.Element {
     <Show
       when={props.complete && !props.unopenable && mode() === 'compact'}
       fallback={
-        <Show when={props.changeError === null && !props.unopenable}>
+        <Show when={props.changeError === null && boardShown(props)}>
           <ContentAttemptSaveStatus {...props} />
         </Show>
       }
@@ -356,7 +356,8 @@ function AttemptStatus(props: ContentAttemptScreenViewProps): JSX.Element {
 function Unopenable(props: ContentAttemptScreenViewProps): JSX.Element {
   const { t } = useLingui();
   return (
-    <StackVertical gap="md">
+    // Room around the actions so their focus rings are never clipped.
+    <StackVertical gap="md" paddingY="xs">
       <Notice tone="error">
         <Show
           when={props.unreadable === true}
@@ -409,6 +410,11 @@ function Unopenable(props: ContentAttemptScreenViewProps): JSX.Element {
   );
 }
 
+/** A board the person can play is on screen (not unopenable, not under rules this app lacks). */
+function boardShown(props: ContentAttemptScreenViewProps): boolean {
+  return !props.unopenable && !props.rulesChanged;
+}
+
 /** The identifiers every place of one attempt carries. */
 function attemptDataSet(props: ContentAttemptScreenViewProps) {
   return {
@@ -452,7 +458,7 @@ function AttemptStage(props: ContentAttemptScreenViewProps): JSX.Element {
         actions={
           <>
             {/* With no board, the body offers what can help instead. */}
-            <Show when={!props.unopenable}>{props.controls}</Show>
+            <Show when={boardShown(props)}>{props.controls}</Show>
             <OpenProgress {...props} />
           </>
         }
@@ -465,7 +471,9 @@ function AttemptStage(props: ContentAttemptScreenViewProps): JSX.Element {
             view leaves over the commands, so none of it hides. */}
         <GameBoardStage inset>
           <Show when={!props.unopenable} fallback={<Unopenable {...props} />}>
-            {props.player}
+            {/* Under rules this app lacks the board cannot be played: the
+                notice above and its Update the app are what helps. */}
+            <Show when={!props.rulesChanged}>{props.player}</Show>
           </Show>
         </GameBoardStage>
       </GameSessionLayout>

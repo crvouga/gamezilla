@@ -306,7 +306,7 @@ test('the saved completion is named as a record, and the board stays playable be
   mount(390, 'attempt', { complete: true, pack: null });
   const record = screen.getByTestId('content-attempt-complete');
   expect(record.textContent).toContain('Completion saved');
-  expect(record.textContent).toContain('You can keep playing');
+  expect(record.textContent).toContain('Restart to play it again');
   // The board and its commands stay as they were.
   expect(screen.getByTestId('player').textContent).toBe('board');
   expect(screen.getByTestId('controls').textContent).toBe('Undo Redo Restart');
