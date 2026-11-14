@@ -117,7 +117,7 @@ function MatchBoard(
     /** What lies over the board: the versus card, the result card. */
     readonly overlay: JSX.Element;
     /** The overlay is drawn now and hides the board. */
-    readonly covered: boolean;
+    readonly covered?: boolean | undefined;
     readonly setup: ReturnType<typeof useMultiplayerPrivateSetup>;
   }
 ): JSX.Element {
@@ -267,8 +267,7 @@ function MultiplayerContent(props: ScreenProps): JSX.Element {
             {...props}
             setup={screen.setup}
             reviewing={nav.place().screen === 'moves'}
-            overlay={overlay}
-            covered={covered === true}
+            {...{ overlay, covered }}
           />
         )}
         status={<MatchStatus data={data} />}
