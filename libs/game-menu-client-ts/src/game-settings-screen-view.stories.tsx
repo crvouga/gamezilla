@@ -31,7 +31,16 @@ const PACKS: GameSettingsRowView = {
   opens: { screen: 'settings/developer/packs' },
 };
 
-const AUDIENCE = 'Tools for the people who manage puzzles.';
+/** The root's other group, so the tree has a choice at its root. */
+const BOARD: GameSettingsRowView = {
+  key: 'board',
+  title: 'Board and pieces',
+  caption: 'How the board is drawn on this device',
+  testId: 'sokoban-settings-board',
+  opens: { screen: 'settings/board' },
+};
+
+const AUDIENCE = 'How Sokoban looks here, and tools for puzzle managers.';
 
 /**
  * A settings group as `GameSettingsScreen` shows it in a space: the bar's
@@ -71,7 +80,7 @@ const meta = {
     place: { screen: 'settings' },
     title: 'Settings',
     subtitle: AUDIENCE,
-    rows: [DEVELOPER],
+    rows: [BOARD, DEVELOPER],
     onOpen: fn(),
     backLabel: 'Sokoban',
     onBack: fn(),
@@ -99,36 +108,20 @@ export const NestedGroup: Story = {
  * may open remain.
  */
 export const PermissionHiddenRows: Story = {
-  args: {
-    place: { screen: 'settings/developer' },
-    title: 'Developer',
-    subtitle: 'Import and manage puzzle packs.',
-    rows: [
-      {
-        key: 'board',
-        title: 'Board and pieces',
-        caption: 'How the board is drawn on this device.',
-        testId: 'sokoban-developer-board',
-        opens: { screen: 'settings/developer/board' },
-      },
-    ],
-    backLabel: 'Settings',
-  },
+  args: { rows: [BOARD] },
 };
 
-/** A group none of whose rows the person may see says so, with the way back. */
+/**
+ * Settings open on a device whose access was withdrawn while they were
+ * open: nothing is left for the person, so the screen says who the
+ * settings are for and offers the way back (a menu no longer offers them).
+ */
 export const EmptyGroup: Story = {
-  args: {
-    place: { screen: 'settings/developer' },
-    title: 'Developer',
-    subtitle: 'Import and manage puzzle packs.',
-    rows: [],
-    backLabel: 'Settings',
-  },
+  args: { rows: [] },
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(
-      await canvas.findByRole('button', { name: 'Back to Settings' })
+      await canvas.findByRole('button', { name: 'Back to Sokoban' })
     );
     await expect(args.onBack).toHaveBeenCalled();
   },
@@ -192,7 +185,7 @@ function SettingsWalk(props: {
           place={{ screen: place() }}
           title={root() ? 'Settings' : 'Developer'}
           subtitle={root() ? undefined : 'Import and manage puzzle packs.'}
-          rows={root() ? [DEVELOPER] : [PACKS]}
+          rows={root() ? [BOARD, DEVELOPER] : [PACKS]}
           onOpen={(opened) => {
             if (opened.screen === DEVELOPER.opens.screen)
               setPlace(opened.screen);

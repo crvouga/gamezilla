@@ -160,11 +160,10 @@ export function GameMenuScreenView(
       ? undefined
       : {
           title: way.title,
-          // The menu is home again once the game is left.
-          onClick: () => {
-            props.onOpen({ screen: 'menu' });
-            props.onChoose(way.screen);
-          },
+          // Leaving for a game leaves the menu's places too: it opens on
+          // its home when the person returns, the keyboard on the control
+          // they last left it from.
+          onClick: () => props.onChoose(way.screen),
         };
   });
   return (

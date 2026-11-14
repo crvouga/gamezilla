@@ -137,7 +137,8 @@ function ItemBody(props: {
               class="text textCaption max-w-full"
               classList={{
                 'line-clamp-1': props.item.emphasis === 'quiet',
-                'line-clamp-2': props.item.emphasis !== 'quiet',
+                // A way in says what it opens in full, up to three lines.
+                'line-clamp-3': props.item.emphasis !== 'quiet',
               }}
             >
               {props.item.caption}

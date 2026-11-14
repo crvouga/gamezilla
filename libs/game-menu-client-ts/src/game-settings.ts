@@ -179,21 +179,26 @@ export function gameSettingsRows(
 
 /**
  * The screen the settings open on: the root group, unless all it holds for
- * the person is one row leading straight to a screen (Chess's puzzle
- * loader). Then the settings open on that screen, with no one-row stop on
- * the way, and its Back leaves the settings.
+ * the person is one row. Then they open on what that row opens, and so on
+ * down while each group holds one row (Chess: the puzzle loader), so no
+ * screen with nothing to choose stands on the way; its Back leaves the
+ * settings.
  */
 export function gameSettingsOpening(
   tree: GameSettingsTree,
   can: (permission: AppGrantKey) => boolean
 ): GameSettingsNode {
-  const rows = gameSettingsRows(tree.root, can);
-  const only = rows.length === 1 ? rows[0] : undefined;
-  if (only === undefined || only.opens.kind === 'group') return tree.root;
-  return (
-    tree.nodes.get(gameSettingsChild(tree.root.place, only.key).screen) ??
-    tree.root
-  );
+  let at = tree.root;
+  for (;;) {
+    const rows = gameSettingsRows(at, can);
+    const only = rows.length === 1 ? rows[0] : undefined;
+    const next =
+      only === undefined
+        ? undefined
+        : tree.nodes.get(gameSettingsChild(at.place, only.key).screen);
+    if (next === undefined) return at;
+    at = next;
+  }
 }
 
 /**

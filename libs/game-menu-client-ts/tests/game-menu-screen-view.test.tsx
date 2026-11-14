@@ -124,11 +124,12 @@ test('the rules lead on: play the main way in, or back to the menu', () => {
   expect(play.textContent).toContain('Play with friends');
   play.click();
   expect(onChoose).toHaveBeenCalledWith('custom-game');
-  // Leaving for a game makes the menu home again for the way back.
-  expect(onOpen).toHaveBeenCalledWith({ screen: 'menu' });
-  onOpen.mockClear();
+  // regression: rules-play-forgets-menu-focus — the rules first reopened
+  // the menu, which mounted for an instant and forgot the control the
+  // keyboard had left it from, so Back from the game focused its heading.
+  expect(onOpen).not.toHaveBeenCalled();
   const back = rules.getByTestId('game-how-to-play-back');
-  expect(back.getAttribute('aria-label')).toBe('Back to Connect Four');
+  expect(back.textContent).toContain('Back');
   back.click();
   expect(onOpen).toHaveBeenCalledWith({ screen: 'menu' });
   rules.unmount();

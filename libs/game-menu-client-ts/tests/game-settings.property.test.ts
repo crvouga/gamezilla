@@ -263,8 +263,8 @@ describe("a game's settings, declared as data", () => {
     expect(gameSettingsRows(tree.root, () => false)).toEqual([]);
     expect(gameSettingsOffered(LAPS, () => false)).toBe(false);
     expect(gameSettingsOffered(LAPS, () => true)).toBe(true);
-    // The root holds one group here, so the settings open on the root.
-    expect(gameSettingsOpening(tree, () => true)).toBe(tree.root);
+    // The root holds one group holding one loader: they open on the loader.
+    expect(gameSettingsOpening(tree, () => true).place).toEqual(laps);
     // A device that had the loader open stands on the root once denied.
     expect(gameSettingsNodeShown(tree, laps, () => false).place).toEqual(root);
     expect(gameSettingsNodeShown(tree, laps, () => true).place).toEqual(laps);
@@ -328,7 +328,7 @@ describe("a game's settings, declared as data", () => {
 
 // regression: settings-one-row-stop — Chess's settings opened on a screen
 // whose only row led to the loader, a screen with no choice to make.
-test('settings holding one row that leads to a screen open on that screen', () => {
+test('settings holding one row open on what it leads to, at every depth', () => {
   const flat: GameSettings = {
     caption: () => 'Load laps',
     rows: [
@@ -354,9 +354,18 @@ test('settings holding one row that leads to a screen open on that screen', () =
       const opening = gameSettingsOpening(tree, can);
       const rows = gameSettingsRows(tree.root, can);
       if (opening === tree.root) return;
+      // Every group on the way to it held the one row that leads there.
       expect(rows).toHaveLength(1);
-      expect(opening.row).toBe(rows[0] ?? null);
-      expect(opening.opens.kind).not.toBe('group');
+      expectWayInShown(tree, opening, can);
+      let at = opening;
+      while (at.parent !== null) {
+        const parent = tree.nodes.get(at.parent.screen) ?? tree.root;
+        expect(gameSettingsRows(parent, can)).toEqual(at.row ? [at.row] : []);
+        at = parent;
+      }
+      // And it is not itself a group of one row.
+      if (opening.opens.kind === 'group')
+        expect(gameSettingsRows(opening, can)).not.toHaveLength(1);
     })
   );
 });

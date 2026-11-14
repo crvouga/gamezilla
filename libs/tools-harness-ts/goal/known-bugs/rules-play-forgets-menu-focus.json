@@ -1,0 +1,4 @@
+{
+  "summary": "Pressing Play on a game's rules first reopened the game menu for an instant before opening the game, so the menu forgot the control the keyboard had left it from; Back from the game then put focus on the menu's heading instead of a choice. Play now opens the game directly, and the menu opens on its home with focus restored.",
+  "regressionTest": "libs/game-menu-client-ts/tests/game-menu-screen-view.test.tsx"
+}
