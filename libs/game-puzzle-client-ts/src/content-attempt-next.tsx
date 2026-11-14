@@ -24,7 +24,6 @@ export function ContentAttemptNext(props: {
           title={t`Return to builder`}
           variant="outline"
           intent="neutral"
-          size="sm"
           onClick={() =>
             game.open({
               kind: 'builder',
@@ -41,7 +40,6 @@ export function ContentAttemptNext(props: {
             dataSet={{ testid: 'content-return-pack' }}
             variant="outline"
             intent="neutral"
-            size="sm"
             onClick={() =>
               game.open({
                 kind: 'edition',

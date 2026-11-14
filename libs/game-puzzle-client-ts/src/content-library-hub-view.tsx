@@ -48,13 +48,16 @@ function ResumeRow(props: { view: View }): JSX.Element {
             />
           }
           title={t`Resume ${attempt().title || t`your saved puzzle`}`}
+          titleLines={2}
           caption={
             <Show
               when={attempt().pack}
               fallback={t`Opens at the move you left it`}
             >
               {(pack) => (
-                <ContentProgressLine progress={pack()} pack={pack().title} />
+                <ContentRowCaption description={pack().title}>
+                  <ContentProgressLine progress={pack()} />
+                </ContentRowCaption>
               )}
             </Show>
           }
@@ -124,6 +127,7 @@ function StarterPacks(props: { view: View }): JSX.Element {
                 />
               }
               title={pack.title}
+              titleLines={2}
               caption={
                 <ContentRowCaption description={pack.description}>
                   <Show

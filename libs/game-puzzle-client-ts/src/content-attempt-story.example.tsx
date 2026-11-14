@@ -77,7 +77,6 @@ export function StoryPackActions(props: {
       title={props.overview ?? 'Pack overview'}
       intent="neutral"
       variant="outline"
-      size="sm"
       onClick={props.onOverview}
       dataSet={{
         testid:

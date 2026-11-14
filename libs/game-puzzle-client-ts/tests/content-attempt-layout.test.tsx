@@ -122,27 +122,23 @@ test('the stage has one status line: the save', () => {
   );
 });
 
-test('once solved, a card over the board says so and leads onward; closing it keeps the way on', () => {
+test('once solved, the headline and the way on sit with the commands, never over the board', () => {
   mount(390, 'attempt', { complete: true, packSolved: 3 });
-  const card = screen.getByTestId('content-attempt-complete');
-  expect(card.textContent).toContain('Completion saved');
-  expect(card.textContent).toContain('3 of 4 solved in Warehouse basics.');
-  expect(card.contains(screen.getByTestId('onward'))).toBe(true);
-  // The card lies over the board: the board and its commands keep their place.
+  const headline = screen.getByTestId('content-attempt-complete');
+  expect(headline.textContent).toContain('Completion saved');
+  expect(headline.textContent).toContain('3 of 4 solved in Warehouse basics.');
+  const controls = screen
+    .getByTestId('controls')
+    .closest('[data-component="GameControls"]');
+  expect(controls?.contains(headline)).toBe(true);
+  expect(controls?.contains(screen.getByTestId('onward'))).toBe(true);
+  expect(controls?.contains(screen.getByTestId('player'))).toBe(false);
   expect(
-    card
-      .closest('[data-component="GameBoardStage"]')
-      ?.contains(screen.getByTestId('player'))
+    follows(screen.getByTestId('onward'), screen.getByTestId('controls'))
   ).toBe(true);
   const details = screen.getByTestId('content-open-progress');
   expect(details.getAttribute('data-variant')).toBe('outline');
   expect(details.getAttribute('data-complete')).toBe('true');
-  fireEvent.click(screen.getByTestId('game-result-overlay-dismiss'));
-  expect(screen.queryByTestId('content-attempt-complete')).toBeNull();
-  const actions = screen
-    .getByTestId('controls')
-    .closest('[data-component="GameActions"]');
-  expect(actions?.contains(screen.getByTestId('onward'))).toBe(true);
 });
 
 test("the pack's last puzzle solved says the whole pack is solved", () => {
@@ -156,8 +152,12 @@ test("the pack's last puzzle solved says the whole pack is solved", () => {
   );
 });
 
-test('a move that was not saved is never called saved', () => {
+test('a move that was not saved is never called saved, and said once', () => {
   mount(390, 'attempt', { changeError: 'The change was not saved.' });
+  expect(screen.queryByTestId('content-position-save-status')).toBeNull();
+  expect(screen.getByText('Your change was not saved')).toBeDefined();
+  cleanup();
+  mount(390, 'progress', { changeError: 'The change was not saved.' });
   expect(screen.getByTestId('content-position-save-status').textContent).toBe(
     'Your last move is not saved yet. The position before it is kept.'
   );
@@ -320,12 +320,12 @@ test('the saved completion is named as a record, and the board stays playable un
 });
 
 // regression: puzzle-solved-save-said-twice
-test('a saved completion says it is saved once', () => {
+test('a saved completion says it is saved once, in its own headline', () => {
   mount(390, 'attempt', { complete: true, pack: null });
   const record = screen.getByTestId('content-attempt-complete');
-  expect(record.textContent).not.toContain('Progress saved on this device.');
   const save = screen.getAllByTestId('content-position-save-status');
   expect(save.length).toBe(1);
+  expect(record.contains(save[0] ?? null)).toBe(true);
   expect(save[0]?.textContent).toBe('Progress saved on this device.');
 });
 
@@ -381,11 +381,11 @@ test('loading, gone and missing are states of their own, each with a way on', ()
   expect(returned).toBe(2);
 });
 
-test('a position that cannot be opened points at Progress for another one', () => {
+test('a position that cannot be opened points at Details for another one', () => {
   mount(390, 'attempt', { unopenable: true });
   expect(screen.queryByTestId('player')).toBeNull();
   expect(
-    screen.getByText(/Choose another kept continuation under Progress/)
+    screen.getByText(/Choose another saved position under Details/)
   ).toBeDefined();
   cleanup();
   mount(390, 'attempt', { unopenable: true, unreadable: true });

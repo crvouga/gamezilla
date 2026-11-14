@@ -51,8 +51,13 @@ export const ChangeFailed: Story = {
   },
 };
 
+/** Nothing left once solved. */
+const SOLVED_FIGURES = [{ key: 'remaining', label: 'Steps left', value: '0' }];
+
 /** The puzzle is solved: the completion is saved. */
-export const Completed: Story = { args: { complete: true } };
+export const Completed: Story = {
+  args: { complete: true, figures: SOLVED_FIGURES },
+};
 
 /** Solved before, then played away from solved: said quietly. */
 export const SolvedBefore: Story = { args: { solvedBefore: true } };
@@ -70,7 +75,7 @@ export const Playtest: Story = {
 /** A solved playtest sends the author back to validate and publish. */
 export const PlaytestSolved: Story = {
   ...Playtest,
-  args: { playtest: true, complete: true },
+  args: { playtest: true, complete: true, figures: SOLVED_FIGURES },
 };
 
 const PACK = { title: 'Counting basics', position: 2, total: 4 };
@@ -83,7 +88,7 @@ export const PackInProgress: Story = {
 
 /** The same pack puzzle solved: said quietly; its next puzzle is on the board. */
 export const PackCompleted: Story = {
-  args: { pack: PACK, complete: true },
+  args: { pack: PACK, complete: true, figures: SOLVED_FIGURES },
   render: (args) => render({ ...args, wayOn: <StoryPackActions /> }),
 };
 

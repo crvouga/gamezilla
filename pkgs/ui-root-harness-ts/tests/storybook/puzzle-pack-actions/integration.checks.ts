@@ -30,9 +30,10 @@ async function commandsTop(page: Page, story: string) {
 }
 
 // regression: puzzle-solved-way-on-moves-pack-card
-// The pack card is on the attempt's progress screen; the next puzzle is on
-// a card over the solved board, so neither the card nor the board's
-// commands move when the puzzle is solved.
+// The pack card is on the attempt's progress screen; the next puzzle joins
+// the solved headline with the commands (above them in a phone's bar,
+// under them in the rail beside a wide board), so neither the card nor the
+// board's commands move when the puzzle is solved.
 test('storybook integration: solving a pack puzzle leaves its pack card and commands in place', async ({
   page,
 }) => {

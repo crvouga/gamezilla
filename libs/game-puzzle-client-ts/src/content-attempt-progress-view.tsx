@@ -116,6 +116,11 @@ function AttemptPanel(props: ContentAttemptScreenViewProps): JSX.Element {
           </Trans>
         </Notice>
       </Show>
+      <Show when={props.playtest && props.complete}>
+        <P variant="caption" tone="secondary">
+          {t`Playtest solved. Return to the builder to publish it.`}
+        </P>
+      </Show>
       <Show
         when={
           !props.playtest && (props.complete || props.solvedBefore === true)

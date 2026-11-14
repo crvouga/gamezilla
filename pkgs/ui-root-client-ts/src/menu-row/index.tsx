@@ -29,6 +29,11 @@ export type MenuRowProps = {
    * `1`; a detail row whose value is a timestamp or a version takes more.
    */
   valueLines?: TextLines | undefined;
+  /**
+   * Lines the title may wrap to before it ends in an ellipsis. Default `1`;
+   * a row named by something people write (a pack's name) takes `2`.
+   */
+  titleLines?: 1 | 2 | undefined;
   /** Replace the default trailing chevron with custom content. */
   trailing?: JSX.Element | undefined;
   /**
@@ -149,10 +154,13 @@ function MenuRowBody(
       <div class="panelRule box flex-1 min-w-0 flex-row items-center gap-3 py-3 pr-4">
         <div class="box flex-1 min-w-0 items-start">
           {/* `div`, not `p`: callers pass their own text blocks, and a `p`
-              may not contain one. A long title ends in an ellipsis. */}
+              may not contain one. A long title ends in an ellipsis
+              after `titleLines`. */}
           <div
-            class="text textBody textRowTitle line-clamp-1 max-w-full"
+            class="text textBody textRowTitle max-w-full"
             classList={{
+              'line-clamp-1': props.titleLines !== 2,
+              'line-clamp-2': props.titleLines === 2,
               'text-tint': selected(),
               'text-destructive': !selected() && destructive(),
               'text-text': !selected() && !destructive(),

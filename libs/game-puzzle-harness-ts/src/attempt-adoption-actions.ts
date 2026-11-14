@@ -79,7 +79,8 @@ export const observeAttemptAdoption = defineAction({
             (position) =>
               position.attempt_id === selection.attemptId &&
               position.id !== selection.positionId
-          ) && view.queryAllByText(/Saved position/).length >= 2
+          ) &&
+          view.container.querySelectorAll('[data-kept="position"]').length >= 2
         );
       });
       // Back on the board (by the screen's own command: the host's Back

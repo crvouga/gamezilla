@@ -124,7 +124,7 @@ function usePlaceSubtitle(props: ContentLibraryScreenViewProps): () => string {
   const { t } = useLingui();
   return () =>
     ({
-      library: t`Play puzzles, pick up where you left off, or make your own.`,
+      library: t`Play packs and puzzles, or make your own.`,
       continue: t`Puzzles you started, at the move you left them.`,
       solved: t`Puzzles you finished. Open one to play it again.`,
       browse: t`Published puzzles and packs.`,

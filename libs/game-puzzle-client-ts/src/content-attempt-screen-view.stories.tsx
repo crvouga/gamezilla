@@ -118,30 +118,17 @@ const PACK = { title: 'Counting basics', position: 2, total: 4 };
 /** A pack puzzle partway: the stage is the same; the pack is behind Progress. */
 export const PackInProgress: Story = { args: { pack: PACK } };
 
-/** The same pack puzzle solved: a card over the board, the next puzzle filled. */
+/** The same pack puzzle solved: the headline and the next puzzle, filled, with the commands. */
 export const PackCompleted: Story = {
   args: { pack: PACK, complete: true, packSolved: 2 },
 };
 
-/** The pack's last puzzle solved: the card says the pack is done. */
+/** The pack's last puzzle solved: the headline says the pack is done. */
 export const PackFinished: Story = {
   args: {
     pack: { ...PACK, position: 4 },
     complete: true,
     packSolved: 4,
-  },
-};
-
-/** Closing the solved card shows the board; the way on joins its commands. */
-export const SolvedBoardShown: Story = {
-  args: { pack: PACK, complete: true, packSolved: 2 },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await userEvent.click(
-      await canvas.findByTestId('game-result-overlay-dismiss')
-    );
-    await expect(canvas.queryByTestId('content-attempt-complete')).toBeNull();
-    await expect(canvas.getByTestId('content-next-puzzle')).toBeVisible();
   },
 };
 

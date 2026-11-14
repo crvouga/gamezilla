@@ -16,7 +16,9 @@ export type ContentStartAttemptViewProps = {
   readonly starting: boolean;
   /** Why the last start was refused; the earlier attempt stays saved. */
   readonly failure: string | null;
-  /** Nothing new may start (withdrawn, or the pack is still arriving). */
+  /** A new attempt may start: false once the publication is withdrawn. */
+  readonly canStart: boolean;
+  /** Starting waits (the pack's choice is still arriving). */
   readonly disabled: boolean;
   /** Opens the saved attempt, or starts one and opens it. */
   readonly onPlay: () => void;
@@ -39,15 +41,17 @@ export function ContentStartAttemptView(
       <Show
         when={props.saved}
         fallback={
-          <Button
-            title={t`Play`}
-            fullWidth
-            loading={props.starting}
-            loadingLabel={t`Starting…`}
-            disabled={props.disabled}
-            onClick={() => props.onPlay()}
-            dataSet={{ testid: 'content-start-attempt' }}
-          />
+          <Show when={props.canStart}>
+            <Button
+              title={t`Play`}
+              fullWidth
+              loading={props.starting}
+              loadingLabel={t`Starting…`}
+              disabled={props.disabled}
+              onClick={() => props.onPlay()}
+              dataSet={{ testid: 'content-start-attempt' }}
+            />
+          </Show>
         }
       >
         <Button
@@ -56,17 +60,19 @@ export function ContentStartAttemptView(
           onClick={() => props.onPlay()}
           dataSet={{ testid: 'content-continue-attempt' }}
         />
-        <Button
-          title={t`Start over in a new attempt`}
-          intent="neutral"
-          variant="outline"
-          fullWidth
-          loading={props.starting}
-          loadingLabel={t`Starting…`}
-          disabled={props.disabled}
-          onClick={() => props.onStartFresh()}
-          dataSet={{ testid: 'content-start-attempt' }}
-        />
+        <Show when={props.canStart}>
+          <Button
+            title={t`Start over in a new attempt`}
+            intent="neutral"
+            variant="outline"
+            fullWidth
+            loading={props.starting}
+            loadingLabel={t`Starting…`}
+            disabled={props.disabled}
+            onClick={() => props.onStartFresh()}
+            dataSet={{ testid: 'content-start-attempt' }}
+          />
+        </Show>
       </Show>
       <Show when={props.failure}>
         {(message) => (
@@ -109,7 +115,8 @@ export function ContentStartAttempt(props: {
         saved={play.saved(props.revisionId) !== undefined}
         starting={play.starting() === props.revisionId}
         failure={play.failure()?.message ?? null}
-        disabled={props.disabled || !choiceReady()}
+        canStart={!props.disabled}
+        disabled={!choiceReady()}
         onPlay={() => play.play(request(false))}
         onStartFresh={() => play.play(request(true))}
         onRetry={play.retry}

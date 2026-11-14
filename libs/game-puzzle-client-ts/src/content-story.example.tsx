@@ -14,6 +14,7 @@ import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
 import { TileBoard } from '@pkgs/ui-root-client-ts/tile-board';
 import { For, type JSX } from 'solid-js';
 import { fn } from 'storybook/test';
+import { ContentKeptPositionsView } from './content-kept-positions';
 import {
   ContentPackEditorView,
   ContentPackItemRow,
@@ -166,7 +167,8 @@ export function StoryStartAttempt(props: {
       saved={props.continuing === true}
       starting={false}
       failure={null}
-      disabled={props.disabled === true}
+      canStart={props.disabled !== true}
+      disabled={false}
       onPlay={fn()}
       onStartFresh={fn()}
       onRetry={fn()}
@@ -327,19 +329,18 @@ export function StoryAttemptControls(props: {
   );
 }
 
-/** An attempt's kept positions, the current one marked. */
+/** An attempt's kept positions, the current one marked, on the real view. */
 export function StoryKeptPositions(): JSX.Element {
   return (
-    <MenuSection
-      title="Saved positions"
-      footer="Choose a saved position to continue. Your other positions stay kept."
-    >
-      <MenuRow
-        title="Saved position 1"
-        value="Kept"
-        onClick={() => undefined}
-      />
-      <MenuRow title="Saved position 2" value="Current" disabled />
-    </MenuSection>
+    <ContentKeptPositionsView
+      positions={[
+        { id: 'position-1', moves: 2, current: false },
+        { id: 'position-2', moves: 3, current: true },
+      ]}
+      disabled={false}
+      hasMore={false}
+      onMore={fn()}
+      onSelect={fn()}
+    />
   );
 }

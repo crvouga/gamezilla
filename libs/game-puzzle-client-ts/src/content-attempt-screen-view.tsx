@@ -5,22 +5,17 @@ import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
-import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
 import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
+import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
-import { GameResultOverlay } from '@pkgs/ui-root-client-ts/game-stage-overlay';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
-import { P } from '@pkgs/ui-root-client-ts/text';
-import {
-  createEffect,
-  createSignal,
-  type JSX,
-  Match,
-  on,
-  Show,
-  Switch,
-} from 'solid-js';
+import { ProgressBar } from '@pkgs/ui-root-client-ts/progress-bar';
+import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { SuccessState } from '@pkgs/ui-root-client-ts/success-state';
+import { P, Text } from '@pkgs/ui-root-client-ts/text';
+import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
+import { type JSX, Match, Show, Switch } from 'solid-js';
 import {
   ContentAttemptProgressView,
   ContentAttemptSaveStatus,
@@ -220,29 +215,120 @@ function useSolvedCaption(props: ContentAttemptScreenViewProps): () => string {
 }
 
 /**
- * The solved headline, on a card over the board so the board never moves:
+ * The solved headline beside the board's commands, never over the board:
  * the completion is saved (or a playtest solved), where the pack now
- * stands, and the one filled command onward. Closing it shows the solved
- * board, with the command onward kept beside the board's own commands.
+ * stands, and the one filled command onward. It takes the save line's
+ * place, so the save is said once.
  */
-function AttemptSolved(props: {
-  view: ContentAttemptScreenViewProps;
-  onDismiss: () => void;
-}): JSX.Element {
+function AttemptSolved(
+  props: ContentAttemptScreenViewProps & {
+    /** The headline also says the save (where it replaces the save line). */
+    withSave: boolean;
+  }
+): JSX.Element {
   const { t } = useLingui();
-  const caption = useSolvedCaption(props.view);
+  const caption = useSolvedCaption(props);
   return (
-    <GameResultOverlay
-      tone="won"
-      eyebrow={t`Solved`}
-      title={props.view.playtest ? t`Playtest solved` : t`Completion saved`}
-      caption={caption()}
-      live
-      actions={props.view.onward}
-      dismissLabel={t`Show the board`}
-      onDismiss={() => props.onDismiss()}
-      dataSet={{ testid: 'content-attempt-complete' }}
-    />
+    <StackVertical gap="md" dataSet={{ testid: 'content-attempt-solved' }}>
+      <SuccessState
+        variant="compact"
+        title={
+          props.playtest
+            ? t`Playtest solved`
+            : props.saving
+              ? t`Solved`
+              : t`Completion saved`
+        }
+        body={
+          <>
+            {caption()}{' '}
+            <Show when={props.withSave}>
+              <Text
+                variant="inherit"
+                role="status"
+                testId="content-position-save-status"
+              >
+                {props.saving
+                  ? t`Saving your position…`
+                  : t`Progress saved on this device.`}
+              </Text>
+            </Show>
+          </>
+        }
+        dataSet={{ testid: 'content-attempt-complete' }}
+      />
+      {props.onward}
+    </StackVertical>
+  );
+}
+
+/**
+ * Wide screens only, in the rail beside the board under its commands: once
+ * solved, the solved headline and the way on (under the commands, so they
+ * never move); then where the puzzle sits — its pack and how much of it is
+ * solved, or that it stands on its own.
+ */
+function AttemptAside(props: ContentAttemptScreenViewProps): JSX.Element {
+  const { t } = useLingui();
+  const mode = useLayoutMode();
+  return (
+    <Show when={mode() === 'wide'}>
+      <Show when={props.complete && !props.unopenable}>
+        <AttemptSolved {...props} withSave={false} />
+      </Show>
+      <GameSection
+        title={
+          <Show when={props.pack} fallback={<Trans>This puzzle</Trans>}>
+            {(pack) => pack().title}
+          </Show>
+        }
+        dataSet={{ testid: 'puzzle-attempt-aside' }}
+      >
+        <Show
+          when={props.pack}
+          fallback={
+            <P variant="caption" tone="secondary">
+              {props.playtest
+                ? t`A practice run of your draft. It counts toward no progress.`
+                : t`A puzzle on its own. Your moves are kept as you play.`}
+            </P>
+          }
+        >
+          {(pack) => (
+            <StackVertical gap="sm">
+              <P variant="caption" tone="secondary">
+                {t`Puzzle ${pack().position} of ${pack().total} · ${props.packSolved ?? 0} solved`}
+              </P>
+              <ProgressBar
+                size="sm"
+                progress={(props.packSolved ?? 0) / Math.max(1, pack().total)}
+                accessibleLabel={t`${props.packSolved ?? 0} of ${pack().total} solved`}
+              />
+            </StackVertical>
+          )}
+        </Show>
+      </GameSection>
+    </Show>
+  );
+}
+
+/**
+ * Under the board: the save line; on a phone, once solved, the solved
+ * headline in its place, over the commands held at the screen's foot.
+ */
+function AttemptStatus(props: ContentAttemptScreenViewProps): JSX.Element {
+  const mode = useLayoutMode();
+  return (
+    <Show
+      when={props.complete && !props.unopenable && mode() === 'compact'}
+      fallback={
+        <Show when={props.changeError === null}>
+          <ContentAttemptSaveStatus {...props} />
+        </Show>
+      }
+    >
+      <AttemptSolved {...props} withSave />
+    </Show>
   );
 }
 
@@ -254,9 +340,8 @@ function Unopenable(props: ContentAttemptScreenViewProps): JSX.Element {
         when={props.unreadable === true}
         fallback={
           <Trans>
-            This saved position cannot be opened. Choose another kept
-            continuation under Progress, or restart. Your earlier attempt stays
-            saved.
+            This saved position cannot be opened. Choose another saved position
+            under Details, or restart. Your earlier attempt stays saved.
           </Trans>
         }
       >
@@ -288,18 +373,6 @@ function attemptDataSet(props: ContentAttemptScreenViewProps) {
  */
 function AttemptStage(props: ContentAttemptScreenViewProps): JSX.Element {
   const context = useAttemptContext(props);
-  // Closed by the person; a board played away from solved opens it again
-  // on the next solve.
-  const [dismissed, setDismissed] = createSignal(false);
-  createEffect(
-    on(
-      () => props.complete,
-      (complete) => {
-        if (!complete) setDismissed(false);
-      }
-    )
-  );
-  const solved = () => props.complete && !props.unopenable;
   return (
     <GameScreen
       screenId="puzzle-content-attempt"
@@ -320,29 +393,20 @@ function AttemptStage(props: ContentAttemptScreenViewProps): JSX.Element {
             <AttemptAlerts {...props} />
           </>
         }
-        status={<ContentAttemptSaveStatus {...props} />}
+        status={<AttemptStatus {...props} />}
         actions={
           <>
             {props.controls}
             <OpenProgress {...props} />
-            <Show when={solved() && dismissed()}>{props.onward}</Show>
           </>
         }
+        aside={<AttemptAside {...props} />}
+        actionsBeside
+        fixedStage
         stageAlign={props.stageAlign}
       >
         <Show when={!props.unopenable} fallback={<Unopenable {...props} />}>
-          <GameBoardStage
-            overlay={
-              <Show when={solved() && !dismissed()}>
-                <AttemptSolved
-                  view={props}
-                  onDismiss={() => setDismissed(true)}
-                />
-              </Show>
-            }
-          >
-            {props.player}
-          </GameBoardStage>
+          {props.player}
         </Show>
       </GameSessionLayout>
     </GameScreen>

@@ -93,12 +93,11 @@ export const Solved: Story = {
       'data-moves',
       '8'
     );
-    // The completion is said on a card over the board; the pack's
+    // The completion is said with the board's commands; the pack's
     // overview stays where the attempt stands, behind Details.
     await expect(
       canvas.getByTestId('content-attempt-complete')
     ).toHaveTextContent('Completion saved');
-    await userEvent.click(canvas.getByTestId('game-result-overlay-dismiss'));
     await userEvent.click(canvas.getByTestId('content-open-progress'));
     await expect(
       canvas.getByRole('button', { name: 'Pack overview' })

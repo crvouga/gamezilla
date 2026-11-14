@@ -127,3 +127,19 @@ export const EditWorkingDraft: Story = {
     await expect(args.onEditWorkingDraft).toHaveBeenCalled();
   },
 };
+
+/** Tabbing reaches the pack's Play first, with its focus ring drawn. */
+export const PackKeyboardFocus: Story = {
+  args: { edition: PACK },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const play = await canvas.findByTestId('content-pack-next');
+    for (
+      let presses = 0;
+      presses < 30 && canvasElement.ownerDocument.activeElement !== play;
+      presses += 1
+    )
+      await userEvent.tab();
+    await expect(play).toHaveFocus();
+  },
+};

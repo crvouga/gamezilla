@@ -66,7 +66,7 @@ export async function solveAndRecover(
   });
   // regression: sokoban-solved-way-on-hidden
   // The way on is offered once, filled, and wholly on screen: the next
-  // puzzle on the solved card over the board.
+  // puzzle in the solved headline with the board's commands.
   const next = page.getByTestId('content-next-puzzle');
   await expect(next).toBeInViewport({ ratio: 1 });
   await expect(page.getByTestId('content-open-progress')).toHaveAttribute(
@@ -81,7 +81,6 @@ export async function solveAndRecover(
   const opened = page.getByTestId('story-way-on-opened');
   await next.click();
   await expect(opened).toHaveText('Lift');
-  await page.getByTestId('game-result-overlay-dismiss').click();
   await page.getByTestId('content-open-progress').click();
   await capture(page, info, 'solved-progress');
   await page

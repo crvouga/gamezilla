@@ -9,10 +9,10 @@ afterEach(cleanup);
 
 // regression: puzzle-solved-way-on-moves-pack-card — a solved pack puzzle's
 // next puzzle joined the command row and moved Undo and Restart. The next
-// puzzle sits on the solved card over the board; the pack card of the
+// puzzle sits in the solved headline before the commands; the pack card of the
 // progress screen keeps the pack's overview, and the board's command row
 // keeps its commands and Details, solved or not.
-test("a solved pack puzzle's way on sits on the solved card, not the command row", () => {
+test("a solved pack puzzle's way on sits in its solved headline, not the command row", () => {
   const view = (place: 'attempt' | 'progress') =>
     renderWithI18n(() => (
       <ThemeProvider
@@ -53,9 +53,11 @@ test("a solved pack puzzle's way on sits on the solved card, not the command row
   expect(screen.queryByTestId('next')).toBeNull();
   cleanup();
   view('attempt');
-  const card = screen.getByTestId('content-attempt-complete');
-  expect(card.getAttribute('data-component')).toBe('GameResultOverlay');
-  expect(card.contains(screen.getByTestId('next'))).toBe(true);
+  expect(
+    screen
+      .getByTestId('content-attempt-solved')
+      .contains(screen.getByTestId('next'))
+  ).toBe(true);
   const row = screen
     .getByTestId('controls')
     .closest('[data-component="GameActions"]');
