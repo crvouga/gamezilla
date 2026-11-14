@@ -385,11 +385,6 @@ export function renderStory(slots: StorySlots = {}) {
   return (args: MultiplayerScreenViewProps): JSX.Element => (
     <StoryPlaces
       {...args}
-      boardPreview={
-        args.title.startsWith('Connect Four') ? (
-          <ConnectFourStoryBoard moves={[]} />
-        ) : undefined
-      }
       board={(overlay, covered) => (
         <StoryStage
           covered={covered}

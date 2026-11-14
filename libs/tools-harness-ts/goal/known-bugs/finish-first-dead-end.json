@@ -1,0 +1,4 @@
+{
+  "summary": "After a refused search (finish your current game first), finding an opponent offered only Find an opponent again, a dead end. The dock now leads back to the game's choices first, with trying again as the quiet second command.",
+  "regressionTest": "libs/game-matchmaking-client-ts/tests/multiplayer-find-layout.test.tsx"
+}

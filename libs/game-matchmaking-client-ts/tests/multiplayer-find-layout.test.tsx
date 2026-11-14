@@ -296,3 +296,29 @@ test('a search this device stopped is said so on the hub, until the next search'
   await Promise.resolve();
   expect(screen.queryByTestId('multiplayer-stopped')).toBeNull();
 });
+
+// regression: finish-first-dead-end — a refused search (finish your current
+// game first) left Find an opponent as the only way on, so the person had
+// nowhere to go but the same refusal.
+test('a refused search leads back to the game first, with trying again a quiet second', () => {
+  const view = mountPlaces({
+    stage: 'idle',
+    props: {
+      commandDenial: {
+        icon: () => null,
+        title: 'Finish your current game first',
+        dataSet: { testid: 'multiplayer-command-denial' },
+      },
+    },
+  });
+  const back = screen.getByTestId('multiplayer-blocked-leave');
+  const find = screen.getByTestId('multiplayer-find');
+  expect(back.getAttribute('data-variant')).toBe('solid');
+  expect(find.getAttribute('data-variant')).toBe('outline');
+  expect(find.textContent).toContain('Try again');
+  expect(
+    back.compareDocumentPosition(find) & Node.DOCUMENT_POSITION_FOLLOWING
+  ).toBeTruthy();
+  back.click();
+  expect(view.props().onLeave).toHaveBeenCalledTimes(1);
+});

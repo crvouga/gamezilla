@@ -4,6 +4,7 @@ import {
   timeControlOf,
 } from '@libs/game-matchmaking-shared-ts/time-control';
 import { Trans } from '@lingui/solid/macro';
+import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import {
   type GameChoice,
@@ -18,7 +19,7 @@ import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
-import { type JSX, Show } from 'solid-js';
+import { type JSX, Match, Show, Switch } from 'solid-js';
 import { MultiplayerGuidePoints } from './multiplayer-guide-view';
 import {
   MultiplayerLobbyPlace,
@@ -51,8 +52,6 @@ type FindProps = MultiplayerPlaceFrame & {
   readonly title: string;
   /** How the game is won, in one sentence, where the game says. */
   readonly goal?: string | undefined;
-  /** The game's board at its start: the mode card's picture. */
-  readonly boardPreview?: JSX.Element;
   readonly find: MultiplayerFindChoice;
   readonly ratings: readonly MultiplayerRatingView[];
   readonly onOpen: (place: MultiplayerPlace) => void;
@@ -62,6 +61,8 @@ type FindProps = MultiplayerPlaceFrame & {
   readonly onFind: (timeControl: string | undefined) => Promise<void>;
   /** Searching needs a connection. */
   readonly online: boolean;
+  /** Leaves finding an opponent for the game's choices, where its games are. */
+  readonly onLeave: () => void;
   /**
    * The last search was refused (finish the current game first): the notice
    * above says why, and the command here is a quiet try again.
@@ -241,7 +242,10 @@ function FindStatus(props: FindProps): JSX.Element {
         <Show
           when={!props.blocked}
           fallback={
-            <Trans>Finish or leave your other game, then try again.</Trans>
+            <Trans>
+              Your other game is still on. Go back to it, finish or leave it,
+              then try again.
+            </Trans>
           }
         >
           <Trans>
@@ -258,11 +262,26 @@ function FindDock(props: FindProps): JSX.Element {
   const many = () => props.find.players > 2;
   return (
     <GameLobbyDock status={<FindStatus {...props} />}>
+      <Show when={props.blocked}>
+        <Button
+          title={<Trans>Back to {props.title}</Trans>}
+          variant="solid"
+          size="lg"
+          fullWidth
+          onClick={() => props.onLeave()}
+          dataSet={{ testid: 'multiplayer-blocked-leave' }}
+        />
+      </Show>
       <GameActionButton
         title={
-          <Show when={many()} fallback={<Trans>Find an opponent</Trans>}>
-            <Trans>Find players</Trans>
-          </Show>
+          <Switch fallback={<Trans>Find an opponent</Trans>}>
+            <Match when={props.blocked}>
+              <Trans>Try again</Trans>
+            </Match>
+            <Match when={many()}>
+              <Trans>Find players</Trans>
+            </Match>
+          </Switch>
         }
         successLabel={
           <Show
@@ -299,7 +318,6 @@ export function MultiplayerFindView(props: FindProps): JSX.Element {
         eyebrow={<Conditions find={props.find} />}
         title={props.title}
         summary={props.goal}
-        art={props.boardPreview}
         dataSet={{ testid: 'multiplayer-find-conditions' }}
       />
       <Show when={props.stopped === true}>
