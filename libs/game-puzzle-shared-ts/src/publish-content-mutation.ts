@@ -152,6 +152,7 @@ export const publishPuzzleContentMutation = (
         published_revision_id: draft.id,
         publication_count: edition,
         status: 'published',
+        published_at: ctx.env.now().toISOString(),
         deleted_at: null,
       });
     },

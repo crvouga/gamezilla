@@ -3,6 +3,7 @@ import { CONTENT_PAGE_SIZE } from '@libs/game-puzzle-shared-ts/content-query-sco
 import sql from '@pkgs/sql-root-shared-ts/sql';
 import {
   contentQueryId,
+  contentQueryPublishedAt,
   contentQueryRunner,
   seedLargeContentCatalogue,
   withContentQueryFixture,
@@ -26,15 +27,17 @@ test('catalogue pages and selected bodies remain bounded past the global snapsho
     expect(first.tables['puzzle_content_drafts']).toBeUndefined();
     const next = await run('puzzleContentPublished', {
       gameId: 'pile',
-      afterId: contentQueryId(31),
+      beforeAt: contentQueryPublishedAt(993),
+      beforeId: contentQueryId(993),
     });
     if (next.status !== 'ok') throw new Error('The next page was not served');
     expect(next.tables['puzzle_content_publications']?.[0]?.['id']).toBe(
-      'p0032'
+      'p0992'
     );
     const last = await run('puzzleContentPublished', {
       gameId: 'pile',
-      afterId: contentQueryId(1_020),
+      beforeAt: contentQueryPublishedAt(4),
+      beforeId: contentQueryId(4),
     });
     if (last.status !== 'ok') throw new Error('The last page was not served');
     expect(last.tables['puzzle_content_publications']).toHaveLength(4);
@@ -60,22 +63,22 @@ test('a page propagates withdrawal and deletion while oversized edition batches 
   await withContentQueryFixture(async (fixture) => {
     await seedLargeContentCatalogue(fixture);
     await fixture.db.run(
-      sql`UPDATE puzzle_content_publications SET status = ${'withdrawn'} WHERE id = ${'p0003'}`
+      sql`UPDATE puzzle_content_publications SET status = ${'withdrawn'} WHERE id = ${'p1023'}`
     );
     await fixture.db.run(
-      sql`UPDATE puzzle_content_publications SET deleted_at = ${'2026-10-23T01:00:00.000Z'} WHERE id = ${'p0004'}`
+      sql`UPDATE puzzle_content_publications SET deleted_at = ${'2026-10-23T01:00:00.000Z'} WHERE id = ${'p1022'}`
     );
     const { run } = contentQueryRunner(fixture);
     const page = await run('puzzleContentPublished', { gameId: 'pile' });
     if (page.status !== 'ok') throw new Error('The public page was not served');
     expect(
       page.tables['puzzle_content_publications']?.find(
-        (row) => row['id'] === 'p0003'
+        (row) => row['id'] === 'p1023'
       )?.['status']
     ).toBe('withdrawn');
     expect(
       page.tables['puzzle_content_publications']?.find(
-        (row) => row['id'] === 'p0004'
+        (row) => row['id'] === 'p1022'
       )?.['deleted_at']
     ).toBe('2026-10-23T01:00:00.000Z');
     expect(

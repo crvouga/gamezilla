@@ -7,6 +7,7 @@ import {
   workingContentDraft,
 } from '@libs/game-puzzle-shared-ts/content-library';
 import { decodePackDefinition } from '@libs/game-puzzle-shared-ts/content-pack';
+import { byNewestPublication } from '@libs/game-puzzle-shared-ts/content-query-scope';
 import type {
   ContentKind,
   ContentRevision,
@@ -148,26 +149,25 @@ function ownedDrafts(
     });
 }
 
-/** Published (not shipped) editions on the loaded page, by id. */
+/** Published (not shipped) editions on the loaded pages, newest publication first. */
 function publishedEditions(
   content: ContentLibrary,
   play: AttemptLibrary,
   page: { readonly gameId: string; readonly limit: number }
 ) {
-  const editions = discoverContent(
-    {
-      ...content,
-      documents: content.documents
-        .filter(
-          (doc) =>
-            doc.published_revision_id !== null && !isBundledContent(doc.id)
-        )
-        .toSorted(byContentId)
-        .slice(0, page.limit),
-    },
-    page.gameId
+  const documents = content.documents
+    .filter(
+      (doc) => doc.published_revision_id !== null && !isBundledContent(doc.id)
+    )
+    .toSorted(byNewestPublication)
+    .slice(0, page.limit);
+  const editions = discoverContent({ ...content, documents }, page.gameId);
+  const rank = new Map(
+    documents.map((doc, index) => [doc.published_revision_id, index])
   );
-  return editions.map((edition) => withPreview(content, play, edition));
+  return editions
+    .toSorted((a, b) => (rank.get(a.id) ?? 0) - (rank.get(b.id) ?? 0))
+    .map((edition) => withPreview(content, play, edition));
 }
 
 /** The library's small screens wired to the synced content, attempts and their pages. */

@@ -7,6 +7,7 @@ import {
   puzzleContentOwned,
   puzzleContentPublished,
 } from '@libs/game-puzzle-shared-ts/content-queries';
+import { PUBLISHED_PAGE_START } from '@libs/game-puzzle-shared-ts/content-query-scope';
 import { puzzleContentTopic } from '@libs/game-puzzle-shared-ts/content-topic-map';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { queryRequires } from '@libs/permissions-shared-ts/query-permission';
@@ -38,7 +39,7 @@ export async function exampleContentSnapshot(
   const pages = await Promise.all(
     gameIds.flatMap((gameId) => [
       puzzleContentOwned.run(ctx, { gameId, afterId: '' }),
-      puzzleContentPublished.run(ctx, { gameId, afterId: '' }),
+      puzzleContentPublished.run(ctx, { gameId, ...PUBLISHED_PAGE_START }),
       puzzleContentAttemptsOwned.run(ctx, {
         gameId,
         beforeAt: '9999-12-31T23:59:59.999Z',
@@ -99,7 +100,7 @@ export function contentSessionQuery(gameIds: readonly string[]) {
       Boolean(
         await puzzleContentPublished.authorize?.(ctx, {
           gameId: first,
-          afterId: '',
+          ...PUBLISHED_PAGE_START,
         })
       ),
     run: (ctx) => exampleContentSnapshot(ctx, gameIds),

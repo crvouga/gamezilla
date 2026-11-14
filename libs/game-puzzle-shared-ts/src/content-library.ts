@@ -3,6 +3,7 @@ import type { MutationDb } from '@pkgs/sync-engine-shared-ts/mutations-types';
 import { contentDocuments } from './content-publication';
 import type {
   ContentDocument,
+  ContentDocumentRow,
   ContentDraft,
   ContentDraftRow,
   ContentPublication,
@@ -21,7 +22,7 @@ export async function readContentLibrary(
   db: MutationDb
 ): Promise<ContentLibrary> {
   const documents = await db.query(
-    sql<ContentDocument>`SELECT * FROM puzzle_content_documents WHERE deleted_at IS NULL`
+    sql<ContentDocumentRow>`SELECT * FROM puzzle_content_documents WHERE deleted_at IS NULL`
   );
   const drafts = await db.query(
     sql<ContentDraftRow>`SELECT * FROM puzzle_content_drafts WHERE deleted_at IS NULL`

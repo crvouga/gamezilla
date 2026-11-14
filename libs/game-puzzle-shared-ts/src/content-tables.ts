@@ -27,8 +27,10 @@ export const puzzleContentPublications = defineTable({
     published_revision_id: 'text',
     publication_count: 'integer',
     status: 'text',
+    /** When the current edition became public; Browse lists newest first. */
+    published_at: { type: 'timestamp', backfill: { sql: 'updated_at' } },
   },
-  indexes: ['owner_id', ['game_id', 'status']],
+  indexes: ['owner_id', ['game_id', 'status'], ['game_id', 'published_at']],
 });
 
 /** Saved working copies form branches rather than overwriting a stale device's work. */

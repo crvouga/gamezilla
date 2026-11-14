@@ -1,5 +1,5 @@
 {
-  "release": 22,
+  "release": 23,
   "snapshot": {
     "tables": {
       "auth_account_devices": {
@@ -422,6 +422,7 @@
         "kind": "text",
         "owner_id": "text",
         "publication_count": "integer",
+        "published_at": "timestamp",
         "published_revision_id": "text",
         "status": "text"
       },
@@ -531,6 +532,7 @@
       ["puzzle_content_pack_items", "puzzle_revision_id"],
       ["puzzle_content_positions", "attempt_id"],
       ["puzzle_content_positions", "owner_id"],
+      ["puzzle_content_publications", "game_id", "published_at"],
       ["puzzle_content_publications", "game_id", "status"],
       ["puzzle_content_publications", "owner_id"],
       ["puzzle_content_revisions", "document_id", "edition"],

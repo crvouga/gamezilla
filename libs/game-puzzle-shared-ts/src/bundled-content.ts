@@ -49,6 +49,7 @@ function editionOf(
       published_revision_id: revisionId,
       publication_count: 1,
       status: 'published',
+      published_at: null,
       deleted_at: null,
     },
     revision: {
