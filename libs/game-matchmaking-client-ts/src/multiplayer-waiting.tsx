@@ -4,7 +4,6 @@ import { GameSearchState } from '@pkgs/ui-root-client-ts/game-search-state';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import { type JSX, Show } from 'solid-js';
-import { timeControlWords } from './time-control-name';
 
 /** A search under way, as the person sees it. */
 export type MultiplayerSearchView = {
@@ -16,11 +15,6 @@ export type MultiplayerSearchView = {
   /** How long it has been looking; frozen while offline. */
   readonly seconds: number;
 };
-
-/** A clock in plain words that never breaks across lines (`5 min + 3 sec`). */
-function wordsKeptTogether(control: string): string {
-  return timeControlWords(control).replaceAll(' ', '\u00a0');
-}
 
 function WaitingDescription(props: {
   readonly search: MultiplayerSearchView;
@@ -39,8 +33,7 @@ function WaitingDescription(props: {
           >
             {(control) => (
               <Trans>
-                Looking for a {props.search.gameName} opponent at{' '}
-                {wordsKeptTogether(control())}.
+                Looking for a {props.search.gameName} opponent at {control()}.
               </Trans>
             )}
           </Show>
@@ -59,8 +52,8 @@ function WaitingDescription(props: {
           {(control) => (
             <Trans>
               Looking for {count() - 1} other players for{' '}
-              {props.search.gameName} at {wordsKeptTogether(control())}. A game
-              needs {count()} players including you.
+              {props.search.gameName} at {control()}. A game needs {count()}{' '}
+              players including you.
             </Trans>
           )}
         </Show>
