@@ -5,7 +5,6 @@ import { GameActionBar } from '@pkgs/ui-root-client-ts/game-action-bar';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
-import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { type JSX, Show } from 'solid-js';
 import { FrameMovesCard } from './game-frame-moves-view';
 import { FrameOutcomeCard } from './game-frame-overlay-view';
@@ -99,7 +98,6 @@ function NextActions(props: Props): JSX.Element {
  * (`FrameOutcomeCard`), then what to do next in the bar.
  */
 export function FrameResultPlace(props: Props): JSX.Element {
-  const mode = useLayoutMode();
   return (
     <GameScreen
       screenId="custom-game-result"
@@ -129,13 +127,7 @@ export function FrameResultPlace(props: Props): JSX.Element {
           </>
         }
         actions={<NextActions {...props} />}
-        // A phone's line of moves would only repeat what Review opens; the
-        // room goes to the whole final board and the result under it.
-        aside={
-          <Show when={mode() === 'wide'}>
-            <FrameMovesCard {...props} listOnly />
-          </Show>
-        }
+        aside={<FrameMovesCard {...props} listOnly />}
       >
         <FrameStage {...props} />
       </GameSessionLayout>

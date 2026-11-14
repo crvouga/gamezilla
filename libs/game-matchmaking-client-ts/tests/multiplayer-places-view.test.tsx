@@ -510,12 +510,6 @@ describe('the result', () => {
     ).toHaveLength(3);
   });
 
-  test("a phone's result keeps its room for the board: the moves are one press away, not a line over it", () => {
-    mountPlaces({ stage: 'finished', width: 390, props: { game: FINISHED } });
-    expect(ids('multiplayer-move-1')).toEqual([]);
-    expect(ids('multiplayer-open-moves')).toHaveLength(1);
-  });
-
   test('a game lost, drawn or aborted is named as that on its card', () => {
     const view = mountPlaces({
       stage: 'finished',

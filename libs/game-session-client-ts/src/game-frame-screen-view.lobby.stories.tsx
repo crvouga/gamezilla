@@ -8,6 +8,7 @@ import {
   FRAME_GUEST,
   FRAME_WITH_OPTIONS,
   HOST_CHOICES,
+  HOST_CLOCK_ONLY,
   HOST_SEAT,
   INVITED_SEAT,
   OPEN_SEAT,
@@ -60,6 +61,7 @@ export const WaitingForPlayers: Story = {
         setupSeat(OPEN_SEAT, { choices: HOST_CHOICES }),
       ],
       {
+        options: HOST_CLOCK_ONLY,
         start: {
           reason: { kind: 'open-seats', count: 1 },
           hostStarts: false,

@@ -207,20 +207,32 @@
   padding-inline: var(--ui-space-4);
 }
 
-/* A card with no picture (a lobby whose seats lead) keeps its own height:
-   no poster pattern fills the room, so the rows come first and the spare
-   room falls below them. */
-.screen[data-wide="false"] .mode:not(:has(.modeArtBoard > *)) {
+/* A thumbnail picture (`artSize="thumbnail"`, a lobby whose seats lead):
+   on a phone a small square beside the words, no poster filling the room,
+   so the rows come first and the spare room falls below them. */
+.screen[data-wide="false"] .mode[data-art="thumbnail"] {
+  display: grid;
   flex: none;
-  justify-content: flex-start;
+  grid-template-columns: 104px minmax(0, 1fr);
+  align-items: center;
+  column-gap: var(--ui-space-4);
   background: linear-gradient(
     135deg,
     var(--ui-color-tint-subtle) 0%,
     var(--ui-color-surface) 72%
   );
 }
+.screen[data-wide="false"] .mode[data-art="thumbnail"] > .modeArt {
+  flex: none;
+  width: 104px;
+  height: 104px;
+  min-height: 0;
+}
+.screen[data-wide="false"] .mode[data-art="thumbnail"] > .facts {
+  grid-column: 1 / -1;
+}
 .screen[data-wide="false"]
   [data-component="ScrollViewContent"]
-  > :has(> .mode:not(:has(.modeArtBoard > *))) {
+  > :has(> .mode[data-art="thumbnail"]) {
   flex: none;
 }

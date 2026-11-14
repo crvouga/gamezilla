@@ -106,7 +106,7 @@ section.docked[data-tone="lost"] {
    left, the standings' control on the right, the opened standings under
    both. The result's word over the headline is left to a listener; the
    card's coloured edge says it. */
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   section.docked {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
@@ -148,8 +148,9 @@ section.docked[data-tone="lost"] {
 }
 /* A short phone: a tighter block, so the board keeps its room. The headline
    and its reason share a line where they fit; quiet commands are 36px. */
-@media (max-width: 767px) and (max-height: 700px) {
+@media (max-width: 1023px) and (max-height: 700px) {
   section.docked {
+    row-gap: var(--ui-space-1);
     padding-block: var(--ui-space-2);
   }
   .docked > :first-child > :first-child {

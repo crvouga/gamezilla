@@ -10,7 +10,6 @@ import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
-import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import { type JSX, Show } from 'solid-js';
 import type {
@@ -190,7 +189,6 @@ function Onward(props: ResultProps): JSX.Element {
  * clock, a rematch, and the moves, which also sit beside a wide board.
  */
 export function MultiplayerResultView(props: ResultProps): JSX.Element {
-  const mode = useLayoutMode();
   return (
     <MultiplayerStagePlace {...props} title={props.title}>
       <GameSessionLayout
@@ -215,10 +213,8 @@ export function MultiplayerResultView(props: ResultProps): JSX.Element {
             <Review {...props} />
           </GameActionBar>
         }
-        // A phone's line of moves would only repeat what Review opens; the
-        // room goes to the whole final board and the result under it.
         aside={
-          <Show when={mode() === 'wide' ? props.game.moves : null}>
+          <Show when={props.game.moves}>
             {(moves) => (
               <GameSection title={<Trans>Moves</Trans>}>
                 <MultiplayerMoveList

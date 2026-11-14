@@ -339,8 +339,8 @@ function seatedCount(seats: readonly FrameSetupSeat[]): number {
 /**
  * What is about to be played, at the head of the lobby: the game and how
  * it is won, then what is agreed (who is in, the clock, that it is
- * unrated) at a glance. The board's picture stays on the start screen: here
- * the seats and what is agreed lead, in the first view.
+ * unrated) at a glance. The board, facing the person's side, is a small
+ * picture beside the words, so the seats and what is agreed lead.
  */
 function LobbyMode(props: Props & { readonly setup: FrameSetup }): JSX.Element {
   const facts = (): readonly GameModeFact[] => [
@@ -376,6 +376,8 @@ function LobbyMode(props: Props & { readonly setup: FrameSetup }): JSX.Element {
       title={props.title}
       summary={props.goal}
       facts={facts()}
+      art={props.boardPreview}
+      artSize="thumbnail"
       dataSet={{ testid: 'custom-game-mode' }}
     />
   );
