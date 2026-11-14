@@ -581,3 +581,26 @@ test('a failed check offers the details and the board, where it is fixed', () =>
   fireEvent.click(screen.getByTestId('content-fix-board'));
   expect(fixed).toEqual(['details', 'board']);
 });
+
+// regression: builder-publish-denial-in-marker-column — a denial took the
+// Publish step's name slot and was pulled into the numbered column. It is
+// now said under the step's name, inside its column.
+test('a publish denial is said under the Publish step, not as its name', () => {
+  mount(() =>
+    publication({
+      publishDenial: {
+        icon: () => null,
+        title: 'Publishing needs a verified account',
+        dataSet: { testid: 'permission-denial' },
+      },
+    })
+  );
+  const steps = [
+    ...screen.getByTestId('content-publication-steps').querySelectorAll('li'),
+  ];
+  expect(steps[2]?.contains(screen.getByTestId('permission-denial'))).toBe(
+    true
+  );
+  expect(screen.queryByTestId('content-publish')).toBeNull();
+  expect(steps[2]?.textContent).toContain('Publish');
+});

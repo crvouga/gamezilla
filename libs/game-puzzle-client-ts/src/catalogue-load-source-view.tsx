@@ -89,12 +89,15 @@ function SourceChoice(props: CatalogueLoadSourceViewProps): JSX.Element {
   );
   return (
     <>
-      <Notice dataSet={{ testid: 'puzzle-source-missing' }}>
-        <Trans>
-          No {props.copy.sourceName} is saved yet. Choose one and upload it,
-          then start loading its puzzles.
-        </Trans>
-      </Notice>
+      {/* Once the upload is done the place moves on to the saved file. */}
+      <Show when={save.feedback() !== 'success'}>
+        <Notice dataSet={{ testid: 'puzzle-source-missing' }}>
+          <Trans>
+            No {props.copy.sourceName} is saved yet. Choose one and upload it,
+            then start loading its puzzles.
+          </Trans>
+        </Notice>
+      </Show>
       <FilePicker
         label={<Dynamic component={props.copy.fileLabel} />}
         accept={props.copy.fileAccept}
@@ -140,7 +143,7 @@ function SourceFiles(props: {
           {(filename) => (
             <MenuRow
               title={<Trans>Saved {props.sourceName}</Trans>}
-              value={filename}
+              caption={filename}
               dataSet={{ testid: 'puzzle-source-saved' }}
             />
           )}
@@ -156,7 +159,7 @@ function SourceFiles(props: {
           {(chosen) => (
             <MenuRow
               title={<Trans>Chosen {props.sourceName}</Trans>}
-              value={chosen}
+              caption={chosen}
               dataSet={{ testid: 'puzzle-source-chosen' }}
             />
           )}

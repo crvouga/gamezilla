@@ -55,11 +55,24 @@
   font-weight: var(--ui-font-weight-medium);
   line-height: var(--ui-leading-base);
 }
-/* A waiting step's locked button stands in for its name: its label
-   starts on the names' edge (an `sm` button's 20px gutter pulled back). */
+/* Names and states start after a reserved 20px column, where a waiting
+   step's lock sits: its locked button stands in for its name, pulled back
+   by the button's own 20px gutter and the lock's 16px and 4px gap, so its
+   label starts on the names' edge. The button's 32px keeps to the name's
+   line, so every row is the same height. */
+.name,
+.state,
+.note {
+  padding-inline-start: var(--ui-space-5);
+}
 .namedAction {
   display: flex;
   margin-inline-start: calc(-1 * var(--ui-space-5));
+  margin-block: calc((var(--ui-leading-base) - var(--ui-space-8)) / 2);
+}
+.note {
+  display: flex;
+  margin-top: var(--ui-space-2);
 }
 /* The step's own action, at the row's end. */
 .action {

@@ -51,6 +51,11 @@ export type PublicationStepsProps = {
   readonly playable?: boolean | undefined;
   /** Opens the board, the lead while the draft cannot be played yet. */
   readonly onFix?: (() => void) | undefined;
+  /**
+   * Why this person cannot publish, said under the Publish step in place
+   * of its action (a compact permission denial).
+   */
+  readonly publishNote?: JSX.Element | undefined;
 };
 
 /** The playtest is next but cannot start until the draft is corrected. */
@@ -208,6 +213,38 @@ function useTrackActions(
 }
 
 /**
+ * Where a sent copy stands, beside the lead: a word while it is on its
+ * way, a Published chip once it is the current edition.
+ */
+function ProgressStatus(props: {
+  progress: PublicationStepsProps['progress'];
+}): JSX.Element {
+  return (
+    <Show when={!props.progress?.statusInLead}>
+      <Show
+        when={props.progress?.complete}
+        fallback={
+          <P
+            variant="caption"
+            tone="secondary"
+            dataSet={{ testid: 'content-publication-status' }}
+          >
+            {props.progress?.label}
+          </P>
+        }
+      >
+        <StackHorizontal
+          align="center"
+          dataSet={{ testid: 'content-publication-status' }}
+        >
+          <ContentStatusChip status="published" />
+        </StackHorizontal>
+      </Show>
+    </Show>
+  );
+}
+
+/**
  * Where the draft stands on its way to publishing: the one next step's
  * action, filled, the one thing to press, with a line beside it saying
  * why (under it where the row is narrow); then every step in order as
@@ -261,9 +298,12 @@ export function PublicationSteps(props: PublicationStepsProps): JSX.Element {
       label: props.progress ? t`Publication` : t`Publish`,
       state: props.progress?.complete ? 'done' : stateOf('publish', next()),
       action:
-        props.progress === undefined
-          ? actions.publish()
-          : props.progress.action,
+        props.publishNote !== undefined
+          ? undefined
+          : props.progress === undefined
+            ? actions.publish()
+            : props.progress.action,
+      note: next() === 'publish' ? undefined : props.publishNote,
     },
   ];
   return (
@@ -272,29 +312,7 @@ export function PublicationSteps(props: PublicationStepsProps): JSX.Element {
         {lead()}
         <Show
           when={props.progress === undefined}
-          fallback={
-            <Show when={!props.progress?.statusInLead}>
-              <Show
-                when={props.progress?.complete}
-                fallback={
-                  <P
-                    variant="caption"
-                    tone="secondary"
-                    dataSet={{ testid: 'content-publication-status' }}
-                  >
-                    {props.progress?.label}
-                  </P>
-                }
-              >
-                <StackHorizontal
-                  align="center"
-                  dataSet={{ testid: 'content-publication-status' }}
-                >
-                  <ContentStatusChip status="published" />
-                </StackHorizontal>
-              </Show>
-            </Show>
-          }
+          fallback={<ProgressStatus progress={props.progress} />}
         >
           <NextLine {...props} />
         </Show>

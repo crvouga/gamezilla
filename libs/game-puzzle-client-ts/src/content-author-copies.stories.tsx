@@ -5,8 +5,8 @@ import {
   AUTHOR_STORY_PACK,
   AUTHOR_STORY_PARAMETERS,
   renderAuthorStory,
+  StoryCopies,
 } from './content-author-story.example';
-import { StoryKeptCopies } from './content-story.example';
 
 const meta = {
   id: 'screens-puzzles-content-author-copies',
@@ -32,7 +32,26 @@ export const Pack: Story = {
     renderAuthorStory(args, {
       slots: () => ({
         keptCopies: (
-          <StoryKeptCopies current="Weekend counts" earlier="Weekend puzzles" />
+          <StoryCopies
+            copies={[
+              {
+                id: 'pack-current',
+                title: 'Weekend counts',
+                difficulty: '',
+                description: 'Three puzzles that get harder.',
+                conflicted: false,
+                validation: 'unchecked',
+              },
+              {
+                id: 'pack-earlier',
+                title: 'Weekend puzzles',
+                difficulty: '',
+                description: 'Two puzzles to start.',
+                conflicted: false,
+                validation: 'valid',
+              },
+            ]}
+          />
         ),
       }),
     }),

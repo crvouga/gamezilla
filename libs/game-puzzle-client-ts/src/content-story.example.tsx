@@ -132,33 +132,6 @@ export function StoryPlaytest(props: {
   );
 }
 
-/** The draft's other saved copies, the one being edited first. */
-export function StoryKeptCopies(props: {
-  current?: string;
-  earlier?: string;
-}): JSX.Element {
-  return (
-    <MenuSection
-      title="Draft copies"
-      footer="Each save keeps a copy of this draft. Choose one to keep working from it; the others stay saved, and published editions do not change."
-    >
-      <MenuRow
-        title={props.current ?? 'Count to seven'}
-        caption="Saved draft copy"
-        value="Editing now"
-        selected
-        disabled
-      />
-      <MenuRow
-        title={props.earlier ?? 'Count to five'}
-        caption="Saved draft copy"
-        value="Use copy"
-        onClick={() => undefined}
-      />
-    </MenuSection>
-  );
-}
-
 /** Start or continue an attempt at a published puzzle, at rest. */
 export function StoryStartAttempt(props: {
   continuing?: boolean;

@@ -146,6 +146,15 @@ function HubCommand(props: {
       <Show when={start.error()} keyed>
         {(error) => <Notice tone="error">{error.message}</Notice>}
       </Show>
+      <Show when={blocked()} keyed>
+        {(reason) => (
+          <StartBlock
+            blocked={reason}
+            sourceName={props.sourceName}
+            checkFailed={props.checkFailed}
+          />
+        )}
+      </Show>
       <StackHorizontal wrap gap="md">
         <Show
           when={props.command.kind === 'stop'}
@@ -184,15 +193,6 @@ function HubCommand(props: {
           />
         </Show>
       </StackHorizontal>
-      <Show when={blocked()} keyed>
-        {(reason) => (
-          <StartBlock
-            blocked={reason}
-            sourceName={props.sourceName}
-            checkFailed={props.checkFailed}
-          />
-        )}
-      </Show>
     </>
   );
 }

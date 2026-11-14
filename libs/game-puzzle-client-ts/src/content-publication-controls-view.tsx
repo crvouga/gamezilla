@@ -356,6 +356,11 @@ export function ContentPublicationControlsView(
         onOpenWaiting={props.onOpenWaiting}
         playable={props.playable}
         onFix={props.onFix && (() => props.onFix?.('board'))}
+        publishNote={
+          props.publishDenial === undefined ? undefined : (
+            <DenialSurfaceView denial={props.publishDenial} variant="compact" />
+          )
+        }
       />
       <PublicationAftermath controls={props} actions={actions} />
       {/* Last, so confirmation removing it moves no action under a finger. */}

@@ -909,3 +909,24 @@ test('the board and the preview end with Done, back to the steps', () => {
     cleanup();
   }
 });
+
+// regression: builder-denied-dead-end — someone who may not edit a draft
+// saw only why, with no way on; the missing and gone states had one.
+test('a denied builder says why and leads back to the puzzles', () => {
+  let returned = 0;
+  mount(() =>
+    builder({
+      denial: {
+        icon: () => null,
+        title: 'Only the author can edit this draft',
+        dataSet: { testid: 'permission-denial' },
+      },
+      onReturnToLibrary: () => {
+        returned += 1;
+      },
+    })
+  );
+  expect(screen.getByTestId('permission-denial')).toBeDefined();
+  fireEvent.click(screen.getByTestId('content-author-return'));
+  expect(returned).toBe(1);
+});

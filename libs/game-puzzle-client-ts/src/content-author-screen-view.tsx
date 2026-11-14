@@ -5,12 +5,14 @@ import type {
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
 import { Trans, useLingui } from '@lingui/solid/macro';
+import { Button } from '@pkgs/ui-root-client-ts/button';
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
+import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Text } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import { ContentAuthorHubView } from './content-author-hub-view';
@@ -263,6 +265,22 @@ function AuthorShell(props: ContentAuthorScreenViewProps): JSX.Element {
   );
 }
 
+/** The way back to the puzzles from a builder that cannot open. */
+function ReturnToPuzzles(props: {
+  onReturnToLibrary: () => void;
+}): JSX.Element {
+  const { t } = useLingui();
+  return (
+    <Button
+      title={t`Return to puzzles`}
+      intent="neutral"
+      variant="outline"
+      onClick={() => props.onReturnToLibrary()}
+      dataSet={{ testid: 'content-author-return' }}
+    />
+  );
+}
+
 /** The draft cannot be shown: why, and the way back to the puzzles. */
 function AuthorUnavailable(props: {
   gone: boolean;
@@ -312,7 +330,12 @@ export function ContentAuthorScreenView(
         <LoadingState />
       </Match>
       <Match when={props.denial}>
-        {(denial) => <DenialSurfaceView denial={denial()} />}
+        {(denial) => (
+          <StackVertical gap="lg" align="center">
+            <DenialSurfaceView denial={denial()} />
+            <ReturnToPuzzles onReturnToLibrary={props.onReturnToLibrary} />
+          </StackVertical>
+        )}
       </Match>
       <Match when={props.status === 'ready'}>
         <AuthorShell {...props} />

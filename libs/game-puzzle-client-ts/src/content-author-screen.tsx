@@ -8,13 +8,13 @@ import { useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { createMemo, type JSX, Show } from 'solid-js';
 import { ContentAuthorConfirms } from './content-author-confirms';
+import { ContentAuthorCopiesList } from './content-author-copies-list';
 import { ContentAuthorScreenView } from './content-author-screen-view';
 import { ContentAuthorStage } from './content-author-stage';
 import { ContentDraftHistory } from './content-draft-history';
 import { contentDraftPreviewable } from './content-draft-playable';
 import { ContentDraftPlaytest } from './content-draft-playtest';
 import { useContentGame, useContentPlace } from './content-game-context';
-import { ContentKeptCopies } from './content-kept-copies';
 import { useContentLibraryState } from './content-library-context';
 import { ContentPackEditor } from './content-pack-editor';
 import { ContentPackPreview } from './content-pack-preview';
@@ -193,7 +193,7 @@ function AuthorWorkspaceScreen(props: {
         <AuthorPublication document={props.document} workspace={workspace} />
       }
       keptCopies={
-        <ContentKeptCopies
+        <ContentAuthorCopiesList
           document={props.document}
           currentId={writer.draftId()}
           disabled={workspace.disabled() || writer.dirty()}

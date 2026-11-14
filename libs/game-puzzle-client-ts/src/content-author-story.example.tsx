@@ -7,6 +7,10 @@ import { RefusedChangeCard } from '@libs/app-env-client-ts/refused-change-notice
 import { createSignal, type JSX } from 'solid-js';
 import { fn } from 'storybook/test';
 import {
+  ContentAuthorCopiesListView,
+  type ContentAuthorCopy,
+} from './content-author-copies-list';
+import {
   ContentAuthorScreenView,
   type ContentAuthorScreenViewProps,
 } from './content-author-screen-view';
@@ -20,7 +24,6 @@ import {
   StoryCountingEditor,
   StoryCountingPlayer,
   StoryDraftHistory,
-  StoryKeptCopies,
   StoryPlaytest,
 } from './content-story.example';
 import { ContentWithdrawConfirm } from './content-withdraw';
@@ -32,6 +35,40 @@ type Slots = Pick<
   'history' | 'stage' | 'preview' | 'keptCopies'
 >;
 
+/** A counting puzzle's kept copies: the one being edited, and an earlier one. */
+export const STORY_COPIES: readonly ContentAuthorCopy[] = [
+  {
+    id: 'copy-current',
+    title: 'Count to seven',
+    difficulty: 'Easy',
+    description: 'Reach seven exactly, one or two steps at a time.',
+    conflicted: false,
+    validation: 'unchecked',
+  },
+  {
+    id: 'copy-earlier',
+    title: 'Count to five',
+    difficulty: 'Easy',
+    description: 'Reach five exactly.',
+    conflicted: true,
+    validation: 'valid',
+  },
+];
+
+/** The builder's copies list on fixed copies, the first being edited. */
+export function StoryCopies(props: {
+  copies?: readonly ContentAuthorCopy[];
+}): JSX.Element {
+  const copies = () => props.copies ?? STORY_COPIES;
+  return (
+    <ContentAuthorCopiesListView
+      copies={copies()}
+      currentId={copies()[0]?.id ?? ''}
+      disabled={false}
+      onSelect={fn()}
+    />
+  );
+}
 /** What one story changes of the builder's stand-ins. */
 export type AuthorStoryOptions = {
   /** Where checking and publishing stands; the hub's row follows it. */
@@ -49,9 +86,16 @@ function StoryRefusal(): JSX.Element {
       refusal={{
         mutationId: 'f00d0000-0000-4000-8000-000000000001',
         mutationName: 'publishPuzzleContent',
-        code: 'validation_failed',
+        code: 'PUZZLE_PUBLICATION_INVALID',
         message: 'The puzzle cannot be finished from its start.',
-        meta: null,
+        meta: JSON.stringify({
+          issues: [
+            {
+              code: 'UNSOLVABLE',
+              message: 'The puzzle cannot be finished from its start.',
+            },
+          ],
+        }),
       }}
       onDismiss={fn()}
     />
@@ -112,7 +156,7 @@ export function renderAuthorStory(
       preview={
         slot('preview') ?? <StoryCountingPlayer state="count:0" disabled />
       }
-      keptCopies={slot('keptCopies') ?? <StoryKeptCopies />}
+      keptCopies={slot('keptCopies') ?? <StoryCopies />}
       refusal={options.refused === true ? <StoryRefusal /> : undefined}
       publication={
         <ContentPublicationControlsView

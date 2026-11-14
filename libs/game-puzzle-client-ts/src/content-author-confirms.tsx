@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js';
-import { ContentCopyConfirm } from './content-kept-copies';
+import { ContentCopyConfirm } from './content-author-copies-list';
 import { ContentPackRemoval } from './content-pack-items';
 import { ContentWithdrawConfirm } from './content-withdraw';
 import type { ContentAuthorWorkspace } from './use-content-author-workspace';

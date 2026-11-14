@@ -19,6 +19,11 @@ export type StepTrackStep = {
    * waits is `locked`, a step behind the person an outline.
    */
   readonly action?: JSX.Element | undefined;
+  /**
+   * Said under the step's name and state, inside its column (why it cannot
+   * be taken by this person, a permission denial).
+   */
+  readonly note?: JSX.Element | undefined;
   readonly dataSet?: ComponentDataSet | undefined;
 };
 
@@ -61,7 +66,7 @@ export function StepTrack(props: StepTrackProps): JSX.Element {
             >
               <span class={styles['marker']} aria-hidden="true">
                 <Show when={step().state === 'done'} fallback={index + 1}>
-                  <CheckIcon size={14} />
+                  <CheckIcon size={14} color="currentColor" strokeWidth={3} />
                 </Show>
               </span>
               <span class={styles['body']}>
@@ -76,6 +81,9 @@ export function StepTrack(props: StepTrackProps): JSX.Element {
                 <span class={styles['state']}>
                   {props.stateNames[step().state]}
                 </span>
+                <Show when={step().note}>
+                  <span class={styles['note']}>{step().note}</span>
+                </Show>
               </span>
               <Show when={step().state !== 'upcoming' && step().action}>
                 <span class={styles['action']}>{step().action}</span>
