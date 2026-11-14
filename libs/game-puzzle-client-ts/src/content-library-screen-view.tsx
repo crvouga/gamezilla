@@ -194,10 +194,25 @@ function LibraryPlace(props: ContentLibraryScreenViewProps): JSX.Element {
 export function ContentLibraryScreenView(
   props: ContentLibraryScreenViewProps
 ): JSX.Element {
+  const { t } = useLingui();
   const title = usePlaceTitle(props);
   const subtitle = usePlaceSubtitle(props);
   return (
-    <Show when={props.status === 'ready'} fallback={<LoadingState />}>
+    <Show
+      when={props.status === 'ready'}
+      fallback={
+        // The screen keeps its title while the stored library is read.
+        <EmbeddedScreen
+          screenId="puzzle-content-library"
+          dataSet={{ testid: 'content-library-loading' }}
+          width={props.place.screen === 'library' ? 'menu' : 'list'}
+          title={title()}
+          subtitle={subtitle()}
+        >
+          <LoadingState variant="compact" caption={t`Loading your puzzles…`} />
+        </EmbeddedScreen>
+      }
+    >
       <Show when={props.place.screen} keyed>
         {(screen) => (
           <EmbeddedScreen

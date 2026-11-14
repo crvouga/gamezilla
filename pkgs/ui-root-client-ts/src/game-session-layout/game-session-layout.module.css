@@ -134,3 +134,31 @@
       minmax(280px, var(--ui-max-width-panel));
   }
 }
+
+/* A compact stage that scrolls inside a phone's fixed view (a puzzle
+   player's tools under its board): its foot fades while more lies below,
+   so the scroll is visible; at the end, or with nothing to scroll, no fade. */
+@property --game-stage-fade {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+@keyframes game-stage-fade {
+  from {
+    --game-stage-fade: var(--ui-space-8);
+  }
+  to {
+    --game-stage-fade: 0px;
+  }
+}
+@media (max-width: 767px) {
+  .session[data-stage-fit="compact"] [data-game-slot="stage"] {
+    mask-image: linear-gradient(
+      to bottom,
+      black calc(100% - var(--game-stage-fade)),
+      transparent
+    );
+    animation: game-stage-fade linear both;
+    animation-timeline: scroll(self);
+  }
+}
