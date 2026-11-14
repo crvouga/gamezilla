@@ -6,9 +6,9 @@ import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { MoveStrip, MoveStripSlot } from '@pkgs/ui-root-client-ts/move-strip';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { For, type JSX, Show } from 'solid-js';
+import { type JSX, Show } from 'solid-js';
 import { PuzzleActionBar } from './puzzle-action-bar';
-import { HistoryPlyCluster } from './puzzle-move-history-ply';
+import { HistoryPlyPairs } from './puzzle-move-history-ply';
 import type { PuzzlePlayScreenViewProps } from './puzzle-play-screen-model';
 import { PuzzleSettingsRow } from './puzzle-settings-row';
 
@@ -93,17 +93,13 @@ function CompactLine(props: PuzzlePlayScreenViewProps): JSX.Element {
       <StackVertical grow>
         <MoveStrip testId="chess-puzzle-move-history" overflow="wrap">
           <Show when={hasPlies()}>
-            <For each={props.line.plies}>
-              {(ply) => (
-                <HistoryPlyCluster
-                  ply={ply}
-                  selectedSolveIdx={props.line.selectedSolveIdx}
-                  interactive={false}
-                  writing={props.line.writing}
-                  onSeek={ignoreSeek}
-                />
-              )}
-            </For>
+            <HistoryPlyPairs
+              plies={props.line.plies}
+              selectedSolveIdx={props.line.selectedSolveIdx}
+              interactive={false}
+              writing={props.line.writing}
+              onSeek={ignoreSeek}
+            />
             <Show when={props.line.awaiting}>
               <MoveStripSlot
                 label={t`Your move`}

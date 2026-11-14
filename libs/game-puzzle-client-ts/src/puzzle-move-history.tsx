@@ -4,10 +4,10 @@ import { Trans, useLingui } from '@lingui/solid/macro';
 import { MoveStrip, MoveStripSlot } from '@pkgs/ui-root-client-ts/move-strip';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { For, type JSX, Show } from 'solid-js';
+import { type JSX, Show } from 'solid-js';
 import type { PuzzleMoveNavProps } from './puzzle-move-history-nav';
 import { PuzzleMoveNav } from './puzzle-move-history-nav';
-import { HistoryPlyCluster } from './puzzle-move-history-ply';
+import { HistoryPlyPairs } from './puzzle-move-history-ply';
 import type { PuzzleMoveWriting } from './use-puzzle-notation';
 
 export type PuzzleMoveHistoryProps = {
@@ -28,17 +28,13 @@ export type PuzzleMoveHistoryProps = {
 
 function MoveHistoryPlies(props: PuzzleMoveHistoryProps): JSX.Element {
   return (
-    <For each={props.plies}>
-      {(ply) => (
-        <HistoryPlyCluster
-          ply={ply}
-          selectedSolveIdx={props.selectedSolveIdx}
-          interactive={props.interactive}
-          writing={props.writing}
-          onSeek={props.onSeek}
-        />
-      )}
-    </For>
+    <HistoryPlyPairs
+      plies={props.plies}
+      selectedSolveIdx={props.selectedSolveIdx}
+      interactive={props.interactive}
+      writing={props.writing}
+      onSeek={props.onSeek}
+    />
   );
 }
 

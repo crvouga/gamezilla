@@ -4,7 +4,7 @@ import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { Surface } from '@pkgs/ui-root-client-ts/surface';
 import { Code, Text } from '@pkgs/ui-root-client-ts/text';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
-import { type JSX, Show } from 'solid-js';
+import { createMemo, For, type JSX, Show } from 'solid-js';
 import { PUZZLE_TEST_ENABLED } from './puzzle-test-enabled';
 import type { PuzzleMoveWriting } from './use-puzzle-notation';
 
@@ -128,5 +128,51 @@ export function HistoryPlyCluster(props: {
         selected={props.ply.solveIdxAfter === props.selectedSolveIdx}
       />
     </StackHorizontal>
+  );
+}
+
+/**
+ * The line's moves in numbered pairs (`5. Nxe5 Bxd1`), each pair one
+ * unbroken group: a strip that wraps breaks between pairs, never leaving a
+ * reply alone at the start of a row. A game that numbers no move groups
+ * each move on its own.
+ */
+export function HistoryPlyPairs(props: {
+  plies: readonly PuzzleHistoryPly[];
+  selectedSolveIdx: number;
+  interactive: boolean;
+  writing: PuzzleMoveWriting;
+  onSeek: (solveIdx: number) => void;
+}): JSX.Element {
+  const pairs = createMemo(() => {
+    const numbered = (ply: PuzzleHistoryPly): boolean =>
+      props.writing.moveNumber(ply.before, ply.plyIndex) !== null;
+    const pairing = props.plies.some(numbered);
+    const out: PuzzleHistoryPly[][] = [];
+    for (const ply of props.plies) {
+      const last = out.at(-1);
+      if (!pairing || numbered(ply) || last === undefined) out.push([ply]);
+      else last.push(ply);
+    }
+    return out;
+  });
+  return (
+    <For each={pairs()}>
+      {(pair) => (
+        <StackHorizontal align="center" gap="xs" wrap={false}>
+          <For each={pair}>
+            {(ply) => (
+              <HistoryPlyCluster
+                ply={ply}
+                selectedSolveIdx={props.selectedSolveIdx}
+                interactive={props.interactive}
+                writing={props.writing}
+                onSeek={props.onSeek}
+              />
+            )}
+          </For>
+        </StackHorizontal>
+      )}
+    </For>
   );
 }
