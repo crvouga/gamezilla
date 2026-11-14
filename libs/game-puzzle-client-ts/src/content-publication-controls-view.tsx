@@ -280,7 +280,7 @@ function PublicationAftermath(props: {
           <Button
             title={t`Withdraw publication`}
             intent="danger"
-            variant="ghost"
+            variant="outline"
             onClick={() => props.controls.onWithdraw()}
             disabled={props.controls.disabled}
             dataSet={{ testid: 'content-withdraw' }}

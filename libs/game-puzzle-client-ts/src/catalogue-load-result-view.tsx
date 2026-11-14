@@ -35,7 +35,15 @@ function ResultStatus(props: { job: CatalogueLoadJob }): JSX.Element {
       testId="puzzle-load-status"
     >
       {/* Why it failed is said under the progress; this is the one word. */}
-      <Notice tone={props.job.status === 'finished' ? 'success' : 'neutral'}>
+      <Notice
+        tone={
+          props.job.status === 'finished'
+            ? 'success'
+            : props.job.status === 'failed'
+              ? 'error'
+              : 'neutral'
+        }
+      >
         <Switch>
           <Match when={props.job.status === 'adding'}>
             <Trans>Adding puzzles</Trans>
