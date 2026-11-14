@@ -13,6 +13,7 @@ import {
   createMemo,
   type JSX,
   Match,
+  Show,
   Switch,
   untrack,
 } from 'solid-js';
@@ -139,14 +140,18 @@ export function GameSettingsScreen(props: {
       />
       <Switch>
         <Match when={node().opens.kind === 'group'}>
-          <GameSettingsGroup
-            gameId={props.gameId}
-            node={node()}
-            can={can}
-            onOpen={nav.open}
-            backLabel={behindName()}
-            onBack={leave}
-          />
+          {/* Keyed by group: each is a screen of its own, so the keyboard
+              moves to the next group's title instead of dropping. */}
+          <Show when={node().place.screen} keyed>
+            <GameSettingsGroup
+              gameId={props.gameId}
+              node={node()}
+              can={can}
+              onOpen={nav.open}
+              backLabel={behindName()}
+              onBack={leave}
+            />
+          </Show>
         </Match>
         <Match when={load()} keyed>
           {(client) => (

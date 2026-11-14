@@ -2,7 +2,7 @@ import {
   DefineBackButton,
   GameChoicesName,
 } from '@libs/spaces-client-ts/spaces-nav-context';
-import { createSignal, type JSX } from 'solid-js';
+import { createSignal, type JSX, Show } from 'solid-js';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import {
@@ -172,18 +172,20 @@ function SettingsWalk(props: {
         label={root() ? 'Chess' : 'Settings'}
         within={!root()}
       />
-      <GameSettingsScreenView
-        place={{ screen: place() }}
-        title={root() ? 'Settings' : 'Developer'}
-        subtitle={root() ? undefined : 'Import and manage chess puzzles.'}
-        rows={root() ? [DEVELOPER] : [PUZZLES]}
-        onOpen={(opened) => {
-          if (opened.screen === 'settings/developer') setPlace(opened.screen);
-          else props.onLoad();
-        }}
-        backLabel={root() ? 'Chess' : 'Settings'}
-        onBack={back}
-      />
+      <Show when={place()} keyed>
+        <GameSettingsScreenView
+          place={{ screen: place() }}
+          title={root() ? 'Settings' : 'Developer'}
+          subtitle={root() ? undefined : 'Import and manage chess puzzles.'}
+          rows={root() ? [DEVELOPER] : [PUZZLES]}
+          onOpen={(opened) => {
+            if (opened.screen === 'settings/developer') setPlace(opened.screen);
+            else props.onLoad();
+          }}
+          backLabel={root() ? 'Chess' : 'Settings'}
+          onBack={back}
+        />
+      </Show>
     </GameChoicesName>
   );
 }
