@@ -1,0 +1,4 @@
+{
+  "summary": "Every slice of a sliced Quint model copied all of the model's drawn traces into its own report directory, so a model split into thirty slices kept thirty identical copies (games: 2.3 GB of a 5 GB report, about 32 GB over its twelve spec parts) and the nightly visual run, which restores every part's report, ran its runner out of disk. Only slice 0 now keeps the trace files; the other slices load the shared draw.",
+  "regressionTest": "pkgs/quint-server-ts/tests/simulate.test.ts"
+}

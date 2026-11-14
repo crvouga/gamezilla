@@ -1,0 +1,4 @@
+{
+  "summary": "Verify PR run 43536067972 shard 7 restored its cached tools after a GitHub HTTP 500 but failed because the cached mise rejected env --paths. Restore PATH using supported JSON output.",
+  "regressionTest": "libs/tools-harness-ts/scripts/mise-setup-cache.test.ts"
+}

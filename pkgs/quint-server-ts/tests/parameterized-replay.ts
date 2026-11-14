@@ -95,6 +95,7 @@ function registerChecks(input: {
     model: MODEL,
     binding,
     outDir: join(out, 'plan'),
+    copyTraces: true,
   });
   test('every subject has its own cover and each draw its own evidence', () => {
     const obligations = readEvidence(out).records.flatMap(
@@ -181,6 +182,7 @@ function registerScopeChecks(
           model: MODEL,
           binding,
           outDir: join(out, 'unsupported'),
+          copyTraces: true,
         })
       ).toThrow('no registered model case');
     } finally {

@@ -133,6 +133,13 @@ export type ReplayArgs = {
   readonly trace: ItfTrace;
   readonly world: QuintWorld<unknown>;
   readonly binding: QuintBinding<unknown>;
+  /**
+   * Aborted once the trace's test has timed out. Bun keeps running a timed-out
+   * body beside the next test, so the replay stops before its next step and
+   * frees its world; whatever it would still report would land on another
+   * trace, and the timeout has already failed this one.
+   */
+  readonly abandoned?: AbortSignal;
 };
 
 async function checkState(
@@ -171,12 +178,15 @@ async function checkState(
  */
 export async function replayTrace(args: ReplayArgs): Promise<string | null> {
   const { ctx, trace, world, binding } = args;
+  // regression: timed-out-trace-runs-on
+  const abandoned = () => args.abandoned?.aborted === true;
   const w = await world.create(ctx);
   let at = 0;
   let callsBefore = 0;
   let observedNames: readonly string[] | null = null;
   try {
     for (const [index, state] of trace.states.entries()) {
+      if (abandoned()) return null;
       at = index;
       callsBefore = world.calls?.(w).length ?? 0;
       const act = binding.actions[state.action];
@@ -209,6 +219,7 @@ export async function replayTrace(args: ReplayArgs): Promise<string | null> {
       ? null
       : await binding.fingerprint(w);
   } catch (cause) {
+    if (abandoned()) return null;
     throw new Error(
       formatTraceFailure({
         ctx,
@@ -220,7 +231,9 @@ export async function replayTrace(args: ReplayArgs): Promise<string | null> {
       { cause }
     );
   } finally {
-    await world.dispose(w);
+    await world.dispose(w).catch((error: unknown) => {
+      if (!abandoned()) throw error;
+    });
   }
 }
 

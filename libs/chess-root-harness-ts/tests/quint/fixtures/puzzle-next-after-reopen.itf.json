@@ -1,0 +1,1272 @@
+{
+  "#meta": {
+    "format": "ITF",
+    "format-description": "https://apalache-mc.org/docs/adr/015adr-trace.html",
+    "status": "ok",
+    "description": "Created by Quint on Fri Nov 13 2026 17:24:18 GMT-0700 (Mountain Standard Time)",
+    "timestamp": 1794615858482,
+    "source": "puzzle-assistant.qnt"
+  },
+  "vars": [
+    "commentary",
+    "_at",
+    "_watcherStateAtCutOff",
+    "help",
+    "view",
+    "puzzle",
+    "_watcherPuzzleAtCutOff",
+    "_attempt",
+    "guidance",
+    "commentaryPuzzle",
+    "_served",
+    "_stage",
+    "puzzleState",
+    "puzzleStarts",
+    "_help",
+    "_offline",
+    "assistantMuted",
+    "_shown",
+    "_watcherViewAtCutOff",
+    "moveOnOffered",
+    "position",
+    "mbt::actionTaken",
+    "mbt::nondetPicks"
+  ],
+  "states": [
+    {
+      "#meta": {
+        "index": 0
+      },
+      "_at": {
+        "tag": "GameChoice",
+        "value": {
+          "#tup": []
+        }
+      },
+      "_attempt": "none",
+      "_help": {
+        "#bigint": "0"
+      },
+      "_offline": {
+        "#set": []
+      },
+      "_served": {
+        "#bigint": "0"
+      },
+      "_shown": {
+        "#bigint": "0"
+      },
+      "_stage": {
+        "#bigint": "0"
+      },
+      "_watcherPuzzleAtCutOff": {
+        "#bigint": "-1"
+      },
+      "_watcherStateAtCutOff": "none",
+      "_watcherViewAtCutOff": {
+        "tag": "GameChoice",
+        "value": {
+          "#tup": []
+        }
+      },
+      "assistantMuted": {
+        "#map": [["alice", false], ["bob", false]]
+      },
+      "commentary": {
+        "#map": [["alice", "none"], ["bob", "none"]]
+      },
+      "commentaryPuzzle": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "-1"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "-1"
+            }
+          ]
+        ]
+      },
+      "guidance": "none",
+      "help": "none",
+      "mbt::actionTaken": "init",
+      "mbt::nondetPicks": {
+        "move": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "person": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
+      "moveOnOffered": {
+        "#map": [["alice", false], ["bob", false]]
+      },
+      "position": {
+        "#bigint": "0"
+      },
+      "puzzle": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "-1"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "-1"
+            }
+          ]
+        ]
+      },
+      "puzzleStarts": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "puzzleState": {
+        "#map": [["alice", "none"], ["bob", "none"]]
+      },
+      "view": {
+        "#map": [
+          [
+            "alice",
+            {
+              "tag": "GameChoice",
+              "value": {
+                "#tup": []
+              }
+            }
+          ],
+          [
+            "bob",
+            {
+              "tag": "GameChoice",
+              "value": {
+                "#tup": []
+              }
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "#meta": {
+        "index": 1
+      },
+      "_at": {
+        "tag": "Board",
+        "value": {
+          "#tup": []
+        }
+      },
+      "_attempt": "solving",
+      "_help": {
+        "#bigint": "0"
+      },
+      "_offline": {
+        "#set": []
+      },
+      "_served": {
+        "#bigint": "1"
+      },
+      "_shown": {
+        "#bigint": "1"
+      },
+      "_stage": {
+        "#bigint": "1"
+      },
+      "_watcherPuzzleAtCutOff": {
+        "#bigint": "0"
+      },
+      "_watcherStateAtCutOff": "solving",
+      "_watcherViewAtCutOff": {
+        "tag": "Board",
+        "value": {
+          "#tup": []
+        }
+      },
+      "assistantMuted": {
+        "#map": [["alice", false], ["bob", false]]
+      },
+      "commentary": {
+        "#map": [["alice", "ready"], ["bob", "ready"]]
+      },
+      "commentaryPuzzle": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "guidance": "ready",
+      "help": "none",
+      "mbt::actionTaken": "openPuzzles",
+      "mbt::nondetPicks": {
+        "move": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "3"
+          }
+        },
+        "person": {
+          "tag": "Some",
+          "value": "bob"
+        }
+      },
+      "moveOnOffered": {
+        "#map": [["alice", false], ["bob", false]]
+      },
+      "position": {
+        "#bigint": "1"
+      },
+      "puzzle": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "puzzleStarts": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "1"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "puzzleState": {
+        "#map": [["alice", "solving"], ["bob", "solving"]]
+      },
+      "view": {
+        "#map": [
+          [
+            "alice",
+            {
+              "tag": "Board",
+              "value": {
+                "#tup": []
+              }
+            }
+          ],
+          [
+            "bob",
+            {
+              "tag": "Board",
+              "value": {
+                "#tup": []
+              }
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "#meta": {
+        "index": 2
+      },
+      "_at": {
+        "tag": "Board",
+        "value": {
+          "#tup": []
+        }
+      },
+      "_attempt": "solving",
+      "_help": {
+        "#bigint": "0"
+      },
+      "_offline": {
+        "#set": []
+      },
+      "_served": {
+        "#bigint": "1"
+      },
+      "_shown": {
+        "#bigint": "1"
+      },
+      "_stage": {
+        "#bigint": "1"
+      },
+      "_watcherPuzzleAtCutOff": {
+        "#bigint": "0"
+      },
+      "_watcherStateAtCutOff": "solving",
+      "_watcherViewAtCutOff": {
+        "tag": "Board",
+        "value": {
+          "#tup": []
+        }
+      },
+      "assistantMuted": {
+        "#map": [["alice", false], ["bob", false]]
+      },
+      "commentary": {
+        "#map": [["alice", "ready"], ["bob", "ready"]]
+      },
+      "commentaryPuzzle": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "guidance": "ready",
+      "help": "none",
+      "mbt::actionTaken": "tryRetryWhileSolving",
+      "mbt::nondetPicks": {
+        "move": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "3"
+          }
+        },
+        "person": {
+          "tag": "Some",
+          "value": "alice"
+        }
+      },
+      "moveOnOffered": {
+        "#map": [["alice", false], ["bob", false]]
+      },
+      "position": {
+        "#bigint": "1"
+      },
+      "puzzle": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "puzzleStarts": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "1"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "puzzleState": {
+        "#map": [["alice", "solving"], ["bob", "solving"]]
+      },
+      "view": {
+        "#map": [
+          [
+            "alice",
+            {
+              "tag": "Board",
+              "value": {
+                "#tup": []
+              }
+            }
+          ],
+          [
+            "bob",
+            {
+              "tag": "Board",
+              "value": {
+                "#tup": []
+              }
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "#meta": {
+        "index": 3
+      },
+      "_at": {
+        "tag": "Board",
+        "value": {
+          "#tup": []
+        }
+      },
+      "_attempt": "solving",
+      "_help": {
+        "#bigint": "0"
+      },
+      "_offline": {
+        "#set": []
+      },
+      "_served": {
+        "#bigint": "1"
+      },
+      "_shown": {
+        "#bigint": "3"
+      },
+      "_stage": {
+        "#bigint": "3"
+      },
+      "_watcherPuzzleAtCutOff": {
+        "#bigint": "0"
+      },
+      "_watcherStateAtCutOff": "solving",
+      "_watcherViewAtCutOff": {
+        "tag": "Board",
+        "value": {
+          "#tup": []
+        }
+      },
+      "assistantMuted": {
+        "#map": [["alice", false], ["bob", false]]
+      },
+      "commentary": {
+        "#map": [["alice", "ready"], ["bob", "ready"]]
+      },
+      "commentaryPuzzle": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "guidance": "progress",
+      "help": "none",
+      "mbt::actionTaken": "playCorrectContinuation",
+      "mbt::nondetPicks": {
+        "move": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "1"
+          }
+        },
+        "person": {
+          "tag": "Some",
+          "value": "bob"
+        }
+      },
+      "moveOnOffered": {
+        "#map": [["alice", false], ["bob", false]]
+      },
+      "position": {
+        "#bigint": "3"
+      },
+      "puzzle": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "puzzleStarts": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "1"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "puzzleState": {
+        "#map": [["alice", "solving"], ["bob", "solving"]]
+      },
+      "view": {
+        "#map": [
+          [
+            "alice",
+            {
+              "tag": "Board",
+              "value": {
+                "#tup": []
+              }
+            }
+          ],
+          [
+            "bob",
+            {
+              "tag": "Board",
+              "value": {
+                "#tup": []
+              }
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "#meta": {
+        "index": 4
+      },
+      "_at": {
+        "tag": "Board",
+        "value": {
+          "#tup": []
+        }
+      },
+      "_attempt": "solving",
+      "_help": {
+        "#bigint": "0"
+      },
+      "_offline": {
+        "#set": []
+      },
+      "_served": {
+        "#bigint": "1"
+      },
+      "_shown": {
+        "#bigint": "3"
+      },
+      "_stage": {
+        "#bigint": "3"
+      },
+      "_watcherPuzzleAtCutOff": {
+        "#bigint": "0"
+      },
+      "_watcherStateAtCutOff": "solving",
+      "_watcherViewAtCutOff": {
+        "tag": "Board",
+        "value": {
+          "#tup": []
+        }
+      },
+      "assistantMuted": {
+        "#map": [["alice", false], ["bob", false]]
+      },
+      "commentary": {
+        "#map": [["alice", "ready"], ["bob", "ready"]]
+      },
+      "commentaryPuzzle": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "guidance": "progress",
+      "help": "none",
+      "mbt::actionTaken": "timePasses",
+      "mbt::nondetPicks": {
+        "move": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "4"
+          }
+        },
+        "person": {
+          "tag": "Some",
+          "value": "bob"
+        }
+      },
+      "moveOnOffered": {
+        "#map": [["alice", false], ["bob", false]]
+      },
+      "position": {
+        "#bigint": "3"
+      },
+      "puzzle": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "puzzleStarts": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "1"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "puzzleState": {
+        "#map": [["alice", "solving"], ["bob", "solving"]]
+      },
+      "view": {
+        "#map": [
+          [
+            "alice",
+            {
+              "tag": "Board",
+              "value": {
+                "#tup": []
+              }
+            }
+          ],
+          [
+            "bob",
+            {
+              "tag": "Board",
+              "value": {
+                "#tup": []
+              }
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "#meta": {
+        "index": 5
+      },
+      "_at": {
+        "tag": "Board",
+        "value": {
+          "#tup": []
+        }
+      },
+      "_attempt": "solving",
+      "_help": {
+        "#bigint": "0"
+      },
+      "_offline": {
+        "#set": []
+      },
+      "_served": {
+        "#bigint": "1"
+      },
+      "_shown": {
+        "#bigint": "3"
+      },
+      "_stage": {
+        "#bigint": "3"
+      },
+      "_watcherPuzzleAtCutOff": {
+        "#bigint": "0"
+      },
+      "_watcherStateAtCutOff": "solving",
+      "_watcherViewAtCutOff": {
+        "tag": "Board",
+        "value": {
+          "#tup": []
+        }
+      },
+      "assistantMuted": {
+        "#map": [["alice", false], ["bob", false]]
+      },
+      "commentary": {
+        "#map": [["alice", "ready"], ["bob", "ready"]]
+      },
+      "commentaryPuzzle": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "guidance": "progress",
+      "help": "none",
+      "mbt::actionTaken": "suggestMove",
+      "mbt::nondetPicks": {
+        "move": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "2"
+          }
+        },
+        "person": {
+          "tag": "Some",
+          "value": "bob"
+        }
+      },
+      "moveOnOffered": {
+        "#map": [["alice", false], ["bob", false]]
+      },
+      "position": {
+        "#bigint": "3"
+      },
+      "puzzle": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "puzzleStarts": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "1"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "puzzleState": {
+        "#map": [["alice", "solving"], ["bob", "solving"]]
+      },
+      "view": {
+        "#map": [
+          [
+            "alice",
+            {
+              "tag": "Board",
+              "value": {
+                "#tup": []
+              }
+            }
+          ],
+          [
+            "bob",
+            {
+              "tag": "Board",
+              "value": {
+                "#tup": []
+              }
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "#meta": {
+        "index": 6
+      },
+      "_at": {
+        "tag": "Board",
+        "value": {
+          "#tup": []
+        }
+      },
+      "_attempt": "solved",
+      "_help": {
+        "#bigint": "0"
+      },
+      "_offline": {
+        "#set": []
+      },
+      "_served": {
+        "#bigint": "1"
+      },
+      "_shown": {
+        "#bigint": "4"
+      },
+      "_stage": {
+        "#bigint": "4"
+      },
+      "_watcherPuzzleAtCutOff": {
+        "#bigint": "0"
+      },
+      "_watcherStateAtCutOff": "solved",
+      "_watcherViewAtCutOff": {
+        "tag": "Board",
+        "value": {
+          "#tup": []
+        }
+      },
+      "assistantMuted": {
+        "#map": [["alice", false], ["bob", false]]
+      },
+      "commentary": {
+        "#map": [["alice", "solved"], ["bob", "solved"]]
+      },
+      "commentaryPuzzle": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "guidance": "checkmate",
+      "help": "none",
+      "mbt::actionTaken": "solve",
+      "mbt::nondetPicks": {
+        "move": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "4"
+          }
+        },
+        "person": {
+          "tag": "Some",
+          "value": "alice"
+        }
+      },
+      "moveOnOffered": {
+        "#map": [["alice", true], ["bob", false]]
+      },
+      "position": {
+        "#bigint": "4"
+      },
+      "puzzle": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "puzzleStarts": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "1"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "puzzleState": {
+        "#map": [["alice", "solved"], ["bob", "solved"]]
+      },
+      "view": {
+        "#map": [
+          [
+            "alice",
+            {
+              "tag": "Board",
+              "value": {
+                "#tup": []
+              }
+            }
+          ],
+          [
+            "bob",
+            {
+              "tag": "Board",
+              "value": {
+                "#tup": []
+              }
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "#meta": {
+        "index": 7
+      },
+      "_at": {
+        "tag": "Board",
+        "value": {
+          "#tup": []
+        }
+      },
+      "_attempt": "solved",
+      "_help": {
+        "#bigint": "0"
+      },
+      "_offline": {
+        "#set": []
+      },
+      "_served": {
+        "#bigint": "1"
+      },
+      "_shown": {
+        "#bigint": "4"
+      },
+      "_stage": {
+        "#bigint": "4"
+      },
+      "_watcherPuzzleAtCutOff": {
+        "#bigint": "0"
+      },
+      "_watcherStateAtCutOff": "solved",
+      "_watcherViewAtCutOff": {
+        "tag": "Board",
+        "value": {
+          "#tup": []
+        }
+      },
+      "assistantMuted": {
+        "#map": [["alice", false], ["bob", false]]
+      },
+      "commentary": {
+        "#map": [["alice", "solved"], ["bob", "solved"]]
+      },
+      "commentaryPuzzle": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "guidance": "checkmate",
+      "help": "none",
+      "mbt::actionTaken": "reopenApp",
+      "mbt::nondetPicks": {
+        "move": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "2"
+          }
+        },
+        "person": {
+          "tag": "Some",
+          "value": "alice"
+        }
+      },
+      "moveOnOffered": {
+        "#map": [["alice", true], ["bob", false]]
+      },
+      "position": {
+        "#bigint": "4"
+      },
+      "puzzle": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "puzzleStarts": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "1"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "puzzleState": {
+        "#map": [["alice", "solved"], ["bob", "solved"]]
+      },
+      "view": {
+        "#map": [
+          [
+            "alice",
+            {
+              "tag": "Board",
+              "value": {
+                "#tup": []
+              }
+            }
+          ],
+          [
+            "bob",
+            {
+              "tag": "Board",
+              "value": {
+                "#tup": []
+              }
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "#meta": {
+        "index": 8
+      },
+      "_at": {
+        "tag": "Board",
+        "value": {
+          "#tup": []
+        }
+      },
+      "_attempt": "solving",
+      "_help": {
+        "#bigint": "0"
+      },
+      "_offline": {
+        "#set": []
+      },
+      "_served": {
+        "#bigint": "2"
+      },
+      "_shown": {
+        "#bigint": "1"
+      },
+      "_stage": {
+        "#bigint": "1"
+      },
+      "_watcherPuzzleAtCutOff": {
+        "#bigint": "1"
+      },
+      "_watcherStateAtCutOff": "solving",
+      "_watcherViewAtCutOff": {
+        "tag": "Board",
+        "value": {
+          "#tup": []
+        }
+      },
+      "assistantMuted": {
+        "#map": [["alice", false], ["bob", false]]
+      },
+      "commentary": {
+        "#map": [["alice", "ready"], ["bob", "ready"]]
+      },
+      "commentaryPuzzle": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "1"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "1"
+            }
+          ]
+        ]
+      },
+      "guidance": "ready",
+      "help": "none",
+      "mbt::actionTaken": "moveOn",
+      "mbt::nondetPicks": {
+        "move": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "2"
+          }
+        },
+        "person": {
+          "tag": "Some",
+          "value": "bob"
+        }
+      },
+      "moveOnOffered": {
+        "#map": [["alice", false], ["bob", false]]
+      },
+      "position": {
+        "#bigint": "1"
+      },
+      "puzzle": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "1"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "1"
+            }
+          ]
+        ]
+      },
+      "puzzleStarts": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "2"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "puzzleState": {
+        "#map": [["alice", "solving"], ["bob", "solving"]]
+      },
+      "view": {
+        "#map": [
+          [
+            "alice",
+            {
+              "tag": "Board",
+              "value": {
+                "#tup": []
+              }
+            }
+          ],
+          [
+            "bob",
+            {
+              "tag": "Board",
+              "value": {
+                "#tup": []
+              }
+            }
+          ]
+        ]
+      }
+    }
+  ]
+}

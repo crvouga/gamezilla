@@ -11,6 +11,7 @@ import type { PuzzleContentCatalog } from '@pkgs/turn-game-shared-ts/puzzle-cont
 import { findBundledContent } from './bundled-content';
 import type {
   ContentDocument,
+  ContentDocumentRow,
   ContentDraft,
   ContentDraftRow,
   ContentPublication,
@@ -40,15 +41,15 @@ export async function readContentDocument(
   id: string
 ): Promise<ContentDocument | null> {
   const rows = await tx.query(
-    sql<ContentDocument>`SELECT * FROM puzzle_content_documents WHERE id = ${id} AND deleted_at IS NULL`
+    sql<ContentDocumentRow>`SELECT * FROM puzzle_content_documents WHERE id = ${id} AND deleted_at IS NULL`
   );
-  if (rows[0] !== undefined) return rows[0];
   const publications = await tx.query(
     sql<ContentPublication>`SELECT * FROM puzzle_content_publications WHERE id = ${id} AND deleted_at IS NULL`
   );
-  return publications[0] === undefined
-    ? null
-    : { ...publications[0], working_draft_id: null };
+  const head = publications[0];
+  if (rows[0] !== undefined)
+    return { ...rows[0], published_at: head?.published_at ?? null };
+  return head === undefined ? null : { ...head, working_draft_id: null };
 }
 
 export async function requireContentAuthor(

@@ -1,0 +1,4 @@
+{
+  "summary": "Browse listed publications by id, so a just-published pack landed on a random page. The live Numberlink journeys tapped Load more through every earlier journey pack left on dev before finding their own, and each scenario took up to 369s. Browse now lists the newest publication first, pages by publication time with the id as a tie-breaker, and a pack published while someone pages through never repeats or skips a row.",
+  "regressionTest": "libs/game-puzzle-shared-ts/tests/content-browse-order.test.ts"
+}

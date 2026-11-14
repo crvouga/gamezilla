@@ -15,6 +15,13 @@ async function returnToLibrary(
   );
 }
 
+/**
+ * The end of both settled publication labels, "Published" and "Previously
+ * published", and of neither one still arriving ("Checking publication",
+ * "Awaiting confirmation").
+ */
+const SETTLED_PUBLICATION = 'ublished';
+
 /** Live journeys withdraw only the documents they created, through their ordinary owner controls. */
 export async function withdrawJourneyPublications(args: {
   device: ContentJourneyDevice;
@@ -27,6 +34,12 @@ export async function withdrawJourneyPublications(args: {
     // Withdrawing is offered on the builder's publish screen, once published.
     await openContentPlace(args.device, 'publish');
     if (!(await args.device.ui.get('content-withdraw').isVisible())) continue;
+    // The screen reads the publication first, with View above Withdraw; once
+    // it settles on the current edition View goes, and a press sent while it
+    // read lands where Withdraw was.
+    await args.device.ui
+      .get('content-publication-status')
+      .expect.text(SETTLED_PUBLICATION, { ...args.device, exact: false });
     await contentTap(args.device, 'content-withdraw');
     await contentTap(args.device, 'content-withdraw-confirm');
     await contentTap(args.device, 'content-withdraw-dismiss');

@@ -3,6 +3,7 @@ import {
   puzzleContentOwned,
   puzzleContentPublished,
 } from '@libs/game-puzzle-shared-ts/content-queries';
+import { PUBLISHED_PAGE_START } from '@libs/game-puzzle-shared-ts/content-query-scope';
 import {
   readContentDocument,
   readContentRevision,
@@ -205,7 +206,7 @@ test('public hydration never includes draft bodies and another actor receives no
     });
     const publicRows = await puzzleContentPublished.run(bobCtx, {
       gameId: 'pile',
-      afterId: '',
+      ...PUBLISHED_PAGE_START,
     });
     expect(publicRows['puzzle_content_drafts']).toBeUndefined();
     expect(publicRows['puzzle_content_publications']).toHaveLength(1);

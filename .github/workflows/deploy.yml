@@ -162,10 +162,38 @@ jobs:
   # shared secrets, the auth relay that forwards to every env, the Storybook
   # site, and each env's secrets environment. It runs before any environment
   # deploys.
+  # A Health check already running journeys as the synthetic accounts, or
+  # planning an environment's OpenTofu state, would take this release's
+  # matches and state lock. health.yml yields to a Release under way (so none
+  # starts after this run does); this waits out one that started first. Its
+  # own job, alongside verification: waiting inside an environment's job
+  # spent that job's timeout, and a release behind a 27-minute check was
+  # cancelled mid-deploy (run 43491905631).
+  # regression: release-timeout-spent-waiting-for-health
+  deploy-await-health:
+    name: Wait for a running Health check
+    if: ${{ !inputs.rehearsal }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Wait for a running Health check
+        run: |
+          for _ in $(seq 1 80); do
+            running=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow health.yml \
+              --json status --jq '[.[] | select(.status == "in_progress")] | length')
+            [ "$running" = "0" ] && exit 0
+            echo "A Health check is running ($running); waiting for it to finish."
+            sleep 30
+          done
+          echo "::error::A Health check is still running after 40 minutes."
+          exit 1
+
   deploy-fleet:
     name: Release shared services
     if: ${{ !inputs.rehearsal }}
-    needs: [deploy-verify, deploy-repository-policy]
+    needs: [deploy-verify, deploy-repository-policy, deploy-await-health]
     runs-on: ubuntu-24.04
     permissions:
       contents: read # check out the code
@@ -220,23 +248,6 @@ jobs:
       SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
       AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
     steps: &deploy-environment
-      # A Health check already running journeys as the synthetic accounts, or
-      # planning this environment's OpenTofu state, would take this deploy's
-      # matches and state lock. health.yml yields to a deploy; this waits out
-      # one that started first.
-      - name: Wait for a running Health check
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          for _ in $(seq 1 60); do
-            running=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow health.yml \
-              --json status --jq '[.[] | select(.status == "in_progress")] | length')
-            [ "$running" = "0" ] && exit 0
-            echo "A Health check is running ($running); waiting for it to finish."
-            sleep 30
-          done
-          echo "::error::A Health check is still running after 30 minutes."
-          exit 1
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
@@ -311,3 +322,51 @@ jobs:
             --title "$TAG" \
             --generate-notes \
             --notes "Verified and deployed by ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID} at ${GITHUB_SHA}."
+
+  # The run's verdict where people look: the job summary, the one open
+  # "Release is failing on main" issue (opened on the first red run, closed by
+  # the next green one), and `ci.workflow.result` in every environment's
+  # Grafana, whose alert pages until Release on main is green again
+  # (libs/tools-harness-ts/scripts/ci-workflow-alert.ts).
+  deploy-verdict:
+    name: Release verdict
+    needs:
+      - deploy-verify
+      - deploy-await-health
+      - deploy-repository-policy
+      - deploy-fleet
+      - deploy-dev
+      - deploy-prd
+      - deploy-release
+    if: ${{ !cancelled() && !inputs.rehearsal && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read # check out the code
+      issues: write # open, update or close the Release issue
+      id-token: write # mint the OIDC token Infisical trusts (Grafana metrics credentials)
+    env:
+      CI_WORKFLOW: Release
+      CI_TRIAGE_OWNER: ${{ vars.CI_TRIAGE_OWNER || github.repository_owner }}
+      GH_TOKEN: ${{ github.token }}
+      NEEDS: ${{ toJSON(needs) }}
+      SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+        with:
+          product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
+          product-identity-mode: configured
+          tools: bun gh
+      - name: File the Release issue
+        id: verdict
+        run: bun run libs/tools-harness-ts/scripts/ci-workflow-alert.ts
+      - name: Record the verdict in Grafana
+        env:
+          PASSED: ${{ steps.verdict.outputs.passed }}
+        run: >-
+          bun run apps/product-ts/scripts/ci-workflow-result.ts --workflow release
+          --passed "$PASSED"
+          --envs "$(bun run libs/infra-shared-ts/scripts/workflow-env-matrix.ts | sed -n 's/^all=//p')"

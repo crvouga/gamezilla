@@ -1,5 +1,6 @@
 import { expect, test } from 'bun:test';
 import { puzzleContentPublished } from '@libs/game-puzzle-shared-ts/content-queries';
+import { PUBLISHED_PAGE_START } from '@libs/game-puzzle-shared-ts/content-query-scope';
 import {
   STARTER_CONTENT_OWNER,
   seedStarterContent,
@@ -62,7 +63,7 @@ function published(fixture: ContentFixture) {
       db: { query: (q: Sql<unknown>) => fixture.db.query(q as Sql<QueryRow>) },
       env: { ...fixture.env, actorId: 'bob', deviceId: 'bob-phone' },
     },
-    { gameId: 'pile', afterId: '' }
+    { gameId: 'pile', ...PUBLISHED_PAGE_START }
   );
 }
 

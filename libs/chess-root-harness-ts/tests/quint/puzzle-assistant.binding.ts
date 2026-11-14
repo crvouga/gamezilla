@@ -63,6 +63,7 @@ import { readSpaceLink } from '@libs/spaces-harness-ts/spaces-ui-reads';
 import type { QuintValue } from '@pkgs/quint-shared-ts/itf';
 import { variant } from '@pkgs/quint-shared-ts/itf';
 import { bindQuintModel } from '@pkgs/quint-shared-ts/registry';
+import nextAfterReopenTrace from './fixtures/puzzle-next-after-reopen.itf.json';
 import offlineNavigationTrace from './fixtures/puzzle-offline-navigation.itf.json';
 import offlineReopenTrace from './fixtures/puzzle-offline-reopen-keeps-view.itf.json';
 import reopenResult from './fixtures/puzzle-reopen-keeps-result.itf.json';
@@ -148,6 +149,13 @@ bindQuintModel<QuintHarnessWorld>({
       title: 'Reopening keeps a finished attempt until the solver moves on',
       seed: '0x67932',
       itf: reopenResult,
+    },
+    {
+      // regression: next-puzzle-read-before-replaced
+      id: 'next-puzzle-read-before-replaced',
+      title: 'Moving on after reopening a solved puzzle shows another puzzle',
+      seed: '0x67932',
+      itf: nextAfterReopenTrace,
     },
     // regression: puzzle-reconnect-allowance-disappears
     // regression: puzzle-skipped-reconnect

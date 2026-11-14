@@ -22,7 +22,7 @@
     "traces": 64,
     "cover": [0, 6, 19, 40, 56],
     "replayed": [0, 6, 19, 40, 56],
-    "regressions": 8,
+    "regressions": 9,
     "determinism": false,
     "variants": 1
   },

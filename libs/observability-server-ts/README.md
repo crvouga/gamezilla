@@ -323,6 +323,21 @@ fixed.
    probing the endpoint; `unknown_provider` is counted and never alerts.
 3. Never turn signature checks off to let callbacks through.
 
+### An important CI workflow is failing on main
+
+`ci_workflow_result` (`src/ci-workflow-results.ts`, rule in
+`src/ci-workflow-alerts.ts`) is 0 for the latest Release, Health or Verify Nightly
+run on `main` in the last 26 hours; the `slice` names the workflow. That run's
+last job (`libs/tools-harness-ts/scripts/ci-workflow-alert.ts`) recorded the
+sample in every environment and opened or commented on the GitHub issue
+"<Workflow> is failing on main", which links the run and lists its red jobs.
+
+1. Open the issue and the run; read the failed job's log, not its name.
+2. Fix the root cause on one pull request (`/ci-workflows-green`), adding the
+   verification that would have caught it.
+3. The alert clears and the issue closes when the next run of that workflow on
+   `main` passes.
+
 ## Runtime failure investigation
 
 `bun obs last --errors` queries local journals; `--source prod` queries the shared
