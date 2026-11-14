@@ -106,12 +106,33 @@ function ShownPosition(props: GameReplayScreenViewProps): JSX.Element {
           </Show>
         </Show>
       </P>
-      <Show when={last() > 0 && props.ply === last()}>
+      {/* Always a second line, so the bar, and the board over it, keep one
+          height from the start to the end. */}
+      <Show when={last() > 0}>
         <P variant="caption" tone="secondary">
-          <Trans>Final position</Trans>
+          <Show when={props.ply > 0} fallback={<Trans>No moves yet</Trans>}>
+            <Show
+              when={props.ply < last()}
+              fallback={<Trans>Final position</Trans>}
+            >
+              <ShownMove {...props} />
+            </Show>
+          </Show>
         </P>
       </Show>
     </StackVertical>
+  );
+}
+
+/** The move that reached the shown position: its seat and the move ("Red circle · Column 4"). */
+function ShownMove(props: GameReplayScreenViewProps): JSX.Element {
+  const move = () => props.moves[props.ply - 1];
+  return (
+    <>
+      <Show when={move()?.sideLabel}>{(side) => <>{side()} · </>}</Show>
+      <Show when={props.moveHeading !== ''}>{props.moveHeading} </Show>
+      {move()?.label}
+    </>
   );
 }
 
@@ -207,16 +228,32 @@ function ReplaySteps(props: GameReplayScreenViewProps): JSX.Element {
   );
 }
 
-/** Each player beside their seat's colour, the winner marked in words: one line over the board. */
-function ReplayPlayers(props: GameReplayScreenViewProps): JSX.Element {
+/**
+ * Players beside their seat's colour, the winner marked in words: as at the
+ * table, the others over the board and the viewer under it (a watched
+ * game: the first seat over, the rest under).
+ */
+function ReplayPlayers(
+  props: GameReplayScreenViewProps & {
+    readonly place: 'over' | 'under';
+  }
+): JSX.Element {
+  const shown = createMemo(() => {
+    const viewer = props.players.some((player) => player.you);
+    return props.players.filter((player, index) =>
+      viewer
+        ? player.you === (props.place === 'under')
+        : (index === 0) === (props.place === 'over')
+    );
+  });
   return (
     <StackHorizontal
       align="center"
       gap="md"
       wrap
-      testId="game-history-review-players"
+      testId={`game-history-review-players-${props.place}`}
     >
-      <For each={props.players}>
+      <For each={shown()}>
         {(player) => (
           <StackHorizontal align="center" gap="xs">
             <Show when={player.swatch}>
@@ -297,6 +334,9 @@ function ReplaySubtitle(props: GameReplayScreenViewProps): JSX.Element {
   const ago = useRelativeTimeLabel(() => props.endedAt ?? '');
   return (
     <>
+      <Show when={props.outcome === null}>
+        <Trans>Watched</Trans> ·{' '}
+      </Show>
       {props.result}
       <Show when={props.endedAt !== null}> · {ago()}</Show>
     </>
@@ -345,7 +385,10 @@ export function GameReplayScreenView(
         }
         aside={<ReplayMoves {...props} />}
       >
-        <GameBoardStage others={<ReplayPlayers {...props} />}>
+        <GameBoardStage
+          others={<ReplayPlayers {...props} place="over" />}
+          own={<ReplayPlayers {...props} place="under" />}
+        >
           {props.board}
         </GameBoardStage>
       </GameSessionLayout>

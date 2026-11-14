@@ -14,6 +14,7 @@ import { MenuList } from '@pkgs/ui-root-client-ts/menu-list';
 import { useRelativeTimeLabel } from '@pkgs/ui-root-client-ts/relative-time';
 import { SegmentedControl } from '@pkgs/ui-root-client-ts/segmented-control';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { Surface } from '@pkgs/ui-root-client-ts/surface';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import {
   createMemo,
@@ -222,12 +223,14 @@ function RecordCaption(props: {
         {SEPARATOR}
       </Show>
       {props.record.label}
-      {SEPARATOR}
-      <Plural
-        value={props.record.moves}
-        one={`#\u00a0move`}
-        other={`#\u00a0moves`}
-      />
+      <Show when={props.record.moves > 0}>
+        {SEPARATOR}
+        <Plural
+          value={props.record.moves}
+          one={`#\u00a0move`}
+          other={`#\u00a0moves`}
+        />
+      </Show>
       <Show when={props.record.endedAt !== null}>
         {SEPARATOR}
         {ago().replaceAll(' ', '\u00a0')}
@@ -372,32 +375,34 @@ function HistoryStatistics(props: GameHistoryScreenViewProps): JSX.Element {
     </Show>
   );
   return (
-    <Grid
-      columns={3}
-      gap="md"
-      testId="game-history-statistics"
-      dataSet={{
-        wins: String(props.statistics.wins),
-        losses: String(props.statistics.losses),
-        draws: String(props.statistics.draws),
-      }}
-    >
-      <GameStat
-        label={<Trans>Wins</Trans>}
-        value={value(props.statistics.wins)}
-        detail={null}
-      />
-      <GameStat
-        label={<Trans>Losses</Trans>}
-        value={value(props.statistics.losses)}
-        detail={null}
-      />
-      <GameStat
-        label={<Trans>Draws</Trans>}
-        value={value(props.statistics.draws)}
-        detail={null}
-      />
-    </Grid>
+    <Surface tone="surface" radius="card" border padding="lg">
+      <Grid
+        columns={3}
+        gap="md"
+        testId="game-history-statistics"
+        dataSet={{
+          wins: String(props.statistics.wins),
+          losses: String(props.statistics.losses),
+          draws: String(props.statistics.draws),
+        }}
+      >
+        <GameStat
+          label={<Trans>Wins</Trans>}
+          value={value(props.statistics.wins)}
+          detail={null}
+        />
+        <GameStat
+          label={<Trans>Losses</Trans>}
+          value={value(props.statistics.losses)}
+          detail={null}
+        />
+        <GameStat
+          label={<Trans>Draws</Trans>}
+          value={value(props.statistics.draws)}
+          detail={null}
+        />
+      </Grid>
+    </Surface>
   );
 }
 
