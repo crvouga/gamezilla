@@ -173,7 +173,11 @@ function AllowedGameHistory(props: {
           )
           .map(historyPlayer),
         outcome,
-        label: outcome === null ? recordLabel(record) : recordEnding(record),
+        // A caption reads as a line of facts, not a sentence.
+        label:
+          outcome === null
+            ? recordLabel(record).replace(/\.$/, '')
+            : recordEnding(record),
         moves: record.moves.length,
         endedAt: record.endedAt,
       };

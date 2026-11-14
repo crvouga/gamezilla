@@ -7,12 +7,13 @@ import {
   GameMoveList,
   type GameMoveListEntry,
 } from '@pkgs/ui-root-client-ts/game-move-list';
-import { GameReviewScreen } from '@pkgs/ui-root-client-ts/game-review-screen';
+import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
 import {
   type GameSeatLook,
   GameSeatSwatch,
 } from '@pkgs/ui-root-client-ts/game-seat-swatch';
-import { GameActions, GameSection } from '@pkgs/ui-root-client-ts/game-section';
+import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
+import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
 import { GameTurnPill } from '@pkgs/ui-root-client-ts/game-turn-pill';
 import { IconButton } from '@pkgs/ui-root-client-ts/icon-button';
 import {
@@ -315,7 +316,7 @@ export function GameReplayScreenView(
       : props.players.filter((player) => !player.you)
   );
   return (
-    <GameReviewScreen
+    <GameScreen
       screenId="game-history-review"
       title={
         <HistoryPlayers
@@ -325,9 +326,11 @@ export function GameReplayScreenView(
         />
       }
       subtitle={<ReplaySubtitle {...props} />}
-      timeline={<ReplaySteps {...props} />}
-      actions={
-        <GameActions>
+    >
+      <GameSessionLayout
+        actionsBeside
+        status={<ReplaySteps {...props} />}
+        actions={
           <Button
             title={<Trans>All games</Trans>}
             variant="outline"
@@ -336,18 +339,18 @@ export function GameReplayScreenView(
             onClick={() => props.onBack()}
             dataSet={{ testid: 'game-history-review-back-to-list' }}
           />
-        </GameActions>
-      }
-      aside={
-        <StackVertical gap="md">
-          <ReplayPlayers {...props} />
-          <ReplayMoves {...props} />
-        </StackVertical>
-      }
-    >
-      <GameBoardStage turn={<ShownPosition {...props} />}>
-        {props.board}
-      </GameBoardStage>
-    </GameReviewScreen>
+        }
+        aside={
+          <>
+            <ReplayPlayers {...props} />
+            <ReplayMoves {...props} />
+          </>
+        }
+      >
+        <GameBoardStage turn={<ShownPosition {...props} />}>
+          {props.board}
+        </GameBoardStage>
+      </GameSessionLayout>
+    </GameScreen>
   );
 }

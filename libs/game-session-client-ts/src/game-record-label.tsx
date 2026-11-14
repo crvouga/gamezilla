@@ -65,7 +65,12 @@ export function useGameRecordEnding(): (record: GameHistoryRecord) => string {
   const presentation = useGamePresentation();
   return (record) => {
     if (record.result === 'aborted') return t`Ended before a result`;
-    if (record.result === 'draw') return drawn(record.reason);
+    if (record.result === 'draw') {
+      if (record.reason === 'timeout') return t`Drawn on time`;
+      if (record.reason === 'participant withdrew')
+        return t`Drawn when a participant withdrew`;
+      return t`Drawn`;
+    }
     const reason = ending(
       record.reason,
       presentation(record.position).endingLabel
