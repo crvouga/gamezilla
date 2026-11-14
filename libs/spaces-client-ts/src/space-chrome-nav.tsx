@@ -28,6 +28,8 @@ export type SpaceChromeNavProps = {
   readonly onPressBack: (() => void) | null;
   /** Where Back goes ("Games", "Chess"), when the screen named it. */
   readonly backLabel?: string | undefined;
+  /** Back stays inside the game, at the place `backLabel` names. */
+  readonly backWithin?: boolean | undefined;
   /**
    * A phone's way out at the room's root (the space's list of games), back
    * to Spaces while the space goes on small: shown as ‹ with "Spaces" over
@@ -41,6 +43,7 @@ function trailInput(props: SpaceChromeNavProps) {
     place: props.place,
     hasBack: props.onPressBack !== null,
     backLabel: props.backLabel,
+    backWithin: props.backWithin,
     room: props.title,
   };
 }
@@ -77,12 +80,21 @@ export function SpaceChromeTrail(props: SpaceChromeNavProps): JSX.Element {
     const place = props.place;
     const placeRole = trail().place;
     if (place === undefined || placeRole === null) return [room];
+    const game: ChromeCrumb = {
+      name: place,
+      onClick: back(placeRole),
+      linkTestId: placeRole === 'parent' ? Handles.navBack : undefined,
+    };
+    const within = props.backLabel;
+    if (trail().within !== 'parent' || within === undefined)
+      return [room, game];
     return [
       room,
+      game,
       {
-        name: place,
-        onClick: back(placeRole),
-        linkTestId: placeRole === 'parent' ? Handles.navBack : undefined,
+        name: within,
+        onClick: back('parent'),
+        linkTestId: Handles.navBack,
       },
     ];
   });

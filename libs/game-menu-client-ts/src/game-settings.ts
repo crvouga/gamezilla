@@ -32,8 +32,11 @@ export type GameSettingsTarget =
 export type GameSettingsRow = {
   /** A lowercase slug, unique among the rows beside it. */
   readonly key: string;
-  /** Rendered where the row is drawn (copy is rendered, never built ahead). */
-  readonly title: () => JSX.Element;
+  /**
+   * Translated where the row is drawn (copy is read, never built ahead). A
+   * string, so the bar's Back can name the group it opens on the way back.
+   */
+  readonly title: () => string;
   readonly caption?: (() => JSX.Element) | undefined;
   /**
    * Hides the row from a person `@libs/permissions` denies this to. What

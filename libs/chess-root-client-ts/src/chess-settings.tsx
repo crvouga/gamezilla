@@ -1,6 +1,7 @@
 import { chessCatalogueLoad } from '@libs/chess-puzzle-client-ts/chess-catalogue-load';
 import type { GameSettings } from '@libs/game-menu-client-ts/game-settings';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
+import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 
 /**
@@ -12,7 +13,7 @@ export const chessSettings: GameSettings = {
   rows: [
     {
       key: 'developer',
-      title: () => <Trans>Developer</Trans>,
+      title: () => t`Developer`,
       caption: () => <Trans>Import and manage chess puzzles</Trans>,
       opens: {
         kind: 'group',
@@ -20,7 +21,7 @@ export const chessSettings: GameSettings = {
         rows: [
           {
             key: 'puzzles',
-            title: () => <Trans>Load chess puzzles</Trans>,
+            title: () => t`Load chess puzzles`,
             caption: () => (
               <Trans>
                 Load a Lichess CSV, follow its progress, or stop it.

@@ -8,6 +8,7 @@ import {
   SpacesNavProvider,
   useSpacesNavBack,
   useSpacesNavBackLabel,
+  useSpacesNavBackWithin,
   useSpacesNavPlace,
 } from '@libs/spaces-client-ts/spaces-nav-context';
 import { AppFrame } from '@pkgs/ui-root-client-ts/app-frame';
@@ -39,6 +40,7 @@ function AccountMenu(props: { readonly showName?: boolean }): JSX.Element {
 function SpaceBody(props: { readonly children: JSX.Element }): JSX.Element {
   const onPressBack = useSpacesNavBack();
   const backLabel = useSpacesNavBackLabel();
+  const backWithin = useSpacesNavBackWithin();
   const place = useSpacesNavPlace();
   return (
     <SpaceDetailScreenView
@@ -53,6 +55,7 @@ function SpaceBody(props: { readonly children: JSX.Element }): JSX.Element {
       onPressHome={fn()}
       onPressBack={onPressBack()}
       backLabel={backLabel()}
+      backWithin={backWithin()}
       onPressMembers={fn()}
       onPressShare={fn()}
       onPressRename={fn()}

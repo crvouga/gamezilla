@@ -39,6 +39,7 @@ function SettingsStory(props: GameSettingsScreenViewProps): JSX.Element {
         label={
           typeof props.backLabel === 'string' ? props.backLabel : undefined
         }
+        within={props.place.screen !== 'settings'}
       />
       <GameSettingsScreenView {...props} />
     </GameChoicesName>
@@ -166,7 +167,11 @@ function SettingsWalk(props: {
   };
   return (
     <GameChoicesName name="Chess">
-      <DefineBackButton onPress={back} label={root() ? 'Chess' : 'Settings'} />
+      <DefineBackButton
+        onPress={back}
+        label={root() ? 'Chess' : 'Settings'}
+        within={!root()}
+      />
       <GameSettingsScreenView
         place={{ screen: place() }}
         title={root() ? 'Settings' : 'Developer'}

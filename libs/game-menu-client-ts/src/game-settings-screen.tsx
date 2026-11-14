@@ -5,6 +5,7 @@ import {
   DefineBackButton,
   useGameChoicesName,
 } from '@libs/spaces-client-ts/spaces-nav-context';
+import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import { useScreenPlace } from '@pkgs/turn-game-client-ts/use-screen-place';
 import {
@@ -63,7 +64,7 @@ function GameSettingsGroup(props: {
   const rows = createMemo((): GameSettingsRowView[] =>
     gameSettingsRows(props.node, props.can).map((row) => ({
       key: row.key,
-      title: <Dynamic component={row.title} />,
+      title: row.title(),
       caption:
         row.caption === undefined ? undefined : (
           <Dynamic component={row.caption} />
@@ -77,7 +78,7 @@ function GameSettingsGroup(props: {
   return (
     <GameSettingsScreenView
       place={props.node.place}
-      title={<Dynamic component={props.node.row?.title ?? SettingsTitle} />}
+      title={props.node.row?.title() ?? <SettingsTitle />}
       subtitle={
         subtitle() === undefined ? undefined : (
           <Dynamic component={subtitle()} />
@@ -115,13 +116,13 @@ export function GameSettingsScreen(props: {
     return true;
   };
   // Back's destination by name: the group behind this one, or the menu.
-  const behindName = (): JSX.Element => {
+  const behindTitle = (): string | undefined => {
     const behind = gameSettingsBehind(tree, node().place);
-    const row =
-      behind === null ? undefined : tree.nodes.get(behind.screen)?.row;
-    if (behind === null) return choices() ?? <Trans>the game</Trans>;
-    return <Dynamic component={row?.title ?? SettingsTitle} />;
+    if (behind === null) return choices();
+    return tree.nodes.get(behind.screen)?.row?.title() ?? t`Settings`;
   };
+  const behindName = (): JSX.Element =>
+    behindTitle() ?? <Trans>the game</Trans>;
   const leave = (): void => {
     if (!back()) props.onBack();
   };
@@ -133,7 +134,8 @@ export function GameSettingsScreen(props: {
     <>
       <DefineBackButton
         onPress={leave}
-        label={node().parent === null ? choices() : undefined}
+        label={node().parent === null ? choices() : behindTitle()}
+        within={node().parent !== null}
       />
       <Switch>
         <Match when={node().opens.kind === 'group'}>

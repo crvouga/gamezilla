@@ -11,6 +11,11 @@ export type SpaceTrail = {
   readonly room: SpaceTrailRole;
   /** The selected game, while one is chosen; else `null`. */
   readonly place: SpaceTrailRole | null;
+  /**
+   * A place inside the game that Back returns to ("Settings" from one of
+   * its groups), after the game in the trail; else `null`.
+   */
+  readonly within: 'parent' | null;
 };
 
 export type SpaceTrailInput = {
@@ -20,21 +25,29 @@ export type SpaceTrailInput = {
   readonly hasBack: boolean;
   /** Where that way back goes, when the screen named it ("Games", "Chess"). */
   readonly backLabel: string | undefined;
+  /** That way back stays inside the game, at the place `backLabel` names. */
+  readonly backWithin?: boolean | undefined;
 };
 
 /**
  * The room, then the selected game. The one way back is the parent's
  * name: on the game's own menu (whose Back names the space's games) that is
  * the room; on any screen the game opens, the game. The list of games has
- * no way back inside the room: Minimize steps out of it.
+ * no way back inside the room: Minimize steps out of it. A Back that stays
+ * inside the game (`backWithin`: a settings group back to "Settings")
+ * names that place, after the game in the trail.
  */
 export function spaceTrail(input: SpaceTrailInput): SpaceTrail {
-  if (input.place === undefined) return { room: 'current', place: null };
-  if (!input.hasBack) return { room: 'ancestor', place: 'current' };
+  if (input.place === undefined)
+    return { room: 'current', place: null, within: null };
+  if (!input.hasBack)
+    return { room: 'ancestor', place: 'current', within: null };
+  if (input.backWithin === true && input.backLabel !== undefined)
+    return { room: 'ancestor', place: 'ancestor', within: 'parent' };
   if (input.backLabel !== undefined && input.backLabel !== input.place) {
-    return { room: 'parent', place: 'current' };
+    return { room: 'parent', place: 'current', within: null };
   }
-  return { room: 'ancestor', place: 'parent' };
+  return { room: 'ancestor', place: 'parent', within: null };
 }
 
 /** The way back's name: the parent place's, else the screen's own label. */

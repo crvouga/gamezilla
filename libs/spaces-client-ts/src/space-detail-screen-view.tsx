@@ -102,6 +102,7 @@ function SpaceLayoutWide(props: LayoutProps): JSX.Element {
               place={props.place}
               onPressBack={props.onPressBack}
               backLabel={props.backLabel}
+              backWithin={props.backWithin}
             />
           </StackHorizontal>
         }
@@ -127,6 +128,7 @@ function SpaceLayoutCompact(props: LayoutProps): JSX.Element {
             place={props.place}
             onPressBack={props.onPressBack}
             backLabel={props.backLabel}
+            backWithin={props.backWithin}
             onPressSpaces={props.onPressHome}
           />
         }
@@ -136,6 +138,7 @@ function SpaceLayoutCompact(props: LayoutProps): JSX.Element {
             place={props.place}
             onPressBack={props.onPressBack}
             backLabel={props.backLabel}
+            backWithin={props.backWithin}
             onPressSpaces={props.onPressHome}
           />
         }

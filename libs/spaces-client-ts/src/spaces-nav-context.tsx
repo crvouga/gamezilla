@@ -31,6 +31,7 @@ type Entry = {
   readonly id: string;
   readonly handler: SpacesNavBackHandler;
   readonly label: string | undefined;
+  readonly within: boolean;
 };
 
 type SpacesNavContextValue = {
@@ -38,6 +39,8 @@ type SpacesNavContextValue = {
   readonly current: SpacesNavBackHandler | null;
   /** The active back control's destination name, when it gave one. */
   readonly label: string | undefined;
+  /** The active back control stays inside the game. */
+  readonly within: boolean;
   /** The selected game's name, while its choices or a screen they open show. */
   readonly place: string | undefined;
   /** Names (or, with `undefined`, clears) the selected game for the bar. */
@@ -46,7 +49,8 @@ type SpacesNavContextValue = {
   readonly setHandler: (
     id: string,
     handler: SpacesNavBackHandler | null,
-    label?: string | undefined
+    label?: string | undefined,
+    within?: boolean | undefined
   ) => void;
 };
 
@@ -71,12 +75,13 @@ export function SpacesNavProvider(props: SpacesNavProviderProps): JSX.Element {
   const setHandler: SpacesNavContextValue['setHandler'] = (
     id,
     handler,
-    label
+    label,
+    within
   ) => {
     setEntries((prev) => {
       const filtered = prev.filter((e) => e.id !== id);
       if (handler === null) return filtered;
-      return [...filtered, { id, handler, label }];
+      return [...filtered, { id, handler, label, within: within === true }];
     });
   };
 
@@ -92,6 +97,9 @@ export function SpacesNavProvider(props: SpacesNavProviderProps): JSX.Element {
     },
     get label() {
       return top()?.label;
+    },
+    get within() {
+      return top()?.within ?? false;
     },
     get place() {
       return places().at(-1)?.name;
@@ -129,6 +137,12 @@ export function useSpacesNavBackLabel(): Accessor<string | undefined> {
   return () => nav.label;
 }
 
+/** The chrome back control stays inside the game, at the place it names. */
+export function useSpacesNavBackWithin(): Accessor<boolean> {
+  const nav = useSpacesNavContext();
+  return () => nav.within;
+}
+
 /**
  * The selected game's name, for the bar's trail (`Friday game night ›
  * Chess`); `undefined` on the space's list of games.
@@ -146,6 +160,12 @@ export type DefineBackButtonProps = {
    * and moving within it never read alike. "Back" when omitted.
    */
   label?: string | undefined;
+  /**
+   * Back stays inside the game, at the place `label` names ("Settings"
+   * from one of its groups): the bar names that place after the game's,
+   * rather than the game itself.
+   */
+  within?: boolean | undefined;
 };
 
 /**
@@ -173,7 +193,12 @@ export function DefineBackButton(props: DefineBackButtonProps): null {
   const id = createUniqueId();
 
   createEffect(() => {
-    setHandler(id, () => confirmNavigation(() => props.onPress()), props.label);
+    setHandler(
+      id,
+      () => confirmNavigation(() => props.onPress()),
+      props.label,
+      props.within
+    );
     onCleanup(() => {
       setHandler(id, null);
     });

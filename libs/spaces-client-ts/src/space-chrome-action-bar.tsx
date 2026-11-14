@@ -23,6 +23,8 @@ export type SpaceChromeNavCallbacks = {
   readonly onPressBack: (() => void) | null;
   /** Where Back goes ("Games", "Chess"), when the screen named it. */
   readonly backLabel?: string | undefined;
+  /** Back stays inside the game, at the place `backLabel` names. */
+  readonly backWithin?: boolean | undefined;
 };
 
 /** What each space action does when pressed. */

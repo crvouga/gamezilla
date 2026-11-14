@@ -20,6 +20,7 @@ import { SpaceShareSheet } from './space-share-sheet';
 import {
   useSpacesNavBack,
   useSpacesNavBackLabel,
+  useSpacesNavBackWithin,
   useSpacesNavPlace,
 } from './spaces-nav-context';
 import { useSpaceCan } from './use-space-can';
@@ -57,6 +58,7 @@ export function SpaceActiveLayout(props: SpaceActiveLayoutProps): JSX.Element {
   const title = useSpaceDisplayTitle(() => sessionUi.spaceId);
   const onPressBack = useSpacesNavBack();
   const backLabel = useSpacesNavBackLabel();
+  const backWithin = useSpacesNavBackWithin();
   const place = useSpacesNavPlace();
   const membersDialog = useSpaceMembersDialog();
   const onPressMembers = useOpenMembers();
@@ -111,6 +113,7 @@ export function SpaceActiveLayout(props: SpaceActiveLayoutProps): JSX.Element {
       onPressHome={sessionUi.onPressHome}
       onPressBack={onPressBack()}
       backLabel={backLabel()}
+      backWithin={backWithin()}
       onPressMembers={onPressMembers}
       onPressShare={() => setShareOpen(true)}
       onPressRename={sessionUi.onRequestRename}

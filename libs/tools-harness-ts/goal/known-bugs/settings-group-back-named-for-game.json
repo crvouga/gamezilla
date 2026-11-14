@@ -1,0 +1,4 @@
+{
+  "summary": "In a game's nested settings group (Chess > Settings > Developer), the space bar's Back was named for the game ('Chess') although it went up one group to Settings. A Back that stays inside the game now names its place ('‹ Settings'), and on a wide screen the trail reads 'Friday game night › Chess › Settings' with Settings as the way back.",
+  "regressionTest": "libs/spaces-client-ts/tests/space-chrome-trail.test.ts"
+}
