@@ -106,11 +106,9 @@ function ShownPosition(props: GameReplayScreenViewProps): JSX.Element {
           </Show>
         </Show>
       </P>
-      <Show when={last() > 0 && (props.ply === 0 || props.ply === last())}>
+      <Show when={last() > 0 && props.ply === last()}>
         <P variant="caption" tone="secondary">
-          <Show when={props.ply === 0} fallback={<Trans>Final position</Trans>}>
-            <Trans>Before the first move</Trans>
-          </Show>
+          <Trans>Final position</Trans>
         </P>
       </Show>
     </StackVertical>
