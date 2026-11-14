@@ -335,7 +335,12 @@
   flex: 1 1 0;
   min-width: 0;
 }
-.cardActions :global(.btn[data-variant="ghost"]) {
+/* Among the details, a quiet command keeps its whole name and wraps to its
+   own row on a narrow card rather than being cut. */
+.details :global(.btn[data-variant="ghost"]) {
+  flex: 1 1 auto;
+}
+.card :global(.btn[data-variant="ghost"]) {
   min-height: 40px;
   border: 1px solid var(--ui-color-border);
 }
