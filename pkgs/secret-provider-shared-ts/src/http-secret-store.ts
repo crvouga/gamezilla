@@ -26,6 +26,12 @@ export type InfisicalSecretStoreOptions = {
   readonly token: string;
   readonly fetchFn: InfisicalFetch;
   readonly secretPath?: string;
+  /**
+   * Also read the secrets this environment imports from others, as the
+   * Infisical CLI and the secrets action do. A secret of the environment's
+   * own wins over an imported one, and a later import over an earlier.
+   */
+  readonly includeImports?: boolean;
 };
 
 type SecretRow = Record<string, string>;
@@ -76,6 +82,19 @@ function parseSecretsListBody(json: unknown): SecretRow {
     if (entry === null) continue;
     row[entry[0]] = entry[1];
   }
+  // Present only when the request asked for imports; never overrides a
+  // secret already read, so the last import and the environment's own win.
+  const imports = (json as Record<string, unknown>)['imports'];
+  for (const imported of Array.isArray(imports) ? imports.toReversed() : []) {
+    const importedSecrets =
+      imported !== null && typeof imported === 'object'
+        ? (imported as Record<string, unknown>)['secrets']
+        : null;
+    for (const item of Array.isArray(importedSecrets) ? importedSecrets : []) {
+      const entry = readSecretEntry(item);
+      if (entry !== null) row[entry[0]] ??= entry[1];
+    }
+  }
   return row;
 }
 
@@ -90,16 +109,18 @@ async function readJsonResponse(
   }
 }
 
-function buildInfisicalListUrl(
-  domain: string,
-  workspaceId: string,
-  env: string,
-  secretPath: string
-): URL {
-  const url = new URL(`${domain}/api/v3/secrets/raw`);
-  url.searchParams.set('workspaceId', workspaceId);
-  url.searchParams.set('environment', env);
-  url.searchParams.set('secretPath', secretPath);
+function buildInfisicalListUrl(scope: {
+  readonly domain: string;
+  readonly workspaceId: string;
+  readonly env: string;
+  readonly secretPath: string;
+  readonly includeImports: boolean;
+}): URL {
+  const url = new URL(`${scope.domain}/api/v3/secrets/raw`);
+  url.searchParams.set('workspaceId', scope.workspaceId);
+  url.searchParams.set('environment', scope.env);
+  url.searchParams.set('secretPath', scope.secretPath);
+  if (scope.includeImports) url.searchParams.set('include_imports', 'true');
   return url;
 }
 
@@ -152,6 +173,7 @@ export class InfisicalSecretStore implements SecretStore {
   private readonly token: string;
   private readonly secretPath: string;
   private readonly fetchFn: InfisicalFetch;
+  private readonly includeImports: boolean;
   private cache: SecretRow | null = null;
 
   constructor(options: InfisicalSecretStoreOptions) {
@@ -167,6 +189,7 @@ export class InfisicalSecretStore implements SecretStore {
     this.token = token;
     this.secretPath = trimOpt(options.secretPath) ?? '/';
     this.fetchFn = options.fetchFn;
+    this.includeImports = options.includeImports === true;
   }
 
   async getRequired(
@@ -284,12 +307,13 @@ export class InfisicalSecretStore implements SecretStore {
   }
 
   private async fetchSecretRow(init?: SecretStoreGetInit): Promise<SecretRow> {
-    const url = buildInfisicalListUrl(
-      this.domain,
-      this.workspaceId,
-      this.env,
-      this.secretPath
-    );
+    const url = buildInfisicalListUrl({
+      domain: this.domain,
+      workspaceId: this.workspaceId,
+      env: this.env,
+      secretPath: this.secretPath,
+      includeImports: this.includeImports,
+    });
     const requestInit: RequestInit = {
       method: 'GET',
       headers: {

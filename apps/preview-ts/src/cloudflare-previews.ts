@@ -1,8 +1,9 @@
 /**
- * The few Cloudflare API calls `wrangler preview` has no command for: the
- * account's workers.dev subdomain (the Preview URL is known before the client
- * bundle is built), whether a Preview still exists (cleanup is verified, not
- * assumed), and which Previews exist (orphans are found, not guessed).
+ * The Cloudflare API calls around a Preview that are not its deploy
+ * (`cloudflare-deploy.ts`): the account's workers.dev subdomain (the Preview
+ * URL is known before anything is uploaded), whether a Preview still exists
+ * (cleanup is verified, not assumed), and which Previews exist (orphans are
+ * found, not guessed).
  */
 
 import type { HttpFetch } from '@pkgs/http-client-shared-ts/types';

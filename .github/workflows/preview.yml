@@ -13,16 +13,17 @@ run-name: "Preview · ${{ github.event_name == 'pull_request' && format('pr #{0}
 # the Storybook site's Worker (`apps/storybook-ts`), with the same lifecycle.
 # It is built (or restored from the Turborepo cache) and uploaded while the
 # harness uploads, so it never holds the harness Preview back.
-# - opened, reopened, new commit: build, check the bundle, upload, check again.
+# - opened, reopened, new commit: build (or restore: a bundle depends on its
+#   sources alone), check the bundle, deploy it, check again.
 # - push to main: the same build, deployed as the Worker itself, which is what
 #   `preview.<domain>` serves; pull requests are `pr-<number>.preview.<domain>`.
 #   Storybook Previews are `pr-<number>.storybook.<domain>`; the Storybook site
 #   itself is the Release workflow's to deploy, never this one's.
 # - closed or merged: delete the Preview and confirm Cloudflare reports it gone.
 # - schedule: remove Previews whose pull request is closed or went quiet.
-# Each step is one command of apps/preview-ts/scripts/preview.ts, the same
-# program `mise run preview:<command>` runs on a laptop. See
-# docs/PREVIEW_ENVIRONMENTS.md.
+# The job is one command, apps/preview-ts/scripts/ci.ts, over the same
+# program `mise run preview:<command>` runs on a laptop
+# (apps/preview-ts/scripts/preview.ts). See docs/PREVIEW_ENVIRONMENTS.md.
 #
 # A pull request from a fork is skipped: GitHub withholds OIDC and secrets from
 # it, and its code never runs beside the Cloudflare credential.
@@ -58,57 +59,116 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     permissions:
-      contents: read # check out the code
+      contents: read # read the pull request and the main branch's head
       id-token: write # the OIDC token the secrets backend trusts
       pull-requests: write # the preview section of the pull request description
       deployments: write # deployment statuses for the preview environment
     env:
       GH_TOKEN: ${{ github.token }}
       GH_REPO: ${{ github.repository }}
+      # The machine identity the `dev` secrets trust this run's OIDC token
+      # as, and the public identity the bundle is built with.
+      SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
+      REPOSITORY_IDENTITY_JSON: ${{ vars.PRODUCT_IDENTITY_JSON }}
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-          # The head itself, not the merge with main: the deployed commit is
-          # the one the pull request shows.
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
-          # Every commit pays for this checkout, and four fifths of the
-          # repository is reference screenshots no Preview reads: they are
-          # neither fetched nor written out.
-          filter: blob:none
-          sparse-checkout-cone-mode: false
-          sparse-checkout: |
-            /*
-            !**/baselines/**
-      - uses: ./.github/actions/setup
-        with:
-          tools: bun node gh
-          product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
-          product-identity-mode: configured
-          secrets-environment: dev
-          secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
-          secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
-      - name: Decide what this pull request's Preview needs
-        id: plan
-        run: bun run apps/preview-ts/scripts/preview.ts ci plan
-      - name: Build the harness bundle and check it
-        if: ${{ steps.plan.outputs.action == 'deploy' || steps.plan.outputs.action == 'deploy-main' }}
+      # One step, and no action: nothing waits for anything it does not need.
+      # A checkout, then the tools, then the dependencies, then the secrets,
+      # each after the one before, was half of every deploy. Here the
+      # checkout and the install run side by side, and the command reads its
+      # own three secrets while it starts the build.
+      #
+      # - The checkout is the head itself, not the merge with main: the
+      #   deployed commit is the one the pull request shows. (The one
+      #   exception, a head with another version of this file, is explained
+      #   where the step decides it.) It never fetches
+      #   or writes the reference screenshots (four fifths of the
+      #   repository), and it writes first what the install reads: the
+      #   package manifests and any folder one of them depends on. The
+      #   repository is public, so it needs no token and leaves none in
+      #   `.git/config`.
+      # - The tools are the versions `mise.toml` pins, installed by a mise
+      #   binary held to its published checksum. They are on this step's own
+      #   PATH and nowhere else.
+      # - The install is straight from the registry (faster on a fresh
+      #   machine than restoring a cache of it), runs no script of any
+      #   dependency and none of the repository's postinstall generation,
+      #   and finishes before any secret exists in the job. The build
+      #   generates the derived files a bundle reads, and only those.
+      - name: Check out, install, then deploy, remove or sweep
         env:
-          PREVIEW_ACTION: ${{ steps.plan.outputs.action }}
-          PREVIEW_PR: ${{ steps.plan.outputs.pr }}
-          PREVIEW_URL: ${{ steps.plan.outputs.url }}
-        run: bun run preview:build
-      - name: Deploy, remove or sweep
-        if: ${{ steps.plan.outputs.action != 'skip' }}
-        env:
-          PREVIEW_ACTION: ${{ steps.plan.outputs.action }}
-          PREVIEW_PR: ${{ steps.plan.outputs.pr }}
-          PREVIEW_URL: ${{ steps.plan.outputs.url }}
-        run: bun run apps/preview-ts/scripts/preview.ts ci apply
+          PREVIEW_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          MISE_VERSION: 2026.9.13
+          MISE_SHA256: 68b437f5f7065a9ed43bc65324b7e9b339ffc59104147bb2b2568585495c5c75
+        run: |
+          BOOT="$RUNNER_TEMP/boot"
+          mkdir -p "$BOOT"
+          at() { echo "[$(date +%T.%3N)] $*"; }
+          checkout() {
+            git init -q
+            git remote add origin "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY"
+            git fetch -q --no-tags --depth=1 --filter=blob:none origin "$PREVIEW_SHA"
+            git sparse-checkout set --no-cone /mise.toml /bun.lock /bunfig.toml /package.json '/apps/*/package.json' '/libs/*/package.json' '/pkgs/*/package.json'
+            git -c advice.detachedHead=false checkout -q --detach FETCH_HEAD
+            # A dependency that is a folder of the repository (`file:./…`) is
+            # copied by the install, so that folder is written first too.
+            mapfile -t folders < <(grep -ho '"file:\./[^"]*"' package.json ./*/*/package.json | sed -E 's|"file:\.(/[^"]*)"|\1/|' | sort -u)
+            [ "${#folders[@]}" -eq 0 ] || git sparse-checkout add "${folders[@]}"
+            touch "$BOOT/manifests"
+            at "checkout: the manifests"
+            git sparse-checkout set --no-cone '/*' '!**/baselines/**'
+            at "checkout: done"
+          }
+          install() {
+            # The tools are named by `mise.toml` alone, so they start from that
+            # one file, fetched by itself, before the checkout has written it.
+            mkdir -p "$BOOT/tools"
+            curl -fsSL --retry 3 -o "$BOOT/tools/mise.toml" "https://raw.githubusercontent.com/$GITHUB_REPOSITORY/$PREVIEW_SHA/mise.toml" &
+            pinned=$!
+            curl -fsSL --retry 3 -o "$BOOT/mise.tar.zst" "https://github.com/jdx/mise/releases/download/v$MISE_VERSION/mise-v$MISE_VERSION-linux-x64.tar.zst"
+            echo "$MISE_SHA256  $BOOT/mise.tar.zst" | sha256sum --check --quiet
+            tar --zstd -xf "$BOOT/mise.tar.zst" -C "$BOOT"
+            wait "$pinned"
+            mise() { (cd "$BOOT/tools" && MISE_TRUSTED_CONFIG_PATHS="$BOOT/tools" MISE_YES=1 "$BOOT/mise/bin/mise" "$@"); }
+            # The install needs Bun alone; Node arrives while it runs.
+            mise install bun
+            mise install node &
+            node=$!
+            at "install: bun"
+            until [ -e "$BOOT/manifests" ]; do
+              kill -0 "$1" 2>/dev/null || [ -e "$BOOT/manifests" ] || exit 1
+              sleep 0.1
+            done
+            PATH="$(mise bin-paths bun):$PATH" bun install --frozen-lockfile --ignore-scripts
+            wait "$node"
+            mise bin-paths bun node > "$BOOT/paths"
+            at "install: done"
+          }
+          # The workflow GitHub runs for a pull request is the one in its
+          # merge with main, and it runs a command of the commit it checks
+          # out. A head from before main changed this file has the command
+          # the workflow before it ran, so there the merge is what is built:
+          # this file and that command are then of one commit. Otherwise a
+          # change to this file would fail the Preview of every pull request
+          # open at the time, until each merged main.
+          if [ "$PREVIEW_SHA" != "$GITHUB_SHA" ]; then
+            raw="https://raw.githubusercontent.com/$GITHUB_REPOSITORY"
+            curl -fsSL --retry 3 -o "$BOOT/head.yml" "$raw/$PREVIEW_SHA/.github/workflows/preview.yml" &
+            curl -fsSL --retry 3 -o "$BOOT/merge.yml" "$raw/$GITHUB_SHA/.github/workflows/preview.yml" || true
+            wait $! || true
+            if ! cmp -s "$BOOT/head.yml" "$BOOT/merge.yml"; then
+              echo "::notice title=Preview of the merge with main::The head ${PREVIEW_SHA:0:12} has another Preview workflow than main, so this Preview is built from the merge of the two (${GITHUB_SHA:0:12})."
+              PREVIEW_SHA="$GITHUB_SHA"
+            fi
+          fi
+          at "start"
+          checkout &
+          checking_out=$!
+          install "$checking_out" &
+          installing=$!
+          wait "$checking_out"
+          wait "$installing"
+          PATH="$(paste -sd: "$BOOT/paths"):$PATH" bun run apps/preview-ts/scripts/ci.ts run
       - name: Report a run that failed before the upload
-        if: ${{ failure() && steps.plan.outputs.action == 'deploy' }}
-        env:
-          PREVIEW_ACTION: ${{ steps.plan.outputs.action }}
-          PREVIEW_PR: ${{ steps.plan.outputs.pr }}
-          PREVIEW_URL: ${{ steps.plan.outputs.url }}
-        run: bun run apps/preview-ts/scripts/preview.ts ci failed
+        if: ${{ failure() && github.event_name == 'pull_request' }}
+        run: |
+          PATH="$(paste -sd: "$RUNNER_TEMP/boot/paths"):$PATH" bun run apps/preview-ts/scripts/ci.ts failed
