@@ -12,6 +12,7 @@ import {
 } from '@libs/spaces-client-ts/spaces-nav-context';
 import { AppFrame } from '@pkgs/ui-root-client-ts/app-frame';
 import { AppFrameChromeProvider } from '@pkgs/ui-root-client-ts/app-frame-chrome';
+import { ScreenFocusProvider } from '@pkgs/ui-root-client-ts/screen-focus';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { children, type JSX, Show } from 'solid-js';
@@ -129,13 +130,17 @@ export function StoryProductShell(props: {
   return (
     <AppFrameChromeProvider globalTrailing={<AccountMenu />}>
       {/* Above the frame: the story resolves here, before it is placed in
-          the space's body, and its Back registers with this provider. */}
+          the space's body, so the providers production's screens find
+          around them (the space's Back, keyboard hand-over between
+          screens) must be here too. */}
       <SpacesNavProvider>
-        <StoryFrame
-          story={props.story}
-          asRail={props.asRail}
-          route={storyRoute(props.id, props.route)}
-        />
+        <ScreenFocusProvider>
+          <StoryFrame
+            story={props.story}
+            asRail={props.asRail}
+            route={storyRoute(props.id, props.route)}
+          />
+        </ScreenFocusProvider>
       </SpacesNavProvider>
     </AppFrameChromeProvider>
   );

@@ -2,7 +2,7 @@ import {
   DefineBackButton,
   GameChoicesName,
 } from '@libs/spaces-client-ts/spaces-nav-context';
-import type { JSX } from 'solid-js';
+import { createSignal, type JSX } from 'solid-js';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import {
@@ -146,5 +146,62 @@ export const OpenRow: Story = {
     await expect(args.onOpen).toHaveBeenCalledWith({
       screen: 'settings/developer',
     });
+  },
+};
+
+/**
+ * Chess's settings walked as `GameSettingsScreen` walks them: a row opens
+ * its group, Back (the bar's or the screen's) walks up one group, and from
+ * the root returns to the game's menu.
+ */
+function SettingsWalk(props: {
+  readonly onLeave: () => void;
+  readonly onLoad: () => void;
+}): JSX.Element {
+  const [place, setPlace] = createSignal('settings');
+  const root = (): boolean => place() === 'settings';
+  const back = (): void => {
+    if (root()) props.onLeave();
+    else setPlace('settings');
+  };
+  return (
+    <GameChoicesName name="Chess">
+      <DefineBackButton onPress={back} label={root() ? 'Chess' : 'Settings'} />
+      <GameSettingsScreenView
+        place={{ screen: place() }}
+        title={root() ? 'Settings' : 'Developer'}
+        subtitle={root() ? undefined : 'Import and manage chess puzzles.'}
+        rows={root() ? [DEVELOPER] : [PUZZLES]}
+        onOpen={(opened) => {
+          if (opened.screen === 'settings/developer') setPlace(opened.screen);
+          else props.onLoad();
+        }}
+        backLabel={root() ? 'Chess' : 'Settings'}
+        onBack={back}
+      />
+    </GameChoicesName>
+  );
+}
+
+/** Open a group, then walk back up with the bar's Back. */
+export const WalkTheGroups: Story = {
+  args: { onBack: fn() },
+  render: (args) => <SettingsWalk onLeave={args.onBack} onLoad={fn()} />,
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      await canvas.findByTestId('chess-settings-developer')
+    );
+    await expect(
+      await canvas.findByTestId('chess-developer-puzzles')
+    ).toBeVisible();
+    await userEvent.click(
+      await canvas.findByRole('button', { name: 'Settings' })
+    );
+    await expect(
+      await canvas.findByTestId('chess-settings-developer')
+    ).toBeVisible();
+    await userEvent.click(await canvas.findByRole('button', { name: 'Chess' }));
+    await expect(args.onBack).toHaveBeenCalled();
   },
 };
