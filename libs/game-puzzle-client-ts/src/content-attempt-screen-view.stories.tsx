@@ -138,3 +138,28 @@ export const OpenProgress: Story = {
     await expect(args.onOpen).toHaveBeenCalledWith({ screen: 'progress' });
   },
 };
+
+/** No board can show: the body's Restart asks to start again (confirmed first). */
+export const UnopenableRestart: Story = {
+  args: { unopenable: true },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.queryByRole('button', { name: 'Undo' })).toBeNull();
+    await userEvent.click(
+      await canvas.findByTestId('content-unopenable-restart')
+    );
+    await expect(args.onRestart).toHaveBeenCalled();
+  },
+};
+
+/** Rules this app lacks: the notice's Update the app loads the newest version. */
+export const UpdateForRules: Story = {
+  args: { rulesChanged: true },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      await canvas.findByRole('button', { name: 'Update the app' })
+    );
+    await expect(args.onUpdateApp).toHaveBeenCalled();
+  },
+};

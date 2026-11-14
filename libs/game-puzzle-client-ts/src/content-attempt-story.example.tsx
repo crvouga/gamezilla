@@ -40,6 +40,7 @@ export const ATTEMPT_STORY_ARGS = {
   onRetryChange: fn(),
   onReturnToLibrary: fn(),
   onRestart: fn(),
+  onUpdateApp: fn(),
 } satisfies ContentAttemptScreenViewProps;
 
 /** What an attempt story's controls leave out: its data and slots. */

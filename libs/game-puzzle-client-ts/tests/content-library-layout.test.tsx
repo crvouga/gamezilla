@@ -143,7 +143,11 @@ test('Continue holds only what is unfinished; solved and playtests are their own
     row.closest('[data-component="PreviewCardGrid"]');
   renderPlace('continue');
   const unfinished = screen.getByTestId('content-attempt-attempt-1');
-  expect(section(unfinished)?.textContent).toContain('Continue playing');
+  // The screen's own title names the list; its section repeats no caption.
+  expect(section(unfinished)?.textContent).toContain(
+    'Each puzzle keeps your place'
+  );
+  expect(section(unfinished)?.textContent).not.toContain('Continue playing');
   expect(screen.queryByTestId('content-attempt-attempt-2')).toBeNull();
   expect(screen.queryByTestId('content-attempt-playtest-1')).toBeNull();
   expect(
@@ -154,11 +158,11 @@ test('Continue holds only what is unfinished; solved and playtests are their own
   cleanup();
   renderPlace('solved');
   const finished = screen.getByTestId('content-attempt-attempt-2');
-  expect(section(finished)?.textContent?.startsWith('Solved')).toBe(true);
+  expect(section(finished)).not.toBeNull();
+  expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Solved');
   cleanup();
   renderPlace('playtests');
   const playtest = screen.getByTestId('content-attempt-playtest-1');
-  expect(section(playtest)?.textContent).toContain('Playtests of your drafts');
   expect(section(playtest)?.textContent).toContain(
     "Practice runs don't count toward your progress."
   );

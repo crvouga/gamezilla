@@ -29,22 +29,6 @@ type ListedAttempt = {
  */
 export type ContentAttemptList = 'unfinished' | 'finished' | 'playtest';
 
-function ListTitle(props: { list: ContentAttemptList }): JSX.Element {
-  return (
-    <Switch>
-      <Match when={props.list === 'unfinished'}>
-        <Trans>Continue playing</Trans>
-      </Match>
-      <Match when={props.list === 'finished'}>
-        <Trans>Solved</Trans>
-      </Match>
-      <Match when={props.list === 'playtest'}>
-        <Trans>Playtests of your drafts</Trans>
-      </Match>
-    </Switch>
-  );
-}
-
 function ListFooter(props: { list: ContentAttemptList }): JSX.Element {
   return (
     <Switch>
@@ -99,7 +83,6 @@ export function ContentAttemptSection(props: {
     <Show when={props.attempts.length > 0}>
       <PreviewCardGrid
         layout="rows"
-        title={<ListTitle list={props.list} />}
         footer={
           props.list === 'finished' ? undefined : (
             <ListFooter list={props.list} />

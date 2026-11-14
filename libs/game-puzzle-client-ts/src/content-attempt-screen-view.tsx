@@ -1,6 +1,7 @@
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
 import { Trans, useLingui } from '@lingui/solid/macro';
+import { ActionNotice } from '@pkgs/ui-root-client-ts/action-notice';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
@@ -9,7 +10,10 @@ import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
 import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
 import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
-import { CircleCheckIcon } from '@pkgs/ui-root-client-ts/icons';
+import {
+  CircleCheckIcon,
+  TriangleAlertIcon,
+} from '@pkgs/ui-root-client-ts/icons';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { ProgressBar } from '@pkgs/ui-root-client-ts/progress-bar';
@@ -118,6 +122,8 @@ export type ContentAttemptScreenViewProps = {
   readonly onReturnToLibrary: () => void;
   /** Asks to restart (confirmed first): offered where no board can show. */
   readonly onRestart?: (() => void) | undefined;
+  /** Loads the newest version of the app, for rules this one lacks. */
+  readonly onUpdateApp?: (() => void) | undefined;
 };
 
 /**
@@ -129,15 +135,20 @@ function AttemptAlerts(props: ContentAttemptScreenViewProps): JSX.Element {
   return (
     <>
       <Show when={props.rulesChanged}>
-        <Notice
-          tone="warning"
+        <ActionNotice
+          icon={TriangleAlertIcon}
+          title={t`This puzzle needs a newer version of the app`}
+          body={t`Your saved attempt stays kept. Update the app to continue it.`}
+          action={
+            props.onUpdateApp === undefined
+              ? undefined
+              : {
+                  label: t`Update the app`,
+                  onClick: () => props.onUpdateApp?.(),
+                }
+          }
           dataSet={{ testid: 'content-attempt-rules-changed' }}
-        >
-          <Trans>
-            This puzzle needs a version of the app with its rules. Your saved
-            attempt stays kept; update the app to continue it.
-          </Trans>
-        </Notice>
+        />
       </Show>
       <Show when={props.changeError}>
         {(error) => (

@@ -1,3 +1,4 @@
+import { reloadApp } from '@libs/app-root-shared-ts/reload-app';
 import { projectAttemptPosition } from '@libs/game-puzzle-shared-ts/attempt-library';
 import type { ContentAttempt } from '@libs/game-puzzle-shared-ts/attempt-types';
 import type { ContentBody } from '@libs/game-puzzle-shared-ts/content-types';
@@ -225,6 +226,7 @@ function AttemptBody(props: {
       }
       onRetryChange={writer.retry}
       onRestart={restart.ask}
+      onUpdateApp={reloadApp}
       onReturnToLibrary={() => game.open({ kind: 'library' })}
     />
   );

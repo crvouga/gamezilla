@@ -5,6 +5,7 @@
     "src": {
       "dependsOn": [
         "@libs/app-env-client-ts#src",
+        "@libs/app-root-shared-ts#src",
         "@libs/auth-client-ts#src",
         "@libs/game-puzzle-shared-ts#src",
         "@libs/permissions-client-ts#src",
