@@ -8,6 +8,7 @@ import {
   useGameChoicesName,
 } from '@libs/spaces-client-ts/spaces-nav-context';
 import { useSpaceDecision } from '@libs/spaces-client-ts/use-space-decision';
+import { t } from '@lingui/core/macro';
 import {
   useGamePresentation,
   useTurnGames,
@@ -108,7 +109,7 @@ function RecordReview(props: {
   const replay = createMemo(() => replayMoves(props.record));
   return (
     <>
-      <DefineBackButton onPress={props.onBack} />
+      <DefineBackButton onPress={props.onBack} label={t`History and stats`} />
       <GameReplayScreenView
         players={players()}
         outcome={recordOutcome(props.record, myId())}

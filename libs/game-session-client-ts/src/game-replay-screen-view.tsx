@@ -204,46 +204,42 @@ function ReplaySteps(props: GameReplayScreenViewProps): JSX.Element {
   );
 }
 
-/** Each player beside their seat's colour, the winner marked in words. */
+/** Each player beside their seat's colour, the winner marked in words: one line over the board. */
 function ReplayPlayers(props: GameReplayScreenViewProps): JSX.Element {
   return (
-    <GameSection title={<Trans>Players</Trans>}>
-      <StackVertical gap="sm" testId="game-history-review-players">
-        <For each={props.players}>
-          {(player) => (
-            <StackHorizontal align="center" justify="between" gap="sm">
-              <StackHorizontal align="center" gap="sm">
-                <Show when={player.swatch}>
-                  {(look) => (
-                    <GameSeatSwatch look={look()} label={player.sideLabel} />
-                  )}
-                </Show>
-                <P variant="label">
-                  <HistoryPlayers
-                    players={[player]}
-                    played={false}
-                    people={props.people}
-                  />
-                  <Show when={player.you}>
-                    {' '}
-                    <Trans>(you)</Trans>
-                  </Show>
-                </P>
-              </StackHorizontal>
-              <Show
-                when={player.winner && props.players.some((p) => !p.winner)}
-              >
-                <Badge
-                  size="sm"
-                  intent="success"
-                  label={<Trans>Winner</Trans>}
-                />
+    <StackHorizontal
+      align="center"
+      justify="center"
+      gap="md"
+      wrap
+      testId="game-history-review-players"
+    >
+      <For each={props.players}>
+        {(player) => (
+          <StackHorizontal align="center" gap="xs">
+            <Show when={player.swatch}>
+              {(look) => (
+                <GameSeatSwatch look={look()} label={player.sideLabel} />
+              )}
+            </Show>
+            <P variant="label">
+              <HistoryPlayers
+                players={[player]}
+                played={false}
+                people={props.people}
+              />
+              <Show when={player.you}>
+                {' '}
+                <Trans>(you)</Trans>
               </Show>
-            </StackHorizontal>
-          )}
-        </For>
-      </StackVertical>
-    </GameSection>
+            </P>
+            <Show when={player.winner && props.players.some((p) => !p.winner)}>
+              <Badge size="sm" intent="success" label={<Trans>Winner</Trans>} />
+            </Show>
+          </StackHorizontal>
+        )}
+      </For>
+    </StackHorizontal>
   );
 }
 
@@ -330,12 +326,8 @@ export function GameReplayScreenView(
     >
       <GameSessionLayout
         actionsBeside
-        status={
-          <>
-            <ReplaySteps {...props} />
-            <ReplayMoves {...props} />
-          </>
-        }
+        fixedStage
+        status={<ReplaySteps {...props} />}
         actions={
           <Button
             title={<Trans>All games</Trans>}
@@ -346,9 +338,12 @@ export function GameReplayScreenView(
             dataSet={{ testid: 'game-history-review-back-to-list' }}
           />
         }
-        aside={<ReplayPlayers {...props} />}
+        aside={<ReplayMoves {...props} />}
       >
-        <GameBoardStage turn={<ShownPosition {...props} />}>
+        <GameBoardStage
+          others={<ReplayPlayers {...props} />}
+          turn={<ShownPosition {...props} />}
+        >
           {props.board}
         </GameBoardStage>
       </GameSessionLayout>

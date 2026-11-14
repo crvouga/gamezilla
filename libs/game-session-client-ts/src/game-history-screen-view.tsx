@@ -79,6 +79,9 @@ export type GameHistoryScreenViewProps = {
 
 type Filter = 'all' | GameHistoryOutcome;
 
+/** Between a caption's facts: held to the fact before it, so a line never starts with it. */
+const SEPARATOR = '\u00a0· ';
+
 /** A list this long gets a filter by result. */
 const FILTER_FROM = 6;
 
@@ -211,13 +214,24 @@ function RecordCaption(props: {
   const winners = () => props.record.winners ?? [];
   return (
     <>
+      {/* A separator stays with the fact before it, and no fact breaks
+          across lines ("12h ago"): a wrapped caption never starts with "·". */}
       <Show when={winners().length > 0}>
         <PlayerNames players={winners()} join="and" people={props.people} />{' '}
-        <Trans>won</Trans> ·{' '}
+        <Trans>won</Trans>
+        {SEPARATOR}
       </Show>
-      {props.record.label} ·{' '}
-      <Plural value={props.record.moves} one="# move" other="# moves" />
-      <Show when={props.record.endedAt !== null}> · {ago()}</Show>
+      {props.record.label}
+      {SEPARATOR}
+      <Plural
+        value={props.record.moves}
+        one={`#\u00a0move`}
+        other={`#\u00a0moves`}
+      />
+      <Show when={props.record.endedAt !== null}>
+        {SEPARATOR}
+        {ago().replaceAll(' ', '\u00a0')}
+      </Show>
     </>
   );
 }
