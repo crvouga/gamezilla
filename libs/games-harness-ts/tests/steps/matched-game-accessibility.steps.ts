@@ -174,7 +174,7 @@ Then(
     await hears(
       w,
       actor,
-      `Matched with ${await nameOf(w, opponent)}, rated 1500?`,
+      `Matched with ${await nameOf(w, opponent)}, rated 1500, provisional.`,
       `Time control: ${clockShown(clock)}.`
     );
     await hears(w, actor, `You are ${sideName(w, await sideOf(w, actor))}.`);

@@ -14,6 +14,7 @@ import {
   isDailyTimeControl,
   timeControlOf,
 } from '@libs/game-matchmaking-shared-ts/time-control';
+import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { useGameSideLabel } from '@pkgs/turn-game-client-ts/use-game-side-label';
@@ -130,7 +131,7 @@ function PlayerHeadline(props: StatusProps): JSX.Element {
             <>
               <Trans>
                 Matched with {props.viewer.opponentName}, rated{' '}
-                {props.viewer.opponentRating}.
+                {ratingHeard(props.viewer.opponentRating)}.
               </Trans>{' '}
               <Show when={timed()}>
                 <Trans>
@@ -449,6 +450,11 @@ export function multiplayerStatusHasDetail(props: StatusProps): boolean {
     game.rematch_offer_by === props.viewer.myId ||
     game[`${ownSide(props)}_rating_diff`] != null
   );
+}
+
+/** A rating as a listener hears it: a provisional `1500?` is "1500, provisional". */
+export function ratingHeard(rating: string): string {
+  return rating.endsWith('?') ? t`${rating.slice(0, -1)}, provisional` : rating;
 }
 
 /** The person's own clock is the one that is low on time. */

@@ -13,7 +13,9 @@ import {
   GAME_VERSUS_AVATAR_SIZE,
   type GameVersusSide,
 } from '@pkgs/ui-root-client-ts/game-stage-overlay';
-import type { Accessor, JSX } from 'solid-js';
+import { Text } from '@pkgs/ui-root-client-ts/text';
+import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
+import { type Accessor, type JSX, Show } from 'solid-js';
 import type {
   MultiplayerResultShown,
   MultiplayerVersusShown,
@@ -97,6 +99,25 @@ export function multiplayerResultShown(
 }
 
 /**
+ * A rating as it is shown (`1500?`) and said: a provisional rating's "?" is
+ * heard as "provisional".
+ */
+function RatingSaid(props: { readonly rating: string }): JSX.Element {
+  const provisional = () => props.rating.endsWith('?');
+  return (
+    <>
+      {provisional() ? props.rating.slice(0, -1) : props.rating}
+      <Show when={provisional()}>
+        <Text variant="inherit" aria-hidden>
+          ?
+        </Text>
+        <VisuallyHidden>, provisional</VisuallyHidden>
+      </Show>
+    </>
+  );
+}
+
+/**
  * Who plays whom in the matched game, for its versus card: the person's
  * own side below and the rest above; a watched game is split in two, in
  * seat order. Each side carries its rating and the side it plays.
@@ -127,7 +148,14 @@ export function useMultiplayerVersus(
           />
         ),
         swatch: frameSwatch(frame.seats.look(side)),
-        caption: rating === '' ? label : `${label} · ${rating}`,
+        caption:
+          rating === '' ? (
+            label
+          ) : (
+            <>
+              {label} · <RatingSaid rating={rating} />
+            </>
+          ),
       };
     };
     const sides = multiplayerSides(current);

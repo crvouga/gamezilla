@@ -124,7 +124,12 @@ function Conditions(props: {
   return (
     <>
       <Text variant="inherit" testId="multiplayer-find-rated">
-        <Trans>Ranked match</Trans>
+        <Show
+          when={props.find.players > 2}
+          fallback={<Trans>Ranked match</Trans>}
+        >
+          <Trans>Ranked</Trans>
+        </Show>
       </Text>
       <Show when={props.find.players > 2}>
         {' · '}

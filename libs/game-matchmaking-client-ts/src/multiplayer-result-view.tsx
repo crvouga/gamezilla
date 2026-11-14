@@ -88,6 +88,7 @@ function Rematch(props: ResultProps): JSX.Element {
       <GameActionButton
         operation={props.commands.declineRematch}
         disabled={!props.online}
+        variant="ghost"
         title={
           <Trans>
             Decline<VisuallyHidden> the multiplayer rematch</VisuallyHidden>
