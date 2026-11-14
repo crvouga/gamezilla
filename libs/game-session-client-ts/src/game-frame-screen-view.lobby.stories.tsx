@@ -337,7 +337,7 @@ export const ConfirmCancel: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement.ownerDocument.body);
     await userEvent.click(await canvas.findByTestId('custom-game-cancel'));
-    await canvas.findByText(/^This finishes the current game\./);
+    await canvas.findByText(/^The game ends for everyone/);
     await expect(args.onChoose).not.toHaveBeenCalled();
   },
 };

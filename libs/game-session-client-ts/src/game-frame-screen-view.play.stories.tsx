@@ -335,7 +335,7 @@ export const ResignAsked: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement.ownerDocument.body);
     await userEvent.click(await canvas.findByTestId('custom-game-resign-now'));
-    await canvas.findByText(/^This finishes the current game\./);
+    await canvas.findByText(/^You lose this game\./);
     await expect(
       await canvas.findByTestId('custom-game-resign-confirm')
     ).toBeVisible();

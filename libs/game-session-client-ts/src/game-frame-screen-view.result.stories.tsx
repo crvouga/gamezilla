@@ -47,7 +47,7 @@ type Story = StoryObj<typeof meta>;
 /** The viewer won: the headline is theirs, Rematch is the one filled command, then the final board and the standings. */
 export const YouWin: Story = {};
 
-/** The viewer lost at a scored table: their place, everyone's points and readiness. */
+/** The viewer lost at a scored table: their place, everyone's points, and that the host starts the rematch. */
 export const YouPlacedSecond: Story = {
   args: {
     // The signed-in viewer (avery) holds Yellow diamond and came second.
@@ -60,7 +60,7 @@ export const YouPlacedSecond: Story = {
     next: { plays: true, canCreate: false, reviewable: true },
     result: {
       headline: 'You came 2nd',
-      note: null,
+      note: 'Host starts the rematch',
       scoreLabel: 'Points',
       standings: [
         {
@@ -69,7 +69,6 @@ export const YouPlacedSecond: Story = {
           holder: person('jordan'),
           you: false,
           score: '26',
-          readiness: { label: 'Ready', ready: true },
         },
         {
           ...STANDINGS[1],
@@ -77,7 +76,6 @@ export const YouPlacedSecond: Story = {
           holder: person('avery'),
           you: true,
           score: '19',
-          readiness: { label: 'Not yet', ready: false },
         },
       ],
     },

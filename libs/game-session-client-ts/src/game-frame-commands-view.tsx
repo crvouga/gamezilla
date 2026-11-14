@@ -87,7 +87,7 @@ export function FrameCommandsPlace(props: Props): JSX.Element {
           </Show>
         </MenuSection>
       </Show>
-      <GameActions sizing="share">
+      <GameActions sizing="fill">
         <Button
           title={<Trans>Back to the game</Trans>}
           variant="solid"

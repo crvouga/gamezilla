@@ -70,9 +70,27 @@ export function FrameConfirmDialog(props: {
             onClose={() => props.confirm.close()}
             title={title()}
             message={
-              <Trans>
-                This finishes the current game. Its record remains available.
-              </Trans>
+              <Show
+                when={asked.operation === 'cancel'}
+                fallback={
+                  <Trans>
+                    You lose this game. Its moves stay in the space's history.
+                  </Trans>
+                }
+              >
+                <Trans>
+                  The game ends for everyone, with no result. Its moves stay in
+                  the space's history.
+                </Trans>
+              </Show>
+            }
+            cancelLabel={
+              <Show
+                when={asked.operation === 'cancel'}
+                fallback={<Trans>Keep playing</Trans>}
+              >
+                <Trans>Keep the game</Trans>
+              </Show>
             }
             operation={() => props.onChoose({ operation: asked.operation })}
             submitLabel={title()}

@@ -208,7 +208,14 @@ export function FramePlayNoticesView(props: {
       <Show when={props.play.drawOffered}>
         <Notice>
           <Text variant="inherit" role="status">
-            <Trans>A draw has been offered.</Trans>
+            <Show
+              when={props.play.canAnswerDraw}
+              fallback={
+                <Trans>A draw is offered. Waiting for an answer.</Trans>
+              }
+            >
+              <Trans>You are offered a draw.</Trans>
+            </Show>
           </Text>
         </Notice>
       </Show>

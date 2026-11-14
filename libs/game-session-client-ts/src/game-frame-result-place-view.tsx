@@ -18,7 +18,8 @@ type Props = FramePlaceProps;
 /**
  * What comes next once the game is over. Someone who played (or may set up
  * the next game) is offered the rematch, the one filled command, and a new
- * game with other choices; someone watching goes back to the space. Anyone
+ * game with other choices; a player who may not start one, and someone
+ * watching, go back to the space. Anyone
  * may step through the moves or open the space's history.
  */
 function NextActions(props: Props): JSX.Element {
@@ -35,7 +36,21 @@ function NextActions(props: Props): JSX.Element {
           />
         }
       >
-        <Show when={props.next.canCreate}>
+        <Show
+          when={props.next.canCreate}
+          fallback={
+            // A player who may not start the next game still has a way on:
+            // the card says the host starts the rematch.
+            <Button
+              title={<Trans>Leave</Trans>}
+              aria-label={t`Leave the game, back to the space`}
+              variant="outline"
+              intent="neutral"
+              onClick={() => props.onBack()}
+              dataSet={{ testid: 'custom-game-back' }}
+            />
+          }
+        >
           <GameActionButton
             title={<Trans>Rematch</Trans>}
             variant="solid"

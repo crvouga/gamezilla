@@ -4,7 +4,7 @@ import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { createSignal, For, type JSX, onMount, Show } from 'solid-js';
 import { type GameSeatLook, GameSeatSwatch } from '../game-seat-swatch/index';
-import { XIcon } from '../icons';
+import { ChevronDownIcon, XIcon } from '../icons';
 import { createScreenSlot } from '../screen-slot';
 import styles from './game-stage-overlay.module.css';
 
@@ -149,6 +149,12 @@ export type GameResultOverlayProps = {
   caption?: JSX.Element | undefined;
   /** The standings, a rating change. */
   children?: JSX.Element | undefined;
+  /**
+   * Names the details (`Standings`). Given, a small board's card folds
+   * them behind a control of that name instead of leaving them out, so
+   * the board stays in view and the details are one press away.
+   */
+  detailsLabel?: string | undefined;
   /** The card's own commands; the first is the way back to the board. */
   actions?: JSX.Element | undefined;
   /**
@@ -183,6 +189,8 @@ export type GameResultOverlayProps = {
  */
 export function GameResultOverlay(props: GameResultOverlayProps): JSX.Element {
   const actions = createScreenSlot(() => props.actions);
+  const details = createScreenSlot(() => props.children);
+  const [open, setOpen] = createSignal(false);
   return (
     <div
       class={styles['result']}
@@ -230,9 +238,33 @@ export function GameResultOverlay(props: GameResultOverlayProps): JSX.Element {
             <XIcon size={16} color="textSecondary" />
           </button>
         </div>
-        {props.children}
+        <Show when={details.present()}>
+          <div
+            class={styles['details']}
+            data-folds={props.detailsLabel !== undefined}
+            data-open={open()}
+          >
+            <Show when={props.detailsLabel}>
+              {(label) => (
+                <button
+                  type="button"
+                  class={`text textLabel ${styles['detailsToggle']}`}
+                  aria-expanded={open()}
+                  onClick={() => setOpen(!open())}
+                  data-testid="game-result-overlay-details"
+                >
+                  <span>{label()}</span>
+                  <ChevronDownIcon size={16} color="textSecondary" />
+                </button>
+              )}
+            </Show>
+            <div class={styles['detailsBody']}>{details.content()}</div>
+          </div>
+        </Show>
         <Show when={actions.present()}>
-          <div class="box flex-row flex-wrap gap-2 min-w-0">
+          <div
+            class={`box flex-row flex-wrap gap-2 min-w-0 ${styles['cardActions']}`}
+          >
             {actions.content()}
           </div>
         </Show>

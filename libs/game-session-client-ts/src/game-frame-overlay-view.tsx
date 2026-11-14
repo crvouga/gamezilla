@@ -135,6 +135,7 @@ function FrameOutcomeOverlay(props: Props): JSX.Element {
         props.result?.headline ?? props.status?.description ?? t`Game finished`
       }
       caption={outcomeCaption(props)}
+      detailsLabel={props.result === null ? undefined : t`Standings`}
       dismissLabel={t`Show the board`}
       onDismiss={() => props.onOverlay({ type: 'dismiss' })}
       titleDataSet={{ testid: 'custom-game-result-headline' }}

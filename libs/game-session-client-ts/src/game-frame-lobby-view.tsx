@@ -445,7 +445,7 @@ export function FrameLobbyPlace(
       <AgreedRows {...props} />
       {/* Calling the game off: last on the page, quiet, and it asks first. */}
       <Show when={props.play.canCancel}>
-        <GameActions sizing="share">
+        <GameActions sizing="fill">
           <Button
             title={<Trans>Cancel game</Trans>}
             variant="outline"

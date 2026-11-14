@@ -109,7 +109,7 @@ export function FrameClockPlace(
           onChangeText={setIncrement}
           dataSet={{ testid: 'custom-game-increment' }}
         />
-        <GameActions sizing="share">
+        <GameActions sizing="fill">
           <GameActionButton
             title={<Trans>Use this clock</Trans>}
             variant="solid"
