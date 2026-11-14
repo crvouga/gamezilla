@@ -206,3 +206,21 @@
 .screen [data-component="ScrollViewContent"] > [data-component] > p {
   padding-inline: var(--ui-space-4);
 }
+
+/* A card with no picture (a lobby whose seats lead) keeps its own height:
+   no poster pattern fills the room, so the rows come first and the spare
+   room falls below them. */
+.screen[data-wide="false"] .mode:not(:has(.modeArtBoard > *)) {
+  flex: none;
+  justify-content: flex-start;
+  background: linear-gradient(
+    135deg,
+    var(--ui-color-tint-subtle) 0%,
+    var(--ui-color-surface) 72%
+  );
+}
+.screen[data-wide="false"]
+  [data-component="ScrollViewContent"]
+  > :has(> .mode:not(:has(.modeArtBoard > *))) {
+  flex: none;
+}

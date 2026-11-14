@@ -427,7 +427,15 @@ export function FrameLobbyPlace(
       <For each={props.setup.seats}>
         {(seat) => <OwnInvitation {...props} seat={seat} />}
       </For>
-      <Show when={props.setup.viewerNotice}>
+      {/* An invitation to play says what to do; "watching" waits till
+          it is answered. */}
+      <Show
+        when={
+          props.setup.seats.some((seat) => seat.invitation?.mine === true)
+            ? null
+            : props.setup.viewerNotice
+        }
+      >
         {(text) => (
           <P tone="secondary" testId="custom-game-viewer">
             {text()}

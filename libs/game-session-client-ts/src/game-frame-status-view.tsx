@@ -152,6 +152,8 @@ export function FrameStatusView(props: {
 /** Offline: whether the game can go on here, waits, or needs the connection. */
 export function FrameConnectionView(props: {
   readonly connection: FrameConnection;
+  /** Before any game: the notice speaks of starting one, not of moves. */
+  readonly beforeGame?: boolean | undefined;
 }): JSX.Element {
   return (
     <Show when={props.connection !== 'online'}>
@@ -169,6 +171,14 @@ export function FrameConnectionView(props: {
               </Trans>
             }
           >
+            <Match
+              when={props.beforeGame === true && props.connection === 'needed'}
+            >
+              <Trans>
+                You are offline. A game you start now begins when the connection
+                returns.
+              </Trans>
+            </Match>
             <Match when={props.connection === 'waiting'}>
               <Trans>
                 Your move will be played when the connection returns.
@@ -214,7 +224,21 @@ export function FramePlayNoticesView(props: {
                 <Trans>A draw is offered. Waiting for an answer.</Trans>
               }
             >
-              <Trans>You are offered a draw.</Trans>
+              <Show
+                when={props.play.drawOfferer}
+                fallback={<Trans>You are offered a draw.</Trans>}
+              >
+                {(offerer) => (
+                  <>
+                    <FramePersonName
+                      person={offerer().person}
+                      plainName={offerer().plainName}
+                      people={props.people}
+                    />{' '}
+                    <Trans>offers a draw.</Trans>
+                  </>
+                )}
+              </Show>
             </Show>
           </Text>
         </Notice>

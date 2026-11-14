@@ -271,20 +271,29 @@ export function useFrameStatus(
   return createMemo(() => {
     const game = model.current();
     if (game === null) return null;
+    const plainTurn = plainTurnLine(
+      game,
+      presentation(game.fen),
+      model.mySide(),
+      nameOf
+    );
+    // The viewer's own turn while the connection is needed: theirs, but not
+    // yet, so the line says both instead of naming their side.
+    const turnOffline =
+      plainTurn &&
+      game.turn === model.mySide() &&
+      frameConnection(model) === 'needed';
     return {
       lineup: lineup(),
-      description: gameStateDescription(
-        game,
-        presentation(game.fen),
-        model.mySide(),
-        nameOf
-      ),
-      plainTurn: plainTurnLine(
-        game,
-        presentation(game.fen),
-        model.mySide(),
-        nameOf
-      ),
+      description: turnOffline
+        ? t`Your move, once you are back online.`
+        : gameStateDescription(
+            game,
+            presentation(game.fen),
+            model.mySide(),
+            nameOf
+          ),
+      plainTurn: plainTurn && !turnOffline,
       // While the viewer's choice is sent, it is no longer their turn to act.
       emphasis: frameViewerHeld(model)
         ? 'neutral'

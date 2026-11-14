@@ -109,11 +109,17 @@ export function FrameConfirmDialog(props: {
 
 /** What every place says first: the connection, then a refused choice. */
 export function FrameNoticesView(
-  props: Pick<GameFrameScreenViewProps, 'connection' | 'error'>
+  props: Pick<GameFrameScreenViewProps, 'connection' | 'error'> & {
+    /** Before any game: the notice speaks of starting one, not of moves. */
+    readonly beforeGame?: boolean | undefined;
+  }
 ): JSX.Element {
   return (
     <>
-      <FrameConnectionView connection={props.connection} />
+      <FrameConnectionView
+        connection={props.connection}
+        beforeGame={props.beforeGame}
+      />
       <FrameErrorView text={props.error} />
     </>
   );
@@ -212,7 +218,11 @@ export function FrameLobbyPage(
           place: props.place.screen,
         }}
       >
-        <FrameNoticesView connection={props.connection} error={props.error} />
+        <FrameNoticesView
+          connection={props.connection}
+          error={props.error}
+          beforeGame={props.phase === 'none'}
+        />
         {props.children}
         <Show when={props.back}>
           {(back) => (

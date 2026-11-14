@@ -195,6 +195,7 @@ export const DrawOffered: Story = {
     play: {
       ...FRAME_NO_PLAY,
       drawOffered: true,
+      drawOfferer: { person: PEOPLE.jordan, plainName: 'jordan_plays' },
       canAnswerDraw: true,
       canResign: true,
     },
@@ -242,7 +243,15 @@ export const StandIn: Story = {
 
 /** Offline with a game that needs the room: changes wait for the connection. */
 export const ConnectionNeeded: Story = {
-  args: { ...HELD, connection: 'needed' },
+  args: {
+    ...HELD,
+    connection: 'needed',
+    status: status({
+      description: 'Your move, once you are back online.',
+      plainTurn: false,
+      emphasis: 'neutral',
+    }),
+  },
 };
 
 /** Offline with a solo game: it carries on on this device. */
