@@ -37,7 +37,7 @@ export function ContentStartAttemptView(
 ): JSX.Element {
   const { t } = useLingui();
   return (
-    <StackVertical gap="md">
+    <StackVertical gap="md" maxWidth="form">
       <Show
         when={props.saved}
         fallback={

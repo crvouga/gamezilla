@@ -50,7 +50,9 @@ test("a solved pack puzzle's way on sits in its solved headline, not the command
   view('progress');
   const panel = screen.getByTestId('puzzle-attempt-panel');
   expect(panel.contains(screen.getByTestId('overview'))).toBe(true);
-  expect(screen.queryByTestId('next')).toBeNull();
+  // Details offers the next puzzle first too, beside the pack's summary.
+  const actions = screen.getByTestId('puzzle-attempt-pack-actions');
+  expect(actions.firstElementChild).toBe(screen.getByTestId('next'));
   cleanup();
   view('attempt');
   expect(

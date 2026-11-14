@@ -102,7 +102,7 @@ function PuzzleState(props: {
         <Badge intent="success" label={t`Solved`} />
       </Match>
       <Match when={props.next}>
-        <Badge intent="brand" label={t`Up next`} />
+        <Badge intent="brand" tone="solid" label={t`Up next`} />
       </Match>
       <Match when={props.puzzle.status === 'in-progress'}>
         <Badge intent="info" label={t`In progress`} />

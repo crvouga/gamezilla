@@ -211,22 +211,22 @@ export function StoryCountingBoard(props: {
         ]}
         disabled={props.disabled === true}
       />
-      <StackHorizontal gap="sm" paddingX="lg">
-        <Button
-          title="Take one step"
-          intent="neutral"
-          variant="outline"
-          flex={1}
-          disabled={props.disabled === true || count() >= target()}
-        />
-        <Button
-          title="Take two steps"
-          intent="neutral"
-          variant="outline"
-          flex={1}
-          disabled={props.disabled === true || count() + 2 > target()}
-        />
-      </StackHorizontal>
+      <Show when={count() < target()}>
+        <StackHorizontal gap="sm" justify="center" paddingX="lg">
+          <Button
+            title="Take one step"
+            intent="neutral"
+            variant="outline"
+            disabled={props.disabled === true}
+          />
+          <Button
+            title="Take two steps"
+            intent="neutral"
+            variant="outline"
+            disabled={props.disabled === true || count() + 2 > target()}
+          />
+        </StackHorizontal>
+      </Show>
     </StackVertical>
   );
 }

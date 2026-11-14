@@ -1,5 +1,6 @@
 import { readContentLibrary } from '@libs/game-puzzle-shared-ts/content-library';
 import { defineAction } from '@pkgs/harness-root-shared-ts/define-action';
+import { fireEvent } from '@solidjs/testing-library';
 import { selectedPlay } from './attempt-actions';
 import { closeBuilders } from './builder-session';
 import { contentClient } from './content-actions';
@@ -78,3 +79,52 @@ export const EDITION_RULES_ACTIONS = [
   changeGameRules,
   resumeAttemptThroughScreen,
 ] as const;
+
+/**
+ * Opens the device's saved attempt under rules this app lacks and presses
+ * the notice's Update the app: the app is asked to load its newest version
+ * (as its update banner does), with no unusable board or commands shown.
+ */
+export const updateAppFromAttempt = defineAction({
+  name: 'updateAppFromAttempt',
+  act: async (s: ContentHarness, clientId: string) => {
+    const selection = selectedPlay(s, clientId);
+    const view = await mountContentExample(s, clientId);
+    const location = globalThis.location;
+    const reload = location.reload;
+    let reloads = 0;
+    Object.defineProperty(location, 'reload', {
+      configurable: true,
+      value: () => {
+        reloads += 1;
+      },
+    });
+    try {
+      await openLibraryEntry(
+        contentWait(s),
+        view,
+        `content-attempt-${selection.attemptId}`
+      );
+      await waitForContent(s, () =>
+        Promise.resolve(
+          view.queryByTestId('content-attempt-rules-changed') !== null
+        )
+      );
+      s.notices.set(
+        'rules-changed-shows-board',
+        String(
+          view.queryByTestId('counting-step-one') !== null ||
+            view.queryByTestId('content-undo') !== null
+        )
+      );
+      fireEvent.click(view.getByRole('button', { name: 'Update the app' }));
+      s.notices.set('rules-changed-update-requests', String(reloads));
+    } finally {
+      Object.defineProperty(location, 'reload', {
+        configurable: true,
+        value: reload,
+      });
+      view.unmount();
+    }
+  },
+});

@@ -129,6 +129,8 @@ function AttemptPanel(props: ContentAttemptScreenViewProps): JSX.Element {
           wrap
           dataSet={{ testid: 'puzzle-attempt-pack-actions' }}
         >
+          {/* Once solved, the way on comes first, as on the board. */}
+          <Show when={props.complete && props.pack}>{props.onward}</Show>
           {props.wayOn}
         </StackHorizontal>
       </Show>
