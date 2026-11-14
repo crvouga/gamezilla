@@ -50,10 +50,10 @@ export function GameHowToPlayView(props: {
       dataSet={{ testid: 'game-how-to-play' }}
       actions={
         <>
-          {/* One slim row on every width: a short Back (the bar's Back
-              names where it leads), the way to play taking the rest. */}
+          {/* One slim row on every width: back to every way to play (the
+              menu), and the main one taking the rest. */}
           <Button
-            title={<Trans>Back</Trans>}
+            title={<Trans>All ways to play</Trans>}
             icon={ArrowLeftIcon}
             intent="neutral"
             variant="outline"

@@ -65,8 +65,9 @@ function CrumbBody(props: {
  * (`Friday game night › Chess`): the bar's one navigation control. A place
  * with `onClick` is a link (the way back is the parent's name, never a
  * second "Back" beside it); the last place without one is the current one,
- * in the full ink; the rest are quiet. Every name truncates on its own, so
- * a long room name never pushes the current place out of view.
+ * in the full ink; the rest are quiet. Every name truncates on its own and
+ * gives way in proportion to its length, so neither a long room name nor a
+ * long current place pushes the other out of view.
  *
  * @example
  * ```tsx
@@ -89,13 +90,7 @@ export function ChromeBreadcrumb(props: ChromeBreadcrumbProps): JSX.Element {
       <ol class="box flex-row items-center gap-1 min-w-0">
         <For each={props.crumbs}>
           {(crumb, index) => (
-            <li
-              class="box flex-row items-center gap-1 min-w-0"
-              classList={{
-                'shrink-0': index() === last(),
-                shrink: index() !== last(),
-              }}
-            >
+            <li class="box flex-row items-center gap-1 min-w-0 shrink">
               <Show when={index() > 0}>
                 <span class="box shrink-0" aria-hidden="true">
                   <ChevronRightIcon

@@ -40,6 +40,14 @@ const BOARD: GameSettingsRowView = {
   opens: { screen: 'settings/board' },
 };
 
+const CHECK: GameSettingsRowView = {
+  key: 'check',
+  title: 'Check pack files',
+  caption: 'Find broken levels before anyone plays them',
+  testId: 'sokoban-developer-check',
+  opens: { screen: 'settings/developer/check' },
+};
+
 const AUDIENCE = 'How Sokoban looks here, and tools for puzzle managers.';
 
 /**
@@ -98,7 +106,7 @@ export const NestedGroup: Story = {
     place: { screen: 'settings/developer' },
     title: 'Developer',
     subtitle: 'Import and manage puzzle packs.',
-    rows: [PACKS],
+    rows: [PACKS, CHECK],
     backLabel: 'Settings',
   },
 };
@@ -185,7 +193,7 @@ function SettingsWalk(props: {
           place={{ screen: place() }}
           title={root() ? 'Settings' : 'Developer'}
           subtitle={root() ? undefined : 'Import and manage puzzle packs.'}
-          rows={root() ? [BOARD, DEVELOPER] : [PACKS]}
+          rows={root() ? [BOARD, DEVELOPER] : [PACKS, CHECK]}
           onOpen={(opened) => {
             if (opened.screen === DEVELOPER.opens.screen)
               setPlace(opened.screen);

@@ -129,7 +129,7 @@ test('the rules lead on: play the main way in, or back to the menu', () => {
   // keyboard had left it from, so Back from the game focused its heading.
   expect(onOpen).not.toHaveBeenCalled();
   const back = rules.getByTestId('game-how-to-play-back');
-  expect(back.textContent).toContain('Back');
+  expect(back.textContent).toContain('All ways to play');
   back.click();
   expect(onOpen).toHaveBeenCalledWith({ screen: 'menu' });
   rules.unmount();

@@ -1,0 +1,4 @@
+{
+  "summary": "Every group of a game's settings was one screen to the keyboard's focus memory, so after Back from a nested group the parent restored the nested group's row index and focus landed on the heading instead of the row the person had opened. Each group now has its own screen id.",
+  "regressionTest": "libs/game-menu-client-ts/tests/game-settings-screen-view.test.tsx"
+}

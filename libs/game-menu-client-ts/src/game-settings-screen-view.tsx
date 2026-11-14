@@ -44,7 +44,9 @@ export function GameSettingsScreenView(
 ): JSX.Element {
   return (
     <EmbeddedScreen
-      screenId="game-settings"
+      // One screen per group, so each remembers the row the keyboard left
+      // it from and Back returns there.
+      screenId={`game-settings-${props.place.screen.replaceAll('/', '-')}`}
       title={props.title}
       subtitle={props.subtitle}
       dataSet={{ testid: 'game-settings', place: props.place.screen }}
@@ -58,8 +60,9 @@ export function GameSettingsScreenView(
             title={<Trans>Nothing to change here</Trans>}
             body={
               <Trans>
-                These settings are for the people who manage this game's
-                content. Everything else in the game works as usual.
+                Your access to these settings changed while they were open. They
+                are for the people who manage this game's content; everything
+                else in the game works as usual.
               </Trans>
             }
             action={{

@@ -62,3 +62,34 @@ test('a group with no row the person may see says so, with the way out', () => {
   expect(onBack).toHaveBeenCalledTimes(1);
   view.unmount();
 });
+
+// regression: settings-back-focuses-heading — every group was one screen
+// to the keyboard's memory, so Back from a nested group restored the
+// nested group's row index on the parent and landed on its heading. Each
+// group is a screen of its own.
+test('each settings group is a screen of its own to the keyboard', () => {
+  const screens = [ROOT, DEVELOPER].map((place) => {
+    const view = renderWithI18n(() => (
+      <ThemeProvider
+        colorScheme="dark"
+        fixedLayout={{ width: 390, height: 844 }}
+      >
+        <GameSettingsScreenView
+          place={place}
+          title="Settings"
+          rows={[]}
+          onOpen={() => undefined}
+          backLabel="Chess"
+          onBack={() => undefined}
+        />
+      </ThemeProvider>
+    ));
+    const id = view.container
+      .querySelector('[data-screen]')
+      ?.getAttribute('data-screen');
+    view.unmount();
+    return id;
+  });
+  expect(screens[0]).toBe('game-settings-settings');
+  expect(screens[1]).toBe('game-settings-settings-developer');
+});
