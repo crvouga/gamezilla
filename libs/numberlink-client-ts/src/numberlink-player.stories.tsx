@@ -150,6 +150,12 @@ export const Solved: Story = {
           <NumberlinkPlayer
             {...args}
             state={next() ? progress([]) : args.state}
+            // As the production attempt screen passes it.
+            context={{
+              kind: 'pack',
+              shellOffersWayOn: true,
+              shellSaysSolved: true,
+            }}
           />
         }
       />
@@ -161,8 +167,10 @@ export const NextPuzzle: Story = {
   ...Solved,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByTestId('numberlink-solved')).toBeVisible();
-    // One press from the solved card onto the next puzzle's board.
+    // The screen says it is solved; the game leaves it to the screen.
+    await expect(canvas.getByTestId('content-attempt-complete')).toBeVisible();
+    await expect(canvas.queryByTestId('numberlink-solved')).toBeNull();
+    // One press from the solved headline onto the next puzzle's board.
     await userEvent.click(canvas.getByTestId('content-next-puzzle'));
     await expect(
       canvas.queryByTestId('numberlink-solved')

@@ -27,6 +27,8 @@ function Drawing(props: {
   state: NumberlinkState;
   disabled: boolean;
   onAction: (action: string) => void;
+  /** The screen says the puzzle is solved itself. */
+  shellSaysSolved: boolean;
 }): JSX.Element {
   const drawing = createNumberlinkDrawing({
     definition: () => props.definition,
@@ -75,8 +77,9 @@ function Drawing(props: {
           /{props.definition.width * props.definition.height} cells covered
         </Trans>
       </P>
-      {/* After the board, so finishing never moves the board. */}
-      <Show when={solved()}>
+      {/* After the board, so finishing never moves the board; left to the
+          screen when it says the puzzle is solved itself. */}
+      <Show when={solved() && !props.shellSaysSolved}>
         <Notice tone="success" dataSet={{ testid: 'numberlink-solved' }}>
           <P variant="bodyBold">
             <Trans>Puzzle solved</Trans>
@@ -164,6 +167,7 @@ export function NumberlinkPlayer(props: PuzzlePlayerProps): JSX.Element {
           state={value().state}
           disabled={props.disabled}
           onAction={props.onAction}
+          shellSaysSolved={props.context?.shellSaysSolved === true}
         />
       )}
     </Show>

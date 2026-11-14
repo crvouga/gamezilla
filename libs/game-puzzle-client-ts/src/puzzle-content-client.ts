@@ -16,6 +16,11 @@ export type PuzzlePlayContext = {
   readonly kind: 'pack' | 'playtest' | 'single';
   /** The screen offers its own way on (pack overview or next, back to the builder). */
   readonly shellOffersWayOn: boolean;
+  /**
+   * The screen says when the puzzle is solved and that its completion is
+   * saved, so a game need not say it again under its board.
+   */
+  readonly shellSaysSolved?: boolean | undefined;
 };
 
 /** The shared player owns persistence, history, completion and navigation. */

@@ -2,6 +2,7 @@ import { useLingui } from '@lingui/solid/macro';
 import { ActionNotice } from '@pkgs/ui-root-client-ts/action-notice';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { WifiOffIcon } from '@pkgs/ui-root-client-ts/icons';
+import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Show } from 'solid-js';
 
@@ -23,7 +24,8 @@ export function ContentConnectionStatusView(
 ): JSX.Element {
   const { t } = useLingui();
   return (
-    <>
+    // Inside the page's gutter, like the screen under it.
+    <StackVertical gap="sm" paddingX="lg">
       <Show when={props.loading}>
         <P
           role="status"
@@ -50,6 +52,6 @@ export function ContentConnectionStatusView(
           dataSet={{ testid: 'content-offline' }}
         />
       </Show>
-    </>
+    </StackVertical>
   );
 }

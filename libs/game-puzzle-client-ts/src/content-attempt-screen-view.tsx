@@ -339,23 +339,44 @@ function AttemptStatus(props: ContentAttemptScreenViewProps): JSX.Element {
 
 /** Why there is no board to play: the position, or the puzzle itself. */
 function Unopenable(props: ContentAttemptScreenViewProps): JSX.Element {
+  const { t } = useLingui();
   return (
-    <Notice tone="error">
+    <StackVertical gap="md">
+      <Notice tone="error">
+        <Show
+          when={props.unreadable === true}
+          fallback={
+            <Trans>
+              This saved position cannot be opened. Continue from another saved
+              position, or restart. Your earlier attempt stays saved.
+            </Trans>
+          }
+        >
+          <Trans>
+            This puzzle cannot be opened. Your attempt stays saved. Return to
+            the puzzles to choose another.
+          </Trans>
+        </Show>
+      </Notice>
       <Show
         when={props.unreadable === true}
         fallback={
-          <Trans>
-            This saved position cannot be opened. Choose another saved position
-            under Details, or restart. Your earlier attempt stays saved.
-          </Trans>
+          <Button
+            title={t`Choose another saved position`}
+            fullWidth
+            onClick={() => props.onOpen({ screen: 'progress' })}
+            dataSet={{ testid: 'content-unopenable-positions' }}
+          />
         }
       >
-        <Trans>
-          This puzzle cannot be opened. Your attempt stays saved. Return to the
-          library to choose another puzzle.
-        </Trans>
+        <Button
+          title={t`Back to puzzles`}
+          fullWidth
+          onClick={() => props.onReturnToLibrary()}
+          dataSet={{ testid: 'content-unreadable-library' }}
+        />
       </Show>
-    </Notice>
+    </StackVertical>
   );
 }
 
@@ -410,11 +431,13 @@ function AttemptStage(props: ContentAttemptScreenViewProps): JSX.Element {
         fixedStage
         stageAlign={props.stageAlign}
       >
-        <Show when={!props.unopenable} fallback={<Unopenable {...props} />}>
-          {/* The stage narrows the game's board to the room a phone's
-              fixed view leaves over the commands, so none of it hides. */}
-          <GameBoardStage inset>{props.player}</GameBoardStage>
-        </Show>
+        {/* The stage narrows the game's board to the room a phone's fixed
+            view leaves over the commands, so none of it hides. */}
+        <GameBoardStage inset>
+          <Show when={!props.unopenable} fallback={<Unopenable {...props} />}>
+            {props.player}
+          </Show>
+        </GameBoardStage>
       </GameSessionLayout>
     </GameScreen>
   );

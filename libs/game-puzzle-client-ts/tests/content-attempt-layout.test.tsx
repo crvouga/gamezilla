@@ -381,13 +381,20 @@ test('loading, gone and missing are states of their own, each with a way on', ()
   expect(returned).toBe(2);
 });
 
-test('a position that cannot be opened points at Details for another one', () => {
-  mount(390, 'attempt', { unopenable: true });
+test('a position that cannot be opened offers another saved position in place', () => {
+  const opened: string[] = [];
+  mount(390, 'attempt', {
+    unopenable: true,
+    onOpen: (place) => opened.push(place.screen),
+  });
   expect(screen.queryByTestId('player')).toBeNull();
   expect(
-    screen.getByText(/Choose another saved position under Details/)
+    screen.getByText(/Continue from another saved position, or restart/)
   ).toBeDefined();
+  fireEvent.click(screen.getByTestId('content-unopenable-positions'));
+  expect(opened).toEqual(['progress']);
   cleanup();
   mount(390, 'attempt', { unopenable: true, unreadable: true });
   expect(screen.getByText(/This puzzle cannot be opened\./)).toBeDefined();
+  expect(screen.getByTestId('content-unreadable-library')).toBeDefined();
 });

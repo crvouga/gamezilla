@@ -82,7 +82,7 @@ function PlayRows(props: { view: View }): JSX.Element {
       <ResumeRow view={props.view} />
       <MenuRow
         title={t`Continue`}
-        caption={t`Puzzles you started`}
+        caption={t`Every puzzle you started`}
         value={count(done(false), props.view.more.attempts)}
         disabled={creating(props.view)}
         onClick={() => props.view.onOpen({ screen: 'continue' })}
