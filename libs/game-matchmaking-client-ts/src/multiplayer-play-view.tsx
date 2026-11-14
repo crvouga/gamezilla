@@ -181,7 +181,13 @@ export function MultiplayerPlayView(props: PlayProps): JSX.Element {
           </GameActionBar>
         }
         aside={
-          <Show when={props.game.moves}>
+          <Show
+            when={
+              (props.game.moves?.moves.length ?? 0) > 0
+                ? props.game.moves
+                : undefined
+            }
+          >
             {(moves) => (
               <GameSection title={<Trans>Moves</Trans>}>
                 <MultiplayerMoveList

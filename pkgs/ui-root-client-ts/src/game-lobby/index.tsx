@@ -137,6 +137,11 @@ export type GameLobbyScreenProps = {
   children: JSX.Element;
   /** A `GameLobbyDock`: stays at the foot of the screen. */
   dock?: JSX.Element | undefined;
+  /**
+   * On a wide host, stand the column and its dock in the middle of the
+   * pane, the command at a reading width, instead of at its top.
+   */
+  centered?: boolean | undefined;
   dataSet?: ComponentDataSet | undefined;
 };
 
@@ -174,6 +179,7 @@ export function GameLobbyScreen(props: GameLobbyScreenProps): JSX.Element {
       }}
       class={styles['screen']}
       data-wide={mode() === 'wide'}
+      data-centered={props.centered === true}
       {...dataAttrs({
         component: 'GameLobbyScreen',
         ...props.dataSet,

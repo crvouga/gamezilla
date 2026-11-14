@@ -276,11 +276,7 @@ test('a bigger game says how many players it finds, and names its command so', (
     stage: 'idle',
     props: { find: { players: 4, timed: false, timeControl: '5+0' } },
   });
-  expect(
-    screen.getByText(
-      'A game needs 4 players including you. Find 3 other players.'
-    )
-  ).toBeTruthy();
+  expect(screen.getByText('A game of you and 3 other players.')).toBeTruthy();
   expect(screen.getByTestId('multiplayer-find').textContent).toContain(
     'Find players'
   );

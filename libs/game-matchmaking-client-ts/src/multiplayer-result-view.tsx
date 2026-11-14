@@ -64,7 +64,11 @@ function Rematch(props: ResultProps): JSX.Element {
                 <VisuallyHidden>Offer a multiplayer </VisuallyHidden>Rematch
               </Trans>
             }
-            successLabel={<Trans>Multiplayer rematch offered</Trans>}
+            successLabel={
+              <Trans>
+                <VisuallyHidden>Rematch </VisuallyHidden>Offered
+              </Trans>
+            }
             dataSet={{ testid: 'multiplayer-offer-rematch' }}
           />
         </Show>

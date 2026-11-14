@@ -250,3 +250,12 @@
     display: none;
   }
 }
+
+/* Centred on a wide host: the column and its dock in the middle of the
+   pane, the command no wider than a reading line. */
+.screen[data-wide="true"][data-centered="true"] {
+  justify-content: center;
+}
+.screen[data-wide="true"][data-centered="true"] .dockColumn {
+  max-width: 480px;
+}

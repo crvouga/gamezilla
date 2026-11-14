@@ -65,6 +65,7 @@ export function MultiplayerLobbyPlace(
   return (
     <GameLobbyScreen
       screenId="multiplayer"
+      centered
       dock={props.dock}
       dataSet={placeMark(props)}
     >

@@ -148,16 +148,10 @@ function PlayersNeeded(props: {
   return (
     <Show
       when={props.find.timed}
-      fallback={
-        <Trans>
-          A game needs {count()} players including you. Find {count() - 1} other
-          players.
-        </Trans>
-      }
+      fallback={<Trans>A game of you and {count() - 1} other players.</Trans>}
     >
       <Trans>
-        A game needs {count()} players including you. Find {count() - 1} other
-        players at the same clock choice.
+        A game of you and {count() - 1} other players, all at this clock.
       </Trans>
     </Show>
   );

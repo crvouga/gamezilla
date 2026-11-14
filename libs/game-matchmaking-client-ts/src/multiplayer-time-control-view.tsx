@@ -3,6 +3,7 @@ import {
   MULTIPLAYER_SPEEDS,
   TIME_CONTROLS,
   timeControlKey,
+  timeControlOf,
 } from '@libs/game-matchmaking-shared-ts/time-control';
 import { Trans } from '@lingui/solid/macro';
 import { GameChoiceGrid } from '@pkgs/ui-root-client-ts/game-choice-grid';
@@ -13,6 +14,11 @@ import {
 } from './multiplayer-place-frame';
 import { SpeedName } from './speed-name';
 import { timeControlChoiceText, timeControlWords } from './time-control-name';
+
+/** The speed a time control belongs to (`blitz`). */
+function speedOf(id: string): string {
+  return timeControlOf(plainClock(id))?.speed ?? '';
+}
 
 /** A time control without the game's prefix (`chess/5+0` is `5+0`). */
 function plainClock(id: string): string {
@@ -43,14 +49,15 @@ export function MultiplayerTimeControlView(
           when={isDailyTimeControl(props.timeControl)}
           fallback={
             <Trans>
-              Chosen: {timeControlWords(props.timeControl)}. Minutes each, plus
-              seconds per move.
+              Chosen: {timeControlChoiceText(props.timeControl)},{' '}
+              <SpeedName speed={speedOf(props.timeControl)} />. Minutes each,
+              plus seconds per move.
             </Trans>
           }
         >
           <Trans>
-            Chosen: {timeControlWords(props.timeControl)}. That long for every
-            move.
+            Chosen: {timeControlWords(props.timeControl)}, daily. That long for
+            every move.
           </Trans>
         </Show>
       }

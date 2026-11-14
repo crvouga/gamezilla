@@ -39,7 +39,7 @@ export const SearchingForPlayers: Story = {
   args: {
     title: 'Hearts',
     goal: 'Take as few hearts as you can. The lowest score wins.',
-    search: { players: 4, gameName: 'Hearts', timeControl: null, seconds: 7 },
+    search: { players: 4, gameName: 'Hearts', timeControl: '10+5', seconds: 7 },
   },
 };
 
