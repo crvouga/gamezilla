@@ -1,0 +1,4 @@
+{
+  "summary": "Diagnostic run 43545677095 supplied the Sokoban close-view test pattern but ran every PR Storybook shard. Apply explicit patterns to ordinary diagnostic comparisons while keeping the default full selection.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-storybook-diagnostic.test.ts"
+}

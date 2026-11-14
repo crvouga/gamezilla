@@ -1,7 +1,13 @@
 import { useMyId } from '@libs/auth-client-ts/use-current-user';
 import type { AttemptLibrary } from '@libs/game-puzzle-shared-ts/attempt-library';
 import type { ContentLibrary } from '@libs/game-puzzle-shared-ts/content-library';
-import { CONTENT_PAGE_SIZE } from '@libs/game-puzzle-shared-ts/content-query-scope';
+import {
+  byNewestPublication,
+  CONTENT_PAGE_SIZE,
+  PUBLISHED_PAGE_START,
+  type PublishedPageCursor,
+} from '@libs/game-puzzle-shared-ts/content-query-scope';
+import type { ContentDocument } from '@libs/game-puzzle-shared-ts/content-types';
 import {
   type Accessor,
   createEffect,
@@ -38,13 +44,46 @@ function createIdPage(
   return { afterIds, limit, hasMore, more };
 }
 
+export type PublishedPage = {
+  readonly cursors: Accessor<readonly PublishedPageCursor[]>;
+  readonly limit: Accessor<number>;
+  readonly hasMore: Accessor<boolean>;
+  readonly more: () => void;
+};
+
+/** Browse's pages run newest publication first, each starting after the previous page's last row. */
+export function createPublishedPage(
+  rows: Accessor<readonly ContentDocument[]>
+): PublishedPage {
+  const [cursors, setCursors] = createSignal<readonly PublishedPageCursor[]>([
+    PUBLISHED_PAGE_START,
+  ]);
+  const limit = createMemo(() => cursors().length * CONTENT_PAGE_SIZE);
+  const ordered = createMemo(() => rows().toSorted(byNewestPublication));
+  const hasMore = () => ordered().length >= limit();
+  const more = (): void => {
+    const last = ordered()[limit() - 1];
+    const beforeAt = last?.published_at;
+    if (
+      !hasMore() ||
+      last === undefined ||
+      beforeAt == null ||
+      cursors().some((cursor) => cursor.beforeId === last.id)
+    )
+      return;
+    const next = { beforeAt, beforeId: last.id };
+    setCursors((prior) => [...prior, next]);
+  };
+  return { cursors, limit, hasMore, more };
+}
+
 export function useContentPages(
   content: Accessor<ContentLibrary>,
   play: Accessor<AttemptLibrary>,
   subject: Accessor<ContentSubject>
 ) {
   const myId = useMyId();
-  const published = createIdPage(() =>
+  const published = createPublishedPage(() =>
     content().documents.filter((doc) => doc.published_revision_id !== null)
   );
   const owned = createIdPage(() =>

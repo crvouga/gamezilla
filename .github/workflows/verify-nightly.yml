@@ -205,8 +205,11 @@ jobs:
         if: ${{ !inputs.storybook-evidence-run && inputs.update-storybook-baselines }}
         run: bun run storybook:test --grep "$STORYBOOK_PATTERN"
       - name: Compare PR Storybook states
-        if: ${{ !inputs.storybook-evidence-run && !inputs.update-storybook-baselines }}
+        if: ${{ !inputs.storybook-evidence-run && !inputs.update-storybook-baselines && !inputs.storybook-pattern }}
         run: bunx turbo run ci:storybook:0 ci:storybook:1 ci:storybook:2 ci:storybook:3 ci:storybook:4 ci:storybook:5 ci:storybook:6 ci:storybook:7 ci:storybook:8 ci:storybook:9 ci:storybook:10 ci:storybook:11 ci:storybook:12 ci:storybook:13 --filter=@pkgs/ui-root-harness-ts --concurrency=1
+      - name: Compare selected Storybook states
+        if: ${{ !inputs.storybook-evidence-run && !inputs.update-storybook-baselines && inputs.storybook-pattern != '' }}
+        run: bun run storybook:test --grep "$STORYBOOK_PATTERN"
       - name: Retain Storybook comparisons and reference patch
         if: ${{ always() && !cancelled() && !inputs.storybook-evidence-run }}
         run: >-
@@ -318,7 +321,9 @@ jobs:
     permissions:
       contents: read # check out the code
       issues: write # open or update the Verify Nightly issue
+      id-token: write # mint the OIDC token Infisical trusts (Grafana metrics credentials)
     env:
+      SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
       GH_TOKEN: ${{ github.token }}
       NEEDS: ${{ toJSON(needs) }}
       NIGHTLY_OWNER: ${{ vars.CI_TRIAGE_OWNER || github.repository_owner }}
@@ -333,4 +338,16 @@ jobs:
           product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
           tools: bun gh
       - name: verify-nightly:end
+        id: verdict
         run: bun run libs/tools-harness-ts/scripts/verify-nightly-verdict.ts
+      # The same verdict in every environment's Grafana: its alert pages
+      # until a complete night on main is green again. Diagnostics and
+      # branch rehearsals record nothing.
+      - name: Record the verdict in Grafana
+        env:
+          PASSED: ${{ steps.verdict.outputs.passed }}
+        if: ${{ always() && steps.verdict.outputs.passed != '' && github.ref == 'refs/heads/main' && env.NIGHTLY_GROUP == 'all' }}
+        run: >-
+          bun run apps/product-ts/scripts/ci-workflow-result.ts --workflow verify-nightly
+          --passed "$PASSED"
+          --envs "$(bun run libs/infra-shared-ts/scripts/workflow-env-matrix.ts | sed -n 's/^all=//p')"

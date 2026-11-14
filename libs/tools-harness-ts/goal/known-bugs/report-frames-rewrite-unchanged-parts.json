@@ -1,0 +1,4 @@
+{
+  "summary": "A test report stored every part of a frame again whenever any part changed, so each person's unchanged screen was rewritten every time someone else acted (about three copies per stored frame part across the games reports). Together with the per-slice Quint trace copies this ran the nightly visual run out of disk. A part a test already stored byte for byte now reuses that file.",
+  "regressionTest": "pkgs/harness-root-shared-ts/tests/report.test.ts"
+}

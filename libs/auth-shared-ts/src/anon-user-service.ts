@@ -18,6 +18,14 @@ type DeviceUserRow = {
 type UserAnonRow = {
   readonly id: string;
   readonly is_anon: boolean | number | string | null;
+  readonly synthetic_at: string | null;
+};
+
+type UserAnonState = {
+  readonly exists: boolean;
+  readonly isAnon: boolean;
+  /** Monitoring proved it drives this account (`synthetic_at`). */
+  readonly synthetic: boolean;
 };
 
 function isAnonFlag(value: unknown): boolean {
@@ -115,13 +123,39 @@ export class AnonUserService {
     return this.readDeviceUserId(deviceId);
   }
 
-  async readUserAnonState(
-    userId: string
-  ): Promise<{ readonly exists: boolean; readonly isAnon: boolean }> {
+  async readUserAnonState(userId: string): Promise<UserAnonState> {
     assertUuid(userId, 'userId must be UUID');
-    const anon = await this.readUserIsAnon(userId);
-    if (anon === null) return { exists: false, isAnon: false };
-    return { exists: true, isAnon: anon };
+    const row = await this.readUserRow(userId);
+    if (row === null) return { exists: false, isAnon: false, synthetic: false };
+    return {
+      exists: true,
+      isAnon: isAnonFlag(row.is_anon),
+      synthetic: row.synthetic_at !== null,
+    };
+  }
+
+  /**
+   * Records that automated monitoring drives the anonymous account bound to
+   * `deviceId`. Idempotent: the first mark's time stays. `null` when the
+   * device has no live anonymous account yet.
+   */
+  async markDeviceUserSynthetic(
+    deviceId: string,
+    now: () => number
+  ): Promise<string | null> {
+    assertDeviceId(deviceId);
+    const userId = await this.readDeviceUserId(deviceId);
+    if (userId === null) return null;
+    const row = await this.readUserRow(userId);
+    if (row === null || !isAnonFlag(row.is_anon)) return null;
+    if (row.synthetic_at !== null) return userId;
+    const nowIso = managedUpdatedAtIso(now);
+    await this.tx.run(sql<void>`
+      UPDATE auth_users
+      SET synthetic_at = ${nowIso}, updated_at = ${nowIso}
+      WHERE id = ${userId} AND synthetic_at IS NULL AND deleted_at IS NULL
+    `);
+    return userId;
   }
 
   /** Clears `is_anon` on an upgraded user row. */
@@ -147,15 +181,18 @@ export class AnonUserService {
   }
 
   private async readUserIsAnon(userId: string): Promise<boolean | null> {
+    const row = await this.readUserRow(userId);
+    return row === null ? null : isAnonFlag(row.is_anon);
+  }
+
+  private async readUserRow(userId: string): Promise<UserAnonRow | null> {
     const rows = await this.tx.query(sql<UserAnonRow>`
-      SELECT id, is_anon
+      SELECT id, is_anon, synthetic_at
       FROM auth_users
       WHERE id = ${userId} AND deleted_at IS NULL
       LIMIT 1
     `);
-    const row = rows[0];
-    if (row === undefined) return null;
-    return isAnonFlag(row.is_anon);
+    return rows[0] ?? null;
   }
 
   private async insertAnonUser(

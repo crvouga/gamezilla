@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { checkedIssueOutput } from './verify-nightly-verdict';
+import { checkedIssueOutput, issueAction } from './ci-failure-issue';
 
 // regression: nightly-issue-reporting-silent-failure
 test('an issue API permission failure cannot be interpreted as an empty issue list', () => {
@@ -17,4 +17,11 @@ test('an issue API permission failure cannot be interpreted as an empty issue li
   expect(checkedIssueOutput({ status: 0, stdout: '258\n', stderr: '' })).toBe(
     '258'
   );
+});
+
+test('a red run opens the issue once, comments while it stays red, and a green run closes it', () => {
+  expect(issueAction(true, null)).toEqual({ kind: 'create' });
+  expect(issueAction(true, '388')).toEqual({ kind: 'comment', issue: '388' });
+  expect(issueAction(false, '388')).toEqual({ kind: 'close', issue: '388' });
+  expect(issueAction(false, null)).toEqual({ kind: 'none' });
 });

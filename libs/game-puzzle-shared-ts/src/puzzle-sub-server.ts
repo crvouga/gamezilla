@@ -1,5 +1,6 @@
 import type { SubServer } from '@libs/sub-shared-ts/server';
 import { defineSubServer } from '@libs/sub-shared-ts/server';
+import { syntheticPublicationExpiryConsumer } from './content-publication';
 import { puzzleContentTopic } from './content-topic-map';
 import { puzzleCatalogueTopic } from './puzzle-catalogue';
 import { offersPuzzles, type PuzzleGameOffering } from './sub';
@@ -15,6 +16,10 @@ export const GAME_PUZZLE_SERVER = defineSubServer({
   // The catalogue every device reads: without this grant AWS IoT refuses the
   // subscription and the device drops its whole session, forever.
   pubsubTopics: async () => [puzzleCatalogueTopic(), puzzleContentTopic],
+  // Monitoring's packs are withdrawn even when its run ends before cleanup.
+  registerOutbox: (registry) => {
+    registry.register(syntheticPublicationExpiryConsumer);
+  },
 });
 
 /** The puzzle server half exactly when a registered game offers puzzles. */

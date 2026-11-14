@@ -53,12 +53,17 @@ function digestsEqual(a: string, b: string): boolean {
   return diff === 0;
 }
 
-function presentedTokenMatches(ctx: AuthAppCtx, presented: string): boolean {
-  const expected = ctx.deps.syntheticMonitor?.token ?? '';
+/** Peppered, constant-time comparison of a presented monitor token. */
+export function monitorTokenMatches(
+  secret: string,
+  monitor: SyntheticMonitorConfig | undefined,
+  presented: string
+): boolean {
+  const expected = monitor?.token ?? '';
   if (expected.length === 0) return false;
   return digestsEqual(
-    hashAuthSecret(ctx.deps.secret, presented),
-    hashAuthSecret(ctx.deps.secret, expected)
+    hashAuthSecret(secret, presented),
+    hashAuthSecret(secret, expected)
   );
 }
 
@@ -105,7 +110,10 @@ export async function handleSyntheticMonitorCode(
     return c.json({ error: 'not_found' }, 404);
   }
   const presented = readBearer(c.req.header('authorization'));
-  if (presented === null || !presentedTokenMatches(ctx, presented)) {
+  if (
+    presented === null ||
+    !monitorTokenMatches(ctx.deps.secret, ctx.deps.syntheticMonitor, presented)
+  ) {
     return c.json({ error: 'unauthorized' }, 401);
   }
   const raw: unknown = await c.req.json().catch(() => null);

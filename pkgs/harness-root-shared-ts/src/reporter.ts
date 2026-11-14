@@ -18,7 +18,11 @@ import {
   sanitizeTestId,
 } from '@crvouga/atlas/reports/report-types';
 import type { ObjectStore } from '@pkgs/object-store-root-shared-ts/interface';
-import { captureSnapshotParts, persistSnapshotParts } from './capture';
+import {
+  captureSnapshotParts,
+  persistSnapshotParts,
+  type StoredParts,
+} from './capture';
 import type { CatalogSnapshot } from './define-snapshot';
 import {
   actorIdFromArgs,
@@ -89,6 +93,7 @@ export class RunReporter {
   private frameSeq = 0;
   private lastFrameHash = '';
   private lastBlobs: readonly ReportSnapshotBlob[] = [];
+  private readonly storedParts: StoredParts = new Map();
   private flushed = false;
   private status: ReportTestStatus = 'passed';
   private failure: { readonly error: string; readonly stack?: string } | null =
@@ -332,6 +337,7 @@ export class RunReporter {
         this.frameSeq += 1;
         return this.frameSeq;
       },
+      stored: this.storedParts,
     });
     this.lastBlobs = blobs;
     this.pushFrame(open, capturedAtMs, blobs, hit);

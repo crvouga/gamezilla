@@ -60,6 +60,7 @@ import {
   runObligation,
   runsOfTrace,
 } from './trace-runs';
+import { traceTimeout } from './wall-io';
 
 export type RunModelOptions = {
   readonly packageName: string;
@@ -77,8 +78,9 @@ export type RunModelOptions = {
    * run as several test files in parallel; a varied model deals out every
    * run of its traces, pinned histories and determinism check instead
    * (`runInSlice`). Every slice draws the same traces (the draw is a function
-   * of the model and the seed) into its own `quint/<model>@<k>of<n>/`; slice
-   * 0 also runs the model-wide tests.
+   * of the model and the seed) and writes its summary to its own
+   * `quint/<model>@<k>of<n>/`; slice 0 alone keeps the trace files there, and
+   * also runs the model-wide tests.
    */
   readonly slice?: { readonly index: number; readonly count: number };
   /**
@@ -143,7 +145,13 @@ export function runQuintModel(options: RunModelOptions): void {
     let instances: readonly DrawnInstance[];
     try {
       if (binding instanceof Error) throw binding;
-      instances = drawModelInstances({ ...options, model, binding, outDir });
+      instances = drawModelInstances({
+        ...options,
+        model,
+        binding,
+        outDir,
+        copyTraces: slice.index === 0,
+      });
     } catch (cause) {
       test('draws traces from the model', () =>
         decide({
@@ -381,16 +389,26 @@ function registerTraces(
     for (const run of input.runsOf(i)) {
       if (!mine(i, run)) continue;
       const ctx = runContext(traceContext(options, model, drawn.seed, n), run);
-      const body = () =>
-        decide({
+      const body = () => {
+        const timeout = traceTimeout(binding.timeoutMs);
+        return decide({
           record,
           id: runObligation(`trace:${String(n)}`, run),
           layer: 'implementation',
           body: async () => {
-            await replayTrace({ ctx, trace, world: quintWorld(), binding });
+            await replayTrace({
+              ctx,
+              trace,
+              world: quintWorld(),
+              binding,
+              ...(timeout.signal === undefined
+                ? {}
+                : { abandoned: timeout.signal }),
+            });
             return `the product agreed with the model at every step (${steps}, seed ${drawn.seed})`;
           },
-        });
+        }).finally(timeout.clear);
+      };
       const name = runName(`trace ${String(n)} (${steps})`, run);
       if (binding.timeoutMs === undefined) test(name, body);
       else test(name, body, binding.timeoutMs);

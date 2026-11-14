@@ -14,6 +14,8 @@ test('fresh runners install pinned tools without the stalled tool archive', () =
   ) as {
     runs: {
       steps: {
+        name?: string;
+        run?: string;
         uses?: string;
         if?: string;
         'continue-on-error'?: boolean;
@@ -39,6 +41,16 @@ test('fresh runners install pinned tools without the stalled tool archive', () =
   );
   expect(fallback?.with?.['fail-on-cache-miss']).toBe(true);
   expect(fallback?.with?.['path']).toBe('~/.local/share/mise');
+  // regression: mise-cached-env-paths-unsupported
+  // Run 43536067972 shard 7 restored all 19 tools, then the cached mise
+  // rejected `env --paths`, preventing dependency installation and verification.
+  const activate = setup.runs.steps.find(
+    (step) => step.name === 'Activate the restored toolchain'
+  );
+  expect(activate?.run).toContain(
+    `mise env --json | jq -r '.PATH | split(":")[]' >> "$GITHUB_PATH"`
+  );
+  expect(activate?.run).not.toContain('mise env --paths');
   expect(install.with?.['install']).not.toBe(false);
   expect(install.with?.['install_args']).toBe(
     "${{ inputs.tools || '--include-lazy' }}"

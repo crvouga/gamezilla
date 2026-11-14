@@ -116,7 +116,8 @@ runs:
         # shellcheck disable=SC2086 -- TOOLS is a mise argument list
         mise install $TOOLS
         mise reshim -f
-        mise env --paths >> "$GITHUB_PATH"
+        # The snapshot's pinned mise predates `env --paths`.
+        mise env --json | jq -r '.PATH | split(":")[]' >> "$GITHUB_PATH"
         mise env --json | jq -r 'to_entries[] | select(.key != "PATH") | "\(.key)=\(.value)"' >> "$GITHUB_ENV"
 
     - name: Look up the toolchain snapshot

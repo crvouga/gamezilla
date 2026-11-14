@@ -77,6 +77,9 @@ async function createInhouseAuthProvider(
       clock: env.clock,
       createId: env.createId,
       secret: config.secret,
+      ...(config.syntheticMonitor === undefined
+        ? {}
+        : { syntheticMonitor: config.syntheticMonitor }),
     }),
     signInMethods: [
       ...OAUTH_PROVIDER_IDS.filter((id) => config.providers[id] !== undefined),

@@ -11,6 +11,7 @@ describe('the emitted metrics', () => {
   test('are stored under the names the dashboards and alerts have always read', () => {
     expect([...emittedSeriesNames()].sort()).toEqual([
       'billing_callbacks_total',
+      'ci_workflow_result',
       'feedback_bug_report_send_duration_seconds_bucket',
       'feedback_bug_report_send_duration_seconds_count',
       'feedback_bug_report_send_duration_seconds_sum',

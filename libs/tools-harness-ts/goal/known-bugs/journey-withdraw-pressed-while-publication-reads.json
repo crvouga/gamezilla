@@ -1,0 +1,4 @@
+{
+  "summary": "A live journey's cleanup pressed Withdraw while the builder's publish screen still read its publication, with View above Withdraw. The read settled on the current edition, View went, and the press hit the builder beside Withdraw (Verify Nightly 43408857120, the Numberlink offline journey). Cleanup now waits for the publication to settle before withdrawing.",
+  "regressionTest": "libs/game-puzzle-harness-ts/tests/content-journey-withdraw.test.ts"
+}

@@ -9,13 +9,19 @@ import type { CreateId } from '@pkgs/uuid-shared-ts/create-id';
 import { identityJson } from './identity-handlers';
 import { IdentityRepository } from './identity-repository';
 import { IdpRepository } from './idp-repository';
-import { isSyntheticMonitor } from './synthetic-monitor';
+import {
+  isSyntheticMonitor,
+  monitorTokenMatches,
+  type SyntheticMonitorConfig,
+} from './synthetic-monitor';
 
 export type CreateAuthServerAdapterDeps = {
   readonly getSql: () => SqlClient;
   readonly clock: Clock;
   readonly createId: CreateId;
   readonly secret: string;
+  /** Absent → the adapter recognizes no synthetic-monitor credential. */
+  readonly syntheticMonitor?: SyntheticMonitorConfig;
 };
 
 function repository(deps: CreateAuthServerAdapterDeps): IdpRepository {
@@ -72,6 +78,14 @@ export function createAuthServerAdapter(
     provider: IDP_PROVIDER_LABEL,
     verifySessionToken: (token) => verifySessionToken(deps, token),
     getUser: (externalUserId) => getUser(deps, externalUserId),
+    ...(deps.syntheticMonitor === undefined
+      ? {}
+      : {
+          isSyntheticMonitorCredential: (presented: string) =>
+            Promise.resolve(
+              monitorTokenMatches(deps.secret, deps.syntheticMonitor, presented)
+            ),
+        }),
     deleteUser: async (externalUserId) => {
       const tx = deps.getSql();
       // Links still in the mail for the user's address go with the user.

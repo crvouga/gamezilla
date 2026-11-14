@@ -1,0 +1,4 @@
+{
+  "summary": "The live Health journeys publish Numberlink and Sokoban packs as fresh anonymous users and withdraw them in cleanup. A run whose cleanup failed left its pack published, and since Browse lists newest first it sat near the top of production's Browse for real people with nothing to withdraw it. Anonymous Health devices now prove with the synthetic-monitor credential that monitoring drives them, their publications carry synthetic_at from the verified replay provenance, and each schedules its own withdrawal an hour later through the outbox the Worker cron drains.",
+  "regressionTest": "libs/game-puzzle-shared-ts/tests/synthetic-publication.test.ts"
+}

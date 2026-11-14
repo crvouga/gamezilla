@@ -45,6 +45,7 @@ import {
 } from './alert-links';
 import type { AlertRule } from './alert-rule';
 import { percent, ruleKey } from './alert-rule';
+import { ciWorkflowAlerts } from './ci-workflow-alerts';
 import { certificateRules, failureCountRules } from './companion-alerts';
 import { integrityRules } from './integrity-alerts';
 import { PIPELINE_ALERTS } from './pipeline-alerts';
@@ -180,6 +181,7 @@ export function generateAlertRules(
   const bundle: AlertBundle = sloAlertBundle(docs);
   const fast: AlertRule[] = [
     ...PIPELINE_ALERTS,
+    ...ciWorkflowAlerts(),
     ...integrityRules(docs),
     ...syncPerformanceAlerts(),
     ...certificateRules(),

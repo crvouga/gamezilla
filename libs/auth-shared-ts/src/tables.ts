@@ -5,6 +5,11 @@ export const authUsers = defineTable({
   name: 'auth_users',
   columns: {
     is_anon: 'boolean',
+    /**
+     * Set once automated monitoring proved it drives this anonymous account;
+     * its writes then carry synthetic provenance. Never set from the client.
+     */
+    synthetic_at: 'timestamp',
   },
 });
 

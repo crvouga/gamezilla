@@ -78,8 +78,8 @@ async function publish(tx: SqlTx, row: Row, iso: string): Promise<void> {
     VALUES (${revision}, ${document}, ${STARTER_CONTENT_OWNER}, ${row.gameId}, ${row.kind}, ${1}, ${title}, ${description}, ${difficulty}, ${definition}, ${row.rulesVersion}, ${iso}, ${iso}, ${null})
     ON CONFLICT (id) DO NOTHING`);
   await tx.run(sql`INSERT INTO puzzle_content_publications
-    (id, owner_id, game_id, kind, published_revision_id, publication_count, status, created_at, updated_at, deleted_at)
-    VALUES (${document}, ${STARTER_CONTENT_OWNER}, ${row.gameId}, ${row.kind}, ${revision}, ${1}, ${'published'}, ${iso}, ${iso}, ${null})
+    (id, owner_id, game_id, kind, published_revision_id, publication_count, status, published_at, created_at, updated_at, deleted_at)
+    VALUES (${document}, ${STARTER_CONTENT_OWNER}, ${row.gameId}, ${row.kind}, ${revision}, ${1}, ${'published'}, ${iso}, ${iso}, ${iso}, ${null})
     ON CONFLICT (id) DO NOTHING`);
 }
 

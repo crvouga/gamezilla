@@ -311,3 +311,47 @@ jobs:
           SECRETS_ENV="$(bun -p 'JSON.parse(process.env.ENVS)[0]')" \
             bun run libs/secrets-server-ts/scripts/ci-artifacts-run.ts \
             upload health-alerts-"${GITHUB_RUN_ID}" .cache/health-alerts
+
+  # The run's verdict where people look: the job summary, the one open
+  # "Health is failing on main" issue (opened on the first red run, closed by
+  # the next green one), and `ci.workflow.result` in every environment's
+  # Grafana, whose alert pages until Health on main is green again
+  # (libs/tools-harness-ts/scripts/ci-workflow-alert.ts). A run that yielded
+  # to a Release under way skipped its checks, which is not red.
+  health-verdict:
+    name: health:verdict
+    needs: [health-repository-policy, health-matrix, health-env, health-objectives]
+    if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read # check out the code
+      issues: write # open, update or close the Health issue
+      id-token: write # mint the OIDC token Infisical trusts (Grafana metrics credentials)
+    env:
+      CI_WORKFLOW: Health
+      CI_TRIAGE_OWNER: ${{ vars.CI_TRIAGE_OWNER || github.repository_owner }}
+      ENVS: ${{ needs.health-matrix.outputs.all }}
+      GH_TOKEN: ${{ github.token }}
+      NEEDS: ${{ toJSON(needs) }}
+      SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+        with:
+          product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
+          product-identity-mode: configured
+          tools: bun gh
+      - name: File the Health issue
+        id: verdict
+        run: bun run libs/tools-harness-ts/scripts/ci-workflow-alert.ts
+      # A run that yielded to a Release checked nothing: no sample.
+      - name: Record the verdict in Grafana
+        if: ${{ needs.health-matrix.outputs.idle == 'true' }}
+        env:
+          PASSED: ${{ steps.verdict.outputs.passed }}
+        run: >-
+          bun run apps/product-ts/scripts/ci-workflow-result.ts --workflow health
+          --passed "$PASSED" --envs "$ENVS"

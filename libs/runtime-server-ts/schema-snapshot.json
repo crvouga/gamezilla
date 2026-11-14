@@ -1,5 +1,5 @@
 {
-  "release": 22,
+  "release": 24,
   "snapshot": {
     "tables": {
       "auth_account_devices": {
@@ -28,7 +28,8 @@
         "user_id": "text"
       },
       "auth_users": {
-        "is_anon": "boolean"
+        "is_anon": "boolean",
+        "synthetic_at": "timestamp"
       },
       "billing_account_closures": {
         "account_id": "text",
@@ -422,8 +423,10 @@
         "kind": "text",
         "owner_id": "text",
         "publication_count": "integer",
+        "published_at": "timestamp",
         "published_revision_id": "text",
-        "status": "text"
+        "status": "text",
+        "synthetic_at": "timestamp"
       },
       "puzzle_content_revisions": {
         "definition": "text",
@@ -531,6 +534,7 @@
       ["puzzle_content_pack_items", "puzzle_revision_id"],
       ["puzzle_content_positions", "attempt_id"],
       ["puzzle_content_positions", "owner_id"],
+      ["puzzle_content_publications", "game_id", "published_at"],
       ["puzzle_content_publications", "game_id", "status"],
       ["puzzle_content_publications", "owner_id"],
       ["puzzle_content_revisions", "document_id", "edition"],

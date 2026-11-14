@@ -8,7 +8,11 @@ import {
 import type { PuzzleContentCatalog } from '@pkgs/turn-game-shared-ts/puzzle-content-catalog';
 import { z } from 'zod';
 import { resolvePackDraft, writePackReferences } from './content-pack';
-import { writeContentPublication } from './content-publication';
+import {
+  scheduleSyntheticPublicationExpiry,
+  syntheticPublicationAt,
+  writeContentPublication,
+} from './content-publication';
 import type { ContentMutationCtx } from './content-store';
 import {
   contentGame,
@@ -71,6 +75,34 @@ async function writeContentRevision(
     WHERE puzzle_content_revisions.document_id = excluded.document_id
       AND puzzle_content_revisions.deleted_at IS NOT NULL
   `);
+}
+
+/** The public head; monitoring's schedules its own withdrawal. */
+async function writePublicHead(
+  ctx: ContentMutationCtx,
+  doc: ContentDocument,
+  revisionId: string,
+  edition: number
+): Promise<void> {
+  // regression: synthetic-journey-packs-outlive-their-run
+  const syntheticAt = syntheticPublicationAt(ctx.env);
+  await writeContentPublication(
+    ctx.tx,
+    {
+      id: doc.id,
+      owner_id: doc.owner_id,
+      game_id: doc.game_id,
+      kind: doc.kind,
+      published_revision_id: revisionId,
+      publication_count: edition,
+      status: 'published',
+      published_at: ctx.env.now().toISOString(),
+      deleted_at: null,
+    },
+    syntheticAt
+  );
+  if (syntheticAt !== null)
+    await scheduleSyntheticPublicationExpiry(ctx, doc.id, syntheticAt);
 }
 
 export const publishPuzzleContentMutation = (
@@ -144,15 +176,6 @@ export const publishPuzzleContentMutation = (
       });
       if (doc.kind === 'pack')
         await writePackReferences(ctx.tx, doc, definition);
-      await writeContentPublication(ctx.tx, {
-        id: doc.id,
-        owner_id: doc.owner_id,
-        game_id: doc.game_id,
-        kind: doc.kind,
-        published_revision_id: draft.id,
-        publication_count: edition,
-        status: 'published',
-        deleted_at: null,
-      });
+      await writePublicHead(ctx, doc, draft.id, edition);
     },
   });

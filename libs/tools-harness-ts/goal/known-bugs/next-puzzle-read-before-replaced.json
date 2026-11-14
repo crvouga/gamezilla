@@ -1,0 +1,4 @@
+{
+  "summary": "On a live browser, moving on to the next chess puzzle read the board right after the tap, while the solved puzzle was still placed and loaded, so `nextPuzzleDifferent` reported the same puzzle again (puzzle-assistant trace 3 in every Verify Nightly browser run; it passed on virtual time). `moveOnToNextPuzzle` now waits for a different puzzle before the next one is read; a feed that really serves it again is still reported by the property.",
+  "regressionTest": "libs/chess-root-harness-ts/tests/quint/puzzle-assistant.binding.ts"
+}

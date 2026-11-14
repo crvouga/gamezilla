@@ -23,16 +23,22 @@ export type ContentDocument = {
   readonly published_revision_id: string | null;
   readonly publication_count: number;
   readonly status: 'draft' | 'published' | 'withdrawn';
+  /** From the public head: when the current edition became public. */
+  readonly published_at: string | null;
   readonly deleted_at: string | null;
 };
+
+/** A private document row; its publication time lives on the public head. */
+export type ContentDocumentRow = Omit<ContentDocument, 'published_at'>;
 
 /** The public head carries no working-copy identity or private edit timestamp. */
 export type ContentPublication = Omit<
   ContentDocument,
-  'working_draft_id' | 'published_revision_id' | 'status'
+  'working_draft_id' | 'published_revision_id' | 'status' | 'published_at'
 > & {
   readonly published_revision_id: string;
   readonly status: 'published' | 'withdrawn';
+  readonly published_at: string;
 };
 
 export type ContentDraft = {

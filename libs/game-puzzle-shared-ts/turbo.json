@@ -15,6 +15,7 @@
         "@pkgs/glicko2-shared-ts#src",
         "@pkgs/message-shared-ts#src",
         "@pkgs/observability-root-shared-ts#src",
+        "@pkgs/outbox-shared-ts#src",
         "@pkgs/pubsub-root-shared-ts#src",
         "@pkgs/room-root-shared-ts#src",
         "@pkgs/sql-client-root-shared-ts#src",
