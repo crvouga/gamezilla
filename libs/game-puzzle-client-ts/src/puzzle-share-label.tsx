@@ -29,7 +29,13 @@ export function PuzzleShareLabel(props: {
         )}
       </Match>
       <Match when={props.state === 'failed'}>
-        <Trans>Couldn't copy. Try again</Trans>
+        {/* Among other commands it keeps its name: the reason is said
+            beside the commands. */}
+        {props.short === true ? (
+          <Trans>Share</Trans>
+        ) : (
+          <Trans>Couldn't copy. Try again</Trans>
+        )}
       </Match>
     </Switch>
   );

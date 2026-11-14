@@ -1,14 +1,15 @@
 /* The commands that move a puzzle on (Next, Retry, Hint, Skip). On a phone
    they are held to the bottom of the scrolling column on the page's own
    background, so the board and the move list scroll under them and Next is
-   never below the fold; in a width-sized column they come after the
-   actions and before the move list (`screen-layouts.module.css` orders
-   the rest). A hairline on top says it is a bar, over what scrolls. */
+   never below the fold; in a width-sized column they come last, after the
+   move list (`screen-layouts.module.css` orders the rest), so nothing is
+   ever left below them. A hairline on top says it is a bar, over what
+   scrolls. */
 .dock {
   position: sticky;
   bottom: 0;
   z-index: 1;
-  order: 5;
+  order: 7;
   padding-inline: var(--ui-space-lg);
   padding-block: var(--ui-space-2) var(--ui-space-3);
   background: var(--ui-color-background);

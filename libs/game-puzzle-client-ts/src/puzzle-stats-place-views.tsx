@@ -43,7 +43,7 @@ function titleOf(
   return props.titled === false ? undefined : title();
 }
 
-/** The headline: the player's puzzle rating. */
+/** The headline: the player's puzzle rating, and how it has moved. */
 function StatsRating(props: PuzzleStatsScreenViewProps): JSX.Element {
   return (
     <StackVertical align="center" gap="sm">
@@ -56,6 +56,15 @@ function StatsRating(props: PuzzleStatsScreenViewProps): JSX.Element {
           provisional: props.stats.provisional,
         })}
       </H2>
+      <Show when={props.stats.ratingSeries.length > 1}>
+        <StackVertical width="full" maxWidth="form">
+          <Sparkline
+            values={props.stats.ratingSeries}
+            size="sm"
+            testId="chess-stats-summary-sparkline"
+          />
+        </StackVertical>
+      </Show>
       <Show when={props.stats.provisional}>
         <P variant="caption" tone="secondary" align="center">
           <Trans>

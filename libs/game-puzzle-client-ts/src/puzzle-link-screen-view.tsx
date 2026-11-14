@@ -2,10 +2,12 @@ import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Trans } from '@lingui/solid/macro';
+import { Button } from '@pkgs/ui-root-client-ts/button';
 import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { SearchIcon, WifiOffIcon } from '@pkgs/ui-root-client-ts/icons';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
+import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { type JSX, Match, Switch } from 'solid-js';
 
 /**
@@ -29,7 +31,8 @@ export type PuzzleLinkScreenViewProps = {
 /**
  * `/puzzle/[puzzleId]`, presentational: what a puzzle link opens to while
  * it opens, or why it cannot, each with the one thing to do: offline (try
- * again), no longer available (go home), or denied (what unlocks it).
+ * again), no longer available (go home), or denied (what unlocks it, or
+ * home).
  * `PuzzleLinkScreen` wires it to the route and the person's space.
  */
 export function PuzzleLinkScreenView(
@@ -38,14 +41,26 @@ export function PuzzleLinkScreenView(
   return (
     <ContentScreen
       screenId="chess-puzzle-link"
-      breadcrumbs={[{ name: <Trans>Puzzle</Trans> }]}
+      breadcrumbs={[{ name: <Trans>Shared puzzle</Trans> }]}
       dataSet={{ testid: Handles.chessPuzzleLinkScreen }}
     >
       <Switch
         fallback={<LoadingState caption={<Trans>Opening puzzle…</Trans>} />}
       >
         <Match when={props.status === 'denied' && props.denial} keyed>
-          {(denial) => <DenialSurfaceView denial={denial} />}
+          {(denial) => (
+            // What unlocks it, and a way on that is not a purchase.
+            <StackVertical gap="md" align="center">
+              <DenialSurfaceView denial={denial} />
+              <Button
+                title={<Trans>Go to home</Trans>}
+                intent="neutral"
+                variant="ghost"
+                onClick={() => props.onGoHome()}
+                dataSet={{ testid: 'chess-puzzle-link-denied-home' }}
+              />
+            </StackVertical>
+          )}
         </Match>
         <Match when={props.status === 'offline'}>
           <EmptyState

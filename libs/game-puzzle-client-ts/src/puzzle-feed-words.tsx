@@ -57,6 +57,15 @@ export function autoAdvanceLabel(autoAdvance: PuzzleAutoAdvance): string {
   }
 }
 
+/**
+ * The target as a value beside its own name ("Target rating"): "Auto ·
+ * 1500" / "Custom · 1550", short enough that the number is never cut.
+ */
+export function targetValue(config: PuzzleFeedConfig, rating: number): string {
+  const slot = ratingSlot(rating);
+  return config.mode === 'auto' ? t`Auto · ${slot}` : t`Custom · ${slot}`;
+}
+
 /** "Auto target 1500" / "Custom target 1550". */
 export function targetLabel(config: PuzzleFeedConfig, rating: number): string {
   const slot = ratingSlot(rating);

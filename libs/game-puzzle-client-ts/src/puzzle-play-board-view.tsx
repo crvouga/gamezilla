@@ -1,11 +1,7 @@
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import { PuzzleBoardFrame } from './puzzle-board-frame';
 import { PuzzleLineActions, PuzzleLineMoves } from './puzzle-play-line-view';
-import {
-  PuzzleResultDock,
-  PuzzleResultRows,
-  PuzzleResultSummary,
-} from './puzzle-play-result-view';
+import { PuzzleResultDock, PuzzleResultRows } from './puzzle-play-result-view';
 import type { PuzzlePlayScreenViewProps } from './puzzle-play-screen-model';
 import {
   PuzzleSolveActions,
@@ -23,9 +19,9 @@ import {
  *   the line so far and the one row to the puzzle settings; a watcher gets
  *   the board, the status line and the line only.
  * - `line`: step through the moves played. The board takes no move here.
- * - `result`: how the finished puzzle went and the rating it made; what
- *   next (the next puzzle, retry, the moves, share) docked in reach, and
- *   the row to the puzzle settings.
+ * - `result`: how the finished puzzle went and the rating it made, with
+ *   what next (the next puzzle, retry, the moves, share), docked in reach
+ *   together; the row to the puzzle settings under the board.
  */
 export function PuzzlePlayBoardView(
   props: PuzzlePlayScreenViewProps
@@ -46,9 +42,6 @@ export function PuzzlePlayBoardView(
         <Switch>
           <Match when={place() === 'play' && !props.spectator}>
             <PuzzleSolveActions {...props} />
-          </Match>
-          <Match when={place() === 'result'}>
-            <PuzzleResultSummary {...props} />
           </Match>
         </Switch>
       }

@@ -52,9 +52,10 @@ export function PuzzleStatsCards(props: PuzzleStatsCardsProps): JSX.Element {
           ),
         },
         {
-          // The streak now, and the best it has been, as one figure.
-          label: <Trans>Streak · best {props.stats.bestStreak}</Trans>,
+          // The streak now, with the best it has been under it.
+          label: <Trans>Streak</Trans>,
           value: <StatValue value={String(props.stats.currentStreak)} />,
+          detail: <Trans>Best {props.stats.bestStreak}</Trans>,
         },
       ]}
     />

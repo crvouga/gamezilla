@@ -147,7 +147,7 @@ test('feed: one row per setting with the value the draft holds, the pool and Sav
   mountPlay('feed', { feed: { ...FEED, draft, draftTarget: 1850 } });
   expect(
     screen.getByTestId('chess-puzzle-feed-row-target').textContent
-  ).toContain('Custom target 1850');
+  ).toContain('Custom · 1850');
   expect(
     screen.getByTestId('chess-puzzle-feed-row-history').textContent
   ).toContain('Failed');

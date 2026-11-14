@@ -23,19 +23,20 @@ export const Offline: Story = { args: { status: 'offline' } };
 /** The puzzle was taken out, so its link no longer opens it; home is offered. */
 export const Unavailable: Story = { args: { status: 'unavailable' } };
 
-/** The person cannot open another space for the puzzle; the denial says why. */
-export const Denied: Story = {
-  args: {
-    status: 'denied',
-    denial: {
-      icon: ClockIcon,
-      title: "You've reached your space limit",
-      body: 'Leave or end a space to open this puzzle in a new one.',
-      action: { label: 'See plans', onPress: fn() },
-      dataSet: { testid: 'permission-denial', reason: 'quota_exhausted' },
-    },
+/** No other space can be opened for the puzzle: the space limit. */
+const SPACE_LIMIT = {
+  status: 'denied',
+  denial: {
+    icon: ClockIcon,
+    title: "You've reached your space limit",
+    body: 'Leave or end a space to open this puzzle in a new one.',
+    action: { label: 'See plans', onPress: fn() },
+    dataSet: { testid: 'permission-denial', reason: 'quota_exhausted' },
   },
-};
+} as const;
+
+/** The person cannot open another space for the puzzle; the denial says why. */
+export const Denied: Story = { args: SPACE_LIMIT };
 
 /** Offline, "Try again" opens the link again. */
 export const RetryOffline: Story = {
@@ -46,5 +47,17 @@ export const RetryOffline: Story = {
       await canvas.findByRole('button', { name: 'Try again' })
     );
     await expect(args.onRetry).toHaveBeenCalled();
+  },
+};
+
+/** Denied, "Go to home" leaves without buying anything. */
+export const DeniedGoHome: Story = {
+  args: SPACE_LIMIT,
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      await canvas.findByRole('button', { name: 'Go to home' })
+    );
+    await expect(args.onGoHome).toHaveBeenCalled();
   },
 };

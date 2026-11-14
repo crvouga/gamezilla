@@ -14,7 +14,7 @@ import { type JSX, Match, Show, Switch } from 'solid-js';
 import {
   autoAdvanceLabel,
   historyFilterLabel,
-  targetLabel,
+  targetValue,
   themesSummary,
 } from './puzzle-feed-words';
 import type { PuzzleFeedSettingScreen } from './puzzle-play-places';
@@ -59,7 +59,7 @@ function FeedRows(props: PuzzlePlayScreenViewProps): JSX.Element {
         view={props}
         screen="feed-target"
         title={<Trans>Target rating</Trans>}
-        value={targetLabel(props.feed.draft, props.feed.draftTarget)}
+        value={targetValue(props.feed.draft, props.feed.draftTarget)}
         testId="chess-puzzle-feed-row-target"
       />
       <SettingRow

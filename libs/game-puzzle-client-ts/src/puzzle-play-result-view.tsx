@@ -114,9 +114,11 @@ export function PuzzleResultRows(
 }
 
 /**
- * What to do next, docked in reach (`buildPuzzleActionBarPlan`): the next
- * puzzle is the one filled command; on one line under it, retrying, the
- * moves of the line and sharing the puzzle.
+ * The result, docked in reach: how it went and the rating it made, then
+ * what next (`buildPuzzleActionBarPlan`): the next puzzle is the one filled
+ * command; on one line under it, retrying, the moves of the line and
+ * sharing the puzzle. Docked together, the outcome and Next are in the
+ * first view on every phone.
  */
 export function PuzzleResultDock(
   props: PuzzlePlayScreenViewProps
@@ -132,10 +134,10 @@ export function PuzzleResultDock(
     slots().some((slot) => slot.id === id);
   return (
     <StackVertical gap="sm">
+      <PuzzleResultSummary {...props} />
       <Show when={offers('next')}>
         <Button
           title={<Trans>Next puzzle</Trans>}
-          size="lg"
           fullWidth
           endIcon={<ChevronRightIcon />}
           onClick={() => props.onNext()}
@@ -174,51 +176,51 @@ export function PuzzleResultDock(
           )}
         </Show>
       </GameActions>
+      <Show when={props.share?.state === 'failed'}>
+        <P variant="caption" tone="destructive" role="status">
+          <Trans>Couldn't copy the link. Press Share to try again.</Trans>
+        </P>
+      </Show>
     </StackVertical>
   );
 }
 
 /**
- * The `result` place, under the board that keeps the puzzle's last move:
- * one card saying how it went (solved, the solution shown, skipped) and
- * why, the rating it made beside that, and the puzzle's facts under it.
- * What next is docked (`PuzzleResultDock`). The status line over the board
- * carries the coach's words about it, and what the attempt did to the
- * rating when it has no rated summary (a skip).
+ * The `result` place's card, under the board that keeps the puzzle's last
+ * move: how it went (solved, the solution shown, skipped) and why, the
+ * rating it made beside that, and the puzzle's facts under it. The status
+ * line over the board carries the coach's words about it, and what the
+ * attempt did to the rating when it has no rated summary (a skip).
  */
-export function PuzzleResultSummary(
-  props: PuzzlePlayScreenViewProps
-): JSX.Element {
+function PuzzleResultSummary(props: PuzzlePlayScreenViewProps): JSX.Element {
   return (
-    <StackVertical paddingX="lg">
-      <Surface
-        tone="muted"
-        radius="card"
-        padding="md"
-        gap="sm"
-        dataSet={{ testid: Handles.chessPuzzleSummary, outcome: props.status }}
-      >
-        <StackHorizontal gap="md" align="center" justify="between">
-          <StackVertical gap="xs" grow>
-            <H2 size="heading">
-              <ResultTitle {...props} />
-            </H2>
-            <P variant="caption" tone="secondary">
-              <ResultCaption {...props} />
-            </P>
-          </StackVertical>
-          <Show when={props.result.completion} keyed>
-            {(completion) => (
-              <PuzzleSummaryCard
-                completion={completion}
-                displayRating={props.result.displayRating}
-                provisional={props.result.provisional}
-              />
-            )}
-          </Show>
-        </StackHorizontal>
-        <ResultFacts {...props} />
-      </Surface>
-    </StackVertical>
+    <Surface
+      tone="muted"
+      radius="card"
+      padding="sm"
+      gap="xs"
+      dataSet={{ testid: Handles.chessPuzzleSummary, outcome: props.status }}
+    >
+      <StackHorizontal gap="md" align="center" justify="between">
+        <StackVertical gap="xs" grow>
+          <H2 size="heading">
+            <ResultTitle {...props} />
+          </H2>
+          <P variant="caption" tone="secondary">
+            <ResultCaption {...props} />
+          </P>
+        </StackVertical>
+        <Show when={props.result.completion} keyed>
+          {(completion) => (
+            <PuzzleSummaryCard
+              completion={completion}
+              displayRating={props.result.displayRating}
+              provisional={props.result.provisional}
+            />
+          )}
+        </Show>
+      </StackHorizontal>
+      <ResultFacts {...props} />
+    </Surface>
   );
 }
