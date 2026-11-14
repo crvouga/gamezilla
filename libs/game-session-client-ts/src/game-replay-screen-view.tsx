@@ -67,8 +67,6 @@ export type GameReplayScreenViewProps = {
   /** The position shown: 0 is the start, `moves.length` the end. */
   readonly ply: number;
   readonly moves: readonly GameReplayMove[];
-  /** Moves per numbered turn: the seats in rotation; 1 numbers every move. */
-  readonly perTurn: number;
   /** The word that names bare-number moves once (`Column`); `''` for none. */
   readonly moveHeading: string;
   /** The position shown, for automated observers. */
@@ -249,7 +247,10 @@ function ReplayPlayers(props: GameReplayScreenViewProps): JSX.Element {
   );
 }
 
-/** Every move, numbered by turn; pressing one shows the board after it. */
+/**
+ * Every move, numbered one by one as the position is ("After move 3"), right
+ * under the steps; pressing one shows the board after it.
+ */
 function ReplayMoves(props: GameReplayScreenViewProps): JSX.Element {
   const entries = createMemo((): readonly GameMoveListEntry[] =>
     props.moves.map((move, index) => ({
@@ -264,7 +265,7 @@ function ReplayMoves(props: GameReplayScreenViewProps): JSX.Element {
     }))
   );
   return (
-    <GameSection title={<Trans>Moves</Trans>} fill>
+    <GameSection title={<Trans>Moves</Trans>} fill={props.moves.length > 0}>
       <Show
         when={props.moves.length > 0}
         fallback={
@@ -276,7 +277,7 @@ function ReplayMoves(props: GameReplayScreenViewProps): JSX.Element {
         <GameMoveList
           layout="table"
           aria-label={t`Moves played`}
-          perTurn={props.perTurn}
+          perTurn={1}
           current={props.ply}
           moves={entries()}
           onSelect={props.onSeek}
@@ -329,7 +330,12 @@ export function GameReplayScreenView(
     >
       <GameSessionLayout
         actionsBeside
-        status={<ReplaySteps {...props} />}
+        status={
+          <>
+            <ReplaySteps {...props} />
+            <ReplayMoves {...props} />
+          </>
+        }
         actions={
           <Button
             title={<Trans>All games</Trans>}
@@ -340,12 +346,7 @@ export function GameReplayScreenView(
             dataSet={{ testid: 'game-history-review-back-to-list' }}
           />
         }
-        aside={
-          <>
-            <ReplayPlayers {...props} />
-            <ReplayMoves {...props} />
-          </>
-        }
+        aside={<ReplayPlayers {...props} />}
       >
         <GameBoardStage turn={<ShownPosition {...props} />}>
           {props.board}

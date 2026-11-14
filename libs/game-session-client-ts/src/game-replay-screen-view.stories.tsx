@@ -1,7 +1,9 @@
+import { createSignal } from 'solid-js';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { ConnectFourStoryBoard } from './connect-four-story-board.example';
 import { PEOPLE, WON_LINE, WON_MOVES } from './game-frame-story.example';
+import { GameHistoryScreenView } from './game-history-screen-view';
 import {
   type GameReplayMove,
   type GameReplayPlayer,
@@ -77,7 +79,6 @@ const meta = {
     endedAt: new Date(1_700_000_000_000 - 2 * 3_600_000).toISOString(),
     ply: WON_MOVES.length,
     moves: MOVES,
-    perTurn: 2,
     moveHeading: 'Column',
     position: '',
     board: null,
@@ -134,5 +135,58 @@ export const ArrowKeyStepsBack: Story = {
   play: async ({ args }) => {
     await userEvent.keyboard('{ArrowLeft}');
     await expect(args.onSeek).toHaveBeenCalledWith(WON_MOVES.length - 1);
+  },
+};
+
+/** "All games" goes back to the list of finished games. */
+export const BackToAllGames: Story = {
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      await canvas.findByRole('button', { name: 'All games' })
+    );
+    await expect(args.onBack).toHaveBeenCalled();
+  },
+};
+
+/**
+ * The whole journey with the container's state: the list, a game opened
+ * from it, any move shown, and back to the list. Automated walks drive it.
+ */
+export const Journey: Story = {
+  render: (args) => {
+    const [open, setOpen] = createSignal(false);
+    const [ply, setPly] = createSignal(WON_MOVES.length);
+    return (
+      <>
+        {open() ? (
+          atPly({
+            ...args,
+            ply: ply(),
+            onSeek: setPly,
+            onBack: () => setOpen(false),
+          })
+        ) : (
+          <GameHistoryScreenView
+            loading={false}
+            statistics={{ wins: 1, losses: 0, draws: 0 }}
+            records={[
+              {
+                id: 'game-1',
+                players: [PLAYERS[1]!],
+                outcome: 'won',
+                label: 'By four in a row',
+                moves: WON_MOVES.length,
+                endedAt: args.endedAt,
+              },
+            ]}
+            onSelect={() => {
+              setPly(WON_MOVES.length);
+              setOpen(true);
+            }}
+          />
+        )}
+      </>
+    );
   },
 };

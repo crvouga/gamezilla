@@ -13,7 +13,8 @@ import { MainMenuItemRow } from '@pkgs/ui-root-client-ts/main-menu-item-row';
 import { MenuList } from '@pkgs/ui-root-client-ts/menu-list';
 import { useRelativeTimeLabel } from '@pkgs/ui-root-client-ts/relative-time';
 import { SegmentedControl } from '@pkgs/ui-root-client-ts/segmented-control';
-import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { P } from '@pkgs/ui-root-client-ts/text';
 import {
   createMemo,
   createSignal,
@@ -52,6 +53,8 @@ export type GameHistoryRow = {
   readonly label: string;
   /** Moves played. */
   readonly moves: number;
+  /** Who won, for a game the viewer only watched; empty for a draw or when they played. */
+  readonly winners?: readonly GameHistoryPlayer[] | undefined;
   /** When it ended, as an ISO instant; `null` when unknown. */
   readonly endedAt: string | null;
 };
@@ -119,6 +122,29 @@ function HistoryPlayer(props: {
   );
 }
 
+/** Players by name, joined by "vs" (rivals) or "&" (one side). */
+function PlayerNames(props: {
+  readonly players: readonly GameHistoryPlayer[];
+  readonly join: 'vs' | 'and';
+  readonly people?: FramePeople | undefined;
+}): JSX.Element {
+  return (
+    <For each={props.players}>
+      {(player, index) => (
+        <>
+          <Show when={index() > 0}>
+            {' '}
+            <Show when={props.join === 'and'} fallback={<Trans>vs</Trans>}>
+              &amp;
+            </Show>{' '}
+          </Show>
+          <HistoryPlayer player={player} people={props.people} />
+        </>
+      )}
+    </For>
+  );
+}
+
 /** The players a row names: "vs jordan" to someone who played, "avery vs jordan" otherwise. */
 export function HistoryPlayers(props: {
   readonly players: readonly GameHistoryPlayer[];
@@ -126,24 +152,24 @@ export function HistoryPlayers(props: {
   readonly people?: FramePeople | undefined;
 }): JSX.Element {
   return (
-    <>
-      <Show when={props.played}>
+    <Show
+      when={props.players.length > 0}
+      fallback={<Trans>Nobody else joined</Trans>}
+    >
+      <Show
+        when={props.played}
+        fallback={
+          <PlayerNames
+            players={props.players}
+            join="vs"
+            people={props.people}
+          />
+        }
+      >
         <Trans>vs</Trans>{' '}
+        <PlayerNames players={props.players} join="and" people={props.people} />
       </Show>
-      <For each={props.players}>
-        {(player, index) => (
-          <>
-            <Show when={index() > 0}>
-              {' '}
-              <Show when={props.played} fallback={<Trans>vs</Trans>}>
-                &amp;
-              </Show>{' '}
-            </Show>
-            <HistoryPlayer player={player} people={props.people} />
-          </>
-        )}
-      </For>
-    </>
+    </Show>
   );
 }
 
@@ -153,7 +179,7 @@ export function OutcomeBadge(props: {
 }): JSX.Element {
   return (
     <Badge
-      size="sm"
+      size="md"
       intent={OUTCOME_INTENT[props.outcome]}
       dataSet={{ testid: 'game-history-outcome', outcome: props.outcome }}
       label={
@@ -179,10 +205,16 @@ export function OutcomeBadge(props: {
 /** "By four in a row · 7 moves · 2d ago". */
 function RecordCaption(props: {
   readonly record: GameHistoryRow;
+  readonly people?: FramePeople | undefined;
 }): JSX.Element {
   const ago = useRelativeTimeLabel(() => props.record.endedAt ?? '');
+  const winners = () => props.record.winners ?? [];
   return (
     <>
+      <Show when={winners().length > 0}>
+        <PlayerNames players={winners()} join="and" people={props.people} />{' '}
+        <Trans>won</Trans> ·{' '}
+      </Show>
       {props.record.label} ·{' '}
       <Plural value={props.record.moves} one="# move" other="# moves" />
       <Show when={props.record.endedAt !== null}> · {ago()}</Show>
@@ -206,7 +238,7 @@ function RecordRow(props: {
             people={props.people}
           />
         ),
-        caption: <RecordCaption record={props.record} />,
+        caption: <RecordCaption record={props.record} people={props.people} />,
         trailing: (
           <StackHorizontal align="center" gap="sm">
             <Show when={props.record.outcome}>
@@ -368,7 +400,27 @@ export function GameHistoryScreenView(
           statistics={<HistoryStatistics {...props} />}
           filters={
             <Show when={props.records.length >= FILTER_FROM}>
-              <ResultFilter filter={filter()} onFilter={setFilter} />
+              <StackVertical gap="xs">
+                <ResultFilter filter={filter()} onFilter={setFilter} />
+                <Show when={filter() !== 'all'}>
+                  <P
+                    variant="caption"
+                    tone="secondary"
+                    role="status"
+                    testId="game-history-filter-count"
+                  >
+                    <Plural
+                      value={
+                        props.records.filter(
+                          (record) => record.outcome === filter()
+                        ).length
+                      }
+                      one="# game"
+                      other="# games"
+                    />
+                  </P>
+                </Show>
+              </StackVertical>
             </Show>
           }
         >

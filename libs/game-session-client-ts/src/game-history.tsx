@@ -23,7 +23,6 @@ import {
 import {
   recordOutcome,
   useGameRecordEnding,
-  useGameRecordLabel,
   useGameRecordResult,
 } from './game-record-label';
 import {
@@ -54,9 +53,7 @@ function historyPlayer(participant: GameHistoryRecord['participants'][number]) {
 function useReplayMoves() {
   const rules = useTurnGames();
   const presentation = useGamePresentation();
-  return (
-    record: GameHistoryRecord
-  ): { moves: readonly GameReplayMove[]; perTurn: number } => {
+  return (record: GameHistoryRecord): readonly GameReplayMove[] => {
     const turns = rules.turnsForPosition(record.position);
     const game = presentation(record.position);
     if (
@@ -64,21 +61,15 @@ function useReplayMoves() {
       turns.turnOrder === 'rules' ||
       turns.hands !== undefined
     )
-      return {
-        moves: record.moves.map((move) => ({ label: move.label })),
-        perTurn: 1,
-      };
+      return record.moves.map((move) => ({ label: move.label }));
     const seats = record.participants.map((participant) => ({
       sideLabel: game.sideLabel(participant.side),
       swatch: frameSwatch(game.frame.seats.look(participant.side)),
     }));
-    return {
-      moves: record.moves.map((move, index) => ({
-        label: move.label,
-        ...seats[index % seats.length],
-      })),
-      perTurn: seats.length,
-    };
+    return record.moves.map((move, index) => ({
+      label: move.label,
+      ...seats[index % seats.length],
+    }));
   };
 }
 
@@ -124,8 +115,7 @@ function RecordReview(props: {
         result={result(props.record, myId())}
         endedAt={props.record.endedAt}
         ply={ply()}
-        moves={replay().moves}
-        perTurn={replay().perTurn}
+        moves={replay()}
         moveHeading={game().moveHeading?.() ?? ''}
         position={position()}
         people={PEOPLE}
@@ -157,7 +147,6 @@ function AllowedGameHistory(props: {
   onBack: () => void;
 }): JSX.Element {
   const model = useGameRecords(() => props.gameId);
-  const recordLabel = useGameRecordLabel();
   const recordEnding = useGameRecordEnding();
   const myId = useMyId();
   const [selected, select] = createSignal<GameHistoryRecord | null>(null);
@@ -167,17 +156,26 @@ function AllowedGameHistory(props: {
       const outcome = recordOutcome(record, myId());
       return {
         id: record.id,
+        // An unfilled place of a cancelled set-up is nobody to name.
         players: record.participants
           .filter(
-            (participant) => outcome === null || participant.person !== myId()
+            (participant) =>
+              (outcome === null || participant.person !== myId()) &&
+              (participant.person !== '' ||
+                participant.bot ||
+                participant.local)
           )
           .map(historyPlayer),
         outcome,
-        // A caption reads as a line of facts, not a sentence.
-        label:
-          outcome === null
-            ? recordLabel(record).replace(/\.$/, '')
-            : recordEnding(record),
+        label: recordEnding(record),
+        winners:
+          outcome === null && record.result === 'won'
+            ? record.participants
+                .filter((participant) =>
+                  record.winners.includes(participant.side)
+                )
+                .map(historyPlayer)
+            : [],
         moves: record.moves.length,
         endedAt: record.endedAt,
       };
