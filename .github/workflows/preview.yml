@@ -78,7 +78,9 @@ jobs:
       # own three secrets while it starts the build.
       #
       # - The checkout is the head itself, not the merge with main: the
-      #   deployed commit is the one the pull request shows. It never fetches
+      #   deployed commit is the one the pull request shows. (The one
+      #   exception, a head with another version of this file, is explained
+      #   where the step decides it.) It never fetches
       #   or writes the reference screenshots (four fifths of the
       #   repository), and it writes first what the install reads: the
       #   package manifests and any folder one of them depends on. The
@@ -141,6 +143,23 @@ jobs:
             mise bin-paths bun node > "$BOOT/paths"
             at "install: done"
           }
+          # The workflow GitHub runs for a pull request is the one in its
+          # merge with main, and it runs a command of the commit it checks
+          # out. A head from before main changed this file has the command
+          # the workflow before it ran, so there the merge is what is built:
+          # this file and that command are then of one commit. Otherwise a
+          # change to this file would fail the Preview of every pull request
+          # open at the time, until each merged main.
+          if [ "$PREVIEW_SHA" != "$GITHUB_SHA" ]; then
+            raw="https://raw.githubusercontent.com/$GITHUB_REPOSITORY"
+            curl -fsSL --retry 3 -o "$BOOT/head.yml" "$raw/$PREVIEW_SHA/.github/workflows/preview.yml" &
+            curl -fsSL --retry 3 -o "$BOOT/merge.yml" "$raw/$GITHUB_SHA/.github/workflows/preview.yml" || true
+            wait $! || true
+            if ! cmp -s "$BOOT/head.yml" "$BOOT/merge.yml"; then
+              echo "::notice title=Preview of the merge with main::The head ${PREVIEW_SHA:0:12} has another Preview workflow than main, so this Preview is built from the merge of the two (${GITHUB_SHA:0:12})."
+              PREVIEW_SHA="$GITHUB_SHA"
+            fi
+          fi
           at "start"
           checkout &
           checking_out=$!
