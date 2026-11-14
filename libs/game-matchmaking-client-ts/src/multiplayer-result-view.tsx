@@ -162,18 +162,16 @@ function Onward(props: ResultProps): JSX.Element {
         <Button
           title={<Trans>Game options</Trans>}
           aria-label={t`New game: choose what to play for next`}
-          variant="ghost"
+          variant="outline"
           intent="neutral"
-          size="sm"
           onClick={() => props.onOpen({ screen: 'find' })}
           dataSet={{ testid: 'multiplayer-open-find' }}
         />
       </Show>
       <Button
         title={<Trans>Your ratings</Trans>}
-        variant="ghost"
+        variant="outline"
         intent="neutral"
-        size="sm"
         onClick={() => props.onOpen({ screen: 'ratings', from: 'result' })}
         dataSet={{ testid: 'multiplayer-open-ratings' }}
       />

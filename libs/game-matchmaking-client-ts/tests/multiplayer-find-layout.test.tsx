@@ -48,32 +48,34 @@ test('the search is a hub of rows and one command, with no ratings or guide besi
   }
 });
 
-test('a game with clock choices adds one row showing the chosen clock, and choosing another returns with it', () => {
-  mountPlaces({
+test('a game with clock choices offers its quick clocks on the hub, and every other clock one row away', () => {
+  const view = mountPlaces({
     stage: 'idle',
     props: { find: { players: 2, timed: true, timeControl: '5+0' } },
   });
+  // The quick clocks are radios on the hub itself, the chosen one checked.
+  const chosen = screen.getByTestId(
+    'multiplayer-clock-5-0'
+  ) as HTMLInputElement;
+  expect(chosen.checked).toBe(true);
+  expect(screen.getByTestId('multiplayer-find-clock').textContent).toBe('5+0');
+  screen.getByTestId('multiplayer-clock-10-0').click();
+  expect(view.place()).toBe('find');
+  expect(
+    (screen.getByTestId('multiplayer-clock-10-0') as HTMLInputElement).checked
+  ).toBe(true);
+  expect(screen.getByTestId('multiplayer-find-clock').textContent).toBe('10+0');
+  // Every other clock is a place of its own, one row away.
   const row = screen.getByTestId('multiplayer-open-time-control');
-  // The clock is said in plain words; its shorthand is for the choices.
-  expect(row.textContent).toContain('5 min');
-  expect(row.getAttribute('data-time-control')).toBe('5+0');
-  expect(row.textContent).toContain('Blitz');
-  // The choices are a place of their own, never on the hub.
-  expect(screen.queryByTestId('multiplayer-time-control-10-0')).toBeNull();
+  expect(row.getAttribute('data-time-control')).toBe('10+0');
   row.click();
   expect(screen.queryByTestId('multiplayer-find')).toBeNull();
+  screen.getByTestId('multiplayer-time-control-30-20').click();
+  expect(view.place()).toBe('find');
+  // A clock chosen from the full list joins the quick clocks, checked.
   expect(
-    screen
-      .getByTestId('multiplayer-time-control-5-0')
-      .getAttribute('aria-current')
-  ).toBe('true');
-  screen.getByTestId('multiplayer-time-control-10-0').click();
-  expect(
-    screen.getByTestId('multiplayer-open-time-control').textContent
-  ).toContain('10 min');
-  expect(screen.getByTestId('multiplayer-find-clock').textContent).toBe(
-    '10 min'
-  );
+    (screen.getByTestId('multiplayer-clock-30-20') as HTMLInputElement).checked
+  ).toBe(true);
   expect(screen.getByTestId('multiplayer-find-rated').textContent).toBe(
     'Rated'
   );
@@ -133,7 +135,7 @@ test('what is played opens the screen as one card, and the one command is docked
     const note = screen.getByTestId('multiplayer-find-space');
     expect(dock?.contains(note)).toBe(true);
     expect(note.textContent).toContain('opens in this space');
-    expect(note.textContent).toContain('everyone can watch');
+    expect(note.textContent).toContain('everyone here can watch');
     cleanup();
   }
 });
@@ -257,9 +259,7 @@ test('a first visit says there is no game here yet, above the search it offers',
     },
   });
   const told = screen.getByTestId('multiplayer-unavailable');
-  expect(told.textContent).toContain(
-    'No multiplayer game is available to you.'
-  );
+  expect(told.textContent).toContain('No game has started here yet.');
   expect(
     told.compareDocumentPosition(screen.getByTestId('multiplayer-find')) &
       Node.DOCUMENT_POSITION_FOLLOWING

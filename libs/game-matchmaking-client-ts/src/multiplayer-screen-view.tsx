@@ -160,6 +160,7 @@ function frameOf(props: Props): MultiplayerPlaceFrame {
           denial={props.commandDenial}
           error={props.error}
           online={props.online}
+          searching={props.stage === 'searching'}
         />
       );
     },
@@ -189,7 +190,10 @@ function FindPlace(props: Props): JSX.Element {
       find={props.find}
       ratings={props.ratings}
       onOpen={props.onOpen}
+      onChooseTimeControl={props.onChooseTimeControl}
       onFind={props.onFind}
+      online={props.online}
+      blocked={props.commandDenial !== undefined}
     />
   );
 }

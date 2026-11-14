@@ -1,6 +1,14 @@
-import { timeControlOf } from '@libs/game-matchmaking-shared-ts/time-control';
+import {
+  TIME_CONTROLS,
+  timeControlKey,
+  timeControlOf,
+} from '@libs/game-matchmaking-shared-ts/time-control';
 import { Trans } from '@lingui/solid/macro';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
+import {
+  type GameChoice,
+  GameChoiceGrid,
+} from '@pkgs/ui-root-client-ts/game-choice-grid';
 import {
   GameLobbyDock,
   GameModeCard,
@@ -11,6 +19,7 @@ import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Show } from 'solid-js';
+import { MultiplayerGuidePoints } from './multiplayer-guide-view';
 import {
   MultiplayerLobbyPlace,
   type MultiplayerPlaceFrame,
@@ -21,7 +30,7 @@ import {
   type MultiplayerRatingView,
 } from './multiplayer-ratings';
 import { SpeedName } from './speed-name';
-import { timeControlWords } from './time-control-name';
+import { timeControlChoiceText } from './time-control-name';
 
 /** What a new search is for. */
 export type MultiplayerFindChoice = {
@@ -47,9 +56,60 @@ type FindProps = MultiplayerPlaceFrame & {
   readonly find: MultiplayerFindChoice;
   readonly ratings: readonly MultiplayerRatingView[];
   readonly onOpen: (place: MultiplayerPlace) => void;
+  /** Chooses the clock of the next search, staying on this screen. */
+  readonly onChooseTimeControl: (timeControl: string) => void;
   /** Starts a search, at the chosen time control when the game is timed. */
   readonly onFind: (timeControl: string | undefined) => Promise<void>;
+  /** Searching needs a connection. */
+  readonly online: boolean;
+  /**
+   * The last search was refused (finish the current game first): the notice
+   * above says why, and the command here is a quiet try again.
+   */
+  readonly blocked: boolean;
 };
+
+/** The clocks offered on the screen itself, one or two of every speed. */
+const QUICK_CLOCKS: readonly string[] = [
+  '1+0',
+  '3+2',
+  '5+0',
+  '10+0',
+  '15+10',
+  '30+0',
+];
+
+/** A time control without the game's prefix (`chess/5+0` is `5+0`). */
+function plainClock(id: string): string {
+  return id.split('/').at(-1) ?? id;
+}
+
+/**
+ * The quick clocks, the chosen one always among them: a choice made on the
+ * full list takes the place of the quick clock of its own speed, or the
+ * last one.
+ */
+export function quickClocks(chosen: string): readonly string[] {
+  const plain = plainClock(chosen);
+  if (QUICK_CLOCKS.includes(plain)) return QUICK_CLOCKS;
+  const speed = timeControlOf(plain)?.speed;
+  const same = QUICK_CLOCKS.findIndex(
+    (id) => timeControlOf(id)?.speed === speed
+  );
+  const at = same === -1 ? QUICK_CLOCKS.length - 1 : same;
+  return QUICK_CLOCKS.map((id, index) => (index === at ? plain : id));
+}
+
+/** One quick clock as a tile: its figures over its speed. */
+function clockChoice(id: string): GameChoice {
+  const control = TIME_CONTROLS.find((candidate) => candidate.id === id);
+  return {
+    value: id,
+    title: timeControlChoiceText(id),
+    detail: <SpeedName speed={control?.speed ?? ''} />,
+    dataSet: { testid: `multiplayer-clock-${timeControlKey(id)}` },
+  };
+}
 
 /**
  * What the search will find, as the mode card's tiles: how many play, the
@@ -67,7 +127,7 @@ function conditions(find: MultiplayerFindChoice): readonly GameModeFact[] {
       id: 'clock',
       label: <Trans>Clock</Trans>,
       value: find.timed ? (
-        timeControlWords(find.timeControl)
+        timeControlChoiceText(find.timeControl)
       ) : (
         <Trans>Untimed</Trans>
       ),
@@ -115,19 +175,36 @@ function ratingAtStake(props: FindProps): MultiplayerRatingView | undefined {
   return props.ratings.find((rating) => rating.pool === speed);
 }
 
-/** Where the search's choices and what stands behind it are: one row each. */
+/**
+ * The clock of the next search, chosen on the screen itself: the quick
+ * clocks as tiles, and every other clock one row away.
+ */
+function ClockChoices(props: FindProps): JSX.Element {
+  return (
+    <Show when={props.find.timed}>
+      <GameChoiceGrid
+        label={<Trans>Clock</Trans>}
+        choices={quickClocks(props.find.timeControl).map(clockChoice)}
+        value={plainClock(props.find.timeControl)}
+        onChange={(id) => props.onChooseTimeControl(id)}
+      />
+      <P variant="caption" tone="secondary">
+        <Trans>
+          Minutes each player has, plus seconds added after every move.
+        </Trans>
+      </P>
+    </Show>
+  );
+}
+
+/** Every other clock, the ratings and how a search works: one row each. */
 function FindRows(props: FindProps): JSX.Element {
   return (
-    <MenuSection title={<Trans>Ranked play</Trans>}>
+    <MenuSection>
       <Show when={props.find.timed}>
         <MenuRow
-          title={<Trans>Time control</Trans>}
-          caption={
-            <SpeedName
-              speed={timeControlOf(props.find.timeControl)?.speed ?? ''}
-            />
-          }
-          value={timeControlWords(props.find.timeControl)}
+          title={<Trans>More time controls</Trans>}
+          caption={<Trans>Longer games and daily play</Trans>}
           onClick={() => props.onOpen({ screen: 'time-control' })}
           dataSet={{
             testid: 'multiplayer-open-time-control',
@@ -145,12 +222,37 @@ function FindRows(props: FindProps): JSX.Element {
         onClick={() => props.onOpen({ screen: 'ratings', from: 'find' })}
         dataSet={{ testid: 'multiplayer-open-ratings' }}
       />
-      <MenuRow
-        title={<Trans>How it works</Trans>}
-        onClick={() => props.onOpen({ screen: 'guide' })}
-        dataSet={{ testid: 'multiplayer-open-guide' }}
-      />
+      <Show when={props.find.fresh !== true}>
+        <MenuRow
+          title={<Trans>How it works</Trans>}
+          onClick={() => props.onOpen({ screen: 'guide' })}
+          dataSet={{ testid: 'multiplayer-open-guide' }}
+        />
+      </Show>
     </MenuSection>
+  );
+}
+
+/** Where the search stands, in one line over its command. */
+function FindStatus(props: FindProps): JSX.Element {
+  return (
+    <P variant="caption" tone="secondary" testId="multiplayer-find-space">
+      <Show
+        when={props.online}
+        fallback={<Trans>You're offline. Reconnect to search.</Trans>}
+      >
+        <Show
+          when={!props.blocked}
+          fallback={
+            <Trans>Finish or leave your other game, then try again.</Trans>
+          }
+        >
+          <Trans>
+            Rated. The game opens in this space, and everyone here can watch.
+          </Trans>
+        </Show>
+      </Show>
+    </P>
   );
 }
 
@@ -158,16 +260,7 @@ function FindRows(props: FindProps): JSX.Element {
 function FindDock(props: FindProps): JSX.Element {
   const many = () => props.find.players > 2;
   return (
-    <GameLobbyDock
-      status={
-        <P variant="caption" tone="secondary" testId="multiplayer-find-space">
-          <Trans>
-            The game opens in this space, where everyone can watch. Your
-            opponent plays from their own space.
-          </Trans>
-        </P>
-      }
-    >
+    <GameLobbyDock status={<FindStatus {...props} />}>
       <GameActionButton
         title={
           <Show when={many()} fallback={<Trans>Find an opponent</Trans>}>
@@ -185,7 +278,7 @@ function FindDock(props: FindProps): JSX.Element {
         operation={() =>
           props.onFind(props.find.timed ? props.find.timeControl : undefined)
         }
-        variant="solid"
+        variant={props.blocked || !props.online ? 'outline' : 'solid'}
         size="lg"
         fullWidth
         dataSet={{ testid: 'multiplayer-find' }}
@@ -205,6 +298,7 @@ export function MultiplayerFindView(props: FindProps): JSX.Element {
   return (
     <MultiplayerLobbyPlace {...props} dock={<FindDock {...props} />}>
       <GameModeCard
+        layout="banner"
         eyebrow={<Trans>Ranked match</Trans>}
         title={props.title}
         summary={props.goal}
@@ -221,13 +315,19 @@ export function MultiplayerFindView(props: FindProps): JSX.Element {
         <Notice dataSet={{ testid: 'multiplayer-unavailable' }}>
           <Text variant="inherit" role="status">
             <Trans>
-              No multiplayer game is available to you. Find an opponent to start
-              one.
+              No game has started here yet. Find an opponent to play your first
+              rated game.
             </Trans>
           </Text>
         </Notice>
       </Show>
+      <ClockChoices {...props} />
       <FindRows {...props} />
+      <Show when={props.find.fresh === true}>
+        <MultiplayerGuidePoints
+          title={<Trans>How ranked matches work</Trans>}
+        />
+      </Show>
     </MultiplayerLobbyPlace>
   );
 }

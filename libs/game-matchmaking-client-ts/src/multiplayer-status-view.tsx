@@ -2,6 +2,7 @@ import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
 import { Trans } from '@lingui/solid/macro';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
+import { EyeIcon } from '@pkgs/ui-root-client-ts/icons';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { type JSX, Match, Switch } from 'solid-js';
 import {
@@ -32,13 +33,13 @@ export function MultiplayerStatusView(
         </Match>
         <Match when={props.stage === 'unavailable'}>
           <EmptyState
-            variant="compact"
+            icon={EyeIcon}
             role="status"
-            title={<Trans>No game to watch here</Trans>}
+            title={<Trans>No game to watch yet</Trans>}
             body={
               <Trans>
-                No multiplayer game is available to you. The host of this space
-                has not found an opponent.
+                The host of this space hasn't started a matched game. When they
+                find an opponent, their game appears here for you to watch.
               </Trans>
             }
             action={{
@@ -50,7 +51,6 @@ export function MultiplayerStatusView(
         </Match>
         <Match when={props.stage === 'loading'}>
           <LoadingState
-            variant="compact"
             caption={<Trans>Loading the game…</Trans>}
             dataSet={{ testid: 'multiplayer-loading' }}
           />

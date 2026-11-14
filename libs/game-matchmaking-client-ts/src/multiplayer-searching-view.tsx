@@ -13,7 +13,7 @@ import {
   MultiplayerStopSearch,
   MultiplayerWaiting,
 } from './multiplayer-waiting';
-import { timeControlWords } from './time-control-name';
+import { timeControlChoiceText } from './time-control-name';
 
 /**
  * A search under way: what will be played, what the search is looking for
@@ -45,6 +45,7 @@ export function MultiplayerSearchingView(
       }
     >
       <GameModeCard
+        layout="banner"
         eyebrow={<Trans>Ranked match</Trans>}
         title={props.title}
         summary={props.goal}
@@ -63,7 +64,7 @@ export function MultiplayerSearchingView(
                 when={props.search.timeControl}
                 fallback={<Trans>Untimed</Trans>}
               >
-                {(control) => timeControlWords(control())}
+                {(control) => timeControlChoiceText(control())}
               </Show>
             ),
           },

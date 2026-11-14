@@ -59,7 +59,7 @@ describe('each stage opens on its own small screen', () => {
     const view = mountPlaces({ stage: 'unavailable' });
     const state = screen.getByTestId('multiplayer-unavailable');
     expect(state.textContent).toContain(
-      'No multiplayer game is available to you.'
+      "The host of this space hasn't started a matched game."
     );
     screen.getByTestId('multiplayer-unavailable-action').click();
     expect(view.props().onLeave).toHaveBeenCalledTimes(1);

@@ -316,29 +316,77 @@ function Reason(props: { readonly game: MultiplayerGame }): JSX.Element {
 
 /** A draw the position itself made. */
 
-function RatingChange(props: StatusProps): JSX.Element {
-  const diff = () => props.game[`${ownSide(props)}_rating_diff`] ?? null;
+/**
+ * The rating a finished game left the person with: the game's starting
+ * rating moved by the change, or nothing when either is unknown.
+ */
+export function ratingAfter(
+  before: string | null | undefined,
+  diff: number | null
+): number | null {
+  const start = Number.parseInt(before ?? '', 10);
+  return diff === null || Number.isNaN(start) ? null : start + diff;
+}
+
+/**
+ * A rating change as the result says it: `Rating +8 → 1520`. The change is
+ * a coloured badge; a listener hears "Your rating changed by +8. It is now
+ * 1520."
+ */
+export function MultiplayerRatingChange(props: {
+  readonly diff: number;
+  /** The rating after the game, when known. */
+  readonly after: number | null;
+}): JSX.Element {
   return (
-    <Show when={props.viewer.participant && diff() !== null}>
+    <>
+      <Text variant="inherit" aria-hidden>
+        <Trans>Rating</Trans>{' '}
+      </Text>
       <Badge
         intent={
-          (diff() ?? 0) > 0
+          props.diff > 0
             ? 'success'
-            : (diff() ?? 0) < 0
+            : props.diff < 0
               ? 'destructive'
               : 'neutral'
         }
         label={
           <Trans>
             <VisuallyHidden>Your rating changed by </VisuallyHidden>
-            {(diff() ?? 0) > 0 ? '+' : ''}
-            {diff() ?? 0}
+            {props.diff > 0 ? '+' : ''}
+            {props.diff}
             <VisuallyHidden>.</VisuallyHidden>
           </Trans>
         }
         tone="solid"
         dataSet={{ testid: 'multiplayer-rating-change' }}
       />
+      <Show when={props.after}>
+        {(rating) => (
+          <Text variant="inherit" tone="default" numeral>
+            {' '}
+            <Trans>
+              <VisuallyHidden>It is now </VisuallyHidden>→ {rating()}
+              <VisuallyHidden>.</VisuallyHidden>
+            </Trans>
+          </Text>
+        )}
+      </Show>
+    </>
+  );
+}
+
+function RatingChange(props: StatusProps): JSX.Element {
+  const diff = () => props.game[`${ownSide(props)}_rating_diff`] ?? null;
+  return (
+    <Show when={props.viewer.participant ? diff() : null}>
+      {(change) => (
+        <MultiplayerRatingChange
+          diff={change()}
+          after={ratingAfter(props.game[`${ownSide(props)}_rating`], change())}
+        />
+      )}
     </Show>
   );
 }
@@ -359,7 +407,7 @@ function Offers(props: StatusProps): JSX.Element {
         <Trans>{drawName()} offered you a multiplayer draw.</Trans>{' '}
       </Show>
       <Show when={offeredToMe(props.game.rematch_offer_by)}>
-        <Trans>{rematchName()} offered you a multiplayer rematch.</Trans>{' '}
+        <Trans>{rematchName()} wants a rematch.</Trans>{' '}
       </Show>
     </>
   );

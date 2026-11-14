@@ -1,4 +1,3 @@
-import { Badge, type BadgeIntent } from '@pkgs/ui-root-client-ts/badge';
 import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { MultiplayerScreenView } from './multiplayer-screen-view';
@@ -8,20 +7,24 @@ import {
   STORY_PARAMETERS,
   storyArgs,
 } from './multiplayer-screen-view.example';
+import { MultiplayerRatingChange } from './multiplayer-status';
 
 /** The reason and the rating change, as the result card lays them out. */
-function caption(reason: string, intent: BadgeIntent, change: string) {
+function caption(reason: string, diff: number, after: number) {
   return (
     <>
-      {reason} <Badge intent={intent} tone="solid" label={change} />
+      {reason} <MultiplayerRatingChange diff={diff} after={after} />
     </>
   );
 }
 
+// The caption is read when a story renders, inside the app's providers.
 const WON = {
   tone: 'won',
   title: 'You won.',
-  caption: caption('By resignation.', 'success', '+8'),
+  get caption() {
+    return caption('By resignation.', 8, 1520);
+  },
 } as const;
 
 const meta = {
@@ -52,11 +55,7 @@ export const RematchOffered: Story = {
       result: {
         tone: 'lost',
         title: 'Your opponent won.',
-        caption: caption(
-          'By resignation. Bob offered you a multiplayer rematch.',
-          'destructive',
-          '-8'
-        ),
+        caption: caption('By resignation. Bob wants a rematch.', -8, 1504),
       },
     })(args),
   args: { game: { ...STORY_FINISHED_GAME, rematch: 'answer' } },
@@ -69,7 +68,7 @@ export const Drawn: Story = {
       result: {
         tone: 'drawn',
         title: 'The game is drawn.',
-        caption: caption('Drawn by agreement.', 'neutral', '0'),
+        caption: caption('Drawn by agreement.', 0, 1512),
       },
     })(args),
 };

@@ -35,6 +35,13 @@ export type GameModeCardProps = {
    * lobby has to spare; a long roster leaves it out.
    */
   art?: JSX.Element | undefined;
+  /**
+   * `poster` (the default): on a phone the card takes the lobby's spare
+   * room, its board over its words. `banner`: the board is a small picture
+   * beside the words at every width, and the card keeps its own height, so
+   * the choices under it lead.
+   */
+  layout?: 'poster' | 'banner' | undefined;
   dataSet?: ComponentDataSet | undefined;
 };
 
@@ -59,6 +66,7 @@ export function GameModeCard(props: GameModeCardProps): JSX.Element {
   return (
     <header
       class={styles['mode']}
+      data-layout={props.layout ?? 'poster'}
       {...dataAttrs({ component: 'GameModeCard', ...props.dataSet })}
     >
       <GameModeArt art={props.art} />

@@ -220,11 +220,7 @@ Then(
 Then(
   '{actor} hears {actor} offered her a rematch',
   async (w, actor: string, opponent: string) =>
-    hears(
-      w,
-      actor,
-      `${await nameOf(w, opponent)} offered you a multiplayer rematch.`
-    )
+    hears(w, actor, `${await nameOf(w, opponent)} wants a rematch.`)
 );
 Then('{actor} hears the matched game was aborted', (w, actor: string) =>
   hears(w, actor, 'The multiplayer game was aborted.')

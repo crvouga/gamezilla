@@ -7,33 +7,39 @@ import {
   type MultiplayerPlaceFrame,
 } from './multiplayer-place-frame';
 
-/**
- * What a search does, in three short points, each a title over one plain
- * line. Nothing here is pressed: it is read, then Back.
- */
+/** What a search does, in three short points: a title over one plain line. */
+export function MultiplayerGuidePoints(props: {
+  readonly title?: JSX.Element;
+}): JSX.Element {
+  return (
+    <MenuSection title={props.title} dataSet={{ testid: 'multiplayer-guide' }}>
+      <MenuRow
+        title={<Trans>Every match is rated</Trans>}
+        caption={<Trans>Win, lose or draw, your rating moves once.</Trans>}
+      />
+      <MenuRow
+        title={<Trans>Stop whenever you like</Trans>}
+        caption={
+          <Trans>A search waits until you stop it or are matched.</Trans>
+        }
+      />
+      <MenuRow
+        title={<Trans>Only people you can play</Trans>}
+        caption={
+          <Trans>Never someone you've blocked, or who blocked you.</Trans>
+        }
+      />
+    </MenuSection>
+  );
+}
+
+/** The three points as a place of their own. Nothing is pressed: read, then Back. */
 export function MultiplayerGuideView(
   props: MultiplayerPlaceFrame
 ): JSX.Element {
   return (
     <MultiplayerMenuPlace {...props} title={<Trans>How it works</Trans>}>
-      <MenuSection dataSet={{ testid: 'multiplayer-guide' }}>
-        <MenuRow
-          title={<Trans>Every match is rated</Trans>}
-          caption={<Trans>Win, lose or draw, your rating moves once.</Trans>}
-        />
-        <MenuRow
-          title={<Trans>Stop whenever you like</Trans>}
-          caption={
-            <Trans>A search waits until you stop it or are matched.</Trans>
-          }
-        />
-        <MenuRow
-          title={<Trans>Only people you can play</Trans>}
-          caption={
-            <Trans>Never someone you've blocked, or who blocked you.</Trans>
-          }
-        />
-      </MenuSection>
+      <MultiplayerGuidePoints />
     </MultiplayerMenuPlace>
   );
 }

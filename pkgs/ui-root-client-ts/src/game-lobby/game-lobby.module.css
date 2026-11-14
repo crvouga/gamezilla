@@ -206,3 +206,37 @@
 .screen [data-component="ScrollViewContent"] > [data-component] > p {
   padding-inline: var(--ui-space-4);
 }
+
+/* A banner card: the board a small picture beside the words, at every
+   width, and the card only as tall as they are. */
+.screen .mode[data-layout="banner"] {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  flex: none;
+  justify-content: normal;
+  column-gap: var(--ui-space-4);
+  padding: var(--ui-space-4);
+  background: linear-gradient(
+    135deg,
+    var(--ui-color-tint-subtle) 0%,
+    var(--ui-color-surface) 72%
+  );
+}
+.screen .mode[data-layout="banner"]:not(:has(.modeArtBoard > *)) {
+  grid-template-columns: minmax(0, 1fr);
+}
+.screen .mode[data-layout="banner"] > .facts {
+  grid-column: 1 / -1;
+}
+.screen .mode[data-layout="banner"] > .modeArt:has(.modeArtBoard > *) {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 112px;
+  height: 112px;
+  overflow: hidden;
+  container-type: size;
+  pointer-events: none;
+}
