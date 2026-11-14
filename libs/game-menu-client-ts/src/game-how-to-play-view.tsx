@@ -48,6 +48,7 @@ export function GameHowToPlayView(props: {
               <Button
                 title={play.title}
                 intent="primary"
+                size="sm"
                 onClick={play.onClick}
                 dataSet={{ testid: 'game-how-to-play-play' }}
               />
@@ -58,6 +59,7 @@ export function GameHowToPlayView(props: {
             icon={ArrowLeftIcon}
             intent="neutral"
             variant="outline"
+            size="sm"
             onClick={props.onBack}
             dataSet={{ testid: 'game-how-to-play-back' }}
           />

@@ -11,29 +11,46 @@ import {
   type GameSettingsScreenViewProps,
 } from './game-settings-screen-view';
 
-const DEVELOPER: GameSettingsRowView = {
-  key: 'developer',
-  title: 'Developer',
-  caption: 'Import and manage chess puzzles',
-  testId: 'chess-settings-developer',
-  opens: { screen: 'settings/developer' },
-};
-
-const PUZZLES: GameSettingsRowView = {
+/** Chess's settings as declared: the puzzle loader, at the root. */
+const CHESS_PUZZLES: GameSettingsRowView = {
   key: 'puzzles',
   title: 'Load chess puzzles',
   caption: 'Load a Lichess CSV, follow its progress, or stop it.',
-  testId: 'chess-developer-puzzles',
-  opens: { screen: 'settings/developer/puzzles' },
+  testId: 'chess-settings-puzzles',
+  opens: { screen: 'settings/puzzles' },
 };
+
+/**
+ * A deeper tree, of a game with tools of two kinds (a fixture: no game
+ * declares this one): a group per kind, the loader inside.
+ */
+const DEVELOPER: GameSettingsRowView = {
+  key: 'developer',
+  title: 'Developer',
+  caption: 'Import and manage puzzle packs',
+  testId: 'sokoban-settings-developer',
+  opens: { screen: 'settings/developer' },
+};
+
+const PACKS: GameSettingsRowView = {
+  key: 'packs',
+  title: 'Load puzzle packs',
+  caption: 'Load a pack file, follow its progress, or stop it.',
+  testId: 'sokoban-developer-packs',
+  opens: { screen: 'settings/developer/packs' },
+};
+
+const AUDIENCE = 'Tools for the people who manage puzzles.';
 
 /**
  * A settings group as `GameSettingsScreen` shows it in a space: the bar's
  * Back names where it leads (`backLabel`), the game's name in its trail.
  */
-function SettingsStory(props: GameSettingsScreenViewProps): JSX.Element {
+function SettingsStory(
+  props: GameSettingsScreenViewProps & { readonly game: string }
+): JSX.Element {
   return (
-    <GameChoicesName name="Chess">
+    <GameChoicesName name={props.game}>
       <DefineBackButton
         onPress={props.onBack}
         label={
@@ -50,15 +67,22 @@ const meta = {
   id: 'screens-games-settings-group',
   title: 'Screens/Games/Settings/Group',
   component: GameSettingsScreenView,
-  render: (args) => <SettingsStory {...args} />,
+  render: (args, context) => (
+    <SettingsStory {...args} game={String(context.parameters['game'])} />
+  ),
   tags: ['autodocs'],
-  parameters: { appRouter: true, controls: { exclude: ['rows', 'place'] } },
+  parameters: {
+    appRouter: true,
+    game: 'Sokoban',
+    controls: { exclude: ['rows', 'place'] },
+  },
   args: {
     place: { screen: 'settings' },
     title: 'Settings',
+    subtitle: AUDIENCE,
     rows: [DEVELOPER],
     onOpen: fn(),
-    backLabel: 'Chess',
+    backLabel: 'Sokoban',
     onBack: fn(),
   },
 } satisfies Meta<typeof GameSettingsScreenView>;
@@ -68,13 +92,26 @@ type Story = StoryObj<typeof meta>;
 /** The settings' first screen: the rows of the root group the game declared. */
 export const Root: Story = {};
 
+/**
+ * Chess's settings, for a person allowed to manage puzzles: the loader
+ * itself, with no group to pass through. Nobody else is offered Settings.
+ */
+export const ChessRoot: Story = {
+  parameters: { game: 'Chess' },
+  args: {
+    subtitle: 'Tools for the people who manage chess puzzles.',
+    rows: [CHESS_PUZZLES],
+    backLabel: 'Chess',
+  },
+};
+
 /** A nested group, opened by its row: named by that row, with its own rows. */
 export const NestedGroup: Story = {
   args: {
     place: { screen: 'settings/developer' },
     title: 'Developer',
-    subtitle: 'Import and manage chess puzzles.',
-    rows: [PUZZLES],
+    subtitle: 'Import and manage puzzle packs.',
+    rows: [PACKS],
     backLabel: 'Settings',
   },
 };
@@ -87,13 +124,13 @@ export const PermissionHiddenRows: Story = {
   args: {
     place: { screen: 'settings/developer' },
     title: 'Developer',
-    subtitle: 'Import and manage chess puzzles.',
+    subtitle: 'Import and manage puzzle packs.',
     rows: [
       {
         key: 'board',
         title: 'Board and pieces',
         caption: 'How the board is drawn on this device.',
-        testId: 'chess-developer-board',
+        testId: 'sokoban-developer-board',
         opens: { screen: 'settings/developer/board' },
       },
     ],
@@ -106,7 +143,7 @@ export const EmptyGroup: Story = {
   args: {
     place: { screen: 'settings/developer' },
     title: 'Developer',
-    subtitle: 'Import and manage chess puzzles.',
+    subtitle: 'Import and manage puzzle packs.',
     rows: [],
     backLabel: 'Settings',
   },
@@ -132,7 +169,7 @@ export const LongContent: Story = {
         caption:
           'Load a shared source file, follow how far the load is, stop it, and see what the last load added, updated and found broken.',
       },
-      PUZZLES,
+      PACKS,
     ],
   },
 };
@@ -142,7 +179,7 @@ export const OpenRow: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(
-      await canvas.findByTestId('chess-settings-developer')
+      await canvas.findByTestId('sokoban-settings-developer')
     );
     await expect(args.onOpen).toHaveBeenCalledWith({
       screen: 'settings/developer',
@@ -151,7 +188,7 @@ export const OpenRow: Story = {
 };
 
 /**
- * Chess's settings walked as `GameSettingsScreen` walks them: a row opens
+ * A deeper tree walked as `GameSettingsScreen` walks one: a row opens
  * its group, Back (the bar's or the screen's) walks up one group, and from
  * the root returns to the game's menu.
  */
@@ -166,10 +203,10 @@ function SettingsWalk(props: {
     else setPlace('settings');
   };
   return (
-    <GameChoicesName name="Chess">
+    <GameChoicesName name="Sokoban">
       <DefineBackButton
         onPress={back}
-        label={root() ? 'Chess' : 'Settings'}
+        label={root() ? 'Sokoban' : 'Settings'}
         within={!root()}
       />
       <Show when={place()} keyed>
@@ -177,12 +214,13 @@ function SettingsWalk(props: {
           place={{ screen: place() }}
           title={root() ? 'Settings' : 'Developer'}
           subtitle={root() ? undefined : 'Import and manage chess puzzles.'}
-          rows={root() ? [DEVELOPER] : [PUZZLES]}
+          rows={root() ? [DEVELOPER] : [PACKS]}
           onOpen={(opened) => {
-            if (opened.screen === 'settings/developer') setPlace(opened.screen);
+            if (opened.screen === DEVELOPER.opens.screen)
+              setPlace(opened.screen);
             else props.onLoad();
           }}
-          backLabel={root() ? 'Chess' : 'Settings'}
+          backLabel={root() ? 'Sokoban' : 'Settings'}
           onBack={back}
         />
       </Show>
@@ -192,7 +230,7 @@ function SettingsWalk(props: {
 
 /**
  * Open a group, then walk back up with Back: on a phone the bar's Back
- * names the group it returns to ("Settings", then "Chess").
+ * names the group it returns to ("Settings", then "Sokoban").
  */
 export const WalkTheGroups: Story = {
   args: { onBack: fn() },

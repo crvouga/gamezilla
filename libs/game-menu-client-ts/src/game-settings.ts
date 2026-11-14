@@ -94,7 +94,7 @@ export function gameSettingsChild(
 /**
  * The control a row is pressed by: `<game>-<group>-<row>`, the group being
  * `settings` for the root and otherwise the key of the row that opens it
- * (`chess-settings-developer`, `chess-developer-puzzles`).
+ * (`chess-settings-puzzles`, `race-developer-laps`).
  */
 export function gameSettingsHandle(
   gameId: string,

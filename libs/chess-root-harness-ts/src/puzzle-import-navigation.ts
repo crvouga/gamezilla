@@ -16,20 +16,19 @@ export const openChessGameChoices = scenarioAction({
   },
 });
 
-export const openChessPuzzleDeveloperSettings = scenarioAction({
-  name: 'openChessPuzzleDeveloperSettings',
+export const openChessSettings = scenarioAction({
+  name: 'openChessSettings',
   act: async (s, actor: string) => {
     await Promise.resolve(openChessGameChoices.act(s, actor));
     const ui = await actorUi(s, actor);
     await ui.get('game-choice-settings').tap();
-    await ui.get('chess-settings-developer').tap();
   },
 });
 export const openChessPuzzleLoader = scenarioAction({
   name: 'openChessPuzzleLoader',
   act: async (s, actor: string) => {
     const ui = await actorUi(s, actor);
-    await ui.get('chess-developer-puzzles').tap();
+    await ui.get('chess-settings-puzzles').tap();
     await ui.get('puzzle-load-content').expect.visible();
   },
 });
@@ -40,7 +39,7 @@ export const saveLichessFileFromSpace = scenarioAction({
   act: async (s, actor: string, spaceLink: string) => {
     if (!(await readPuzzleSource(s, actor)).offline) {
       await Promise.resolve(reopenSpaceLink.act(s, actor, spaceLink));
-      await Promise.resolve(openChessPuzzleDeveloperSettings.act(s, actor));
+      await Promise.resolve(openChessSettings.act(s, actor));
       await Promise.resolve(openChessPuzzleLoader.act(s, actor));
     }
     await Promise.resolve(saveLichessFile.act(s, actor));

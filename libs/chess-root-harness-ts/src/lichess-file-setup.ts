@@ -7,8 +7,8 @@ import {
 } from './lichess-file-actions';
 import { followOtherPuzzleEnvironment } from './puzzle-import-environments';
 import {
-  openChessPuzzleDeveloperSettings,
   openChessPuzzleLoader,
+  openChessSettings,
 } from './puzzle-import-navigation';
 import { noSavedLichessFile } from './puzzle-source-ui';
 
@@ -26,7 +26,7 @@ export const prepareSavingLichessFile = scenarioAction({
     await Promise.resolve(prepareChosenLichessFile.act(s, false, actor));
     if (spaceLink !== undefined) {
       await Promise.resolve(reopenSpaceLink.act(s, actor, spaceLink));
-      await Promise.resolve(openChessPuzzleDeveloperSettings.act(s, actor));
+      await Promise.resolve(openChessSettings.act(s, actor));
       await Promise.resolve(openChessPuzzleLoader.act(s, actor));
       await Promise.resolve(chooseLichessFile.act(s, false, actor));
     }

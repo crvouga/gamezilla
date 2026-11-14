@@ -1,8 +1,8 @@
 import { expect, test } from 'bun:test';
 import {
   openChessGameChoices,
-  openChessPuzzleDeveloperSettings,
   openChessPuzzleLoader,
+  openChessSettings,
 } from '@libs/chess-root-harness-ts/puzzle-import-navigation';
 import {
   readPuzzleImport,
@@ -42,7 +42,7 @@ test('chess developer loader accepts a two-part CSV and leaves its worker availa
   await s.apply(signInWithGoogle, 'alice');
   await s.apply(joinPuzzleTeam, 'alice');
   await s.apply(createSpace, 'alice');
-  await s.apply(openChessPuzzleDeveloperSettings, 'alice');
+  await s.apply(openChessSettings, 'alice');
   await s.apply(openChessPuzzleLoader, 'alice');
   expect(
     await s.until((world) => readPuzzleImport(world, 'alice'), {
@@ -82,18 +82,16 @@ test('chess offers no settings to a person who may not load puzzles', async () =
   await s.apply(openChessGameChoices, 'alice');
   expect(await s.read(sees, Handles.gameChoices)).toBe(true);
   expect(await s.read(sees, 'game-choice-settings')).toBe(false);
-  expect(await s.read(sees, 'chess-developer-puzzles')).toBe(false);
+  expect(await s.read(sees, 'chess-settings-puzzles')).toBe(false);
 }, 30000);
 
-test('Back walks up chess settings, one group at a time, to the game menu', async () => {
+test('Back from chess settings returns to the game menu', async () => {
   await using s = await openHarness('puzzle-loader-navigation-back');
   await s.apply(signInWithGoogle, 'alice');
   await s.apply(joinPuzzleTeam, 'alice');
   await s.apply(createSpace, 'alice');
-  await s.apply(openChessPuzzleDeveloperSettings, 'alice');
-  expect(await s.read(sees, 'chess-developer-puzzles')).toBe(true);
-  await s.apply(goBack, 'alice');
-  expect(await s.read(sees, 'chess-settings-developer')).toBe(true);
+  await s.apply(openChessSettings, 'alice');
+  expect(await s.read(sees, 'chess-settings-puzzles')).toBe(true);
   await s.apply(goBack, 'alice');
   expect(await s.read(sees, Handles.gameChoices)).toBe(true);
 }, 30000);
