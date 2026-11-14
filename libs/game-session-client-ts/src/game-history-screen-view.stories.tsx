@@ -213,7 +213,8 @@ export const Denied: Story = {
 export const OpenRecord: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(await canvas.findByText('Bot'));
+    const rows = await canvas.findAllByTestId('game-history-record');
+    await userEvent.click(rows[1]!);
     await expect(args.onSelect).toHaveBeenCalledWith('game-3');
   },
 };
