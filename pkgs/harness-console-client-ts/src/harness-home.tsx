@@ -4,6 +4,7 @@ import {
 } from '@pkgs/harness-console-shared-ts/harness-windows';
 import { CommandPaletteKbd } from '@pkgs/ui-root-client-ts/command-palette-kbd';
 import type { IconComponent } from '@pkgs/ui-root-client-ts/create-icon';
+import { H1 } from '@pkgs/ui-root-client-ts/heading';
 import {
   ArrowLeftRightIcon,
   FlaskConicalIcon,
@@ -15,7 +16,7 @@ import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { ScrollView } from '@pkgs/ui-root-client-ts/scroll-view';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { H1, P } from '@pkgs/ui-root-client-ts/text';
+import { P } from '@pkgs/ui-root-client-ts/text';
 import { For, type JSX, Show } from 'solid-js';
 import { harnessNodeIcon } from './node-chrome';
 
