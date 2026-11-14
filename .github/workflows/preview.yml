@@ -157,6 +157,8 @@ jobs:
             wait $! || true
             if ! cmp -s "$BOOT/head.yml" "$BOOT/merge.yml"; then
               echo "::notice title=Preview of the merge with main::The head ${PREVIEW_SHA:0:12} has another Preview workflow than main, so this Preview is built from the merge of the two (${GITHUB_SHA:0:12})."
+              # Still the head's Preview: stamped and checked as that commit.
+              export PREVIEW_COMMIT="$PREVIEW_SHA"
               PREVIEW_SHA="$GITHUB_SHA"
             fi
           fi

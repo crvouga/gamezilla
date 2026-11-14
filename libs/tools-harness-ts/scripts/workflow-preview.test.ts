@@ -60,6 +60,16 @@ test('a head with another Preview workflow than the one running is built from th
   expect(start).toContain('"$raw/$GITHUB_SHA/.github/workflows/preview.yml"');
   const merged = lines.indexOf('PREVIEW_SHA="$GITHUB_SHA"');
   expect(merged).toBeGreaterThan(compared);
+  // regression: preview-merge-stamp. The Preview stays the head's: the
+  // page is stamped with the head, which is the commit the deploy waits for.
+  expect(lines[merged - 1]).toBe('export PREVIEW_COMMIT="$PREVIEW_SHA"');
+  const command = readFileSync(
+    join(root, 'apps/preview-ts/scripts/preview.ts'),
+    'utf8'
+  );
+  expect(command).toContain(
+    "sha: envOf('PREVIEW_COMMIT') ?? git(['rev-parse', 'HEAD']),"
+  );
   // Decided before anything reads the commit: the checkout and the tools.
   expect(lines.indexOf('checkout &')).toBeGreaterThan(merged);
 });

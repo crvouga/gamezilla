@@ -1,0 +1,4 @@
+{
+  "summary": "A pull request whose Preview was built from its merge with main (its head has another preview.yml than the one running) stamped the page with the merge commit, so the deploy waited two minutes for the head commit and failed. The workflow now names the head (PREVIEW_COMMIT) and the page is stamped with it.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workflow-preview.test.ts"
+}
