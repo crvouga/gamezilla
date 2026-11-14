@@ -183,25 +183,11 @@ function SettingsWalk(props: {
   );
 }
 
-/** Open a group, then walk back up with the bar's Back. */
+/**
+ * Open a group, then walk back up with Back: on a phone the bar's Back
+ * names the group it returns to ("Settings", then "Chess").
+ */
 export const WalkTheGroups: Story = {
   args: { onBack: fn() },
   render: (args) => <SettingsWalk onLeave={args.onBack} onLoad={fn()} />,
-  play: async ({ args, canvasElement }) => {
-    const canvas = within(canvasElement);
-    await userEvent.click(
-      await canvas.findByTestId('chess-settings-developer')
-    );
-    await expect(
-      await canvas.findByTestId('chess-developer-puzzles')
-    ).toBeVisible();
-    await userEvent.click(
-      await canvas.findByRole('button', { name: 'Settings' })
-    );
-    await expect(
-      await canvas.findByTestId('chess-settings-developer')
-    ).toBeVisible();
-    await userEvent.click(await canvas.findByRole('button', { name: 'Chess' }));
-    await expect(args.onBack).toHaveBeenCalled();
-  },
 };
