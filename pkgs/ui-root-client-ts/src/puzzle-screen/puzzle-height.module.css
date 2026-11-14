@@ -9,6 +9,11 @@
 }
 @media (max-height: 760px) {
   @container puzzle-frame (width < 880px) {
+    /* Tighter breaths between the regions, so what is under the board
+       clears the dock. */
+    [data-board-sizing="width"][data-square] {
+      gap: var(--ui-space-2);
+    }
     [data-board-sizing="width"] > .title {
       position: absolute;
       width: 1px;

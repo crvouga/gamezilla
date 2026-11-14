@@ -17,21 +17,49 @@ import { PuzzleRatingHistory } from './puzzle-rating-history';
 import { PuzzleStatsCards } from './puzzle-stats-cards';
 import type { PuzzleStatsScreenViewProps } from './puzzle-stats-screen-view';
 
-/** The chart's scale in words: the lowest and highest rating it draws. */
-function TrendRange(props: { series: readonly number[] }): JSX.Element {
+/** One end of the chart's scale: what the edge is, and its value. */
+function ScaleEnd(props: {
+  readonly edge: JSX.Element;
+  readonly value: JSX.Element;
+}): JSX.Element {
+  return (
+    <StackHorizontal justify="between">
+      <P variant="caption" tone="secondary">
+        {props.edge}
+      </P>
+      <P variant="caption" tone="secondary" numeral>
+        {props.value}
+      </P>
+    </StackHorizontal>
+  );
+}
+
+/**
+ * The rating trend with its scale in words, as a chart's axes: the highest
+ * rating on its top edge, the lowest on its bottom, oldest puzzle on the
+ * left and latest on the right.
+ */
+function TrendChart(props: {
+  readonly series: readonly number[];
+}): JSX.Element {
   const low = (): number => Math.min(...props.series);
   const high = (): number => Math.max(...props.series);
   return (
-    <Show when={props.series.length > 1}>
-      <StackHorizontal justify="between">
-        <P variant="caption" tone="secondary" numeral>
-          <Trans>Low {low()}</Trans>
-        </P>
-        <P variant="caption" tone="secondary" numeral>
-          <Trans>High {high()}</Trans>
-        </P>
-      </StackHorizontal>
-    </Show>
+    <StackVertical width="full" maxWidth="form" self="center" gap="xs">
+      <ScaleEnd
+        edge={<Trans>Your rating</Trans>}
+        value={<Trans>High {high()}</Trans>}
+      />
+      <Sparkline
+        values={props.series}
+        size="lg"
+        testId="chess-stats-sparkline"
+      />
+      <ScaleEnd
+        edge={<Trans>Oldest puzzle → latest</Trans>}
+        value={<Trans>Low {low()}</Trans>}
+      />
+    </StackVertical>
   );
 }
 
@@ -192,17 +220,7 @@ export function PuzzleStatsTrendView(
         }
       >
         <StackVertical gap="xl">
-          <StackVertical width="full" maxWidth="form" self="center" gap="sm">
-            <P variant="caption" tone="secondary">
-              <Trans>Your rating, oldest puzzle on the left</Trans>
-            </P>
-            <Sparkline
-              values={props.stats.ratingSeries}
-              size="lg"
-              testId="chess-stats-sparkline"
-            />
-            <TrendRange series={props.stats.ratingSeries} />
-          </StackVertical>
+          <TrendChart series={props.stats.ratingSeries} />
           <PuzzleRatingHistory entries={props.gameLog} />
         </StackVertical>
       </Show>

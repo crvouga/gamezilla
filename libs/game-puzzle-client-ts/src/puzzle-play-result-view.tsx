@@ -61,6 +61,15 @@ function ResultCaption(props: PuzzlePlayScreenViewProps): JSX.Element {
       >
         <Trans>The attempt counts as failed.</Trans>
       </Match>
+      <Match
+        when={
+          props.status === 'solved' && props.result.completion?.rated === false
+        }
+      >
+        <Trans>
+          You found every move. Already played, so your rating stays.
+        </Trans>
+      </Match>
       <Match when={props.status === 'solved'}>
         <Trans>You found every move of the line.</Trans>
       </Match>

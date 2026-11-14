@@ -61,6 +61,11 @@ export type PuzzleStatusHeaderProps = {
    * says so in the success colour instead of the plain accent.
    */
   correct?: boolean | undefined;
+  /**
+   * Solved after a wrong move: done, but the attempt counts as failed, so
+   * the line says so instead of a clean "Solved".
+   */
+  flawed?: boolean | undefined;
   /** Right-aligned slot, e.g. the puzzle clock. */
   trailing?: JSX.Element;
 };
@@ -80,7 +85,13 @@ export function PuzzleStatusHeader(
       testId="chess-puzzle-status-row"
     >
       <Show when={!props.solutionShown}>
-        <PuzzleStatusIcon kind={props.kind} />
+        <PuzzleStatusIcon
+          kind={
+            props.flawed === true && props.kind === 'solved'
+              ? 'failed'
+              : props.kind
+          }
+        />
       </Show>
       <StackVertical grow>
         <P variant="label" lines={3} testId="chess-puzzle-status-label">
@@ -93,6 +104,8 @@ export function PuzzleStatusHeader(
             fallback={
               props.solutionShown ? (
                 <Trans>Solution shown</Trans>
+              ) : props.flawed === true && props.kind === 'solved' ? (
+                <Trans>Solved after a mistake</Trans>
               ) : (
                 statusLabel(props.kind)
               )

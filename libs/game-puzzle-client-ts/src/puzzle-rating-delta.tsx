@@ -43,11 +43,7 @@ export function PuzzleRatingDelta(props: PuzzleRatingDeltaProps): JSX.Element {
         tone={deltaTone(props)}
         testId="chess-puzzle-summary-delta"
       >
-        {props.rated ? (
-          formatSignedDelta(props.delta)
-        ) : (
-          <Trans>Unrated · already played</Trans>
-        )}
+        {props.rated ? formatSignedDelta(props.delta) : <Trans>Unrated</Trans>}
       </P>
     </>
   );

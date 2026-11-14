@@ -50,7 +50,7 @@ export function PuzzleLinkScreenView(
         <Match when={props.status === 'denied' && props.denial} keyed>
           {(denial) => (
             // What unlocks it, and a way on that is not a purchase.
-            <StackVertical gap="md" align="center">
+            <StackVertical gap="none" align="center">
               <DenialSurfaceView denial={denial} />
               <Button
                 title={<Trans>Go to home</Trans>}

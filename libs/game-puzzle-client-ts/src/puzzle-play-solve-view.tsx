@@ -1,9 +1,9 @@
 import { PUZZLE_NAV_INTENT } from '@libs/game-puzzle-shared-ts/puzzle-nav';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { ListOrderedIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
-import { MoveStrip, MoveStripSlot } from '@pkgs/ui-root-client-ts/move-strip';
+import { MoveStrip } from '@pkgs/ui-root-client-ts/move-strip';
 import { SpectatorIndicator } from '@pkgs/ui-root-client-ts/spectator-indicator';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
@@ -83,10 +83,10 @@ export function PuzzleSolveActions(
 
 /**
  * The line so far as one quiet strip of moves, read not pressed, and the
- * one control that opens the screen where it is stepped through.
+ * one control that opens the screen where it is stepped through. Whose
+ * move it is, is the status line's turn pill alone.
  */
 function CompactLine(props: PuzzlePlayScreenViewProps): JSX.Element {
-  const { t } = useLingui();
   const hasPlies = (): boolean => props.line.plies.length > 0;
   return (
     <StackHorizontal
@@ -105,13 +105,6 @@ function CompactLine(props: PuzzlePlayScreenViewProps): JSX.Element {
               writing={props.line.writing}
               onSeek={ignoreSeek}
             />
-            {/* A watcher is not the one to move: no "Your move" for them. */}
-            <Show when={props.line.awaiting && !props.spectator}>
-              <MoveStripSlot
-                label={t`Your move`}
-                testId="chess-puzzle-move-slot"
-              />
-            </Show>
           </Show>
         </MoveStrip>
       </StackVertical>
@@ -138,7 +131,9 @@ export function PuzzleSolveLine(props: PuzzlePlayScreenViewProps): JSX.Element {
   return (
     <StackVertical gap="md">
       <CompactLine {...props} />
-      <Show when={!props.spectator}>
+      {/* While a wrong move waits on Retry, Reveal or Skip, the settings
+          step aside: the choice and the dock keep the first view. */}
+      <Show when={!props.spectator && props.status !== 'wrong'}>
         <StackVertical paddingX="lg">
           <MenuSection>
             <PuzzleSettingsRow
