@@ -46,8 +46,7 @@ export const Saving: Story = { args: { saving: true } };
 /** A move was not saved: the retry is offered here too. */
 export const ChangeFailed: Story = {
   args: {
-    changeError:
-      'The change was not saved. Your previous position is still kept. Try again.',
+    changeError: 'The position before it is kept. Try again.',
   },
 };
 

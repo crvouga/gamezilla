@@ -51,8 +51,7 @@ export const Saving: Story = { args: { saving: true } };
 /** A move was not saved; the earlier position is kept and retry is offered. */
 export const ChangeFailed: Story = {
   args: {
-    changeError:
-      'The change was not saved. Your previous position is still kept. Try again.',
+    changeError: 'The position before it is kept. Try again.',
   },
 };
 
@@ -101,8 +100,7 @@ export const Denied: Story = {
 /** Retrying a failed move asks to save it again. */
 export const RetryChange: Story = {
   args: {
-    changeError:
-      'The change was not saved. Your previous position is still kept. Try again.',
+    changeError: 'The position before it is kept. Try again.',
   },
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);

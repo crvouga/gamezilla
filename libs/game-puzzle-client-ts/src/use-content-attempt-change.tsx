@@ -44,7 +44,7 @@ export function useContentAttemptChange(attempt: () => ContentAttempt) {
       if (!result.ok)
         throw new Error(
           result.failures[0]?.message ??
-            t`The change was not saved. Your previous position is still kept. Try again.`
+            t`The position before it is kept. Try again.`
         );
       setAdopting(positionId);
     },

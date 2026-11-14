@@ -70,6 +70,7 @@ const meta = {
     canEdit: false,
     onEditWorkingDraft: fn(),
     onReturnToLibrary: fn(),
+    onReconnect: fn(),
   },
 } satisfies Meta<typeof ContentEditionScreenView>;
 export default meta;

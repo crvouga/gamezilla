@@ -40,6 +40,12 @@ export function GameBoardStage(props: {
   overlay?: JSX.Element | undefined;
   /** A thumbnail of the board, before there is play to show. */
   preview?: boolean | undefined;
+  /**
+   * The board brings its own words and tools under it (a puzzle's player):
+   * a phone's fixed view keeps it inside the page's gutter instead of
+   * running it to the screen's edges.
+   */
+  inset?: boolean | undefined;
   /** Under the thumbnail, what it is (`Board preview`). */
   previewLabel?: JSX.Element | undefined;
   /** Fit square content and its chrome on larger viewports, with a target floor. */
@@ -76,6 +82,7 @@ export function GameBoardStage(props: {
         [fit['squareStage'] ?? '']: square(),
       }}
       data-preview={props.preview === true}
+      data-inset={props.inset === true}
       data-viewport-fit={props.viewportFit}
       style={{
         '--game-board-fit': limit() === undefined ? undefined : `${limit()}px`,

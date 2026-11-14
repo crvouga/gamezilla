@@ -148,14 +148,14 @@ test("the pack's last puzzle solved says the whole pack is solved", () => {
     packSolved: 4,
   });
   expect(screen.getByTestId('content-attempt-complete').textContent).toContain(
-    'Every puzzle in Warehouse basics is solved.'
+    'Pack complete: every puzzle in Warehouse basics is solved.'
   );
 });
 
 test('a move that was not saved is never called saved, and said once', () => {
   mount(390, 'attempt', { changeError: 'The change was not saved.' });
   expect(screen.queryByTestId('content-position-save-status')).toBeNull();
-  expect(screen.getByText('Your change was not saved')).toBeDefined();
+  expect(screen.getByText('Your last move is not saved')).toBeDefined();
   cleanup();
   mount(390, 'progress', { changeError: 'The change was not saved.' });
   expect(screen.getByTestId('content-position-save-status').textContent).toBe(
@@ -340,7 +340,7 @@ test('a change that was not saved and rules this app lacks are said on both scre
         retried += 1;
       },
     });
-    expect(screen.getByText('Your change was not saved')).toBeDefined();
+    expect(screen.getByText('Your last move is not saved')).toBeDefined();
     expect(screen.getByText('The change was not saved.')).toBeDefined();
     expect(screen.getByTestId('content-attempt-rules-changed')).toBeDefined();
     fireEvent.click(screen.getByRole('button', { name: /try again|retry/i }));

@@ -1,5 +1,6 @@
 import { useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
+import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { createMemo, type JSX, Show } from 'solid-js';
 import { contentEditionAvailable } from './content-availability';
 import { ContentEditionScreenView } from './content-edition-screen-view';
@@ -16,6 +17,7 @@ export function ContentEditionScreen(props: {
   packRevisionId: string | null;
 }): JSX.Element {
   const game = useContentGame();
+  const engine = useSyncEngine();
   const data = useContentLibraryState();
   const revision = createMemo(() =>
     data.content().revisions.find((entry) => entry.id === props.revisionId)
@@ -85,6 +87,9 @@ export function ContentEditionScreen(props: {
           game.open({ kind: 'builder', documentId });
       }}
       onReturnToLibrary={() => game.open({ kind: 'library' })}
+      onReconnect={() => {
+        void engine.connect();
+      }}
     />
   );
 }

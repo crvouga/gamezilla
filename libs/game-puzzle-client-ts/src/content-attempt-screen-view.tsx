@@ -141,7 +141,7 @@ function AttemptAlerts(props: ContentAttemptScreenViewProps): JSX.Element {
         {(error) => (
           <ErrorState
             variant="compact"
-            title={t`Your change was not saved`}
+            title={t`Your last move is not saved`}
             body={error()}
             retry={{ onClick: props.onRetryChange }}
           />
@@ -204,12 +204,11 @@ function useAttemptContext(
 function useSolvedCaption(props: ContentAttemptScreenViewProps): () => string {
   const { t } = useLingui();
   return () => {
-    if (props.playtest)
-      return t`Practice runs count toward no progress. Return to the builder to publish it.`;
+    if (props.playtest) return t`Practice runs count toward no progress.`;
     const pack = props.pack;
     if (pack !== null && pack !== undefined && props.packSolved !== undefined)
       return props.packSolved >= pack.total
-        ? t`Every puzzle in ${pack.title} is solved.`
+        ? t`Pack complete: every puzzle in ${pack.title} is solved.`
         : t`${props.packSolved} of ${pack.total} solved in ${pack.title}.`;
     return t`You can keep playing or choose another puzzle.`;
   };
@@ -239,27 +238,29 @@ function AttemptSolved(
         dataSet={{ testid: 'content-attempt-complete' }}
       >
         <CircleCheckIcon size={20} color="success" />
-        <P variant="caption" tone="secondary">
+        <StackVertical gap="xs" grow shrink>
           <Text variant="label" tone="success">
             {props.playtest
               ? t`Playtest solved`
               : props.saving
                 ? t`Solved`
                 : t`Completion saved`}
-          </Text>{' '}
-          {caption()}{' '}
-          <Show when={props.withSave}>
-            <Text
-              variant="inherit"
-              role="status"
-              testId="content-position-save-status"
-            >
-              {props.saving
-                ? t`Saving your position…`
-                : t`Progress saved on this device.`}
-            </Text>
-          </Show>
-        </P>
+          </Text>
+          <P variant="caption" tone="secondary">
+            {caption()}{' '}
+            <Show when={props.withSave}>
+              <Text
+                variant="inherit"
+                role="status"
+                testId="content-position-save-status"
+              >
+                {props.saving
+                  ? t`Saving your position…`
+                  : t`Progress saved on this device.`}
+              </Text>
+            </Show>
+          </P>
+        </StackVertical>
       </StackHorizontal>
       {props.onward}
     </StackVertical>
@@ -301,7 +302,7 @@ function AttemptAside(props: ContentAttemptScreenViewProps): JSX.Element {
           {(pack) => (
             <StackVertical gap="sm">
               <P variant="caption" tone="secondary">
-                {t`Puzzle ${pack().position} of ${pack().total} · ${props.packSolved ?? 0} solved`}
+                {t`${props.packSolved ?? 0} of ${pack().total} solved`}
               </P>
               <ProgressBar
                 size="sm"
@@ -412,7 +413,7 @@ function AttemptStage(props: ContentAttemptScreenViewProps): JSX.Element {
         <Show when={!props.unopenable} fallback={<Unopenable {...props} />}>
           {/* The stage narrows the game's board to the room a phone's
               fixed view leaves over the commands, so none of it hides. */}
-          <GameBoardStage>{props.player}</GameBoardStage>
+          <GameBoardStage inset>{props.player}</GameBoardStage>
         </Show>
       </GameSessionLayout>
     </GameScreen>

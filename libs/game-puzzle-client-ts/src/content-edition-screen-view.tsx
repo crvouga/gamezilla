@@ -36,6 +36,8 @@ export type ContentEditionScreenViewProps = {
   readonly body?: JSX.Element;
   readonly onEditWorkingDraft: () => void;
   readonly onReturnToLibrary: () => void;
+  /** Reconnects and keeps this screen, for an edition not yet on this device. */
+  readonly onReconnect?: (() => void) | undefined;
 };
 
 /** What the owner can do with their own publication. */
@@ -72,8 +74,16 @@ export function ContentEditionScreenView(
       when={props.edition}
       fallback={
         <ErrorState
-          title={t`This edition is not available on this device`}
-          body={t`Return to puzzles, reconnect and open it again. Saved attempts keep their original content.`}
+          title={t`This puzzle has not reached this device`}
+          body={t`Reconnect and it opens here. Saved attempts keep their original content.`}
+          retry={
+            props.onReconnect === undefined
+              ? undefined
+              : {
+                  label: t`Reconnect and try again`,
+                  onClick: () => props.onReconnect?.(),
+                }
+          }
           secondary={{
             label: t`Return to puzzles`,
             onClick: () => props.onReturnToLibrary(),
