@@ -57,8 +57,8 @@
 }
 /* Names and states start after a reserved 20px column, where a waiting
    step's lock sits: its locked button stands in for its name, pulled back
-   by the button's own 20px gutter and the lock's 16px and 4px gap, so its
-   label starts on the names' edge. The button's 32px keeps to the name's
+   by 12px so its lock fills the column and its label starts on the names'
+   edge. The button's 32px keeps to the name's
    line, so every row is the same height. */
 .name,
 .state,
@@ -67,12 +67,18 @@
 }
 .namedAction {
   display: flex;
-  margin-inline-start: calc(-1 * var(--ui-space-5));
+  margin-inline-start: calc(-1 * var(--ui-space-3));
   margin-block: calc((var(--ui-leading-base) - var(--ui-space-8)) / 2);
 }
 .note {
   display: flex;
+  align-self: stretch;
+  min-width: 0;
   margin-top: var(--ui-space-2);
+}
+.note > * {
+  flex: 1;
+  min-width: 0;
 }
 /* The step's own action, at the row's end. */
 .action {

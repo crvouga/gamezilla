@@ -76,8 +76,13 @@ export function ContentAuthorCopiesListView(props: {
               caption={caption(copy)}
               selected={copy.id === props.currentId}
               value={copy.id === props.currentId ? t`Editing now` : t`Use copy`}
-              disabled={props.disabled || copy.id === props.currentId}
-              onClick={() => props.onSelect(copy.id)}
+              disabled={props.disabled && copy.id !== props.currentId}
+              // The copy being edited is marked, not offered.
+              onClick={
+                copy.id === props.currentId
+                  ? undefined
+                  : () => props.onSelect(copy.id)
+              }
               dataSet={{ testid: `content-use-copy-${copy.id}` }}
             />
           )}
