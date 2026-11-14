@@ -10,15 +10,15 @@ export type GameChoice = {
   dataSet?: ComponentDataSet;
 };
 
-/** Native radio semantics include arrow keys, one tab stop and labelled options. */
+/** Native radio semantics include arrow keys, one tab stop and labelled options; Enter picks too. */
 export function GameChoiceGrid(props: {
   label: JSX.Element;
   choices: readonly GameChoice[];
   value: string;
   onChange: (value: string) => void;
   /**
-   * A choice pressed (a click, a tap, or Space), even the one already
-   * chosen; arrow keys only change the choice. For a list that is left
+   * A choice pressed (a click, a tap, Space or Enter), even the one
+   * already chosen; arrow keys only change the choice. For a list that is left
    * once something is picked.
    */
   onPress?: ((value: string) => void) | undefined;
@@ -49,6 +49,14 @@ export function GameChoiceGrid(props: {
                 checked={props.value === choice.value}
                 onChange={() => props.onChange(choice.value)}
                 onClick={() => props.onPress?.(choice.value)}
+                onKeyDown={(event) => {
+                  // Enter picks the focused choice, as a press does.
+                  if (event.key !== 'Enter') return;
+                  event.preventDefault();
+                  if (props.value !== choice.value)
+                    props.onChange(choice.value);
+                  props.onPress?.(choice.value);
+                }}
                 {...dataAttrs({ component: 'GameChoice', ...choice.dataSet })}
               />
               <span class={`${styles['choiceTitle']} text textLabel`}>
