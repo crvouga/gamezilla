@@ -59,7 +59,7 @@ export const YouPlacedSecond: Story = {
     },
     next: { plays: true, canCreate: false, reviewable: true },
     result: {
-      headline: 'You came 2nd',
+      headline: 'You lost',
       note: 'Host starts the rematch.',
       scoreLabel: 'Points',
       standings: [
@@ -189,7 +189,7 @@ export const FinishFromGameMenu: Story = {
         result={
           finished()
             ? {
-                headline: 'You came 2nd',
+                headline: 'You lost',
                 note: 'You resigned.',
                 scoreLabel: null,
                 standings: [

@@ -112,7 +112,7 @@ for (const sample of [
   { story: 'play--offline-local', says: 'Your local game can continue' },
   { story: 'play--move-waiting', says: 'when the connection returns' },
   { story: 'play--stopped', says: 'The game stopped' },
-  { story: 'moves--earlier-move', says: 'Move 2, Red circle (3 of 8)' },
+  { story: 'moves--earlier-move', says: 'Move 3 of 8, Red circle' },
   { story: 'moves--earlier-game', says: 'An earlier game, after move 3' },
   { story: 'result--you-win', says: 'You win' },
 ])
@@ -176,7 +176,7 @@ test('storybook integration: resigning from the game menu keeps one outcome and 
   await expect(page.getByTestId('custom-game-result-headline')).toHaveCount(1);
   await expect(page.getByTestId('custom-game-rematch')).toHaveCount(1);
   await expect(page.getByTestId('custom-game-result-headline')).toContainText(
-    'You came 2nd'
+    'You lost'
   );
   // How it ended is the result card's caption, under its headline.
   await expect(page.getByTestId('custom-game-outcome')).toContainText(

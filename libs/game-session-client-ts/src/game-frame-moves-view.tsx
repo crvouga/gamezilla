@@ -318,18 +318,13 @@ function RecordSelect(props: RecordProps): JSX.Element {
 }
 
 /**
- * The turn the shown move belongs to and who made it, as the list numbers
- * its rows, when a turn holds more than one move; else `null`.
+ * Who made the shown move, when a turn holds more than one move (so its
+ * number alone does not say); else `null`.
  */
-function turnOf(
-  record: FrameRecord
-): { readonly number: number; readonly side: string } | null {
+function turnOf(record: FrameRecord): { readonly side: string } | null {
   const mover = record.movers[record.displayedPly - 1];
   if (record.perTurn <= 1 || mover === undefined) return null;
-  return {
-    number: Math.ceil(record.displayedPly / record.perTurn),
-    side: mover.sideLabel,
-  };
+  return { side: mover.sideLabel };
 }
 
 /** Which position the board shows, in words. */
@@ -362,10 +357,11 @@ function ReviewingLine(props: { readonly record: FrameRecord }): JSX.Element {
               }
             >
               {(turn) => (
-                // Counted as the list counts: by turn, then whose move.
+                // Counted as a move number is asked for: every move, then
+                // whose it was.
                 <Trans>
-                  Move {turn().number}, {turn().side} (
-                  {props.record.displayedPly} of {props.record.moves.length})
+                  Move {props.record.displayedPly} of{' '}
+                  {props.record.moves.length}, {turn().side}
                 </Trans>
               )}
             </Show>

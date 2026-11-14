@@ -213,19 +213,28 @@
     .turns {
     display: flex;
     flex-direction: row;
-    gap: var(--ui-space-3);
+    gap: var(--ui-space-2);
   }
+  /* Each turn reads as one unit: its number, then its moves, inside one
+     quiet outline, with room between turns. */
   [data-game-fixed="true"]
     [data-game-slot="rail"]
     .list[data-layout="table"]
     .turn {
     display: flex;
+    align-items: center;
+    gap: var(--ui-space-1);
+    padding-inline: var(--ui-space-2) var(--ui-space-1);
+    border: 1px solid var(--ui-color-border);
+    border-radius: var(--ui-radius-full);
   }
   [data-game-fixed="true"]
     [data-game-slot="rail"]
     .list[data-layout="table"]
     .number {
     min-width: 0;
+    color: var(--ui-color-text-secondary);
+    font-size: var(--ui-font-size-xs);
   }
   [data-game-fixed="true"]
     [data-game-slot="rail"]

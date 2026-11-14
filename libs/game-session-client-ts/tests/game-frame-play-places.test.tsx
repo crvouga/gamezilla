@@ -43,7 +43,7 @@ const over = (place: CustomGamePlace = { screen: 'result' }) =>
     }),
     next: { plays: true, canCreate: true, reviewable: true },
     result: {
-      headline: 'You came 2nd',
+      headline: 'You lost',
       note: 'You resigned.',
       scoreLabel: null,
       standings: [],

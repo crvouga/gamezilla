@@ -9,6 +9,7 @@ import {
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
+import { GameClock } from '@pkgs/ui-root-client-ts/game-clock';
 import {
   GAME_PLAYER_AVATAR_SIZE,
   GamePlayerBar,
@@ -184,6 +185,9 @@ function StoryStage(props: {
           avatar={<StoryAvatar who="bob" size={GAME_PLAYER_AVATAR_SIZE} />}
           swatch={{ color: 'disc-two' }}
           swatchLabel="Yellow"
+          // The story game is played at 5+0: each seat shows its clock, as
+          // the app's seats do.
+          trailing={<GameClock label="Yellow" value="4:12" />}
         />
       }
       own={
@@ -197,6 +201,9 @@ function StoryStage(props: {
           tagsPlacement="inline"
           active={props.active}
           turnLabel="Your move"
+          trailing={
+            <GameClock label="Red" value="3:47" active={props.active} />
+          }
         />
       }
     >

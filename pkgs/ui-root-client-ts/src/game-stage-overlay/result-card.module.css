@@ -5,19 +5,23 @@
 /* Docked beside or under the board: no dimming, no close, the panel's own
    surface; its standings fold behind their control when it names one. */
 section.docked {
+  --result-accent: var(--ui-color-outline);
   max-width: none;
   max-height: none;
-  overflow: visible;
+  overflow: hidden;
   border: 1px solid var(--ui-color-border);
-  border-top-width: 4px;
   background: var(--ui-color-surface);
-  box-shadow: none;
+  /* The result's colour is a band inside the card's own corners. */
+  box-shadow: inset 0 4px 0 var(--result-accent);
+}
+section.docked[data-tone] {
+  border-top-color: var(--ui-color-border);
 }
 section.docked[data-tone="won"] {
-  border-top-color: var(--ui-color-success);
+  --result-accent: var(--ui-color-success);
 }
 section.docked[data-tone="lost"] {
-  border-top-color: var(--ui-color-destructive);
+  --result-accent: var(--ui-color-destructive);
 }
 .docked .details[data-folds="true"] .detailsToggle {
   display: inline-flex;
