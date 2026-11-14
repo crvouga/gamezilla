@@ -375,9 +375,9 @@ export const ChoosePathToRemove: Story = {
 
 /**
  * Partway, inside the attempt screen as production passes it (the screen
- * says when the puzzle is solved): the path removal and help fold into one
- * row under the board. Its play opens the row, removes a path with the
- * keyboard, closes the row and draws again.
+ * says when the puzzle is solved): on a short screen path removal and help
+ * fold into one row under the board. Its play removes a path (opening and
+ * closing the row from the keyboard where it is folded) and plays on.
  */
 export const InAttemptScreen: Story = {
   render: (args) => (
@@ -392,13 +392,16 @@ export const InAttemptScreen: Story = {
     const canvas = within(canvasElement);
     const progressLine = canvas.getByTestId('numberlink-progress');
     await expect(progressLine).toHaveTextContent('2/5 pairs connected');
-    // The row names what it holds; open it from the keyboard.
-    const tools = canvas.getByRole('button', {
+    // On a short screen the removal folds into a named row; open it from
+    // the keyboard. On a taller one it is under the board already.
+    const tools = canvas.queryByRole('button', {
       name: 'Remove a path and help',
     });
-    tools.focus();
-    await userEvent.keyboard('{Enter}');
-    await expect(tools).toHaveAttribute('aria-expanded', 'true');
+    if (tools !== null) {
+      tools.focus();
+      await userEvent.keyboard('{Enter}');
+      await expect(tools).toHaveAttribute('aria-expanded', 'true');
+    }
     await userEvent.click(
       canvas.getByRole('button', { name: 'Remove a path' })
     );
@@ -407,9 +410,11 @@ export const InAttemptScreen: Story = {
     );
     await expect(progressLine).toHaveTextContent('1/5 pairs connected');
     // Close the row and play on: the board still takes a path.
-    tools.focus();
-    await userEvent.keyboard('{Enter}');
-    await expect(tools).toHaveAttribute('aria-expanded', 'false');
+    if (tools !== null) {
+      tools.focus();
+      await userEvent.keyboard('{Enter}');
+      await expect(tools).toHaveAttribute('aria-expanded', 'false');
+    }
     await expect(canvas.getByTestId('numberlink-board-cell-0')).toBeVisible();
   },
 };

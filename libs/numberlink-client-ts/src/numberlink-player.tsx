@@ -14,6 +14,7 @@ import type {
 } from '@libs/numberlink-shared-ts/numberlink-types';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { Collapsible } from '@pkgs/ui-root-client-ts/collapsible';
+import { createMediaQuery } from '@pkgs/ui-root-client-ts/media-query';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
@@ -35,6 +36,8 @@ function Drawing(props: {
   shellSaysSolved: boolean;
 }): JSX.Element {
   const { t } = useLingui();
+  // A short screen has no room for the tools inline under the board.
+  const short = createMediaQuery('(max-height: 720px)');
   const drawing = createNumberlinkDrawing({
     definition: () => props.definition,
     state: () => props.state,
@@ -129,7 +132,7 @@ function Drawing(props: {
           )}
         </P>
         <Show
-          when={props.shellSaysSolved}
+          when={props.shellSaysSolved && short()}
           fallback={
             <>
               <NumberlinkRecovery
@@ -141,8 +144,9 @@ function Drawing(props: {
             </>
           }
         >
-          {/* Inside the attempt screen (which a phone holds in one view),
-              the tools and help fold into one labelled row under the board. */}
+          {/* Inside the attempt screen on a short screen (which a phone
+              holds in one view), path removal and help fold into one
+              labelled row under the board, so the board keeps its room. */}
           <Collapsible
             title={t`Remove a path and help`}
             dataSet={{ testid: 'numberlink-tools' }}
