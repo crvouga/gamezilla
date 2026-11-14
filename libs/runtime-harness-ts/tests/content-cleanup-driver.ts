@@ -17,7 +17,12 @@ const SCREENS: Readonly<Record<string, readonly string[]>> = {
     'content-draft-river-document',
   ],
   builder: ['content-author', 'content-author-steps', 'content-open-publish'],
-  publish: ['content-author', 'content-author-publish', 'content-withdraw'],
+  publish: [
+    'content-author',
+    'content-author-publish',
+    'content-publication-status',
+    'content-withdraw',
+  ],
   confirm: ['content-author', 'content-withdraw-confirm'],
   success: ['content-author', 'content-withdraw-dismiss'],
 };
@@ -83,7 +88,8 @@ export function cleanupDriver() {
       expect: {
         visible: async () => requireVisible(id),
         hidden: unused,
-        text: unused,
+        // The publish screen has settled on the published edition.
+        text: async () => requireVisible(id),
       },
     }),
   };

@@ -73,9 +73,9 @@ export function contentSubscriptionPlan(selection: Selection): Plan {
   const { gameId, subject: view, pages } = selection;
   const roots = selectedRoots(selection);
   const requests: Plan = [
-    ...pages.published.afterIds().map((afterId) => ({
+    ...pages.published.cursors().map((cursor) => ({
       name: 'puzzleContentPublished',
-      params: { gameId, afterId },
+      params: { gameId, ...cursor },
     })),
     ...pages.owned.afterIds().map((afterId) => ({
       name: 'puzzleContentOwned',

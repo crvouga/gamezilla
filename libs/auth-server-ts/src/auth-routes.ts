@@ -1,6 +1,11 @@
+import { AnonUserService } from '@libs/auth-shared-ts/anon-user-service';
 import type { ApiHonoEnv } from '@libs/auth-shared-ts/api-hono-env';
 import { BearerAuthResolver } from '@libs/auth-shared-ts/bearer-resolve';
 import { ANON_ID_HEADER } from '@libs/auth-shared-ts/session-middleware';
+import {
+  SYNTHETIC_DEVICE_PATH,
+  SYNTHETIC_MONITOR_TOKEN_HEADER,
+} from '@libs/auth-shared-ts/synthetic-device';
 import type { AuthContext } from '@libs/auth-shared-ts/types';
 import { UnauthorizedError } from '@libs/auth-shared-ts/unauthorized-error';
 import type { Clock } from '@pkgs/clock-shared-ts/types';
@@ -95,6 +100,7 @@ function requireBearerToken(header: string | null): string {
  * Domain identity routes (outside IdP’s `/api/auth/*` namespace):
  * - `POST /identity/anon/ensure` — mint/bind anon `users` row for the install
  * - `POST /identity/refresh` — upgrade-or-switch on provider sign-in
+ * - `POST /identity/anon/synthetic` — monitoring marks its anon account synthetic
  */
 export class AuthApiRoutes {
   constructor(
@@ -166,6 +172,25 @@ export class AuthApiRoutes {
         await this.onUserDomainWrite?.([accountId, ...leftAccountIds]);
 
         return c.json({ accountId, userId: accountId, isAnon: false }, 200);
+      })
+      .post(SYNTHETIC_DEVICE_PATH, async (c) => {
+        const authServer = c.get('authServer');
+        const recognize =
+          authServer.isSyntheticMonitorCredential?.bind(authServer);
+        // No monitor credential configured: as if the route did not exist.
+        if (recognize === undefined) return c.json({ error: 'not_found' }, 404);
+        const presented =
+          c.req.header(SYNTHETIC_MONITOR_TOKEN_HEADER)?.trim() ?? '';
+        if (presented.length === 0 || !(await recognize(presented)))
+          return c.json({ error: 'unauthorized' }, 401);
+        const deviceId = requireDeviceId(c.req.header(ANON_ID_HEADER));
+        const userId = await new AnonUserService(
+          c.get('sqlClient'),
+          resolved
+        ).markDeviceUserSynthetic(deviceId, resolved.clock.now);
+        if (userId === null) return c.json({ error: 'device_not_bound' }, 409);
+        await this.onUserDomainWrite?.([userId]);
+        return c.json({ userId }, 200);
       });
   }
 }

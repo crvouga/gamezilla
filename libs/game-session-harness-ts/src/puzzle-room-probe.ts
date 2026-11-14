@@ -8,8 +8,10 @@
 
 import { pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
+import { productExtra } from '@libs/harness-ts/harness';
 import { accountIdOf } from '@libs/harness-ts/identity';
 import { readSpaceLink } from '@libs/spaces-harness-ts/spaces-ui-reads';
+import { hostLimit } from '@pkgs/gherkin-shared-ts/registry';
 import { newCommandId } from '@pkgs/room-root-shared-ts/ids';
 import type {
   RoomCommandPayload,
@@ -107,6 +109,9 @@ export const attemptHostPuzzleCommand = scenarioAction({
     hostId: string,
     command: HostPuzzleCommand
   ) => {
+    // regression: stack-puzzle-command-has-no-room
+    if (productExtra(s).http.kind === 'stack')
+      throw hostLimit("this host cannot send a command to the stack's room");
     const spaceId = spaceIdOfLink(await readSpaceLink(s, hostId), hostId);
     const state = s.harness.roomNode.inspect(
       `space:${spaceId}`

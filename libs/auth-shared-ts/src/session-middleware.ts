@@ -27,6 +27,8 @@ async function buildAnonAppAuthContext(
   const state = await anonUsers.readUserAnonState(userId);
   if (!state.exists || !state.isAnon) return null;
   return buildAppAuthContext({
+    // Only a marked account is known to be synthetic; others stay unknown.
+    ...(state.synthetic ? { synthetic: true } : {}),
     deviceId,
     accountId: userId,
     myId: userId,
