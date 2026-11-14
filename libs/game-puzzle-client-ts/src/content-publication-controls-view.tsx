@@ -104,42 +104,55 @@ function PublicationPending(props: {
   );
 }
 
+/** The ways to the details and the board, where a finding is corrected. */
+function FixRoutes(props: {
+  onFix: (where: 'details' | 'board') => void;
+}): JSX.Element {
+  const { t } = useLingui();
+  return (
+    <StackHorizontal gap="sm" wrap>
+      <Button
+        title={t`Edit details`}
+        intent="neutral"
+        variant="outline"
+        size="sm"
+        onClick={() => props.onFix('details')}
+        dataSet={{ testid: 'content-fix-details' }}
+      />
+      <Button
+        title={t`Edit board`}
+        intent="neutral"
+        variant="outline"
+        size="sm"
+        onClick={() => props.onFix('board')}
+        dataSet={{ testid: 'content-fix-board' }}
+      />
+    </StackHorizontal>
+  );
+}
+
 /**
- * A failed check or a refused publication, the one finding that blocks
- * publishing, as a notice with the ways to the details and the board,
- * where it is corrected.
+ * What blocks publishing and the ways to correct it: a failed check as a
+ * notice holding the routes to the details and the board; after a refused
+ * publication (its notice, above, says why) just those routes.
  */
 function Finding(props: ContentPublicationControlsViewProps): JSX.Element {
   const { t } = useLingui();
   return (
-    <Show when={props.validation === 'invalid' || props.refused === true}>
+    <Show
+      when={props.validation === 'invalid'}
+      fallback={
+        <Show when={props.refused === true && props.onFix}>
+          {(onFix) => <FixRoutes onFix={onFix()} />}
+        </Show>
+      }
+    >
       <Notice tone="error" dataSet={{ testid: 'content-validation-finding' }}>
         <StackVertical gap="sm">
-          {props.validation === 'invalid'
-            ? props.validationMessage ||
-              t`Complete the required details and validate again.`
-            : t`Publishing was refused. Correct the draft as the notice above says, then publish again.`}
+          {props.validationMessage ||
+            t`Complete the required details and validate again.`}
           <Show when={props.onFix}>
-            {(onFix) => (
-              <StackHorizontal gap="sm" wrap>
-                <Button
-                  title={t`Edit details`}
-                  intent="neutral"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onFix()('details')}
-                  dataSet={{ testid: 'content-fix-details' }}
-                />
-                <Button
-                  title={t`Edit board`}
-                  intent="neutral"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onFix()('board')}
-                  dataSet={{ testid: 'content-fix-board' }}
-                />
-              </StackHorizontal>
-            )}
+            {(onFix) => <FixRoutes onFix={onFix()} />}
           </Show>
         </StackVertical>
       </Notice>
