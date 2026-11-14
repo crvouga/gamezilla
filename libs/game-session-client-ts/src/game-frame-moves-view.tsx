@@ -85,19 +85,13 @@ function EarlierMoves(props: { readonly count: number }): JSX.Element {
 }
 
 /**
- * The latest moves as numbered turns, each behind its mover's swatch (the
- * game's word for bare-number moves, `Column`, said once). Pressing a move
- * shows the board after it.
+ * The latest moves, every move on its own row numbered 1 to N (the one
+ * count the move shown, "Move 3 of 8", and the move-number field share),
+ * each behind its mover's swatch (the game's word for bare-number moves,
+ * `Column`, said once). Pressing a move shows the board after it.
  */
 function RecordMoves(
-  props: RecordProps & {
-    readonly onSelect: (ply: number) => void;
-    /**
-     * One row per move, numbered as the moves place counts (the move
-     * shown, the move-number field); else one row per turn.
-     */
-    readonly byMove?: boolean | undefined;
-  }
+  props: RecordProps & { readonly onSelect: (ply: number) => void }
 ): JSX.Element {
   const first = createMemo(() => firstListed(props.record));
   const moves = createMemo((): readonly GameMoveListEntry[] =>
@@ -120,7 +114,7 @@ function RecordMoves(
     <GameMoveList
       layout="table"
       aria-label={t`Moves played`}
-      perTurn={props.byMove === true ? 1 : props.record.perTurn}
+      perTurn={1}
       current={props.record.displayedPly}
       moves={moves()}
       onSelect={props.onSelect}
@@ -432,7 +426,7 @@ export function FrameMovesPlace(props: RecordProps): JSX.Element {
           >
             <RecordSelect {...props} />
             <Show when={recordPlayed(props.record)}>
-              <RecordMoves {...props} onSelect={props.onSeek} byMove />
+              <RecordMoves {...props} onSelect={props.onSeek} />
             </Show>
             <ReviewJumpField {...props} />
           </GameSection>

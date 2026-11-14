@@ -108,6 +108,24 @@ export function FrameClockPlace(
           selected={props.clock.minutes === 0}
           operation={() => props.onChoose({ operation: 'untimed' })}
         />
+        <FrameChoiceRow
+          choices={choices}
+          id="custom-game-timed"
+          title={<Trans>Timed</Trans>}
+          caption={
+            <Trans>
+              {minutes()} minutes a side, plus {increment()} seconds a move
+            </Trans>
+          }
+          selected={props.clock.minutes > 0}
+          operation={() =>
+            props.onChoose({
+              operation: 'clock',
+              minutes: Number(minutes()),
+              increment: Number(increment()),
+            })
+          }
+        />
       </MenuSection>
       <StackVertical gap="md">
         <TextInput
