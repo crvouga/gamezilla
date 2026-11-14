@@ -43,9 +43,8 @@ export function MultiplayerTimeControlView(
           when={isDailyTimeControl(props.timeControl)}
           fallback={
             <Trans>
-              Chosen: {timeControlWords(props.timeControl)}. The first figure is
-              each player's minutes for the game; the second, seconds added
-              after every move.
+              Chosen: {timeControlWords(props.timeControl)}. Minutes each, plus
+              seconds per move.
             </Trans>
           }
         >

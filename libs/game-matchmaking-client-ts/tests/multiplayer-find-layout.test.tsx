@@ -121,9 +121,7 @@ test('what is played opens the screen as one card, and the one command is docked
     expect(conditions.textContent).toContain('Four in a row wins.');
     // What the search finds is one line over the game's name, no tiles.
     expect(conditions.querySelectorAll('dd')).toHaveLength(0);
-    expect(conditions.textContent).toContain(
-      'Ranked match · 2 players · Untimed'
-    );
+    expect(conditions.textContent).toContain('Ranked match · Untimed');
     expect(view.container.querySelectorAll('h1')).toHaveLength(1);
     // The command and what a found opponent means share the dock.
     const dock = view.container.querySelector(

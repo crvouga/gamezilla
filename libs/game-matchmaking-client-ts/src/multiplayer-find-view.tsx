@@ -115,7 +115,7 @@ function clockChoice(id: string): GameChoice {
 
 /**
  * What the search will find, in one line over the game's name: rated, how
- * many play and, for a game without clock choices, that it is untimed (a
+ * many play (when more than two) and, for a game without clock choices, that it is untimed (a
  * game with them shows its clock as the tiles below).
  */
 function Conditions(props: {
@@ -126,8 +126,10 @@ function Conditions(props: {
       <Text variant="inherit" testId="multiplayer-find-rated">
         <Trans>Ranked match</Trans>
       </Text>
-      {' · '}
-      <Trans>{props.find.players} players</Trans>
+      <Show when={props.find.players > 2}>
+        {' · '}
+        <Trans>{props.find.players} players</Trans>
+      </Show>
       <Show when={!props.find.timed}>
         {' · '}
         <Text variant="inherit" testId="multiplayer-find-clock">
