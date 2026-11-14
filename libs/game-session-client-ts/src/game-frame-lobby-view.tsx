@@ -400,6 +400,10 @@ export function FrameLobbyPlace(
       dock={
         <FrameStartView
           start={props.setup.start}
+          invitedTo={
+            props.setup.seats.find((seat) => seat.invitation?.mine === true)
+              ?.sideLabel
+          }
           onChoose={props.onChoose}
           onReady={props.onReady}
           onArrange={

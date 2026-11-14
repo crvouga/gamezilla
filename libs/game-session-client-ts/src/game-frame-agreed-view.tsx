@@ -97,6 +97,18 @@ export function FrameClockPlace(
         </Show>
       }
     >
+      {/* The clock first: none, or the same time for each side; then the
+          sides, apart, since changing them is not a clock setting. */}
+      <MenuSection title={<Trans>Clock</Trans>}>
+        <FrameChoiceRow
+          choices={choices}
+          id="custom-game-untimed"
+          title={<Trans>Play untimed</Trans>}
+          caption={<Trans>No clock for either side</Trans>}
+          selected={props.clock.minutes === 0}
+          operation={() => props.onChoose({ operation: 'untimed' })}
+        />
+      </MenuSection>
       <StackVertical gap="md">
         <TextInput
           label={<Trans>Minutes per side</Trans>}
@@ -128,14 +140,7 @@ export function FrameClockPlace(
           />
         </GameActions>
       </StackVertical>
-      <MenuSection>
-        <FrameChoiceRow
-          choices={choices}
-          id="custom-game-untimed"
-          title={<Trans>Play untimed</Trans>}
-          selected={props.clock.minutes === 0}
-          operation={() => props.onChoose({ operation: 'untimed' })}
-        />
+      <MenuSection title={<Trans>Sides</Trans>}>
         <FrameChoiceRow
           choices={choices}
           id="custom-game-swap"
