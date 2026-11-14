@@ -1,0 +1,4 @@
+{
+  "summary": "Release's per-environment job waited up to 30 minutes for a running Health check inside its own 55-minute timeout, so a release queued behind a 27-minute Health run was cancelled mid-deploy (run 43491905631). The wait is its own job before the shared services release.",
+  "regressionTest": "libs/tools-harness-ts/scripts/ci-workflow-alert.test.ts"
+}

@@ -30,6 +30,25 @@ export type StartMockingbirdPostgresOptions = {
   readonly onLog?: ServeOptions['onLog'];
 };
 
+/**
+ * Inside a transaction every statement branches the database, and each branch
+ * records a timeline checkpoint holding the whole database as it then stood.
+ * The engine keeps 1,000 by default, so a long-running server held a thousand
+ * copies of an ever larger database: the heap grew with the data until GC
+ * stalls timed out new connections. Nothing here travels back in time, so one
+ * checkpoint (heads and the origin are always kept) is enough.
+ */
+const RETAINED_CHECKPOINTS = 1;
+
+/** The served database: fresh, or reopened from saved PGMM bytes. */
+export function openMockingbirdDatabase(bytes: Uint8Array | null): Database {
+  // regression: mockingbird-postgres-checkpoint-retention
+  const options = { maxCheckpoints: RETAINED_CHECKPOINTS };
+  return bytes === null
+    ? new Database(options)
+    : Snapshot.decode(bytes).open(options);
+}
+
 /** PostgreSQL protocol server backed entirely by Mockingbird, without native binaries. */
 export async function startMockingbirdPostgres(
   options: StartMockingbirdPostgresOptions = {}
@@ -43,8 +62,7 @@ export async function startMockingbirdPostgres(
       layout: 'tree',
     });
   const bytes = await readObjectBytes(store, 'database.pgmm');
-  const database =
-    bytes === null ? new Database() : Snapshot.decode(bytes).open();
+  const database = openMockingbirdDatabase(bytes);
   const server = await serve({
     database,
     url: databaseUrlFor(options.port ?? POSTGRES_PORT),

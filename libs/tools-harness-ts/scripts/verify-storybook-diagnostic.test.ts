@@ -60,7 +60,17 @@ test('Ubuntu reference authoring is explicit and followed by an uncached compari
       ].every((part) => step.run?.includes(part))
     )?.if
   ).toBe(
-    '${{ !inputs.storybook-evidence-run && !inputs.update-storybook-baselines }}'
+    '${{ !inputs.storybook-evidence-run && !inputs.update-storybook-baselines && !inputs.storybook-pattern }}'
+  );
+  // regression: storybook-diagnostic-ignores-pattern
+  const selected = job.steps.find(
+    (step) => step.name === 'Compare selected Storybook states'
+  );
+  expect(selected?.if).toBe(
+    "${{ !inputs.storybook-evidence-run && !inputs.update-storybook-baselines && inputs.storybook-pattern != '' }}"
+  );
+  expect(selected?.run).toBe(
+    'bun run storybook:test --grep "$STORYBOOK_PATTERN"'
   );
   const config = JSON.parse(
     readFileSync(

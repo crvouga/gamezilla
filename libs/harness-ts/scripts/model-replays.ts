@@ -54,6 +54,7 @@ async function writePlans(dir: string): Promise<void> {
       model,
       binding,
       outDir: join(dir, '.cache/replay-plan', model),
+      copyTraces: false,
     });
     const cost = previous?.[model]?.nightlyReplayCost;
     plans[model] = {

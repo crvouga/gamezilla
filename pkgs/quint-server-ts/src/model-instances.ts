@@ -88,6 +88,8 @@ export function drawModelInstances(input: {
   readonly model: string;
   readonly binding: QuintBinding<unknown>;
   readonly outDir: string;
+  /** Copy the drawn traces into `outDir`; other slices load the shared draw. */
+  readonly copyTraces: boolean;
 }): readonly DrawnInstance[] {
   const instances = modelInstances(input);
   validateRegressionScopes(
@@ -105,7 +107,7 @@ export function drawModelInstances(input: {
         parameters: instance.parameters,
         traces: input.binding.traces ?? DEFAULT_TRACES,
         maxSteps: input.binding.maxSteps ?? DEFAULT_MAX_STEPS,
-        outDir,
+        ...(input.copyTraces ? { outDir } : {}),
       }),
     };
   });
