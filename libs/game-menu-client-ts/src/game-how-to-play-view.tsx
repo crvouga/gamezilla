@@ -50,17 +50,8 @@ export function GameHowToPlayView(props: {
       dataSet={{ testid: 'game-how-to-play' }}
       actions={
         <>
-          {/* One slim row on every width: back to every way to play (the
-              menu), and the main one taking the rest. */}
-          <Button
-            title={<Trans>All ways to play</Trans>}
-            icon={ArrowLeftIcon}
-            intent="neutral"
-            variant="outline"
-            size="sm"
-            onClick={props.onBack}
-            dataSet={{ testid: 'game-how-to-play-back' }}
-          />
+          {/* The way to play first, then back to every way to play (the
+              menu); one row where both fit, the main one on top where not. */}
           <Show when={props.play} keyed>
             {(play) => (
               <Button
@@ -72,6 +63,15 @@ export function GameHowToPlayView(props: {
               />
             )}
           </Show>
+          <Button
+            title={<Trans>All ways to play</Trans>}
+            icon={ArrowLeftIcon}
+            intent="neutral"
+            variant="outline"
+            size="sm"
+            onClick={props.onBack}
+            dataSet={{ testid: 'game-how-to-play-back' }}
+          />
         </>
       }
     />
