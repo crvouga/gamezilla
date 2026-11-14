@@ -691,11 +691,17 @@ function writeConfig(site: Site): string {
 
 // ── Commands ─────────────────────────────────────────────────────────────
 
+/**
+ * The commit a Preview is of: the one checked out, but for a pull request
+ * the workflow built from its merge with main (`PREVIEW_COMMIT`, see
+ * `preview.yml`). The Preview is still the pull request's head's, and is
+ * stamped and checked as that commit; the date is the checkout's.
+ */
 function headCommit(): { readonly sha: string; readonly date: string } {
   const git = (args: readonly string[]) =>
     must(`git ${args.join(' ')}`, run('git', args)).stdout.trim();
   return {
-    sha: git(['rev-parse', 'HEAD']),
+    sha: envOf('PREVIEW_COMMIT') ?? git(['rev-parse', 'HEAD']),
     date: git(['log', '-1', '--format=%cI', 'HEAD']),
   };
 }
