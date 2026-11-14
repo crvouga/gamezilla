@@ -3,6 +3,7 @@ import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { PEOPLE } from './game-frame-story.example';
 import {
+  type GameHistoryPlayer,
   type GameHistoryRow,
   GameHistoryScreenView,
 } from './game-history-screen-view';
@@ -123,7 +124,17 @@ export const LongNames: Story = {
   },
 };
 
-const OPPONENTS = [PEOPLE.jordan, PEOPLE.morgan, PEOPLE.robin, ''] as const;
+const OPPONENTS: readonly GameHistoryPlayer[] = [
+  {
+    person: PEOPLE.jordan,
+    plainName: 'jordan_plays',
+    bot: false,
+    local: false,
+  },
+  { person: PEOPLE.morgan, plainName: 'morgan', bot: false, local: false },
+  { person: PEOPLE.robin, plainName: 'robin', bot: false, local: false },
+  { person: '', plainName: '', bot: true, local: false },
+];
 const ENDINGS = [
   'Red circle wins by four in a row.',
   'Yellow diamond wins by four in a row.',
@@ -139,12 +150,7 @@ const MANY_RECORDS: readonly GameHistoryRow[] = Array.from(
     id: `game-many-${String(24 - index)}`,
     players: [
       { person: PEOPLE.avery, plainName: 'avery', bot: false, local: false },
-      {
-        person: OPPONENTS[index % OPPONENTS.length] ?? '',
-        plainName: '',
-        bot: OPPONENTS[index % OPPONENTS.length] === '',
-        local: false,
-      },
+      OPPONENTS[index % OPPONENTS.length] ?? OPPONENTS[0]!,
     ],
     label: ENDINGS[index % ENDINGS.length] ?? 'Game drawn.',
   })
