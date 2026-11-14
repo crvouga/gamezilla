@@ -61,6 +61,9 @@
   padding-inline-start: var(--ui-space-5);
   list-style: disc;
 }
+.point {
+  display: list-item;
+}
 .point::marker {
   color: var(--ui-color-text-secondary);
 }

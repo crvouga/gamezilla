@@ -83,7 +83,8 @@ function SpaceTrailing(
       <Show when={!props.canEnd}>
         <SpaceHostConnectionStatus offline={props.hostOffline} />
       </Show>
-      {globalTrailing()}
+      {/* The account control keeps its size; a long game name gives way. */}
+      <StackHorizontal align="center">{globalTrailing()}</StackHorizontal>
     </>
   );
 }

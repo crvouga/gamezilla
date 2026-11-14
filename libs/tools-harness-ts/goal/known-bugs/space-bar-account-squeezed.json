@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone, a space's bar squeezed the account control to a 16px sliver at the screen's edge when the selected game had a long name: the control was a shrinkable item of the bar's row. It now sits in a box that keeps its size, and the game's name ends in an ellipsis instead.",
+  "regressionTest": "libs/spaces-client-ts/tests/space-detail-account-control.test.tsx"
+}
