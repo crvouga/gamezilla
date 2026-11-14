@@ -241,25 +241,31 @@ function PuzzleResultSummary(props: PuzzlePlayScreenViewProps): JSX.Element {
       gap="xs"
       dataSet={{ testid: Handles.chessPuzzleSummary, outcome: props.status }}
     >
-      <StackHorizontal gap="md" align="center" justify="between">
+      <StackHorizontal gap="md" align="start" justify="between">
         <StackVertical gap="xs" grow>
           <H2 size="heading">
             <ResultTitle {...props} />
           </H2>
-          <P variant="caption" tone="secondary">
-            <ResultCaption {...props} />
-          </P>
-          <ResultFacts {...props} />
-          <Show
-            when={props.result.provisional && props.result.completion !== null}
-          >
+          {/* A short phone keeps the outcome and the rating in view: the
+              why and the puzzle's facts fold away there. */}
+          <PuzzleScreenFold on="tall">
             <P variant="caption" tone="secondary">
-              <Trans>
-                The ? marks a provisional rating: it settles after a few more
-                rated puzzles.
-              </Trans>
+              <ResultCaption {...props} />
             </P>
-          </Show>
+            <ResultFacts {...props} />
+            <Show
+              when={
+                props.result.provisional && props.result.completion !== null
+              }
+            >
+              <P variant="caption" tone="secondary">
+                <Trans>
+                  The ? marks a provisional rating: it settles after a few more
+                  rated puzzles.
+                </Trans>
+              </P>
+            </Show>
+          </PuzzleScreenFold>
         </StackVertical>
         <StackVertical gap="none" align="end">
           <Show when={props.result.completion} keyed>
