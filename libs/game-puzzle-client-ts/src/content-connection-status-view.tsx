@@ -24,34 +24,37 @@ export function ContentConnectionStatusView(
 ): JSX.Element {
   const { t } = useLingui();
   return (
-    // Inside the page's gutter, like the screen under it.
-    <StackVertical gap="sm" paddingX="lg">
-      <Show when={props.loading}>
-        <P
-          role="status"
-          variant="caption"
-          tone="secondary"
-        >{t`Loading requested puzzles…`}</P>
-      </Show>
-      <Show when={props.online && props.lastError}>
-        {(error) => (
-          <ErrorState
-            variant="compact"
-            title={t`Changes have not reached your other devices`}
-            body={error()}
-            retry={{ label: t`Reconnect`, onClick: props.onReconnect }}
+    // Inside the page's gutter, like the screen under it; nothing at all
+    // when there is nothing to say.
+    <Show when={props.loading || !props.online || props.lastError !== null}>
+      <StackVertical gap="sm" paddingX="lg" paddingY="md">
+        <Show when={props.loading}>
+          <P
+            role="status"
+            variant="caption"
+            tone="secondary"
+          >{t`Loading requested puzzles…`}</P>
+        </Show>
+        <Show when={props.online && props.lastError}>
+          {(error) => (
+            <ErrorState
+              variant="compact"
+              title={t`Changes have not reached your other devices`}
+              body={error()}
+              retry={{ label: t`Reconnect`, onClick: props.onReconnect }}
+            />
+          )}
+        </Show>
+        <Show when={!props.online}>
+          <ActionNotice
+            icon={WifiOffIcon}
+            title={t`You are offline`}
+            body={t`Puzzles here and your saved work stay on this device. Changes share when you reconnect.`}
+            action={{ label: t`Reconnect`, onClick: props.onReconnect }}
+            dataSet={{ testid: 'content-offline' }}
           />
-        )}
-      </Show>
-      <Show when={!props.online}>
-        <ActionNotice
-          icon={WifiOffIcon}
-          title={t`You are offline`}
-          body={t`Puzzles here and your saved work stay on this device. Changes share when you reconnect.`}
-          action={{ label: t`Reconnect`, onClick: props.onReconnect }}
-          dataSet={{ testid: 'content-offline' }}
-        />
-      </Show>
-    </StackVertical>
+        </Show>
+      </StackVertical>
+    </Show>
   );
 }

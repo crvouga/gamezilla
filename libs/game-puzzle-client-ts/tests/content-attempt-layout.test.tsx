@@ -383,9 +383,13 @@ test('loading, gone and missing are states of their own, each with a way on', ()
 
 test('a position that cannot be opened offers another saved position in place', () => {
   const opened: string[] = [];
+  let restarted = 0;
   mount(390, 'attempt', {
     unopenable: true,
     onOpen: (place) => opened.push(place.screen),
+    onRestart: () => {
+      restarted += 1;
+    },
   });
   expect(screen.queryByTestId('player')).toBeNull();
   expect(
@@ -393,6 +397,11 @@ test('a position that cannot be opened offers another saved position in place', 
   ).toBeDefined();
   fireEvent.click(screen.getByTestId('content-unopenable-positions'));
   expect(opened).toEqual(['progress']);
+  // No board: no move commands and no save line, only what can help.
+  expect(screen.queryByTestId('controls')).toBeNull();
+  expect(screen.queryByTestId('content-position-save-status')).toBeNull();
+  fireEvent.click(screen.getByTestId('content-unopenable-restart'));
+  expect(restarted).toBe(1);
   cleanup();
   mount(390, 'attempt', { unopenable: true, unreadable: true });
   expect(screen.getByText(/This puzzle cannot be opened\./)).toBeDefined();

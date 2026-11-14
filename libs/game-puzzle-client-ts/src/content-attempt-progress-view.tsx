@@ -51,7 +51,9 @@ export function ContentAttemptSaveStatus(
         ? t`Saving your position…`
         : props.changeError !== null
           ? t`Your last move is not saved yet. The position before it is kept.`
-          : props.complete && !props.playtest
+          : props.complete &&
+              !props.playtest &&
+              props.place.screen === 'progress'
             ? t`Solved. Progress saved on this device.`
             : t`Progress saved on this device.`}
     </P>

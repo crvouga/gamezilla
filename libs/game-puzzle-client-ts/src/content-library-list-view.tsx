@@ -1,5 +1,5 @@
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@lingui/solid/macro';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { PreviewCardGrid } from '@pkgs/ui-root-client-ts/preview-card-grid';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
@@ -40,7 +40,7 @@ function editionProgress(
 function PublishedCards(props: { view: View }): JSX.Element {
   const ids = () => props.view.published.map((entry) => entry.id);
   return (
-    <PreviewCardGrid title={<Trans>Published puzzles and packs</Trans>}>
+    <PreviewCardGrid>
       <For each={ids()}>
         {(id) => {
           const entry = () =>
@@ -113,7 +113,7 @@ function OwnedCards(props: { view: View }): JSX.Element {
   const { t } = useLingui();
   const ids = () => props.view.drafts.map((draft) => draft.id);
   return (
-    <PreviewCardGrid title={<Trans>Your drafts and publications</Trans>}>
+    <PreviewCardGrid>
       <For each={ids()}>
         {(id) => {
           const draft = () =>

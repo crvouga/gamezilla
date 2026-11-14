@@ -116,6 +116,8 @@ export type ContentAttemptScreenViewProps = {
   readonly confirms?: JSX.Element;
   readonly onRetryChange: () => void;
   readonly onReturnToLibrary: () => void;
+  /** Asks to restart (confirmed first): offered where no board can show. */
+  readonly onRestart?: (() => void) | undefined;
 };
 
 /**
@@ -278,41 +280,43 @@ function AttemptAside(props: ContentAttemptScreenViewProps): JSX.Element {
   const mode = useLayoutMode();
   return (
     <Show when={mode() === 'wide'}>
-      <Show when={props.complete && !props.unopenable}>
-        <AttemptSolved {...props} withSave={false} />
-      </Show>
-      <GameSection
-        title={
-          <Show when={props.pack} fallback={<Trans>This puzzle</Trans>}>
-            {(pack) => pack().title}
-          </Show>
-        }
-        dataSet={{ testid: 'puzzle-attempt-aside' }}
+      <Show
+        when={!(props.complete && !props.unopenable)}
+        fallback={<AttemptSolved {...props} withSave={false} />}
       >
-        <Show
-          when={props.pack}
-          fallback={
-            <P variant="caption" tone="secondary">
-              {props.playtest
-                ? t`A practice run of your draft. It counts toward no progress.`
-                : t`A puzzle on its own. Your moves are kept as you play.`}
-            </P>
+        <GameSection
+          title={
+            <Show when={props.pack} fallback={<Trans>This puzzle</Trans>}>
+              {(pack) => pack().title}
+            </Show>
           }
+          dataSet={{ testid: 'puzzle-attempt-aside' }}
         >
-          {(pack) => (
-            <StackVertical gap="sm">
+          <Show
+            when={props.pack}
+            fallback={
               <P variant="caption" tone="secondary">
-                {t`${props.packSolved ?? 0} of ${pack().total} solved`}
+                {props.playtest
+                  ? t`A practice run of your draft. It counts toward no progress.`
+                  : t`A puzzle on its own. Your moves are kept as you play.`}
               </P>
-              <ProgressBar
-                size="sm"
-                progress={(props.packSolved ?? 0) / Math.max(1, pack().total)}
-                accessibleLabel={t`${props.packSolved ?? 0} of ${pack().total} solved`}
-              />
-            </StackVertical>
-          )}
-        </Show>
-      </GameSection>
+            }
+          >
+            {(pack) => (
+              <StackVertical gap="sm">
+                <P variant="caption" tone="secondary">
+                  {t`${props.packSolved ?? 0} of ${pack().total} solved`}
+                </P>
+                <ProgressBar
+                  size="sm"
+                  progress={(props.packSolved ?? 0) / Math.max(1, pack().total)}
+                  accessibleLabel={t`${props.packSolved ?? 0} of ${pack().total} solved`}
+                />
+              </StackVertical>
+            )}
+          </Show>
+        </GameSection>
+      </Show>
     </Show>
   );
 }
@@ -327,7 +331,7 @@ function AttemptStatus(props: ContentAttemptScreenViewProps): JSX.Element {
     <Show
       when={props.complete && !props.unopenable && mode() === 'compact'}
       fallback={
-        <Show when={props.changeError === null}>
+        <Show when={props.changeError === null && !props.unopenable}>
           <ContentAttemptSaveStatus {...props} />
         </Show>
       }
@@ -361,12 +365,26 @@ function Unopenable(props: ContentAttemptScreenViewProps): JSX.Element {
       <Show
         when={props.unreadable === true}
         fallback={
-          <Button
-            title={t`Choose another saved position`}
-            fullWidth
-            onClick={() => props.onOpen({ screen: 'progress' })}
-            dataSet={{ testid: 'content-unopenable-positions' }}
-          />
+          <StackVertical gap="sm">
+            <Button
+              title={t`Choose another saved position`}
+              fullWidth
+              onClick={() => props.onOpen({ screen: 'progress' })}
+              dataSet={{ testid: 'content-unopenable-positions' }}
+            />
+            <Show when={props.onRestart}>
+              {(restart) => (
+                <Button
+                  title={t`Restart from the beginning`}
+                  intent="neutral"
+                  variant="outline"
+                  fullWidth
+                  onClick={() => restart()()}
+                  dataSet={{ testid: 'content-unopenable-restart' }}
+                />
+              )}
+            </Show>
+          </StackVertical>
         }
       >
         <Button
@@ -422,7 +440,8 @@ function AttemptStage(props: ContentAttemptScreenViewProps): JSX.Element {
         status={<AttemptStatus {...props} />}
         actions={
           <>
-            {props.controls}
+            {/* With no board, the body offers what can help instead. */}
+            <Show when={!props.unopenable}>{props.controls}</Show>
             <OpenProgress {...props} />
           </>
         }

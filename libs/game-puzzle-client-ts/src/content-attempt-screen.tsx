@@ -224,6 +224,7 @@ function AttemptBody(props: {
         </>
       }
       onRetryChange={writer.retry}
+      onRestart={restart.ask}
       onReturnToLibrary={() => game.open({ kind: 'library' })}
     />
   );
