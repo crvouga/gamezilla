@@ -1,14 +1,28 @@
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
-import { Trans } from '@lingui/solid/macro';
+import { t } from '@lingui/core/macro';
+import { Plural, Trans } from '@lingui/solid/macro';
+import { Badge, type BadgeIntent } from '@pkgs/ui-root-client-ts/badge';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { GameHistoryScreen } from '@pkgs/ui-root-client-ts/game-history-screen';
 import { GameStat } from '@pkgs/ui-root-client-ts/game-stat';
 import { Grid } from '@pkgs/ui-root-client-ts/grid';
+import { ChevronRightIcon, HistoryIcon } from '@pkgs/ui-root-client-ts/icons';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { MainMenuItemRow } from '@pkgs/ui-root-client-ts/main-menu-item-row';
 import { MenuList } from '@pkgs/ui-root-client-ts/menu-list';
-import { For, type JSX, Match, Show, Switch } from 'solid-js';
+import { useRelativeTimeLabel } from '@pkgs/ui-root-client-ts/relative-time';
+import { SegmentedControl } from '@pkgs/ui-root-client-ts/segmented-control';
+import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
+import {
+  createMemo,
+  createSignal,
+  For,
+  type JSX,
+  Match,
+  Show,
+  Switch,
+} from 'solid-js';
 import { FramePersonName } from './game-frame-people';
 import type { FramePeople } from './game-frame-view-types';
 
@@ -21,12 +35,25 @@ export type GameHistoryPlayer = {
   readonly local: boolean;
 };
 
+/** The viewer's result in a finished game they played. */
+export type GameHistoryOutcome = 'won' | 'lost' | 'draw' | 'cancelled';
+
 /** One finished game in the list. */
 export type GameHistoryRow = {
   readonly id: string;
+  /** Who the viewer played: everyone else in the game, or everyone when they only watched. */
   readonly players: readonly GameHistoryPlayer[];
-  /** How it ended, in words ("Red circle wins by four in a row."). */
+  /** The viewer's own result; `null` when they did not play in it. */
+  readonly outcome: GameHistoryOutcome | null;
+  /**
+   * How it ended, in words: without who won when `outcome` says it ("By
+   * four in a row"), else in full ("Red circle wins by four in a row.").
+   */
   readonly label: string;
+  /** Moves played. */
+  readonly moves: number;
+  /** When it ended, as an ISO instant; `null` when unknown. */
+  readonly endedAt: string | null;
 };
 
 export type GameHistoryScreenViewProps = {
@@ -39,9 +66,24 @@ export type GameHistoryScreenViewProps = {
     readonly losses: number;
     readonly draws: number;
   };
+  /** Newest first. */
   readonly records: readonly GameHistoryRow[];
   readonly people?: FramePeople | undefined;
   readonly onSelect: (id: string) => void;
+  /** Where a new game starts, for the empty history. */
+  readonly onPlay?: (() => void) | undefined;
+};
+
+type Filter = 'all' | GameHistoryOutcome;
+
+/** A list this long gets a filter by result. */
+const FILTER_FROM = 6;
+
+const OUTCOME_INTENT: Readonly<Record<GameHistoryOutcome, BadgeIntent>> = {
+  won: 'success',
+  lost: 'destructive',
+  draw: 'neutral',
+  cancelled: 'neutral',
 };
 
 /** An unfilled place in a cancelled configuration is not a bot participant. */
@@ -77,34 +119,149 @@ function HistoryPlayer(props: {
   );
 }
 
+/** The players a row names: "vs jordan" to someone who played, "avery vs jordan" otherwise. */
+export function HistoryPlayers(props: {
+  readonly players: readonly GameHistoryPlayer[];
+  readonly played: boolean;
+  readonly people?: FramePeople | undefined;
+}): JSX.Element {
+  return (
+    <>
+      <Show when={props.played}>
+        <Trans>vs</Trans>{' '}
+      </Show>
+      <For each={props.players}>
+        {(player, index) => (
+          <>
+            <Show when={index() > 0}>
+              {' '}
+              <Show when={props.played} fallback={<Trans>vs</Trans>}>
+                &amp;
+              </Show>{' '}
+            </Show>
+            <HistoryPlayer player={player} people={props.people} />
+          </>
+        )}
+      </For>
+    </>
+  );
+}
+
+/** The viewer's result in words, coloured to match: Won, Lost, Draw, Cancelled. */
+export function OutcomeBadge(props: {
+  readonly outcome: GameHistoryOutcome;
+}): JSX.Element {
+  return (
+    <Badge
+      size="sm"
+      intent={OUTCOME_INTENT[props.outcome]}
+      dataSet={{ testid: 'game-history-outcome', outcome: props.outcome }}
+      label={
+        <Switch>
+          <Match when={props.outcome === 'won'}>
+            <Trans>Won</Trans>
+          </Match>
+          <Match when={props.outcome === 'lost'}>
+            <Trans>Lost</Trans>
+          </Match>
+          <Match when={props.outcome === 'draw'}>
+            <Trans>Draw</Trans>
+          </Match>
+          <Match when={props.outcome === 'cancelled'}>
+            <Trans>Cancelled</Trans>
+          </Match>
+        </Switch>
+      }
+    />
+  );
+}
+
+/** "By four in a row · 7 moves · 2d ago". */
+function RecordCaption(props: {
+  readonly record: GameHistoryRow;
+}): JSX.Element {
+  const ago = useRelativeTimeLabel(() => props.record.endedAt ?? '');
+  return (
+    <>
+      {props.record.label} ·{' '}
+      <Plural value={props.record.moves} one="# move" other="# moves" />
+      <Show when={props.record.endedAt !== null}> · {ago()}</Show>
+    </>
+  );
+}
+
+function RecordRow(props: {
+  readonly record: GameHistoryRow;
+  readonly people?: FramePeople | undefined;
+  readonly onSelect: (id: string) => void;
+}): JSX.Element {
+  return (
+    <MainMenuItemRow
+      item={{
+        key: props.record.id,
+        title: (
+          <HistoryPlayers
+            players={props.record.players}
+            played={props.record.outcome !== null}
+            people={props.people}
+          />
+        ),
+        caption: <RecordCaption record={props.record} />,
+        trailing: (
+          <StackHorizontal align="center" gap="sm">
+            <Show when={props.record.outcome}>
+              {(outcome) => <OutcomeBadge outcome={outcome()} />}
+            </Show>
+            <ChevronRightIcon size={20} color="icon" />
+          </StackHorizontal>
+        ),
+        dataSet: { testid: 'game-history-record' },
+        onClick: () => props.onSelect(props.record.id),
+      }}
+    />
+  );
+}
+
+/** All, Won, Lost, Draws: shown once the list is long enough to search. */
+function ResultFilter(props: {
+  readonly filter: Filter;
+  readonly onFilter: (filter: Filter) => void;
+}): JSX.Element {
+  return (
+    <SegmentedControl<Filter>
+      aria-label={t`Show games by result`}
+      segments={[
+        { key: 'all', label: t`All` },
+        { key: 'won', label: t`Won` },
+        { key: 'lost', label: t`Lost` },
+        { key: 'draw', label: t`Draws` },
+      ]}
+      selected={props.filter}
+      onSelect={props.onFilter}
+      dataSet={{ testid: 'game-history-filter' }}
+    />
+  );
+}
+
 /** The finished games, or why there are none to show yet. */
-function HistoryRecords(props: GameHistoryScreenViewProps): JSX.Element {
+function HistoryRecords(
+  props: GameHistoryScreenViewProps & { readonly filter: Filter }
+): JSX.Element {
+  const shown = createMemo(() =>
+    props.filter === 'all'
+      ? props.records
+      : props.records.filter((record) => record.outcome === props.filter)
+  );
   return (
     <Switch
       fallback={
         <MenuList dataSet={{ testid: 'game-history-records' }}>
-          <For each={props.records}>
+          <For each={shown()}>
             {(record) => (
-              <MainMenuItemRow
-                item={{
-                  key: record.id,
-                  title: (
-                    <For each={record.players}>
-                      {(player, index) => (
-                        <>
-                          <Show when={index() > 0}> / </Show>
-                          <HistoryPlayer
-                            player={player}
-                            people={props.people}
-                          />
-                        </>
-                      )}
-                    </For>
-                  ),
-                  caption: record.label,
-                  dataSet: { testid: 'game-history-record' },
-                  onClick: () => props.onSelect(record.id),
-                }}
+              <RecordRow
+                record={record}
+                people={props.people}
+                onSelect={props.onSelect}
               />
             )}
           </For>
@@ -121,23 +278,81 @@ function HistoryRecords(props: GameHistoryScreenViewProps): JSX.Element {
       <Match when={props.records.length === 0}>
         <EmptyState
           variant="compact"
-          title={<Trans>No completed games yet.</Trans>}
-          body={<Trans>Finished games will appear here.</Trans>}
+          icon={HistoryIcon}
+          title={<Trans>No finished games yet</Trans>}
+          body={
+            <Trans>
+              Every game you finish here is kept, with each move to replay.
+            </Trans>
+          }
+          action={
+            props.onPlay === undefined
+              ? undefined
+              : { label: <Trans>Play a game</Trans>, onClick: props.onPlay }
+          }
           dataSet={{ testid: 'game-history-empty' }}
+        />
+      </Match>
+      <Match when={shown().length === 0}>
+        <EmptyState
+          variant="compact"
+          title={<Trans>No games with this result</Trans>}
+          body={<Trans>Choose All to see every finished game.</Trans>}
+          dataSet={{ testid: 'game-history-filter-empty' }}
         />
       </Match>
     </Switch>
   );
 }
 
+/** Wins, losses and draws; a dash for each until the games are read. */
+function HistoryStatistics(props: GameHistoryScreenViewProps): JSX.Element {
+  const value = (count: number): JSX.Element => (
+    <Show when={!props.loading || props.records.length > 0} fallback="–">
+      {count}
+    </Show>
+  );
+  return (
+    <Grid
+      columns={3}
+      gap="md"
+      testId="game-history-statistics"
+      dataSet={{
+        wins: String(props.statistics.wins),
+        losses: String(props.statistics.losses),
+        draws: String(props.statistics.draws),
+      }}
+    >
+      <GameStat
+        label={<Trans>Wins</Trans>}
+        value={value(props.statistics.wins)}
+        detail={null}
+      />
+      <GameStat
+        label={<Trans>Losses</Trans>}
+        value={value(props.statistics.losses)}
+        detail={null}
+      />
+      <GameStat
+        label={<Trans>Draws</Trans>}
+        value={value(props.statistics.draws)}
+        detail={null}
+      />
+    </Grid>
+  );
+}
+
 /**
  * A game's History and stats, presentational: wins, losses and draws, then
  * the finished custom games of the space and the person's matched games,
- * with their loading, empty and denied states. `GameHistory` reads them.
+ * newest first, each led by the person's own result, with a filter by
+ * result once the list is long, and its loading, empty and denied states.
+ * `GameHistory` reads them.
  */
 export function GameHistoryScreenView(
   props: GameHistoryScreenViewProps
 ): JSX.Element {
+  const [filter, setFilter] = createSignal<Filter>('all');
   return (
     <Show
       when={props.denial}
@@ -147,39 +362,17 @@ export function GameHistoryScreenView(
           title={<Trans>History and stats</Trans>}
           subtitle={
             <Trans>
-              Finished custom games in this space and your recent matched games.
+              Finished games in this space and your matched games, newest first.
             </Trans>
           }
-          statistics={
-            <Grid
-              columns={3}
-              gap="md"
-              testId="game-history-statistics"
-              dataSet={{
-                wins: String(props.statistics.wins),
-                losses: String(props.statistics.losses),
-                draws: String(props.statistics.draws),
-              }}
-            >
-              <GameStat
-                label={<Trans>Wins</Trans>}
-                value={props.statistics.wins}
-                detail={null}
-              />
-              <GameStat
-                label={<Trans>Losses</Trans>}
-                value={props.statistics.losses}
-                detail={null}
-              />
-              <GameStat
-                label={<Trans>Draws</Trans>}
-                value={props.statistics.draws}
-                detail={null}
-              />
-            </Grid>
+          statistics={<HistoryStatistics {...props} />}
+          filters={
+            <Show when={props.records.length >= FILTER_FROM}>
+              <ResultFilter filter={filter()} onFilter={setFilter} />
+            </Show>
           }
         >
-          <HistoryRecords {...props} />
+          <HistoryRecords {...props} filter={filter()} />
         </GameHistoryScreen>
       }
     >

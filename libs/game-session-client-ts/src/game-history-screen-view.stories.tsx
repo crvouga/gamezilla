@@ -8,35 +8,61 @@ import {
   GameHistoryScreenView,
 } from './game-history-screen-view';
 
+/** Storybook's clock starts at 1_700_000_000_000; games end before it. */
+const NOW = 1_700_000_000_000;
+const HOUR = 3_600_000;
+const ago = (hours: number): string =>
+  new Date(NOW - hours * HOUR).toISOString();
+
+const JORDAN: GameHistoryPlayer = {
+  person: PEOPLE.jordan,
+  plainName: 'jordan_plays',
+  bot: false,
+  local: false,
+};
+const BOT: GameHistoryPlayer = {
+  person: '',
+  plainName: '',
+  bot: true,
+  local: false,
+};
+
+/** Avery's view: each row names who Avery played and leads with Avery's result. */
 const RECORDS: readonly GameHistoryRow[] = [
   {
+    id: 'game-4',
+    players: [JORDAN],
+    outcome: 'won',
+    label: 'By four in a row',
+    moves: 7,
+    endedAt: ago(2),
+  },
+  {
     id: 'game-3',
-    players: [
-      { person: PEOPLE.avery, plainName: 'avery', bot: false, local: false },
-      {
-        person: PEOPLE.jordan,
-        plainName: 'jordan_plays',
-        bot: false,
-        local: false,
-      },
-    ],
-    label: 'Red circle wins by four in a row.',
+    players: [BOT],
+    outcome: 'draw',
+    label: 'Game drawn.',
+    moves: 42,
+    endedAt: ago(26),
   },
   {
     id: 'game-2',
-    players: [
-      { person: PEOPLE.avery, plainName: 'avery', bot: false, local: false },
-      { person: '', plainName: '', bot: true, local: false },
-    ],
-    label: 'Game drawn.',
+    players: [{ person: '', plainName: '', bot: false, local: true }],
+    outcome: 'lost',
+    label: 'By resignation',
+    moves: 12,
+    endedAt: ago(70),
   },
   {
     id: 'game-1',
     players: [
-      { person: PEOPLE.avery, plainName: 'avery', bot: false, local: false },
-      { person: '', plainName: '', bot: false, local: true },
+      { person: PEOPLE.morgan, plainName: 'morgan', bot: false, local: false },
+      JORDAN,
     ],
-    label: 'Yellow diamond wins by resignation.',
+    outcome: null,
+    label: 'Yellow diamond wins by four in a row.',
+    moves: 18,
+    endedAt: ago(170),
   },
 ];
 
@@ -71,9 +97,13 @@ export const Loading: Story = {
   },
 };
 
-/** No finished games yet: the empty state says where they will appear. */
+/** No finished games yet: the empty state says what will appear and how to start. */
 export const Empty: Story = {
-  args: { records: [], statistics: { wins: 0, losses: 0, draws: 0 } },
+  args: {
+    records: [],
+    statistics: { wins: 0, losses: 0, draws: 0 },
+    onPlay: fn(),
+  },
 };
 
 /** A cancelled set-up game keeps its unfilled places as "No participant". */
@@ -82,16 +112,11 @@ export const CancelledSetup: Story = {
     records: [
       {
         id: 'game-4',
-        players: [
-          {
-            person: PEOPLE.avery,
-            plainName: 'avery',
-            bot: false,
-            local: false,
-          },
-          { person: '', plainName: '', bot: false, local: false },
-        ],
-        label: 'Game cancelled.',
+        players: [{ person: '', plainName: '', bot: false, local: false }],
+        outcome: 'cancelled',
+        label: 'Ended before a result',
+        moves: 0,
+        endedAt: ago(5),
       },
     ],
   },
@@ -117,7 +142,10 @@ export const LongNames: Story = {
             local: false,
           },
         ],
+        outcome: null,
         label: 'Red circle and Yellow diamond win by the full board.',
+        moves: 42,
+        endedAt: ago(1),
       },
       ...RECORDS,
     ],
@@ -125,22 +153,17 @@ export const LongNames: Story = {
 };
 
 const OPPONENTS: readonly GameHistoryPlayer[] = [
-  {
-    person: PEOPLE.jordan,
-    plainName: 'jordan_plays',
-    bot: false,
-    local: false,
-  },
+  JORDAN,
   { person: PEOPLE.morgan, plainName: 'morgan', bot: false, local: false },
   { person: PEOPLE.robin, plainName: 'robin', bot: false, local: false },
-  { person: '', plainName: '', bot: true, local: false },
+  BOT,
 ];
 const ENDINGS = [
-  'Red circle wins by four in a row.',
-  'Yellow diamond wins by four in a row.',
-  'Game drawn.',
-  'Red circle wins by resignation.',
-  'Yellow diamond wins by time.',
+  { outcome: 'won', label: 'By four in a row' },
+  { outcome: 'lost', label: 'By four in a row' },
+  { outcome: 'draw', label: 'Game drawn.' },
+  { outcome: 'won', label: 'By resignation' },
+  { outcome: 'lost', label: 'By time' },
 ] as const;
 
 /** A season of play: two dozen finished games, newest first. */
@@ -148,11 +171,10 @@ const MANY_RECORDS: readonly GameHistoryRow[] = Array.from(
   { length: 24 },
   (_, index) => ({
     id: `game-many-${String(24 - index)}`,
-    players: [
-      { person: PEOPLE.avery, plainName: 'avery', bot: false, local: false },
-      OPPONENTS[index % OPPONENTS.length] ?? OPPONENTS[0]!,
-    ],
-    label: ENDINGS[index % ENDINGS.length] ?? 'Game drawn.',
+    players: [OPPONENTS[index % OPPONENTS.length] ?? JORDAN],
+    ...(ENDINGS[index % ENDINGS.length] ?? ENDINGS[0]),
+    moves: 7 + ((index * 5) % 30),
+    endedAt: ago(3 + index * 9),
   })
 );
 
@@ -160,7 +182,7 @@ const MANY_RECORDS: readonly GameHistoryRow[] = Array.from(
 export const Many: Story = {
   args: {
     records: MANY_RECORDS,
-    statistics: { wins: 11, losses: 8, draws: 5 },
+    statistics: { wins: 10, losses: 9, draws: 5 },
   },
 };
 
@@ -190,7 +212,20 @@ export const Denied: Story = {
 export const OpenRecord: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(await canvas.findByText('Game drawn.'));
-    await expect(args.onSelect).toHaveBeenCalledWith('game-2');
+    await userEvent.click(await canvas.findByText('Bot'));
+    await expect(args.onSelect).toHaveBeenCalledWith('game-3');
+  },
+};
+
+/** A long list filtered to the games lost. */
+export const FilteredLost: Story = {
+  args: {
+    records: MANY_RECORDS,
+    statistics: { wins: 10, losses: 9, draws: 5 },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(await canvas.findByRole('radio', { name: 'Lost' }));
+    await expect(canvas.queryAllByText('Won')).toHaveLength(1);
   },
 };
