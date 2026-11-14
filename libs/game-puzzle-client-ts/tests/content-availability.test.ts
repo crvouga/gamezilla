@@ -15,6 +15,7 @@ test('a selected pack edition stays startable after a later edition becomes curr
         published_revision_id: 'pack-edition-two',
         publication_count: 2,
         status: 'published',
+        published_at: '2026-11-01T00:00:00.000Z',
         deleted_at: null,
       },
     ],

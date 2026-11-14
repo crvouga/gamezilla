@@ -1,0 +1,4 @@
+{
+  "summary": "Health ran every feature one scenario at a time because the browser journeys share the monitor account and Chrome. Features that open no browser waited behind them, so Tempo indexing a planted trail and an OpenTofu plan added minutes, and the dev run took about 1570s against its 1440s budget (Health 43509567900). Those features now run in a second bun test beside the journeys, and one that opens a browser there fails.",
+  "regressionTest": "apps/product-ts/scripts/health.test.ts"
+}

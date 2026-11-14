@@ -19,4 +19,9 @@ export interface AuthServerPort {
   getUser(externalUserId: string): Promise<AuthUser | null>;
   /** Idempotently withdraw identities, revoke sessions and erase the service's personal data. */
   deleteUser(externalUserId: string): Promise<void>;
+  /**
+   * Whether `presented` is the deployment's synthetic-monitor credential, the
+   * secret only automated monitoring holds. Absent when the service has none.
+   */
+  isSyntheticMonitorCredential?(presented: string): Promise<boolean>;
 }

@@ -32,6 +32,7 @@ import {
   escapePrometheusName,
   prometheusSeries,
 } from '@pkgs/observability-root-shared-ts/prometheus-names';
+import { CI_WORKFLOW_METRIC } from './ci-workflow-results';
 import { SYNTHETIC_CHECK_METRIC } from './synthetic-checks';
 import {
   PROBE_CERT_EXPIRY_METRIC,
@@ -102,6 +103,7 @@ export const EMITTED_METRICS: readonly EmittedMetric[] = [
   emitted(BUG_REPORT_SENDS_METRIC),
   emitted(BUG_REPORT_SEND_DURATION_METRIC),
   emitted(SYNTHETIC_CHECK_METRIC),
+  emitted(CI_WORKFLOW_METRIC),
   // Written by Grafana Synthetic Monitoring, not the app. The job carries
   // the environment, so its values are open.
   emitted(PROBE_SUCCESS_METRIC, ['job'], IN_THE_JOB),

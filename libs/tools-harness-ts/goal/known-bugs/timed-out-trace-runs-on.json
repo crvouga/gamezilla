@@ -1,0 +1,4 @@
+{
+  "summary": "Bun keeps running a test's body after its timeout, so a Quint trace that ran past its budget on a live browser (chess puzzle-assistant traces sleeping 65 s per timePasses step) kept driving its browsers beside the next trace and later reported its own failures on another trace ('trace 23 -> trace failed: trace 18'). A replay whose test has timed out now stops before its next step, disposes its world and reports nothing further.",
+  "regressionTest": "pkgs/quint-shared-ts/tests/replay-abandoned.test.ts"
+}

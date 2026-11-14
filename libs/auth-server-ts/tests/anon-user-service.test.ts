@@ -141,6 +141,7 @@ describe('AnonUserService', () => {
     expect(await anonUsers.readUserAnonState(result.userId)).toEqual({
       exists: true,
       isAnon: true,
+      synthetic: false,
     });
   });
 

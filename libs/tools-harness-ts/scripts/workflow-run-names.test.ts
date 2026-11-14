@@ -57,6 +57,8 @@ const DEPLOY_JOBS: Record<string, string> = {
   'deploy-dev': 'Release development',
   'deploy-prd': 'Release production',
   'deploy-release': 'Publish release',
+  'deploy-await-health': 'Wait for a running Health check',
+  'deploy-verdict': 'Release verdict',
 };
 
 /** A job fanned out over the env files renders as `<prefix>:<env>`. */

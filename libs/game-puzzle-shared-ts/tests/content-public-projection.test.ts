@@ -2,6 +2,7 @@ import { expect, test } from 'bun:test';
 import { puzzleContentEditions } from '@libs/game-puzzle-shared-ts/content-detail-queries';
 import { puzzleContentDocumentsById } from '@libs/game-puzzle-shared-ts/content-document-query';
 import { puzzleContentPublished } from '@libs/game-puzzle-shared-ts/content-queries';
+import { PUBLISHED_PAGE_START } from '@libs/game-puzzle-shared-ts/content-query-scope';
 import {
   CONTENT_TOPIC_MAP,
   puzzleContentTopic,
@@ -34,7 +35,10 @@ async function publicSnapshot(
     env: { ...fixture.env, actorId: 'bob', deviceId: 'bob-phone' },
   };
   if (scope === 'discovery')
-    return puzzleContentPublished.run(ctx, { gameId: 'pile', afterId: '' });
+    return puzzleContentPublished.run(ctx, {
+      gameId: 'pile',
+      ...PUBLISHED_PAGE_START,
+    });
   if (scope === 'edition')
     return puzzleContentEditions.run(ctx, { ids: ['river-first'] });
   return puzzleContentDocumentsById.run(ctx, { ids: ['river'] });

@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { privacyTimePasses } from '@libs/account-privacy-harness-ts/privacy-actions';
 import { playCustomGameHistory } from '@libs/game-session-harness-ts/custom-game-history';
+import { attemptHostPuzzleCommand } from '@libs/game-session-harness-ts/puzzle-room-probe';
 import { queueRoomDraws } from '@libs/game-session-harness-ts/room-draws';
 import {
   restoreDeviceSimulation,
@@ -55,6 +56,14 @@ describe('what a stack host cannot do ends the scenario as a host limit', () => 
         black: 'bob',
         moves: ['e2e4'],
       })
+    );
+    expect(isHostLimit(outcome)).toBe(true);
+  });
+
+  // regression: stack-puzzle-command-has-no-room
+  test('a puzzle command cannot be sent to the stack room from the test process', async () => {
+    const outcome = await outcomeOf(() =>
+      attemptHostPuzzleCommand.act(stackHarness(), 'alice', 'alice', 'hint')
     );
     expect(isHostLimit(outcome)).toBe(true);
   });

@@ -10,8 +10,8 @@
  * `main`: opened on the first red night, commented on each later one, closed
  * by the next green night.
  */
-import { spawnSync } from 'node:child_process';
 import { appendFileSync } from 'node:fs';
+import { failureIssueTitle, fileFailureIssue } from './ci-failure-issue';
 import { NIGHTLY_SUITES } from './verify-profile';
 
 /** `needs`, as the workflow serializes it. */
@@ -27,7 +27,7 @@ export type NightlyGroup = {
 };
 
 const JOB_PREFIX = 'verify-nightly-';
-const ISSUE_TITLE = 'Verify Nightly is failing on main';
+const ISSUE_TITLE = failureIssueTitle('Verify Nightly');
 const GATE_SUMMARY =
   'The complete verification catalog at nightly depth: every Quint trace, five times the property runs';
 
@@ -147,68 +147,6 @@ export function formatNightlyMarkdown(
   ].join('\n');
 }
 
-/** A failed API read is not evidence that no issue exists. */
-export function checkedIssueOutput(result: {
-  readonly status: number | null;
-  readonly stdout: string | null;
-  readonly stderr: string | null;
-}): string {
-  if (result.status !== 0)
-    throw new Error(
-      `Nightly issue reporting failed: ${result.stderr || result.status}`
-    );
-  return result.stdout?.trim() ?? '';
-}
-
-function gh(args: readonly string[]): string {
-  return checkedIssueOutput(spawnSync('gh', args, { encoding: 'utf8' }));
-}
-
-/** The open nightly issue's number, or `null`. */
-function openIssue(repository: string): string | null {
-  const found = gh([
-    'issue',
-    'list',
-    '--repo',
-    repository,
-    '--state',
-    'open',
-    '--search',
-    `in:title "${ISSUE_TITLE}"`,
-    '--json',
-    'number',
-    '--jq',
-    '.[0].number // empty',
-  ]);
-  return found === '' ? null : found;
-}
-
-/** Keep one issue open while `main` is red at night. Reporting failures also fail the workflow. */
-function fileIssue(
-  repository: string,
-  markdown: string,
-  red: boolean,
-  owner: string
-): void {
-  const issue = openIssue(repository);
-  if (red && issue === null)
-    gh([
-      'issue',
-      'create',
-      '--repo',
-      repository,
-      '--title',
-      ISSUE_TITLE,
-      ...(owner ? ['--assignee', owner] : []),
-      '--body',
-      markdown,
-    ]);
-  else if (red && issue !== null)
-    gh(['issue', 'comment', issue, '--repo', repository, '--body', markdown]);
-  else if (issue !== null)
-    gh(['issue', 'close', issue, '--repo', repository, '--comment', markdown]);
-}
-
 function main(env: NodeJS.ProcessEnv): number {
   const selection = env['NIGHTLY_GROUP'] || 'all';
   const groups = nightlyGroups(
@@ -241,6 +179,12 @@ function main(env: NodeJS.ProcessEnv): number {
       : `Diagnostic scope: ${selection}. This is not a complete Nightly verdict.\n\n${report}`;
   if (env['GITHUB_STEP_SUMMARY'])
     appendFileSync(env['GITHUB_STEP_SUMMARY'], markdown);
+  // The next step records the same verdict in Grafana.
+  if (env['GITHUB_OUTPUT'])
+    appendFileSync(
+      env['GITHUB_OUTPUT'],
+      `passed=${String(failed.length === 0)}\n`
+    );
   if (env['STORYBOOK_EVIDENCE_RUN'])
     console.log('Evidence transfer only; no browser tests executed.');
   console.log(formatNightlyTable(groups, selection));
@@ -250,12 +194,13 @@ function main(env: NodeJS.ProcessEnv): number {
     );
   // Only a night on `main` speaks for `main`; a rehearsed branch files nothing.
   if (tracksNightlyIssue(selection, env['GITHUB_REF']))
-    fileIssue(
+    fileFailureIssue({
       repository,
+      title: ISSUE_TITLE,
       markdown,
-      failed.length > 0,
-      env['NIGHTLY_OWNER'] ?? ''
-    );
+      red: failed.length > 0,
+      owner: env['NIGHTLY_OWNER'] ?? '',
+    });
   return failed.length === 0 ? 0 : 1;
 }
 
