@@ -201,6 +201,7 @@ function AuthorWorkspaceScreen(props: {
         />
       }
       refusal={workspace.publication.status.refusal()}
+      refused={workspace.publication.status.refused()}
       confirms={<ContentAuthorConfirms workspace={workspace} />}
       onChangeBody={writer.change}
       onSaveAgain={() => {

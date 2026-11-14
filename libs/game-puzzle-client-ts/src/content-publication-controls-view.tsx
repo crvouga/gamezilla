@@ -61,6 +61,8 @@ export type ContentPublicationControlsViewProps = {
   readonly playable?: boolean | undefined;
   /** Opens the details or the board, to correct what blocks publishing. */
   readonly onFix?: ((where: 'details' | 'board') => void) | undefined;
+  /** The server refused the last publication; its notice says why. */
+  readonly refused?: boolean | undefined;
 };
 
 /**
@@ -103,17 +105,20 @@ function PublicationPending(props: {
 }
 
 /**
- * A failed check, the one finding that blocks publishing, as a notice with
- * the ways to the details and the board, where it is corrected.
+ * A failed check or a refused publication, the one finding that blocks
+ * publishing, as a notice with the ways to the details and the board,
+ * where it is corrected.
  */
 function Finding(props: ContentPublicationControlsViewProps): JSX.Element {
   const { t } = useLingui();
   return (
-    <Show when={props.validation === 'invalid'}>
+    <Show when={props.validation === 'invalid' || props.refused === true}>
       <Notice tone="error" dataSet={{ testid: 'content-validation-finding' }}>
         <StackVertical gap="sm">
-          {props.validationMessage ||
-            t`Complete the required details and validate again.`}
+          {props.validation === 'invalid'
+            ? props.validationMessage ||
+              t`Complete the required details and validate again.`
+            : t`Publishing was refused. Correct the draft as the notice above says, then publish again.`}
           <Show when={props.onFix}>
             {(onFix) => (
               <StackHorizontal gap="sm" wrap>
@@ -167,7 +172,7 @@ function usePublicationActions(props: ContentPublicationControlsViewProps) {
     labels: {
       get idle() {
         if (props.copyState.kind === 'pending') return t`Retry sending`;
-        return props.copyState.kind === 'edition'
+        return props.copyState.kind === 'edition' || props.refused === true
           ? t`Publish again`
           : t`Publish`;
       },
@@ -355,6 +360,7 @@ export function ContentPublicationControlsView(
         )}
         onOpenWaiting={props.onOpenWaiting}
         playable={props.playable}
+        refused={props.refused}
         onFix={props.onFix && (() => props.onFix?.('board'))}
         publishNote={
           props.publishDenial === undefined ? undefined : (

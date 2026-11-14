@@ -44,7 +44,7 @@ test('each copy says where it was kept, its check and its details', () => {
     </ThemeProvider>
   ));
   expect(screen.getByTestId('content-use-copy-a').textContent).toBe(
-    'Count to sevenKept on this device · not checked yet · Easy · Reach seven.Editing now'
+    'Count to sevenKept on this device · not checked yetEasy · Reach seven.Editing now'
   );
   expect(screen.getByTestId('content-use-copy-b').textContent).toBe(
     'Untitled draftKept from another device · passed its checkUse copy'

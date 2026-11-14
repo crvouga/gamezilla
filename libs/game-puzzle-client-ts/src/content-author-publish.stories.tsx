@@ -1,5 +1,5 @@
 import { KeyRoundIcon } from '@pkgs/ui-root-client-ts/icons';
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { ContentAuthorScreenView } from './content-author-screen-view';
 import {
@@ -98,6 +98,8 @@ export const PublishDenied: Story = {
         publishDenial: {
           icon: KeyRoundIcon,
           title: 'Publishing needs a verified account',
+          body: 'Verify your account once, then publish from here.',
+          action: { label: 'Verify account', onPress: fn() },
           dataSet: { testid: 'permission-denial', reason: 'not_granted' },
         },
       },

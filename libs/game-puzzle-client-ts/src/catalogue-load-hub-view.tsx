@@ -119,6 +119,8 @@ function HubCommand(props: {
   checkFailed: boolean;
   /** The latest load failed: starting again is its retry. */
   lastFailed: boolean;
+  /** A load ran before: starting is loading again. */
+  loadedBefore: boolean;
   onOpenSource: () => void;
   onRecheck: () => void;
   onStart: () => Promise<void>;
@@ -132,7 +134,7 @@ function HubCommand(props: {
     },
     labels: {
       get idle() {
-        return props.lastFailed ? t`Load again` : t`Start loading`;
+        return props.loadedBefore ? t`Load again` : t`Start loading`;
       },
       loading: t`Starting load…`,
       success: t`Load started`,
@@ -244,6 +246,7 @@ export function CatalogueLoadHubView(
       sourceName={props.copy.sourceName}
       checkFailed={props.source.status === 'check-failed'}
       lastFailed={props.job?.status === 'failed'}
+      loadedBefore={props.job !== null && props.job.status !== 'adding'}
       onOpenSource={props.onOpenSource}
       onRecheck={props.onRecheck}
       onStart={props.onStart}

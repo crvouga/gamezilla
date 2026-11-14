@@ -87,6 +87,8 @@ export type ContentAuthorScreenViewProps = {
   readonly keptCopies?: JSX.Element;
   /** The server's refusal of the last publication, said on every place. */
   readonly refusal?: JSX.Element;
+  /** That refusal is in view: correcting the draft comes before publishing. */
+  readonly refused?: boolean | undefined;
   /** The builder's confirmation dialogs, kept whichever place is shown. */
   readonly confirms?: JSX.Element;
   readonly onChangeBody: (body: ContentBody) => void;

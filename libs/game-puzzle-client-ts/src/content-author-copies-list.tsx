@@ -6,7 +6,9 @@ import { Trans, useLingui } from '@lingui/solid/macro';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
-import { createMemo, For, type JSX } from 'solid-js';
+import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { Text } from '@pkgs/ui-root-client-ts/text';
+import { createMemo, For, type JSX, Show } from 'solid-js';
 import { useContentLibraryState } from './content-library-context';
 import { ContentLoadMore } from './content-load-more';
 import { byContentId } from './use-content-pages';
@@ -22,23 +24,38 @@ export type ContentAuthorCopy = {
   readonly validation: ContentDraft['validation_status'];
 };
 
-/** What sets a copy apart, under its title: where it came from, its check, its details. */
-function useCopyCaption(): (copy: ContentAuthorCopy) => string {
+/**
+ * What sets a copy apart, under its title: where it was kept and its check
+ * on one line, then its details on their own quieter line.
+ */
+function CopyCaption(props: { copy: ContentAuthorCopy }): JSX.Element {
   const { t } = useLingui();
-  return (copy) =>
-    [
-      copy.conflicted ? t`Kept from another device` : t`Kept on this device`,
-      {
-        valid: t`passed its check`,
-        invalid: t`needs changes`,
-        unchecked: t`not checked yet`,
-      }[copy.validation],
-      [copy.difficulty.trim(), copy.description.trim()]
-        .filter((part) => part !== '')
-        .join(' · '),
-    ]
+  const details = () =>
+    [props.copy.difficulty.trim(), props.copy.description.trim()]
       .filter((part) => part !== '')
       .join(' · ');
+  return (
+    <StackVertical gap="xs">
+      <Text variant="inherit" tone="default">
+        {props.copy.conflicted
+          ? t`Kept from another device`
+          : t`Kept on this device`}
+        {' · '}
+        {
+          {
+            valid: t`passed its check`,
+            invalid: t`needs changes`,
+            unchecked: t`not checked yet`,
+          }[props.copy.validation]
+        }
+      </Text>
+      <Show when={details() !== ''}>
+        <Text variant="inherit" tone="secondary" lines={2}>
+          {details()}
+        </Text>
+      </Show>
+    </StackVertical>
+  );
 }
 
 /**
@@ -56,7 +73,6 @@ export function ContentAuthorCopiesListView(props: {
   more?: JSX.Element;
 }): JSX.Element {
   const { t } = useLingui();
-  const caption = useCopyCaption();
   return (
     <>
       <MenuSection
@@ -73,7 +89,7 @@ export function ContentAuthorCopiesListView(props: {
           {(copy) => (
             <MenuRow
               title={copy.title || t`Untitled draft`}
-              caption={caption(copy)}
+              caption={<CopyCaption copy={copy} />}
               selected={copy.id === props.currentId}
               value={copy.id === props.currentId ? t`Editing now` : t`Use copy`}
               disabled={props.disabled && copy.id !== props.currentId}

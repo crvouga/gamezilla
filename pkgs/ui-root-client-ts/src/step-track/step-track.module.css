@@ -12,7 +12,7 @@
 .step {
   display: grid;
   grid-template-columns: var(--ui-space-6) minmax(0, 1fr) max-content;
-  align-items: center;
+  align-items: start;
   column-gap: var(--ui-space-3);
   padding: var(--ui-space-3) var(--ui-space-4);
 }
@@ -29,6 +29,8 @@
   font-weight: var(--ui-font-weight-semibold);
   font-variant-numeric: tabular-nums;
   line-height: 1;
+  /* Centred on the name's line, however tall the step's column grows. */
+  margin-top: calc((var(--ui-leading-base) - var(--ui-space-6)) / 2);
 }
 /* The next step's marker takes the filled button's own fill and ink, so
    its number reads in both themes. */
@@ -83,6 +85,7 @@
 /* The step's own action, at the row's end. */
 .action {
   display: flex;
+  align-self: center;
   justify-content: flex-end;
 }
 /* The step's state in a word, under its name, in the quieter ink; the

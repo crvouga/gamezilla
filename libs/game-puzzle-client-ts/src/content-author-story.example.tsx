@@ -158,6 +158,7 @@ export function renderAuthorStory(
       }
       keptCopies={slot('keptCopies') ?? <StoryCopies />}
       refusal={options.refused === true ? <StoryRefusal /> : undefined}
+      refused={options.refused === true}
       publication={
         <ContentPublicationControlsView
           {...publication}
@@ -174,6 +175,7 @@ export function renderAuthorStory(
           }
           onWithdraw={() => setWithdrawing(true)}
           onFix={fn()}
+          refused={options.refused === true}
         />
       }
       confirms={

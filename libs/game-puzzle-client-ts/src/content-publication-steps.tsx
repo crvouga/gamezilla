@@ -56,6 +56,8 @@ export type PublicationStepsProps = {
    * of its action (a compact permission denial).
    */
   readonly publishNote?: JSX.Element | undefined;
+  /** The server refused the last publication: correcting it comes first. */
+  readonly refused?: boolean | undefined;
 };
 
 /** The playtest is next but cannot start until the draft is corrected. */
@@ -107,6 +109,8 @@ function NextLine(props: PublicationStepsProps): JSX.Element {
       return t`Next: fix the draft as the editor says, then playtest.`;
     if (props.next === 'playtest')
       return t`Next: finish a playtest to show the puzzle can be solved.`;
+    if (props.next === 'publish' && props.refused === true)
+      return t`Next: correct the draft, then publish again.`;
     if (props.next === 'publish')
       return t`Ready: publish to share it with everyone who plays.`;
     return props.validation === 'invalid'

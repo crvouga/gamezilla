@@ -14,6 +14,8 @@ import type { ContentPublicationPending } from './content-publication-controls-v
 export function useContentPublicationStatus(documentId: () => string): {
   readonly pending: () => ContentPublicationPending;
   readonly refusal: () => JSX.Element;
+  /** The server refused the last publication and it is still in view. */
+  readonly refused: () => boolean;
 } {
   const engine = useSyncEngine();
   const feedback = useMutationFeedback('publishPuzzleContent', () => ({
@@ -30,6 +32,7 @@ export function useContentPublicationStatus(documentId: () => string): {
       if (feedback()?.status !== 'pending') return null;
       return engine.status().online ? 'online' : 'offline';
     },
+    refused: () => refusal() !== undefined,
     refusal: () => (
       <Show when={refusal()} keyed>
         {(entry) => (

@@ -72,6 +72,7 @@ export function ContentPublicationControls(props: {
       onViewPublication={props.publication.viewPublication}
       onWithdraw={props.onWithdraw}
       onFix={props.onFix}
+      refused={props.publication.status.refused()}
       onOpenWaiting={props.publication.openWaiting}
     />
   );

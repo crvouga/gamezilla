@@ -604,3 +604,26 @@ test('a publish denial is said under the Publish step, not as its name', () => {
   expect(screen.queryByTestId('content-publish')).toBeNull();
   expect(steps[2]?.textContent).toContain('Publish');
 });
+
+// regression: builder-refused-reads-ready — after the server refused a
+// publication the screen still said "Ready" with Publish filled and no way
+// to the fix. It now says it was refused and offers the details and board.
+test('a refused publication names the correction first, then publishing again', () => {
+  const fixed: string[] = [];
+  mount(() =>
+    publication({
+      proven: true,
+      validation: 'valid',
+      refused: true,
+      onFix: (where) => fixed.push(where),
+    })
+  );
+  expect(screen.getByTestId('content-publication-status').textContent).toBe(
+    'Next: correct the draft, then publish again.'
+  );
+  expect(screen.getByTestId('content-publish').textContent).toBe(
+    'Publish again'
+  );
+  fireEvent.click(screen.getByTestId('content-fix-board'));
+  expect(fixed).toEqual(['board']);
+});
