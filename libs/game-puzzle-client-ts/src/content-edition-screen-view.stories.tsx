@@ -7,7 +7,7 @@ import {
   type ContentEditionSummary,
 } from './content-edition-screen-view';
 import {
-  StoryCountingPlayer,
+  StoryCountingPreview,
   StoryPackOverview,
   StoryStartAttempt,
 } from './content-story.example';
@@ -45,7 +45,7 @@ function render(args: ContentEditionScreenViewProps) {
         args.edition?.kind === 'pack' ? (
           <StoryPackOverview />
         ) : (
-          <StoryCountingPlayer state="0 of 7" disabled />
+          <StoryCountingPreview definition="target:7" />
         )
       }
     />

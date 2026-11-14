@@ -7,7 +7,11 @@ import { cleanup, screen } from '@solidjs/testing-library';
 
 afterEach(cleanup);
 
-function mount(complete: boolean, solvedBefore: boolean): void {
+function mount(
+  complete: boolean,
+  solvedBefore: boolean,
+  place: 'attempt' | 'progress' = 'progress'
+): void {
   renderWithI18n(() => (
     <ThemeProvider
       colorScheme="light"
@@ -15,7 +19,7 @@ function mount(complete: boolean, solvedBefore: boolean): void {
     >
       <ContentAttemptScreenView
         status="ready"
-        place={{ screen: 'progress' }}
+        place={{ screen: place }}
         onOpen={() => undefined}
         attempt={{
           id: 'attempt-1',
@@ -51,7 +55,7 @@ test('a restarted puzzle keeps its saved completion quietly, not the full banner
 });
 
 test('a solved board shows the full completion and not the quiet note', () => {
-  mount(true, true);
+  mount(true, true, 'attempt');
   expect(screen.getByTestId('content-attempt-complete')).toBeTruthy();
   expect(screen.queryByTestId('content-attempt-solved-before')).toBeNull();
 });

@@ -12,7 +12,7 @@ import {
   observeJourneyPack,
   type PublishedJourneyPack,
 } from '@libs/game-puzzle-harness-ts/content-journey-pack';
-import { startJourneyAttempt } from '@libs/game-puzzle-harness-ts/content-journey-playing';
+import { openedJourneyAttempt } from '@libs/game-puzzle-harness-ts/content-journey-playing';
 import {
   drawNumberlinkJourneyRow,
   NUMBERLINK_JOURNEY_BOARD,
@@ -40,7 +40,7 @@ export async function reviseNumberlinkJourney(
   await host.actAsGuest('startEarlierNumberlinkEdition', async (ui) => {
     const device = { ui, timeoutMs: JOURNEY_WAIT_MS };
     await contentTap(device, 'content-pack-next');
-    attemptId = await startJourneyAttempt(device);
+    attemptId = await openedJourneyAttempt(device);
     await drawNumberlinkJourneyRow(device, 0);
   });
   await host.act('publishChangedNumberlinkEdition', async (ui) => {
@@ -72,7 +72,6 @@ export async function reviseNumberlinkJourney(
     await contentTap(device, 'content-return-pack');
     await observeJourneyPack(device, pack);
     await contentTap(device, 'content-pack-next');
-    await contentTap(device, 'content-continue-attempt');
   });
   return { pack, source, attemptId };
 }

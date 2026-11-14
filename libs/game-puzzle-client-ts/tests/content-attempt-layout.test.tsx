@@ -47,6 +47,7 @@ function mount(
         player={<span data-testid="player">board</span>}
         controls={<span data-testid="controls">Undo Redo Restart</span>}
         wayOn={<span data-testid="way-on">Pack overview</span>}
+        onward={<span data-testid="onward">Next puzzle: Lift</span>}
         keptPositions={<span data-testid="kept">Saved positions</span>}
         onRetryChange={() => undefined}
         onReturnToLibrary={() => undefined}
@@ -91,8 +92,14 @@ for (const width of [390, 1440]) {
       'kept',
     ])
       expect(screen.queryByTestId(elsewhere)).toBeNull();
-    expect(onward.textContent).toBe('Progress');
+    expect(onward.textContent).toBe('Details');
     expect(onward.getAttribute('data-variant')).toBe('outline');
+    // Unsolved, nothing covers the board and nothing leads onward yet.
+    expect(screen.queryByTestId('onward')).toBeNull();
+    // Where the puzzle sits in its pack is said under its title.
+    expect(
+      document.querySelector('[data-component="GameHeading"]')?.textContent
+    ).toContain('Puzzle 3 of 4 · Warehouse basics');
     fireEvent.click(onward);
     expect(opened).toEqual(['progress']);
     const root = screen.getByTestId('content-attempt');
@@ -115,15 +122,45 @@ test('the stage has one status line: the save', () => {
   );
 });
 
-test('once solved, the control onward is the one filled command', () => {
-  mount(390, 'attempt', { complete: true });
-  const onward = screen.getByTestId('content-open-progress');
-  expect(onward.textContent).toBe('Solved: what next');
-  expect(onward.getAttribute('data-variant')).toBe('solid');
-  expect(onward.getAttribute('data-complete')).toBe('true');
+test('once solved, a card over the board says so and leads onward; closing it keeps the way on', () => {
+  mount(390, 'attempt', { complete: true, packSolved: 3 });
+  const card = screen.getByTestId('content-attempt-complete');
+  expect(card.textContent).toContain('Completion saved');
+  expect(card.textContent).toContain('3 of 4 solved in Warehouse basics.');
+  expect(card.contains(screen.getByTestId('onward'))).toBe(true);
+  // The card lies over the board: the board and its commands keep their place.
   expect(
-    document.querySelectorAll('[data-component="Button"][data-variant="solid"]')
-  ).toHaveLength(1);
+    card
+      .closest('[data-component="GameBoardStage"]')
+      ?.contains(screen.getByTestId('player'))
+  ).toBe(true);
+  const details = screen.getByTestId('content-open-progress');
+  expect(details.getAttribute('data-variant')).toBe('outline');
+  expect(details.getAttribute('data-complete')).toBe('true');
+  fireEvent.click(screen.getByTestId('game-result-overlay-dismiss'));
+  expect(screen.queryByTestId('content-attempt-complete')).toBeNull();
+  const actions = screen
+    .getByTestId('controls')
+    .closest('[data-component="GameActions"]');
+  expect(actions?.contains(screen.getByTestId('onward'))).toBe(true);
+});
+
+test("the pack's last puzzle solved says the whole pack is solved", () => {
+  mount(390, 'attempt', {
+    complete: true,
+    pack: { title: 'Warehouse basics', position: 4, total: 4 },
+    packSolved: 4,
+  });
+  expect(screen.getByTestId('content-attempt-complete').textContent).toContain(
+    'Every puzzle in Warehouse basics is solved.'
+  );
+});
+
+test('a move that was not saved is never called saved', () => {
+  mount(390, 'attempt', { changeError: 'The change was not saved.' });
+  expect(screen.getByTestId('content-position-save-status').textContent).toBe(
+    'Your last move is not saved yet. The position before it is kept.'
+  );
 });
 
 // regression: puzzle-attempt-rule-at-bottom — what the puzzle asks ("Join
@@ -265,32 +302,31 @@ test("the progress panel shows the game's own figures for the attempt", () => {
 
 // regression: puzzle-saved-completion-journey-copy
 // regression: puzzle-saved-completion-confused-with-current-board
-test('saved completion is a record on the progress screen, apart from the board being played', () => {
-  mount(390, 'progress', { complete: true });
+test('the saved completion is named as a record, and the board stays playable under it', () => {
+  mount(390, 'attempt', { complete: true, pack: null });
   const record = screen.getByTestId('content-attempt-complete');
   expect(record.textContent).toContain('Completion saved');
   expect(record.textContent).toContain('You can keep playing');
-  expect(screen.getByTestId('puzzle-attempt-panel').contains(record)).toBe(
-    true
-  );
-  cleanup();
-  // The board's own screen keeps the board and its commands as they were.
-  mount(390, 'attempt', { complete: true });
-  expect(screen.queryByTestId('content-attempt-complete')).toBeNull();
+  // The board and its commands stay as they were, under the card.
   expect(screen.getByTestId('player').textContent).toBe('board');
   expect(screen.getByTestId('controls').textContent).toBe('Undo Redo Restart');
+  cleanup();
+  // Where the attempt stands says it quietly, apart from the board.
+  mount(390, 'progress', { complete: true });
+  expect(screen.queryByTestId('content-attempt-complete')).toBeNull();
+  expect(screen.getByTestId('content-attempt-solved-before').textContent).toBe(
+    'Solved. Your completion is saved.'
+  );
 });
 
 // regression: puzzle-solved-save-said-twice
-test('a saved completion says it is saved once, in its own notice', () => {
-  mount(390, 'progress', { complete: true });
+test('a saved completion says it is saved once', () => {
+  mount(390, 'attempt', { complete: true, pack: null });
   const record = screen.getByTestId('content-attempt-complete');
+  expect(record.textContent).not.toContain('Progress saved on this device.');
   const save = screen.getAllByTestId('content-position-save-status');
   expect(save.length).toBe(1);
-  expect(record.contains(save[0] ?? null)).toBe(true);
-  expect(record.textContent).toBe(
-    'Completion savedProgress saved on this device. You can keep playing or choose another puzzle.'
-  );
+  expect(save[0]?.textContent).toBe('Progress saved on this device.');
 });
 
 test('a change that was not saved and rules this app lacks are said on both screens', () => {

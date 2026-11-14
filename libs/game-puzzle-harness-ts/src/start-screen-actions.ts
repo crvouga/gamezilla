@@ -40,13 +40,13 @@ export const startPublishedThroughScreen = defineAction({
             ?.hasAttribute('disabled') === false
         )
       );
+      // Play starts the attempt and opens its board.
       fireEvent.click(view.getByTestId('content-start-attempt'));
       await waitForContent(s, () =>
-        Promise.resolve(view.queryByTestId('content-continue-attempt') !== null)
-      );
-      fireEvent.click(view.getByTestId('content-continue-attempt'));
-      await waitForContent(s, () =>
-        Promise.resolve(view.queryByTestId('counting-step-two') !== null)
+        Promise.resolve(
+          view.queryByTestId('content-attempt') !== null &&
+            view.queryByTestId('counting-step-two') !== null
+        )
       );
       const attempt = (await readAttemptLibrary(db)).attempts.find(
         (entry) => entry.source_id === revisionId && entry.mode === 'ordinary'

@@ -1,6 +1,7 @@
 import {
   StoryPackActions,
   StoryPackAttempt,
+  StoryPackOnward,
 } from '@libs/game-puzzle-client-ts/content-attempt-story.example';
 import { sokobanPuzzleContent } from '@libs/sokoban-shared-ts/sokoban-puzzle-content';
 import { Button } from '@pkgs/ui-root-client-ts/button';
@@ -16,7 +17,6 @@ import { SokobanPlayerView } from './sokoban-player';
  */
 function StoryWayOn(props: {
   opened: string;
-  complete: boolean;
   onOpen: (destination: string) => void;
 }): JSX.Element {
   return (
@@ -24,14 +24,7 @@ function StoryWayOn(props: {
       <VisuallyHidden testId="story-way-on-opened">
         {props.opened}
       </VisuallyHidden>
-      <StoryPackActions
-        next={
-          props.complete
-            ? { title: 'Lift', open: () => props.onOpen('Lift') }
-            : undefined
-        }
-        onOverview={() => props.onOpen('Pack overview')}
-      />
+      <StoryPackActions onOverview={() => props.onOpen('Pack overview')} />
     </>
   );
 }
@@ -125,11 +118,18 @@ export function SokobanHistory(props: {
       }}
       complete={complete()}
       solvedBefore={completionSaved()}
-      // As production: the pack's next puzzle (once solved) and its
-      // overview, in the pack card.
-      wayOn={
-        <StoryWayOn opened={opened()} complete={complete()} onOpen={open} />
+      // As production: the pack's overview in the pack card, and once
+      // solved the next puzzle on the card over the board.
+      wayOn={<StoryWayOn opened={opened()} onOpen={open} />}
+      onward={
+        <>
+          <VisuallyHidden testId="story-way-on-opened">
+            {opened()}
+          </VisuallyHidden>
+          <StoryPackOnward next={{ title: 'Lift', open: () => open('Lift') }} />
+        </>
       }
+      packSolved={complete() ? 3 : 2}
       disabled={props.disabled}
       player={
         <>

@@ -7,7 +7,10 @@ import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { createMemo, type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import { ContentAttemptControls } from './content-attempt-controls';
-import { ContentAttemptNext } from './content-attempt-next';
+import {
+  ContentAttemptNext,
+  ContentAttemptOnward,
+} from './content-attempt-next';
 import {
   ContentAttemptRestartConfirm,
   useContentAttemptRestart,
@@ -68,6 +71,20 @@ function packPlace(
     ) ?? -1;
   if (pack === undefined || progress === null || index < 0) return null;
   return { title: pack.title, position: index + 1, total: progress.total };
+}
+
+/** How many of the attempt's pack's puzzles the person has solved. */
+function packSolved(
+  attempt: Pick<ContentAttempt, 'pack_revision_id'>,
+  data: ReturnType<typeof useContentLibraryState>
+): number | undefined {
+  const id = attempt.pack_revision_id;
+  if (id === null) return undefined;
+  return packProgress({
+    content: data.content(),
+    play: data.play(),
+    packRevisionId: id,
+  })?.completedCount;
 }
 
 /** Whether the game can read the puzzle content at all. */
@@ -157,6 +174,7 @@ function AttemptBody(props: {
       figuresPlacement={game.client.frame.figuresPlacement}
       attempt={summaryOf(props.attempt, props.source)}
       pack={packPlace(props.attempt, data)}
+      packSolved={packSolved(props.attempt, data)}
       playtest={props.attempt.mode === 'playtest'}
       stageAlign={game.client.frame.stageAlign}
       saving={writer.pending()}
@@ -182,12 +200,8 @@ function AttemptBody(props: {
           )}
         </Show>
       }
-      wayOn={
-        <ContentAttemptNext
-          attempt={props.attempt}
-          complete={progress()?.complete ?? false}
-        />
-      }
+      wayOn={<ContentAttemptNext attempt={props.attempt} />}
+      onward={<ContentAttemptOnward attempt={props.attempt} />}
       controls={
         <ContentAttemptControls
           writer={writer}

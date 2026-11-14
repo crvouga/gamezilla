@@ -124,8 +124,7 @@ export const InProgress: Story = {
 export const Solved: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    // The completion record is where the attempt stands: behind "Solved".
-    await userEvent.click(canvas.getByTestId('content-open-progress'));
+    // The completion is said on a card over the solved board.
     await expect(
       canvas.getByTestId('content-attempt-complete')
     ).toHaveTextContent('Completion saved');
@@ -145,6 +144,7 @@ export const Solved: Story = {
             : PUZZLE
         }
         complete={!next()}
+        packSolved={2}
         next={{ title: 'Five pairs practice', open: () => setNext(true) }}
         player={
           <NumberlinkPlayer
@@ -162,9 +162,8 @@ export const NextPuzzle: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByTestId('numberlink-solved')).toBeVisible();
-    await userEvent.click(canvas.getByTestId('content-open-progress'));
+    // One press from the solved card onto the next puzzle's board.
     await userEvent.click(canvas.getByTestId('content-next-puzzle'));
-    await userEvent.click(canvas.getByTestId('content-return-board'));
     await expect(
       canvas.queryByTestId('numberlink-solved')
     ).not.toBeInTheDocument();

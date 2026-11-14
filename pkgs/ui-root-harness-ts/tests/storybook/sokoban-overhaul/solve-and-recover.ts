@@ -65,23 +65,25 @@ export async function solveAndRecover(
     ratio: 1,
   });
   // regression: sokoban-solved-way-on-hidden
-  // The way on is offered once, filled, and wholly on screen: the board's
-  // one control onward, which opens where the attempt stands.
-  const onward = page.getByTestId('content-open-progress');
-  await expect(onward).toHaveAttribute('data-complete', 'true');
-  await expect(onward).toBeInViewport({ ratio: 1 });
+  // The way on is offered once, filled, and wholly on screen: the next
+  // puzzle on the solved card over the board.
+  const next = page.getByTestId('content-next-puzzle');
+  await expect(next).toBeInViewport({ ratio: 1 });
+  await expect(page.getByTestId('content-open-progress')).toHaveAttribute(
+    'data-complete',
+    'true'
+  );
   await capture(page, info, 'solved');
   // The solved state is scanned as well as the fresh board (after timing).
   await accessibility(page, info, 'solved');
   await contrast(page, info, 'solved');
   // Each way on is pressed for real and asks for its own destination.
-  await onward.click();
-  const next = page.getByTestId('content-next-puzzle');
-  await expect(next).toBeInViewport({ ratio: 1 });
-  await capture(page, info, 'solved-progress');
   const opened = page.getByTestId('story-way-on-opened');
   await next.click();
   await expect(opened).toHaveText('Lift');
+  await page.getByTestId('game-result-overlay-dismiss').click();
+  await page.getByTestId('content-open-progress').click();
+  await capture(page, info, 'solved-progress');
   await page
     .getByRole('button', { name: 'Pack overview', exact: true })
     .click();

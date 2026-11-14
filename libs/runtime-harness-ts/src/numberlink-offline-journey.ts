@@ -15,8 +15,8 @@ import {
 } from '@libs/game-puzzle-harness-ts/content-journey-pack-draft';
 import {
   expectJourneyCompletion,
+  openedJourneyAttempt,
   openJourneyAttempt,
-  startJourneyAttempt,
 } from '@libs/game-puzzle-harness-ts/content-journey-playing';
 import {
   NUMBERLINK_JOURNEY_BOARD,
@@ -73,7 +73,7 @@ async function playWhileOffline(
       const device = { ui, timeoutMs: JOURNEY_WAIT_MS };
       await ui.get('content-offline').expect.visible(device);
       await contentTap(device, 'content-pack-next');
-      attemptId = await startJourneyAttempt(device);
+      attemptId = await openedJourneyAttempt(device);
       await NUMBERLINK_JOURNEY_BOARD.solve(device);
       await expectJourneyCompletion(device, 'Completion saved');
     }
@@ -126,8 +126,8 @@ export async function keepNumberlinkOfflineWork(
       device,
       `content-pack-puzzle-${published.items[0]!.revisionId}`
     );
+    // The solved puzzle opens on its board, back to its pack, then the library.
     await NUMBERLINK_JOURNEY_BOARD.preview(device);
-    await leaveContentStage(device);
     await leaveContentStage(device);
     await openJourneyAttempt(device, attemptId, 'solved');
   });

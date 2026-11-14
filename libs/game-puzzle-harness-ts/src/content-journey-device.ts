@@ -122,12 +122,9 @@ const HELD: readonly (readonly [RegExp, ContentJourneyPlace])[] = [
     'publish',
   ],
   [/^content-use-copy-(?!confirm$|dismiss$)/, 'copies'],
-  [
-    /^content-(attempt-complete|attempt-solved-before|next-puzzle|return-pack|return-builder)$/,
-    'progress',
-  ],
+  [/^content-(attempt-solved-before|return-pack|return-builder)$/, 'progress'],
   [/^content-position-(?!save-status$|confirm$|dismiss$)/, 'progress'],
-  [/^content-attempt-(?!rules-changed$)/, 'continue'],
+  [/^content-attempt-(?!rules-changed$|complete$|solved$)/, 'continue'],
 ];
 
 export function contentPlaceOf(id: string): ContentJourneyPlace | null {
@@ -164,7 +161,10 @@ const HUB_HELD: readonly (readonly [RegExp, Stage])[] = [
     /^content-(author-details-toggle|author-next|open-board|preview|open-publish|open-copies)$/,
     BUILDER,
   ],
-  [/^content-(undo|redo|restart|open-restart|open-progress)$/, ATTEMPT],
+  [
+    /^content-(undo|redo|restart|open-progress|attempt-complete|next-puzzle|finished-pack|solved-pack|solved-library|solved-builder)$/,
+    ATTEMPT,
+  ],
 ];
 
 /** Back until `stage`'s hub shows; nothing happens when it already does. */
@@ -224,11 +224,21 @@ export async function showContentHome(
  * Leave what is open as a person does from its hub: first back to the hub
  * (the attempt's board) when a small screen is shown, then one Back, which
  * leads to the library (from an edition opened from its pack, to the pack).
+ * An attempt started in a pack goes back to that pack first; one more Back
+ * from there reaches the library.
  */
 export async function leaveContentStage(
   device: ContentJourneyDevice
 ): Promise<void> {
   await showContentHome(device);
+  const fromAttempt = await device.ui.get(ATTEMPT.root).isVisible();
+  await device.ui.get(Handles.navBack).wait('enabled', device);
+  await device.ui.get(Handles.navBack).tap(device);
+  if (!fromAttempt) return;
+  await device.ui
+    .get(LIBRARY.root)
+    .wait('visible', { ...device, visibleOr: ['content-edition'] });
+  if (await device.ui.get(LIBRARY.root).isVisible()) return;
   await device.ui.get(Handles.navBack).wait('enabled', device);
   await device.ui.get(Handles.navBack).tap(device);
 }

@@ -2,12 +2,11 @@ import { shippedEditions } from '@libs/game-puzzle-harness-ts/content-game-reads
 import { mountContentExample } from '@libs/game-puzzle-harness-ts/mount-content-example';
 import { defineAction } from '@pkgs/harness-root-shared-ts/define-action';
 import { fireEvent } from '@solidjs/testing-library';
-import { completeOnScreen } from './sokoban-play';
+import { completeOnScreen, restartOnScreen } from './sokoban-play';
 import {
   clickWhenReady,
   closePlay,
   devicePlay,
-  openAttemptOnScreen,
   screensOf,
   type View,
   waitFor,
@@ -40,23 +39,21 @@ async function openStarterPack(
   return view;
 }
 
-/** From an edition screen: continue its saved attempt, or start one. */
+/**
+ * From the pack: its row or Play opened the puzzle on its board (its saved
+ * attempt, or a new one); waits for the board and records the attempt.
+ */
 async function enterAttempt(
   s: SokobanHarness,
   clientId: string,
   view: View
-): Promise<void> {
+): Promise<string> {
   await waitFor(
     s,
     () =>
-      view.queryByTestId('content-continue-attempt') !== null ||
-      view.queryByTestId('content-start-attempt')?.hasAttribute('disabled') ===
-        false
+      view.queryByTestId('sokoban-board') !== null &&
+      view.queryByTestId('content-attempt') !== null
   );
-  if (view.queryByTestId('content-continue-attempt') === null)
-    fireEvent.click(view.getByTestId('content-start-attempt'));
-  await clickWhenReady(s, view, 'content-continue-attempt');
-  await waitFor(s, () => view.queryByTestId('sokoban-board') !== null);
   const attemptId = view
     .getByTestId('content-attempt')
     .getAttribute('data-attemptid');
@@ -64,6 +61,7 @@ async function enterAttempt(
     throw new Error('The attempt screen names no attempt');
   screensOf(s, clientId).play = { view, attemptId };
   s.playSelections.set(clientId, { attemptId, positionId: '' });
+  return attemptId;
 }
 
 async function startStarter(
@@ -79,28 +77,24 @@ async function startStarter(
   await enterAttempt(s, clientId, view);
 }
 
-/** A new attempt from the start, even where one is saved, opened from the library. */
+/**
+ * A new attempt from the start, even where one is saved: the pack's row
+ * opens the saved attempt, and Restart begins a fresh one beside it.
+ */
 export const startFreshStarterPuzzle = defineAction({
   name: 'startFreshStarterPuzzle',
   act: async (s: SokobanHarness, clientId: string, index: number) => {
     const view = await openStarterPack(s, clientId);
+    closePlay(s, clientId);
     const puzzle = starterEditions(s).puzzles[index];
     if (puzzle === undefined) throw new Error(`No starter puzzle ${index}`);
     const before = new Set(
       (await devicePlay(s, clientId)).attempts.map((entry) => entry.id)
     );
     fireEvent.click(view.getByTestId(`content-pack-puzzle-${puzzle.id}`));
-    await clickWhenReady(s, view, 'content-start-attempt');
-    let started: string | undefined;
-    await waitFor(s, async () => {
-      started = (await devicePlay(s, clientId)).attempts.find(
-        (entry) => !before.has(entry.id)
-      )?.id;
-      return started !== undefined;
-    });
-    view.unmount();
-    if (started === undefined) throw new Error('No new starter attempt');
-    await openAttemptOnScreen(s, clientId, started);
+    const opened = await enterAttempt(s, clientId, view);
+    if (!before.has(opened)) return;
+    await restartOnScreen(s, clientId);
   },
 });
 
@@ -151,13 +145,8 @@ export async function playingStarter(
 /** The next puzzle the finished attempt offers, by pack position, or -1. */
 export function offeredStarter(s: SokobanHarness, clientId: string): number {
   const view = screensOf(s, clientId).play?.view;
-  // The pack's way on is on the attempt's progress screen: open it by the
-  // board's control, read, and return to the board.
-  const onward = view?.queryByTestId('content-open-progress') ?? null;
-  if (onward !== null) fireEvent.click(onward);
+  // The solved board offers the pack's next puzzle under its headline.
   const offer = view?.queryByTestId('content-next-puzzle')?.textContent ?? '';
-  const board = view?.queryByTestId('content-return-board') ?? null;
-  if (onward !== null && board !== null) fireEvent.click(board);
   return starterEditions(s).puzzles.findIndex(
     (puzzle) => offer === `Next puzzle: ${puzzle.title}`
   );

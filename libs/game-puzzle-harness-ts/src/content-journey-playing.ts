@@ -6,11 +6,18 @@ import {
   showContentHome,
 } from './content-journey-device';
 
+/** Play opens the board: on an edition it starts the attempt and opens it. */
 export async function startJourneyAttempt(
   device: ContentJourneyDevice
 ): Promise<string> {
   await contentTap(device, 'content-start-attempt');
-  await contentTap(device, 'content-continue-attempt');
+  return contentAttribute(device, 'content-attempt', 'data-attemptid');
+}
+
+/** The attempt whose board is open, by its identity. */
+export function openedJourneyAttempt(
+  device: ContentJourneyDevice
+): Promise<string> {
   return contentAttribute(device, 'content-attempt', 'data-attemptid');
 }
 
@@ -60,7 +67,7 @@ export async function restartJourneyAttempt(
 ): Promise<string> {
   await contentTap(device, 'content-restart');
   await contentTap(device, 'content-restart-confirm');
+  // Closing the confirm opens the new attempt on its board.
   await contentTap(device, 'content-restart-dismiss');
-  await contentTap(device, 'content-open-restart');
   return contentAttribute(device, 'content-attempt', 'data-attemptid');
 }

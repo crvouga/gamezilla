@@ -6,6 +6,7 @@ import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { Spinner } from '@pkgs/ui-root-client-ts/spinner';
 import { For, type JSX, Show } from 'solid-js';
+import { ContentRowCaption } from './content-chips';
 import { ContentProgressLine } from './content-library-card';
 import type { ContentLibraryScreenViewProps } from './content-library-screen-view';
 import { ContentThumbnail } from './content-thumbnail';
@@ -26,6 +27,46 @@ function useCount(): (count: number, more: boolean) => string {
   };
 }
 
+/**
+ * The puzzle the person played last and left unfinished, one press from
+ * its board: its picture, its name and where its pack stands.
+ */
+function ResumeRow(props: { view: View }): JSX.Element {
+  const { t } = useLingui();
+  const latest = () =>
+    props.view.attempts.find((attempt) => !attempt.completed);
+  return (
+    <Show when={latest()}>
+      {(attempt) => (
+        <MenuRow
+          leading={
+            <ContentThumbnail
+              kind="puzzle"
+              size="md"
+              preview={attempt().preview}
+              renderPreview={props.view.renderPreview}
+            />
+          }
+          title={t`Resume ${attempt().title || t`your saved puzzle`}`}
+          caption={
+            <Show
+              when={attempt().pack}
+              fallback={t`Opens at the move you left it`}
+            >
+              {(pack) => (
+                <ContentProgressLine progress={pack()} pack={pack().title} />
+              )}
+            </Show>
+          }
+          disabled={creating(props.view)}
+          onClick={() => props.view.onOpenAttempt(attempt().id)}
+          dataSet={{ testid: 'content-library-resume' }}
+        />
+      )}
+    </Show>
+  );
+}
+
 /** What to play: where the person left off, what they solved, everything published. */
 function PlayRows(props: { view: View }): JSX.Element {
   const { t } = useLingui();
@@ -35,6 +76,7 @@ function PlayRows(props: { view: View }): JSX.Element {
       .length;
   return (
     <MenuSection title={<Trans>Play</Trans>}>
+      <ResumeRow view={props.view} />
       <MenuRow
         title={t`Continue`}
         caption={t`Puzzles you started`}
@@ -82,12 +124,18 @@ function StarterPacks(props: { view: View }): JSX.Element {
                 />
               }
               title={pack.title}
-              caption={pack.description || undefined}
-              value={
-                pack.progress === undefined ||
-                pack.progress.total === 0 ? undefined : (
-                  <ContentProgressLine progress={pack.progress} />
-                )
+              caption={
+                <ContentRowCaption description={pack.description}>
+                  <Show
+                    when={
+                      pack.progress !== undefined && pack.progress.total > 0
+                    }
+                  >
+                    <ContentProgressLine
+                      progress={pack.progress ?? { completed: 0, total: 0 }}
+                    />
+                  </Show>
+                </ContentRowCaption>
               }
               disabled={creating(props.view)}
               onClick={() => props.view.onOpenEdition(pack.id)}

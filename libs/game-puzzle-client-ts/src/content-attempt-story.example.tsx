@@ -5,7 +5,8 @@
  * puzzle panel as the app does. Production never imports this module.
  */
 import { Button } from '@pkgs/ui-root-client-ts/button';
-import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { TileBoard } from '@pkgs/ui-root-client-ts/tile-board';
 import { createSignal, type JSX, Show, untrack } from 'solid-js';
 import { fn } from 'storybook/test';
 import {
@@ -65,33 +66,167 @@ export type StoryPackPuzzle = {
   readonly pack: ContentAttemptPack | null;
 };
 
-/** A pack puzzle's way on, as its progress shows it: next once solved, then the overview. */
+/** A pack puzzle's way around, as its details screen shows it: the overview. */
 export function StoryPackActions(props: {
-  readonly next?: { title: string; open: () => void } | undefined;
   readonly onOverview?: (() => void) | undefined;
   /** The quieter way on's name; a pack's overview unless it says otherwise. */
   readonly overview?: string | undefined;
 }): JSX.Element {
   return (
-    <>
-      <Show when={props.next}>
-        {(next) => (
+    <Button
+      title={props.overview ?? 'Pack overview'}
+      intent="neutral"
+      variant="outline"
+      size="sm"
+      onClick={props.onOverview}
+      dataSet={{
+        testid:
+          props.overview === undefined
+            ? 'content-return-pack'
+            : 'content-return-builder',
+      }}
+    />
+  );
+}
+
+/**
+ * The solved board's one command onward, as production words it: the
+ * pack's next puzzle, or back to the pack once there is none.
+ */
+export function StoryPackOnward(props: {
+  readonly next?: { title: string; open: () => void } | undefined;
+  readonly onPack?: (() => void) | undefined;
+}): JSX.Element {
+  return (
+    <Show
+      when={props.next}
+      fallback={
+        <Button
+          title="See the finished pack"
+          fullWidth
+          onClick={props.onPack}
+          dataSet={{ testid: 'content-finished-pack' }}
+        />
+      }
+    >
+      {(next) => (
+        <Button
+          title={`Next puzzle: ${next().title}`}
+          fullWidth
+          onClick={next().open}
+          dataSet={{ testid: 'content-next-puzzle' }}
+        />
+      )}
+    </Show>
+  );
+}
+
+/**
+ * The solved board's command onward for a counting attempt story, as
+ * production picks it: a playtest's builder, the pack's next puzzle (or
+ * the finished pack), or another puzzle.
+ */
+export function StoryAttemptOnward(props: {
+  readonly args: ContentAttemptScreenViewProps;
+}): JSX.Element {
+  const finished = () =>
+    props.args.pack !== null &&
+    props.args.pack !== undefined &&
+    (props.args.packSolved ?? 0) >= props.args.pack.total;
+  return (
+    <Show
+      when={!props.args.playtest}
+      fallback={
+        <Button
+          title="Return to builder"
+          fullWidth
+          dataSet={{ testid: 'content-solved-builder' }}
+        />
+      }
+    >
+      <Show
+        when={props.args.pack}
+        fallback={
           <Button
-            title={`Next puzzle: ${next().title}`}
-            size="sm"
-            onClick={next().open}
-            dataSet={{ testid: 'content-next-puzzle' }}
+            title="Choose another puzzle"
+            intent="neutral"
+            variant="outline"
+            fullWidth
+            dataSet={{ testid: 'content-solved-library' }}
           />
-        )}
+        }
+      >
+        <StoryPackOnward
+          next={finished() ? undefined : { title: 'Count to nine', open: fn() }}
+        />
       </Show>
-      <Button
-        title={props.overview ?? 'Pack overview'}
-        intent="neutral"
-        variant="outline"
-        size="sm"
-        onClick={props.onOverview}
+    </Show>
+  );
+}
+
+/** The counting board is five squares a side, as a small real puzzle board is. */
+const COUNTING_COLUMNS = 5;
+
+/**
+ * The counting game's board as a person plays it (`3 of 7`): a track of
+ * squares from zero to the target on a five-square board, walls after it,
+ * with the counter where the count stands,
+ * and the game's two moves under it. Story-only: production games bring
+ * their own boards.
+ */
+export function StoryCountingBoard(props: {
+  /** `<count> of <target>`. */
+  readonly state: string;
+  readonly disabled?: boolean | undefined;
+}): JSX.Element {
+  const numbers = () => /^(\d+) of (\d+)$/.exec(props.state);
+  const count = () => Number(numbers()?.[1] ?? 0);
+  const target = () => Math.max(1, Number(numbers()?.[2] ?? 7));
+  const rows = () =>
+    Math.max(COUNTING_COLUMNS, Math.ceil((target() + 1) / COUNTING_COLUMNS));
+  return (
+    <StackVertical gap="md">
+      <TileBoard
+        label={`Counted ${count()} of ${target()}`}
+        testId="story-counting-board"
+        columns={COUNTING_COLUMNS}
+        rows={rows()}
+        tiles={Array.from(
+          { length: rows() * COUNTING_COLUMNS },
+          (_, index) => ({
+            terrain: index <= target() ? ('open' as const) : ('solid' as const),
+            marked: index === target(),
+            label: String(index),
+          })
+        )}
+        pieces={[
+          {
+            id: 'counter',
+            column: count() % COUNTING_COLUMNS,
+            row: Math.floor(count() / COUNTING_COLUMNS),
+            glyph: String(count()),
+            tone: count() === target() ? 'settled' : 'actor',
+          },
+        ]}
+        disabled={props.disabled === true}
       />
-    </>
+      <StackHorizontal gap="sm">
+        <Button
+          title="Take one step"
+          intent="neutral"
+          variant="outline"
+          flex={1}
+          disabled={props.disabled === true || count() >= target()}
+        />
+        <Button
+          title="Take two steps"
+          intent="neutral"
+          variant="outline"
+          flex={1}
+          disabled={props.disabled === true || count() + 2 > target()}
+        />
+      </StackHorizontal>
+    </StackVertical>
   );
 }
 
@@ -128,8 +263,8 @@ function StoryPackAttemptControls(props: {
 
 /**
  * `player` on a saved attempt at `puzzle`, as the app shows it: on its
- * board, with "Progress" opening where the attempt stands and Back
- * (`story-attempt-back`) returning, so a story can walk both screens.
+ * board, with "Details" opening where the attempt stands and its own
+ * "Back to the board" returning, so a story can walk both screens.
  */
 export function StoryPackAttempt(props: {
   readonly puzzle: StoryPackPuzzle;
@@ -140,8 +275,12 @@ export function StoryPackAttempt(props: {
   readonly player: JSX.Element;
   /** Stateful controls supplied by a game's rules-backed history fixture. */
   readonly controls?: JSX.Element;
-  /** A game's own way on; by default next (once solved) and overview. */
+  /** A game's own way around on the details screen; by default the overview. */
   readonly wayOn?: JSX.Element;
+  /** The solved board's command onward; by default `next`, else the finished pack. */
+  readonly onward?: JSX.Element;
+  /** The pack's solved count, this puzzle included once solved. */
+  readonly packSolved?: number | undefined;
   /** The game's own figures for the attempt (`Connected pairs 2`). */
   readonly figures?: readonly AttemptFigure[] | undefined;
   readonly figuresPlacement?: PuzzleContentFrame['figuresPlacement'];
@@ -158,16 +297,6 @@ export function StoryPackAttempt(props: {
   });
   return (
     <>
-      <Show when={place().screen === 'progress'}>
-        <Button
-          title="Back"
-          intent="neutral"
-          variant="ghost"
-          size="sm"
-          onClick={() => setPlace({ screen: 'attempt' })}
-          dataSet={{ testid: 'story-attempt-back' }}
-        />
-      </Show>
       <ContentAttemptScreenView
         status="ready"
         place={place()}
@@ -195,11 +324,9 @@ export function StoryPackAttempt(props: {
         rulesChanged={false}
         unopenable={false}
         player={props.player}
-        wayOn={
-          props.wayOn ?? (
-            <StoryPackActions next={props.complete ? props.next : undefined} />
-          )
-        }
+        packSolved={props.packSolved}
+        wayOn={props.wayOn ?? <StoryPackActions />}
+        onward={props.onward ?? <StoryPackOnward next={props.next} />}
         controls={
           props.controls ?? (
             <StoryPackAttemptControls disabled={props.disabled === true} />

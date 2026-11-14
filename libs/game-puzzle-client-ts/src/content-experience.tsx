@@ -99,10 +99,15 @@ function ContentBack(props: {
  * What is open and the small screen shown of it. Opening something always
  * starts on its home (also another thing of the same kind) and asks first
  * when unsaved work would be lost; Back goes one place back, then from a
- * home to the pack an edition was opened from, else to the library, and
+ * home to the pack an edition was opened from or an attempt was started
+ * in, else to the library, and
  * from the library's hub out of the template.
  */
-function useContentNavigation(onBack: () => void) {
+function useContentNavigation(
+  onBack: () => void,
+  /** The pack an attempt was started in, if any. */
+  packOf: (attemptId: string) => string | null
+) {
   const [subject, setSubject] = createSignal<ContentSubject>({
     kind: 'library',
   });
@@ -120,6 +125,12 @@ function useContentNavigation(onBack: () => void) {
       open({
         kind: 'edition',
         revisionId: current.packRevisionId,
+        packRevisionId: null,
+      });
+    else if (current.kind === 'attempt' && packOf(current.attemptId) !== null)
+      open({
+        kind: 'edition',
+        revisionId: packOf(current.attemptId) ?? '',
         packRevisionId: null,
       });
     else open({ kind: 'library' });
@@ -144,7 +155,12 @@ export function ContentExperience(props: {
     () => props.content
   );
   const play = useContentAttempts(() => props.gameId);
-  const nav = useContentNavigation(() => props.onBack());
+  const nav = useContentNavigation(
+    () => props.onBack(),
+    (attemptId) =>
+      play.library().attempts.find((attempt) => attempt.id === attemptId)
+        ?.pack_revision_id ?? null
+  );
   const pages = useContentPages(content.library, play.library, nav.subject);
   const ready = useContentSubscriptions(() =>
     contentSubscriptionPlan({

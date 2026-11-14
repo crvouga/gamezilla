@@ -8,7 +8,7 @@ import {
 import { discoverJourneyContent } from '@libs/game-puzzle-harness-ts/content-journey-discovery';
 import {
   expectJourneyCompletion,
-  startJourneyAttempt,
+  openedJourneyAttempt,
 } from '@libs/game-puzzle-harness-ts/content-journey-playing';
 import { withdrawJourneyPublications } from '@libs/game-puzzle-harness-ts/content-journey-withdraw';
 import { SOKOBAN_JOURNEY_BOARD } from '@libs/sokoban-harness-ts/sokoban-journey-board';
@@ -78,7 +78,7 @@ export async function keepSokobanWorkOffline(
     await ui.get('content-offline').expect.visible(device(ui));
     await contentTap(device(ui), STARTER_PACK);
     await contentTap(device(ui), 'content-pack-next');
-    await startJourneyAttempt(device(ui));
+    await openedJourneyAttempt(device(ui));
     // The first starter puzzle: a step right, then a push onto the goal.
     await SOKOBAN_JOURNEY_BOARD.solve(device(ui));
     await expectJourneyCompletion(device(ui), 'Completion saved');

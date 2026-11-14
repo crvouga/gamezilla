@@ -2,6 +2,7 @@ import type { ContentKind } from '@libs/game-puzzle-shared-ts/content-types';
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
 import { Trans, useLingui } from '@lingui/solid/macro';
+import { Button } from '@pkgs/ui-root-client-ts/button';
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
@@ -89,13 +90,20 @@ export function ContentEditionScreenView(
             documentid: edition().documentId,
           }}
           title={edition().title}
-          subtitle={edition().difficulty || undefined}
+          subtitle={
+            edition().kind === 'pack'
+              ? t`Puzzle pack`
+              : edition().difficulty || undefined
+          }
         >
           <Show when={!props.available}>
-            <Notice dataSet={{ testid: 'content-edition-withdrawn' }}>
+            <Notice
+              tone="warning"
+              dataSet={{ testid: 'content-edition-withdrawn' }}
+            >
               <Trans>
-                This publication is withdrawn. You can continue saved attempts
-                from your library.
+                Its author withdrew this publication, so new attempts cannot
+                start. Attempts you saved keep playing.
               </Trans>
             </Notice>
           </Show>
@@ -114,6 +122,16 @@ export function ContentEditionScreenView(
             }
           >
             {(denial) => <DenialSurfaceView denial={denial()} />}
+          </Show>
+          <Show when={!props.available}>
+            <Button
+              title={t`Back to puzzles`}
+              intent="neutral"
+              variant="outline"
+              fullWidth
+              onClick={() => props.onReturnToLibrary()}
+              dataSet={{ testid: 'content-edition-return' }}
+            />
           </Show>
           <OwnerRows {...props} />
         </EmbeddedScreen>

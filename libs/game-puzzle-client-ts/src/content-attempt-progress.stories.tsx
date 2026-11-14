@@ -1,4 +1,4 @@
-import { expect, fn, userEvent, within } from 'storybook/test';
+import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import {
   ContentAttemptScreenView,
@@ -81,14 +81,10 @@ export const PackInProgress: Story = {
   render: (args) => render({ ...args, wayOn: <StoryPackActions /> }),
 };
 
-/** The same pack puzzle solved: its next puzzle is the filled command. */
+/** The same pack puzzle solved: said quietly; its next puzzle is on the board. */
 export const PackCompleted: Story = {
   args: { pack: PACK, complete: true },
-  render: (args) =>
-    render({
-      ...args,
-      wayOn: <StoryPackActions next={{ title: 'Count to nine', open: fn() }} />,
-    }),
+  render: (args) => render({ ...args, wayOn: <StoryPackActions /> }),
 };
 
 /** Published under rules this app version lacks: said here too. */

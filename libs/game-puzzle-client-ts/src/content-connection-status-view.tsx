@@ -1,7 +1,7 @@
 import { useLingui } from '@lingui/solid/macro';
-import { Button } from '@pkgs/ui-root-client-ts/button';
+import { ActionNotice } from '@pkgs/ui-root-client-ts/action-notice';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
-import { Notice } from '@pkgs/ui-root-client-ts/notice';
+import { WifiOffIcon } from '@pkgs/ui-root-client-ts/icons';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Show } from 'solid-js';
 
@@ -42,14 +42,12 @@ export function ContentConnectionStatusView(
         )}
       </Show>
       <Show when={!props.online}>
-        <Notice
+        <ActionNotice
+          icon={WifiOffIcon}
+          title={t`You are offline`}
+          body={t`Puzzles here and your saved work stay on this device. Changes share when you reconnect.`}
+          action={{ label: t`Reconnect`, onClick: props.onReconnect }}
           dataSet={{ testid: 'content-offline' }}
-        >{t`You are offline. Available puzzles and your saved work stay on this device. Changes share when connected.`}</Notice>
-        <Button
-          title={t`Reconnect`}
-          intent="neutral"
-          variant="outline"
-          onClick={props.onReconnect}
         />
       </Show>
     </>

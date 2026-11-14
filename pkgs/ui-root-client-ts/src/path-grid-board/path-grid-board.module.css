@@ -43,6 +43,9 @@
 .board {
   container-type: inline-size;
   position: relative;
+  /* Paths and endpoints layer within the board only: a card laid over the
+     board (a solved puzzle's) is never crossed by them. */
+  isolation: isolate;
   display: grid;
   grid-template-columns: repeat(var(--path-columns), minmax(0, 1fr));
   /* A square is at most 80px, so a small grid (5 × 5) is a comfortable

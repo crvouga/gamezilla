@@ -3,11 +3,7 @@ import { defineAction } from '@pkgs/harness-root-shared-ts/define-action';
 import { fireEvent } from '@solidjs/testing-library';
 import { selectedPlay } from './attempt-actions';
 import { contentClient } from './content-actions';
-import {
-  openContentPlace,
-  openLibraryEntry,
-  showContentHome,
-} from './content-screen-places';
+import { openLibraryEntry } from './content-screen-places';
 import { contentWait, waitForContent } from './content-sync';
 import type { ContentHarness } from './content-system';
 import { mountContentExample } from './mount-content-example';
@@ -46,8 +42,7 @@ export const playTwoStepsThroughScreen = defineAction({
         attemptId: attempt.id,
         positionId: attempt.current_position_id,
       });
-      // The completion is recorded where the attempt stands: its progress.
-      await openContentPlace(wait, view, 'progress');
+      // The solved board says the completion is saved.
       await waitForContent(s, () =>
         Promise.resolve(
           view.queryByText(
@@ -55,7 +50,6 @@ export const playTwoStepsThroughScreen = defineAction({
           ) !== null
         )
       );
-      await showContentHome(wait, view, 'attempt');
     } finally {
       view.unmount();
     }

@@ -90,7 +90,7 @@ export const observeAttemptAdoption = defineAction({
       delivery.release();
       await waitForContent(s, () => Promise.resolve(!button().disabled));
       fireEvent.click(button());
-      await openContentPlace(wait, view, 'progress');
+      // The solved board says the completion is saved.
       await waitForContent(s, () =>
         Promise.resolve(view.queryByText('Completion saved') !== null)
       );

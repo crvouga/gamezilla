@@ -89,8 +89,7 @@ test('each control is held by one small screen; shell and hub controls by none',
   expect(held('content-validate')).toBe('publish');
   expect(held('content-start-playtest')).toBe('publish');
   expect(held('content-use-copy-c1')).toBe('copies');
-  expect(held('content-attempt-complete')).toBe('progress');
-  expect(held('content-next-puzzle')).toBe('progress');
+  expect(held('content-return-pack')).toBe('progress');
   expect(held('content-position-p1')).toBe('progress');
   for (const everywhere of [
     'content-draft-save-status',
@@ -101,6 +100,8 @@ test('each control is held by one small screen; shell and hub controls by none',
     'content-attempt',
     'content-preview',
     'content-restart',
+    'content-attempt-complete',
+    'content-next-puzzle',
     'content-pack-next',
     'content-pack-puzzle-r1',
     'numberlink-board-cell-1',

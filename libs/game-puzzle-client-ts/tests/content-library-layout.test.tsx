@@ -235,7 +235,7 @@ test('each list loads its own next page', () => {
 // outlined create buttons were the first content under its title, before
 // the list to continue. On the hub Continue leads, creating comes with
 // what the person makes, and every row says how much it holds.
-test('the hub leads with Continue, counts each list, and creates from rows', () => {
+test('the hub leads with the puzzle to resume, counts each list, and creates from rows', () => {
   const opened: Screen[] = [];
   const created: string[] = [];
   renderPlace('library', {
@@ -258,6 +258,7 @@ test('the hub leads with Continue, counts each list, and creates from rows', () 
     (row) => row.getAttribute('data-testid')
   );
   expect(rows).toEqual([
+    'content-library-resume',
     'content-library-tab-continue',
     'content-library-tab-solved',
     'content-library-tab-browse',
@@ -268,6 +269,7 @@ test('the hub leads with Continue, counts each list, and creates from rows', () 
     'content-create-pack',
   ]);
   const value = (testid: string) => screen.getByTestId(testid).textContent;
+  expect(value('content-library-resume')).toContain('Resume Count to seven');
   expect(value('content-library-tab-continue')).toContain('1');
   expect(value('content-library-tab-solved')).toContain('1');
   expect(value('content-library-tab-browse')).toContain('1+');

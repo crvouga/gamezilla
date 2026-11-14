@@ -5,7 +5,6 @@ import { MetricStrip } from '@pkgs/ui-root-client-ts/metric-strip';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { ProgressBar } from '@pkgs/ui-root-client-ts/progress-bar';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { SuccessState } from '@pkgs/ui-root-client-ts/success-state';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Show } from 'solid-js';
 import type {
@@ -34,11 +33,6 @@ function AttemptFigures(props: ContentAttemptScreenViewProps): JSX.Element {
   );
 }
 
-/** A solved attempt (not a playtest) whose last change is kept. */
-function completionSaved(props: ContentAttemptScreenViewProps): boolean {
-  return props.complete && props.playtest !== true && !props.saving;
-}
-
 /** Where the last change stands: saved, or still being saved. */
 export function ContentAttemptSaveStatus(
   props: ContentAttemptScreenViewProps
@@ -53,7 +47,9 @@ export function ContentAttemptSaveStatus(
     >
       {props.saving
         ? t`Saving your position…`
-        : t`Progress saved on this device.`}
+        : props.changeError !== null
+          ? t`Your last move is not saved yet. The position before it is kept.`
+          : t`Progress saved on this device.`}
     </P>
   );
 }
@@ -111,10 +107,7 @@ function AttemptPanel(props: ContentAttemptScreenViewProps): JSX.Element {
         </StackHorizontal>
       </Show>
       <AttemptFigures {...props} />
-      {/* A saved completion carries the save line in its own notice. */}
-      <Show when={!completionSaved(props)}>
-        <ContentAttemptSaveStatus {...props} />
-      </Show>
+      <ContentAttemptSaveStatus {...props} />
       <Show when={props.playtest}>
         <Notice>
           <Trans>
@@ -123,40 +116,19 @@ function AttemptPanel(props: ContentAttemptScreenViewProps): JSX.Element {
           </Trans>
         </Notice>
       </Show>
-      <Show when={props.complete}>
-        <SuccessState
-          variant="compact"
-          dataSet={{ testid: 'content-attempt-complete' }}
-          title={props.playtest ? t`Playtest solved` : t`Completion saved`}
-          body={
-            completionSaved(props) ? (
-              <>
-                <Text
-                  variant="inherit"
-                  role="status"
-                  testId="content-position-save-status"
-                >
-                  {t`Progress saved on this device.`}
-                </Text>{' '}
-                {t`You can keep playing or choose another puzzle.`}
-              </>
-            ) : props.playtest ? (
-              t`Return to the builder to validate and publish this puzzle.`
-            ) : (
-              t`Your completion is saved. You can keep playing or choose another puzzle.`
-            )
-          }
-        />
-      </Show>
       <Show
-        when={!props.complete && !props.playtest && props.solvedBefore === true}
+        when={
+          !props.playtest && (props.complete || props.solvedBefore === true)
+        }
       >
         <P
           variant="caption"
           tone="secondary"
           testId="content-attempt-solved-before"
         >
-          {t`Solved before. Your completion stays saved.`}
+          {props.complete
+            ? t`Solved. Your completion is saved.`
+            : t`Solved before. Your completion stays saved.`}
         </P>
       </Show>
     </GameSection>

@@ -8,9 +8,9 @@ import {
 import type { PublishedJourneyPack } from '@libs/game-puzzle-harness-ts/content-journey-pack';
 import {
   expectJourneyCompletion,
+  openedJourneyAttempt,
   openJourneyAttempt,
   restartJourneyAttempt,
-  startJourneyAttempt,
   waitForJourneyPosition,
 } from '@libs/game-puzzle-harness-ts/content-journey-playing';
 import {
@@ -29,7 +29,7 @@ export type NumberlinkContinuity = {
 
 async function beginAndKeep(device: ContentJourneyDevice): Promise<string> {
   await contentTap(device, 'content-pack-next');
-  const id = await startJourneyAttempt(device);
+  const id = await openedJourneyAttempt(device);
   await drawNumberlinkJourneyRow(device, 0);
   await contentTap(device, 'content-undo');
   await waitForJourneyPosition(device);
@@ -59,7 +59,7 @@ async function finishAndContinue(
   await drawNumberlinkJourneyRow(device, 2);
   await expectJourneyCompletion(device, 'Completion saved');
   await contentTap(device, 'content-next-puzzle');
-  const next = await startJourneyAttempt(device);
+  const next = await openedJourneyAttempt(device);
   await drawNumberlinkJourneyRow(device, 0);
   await contentTap(device, 'content-return-pack');
   await device.ui
@@ -69,7 +69,6 @@ async function finishAndContinue(
     .get('content-pack-next')
     .expect.text(`Continue ${pack.items[1]!.title}`, device);
   await contentTap(device, 'content-pack-next');
-  await contentTap(device, 'content-continue-attempt');
   return next;
 }
 

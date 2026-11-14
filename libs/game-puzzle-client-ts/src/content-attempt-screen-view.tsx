@@ -5,12 +5,22 @@ import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
+import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
 import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
+import { GameResultOverlay } from '@pkgs/ui-root-client-ts/game-stage-overlay';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { type JSX, Match, Show, Switch } from 'solid-js';
+import {
+  createEffect,
+  createSignal,
+  type JSX,
+  Match,
+  on,
+  Show,
+  Switch,
+} from 'solid-js';
 import {
   ContentAttemptProgressView,
   ContentAttemptSaveStatus,
@@ -60,6 +70,8 @@ export type ContentAttemptScreenViewProps = {
   readonly attempt: ContentAttemptSummary;
   /** The pack this attempt is played from; absent for a puzzle on its own. */
   readonly pack?: ContentAttemptPack | null | undefined;
+  /** How many of the pack's puzzles are solved, this one included once saved. */
+  readonly packSolved?: number | undefined;
   /** A private playtest of a draft: it counts toward no completion. */
   readonly playtest: boolean;
   /** The last change is still being saved. */
@@ -84,10 +96,16 @@ export type ContentAttemptScreenViewProps = {
   /** `attempt`: undo / redo and restart. */
   readonly controls?: JSX.Element;
   /**
-   * `progress`: the attempt's way on — a pack puzzle's next puzzle and its
-   * overview, a playtest's way back to its builder.
+   * `progress`: the attempt's way around — a pack puzzle's overview, a
+   * playtest's way back to its builder.
    */
   readonly wayOn?: JSX.Element;
+  /**
+   * `attempt`, once solved: the one filled command onward, under the
+   * solved headline — a pack's next puzzle, the finished pack, a
+   * playtest's builder, or another puzzle.
+   */
+  readonly onward?: JSX.Element;
   /** Where the board sits on a one-column screen. */
   readonly stageAlign?: 'start' | 'center' | undefined;
   /** `progress`: earlier kept continuations to choose from. */
@@ -152,23 +170,78 @@ function AttemptRule(props: ContentAttemptScreenViewProps): JSX.Element {
 }
 
 /**
- * The stage's one control onward: it opens where the attempt stands (its
- * pack, its figures, its saved positions), and is the filled command once
- * the puzzle is solved, when what comes next is there.
+ * The stage's quiet way to where the attempt stands: its pack, its
+ * figures and the positions kept for it.
  */
 function OpenProgress(props: ContentAttemptScreenViewProps): JSX.Element {
   const { t } = useLingui();
   return (
     <Button
-      title={props.complete ? t`Solved: what next` : t`Progress`}
-      intent={props.complete ? 'primary' : 'neutral'}
-      variant={props.complete ? 'solid' : 'outline'}
+      title={t`Details`}
+      intent="neutral"
+      variant="outline"
       size="sm"
       onClick={() => props.onOpen({ screen: 'progress' })}
       dataSet={{
         testid: 'content-open-progress',
         complete: String(props.complete),
       }}
+    />
+  );
+}
+
+/** Where the attempt sits, under its title: its place in its pack, or a playtest. */
+function useAttemptContext(
+  props: ContentAttemptScreenViewProps
+): () => string | undefined {
+  const { t } = useLingui();
+  return () => {
+    if (props.playtest)
+      return t`Playtest of your draft · counts toward no progress`;
+    const pack = props.pack;
+    if (pack === null || pack === undefined) return undefined;
+    return t`Puzzle ${pack.position} of ${pack.total} · ${pack.title}`;
+  };
+}
+
+/** Where the solved puzzle leaves the person, in one line under its headline. */
+function useSolvedCaption(props: ContentAttemptScreenViewProps): () => string {
+  const { t } = useLingui();
+  return () => {
+    if (props.playtest)
+      return t`Practice runs count toward no progress. Return to the builder to publish it.`;
+    const pack = props.pack;
+    if (pack !== null && pack !== undefined && props.packSolved !== undefined)
+      return props.packSolved >= pack.total
+        ? t`Every puzzle in ${pack.title} is solved.`
+        : t`${props.packSolved} of ${pack.total} solved in ${pack.title}.`;
+    return t`You can keep playing or choose another puzzle.`;
+  };
+}
+
+/**
+ * The solved headline, on a card over the board so the board never moves:
+ * the completion is saved (or a playtest solved), where the pack now
+ * stands, and the one filled command onward. Closing it shows the solved
+ * board, with the command onward kept beside the board's own commands.
+ */
+function AttemptSolved(props: {
+  view: ContentAttemptScreenViewProps;
+  onDismiss: () => void;
+}): JSX.Element {
+  const { t } = useLingui();
+  const caption = useSolvedCaption(props.view);
+  return (
+    <GameResultOverlay
+      tone="won"
+      eyebrow={t`Solved`}
+      title={props.view.playtest ? t`Playtest solved` : t`Completion saved`}
+      caption={caption()}
+      live
+      actions={props.view.onward}
+      dismissLabel={t`Show the board`}
+      onDismiss={() => props.onDismiss()}
+      dataSet={{ testid: 'content-attempt-complete' }}
     />
   );
 }
@@ -214,11 +287,25 @@ function attemptDataSet(props: ContentAttemptScreenViewProps) {
  * control onward.
  */
 function AttemptStage(props: ContentAttemptScreenViewProps): JSX.Element {
+  const context = useAttemptContext(props);
+  // Closed by the person; a board played away from solved opens it again
+  // on the next solve.
+  const [dismissed, setDismissed] = createSignal(false);
+  createEffect(
+    on(
+      () => props.complete,
+      (complete) => {
+        if (!complete) setDismissed(false);
+      }
+    )
+  );
+  const solved = () => props.complete && !props.unopenable;
   return (
     <GameScreen
       screenId="puzzle-content-attempt"
       dataSet={attemptDataSet(props)}
       title={props.attempt.title}
+      subtitle={context()}
       keepTitle
       facts={
         <Show when={props.attempt.difficulty}>
@@ -238,12 +325,24 @@ function AttemptStage(props: ContentAttemptScreenViewProps): JSX.Element {
           <>
             {props.controls}
             <OpenProgress {...props} />
+            <Show when={solved() && dismissed()}>{props.onward}</Show>
           </>
         }
         stageAlign={props.stageAlign}
       >
         <Show when={!props.unopenable} fallback={<Unopenable {...props} />}>
-          {props.player}
+          <GameBoardStage
+            overlay={
+              <Show when={solved() && !dismissed()}>
+                <AttemptSolved
+                  view={props}
+                  onDismiss={() => setDismissed(true)}
+                />
+              </Show>
+            }
+          >
+            {props.player}
+          </GameBoardStage>
         </Show>
       </GameSessionLayout>
     </GameScreen>

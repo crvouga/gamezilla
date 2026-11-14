@@ -49,8 +49,11 @@ export function useContentAttemptRestart(attempt: Accessor<ContentAttempt>) {
       });
     },
     asking: () => request() !== null,
+    /** Closes the confirm; once the new attempt is saved, it opens on its board. */
     close: (): void => {
       setRequest(null);
+      const id = created();
+      if (id !== null) game.open({ kind: 'attempt', attemptId: id });
     },
     restart,
     /** The restarted attempt, once saved. */
@@ -112,12 +115,13 @@ export function ContentAttemptRestartConfirm(props: {
       title={<Trans>Restart this puzzle?</Trans>}
       message={
         <Trans>
-          A new attempt starts at the beginning. Your earlier progress and
+          A new attempt opens at the beginning. Your earlier attempt and
           completion stay saved.
         </Trans>
       }
       submitLabel={<Trans>Restart</Trans>}
-      successTitle={<Trans>New attempt saved</Trans>}
+      successTitle={<Trans>New attempt ready</Trans>}
+      dismissLabel={<Trans>Play it</Trans>}
       operation={props.tools.restart}
       submitDataSet={{ testid: 'content-restart-confirm' }}
       dismissDataSet={{ testid: 'content-restart-dismiss' }}

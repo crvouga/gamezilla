@@ -8,10 +8,11 @@ import { cleanup, screen } from '@solidjs/testing-library';
 afterEach(cleanup);
 
 // regression: puzzle-solved-way-on-moves-pack-card — a solved pack puzzle's
-// next puzzle joined the command row and moved Undo and Restart. The way on
-// sits in the pack card of the progress screen; the board's command row
-// keeps its commands and its one control onward, solved or not.
-test("a solved pack puzzle's way on sits in its pack card, not the command row", () => {
+// next puzzle joined the command row and moved Undo and Restart. The next
+// puzzle sits on the solved card over the board; the pack card of the
+// progress screen keeps the pack's overview, and the board's command row
+// keeps its commands and Details, solved or not.
+test("a solved pack puzzle's way on sits on the solved card, not the command row", () => {
   const view = (place: 'attempt' | 'progress') =>
     renderWithI18n(() => (
       <ThemeProvider
@@ -39,7 +40,8 @@ test("a solved pack puzzle's way on sits in its pack card, not the command row",
           unopenable={false}
           player={<span>board</span>}
           controls={<span data-testid="controls">Undo Redo Restart</span>}
-          wayOn={<span data-testid="next">Next puzzle: Lift</span>}
+          wayOn={<span data-testid="overview">Pack overview</span>}
+          onward={<span data-testid="next">Next puzzle: Lift</span>}
           onRetryChange={() => undefined}
           onReturnToLibrary={() => undefined}
         />
@@ -47,12 +49,15 @@ test("a solved pack puzzle's way on sits in its pack card, not the command row",
     ));
   view('progress');
   const panel = screen.getByTestId('puzzle-attempt-panel');
-  expect(panel.contains(screen.getByTestId('next'))).toBe(true);
+  expect(panel.contains(screen.getByTestId('overview'))).toBe(true);
+  expect(screen.queryByTestId('next')).toBeNull();
   cleanup();
   view('attempt');
-  expect(screen.queryByTestId('next')).toBeNull();
+  const card = screen.getByTestId('content-attempt-complete');
+  expect(card.getAttribute('data-component')).toBe('GameResultOverlay');
+  expect(card.contains(screen.getByTestId('next'))).toBe(true);
   const row = screen
     .getByTestId('controls')
     .closest('[data-component="GameActions"]');
-  expect(row?.textContent).toBe('Undo Redo RestartSolved: what next');
+  expect(row?.textContent).toBe('Undo Redo RestartDetails');
 });

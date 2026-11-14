@@ -93,12 +93,13 @@ export const Solved: Story = {
       'data-moves',
       '8'
     );
-    // The completion record and the pack's way on are where the attempt
-    // stands: behind the board's one control onward.
-    await userEvent.click(canvas.getByTestId('content-open-progress'));
+    // The completion is said on a card over the board; the pack's
+    // overview stays where the attempt stands, behind Details.
     await expect(
       canvas.getByTestId('content-attempt-complete')
     ).toHaveTextContent('Completion saved');
+    await userEvent.click(canvas.getByTestId('game-result-overlay-dismiss'));
+    await userEvent.click(canvas.getByTestId('content-open-progress'));
     await expect(
       canvas.getByRole('button', { name: 'Pack overview' })
     ).toBeVisible();

@@ -120,7 +120,8 @@ export async function restartOnScreen(
   const earlier = playing(s, clientId);
   await clickWhenReady(s, view, 'content-restart');
   await clickWhenReady(s, view, 'content-restart-confirm');
-  await clickWhenReady(s, view, 'content-open-restart');
+  // Closing the confirm opens the restarted attempt on its board.
+  await clickWhenReady(s, view, 'content-restart-dismiss');
   const play = await devicePlay(s, clientId);
   const source = play.attempts.find((entry) => entry.id === earlier)?.source_id;
   const restarted = play.attempts

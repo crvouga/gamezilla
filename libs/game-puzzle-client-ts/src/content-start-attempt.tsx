@@ -1,116 +1,119 @@
-import { startPuzzleAttemptMutation } from '@libs/game-puzzle-shared-ts/start-attempt-mutation';
 import { DenialSurface } from '@libs/permissions-client-ts/denial-surface';
 import { useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { useLingui } from '@lingui/solid/macro';
-import { useMutationClient } from '@pkgs/sync-engine-client-ts/mutation-client-context';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
-import { useCreateId } from '@pkgs/uuid-client-ts/solid';
-import { createMemo, createSignal, type JSX, Show } from 'solid-js';
-import { useContentGame } from './content-game-context';
-import { useContentLibraryState } from './content-library-context';
+import { type JSX, Show } from 'solid-js';
 import { useContentPackChoiceReady } from './use-content-pack-choice-ready';
+import { useContentPlay } from './use-content-play';
+
+export type ContentStartAttemptViewProps = {
+  /** An attempt at this puzzle is saved: Play continues it. */
+  readonly saved: boolean;
+  /** An attempt is being started; its board opens once it is saved. */
+  readonly starting: boolean;
+  /** Why the last start was refused; the earlier attempt stays saved. */
+  readonly failure: string | null;
+  /** Nothing new may start (withdrawn, or the pack is still arriving). */
+  readonly disabled: boolean;
+  /** Opens the saved attempt, or starts one and opens it. */
+  readonly onPlay: () => void;
+  /** Starts another attempt beside the saved one and opens it. */
+  readonly onStartFresh: () => void;
+  readonly onRetry: () => void;
+};
 
 /**
- * Continue the saved attempt at a published puzzle, or start a new one;
- * whichever comes first for the person is the one filled command.
+ * Play a published puzzle in one press: "Play" starts and opens it, or
+ * "Continue" opens the saved attempt at its position, with starting over
+ * beside it as the quieter choice. A refused start says why, with a retry.
  */
+export function ContentStartAttemptView(
+  props: ContentStartAttemptViewProps
+): JSX.Element {
+  const { t } = useLingui();
+  return (
+    <StackVertical gap="md">
+      <Show
+        when={props.saved}
+        fallback={
+          <Button
+            title={t`Play`}
+            fullWidth
+            loading={props.starting}
+            loadingLabel={t`Starting…`}
+            disabled={props.disabled}
+            onClick={() => props.onPlay()}
+            dataSet={{ testid: 'content-start-attempt' }}
+          />
+        }
+      >
+        <Button
+          title={t`Continue where you left off`}
+          fullWidth
+          onClick={() => props.onPlay()}
+          dataSet={{ testid: 'content-continue-attempt' }}
+        />
+        <Button
+          title={t`Start over in a new attempt`}
+          intent="neutral"
+          variant="outline"
+          fullWidth
+          loading={props.starting}
+          loadingLabel={t`Starting…`}
+          disabled={props.disabled}
+          onClick={() => props.onStartFresh()}
+          dataSet={{ testid: 'content-start-attempt' }}
+        />
+      </Show>
+      <Show when={props.failure}>
+        {(message) => (
+          <ErrorState
+            variant="compact"
+            title={t`The puzzle did not start`}
+            body={message()}
+            retry={{ onClick: () => props.onRetry() }}
+            dataSet={{ testid: 'content-start-failed' }}
+          />
+        )}
+      </Show>
+    </StackVertical>
+  );
+}
+
+/** `ContentStartAttemptView` wired to the person's attempts and permissions. */
 export function ContentStartAttempt(props: {
   revisionId: string;
   packRevisionId: string | null;
   disabled: boolean;
 }): JSX.Element {
-  const { t } = useLingui();
-  const game = useContentGame();
-  const data = useContentLibraryState();
-  const mutations = useMutationClient();
-  const createId = useCreateId();
   const decision = useDecision(PERMISSION.puzzlesPlay);
   const choiceReady = useContentPackChoiceReady(
     () => props.revisionId,
     () => props.packRevisionId
   );
-  const [created, setCreated] = createSignal<string | null>(null);
-  const previous = createMemo(() =>
-    data
-      .play()
-      .attempts.find(
-        (attempt) =>
-          attempt.mode === 'ordinary' && attempt.source_id === props.revisionId
-      )
-  );
-  const selected = () => created() ?? previous()?.id;
-  const start = useMutationButton({
-    operation: async () => {
-      const attemptId = createId();
-      const result = await mutations.mutate(
-        startPuzzleAttemptMutation(game.catalog),
-        {
-          revisionId: props.revisionId,
-          packRevisionId: props.packRevisionId,
-          attemptId,
-          positionId: createId(),
-        }
-      );
-      if (!result.ok)
-        throw new Error(
-          result.failures[0]?.message ??
-            t`The attempt could not be saved. Try starting again.`
-        );
-      setCreated(attemptId);
-    },
-    labels: {
-      idle: t`Start a new attempt`,
-      loading: t`Starting…`,
-      success: t`Attempt saved`,
-      error: t`Try starting again`,
-    },
-    get disabled() {
-      return props.disabled || !choiceReady();
-    },
+  const play = useContentPlay();
+  const request = (fresh: boolean) => ({
+    revisionId: props.revisionId,
+    packRevisionId: props.packRevisionId,
+    fresh,
   });
   return (
     <Show
       when={decision().allowed}
       fallback={<DenialSurface decision={decision()} />}
     >
-      <StackVertical gap="md">
-        <Show when={selected()}>
-          {(id) => (
-            <Button
-              title={t`Continue saved attempt`}
-              fullWidth
-              onClick={() => game.open({ kind: 'attempt', attemptId: id() })}
-              dataSet={{ testid: 'content-continue-attempt' }}
-            />
-          )}
-        </Show>
-        {/* One filled command: continuing, when there is something to continue. */}
-        <Button
-          {...start.buttonProps}
-          intent={selected() === undefined ? 'primary' : 'neutral'}
-          variant={selected() === undefined ? 'solid' : 'outline'}
-          fullWidth
-          dataSet={{ testid: 'content-start-attempt' }}
-        />
-        <Show when={start.error()}>
-          {(error) => (
-            <ErrorState
-              variant="compact"
-              title={t`The attempt was not started`}
-              body={error().message}
-              retry={{
-                onClick: () => {
-                  void start.run();
-                },
-              }}
-            />
-          )}
-        </Show>
-      </StackVertical>
+      <ContentStartAttemptView
+        saved={play.saved(props.revisionId) !== undefined}
+        starting={play.starting() === props.revisionId}
+        failure={play.failure()?.message ?? null}
+        disabled={props.disabled || !choiceReady()}
+        onPlay={() => play.play(request(false))}
+        onStartFresh={() => play.play(request(true))}
+        onRetry={play.retry}
+      />
     </Show>
   );
 }

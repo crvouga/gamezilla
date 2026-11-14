@@ -7,8 +7,8 @@ import {
 import type { PublishedJourneyPack } from '@libs/game-puzzle-harness-ts/content-journey-pack';
 import {
   expectJourneyCompletion,
+  openedJourneyAttempt,
   openJourneyAttempt,
-  startJourneyAttempt,
 } from '@libs/game-puzzle-harness-ts/content-journey-playing';
 import {
   observeSokobanJourneyCounts,
@@ -50,7 +50,7 @@ export async function playSokobanPartway(
   let attemptId = '';
   await host.actAsGuest('playSokobanPartway', async (ui) => {
     await contentTap(device(ui), 'content-pack-next');
-    attemptId = await startJourneyAttempt(device(ui));
+    attemptId = await openedJourneyAttempt(device(ui));
     await pushSokobanJourneyRight(device(ui));
     await observeSokobanJourneyCounts(device(ui), 1, 1);
     await leaveContentStage(device(ui));

@@ -73,7 +73,10 @@ export function ContentEditionScreen(props: {
             <ContentPreview definition={revision()?.definition ?? ''} />
           }
         >
-          <ContentPackOverview revisionId={props.revisionId} />
+          <ContentPackOverview
+            revisionId={props.revisionId}
+            available={available()}
+          />
         </Show>
       }
       onEditWorkingDraft={() => {

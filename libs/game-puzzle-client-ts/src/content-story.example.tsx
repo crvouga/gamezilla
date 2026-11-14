@@ -12,11 +12,14 @@ import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
 import { TileBoard } from '@pkgs/ui-root-client-ts/tile-board';
-import { For, type JSX, Show } from 'solid-js';
+import { For, type JSX } from 'solid-js';
+import { fn } from 'storybook/test';
 import {
   ContentPackEditorView,
   ContentPackItemRow,
 } from './content-pack-editor-view';
+import { ContentPackOverviewView } from './content-pack-overview-view';
+import { ContentStartAttemptView } from './content-start-attempt';
 
 /** A counting puzzle's draft body: reach the target in steps of one or two. */
 export const COUNTING_BODY: ContentBody = {
@@ -153,39 +156,61 @@ export function StoryKeptCopies(props: {
   );
 }
 
-/** Start or continue an attempt at a published puzzle, at rest. */
+/** Play, or continue an attempt at a published puzzle, at rest. */
 export function StoryStartAttempt(props: {
   continuing?: boolean;
   disabled?: boolean;
 }): JSX.Element {
   return (
-    <StackVertical gap="md">
-      <Show when={props.continuing}>
-        <Button title="Continue saved attempt" fullWidth />
-      </Show>
-      <Button
-        title="Start a new attempt"
-        intent={props.continuing ? 'neutral' : 'primary'}
-        variant={props.continuing ? 'outline' : 'solid'}
-        fullWidth
-        disabled={props.disabled}
-      />
-    </StackVertical>
+    <ContentStartAttemptView
+      saved={props.continuing === true}
+      starting={false}
+      failure={null}
+      disabled={props.disabled === true}
+      onPlay={fn()}
+      onStartFresh={fn()}
+      onRetry={fn()}
+    />
   );
 }
 
-/** A pack's puzzles and the person's progress through them. */
-export function StoryPackOverview(): JSX.Element {
+/** A counting pack's three puzzles, the second one started. */
+const STORY_PACK_PUZZLES = [
+  { revisionId: 'count-to-five', title: 'Count to five', status: 'completed' },
+  {
+    revisionId: 'count-to-seven',
+    title: 'Count to seven',
+    status: 'in-progress',
+  },
+  { revisionId: 'count-to-nine', title: 'Count to nine', status: 'unplayed' },
+] as const;
+
+/** A pack's puzzles and the person's progress through them, on the real view. */
+export function StoryPackOverview(props: {
+  /** Every puzzle solved. */
+  complete?: boolean;
+}): JSX.Element {
+  const puzzles = () =>
+    props.complete === true
+      ? STORY_PACK_PUZZLES.map((puzzle) => ({
+          ...puzzle,
+          status: 'completed' as const,
+        }))
+      : STORY_PACK_PUZZLES;
   return (
-    <StackVertical gap="lg">
-      <P role="status">1 of 3 puzzles completed</P>
-      <Button title="Continue Count to seven" fullWidth />
-      <MenuSection title="Choose any puzzle">
-        <MenuRow title="Count to five" value="Completed" />
-        <MenuRow title="Count to seven" value="In progress" />
-        <MenuRow title="Count to nine" value="Unplayed" />
-      </MenuSection>
-    </StackVertical>
+    <ContentPackOverviewView
+      status="ready"
+      puzzles={puzzles()}
+      completed={props.complete === true ? 3 : 1}
+      total={3}
+      next={props.complete === true ? null : STORY_PACK_PUZZLES[1]}
+      complete={props.complete === true}
+      starting={null}
+      failure={null}
+      disabled={false}
+      onPlay={fn()}
+      onRetry={fn()}
+    />
   );
 }
 
