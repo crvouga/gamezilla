@@ -1,11 +1,18 @@
-import { fn } from 'storybook/test';
+import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
-import { GameMenuScreenView } from './game-menu-screen-view';
+import {
+  CHESS_CHOICES,
+  CHESS_RULES,
+  CONNECT_FOUR_RULES,
+  GameMenuStory,
+  HEARTS_RULES,
+  sharedChoices,
+} from './game-menu-story.example';
 
 const meta = {
   id: 'screens-games-menu-how-to-play',
   title: 'Screens/Games/Menu/How to play',
-  component: GameMenuScreenView,
+  component: GameMenuStory,
   tags: ['autodocs'],
   parameters: {
     appRouter: true,
@@ -14,28 +21,62 @@ const meta = {
   args: {
     title: 'Connect Four',
     tile: 'discs',
-    subtitle: 'Drop discs and line up four',
-    instructions:
-      'Take turns dropping a disc into a column. Four in a row, column or diagonal wins.',
-    choices: [],
+    subtitle: 'Drop a disc. Connect four. Plan your next turn.',
+    instructions: CONNECT_FOUR_RULES,
+    choices: sharedChoices('Connect Four'),
     onChoose: fn(),
     place: { screen: 'how-to-play' },
     onOpen: fn(),
+    onBackToGames: fn(),
   },
-} satisfies Meta<typeof GameMenuScreenView>;
+} satisfies Meta<typeof GameMenuStory>;
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** The game's own words on how it is played, on a screen of their own. */
+/**
+ * The game's rules in numbered parts (the goal, a turn, the end), then the
+ * way on: play the main way in, or back to the menu.
+ */
 export const Rules: Story = {};
 
-/** A game with many rules reads as one column at a reading measure. */
+/** A game with many rules: each part a short heading over a few lines. */
 export const LongRules: Story = {
   args: {
     title: 'Hearts',
     tile: 'cards',
-    subtitle: 'Avoid hearts and the queen of spades',
-    instructions:
-      "Four players each get thirteen cards. Before each deal's play, everyone secretly passes three cards: to the left, then right, then across, then not at all, and again. Whoever holds the two of clubs leads it. Follow the suit led if you can; the highest card of that suit takes the trick and leads next. Hearts and the queen of spades can't be played on the first trick unless you hold nothing else, and hearts can't be led until one has been played, unless you hold only hearts. Each heart you take costs a point and the queen of spades thirteen, unless you take them all: then everyone else gets twenty-six. When a score reaches 100 at the end of a deal, the lowest score wins.",
+    subtitle: 'Duck the tricks. Dodge the queen. Lowest wins.',
+    instructions: HEARTS_RULES,
+    choices: sharedChoices('Hearts', 4).slice(0, 2),
+  },
+};
+
+/** Chess's rules: the moves of every piece, its special moves, the end. */
+export const ChessRules: Story = {
+  args: {
+    title: 'Chess',
+    tile: 'checkered',
+    subtitle: 'Checkmate the king. Every piece moves its own way.',
+    instructions: CHESS_RULES,
+    choices: CHESS_CHOICES,
+  },
+};
+
+/** From the rules, one press starts the main way to play. */
+export const PlayFromRules: Story = {
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(await canvas.findByTestId('game-how-to-play-play'));
+    await expect(args.onChoose).toHaveBeenCalledWith('custom-game');
+  },
+};
+
+/** The rules' own Back button returns to the menu. */
+export const BackFromRules: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(await canvas.findByTestId('game-how-to-play-back'));
+    await expect(
+      await canvas.findByTestId('game-choice-how-to-play')
+    ).toBeVisible();
   },
 };

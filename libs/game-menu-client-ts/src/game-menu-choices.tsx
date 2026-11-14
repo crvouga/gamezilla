@@ -135,83 +135,86 @@ const PUZZLE_SCREENS: readonly SharedScreen[] = [
   { screen: SHARED_GAME_SCREEN.puzzleReview, Screen: PuzzleReviewScreen },
 ];
 
-const PUZZLE_CHOICES: readonly GameChoiceItem[] = [
-  {
-    screen: SHARED_GAME_SCREEN.puzzle,
-    title: () => <Trans>Puzzle</Trans>,
-    caption: () => <Trans>Solve rated puzzles and climb the ladder</Trans>,
-  },
-  {
-    screen: SHARED_GAME_SCREEN.puzzleStats,
-    title: () => <Trans>Puzzle stats</Trans>,
-    caption: () => <Trans>Puzzle rating trend and game log</Trans>,
-  },
-];
+const PUZZLE_CHOICE: GameChoiceItem = {
+  screen: SHARED_GAME_SCREEN.puzzle,
+  title: () => <Trans>Puzzle</Trans>,
+  caption: () => <Trans>Solve rated puzzles and climb the ladder</Trans>,
+};
 
-function sharedChoices(game: GameClient, offers: Offers): GameChoiceItem[] {
+const PUZZLE_STATS_CHOICE: GameChoiceItem = {
+  screen: SHARED_GAME_SCREEN.puzzleStats,
+  title: () => <Trans>Puzzle stats</Trans>,
+  caption: () => <Trans>Your puzzle rating trend and game log</Trans>,
+};
+
+const CONTENT_CHOICE: GameChoiceItem = {
+  screen: SHARED_GAME_SCREEN.content,
+  title: () => <Trans>Puzzles and packs</Trans>,
+  caption: () => (
+    <Trans>Play, continue saved attempts, or create your own</Trans>
+  ),
+};
+
+const CUSTOM_GAMES_CHOICE: GameChoiceItem = {
+  screen: SHARED_GAME_SCREEN.customGames,
+  // Bots are named in the title: playing alone against one is a way in of
+  // its own, not a footnote under "friends".
+  title: () => <Trans>Play with friends or bots</Trans>,
+  // The game menu is always inside a space: its people are who plays a
+  // custom game, beside any bots.
+  caption: () => <Trans>Invite people in this space, or add bots</Trans>,
+};
+
+const HISTORY_CHOICE: GameChoiceItem = {
+  screen: SHARED_GAME_SCREEN.history,
+  title: () => <Trans>History and stats</Trans>,
+  caption: () => <Trans>Review your games, wins and draws</Trans>,
+};
+
+/** Finding one opponent, or the players a bigger game needs. */
+function matchmakingChoice(game: GameClient): GameChoiceItem {
   const name = game.title;
   const playerCount =
     game.shared.registration === undefined
       ? 1
       : gameSides(game.shared.registration.rules).length;
+  return {
+    screen: SHARED_GAME_SCREEN.matchmaking,
+    title: () =>
+      playerCount > 2 ? (
+        <Trans>Find players</Trans>
+      ) : (
+        <Trans>Find an opponent</Trans>
+      ),
+    caption: () =>
+      playerCount > 2 ? (
+        <Trans>
+          Meet {playerCount - 1} other {name} players
+        </Trans>
+      ) : (
+        <Trans>Meet another {name} player</Trans>
+      ),
+  };
+}
+
+/**
+ * The ways to play, the main way in first: playing with friends or bots,
+ * finding an opponent, then the game's puzzles.
+ */
+function playChoices(game: GameClient, offers: Offers): GameChoiceItem[] {
   return [
-    ...(game.puzzleContent === undefined
-      ? []
-      : [
-          {
-            screen: SHARED_GAME_SCREEN.content,
-            title: () => <Trans>Puzzles and packs</Trans>,
-            caption: () => (
-              <Trans>Play, continue saved attempts, or create your own</Trans>
-            ),
-          },
-        ]),
-    ...(game.puzzles === undefined ? [] : PUZZLE_CHOICES),
-    ...(offers('custom-games')
-      ? [
-          {
-            screen: SHARED_GAME_SCREEN.customGames,
-            // Short enough to keep the lead's tag beside it on a phone's
-            // row; the caption says bots are welcome too.
-            title: () => <Trans>Play with friends</Trans>,
-            // The game menu is always inside a space: its people are who
-            // plays a custom game, beside any bots.
-            caption: () => (
-              <Trans>With the people in this space, or bots</Trans>
-            ),
-          },
-        ]
-      : []),
-    ...(offers('matchmaking')
-      ? [
-          {
-            screen: SHARED_GAME_SCREEN.matchmaking,
-            title: () =>
-              playerCount > 2 ? (
-                <Trans>Find players</Trans>
-              ) : (
-                <Trans>Find an opponent</Trans>
-              ),
-            caption: () =>
-              playerCount > 2 ? (
-                <Trans>
-                  Meet {playerCount - 1} other {name} players
-                </Trans>
-              ) : (
-                <Trans>Meet another {name} player</Trans>
-              ),
-          },
-        ]
-      : []),
-    ...(offers('history')
-      ? [
-          {
-            screen: SHARED_GAME_SCREEN.history,
-            title: () => <Trans>History and stats</Trans>,
-            caption: () => <Trans>Review your games, wins and draws</Trans>,
-          },
-        ]
-      : []),
+    ...(offers('custom-games') ? [CUSTOM_GAMES_CHOICE] : []),
+    ...(offers('matchmaking') ? [matchmakingChoice(game)] : []),
+    ...(game.puzzleContent === undefined ? [] : [CONTENT_CHOICE]),
+    ...(game.puzzles === undefined ? [] : [PUZZLE_CHOICE]),
+  ];
+}
+
+/** The looks back: the game's history, then its puzzle stats. */
+function lookBackChoices(game: GameClient, offers: Offers): GameChoiceItem[] {
+  return [
+    ...(offers('history') ? [HISTORY_CHOICE] : []),
+    ...(game.puzzles === undefined ? [] : [PUZZLE_STATS_CHOICE]),
   ];
 }
 
@@ -221,7 +224,8 @@ export function gameChoices(
   offers: Offers
 ): GameChoiceItem[] {
   return [
-    ...sharedChoices(game, offers),
+    ...playChoices(game, offers),
+    ...lookBackChoices(game, offers),
     ...(game.settings === undefined
       ? []
       : [

@@ -1,0 +1,4 @@
+{
+  "summary": "Once the game menu's main way in named bots ('Play with friends or bots'), its 'Recommended' tag no longer fit beside the title: it pushed the phone row onto an extra line at 360px and wrapped under the title on a three-across desktop tile. The lead is now said by its place, first under 'Play', its picture on the accent and, wide, its accent edge; no tag rides on it.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-menu-screen.test.tsx"
+}

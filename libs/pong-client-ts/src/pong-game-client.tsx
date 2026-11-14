@@ -11,13 +11,32 @@ export const pongGameClient = defineGameClient({
   caption: 'Keep the rally alive with friends or bots',
   tile: 'court',
   subtitle: () => <Trans>Two paddles. One ball. Every return counts.</Trans>,
-  instructions: () => (
-    <Trans>
-      Move your paddle to return the ball. A ball past the other paddle scores a
-      point. Reach the chosen score to win. Play with a bot, share a device,
-      invite someone, or find an opponent.
-    </Trans>
-  ),
+  instructions: [
+    {
+      key: 'goal',
+      title: () => <Trans>Goal</Trans>,
+      body: () => <Trans>Be first to the chosen score.</Trans>,
+    },
+    {
+      key: 'play',
+      title: () => <Trans>Play</Trans>,
+      body: () => (
+        <Trans>
+          Move your paddle to return the ball. A ball past the other paddle
+          scores a point.
+        </Trans>
+      ),
+    },
+    {
+      key: 'who',
+      title: () => <Trans>Who you play</Trans>,
+      body: () => (
+        <Trans>
+          Play with a bot, share a device, invite someone, or find an opponent.
+        </Trans>
+      ),
+    },
+  ],
   presentation: {
     name: () => t`Pong`,
     goal: () => t`Get the ball past the other paddle. First to the score wins.`,

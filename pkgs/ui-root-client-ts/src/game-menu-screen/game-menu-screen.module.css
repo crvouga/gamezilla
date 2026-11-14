@@ -45,14 +45,6 @@
   outline: 2px solid var(--ui-color-focus-ring);
   outline-offset: 2px;
 }
-/* The name, and the main way in's tag right beside it. */
-.titleRow {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--ui-space-2);
-  min-width: 0;
-}
 /* A choice's picture on a neutral chip that stands off the card in both
    themes: a shade darker on a light card, a step lighter on a dark one,
    never the near-black well that vanished on a dark card. */
@@ -149,10 +141,43 @@
   min-width: 0;
 }
 .linkCaption {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
   color: var(--ui-color-text-secondary);
 }
 .linkChevron {
   display: flex;
   flex-shrink: 0;
   --ui-on-icon: var(--ui-color-text-secondary);
+}
+/* What the game is, in the secondary ink at body size on every layout. */
+.tagline {
+  color: var(--ui-color-text-secondary);
+}
+/* The rules' button under the game's name, sized by its words. */
+.heroAction {
+  display: flex;
+  margin-top: var(--ui-space-2);
+}
+/* A phone's head: the name beside the tile, what the game is, the rules. */
+.compactHero {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-1);
+  min-width: 0;
+}
+/* A group of choices under its name; the name on the rows' text column. */
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-2);
+  min-width: 0;
+}
+.groupLabel {
+  padding-inline: var(--ui-space-4);
+}
+.groupLabel[data-wide] {
+  padding-inline: 0;
 }

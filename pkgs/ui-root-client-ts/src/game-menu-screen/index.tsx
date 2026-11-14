@@ -3,7 +3,7 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { createMemo, For, type JSX, Show } from 'solid-js';
-import { Badge } from '../badge/index';
+import { Button } from '../button/index';
 import type { IconComponent } from '../create-icon/index';
 import { EmbeddedScreen } from '../embedded-screen/index';
 import {
@@ -11,9 +11,11 @@ import {
   type GameTileMotif,
   GameTitleLockup,
 } from '../game-tile/index';
-import { ChevronRightIcon } from '../icons';
-import type { MainMenuItem } from '../main-menu-item-row/index';
-import { MainMenuScreen } from '../main-menu-screen/index';
+import { ChevronRightIcon, ScrollTextIcon } from '../icons';
+import {
+  type MainMenuItem,
+  MainMenuItemRow,
+} from '../main-menu-item-row/index';
 import { useConfirmNavigation } from '../pending-navigation';
 import { createScreenSlot } from '../screen-slot';
 import { useLayoutMode } from '../use-layout-mode';
@@ -26,12 +28,6 @@ export type GameMenuChoice = Pick<
 > & {
   /** What the choice is, as a picture heading its tile (or its row). */
   icon: IconComponent;
-  /**
-   * Why the main way in leads, as a short tag (`Recommended`): beside its
-   * picture on a tile, under its title in a row. Only with `emphasis:
-   * 'primary'`.
-   */
-  badge?: JSX.Element | undefined;
   onClick: () => void;
 };
 
@@ -56,18 +52,6 @@ function ChoiceIcon(props: {
   );
 }
 
-/**
- * The main way in's tag, only when it leads: beside its title at a
- * readable size, in the accent, so the lead is said where the eye lands.
- */
-function ChoiceBadge(props: { choice: GameMenuChoice }): JSX.Element {
-  return (
-    <Show when={props.choice.emphasis === 'primary' && props.choice.badge}>
-      <Badge intent="brand" size="md" label={props.choice.badge} />
-    </Show>
-  );
-}
-
 export type GameMenuScreenProps = {
   /** Stable screen identifier rendered as `data-screen`. */
   screenId: string;
@@ -78,8 +62,68 @@ export type GameMenuScreenProps = {
   /** One line under the name: what the game is. */
   subtitle?: JSX.Element | undefined;
   choices: readonly GameMenuChoice[];
+  /**
+   * The names of the menu's two groups: the ways to play (every choice not
+   * `quiet`) and the rest (`quiet`: a look back, settings). Shown only when
+   * the menu holds both.
+   */
+  groups?: { play: JSX.Element; more: JSX.Element } | undefined;
+  /**
+   * How the game is played, offered under its name so a newcomer meets it
+   * before choosing (`How to play`). Omit when the game says nothing.
+   */
+  howToPlay?: GameMenuHowToPlay | undefined;
   dataSet?: ComponentDataSet | undefined;
 };
+
+/** The way to the game's rules, under its name. */
+export type GameMenuHowToPlay = {
+  label: JSX.Element;
+  onClick: () => void;
+  dataSet?: ComponentDataSet | undefined;
+};
+
+/** The ways to play and the quiet choices, apart, in the order given. */
+function splitChoices(choices: readonly GameMenuChoice[]): {
+  play: readonly GameMenuChoice[];
+  more: readonly GameMenuChoice[];
+} {
+  return {
+    play: choices.filter((c) => c.emphasis !== 'quiet'),
+    more: choices.filter((c) => c.emphasis === 'quiet'),
+  };
+}
+
+/** The rules' button under the game's name: outlined, the scroll before it. */
+function HowToPlayButton(props: { howToPlay: GameMenuHowToPlay }): JSX.Element {
+  // A place of the menu's own, never a navigation that could lose work.
+  return (
+    <Button
+      title={props.howToPlay.label}
+      icon={ScrollTextIcon}
+      intent="neutral"
+      variant="outline"
+      size="sm"
+      onClick={props.howToPlay.onClick}
+      dataSet={props.howToPlay.dataSet}
+    />
+  );
+}
+
+/** A group's name over its choices, on the rows' text column. */
+function GroupLabel(props: {
+  children: JSX.Element;
+  wide?: boolean | undefined;
+}): JSX.Element {
+  return (
+    <h2
+      class={`${styles['groupLabel']} text textSectionLabel`}
+      data-wide={props.wide === true ? '' : undefined}
+    >
+      {props.children}
+    </h2>
+  );
+}
 
 /**
  * A choice as a tile, read in one line across: its picture, its name with
@@ -99,11 +143,8 @@ function ChoiceTile(props: { choice: GameMenuChoice }): JSX.Element {
     >
       <ChoiceIcon choice={props.choice} size="tile" />
       <span class={styles['words']}>
-        <span class={styles['titleRow']}>
-          <span class={`${styles['title']} text textHeading`}>
-            {props.choice.title}
-          </span>
-          <ChoiceBadge choice={props.choice} />
+        <span class={`${styles['title']} text textHeading`}>
+          {props.choice.title}
         </span>
         <Show when={props.choice.caption}>
           <span class={`${styles['caption']} text textCaption`}>
@@ -135,11 +176,11 @@ function ChoiceLink(props: { choice: GameMenuChoice }): JSX.Element {
     >
       <ChoiceIcon choice={props.choice} size="row" />
       <span class={styles['linkWords']}>
-        <span class="text textBodyBold min-w-0 truncate">
+        <span class="text textBodyBold min-w-0 break-words">
           {props.choice.title}
         </span>
         <Show when={props.choice.caption}>
-          <span class={`${styles['linkCaption']} text textCaption truncate`}>
+          <span class={`${styles['linkCaption']} text textCaption`}>
             {props.choice.caption}
           </span>
         </Show>
@@ -152,22 +193,24 @@ function ChoiceLink(props: { choice: GameMenuChoice }): JSX.Element {
 }
 
 /**
- * Wide: the game's hero block, then every way to play as a tile of one
- * size (the same title, as tall as its words) and, under them, the quiet
- * choices (history, stats, settings) as compact outlined rows that share
- * the tiles' edges: one alone spans the tiles' full width, never a
- * half-width row orphaned under them nor a box floating at the hero's end.
- * A menu of quiet choices only shows them all as tiles.
+ * Wide: the game's hero block (its name, what it is and the way to its
+ * rules), then the ways to play as tiles of one size (the same title, as
+ * tall as their words) and, under them, the quiet choices (history, stats,
+ * settings) as compact outlined rows that share the tiles' edges: one alone
+ * spans the tiles' full width, never a half-width row orphaned under them.
+ * Each group is named when the menu holds both. A menu of quiet choices
+ * only shows them all as tiles.
  */
 function WideGameMenu(props: GameMenuScreenProps): JSX.Element {
   const subtitle = createScreenSlot(() => props.subtitle);
   const split = createMemo(() => {
-    const quiet = props.choices.filter((c) => c.emphasis === 'quiet');
-    const loud = props.choices.filter((c) => c.emphasis !== 'quiet');
-    return loud.length === 0
+    const { play, more } = splitChoices(props.choices);
+    return play.length === 0
       ? { tiles: props.choices, links: [] }
-      : { tiles: loud, links: quiet };
+      : { tiles: play, links: more };
   });
+  const named = (): boolean =>
+    props.groups !== undefined && split().links.length > 0;
   // Two or four tiles take two columns, so none is left alone on a row.
   const columns = (): number =>
     split().tiles.length === 2 || split().tiles.length === 4 ? 2 : 3;
@@ -182,44 +225,156 @@ function WideGameMenu(props: GameMenuScreenProps): JSX.Element {
         <div class={styles['heroWords']}>
           <h1 class="text textTitle min-w-0 break-words">{props.title}</h1>
           <Show when={subtitle.present()}>
-            <p class="text textSubtitle min-w-0">{subtitle.content()}</p>
+            <p class={`${styles['tagline']} text textBody min-w-0`}>
+              {subtitle.content()}
+            </p>
+          </Show>
+          <Show when={props.howToPlay} keyed>
+            {(howToPlay) => (
+              <div class={styles['heroAction']}>
+                <HowToPlayButton howToPlay={howToPlay} />
+              </div>
+            )}
           </Show>
         </div>
       </header>
-      <div
-        class={styles['grid']}
-        style={{ '--game-menu-columns': String(columns()) }}
-        role="list"
-        data-layout="grid"
-      >
-        <For each={split().tiles}>
-          {(choice) => (
-            <div class={styles['item']} role="listitem">
-              <ChoiceTile choice={choice} />
-            </div>
-          )}
-        </For>
-      </div>
-      <Show when={split().links.length > 0}>
+      <section class={styles['group']} data-layout="play">
+        <Show when={named()}>
+          <GroupLabel wide>{props.groups?.play}</GroupLabel>
+        </Show>
         <div
-          class={styles['links']}
-          style={{
-            // One across the tiles' full width, else up to three a row.
-            '--game-menu-link-columns': String(
-              Math.min(3, split().links.length)
-            ),
-          }}
+          class={styles['grid']}
+          style={{ '--game-menu-columns': String(columns()) }}
           role="list"
-          data-layout="links"
+          data-layout="grid"
         >
-          <For each={split().links}>
+          <For each={split().tiles}>
             {(choice) => (
               <div class={styles['item']} role="listitem">
-                <ChoiceLink choice={choice} />
+                <ChoiceTile choice={choice} />
               </div>
             )}
           </For>
         </div>
+      </section>
+      <Show when={split().links.length > 0}>
+        <section class={styles['group']} data-layout="more">
+          <Show when={named()}>
+            <GroupLabel wide>{props.groups?.more}</GroupLabel>
+          </Show>
+          <div
+            class={styles['links']}
+            style={{
+              // One across the tiles' full width, else up to three a row.
+              '--game-menu-link-columns': String(
+                Math.min(3, split().links.length)
+              ),
+            }}
+            role="list"
+            data-layout="links"
+          >
+            <For each={split().links}>
+              {(choice) => (
+                <div class={styles['item']} role="listitem">
+                  <ChoiceLink choice={choice} />
+                </div>
+              )}
+            </For>
+          </div>
+        </section>
+      </Show>
+    </EmbeddedScreen>
+  );
+}
+
+/** A choice as a phone's menu row, led by its picture. */
+function choiceRow(choice: GameMenuChoice): MainMenuItem {
+  return {
+    key: choice.key,
+    title: choice.title,
+    caption: choice.caption,
+    emphasis: choice.emphasis,
+    dataSet: choice.dataSet,
+    onClick: choice.onClick,
+    leading: <ChoiceIcon choice={choice} size="row" />,
+  };
+}
+
+/** One group of a phone's menu: its name, then one panel of rows. */
+function CompactGroup(props: {
+  label: JSX.Element | undefined;
+  choices: readonly GameMenuChoice[];
+  layout: 'play' | 'more';
+}): JSX.Element {
+  return (
+    <section class={styles['group']} data-layout={props.layout}>
+      <Show when={props.label !== undefined}>
+        <GroupLabel>{props.label}</GroupLabel>
+      </Show>
+      <div class="panel self-stretch" role="list">
+        <For each={props.choices}>
+          {(choice) => (
+            <div class="panelItem" role="listitem">
+              <MainMenuItemRow item={choiceRow(choice)} />
+            </div>
+          )}
+        </For>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Compact: the name beside the tile, what the game is and the way to its
+ * rules, then the ways to play as one panel of rows and the quiet choices
+ * as another, each named when there are both. The main way in leads its
+ * panel by its picture on the accent; its tag is left to the wide tiles,
+ * where it fits beside the title instead of pushing the row onto two lines.
+ */
+function CompactGameMenu(props: GameMenuScreenProps): JSX.Element {
+  const subtitle = createScreenSlot(() => props.subtitle);
+  const split = createMemo(() => splitChoices(props.choices));
+  const named = (): boolean =>
+    props.groups !== undefined &&
+    split().play.length > 0 &&
+    split().more.length > 0;
+  return (
+    <EmbeddedScreen
+      screenId={props.screenId}
+      dataSet={{ component: 'GameMenuScreen', ...props.dataSet }}
+    >
+      <header class={styles['compactHero']} data-layout="hero">
+        <h1 class="text textTitle min-w-0 break-words">
+          <GameTitleLockup tile={<GameTile motif={props.motif} size="lg" />}>
+            {props.title}
+          </GameTitleLockup>
+        </h1>
+        <Show when={subtitle.present()}>
+          <p class={`${styles['tagline']} text textBody min-w-0`}>
+            {subtitle.content()}
+          </p>
+        </Show>
+        <Show when={props.howToPlay} keyed>
+          {(howToPlay) => (
+            <div class={styles['heroAction']}>
+              <HowToPlayButton howToPlay={howToPlay} />
+            </div>
+          )}
+        </Show>
+      </header>
+      <Show when={split().play.length > 0}>
+        <CompactGroup
+          label={named() ? props.groups?.play : undefined}
+          choices={split().play}
+          layout="play"
+        />
+      </Show>
+      <Show when={split().more.length > 0}>
+        <CompactGroup
+          label={named() ? props.groups?.more : undefined}
+          choices={split().more}
+          layout="more"
+        />
       </Show>
     </EmbeddedScreen>
   );
@@ -227,18 +382,19 @@ function WideGameMenu(props: GameMenuScreenProps): JSX.Element {
 
 /**
  * `GameMenuScreen` -- a game's own menu inside a space: the ways into the
- * game (puzzles, playing with friends or bots, finding an opponent, its
- * history, its settings, how to play). It holds rows that lead onward and
- * nothing else: how the game is played is a screen of its own, opened by a
- * choice. On a wide screen it opens with a hero block (the game's `GameTile`
- * at its largest, its name and what it is) and lays every choice out as a
- * large tile with its picture; on a phone it
- * is a `MainMenuScreen`: the name beside the tile, then one panel of rows,
- * each led by the same picture. Either way the main way in (`emphasis:
- * 'primary'`) leads the same way: its picture on the accent and its tag
- * (`badge`, "Recommended"), never a fill, which would read as already
- * chosen; the quiet ones (`'quiet'`) have secondary pictures.
- * Presentational; the caller opens what each choice names.
+ * game (puzzles, playing with friends or bots, finding an opponent) and,
+ * apart from them, the quiet choices (its history, its settings), with the
+ * way to how the game is played under its name. It holds choices that lead
+ * onward and nothing else: the rules are a screen of their own. On a wide
+ * screen it opens with a hero block (the game's `GameTile` at its largest,
+ * its name, what it is, the rules' button) and lays every way to play out
+ * as a large tile with its picture; on a phone the name sits beside the
+ * tile and the choices are panels of rows, each led by the same picture.
+ * Either way the main way in (`emphasis: 'primary'`) comes first under
+ * "Play" with its picture on the accent (wide, an accent edge too), never a
+ * fill, which would read as already chosen, nor a tag that wraps under a
+ * title naming bots. The quiet ones (`'quiet'`) have secondary pictures. Presentational; the caller
+ * opens what each choice names.
  *
  * @example
  * ```tsx
@@ -247,6 +403,8 @@ function WideGameMenu(props: GameMenuScreenProps): JSX.Element {
  *   title="Connect Four"
  *   motif="discs"
  *   subtitle="Drop discs and line up four"
+ *   groups={{ play: 'Play', more: 'More' }}
+ *   howToPlay={{ label: 'How to play', onClick: openRules }}
  *   choices={[{ key: 'custom-game', title: 'Play with friends or bots',
  *     icon: UsersIcon, emphasis: 'primary', onClick: openCustomGame }]}
  * />
@@ -254,38 +412,8 @@ function WideGameMenu(props: GameMenuScreenProps): JSX.Element {
  */
 export function GameMenuScreen(props: GameMenuScreenProps): JSX.Element {
   const mode = useLayoutMode();
-  const rows = createMemo((): MainMenuItem[] =>
-    props.choices.map((choice) => ({
-      key: choice.key,
-      title: choice.title,
-      caption: choice.caption,
-      emphasis: choice.emphasis,
-      dataSet: choice.dataSet,
-      onClick: choice.onClick,
-      leading: <ChoiceIcon choice={choice} size="row" />,
-      meta: choice.emphasis === 'primary' ? choice.badge : undefined,
-      // The lead's tag sits beside its title, so its row is the same shape
-      // as every other row (a tag over the title made the rows uneven).
-      metaPlacement: 'title',
-    }))
-  );
   return (
-    <Show
-      when={mode() === 'wide'}
-      fallback={
-        <MainMenuScreen
-          screenId={props.screenId}
-          dataSet={props.dataSet}
-          title={
-            <GameTitleLockup tile={<GameTile motif={props.motif} size="lg" />}>
-              {props.title}
-            </GameTitleLockup>
-          }
-          subtitle={props.subtitle}
-          items={rows()}
-        />
-      }
-    >
+    <Show when={mode() === 'wide'} fallback={<CompactGameMenu {...props} />}>
       <WideGameMenu {...props} />
     </Show>
   );

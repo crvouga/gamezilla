@@ -11,7 +11,8 @@ const DEVELOPER: GameSettingsPlace = { screen: 'settings/developer' };
 
 function group(
   rows: Parameters<typeof GameSettingsScreenView>[0]['rows'],
-  onOpen: (place: GameSettingsPlace) => void = () => undefined
+  onOpen: (place: GameSettingsPlace) => void = () => undefined,
+  onBack: () => void = () => undefined
 ) {
   return renderWithI18n(() => (
     <ThemeProvider colorScheme="dark" fixedLayout={{ width: 390, height: 844 }}>
@@ -21,6 +22,8 @@ function group(
         subtitle="Developer tools."
         rows={rows}
         onOpen={onOpen}
+        backLabel="Chess"
+        onBack={onBack}
       />
     </ThemeProvider>
   ));
@@ -49,12 +52,13 @@ test('each row opens the place it names, by its own control', () => {
 });
 
 test('a group with no row the person may see says so, with the way out', () => {
-  const view = group([]);
+  const onBack = mock(() => undefined);
+  const view = group([], undefined, onBack);
   expect(view.getByTestId('game-settings-empty').textContent).toContain(
-    'Nothing to open here'
+    'Nothing to change here'
   );
-  expect(view.getByTestId('game-settings-empty').textContent).toContain(
-    'Go back'
-  );
+  const back = view.getByRole('button', { name: 'Back to Chess' });
+  back.click();
+  expect(onBack).toHaveBeenCalledTimes(1);
   view.unmount();
 });

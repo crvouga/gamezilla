@@ -4,6 +4,12 @@ import { AppHeaderIslandView } from '@libs/app-root-client-ts/app-header-island-
 import { AppTabBarView } from '@libs/app-root-client-ts/app-tab-bar-view';
 import { STORY_APP_TABS } from '@libs/app-root-client-ts/app-tabs-story.example';
 import { SpaceDetailScreenView } from '@libs/spaces-client-ts/space-detail-screen-view';
+import {
+  SpacesNavProvider,
+  useSpacesNavBack,
+  useSpacesNavBackLabel,
+  useSpacesNavPlace,
+} from '@libs/spaces-client-ts/spaces-nav-context';
 import { AppFrame } from '@pkgs/ui-root-client-ts/app-frame';
 import { AppFrameChromeProvider } from '@pkgs/ui-root-client-ts/app-frame-chrome';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
@@ -25,18 +31,27 @@ function AccountMenu(props: { readonly showName?: boolean }): JSX.Element {
   );
 }
 
+/**
+ * The space's bar as production wires it: a screen's own Back (and the
+ * name of where it leads) and the selected game in the trail.
+ */
 function SpaceBody(props: { readonly children: JSX.Element }): JSX.Element {
+  const onPressBack = useSpacesNavBack();
+  const backLabel = useSpacesNavBackLabel();
+  const place = useSpacesNavPlace();
   return (
     <SpaceDetailScreenView
       title="Friday game night"
       spaceId="story-room"
+      place={place()}
       status="ready"
       hostOffline={false}
       canRename
       canEnd
       presenceCount={2}
       onPressHome={fn()}
-      onPressBack={null}
+      onPressBack={onPressBack()}
+      backLabel={backLabel()}
       onPressMembers={fn()}
       onPressShare={fn()}
       onPressRename={fn()}
@@ -113,11 +128,15 @@ export function StoryProductShell(props: {
 }): JSX.Element {
   return (
     <AppFrameChromeProvider globalTrailing={<AccountMenu />}>
-      <StoryFrame
-        story={props.story}
-        asRail={props.asRail}
-        route={storyRoute(props.id, props.route)}
-      />
+      {/* Above the frame: the story resolves here, before it is placed in
+          the space's body, and its Back registers with this provider. */}
+      <SpacesNavProvider>
+        <StoryFrame
+          story={props.story}
+          asRail={props.asRail}
+          route={storyRoute(props.id, props.route)}
+        />
+      </SpacesNavProvider>
     </AppFrameChromeProvider>
   );
 }

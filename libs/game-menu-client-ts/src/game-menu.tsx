@@ -32,6 +32,13 @@ function GameChoices(props: {
 }): JSX.Element {
   const { t } = useLingui();
   const nav = useScreenPlace(GAME_MENU_PLACES, () => 'open' as const);
+  const rules = createMemo(() =>
+    props.game.instructions?.map((rule) => ({
+      key: rule.key,
+      title: <Dynamic component={rule.title} />,
+      body: <Dynamic component={rule.body} />,
+    }))
+  );
   const choices = createMemo(() =>
     gameChoices(props.game, props.offers).map((choice) => ({
       screen: choice.screen,
@@ -52,11 +59,7 @@ function GameChoices(props: {
         title={props.game.title}
         tile={props.game.tile}
         subtitle={<Dynamic component={props.game.subtitle} />}
-        instructions={
-          props.game.instructions === undefined ? undefined : (
-            <Dynamic component={props.game.instructions} />
-          )
-        }
+        instructions={rules()}
         choices={choices()}
         onChoose={(screen) => props.navigation.show(screen)}
         place={nav.place()}

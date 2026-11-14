@@ -5,13 +5,13 @@ import {
   type GameMenuChoice,
   GameMenuScreen,
 } from '@pkgs/ui-root-client-ts/game-menu-screen';
+import type { GameRulesSection } from '@pkgs/ui-root-client-ts/game-rules-screen';
 import type { GameTileMotif } from '@pkgs/ui-root-client-ts/game-tile';
 import {
   ActivityIcon,
   CompassIcon,
   HistoryIcon,
   LightbulbIcon,
-  ScrollTextIcon,
   SearchIcon,
   SettingsIcon,
   SquareStackIcon,
@@ -23,7 +23,7 @@ import { GameHowToPlayView } from './game-how-to-play-view';
 import type { GameMenuPlace } from './game-menu-places';
 import { SHARED_GAME_SCREEN } from './shared-game-screens';
 
-/** The row that opens how to play; it names its control like a choice. */
+/** How to play's button names its control like a choice. */
 export const HOW_TO_PLAY_CHOICE = 'how-to-play';
 
 /** One choice in a game's menu: the screen it opens and how it reads. */
@@ -37,8 +37,8 @@ export type GameMenuChoiceView = {
 /**
  * How strongly each choice asks to be chosen: playing with friends or bots
  * is the main way in (the menu's one emphasised row), finding an opponent
- * an ordinary one, and looking back (history, puzzle stats), settings or
- * how to play the quiet ones.
+ * and puzzles ordinary ways to play, and looking back (history, puzzle
+ * stats) and settings the quiet ones, grouped apart under "More".
  */
 export const GAME_CHOICE_EMPHASIS: Readonly<
   Record<string, MainMenuItem['emphasis']>
@@ -47,14 +47,13 @@ export const GAME_CHOICE_EMPHASIS: Readonly<
   [SHARED_GAME_SCREEN.history]: 'quiet',
   [SHARED_GAME_SCREEN.puzzleStats]: 'quiet',
   [SHARED_GAME_SCREEN.settings]: 'quiet',
-  [HOW_TO_PLAY_CHOICE]: 'quiet',
 };
 
 /**
  * The picture each choice is known by: puzzles a bulb, their stats a
  * trend, a game's library a stack, playing with friends or bots people,
  * finding an opponent a search, history the clock turning back, settings
- * the gear, how to play the rules' scroll.
+ * the gear.
  */
 const ICON: Readonly<Record<string, IconComponent>> = {
   [SHARED_GAME_SCREEN.puzzle]: LightbulbIcon,
@@ -64,7 +63,6 @@ const ICON: Readonly<Record<string, IconComponent>> = {
   [SHARED_GAME_SCREEN.matchmaking]: SearchIcon,
   [SHARED_GAME_SCREEN.history]: HistoryIcon,
   [SHARED_GAME_SCREEN.settings]: SettingsIcon,
-  [HOW_TO_PLAY_CHOICE]: ScrollTextIcon,
 };
 
 export type GameMenuScreenViewProps = {
@@ -75,11 +73,11 @@ export type GameMenuScreenViewProps = {
   /** One line under the name: what the game is. */
   readonly subtitle: JSX.Element;
   /**
-   * How to play, in the game's own words. The menu offers it as a row and
-   * shows it on the `how-to-play` place; a game that says nothing has
-   * neither.
+   * How to play, in the game's own words, part by part. The menu offers it
+   * under the game's name and shows it on the `how-to-play` place; a game
+   * that says nothing has neither.
    */
-  readonly instructions?: JSX.Element | undefined;
+  readonly instructions?: readonly GameRulesSection[] | undefined;
   /** The template screens the game offers, in the one order every game shares. */
   readonly choices: readonly GameMenuChoiceView[];
   readonly onChoose: (screen: string) => void;
@@ -99,35 +97,18 @@ function menuChoice(
     caption: choice.caption,
     icon: ICON[choice.screen] ?? CompassIcon,
     emphasis: GAME_CHOICE_EMPHASIS[choice.screen],
-    // The main way in says why it leads, in words, on every size.
-    badge:
-      GAME_CHOICE_EMPHASIS[choice.screen] === 'primary' ? (
-        <Trans>Recommended</Trans>
-      ) : undefined,
     dataSet: { testid: Handles.gameChoice(choice.screen) },
     onClick,
   };
 }
 
-/** The game's choices, then how to play when the game says how. */
+/** The game's choices, with how to play under its name when the game says how. */
 function GameMenuHub(props: GameMenuScreenViewProps): JSX.Element {
-  const choices = createMemo((): GameMenuChoice[] => [
-    ...props.choices.map((choice) =>
+  const choices = createMemo((): GameMenuChoice[] =>
+    props.choices.map((choice) =>
       menuChoice(choice, () => props.onChoose(choice.screen))
-    ),
-    ...(props.instructions === undefined
-      ? []
-      : [
-          menuChoice(
-            {
-              screen: HOW_TO_PLAY_CHOICE,
-              title: <Trans>How to play</Trans>,
-              caption: <Trans>The rules, in a few lines</Trans>,
-            },
-            () => props.onOpen({ screen: 'how-to-play' })
-          ),
-        ]),
-  ]);
+    )
+  );
   return (
     <GameMenuScreen
       screenId="game-choices"
@@ -135,22 +116,57 @@ function GameMenuHub(props: GameMenuScreenViewProps): JSX.Element {
       title={props.title}
       motif={props.tile}
       subtitle={props.subtitle}
+      groups={{ play: <Trans>Play</Trans>, more: <Trans>More</Trans> }}
+      howToPlay={
+        props.instructions === undefined
+          ? undefined
+          : {
+              label: <Trans>How to play</Trans>,
+              onClick: () => props.onOpen({ screen: 'how-to-play' }),
+              dataSet: { testid: Handles.gameChoice(HOW_TO_PLAY_CHOICE) },
+            }
+      }
       choices={choices()}
     />
+  );
+}
+
+/** The menu's main way in, which the rules lead on to: the first way to play. */
+function mainWayIn(
+  choices: readonly GameMenuChoiceView[]
+): GameMenuChoiceView | undefined {
+  return (
+    choices.find((c) => GAME_CHOICE_EMPHASIS[c.screen] === 'primary') ??
+    choices.find((c) => GAME_CHOICE_EMPHASIS[c.screen] !== 'quiet')
   );
 }
 
 /**
  * A game's menu in a space, presentational: a hub of the template screens
  * the game offers (puzzles, custom games, finding an opponent, history,
- * settings), each a row that leads onward, with one emphasised way in.
- * How to play is a small place of its own behind the hub, opened by a row.
+ * settings), each a row that leads onward, the ways to play apart from the
+ * rest, with one emphasised way in. How to play is a small place of its own
+ * behind the hub, opened from under the game's name, and leads on to the
+ * main way in.
  * `GameMenu` decides which choices the game offers, opens the screen each
  * one names and keeps this device's place.
  */
 export function GameMenuScreenView(
   props: GameMenuScreenViewProps
 ): JSX.Element {
+  const play = createMemo(() => {
+    const way = mainWayIn(props.choices);
+    return way === undefined
+      ? undefined
+      : {
+          title: way.title,
+          // The menu is home again once the game is left.
+          onClick: () => {
+            props.onOpen({ screen: 'menu' });
+            props.onChoose(way.screen);
+          },
+        };
+  });
   return (
     <Switch>
       <Match when={props.place.screen === 'menu'}>
@@ -159,7 +175,11 @@ export function GameMenuScreenView(
       <Match when={props.place.screen === 'how-to-play'}>
         <GameHowToPlayView
           title={props.title}
-          instructions={props.instructions}
+          tile={props.tile}
+          subtitle={props.subtitle}
+          rules={props.instructions ?? []}
+          play={play()}
+          onBack={() => props.onOpen({ screen: 'menu' })}
         />
       </Match>
     </Switch>

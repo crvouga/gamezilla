@@ -1,14 +1,20 @@
+import {
+  DefineBackButton,
+  GameChoicesName,
+} from '@libs/spaces-client-ts/spaces-nav-context';
+import type { JSX } from 'solid-js';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import {
   type GameSettingsRowView,
   GameSettingsScreenView,
+  type GameSettingsScreenViewProps,
 } from './game-settings-screen-view';
 
 const DEVELOPER: GameSettingsRowView = {
   key: 'developer',
   title: 'Developer',
-  caption: 'Puzzle import tools.',
+  caption: 'Import and manage chess puzzles',
   testId: 'chess-settings-developer',
   opens: { screen: 'settings/developer' },
 };
@@ -16,23 +22,43 @@ const DEVELOPER: GameSettingsRowView = {
 const PUZZLES: GameSettingsRowView = {
   key: 'puzzles',
   title: 'Load chess puzzles',
-  caption: 'Load Lichess CSV, follow progress, and stop loading.',
+  caption: 'Load a Lichess CSV, follow its progress, or stop it.',
   testId: 'chess-developer-puzzles',
   opens: { screen: 'settings/developer/puzzles' },
 };
+
+/**
+ * A settings group as `GameSettingsScreen` shows it in a space: the bar's
+ * Back names where it leads (`backLabel`), the game's name in its trail.
+ */
+function SettingsStory(props: GameSettingsScreenViewProps): JSX.Element {
+  return (
+    <GameChoicesName name="Chess">
+      <DefineBackButton
+        onPress={props.onBack}
+        label={
+          typeof props.backLabel === 'string' ? props.backLabel : undefined
+        }
+      />
+      <GameSettingsScreenView {...props} />
+    </GameChoicesName>
+  );
+}
 
 const meta = {
   id: 'screens-games-settings-group',
   title: 'Screens/Games/Settings/Group',
   component: GameSettingsScreenView,
+  render: (args) => <SettingsStory {...args} />,
   tags: ['autodocs'],
   parameters: { appRouter: true, controls: { exclude: ['rows', 'place'] } },
   args: {
     place: { screen: 'settings' },
     title: 'Settings',
-    subtitle: 'Developer tools.',
     rows: [DEVELOPER],
     onOpen: fn(),
+    backLabel: 'Chess',
+    onBack: fn(),
   },
 } satisfies Meta<typeof GameSettingsScreenView>;
 export default meta;
@@ -46,8 +72,9 @@ export const NestedGroup: Story = {
   args: {
     place: { screen: 'settings/developer' },
     title: 'Developer',
-    subtitle: 'Import and manage puzzle content.',
+    subtitle: 'Import and manage chess puzzles.',
     rows: [PUZZLES],
+    backLabel: 'Settings',
   },
 };
 
@@ -59,7 +86,7 @@ export const PermissionHiddenRows: Story = {
   args: {
     place: { screen: 'settings/developer' },
     title: 'Developer',
-    subtitle: 'Import and manage puzzle content.',
+    subtitle: 'Import and manage chess puzzles.',
     rows: [
       {
         key: 'board',
@@ -69,16 +96,25 @@ export const PermissionHiddenRows: Story = {
         opens: { screen: 'settings/developer/board' },
       },
     ],
+    backLabel: 'Settings',
   },
 };
 
-/** A group none of whose rows the person may see says so, with the way out. */
+/** A group none of whose rows the person may see says so, with the way back. */
 export const EmptyGroup: Story = {
   args: {
     place: { screen: 'settings/developer' },
     title: 'Developer',
-    subtitle: 'Import and manage puzzle content.',
+    subtitle: 'Import and manage chess puzzles.',
     rows: [],
+    backLabel: 'Settings',
+  },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      await canvas.findByRole('button', { name: 'Back to Settings' })
+    );
+    await expect(args.onBack).toHaveBeenCalled();
   },
 };
 

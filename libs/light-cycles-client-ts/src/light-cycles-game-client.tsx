@@ -1,4 +1,7 @@
-import { defineGameClient } from '@libs/game-menu-client-ts/game-client';
+import {
+  defineGameClient,
+  type GameRule,
+} from '@libs/game-menu-client-ts/game-client';
 import type { LightCyclesRiderCount } from '@libs/light-cycles-shared-ts/light-cycles-config';
 import {
   lightCyclesDuelShared,
@@ -33,14 +36,37 @@ const presentation = (name: () => string, riders: LightCyclesRiderCount) => ({
         : reason,
 });
 
-const instructions = () => (
-  <Trans>
-    Steer your rider around the arena. Every rider leaves a light trail; the
-    edge and every trail crash a rider. The last rider riding wins the round,
-    and the first to the target score wins the game. Ride against bots, share a
-    device, invite people, or find players.
-  </Trans>
-);
+const instructions: readonly GameRule[] = [
+  {
+    key: 'goal',
+    title: () => <Trans>Goal</Trans>,
+    body: () => (
+      <Trans>
+        Be the last rider riding to win a round, and first to the target score
+        to win the game.
+      </Trans>
+    ),
+  },
+  {
+    key: 'ride',
+    title: () => <Trans>Ride</Trans>,
+    body: () => (
+      <Trans>
+        Steer your rider around the arena. Every rider leaves a light trail; the
+        edge and every trail crash a rider.
+      </Trans>
+    ),
+  },
+  {
+    key: 'who',
+    title: () => <Trans>Who you play</Trans>,
+    body: () => (
+      <Trans>
+        Ride against bots, share a device, invite people, or find players.
+      </Trans>
+    ),
+  },
+];
 
 export const lightCyclesDuelClient = defineGameClient({
   shared: lightCyclesDuelShared,

@@ -28,7 +28,6 @@ function threeChoices(width: number) {
             caption: 'With the people in this space, or bots',
             icon: UsersIcon,
             emphasis: 'primary',
-            badge: 'Recommended',
             dataSet: { testid: 'choice-play' },
             onClick: () => undefined,
           },
@@ -70,7 +69,6 @@ function menu(width: number, onPlay: () => void) {
             caption: 'Choose who plays',
             icon: UsersIcon,
             emphasis: 'primary',
-            badge: 'Recommended',
             dataSet: { testid: 'choice-play' },
             onClick: onPlay,
           },
@@ -79,7 +77,6 @@ function menu(width: number, onPlay: () => void) {
             title: 'History and stats',
             icon: HistoryIcon,
             emphasis: 'quiet',
-            badge: 'Ignored',
             dataSet: { testid: 'choice-history' },
             onClick: () => undefined,
           },
@@ -152,19 +149,13 @@ describe('GameMenuScreen', () => {
   // regression: game-menu-recommended-badge-detached — wide, the
   // "Recommended" tag was a 10px chip at the tile's far corner, far from its
   // title, and the tile's chevron sat at the foot of a mostly empty card.
-  test('wide: the lead tag sits beside its title at a readable size, the tile one line across', () => {
+  // regression: game-menu-tag-wraps-small-phone — beside a title naming
+  // bots the tag no longer fit and wrapped under it. The lead says it leads
+  // by its place, its accent picture and edge; no tag rides on any tile.
+  test('wide: the lead carries no tag, the tile one line across', () => {
     const view = menu(1440, () => undefined);
     const play = view.getByTestId('choice-play');
-    const badge = view
-      .getByText('Recommended')
-      .closest('[data-component="Badge"]');
-    expect(badge?.getAttribute('data-size')).toBe('md');
-    expect(badge?.getAttribute('data-intent')).toBe('brand');
-    expect(
-      badge?.parentElement?.contains(
-        view.getByText('Play with friends or bots')
-      )
-    ).toBe(true);
+    expect(play.querySelector('[data-component="Badge"]')).toBeNull();
     // Picture, words, chevron: three children across, no head row.
     expect(play.children).toHaveLength(3);
     view.unmount();
@@ -201,19 +192,21 @@ describe('GameMenuScreen', () => {
 
   // regression: game-menu-primary-emphasis-differs-by-size — wide led with a
   // tinted card that read as hovered or chosen; a phone row lost the lead.
-  test('the main way in leads alike on every size: its picture on the accent and its tag', () => {
+  test('the main way in leads alike on every size: first, its picture on the accent', () => {
     for (const width of [1440, 390]) {
       const view = menu(width, () => undefined);
       const play = view.getByTestId('choice-play');
       const history = view.getByTestId('choice-history');
-      expect(play.textContent).toContain('Recommended');
-      expect(history.textContent).not.toContain('Ignored');
       expect(
         play.querySelector('[aria-hidden="true"][data-emphasis="primary"]')
       ).not.toBeNull();
       expect(
         history.querySelector('[aria-hidden="true"][data-emphasis="quiet"]')
       ).not.toBeNull();
+      const first = view.container.querySelector(
+        '[data-component="GameMenuChoice"], [data-component="MainMenuItem"]'
+      );
+      expect(first).toBe(play);
       view.unmount();
     }
   });
@@ -260,24 +253,67 @@ describe('GameMenuScreen', () => {
   // regression: game-menu-recommended-splits-sentence — moved to the start
   // of the caption, it then broke the caption's sentence.
   // regression: game-menu-tag-uneven-rows — then it headed the row over the
-  // title, making the lead's row taller than the rest. It sits beside its
-  // (shorter) title on the title's own line, never in the caption.
-  test("phone: the lead's tag sits beside its title, never on a line of its own or in the caption", () => {
+  // title, making the lead's row taller than the rest.
+  // regression: game-menu-tag-wraps-small-phone — beside the title it still
+  // wrapped to a line of its own at 360px once the title named bots. On a
+  // phone the lead is said by its place (first under "Play") and its
+  // picture on the accent.
+  test("phone: the lead's row carries no tag, so it is the shape of every row", () => {
     const view = threeChoices(390);
-    const caption = view.getByText('With the people in this space, or bots');
-    expect(caption.querySelector('[data-component="Badge"]')).toBeNull();
-    const badge = view
-      .getByTestId('choice-play')
-      .querySelector('[data-component="Badge"]');
-    expect(badge?.textContent).toBe('Recommended');
-    const title = view.getByText('Play with friends');
-    const before = (a: Node, b: Node): boolean =>
-      (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
-    if (badge === null) throw new Error('No tag');
-    // On the title's own line: the tag and the title share one row box.
-    expect(badge.parentElement?.contains(title)).toBe(true);
-    expect(before(title, badge)).toBe(true);
-    expect(before(badge, caption)).toBe(true);
+    const play = view.getByTestId('choice-play');
+    expect(play.querySelector('[data-component="Badge"]')).toBeNull();
+    expect(play.textContent).not.toContain('Recommended');
+    expect(
+      play.querySelector('[aria-hidden="true"][data-emphasis="primary"]')
+    ).not.toBeNull();
     view.unmount();
+  });
+
+  test('both sizes: the ways to play and the looks back are groups of their own, named', () => {
+    for (const width of [1440, 390]) {
+      const view = render(() => (
+        <ThemeProvider colorScheme="light" fixedLayout={{ width, height: 900 }}>
+          <GameMenuScreen
+            screenId="game-choices"
+            title="Connect Four"
+            motif="discs"
+            groups={{ play: 'Play', more: 'More' }}
+            howToPlay={{
+              label: 'How to play',
+              onClick: () => undefined,
+              dataSet: { testid: 'how-to-play' },
+            }}
+            choices={[
+              {
+                key: 'custom-game',
+                title: 'Play with friends or bots',
+                icon: UsersIcon,
+                emphasis: 'primary',
+                dataSet: { testid: 'choice-play' },
+                onClick: () => undefined,
+              },
+              {
+                key: 'history',
+                title: 'History and stats',
+                icon: HistoryIcon,
+                emphasis: 'quiet',
+                dataSet: { testid: 'choice-history' },
+                onClick: () => undefined,
+              },
+            ]}
+          />
+        </ThemeProvider>
+      ));
+      const play = view.getByText('Play').closest('[data-layout="play"]');
+      const more = view.getByText('More').closest('[data-layout="more"]');
+      expect(play?.contains(view.getByTestId('choice-play'))).toBe(true);
+      expect(more?.contains(view.getByTestId('choice-history'))).toBe(true);
+      // The rules are offered under the game's name, before any choice.
+      const hero = view
+        .getByTestId('how-to-play')
+        .closest('[data-layout="hero"]');
+      expect(hero).not.toBeNull();
+      view.unmount();
+    }
   });
 });

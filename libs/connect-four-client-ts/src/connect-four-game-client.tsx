@@ -11,12 +11,33 @@ export const connectFourGameClient = defineGameClient({
   subtitle: () => (
     <Trans>Drop a disc. Connect four. Plan your next turn.</Trans>
   ),
-  instructions: () => (
-    <Trans>
-      Red circles play first, then Yellow diamonds. Choose a column to drop into
-      its lowest empty place. Four in a row, column, or diagonal wins. A full
-      board without four is a draw.
-    </Trans>
-  ),
+  instructions: [
+    {
+      key: 'goal',
+      title: () => <Trans>Goal</Trans>,
+      body: () => (
+        <Trans>
+          Line up four of your own: in a row, a column or a diagonal.
+        </Trans>
+      ),
+    },
+    {
+      key: 'turn',
+      title: () => <Trans>Your turn</Trans>,
+      body: () => (
+        <Trans>
+          Red circles play first, then Yellow diamonds. Choose a column; your
+          piece drops into its lowest empty place.
+        </Trans>
+      ),
+    },
+    {
+      key: 'end',
+      title: () => <Trans>The end</Trans>,
+      body: () => (
+        <Trans>Four in a line wins. A full board without four is a draw.</Trans>
+      ),
+    },
+  ],
   presentation: connectFourPresentation,
 });

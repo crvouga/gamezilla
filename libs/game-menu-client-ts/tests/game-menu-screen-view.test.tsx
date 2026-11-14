@@ -6,15 +6,17 @@ import { GameMenuScreenView } from '@libs/game-menu-client-ts/game-menu-screen-v
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 
-const RULES =
+const RULE =
   'Take turns dropping a disc into a column. Four in a row, column or diagonal wins.';
+const RULES = [{ key: 'goal', title: 'Goal', body: RULE }];
 const TAGLINE = 'Drop discs and line up four';
 
 function menu(options: {
   width: number;
-  instructions: string | undefined;
+  instructions: typeof RULES | undefined;
   place: GameMenuPlace;
   onOpen?: (place: GameMenuPlace) => void;
+  onChoose?: (screen: string) => void;
 }) {
   return renderWithI18n(() => (
     <ThemeProvider
@@ -38,7 +40,7 @@ function menu(options: {
             caption: 'Review your games, wins and draws',
           },
         ]}
-        onChoose={() => undefined}
+        onChoose={options.onChoose ?? (() => undefined)}
         place={options.place}
         onOpen={options.onOpen ?? (() => undefined)}
       />
@@ -59,7 +61,7 @@ test.each([390, 1440])(
       place: { screen: 'menu' },
     });
     expect(view.getByText(TAGLINE)).toBeTruthy();
-    expect(view.queryByText(RULES)).toBeNull();
+    expect(view.queryByText(RULE)).toBeNull();
     expect(view.getByTestId('game-choice-how-to-play')).toBeTruthy();
     view.unmount();
   }
@@ -81,7 +83,7 @@ test.each([390, 1440])(
   }
 );
 
-test('the how to play row opens its place, and that place says the rules', () => {
+test('how to play, under the name, opens its place, and that place says the rules', () => {
   const onOpen = mock((_place: GameMenuPlace) => undefined);
   const hub = menu({
     width: 390,
@@ -97,12 +99,52 @@ test('the how to play row opens its place, and that place says the rules', () =>
     instructions: RULES,
     place: { screen: 'how-to-play' },
   });
-  expect(rules.getByText(RULES)).toBeTruthy();
+  expect(rules.getByText(RULE)).toBeTruthy();
+  expect(rules.getByText('Goal')).toBeTruthy();
   expect(rules.queryByTestId('game-choice-custom-game')).toBeNull();
   rules.unmount();
 });
 
-test('a game that says nothing about how to play offers no such row', () => {
+test('the rules lead on: play the main way in, or back to the menu', () => {
+  const onOpen = mock((_place: GameMenuPlace) => undefined);
+  const onChoose = mock((_screen: string) => undefined);
+  const rules = menu({
+    width: 390,
+    instructions: RULES,
+    place: { screen: 'how-to-play' },
+    onOpen,
+    onChoose,
+  });
+  const play = rules.getByTestId('game-how-to-play-play');
+  expect(play.textContent).toContain('Play with friends');
+  play.click();
+  expect(onChoose).toHaveBeenCalledWith('custom-game');
+  // Leaving for a game makes the menu home again for the way back.
+  expect(onOpen).toHaveBeenCalledWith({ screen: 'menu' });
+  onOpen.mockClear();
+  const back = rules.getByTestId('game-how-to-play-back');
+  expect(back.textContent).toContain('Back to Connect Four');
+  back.click();
+  expect(onOpen).toHaveBeenCalledWith({ screen: 'menu' });
+  rules.unmount();
+});
+
+test('the ways to play and the looks back are named apart', () => {
+  const view = menu({
+    width: 390,
+    instructions: RULES,
+    place: { screen: 'menu' },
+  });
+  const play = view.getByText('Play').closest('[data-layout="play"]');
+  const more = view.getByText('More').closest('[data-layout="more"]');
+  expect(play?.contains(view.getByTestId('game-choice-custom-game'))).toBe(
+    true
+  );
+  expect(more?.contains(view.getByTestId('game-choice-history'))).toBe(true);
+  view.unmount();
+});
+
+test('a game that says nothing about how to play offers no rules', () => {
   const view = menu({
     width: 390,
     instructions: undefined,

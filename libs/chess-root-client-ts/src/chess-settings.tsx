@@ -8,23 +8,22 @@ import { Trans } from '@lingui/solid/macro';
  * hold the puzzle loader for a person allowed to manage puzzles.
  */
 export const chessSettings: GameSettings = {
-  caption: () => <Trans>Preferences and developer tools</Trans>,
-  subtitle: () => <Trans>Developer tools.</Trans>,
+  caption: () => <Trans>Developer tools for puzzles</Trans>,
   rows: [
     {
       key: 'developer',
       title: () => <Trans>Developer</Trans>,
-      caption: () => <Trans>Puzzle import tools.</Trans>,
+      caption: () => <Trans>Import and manage chess puzzles</Trans>,
       opens: {
         kind: 'group',
-        subtitle: () => <Trans>Import and manage puzzle content.</Trans>,
+        subtitle: () => <Trans>Import and manage chess puzzles.</Trans>,
         rows: [
           {
             key: 'puzzles',
             title: () => <Trans>Load chess puzzles</Trans>,
             caption: () => (
               <Trans>
-                Load Lichess CSV, follow progress, and stop loading.
+                Load a Lichess CSV, follow its progress, or stop it.
               </Trans>
             ),
             permission: PERMISSION.puzzlesManage,

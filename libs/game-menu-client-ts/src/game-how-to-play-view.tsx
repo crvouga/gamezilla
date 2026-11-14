@@ -1,27 +1,68 @@
 import { Trans } from '@lingui/solid/macro';
-import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
-import { P } from '@pkgs/ui-root-client-ts/text';
-import type { JSX } from 'solid-js';
+import { Button } from '@pkgs/ui-root-client-ts/button';
+import {
+  GameRulesScreen,
+  type GameRulesSection,
+} from '@pkgs/ui-root-client-ts/game-rules-screen';
+import type { GameTileMotif } from '@pkgs/ui-root-client-ts/game-tile';
+import { ArrowLeftIcon } from '@pkgs/ui-root-client-ts/icons';
+import { type JSX, Show } from 'solid-js';
+
+/** The way to play that the rules lead on to: the menu's main way in. */
+export type GameHowToPlayNext = {
+  readonly title: JSX.Element;
+  readonly onClick: () => void;
+};
 
 /**
  * How a game is played, on a screen of its own behind the game's menu: the
- * game's name and its own words, at a reading measure. The host's Back
- * returns to the menu.
+ * game's picture and name, its rules in numbered parts at a reading
+ * measure, then what to do next: start playing the menu's main way in, or
+ * go back to the menu. The host's Back returns to the menu too.
  */
 export function GameHowToPlayView(props: {
   /** The game's name. */
   title: string;
-  /** The game's own words on how it is played. */
-  instructions: JSX.Element;
+  tile: GameTileMotif;
+  /** One line under the name: what the game is. */
+  subtitle: JSX.Element;
+  /** The game's own rules, in the order they are learned. */
+  rules: readonly GameRulesSection[];
+  /** The main way to play, when the game offers one. */
+  play?: GameHowToPlayNext | undefined;
+  onBack: () => void;
 }): JSX.Element {
   return (
-    <EmbeddedScreen
+    <GameRulesScreen
       screenId="game-how-to-play"
-      width="prose"
-      title={<Trans>How to play {props.title}</Trans>}
+      eyebrow={<Trans>How to play</Trans>}
+      title={props.title}
+      motif={props.tile}
+      subtitle={props.subtitle}
+      sections={props.rules}
       dataSet={{ testid: 'game-how-to-play' }}
-    >
-      <P variant="body">{props.instructions}</P>
-    </EmbeddedScreen>
+      actions={
+        <>
+          <Show when={props.play} keyed>
+            {(play) => (
+              <Button
+                title={play.title}
+                intent="primary"
+                onClick={play.onClick}
+                dataSet={{ testid: 'game-how-to-play-play' }}
+              />
+            )}
+          </Show>
+          <Button
+            title={<Trans>Back to {props.title}</Trans>}
+            icon={ArrowLeftIcon}
+            intent="neutral"
+            variant="outline"
+            onClick={props.onBack}
+            dataSet={{ testid: 'game-how-to-play-back' }}
+          />
+        </>
+      }
+    />
   );
 }

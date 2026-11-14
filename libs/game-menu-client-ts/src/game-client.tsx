@@ -59,6 +59,15 @@ export type GameClient<G extends AnyGameRegistration = AnyGameRegistration> =
         GameClientContent<G>
     : never;
 
+/** One part of a game's rules: a short name and a few lines under it. */
+export type GameRule = {
+  /** A lowercase slug, unique among the game's rules (`goal`, `turn`). */
+  readonly key: string;
+  /** Rendered where the rule is read (copy is rendered, never built ahead). */
+  readonly title: () => JSX.Element;
+  readonly body: () => JSX.Element;
+};
+
 type GameClientParts = {
   /** The game's name, in the game choice and above its own choices. */
   readonly title: string;
@@ -71,8 +80,12 @@ type GameClientParts = {
   readonly tile: GameTileMotif;
   /** One line under the name above the game's choices. */
   readonly subtitle: () => JSX.Element;
-  /** How to play, on its own small screen opened from the game's choices. */
-  readonly instructions?: () => JSX.Element;
+  /**
+   * How to play, on its own small screen opened from under the game's
+   * name: its rules in the order they are learned (the goal, a turn, how
+   * it ends), each a short name and a few lines.
+   */
+  readonly instructions?: readonly GameRule[];
   /**
    * The game's settings, offered last under the shared name: a tree of
    * rows declared as data, which the platform draws.

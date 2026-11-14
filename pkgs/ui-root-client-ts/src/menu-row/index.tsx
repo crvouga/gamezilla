@@ -16,6 +16,11 @@ export type MenuRowSubmit = {
 
 export type MenuRowProps = {
   title: JSX.Element;
+  /**
+   * Lines the title may wrap to before it ends in an ellipsis. Default `1`;
+   * a row whose title says what it opens in a sentence takes more.
+   */
+  titleLines?: TextLines | undefined;
   caption?: JSX.Element | undefined;
   /** Rendered before the title (e.g. an icon or avatar). */
   leading?: JSX.Element | undefined;
@@ -151,7 +156,7 @@ function MenuRowBody(
           {/* `div`, not `p`: callers pass their own text blocks, and a `p`
               may not contain one. A long title ends in an ellipsis. */}
           <div
-            class="text textBody textRowTitle line-clamp-1 max-w-full"
+            class={`text textBody textRowTitle max-w-full ${props.titleLines === undefined ? 'line-clamp-1' : textStyleClass({ lines: props.titleLines })}`}
             classList={{
               'text-tint': selected(),
               'text-destructive': !selected() && destructive(),

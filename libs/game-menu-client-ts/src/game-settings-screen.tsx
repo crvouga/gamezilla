@@ -57,6 +57,8 @@ function GameSettingsGroup(props: {
   node: GameSettingsNode;
   can: (permission: AppGrantKey) => boolean;
   onOpen: (place: { readonly screen: string }) => void;
+  backLabel: JSX.Element;
+  onBack: () => void;
 }): JSX.Element {
   const rows = createMemo((): GameSettingsRowView[] =>
     gameSettingsRows(props.node, props.can).map((row) => ({
@@ -83,6 +85,8 @@ function GameSettingsGroup(props: {
       }
       rows={rows()}
       onOpen={props.onOpen}
+      backLabel={props.backLabel}
+      onBack={props.onBack}
     />
   );
 }
@@ -110,6 +114,17 @@ export function GameSettingsScreen(props: {
     nav.open(behind);
     return true;
   };
+  // Back's destination by name: the group behind this one, or the menu.
+  const behindName = (): JSX.Element => {
+    const behind = gameSettingsBehind(tree, node().place);
+    const row =
+      behind === null ? undefined : tree.nodes.get(behind.screen)?.row;
+    if (behind === null) return choices() ?? <Trans>the game</Trans>;
+    return <Dynamic component={row?.title ?? SettingsTitle} />;
+  };
+  const leave = (): void => {
+    if (!back()) props.onBack();
+  };
   const load = () => {
     const opens = node().opens;
     return opens.kind === 'catalogue-load' ? opens.load : null;
@@ -117,9 +132,7 @@ export function GameSettingsScreen(props: {
   return (
     <>
       <DefineBackButton
-        onPress={() => {
-          if (!back()) props.onBack();
-        }}
+        onPress={leave}
         label={node().parent === null ? choices() : undefined}
       />
       <Switch>
@@ -129,6 +142,8 @@ export function GameSettingsScreen(props: {
             node={node()}
             can={can}
             onOpen={nav.open}
+            backLabel={behindName()}
+            onBack={leave}
           />
         </Match>
         <Match when={load()} keyed>

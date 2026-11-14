@@ -3,7 +3,6 @@ import { initialSokobanDefinition } from '@libs/sokoban-shared-ts/sokoban-board-
 import { sokobanGameShared } from '@libs/sokoban-shared-ts/sokoban-game';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
-import { P } from '@pkgs/ui-root-client-ts/text';
 import { SokobanEditor } from './sokoban-editor';
 import { SokobanPlayer, SokobanPreview } from './sokoban-player';
 
@@ -13,16 +12,32 @@ export const sokobanGameClient = defineGameClient({
   caption: 'Push every crate onto a goal',
   tile: 'crates',
   subtitle: () => <Trans>Push every crate onto a goal, one at a time.</Trans>,
-  instructions: () => (
-    <P>
-      <Trans>
-        Move the worker up, down, left or right. Walk onto empty floor or push
-        one crate a square further onto empty floor. Crates are never pulled,
-        and two crates in a row do not move. Finish when every crate stands on a
-        goal.
-      </Trans>
-    </P>
-  ),
+  instructions: [
+    {
+      key: 'goal',
+      title: () => <Trans>Goal</Trans>,
+      body: () => <Trans>Finish when every crate stands on a goal.</Trans>,
+    },
+    {
+      key: 'move',
+      title: () => <Trans>Move</Trans>,
+      body: () => (
+        <Trans>
+          Move the worker up, down, left or right, onto empty floor.
+        </Trans>
+      ),
+    },
+    {
+      key: 'push',
+      title: () => <Trans>Push</Trans>,
+      body: () => (
+        <Trans>
+          Walk into a crate to push it one square further onto empty floor.
+          Crates are never pulled, and two crates in a row do not move.
+        </Trans>
+      ),
+    },
+  ],
   puzzleContent: {
     Player: SokobanPlayer,
     Preview: SokobanPreview,

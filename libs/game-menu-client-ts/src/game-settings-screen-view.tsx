@@ -26,14 +26,18 @@ export type GameSettingsScreenViewProps = {
   /** The rows the person may see, in the order the game declared. */
   readonly rows: readonly GameSettingsRowView[];
   readonly onOpen: (place: GameSettingsPlace) => void;
+  /** Where Back leads: the group behind this one, or the game's menu. */
+  readonly backLabel: JSX.Element;
+  readonly onBack: () => void;
 };
 
 /**
  * One group of a game's settings, presentational: a hub of the rows the
  * game declared as data, each leading onward to a nested group or one of
- * the platform's template screens. A group none of whose rows the person
- * may see says so instead of standing blank. `GameSettingsScreen` reads the
- * game's tree, hides rows by permission and keeps the place.
+ * the platform's template screens, its title whole however long. A group
+ * none of whose rows the person may see says so, with a button back to
+ * where they came from, instead of standing blank. `GameSettingsScreen`
+ * reads the game's tree, hides rows by permission and keeps the place.
  */
 export function GameSettingsScreenView(
   props: GameSettingsScreenViewProps
@@ -51,13 +55,17 @@ export function GameSettingsScreenView(
           <EmptyState
             variant="compact"
             role="status"
-            title={<Trans>Nothing to open here</Trans>}
+            title={<Trans>Nothing to change here</Trans>}
             body={
               <Trans>
-                None of these settings are available to you. Go back to choose
-                something else.
+                None of these settings are open to your account. Everything else
+                in the game works as usual.
               </Trans>
             }
+            action={{
+              label: <Trans>Back to {props.backLabel}</Trans>,
+              onClick: props.onBack,
+            }}
             dataSet={{ testid: 'game-settings-empty' }}
           />
         }
@@ -67,6 +75,7 @@ export function GameSettingsScreenView(
             {(row) => (
               <MenuRow
                 title={row.title}
+                titleLines={2}
                 caption={row.caption}
                 onClick={() => props.onOpen(row.opens)}
                 dataSet={{ testid: row.testId }}
