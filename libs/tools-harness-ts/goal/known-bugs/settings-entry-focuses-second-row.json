@@ -1,0 +1,4 @@
+{
+  "summary": "Entering a nested settings group by keyboard focused the group's second row instead of its heading: the departing group read its screen id after the place had already changed, so it filed the row it was left from under the arriving group. A group's screen id is now fixed to the place it was opened for.",
+  "regressionTest": "libs/game-menu-client-ts/tests/game-settings-screen-view.test.tsx"
+}

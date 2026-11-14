@@ -5,6 +5,7 @@ import type { GameSettingsPlace } from '@libs/game-menu-client-ts/game-settings'
 import { GameSettingsScreenView } from '@libs/game-menu-client-ts/game-settings-screen-view';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
+import { createSignal } from 'solid-js';
 
 const ROOT: GameSettingsPlace = { screen: 'settings' };
 const DEVELOPER: GameSettingsPlace = { screen: 'settings/developer' };
@@ -92,4 +93,28 @@ test('each settings group is a screen of its own to the keyboard', () => {
   });
   expect(screens[0]).toBe('game-settings-settings');
   expect(screens[1]).toBe('game-settings-settings-developer');
+});
+
+// regression: settings-entry-focuses-second-row — the departing group read
+// its screen id after the place had changed, filed the row it was left from
+// under the arriving group, and entering a group focused its second row.
+test('a group keeps the screen id of the place it was opened for', () => {
+  const [place, setPlace] = createSignal<GameSettingsPlace>(ROOT);
+  const view = renderWithI18n(() => (
+    <ThemeProvider colorScheme="dark" fixedLayout={{ width: 390, height: 844 }}>
+      <GameSettingsScreenView
+        place={place()}
+        title="Settings"
+        rows={[]}
+        onOpen={() => undefined}
+        backLabel="Chess"
+        onBack={() => undefined}
+      />
+    </ThemeProvider>
+  ));
+  setPlace(DEVELOPER);
+  expect(
+    view.container.querySelector('[data-screen]')?.getAttribute('data-screen')
+  ).toBe('game-settings-settings');
+  view.unmount();
 });

@@ -43,22 +43,22 @@ export const chessGameClient = defineGameClient({
         </Trans>
       ),
       points: [
-        () => <Trans>King: one square in any direction.</Trans>,
+        () => <Trans>♔ King: one square in any direction.</Trans>,
         () => (
-          <Trans>Queen: any distance in a straight line or diagonal.</Trans>
+          <Trans>♕ Queen: any distance in a straight line or diagonal.</Trans>
         ),
-        () => <Trans>Rook: any distance in a straight line.</Trans>,
-        () => <Trans>Bishop: any distance diagonally.</Trans>,
+        () => <Trans>♖ Rook: any distance in a straight line.</Trans>,
+        () => <Trans>♗ Bishop: any distance diagonally.</Trans>,
         () => (
           <Trans>
-            Knight: an L, two squares one way and one to the side, jumping over
-            pieces.
+            ♘ Knight: an L, two squares one way and one to the side, jumping
+            over pieces.
           </Trans>
         ),
         () => (
           <Trans>
-            Pawn: one square forward, or two from its start; it takes one square
-            diagonally forward.
+            ♙ Pawn: one square forward, or two from its start; it takes one
+            square diagonally forward.
           </Trans>
         ),
       ],

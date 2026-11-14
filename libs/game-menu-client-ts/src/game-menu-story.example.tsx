@@ -80,12 +80,12 @@ export const CHESS_RULES: readonly GameRulesSection[] = [
     'Your turn',
     "White moves first, then the sides take turns moving one piece. Land on another's piece to take it; you may never leave your own king in check.",
     [
-      'King: one square in any direction.',
-      'Queen: any distance in a straight line or diagonal.',
-      'Rook: any distance in a straight line.',
-      'Bishop: any distance diagonally.',
-      'Knight: an L, two squares one way and one to the side, jumping over pieces.',
-      'Pawn: one square forward, or two from its start; it takes one square diagonally forward.',
+      '♔ King: one square in any direction.',
+      '♕ Queen: any distance in a straight line or diagonal.',
+      '♖ Rook: any distance in a straight line.',
+      '♗ Bishop: any distance diagonally.',
+      '♘ Knight: an L, two squares one way and one to the side, jumping over pieces.',
+      '♙ Pawn: one square forward, or two from its start; it takes one square diagonally forward.',
     ]
   ),
   rule('special', 'Special moves', 'Three moves break the usual pattern.', [

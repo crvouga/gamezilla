@@ -82,6 +82,17 @@
   padding-block: var(--ui-space-3);
   background: var(--ui-color-background);
 }
+/* Each command sized by its label, the main one taking the room left; when
+   both labels do not fit one row (a phone of 360px), they take a row each
+   rather than clip a label. */
+.actions > * {
+  flex: 1 1 auto;
+}
+/* A line of rules stops at a comfortable reading length on wide screens. */
+.body,
+.points {
+  max-inline-size: 68ch;
+}
 /* While more rules wait below, they fade into the commands' background as
    they pass under them, so a part still to come reads as more to read,
    never a hard cut. The fade follows the scroll and is gone by the end;

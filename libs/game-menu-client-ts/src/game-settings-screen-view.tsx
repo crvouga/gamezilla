@@ -3,7 +3,7 @@ import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
-import { For, type JSX, Show } from 'solid-js';
+import { For, type JSX, Show, untrack } from 'solid-js';
 import type { GameSettingsPlace } from './game-settings';
 
 /** One row of a settings group: how it reads and the place it opens. */
@@ -42,11 +42,14 @@ export type GameSettingsScreenViewProps = {
 export function GameSettingsScreenView(
   props: GameSettingsScreenViewProps
 ): JSX.Element {
+  const screenId = `game-settings-${untrack(() => props.place.screen).replaceAll('/', '-')}`;
   return (
     <EmbeddedScreen
       // One screen per group, so each remembers the row the keyboard left
-      // it from and Back returns there.
-      screenId={`game-settings-${props.place.screen.replaceAll('/', '-')}`}
+      // it from and Back returns there. Named by the place it was mounted
+      // for: a group is remounted per place, and the one leaving must not
+      // file its memory under the place arriving.
+      screenId={screenId}
       title={props.title}
       subtitle={props.subtitle}
       dataSet={{ testid: 'game-settings', place: props.place.screen }}

@@ -98,7 +98,9 @@ export function GameRulesScreen(props: GameRulesScreenProps): JSX.Element {
                 </span>
                 {section.title}
               </h2>
-              <div class="text textBody">{section.body}</div>
+              <div class={`${styles['body']} text textBody`}>
+                {section.body}
+              </div>
               <Show when={section.points?.length}>
                 <ul class={styles['points']}>
                   <For each={section.points}>

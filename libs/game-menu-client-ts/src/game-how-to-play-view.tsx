@@ -67,7 +67,6 @@ export function GameHowToPlayView(props: {
                 title={play.title}
                 intent="primary"
                 size="sm"
-                flex={1}
                 onClick={play.onClick}
                 dataSet={{ testid: 'game-how-to-play-play' }}
               />
