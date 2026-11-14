@@ -1,9 +1,5 @@
-import { Trans } from '@lingui/solid/macro';
-import {
-  GameLobbyDock,
-  GameModeCard,
-} from '@pkgs/ui-root-client-ts/game-lobby';
-import { type JSX, Show } from 'solid-js';
+import { GameLobbyDock } from '@pkgs/ui-root-client-ts/game-lobby';
+import type { JSX } from 'solid-js';
 import {
   MultiplayerLobbyPlace,
   type MultiplayerPlaceFrame,
@@ -13,21 +9,15 @@ import {
   MultiplayerStopSearch,
   MultiplayerWaiting,
 } from './multiplayer-waiting';
-import { timeControlChoiceText } from './time-control-name';
 
 /**
- * A search under way: what will be played, what the search is looking for
- * and how long it has looked, over its one command, stopping it, held at
- * the foot of the screen. An opponent found changes the stage, and the
- * game takes this place under its versus card.
+ * A search under way: the search alone, in the middle of the screen (what
+ * it looks for, how long it has looked, what happens next), over its one
+ * command, stopping it, held at the foot of the screen. An opponent found
+ * changes the stage, and the game takes this place under its versus card.
  */
 export function MultiplayerSearchingView(
   props: MultiplayerPlaceFrame & {
-    readonly title: string;
-    /** How the game is won, in one sentence, where the game says. */
-    readonly goal?: string | undefined;
-    /** The game's board at its start: the mode card's picture. */
-    readonly boardPreview?: JSX.Element;
     readonly search: MultiplayerSearchView;
     readonly onStop: () => Promise<void>;
   }
@@ -44,37 +34,6 @@ export function MultiplayerSearchingView(
         </GameLobbyDock>
       }
     >
-      <GameModeCard
-        layout="banner"
-        eyebrow={<Trans>Ranked match</Trans>}
-        title={props.title}
-        summary={props.goal}
-        art={props.boardPreview}
-        facts={[
-          {
-            id: 'players',
-            label: <Trans>Players</Trans>,
-            value: props.search.players,
-          },
-          {
-            id: 'clock',
-            label: <Trans>Clock</Trans>,
-            value: (
-              <Show
-                when={props.search.timeControl}
-                fallback={<Trans>Untimed</Trans>}
-              >
-                {(control) => timeControlChoiceText(control())}
-              </Show>
-            ),
-          },
-          {
-            id: 'rating',
-            label: <Trans>Rating</Trans>,
-            value: <Trans>Rated</Trans>,
-          },
-        ]}
-      />
       <MultiplayerWaiting search={props.search} />
     </MultiplayerLobbyPlace>
   );

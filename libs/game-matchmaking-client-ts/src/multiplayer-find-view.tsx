@@ -12,7 +12,6 @@ import {
 import {
   GameLobbyDock,
   GameModeCard,
-  type GameModeFact,
 } from '@pkgs/ui-root-client-ts/game-lobby';
 import { CircleCheckIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
@@ -115,34 +114,28 @@ function clockChoice(id: string): GameChoice {
 }
 
 /**
- * What the search will find, as the mode card's tiles: how many play, the
- * clock at the chosen time control in plain words, and that it is rated (a
- * search always is).
+ * What the search will find, in one line over the game's name: rated, how
+ * many play and, for a game without clock choices, that it is untimed (a
+ * game with them shows its clock as the tiles below).
  */
-function conditions(find: MultiplayerFindChoice): readonly GameModeFact[] {
-  return [
-    {
-      id: 'players',
-      label: <Trans>Players</Trans>,
-      value: find.players,
-    },
-    {
-      id: 'clock',
-      label: <Trans>Clock</Trans>,
-      value: find.timed ? (
-        timeControlChoiceText(find.timeControl)
-      ) : (
-        <Trans>Untimed</Trans>
-      ),
-      testId: 'multiplayer-find-clock',
-    },
-    {
-      id: 'rating',
-      label: <Trans>Rating</Trans>,
-      value: <Trans>Rated</Trans>,
-      testId: 'multiplayer-find-rated',
-    },
-  ];
+function Conditions(props: {
+  readonly find: MultiplayerFindChoice;
+}): JSX.Element {
+  return (
+    <>
+      <Text variant="inherit" testId="multiplayer-find-rated">
+        <Trans>Ranked match</Trans>
+      </Text>
+      {' · '}
+      <Trans>{props.find.players} players</Trans>
+      <Show when={!props.find.timed}>
+        {' · '}
+        <Text variant="inherit" testId="multiplayer-find-clock">
+          <Trans>Untimed</Trans>
+        </Text>
+      </Show>
+    </>
+  );
 }
 
 /** How many players a bigger game finds; a two-player search needs no more said. */
@@ -302,18 +295,12 @@ export function MultiplayerFindView(props: FindProps): JSX.Element {
     <MultiplayerLobbyPlace {...props} dock={<FindDock {...props} />}>
       <GameModeCard
         layout="banner"
-        eyebrow={<Trans>Ranked match</Trans>}
+        eyebrow={<Conditions find={props.find} />}
         title={props.title}
         summary={props.goal}
-        facts={conditions(props.find)}
         art={props.boardPreview}
         dataSet={{ testid: 'multiplayer-find-conditions' }}
       />
-      <Show when={props.find.players > 2}>
-        <P variant="caption" tone="secondary" testId="multiplayer-find-players">
-          <PlayersNeeded find={props.find} />
-        </P>
-      </Show>
       <Show when={props.stopped === true}>
         <Notice
           icon={CircleCheckIcon}
@@ -337,6 +324,11 @@ export function MultiplayerFindView(props: FindProps): JSX.Element {
         </Notice>
       </Show>
       <ClockChoices {...props} />
+      <Show when={props.find.players > 2}>
+        <P variant="caption" tone="secondary" testId="multiplayer-find-players">
+          <PlayersNeeded find={props.find} />
+        </P>
+      </Show>
       <FindRows {...props} />
       <Show when={props.find.fresh === true}>
         <MultiplayerGuidePoints

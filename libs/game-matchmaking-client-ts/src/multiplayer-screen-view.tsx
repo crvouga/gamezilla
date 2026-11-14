@@ -30,6 +30,7 @@ import {
   MultiplayerOverlayView,
   type MultiplayerResultShown,
   type MultiplayerVersusShown,
+  multiplayerOverlayCovers,
 } from './multiplayer-overlay-view';
 import type { MultiplayerPlaceFrame } from './multiplayer-place-frame';
 import type { MultiplayerPlace, MultiplayerStage } from './multiplayer-places';
@@ -47,7 +48,11 @@ import type { MultiplayerSearchView } from './multiplayer-waiting';
  * The matched game's stage: the seats around its board, under `overlay`.
  * The place decides what lies over the board; the slot draws it there.
  */
-export type MultiplayerBoardSlot = (overlay?: JSX.Element) => JSX.Element;
+export type MultiplayerBoardSlot = (
+  overlay?: JSX.Element,
+  /** The overlay is drawn now and hides the board. */
+  covered?: boolean
+) => JSX.Element;
 
 export type MultiplayerScreenViewProps = {
   readonly title: string;
@@ -235,9 +240,6 @@ function SearchingPlace(props: Props): JSX.Element {
       {(search) => (
         <MultiplayerSearchingView
           {...frameOf(props)}
-          title={props.title}
-          goal={props.goal}
-          boardPreview={props.boardPreview}
           search={search()}
           onStop={props.onStop}
         />
@@ -280,7 +282,12 @@ function PlayPlace(props: Props): JSX.Element {
               onOverlay={props.onOverlay}
               versus={props.versus}
               result={undefined}
-            />
+            />,
+            multiplayerOverlayCovers({
+              overlay: props.overlay,
+              versus: props.versus,
+              result: undefined,
+            })
           )}
           status={props.status}
           game={game()}

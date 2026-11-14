@@ -409,6 +409,14 @@ function Offers(props: StatusProps): JSX.Element {
       <Show when={offeredToMe(props.game.rematch_offer_by)}>
         <Trans>{rematchName()} wants a rematch.</Trans>{' '}
       </Show>
+      <Show
+        when={
+          props.viewer.participant &&
+          props.game.rematch_offer_by === props.viewer.myId
+        }
+      >
+        <Trans>Rematch offered. Waiting for an answer.</Trans>{' '}
+      </Show>
     </>
   );
 }
@@ -438,6 +446,7 @@ export function multiplayerStatusHasDetail(props: StatusProps): boolean {
   return (
     offered(game.draw_offer_by) ||
     offered(game.rematch_offer_by) ||
+    game.rematch_offer_by === props.viewer.myId ||
     game[`${ownSide(props)}_rating_diff`] != null
   );
 }

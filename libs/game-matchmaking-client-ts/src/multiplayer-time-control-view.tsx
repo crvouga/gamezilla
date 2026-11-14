@@ -50,8 +50,8 @@ export function MultiplayerTimeControlView(
           }
         >
           <Trans>
-            Chosen: {timeControlWords(props.timeControl)}. In a daily game each
-            player has that long for every move.
+            Chosen: {timeControlWords(props.timeControl)}. That long for every
+            move.
           </Trans>
         </Show>
       }

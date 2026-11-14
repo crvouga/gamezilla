@@ -4,7 +4,8 @@ import { Spinner } from '../spinner/index';
 import styles from './game-search-state.module.css';
 
 /**
- * Waiting for a game to be found: the screen's centre while it lasts. A
+ * Waiting for a game to be found: the screen's centre while it lasts,
+ * taking the room its column has and standing in the middle of it. A
  * pulse around the activity indicator, what is being looked for, how long
  * it has taken as a large running clock, and a line of reassurance. The way
  * out is the caller's (a dock, or `actions` under the panel).
@@ -21,7 +22,7 @@ export function GameSearchState(props: {
 }): JSX.Element {
   return (
     <section
-      class={`${styles['search']} rounded-card border border-border bg-surface`}
+      class={styles['search']}
       {...dataAttrs({ component: 'GameSearchState' })}
     >
       <div class={styles['pulse']} aria-hidden="true">

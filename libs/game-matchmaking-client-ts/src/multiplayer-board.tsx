@@ -41,6 +41,8 @@ type BoardProps = {
   readonly ownHand: string | null;
   /** What lies over the board: the versus card, the result card. */
   readonly overlay?: JSX.Element | undefined;
+  /** The overlay is drawn now and hides the board. */
+  readonly covered?: boolean | undefined;
 };
 
 /** Every seat but the one nearest the person, above the board. */
@@ -163,6 +165,7 @@ function BoardStage(
   return (
     <GameBoardStage
       overlay={props.overlay}
+      covered={props.covered}
       dataSet={gameMark(props, shown())}
       others={
         <OtherSeats

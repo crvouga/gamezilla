@@ -58,13 +58,13 @@ test('a game with clock choices offers its quick clocks on the hub, and every ot
     'multiplayer-clock-5-0'
   ) as HTMLInputElement;
   expect(chosen.checked).toBe(true);
-  expect(screen.getByTestId('multiplayer-find-clock').textContent).toBe('5+0');
+  // The tiles are the clock: the card over them does not repeat it.
+  expect(screen.queryByTestId('multiplayer-find-clock')).toBeNull();
   screen.getByTestId('multiplayer-clock-10-0').click();
   expect(view.place()).toBe('find');
   expect(
     (screen.getByTestId('multiplayer-clock-10-0') as HTMLInputElement).checked
   ).toBe(true);
-  expect(screen.getByTestId('multiplayer-find-clock').textContent).toBe('10+0');
   // Every other clock is a place of its own, one row away.
   const row = screen.getByTestId('multiplayer-open-time-control');
   expect(row.getAttribute('data-time-control')).toBe('10+0');
@@ -77,7 +77,7 @@ test('a game with clock choices offers its quick clocks on the hub, and every ot
     (screen.getByTestId('multiplayer-clock-30-20') as HTMLInputElement).checked
   ).toBe(true);
   expect(screen.getByTestId('multiplayer-find-rated').textContent).toBe(
-    'Rated'
+    'Ranked match'
   );
 });
 
@@ -119,9 +119,11 @@ test('what is played opens the screen as one card, and the one command is docked
     expect(conditions.querySelector('h1')?.textContent).toBe('Connect Four');
     expect(conditions.textContent).toContain('Ranked match');
     expect(conditions.textContent).toContain('Four in a row wins.');
-    expect(
-      [...conditions.querySelectorAll('dd')].map((fact) => fact.textContent)
-    ).toEqual(['2', 'Untimed', 'Rated']);
+    // What the search finds is one line over the game's name, no tiles.
+    expect(conditions.querySelectorAll('dd')).toHaveLength(0);
+    expect(conditions.textContent).toContain(
+      'Ranked match · 2 players · Untimed'
+    );
     expect(view.container.querySelectorAll('h1')).toHaveLength(1);
     // The command and what a found opponent means share the dock.
     const dock = view.container.querySelector(

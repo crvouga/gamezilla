@@ -182,11 +182,13 @@ function StoryStage(props: {
   /** The person's own name; a long one must stay one cut-short line. */
   readonly ownName?: string | undefined;
   readonly overlay?: JSX.Element | undefined;
+  readonly covered?: boolean | undefined;
 }): JSX.Element {
   const drops = () => DROPS.slice(0, props.shown ?? DROPS.length);
   return (
     <GameBoardStage
       overlay={props.overlay}
+      covered={props.covered}
       others={
         <GamePlayerBar
           name="Bob (1487)"
@@ -388,8 +390,9 @@ export function renderStory(slots: StorySlots = {}) {
           <ConnectFourStoryBoard moves={[]} />
         ) : undefined
       }
-      board={(overlay) => (
+      board={(overlay, covered) => (
         <StoryStage
+          covered={covered}
           shown={slots.shown}
           ownName={slots.ownName}
           active={slots.announcement !== undefined}
