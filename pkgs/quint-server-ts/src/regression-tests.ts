@@ -8,6 +8,7 @@ import type { RecordObligation } from './model-evidence';
 import { decide } from './model-evidence';
 import type { TraceRun } from './trace-runs';
 import { runContext, runName, runObligation } from './trace-runs';
+import { traceTimeout } from './wall-io';
 
 /** Pinned histories share the model's world, assertions, evidence and sharding. */
 export function registerRegressionTraces(input: {
@@ -24,8 +25,9 @@ export function registerRegressionTraces(input: {
   ).entries()) {
     for (const run of input.runs) {
       if (!input.mine(index, run)) continue;
-      const body = () =>
-        decide({
+      const body = () => {
+        const timeout = traceTimeout(input.binding.timeoutMs);
+        return decide({
           record: input.record,
           id: runObligation(`regression:${regression.id}`, run),
           layer: 'implementation',
@@ -46,10 +48,14 @@ export function registerRegressionTraces(input: {
               trace: decodeItfTrace(regression.itf),
               world: quintWorld(),
               binding: input.binding,
+              ...(timeout.signal === undefined
+                ? {}
+                : { abandoned: timeout.signal }),
             });
             return 'the product agreed with the pinned history at every step';
           },
-        });
+        }).finally(timeout.clear);
+      };
       const name = runName(
         `regression ${regression.id}: ${regression.title}`,
         run

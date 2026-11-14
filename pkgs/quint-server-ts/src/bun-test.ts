@@ -60,6 +60,7 @@ import {
   runObligation,
   runsOfTrace,
 } from './trace-runs';
+import { traceTimeout } from './wall-io';
 
 export type RunModelOptions = {
   readonly packageName: string;
@@ -388,16 +389,26 @@ function registerTraces(
     for (const run of input.runsOf(i)) {
       if (!mine(i, run)) continue;
       const ctx = runContext(traceContext(options, model, drawn.seed, n), run);
-      const body = () =>
-        decide({
+      const body = () => {
+        const timeout = traceTimeout(binding.timeoutMs);
+        return decide({
           record,
           id: runObligation(`trace:${String(n)}`, run),
           layer: 'implementation',
           body: async () => {
-            await replayTrace({ ctx, trace, world: quintWorld(), binding });
+            await replayTrace({
+              ctx,
+              trace,
+              world: quintWorld(),
+              binding,
+              ...(timeout.signal === undefined
+                ? {}
+                : { abandoned: timeout.signal }),
+            });
             return `the product agreed with the model at every step (${steps}, seed ${drawn.seed})`;
           },
-        });
+        }).finally(timeout.clear);
+      };
       const name = runName(`trace ${String(n)} (${steps})`, run);
       if (binding.timeoutMs === undefined) test(name, body);
       else test(name, body, binding.timeoutMs);

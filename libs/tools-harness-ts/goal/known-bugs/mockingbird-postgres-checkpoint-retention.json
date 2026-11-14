@@ -1,0 +1,4 @@
+{
+  "summary": "The stack's Mockingbird Postgres kept 1,000 timeline checkpoints (the engine default), and every statement inside a transaction records one holding the whole database. Over a long Verify Nightly browser run the heap grew with the data (a load reproduction reached 1 GB heap, 2-3 GB RSS, at only 22k rows, with write throughput down from ~400/s to ~55/s) until GC stalls timed out new API connections (`handler error: timeout expired`). The served database now retains one checkpoint.",
+  "regressionTest": "pkgs/postgres-mockingbird-server-ts/tests/checkpoint-retention-regression.test.ts"
+}
