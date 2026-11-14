@@ -328,56 +328,6 @@
   color: var(--ui-color-destructive);
 }
 
-/* The card's own commands split its width evenly, and a quiet one is
-   still drawn as a control (an outline), never as bare words. */
-.cardActions > *,
-.cardActions :global(.btn) {
-  flex: 1 1 0;
-  min-width: 0;
-}
-/* Among the details, a quiet command keeps its whole name and wraps to its
-   own row on a narrow card rather than being cut. */
-.details :global(.btn[data-variant="ghost"]) {
-  flex: 1 1 auto;
-}
-.card :global(.btn[data-variant="ghost"]) {
-  min-height: 40px;
-  border: 1px solid var(--ui-color-border);
-}
-
-/* The details (the standings): in full on a card with room; folded
-   behind their own control on a small board's card. */
-.details {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ui-space-2);
-  min-width: 0;
-}
-.detailsToggle {
-  display: none;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--ui-space-2);
-  min-height: 44px;
-  margin: 0;
-  padding: 0 var(--ui-space-3);
-  border: 1px solid var(--ui-color-border);
-  border-radius: var(--ui-radius-control);
-  background: transparent;
-  color: var(--ui-color-text);
-  cursor: pointer;
-}
-.detailsToggle:hover {
-  background: var(--ui-color-surface-muted);
-}
-.detailsToggle:focus-visible {
-  outline: 2px solid var(--ui-color-tint);
-  outline-offset: 2px;
-}
-.details[data-open="true"] .detailsToggle > :last-child {
-  transform: rotate(180deg);
-}
-
 /* A figure in the caption (a rating change) is the result's own number:
    larger than a tag in a row, on the caption's line. */
 .cardTitle > p > :global(.badge) {
@@ -428,7 +378,7 @@
 
 /* A phone's board (narrow or short): the card is a strip along the board's
    top edge, so most of the final position stays in view under it, and the
-   standings fold behind their control. */
+   standings fold behind their control (`result-card.module.css`). */
 @container (max-height: 336px) or (max-width: 480px) {
   .result {
     align-items: flex-start;
@@ -436,9 +386,6 @@
   }
   .card {
     max-height: 60%;
-  }
-  .card:has(.details[data-open="true"]) {
-    max-height: 100%;
   }
   /* The headline says the outcome; its word above it waits for a listener. */
   .eyebrow {
@@ -459,25 +406,12 @@
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
   }
-  .details[data-folds="true"] .detailsToggle {
-    display: inline-flex;
-    align-self: flex-start;
-    min-height: 36px;
-  }
-  .details[data-folds="true"][data-open="false"] .detailsBody {
-    display: none;
-  }
 }
 /* A short board also tightens the card. */
 @container (max-height: 336px) {
   .card {
     gap: var(--ui-space-2);
     padding: var(--ui-space-2) var(--ui-space-3) var(--ui-space-3);
-  }
-  /* The headline and its reason say it; the standings wait on the board
-     when the card names no control for them. */
-  .details[data-folds="false"] :global(.panel) {
-    display: none;
   }
   /* The card's own quiet commands sit on one row of a narrow card. */
   .card :global(.btn[data-size="sm"]) {

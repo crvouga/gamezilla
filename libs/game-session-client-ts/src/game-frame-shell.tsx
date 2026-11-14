@@ -1,7 +1,9 @@
 import type { CustomGameInput } from '@libs/game-session-shared-ts/custom-game-choice';
 import { Trans } from '@lingui/solid/macro';
+import { Button } from '@pkgs/ui-root-client-ts/button';
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
 import { GameLobbyScreen } from '@pkgs/ui-root-client-ts/game-lobby';
+import { GameActions } from '@pkgs/ui-root-client-ts/game-section';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { type Accessor, createSignal, type JSX, Show } from 'solid-js';
@@ -133,6 +135,13 @@ export function FramePlacePage(
     /** Omit when the place opens with its own title (a mode card). */
     readonly title?: JSX.Element | undefined;
     readonly subtitle?: JSX.Element | undefined;
+    /**
+     * The words of the way back to where this place was opened from
+     * (`Back to setup`), at the page's foot: the host's bar names the
+     * space, not the game, so the page says it itself.
+     */
+    readonly back?: JSX.Element | undefined;
+    readonly onClose?: (() => void) | undefined;
     readonly children: JSX.Element;
   }
 ): JSX.Element {
@@ -153,6 +162,19 @@ export function FramePlacePage(
       >
         <FrameNoticesView connection={props.connection} error={props.error} />
         {props.children}
+        <Show when={props.back}>
+          {(back) => (
+            <GameActions sizing="fill">
+              <Button
+                title={back()}
+                variant="outline"
+                intent="neutral"
+                onClick={() => props.onClose?.()}
+                dataSet={{ testid: 'custom-game-place-back' }}
+              />
+            </GameActions>
+          )}
+        </Show>
         <FrameStatusView status={props.status} spokenOnly />
       </StackVertical>
     </EmbeddedScreen>
@@ -173,6 +195,9 @@ export function FrameLobbyPage(
     readonly screenId: string;
     /** Omit for a lobby with no one command (before any game). */
     readonly dock?: JSX.Element | undefined;
+    /** As a place's (`FramePlacePage`): the way back, at the page's foot. */
+    readonly back?: JSX.Element | undefined;
+    readonly onClose?: (() => void) | undefined;
     readonly children: JSX.Element;
   }
 ): JSX.Element {
@@ -189,6 +214,19 @@ export function FrameLobbyPage(
       >
         <FrameNoticesView connection={props.connection} error={props.error} />
         {props.children}
+        <Show when={props.back}>
+          {(back) => (
+            <GameActions sizing="fill">
+              <Button
+                title={back()}
+                variant="outline"
+                intent="neutral"
+                onClick={() => props.onClose?.()}
+                dataSet={{ testid: 'custom-game-place-back' }}
+              />
+            </GameActions>
+          )}
+        </Show>
         <FrameStatusView status={props.status} spokenOnly />
       </StackVertical>
     </GameLobbyScreen>

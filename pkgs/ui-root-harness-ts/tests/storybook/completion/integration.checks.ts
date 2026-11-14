@@ -65,9 +65,9 @@ for (const screen of [
         expect(first.y).toBeGreaterThanOrEqual(0);
         expect(last.y + last.height).toBeLessThanOrEqual(screen.height);
         // The outcome and what comes next lead on every size: the outcome's
-        // card lies over the final board in the first view, and every next
-        // action is in the game's command bar (under a phone's board,
-        // beside a wide one), in the first view and never on the board.
+        // card heads the game's commands beside the final board (under a
+        // phone's board), never over it, and every next action is in the
+        // game's command bar, in the first view and never on the board.
         await expect(headline).toBeInViewport({ ratio: 1 });
         const board = await box(page.getByTestId('custom-game-public'));
         for (const action of await actions.all())
@@ -85,6 +85,12 @@ for (const screen of [
           await page.locator('button[data-variant="solid"]').count()
         ).toBeLessThanOrEqual(1);
         if (state !== 'cancelled') {
+          // A phone folds the standings behind their own control.
+          const details = page.getByTestId('game-result-overlay-details');
+          if (await details.isVisible()) {
+            await details.click();
+            await expect(details).toHaveAttribute('aria-expanded', 'true');
+          }
           await expect(
             page.getByRole('list', { name: 'Standings' }).getByRole('listitem')
           ).toHaveCount(2);

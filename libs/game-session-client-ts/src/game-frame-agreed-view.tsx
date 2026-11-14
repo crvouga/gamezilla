@@ -30,6 +30,7 @@ export function FrameOptionsPlace(
     <FramePlacePage
       {...props}
       screenId="custom-game-options"
+      back={<Trans>Back to setup</Trans>}
       title={<Trans>Options</Trans>}
       subtitle={
         <Show
@@ -81,6 +82,7 @@ export function FrameClockPlace(
     <FramePlacePage
       {...props}
       screenId="custom-game-clock"
+      back={<Trans>Back to setup</Trans>}
       title={<Trans>Clock and sides</Trans>}
       subtitle={
         <Show
@@ -201,6 +203,7 @@ export function FramePrivateSetupPlace(
     <FrameLobbyPage
       {...props}
       screenId="custom-game-private-setup"
+      back={<Trans>Back to setup</Trans>}
       dock={
         <GameLobbyDock
           status={

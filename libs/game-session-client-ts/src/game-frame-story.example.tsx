@@ -367,7 +367,8 @@ export const FRAME_OVER: Partial<GameFrameScreenViewProps> = {
   record: record(WON_RECORD),
   result: {
     headline: 'You win',
-    note: 'Host starts the rematch',
+    // The host has Rematch; the note is for those who may not start it.
+    note: null,
     scoreLabel: null,
     standings: STANDINGS,
   },

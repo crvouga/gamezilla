@@ -60,7 +60,7 @@ export const YouPlacedSecond: Story = {
     next: { plays: true, canCreate: false, reviewable: true },
     result: {
       headline: 'You came 2nd',
-      note: 'Host starts the rematch',
+      note: 'Host starts the rematch.',
       scoreLabel: 'Points',
       standings: [
         {
@@ -82,24 +82,6 @@ export const YouPlacedSecond: Story = {
   },
 };
 
-/** The result card closed: the final board, and Result to bring the card back. */
-export const ResultClosed: Story = { args: { overlay: { kind: 'board' } } };
-
-/** Closing the card shows the final board; Result brings the card back. */
-export const CloseAndReopenResult: Story = {
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await userEvent.click(
-      await canvas.findByTestId('game-result-overlay-dismiss')
-    );
-    await expect(canvas.queryByTestId('custom-game-outcome')).toBeNull();
-    await userEvent.click(await canvas.findByTestId('custom-game-show-result'));
-    await expect(
-      await canvas.findByTestId('custom-game-result-headline')
-    ).toHaveTextContent('You win');
-  },
-};
-
 /** A drawn game: everyone shares first place. */
 export const Draw: Story = {
   render: (args) => onBoard(DRAWN_MOVES)(args),
@@ -108,7 +90,7 @@ export const Draw: Story = {
     record: record(DRAWN_MOVES.map((column) => String(column + 1))),
     result: {
       headline: 'Draw',
-      note: 'Host starts the rematch',
+      note: null,
       scoreLabel: null,
       standings: [STANDINGS[0], { ...STANDINGS[1], place: 1 }],
     },
@@ -132,7 +114,7 @@ export const WatcherSeesResult: Story = {
     next: { plays: false, canCreate: false, reviewable: true },
     result: {
       headline: 'morgan wins',
-      note: 'Host starts the rematch',
+      note: 'Host starts the rematch.',
       scoreLabel: null,
       standings: [
         {

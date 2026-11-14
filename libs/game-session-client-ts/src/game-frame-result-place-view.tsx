@@ -5,9 +5,10 @@ import { GameActionBar } from '@pkgs/ui-root-client-ts/game-action-bar';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
-import { ChevronUpIcon } from '@pkgs/ui-root-client-ts/icons';
+import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { type JSX, Show } from 'solid-js';
 import { FrameMovesCard } from './game-frame-moves-view';
+import { FrameOutcomeCard } from './game-frame-overlay-view';
 import { FrameFacts, FrameStage } from './game-frame-play-view';
 import type { FramePlaceProps } from './game-frame-screen-view';
 import { FrameNoticesView } from './game-frame-shell';
@@ -92,12 +93,13 @@ function NextActions(props: Props): JSX.Element {
 }
 
 /**
- * The result place, once the game is over or called off: the final
- * position with the people around it, under a card that says what happened
- * and every player's finish (`FrameOverlay`), and what to do next in the
- * bar. Closing the card shows the final board; Result brings it back.
+ * The result place, once the game is over or called off: the whole final
+ * position with the people around it, and beside it (under it on a phone)
+ * a card that says what happened and every player's finish
+ * (`FrameOutcomeCard`), then what to do next in the bar.
  */
 export function FrameResultPlace(props: Props): JSX.Element {
+  const mode = useLayoutMode();
   return (
     <GameScreen
       screenId="custom-game-result"
@@ -120,29 +122,20 @@ export function FrameResultPlace(props: Props): JSX.Element {
         fixedStage={props.boardWorkspace !== true}
         status={
           <>
-            {/* The card says how the game ended; a listener hears it from
-                the frame's own line, with or without the card. */}
+            {/* The card says how the game ended, beside the board; a
+                listener hears it from the frame's own line. */}
             <FrameStatusView status={props.status} spokenOnly />
-            <Show when={props.overlay.kind === 'board'}>
-              <Button
-                title={
-                  props.result?.headline ??
-                  props.status?.description ??
-                  t`Game finished`
-                }
-                aria-label={t`Show the result`}
-                variant="ghost"
-                intent="neutral"
-                fullWidth
-                endIcon={<ChevronUpIcon size={20} />}
-                onClick={() => props.onOverlay({ type: 'show' })}
-                dataSet={{ testid: 'custom-game-show-result' }}
-              />
-            </Show>
+            <FrameOutcomeCard {...props} />
           </>
         }
         actions={<NextActions {...props} />}
-        aside={<FrameMovesCard {...props} listOnly />}
+        // A phone's line of moves would only repeat what Review opens; the
+        // room goes to the whole final board and the result under it.
+        aside={
+          <Show when={mode() === 'wide'}>
+            <FrameMovesCard {...props} listOnly />
+          </Show>
+        }
       >
         <FrameStage {...props} />
       </GameSessionLayout>

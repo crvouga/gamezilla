@@ -3,12 +3,14 @@ import { Trans } from '@lingui/solid/macro';
 import type { StageOverlayPhase } from '@pkgs/turn-game-client-ts/stage-overlay';
 import {
   GAME_VERSUS_AVATAR_SIZE,
-  GameResultOverlay,
-  type GameResultOverlayProps,
+  GameResultCard,
+  type GameResultCardProps,
   GameVersusOverlay,
   type GameVersusSide,
 } from '@pkgs/ui-root-client-ts/game-stage-overlay';
-import { type JSX, Match, Show, Switch } from 'solid-js';
+import { P } from '@pkgs/ui-root-client-ts/text';
+import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
+import { type JSX, Show } from 'solid-js';
 import { FrameHolderAvatar, FrameHolderName } from './game-frame-people';
 import { FrameResultView } from './game-frame-result-view';
 import type { FramePlaceProps } from './game-frame-screen-view';
@@ -31,7 +33,7 @@ export function frameOverlayPhase(phase: FramePhase): StageOverlayPhase {
 /** How the game went for the viewer, from the standings alone. */
 export function frameResultTone(
   result: FrameResult | null
-): GameResultOverlayProps['tone'] {
+): GameResultCardProps['tone'] {
   const standings = result?.standings ?? [];
   const own = standings.find((standing) => standing.you);
   if (own === undefined) return 'neutral';
@@ -107,63 +109,76 @@ function FrameVersusOverlay(
   );
 }
 
-function eyebrow(tone: GameResultOverlayProps['tone']): string {
+function eyebrow(tone: GameResultCardProps['tone']): string {
   if (tone === 'won') return t`Victory`;
   if (tone === 'lost') return t`Defeat`;
   if (tone === 'drawn') return t`Draw`;
   return t`Game over`;
 }
 
+/** The result's own note (`Host starts the rematch.`), or nothing. */
+function outcomeNote(props: Props): string {
+  return props.result?.note ?? '';
+}
+
 /**
  * Under the headline: how the game ended (`Black wins by resignation.`),
- * then the game's own note.
+ * then, where there is room, the game's note.
  */
-function outcomeCaption(props: Props): string | undefined {
+function outcomeCaption(props: Props, roomy: boolean): string | undefined {
   const reason = props.result === null ? '' : (props.status?.description ?? '');
-  const note = props.result?.note ?? '';
+  const note = roomy ? outcomeNote(props) : '';
   const caption = [reason, note].filter((part) => part !== '').join(' ');
   return caption === '' ? undefined : caption;
 }
 
-function FrameOutcomeOverlay(props: Props): JSX.Element {
+/**
+ * How the game ended, beside the final board (under it on a phone, heading
+ * the rail beside a wide one), never over it: the whole final position
+ * stays in view. A phone folds the standings behind their own control.
+ */
+export function FrameOutcomeCard(props: Props): JSX.Element {
   const tone = () => frameResultTone(props.result);
+  const mode = useLayoutMode();
+  const roomy = (): boolean => mode() === 'wide';
   return (
-    <GameResultOverlay
+    <GameResultCard
       tone={tone()}
       eyebrow={props.result === null ? undefined : eyebrow(tone())}
       title={
         props.result?.headline ?? props.status?.description ?? t`Game finished`
       }
-      caption={outcomeCaption(props)}
-      detailsLabel={props.result === null ? undefined : t`Standings`}
-      dismissLabel={t`Show the board`}
-      onDismiss={() => props.onOverlay({ type: 'dismiss' })}
+      caption={outcomeCaption(props, roomy())}
+      detailsLabel={props.result === null || roomy() ? undefined : t`Standings`}
       titleDataSet={{ testid: 'custom-game-result-headline' }}
       dataSet={{ testid: 'custom-game-outcome' }}
     >
       <Show when={props.result}>
         {(result) => (
-          <FrameResultView result={result()} people={props.people} />
+          <>
+            <Show when={!roomy() && outcomeNote(props) !== ''}>
+              <P variant="caption" tone="secondary">
+                {outcomeNote(props)}
+              </P>
+            </Show>
+            <FrameResultView result={result()} people={props.people} />
+          </>
         )}
       </Show>
-    </GameResultOverlay>
+    </GameResultCard>
   );
 }
 
 /**
  * What lies over the board, as the stage's overlay machine says
  * (`StageOverlay`): the versus card and its count while a game this device
- * watched begin starts, the result card once it is over, else nothing.
+ * watched begin starts, else nothing. The result is told beside the board
+ * (`FrameOutcomeCard`), so the final position is never covered.
  */
 export function FrameOverlay(props: Props): JSX.Element {
   return (
-    <Switch>
-      <Match when={props.overlay.kind === 'versus' ? props.overlay : null}>
-        {(versus) => <FrameVersusOverlay {...props} count={versus().count} />}
-      </Match>
-      <Match when={props.overlay.kind === 'outcome'}>
-        <FrameOutcomeOverlay {...props} />
-      </Match>
-    </Switch>
+    <Show when={props.overlay.kind === 'versus' ? props.overlay : null}>
+      {(versus) => <FrameVersusOverlay {...props} count={versus().count} />}
+    </Show>
   );
 }

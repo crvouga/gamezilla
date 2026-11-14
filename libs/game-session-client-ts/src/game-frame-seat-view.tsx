@@ -232,6 +232,7 @@ export function FrameSeatPlace(
     <FramePlacePage
       {...props}
       screenId="custom-game-seat"
+      back={<Trans>Back to setup</Trans>}
       title={props.seat.sideLabel}
       subtitle={
         <FrameHolderName
@@ -268,6 +269,7 @@ export function FrameInvitePlace(
     <FramePlacePage
       {...props}
       screenId="custom-game-invite"
+      back={<Trans>Back to the seat</Trans>}
       title={<Trans>Invite to {props.seat.sideLabel}</Trans>}
     >
       <Show
