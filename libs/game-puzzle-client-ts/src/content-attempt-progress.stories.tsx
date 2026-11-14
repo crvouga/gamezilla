@@ -82,13 +82,13 @@ const PACK = { title: 'Counting basics', position: 2, total: 4 };
 
 /** A pack puzzle partway: its place in the pack and the pack's overview. */
 export const PackInProgress: Story = {
-  args: { pack: PACK },
+  args: { pack: PACK, packSolved: 1 },
   render: (args) => render({ ...args, wayOn: <StoryPackActions /> }),
 };
 
 /** The same pack puzzle solved: said quietly; its next puzzle is on the board. */
 export const PackCompleted: Story = {
-  args: { pack: PACK, complete: true, figures: SOLVED_FIGURES },
+  args: { pack: PACK, complete: true, packSolved: 2, figures: SOLVED_FIGURES },
   render: (args) => render({ ...args, wayOn: <StoryPackActions /> }),
 };
 

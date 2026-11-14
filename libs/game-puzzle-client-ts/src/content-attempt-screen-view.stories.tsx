@@ -116,7 +116,7 @@ export const RetryChange: Story = {
 const PACK = { title: 'Counting basics', position: 2, total: 4 };
 
 /** A pack puzzle partway: the stage is the same; the pack is behind Progress. */
-export const PackInProgress: Story = { args: { pack: PACK } };
+export const PackInProgress: Story = { args: { pack: PACK, packSolved: 1 } };
 
 /** The same pack puzzle solved: the headline and the next puzzle, filled, with the commands. */
 export const PackCompleted: Story = {

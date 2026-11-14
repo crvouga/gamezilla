@@ -5,14 +5,15 @@ import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
+import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
 import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
 import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
+import { CircleCheckIcon } from '@pkgs/ui-root-client-ts/icons';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { ProgressBar } from '@pkgs/ui-root-client-ts/progress-bar';
-import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { SuccessState } from '@pkgs/ui-root-client-ts/success-state';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { type JSX, Match, Show, Switch } from 'solid-js';
@@ -229,34 +230,37 @@ function AttemptSolved(
   const { t } = useLingui();
   const caption = useSolvedCaption(props);
   return (
-    <StackVertical gap="md" dataSet={{ testid: 'content-attempt-solved' }}>
-      <SuccessState
-        variant="compact"
-        title={
-          props.playtest
-            ? t`Playtest solved`
-            : props.saving
-              ? t`Solved`
-              : t`Completion saved`
-        }
-        body={
-          <>
-            {caption()}{' '}
-            <Show when={props.withSave}>
-              <Text
-                variant="inherit"
-                role="status"
-                testId="content-position-save-status"
-              >
-                {props.saving
-                  ? t`Saving your position…`
-                  : t`Progress saved on this device.`}
-              </Text>
-            </Show>
-          </>
-        }
+    <StackVertical gap="sm" dataSet={{ testid: 'content-attempt-solved' }}>
+      {/* One line, so the board keeps its room: the record, where the
+          pack stands, and the save. */}
+      <StackHorizontal
+        gap="sm"
+        align="start"
         dataSet={{ testid: 'content-attempt-complete' }}
-      />
+      >
+        <CircleCheckIcon size={20} color="success" />
+        <P variant="caption" tone="secondary">
+          <Text variant="label" tone="success">
+            {props.playtest
+              ? t`Playtest solved`
+              : props.saving
+                ? t`Solved`
+                : t`Completion saved`}
+          </Text>{' '}
+          {caption()}{' '}
+          <Show when={props.withSave}>
+            <Text
+              variant="inherit"
+              role="status"
+              testId="content-position-save-status"
+            >
+              {props.saving
+                ? t`Saving your position…`
+                : t`Progress saved on this device.`}
+            </Text>
+          </Show>
+        </P>
+      </StackHorizontal>
       {props.onward}
     </StackVertical>
   );
@@ -406,7 +410,9 @@ function AttemptStage(props: ContentAttemptScreenViewProps): JSX.Element {
         stageAlign={props.stageAlign}
       >
         <Show when={!props.unopenable} fallback={<Unopenable {...props} />}>
-          {props.player}
+          {/* The stage narrows the game's board to the room a phone's
+              fixed view leaves over the commands, so none of it hides. */}
+          <GameBoardStage>{props.player}</GameBoardStage>
         </Show>
       </GameSessionLayout>
     </GameScreen>

@@ -18,7 +18,9 @@ function AttemptFigures(props: ContentAttemptScreenViewProps): JSX.Element {
   return (
     <Show
       when={
-        props.figuresPlacement !== 'board' && (props.figures?.length ?? 0) > 0
+        props.figuresPlacement !== 'board' &&
+        !props.complete &&
+        (props.figures?.length ?? 0) > 0
       }
     >
       <MetricStrip
@@ -49,7 +51,9 @@ export function ContentAttemptSaveStatus(
         ? t`Saving your position…`
         : props.changeError !== null
           ? t`Your last move is not saved yet. The position before it is kept.`
-          : t`Progress saved on this device.`}
+          : props.complete && !props.playtest
+            ? t`Solved. Progress saved on this device.`
+            : t`Progress saved on this device.`}
     </P>
   );
 }
@@ -65,16 +69,34 @@ function PackPlace(props: { pack: ContentAttemptPack }): JSX.Element {
   );
 }
 
-/** How far through its pack this puzzle is, as a bar under its place. */
-function PackTrack(props: { pack: ContentAttemptPack }): JSX.Element {
+/**
+ * How much of the pack is solved, as a labelled bar under the puzzle's
+ * place; where the count is not known, how far through the pack it sits.
+ */
+function PackTrack(props: {
+  pack: ContentAttemptPack;
+  solved: number | undefined;
+}): JSX.Element {
   const { t } = useLingui();
   return (
-    <ProgressBar
-      size="sm"
-      progress={props.pack.position / Math.max(1, props.pack.total)}
-      accessibleLabel={t`Puzzle ${props.pack.position} of ${props.pack.total}`}
-      dataSet={{ testid: 'puzzle-attempt-pack-track' }}
-    />
+    <Show
+      when={props.solved !== undefined}
+      fallback={
+        <ProgressBar
+          size="sm"
+          progress={props.pack.position / Math.max(1, props.pack.total)}
+          accessibleLabel={t`Puzzle ${props.pack.position} of ${props.pack.total}`}
+          dataSet={{ testid: 'puzzle-attempt-pack-track' }}
+        />
+      }
+    >
+      <ProgressBar
+        size="sm"
+        progress={(props.solved ?? 0) / Math.max(1, props.pack.total)}
+        label={t`${props.solved ?? 0} of ${props.pack.total} solved`}
+        dataSet={{ testid: 'puzzle-attempt-pack-track' }}
+      />
+    </Show>
   );
 }
 
@@ -96,7 +118,9 @@ function AttemptPanel(props: ContentAttemptScreenViewProps): JSX.Element {
       }
       dataSet={{ testid: 'puzzle-attempt-panel' }}
     >
-      <Show when={props.pack}>{(pack) => <PackTrack pack={pack()} />}</Show>
+      <Show when={props.pack}>
+        {(pack) => <PackTrack pack={pack()} solved={props.packSolved} />}
+      </Show>
       <Show when={(props.pack ?? null) !== null || props.playtest}>
         <StackHorizontal
           gap="sm"
@@ -122,18 +146,14 @@ function AttemptPanel(props: ContentAttemptScreenViewProps): JSX.Element {
         </P>
       </Show>
       <Show
-        when={
-          !props.playtest && (props.complete || props.solvedBefore === true)
-        }
+        when={!props.playtest && !props.complete && props.solvedBefore === true}
       >
         <P
           variant="caption"
           tone="secondary"
           testId="content-attempt-solved-before"
         >
-          {props.complete
-            ? t`Solved. Your completion is saved.`
-            : t`Solved before. Your completion stays saved.`}
+          {t`Solved before. Your completion stays saved.`}
         </P>
       </Show>
     </GameSection>

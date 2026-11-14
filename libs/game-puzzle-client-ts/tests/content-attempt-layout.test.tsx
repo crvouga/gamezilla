@@ -302,20 +302,20 @@ test("the progress panel shows the game's own figures for the attempt", () => {
 
 // regression: puzzle-saved-completion-journey-copy
 // regression: puzzle-saved-completion-confused-with-current-board
-test('the saved completion is named as a record, and the board stays playable under it', () => {
+test('the saved completion is named as a record, and the board stays playable beside it', () => {
   mount(390, 'attempt', { complete: true, pack: null });
   const record = screen.getByTestId('content-attempt-complete');
   expect(record.textContent).toContain('Completion saved');
   expect(record.textContent).toContain('You can keep playing');
-  // The board and its commands stay as they were, under the card.
+  // The board and its commands stay as they were.
   expect(screen.getByTestId('player').textContent).toBe('board');
   expect(screen.getByTestId('controls').textContent).toBe('Undo Redo Restart');
   cleanup();
-  // Where the attempt stands says it quietly, apart from the board.
+  // Where the attempt stands says it quietly, in its one save line.
   mount(390, 'progress', { complete: true });
   expect(screen.queryByTestId('content-attempt-complete')).toBeNull();
-  expect(screen.getByTestId('content-attempt-solved-before').textContent).toBe(
-    'Solved. Your completion is saved.'
+  expect(screen.getByTestId('content-position-save-status').textContent).toBe(
+    'Solved. Progress saved on this device.'
   );
 });
 

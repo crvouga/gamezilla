@@ -209,7 +209,7 @@ export function StoryCountingBoard(props: {
         ]}
         disabled={props.disabled === true}
       />
-      <StackHorizontal gap="sm">
+      <StackHorizontal gap="sm" paddingX="lg">
         <Button
           title="Take one step"
           intent="neutral"
