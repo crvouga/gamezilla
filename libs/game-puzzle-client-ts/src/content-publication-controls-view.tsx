@@ -5,7 +5,7 @@ import { Trans, useLingui } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
-import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
 import { type Accessor, type JSX, Show } from 'solid-js';
 import { contentBuilderNextStep } from './content-builder-standing';
@@ -59,6 +59,8 @@ export type ContentPublicationControlsViewProps = {
   readonly onOpenWaiting?: (() => void) | undefined;
   /** `false` while the game cannot play the draft: correct it first. */
   readonly playable?: boolean | undefined;
+  /** Opens the details or the board, to correct what blocks publishing. */
+  readonly onFix?: ((where: 'details' | 'board') => void) | undefined;
 };
 
 /**
@@ -94,14 +96,41 @@ function PublicationPending(props: {
   );
 }
 
-/** A failed check, the one finding that blocks publishing, as a notice. */
+/**
+ * A failed check, the one finding that blocks publishing, as a notice with
+ * the ways to the details and the board, where it is corrected.
+ */
 function Finding(props: ContentPublicationControlsViewProps): JSX.Element {
   const { t } = useLingui();
   return (
     <Show when={props.validation === 'invalid'}>
-      <Notice tone="error">
-        {props.validationMessage ||
-          t`Complete the required details and validate again.`}
+      <Notice tone="error" dataSet={{ testid: 'content-validation-finding' }}>
+        <StackVertical gap="sm">
+          {props.validationMessage ||
+            t`Complete the required details and validate again.`}
+          <Show when={props.onFix}>
+            {(onFix) => (
+              <StackHorizontal gap="sm" wrap>
+                <Button
+                  title={t`Edit details`}
+                  intent="neutral"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onFix()('details')}
+                  dataSet={{ testid: 'content-fix-details' }}
+                />
+                <Button
+                  title={t`Edit board`}
+                  intent="neutral"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onFix()('board')}
+                  dataSet={{ testid: 'content-fix-board' }}
+                />
+              </StackHorizontal>
+            )}
+          </Show>
+        </StackVertical>
       </Notice>
     </Show>
   );
@@ -116,7 +145,9 @@ function usePublicationActions(props: ContentPublicationControlsViewProps) {
   const validate = useMutationButton({
     operation: () => props.onValidate(),
     labels: {
-      idle: t`Validate`,
+      get idle() {
+        return props.validation === 'valid' ? t`Validate again` : t`Validate`;
+      },
       loading: t`Checking…`,
       success: t`Check finished`,
       error: t`Check again`,
@@ -131,7 +162,7 @@ function usePublicationActions(props: ContentPublicationControlsViewProps) {
       get idle() {
         return props.copyState.kind === 'pending' ||
           props.copyState.kind === 'edition'
-          ? t`Send again`
+          ? t`Publish again`
           : t`Publish`;
       },
       loading: t`Publishing…`,
@@ -159,7 +190,7 @@ type PublicationActions = ReturnType<typeof usePublicationActions>;
 function placed(place: PublicationActionPlace) {
   if (place === 'lead') return { intent: 'primary', variant: 'solid' } as const;
   if (place === 'done')
-    return { intent: 'neutral', variant: 'outline', size: 'sm' } as const;
+    return { intent: 'neutral', variant: 'ghost', size: 'sm' } as const;
   return {
     intent: 'neutral',
     variant: 'ghost',
@@ -218,35 +249,37 @@ function PublicationAftermath(props: {
           props.controls.publishDenial === undefined && props.controls.published
         }
       >
-        <Show
-          when={
-            !(
-              props.controls.copyState.kind === 'edition' &&
-              props.controls.copyState.current
-            )
-          }
-        >
-          <Button
-            title={
-              props.controls.pending !== null ||
-              props.controls.copyState.kind === 'reading'
-                ? t`View saved edition`
-                : t`View published edition`
+        <StackHorizontal gap="sm" wrap align="center">
+          <Show
+            when={
+              !(
+                props.controls.copyState.kind === 'edition' &&
+                props.controls.copyState.current
+              )
             }
-            intent="neutral"
-            variant="outline"
-            onClick={() => props.controls.onViewPublication()}
-            dataSet={{ testid: 'content-view-publication' }}
+          >
+            <Button
+              title={
+                props.controls.pending !== null ||
+                props.controls.copyState.kind === 'reading'
+                  ? t`View saved edition`
+                  : t`View published edition`
+              }
+              intent="neutral"
+              variant="outline"
+              onClick={() => props.controls.onViewPublication()}
+              dataSet={{ testid: 'content-view-publication' }}
+            />
+          </Show>
+          <Button
+            title={t`Withdraw publication`}
+            intent="danger"
+            variant="ghost"
+            onClick={() => props.controls.onWithdraw()}
+            disabled={props.controls.disabled}
+            dataSet={{ testid: 'content-withdraw' }}
           />
-        </Show>
-        <Button
-          title={t`Withdraw publication`}
-          intent="neutral"
-          variant="outline"
-          onClick={() => props.controls.onWithdraw()}
-          disabled={props.controls.disabled}
-          dataSet={{ testid: 'content-withdraw' }}
-        />
+        </StackHorizontal>
       </Show>
     </>
   );
@@ -316,6 +349,7 @@ export function ContentPublicationControlsView(
         )}
         onOpenWaiting={props.onOpenWaiting}
         playable={props.playable}
+        onFix={props.onFix && (() => props.onFix?.('board'))}
       />
       <PublicationAftermath controls={props} actions={actions} />
       {/* Last, so confirmation removing it moves no action under a finger. */}

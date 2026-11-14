@@ -35,13 +35,12 @@ export type StepTrackProps = {
 };
 
 /**
- * `StepTrack` -- a short sequence of steps read in order, each with a
- * marker: a check once done, its number while it waits, filled when it is
- * the one next step. A step holds its own action or just its name, then
- * its state in a word (`2 Validate · Locked`). One
- * row joined by hairlines where it fits; one step a line where its
- * container is narrow. Steps keep their place (by position) as their
- * states change, so an action keeps its own state.
+ * `StepTrack` -- a short sequence of steps read in order, as one panel of
+ * rows: each row a marker (a check once done, its number while it waits,
+ * filled when it is the one next step), the step's name, its state in a
+ * word at the row's end, and its own action (a `Button`) under the name. A waiting step's action stands in for its
+ * name, locked, so it still says what is missing when pressed. Steps keep their place (by position) as
+ * their states change, so an action keeps its own state.
  */
 export function StepTrack(props: StepTrackProps): JSX.Element {
   return (
@@ -49,11 +48,11 @@ export function StepTrack(props: StepTrackProps): JSX.Element {
       class={styles['frame']}
       {...dataAttrs({ component: 'StepTrack', ...props.dataSet })}
     >
-      <ol class={styles['track']} aria-label={props.label}>
+      <ol class={`panel ${styles['track']}`} aria-label={props.label}>
         <Index each={props.steps}>
           {(step, index) => (
             <li
-              class={styles['step']}
+              class={`panelItem ${styles['step']}`}
               {...dataAttrs({ state: step().state, ...step().dataSet })}
               aria-current={step().state === 'current' ? 'step' : undefined}
             >
@@ -62,14 +61,21 @@ export function StepTrack(props: StepTrackProps): JSX.Element {
                   <CheckIcon size={14} />
                 </Show>
               </span>
-              <Show
-                when={step().action}
-                fallback={<span class={styles['name']}>{step().label}</span>}
-              >
-                {step().action}
-              </Show>
+              <span class={styles['body']}>
+                {/* A waiting step's own action is its name (a locked
+                    button that says what is missing); any other step's
+                    action follows its name. */}
+                <Show
+                  when={step().state === 'upcoming' && step().action}
+                  fallback={<span class={styles['name']}>{step().label}</span>}
+                >
+                  {step().action}
+                </Show>
+                <Show when={step().state !== 'upcoming' && step().action}>
+                  <span class={styles['action']}>{step().action}</span>
+                </Show>
+              </span>
               <span class={styles['state']}>
-                <span aria-hidden="true">·</span>
                 {props.stateNames[step().state]}
               </span>
             </li>

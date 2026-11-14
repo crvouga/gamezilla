@@ -9,6 +9,24 @@ import { ContentDraftMetadata } from './content-draft-metadata';
 type View = ContentAuthorScreenViewProps;
 
 /**
+ * A stage's way back to the builder's steps, at its foot: an outline, so
+ * the stage's own filled command (a pack preview's Continue) stays the one.
+ */
+function DoneButton(props: { view: View }): JSX.Element {
+  const { t } = useLingui();
+  return (
+    <Button
+      title={t`Done`}
+      intent="neutral"
+      variant="outline"
+      fullWidth
+      onClick={() => props.view.onOpen({ screen: 'builder' })}
+      dataSet={{ testid: 'content-step-done' }}
+    />
+  );
+}
+
+/**
  * `details`: the draft's title, description and difficulty. Every change
  * is saved as it is typed (the shell's save line says so); Done returns to
  * the steps.
@@ -57,6 +75,7 @@ export function ContentAuthorBoardView(props: { view: View }): JSX.Element {
         </StackHorizontal>
       </StackHorizontal>
       {props.view.stage}
+      <DoneButton view={props.view} />
     </StackVertical>
   );
 }
@@ -66,6 +85,7 @@ export function ContentAuthorPreviewView(props: { view: View }): JSX.Element {
   return (
     <StackVertical gap="md" dataSet={{ testid: 'content-author-preview' }}>
       {props.view.preview}
+      <DoneButton view={props.view} />
     </StackVertical>
   );
 }

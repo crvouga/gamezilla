@@ -16,6 +16,7 @@ export function ContentAuthorConfirms(props: {
     <>
       <ContentWithdrawConfirm
         visible={props.workspace.withdrawing()}
+        title={props.workspace.writer.body().title}
         onClose={() => props.workspace.setWithdrawing(false)}
         onWithdraw={props.workspace.publication.withdraw}
       />

@@ -41,6 +41,8 @@ export function ContentPublicationControls(props: {
   disabled: boolean;
   before?: ((next: Accessor<boolean>) => JSX.Element) | undefined;
   onWithdraw: () => void;
+  /** Opens the details or the board, to correct what blocks publishing. */
+  onFix: (where: 'details' | 'board') => void;
 }): JSX.Element {
   const decision = useDecision(PERMISSION.puzzlesPublishContent, () => ({
     puzzleOwnerId: props.document.owner_id,
@@ -69,6 +71,7 @@ export function ContentPublicationControls(props: {
       onPublish={tools().publish}
       onViewPublication={props.publication.viewPublication}
       onWithdraw={props.onWithdraw}
+      onFix={props.onFix}
       onOpenWaiting={props.publication.openWaiting}
     />
   );

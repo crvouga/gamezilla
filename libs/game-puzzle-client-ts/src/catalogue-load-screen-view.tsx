@@ -173,6 +173,7 @@ export function CatalogueLoadScreenView(
               onSave={props.onSave}
               onRecheck={props.onRecheck}
               onAskStop={() => setAsked('saving')}
+              onDone={() => props.onOpen({ screen: 'load' })}
             />
           </Match>
         </Switch>

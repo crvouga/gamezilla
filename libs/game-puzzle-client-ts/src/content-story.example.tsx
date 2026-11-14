@@ -114,12 +114,18 @@ export function StoryDraftHistory(props: { disabled?: boolean }): JSX.Element {
 export function StoryPlaytest(props: {
   disabled?: boolean;
   next?: boolean;
+  /** A finished playtest proves the copy: offered again. */
+  again?: boolean;
 }): JSX.Element {
   return (
     <Button
-      title="Start playtest"
+      title={
+        props.again === true && props.next !== true
+          ? 'Playtest again'
+          : 'Start playtest'
+      }
       intent={props.next === true ? 'primary' : 'neutral'}
-      variant={props.next === true ? 'solid' : 'outline'}
+      variant={props.next === true ? 'solid' : 'ghost'}
       size={props.next === true ? 'md' : 'sm'}
       disabled={props.disabled}
     />

@@ -278,6 +278,15 @@ describe('the source place', () => {
     expect(shown('puzzle-source-save')).toBe(false);
   });
 
+  // regression: catalogue-saved-dead-end — a saved file's place said to
+  // start loading but offered no way there except the trail.
+  test('a saved file leads back to loading', () => {
+    const onOpen = mock(() => undefined);
+    source(SAVED, { onOpen });
+    fireEvent.click(screen.getByTestId('puzzle-source-done'));
+    expect(onOpen).toHaveBeenCalledWith({ screen: 'load' });
+  });
+
   test('a check under way keeps the file seen before and offers no other check', () => {
     source({ ...SAVED, status: 'checking' });
     expect(shown('puzzle-source-checking')).toBe(true);
@@ -407,4 +416,28 @@ describe('the confirmed stop', () => {
     expect(shown('puzzle-load-hub')).toBe(true);
     expect(modal()).toBeNull();
   });
+});
+
+// regression: catalogue-figures-unreadable — the pool and the load's
+// figures were bare digit runs (1246610), and the stop and the progress
+// sat under the figures at a phone's fold. Figures are grouped, and the
+// load's progress and its one command come before them.
+test('a load reads its progress and command first, then grouped figures', () => {
+  loader({
+    stage: 'loading',
+    pool: 1_246_610,
+    job: { ...JOB, added: 1_198_400 },
+  });
+  expect(screen.getByTestId('puzzle-load-pool').textContent).toContain(
+    '1,246,610'
+  );
+  expect(screen.getByTestId('puzzle-load-added').textContent).toContain(
+    '1,198,400'
+  );
+  const before = (a: string, b: string): boolean =>
+    (screen.getByTestId(a).compareDocumentPosition(screen.getByTestId(b)) &
+      Node.DOCUMENT_POSITION_FOLLOWING) !==
+    0;
+  expect(before('puzzle-load-status', 'puzzle-load-stop')).toBe(true);
+  expect(before('puzzle-load-stop', 'puzzle-load-added')).toBe(true);
 });

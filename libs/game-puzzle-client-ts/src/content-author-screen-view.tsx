@@ -132,10 +132,20 @@ function AuthorNotices(props: ContentAuthorScreenViewProps): JSX.Element {
       </Show>
       <Show when={props.conflicted}>
         <Notice tone="warning" dataSet={{ testid: 'content-author-conflict' }}>
-          <Trans>
-            Another device saved a different copy of this draft. Choose the copy
-            to keep working from under Draft copies before publishing.
-          </Trans>
+          <Show
+            when={props.place.screen === 'copies'}
+            fallback={
+              <Trans>
+                Another device saved a different copy of this draft. Choose the
+                copy to keep working from under Draft copies before publishing.
+              </Trans>
+            }
+          >
+            <Trans>
+              Another device saved a different copy of this draft. Choose the
+              copy to keep working from below before publishing.
+            </Trans>
+          </Show>
         </Notice>
       </Show>
       {props.refusal}

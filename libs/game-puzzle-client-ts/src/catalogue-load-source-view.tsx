@@ -7,7 +7,6 @@ import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { ProgressBar } from '@pkgs/ui-root-client-ts/progress-bar';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { P } from '@pkgs/ui-root-client-ts/text';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
 import { createEffect, type JSX, on, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
@@ -26,6 +25,8 @@ export type CatalogueLoadSourceViewProps = {
   readonly onSave: () => Promise<void>;
   readonly onRecheck: () => void;
   readonly onAskStop: () => void;
+  /** Returns to the loader's hub, where loading starts. */
+  readonly onDone: () => void;
 };
 
 /** The upload under way: how far it is, and the one way to stop it. */
@@ -90,26 +91,26 @@ function SourceChoice(props: CatalogueLoadSourceViewProps): JSX.Element {
     <>
       <Notice dataSet={{ testid: 'puzzle-source-missing' }}>
         <Trans>
-          No {props.copy.sourceName} is in the shared bucket. Choose a file to
-          upload. Once uploaded, start loading to add its puzzles to this
-          environment.
+          No {props.copy.sourceName} is saved yet. Choose one and upload it,
+          then start loading its puzzles.
         </Trans>
       </Notice>
       <FilePicker
         label={<Dynamic component={props.copy.fileLabel} />}
         accept={props.copy.fileAccept}
+        chooseLabel={t`Choose file`}
+        emptyLabel={t`No file chosen`}
+        fileName={props.source.chosen}
+        hint={<Dynamic component={props.copy.fileHint} />}
         onSelect={(file) => props.onSelectFile(file)}
         dataSet={{ testid: 'puzzle-load-file' }}
+        fileDataSet={{ testid: 'puzzle-source-chosen' }}
       />
-      <P variant="caption" tone="secondary">
-        <Dynamic component={props.copy.fileHint} />
-      </P>
-      <StackHorizontal wrap gap="md">
-        <Button
-          {...save.buttonProps}
-          dataSet={{ testid: 'puzzle-source-save' }}
-        />
-      </StackHorizontal>
+      <Button
+        {...save.buttonProps}
+        fullWidth
+        dataSet={{ testid: 'puzzle-source-save' }}
+      />
     </>
   );
 }
@@ -120,7 +121,12 @@ function SourceFiles(props: {
   sourceName: string;
 }): JSX.Element {
   return (
-    <Show when={props.source.filename !== null || props.source.chosen !== null}>
+    <Show
+      when={
+        props.source.filename !== null ||
+        (props.source.status === 'uploading' && props.source.chosen !== null)
+      }
+    >
       <MenuSection>
         <Show when={props.source.filename} keyed>
           {(filename) => (
@@ -132,7 +138,11 @@ function SourceFiles(props: {
           )}
         </Show>
         <Show
-          when={props.source.filename === null && props.source.chosen}
+          when={
+            props.source.filename === null &&
+            props.source.status === 'uploading' &&
+            props.source.chosen
+          }
           keyed
         >
           {(chosen) => (
@@ -200,12 +210,20 @@ export function CatalogueLoadSourceView(
       <SourceCheck {...props} />
       <SourceFiles source={props.source} sourceName={props.copy.sourceName} />
       <Show when={status() === 'saved'}>
-        <Notice>
+        <Notice tone="success" dataSet={{ testid: 'puzzle-source-ready' }}>
           <Trans>
-            The {props.copy.sourceName} is in the shared bucket. Start loading
-            to add its puzzles to this environment.
+            The {props.copy.sourceName} is saved. Go back to start loading its
+            puzzles.
           </Trans>
         </Notice>
+        <Button
+          title={t`Back to loading`}
+          intent="primary"
+          variant="solid"
+          fullWidth
+          onClick={() => props.onDone()}
+          dataSet={{ testid: 'puzzle-source-done' }}
+        />
       </Show>
       <Show when={props.source.saveError} keyed>
         {(error) => (
@@ -230,8 +248,9 @@ export function CatalogueLoadSourceView(
         <StackHorizontal wrap gap="md">
           <Button
             dataSet={{ testid: 'puzzle-source-recheck' }}
-            title={t`Check saved file again`}
-            variant="outline"
+            title={t`Check for a saved file again`}
+            intent="neutral"
+            variant={status() === 'check-failed' ? 'outline' : 'ghost'}
             disabled={props.link === 'offline'}
             onClick={() => props.onRecheck()}
           />

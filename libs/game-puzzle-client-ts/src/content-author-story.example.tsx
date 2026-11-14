@@ -121,15 +121,21 @@ export function renderAuthorStory(
             args.kind === 'pack'
               ? undefined
               : (next) => (
-                  <StoryPlaytest disabled={args.disabled} next={next()} />
+                  <StoryPlaytest
+                    disabled={args.disabled}
+                    next={next()}
+                    again={publication.proven}
+                  />
                 )
           }
           onWithdraw={() => setWithdrawing(true)}
+          onFix={fn()}
         />
       }
       confirms={
         <ContentWithdrawConfirm
           visible={withdrawing()}
+          title={args.body.title}
           onClose={() => setWithdrawing(false)}
           onWithdraw={fn(async () => undefined)}
         />

@@ -20,7 +20,10 @@ import {
   type CatalogueStartBlock,
   catalogueLoadCommand,
 } from './catalogue-load-places';
-import { CatalogueLoadResultView } from './catalogue-load-result-view';
+import {
+  CatalogueLoadResultView,
+  useCatalogueFormat,
+} from './catalogue-load-result-view';
 import type { CatalogueSourceView } from './catalogue-load-view';
 
 export type CatalogueLoadHubViewProps = {
@@ -67,6 +70,8 @@ function SourceValue(props: { source: CatalogueSourceView }): JSX.Element {
 function StartBlock(props: {
   blocked: CatalogueStartBlock;
   sourceName: string;
+  /** The last check failed, so whether a file is saved is not known. */
+  checkFailed: boolean;
 }): JSX.Element {
   return (
     <Switch>
@@ -91,7 +96,17 @@ function StartBlock(props: {
           tone="secondary"
           dataSet={{ testid: 'puzzle-load-blocked', reason: props.blocked }}
         >
-          <Trans>Save a {props.sourceName} before loading puzzles.</Trans>
+          <Show
+            when={props.checkFailed}
+            fallback={
+              <Trans>Save a {props.sourceName} before loading puzzles.</Trans>
+            }
+          >
+            <Trans>
+              Could not check for a saved {props.sourceName}. Open it above to
+              try again.
+            </Trans>
+          </Show>
         </P>
       </Match>
     </Switch>
@@ -102,6 +117,7 @@ function StartBlock(props: {
 function HubCommand(props: {
   command: CatalogueLoadCommand;
   sourceName: string;
+  checkFailed: boolean;
   onStart: () => Promise<void>;
   onAskStop: () => void;
 }): JSX.Element {
@@ -147,7 +163,11 @@ function HubCommand(props: {
       </StackHorizontal>
       <Show when={blocked()} keyed>
         {(reason) => (
-          <StartBlock blocked={reason} sourceName={props.sourceName} />
+          <StartBlock
+            blocked={reason}
+            sourceName={props.sourceName}
+            checkFailed={props.checkFailed}
+          />
         )}
       </Show>
     </>
@@ -155,8 +175,10 @@ function HubCommand(props: {
 }
 
 /**
- * The loader's hub: the pool, the shared file (a row that opens its own
- * place), the one command and the latest load.
+ * The loader's hub. With a latest load: how it stands and how far it is,
+ * then the one command (start, or stop the load running), the pool and
+ * the shared file (a row that opens its own place), then the load's
+ * figures. Before any load: the pool and the file, then the command.
  */
 export function CatalogueLoadHubView(
   props: CatalogueLoadHubViewProps
@@ -169,45 +191,56 @@ export function CatalogueLoadHubView(
       saved: props.source.filename !== null,
     })
   );
+  const format = useCatalogueFormat();
+  const rows = (): JSX.Element => (
+    <MenuSection>
+      <MenuRow
+        title={<Trans>Available puzzles</Trans>}
+        value={props.pool === null ? '—' : format.count(props.pool)}
+        dataSet={{ testid: 'puzzle-load-pool' }}
+      />
+      <MenuRow
+        title={props.copy.sourceName}
+        value={<SourceValue source={props.source} />}
+        trailing={
+          props.source.status === 'checking' ? (
+            <Spinner size="sm" decorative />
+          ) : undefined
+        }
+        onClick={() => props.onOpenSource()}
+        dataSet={{
+          testid: 'puzzle-load-source',
+          status: props.source.status,
+        }}
+      />
+    </MenuSection>
+  );
+  const commandView = (): JSX.Element => (
+    <HubCommand
+      command={command()}
+      sourceName={props.copy.sourceName}
+      checkFailed={props.source.status === 'check-failed'}
+      onStart={props.onStart}
+      onAskStop={props.onAskStop}
+    />
+  );
   return (
     <StackVertical gap="lg" testId="puzzle-load-hub">
-      <MenuSection>
-        <MenuRow
-          title={<Trans>Available puzzles</Trans>}
-          value={props.pool ?? '—'}
-          dataSet={{ testid: 'puzzle-load-pool' }}
-        />
-        <MenuRow
-          title={props.copy.sourceName}
-          value={<SourceValue source={props.source} />}
-          trailing={
-            props.source.status === 'checking' ? (
-              <Spinner size="sm" decorative />
-            ) : undefined
-          }
-          onClick={() => props.onOpenSource()}
-          dataSet={{
-            testid: 'puzzle-load-source',
-            status: props.source.status,
-          }}
-        />
-      </MenuSection>
-      <HubCommand
-        command={command()}
-        sourceName={props.copy.sourceName}
-        onStart={props.onStart}
-        onAskStop={props.onAskStop}
-      />
-      <Show when={props.stage === 'loading'}>
-        <Notice>
-          <Trans>
-            Loading continues in the background. The saved file stays available.
-            You can return here to follow its progress or stop it.
-          </Trans>
-        </Notice>
-      </Show>
-      <Show when={props.job}>
-        {(job) => <CatalogueLoadResultView job={job()} />}
+      <Show
+        when={props.job}
+        fallback={
+          <>
+            {rows()}
+            {commandView()}
+          </>
+        }
+      >
+        {(job) => (
+          <CatalogueLoadResultView job={job()}>
+            {commandView()}
+            {rows()}
+          </CatalogueLoadResultView>
+        )}
       </Show>
     </StackVertical>
   );

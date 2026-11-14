@@ -48,6 +48,8 @@ export type PublicationStepsProps = {
    * `readable()`): the playtest waits on the editor's corrections.
    */
   readonly playable?: boolean | undefined;
+  /** Opens the board, the lead while the draft cannot be played yet. */
+  readonly onFix?: (() => void) | undefined;
 };
 
 /** The playtest is next but cannot start until the draft is corrected. */
@@ -133,6 +135,20 @@ function OpenWaiting(props: PublicationStepsProps): JSX.Element {
   );
 }
 
+/** The lead while the board cannot be played: it opens the board. */
+function FixBoard(props: { onFix: () => void }): JSX.Element {
+  const { t } = useLingui();
+  return (
+    <Button
+      title={t`Fix the board`}
+      intent="primary"
+      variant="solid"
+      onClick={() => props.onFix()}
+      dataSet={{ testid: 'content-author-fix-board' }}
+    />
+  );
+}
+
 /**
  * The one next action, drawn once per step it leads (so a step's own
  * state, a started playtest's "Open playtest", lasts while it leads).
@@ -145,6 +161,8 @@ function useLead(
     const step = next();
     return untrack((): JSX.Element => {
       if (step === 'puzzles') return <OpenWaiting {...props} />;
+      if (step === 'playtest' && correctionFirst(props) && props.onFix)
+        return <FixBoard onFix={props.onFix} />;
       if (step === 'playtest') return props.playtest(true);
       return step === 'validate'
         ? props.validate('lead')
@@ -167,6 +185,9 @@ function useTrackActions(
       )
         return 'done';
       const state = stateOf(step, next());
+      // While the board needs fixing the fix leads; the playtest waits.
+      if (step === 'playtest' && correctionFirst(props) && props.onFix)
+        return 'locked';
       if (state === 'current') return 'lead';
       return state === 'done' ? 'done' : 'locked';
     });

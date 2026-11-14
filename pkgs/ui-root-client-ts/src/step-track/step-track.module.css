@@ -1,42 +1,29 @@
-/* A short sequence read in order: each step a marker and its action (or
-   its name), joined by a hairline. Where the row does not fit its
-   container, the steps stack, the hairline running down the markers. */
+/* A short sequence read in order: one panel, a row per step. Each row is
+   a marker, the step's name over its own action, and the step's state in
+   a word at the row's end. */
 .frame {
-  container: step-track / inline-size;
   min-width: 0;
 }
 .track {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--ui-space-sm) var(--ui-space-md);
-  min-width: 0;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 .step {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--ui-space-sm);
-  min-width: 0;
-}
-/* The hairline that joins a step to the one before it. */
-.step + .step::before {
-  content: "";
-  width: var(--ui-space-4);
-  height: 1px;
-  margin-inline-end: var(--ui-space-1);
-  background: var(--ui-color-border);
+  display: grid;
+  grid-template-columns: var(--ui-space-6) minmax(0, 1fr) max-content;
+  align-items: start;
+  column-gap: var(--ui-space-3);
+  padding: var(--ui-space-3) var(--ui-space-4);
 }
 .marker {
   display: inline-grid;
   place-items: center;
-  flex-shrink: 0;
   box-sizing: border-box;
   width: var(--ui-space-6);
   height: var(--ui-space-6);
-  border: 1px solid var(--ui-color-border);
+  margin-top: calc((var(--ui-leading-base) - var(--ui-space-6)) / 2);
+  border: 1px solid var(--ui-color-text-secondary);
   border-radius: var(--ui-radius-full);
   color: var(--ui-color-text-secondary);
   font-size: var(--ui-font-size-xs);
@@ -56,47 +43,37 @@
   background: var(--ui-color-success);
   color: var(--ui-color-on-success);
 }
+.body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--ui-space-1);
+  min-width: 0;
+}
 .name {
-  color: var(--ui-color-text-secondary);
-  font-size: var(--ui-font-size-sm);
-  line-height: var(--ui-leading-sm);
-}
-.step[data-state="current"] .name {
+  overflow-wrap: anywhere;
   color: var(--ui-color-text);
+  font-size: var(--ui-font-size-base);
   font-weight: var(--ui-font-weight-medium);
+  line-height: var(--ui-leading-base);
 }
-/* The step's state in a word, at its name's size in the quieter ink, so
-   the step reads as one line: `2 Validate · Locked`. */
+/* A step's own action sits under its name, starting at the name's edge. */
+.action {
+  display: flex;
+  margin-top: var(--ui-space-1);
+}
+/* The step's state in a word, at the row's end, in the quieter ink; the
+   next step's in the tint that marks it. */
 .state {
-  display: inline-flex;
-  gap: var(--ui-space-2);
   white-space: nowrap;
   color: var(--ui-color-text-secondary);
   font-size: var(--ui-font-size-sm);
-  line-height: var(--ui-leading-sm);
+  line-height: var(--ui-leading-base);
 }
-/* Too narrow for one row: one step a line, markers in a column. */
-@container step-track (max-width: 33rem) {
-  .track {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  .step {
-    display: grid;
-    grid-template-columns: var(--ui-space-6) minmax(0, 1fr) max-content;
-  }
-  .step > * {
-    min-width: 0;
-  }
-  /* An action keeps its own width at the column's start, so a locked
-     step's lock and name line up with an open step's name. */
-  .step > :nth-child(2) {
-    justify-self: start;
-  }
-  .name {
-    overflow-wrap: anywhere;
-  }
-  .step + .step::before {
-    content: none;
-  }
+.step[data-state="current"] .state {
+  color: var(--ui-color-tint-active);
+  font-weight: var(--ui-font-weight-semibold);
+}
+.step[data-state="done"] .state {
+  color: var(--ui-color-success);
 }

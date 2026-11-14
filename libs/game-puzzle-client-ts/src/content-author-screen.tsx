@@ -90,18 +90,21 @@ function AuthorPublication(props: {
   document: ContentDocument;
   workspace: ContentAuthorWorkspace;
 }): JSX.Element {
+  const nav = useContentPlace();
   return (
     <ContentPublicationControls
       document={props.document}
       publication={props.workspace.publication}
       disabled={props.workspace.disabled() || props.workspace.conflicted()}
       onWithdraw={() => props.workspace.setWithdrawing(true)}
+      onFix={(where) => nav.open({ screen: where })}
       before={(next) => (
         <Show when={props.document.kind === 'puzzle'}>
           <ContentDraftPlaytest
             documentId={props.document.id}
             writer={props.workspace.writer}
             next={next()}
+            again={props.workspace.publication.tools.proven()}
             disabled={props.workspace.disabled()}
             attemptId={props.workspace.playtestId()}
             onStarted={props.workspace.setPlaytestId}

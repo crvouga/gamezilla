@@ -18,18 +18,20 @@ function detailsSummary(body: ContentBody): string {
     .join(' · ');
 }
 
-/** Where checking and publishing stands, as its row's value. */
+/** Where checking and publishing stands, as its row's caption. */
 function useStandingValue(): (standing: ContentBuilderStanding) => string {
   const { t } = useLingui();
   return (standing) => {
     if (standing.kind === 'puzzles')
       return standing.waiting.length === 1
-        ? t`1 puzzle to publish first`
-        : t`${standing.waiting.length} puzzles to publish first`;
-    if (standing.kind === 'fix') return t`Fix the board first`;
-    if (standing.kind === 'playtest') return t`Playtest next`;
+        ? t`1 puzzle in the pack is still a draft`
+        : t`${standing.waiting.length} puzzles in the pack are still drafts`;
+    if (standing.kind === 'fix') return t`Fix the board, then playtest`;
+    if (standing.kind === 'playtest') return t`Playtest next, then validate`;
     if (standing.kind === 'validate')
-      return standing.invalid ? t`Needs changes` : t`Validate next`;
+      return standing.invalid
+        ? t`Validation found something to fix`
+        : t`Validate next, then publish`;
     if (standing.kind === 'publish') return t`Ready to publish`;
     if (standing.kind === 'reading')
       return publicationCopyLabel({ kind: 'reading' });
@@ -39,44 +41,45 @@ function useStandingValue(): (standing: ContentBuilderStanding) => string {
   };
 }
 
-/** The steps before publishing: the details, the board, a look at it. */
+/**
+ * The steps before publishing: the details, the board, a look at it. Where
+ * a step stands is its caption, which wraps, so it is never cut short.
+ */
 function DraftRows(props: { view: View }): JSX.Element {
   const { t } = useLingui();
   const pack = () => props.view.kind === 'pack';
+  const boardCaption = () => {
+    if (pack()) return t`Add, order and remove puzzles`;
+    return props.view.playable === false
+      ? t`Cannot be played yet. Fix the board.`
+      : t`Build the puzzle`;
+  };
   return (
     <>
       <MenuRow
         title={t`Details`}
         caption={
-          detailsSummary(props.view.body) ||
-          t`Title, description and difficulty`
+          props.view.body.title.trim() === ''
+            ? t`No title yet. Add a title, description and difficulty.`
+            : detailsSummary(props.view.body) ||
+              t`Add a description and difficulty`
         }
-        value={props.view.body.title.trim() || t`No title yet`}
         onClick={() => props.view.onOpen({ screen: 'details' })}
         dataSet={{ testid: 'content-author-details-toggle' }}
       />
       <MenuRow
         title={pack() ? t`Puzzles` : t`Board`}
-        caption={
-          pack() ? t`Add, order and remove puzzles` : t`Build the puzzle`
-        }
-        value={
-          pack()
-            ? String(props.view.puzzles ?? 0)
-            : props.view.playable === false
-              ? t`Cannot be played yet`
-              : undefined
-        }
+        caption={boardCaption()}
+        value={pack() ? String(props.view.puzzles ?? 0) : undefined}
         onClick={() => props.view.onOpen({ screen: 'board' })}
         dataSet={{ testid: 'content-open-board' }}
       />
       <MenuRow
         title={t`Preview`}
-        caption={t`The draft as a solver sees it`}
-        value={
+        caption={
           props.view.previewable === false
-            ? t`Nothing to preview yet`
-            : undefined
+            ? t`Opens once the board can be played`
+            : t`The draft as a solver sees it`
         }
         // A change still being kept would preview the copy before it.
         disabled={props.view.disabled || props.view.previewable === false}
@@ -103,8 +106,7 @@ function StepRows(props: { view: View }): JSX.Element {
       <DraftRows view={props.view} />
       <MenuRow
         title={t`Check and publish`}
-        caption={t`Playtest, validate and publish`}
-        value={standing(props.view.standing)}
+        caption={standing(props.view.standing)}
         onClick={() => props.view.onOpen({ screen: 'publish' })}
         dataSet={{ testid: 'content-open-publish' }}
       />
@@ -171,6 +173,15 @@ function NextStep(props: { view: View }): JSX.Element {
   };
   return (
     <Switch>
+      {/* A failed save leads with its own retry, in the notice above. */}
+      <Match when={props.view.save.error !== null}>{null}</Match>
+      <Match when={props.view.conflicted}>
+        <NextButton
+          title={t`Next: choose a draft copy`}
+          testid="content-author-next"
+          onPress={() => props.view.onOpen({ screen: 'copies' })}
+        />
+      </Match>
       <Match when={standing().kind === 'puzzles'}>
         <NextButton
           title={t`Next: finish ${waiting()}`}
