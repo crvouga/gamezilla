@@ -204,7 +204,7 @@ function useAttemptContext(
 function useSolvedCaption(props: ContentAttemptScreenViewProps): () => string {
   const { t } = useLingui();
   return () => {
-    if (props.playtest) return t`Practice runs count toward no progress.`;
+    if (props.playtest) return t`Return to the builder to publish it.`;
     const pack = props.pack;
     if (pack !== null && pack !== undefined && props.packSolved !== undefined)
       return props.packSolved >= pack.total
