@@ -109,30 +109,41 @@ function ShownPosition(props: GameReplayScreenViewProps): JSX.Element {
       {/* Always a second line, so the bar, and the board over it, keep one
           height from the start to the end. */}
       <Show when={last() > 0}>
-        <P variant="caption" tone="secondary">
-          <Show when={props.ply > 0} fallback={<Trans>No moves yet</Trans>}>
-            <Show
-              when={props.ply < last()}
-              fallback={<Trans>Final position</Trans>}
-            >
-              <ShownMove {...props} />
-            </Show>
-          </Show>
-        </P>
+        <Show
+          when={props.ply > 0 && props.ply < last()}
+          fallback={
+            <P variant="caption" tone="secondary">
+              <Show when={props.ply > 0} fallback={<Trans>No moves yet</Trans>}>
+                <Trans>Final position</Trans>
+              </Show>
+            </P>
+          }
+        >
+          <ShownMove {...props} />
+        </Show>
       </Show>
     </StackVertical>
   );
 }
 
-/** The move that reached the shown position: its seat and the move ("Red circle · Column 4"). */
+/**
+ * The move that reached the shown position: its seat's swatch (named for a
+ * listener) and the move in words ("● Column 4"), short enough for one line.
+ */
 function ShownMove(props: GameReplayScreenViewProps): JSX.Element {
   const move = () => props.moves[props.ply - 1];
   return (
-    <>
-      <Show when={move()?.sideLabel}>{(side) => <>{side()} · </>}</Show>
-      <Show when={props.moveHeading !== ''}>{props.moveHeading} </Show>
-      {move()?.label}
-    </>
+    <StackHorizontal align="center" gap="xs">
+      <Show when={move()?.swatch}>
+        {(look) => (
+          <GameSeatSwatch look={look()} label={move()?.sideLabel ?? ''} />
+        )}
+      </Show>
+      <P variant="caption" tone="secondary">
+        <Show when={props.moveHeading !== ''}>{props.moveHeading} </Show>
+        {move()?.label}
+      </P>
+    </StackHorizontal>
   );
 }
 
@@ -293,7 +304,12 @@ function ReplayMoves(props: GameReplayScreenViewProps): JSX.Element {
   const entries = createMemo((): readonly GameMoveListEntry[] =>
     props.moves.map((move, index) => ({
       ply: index + 1,
-      label: move.label,
+      // On a phone's one-line strip a bare number would run into the move
+      // numbers beside it: each move carries its word ("Column 4").
+      label:
+        strip() && props.moveHeading !== ''
+          ? `${props.moveHeading} ${move.label}`
+          : move.label,
       swatch: move.swatch,
       accessibleName:
         move.sideLabel === undefined
