@@ -1,5 +1,6 @@
-import { Trans, useLingui } from '@lingui/solid/macro';
-import { IconButton } from '@pkgs/ui-root-client-ts/icon-button';
+import { t } from '@lingui/core/macro';
+import { Trans } from '@lingui/solid/macro';
+import { Button } from '@pkgs/ui-root-client-ts/button';
 import { SlidersHorizontalIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { Text } from '@pkgs/ui-root-client-ts/text';
@@ -98,21 +99,20 @@ export function PuzzleSettingsRow(props: PuzzleSettingsRowProps): JSX.Element {
 }
 
 /**
- * The settings in one icon, for a dock with no room for the row: named
- * "Puzzle settings" for someone listening and as its tooltip.
+ * The settings as one outlined command, for a dock with no room for the
+ * row: "Settings", beside the commands it shares a line with.
  */
 export function PuzzleSettingsButton(props: {
   readonly onOpen: () => void;
 }): JSX.Element {
-  const { t } = useLingui();
   return (
-    <IconButton
-      label={t`Puzzle settings`}
-      background="surfaceMuted"
+    <Button
+      title={<Trans>Settings</Trans>}
+      intent="neutral"
+      variant="outline"
+      aria-label={t`Puzzle settings`}
       onClick={() => props.onOpen()}
       dataSet={{ testid: 'chess-puzzle-feed-summary-compact' }}
-    >
-      <SlidersHorizontalIcon />
-    </IconButton>
+    />
   );
 }

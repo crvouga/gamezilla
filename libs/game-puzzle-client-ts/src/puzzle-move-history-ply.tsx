@@ -42,6 +42,7 @@ function PlyFace(
       tone={props.selected ? 'tint-subtle' : 'transparent'}
       radius="sm"
       paddingX="sm"
+      paddingY="xs"
       direction="horizontal"
       align="baseline"
       testId={props.testId}

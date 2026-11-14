@@ -267,6 +267,8 @@ test('result: how it went, the rating it made, and Next puzzle as the one filled
   );
   expect(shown('chess-puzzle-action-hint')).toBe(false);
   expect(shown('chess-puzzle-move-nav-back')).toBe(false);
+  // The card headlines the outcome; the coach's line does not repeat it.
+  expect(shown('chess-puzzle-status-label')).toBe(false);
 });
 
 test('result: a skip has no rated outcome, and still offers the next puzzle and a retry', () => {

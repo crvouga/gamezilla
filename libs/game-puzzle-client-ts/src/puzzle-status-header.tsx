@@ -66,6 +66,12 @@ export type PuzzleStatusHeaderProps = {
    * the line says so instead of a clean "Solved".
    */
   flawed?: boolean | undefined;
+  /**
+   * The result card under the board headlines the outcome: the line keeps
+   * only its trailing facts (the clock, an unrated or rating chip), so the
+   * outcome is said once.
+   */
+  quiet?: boolean | undefined;
   /** Right-aligned slot, e.g. the puzzle clock. */
   trailing?: JSX.Element;
 };
@@ -84,7 +90,7 @@ export function PuzzleStatusHeader(
       paddingBottom="xs"
       testId="chess-puzzle-status-row"
     >
-      <Show when={!props.solutionShown}>
+      <Show when={!props.solutionShown && props.quiet !== true}>
         <PuzzleStatusIcon
           kind={
             props.flawed === true && props.kind === 'solved'
@@ -94,38 +100,40 @@ export function PuzzleStatusHeader(
         />
       </Show>
       <StackVertical grow>
-        <P variant="label" lines={3} testId="chess-puzzle-status-label">
-          <Show
-            when={
-              !props.solutionShown && props.kind === 'started'
-                ? props.solverSide
-                : null
-            }
-            fallback={
-              props.solutionShown ? (
-                <Trans>Solution shown</Trans>
-              ) : props.flawed === true && props.kind === 'solved' ? (
-                <Trans>Solved after a mistake</Trans>
-              ) : (
-                statusLabel(props.kind)
-              )
-            }
-          >
-            {/* The solver's turn in the accent pill the game screens put on
+        <Show when={props.quiet !== true}>
+          <P variant="label" lines={3} testId="chess-puzzle-status-label">
+            <Show
+              when={
+                !props.solutionShown && props.kind === 'started'
+                  ? props.solverSide
+                  : null
+              }
+              fallback={
+                props.solutionShown ? (
+                  <Trans>Solution shown</Trans>
+                ) : props.flawed === true && props.kind === 'solved' ? (
+                  <Trans>Solved after a mistake</Trans>
+                ) : (
+                  statusLabel(props.kind)
+                )
+              }
+            >
+              {/* The solver's turn in the accent pill the game screens put on
                 the seat to move, right above (or beside) the board. */}
-            {(side) => (
-              <Badge
-                intent={props.correct === true ? 'success' : 'brand'}
-                tone="solid"
-                label={yourTurnLabel(side(), props.correct === true)}
-                dataSet={{
-                  testid: 'chess-puzzle-your-move',
-                  correct: String(props.correct === true),
-                }}
-              />
-            )}
-          </Show>
-        </P>
+              {(side) => (
+                <Badge
+                  intent={props.correct === true ? 'success' : 'brand'}
+                  tone="solid"
+                  label={yourTurnLabel(side(), props.correct === true)}
+                  dataSet={{
+                    testid: 'chess-puzzle-your-move',
+                    correct: String(props.correct === true),
+                  }}
+                />
+              )}
+            </Show>
+          </P>
+        </Show>
       </StackVertical>
       {props.trailing}
     </StackHorizontal>

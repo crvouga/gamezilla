@@ -3,8 +3,7 @@
    background, so the board and the move list scroll under them and Next is
    never below the fold; in a width-sized column they come last, after the
    move list (`screen-layouts.module.css` orders the rest), so nothing is
-   ever left below them. A hairline on top says it is a bar, over what
-   scrolls. */
+   ever left below them. */
 .dock {
   position: sticky;
   bottom: 0;
@@ -14,17 +13,8 @@
   padding-block: var(--ui-space-2) var(--ui-space-3);
   background: var(--ui-color-background);
   border-top: 1px solid var(--ui-color-border);
-}
-/* What scrolls under the dock fades into it, instead of being cut at its
-   edge. */
-.dock::before {
-  content: "";
-  position: absolute;
-  inset-inline: 0;
-  bottom: 100%;
-  height: var(--ui-space-6);
-  background: linear-gradient(transparent, var(--ui-color-background));
-  pointer-events: none;
+  /* A bar over what scrolls: a clear edge, never a fade into it. */
+  box-shadow: var(--ui-shadow-float);
 }
 /* Wide: in the panel, right under the actions, on the panel's card. */
 @container puzzle-frame (min-width: 880px) {
@@ -35,8 +25,6 @@
     padding-block: 0 var(--ui-space-3);
     background: none;
     border-top: none;
-  }
-  .dock::before {
-    content: none;
+    box-shadow: none;
   }
 }

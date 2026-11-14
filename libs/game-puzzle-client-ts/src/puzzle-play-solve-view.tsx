@@ -93,7 +93,7 @@ export function PuzzleSolveActions(
         <Button
           title={<Trans>Back to the latest move</Trans>}
           intent="neutral"
-          variant="ghost"
+          variant="outline"
           size="sm"
           onClick={() => props.line.nav.onNavigate(PUZZLE_NAV_INTENT.end)}
           dataSet={{ testid: 'chess-puzzle-return-live' }}
