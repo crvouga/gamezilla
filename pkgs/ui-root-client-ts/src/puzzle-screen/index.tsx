@@ -153,11 +153,13 @@ export function PuzzleScreen(props: PuzzleScreenProps): JSX.Element {
         <PuzzleFixedRegion name="PuzzleActions" area="actions">
           {props.actions}
         </PuzzleFixedRegion>
-        <PuzzleFixedRegion name="PuzzleDock" area="dock">
-          {props.dock}
-        </PuzzleFixedRegion>
         <PuzzleFixedRegion name="PuzzleTimeline" area="timeline">
           {props.timeline}
+        </PuzzleFixedRegion>
+        {/* After the move list in reading and focus order, as a phone shows
+            it; wide, the grid sets it under the actions. */}
+        <PuzzleFixedRegion name="PuzzleDock" area="dock">
+          {props.dock}
         </PuzzleFixedRegion>
         <div class={styles['overlay']}>{props.overlay}</div>
       </div>
