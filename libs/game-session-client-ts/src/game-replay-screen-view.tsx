@@ -24,6 +24,7 @@ import {
   ChevronsRightIcon,
 } from '@pkgs/ui-root-client-ts/icons';
 import { KeyHints } from '@pkgs/ui-root-client-ts/key-hints';
+import { createMediaQuery } from '@pkgs/ui-root-client-ts/media-query';
 import { useRelativeTimeLabel } from '@pkgs/ui-root-client-ts/relative-time';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
@@ -79,6 +80,9 @@ export type GameReplayScreenViewProps = {
   /** Back to the list of finished games. */
   readonly onBack: () => void;
 };
+
+/** Where `GameSessionLayout`'s `fixedStage` lays the moves out as one line. */
+const PHONE_QUERY = '(max-width: 767px)';
 
 /** A step through the moves is a full touch target. */
 const STEP_SIZE = 44;
@@ -248,6 +252,9 @@ function ReplayPlayers(props: GameReplayScreenViewProps): JSX.Element {
  * under the steps; pressing one shows the board after it.
  */
 function ReplayMoves(props: GameReplayScreenViewProps): JSX.Element {
+  // A phone shows the moves as one line over the board (`fixedStage`),
+  // where the bare-number moves' word has no column to head.
+  const strip = createMediaQuery(PHONE_QUERY);
   const entries = createMemo((): readonly GameMoveListEntry[] =>
     props.moves.map((move, index) => ({
       ply: index + 1,
@@ -277,7 +284,7 @@ function ReplayMoves(props: GameReplayScreenViewProps): JSX.Element {
           current={props.ply}
           moves={entries()}
           onSelect={props.onSeek}
-          heading={props.moveHeading || undefined}
+          heading={strip() ? undefined : props.moveHeading || undefined}
           turnLabel={(turn) => <Trans>Move {turn}</Trans>}
           wrap
           ended
