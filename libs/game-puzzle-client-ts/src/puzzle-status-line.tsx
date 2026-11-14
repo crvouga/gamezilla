@@ -1,7 +1,6 @@
 import { Trans } from '@lingui/solid/macro';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { SpeakingAvatar } from '@pkgs/ui-root-client-ts/speaking-avatar';
-import { SpectatorIndicator } from '@pkgs/ui-root-client-ts/spectator-indicator';
 import { type JSX, Show } from 'solid-js';
 import { PuzzleClockLabel } from './puzzle-clock-label';
 import type { PuzzlePlayScreenViewProps } from './puzzle-play-screen-model';
@@ -17,7 +16,8 @@ function formatSignedDelta(delta: number): string {
 /**
  * What ends the status line: what the attempt did to the rating once that
  * is decided (a wrong move already has), or that it cannot move it (a
- * repeat, §9); then the clock, and the mark of someone watching.
+ * repeat, §9); then the clock. Someone watching is marked over the line
+ * (`SpectatorAllowance`), so the turn pill keeps its whole label.
  */
 function StatusLineTrailing(props: PuzzlePlayScreenViewProps): JSX.Element {
   // A finished puzzle's rated summary says the change itself.
@@ -45,9 +45,6 @@ function StatusLineTrailing(props: PuzzlePlayScreenViewProps): JSX.Element {
         />
       </Show>
       <PuzzleClockLabel elapsedMs={props.elapsedMs} />
-      <Show when={props.spectator}>
-        <SpectatorIndicator />
-      </Show>
     </>
   );
 }

@@ -2,7 +2,6 @@ import { buildPuzzleActionBarPlan } from '@libs/game-puzzle-shared-ts/action-bar
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
-import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameActions } from '@pkgs/ui-root-client-ts/game-section';
 import { H2 } from '@pkgs/ui-root-client-ts/heading';
@@ -18,7 +17,6 @@ import { Surface } from '@pkgs/ui-root-client-ts/surface';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { createMemo, type JSX, Match, Show, Switch } from 'solid-js';
 import type { PuzzlePlayScreenViewProps } from './puzzle-play-screen-model';
-import { PuzzleRatingBadge } from './puzzle-rating-badge';
 import { PuzzleSettingsRow } from './puzzle-settings-row';
 import { PuzzleShareLabel } from './puzzle-share-label';
 import { PuzzleSummaryCard } from './puzzle-summary-card';
@@ -74,39 +72,42 @@ function ResultCaption(props: PuzzlePlayScreenViewProps): JSX.Element {
 }
 
 /**
- * The finished puzzle's own facts, each a quiet tag, under the coach's
- * words: the streak it kept, its rating and its themes. The docked card
- * keeps to the outcome, so the coach stays in view above it.
+ * The finished puzzle's own facts, one quiet line in the result's card:
+ * its rating and its themes ("Puzzle 1702 · Checkmate, Opening").
  */
-export function PuzzleResultFacts(
-  props: PuzzlePlayScreenViewProps
-): JSX.Element {
+function ResultFacts(props: PuzzlePlayScreenViewProps): JSX.Element {
   const themeLabel = (theme: string): string =>
     props.feed.themes?.label(theme) ?? theme;
+  const rated = (): boolean => props.result.puzzleRating > 0;
+  const themed = (): boolean => props.result.themes.length > 0;
+  return (
+    <Show when={rated() || themed()}>
+      <P variant="caption" tone="secondary">
+        <Show when={rated()}>
+          <Text variant="inherit" numeral testId={Handles.chessPuzzleBoardElo}>
+            {t`Puzzle ${props.result.puzzleRating}`}
+          </Text>
+        </Show>
+        <Show when={rated() && themed()}>{' · '}</Show>
+        <Show when={themed()}>
+          <Text variant="inherit" testId={Handles.chessPuzzleFeedPuzzleThemes}>
+            {props.result.themes.map(themeLabel).join(', ')}
+          </Text>
+        </Show>
+      </P>
+    </Show>
+  );
+}
+
+/** The streak a solve kept, under the rating it made. */
+function ResultStreak(props: PuzzlePlayScreenViewProps): JSX.Element {
   const streak = (): number => props.result.completion?.streak ?? 0;
   return (
-    <StackHorizontal wrap gap="sm" paddingX="lg">
-      <Show when={streak() > 1}>
-        <Badge
-          intent="success"
-          label={<Trans>{streak()} puzzle streak</Trans>}
-        />
-      </Show>
-      <Show when={props.result.puzzleRating > 0}>
-        <PuzzleRatingBadge
-          rating={props.result.puzzleRating}
-          prefix={t`Puzzle rating`}
-          testId={Handles.chessPuzzleBoardElo}
-        />
-      </Show>
-      <Show when={props.result.themes.length > 0}>
-        <Badge
-          intent="neutral"
-          label={props.result.themes.map(themeLabel).join(', ')}
-          dataSet={{ testid: Handles.chessPuzzleFeedPuzzleThemes }}
-        />
-      </Show>
-    </StackHorizontal>
+    <Show when={streak() > 1}>
+      <P variant="caption" tone="success" align="end" numeral>
+        <Trans>{streak()} in a row</Trans>
+      </P>
+    </Show>
   );
 }
 
@@ -202,7 +203,8 @@ export function PuzzleResultDock(
 /**
  * The `result` place's card, docked under the board that keeps the
  * puzzle's last move: how it went (solved, the solution shown, skipped)
- * and why, and the rating it made beside that. The status
+ * and why, the puzzle's own rating and themes, and beside that the rating
+ * it made and the streak it kept. The status
  * line over the board carries the coach's words about it, and what the
  * attempt did to the rating when it has no rated summary (a skip).
  */
@@ -223,16 +225,20 @@ function PuzzleResultSummary(props: PuzzlePlayScreenViewProps): JSX.Element {
           <P variant="caption" tone="secondary">
             <ResultCaption {...props} />
           </P>
+          <ResultFacts {...props} />
         </StackVertical>
-        <Show when={props.result.completion} keyed>
-          {(completion) => (
-            <PuzzleSummaryCard
-              completion={completion}
-              displayRating={props.result.displayRating}
-              provisional={props.result.provisional}
-            />
-          )}
-        </Show>
+        <StackVertical gap="none" align="end">
+          <Show when={props.result.completion} keyed>
+            {(completion) => (
+              <PuzzleSummaryCard
+                completion={completion}
+                displayRating={props.result.displayRating}
+                provisional={props.result.provisional}
+              />
+            )}
+          </Show>
+          <ResultStreak {...props} />
+        </StackVertical>
       </StackHorizontal>
     </Surface>
   );

@@ -15,6 +15,17 @@
   background: var(--ui-color-background);
   border-top: 1px solid var(--ui-color-border);
 }
+/* What scrolls under the dock fades into it, instead of being cut at its
+   edge. */
+.dock::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 100%;
+  height: var(--ui-space-6);
+  background: linear-gradient(transparent, var(--ui-color-background));
+  pointer-events: none;
+}
 /* Wide: in the panel, right under the actions, on the panel's card. */
 @container puzzle-frame (min-width: 880px) {
   .dock {
@@ -24,5 +35,8 @@
     padding-block: 0 var(--ui-space-3);
     background: none;
     border-top: none;
+  }
+  .dock::before {
+    content: none;
   }
 }

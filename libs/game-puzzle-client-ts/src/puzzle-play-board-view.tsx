@@ -1,11 +1,7 @@
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import { PuzzleBoardFrame } from './puzzle-board-frame';
 import { PuzzleLineActions, PuzzleLineMoves } from './puzzle-play-line-view';
-import {
-  PuzzleResultDock,
-  PuzzleResultFacts,
-  PuzzleResultRows,
-} from './puzzle-play-result-view';
+import { PuzzleResultDock, PuzzleResultRows } from './puzzle-play-result-view';
 import type { PuzzlePlayScreenViewProps } from './puzzle-play-screen-model';
 import {
   PuzzleSolveActions,
@@ -46,9 +42,6 @@ export function PuzzlePlayBoardView(
         <Switch>
           <Match when={place() === 'play' && !props.spectator}>
             <PuzzleSolveActions {...props} />
-          </Match>
-          <Match when={place() === 'result'}>
-            <PuzzleResultFacts {...props} />
           </Match>
         </Switch>
       }

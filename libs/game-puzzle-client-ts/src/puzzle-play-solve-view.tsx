@@ -4,6 +4,7 @@ import { Button } from '@pkgs/ui-root-client-ts/button';
 import { ListOrderedIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { MoveStrip, MoveStripSlot } from '@pkgs/ui-root-client-ts/move-strip';
+import { SpectatorIndicator } from '@pkgs/ui-root-client-ts/spectator-indicator';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Show } from 'solid-js';
@@ -14,11 +15,15 @@ import { PuzzleSettingsRow } from './puzzle-settings-row';
 
 const ignoreSeek = (): void => {};
 
-/** A watcher sees what is left of the host's rated allowance. */
+/**
+ * A watcher's own line over the status line: that they are watching, and
+ * what is left of the host's rated allowance.
+ */
 export function SpectatorAllowance(props: { label: string }): JSX.Element {
   return (
-    <Show when={props.label.length > 0}>
-      <StackVertical paddingX="md" paddingY="xs">
+    <StackHorizontal align="center" gap="sm" paddingX="md" paddingY="xs" wrap>
+      <SpectatorIndicator />
+      <Show when={props.label.length > 0}>
         <P
           variant="caption"
           tone="secondary"
@@ -26,8 +31,8 @@ export function SpectatorAllowance(props: { label: string }): JSX.Element {
         >
           {props.label}
         </P>
-      </StackVertical>
-    </Show>
+      </Show>
+    </StackHorizontal>
   );
 }
 
