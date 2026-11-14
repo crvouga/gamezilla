@@ -100,7 +100,8 @@ function CompactLine(props: PuzzlePlayScreenViewProps): JSX.Element {
               writing={props.line.writing}
               onSeek={ignoreSeek}
             />
-            <Show when={props.line.awaiting}>
+            {/* A watcher is not the one to move: no "Your move" for them. */}
+            <Show when={props.line.awaiting && !props.spectator}>
               <MoveStripSlot
                 label={t`Your move`}
                 testId="chess-puzzle-move-slot"

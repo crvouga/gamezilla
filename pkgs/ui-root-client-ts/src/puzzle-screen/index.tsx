@@ -6,6 +6,7 @@ import { ScreenIntro } from '../screen-intro/index';
 import styles from '../screen-layouts.module.css';
 import { createScreenSlot } from '../screen-slot';
 import dockStyles from './puzzle-dock.module.css';
+import heightStyles from './puzzle-height.module.css';
 
 export type PuzzleScreenProps = {
   screenId: string;
@@ -59,6 +60,13 @@ type PuzzleArea =
   | 'actions'
   | 'dock';
 
+/** A region's own class: the dock and the title carry their module's too. */
+function regionClass(area: PuzzleArea): string | undefined {
+  if (area === 'dock') return dockStyles['dock'];
+  if (area === 'title') return `${styles['title']} ${heightStyles['title']}`;
+  return styles[area];
+}
+
 function PuzzleFixedRegion(props: {
   children: JSX.Element;
   name: string;
@@ -68,7 +76,7 @@ function PuzzleFixedRegion(props: {
   return (
     <Show when={slot.present()}>
       <div
-        class={`${styles['fixed']} ${props.area === 'dock' ? dockStyles['dock'] : styles[props.area]}`}
+        class={`${styles['fixed']} ${regionClass(props.area)}`}
         {...dataAttrs({ component: props.name })}
       >
         {slot.content()}
@@ -129,7 +137,7 @@ export function PuzzleScreen(props: PuzzleScreenProps): JSX.Element {
         </PuzzleFixedRegion>
         <div class={styles['well']}>
           <div
-            class={styles['board']}
+            class={`${styles['board']} ${heightStyles['board']}`}
             style={{ '--ui-play-aspect-ratio': ratio() }}
             {...dataAttrs({ component: 'PuzzleBoard' })}
           >

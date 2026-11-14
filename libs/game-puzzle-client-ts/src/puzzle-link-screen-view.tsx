@@ -55,7 +55,7 @@ export function PuzzleLinkScreenView(
               <Button
                 title={<Trans>Go to home</Trans>}
                 intent="neutral"
-                variant="ghost"
+                variant="outline"
                 onClick={() => props.onGoHome()}
                 dataSet={{ testid: 'chess-puzzle-link-denied-home' }}
               />

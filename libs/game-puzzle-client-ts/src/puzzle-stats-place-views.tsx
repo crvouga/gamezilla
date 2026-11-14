@@ -198,6 +198,7 @@ export function PuzzleStatsTrendView(
             </P>
             <Sparkline
               values={props.stats.ratingSeries}
+              size="lg"
               testId="chess-stats-sparkline"
             />
             <TrendRange series={props.stats.ratingSeries} />

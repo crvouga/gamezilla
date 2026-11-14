@@ -172,6 +172,8 @@ test('play: a watcher gets the board, the status line, the line and the allowanc
     'chess-puzzle-action-skip',
     'chess-puzzle-line-open',
     'chess-puzzle-feed-summary',
+    // The host is the one to move, not the watcher.
+    'chess-puzzle-move-slot',
   ])
     expect(shown(solvers)).toBe(false);
 });
