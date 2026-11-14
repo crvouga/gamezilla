@@ -42,8 +42,9 @@
   text-align: start;
 }
 .tile:focus-visible {
+  /* Inside the card's edge, so no scroll edge or neighbour clips it. */
   outline: 2px solid var(--ui-color-focus-ring);
-  outline-offset: 2px;
+  outline-offset: -4px;
 }
 /* A choice's picture on a neutral chip that stands off the card in both
    themes: a shade darker on a light card, a step lighter on a dark one,
@@ -137,7 +138,7 @@
 }
 .link:focus-visible {
   outline: 2px solid var(--ui-color-focus-ring);
-  outline-offset: 2px;
+  outline-offset: -4px;
 }
 .linkWords {
   display: flex;

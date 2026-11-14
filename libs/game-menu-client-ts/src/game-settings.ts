@@ -178,6 +178,25 @@ export function gameSettingsRows(
 }
 
 /**
+ * The screen the settings open on: the root group, unless all it holds for
+ * the person is one row leading straight to a screen (Chess's puzzle
+ * loader). Then the settings open on that screen, with no one-row stop on
+ * the way, and its Back leaves the settings.
+ */
+export function gameSettingsOpening(
+  tree: GameSettingsTree,
+  can: (permission: AppGrantKey) => boolean
+): GameSettingsNode {
+  const rows = gameSettingsRows(tree.root, can);
+  const only = rows.length === 1 ? rows[0] : undefined;
+  if (only === undefined || only.opens.kind === 'group') return tree.root;
+  return (
+    tree.nodes.get(gameSettingsChild(tree.root.place, only.key).screen) ??
+    tree.root
+  );
+}
+
+/**
  * The screen shown for `place`: itself while every row on the way to it is
  * one the person `can` see, otherwise the nearest screen above it that is.
  * A row hidden by a permission is never a way in, even to a device that

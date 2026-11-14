@@ -82,14 +82,32 @@
   padding-block: var(--ui-space-3);
   background: var(--ui-color-background);
 }
-/* The rules fade into the commands' background as they pass under them,
-   so a part still to come reads as more to read, never a hard cut. */
+/* While more rules wait below, they fade into the commands' background as
+   they pass under them, so a part still to come reads as more to read,
+   never a hard cut. The fade follows the scroll and is gone by the end;
+   rules that never scroll have none. */
 .actions::before {
   content: "";
   position: absolute;
   inset-inline: 0;
   bottom: 100%;
-  height: var(--ui-space-8);
+  height: var(--ui-space-6);
   background: linear-gradient(transparent, var(--ui-color-background));
+  opacity: 0;
   pointer-events: none;
+}
+@supports (animation-timeline: scroll()) {
+  .actions::before {
+    animation: rules-more-below linear both;
+    animation-timeline: scroll(nearest block);
+  }
+}
+@keyframes rules-more-below {
+  0%,
+  90% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }

@@ -1,0 +1,4 @@
+{
+  "summary": "Chess's settings opened on a screen whose only row led to the puzzle loader: a screen with nothing to choose, one more press before the task. Settings that hold one row leading straight to a screen now open on that screen, and its Back leaves the settings.",
+  "regressionTest": "libs/game-menu-client-ts/tests/game-settings.property.test.ts"
+}

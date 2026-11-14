@@ -11,15 +11,6 @@ import {
   type GameSettingsScreenViewProps,
 } from './game-settings-screen-view';
 
-/** Chess's settings as declared: the puzzle loader, at the root. */
-const CHESS_PUZZLES: GameSettingsRowView = {
-  key: 'puzzles',
-  title: 'Load chess puzzles',
-  caption: 'Load a Lichess CSV, follow its progress, or stop it.',
-  testId: 'chess-settings-puzzles',
-  opens: { screen: 'settings/puzzles' },
-};
-
 /**
  * A deeper tree, of a game with tools of two kinds (a fixture: no game
  * declares this one): a group per kind, the loader inside.
@@ -91,19 +82,6 @@ type Story = StoryObj<typeof meta>;
 
 /** The settings' first screen: the rows of the root group the game declared. */
 export const Root: Story = {};
-
-/**
- * Chess's settings, for a person allowed to manage puzzles: the loader
- * itself, with no group to pass through. Nobody else is offered Settings.
- */
-export const ChessRoot: Story = {
-  parameters: { game: 'Chess' },
-  args: {
-    subtitle: 'Tools for the people who manage chess puzzles.',
-    rows: [CHESS_PUZZLES],
-    backLabel: 'Chess',
-  },
-};
 
 /** A nested group, opened by its row: named by that row, with its own rows. */
 export const NestedGroup: Story = {
@@ -213,7 +191,7 @@ function SettingsWalk(props: {
         <GameSettingsScreenView
           place={{ screen: place() }}
           title={root() ? 'Settings' : 'Developer'}
-          subtitle={root() ? undefined : 'Import and manage chess puzzles.'}
+          subtitle={root() ? undefined : 'Import and manage puzzle packs.'}
           rows={root() ? [DEVELOPER] : [PACKS]}
           onOpen={(opened) => {
             if (opened.screen === DEVELOPER.opens.screen)

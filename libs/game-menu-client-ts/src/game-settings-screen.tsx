@@ -21,11 +21,13 @@ import { Dynamic } from 'solid-js/web';
 import {
   type GameSettings,
   type GameSettingsNode,
+  type GameSettingsPlace,
   type GameSettingsTree,
   gameSettingsBehind,
   gameSettingsChild,
   gameSettingsHandle,
   gameSettingsNodeShown,
+  gameSettingsOpening,
   gameSettingsPermissions,
   gameSettingsRows,
   gameSettingsTree,
@@ -109,16 +111,24 @@ export function GameSettingsScreen(props: {
   const nav = useScreenPlace(tree.places, () => 'open' as const);
   const can = useSettingsPermissions(tree);
   const choices = useGameChoicesName();
-  const node = createMemo(() => gameSettingsNodeShown(tree, nav.place(), can));
+  const opening = createMemo(() => gameSettingsOpening(tree, can));
+  // The root stands for the screen the settings open on.
+  const node = createMemo(() => {
+    const shown = gameSettingsNodeShown(tree, nav.place(), can);
+    return shown === tree.root ? opening() : shown;
+  });
+  // The place Back leads to inside the settings; none from where they open.
+  const behindPlace = (): GameSettingsPlace | null =>
+    node() === opening() ? null : gameSettingsBehind(tree, node().place);
   const back = (): boolean => {
-    const behind = gameSettingsBehind(tree, node().place);
+    const behind = behindPlace();
     if (behind === null) return false;
     nav.open(behind);
     return true;
   };
   // Back's destination by name: the group behind this one, or the menu.
   const behindTitle = (): string | undefined => {
-    const behind = gameSettingsBehind(tree, node().place);
+    const behind = behindPlace();
     if (behind === null) return choices();
     return tree.nodes.get(behind.screen)?.row?.title() ?? t`Settings`;
   };
@@ -135,8 +145,8 @@ export function GameSettingsScreen(props: {
     <>
       <DefineBackButton
         onPress={leave}
-        label={node().parent === null ? choices() : behindTitle()}
-        within={node().parent !== null}
+        label={behindTitle()}
+        within={behindPlace() !== null}
       />
       <Switch>
         <Match when={node().opens.kind === 'group'}>
@@ -157,7 +167,7 @@ export function GameSettingsScreen(props: {
           {(client) => (
             <CatalogueLoadScreen
               client={client}
-              frame={{ kind: 'space', onLeave: () => void back() }}
+              frame={{ kind: 'space', onLeave: leave }}
             />
           )}
         </Match>

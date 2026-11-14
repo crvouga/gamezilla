@@ -91,7 +91,9 @@ test('Back from chess settings returns to the game menu', async () => {
   await s.apply(joinPuzzleTeam, 'alice');
   await s.apply(createSpace, 'alice');
   await s.apply(openChessSettings, 'alice');
-  expect(await s.read(sees, 'chess-settings-puzzles')).toBe(true);
+  // Settings that hold only the loader open on it, with no one-row stop.
+  expect(await s.read(sees, 'puzzle-load-content')).toBe(true);
+  expect(await s.read(sees, 'chess-settings-puzzles')).toBe(false);
   await s.apply(goBack, 'alice');
   expect(await s.read(sees, Handles.gameChoices)).toBe(true);
 }, 30000);

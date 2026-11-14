@@ -4,6 +4,8 @@ import { expect, mock, test } from 'bun:test';
 import type { GameMenuPlace } from '@libs/game-menu-client-ts/game-menu-places';
 import { GameMenuScreenView } from '@libs/game-menu-client-ts/game-menu-screen-view';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
+import { ClockProvider } from '@pkgs/clock-client-ts/solid';
+import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 
 const RULE =
@@ -18,33 +20,36 @@ function menu(options: {
   onOpen?: (place: GameMenuPlace) => void;
   onChoose?: (screen: string) => void;
 }) {
+  const harness = createHarnessClock();
   return renderWithI18n(() => (
-    <ThemeProvider
-      colorScheme="dark"
-      fixedLayout={{ width: options.width, height: 900 }}
-    >
-      <GameMenuScreenView
-        title="Connect Four"
-        tile="discs"
-        subtitle={TAGLINE}
-        instructions={options.instructions}
-        choices={[
-          {
-            screen: 'custom-game',
-            title: 'Play with friends',
-            caption: 'With the people in this space, or bots',
-          },
-          {
-            screen: 'history',
-            title: 'History and stats',
-            caption: 'Review your games, wins and draws',
-          },
-        ]}
-        onChoose={options.onChoose ?? (() => undefined)}
-        place={options.place}
-        onOpen={options.onOpen ?? (() => undefined)}
-      />
-    </ThemeProvider>
+    <ClockProvider clock={harness.clock} timers={harness.timers}>
+      <ThemeProvider
+        colorScheme="dark"
+        fixedLayout={{ width: options.width, height: 900 }}
+      >
+        <GameMenuScreenView
+          title="Connect Four"
+          tile="discs"
+          subtitle={TAGLINE}
+          instructions={options.instructions}
+          choices={[
+            {
+              screen: 'custom-game',
+              title: 'Play with friends',
+              caption: 'With the people in this space, or bots',
+            },
+            {
+              screen: 'history',
+              title: 'History and stats',
+              caption: 'Review your games, wins and draws',
+            },
+          ]}
+          onChoose={options.onChoose ?? (() => undefined)}
+          place={options.place}
+          onOpen={options.onOpen ?? (() => undefined)}
+        />
+      </ThemeProvider>
+    </ClockProvider>
   ));
 }
 
@@ -123,7 +128,7 @@ test('the rules lead on: play the main way in, or back to the menu', () => {
   expect(onOpen).toHaveBeenCalledWith({ screen: 'menu' });
   onOpen.mockClear();
   const back = rules.getByTestId('game-how-to-play-back');
-  expect(back.textContent).toContain('Back to Connect Four');
+  expect(back.getAttribute('aria-label')).toBe('Back to Connect Four');
   back.click();
   expect(onOpen).toHaveBeenCalledWith({ screen: 'menu' });
   rules.unmount();

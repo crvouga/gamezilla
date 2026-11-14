@@ -17,6 +17,7 @@ import {
   gameSettingsHandle,
   gameSettingsNodeShown,
   gameSettingsOffered,
+  gameSettingsOpening,
   gameSettingsPermissions,
   gameSettingsRows,
   gameSettingsTree,
@@ -262,6 +263,8 @@ describe("a game's settings, declared as data", () => {
     expect(gameSettingsRows(tree.root, () => false)).toEqual([]);
     expect(gameSettingsOffered(LAPS, () => false)).toBe(false);
     expect(gameSettingsOffered(LAPS, () => true)).toBe(true);
+    // The root holds one group here, so the settings open on the root.
+    expect(gameSettingsOpening(tree, () => true)).toBe(tree.root);
     // A device that had the loader open stands on the root once denied.
     expect(gameSettingsNodeShown(tree, laps, () => false).place).toEqual(root);
     expect(gameSettingsNodeShown(tree, laps, () => true).place).toEqual(laps);
@@ -321,4 +324,39 @@ describe("a game's settings, declared as data", () => {
       })
     ).toThrow('race: settings.Screen is not part of the contract');
   });
+});
+
+// regression: settings-one-row-stop — Chess's settings opened on a screen
+// whose only row led to the loader, a screen with no choice to make.
+test('settings holding one row that leads to a screen open on that screen', () => {
+  const flat: GameSettings = {
+    caption: () => 'Load laps',
+    rows: [
+      {
+        key: 'laps',
+        title: () => 'Load laps',
+        permission: PERMISSION.puzzlesManage,
+        opens: { kind: 'catalogue-load', load },
+      },
+    ],
+  };
+  const tree = gameSettingsTree(flat);
+  expect(gameSettingsOpening(tree, () => true).place).toEqual({
+    screen: 'settings/laps',
+  });
+  // Denied, the root has nothing to stand for: it stays the root.
+  expect(gameSettingsOpening(tree, () => false)).toBe(tree.root);
+  assertProperty(
+    'game settings: the opening screen is the root or its only row',
+    fc.property(settings, granted, (declared, allowed) => {
+      const tree = gameSettingsTree(declared);
+      const can = (permission: AppGrantKey) => allowed.includes(permission);
+      const opening = gameSettingsOpening(tree, can);
+      const rows = gameSettingsRows(tree.root, can);
+      if (opening === tree.root) return;
+      expect(rows).toHaveLength(1);
+      expect(opening.row).toBe(rows[0] ?? null);
+      expect(opening.opens.kind).not.toBe('group');
+    })
+  );
 });

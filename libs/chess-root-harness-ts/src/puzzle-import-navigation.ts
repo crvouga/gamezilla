@@ -27,8 +27,8 @@ export const openChessSettings = scenarioAction({
 export const openChessPuzzleLoader = scenarioAction({
   name: 'openChessPuzzleLoader',
   act: async (s, actor: string) => {
+    // Chess's settings hold only the loader, so they open on it.
     const ui = await actorUi(s, actor);
-    await ui.get('chess-settings-puzzles').tap();
     await ui.get('puzzle-load-content').expect.visible();
   },
 });

@@ -9,7 +9,7 @@ import { Trans } from '@lingui/solid/macro';
  * person allowed to manage puzzles. Nobody else is offered Settings.
  */
 export const chessSettings: GameSettings = {
-  caption: () => <Trans>Load puzzles, for puzzle managers</Trans>,
+  caption: () => <Trans>Load and manage chess puzzles</Trans>,
   subtitle: () => <Trans>Tools for the people who manage chess puzzles.</Trans>,
   rows: [
     {
