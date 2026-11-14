@@ -108,6 +108,7 @@ export function ContentAuthorCopiesView(props: { view: View }): JSX.Element {
   return (
     <StackVertical gap="md" dataSet={{ testid: 'content-author-copies' }}>
       {props.view.keptCopies}
+      <DoneButton view={props.view} />
     </StackVertical>
   );
 }

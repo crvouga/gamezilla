@@ -160,6 +160,7 @@ export function CatalogueLoadScreenView(
               job={props.job}
               source={props.source}
               onOpenSource={() => props.onOpen({ screen: 'source' })}
+              onRecheck={props.onRecheck}
               onStart={props.onStart}
               onAskStop={() => setAsked('loading')}
             />

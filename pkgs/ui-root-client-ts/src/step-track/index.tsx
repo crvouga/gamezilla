@@ -37,8 +37,8 @@ export type StepTrackProps = {
 /**
  * `StepTrack` -- a short sequence of steps read in order, as one panel of
  * rows: each row a marker (a check once done, its number while it waits,
- * filled when it is the one next step), the step's name, its state in a
- * word at the row's end, and its own action (a `Button`) under the name. A waiting step's action stands in for its
+ * filled when it is the one next step), the step's name over its state
+ * in a word, and its own action (a `Button`) at the row's end. A waiting step's action stands in for its
  * name, locked, so it still says what is missing when pressed. Steps keep their place (by position) as
  * their states change, so an action keeps its own state.
  */
@@ -48,7 +48,10 @@ export function StepTrack(props: StepTrackProps): JSX.Element {
       class={styles['frame']}
       {...dataAttrs({ component: 'StepTrack', ...props.dataSet })}
     >
-      <ol class={`panel ${styles['track']}`} aria-label={props.label}>
+      <ol
+        class={`panel panelPlain ${styles['track']}`}
+        aria-label={props.label}
+      >
         <Index each={props.steps}>
           {(step, index) => (
             <li
@@ -63,21 +66,20 @@ export function StepTrack(props: StepTrackProps): JSX.Element {
               </span>
               <span class={styles['body']}>
                 {/* A waiting step's own action is its name (a locked
-                    button that says what is missing); any other step's
-                    action follows its name. */}
+                    button that says what is missing). */}
                 <Show
                   when={step().state === 'upcoming' && step().action}
                   fallback={<span class={styles['name']}>{step().label}</span>}
                 >
-                  {step().action}
+                  <span class={styles['namedAction']}>{step().action}</span>
                 </Show>
-                <Show when={step().state !== 'upcoming' && step().action}>
-                  <span class={styles['action']}>{step().action}</span>
-                </Show>
+                <span class={styles['state']}>
+                  {props.stateNames[step().state]}
+                </span>
               </span>
-              <span class={styles['state']}>
-                {props.stateNames[step().state]}
-              </span>
+              <Show when={step().state !== 'upcoming' && step().action}>
+                <span class={styles['action']}>{step().action}</span>
+              </Show>
             </li>
           )}
         </Index>

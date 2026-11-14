@@ -90,6 +90,12 @@ function PublicationPending(props: {
             Publication is waiting for confirmation. Your draft is kept. Keep
             this app connected to share it.
           </Trans>
+        </Show>{' '}
+        <Show when={props.copyState.kind === 'pending'}>
+          <Trans>
+            Retry sending only if it stays waiting: it sends this same copy and
+            never makes a second edition.
+          </Trans>
         </Show>
       </Notice>
     </Show>
@@ -160,8 +166,8 @@ function usePublicationActions(props: ContentPublicationControlsViewProps) {
     operation: () => props.onPublish(),
     labels: {
       get idle() {
-        return props.copyState.kind === 'pending' ||
-          props.copyState.kind === 'edition'
+        if (props.copyState.kind === 'pending') return t`Retry sending`;
+        return props.copyState.kind === 'edition'
           ? t`Publish again`
           : t`Publish`;
       },
@@ -190,7 +196,7 @@ type PublicationActions = ReturnType<typeof usePublicationActions>;
 function placed(place: PublicationActionPlace) {
   if (place === 'lead') return { intent: 'primary', variant: 'solid' } as const;
   if (place === 'done')
-    return { intent: 'neutral', variant: 'ghost', size: 'sm' } as const;
+    return { intent: 'neutral', variant: 'outline', size: 'sm' } as const;
   return {
     intent: 'neutral',
     variant: 'ghost',

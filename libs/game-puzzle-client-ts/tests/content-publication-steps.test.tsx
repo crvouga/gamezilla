@@ -367,7 +367,7 @@ test('pending becomes an edition then an edited draft without duplicate publicat
     })
   );
   expect(screen.getByTestId('content-publish')).toHaveTextContent(
-    'Publish again'
+    'Retry sending'
   );
   expect(screen.getAllByTestId('content-publication-status')).toHaveLength(1);
   expect(

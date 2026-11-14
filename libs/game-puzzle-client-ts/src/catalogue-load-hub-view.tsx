@@ -36,6 +36,8 @@ export type CatalogueLoadHubViewProps = {
   readonly job: CatalogueLoadJob | null;
   readonly source: CatalogueSourceView;
   readonly onOpenSource: () => void;
+  /** Checks the shared bucket for the saved file again. */
+  readonly onRecheck: () => void;
   readonly onStart: () => Promise<void>;
   readonly onAskStop: () => void;
 };
@@ -102,10 +104,7 @@ function StartBlock(props: {
               <Trans>Save a {props.sourceName} before loading puzzles.</Trans>
             }
           >
-            <Trans>
-              Could not check for a saved {props.sourceName}. Open it above to
-              try again.
-            </Trans>
+            <Trans>Could not check for a saved {props.sourceName}.</Trans>
           </Show>
         </P>
       </Match>
@@ -118,6 +117,10 @@ function HubCommand(props: {
   command: CatalogueLoadCommand;
   sourceName: string;
   checkFailed: boolean;
+  /** The latest load failed: starting again is its retry. */
+  lastFailed: boolean;
+  onOpenSource: () => void;
+  onRecheck: () => void;
   onStart: () => Promise<void>;
   onAskStop: () => void;
 }): JSX.Element {
@@ -128,7 +131,9 @@ function HubCommand(props: {
       return props.command.kind !== 'start' || props.command.blocked !== null;
     },
     labels: {
-      idle: t`Start loading`,
+      get idle() {
+        return props.lastFailed ? t`Load again` : t`Start loading`;
+      },
       loading: t`Starting load…`,
       success: t`Load started`,
       error: t`Try loading again`,
@@ -158,6 +163,24 @@ function HubCommand(props: {
             variant="outline"
             onClick={() => props.onAskStop()}
             dataSet={{ testid: 'puzzle-load-stop' }}
+          />
+        </Show>
+        <Show when={props.command.kind === 'start' && props.lastFailed}>
+          <Button
+            title={t`Replace the file`}
+            intent="neutral"
+            variant="outline"
+            onClick={() => props.onOpenSource()}
+            dataSet={{ testid: 'puzzle-load-replace' }}
+          />
+        </Show>
+        <Show when={props.checkFailed}>
+          <Button
+            title={t`Check again`}
+            intent="neutral"
+            variant="outline"
+            onClick={() => props.onRecheck()}
+            dataSet={{ testid: 'puzzle-load-recheck' }}
           />
         </Show>
       </StackHorizontal>
@@ -201,7 +224,7 @@ export function CatalogueLoadHubView(
       />
       <MenuRow
         title={props.copy.sourceName}
-        value={<SourceValue source={props.source} />}
+        caption={<SourceValue source={props.source} />}
         trailing={
           props.source.status === 'checking' ? (
             <Spinner size="sm" decorative />
@@ -220,6 +243,9 @@ export function CatalogueLoadHubView(
       command={command()}
       sourceName={props.copy.sourceName}
       checkFailed={props.source.status === 'check-failed'}
+      lastFailed={props.job?.status === 'failed'}
+      onOpenSource={props.onOpenSource}
+      onRecheck={props.onRecheck}
       onStart={props.onStart}
       onAskStop={props.onAskStop}
     />

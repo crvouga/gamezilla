@@ -4,6 +4,7 @@ import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { ProgressBar } from '@pkgs/ui-root-client-ts/progress-bar';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { Text } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import type { CatalogueLoadJob } from './catalogue-load-client';
 
@@ -33,7 +34,7 @@ function ResultStatus(props: { job: CatalogueLoadJob }): JSX.Element {
       aria-atomic
       testId="puzzle-load-status"
     >
-      {/* Why it failed is the alert below; this is the one status word. */}
+      {/* Why it failed is said under the progress; this is the one word. */}
       <Notice tone={props.job.status === 'finished' ? 'success' : 'neutral'}>
         <Switch>
           <Match when={props.job.status === 'adding'}>
@@ -54,10 +55,32 @@ function ResultStatus(props: { job: CatalogueLoadJob }): JSX.Element {
   );
 }
 
-/** What a load still running, or stopped, means for the person. */
+/**
+ * What a load still running, stopped or failed means for the person: a
+ * failed load's own reason, then what can be done about it.
+ */
 function ProgressNote(props: { job: CatalogueLoadJob }): JSX.Element {
   return (
     <Switch>
+      <Match when={props.job.status === 'failed'}>
+        <StackVertical gap="xs">
+          <Show when={props.job.error} keyed>
+            {(error) => (
+              <Text
+                variant="inherit"
+                tone="destructive"
+                testId="puzzle-load-error"
+              >
+                {error}
+              </Text>
+            )}
+          </Show>
+          <Trans>
+            Puzzles already added are kept. Load again, or replace the file if
+            it is damaged.
+          </Trans>
+        </StackVertical>
+      </Match>
       <Match when={props.job.status === 'adding'}>
         <Trans>
           Loading continues in the background. You can leave and come back to
@@ -96,13 +119,6 @@ export function CatalogueLoadResultView(props: {
           progress={props.job.progress}
           description={<ProgressNote job={props.job} />}
         />
-        <Show when={props.job.error} keyed>
-          {(error) => (
-            <Notice tone="error" dataSet={{ testid: 'puzzle-load-error' }}>
-              {error}
-            </Notice>
-          )}
-        </Show>
       </StackVertical>
       {props.children}
       <MenuSection title={<Trans>Latest load</Trans>}>
@@ -132,13 +148,13 @@ export function CatalogueLoadResultView(props: {
         <MenuRow title={<Trans>From</Trans>} caption={props.job.source} />
         <MenuRow
           title={<Trans>Last activity</Trans>}
-          value={format.time(props.job.updatedAt)}
+          caption={format.time(props.job.updatedAt)}
         />
         <Show when={props.job.finishedAt} keyed>
           {(finishedAt) => (
             <MenuRow
               title={<Trans>Ended</Trans>}
-              value={format.time(finishedAt)}
+              caption={format.time(finishedAt)}
             />
           )}
         </Show>

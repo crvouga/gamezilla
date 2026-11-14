@@ -8,6 +8,7 @@ import {
 } from '@pkgs/ui-root-client-ts/step-track';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { createMemo, type JSX, Show, untrack } from 'solid-js';
+import { ContentStatusChip } from './content-chips';
 
 /** The one step that comes next on the way to publishing a draft. */
 export type PublicationStep = 'puzzles' | 'playtest' | 'validate' | 'publish';
@@ -273,13 +274,25 @@ export function PublicationSteps(props: PublicationStepsProps): JSX.Element {
           when={props.progress === undefined}
           fallback={
             <Show when={!props.progress?.statusInLead}>
-              <P
-                variant="caption"
-                tone="secondary"
-                dataSet={{ testid: 'content-publication-status' }}
+              <Show
+                when={props.progress?.complete}
+                fallback={
+                  <P
+                    variant="caption"
+                    tone="secondary"
+                    dataSet={{ testid: 'content-publication-status' }}
+                  >
+                    {props.progress?.label}
+                  </P>
+                }
               >
-                {props.progress?.label}
-              </P>
+                <StackHorizontal
+                  align="center"
+                  dataSet={{ testid: 'content-publication-status' }}
+                >
+                  <ContentStatusChip status="published" />
+                </StackHorizontal>
+              </Show>
             </Show>
           }
         >

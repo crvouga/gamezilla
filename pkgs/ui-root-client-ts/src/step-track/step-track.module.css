@@ -1,6 +1,6 @@
 /* A short sequence read in order: one panel, a row per step. Each row is
-   a marker, the step's name over its own action, and the step's state in
-   a word at the row's end. */
+   a marker, the step's name over its state in a word, and the step's own
+   action at the row's end. Names and states share one edge; rows need no rule between them. */
 .frame {
   min-width: 0;
 }
@@ -12,7 +12,7 @@
 .step {
   display: grid;
   grid-template-columns: var(--ui-space-6) minmax(0, 1fr) max-content;
-  align-items: start;
+  align-items: center;
   column-gap: var(--ui-space-3);
   padding: var(--ui-space-3) var(--ui-space-4);
 }
@@ -22,7 +22,6 @@
   box-sizing: border-box;
   width: var(--ui-space-6);
   height: var(--ui-space-6);
-  margin-top: calc((var(--ui-leading-base) - var(--ui-space-6)) / 2);
   border: 1px solid var(--ui-color-text-secondary);
   border-radius: var(--ui-radius-full);
   color: var(--ui-color-text-secondary);
@@ -47,7 +46,6 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: var(--ui-space-1);
   min-width: 0;
 }
 .name {
@@ -57,18 +55,23 @@
   font-weight: var(--ui-font-weight-medium);
   line-height: var(--ui-leading-base);
 }
-/* A step's own action sits under its name, starting at the name's edge. */
+/* A waiting step's locked button stands in for its name: its label
+   starts on the names' edge (an `sm` button's 20px gutter pulled back). */
+.namedAction {
+  display: flex;
+  margin-inline-start: calc(-1 * var(--ui-space-5));
+}
+/* The step's own action, at the row's end. */
 .action {
   display: flex;
-  margin-top: var(--ui-space-1);
+  justify-content: flex-end;
 }
-/* The step's state in a word, at the row's end, in the quieter ink; the
-   next step's in the tint that marks it. */
+/* The step's state in a word, under its name, in the quieter ink; the
+   next step's in the tint that marks it, a done step's in success. */
 .state {
-  white-space: nowrap;
   color: var(--ui-color-text-secondary);
   font-size: var(--ui-font-size-sm);
-  line-height: var(--ui-leading-base);
+  line-height: var(--ui-leading-sm);
 }
 .step[data-state="current"] .state {
   color: var(--ui-color-tint-active);

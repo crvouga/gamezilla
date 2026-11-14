@@ -25,7 +25,7 @@ export default function StepTrackExample(): JSX.Element {
               <Button
                 title="Playtest again"
                 intent="neutral"
-                variant="ghost"
+                variant="outline"
                 size="sm"
               />
             ),

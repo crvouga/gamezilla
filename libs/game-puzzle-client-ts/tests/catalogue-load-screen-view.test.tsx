@@ -441,3 +441,35 @@ test('a load reads its progress and command first, then grouped figures', () => 
   expect(before('puzzle-load-status', 'puzzle-load-stop')).toBe(true);
   expect(before('puzzle-load-stop', 'puzzle-load-added')).toBe(true);
 });
+
+// regression: catalogue-failed-load-no-remedy — a failed load said why,
+// then offered only "Start loading", as if the same file would surely
+// work. It now says what is kept, leads with Load again and offers
+// replacing the file.
+test('a failed load leads with loading again and offers replacing the file', () => {
+  const onOpen = mock(() => undefined);
+  loader({
+    job: { ...JOB, status: 'failed', error: 'Unexpected end of file.' },
+    onOpen,
+  });
+  expect(screen.getByTestId('puzzle-load-error').textContent).toBe(
+    'Unexpected end of file.'
+  );
+  expect(screen.getByTestId('puzzle-load-start').textContent).toBe(
+    'Load again'
+  );
+  fireEvent.click(screen.getByTestId('puzzle-load-replace'));
+  expect(onOpen).toHaveBeenCalledWith({ screen: 'source' });
+});
+
+// regression: catalogue-check-failed-points-away — after a failed check the
+// hub said to open the file's row to try again; the retry is now beside it.
+test('a failed check offers checking again on the hub', () => {
+  const onRecheck = mock(() => undefined);
+  loader({
+    source: { ...MISSING, status: 'check-failed', checkError: 'unreachable' },
+    onRecheck,
+  });
+  fireEvent.click(screen.getByTestId('puzzle-load-recheck'));
+  expect(onRecheck).toHaveBeenCalledTimes(1);
+});

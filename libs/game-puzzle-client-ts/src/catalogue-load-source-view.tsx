@@ -258,7 +258,7 @@ export function CatalogueLoadSourceView(
             dataSet={{ testid: 'puzzle-source-recheck' }}
             title={t`Check for a saved file again`}
             intent="neutral"
-            variant={status() === 'check-failed' ? 'outline' : 'ghost'}
+            variant="outline"
             disabled={props.link === 'offline'}
             onClick={() => props.onRecheck()}
           />
