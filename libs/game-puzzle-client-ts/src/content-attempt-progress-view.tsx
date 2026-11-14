@@ -136,7 +136,8 @@ function AttemptPanel(props: ContentAttemptScreenViewProps): JSX.Element {
       </Show>
       <AttemptFigures {...props} />
       <ContentAttemptSaveStatus {...props} />
-      <Show when={props.playtest}>
+      {/* Once solved, the one line below says it all. */}
+      <Show when={props.playtest && !props.complete}>
         <Notice>
           <Trans>
             Playtest: this uses the real puzzle rules. It does not count toward

@@ -210,6 +210,8 @@ function DrawPathsAttempt(props: {
   args: Parameters<NonNullable<Story['render']>>[0];
   /** Paths already saved when the attempt opens. */
   saved?: typeof SOLUTION;
+  /** Where the attempt is played, as the production screen passes it. */
+  context?: Parameters<typeof NumberlinkPlayer>[0]['context'];
 }): JSX.Element {
   // Only the opening position: later saves come from the player's actions.
   const [state, setState] = createSignal(
@@ -224,6 +226,7 @@ function DrawPathsAttempt(props: {
         <NumberlinkPlayer
           {...props.args}
           state={state()}
+          context={props.context}
           onAction={(action) => {
             const next = numberlinkPuzzleContent.rules.apply(
               props.args.definition,
@@ -372,27 +375,41 @@ export const ChoosePathToRemove: Story = {
 
 /**
  * Partway, inside the attempt screen as production passes it (the screen
- * says when the puzzle is solved): the tools and help fold into one row.
+ * says when the puzzle is solved): the path removal and help fold into one
+ * row under the board. Its play opens the row, removes a path with the
+ * keyboard, closes the row and draws again.
  */
 export const InAttemptScreen: Story = {
-  args: { ...InProgress.args },
   render: (args) => (
-    <StoryPackAttempt
+    <DrawPathsAttempt
       puzzle={PUZZLE}
-      player={
-        <NumberlinkPlayer
-          {...args}
-          context={{
-            kind: 'pack',
-            shellOffersWayOn: true,
-            shellSaysSolved: true,
-          }}
-        />
-      }
+      args={args}
+      saved={[PATH_1, PATH_3]}
+      context={{ kind: 'pack', shellOffersWayOn: true, shellSaysSolved: true }}
     />
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByTestId('numberlink-tools')).toBeVisible();
+    const progressLine = canvas.getByTestId('numberlink-progress');
+    await expect(progressLine).toHaveTextContent('2/5 pairs connected');
+    // The row names what it holds; open it from the keyboard.
+    const tools = canvas.getByRole('button', {
+      name: 'Remove a path and help',
+    });
+    tools.focus();
+    await userEvent.keyboard('{Enter}');
+    await expect(tools).toHaveAttribute('aria-expanded', 'true');
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Remove a path' })
+    );
+    await userEvent.click(
+      within(document.body).getByRole('option', { name: 'Remove path 1' })
+    );
+    await expect(progressLine).toHaveTextContent('1/5 pairs connected');
+    // Close the row and play on: the board still takes a path.
+    tools.focus();
+    await userEvent.keyboard('{Enter}');
+    await expect(tools).toHaveAttribute('aria-expanded', 'false');
+    await expect(canvas.getByTestId('numberlink-board-cell-0')).toBeVisible();
   },
 };

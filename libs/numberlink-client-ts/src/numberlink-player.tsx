@@ -144,7 +144,7 @@ function Drawing(props: {
           {/* Inside the attempt screen (which a phone holds in one view),
               the tools and help fold into one labelled row under the board. */}
           <Collapsible
-            title={t`Tools and help`}
+            title={t`Remove a path and help`}
             dataSet={{ testid: 'numberlink-tools' }}
           >
             <StackVertical gap="md">
