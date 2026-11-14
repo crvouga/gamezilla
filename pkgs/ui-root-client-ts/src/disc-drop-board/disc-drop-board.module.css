@@ -177,6 +177,9 @@
   display: grid;
   place-items: center;
   aspect-ratio: 1;
+  /* A square whatever its disc holds, so a full board is as tall as an
+     empty one. */
+  min-height: 0;
   border-radius: 50%;
   background: var(--disc-hole);
   overflow: visible;

@@ -41,6 +41,9 @@ function smallestIn(style: CSSStyleDeclaration): number | undefined {
   return Number.isFinite(set) && set > 0 ? set : undefined;
 }
 
+/** How much narrower to try when a narrowing drew the same height. */
+const ROUNDING_STEP = 4;
+
 /** Narrowings tried before one is shown; a board that settles needs few. */
 const FIT_TRIES = 8;
 
@@ -64,7 +67,16 @@ export function boardRoomFit(
   for (let tries = 0; tries < FIT_TRIES; tries++) {
     if (limit === undefined || limit >= board.width) return limit;
     const height = room.heightAt(limit);
-    if (height >= board.height) return undefined;
+    if (height >= board.height) {
+      // A board that grows no shorter when narrowed keeps its width. But a
+      // pixel or two narrower can draw the very same height (its cells are
+      // whole pixels): then step on instead of giving up.
+      const rounding =
+        height === board.height && board.width - limit < ROUNDING_STEP;
+      if (!rounding) return undefined;
+      limit = Math.max(room.smallest ?? SMALLEST_BOARD, limit - ROUNDING_STEP);
+      continue;
+    }
     board = { width: limit, height };
     if (height + room.chrome <= room.height) return limit;
     limit = boardRoomLimit({
