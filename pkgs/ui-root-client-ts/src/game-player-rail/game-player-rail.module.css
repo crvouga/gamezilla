@@ -96,7 +96,7 @@
   }
   .playerRail:has(> :nth-child(4)) .chipFrame {
     gap: var(--ui-space-1);
-    padding: var(--ui-space-2);
+    padding-inline: var(--ui-space-1);
   }
   .playerRail:has(> :nth-child(4)) .chipAvatar {
     display: none;
