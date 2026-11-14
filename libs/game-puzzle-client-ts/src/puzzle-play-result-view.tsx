@@ -115,7 +115,7 @@ function ResultStreak(props: PuzzlePlayScreenViewProps): JSX.Element {
   const streak = (): number => props.result.completion?.streak ?? 0;
   return (
     <Show when={streak() > 1}>
-      <P variant="caption" tone="success" align="end" numeral>
+      <P variant="caption" tone="success" numeral>
         <Trans>{streak()} in a row</Trans>
       </P>
     </Show>
@@ -246,6 +246,13 @@ function PuzzleResultSummary(props: PuzzlePlayScreenViewProps): JSX.Element {
           <H2 size="heading">
             <ResultTitle {...props} />
           </H2>
+          {/* The streak, the clock, and what a rating-less ending did (a
+              skip's cost, an unrated repeat), one line under the outcome:
+              the coach's line leaves them to the card. */}
+          <StackHorizontal gap="sm" align="center" wrap>
+            <ResultStreak {...props} />
+            <StatusLineTrailing {...props} />
+          </StackHorizontal>
           {/* A short phone keeps the outcome and the rating in view: the
               why and the puzzle's facts fold away there. */}
           <PuzzleScreenFold on="tall">
@@ -277,12 +284,6 @@ function PuzzleResultSummary(props: PuzzlePlayScreenViewProps): JSX.Element {
               />
             )}
           </Show>
-          <ResultStreak {...props} />
-          {/* The clock, and what a rating-less ending did (a skip's cost,
-              an unrated repeat): the coach's line leaves them to the card. */}
-          <StackHorizontal gap="xs" align="center" justify="end" wrap>
-            <StatusLineTrailing {...props} />
-          </StackHorizontal>
         </StackVertical>
       </StackHorizontal>
     </Surface>
