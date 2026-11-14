@@ -1,0 +1,4 @@
+{
+  "summary": "After pressing a space bar's Back with the keyboard (from a game's rules or a settings group), focus stayed on the Back control instead of returning to the row the person had left from, so they had to tab from the top of the menu again. A host's Back is now marked to yield, and the returning screen takes the keyboard back to its remembered control.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/screen-focus.test.tsx"
+}

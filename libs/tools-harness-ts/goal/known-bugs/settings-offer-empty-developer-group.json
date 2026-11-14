@@ -1,0 +1,4 @@
+{
+  "summary": "A game's settings offered a group whose only row the person could not use: in Chess, anyone without the puzzle-manage permission saw Settings in the game menu, opened Developer, and found 'Nothing to open here'. A group with nothing the person may open is no longer a row, and a game whose settings hold nothing for the person does not offer Settings.",
+  "regressionTest": "libs/game-menu-client-ts/tests/game-settings.property.test.ts"
+}

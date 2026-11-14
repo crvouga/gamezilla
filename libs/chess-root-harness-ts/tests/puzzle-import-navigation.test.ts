@@ -1,5 +1,6 @@
 import { expect, test } from 'bun:test';
 import {
+  openChessGameChoices,
   openChessPuzzleDeveloperSettings,
   openChessPuzzleLoader,
 } from '@libs/chess-root-harness-ts/puzzle-import-navigation';
@@ -72,15 +73,25 @@ test('chess developer loader accepts a two-part CSV and leaves its worker availa
   });
 }, 30000);
 
-test('chess developer settings hides puzzle loading when the permission is denied', async () => {
+// regression: settings-offer-empty-developer-group — a person who may
+// not load puzzles was offered Settings, then Developer, to find nothing.
+test('chess offers no settings to a person who may not load puzzles', async () => {
   await using s = await openHarness('puzzle-loader-navigation-denied');
   await s.apply(signInWithGoogle, 'alice');
   await s.apply(createSpace, 'alice');
-  await s.apply(openChessPuzzleDeveloperSettings, 'alice');
+  await s.apply(openChessGameChoices, 'alice');
+  expect(await s.read(sees, Handles.gameChoices)).toBe(true);
+  expect(await s.read(sees, 'game-choice-settings')).toBe(false);
   expect(await s.read(sees, 'chess-developer-puzzles')).toBe(false);
-  // The group says it holds nothing for this person instead of standing
-  // blank, and Back walks up the settings to the game's menu.
-  expect(await s.read(sees, 'game-settings-empty')).toBe(true);
+}, 30000);
+
+test('Back walks up chess settings, one group at a time, to the game menu', async () => {
+  await using s = await openHarness('puzzle-loader-navigation-back');
+  await s.apply(signInWithGoogle, 'alice');
+  await s.apply(joinPuzzleTeam, 'alice');
+  await s.apply(createSpace, 'alice');
+  await s.apply(openChessPuzzleDeveloperSettings, 'alice');
+  expect(await s.read(sees, 'chess-developer-puzzles')).toBe(true);
   await s.apply(goBack, 'alice');
   expect(await s.read(sees, 'chess-settings-developer')).toBe(true);
   await s.apply(goBack, 'alice');

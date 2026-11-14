@@ -38,10 +38,13 @@ describe('GameRulesScreen', () => {
         'goal',
         'turn',
       ]);
+      // The number is on the heading's line, hidden from its name.
       expect(
-        view.getAllByRole('heading', { level: 2 }).map((h) => h.textContent)
-      ).toEqual(['Goal', 'Your turn']);
-      expect(parts[1]?.textContent).toContain('2');
+        view.getByRole('heading', { level: 2, name: 'Your turn' }).textContent
+      ).toBe('2Your turn');
+      expect(
+        view.getByRole('heading', { level: 2, name: 'Goal' })
+      ).toBeTruthy();
       view.unmount();
     }
   );

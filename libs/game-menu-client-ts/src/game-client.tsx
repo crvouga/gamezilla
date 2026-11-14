@@ -66,6 +66,8 @@ export type GameRule = {
   /** Rendered where the rule is read (copy is rendered, never built ahead). */
   readonly title: () => JSX.Element;
   readonly body: () => JSX.Element;
+  /** Entries read one by one (each piece's move), listed under the body. */
+  readonly points?: readonly (() => JSX.Element)[];
 };
 
 type GameClientParts = {

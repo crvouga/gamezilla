@@ -64,8 +64,8 @@ export type GameMenuScreenProps = {
   choices: readonly GameMenuChoice[];
   /**
    * The names of the menu's two groups: the ways to play (every choice not
-   * `quiet`) and the rest (`quiet`: a look back, settings). Shown only when
-   * the menu holds both.
+   * `quiet`) and the rest (`quiet`: a look back, settings), each over its
+   * choices whenever it holds any.
    */
   groups?: { play: JSX.Element; more: JSX.Element } | undefined;
   /**
@@ -209,11 +209,18 @@ function WideGameMenu(props: GameMenuScreenProps): JSX.Element {
       ? { tiles: props.choices, links: [] }
       : { tiles: play, links: more };
   });
-  const named = (): boolean =>
-    props.groups !== undefined && split().links.length > 0;
-  // Two or four tiles take two columns, so none is left alone on a row.
-  const columns = (): number =>
-    split().tiles.length === 2 || split().tiles.length === 4 ? 2 : 3;
+  const named = (): boolean => props.groups !== undefined;
+  // Two to four tiles take two columns, so none is left alone on a row:
+  // of three, the lead spans the first row.
+  const columns = (): number => {
+    const count = split().tiles.length;
+    if (count === 1) return 1;
+    return count <= 4 ? 2 : 3;
+  };
+  const spans = (index: number): boolean =>
+    index === 0 &&
+    split().tiles.length === 3 &&
+    split().tiles[0]?.emphasis === 'primary';
   return (
     <EmbeddedScreen
       screenId={props.screenId}
@@ -249,8 +256,12 @@ function WideGameMenu(props: GameMenuScreenProps): JSX.Element {
           data-layout="grid"
         >
           <For each={split().tiles}>
-            {(choice) => (
-              <div class={styles['item']} role="listitem">
+            {(choice, index) => (
+              <div
+                class={styles['item']}
+                role="listitem"
+                data-span={spans(index()) ? 'row' : undefined}
+              >
                 <ChoiceTile choice={choice} />
               </div>
             )}
@@ -334,10 +345,7 @@ function CompactGroup(props: {
 function CompactGameMenu(props: GameMenuScreenProps): JSX.Element {
   const subtitle = createScreenSlot(() => props.subtitle);
   const split = createMemo(() => splitChoices(props.choices));
-  const named = (): boolean =>
-    props.groups !== undefined &&
-    split().play.length > 0 &&
-    split().more.length > 0;
+  const named = (): boolean => props.groups !== undefined;
   return (
     <EmbeddedScreen
       screenId={props.screenId}

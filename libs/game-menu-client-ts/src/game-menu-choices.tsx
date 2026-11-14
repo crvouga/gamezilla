@@ -144,7 +144,7 @@ const PUZZLE_CHOICE: GameChoiceItem = {
 const PUZZLE_STATS_CHOICE: GameChoiceItem = {
   screen: SHARED_GAME_SCREEN.puzzleStats,
   title: () => <Trans>Puzzle stats</Trans>,
-  caption: () => <Trans>Your puzzle rating trend and game log</Trans>,
+  caption: () => <Trans>Rating trend and game log</Trans>,
 };
 
 const CONTENT_CHOICE: GameChoiceItem = {
@@ -168,7 +168,7 @@ const CUSTOM_GAMES_CHOICE: GameChoiceItem = {
 const HISTORY_CHOICE: GameChoiceItem = {
   screen: SHARED_GAME_SCREEN.history,
   title: () => <Trans>History and stats</Trans>,
-  caption: () => <Trans>Review your games, wins and draws</Trans>,
+  caption: () => <Trans>Your games, wins and draws</Trans>,
 };
 
 /** Finding one opponent, or the players a bigger game needs. */

@@ -19,8 +19,13 @@ import {
 } from './game-menu-screen-view';
 
 /** A rule as a game declares it, already rendered. */
-function rule(key: string, title: string, body: string): GameRulesSection {
-  return { key, title, body };
+function rule(
+  key: string,
+  title: string,
+  body: string,
+  points?: readonly string[]
+): GameRulesSection {
+  return { key, title, body, points };
 }
 
 export const CONNECT_FOUR_RULES: readonly GameRulesSection[] = [
@@ -73,17 +78,25 @@ export const CHESS_RULES: readonly GameRulesSection[] = [
   rule(
     'turn',
     'Your turn',
-    "White moves first, then the sides take turns moving one piece. A king steps one square any way, a queen any distance in a line, a rook straight, a bishop diagonally, a knight in an L that jumps over pieces, and a pawn one square forward (two from its start), taking one square diagonally forward. Land on another's piece to take it."
+    "White moves first, then the sides take turns moving one piece. Land on another's piece to take it; you may never leave your own king in check.",
+    [
+      'King: one square in any direction.',
+      'Queen: any distance in a straight line or diagonal.',
+      'Rook: any distance in a straight line.',
+      'Bishop: any distance diagonally.',
+      'Knight: an L, two squares one way and one to the side, jumping over pieces.',
+      'Pawn: one square forward, or two from its start; it takes one square diagonally forward.',
+    ]
   ),
-  rule(
-    'special',
-    'Special moves',
-    'Castle by moving the king two squares toward a rook that jumps to its other side, when neither has moved and the king is not in, through or into check. A pawn that reaches the last row becomes a queen, rook, bishop or knight. A pawn that just moved two squares may be taken in passing, on the next move only.'
-  ),
+  rule('special', 'Special moves', 'Three moves break the usual pattern.', [
+    'Castling: the king moves two squares toward a rook, which jumps to its other side. Neither may have moved, and the king may not be in, pass through or land in check.',
+    'Promotion: a pawn that reaches the last row becomes a queen, rook, bishop or knight.',
+    'En passant: a pawn that just moved two squares may be taken as if it had moved one, on the next move only.',
+  ]),
   rule(
     'end',
     'The end',
-    'You may never leave your own king in check. Checkmate wins; a side with no legal move and not in check is stalemated, and the game is drawn.'
+    'Checkmate wins. A side with no legal move that is not in check is stalemated, and the game is drawn.'
   ),
 ];
 
@@ -125,7 +138,7 @@ export function sharedChoices(
     {
       screen: 'history',
       title: 'History and stats',
-      caption: 'Review your games, wins and draws',
+      caption: 'Your games, wins and draws',
     },
   ];
 }
@@ -142,7 +155,7 @@ export const CHESS_CHOICES: readonly GameMenuChoiceView[] = [
   {
     screen: 'stats',
     title: 'Puzzle stats',
-    caption: 'Your puzzle rating trend and game log',
+    caption: 'Rating trend and game log',
   },
   {
     screen: 'settings',

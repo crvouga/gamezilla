@@ -7,11 +7,19 @@ import { reopenSpaceLink } from '@libs/spaces-harness-ts/space-actions';
 import { CHESS_GAME_ID } from './chess-playable';
 import { readPuzzleSource, saveLichessFile } from './puzzle-source-ui';
 
-export const openChessPuzzleDeveloperSettings = scenarioAction({
-  name: 'openChessPuzzleDeveloperSettings',
+/** Chess's own menu in the actor's space, reached through its puzzles. */
+export const openChessGameChoices = scenarioAction({
+  name: 'openChessGameChoices',
   act: async (s, actor: string) => {
     await Promise.resolve(openGamePuzzles.act(s, actor, CHESS_GAME_ID));
     await Promise.resolve(leavePuzzleForGameChoices.act(s, actor));
+  },
+});
+
+export const openChessPuzzleDeveloperSettings = scenarioAction({
+  name: 'openChessPuzzleDeveloperSettings',
+  act: async (s, actor: string) => {
+    await Promise.resolve(openChessGameChoices.act(s, actor));
     const ui = await actorUi(s, actor);
     await ui.get('game-choice-settings').tap();
     await ui.get('chess-settings-developer').tap();

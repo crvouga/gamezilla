@@ -16,6 +16,7 @@ import {
   gameSettingsChild,
   gameSettingsHandle,
   gameSettingsNodeShown,
+  gameSettingsOffered,
   gameSettingsPermissions,
   gameSettingsRows,
   gameSettingsTree,
@@ -107,6 +108,24 @@ function expectWayInShown(
   }
 }
 
+/** Whether `row` leads somewhere: a screen, or a group holding one. */
+function leadsSomewhere(row: GameSettingsRow): boolean {
+  return row.opens.kind !== 'group' || row.opens.rows.some(leadsSomewhere);
+}
+
+/** Every row on the way to `node` leads somewhere. */
+function wayInHoldsSomething(
+  tree: GameSettingsTree,
+  node: GameSettingsNode
+): boolean {
+  let at = node;
+  while (at.row !== null && at.parent !== null) {
+    if (!leadsSomewhere(at.row)) return false;
+    at = tree.nodes.get(at.parent.screen) ?? tree.root;
+  }
+  return true;
+}
+
 describe("a game's settings places", () => {
   test('every screen of the tree is a place, and Back walks up to the root', () => {
     assertProperty(
@@ -162,15 +181,17 @@ describe("a game's settings places", () => {
     );
   });
 
-  test('with every permission granted, each screen shows itself', () => {
+  test('with every permission granted, each screen shows itself unless a group on its way holds nothing', () => {
     assertProperty(
-      'game settings: nothing hidden, nothing redirected',
+      'game settings: nothing hidden but empty groups, nothing else redirected',
       fc.property(settings, (declared) => {
         const tree = gameSettingsTree(declared);
-        for (const node of tree.nodes.values())
-          expect(gameSettingsNodeShown(tree, node.place, () => true)).toBe(
-            node
-          );
+        for (const node of tree.nodes.values()) {
+          const shown = gameSettingsNodeShown(tree, node.place, () => true);
+          expect(shown).toBe(wayInHoldsSomething(tree, node) ? node : shown);
+          if (!wayInHoldsSomething(tree, node))
+            expect(wayInHoldsSomething(tree, shown)).toBe(true);
+        }
       })
     );
   });
@@ -233,10 +254,16 @@ describe("a game's settings, declared as data", () => {
       'laps',
     ]);
     expect(gameSettingsRows(group, () => false)).toEqual([]);
-    // A device that had the loader open stands on the group once denied.
-    expect(gameSettingsNodeShown(tree, laps, () => false).place).toEqual(
-      developer
-    );
+    // regression: settings-offer-empty-developer-group — the developer
+    // group stayed a row of the root for everyone, so a person who may not
+    // load puzzles opened Settings, then Developer, to find nothing. A
+    // group with nothing the person may open is no row, and settings with
+    // nothing at all are not offered.
+    expect(gameSettingsRows(tree.root, () => false)).toEqual([]);
+    expect(gameSettingsOffered(LAPS, () => false)).toBe(false);
+    expect(gameSettingsOffered(LAPS, () => true)).toBe(true);
+    // A device that had the loader open stands on the root once denied.
+    expect(gameSettingsNodeShown(tree, laps, () => false).place).toEqual(root);
     expect(gameSettingsNodeShown(tree, laps, () => true).place).toEqual(laps);
   });
 

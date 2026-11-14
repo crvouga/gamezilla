@@ -124,7 +124,8 @@ function ItemBody(props: {
             </div>
           </Show>
           <div class="box flex-row flex-wrap items-center gap-2 min-w-0 max-w-full">
-            <p class="text textLabel line-clamp-1 min-w-0 max-w-full">
+            {/* A long title wraps once before it ends in an ellipsis. */}
+            <p class="text textLabel line-clamp-2 min-w-0 max-w-full">
               {props.item.title}
             </p>
             <Show when={props.item.meta !== undefined && !metaAbove()}>

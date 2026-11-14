@@ -10,6 +10,7 @@ import { ChromeTitle } from '@pkgs/ui-root-client-ts/chrome-title';
 import { IconButton } from '@pkgs/ui-root-client-ts/icon-button';
 import { ChevronLeftIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MonogramTile } from '@pkgs/ui-root-client-ts/monogram-tile';
+import { FOCUS_YIELD } from '@pkgs/ui-root-client-ts/screen-focus';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Text } from '@pkgs/ui-root-client-ts/text';
 import type { JSX } from 'solid-js';
@@ -140,7 +141,8 @@ export function SpaceChromeBack(props: SpaceChromeNavProps): JSX.Element {
           label={name()}
           size={chrome().buttonSize}
           onClick={() => onPressBack()()}
-          dataSet={{ testid: Handles.navBack }}
+          // The returning screen takes the keyboard back from it.
+          dataSet={{ testid: Handles.navBack, [FOCUS_YIELD]: '' }}
         >
           {chevron()}
         </IconButton>

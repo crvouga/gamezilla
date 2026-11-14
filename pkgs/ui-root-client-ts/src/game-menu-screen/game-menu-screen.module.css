@@ -83,12 +83,17 @@
   flex-shrink: 0;
   --ui-on-icon: var(--ui-color-text-secondary);
 }
-/* The main way in leads by its picture on the accent, its tag and an
-   accent edge, on the plain surface like every other choice: a fill would
-   read as already chosen (or hovered). */
+/* The main way in leads by its picture on the accent and an accent bar
+   down its start edge, on the plain surface like every other choice: a
+   fill would read as already chosen (or hovered), and an accent outline
+   as keyboard focus. */
 .tile[data-emphasis="primary"] {
-  border-color: var(--ui-color-tint-active);
-  box-shadow: inset 0 0 0 1px var(--ui-color-tint-active);
+  box-shadow: inset 4px 0 0 var(--ui-color-tint-active);
+}
+/* Three ways to play: the lead takes the first row whole, so its longer
+   name keeps one line, and the other two share the row under it. */
+.item[data-span="row"] {
+  grid-column: 1 / -1;
 }
 .icon[data-emphasis="primary"] {
   background: var(--ui-color-tint-active);

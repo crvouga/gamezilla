@@ -22,13 +22,21 @@
 }
 .section {
   display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  gap: var(--ui-space-4);
+  flex-direction: column;
+  gap: var(--ui-space-2);
   padding: var(--ui-space-4);
 }
 .section + .section {
   border-top: 1px solid var(--ui-color-border);
+}
+/* The part's number on its heading's line, so the body below takes the
+   panel's whole width. */
+.heading {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--ui-space-3);
+  min-width: 0;
 }
 .marker {
   display: grid;
@@ -37,25 +45,37 @@
   width: 28px;
   height: 28px;
   border-radius: var(--ui-radius-full);
-  background: var(--ui-color-tint-subtle);
-  color: var(--ui-color-tint);
+  background: var(--ui-color-tint-active);
+  color: var(--ui-color-on-primary);
   font-family: var(--ui-text-label-family);
   font-size: var(--ui-text-label-size);
   font-weight: var(--ui-font-weight-semibold);
   font-variant-numeric: tabular-nums;
 }
-.words {
+/* Entries read one by one: a quiet dot before each, on the body's edge. */
+.points {
   display: flex;
-  flex: 1;
   flex-direction: column;
-  gap: var(--ui-space-1);
-  min-width: 0;
+  gap: var(--ui-space-2);
+  margin: 0;
+  padding-inline-start: var(--ui-space-5);
+  list-style: disc;
 }
-/* What leads on from the rules: side by side where they fit, the main
-   command first; stacked full width on a phone. */
+.point::marker {
+  color: var(--ui-color-text-secondary);
+}
+/* What leads on from the rules, the main command first, side by side
+   where they fit: held at the foot of the view on the page's own
+   background, behind a hairline, while long rules scroll under it. */
 .actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
   gap: var(--ui-space-3);
+  padding-block: var(--ui-space-3);
+  border-top: 1px solid var(--ui-color-border);
+  background: var(--ui-color-background);
 }

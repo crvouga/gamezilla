@@ -37,35 +37,65 @@ export const chessGameClient = defineGameClient({
       title: () => <Trans>Your turn</Trans>,
       body: () => (
         <Trans>
-          White moves first, then the sides take turns moving one piece. A king
-          steps one square any way, a queen any distance in a line, a rook
-          straight, a bishop diagonally, a knight in an L that jumps over
-          pieces, and a pawn one square forward (two from its start), taking one
-          square diagonally forward. Land on another's piece to take it.
+          White moves first, then the sides take turns moving one piece. Land on
+          another's piece to take it; you may never leave your own king in
+          check.
         </Trans>
       ),
+      points: [
+        () => <Trans>King: one square in any direction.</Trans>,
+        () => (
+          <Trans>Queen: any distance in a straight line or diagonal.</Trans>
+        ),
+        () => <Trans>Rook: any distance in a straight line.</Trans>,
+        () => <Trans>Bishop: any distance diagonally.</Trans>,
+        () => (
+          <Trans>
+            Knight: an L, two squares one way and one to the side, jumping over
+            pieces.
+          </Trans>
+        ),
+        () => (
+          <Trans>
+            Pawn: one square forward, or two from its start; it takes one square
+            diagonally forward.
+          </Trans>
+        ),
+      ],
     },
     {
       key: 'special',
       title: () => <Trans>Special moves</Trans>,
-      body: () => (
-        <Trans>
-          Castle by moving the king two squares toward a rook that jumps to its
-          other side, when neither has moved and the king is not in, through or
-          into check. A pawn that reaches the last row becomes a queen, rook,
-          bishop or knight. A pawn that just moved two squares may be taken in
-          passing, on the next move only.
-        </Trans>
-      ),
+      body: () => <Trans>Three moves break the usual pattern.</Trans>,
+      points: [
+        () => (
+          <Trans>
+            Castling: the king moves two squares toward a rook, which jumps to
+            its other side. Neither may have moved, and the king may not be in,
+            pass through or land in check.
+          </Trans>
+        ),
+        () => (
+          <Trans>
+            Promotion: a pawn that reaches the last row becomes a queen, rook,
+            bishop or knight.
+          </Trans>
+        ),
+        () => (
+          <Trans>
+            En passant: a pawn that just moved two squares may be taken as if it
+            had moved one, on the next move only.
+          </Trans>
+        ),
+      ],
     },
     {
       key: 'end',
       title: () => <Trans>The end</Trans>,
       body: () => (
         <Trans>
-          You may never leave your own king in check. Checkmate wins; a side
-          with no legal move and not in check is stalemated, and the game is
-          drawn.
+          Checkmate wins. A side with no legal move that is not in check is
+          stalemated, and the game is drawn.
         </Trans>
       ),
     },

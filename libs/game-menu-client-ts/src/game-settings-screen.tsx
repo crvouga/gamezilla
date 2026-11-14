@@ -36,7 +36,7 @@ import {
 } from './game-settings-screen-view';
 
 /** What the person may do, for every permission the tree's rows name. */
-function useSettingsPermissions(
+export function useSettingsPermissions(
   tree: GameSettingsTree
 ): (permission: AppGrantKey) => boolean {
   const decisions = new Map<AppGrantKey, Accessor<boolean>>(

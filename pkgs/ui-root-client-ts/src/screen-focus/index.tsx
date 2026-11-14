@@ -55,6 +55,21 @@ function keyboardLost(document: Document): boolean {
 }
 
 /**
+ * The keyboard is on a host control that hands it on once its navigation
+ * lands (a bar's Back, marked `data-focus-yield`): the returning screen
+ * takes it back to the control the person left from, as if it had dropped.
+ */
+export const FOCUS_YIELD = 'focus-yield';
+
+function keyboardYields(document: Document): boolean {
+  const active = document.activeElement;
+  return (
+    active instanceof HTMLElement &&
+    active.closest(`[data-${FOCUS_YIELD}]`) !== null
+  );
+}
+
+/**
  * The screen's title (else the screen), made focusable by script only. It is
  * a place to read from, not a control, so `screenFocusTarget` draws no ring.
  */
@@ -78,7 +93,8 @@ function handOver(memory: ScreenFocusMemory): void {
   const screen = memory.live.findLast((live) => live.root.isConnected);
   if (screen === undefined) return;
   memory.pending = false;
-  if (!keyboardLost(screen.root.ownerDocument)) return;
+  const document = screen.root.ownerDocument;
+  if (!keyboardLost(document) && !keyboardYields(document)) return;
   const index = memory.places.get(screen.id());
   const place =
     index === undefined ? undefined : sequentialFocusOrder(screen.root)[index];

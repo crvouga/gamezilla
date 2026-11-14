@@ -10,6 +10,7 @@ import { Trans } from '@lingui/solid/macro';
  */
 export const chessSettings: GameSettings = {
   caption: () => <Trans>Developer tools for puzzles</Trans>,
+  subtitle: () => <Trans>Tools for the people who manage chess puzzles.</Trans>,
   rows: [
     {
       key: 'developer',

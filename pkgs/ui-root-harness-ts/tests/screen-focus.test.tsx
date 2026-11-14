@@ -43,6 +43,9 @@ function mount(framed = true): (at: At) => Promise<void> {
   const screens = (): JSX.Element => (
     <>
       <button type="button">Tab bar</button>
+      <button type="button" data-focus-yield="">
+        Back
+      </button>
       <Show
         when={at() === 'a'}
         fallback={<Screen id="b" controls={['B1', 'B2']} />}
@@ -109,6 +112,18 @@ describe('screen focus', () => {
     focus('Tab bar');
     await go('b');
     expect(keyboardOn()).toBe('button Tab bar');
+  });
+
+  // regression: bar-back-keeps-the-keyboard — after the bar's Back the
+  // keyboard stayed on Back, so a person back on the menu had to tab from
+  // the top to reach the row they had left from.
+  test("a host's Back hands the keyboard to the control the returning screen left from", async () => {
+    const go = mount();
+    focus('A2');
+    await go('b');
+    focus('Back');
+    await go('a');
+    expect(keyboardOn()).toBe('button A2');
   });
 
   test('outside an AppFrame, screens manage no focus', async () => {

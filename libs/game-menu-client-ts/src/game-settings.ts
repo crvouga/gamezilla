@@ -143,12 +143,28 @@ export function gameSettingsTree(settings: GameSettings): GameSettingsTree {
   return { root, nodes, places };
 }
 
-/** Whether a person `can` see `row`. */
+/**
+ * Whether a person `can` see `row`: its permission allows it and, for a
+ * group, at least one of its rows is shown, so a row never leads to a
+ * group with nothing in it the person may use.
+ */
 function rowShown(
   row: GameSettingsRow,
   can: (permission: AppGrantKey) => boolean
 ): boolean {
-  return row.permission === undefined || can(row.permission);
+  if (row.permission !== undefined && !can(row.permission)) return false;
+  return (
+    row.opens.kind !== 'group' ||
+    row.opens.rows.some((child) => rowShown(child, can))
+  );
+}
+
+/** Whether a person `can` open anything in a game's settings at all. */
+export function gameSettingsOffered(
+  settings: GameSettings,
+  can: (permission: AppGrantKey) => boolean
+): boolean {
+  return settings.rows.some((row) => rowShown(row, can));
 }
 
 /** The rows of a group a person `can` see, in the order declared. */

@@ -22,6 +22,8 @@ import type { GameClient } from './game-client';
 import { gameChoices, type Offers, sharedScreens } from './game-menu-choices';
 import { GAME_MENU_PLACES } from './game-menu-places';
 import { GameMenuScreenView } from './game-menu-screen-view';
+import { gameSettingsOffered, gameSettingsTree } from './game-settings';
+import { useSettingsPermissions } from './game-settings-screen';
 import { SHARED_GAME_SCREEN } from './shared-game-screens';
 
 function GameChoices(props: {
@@ -32,19 +34,28 @@ function GameChoices(props: {
 }): JSX.Element {
   const { t } = useLingui();
   const nav = useScreenPlace(GAME_MENU_PLACES, () => 'open' as const);
+  // A game's settings are declared once, when it is defined.
+  const settingsOffered = useSettingsOffered(untrack(() => props.game));
   const rules = createMemo(() =>
     props.game.instructions?.map((rule) => ({
       key: rule.key,
       title: <Dynamic component={rule.title} />,
       body: <Dynamic component={rule.body} />,
+      points: rule.points?.map((point) => <Dynamic component={point} />),
     }))
   );
   const choices = createMemo(() =>
-    gameChoices(props.game, props.offers).map((choice) => ({
-      screen: choice.screen,
-      title: <Dynamic component={choice.title} />,
-      caption: <Dynamic component={choice.caption} />,
-    }))
+    gameChoices(props.game, props.offers)
+      // Settings holding nothing this person may open are not offered.
+      .filter(
+        (choice) =>
+          choice.screen !== SHARED_GAME_SCREEN.settings || settingsOffered()
+      )
+      .map((choice) => ({
+        screen: choice.screen,
+        title: <Dynamic component={choice.title} />,
+        caption: <Dynamic component={choice.caption} />,
+      }))
   );
   return (
     <>
@@ -67,6 +78,14 @@ function GameChoices(props: {
       />
     </>
   );
+}
+
+/** Whether the game's settings hold anything this person may open. */
+function useSettingsOffered(game: GameClient): () => boolean {
+  const settings = game.settings;
+  if (settings === undefined) return () => false;
+  const can = useSettingsPermissions(gameSettingsTree(settings));
+  return () => gameSettingsOffered(settings, can);
 }
 
 /**
