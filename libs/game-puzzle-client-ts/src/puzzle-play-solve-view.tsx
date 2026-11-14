@@ -1,11 +1,7 @@
 import { PUZZLE_NAV_INTENT } from '@libs/game-puzzle-shared-ts/puzzle-nav';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
-import { IconButton } from '@pkgs/ui-root-client-ts/icon-button';
-import {
-  ListOrderedIcon,
-  SlidersHorizontalIcon,
-} from '@pkgs/ui-root-client-ts/icons';
+import { ListOrderedIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { MoveStrip } from '@pkgs/ui-root-client-ts/move-strip';
 import { PuzzleScreenFold } from '@pkgs/ui-root-client-ts/puzzle-screen';
@@ -16,7 +12,7 @@ import { type JSX, Show } from 'solid-js';
 import { PuzzleActionBar } from './puzzle-action-bar';
 import { HistoryPlyPairs } from './puzzle-move-history-ply';
 import type { PuzzlePlayScreenViewProps } from './puzzle-play-screen-model';
-import { PuzzleSettingsRow } from './puzzle-settings-row';
+import { PuzzleSettingsButton, PuzzleSettingsRow } from './puzzle-settings-row';
 
 const ignoreSeek = (): void => {};
 
@@ -46,7 +42,6 @@ export function SpectatorAllowance(props: { label: string }): JSX.Element {
  * (`buildPuzzleActionBarPlan`), docked in reach of the thumb.
  */
 export function PuzzleSolveDock(props: PuzzlePlayScreenViewProps): JSX.Element {
-  const { t } = useLingui();
   return (
     <StackVertical gap="sm">
       {/* A wrong move's cost is said before the choice, not after it. */}
@@ -71,14 +66,9 @@ export function PuzzleSolveDock(props: PuzzlePlayScreenViewProps): JSX.Element {
           // settings is here, beside the commands.
           <Show when={props.status !== 'wrong'}>
             <PuzzleScreenFold on="short">
-              <IconButton
-                label={t`Puzzle settings`}
-                background="surfaceMuted"
-                onClick={() => props.onOpen({ screen: 'feed' })}
-                dataSet={{ testid: 'chess-puzzle-feed-summary-compact' }}
-              >
-                <SlidersHorizontalIcon />
-              </IconButton>
+              <PuzzleSettingsButton
+                onOpen={() => props.onOpen({ screen: 'feed' })}
+              />
             </PuzzleScreenFold>
           </Show>
         }

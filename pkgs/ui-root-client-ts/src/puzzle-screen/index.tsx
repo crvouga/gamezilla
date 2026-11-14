@@ -170,13 +170,14 @@ export function PuzzleScreen(props: PuzzleScreenProps): JSX.Element {
 
 /**
  * `PuzzleScreenFold` -- inside a `PuzzleScreen`, what shows only on a tall
- * phone and wide (`on="tall"`), or only on a phone shorter than 700px
- * (`on="short"`): a secondary entry (a screen's settings row) gives way on
- * a short phone to a compact one in the dock, so nothing is cut under the
+ * phone and wide (`on="tall"`), only on a phone shorter than 700px
+ * (`on="short"`), only in a phone's column (`on="phone"`) or only beside a
+ * wide board (`on="wide"`): a secondary entry (a screen's settings row)
+ * gives way to a compact one in the dock, so nothing is cut under the
  * docked commands.
  */
 export function PuzzleScreenFold(props: {
-  on: 'tall' | 'short';
+  on: 'tall' | 'short' | 'phone' | 'wide';
   children: JSX.Element;
 }): JSX.Element {
   return (

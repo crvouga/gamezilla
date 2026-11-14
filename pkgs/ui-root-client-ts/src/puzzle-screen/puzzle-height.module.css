@@ -45,3 +45,20 @@
     }
   }
 }
+/* `on="phone"` / `on="wide"`: only in a phone's column, or only beside a
+   wide board. */
+.fold[data-fold="phone"] {
+  display: flex;
+  flex: none;
+}
+.fold[data-fold="wide"] {
+  display: none;
+}
+@container puzzle-frame (min-width: 880px) {
+  .fold[data-fold="phone"] {
+    display: none;
+  }
+  .fold[data-fold="wide"] {
+    display: contents;
+  }
+}

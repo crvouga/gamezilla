@@ -12,12 +12,13 @@ import {
   ShareIcon,
 } from '@pkgs/ui-root-client-ts/icons';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
+import { PuzzleScreenFold } from '@pkgs/ui-root-client-ts/puzzle-screen';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Surface } from '@pkgs/ui-root-client-ts/surface';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { createMemo, type JSX, Match, Show, Switch } from 'solid-js';
 import type { PuzzlePlayScreenViewProps } from './puzzle-play-screen-model';
-import { PuzzleSettingsRow } from './puzzle-settings-row';
+import { PuzzleSettingsButton, PuzzleSettingsRow } from './puzzle-settings-row';
 import { PuzzleShareLabel } from './puzzle-share-label';
 import { PuzzleSummaryCard } from './puzzle-summary-card';
 
@@ -124,16 +125,20 @@ function ResultStreak(props: PuzzlePlayScreenViewProps): JSX.Element {
 export function PuzzleResultRows(
   props: PuzzlePlayScreenViewProps
 ): JSX.Element {
+  // A phone has the settings beside Next puzzle in the dock instead, so no
+  // row is left cut under it.
   return (
-    <StackVertical paddingX="lg">
-      <MenuSection>
-        <PuzzleSettingsRow
-          feed={props.feed}
-          allowanceLabel={props.allowanceLabel}
-          onOpen={() => props.onOpen({ screen: 'feed' })}
-        />
-      </MenuSection>
-    </StackVertical>
+    <PuzzleScreenFold on="wide">
+      <StackVertical paddingX="lg">
+        <MenuSection>
+          <PuzzleSettingsRow
+            feed={props.feed}
+            allowanceLabel={props.allowanceLabel}
+            onOpen={() => props.onOpen({ screen: 'feed' })}
+          />
+        </MenuSection>
+      </StackVertical>
+    </PuzzleScreenFold>
   );
 }
 
@@ -160,13 +165,22 @@ export function PuzzleResultDock(
     <StackVertical gap="sm">
       <PuzzleResultSummary {...props} />
       <Show when={offers('next')}>
-        <Button
-          title={<Trans>Next puzzle</Trans>}
-          fullWidth
-          endIcon={<ChevronRightIcon />}
-          onClick={() => props.onNext()}
-          dataSet={{ testid: Handles.chessPuzzleSummaryNext }}
-        />
+        <StackHorizontal gap="sm" align="center">
+          <StackVertical grow>
+            <Button
+              title={<Trans>Next puzzle</Trans>}
+              fullWidth
+              endIcon={<ChevronRightIcon />}
+              onClick={() => props.onNext()}
+              dataSet={{ testid: Handles.chessPuzzleSummaryNext }}
+            />
+          </StackVertical>
+          <PuzzleScreenFold on="phone">
+            <PuzzleSettingsButton
+              onOpen={() => props.onOpen({ screen: 'feed' })}
+            />
+          </PuzzleScreenFold>
+        </StackHorizontal>
       </Show>
       <GameActions sizing="fill">
         <Show when={offers('retry')}>
