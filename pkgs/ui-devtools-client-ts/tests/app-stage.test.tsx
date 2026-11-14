@@ -95,4 +95,17 @@ describe('AppStage', () => {
     fireEvent.click(handle);
     expect(onTap).toHaveBeenCalledTimes(2);
   });
+
+  test('with no handle given there is none: one view, edge to edge, and nothing over it', () => {
+    renderUi(() => (
+      <AppStage
+        aria-label="Devices"
+        shown="only"
+        views={[{ id: 'only', title: 'only', content: () => <p>only app</p> }]}
+      />
+    ));
+    expect(shownViews()).toEqual(['only']);
+    expect(document.querySelector('[data-stage-part="handle"]')).toBeNull();
+    expect(screen.queryByRole('button')).toBeNull();
+  });
 });

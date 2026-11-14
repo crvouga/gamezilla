@@ -14,6 +14,7 @@ import {
 import { harnessActorApp } from '@libs/harness-ts/solid-actor-root';
 import type {
   ProductHarnessActor,
+  ProductHarnessEmulatorElement,
   ProductHarnessLoadBalancerNode,
   ProductHarnessMemoryHistory,
   ProductHarnessPaletteCommand,
@@ -26,6 +27,7 @@ import { createInMemoryPublishOnlyPubSub } from '@pkgs/pubsub-root-shared-ts/in-
 import type { Topic } from '@pkgs/pubsub-root-shared-ts/topic';
 import { notifyChannels } from '@pkgs/sync-engine-server-ts/notify-channels';
 import { createMemoryHistory } from '@solidjs/router';
+import { sessionEmulators } from './notifications-emulator';
 import {
   type Breathe,
   breathingFetch,
@@ -114,6 +116,8 @@ export type ProductHarnessSessionBuildArgs = {
   readonly breathe: Breathe;
   /** Where a frame loads an emulator's dashboard from, when anywhere. */
   readonly emulatorDashboardUrl: (emulator: string) => string | null;
+  /** Opens the screens of what the emulators deliver to people, where the page can. */
+  readonly openNotifications?: () => ProductHarnessEmulatorElement;
 };
 
 async function freshClientIds(
@@ -360,11 +364,7 @@ function attachSessionApi(api: SessionApiAttachArgs): ProductHarnessSession {
     rooms: maps.rooms,
     // Read when asked: a payment provider can be booted later.
     get emulators() {
-      return buildArgs.harness.emulators().map((emulator) => ({
-        id: emulator.id,
-        title: emulator.title,
-        dashboardUrl: buildArgs.emulatorDashboardUrl(emulator.id),
-      }));
+      return sessionEmulators(buildArgs);
     },
     get revision() {
       return maps.revision;
@@ -432,6 +432,8 @@ async function bootClients(
   session: ProductHarnessSession,
   setSnapshotLoads: (cmds: ProductHarnessPaletteCommand[]) => void
 ): Promise<void> {
+  // A restored world is left as it was saved, with no client if it had none.
+  let restored = false;
   if (args.skipSnapshotLoad !== true) {
     try {
       const snaps = await listProductHarnessSnapshots(args.snapshotStore);
@@ -445,6 +447,7 @@ async function bootClients(
           makeSnapshotCtx(args, maps)(),
           newest.id
         );
+        restored = true;
       }
       const cmds = await buildSnapshotLoadCommands(session);
       setSnapshotLoads(cmds);
@@ -452,7 +455,7 @@ async function bootClients(
       // Snapshot store down/slow — fall through to fresh default clients.
     }
   }
-  if (maps.clients.size === 0) {
+  if (!restored && maps.clients.size === 0) {
     for (const id of await freshClientIds(args)) {
       await spawnClient(args, maps, id);
     }

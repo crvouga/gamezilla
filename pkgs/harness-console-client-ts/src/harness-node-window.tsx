@@ -223,7 +223,7 @@ function MountInTurn(props: { readonly children: JSX.Element }): JSX.Element {
 
 /**
  * One node's panel, filling the room it is given: a client's app, or the
- * views of a node behind the apps.
+ * views of any other instance.
  */
 export function HarnessPanelView(props: NodeWindowProps): JSX.Element {
   return (

@@ -1,13 +1,16 @@
 import { describe, expect, test } from 'bun:test';
 import {
+  DEFAULT_HARNESS_SWITCHER,
   HARNESS_APP_VIEW,
   type HarnessSwitch,
   harnessApps,
   harnessEmulatorPanelId,
   harnessPanelKind,
   harnessPanels,
+  harnessSwitcherWith,
   harnessSwitchOf,
   harnessSwitchTarget,
+  inHarnessSwitcher,
   resolveHarnessView,
   shownHarnessClient,
   steppedHarnessApp,
@@ -61,8 +64,15 @@ describe('resolveHarnessView', () => {
     expect(resolveHarnessView('room:closed', ids())).toBe('client:alice');
   });
 
-  test('a system with no client shows its first panel, and none shows nothing', () => {
-    expect(resolveHarnessView(null, ids({ ...WORLD, clients: [] }))).toBe('lb');
+  test('a world with no client shows the harness app; with no harness app, its first panel; with nothing, nothing', () => {
+    const empty = ids({ ...WORLD, clients: [] });
+    expect(resolveHarnessView(null, [...empty, HARNESS_APP_VIEW])).toBe(
+      HARNESS_APP_VIEW
+    );
+    expect(
+      resolveHarnessView('client:alice', [...empty, HARNESS_APP_VIEW])
+    ).toBe(HARNESS_APP_VIEW);
+    expect(resolveHarnessView(null, empty)).toBe('lb');
     expect(resolveHarnessView('client:alice', [])).toBeNull();
   });
 });
@@ -100,6 +110,61 @@ describe('the switcher', () => {
     expect(steppedHarnessApp('client:alice', alone, 1)).toBe('client:alice');
     expect(steppedHarnessApp('lb', ids({ ...WORLD, clients: [] }), 1)).toBe(
       null
+    );
+  });
+
+  test('a view is put in the switcher or taken out of it; the harness app never is', () => {
+    let choice = DEFAULT_HARNESS_SWITCHER;
+    choice = harnessSwitcherWith(choice, 'emulator:google', true);
+    choice = harnessSwitcherWith(choice, 'server:server-a', true);
+    choice = harnessSwitcherWith(choice, 'client:alice', false);
+    choice = harnessSwitcherWith(choice, HARNESS_APP_VIEW, false);
+    // In the order the views are listed, the harness app last.
+    expect(harnessApps(VIEWS, choice)).toEqual([
+      'client:bob',
+      'server:server-a',
+      'emulator:google',
+      HARNESS_APP_VIEW,
+    ]);
+    expect(inHarnessSwitcher('client:alice', choice)).toBe(false);
+    expect(inHarnessSwitcher('lb', choice)).toBe(false);
+    expect(steppedHarnessApp('client:bob', VIEWS, 1, choice)).toBe(
+      'server:server-a'
+    );
+    expect(steppedHarnessApp('client:alice', VIEWS, 1, choice)).toBe(
+      HARNESS_APP_VIEW
+    );
+    expect(
+      harnessSwitchTarget({ to: 'app', at: 2 }, 'client:bob', VIEWS, choice)
+    ).toBe('emulator:google');
+    // Putting back what was taken out, and the reverse, is the start again.
+    choice = harnessSwitcherWith(choice, 'client:alice', true);
+    choice = harnessSwitcherWith(choice, 'server:server-a', false);
+    choice = harnessSwitcherWith(choice, 'emulator:google', false);
+    expect(choice).toEqual(DEFAULT_HARNESS_SWITCHER);
+  });
+
+  test('any views, any changes: the switcher holds exactly the views last put in it', () => {
+    assertProperty(
+      'the last change to a view decides whether it is in the switcher',
+      fc.property(
+        fc.array(fc.tuple(fc.constantFrom(...VIEWS), fc.boolean()), {
+          maxLength: 30,
+        }),
+        (changes) => {
+          let choice = DEFAULT_HARNESS_SWITCHER;
+          const want = new Map(
+            VIEWS.map((view) => [view, inHarnessSwitcher(view)])
+          );
+          for (const [view, on] of changes) {
+            choice = harnessSwitcherWith(choice, view, on);
+            if (view !== HARNESS_APP_VIEW) want.set(view, on);
+          }
+          expect(harnessApps(VIEWS, choice)).toEqual(
+            VIEWS.filter((view) => want.get(view) === true)
+          );
+        }
+      )
     );
   });
 

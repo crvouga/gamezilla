@@ -5,9 +5,10 @@ import {
   harnessEmulatorPanelId,
   harnessPanelId,
   harnessSwitchOf,
-  harnessSwitchTarget,
+  inHarnessSwitcher,
 } from '@pkgs/harness-console-shared-ts/harness-windows';
 import type {
+  ProductHarnessEmulatorElement,
   ProductHarnessPaletteCommand,
   ProductHarnessSession,
 } from '@pkgs/harness-console-shared-ts/ports';
@@ -21,6 +22,7 @@ import { EmbeddedFrame } from '@pkgs/ui-root-client-ts/embedded-frame';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import {
   ArrowLeftRightIcon,
+  FlaskConicalIcon,
   PlusIcon,
   SlidersHorizontalIcon,
 } from '@pkgs/ui-root-client-ts/icons';
@@ -38,6 +40,7 @@ import {
   For,
   type JSX,
   Match,
+  onCleanup,
   Switch,
 } from 'solid-js';
 import type { HarnessConsoleNav } from './debugger-chrome';
@@ -49,6 +52,10 @@ import {
 import { harnessNodeIcon } from './node-chrome';
 import { ProductHarnessAppearanceCommands } from './product-harness-appearance-commands';
 import { ProductHarnessSnapshotSurface } from './product-harness-snapshot-chrome';
+import {
+  type HarnessSwitcherView,
+  ProductHarnessSwitcherSurface,
+} from './product-harness-switcher-chrome';
 import { ProductHarnessTopologySurface } from './product-harness-topology-chrome';
 import { type HarnessView, useHarnessView } from './use-harness-view';
 import type { ProductHarnessSessionState } from './use-product-harness-session';
@@ -111,35 +118,51 @@ function CenteredState(props: { readonly children: JSX.Element }) {
 }
 
 /** The harness's own controls, each a surface its app opens. */
-type HarnessControls = 'nodes' | 'snapshots';
+type HarnessControls = 'nodes' | 'snapshots' | 'switcher';
 
 /** An emulator's dashboard, as a view of its own beside the panels. */
 type EmulatorView = {
   /** The view's id (`emulator:google`). */
   readonly id: string;
   readonly title: string;
-  readonly url: string;
+  /** Where a frame loads it from, or how it is opened in this page. */
+  readonly from: string | (() => ProductHarnessEmulatorElement);
 };
 
 function emulatorViews(session: ProductHarnessSession): EmulatorView[] {
-  return session.emulators.flatMap((emulator) =>
-    emulator.dashboardUrl === null
+  return session.emulators.flatMap((emulator) => {
+    const from = emulator.dashboardUrl ?? emulator.open;
+    return from === undefined
       ? []
       : [
           {
             id: harnessEmulatorPanelId(emulator.id),
             title: emulator.title,
-            url: emulator.dashboardUrl,
+            from,
           },
-        ]
+        ];
+  });
+}
+
+/** An emulator's dashboard: a frame on its address, or its own element. */
+function EmulatorDashboard(props: {
+  readonly emulator: EmulatorView;
+}): JSX.Element {
+  const from = props.emulator.from;
+  if (typeof from === 'string')
+    return <EmbeddedFrame title={props.emulator.title} src={from} />;
+  const opened = from();
+  onCleanup(opened.dispose);
+  return (
+    <EmbeddedFrame title={props.emulator.title}>{opened.element}</EmbeddedFrame>
   );
 }
 
 /**
  * Every view of the stage. A client's app runs from the start and keeps
  * running while another is on show, as a phone left on a table does; the
- * harness's own app, a node behind the apps, or an emulator's dashboard,
- * opens when first looked at.
+ * harness's own app, any other instance, or an emulator's dashboard, opens
+ * when first looked at.
  */
 function stageViews(
   panels: readonly HarnessPanelRef[],
@@ -160,9 +183,7 @@ function stageViews(
       (emulator): AppStageView => ({
         id: emulator.id,
         title: emulator.title,
-        content: () => (
-          <EmbeddedFrame title={emulator.title} src={emulator.url} />
-        ),
+        content: () => <EmulatorDashboard emulator={emulator} />,
       })
     ),
     { id: HARNESS_APP_VIEW, title: 'Harness', content: home },
@@ -183,6 +204,27 @@ function viewTitle(
   );
 }
 
+/** Every view, as the switcher can hold it: in or out. */
+function switcherViews(
+  panels: readonly HarnessPanelRef[],
+  emulators: readonly EmulatorView[],
+  nav: HarnessConsoleNav
+): HarnessSwitcherView[] {
+  return [
+    ...panels.map((panel) => ({
+      id: panel.id,
+      title: panel.title,
+      icon: harnessNodeIcon(panel.kind),
+    })),
+    ...emulators.map((emulator) => ({
+      id: emulator.id,
+      title: emulator.title,
+      icon: FlaskConicalIcon,
+    })),
+    { id: HARNESS_APP_VIEW, title: 'Harness', icon: SlidersHorizontalIcon },
+  ].map((view) => ({ ...view, on: inHarnessSwitcher(view.id, nav.switcher) }));
+}
+
 /**
  * Switching apps from the keyboard, whatever is on show: a client's app owns
  * every other key while it is, and these are the way out of it.
@@ -201,8 +243,10 @@ function useSwitchKeys(view: HarnessView): void {
 
 /**
  * The console: one app at a time, edge to edge, and one small button over
- * it that switches to the next: each client's app, then the harness's own,
- * where the world is set up and everything behind the apps is opened from.
+ * it that switches to the next: each app in the switcher (every client's,
+ * to start with), then the harness's own, where the world is set up and
+ * every other view is opened from. With nowhere to switch to (no client,
+ * and the harness app on show) there is no button.
  * A client's app owns the keyboard while it is on show, but for the keys
  * that switch apps; the harness's other shortcuts apply otherwise, and
  * while one of its surfaces is open.
@@ -247,16 +291,15 @@ function ReadyProductHarnessScreen(props: {
       />
     ))
   );
-  const label = createMemo(() => {
-    const ids = [
-      ...view.panels().map((panel) => panel.id),
-      ...emulators().map((emulator) => emulator.id),
-      HARNESS_APP_VIEW,
-    ];
+  const handle = createMemo(() => {
+    const next = view.next();
+    if (next === null) return undefined;
     const title = (id: string | null) =>
       viewTitle(id, view.panels(), emulators());
-    const next = harnessSwitchTarget({ to: 'next' }, view.shownId(), ids);
-    return `${title(view.shownId())} is on show. Switch to ${title(next)}.`;
+    return {
+      label: `${title(view.shownId())} is on show. Switch to ${title(next)}.`,
+      onTap: () => view.switchTo({ to: 'next' }),
+    };
   });
   const paletteCommands = createMemo(() => {
     view.revision();
@@ -279,16 +322,19 @@ function ReadyProductHarnessScreen(props: {
           aria-label="Harness"
           shown={view.shownId()}
           views={views()}
-          handle={{
-            label: label(),
-            onTap: () => view.switchTo({ to: 'next' }),
-          }}
+          handle={handle()}
         />
       </Surface>
       <ProductHarnessTopologySurface
         session={props.session}
         open={controls() === 'nodes'}
         onClose={() => setControls(null)}
+      />
+      <ProductHarnessSwitcherSurface
+        views={switcherViews(view.panels(), emulators(), props.nav)}
+        open={controls() === 'switcher'}
+        onClose={() => setControls(null)}
+        onChange={view.setInSwitcher}
       />
       <ProductHarnessSnapshotSurface
         session={props.session}

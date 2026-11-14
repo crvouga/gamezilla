@@ -4,7 +4,10 @@ import type { ProductHarness } from '@libs/harness-ts/harness';
 import { productExtra } from '@libs/harness-ts/harness';
 import { APP_SYSTEM } from '@libs/runtime-harness-ts/app-composition';
 import type { Clock, Timers } from '@pkgs/clock-shared-ts/types';
-import type { ProductHarnessSession } from '@pkgs/harness-console-shared-ts/ports';
+import type {
+  ProductHarnessEmulatorElement,
+  ProductHarnessSession,
+} from '@pkgs/harness-console-shared-ts/ports';
 import { createProductHarnessLogBuffer } from '@pkgs/harness-console-shared-ts/product-harness-log-buffer';
 import { defineAction } from '@pkgs/harness-root-shared-ts/define-action';
 import type { Run } from '@pkgs/harness-root-shared-ts/run-types';
@@ -26,6 +29,10 @@ export type ProductHarnessBootEnv = {
   readonly openEmulatorGateway?: (
     emulators: () => readonly HarnessEmulator[]
   ) => EmulatorGateway;
+  /** Opens the screens that show what the emulators deliver to people. */
+  readonly openNotifications?: (
+    emulators: () => readonly HarnessEmulator[]
+  ) => ProductHarnessEmulatorElement;
 };
 
 function startHarnessClockTick(
@@ -109,6 +116,7 @@ export async function bootProductHarnessSession(
   };
   const breathe = createBreathe(env.clock, createHandBack(env.timers));
   const gateway = env.openEmulatorGateway?.(() => harness.emulators());
+  const openNotifications = env.openNotifications;
   const session = await buildProductHarnessSession({
     harness,
     balancerLogs: createProductHarnessLogBuffer(),
@@ -116,6 +124,11 @@ export async function bootProductHarnessSession(
     roomLogs: createProductHarnessLogBuffer(),
     snapshotStore: env.snapshotStore,
     emulatorDashboardUrl: (emulator) => gateway?.dashboardUrl(emulator) ?? null,
+    ...(openNotifications === undefined
+      ? {}
+      : {
+          openNotifications: () => openNotifications(() => harness.emulators()),
+        }),
     disposeTick: () => {
       clock.disposeTick();
       gateway?.dispose();

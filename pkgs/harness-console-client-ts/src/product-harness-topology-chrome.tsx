@@ -15,7 +15,6 @@ const GLYPH_SIZE = 16;
 type NodeRow = {
   readonly id: string;
   readonly kind: 'client' | 'server';
-  readonly removable: boolean;
 };
 
 function NodeRowView(props: {
@@ -38,7 +37,7 @@ function NodeRowView(props: {
         <IconButton
           label={`Remove ${props.row.id}`}
           size={ICON_SIZE}
-          disabled={props.busy || !props.row.removable}
+          disabled={props.busy}
           onClick={() => props.onRemove(props.row)}
         >
           <XIcon size={GLYPH_SIZE} color="icon" />
@@ -53,18 +52,14 @@ function useTopologyRows(session: () => ProductHarnessSession) {
   createEffect(() => {
     const live = session();
     const refresh = () => {
-      const clientIds = [...live.clients.keys()];
-      const serverIds = [...live.servers.keys()];
       setRows([
-        ...clientIds.map((id) => ({
+        ...[...live.clients.keys()].map((id) => ({
           id,
           kind: 'client' as const,
-          removable: clientIds.length > 1,
         })),
-        ...serverIds.map((id) => ({
+        ...[...live.servers.keys()].map((id) => ({
           id,
           kind: 'server' as const,
-          removable: serverIds.length > 1,
         })),
       ]);
     };
@@ -75,10 +70,11 @@ function useTopologyRows(session: () => ProductHarnessSession) {
 }
 
 /**
- * Add / remove client and server nodes while the harness runs.
- *
- * The last client and the last server instance are not removable: an empty
- * fleet is a crash (`crash server` in the palette), not a topology change.
+ * Add and remove clients and API instances while the harness runs, down to
+ * none of either. With no client, the harness's own app is all there is to
+ * show. With no API instance the balancer has nothing behind it, and every
+ * client's request fails as one to a server that is not there, until an
+ * instance is added. The balancer and pub/sub are one of each and stay.
  */
 export function ProductHarnessTopologySurface(props: {
   readonly session: ProductHarnessSession;
@@ -112,8 +108,8 @@ export function ProductHarnessTopologySurface(props: {
       <ResponsiveSurface
         visible={props.open}
         onClose={props.onClose}
-        title="Nodes"
-        label="Harness nodes"
+        title="Instances"
+        label="Harness instances"
         size="small"
         stackId="product-harness-topology"
       >
@@ -140,8 +136,8 @@ export function ProductHarnessTopologySurface(props: {
             fallback={
               <EmptyState
                 variant="compact"
-                title="No nodes"
-                body="Add a client or a server instance to get started."
+                title="No clients and no servers"
+                body="Add a client to use the app, and a server to answer it."
               />
             }
           >

@@ -1,4 +1,8 @@
 import { describe, expect, test } from 'bun:test';
+import {
+  DEFAULT_HARNESS_SWITCHER,
+  harnessSwitcherWith,
+} from '@pkgs/harness-console-shared-ts/harness-windows';
 import { createRoot, createSignal } from 'solid-js';
 import type { HarnessConsoleNav } from '../src/debugger-chrome';
 import {
@@ -28,15 +32,19 @@ function world(start: string | null = null) {
     rooms: new Map(),
   };
   const [show, setShow] = createSignal(start);
+  const [switcher, setSwitcher] = createSignal(DEFAULT_HARNESS_SWITCHER);
   const writes: (string | null)[] = [];
   const nav = (): HarnessConsoleNav => ({
     show: show(),
     panes: {},
+    switcher: switcher(),
     onShow: (panel) => {
       writes.push(panel);
       setShow(panel);
     },
     onPanePatch: () => undefined,
+    onSwitcher: (view, on) =>
+      setSwitcher((choice) => harnessSwitcherWith(choice, view, on)),
   });
   return {
     session: () => session,
@@ -118,5 +126,39 @@ describe('useHarnessView', () => {
     w.change((clients) => clients.set('carol', {}));
     view.switchTo({ to: 'next' });
     expect(view.shown()?.id).toBe('client:carol');
+  });
+
+  test('with no client left, the harness app is on show and the switcher has nowhere to go', () => {
+    const w = world('client:bob');
+    const view = mounted(() => useHarnessView(w.session, w.nav));
+    expect(view.next()).toBe('harness');
+    w.change((clients) => clients.clear());
+    expect(view.shownId()).toBe('harness');
+    expect(view.apps()).toEqual(['harness']);
+    expect(view.next()).toBeNull();
+    // A view opened from the harness app still has the way back.
+    view.show('lb');
+    expect(view.next()).toBe('harness');
+    w.change((clients) => clients.set('carol', {}));
+    expect(view.apps()).toEqual(['client:carol', 'harness']);
+  });
+
+  test('the switcher goes through the views put in it, and past the ones taken out', () => {
+    const w = world();
+    const view = mounted(() =>
+      useHarnessView(w.session, w.nav, () => ['emulator:google'])
+    );
+    view.setInSwitcher('client:bob', false);
+    view.setInSwitcher('emulator:google', true);
+    view.setInSwitcher('harness', false);
+    expect(view.apps()).toEqual(['client:alice', 'emulator:google', 'harness']);
+    view.switchTo({ to: 'next' });
+    expect(view.shownId()).toBe('emulator:google');
+    view.switchTo({ to: 'next' });
+    expect(view.shownId()).toBe('harness');
+    // Out of the switcher is not gone: it is still there to be shown.
+    view.show('client:bob');
+    expect(view.shown()?.id).toBe('client:bob');
+    expect(view.next()).toBe('harness');
   });
 });

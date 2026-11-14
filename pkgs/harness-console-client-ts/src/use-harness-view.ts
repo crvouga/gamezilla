@@ -2,6 +2,7 @@ import {
   HARNESS_APP_VIEW,
   type HarnessPanelRef,
   type HarnessSwitch,
+  harnessApps,
   harnessPanels,
   harnessSwitchTarget,
   resolveHarnessView,
@@ -27,11 +28,17 @@ export type HarnessView = {
   /** The panel on show, when what is on show is a node's panel. */
   readonly shown: Accessor<HarnessPanelRef | null>;
   readonly show: (panel: string) => void;
+  /** The apps the switcher goes through, in its order. */
+  readonly apps: Accessor<readonly string[]>;
+  /** Where a press of the switcher goes; `null` when it is nowhere else. */
+  readonly next: Accessor<string | null>;
   /**
-   * Switch apps: on to the next or back to the one before (each client's,
-   * then the harness's own, around again), or straight to one.
+   * Switch apps: on to the next or back to the one before (the views in the
+   * switcher, then the harness's own app, around again), or straight to one.
    */
   readonly switchTo: (asked: HarnessSwitch) => void;
+  /** Put a view in the switcher, or take it out. */
+  readonly setInSwitcher: (view: string, on: boolean) => void;
 };
 
 /** The part of a session the panels are derived from. */
@@ -91,7 +98,7 @@ function useHarnessPanels(
  * What the console shows: a panel per node of the session and the harness's
  * own app, one of them at a time. Which one lives with the host as text
  * (`nav().show`), so a link reopens it; a choice that is gone falls back to
- * the first client. `nav` is an accessor because the host hands over a fresh
+ * the first client, and to the harness app in a world with none. `nav` is an accessor because the host hands over a fresh
  * value on every change.
  */
 export function useHarnessView(
@@ -111,6 +118,16 @@ export function useHarnessView(
   const show = (panel: string): void => {
     if (panel !== untrack(shownId)) untrack(nav).onShow(panel, 'push');
   };
+  const apps = createMemo(() => harnessApps(ids(), nav().switcher));
+  const next = createMemo(() => {
+    const to = harnessSwitchTarget(
+      { to: 'next' },
+      shownId(),
+      ids(),
+      nav().switcher
+    );
+    return to === shownId() ? null : to;
+  });
   return {
     revision,
     panels,
@@ -119,9 +136,17 @@ export function useHarnessView(
       () => panels().find((panel) => panel.id === shownId()) ?? null
     ),
     show,
+    apps,
+    next,
     switchTo: (asked) => {
-      const to = harnessSwitchTarget(asked, untrack(shownId), untrack(ids));
+      const to = harnessSwitchTarget(
+        asked,
+        untrack(shownId),
+        untrack(ids),
+        untrack(nav).switcher
+      );
       if (to !== null) show(to);
     },
+    setInSwitcher: (view, on) => untrack(nav).onSwitcher(view, on),
   };
 }

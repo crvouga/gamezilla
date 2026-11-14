@@ -35,8 +35,12 @@ export type AppStageProps = {
   readonly shown: string | null;
   /** Accessible name of the whole stage. */
   readonly 'aria-label': string;
-  /** The floating handle: what it says, and where a press goes. */
-  readonly handle: AppStageHandleProps;
+  /**
+   * The floating handle: what it says, and where a press goes. Leave it out
+   * while there is nowhere to switch to (one view and no other): a handle
+   * that does nothing is not drawn.
+   */
+  readonly handle?: AppStageHandleProps | undefined;
   readonly dataSet?: ComponentDataSet | undefined;
 };
 
@@ -131,7 +135,9 @@ export function AppStage(props: AppStageProps): JSX.Element {
       <For each={props.views}>
         {(view) => <StageView view={view} shown={view.id === props.shown} />}
       </For>
-      <AppStageHandle {...props.handle} />
+      <Show when={props.handle}>
+        {(handle) => <AppStageHandle {...handle()} />}
+      </Show>
     </div>
   );
 }

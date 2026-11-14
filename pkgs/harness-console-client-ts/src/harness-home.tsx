@@ -21,9 +21,9 @@ import { For, type JSX, Show } from 'solid-js';
 import { harnessNodeIcon } from './node-chrome';
 
 /** A surface the harness app opens to set the world up. */
-export type HarnessHomeTool = 'nodes' | 'snapshots' | 'commands';
+export type HarnessHomeTool = 'nodes' | 'switcher' | 'snapshots' | 'commands';
 
-/** A view the harness app opens: a node's panel or an emulator's dashboard. */
+/** A view the harness app opens: an instance's panel or an emulator's dashboard. */
 export type HarnessHomeView = {
   readonly id: string;
   readonly title: string;
@@ -62,21 +62,22 @@ function KeyRow(props: {
 
 /**
  * The harness's own app: everything that sets the world up, and the way to
- * everything in it. It is one of the apps the switcher goes through, beside
- * each client's, and the only place the rest is reached from: any client's
- * app, any node behind the apps, any vendor emulator's dashboard, and the
- * surfaces that add and remove nodes, save and restore the world, and run
- * its commands. Every row leads somewhere; nothing is changed on this page.
+ * everything in it. It is one of the apps the switcher goes through, and
+ * the only place the rest is reached from: every running instance (a
+ * client's app, the balancer, an API instance, pub/sub, a room), every
+ * vendor emulator's dashboard, and the surfaces that add and remove
+ * instances, choose the switcher's apps, save and restore the world, and
+ * run its commands. Every row leads somewhere; nothing is changed on this
+ * page.
  */
 export function HarnessHome(props: {
+  /** Every running instance, along the request path. */
   readonly panels: readonly HarnessPanelRef[];
   /** The vendor emulators that have a dashboard to show. */
   readonly emulators: readonly HarnessHomeView[];
   readonly onShow: (view: string) => void;
   readonly onOpen: (tool: HarnessHomeTool) => void;
 }): JSX.Element {
-  const clients = () => props.panels.filter((panel) => panel.kind === 'client');
-  const system = () => props.panels.filter((panel) => panel.kind !== 'client');
   return (
     <ScrollView grow padding="md" gap="lg" measure="menu" measureAlign="center">
       <StackVertical gap="xs">
@@ -86,42 +87,11 @@ export function HarnessHome(props: {
           switches between the apps.
         </P>
       </StackVertical>
-      <MenuSection title="Apps">
-        <For each={clients()}>
-          {(panel) => (
-            <ViewRow
-              view={panel}
-              icon={harnessNodeIcon(panel.kind)}
-              onShow={props.onShow}
-            />
-          )}
-        </For>
-      </MenuSection>
-      <MenuSection title="Set up the world">
-        <MenuRow
-          title="Nodes"
-          caption="Add or remove clients and servers"
-          leading={<ServerIcon size={18} color="icon" />}
-          dataSet={{ 'harness-part': 'home-tool', tool: 'nodes' }}
-          onClick={() => props.onOpen('nodes')}
-        />
-        <MenuRow
-          title="Snapshots"
-          caption="Save this world, or go back to a saved one"
-          leading={<SaveIcon size={18} color="icon" />}
-          dataSet={{ 'harness-part': 'home-tool', tool: 'snapshots' }}
-          onClick={() => props.onOpen('snapshots')}
-        />
-        <MenuRow
-          title="Commands"
-          caption="Crash, restart and partition nodes, the clock, appearance"
-          leading={<SearchIcon size={18} color="icon" />}
-          dataSet={{ 'harness-part': 'home-tool', tool: 'commands' }}
-          onClick={() => props.onOpen('commands')}
-        />
-      </MenuSection>
-      <MenuSection title="Behind the apps">
-        <For each={system()}>
+      <MenuSection
+        title="Instances"
+        footer="Everything running: each client's app, and what answers it."
+      >
+        <For each={props.panels}>
           {(panel) => (
             <ViewRow
               view={panel}
@@ -147,6 +117,36 @@ export function HarnessHome(props: {
           </For>
         </MenuSection>
       </Show>
+      <MenuSection title="Set up the world">
+        <MenuRow
+          title="Add or remove instances"
+          caption="Clients and servers, down to none of either"
+          leading={<ServerIcon size={18} color="icon" />}
+          dataSet={{ 'harness-part': 'home-tool', tool: 'nodes' }}
+          onClick={() => props.onOpen('nodes')}
+        />
+        <MenuRow
+          title="Switcher"
+          caption="Which apps the round button goes through"
+          leading={<ArrowLeftRightIcon size={18} color="icon" />}
+          dataSet={{ 'harness-part': 'home-tool', tool: 'switcher' }}
+          onClick={() => props.onOpen('switcher')}
+        />
+        <MenuRow
+          title="Snapshots"
+          caption="Save this world, or go back to a saved one"
+          leading={<SaveIcon size={18} color="icon" />}
+          dataSet={{ 'harness-part': 'home-tool', tool: 'snapshots' }}
+          onClick={() => props.onOpen('snapshots')}
+        />
+        <MenuRow
+          title="Commands"
+          caption="Crash, restart and partition instances, the clock, appearance"
+          leading={<SearchIcon size={18} color="icon" />}
+          dataSet={{ 'harness-part': 'home-tool', tool: 'commands' }}
+          onClick={() => props.onOpen('commands')}
+        />
+      </MenuSection>
       <MenuSection title="Keyboard">
         <MenuRow
           title="The round button"
@@ -158,7 +158,7 @@ export function HarnessHome(props: {
         <KeyRow does="Previous app" keys={HARNESS_SWITCH_KEYS.previous} />
         <KeyRow
           does="An app by its place"
-          caption="1 to 9, in the order above"
+          caption="1 to 9, in the switcher's order"
           keys={HARNESS_SWITCH_KEYS.app}
         />
         <KeyRow does="This app" keys={HARNESS_SWITCH_KEYS.harness} />
