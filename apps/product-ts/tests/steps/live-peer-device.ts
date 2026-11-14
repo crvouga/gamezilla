@@ -28,7 +28,8 @@ export function liveJourneyPeerDevice(
   signIn: (
     device: Device,
     continuationToken: string | undefined
-  ) => Promise<string>
+  ) => Promise<string>,
+  markSynthetic: (device: Device) => Promise<void>
 ): JourneyPeerDevice & { open: (access: JourneyAccess) => Promise<void> } {
   let continuationToken: string | undefined;
   const current = () => requireDevice(devices.guest, 'peer');
@@ -40,6 +41,7 @@ export function liveJourneyPeerDevice(
       signIn: async () => {
         continuationToken = await signIn(device, continuationToken);
       },
+      markSynthetic: () => markSynthetic(device),
     });
   return {
     open: async (access) => {

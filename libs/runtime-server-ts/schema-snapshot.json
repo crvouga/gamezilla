@@ -1,5 +1,5 @@
 {
-  "release": 23,
+  "release": 24,
   "snapshot": {
     "tables": {
       "auth_account_devices": {
@@ -28,7 +28,8 @@
         "user_id": "text"
       },
       "auth_users": {
-        "is_anon": "boolean"
+        "is_anon": "boolean",
+        "synthetic_at": "timestamp"
       },
       "billing_account_closures": {
         "account_id": "text",
@@ -424,7 +425,8 @@
         "publication_count": "integer",
         "published_at": "timestamp",
         "published_revision_id": "text",
-        "status": "text"
+        "status": "text",
+        "synthetic_at": "timestamp"
       },
       "puzzle_content_revisions": {
         "definition": "text",

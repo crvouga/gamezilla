@@ -35,6 +35,7 @@ import {
   readLocation,
   saveEvidence,
 } from '@apps/product-ts/live-browser';
+import { markLiveDeviceSynthetic } from '@apps/product-ts/live-synthetic-device';
 import { prepareCriticalJourneyAccess } from '@apps/product-ts/prepare-critical-journey-access';
 import type { EnvFile, EnvOrigins } from '@libs/infra-shared-ts/env-file';
 import { authRelayOrigin, envOrigins } from '@libs/infra-shared-ts/env-file';
@@ -114,6 +115,19 @@ async function signIn(
   return issued.continuationToken;
 }
 
+/** Prove to the server that monitoring drives this anonymous device. */
+function markSynthetic(device: Device, target: LiveTarget): Promise<void> {
+  return markLiveDeviceSynthetic({
+    http: target.http,
+    apiOrigin: target.apiOrigin,
+    token: requireSecret('SYNTHETIC_MONITOR_TOKEN'),
+    evaluate: (script) => device.view.evaluate(script),
+    now: wallWait.now,
+    sleep: wallWait.sleep,
+    timeoutMs: JOURNEY_WAIT_MS,
+  });
+}
+
 type Browsing = {
   readonly host: JourneyHost;
   readonly record: JourneyStepRecorder;
@@ -145,6 +159,7 @@ async function openLiveDevice(
     signIn: async () => {
       await signIn(opened, target);
     },
+    markSynthetic: () => markSynthetic(opened, target),
   });
 }
 
@@ -193,7 +208,8 @@ function liveJourneyHost(
       signIn(device, target, {
         peer: true,
         ...(continuationToken === undefined ? {} : { continuationToken }),
-      })
+      }),
+    (device) => markSynthetic(device, target)
   );
   return {
     runId: RUN_ID,

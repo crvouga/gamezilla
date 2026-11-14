@@ -17,6 +17,7 @@ describe('prepareCriticalJourneyAccess', () => {
       launch: recordStep(steps, 'launch'),
       waitForTabShell: recordStep(steps, 'tab-shell'),
       signIn: recordStep(steps, 'sign-in'),
+      markSynthetic: recordStep(steps, 'mark-synthetic'),
     });
     expect(steps).toEqual(['launch', 'tab-shell', 'sign-in']);
   });
@@ -29,7 +30,8 @@ describe('prepareCriticalJourneyAccess', () => {
       launch: recordStep(steps, 'launch'),
       waitForTabShell: recordStep(steps, 'tab-shell'),
       signIn: recordStep(steps, 'sign-in'),
+      markSynthetic: recordStep(steps, 'mark-synthetic'),
     });
-    expect(steps).toEqual(['launch', 'tab-shell']);
+    expect(steps).toEqual(['launch', 'tab-shell', 'mark-synthetic']);
   });
 });
