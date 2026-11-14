@@ -160,7 +160,7 @@ export const CHESS_CHOICES: readonly GameMenuChoiceView[] = [
   {
     screen: 'settings',
     title: 'Settings',
-    caption: 'Developer tools for puzzles',
+    caption: 'Load puzzles, for puzzle managers',
   },
 ];
 
