@@ -117,6 +117,14 @@ const SPACE_BODIES = new Set([
   'screens-puzzles-catalogue-load-status',
   'screens-puzzles-chess-play',
   'screens-puzzles-play',
+  'screens-puzzles-play-feed',
+  'screens-puzzles-play-feed-advance',
+  'screens-puzzles-play-feed-history',
+  'screens-puzzles-play-feed-target',
+  'screens-puzzles-play-feed-themes',
+  'screens-puzzles-play-line',
+  'screens-puzzles-play-result',
+  'screens-puzzles-play-status',
   'screens-puzzles-content-attempt',
   'screens-puzzles-content-attempt-progress',
   'screens-puzzles-content-author',
@@ -134,6 +142,8 @@ const SPACE_BODIES = new Set([
   'screens-puzzles-content-library-solved',
   'screens-puzzles-review',
   'screens-puzzles-stats',
+  'screens-puzzles-stats-log',
+  'screens-puzzles-stats-trend',
 ]);
 
 /** Overrides let a fixture describe another production placement explicitly. */
