@@ -175,3 +175,19 @@ export const StepThroughTheLine: Story = {
     ).toBeVisible();
   },
 };
+
+/**
+ * On a phone, the feed can be changed before moving on: Settings on Next
+ * puzzle's line opens the puzzle settings, and Save settings saves them.
+ */
+export const ChangeSettingsBeforeNext: Story = {
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      await canvas.findByTestId('chess-puzzle-feed-summary-compact')
+    );
+    await expect(args.onOpen).toHaveBeenCalledWith({ screen: 'feed' });
+    await userEvent.click(await canvas.findByTestId('chess-puzzle-feed-done'));
+    await expect(args.feed.onDone).toHaveBeenCalled();
+  },
+};

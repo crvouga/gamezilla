@@ -46,7 +46,7 @@ export function PuzzleSolveDock(props: PuzzlePlayScreenViewProps): JSX.Element {
     <StackVertical gap="sm">
       {/* A wrong move's cost is said before the choice, not after it. */}
       <Show when={props.status === 'wrong'}>
-        <P variant="caption" tone="secondary" testId="chess-puzzle-wrong-cost">
+        <P variant="caption" testId="chess-puzzle-wrong-cost">
           <Trans>
             This attempt now counts as failed. Retry to finish the line.
           </Trans>

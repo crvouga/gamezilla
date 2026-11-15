@@ -1,5 +1,6 @@
 import type { PuzzleOutcomeKind } from '@libs/game-puzzle-shared-ts/interaction-entities';
 import { Trans } from '@lingui/solid/macro';
+import { Button } from '@pkgs/ui-root-client-ts/button';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { GameReviewScreen } from '@pkgs/ui-root-client-ts/game-review-screen';
 import { type JSX, Match, Show, Switch } from 'solid-js';
@@ -80,6 +81,18 @@ export function PuzzleReviewScreenView(
       <GameReviewScreen
         screenId="chess-stats-review"
         nested={props.nested}
+        // Where a review leads: back to the rest of the log.
+        actions={
+          <Show when={props.status === 'ready'}>
+            <Button
+              title={<Trans>Back to the game log</Trans>}
+              intent="neutral"
+              variant="outline"
+              onClick={() => props.onBackToLog()}
+              dataSet={{ testid: 'chess-puzzle-review-back-to-log' }}
+            />
+          </Show>
+        }
         title={<ReviewTitle outcome={props.outcome} />}
         subtitle={
           props.puzzleRating > 0 ? (

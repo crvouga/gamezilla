@@ -251,9 +251,11 @@ test('result: how it went, the rating it made, and Next puzzle as the one filled
     'chess-puzzle-feed-summary',
   ])
     expect(shown(command)).toBe(true);
-  // What next is docked, so a phone never scrolls to reach it.
+  // What next is docked, so a phone never scrolls to reach it; the feed's
+  // settings are there too, so they can change before moving on.
   const dock = region('PuzzleDock');
   for (const command of [
+    'chess-puzzle-feed-summary-compact',
     'chess-puzzle-summary-next',
     'chess-puzzle-action-retry',
     'chess-puzzle-summary-close',

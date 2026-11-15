@@ -19,7 +19,7 @@ import { Surface } from '@pkgs/ui-root-client-ts/surface';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { createMemo, type JSX, Match, Show, Switch } from 'solid-js';
 import type { PuzzlePlayScreenViewProps } from './puzzle-play-screen-model';
-import { PuzzleSettingsRow } from './puzzle-settings-row';
+import { PuzzleSettingsButton, PuzzleSettingsRow } from './puzzle-settings-row';
 import { PuzzleShareLabel } from './puzzle-share-label';
 import { StatusLineTrailing } from './puzzle-status-line';
 import { PuzzleSummaryCard } from './puzzle-summary-card';
@@ -127,8 +127,8 @@ function ResultStreak(props: PuzzlePlayScreenViewProps): JSX.Element {
 export function PuzzleResultRows(
   props: PuzzlePlayScreenViewProps
 ): JSX.Element {
-  // A phone's result is about the puzzle just played: the settings wait on
-  // the next puzzle's screen, so no row is left cut under the dock.
+  // A phone has the settings beside Next puzzle in the dock instead, so no
+  // row is left cut under it.
   return (
     <PuzzleScreenFold on="wide">
       <StackVertical paddingX="lg">
@@ -167,13 +167,24 @@ export function PuzzleResultDock(
     <StackVertical gap="sm">
       <PuzzleResultSummary {...props} />
       <Show when={offers('next')}>
-        <Button
-          title={<Trans>Next puzzle</Trans>}
-          fullWidth
-          endIcon={<ChevronRightIcon />}
-          onClick={() => props.onNext()}
-          dataSet={{ testid: Handles.chessPuzzleSummaryNext }}
-        />
+        <StackHorizontal gap="sm" align="center">
+          <StackVertical grow>
+            <Button
+              title={<Trans>Next puzzle</Trans>}
+              fullWidth
+              endIcon={<ChevronRightIcon />}
+              onClick={() => props.onNext()}
+              dataSet={{ testid: Handles.chessPuzzleSummaryNext }}
+            />
+          </StackVertical>
+          {/* The feed can be changed before moving on: on a phone its
+              settings sit on Next puzzle's line, the row beside a wide board. */}
+          <PuzzleScreenFold on="phone">
+            <PuzzleSettingsButton
+              onOpen={() => props.onOpen({ screen: 'feed' })}
+            />
+          </PuzzleScreenFold>
+        </StackHorizontal>
       </Show>
       {/* Over the commands, the reason a copy failed and what to do. */}
       <Show when={props.share?.state === 'failed'}>
