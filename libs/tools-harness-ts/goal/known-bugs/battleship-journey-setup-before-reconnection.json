@@ -1,0 +1,4 @@
+{
+  "summary": "Battleship's live journey probes the ship picker while a parked participant is still reconnecting, mistakes the locked compact setup for a full layout, and times out waiting for the carrier control.",
+  "regressionTest": "libs/runtime-harness-ts/tests/private-setup-connection.test.ts"
+}
