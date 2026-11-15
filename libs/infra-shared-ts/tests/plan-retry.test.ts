@@ -3,9 +3,22 @@ import {
   planReadFailed,
   providerFailureIsTransient,
   providerInstallIsTransient,
+  providerRetryWaitMs,
 } from '@libs/infra-shared-ts/plan-retry';
 
 describe('plan retry', () => {
+  // regression: railway-plan-retries-before-rate-limit-reset
+  test('a rate-limited Railway plan waits for the advertised reset', () => {
+    const output =
+      'Error: Client Error\nreturned error 429 Too Many Requests: Rate\nlimit exceeded, please try again in 751.962 seconds.';
+    expect(providerFailureIsTransient(output)).toBe(true);
+    expect(providerRetryWaitMs(output)).toBe(751_962);
+    expect(providerRetryWaitMs(`${output}\ntry again in 800 seconds.`)).toBe(
+      800_000
+    );
+    expect(providerRetryWaitMs('connection reset')).toBe(1_000);
+    expect(providerRetryWaitMs('429 Too Many Requests')).toBe(1_000);
+  });
   // regression: infra-plan-read-transient
   test('a provider client error is a failed read, not a diff', () => {
     const output = [

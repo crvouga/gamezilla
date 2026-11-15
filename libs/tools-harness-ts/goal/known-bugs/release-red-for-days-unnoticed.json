@@ -1,0 +1,4 @@
+{
+  "summary": "Release and Health failed on main for days (every Release since 2026-11-09, every hourly Health) and nobody was told: only Verify Nightly filed an issue, and no Grafana alert watched CI. Release and Health now end with a verdict job, and all three workflows keep one open \"<Workflow> is failing on main\" issue and record ci.workflow.result, whose generated Grafana alert pages until the workflow is green on main.",
+  "regressionTest": "libs/tools-harness-ts/scripts/ci-workflow-alert.test.ts"
+}

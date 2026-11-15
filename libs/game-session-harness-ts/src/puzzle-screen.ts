@@ -749,11 +749,36 @@ export async function waitNextPuzzle(
   await waitBoardSettled(s, actorId);
 }
 
+/**
+ * Until the board holds a puzzle other than `previous`. A live browser still
+ * shows the old one, loaded, for a moment after the tap, which would read as
+ * the next puzzle being the same; a feed that really serves it again is left
+ * to `nextPuzzleDifferent` to report.
+ */
+async function waitPuzzleReplaced(
+  s: ProductHarness,
+  actorId: string,
+  previous: string | null
+): Promise<void> {
+  // regression: next-puzzle-read-before-replaced
+  if (previous === null) return;
+  await pollUntil(
+    s,
+    async () => {
+      const shown = await readPuzzleOnBoard(s, actorId);
+      return shown !== null && shown !== previous ? true : null;
+    },
+    { maxMs: WAIT_MS, stepMs: POLL_MS, description: 'a different puzzle' }
+  ).catch(() => undefined);
+}
+
 /** Move on to the next puzzle and wait for it. */
 export const moveOnToNextPuzzle = scenarioAction({
   name: 'moveOnToNextPuzzle',
   act: async (s, actorId: string) => {
+    const previous = await readPuzzleOnBoard(s, actorId);
     await tapControl(s, actorId, await nextPuzzleControl(s, actorId));
+    await waitPuzzleReplaced(s, actorId, previous);
     await waitNextPuzzle(s, actorId);
   },
 });

@@ -17,6 +17,9 @@ export const withContentQueryFixture = (
 const stamp = '2026-10-23T00:00:00.000Z';
 export const contentQueryId = (index: number): string =>
   `p${String(index).padStart(4, '0')}`;
+/** Pairs of neighbouring documents share a publication minute, so the id breaks their tie. */
+export const contentQueryPublishedAt = (index: number): string =>
+  new Date(Date.parse(stamp) + Math.floor(index / 2) * 60_000).toISOString();
 
 export async function insertRows(
   fixture: ContentFixture,
@@ -46,10 +49,10 @@ export async function seedLargeContentCatalogue(
   );
   await insertRows(
     fixture,
-    sql`INSERT INTO puzzle_content_publications (id, owner_id, game_id, kind, published_revision_id, publication_count, status, created_at, updated_at, deleted_at)`,
+    sql`INSERT INTO puzzle_content_publications (id, owner_id, game_id, kind, published_revision_id, publication_count, status, published_at, created_at, updated_at, deleted_at)`,
     ids.map(
-      (id) =>
-        sql`(${id}, ${'alice'}, ${'pile'}, ${'puzzle'}, ${`${id}-edition`}, ${1}, ${'published'}, ${stamp}, ${stamp}, ${null})`
+      (id, index) =>
+        sql`(${id}, ${'alice'}, ${'pile'}, ${'puzzle'}, ${`${id}-edition`}, ${1}, ${'published'}, ${contentQueryPublishedAt(index)}, ${stamp}, ${stamp}, ${null})`
     )
   );
   await insertRows(

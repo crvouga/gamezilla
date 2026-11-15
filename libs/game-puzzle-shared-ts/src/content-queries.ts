@@ -7,6 +7,9 @@ import {
   contentIds,
   contentPageCondition,
   contentPageParams,
+  contentPublishedCondition,
+  contentPublishedParams,
+  PUBLISHED_PAGE_START,
 } from './content-query-scope';
 import { puzzleContentTopic } from './content-topic-map';
 
@@ -46,11 +49,11 @@ export const puzzleContentOwned = defineQuery({
   },
 });
 
-/** Withdrawal and tombstones remain in the same stable page and update discovery. */
+/** Newest publications first; withdrawal and tombstones remain in the same stable page and update discovery. */
 export const puzzleContentPublished = defineQuery({
   name: 'puzzleContentPublished',
-  params: contentPageParams,
-  sampleParams: { gameId: 'game', afterId: '' },
+  params: contentPublishedParams,
+  sampleParams: { gameId: 'game', ...PUBLISHED_PAGE_START },
   limit: CONTENT_PAGE_SIZE * 2,
   authorize: queryRequires(PERMISSION.puzzlesPlay),
   entryChannel: () => [puzzleContentTopic],
@@ -59,7 +62,7 @@ export const puzzleContentPublished = defineQuery({
       await ctx.db.query(sql`
       SELECT * FROM puzzle_content_publications
       WHERE game_id = ${params.gameId} AND published_revision_id IS NOT NULL
-        AND ${contentPageCondition(params)} ORDER BY id
+        AND ${contentPublishedCondition(params)} ORDER BY published_at DESC, id DESC
     `)
     ).slice(0, CONTENT_PAGE_SIZE);
     const ids = documents.map((row) => String(row['published_revision_id']));
