@@ -205,6 +205,11 @@ function ResultMore(props: PuzzlePlayScreenViewProps): JSX.Element {
   );
 }
 
+/** Whether the card is saying how copying the link went. */
+function sharing(props: PuzzlePlayScreenViewProps): boolean {
+  return props.share?.state === 'copied' || props.share?.state === 'failed';
+}
+
 /** How copying the link went, in the result card: the menu closes as it is pressed. */
 function ShareStatus(props: PuzzlePlayScreenViewProps): JSX.Element {
   return (
@@ -349,13 +354,16 @@ function PuzzleResultSummary(props: PuzzlePlayScreenViewProps): JSX.Element {
             <StatusLineTrailing {...props} />
           </StackHorizontal>
           {/* A short phone keeps the outcome and the rating in view: the
-              why and the puzzle's facts fold away there. */}
-          <PuzzleScreenFold on="tall">
-            <P variant="caption" tone="secondary">
-              <ResultCaption {...props} />
-            </P>
-            <ResultFacts {...props} />
-          </PuzzleScreenFold>
+              why and the puzzle's facts fold away there, and give way to
+              how copying the link went, so the card keeps its height. */}
+          <Show when={!sharing(props)}>
+            <PuzzleScreenFold on="tall">
+              <P variant="caption" tone="secondary">
+                <ResultCaption {...props} />
+              </P>
+              <ResultFacts {...props} />
+            </PuzzleScreenFold>
+          </Show>
         </StackVertical>
         <StackVertical gap="none" align="end">
           <Show when={props.result.completion} keyed>

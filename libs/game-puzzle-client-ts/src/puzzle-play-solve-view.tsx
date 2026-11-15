@@ -35,10 +35,12 @@ export function SpectatorAllowance(props: { label: string }): JSX.Element {
           </P>
         </Show>
       </StackHorizontal>
-      {/* What the board's "tap a piece" means for a watcher. */}
+      {/* What the board's "tap a piece" means for a watcher, and whose
+          allowance the count beside them is. */}
       <P variant="caption" testId="chess-puzzle-spectator-hint">
         <Trans>
-          The host solves. Tap a piece, then a square, to suggest a move.
+          The host solves, from their own allowance. A move you make is sent as
+          a suggestion.
         </Trans>
       </P>
     </StackVertical>

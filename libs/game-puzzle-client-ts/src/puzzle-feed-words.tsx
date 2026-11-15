@@ -89,5 +89,5 @@ export function feedAccessibleLabel(
       : config.autoAdvance === 'after1s'
         ? t`Next puzzle after one second`
         : t`Next puzzle immediately`;
-  return t`Puzzle feed. ${mode} target ${rating}. History: ${history}. Themes: ${themes}. ${advance}.`;
+  return t`Puzzle settings. ${mode} target ${rating}. History: ${history}. Themes: ${themes}. ${advance}.`;
 }

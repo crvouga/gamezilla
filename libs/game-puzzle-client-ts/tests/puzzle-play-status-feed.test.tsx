@@ -131,7 +131,7 @@ test('the settings row names the settings and what the saved feed serves', () =>
     '2 rated puzzles remaining today'
   );
   expect(screen.getByTestId('chess-puzzle-feed-description').textContent).toBe(
-    'Puzzle feed. Automatic target 1500. History: Unseen. Themes: All themes. Manual next puzzle. 2 rated puzzles remaining today'
+    'Puzzle settings. Automatic target 1500. History: Unseen. Themes: All themes. Manual next puzzle. 2 rated puzzles remaining today'
   );
 });
 
