@@ -218,6 +218,8 @@ function RecordCaption(props: {
       <Show when={winners().length > 0}>
         <PlayerNames players={winners()} join="and" people={props.people} />{' '}
         <Trans>won</Trans>
+      </Show>
+      <Show when={winners().length > 0 && props.record.label !== ''}>
         {SEPARATOR}
       </Show>
       {props.record.label}
@@ -368,7 +370,10 @@ function HistoryStatistics(props: GameHistoryScreenViewProps): JSX.Element {
     </Show>
   );
   return (
-    <Surface tone="surface" radius="card" border padding="lg">
+    <Surface tone="surface" radius="card" border padding="lg" gap="sm">
+      <P variant="caption" tone="secondary">
+        <Trans>All games</Trans>
+      </P>
       <Grid
         columns={3}
         gap="md"
@@ -443,7 +448,7 @@ export function GameHistoryScreenView(
                       one="# game"
                       other="# games"
                     />{' '}
-                    <Trans>· the totals above count every game</Trans>
+                    <Trans>· the totals above are for all games</Trans>
                   </P>
                 </Show>
               </StackVertical>

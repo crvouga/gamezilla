@@ -168,7 +168,11 @@ function AllowedGameHistory(props: {
           )
           .map(historyPlayer),
         outcome,
-        label: recordEnding(record),
+        // A watched game's row says who won and when; how is left to the replay.
+        label:
+          outcome === null && record.result === 'won'
+            ? ''
+            : recordEnding(record),
         winners:
           outcome === null && record.result === 'won'
             ? record.participants

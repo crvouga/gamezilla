@@ -10,6 +10,7 @@ import {
 } from '@pkgs/ui-root-client-ts/game-seat-swatch';
 import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
+import { Grid } from '@pkgs/ui-root-client-ts/grid';
 import { IconButton } from '@pkgs/ui-root-client-ts/icon-button';
 import {
   ArrowLeftIcon,
@@ -306,7 +307,7 @@ const WIDE_PAGE = 8;
 /** Beside a wide board, the same page of numbered moves in its own card. */
 function ReplayMoves(props: GameReplayScreenViewProps): JSX.Element {
   return (
-    <GameSection title={<Trans>Moves</Trans>} fill={props.moves.length > 0}>
+    <GameSection title={<Trans>Moves</Trans>}>
       <Show
         when={props.moves.length > 0}
         fallback={
@@ -360,7 +361,7 @@ function ReplayMovesPage(props: GameReplayScreenViewProps): JSX.Element {
             <Trans>move, seat and {props.moveHeading.toLowerCase()}</Trans>
           </Show>
         </P>
-        <StackHorizontal gap="xs" wrap aria-label={t`Moves played`}>
+        <Grid columns={4} gap="xs" testId="game-history-review-moves">
           <Show when={page() > 0}>
             <Button
               title={
@@ -369,7 +370,7 @@ function ReplayMovesPage(props: GameReplayScreenViewProps): JSX.Element {
                 </Trans>
               }
               size="sm"
-              variant="ghost"
+              variant="outline"
               intent="neutral"
               icon={ChevronLeftIcon}
               onClick={() => props.onSeek(first() - 1)}
@@ -412,14 +413,14 @@ function ReplayMovesPage(props: GameReplayScreenViewProps): JSX.Element {
                 </Trans>
               }
               size="sm"
-              variant="ghost"
+              variant="outline"
               intent="neutral"
               endIcon={<ChevronRightIcon size={16} />}
               onClick={() => props.onSeek(last() + 1)}
               dataSet={{ testid: 'game-history-review-page-later' }}
             />
           </Show>
-        </StackHorizontal>
+        </Grid>
       </StackVertical>
     </Show>
   );
@@ -496,13 +497,16 @@ export function GameReplayScreenView(
         }
       >
         <GameBoardStage
+          viewportFit="square"
           others={<ReplayPlayers {...props} place="over" />}
-          turn={
-            <Show when={phone()}>
-              <ReplayMovesPage {...props} />
-            </Show>
+          own={
+            <StackVertical gap="sm" align="stretch">
+              <ReplayPlayers {...props} place="under" />
+              <Show when={phone()}>
+                <ReplayMovesPage {...props} />
+              </Show>
+            </StackVertical>
           }
-          own={<ReplayPlayers {...props} place="under" />}
         >
           {props.board}
         </GameBoardStage>

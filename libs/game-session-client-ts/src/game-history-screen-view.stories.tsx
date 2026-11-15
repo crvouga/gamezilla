@@ -57,7 +57,7 @@ const RECORDS: readonly GameHistoryRow[] = [
       JORDAN,
     ],
     outcome: null,
-    label: 'By four in a row',
+    label: '',
     winners: [JORDAN],
     endedAt: ago(170),
   },
