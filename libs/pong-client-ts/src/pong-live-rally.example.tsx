@@ -3,7 +3,6 @@ import { pongConfig } from '@libs/pong-shared-ts/pong-config';
 import { pongPositionCodec } from '@libs/pong-shared-ts/pong-game';
 import {
   initialPongState,
-  type PongInput,
   type PongState,
   parsePongInput,
 } from '@libs/pong-shared-ts/pong-state';
@@ -11,6 +10,7 @@ import { createPongStep } from '@libs/pong-shared-ts/pong-step';
 import type { GameSimulationControls } from '@pkgs/turn-game-shared-ts/game-presentation';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { createSignal, type JSX, onCleanup } from 'solid-js';
+import { createPongLiveInputs } from './pong-live-inputs.example';
 
 /**
  * A rally played in real time by the product's own fixed-step mechanics: the
@@ -41,19 +41,14 @@ export function PongLiveRally(props: {
     },
     feedback: { walls: 0, paddles: 0, points: 0, serves: 1 },
   });
-  const pending: { side: GameSide; value: PongInput }[] = [];
+  const held = createPongLiveInputs();
   let tick = 0;
   let frame: number | undefined;
   let last = 0;
   let owed = 0;
   const advance = (from: PongState): PongState => {
     tick += 1;
-    const inputs = pending.splice(0).map((input, index) => ({
-      tick,
-      sequence: tick * 4 + index,
-      playerId: input.side === 'white' ? 'left' : 'right',
-      value: input.value,
-    }));
+    const inputs = held.sample(tick);
     return step(from, inputs, {
       tick,
       deltaMs: tickMs,
@@ -89,10 +84,10 @@ export function PongLiveRally(props: {
     onInput: (side, value) => {
       const input = parsePongInput(value);
       if (!input) throw new Error('Invalid Pong input');
-      pending.push({ side, value: input });
+      held.set(side, input);
       start();
     },
-    onRelease: () => undefined,
+    onRelease: held.release,
   };
   return (
     <>{props.children(() => pongPositionCodec.encode(state()), controls)}</>
