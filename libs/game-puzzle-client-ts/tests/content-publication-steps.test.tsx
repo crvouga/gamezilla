@@ -678,7 +678,8 @@ test('a refusal naming its finding says why and leads with its correction', () =
   ];
   expect(steps[2]?.contains(screen.getByTestId('content-publish'))).toBe(true);
   // One word for the hold, matching its lock.
-  expect(steps[2]?.textContent).toBe('3PublishLockedPublish again');
+  expect(steps[2]?.textContent).toBe('3Publish againLocked');
+  expect(steps[2]?.getAttribute('data-state')).toBe('upcoming');
   // Held until the board is corrected, yet it still says what is missing.
   expect(screen.getByTestId('content-publish').getAttribute('data-face')).toBe(
     'locked'

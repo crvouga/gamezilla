@@ -77,7 +77,7 @@ export function ContentDraftPlaytest(props: {
     <StackVertical gap="sm">
       <Button
         {...start.buttonProps}
-        intent="primary"
+        intent={props.next === true ? 'primary' : 'neutral'}
         variant={props.next === true ? 'solid' : 'ghost'}
         size={props.next === true ? 'md' : 'sm'}
         dataSet={{ testid: 'content-start-playtest' }}

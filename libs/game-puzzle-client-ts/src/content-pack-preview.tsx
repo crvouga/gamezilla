@@ -71,7 +71,7 @@ export function ContentPackPreviewView(props: {
                   <MenuRow
                     dataSet={{ testid: `content-preview-puzzle-${item.id}` }}
                     title={item.title || t`Unavailable puzzle`}
-                    value={
+                    caption={
                       item.published
                         ? t`Published`
                         : t`Draft, not yet in a published pack`
@@ -99,7 +99,7 @@ export function ContentPackPreviewView(props: {
               <Button
                 title={t`Back to the pack`}
                 intent="neutral"
-                variant="ghost"
+                variant="outline"
                 startIcon={<ArrowLeftIcon size={16} />}
                 onClick={() => props.onBack()}
                 dataSet={{ testid: 'content-preview-back' }}

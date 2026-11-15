@@ -95,10 +95,20 @@ function SourceChoice(props: CatalogueLoadSourceViewProps): JSX.Element {
       {/* Once the upload is done the place moves on to the saved file. */}
       <Show when={save.feedback() !== 'success'}>
         <Notice dataSet={{ testid: 'puzzle-source-missing' }}>
-          <Trans>
-            No {props.copy.sourceName} is saved yet. Choose one and upload it,
-            then start loading its puzzles.
-          </Trans>
+          <Show
+            when={props.source.chosen === null}
+            fallback={
+              <Trans>
+                No {props.copy.sourceName} is saved yet. Upload the chosen file
+                to save it, then start loading its puzzles.
+              </Trans>
+            }
+          >
+            <Trans>
+              No {props.copy.sourceName} is saved yet. Choose one and upload it,
+              then start loading its puzzles.
+            </Trans>
+          </Show>
         </Notice>
       </Show>
       <FilePicker

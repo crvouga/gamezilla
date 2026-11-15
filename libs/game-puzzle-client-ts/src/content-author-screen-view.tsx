@@ -12,7 +12,7 @@ import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
-import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Text } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import { ContentAuthorHubView } from './content-author-hub-view';
@@ -139,10 +139,22 @@ function AuthorNotices(props: ContentAuthorScreenViewProps): JSX.Element {
           <Show
             when={props.place.screen === 'copies'}
             fallback={
-              <Trans>
-                Another device saved a different copy of this draft. Choose the
-                copy to keep working from under Draft copies before publishing.
-              </Trans>
+              <StackVertical gap="sm">
+                <Trans>
+                  Another device saved a different copy of this draft. Choose
+                  the copy to keep working from before publishing.
+                </Trans>
+                <StackHorizontal>
+                  <Button
+                    title={t`Open draft copies`}
+                    intent="neutral"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => props.onOpen({ screen: 'copies' })}
+                    dataSet={{ testid: 'content-author-open-copies' }}
+                  />
+                </StackHorizontal>
+              </StackVertical>
             }
           >
             <Trans>

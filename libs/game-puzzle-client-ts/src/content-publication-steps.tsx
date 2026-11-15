@@ -164,6 +164,21 @@ function publishStepNote(
 }
 
 /**
+ * Where the Publish step stands: done once its copy is the edition; waiting
+ * (locked, like any step not reached) while a refused publication's
+ * correction leads; otherwise by its place in the order.
+ */
+function publishState(
+  props: PublicationStepsProps,
+  next: PublicationStep
+): StepTrackStep['state'] {
+  if (props.progress?.complete) return 'done';
+  if (next === 'publish' && props.refused === true && fixLead(props) !== null)
+    return 'upcoming';
+  return stateOf('publish', next);
+}
+
+/**
  * The current step's state in a word: Fix first while the board must be
  * fixed or a failed check's fix leads; Locked for a refused publication's
  * held retry (its lock says the same); otherwise Next.
@@ -368,7 +383,7 @@ export function PublicationSteps(props: PublicationStepsProps): JSX.Element {
     {
       key: 'publish',
       label: t`Publish`,
-      state: props.progress?.complete ? 'done' : stateOf('publish', next()),
+      state: publishState(props, next()),
       action:
         props.publishNote !== undefined
           ? undefined

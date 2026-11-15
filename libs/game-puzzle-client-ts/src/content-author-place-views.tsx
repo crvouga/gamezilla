@@ -2,7 +2,7 @@ import { useLingui } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { H2 } from '@pkgs/ui-root-client-ts/heading';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import type { JSX } from 'solid-js';
+import { type JSX, Show } from 'solid-js';
 import type { ContentAuthorScreenViewProps } from './content-author-screen-view';
 import { ContentDraftMetadata } from './content-draft-metadata';
 
@@ -88,7 +88,17 @@ export function ContentAuthorPreviewView(props: { view: View }): JSX.Element {
   return (
     <StackVertical gap="md" dataSet={{ testid: 'content-author-preview' }}>
       {props.view.preview}
-      <DoneButton view={props.view} />
+      {/* A pack's previewed puzzle returns to the pack's list instead. */}
+      <Show
+        when={
+          !(
+            props.view.place.screen === 'preview' &&
+            props.view.place.puzzleId !== null
+          )
+        }
+      >
+        <DoneButton view={props.view} />
+      </Show>
     </StackVertical>
   );
 }
