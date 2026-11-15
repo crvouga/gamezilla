@@ -1,6 +1,6 @@
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans } from '@lingui/solid/macro';
+import { Plural, Trans } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
 import { ShareIcon } from '@pkgs/ui-root-client-ts/icons';
@@ -8,7 +8,7 @@ import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { Text } from '@pkgs/ui-root-client-ts/text';
+import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import {
@@ -41,33 +41,30 @@ function draftChanges(feed: PuzzlePlayScreenViewProps['feed']) {
   };
 }
 
+/** How many settings the draft has changed from what is saved. */
+function draftChangeCount(feed: PuzzlePlayScreenViewProps['feed']): number {
+  return Object.values(draftChanges(feed)).filter(Boolean).length;
+}
+
 function hasDraftChanges(feed: PuzzlePlayScreenViewProps['feed']): boolean {
-  return Object.values(draftChanges(feed)).some(Boolean);
+  return draftChangeCount(feed) > 0;
 }
 
 /**
- * A setting's row: its name, its value in the draft (marked "Changed" when
- * that is not saved yet), and the way to its screen.
+ * A setting's row: its name, its value in the draft, and the way to its
+ * screen.
  */
 function SettingRow(props: {
   readonly view: PuzzlePlayScreenViewProps;
   readonly screen: PuzzleFeedSettingScreen;
   readonly title: JSX.Element;
   readonly value: string;
-  readonly changed: boolean;
   readonly testId: string;
 }): JSX.Element {
   return (
     <MenuRow
       title={props.title}
       value={props.value}
-      caption={
-        props.changed ? (
-          <Text variant="inherit" tone="tint">
-            <Trans>Changed</Trans>
-          </Text>
-        ) : undefined
-      }
       onClick={() => props.view.onOpen({ screen: props.screen })}
       dataSet={{ testid: props.testId }}
     />
@@ -95,7 +92,6 @@ function FeedRows(props: PuzzlePlayScreenViewProps): JSX.Element {
         screen="feed-target"
         title={<Trans>Target rating</Trans>}
         value={targetValue(props.feed.draft, props.feed.draftTarget)}
-        changed={draftChanges(props.feed).target}
         testId="chess-puzzle-feed-row-target"
       />
       <SettingRow
@@ -103,7 +99,6 @@ function FeedRows(props: PuzzlePlayScreenViewProps): JSX.Element {
         screen="feed-history"
         title={<Trans>Play history</Trans>}
         value={historyFilterLabel(props.feed.draft.historyFilter)}
-        changed={draftChanges(props.feed).history}
         testId="chess-puzzle-feed-row-history"
       />
       <Show when={props.feed.themes !== null}>
@@ -112,7 +107,6 @@ function FeedRows(props: PuzzlePlayScreenViewProps): JSX.Element {
           screen="feed-themes"
           title={<Trans>Themes</Trans>}
           value={themesSummary(props.feed.draft.themes, themeLabel)}
-          changed={draftChanges(props.feed).themes}
           testId={Handles.chessPuzzleFeedThemeTrigger}
         />
       </Show>
@@ -121,7 +115,6 @@ function FeedRows(props: PuzzlePlayScreenViewProps): JSX.Element {
         screen="feed-advance"
         title={<Trans>After solving</Trans>}
         value={autoAdvanceLabel(props.feed.draft.autoAdvance)}
-        changed={draftChanges(props.feed).advance}
         testId="chess-puzzle-feed-row-advance"
       />
     </MenuSection>
@@ -211,6 +204,19 @@ export function PuzzleFeedHubView(
                 saved. Said as its own command once there is something to
                 drop, so it is never a guess. */}
             <Show when={hasDraftChanges(props.feed)}>
+              {/* The draft's state, said once for the whole list. */}
+              <P
+                variant="caption"
+                tone="secondary"
+                align="center"
+                testId="chess-puzzle-feed-unsaved"
+              >
+                <Plural
+                  value={draftChangeCount(props.feed)}
+                  one="# change not saved yet. Discard keeps the saved settings."
+                  other="# changes not saved yet. Discard keeps the saved settings."
+                />
+              </P>
               <Button
                 title={<Trans>Discard changes</Trans>}
                 intent="neutral"

@@ -50,13 +50,13 @@ export const RetryOffline: Story = {
   },
 };
 
-/** Denied, "Go to home" leaves without buying anything. */
+/** Denied, "Go to your spaces" leads where a space can be left or ended. */
 export const DeniedGoHome: Story = {
   args: SPACE_LIMIT,
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(
-      await canvas.findByRole('button', { name: 'Go to home' })
+      await canvas.findByRole('button', { name: 'Go to your spaces' })
     );
     await expect(args.onGoHome).toHaveBeenCalled();
   },

@@ -161,6 +161,10 @@ test('feed: one row per setting with the value the draft holds, the pool and Sav
     '12 of 40 puzzles on this device match'
   );
   expect(filledCommands()).toEqual(['Save settings']);
+  // The draft's state is said once, for the whole list.
+  expect(screen.getByTestId('chess-puzzle-feed-unsaved').textContent).toBe(
+    '4 changes not saved yet. Discard keeps the saved settings.'
+  );
   // Leaving without saving is its own command: it goes back, dropping the draft.
   expect(screen.getByTestId('chess-puzzle-feed-discard').textContent).toBe(
     'Discard changes'
@@ -311,7 +315,7 @@ test('feed-themes: a theme toggles, and one the search hides keeps its choice', 
 test('feed: with nothing changed there is nothing to discard, and no row says it is unsaved', () => {
   mountPlay('feed');
   expect(screen.queryByTestId('chess-puzzle-feed-discard')).toBeNull();
-  expect(screen.queryByText('Changed')).toBeNull();
+  expect(screen.queryByTestId('chess-puzzle-feed-unsaved')).toBeNull();
   // Nothing to save: the one command closes the settings, and says so.
   expect(screen.getByTestId('chess-puzzle-feed-done').textContent).toBe('Done');
 });

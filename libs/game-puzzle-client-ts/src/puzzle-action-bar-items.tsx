@@ -134,7 +134,7 @@ export function PuzzleActionButton(props: {
   );
 }
 
-/** Leaving this puzzle for the next: a quieter command than help beside it. */
+/** Leaving this puzzle for the next: a command beside help, outlined as it is. */
 export function PuzzleSkipButton(props: {
   disabled: boolean;
   onSkip: () => void;
@@ -143,7 +143,7 @@ export function PuzzleSkipButton(props: {
     <Button
       title={<Trans>Skip puzzle</Trans>}
       intent="neutral"
-      variant="ghost"
+      variant="outline"
       disabled={props.disabled}
       onClick={() => props.onSkip()}
       dataSet={{ testid: 'chess-puzzle-action-skip' }}

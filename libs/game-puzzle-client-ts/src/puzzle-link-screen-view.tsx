@@ -53,7 +53,7 @@ export function PuzzleLinkScreenView(
             <StackVertical gap="none" align="center">
               <DenialSurfaceView denial={denial} />
               <Button
-                title={<Trans>Go to home</Trans>}
+                title={<Trans>Go to your spaces</Trans>}
                 intent="neutral"
                 variant="outline"
                 onClick={() => props.onGoHome()}
