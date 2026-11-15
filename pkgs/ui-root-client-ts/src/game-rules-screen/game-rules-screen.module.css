@@ -92,22 +92,31 @@
 .points {
   max-inline-size: 64ch;
 }
-/* The links to each part: a quiet row that wraps, one tap to any part. */
+/* The links to each part: one row held at the top while the rules
+   scroll, sliding sideways when the parts outrun it, so any part is one
+   tap away from anywhere in the rules. */
 .parts {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ui-space-2);
+  position: sticky;
+  top: 0;
+  z-index: 1;
   inline-size: 100%;
   max-inline-size: 640px;
+  padding-block: var(--ui-space-2);
+  background: var(--ui-color-background);
 }
 .partLinks {
   display: flex;
   flex-direction: row;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: var(--ui-space-2);
   margin: 0;
   padding: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
   list-style: none;
+}
+.partLinks > li {
+  flex-shrink: 0;
 }
 .partLink {
   min-block-size: 32px;
@@ -123,7 +132,7 @@
 }
 /* A part opened from its link sits below the screen's top edge. */
 .section {
-  scroll-margin-block-start: var(--ui-space-4);
+  scroll-margin-block-start: var(--ui-space-16);
 }
 /* A part's words: its heading, body and entries. */
 .words {

@@ -9,6 +9,7 @@ import {
   GameTitleLockup,
 } from '../game-tile/index';
 import { createScreenSlot } from '../screen-slot';
+import { VisuallyHidden } from '../visually-hidden/index';
 import styles from './game-rules-screen.module.css';
 
 /** One part of how a game is played: a short name and a few lines. */
@@ -125,9 +126,9 @@ export function GameRulesScreen(props: GameRulesScreenProps): JSX.Element {
           class={styles['parts']}
           aria-labelledby={`${props.screenId}-parts`}
         >
-          <p id={`${props.screenId}-parts`} class="text textSectionLabel">
+          <VisuallyHidden id={`${props.screenId}-parts`}>
             {props.partsLabel}
-          </p>
+          </VisuallyHidden>
           <ol class={styles['partLinks']}>
             <For each={props.sections}>
               {(section, index) => (
