@@ -1,10 +1,11 @@
 import type { PuzzleHistoryPly } from '@libs/game-puzzle-shared-ts/move-history';
 import { Pressable } from '@pkgs/ui-root-client-ts/pressable';
+import { createScrollTarget } from '@pkgs/ui-root-client-ts/scroll';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { Surface } from '@pkgs/ui-root-client-ts/surface';
 import { Code, Text } from '@pkgs/ui-root-client-ts/text';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
-import { createMemo, For, type JSX, Show } from 'solid-js';
+import { createEffect, createMemo, For, type JSX, Show } from 'solid-js';
 import { PUZZLE_TEST_ENABLED } from './puzzle-test-enabled';
 import type { PuzzleMoveWriting } from './use-puzzle-notation';
 
@@ -64,6 +65,17 @@ function HistoryPlyChip(props: HistoryPlyChipProps): JSX.Element {
     props.onSeek(props.ply.solveIdxAfter);
   };
   const testId = (): string => `chess-puzzle-move-ply-${props.ply.plyIndex}`;
+  // The move on the board is in view, above a docked bar, as the line
+  // opens and as it is stepped (after the bar is measured, a frame on).
+  const scroll = createScrollTarget();
+  createEffect(() => {
+    if (!props.interactive || !props.selected) return;
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() =>
+        scroll.scrollIntoView({ behavior: 'instant' })
+      )
+    );
+  });
   // A strip that is read, not pressed, shows its moves at full strength:
   // a disabled control's fade would make the line look unavailable.
   return (
@@ -75,6 +87,7 @@ function HistoryPlyChip(props: HistoryPlyChipProps): JSX.Element {
         radius="sm"
         tint={!props.selected}
         testId={testId()}
+        scrollTarget={scroll.target}
         onPress={handlePress}
         pressed={props.selected}
         aria-label={

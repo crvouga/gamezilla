@@ -120,10 +120,21 @@ function createMoreBelow(target: () => HTMLElement | undefined) {
       element.scrollHeight - element.scrollTop - element.clientHeight > 8
     );
   };
+  // The docked bar's height, as the column's scroll padding: what is
+  // brought into view (a selected move) stops above the bar, not under it.
+  const padDock = (element: HTMLElement): void => {
+    const bar = element.querySelector<HTMLElement>(
+      ':scope > [data-component="PuzzleDock"]'
+    );
+    element.style.scrollPaddingBottom = `${bar?.offsetHeight ?? 0}px`;
+  };
   onMount(() => {
     const element = target();
     if (element === undefined || typeof ResizeObserver === 'undefined') return;
-    const observer = new ResizeObserver(measure);
+    const observer = new ResizeObserver(() => {
+      measure();
+      padDock(element);
+    });
     observer.observe(element);
     for (const child of Array.from(element.children)) observer.observe(child);
     measure();
