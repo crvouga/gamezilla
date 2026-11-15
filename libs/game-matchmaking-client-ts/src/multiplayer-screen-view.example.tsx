@@ -61,6 +61,11 @@ export function storyMoves(shownPly = DROPS.length): MultiplayerMovesShown {
       san,
       numbering: index % 2 === 0 ? ordinal : '',
       name: `${ordinal} ${san}`,
+      // Each move beside the disc of the seat that made it, as the app does.
+      swatch:
+        index % 2 === 0
+          ? ({ color: 'disc-one', mark: '●' } as const)
+          : ({ color: 'disc-two', mark: '◆' } as const),
     };
   });
   return {
