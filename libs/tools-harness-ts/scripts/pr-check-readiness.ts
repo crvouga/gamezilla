@@ -45,7 +45,9 @@ export async function awaitRequiredPrChecks(options: {
     );
     if (options.clock.now() > deadline)
       throw new Error(
-        'PR checks readiness deadline exceeded during metadata collection'
+        `PR checks readiness deadline exceeded during metadata collection${
+          failures.length === 0 ? '' : `:\n${failures.join('\n')}`
+        }`
       );
     // A neutral CodeQL result passes the policy, but not while its producer
     // can still replace it with findings.
