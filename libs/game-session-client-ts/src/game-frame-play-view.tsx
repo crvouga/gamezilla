@@ -10,7 +10,6 @@ import { GameTableSeats } from '@pkgs/ui-root-client-ts/game-table-seat';
 import { GameWatcherCount } from '@pkgs/ui-root-client-ts/game-watching';
 import { MenuIcon } from '@pkgs/ui-root-client-ts/icons';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
-import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import { type JSX, Show } from 'solid-js';
 import { FrameMovesCard } from './game-frame-moves-view';
 import { FrameOverlay } from './game-frame-overlay-view';
@@ -231,21 +230,13 @@ function PlayActions(props: Props): JSX.Element {
         {/* The answer the game waits for leads, filled; the bar it
             replaces (offer, resign) is gone until it is given. */}
         <GameActionButton
-          title={
-            <Trans>
-              Accept<VisuallyHidden> draw</VisuallyHidden>
-            </Trans>
-          }
+          title={<Trans>Accept draw</Trans>}
           variant="solid"
           dataSet={{ testid: 'custom-game-agree' }}
           operation={() => props.onChoose({ operation: 'agree' })}
         />
         <GameActionButton
-          title={
-            <Trans>
-              Decline<VisuallyHidden> draw</VisuallyHidden>
-            </Trans>
-          }
+          title={<Trans>Decline draw</Trans>}
           dataSet={{ testid: 'custom-game-reject' }}
           operation={() => props.onChoose({ operation: 'reject' })}
         />

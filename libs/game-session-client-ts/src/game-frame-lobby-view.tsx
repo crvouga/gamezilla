@@ -2,10 +2,7 @@ import { Trans } from '@lingui/solid/macro';
 import { Badge, HostBadge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
-import {
-  GameModeCard,
-  type GameModeFact,
-} from '@pkgs/ui-root-client-ts/game-lobby';
+import { GameModeCard } from '@pkgs/ui-root-client-ts/game-lobby';
 import { GameSeatSwatch } from '@pkgs/ui-root-client-ts/game-seat-swatch';
 import { GameActions } from '@pkgs/ui-root-client-ts/game-section';
 import {
@@ -358,41 +355,33 @@ function seatedCount(seats: readonly FrameSetupSeat[]): number {
 
 /**
  * What is about to be played, at the head of the lobby: the game and how
- * it is won, then what is agreed (who is in, the clock, that it is
- * unrated) at a glance. The board, facing the person's side, is a small
+ * it is won, and over them, in one line, that it is unrated and its clock
+ * (when the clock has no row below). The board, facing the person's side, is a small
  * picture beside the words, so the seats and what is agreed lead.
  */
 function LobbyMode(props: Props & { readonly setup: FrameSetup }): JSX.Element {
-  const facts = (): readonly GameModeFact[] => [
-    // Who is in is counted on the Players list below, not here.
-    // A clock that has its own row below is not said twice.
-    ...(props.setup.options?.clock == null
-      ? [
-          {
-            id: 'clock',
-            label: <Trans>Clock</Trans>,
-            value: (
-              <FrameClockWords
-                minutes={props.status?.minutes ?? 0}
-                increment={props.status?.increment ?? 0}
-              />
-            ),
-          },
-        ]
-      : []),
-    {
-      id: 'rating',
-      label: <Trans>Rating</Trans>,
-      value: <Trans>Unrated</Trans>,
-      testId: 'custom-game-unrated',
-    },
-  ];
   return (
     <GameModeCard
-      eyebrow={<Trans>Custom game</Trans>}
+      // What is agreed is one compact line, not a panel: unrated, and the
+      // clock when it has no row of its own below.
+      eyebrow={
+        <>
+          <Trans>Custom game</Trans>
+          {' · '}
+          <Text variant="inherit" testId="custom-game-unrated">
+            <Trans>Unrated</Trans>
+          </Text>
+          <Show when={props.setup.options?.clock == null}>
+            {' · '}
+            <FrameClockWords
+              minutes={props.status?.minutes ?? 0}
+              increment={props.status?.increment ?? 0}
+            />
+          </Show>
+        </>
+      }
       title={props.title}
       summary={props.goal}
-      facts={facts()}
       art={props.boardPreview}
       artSize="thumbnail"
       dataSet={{ testid: 'custom-game-mode' }}

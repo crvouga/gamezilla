@@ -165,8 +165,21 @@ function scrollMarkedIntoView(root: HTMLElement): void {
   // Laid out as one line (over a phone's board) it scrolls sideways.
   if (move.right > box.right)
     root.scrollLeft += Math.ceil(move.right - box.right);
-  else if (move.left < box.left)
-    root.scrollLeft -= Math.ceil(box.left - move.left);
+  else if (move.left < keyEdge(root, box.left))
+    root.scrollLeft -= Math.ceil(keyEdge(root, box.left) - move.left);
+}
+
+/** Where the moves start showing: past a key held at the line's start. */
+function keyEdge(root: HTMLElement, left: number): number {
+  const key = root.querySelector<HTMLElement>(`:scope > .${styles['heading']}`);
+  if (key === null || getComputedStyle(key).position !== 'sticky') return left;
+  // The fade after the key is its margin and the line's gap: a move
+  // starts clear of both.
+  return (
+    key.getBoundingClientRect().right +
+    Number.parseFloat(getComputedStyle(key).marginInlineEnd) +
+    Number.parseFloat(getComputedStyle(root).columnGap)
+  );
 }
 
 /**

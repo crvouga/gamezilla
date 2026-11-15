@@ -260,13 +260,38 @@
     color: var(--ui-color-text-secondary);
     font-size: var(--ui-font-size-xs);
   }
-  /* The line holds the moves alone: their word (`Column`) would sit on the
-     first of them. */
+  /* The moves' word (`Column`) is the line's key: it stays at the start
+     while the moves scroll under it, and the fade begins after it. */
+  [data-game-fixed="true"]
+    [data-game-slot="rail"]
+    .list[data-layout="table"]:has(> .heading) {
+    --move-key: 4.5rem;
+    padding-inline-start: 0;
+    mask-image: linear-gradient(
+      to right,
+      var(--ui-color-text) 0 var(--move-key),
+      transparent var(--move-key),
+      var(--ui-color-text) calc(var(--move-key) + var(--ui-space-10))
+    );
+  }
   [data-game-fixed="true"]
     [data-game-slot="rail"]
     .list[data-layout="table"]
     .heading {
-    display: none;
+    position: sticky;
+    inset-inline-start: 0;
+    z-index: 1;
+    order: -1;
+    flex: none;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    width: var(--move-key);
+    margin-inline-end: calc(var(--ui-space-10) - var(--ui-space-3));
+    padding-inline: var(--ui-space-2) 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    background: var(--ui-color-background);
   }
   [data-game-fixed="true"]
     [data-game-slot="rail"]
