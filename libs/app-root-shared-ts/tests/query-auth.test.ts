@@ -24,6 +24,22 @@ test('an unavailable authentication store remains an infrastructure failure', as
   ).rejects.toBe(failure);
 });
 
+test('an empty bearer token is refused before the auth resolver assertion', async () => {
+  let calls = 0;
+  const result = await resolveWith(
+    async () => {
+      calls++;
+      throw new Error('Bearer token must be non-empty');
+    },
+    {
+      authorization: 'Bearer \u00a0',
+      'x-anon-id': DEVICE,
+    }
+  );
+  expect(result).toEqual({ error: 'auth', reason: 'expired' });
+  expect(calls).toBe(0);
+});
+
 test('missing credentials and deleted accounts remain authentication refusals', async () => {
   const missing = await resolveWith(async () => ({}));
   expect(missing).toEqual({ error: 'auth', reason: 'expired' });

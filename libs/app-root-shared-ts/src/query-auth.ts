@@ -20,6 +20,12 @@ export async function resolveSessionReplayAuth(
   assert.defined(requestStore, 'query/mutations: request store missing');
   const deviceId = request.headers.get(ANON_ID_HEADER)?.trim();
   if (!isUuid(deviceId)) return { error: 'auth', reason: 'expired' };
+  const authorization = request.headers.get('Authorization');
+  if (
+    authorization?.startsWith('Bearer ') &&
+    authorization.slice(7).trim() === ''
+  )
+    return { error: 'auth', reason: 'expired' };
   // The auth port returns an empty context for an invalid session. A thrown
   // storage/provider error is not evidence that credentials expired: let the
   // server report a retryable failure without telling the client to sign out.
