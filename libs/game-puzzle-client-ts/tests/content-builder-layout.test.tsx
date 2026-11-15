@@ -245,7 +245,9 @@ test('a pack row opens on a tap anywhere, its status a chip, the rest in one men
   ).not.toBeNull();
   expect(open.contains(menu)).toBe(false);
   expect(menu.getAttribute('data-testid')).toBe('content-pack-menu');
-  expect(menu).toBe(screen.getByRole('button', { name: 'More for Puzzle b' }));
+  expect(menu).toBe(
+    screen.getByRole('button', { name: 'Move or remove Puzzle b' })
+  );
   fireEvent.click(open);
   expect(opened).toBe(1);
   fireEvent.click(menu);
@@ -634,10 +636,8 @@ test('the details form changes the draft as it is typed, and Done returns to the
   });
   expect(bodies).toEqual(['Weekday counts']);
   const done = screen.getByTestId('content-details-done');
-  expect(done.getAttribute('data-variant')).toBe('solid');
-  expect(
-    document.querySelectorAll('[data-component="Button"][data-variant="solid"]')
-  ).toHaveLength(1);
+  // One Done on every step: a compact outline back to the steps.
+  expect(done.getAttribute('data-variant')).toBe('outline');
   fireEvent.click(done);
   expect(opened).toEqual([{ screen: 'builder' }]);
 });

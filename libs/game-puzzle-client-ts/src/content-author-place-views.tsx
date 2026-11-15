@@ -42,14 +42,15 @@ export function ContentAuthorDetailsView(props: { view: View }): JSX.Element {
         disabled={props.view.metadataDisabled}
         onChange={props.view.onChangeBody}
       />
-      <Button
-        title={t`Done`}
-        intent="primary"
-        variant="solid"
-        fullWidth
-        onClick={() => props.view.onOpen({ screen: 'builder' })}
-        dataSet={{ testid: 'content-details-done' }}
-      />
+      <StackHorizontal>
+        <Button
+          title={t`Done`}
+          intent="neutral"
+          variant="outline"
+          onClick={() => props.view.onOpen({ screen: 'builder' })}
+          dataSet={{ testid: 'content-details-done' }}
+        />
+      </StackHorizontal>
     </StackVertical>
   );
 }

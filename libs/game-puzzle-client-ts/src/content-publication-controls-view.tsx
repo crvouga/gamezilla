@@ -202,9 +202,10 @@ function usePublicationActions(props: ContentPublicationControlsViewProps) {
     labels: {
       get idle() {
         if (props.copyState.kind === 'pending') return t`Retry sending`;
-        return props.copyState.kind === 'edition' || props.refused === true
-          ? t`Publish again`
-          : t`Publish`;
+        if (props.copyState.kind === 'edition' || props.refused === true)
+          return t`Publish again`;
+        // A newer draft beside a published edition becomes a new edition.
+        return props.published ? t`Publish new edition` : t`Publish`;
       },
       loading: t`Publishing…`,
       success: t`Publication saved`,

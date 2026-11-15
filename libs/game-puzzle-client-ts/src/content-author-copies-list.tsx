@@ -183,6 +183,8 @@ export function ContentAuthorCopiesList(props: {
 /** The confirm before the draft continues from another kept copy. */
 export function ContentCopyConfirm(props: {
   visible: boolean;
+  /** The chosen copy's title, named in the question. */
+  title: string;
   disabled: boolean;
   onClose: () => void;
   /** Makes the chosen copy the working draft; rejects with what to say. */
@@ -192,11 +194,17 @@ export function ContentCopyConfirm(props: {
     <MutationModal
       visible={props.visible}
       onClose={() => props.onClose()}
-      title={<Trans>Keep working from this copy?</Trans>}
+      title={
+        props.title.trim() === '' ? (
+          <Trans>Keep working from this copy?</Trans>
+        ) : (
+          <Trans>Keep working from “{props.title.trim()}”?</Trans>
+        )
+      }
       message={
         <Trans>
-          Your draft will continue from this copy. Your other draft copies stay
-          saved.
+          Your draft will continue from this copy. The copy you are editing now
+          and your other draft copies stay saved.
         </Trans>
       }
       operation={() => props.onChoose()}

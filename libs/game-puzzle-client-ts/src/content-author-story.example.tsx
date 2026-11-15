@@ -197,6 +197,7 @@ export function renderAuthorStory(
           />
           <ContentCopyConfirm
             visible={copying()}
+            title="Count to five"
             disabled={false}
             onClose={() => setCopying(false)}
             onChoose={fn(async () => undefined)}

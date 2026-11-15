@@ -22,6 +22,7 @@ export function ContentAuthorConfirms(props: {
       />
       <ContentCopyConfirm
         visible={props.workspace.copyChoice.visible()}
+        title={props.workspace.copyChoice.title()}
         disabled={props.workspace.disabled() || props.workspace.writer.dirty()}
         onClose={props.workspace.copyChoice.close}
         onChoose={props.workspace.copyChoice.choose}

@@ -68,7 +68,7 @@ export const ConfirmCopy: Story = {
     );
     const page = within(canvasElement.ownerDocument.body);
     await expect(
-      await page.findByText('Keep working from this copy?')
+      await page.findByText('Keep working from “Count to five”?')
     ).toBeVisible();
   },
 };

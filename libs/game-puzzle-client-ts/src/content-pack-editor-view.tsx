@@ -2,9 +2,9 @@ import { Trans, useLingui } from '@lingui/solid/macro';
 import { EditorWorkbench } from '@pkgs/ui-root-client-ts/editor-workbench';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import {
+  ArrowUpDownIcon,
   ChevronDownIcon,
   ChevronUpIcon,
-  EllipsisIcon,
   PlusIcon,
   Trash2Icon,
 } from '@pkgs/ui-root-client-ts/icons';
@@ -52,13 +52,13 @@ const MENU_DISC_SIZE = 32;
 /** Wide enough for its three rows, not a panel. */
 const MENU_WIDTH = 220;
 
-/** The row's "…" menu: move it earlier or later, take it out. */
+/** The row's ordering menu (⇅): move it earlier or later, take it out. */
 function PackRowMenu(props: ContentPackItemRowProps): JSX.Element {
   const { t } = useLingui();
   return (
     <OverflowMenuButton
-      aria-label={t`More for ${props.title}`}
-      icon={EllipsisIcon}
+      aria-label={t`Move or remove ${props.title}`}
+      icon={ArrowUpDownIcon}
       size={MENU_DISC_SIZE}
       width={MENU_WIDTH}
       actions={[
@@ -225,9 +225,9 @@ function PackOrder(props: ContentPackEditorViewProps): JSX.Element {
         dataSet={{ testid: 'content-pack-order' }}
         footer={
           <Trans>
-            Use … beside a puzzle to move it up or down or take it out. People
-            can play them in any order; publishing the pack keeps each puzzle as
-            it is now.
+            To move a puzzle up or down, or take it out, use the button at the
+            end of its row. People can play them in any order; publishing the
+            pack keeps each puzzle as it is now.
           </Trans>
         }
       >
