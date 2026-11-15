@@ -11,6 +11,8 @@ export function ConnectFourBoard(props: {
   position: string;
   interactive: boolean;
   testId: string;
+  /** As `GameBoardProps.steadyStatus`: a finished board keeps its status line's room. */
+  steadyStatus?: boolean | undefined;
   onDrop: (column: number) => void;
 }): JSX.Element {
   const game = createMemo(() => decodeConnectFour(props.position));
@@ -37,7 +39,9 @@ export function ConnectFourBoard(props: {
       label={t`Connect Four board, seven columns and six rows`}
       prompt={
         game().result !== 0
-          ? undefined
+          ? props.steadyStatus === true
+            ? ''
+            : undefined
           : props.interactive
             ? t`Pick a column to drop your disc`
             : ''

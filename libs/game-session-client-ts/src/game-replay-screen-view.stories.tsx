@@ -57,6 +57,7 @@ function atPly(args: GameReplayScreenViewProps) {
         <ConnectFourStoryBoard
           moves={moves}
           winning={args.ply === WON_MOVES.length ? WON_LINE : undefined}
+          steadyStatus
         />
       }
     />
@@ -216,7 +217,12 @@ export const LongGame: Story = {
     <GameReplayScreenView
       {...args}
       position={`fixture:long:${String(args.ply)}`}
-      board={<ConnectFourStoryBoard moves={LONG_COLUMNS.slice(0, args.ply)} />}
+      board={
+        <ConnectFourStoryBoard
+          moves={LONG_COLUMNS.slice(0, args.ply)}
+          steadyStatus
+        />
+      }
     />
   ),
 };

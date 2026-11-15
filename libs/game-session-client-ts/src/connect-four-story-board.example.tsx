@@ -40,6 +40,8 @@ export function ConnectFourStoryBoard(props: {
   readonly interactive?: boolean | undefined;
   /** The four cells of a finished line, bottom row first. */
   readonly winning?: readonly number[] | undefined;
+  /** As `GameBoardProps.steadyStatus`: a finished board keeps its status line's room. */
+  readonly steadyStatus?: boolean | undefined;
 }): JSX.Element {
   const board = createMemo(() => dropAll(props.moves));
   const turn = (): 1 | 2 => (props.moves.length % 2 === 0 ? 1 : 2);
@@ -57,7 +59,9 @@ export function ConnectFourStoryBoard(props: {
       label="Connect Four board, seven columns and six rows"
       prompt={
         props.winning !== undefined
-          ? undefined
+          ? props.steadyStatus === true
+            ? ''
+            : undefined
           : props.interactive === true
             ? 'Pick a column to drop your disc'
             : ''
