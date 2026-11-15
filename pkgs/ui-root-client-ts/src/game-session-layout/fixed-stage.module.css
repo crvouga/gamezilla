@@ -218,6 +218,20 @@
     div {
     min-height: 32px;
   }
+  /* The side a seat played is its disc; a stopped clock needs no box. */
+  .fixed:has([data-component="GameResultCard"])
+    [data-game-board-stage]
+    [data-component="GamePlayerBar"]
+    [data-component="Badge"] {
+    display: none;
+  }
+  .fixed:has([data-component="GameResultCard"])
+    [data-game-board-stage]
+    [data-component="GamePlayerBar"]
+    [data-component="GameClock"] {
+    min-height: 0;
+    padding-block: 0;
+  }
   [data-component="GameColumn"]:has(> .fixed) > :not(.fixed) {
     padding-top: var(--ui-space-1);
   }
