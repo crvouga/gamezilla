@@ -204,6 +204,20 @@
 }
 /* A short phone gives the board the room its gaps took. */
 @media (max-width: 767px) and (max-height: 700px) {
+  /* Beside a result nobody moves: a seat is one slim line (its name and
+     its disc), so the finished board keeps the room. */
+  .fixed:has([data-component="GameResultCard"])
+    [data-game-board-stage]
+    [data-component="GamePlayerBar"]
+    span:has(> [data-component="Avatar"]) {
+    display: none;
+  }
+  .fixed:has([data-component="GameResultCard"])
+    [data-game-board-stage]
+    [data-component="GamePlayerBar"]
+    div {
+    min-height: 32px;
+  }
   [data-component="GameColumn"]:has(> .fixed) > :not(.fixed) {
     padding-top: var(--ui-space-1);
   }
