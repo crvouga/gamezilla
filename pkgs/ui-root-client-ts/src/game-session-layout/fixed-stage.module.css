@@ -84,10 +84,13 @@
   .fixed [data-game-board-stage] > :not([data-game-board]) {
     margin-inline: var(--ui-space-2);
   }
+  /* The board keeps the seats' inset and the card's corners in every
+     state, so it never jumps between edge to edge and inset. */
   .fixed [data-game-board-stage] > [data-game-board] {
     align-self: center;
-    max-width: min(100%, var(--game-board-room, 100%));
-    border-radius: var(--ui-radius-none);
+    max-width: min(100% - 2 * var(--ui-space-2), var(--game-board-room, 100%));
+    overflow: hidden;
+    border-radius: var(--ui-radius-card);
   }
   /* A board narrowed to fit stands clear of the edges, so it and what lies
      over it take the card's corners. */
