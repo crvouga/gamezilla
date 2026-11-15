@@ -109,8 +109,8 @@ export const EN_PASSANT_EXAMPLE: GameRuleExample = {
   ),
   caption: () => (
     <Trans>
-      En passant: Black's pawn just moved d7 to d5; White's pawn on e5 takes it
-      by moving to d6.
+      En passant: Black's marked pawn just jumped two squares, past White's
+      pawn. White takes it as if it had moved one, landing behind it.
     </Trans>
   ),
 };
