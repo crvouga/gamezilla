@@ -114,6 +114,11 @@
 }
 .list[data-layout="table"] .heading {
   padding-inline-start: calc(32px + var(--ui-space-2));
+  /* The list scrolls to its latest move; its word stays over the moves. */
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--ui-color-surface);
 }
 .moveButton {
   display: inline-flex;
@@ -267,7 +272,12 @@
     [data-game-slot="rail"]
     .list[data-layout="table"]:has(> .heading) {
     padding-inline-start: 0;
-    mask-image: none;
+    /* More past the far edge shows as a fade there, not a cut. */
+    mask-image: linear-gradient(
+      to left,
+      transparent 0,
+      var(--ui-color-text) var(--ui-space-6)
+    );
   }
   [data-game-fixed="true"]
     [data-game-slot="rail"]
@@ -282,7 +292,7 @@
     display: flex;
     align-items: center;
     padding-inline: var(--ui-space-2) var(--ui-space-3);
-    border-inline-end: 1px solid var(--ui-color-border);
+    border-inline-end: 1px solid var(--ui-color-text-secondary);
     background: var(--ui-color-background);
   }
   /* A turn the key cuts is hidden whole (the list marks it). */
@@ -302,9 +312,8 @@
     position: absolute;
     inset-block: 0;
     inset-inline-start: 100%;
-    /* Wide enough that what shows of a cut move is no more than its edge;
-       a move shown starts past it. */
-    width: var(--ui-space-8);
+    /* As wide as the line's gap: a move shown starts past it. */
+    width: var(--ui-space-3);
     background: linear-gradient(
       to right,
       var(--ui-color-background),

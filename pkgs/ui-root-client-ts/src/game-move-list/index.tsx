@@ -174,8 +174,8 @@ function scrollMarkedIntoView(root: HTMLElement): void {
  * what showed of it would read as part of the key (`Column 3`).
  */
 function hideCutByKey(root: HTMLElement): void {
-  const key = root.querySelector<HTMLElement>(`:scope > .${styles['heading']}`);
-  if (key === null || getComputedStyle(key).position !== 'sticky') return;
+  const key = stripKey(root);
+  if (key === null) return;
   const edge = key.getBoundingClientRect().right;
   const turns = [...root.querySelectorAll<HTMLElement>('li')];
   const cut = turns.map((turn) => turn.getBoundingClientRect().left < edge);
@@ -184,10 +184,40 @@ function hideCutByKey(root: HTMLElement): void {
   });
 }
 
+/** The key held at a one-line strip's start (`Column`), when it has one. */
+function stripKey(root: HTMLElement): HTMLElement | null {
+  const key = root.querySelector<HTMLElement>(`:scope > .${styles['heading']}`);
+  if (key === null || getComputedStyle(key).position !== 'sticky') return null;
+  // The table's word sticks to its top, not its start: not a strip's key.
+  return getComputedStyle(root).flexDirection === 'row' ? key : null;
+}
+
+/**
+ * The turns start flush past the key: a turn the key would cut is scrolled
+ * past whole, when the line has room to scroll on.
+ */
+function alignPastKey(root: HTMLElement): void {
+  const key = stripKey(root);
+  if (key === null) return;
+  const edge = keyEdge(root, 0);
+  const cut = [...root.querySelectorAll<HTMLElement>('li')].find((turn) => {
+    const box = turn.getBoundingClientRect();
+    return box.left < edge && box.right > key.getBoundingClientRect().right;
+  });
+  if (cut === undefined) return;
+  // Scrolled until its far edge meets the key's: the next turn starts the
+  // line's gap past it.
+  const past = Math.ceil(
+    cut.getBoundingClientRect().right - key.getBoundingClientRect().right
+  );
+  if (root.scrollLeft + past <= root.scrollWidth - root.clientWidth)
+    root.scrollLeft += past;
+}
+
 /** Where the moves start showing: past a key held at the line's start. */
 function keyEdge(root: HTMLElement, left: number): number {
-  const key = root.querySelector<HTMLElement>(`:scope > .${styles['heading']}`);
-  if (key === null || getComputedStyle(key).position !== 'sticky') return left;
+  const key = stripKey(root);
+  if (key === null) return left;
   // A move shown starts clear of the key's rule and the fade past it.
   const fade = Number.parseFloat(getComputedStyle(key, '::after').width);
   return key.getBoundingClientRect().right + (Number.isNaN(fade) ? 0 : fade);
@@ -268,6 +298,7 @@ function TurnList(props: GameMoveListProps): JSX.Element {
   const keepMarkedInView = (): void => {
     if (props.layout !== 'table' || root === undefined) return;
     scrollMarkedIntoView(root);
+    alignPastKey(root);
     hideCutByKey(root);
   };
   createEffect(() => {
