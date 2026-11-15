@@ -1,0 +1,8 @@
+/* A bubble's words clamped to `--bubble-lines` lines until expanded. */
+.clamped {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--bubble-lines);
+  line-clamp: var(--bubble-lines);
+  overflow: hidden;
+}

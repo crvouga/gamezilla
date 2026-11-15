@@ -2,6 +2,7 @@
 
 import { type JSX, Show } from 'solid-js';
 import { TypingDots } from '../typing-dots/index';
+import { BubbleMore, createBubbleClamp } from './bubble-clamp';
 
 const TAIL_SIZE = 12;
 const BUBBLE_PADDING_VERTICAL = 12;
@@ -24,6 +25,11 @@ export type SpeechBubbleProps = {
   numberOfLines?: number | undefined;
   /** When `true` and no text is available, renders the typing dots. Defaults to `false`. */
   loading?: boolean | undefined;
+  /**
+   * At most this many lines show at once; longer words get a More / Less
+   * toggle. The live region keeps every word for someone listening.
+   */
+  clampLines?: number | undefined;
 };
 
 /** Words stay readable while speech loads. The live region remains mounted
@@ -31,6 +37,10 @@ export type SpeechBubbleProps = {
  * words, and shorter words sit in its middle, level with the speaker. */
 export function SpeechBubble(props: SpeechBubbleProps): JSX.Element {
   const lines = () => props.numberOfLines ?? DEFAULT_NUMBER_OF_LINES;
+  const clamp = createBubbleClamp(
+    () => props.text,
+    () => props.clampLines
+  );
   const bubbleHeight = () =>
     lines() * BUBBLE_LINE_HEIGHT +
     2 * BUBBLE_PADDING_VERTICAL +
@@ -61,18 +71,23 @@ export function SpeechBubble(props: SpeechBubbleProps): JSX.Element {
         <Show
           when={props.loading === true && props.text.trim().length === 0}
           fallback={
-            <p
-              role="status"
-              aria-live="polite"
-              aria-atomic="true"
-              class="text text-text"
-              style={{
-                'line-height': `${BUBBLE_LINE_HEIGHT}px`,
-                'overflow-wrap': 'anywhere',
-              }}
-            >
-              {props.text}
-            </p>
+            <>
+              <p
+                ref={clamp.ref}
+                role="status"
+                aria-live="polite"
+                aria-atomic="true"
+                class={`text text-text ${clamp.clampClass() ?? ''}`}
+                style={{
+                  'line-height': `${BUBBLE_LINE_HEIGHT}px`,
+                  'overflow-wrap': 'anywhere',
+                  ...clamp.style(),
+                }}
+              >
+                {props.text}
+              </p>
+              <BubbleMore clamp={clamp} />
+            </>
           }
         >
           <TypingDots color="textSecondary" height={BUBBLE_LINE_HEIGHT} />

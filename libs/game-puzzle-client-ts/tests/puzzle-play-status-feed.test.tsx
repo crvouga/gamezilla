@@ -158,7 +158,7 @@ test('feed: one row per setting with the value the draft holds, the pool and Sav
     screen.getByTestId('chess-puzzle-feed-row-advance').textContent
   ).toContain('Next after 1 s');
   expect(screen.getByTestId('chess-puzzle-feed-pool').textContent).toBe(
-    '12 matching · 40 local puzzles'
+    '12 of 40 puzzles on this device match'
   );
   expect(filledCommands()).toEqual(['Save settings']);
   // No setting is edited on the hub itself.

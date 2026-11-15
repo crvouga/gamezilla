@@ -2,6 +2,7 @@ import { buildPuzzleActionBarPlan } from '@libs/game-puzzle-shared-ts/action-bar
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
+import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameActions } from '@pkgs/ui-root-client-ts/game-section';
 import { H2 } from '@pkgs/ui-root-client-ts/heading';
@@ -215,8 +216,9 @@ export function PuzzleResultDock(
           )}
         </Show>
       </GameActions>
+      {/* Right under Share, the reason a copy failed. */}
       <Show when={props.share?.state === 'failed'}>
-        <P variant="caption" tone="destructive" role="status">
+        <P variant="caption" tone="destructive" role="status" align="end">
           <Trans>Couldn't copy the link. Press Share to try again.</Trans>
         </P>
       </Show>
@@ -250,6 +252,17 @@ function PuzzleResultSummary(props: PuzzlePlayScreenViewProps): JSX.Element {
               skip's cost, an unrated repeat), one line under the outcome:
               the coach's line leaves them to the card. */}
           <StackHorizontal gap="sm" align="center" wrap>
+            {/* A rating still settling says so, beside it, in words. */}
+            <Show
+              when={
+                props.result.provisional && props.result.completion !== null
+              }
+            >
+              <Badge
+                intent="neutral"
+                label={<Trans>Provisional rating</Trans>}
+              />
+            </Show>
             <ResultStreak {...props} />
             <StatusLineTrailing {...props} />
           </StackHorizontal>
@@ -260,18 +273,6 @@ function PuzzleResultSummary(props: PuzzlePlayScreenViewProps): JSX.Element {
               <ResultCaption {...props} />
             </P>
             <ResultFacts {...props} />
-            <Show
-              when={
-                props.result.provisional && props.result.completion !== null
-              }
-            >
-              <P variant="caption" tone="secondary">
-                <Trans>
-                  The ? marks a provisional rating: it settles after a few more
-                  rated puzzles.
-                </Trans>
-              </P>
-            </Show>
           </PuzzleScreenFold>
         </StackVertical>
         <StackVertical gap="none" align="end">

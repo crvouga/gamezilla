@@ -50,7 +50,8 @@ function FeedRows(props: PuzzlePlayScreenViewProps): JSX.Element {
       footer={
         <Text variant="inherit" testId={Handles.chessPuzzleFeedPool}>
           <Trans>
-            {props.feed.matched} matching · {props.feed.total} local puzzles
+            {props.feed.matched} of {props.feed.total} puzzles on this device
+            match
           </Trans>
         </Text>
       }

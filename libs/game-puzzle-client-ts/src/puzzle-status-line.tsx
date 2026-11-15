@@ -84,6 +84,9 @@ export function PuzzleStatusLine(
         )
       }
       numberOfLines={2}
+      // A long explanation shows three lines and More, so on a short phone
+      // the board, the coach and the dock still share the first view.
+      clampLines={3}
       avatarSize={AVATAR_SIZE}
     />
   );

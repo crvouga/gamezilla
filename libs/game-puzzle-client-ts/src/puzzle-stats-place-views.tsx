@@ -149,20 +149,17 @@ function StatsRows(props: PuzzleStatsScreenViewProps): JSX.Element {
       <MenuRow
         title={<Trans>Game log</Trans>}
         // How many, as the row's value; the latest under the name, whole.
-        value={
+        value={<Trans>{props.gameLog.length} played</Trans>}
+        caption={
           <Show
-            when={props.gameLog.length > 0}
+            when={props.gameLog[0]}
+            keyed
             fallback={
               <Text variant="inherit" testId="chess-stats-log-empty">
                 <Trans>Nothing played yet</Trans>
               </Text>
             }
           >
-            <Trans>{props.gameLog.length} played</Trans>
-          </Show>
-        }
-        caption={
-          <Show when={props.gameLog[0]} keyed>
             {(latest) => (
               <Text variant="inherit">
                 <Trans>Last:</Trans> <LatestPuzzle entry={latest} />
