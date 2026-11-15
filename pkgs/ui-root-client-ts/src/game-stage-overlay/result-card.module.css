@@ -112,22 +112,24 @@ section.docked[data-tone="lost"] {
    card's coloured edge says it. */
 @media (max-width: 1023px) {
   section.docked {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: center;
-    gap: var(--ui-space-2) var(--ui-space-3);
+    position: relative;
+    gap: var(--ui-space-2);
     padding: var(--ui-space-3);
   }
-  .docked .details {
-    display: contents;
-  }
+  /* The standings' control sits in the card's corner beside the short
+     headline, so the reason under it runs the card's whole width. */
   .docked .details[data-folds="true"] .detailsToggle {
-    grid-row: 1;
-    grid-column: 2;
+    position: absolute;
+    top: var(--ui-space-3);
+    right: var(--ui-space-3);
   }
-  .docked .detailsBody,
-  .docked .cardActions {
-    grid-column: 1 / -1;
+  /* The headline's row is the control's height, so the reason starts
+     under both. */
+  .docked:has(.details[data-folds="true"]) :global(h2.textTitle) {
+    display: flex;
+    align-items: center;
+    min-height: 40px;
+    padding-inline-end: 8rem;
   }
   .docked > :first-child > :first-child > span:first-child {
     position: absolute;
