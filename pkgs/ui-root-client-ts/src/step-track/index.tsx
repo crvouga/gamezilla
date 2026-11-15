@@ -81,12 +81,12 @@ export function StepTrack(props: StepTrackProps): JSX.Element {
                 <span class={styles['state']}>
                   {props.stateNames[step().state]}
                 </span>
-                <Show when={step().note}>
-                  <span class={styles['note']}>{step().note}</span>
-                </Show>
               </span>
               <Show when={step().state !== 'upcoming' && step().action}>
                 <span class={styles['action']}>{step().action}</span>
+              </Show>
+              <Show when={step().note}>
+                <span class={styles['note']}>{step().note}</span>
               </Show>
             </li>
           )}

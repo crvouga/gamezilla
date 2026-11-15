@@ -473,3 +473,14 @@ test('a failed check offers checking again on the hub', () => {
   fireEvent.click(screen.getByTestId('puzzle-load-recheck'));
   expect(onRecheck).toHaveBeenCalledTimes(1);
 });
+
+// regression: catalogue-missing-file-path-implicit — with no file saved the
+// hub's only command was a disabled Start loading; choosing a file hid in
+// the file's row. It is now offered beside it.
+test('with no file saved the hub offers choosing one', () => {
+  const onOpen = mock(() => undefined);
+  loader({ source: MISSING, onOpen });
+  expect(disabled('puzzle-load-start')).toBe(true);
+  fireEvent.click(screen.getByTestId('puzzle-load-choose'));
+  expect(onOpen).toHaveBeenCalledWith({ screen: 'source' });
+});

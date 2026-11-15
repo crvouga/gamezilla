@@ -19,7 +19,6 @@ function DoneButton(props: { view: View }): JSX.Element {
       title={t`Done`}
       intent="neutral"
       variant="outline"
-      fullWidth
       onClick={() => props.view.onOpen({ screen: 'builder' })}
       dataSet={{ testid: 'content-step-done' }}
     />

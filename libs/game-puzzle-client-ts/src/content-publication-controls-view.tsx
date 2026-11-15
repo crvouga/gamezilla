@@ -294,7 +294,7 @@ function PublicationAftermath(props: {
           <P variant="label" tone="secondary">
             <Trans>Published edition</Trans>
           </P>
-          <StackHorizontal gap="sm" wrap align="center">
+          <StackHorizontal gap="md" wrap align="center">
             <Show
               when={
                 !(

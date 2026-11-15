@@ -194,6 +194,15 @@ function HubCommand(props: {
             dataSet={{ testid: 'puzzle-load-replace' }}
           />
         </Show>
+        <Show when={blocked() === 'no-source' && !props.checkFailed}>
+          <Button
+            title={t`Choose ${props.sourceName}`}
+            intent="primary"
+            variant="outline"
+            onClick={() => props.onOpenSource()}
+            dataSet={{ testid: 'puzzle-load-choose' }}
+          />
+        </Show>
         <Show when={props.checkFailed}>
           <Button
             title={t`Check again`}
