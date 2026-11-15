@@ -213,20 +213,8 @@ export function setup(
   };
 }
 
-/** A game's own options: a choice and a count, read from the position. */
+/** A game's own options, as the app's games offer them: a count, read from the position. */
 export const RULE_OPTIONS: readonly GameOptionGroup[] = [
-  {
-    kind: 'choice',
-    id: 'variant',
-    label: () => 'Variant',
-    options: [
-      { value: 'classic', label: () => 'Classic' },
-      { value: 'pop-out', label: () => 'Pop out' },
-    ],
-    default: 'classic',
-    read: () => 'classic',
-    encode: (value) => `variant:${value}`,
-  },
   {
     kind: 'count',
     id: 'rounds',

@@ -22,6 +22,7 @@ import { Select } from '@pkgs/ui-root-client-ts/select';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
+import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { createMemo, createSignal, For, type JSX, Show } from 'solid-js';
 import type { FramePlaceProps } from './game-frame-screen-view';
 import { FrameNoticesView } from './game-frame-shell';
@@ -373,6 +374,25 @@ function ReviewingLine(props: { readonly record: FrameRecord }): JSX.Element {
   );
 }
 
+/** Every move, the game chosen and a move by its number, in one section. */
+function EveryMove(props: RecordProps): JSX.Element {
+  return (
+    <GameSection
+      title={<Trans>Every move</Trans>}
+      dataSet={{
+        component: 'CustomGameReview',
+        testid: 'custom-game-record',
+      }}
+    >
+      <RecordSelect {...props} />
+      <Show when={recordPlayed(props.record)}>
+        <RecordMoves {...props} onSelect={props.onSeek} />
+      </Show>
+      <ReviewJumpField {...props} />
+    </GameSection>
+  );
+}
+
 /**
  * The moves place: the board at one position of the record, the four
  * steps under it, and every move beside it. It never plays: leaving it
@@ -381,6 +401,8 @@ function ReviewingLine(props: { readonly record: FrameRecord }): JSX.Element {
 export function FrameMovesPlace(props: RecordProps): JSX.Element {
   const over = (): boolean =>
     props.phase === 'completed' || props.phase === 'cancelled';
+  const mode = useLayoutMode();
+  const wide = (): boolean => mode() === 'wide';
   return (
     <GameScreen
       screenId="custom-game-moves"
@@ -400,6 +422,11 @@ export function FrameMovesPlace(props: RecordProps): JSX.Element {
         status={
           <>
             <RecordSteps {...props} />
+            {/* A phone keeps the moves with the board and its steps, before
+                the way back; a wide screen lists them beside the board. */}
+            <Show when={!wide()}>
+              <EveryMove {...props} />
+            </Show>
             <FrameErrorView text={props.record.error} />
           </>
         }
@@ -417,19 +444,9 @@ export function FrameMovesPlace(props: RecordProps): JSX.Element {
           />
         }
         aside={
-          <GameSection
-            title={<Trans>Every move</Trans>}
-            dataSet={{
-              component: 'CustomGameReview',
-              testid: 'custom-game-record',
-            }}
-          >
-            <RecordSelect {...props} />
-            <Show when={recordPlayed(props.record)}>
-              <RecordMoves {...props} onSelect={props.onSeek} />
-            </Show>
-            <ReviewJumpField {...props} />
-          </GameSection>
+          <Show when={wide()}>
+            <EveryMove {...props} />
+          </Show>
         }
       >
         <GameBoardStage
