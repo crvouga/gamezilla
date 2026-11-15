@@ -76,6 +76,9 @@ function readyKnownSetup(
     if (arrange === undefined || setups === undefined)
       throw new Error(`${game.label} has no known setups to arrange`);
     const side = await setupSide(ui);
+    await ui.get('multiplayer-offline').expect.hidden({
+      timeoutMs: JOURNEY_WAIT_MS,
+    });
     await arrange(ui, 'multiplayer-setup', setups[side]);
     const choose = ui.get('multiplayer-setup-choose');
     await choose.wait('enabled', { timeoutMs: JOURNEY_WAIT_MS });
@@ -97,8 +100,8 @@ async function setupsChosen(ui: Driver): Promise<void> {
  * known victory's proposals against them. Whether the person who opened the
  * app plays the first side.
  */
-async function readyKnownSetups(
-  host: JourneyHost,
+export async function readyKnownSetups(
+  host: Pick<JourneyHost, 'act' | 'actAsGuest'>,
   game: PlayableGame
 ): Promise<boolean> {
   const hostSides: Side[] = [];
