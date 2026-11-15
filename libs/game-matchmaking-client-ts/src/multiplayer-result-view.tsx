@@ -157,12 +157,13 @@ function Review(props: ResultProps): JSX.Element {
 }
 
 /**
- * Where else the result leads, on its card: a new game at another clock
- * and the person's ratings.
+ * Looking back and elsewhere, on the card's second row: the moves, a new
+ * game at another clock and the person's ratings.
  */
 function Onward(props: ResultProps): JSX.Element {
   return (
     <StackHorizontal gap="sm" wrap>
+      <Review {...props} />
       <Show when={props.game.newOpponent}>
         <Button
           title={<Trans>Game options</Trans>}
@@ -213,7 +214,7 @@ function ShowResult(props: ResultProps): JSX.Element {
  * moves, which also sit beside a wide board. Closing the card shows the final board; the line under it brings
  * the card back.
  */
-/** What to do next: answer a rematch, a new opponent, a rematch, the moves. */
+/** What to play next: answer a rematch, a new opponent, a rematch. */
 function NextSteps(props: ResultProps): JSX.Element {
   return (
     <>
@@ -224,7 +225,6 @@ function NextSteps(props: ResultProps): JSX.Element {
       <Show when={props.game.rematch !== 'answer'}>
         <Rematch {...props} />
       </Show>
-      <Review {...props} />
     </>
   );
 }
@@ -246,6 +246,7 @@ export function MultiplayerResultView(props: ResultProps): JSX.Element {
           <Show when={!cardOpen()}>
             <GameActionBar aria-label={t`What next`} items={[]} width="content">
               <NextSteps {...props} />
+              <Review {...props} />
             </GameActionBar>
           </Show>
         }
