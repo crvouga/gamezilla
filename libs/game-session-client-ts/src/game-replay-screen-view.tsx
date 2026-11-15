@@ -357,26 +357,11 @@ function ReplayMovesPage(props: GameReplayScreenViewProps): JSX.Element {
             Moves {first()}–{last()} of {props.moves.length}
           </Trans>
           <Show when={props.moveHeading !== ''}>
-            {' · '}
-            <Trans>move, seat and {props.moveHeading.toLowerCase()}</Trans>
+            {': '}
+            <Trans>number, player and {props.moveHeading.toLowerCase()}</Trans>
           </Show>
         </P>
         <Grid columns={4} gap="xs" testId="game-history-review-moves">
-          <Show when={page() > 0}>
-            <Button
-              title={
-                <Trans>
-                  {first() - size()}–{first() - 1}
-                </Trans>
-              }
-              size="sm"
-              variant="outline"
-              intent="neutral"
-              icon={ChevronLeftIcon}
-              onClick={() => props.onSeek(first() - 1)}
-              dataSet={{ testid: 'game-history-review-page-earlier' }}
-            />
-          </Show>
           <For each={shown()}>
             {(entry) => (
               <Button
@@ -405,22 +390,45 @@ function ReplayMovesPage(props: GameReplayScreenViewProps): JSX.Element {
               />
             )}
           </For>
-          <Show when={last() < props.moves.length}>
-            <Button
-              title={
-                <Trans>
-                  {last() + 1}–{Math.min(last() + size(), props.moves.length)}
-                </Trans>
-              }
-              size="sm"
-              variant="outline"
-              intent="neutral"
-              endIcon={<ChevronRightIcon size={16} />}
-              onClick={() => props.onSeek(last() + 1)}
-              dataSet={{ testid: 'game-history-review-page-later' }}
-            />
-          </Show>
         </Grid>
+        <Show when={page() > 0 || last() < props.moves.length}>
+          <StackHorizontal justify="between" align="center" gap="sm">
+            <Show when={page() > 0}>
+              <Button
+                title={
+                  <Trans>
+                    Moves {first() - size()}–{first() - 1}
+                  </Trans>
+                }
+                size="sm"
+                variant="outline"
+                intent="neutral"
+                icon={ChevronLeftIcon}
+                onClick={() => props.onSeek(first() - 1)}
+                dataSet={{ testid: 'game-history-review-page-earlier' }}
+              />
+            </Show>
+            <Show when={page() === 0}>
+              <StackHorizontal />
+            </Show>
+            <Show when={last() < props.moves.length}>
+              <Button
+                title={
+                  <Trans>
+                    Moves {last() + 1}–
+                    {Math.min(last() + size(), props.moves.length)}
+                  </Trans>
+                }
+                size="sm"
+                variant="outline"
+                intent="neutral"
+                endIcon={<ChevronRightIcon size={16} />}
+                onClick={() => props.onSeek(last() + 1)}
+                dataSet={{ testid: 'game-history-review-page-later' }}
+              />
+            </Show>
+          </StackHorizontal>
+        </Show>
       </StackVertical>
     </Show>
   );
@@ -475,21 +483,21 @@ export function GameReplayScreenView(
         />
       }
       subtitle={<ReplaySubtitle {...props} />}
+      actions={
+        <Button
+          title={<Trans>All games</Trans>}
+          variant="outline"
+          intent="neutral"
+          icon={ArrowLeftIcon}
+          onClick={() => props.onBack()}
+          dataSet={{ testid: 'game-history-review-back-to-list' }}
+        />
+      }
     >
       <GameSessionLayout
         actionsBeside
         fixedStage
         status={<ReplaySteps {...props} />}
-        actions={
-          <Button
-            title={<Trans>All games</Trans>}
-            variant="outline"
-            intent="neutral"
-            icon={ArrowLeftIcon}
-            onClick={() => props.onBack()}
-            dataSet={{ testid: 'game-history-review-back-to-list' }}
-          />
-        }
         aside={
           <Show when={!phone()}>
             <ReplayMoves {...props} />

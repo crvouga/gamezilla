@@ -370,7 +370,7 @@ function HistoryStatistics(props: GameHistoryScreenViewProps): JSX.Element {
     </Show>
   );
   return (
-    <Surface tone="surface" radius="card" border padding="lg" gap="sm">
+    <Surface tone="surface" radius="card" border padding="md" gap="xs">
       <P variant="caption" tone="secondary">
         <Trans>All games</Trans>
       </P>
@@ -422,11 +422,7 @@ export function GameHistoryScreenView(
         <GameHistoryScreen
           screenId="game-history"
           title={<Trans>History and stats</Trans>}
-          subtitle={
-            <Trans>
-              Finished games in this space and your matched games, newest first.
-            </Trans>
-          }
+          subtitle={<Trans>Finished games, newest first.</Trans>}
           statistics={<HistoryStatistics {...props} />}
           filters={
             <Show when={props.records.length >= FILTER_FROM}>
