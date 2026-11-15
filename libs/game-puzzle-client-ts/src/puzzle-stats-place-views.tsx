@@ -63,6 +63,15 @@ function TrendChart(props: {
   );
 }
 
+/** Where nothing is played or rated yet: straight back to the puzzles. */
+function solveAction(
+  onPlay: (() => void) | undefined
+): { label: JSX.Element; onClick: () => void } | undefined {
+  return onPlay === undefined
+    ? undefined
+    : { label: <Trans>Solve a puzzle</Trans>, onClick: onPlay };
+}
+
 /** A screen's own title, unless the host's bar already names it. */
 function titleOf(
   props: PuzzleStatsScreenViewProps,
@@ -221,6 +230,7 @@ export function PuzzleStatsTrendView(
             icon={ActivityIcon}
             title={<Trans>No rated puzzles yet.</Trans>}
             body={<Trans>Solve a puzzle and your rating starts moving.</Trans>}
+            action={solveAction(props.onPlay)}
             dataSet={{ testid: 'chess-stats-trend-empty' }}
           />
         }
@@ -251,6 +261,7 @@ export function PuzzleStatsLogView(
       <PuzzleGameLog
         entries={props.gameLog}
         onSelectEntry={props.onSelectEntry}
+        onPlay={props.onPlay}
       />
     </EmbeddedScreen>
   );

@@ -205,7 +205,7 @@ function ResultMore(props: PuzzlePlayScreenViewProps): JSX.Element {
   );
 }
 
-/** How copying the link went, on the dock: the menu closes as it is pressed. */
+/** How copying the link went, in the result card: the menu closes as it is pressed. */
 function ShareStatus(props: PuzzlePlayScreenViewProps): JSX.Element {
   return (
     <>
@@ -270,7 +270,6 @@ export function PuzzleResultDock(
           <ResultMore {...props} />
         </StackHorizontal>
       </Show>
-      <ShareStatus {...props} />
       <GameActions sizing="fill">
         <Show when={offers('retry')}>
           <Button
@@ -370,6 +369,7 @@ function PuzzleResultSummary(props: PuzzlePlayScreenViewProps): JSX.Element {
           </Show>
         </StackVertical>
       </StackHorizontal>
+      <ShareStatus {...props} />
     </Surface>
   );
 }

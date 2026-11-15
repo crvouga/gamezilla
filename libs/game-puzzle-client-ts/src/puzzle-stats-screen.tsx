@@ -70,6 +70,7 @@ export function PuzzleStatsScreen(): JSX.Element {
         stats={history.stats()}
         gameLog={history.gameLog()}
         onSelectEntry={openReview}
+        onPlay={() => gameScreen.show(PUZZLE_SCREEN.puzzle)}
       />
     </>
   );

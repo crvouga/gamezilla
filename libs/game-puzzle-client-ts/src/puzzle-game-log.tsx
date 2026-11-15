@@ -9,6 +9,8 @@ import { PuzzleGameLogRow } from './puzzle-game-log-row';
 export type PuzzleGameLogProps = {
   entries: readonly PuzzleGameLogEntry[];
   onSelectEntry: (entry: PuzzleGameLogEntry) => void;
+  /** Back to the puzzles, offered while nothing is played yet. */
+  onPlay?: (() => void) | undefined;
 };
 
 /** Every puzzle the player has played, newest first, as one panel of rows. */
@@ -22,6 +24,11 @@ export function PuzzleGameLog(props: PuzzleGameLogProps): JSX.Element {
           icon={ListChecksIcon}
           title={<Trans>No puzzles played yet.</Trans>}
           body={<Trans>Solve a puzzle and it shows up here.</Trans>}
+          action={
+            props.onPlay === undefined
+              ? undefined
+              : { label: <Trans>Solve a puzzle</Trans>, onClick: props.onPlay }
+          }
           dataSet={{ testid: 'chess-game-log-empty' }}
         />
       }

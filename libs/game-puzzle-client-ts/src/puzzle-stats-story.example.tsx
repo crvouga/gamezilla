@@ -80,6 +80,7 @@ export const PUZZLE_STATS_STORY_ARGS: PuzzleStatsScreenViewProps = {
   stats: STORY_STATS,
   gameLog: STORY_LOG,
   onSelectEntry: fn(),
+  onPlay: fn(),
 };
 
 /** The stats' args a story fills itself, hidden from Controls. */

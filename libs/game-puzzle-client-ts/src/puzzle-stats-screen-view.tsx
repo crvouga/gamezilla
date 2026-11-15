@@ -22,6 +22,8 @@ export type PuzzleStatsScreenViewProps = {
   /** Every played puzzle, newest first. */
   readonly gameLog: readonly PuzzleGameLogEntry[];
   readonly onSelectEntry: (entry: PuzzleGameLogEntry) => void;
+  /** Back to the puzzles to solve one, where nothing is played or rated yet. */
+  readonly onPlay?: (() => void) | undefined;
   /** The host's bar already names each screen, so the bodies do not repeat their titles. */
   readonly titled?: boolean | undefined;
   /** The host already scrolls and pads the page. */

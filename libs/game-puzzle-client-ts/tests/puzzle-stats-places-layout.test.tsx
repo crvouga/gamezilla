@@ -172,3 +172,13 @@ test('log, with nothing played: says so, and what fills it', () => {
   mount({ screen: 'log' }, { gameLog: [] });
   expect(shown('chess-game-log-empty')).toBe(true);
 });
+
+test('trend and log, with nothing yet: each offers to solve a puzzle', () => {
+  let played = 0;
+  for (const place of ['trend', 'log'] as const) {
+    mount({ screen: place }, { gameLog: [], onPlay: () => played++ });
+    fireEvent.click(screen.getByRole('button', { name: 'Solve a puzzle' }));
+    cleanup();
+  }
+  expect(played).toBe(2);
+});

@@ -17,23 +17,31 @@ import { PuzzleSettingsButton, PuzzleSettingsRow } from './puzzle-settings-row';
 const ignoreSeek = (): void => {};
 
 /**
- * A watcher's own line over the status line: that they are watching, and
- * what is left of the host's rated allowance.
+ * A watcher's own lines over the status line: that they are watching, what
+ * is left of the host's rated allowance, and that tapping suggests a move.
  */
 export function SpectatorAllowance(props: { label: string }): JSX.Element {
   return (
-    <StackHorizontal align="center" gap="sm" paddingX="md" paddingY="xs" wrap>
-      <SpectatorIndicator />
-      <Show when={props.label.length > 0}>
-        <P
-          variant="caption"
-          tone="secondary"
-          testId="chess-puzzle-remaining-today"
-        >
-          {props.label}
-        </P>
-      </Show>
-    </StackHorizontal>
+    <StackVertical gap="xs" paddingX="md" paddingY="xs">
+      <StackHorizontal align="center" gap="sm" wrap>
+        <SpectatorIndicator />
+        <Show when={props.label.length > 0}>
+          <P
+            variant="caption"
+            tone="secondary"
+            testId="chess-puzzle-remaining-today"
+          >
+            {props.label}
+          </P>
+        </Show>
+      </StackHorizontal>
+      {/* What the board's "tap a piece" means for a watcher. */}
+      <P variant="caption" testId="chess-puzzle-spectator-hint">
+        <Trans>
+          The host solves. Tap a piece, then a square, to suggest a move.
+        </Trans>
+      </P>
+    </StackVertical>
   );
 }
 
