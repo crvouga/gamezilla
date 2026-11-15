@@ -64,7 +64,7 @@ export function GameHowToPlayView(props: {
             )}
           </Show>
           <Button
-            title={<Trans>All ways to play</Trans>}
+            title={<Trans>{props.title} menu</Trans>}
             intent="neutral"
             variant="outline"
             size="sm"

@@ -2,6 +2,11 @@ import {
   DefineBackButton,
   GameChoicesName,
 } from '@libs/spaces-client-ts/spaces-nav-context';
+import {
+  ListChecksIcon,
+  PaintbrushIcon,
+  SquareStackIcon,
+} from '@pkgs/ui-root-client-ts/icons';
 import { createSignal, type JSX, Show } from 'solid-js';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
@@ -17,8 +22,9 @@ import {
  */
 const DEVELOPER: GameSettingsRowView = {
   key: 'developer',
-  title: 'Developer',
-  caption: 'Import and manage puzzle packs',
+  title: 'Puzzle management',
+  caption: 'Import and check puzzle packs',
+  icon: SquareStackIcon,
   testId: 'sokoban-settings-developer',
   opens: { screen: 'settings/developer' },
 };
@@ -27,6 +33,7 @@ const PACKS: GameSettingsRowView = {
   key: 'packs',
   title: 'Load puzzle packs',
   caption: 'Load a pack file and follow its progress',
+  icon: SquareStackIcon,
   testId: 'sokoban-developer-packs',
   opens: { screen: 'settings/developer/packs' },
 };
@@ -36,6 +43,7 @@ const BOARD: GameSettingsRowView = {
   key: 'board',
   title: 'Board and pieces',
   caption: 'How the board is drawn on this device',
+  icon: PaintbrushIcon,
   testId: 'sokoban-settings-board',
   opens: { screen: 'settings/board' },
 };
@@ -44,6 +52,7 @@ const CHECK: GameSettingsRowView = {
   key: 'check',
   title: 'Check pack files',
   caption: 'Find broken levels before anyone plays them',
+  icon: ListChecksIcon,
   testId: 'sokoban-developer-check',
   opens: { screen: 'settings/developer/check' },
 };
@@ -104,7 +113,7 @@ export const Root: Story = {};
 export const NestedGroup: Story = {
   args: {
     place: { screen: 'settings/developer' },
-    title: 'Developer',
+    title: 'Puzzle management',
     subtitle: 'Import and manage puzzle packs.',
     rows: [PACKS, CHECK],
     backLabel: 'Settings',
@@ -191,7 +200,7 @@ function SettingsWalk(props: {
       <Show when={place()} keyed>
         <GameSettingsScreenView
           place={{ screen: place() }}
-          title={root() ? 'Settings' : 'Developer'}
+          title={root() ? 'Settings' : 'Puzzle management'}
           subtitle={root() ? undefined : 'Import and manage puzzle packs.'}
           rows={root() ? [BOARD, DEVELOPER] : [PACKS, CHECK]}
           onOpen={(opened) => {

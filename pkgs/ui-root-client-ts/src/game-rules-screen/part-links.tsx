@@ -173,6 +173,18 @@ export function PartLinks(props: {
       for (const stop of stops) stop();
     });
   });
+  // A focused link is pulled clear of the faded ends, whatever the
+  // browser's own focus scrolling decided.
+  const reveal = (event: FocusEvent): void => {
+    const link = event.target;
+    if (row === undefined || !(link instanceof HTMLElement)) return;
+    const clear = 48;
+    const left = link.offsetLeft - row.scrollLeft;
+    const right = left + link.offsetWidth;
+    if (right > row.clientWidth - clear)
+      row.scrollLeft += right - (row.clientWidth - clear);
+    else if (left < clear) row.scrollLeft -= clear - left;
+  };
   const step = (direction: 1 | -1): void =>
     row?.scrollBy({ left: direction * row.clientWidth * 0.8 });
   return (
@@ -189,7 +201,7 @@ export function PartLinks(props: {
       <Show when={overflow().start}>
         <PartStep side="start" onStep={() => step(-1)} />
       </Show>
-      <ol ref={row} class={styles['partLinks']}>
+      <ol ref={row} class={styles['partLinks']} onFocusIn={reveal}>
         <For each={keys()}>
           {(key, index) => (
             <li>

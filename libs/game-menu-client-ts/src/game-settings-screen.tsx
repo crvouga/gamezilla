@@ -72,6 +72,7 @@ function GameSettingsGroup(props: {
         row.caption === undefined ? undefined : (
           <Dynamic component={row.caption} />
         ),
+      icon: row.icon,
       testId: gameSettingsHandle(props.gameId, props.node.place, row.key),
       opens: gameSettingsChild(props.node.place, row.key),
     }))

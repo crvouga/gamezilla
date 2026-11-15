@@ -5,6 +5,7 @@ import {
   placeBehind,
   type ScreenPlaces,
 } from '@pkgs/turn-game-client-ts/screen-places';
+import type { IconComponent } from '@pkgs/ui-root-client-ts/create-icon';
 import type { JSX } from 'solid-js';
 
 /**
@@ -38,6 +39,8 @@ export type GameSettingsRow = {
    */
   readonly title: () => string;
   readonly caption?: (() => JSX.Element) | undefined;
+  /** The row's picture, as each of the game menu's rows has one. */
+  readonly icon?: IconComponent | undefined;
   /**
    * Hides the row from a person `@libs/permissions` denies this to. What
    * the row opens still decides access for itself.

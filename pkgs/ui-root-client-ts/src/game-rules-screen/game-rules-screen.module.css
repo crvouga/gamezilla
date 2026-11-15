@@ -103,6 +103,7 @@
    scroll, sliding sideways when the parts outrun it, so any part is one
    tap away from anywhere in the rules. */
 .parts {
+  container: rules-column / inline-size;
   position: sticky;
   top: 0;
   z-index: 1;
@@ -201,6 +202,20 @@
   flex-direction: column;
   gap: var(--ui-space-2);
   min-width: 0;
+}
+/* Where the column has room, every part's link shows: the row wraps, with
+   no fade and no arrows. */
+@container rules-column (min-width: 560px) {
+  .partLinks {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
+  .parts .partLinks {
+    mask-image: none;
+  }
+  .partStep {
+    display: none;
+  }
 }
 /* A pictured part reads beside its picture where the panel has room. */
 @container (min-width: 560px) {

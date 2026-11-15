@@ -1,9 +1,11 @@
 import { Trans } from '@lingui/solid/macro';
+import type { IconComponent } from '@pkgs/ui-root-client-ts/create-icon';
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { For, type JSX, Show, untrack } from 'solid-js';
+import { Dynamic } from 'solid-js/web';
 import type { GameSettingsPlace } from './game-settings';
 
 /** One row of a settings group: how it reads and the place it opens. */
@@ -11,6 +13,7 @@ export type GameSettingsRowView = {
   readonly key: string;
   readonly title: JSX.Element;
   readonly caption?: JSX.Element | undefined;
+  readonly icon?: IconComponent | undefined;
   /** The control's handle (`<game>-<group>-<row>`). */
   readonly testId: string;
   readonly opens: GameSettingsPlace;
@@ -83,6 +86,11 @@ export function GameSettingsScreenView(
               <MenuRow
                 title={row.title}
                 titleLines={2}
+                leading={
+                  row.icon === undefined ? undefined : (
+                    <Dynamic component={row.icon} size={20} />
+                  )
+                }
                 caption={row.caption}
                 onClick={() => props.onOpen(row.opens)}
                 dataSet={{ testid: row.testId }}
