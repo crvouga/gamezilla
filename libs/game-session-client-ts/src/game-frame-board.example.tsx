@@ -17,7 +17,7 @@ import {
   GameFrameScreenView,
   type GameFrameScreenViewProps,
 } from './game-frame-screen-view';
-import { WON_LINE, WON_MOVES } from './game-frame-story.example';
+import { record, WON_LINE, WON_MOVES } from './game-frame-story.example';
 import type { FramePhase } from './game-frame-view-types';
 
 function overlayPhase(phase: FramePhase): StageOverlayPhase {
@@ -121,12 +121,44 @@ export function onReview(all: readonly number[]) {
     const [drops, setDrops] = createSignal<readonly number[]>(all);
     const [ply, setPly] = createSignal(args.record?.displayedPly ?? all.length);
     const live = (): boolean => ply() === drops().length;
+    // Red circle (the viewer) moves on an even count of drops.
+    const ownTurn = (): boolean => drops().length % 2 === 0;
+    const played = () => record(drops().map((column) => String(column + 1)));
     return (
       <FrameStory
         {...args}
         record={
-          args.record === null ? null : { ...args.record, displayedPly: ply() }
+          args.record === null
+            ? null
+            : {
+                ...args.record,
+                moves: played().moves,
+                movers: played().movers,
+                displayedPly: ply(),
+              }
         }
+        status={
+          args.status === null
+            ? null
+            : {
+                ...args.status,
+                description: ownTurn()
+                  ? 'Red circle to move.'
+                  : 'Yellow diamond to move.',
+                emphasis: ownTurn() ? 'yours' : 'neutral',
+              }
+        }
+        table={{
+          ...args.table,
+          near:
+            args.table.near === null
+              ? null
+              : { ...args.table.near, deciding: ownTurn() },
+          others: args.table.others.map((seat) => ({
+            ...seat,
+            deciding: !ownTurn(),
+          })),
+        }}
         onSeek={(next) => {
           args.onSeek(next);
           if (next >= 0 && next <= drops().length) setPly(next);
@@ -139,7 +171,7 @@ export function onReview(all: readonly number[]) {
         board={
           <ConnectFourStoryBoard
             moves={drops().slice(0, ply())}
-            interactive={args.phase === 'active' && live()}
+            interactive={args.phase === 'active' && live() && ownTurn()}
             onDrop={(column) => {
               setDrops([...drops(), column]);
               setPly(drops().length);

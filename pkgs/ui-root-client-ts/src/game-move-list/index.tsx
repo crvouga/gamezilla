@@ -149,15 +149,16 @@ function MoveButton(props: {
 }
 
 /**
- * Scrolls `root` (the list, and only it) so its marked move lies whole
- * inside it. Whole pixels, rounded outward: a scroll offset drops its
+ * Scrolls `root` (the list, and only it) so its marked move's turn lies
+ * whole inside it. Whole pixels, rounded outward: a scroll offset drops its
  * fraction, which would leave the move a hair outside the list.
  */
 function scrollMarkedIntoView(root: HTMLElement): void {
   const marked = root.querySelector<HTMLElement>('[aria-current="step"]');
   if (marked === null) return;
   const box = root.getBoundingClientRect();
-  const move = marked.getBoundingClientRect();
+  // Its turn's whole row (or unit, laid out as one line), not its figure alone.
+  const move = (marked.closest('li') ?? marked).getBoundingClientRect();
   if (move.bottom > box.bottom)
     root.scrollTop += Math.ceil(move.bottom - box.bottom);
   else if (move.top < box.top) root.scrollTop -= Math.ceil(box.top - move.top);

@@ -199,8 +199,9 @@
     max-height: none;
     overflow: auto hidden;
     scrollbar-width: none;
-    /* Earlier turns fade out at the leading edge: none is cut mid-glyph. */
-    padding-inline-start: var(--ui-space-8);
+    /* Earlier turns fade out at the leading edge: none is cut mid-glyph;
+       the latest keeps a little room at the far edge. */
+    padding-inline: var(--ui-space-8) var(--ui-space-2);
     mask-image: linear-gradient(
       to right,
       transparent 0,
@@ -215,6 +216,15 @@
     flex-direction: row;
     gap: var(--ui-space-2);
   }
+  /* Room after the latest unit, inside what scrolls. */
+  [data-game-fixed="true"]
+    [data-game-slot="rail"]
+    .list[data-layout="table"]
+    .turns::after {
+    content: "";
+    flex: none;
+    width: var(--ui-space-1);
+  }
   /* Each turn reads as one unit: its number, then its moves, inside one
      quiet outline, with room between turns. */
   [data-game-fixed="true"]
@@ -227,6 +237,14 @@
     padding-inline: var(--ui-space-2) var(--ui-space-1);
     border: 1px solid var(--ui-color-border);
     border-radius: var(--ui-radius-full);
+  }
+  /* The move shown is its whole unit, not its figure alone. */
+  [data-game-fixed="true"]
+    [data-game-slot="rail"]
+    .list[data-layout="table"]
+    .turn:has([aria-current="step"]) {
+    border-color: var(--ui-color-tint);
+    background: var(--ui-color-tint-subtle);
   }
   [data-game-fixed="true"]
     [data-game-slot="rail"]
