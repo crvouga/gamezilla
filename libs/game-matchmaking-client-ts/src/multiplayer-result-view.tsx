@@ -93,7 +93,7 @@ function Rematch(
         operation={props.commands.declineRematch}
         disabled={!props.online}
         fullWidth={props.fullWidth === true}
-        variant="ghost"
+        variant="outline"
         title={
           <Trans>
             Decline<VisuallyHidden> the multiplayer rematch</VisuallyHidden>
@@ -173,7 +173,7 @@ function Review(
               ? t`Record: the game record`
               : t`Game record`
             : props.fullWidth === true
-              ? t`Moves: review the game`
+              ? t`Review the moves`
               : t`Review moves`
         }
         variant="outline"
@@ -200,8 +200,8 @@ function Onward(props: ResultProps): JSX.Element {
       <Review {...props} fullWidth />
       <Show when={props.game.newOpponent}>
         <Button
-          title={<Trans>Clocks</Trans>}
-          aria-label={t`Clocks: find an opponent at another clock`}
+          title={<Trans>New clock</Trans>}
+          aria-label={t`New clock: find an opponent at another clock`}
           variant="outline"
           intent="neutral"
           fullWidth

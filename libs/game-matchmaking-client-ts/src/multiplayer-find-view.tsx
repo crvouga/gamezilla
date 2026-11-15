@@ -330,8 +330,12 @@ function FindDock(props: FindProps): JSX.Element {
       </Show>
       {/* A refusal remounts the command: the dock says why, so the button
           starts again quiet instead of holding its failure. */}
-      <Show when={props.blocked ?? 'clear'} keyed>
-        {(_state) => <FindCommand {...props} />}
+      {/* Searching again before a custom game is over can only be refused:
+          the way on is the custom game. */}
+      <Show when={props.blocked !== 'custom-game'}>
+        <Show when={props.blocked ?? 'clear'} keyed>
+          {(_state) => <FindCommand {...props} />}
+        </Show>
       </Show>
     </GameLobbyDock>
   );
@@ -390,10 +394,12 @@ export function MultiplayerFindView(props: FindProps): JSX.Element {
         {(refusal) => (
           <LoadingState
             caption={
-              <Trans>
-                Your matched game from another device is still on. Opening it
-                here…
-              </Trans>
+              <Text variant="inherit" role="status">
+                <Trans>
+                  Your matched game from another device is still on. Opening it
+                  here…
+                </Trans>
+              </Text>
             }
             dataSet={refusal().dataSet}
           />

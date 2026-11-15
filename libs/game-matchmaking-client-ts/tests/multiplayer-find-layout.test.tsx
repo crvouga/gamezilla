@@ -316,6 +316,11 @@ test('a search refused by another matched game says it opens here, with trying a
   expect(
     screen.getByTestId('multiplayer-command-denial').textContent
   ).toContain('Opening it here');
+  expect(
+    screen
+      .getByTestId('multiplayer-command-denial')
+      .querySelector('[role="status"]')
+  ).not.toBeNull();
   const find = screen.getByTestId('multiplayer-find');
   expect(find.getAttribute('data-variant')).toBe('outline');
   expect(find.textContent).toContain('Search again');
@@ -337,6 +342,8 @@ test('a search refused by a custom game still on leads straight to that custom g
     },
   });
   expect(screen.queryByTestId('multiplayer-blocked-leave')).toBeNull();
+  // Searching again could only be refused until the custom game is over.
+  expect(screen.queryByTestId('multiplayer-find')).toBeNull();
   // The screen says only that the other game is on: no first-visit line,
   // no clocks to choose while the search cannot run.
   expect(screen.queryByTestId('multiplayer-unavailable')).toBeNull();
