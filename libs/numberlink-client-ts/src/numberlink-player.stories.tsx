@@ -375,9 +375,9 @@ export const ChoosePathToRemove: Story = {
 
 /**
  * Partway, inside the attempt screen as production passes it (the screen
- * says when the puzzle is solved): on a short screen path removal and help
- * fold into one row under the board. Its play removes a path (opening and
- * closing the row from the keyboard where it is folded) and plays on.
+ * says when the puzzle is solved): Remove a path and a Help toggle share
+ * one row under the board. Its play removes a path, opens and closes the
+ * help from the keyboard, and plays on.
  */
 export const InAttemptScreen: Story = {
   render: (args) => (
@@ -392,16 +392,7 @@ export const InAttemptScreen: Story = {
     const canvas = within(canvasElement);
     const progressLine = canvas.getByTestId('numberlink-progress');
     await expect(progressLine).toHaveTextContent('2/5 pairs connected');
-    // On a short screen the removal folds into a named row; open it from
-    // the keyboard. On a taller one it is under the board already.
-    const tools = canvas.queryByRole('button', {
-      name: 'Remove a path and help',
-    });
-    if (tools !== null) {
-      tools.focus();
-      await userEvent.keyboard('{Enter}');
-      await expect(tools).toHaveAttribute('aria-expanded', 'true');
-    }
+    // Remove a path is one press away, beside Help.
     await userEvent.click(
       canvas.getByRole('button', { name: 'Remove a path' })
     );
@@ -409,12 +400,14 @@ export const InAttemptScreen: Story = {
       within(document.body).getByRole('option', { name: 'Remove path 1' })
     );
     await expect(progressLine).toHaveTextContent('1/5 pairs connected');
-    // Close the row and play on: the board still takes a path.
-    if (tools !== null) {
-      tools.focus();
-      await userEvent.keyboard('{Enter}');
-      await expect(tools).toHaveAttribute('aria-expanded', 'false');
-    }
+    // Help opens and closes from the keyboard beside it.
+    const help = canvas.getByTestId('numberlink-help-toggle');
+    help.focus();
+    await userEvent.keyboard('{Enter}');
+    await expect(canvas.getByTestId('numberlink-key-hints')).toBeVisible();
+    await userEvent.keyboard('{Enter}');
+    await expect(canvas.queryByTestId('numberlink-key-hints')).toBeNull();
+    // Play on: the board still takes a path.
     await expect(canvas.getByTestId('numberlink-board-cell-0')).toBeVisible();
   },
 };

@@ -13,12 +13,11 @@ import type {
   NumberlinkState,
 } from '@libs/numberlink-shared-ts/numberlink-types';
 import { Trans, useLingui } from '@lingui/solid/macro';
-import { Collapsible } from '@pkgs/ui-root-client-ts/collapsible';
-import { createMediaQuery } from '@pkgs/ui-root-client-ts/media-query';
+import { Button } from '@pkgs/ui-root-client-ts/button';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
-import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { createMemo, type JSX, Show } from 'solid-js';
+import { createMemo, createSignal, type JSX, Show } from 'solid-js';
 import { createNumberlinkDrawing } from './create-numberlink-drawing';
 import { NumberlinkBoard } from './numberlink-board';
 import {
@@ -36,8 +35,7 @@ function Drawing(props: {
   shellSaysSolved: boolean;
 }): JSX.Element {
   const { t } = useLingui();
-  // A short screen has no room for the tools inline under the board.
-  const short = createMediaQuery('(max-height: 720px)');
+  const [helpOpen, setHelpOpen] = createSignal(false);
   const drawing = createNumberlinkDrawing({
     definition: () => props.definition,
     state: () => props.state,
@@ -132,7 +130,7 @@ function Drawing(props: {
           )}
         </P>
         <Show
-          when={props.shellSaysSolved && short()}
+          when={props.shellSaysSolved}
           fallback={
             <>
               <NumberlinkRecovery
@@ -144,22 +142,32 @@ function Drawing(props: {
             </>
           }
         >
-          {/* Inside the attempt screen on a short screen (which a phone
-              holds in one view), path removal and help fold into one
-              labelled row under the board, so the board keeps its room. */}
-          <Collapsible
-            title={t`Remove a path and help`}
-            dataSet={{ testid: 'numberlink-tools' }}
-          >
-            <StackVertical gap="md">
+          {/* Inside the attempt screen (which a phone holds in one view):
+              one row, Remove a path beside a Help toggle, so the board
+              keeps its room and removal is one press on every screen. */}
+          {/* Room for the focus rings at the board's edge. */}
+          <StackHorizontal gap="sm" align="center" paddingX="xs" paddingY="xs">
+            <StackVertical grow shrink>
               <NumberlinkRecovery
                 definition={props.definition}
                 state={props.state}
                 onAction={props.onAction}
               />
-              <NumberlinkDrawingHelpBody />
             </StackVertical>
-          </Collapsible>
+            <Button
+              title={helpOpen() ? t`Hide help` : t`Help`}
+              intent="neutral"
+              variant="outline"
+              onClick={() => setHelpOpen((open) => !open)}
+              dataSet={{
+                testid: 'numberlink-help-toggle',
+                open: String(helpOpen()),
+              }}
+            />
+          </StackHorizontal>
+          <Show when={helpOpen()}>
+            <NumberlinkDrawingHelpBody />
+          </Show>
         </Show>
       </Show>
       <Show when={drawing.error()}>
