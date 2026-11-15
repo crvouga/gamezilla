@@ -49,6 +49,8 @@ type ScreenProps = {
   readonly view: OwnBoard;
   /** Leaves finding an opponent for the game's choices. */
   readonly onLeave: () => void;
+  /** Opens the game's custom game, when the game offers one. */
+  readonly onCustomGame?: (() => void) | undefined;
 };
 
 /** A placeholder for "no denial", which resolves to nothing shown. */
@@ -231,6 +233,7 @@ function MultiplayerContent(props: ScreenProps): JSX.Element {
         onOpen={nav.open}
         onBack={() => nav.back()}
         onLeave={props.onLeave}
+        onOpenCustomGame={props.onCustomGame}
         denial={screen.denial()}
         commandDenial={screen.commandDenial()}
         error={controls.error()}
@@ -280,6 +283,8 @@ function MultiplayerContent(props: ScreenProps): JSX.Element {
 export default function MultiplayerScreen(props: {
   gameId: string;
   onBack: () => void;
+  /** Opens the game's custom game, when the game offers one. */
+  onCustomGame?: (() => void) | undefined;
   title: string;
 }): JSX.Element {
   const data = useMultiplayerData(() => props.gameId);
@@ -292,6 +297,7 @@ export default function MultiplayerScreen(props: {
       controls={controls}
       view={view}
       onLeave={props.onBack}
+      onCustomGame={props.onCustomGame}
     />
   );
 }

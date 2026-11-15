@@ -1,5 +1,5 @@
 import { ClockIcon } from '@pkgs/ui-root-client-ts/icons';
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { MultiplayerScreenView } from './multiplayer-screen-view';
 import {
@@ -66,6 +66,28 @@ export const FinishCurrentGameFirst: Story = {
         reason: 'limit_reached',
       },
     },
+  },
+};
+
+/** Searching while a custom game is still on: the dock opens that custom game. */
+export const FinishCustomGameFirst: Story = {
+  args: {
+    onOpenCustomGame: fn(),
+    commandDenial: {
+      icon: ClockIcon,
+      title: 'Finish your Custom Game first',
+      dataSet: {
+        testid: 'multiplayer-command-denial',
+        reason: 'restricted',
+      },
+    },
+  },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      await canvas.findByTestId('multiplayer-open-custom-game')
+    );
+    await expect(args.onOpenCustomGame).toHaveBeenCalled();
   },
 };
 

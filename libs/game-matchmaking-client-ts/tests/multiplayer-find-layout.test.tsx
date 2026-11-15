@@ -5,7 +5,7 @@
  * a phone and wide.
  */
 
-import { afterEach, expect, test } from 'bun:test';
+import { afterEach, expect, mock, test } from 'bun:test';
 import { cleanup, screen } from '@solidjs/testing-library';
 import { mountPlaces } from './multiplayer-places-fixture';
 
@@ -315,10 +315,35 @@ test('a refused search leads back to the game first, with trying again a quiet s
   const find = screen.getByTestId('multiplayer-find');
   expect(back.getAttribute('data-variant')).toBe('solid');
   expect(find.getAttribute('data-variant')).toBe('outline');
-  expect(find.textContent).toContain('Try again');
+  expect(find.textContent).toContain('Search again');
+  expect(back.textContent).toContain('Back to game choices');
   expect(
     back.compareDocumentPosition(find) & Node.DOCUMENT_POSITION_FOLLOWING
   ).toBeTruthy();
   back.click();
   expect(view.props().onLeave).toHaveBeenCalledTimes(1);
+});
+
+// A custom game still on refuses the search: the dock opens that custom game.
+test('a search refused by a custom game still on leads straight to that custom game', () => {
+  const onOpenCustomGame = mock(() => undefined);
+  mountPlaces({
+    stage: 'idle',
+    props: {
+      onOpenCustomGame,
+      commandDenial: {
+        icon: () => null,
+        title: 'Finish your Custom Game first',
+        dataSet: { testid: 'multiplayer-command-denial', reason: 'restricted' },
+      },
+    },
+  });
+  expect(screen.queryByTestId('multiplayer-blocked-leave')).toBeNull();
+  const open = screen.getByTestId('multiplayer-open-custom-game');
+  expect(open.textContent).toContain('Go to your custom game');
+  expect(screen.getByTestId('multiplayer-find-space').textContent).toContain(
+    'Your custom game is still on.'
+  );
+  open.click();
+  expect(onOpenCustomGame).toHaveBeenCalledTimes(1);
 });

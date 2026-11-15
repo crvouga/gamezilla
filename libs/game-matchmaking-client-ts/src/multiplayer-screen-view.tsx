@@ -15,6 +15,7 @@ import {
 } from 'solid-js';
 import { MultiplayerCommandsView } from './multiplayer-commands-view';
 import {
+  type MultiplayerBlock,
   type MultiplayerFindChoice,
   MultiplayerFindView,
 } from './multiplayer-find-view';
@@ -72,6 +73,8 @@ export type MultiplayerScreenViewProps = {
   readonly denial?: DenialView | undefined;
   /** A command the person may not give, such as finishing their current game first. */
   readonly commandDenial?: DenialView | undefined;
+  /** Opens the game's custom game, where a custom game still on is played. */
+  readonly onOpenCustomGame?: (() => void) | undefined;
   /** A refused command, in words. */
   readonly error: string | null;
   readonly online: boolean;
@@ -156,6 +159,19 @@ function ConfirmModal(props: Props): JSX.Element {
   );
 }
 
+/**
+ * Which other game refused a search, from the refusal's reason: a custom
+ * game still on is `restricted`; any other refusal is another matched game.
+ */
+function multiplayerBlockOf(
+  denial: DenialView | undefined
+): MultiplayerBlock | null {
+  if (denial === undefined) return null;
+  return denial.dataSet['reason'] === 'restricted'
+    ? 'custom-game'
+    : 'matched-game';
+}
+
 /** What the shell gives every place: where it stands and the notices. */
 function frameOf(props: Props): MultiplayerPlaceFrame {
   return {
@@ -207,7 +223,8 @@ function FindPlace(props: Props & { readonly stopped: boolean }): JSX.Element {
       onFind={props.onFind}
       online={props.online}
       onLeave={props.onLeave}
-      blocked={props.commandDenial !== undefined}
+      blocked={multiplayerBlockOf(props.commandDenial)}
+      onOpenCustomGame={props.onOpenCustomGame}
       stopped={props.stopped && props.stage === 'idle'}
     />
   );

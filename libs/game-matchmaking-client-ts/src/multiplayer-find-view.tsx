@@ -64,13 +64,19 @@ type FindProps = MultiplayerPlaceFrame & {
   /** Leaves finding an opponent for the game's choices, where its games are. */
   readonly onLeave: () => void;
   /**
-   * The last search was refused (finish the current game first): the notice
-   * above says why, and the command here is a quiet try again.
+   * The last search was refused because another game is still on: a custom
+   * game, or another matched game. The notice above says so; the dock leads
+   * to it first, and searching again is the quiet second command.
    */
-  readonly blocked: boolean;
+  readonly blocked: MultiplayerBlock | null;
+  /** Opens the game's custom game, where a custom game still on is played. */
+  readonly onOpenCustomGame?: (() => void) | undefined;
   /** This device just stopped its search. */
   readonly stopped?: boolean | undefined;
 };
+
+/** Which other game refused the search. */
+export type MultiplayerBlock = 'custom-game' | 'matched-game';
 
 /** The clocks offered on the screen itself, one or two of every speed. */
 const QUICK_CLOCKS: readonly string[] = [
@@ -239,19 +245,25 @@ function FindStatus(props: FindProps): JSX.Element {
         when={props.online}
         fallback={<Trans>You're offline. Reconnect to search.</Trans>}
       >
-        <Show
-          when={!props.blocked}
+        <Switch
           fallback={
             <Trans>
-              Your other game is still on. Go back to it, finish or leave it,
-              then try again.
+              Rated. The game opens in this space, and everyone here can watch.
             </Trans>
           }
         >
-          <Trans>
-            Rated. The game opens in this space, and everyone here can watch.
-          </Trans>
-        </Show>
+          <Match when={props.blocked === 'custom-game'}>
+            <Trans>
+              Your custom game is still on. Finish or leave it, then search
+              again.
+            </Trans>
+          </Match>
+          <Match when={props.blocked === 'matched-game'}>
+            <Trans>
+              Your other matched game is still on. Finish it, then search again.
+            </Trans>
+          </Match>
+        </Switch>
       </Show>
     </P>
   );
@@ -262,21 +274,39 @@ function FindDock(props: FindProps): JSX.Element {
   const many = () => props.find.players > 2;
   return (
     <GameLobbyDock status={<FindStatus {...props} />}>
-      <Show when={props.blocked}>
-        <Button
-          title={<Trans>Back to {props.title}</Trans>}
-          variant="solid"
-          size="lg"
-          fullWidth
-          onClick={() => props.onLeave()}
-          dataSet={{ testid: 'multiplayer-blocked-leave' }}
-        />
+      <Show when={props.blocked !== null}>
+        <Show
+          when={
+            props.blocked === 'custom-game' ? props.onOpenCustomGame : undefined
+          }
+          fallback={
+            <Button
+              title={<Trans>Back to game choices</Trans>}
+              variant="solid"
+              size="lg"
+              fullWidth
+              onClick={() => props.onLeave()}
+              dataSet={{ testid: 'multiplayer-blocked-leave' }}
+            />
+          }
+        >
+          {(open) => (
+            <Button
+              title={<Trans>Go to your custom game</Trans>}
+              variant="solid"
+              size="lg"
+              fullWidth
+              onClick={() => open()()}
+              dataSet={{ testid: 'multiplayer-open-custom-game' }}
+            />
+          )}
+        </Show>
       </Show>
       <GameActionButton
         title={
           <Switch fallback={<Trans>Find an opponent</Trans>}>
-            <Match when={props.blocked}>
-              <Trans>Try again</Trans>
+            <Match when={props.blocked !== null}>
+              <Trans>Search again</Trans>
             </Match>
             <Match when={many()}>
               <Trans>Find players</Trans>
@@ -294,7 +324,7 @@ function FindDock(props: FindProps): JSX.Element {
         operation={() =>
           props.onFind(props.find.timed ? props.find.timeControl : undefined)
         }
-        variant={props.blocked || !props.online ? 'outline' : 'solid'}
+        variant={props.blocked !== null || !props.online ? 'outline' : 'solid'}
         size="lg"
         fullWidth
         dataSet={{ testid: 'multiplayer-find' }}

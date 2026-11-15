@@ -90,7 +90,16 @@ export function sharedScreens(
           {
             screen: SHARED_GAME_SCREEN.matchmaking,
             Screen: () => (
-              <MultiplayerScreen gameId={id} title={game.title} onBack={back} />
+              <MultiplayerScreen
+                gameId={id}
+                title={game.title}
+                onBack={back}
+                onCustomGame={
+                  offers('custom-games')
+                    ? () => navigation.show(SHARED_GAME_SCREEN.customGames)
+                    : undefined
+                }
+              />
             ),
           },
         ]
