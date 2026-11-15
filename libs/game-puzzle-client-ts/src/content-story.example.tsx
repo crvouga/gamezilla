@@ -124,8 +124,8 @@ export function StoryPlaytest(props: {
           ? 'Playtest again'
           : 'Start playtest'
       }
-      intent={props.next === true ? 'primary' : 'neutral'}
-      variant={props.next === true ? 'solid' : 'outline'}
+      intent="primary"
+      variant={props.next === true ? 'solid' : 'ghost'}
       size={props.next === true ? 'md' : 'sm'}
       disabled={props.disabled}
     />
