@@ -378,7 +378,7 @@ function ReplayMovesPage(props: GameReplayScreenViewProps): JSX.Element {
             </Trans>
             <Show when={props.moveHeading !== ''}>
               {' · '}
-              <Trans>number, seat, {props.moveHeading.toLowerCase()}</Trans>
+              {props.moveHeading}
             </Show>
           </P>
           <Show when={paged()}>
