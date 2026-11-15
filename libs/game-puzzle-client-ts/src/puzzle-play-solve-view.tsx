@@ -46,7 +46,7 @@ export function PuzzleSolveDock(props: PuzzlePlayScreenViewProps): JSX.Element {
     <StackVertical gap="sm">
       {/* A wrong move's cost is said before the choice, not after it. */}
       <Show when={props.status === 'wrong'}>
-        <StackHorizontal gap="sm" align="center">
+        <StackHorizontal gap="sm" align="start">
           <XIcon size={16} color="destructive" />
           <P variant="label" tone="default" testId="chess-puzzle-wrong-cost">
             <Trans>
@@ -138,7 +138,7 @@ function CompactLine(props: PuzzlePlayScreenViewProps): JSX.Element {
           title={<Trans>Review moves</Trans>}
           intent="neutral"
           variant="outline"
-          size="sm"
+          size="md"
           icon={ListOrderedIcon}
           onClick={() => props.onOpen({ screen: 'line' })}
           dataSet={{ testid: 'chess-puzzle-line-open' }}

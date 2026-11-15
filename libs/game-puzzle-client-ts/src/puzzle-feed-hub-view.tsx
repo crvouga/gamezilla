@@ -22,18 +22,52 @@ import type { PuzzlePlayScreenViewProps } from './puzzle-play-screen-model';
 import { savedFeedSpoken } from './puzzle-settings-row';
 import { PuzzleShareLabel } from './puzzle-share-label';
 
-/** A setting's row: its name, its unsaved value, and the way to its screen. */
+/** Which settings the draft has changed from what is saved. */
+function draftChanges(feed: PuzzlePlayScreenViewProps['feed']) {
+  const saved = feed.saved;
+  const draft = feed.draft;
+  const target =
+    saved.mode !== draft.mode ||
+    (draft.mode === 'custom'
+      ? saved.customRating !== draft.customRating
+      : saved.autoOffset !== draft.autoOffset);
+  const themes =
+    [...saved.themes].sort().join(',') !== [...draft.themes].sort().join(',');
+  return {
+    target,
+    history: saved.historyFilter !== draft.historyFilter,
+    themes,
+    advance: saved.autoAdvance !== draft.autoAdvance,
+  };
+}
+
+function hasDraftChanges(feed: PuzzlePlayScreenViewProps['feed']): boolean {
+  return Object.values(draftChanges(feed)).some(Boolean);
+}
+
+/**
+ * A setting's row: its name, its value in the draft (marked when that is
+ * not saved yet), and the way to its screen.
+ */
 function SettingRow(props: {
   readonly view: PuzzlePlayScreenViewProps;
   readonly screen: PuzzleFeedSettingScreen;
   readonly title: JSX.Element;
   readonly value: string;
+  readonly changed: boolean;
   readonly testId: string;
 }): JSX.Element {
   return (
     <MenuRow
       title={props.title}
       value={props.value}
+      caption={
+        props.changed ? (
+          <Text variant="inherit" tone="tint">
+            <Trans>Changed, not saved yet</Trans>
+          </Text>
+        ) : undefined
+      }
       onClick={() => props.view.onOpen({ screen: props.screen })}
       dataSet={{ testid: props.testId }}
     />
@@ -61,6 +95,7 @@ function FeedRows(props: PuzzlePlayScreenViewProps): JSX.Element {
         screen="feed-target"
         title={<Trans>Target rating</Trans>}
         value={targetValue(props.feed.draft, props.feed.draftTarget)}
+        changed={draftChanges(props.feed).target}
         testId="chess-puzzle-feed-row-target"
       />
       <SettingRow
@@ -68,6 +103,7 @@ function FeedRows(props: PuzzlePlayScreenViewProps): JSX.Element {
         screen="feed-history"
         title={<Trans>Play history</Trans>}
         value={historyFilterLabel(props.feed.draft.historyFilter)}
+        changed={draftChanges(props.feed).history}
         testId="chess-puzzle-feed-row-history"
       />
       <Show when={props.feed.themes !== null}>
@@ -76,6 +112,7 @@ function FeedRows(props: PuzzlePlayScreenViewProps): JSX.Element {
           screen="feed-themes"
           title={<Trans>Themes</Trans>}
           value={themesSummary(props.feed.draft.themes, themeLabel)}
+          changed={draftChanges(props.feed).themes}
           testId={Handles.chessPuzzleFeedThemeTrigger}
         />
       </Show>
@@ -84,6 +121,7 @@ function FeedRows(props: PuzzlePlayScreenViewProps): JSX.Element {
         screen="feed-advance"
         title={<Trans>After solving</Trans>}
         value={autoAdvanceLabel(props.feed.draft.autoAdvance)}
+        changed={draftChanges(props.feed).advance}
         testId="chess-puzzle-feed-row-advance"
       />
     </MenuSection>
@@ -161,15 +199,18 @@ export function PuzzleFeedHubView(
               dataSet={{ testid: Handles.chessPuzzleFeedDone }}
             />
             {/* Leaving drops the draft: the next visit starts from what is
-                saved. Said as its own command, so it is never a guess. */}
-            <Button
-              title={<Trans>Discard changes</Trans>}
-              intent="neutral"
-              variant="ghost"
-              fullWidth
-              onClick={() => props.onBack()}
-              dataSet={{ testid: 'chess-puzzle-feed-discard' }}
-            />
+                saved. Said as its own command once there is something to
+                drop, so it is never a guess. */}
+            <Show when={hasDraftChanges(props.feed)}>
+              <Button
+                title={<Trans>Discard changes</Trans>}
+                intent="neutral"
+                variant="outline"
+                fullWidth
+                onClick={() => props.onBack()}
+                dataSet={{ testid: 'chess-puzzle-feed-discard' }}
+              />
+            </Show>
           </StackVertical>
         </Show>
         <ThisPuzzle {...props} />

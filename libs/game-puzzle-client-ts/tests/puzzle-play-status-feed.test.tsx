@@ -307,3 +307,9 @@ test('feed-themes: a theme toggles, and one the search hides keeps its choice', 
   fireEvent.click(screen.getByTestId('chess-puzzle-feed-theme-pin'));
   expect(patches).toEqual([{ themes: ['mate', 'pin'] }]);
 });
+
+test('feed: with nothing changed there is nothing to discard, and no row says it is unsaved', () => {
+  mountPlay('feed');
+  expect(screen.queryByTestId('chess-puzzle-feed-discard')).toBeNull();
+  expect(screen.queryByText('Changed, not saved yet')).toBeNull();
+});
