@@ -1,4 +1,4 @@
 {
-  "summary": "On How to play, the held part row's current-part marker listened to one scroll box only; where the page itself scrolled (desktop), it stayed on 'Goal' while the reader moved on to later parts. It now follows any scroll that moves the rules.",
+  "summary": "On How to play, the held part row's current-part marker stayed on 'Goal' while the reader moved on. It listened to one scroll box only (on a desktop the page itself scrolls), and its scroll handler re-read the caller's rules, which can build their elements anew outside any provider and threw. It now follows any scroll that moves the rules and reads only part keys cached in a memo.",
   "regressionTest": "pkgs/ui-root-harness-ts/tests/game-rules-screen.test.tsx"
 }

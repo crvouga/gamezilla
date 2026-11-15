@@ -7,7 +7,7 @@ import {
   type GameMenuStoryProps,
 } from '@libs/game-menu-client-ts/game-menu-story.example';
 import type { GameRulesSection } from '@pkgs/ui-root-client-ts/game-rules-screen';
-import type { JSX } from 'solid-js';
+import { createMemo, type JSX } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import { CHESS_RULES } from './chess-game-client';
 
@@ -34,5 +34,7 @@ function chessRules(): readonly GameRulesSection[] {
 export function ChessHowToPlay(
   props: Omit<GameMenuStoryProps, 'instructions'>
 ): JSX.Element {
-  return <GameMenuStory {...props} instructions={chessRules()} />;
+  // Built once, as the game's menu builds them (a memo, never per read).
+  const rules = createMemo(chessRules);
+  return <GameMenuStory {...props} instructions={rules()} />;
 }

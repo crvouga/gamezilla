@@ -1,6 +1,7 @@
 /** @jsxImportSource solid-js */
 
 import {
+  createMemo,
   createSignal,
   For,
   type JSX,
@@ -13,7 +14,7 @@ import { VisuallyHidden } from '../visually-hidden/index';
 import styles from './game-rules-screen.module.css';
 
 /** One part a link leads to. */
-export type PartLink = { key: string; title: JSX.Element };
+export type PartLink = { key: string };
 
 export function partId(screenId: string, key: string): string {
   return `${screenId}-part-${key}`;
@@ -27,20 +28,43 @@ function openPart(screenId: string, key: string): void {
 }
 
 /**
+ * A part's name as its heading reads, number aside. The link repeats the
+ * heading's words rather than its element: one element is never drawn in
+ * two places.
+ */
+function partName(screenId: string, key: string): string {
+  const heading = document
+    .getElementById(partId(screenId, key))
+    ?.querySelector('h2');
+  if (heading === null || heading === undefined) return '';
+  return [...heading.childNodes]
+    .filter(
+      (node) =>
+        !(
+          node instanceof HTMLElement &&
+          node.getAttribute('aria-hidden') === 'true'
+        )
+    )
+    .map((node) => node.textContent ?? '')
+    .join('')
+    .trim();
+}
+
+/**
  * The part being read: the first whose end has not yet passed under the
  * held row, or the first part while the layout says nothing.
  */
 function currentPart(
   screenId: string,
-  parts: readonly PartLink[],
+  keys: readonly string[],
   edge: number
 ): string | undefined {
-  for (const part of parts) {
-    const element = document.getElementById(partId(screenId, part.key));
+  for (const key of keys) {
+    const element = document.getElementById(partId(screenId, key));
     if (element !== null && element.getBoundingClientRect().bottom > edge + 8)
-      return part.key;
+      return key;
   }
-  return parts[0]?.key;
+  return keys[0];
 }
 
 /**
@@ -56,13 +80,17 @@ export function PartLinks(props: {
 }): JSX.Element {
   let nav: HTMLElement | undefined;
   let row: HTMLOListElement | undefined;
+  // The parts' keys, read once per change of parts: a scroll handler never
+  // reads the caller's props, which may build their elements anew.
+  const keys = createMemo(() => props.parts.map((part) => part.key));
   const [current, setCurrent] = createSignal<string | undefined>();
+  const [names, setNames] = createSignal<Readonly<Record<string, string>>>({});
   const [overflow, setOverflow] = createSignal({ start: false, end: false });
   const measure = (): void => {
     if (nav === undefined || row === undefined) return;
     const key = currentPart(
       props.screenId,
-      props.parts,
+      keys(),
       nav.getBoundingClientRect().bottom
     );
     if (key !== current()) {
@@ -77,6 +105,11 @@ export function PartLinks(props: {
     });
   };
   onMount(() => {
+    setNames(
+      Object.fromEntries(
+        keys().map((key) => [key, partName(props.screenId, key)])
+      )
+    );
     // Whichever box scrolls the rules (the screen's body, or the page),
     // its scroll reaches the document in the capture phase.
     const options = { capture: true, passive: true } as const;
@@ -116,17 +149,17 @@ export function PartLinks(props: {
         </button>
       </Show>
       <ol ref={row} class={styles['partLinks']}>
-        <For each={props.parts}>
-          {(part, index) => (
+        <For each={keys()}>
+          {(key, index) => (
             <li>
               <button
                 type="button"
                 class={`${styles['partLink']} clickable text textCaption`}
-                data-part={part.key}
-                aria-current={current() === part.key ? 'true' : undefined}
-                onClick={() => openPart(props.screenId, part.key)}
+                data-part={key}
+                aria-current={current() === key ? 'true' : undefined}
+                onClick={() => openPart(props.screenId, key)}
               >
-                {index() + 1}. {part.title}
+                {index() + 1}. {names()[key]}
               </button>
             </li>
           )}
