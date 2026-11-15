@@ -115,10 +115,14 @@ function Drawing(props: {
             <Show
               when={drawingLabel()}
               fallback={
-                <Trans>
-                  Drag from an endpoint to its match, or use Enter and arrow
-                  keys.
-                </Trans>
+                // Inside the attempt screen the idle hint lives in Help, so
+                // the board keeps the room; live feedback still shows here.
+                <Show when={!props.shellSaysSolved}>
+                  <Trans>
+                    Drag from an endpoint to its match, or use Enter and arrow
+                    keys.
+                  </Trans>
+                </Show>
               }
             >
               {(label) => (
@@ -166,7 +170,7 @@ function Drawing(props: {
             />
           </StackHorizontal>
           <Show when={helpOpen()}>
-            <NumberlinkDrawingHelpBody />
+            <NumberlinkDrawingHelpBody withHint />
           </Show>
         </Show>
       </Show>

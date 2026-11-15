@@ -3,6 +3,7 @@ import { Collapsible } from '@pkgs/ui-root-client-ts/collapsible';
 import { KeyHints } from '@pkgs/ui-root-client-ts/key-hints';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
+import { Show } from 'solid-js';
 
 /** Secondary recovery and keyboard guidance, available at every viewport. */
 export function NumberlinkDrawingHelp() {
@@ -15,10 +16,20 @@ export function NumberlinkDrawingHelp() {
 }
 
 /** What the help says: redrawing, shortening, cancelling, and the keys. */
-export function NumberlinkDrawingHelpBody() {
+export function NumberlinkDrawingHelpBody(props: {
+  /** Leads with how to draw, where the board does not say it already. */
+  withHint?: boolean;
+}) {
   const { t } = useLingui();
   return (
     <StackVertical gap="sm">
+      <Show when={props.withHint === true}>
+        <P variant="caption">
+          <Trans>
+            Drag from an endpoint to its match, or use Enter and arrow keys.
+          </Trans>
+        </P>
+      </Show>
       <P variant="caption" tone="secondary">
         <Trans>
           Start again at an endpoint to redraw its path. Drag back along your
