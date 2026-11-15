@@ -281,12 +281,28 @@
     align-self: stretch;
     display: flex;
     align-items: center;
-    max-width: 6rem;
     padding-inline: var(--ui-space-2) var(--ui-space-3);
     border-inline-end: 1px solid var(--ui-color-border);
-    overflow: hidden;
-    text-overflow: ellipsis;
     background: var(--ui-color-background);
+  }
+  /* A move scrolled under the key softens just past its rule, never cut
+     square against it. */
+  [data-game-fixed="true"]
+    [data-game-slot="rail"]
+    .list[data-layout="table"]
+    .heading::after {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 100%;
+    /* As wide as the line's gap: a move shown starts past it. */
+    width: var(--ui-space-3);
+    background: linear-gradient(
+      to right,
+      var(--ui-color-background),
+      transparent
+    );
+    pointer-events: none;
   }
   [data-game-fixed="true"]
     [data-game-slot="rail"]
