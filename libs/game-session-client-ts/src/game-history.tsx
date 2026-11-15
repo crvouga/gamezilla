@@ -177,7 +177,6 @@ function AllowedGameHistory(props: {
                 )
                 .map(historyPlayer)
             : [],
-        moves: record.moves.length,
         endedAt: record.endedAt,
       };
     })

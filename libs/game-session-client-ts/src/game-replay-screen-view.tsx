@@ -295,8 +295,13 @@ function ReplayPlayers(
   );
 }
 
-/** Moves shown at once, under a phone's board or beside a wide one: a page holding the shown move. */
-const PHONE_PAGE = 8;
+/**
+ * Moves shown at once, a page holding the shown move: eight, or under a
+ * phone's board six when the game runs longer, so a page and its two range
+ * buttons keep to two rows.
+ */
+const PHONE_PAGE = 6;
+const WIDE_PAGE = 8;
 
 /** Beside a wide board, the same page of numbered moves in its own card. */
 function ReplayMoves(props: GameReplayScreenViewProps): JSX.Element {
@@ -325,11 +330,15 @@ function ReplayMoves(props: GameReplayScreenViewProps): JSX.Element {
  */
 function ReplayMovesPage(props: GameReplayScreenViewProps): JSX.Element {
   // The page holding the shown move; the start shows the first page.
+  const phone = createMediaQuery(PHONE_QUERY);
+  // A short game is one page wherever it is shown.
+  const size = () =>
+    phone() && props.moves.length > WIDE_PAGE ? PHONE_PAGE : WIDE_PAGE;
   const page = createMemo(() =>
-    Math.floor(Math.max(0, props.ply - 1) / PHONE_PAGE)
+    Math.floor(Math.max(0, props.ply - 1) / size())
   );
-  const first = () => page() * PHONE_PAGE + 1;
-  const last = () => Math.min(first() + PHONE_PAGE - 1, props.moves.length);
+  const first = () => page() * size() + 1;
+  const last = () => Math.min(first() + size() - 1, props.moves.length);
   const shown = createMemo(() =>
     props.moves
       .slice(first() - 1, last())
@@ -356,7 +365,7 @@ function ReplayMovesPage(props: GameReplayScreenViewProps): JSX.Element {
             <Button
               title={
                 <Trans>
-                  {first() - PHONE_PAGE}–{first() - 1}
+                  {first() - size()}–{first() - 1}
                 </Trans>
               }
               size="sm"
@@ -399,8 +408,7 @@ function ReplayMovesPage(props: GameReplayScreenViewProps): JSX.Element {
             <Button
               title={
                 <Trans>
-                  {last() + 1}–
-                  {Math.min(last() + PHONE_PAGE, props.moves.length)}
+                  {last() + 1}–{Math.min(last() + size(), props.moves.length)}
                 </Trans>
               }
               size="sm"

@@ -176,7 +176,6 @@ export const Journey: Story = {
                 players: [PLAYERS[1]!],
                 outcome: 'won',
                 label: 'By four in a row',
-                moves: WON_MOVES.length,
                 endedAt: args.endedAt,
               },
             ]}

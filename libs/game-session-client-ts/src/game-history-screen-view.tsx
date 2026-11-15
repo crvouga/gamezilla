@@ -52,8 +52,6 @@ export type GameHistoryRow = {
    * four in a row"), else in full ("Red circle wins by four in a row.").
    */
   readonly label: string;
-  /** Moves played. */
-  readonly moves: number;
   /** Who won, for a game the viewer only watched; empty for a draw or when they played. */
   readonly winners?: readonly GameHistoryPlayer[] | undefined;
   /** When it ended, as an ISO instant; `null` when unknown. */
@@ -206,7 +204,7 @@ export function OutcomeBadge(props: {
   );
 }
 
-/** "By four in a row · 7 moves · 2d ago". */
+/** "By four in a row · 2d ago": one short line, the moves left to the replay. */
 function RecordCaption(props: {
   readonly record: GameHistoryRow;
   readonly people?: FramePeople | undefined;
@@ -215,22 +213,14 @@ function RecordCaption(props: {
   const winners = () => props.record.winners ?? [];
   return (
     <>
-      {/* A separator stays with the fact before it, and no fact breaks
-          across lines ("12h ago"): a wrapped caption never starts with "·". */}
+      {/* A separator is held to the facts on both sides and "12h ago" stays
+          whole, so a wrapped caption never starts or ends with "·". */}
       <Show when={winners().length > 0}>
         <PlayerNames players={winners()} join="and" people={props.people} />{' '}
         <Trans>won</Trans>
         {SEPARATOR}
       </Show>
       {props.record.label}
-      <Show when={props.record.moves > 0}>
-        {SEPARATOR}
-        <Plural
-          value={props.record.moves}
-          one={`#\u00a0move`}
-          other={`#\u00a0moves`}
-        />
-      </Show>
       <Show when={props.record.endedAt !== null}>
         {SEPARATOR}
         {ago().replaceAll(' ', '\u00a0')}

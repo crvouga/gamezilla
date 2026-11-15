@@ -34,7 +34,6 @@ const RECORDS: readonly GameHistoryRow[] = [
     players: [JORDAN],
     outcome: 'won',
     label: 'By four in a row',
-    moves: 7,
     endedAt: ago(2),
   },
   {
@@ -42,7 +41,6 @@ const RECORDS: readonly GameHistoryRow[] = [
     players: [BOT],
     outcome: 'draw',
     label: 'Drawn',
-    moves: 42,
     endedAt: ago(26),
   },
   {
@@ -50,7 +48,6 @@ const RECORDS: readonly GameHistoryRow[] = [
     players: [{ person: '', plainName: '', bot: false, local: true }],
     outcome: 'lost',
     label: 'By resignation',
-    moves: 12,
     endedAt: ago(70),
   },
   {
@@ -62,7 +59,6 @@ const RECORDS: readonly GameHistoryRow[] = [
     outcome: null,
     label: 'By four in a row',
     winners: [JORDAN],
-    moves: 18,
     endedAt: ago(170),
   },
 ];
@@ -116,7 +112,6 @@ export const CancelledSetup: Story = {
         players: [],
         outcome: 'cancelled',
         label: 'Cancelled before the first move',
-        moves: 0,
         endedAt: ago(5),
       },
     ],
@@ -145,7 +140,6 @@ export const LongNames: Story = {
         ],
         outcome: null,
         label: 'Drawn',
-        moves: 42,
         endedAt: ago(1),
       },
       ...RECORDS,
@@ -174,7 +168,6 @@ const MANY_RECORDS: readonly GameHistoryRow[] = Array.from(
     id: `game-many-${String(24 - index)}`,
     players: [OPPONENTS[index % OPPONENTS.length] ?? JORDAN],
     ...(ENDINGS[index % ENDINGS.length] ?? ENDINGS[0]),
-    moves: 7 + ((index * 5) % 30),
     endedAt: ago(3 + index * 9),
   })
 );
