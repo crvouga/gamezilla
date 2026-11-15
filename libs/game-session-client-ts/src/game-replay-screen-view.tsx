@@ -312,7 +312,7 @@ function ReplayPlayers(
                 props.players.some((p) => !p.winner)
               }
             >
-              <Badge size="md" intent="success" label={<Trans>Winner</Trans>} />
+              <Badge size="sm" intent="success" label={<Trans>Winner</Trans>} />
             </Show>
           </StackHorizontal>
         )}
@@ -390,7 +390,7 @@ function ReplayMovesPage(props: GameReplayScreenViewProps): JSX.Element {
           <For each={shown()}>
             {(entry) => (
               <Button
-                size="sm"
+                size="md"
                 variant={entry.ply === props.ply ? 'solid' : 'outline'}
                 intent={entry.ply === props.ply ? 'primary' : 'neutral'}
                 aria-current={entry.ply === props.ply}
