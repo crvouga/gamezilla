@@ -84,7 +84,9 @@ test('every destructive action is rejected even when accompanied by an allowed a
   assertProperty(
     'alert delivery cannot destroy infrastructure',
     fc.property(
-      fc.oneof(fc.constant(mobileRule), fc.string()),
+      fc
+        .string()
+        .filter((address) => !address.startsWith('module.alert_routing[0].')),
       fc.array(fc.constantFrom('create', 'update', 'no-op'), { maxLength: 4 }),
       fc.constantFrom('delete', 'forget'),
       (address, other, destructive) => {
@@ -135,4 +137,45 @@ test('provisioner creation is allowed while replacing either credential remains 
       ).toHaveLength(1);
     }
   }
+});
+
+test('only named obsolete delivery resources can be retired, never replaced', () => {
+  const retired = [
+    ...['page', 'push', 'ci'].map((name) => `grafana_oncall_route.${name}`),
+    ...['page', 'push'].flatMap((name) => [
+      `grafana_oncall_escalation.${name}`,
+      `grafana_oncall_escalation_chain.${name}`,
+    ]),
+    ...[
+      'mobile',
+      'mobile_wait',
+      'important_mobile',
+      'important_wait',
+      'important_repeat',
+    ].map((name) => `grafana_oncall_user_notification_rule.${name}`),
+  ];
+  for (const name of retired) {
+    const address = `module.alert_routing[0].${name}`;
+    expect(alertingDeploymentDenials(plan(address, ['delete']))).toEqual([]);
+    for (const actions of [
+      ['delete', 'create'],
+      ['create', 'delete'],
+      ['forget'],
+    ])
+      expect(alertingDeploymentDenials(plan(address, actions))).toHaveLength(1);
+    expect(
+      alertingDeploymentDenials(plan(`${address}_other`, ['delete']))
+    ).toHaveLength(1);
+  }
+  for (const name of [
+    'grafana_oncall_integration.alerts',
+    'grafana_oncall_integration.ci',
+    'grafana_contact_point.irm',
+    'grafana_notification_policy.this',
+  ])
+    expect(
+      alertingDeploymentDenials(
+        plan(`module.alert_routing[0].${name}`, ['delete'])
+      )
+    ).toHaveLength(1);
 });

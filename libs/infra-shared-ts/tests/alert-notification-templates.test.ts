@@ -115,9 +115,6 @@ test('a Grafana alert notification names where it fired and links every place to
   }
   expect(message.startsWith(`**${annotations.summary}**`)).toBe(true);
   expect(alerts('source_link', grafanaPayload)).toBe(annotations.dashboard_url);
-  const mobile = alerts('mobile_app.message', grafanaPayload);
-  expect(mobile).toContain(annotations.runbook_url);
-  expect(mobile).toContain(annotations.dashboard_url);
 });
 
 test('an alert without a dashboard still links its runbook, and a bare payload renders', () => {
@@ -171,7 +168,4 @@ test('a CI failure notification links the run, commit and playbook and says what
   expect(message).toContain(
     `1. gh run view 42 --repo o/r --json jobs --jq '.jobs[] | select(.conclusion == "failure") | {name, url}'`
   );
-  const mobile = ci('mobile_app.message', run);
-  expect(mobile).toContain('https://github.com/o/r/actions/runs/42');
-  expect(mobile).toContain('https://github.com/o/r/commit/abc123');
 });

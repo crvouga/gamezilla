@@ -59,7 +59,7 @@ export function formatWorkflowMarkdown(input: {
     ...(red.length === 0
       ? []
       : [
-          'Read the red job’s log (not its name), fix the root cause on one pull request, and add the verification that would have caught it (`/ci-workflows-green`). Grafana pages on the same verdict ("An important CI workflow is failing on main"); both clear when the next run on main passes.',
+          'Read the red job’s log (not its name), fix the root cause on one pull request, and add the verification that would have caught it (`/ci-workflows-green`). This issue closes when the next run on main passes. Grafana retains the same verdict without push notifications.',
           '',
         ]),
   ].join('\n');
