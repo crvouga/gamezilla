@@ -53,6 +53,32 @@ export async function decideForActor(
   });
 }
 
+/** One read snapshot for a gateway's grants; never reused by a later decision batch. */
+export async function decideGrantsForActor(
+  db: AccessReader,
+  args: {
+    readonly identity: AccessIdentity;
+    readonly keys: readonly AppGrantKey[];
+    readonly nowMs: number;
+    readonly clientAtMs: number;
+    readonly scope?: AccessScope | undefined;
+  }
+): Promise<readonly AppGrantKey[]> {
+  if (args.keys.length === 0) return [];
+  const access = await readAccess(db, args.identity, args.nowMs);
+  const policy = policyAt(access.policy, args.clientAtMs);
+  return args.keys.filter(
+    (key) =>
+      decideGrant({
+        actorId: args.identity.actorId,
+        policy,
+        facts: access.facts,
+        key,
+        scope: args.scope,
+      }).allowed
+  );
+}
+
 /**
  * One counted-limit decision for `identity` holding one more of `limit` when
  * it holds `used` now, from the same synced rows as {@link decideForActor}:

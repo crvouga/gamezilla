@@ -1,0 +1,4 @@
+{
+  "summary": "Room admission reread permission configuration and membership for each of fourteen grants, adding repeated database round trips to websocket admission. Each room grant batch now uses one fresh access snapshot.",
+  "regressionTest": "libs/permissions-shared-ts/tests/server-grant-batch.test.ts"
+}
