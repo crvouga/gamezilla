@@ -118,7 +118,11 @@ describe('GameRulesScreen parts', () => {
       const part = document.getElementById(`game-how-to-play-part-${key}`);
       if (part === null) throw new Error(`No part ${key}`);
       part.getBoundingClientRect = () =>
-        ({ top: index * 300 - 700, bottom: index * 300 - 400 }) as DOMRect;
+        ({
+          top: index * 300 - 700,
+          bottom: index * 300 - 400,
+          height: 300,
+        }) as DOMRect;
     });
     document.dispatchEvent(new Event('scroll'));
     const current = view

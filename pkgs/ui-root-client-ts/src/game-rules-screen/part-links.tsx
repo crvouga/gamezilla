@@ -51,20 +51,24 @@ function partName(screenId: string, key: string): string {
 }
 
 /**
- * The part being read: the first whose end has not yet passed under the
- * held row, or the first part while the layout says nothing.
+ * The part being read: the last whose top has come up to just under the
+ * held row (where a jump to it lands), or the first while none has or the
+ * layout says nothing.
  */
 function currentPart(
   screenId: string,
   keys: readonly string[],
   edge: number
 ): string | undefined {
+  let current = keys[0];
   for (const key of keys) {
-    const element = document.getElementById(partId(screenId, key));
-    if (element !== null && element.getBoundingClientRect().bottom > edge + 8)
-      return key;
+    const rect = document
+      .getElementById(partId(screenId, key))
+      ?.getBoundingClientRect();
+    if (rect !== undefined && rect.height > 0 && rect.top <= edge + 72)
+      current = key;
   }
-  return keys[0];
+  return current;
 }
 
 /**
