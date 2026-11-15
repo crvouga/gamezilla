@@ -10,6 +10,7 @@ import {
   Show,
 } from 'solid-js';
 import { ChevronLeftIcon, ChevronRightIcon } from '../icons';
+import { observeElementResize } from '../observe-element-resize';
 import { VisuallyHidden } from '../visually-hidden/index';
 import styles from './game-rules-screen.module.css';
 
@@ -51,24 +52,57 @@ function partName(screenId: string, key: string): string {
 }
 
 /**
- * The part being read: the last whose top has come up to just under the
- * held row (where a jump to it lands), or the first while none has or the
- * layout says nothing.
+ * The part being read: the one that fills most of the view below the held
+ * row (a jump's part, once it lands; the part on screen as the rules
+ * scroll), or the first while the layout says nothing.
  */
 function currentPart(
   screenId: string,
   keys: readonly string[],
   edge: number
 ): string | undefined {
+  const bottom = window.innerHeight;
   let current = keys[0];
+  let most = 0;
   for (const key of keys) {
     const rect = document
       .getElementById(partId(screenId, key))
       ?.getBoundingClientRect();
-    if (rect !== undefined && rect.height > 0 && rect.top <= edge + 72)
+    if (rect === undefined) continue;
+    const seen = Math.min(rect.bottom, bottom) - Math.max(rect.top, edge);
+    if (seen > most) {
+      most = seen;
       current = key;
+    }
   }
   return current;
+}
+
+/**
+ * An arrow that steps the row toward one end. A pointer convenience only:
+ * every link is reached by Tab, and the focused one slides into view.
+ */
+function PartStep(props: {
+  side: 'start' | 'end';
+  onStep: () => void;
+}): JSX.Element {
+  return (
+    <button
+      type="button"
+      class={`${styles['partStep']} clickable`}
+      data-side={props.side}
+      tabIndex={-1}
+      aria-hidden="true"
+      onClick={() => props.onStep()}
+    >
+      <Show
+        when={props.side === 'start'}
+        fallback={<ChevronRightIcon size={16} />}
+      >
+        <ChevronLeftIcon size={16} />
+      </Show>
+    </button>
+  );
 }
 
 /**
@@ -119,10 +153,17 @@ export function PartLinks(props: {
     const options = { capture: true, passive: true } as const;
     document.addEventListener('scroll', measure, options);
     window.addEventListener('resize', measure, { passive: true });
+    // The row's links take their words after the first paint, and fonts
+    // settle later still: whether they outrun the row is measured as they
+    // change size, so its arrow shows from the first display.
+    const stops = [...(row?.children ?? [])].map((link) =>
+      observeElementResize(link, measure)
+    );
     measure();
     onCleanup(() => {
       document.removeEventListener('scroll', measure, options);
       window.removeEventListener('resize', measure);
+      for (const stop of stops) stop();
     });
   });
   const step = (direction: 1 | -1): void =>
@@ -138,19 +179,8 @@ export function PartLinks(props: {
       <VisuallyHidden id={`${props.screenId}-parts`}>
         {props.label}
       </VisuallyHidden>
-      {/* Pointer conveniences only: every link is reached by Tab, and the
-          focused one slides into view. */}
       <Show when={overflow().start}>
-        <button
-          type="button"
-          class={`${styles['partStep']} clickable`}
-          data-side="start"
-          tabIndex={-1}
-          aria-hidden="true"
-          onClick={() => step(-1)}
-        >
-          <ChevronLeftIcon size={16} />
-        </button>
+        <PartStep side="start" onStep={() => step(-1)} />
       </Show>
       <ol ref={row} class={styles['partLinks']}>
         <For each={keys()}>
@@ -170,16 +200,7 @@ export function PartLinks(props: {
         </For>
       </ol>
       <Show when={overflow().end}>
-        <button
-          type="button"
-          class={`${styles['partStep']} clickable`}
-          data-side="end"
-          tabIndex={-1}
-          aria-hidden="true"
-          onClick={() => step(1)}
-        >
-          <ChevronRightIcon size={16} />
-        </button>
+        <PartStep side="end" onStep={() => step(1)} />
       </Show>
     </nav>
   );

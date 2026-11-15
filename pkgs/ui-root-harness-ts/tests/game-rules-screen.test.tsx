@@ -113,16 +113,15 @@ describe('GameRulesScreen parts', () => {
         />
       </ThemeProvider>
     ));
-    // Goal and Your turn have scrolled past; The knight is being read.
+    // Goal and Your turn have scrolled past; the knight is being read.
     keys.forEach((key, index) => {
       const part = document.getElementById(`game-how-to-play-part-${key}`);
       if (part === null) throw new Error(`No part ${key}`);
+      // The knight fills most of the view; castling shows only its top.
+      const tops = [-1200, -900, -300, 600, 900];
+      const top = tops[index] ?? 0;
       part.getBoundingClientRect = () =>
-        ({
-          top: index * 300 - 700,
-          bottom: index * 300 - 400,
-          height: 300,
-        }) as DOMRect;
+        ({ top, bottom: tops[index + 1] ?? top + 300, height: 300 }) as DOMRect;
     });
     document.dispatchEvent(new Event('scroll'));
     const current = view
