@@ -87,10 +87,20 @@ export function ContentLibraryBrowseView(props: { view: View }): JSX.Element {
             variant="compact"
             title={t`No published puzzles loaded`}
             body={t`Play a starter pack, create a private draft, or come back for new puzzles and packs.`}
-            action={{
-              label: t`Back to puzzles`,
-              onClick: () => props.view.onOpen({ screen: 'library' }),
-            }}
+            action={
+              props.view.bundledPacks[0] === undefined
+                ? {
+                    label: t`Back to puzzles`,
+                    onClick: () => props.view.onOpen({ screen: 'library' }),
+                  }
+                : {
+                    label: t`Play ${props.view.bundledPacks[0].title}`,
+                    onClick: () =>
+                      props.view.onOpenEdition(
+                        props.view.bundledPacks[0]?.id ?? ''
+                      ),
+                  }
+            }
           />
         }
       >

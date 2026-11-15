@@ -190,6 +190,7 @@ export function StoryCountingBoard(props: {
       <TileBoard
         label={`Counted ${count()} of ${target()}`}
         testId="story-counting-board"
+        size="fill"
         columns={COUNTING_COLUMNS}
         rows={rows()}
         tiles={Array.from(
