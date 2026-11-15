@@ -157,8 +157,9 @@ section.docked[data-tone="lost"] {
 @media (max-width: 1023px) and (max-height: 700px) {
   /* Opened details scroll by themselves under the card's fixed headline
      and control, rather than shrink the board. */
-  /* While they are open the reason gives way: the rows say it. */
-  .docked:has(.details[data-open="true"]) > :first-child p {
+  /* While standings are open the reason gives way: the rows say it. A
+     card's other details (its commands) keep the reason in view. */
+  .docked:has(.details[data-open="true"] :global(.panel)) > :first-child p {
     display: none;
   }
   .docked .details[data-open="true"] .detailsBody {

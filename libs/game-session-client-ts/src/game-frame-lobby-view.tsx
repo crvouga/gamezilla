@@ -373,16 +373,21 @@ function LobbyMode(props: Props & { readonly setup: FrameSetup }): JSX.Element {
         </Trans>
       ),
     },
-    {
-      id: 'clock',
-      label: <Trans>Clock</Trans>,
-      value: (
-        <FrameClockWords
-          minutes={props.status?.minutes ?? 0}
-          increment={props.status?.increment ?? 0}
-        />
-      ),
-    },
+    // A clock that has its own row below is not said twice.
+    ...(props.setup.options?.clock == null
+      ? [
+          {
+            id: 'clock',
+            label: <Trans>Clock</Trans>,
+            value: (
+              <FrameClockWords
+                minutes={props.status?.minutes ?? 0}
+                increment={props.status?.increment ?? 0}
+              />
+            ),
+          },
+        ]
+      : []),
     {
       id: 'rating',
       label: <Trans>Rating</Trans>,
