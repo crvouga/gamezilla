@@ -175,14 +175,17 @@ export const CHESS_CHOICES: readonly GameMenuChoiceView[] = [
   },
 ];
 
+/** A story's menu: the screen's props and where Back leaves the menu to. */
+export type GameMenuStoryProps = GameMenuScreenViewProps & {
+  readonly onBackToGames: () => void;
+};
+
 /**
  * The menu as `GameMenu` composes it: Back says "Games" on the menu and
  * the game's name behind it, and walks this device's place back first.
  * The story's `place` is where it opens.
  */
-export function GameMenuStory(
-  props: GameMenuScreenViewProps & { readonly onBackToGames: () => void }
-): JSX.Element {
+export function GameMenuStory(props: GameMenuStoryProps): JSX.Element {
   const nav = useScreenPlace(GAME_MENU_PLACES, () => 'open' as const);
   onMount(() => {
     if (props.place.screen !== 'menu') nav.open(props.place);
