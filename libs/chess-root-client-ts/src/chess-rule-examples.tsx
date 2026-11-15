@@ -14,6 +14,16 @@ import type { JSX } from 'solid-js';
  * are hard to picture from words alone.
  */
 
+/**
+ * Each example's position. Every one is a legal position (both kings on
+ * the board): the board draws the opening position for any other.
+ */
+export const RULE_EXAMPLE_POSITIONS = {
+  knight: '4k3/8/8/3p4/3N4/8/8/4K3 w - - 0 1',
+  castling: '4k3/8/8/8/8/8/8/4K2R w K - 0 1',
+  enPassant: '4k3/8/8/3pP3/8/8/8/4K3 w - d6 0 1',
+} as const;
+
 const MARK: CellHighlight = { color: 'primary', opacity: 0.45 };
 
 /** A still board of `fen`, `arrows` drawn and `marked` squares tinted. */
@@ -53,7 +63,7 @@ export const KNIGHT_EXAMPLE: GameRuleExample = {
   key: 'knight',
   Figure: () => (
     <RuleBoard
-      fen="8/8/8/3p4/3N4/8/8/8 w - - 0 1"
+      fen={RULE_EXAMPLE_POSITIONS.knight}
       arrows={[{ from: 'd4', to: 'e6' }]}
       marked={KNIGHT_TARGETS}
     />
@@ -70,7 +80,7 @@ export const CASTLING_EXAMPLE: GameRuleExample = {
   key: 'castling',
   Figure: () => (
     <RuleBoard
-      fen="8/8/8/8/8/8/8/4K2R w K - 0 1"
+      fen={RULE_EXAMPLE_POSITIONS.castling}
       arrows={[
         { from: 'e1', to: 'g1' },
         { from: 'h1', to: 'f1', color: 'secondary' },
@@ -87,7 +97,7 @@ export const EN_PASSANT_EXAMPLE: GameRuleExample = {
   key: 'en-passant',
   Figure: () => (
     <RuleBoard
-      fen="8/8/8/3pP3/8/8/8/8 w - d6 0 1"
+      fen={RULE_EXAMPLE_POSITIONS.enPassant}
       arrows={[{ from: 'e5', to: 'd6' }]}
       marked={['d5']}
     />

@@ -1,0 +1,4 @@
+{
+  "summary": "Chess's how-to-play board examples (the knight's reach, castling, en passant) were drawn as the opening position: their positions had no kings, so the board refused them and fell back to its starting position, contradicting the captions. Every example position now has both kings and is checked to draw as given.",
+  "regressionTest": "libs/chess-root-harness-ts/tests/chess-rule-examples.test.ts"
+}
