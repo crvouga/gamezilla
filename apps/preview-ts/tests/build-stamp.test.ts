@@ -1,12 +1,18 @@
 import { expect, test } from 'bun:test';
+import { type BuildStamp, stampedPage } from '@apps/preview-ts/build-stamp';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import fc from 'fast-check';
-import { type BuildStamp, stampedPage } from '../src/build-stamp';
 
 const PAGE =
   '<!doctype html><html><head><title>t</title></head><body><div id="root"></div><script type="module" src="/assets/index.js"></script></body></html>';
 
 const stamp = fc.record({ commit: fc.string(), date: fc.string() });
+
+// regression: preview-build-stamp-replacement-tokens
+test('the nightly counterexample preserves literal dollar signs in the build', () => {
+  const build = { commit: '', date: '$$' };
+  expect(read(stampedPage(PAGE, build))).toEqual(build);
+});
 
 /** What the page's script assigns: JSON is a JavaScript literal. */
 function read(html: string): BuildStamp {
