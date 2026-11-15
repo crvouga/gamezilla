@@ -159,6 +159,8 @@ section.docked[data-tone="lost"] {
   section.docked:has(.details[data-open="true"]) {
     max-height: 9rem;
     overflow-y: auto;
+    /* A visible bar says there is more to scroll. */
+    scrollbar-width: thin;
   }
   section.docked {
     row-gap: var(--ui-space-1);

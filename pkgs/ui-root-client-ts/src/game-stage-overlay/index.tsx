@@ -180,6 +180,15 @@ function ResultDetails(props: {
   children: JSX.Element;
 }): JSX.Element {
   const [open, setOpen] = createSignal(false);
+  let body: HTMLDivElement | undefined;
+  // Opened, the person's own row (else the first) is brought into view
+  // inside a card that scrolls, so their answer is never cut off.
+  const reveal = (): void => {
+    const own =
+      body?.querySelector<HTMLElement>('[data-you="true"]') ??
+      body?.querySelector<HTMLElement>('li, [role="listitem"]');
+    own?.scrollIntoView({ block: 'nearest' });
+  };
   return (
     <div
       class={card['details']}
@@ -192,7 +201,10 @@ function ResultDetails(props: {
             type="button"
             class={`text textLabel ${card['detailsToggle']}`}
             aria-expanded={open()}
-            onClick={() => setOpen(!open())}
+            onClick={() => {
+              setOpen(!open());
+              if (open()) queueMicrotask(reveal);
+            }}
             data-testid="game-result-overlay-details"
           >
             <span>{label()}</span>
@@ -200,7 +212,9 @@ function ResultDetails(props: {
           </button>
         )}
       </Show>
-      <div class={card['detailsBody']}>{props.children}</div>
+      <div ref={body} class={card['detailsBody']}>
+        {props.children}
+      </div>
     </div>
   );
 }
