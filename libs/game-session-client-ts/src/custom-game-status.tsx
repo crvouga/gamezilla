@@ -79,6 +79,7 @@ function drawnDescription(reason: string): string {
     return t`Game drawn because a participant ran out of time.`;
   if (reason === 'participant withdrew')
     return t`Game drawn because a participant withdrew.`;
+  if (reason === 'agreement') return t`Game drawn by agreement.`;
   return t`Game drawn.`;
 }
 
