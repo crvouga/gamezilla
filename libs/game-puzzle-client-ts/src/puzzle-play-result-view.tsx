@@ -8,7 +8,6 @@ import { GameActions } from '@pkgs/ui-root-client-ts/game-section';
 import { H2 } from '@pkgs/ui-root-client-ts/heading';
 import {
   ChevronRightIcon,
-  EllipsisIcon,
   ListOrderedIcon,
   RotateCcwIcon,
   ShareIcon,
@@ -24,6 +23,7 @@ import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Surface } from '@pkgs/ui-root-client-ts/surface';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { createMemo, type JSX, Match, Show, Switch } from 'solid-js';
+import { PuzzleOptionsTrigger } from './puzzle-options-trigger';
 import type { PuzzlePlayScreenViewProps } from './puzzle-play-screen-model';
 import { PuzzleSettingsRow } from './puzzle-settings-row';
 import { PuzzleShareLabel } from './puzzle-share-label';
@@ -182,23 +182,7 @@ function ResultMore(props: PuzzlePlayScreenViewProps): JSX.Element {
         aria-label={t`Options for this puzzle`}
         placement="top-end"
         actions={more()}
-        trigger={
-          <Surface
-            tone="background"
-            radius="full"
-            border
-            paddingX="md"
-            paddingY="md"
-            direction="horizontal"
-            align="center"
-            gap="xs"
-          >
-            <EllipsisIcon size={20} color="icon" />
-            <Text variant="label">
-              <Trans>Options</Trans>
-            </Text>
-          </Surface>
-        }
+        trigger={<PuzzleOptionsTrigger />}
         dataSet={{ testid: 'chess-puzzle-result-more' }}
       />
     </PuzzleScreenFold>

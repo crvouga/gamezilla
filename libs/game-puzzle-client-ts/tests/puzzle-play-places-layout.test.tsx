@@ -52,11 +52,17 @@ test('play: the status line, the board, what solving allows, the line and one wa
   expect(dock.contains(screen.getByTestId('chess-puzzle-action-skip'))).toBe(
     true
   );
-  // A short phone's way to the settings waits in the dock (shown by CSS
-  // only under 700px of height); the full row stays under the moves.
-  expect(
-    dock.contains(screen.getByTestId('chess-puzzle-feed-summary-compact'))
-  ).toBe(true);
+  // A short phone's ways to the moves and the settings wait in the dock
+  // (shown by CSS only under 700px of height); the full rows stay under
+  // the coach.
+  expect(dock.contains(screen.getByTestId('chess-puzzle-solve-more'))).toBe(
+    true
+  );
+  // Its Options hold the moves so far and the settings.
+  fireEvent.click(screen.getByTestId('chess-puzzle-solve-more'));
+  expect(shown('chess-puzzle-line-open-compact')).toBe(true);
+  expect(shown('chess-puzzle-feed-summary-compact')).toBe(true);
+  fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Escape' });
   expect(shown('chess-puzzle-wrong-cost')).toBe(false);
   expect(shown('chess-puzzle-move-ply-1')).toBe(true);
   expect(shown('chess-puzzle-line-open')).toBe(true);
@@ -121,7 +127,7 @@ test('play: a wrong move is named, and Retry is the one filled command', () => {
     'counts as failed'
   );
   expect(shown('chess-puzzle-feed-summary')).toBe(false);
-  expect(shown('chess-puzzle-feed-summary-compact')).toBe(false);
+  expect(shown('chess-puzzle-solve-more')).toBe(false);
   expect(filledCommands()).toEqual(['Retry']);
 });
 

@@ -1,9 +1,18 @@
 import { PUZZLE_NAV_INTENT } from '@libs/game-puzzle-shared-ts/puzzle-nav';
+import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
-import { ListOrderedIcon, XIcon } from '@pkgs/ui-root-client-ts/icons';
+import {
+  ListOrderedIcon,
+  SlidersHorizontalIcon,
+  XIcon,
+} from '@pkgs/ui-root-client-ts/icons';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { MoveStrip } from '@pkgs/ui-root-client-ts/move-strip';
+import {
+  type OverflowMenuAction,
+  OverflowMenuButton,
+} from '@pkgs/ui-root-client-ts/overflow-menu-button';
 import { PuzzleScreenFold } from '@pkgs/ui-root-client-ts/puzzle-screen';
 import { SpectatorIndicator } from '@pkgs/ui-root-client-ts/spectator-indicator';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
@@ -11,8 +20,9 @@ import { P } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Show } from 'solid-js';
 import { PuzzleActionBar } from './puzzle-action-bar';
 import { HistoryPlyPairs } from './puzzle-move-history-ply';
+import { PuzzleOptionsTrigger } from './puzzle-options-trigger';
 import type { PuzzlePlayScreenViewProps } from './puzzle-play-screen-model';
-import { PuzzleSettingsButton, PuzzleSettingsRow } from './puzzle-settings-row';
+import { PuzzleSettingsRow } from './puzzle-settings-row';
 
 const ignoreSeek = (): void => {};
 
@@ -75,18 +85,50 @@ export function PuzzleSolveDock(props: PuzzlePlayScreenViewProps): JSX.Element {
         onSkip={props.onSkip}
         onNext={props.onNext}
         extra={
-          // A short phone has no room for the settings row: its way to the
-          // settings is here, beside the commands.
-          <Show when={props.status !== 'wrong'}>
+          // A short phone has no room for the moves' row and the settings
+          // row under the coach: their ways on are here, beside the
+          // commands, in one menu.
+          <Show when={props.status !== 'wrong' && !props.spectator}>
             <PuzzleScreenFold on="short">
-              <PuzzleSettingsButton
-                onOpen={() => props.onOpen({ screen: 'feed' })}
-              />
+              <SolveOptions {...props} />
             </PuzzleScreenFold>
           </Show>
         }
       />
     </StackVertical>
+  );
+}
+
+/** A short phone's way to the moves so far and to the puzzle settings. */
+function SolveOptions(props: PuzzlePlayScreenViewProps): JSX.Element {
+  const actions = (): OverflowMenuAction[] => [
+    ...(props.line.plies.length === 0
+      ? []
+      : [
+          {
+            id: 'moves',
+            label: <Trans>Review moves</Trans>,
+            icon: ListOrderedIcon,
+            onClick: () => props.onOpen({ screen: 'line' }),
+            dataSet: { testid: 'chess-puzzle-line-open-compact' },
+          },
+        ]),
+    {
+      id: 'settings',
+      label: <Trans>Puzzle settings</Trans>,
+      icon: SlidersHorizontalIcon,
+      onClick: () => props.onOpen({ screen: 'feed' }),
+      dataSet: { testid: 'chess-puzzle-feed-summary-compact' },
+    },
+  ];
+  return (
+    <OverflowMenuButton
+      aria-label={t`Options: review moves, puzzle settings`}
+      placement="top-end"
+      actions={actions()}
+      trigger={<PuzzleOptionsTrigger />}
+      dataSet={{ testid: 'chess-puzzle-solve-more' }}
+    />
   );
 }
 
@@ -165,7 +207,10 @@ function CompactLine(props: PuzzlePlayScreenViewProps): JSX.Element {
 export function PuzzleSolveLine(props: PuzzlePlayScreenViewProps): JSX.Element {
   return (
     <StackVertical gap="md">
-      <CompactLine {...props} />
+      {/* A short phone's moves are behind the dock's Options. */}
+      <PuzzleScreenFold on="tall">
+        <CompactLine {...props} />
+      </PuzzleScreenFold>
       {/* While a wrong move waits on Retry, Reveal or Skip, the settings
           step aside: the choice and the dock keep the first view. */}
       <Show when={!props.spectator && props.status !== 'wrong'}>
