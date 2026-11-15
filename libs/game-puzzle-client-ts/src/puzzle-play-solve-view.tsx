@@ -1,7 +1,7 @@
 import { PUZZLE_NAV_INTENT } from '@libs/game-puzzle-shared-ts/puzzle-nav';
 import { Trans } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
-import { ListOrderedIcon } from '@pkgs/ui-root-client-ts/icons';
+import { ListOrderedIcon, XIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { MoveStrip } from '@pkgs/ui-root-client-ts/move-strip';
 import { PuzzleScreenFold } from '@pkgs/ui-root-client-ts/puzzle-screen';
@@ -46,11 +46,14 @@ export function PuzzleSolveDock(props: PuzzlePlayScreenViewProps): JSX.Element {
     <StackVertical gap="sm">
       {/* A wrong move's cost is said before the choice, not after it. */}
       <Show when={props.status === 'wrong'}>
-        <P variant="caption" testId="chess-puzzle-wrong-cost">
-          <Trans>
-            This attempt now counts as failed. Retry to finish the line.
-          </Trans>
-        </P>
+        <StackHorizontal gap="sm" align="center">
+          <XIcon size={16} color="destructive" />
+          <P variant="label" tone="default" testId="chess-puzzle-wrong-cost">
+            <Trans>
+              This attempt now counts as failed. Retry to finish the line.
+            </Trans>
+          </P>
+        </StackHorizontal>
       </Show>
       <PuzzleActionBar
         status={props.status}

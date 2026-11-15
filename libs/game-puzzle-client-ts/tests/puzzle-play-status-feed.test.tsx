@@ -161,6 +161,10 @@ test('feed: one row per setting with the value the draft holds, the pool and Sav
     '12 of 40 puzzles on this device match'
   );
   expect(filledCommands()).toEqual(['Save settings']);
+  // Leaving without saving is its own command: it goes back, dropping the draft.
+  expect(screen.getByTestId('chess-puzzle-feed-discard').textContent).toBe(
+    'Discard changes'
+  );
   // No setting is edited on the hub itself.
   expect(shown('chess-puzzle-feed-offset-increase')).toBe(false);
   expect(shown('chess-puzzle-feed-history-any')).toBe(false);

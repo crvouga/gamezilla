@@ -8,7 +8,7 @@ import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { P, Text } from '@pkgs/ui-root-client-ts/text';
+import { Text } from '@pkgs/ui-root-client-ts/text';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import {
@@ -160,9 +160,16 @@ export function PuzzleFeedHubView(
               onClick={() => props.feed.onDone()}
               dataSet={{ testid: Handles.chessPuzzleFeedDone }}
             />
-            <P variant="caption" tone="secondary" align="center">
-              <Trans>Going back keeps the feed as it was.</Trans>
-            </P>
+            {/* Leaving drops the draft: the next visit starts from what is
+                saved. Said as its own command, so it is never a guess. */}
+            <Button
+              title={<Trans>Discard changes</Trans>}
+              intent="neutral"
+              variant="ghost"
+              fullWidth
+              onClick={() => props.onBack()}
+              dataSet={{ testid: 'chess-puzzle-feed-discard' }}
+            />
           </StackVertical>
         </Show>
         <ThisPuzzle {...props} />
