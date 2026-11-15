@@ -162,7 +162,7 @@ function Review(props: ResultProps): JSX.Element {
  */
 function Onward(props: ResultProps): JSX.Element {
   return (
-    <StackHorizontal gap="sm" wrap>
+    <StackHorizontal gap="sm" wrap width="full">
       <Review {...props} />
       <Show when={props.game.newOpponent}>
         <Button
