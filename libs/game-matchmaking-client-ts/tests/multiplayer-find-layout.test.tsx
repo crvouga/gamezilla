@@ -300,8 +300,8 @@ test('a search this device stopped is said so on the hub, until the next search'
 // regression: finish-first-dead-end — a refused search (finish your current
 // game first) left Find an opponent as the only way on, so the person had
 // nowhere to go but the same refusal.
-test('a refused search leads back to the game first, with trying again a quiet second', () => {
-  const view = mountPlaces({
+test('a search refused by another matched game says it opens here, with trying again a quiet second', () => {
+  mountPlaces({
     stage: 'idle',
     props: {
       commandDenial: {
@@ -311,17 +311,14 @@ test('a refused search leads back to the game first, with trying again a quiet s
       },
     },
   });
-  const back = screen.getByTestId('multiplayer-blocked-leave');
+  // That game opens on this very screen once this device has it: no detour.
+  expect(screen.queryByTestId('multiplayer-blocked-leave')).toBeNull();
+  expect(
+    screen.getByTestId('multiplayer-command-denial').textContent
+  ).toContain('It opens here as soon as this device has it.');
   const find = screen.getByTestId('multiplayer-find');
-  expect(back.getAttribute('data-variant')).toBe('solid');
   expect(find.getAttribute('data-variant')).toBe('outline');
   expect(find.textContent).toContain('Search again');
-  expect(back.textContent).toContain('Back to game choices');
-  expect(
-    back.compareDocumentPosition(find) & Node.DOCUMENT_POSITION_FOLLOWING
-  ).toBeTruthy();
-  back.click();
-  expect(view.props().onLeave).toHaveBeenCalledTimes(1);
 });
 
 // A custom game still on refuses the search: the dock opens that custom game.

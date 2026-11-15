@@ -9,8 +9,9 @@ import { GameActionBar } from '@pkgs/ui-root-client-ts/game-action-bar';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
+import { Grid, type GridColumns } from '@pkgs/ui-root-client-ts/grid';
 import { ChevronUpIcon } from '@pkgs/ui-root-client-ts/icons';
-import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import { type JSX, Show } from 'solid-js';
 import type {
@@ -138,11 +139,18 @@ function NewOpponent(props: ResultProps): JSX.Element {
   );
 }
 
+/** The finished game has moves or a record to step through. */
+const hasReview = (props: ResultProps): boolean =>
+  props.game.moves !== null || props.game.record !== null;
+
 /** Stepping through the finished game: its moves, or its record. */
-function Review(props: ResultProps): JSX.Element {
+function Review(
+  props: ResultProps & { readonly fullWidth?: boolean | undefined }
+): JSX.Element {
   return (
-    <Show when={props.game.moves !== null || props.game.record !== null}>
+    <Show when={hasReview(props)}>
       <Button
+        fullWidth={props.fullWidth}
         title={<Trans>Review</Trans>}
         aria-label={
           props.game.moves === null ? t`Game record` : t`Review moves`
@@ -161,27 +169,35 @@ function Review(props: ResultProps): JSX.Element {
  * game at another clock and the person's ratings.
  */
 function Onward(props: ResultProps): JSX.Element {
+  // One even row, as many columns as it has steps.
+  const columns = (): GridColumns =>
+    ((hasReview(props) ? 1 : 0) +
+      (props.game.newOpponent ? 1 : 0) +
+      1) as GridColumns;
   return (
-    <StackHorizontal gap="sm" wrap width="full">
-      <Review {...props} />
+    <Grid columns={columns()} gap="sm" width="full">
+      <Review {...props} fullWidth />
       <Show when={props.game.newOpponent}>
         <Button
-          title={<Trans>Game options</Trans>}
-          aria-label={t`Game options: choose what to play next`}
+          title={<Trans>Other clock</Trans>}
+          aria-label={t`Other clock: find an opponent at another clock`}
           variant="outline"
           intent="neutral"
+          fullWidth
           onClick={() => props.onOpen({ screen: 'find' })}
           dataSet={{ testid: 'multiplayer-open-find' }}
         />
       </Show>
       <Button
-        title={<Trans>Your ratings</Trans>}
+        title={<Trans>Ratings</Trans>}
+        aria-label={t`Ratings: yours, for every speed`}
         variant="outline"
         intent="neutral"
+        fullWidth
         onClick={() => props.onOpen({ screen: 'ratings', from: 'result' })}
         dataSet={{ testid: 'multiplayer-open-ratings' }}
       />
-    </StackHorizontal>
+    </Grid>
   );
 }
 

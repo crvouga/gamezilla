@@ -299,11 +299,11 @@ function FindDock(props: FindProps): JSX.Element {
     <GameLobbyDock
       status={props.blocked === null ? <FindStatus {...props} /> : undefined}
     >
-      <Show when={props.blocked !== null}>
+      {/* A custom game still on is opened from here; another matched game
+          opens on this screen by itself as soon as this device has it. */}
+      <Show when={props.blocked === 'custom-game'}>
         <Show
-          when={
-            props.blocked === 'custom-game' ? props.onOpenCustomGame : undefined
-          }
+          when={props.onOpenCustomGame}
           fallback={
             <Button
               title={<Trans>Back to game choices</Trans>}
@@ -378,8 +378,8 @@ export function MultiplayerFindView(props: FindProps): JSX.Element {
                 when={props.blocked === 'custom-game'}
                 fallback={
                   <Trans>
-                    Your other matched game is still on. Finish it, then search
-                    again.
+                    Your matched game from another device is still on. It opens
+                    here as soon as this device has it.
                   </Trans>
                 }
               >
