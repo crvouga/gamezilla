@@ -76,7 +76,6 @@ const meta = {
   args: {
     players: PLAYERS,
     outcome: 'won',
-    result: 'You won by four in a row.',
     endedAt: new Date(1_700_000_000_000 - 2 * 3_600_000).toISOString(),
     ply: WON_MOVES.length,
     moves: MOVES,
@@ -104,7 +103,6 @@ export const Start: Story = { args: { ply: 0 } };
 export const Watched: Story = {
   args: {
     outcome: null,
-    result: 'Red circle wins by four in a row.',
     players: PLAYERS.map((player) => ({ ...player, you: false })),
   },
 };
@@ -115,7 +113,6 @@ export const NoMoves: Story = {
     ply: 0,
     moves: [],
     outcome: 'cancelled',
-    result: 'Game cancelled.',
     players: PLAYERS.map((player) => ({ ...player, winner: false })),
   },
 };
@@ -210,7 +207,6 @@ export const LongGame: Story = {
     ply: 11,
     moves: LONG_MOVES,
     outcome: 'lost',
-    result: 'You lost by resignation.',
     players: PLAYERS.map((player) => ({ ...player, winner: !player.you })),
   },
   render: (args) => (

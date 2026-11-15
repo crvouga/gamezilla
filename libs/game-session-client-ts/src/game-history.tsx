@@ -21,11 +21,7 @@ import {
   type GameHistoryRow,
   GameHistoryScreenView,
 } from './game-history-screen-view';
-import {
-  recordOutcome,
-  useGameRecordEnding,
-  useGameRecordResult,
-} from './game-record-label';
+import { recordOutcome, useGameRecordEnding } from './game-record-label';
 import {
   type GameReplayMove,
   type GameReplayPlayer,
@@ -79,7 +75,6 @@ function RecordReview(props: {
   record: GameHistoryRecord;
   onBack: () => void;
 }): JSX.Element {
-  const result = useGameRecordResult();
   const [ply, setPly] = createSignal(props.record.moves.length);
   const presentation = useGamePresentation();
   const replayMoves = useReplayMoves();
@@ -113,7 +108,6 @@ function RecordReview(props: {
       <GameReplayScreenView
         players={players()}
         outcome={recordOutcome(props.record, myId())}
-        result={result(props.record, myId())}
         endedAt={props.record.endedAt}
         ply={ply()}
         moves={replay()}

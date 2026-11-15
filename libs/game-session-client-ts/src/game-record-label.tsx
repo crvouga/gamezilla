@@ -37,29 +37,6 @@ export function useGameRecordLabel(): (record: GameHistoryRecord) => string {
   };
 }
 
-/**
- * How the game ended, said to `person`: their own result when they played
- * ("You won by four in a row."), otherwise who won.
- */
-export function useGameRecordResult(): (
-  record: GameHistoryRecord,
-  person: string
-) => string {
-  const presentation = useGamePresentation();
-  const label = useGameRecordLabel();
-  return (record, person) => {
-    const outcome = recordOutcome(record, person);
-    if (outcome !== 'won' && outcome !== 'lost') return label(record);
-    const reason = ending(
-      record.reason,
-      presentation(record.position).endingLabel
-    );
-    return outcome === 'won'
-      ? t`You won by ${reason}.`
-      : t`You lost by ${reason}.`;
-  };
-}
-
 /** How the game ended, without who won ("By four in a row"), for a row that says the result. */
 export function useGameRecordEnding(): (record: GameHistoryRecord) => string {
   const presentation = useGamePresentation();

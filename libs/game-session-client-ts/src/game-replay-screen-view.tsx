@@ -26,7 +26,7 @@ import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { useDocumentShortcuts } from '@pkgs/ui-root-client-ts/use-document-shortcuts';
 import { useHoverCapable } from '@pkgs/ui-root-client-ts/use-hover-capable';
-import { createMemo, For, type JSX, Show } from 'solid-js';
+import { createMemo, For, type JSX, Match, Show, Switch } from 'solid-js';
 import type { FramePeople } from './game-frame-view-types';
 import {
   type GameHistoryOutcome,
@@ -57,8 +57,6 @@ export type GameReplayScreenViewProps = {
   readonly players: readonly GameReplayPlayer[];
   /** The viewer's result; `null` when they did not play. */
   readonly outcome: GameHistoryOutcome | null;
-  /** How the game ended, in words, said to the viewer ("You won by four in a row."). */
-  readonly result: string;
   /** When it ended, as an ISO instant; `null` when unknown. */
   readonly endedAt: string | null;
   /** The position shown: 0 is the start, `moves.length` the end. */
@@ -111,7 +109,12 @@ function ShownPosition(props: GameReplayScreenViewProps): JSX.Element {
           fallback={
             <P variant="caption" tone="secondary">
               <Show when={props.ply > 0} fallback={<Trans>No moves yet</Trans>}>
-                <Trans>Final position</Trans>
+                <Show
+                  when={props.outcome}
+                  fallback={<Trans>Final position</Trans>}
+                >
+                  {(outcome) => <ReplayOutcome outcome={outcome()} />}
+                </Show>
               </Show>
             </P>
           }
@@ -141,6 +144,28 @@ function ShownMove(props: GameReplayScreenViewProps): JSX.Element {
         {move()?.label}
       </P>
     </StackHorizontal>
+  );
+}
+
+/** The viewer's result in the step bar's second line at the final position: "You won". */
+function ReplayOutcome(props: {
+  readonly outcome: GameHistoryOutcome;
+}): JSX.Element {
+  return (
+    <Switch>
+      <Match when={props.outcome === 'won'}>
+        <Trans>You won</Trans>
+      </Match>
+      <Match when={props.outcome === 'lost'}>
+        <Trans>You lost</Trans>
+      </Match>
+      <Match when={props.outcome === 'draw'}>
+        <Trans>A draw</Trans>
+      </Match>
+      <Match when={props.outcome === 'cancelled'}>
+        <Trans>Cancelled</Trans>
+      </Match>
+    </Switch>
   );
 }
 
@@ -434,21 +459,15 @@ function ReplayMovesPage(props: GameReplayScreenViewProps): JSX.Element {
   );
 }
 
-/** How the game ended, said to the viewer, and when: "You won by four in a row. · 2d ago". */
+/** Whose game it was and when: "Your game · 2d ago", "Watched · 2d ago". */
 function ReplaySubtitle(props: GameReplayScreenViewProps): JSX.Element {
   const ago = useRelativeTimeLabel(() => props.endedAt ?? '');
   return (
     <>
-      <Show when={props.outcome === null}>
-        <Trans>Watched</Trans> ·{' '}
-      </Show>
-      {/* The result waits for the final position, as the Winner badge does,
-          so stepping through never gives the ending away. */}
-      <Show
-        when={props.ply === props.moves.length}
-        fallback={<Trans>Replaying the game</Trans>}
-      >
-        {props.result}
+      {/* One line at every position: the heading never moves the board,
+          and the result waits for the final position, in the step bar. */}
+      <Show when={props.outcome === null} fallback={<Trans>Your game</Trans>}>
+        <Trans>Watched</Trans>
       </Show>
       <Show when={props.endedAt !== null}> · {ago()}</Show>
     </>
