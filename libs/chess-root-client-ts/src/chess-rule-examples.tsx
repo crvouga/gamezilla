@@ -40,6 +40,8 @@ function RuleBoard(props: {
     <ChessBoard
       fen={props.fen}
       fitSquare
+      // The captions say each move in words, not square names.
+      showCoordinates={false}
       interactive={false}
       sound={false}
       animations={false}

@@ -50,12 +50,28 @@ export type GameRulesScreenProps = {
   /** The rules, in the order they are learned, each numbered. */
   sections: readonly GameRulesSection[];
   /**
+   * The name of the list of links to each part, offered when there are
+   * more parts than fit a glance (`Jump to a part`).
+   */
+  partsLabel?: JSX.Element | undefined;
+  /**
    * What to do once the rules are read (`Play`, `Back to the menu`), after
    * the last section behind a hairline, the main command first.
    */
   actions?: JSX.Element | undefined;
   dataSet?: ComponentDataSet | undefined;
 };
+
+function partId(screenId: string, key: string): string {
+  return `${screenId}-part-${key}`;
+}
+
+/** Bring a part into view and the keyboard to its heading. */
+function openPart(screenId: string, key: string): void {
+  const part = document.getElementById(partId(screenId, key));
+  part?.scrollIntoView({ block: 'start' });
+  part?.querySelector<HTMLElement>('h2')?.focus({ preventScroll: true });
+}
 
 /**
  * `GameRulesScreen` -- how a game is played, inside a space: the game's
@@ -104,16 +120,45 @@ export function GameRulesScreen(props: GameRulesScreenProps): JSX.Element {
           </p>
         </Show>
       </header>
+      <Show when={props.partsLabel !== undefined && props.sections.length > 4}>
+        <nav
+          class={styles['parts']}
+          aria-labelledby={`${props.screenId}-parts`}
+        >
+          <p id={`${props.screenId}-parts`} class="text textSectionLabel">
+            {props.partsLabel}
+          </p>
+          <ol class={styles['partLinks']}>
+            <For each={props.sections}>
+              {(section, index) => (
+                <li>
+                  <button
+                    type="button"
+                    class={`${styles['partLink']} clickable text textCaption`}
+                    onClick={() => openPart(props.screenId, section.key)}
+                  >
+                    {index() + 1}. {section.title}
+                  </button>
+                </li>
+              )}
+            </For>
+          </ol>
+        </nav>
+      </Show>
       <ol class={styles['sections']}>
         <For each={props.sections}>
           {(section, index) => (
             <li
               class={styles['section']}
+              id={partId(props.screenId, section.key)}
               data-key={section.key}
               data-pictured={section.examples?.length ? '' : undefined}
             >
               <div class={styles['words']}>
-                <h2 class={`${styles['heading']} text textHeading`}>
+                <h2
+                  class={`${styles['heading']} text textHeading`}
+                  tabIndex={-1}
+                >
                   <span class={styles['marker']} aria-hidden="true">
                     {index() + 1}
                   </span>

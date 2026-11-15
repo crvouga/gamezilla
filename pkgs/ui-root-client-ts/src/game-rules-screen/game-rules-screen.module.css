@@ -92,6 +92,39 @@
 .points {
   max-inline-size: 64ch;
 }
+/* The links to each part: a quiet row that wraps, one tap to any part. */
+.parts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-2);
+  inline-size: 100%;
+  max-inline-size: 640px;
+}
+.partLinks {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--ui-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.partLink {
+  min-block-size: 32px;
+  padding: var(--ui-space-1) var(--ui-space-3);
+  border: 1px solid var(--ui-color-border);
+  border-radius: var(--ui-radius-full);
+  background: var(--ui-color-surface);
+  color: var(--ui-color-text);
+}
+.partLink:focus-visible {
+  outline: 2px solid var(--ui-color-focus-ring);
+  outline-offset: 2px;
+}
+/* A part opened from its link sits below the screen's top edge. */
+.section {
+  scroll-margin-block-start: var(--ui-space-4);
+}
 /* A part's words: its heading, body and entries. */
 .words {
   display: flex;
@@ -103,7 +136,7 @@
 @container (min-width: 560px) {
   .section[data-pictured] {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 240px;
+    grid-template-columns: minmax(0, 1fr) 200px;
     gap: var(--ui-space-4);
     align-items: start;
   }
@@ -121,11 +154,11 @@
 }
 .example {
   display: flex;
-  flex: 1 1 240px;
+  flex: 1 1 200px;
   flex-direction: column;
   gap: var(--ui-space-2);
   margin: 0;
-  max-inline-size: 320px;
+  max-inline-size: 240px;
 }
 /* The picture as wide as its column, square. */
 .figure {

@@ -46,6 +46,7 @@ export function GameHowToPlayView(props: {
       motif={props.tile}
       subtitle={props.subtitle}
       sections={props.rules}
+      partsLabel={<Trans>Jump to a part</Trans>}
       dataSet={{ testid: 'game-how-to-play' }}
       actions={
         <>

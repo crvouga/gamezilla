@@ -62,3 +62,36 @@ describe('GameRulesScreen', () => {
     view.unmount();
   });
 });
+
+describe('GameRulesScreen parts', () => {
+  test('many parts get a link each; a link takes the keyboard to its heading', () => {
+    const keys = ['goal', 'turn', 'knight', 'castling', 'end'];
+    const view = render(() => (
+      <ThemeProvider
+        colorScheme="dark"
+        fixedLayout={{ width: 390, height: 844 }}
+      >
+        <GameRulesScreen
+          screenId="game-how-to-play"
+          eyebrow="How to play"
+          title="Chess"
+          motif="checkered"
+          partsLabel="Jump to a part"
+          sections={keys.map((key) => ({ key, title: key, body: `${key}.` }))}
+        />
+      </ThemeProvider>
+    ));
+    const nav = view.getByRole('navigation', { name: 'Jump to a part' });
+    const links = nav.querySelectorAll('button');
+    expect(links).toHaveLength(5);
+    (links[3] as HTMLButtonElement).click();
+    expect(document.activeElement?.textContent).toBe('4castling');
+    view.unmount();
+  });
+
+  test('a few parts read at a glance, with no links', () => {
+    const view = rules(390);
+    expect(view.queryByRole('navigation')).toBeNull();
+    view.unmount();
+  });
+});
