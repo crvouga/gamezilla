@@ -60,6 +60,8 @@ type OverlayProps = {
   readonly result: MultiplayerResultShown | undefined;
   /** Under the result: where else it leads. */
   readonly children?: JSX.Element | undefined;
+  /** The result card's commands: every next step, inside the card. */
+  readonly actions?: JSX.Element | undefined;
 };
 
 /** Over the card's headline, one word: how the game went for the person. */
@@ -130,6 +132,7 @@ export function MultiplayerOverlayView(props: OverlayProps): JSX.Element {
               caption={result().caption}
               dismissLabel={t`Show the board`}
               onDismiss={() => props.onOverlay({ type: 'dismiss' })}
+              actions={props.actions}
               dataSet={{ testid: 'multiplayer-announcement' }}
             >
               {props.children}

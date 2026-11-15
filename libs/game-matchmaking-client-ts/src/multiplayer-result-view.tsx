@@ -213,7 +213,27 @@ function ShowResult(props: ResultProps): JSX.Element {
  * moves, which also sit beside a wide board. Closing the card shows the final board; the line under it brings
  * the card back.
  */
+/** What to do next: answer a rematch, a new opponent, a rematch, the moves. */
+function NextSteps(props: ResultProps): JSX.Element {
+  return (
+    <>
+      <Show when={props.game.rematch === 'answer'}>
+        <Rematch {...props} />
+      </Show>
+      <NewOpponent {...props} />
+      <Show when={props.game.rematch !== 'answer'}>
+        <Rematch {...props} />
+      </Show>
+      <Review {...props} />
+    </>
+  );
+}
+
 export function MultiplayerResultView(props: ResultProps): JSX.Element {
+  // While the result card is open it holds every next step itself (it holds
+  // the keyboard too); closed, the same steps stand under the board.
+  const cardOpen = () =>
+    props.overlay.kind === 'outcome' && props.result !== undefined;
   return (
     <MultiplayerStagePlace {...props} title={props.title}>
       <GameSessionLayout
@@ -223,16 +243,11 @@ export function MultiplayerResultView(props: ResultProps): JSX.Element {
         fixedStage
         status={<ShowResult {...props} />}
         actions={
-          <GameActionBar aria-label={t`What next`} items={[]} width="content">
-            <Show when={props.game.rematch === 'answer'}>
-              <Rematch {...props} />
-            </Show>
-            <NewOpponent {...props} />
-            <Show when={props.game.rematch !== 'answer'}>
-              <Rematch {...props} />
-            </Show>
-            <Review {...props} />
-          </GameActionBar>
+          <Show when={!cardOpen()}>
+            <GameActionBar aria-label={t`What next`} items={[]} width="content">
+              <NextSteps {...props} />
+            </GameActionBar>
+          </Show>
         }
         aside={
           <Show when={props.game.moves}>
@@ -258,9 +273,13 @@ export function MultiplayerResultView(props: ResultProps): JSX.Element {
             onOverlay={props.onOverlay}
             versus={undefined}
             result={props.result}
-          >
-            <Onward {...props} />
-          </MultiplayerOverlayView>
+            actions={
+              <>
+                <NextSteps {...props} />
+                <Onward {...props} />
+              </>
+            }
+          />
         )}
       </GameSessionLayout>
     </MultiplayerStagePlace>

@@ -608,10 +608,30 @@ describe('a card over the board holds the keyboard', () => {
     const dialog = card.closest('[role="dialog"]');
     expect(dialog?.getAttribute('aria-modal')).toBe('true');
     expect(dialog?.contains(document.activeElement)).toBe(true);
+    // Every next step is inside the card, so the keyboard reaches them all;
+    // nothing is left in a bar the card holds the keyboard away from.
+    for (const id of [
+      'multiplayer-new-opponent',
+      'multiplayer-offer-rematch',
+      'multiplayer-open-moves',
+      'multiplayer-open-find',
+      'multiplayer-open-ratings',
+    ])
+      expect(dialog?.contains(screen.getByTestId(id))).toBe(true);
+    expect(
+      view.container.querySelector('[data-component="GameActionBar"]')
+    ).toBeNull();
     document.activeElement?.dispatchEvent(
       new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })
     );
     expect(view.overlay()).toEqual({ kind: 'board' });
+    // Closed, the same steps stand under the board.
+    const bar = view.container.querySelector(
+      '[data-component="GameActionBar"]'
+    );
+    expect(bar?.contains(screen.getByTestId('multiplayer-new-opponent'))).toBe(
+      true
+    );
   });
 
   test('the versus card is a dialog that focus opens in', () => {
