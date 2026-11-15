@@ -16,6 +16,12 @@
   flex-direction: column;
   gap: var(--ui-space-2);
   max-height: 320px;
+}
+/* Only the rows scroll: the moves' word stays over them, never over a
+   row. */
+.list[data-layout="table"] > .turns {
+  flex: 0 1 auto;
+  min-height: 0;
   overflow-y: auto;
   scrollbar-width: thin;
 }
@@ -114,12 +120,6 @@
 }
 .list[data-layout="table"] .heading {
   padding-inline-start: calc(32px + var(--ui-space-2));
-  /* The list scrolls to its latest move; its word stays over the moves. */
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  padding-bottom: var(--ui-space-2);
-  background: var(--ui-color-surface);
 }
 .moveButton {
   display: inline-flex;
@@ -226,6 +226,8 @@
     .turns {
     display: flex;
     flex-direction: row;
+    /* The line itself scrolls sideways; its turns never clip. */
+    overflow: visible;
     gap: var(--ui-space-2);
   }
   /* Room after the latest unit, inside what scrolls. */
@@ -247,7 +249,7 @@
     display: flex;
     align-items: center;
     gap: var(--ui-space-1);
-    padding-inline: var(--ui-space-2) var(--ui-space-1);
+    padding-inline: var(--ui-space-2);
     border: 1px solid var(--ui-color-border);
     border-radius: var(--ui-radius-full);
   }
@@ -258,6 +260,14 @@
     .turn:has([aria-current="step"]) {
     border-color: var(--ui-color-tint);
     background: var(--ui-color-tint-subtle);
+  }
+  /* The unit carries the mark; its move draws no second, squarer fill
+     against the unit's round end. */
+  [data-game-fixed="true"]
+    [data-game-slot="rail"]
+    .list[data-layout="table"]
+    .moveButton[data-current="true"] {
+    background: transparent;
   }
   [data-game-fixed="true"]
     [data-game-slot="rail"]

@@ -156,7 +156,8 @@ section.docked[data-tone="lost"] {
    and its reason share a line where they fit; quiet commands are 36px. */
 @media (max-width: 1023px) and (max-height: 700px) {
   /* Opened details rise as a sheet over the board, from the card's top
-     edge, so neither the board nor the card's reason gives up room. */
+     edge, so neither the board nor the card's reason gives up room; the
+     board stays its size under the scrim and returns when it closes. */
   section.docked:has(.details[data-open="true"]) {
     overflow: visible;
   }
@@ -171,7 +172,12 @@ section.docked[data-tone="lost"] {
     border: 1px solid var(--ui-color-border);
     border-radius: var(--ui-radius-card);
     background: var(--ui-color-surface-elevated);
-    box-shadow: var(--ui-shadow-float);
+    /* A scrim dims what the sheet lies over (the board, the seats), down
+       to the card, which stays clear with its reason and its control. */
+    box-shadow:
+      var(--ui-shadow-float),
+      0 0 0 100vmax var(--ui-color-scrim);
+    clip-path: inset(-100vmax -100vmax calc(-1 * var(--ui-space-2)) -100vmax);
     /* A visible bar says there is more to scroll. */
     scrollbar-width: thin;
   }

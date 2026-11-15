@@ -159,9 +159,17 @@ function scrollMarkedIntoView(root: HTMLElement): void {
   const box = root.getBoundingClientRect();
   // Its turn's whole row (or unit, laid out as one line), not its figure alone.
   const move = (marked.closest('li') ?? marked).getBoundingClientRect();
-  if (move.bottom > box.bottom)
-    root.scrollTop += Math.ceil(move.bottom - box.bottom);
-  else if (move.top < box.top) root.scrollTop -= Math.ceil(box.top - move.top);
+  // A table's rows scroll under its heading, by themselves.
+  const rows = root.querySelector<HTMLElement>(`:scope > .${styles['turns']}`);
+  const column =
+    rows !== null && /(auto|scroll)/.test(getComputedStyle(rows).overflowY)
+      ? rows
+      : root;
+  const frame = column.getBoundingClientRect();
+  if (move.bottom > frame.bottom)
+    column.scrollTop += Math.ceil(move.bottom - frame.bottom);
+  else if (move.top < frame.top)
+    column.scrollTop -= Math.ceil(frame.top - move.top);
   // Laid out as one line (over a phone's board) it scrolls sideways.
   if (move.right > box.right)
     root.scrollLeft += Math.ceil(move.right - box.right);
