@@ -7,6 +7,7 @@ import {
 import {
   readPuzzleImport,
   startPuzzleLoading,
+  stopPuzzleLoading,
 } from '@libs/chess-root-harness-ts/puzzle-import-ui';
 import { joinPuzzleTeam } from '@libs/chess-root-harness-ts/puzzle-import-world';
 import {
@@ -97,3 +98,36 @@ test('Back from chess settings returns to the game menu', async () => {
   await s.apply(goBack, 'alice');
   expect(await s.read(sees, Handles.gameChoices)).toBe(true);
 }, 30000);
+
+// One continuous path through a game's settings, as a puzzle manager: the
+// game's menu offers Settings, Settings is the loader itself, a load is
+// started and stopped with its outcome said, and Back returns to the menu.
+test('a puzzle manager loads and stops chess puzzles from Settings, then returns', async () => {
+  await using s = await openHarness('puzzle-settings-journey');
+  await s.apply(signInWithGoogle, 'alice');
+  await s.apply(joinPuzzleTeam, 'alice');
+  await s.apply(createSpace, 'alice');
+  await s.apply(openChessGameChoices, 'alice');
+  expect(await s.read(sees, 'game-choice-settings')).toBe(true);
+  await s.apply(openChessSettings, 'alice');
+  await s.apply(openChessPuzzleLoader, 'alice');
+  expect(await s.read(sees, 'chess-settings-puzzles')).toBe(false);
+  expect(
+    await s.until((world) => readPuzzleImport(world, 'alice'), {
+      pred: (view) => !view.denied,
+      maxMs: 15000,
+    })
+  ).toMatchObject({ status: 'ready', denied: false });
+  await s.apply(startPuzzleLoading, 'alice');
+  expect(await s.read(readPuzzleImport, 'alice')).toMatchObject({
+    status: 'adding',
+    stopOffered: true,
+  });
+  await s.apply(stopPuzzleLoading, 'alice');
+  expect(await s.read(readPuzzleImport, 'alice')).toMatchObject({
+    status: 'stopped',
+  });
+  await s.apply(goBack, 'alice');
+  expect(await s.read(sees, Handles.gameChoices)).toBe(true);
+  expect(await s.read(sees, 'game-choice-settings')).toBe(true);
+}, 60000);

@@ -50,6 +50,8 @@ export function GameSettingsScreenView(
       // for: a group is remounted per place, and the one leaving must not
       // file its memory under the place arriving.
       screenId={screenId}
+      // On the menu's own column, so moving between them never shifts it.
+      align="start"
       title={props.title}
       subtitle={props.subtitle}
       dataSet={{ testid: 'game-settings', place: props.place.screen }}

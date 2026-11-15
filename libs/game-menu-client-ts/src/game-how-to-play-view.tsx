@@ -5,7 +5,6 @@ import {
   type GameRulesSection,
 } from '@pkgs/ui-root-client-ts/game-rules-screen';
 import type { GameTileMotif } from '@pkgs/ui-root-client-ts/game-tile';
-import { ArrowLeftIcon } from '@pkgs/ui-root-client-ts/icons';
 import { type JSX, Show } from 'solid-js';
 
 /** The way to play that the rules lead on to: the menu's main way in. */
@@ -65,7 +64,6 @@ export function GameHowToPlayView(props: {
           </Show>
           <Button
             title={<Trans>All ways to play</Trans>}
-            icon={ArrowLeftIcon}
             intent="neutral"
             variant="outline"
             size="sm"
