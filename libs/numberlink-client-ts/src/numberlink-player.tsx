@@ -63,25 +63,28 @@ function Drawing(props: {
         onNavigate={drawing.extend}
         onCellKey={drawing.key}
       />
-      <P
-        variant="caption"
-        aria-live="polite"
-        dataSet={{ testid: 'numberlink-progress' }}
-      >
-        <Trans>Saved:</Trans>{' '}
-        <Trans>
-          {connectedPairs(props.definition, props.state).length}/
-          {props.definition.pairs.length} pairs connected
-        </Trans>
-        {' — '}
-        <Trans>
-          {props.state.paths.reduce(
-            (count, path) => count + path.cells.length,
-            0
-          )}
-          /{props.definition.width * props.definition.height} cells covered
-        </Trans>
-      </P>
+      {/* Once solved inside the attempt screen, its headline says so. */}
+      <Show when={!(solved() && props.shellSaysSolved)}>
+        <P
+          variant="caption"
+          aria-live="polite"
+          dataSet={{ testid: 'numberlink-progress' }}
+        >
+          <Trans>Saved:</Trans>{' '}
+          <Trans>
+            {connectedPairs(props.definition, props.state).length}/
+            {props.definition.pairs.length} pairs connected
+          </Trans>
+          {' — '}
+          <Trans>
+            {props.state.paths.reduce(
+              (count, path) => count + path.cells.length,
+              0
+            )}
+            /{props.definition.width * props.definition.height} cells covered
+          </Trans>
+        </P>
+      </Show>
       {/* After the board, so finishing never moves the board; left to the
           screen when it says the puzzle is solved itself. */}
       <Show when={solved() && !props.shellSaysSolved}>
@@ -184,8 +187,8 @@ function AttemptTools(props: {
   const [helpOpen, setHelpOpen] = createSignal(false);
   return (
     <>
-      {/* Room for the focus rings at the board's sides. */}
-      <StackHorizontal gap="sm" align="center" paddingX="xs">
+      {/* Room for the focus rings around the row. */}
+      <StackHorizontal gap="sm" align="center" paddingX="xs" paddingY="xs">
         <StackVertical grow shrink>
           <NumberlinkRecovery
             definition={props.definition}
