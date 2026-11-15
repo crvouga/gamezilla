@@ -68,15 +68,17 @@ export function FrameOptionsPlace(
   );
 }
 
-/** A time for each side, typed, then applied (or kept on the way back). */
-function ClockTimeFields(
-  props: Props & {
-    readonly minutes: string;
-    readonly increment: string;
-    readonly onMinutes: (value: string) => void;
-    readonly onIncrement: (value: string) => void;
-  }
-): JSX.Element {
+/**
+ * A time for each side, saved as each field is left (a time is set by its
+ * two fields together, so not at every keystroke).
+ */
+function ClockTimeFields(props: {
+  readonly minutes: string;
+  readonly increment: string;
+  readonly onMinutes: (value: string) => void;
+  readonly onIncrement: (value: string) => void;
+  readonly onSave: () => void;
+}): JSX.Element {
   return (
     <StackVertical gap="md">
       <TextInput
@@ -84,6 +86,7 @@ function ClockTimeFields(
         type="number"
         value={props.minutes}
         onChangeText={props.onMinutes}
+        onChange={props.onSave}
         dataSet={{ testid: 'custom-game-minutes' }}
       />
       <TextInput
@@ -91,32 +94,19 @@ function ClockTimeFields(
         type="number"
         value={props.increment}
         onChangeText={props.onIncrement}
+        onChange={props.onSave}
         dataSet={{ testid: 'custom-game-increment' }}
       />
-      {/* Unlike an option, a time is set by its two fields together;
-          one button uses it, and going back keeps an edit all the same. */}
-      <GameActions sizing="fill">
-        <GameActionButton
-          title={<Trans>Use this clock</Trans>}
-          variant="solid"
-          dataSet={{ testid: 'custom-game-clock' }}
-          operation={async () => {
-            await props.onChoose({
-              operation: 'clock',
-              minutes: Number(props.minutes),
-              increment: Number(props.increment),
-            });
-            props.onClose();
-          }}
-        />
-      </GameActions>
+      <P variant="caption" tone="secondary">
+        <Trans>Each time is saved as you leave its field.</Trans>
+      </P>
     </StackVertical>
   );
 }
 
 /**
  * The clock, which the platform owns for every game played by turns: set
- * minutes and added seconds and use them, or play untimed. Swapping who
+ * minutes and added seconds (saved as they are left), or play untimed. Swapping who
  * plays which side is agreed here too. Each returns to the lobby.
  */
 export function FrameClockPlace(
@@ -125,28 +115,25 @@ export function FrameClockPlace(
   const [minutes, setMinutes] = createSignal(String(props.clock.minutes || 5));
   const [increment, setIncrement] = createSignal(String(props.clock.increment));
   const choices = createFrameChoices(() => props.onClose());
-  // A time edited and not yet applied is applied on the way back, so
-  // leaving never drops it.
+  // A time is saved as its field is left, and on the way back too, so
+  // leaving never drops an edit.
   const edited = (): boolean =>
     props.clock.minutes > 0 &&
+    Number(minutes()) > 0 &&
     (Number(minutes()) !== props.clock.minutes ||
       Number(increment()) !== props.clock.increment);
+  const save = (): Promise<void> =>
+    edited()
+      ? props.onChoose({
+          operation: 'clock',
+          minutes: Number(minutes()),
+          increment: Number(increment()),
+        })
+      : Promise.resolve();
   return (
     <FramePlacePage
       {...props}
-      onClose={() => {
-        if (!edited()) {
-          props.onClose();
-          return;
-        }
-        void props
-          .onChoose({
-            operation: 'clock',
-            minutes: Number(minutes()),
-            increment: Number(increment()),
-          })
-          .then(() => props.onClose());
-      }}
+      onClose={() => void save().then(() => props.onClose())}
       screenId="custom-game-clock"
       back={<Trans>Back to setup</Trans>}
       title={<Trans>Clock and sides</Trans>}
@@ -193,11 +180,11 @@ export function FrameClockPlace(
         />
       </MenuSection>
       <ClockTimeFields
-        {...props}
         minutes={minutes()}
         increment={increment()}
         onMinutes={setMinutes}
         onIncrement={setIncrement}
+        onSave={() => void save()}
       />
       <MenuSection title={<Trans>Sides</Trans>}>
         <FrameChoiceRow

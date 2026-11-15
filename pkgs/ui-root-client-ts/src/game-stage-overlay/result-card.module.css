@@ -157,14 +157,12 @@ section.docked[data-tone="lost"] {
 @media (max-width: 1023px) and (max-height: 700px) {
   /* Opened details scroll by themselves under the card's fixed headline
      and control, rather than shrink the board. */
-  /* While standings are open the reason gives way: the rows say it. A
-     card's other details (its commands) keep the reason in view. */
-  .docked:has(.details[data-open="true"] :global(.panel)) > :first-child p {
-    display: none;
-  }
+  /* The reason stays in view while details are open; the rows scroll. */
   .docked .details[data-open="true"] .detailsBody {
     max-height: 6.5rem;
     overflow-y: auto;
+    /* Clear of the toggle's focus ring. */
+    margin-top: var(--ui-space-2);
     /* A rule under the headline marks where the rows begin. */
     padding-top: var(--ui-space-2);
     border-top: 1px solid var(--ui-color-border);

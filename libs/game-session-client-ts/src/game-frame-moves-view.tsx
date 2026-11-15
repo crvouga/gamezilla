@@ -8,6 +8,7 @@ import {
   type GameMoveListEntry,
 } from '@pkgs/ui-root-client-ts/game-move-list';
 import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
+import { GameSeatSwatch } from '@pkgs/ui-root-client-ts/game-seat-swatch';
 import { GameActions, GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
 import { GameTurnPill } from '@pkgs/ui-root-client-ts/game-turn-pill';
@@ -335,6 +336,12 @@ function ReviewingLine(props: { readonly record: FrameRecord }): JSX.Element {
     <GameTurnPill
       live
       tone={recordReviewing(props.record) ? 'warning' : 'neutral'}
+      // The move shown is marked by its mover's piece, not a warning dot.
+      mark={
+        <Show when={props.record.movers[props.record.displayedPly - 1]?.swatch}>
+          {(look) => <GameSeatSwatch look={look()} />}
+        </Show>
+      }
       dataSet={{ testid: 'custom-game-reviewing' }}
       title={
         <Show

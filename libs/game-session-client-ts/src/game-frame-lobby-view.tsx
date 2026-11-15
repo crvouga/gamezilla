@@ -364,15 +364,7 @@ function seatedCount(seats: readonly FrameSetupSeat[]): number {
  */
 function LobbyMode(props: Props & { readonly setup: FrameSetup }): JSX.Element {
   const facts = (): readonly GameModeFact[] => [
-    {
-      id: 'players',
-      label: <Trans>Players</Trans>,
-      value: (
-        <Trans>
-          {seatedCount(props.setup.seats)} of {props.setup.seats.length}
-        </Trans>
-      ),
-    },
+    // Who is in is counted on the Players list below, not here.
     // A clock that has its own row below is not said twice.
     ...(props.setup.options?.clock == null
       ? [
@@ -477,7 +469,12 @@ export function FrameLobbyPlace(
         )}
       </Show>
       <MenuSection
-        title={<Trans>Players</Trans>}
+        title={
+          <Trans>
+            Players · {seatedCount(props.setup.seats)} of{' '}
+            {props.setup.seats.length}
+          </Trans>
+        }
         dataSet={{ testid: 'custom-game-setup-seats' }}
       >
         <Index each={props.setup.seats}>
