@@ -51,7 +51,11 @@ export function browserProcessChannel<Open>(
 ) {
   const pending = new Map<
     number,
-    { resolve: (value: unknown) => void; reject: (error: Error) => void }
+    {
+      resolve: (value: unknown) => void;
+      reject: (error: Error) => void;
+      progress: (stage: 'opening' | 'executing') => void;
+    }
   >();
   let sequence = 0;
   const consoleLines: string[] = [];
@@ -68,12 +72,17 @@ export function browserProcessChannel<Open>(
       errorName?: string;
       console?: string[];
       network?: string[];
+      stage?: 'opening' | 'executing';
     };
     if (response.console !== undefined)
       consoleLines.splice(0, consoleLines.length, ...response.console);
     if (response.network !== undefined)
       networkLines.splice(0, networkLines.length, ...response.network);
     const reply = pending.get(response.id);
+    if (response.stage === 'opening' || response.stage === 'executing') {
+      reply?.progress(response.stage);
+      return;
+    }
     pending.delete(response.id);
     if (response.error !== undefined)
       reply?.reject(reviveBrowserError(response.errorName, response.error));
@@ -86,11 +95,22 @@ export function browserProcessChannel<Open>(
   }): Promise<T> =>
     new Promise((resolve, reject) => {
       const id = ++sequence;
+      let stage = 'sent';
       const timer = timers.setTimeout(() => {
         pending.delete(id);
-        reject(new Error('The isolated browser did not answer'));
+        reject(
+          callFailure(
+            payload.call,
+            new Error(
+              `The isolated browser did not answer after ${BROWSER_REQUEST_MS}ms (stage: ${stage})`
+            )
+          )
+        );
       }, BROWSER_REQUEST_MS);
       pending.set(id, {
+        progress: (value) => {
+          stage = value;
+        },
         resolve: (value) => {
           timers.clearTimeout(timer);
           resolve(value as T);
@@ -100,23 +120,7 @@ export function browserProcessChannel<Open>(
           reject(callFailure(payload.call, error));
         },
       });
-      process.post({
-        id,
-        ...payload,
-        ...(payload.call === undefined
-          ? {}
-          : {
-              call: {
-                ...payload.call,
-                args: payload.call.args.slice(
-                  0,
-                  payload.call.args.findLastIndex(
-                    (value) => value !== undefined
-                  ) + 1
-                ),
-              },
-            }),
-      });
+      process.post({ id, ...payload, ...serializableCall(payload.call) });
     });
 
   return {
@@ -128,6 +132,20 @@ export function browserProcessChannel<Open>(
       unwatch();
       fail(new Error('The browser closed'));
       await process.terminate();
+    },
+  };
+}
+
+/** IPC cannot serialize trailing undefined arguments. */
+function serializableCall(call: BrowserCall | undefined) {
+  if (call === undefined) return {};
+  return {
+    call: {
+      ...call,
+      args: call.args.slice(
+        0,
+        call.args.findLastIndex((value) => value !== undefined) + 1
+      ),
     },
   };
 }
