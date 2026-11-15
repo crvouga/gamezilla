@@ -23,7 +23,7 @@ export type GameRulesSection = {
   points?: readonly JSX.Element[] | undefined;
   /**
    * Pictures of the part in play (a move on a board), each with the words
-   * that say what it shows, after the body and its entries.
+   * that say what it shows, right after the body, before its entries.
    */
   examples?: readonly GameRulesExample[] | undefined;
 };
@@ -116,17 +116,6 @@ export function GameRulesScreen(props: GameRulesScreenProps): JSX.Element {
               <div class={`${styles['body']} text textBody`}>
                 {section.body}
               </div>
-              <Show when={section.points?.length}>
-                <ul class={styles['points']}>
-                  <For each={section.points}>
-                    {(point) => (
-                      <li class={`${styles['point']} text textBody`}>
-                        {point}
-                      </li>
-                    )}
-                  </For>
-                </ul>
-              </Show>
               <Show when={section.examples?.length}>
                 <div class={styles['examples']}>
                   <For each={section.examples}>
@@ -142,6 +131,17 @@ export function GameRulesScreen(props: GameRulesScreenProps): JSX.Element {
                     )}
                   </For>
                 </div>
+              </Show>
+              <Show when={section.points?.length}>
+                <ul class={styles['points']}>
+                  <For each={section.points}>
+                    {(point) => (
+                      <li class={`${styles['point']} text textBody`}>
+                        {point}
+                      </li>
+                    )}
+                  </For>
+                </ul>
               </Show>
             </li>
           )}

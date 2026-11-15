@@ -101,13 +101,17 @@
 }
 .example {
   display: flex;
+  flex: 1 1 240px;
   flex-direction: column;
   gap: var(--ui-space-2);
   margin: 0;
-  inline-size: 200px;
+  max-inline-size: 320px;
 }
+/* The picture as wide as its column, square. */
 .figure {
   display: flex;
+  aspect-ratio: 1;
+  inline-size: 100%;
   overflow: hidden;
   border-radius: var(--ui-radius-control);
 }

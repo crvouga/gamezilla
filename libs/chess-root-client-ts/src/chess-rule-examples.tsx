@@ -39,7 +39,7 @@ function RuleBoard(props: {
   return (
     <ChessBoard
       fen={props.fen}
-      size={200}
+      fitSquare
       interactive={false}
       sound={false}
       animations={false}
@@ -74,7 +74,7 @@ export const KNIGHT_EXAMPLE: GameRuleExample = {
   ),
   caption: () => (
     <Trans>
-      The knight on d4 reaches every marked square, jumping over the pawn.
+      The knight reaches every marked square, jumping over the pawn in its way.
     </Trans>
   ),
 };
@@ -85,14 +85,15 @@ export const CASTLING_EXAMPLE: GameRuleExample = {
   Figure: () => (
     <RuleBoard
       fen={RULE_EXAMPLE_POSITIONS.castling}
-      arrows={[
-        { from: 'e1', to: 'g1' },
-        { from: 'h1', to: 'f1', color: 'secondary' },
-      ]}
+      arrows={[{ from: 'e1', to: 'g1' }]}
+      marked={['f1']}
     />
   ),
   caption: () => (
-    <Trans>Castling: the king goes e1 to g1, the rook h1 to f1.</Trans>
+    <Trans>
+      Castling: the king steps two squares toward the rook, and the rook jumps
+      over it to the marked square beside it.
+    </Trans>
   ),
 };
 
