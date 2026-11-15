@@ -184,7 +184,7 @@ function SeatRow(
   );
 }
 
-/** An invitation the viewer holds: answered here, where they land. */
+/** An invitation the viewer holds, said where they land; answered in the dock. */
 function OwnInvitation(
   props: Props & { readonly seat: FrameSetupSeat }
 ): JSX.Element {
@@ -203,27 +203,47 @@ function OwnInvitation(
               />{' '}
               <Trans>invites you to play {props.seat.sideLabel}.</Trans>
             </P>
-            <Show when={invitation().canAnswer}>
-              <GameActions>
-                <GameActionButton
-                  title={<Trans>Accept</Trans>}
-                  variant="solid"
-                  dataSet={{ testid: `custom-game-${side()}-accept` }}
-                  operation={() =>
-                    props.onChoose({ operation: 'accept', side: side() })
-                  }
-                />
-                <GameActionButton
-                  title={<Trans>Decline</Trans>}
-                  dataSet={{ testid: `custom-game-${side()}-decline` }}
-                  operation={() =>
-                    props.onChoose({ operation: 'decline', side: side() })
-                  }
-                />
-              </GameActions>
-            </Show>
           </StackVertical>
         </Notice>
+      )}
+    </Show>
+  );
+}
+
+/**
+ * Answering one's own invitation, in the dock where the lobby's one thing
+ * to do always is: accept (the filled command) or decline.
+ */
+function InvitationAnswer(
+  props: Props & { readonly setup: FrameSetup }
+): JSX.Element {
+  const seat = () =>
+    props.setup.seats.find(
+      (each) =>
+        each.invitation?.mine === true && each.invitation.canAnswer === true
+    );
+  return (
+    <Show when={seat()}>
+      {(own) => (
+        <GameActions sizing="fill">
+          <GameActionButton
+            title={<Trans>Accept</Trans>}
+            variant="solid"
+            size="lg"
+            dataSet={{ testid: `custom-game-${own().side}-accept` }}
+            operation={() =>
+              props.onChoose({ operation: 'accept', side: own().side })
+            }
+          />
+          <GameActionButton
+            title={<Trans>Decline</Trans>}
+            size="lg"
+            dataSet={{ testid: `custom-game-${own().side}-decline` }}
+            operation={() =>
+              props.onChoose({ operation: 'decline', side: own().side })
+            }
+          />
+        </GameActions>
       )}
     </Show>
   );
@@ -412,19 +432,22 @@ export function FrameLobbyPlace(
               : () => props.onOpen({ screen: 'private-setup' })
           }
           seat={
-            <Show when={props.setup.takeSeat}>
-              {(side) => (
-                <GameActionButton
-                  title={<Trans>Take a seat</Trans>}
-                  variant="solid"
-                  size="lg"
-                  dataSet={{ testid: 'custom-game-take-seat' }}
-                  operation={() =>
-                    props.onChoose({ operation: 'claim', side: side() })
-                  }
-                />
-              )}
-            </Show>
+            <>
+              <InvitationAnswer {...props} setup={props.setup} />
+              <Show when={props.setup.takeSeat}>
+                {(side) => (
+                  <GameActionButton
+                    title={<Trans>Take a seat</Trans>}
+                    variant="solid"
+                    size="lg"
+                    dataSet={{ testid: 'custom-game-take-seat' }}
+                    operation={() =>
+                      props.onChoose({ operation: 'claim', side: side() })
+                    }
+                  />
+                )}
+              </Show>
+            </>
           }
         />
       }
@@ -462,7 +485,7 @@ export function FrameLobbyPlace(
         <GameActions sizing="fill">
           <Button
             title={<Trans>Cancel game</Trans>}
-            variant="outline"
+            variant="ghost"
             intent="danger"
             size="md"
             onClick={() => props.onConfirm('cancel')}

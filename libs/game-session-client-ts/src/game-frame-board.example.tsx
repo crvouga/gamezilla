@@ -117,7 +117,10 @@ export function onBoard(moves: readonly number[]) {
  */
 export function onReview(all: readonly number[]) {
   return (args: GameFrameScreenViewProps) => {
+    // The game as it stands: its drops, and any played in the story.
+    const [drops, setDrops] = createSignal<readonly number[]>(all);
     const [ply, setPly] = createSignal(args.record?.displayedPly ?? all.length);
+    const live = (): boolean => ply() === drops().length;
     return (
       <FrameStory
         {...args}
@@ -126,9 +129,23 @@ export function onReview(all: readonly number[]) {
         }
         onSeek={(next) => {
           args.onSeek(next);
-          if (next >= 0 && next <= all.length) setPly(next);
+          if (next >= 0 && next <= drops().length) setPly(next);
         }}
-        board={<ConnectFourStoryBoard moves={all.slice(0, ply())} />}
+        // Leaving the moves returns the board to the game as it stands.
+        onClose={() => {
+          args.onClose();
+          setPly(drops().length);
+        }}
+        board={
+          <ConnectFourStoryBoard
+            moves={drops().slice(0, ply())}
+            interactive={args.phase === 'active' && live()}
+            onDrop={(column) => {
+              setDrops([...drops(), column]);
+              setPly(drops().length);
+            }}
+          />
+        }
       />
     );
   };
