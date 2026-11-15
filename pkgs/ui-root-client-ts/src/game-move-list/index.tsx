@@ -169,6 +169,21 @@ function scrollMarkedIntoView(root: HTMLElement): void {
     root.scrollLeft -= Math.ceil(keyEdge(root, box.left) - move.left);
 }
 
+/**
+ * Over a key held at the line's start, a turn the key cuts is hidden whole:
+ * what showed of it would read as part of the key (`Column 3`).
+ */
+function hideCutByKey(root: HTMLElement): void {
+  const key = root.querySelector<HTMLElement>(`:scope > .${styles['heading']}`);
+  if (key === null || getComputedStyle(key).position !== 'sticky') return;
+  const edge = key.getBoundingClientRect().right;
+  const turns = [...root.querySelectorAll<HTMLElement>('li')];
+  const cut = turns.map((turn) => turn.getBoundingClientRect().left < edge);
+  turns.forEach((turn, index) => {
+    turn.dataset['underKey'] = String(cut[index]);
+  });
+}
+
 /** Where the moves start showing: past a key held at the line's start. */
 function keyEdge(root: HTMLElement, left: number): number {
   const key = root.querySelector<HTMLElement>(`:scope > .${styles['heading']}`);
@@ -253,6 +268,7 @@ function TurnList(props: GameMoveListProps): JSX.Element {
   const keepMarkedInView = (): void => {
     if (props.layout !== 'table' || root === undefined) return;
     scrollMarkedIntoView(root);
+    hideCutByKey(root);
   };
   createEffect(() => {
     void props.current;
@@ -268,6 +284,9 @@ function TurnList(props: GameMoveListProps): JSX.Element {
     <div
       ref={root}
       class={styles['list']}
+      onScroll={() => {
+        if (props.layout === 'table' && root !== undefined) hideCutByKey(root);
+      }}
       data-layout={props.layout}
       data-many-seats={columns() > 2}
       data-one-a-row={columns() === 1}

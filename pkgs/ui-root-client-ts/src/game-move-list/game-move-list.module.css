@@ -285,6 +285,13 @@
     border-inline-end: 1px solid var(--ui-color-border);
     background: var(--ui-color-background);
   }
+  /* A turn the key cuts is hidden whole (the list marks it). */
+  [data-game-fixed="true"]
+    [data-game-slot="rail"]
+    .list[data-layout="table"]
+    .turn[data-under-key="true"] {
+    visibility: hidden;
+  }
   /* A move scrolled under the key softens just past its rule, never cut
      square against it. */
   [data-game-fixed="true"]
