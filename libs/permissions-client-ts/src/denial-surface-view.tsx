@@ -20,6 +20,13 @@ export type DenialSurfaceViewProps = {
   readonly denial: DenialView;
   /** `fill` takes the screen body; `compact` sits inline. Defaults to `fill`. */
   readonly variant?: 'fill' | 'compact' | undefined;
+  /**
+   * A way on that is not what unlocks it (leave for the screen's parent),
+   * grouped under the way forward. Drawn by the `fill` variant.
+   */
+  readonly secondaryAction?:
+    | { readonly label: JSX.Element; readonly onClick: () => void }
+    | undefined;
 };
 
 /**
@@ -43,6 +50,7 @@ export function DenialSurfaceView(props: DenialSurfaceViewProps): JSX.Element {
           title={props.denial.title}
           body={props.denial.body}
           action={action()}
+          secondaryAction={props.secondaryAction}
           dataSet={props.denial.dataSet}
         />
       }

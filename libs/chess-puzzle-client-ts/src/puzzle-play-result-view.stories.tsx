@@ -99,6 +99,15 @@ export const Skipped: Story = {
     status: 'skipped',
     ratingChange: null,
     result: STORY_NO_RESULT,
+    // What the coach says on a skip (`puzzle-commentary.ts`).
+    coach: {
+      message: 'Puzzle skipped. Move on when you are ready.',
+      contextKey: 'skipped',
+    },
+  },
+  // Skipped at the solver's first move: the board stays where it was left.
+  parameters: {
+    puzzleScene: { fen: STORY_LINE.start, plies: 1, lastAction: 'g7g6' },
   },
 };
 

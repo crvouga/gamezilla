@@ -2,12 +2,10 @@ import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Trans } from '@lingui/solid/macro';
-import { Button } from '@pkgs/ui-root-client-ts/button';
 import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { SearchIcon, WifiOffIcon } from '@pkgs/ui-root-client-ts/icons';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
-import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { type JSX, Match, Switch } from 'solid-js';
 
 /**
@@ -49,17 +47,15 @@ export function PuzzleLinkScreenView(
       >
         <Match when={props.status === 'denied' && props.denial} keyed>
           {(denial) => (
-            // What unlocks it, and a way on that is not a purchase.
-            <StackVertical gap="none" align="center">
-              <DenialSurfaceView denial={denial} />
-              <Button
-                title={<Trans>Go to your spaces</Trans>}
-                intent="neutral"
-                variant="outline"
-                onClick={() => props.onGoHome()}
-                dataSet={{ testid: 'chess-puzzle-link-denied-home' }}
-              />
-            </StackVertical>
+            // What unlocks it, and right under it a way on that is not a
+            // purchase: to the spaces, where one can be left or ended.
+            <DenialSurfaceView
+              denial={denial}
+              secondaryAction={{
+                label: <Trans>Go to your spaces</Trans>,
+                onClick: props.onGoHome,
+              }}
+            />
           )}
         </Match>
         <Match when={props.status === 'offline'}>
