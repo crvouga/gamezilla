@@ -21,7 +21,6 @@ import { MultiplayerMoveList } from './multiplayer-move-list';
 import {
   MultiplayerOverlayView,
   type MultiplayerResultShown,
-  multiplayerOverlayCovers,
 } from './multiplayer-overlay-view';
 import {
   type MultiplayerPlaceFrame,
@@ -261,12 +260,7 @@ export function MultiplayerResultView(props: ResultProps): JSX.Element {
             result={props.result}
           >
             <Onward {...props} />
-          </MultiplayerOverlayView>,
-          multiplayerOverlayCovers({
-            overlay: props.overlay,
-            versus: undefined,
-            result: props.result,
-          })
+          </MultiplayerOverlayView>
         )}
       </GameSessionLayout>
     </MultiplayerStagePlace>

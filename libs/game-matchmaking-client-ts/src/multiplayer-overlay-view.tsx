@@ -61,18 +61,6 @@ type OverlayProps = {
   readonly children?: JSX.Element | undefined;
 };
 
-/** The versus card and the result card hide the board they are drawn over. */
-export function multiplayerOverlayCovers(props: {
-  readonly overlay: StageOverlay;
-  readonly versus: MultiplayerVersusShown | undefined;
-  readonly result: MultiplayerResultShown | undefined;
-}): boolean {
-  return (
-    (props.overlay.kind === 'versus' && props.versus !== undefined) ||
-    (props.overlay.kind === 'outcome' && props.result !== undefined)
-  );
-}
-
 /** Over the card's headline, one word: how the game went for the person. */
 function headline(result: MultiplayerResultShown): string {
   if (result.aborted === true) return t`No result`;

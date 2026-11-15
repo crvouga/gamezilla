@@ -1,6 +1,6 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createEffect, createSignal, type JSX, Show } from 'solid-js';
+import { createSignal, type JSX, Show } from 'solid-js';
 import precision from '../game-screen/game-precision.module.css';
 import { GameStageOverlayFrame } from '../game-stage-overlay/index';
 import styles from '../game-ui.module.css';
@@ -38,12 +38,6 @@ export function GameBoardStage(props: {
    * The board keeps its place under it; an empty slot covers nothing.
    */
   overlay?: JSX.Element | undefined;
-  /**
-   * The overlay drawn now hides the board (a versus card, a result card):
-   * what lies under it leaves the keyboard order and the screen reader
-   * until it is closed. Only a caller that knows its overlay covers sets it.
-   */
-  covered?: boolean | undefined;
   /** A thumbnail of the board, before there is play to show. */
   preview?: boolean | undefined;
   /** Under the thumbnail, what it is (`Board preview`). */
@@ -67,13 +61,6 @@ export function GameBoardStage(props: {
   const limit = createViewportSquareFit(() => root, square);
   const [surface, setSurface] = createSignal<HTMLDivElement>();
   const room = createStageRoomFit(() => root, surface);
-  createEffect(() => {
-    const covered = props.covered === true;
-    for (const child of surface()?.children ?? []) {
-      if (child.hasAttribute('data-stage-overlay')) continue;
-      (child as HTMLElement).inert = covered;
-    }
-  });
   // Narrower than its room: the board stands clear of the screen's edges.
   const narrowed = (): boolean => {
     const limit = room();

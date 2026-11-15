@@ -107,7 +107,9 @@ test('a four-seat search states its required group size before and while waiting
   expect(
     await s.read(shownMultiplayerText, 'alice', 'multiplayer-find')
   ).toContain('Find players');
-  expect(await s.read(actorHtml, 'alice')).toContain('4 players including you');
+  const hub = (await s.read(actorHtml, 'alice')) ?? '';
+  expect(hub).toContain('4 players');
+  expect(hub).toContain('you and 3 other players');
   await s.apply(
     pressControlWithKeyboard,
     'alice',
