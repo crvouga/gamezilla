@@ -311,5 +311,7 @@ test('feed-themes: a theme toggles, and one the search hides keeps its choice', 
 test('feed: with nothing changed there is nothing to discard, and no row says it is unsaved', () => {
   mountPlay('feed');
   expect(screen.queryByTestId('chess-puzzle-feed-discard')).toBeNull();
-  expect(screen.queryByText('Changed, not saved yet')).toBeNull();
+  expect(screen.queryByText('Changed')).toBeNull();
+  // Nothing to save: the one command closes the settings, and says so.
+  expect(screen.getByTestId('chess-puzzle-feed-done').textContent).toBe('Done');
 });

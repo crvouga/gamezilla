@@ -46,8 +46,8 @@ function hasDraftChanges(feed: PuzzlePlayScreenViewProps['feed']): boolean {
 }
 
 /**
- * A setting's row: its name, its value in the draft (marked when that is
- * not saved yet), and the way to its screen.
+ * A setting's row: its name, its value in the draft (marked "Changed" when
+ * that is not saved yet), and the way to its screen.
  */
 function SettingRow(props: {
   readonly view: PuzzlePlayScreenViewProps;
@@ -64,7 +64,7 @@ function SettingRow(props: {
       caption={
         props.changed ? (
           <Text variant="inherit" tone="tint">
-            <Trans>Changed, not saved yet</Trans>
+            <Trans>Changed</Trans>
           </Text>
         ) : undefined
       }
@@ -192,8 +192,17 @@ export function PuzzleFeedHubView(
         <FeedSettings {...props} />
         <Show when={props.feed.status === 'ready'}>
           <StackVertical gap="sm">
+            {/* With a change it saves; with none it just closes, and says
+                so. */}
             <Button
-              title={<Trans>Save settings</Trans>}
+              title={
+                <Show
+                  when={hasDraftChanges(props.feed)}
+                  fallback={<Trans>Done</Trans>}
+                >
+                  <Trans>Save settings</Trans>
+                </Show>
+              }
               fullWidth
               onClick={() => props.feed.onDone()}
               dataSet={{ testid: Handles.chessPuzzleFeedDone }}
