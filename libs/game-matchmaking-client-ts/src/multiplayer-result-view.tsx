@@ -146,22 +146,11 @@ function Review(
     <Show when={hasReview(props)}>
       <Button
         fullWidth={props.fullWidth === true}
-        title={
-          <Show
-            when={props.fullWidth === true}
-            fallback={<Trans>Review</Trans>}
-          >
-            <Trans>Moves</Trans>
-          </Show>
-        }
+        title={<Trans>Review</Trans>}
         aria-label={
           props.game.moves === null
-            ? props.fullWidth === true
-              ? t`Record: the game record`
-              : t`Game record`
-            : props.fullWidth === true
-              ? t`Review moves`
-              : t`Review moves`
+            ? t`Review the game record`
+            : t`Review moves`
         }
         variant="outline"
         intent="neutral"
