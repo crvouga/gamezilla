@@ -300,8 +300,8 @@ test('a search this device stopped is said so on the hub, until the next search'
 // regression: finish-first-dead-end — a refused search (finish your current
 // game first) left Find an opponent as the only way on, so the person had
 // nowhere to go but the same refusal.
-test('a search refused by another matched game says it opens here, with trying again a quiet second', () => {
-  mountPlaces({
+test('a search refused by another matched game says it is opening here, with nothing to press meanwhile', () => {
+  const view = mountPlaces({
     stage: 'idle',
     props: {
       commandDenial: {
@@ -321,9 +321,11 @@ test('a search refused by another matched game says it opens here, with trying a
       .getByTestId('multiplayer-command-denial')
       .querySelector('[role="status"]')
   ).not.toBeNull();
-  const find = screen.getByTestId('multiplayer-find');
-  expect(find.getAttribute('data-variant')).toBe('outline');
-  expect(find.textContent).toContain('Search again');
+  // Searching again could only be refused again while it opens.
+  expect(screen.queryByTestId('multiplayer-find')).toBeNull();
+  expect(
+    view.container.querySelector('[data-component="GameLobbyDock"]')
+  ).toBeNull();
 });
 
 // A custom game still on refuses the search: the dock opens that custom game.

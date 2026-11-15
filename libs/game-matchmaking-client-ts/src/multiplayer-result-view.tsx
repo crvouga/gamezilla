@@ -62,11 +62,7 @@ function Rematch(
             operation={props.commands.offerRematch}
             disabled={!props.online}
             fullWidth={props.fullWidth === true}
-            title={
-              <Trans>
-                <VisuallyHidden>Offer a multiplayer </VisuallyHidden>Rematch
-              </Trans>
-            }
+            title={<Trans>Rematch</Trans>}
             successLabel={
               <Trans>
                 <VisuallyHidden>Rematch </VisuallyHidden>Offered
@@ -119,17 +115,8 @@ function NewOpponent(
         fullWidth={props.fullWidth === true}
         operation={props.commands.newOpponent}
         title={
-          <Show
-            when={many()}
-            fallback={
-              <Trans>
-                <VisuallyHidden>Find a </VisuallyHidden>New opponent
-              </Trans>
-            }
-          >
-            <Trans>
-              <VisuallyHidden>Find </VisuallyHidden>New players
-            </Trans>
+          <Show when={many()} fallback={<Trans>New opponent</Trans>}>
+            <Trans>New players</Trans>
           </Show>
         }
         variant={props.game.rematch === 'answer' ? 'outline' : 'solid'}
@@ -173,7 +160,7 @@ function Review(
               ? t`Record: the game record`
               : t`Game record`
             : props.fullWidth === true
-              ? t`Review the moves`
+              ? t`Review moves`
               : t`Review moves`
         }
         variant="outline"
@@ -200,8 +187,8 @@ function Onward(props: ResultProps): JSX.Element {
       <Review {...props} fullWidth />
       <Show when={props.game.newOpponent}>
         <Button
-          title={<Trans>New clock</Trans>}
-          aria-label={t`New clock: find an opponent at another clock`}
+          title={<Trans>Clock</Trans>}
+          aria-label={t`Clock: find an opponent at another clock`}
           variant="outline"
           intent="neutral"
           fullWidth

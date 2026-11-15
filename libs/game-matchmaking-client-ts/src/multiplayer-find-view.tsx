@@ -330,9 +330,9 @@ function FindDock(props: FindProps): JSX.Element {
       </Show>
       {/* A refusal remounts the command: the dock says why, so the button
           starts again quiet instead of holding its failure. */}
-      {/* Searching again before a custom game is over can only be refused:
-          the way on is the custom game. */}
-      <Show when={props.blocked !== 'custom-game'}>
+      {/* Refused, searching again could only be refused again: a custom
+          game is reached from here, and a matched game opens by itself. */}
+      <Show when={props.blocked === null}>
         <Show when={props.blocked ?? 'clear'} keyed>
           {(_state) => <FindCommand {...props} />}
         </Show>
@@ -350,7 +350,13 @@ function FindDock(props: FindProps): JSX.Element {
  */
 export function MultiplayerFindView(props: FindProps): JSX.Element {
   return (
-    <MultiplayerLobbyPlace {...props} dock={<FindDock {...props} />}>
+    <MultiplayerLobbyPlace
+      {...props}
+      dock={
+        // A matched game opening here leaves nothing to press meanwhile.
+        props.blocked === 'matched-game' ? undefined : <FindDock {...props} />
+      }
+    >
       <GameModeCard
         layout="banner"
         eyebrow={<Conditions find={props.find} />}
