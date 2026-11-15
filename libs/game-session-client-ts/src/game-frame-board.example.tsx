@@ -101,6 +101,8 @@ export function onBoard(moves: readonly number[]) {
             args.viewerSide !== null &&
             args.table.near?.side === args.viewerSide &&
             args.table.near.deciding &&
+            // A secret choice is made on the seat, not by a drop.
+            !args.table.near.choosing &&
             !args.table.near.standIn
           }
           winning={moves === WON_MOVES ? WON_LINE : undefined}

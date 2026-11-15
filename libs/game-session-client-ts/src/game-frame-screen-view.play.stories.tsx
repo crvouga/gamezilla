@@ -167,7 +167,7 @@ export const FourSeats: Story = {
     status: status({
       lineup:
         'Red circle: avery. Yellow diamond: jordan_plays. Third seat: morgan. Fourth seat: Bot.',
-      description: 'Secret choices: 2 of 4 made.',
+      description: 'Secret choices: 1 of 2 made.',
     }),
     table: {
       shape: 'rail',
