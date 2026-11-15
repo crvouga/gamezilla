@@ -152,7 +152,10 @@ function AuthorNotices(props: ContentAuthorScreenViewProps): JSX.Element {
           </Show>
         </Notice>
       </Show>
-      {props.refusal}
+      {/* On the publish screen the refusal is said once, with its fix. */}
+      <Show when={!(props.place.screen === 'publish' && props.refused)}>
+        {props.refusal}
+      </Show>
     </>
   );
 }

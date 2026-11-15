@@ -44,10 +44,10 @@ test('each copy says where it was kept, its check and its details', () => {
     </ThemeProvider>
   ));
   expect(screen.getByTestId('content-use-copy-a').textContent).toBe(
-    'Count to sevenKept on this device · not checked yetEasy · Reach seven.Editing now'
+    'Count to sevenEditing now · Kept on this device · not checked yetEasy · Reach seven.'
   );
   expect(screen.getByTestId('content-use-copy-b').textContent).toBe(
-    'Untitled draftKept from another device · passed its check'
+    'Untitled draftKept from another device · passed its checkUse copy'
   );
   fireEvent.click(screen.getByTestId('content-use-copy-b'));
   expect(chosen).toEqual(['b']);

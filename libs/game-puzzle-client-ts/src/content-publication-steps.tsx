@@ -236,9 +236,10 @@ function useTrackActions(
         return 'done';
       const state = stateOf(step, next());
       // While a correction leads, the step it holds up waits: the playtest
-      // locked, a failed check's Validate again beside its step.
+      // or a refused Publish again locked (still pressable, to say what is
+      // missing), a failed check's Validate again beside its step.
       if (state === 'current' && fixLead(props) !== null)
-        return step === 'playtest' ? 'locked' : 'done';
+        return step === 'validate' ? 'done' : 'locked';
       if (state === 'current') return 'lead';
       return state === 'done' ? 'done' : 'locked';
     });

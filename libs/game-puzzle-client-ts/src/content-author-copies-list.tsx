@@ -28,7 +28,11 @@ export type ContentAuthorCopy = {
  * What sets a copy apart, under its title: where it was kept and its check
  * on one line, then its details on their own quieter line.
  */
-function CopyCaption(props: { copy: ContentAuthorCopy }): JSX.Element {
+function CopyCaption(props: {
+  copy: ContentAuthorCopy;
+  /** The copy being edited, said first. */
+  current: boolean;
+}): JSX.Element {
   const { t } = useLingui();
   const details = () =>
     [props.copy.difficulty.trim(), props.copy.description.trim()]
@@ -37,6 +41,12 @@ function CopyCaption(props: { copy: ContentAuthorCopy }): JSX.Element {
   return (
     <StackVertical gap="xs">
       <Text variant="inherit" tone="default">
+        <Show when={props.current}>
+          <Text variant="inherit" tone="tint">
+            {t`Editing now`}
+          </Text>
+          {' · '}
+        </Show>
         {props.copy.conflicted
           ? t`Kept from another device`
           : t`Kept on this device`}
@@ -89,14 +99,14 @@ export function ContentAuthorCopiesListView(props: {
           {(copy) => (
             <MenuRow
               title={copy.title || t`Untitled draft`}
-              caption={<CopyCaption copy={copy} />}
-              selected={copy.id === props.currentId}
-              value={copy.id === props.currentId ? t`Editing now` : undefined}
-              aria-label={
-                copy.id === props.currentId
-                  ? undefined
-                  : t`Use copy ${copy.title || t`Untitled draft`}`
+              caption={
+                <CopyCaption
+                  copy={copy}
+                  current={copy.id === props.currentId}
+                />
               }
+              selected={copy.id === props.currentId}
+              value={copy.id === props.currentId ? undefined : t`Use copy`}
               disabled={props.disabled && copy.id !== props.currentId}
               // The copy being edited is marked, not offered.
               onClick={

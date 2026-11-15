@@ -6,7 +6,6 @@ import { Button } from '@pkgs/ui-root-client-ts/button';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { P } from '@pkgs/ui-root-client-ts/text';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
 import { type Accessor, type JSX, Show } from 'solid-js';
 import { contentBuilderNextStep } from './content-builder-standing';
@@ -148,15 +147,15 @@ function Finding(props: ContentPublicationControlsViewProps): JSX.Element {
       when={props.validation === 'invalid'}
       fallback={
         <Show when={props.refused === true}>
-          <StackVertical gap="sm" testId="content-refusal-fixes">
-            <P variant="caption" tone="default">
+          <Notice tone="warning" dataSet={{ testid: 'content-refusal-fixes' }}>
+            <StackVertical gap="sm">
               <RefusalReason issue={props.refusalIssue ?? null} />
-            </P>
-            {/* With a known place to fix it the lead opens it; otherwise both. */}
-            <Show when={props.fixTarget === undefined && props.onFix}>
-              {(onFix) => <FixRoutes onFix={onFix()} />}
-            </Show>
-          </StackVertical>
+              {/* With a known place to fix it the lead opens it; otherwise both. */}
+              <Show when={props.fixTarget === undefined && props.onFix}>
+                {(onFix) => <FixRoutes onFix={onFix()} />}
+              </Show>
+            </StackVertical>
+          </Notice>
         </Show>
       }
     >
@@ -179,19 +178,19 @@ function RefusalReason(props: { issue: string | null }): JSX.Element {
   const reason = (): string => {
     const issue = props.issue;
     if (issue === 'PUZZLE_TITLE_REQUIRED')
-      return t`Publishing was refused: the draft has no title. Add one, then publish again.`;
+      return t`Publishing did not go ahead: the draft has no title. Your draft is kept. Add a title, then publish again.`;
     if (issue === 'PUZZLE_PLAYTEST_INCOMPLETE')
-      return t`Publishing was refused: its playtest was not finished. Finish a playtest, then publish again.`;
+      return t`Publishing did not go ahead: its playtest was not finished. Your draft is kept. Finish a playtest, then publish again.`;
     if (issue === 'PACK_EMPTY')
-      return t`Publishing was refused: the pack holds no puzzles. Add one, then publish again.`;
+      return t`Publishing did not go ahead: the pack holds no puzzles. Your draft is kept. Add a puzzle, then publish again.`;
     if (
       issue === 'PACK_PUZZLE_UNPUBLISHED' ||
       issue === 'PACK_PUZZLE_UNAVAILABLE'
     )
-      return t`Publishing was refused: a puzzle in the pack is not available. Change the pack's puzzles, then publish again.`;
+      return t`Publishing did not go ahead: a puzzle in the pack is not available. Your draft is kept. Change the pack's puzzles, then publish again.`;
     if (issue !== null)
-      return t`Publishing was refused: the game found a problem with the board. Correct it, then publish again.`;
-    return t`Publishing was refused. Correct the draft, then publish again.`;
+      return t`Publishing did not go ahead: the game cannot finish the puzzle from its board. Your draft is kept. Correct the board and playtest it, then publish again.`;
+    return t`Publishing did not go ahead. Your draft is kept. Correct the draft, then publish again.`;
   };
   return <>{reason()}</>;
 }

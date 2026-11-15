@@ -621,7 +621,7 @@ test('a refused publication names the correction first, then publishing again', 
   // The refusal's notice says why; the line does not repeat it.
   expect(screen.queryByTestId('content-publication-status')).toBeNull();
   expect(screen.getByTestId('content-refusal-fixes').textContent).toContain(
-    'Publishing was refused. Correct the draft, then publish again.'
+    'Publishing did not go ahead. Your draft is kept. Correct the draft, then publish again.'
   );
   expect(screen.getByTestId('content-publish').textContent).toBe(
     'Publish again'
@@ -671,11 +671,15 @@ test('a refusal naming its finding says why and leads with its correction', () =
   );
   expect(lead()).toBe(screen.getByTestId('content-author-fix-board'));
   expect(screen.getByTestId('content-refusal-fixes').textContent).toBe(
-    'Publishing was refused: the game found a problem with the board. Correct it, then publish again.'
+    'Publishing did not go ahead: the game cannot finish the puzzle from its board. Your draft is kept. Correct the board and playtest it, then publish again.'
   );
   const steps = [
     ...screen.getByTestId('content-publication-steps').querySelectorAll('li'),
   ];
   expect(steps[2]?.contains(screen.getByTestId('content-publish'))).toBe(true);
   expect(steps[2]?.textContent).toContain('Fix first');
+  // Held until the board is corrected, yet it still says what is missing.
+  expect(screen.getByTestId('content-publish').getAttribute('data-face')).toBe(
+    'locked'
+  );
 });
