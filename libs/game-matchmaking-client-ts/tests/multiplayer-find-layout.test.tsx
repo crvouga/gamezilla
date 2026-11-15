@@ -345,14 +345,13 @@ test('a search refused by a custom game still on leads straight to that custom g
   expect(screen.queryByTestId('multiplayer-unavailable')).toBeNull();
   expect(screen.queryByTestId('multiplayer-clock-5-0')).toBeNull();
   expect(screen.queryByTestId('multiplayer-open-time-control')).toBeNull();
-  expect(
-    screen.getByTestId('multiplayer-find-space').getAttribute('role')
-  ).toBe('status');
+  // The refusal is the screen's middle, said as it appears.
+  const refusal = screen.getByTestId('multiplayer-command-denial');
+  expect(refusal.getAttribute('role')).toBe('status');
+  expect(refusal.textContent).toContain('Your custom game is still on.');
+  expect(screen.queryByTestId('multiplayer-find-space')).toBeNull();
   const open = screen.getByTestId('multiplayer-open-custom-game');
   expect(open.textContent).toContain('Go to your custom game');
-  expect(screen.getByTestId('multiplayer-find-space').textContent).toContain(
-    'Your custom game is still on.'
-  );
   open.click();
   expect(onOpenCustomGame).toHaveBeenCalledTimes(1);
 });

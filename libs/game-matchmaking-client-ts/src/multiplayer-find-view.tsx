@@ -3,8 +3,10 @@ import {
   timeControlKey,
   timeControlOf,
 } from '@libs/game-matchmaking-shared-ts/time-control';
+import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { Trans } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
+import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import {
   type GameChoice,
@@ -69,6 +71,8 @@ type FindProps = MultiplayerPlaceFrame & {
    * to it first, and searching again is the quiet second command.
    */
   readonly blocked: MultiplayerBlock | null;
+  /** The refusal itself: its icon, its words and its handles. */
+  readonly refusal?: DenialView | undefined;
   /** Opens the game's custom game, where a custom game still on is played. */
   readonly onOpenCustomGame?: (() => void) | undefined;
   /** This device just stopped its search. */
@@ -250,25 +254,9 @@ function FindStatus(props: FindProps): JSX.Element {
         when={props.online}
         fallback={<Trans>You're offline. Reconnect to search.</Trans>}
       >
-        <Switch
-          fallback={
-            <Trans>
-              Rated. The game opens in this space, and everyone here can watch.
-            </Trans>
-          }
-        >
-          <Match when={props.blocked === 'custom-game'}>
-            <Trans>
-              Your custom game is still on. Finish or leave it, then search
-              again.
-            </Trans>
-          </Match>
-          <Match when={props.blocked === 'matched-game'}>
-            <Trans>
-              Your other matched game is still on. Finish it, then search again.
-            </Trans>
-          </Match>
-        </Switch>
+        <Trans>
+          Rated. The game opens in this space, and everyone here can watch.
+        </Trans>
       </Show>
     </P>
   );
@@ -308,7 +296,9 @@ function FindCommand(props: FindProps): JSX.Element {
 /** The search's one command, held at the foot of the screen. */
 function FindDock(props: FindProps): JSX.Element {
   return (
-    <GameLobbyDock status={<FindStatus {...props} />}>
+    <GameLobbyDock
+      status={props.blocked === null ? <FindStatus {...props} /> : undefined}
+    >
       <Show when={props.blocked !== null}>
         <Show
           when={
@@ -377,6 +367,32 @@ export function MultiplayerFindView(props: FindProps): JSX.Element {
       </Show>
       {/* Refused while another game is still on: the screen says only that,
           and the dock leads to it; the choices wait until it is over. */}
+      <Show when={props.blocked !== null ? props.refusal : undefined}>
+        {(refusal) => (
+          <EmptyState
+            icon={refusal().icon}
+            role="status"
+            title={refusal().title}
+            body={
+              <Show
+                when={props.blocked === 'custom-game'}
+                fallback={
+                  <Trans>
+                    Your other matched game is still on. Finish it, then search
+                    again.
+                  </Trans>
+                }
+              >
+                <Trans>
+                  Your custom game is still on. Finish or leave it, then search
+                  again.
+                </Trans>
+              </Show>
+            }
+            dataSet={refusal().dataSet}
+          />
+        )}
+      </Show>
       <Show when={props.blocked === null}>
         <Show when={props.find.fresh === true}>
           <Notice dataSet={{ testid: 'multiplayer-unavailable' }}>

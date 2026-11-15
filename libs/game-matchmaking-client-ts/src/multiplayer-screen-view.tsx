@@ -182,7 +182,10 @@ function frameOf(props: Props): MultiplayerPlaceFrame {
     get notices() {
       return (
         <MultiplayerNotices
-          denial={props.commandDenial}
+          denial={
+            // The find screen states a refused search in its own middle.
+            props.place.screen === 'find' ? undefined : props.commandDenial
+          }
           error={props.error}
           online={props.online}
           searching={props.stage === 'searching'}
@@ -219,6 +222,7 @@ function FindPlace(props: Props & { readonly stopped: boolean }): JSX.Element {
       online={props.online}
       onLeave={props.onLeave}
       blocked={multiplayerBlockOf(props.commandDenial)}
+      refusal={props.commandDenial}
       onOpenCustomGame={props.onOpenCustomGame}
       stopped={props.stopped && props.stage === 'idle'}
     />
