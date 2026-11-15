@@ -14,6 +14,7 @@ import {
 } from '@pkgs/ui-root-client-ts/game-seat-swatch';
 import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
+import { GameTurnPill } from '@pkgs/ui-root-client-ts/game-turn-pill';
 import { IconButton } from '@pkgs/ui-root-client-ts/icon-button';
 import {
   ArrowLeftIcon,
@@ -304,12 +305,7 @@ function ReplayMoves(props: GameReplayScreenViewProps): JSX.Element {
   const entries = createMemo((): readonly GameMoveListEntry[] =>
     props.moves.map((move, index) => ({
       ply: index + 1,
-      // On a phone's one-line strip a bare number would run into the move
-      // numbers beside it: each move carries its word ("Column 4").
-      label:
-        strip() && props.moveHeading !== ''
-          ? `${props.moveHeading} ${move.label}`
-          : move.label,
+      label: move.label,
       swatch: move.swatch,
       accessibleName:
         move.sideLabel === undefined
@@ -345,15 +341,28 @@ function ReplayMoves(props: GameReplayScreenViewProps): JSX.Element {
   );
 }
 
-/** "You won by four in a row. · 2d ago" */
+/**
+ * How the game ended, by the board and the same at every position, so it
+ * never reads as the shown position's state and the board never moves.
+ */
+function ReplayResult(props: GameReplayScreenViewProps): JSX.Element {
+  return (
+    <GameTurnPill
+      tone={props.outcome === 'won' ? 'success' : 'neutral'}
+      title={props.result}
+      dataSet={{ testid: 'game-history-review-result' }}
+    />
+  );
+}
+
+/** Whose game it was and when: "Your game · 2d ago", "Watched · 2d ago". */
 function ReplaySubtitle(props: GameReplayScreenViewProps): JSX.Element {
   const ago = useRelativeTimeLabel(() => props.endedAt ?? '');
   return (
     <>
-      <Show when={props.outcome === null}>
-        <Trans>Watched</Trans> ·{' '}
+      <Show when={props.outcome === null} fallback={<Trans>Your game</Trans>}>
+        <Trans>Watched</Trans>
       </Show>
-      {props.result}
       <Show when={props.endedAt !== null}> · {ago()}</Show>
     </>
   );
@@ -403,6 +412,7 @@ export function GameReplayScreenView(
       >
         <GameBoardStage
           others={<ReplayPlayers {...props} place="over" />}
+          turn={<ReplayResult {...props} />}
           own={<ReplayPlayers {...props} place="under" />}
         >
           {props.board}
