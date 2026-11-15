@@ -1,5 +1,5 @@
 import type { ContentKind } from '@libs/game-puzzle-shared-ts/content-types';
-import { useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import {
@@ -148,6 +148,29 @@ function OpenWaiting(props: PublicationStepsProps): JSX.Element {
       onClick={() => props.onOpenWaiting?.()}
       dataSet={{ testid: 'content-open-waiting' }}
     />
+  );
+}
+
+/**
+ * What the Publish step says under its name: why its retry is held after a
+ * refusal, or why this person cannot publish while another step leads.
+ */
+function publishStepNote(
+  props: PublicationStepsProps,
+  next: PublicationStep
+): JSX.Element {
+  if (next !== 'publish') return props.publishNote;
+  return props.refused === true && fixLead(props) !== null ? (
+    <HeldRetry />
+  ) : undefined;
+}
+
+/** Why a refused publication's retry is held: the correction comes first. */
+function HeldRetry(): JSX.Element {
+  return (
+    <P variant="caption" tone="secondary">
+      <Trans>Publish again once the draft is corrected.</Trans>
+    </P>
   );
 }
 
@@ -349,7 +372,7 @@ export function PublicationSteps(props: PublicationStepsProps): JSX.Element {
           : props.progress === undefined
             ? actions.publish()
             : props.progress.action,
-      note: next() === 'publish' ? undefined : props.publishNote,
+      note: publishStepNote(props, next()),
     },
   ];
   return (

@@ -3,12 +3,12 @@
  * its small screens' stories starts from it, with stand-ins for the smart
  * widgets it takes as slots. Production never imports this module.
  */
-import { RefusedChangeCard } from '@libs/app-env-client-ts/refused-change-notice';
 import { createSignal, type JSX } from 'solid-js';
 import { fn } from 'storybook/test';
 import {
   ContentAuthorCopiesListView,
   type ContentAuthorCopy,
+  ContentCopyConfirm,
 } from './content-author-copies-list';
 import {
   ContentAuthorScreenView,
@@ -19,6 +19,7 @@ import {
   ContentPublicationControlsView,
   type ContentPublicationControlsViewProps,
 } from './content-publication-controls-view';
+import { ContentRefusalNotice } from './content-publication-refusal';
 import {
   COUNTING_BODY,
   StoryCountingEditor,
@@ -58,6 +59,8 @@ export const STORY_COPIES: readonly ContentAuthorCopy[] = [
 /** The builder's copies list on fixed copies, the first being edited. */
 export function StoryCopies(props: {
   copies?: readonly ContentAuthorCopy[];
+  /** Asks to use a copy; the builder's shell confirms first. */
+  onSelect?: (draftId: string) => void;
 }): JSX.Element {
   const copies = () => props.copies ?? STORY_COPIES;
   return (
@@ -65,7 +68,7 @@ export function StoryCopies(props: {
       copies={copies()}
       currentId={copies()[0]?.id ?? ''}
       disabled={false}
-      onSelect={fn()}
+      onSelect={(id) => props.onSelect?.(id)}
     />
   );
 }
@@ -82,7 +85,7 @@ export type AuthorStoryOptions = {
 /** The refusal card the shell keeps on every place until dismissed. */
 function StoryRefusal(): JSX.Element {
   return (
-    <RefusedChangeCard
+    <ContentRefusalNotice
       refusal={{
         mutationId: 'f00d0000-0000-4000-8000-000000000001',
         mutationName: 'publishPuzzleContent',
@@ -97,6 +100,7 @@ function StoryRefusal(): JSX.Element {
           ],
         }),
       }}
+      issue="UNSOLVABLE"
       onDismiss={fn()}
     />
   );
@@ -134,6 +138,7 @@ export function renderAuthorStory(
   options: AuthorStoryOptions = {}
 ): JSX.Element {
   const [withdrawing, setWithdrawing] = createSignal(false);
+  const [copying, setCopying] = createSignal(false);
   const publication = publicationProps(args.kind, {
     disabled: args.disabled,
     ...options.publication,
@@ -156,7 +161,9 @@ export function renderAuthorStory(
       preview={
         slot('preview') ?? <StoryCountingPlayer state="count:0" disabled />
       }
-      keptCopies={slot('keptCopies') ?? <StoryCopies />}
+      keptCopies={
+        slot('keptCopies') ?? <StoryCopies onSelect={() => setCopying(true)} />
+      }
       refusal={options.refused === true ? <StoryRefusal /> : undefined}
       refused={options.refused === true}
       publication={
@@ -181,12 +188,20 @@ export function renderAuthorStory(
         />
       }
       confirms={
-        <ContentWithdrawConfirm
-          visible={withdrawing()}
-          title={args.body.title}
-          onClose={() => setWithdrawing(false)}
-          onWithdraw={fn(async () => undefined)}
-        />
+        <>
+          <ContentWithdrawConfirm
+            visible={withdrawing()}
+            title={args.body.title}
+            onClose={() => setWithdrawing(false)}
+            onWithdraw={fn(async () => undefined)}
+          />
+          <ContentCopyConfirm
+            visible={copying()}
+            disabled={false}
+            onClose={() => setCopying(false)}
+            onChoose={fn(async () => undefined)}
+          />
+        </>
       }
     />
   );

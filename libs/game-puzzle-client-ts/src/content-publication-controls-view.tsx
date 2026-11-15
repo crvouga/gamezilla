@@ -6,6 +6,7 @@ import { Button } from '@pkgs/ui-root-client-ts/button';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { P } from '@pkgs/ui-root-client-ts/text';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
 import { type Accessor, type JSX, Show } from 'solid-js';
 import { contentBuilderNextStep } from './content-builder-standing';
@@ -14,6 +15,7 @@ import {
   PublicationCopyLead,
   publicationCopyLabel,
 } from './content-publication-copy-view';
+import { useRefusalReason } from './content-publication-refusal';
 import {
   type PublicationActionPlace,
   PublicationSteps,
@@ -142,6 +144,7 @@ function FixRoutes(props: {
  */
 function Finding(props: ContentPublicationControlsViewProps): JSX.Element {
   const { t } = useLingui();
+  const refusalReason = useRefusalReason();
   return (
     <Show
       when={props.validation === 'invalid'}
@@ -149,7 +152,7 @@ function Finding(props: ContentPublicationControlsViewProps): JSX.Element {
         <Show when={props.refused === true}>
           <Notice tone="warning" dataSet={{ testid: 'content-refusal-fixes' }}>
             <StackVertical gap="sm">
-              <RefusalReason issue={props.refusalIssue ?? null} />
+              {refusalReason(props.refusalIssue ?? null)}
               {/* With a known place to fix it the lead opens it; otherwise both. */}
               <Show when={props.fixTarget === undefined && props.onFix}>
                 {(onFix) => <FixRoutes onFix={onFix()} />}
@@ -170,29 +173,6 @@ function Finding(props: ContentPublicationControlsViewProps): JSX.Element {
       </Notice>
     </Show>
   );
-}
-
-/** Why the server refused the publication, in local words, by its code. */
-function RefusalReason(props: { issue: string | null }): JSX.Element {
-  const { t } = useLingui();
-  const reason = (): string => {
-    const issue = props.issue;
-    if (issue === 'PUZZLE_TITLE_REQUIRED')
-      return t`Publishing did not go ahead: the draft has no title. Your draft is kept. Add a title, then publish again.`;
-    if (issue === 'PUZZLE_PLAYTEST_INCOMPLETE')
-      return t`Publishing did not go ahead: its playtest was not finished. Your draft is kept. Finish a playtest, then publish again.`;
-    if (issue === 'PACK_EMPTY')
-      return t`Publishing did not go ahead: the pack holds no puzzles. Your draft is kept. Add a puzzle, then publish again.`;
-    if (
-      issue === 'PACK_PUZZLE_UNPUBLISHED' ||
-      issue === 'PACK_PUZZLE_UNAVAILABLE'
-    )
-      return t`Publishing did not go ahead: a puzzle in the pack is not available. Your draft is kept. Change the pack's puzzles, then publish again.`;
-    if (issue !== null)
-      return t`Publishing did not go ahead: the game cannot finish the puzzle from its board. Your draft is kept. Correct the board and playtest it, then publish again.`;
-    return t`Publishing did not go ahead. Your draft is kept. Correct the draft, then publish again.`;
-  };
-  return <>{reason()}</>;
 }
 
 /**
@@ -310,37 +290,42 @@ function PublicationAftermath(props: {
           props.controls.publishDenial === undefined && props.controls.published
         }
       >
-        <StackHorizontal gap="sm" wrap align="center">
-          <Show
-            when={
-              !(
-                props.controls.copyState.kind === 'edition' &&
-                props.controls.copyState.current
-              )
-            }
-          >
-            <Button
-              title={
-                props.controls.pending !== null ||
-                props.controls.copyState.kind === 'reading'
-                  ? t`View saved edition`
-                  : t`View published edition`
+        <StackVertical gap="sm" testId="content-published-edition">
+          <P variant="label" tone="secondary">
+            <Trans>Published edition</Trans>
+          </P>
+          <StackHorizontal gap="sm" wrap align="center">
+            <Show
+              when={
+                !(
+                  props.controls.copyState.kind === 'edition' &&
+                  props.controls.copyState.current
+                )
               }
-              intent="neutral"
+            >
+              <Button
+                title={
+                  props.controls.pending !== null ||
+                  props.controls.copyState.kind === 'reading'
+                    ? t`View saved edition`
+                    : t`View published edition`
+                }
+                intent="neutral"
+                variant="outline"
+                onClick={() => props.controls.onViewPublication()}
+                dataSet={{ testid: 'content-view-publication' }}
+              />
+            </Show>
+            <Button
+              title={t`Withdraw published edition`}
+              intent="danger"
               variant="outline"
-              onClick={() => props.controls.onViewPublication()}
-              dataSet={{ testid: 'content-view-publication' }}
+              onClick={() => props.controls.onWithdraw()}
+              disabled={props.controls.disabled}
+              dataSet={{ testid: 'content-withdraw' }}
             />
-          </Show>
-          <Button
-            title={t`Withdraw publication`}
-            intent="danger"
-            variant="outline"
-            onClick={() => props.controls.onWithdraw()}
-            disabled={props.controls.disabled}
-            dataSet={{ testid: 'content-withdraw' }}
-          />
-        </StackHorizontal>
+          </StackHorizontal>
+        </StackVertical>
       </Show>
     </>
   );

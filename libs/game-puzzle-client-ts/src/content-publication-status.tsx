@@ -1,11 +1,9 @@
-import {
-  RefusedChangeCard,
-  useRefusedChanges,
-} from '@libs/app-env-client-ts/refused-change-notice';
+import { useRefusedChanges } from '@libs/app-env-client-ts/refused-change-notice';
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { useMutationFeedback } from '@pkgs/sync-engine-client-ts/use-mutation-feedback';
 import { createMemo, type JSX, Show } from 'solid-js';
 import type { ContentPublicationPending } from './content-publication-controls-view';
+import { ContentRefusalNotice } from './content-publication-refusal';
 
 /** The first finding's code in a refusal's `{ issues }` meta, if any. */
 function firstIssueCode(meta: string | null): string | null {
@@ -60,8 +58,9 @@ export function useContentPublicationStatus(documentId: () => string): {
     refusal: () => (
       <Show when={refusal()} keyed>
         {(entry) => (
-          <RefusedChangeCard
+          <ContentRefusalNotice
             refusal={entry}
+            issue={firstIssueCode(entry.meta)}
             onDismiss={() => changes.dismiss(entry)}
           />
         )}

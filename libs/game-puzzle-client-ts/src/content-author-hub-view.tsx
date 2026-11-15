@@ -108,7 +108,7 @@ function StepRows(props: { view: View }): JSX.Element {
         title={t`Check and publish`}
         caption={
           props.view.refused === true
-            ? t`Publishing was refused. Correct the draft, then publish again.`
+            ? t`Did not go ahead. Correct the draft, then publish again.`
             : standing(props.view.standing)
         }
         onClick={() => props.view.onOpen({ screen: 'publish' })}
@@ -214,7 +214,7 @@ function NextStep(props: { view: View }): JSX.Element {
         <PublishNext view={props.view} title={t`Next: validate`} />
       </Match>
       <Match when={standing().kind === 'publish' && props.view.refused}>
-        <PublishNext view={props.view} title={t`Next: correct and publish`} />
+        <PublishNext view={props.view} title={t`Next: correct the draft`} />
       </Match>
       <Match when={standing().kind === 'publish'}>
         <PublishNext view={props.view} title={t`Next: publish`} />

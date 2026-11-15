@@ -1,3 +1,4 @@
+import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { ContentAuthorScreenView } from './content-author-screen-view';
 import {
@@ -55,4 +56,19 @@ export const Pack: Story = {
         ),
       }),
     }),
+};
+
+/** Using another copy asks first, saying the other copies stay saved. */
+export const ConfirmCopy: Story = {
+  args: { conflicted: true },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      await canvas.findByTestId('content-use-copy-copy-earlier')
+    );
+    const page = within(canvasElement.ownerDocument.body);
+    await expect(
+      await page.findByText('Keep working from this copy?')
+    ).toBeVisible();
+  },
 };

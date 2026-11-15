@@ -7,6 +7,7 @@ import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { ProgressBar } from '@pkgs/ui-root-client-ts/progress-bar';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { P } from '@pkgs/ui-root-client-ts/text';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
 import { createEffect, type JSX, on, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
@@ -15,6 +16,7 @@ import type {
   CatalogueSourceUpload,
 } from './catalogue-load-client';
 import type { CatalogueLoadLink } from './catalogue-load-places';
+import { useCatalogueFormat } from './catalogue-load-result-view';
 import type { CatalogueSourceView } from './catalogue-load-view';
 
 export type CatalogueLoadSourceViewProps = {
@@ -36,6 +38,7 @@ function SourceUpload(props: {
   onAskStop: () => void;
 }): JSX.Element {
   const { t } = useLingui();
+  const format = useCatalogueFormat();
   return (
     <>
       <StackVertical role="status" testId="puzzle-source-saving">
@@ -45,8 +48,8 @@ function SourceUpload(props: {
           dataSet={{ testid: 'puzzle-source-progress' }}
           description={
             <Trans>
-              {props.upload.puzzles} puzzles uploaded so far. Keep this screen
-              open until the upload finishes.
+              {format.count(props.upload.puzzles)} puzzles uploaded so far. Keep
+              this screen open until the upload finishes.
             </Trans>
           }
         />
@@ -176,12 +179,17 @@ function SourceCheck(props: CatalogueLoadSourceViewProps): JSX.Element {
       <Show
         when={props.source.status === 'unknown' && props.link === 'offline'}
       >
-        <Notice dataSet={{ testid: 'puzzle-source-check-offline' }}>
+        {/* The screen's offline notice says why; this says what waits. */}
+        <P
+          variant="caption"
+          tone="secondary"
+          dataSet={{ testid: 'puzzle-source-check-offline' }}
+        >
           <Trans>
-            A connection is needed to check for the saved{' '}
-            {props.copy.sourceName}.
+            Checking for the saved {props.copy.sourceName} waits for the
+            connection.
           </Trans>
-        </Notice>
+        </P>
       </Show>
       <Show when={props.source.status === 'checking'}>
         <LoadingState

@@ -83,6 +83,15 @@ function StartBlock(props: {
           caption={<Trans>Connecting to puzzle status…</Trans>}
         />
       </Match>
+      <Match when={props.blocked === 'offline'}>
+        <P
+          variant="caption"
+          tone="secondary"
+          dataSet={{ testid: 'puzzle-load-blocked', reason: props.blocked }}
+        >
+          <Trans>Loading can start once you are back online.</Trans>
+        </P>
+      </Match>
       <Match when={props.blocked === 'checking'}>
         <P
           variant="caption"
