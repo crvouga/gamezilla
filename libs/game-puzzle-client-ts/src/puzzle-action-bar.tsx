@@ -12,6 +12,11 @@ import {
 export type PuzzleActionBarProps = PuzzleActionBarModel & {
   /** After the rest, on their line (a compact way to the settings). */
   readonly extra?: JSX.Element;
+  /**
+   * The lead shares the others' line, after them (the line view, where the
+   * moves above need the room a second line of commands would take).
+   */
+  readonly oneLine?: boolean;
 };
 
 /**
@@ -41,7 +46,7 @@ export function PuzzleActionBar(props: PuzzleActionBarProps): JSX.Element {
     slots().filter((slot) => !isLead(slot));
   return (
     <StackVertical gap="sm" testId="chess-puzzle-action-bar">
-      <Show when={lead()} keyed>
+      <Show when={props.oneLine !== true && lead()} keyed>
         {(slot) => <SlotButton slot={slot} model={props} lead />}
       </Show>
       <GameActions sizing="fill">
@@ -49,6 +54,10 @@ export function PuzzleActionBar(props: PuzzleActionBarProps): JSX.Element {
           {(slot) => <SlotButton slot={slot} model={props} />}
         </For>
         {props.extra}
+        {/* Sized as its neighbours, so the line reads as one row. */}
+        <Show when={props.oneLine === true && lead()} keyed>
+          {(slot) => <SlotButton slot={slot} model={props} />}
+        </Show>
       </GameActions>
     </StackVertical>
   );

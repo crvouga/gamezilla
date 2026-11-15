@@ -37,6 +37,7 @@ export function PuzzleLineActions(
         onRetry={props.onRetry}
         onSkip={props.onSkip}
         onNext={props.onNext}
+        oneLine
       />
     </Show>
   );
