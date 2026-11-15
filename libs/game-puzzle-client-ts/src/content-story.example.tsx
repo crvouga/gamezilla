@@ -185,7 +185,7 @@ const PACK_PUZZLES = [
   {
     id: 'puzzle-count-to-nine',
     title: 'Count to nine',
-    caption: 'Publish it before the pack',
+    caption: 'Open it to publish it first',
     status: 'draft',
   },
 ] as const;

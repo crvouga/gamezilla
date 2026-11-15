@@ -131,7 +131,15 @@ export function CatalogueLoadResultView(props: {
         />
       </StackVertical>
       {props.children}
-      <MenuSection title={<Trans>Latest load</Trans>}>
+      <MenuSection
+        title={
+          props.job.status === 'adding' ? (
+            <Trans>This load so far</Trans>
+          ) : (
+            <Trans>Latest load</Trans>
+          )
+        }
+      >
         <MenuRow
           title={<Trans>Processed</Trans>}
           value={format.count(props.job.processed)}

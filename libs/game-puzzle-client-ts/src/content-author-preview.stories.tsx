@@ -48,6 +48,7 @@ export const Pack: Story = {
             items={PACK_ITEMS}
             previewed={null}
             onSelect={fn()}
+            onBack={fn()}
           />
         ),
       }),
@@ -72,6 +73,7 @@ export const PackPuzzle: Story = {
               board: <StoryCountingPlayer state="count:0" disabled />,
             }}
             onSelect={fn()}
+            onBack={fn()}
           />
         ),
       }),

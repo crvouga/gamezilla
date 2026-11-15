@@ -1,11 +1,13 @@
 import { workingContentDraft } from '@libs/game-puzzle-shared-ts/content-library';
 import { decodePackDefinition } from '@libs/game-puzzle-shared-ts/content-pack';
 import { Trans, useLingui } from '@lingui/solid/macro';
+import { Button } from '@pkgs/ui-root-client-ts/button';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { H2 } from '@pkgs/ui-root-client-ts/heading';
+import { ArrowLeftIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
-import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { createMemo, For, type JSX, Show } from 'solid-js';
 import { useContentLibraryState } from './content-library-context';
@@ -36,6 +38,8 @@ export function ContentPackPreviewView(props: {
   items: readonly ContentPackPreviewItem[];
   previewed: ContentPackPreviewed | null;
   onSelect: (puzzleId: string) => void;
+  /** Returns from a previewed puzzle to the pack's list. */
+  onBack: () => void;
 }): JSX.Element {
   const { t } = useLingui();
   return (
@@ -67,7 +71,11 @@ export function ContentPackPreviewView(props: {
                   <MenuRow
                     dataSet={{ testid: `content-preview-puzzle-${item.id}` }}
                     title={item.title || t`Unavailable puzzle`}
-                    value={item.published ? t`Published` : t`Draft`}
+                    value={
+                      item.published
+                        ? t`Published`
+                        : t`Draft, not yet in a published pack`
+                    }
                     onClick={() => props.onSelect(item.id)}
                   />
                 )}
@@ -87,6 +95,16 @@ export function ContentPackPreviewView(props: {
               </H2>
             </StackVertical>
             {puzzle().board}
+            <StackHorizontal>
+              <Button
+                title={t`Back to the pack`}
+                intent="neutral"
+                variant="ghost"
+                startIcon={<ArrowLeftIcon size={16} />}
+                onClick={() => props.onBack()}
+                dataSet={{ testid: 'content-preview-back' }}
+              />
+            </StackHorizontal>
           </>
         )}
       </Show>
@@ -103,6 +121,8 @@ export function ContentPackPreview(props: {
   /** The puzzle previewed; `null` shows the pack's list. */
   puzzleId: string | null;
   onSelect: (puzzleId: string) => void;
+  /** Returns to the pack's list. */
+  onBack: () => void;
 }): JSX.Element {
   const data = useContentLibraryState();
   const pack = createMemo(() => decodePackDefinition(props.definition));
@@ -140,6 +160,7 @@ export function ContentPackPreview(props: {
       items={items()}
       previewed={previewed()}
       onSelect={props.onSelect}
+      onBack={props.onBack}
     />
   );
 }

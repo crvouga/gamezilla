@@ -164,6 +164,20 @@ function publishStepNote(
 }
 
 /**
+ * The current step's state in a word: Fix first while the board must be
+ * fixed or a failed check's fix leads; Locked for a refused publication's
+ * held retry (its lock says the same); otherwise Next.
+ */
+function heldStateName(
+  props: PublicationStepsProps,
+  names: { fix: string; held: string; next: string }
+): string {
+  if (correctionFirst(props)) return names.fix;
+  if (fixLead(props) === null) return names.next;
+  return props.next === 'publish' ? names.held : names.fix;
+}
+
+/**
  * Where correcting the draft leads instead of the next step's own action:
  * the board while the game cannot play it, or where a failed check
  * points. `null` when the step's own action leads.
@@ -353,7 +367,7 @@ export function PublicationSteps(props: PublicationStepsProps): JSX.Element {
     },
     {
       key: 'publish',
-      label: props.progress ? t`Publication` : t`Publish`,
+      label: t`Publish`,
       state: props.progress?.complete ? 'done' : stateOf('publish', next()),
       action:
         props.publishNote !== undefined
@@ -381,9 +395,11 @@ export function PublicationSteps(props: PublicationStepsProps): JSX.Element {
           done: t`Done`,
           current:
             props.progress?.currentLabel ??
-            (correctionFirst(props) || fixLead(props) !== null
-              ? t`Fix first`
-              : t`Next`),
+            heldStateName(props, {
+              fix: t`Fix first`,
+              held: t`Locked`,
+              next: t`Next`,
+            }),
           upcoming: t`Locked`,
         }}
         steps={steps()}

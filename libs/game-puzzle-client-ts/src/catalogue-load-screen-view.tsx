@@ -93,7 +93,10 @@ function CatalogueLoadFrame(
           screenId="catalogue-load"
           title={placeTitle(props)}
           subtitle={
-            props.place.screen === 'source' ? undefined : (
+            // What the loader is for, until a file is saved; then the hub's
+            // own status says where it stands.
+            props.place.screen === 'source' ||
+            props.source.filename !== null ? undefined : (
               <Dynamic component={props.copy.subtitle} />
             )
           }

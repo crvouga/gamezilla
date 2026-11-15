@@ -80,6 +80,7 @@ function AuthorPreview(props: {
           props.place.screen === 'preview' ? props.place.puzzleId : null
         }
         onSelect={(puzzleId) => props.onOpen({ screen: 'preview', puzzleId })}
+        onBack={() => props.onOpen({ screen: 'preview', puzzleId: null })}
       />
     </Show>
   );
