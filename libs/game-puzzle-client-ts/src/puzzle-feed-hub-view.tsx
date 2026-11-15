@@ -62,9 +62,11 @@ function SettingRow(props: {
   readonly testId: string;
 }): JSX.Element {
   return (
+    // The value under the name, whole: beside it a narrow phone cut it
+    // ("Next immedia…").
     <MenuRow
       title={props.title}
-      value={props.value}
+      caption={props.value}
       onClick={() => props.view.onOpen({ screen: props.screen })}
       dataSet={{ testid: props.testId }}
     />

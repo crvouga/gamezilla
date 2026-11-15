@@ -37,6 +37,21 @@ export async function completeChessPuzzle(canvasElement: HTMLElement) {
   ).toBeVisible();
 }
 
+/**
+ * Solve the line, Retry from the result, and solve it again: Retry puts the
+ * start position back on a board that takes moves.
+ */
+export async function retrySolvedChessPuzzle(canvasElement: HTMLElement) {
+  await completeChessPuzzle(canvasElement);
+  const canvas = within(canvasElement);
+  await userEvent.click(canvas.getByTestId('chess-puzzle-action-retry'));
+  await expect(await canvas.findByText('Find the forcing move.')).toBeVisible();
+  await expect(
+    canvas.getByRole('button', { name: /^f3, White knight/ })
+  ).toBeVisible();
+  await completeChessPuzzle(canvasElement);
+}
+
 export async function recoverChessPuzzle(canvasElement: HTMLElement) {
   const initial = puzzleRectangle(canvasElement);
   await checkPuzzleFirstRank(canvasElement);

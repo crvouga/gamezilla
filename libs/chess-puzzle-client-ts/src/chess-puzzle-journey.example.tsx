@@ -34,7 +34,9 @@ export function ChessPuzzleJourney() {
   const solved = () => step() === STEPS.length;
   const position = () =>
     wrong() ? STORY_LINE.wrong : (STEPS[step()]?.position ?? STORY_LINE.mate);
+  // Retry starts the line again, after a wrong move or once it is solved.
   const retry = () => {
+    setStep(0);
     setWrong(false);
     setHint(false);
     setRevision((value) => value + 1);

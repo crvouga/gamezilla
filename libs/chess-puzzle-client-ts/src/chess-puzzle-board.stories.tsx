@@ -18,6 +18,7 @@ import { ChessPuzzleJourney } from './chess-puzzle-journey.example';
 import {
   completeChessPuzzle,
   recoverChessPuzzle,
+  retrySolvedChessPuzzle,
 } from './chess-puzzle-journey-play.example';
 import {
   StoryChessPuzzleBoard,
@@ -124,6 +125,12 @@ export const SolutionShown: Story = {
 export const SolveJourney: Story = {
   render: () => <ChessPuzzleJourney />,
   play: async ({ canvasElement }) => completeChessPuzzle(canvasElement),
+};
+
+/** Retry from a solved result starts the line again on a board that takes moves. */
+export const RetryAfterSolve: Story = {
+  render: () => <ChessPuzzleJourney />,
+  play: async ({ canvasElement }) => retrySolvedChessPuzzle(canvasElement),
 };
 
 /** A wrong move remains visible until Retry restores the position, then solve. */

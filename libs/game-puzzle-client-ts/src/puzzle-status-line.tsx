@@ -62,9 +62,9 @@ export function PuzzleStatusLine(
   const handles = () => props.coach.handles;
   return (
     // A short phone's result says the coach's words in its card, which
-    // the dock holds in view; the bubble folds away there (never redrawn,
-    // so it is not said twice).
-    <PuzzleScreenFold on={props.place.screen === 'result' ? 'tall' : 'always'}>
+    // the dock holds in view, and its line keeps the moves in view: the
+    // bubble folds away there (never redrawn, so it is not said twice).
+    <PuzzleScreenFold on={props.place.screen === 'play' ? 'always' : 'tall'}>
       <SpeakingAvatar
         message={props.coach.message}
         contextKey={props.coach.contextKey}

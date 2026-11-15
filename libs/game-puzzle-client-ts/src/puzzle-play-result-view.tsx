@@ -31,6 +31,9 @@ import { PuzzleShareLabel } from './puzzle-share-label';
 import { StatusLineTrailing } from './puzzle-status-line';
 import { PuzzleSummaryCard } from './puzzle-summary-card';
 
+/** A phone too short for the dock's second row and the coach's bubble. */
+const SHORT_PHONE = '(max-height: 699px)';
+
 /** How the puzzle ended, in the tone of its outcome. */
 function ResultTitle(props: PuzzlePlayScreenViewProps): JSX.Element {
   return (
@@ -159,7 +162,7 @@ export function PuzzleResultRows(
  */
 function ResultMore(props: PuzzlePlayScreenViewProps): JSX.Element {
   // Under 700px tall the dock's second row folds away into this menu.
-  const short = createMediaQuery('(max-height: 699px)');
+  const short = createMediaQuery(SHORT_PHONE);
   const offers = createMemo(() =>
     buildPuzzleActionBarPlan({
       status: props.status,
@@ -170,6 +173,13 @@ function ResultMore(props: PuzzlePlayScreenViewProps): JSX.Element {
   const folded = (): OverflowMenuAction[] =>
     short()
       ? [
+          {
+            id: 'moves',
+            label: <Trans>Moves</Trans>,
+            icon: ListOrderedIcon,
+            onClick: () => props.onOpen({ screen: 'line' }),
+            dataSet: { testid: 'chess-puzzle-summary-close-compact' },
+          },
           ...(offers().includes('retry')
             ? [
                 {
@@ -181,13 +191,6 @@ function ResultMore(props: PuzzlePlayScreenViewProps): JSX.Element {
                 },
               ]
             : []),
-          {
-            id: 'moves',
-            label: <Trans>Moves</Trans>,
-            icon: ListOrderedIcon,
-            onClick: () => props.onOpen({ screen: 'line' }),
-            dataSet: { testid: 'chess-puzzle-summary-close-compact' },
-          },
         ]
       : [];
   const more = (): OverflowMenuAction[] => [
@@ -345,6 +348,7 @@ export function PuzzleResultDock(
  * attempt did to the rating when it has no rated summary (a skip).
  */
 function PuzzleResultSummary(props: PuzzlePlayScreenViewProps): JSX.Element {
+  const shortPhone = createMediaQuery(SHORT_PHONE);
   return (
     <Surface
       tone="muted"
@@ -378,7 +382,7 @@ function PuzzleResultSummary(props: PuzzlePlayScreenViewProps): JSX.Element {
           </StackHorizontal>
           {/* A short phone's card says the coach's words, whose bubble
               would sit under the dock there. */}
-          <Show when={props.coach.message.length > 0}>
+          <Show when={shortPhone() && props.coach.message.length > 0}>
             <PuzzleScreenFold on="short">
               <P
                 variant="caption"
