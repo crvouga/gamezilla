@@ -236,11 +236,13 @@
     color: var(--ui-color-text-secondary);
     font-size: var(--ui-font-size-xs);
   }
+  /* The line holds the moves alone: their word (`Column`) would sit on the
+     first of them. */
   [data-game-fixed="true"]
     [data-game-slot="rail"]
     .list[data-layout="table"]
     .heading {
-    padding-inline-start: 0;
+    display: none;
   }
   [data-game-fixed="true"]
     [data-game-slot="rail"]

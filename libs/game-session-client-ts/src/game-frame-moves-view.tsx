@@ -419,13 +419,19 @@ export function FrameMovesPlace(props: RecordProps): JSX.Element {
         notices={
           <FrameNoticesView connection={props.connection} error={props.error} />
         }
+        // A phone is one fixed view, as play is: every move the line over
+        // the board, the steps, the game chosen and a move by its number
+        // under it, and the way back pinned at the foot. A wide screen lists
+        // every move beside the board.
+        boardFocus
+        actionsBeside
+        fixedStage={props.boardWorkspace !== true}
         status={
           <>
             <RecordSteps {...props} />
-            {/* A phone keeps the moves with the board and its steps, before
-                the way back; a wide screen lists them beside the board. */}
             <Show when={!wide()}>
-              <EveryMove {...props} />
+              <RecordSelect {...props} />
+              <ReviewJumpField {...props} />
             </Show>
             <FrameErrorView text={props.record.error} />
           </>
@@ -444,7 +450,22 @@ export function FrameMovesPlace(props: RecordProps): JSX.Element {
           />
         }
         aside={
-          <Show when={wide()}>
+          <Show
+            when={wide()}
+            fallback={
+              <Show when={recordPlayed(props.record)}>
+                <GameSection
+                  title={<Trans>Every move</Trans>}
+                  dataSet={{
+                    component: 'CustomGameReview',
+                    testid: 'custom-game-record',
+                  }}
+                >
+                  <RecordMoves {...props} onSelect={props.onSeek} />
+                </GameSection>
+              </Show>
+            }
+          >
             <EveryMove {...props} />
           </Show>
         }
