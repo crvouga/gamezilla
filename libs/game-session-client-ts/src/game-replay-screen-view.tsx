@@ -363,6 +363,8 @@ function ReplayMovesPage(props: GameReplayScreenViewProps): JSX.Element {
   const page = createMemo(() =>
     Math.floor(Math.max(0, props.ply - 1) / size())
   );
+  // A phone's page of a long game holds two-digit moves: three across.
+  const columns = () => (size() === PHONE_PAGE ? 3 : 4);
   const first = () => page() * size() + 1;
   const last = () => Math.min(first() + size() - 1, props.moves.length);
   const shown = createMemo(() =>
@@ -386,7 +388,7 @@ function ReplayMovesPage(props: GameReplayScreenViewProps): JSX.Element {
             <Trans>number, player and {props.moveHeading.toLowerCase()}</Trans>
           </Show>
         </P>
-        <Grid columns={4} gap="xs" testId="game-history-review-moves">
+        <Grid columns={columns()} gap="xs" testId="game-history-review-moves">
           <For each={shown()}>
             {(entry) => (
               <Button
