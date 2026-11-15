@@ -1,0 +1,8 @@
+/* Four short choices in a row (`5+0`, `3 days`): smaller tiles, so a whole
+   catalogue of them fits a phone. */
+.four {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.four > * {
+  min-height: 56px;
+}

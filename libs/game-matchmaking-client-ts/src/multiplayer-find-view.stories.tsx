@@ -1,4 +1,4 @@
-import { ClockIcon } from '@pkgs/ui-root-client-ts/icons';
+import { ClockIcon, KeyRoundIcon } from '@pkgs/ui-root-client-ts/icons';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { MultiplayerScreenView } from './multiplayer-screen-view';
@@ -74,7 +74,7 @@ export const FinishCustomGameFirst: Story = {
   args: {
     onOpenCustomGame: fn(),
     commandDenial: {
-      icon: ClockIcon,
+      icon: KeyRoundIcon,
       title: 'Finish your Custom Game first',
       dataSet: {
         testid: 'multiplayer-command-denial',

@@ -63,6 +63,7 @@ export function MultiplayerTimeControlView(
         {(speed) => (
           <GameChoiceGrid
             label={<SpeedName speed={speed} />}
+            columns={4}
             choices={TIME_CONTROLS.filter((c) => c.speed === speed).map(
               (control) => ({
                 value: control.id,

@@ -331,6 +331,7 @@ test('a search refused by a custom game still on leads straight to that custom g
     stage: 'idle',
     props: {
       onOpenCustomGame,
+      find: { players: 2, timed: true, timeControl: '5+0', fresh: true },
       commandDenial: {
         icon: () => null,
         title: 'Finish your Custom Game first',
@@ -339,6 +340,14 @@ test('a search refused by a custom game still on leads straight to that custom g
     },
   });
   expect(screen.queryByTestId('multiplayer-blocked-leave')).toBeNull();
+  // The screen says only that the other game is on: no first-visit line,
+  // no clocks to choose while the search cannot run.
+  expect(screen.queryByTestId('multiplayer-unavailable')).toBeNull();
+  expect(screen.queryByTestId('multiplayer-clock-5-0')).toBeNull();
+  expect(screen.queryByTestId('multiplayer-open-time-control')).toBeNull();
+  expect(
+    screen.getByTestId('multiplayer-find-space').getAttribute('role')
+  ).toBe('status');
   const open = screen.getByTestId('multiplayer-open-custom-game');
   expect(open.textContent).toContain('Go to your custom game');
   expect(screen.getByTestId('multiplayer-find-space').textContent).toContain(

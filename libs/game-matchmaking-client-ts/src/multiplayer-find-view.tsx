@@ -240,7 +240,12 @@ function FindRows(props: FindProps): JSX.Element {
 /** Where the search stands, in one line over its command. */
 function FindStatus(props: FindProps): JSX.Element {
   return (
-    <P variant="caption" tone="secondary" testId="multiplayer-find-space">
+    <P
+      variant="caption"
+      tone="secondary"
+      testId="multiplayer-find-space"
+      role="status"
+    >
       <Show
         when={props.online}
         fallback={<Trans>You're offline. Reconnect to search.</Trans>}
@@ -370,27 +375,35 @@ export function MultiplayerFindView(props: FindProps): JSX.Element {
           </Text>
         </Notice>
       </Show>
-      <Show when={props.find.fresh === true}>
-        <Notice dataSet={{ testid: 'multiplayer-unavailable' }}>
-          <Text variant="inherit" role="status">
-            <Trans>
-              No game has started here yet. Find an opponent to play your first
-              rated game.
-            </Trans>
-          </Text>
-        </Notice>
-      </Show>
-      <ClockChoices {...props} />
-      <Show when={props.find.players > 2}>
-        <P variant="caption" tone="secondary" testId="multiplayer-find-players">
-          <PlayersNeeded find={props.find} />
-        </P>
-      </Show>
-      <FindRows {...props} />
-      <Show when={props.find.fresh === true}>
-        <MultiplayerGuidePoints
-          title={<Trans>How ranked matches work</Trans>}
-        />
+      {/* Refused while another game is still on: the screen says only that,
+          and the dock leads to it; the choices wait until it is over. */}
+      <Show when={props.blocked === null}>
+        <Show when={props.find.fresh === true}>
+          <Notice dataSet={{ testid: 'multiplayer-unavailable' }}>
+            <Text variant="inherit" role="status">
+              <Trans>
+                No game has started here yet. Find an opponent to play your
+                first rated game.
+              </Trans>
+            </Text>
+          </Notice>
+        </Show>
+        <ClockChoices {...props} />
+        <Show when={props.find.players > 2}>
+          <P
+            variant="caption"
+            tone="secondary"
+            testId="multiplayer-find-players"
+          >
+            <PlayersNeeded find={props.find} />
+          </P>
+        </Show>
+        <FindRows {...props} />
+        <Show when={props.find.fresh === true}>
+          <MultiplayerGuidePoints
+            title={<Trans>How ranked matches work</Trans>}
+          />
+        </Show>
       </Show>
     </MultiplayerLobbyPlace>
   );

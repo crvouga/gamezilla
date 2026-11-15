@@ -2,6 +2,7 @@ import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { createUniqueId, For, type JSX, Show } from 'solid-js';
 import styles from '../game-ui.module.css';
+import grid from './game-choice-grid.module.css';
 
 export type GameChoice = {
   value: string;
@@ -23,6 +24,8 @@ export function GameChoiceGrid(props: {
    */
   onPress?: ((value: string) => void) | undefined;
   disabled?: boolean;
+  /** Choices in a row: three (the default), or four for short choices. */
+  columns?: 3 | 4 | undefined;
 }): JSX.Element {
   const name = createUniqueId();
   return (
@@ -34,7 +37,10 @@ export function GameChoiceGrid(props: {
       <legend class={`${styles['meta']} text textFootnote`}>
         {props.label}
       </legend>
-      <div class={styles['choiceGrid']}>
+      <div
+        class={styles['choiceGrid']}
+        classList={{ [grid['four'] ?? '']: props.columns === 4 }}
+      >
         <For each={props.choices}>
           {(choice) => (
             <label
