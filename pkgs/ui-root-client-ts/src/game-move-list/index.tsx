@@ -210,8 +210,11 @@ function alignPastKey(root: HTMLElement): void {
   const past = Math.ceil(
     cut.getBoundingClientRect().right - key.getBoundingClientRect().right
   );
-  if (root.scrollLeft + past <= root.scrollWidth - root.clientWidth)
-    root.scrollLeft += past;
+  // At the line's end there is room made after the latest turn to scroll
+  // on into, so the gap is at the end, never beside the key.
+  const room = root.scrollWidth - root.clientWidth - root.scrollLeft;
+  if (room < past) root.style.setProperty('--strip-end', `${past - room}px`);
+  root.scrollLeft += past;
 }
 
 /** Where the moves start showing: past a key held at the line's start. */
@@ -297,6 +300,7 @@ function TurnList(props: GameMoveListProps): JSX.Element {
   // changes (a rail squeezed by what sits above it), not only once.
   const keepMarkedInView = (): void => {
     if (props.layout !== 'table' || root === undefined) return;
+    root.style.removeProperty('--strip-end');
     scrollMarkedIntoView(root);
     alignPastKey(root);
     hideCutByKey(root);

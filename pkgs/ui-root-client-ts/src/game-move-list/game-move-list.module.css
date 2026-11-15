@@ -234,7 +234,8 @@
     .turns::after {
     content: "";
     flex: none;
-    width: var(--ui-space-1);
+    /* Widened by the list when the turns must scroll on to meet a key. */
+    width: calc(var(--ui-space-1) + var(--strip-end, 0px));
   }
   /* Each turn reads as one unit: its number, then its moves, inside one
      quiet outline, with room between turns. */

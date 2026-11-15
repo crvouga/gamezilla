@@ -43,25 +43,26 @@ export function FrameOptionsPlace(
       }
     >
       <StackVertical gap="md">
+        {/* The count is read here, its note right under it; the seats in
+            setup change it. */}
         <Show when={props.options.players}>
           {(players) => (
-            <GameOptionField
-              kind="count"
-              label={t`Players`}
-              readOnly
-              value={players().count}
-              min={players().min}
-              max={players().max}
-              onChange={() => undefined}
-              dataSet={{ testid: 'custom-game-players' }}
-            />
+            <StackVertical gap="none">
+              <GameOptionField
+                kind="count"
+                label={t`Players`}
+                readOnly
+                value={players().count}
+                min={players().min}
+                max={players().max}
+                onChange={() => undefined}
+                dataSet={{ testid: 'custom-game-players' }}
+              />
+              <P variant="caption" tone="secondary">
+                <Trans>Players are set by the seats in setup.</Trans>
+              </P>
+            </StackVertical>
           )}
-        </Show>
-        {/* The count is read here; the seats in setup change it. */}
-        <Show when={props.options.players}>
-          <P variant="caption" tone="secondary">
-            <Trans>Players are set by the seats in setup.</Trans>
-          </P>
         </Show>
         <GameFrameOptions
           options={props.options.groups}
