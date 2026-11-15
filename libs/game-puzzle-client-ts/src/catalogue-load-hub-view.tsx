@@ -191,6 +191,10 @@ function HubCommand(props: {
           fallback={
             <Button
               {...start.buttonProps}
+              // After a finished load, loading again is a quieter choice.
+              variant={
+                props.loadedBefore && !props.lastFailed ? 'outline' : 'solid'
+              }
               dataSet={{ testid: 'puzzle-load-start' }}
             />
           }

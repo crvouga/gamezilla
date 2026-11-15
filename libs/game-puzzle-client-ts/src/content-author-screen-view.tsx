@@ -144,16 +144,18 @@ function AuthorNotices(props: ContentAuthorScreenViewProps): JSX.Element {
                   Another device saved a different copy of this draft. Choose
                   the copy to keep working from before publishing.
                 </Trans>
-                <StackHorizontal>
-                  <Button
-                    title={t`Open draft copies`}
-                    intent="neutral"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => props.onOpen({ screen: 'copies' })}
-                    dataSet={{ testid: 'content-author-open-copies' }}
-                  />
-                </StackHorizontal>
+                <Show when={props.place.screen !== 'builder'}>
+                  <StackHorizontal>
+                    <Button
+                      title={t`Open draft copies`}
+                      intent="neutral"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => props.onOpen({ screen: 'copies' })}
+                      dataSet={{ testid: 'content-author-open-copies' }}
+                    />
+                  </StackHorizontal>
+                </Show>
               </StackVertical>
             }
           >

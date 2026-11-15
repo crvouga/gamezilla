@@ -117,7 +117,11 @@ function SourceChoice(props: CatalogueLoadSourceViewProps): JSX.Element {
         chooseLabel={t`Choose file`}
         emptyLabel={t`No file chosen`}
         fileName={props.source.chosen}
-        hint={<Dynamic component={props.copy.fileHint} />}
+        hint={
+          props.source.chosen === null ? (
+            <Dynamic component={props.copy.fileHint} />
+          ) : undefined
+        }
         onSelect={(file) => props.onSelectFile(file)}
         dataSet={{ testid: 'puzzle-load-file' }}
         fileDataSet={{ testid: 'puzzle-source-chosen' }}

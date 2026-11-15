@@ -232,7 +232,7 @@ type PublicationActions = ReturnType<typeof usePublicationActions>;
 function placed(place: PublicationActionPlace) {
   if (place === 'lead') return { intent: 'primary', variant: 'solid' } as const;
   if (place === 'done')
-    return { intent: 'neutral', variant: 'ghost', size: 'sm' } as const;
+    return { intent: 'neutral', variant: 'outline', size: 'sm' } as const;
   return {
     intent: 'neutral',
     variant: 'ghost',

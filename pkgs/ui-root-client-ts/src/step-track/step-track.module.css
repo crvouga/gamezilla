@@ -5,13 +5,18 @@
   min-width: 0;
 }
 .track {
+  display: grid;
+  grid-template-columns: var(--ui-space-6) minmax(0, 1fr) max-content;
   margin: 0;
   padding: 0;
   list-style: none;
 }
+/* Every row shares the track's columns, so each step's action starts on
+   one edge, whatever its label's length. */
 .step {
   display: grid;
-  grid-template-columns: var(--ui-space-6) minmax(0, 1fr) max-content;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
   align-items: start;
   column-gap: var(--ui-space-3);
   padding: var(--ui-space-3) var(--ui-space-4);
@@ -88,7 +93,7 @@
 .action {
   display: flex;
   align-self: center;
-  justify-content: flex-end;
+  justify-content: flex-start;
 }
 /* The step's state in a word, under its name, in the quieter ink; the
    next step's in the tint that marks it, a done step's in success. */

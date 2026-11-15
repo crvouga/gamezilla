@@ -96,7 +96,10 @@ function CatalogueLoadFrame(
             // What the loader is for, until a file is saved; then the hub's
             // own status says where it stands.
             props.place.screen === 'source' ||
-            props.source.filename !== null ? undefined : (
+            !(
+              props.source.status === 'missing' ||
+              props.source.status === 'chosen'
+            ) ? undefined : (
               <Dynamic component={props.copy.subtitle} />
             )
           }
