@@ -1,0 +1,4 @@
+{
+  "summary": "Sync authentication converted database serialization and provider failures into expired-session HTTP 401 responses, falsely telling valid signed-in clients their credentials had expired.",
+  "regressionTest": "libs/app-root-shared-ts/tests/query-auth.test.ts"
+}
