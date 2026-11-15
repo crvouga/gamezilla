@@ -412,3 +412,15 @@ export const InAttemptScreen: Story = {
     await expect(canvas.getByTestId('numberlink-board-cell-0')).toBeVisible();
   },
 };
+
+/** The same, at rest: what a person sees on opening the attempt. */
+export const InAttemptScreenAtRest: Story = {
+  render: (args) => (
+    <DrawPathsAttempt
+      puzzle={PUZZLE}
+      args={args}
+      saved={[PATH_1, PATH_3]}
+      context={{ kind: 'pack', shellOffersWayOn: true, shellSaysSolved: true }}
+    />
+  ),
+};

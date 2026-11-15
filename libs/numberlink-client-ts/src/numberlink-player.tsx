@@ -104,34 +104,45 @@ function Drawing(props: {
         </Notice>
       </Show>
       <Show when={!solved() && !props.disabled}>
-        <P
-          variant="caption"
-          tone="secondary"
-          aria-live="polite"
-          dataSet={{ testid: 'numberlink-drawing-status' }}
+        {/* Inside the attempt screen an idle line takes no room: the hint
+            lives in Help, and the line shows while drawing says something. */}
+        <Show
+          when={
+            !props.shellSaysSolved ||
+            (drawing.feedback() ?? null) !== null ||
+            drawingLabel() !== undefined
+          }
         >
-          {drawing.feedback() ?? (
-            <Show
-              when={drawingLabel()}
-              fallback={
-                // Inside the attempt screen the idle hint lives in Help, so
-                // the board keeps the room; live feedback still shows here.
-                <Show when={!props.shellSaysSolved}>
+          <P
+            variant="caption"
+            tone="secondary"
+            aria-live="polite"
+            dataSet={{ testid: 'numberlink-drawing-status' }}
+          >
+            {drawing.feedback() ?? (
+              <Show
+                when={drawingLabel()}
+                fallback={
+                  // Inside the attempt screen the idle hint lives in Help, so
+                  // the board keeps the room; live feedback still shows here.
+                  <Show when={!props.shellSaysSolved}>
+                    <Trans>
+                      Drag from an endpoint to its match, or use Enter and arrow
+                      keys.
+                    </Trans>
+                  </Show>
+                }
+              >
+                {(label) => (
                   <Trans>
-                    Drag from an endpoint to its match, or use Enter and arrow
-                    keys.
+                    Drawing {label()}. Finish on its matching endpoint to save
+                    it.
                   </Trans>
-                </Show>
-              }
-            >
-              {(label) => (
-                <Trans>
-                  Drawing {label()}. Finish on its matching endpoint to save it.
-                </Trans>
-              )}
-            </Show>
-          )}
-        </P>
+                )}
+              </Show>
+            )}
+          </P>
+        </Show>
         <Show
           when={props.shellSaysSolved}
           fallback={
@@ -173,8 +184,8 @@ function AttemptTools(props: {
   const [helpOpen, setHelpOpen] = createSignal(false);
   return (
     <>
-      {/* Room for the focus rings at the board's edge. */}
-      <StackHorizontal gap="sm" align="center" paddingX="xs" paddingY="xs">
+      {/* Room for the focus rings at the board's sides. */}
+      <StackHorizontal gap="sm" align="center" paddingX="xs">
         <StackVertical grow shrink>
           <NumberlinkRecovery
             definition={props.definition}
@@ -195,15 +206,17 @@ function AttemptTools(props: {
       </StackHorizontal>
       {/* Help opens over the board (a sheet on a phone), so the board's
           room never changes while it is read. */}
-      <ResponsiveSurface
-        visible={helpOpen()}
-        onClose={() => setHelpOpen(false)}
-        title={t`Drawing and keyboard help`}
-        closeDataSet={{ testid: 'numberlink-help-close' }}
-        dataSet={{ testid: 'numberlink-help' }}
-      >
-        <NumberlinkDrawingHelpBody withHint />
-      </ResponsiveSurface>
+      <Show when={helpOpen()}>
+        <ResponsiveSurface
+          visible={helpOpen()}
+          onClose={() => setHelpOpen(false)}
+          title={t`Drawing and keyboard help`}
+          closeDataSet={{ testid: 'numberlink-help-close' }}
+          dataSet={{ testid: 'numberlink-help' }}
+        >
+          <NumberlinkDrawingHelpBody withHint />
+        </ResponsiveSurface>
+      </Show>
     </>
   );
 }
