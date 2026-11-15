@@ -116,6 +116,7 @@ const SPACE_BODIES = new Set([
   'screens-puzzles-catalogue-load-source',
   'screens-puzzles-catalogue-load-status',
   'screens-puzzles-chess-play',
+  'screens-puzzles-chess-review',
   'screens-puzzles-play',
   'screens-puzzles-play-feed',
   'screens-puzzles-play-feed-advance',

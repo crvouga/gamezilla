@@ -1,8 +1,14 @@
-/* A bubble's words clamped to `--bubble-lines` lines until expanded. */
+/* A bubble's words clamped to `--bubble-lines` lines until expanded. A
+   host short of room can ask for fewer through `--ui-speech-lines`. */
 .clamped {
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: var(--bubble-lines);
-  line-clamp: var(--bubble-lines);
+  -webkit-line-clamp: var(--ui-speech-lines, var(--bubble-lines));
+  line-clamp: var(--ui-speech-lines, var(--bubble-lines));
   overflow: hidden;
+}
+/* More / Less starts where the words do: the ghost button's gutter is
+   pulled back to the text column. */
+.more {
+  margin-inline-start: calc(-1 * var(--ui-space-5));
 }

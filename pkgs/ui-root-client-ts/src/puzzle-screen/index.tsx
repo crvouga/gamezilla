@@ -73,6 +73,7 @@ type PuzzleArea =
 function regionClass(area: PuzzleArea): string | undefined {
   if (area === 'dock') return dockStyles['dock'];
   if (area === 'title') return `${styles['title']} ${heightStyles['title']}`;
+  if (area === 'header') return `${styles['header']} ${heightStyles['header']}`;
   return styles[area];
 }
 
@@ -170,9 +171,6 @@ export function PuzzleScreen(props: PuzzleScreenProps): JSX.Element {
         {/* Wide: the card the panel column sits on, the game record's
             look; drawn under the panel's regions, never in a phone's flow. */}
         <div class={styles['panelCard']} aria-hidden="true" />
-        <PuzzleFixedRegion name="PuzzleHeader" area="header">
-          {props.header}
-        </PuzzleFixedRegion>
         <div class={styles['well']}>
           <div
             class={`${styles['board']} ${heightStyles['board']}`}
@@ -182,6 +180,11 @@ export function PuzzleScreen(props: PuzzleScreenProps): JSX.Element {
             {props.children}
           </div>
         </div>
+        {/* After the board in reading and focus order, as a phone shows it;
+            a fit-sized board's column orders it over the board. */}
+        <PuzzleFixedRegion name="PuzzleHeader" area="header">
+          {props.header}
+        </PuzzleFixedRegion>
         <PuzzleFixedRegion name="PuzzleLegend" area="legend">
           {props.legend}
         </PuzzleFixedRegion>

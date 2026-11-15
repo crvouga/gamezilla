@@ -23,6 +23,23 @@
     }
   }
 }
+/* A phone under 700px tall: the coach says two lines before its More. */
+@media (max-height: 699px) {
+  @container puzzle-frame (width < 880px) {
+    [data-board-sizing="width"] {
+      --ui-speech-lines: 2;
+    }
+  }
+}
+/* The board comes before the coach in reading and focus order (as a phone
+   draws them); a fit-sized board's column still shows the title, then the
+   coach, over the board. */
+[data-board-sizing="fit"] > .title {
+  order: -2;
+}
+[data-board-sizing="fit"] > .header {
+  order: -1;
+}
 
 /* `PuzzleScreenFold`: what a puzzle screen shows only on a tall phone (and
    wide), or only on a short phone, so a secondary entry can step from its

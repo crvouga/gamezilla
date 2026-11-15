@@ -1,5 +1,6 @@
 /** @jsxImportSource solid-js */
 
+import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import {
   createEffect,
@@ -72,7 +73,10 @@ export function createBubbleClamp(
 export function BubbleMore(props: { clamp: BubbleClamp }): JSX.Element {
   return (
     <Show when={props.clamp.overflowing()}>
-      <div class="box flex-row" data-component="SpeechBubbleMore">
+      <div
+        class={`box flex-row ${styles['more']}`}
+        data-component="SpeechBubbleMore"
+      >
         <Button
           title={
             <Show when={props.clamp.expanded()} fallback={<Trans>More</Trans>}>
@@ -83,6 +87,11 @@ export function BubbleMore(props: { clamp: BubbleClamp }): JSX.Element {
           variant="ghost"
           size="sm"
           aria-expanded={props.clamp.expanded()}
+          aria-label={
+            props.clamp.expanded()
+              ? t`Less of this message`
+              : t`More of this message`
+          }
           onClick={() => props.clamp.toggle()}
         />
       </div>

@@ -318,6 +318,10 @@ export const PUZZLE_PLAY_STORY_CONTROLS_EXCLUDE = [
 /** The play view's props, for a game's own puzzle stories. */
 export type PuzzlePlayStoryArgs = PuzzlePlayScreenViewProps;
 
+export {
+  PuzzleReviewScreenView,
+  type PuzzleReviewScreenViewProps,
+} from './puzzle-review-screen-view';
 /**
  * The puzzle play screen for a game's own stories (chess draws its real
  * puzzle board in it), through this story-fixture module rather than the

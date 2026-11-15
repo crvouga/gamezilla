@@ -54,3 +54,31 @@ export function StoryChessPuzzleBoard(
     />
   );
 }
+
+/** A story's position on chess's own review board, as a review draws it. */
+export function StoryChessReviewBoard(
+  props: StoryPuzzleBoardProps
+): JSX.Element {
+  return (
+    <ChessPuzzleBoard
+      mode="review"
+      position={props.position}
+      orientation="white"
+      interactive={false}
+      sound={false}
+      syncKey={0}
+      onAction={noop}
+      testId={props.testId}
+      setup={null}
+      hand={null}
+      committed={[]}
+      commitment={null}
+      size={props.size}
+      animated={false}
+      moveMs={null}
+      marks={{ wrong: null, hint: null, solution: null }}
+      suggestions={[]}
+      lastAction={null}
+    />
+  );
+}
