@@ -7,6 +7,7 @@ import {
   FRAME_CONFIGURING as CONFIGURING,
   FRAME_GUEST,
   HOST_CHOICES,
+  HOST_CLOCK_ONLY,
   HOST_SEAT,
   INVITED_SEAT,
   OPEN_SEAT,
@@ -103,6 +104,7 @@ export const ChooseBot: Story = {
       emphasis: 'neutral',
     }),
     setup: setup([HOST_SEAT, setupSeat(OPEN_SEAT, { choices: HOST_CHOICES })], {
+      options: HOST_CLOCK_ONLY,
       start: {
         reason: { kind: 'open-seats', count: 1 },
         hostStarts: false,

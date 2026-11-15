@@ -65,6 +65,12 @@
    sized by their longest move: a move written in words
    (`G10 sinks the destroyer`) takes the room the short ones leave, so every
    line keeps one row and the columns still line up. */
+/* In a list of one move a row, the move shown is its whole row. */
+.list[data-layout="table"][data-one-a-row="true"]
+.turn:has([aria-current="step"]) {
+  border-radius: var(--ui-radius-sm);
+  background: var(--ui-color-tint-subtle);
+}
 .list[data-layout="table"] .turns {
   display: grid;
   grid-template-columns: 32px repeat(var(--move-columns), auto);

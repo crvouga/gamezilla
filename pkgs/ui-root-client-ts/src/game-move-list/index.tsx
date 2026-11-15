@@ -261,6 +261,7 @@ function TurnList(props: GameMoveListProps): JSX.Element {
       class={styles['list']}
       data-layout={props.layout}
       data-many-seats={columns() > 2}
+      data-one-a-row={columns() === 1}
       data-wrap={props.layout === 'turn' && props.wrap === true}
       style={{ '--move-columns': String(columns()) }}
       {...dataAttrs({ component: 'GameMoveList', ...props.dataSet })}

@@ -273,6 +273,7 @@ export const LocalAndClosedSeats: Story = {
         }),
       ],
       {
+        options: HOST_CLOCK_ONLY,
         start: {
           reason: { kind: 'incomplete', count: 1 },
           hostStarts: false,
