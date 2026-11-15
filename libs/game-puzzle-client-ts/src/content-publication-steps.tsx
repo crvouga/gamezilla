@@ -161,18 +161,22 @@ function fixLead(props: PublicationStepsProps): 'details' | 'board' | null {
   if (correctionFirst(props)) return 'board';
   if (props.next === 'validate' && props.validation === 'invalid')
     return props.fixTarget ?? null;
+  if (props.next === 'publish' && props.refused === true)
+    return props.fixTarget ?? null;
   return null;
 }
 
 /** The correction as the lead: it opens the board or the details. */
 function FixLead(props: {
   where: 'details' | 'board';
+  kind: ContentKind;
   unplayable: boolean;
   onFix: (where: 'details' | 'board') => void;
 }): JSX.Element {
   const { t } = useLingui();
   const title = () => {
     if (props.where === 'details') return t`Edit details`;
+    if (props.kind === 'pack') return t`Edit puzzles`;
     return props.unplayable ? t`Fix the board` : t`Edit board`;
   };
   return (
@@ -204,6 +208,7 @@ function useLead(
         return (
           <FixLead
             where={fix}
+            kind={props.kind}
             unplayable={correctionFirst(props)}
             onFix={onFix}
           />
@@ -363,7 +368,9 @@ export function PublicationSteps(props: PublicationStepsProps): JSX.Element {
           done: t`Done`,
           current:
             props.progress?.currentLabel ??
-            (correctionFirst(props) ? t`Fix first` : t`Next`),
+            (correctionFirst(props) || fixLead(props) !== null
+              ? t`Fix first`
+              : t`Next`),
           upcoming: t`Locked`,
         }}
         steps={steps()}

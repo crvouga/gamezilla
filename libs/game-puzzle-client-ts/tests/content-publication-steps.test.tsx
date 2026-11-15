@@ -621,7 +621,7 @@ test('a refused publication names the correction first, then publishing again', 
   // The refusal's notice says why; the line does not repeat it.
   expect(screen.queryByTestId('content-publication-status')).toBeNull();
   expect(screen.getByTestId('content-refusal-fixes').textContent).toContain(
-    'Correct the draft first, then publish again.'
+    'Publishing was refused. Correct the draft, then publish again.'
   );
   expect(screen.getByTestId('content-publish').textContent).toBe(
     'Publish again'
@@ -652,4 +652,30 @@ test('a failed check leads with the place that fixes it, then Validate again', (
   );
   fireEvent.click(lead());
   expect(fixed).toEqual(['board']);
+});
+
+// regression: builder-refused-retry-outweighs-fix — after a refusal the
+// filled Publish again outweighed the correction. A refusal that names its
+// finding now says why, leads with the place that corrects it, and keeps
+// Publish again on its step.
+test('a refusal naming its finding says why and leads with its correction', () => {
+  mount(() =>
+    publication({
+      proven: true,
+      validation: 'valid',
+      refused: true,
+      refusalIssue: 'UNSOLVABLE',
+      fixTarget: 'board',
+      onFix: () => undefined,
+    })
+  );
+  expect(lead()).toBe(screen.getByTestId('content-author-fix-board'));
+  expect(screen.getByTestId('content-refusal-fixes').textContent).toBe(
+    'Publishing was refused: the game found a problem with the board. Correct it, then publish again.'
+  );
+  const steps = [
+    ...screen.getByTestId('content-publication-steps').querySelectorAll('li'),
+  ];
+  expect(steps[2]?.contains(screen.getByTestId('content-publish'))).toBe(true);
+  expect(steps[2]?.textContent).toContain('Fix first');
 });

@@ -47,7 +47,7 @@ test('each copy says where it was kept, its check and its details', () => {
     'Count to sevenKept on this device · not checked yetEasy · Reach seven.Editing now'
   );
   expect(screen.getByTestId('content-use-copy-b').textContent).toBe(
-    'Untitled draftKept from another device · passed its checkUse copy'
+    'Untitled draftKept from another device · passed its check'
   );
   fireEvent.click(screen.getByTestId('content-use-copy-b'));
   expect(chosen).toEqual(['b']);

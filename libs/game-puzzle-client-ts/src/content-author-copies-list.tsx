@@ -91,7 +91,12 @@ export function ContentAuthorCopiesListView(props: {
               title={copy.title || t`Untitled draft`}
               caption={<CopyCaption copy={copy} />}
               selected={copy.id === props.currentId}
-              value={copy.id === props.currentId ? t`Editing now` : t`Use copy`}
+              value={copy.id === props.currentId ? t`Editing now` : undefined}
+              aria-label={
+                copy.id === props.currentId
+                  ? undefined
+                  : t`Use copy ${copy.title || t`Untitled draft`}`
+              }
               disabled={props.disabled && copy.id !== props.currentId}
               // The copy being edited is marked, not offered.
               onClick={

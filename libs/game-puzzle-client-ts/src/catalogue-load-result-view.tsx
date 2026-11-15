@@ -41,7 +41,9 @@ function ResultStatus(props: { job: CatalogueLoadJob }): JSX.Element {
             ? 'success'
             : props.job.status === 'failed'
               ? 'error'
-              : 'neutral'
+              : props.job.status === 'adding'
+                ? 'info'
+                : 'neutral'
         }
       >
         <Switch>

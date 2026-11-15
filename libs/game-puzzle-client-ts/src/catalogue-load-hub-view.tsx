@@ -36,7 +36,7 @@ export type CatalogueLoadHubViewProps = {
   readonly job: CatalogueLoadJob | null;
   readonly source: CatalogueSourceView;
   readonly onOpenSource: () => void;
-  /** Checks the shared bucket for the saved file again. */
+  /** Checks again whether the file is saved. */
   readonly onRecheck: () => void;
   readonly onStart: () => Promise<void>;
   readonly onAskStop: () => void;

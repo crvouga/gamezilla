@@ -45,8 +45,8 @@ function SourceUpload(props: {
           dataSet={{ testid: 'puzzle-source-progress' }}
           description={
             <Trans>
-              Uploaded {props.upload.puzzles} puzzles to the shared bucket. Keep
-              this screen open until the upload finishes.
+              {props.upload.puzzles} puzzles uploaded so far. Keep this screen
+              open until the upload finishes.
             </Trans>
           }
         />
@@ -239,8 +239,8 @@ export function CatalogueLoadSourceView(
         </Notice>
         <Button
           title={t`Back to loading`}
-          intent="primary"
-          variant="solid"
+          intent={props.link === 'offline' ? 'neutral' : 'primary'}
+          variant={props.link === 'offline' ? 'outline' : 'solid'}
           fullWidth
           onClick={() => props.onDone()}
           dataSet={{ testid: 'puzzle-source-done' }}

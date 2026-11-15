@@ -64,8 +64,10 @@ export type ContentPublicationControlsViewProps = {
   readonly onFix?: ((where: 'details' | 'board') => void) | undefined;
   /** The server refused the last publication; its notice says why. */
   readonly refused?: boolean | undefined;
-  /** Where the failed check's finding is corrected, when it says. */
+  /** Where the failed check's (or refusal's) finding is corrected. */
   readonly fixTarget?: 'details' | 'board' | undefined;
+  /** The refusal's first finding, by its code, said in local words. */
+  readonly refusalIssue?: string | null | undefined;
 };
 
 /**
@@ -145,15 +147,16 @@ function Finding(props: ContentPublicationControlsViewProps): JSX.Element {
     <Show
       when={props.validation === 'invalid'}
       fallback={
-        <Show when={props.refused === true && props.onFix}>
-          {(onFix) => (
-            <StackVertical gap="sm" testId="content-refusal-fixes">
-              <P variant="caption" tone="secondary">
-                <Trans>Correct the draft first, then publish again.</Trans>
-              </P>
-              <FixRoutes onFix={onFix()} />
-            </StackVertical>
-          )}
+        <Show when={props.refused === true}>
+          <StackVertical gap="sm" testId="content-refusal-fixes">
+            <P variant="caption" tone="default">
+              <RefusalReason issue={props.refusalIssue ?? null} />
+            </P>
+            {/* With a known place to fix it the lead opens it; otherwise both. */}
+            <Show when={props.fixTarget === undefined && props.onFix}>
+              {(onFix) => <FixRoutes onFix={onFix()} />}
+            </Show>
+          </StackVertical>
         </Show>
       }
     >
@@ -161,7 +164,6 @@ function Finding(props: ContentPublicationControlsViewProps): JSX.Element {
         <StackVertical gap="sm">
           {props.validationMessage ||
             t`Complete the required details and validate again.`}
-          {/* With a known place to fix it the lead opens it; otherwise both. */}
           <Show when={props.fixTarget === undefined && props.onFix}>
             {(onFix) => <FixRoutes onFix={onFix()} />}
           </Show>
@@ -169,6 +171,29 @@ function Finding(props: ContentPublicationControlsViewProps): JSX.Element {
       </Notice>
     </Show>
   );
+}
+
+/** Why the server refused the publication, in local words, by its code. */
+function RefusalReason(props: { issue: string | null }): JSX.Element {
+  const { t } = useLingui();
+  const reason = (): string => {
+    const issue = props.issue;
+    if (issue === 'PUZZLE_TITLE_REQUIRED')
+      return t`Publishing was refused: the draft has no title. Add one, then publish again.`;
+    if (issue === 'PUZZLE_PLAYTEST_INCOMPLETE')
+      return t`Publishing was refused: its playtest was not finished. Finish a playtest, then publish again.`;
+    if (issue === 'PACK_EMPTY')
+      return t`Publishing was refused: the pack holds no puzzles. Add one, then publish again.`;
+    if (
+      issue === 'PACK_PUZZLE_UNPUBLISHED' ||
+      issue === 'PACK_PUZZLE_UNAVAILABLE'
+    )
+      return t`Publishing was refused: a puzzle in the pack is not available. Change the pack's puzzles, then publish again.`;
+    if (issue !== null)
+      return t`Publishing was refused: the game found a problem with the board. Correct it, then publish again.`;
+    return t`Publishing was refused. Correct the draft, then publish again.`;
+  };
+  return <>{reason()}</>;
 }
 
 /**

@@ -176,6 +176,8 @@ export function renderAuthorStory(
           onWithdraw={() => setWithdrawing(true)}
           onFix={fn()}
           refused={options.refused === true}
+          refusalIssue={options.refused === true ? 'UNSOLVABLE' : null}
+          fixTarget={options.refused === true ? 'board' : publication.fixTarget}
         />
       }
       confirms={

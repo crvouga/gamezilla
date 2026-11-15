@@ -96,7 +96,7 @@
   line-height: var(--ui-leading-sm);
 }
 .step[data-state="current"] .state {
-  color: var(--ui-color-tint-active);
+  color: var(--ui-color-tint);
   font-weight: var(--ui-font-weight-semibold);
 }
 .step[data-state="done"] .state {
