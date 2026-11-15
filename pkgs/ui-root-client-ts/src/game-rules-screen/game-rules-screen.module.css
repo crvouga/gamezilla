@@ -31,10 +31,11 @@
 }
 /* The part's number on its heading's line, so the body below takes the
    panel's whole width. */
+/* A heading that wraps keeps its number on its first line. */
 .heading {
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--ui-space-3);
   min-width: 0;
 }
@@ -51,6 +52,8 @@
   font-size: var(--ui-text-label-size);
   font-weight: var(--ui-font-weight-semibold);
   font-variant-numeric: tabular-nums;
+  /* Centred on the heading's first line. */
+  margin-block-start: calc((1lh - 28px) / 2);
 }
 /* Entries read one by one: a quiet dot before each, on the body's edge. */
 .points {
