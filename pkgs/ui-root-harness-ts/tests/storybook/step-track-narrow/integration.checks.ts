@@ -4,6 +4,7 @@ const viewport = { width: 390, height: 844 };
 test.use({ viewport });
 
 // regression: step-track-stacked-actions-centre-their-names
+// regression: step-track-subgrid-marker-overlap
 test('storybook integration: stacked step actions keep their names at the start', async ({
   page,
 }) => {
@@ -14,7 +15,8 @@ test('storybook integration: stacked step actions keep their names at the start'
     'data-story-ready',
     'true'
   );
-  const rows = await page.locator('ol > li').evaluateAll((items) =>
+  const steps = page.locator('[data-component="StepTrack"] ol > li');
+  const rows = await steps.evaluateAll((items) =>
     items.flatMap((item) => {
       const [marker, body] = [...item.children];
       const [label, state] = [...(body?.children ?? [])];
@@ -31,7 +33,7 @@ test('storybook integration: stacked step actions keep their names at the start'
       ];
     })
   );
-  expect(rows.length).toBeGreaterThan(0);
+  expect(rows).toHaveLength(6);
   for (const row of rows) {
     // The state follows its name vertically, with the body beside its marker.
     expect(row.stateTop).toBeGreaterThan(row.labelTop);
