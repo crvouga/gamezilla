@@ -109,3 +109,27 @@ export function onBoard(moves: readonly number[]) {
     />
   );
 }
+
+/**
+ * The moves place over a game of `all` drops, its steps, its line of moves
+ * and its move-number field live: choosing a position moves the board and
+ * the line to it, as the app's moves place does.
+ */
+export function onReview(all: readonly number[]) {
+  return (args: GameFrameScreenViewProps) => {
+    const [ply, setPly] = createSignal(args.record?.displayedPly ?? all.length);
+    return (
+      <FrameStory
+        {...args}
+        record={
+          args.record === null ? null : { ...args.record, displayedPly: ply() }
+        }
+        onSeek={(next) => {
+          args.onSeek(next);
+          if (next >= 0 && next <= all.length) setPly(next);
+        }}
+        board={<ConnectFourStoryBoard moves={all.slice(0, ply())} />}
+      />
+    );
+  };
+}

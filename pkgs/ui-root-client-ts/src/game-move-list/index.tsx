@@ -149,6 +149,26 @@ function MoveButton(props: {
 }
 
 /**
+ * Scrolls `root` (the list, and only it) so its marked move lies whole
+ * inside it. Whole pixels, rounded outward: a scroll offset drops its
+ * fraction, which would leave the move a hair outside the list.
+ */
+function scrollMarkedIntoView(root: HTMLElement): void {
+  const marked = root.querySelector<HTMLElement>('[aria-current="step"]');
+  if (marked === null) return;
+  const box = root.getBoundingClientRect();
+  const move = marked.getBoundingClientRect();
+  if (move.bottom > box.bottom)
+    root.scrollTop += Math.ceil(move.bottom - box.bottom);
+  else if (move.top < box.top) root.scrollTop -= Math.ceil(box.top - move.top);
+  // Laid out as one line (over a phone's board) it scrolls sideways.
+  if (move.right > box.right)
+    root.scrollLeft += Math.ceil(move.right - box.right);
+  else if (move.left < box.left)
+    root.scrollLeft -= Math.ceil(box.left - move.left);
+}
+
+/**
  * `GameMoveList` -- a game's record as numbered turns: each turn's number,
  * then every move in it behind the swatch of the seat that made it
  * (`1 ● e4 ◆ e5`), the move on the board marked (also `aria-current`). A
@@ -222,15 +242,7 @@ function TurnList(props: GameMoveListProps): JSX.Element {
   // changes (a rail squeezed by what sits above it), not only once.
   const keepMarkedInView = (): void => {
     if (props.layout !== 'table' || root === undefined) return;
-    const marked = root.querySelector<HTMLElement>('[aria-current="step"]');
-    if (marked === null) return;
-    const box = root.getBoundingClientRect();
-    const move = marked.getBoundingClientRect();
-    if (move.bottom > box.bottom) root.scrollTop += move.bottom - box.bottom;
-    else if (move.top < box.top) root.scrollTop -= box.top - move.top;
-    // Laid out as one line (over a phone's board) it scrolls sideways.
-    if (move.right > box.right) root.scrollLeft += move.right - box.right;
-    else if (move.left < box.left) root.scrollLeft -= box.left - move.left;
+    scrollMarkedIntoView(root);
   };
   createEffect(() => {
     void props.current;

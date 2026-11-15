@@ -64,6 +64,8 @@ export function boardRoomFit(
 ): number | undefined {
   let board = { width: room.boardWidth, height: room.boardHeight };
   let limit = boardRoomLimit(room);
+  // Each try is a layout: the rounding step below is taken once at most.
+  let stepped = false;
   for (let tries = 0; tries < FIT_TRIES; tries++) {
     if (limit === undefined || limit >= board.width) return limit;
     const height = room.heightAt(limit);
@@ -72,8 +74,11 @@ export function boardRoomFit(
       // pixel or two narrower can draw the very same height (its cells are
       // whole pixels): then step on instead of giving up.
       const rounding =
-        height === board.height && board.width - limit < ROUNDING_STEP;
+        !stepped &&
+        height === board.height &&
+        board.width - limit < ROUNDING_STEP;
       if (!rounding) return undefined;
+      stepped = true;
       limit = Math.max(room.smallest ?? SMALLEST_BOARD, limit - ROUNDING_STEP);
       continue;
     }
