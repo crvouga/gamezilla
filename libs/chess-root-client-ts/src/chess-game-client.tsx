@@ -53,34 +53,50 @@ export const CHESS_RULES: readonly GameRule[] = [
         </Trans>
       ),
     ],
+  },
+  {
+    key: 'knight',
+    title: () => <Trans>The knight</Trans>,
+    body: () => (
+      <Trans>
+        The knight moves in an L: two squares one way and one to the side. It is
+        the only piece that jumps over others.
+      </Trans>
+    ),
     examples: [KNIGHT_EXAMPLE],
   },
   {
-    key: 'special',
-    title: () => <Trans>Special moves</Trans>,
-    body: () => <Trans>Three moves break the usual pattern.</Trans>,
-    points: [
-      () => (
-        <Trans>
-          Castling: the king moves two squares toward a rook, which jumps to its
-          other side. Neither may have moved, and the king may not be in, pass
-          through or land in check.
-        </Trans>
-      ),
-      () => (
-        <Trans>
-          Promotion: a pawn that reaches the last row becomes a queen, rook,
-          bishop or knight.
-        </Trans>
-      ),
-      () => (
-        <Trans>
-          En passant: a pawn that just moved two squares may be taken as if it
-          had moved one, on the next move only.
-        </Trans>
-      ),
-    ],
-    examples: [CASTLING_EXAMPLE, EN_PASSANT_EXAMPLE],
+    key: 'castling',
+    title: () => <Trans>Castling</Trans>,
+    body: () => (
+      <Trans>
+        Once a game, the king may move two squares toward a rook, which jumps to
+        its other side. Neither may have moved, no piece may stand between them,
+        and the king may not be in, pass through or land in check.
+      </Trans>
+    ),
+    examples: [CASTLING_EXAMPLE],
+  },
+  {
+    key: 'en-passant',
+    title: () => <Trans>En passant</Trans>,
+    body: () => (
+      <Trans>
+        A pawn that has just moved two squares, landing beside one of yours, may
+        be taken as if it had moved one, on your very next move only.
+      </Trans>
+    ),
+    examples: [EN_PASSANT_EXAMPLE],
+  },
+  {
+    key: 'promotion',
+    title: () => <Trans>Promotion</Trans>,
+    body: () => (
+      <Trans>
+        A pawn that reaches the last row becomes a queen, rook, bishop or
+        knight, as you choose.
+      </Trans>
+    ),
   },
   {
     key: 'end',

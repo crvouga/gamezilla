@@ -11,6 +11,7 @@
 /* The rules: one raised panel, each part a row read across, its number
    in a small accent disc on the heading's line, hairlines between. */
 .sections {
+  container-type: inline-size;
   display: flex;
   flex-direction: column;
   margin: 0;
@@ -90,6 +91,25 @@
 .body,
 .points {
   max-inline-size: 64ch;
+}
+/* A part's words: its heading, body and entries. */
+.words {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-2);
+  min-width: 0;
+}
+/* A pictured part reads beside its picture where the panel has room. */
+@container (min-width: 560px) {
+  .section[data-pictured] {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 240px;
+    gap: var(--ui-space-4);
+    align-items: start;
+  }
+  .section[data-pictured] .examples {
+    margin-block-start: 0;
+  }
 }
 /* A part's pictures, side by side where they fit, each over its words. */
 .examples {

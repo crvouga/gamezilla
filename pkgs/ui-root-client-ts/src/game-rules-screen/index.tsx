@@ -23,7 +23,8 @@ export type GameRulesSection = {
   points?: readonly JSX.Element[] | undefined;
   /**
    * Pictures of the part in play (a move on a board), each with the words
-   * that say what it shows, right after the body, before its entries.
+   * that say what it shows: under the part's words on a phone, beside them
+   * where the panel has room.
    */
   examples?: readonly GameRulesExample[] | undefined;
 };
@@ -106,15 +107,32 @@ export function GameRulesScreen(props: GameRulesScreenProps): JSX.Element {
       <ol class={styles['sections']}>
         <For each={props.sections}>
           {(section, index) => (
-            <li class={styles['section']} data-key={section.key}>
-              <h2 class={`${styles['heading']} text textHeading`}>
-                <span class={styles['marker']} aria-hidden="true">
-                  {index() + 1}
-                </span>
-                {section.title}
-              </h2>
-              <div class={`${styles['body']} text textBody`}>
-                {section.body}
+            <li
+              class={styles['section']}
+              data-key={section.key}
+              data-pictured={section.examples?.length ? '' : undefined}
+            >
+              <div class={styles['words']}>
+                <h2 class={`${styles['heading']} text textHeading`}>
+                  <span class={styles['marker']} aria-hidden="true">
+                    {index() + 1}
+                  </span>
+                  {section.title}
+                </h2>
+                <div class={`${styles['body']} text textBody`}>
+                  {section.body}
+                </div>
+                <Show when={section.points?.length}>
+                  <ul class={styles['points']}>
+                    <For each={section.points}>
+                      {(point) => (
+                        <li class={`${styles['point']} text textBody`}>
+                          {point}
+                        </li>
+                      )}
+                    </For>
+                  </ul>
+                </Show>
               </div>
               <Show when={section.examples?.length}>
                 <div class={styles['examples']}>
@@ -131,17 +149,6 @@ export function GameRulesScreen(props: GameRulesScreenProps): JSX.Element {
                     )}
                   </For>
                 </div>
-              </Show>
-              <Show when={section.points?.length}>
-                <ul class={styles['points']}>
-                  <For each={section.points}>
-                    {(point) => (
-                      <li class={`${styles['point']} text textBody`}>
-                        {point}
-                      </li>
-                    )}
-                  </For>
-                </ul>
               </Show>
             </li>
           )}

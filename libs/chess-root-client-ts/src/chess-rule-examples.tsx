@@ -91,8 +91,8 @@ export const CASTLING_EXAMPLE: GameRuleExample = {
   ),
   caption: () => (
     <Trans>
-      Castling: the king steps two squares toward the rook, and the rook jumps
-      over it to the marked square beside it.
+      The king steps two squares toward the rook; the rook jumps over it to the
+      marked square.
     </Trans>
   ),
 };
@@ -109,8 +109,8 @@ export const EN_PASSANT_EXAMPLE: GameRuleExample = {
   ),
   caption: () => (
     <Trans>
-      En passant: Black's marked pawn just jumped two squares, past White's
-      pawn. White takes it as if it had moved one, landing behind it.
+      Black's marked pawn just jumped two squares, past White's pawn. White
+      takes it as if it had moved one, landing behind it.
     </Trans>
   ),
 };
