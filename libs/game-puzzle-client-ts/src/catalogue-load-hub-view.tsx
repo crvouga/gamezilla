@@ -167,6 +167,25 @@ function HubCommand(props: {
         )}
       </Show>
       <StackHorizontal wrap gap="md">
+        {/* What unblocks loading comes first; Start waits beside it. */}
+        <Show when={blocked() === 'no-source' && !props.checkFailed}>
+          <Button
+            title={t`Choose ${props.sourceName}`}
+            intent="primary"
+            variant="solid"
+            onClick={() => props.onOpenSource()}
+            dataSet={{ testid: 'puzzle-load-choose' }}
+          />
+        </Show>
+        <Show when={props.checkFailed}>
+          <Button
+            title={t`Check again`}
+            intent="primary"
+            variant="solid"
+            onClick={() => props.onRecheck()}
+            dataSet={{ testid: 'puzzle-load-recheck' }}
+          />
+        </Show>
         <Show
           when={props.command.kind === 'stop'}
           fallback={
@@ -192,24 +211,6 @@ function HubCommand(props: {
             variant="outline"
             onClick={() => props.onOpenSource()}
             dataSet={{ testid: 'puzzle-load-replace' }}
-          />
-        </Show>
-        <Show when={blocked() === 'no-source' && !props.checkFailed}>
-          <Button
-            title={t`Choose ${props.sourceName}`}
-            intent="primary"
-            variant="outline"
-            onClick={() => props.onOpenSource()}
-            dataSet={{ testid: 'puzzle-load-choose' }}
-          />
-        </Show>
-        <Show when={props.checkFailed}>
-          <Button
-            title={t`Check again`}
-            intent="neutral"
-            variant="outline"
-            onClick={() => props.onRecheck()}
-            dataSet={{ testid: 'puzzle-load-recheck' }}
           />
         </Show>
       </StackHorizontal>

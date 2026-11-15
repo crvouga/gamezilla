@@ -1,3 +1,4 @@
+import { fn } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { ContentAuthorScreenView } from './content-author-screen-view';
 import {
@@ -6,7 +7,11 @@ import {
   AUTHOR_STORY_PARAMETERS,
   renderAuthorStory,
 } from './content-author-story.example';
-import { StoryPackOverview } from './content-story.example';
+import {
+  type ContentPackPreviewItem,
+  ContentPackPreviewView,
+} from './content-pack-preview';
+import { StoryCountingPlayer } from './content-story.example';
 
 const meta = {
   id: 'screens-puzzles-content-author-preview',
@@ -22,6 +27,13 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** The pack's three counting puzzles; the last is still a draft. */
+const PACK_ITEMS: readonly ContentPackPreviewItem[] = [
+  { id: 'puzzle-count-to-five', title: 'Count to five', published: true },
+  { id: 'puzzle-count-to-seven', title: 'Count to seven', published: true },
+  { id: 'puzzle-count-to-nine', title: 'Count to nine', published: false },
+];
+
 /** A puzzle draft as a solver sees it: its board, nothing to change. */
 export const Puzzle: Story = {};
 
@@ -30,14 +42,38 @@ export const Pack: Story = {
   args: AUTHOR_STORY_PACK,
   render: (args) =>
     renderAuthorStory(args, {
-      slots: () => ({ preview: <StoryPackOverview /> }),
+      slots: () => ({
+        preview: (
+          <ContentPackPreviewView
+            items={PACK_ITEMS}
+            previewed={null}
+            onSelect={fn()}
+          />
+        ),
+      }),
     }),
 };
 
-/** One of a pack's puzzles, previewed; Back returns to the pack's list. */
+/** One of a pack's puzzles, named with its place in the pack, previewed. */
 export const PackPuzzle: Story = {
   args: {
     ...AUTHOR_STORY_PACK,
     place: { screen: 'preview', puzzleId: 'puzzle-count-to-seven' },
   },
+  render: (args) =>
+    renderAuthorStory(args, {
+      slots: () => ({
+        preview: (
+          <ContentPackPreviewView
+            items={PACK_ITEMS}
+            previewed={{
+              title: 'Count to seven',
+              position: 2,
+              board: <StoryCountingPlayer state="count:0" disabled />,
+            }}
+            onSelect={fn()}
+          />
+        ),
+      }),
+    }),
 };

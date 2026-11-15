@@ -91,7 +91,7 @@ export const ConfirmStopSaving: Story = {
     await userEvent.click(await canvas.findByTestId('puzzle-load-stop'));
     const page = within(canvasElement.ownerDocument.body);
     await expect(
-      await page.findByText('Stop saving the Lichess file?')
+      await page.findByText('Stop uploading the Lichess file?')
     ).toBeVisible();
   },
 };

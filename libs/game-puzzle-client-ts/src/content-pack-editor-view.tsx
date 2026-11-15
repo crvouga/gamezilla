@@ -59,6 +59,7 @@ function PackRowMenu(props: ContentPackItemRowProps): JSX.Element {
     <OverflowMenuButton
       aria-label={t`Move or remove ${props.title}`}
       icon={ArrowUpDownIcon}
+      label={t`Move`}
       size={MENU_DISC_SIZE}
       width={MENU_WIDTH}
       actions={[
@@ -225,9 +226,9 @@ function PackOrder(props: ContentPackEditorViewProps): JSX.Element {
         dataSet={{ testid: 'content-pack-order' }}
         footer={
           <Trans>
-            To move a puzzle up or down, or take it out, use the button at the
-            end of its row. People can play them in any order; publishing the
-            pack keeps each puzzle as it is now.
+            Move puts a puzzle earlier or later, or takes it out. People can
+            play them in any order; publishing the pack keeps each puzzle as it
+            is now.
           </Trans>
         }
       >

@@ -56,7 +56,7 @@ function SourceUpload(props: {
       </StackVertical>
       <StackHorizontal wrap gap="md">
         <Button
-          title={t`Stop saving file`}
+          title={t`Stop uploading`}
           intent="danger"
           variant="outline"
           onClick={() => props.onAskStop()}

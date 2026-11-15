@@ -397,7 +397,7 @@ describe('the confirmed stop', () => {
       source: UPLOADING,
     });
     fireEvent.click(screen.getByTestId('puzzle-load-stop'));
-    expect(modal()?.textContent).toContain('Stop saving the Lichess file?');
+    expect(modal()?.textContent).toContain('Stop uploading the Lichess file?');
   });
 
   test('an upload that ends before the answer closes the question, and the dialog survives the place changing', () => {

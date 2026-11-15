@@ -6,42 +6,45 @@ import { H2 } from '@pkgs/ui-root-client-ts/heading';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { P } from '@pkgs/ui-root-client-ts/text';
 import { createMemo, For, type JSX, Show } from 'solid-js';
 import { useContentLibraryState } from './content-library-context';
 import { ContentPreview } from './content-preview';
 
+/** One of a pack's puzzles, as its preview lists it. */
+export type ContentPackPreviewItem = {
+  readonly id: string;
+  /** Empty when the puzzle can no longer be read. */
+  readonly title: string;
+  readonly published: boolean;
+};
+
+/** The puzzle being previewed: where it sits in the pack, and its board. */
+export type ContentPackPreviewed = {
+  readonly title: string;
+  /** Its place in the pack, from 1. */
+  readonly position: number;
+  readonly board: JSX.Element;
+};
+
 /**
- * A pack draft as a solver meets it: its puzzles in order, each opening
- * its own preview (`puzzleId`); Back returns to the list.
+ * A pack draft as a solver meets it, presentational: its puzzles in order,
+ * each opening its own preview; a previewed puzzle is named with its place
+ * in the pack (`Puzzle 2 of 3`) over its board.
  */
-export function ContentPackPreview(props: {
-  definition: string;
-  /** The puzzle previewed; `null` shows the pack's list. */
-  puzzleId: string | null;
+export function ContentPackPreviewView(props: {
+  items: readonly ContentPackPreviewItem[];
+  previewed: ContentPackPreviewed | null;
   onSelect: (puzzleId: string) => void;
 }): JSX.Element {
   const { t } = useLingui();
-  const data = useContentLibraryState();
-  const pack = createMemo(() => decodePackDefinition(props.definition));
-  const entry = (id: string) => {
-    const item = pack()?.items.find((value) => value.puzzleId === id);
-    const doc = data.content().documents.find((value) => value.id === id);
-    const revision = data
-      .content()
-      .revisions.find(
-        (value) => value.id === (item?.revisionId ?? doc?.published_revision_id)
-      );
-    return revision ?? workingContentDraft(data.content(), id);
-  };
-  const previewed = () =>
-    props.puzzleId === null ? null : (entry(props.puzzleId) ?? null);
   return (
     <StackVertical gap="lg" dataSet={{ testid: 'content-pack-preview' }}>
       <Show
-        when={previewed()}
+        when={props.previewed}
         fallback={
           <Show
-            when={(pack()?.items.length ?? 0) > 0}
+            when={props.items.length > 0}
             fallback={
               <EmptyState
                 variant="compact"
@@ -59,18 +62,13 @@ export function ContentPackPreview(props: {
                 </Trans>
               }
             >
-              <For each={pack()?.items.map((item) => item.puzzleId) ?? []}>
-                {(id) => (
+              <For each={props.items}>
+                {(item) => (
                   <MenuRow
-                    dataSet={{ testid: `content-preview-puzzle-${id}` }}
-                    title={(entry(id)?.title ?? '') || t`Unavailable puzzle`}
-                    value={
-                      data.content().documents.find((doc) => doc.id === id)
-                        ?.status === 'published'
-                        ? t`Published`
-                        : t`Draft`
-                    }
-                    onClick={() => props.onSelect(id)}
+                    dataSet={{ testid: `content-preview-puzzle-${item.id}` }}
+                    title={item.title || t`Unavailable puzzle`}
+                    value={item.published ? t`Published` : t`Draft`}
+                    onClick={() => props.onSelect(item.id)}
                   />
                 )}
               </For>
@@ -80,13 +78,68 @@ export function ContentPackPreview(props: {
       >
         {(puzzle) => (
           <>
-            <H2 size="navigationTitle" testId="content-preview-puzzle-title">
-              {puzzle().title || t`Untitled draft`}
-            </H2>
-            <ContentPreview definition={puzzle().definition} />
+            <StackVertical gap="xs">
+              <P variant="caption" tone="secondary">
+                {t`Puzzle ${puzzle().position} of ${props.items.length}`}
+              </P>
+              <H2 size="navigationTitle" testId="content-preview-puzzle-title">
+                {puzzle().title || t`Untitled draft`}
+              </H2>
+            </StackVertical>
+            {puzzle().board}
           </>
         )}
       </Show>
     </StackVertical>
+  );
+}
+
+/**
+ * A pack draft as a solver meets it: its puzzles in order, each opening
+ * its own preview (`puzzleId`); Back returns to the list.
+ */
+export function ContentPackPreview(props: {
+  definition: string;
+  /** The puzzle previewed; `null` shows the pack's list. */
+  puzzleId: string | null;
+  onSelect: (puzzleId: string) => void;
+}): JSX.Element {
+  const data = useContentLibraryState();
+  const pack = createMemo(() => decodePackDefinition(props.definition));
+  const entry = (id: string) => {
+    const item = pack()?.items.find((value) => value.puzzleId === id);
+    const doc = data.content().documents.find((value) => value.id === id);
+    const revision = data
+      .content()
+      .revisions.find(
+        (value) => value.id === (item?.revisionId ?? doc?.published_revision_id)
+      );
+    return revision ?? workingContentDraft(data.content(), id);
+  };
+  const items = createMemo((): ContentPackPreviewItem[] =>
+    (pack()?.items ?? []).map((item) => ({
+      id: item.puzzleId,
+      title: entry(item.puzzleId)?.title ?? '',
+      published:
+        data.content().documents.find((doc) => doc.id === item.puzzleId)
+          ?.status === 'published',
+    }))
+  );
+  const previewed = createMemo((): ContentPackPreviewed | null => {
+    const id = props.puzzleId;
+    const puzzle = id === null ? undefined : entry(id);
+    if (id === null || puzzle === undefined || puzzle === null) return null;
+    return {
+      title: puzzle.title,
+      position: items().findIndex((item) => item.id === id) + 1,
+      board: <ContentPreview definition={puzzle.definition} />,
+    };
+  });
+  return (
+    <ContentPackPreviewView
+      items={items()}
+      previewed={previewed()}
+      onSelect={props.onSelect}
+    />
   );
 }
