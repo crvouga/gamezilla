@@ -8,11 +8,11 @@ import { GameHistoryScreen } from '@pkgs/ui-root-client-ts/game-history-screen';
 import { GameStat } from '@pkgs/ui-root-client-ts/game-stat';
 import { Grid } from '@pkgs/ui-root-client-ts/grid';
 import { ChevronRightIcon, HistoryIcon } from '@pkgs/ui-root-client-ts/icons';
-import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { MainMenuItemRow } from '@pkgs/ui-root-client-ts/main-menu-item-row';
 import { MenuList } from '@pkgs/ui-root-client-ts/menu-list';
 import { useRelativeTimeLabel } from '@pkgs/ui-root-client-ts/relative-time';
 import { SegmentedControl } from '@pkgs/ui-root-client-ts/segmented-control';
+import { Skeleton } from '@pkgs/ui-root-client-ts/skeleton';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Surface } from '@pkgs/ui-root-client-ts/surface';
 import { P } from '@pkgs/ui-root-client-ts/text';
@@ -80,8 +80,8 @@ export type GameHistoryScreenViewProps = {
 
 type Filter = 'all' | GameHistoryOutcome;
 
-/** Between a caption's facts: held to the fact before it, so a line never starts with it. */
-const SEPARATOR = '\u00a0· ';
+/** Between a caption's facts: held to both, so a line never starts or ends with it. */
+const SEPARATOR = '\u00a0·\u00a0';
 
 /** A list this long gets a filter by result. */
 const FILTER_FROM = 6;
@@ -331,11 +331,14 @@ function HistoryRecords(
       }
     >
       <Match when={props.records.length === 0 && props.loading}>
-        <LoadingState
-          variant="compact"
-          caption={<Trans>Loading games…</Trans>}
-          dataSet={{ testid: 'game-history-loading' }}
-        />
+        <StackVertical gap="sm" testId="game-history-loading">
+          <P variant="caption" tone="secondary" role="status">
+            <Trans>Loading games…</Trans>
+          </P>
+          <Skeleton shape="rect" width="100%" height={64} />
+          <Skeleton shape="rect" width="100%" height={64} />
+          <Skeleton shape="rect" width="100%" height={64} />
+        </StackVertical>
       </Match>
       <Match when={props.records.length === 0}>
         <EmptyState
@@ -449,7 +452,8 @@ export function GameHistoryScreenView(
                       }
                       one="# game"
                       other="# games"
-                    />
+                    />{' '}
+                    <Trans>· the totals above count every game</Trans>
                   </P>
                 </Show>
               </StackVertical>

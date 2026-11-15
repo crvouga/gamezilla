@@ -301,7 +301,7 @@ const PHONE_PAGE = 8;
 /** Beside a wide board, the same page of numbered moves in its own card. */
 function ReplayMoves(props: GameReplayScreenViewProps): JSX.Element {
   return (
-    <GameSection title={<Trans>Moves</Trans>}>
+    <GameSection title={<Trans>Moves</Trans>} fill={props.moves.length > 0}>
       <Show
         when={props.moves.length > 0}
         fallback={
@@ -335,7 +335,6 @@ function ReplayMovesPage(props: GameReplayScreenViewProps): JSX.Element {
       .slice(first() - 1, last())
       .map((move, index) => ({ move, ply: first() + index }))
   );
-  const paged = () => props.moves.length > PHONE_PAGE;
   return (
     <Show when={props.moves.length > 0}>
       <StackVertical
@@ -343,38 +342,31 @@ function ReplayMovesPage(props: GameReplayScreenViewProps): JSX.Element {
         align="stretch"
         testId="game-history-review-moves-page"
       >
-        <StackHorizontal align="center" justify="between" gap="sm">
-          <P variant="caption" tone="secondary">
-            <Trans>
-              Moves {first()}–{last()} of {props.moves.length}
-            </Trans>
-          </P>
-          <Show when={paged()}>
-            <StackHorizontal gap="xs" align="center">
-              <Button
-                title={<Trans>Earlier</Trans>}
-                size="sm"
-                variant="outline"
-                intent="neutral"
-                icon={ChevronLeftIcon}
-                disabled={page() === 0}
-                onClick={() => props.onSeek(first() - 1)}
-                dataSet={{ testid: 'game-history-review-page-earlier' }}
-              />
-              <Button
-                title={<Trans>Later</Trans>}
-                size="sm"
-                variant="outline"
-                intent="neutral"
-                endIcon={<ChevronRightIcon size={16} />}
-                disabled={last() === props.moves.length}
-                onClick={() => props.onSeek(last() + 1)}
-                dataSet={{ testid: 'game-history-review-page-later' }}
-              />
-            </StackHorizontal>
+        <P variant="caption" tone="secondary">
+          <Trans>
+            Moves {first()}–{last()} of {props.moves.length}
+          </Trans>
+          <Show when={props.moveHeading !== ''}>
+            {' · '}
+            <Trans>move, seat and {props.moveHeading.toLowerCase()}</Trans>
           </Show>
-        </StackHorizontal>
+        </P>
         <StackHorizontal gap="xs" wrap aria-label={t`Moves played`}>
+          <Show when={page() > 0}>
+            <Button
+              title={
+                <Trans>
+                  {first() - PHONE_PAGE}–{first() - 1}
+                </Trans>
+              }
+              size="sm"
+              variant="ghost"
+              intent="neutral"
+              icon={ChevronLeftIcon}
+              onClick={() => props.onSeek(first() - 1)}
+              dataSet={{ testid: 'game-history-review-page-earlier' }}
+            />
+          </Show>
           <For each={shown()}>
             {(entry) => (
               <Button
@@ -403,6 +395,22 @@ function ReplayMovesPage(props: GameReplayScreenViewProps): JSX.Element {
               />
             )}
           </For>
+          <Show when={last() < props.moves.length}>
+            <Button
+              title={
+                <Trans>
+                  {last() + 1}–
+                  {Math.min(last() + PHONE_PAGE, props.moves.length)}
+                </Trans>
+              }
+              size="sm"
+              variant="ghost"
+              intent="neutral"
+              endIcon={<ChevronRightIcon size={16} />}
+              onClick={() => props.onSeek(last() + 1)}
+              dataSet={{ testid: 'game-history-review-page-later' }}
+            />
+          </Show>
         </StackHorizontal>
       </StackVertical>
     </Show>
@@ -417,7 +425,14 @@ function ReplaySubtitle(props: GameReplayScreenViewProps): JSX.Element {
       <Show when={props.outcome === null}>
         <Trans>Watched</Trans> ·{' '}
       </Show>
-      {props.result}
+      {/* The result waits for the final position, as the Winner badge does,
+          so stepping through never gives the ending away. */}
+      <Show
+        when={props.ply === props.moves.length}
+        fallback={<Trans>Replaying the game</Trans>}
+      >
+        {props.result}
+      </Show>
       <Show when={props.endedAt !== null}> · {ago()}</Show>
     </>
   );
