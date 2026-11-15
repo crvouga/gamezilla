@@ -91,12 +91,7 @@ export async function drainOutbox(
   });
   const notifyUserIds = new Set<string>();
 
-  const claims = await deps.db.transaction(async (tx) => {
-    await observe('outbox-materialize', () => ensureDeliveries(tx, deps));
-    return observe('outbox-claim', () =>
-      claimDueDeliveries(tx, { ...deps, limit })
-    );
-  });
+  const claims = await materializeClaims(deps, observe, limit);
   deps.observeOldestReady?.(
     claims.length === 0 ? null : new Date(claims[0]!.available_at).getTime()
   );
@@ -117,6 +112,27 @@ export async function drainOutbox(
   }
 
   return { processed, exhausted, notifyUserIds: [...notifyUserIds].sort() };
+}
+
+/** Only database work is replayed here; handlers run after this transaction commits. */
+async function materializeClaims(
+  deps: DrainOutboxDeps,
+  observe: ObserveOutboxPhase,
+  limit: number
+): Promise<readonly ClaimRow[]> {
+  for (let attempt = 1; ; attempt += 1) {
+    try {
+      return await deps.db.transaction(async (tx) => {
+        await observe('outbox-materialize', () => ensureDeliveries(tx, deps));
+        return observe('outbox-claim', () =>
+          claimDueDeliveries(tx, { ...deps, limit })
+        );
+      });
+    } catch (error) {
+      // A fresh transaction is required: a savepoint retains the losing snapshot.
+      if (!isTransientConflict(error) || attempt >= 3) throw error;
+    }
+  }
 }
 
 async function commitClaim(args: {
