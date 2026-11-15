@@ -188,7 +188,7 @@ function StoryStage(props: {
         <GamePlayerBar
           name="Bob (1487)"
           avatar={<StoryAvatar who="bob" size={GAME_PLAYER_AVATAR_SIZE} />}
-          swatch={{ color: 'disc-two' }}
+          swatch={{ color: 'disc-two', mark: '◆' }}
           swatchLabel="Yellow"
           // The story game is played at 5+0: each seat shows its clock, as
           // the app's seats do.
@@ -200,7 +200,7 @@ function StoryStage(props: {
           name={props.ownName ?? 'alice'}
           plainName={props.ownName}
           avatar={<StoryAvatar who="alice" size={GAME_PLAYER_AVATAR_SIZE} />}
-          swatch={{ color: 'disc-one' }}
+          swatch={{ color: 'disc-one', mark: '●' }}
           swatchLabel="Red"
           tags={<Badge intent="neutral" label="You play Red" />}
           tagsPlacement="inline"

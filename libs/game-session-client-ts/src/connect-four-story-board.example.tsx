@@ -38,6 +38,8 @@ function dropAll(moves: readonly number[]): {
 export function ConnectFourStoryBoard(props: {
   readonly moves: readonly number[];
   readonly interactive?: boolean | undefined;
+  /** The line under an interactive board; Connect Four's own by default. */
+  readonly prompt?: string | undefined;
   /** A drop into a column, counted from 0; none by default. */
   readonly onDrop?: ((column: number) => void) | undefined;
   /** The four cells of a finished line, bottom row first. */
@@ -61,7 +63,7 @@ export function ConnectFourStoryBoard(props: {
         props.winning !== undefined
           ? undefined
           : props.interactive === true
-            ? 'Pick a column to drop your disc'
+            ? (props.prompt ?? 'Pick a column to drop your disc')
             : ''
       }
       previewPrompt={(column) => `Drop in column ${column + 1}`}
