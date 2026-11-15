@@ -312,7 +312,7 @@ function ReplayPlayers(
                 props.players.some((p) => !p.winner)
               }
             >
-              <Badge size="sm" intent="success" label={<Trans>Winner</Trans>} />
+              <Badge size="md" intent="success" label={<Trans>Winner</Trans>} />
             </Show>
           </StackHorizontal>
         )}
@@ -505,6 +505,7 @@ export function GameReplayScreenView(
       actions={
         <Button
           title={<Trans>All games</Trans>}
+          size="sm"
           variant="outline"
           intent="neutral"
           icon={ArrowLeftIcon}

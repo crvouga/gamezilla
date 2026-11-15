@@ -4,7 +4,7 @@ import { t } from '@lingui/core/macro';
 import { Plural, Trans } from '@lingui/solid/macro';
 import { Badge, type BadgeIntent } from '@pkgs/ui-root-client-ts/badge';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
-import { GameHistoryScreen } from '@pkgs/ui-root-client-ts/game-history-screen';
+import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
 import { GameStat } from '@pkgs/ui-root-client-ts/game-stat';
 import { Grid } from '@pkgs/ui-root-client-ts/grid';
 import { ChevronRightIcon, HistoryIcon } from '@pkgs/ui-root-client-ts/icons';
@@ -419,40 +419,39 @@ export function GameHistoryScreenView(
     <Show
       when={props.denial}
       fallback={
-        <GameHistoryScreen
+        <GameScreen
           screenId="game-history"
           title={<Trans>History and stats</Trans>}
           subtitle={<Trans>Finished games, newest first.</Trans>}
-          statistics={<HistoryStatistics {...props} />}
-          filters={
-            <Show when={props.records.length >= FILTER_FROM}>
-              <StackVertical gap="xs">
-                <ResultFilter filter={filter()} onFilter={setFilter} />
-                <Show when={filter() !== 'all'}>
-                  <P
-                    variant="caption"
-                    tone="secondary"
-                    role="status"
-                    testId="game-history-filter-count"
-                  >
-                    <Plural
-                      value={
-                        props.records.filter(
-                          (record) => record.outcome === filter()
-                        ).length
-                      }
-                      one="# game"
-                      other="# games"
-                    />{' '}
-                    <Trans>· the totals above are for all games</Trans>
-                  </P>
-                </Show>
-              </StackVertical>
-            </Show>
-          }
+          dataSet={{ component: 'GameHistoryScreen' }}
         >
+          <HistoryStatistics {...props} />
+          <Show when={props.records.length >= FILTER_FROM}>
+            <StackVertical gap="xs">
+              <ResultFilter filter={filter()} onFilter={setFilter} />
+              <Show when={filter() !== 'all'}>
+                <P
+                  variant="caption"
+                  tone="secondary"
+                  role="status"
+                  testId="game-history-filter-count"
+                >
+                  <Plural
+                    value={
+                      props.records.filter(
+                        (record) => record.outcome === filter()
+                      ).length
+                    }
+                    one="# game"
+                    other="# games"
+                  />{' '}
+                  <Trans>· the totals above are for all games</Trans>
+                </P>
+              </Show>
+            </StackVertical>
+          </Show>
           <HistoryRecords {...props} filter={filter()} />
-        </GameHistoryScreen>
+        </GameScreen>
       }
     >
       {(denial) => <DenialSurfaceView denial={denial()} />}
