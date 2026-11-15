@@ -269,9 +269,39 @@ function FindStatus(props: FindProps): JSX.Element {
   );
 }
 
+/** Searching, or searching again after a refusal. */
+function FindCommand(props: FindProps): JSX.Element {
+  const many = () => props.find.players > 2;
+  return (
+    <GameActionButton
+      title={
+        <Switch fallback={<Trans>Find an opponent</Trans>}>
+          <Match when={props.blocked !== null}>
+            <Trans>Search again</Trans>
+          </Match>
+          <Match when={many()}>
+            <Trans>Find players</Trans>
+          </Match>
+        </Switch>
+      }
+      successLabel={
+        <Show when={many()} fallback={<Trans>Opponent search accepted</Trans>}>
+          <Trans>Player search accepted</Trans>
+        </Show>
+      }
+      operation={() =>
+        props.onFind(props.find.timed ? props.find.timeControl : undefined)
+      }
+      variant={props.blocked !== null || !props.online ? 'outline' : 'solid'}
+      size="lg"
+      fullWidth
+      dataSet={{ testid: 'multiplayer-find' }}
+    />
+  );
+}
+
 /** The search's one command, held at the foot of the screen. */
 function FindDock(props: FindProps): JSX.Element {
-  const many = () => props.find.players > 2;
   return (
     <GameLobbyDock status={<FindStatus {...props} />}>
       <Show when={props.blocked !== null}>
@@ -302,33 +332,11 @@ function FindDock(props: FindProps): JSX.Element {
           )}
         </Show>
       </Show>
-      <GameActionButton
-        title={
-          <Switch fallback={<Trans>Find an opponent</Trans>}>
-            <Match when={props.blocked !== null}>
-              <Trans>Search again</Trans>
-            </Match>
-            <Match when={many()}>
-              <Trans>Find players</Trans>
-            </Match>
-          </Switch>
-        }
-        successLabel={
-          <Show
-            when={many()}
-            fallback={<Trans>Opponent search accepted</Trans>}
-          >
-            <Trans>Player search accepted</Trans>
-          </Show>
-        }
-        operation={() =>
-          props.onFind(props.find.timed ? props.find.timeControl : undefined)
-        }
-        variant={props.blocked !== null || !props.online ? 'outline' : 'solid'}
-        size="lg"
-        fullWidth
-        dataSet={{ testid: 'multiplayer-find' }}
-      />
+      {/* A refusal remounts the command: the dock says why, so the button
+          starts again quiet instead of holding its failure. */}
+      <Show when={props.blocked ?? 'clear'} keyed>
+        {(_state) => <FindCommand {...props} />}
+      </Show>
     </GameLobbyDock>
   );
 }
