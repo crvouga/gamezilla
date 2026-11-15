@@ -204,6 +204,11 @@
 }
 /* A short phone gives the board the room its gaps took. */
 @media (max-width: 767px) and (max-height: 700px) {
+  /* Beside a result on a short phone the line of moves gives its row to
+     the finished board; Review opens every move. */
+  .fixed:has([data-component="GameResultCard"]) [data-game-slot="rail"] {
+    display: none;
+  }
   /* Beside a result nobody moves: a seat is one slim line (its name and
      its disc), so the finished board keeps the room. */
   .fixed:has([data-component="GameResultCard"])
