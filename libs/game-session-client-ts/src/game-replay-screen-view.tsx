@@ -497,7 +497,6 @@ export function GameReplayScreenView(
         }
       >
         <GameBoardStage
-          viewportFit="square"
           others={<ReplayPlayers {...props} place="over" />}
           own={
             <StackVertical gap="sm" align="stretch">
