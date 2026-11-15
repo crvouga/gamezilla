@@ -65,9 +65,11 @@ export async function expectJourneyCompletion(
 export async function restartJourneyAttempt(
   device: ContentJourneyDevice
 ): Promise<string> {
+  // One press: the new attempt starts and opens on its board; the
+  // command reads Restart again once it has.
   await contentTap(device, 'content-restart');
-  await contentTap(device, 'content-restart-confirm');
-  // Closing the confirm opens the new attempt on its board.
-  await contentTap(device, 'content-restart-dismiss');
+  await device.ui
+    .get('content-restart')
+    .expect.text('Restart', { ...device, exact: true });
   return contentAttribute(device, 'content-attempt', 'data-attemptid');
 }

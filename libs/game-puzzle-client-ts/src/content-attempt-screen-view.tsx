@@ -120,8 +120,10 @@ export type ContentAttemptScreenViewProps = {
   readonly confirms?: JSX.Element;
   readonly onRetryChange: () => void;
   readonly onReturnToLibrary: () => void;
-  /** Asks to restart (confirmed first): offered where no board can show. */
+  /** Restarts into a new attempt: offered where no board can show. */
   readonly onRestart?: (() => void) | undefined;
+  /** A refused command's reason with its retry (a restart), on both places. */
+  readonly notice?: JSX.Element;
   /** Loads the newest version of the app, for rules this one lacks. */
   readonly onUpdateApp?: (() => void) | undefined;
 };
@@ -150,6 +152,7 @@ function AttemptAlerts(props: ContentAttemptScreenViewProps): JSX.Element {
           dataSet={{ testid: 'content-attempt-rules-changed' }}
         />
       </Show>
+      {props.notice}
       <Show when={props.changeError}>
         {(error) => (
           <ErrorState

@@ -72,8 +72,9 @@ function disabled(testId: string): boolean {
 }
 
 const restart = {
-  ask: () => undefined,
-  created: () => null,
+  restart: () => undefined,
+  pending: () => false,
+  failure: () => null,
 } as unknown as Parameters<typeof ContentAttemptControls>[0]['restart'];
 const writer = {
   pending: () => false,

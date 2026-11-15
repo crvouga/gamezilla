@@ -13,7 +13,7 @@ import {
   ContentAttemptOnward,
 } from './content-attempt-next';
 import {
-  ContentAttemptRestartConfirm,
+  ContentAttemptRestartFailure,
   useContentAttemptRestart,
 } from './content-attempt-restart';
 import {
@@ -220,12 +220,12 @@ function AttemptBody(props: {
       }
       confirms={
         <>
-          <ContentAttemptRestartConfirm tools={restart} />
           <ContentPositionConfirm choice={position} />
         </>
       }
       onRetryChange={writer.retry}
-      onRestart={restart.ask}
+      onRestart={restart.restart}
+      notice={<ContentAttemptRestartFailure tools={restart} />}
       onUpdateApp={reloadApp}
       onReturnToLibrary={() => game.open({ kind: 'library' })}
     />

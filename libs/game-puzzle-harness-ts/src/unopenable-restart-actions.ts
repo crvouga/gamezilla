@@ -72,15 +72,8 @@ export const restartUnopenableAttempt = defineAction({
         'unopenable-offers-moves',
         String(view.queryByTestId('content-undo') !== null)
       );
+      // One press: the new attempt starts and opens on its board.
       fireEvent.click(view.getByTestId('content-unopenable-restart'));
-      await waitForContent(s, () =>
-        Promise.resolve(view.queryByTestId('content-restart-confirm') !== null)
-      );
-      fireEvent.click(view.getByTestId('content-restart-confirm'));
-      await waitForContent(s, () =>
-        Promise.resolve(view.queryByText('New attempt ready') !== null)
-      );
-      fireEvent.click(view.getByTestId('content-restart-dismiss'));
       await waitForContent(s, () => {
         const opened = view
           .queryByTestId('content-attempt')

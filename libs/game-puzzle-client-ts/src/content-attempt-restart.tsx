@@ -1,63 +1,57 @@
 import type { ContentAttempt } from '@libs/game-puzzle-shared-ts/attempt-types';
 import { restartPuzzleAttemptMutation } from '@libs/game-puzzle-shared-ts/restart-attempt-mutation';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@lingui/solid/macro';
 import { useMutationClient } from '@pkgs/sync-engine-client-ts/mutation-client-context';
 import { Button } from '@pkgs/ui-root-client-ts/button';
-import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
+import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { useCreateId } from '@pkgs/uuid-client-ts/solid';
 import { type Accessor, createSignal, type JSX, Show } from 'solid-js';
 import { useContentGame } from './content-game-context';
 
-type RestartRequest = {
-  readonly earlierAttemptId: string;
-  readonly attemptId: string;
-  readonly positionId: string;
-};
-
 /**
- * Restarting one attempt, for as long as its screens are open: the request
- * waiting to be confirmed, and the new attempt once it is saved.
+ * Restarting one attempt in one press: a new attempt at the same edition
+ * starts at the beginning and opens on its board. Nothing is lost (the
+ * earlier attempt and any completion stay kept), so there is nothing to
+ * confirm; a refused restart stays here with its reason and a retry.
  */
 export function useContentAttemptRestart(attempt: Accessor<ContentAttempt>) {
   const { t } = useLingui();
   const game = useContentGame();
   const mutations = useMutationClient();
   const createId = useCreateId();
-  const [request, setRequest] = createSignal<RestartRequest | null>(null);
-  const [created, setCreated] = createSignal<string | null>(null);
+  const [pending, setPending] = createSignal(false);
+  const [failure, setFailure] = createSignal<string | null>(null);
   const restart = async (): Promise<void> => {
-    const args = request();
-    if (args === null) return;
-    const result = await mutations.mutate(
-      restartPuzzleAttemptMutation(game.catalog),
-      args
-    );
-    if (!result.ok)
-      throw new Error(
-        result.failures[0]?.message ??
-          t`A new attempt could not be saved. Your earlier attempt is still here. Try again.`
+    if (pending()) return;
+    const attemptId = createId();
+    const refused = t`A new attempt could not be saved. Your earlier attempt is still here. Try again.`;
+    setPending(true);
+    setFailure(null);
+    try {
+      const result = await mutations.mutate(
+        restartPuzzleAttemptMutation(game.catalog),
+        {
+          earlierAttemptId: attempt().id,
+          attemptId,
+          positionId: createId(),
+        }
       );
-    setCreated(args.attemptId);
+      if (result.ok) game.open({ kind: 'attempt', attemptId });
+      else setFailure(result.failures[0]?.message ?? refused);
+    } catch (error) {
+      setFailure(error instanceof Error ? error.message : refused);
+    } finally {
+      setPending(false);
+    }
   };
   return {
-    /** Asks to restart; the attempt's shell confirms first. */
-    ask: (): void => {
-      setRequest({
-        earlierAttemptId: attempt().id,
-        attemptId: createId(),
-        positionId: createId(),
-      });
+    /** Starts the new attempt and opens it. */
+    restart: (): void => {
+      void restart();
     },
-    asking: () => request() !== null,
-    /** Closes the confirm; once the new attempt is saved, it opens on its board. */
-    close: (): void => {
-      setRequest(null);
-      const id = created();
-      if (id !== null) game.open({ kind: 'attempt', attemptId: id });
-    },
-    restart,
-    /** The restarted attempt, once saved. */
-    created,
+    pending,
+    /** Why the last restart was refused; the earlier attempt stays. */
+    failure,
   };
 }
 
@@ -65,66 +59,43 @@ export type ContentAttemptRestartTools = ReturnType<
   typeof useContentAttemptRestart
 >;
 
-/**
- * Restart beside undo and redo; once a new attempt is saved, the way into
- * it takes Restart's place.
- */
+/** Restart beside undo and redo: one press opens a new attempt at the start. */
 export function ContentAttemptRestart(props: {
   tools: ContentAttemptRestartTools;
   disabled: boolean;
 }): JSX.Element {
   const { t } = useLingui();
-  const game = useContentGame();
   return (
-    <Show
-      when={props.tools.created()}
-      fallback={
-        <Button
-          title={t`Restart`}
-          intent="neutral"
-          variant="outline"
-          size="sm"
-          disabled={props.disabled}
-          onClick={() => props.tools.ask()}
-          dataSet={{ testid: 'content-restart' }}
-        />
-      }
-    >
-      {(id) => (
-        <Button
-          title={t`Open restarted attempt`}
-          intent="neutral"
-          variant="outline"
-          size="sm"
-          onClick={() => game.open({ kind: 'attempt', attemptId: id() })}
-          dataSet={{ testid: 'content-open-restart' }}
-        />
-      )}
-    </Show>
+    <Button
+      title={t`Restart`}
+      intent="neutral"
+      variant="outline"
+      size="sm"
+      loading={props.tools.pending()}
+      loadingLabel={t`Restarting…`}
+      disabled={props.disabled}
+      onClick={() => props.tools.restart()}
+      dataSet={{ testid: 'content-restart' }}
+    />
   );
 }
 
-/** The confirm before a new attempt starts at the beginning. */
-export function ContentAttemptRestartConfirm(props: {
+/** A restart that was refused: why, with a retry; the earlier attempt stays. */
+export function ContentAttemptRestartFailure(props: {
   tools: ContentAttemptRestartTools;
 }): JSX.Element {
+  const { t } = useLingui();
   return (
-    <MutationModal
-      visible={props.tools.asking()}
-      onClose={() => props.tools.close()}
-      title={<Trans>Restart this puzzle?</Trans>}
-      message={
-        <Trans>
-          A new attempt opens at the beginning. Your earlier attempt and
-          completion stay saved.
-        </Trans>
-      }
-      submitLabel={<Trans>Restart</Trans>}
-      successTitle={<Trans>New attempt ready</Trans>}
-      dismissLabel={<Trans>Play it</Trans>}
-      operation={props.tools.restart}
-      submitDataSet={{ testid: 'content-restart-confirm' }}
-      dismissDataSet={{ testid: 'content-restart-dismiss' }}
-    />
+    <Show when={props.tools.failure()}>
+      {(message) => (
+        <ErrorState
+          variant="compact"
+          title={t`The new attempt did not start`}
+          body={message()}
+          retry={{ onClick: () => props.tools.restart() }}
+          dataSet={{ testid: 'content-restart-failed' }}
+        />
+      )}
+    </Show>
   );
 }
