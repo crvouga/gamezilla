@@ -13,6 +13,7 @@ import { Outbox } from '@pkgs/outbox-shared-ts/outbox';
 import { reconcileOutbox } from '@pkgs/outbox-shared-ts/reconcile';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import type { PubSub } from '@pkgs/pubsub-root-shared-ts/interface';
+import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-root-server-ts/impl-bun-sqlite';
 import sql from '@pkgs/sql-root-shared-ts/sql';
 import { syncEngineServerSchema } from '@pkgs/sync-engine-shared-ts/tables';
@@ -36,7 +37,11 @@ async function publishRows(
   forbidImages: boolean,
   owners: readonly string[] = ['alice', 'bob'],
   fenced = true,
-  options: { failAfterWrite?: boolean; registryTopicMap?: boolean } = {}
+  options: {
+    failAfterWrite?: boolean;
+    failAtCommit?: boolean;
+    registryTopicMap?: boolean;
+  } = {}
 ): Promise<Map<string, PushMessage>> {
   const db = SqlClientImplBunSqlite.open(':memory:');
   await db.connect();
@@ -79,7 +84,7 @@ async function publishRows(
       setOutboxConsumerRegistry(consumerRegistry, topicMap);
     await new Outbox({ tx: db, env }).send({ id: 'ready', message: Ready({}) });
     await drainAndNotifyOutbox({
-      db,
+      db: options.failAtCommit ? rejectDeliveryCommit(db) : db,
       ...(fenced ? { nextCheckpoint: () => '2' } : {}),
       clock: { now: () => 0 },
       createId: env.createId,
@@ -90,7 +95,7 @@ async function publishRows(
         ? { eventTypes: [Ready.type] }
         : { topicMap }),
     });
-    if (options.failAfterWrite)
+    if (options.failAfterWrite || options.failAtCommit)
       expect(await db.query(sql<{ id: string }>`SELECT id FROM notes`)).toEqual(
         []
       );
@@ -99,6 +104,38 @@ async function publishRows(
     await db.disconnect();
   }
 }
+
+/** The delivery handler succeeds, but its enclosing transaction loses at COMMIT. */
+function rejectDeliveryCommit(db: SqlClient): SqlClient {
+  let transactions = 0;
+  return {
+    connect: () => db.connect(),
+    disconnect: () => db.disconnect(),
+    query: (query) => db.query(query),
+    run: (query) => db.run(query),
+    prepare: (query) => db.prepare(query),
+    transaction: (run) =>
+      db.transaction(async (tx) => {
+        const current = ++transactions;
+        const result = await run(tx);
+        if (current === 2)
+          throw Object.assign(
+            new Error(
+              'could not serialize access due to read/write dependencies among transactions'
+            ),
+            { code: '40001' }
+          );
+        return result;
+      }),
+  };
+}
+
+// regression: outbox-conflict-retry-uses-doomed-snapshot
+test('a delivery whose COMMIT conflicts never publishes rolled-back captured rows', async () => {
+  expect([
+    ...(await publishRows(false, ['alice'], true, { failAtCommit: true })),
+  ]).toEqual([]);
+});
 
 // regression: outbox-results-require-extra-snapshot
 // regression: outbox-row-images-lack-snapshot-fence
@@ -150,14 +187,15 @@ test('row images respect topic ownership and publication vetoes for every recipi
         maxLength: 3,
       }),
       fc.boolean(),
-      fc.boolean(),
+      fc.record({ afterWrite: fc.boolean(), atCommit: fc.boolean() }),
       fc.boolean(),
       async (owners, forbid, fail, registryTopicMap) => {
         const frames = await publishRows(forbid, owners, true, {
-          failAfterWrite: fail,
+          failAfterWrite: fail.afterWrite,
           registryTopicMap,
+          failAtCommit: fail.atCommit,
         });
-        if (fail) {
+        if (fail.afterWrite || fail.atCommit) {
           expect([...frames]).toEqual([]);
           return;
         }

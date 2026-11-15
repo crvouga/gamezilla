@@ -40,6 +40,7 @@ class DatabaseError extends Error {
 function postgresAborts(db: SqlClient, failure: DatabaseError): SqlClient {
   const wrap = (inner: SqlClient): SqlClient => {
     let aborted = false;
+    let lostSnapshot = false;
     const guard = (statement: string): void => {
       if (/^\s*ROLLBACK TO SAVEPOINT/i.test(statement)) {
         aborted = false;
@@ -50,8 +51,11 @@ function postgresAborts(db: SqlClient, failure: DatabaseError): SqlClient {
           'current transaction is aborted, commands ignored until end of transaction block',
           '25P02'
         );
+      // SSI conflicts doom the snapshot even after rolling back a savepoint.
+      if (lostSnapshot) throw failure;
       if (statement.includes('conflicting_table')) {
         aborted = true;
+        lostSnapshot = failure.code === '40001';
         throw failure;
       }
     };
@@ -148,13 +152,16 @@ test('a consumer that fails does not stop the pass or the other deliveries', asy
 });
 
 // regression: outbox-failed-consumer-aborts-whole-drain
+// regression: outbox-conflict-retry-uses-doomed-snapshot
 test('losing a database race is retried without spending an attempt', async () => {
-  const { rows } = await drainWithFailingConsumer(
+  const { rows, result, delivered } = await drainWithFailingConsumer(
     new DatabaseError(
       'could not serialize access due to concurrent update',
       '40001'
     )
   );
+  expect(result.processed).toBe(1);
+  expect(delivered).toEqual(['b-healthy']);
   const raced = rows.find((row) => row.consumer_id === 'a-conflicting');
   expect(raced?.attempts).toBe(0);
   expect(raced?.processed_at).toBeNull();

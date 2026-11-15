@@ -11,7 +11,9 @@ import type { CreateId } from '@pkgs/uuid-shared-ts/create-id';
 import { withOutboxCausation } from './causation';
 import type { OutboxConsumerRegistry } from './define-consumer';
 import { resolveRetryPolicy } from './define-consumer';
+import type { ClaimRow } from './delivery-claim';
 import { ensureDeliveries } from './ensure-deliveries';
+import { rescheduleConflict } from './reschedule-conflict';
 import type { OutboxConsumerDef } from './types';
 
 type PendingEventRow = {
@@ -20,13 +22,6 @@ type PendingEventRow = {
   /** Text on SQLite; often already-parsed object on Postgres json. */
   readonly payload: unknown;
   readonly causation_id: string | null;
-};
-
-type ClaimRow = {
-  readonly event_id: string;
-  readonly consumer_id: string;
-  readonly attempts: number;
-  readonly available_at: string;
 };
 
 export type ObserveOutboxPhase = <T>(
@@ -166,7 +161,10 @@ async function commitClaim(args: {
     return result;
   } catch (error) {
     finish(false);
-    throw error;
+    if (!isTransientConflict(error)) throw error;
+    await rescheduleConflict(deps, claim, error);
+    args.notifyUserIds.clear();
+    return { processed: 0, exhausted: 0 };
   }
 }
 
@@ -391,6 +389,9 @@ async function runDelivery(args: {
       notifyUserIds: result?.notifyUserIds ?? [],
     };
   } catch (error: unknown) {
+    // A savepoint cannot replace a snapshot that lost a serialization race.
+    // Roll back the whole transaction before scheduling the next attempt.
+    if (isTransientConflict(error)) throw error;
     await transaction.run(raw(`ROLLBACK TO SAVEPOINT ${DELIVERY_SAVEPOINT}`));
     const message = error instanceof Error ? error.message : String(error);
     const parked = await failDelivery({
@@ -401,7 +402,6 @@ async function runDelivery(args: {
       error: message,
       log,
       permanent: false,
-      conflict: isTransientConflict(error),
     });
     return { ok: false, parked, notifyUserIds: [], failure: message };
   }
@@ -431,16 +431,11 @@ async function failDelivery(args: {
   readonly error: string;
   readonly log: ReturnType<typeof createLogger>;
   readonly permanent: boolean;
-  /** The database aborted this attempt in a race; the work itself is not at fault. */
-  readonly conflict?: boolean;
 }): Promise<boolean> {
   const { tx, clock, claim, policy, error, log, permanent } = args;
-  const conflict = args.conflict === true && !permanent;
-  // A lost race costs no attempt: spending the retry budget on contention would
-  // eventually park a healthy delivery for a year.
-  const attempts = conflict ? claim.attempts : claim.attempts + 1;
+  const attempts = claim.attempts + 1;
   const nowMs = clock.now();
-  if (!conflict && (permanent || attempts >= policy.maxAttempts)) {
+  if (permanent || attempts >= policy.maxAttempts) {
     log.error('outbox delivery exhausted', {
       eventId: claim.event_id,
       consumerId: claim.consumer_id,
