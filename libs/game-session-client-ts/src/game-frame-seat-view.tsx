@@ -310,7 +310,12 @@ export function FrameInvitePlace(
                   />
                 }
                 caption={
-                  invitee.disabled ? <Trans>Already seated</Trans> : undefined
+                  // Says what a press does: it sends the invitation.
+                  invitee.disabled ? (
+                    <Trans>Already seated</Trans>
+                  ) : (
+                    <Trans>Invite to play {props.seat.sideLabel}</Trans>
+                  )
                 }
                 disabled={invitee.disabled}
                 operation={() =>
