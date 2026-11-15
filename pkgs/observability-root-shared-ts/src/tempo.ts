@@ -39,13 +39,14 @@ type TempoOptions = {
   readonly now: () => number;
   readonly token?: string;
   readonly username?: string;
+  readonly environment?: string;
 };
 
 export class TempoTraceStore implements TraceStore {
   readonly source: string;
   private readonly traces = new Map<string, Promise<Trace | null>>();
   constructor(private readonly options: TempoOptions) {
-    this.source = `tempo:${options.baseUrl}`;
+    this.source = `tempo:${options.baseUrl}${options.environment === undefined ? '' : ` (${options.environment})`}`;
   }
 
   private headers(): HeadersInit {
@@ -67,7 +68,10 @@ export class TempoTraceStore implements TraceStore {
     range: TimeRange
   ): Promise<SearchHit[]> {
     const params = new URLSearchParams({
-      q: query,
+      q:
+        this.options.environment === undefined
+          ? query
+          : `{ (${query.slice(1, -1).trim()}) && resource.${JSON.stringify(ATTR.DEPLOYMENT_ENVIRONMENT_NAME)} = ${JSON.stringify(this.options.environment)} }`,
       start: String(Math.floor(range.startMs / 1000)),
       end: String(Math.ceil(range.endMs / 1000)),
       limit: String(PAGE_SIZE),
@@ -246,7 +250,12 @@ export class TempoTraceStore implements TraceStore {
     if (response.status === 404) return null;
     if (!response.ok)
       throw new Error(`Tempo trace lookup failed (${String(response.status)})`);
-    const spans = spansFromDocument(await response.json());
+    const spans = spansFromDocument(await response.json()).filter(
+      (span) =>
+        this.options.environment === undefined ||
+        span.attributes[ATTR.DEPLOYMENT_ENVIRONMENT_NAME] ===
+          this.options.environment
+    );
     return spans.length === 0 ? null : { traceId, spans };
   }
 
