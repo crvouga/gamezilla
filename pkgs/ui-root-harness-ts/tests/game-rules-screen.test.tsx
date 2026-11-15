@@ -94,6 +94,40 @@ describe('GameRulesScreen parts', () => {
     view.unmount();
   });
 
+  // regression: rules-current-part-stuck — the marker listened to one
+  // scroll box only and stayed on "Goal" while the page scrolled on.
+  test('the marked part follows the reading as the rules scroll', () => {
+    const keys = ['goal', 'turn', 'knight', 'castling', 'end'];
+    const view = render(() => (
+      <ThemeProvider
+        colorScheme="dark"
+        fixedLayout={{ width: 390, height: 844 }}
+      >
+        <GameRulesScreen
+          screenId="game-how-to-play"
+          eyebrow="How to play"
+          title="Chess"
+          motif="checkered"
+          partsLabel="Jump to a part"
+          sections={keys.map((key) => ({ key, title: key, body: `${key}.` }))}
+        />
+      </ThemeProvider>
+    ));
+    // Goal and Your turn have scrolled past; The knight is being read.
+    keys.forEach((key, index) => {
+      const part = document.getElementById(`game-how-to-play-part-${key}`);
+      if (part === null) throw new Error(`No part ${key}`);
+      part.getBoundingClientRect = () =>
+        ({ top: index * 300 - 700, bottom: index * 300 - 400 }) as DOMRect;
+    });
+    document.dispatchEvent(new Event('scroll'));
+    const current = view
+      .getByRole('navigation', { name: 'Jump to a part' })
+      .querySelector('[aria-current="true"]');
+    expect(current?.textContent).toBe('3. knight');
+    view.unmount();
+  });
+
   test('a few parts read at a glance, with no links', () => {
     const view = rules(390);
     expect(view.queryByRole('navigation')).toBeNull();

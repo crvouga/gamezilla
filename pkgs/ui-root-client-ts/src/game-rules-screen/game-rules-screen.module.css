@@ -120,27 +120,41 @@
   /* Room for a link's focus ring inside the row's clip. */
   padding: var(--ui-space-1);
   overflow-x: auto;
+  /* Whole links: the row comes to rest on a link's edge, and a link
+     brought into view (focused, or the part being read) stops clear of
+     the faded ends. */
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: var(--ui-space-12);
   scrollbar-width: none;
   list-style: none;
 }
 /* Parts beyond the row's edge fade out, saying there is more that way. */
 .parts[data-overflow-end] .partLinks {
-  mask-image: linear-gradient(to right, black 85%, transparent);
+  mask-image: linear-gradient(
+    to right,
+    black calc(100% - var(--ui-space-8)),
+    transparent
+  );
 }
 .parts[data-overflow-start] .partLinks {
-  mask-image: linear-gradient(to left, black 85%, transparent);
+  mask-image: linear-gradient(
+    to left,
+    black calc(100% - var(--ui-space-8)),
+    transparent
+  );
 }
 .parts[data-overflow-start][data-overflow-end] .partLinks {
   mask-image: linear-gradient(
     to right,
     transparent,
-    black 15%,
-    black 85%,
+    black var(--ui-space-8),
+    black calc(100% - var(--ui-space-8)),
     transparent
   );
 }
 .partLinks > li {
   flex-shrink: 0;
+  scroll-snap-align: start;
 }
 .partLink {
   min-block-size: 32px;

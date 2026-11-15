@@ -65,9 +65,8 @@ export function GameSettingsScreenView(
             title={<Trans>Nothing to change here</Trans>}
             body={
               <Trans>
-                Your access to these settings changed while they were open. They
-                are for the people who manage this game's content; everything
-                else in the game works as usual.
+                You can no longer change these settings. They are for the people
+                who manage this game's content.
               </Trans>
             }
             action={{

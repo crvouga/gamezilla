@@ -26,16 +26,6 @@ function openPart(screenId: string, key: string): void {
   part?.querySelector<HTMLElement>('h2')?.focus({ preventScroll: true });
 }
 
-/** The nearest ancestor that scrolls vertically: the screen's own body. */
-function scrollerOf(element: HTMLElement): HTMLElement | null {
-  let at = element.parentElement;
-  while (at !== null) {
-    if (/(auto|scroll)/.test(getComputedStyle(at).overflowY)) return at;
-    at = at.parentElement;
-  }
-  return null;
-}
-
 /**
  * The part being read: the first whose end has not yet passed under the
  * held row, or the first part while the layout says nothing.
@@ -87,13 +77,15 @@ export function PartLinks(props: {
     });
   };
   onMount(() => {
-    const scroller = nav === undefined ? null : scrollerOf(nav);
-    scroller?.addEventListener('scroll', measure, { passive: true });
-    row?.addEventListener('scroll', measure, { passive: true });
+    // Whichever box scrolls the rules (the screen's body, or the page),
+    // its scroll reaches the document in the capture phase.
+    const options = { capture: true, passive: true } as const;
+    document.addEventListener('scroll', measure, options);
+    window.addEventListener('resize', measure, { passive: true });
     measure();
     onCleanup(() => {
-      scroller?.removeEventListener('scroll', measure);
-      row?.removeEventListener('scroll', measure);
+      document.removeEventListener('scroll', measure, options);
+      window.removeEventListener('resize', measure);
     });
   });
   const step = (direction: 1 | -1): void =>

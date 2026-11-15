@@ -1,0 +1,4 @@
+{
+  "summary": "On How to play, the held part row's current-part marker listened to one scroll box only; where the page itself scrolled (desktop), it stayed on 'Goal' while the reader moved on to later parts. It now follows any scroll that moves the rules.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-rules-screen.test.tsx"
+}
