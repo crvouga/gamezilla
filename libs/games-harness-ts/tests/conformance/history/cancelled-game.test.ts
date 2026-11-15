@@ -28,8 +28,8 @@ forEveryGame(
       await s.apply(attemptCustomGame, 'alice', { operation: 'cancel' });
       await s.apply(openGameHistory, 'alice');
       const history = await s.read(gameHistoryStatistics, 'alice');
-      expect(history.record).toContain('No participant');
-      expect(history.record).toContain('Game cancelled');
+      expect(history.record).toContain('Nobody else joined');
+      expect(history.record).toContain('Cancelled before the first move');
       expect(history.record).not.toContain('Bot');
       expect([history.wins, history.losses, history.draws]).toEqual([0, 0, 0]);
     }, 120_000);
