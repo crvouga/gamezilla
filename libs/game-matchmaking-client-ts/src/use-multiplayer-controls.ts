@@ -40,7 +40,12 @@ import type { MultiplayerData } from './use-multiplayer-data';
 
 const REFUSED = 'Multiplayer game could not accept that command.';
 
-function useRefusals() {
+/**
+ * What this device says to a command: the server's refusal, or a decision it
+ * makes itself (a search while another game is still on). Either refusal
+ * fails the command, so the button that gave it never reads as accepted.
+ */
+export function useRefusals() {
   const [denial, setDenial] = createSignal<Decision | null>(null);
   const [error, setError] = createSignal<string | null>(null);
   const accept = (result: MutateResult): void => {
@@ -55,7 +60,12 @@ function useRefusals() {
     else setError(failure?.message ?? REFUSED);
     throw new Error(failure?.message ?? REFUSED);
   };
-  return { denial, setDenial, error, accept };
+  /** Refuses on this device: says why, and fails the command. */
+  const refuse = (decision: Decision): never => {
+    setDenial(decision);
+    throw new Error(`Refused: ${decision.reason ?? 'not allowed'}`);
+  };
+  return { denial, setDenial, error, accept, refuse };
 }
 
 function useMoves(
@@ -118,10 +128,7 @@ export function useMultiplayerControls(data: MultiplayerData) {
     const decision = beginDecision().allowed
       ? unfinishedDecision()
       : beginDecision();
-    if (!decision.allowed) {
-      refusals.setDenial(decision);
-      return;
-    }
+    if (!decision.allowed) refusals.refuse(decision);
     const matchmaking = rules.capability(data.gameId(), 'matchmaking');
     if (matchmaking === undefined)
       throw new Error('The selected game does not support matchmaking');

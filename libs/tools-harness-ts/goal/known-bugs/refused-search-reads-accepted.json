@@ -1,0 +1,4 @@
+{
+  "summary": "A search this device refused itself (another game still on) set the refusal and resolved, so Find an opponent turned green with \"Opponent search accepted\" under \"Finish your Custom Game first\". The refusal now fails the command, so the button shows it was not accepted.",
+  "regressionTest": "libs/game-matchmaking-client-ts/tests/multiplayer-refusals.test.ts"
+}
