@@ -225,8 +225,9 @@ function PackOrder(props: ContentPackEditorViewProps): JSX.Element {
         dataSet={{ testid: 'content-pack-order' }}
         footer={
           <Trans>
-            People can play them in any order. Publishing the pack keeps each
-            puzzle as it is now.
+            Use … beside a puzzle to move it up or down or take it out. People
+            can play them in any order; publishing the pack keeps each puzzle as
+            it is now.
           </Trans>
         }
       >

@@ -15,13 +15,16 @@ type View = ContentAuthorScreenViewProps;
 function DoneButton(props: { view: View }): JSX.Element {
   const { t } = useLingui();
   return (
-    <Button
-      title={t`Done`}
-      intent="neutral"
-      variant="outline"
-      onClick={() => props.view.onOpen({ screen: 'builder' })}
-      dataSet={{ testid: 'content-step-done' }}
-    />
+    // A row of its own, so the button keeps its own width in a column.
+    <StackHorizontal>
+      <Button
+        title={t`Done`}
+        intent="neutral"
+        variant="outline"
+        onClick={() => props.view.onOpen({ screen: 'builder' })}
+        dataSet={{ testid: 'content-step-done' }}
+      />
+    </StackHorizontal>
   );
 }
 
