@@ -191,7 +191,7 @@ export const Journey: Story = {
   },
 };
 
-/** Twenty drops across the board, no line yet: a long game's middle. */
+/** Twenty drops across the board before Avery resigned: a long game's middle. */
 const LONG_COLUMNS = [
   3, 2, 4, 1, 5, 0, 6, 3, 2, 4, 1, 5, 0, 6, 3, 2, 4, 1, 5, 0,
 ];
@@ -209,9 +209,9 @@ export const LongGame: Story = {
   args: {
     ply: 11,
     moves: LONG_MOVES,
-    outcome: 'draw',
-    result: 'Game drawn.',
-    players: PLAYERS.map((player) => ({ ...player, winner: false })),
+    outcome: 'lost',
+    result: 'You lost by resignation.',
+    players: PLAYERS.map((player) => ({ ...player, winner: !player.you })),
   },
   render: (args) => (
     <GameReplayScreenView

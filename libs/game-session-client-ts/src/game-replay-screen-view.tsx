@@ -2,12 +2,7 @@ import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
-import { Chip } from '@pkgs/ui-root-client-ts/chip';
 import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
-import {
-  GameMoveList,
-  type GameMoveListEntry,
-} from '@pkgs/ui-root-client-ts/game-move-list';
 import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
 import {
   type GameSeatLook,
@@ -284,7 +279,13 @@ function ReplayPlayers(
                 <Trans>(you)</Trans>
               </Show>
             </P>
-            <Show when={player.winner && props.players.some((p) => !p.winner)}>
+            <Show
+              when={
+                props.ply === props.moves.length &&
+                player.winner &&
+                props.players.some((p) => !p.winner)
+              }
+            >
               <Badge size="sm" intent="success" label={<Trans>Winner</Trans>} />
             </Show>
           </StackHorizontal>
@@ -294,31 +295,11 @@ function ReplayPlayers(
   );
 }
 
-/** Each move for a `GameMoveList`, named for a listener ("Move 3, Red circle: 4"). */
-function moveEntries(
-  moves: readonly GameReplayMove[]
-): readonly GameMoveListEntry[] {
-  return moves.map((move, index) => ({
-    ply: index + 1,
-    label: move.label,
-    swatch: move.swatch,
-    accessibleName:
-      move.sideLabel === undefined
-        ? t`Move ${index + 1}: ${move.label}`
-        : t`Move ${index + 1}, ${move.sideLabel}: ${move.label}`,
-    testId: `game-history-review-move-${String(index + 1)}`,
-  }));
-}
-
-/** Moves a phone shows at once under the board: a page holding the shown move. */
+/** Moves shown at once, under a phone's board or beside a wide one: a page holding the shown move. */
 const PHONE_PAGE = 8;
 
-/**
- * Every move, numbered one by one as the position is ("Move 3 of 7"),
- * beside a wide board; pressing one shows the board after it.
- */
+/** Beside a wide board, the same page of numbered moves in its own card. */
 function ReplayMoves(props: GameReplayScreenViewProps): JSX.Element {
-  const entries = createMemo(() => moveEntries(props.moves));
   return (
     <GameSection title={<Trans>Moves</Trans>}>
       <Show
@@ -329,16 +310,7 @@ function ReplayMoves(props: GameReplayScreenViewProps): JSX.Element {
           </P>
         }
       >
-        <GameMoveList
-          layout="table"
-          aria-label={t`Moves played`}
-          perTurn={1}
-          current={props.ply}
-          moves={entries()}
-          onSelect={props.onSeek}
-          heading={props.moveHeading || undefined}
-          ended
-        />
+        <ReplayMovesPage {...props} />
       </Show>
     </GameSection>
   );
@@ -383,38 +355,41 @@ function ReplayMovesPage(props: GameReplayScreenViewProps): JSX.Element {
           </P>
           <Show when={paged()}>
             <StackHorizontal gap="xs" align="center">
-              <IconButton
-                label={t`Earlier moves`}
-                size={STEP_SIZE}
+              <Button
+                title={<Trans>Earlier</Trans>}
+                size="sm"
+                variant="outline"
+                intent="neutral"
+                icon={ChevronLeftIcon}
                 disabled={page() === 0}
                 onClick={() => props.onSeek(first() - 1)}
                 dataSet={{ testid: 'game-history-review-page-earlier' }}
-              >
-                <ChevronLeftIcon />
-              </IconButton>
-              <IconButton
-                label={t`Later moves`}
-                size={STEP_SIZE}
+              />
+              <Button
+                title={<Trans>Later</Trans>}
+                size="sm"
+                variant="outline"
+                intent="neutral"
+                endIcon={<ChevronRightIcon size={16} />}
                 disabled={last() === props.moves.length}
                 onClick={() => props.onSeek(last() + 1)}
                 dataSet={{ testid: 'game-history-review-page-later' }}
-              >
-                <ChevronRightIcon />
-              </IconButton>
+              />
             </StackHorizontal>
           </Show>
         </StackHorizontal>
         <StackHorizontal gap="xs" wrap aria-label={t`Moves played`}>
           <For each={shown()}>
             {(entry) => (
-              <Chip
-                selected={entry.ply === props.ply}
+              <Button
+                size="sm"
+                variant={entry.ply === props.ply ? 'solid' : 'outline'}
+                intent={entry.ply === props.ply ? 'primary' : 'neutral'}
+                aria-current={entry.ply === props.ply}
                 onClick={() => props.onSeek(entry.ply)}
                 startIcon={
                   <StackHorizontal align="center" gap="xs">
-                    <P variant="caption" tone="secondary">
-                      {entry.ply}
-                    </P>
+                    <P variant="caption">{entry.ply}</P>
                     <Show when={entry.move.swatch}>
                       {(look) => (
                         <GameSeatSwatch
@@ -425,7 +400,7 @@ function ReplayMovesPage(props: GameReplayScreenViewProps): JSX.Element {
                     </Show>
                   </StackHorizontal>
                 }
-                label={entry.move.label}
+                title={entry.move.label}
                 dataSet={{
                   testid: `game-history-review-move-${String(entry.ply)}`,
                 }}
