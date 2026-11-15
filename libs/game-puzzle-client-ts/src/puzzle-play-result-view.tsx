@@ -13,6 +13,7 @@ import {
   ShareIcon,
   SlidersHorizontalIcon,
 } from '@pkgs/ui-root-client-ts/icons';
+import { createMediaQuery } from '@pkgs/ui-root-client-ts/media-query';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import {
   type OverflowMenuAction,
@@ -91,7 +92,8 @@ function ResultCaption(props: PuzzlePlayScreenViewProps): JSX.Element {
 
 /**
  * The finished puzzle's own facts, one quiet line in the result's card:
- * its rating and its themes ("Puzzle 1702 · Checkmate, Opening").
+ * its rating and its themes ("Puzzle rated 1702 · Checkmate, Opening"),
+ * worded as the review says it.
  */
 function ResultFacts(props: PuzzlePlayScreenViewProps): JSX.Element {
   const themeLabel = (theme: string): string =>
@@ -103,7 +105,7 @@ function ResultFacts(props: PuzzlePlayScreenViewProps): JSX.Element {
       <P variant="caption" tone="secondary">
         <Show when={rated()}>
           <Text variant="inherit" numeral testId={Handles.chessPuzzleBoardElo}>
-            {t`Puzzle ${props.result.puzzleRating}`}
+            {t`Puzzle rated ${props.result.puzzleRating}`}
           </Text>
         </Show>
         <Show when={rated() && themed()}>{' · '}</Show>
@@ -156,7 +158,40 @@ export function PuzzleResultRows(
  * are in plain view (the settings row, Share) instead.
  */
 function ResultMore(props: PuzzlePlayScreenViewProps): JSX.Element {
+  // Under 700px tall the dock's second row folds away into this menu.
+  const short = createMediaQuery('(max-height: 699px)');
+  const offers = createMemo(() =>
+    buildPuzzleActionBarPlan({
+      status: props.status,
+      hintStage: props.hintStage,
+      canGoForward: props.canGoForward,
+    }).map((slot) => slot.id)
+  );
+  const folded = (): OverflowMenuAction[] =>
+    short()
+      ? [
+          ...(offers().includes('retry')
+            ? [
+                {
+                  id: 'retry',
+                  label: <Trans>Retry</Trans>,
+                  icon: RotateCcwIcon,
+                  onClick: () => props.onRetry(),
+                  dataSet: { testid: 'chess-puzzle-action-retry-compact' },
+                },
+              ]
+            : []),
+          {
+            id: 'moves',
+            label: <Trans>Moves</Trans>,
+            icon: ListOrderedIcon,
+            onClick: () => props.onOpen({ screen: 'line' }),
+            dataSet: { testid: 'chess-puzzle-summary-close-compact' },
+          },
+        ]
+      : [];
   const more = (): OverflowMenuAction[] => [
+    ...folded(),
     {
       id: 'settings',
       label: <Trans>Puzzle settings</Trans>,
@@ -259,40 +294,44 @@ export function PuzzleResultDock(
           <ResultMore {...props} />
         </StackHorizontal>
       </Show>
-      <GameActions sizing="fill">
-        <Show when={offers('retry')}>
+      {/* A short phone's Options hold these, so the coach's words and the
+          board keep the first view. */}
+      <PuzzleScreenFold on="tall">
+        <GameActions sizing="fill">
+          <Show when={offers('retry')}>
+            <Button
+              title={<Trans>Retry</Trans>}
+              intent="neutral"
+              variant="outline"
+              icon={RotateCcwIcon}
+              onClick={() => props.onRetry()}
+              dataSet={{ testid: Handles.chessPuzzleActionRetry }}
+            />
+          </Show>
           <Button
-            title={<Trans>Retry</Trans>}
+            title={<Trans>Moves</Trans>}
             intent="neutral"
             variant="outline"
-            icon={RotateCcwIcon}
-            onClick={() => props.onRetry()}
-            dataSet={{ testid: Handles.chessPuzzleActionRetry }}
+            icon={ListOrderedIcon}
+            onClick={() => props.onOpen({ screen: 'line' })}
+            dataSet={{ testid: Handles.chessPuzzleSummaryClose }}
           />
-        </Show>
-        <Button
-          title={<Trans>Moves</Trans>}
-          intent="neutral"
-          variant="outline"
-          icon={ListOrderedIcon}
-          onClick={() => props.onOpen({ screen: 'line' })}
-          dataSet={{ testid: Handles.chessPuzzleSummaryClose }}
-        />
-        <PuzzleScreenFold on="wide">
-          <Show when={props.share} keyed>
-            {(share) => (
-              <Button
-                title={<PuzzleShareLabel state={share.state} short />}
-                intent="neutral"
-                variant="outline"
-                icon={ShareIcon}
-                onClick={() => share.onShare()}
-                dataSet={{ testid: 'chess-puzzle-share-link-wide' }}
-              />
-            )}
-          </Show>
-        </PuzzleScreenFold>
-      </GameActions>
+          <PuzzleScreenFold on="wide">
+            <Show when={props.share} keyed>
+              {(share) => (
+                <Button
+                  title={<PuzzleShareLabel state={share.state} short />}
+                  intent="neutral"
+                  variant="outline"
+                  icon={ShareIcon}
+                  onClick={() => share.onShare()}
+                  dataSet={{ testid: 'chess-puzzle-share-link-wide' }}
+                />
+              )}
+            </Show>
+          </PuzzleScreenFold>
+        </GameActions>
+      </PuzzleScreenFold>
     </StackVertical>
   );
 }
@@ -337,6 +376,19 @@ function PuzzleResultSummary(props: PuzzlePlayScreenViewProps): JSX.Element {
             <ResultStreak {...props} />
             <StatusLineTrailing {...props} />
           </StackHorizontal>
+          {/* A short phone's card says the coach's words, whose bubble
+              would sit under the dock there. */}
+          <Show when={props.coach.message.length > 0}>
+            <PuzzleScreenFold on="short">
+              <P
+                variant="caption"
+                tone="default"
+                testId="chess-puzzle-result-coach"
+              >
+                {props.coach.message}
+              </P>
+            </PuzzleScreenFold>
+          </Show>
           {/* A short phone keeps the outcome and the rating in view: the
               why and the puzzle's facts fold away there, and give way to
               how copying the link went, so the card keeps its height. */}

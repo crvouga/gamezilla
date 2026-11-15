@@ -159,7 +159,7 @@ test('log: every puzzle played, and a row asks for its review', () => {
   );
   expect(
     screen.getByTestId('chess-game-log-row-chess:a-title').textContent
-  ).toBe('Solved · puzzle 1437');
+  ).toBe('Solved · puzzle rated 1437');
   expect(
     screen.getByTestId('chess-game-log-row-chess:b-change').textContent
   ).toBe('-12');

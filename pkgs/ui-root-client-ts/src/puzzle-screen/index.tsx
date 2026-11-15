@@ -221,12 +221,13 @@ export function PuzzleScreen(props: PuzzleScreenProps): JSX.Element {
  * `PuzzleScreenFold` -- inside a `PuzzleScreen`, what shows only on a tall
  * phone and wide (`on="tall"`), only on a phone shorter than 700px
  * (`on="short"`), only in a phone's column (`on="phone"`) or only beside a
- * wide board (`on="wide"`): a secondary entry (a screen's settings row)
+ * wide board (`on="wide"`), or on every size (`on="always"`, so what
+ * folds on one state is not redrawn when it stops): a secondary entry (a screen's settings row)
  * gives way to a compact one in the dock, so nothing is cut under the
  * docked commands.
  */
 export function PuzzleScreenFold(props: {
-  on: 'tall' | 'short' | 'phone' | 'wide';
+  on: 'tall' | 'short' | 'phone' | 'wide' | 'always';
   children: JSX.Element;
 }): JSX.Element {
   return (

@@ -1,5 +1,6 @@
 import { Trans } from '@lingui/solid/macro';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
+import { PuzzleScreenFold } from '@pkgs/ui-root-client-ts/puzzle-screen';
 import { SpeakingAvatar } from '@pkgs/ui-root-client-ts/speaking-avatar';
 import { type JSX, Show } from 'solid-js';
 import { PuzzleClockLabel } from './puzzle-clock-label';
@@ -60,34 +61,39 @@ export function PuzzleStatusLine(
 ): JSX.Element {
   const handles = () => props.coach.handles;
   return (
-    <SpeakingAvatar
-      message={props.coach.message}
-      contextKey={props.coach.contextKey}
-      bubbleResolving={props.coachResolving}
-      speaker={props.speaker}
-      dataSet={handles() ? { testid: 'puzzle-assistant' } : undefined}
-      data-observation={handles()?.observation}
-      data-purpose={handles()?.purpose}
-      data-puzzle={handles()?.puzzleId}
-      // A finished puzzle's card headlines it and carries these facts, so
-      // the coach's bubble on the result is its words alone.
-      header={
-        props.place.screen === 'result' ? undefined : (
-          <PuzzleStatusHeader
-            kind={props.statusKind}
-            solutionShown={props.status === 'revealed'}
-            flawed={props.result.completion?.outcome === 'failed'}
-            solverSide={props.solverSide ?? null}
-            correct={props.correct}
-            trailing={<StatusLineTrailing {...props} />}
-          />
-        )
-      }
-      numberOfLines={2}
-      // A long explanation shows three lines and More, so on a short phone
-      // the board, the coach and the dock still share the first view.
-      clampLines={3}
-      avatarSize={AVATAR_SIZE}
-    />
+    // A short phone's result says the coach's words in its card, which
+    // the dock holds in view; the bubble folds away there (never redrawn,
+    // so it is not said twice).
+    <PuzzleScreenFold on={props.place.screen === 'result' ? 'tall' : 'always'}>
+      <SpeakingAvatar
+        message={props.coach.message}
+        contextKey={props.coach.contextKey}
+        bubbleResolving={props.coachResolving}
+        speaker={props.speaker}
+        dataSet={handles() ? { testid: 'puzzle-assistant' } : undefined}
+        data-observation={handles()?.observation}
+        data-purpose={handles()?.purpose}
+        data-puzzle={handles()?.puzzleId}
+        // A finished puzzle's card headlines it and carries these facts, so
+        // the coach's bubble on the result is its words alone.
+        header={
+          props.place.screen === 'result' ? undefined : (
+            <PuzzleStatusHeader
+              kind={props.statusKind}
+              solutionShown={props.status === 'revealed'}
+              flawed={props.result.completion?.outcome === 'failed'}
+              solverSide={props.solverSide ?? null}
+              correct={props.correct}
+              trailing={<StatusLineTrailing {...props} />}
+            />
+          )
+        }
+        numberOfLines={2}
+        // A long explanation shows three lines and More, so on a short phone
+        // the board, the coach and the dock still share the first view.
+        clampLines={3}
+        avatarSize={AVATAR_SIZE}
+      />
+    </PuzzleScreenFold>
   );
 }

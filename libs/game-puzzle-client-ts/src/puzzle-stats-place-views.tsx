@@ -81,10 +81,13 @@ function titleOf(
   return props.titled === false ? undefined : title();
 }
 
-/** The headline: the player's puzzle rating, and how it has moved. */
+/**
+ * The headline: the player's puzzle rating, and how it has moved, on the
+ * same start edge as the figures and rows under it.
+ */
 function StatsRating(props: PuzzleStatsScreenViewProps): JSX.Element {
   return (
-    <StackVertical align="center" gap="sm">
+    <StackVertical align="start" gap="sm">
       <P variant="caption">
         <Trans>Puzzle rating</Trans>
       </P>
@@ -95,7 +98,7 @@ function StatsRating(props: PuzzleStatsScreenViewProps): JSX.Element {
         })}
       </H2>
       <Show when={props.stats.ratingSeries.length > 1}>
-        <StackVertical width="full" maxWidth="form">
+        <StackVertical width="full">
           <Sparkline
             values={props.stats.ratingSeries}
             size="sm"
@@ -104,7 +107,7 @@ function StatsRating(props: PuzzleStatsScreenViewProps): JSX.Element {
         </StackVertical>
       </Show>
       <Show when={props.stats.provisional}>
-        <P variant="caption" tone="secondary" align="center">
+        <P variant="caption" tone="secondary">
           <Trans>
             The ? marks a provisional rating. It settles after a few more rated
             puzzles.
