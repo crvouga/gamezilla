@@ -54,7 +54,8 @@ function partName(screenId: string, key: string): string {
 /**
  * The part being read: the one that fills most of the view below the held
  * row (a jump's part, once it lands; the part on screen as the rules
- * scroll), or the first while the layout says nothing.
+ * scroll); the first before any has passed under the row, or while the
+ * layout says nothing.
  */
 function currentPart(
   screenId: string,
@@ -62,6 +63,12 @@ function currentPart(
   edge: number
 ): string | undefined {
   const bottom = window.innerHeight;
+  // Before the rules start scrolling under the row, their first part.
+  const first = document
+    .getElementById(partId(screenId, keys[0] ?? ''))
+    ?.getBoundingClientRect();
+  if (first !== undefined && first.height > 0 && first.top >= edge)
+    return keys[0];
   let current = keys[0];
   let most = 0;
   for (const key of keys) {
