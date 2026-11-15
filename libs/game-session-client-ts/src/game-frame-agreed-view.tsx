@@ -142,6 +142,12 @@ export function FrameClockPlace(
           onChangeText={setIncrement}
           dataSet={{ testid: 'custom-game-increment' }}
         />
+        {/* Unlike an option, a time is set by its two fields together. */}
+        <P variant="caption" tone="secondary">
+          <Trans>
+            The new time takes effect when you press Use this clock.
+          </Trans>
+        </P>
         <GameActions sizing="fill">
           <GameActionButton
             title={<Trans>Use this clock</Trans>}

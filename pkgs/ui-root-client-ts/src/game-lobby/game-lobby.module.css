@@ -236,3 +236,8 @@
   > :has(> .mode[data-art="thumbnail"]) {
   flex: none;
 }
+
+/* The last row of a docked lobby keeps a gap above the dock. */
+.screen:has(> .dock) [data-component="ScrollViewContent"] {
+  padding-bottom: var(--ui-space-4);
+}
