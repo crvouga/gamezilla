@@ -228,15 +228,15 @@ function PlayActions(props: Props): JSX.Element {
       dataSet={{ answering: String(props.play.canAnswerDraw) }}
     >
       <Show when={props.play.canAnswerDraw}>
-        {/* Accepting ends the game: it is weighed like declining, not
-            made the easy thumb's filled command. */}
+        {/* The answer the game waits for leads, filled; the bar it
+            replaces (offer, resign) is gone until it is given. */}
         <GameActionButton
           title={
             <Trans>
               Accept<VisuallyHidden> draw</VisuallyHidden>
             </Trans>
           }
-          variant="outline"
+          variant="solid"
           dataSet={{ testid: 'custom-game-agree' }}
           operation={() => props.onChoose({ operation: 'agree' })}
         />

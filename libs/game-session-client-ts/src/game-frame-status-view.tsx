@@ -216,8 +216,10 @@ export function FramePlayNoticesView(props: {
   return (
     <>
       <Show when={props.play.drawOffered}>
-        <Notice>
-          <Text variant="inherit" role="status">
+        {/* A decision the game waits for: an info banner in body weight,
+            not a quiet note. */}
+        <Notice tone={props.play.canAnswerDraw ? 'info' : 'neutral'}>
+          <Text variant="bodyBold" role="status">
             <Show
               when={props.play.canAnswerDraw}
               fallback={

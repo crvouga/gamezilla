@@ -11,6 +11,7 @@ import {
   GameVersusOverlay,
   type GameVersusSide,
 } from '@pkgs/ui-root-client-ts/game-stage-overlay';
+import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import type { MultiplayerStage } from './multiplayer-places';
 
@@ -125,6 +126,7 @@ export function MultiplayerResultCard(props: {
   /** Under the result: where else it leads. */
   readonly children?: JSX.Element | undefined;
 }): JSX.Element {
+  const mode = useLayoutMode();
   return (
     <Show when={props.result}>
       {(result) => (
@@ -134,6 +136,9 @@ export function MultiplayerResultCard(props: {
           eyebrow={headline(result())}
           title={result().title}
           caption={result().caption}
+          // A phone folds where else it leads behind one control in the
+          // card's corner, so the final board keeps its room.
+          detailsLabel={mode() === 'wide' ? undefined : t`More`}
           dataSet={{ testid: 'multiplayer-announcement' }}
         >
           {props.children}
