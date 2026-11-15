@@ -315,7 +315,7 @@ test('a search refused by another matched game says it opens here, with trying a
   expect(screen.queryByTestId('multiplayer-blocked-leave')).toBeNull();
   expect(
     screen.getByTestId('multiplayer-command-denial').textContent
-  ).toContain('It opens here as soon as this device has it.');
+  ).toContain('Opening it here');
   const find = screen.getByTestId('multiplayer-find');
   expect(find.getAttribute('data-variant')).toBe('outline');
   expect(find.textContent).toContain('Search again');

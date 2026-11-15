@@ -17,6 +17,7 @@ import {
   GameModeCard,
 } from '@pkgs/ui-root-client-ts/game-lobby';
 import { CircleCheckIcon } from '@pkgs/ui-root-client-ts/icons';
+import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
@@ -367,27 +368,32 @@ export function MultiplayerFindView(props: FindProps): JSX.Element {
       </Show>
       {/* Refused while another game is still on: the screen says only that,
           and the dock leads to it; the choices wait until it is over. */}
-      <Show when={props.blocked !== null ? props.refusal : undefined}>
+      <Show when={props.blocked === 'custom-game' ? props.refusal : undefined}>
         {(refusal) => (
           <EmptyState
             icon={refusal().icon}
             role="status"
             title={refusal().title}
             body={
-              <Show
-                when={props.blocked === 'custom-game'}
-                fallback={
-                  <Trans>
-                    Your matched game from another device is still on. It opens
-                    here as soon as this device has it.
-                  </Trans>
-                }
-              >
-                <Trans>
-                  Your custom game is still on. Finish or leave it, then search
-                  again.
-                </Trans>
-              </Show>
+              <Trans>
+                Your custom game is still on. Finish or leave it, then search
+                again.
+              </Trans>
+            }
+            dataSet={refusal().dataSet}
+          />
+        )}
+      </Show>
+      {/* A matched game from another device: this space is the person's,
+          so that game opens right here once this device has it. */}
+      <Show when={props.blocked === 'matched-game' ? props.refusal : undefined}>
+        {(refusal) => (
+          <LoadingState
+            caption={
+              <Trans>
+                Your matched game from another device is still on. Opening it
+                here…
+              </Trans>
             }
             dataSet={refusal().dataSet}
           />

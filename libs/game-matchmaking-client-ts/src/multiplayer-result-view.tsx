@@ -50,7 +50,9 @@ type ResultProps = MultiplayerPlaceFrame & {
 // row belongs to, also hears the rest of the sentence.
 
 /** A rematch to offer, or one offered to the person to answer. */
-function Rematch(props: ResultProps): JSX.Element {
+function Rematch(
+  props: ResultProps & { readonly fullWidth?: boolean | undefined }
+): JSX.Element {
   return (
     <Show
       when={props.game.rematch === 'answer'}
@@ -59,6 +61,7 @@ function Rematch(props: ResultProps): JSX.Element {
           <GameActionButton
             operation={props.commands.offerRematch}
             disabled={!props.online}
+            fullWidth={props.fullWidth === true}
             title={
               <Trans>
                 <VisuallyHidden>Offer a multiplayer </VisuallyHidden>Rematch
@@ -77,6 +80,7 @@ function Rematch(props: ResultProps): JSX.Element {
       <GameActionButton
         operation={props.commands.acceptRematch}
         disabled={!props.online}
+        fullWidth={props.fullWidth === true}
         variant="solid"
         title={
           <Trans>
@@ -88,6 +92,7 @@ function Rematch(props: ResultProps): JSX.Element {
       <GameActionButton
         operation={props.commands.declineRematch}
         disabled={!props.online}
+        fullWidth={props.fullWidth === true}
         variant="ghost"
         title={
           <Trans>
@@ -104,11 +109,14 @@ function Rematch(props: ResultProps): JSX.Element {
  * Seeking someone new. It is the screen's one filled command, unless a
  * rematch offered to the person waits for their answer.
  */
-function NewOpponent(props: ResultProps): JSX.Element {
+function NewOpponent(
+  props: ResultProps & { readonly fullWidth?: boolean | undefined }
+): JSX.Element {
   const many = () => props.game.players > 2;
   return (
     <Show when={props.game.newOpponent}>
       <GameActionButton
+        fullWidth={props.fullWidth === true}
         operation={props.commands.newOpponent}
         title={
           <Show
@@ -150,7 +158,7 @@ function Review(
   return (
     <Show when={hasReview(props)}>
       <Button
-        fullWidth={props.fullWidth}
+        fullWidth={props.fullWidth === true}
         title={
           <Show
             when={props.fullWidth === true}
@@ -258,6 +266,38 @@ function NextSteps(props: ResultProps): JSX.Element {
   );
 }
 
+/**
+ * The card's steps on even rows: answering a rematch offered to the person
+ * (Accept, Decline) over a full-width new opponent, or a new opponent
+ * beside offering a rematch; then the look-back row.
+ */
+function CardSteps(props: ResultProps): JSX.Element {
+  const playing = (): GridColumns =>
+    ((props.game.newOpponent ? 1 : 0) +
+      (props.game.rematch === 'offer' ? 1 : 0) || 1) as GridColumns;
+  return (
+    <StackVertical gap="sm" width="full">
+      <Show
+        when={props.game.rematch === 'answer'}
+        fallback={
+          <Show when={props.game.newOpponent || props.game.rematch === 'offer'}>
+            <Grid columns={playing()} gap="sm" width="full">
+              <NewOpponent {...props} fullWidth />
+              <Rematch {...props} fullWidth />
+            </Grid>
+          </Show>
+        }
+      >
+        <Grid columns={2} gap="sm" width="full">
+          <Rematch {...props} fullWidth />
+        </Grid>
+        <NewOpponent {...props} fullWidth />
+      </Show>
+      <Onward {...props} />
+    </StackVertical>
+  );
+}
+
 export function MultiplayerResultView(props: ResultProps): JSX.Element {
   // While the result card is open it holds every next step itself (it holds
   // the keyboard too); closed, the same steps stand under the board.
@@ -303,12 +343,7 @@ export function MultiplayerResultView(props: ResultProps): JSX.Element {
             onOverlay={props.onOverlay}
             versus={undefined}
             result={props.result}
-            actions={
-              <>
-                <NextSteps {...props} />
-                <Onward {...props} />
-              </>
-            }
+            actions={<CardSteps {...props} />}
           />
         )}
       </GameSessionLayout>
