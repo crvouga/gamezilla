@@ -15,6 +15,7 @@ import type {
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
+import { ResponsiveSurface } from '@pkgs/ui-root-client-ts/responsive-surface';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { createMemo, createSignal, type JSX, Show } from 'solid-js';
@@ -34,8 +35,6 @@ function Drawing(props: {
   /** The screen says the puzzle is solved itself. */
   shellSaysSolved: boolean;
 }): JSX.Element {
-  const { t } = useLingui();
-  const [helpOpen, setHelpOpen] = createSignal(false);
   const drawing = createNumberlinkDrawing({
     definition: () => props.definition,
     state: () => props.state,
@@ -146,38 +145,66 @@ function Drawing(props: {
             </>
           }
         >
-          {/* Inside the attempt screen (which a phone holds in one view):
-              one row, Remove a path beside a Help toggle, so the board
-              keeps its room and removal is one press on every screen. */}
-          {/* Room for the focus rings at the board's edge. */}
-          <StackHorizontal gap="sm" align="center" paddingX="xs" paddingY="xs">
-            <StackVertical grow shrink>
-              <NumberlinkRecovery
-                definition={props.definition}
-                state={props.state}
-                onAction={props.onAction}
-              />
-            </StackVertical>
-            <Button
-              title={helpOpen() ? t`Hide help` : t`Help`}
-              intent="neutral"
-              variant="outline"
-              onClick={() => setHelpOpen((open) => !open)}
-              dataSet={{
-                testid: 'numberlink-help-toggle',
-                open: String(helpOpen()),
-              }}
-            />
-          </StackHorizontal>
-          <Show when={helpOpen()}>
-            <NumberlinkDrawingHelpBody withHint />
-          </Show>
+          <AttemptTools
+            definition={props.definition}
+            state={props.state}
+            onAction={props.onAction}
+          />
         </Show>
       </Show>
       <Show when={drawing.error()}>
         {(error) => <Notice tone="error">{error()}</Notice>}
       </Show>
     </StackVertical>
+  );
+}
+
+/**
+ * Inside the attempt screen (which a phone holds in one view): one row,
+ * Remove a path beside a Help toggle, so the board keeps its room and
+ * removal is one press on every screen; Help opens over the board.
+ */
+function AttemptTools(props: {
+  definition: NumberlinkDefinition;
+  state: NumberlinkState;
+  onAction: (action: string) => void;
+}): JSX.Element {
+  const { t } = useLingui();
+  const [helpOpen, setHelpOpen] = createSignal(false);
+  return (
+    <>
+      {/* Room for the focus rings at the board's edge. */}
+      <StackHorizontal gap="sm" align="center" paddingX="xs" paddingY="xs">
+        <StackVertical grow shrink>
+          <NumberlinkRecovery
+            definition={props.definition}
+            state={props.state}
+            onAction={props.onAction}
+          />
+        </StackVertical>
+        <Button
+          title={t`Help`}
+          intent="neutral"
+          variant="outline"
+          onClick={() => setHelpOpen(true)}
+          dataSet={{
+            testid: 'numberlink-help-toggle',
+            open: String(helpOpen()),
+          }}
+        />
+      </StackHorizontal>
+      {/* Help opens over the board (a sheet on a phone), so the board's
+          room never changes while it is read. */}
+      <ResponsiveSurface
+        visible={helpOpen()}
+        onClose={() => setHelpOpen(false)}
+        title={t`Drawing and keyboard help`}
+        closeDataSet={{ testid: 'numberlink-help-close' }}
+        dataSet={{ testid: 'numberlink-help' }}
+      >
+        <NumberlinkDrawingHelpBody withHint />
+      </ResponsiveSurface>
+    </>
   );
 }
 

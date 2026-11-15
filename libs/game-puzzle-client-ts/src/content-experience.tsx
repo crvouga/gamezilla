@@ -63,7 +63,12 @@ function ContentScreen(props: { subject: ContentSubject }): JSX.Element {
         )}
       </Match>
       <Match when={attempt()?.attemptId} keyed>
-        {(id) => <ContentAttemptScreen attemptId={id} />}
+        {(id) => (
+          <ContentAttemptScreen
+            attemptId={id}
+            restartedFrom={attempt()?.restartedFrom}
+          />
+        )}
       </Match>
     </Switch>
   );

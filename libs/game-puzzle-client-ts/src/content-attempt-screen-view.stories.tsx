@@ -1,5 +1,5 @@
 import { KeyRoundIcon } from '@pkgs/ui-root-client-ts/icons';
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import {
   ContentAttemptScreenView,
@@ -161,5 +161,17 @@ export const UpdateForRules: Story = {
       await canvas.findByRole('button', { name: 'Update the app' })
     );
     await expect(args.onUpdateApp).toHaveBeenCalled();
+  },
+};
+
+/** Just restarted: the fresh attempt says so and opens the earlier one. */
+export const Restarted: Story = {
+  args: { pack: PACK, packSolved: 1, onOpenEarlier: fn() },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      await canvas.findByRole('button', { name: 'Open earlier attempt' })
+    );
+    await expect(args.onOpenEarlier).toHaveBeenCalled();
   },
 };

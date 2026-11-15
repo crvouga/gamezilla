@@ -17,7 +17,12 @@ export type ContentSubject =
       /** The pack the edition was opened from; Back returns to it. */
       readonly packRevisionId: string | null;
     }
-  | { readonly kind: 'attempt'; readonly attemptId: string };
+  | {
+      readonly kind: 'attempt';
+      readonly attemptId: string;
+      /** The attempt this one was restarted from, while it is still fresh. */
+      readonly restartedFrom?: string | undefined;
+    };
 
 /** Where the template stands: the kind of thing that is open. */
 export type ContentStage = ContentSubject['kind'];

@@ -12,6 +12,7 @@ import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
 import {
   CircleCheckIcon,
+  RotateCcwIcon,
   TriangleAlertIcon,
 } from '@pkgs/ui-root-client-ts/icons';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
@@ -124,6 +125,11 @@ export type ContentAttemptScreenViewProps = {
   readonly onRestart?: (() => void) | undefined;
   /** A refused command's reason with its retry (a restart), on both places. */
   readonly notice?: JSX.Element;
+  /**
+   * Set while a just-restarted attempt is fresh: it says so, and opens the
+   * earlier attempt it was restarted from.
+   */
+  readonly onOpenEarlier?: (() => void) | undefined;
   /** Loads the newest version of the app, for rules this one lacks. */
   readonly onUpdateApp?: (() => void) | undefined;
 };
@@ -153,6 +159,20 @@ function AttemptAlerts(props: ContentAttemptScreenViewProps): JSX.Element {
         />
       </Show>
       {props.notice}
+      <Show when={props.onOpenEarlier}>
+        {(openEarlier) => (
+          <ActionNotice
+            icon={RotateCcwIcon}
+            title={t`New attempt started`}
+            body={t`Your earlier attempt and its moves are kept.`}
+            action={{
+              label: t`Open earlier attempt`,
+              onClick: () => openEarlier()(),
+            }}
+            dataSet={{ testid: 'content-attempt-restarted' }}
+          />
+        )}
+      </Show>
       <Show when={props.changeError}>
         {(error) => (
           <ErrorState

@@ -376,8 +376,8 @@ export const ChoosePathToRemove: Story = {
 /**
  * Partway, inside the attempt screen as production passes it (the screen
  * says when the puzzle is solved): Remove a path and a Help toggle share
- * one row under the board. Its play removes a path, opens and closes the
- * help from the keyboard, and plays on.
+ * one row under the board; Help opens over the board. Its play removes a
+ * path, opens and closes the help, and plays on.
  */
 export const InAttemptScreen: Story = {
   render: (args) => (
@@ -400,13 +400,14 @@ export const InAttemptScreen: Story = {
       within(document.body).getByRole('option', { name: 'Remove path 1' })
     );
     await expect(progressLine).toHaveTextContent('1/5 pairs connected');
-    // Help opens and closes from the keyboard beside it.
+    // Help opens over the board from the keyboard beside it, and closes.
     const help = canvas.getByTestId('numberlink-help-toggle');
     help.focus();
     await userEvent.keyboard('{Enter}');
-    await expect(canvas.getByTestId('numberlink-key-hints')).toBeVisible();
-    await userEvent.keyboard('{Enter}');
-    await expect(canvas.queryByTestId('numberlink-key-hints')).toBeNull();
+    const page = within(document.body);
+    await expect(await page.findByTestId('numberlink-key-hints')).toBeVisible();
+    await userEvent.click(page.getByTestId('numberlink-help-close'));
+    await expect(page.queryByTestId('numberlink-key-hints')).toBeNull();
     // Play on: the board still takes a path.
     await expect(canvas.getByTestId('numberlink-board-cell-0')).toBeVisible();
   },

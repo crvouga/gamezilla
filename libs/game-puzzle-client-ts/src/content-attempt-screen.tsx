@@ -157,6 +157,7 @@ function useAttemptStanding(props: {
 function AttemptBody(props: {
   attempt: ContentAttempt;
   source: ContentBody;
+  restartedFrom?: string | undefined;
 }): JSX.Element {
   const game = useContentGame();
   const nav = useContentPlace();
@@ -225,6 +226,15 @@ function AttemptBody(props: {
       }
       onRetryChange={writer.retry}
       onRestart={restart.restart}
+      onOpenEarlier={
+        props.restartedFrom === undefined || progress()?.canUndo === true
+          ? undefined
+          : () =>
+              game.open({
+                kind: 'attempt',
+                attemptId: props.restartedFrom ?? '',
+              })
+      }
       notice={<ContentAttemptRestartFailure tools={restart} />}
       onUpdateApp={reloadApp}
       onReturnToLibrary={() => game.open({ kind: 'library' })}
@@ -235,6 +245,8 @@ function AttemptBody(props: {
 /** `ContentAttemptScreenView` wired to the attempt library and permissions. */
 export function ContentAttemptScreen(props: {
   attemptId: string;
+  /** The attempt this one was restarted from, if it just was. */
+  restartedFrom?: string | undefined;
 }): JSX.Element {
   const game = useContentGame();
   const nav = useContentPlace();
@@ -301,7 +313,11 @@ export function ContentAttemptScreen(props: {
       }
     >
       {(input) => (
-        <AttemptBody attempt={input().attempt} source={input().source} />
+        <AttemptBody
+          attempt={input().attempt}
+          source={input().source}
+          restartedFrom={props.restartedFrom}
+        />
       )}
     </Show>
   );

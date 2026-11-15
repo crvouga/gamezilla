@@ -36,7 +36,12 @@ export function useContentAttemptRestart(attempt: Accessor<ContentAttempt>) {
           positionId: createId(),
         }
       );
-      if (result.ok) game.open({ kind: 'attempt', attemptId });
+      if (result.ok)
+        game.open({
+          kind: 'attempt',
+          attemptId,
+          restartedFrom: attempt().id,
+        });
       else setFailure(result.failures[0]?.message ?? refused);
     } catch (error) {
       setFailure(error instanceof Error ? error.message : refused);
