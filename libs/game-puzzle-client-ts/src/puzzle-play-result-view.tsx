@@ -205,14 +205,29 @@ export function PuzzleResultDock(
               dataSet={{ testid: Handles.chessPuzzleSummaryNext }}
             />
           </StackVertical>
-          <OverflowMenuButton
-            aria-label={t`More for this puzzle`}
-            icon={EllipsisIcon}
-            size={44}
-            placement="top-end"
-            actions={more()}
-            dataSet={{ testid: 'chess-puzzle-result-more' }}
-          />
+          {/* A phone keeps the puzzle's settings and its link one tap away
+              under More; beside a wide board they are in plain view (the
+              settings row, Share). */}
+          <PuzzleScreenFold on="phone">
+            <OverflowMenuButton
+              aria-label={t`More for this puzzle`}
+              placement="top-end"
+              actions={more()}
+              trigger={
+                <Surface
+                  tone="background"
+                  radius="full"
+                  border
+                  padding="sm"
+                  align="center"
+                  justify="center"
+                >
+                  <EllipsisIcon size={26} color="icon" />
+                </Surface>
+              }
+              dataSet={{ testid: 'chess-puzzle-result-more' }}
+            />
+          </PuzzleScreenFold>
         </StackHorizontal>
       </Show>
       {/* How copying the link went, said where the commands are: the menu
@@ -246,6 +261,20 @@ export function PuzzleResultDock(
           onClick={() => props.onOpen({ screen: 'line' })}
           dataSet={{ testid: Handles.chessPuzzleSummaryClose }}
         />
+        <PuzzleScreenFold on="wide">
+          <Show when={props.share} keyed>
+            {(share) => (
+              <Button
+                title={<PuzzleShareLabel state={share.state} short />}
+                intent="neutral"
+                variant="outline"
+                icon={ShareIcon}
+                onClick={() => share.onShare()}
+                dataSet={{ testid: 'chess-puzzle-share-link-wide' }}
+              />
+            )}
+          </Show>
+        </PuzzleScreenFold>
       </GameActions>
     </StackVertical>
   );
