@@ -84,7 +84,9 @@ describe('GameRulesScreen parts', () => {
     const nav = view.getByRole('navigation', { name: 'Jump to a part' });
     const links = nav.querySelectorAll('button');
     expect(links).toHaveLength(5);
-    (links[3] as HTMLButtonElement).click();
+    const castling = links[3];
+    if (castling === undefined) throw new Error('No castling link');
+    castling.click();
     expect(document.activeElement?.textContent).toBe('4castling');
     view.unmount();
   });
