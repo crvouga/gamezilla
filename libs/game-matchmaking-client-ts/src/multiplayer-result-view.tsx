@@ -147,6 +147,7 @@ function Review(
       <Button
         fullWidth={props.fullWidth === true}
         title={<Trans>Review</Trans>}
+        size={props.fullWidth === true ? 'sm' : undefined}
         aria-label={
           props.game.moves === null
             ? t`Review the game record`
@@ -176,8 +177,9 @@ function Onward(props: ResultProps): JSX.Element {
       <Review {...props} fullWidth />
       <Show when={props.game.newOpponent}>
         <Button
-          title={<Trans>Clock</Trans>}
-          aria-label={t`Clock: find an opponent at another clock`}
+          title={<Trans>New clock</Trans>}
+          aria-label={t`New clock: find an opponent at another clock`}
+          size="sm"
           variant="outline"
           intent="neutral"
           fullWidth
@@ -188,6 +190,7 @@ function Onward(props: ResultProps): JSX.Element {
       <Button
         title={<Trans>Ratings</Trans>}
         aria-label={t`Ratings: yours, for every speed`}
+        size="sm"
         variant="outline"
         intent="neutral"
         fullWidth
