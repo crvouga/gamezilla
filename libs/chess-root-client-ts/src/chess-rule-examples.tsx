@@ -24,7 +24,11 @@ export const RULE_EXAMPLE_POSITIONS = {
   enPassant: '4k3/8/8/3pP3/8/8/8/4K3 w - d6 0 1',
 } as const;
 
-const MARK: CellHighlight = { color: 'primary', opacity: 0.45 };
+// The accent, as every board marks a square it means.
+const MARK: CellHighlight = {
+  color: 'var(--ui-color-tint-active)',
+  opacity: 0.45,
+};
 
 /** A still board of `fen`, `arrows` drawn and `marked` squares tinted. */
 function RuleBoard(props: {
