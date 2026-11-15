@@ -10,6 +10,7 @@ import { PuzzlePlayScreenView } from '@libs/game-puzzle-client-ts/puzzle-play-sc
 import { DEFAULT_PUZZLE_FEED_CONFIG } from '@libs/game-puzzle-shared-ts/feed-config';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
+import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 
 export const none = (): void => undefined;
@@ -132,11 +133,14 @@ export function mountPlay(
   renderWithI18n(() => (
     <ClockProvider clock={STILL.clock} timers={STILL.timers}>
       <ThemeProvider colorScheme="dark" fixedLayout={{ width, height: 844 }}>
-        <PuzzlePlayScreenView
-          {...VIEW}
-          {...overrides}
-          place={{ screen: place }}
-        />
+        {/* Menus (the result's More) open in the app's surface stack. */}
+        <SurfaceStackProvider>
+          <PuzzlePlayScreenView
+            {...VIEW}
+            {...overrides}
+            place={{ screen: place }}
+          />
+        </SurfaceStackProvider>
       </ThemeProvider>
     </ClockProvider>
   ));

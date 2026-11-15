@@ -8,18 +8,24 @@ import { GameActions } from '@pkgs/ui-root-client-ts/game-section';
 import { H2 } from '@pkgs/ui-root-client-ts/heading';
 import {
   ChevronRightIcon,
+  EllipsisIcon,
   ListOrderedIcon,
   RotateCcwIcon,
   ShareIcon,
+  SlidersHorizontalIcon,
 } from '@pkgs/ui-root-client-ts/icons';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
+import {
+  type OverflowMenuAction,
+  OverflowMenuButton,
+} from '@pkgs/ui-root-client-ts/overflow-menu-button';
 import { PuzzleScreenFold } from '@pkgs/ui-root-client-ts/puzzle-screen';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Surface } from '@pkgs/ui-root-client-ts/surface';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { createMemo, type JSX, Match, Show, Switch } from 'solid-js';
 import type { PuzzlePlayScreenViewProps } from './puzzle-play-screen-model';
-import { PuzzleSettingsButton, PuzzleSettingsRow } from './puzzle-settings-row';
+import { PuzzleSettingsRow } from './puzzle-settings-row';
 import { PuzzleShareLabel } from './puzzle-share-label';
 import { StatusLineTrailing } from './puzzle-status-line';
 import { PuzzleSummaryCard } from './puzzle-summary-card';
@@ -147,9 +153,9 @@ export function PuzzleResultRows(
 /**
  * The result, docked in reach: how it went and the rating it made, then
  * what next (`buildPuzzleActionBarPlan`): the next puzzle is the one filled
- * command; on one line under it, retrying, the moves of the line and
- * sharing the puzzle. Docked together, the outcome and Next are in the
- * first view on every phone.
+ * command, with More (the puzzle settings, its link) beside it; on one line
+ * under it, retrying and the moves of the line. Docked together, the
+ * outcome and Next are in the first view on every phone.
  */
 export function PuzzleResultDock(
   props: PuzzlePlayScreenViewProps
@@ -163,6 +169,28 @@ export function PuzzleResultDock(
   );
   const offers = (id: 'next' | 'retry'): boolean =>
     slots().some((slot) => slot.id === id);
+  // What is done about the puzzle besides moving on, one tap away: its
+  // settings (so the feed can change before the next one) and its link.
+  const more = (): OverflowMenuAction[] => [
+    {
+      id: 'settings',
+      label: <Trans>Puzzle settings</Trans>,
+      icon: SlidersHorizontalIcon,
+      onClick: () => props.onOpen({ screen: 'feed' }),
+      dataSet: { testid: 'chess-puzzle-feed-summary-compact' },
+    },
+    ...(props.share === undefined || props.share === null
+      ? []
+      : [
+          {
+            id: 'share',
+            label: <PuzzleShareLabel state={props.share.state} />,
+            icon: ShareIcon,
+            onClick: () => props.share?.onShare(),
+            dataSet: { testid: Handles.chessPuzzleShareLink },
+          },
+        ]),
+  ];
   return (
     <StackVertical gap="sm">
       <PuzzleResultSummary {...props} />
@@ -177,19 +205,26 @@ export function PuzzleResultDock(
               dataSet={{ testid: Handles.chessPuzzleSummaryNext }}
             />
           </StackVertical>
-          {/* The feed can be changed before moving on: on a phone its
-              settings sit on Next puzzle's line, the row beside a wide board. */}
-          <PuzzleScreenFold on="phone">
-            <PuzzleSettingsButton
-              onOpen={() => props.onOpen({ screen: 'feed' })}
-            />
-          </PuzzleScreenFold>
+          <OverflowMenuButton
+            aria-label={t`More for this puzzle`}
+            icon={EllipsisIcon}
+            size={44}
+            placement="top-end"
+            actions={more()}
+            dataSet={{ testid: 'chess-puzzle-result-more' }}
+          />
         </StackHorizontal>
       </Show>
-      {/* Over the commands, the reason a copy failed and what to do. */}
+      {/* How copying the link went, said where the commands are: the menu
+          closes as it is pressed. */}
+      <Show when={props.share?.state === 'copied'}>
+        <P variant="caption" tone="success" role="status">
+          <Trans>Puzzle link copied.</Trans>
+        </P>
+      </Show>
       <Show when={props.share?.state === 'failed'}>
         <P variant="caption" tone="destructive" role="status">
-          <Trans>Couldn't copy the link. Press Share to try again.</Trans>
+          <Trans>Couldn't copy the link. Try Share again from More.</Trans>
         </P>
       </Show>
       <GameActions sizing="fill">
@@ -211,18 +246,6 @@ export function PuzzleResultDock(
           onClick={() => props.onOpen({ screen: 'line' })}
           dataSet={{ testid: Handles.chessPuzzleSummaryClose }}
         />
-        <Show when={props.share} keyed>
-          {(share) => (
-            <Button
-              title={<PuzzleShareLabel state={share.state} short />}
-              intent="neutral"
-              variant="outline"
-              icon={ShareIcon}
-              onClick={() => share.onShare()}
-              dataSet={{ testid: Handles.chessPuzzleShareLink }}
-            />
-          )}
-        </Show>
       </GameActions>
     </StackVertical>
   );

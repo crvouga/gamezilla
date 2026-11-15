@@ -246,22 +246,25 @@ test('result: how it went, the rating it made, and Next puzzle as the one filled
   for (const command of [
     'chess-puzzle-summary-next',
     'chess-puzzle-action-retry',
-    'chess-puzzle-share-link',
     'chess-puzzle-summary-close',
     'chess-puzzle-feed-summary',
   ])
     expect(shown(command)).toBe(true);
-  // What next is docked, so a phone never scrolls to reach it; the feed's
-  // settings are there too, so they can change before moving on.
+  // What next is docked, so a phone never scrolls to reach it: Next puzzle
+  // leads, More beside it, Retry and the moves under it.
   const dock = region('PuzzleDock');
   for (const command of [
-    'chess-puzzle-feed-summary-compact',
     'chess-puzzle-summary-next',
+    'chess-puzzle-result-more',
     'chess-puzzle-action-retry',
     'chess-puzzle-summary-close',
-    'chess-puzzle-share-link',
   ])
     expect(dock.contains(screen.getByTestId(command))).toBe(true);
+  // More holds the puzzle's settings (so the feed can change before the
+  // next one) and its link.
+  fireEvent.click(screen.getByTestId('chess-puzzle-result-more'));
+  expect(shown('chess-puzzle-feed-summary-compact')).toBe(true);
+  expect(shown('chess-puzzle-share-link')).toBe(true);
   // The board keeps the puzzle's last move under the coach's words on it.
   expect(shown('board')).toBe(true);
   expect(region('PuzzleHeader').textContent).toContain(

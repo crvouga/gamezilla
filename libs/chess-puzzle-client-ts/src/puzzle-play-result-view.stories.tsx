@@ -154,7 +154,7 @@ export const NextPuzzle: Story = {
   },
 };
 
-/** Retry and Share are the quieter commands beside it. */
+/** Retry is the quieter command under it; the link is under More. */
 export const RetryAndShare: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
@@ -162,7 +162,14 @@ export const RetryAndShare: Story = {
       await canvas.findByTestId('chess-puzzle-action-retry')
     );
     await expect(args.onRetry).toHaveBeenCalled();
-    await userEvent.click(await canvas.findByTestId('chess-puzzle-share-link'));
+    await userEvent.click(
+      await canvas.findByTestId('chess-puzzle-result-more')
+    );
+    await userEvent.click(
+      await within(canvasElement.ownerDocument.body).findByTestId(
+        'chess-puzzle-share-link'
+      )
+    );
     await expect(args.share?.onShare).toHaveBeenCalled();
   },
 };
@@ -186,14 +193,19 @@ export const StepThroughTheLine: Story = {
 };
 
 /**
- * On a phone, the feed can be changed before moving on: Settings on Next
- * puzzle's line opens the puzzle settings, and Save settings saves them.
+ * The feed can be changed before moving on: More, beside Next puzzle, opens
+ * the puzzle settings, and Save settings saves them.
  */
 export const ChangeSettingsBeforeNext: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(
-      await canvas.findByTestId('chess-puzzle-feed-summary-compact')
+      await canvas.findByTestId('chess-puzzle-result-more')
+    );
+    await userEvent.click(
+      await within(canvasElement.ownerDocument.body).findByTestId(
+        'chess-puzzle-feed-summary-compact'
+      )
     );
     await expect(args.onOpen).toHaveBeenCalledWith({ screen: 'feed' });
     await userEvent.click(await canvas.findByTestId('chess-puzzle-feed-done'));
