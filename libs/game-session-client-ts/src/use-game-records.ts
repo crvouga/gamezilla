@@ -48,7 +48,14 @@ export type GameHistoryRecord = {
   readonly setup: string | null;
   /** The viewer's own last hand in the game, when it deals hands; never another's. */
   readonly hand: string | null;
+  /** When the game ended, as an ISO instant; `null` when unknown. */
+  readonly endedAt: string | null;
+  /** Found by matchmaking, rather than set up in the space. */
+  readonly matched: boolean;
 };
+
+/** A matched game's row with the time it last changed: when it ended, once it has. */
+type FinishedMatch = MultiplayerGame & { readonly updated_at?: string | null };
 export function useGameRecords(gameId: () => string) {
   const myId = useMyId();
   const rules = useTurnGames();
@@ -72,7 +79,7 @@ export function useGameRecords(gameId: () => string) {
     WHERE owner_id = ${myId()} AND deleted_at IS NULL`
   );
   const matches = createQuery(
-    () => sql<MultiplayerGame>`SELECT * FROM chess_multiplayer_games
+    () => sql<FinishedMatch>`SELECT * FROM chess_multiplayer_games
     WHERE (white_id = ${myId()} OR black_id = ${myId()} OR red_id = ${myId()} OR blue_id = ${myId()}) AND deleted_at IS NULL
     ORDER BY created_at DESC LIMIT 100`
   );
@@ -102,6 +109,8 @@ export function useGameRecords(gameId: () => string) {
         setup:
           ownSetups.rows().find((row) => row.game_id === g.id)?.setup ?? null,
         hand: ownHands.rows().find((row) => row.game_id === g.id)?.hand ?? null,
+        endedAt: g.updated_at ?? null,
+        matched: true,
       }));
     return [
       ...owned.reverse(),
@@ -159,6 +168,8 @@ function customRecords(
         g,
         context.myId
       ),
+      endedAt: g.endedAt === null ? null : new Date(g.endedAt).toISOString(),
+      matched: false,
     }));
 }
 
