@@ -114,8 +114,10 @@ function createMoreBelow(target: () => HTMLElement | undefined) {
   const measure = (): void => {
     const element = target();
     if (element === undefined) return;
+    // A few pixels of the column's own spacing under the dock is nothing
+    // to scroll to.
     setMore(
-      element.scrollHeight - element.scrollTop - element.clientHeight > 1
+      element.scrollHeight - element.scrollTop - element.clientHeight > 8
     );
   };
   onMount(() => {
