@@ -24,6 +24,8 @@
   min-height: 0;
   overflow-y: auto;
   scrollbar-width: thin;
+  /* Room the list makes under the last row, so the top row shows whole. */
+  padding-bottom: var(--rows-end, 0px);
 }
 .turns {
   display: flex;

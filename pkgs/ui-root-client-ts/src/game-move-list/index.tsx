@@ -170,6 +170,7 @@ function scrollMarkedIntoView(root: HTMLElement): void {
     column.scrollTop += Math.ceil(move.bottom - frame.bottom);
   else if (move.top < frame.top)
     column.scrollTop -= Math.ceil(frame.top - move.top);
+  if (column !== root) wholeTopRow(column);
   // Laid out as one line (over a phone's board) it scrolls sideways.
   if (move.right > box.right)
     root.scrollLeft += Math.ceil(move.right - box.right);
@@ -190,6 +191,34 @@ function hideCutByKey(root: HTMLElement): void {
   turns.forEach((turn, index) => {
     turn.dataset['underKey'] = String(cut[index]);
   });
+}
+
+/**
+ * A table's rows show whole from the top: a row cut at the top is scrolled
+ * past, with room made under the last row when the rows end there.
+ */
+function wholeTopRow(rows: HTMLElement): void {
+  const top = rows.getBoundingClientRect().top;
+  const cut = [...rows.querySelectorAll<HTMLElement>(':scope > li')].find(
+    (row) => {
+      const box = row.getBoundingClientRect();
+      return box.top < top - 0.5 && box.bottom > top;
+    }
+  );
+  const next = cut?.nextElementSibling;
+  if (next === null || next === undefined) return;
+  const past = Math.ceil(next.getBoundingClientRect().top - top);
+  const room = rows.scrollHeight - rows.clientHeight - rows.scrollTop;
+  if (room < past) rows.style.setProperty('--rows-end', `${past - room}px`);
+  rows.scrollTop += past;
+}
+
+/** Room made at the end for a whole first turn is made again each time. */
+function forgetMadeRoom(root: HTMLElement): void {
+  root.style.removeProperty('--strip-end');
+  root
+    .querySelector<HTMLElement>(`:scope > .${styles['turns']}`)
+    ?.style.removeProperty('--rows-end');
 }
 
 /** The key held at a one-line strip's start (`Column`), when it has one. */
@@ -308,7 +337,7 @@ function TurnList(props: GameMoveListProps): JSX.Element {
   // changes (a rail squeezed by what sits above it), not only once.
   const keepMarkedInView = (): void => {
     if (props.layout !== 'table' || root === undefined) return;
-    root.style.removeProperty('--strip-end');
+    forgetMadeRoom(root);
     scrollMarkedIntoView(root);
     alignPastKey(root);
     hideCutByKey(root);
