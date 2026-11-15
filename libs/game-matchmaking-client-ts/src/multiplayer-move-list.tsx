@@ -41,6 +41,7 @@ export function MultiplayerMoveList(props: ListProps): JSX.Element {
         current={props.moves.shownPly}
         moves={moves()}
         onSelect={props.onChoose}
+        heading={props.moves.heading}
         dataSet={{ testid: 'multiplayer-move-list' }}
       />
       <Show when={props.moves.moves.length === 0}>

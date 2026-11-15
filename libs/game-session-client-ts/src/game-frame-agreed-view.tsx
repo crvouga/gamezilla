@@ -57,6 +57,12 @@ export function FrameOptionsPlace(
             />
           )}
         </Show>
+        {/* The count is read here; the seats in setup change it. */}
+        <Show when={props.options.players}>
+          <P variant="caption" tone="secondary">
+            <Trans>Players are set by the seats in setup.</Trans>
+          </P>
+        </Show>
         <GameFrameOptions
           options={props.options.groups}
           position={props.options.position}

@@ -75,6 +75,8 @@ export function storyMoves(shownPly = DROPS.length): MultiplayerMovesShown {
       shownPly >= moves.length
         ? null
         : { after: moves[shownPly - 1]?.name ?? null },
+    // Connect Four's word for its bare-number moves, as its presentation says.
+    heading: 'Column',
   };
 }
 

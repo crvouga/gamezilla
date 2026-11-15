@@ -23,6 +23,11 @@ export type MultiplayerMovesShown = {
    * (`null` at the start of the game); `null` on the current position.
    */
   readonly reviewing: { readonly after: string | null } | null;
+  /**
+   * The word naming every move once when the game's notation is a bare
+   * number (`Column`), as a custom game's record says it; absent otherwise.
+   */
+  readonly heading?: string | undefined;
 };
 
 /** What a game that is over with a result offers to keep. */

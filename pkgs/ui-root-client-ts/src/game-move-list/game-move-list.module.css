@@ -260,19 +260,14 @@
     color: var(--ui-color-text-secondary);
     font-size: var(--ui-font-size-xs);
   }
-  /* The moves' word (`Column`) is the line's key: it stays at the start
-     while the moves scroll under it, and the fade begins after it. */
+  /* The moves' word (`Column`) is the line's key: it stays at the start,
+     closed by a rule, and the moves scroll under it; nothing fades beside
+     it, so no half-shown move reads as part of it. */
   [data-game-fixed="true"]
     [data-game-slot="rail"]
     .list[data-layout="table"]:has(> .heading) {
-    --move-key: 4.5rem;
     padding-inline-start: 0;
-    mask-image: linear-gradient(
-      to right,
-      var(--ui-color-text) 0 var(--move-key),
-      transparent var(--move-key),
-      var(--ui-color-text) calc(var(--move-key) + var(--ui-space-10))
-    );
+    mask-image: none;
   }
   [data-game-fixed="true"]
     [data-game-slot="rail"]
@@ -286,9 +281,9 @@
     align-self: stretch;
     display: flex;
     align-items: center;
-    width: var(--move-key);
-    margin-inline-end: calc(var(--ui-space-10) - var(--ui-space-3));
-    padding-inline: var(--ui-space-2) 0;
+    max-width: 6rem;
+    padding-inline: var(--ui-space-2) var(--ui-space-3);
+    border-inline-end: 1px solid var(--ui-color-border);
     overflow: hidden;
     text-overflow: ellipsis;
     background: var(--ui-color-background);

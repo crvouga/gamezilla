@@ -122,13 +122,16 @@ export function useMultiplayerGameView(
           ? { flipped: view.flipped() }
           : null,
       moves: hasTurns
-        ? movesOf(view, (ply) => {
-            const sides = gameSides(rules.forPosition(game.fen));
-            const side = sides[(ply - 1) % sides.length];
-            return side === undefined
-              ? undefined
-              : frameSwatch(presentation(game.fen).frame.seats.look(side));
-          })
+        ? {
+            ...movesOf(view, (ply) => {
+              const sides = gameSides(rules.forPosition(game.fen));
+              const side = sides[(ply - 1) % sides.length];
+              return side === undefined
+                ? undefined
+                : frameSwatch(presentation(game.fen).frame.seats.look(side));
+            }),
+            heading: presentation(game.fen).moveHeading?.() || undefined,
+          }
         : null,
       record: record(),
     };

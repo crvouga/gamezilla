@@ -173,11 +173,9 @@ function scrollMarkedIntoView(root: HTMLElement): void {
 function keyEdge(root: HTMLElement, left: number): number {
   const key = root.querySelector<HTMLElement>(`:scope > .${styles['heading']}`);
   if (key === null || getComputedStyle(key).position !== 'sticky') return left;
-  // The fade after the key is its margin and the line's gap: a move
-  // starts clear of both.
+  // A move shown starts the line's gap clear of the key's rule.
   return (
     key.getBoundingClientRect().right +
-    Number.parseFloat(getComputedStyle(key).marginInlineEnd) +
     Number.parseFloat(getComputedStyle(root).columnGap)
   );
 }

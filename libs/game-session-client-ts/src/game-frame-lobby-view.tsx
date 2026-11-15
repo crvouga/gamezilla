@@ -366,13 +366,15 @@ function LobbyMode(props: Props & { readonly setup: FrameSetup }): JSX.Element {
       // clock when it has no row of its own below.
       eyebrow={
         <>
+          {/* A dot stays with the fact before it, so a wrapped line
+              never starts with one. */}
           <Trans>Custom game</Trans>
-          {' · '}
+          {'\u00a0· '}
           <Text variant="inherit" testId="custom-game-unrated">
             <Trans>Unrated</Trans>
           </Text>
           <Show when={props.setup.options?.clock == null}>
-            {' · '}
+            {'\u00a0· '}
             <FrameClockWords
               minutes={props.status?.minutes ?? 0}
               increment={props.status?.increment ?? 0}
