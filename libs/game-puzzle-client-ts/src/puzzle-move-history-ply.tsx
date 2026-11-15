@@ -42,7 +42,9 @@ function PlyFace(
       tone={props.selected ? 'tint-subtle' : 'transparent'}
       radius="sm"
       paddingX="sm"
-      paddingY="xs"
+      // A pressable chip is a full touch target; one that is only read
+      // stays compact.
+      paddingY={props.interactive ? 'md' : 'xs'}
       direction="horizontal"
       align="baseline"
       testId={props.testId}

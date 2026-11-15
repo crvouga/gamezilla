@@ -36,7 +36,7 @@ export function StoryChessPuzzleBoard(
       mode="play"
       position={props.position}
       orientation="white"
-      interactive
+      interactive={props.interactive ?? true}
       sound={false}
       syncKey={0}
       onAction={noop}

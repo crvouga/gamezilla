@@ -151,26 +151,11 @@ export function PuzzleResultRows(
 }
 
 /**
- * The result, docked in reach: how it went and the rating it made, then
- * what next (`buildPuzzleActionBarPlan`): the next puzzle is the one filled
- * command, with More (the puzzle settings, its link) beside it; on one line
- * under it, retrying and the moves of the line. Docked together, the
- * outcome and Next are in the first view on every phone.
+ * The puzzle's settings and its link under More, on a phone: one tap away,
+ * so the feed can change before the next puzzle. Beside a wide board they
+ * are in plain view (the settings row, Share) instead.
  */
-export function PuzzleResultDock(
-  props: PuzzlePlayScreenViewProps
-): JSX.Element {
-  const slots = createMemo(() =>
-    buildPuzzleActionBarPlan({
-      status: props.status,
-      hintStage: props.hintStage,
-      canGoForward: props.canGoForward,
-    })
-  );
-  const offers = (id: 'next' | 'retry'): boolean =>
-    slots().some((slot) => slot.id === id);
-  // What is done about the puzzle besides moving on, one tap away: its
-  // settings (so the feed can change before the next one) and its link.
+function ResultMore(props: PuzzlePlayScreenViewProps): JSX.Element {
   const more = (): OverflowMenuAction[] => [
     {
       id: 'settings',
@@ -192,6 +177,84 @@ export function PuzzleResultDock(
         ]),
   ];
   return (
+    <PuzzleScreenFold on="phone">
+      <OverflowMenuButton
+        aria-label={t`More for this puzzle`}
+        placement="top-end"
+        actions={more()}
+        trigger={
+          <Surface
+            tone="background"
+            radius="full"
+            border
+            paddingX="md"
+            paddingY="sm"
+            direction="horizontal"
+            align="center"
+            gap="xs"
+          >
+            <EllipsisIcon size={20} color="icon" />
+            <Text variant="label">
+              <Trans>More</Trans>
+            </Text>
+          </Surface>
+        }
+        dataSet={{ testid: 'chess-puzzle-result-more' }}
+      />
+    </PuzzleScreenFold>
+  );
+}
+
+/** How copying the link went, on the dock: the menu closes as it is pressed. */
+function ShareStatus(props: PuzzlePlayScreenViewProps): JSX.Element {
+  return (
+    <>
+      <Show when={props.share?.state === 'copied'}>
+        <P variant="caption" tone="success" role="status">
+          <Trans>Puzzle link copied.</Trans>
+        </P>
+      </Show>
+      <Show when={props.share?.state === 'failed' && props.share} keyed>
+        {(share) => (
+          <StackHorizontal gap="sm" align="center" wrap>
+            <P variant="caption" tone="destructive" role="status">
+              <Trans>Couldn't copy the link.</Trans>
+            </P>
+            <Button
+              title={<Trans>Try again</Trans>}
+              intent="neutral"
+              variant="ghost"
+              size="sm"
+              onClick={() => share.onShare()}
+              dataSet={{ testid: 'chess-puzzle-share-retry' }}
+            />
+          </StackHorizontal>
+        )}
+      </Show>
+    </>
+  );
+}
+
+/**
+ * The result, docked in reach: how it went and the rating it made, then
+ * what next (`buildPuzzleActionBarPlan`): the next puzzle is the one filled
+ * command, with More (the puzzle settings, its link) beside it; on one line
+ * under it, retrying and the moves of the line. Docked together, the
+ * outcome and Next are in the first view on every phone.
+ */
+export function PuzzleResultDock(
+  props: PuzzlePlayScreenViewProps
+): JSX.Element {
+  const slots = createMemo(() =>
+    buildPuzzleActionBarPlan({
+      status: props.status,
+      hintStage: props.hintStage,
+      canGoForward: props.canGoForward,
+    })
+  );
+  const offers = (id: 'next' | 'retry'): boolean =>
+    slots().some((slot) => slot.id === id);
+  return (
     <StackVertical gap="sm">
       <PuzzleResultSummary {...props} />
       <Show when={offers('next')}>
@@ -205,43 +268,10 @@ export function PuzzleResultDock(
               dataSet={{ testid: Handles.chessPuzzleSummaryNext }}
             />
           </StackVertical>
-          {/* A phone keeps the puzzle's settings and its link one tap away
-              under More; beside a wide board they are in plain view (the
-              settings row, Share). */}
-          <PuzzleScreenFold on="phone">
-            <OverflowMenuButton
-              aria-label={t`More for this puzzle`}
-              placement="top-end"
-              actions={more()}
-              trigger={
-                <Surface
-                  tone="background"
-                  radius="full"
-                  border
-                  padding="sm"
-                  align="center"
-                  justify="center"
-                >
-                  <EllipsisIcon size={26} color="icon" />
-                </Surface>
-              }
-              dataSet={{ testid: 'chess-puzzle-result-more' }}
-            />
-          </PuzzleScreenFold>
+          <ResultMore {...props} />
         </StackHorizontal>
       </Show>
-      {/* How copying the link went, said where the commands are: the menu
-          closes as it is pressed. */}
-      <Show when={props.share?.state === 'copied'}>
-        <P variant="caption" tone="success" role="status">
-          <Trans>Puzzle link copied.</Trans>
-        </P>
-      </Show>
-      <Show when={props.share?.state === 'failed'}>
-        <P variant="caption" tone="destructive" role="status">
-          <Trans>Couldn't copy the link. Try Share again from More.</Trans>
-        </P>
-      </Show>
+      <ShareStatus {...props} />
       <GameActions sizing="fill">
         <Show when={offers('retry')}>
           <Button

@@ -212,6 +212,11 @@ export type StoryPuzzleBoardProps = {
   readonly size: number;
   /** The line's move that led to `position`, for the board to mark. */
   readonly lastAction?: string | null | undefined;
+  /**
+   * Whether the board takes a move, as the app decides it: only while the
+   * puzzle is being solved at its latest move. Defaults to taking moves.
+   */
+  readonly interactive?: boolean | undefined;
 };
 
 /**
@@ -393,6 +398,11 @@ function StoryPuzzlePlay(props: {
           marks={props.scene.marks}
           size={size}
           lastAction={props.scene.lastAction ?? null}
+          interactive={
+            props.args.status === 'solving' &&
+            !props.args.canGoForward &&
+            places.place().screen === 'play'
+          }
         />
       )}
     />
