@@ -20,6 +20,29 @@ function previewSteps(): readonly Step[] {
   return workflow.jobs.preview.steps;
 }
 
+// regression: preview-checkout-races-dependency-install
+test('dependency writes wait for sparse checkout while tool downloads remain parallel', () => {
+  const lines = (previewSteps()[0]!.run ?? '')
+    .split('\n')
+    .map((line) => line.trim());
+  const expansion = lines.indexOf(
+    "git sparse-checkout set --no-cone '/*' '!**/baselines/**'"
+  );
+  const completed = lines.indexOf('touch "$BOOT/checkout-complete"');
+  const ready = lines.indexOf('until [ -e "$BOOT/checkout-complete" ]; do');
+  const install = lines.findIndex((line) => line.includes('bun install'));
+  expect(expansion).toBeGreaterThan(-1);
+  expect(completed).toBeGreaterThan(expansion);
+  expect(ready).toBeGreaterThan(completed);
+  expect(lines.indexOf('mise install bun')).toBeLessThan(ready);
+  expect(lines.indexOf('mise install node &')).toBeLessThan(ready);
+  expect(install).toBeGreaterThan(ready);
+  expect(lines[ready + 1]).toContain('kill -0 "$1"');
+  expect(lines[ready + 1]).toContain('[ -e "$BOOT/checkout-complete" ]');
+  expect(lines).toContain('checkout &');
+  expect(lines).toContain('install "$checking_out" &');
+});
+
 // The Preview job checks out, installs and reads its secrets itself, side by
 // side, instead of through the checkout, setup and secrets actions. What
 // those guarantee still holds here.

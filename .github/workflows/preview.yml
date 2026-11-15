@@ -74,7 +74,7 @@ jobs:
       # One step, and no action: nothing waits for anything it does not need.
       # A checkout, then the tools, then the dependencies, then the secrets,
       # each after the one before, was half of every deploy. Here the
-      # checkout and the install run side by side, and the command reads its
+      # checkout and tool downloads run side by side, and the command reads its
       # own three secrets while it starts the build.
       #
       # - The checkout is the head itself, not the merge with main: the
@@ -113,10 +113,12 @@ jobs:
             # copied by the install, so that folder is written first too.
             mapfile -t folders < <(grep -ho '"file:\./[^"]*"' package.json ./*/*/package.json | sed -E 's|"file:\.(/[^"]*)"|\1/|' | sort -u)
             [ "${#folders[@]}" -eq 0 ] || git sparse-checkout add "${folders[@]}"
-            touch "$BOOT/manifests"
             at "checkout: the manifests"
             git sparse-checkout set --no-cone '/*' '!**/baselines/**'
             at "checkout: done"
+            # Sparse expansion can remove ignored directories. Let it finish
+            # before Bun writes node_modules, including its workspace links.
+            touch "$BOOT/checkout-complete"
           }
           install() {
             # The tools are named by `mise.toml` alone, so they start from that
@@ -134,8 +136,8 @@ jobs:
             mise install node &
             node=$!
             at "install: bun"
-            until [ -e "$BOOT/manifests" ]; do
-              kill -0 "$1" 2>/dev/null || [ -e "$BOOT/manifests" ] || exit 1
+            until [ -e "$BOOT/checkout-complete" ]; do
+              kill -0 "$1" 2>/dev/null || [ -e "$BOOT/checkout-complete" ] || exit 1
               sleep 0.1
             done
             PATH="$(mise bin-paths bun):$PATH" bun install --frozen-lockfile --ignore-scripts

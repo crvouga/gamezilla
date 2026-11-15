@@ -1,0 +1,4 @@
+{
+  "summary": "Preview starts Bun installation after only manifest checkout, while Git sparse expansion can remove node_modules, causing missing dependencies or fatal directory-removal races.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workflow-preview.test.ts"
+}
