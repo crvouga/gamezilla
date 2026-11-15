@@ -68,6 +68,54 @@ export function FrameOptionsPlace(
   );
 }
 
+/** A time for each side, typed, then applied (or kept on the way back). */
+function ClockTimeFields(
+  props: Props & {
+    readonly minutes: string;
+    readonly increment: string;
+    readonly onMinutes: (value: string) => void;
+    readonly onIncrement: (value: string) => void;
+  }
+): JSX.Element {
+  return (
+    <StackVertical gap="md">
+      <TextInput
+        label={<Trans>Minutes per side</Trans>}
+        type="number"
+        value={props.minutes}
+        onChangeText={props.onMinutes}
+        dataSet={{ testid: 'custom-game-minutes' }}
+      />
+      <TextInput
+        label={<Trans>Seconds added after a move</Trans>}
+        type="number"
+        value={props.increment}
+        onChangeText={props.onIncrement}
+        dataSet={{ testid: 'custom-game-increment' }}
+      />
+      {/* Unlike an option, a time is set by its two fields together. */}
+      <P variant="caption" tone="secondary">
+        <Trans>A changed time is kept when you go back to setup.</Trans>
+      </P>
+      <GameActions sizing="fill">
+        <GameActionButton
+          title={<Trans>Use this clock</Trans>}
+          variant="solid"
+          dataSet={{ testid: 'custom-game-clock' }}
+          operation={async () => {
+            await props.onChoose({
+              operation: 'clock',
+              minutes: Number(props.minutes),
+              increment: Number(props.increment),
+            });
+            props.onClose();
+          }}
+        />
+      </GameActions>
+    </StackVertical>
+  );
+}
+
 /**
  * The clock, which the platform owns for every game played by turns: set
  * minutes and added seconds and use them, or play untimed. Swapping who
@@ -79,9 +127,28 @@ export function FrameClockPlace(
   const [minutes, setMinutes] = createSignal(String(props.clock.minutes || 5));
   const [increment, setIncrement] = createSignal(String(props.clock.increment));
   const choices = createFrameChoices(() => props.onClose());
+  // A time edited and not yet applied is applied on the way back, so
+  // leaving never drops it.
+  const edited = (): boolean =>
+    props.clock.minutes > 0 &&
+    (Number(minutes()) !== props.clock.minutes ||
+      Number(increment()) !== props.clock.increment);
   return (
     <FramePlacePage
       {...props}
+      onClose={() => {
+        if (!edited()) {
+          props.onClose();
+          return;
+        }
+        void props
+          .onChoose({
+            operation: 'clock',
+            minutes: Number(minutes()),
+            increment: Number(increment()),
+          })
+          .then(() => props.onClose());
+      }}
       screenId="custom-game-clock"
       back={<Trans>Back to setup</Trans>}
       title={<Trans>Clock and sides</Trans>}
@@ -127,43 +194,13 @@ export function FrameClockPlace(
           }
         />
       </MenuSection>
-      <StackVertical gap="md">
-        <TextInput
-          label={<Trans>Minutes per side</Trans>}
-          type="number"
-          value={minutes()}
-          onChangeText={setMinutes}
-          dataSet={{ testid: 'custom-game-minutes' }}
-        />
-        <TextInput
-          label={<Trans>Seconds added after a move</Trans>}
-          type="number"
-          value={increment()}
-          onChangeText={setIncrement}
-          dataSet={{ testid: 'custom-game-increment' }}
-        />
-        {/* Unlike an option, a time is set by its two fields together. */}
-        <P variant="caption" tone="secondary">
-          <Trans>
-            The new time takes effect when you press Use this clock.
-          </Trans>
-        </P>
-        <GameActions sizing="fill">
-          <GameActionButton
-            title={<Trans>Use this clock</Trans>}
-            variant="solid"
-            dataSet={{ testid: 'custom-game-clock' }}
-            operation={async () => {
-              await props.onChoose({
-                operation: 'clock',
-                minutes: Number(minutes()),
-                increment: Number(increment()),
-              });
-              props.onClose();
-            }}
-          />
-        </GameActions>
-      </StackVertical>
+      <ClockTimeFields
+        {...props}
+        minutes={minutes()}
+        increment={increment()}
+        onMinutes={setMinutes}
+        onIncrement={setIncrement}
+      />
       <MenuSection title={<Trans>Sides</Trans>}>
         <FrameChoiceRow
           choices={choices}

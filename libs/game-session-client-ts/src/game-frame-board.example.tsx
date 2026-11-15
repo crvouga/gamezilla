@@ -104,12 +104,8 @@ export function onBoard(moves: readonly number[]) {
             !args.table.near.standIn
           }
           winning={moves === WON_MOVES ? WON_LINE : undefined}
-          // A game with secret choices asks for one on its board.
-          prompt={
-            args.table.near?.choosing === true
-              ? 'Choose your column in secret'
-              : undefined
-          }
+          // The line under the board says where to choose: no second prompt.
+          prompt={args.table.near?.choosing === true ? '' : undefined}
         />
       }
     />

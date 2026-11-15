@@ -164,6 +164,9 @@ section.docked[data-tone="lost"] {
   .docked .details[data-open="true"] .detailsBody {
     max-height: 6.5rem;
     overflow-y: auto;
+    /* A rule under the headline marks where the rows begin. */
+    padding-top: var(--ui-space-2);
+    border-top: 1px solid var(--ui-color-border);
     /* A visible bar says there is more to scroll. */
     scrollbar-width: thin;
   }
