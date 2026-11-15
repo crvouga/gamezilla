@@ -99,21 +99,45 @@
   position: sticky;
   top: 0;
   z-index: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--ui-space-1);
   inline-size: 100%;
   max-inline-size: 640px;
-  padding-block: var(--ui-space-2);
+  padding-block: var(--ui-space-1);
+  border-bottom: 1px solid var(--ui-color-border);
   background: var(--ui-color-background);
 }
 .partLinks {
   display: flex;
+  flex: 1;
   flex-direction: row;
   flex-wrap: nowrap;
   gap: var(--ui-space-2);
+  min-inline-size: 0;
   margin: 0;
-  padding: 0;
+  /* Room for a link's focus ring inside the row's clip. */
+  padding: var(--ui-space-1);
   overflow-x: auto;
   scrollbar-width: none;
   list-style: none;
+}
+/* Parts beyond the row's edge fade out, saying there is more that way. */
+.parts[data-overflow-end] .partLinks {
+  mask-image: linear-gradient(to right, black 85%, transparent);
+}
+.parts[data-overflow-start] .partLinks {
+  mask-image: linear-gradient(to left, black 85%, transparent);
+}
+.parts[data-overflow-start][data-overflow-end] .partLinks {
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 15%,
+    black 85%,
+    transparent
+  );
 }
 .partLinks > li {
   flex-shrink: 0;
@@ -125,6 +149,22 @@
   border-radius: var(--ui-radius-full);
   background: var(--ui-color-surface);
   color: var(--ui-color-text);
+}
+/* The part being read: the accent's edge and ink, as a chosen chip. */
+.partLink[aria-current="true"] {
+  border-color: var(--ui-color-tint-active);
+  background: var(--ui-color-tint-subtle);
+  color: var(--ui-color-tint);
+}
+/* The arrows that step the row when its parts outrun it. */
+.partStep {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  inline-size: 28px;
+  block-size: 28px;
+  border-radius: var(--ui-radius-full);
+  --ui-on-icon: var(--ui-color-text-secondary);
 }
 .partLink:focus-visible {
   outline: 2px solid var(--ui-color-focus-ring);
@@ -158,6 +198,7 @@
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+  justify-content: center;
   gap: var(--ui-space-4);
   margin-block-start: var(--ui-space-2);
 }

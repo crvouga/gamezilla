@@ -84,6 +84,9 @@ describe('GameRulesScreen parts', () => {
     const nav = view.getByRole('navigation', { name: 'Jump to a part' });
     const links = nav.querySelectorAll('button');
     expect(links).toHaveLength(5);
+    // The part being read is marked, the first while none has scrolled by.
+    expect(links[0]?.getAttribute('aria-current')).toBe('true');
+    expect(nav.querySelectorAll('[aria-current="true"]')).toHaveLength(1);
     const castling = links[3];
     if (castling === undefined) throw new Error('No castling link');
     castling.click();

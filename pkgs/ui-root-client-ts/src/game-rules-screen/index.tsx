@@ -9,8 +9,8 @@ import {
   GameTitleLockup,
 } from '../game-tile/index';
 import { createScreenSlot } from '../screen-slot';
-import { VisuallyHidden } from '../visually-hidden/index';
 import styles from './game-rules-screen.module.css';
+import { PartLinks, partId } from './part-links';
 
 /** One part of how a game is played: a short name and a few lines. */
 export type GameRulesSection = {
@@ -63,17 +63,6 @@ export type GameRulesScreenProps = {
   dataSet?: ComponentDataSet | undefined;
 };
 
-function partId(screenId: string, key: string): string {
-  return `${screenId}-part-${key}`;
-}
-
-/** Bring a part into view and the keyboard to its heading. */
-function openPart(screenId: string, key: string): void {
-  const part = document.getElementById(partId(screenId, key));
-  part?.scrollIntoView({ block: 'start' });
-  part?.querySelector<HTMLElement>('h2')?.focus({ preventScroll: true });
-}
-
 /**
  * `GameRulesScreen` -- how a game is played, inside a space: the game's
  * picture and name under the screen's name, what it is, then its rules as
@@ -122,29 +111,11 @@ export function GameRulesScreen(props: GameRulesScreenProps): JSX.Element {
         </Show>
       </header>
       <Show when={props.partsLabel !== undefined && props.sections.length > 4}>
-        <nav
-          class={styles['parts']}
-          aria-labelledby={`${props.screenId}-parts`}
-        >
-          <VisuallyHidden id={`${props.screenId}-parts`}>
-            {props.partsLabel}
-          </VisuallyHidden>
-          <ol class={styles['partLinks']}>
-            <For each={props.sections}>
-              {(section, index) => (
-                <li>
-                  <button
-                    type="button"
-                    class={`${styles['partLink']} clickable text textCaption`}
-                    onClick={() => openPart(props.screenId, section.key)}
-                  >
-                    {index() + 1}. {section.title}
-                  </button>
-                </li>
-              )}
-            </For>
-          </ol>
-        </nav>
+        <PartLinks
+          screenId={props.screenId}
+          label={props.partsLabel}
+          parts={props.sections}
+        />
       </Show>
       <ol class={styles['sections']}>
         <For each={props.sections}>
