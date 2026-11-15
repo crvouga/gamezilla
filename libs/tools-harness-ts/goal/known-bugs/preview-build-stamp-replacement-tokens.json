@@ -1,0 +1,4 @@
+{
+  "summary": "String replacement interpreted dollar tokens in serialized build metadata, corrupting the nightly counterexample {commit: '', date: '$$'}.",
+  "regressionTest": "apps/preview-ts/tests/build-stamp.test.ts"
+}
