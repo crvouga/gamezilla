@@ -151,7 +151,7 @@ export function PuzzleResultRows(
 }
 
 /**
- * The puzzle's settings and its link under More, on a phone: one tap away,
+ * The puzzle's settings and its link under Options, on a phone: one tap away,
  * so the feed can change before the next puzzle. Beside a wide board they
  * are in plain view (the settings row, Share) instead.
  */
@@ -179,7 +179,7 @@ function ResultMore(props: PuzzlePlayScreenViewProps): JSX.Element {
   return (
     <PuzzleScreenFold on="phone">
       <OverflowMenuButton
-        aria-label={t`More for this puzzle`}
+        aria-label={t`Options for this puzzle`}
         placement="top-end"
         actions={more()}
         trigger={
@@ -188,14 +188,14 @@ function ResultMore(props: PuzzlePlayScreenViewProps): JSX.Element {
             radius="full"
             border
             paddingX="md"
-            paddingY="sm"
+            paddingY="md"
             direction="horizontal"
             align="center"
             gap="xs"
           >
             <EllipsisIcon size={20} color="icon" />
             <Text variant="label">
-              <Trans>More</Trans>
+              <Trans>Options</Trans>
             </Text>
           </Surface>
         }
@@ -223,8 +223,7 @@ function ShareStatus(props: PuzzlePlayScreenViewProps): JSX.Element {
             <Button
               title={<Trans>Try again</Trans>}
               intent="neutral"
-              variant="ghost"
-              size="sm"
+              variant="outline"
               onClick={() => share.onShare()}
               dataSet={{ testid: 'chess-puzzle-share-retry' }}
             />
@@ -238,7 +237,7 @@ function ShareStatus(props: PuzzlePlayScreenViewProps): JSX.Element {
 /**
  * The result, docked in reach: how it went and the rating it made, then
  * what next (`buildPuzzleActionBarPlan`): the next puzzle is the one filled
- * command, with More (the puzzle settings, its link) beside it; on one line
+ * command, with Options (the puzzle settings, its link) beside it; on one line
  * under it, retrying and the moves of the line. Docked together, the
  * outcome and Next are in the first view on every phone.
  */

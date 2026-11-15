@@ -154,7 +154,7 @@ export const NextPuzzle: Story = {
   },
 };
 
-/** Retry is the quieter command under it; the link is under More. */
+/** Retry is the quieter command under it; the link is under Options. */
 export const RetryAndShare: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
@@ -193,7 +193,7 @@ export const StepThroughTheLine: Story = {
 };
 
 /**
- * The feed can be changed before moving on: More, beside Next puzzle, opens
+ * The feed can be changed before moving on: Options, beside Next puzzle, opens
  * the puzzle settings, and Save settings saves them.
  */
 export const ChangeSettingsBeforeNext: Story = {

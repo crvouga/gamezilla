@@ -70,7 +70,14 @@ export const Solved: Story = {
     result: STORY_RESULT,
   },
   parameters: {
-    puzzleScene: { fen: STORY_LINE.mate, plies: 6, lastAction: 'c3d5' },
+    // The board is on the mate, so the last move is the one selected (the
+    // file's default scene selects an earlier one).
+    puzzleScene: {
+      fen: STORY_LINE.mate,
+      plies: 6,
+      selected: 6,
+      lastAction: 'c3d5',
+    },
   },
 };
 
