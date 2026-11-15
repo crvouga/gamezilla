@@ -236,6 +236,17 @@ function useAttemptContext(
   };
 }
 
+/** The attempt's pack has every puzzle solved. */
+function packFinished(props: ContentAttemptScreenViewProps): boolean {
+  const pack = props.pack;
+  return (
+    pack !== null &&
+    pack !== undefined &&
+    props.packSolved !== undefined &&
+    props.packSolved >= pack.total
+  );
+}
+
 /** Where the solved puzzle leaves the person, in one line under its headline. */
 function useSolvedCaption(props: ContentAttemptScreenViewProps): () => string {
   const { t } = useLingui();
@@ -244,7 +255,7 @@ function useSolvedCaption(props: ContentAttemptScreenViewProps): () => string {
     const pack = props.pack;
     if (pack !== null && pack !== undefined && props.packSolved !== undefined)
       return props.packSolved >= pack.total
-        ? t`Pack complete: every puzzle in ${pack.title} is solved.`
+        ? t`Completion saved. Every puzzle in ${pack.title} is solved.`
         : t`${props.packSolved} of ${pack.total} solved in ${pack.title}.`;
     return t`Restart to play it again, or choose another puzzle.`;
   };
@@ -265,7 +276,12 @@ function AttemptSolved(
   const { t } = useLingui();
   const caption = useSolvedCaption(props);
   return (
-    <StackVertical gap="sm" dataSet={{ testid: 'content-attempt-solved' }}>
+    // Its own room above the headline keeps it clear of the board.
+    <StackVertical
+      gap="sm"
+      paddingY="sm"
+      dataSet={{ testid: 'content-attempt-solved' }}
+    >
       {/* One line, so the board keeps its room: the record, where the
           pack stands, and the save. */}
       <StackHorizontal
@@ -280,7 +296,9 @@ function AttemptSolved(
               ? t`Playtest solved`
               : props.saving
                 ? t`Solved`
-                : t`Completion saved`}
+                : packFinished(props)
+                  ? t`Pack complete`
+                  : t`Completion saved`}
           </Text>
           <P variant="caption" tone="secondary">
             {caption()}{' '}
@@ -380,7 +398,7 @@ function Unopenable(props: ContentAttemptScreenViewProps): JSX.Element {
   const { t } = useLingui();
   return (
     // Room around the actions so their focus rings are never clipped.
-    <StackVertical gap="md" paddingY="xs">
+    <StackVertical gap="md" paddingX="xs" paddingY="xs">
       <Notice tone="error">
         <Show
           when={props.unreadable === true}

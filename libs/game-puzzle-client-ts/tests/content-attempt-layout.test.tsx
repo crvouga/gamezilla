@@ -148,7 +148,7 @@ test("the pack's last puzzle solved says the whole pack is solved", () => {
     packSolved: 4,
   });
   expect(screen.getByTestId('content-attempt-complete').textContent).toContain(
-    'Pack complete: every puzzle in Warehouse basics is solved.'
+    'Pack completeCompletion saved. Every puzzle in Warehouse basics is solved.'
   );
 });
 
