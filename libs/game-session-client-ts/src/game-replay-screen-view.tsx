@@ -14,7 +14,6 @@ import {
 } from '@pkgs/ui-root-client-ts/game-seat-swatch';
 import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
-import { GameTurnPill } from '@pkgs/ui-root-client-ts/game-turn-pill';
 import { IconButton } from '@pkgs/ui-root-client-ts/icon-button';
 import {
   ArrowLeftIcon,
@@ -294,26 +293,31 @@ function ReplayPlayers(
   );
 }
 
+/** Each move for a `GameMoveList`, named for a listener ("Move 3, Red circle: 4"). */
+function moveEntries(
+  moves: readonly GameReplayMove[]
+): readonly GameMoveListEntry[] {
+  return moves.map((move, index) => ({
+    ply: index + 1,
+    label: move.label,
+    swatch: move.swatch,
+    accessibleName:
+      move.sideLabel === undefined
+        ? t`Move ${index + 1}: ${move.label}`
+        : t`Move ${index + 1}, ${move.sideLabel}: ${move.label}`,
+    testId: `game-history-review-move-${String(index + 1)}`,
+  }));
+}
+
+/** Moves a phone shows at once under the board: a page holding the shown move. */
+const PHONE_PAGE = 8;
+
 /**
- * Every move, numbered one by one as the position is ("After move 3"), right
- * under the steps; pressing one shows the board after it.
+ * Every move, numbered one by one as the position is ("Move 3 of 7"),
+ * beside a wide board; pressing one shows the board after it.
  */
 function ReplayMoves(props: GameReplayScreenViewProps): JSX.Element {
-  // A phone shows the moves as one line over the board (`fixedStage`),
-  // where the bare-number moves' word has no column to head.
-  const strip = createMediaQuery(PHONE_QUERY);
-  const entries = createMemo((): readonly GameMoveListEntry[] =>
-    props.moves.map((move, index) => ({
-      ply: index + 1,
-      label: move.label,
-      swatch: move.swatch,
-      accessibleName:
-        move.sideLabel === undefined
-          ? t`Move ${index + 1}: ${move.label}`
-          : t`Move ${index + 1}, ${move.sideLabel}: ${move.label}`,
-      testId: `game-history-review-move-${String(index + 1)}`,
-    }))
-  );
+  const entries = createMemo(() => moveEntries(props.moves));
   return (
     <GameSection title={<Trans>Moves</Trans>}>
       <Show
@@ -331,9 +335,7 @@ function ReplayMoves(props: GameReplayScreenViewProps): JSX.Element {
           current={props.ply}
           moves={entries()}
           onSelect={props.onSeek}
-          heading={strip() ? undefined : props.moveHeading || undefined}
-          turnLabel={(turn) => <Trans>Move {turn}</Trans>}
-          wrap
+          heading={props.moveHeading || undefined}
           ended
         />
       </Show>
@@ -342,20 +344,40 @@ function ReplayMoves(props: GameReplayScreenViewProps): JSX.Element {
 }
 
 /**
- * How the game ended, by the board and the same at every position, so it
- * never reads as the shown position's state and the board never moves.
+ * Under a phone's board: the page of moves holding the shown one ("Moves
+ * 1–8 · Column ●4 ◆3 …"), every move whole and wrapping onto a second line
+ * rather than cut at an edge, the shown move marked. The steps turn the
+ * page; a page keeps its height, so the board never moves.
  */
-function ReplayResult(props: GameReplayScreenViewProps): JSX.Element {
+function ReplayMovesPage(props: GameReplayScreenViewProps): JSX.Element {
+  const entries = createMemo(() => moveEntries(props.moves));
+  const last = (page: number): number =>
+    Math.min(page * PHONE_PAGE, props.moves.length);
   return (
-    <GameTurnPill
-      tone={props.outcome === 'won' ? 'success' : 'neutral'}
-      title={props.result}
-      dataSet={{ testid: 'game-history-review-result' }}
-    />
+    <Show when={props.moves.length > 0}>
+      <GameMoveList
+        layout="turn"
+        aria-label={t`Moves played`}
+        perTurn={PHONE_PAGE}
+        current={props.ply}
+        moves={entries()}
+        onSelect={props.onSeek}
+        heading={props.moveHeading || undefined}
+        turnLabel={(page) => (
+          <Trans>
+            Moves {(page - 1) * PHONE_PAGE + 1}–{last(page)} of{' '}
+            {props.moves.length}
+          </Trans>
+        )}
+        wrap
+        ended
+        dataSet={{ testid: 'game-history-review-moves-page' }}
+      />
+    </Show>
   );
 }
 
-/** Whose game it was and when: "Your game · 2d ago", "Watched · 2d ago". */
+/** How the game ended, said to the viewer, and when: "You won by four in a row. · 2d ago". */
 function ReplaySubtitle(props: GameReplayScreenViewProps): JSX.Element {
   const ago = useRelativeTimeLabel(() => props.endedAt ?? '');
   return (
@@ -377,6 +399,9 @@ function ReplaySubtitle(props: GameReplayScreenViewProps): JSX.Element {
 export function GameReplayScreenView(
   props: GameReplayScreenViewProps
 ): JSX.Element {
+  // A phone's one fixed view (`fixedStage`) pages its moves under the
+  // board; a wide screen lists them all in the rail beside it.
+  const phone = createMediaQuery(PHONE_QUERY);
   const opponents = createMemo(() =>
     props.outcome === null
       ? props.players
@@ -408,11 +433,19 @@ export function GameReplayScreenView(
             dataSet={{ testid: 'game-history-review-back-to-list' }}
           />
         }
-        aside={<ReplayMoves {...props} />}
+        aside={
+          <Show when={!phone()}>
+            <ReplayMoves {...props} />
+          </Show>
+        }
       >
         <GameBoardStage
           others={<ReplayPlayers {...props} place="over" />}
-          turn={<ReplayResult {...props} />}
+          turn={
+            <Show when={phone()}>
+              <ReplayMovesPage {...props} />
+            </Show>
+          }
           own={<ReplayPlayers {...props} place="under" />}
         >
           {props.board}
