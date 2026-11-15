@@ -36,6 +36,7 @@ export function FrameStartPlace(props: FramePlaceProps): JSX.Element {
           </Trans>
         }
         art={props.boardPreview}
+        artSize="thumbnail"
         dataSet={{ testid: 'custom-game-mode' }}
       />
       <Show

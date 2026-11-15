@@ -42,7 +42,7 @@ export function FrameOptionsPlace(
         </Show>
       }
     >
-      <StackVertical gap="lg">
+      <StackVertical gap="md">
         <Show when={props.options.players}>
           {(players) => (
             <GameOptionField
@@ -93,10 +93,8 @@ function ClockTimeFields(
         onChangeText={props.onIncrement}
         dataSet={{ testid: 'custom-game-increment' }}
       />
-      {/* Unlike an option, a time is set by its two fields together. */}
-      <P variant="caption" tone="secondary">
-        <Trans>A changed time is kept when you go back to setup.</Trans>
-      </P>
+      {/* Unlike an option, a time is set by its two fields together;
+          one button uses it, and going back keeps an edit all the same. */}
       <GameActions sizing="fill">
         <GameActionButton
           title={<Trans>Use this clock</Trans>}
