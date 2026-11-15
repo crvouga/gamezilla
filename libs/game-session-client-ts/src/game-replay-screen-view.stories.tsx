@@ -190,3 +190,34 @@ export const Journey: Story = {
     );
   },
 };
+
+/** Twenty drops across the board, no line yet: a long game's middle. */
+const LONG_COLUMNS = [
+  3, 2, 4, 1, 5, 0, 6, 3, 2, 4, 1, 5, 0, 6, 3, 2, 4, 1, 5, 0,
+];
+const LONG_MOVES: readonly GameReplayMove[] = LONG_COLUMNS.map(
+  (column, index) => ({
+    label: String(column + 1),
+    ...(index % 2 === 0
+      ? { sideLabel: 'Red circle', swatch: RED }
+      : { sideLabel: 'Yellow diamond', swatch: YELLOW }),
+  })
+);
+
+/** A game longer than a phone's page of moves: the page holding move 11, with page controls. */
+export const LongGame: Story = {
+  args: {
+    ply: 11,
+    moves: LONG_MOVES,
+    outcome: 'draw',
+    result: 'Game drawn.',
+    players: PLAYERS.map((player) => ({ ...player, winner: false })),
+  },
+  render: (args) => (
+    <GameReplayScreenView
+      {...args}
+      position={`fixture:long:${String(args.ply)}`}
+      board={<ConnectFourStoryBoard moves={LONG_COLUMNS.slice(0, args.ply)} />}
+    />
+  ),
+};

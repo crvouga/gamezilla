@@ -2,6 +2,7 @@ import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
+import { Chip } from '@pkgs/ui-root-client-ts/chip';
 import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
 import {
   GameMoveList,
@@ -344,35 +345,95 @@ function ReplayMoves(props: GameReplayScreenViewProps): JSX.Element {
 }
 
 /**
- * Under a phone's board: the page of moves holding the shown one ("Moves
- * 1–8 · Column ●4 ◆3 …"), every move whole and wrapping onto a second line
- * rather than cut at an edge, the shown move marked. The steps turn the
- * page; a page keeps its height, so the board never moves.
+ * Under a phone's board: the page of moves holding the shown one, each a
+ * whole chip with its number, its seat's swatch and the move ("3 ● 4"),
+ * the shown move filled. A header says which moves the page holds and
+ * turns the page when the game is longer than one; a page keeps its
+ * height, so the board never moves.
  */
 function ReplayMovesPage(props: GameReplayScreenViewProps): JSX.Element {
-  const entries = createMemo(() => moveEntries(props.moves));
-  const last = (page: number): number =>
-    Math.min(page * PHONE_PAGE, props.moves.length);
+  // The page holding the shown move; the start shows the first page.
+  const page = createMemo(() =>
+    Math.floor(Math.max(0, props.ply - 1) / PHONE_PAGE)
+  );
+  const first = () => page() * PHONE_PAGE + 1;
+  const last = () => Math.min(first() + PHONE_PAGE - 1, props.moves.length);
+  const shown = createMemo(() =>
+    props.moves
+      .slice(first() - 1, last())
+      .map((move, index) => ({ move, ply: first() + index }))
+  );
+  const paged = () => props.moves.length > PHONE_PAGE;
   return (
     <Show when={props.moves.length > 0}>
-      <GameMoveList
-        layout="turn"
-        aria-label={t`Moves played`}
-        perTurn={PHONE_PAGE}
-        current={props.ply}
-        moves={entries()}
-        onSelect={props.onSeek}
-        heading={props.moveHeading || undefined}
-        turnLabel={(page) => (
-          <Trans>
-            Moves {(page - 1) * PHONE_PAGE + 1}–{last(page)} of{' '}
-            {props.moves.length}
-          </Trans>
-        )}
-        wrap
-        ended
-        dataSet={{ testid: 'game-history-review-moves-page' }}
-      />
+      <StackVertical
+        gap="xs"
+        align="stretch"
+        testId="game-history-review-moves-page"
+      >
+        <StackHorizontal align="center" justify="between" gap="sm">
+          <P variant="caption" tone="secondary">
+            <Trans>
+              Moves {first()}–{last()} of {props.moves.length}
+            </Trans>
+            <Show when={props.moveHeading !== ''}>
+              {' · '}
+              <Trans>number, seat, {props.moveHeading.toLowerCase()}</Trans>
+            </Show>
+          </P>
+          <Show when={paged()}>
+            <StackHorizontal gap="xs" align="center">
+              <IconButton
+                label={t`Earlier moves`}
+                size={STEP_SIZE}
+                disabled={page() === 0}
+                onClick={() => props.onSeek(first() - 1)}
+                dataSet={{ testid: 'game-history-review-page-earlier' }}
+              >
+                <ChevronLeftIcon />
+              </IconButton>
+              <IconButton
+                label={t`Later moves`}
+                size={STEP_SIZE}
+                disabled={last() === props.moves.length}
+                onClick={() => props.onSeek(last() + 1)}
+                dataSet={{ testid: 'game-history-review-page-later' }}
+              >
+                <ChevronRightIcon />
+              </IconButton>
+            </StackHorizontal>
+          </Show>
+        </StackHorizontal>
+        <StackHorizontal gap="xs" wrap aria-label={t`Moves played`}>
+          <For each={shown()}>
+            {(entry) => (
+              <Chip
+                selected={entry.ply === props.ply}
+                onClick={() => props.onSeek(entry.ply)}
+                startIcon={
+                  <StackHorizontal align="center" gap="xs">
+                    <P variant="caption" tone="secondary">
+                      {entry.ply}
+                    </P>
+                    <Show when={entry.move.swatch}>
+                      {(look) => (
+                        <GameSeatSwatch
+                          look={look()}
+                          label={entry.move.sideLabel ?? ''}
+                        />
+                      )}
+                    </Show>
+                  </StackHorizontal>
+                }
+                label={entry.move.label}
+                dataSet={{
+                  testid: `game-history-review-move-${String(entry.ply)}`,
+                }}
+              />
+            )}
+          </For>
+        </StackHorizontal>
+      </StackVertical>
     </Show>
   );
 }
