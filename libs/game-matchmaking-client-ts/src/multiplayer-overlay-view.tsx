@@ -138,7 +138,7 @@ export function MultiplayerResultCard(props: {
           caption={result().caption}
           // A phone folds where else it leads behind one control in the
           // card's corner, so the final board keeps its room.
-          detailsLabel={mode() === 'wide' ? undefined : t`More`}
+          detailsLabel={mode() === 'wide' ? undefined : t`Details`}
           dataSet={{ testid: 'multiplayer-announcement' }}
         >
           {props.children}

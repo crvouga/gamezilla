@@ -155,17 +155,23 @@ section.docked[data-tone="lost"] {
 /* A short phone: a tighter block, so the board keeps its room. The headline
    and its reason share a line where they fit; quiet commands are 36px. */
 @media (max-width: 1023px) and (max-height: 700px) {
-  /* Opened details scroll by themselves under the card's fixed headline
-     and control, rather than shrink the board. */
-  /* The reason stays in view while details are open; the rows scroll. */
+  /* Opened details rise as a sheet over the board, from the card's top
+     edge, so neither the board nor the card's reason gives up room. */
+  section.docked:has(.details[data-open="true"]) {
+    overflow: visible;
+  }
   .docked .details[data-open="true"] .detailsBody {
-    max-height: 6.5rem;
+    position: absolute;
+    inset-inline: 0;
+    bottom: calc(100% + var(--ui-space-2));
+    z-index: 2;
+    max-height: min(18rem, 50dvh);
     overflow-y: auto;
-    /* Clear of the toggle's focus ring. */
-    margin-top: var(--ui-space-2);
-    /* A rule under the headline marks where the rows begin. */
-    padding-top: var(--ui-space-2);
-    border-top: 1px solid var(--ui-color-border);
+    padding: var(--ui-space-3);
+    border: 1px solid var(--ui-color-border);
+    border-radius: var(--ui-radius-card);
+    background: var(--ui-color-surface-elevated);
+    box-shadow: var(--ui-shadow-float);
     /* A visible bar says there is more to scroll. */
     scrollbar-width: thin;
   }

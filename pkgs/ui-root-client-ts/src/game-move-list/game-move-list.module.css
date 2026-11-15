@@ -118,6 +118,7 @@
   position: sticky;
   top: 0;
   z-index: 1;
+  padding-bottom: var(--ui-space-2);
   background: var(--ui-color-surface);
 }
 .moveButton {
@@ -235,7 +236,7 @@
     content: "";
     flex: none;
     /* Widened by the list when the turns must scroll on to meet a key. */
-    width: calc(var(--ui-space-1) + var(--strip-end, 0px));
+    width: calc(var(--strip-room, var(--ui-space-1)) + var(--strip-end, 0px));
   }
   /* Each turn reads as one unit: its number, then its moves, inside one
      quiet outline, with room between turns. */
@@ -273,6 +274,8 @@
     [data-game-slot="rail"]
     .list[data-layout="table"]:has(> .heading) {
     padding-inline-start: 0;
+    /* The latest turn ends clear of the far edge's fade, whole. */
+    --strip-room: var(--ui-space-6);
     /* More past the far edge shows as a fade there, not a cut. */
     mask-image: linear-gradient(
       to left,
