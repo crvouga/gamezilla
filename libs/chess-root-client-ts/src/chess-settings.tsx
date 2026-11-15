@@ -11,7 +11,7 @@ import { Trans } from '@lingui/solid/macro';
 export const chessSettings: GameSettings = {
   // Its only tool, so named for it rather than "Settings".
   title: () => <Trans>Manage puzzles</Trans>,
-  caption: () => <Trans>Load chess puzzles from a Lichess file</Trans>,
+  caption: () => <Trans>Load puzzles from Lichess</Trans>,
   subtitle: () => <Trans>Tools for the people who manage chess puzzles.</Trans>,
   rows: [
     {

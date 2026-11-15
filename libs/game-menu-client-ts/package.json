@@ -47,6 +47,7 @@
   "category": "client",
   "gameApi": [
     "game-client",
+    "game-menu-story.example",
     "game-settings",
     "game-table-people.example"
   ],

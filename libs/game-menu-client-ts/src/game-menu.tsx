@@ -42,6 +42,11 @@ function GameChoices(props: {
       title: <Dynamic component={rule.title} />,
       body: <Dynamic component={rule.body} />,
       points: rule.points?.map((point) => <Dynamic component={point} />),
+      examples: rule.examples?.map((example) => ({
+        key: example.key,
+        figure: <Dynamic component={example.Figure} />,
+        caption: <Dynamic component={example.caption} />,
+      })),
     }))
   );
   const choices = createMemo(() =>

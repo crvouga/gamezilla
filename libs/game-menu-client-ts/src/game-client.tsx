@@ -68,6 +68,15 @@ export type GameRule = {
   readonly body: () => JSX.Element;
   /** Entries read one by one (each piece's move), listed under the body. */
   readonly points?: readonly (() => JSX.Element)[];
+  /** Pictures of the rule in play (a move on the board), each captioned. */
+  readonly examples?: readonly GameRuleExample[];
+};
+
+/** One picture of a rule in play, and the words that say what it shows. */
+export type GameRuleExample = {
+  readonly key: string;
+  readonly Figure: () => JSX.Element;
+  readonly caption: () => JSX.Element;
 };
 
 type GameClientParts = {

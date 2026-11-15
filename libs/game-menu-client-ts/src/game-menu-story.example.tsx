@@ -60,7 +60,13 @@ export const HEARTS_RULES: readonly GameRulesSection[] = [
   rule(
     'trick',
     'Play the tricks',
-    'A trick is one card from each player, in turn. The first card played leads, and its suit is the suit led. Whoever holds the two of clubs leads the first trick. Follow the suit led if you can; the highest card of that suit takes the trick and leads the next. For example: clubs are led 2, 9, king, then a heart from someone with no clubs; the king takes the trick and its heart.'
+    'A trick is one card from each player, in turn. The first card played leads, and its suit is the suit led.',
+    [
+      'Whoever holds the two of clubs leads the first trick.',
+      'Follow the suit led if you can.',
+      'The highest card of the suit led takes the trick and leads the next.',
+      'For example: clubs are led 2, 9, king, then a heart from someone with no clubs. The king takes the trick, heart and all.',
+    ]
   ),
   rule(
     'holding',
@@ -165,7 +171,7 @@ export const CHESS_CHOICES: readonly GameMenuChoiceView[] = [
   {
     screen: 'settings',
     title: 'Manage puzzles',
-    caption: 'Load chess puzzles from a Lichess file',
+    caption: 'Load puzzles from Lichess',
   },
 ];
 

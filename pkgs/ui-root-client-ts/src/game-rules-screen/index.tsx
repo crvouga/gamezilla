@@ -21,6 +21,18 @@ export type GameRulesSection = {
    * each special move), listed under the body.
    */
   points?: readonly JSX.Element[] | undefined;
+  /**
+   * Pictures of the part in play (a move on a board), each with the words
+   * that say what it shows, after the body and its entries.
+   */
+  examples?: readonly GameRulesExample[] | undefined;
+};
+
+/** One picture of a rule in play, and what it shows in words. */
+export type GameRulesExample = {
+  key: string;
+  figure: JSX.Element;
+  caption: JSX.Element;
 };
 
 export type GameRulesScreenProps = {
@@ -114,6 +126,22 @@ export function GameRulesScreen(props: GameRulesScreenProps): JSX.Element {
                     )}
                   </For>
                 </ul>
+              </Show>
+              <Show when={section.examples?.length}>
+                <div class={styles['examples']}>
+                  <For each={section.examples}>
+                    {(example) => (
+                      <figure class={styles['example']}>
+                        <div class={styles['figure']}>{example.figure}</div>
+                        <figcaption
+                          class={`${styles['caption']} text textCaption`}
+                        >
+                          {example.caption}
+                        </figcaption>
+                      </figure>
+                    )}
+                  </For>
+                </div>
               </Show>
             </li>
           )}

@@ -68,6 +68,7 @@ const SPACE_BODIES = new Set([
   'screens-games-battleship-board',
   'screens-games-battleship-setup',
   'screens-games-chess-board',
+  'screens-games-chess-how-to-play',
   'screens-games-connect-four-board',
   'screens-games-matchmaking-commands',
   'screens-games-matchmaking-find',
