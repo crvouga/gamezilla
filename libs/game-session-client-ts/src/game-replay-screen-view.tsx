@@ -382,9 +382,10 @@ function ReplaySubtitle(props: GameReplayScreenViewProps): JSX.Element {
   const ago = useRelativeTimeLabel(() => props.endedAt ?? '');
   return (
     <>
-      <Show when={props.outcome === null} fallback={<Trans>Your game</Trans>}>
-        <Trans>Watched</Trans>
+      <Show when={props.outcome === null}>
+        <Trans>Watched</Trans> ·{' '}
       </Show>
+      {props.result}
       <Show when={props.endedAt !== null}> · {ago()}</Show>
     </>
   );
