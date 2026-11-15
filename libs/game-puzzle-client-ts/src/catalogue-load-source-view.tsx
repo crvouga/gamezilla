@@ -222,10 +222,20 @@ export function CatalogueLoadSourceView(
       <SourceFiles source={props.source} sourceName={props.copy.sourceName} />
       <Show when={status() === 'saved'}>
         <Notice tone="success" dataSet={{ testid: 'puzzle-source-ready' }}>
-          <Trans>
-            The {props.copy.sourceName} is saved. Go back to start loading its
-            puzzles.
-          </Trans>
+          <Show
+            when={props.link === 'offline'}
+            fallback={
+              <Trans>
+                The {props.copy.sourceName} is saved. Go back to start loading
+                its puzzles.
+              </Trans>
+            }
+          >
+            <Trans>
+              The {props.copy.sourceName} is saved. Loading its puzzles can
+              start once you are back online.
+            </Trans>
+          </Show>
         </Notice>
         <Button
           title={t`Back to loading`}

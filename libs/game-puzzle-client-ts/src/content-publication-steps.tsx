@@ -49,8 +49,13 @@ export type PublicationStepsProps = {
    * `readable()`): the playtest waits on the editor's corrections.
    */
   readonly playable?: boolean | undefined;
-  /** Opens the board, the lead while the draft cannot be played yet. */
-  readonly onFix?: (() => void) | undefined;
+  /**
+   * Opens the place that corrects the draft: the board while the game
+   * cannot play it, or where a failed check points (`fixTarget`).
+   */
+  readonly onFix?: ((where: 'details' | 'board') => void) | undefined;
+  /** Where the failed check's finding is corrected, when it says. */
+  readonly fixTarget?: 'details' | 'board' | undefined;
   /**
    * Why this person cannot publish, said under the Publish step in place
    * of its action (a compact permission denial).
@@ -109,8 +114,7 @@ function NextLine(props: PublicationStepsProps): JSX.Element {
       return t`Next: fix the draft as the editor says, then playtest.`;
     if (props.next === 'playtest')
       return t`Next: finish a playtest to show the puzzle can be solved.`;
-    if (props.next === 'publish' && props.refused === true)
-      return t`Next: correct the draft, then publish again.`;
+    if (props.next === 'publish' && props.refused === true) return '';
     if (props.next === 'publish')
       return t`Ready: publish to share it with everyone who plays.`;
     return props.validation === 'invalid'
@@ -118,13 +122,15 @@ function NextLine(props: PublicationStepsProps): JSX.Element {
       : t`Next: validate the draft, then publish it.`;
   };
   return (
-    <P
-      variant="caption"
-      tone="secondary"
-      dataSet={{ testid: 'content-publication-status' }}
-    >
-      {line()}
-    </P>
+    <Show when={line() !== ''}>
+      <P
+        variant="caption"
+        tone="secondary"
+        dataSet={{ testid: 'content-publication-status' }}
+      >
+        {line()}
+      </P>
+    </Show>
   );
 }
 
@@ -145,16 +151,37 @@ function OpenWaiting(props: PublicationStepsProps): JSX.Element {
   );
 }
 
-/** The lead while the board cannot be played: it opens the board. */
-function FixBoard(props: { onFix: () => void }): JSX.Element {
+/**
+ * Where correcting the draft leads instead of the next step's own action:
+ * the board while the game cannot play it, or where a failed check
+ * points. `null` when the step's own action leads.
+ */
+function fixLead(props: PublicationStepsProps): 'details' | 'board' | null {
+  if (props.onFix === undefined) return null;
+  if (correctionFirst(props)) return 'board';
+  if (props.next === 'validate' && props.validation === 'invalid')
+    return props.fixTarget ?? null;
+  return null;
+}
+
+/** The correction as the lead: it opens the board or the details. */
+function FixLead(props: {
+  where: 'details' | 'board';
+  unplayable: boolean;
+  onFix: (where: 'details' | 'board') => void;
+}): JSX.Element {
   const { t } = useLingui();
+  const title = () => {
+    if (props.where === 'details') return t`Edit details`;
+    return props.unplayable ? t`Fix the board` : t`Edit board`;
+  };
   return (
     <Button
-      title={t`Fix the board`}
+      title={title()}
       intent="primary"
       variant="solid"
-      onClick={() => props.onFix()}
-      dataSet={{ testid: 'content-author-fix-board' }}
+      onClick={() => props.onFix(props.where)}
+      dataSet={{ testid: `content-author-fix-${props.where}` }}
     />
   );
 }
@@ -169,10 +196,18 @@ function useLead(
 ): () => JSX.Element {
   return createMemo(() => {
     const step = next();
+    const fix = fixLead(props);
     return untrack((): JSX.Element => {
       if (step === 'puzzles') return <OpenWaiting {...props} />;
-      if (step === 'playtest' && correctionFirst(props) && props.onFix)
-        return <FixBoard onFix={props.onFix} />;
+      const onFix = props.onFix;
+      if (fix !== null && onFix !== undefined)
+        return (
+          <FixLead
+            where={fix}
+            unplayable={correctionFirst(props)}
+            onFix={onFix}
+          />
+        );
       if (step === 'playtest') return props.playtest(true);
       return step === 'validate'
         ? props.validate('lead')
@@ -195,9 +230,10 @@ function useTrackActions(
       )
         return 'done';
       const state = stateOf(step, next());
-      // While the board needs fixing the fix leads; the playtest waits.
-      if (step === 'playtest' && correctionFirst(props) && props.onFix)
-        return 'locked';
+      // While a correction leads, the step it holds up waits: the playtest
+      // locked, a failed check's Validate again beside its step.
+      if (state === 'current' && fixLead(props) !== null)
+        return step === 'playtest' ? 'locked' : 'done';
       if (state === 'current') return 'lead';
       return state === 'done' ? 'done' : 'locked';
     });

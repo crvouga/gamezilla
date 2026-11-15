@@ -6,6 +6,7 @@ import { Button } from '@pkgs/ui-root-client-ts/button';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { P } from '@pkgs/ui-root-client-ts/text';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
 import { type Accessor, type JSX, Show } from 'solid-js';
 import { contentBuilderNextStep } from './content-builder-standing';
@@ -63,6 +64,8 @@ export type ContentPublicationControlsViewProps = {
   readonly onFix?: ((where: 'details' | 'board') => void) | undefined;
   /** The server refused the last publication; its notice says why. */
   readonly refused?: boolean | undefined;
+  /** Where the failed check's finding is corrected, when it says. */
+  readonly fixTarget?: 'details' | 'board' | undefined;
 };
 
 /**
@@ -143,7 +146,14 @@ function Finding(props: ContentPublicationControlsViewProps): JSX.Element {
       when={props.validation === 'invalid'}
       fallback={
         <Show when={props.refused === true && props.onFix}>
-          {(onFix) => <FixRoutes onFix={onFix()} />}
+          {(onFix) => (
+            <StackVertical gap="sm" testId="content-refusal-fixes">
+              <P variant="caption" tone="secondary">
+                <Trans>Correct the draft first, then publish again.</Trans>
+              </P>
+              <FixRoutes onFix={onFix()} />
+            </StackVertical>
+          )}
         </Show>
       }
     >
@@ -151,7 +161,8 @@ function Finding(props: ContentPublicationControlsViewProps): JSX.Element {
         <StackVertical gap="sm">
           {props.validationMessage ||
             t`Complete the required details and validate again.`}
-          <Show when={props.onFix}>
+          {/* With a known place to fix it the lead opens it; otherwise both. */}
+          <Show when={props.fixTarget === undefined && props.onFix}>
             {(onFix) => <FixRoutes onFix={onFix()} />}
           </Show>
         </StackVertical>
@@ -170,7 +181,9 @@ function usePublicationActions(props: ContentPublicationControlsViewProps) {
     operation: () => props.onValidate(),
     labels: {
       get idle() {
-        return props.validation === 'valid' ? t`Validate again` : t`Validate`;
+        return props.validation === 'unchecked' || props.validation === null
+          ? t`Validate`
+          : t`Validate again`;
       },
       loading: t`Checking…`,
       success: t`Check finished`,
@@ -214,7 +227,7 @@ type PublicationActions = ReturnType<typeof usePublicationActions>;
 function placed(place: PublicationActionPlace) {
   if (place === 'lead') return { intent: 'primary', variant: 'solid' } as const;
   if (place === 'done')
-    return { intent: 'neutral', variant: 'outline', size: 'sm' } as const;
+    return { intent: 'primary', variant: 'ghost', size: 'sm' } as const;
   return {
     intent: 'neutral',
     variant: 'ghost',
@@ -374,7 +387,8 @@ export function ContentPublicationControlsView(
         onOpenWaiting={props.onOpenWaiting}
         playable={props.playable}
         refused={props.refused}
-        onFix={props.onFix && (() => props.onFix?.('board'))}
+        onFix={props.onFix}
+        fixTarget={props.fixTarget}
         publishNote={
           props.publishDenial === undefined ? undefined : (
             <DenialSurfaceView denial={props.publishDenial} variant="compact" />

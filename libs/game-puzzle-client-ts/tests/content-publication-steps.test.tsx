@@ -618,12 +618,38 @@ test('a refused publication names the correction first, then publishing again', 
       onFix: (where) => fixed.push(where),
     })
   );
-  expect(screen.getByTestId('content-publication-status').textContent).toBe(
-    'Next: correct the draft, then publish again.'
+  // The refusal's notice says why; the line does not repeat it.
+  expect(screen.queryByTestId('content-publication-status')).toBeNull();
+  expect(screen.getByTestId('content-refusal-fixes').textContent).toContain(
+    'Correct the draft first, then publish again.'
   );
   expect(screen.getByTestId('content-publish').textContent).toBe(
     'Publish again'
   );
   fireEvent.click(screen.getByTestId('content-fix-board'));
+  expect(fixed).toEqual(['board']);
+});
+
+// regression: builder-check-failed-validate-leads — after a failed check
+// Validate led while the finding pointed at the board, so the author
+// re-ran the check instead of fixing it. The place it points to leads,
+// and Validate again waits beside its step.
+test('a failed check leads with the place that fixes it, then Validate again', () => {
+  const fixed: string[] = [];
+  mount(() =>
+    publication({
+      proven: true,
+      validation: 'invalid',
+      validationMessage: 'The target must be a number from 2 to 9.',
+      fixTarget: 'board',
+      onFix: (where) => fixed.push(where),
+    })
+  );
+  expect(lead()).toBe(screen.getByTestId('content-author-fix-board'));
+  expect(lead().textContent).toBe('Edit board');
+  expect(screen.getByTestId('content-validate').textContent).toBe(
+    'Validate again'
+  );
+  fireEvent.click(lead());
   expect(fixed).toEqual(['board']);
 });

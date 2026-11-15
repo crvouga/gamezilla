@@ -50,6 +50,7 @@ export const ValidationFailed: Story = {
         proven: true,
         validation: 'invalid',
         validationMessage: 'The target must be a number from 2 to 9.',
+        fixTarget: 'board',
       },
     }),
 };

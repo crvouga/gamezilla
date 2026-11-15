@@ -171,6 +171,10 @@ function NextStep(props: { view: View }): JSX.Element {
     const current = standing();
     return current.kind === 'puzzles' ? (current.waiting[0] ?? '') : '';
   };
+  const invalid = () => {
+    const current = standing();
+    return current.kind === 'validate' && current.invalid;
+  };
   const published = () => {
     const current = standing();
     return current.kind === 'published' && current.current;
@@ -202,6 +206,9 @@ function NextStep(props: { view: View }): JSX.Element {
       </Match>
       <Match when={standing().kind === 'playtest'}>
         <PublishNext view={props.view} title={t`Next: playtest`} />
+      </Match>
+      <Match when={invalid()}>
+        <PublishNext view={props.view} title={t`Next: correct the draft`} />
       </Match>
       <Match when={standing().kind === 'validate'}>
         <PublishNext view={props.view} title={t`Next: validate`} />

@@ -93,7 +93,7 @@ test('until the draft passes its check, Validate is the one filled step', () => 
 
 test('once the draft passes its check, Publish is the one filled step', () => {
   mount(() => publication({ validation: 'valid' }));
-  expect(variants()).toEqual({ validate: 'outline', publish: 'solid' });
+  expect(variants()).toEqual({ validate: 'ghost', publish: 'solid' });
 });
 
 // regression: builder-publish-looks-ready-early — a Sokoban draft said
@@ -411,7 +411,7 @@ const STANDINGS: readonly [ContentBuilderStanding, string, string, string][] = [
     { kind: 'validate', invalid: true },
     'Validation found something to fix',
     'content-author-next',
-    'Next: validate',
+    'Next: correct the draft',
   ],
   [
     { kind: 'publish' },

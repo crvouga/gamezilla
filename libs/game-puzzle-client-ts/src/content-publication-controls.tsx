@@ -31,6 +31,33 @@ function validationMessage(draft: ContentDraft | undefined): string {
 }
 
 /**
+ * Where the failed check's first finding is corrected: a missing title in
+ * the details, anything about the definition on the board. A playtest
+ * finding (or none) names no place.
+ */
+function fixTarget(
+  draft: ContentDraft | undefined
+): 'details' | 'board' | undefined {
+  if (draft?.validation_status !== 'invalid') return undefined;
+  try {
+    const issues: unknown = JSON.parse(draft.validation_issues);
+    const first: unknown = Array.isArray(issues) ? issues[0] : undefined;
+    const code =
+      typeof first === 'object' &&
+      first !== null &&
+      'code' in first &&
+      typeof first.code === 'string'
+        ? first.code
+        : null;
+    if (code === null || code === 'PUZZLE_PLAYTEST_INCOMPLETE')
+      return undefined;
+    return code === 'PUZZLE_TITLE_REQUIRED' ? 'details' : 'board';
+  } catch {
+    return undefined;
+  }
+}
+
+/**
  * The builder's publish screen wired to the draft's standing and the
  * publish permission; `before` (a puzzle's playtest) comes first among its
  * actions, and withdrawing asks the builder's shell to confirm.
@@ -59,6 +86,7 @@ export function ContentPublicationControls(props: {
       kind={props.document.kind}
       validation={tools().draft()?.validation_status ?? null}
       validationMessage={validationMessage(tools().draft())}
+      fixTarget={fixTarget(tools().draft())}
       proven={tools().proven()}
       waitingOn={tools().waitingOn()}
       pending={props.publication.status.pending()}
