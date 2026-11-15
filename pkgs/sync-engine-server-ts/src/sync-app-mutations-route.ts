@@ -40,6 +40,7 @@ import { processMutationsBatch } from './process-mutations-batch';
 import type { MutationRow } from './replay-mutation';
 import type { SyncSqlVariables } from './resolve-request-sql';
 import { resolveRequestSql } from './resolve-request-sql';
+import { retryMutationTransaction } from './retry-mutation-transaction';
 import type { SyncAppAuth } from './sync-app-auth';
 import { assertSyncProtocol } from './sync-protocol-gate';
 
@@ -125,7 +126,7 @@ async function prepareMutationNotify(
   mutationRows: MutationRow[],
   db: SqlClient
 ): Promise<PreparedMutationNotify> {
-  return db.transaction(async (tx) => {
+  return retryMutationTransaction(db, async (tx) => {
     const result = await processMutationsBatch({
       transaction: tx,
       registry: deps.mutations,
