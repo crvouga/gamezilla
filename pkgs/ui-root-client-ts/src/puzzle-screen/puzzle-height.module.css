@@ -23,11 +23,15 @@
     }
   }
 }
-/* A phone under 700px tall: the coach says two lines before its More. */
+/* A phone under 700px tall: the coach says two lines before its More, and
+   the regions sit closer still, so the coach clears the dock. */
 @media (max-height: 699px) {
   @container puzzle-frame (width < 880px) {
     [data-board-sizing="width"] {
       --ui-speech-lines: 2;
+    }
+    [data-board-sizing="width"][data-square] {
+      gap: var(--ui-space-1);
     }
   }
 }
