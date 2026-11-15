@@ -4,6 +4,7 @@ const viewport = { width: 390, height: 844 };
 test.use({ viewport });
 
 // regression: step-track-stacked-actions-centre-their-names
+// regression: step-track-subgrid-marker-overlap
 test('storybook integration: stacked step actions keep their names at the start', async ({
   page,
 }) => {
@@ -14,27 +15,30 @@ test('storybook integration: stacked step actions keep their names at the start'
     'data-story-ready',
     'true'
   );
-  const rows = await page.locator('ol > li').evaluateAll((items) =>
+  const steps = page.locator('[data-component="StepTrack"] ol > li');
+  const rows = await steps.evaluateAll((items) =>
     items.flatMap((item) => {
-      const [marker, label, state] = [...item.children];
-      const acts =
-        label?.matches('button') === true ||
-        label?.querySelector('button') !== null;
-      if (!marker || !label || !state || !acts) return [];
+      const [marker, body] = [...item.children];
+      const [label, state] = [...(body?.children ?? [])];
+      if (!marker || !body || !label || !state) return [];
       return [
         {
-          labelLeft: label.getBoundingClientRect().left,
-          labelRight: label.getBoundingClientRect().right,
-          stateLeft: state.getBoundingClientRect().left,
+          labelTop: label.getBoundingClientRect().top,
+          stateTop: state.getBoundingClientRect().top,
+          bodyLeft: body.getBoundingClientRect().left,
           markerRight: marker.getBoundingClientRect().right,
+          stateRight: state.getBoundingClientRect().right,
+          rowRight: item.getBoundingClientRect().right,
         },
       ];
     })
   );
-  expect(rows.length).toBeGreaterThan(0);
+  expect(rows).toHaveLength(6);
   for (const row of rows) {
-    // Not stretched across to the state word, and starting beside the marker.
-    expect(row.stateLeft - row.labelRight).toBeGreaterThan(16);
-    expect(row.labelLeft - row.markerRight).toBeLessThan(16);
+    // The state follows its name vertically, with the body beside its marker.
+    expect(row.stateTop).toBeGreaterThan(row.labelTop);
+    expect(row.bodyLeft - row.markerRight).toBeGreaterThanOrEqual(0);
+    expect(row.bodyLeft - row.markerRight).toBeLessThan(16);
+    expect(row.stateRight).toBeLessThanOrEqual(row.rowRight);
   }
 });

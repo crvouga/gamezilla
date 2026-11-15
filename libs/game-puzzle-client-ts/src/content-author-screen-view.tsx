@@ -5,12 +5,14 @@ import type {
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
 import { Trans, useLingui } from '@lingui/solid/macro';
+import { Button } from '@pkgs/ui-root-client-ts/button';
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Text } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import { ContentAuthorHubView } from './content-author-hub-view';
@@ -85,6 +87,8 @@ export type ContentAuthorScreenViewProps = {
   readonly keptCopies?: JSX.Element;
   /** The server's refusal of the last publication, said on every place. */
   readonly refusal?: JSX.Element;
+  /** That refusal is in view: correcting the draft comes before publishing. */
+  readonly refused?: boolean | undefined;
   /** The builder's confirmation dialogs, kept whichever place is shown. */
   readonly confirms?: JSX.Element;
   readonly onChangeBody: (body: ContentBody) => void;
@@ -132,13 +136,40 @@ function AuthorNotices(props: ContentAuthorScreenViewProps): JSX.Element {
       </Show>
       <Show when={props.conflicted}>
         <Notice tone="warning" dataSet={{ testid: 'content-author-conflict' }}>
-          <Trans>
-            Another device saved a different copy of this draft. Choose the copy
-            to keep working from under Draft copies before publishing.
-          </Trans>
+          <Show
+            when={props.place.screen === 'copies'}
+            fallback={
+              <StackVertical gap="sm">
+                <Trans>
+                  Another device saved a different copy of this draft. Choose
+                  the copy to keep working from before publishing.
+                </Trans>
+                <Show when={props.place.screen !== 'builder'}>
+                  <StackHorizontal>
+                    <Button
+                      title={t`Open draft copies`}
+                      intent="neutral"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => props.onOpen({ screen: 'copies' })}
+                      dataSet={{ testid: 'content-author-open-copies' }}
+                    />
+                  </StackHorizontal>
+                </Show>
+              </StackVertical>
+            }
+          >
+            <Trans>
+              Another device saved a different copy of this draft. Choose the
+              copy to keep working from below before publishing.
+            </Trans>
+          </Show>
         </Notice>
       </Show>
-      {props.refusal}
+      {/* On the publish screen the refusal is said once, with its fix. */}
+      <Show when={!(props.place.screen === 'publish' && props.refused)}>
+        {props.refusal}
+      </Show>
     </>
   );
 }
@@ -253,6 +284,22 @@ function AuthorShell(props: ContentAuthorScreenViewProps): JSX.Element {
   );
 }
 
+/** The way back to the puzzles from a builder that cannot open. */
+function ReturnToPuzzles(props: {
+  onReturnToLibrary: () => void;
+}): JSX.Element {
+  const { t } = useLingui();
+  return (
+    <Button
+      title={t`Return to puzzles`}
+      intent="neutral"
+      variant="outline"
+      onClick={() => props.onReturnToLibrary()}
+      dataSet={{ testid: 'content-author-return' }}
+    />
+  );
+}
+
 /** The draft cannot be shown: why, and the way back to the puzzles. */
 function AuthorUnavailable(props: {
   gone: boolean;
@@ -302,7 +349,12 @@ export function ContentAuthorScreenView(
         <LoadingState />
       </Match>
       <Match when={props.denial}>
-        {(denial) => <DenialSurfaceView denial={denial()} />}
+        {(denial) => (
+          <StackVertical gap="lg" align="center">
+            <DenialSurfaceView denial={denial()} />
+            <ReturnToPuzzles onReturnToLibrary={props.onReturnToLibrary} />
+          </StackVertical>
+        )}
       </Match>
       <Match when={props.status === 'ready'}>
         <AuthorShell {...props} />

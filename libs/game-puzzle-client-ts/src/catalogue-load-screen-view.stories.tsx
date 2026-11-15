@@ -42,7 +42,7 @@ export const SourceCheckFailed: Story = {
     source: {
       ...STORY_SOURCE_MISSING,
       status: 'check-failed',
-      checkError: 'The bucket could not be reached. Check again.',
+      checkError: 'The saved Lichess file could not be checked. Check again.',
     },
   },
 };

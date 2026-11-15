@@ -1,3 +1,4 @@
+import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { ContentAuthorScreenView } from './content-author-screen-view';
 import {
@@ -5,8 +6,8 @@ import {
   AUTHOR_STORY_PACK,
   AUTHOR_STORY_PARAMETERS,
   renderAuthorStory,
+  StoryCopies,
 } from './content-author-story.example';
-import { StoryKeptCopies } from './content-story.example';
 
 const meta = {
   id: 'screens-puzzles-content-author-copies',
@@ -32,8 +33,42 @@ export const Pack: Story = {
     renderAuthorStory(args, {
       slots: () => ({
         keptCopies: (
-          <StoryKeptCopies current="Weekend counts" earlier="Weekend puzzles" />
+          <StoryCopies
+            copies={[
+              {
+                id: 'pack-current',
+                title: 'Weekend counts',
+                difficulty: '',
+                description: 'Three puzzles that get harder.',
+                conflicted: false,
+                validation: 'unchecked',
+              },
+              {
+                id: 'pack-earlier',
+                title: 'Weekend puzzles',
+                difficulty: '',
+                description: 'Two puzzles to start.',
+                conflicted: false,
+                validation: 'valid',
+              },
+            ]}
+          />
         ),
       }),
     }),
+};
+
+/** Using another copy asks first, saying the other copies stay saved. */
+export const ConfirmCopy: Story = {
+  args: { conflicted: true },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      await canvas.findByTestId('content-use-copy-copy-earlier')
+    );
+    const page = within(canvasElement.ownerDocument.body);
+    await expect(
+      await page.findByText('Keep working from “Count to five”?')
+    ).toBeVisible();
+  },
 };

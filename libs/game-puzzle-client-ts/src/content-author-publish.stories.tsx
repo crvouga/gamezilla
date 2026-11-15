@@ -1,5 +1,5 @@
 import { KeyRoundIcon } from '@pkgs/ui-root-client-ts/icons';
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { ContentAuthorScreenView } from './content-author-screen-view';
 import {
@@ -50,6 +50,7 @@ export const ValidationFailed: Story = {
         proven: true,
         validation: 'invalid',
         validationMessage: 'The target must be a number from 2 to 9.',
+        fixTarget: 'board',
       },
     }),
 };
@@ -98,6 +99,8 @@ export const PublishDenied: Story = {
         publishDenial: {
           icon: KeyRoundIcon,
           title: 'Publishing needs a verified account',
+          body: 'Verify your account once, then publish from here.',
+          action: { label: 'Verify account', onPress: fn() },
           dataSet: { testid: 'permission-denial', reason: 'not_granted' },
         },
       },
@@ -118,7 +121,7 @@ export const Saving: Story = {
   args: { save: { saving: true, dirty: true, error: null }, disabled: true },
 };
 
-/** Withdrawing asks first, in a destructive confirm the shell owns. */
+/** Withdrawing asks first, naming the puzzle, in a destructive confirm the shell owns. */
 export const ConfirmWithdraw: Story = {
   ...Published,
   play: async ({ canvasElement }) => {
@@ -126,7 +129,7 @@ export const ConfirmWithdraw: Story = {
     await userEvent.click(await canvas.findByTestId('content-withdraw'));
     const page = within(canvasElement.ownerDocument.body);
     await expect(
-      await page.findByText('Withdraw this publication?')
+      await page.findByText('Withdraw “Count to seven”?')
     ).toBeVisible();
   },
 };
