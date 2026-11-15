@@ -51,8 +51,9 @@ export type GameRulesScreenProps = {
  * (its number beside it) over a few lines at a reading measure, with
  * entries read one by one listed under them, and the commands that lead on
  * from the rules, held at the foot of the view while long rules scroll.
- * The column is the prose measure on every layout, so a line never runs
- * past a comfortable length. Presentational.
+ * The rules start on the host's column, as the game's menu does, and stop
+ * at a reading measure, so a line never runs past a comfortable length.
+ * Presentational.
  *
  * @example
  * ```tsx
@@ -72,7 +73,9 @@ export function GameRulesScreen(props: GameRulesScreenProps): JSX.Element {
   return (
     <EmbeddedScreen
       screenId={props.screenId}
-      width="prose"
+      // The host's own column, so the rules start where the bar's trail
+      // and the game's menu do; the reading measure caps them inside it.
+      width="full"
       dataSet={{ component: 'GameRulesScreen', ...props.dataSet }}
     >
       <header class={styles['head']}>

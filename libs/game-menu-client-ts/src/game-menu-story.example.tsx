@@ -60,7 +60,12 @@ export const HEARTS_RULES: readonly GameRulesSection[] = [
   rule(
     'trick',
     'Play the tricks',
-    "Whoever holds the two of clubs leads it. Follow the suit led if you can; the highest card of that suit takes the trick and leads next. Hearts and the queen of spades can't be played on the first trick unless you hold nothing else, and hearts can't be led until one has been played, unless you hold only hearts."
+    'Whoever holds the two of clubs leads it. Follow the suit led if you can; the highest card of that suit takes the trick and leads next.'
+  ),
+  rule(
+    'holding',
+    'Holding back hearts and the queen',
+    "Hearts and the queen of spades can't be played on the first trick unless you hold nothing else. Hearts can't be led until one has been played, unless you hold only hearts."
   ),
   rule(
     'end',

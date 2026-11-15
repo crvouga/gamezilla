@@ -80,6 +80,7 @@
   align-items: center;
   gap: var(--ui-space-2);
   padding-block: var(--ui-space-3);
+  border-top: 1px solid var(--ui-color-border);
   background: var(--ui-color-background);
 }
 /* Each command sized by its label, the main one taking the room left; when
@@ -88,10 +89,14 @@
 .actions > * {
   flex: 1 1 auto;
 }
-/* A line of rules stops at a comfortable reading length on wide screens. */
-.body,
-.points {
-  max-inline-size: 68ch;
+/* Head, rules and commands share one reading measure on wide screens, the
+   panel as wide as its words and every line, paragraph or entry, ending
+   at the same comfortable length. */
+.head,
+.sections,
+.actions {
+  inline-size: 100%;
+  max-inline-size: 720px;
 }
 /* While more rules wait below, they fade into the commands' background as
    they pass under them, so a part still to come reads as more to read,
