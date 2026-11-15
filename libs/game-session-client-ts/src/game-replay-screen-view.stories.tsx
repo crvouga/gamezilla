@@ -124,7 +124,7 @@ export const JumpToMove: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(
-      await canvas.findByRole('button', { name: 'Move 3, Red circle: 4' })
+      await canvas.findByTestId('game-history-review-move-3')
     );
     await expect(args.onSeek).toHaveBeenCalledWith(3);
   },
