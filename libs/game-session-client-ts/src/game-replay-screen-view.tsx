@@ -348,10 +348,6 @@ function ReplayMovesPage(props: GameReplayScreenViewProps): JSX.Element {
             <Trans>
               Moves {first()}–{last()} of {props.moves.length}
             </Trans>
-            <Show when={props.moveHeading !== ''}>
-              {' · '}
-              {props.moveHeading}
-            </Show>
           </P>
           <Show when={paged()}>
             <StackHorizontal gap="xs" align="center">
