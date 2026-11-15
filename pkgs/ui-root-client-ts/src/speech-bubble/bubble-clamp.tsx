@@ -85,7 +85,7 @@ export function BubbleMore(props: { clamp: BubbleClamp }): JSX.Element {
           }
           intent="neutral"
           variant="ghost"
-          size="sm"
+          size="md"
           aria-expanded={props.clamp.expanded()}
           aria-label={
             props.clamp.expanded()

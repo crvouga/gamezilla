@@ -8,7 +8,7 @@
   overflow: hidden;
 }
 /* More / Less starts where the words do: the ghost button's gutter is
-   pulled back to the text column. */
+   pulled back to the text column. A full 44px target. */
 .more {
-  margin-inline-start: calc(-1 * var(--ui-space-5));
+  margin-inline-start: calc(-1 * (var(--ui-space-6) + var(--ui-space-1)));
 }
