@@ -1,0 +1,4 @@
+{
+  "summary": "Battleship health keyed the targeting region before it appeared after an opponent move, failing with Keyboard target not found at revision 6.",
+  "regressionTest": "libs/battleship-shared-ts/tests/game.test.ts"
+}
