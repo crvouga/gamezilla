@@ -26,7 +26,7 @@ const DEVELOPER: GameSettingsRowView = {
 const PACKS: GameSettingsRowView = {
   key: 'packs',
   title: 'Load puzzle packs',
-  caption: 'Load a pack file, follow its progress, or stop it.',
+  caption: 'Load a pack file and follow its progress',
   testId: 'sokoban-developer-packs',
   opens: { screen: 'settings/developer/packs' },
 };

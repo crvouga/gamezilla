@@ -60,7 +60,7 @@ export const HEARTS_RULES: readonly GameRulesSection[] = [
   rule(
     'trick',
     'Play the tricks',
-    'Whoever holds the two of clubs leads it. Follow the suit led if you can; the highest card of that suit takes the trick and leads next.'
+    'A trick is one card from each player, in turn. The first card played leads, and its suit is the suit led. Whoever holds the two of clubs leads the first trick. Follow the suit led if you can; the highest card of that suit takes the trick and leads the next. For example: clubs are led 2, 9, king, then a heart from someone with no clubs; the king takes the trick and its heart.'
   ),
   rule(
     'holding',
@@ -85,12 +85,12 @@ export const CHESS_RULES: readonly GameRulesSection[] = [
     'Your turn',
     "White moves first, then the sides take turns moving one piece. Land on another's piece to take it; you may never leave your own king in check.",
     [
-      '♔ King: one square in any direction.',
-      '♕ Queen: any distance in a straight line or diagonal.',
-      '♖ Rook: any distance in a straight line.',
-      '♗ Bishop: any distance diagonally.',
-      '♘ Knight: an L, two squares one way and one to the side, jumping over pieces.',
-      '♙ Pawn: one square forward, or two from its start; it takes one square diagonally forward.',
+      '♚ King: one square in any direction.',
+      '♛ Queen: any distance in a straight line or diagonal.',
+      '♜ Rook: any distance in a straight line.',
+      '♝ Bishop: any distance diagonally.',
+      '♞ Knight: an L, two squares one way and one to the side, jumping over pieces.',
+      '♟ Pawn: one square forward, or two from its start; it takes one square diagonally forward.',
     ]
   ),
   rule('special', 'Special moves', 'Three moves break the usual pattern.', [
@@ -164,8 +164,8 @@ export const CHESS_CHOICES: readonly GameMenuChoiceView[] = [
   },
   {
     screen: 'settings',
-    title: 'Settings',
-    caption: 'Load and manage chess puzzles',
+    title: 'Manage puzzles',
+    caption: 'Load chess puzzles from a Lichess file',
   },
 ];
 

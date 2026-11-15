@@ -48,7 +48,12 @@ export type GameSettingsRow = {
 
 /** A game's settings: the rows of its root group. */
 export type GameSettings = {
-  /** One line under "Settings" in the game's menu. */
+  /**
+   * The settings' name in the game's menu, when a task names them better
+   * than "Settings" (Chess: "Manage puzzles", its only tool).
+   */
+  readonly title?: (() => JSX.Element) | undefined;
+  /** One line under the settings' name in the game's menu. */
   readonly caption: () => JSX.Element;
   /** One line under "Settings" on the settings' own first screen. */
   readonly subtitle?: (() => JSX.Element) | undefined;

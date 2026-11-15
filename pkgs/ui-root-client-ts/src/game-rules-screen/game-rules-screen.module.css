@@ -82,9 +82,14 @@
   flex-wrap: wrap;
   align-items: center;
   gap: var(--ui-space-2);
-  padding-block: var(--ui-space-3);
+  padding-block: var(--ui-space-2);
   border-top: 1px solid var(--ui-color-border);
   background: var(--ui-color-background);
+}
+/* Rule text stops at a reading measure inside its panel. */
+.body,
+.points {
+  max-inline-size: 64ch;
 }
 /* Each command sized by its label, the main one taking the room left; when
    both labels do not fit one row (a phone of 360px), they take a row each

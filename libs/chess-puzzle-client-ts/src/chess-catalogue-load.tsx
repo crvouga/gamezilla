@@ -74,8 +74,8 @@ export const chessCatalogueLoad: CatalogueLoadClient = {
     title: () => <Trans>Load chess puzzles</Trans>,
     subtitle: () => (
       <Trans>
-        Upload a missing Lichess file, then load its puzzles into this
-        environment.
+        Load the puzzles of a Lichess file into this environment. Choose the
+        file first when none is saved.
       </Trans>
     ),
     sourceName: 'Lichess file',

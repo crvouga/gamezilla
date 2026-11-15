@@ -218,6 +218,11 @@ function lookBackChoices(game: GameClient, offers: Offers): GameChoiceItem[] {
   ];
 }
 
+/** The settings' name in the menu, unless the game names them by task. */
+function SettingsTitle(): JSX.Element {
+  return <Trans>Settings</Trans>;
+}
+
 /** Every choice the game offers, in the one order every game shares. */
 export function gameChoices(
   game: GameClient,
@@ -231,7 +236,7 @@ export function gameChoices(
       : [
           {
             screen: SHARED_GAME_SCREEN.settings,
-            title: () => <Trans>Settings</Trans>,
+            title: game.settings.title ?? SettingsTitle,
             caption: game.settings.caption,
           },
         ]),
