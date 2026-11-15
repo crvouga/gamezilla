@@ -595,3 +595,32 @@ describe('the result', () => {
     ).toHaveLength(2);
   });
 });
+
+// regression: covered-board-takes-focus — with the versus or result card
+// over the board, Tab reached the covered board's columns before the
+// card's own commands.
+describe('a card over the board holds the keyboard', () => {
+  test('the result card is a dialog: focus opens in it, and Escape closes it', () => {
+    const view = mountPlaces({ stage: 'playing' });
+    view.set({ game: FINISHED });
+    view.setStage('finished');
+    const card = screen.getByTestId('multiplayer-announcement');
+    const dialog = card.closest('[role="dialog"]');
+    expect(dialog?.getAttribute('aria-modal')).toBe('true');
+    expect(dialog?.contains(document.activeElement)).toBe(true);
+    document.activeElement?.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })
+    );
+    expect(view.overlay()).toEqual({ kind: 'board' });
+  });
+
+  test('the versus card is a dialog that focus opens in', () => {
+    const view = mountPlaces({ stage: 'searching' });
+    view.setStage('playing');
+    const card = screen.getByTestId('multiplayer-versus');
+    const dialog = card.closest('[role="dialog"]');
+    expect(dialog?.getAttribute('aria-modal')).toBe('true');
+    expect(dialog?.contains(document.activeElement)).toBe(true);
+    expect(view.overlay()).toEqual({ kind: 'versus', count: 3 });
+  });
+});

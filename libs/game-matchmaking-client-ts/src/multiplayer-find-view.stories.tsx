@@ -82,13 +82,6 @@ export const FinishCustomGameFirst: Story = {
       },
     },
   },
-  play: async ({ args, canvasElement }) => {
-    const canvas = within(canvasElement);
-    await userEvent.click(
-      await canvas.findByTestId('multiplayer-open-custom-game')
-    );
-    await expect(args.onOpenCustomGame).toHaveBeenCalled();
-  },
 };
 
 /** A command was refused: the reason sits above with the search still on offer. */

@@ -5,6 +5,7 @@ import type {
   StageOverlayEvent,
   StageOverlayPhase,
 } from '@pkgs/turn-game-client-ts/stage-overlay';
+import { FocusTrap } from '@pkgs/ui-root-client-ts/focus-trap';
 import {
   GameResultOverlay,
   type GameResultOverlayProps,
@@ -96,7 +97,9 @@ function VersusCard(
  * says (`StageOverlay`): the versus card and its count when an opponent is
  * found on this device, the result card once the game is over, else
  * nothing. The result card is the screen's announcement of how the game
- * ended.
+ * ended. Either card is a dialog over the board: focus opens in it and Tab
+ * stays in it, so the covered board is never reached; Escape closes the
+ * result card.
  */
 export function MultiplayerOverlayView(props: OverlayProps): JSX.Element {
   const versus = () =>
@@ -107,23 +110,31 @@ export function MultiplayerOverlayView(props: OverlayProps): JSX.Element {
     <Switch>
       <Match when={versus()}>
         {(card) => (
-          <VersusCard {...props} versus={card().shown} count={card().count} />
+          <FocusTrap active label={t`Opponent found`}>
+            <VersusCard {...props} versus={card().shown} count={card().count} />
+          </FocusTrap>
         )}
       </Match>
       <Match when={props.overlay.kind === 'outcome' ? props.result : undefined}>
         {(result) => (
-          <GameResultOverlay
-            live
-            tone={result().tone}
-            eyebrow={headline(result())}
-            title={result().title}
-            caption={result().caption}
-            dismissLabel={t`Show the board`}
-            onDismiss={() => props.onOverlay({ type: 'dismiss' })}
-            dataSet={{ testid: 'multiplayer-announcement' }}
+          <FocusTrap
+            active
+            label={t`Game over`}
+            onEscape={() => props.onOverlay({ type: 'dismiss' })}
           >
-            {props.children}
-          </GameResultOverlay>
+            <GameResultOverlay
+              live
+              tone={result().tone}
+              eyebrow={headline(result())}
+              title={result().title}
+              caption={result().caption}
+              dismissLabel={t`Show the board`}
+              onDismiss={() => props.onOverlay({ type: 'dismiss' })}
+              dataSet={{ testid: 'multiplayer-announcement' }}
+            >
+              {props.children}
+            </GameResultOverlay>
+          </FocusTrap>
         )}
       </Match>
     </Switch>

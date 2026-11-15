@@ -1,0 +1,4 @@
+{
+  "summary": "With the versus card or the result card over a matched game's board, Tab reached the covered board's columns before the card's own commands, and nothing marked the card as the thing to answer. Both cards are now dialogs: focus opens in them, Tab stays in them, and Escape closes the result card.",
+  "regressionTest": "libs/game-matchmaking-client-ts/tests/multiplayer-places-view.test.tsx"
+}
