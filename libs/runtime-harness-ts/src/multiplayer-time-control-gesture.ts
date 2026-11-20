@@ -8,10 +8,13 @@ import { check, JOURNEY_WAIT_MS, tap } from './journey-gestures';
 export async function openMultiplayerFind(ui: Driver): Promise<void> {
   await ui.get('multiplayer-find').wait('visible', {
     timeoutMs: JOURNEY_WAIT_MS,
-    visibleOr: ['multiplayer-open-find'],
+    visibleOr: ['multiplayer-open-find', 'game-result-overlay-details'],
   });
-  if (!(await ui.get('multiplayer-find').isVisible()))
+  if (!(await ui.get('multiplayer-find').isVisible())) {
+    if (!(await ui.get('multiplayer-open-find').isVisible()))
+      await tap(ui, 'game-result-overlay-details');
     await tap(ui, 'multiplayer-open-find');
+  }
   await ui
     .get('multiplayer-find')
     .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
