@@ -1,7 +1,13 @@
 import { Trans } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameActions } from '@pkgs/ui-root-client-ts/game-section';
-import { HistoryIcon, ListIcon } from '@pkgs/ui-root-client-ts/icons';
+import {
+  CheckCheckIcon,
+  CircleStopIcon,
+  HistoryIcon,
+  ListIcon,
+  XIcon,
+} from '@pkgs/ui-root-client-ts/icons';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { type JSX, Show } from 'solid-js';
@@ -34,6 +40,7 @@ export function FrameCommandsPlace(props: Props): JSX.Element {
           <FrameChoiceRow
             choices={choices}
             id="custom-game-offer"
+            leading={<CheckCheckIcon size={24} />}
             title={<Trans>Offer a draw</Trans>}
             caption={
               <Show when={props.play.offerAgainLater}>
@@ -69,6 +76,7 @@ export function FrameCommandsPlace(props: Props): JSX.Element {
         <MenuSection>
           <Show when={props.play.canResign}>
             <MenuRow
+              leading={<CircleStopIcon size={24} color="destructive" />}
               title={<Trans>Resign</Trans>}
               tone="destructive"
               hideChevron
@@ -78,6 +86,7 @@ export function FrameCommandsPlace(props: Props): JSX.Element {
           </Show>
           <Show when={props.play.canCancel}>
             <MenuRow
+              leading={<XIcon size={24} color="destructive" />}
               title={<Trans>Cancel game</Trans>}
               tone="destructive"
               hideChevron
@@ -87,7 +96,7 @@ export function FrameCommandsPlace(props: Props): JSX.Element {
           </Show>
         </MenuSection>
       </Show>
-      <GameActions sizing="share">
+      <GameActions sizing="fill">
         <Button
           title={<Trans>Back to the game</Trans>}
           variant="solid"

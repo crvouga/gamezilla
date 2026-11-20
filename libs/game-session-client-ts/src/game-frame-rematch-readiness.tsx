@@ -31,6 +31,6 @@ export function customGameRematchReadiness(
   return {
     of: () => null,
     note: () =>
-      game()?.status === 'completed' ? t`Host starts the rematch` : null,
+      game()?.status === 'completed' ? t`Host starts the rematch.` : null,
   };
 }

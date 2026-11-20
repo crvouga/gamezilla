@@ -71,3 +71,31 @@ test('a board that redraws in the same room is not laid out again', () => {
   fit({ ...room, height: 340, heightAt });
   expect(tries).toBeGreaterThan(measured);
 });
+
+// regression: full-disc-board-fit-gives-up
+test('a board a pixel narrower at the same height still narrows to fit', () => {
+  // A full Connect Four board under its result on a 390 x 844 phone: 336px
+  // drew 353px, 327px drew 345px and 326px drew 345px too (whole-pixel
+  // cells), and the fit gave up, leaving the board at the room's width and
+  // the person's own seat under the commands.
+  const room = {
+    width: 390,
+    height: 504,
+    chrome: 160,
+    boardWidth: 390,
+    boardHeight: 399,
+    smallest: 128,
+  };
+  const measured = new Map([
+    [336, 353],
+    [327, 345],
+    [326, 345],
+    [322, 341],
+  ]);
+  const heightAt = (width: number) => {
+    const height = measured.get(width);
+    if (height === undefined) throw new Error(`unmeasured ${width}`);
+    return height;
+  };
+  expect(boardRoomFit({ ...room, heightAt })).toBe(322);
+});

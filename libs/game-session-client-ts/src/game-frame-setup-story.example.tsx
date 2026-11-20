@@ -85,6 +85,18 @@ export const HOST_OPTIONS: NonNullable<FrameSetup['options']> = {
   clock: { minutes: 5, increment: 3 },
 };
 
+/**
+ * What a host of a two-player game played by turns agrees, as the app
+ * gives it: the clock (untimed until chosen), and no other options.
+ */
+export const HOST_CLOCK_ONLY: NonNullable<FrameSetup['options']> = {
+  players: null,
+  groups: [],
+  position: 'fixture',
+  editable: true,
+  clock: { minutes: 0, increment: 0 },
+};
+
 /** The host set up a bot opponent: every seat is filled and the game can start. */
 export const FRAME_CONFIGURING: Partial<GameFrameScreenViewProps> = {
   phase: 'configuring',
@@ -95,7 +107,7 @@ export const FRAME_CONFIGURING: Partial<GameFrameScreenViewProps> = {
     emphasis: 'neutral',
     tone: 'success',
   }),
-  setup: setup([HOST_SEAT, BOT_SEAT]),
+  setup: setup([HOST_SEAT, BOT_SEAT], { options: HOST_CLOCK_ONLY }),
   play: { ...FRAME_NO_PLAY, canCancel: true },
   record: record([]),
 };

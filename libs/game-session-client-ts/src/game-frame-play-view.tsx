@@ -209,6 +209,11 @@ function HeldActions(props: Props): JSX.Element {
   );
 }
 
+/** The versus card still counts in: the game has not reached the board. */
+function counting(props: Props): boolean {
+  return props.overlay.kind === 'versus';
+}
+
 /**
  * What is done from the live board: the board's own actions, an answer the
  * game is waiting for (a draw offered, a win to claim), and the one way to
@@ -223,6 +228,8 @@ function PlayActions(props: Props): JSX.Element {
       dataSet={{ answering: String(props.play.canAnswerDraw) }}
     >
       <Show when={props.play.canAnswerDraw}>
+        {/* The answer the game waits for leads, filled; the bar it
+            replaces (offer, resign) is gone until it is given. */}
         <GameActionButton
           title={
             <Trans>
@@ -254,6 +261,7 @@ function PlayActions(props: Props): JSX.Element {
       <Show when={props.play.canOfferDraw}>
         <GameActionButton
           title={<Trans>Offer draw</Trans>}
+          disabled={counting(props)}
           dataSet={{ testid: 'custom-game-offer-draw' }}
           operation={() => props.onChoose({ operation: 'offer' })}
         />
@@ -264,6 +272,7 @@ function PlayActions(props: Props): JSX.Element {
           title={<Trans>Resign</Trans>}
           variant="outline"
           intent="neutral"
+          disabled={counting(props)}
           onClick={() => props.onConfirm('resign')}
           dataSet={{ testid: 'custom-game-resign-now' }}
         />

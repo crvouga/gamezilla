@@ -5,9 +5,9 @@ import { GameActionBar } from '@pkgs/ui-root-client-ts/game-action-bar';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
-import { ChevronUpIcon } from '@pkgs/ui-root-client-ts/icons';
 import { type JSX, Show } from 'solid-js';
 import { FrameMovesCard } from './game-frame-moves-view';
+import { FrameOutcomeCard } from './game-frame-overlay-view';
 import { FrameFacts, FrameStage } from './game-frame-play-view';
 import type { FramePlaceProps } from './game-frame-screen-view';
 import { FrameNoticesView } from './game-frame-shell';
@@ -18,7 +18,8 @@ type Props = FramePlaceProps;
 /**
  * What comes next once the game is over. Someone who played (or may set up
  * the next game) is offered the rematch, the one filled command, and a new
- * game with other choices; someone watching goes back to the space. Anyone
+ * game with other choices; a player who may not start one, and someone
+ * watching, go back to the space. Anyone
  * may step through the moves or open the space's history.
  */
 function NextActions(props: Props): JSX.Element {
@@ -35,7 +36,21 @@ function NextActions(props: Props): JSX.Element {
           />
         }
       >
-        <Show when={props.next.canCreate}>
+        <Show
+          when={props.next.canCreate}
+          fallback={
+            // A player who may not start the next game still has a way on:
+            // the card says the host starts the rematch.
+            <Button
+              title={<Trans>Leave</Trans>}
+              aria-label={t`Leave the game, back to the space`}
+              variant="outline"
+              intent="neutral"
+              onClick={() => props.onBack()}
+              dataSet={{ testid: 'custom-game-back' }}
+            />
+          }
+        >
           <GameActionButton
             title={<Trans>Rematch</Trans>}
             variant="solid"
@@ -77,10 +92,10 @@ function NextActions(props: Props): JSX.Element {
 }
 
 /**
- * The result place, once the game is over or called off: the final
- * position with the people around it, under a card that says what happened
- * and every player's finish (`FrameOverlay`), and what to do next in the
- * bar. Closing the card shows the final board; Result brings it back.
+ * The result place, once the game is over or called off: the whole final
+ * position with the people around it, and beside it (under it on a phone)
+ * a card that says what happened and every player's finish
+ * (`FrameOutcomeCard`), then what to do next in the bar.
  */
 export function FrameResultPlace(props: Props): JSX.Element {
   return (
@@ -105,25 +120,10 @@ export function FrameResultPlace(props: Props): JSX.Element {
         fixedStage={props.boardWorkspace !== true}
         status={
           <>
-            {/* The card says how the game ended; a listener hears it from
-                the frame's own line, with or without the card. */}
+            {/* The card says how the game ended, beside the board; a
+                listener hears it from the frame's own line. */}
             <FrameStatusView status={props.status} spokenOnly />
-            <Show when={props.overlay.kind === 'board'}>
-              <Button
-                title={
-                  props.result?.headline ??
-                  props.status?.description ??
-                  t`Game finished`
-                }
-                aria-label={t`Show the result`}
-                variant="ghost"
-                intent="neutral"
-                fullWidth
-                endIcon={<ChevronUpIcon size={20} />}
-                onClick={() => props.onOverlay({ type: 'show' })}
-                dataSet={{ testid: 'custom-game-show-result' }}
-              />
-            </Show>
+            <FrameOutcomeCard {...props} />
           </>
         }
         actions={<NextActions {...props} />}

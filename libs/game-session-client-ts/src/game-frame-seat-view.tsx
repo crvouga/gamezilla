@@ -232,6 +232,7 @@ export function FrameSeatPlace(
     <FramePlacePage
       {...props}
       screenId="custom-game-seat"
+      back={<Trans>Back to setup</Trans>}
       title={props.seat.sideLabel}
       subtitle={
         <FrameHolderName
@@ -268,6 +269,7 @@ export function FrameInvitePlace(
     <FramePlacePage
       {...props}
       screenId="custom-game-invite"
+      back={<Trans>Back to the seat</Trans>}
       title={<Trans>Invite to {props.seat.sideLabel}</Trans>}
     >
       <Show
@@ -308,7 +310,12 @@ export function FrameInvitePlace(
                   />
                 }
                 caption={
-                  invitee.disabled ? <Trans>Already seated</Trans> : undefined
+                  // Says what a press does: it sends the invitation.
+                  invitee.disabled ? (
+                    <Trans>Already seated</Trans>
+                  ) : (
+                    <Trans>Invite to play {props.seat.sideLabel}</Trans>
+                  )
                 }
                 disabled={invitee.disabled}
                 operation={() =>

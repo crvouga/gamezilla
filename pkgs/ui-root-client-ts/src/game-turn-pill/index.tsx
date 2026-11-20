@@ -19,6 +19,11 @@ export type GameTurnPillProps = {
   emphasis?: GameTurnPillEmphasis | undefined;
   /** Defaults to `neutral`: no mark. */
   tone?: GameTurnPillTone | undefined;
+  /**
+   * In place of the tone's dot: a mark that says whose the words are (a
+   * seat's swatch). Decoration; the words say it too.
+   */
+  mark?: JSX.Element;
   /** Under the words, and not announced: a countdown. */
   note?: JSX.Element;
   /** Far edge of the line, outside the pill: game facts. */
@@ -163,8 +168,17 @@ function ShownPill(props: GameTurnPillProps): JSX.Element {
           'bg-surface-muted': !yours() && !plain(),
         }}
       >
-        <Show when={tone() !== 'neutral'}>
-          <span class={styles['turnMark']} aria-hidden="true" />
+        <Show
+          when={props.mark}
+          fallback={
+            <Show when={tone() !== 'neutral'}>
+              <span class={styles['turnMark']} aria-hidden="true" />
+            </Show>
+          }
+        >
+          <span class="box shrink-0" aria-hidden="true">
+            {props.mark}
+          </span>
         </Show>
         {/* A box keeps its width unless it says it may shrink: the words
             wrap inside the pill instead of running out of it. */}

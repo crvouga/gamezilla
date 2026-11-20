@@ -43,18 +43,18 @@ export const UntimedClock: Story = {
   },
 };
 
-/** Using a clock sends it and returns to the lobby. */
-export const UseClock: Story = {
+/** A time is saved as its field is left: the screen has no separate save. */
+export const SaveTimeOnLeave: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(await canvas.findByTestId('custom-game-clock'));
+    const minutes = await canvas.findByLabelText('Minutes per side');
+    await userEvent.clear(minutes);
+    await userEvent.type(minutes, '10');
+    await userEvent.tab();
     await expect(args.onChoose).toHaveBeenCalledWith({
       operation: 'clock',
-      minutes: 5,
+      minutes: 10,
       increment: 3,
     });
-    await expect(
-      await canvas.findByTestId('custom-game-startable')
-    ).toBeVisible();
   },
 };

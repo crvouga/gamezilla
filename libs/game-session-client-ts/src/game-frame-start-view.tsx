@@ -36,6 +36,7 @@ export function FrameStartPlace(props: FramePlaceProps): JSX.Element {
           </Trans>
         }
         art={props.boardPreview}
+        artSize="thumbnail"
         dataSet={{ testid: 'custom-game-mode' }}
       />
       <Show
@@ -61,7 +62,14 @@ export function FrameStartPlace(props: FramePlaceProps): JSX.Element {
                 <Trans>Play against bots</Trans>
               </Show>
             }
-            caption={<Trans>Start playing now</Trans>}
+            caption={
+              <Show
+                when={props.connection === 'needed'}
+                fallback={<Trans>Start playing now</Trans>}
+              >
+                <Trans>Starts when you are back online</Trans>
+              </Show>
+            }
             operation={() => props.onPlayBot()}
           />
           <FrameChoiceRow
