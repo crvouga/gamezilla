@@ -1,0 +1,4 @@
+{
+  "summary": "Fresh Battleship and Quoridor devices can paint the search hub after the first visibility read. Waiting only for result navigation deadlocks; wait for either the hub or the result link.",
+  "regressionTest": "libs/runtime-harness-ts/tests/multiplayer-search-loading.test.ts"
+}

@@ -63,7 +63,11 @@ function loadingScreen(
         taps.push(id);
       },
       scroll: unused,
-      wait: unused,
+      wait: async (state, options) => {
+        expect(state).toBe('visible');
+        expect(options?.visibleOr).toEqual(['multiplayer-open-find']);
+        expect(hub || !ongoing).toBe(true);
+      },
       text: unused,
       isVisible: async () =>
         id === 'multiplayer-game' ||
@@ -381,28 +385,38 @@ test.each([
 );
 
 // regression: multiplayer-find-before-result-paints
-test('cleanup waits for the result navigation before opening Find', async () => {
+// regression: multiplayer-find-fresh-hub-paints-late
+test.each(['result', 'hub'])('Find waits for a delayed %s', async (destination) => {
   const { ui, taps } = loadingScreen(false);
   const get = ui.get.bind(ui);
-  let resultReady = false;
+  let ready = false;
   ui.get = (id) => {
     const node = get(id);
     return {
       ...node,
       isVisible: async () =>
-        id === 'multiplayer-open-find' ? resultReady : node.isVisible(),
+        ready &&
+        (destination === 'hub'
+          ? id === 'multiplayer-find'
+          : id === 'multiplayer-open-find'),
+      wait: async (state, options) => {
+        expect(id).toBe('multiplayer-find');
+        expect(state).toBe('visible');
+        expect(options?.visibleOr).toEqual(['multiplayer-open-find']);
+        ready = true;
+      },
       expect: {
         ...node.expect,
-        visible: async (options) => {
-          if (id === 'multiplayer-open-find') resultReady = true;
-          if (id === 'multiplayer-find')
+        visible: async () => {
+          expect(ready).toBe(true);
+          if (destination === 'result')
             expect(taps).toContain('multiplayer-open-find');
-          await node.expect.visible(options);
         },
       },
     };
   };
   await openMultiplayerFind(ui);
-  expect(resultReady).toBe(true);
-  expect(taps).toEqual(['multiplayer-open-find']);
+  expect(taps).toEqual(
+    destination === 'result' ? ['multiplayer-open-find'] : []
+  );
 });
