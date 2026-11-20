@@ -10,6 +10,7 @@ import {
   endMultiplayerSpace,
   retirePreviousMultiplayer,
 } from '@libs/runtime-harness-ts/multiplayer-search-recovery';
+import { openMultiplayerFind } from '@libs/runtime-harness-ts/multiplayer-time-control-gesture';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import type {
   Driver,
@@ -378,3 +379,30 @@ test.each([
     );
   }
 );
+
+// regression: multiplayer-find-before-result-paints
+test('cleanup waits for the result navigation before opening Find', async () => {
+  const { ui, taps } = loadingScreen(false);
+  const get = ui.get.bind(ui);
+  let resultReady = false;
+  ui.get = (id) => {
+    const node = get(id);
+    return {
+      ...node,
+      isVisible: async () =>
+        id === 'multiplayer-open-find' ? resultReady : node.isVisible(),
+      expect: {
+        ...node.expect,
+        visible: async (options) => {
+          if (id === 'multiplayer-open-find') resultReady = true;
+          if (id === 'multiplayer-find')
+            expect(taps).toContain('multiplayer-open-find');
+          await node.expect.visible(options);
+        },
+      },
+    };
+  };
+  await openMultiplayerFind(ui);
+  expect(resultReady).toBe(true);
+  expect(taps).toEqual(['multiplayer-open-find']);
+});
