@@ -1,4 +1,0 @@
-{
-  "summary": "Mockingbird Postgres 3.9.0 copied a whole table on the first write inside every transaction, so a one-row update cost time in proportion to the table (3.4 ms at 1k rows, 108 ms at 50k). The browser stack serves every API request from that one event loop; as a Verify Nightly browser run accumulated rows, transactions blocked it until new API connections failed (`handler error: timeout expired`, `The connection was closed.`), and the API answered 500 to sign-in, joining spaces, friend requests and account deletion. 3.22.1 rolls back only the rows a scope wrote; the stack now uses it.",
-  "regressionTest": "pkgs/postgres-mockingbird-server-ts/tests/transaction-table-copy.contract.test.ts"
-}
