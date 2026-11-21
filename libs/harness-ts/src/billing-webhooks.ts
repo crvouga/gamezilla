@@ -11,7 +11,7 @@
  * The provider's own delivery hub signs with the wall clock and retries on
  * real timers, so a virtual-time harness delivers here instead, on the
  * harness clock and timers
- * (https://github.com/crvouga/mockingbird/issues/160).
+ * (https://github.com/crvouga-organization/mockingbird/issues/160).
  */
 
 import type { StripeWebhookEvent } from '@crvouga/mockingbird-service-stripe';
