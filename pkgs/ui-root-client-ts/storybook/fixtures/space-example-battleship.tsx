@@ -15,6 +15,7 @@ import type {
   SpaceGameAction,
   SpaceGameSeat,
   SpacePerson,
+  SpaceRole,
 } from '@pkgs/ui-root-client-ts/space-types';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
@@ -22,13 +23,15 @@ import type { JSX } from 'solid-js';
 
 /**
  * Which moment of one fixed mid-game the fixture shows: the viewer's shot
- * with C4 aimed, or the rival's shot while the viewer waits.
+ * with C4 aimed, or the opponent's shot while the viewer waits.
  */
 export type SpaceExampleBattleshipMoment = 'aimed' | 'theirShot';
 
 export type SpaceExampleBattleshipOptions = {
   /** Defaults to `aimed`. */
   moment?: SpaceExampleBattleshipMoment | undefined;
+  /** Who is looking: the host is `bob`, a guest is `you`. Defaults to `guest`. */
+  role?: SpaceRole | undefined;
   /** Every action and aim lands here (`data-action` id or cell id). */
   onAction?: ((id: string) => void) | undefined;
 };
@@ -36,11 +39,49 @@ export type SpaceExampleBattleshipOptions = {
 const COLUMNS = 'ABCDEFGHIJ'.split('');
 const ROWS = Array.from({ length: 10 }, (_, index) => String(index + 1));
 const AIMED = 'C4';
-const RIVAL = 'bob';
+
+/** The two players' story person ids: the host and the guest. */
+const HOST = 'bob';
+const GUEST = 'you';
+
+/** Each player as the other one names them, by story person id. */
+const OPPONENT_COPY: Readonly<
+  Record<string, { waters: string; shot: string; waiting: string }>
+> = {
+  [HOST]: {
+    waters: "bob's waters",
+    shot: "bob's shot",
+    waiting: 'bob is taking his shot',
+  },
+  [GUEST]: {
+    waters: "ana's waters",
+    shot: "ana's shot",
+    waiting: 'ana is taking her shot',
+  },
+};
+
+/**
+ * The viewer and the opponent by story person id. The viewer is always the
+ * one aiming at C4 and holding the actions; ids, never the `you` / `host`
+ * flags, which the stories flip when the viewer is the host.
+ */
+type Players = { viewer: string; opponent: string };
+
+function players(role: SpaceRole): Players {
+  return role === 'host'
+    ? { viewer: HOST, opponent: GUEST }
+    : { viewer: GUEST, opponent: HOST };
+}
+
+function opponentCopy(players: Players) {
+  const copy = OPPONENT_COPY[players.opponent];
+  if (copy === undefined) throw new Error('unknown opponent');
+  return copy;
+}
 
 type Mark = 'ship' | 'miss' | 'hit' | 'sunk';
 
-/** What the viewer knows of bob's waters: two ships sunk, one hit. */
+/** What the viewer knows of the opponent's waters: two ships sunk, one hit. */
 const TARGET_MARKS: Readonly<Record<string, Mark>> = {
   A1: 'miss',
   F2: 'miss',
@@ -101,7 +142,7 @@ const SHOT_KEY: readonly CellGridLegendItem[] = [
 ];
 
 /** Ships still afloat in this fixed position, out of five each. */
-const AFLOAT = { you: 4, rival: 3 } as const;
+const AFLOAT = { viewer: 4, opponent: 3 } as const;
 
 function cellIds(): readonly string[] {
   return ROWS.flatMap((row) => COLUMNS.map((column) => `${column}${row}`));
@@ -168,16 +209,17 @@ function Waters(props: {
   );
 }
 
-/** Both grids: bob's waters to aim at above, the viewer's fleet below. */
+/** Both grids: the opponent's waters to aim at above, the viewer's fleet below. */
 function BattleshipSpaceBoard(props: {
   moment: SpaceExampleBattleshipMoment;
+  targetHeading: string;
   onAim: (id: string) => void;
 }): JSX.Element {
   const ids = cellIds();
   return (
     <StackVertical gap="lg" width="full">
       <Waters
-        heading={`${RIVAL}'s waters`}
+        heading={props.targetHeading}
         testId="space-battleship-target"
         cells={ids.map((id) => targetCell(id, props.moment))}
         legend={SHOT_KEY}
@@ -202,15 +244,18 @@ function surrender(press: (id: string) => void): SpaceGameAction {
   };
 }
 
+/** Each player's seat, by story person id; anyone else is not playing. */
 function seat(
   person: SpacePerson,
-  moment: SpaceExampleBattleshipMoment
-): SpaceGameSeat {
-  const you = person.you === true;
-  const afloat = you ? AFLOAT.you : AFLOAT.rival;
+  moment: SpaceExampleBattleshipMoment,
+  players: Players
+): SpaceGameSeat | undefined {
+  const viewer = person.id === players.viewer;
+  if (!viewer && person.id !== players.opponent) return undefined;
+  const afloat = viewer ? AFLOAT.viewer : AFLOAT.opponent;
   return {
-    color: you ? 'player1' : 'player2',
-    turn: you === (moment === 'aimed'),
+    color: viewer ? 'player1' : 'player2',
+    turn: viewer === (moment === 'aimed'),
     data: {
       value: `${afloat} ships`,
       description: `${afloat} ships afloat`,
@@ -229,6 +274,10 @@ export function spaceExampleBattleship(
   const moment = options?.moment ?? 'aimed';
   const press = (id: string): void => options?.onAction?.(id);
   const aimed = moment === 'aimed';
+  const role = options?.role ?? 'guest';
+  const sides = players(role);
+  const copy = opponentCopy(sides);
+  const readOnly = role === 'guest';
   return {
     key: 'battleship',
     name: 'Battleship',
@@ -240,6 +289,7 @@ export function spaceExampleBattleship(
         {
           kind: 'choice',
           label: 'Mode',
+          readOnly,
           options: [{ value: 'classic', label: 'Classic' }],
           value: 'classic',
           onChange: () => press('mode'),
@@ -247,6 +297,7 @@ export function spaceExampleBattleship(
         {
           kind: 'choice',
           label: 'Fleet',
+          readOnly,
           options: [{ value: 'five', label: '5 ships each' }],
           value: 'five',
           onChange: () => press('fleet'),
@@ -254,9 +305,18 @@ export function spaceExampleBattleship(
       ],
     },
     play: {
-      status: aimed ? `Aiming at ${AIMED}` : `${RIVAL}'s shot`,
+      status: aimed ? `Aiming at ${AIMED}` : copy.shot,
       detail: 'Battleship · shot 17',
-      board: <BattleshipSpaceBoard moment={moment} onAim={press} />,
+      // Built when the template reads it, inside its reactive owner.
+      get board(): JSX.Element {
+        return (
+          <BattleshipSpaceBoard
+            moment={moment}
+            targetHeading={copy.waters}
+            onAim={press}
+          />
+        );
+      },
       actions: aimed
         ? [
             surrender(press),
@@ -268,10 +328,10 @@ export function spaceExampleBattleship(
             },
           ]
         : [],
-      waiting: aimed ? undefined : `${RIVAL} is taking his shot`,
-      seat: (person) => seat(person, moment),
+      waiting: aimed ? undefined : copy.waiting,
+      seat: (person) => seat(person, moment, sides),
       personActions: (person) =>
-        person.you === true ? [surrender(press)] : [],
+        person.id === sides.viewer ? [surrender(press)] : [],
     },
   };
 }

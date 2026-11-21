@@ -53,12 +53,13 @@ export type SpacePersonActionsInput = {
   game?: readonly SpaceGameAction[] | undefined;
 };
 
-const DESTRUCTIVE: ReadonlySet<SpacePersonActionId> = new Set([
-  'leaveSeat',
-  'removeFromSpace',
-  'removeBot',
-  'removeSeat',
-]);
+const DESTRUCTIVE: ReadonlySet<SpacePersonActionId> =
+  new Set<SpacePersonActionId>([
+    'leaveSeat',
+    'removeFromSpace',
+    'removeBot',
+    'removeSeat',
+  ]);
 
 function own(input: SpacePersonActionsInput): SpacePersonActionId[] {
   const ids: SpacePersonActionId[] = [];

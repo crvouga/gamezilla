@@ -47,7 +47,15 @@ const MOMENT: Readonly<Record<SpaceRole, ChessMoment>> = {
 /** Fixed clocks: White 9:41, Black 9:52. */
 const CLOCK = { White: '9:41', Black: '9:52' } as const;
 
-/** The two people at the table; `you` marks the viewer's own cell. */
+/** The viewer's story person id: the host is bob, a guest is `you`. */
+function viewerId(role: SpaceRole): string {
+  return role === 'host' ? 'bob' : 'you';
+}
+
+/**
+ * The two people at the table: bob (the host, White) and `you` (named ana,
+ * Black); `you: true` marks whichever one is looking.
+ */
 export function spaceChessPeople(role: SpaceRole): readonly SpacePerson[] {
   return [
     {
@@ -60,12 +68,12 @@ export function spaceChessPeople(role: SpaceRole): readonly SpacePerson[] {
       tintKey: 'bob',
     },
     {
-      id: 'ana',
+      id: 'you',
       kind: 'person',
-      name: 'Ana',
+      name: 'ana',
       you: role === 'guest',
       initials: 'A',
-      tintKey: 'ana',
+      tintKey: 'you',
     },
   ];
 }
@@ -108,18 +116,48 @@ function action(
   return { id, label, tone, onPress: () => onAction(id) };
 }
 
-function seat(person: SpacePerson, role: SpaceRole): SpaceGameSeat {
+/** The side to move: always the viewer's, so the actions are theirs. */
+function sideToMove(role: SpaceRole): 'White' | 'Black' {
+  return role === 'host' ? 'White' : 'Black';
+}
+
+function seat(person: SpacePerson, role: SpaceRole): SpaceGameSeat | undefined {
   const side = spaceExampleChessSide(person);
-  const toMove = role === 'host' ? 'White' : 'Black';
+  if (side === undefined) {
+    return undefined;
+  }
   return {
     color: side === 'White' ? 'player1' : 'player2',
-    turn: side === toMove,
+    turn: side === sideToMove(role),
     data: {
       swatch: spaceExampleChessSideLook(side),
       value: CLOCK[side],
       description: `${side}, ${CLOCK[side]} left`,
     },
   };
+}
+
+/**
+ * Chess's own actions on a person, by story person id: Offer draw and
+ * Resign on the viewer, Request draw and Request takeback on the opponent.
+ */
+function personActions(
+  person: SpacePerson,
+  role: SpaceRole,
+  onAction: (id: string) => void
+): readonly SpaceGameAction[] {
+  if (spaceExampleChessSide(person) === undefined) {
+    return [];
+  }
+  return person.id === viewerId(role)
+    ? [
+        action('offerDraw', 'Offer draw', onAction),
+        action('resign', 'Resign', onAction, 'destructive'),
+      ]
+    : [
+        action('requestDraw', 'Request draw', onAction),
+        action('requestTakeback', 'Request takeback', onAction),
+      ];
 }
 
 /** Chess in play at one fixed moment, as the `role` sees it. */
@@ -136,16 +174,7 @@ export function spaceChessPlay(
       action('offerDraw', 'Offer draw', onAction),
     ],
     seat: (person) => seat(person, role),
-    personActions: (person) =>
-      person.you === true
-        ? [
-            action('offerDraw', 'Offer draw', onAction),
-            action('resign', 'Resign', onAction, 'destructive'),
-          ]
-        : [
-            action('requestDraw', 'Request draw', onAction),
-            action('requestTakeback', 'Request takeback', onAction),
-          ],
+    personActions: (person) => personActions(person, role, onAction),
   };
 }
 
@@ -153,6 +182,6 @@ export function spaceChessPlay(
 export function spaceChessGame(
   role: SpaceRole,
   onAction: (id: string) => void
-): SpaceGame {
+): SpaceGame & { play: SpaceGamePlay } {
   return { ...spaceExampleChessSetup(), play: spaceChessPlay(role, onAction) };
 }

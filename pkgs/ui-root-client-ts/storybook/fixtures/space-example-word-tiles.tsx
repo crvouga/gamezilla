@@ -1,5 +1,6 @@
 /** @jsxImportSource solid-js */
 
+import type { AvatarSeatColor } from '@pkgs/ui-root-client-ts/avatar';
 import type {
   SpaceGame,
   SpaceGameAction,
@@ -19,15 +20,18 @@ import type { JSX } from 'solid-js';
 
 /**
  * Which moment of a Word Tiles game the example shows: the viewer's turn
- * with ROTE placed but not yet played, or bob's turn right after the viewer
- * played it.
+ * with ROTE placed but not yet played, or the opponent's turn right after
+ * the viewer played it.
  */
 export type SpaceExampleWordTilesMoment = 'tilesPlaced' | 'waiting';
 
 export type SpaceExampleWordTilesOptions = {
   /** Defaults to `tilesPlaced`. */
   moment?: SpaceExampleWordTilesMoment | undefined;
-  /** Who is looking: a guest sees the settings as text. Defaults to `guest`. */
+  /**
+   * Who is looking: a guest sees the settings as text. The viewer is `bob`
+   * when hosting and `you` as a guest. Defaults to `guest`.
+   */
   role?: SpaceRole | undefined;
   /** Called with the action's id whenever any action is pressed. */
   onAction?: ((id: string) => void) | undefined;
@@ -228,26 +232,44 @@ function WordTilesExampleBoard(props: {
   );
 }
 
-/** Points before ROTE, and after it. */
-const SCORES = { bob: 24, youBefore: 7, youAfter: 13 } as const;
+/**
+ * The two story people by id: `bob` (named bob) and `you` (named ana). The
+ * viewer is `bob` when hosting and `you` as a guest; the other is the
+ * opponent. Every lookup keys by `person.id`, never by the `you` / `host`
+ * flags.
+ */
+type Cast = { viewer: string; opponent: string; opponentName: string };
 
-function pts(points: number): { value: string; description: string } {
-  return { value: `${points} pts`, description: `${points} points` };
+function castFor(role: SpaceRole): Cast {
+  return role === 'host'
+    ? { viewer: 'bob', opponent: 'you', opponentName: 'ana' }
+    : { viewer: 'you', opponent: 'bob', opponentName: 'bob' };
 }
+
+type SeatFacts = { color: AvatarSeatColor; before: number; after: number };
+
+/** Points before ROTE, and after it. */
+const VIEWER_SEAT: SeatFacts = { color: 'player2', before: 7, after: 13 };
+const OPPONENT_SEAT: SeatFacts = { color: 'player1', before: 24, after: 24 };
 
 function seatFor(
   person: SpacePerson,
-  moment: SpaceExampleWordTilesMoment
+  moment: SpaceExampleWordTilesMoment,
+  cast: Cast
 ): SpaceGameSeat | undefined {
-  if (person.kind !== 'person') return undefined;
-  const myTurn = moment === 'tilesPlaced';
-  if (person.you === true)
-    return {
-      color: 'player2',
-      turn: myTurn,
-      data: pts(myTurn ? SCORES.youBefore : SCORES.youAfter),
-    };
-  return { color: 'player1', turn: !myTurn, data: pts(SCORES.bob) };
+  const viewerTurn = moment === 'tilesPlaced';
+  const seats: Readonly<Record<string, SeatFacts & { turn: boolean }>> = {
+    [cast.viewer]: { ...VIEWER_SEAT, turn: viewerTurn },
+    [cast.opponent]: { ...OPPONENT_SEAT, turn: !viewerTurn },
+  };
+  const seat = seats[person.id];
+  if (seat === undefined) return undefined;
+  const points = viewerTurn ? seat.before : seat.after;
+  return {
+    color: seat.color,
+    turn: seat.turn,
+    data: { value: `${points} pts`, description: `${points} points` },
+  };
 }
 
 type ActionPress = (id: string) => void;
@@ -261,19 +283,25 @@ function action(
   return { id, label, emphasis, onPress: () => press(id) };
 }
 
-/** Swap and pass on yourself, a challenge on the opponent: only on your turn. */
+/**
+ * On the viewer's turn: Swap and pass on the viewer, and a challenge on the
+ * opponent, who played the last word (TREND). Nothing while waiting.
+ */
 function personActionsFor(
   person: SpacePerson,
   moment: SpaceExampleWordTilesMoment,
+  cast: Cast,
   press: ActionPress
 ): readonly SpaceGameAction[] {
-  if (moment !== 'tilesPlaced' || person.kind !== 'person') return [];
-  if (person.you === true)
+  if (moment !== 'tilesPlaced') return [];
+  if (person.id === cast.viewer)
     return [
       action('swapTiles', 'Swap tiles', press),
       action('passTurn', 'Pass turn', press),
     ];
-  return [action('challengeLastWord', 'Challenge last word', press)];
+  if (person.id === cast.opponent)
+    return [action('challengeLastWord', 'Challenge last word', press)];
+  return [];
 }
 
 /**
@@ -285,7 +313,9 @@ export function spaceExampleWordTiles(
   options: SpaceExampleWordTilesOptions = {}
 ): SpaceGame {
   const moment = options.moment ?? 'tilesPlaced';
-  const readOnly = (options.role ?? 'guest') === 'guest';
+  const role = options.role ?? 'guest';
+  const readOnly = role === 'guest';
+  const cast = castFor(role);
   const press: ActionPress = (id) => options.onAction?.(id);
   const myTurn = moment === 'tilesPlaced';
   return {
@@ -325,7 +355,7 @@ export function spaceExampleWordTiles(
       ],
     },
     play: {
-      status: myTurn ? 'Your turn' : 'bob’s turn',
+      status: myTurn ? 'Your turn' : `${cast.opponentName}’s turn`,
       detail: 'Word Tiles · turn 4',
       // Drawn when the template reads it, inside its render root.
       get board(): JSX.Element {
@@ -337,9 +367,9 @@ export function spaceExampleWordTiles(
             action('play', 'Play · 6 pts', press, 'primary'),
           ]
         : [],
-      waiting: myTurn ? undefined : 'bob is thinking',
-      seat: (person) => seatFor(person, moment),
-      personActions: (person) => personActionsFor(person, moment, press),
+      waiting: myTurn ? undefined : `${cast.opponentName} is thinking`,
+      seat: (person) => seatFor(person, moment, cast),
+      personActions: (person) => personActionsFor(person, moment, cast, press),
     },
   };
 }

@@ -11,6 +11,25 @@ import { SettingsIcon } from '../icons';
 import type { SpaceRole } from '../space-types';
 import styles from './space-shell.module.css';
 
+/**
+ * What a whole space screen (a template) needs beyond its game: the space's
+ * row 1 and the callbacks of its people row.
+ */
+export type SpaceScreenChrome = {
+  spaceName: string;
+  onBack: () => void;
+  onSettings: () => void;
+  onLeave: () => void;
+  onEnd: () => void;
+  /**
+   * A space action was chosen on a person (`SpacePersonActionId`:
+   * `readyUp`, `mute`, `removeBot`, …).
+   */
+  onPersonAction: (personId: string, action: string) => void;
+  /** Shows Invite at the end of the people row (never in game). */
+  onInvite?: (() => void) | undefined;
+};
+
 export type SpaceShellProps = {
   /** The space's name, in row 1. */
   spaceName: string;

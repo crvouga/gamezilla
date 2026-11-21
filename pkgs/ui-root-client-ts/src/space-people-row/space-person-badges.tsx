@@ -35,7 +35,11 @@ function StatusGlyph(props: { status: SpacePersonStatus }): JSX.Element {
         <EyeIcon size={GLYPH} color="currentColor" strokeWidth={2.5} />
       </Match>
       <Match when={props.status === 'settingUp'}>
-        <SlidersHorizontalIcon size={GLYPH} color="currentColor" strokeWidth={2.5} />
+        <SlidersHorizontalIcon
+          size={GLYPH}
+          color="currentColor"
+          strokeWidth={2.5}
+        />
       </Match>
       <Match when={props.status === 'notReady'}>
         <EllipsisIcon size={GLYPH} color="currentColor" strokeWidth={3} />

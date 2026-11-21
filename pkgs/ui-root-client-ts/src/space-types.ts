@@ -110,7 +110,9 @@ export type SpaceGameSetup = {
    */
   settings: readonly GameOptionFieldProps[];
   /** Per-person setup data: a side and a clock, a rider color and seat. */
-  personData?: ((person: SpacePerson) => SpacePersonData | undefined) | undefined;
+  personData?:
+    | ((person: SpacePerson) => SpacePersonData | undefined)
+    | undefined;
 };
 
 /** What a game supplies while it is being played, for this exact moment. */

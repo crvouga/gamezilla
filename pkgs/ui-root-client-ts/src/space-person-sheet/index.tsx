@@ -5,6 +5,7 @@ import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { createMemo, For, type JSX, Show } from 'solid-js';
 import { MenuList } from '../menu-list/index';
 import { MenuRow } from '../menu-row/index';
+import { ResponsiveSurface } from '../responsive-surface/index';
 import { useSpacePersonWords } from '../space-people-row/space-person-words';
 import {
   type SpacePersonActionEntry,
@@ -21,7 +22,6 @@ import type {
 } from '../space-types';
 import { StackVertical } from '../stack/index';
 import { P } from '../text/index';
-import { ResponsiveSurface } from '../responsive-surface/index';
 
 export type SpacePersonSheetProps = {
   /** The pressed entry; unset closes the sheet. */
@@ -81,7 +81,8 @@ function ActionRow(props: {
     if (entry.source === 'game') entry.action.onPress();
     else props.onAction(props.person.id, entry.id);
   };
-  const on = () => (props.entry.source === 'space' ? props.entry.on : undefined);
+  const on = () =>
+    props.entry.source === 'space' ? props.entry.on : undefined;
   return (
     <MenuRow
       title={
@@ -104,7 +105,9 @@ function ActionRow(props: {
       onClick={run}
       dataSet={{
         action:
-          props.entry.source === 'game' ? props.entry.action.id : props.entry.id,
+          props.entry.source === 'game'
+            ? props.entry.action.id
+            : props.entry.id,
       }}
     />
   );
