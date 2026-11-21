@@ -60,6 +60,11 @@
  *   `spaceShare`, `spaceRename` and `spaceClose`, and the notice
  *   `spaceHostOffline`. Game actions carry theirs in `SpaceGameAction.testId`.
  *
+ * **Who draws the shell.** Migrated screens render a template and render
+ * `<ClaimSpaceShell />` (`./space-shell-claim`); unmigrated screens do
+ * nothing and get the default stage shell from `SpaceScreenFrame`
+ * (`./space-screen-frame`), which replaces the old chrome.
+ *
  * Until the old chrome (`SpaceActiveLayout`) is deleted it still renders
  * around every screen and owns the share sheet and members list these
  * callbacks open; whoever deletes it moves `SpaceShareSheet` and
@@ -367,6 +372,21 @@ export function SpaceScreenChromeProvider(
           />
         )}
       </Show>
+    </SpaceScreenChromeContext.Provider>
+  );
+}
+
+/**
+ * Provides a ready-made chrome value: for stories and tests of a screen
+ * that reads {@link useSpaceScreenChrome}, without a live space.
+ */
+export function SpaceScreenChromeValueProvider(props: {
+  readonly value: SpaceScreenChromeValue;
+  readonly children: JSX.Element;
+}): JSX.Element {
+  return (
+    <SpaceScreenChromeContext.Provider value={props.value}>
+      {props.children}
     </SpaceScreenChromeContext.Provider>
   );
 }
