@@ -211,6 +211,42 @@ describe('the lobby', () => {
     ]);
   });
 
+  test('a time edited on the clock is kept on the way back to setup', async () => {
+    const chosen: unknown[] = [];
+    let closed = 0;
+    mountFrame(() =>
+      setupProps(
+        { screen: 'clock' },
+        {
+          onChoose: async (input) => {
+            chosen.push(input);
+          },
+          onClose: () => {
+            closed += 1;
+          },
+          setup: hostSetup({
+            options: {
+              players: null,
+              groups: [],
+              position: 'fixture',
+              editable: true,
+              clock: { minutes: 5, increment: 3 },
+            },
+          }),
+        }
+      )
+    );
+    const minutes = screen
+      .getByTestId('custom-game-minutes')
+      .querySelector('input') as HTMLInputElement;
+    fireEvent.input(minutes, { target: { value: '10' } });
+    fireEvent.click(screen.getByTestId('custom-game-place-back'));
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(chosen).toEqual([{ operation: 'clock', minutes: 10, increment: 3 }]);
+    expect(closed).toBe(1);
+  });
+
   test('exactly one command is filled: Start when ready, getting ready before that', () => {
     mountFrame(() => setupProps());
     expect(filled().map((button) => button.dataset['testid'])).toEqual([

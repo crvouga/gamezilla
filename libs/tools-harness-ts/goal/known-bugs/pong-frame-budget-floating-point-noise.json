@@ -1,0 +1,4 @@
+{
+  "summary": "Pong's hosted timing gate rejected a 33.4 ms frame budget because timestamp subtraction produced 33.40000000000009 ms. Compare integer microseconds while retaining raw evidence and the same budget.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/timing-measurement.test.ts"
+}

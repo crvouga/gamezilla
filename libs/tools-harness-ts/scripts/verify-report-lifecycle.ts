@@ -3,6 +3,7 @@ import { spawn } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { reportTask } from '@libs/harness-ts/report-ready';
+import { reportsStoreUnconfigured } from '@libs/harness-ts/report-store-configuration';
 import type { RunPlan } from './turbo-preflight';
 
 const ROOT = join(import.meta.dirname, '../../..');
@@ -39,6 +40,7 @@ export async function prepareReports(
   plan: RunPlan,
   env: NodeJS.ProcessEnv
 ): Promise<readonly string[]> {
+  if (reportsStoreUnconfigured(env)) return [];
   const directory = join(ROOT, '.turbo');
   mkdirSync(directory, { recursive: true });
   const path = join(directory, 'verify-report-plan.json');

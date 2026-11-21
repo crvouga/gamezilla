@@ -1,5 +1,6 @@
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
+import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameLobbyDock } from '@pkgs/ui-root-client-ts/game-lobby';
 import { GameOptionField } from '@pkgs/ui-root-client-ts/game-option-field';
@@ -30,6 +31,7 @@ export function FrameOptionsPlace(
     <FramePlacePage
       {...props}
       screenId="custom-game-options"
+      back={<Trans>Back to setup</Trans>}
       title={<Trans>Options</Trans>}
       subtitle={
         <Show
@@ -40,19 +42,26 @@ export function FrameOptionsPlace(
         </Show>
       }
     >
-      <StackVertical gap="lg">
+      <StackVertical gap="md">
+        {/* The count is read here, its note right under it; the seats in
+            setup change it. */}
         <Show when={props.options.players}>
           {(players) => (
-            <GameOptionField
-              kind="count"
-              label={t`Players`}
-              readOnly
-              value={players().count}
-              min={players().min}
-              max={players().max}
-              onChange={() => undefined}
-              dataSet={{ testid: 'custom-game-players' }}
-            />
+            <StackVertical gap="none">
+              <GameOptionField
+                kind="count"
+                label={t`Players`}
+                readOnly
+                value={players().count}
+                min={players().min}
+                max={players().max}
+                onChange={() => undefined}
+                dataSet={{ testid: 'custom-game-players' }}
+              />
+              <P variant="caption" tone="secondary">
+                <Trans>Players are set by the seats in setup.</Trans>
+              </P>
+            </StackVertical>
           )}
         </Show>
         <GameFrameOptions
@@ -67,8 +76,44 @@ export function FrameOptionsPlace(
 }
 
 /**
+ * A time for each side, saved as each field is left (a time is set by its
+ * two fields together, so not at every keystroke).
+ */
+function ClockTimeFields(props: {
+  readonly minutes: string;
+  readonly increment: string;
+  readonly onMinutes: (value: string) => void;
+  readonly onIncrement: (value: string) => void;
+  readonly onSave: () => void;
+}): JSX.Element {
+  return (
+    <StackVertical gap="md">
+      <TextInput
+        label={<Trans>Minutes per side</Trans>}
+        type="number"
+        value={props.minutes}
+        onChangeText={props.onMinutes}
+        onChange={props.onSave}
+        dataSet={{ testid: 'custom-game-minutes' }}
+      />
+      <TextInput
+        label={<Trans>Seconds added after a move</Trans>}
+        type="number"
+        value={props.increment}
+        onChangeText={props.onIncrement}
+        onChange={props.onSave}
+        dataSet={{ testid: 'custom-game-increment' }}
+      />
+      <P variant="caption" tone="secondary">
+        <Trans>Each time is saved as you leave its field.</Trans>
+      </P>
+    </StackVertical>
+  );
+}
+
+/**
  * The clock, which the platform owns for every game played by turns: set
- * minutes and added seconds and use them, or play untimed. Swapping who
+ * minutes and added seconds (saved as they are left), or play untimed. Swapping who
  * plays which side is agreed here too. Each returns to the lobby.
  */
 export function FrameClockPlace(
@@ -77,10 +122,27 @@ export function FrameClockPlace(
   const [minutes, setMinutes] = createSignal(String(props.clock.minutes || 5));
   const [increment, setIncrement] = createSignal(String(props.clock.increment));
   const choices = createFrameChoices(() => props.onClose());
+  // A time is saved as its field is left, and on the way back too, so
+  // leaving never drops an edit.
+  const edited = (): boolean =>
+    props.clock.minutes > 0 &&
+    Number(minutes()) > 0 &&
+    (Number(minutes()) !== props.clock.minutes ||
+      Number(increment()) !== props.clock.increment);
+  const save = (): Promise<void> =>
+    edited()
+      ? props.onChoose({
+          operation: 'clock',
+          minutes: Number(minutes()),
+          increment: Number(increment()),
+        })
+      : Promise.resolve();
   return (
     <FramePlacePage
       {...props}
+      onClose={() => void save().then(() => props.onClose())}
       screenId="custom-game-clock"
+      back={<Trans>Back to setup</Trans>}
       title={<Trans>Clock and sides</Trans>}
       subtitle={
         <Show
@@ -94,45 +156,44 @@ export function FrameClockPlace(
         </Show>
       }
     >
-      <StackVertical gap="md">
-        <TextInput
-          label={<Trans>Minutes per side</Trans>}
-          type="number"
-          value={minutes()}
-          onChangeText={setMinutes}
-          dataSet={{ testid: 'custom-game-minutes' }}
-        />
-        <TextInput
-          label={<Trans>Seconds added after a move</Trans>}
-          type="number"
-          value={increment()}
-          onChangeText={setIncrement}
-          dataSet={{ testid: 'custom-game-increment' }}
-        />
-        <GameActions sizing="share">
-          <GameActionButton
-            title={<Trans>Use this clock</Trans>}
-            variant="solid"
-            dataSet={{ testid: 'custom-game-clock' }}
-            operation={async () => {
-              await props.onChoose({
-                operation: 'clock',
-                minutes: Number(minutes()),
-                increment: Number(increment()),
-              });
-              props.onClose();
-            }}
-          />
-        </GameActions>
-      </StackVertical>
-      <MenuSection>
+      {/* The clock first: none, or the same time for each side; then the
+          sides, apart, since changing them is not a clock setting. */}
+      <MenuSection title={<Trans>Clock</Trans>}>
         <FrameChoiceRow
           choices={choices}
           id="custom-game-untimed"
           title={<Trans>Play untimed</Trans>}
+          caption={<Trans>No clock for either side</Trans>}
           selected={props.clock.minutes === 0}
           operation={() => props.onChoose({ operation: 'untimed' })}
         />
+        <FrameChoiceRow
+          choices={choices}
+          id="custom-game-timed"
+          title={<Trans>Timed</Trans>}
+          caption={
+            <Trans>
+              {minutes()} minutes a side, plus {increment()} seconds a move
+            </Trans>
+          }
+          selected={props.clock.minutes > 0}
+          operation={() =>
+            props.onChoose({
+              operation: 'clock',
+              minutes: Number(minutes()),
+              increment: Number(increment()),
+            })
+          }
+        />
+      </MenuSection>
+      <ClockTimeFields
+        minutes={minutes()}
+        increment={increment()}
+        onMinutes={setMinutes}
+        onIncrement={setIncrement}
+        onSave={() => void save()}
+      />
+      <MenuSection title={<Trans>Sides</Trans>}>
         <FrameChoiceRow
           choices={choices}
           id="custom-game-swap"
@@ -230,13 +291,25 @@ export function FramePrivateSetupPlace(
               />
             )}
           </Show>
-          <GameActionButton
-            title={<Trans>Random setup</Trans>}
-            size="lg"
-            dataSet={{ testid: 'custom-game-setup-random' }}
-            disabled={props.own.locked}
-            operation={() => props.onRandomSetup()}
-          />
+          {/* The way back sits in the dock beside the random setup, so the
+              footer never hides it. */}
+          <GameActions sizing="fill">
+            <GameActionButton
+              title={<Trans>Random setup</Trans>}
+              size="lg"
+              dataSet={{ testid: 'custom-game-setup-random' }}
+              disabled={props.own.locked}
+              operation={() => props.onRandomSetup()}
+            />
+            <Button
+              title={<Trans>Back to setup</Trans>}
+              variant="outline"
+              intent="neutral"
+              size="lg"
+              onClick={() => props.onClose()}
+              dataSet={{ testid: 'custom-game-place-back' }}
+            />
+          </GameActions>
         </GameLobbyDock>
       }
     >

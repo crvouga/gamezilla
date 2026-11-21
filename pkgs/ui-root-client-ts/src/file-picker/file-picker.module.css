@@ -1,0 +1,61 @@
+/* One bordered row: the chooser's words as a quiet control, then the
+   chosen file's name. The native input covers the row, unseen, so a press
+   anywhere on it opens the system chooser and the keyboard reaches it. */
+.field {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--ui-space-3);
+  min-width: 0;
+  min-height: var(--ui-space-12);
+  padding: var(--ui-space-2);
+  border: 1px solid var(--ui-color-outline);
+  border-radius: var(--ui-radius-control);
+  background: var(--ui-color-surface);
+}
+.input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.input:disabled {
+  cursor: not-allowed;
+}
+.field:has(.input:focus-visible) {
+  border-color: var(--ui-color-focus-ring);
+  outline: 1px solid var(--ui-color-focus-ring);
+}
+.field:has(.input:disabled) {
+  opacity: var(--ui-opacity-disabled);
+}
+.choose {
+  flex-shrink: 0;
+  padding: var(--ui-space-2) var(--ui-space-3);
+  border-radius: var(--ui-radius-sm);
+  background: var(--ui-color-surface-muted);
+  color: var(--ui-color-text);
+  font-size: var(--ui-font-size-sm);
+  font-weight: var(--ui-font-weight-semibold);
+  line-height: var(--ui-leading-sm);
+}
+.name {
+  display: flex;
+  align-items: center;
+  gap: var(--ui-space-2);
+  min-width: 0;
+  color: var(--ui-color-text);
+  font-size: var(--ui-font-size-sm);
+  line-height: var(--ui-leading-sm);
+}
+.nameText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.empty .name {
+  color: var(--ui-color-text-secondary);
+}

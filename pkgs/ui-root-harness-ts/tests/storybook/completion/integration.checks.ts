@@ -65,9 +65,9 @@ for (const screen of [
         expect(first.y).toBeGreaterThanOrEqual(0);
         expect(last.y + last.height).toBeLessThanOrEqual(screen.height);
         // The outcome and what comes next lead on every size: the outcome's
-        // card lies over the final board in the first view, and every next
-        // action is in the game's command bar (under a phone's board,
-        // beside a wide one), in the first view and never on the board.
+        // card heads the game's commands beside the final board (under a
+        // phone's board), never over it, and every next action is in the
+        // game's command bar, in the first view and never on the board.
         await expect(headline).toBeInViewport({ ratio: 1 });
         const board = await box(page.getByTestId('custom-game-public'));
         for (const action of await actions.all())
@@ -85,6 +85,12 @@ for (const screen of [
           await page.locator('button[data-variant="solid"]').count()
         ).toBeLessThanOrEqual(1);
         if (state !== 'cancelled') {
+          // A phone folds the standings behind their own control.
+          const details = page.getByTestId('game-result-overlay-details');
+          if (await details.isVisible()) {
+            await details.click();
+            await expect(details).toHaveAttribute('aria-expanded', 'true');
+          }
           await expect(
             page.getByRole('list', { name: 'Standings' }).getByRole('listitem')
           ).toHaveCount(2);
@@ -106,7 +112,7 @@ for (const sample of [
   { story: 'play--offline-local', says: 'Your local game can continue' },
   { story: 'play--move-waiting', says: 'when the connection returns' },
   { story: 'play--stopped', says: 'The game stopped' },
-  { story: 'moves--earlier-move', says: 'After move 3 of 8' },
+  { story: 'moves--earlier-move', says: 'Move 3 of 8, Red circle' },
   { story: 'moves--earlier-game', says: 'An earlier game, after move 3' },
   { story: 'result--you-win', says: 'You win' },
 ])
@@ -170,7 +176,7 @@ test('storybook integration: resigning from the game menu keeps one outcome and 
   await expect(page.getByTestId('custom-game-result-headline')).toHaveCount(1);
   await expect(page.getByTestId('custom-game-rematch')).toHaveCount(1);
   await expect(page.getByTestId('custom-game-result-headline')).toContainText(
-    'You came 2nd'
+    'You lost'
   );
   // How it ended is the result card's caption, under its headline.
   await expect(page.getByTestId('custom-game-outcome')).toContainText(

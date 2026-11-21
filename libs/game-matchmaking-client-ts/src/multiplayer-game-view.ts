@@ -1,3 +1,4 @@
+import type { GameSeatLook } from '@pkgs/ui-root-client-ts/game-seat-swatch';
 /** One accepted move as the move list shows it. */
 export type MultiplayerMoveShown = {
   /** Moves played to reach the position after it: 1 for the first move. */
@@ -8,6 +9,8 @@ export type MultiplayerMoveShown = {
   readonly numbering: string;
   /** The move named by itself: `1. e4`, `1... e5`. */
   readonly name: string;
+  /** The look of the seat that made it, beside it in the list. */
+  readonly swatch?: GameSeatLook | undefined;
 };
 
 /** The moves of a game played in turns, and the position this device shows. */
@@ -20,6 +23,11 @@ export type MultiplayerMovesShown = {
    * (`null` at the start of the game); `null` on the current position.
    */
   readonly reviewing: { readonly after: string | null } | null;
+  /**
+   * The word naming every move once when the game's notation is a bare
+   * number (`Column`), as a custom game's record says it; absent otherwise.
+   */
+  readonly heading?: string | undefined;
 };
 
 /** What a game that is over with a result offers to keep. */

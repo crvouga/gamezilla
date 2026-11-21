@@ -10,6 +10,7 @@ import {
   endMultiplayerSpace,
   retirePreviousMultiplayer,
 } from '@libs/runtime-harness-ts/multiplayer-search-recovery';
+import { openMultiplayerFind } from '@libs/runtime-harness-ts/multiplayer-time-control-gesture';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import type {
   Driver,
@@ -62,7 +63,14 @@ function loadingScreen(
         taps.push(id);
       },
       scroll: unused,
-      wait: unused,
+      wait: async (state, options) => {
+        expect(state).toBe('visible');
+        expect(options?.visibleOr).toEqual([
+          'multiplayer-open-find',
+          'game-result-overlay-details',
+        ]);
+        expect(hub || !ongoing).toBe(true);
+      },
       text: unused,
       isVisible: async () =>
         id === 'multiplayer-game' ||
@@ -375,6 +383,58 @@ test.each([
             'multiplayer-open-find',
           ]
         : []
+    );
+  }
+);
+
+// regression: multiplayer-find-before-result-paints
+// regression: multiplayer-find-fresh-hub-paints-late
+// regression: multiplayer-find-folded-result-details
+test.each(['result', 'hub', 'folded result'])(
+  'Find waits for a delayed %s',
+  async (destination) => {
+    const { ui, taps } = loadingScreen(false);
+    const get = ui.get.bind(ui);
+    let ready = false;
+    const details = 'game-result-overlay-details';
+    ui.get = (id) => {
+      const node = get(id);
+      return {
+        ...node,
+        isVisible: async () =>
+          ready &&
+          id ===
+            (destination === 'hub'
+              ? 'multiplayer-find'
+              : destination === 'folded result' && !taps.includes(details)
+                ? details
+                : 'multiplayer-open-find'),
+        wait: async (state, options) => {
+          expect(id).toBe('multiplayer-find');
+          expect(state).toBe('visible');
+          expect(options?.visibleOr).toEqual([
+            'multiplayer-open-find',
+            details,
+          ]);
+          ready = true;
+        },
+        expect: {
+          ...node.expect,
+          visible: async () => {
+            expect(ready).toBe(true);
+            if (destination !== 'hub')
+              expect(taps).toContain('multiplayer-open-find');
+          },
+        },
+      };
+    };
+    await openMultiplayerFind(ui);
+    expect(taps).toEqual(
+      destination === 'hub'
+        ? []
+        : destination === 'result'
+          ? ['multiplayer-open-find']
+          : [details, 'multiplayer-open-find']
     );
   }
 );

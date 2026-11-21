@@ -8,11 +8,14 @@ import {
   multiplayerPeople,
   multiplayerSideOf,
 } from '@libs/game-matchmaking-shared-ts/multiplayer-roster';
+import { frameSwatch } from '@libs/game-session-client-ts/game-frame-look';
 import { useClipboard } from '@pkgs/device-client-ts/solid';
 import {
   useGamePresentation,
   useTurnGames,
 } from '@pkgs/turn-game-client-ts/turn-games-context';
+import { gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
+import type { GameSeatLook } from '@pkgs/ui-root-client-ts/game-seat-swatch';
 import { type Accessor, createMemo } from 'solid-js';
 import type {
   MultiplayerConfirm,
@@ -66,11 +69,17 @@ function offerOf(open: boolean, offered: boolean): MultiplayerOffer {
   return offered ? 'answer' : 'offer';
 }
 
-/** The moves and the position this device shows; `null` for a game without turns. */
-function movesOf(view: OwnBoard): MultiplayerMovesShown {
+/**
+ * The moves and the position this device shows, each move beside the look
+ * of the seat that made it.
+ */
+function movesOf(
+  view: OwnBoard,
+  lookOf: (ply: number) => GameSeatLook | undefined
+): MultiplayerMovesShown {
   const earlier = view.earlier();
   return {
-    moves: view.moves(),
+    moves: view.moves().map((move) => ({ ...move, swatch: lookOf(move.ply) })),
     shownPly: view.shownPly(),
     reviewing: earlier === null ? null : { after: earlier.move?.name ?? null },
   };
@@ -112,7 +121,18 @@ export function useMultiplayerGameView(
         hasTurns && presentation(game.fen).canFlip
           ? { flipped: view.flipped() }
           : null,
-      moves: hasTurns ? movesOf(view) : null,
+      moves: hasTurns
+        ? {
+            ...movesOf(view, (ply) => {
+              const sides = gameSides(rules.forPosition(game.fen));
+              const side = sides[(ply - 1) % sides.length];
+              return side === undefined
+                ? undefined
+                : frameSwatch(presentation(game.fen).frame.seats.look(side));
+            }),
+            heading: presentation(game.fen).moveHeading?.() || undefined,
+          }
+        : null,
       record: record(),
     };
   });

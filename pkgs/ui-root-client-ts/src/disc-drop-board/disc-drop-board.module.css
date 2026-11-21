@@ -177,9 +177,14 @@
   display: grid;
   place-items: center;
   aspect-ratio: 1;
+  /* A square whatever its disc holds, so a full board is as tall as an
+     empty one. */
+  min-height: 0;
   border-radius: 50%;
   background: var(--disc-hole);
   overflow: visible;
+  /* The mark scales with the cell, so a small board's disc holds it whole. */
+  container-type: inline-size;
 }
 .disc {
   display: grid;
@@ -187,7 +192,7 @@
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  font-size: var(--ui-font-size-xl);
+  font-size: min(var(--ui-font-size-xl), 48cqi);
   line-height: 1;
   transition: opacity var(--ui-duration-slow) var(--ui-easing-standard);
 }
@@ -240,6 +245,14 @@
 .cell[data-winning="true"] .disc {
   inline-size: 68%;
   block-size: 68%;
+  font-size: min(var(--ui-font-size-xl), 34cqi);
+}
+/* The last disc played is ringed in the board's accent, so what changed
+   reads at a glance (a winning four keeps its own ring). */
+.cell[data-last="true"]:not([data-winning="true"]) .disc {
+  box-shadow:
+    inset 0 0 0 2px var(--ui-color-text-secondary),
+    0 0 0 3px var(--ui-color-tint);
 }
 /* The last disc played falls the column's height under gravity: slow at
    the top, fastest as it lands. */

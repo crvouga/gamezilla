@@ -12,6 +12,7 @@ import { EllipsisIcon, MenuIcon } from '../icons';
 import type { TooltipPlacement } from '../tooltip/index';
 import type { AnchoredMenuController } from '../use-anchored-menu';
 import { useAnchoredMenu } from '../use-anchored-menu';
+import styles from './overflow-menu-button.module.css';
 
 export const OVERFLOW_MENU_DEFAULT_WIDTH = 280;
 
@@ -94,6 +95,12 @@ export type OverflowMenuButtonProps = {
    * the menu (default IconButton is skipped).
    */
   trigger?: JSX.Element | undefined;
+  /**
+   * A short visible word beside the icon (`Move`), drawn as an outlined
+   * pill, for a menu whose purpose an icon alone does not say. Ignored
+   * when `trigger`.
+   */
+  label?: string | undefined;
   /** Trigger accessible name. */
   'aria-label': string;
   /** Width of the dropdown panel in px. */
@@ -166,6 +173,19 @@ export function renderDefaultOverflowMenu(
       placement={menu.placement}
       content={menu.content}
     />
+  );
+}
+
+/** A labelled trigger's face: its icon and its word in an outlined pill. */
+function LabelledFace(props: {
+  icon: IconComponent;
+  label: string;
+}): JSX.Element {
+  return (
+    <span class={styles['labelled']}>
+      <Dynamic component={props.icon} size={16} color="icon" />
+      <span class="text textLabel">{props.label}</span>
+    </span>
   );
 }
 
@@ -263,7 +283,12 @@ export function OverflowMenuButton(
           menu={menu}
           size={props.size ?? 40}
           icon={props.icon ?? MenuIcon}
-          trigger={props.trigger}
+          trigger={
+            props.trigger ??
+            (props.label === undefined ? undefined : (
+              <LabelledFace icon={props.icon ?? MenuIcon} label={props.label} />
+            ))
+          }
           aria-label={props['aria-label']}
           tooltipPlacement={
             props.tooltipPlacement ?? props.placement ?? 'bottom-end'

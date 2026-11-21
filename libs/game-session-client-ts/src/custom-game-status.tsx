@@ -79,6 +79,7 @@ function drawnDescription(reason: string): string {
     return t`Game drawn because a participant ran out of time.`;
   if (reason === 'participant withdrew')
     return t`Game drawn because a participant withdrew.`;
+  if (reason === 'agreement') return t`Game drawn by agreement.`;
   return t`Game drawn.`;
 }
 
@@ -102,7 +103,10 @@ function gameStateDescription(
     if (game.awaiting.length > 0) {
       const chosen = game.committed.length;
       const total = game.awaiting.length + chosen;
-      return t`Secret choices: ${chosen} of ${total} made.`;
+      // The person the game still waits on is told where to choose.
+      return viewer !== null && game.awaiting.includes(viewer)
+        ? t`Secret choices: ${chosen} of ${total} made. Make yours on the board.`
+        : t`Secret choices: ${chosen} of ${total} made.`;
     }
     if (game.execution !== undefined)
       return game.execution.phase === 'paused'
@@ -271,20 +275,29 @@ export function useFrameStatus(
   return createMemo(() => {
     const game = model.current();
     if (game === null) return null;
+    const plainTurn = plainTurnLine(
+      game,
+      presentation(game.fen),
+      model.mySide(),
+      nameOf
+    );
+    // The viewer's own turn while the connection is needed: theirs, but not
+    // yet, so the line says both instead of naming their side.
+    const turnOffline =
+      plainTurn &&
+      game.turn === model.mySide() &&
+      frameConnection(model) === 'needed';
     return {
       lineup: lineup(),
-      description: gameStateDescription(
-        game,
-        presentation(game.fen),
-        model.mySide(),
-        nameOf
-      ),
-      plainTurn: plainTurnLine(
-        game,
-        presentation(game.fen),
-        model.mySide(),
-        nameOf
-      ),
+      description: turnOffline
+        ? t`Your move, once you are back online.`
+        : gameStateDescription(
+            game,
+            presentation(game.fen),
+            model.mySide(),
+            nameOf
+          ),
+      plainTurn: plainTurn && !turnOffline,
       // While the viewer's choice is sent, it is no longer their turn to act.
       emphasis: frameViewerHeld(model)
         ? 'neutral'

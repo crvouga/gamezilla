@@ -54,13 +54,14 @@
     overflow-wrap: normal;
   }
   .participants [data-active] > :is(div, button) {
-    padding-inline: var(--ui-space-1);
+    padding-inline: var(--ui-space-2);
   }
+  /* Four seats: room above and below each chip's two lines. */
   .participants
     > [role="list"]:has(> :nth-child(4):last-child)
     [data-active]
     > :is(div, button) {
-    padding-block: 0;
+    padding-block: var(--ui-space-1);
   }
   .participants
     > [role="list"]:has(> :nth-child(4):last-child)

@@ -167,7 +167,7 @@ export const FourSeats: Story = {
     status: status({
       lineup:
         'Red circle: avery. Yellow diamond: jordan_plays. Third seat: morgan. Fourth seat: Bot.',
-      description: 'Secret choices: 2 of 4 made.',
+      description: 'Secret choices: 1 of 2 made. Make yours on the board.',
     }),
     table: {
       shape: 'rail',
@@ -195,6 +195,7 @@ export const DrawOffered: Story = {
     play: {
       ...FRAME_NO_PLAY,
       drawOffered: true,
+      drawOfferer: { person: PEOPLE.jordan, plainName: 'jordan_plays' },
       canAnswerDraw: true,
       canResign: true,
     },
@@ -242,7 +243,15 @@ export const StandIn: Story = {
 
 /** Offline with a game that needs the room: changes wait for the connection. */
 export const ConnectionNeeded: Story = {
-  args: { ...HELD, connection: 'needed' },
+  args: {
+    ...HELD,
+    connection: 'needed',
+    status: status({
+      description: 'Your move, once you are back online.',
+      plainTurn: false,
+      emphasis: 'neutral',
+    }),
+  },
 };
 
 /** Offline with a solo game: it carries on on this device. */
@@ -335,7 +344,7 @@ export const ResignAsked: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement.ownerDocument.body);
     await userEvent.click(await canvas.findByTestId('custom-game-resign-now'));
-    await canvas.findByText(/^This finishes the current game\./);
+    await canvas.findByText(/^You lose this game\./);
     await expect(
       await canvas.findByTestId('custom-game-resign-confirm')
     ).toBeVisible();

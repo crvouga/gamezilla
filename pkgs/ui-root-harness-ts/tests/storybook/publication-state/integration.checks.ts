@@ -4,14 +4,14 @@ const samples = [
   {
     story: 'publish-pending',
     status: 'Awaiting confirmation',
-    action: 'Send again',
+    action: 'Retry sending',
   },
   {
     story: 'publish-pending-offline',
     status: 'Waiting for connection',
-    action: 'Send again',
+    action: 'Retry sending',
   },
-  { story: 'published', status: 'Published', action: 'Send again' },
+  { story: 'published', status: 'Published', action: 'Publish again' },
 ];
 
 for (const width of [390, 768, 1440]) {

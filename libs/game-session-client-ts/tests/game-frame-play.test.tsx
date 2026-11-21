@@ -126,10 +126,10 @@ describe('the game-over headline', () => {
     viewer: GameSide | null
   ) => frameHeadlineText(frameHeadline(standings, viewer), nameOf, 'en');
 
-  test('a seated winner reads "You win", a seated loser their place', () => {
+  test('a seated winner reads "You win", a seated loser of two "You lost"', () => {
     const standings = standingsFromWinner('black', twoSeats);
     expect(text(standings, 'black')).toBe('You win');
-    expect(text(standings, 'white')).toBe('You came 2nd');
+    expect(text(standings, 'white')).toBe('You lost');
   });
 
   test('a watcher reads who won, by name', () => {

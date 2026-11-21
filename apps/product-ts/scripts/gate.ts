@@ -36,9 +36,20 @@ async function bytes(
   const input = await readObjectBytes(ports.inputs, artifact.file);
   if (input === null)
     throw new Error(`Missing UI quality input: ${artifact.file}`);
-  return artifact.kind === 'html'
-    ? ports.renderer.render(new TextDecoder().decode(input))
-    : input;
+  if (artifact.kind !== 'html') return input;
+  try {
+    return await ports.renderer.render(new TextDecoder().decode(input));
+  } catch (cause) {
+    const origin = artifact.origins[0];
+    const source = origin
+      ? `${origin.source ?? origin.package}: ${origin.test}, ${origin.step} (${origin.file})`
+      : 'unknown origin';
+    const reason = cause instanceof Error ? cause.message : String(cause);
+    throw new Error(
+      `UI quality replay failed for ${artifact.file} from ${source}: ${reason}`,
+      { cause }
+    );
+  }
 }
 
 interface PreparedImages {

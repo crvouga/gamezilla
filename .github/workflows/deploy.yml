@@ -359,7 +359,7 @@ jobs:
         with:
           product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
           product-identity-mode: configured
-          tools: bun gh
+          tools: bun gh infisical
       - name: File the Release issue
         id: verdict
         run: bun run libs/tools-harness-ts/scripts/ci-workflow-alert.ts

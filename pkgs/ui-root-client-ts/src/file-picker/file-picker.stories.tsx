@@ -10,6 +10,10 @@ const meta = {
   args: {
     label: 'Choose an image',
     accept: 'image/*',
+    chooseLabel: 'Choose file',
+    emptyLabel: 'No file chosen',
+    fileName: null,
+    hint: 'A .png or .jpg image.',
     onSelect: fn(),
   },
   argTypes: {
@@ -22,6 +26,10 @@ const meta = {
 } satisfies Meta<typeof FilePicker>;
 export default meta;
 export const Ready: StoryObj<typeof meta> = {};
+/** A chosen file is named in the field, as its screen says it. */
+export const Chosen: StoryObj<typeof meta> = {
+  args: { fileName: 'avatar-for-the-weekend-tournament.png' },
+};
 export const Disabled: StoryObj<typeof meta> = {
   args: { disabled: true },
 };

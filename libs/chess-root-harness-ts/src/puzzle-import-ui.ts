@@ -125,8 +125,12 @@ export async function readPuzzleImport(s: ProductHarness, actor = 'alice') {
     (await ui.get(name).isVisible()) &&
     (await ui.get(name).attribute('disabled')) === null;
   const text = (await read('puzzle-load-status')) ?? 'Ready';
+  // Figures are shown with grouped digits (`1,198,400`).
   const number = async (name: string) =>
-    Number(((await read(name)) ?? '0').match(/\d+/)?.[0] ?? 0);
+    Number(
+      ((await read(name)) ?? '0').match(/\d[\d,]*/)?.[0]?.replaceAll(',', '') ??
+        0
+    );
   const startShown = await ui.get('puzzle-load-start').isVisible();
   const stopOffered = await ui.get('puzzle-load-stop').isVisible();
   return {
