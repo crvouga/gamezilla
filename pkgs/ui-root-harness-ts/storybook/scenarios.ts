@@ -18,6 +18,54 @@ export function supportsStoryViewport(
   );
 }
 
+/** Storybook toolbar global name to every value a story is captured with. */
+export type StoryGlobalsMatrix = Readonly<Record<string, readonly string[]>>;
+
+const SPACE_GAMES = [
+  'light-cycles',
+  'chess',
+  'hearts',
+  'battleship',
+  'word-tiles',
+] as const;
+const SPACE_ROLES = ['host', 'guest'] as const;
+
+/**
+ * Stories whose state comes from toolbar globals rather than separate CSF
+ * exports. The Storybook index carries no parameters, so the browser suite
+ * reads the matrix here; `storybook-scenarios.test.ts` keeps it equal to each
+ * story's declared `parameters.spaceMatrix`.
+ */
+export const storyGlobalsMatrices: Readonly<
+  Record<string, StoryGlobalsMatrix>
+> = {
+  'space-choosing--screen': {
+    spaceGame: ['light-cycles'],
+    spaceRole: SPACE_ROLES,
+  },
+  'space-setting-up--screen': {
+    spaceGame: SPACE_GAMES,
+    spaceRole: SPACE_ROLES,
+  },
+  'space-in-game--screen': {
+    spaceGame: SPACE_GAMES,
+    spaceRole: SPACE_ROLES,
+  },
+};
+
+/** Every combination of a story's globals, in declaration order; one empty combination without a matrix. */
+export function storyGlobalsCombinations(
+  matrix: StoryGlobalsMatrix | undefined
+): Readonly<Record<string, string>>[] {
+  return Object.entries(matrix ?? {}).reduce<Record<string, string>[]>(
+    (combinations, [name, values]) =>
+      combinations.flatMap((combination) =>
+        values.map((value) => ({ ...combination, [name]: value }))
+      ),
+    [{}]
+  );
+}
+
 /** The shared responsive/theme matrix for canonical Storybook entries. */
 export function visualScenarios(story: StoryEntry) {
   const [component, name] = story.id.split('--');
@@ -45,19 +93,29 @@ export function visualScenarios(story: StoryEntry) {
   return widths
     .filter((width) => supportsStoryViewport(story, width))
     .flatMap((width) =>
-      ['light', 'dark'].map((theme) => {
-        const suffix = width === 390 ? '' : `-${width}`;
-        return {
-          width,
-          theme,
-          suffix,
-          // Preserve the established screenshot height while sharing native
-          // widths, unless the story asks for each viewport's own height.
-          height: native
-            ? (heights[width] ?? heights[phone] ?? 844)
-            : (heights[phone] ?? 844),
-          baseline: `${slice}/baselines/chromium/${component}/${name}-${theme}${suffix}.png`,
-        };
-      })
-    );
+      storyGlobalsCombinations(storyGlobalsMatrices[story.id]).flatMap(
+        (globals) =>
+          ['light', 'dark'].map((theme) => ({ width, theme, globals }))
+      )
+    )
+    .map(({ width, theme, globals }) => {
+      // Matrix values join the width suffix so each combination owns its
+      // baseline and test title; stories without a matrix keep their names.
+      const suffix = [
+        width === 390 ? '' : `-${width}`,
+        ...Object.values(globals).map((value) => `-${value}`),
+      ].join('');
+      return {
+        width,
+        theme,
+        suffix,
+        globals,
+        // Preserve the established screenshot height while sharing native
+        // widths, unless the story asks for each viewport's own height.
+        height: native
+          ? (heights[width] ?? heights[phone] ?? 844)
+          : (heights[phone] ?? 844),
+        baseline: `${slice}/baselines/chromium/${component}/${name}-${theme}${suffix}.png`,
+      };
+    });
 }

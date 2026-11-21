@@ -29,8 +29,13 @@
     "@libs/word-tiles-client-ts": "workspace:*"
   },
   "devDependencies": {
+    "@pkgs/chess-board-root-client-ts": "workspace:*",
+    "@pkgs/ui-root-client-ts": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
+    "solid-js": "catalog:",
+    "storybook": "catalog:",
+    "storybook-solidjs-vite": "catalog:",
     "typescript": "catalog:"
   },
   "category": "client",
