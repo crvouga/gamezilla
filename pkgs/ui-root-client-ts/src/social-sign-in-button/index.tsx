@@ -1,6 +1,5 @@
 /** @jsxImportSource solid-js */
 
-import { fonts } from '@pkgs/ui-root-shared-ts/fonts';
 import './google-font.css';
 
 import { useLingui } from '@lingui/solid/macro';
@@ -49,7 +48,7 @@ const FONT_SIZE = 14;
 const LINE_HEIGHT = 20;
 const FONT_WEIGHT = '500' as const;
 /** Self-hosted vendor typeface, isolated to social sign-in controls. */
-const FONT_FAMILY = fonts.google;
+const FONT_FAMILY = '"Google Sans", system-ui, sans-serif';
 
 /**
  * Padding spec: 12px before the logo, 10px logo→label, 12px after the label.

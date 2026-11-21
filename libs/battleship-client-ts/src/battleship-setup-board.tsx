@@ -11,10 +11,7 @@ import {
   type GameChoice,
   GameChoiceGrid,
 } from '@pkgs/ui-root-client-ts/game-choice-grid';
-import {
-  createMediaQuery,
-  narrowerThan,
-} from '@pkgs/ui-root-client-ts/media-query';
+import { createMediaQuery } from '@pkgs/ui-root-client-ts/media-query';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
@@ -103,7 +100,7 @@ export function BattleshipSetupBoard(
 ): JSX.Element {
   const setup = createSetupController(props);
   const statusId = createUniqueId();
-  const phone = createMediaQuery(narrowerThan('sm'));
+  const phone = createMediaQuery('(max-width: 639px)');
   const [enlarged, setEnlarged] = createSignal(
     props.initialPlacement === 'enlarged' ||
       ((props.initialPlacement ?? 'responsive') === 'responsive' && phone())

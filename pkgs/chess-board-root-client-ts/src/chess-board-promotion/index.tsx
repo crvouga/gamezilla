@@ -13,9 +13,6 @@ import type {
 import { FocusTrap } from '@pkgs/ui-root-client-ts/focus-trap';
 import { createScrollTarget } from '@pkgs/ui-root-client-ts/scroll';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
-import { spacing } from '@pkgs/ui-root-shared-ts/scale';
-import { layoutSize } from '@pkgs/ui-root-shared-ts/sizes';
 import { createEffect, For, type JSX, onMount, Show } from 'solid-js';
 
 import styles from '../chess-board/chess-board.module.css';
@@ -34,7 +31,7 @@ export type ChessBoardPromotionProps = {
 };
 
 /** A named choice panel stays inside even the narrowest board. */
-const CELL = `min(100%, max(37.5%, ${cssPx(layoutSize['promotion-cell'])}))`;
+const CELL = 'min(100%, max(37.5%, 144px))';
 
 type StackLayout = {
   readonly style: JSX.CSSProperties;
@@ -59,7 +56,7 @@ function stackLayout(args: {
   const row = args.orientation === 'white' ? 7 - rank : rank;
   const fromTop =
     args.orientation === 'white' ? args.color === 'w' : args.color === 'b';
-  const left = `clamp(${spacing[0]}px, calc(${col} * 12.5% + (12.5% - ${CELL}) / 2), calc(100% - ${CELL}))`;
+  const left = `clamp(0px, calc(${col} * 12.5% + (12.5% - ${CELL}) / 2), calc(100% - ${CELL}))`;
   const style: JSX.CSSProperties = fromTop
     ? { left, top: `${row * 12.5}%`, width: CELL }
     : { left, bottom: `${(7 - row) * 12.5}%`, width: CELL };

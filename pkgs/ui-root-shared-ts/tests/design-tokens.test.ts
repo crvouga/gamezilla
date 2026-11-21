@@ -1,8 +1,7 @@
 /**
- * `design-system/tokens.json` is the source of every visual value; the
- * package's `src/design-tokens.json` is its generated copy. It must be a
- * valid W3C Design Tokens tree, the copy must equal it, and
- * `token-names.ts` and `tokens.css` must be what the tree renders today.
+ * The package's `src/design-tokens.json` is the source of every visual value.
+ * It must be a valid W3C Design Tokens tree, and `token-names.ts` and
+ * `tokens.css` must be what the tree renders today.
  */
 
 import { describe, expect, test } from 'bun:test';
@@ -41,19 +40,13 @@ import { surfaceToneColor, textToneColor } from '@pkgs/ui-root-shared-ts/tones';
 import { textStyles } from '@pkgs/ui-root-shared-ts/typography';
 
 const SRC = join(import.meta.dir, '..', 'src');
-const CANONICAL = join(import.meta.dir, '../../../design-system/tokens.json');
+const CANONICAL = join(SRC, 'design-tokens.json');
 
 async function readTokens(): Promise<unknown> {
   return JSON.parse(await Bun.file(CANONICAL).text());
 }
 
 describe('design-tokens.json', () => {
-  test('the package copy equals design-system/tokens.json', async () => {
-    expect(await Bun.file(join(SRC, 'design-tokens.json')).text()).toBe(
-      await Bun.file(CANONICAL).text()
-    );
-  });
-
   test('is a valid W3C Design Tokens tree', async () => {
     expect(validateDesignTokens(await readTokens())).toEqual([]);
   });
@@ -266,9 +259,11 @@ describe('generated files', () => {
 
   test('tokens.css carries a variable for every semantic scale name', () => {
     const css = renderTokensCss();
-    expect(css.startsWith('/* GENERATED from design-system/tokens.json')).toBe(
-      true
-    );
+    expect(
+      css.startsWith(
+        '/* GENERATED from pkgs/ui-root-shared-ts/src/design-tokens.json'
+      )
+    ).toBe(true);
     for (const name of SPACE_TOKENS) {
       expect(css).toContain(`  --ui-space-${name}: ${spaceSize[name]}px;`);
     }

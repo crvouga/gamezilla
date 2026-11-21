@@ -5,9 +5,8 @@
 /* The trick just taken: the winning card is outlined and labelled in words
    until the next card is played. */
 [data-won="true"] > span[data-card] {
-  outline: var(--ui-border-width-strong) solid
-    var(--ui-color-game-hearts-accent);
-  outline-offset: var(--ui-border-width-focus);
+  outline: 3px solid var(--ui-color-game-hearts-accent);
+  outline-offset: 2px;
 }
 .won {
   position: absolute;

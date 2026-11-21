@@ -242,7 +242,7 @@
    into layers too. */
 .hover {
   z-index: 1;
-  box-shadow: inset 0 0 0 var(--ui-border-width-heavy) var(--chess-hover);
+  box-shadow: inset 0 0 0 4px var(--chess-hover);
   visibility: hidden;
 }
 
@@ -266,7 +266,7 @@
    border on a light square, a cream paler than the light square on a dark
    one. */
 .coords {
-  font-family: var(--ui-font-system);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   font-weight: 600;
 }
 
@@ -314,10 +314,10 @@
    that clears 3:1 on both squares (the app ring alone measured about 1.5:1
    on walnut in the dark theme). */
 .square:focus-visible {
-  outline: var(--ui-border-width-strong) solid var(--ui-color-focus-ring);
-  outline-offset: calc(var(--ui-border-width-strong) * -1);
-  border-radius: var(--ui-border-width-focus);
-  box-shadow: inset 0 0 0 var(--ui-border-width-band) var(--chess-focus-band);
+  outline: 3px solid var(--ui-color-focus-ring);
+  outline-offset: -3px;
+  border-radius: 2px;
+  box-shadow: inset 0 0 0 5px var(--chess-focus-band);
 }
 
 /* -- cursors (CSS only: one host attribute per move, not 64 classes) ------ */
@@ -347,9 +347,9 @@
 
 .promotionPiece {
   display: block;
-  flex: 0 0 var(--ui-control-size-md);
-  width: var(--ui-control-size-md);
-  height: var(--ui-control-size-md);
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
 }
 
 /* -- motion policy ------------------------------------------------------- */
@@ -375,8 +375,8 @@
   position: absolute;
   left: 0;
   top: 0;
-  width: var(--ui-border-width-hairline);
-  height: var(--ui-border-width-hairline);
+  width: 1px;
+  height: 1px;
   overflow: hidden;
   opacity: 0.01;
   white-space: nowrap;
@@ -394,8 +394,8 @@
 
 .liveRegion {
   position: absolute;
-  width: var(--ui-border-width-hairline);
-  height: var(--ui-border-width-hairline);
+  width: 1px;
+  height: 1px;
   overflow: hidden;
   clip: rect(0 0 0 0);
   white-space: nowrap;
@@ -419,9 +419,9 @@
     left: 0;
     z-index: 1;
     width: max-content;
-    max-width: var(--ui-size-column-narrow);
+    max-width: 280px;
     padding: var(--ui-space-2) var(--ui-space-3);
-    border: var(--ui-border-width-hairline) solid var(--ui-color-border);
+    border: 1px solid var(--ui-color-border);
     border-radius: var(--ui-radius-sm);
     background: var(--ui-color-surface);
   }

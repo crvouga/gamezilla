@@ -13,7 +13,7 @@
   grid-auto-rows: 1fr;
   gap: var(--ui-space-1);
   padding: var(--ui-space-1);
-  border: var(--ui-border-width-hairline) solid var(--ui-color-outline);
+  border: 1px solid var(--ui-color-outline);
   border-radius: var(--ui-radius-card);
 }
 .track[aria-disabled="true"] {
@@ -30,7 +30,7 @@
   min-width: 0;
   min-height: 2.75rem;
   padding: var(--ui-space-1) 0;
-  border: var(--ui-border-width-hairline) solid transparent;
+  border: 1px solid transparent;
   border-radius: var(--ui-radius-md);
   background: transparent;
   color: var(--ui-color-text);
@@ -41,8 +41,8 @@
   color: var(--ui-color-on-primary-soft);
 }
 .tool:focus-visible {
-  outline: var(--ui-border-width-focus) solid var(--ui-color-focus-ring);
-  outline-offset: var(--ui-border-width-hairline);
+  outline: 2px solid var(--ui-color-focus-ring);
+  outline-offset: 1px;
 }
 .name {
   max-width: 100%;
@@ -82,8 +82,8 @@
 @container cell-grid-palette (max-width: 399px) {
   .label {
     position: absolute;
-    width: var(--ui-border-width-hairline);
-    height: var(--ui-border-width-hairline);
+    width: 1px;
+    height: 1px;
     overflow: hidden;
     clip-path: inset(50%);
     white-space: nowrap;

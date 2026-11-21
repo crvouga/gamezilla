@@ -1,6 +1,3 @@
-/** The smallest a card's tap target may be on either side, in CSS px. */
-const HIT_TARGET = 44;
-
 /** Bounds shared by the browser journey and literal geometry regressions. */
 type Bounds = {
   left: number;
@@ -22,8 +19,8 @@ export function assertHeartsHandBounds(
       card.bottom > viewport.height
     )
       throw new Error('Hearts hand extends outside the viewport');
-    if (card.width < HIT_TARGET || card.height < HIT_TARGET)
-      throw new Error(`Hearts card target is smaller than ${HIT_TARGET}px`);
+    if (card.width < 44 || card.height < 44)
+      throw new Error('Hearts card target is smaller than 44px');
   }
   for (const [index, card] of cards.entries()) {
     for (const other of cards.slice(index + 1)) {

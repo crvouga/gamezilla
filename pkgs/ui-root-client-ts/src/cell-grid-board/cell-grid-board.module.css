@@ -71,20 +71,8 @@
    height allowance is fixed, so choosing a wall never resizes the board. */
 @container game-column (min-width: 0) {
   .board[data-fill="true"][data-board-theme="quoridor"] {
-    --chrome: clamp(
-      var(--ui-size-quoridor-chrome-min),
-      calc(
-        var(--ui-size-quoridor-chrome-max) -
-        (100vw - var(--ui-breakpoint-md)) *
-        0.09
-      ),
-      var(--ui-size-quoridor-chrome-max)
-    );
-    --fit: calc(
-      100dvh -
-      var(--chrome) -
-      var(--ui-host-chrome-block-size, var(--ui-space-0))
-    );
+    --chrome: clamp(440px, calc(500px - (100vw - 768px) * 0.09), 500px);
+    --fit: calc(100dvh - var(--chrome) - var(--ui-host-chrome-block-size, 0px));
     max-width: max(calc(var(--ui-control-size-lg) * 7), min(100%, var(--fit)));
     margin-inline: auto;
   }
@@ -97,7 +85,7 @@
    column still caps it. */
 @container game-column (min-width: 880px) {
   .board[data-fill="true"][data-board-theme="quoridor"] {
-    --chrome: var(--ui-size-quoridor-chrome-wide);
+    --chrome: 360px;
   }
 }
 .header {
@@ -116,7 +104,7 @@
   aspect-ratio: 1;
   min-width: 0;
   padding: 0;
-  border: var(--ui-border-width-hairline) solid var(--color-border);
+  border: 1px solid var(--color-border);
   border-radius: var(--ui-radius-sm);
   background: var(--color-background);
   color: var(--color-text);
@@ -130,8 +118,8 @@
   cursor: default;
 }
 .cell:focus-visible {
-  outline: var(--ui-border-width-focus) solid var(--color-focus-ring);
-  outline-offset: var(--ui-border-width-hairline);
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 1px;
   z-index: 1;
 }
 .glyph {
@@ -157,22 +145,22 @@
   border-color: var(--color-destructive);
 }
 .cell[data-outlined="true"] {
-  border-width: var(--ui-border-width-strong);
+  border-width: 3px;
   border-color: var(--color-text);
 }
 .cell[data-emphasis="recent"] {
-  outline: var(--ui-border-width-strong) solid var(--color-text);
-  outline-offset: calc(var(--ui-border-width-hairline) * -1);
+  outline: 3px solid var(--color-text);
+  outline-offset: -1px;
 }
 .cell[data-emphasis="pending"],
 .cell[data-emphasis="preview"] {
-  outline: var(--ui-border-width-focus) dashed var(--color-tint);
-  outline-offset: calc(var(--ui-border-width-strong) * -1);
+  outline: 2px dashed var(--color-tint);
+  outline-offset: -3px;
 }
 .cell[data-emphasis="refused"] {
   --cell-grid-preview: var(--color-destructive);
-  outline: var(--ui-border-width-focus) dashed var(--color-destructive);
-  outline-offset: calc(var(--ui-border-width-strong) * -1);
+  outline: 2px dashed var(--color-destructive);
+  outline-offset: -3px;
 }
 .cell[data-identity="one"] {
   color: var(--color-destructive);
@@ -191,28 +179,28 @@
   background: var(--color-surface-muted);
 }
 .cell[data-edge-top="true"] {
-  border-top: var(--ui-border-width-heavy) solid var(--color-text);
+  border-top: 4px solid var(--color-text);
 }
 .cell[data-edge-right="true"] {
-  border-right: var(--ui-border-width-heavy) solid var(--color-text);
+  border-right: 4px solid var(--color-text);
 }
 .cell[data-edge-bottom="true"] {
-  border-bottom: var(--ui-border-width-heavy) solid var(--color-text);
+  border-bottom: 4px solid var(--color-text);
 }
 .cell[data-edge-left="true"] {
-  border-left: var(--ui-border-width-heavy) solid var(--color-text);
+  border-left: 4px solid var(--color-text);
 }
 .cell[data-preview-edge-top="true"] {
-  border-top: var(--ui-border-width-heavy) dashed var(--cell-grid-preview);
+  border-top: 4px dashed var(--cell-grid-preview);
 }
 .cell[data-preview-edge-right="true"] {
-  border-right: var(--ui-border-width-heavy) dashed var(--cell-grid-preview);
+  border-right: 4px dashed var(--cell-grid-preview);
 }
 .cell[data-preview-edge-bottom="true"] {
-  border-bottom: var(--ui-border-width-heavy) dashed var(--cell-grid-preview);
+  border-bottom: 4px dashed var(--cell-grid-preview);
 }
 .cell[data-preview-edge-left="true"] {
-  border-left: var(--ui-border-width-heavy) dashed var(--cell-grid-preview);
+  border-left: 4px dashed var(--cell-grid-preview);
 }
 @media (prefers-reduced-motion: reduce) {
   .cell {
@@ -352,8 +340,8 @@
   background: var(--ui-color-destructive);
 }
 .board[data-board-theme="checkered"] .cell[data-emphasis="refused"] {
-  outline: var(--ui-border-width-strong) solid var(--ui-color-board-card-face);
-  outline-offset: calc(var(--ui-border-width-strong) * -1);
+  outline: 3px solid var(--ui-color-board-card-face);
+  outline-offset: -3px;
 }
 /* A Sokoban board being built, drawn as the puzzle is played: a wall is a
    dark solid block with a lit top edge, floor is light, outside squares are
@@ -408,11 +396,8 @@
    under its column and row labels and a run of walls reads as blocks. */
 .board[data-board-theme="sokoban"] .cell[data-tone="occupied"] {
   background: var(--ui-color-game-sokoban-canvas);
-  border: max(
-      var(--ui-border-width-hairline),
-      calc(2cqw / var(--cell-grid-columns))
-    )
-    solid var(--ui-color-game-sokoban-surface);
+  border: max(1px, calc(2cqw / var(--cell-grid-columns))) solid
+    var(--ui-color-game-sokoban-surface);
 }
 .board[data-board-theme="sokoban"] .cell[data-tone="quiet"] {
   background: transparent;
@@ -431,11 +416,8 @@
   box-sizing: border-box;
   width: 72%;
   height: 72%;
-  border: max(
-      var(--ui-border-width-hairline),
-      calc(6cqw / var(--cell-grid-columns))
-    )
-    solid var(--ui-color-game-sokoban-canvas);
+  border: max(1px, calc(6cqw / var(--cell-grid-columns))) solid
+    var(--ui-color-game-sokoban-canvas);
   color: var(--ui-color-game-sokoban-canvas);
   font-size: calc(42cqw / var(--cell-grid-columns));
 }

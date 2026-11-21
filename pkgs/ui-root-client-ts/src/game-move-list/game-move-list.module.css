@@ -15,7 +15,7 @@
 .list[data-layout="table"] {
   flex-direction: column;
   gap: var(--ui-space-2);
-  max-height: var(--ui-size-phone);
+  max-height: 320px;
 }
 /* Only the rows scroll: the moves' word stays over them, never over a
    row. */
@@ -25,7 +25,7 @@
   overflow-y: auto;
   scrollbar-width: thin;
   /* Room the list makes under the last row, so the top row shows whole. */
-  padding-bottom: var(--rows-end, var(--ui-space-0));
+  padding-bottom: var(--rows-end, 0px);
 }
 .turns {
   display: flex;
@@ -81,7 +81,7 @@
 }
 .list[data-layout="table"] .turns {
   display: grid;
-  grid-template-columns: var(--ui-space-8) repeat(var(--move-columns), auto);
+  grid-template-columns: 32px repeat(var(--move-columns), auto);
   column-gap: var(--ui-space-2);
   row-gap: var(--ui-space-hairline);
 }
@@ -97,7 +97,7 @@
   grid-template-columns: subgrid;
 }
 .number {
-  min-width: var(--ui-space-4);
+  min-width: 16px;
   color: var(--ui-color-text-secondary);
   font-variant-numeric: tabular-nums lining-nums;
   text-align: end;
@@ -121,13 +121,13 @@
   white-space: nowrap;
 }
 .list[data-layout="table"] .heading {
-  padding-inline-start: calc(var(--ui-space-8) + var(--ui-space-2));
+  padding-inline-start: calc(32px + var(--ui-space-2));
 }
 .moveButton {
   display: inline-flex;
   align-items: center;
-  min-width: var(--ui-space-8);
-  min-height: var(--ui-space-8);
+  min-width: 32px;
+  min-height: 32px;
   padding-inline: var(--ui-space-2);
   border-radius: var(--ui-radius-sm);
   color: var(--ui-color-text);
@@ -156,8 +156,8 @@
   color: var(--ui-color-on-primary-soft);
 }
 .moveButton:focus-visible {
-  outline: var(--ui-border-width-focus) solid var(--ui-color-focus-ring);
-  outline-offset: var(--ui-border-width-focus);
+  outline: 2px solid var(--ui-color-focus-ring);
+  outline-offset: 2px;
 }
 @media (prefers-reduced-motion: reduce) {
   .moveButton {
@@ -240,10 +240,7 @@
     content: "";
     flex: none;
     /* Widened by the list when the turns must scroll on to meet a key. */
-    width: calc(
-      var(--strip-room, var(--ui-space-1)) +
-      var(--strip-end, var(--ui-space-0))
-    );
+    width: calc(var(--strip-room, var(--ui-space-1)) + var(--strip-end, 0px));
   }
   /* Each turn reads as one unit: its number, then its moves, inside one
      quiet outline, with room between turns. */
@@ -255,7 +252,7 @@
     align-items: center;
     gap: var(--ui-space-1);
     padding-inline: var(--ui-space-2);
-    border: var(--ui-border-width-hairline) solid var(--ui-color-border);
+    border: 1px solid var(--ui-color-border);
     border-radius: var(--ui-radius-full);
   }
   /* The move shown is its whole unit, not its figure alone. */
@@ -311,8 +308,7 @@
     display: flex;
     align-items: center;
     padding-inline: var(--ui-space-2) var(--ui-space-3);
-    border-inline-end: var(--ui-border-width-hairline) solid
-      var(--ui-color-text-secondary);
+    border-inline-end: 1px solid var(--ui-color-text-secondary);
     background: var(--ui-color-background);
   }
   /* A turn the key cuts is hidden whole (the list marks it). */

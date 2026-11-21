@@ -2,9 +2,7 @@
 
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { ResponsiveSurface } from '@pkgs/ui-root-client-ts/responsive-surface';
-import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
 import type { ModalSize } from '@pkgs/ui-root-shared-ts/modal-size';
-import { radiusRole } from '@pkgs/ui-root-shared-ts/scale';
 import { createSignal, For, type JSX } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 
@@ -18,7 +16,9 @@ export default function ResponsiveSurfaceExample(): JSX.Element {
   return (
     <ExampleRoot>
       <p class="text textCaption">
-        {`Compact: a bottom sheet on raised paper with a ${cssPx(radiusRole.sheet)} top radius, a grab handle, the float shadow and the safe-area inset. Wide: a centered dialog on the scrim, ${cssPx(radiusRole.sheet)} radius, the float shadow.`}
+        {
+          'Compact: a bottom sheet on raised paper with a 20px top radius, a grab handle, the float shadow and the safe-area inset. Wide: a centered dialog on the scrim, 20px radius, the float shadow.'
+        }
       </p>
       <div class="box flex-col gap-2">
         <For each={SIZES}>

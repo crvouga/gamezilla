@@ -34,9 +34,6 @@ export const spaceSize = readGroup({ space }, space.size, readPx);
  */
 export const fontSize = readGroup({ font }, font.size, readPx);
 
-/** Sizes outside the type scale, fixed by a platform or a drawing. */
-export const fontFixed = readGroup({ font }, font.fixed, readPx);
-
 /**
  * Unitless ratios. `tokens.css` emits them unitless. The sx codemod still
  * appends `px` (`leading-[1.25px]`) — that quirk stays so old snapshots match.
@@ -59,9 +56,6 @@ export const fontWeight = readGroup({ font }, font.weight, readNumber);
  * for things that are round by nature: avatars, pills, the FAB, dots.
  */
 export const borderRadius = readGroup({ radius }, radius.scale, readPx);
-
-/** Corners inside a bordered container (`--ui-radius-inset-<name>`). */
-export const radiusInset = readGroup({ radius }, radius.inset, readPx);
 
 /**
  * The hierarchy by name (`RadiusToken`): `control`, `card` and `sheet` are

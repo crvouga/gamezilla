@@ -5,17 +5,17 @@
   display: inline-flex;
   flex-shrink: 0;
   overflow: hidden;
-  width: var(--ui-space-10);
-  height: var(--ui-space-10);
-  box-shadow: inset 0 0 0 var(--ui-border-width-hairline) var(--ui-color-border);
+  width: 40px;
+  height: 40px;
+  box-shadow: inset 0 0 0 1px var(--ui-color-border);
 }
 .tile[data-size="lg"] {
-  width: var(--ui-size-tile-md);
-  height: var(--ui-size-tile-md);
+  width: 56px;
+  height: 56px;
 }
 .tile[data-size="xl"] {
-  width: var(--ui-size-tile-lg);
-  height: var(--ui-size-tile-lg);
+  width: 96px;
+  height: 96px;
 }
 .art {
   display: block;
@@ -52,7 +52,7 @@
 .glyph {
   fill: var(--tile-bg);
   font-family: var(--ui-text-label-family);
-  font-size: var(--ui-font-fixed-tile-glyph);
+  font-size: 10px;
   font-weight: 700;
 }
 

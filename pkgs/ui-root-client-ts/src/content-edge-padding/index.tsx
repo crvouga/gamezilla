@@ -89,7 +89,7 @@ export function resolveFlushEdgeStyles(
     contentClass: styles['content'],
     contentStyle: {
       '--ui-flush-edge-x': edgeX,
-      '--ui-flush-inset-x': options.inset ? edgeX : `${spacing[0]}px`,
+      '--ui-flush-inset-x': options.inset ? edgeX : '0px',
       '--ui-flush-edge-b': `${spacingScale(bottomStep)}px`,
     },
     wrapperClass: styles['wrapper'],

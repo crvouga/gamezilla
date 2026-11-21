@@ -4,8 +4,6 @@ import { Avatar } from '@pkgs/ui-root-client-ts/avatar';
 import { AvatarGroup } from '@pkgs/ui-root-client-ts/avatar-group';
 import { sampleAvatarSvg } from '@pkgs/ui-root-client-ts/avatar-sample-svg';
 import { useThemeTokens } from '@pkgs/ui-root-client-ts/theme-context';
-import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
-import { spacing } from '@pkgs/ui-root-shared-ts/scale';
 import { For, type JSX } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
@@ -62,7 +60,7 @@ export default function AvatarGroupExample(): JSX.Element {
               </For>
             </AvatarGroup>
           </Section>
-          <Section label={`Tighter overlap (${cssPx(spacing[2])}), size 48`}>
+          <Section label="Tighter overlap (8px), size 48">
             <AvatarGroup size={48} overlap={8}>
               <Avatar size={48} />
               <Avatar initials="M" size={48} />

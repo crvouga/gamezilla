@@ -9,10 +9,10 @@ section.docked {
   max-width: none;
   max-height: none;
   overflow: hidden;
-  border: var(--ui-border-width-hairline) solid var(--ui-color-border);
+  border: 1px solid var(--ui-color-border);
   background: var(--ui-color-surface);
   /* The result's colour is a band inside the card's own corners. */
-  box-shadow: inset 0 var(--ui-border-width-heavy) 0 var(--result-accent);
+  box-shadow: inset 0 4px 0 var(--result-accent);
 }
 section.docked[data-tone] {
   border-top-color: var(--ui-color-border);
@@ -26,7 +26,7 @@ section.docked[data-tone="lost"] {
 .docked .details[data-folds="true"] .detailsToggle {
   display: inline-flex;
   align-self: flex-start;
-  min-height: var(--ui-space-10);
+  min-height: 40px;
 }
 .docked .details[data-folds="true"][data-open="false"] .detailsBody {
   display: none;
@@ -45,8 +45,8 @@ section.docked[data-tone="lost"] {
   flex: 1 1 auto;
 }
 .quiet :global(.btn[data-variant="ghost"]) {
-  min-height: var(--ui-space-10);
-  border: var(--ui-border-width-hairline) solid var(--ui-color-border);
+  min-height: 40px;
+  border: 1px solid var(--ui-color-border);
 }
 
 /* The details (the standings): in full on a card with room; folded
@@ -62,10 +62,10 @@ section.docked[data-tone="lost"] {
   align-items: center;
   justify-content: space-between;
   gap: var(--ui-space-2);
-  min-height: var(--ui-control-size-md);
+  min-height: 44px;
   margin: 0;
   padding: 0 var(--ui-space-3);
-  border: var(--ui-border-width-hairline) solid var(--ui-color-border);
+  border: 1px solid var(--ui-color-border);
   border-radius: var(--ui-radius-control);
   background: transparent;
   color: var(--ui-color-text);
@@ -75,8 +75,8 @@ section.docked[data-tone="lost"] {
   background: var(--ui-color-surface-muted);
 }
 .detailsToggle:focus-visible {
-  outline: var(--ui-border-width-focus) solid var(--ui-color-tint);
-  outline-offset: var(--ui-border-width-focus);
+  outline: 2px solid var(--ui-color-tint);
+  outline-offset: 2px;
 }
 .details[data-open="true"] .detailsToggle > :last-child {
   transform: rotate(180deg);
@@ -88,7 +88,7 @@ section.docked[data-tone="lost"] {
   .details[data-folds="true"] .detailsToggle {
     display: inline-flex;
     align-self: flex-start;
-    min-height: var(--ui-control-size-sm);
+    min-height: 36px;
   }
   .details[data-folds="true"][data-open="false"] .detailsBody {
     display: none;
@@ -128,13 +128,13 @@ section.docked[data-tone="lost"] {
   .docked:has(.details[data-folds="true"]) :global(h2.textTitle) {
     display: flex;
     align-items: center;
-    min-height: var(--ui-space-10);
+    min-height: 40px;
     padding-inline-end: 8rem;
   }
   .docked > :first-child > :first-child > span:first-child {
     position: absolute;
-    width: var(--ui-border-width-hairline);
-    height: var(--ui-border-width-hairline);
+    width: 1px;
+    height: 1px;
     min-height: 0;
     overflow: hidden;
     clip-path: inset(50%);
@@ -169,7 +169,7 @@ section.docked[data-tone="lost"] {
     max-height: min(18rem, 50dvh);
     overflow-y: auto;
     padding: var(--ui-space-3);
-    border: var(--ui-border-width-hairline) solid var(--ui-color-border);
+    border: 1px solid var(--ui-color-border);
     border-radius: var(--ui-radius-card);
     background: var(--ui-color-surface-elevated);
     /* A scrim dims what the sheet lies over (the board, the seats), down
@@ -192,6 +192,6 @@ section.docked[data-tone="lost"] {
   }
   .docked.quiet :global(.btn[data-variant="ghost"]),
   .docked.quiet :global(.btn[data-variant="outline"]) {
-    min-height: var(--ui-control-size-sm);
+    min-height: 36px;
   }
 }

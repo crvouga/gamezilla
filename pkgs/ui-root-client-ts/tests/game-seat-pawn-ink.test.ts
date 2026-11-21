@@ -8,7 +8,7 @@ const read = (path: string) => readFileSync(join(repo, path), 'utf8');
 
 type Color = { readonly $value: { readonly hex: string } };
 const tokens = JSON.parse(
-  read('design-system/tokens.json')
+  read('pkgs/ui-root-shared-ts/src/design-tokens.json')
 ) as { color: Record<'light' | 'dark', Record<string, Color>> };
 
 function luminance(hex: string): number {

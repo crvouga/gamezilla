@@ -7,7 +7,7 @@ const read = (path: string) => readFileSync(join(repo, path), 'utf8');
 
 type Color = { readonly $value: { readonly hex: string } };
 const tokens = JSON.parse(
-  read('design-system/tokens.json')
+  read('pkgs/ui-root-shared-ts/src/design-tokens.json')
 ) as { color: Record<'light' | 'dark', Record<string, Color>> };
 
 function luminance(hex: string): number {
@@ -103,12 +103,8 @@ test("a crash is never drawn in a rider's colour, and a crashed rider's letter i
 // regression: light-cycles-arena-focus-ring-invisible-on-light-page
 test('the arena focus ring reads on the light page and apart from its cyan edge', () => {
   const rule = sheet.split('.arena:focus-visible {')[1]?.split('}')[0] ?? '';
-  expect(rule).toContain(
-    'outline: var(--ui-border-width-focus) solid var(--ui-color-focus-ring);'
-  );
-  expect(rule).toMatch(
-    /box-shadow: 0 0 0 calc\(var\(--ui-border-width-strong\) \* 2\)\s+var\(--ui-color-background\);/
-  );
+  expect(rule).toContain('outline: 2px solid var(--ui-color-focus-ring);');
+  expect(rule).toContain('box-shadow: 0 0 0 6px var(--ui-color-background);');
   for (const theme of ['light', 'dark'] as const) {
     const halo = arenaHex(theme, 'background');
     const ring = arenaHex(theme, 'focus-ring');

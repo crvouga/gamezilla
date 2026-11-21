@@ -20,10 +20,7 @@ import {
   ChevronsRightIcon,
 } from '@pkgs/ui-root-client-ts/icons';
 import { KeyHints } from '@pkgs/ui-root-client-ts/key-hints';
-import {
-  createMediaQuery,
-  narrowerThan,
-} from '@pkgs/ui-root-client-ts/media-query';
+import { createMediaQuery } from '@pkgs/ui-root-client-ts/media-query';
 import { useRelativeTimeLabel } from '@pkgs/ui-root-client-ts/relative-time';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
@@ -79,7 +76,7 @@ export type GameReplayScreenViewProps = {
 };
 
 /** Where `GameSessionLayout`'s `fixedStage` lays the moves out as one line. */
-const PHONE_QUERY = narrowerThan('md');
+const PHONE_QUERY = '(max-width: 767px)';
 
 /** A step through the moves is a full touch target. */
 const STEP_SIZE = 44;

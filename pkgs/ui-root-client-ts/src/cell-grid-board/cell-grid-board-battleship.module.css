@@ -23,7 +23,7 @@
     grid-template-columns:
       minmax(1rem, 0.5fr)
       repeat(var(--cell-grid-columns), minmax(0, 1fr));
-    gap: var(--ui-border-width-hairline);
+    gap: 1px;
     padding: var(--ui-space-1);
   }
 }
@@ -50,7 +50,7 @@
 }
 /* The latest shot wears the accent ring, never the ink of a sunk ship. */
 .board[data-board-theme="battleship"] .cell[data-emphasis="recent"] {
-  outline: var(--ui-border-width-strong) solid var(--color-tint);
+  outline: 3px solid var(--color-tint);
   outline-offset: 0;
 }
 /* Keyboard focus is the board's ink at the cell's inner edge, with a ring
@@ -61,8 +61,8 @@
    preview or a refusal. */
 .board[data-board-theme="battleship"] .cell:focus-visible {
   box-shadow:
-    inset 0 0 0 var(--ui-border-width-strong) var(--color-text),
-    inset 0 0 0 var(--ui-border-width-band) var(--color-background);
+    inset 0 0 0 3px var(--color-text),
+    inset 0 0 0 5px var(--color-background);
   z-index: 2;
 }
 .board[data-board-theme="battleship"]

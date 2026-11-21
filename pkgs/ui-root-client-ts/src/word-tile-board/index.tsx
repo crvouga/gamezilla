@@ -10,7 +10,7 @@ import {
   untrack,
 } from 'solid-js';
 import { cellGridStep } from '../cell-grid-board/index';
-import { createMediaQuery, narrowerThan } from '../media-query';
+import { createMediaQuery } from '../media-query';
 import { observeElementResize } from '../observe-element-resize';
 import { StackVertical } from '../stack/index';
 import { P } from '../text/index';
@@ -183,7 +183,7 @@ function createPrecisionCenter(
 export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
   const [selectedIndex, setFocusIndex] = createSignal<number>();
   const focusIndex = () => selectedIndex() ?? centreIndex(props);
-  const compact = createMediaQuery(narrowerThan('sm'));
+  const compact = createMediaQuery('(max-width: 639px)');
   const [choice, setEnlarged] = createSignal<boolean>();
   const enlarged = () => props.purpose !== 'locator' && (choice() ?? compact());
   const cells = createStableCells(() => props.cells);

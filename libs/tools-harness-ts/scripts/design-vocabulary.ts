@@ -8,9 +8,8 @@
  *
  * - every UI package (`design-system`, `component`, `product`): arbitrary
  *   values (`w-[37px]`), raw colors (`#fff`, `rgba(…)`, in TS, TSX and CSS),
- *   steps off the 4px grid (`gap-1.5`), the `dark:` variant (light and
- *   dark are one variable swap), and pixel literals and font names outside
- *   the generated token files (`design-literals.ts`);
+ *   steps off the 4px grid (`gap-1.5`), and the `dark:` variant (light and
+ *   dark are one variable swap);
  * - `component` and `product` packages: ad-hoc type (`text-xs`,
  *   `font-bold`) and shadows, which only design-system components paint;
  * - `product` packages: raw elements and restyling attributes
@@ -20,7 +19,6 @@
  */
 
 import { compositionViolations } from './design-composition';
-import { literalViolations } from './design-literals';
 
 export type DesignSource = { readonly path: string; readonly text: string };
 
@@ -191,7 +189,6 @@ export function designVocabularyViolations(
   const out: string[] = [];
   for (const file of files) {
     if (!isDesignSource(file.path)) continue;
-    out.push(...literalViolations(file));
     if (file.path.endsWith('.css')) {
       out.push(...stylesheetViolations(file));
       continue;

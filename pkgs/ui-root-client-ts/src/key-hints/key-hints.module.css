@@ -21,7 +21,7 @@
   place-items: center;
   min-width: var(--ui-space-5);
   padding: 0 var(--ui-space-1);
-  border: var(--ui-border-width-hairline) solid var(--ui-color-border);
+  border: 1px solid var(--ui-color-border);
   border-radius: var(--ui-radius-sm);
   background: var(--ui-color-surface-muted);
   color: var(--ui-color-text);

@@ -1,11 +1,8 @@
 /** @jsxImportSource solid-js */
-
 import { useTimers } from '@pkgs/clock-client-ts/solid';
 import { FloatingActionButton } from '@pkgs/ui-root-client-ts/floating-action-button';
 import { PlusIcon, SquarePenIcon } from '@pkgs/ui-root-client-ts/icons';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
-import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
-import { controlSize } from '@pkgs/ui-root-shared-ts/sizes';
 import type { JSX } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
@@ -54,7 +51,7 @@ function FabStates(): JSX.Element {
   return (
     <div class="box gap-2">
       <p class="text textFootnote">
-        {`Round ${cssPx(controlSize.lg)}, extended, loading, disabled`}
+        {'Round 52px, extended, loading, disabled'}
       </p>
       <div class="box flex-row flex-wrap gap-4 items-center">
         <FloatingActionButton aria-label="New" icon={PlusIcon} />

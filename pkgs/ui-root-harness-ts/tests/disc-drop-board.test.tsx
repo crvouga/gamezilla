@@ -358,7 +358,7 @@ test("the prompt under the columns is in the board's ink, and the dark board is 
     readFileSync(
       join(
         import.meta.dirname,
-        '../../../design-system/tokens.json'
+        '../../ui-root-shared-ts/src/design-tokens.json'
       ),
       'utf8'
     )

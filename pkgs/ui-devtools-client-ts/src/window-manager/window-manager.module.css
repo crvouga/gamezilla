@@ -8,8 +8,8 @@
 .separator::after {
   content: "";
   position: absolute;
-  inset: var(--ui-border-width-focus);
-  border-radius: var(--ui-border-width-hairline);
+  inset: 2px;
+  border-radius: 1px;
   background: transparent;
 }
 

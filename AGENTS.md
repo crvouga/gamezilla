@@ -138,8 +138,7 @@ re-exported from individual module exports (`import { Button }
 from '@pkgs/ui-root-client-ts/button'`). No adapter layer, no third-party UI library.
 
 **How it looks** is decided once, in
-[`design-system/`](design-system/README.md), the design system's source of
-truth (rules for working on it: [`CLAUDE.md`](CLAUDE.md#ui-source-of-truth)): the
+[`pkgs/ui-root-client-ts/README.md`](pkgs/ui-root-client-ts/README.md): the
 palette, the type roles, panels for lists, radius by hierarchy, blue only
 for what is chosen, one activity indicator. Screens are compositions of
 components and set only their props; they never write markup, classes or

@@ -7,9 +7,6 @@ import { BellIcon, SearchIcon, ShareIcon } from '@pkgs/ui-root-client-ts/icons';
 import { ScreenBase } from '@pkgs/ui-root-client-ts/screen-base';
 import { TopBar } from '@pkgs/ui-root-client-ts/top-bar';
 import { TopBarTitle } from '@pkgs/ui-root-client-ts/top-bar-title';
-import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
-import { spaceRole } from '@pkgs/ui-root-shared-ts/scale';
-import { controlSize } from '@pkgs/ui-root-shared-ts/sizes';
 import { For, type JSX } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
@@ -18,10 +15,10 @@ const noop = (): void => undefined;
 
 const PARAGRAPHS = [
   'Scroll this body: the hairline under the top bar appears once the content leaves the top, and goes away when you scroll back.',
-  `The title sits left, after the ${cssPx(controlSize.md)} back control, in the heading style. Actions sit at the trailing edge and fold into a More menu before the title truncates.`,
+  'The title sits left, after the 44px back control, in the heading style. Actions sit at the trailing edge and fold into a More menu before the title truncates.',
   'On phones the primary action is pinned in the footer as a full-width pill, with Cancel under it.',
   'Wide layouts trade the top bar for a page header with the breadcrumb trail.',
-  `Body copy keeps the ${cssPx(spaceRole.page)} page edge and ${cssPx(spaceRole.stack)} between sections.`,
+  'Body copy keeps the 16px page edge and 12px between sections.',
   'Nothing here moves unless you scroll or tap.',
 ];
 

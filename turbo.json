@@ -2530,16 +2530,13 @@
     "//#task:tokens:generate": {
       "inputs": [
         "pkgs/ui-root-client-ts/scripts/generate-tokens-css.ts",
-        "design-system/tokens.json",
         "pkgs/ui-root-shared-ts/src/**",
-        "!pkgs/ui-root-shared-ts/src/token-names.ts",
-        "!pkgs/ui-root-shared-ts/src/design-tokens.json"
+        "!pkgs/ui-root-shared-ts/src/token-names.ts"
       ],
       "outputs": [
         "pkgs/ui-root-client-ts/src/tokens.css",
         "pkgs/ui-root-client-ts/src/tokens.json",
-        "pkgs/ui-root-shared-ts/src/token-names.ts",
-        "pkgs/ui-root-shared-ts/src/design-tokens.json"
+        "pkgs/ui-root-shared-ts/src/token-names.ts"
       ],
       "dependsOn": ["@libs/tools-harness-ts#generate:identity"]
     },

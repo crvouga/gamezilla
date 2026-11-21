@@ -103,8 +103,8 @@
     align-self: stretch;
     gap: var(--ui-space-2);
     padding: var(--ui-space-2) var(--ui-space-3)
-      calc(var(--ui-space-2) + env(safe-area-inset-bottom, var(--ui-space-0)));
-    border-top: var(--ui-border-width-hairline) solid var(--ui-color-border);
+      calc(var(--ui-space-2) + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--ui-color-border);
     background: var(--ui-color-surface);
   }
   .fixed [data-game-slot="controls"] > * {
@@ -115,10 +115,7 @@
   /* Every command the same size, side by side: a row of thumbs' targets. */
   .fixed [data-game-slot="controls"] [data-component="GameActionBar"] {
     display: grid;
-    grid-template-columns: repeat(
-        auto-fit,
-        minmax(var(--ui-size-tile-lg), 1fr)
-      );
+    grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
     width: 100%;
   }
   /* The one filled command leads a bar of three or more, on a row of its own. */
@@ -182,10 +179,10 @@
   .fixed [data-game-slot="rail"] > section {
     flex-direction: row;
     align-items: center;
-    height: var(--ui-space-10);
+    height: 40px;
     padding: 0 var(--ui-space-3) 0 0;
     border: 0;
-    border-bottom: var(--ui-border-width-hairline) solid var(--ui-color-border);
+    border-bottom: 1px solid var(--ui-color-border);
     border-radius: var(--ui-radius-none);
     background: transparent;
     overflow: hidden;
@@ -221,7 +218,7 @@
     [data-game-board-stage]
     [data-component="GamePlayerBar"]
     div {
-    min-height: var(--ui-space-8);
+    min-height: 32px;
   }
   /* The side a seat played is its disc; a stopped clock needs no box. */
   .fixed:has([data-component="GameResultCard"])
@@ -268,10 +265,7 @@
 @container game-column (min-width: 880px) {
   .fixed [data-game-slot="controls"] [data-component="GameActionBar"] {
     display: grid;
-    grid-template-columns: repeat(
-        auto-fit,
-        minmax(var(--ui-size-action-column-compact), 1fr)
-      );
+    grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
     width: 100%;
   }
   .fixed

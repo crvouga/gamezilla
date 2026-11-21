@@ -15,7 +15,7 @@
   gap: var(--ui-space-4);
   min-width: 0;
   padding: var(--ui-space-5) var(--ui-space-4) var(--ui-space-4);
-  border: var(--ui-border-width-hairline) solid var(--ui-color-border);
+  border: 1px solid var(--ui-color-border);
   border-radius: var(--ui-radius-lg);
   background: linear-gradient(
     135deg,
@@ -44,7 +44,7 @@
 .facts {
   display: flex;
   margin: 0;
-  border: var(--ui-border-width-hairline) solid var(--ui-color-border);
+  border: 1px solid var(--ui-color-border);
   border-radius: var(--ui-radius-md);
   background: var(--ui-color-surface-muted);
 }
@@ -57,8 +57,7 @@
   padding: var(--ui-space-3);
 }
 .fact + .fact {
-  border-inline-start: var(--ui-border-width-hairline) solid
-    var(--ui-color-border);
+  border-inline-start: 1px solid var(--ui-color-border);
 }
 .fact > dt {
   color: var(--ui-color-text-secondary);
@@ -75,8 +74,8 @@
   justify-content: center;
   min-width: 0;
   padding-block: var(--ui-space-3)
-    calc(var(--ui-space-3) + env(safe-area-inset-bottom, var(--ui-space-0)));
-  border-top: var(--ui-border-width-hairline) solid var(--ui-color-border);
+    calc(var(--ui-space-3) + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--ui-color-border);
   background: var(--ui-color-surface);
 }
 .dock[data-inset="true"] {
@@ -88,7 +87,7 @@
   flex-direction: column;
   gap: var(--ui-space-3);
   min-width: 0;
-  max-width: var(--ui-size-screen);
+  max-width: 720px;
 }
 .dockStatus {
   display: flex;
@@ -194,11 +193,7 @@
 }
 .screen[data-wide="false"]:not(:has(> .dock)) .modeArt:has(.modeArtBoard > *) {
   flex: none;
-  height: clamp(
-    var(--ui-size-lobby-art-min),
-    34svh,
-    var(--ui-size-lobby-art-max)
-  );
+  height: clamp(160px, 34svh, 300px);
 }
 /* Too little room for a board to read: the card is its words alone. */
 @container (max-height: 96px) {
@@ -218,7 +213,7 @@
 .screen[data-wide="false"] .mode[data-art="thumbnail"] {
   display: grid;
   flex: none;
-  grid-template-columns: var(--ui-size-lobby-thumbnail) minmax(0, 1fr);
+  grid-template-columns: 104px minmax(0, 1fr);
   align-items: center;
   column-gap: var(--ui-space-4);
   background: linear-gradient(
@@ -229,8 +224,8 @@
 }
 .screen[data-wide="false"] .mode[data-art="thumbnail"] > .modeArt {
   flex: none;
-  width: var(--ui-size-lobby-thumbnail);
-  height: var(--ui-size-lobby-thumbnail);
+  width: 104px;
+  height: 104px;
   min-height: 0;
 }
 .screen[data-wide="false"] .mode[data-art="thumbnail"] > .facts {

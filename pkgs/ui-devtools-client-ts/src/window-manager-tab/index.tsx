@@ -14,8 +14,6 @@ import {
 } from '@pkgs/ui-devtools-shared-ts/window-layout-keyboard';
 import { XIcon } from '@pkgs/ui-root-client-ts/icons';
 import { componentId, dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
-import { borderWidth, layoutSize } from '@pkgs/ui-root-shared-ts/sizes';
 import { createEffect, type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import styles from '../tab-strip/tab-strip.module.css';
@@ -102,8 +100,8 @@ export function WindowManagerTab(props: WindowManagerTabProps): JSX.Element {
       data-component={componentId('WindowManagerTabShell')}
       style={{
         height: `${WINDOW_TAB_HEIGHT}px`,
-        'max-width': cssPx(layoutSize['devtools-tab']),
-        'padding-right': closable() ? cssPx(borderWidth.focus) : '0',
+        'max-width': '200px',
+        'padding-right': closable() ? '2px' : '0',
         opacity: dragging() ? 0.4 : 1,
       }}
       onPointerDown={(event) => api.drag.down(props.panel.id, event)}
@@ -111,7 +109,7 @@ export function WindowManagerTab(props: WindowManagerTabProps): JSX.Element {
       <Show when={props.active && props.focused}>
         <div
           class="box absolute left-0 right-0 top-0 bg-tint rounded-tl-lg rounded-tr-lg pointer-events-none"
-          style={{ height: cssPx(borderWidth.focus) }}
+          style={{ height: '2px' }}
           aria-hidden="true"
         />
       </Show>

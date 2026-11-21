@@ -61,12 +61,11 @@
   touch-action: none;
 }
 .arena:focus-visible {
-  outline: var(--ui-border-width-focus) solid var(--ui-color-focus-ring);
-  outline-offset: var(--ui-border-width-focus);
+  outline: 2px solid var(--ui-color-focus-ring);
+  outline-offset: 2px;
   /* A dark band either side of the cyan ring, so focus reads on a light
      page and apart from the arena's own cyan edge. */
-  box-shadow: 0 0 0 calc(var(--ui-border-width-strong) * 2)
-    var(--ui-color-background);
+  box-shadow: 0 0 0 6px var(--ui-color-background);
 }
 /* Away from the game, the drawing dims so it never looks live. */
 .arena[data-dimmed="true"] .drawing {
@@ -157,7 +156,7 @@
 .mark {
   fill: var(--ui-color-background);
   font-family: inherit;
-  font-size: var(--ui-font-fixed-arena-mark);
+  font-size: 1.3px;
   font-weight: var(--ui-font-weight-bold);
   text-anchor: middle;
   dominant-baseline: central;

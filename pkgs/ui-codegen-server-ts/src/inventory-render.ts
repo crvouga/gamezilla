@@ -90,7 +90,7 @@ function tokensSection(inventory: Inventory): string[] {
   return [
     '## Tokens',
     '',
-    'Every leaf of `design-system/tokens.json`, values exactly as written.',
+    'Every leaf of `pkgs/ui-root-shared-ts/src/design-tokens.json`, values exactly as written.',
     '',
     ...table(
       ['path', 'type', 'value', 'alias of', 'description'],

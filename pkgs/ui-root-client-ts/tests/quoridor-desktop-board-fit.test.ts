@@ -1,7 +1,6 @@
 import { expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { layoutSize } from '@pkgs/ui-root-shared-ts/sizes';
 
 const read = (path: string) =>
   readFileSync(join(import.meta.dir, '../src', path), 'utf8');
@@ -19,10 +18,9 @@ function block(sheet: string, query: string): string {
   throw new Error(`Unclosed block: ${query}`);
 }
 
-/** The px of a layout size token named by `name` (`--ui-size-<name>`). */
-const size = (name: string | undefined): number => {
-  expect(name).toBeDefined();
-  return layoutSize[name as keyof typeof layoutSize] ?? Number.NaN;
+const px = (text: string | undefined): number => {
+  expect(text).toBeDefined();
+  return Number.parseFloat(text ?? 'NaN');
 };
 
 /** The desktop window the stories capture, and the screen's own top bar. */
@@ -44,13 +42,13 @@ test('beside the rail, a 1440x900 window gives the Quoridor board 44px squares',
   const cells = read('cell-grid-board/cell-grid-board.module.css');
   const desktop = block(cells, '@container game-column (min-width: 880px)');
   expect(desktop).toContain('[data-board-theme="quoridor"]');
-  const chrome = size(/--chrome: var\(--ui-size-([a-z-]+)\);/.exec(desktop)?.[1]);
+  const chrome = px(/--chrome: (\d+)px;/.exec(desktop)?.[1]);
   const fit = WINDOW - chrome - HOST;
   const frame = read('game-session-layout/game-session-layout.module.css');
   const active = block(frame, '[data-phase="active"]');
   const column = Math.min(
     640,
-    WINDOW - size(/100dvh -\s+var\(--ui-size-([a-z-]+)\)/.exec(active)?.[1]) - HOST
+    WINDOW - px(/100dvh - (\d+)px/.exec(active)?.[1]) - HOST
   );
   const board = Math.min(column, fit);
   expect(board).toBeGreaterThanOrEqual(440);

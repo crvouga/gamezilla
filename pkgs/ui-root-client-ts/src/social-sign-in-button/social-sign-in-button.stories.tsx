@@ -1,6 +1,3 @@
-import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
-import { fonts } from '@pkgs/ui-root-shared-ts/fonts';
-import { fontSize } from '@pkgs/ui-root-shared-ts/scale';
 import { expect, waitFor } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { SocialSignInButton } from './index';
@@ -20,10 +17,7 @@ export const States: StoryObj = {
   render: () => <Example />,
   play: async ({ canvasElement }) => {
     await document.fonts.ready;
-    const face = fonts.google.split(', ')[0] ?? fonts.google;
-    await expect(
-      document.fonts.check(`500 ${cssPx(fontSize.sm)} ${face}`)
-    ).toBe(true);
+    await expect(document.fonts.check('500 14px "Google Sans"')).toBe(true);
     const marks = canvasElement.querySelectorAll<HTMLImageElement>(
       '[data-brand="google"] img'
     );

@@ -24,8 +24,6 @@ import {
   cellTransform,
 } from '@pkgs/chess-board-root-shared-ts/board-units';
 import { bumpChessBoardRender } from '@pkgs/chess-board-root-shared-ts/render-counts';
-import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
-import { borderWidth } from '@pkgs/ui-root-shared-ts/sizes';
 import { type Accessor, createMemo, For, type JSX, Show } from 'solid-js';
 import styles from '../chess-board/chess-board.module.css';
 import { HtmlPaintToken } from '../paint-token/index';
@@ -128,7 +126,7 @@ function CellHighlightBox(props: {
     if (ring()) {
       return {
         ...base,
-        'box-shadow': `inset 0 0 0 ${cssPx(borderWidth.heavy)} ${props.highlight.color}`,
+        'box-shadow': `inset 0 0 0 4px ${props.highlight.color}`,
       };
     }
     return { ...base, 'background-color': props.highlight.color };

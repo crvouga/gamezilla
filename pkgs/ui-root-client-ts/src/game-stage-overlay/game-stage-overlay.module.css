@@ -61,8 +61,7 @@
   height: 60%;
   align-items: flex-end;
   /* Room under the person's own side for the Skip control. */
-  padding: var(--ui-space-4) var(--ui-space-4)
-    calc(var(--ui-control-size-md) + var(--ui-space-6));
+  padding: var(--ui-space-4) var(--ui-space-4) calc(44px + var(--ui-space-6));
   background: var(--ui-color-tint-active);
   color: var(--ui-color-on-primary);
   clip-path: polygon(0 32%, 100% 0, 100% 100%, 0 100%);
@@ -120,7 +119,7 @@
 .sideAvatar {
   display: flex;
   border-radius: var(--ui-radius-full);
-  box-shadow: 0 0 0 var(--ui-border-width-heavy) var(--ui-color-background);
+  box-shadow: 0 0 0 4px var(--ui-color-background);
 }
 .sideName {
   display: flex;
@@ -160,9 +159,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: var(--ui-size-result-mark);
-  height: var(--ui-size-result-mark);
-  border: var(--ui-border-width-heavy) solid var(--ui-color-tint-active);
+  width: 80px;
+  height: 80px;
+  border: 4px solid var(--ui-color-tint-active);
   border-radius: var(--ui-radius-full);
   background: var(--ui-color-background);
   box-shadow: var(--ui-elevation-4);
@@ -208,12 +207,12 @@
   justify-content: center;
   bottom: var(--ui-space-3);
   left: 50%;
-  min-width: var(--ui-size-tile-lg);
-  min-height: var(--ui-control-size-md);
+  min-width: 96px;
+  min-height: 44px;
   margin: 0;
   padding: 0 var(--ui-space-5);
   transform: translateX(-50%);
-  border: var(--ui-border-width-hairline) solid var(--ui-color-on-primary);
+  border: 1px solid var(--ui-color-on-primary);
   border-radius: var(--ui-radius-full);
   background: transparent;
   color: var(--ui-color-on-primary);
@@ -223,8 +222,8 @@
   outline: none;
 }
 .skipArea:focus-visible .skip {
-  outline: var(--ui-border-width-focus) solid var(--ui-color-on-primary);
-  outline-offset: var(--ui-border-width-focus);
+  outline: 2px solid var(--ui-color-on-primary);
+  outline-offset: 2px;
 }
 
 /* The result: the final board dimmed behind one small card. */
@@ -253,12 +252,12 @@
   flex-direction: column;
   gap: var(--ui-space-3);
   width: 100%;
-  max-width: var(--ui-size-result-card);
+  max-width: 352px;
   max-height: 100%;
   min-width: 0;
   padding: var(--ui-space-4);
   overflow: hidden auto;
-  border-top: var(--ui-border-width-heavy) solid var(--ui-color-outline);
+  border-top: 4px solid var(--ui-color-outline);
   border-radius: var(--ui-radius-card);
   background: var(--ui-color-surface-elevated);
   box-shadow: var(--ui-elevation-5);
@@ -285,7 +284,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--ui-space-1);
-  min-height: var(--ui-control-size-sm);
+  min-height: 36px;
   margin: 0;
   padding: 0 var(--ui-space-2) 0 var(--ui-space-3);
   border: 0;
@@ -300,11 +299,11 @@
   color: var(--ui-color-text);
 }
 .dismiss:focus-visible {
-  outline: var(--ui-border-width-focus) solid var(--ui-color-tint);
-  outline-offset: var(--ui-border-width-focus);
+  outline: 2px solid var(--ui-color-tint);
+  outline-offset: 2px;
 }
 .eyebrow {
-  min-height: var(--ui-space-5);
+  min-height: 20px;
   padding-inline-end: 9rem;
 }
 .cardTitle > h2:first-child {
@@ -332,7 +331,7 @@
 /* A figure in the caption (a rating change) is the result's own number:
    larger than a tag in a row, on the caption's line. */
 .cardTitle > p > :global(.badge) {
-  min-height: var(--ui-size-badge-row);
+  min-height: 28px;
   margin-inline-start: var(--ui-space-1);
   padding-inline: var(--ui-space-3);
   font-size: var(--ui-font-size-base);
@@ -391,8 +390,8 @@
   /* The headline says the outcome; its word above it waits for a listener. */
   .eyebrow {
     position: absolute;
-    width: var(--ui-border-width-hairline);
-    height: var(--ui-border-width-hairline);
+    width: 1px;
+    height: 1px;
     min-height: 0;
     overflow: hidden;
     clip-path: inset(50%);
@@ -423,8 +422,8 @@
     line-height: var(--ui-line-height-tight, 1.25);
   }
   .mark {
-    width: var(--ui-space-16);
-    height: var(--ui-space-16);
+    width: 64px;
+    height: 64px;
     font-size: var(--ui-font-size-2xl);
   }
 }
@@ -433,14 +432,14 @@
   /* The close control keeps its name for a listener; only its cross shows. */
   .dismissWords {
     position: absolute;
-    width: var(--ui-border-width-hairline);
-    height: var(--ui-border-width-hairline);
+    width: 1px;
+    height: 1px;
     overflow: hidden;
     clip-path: inset(50%);
     white-space: nowrap;
   }
   .dismiss {
-    min-width: var(--ui-control-size-sm);
+    min-width: 36px;
     justify-content: center;
     padding: 0;
   }

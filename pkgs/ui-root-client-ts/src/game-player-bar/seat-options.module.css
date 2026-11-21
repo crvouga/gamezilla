@@ -7,9 +7,9 @@
   align-items: center;
   justify-content: center;
   gap: var(--ui-space-1);
-  height: var(--ui-control-size-sm);
+  height: 36px;
   padding-inline: var(--ui-space-3) var(--ui-space-2);
-  border: var(--ui-border-width-hairline) solid var(--ui-color-border);
+  border: 1px solid var(--ui-color-border);
   color: var(--ui-color-text);
   position: relative;
   white-space: nowrap;
@@ -26,13 +26,13 @@
   inset: calc(var(--ui-space-1) * -1);
 }
 .seatToggle:focus-visible {
-  outline: var(--ui-border-width-focus) solid var(--ui-color-focus-ring);
-  outline-offset: var(--ui-border-width-focus);
+  outline: 2px solid var(--ui-color-focus-ring);
+  outline-offset: 2px;
 }
 .seatOptions {
   display: flex;
   flex-direction: column;
   gap: var(--ui-space-3);
   padding: var(--ui-space-2) 0 var(--ui-space-3);
-  border-top: var(--ui-border-width-hairline) solid var(--ui-color-border);
+  border-top: 1px solid var(--ui-color-border);
 }

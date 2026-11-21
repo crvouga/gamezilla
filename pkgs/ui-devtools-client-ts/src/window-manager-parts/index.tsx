@@ -12,8 +12,6 @@ import type {
 } from '@pkgs/ui-devtools-shared-ts/window-layout-geometry';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { componentId, dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
-import { borderWidth } from '@pkgs/ui-root-shared-ts/sizes';
 import { For, type JSX, Show, untrack } from 'solid-js';
 import { useWindowManager } from '../window-manager-context';
 import { WINDOW_GAP, WINDOW_TAB_BAR_HEIGHT } from '../window-manager-types';
@@ -121,7 +119,7 @@ export function WindowManagerDropPreview(): JSX.Element {
               {...dataAttrs({ 'window-part': 'drop-marker' })}
               style={{
                 left: `${(drag().marker ?? 0) - 1}px`,
-                width: cssPx(borderWidth.focus),
+                width: '2px',
                 top: `calc(${(drag().target?.rect.top ?? 0) * 100}% + ${WINDOW_GAP / 2 + 4}px)`,
                 height: `${WINDOW_TAB_BAR_HEIGHT - 6}px`,
               }}

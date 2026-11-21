@@ -133,7 +133,7 @@ function renderScale(scale: TokenScale): string {
 export function renderTokenNamesTs(): string {
   return (
     [
-      '// GENERATED from design-system/tokens.json — do not edit.',
+      '// GENERATED from pkgs/ui-root-shared-ts/src/design-tokens.json — do not edit.',
       ...tokenScales().map(renderScale),
     ].join('\n\n') + '\n'
   );

@@ -2,5 +2,5 @@
    width, as a dock's do. */
 .fill > * {
   flex: 1 1 0;
-  min-width: var(--ui-size-share-action);
+  min-width: 144px;
 }

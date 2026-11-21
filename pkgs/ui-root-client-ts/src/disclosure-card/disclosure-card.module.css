@@ -11,7 +11,7 @@
   justify-content: space-between;
   gap: var(--ui-space-3);
   width: 100%;
-  min-height: var(--ui-size-tile-md);
+  min-height: 56px;
   padding: var(--ui-space-3) var(--ui-space-5);
   border-radius: var(--ui-radius-card);
   color: var(--ui-color-text);
@@ -19,8 +19,8 @@
   cursor: pointer;
 }
 .trigger:focus-visible {
-  outline: var(--ui-border-width-focus) solid var(--ui-color-focus-ring);
-  outline-offset: var(--ui-border-width-focus);
+  outline: 2px solid var(--ui-color-focus-ring);
+  outline-offset: 2px;
 }
 .heading {
   display: flex;

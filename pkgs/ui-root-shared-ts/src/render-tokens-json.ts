@@ -36,7 +36,7 @@ function resolvedTextStyles() {
 export function renderTokensJson(): string {
   const tokens = {
     $description:
-      'GENERATED from design-system/tokens.json — do not edit. Every value resolved; px for dimensions, ms for durations.',
+      'GENERATED from pkgs/ui-root-shared-ts/src/design-tokens.json — do not edit. Every value resolved; px for dimensions, ms for durations.',
     color: { dark: COLOR_PALETTE.dark, light: COLOR_PALETTE.light },
     textStyle: resolvedTextStyles(),
     font: fonts,

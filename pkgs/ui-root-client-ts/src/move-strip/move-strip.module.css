@@ -6,7 +6,7 @@
   box-sizing: border-box;
   min-height: var(--ui-space-6);
   padding: 0 var(--ui-space-2);
-  border: var(--ui-border-width-hairline) dashed var(--ui-color-border);
+  border: 1px dashed var(--ui-color-border);
   border-radius: var(--ui-radius-sm);
   color: var(--ui-color-text-secondary);
   font-size: var(--ui-font-size-sm);

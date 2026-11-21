@@ -1,5 +1,4 @@
 /** @jsxImportSource solid-js */
-
 import { useTimers } from '@pkgs/clock-client-ts/solid';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import type {
@@ -12,8 +11,6 @@ import {
   Trash2Icon,
 } from '@pkgs/ui-root-client-ts/icons';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
-import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
-import { borderWidth } from '@pkgs/ui-root-shared-ts/sizes';
 import { createSignal, For, type JSX } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
@@ -211,7 +208,9 @@ export default function ButtonExample(): JSX.Element {
   return (
     <ExampleRoot>
       <p class="text textCaption">
-        {`Hover for the tint, press for the 0.97 settle, Tab for the ${cssPx(borderWidth.focus)} focus ring. Each row: default, with icon, disabled, loading.`}
+        {
+          'Hover for the tint, press for the 0.97 settle, Tab for the 2px focus ring. Each row: default, with icon, disabled, loading.'
+        }
       </p>
       <For each={BRIEF_VARIANTS}>
         {(entry) => (

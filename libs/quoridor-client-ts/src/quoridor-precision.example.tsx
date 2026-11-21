@@ -1,8 +1,5 @@
 import { expect, userEvent, within } from 'storybook/test';
 
-/** The smallest a tap target may be on either side, in CSS px. */
-const HIT_TARGET = 44;
-
 /** Geometry is sampled before any input can scroll a control into view. */
 export async function expectQuoridorWorkingArea(canvasElement: HTMLElement) {
   const canvas = within(canvasElement);
@@ -28,8 +25,8 @@ export async function expectQuoridorTargetVisible(element: Element) {
   if (!view) throw new Error('The story requires a browser window');
   const rect = element.getBoundingClientRect();
   const failures: string[] = [];
-  if (rect.width < HIT_TARGET || rect.height < HIT_TARGET)
-    failures.push(`target smaller than ${HIT_TARGET}px`);
+  if (rect.width < 44 || rect.height < 44)
+    failures.push('target smaller than 44px');
   if (
     rect.left < 0 ||
     rect.top < 0 ||
@@ -110,8 +107,8 @@ export async function expectQuoridorCellHierarchy(canvasElement: HTMLElement) {
   const view = quiet.ownerDocument.defaultView;
   if (!view) throw new Error('The story requires a browser window');
   const style = view.getComputedStyle(quiet);
-  await expect(Number.parseFloat(style.borderRadius)).toBe(0);
-  await expect(Number.parseFloat(style.borderTopWidth)).toBe(1);
+  await expect(style.borderRadius).toBe('0px');
+  await expect(style.borderTopWidth).toBe('1px');
   const luminances = [style.borderTopColor, style.backgroundColor].map(
     luminance
   );

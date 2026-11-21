@@ -1,4 +1,3 @@
-import { narrowerThan } from '@pkgs/ui-root-client-ts/media-query';
 import { expect, userEvent, within } from 'storybook/test';
 import { assertClear } from './word-tiles-geometry.example';
 
@@ -13,9 +12,10 @@ export async function expectPrecisionDefault(
   // regression: word-tiles-phone-precision-default
   const canvas = within(canvasElement);
   const board = canvas.getByTestId(testId);
-  const phone = canvasElement.ownerDocument.defaultView?.matchMedia(
-    narrowerThan('sm')
-  ).matches;
+  const phone =
+    canvasElement.ownerDocument.defaultView?.matchMedia(
+      '(max-width: 639px)'
+    ).matches;
   await expect(board).toHaveAttribute('data-enlarged', String(phone));
   if (!phone) return;
   const viewport = canvas.getByRole('region', {

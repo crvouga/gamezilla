@@ -7,19 +7,19 @@
 .column,
 .layout {
   /* A board's width: the stage column, and the seats around the board. */
-  --game-board-measure: var(--ui-size-board);
+  --game-board-measure: 560px;
   /* The rail beside the board on wide screens: with the board and the gap
      between them, the 960px content width of a wide screen. */
   --game-rail-measure: var(--ui-max-width-panel);
   /* The game's own chrome a wide board leaves room for in the window. */
-  --game-board-chrome-block: var(--ui-size-board-chrome);
+  --game-board-chrome-block: 284px;
   /* A search's card: one column, its command as wide as the card. */
-  --game-search-measure: var(--ui-size-search);
+  --game-search-measure: 600px;
   /* A search beside what the person brings (their ratings): two columns,
      each a form's width, never stretched across the whole game column. */
   --game-search-split-measure: 45rem;
   /* Beside a real-time game's arena: room for a player's full strip. */
-  --game-arena-rail-measure: var(--ui-size-rail);
+  --game-arena-rail-measure: 304px;
 }
 .column {
   container: game-column / inline-size;
@@ -112,7 +112,7 @@
   flex-direction: column;
   gap: var(--ui-space-3);
   width: 100%;
-  max-width: var(--game-board-measure, var(--ui-size-board));
+  max-width: var(--game-board-measure, 560px);
   align-self: center;
   min-width: 0;
 }
@@ -128,13 +128,13 @@
    and the labels stand out in the margin. */
 .boardStage:not([data-preview="true"]):has([data-board-gutter="start"])
 > :not(.board) {
-  margin-inline-start: var(--ui-space-5);
+  margin-inline-start: 20px;
 }
 /* Ranks at the board's end (a wide screen's chess board): the seats end
    short of that gutter instead, so the squares start under the title. */
 .boardStage:not([data-preview="true"]):has([data-board-gutter="end"])
 > :not(.board) {
-  margin-inline-end: var(--ui-space-5);
+  margin-inline-end: 20px;
 }
 /* Before play: a small thumbnail in the board's own colours, its top level
    with the setup beside it, over a quiet label that names it; its size and
@@ -145,7 +145,7 @@
   max-width: min(var(--game-board-measure, 560px), var(--game-board-fit, 100%));
 }
 .boardStage[data-preview="true"] {
-  max-width: var(--game-board-preview-measure, var(--ui-size-preview));
+  max-width: var(--game-board-preview-measure, 176px);
   gap: var(--ui-space-2);
 }
 .previewLabel {
@@ -161,7 +161,7 @@
   min-width: 0;
 }
 .sectionFooter {
-  border-top: var(--ui-border-width-hairline) solid var(--ui-color-border);
+  border-top: 1px solid var(--ui-color-border);
   padding-top: var(--ui-space-4);
 }
 .actions {
@@ -172,8 +172,8 @@
 }
 .actions[data-sizing="share"] > * {
   flex: 1 1 0;
-  min-width: var(--ui-size-share-action);
-  max-width: var(--ui-size-phone);
+  min-width: 144px;
+  max-width: 320px;
 }
 .player,
 .playerBelowControls {
@@ -184,13 +184,13 @@
 }
 .player[data-active="true"] {
   /* The seat to move: an accent edge on the leading side, beside the tint. */
-  box-shadow: inset var(--ui-border-width-heavy) 0 0 var(--ui-color-tint-active);
+  box-shadow: inset 4px 0 0 var(--ui-color-tint-active);
 }
 .playerTurn {
   display: inline-flex;
   align-items: center;
   padding: 0 var(--ui-space-2);
-  min-height: var(--ui-space-5);
+  min-height: 20px;
   background: var(--ui-color-tint-active);
   color: var(--ui-color-on-primary);
   white-space: nowrap;
@@ -208,7 +208,7 @@
   align-items: center;
   gap: var(--ui-space-3);
   min-width: 0;
-  min-height: var(--ui-control-size-md);
+  min-height: 44px;
 }
 .playerAvatar {
   flex-shrink: 0;
@@ -221,7 +221,7 @@
   gap: var(--ui-space-3);
   flex: 1;
   min-width: 0;
-  min-height: var(--ui-control-size-md);
+  min-height: 44px;
   text-align: start;
 }
 .playerIdentity {
@@ -285,8 +285,8 @@
   justify-content: center;
   gap: var(--ui-space-1);
   padding: var(--ui-space-3);
-  min-height: var(--ui-size-game-choice);
-  border: var(--ui-border-width-hairline) solid var(--ui-color-border);
+  min-height: 76px;
+  border: 1px solid var(--ui-color-border);
   border-radius: var(--ui-radius-md);
   background: var(--ui-color-surface);
   cursor: pointer;
@@ -305,8 +305,8 @@
   color: var(--ui-color-on-primary);
 }
 .choice:focus-within {
-  outline: var(--ui-border-width-focus) solid var(--ui-color-focus-ring);
-  outline-offset: var(--ui-border-width-focus);
+  outline: 2px solid var(--ui-color-focus-ring);
+  outline-offset: 2px;
 }
 .choice:active {
   transform: scale(0.97);
@@ -332,7 +332,7 @@
   cursor: inherit;
 }
 .disclosure[data-rule="true"] {
-  border-top: var(--ui-border-width-hairline) solid var(--ui-color-border);
+  border-top: 1px solid var(--ui-color-border);
 }
 .disclosureTrigger {
   display: flex;
@@ -340,14 +340,14 @@
   align-items: center;
   gap: var(--ui-space-2);
   width: 100%;
-  min-height: var(--ui-space-12);
+  min-height: 48px;
   color: var(--ui-color-text);
   cursor: pointer;
   border-radius: var(--ui-radius-md);
 }
 .disclosureTrigger:focus-visible {
-  outline: var(--ui-border-width-focus) solid var(--ui-color-focus-ring);
-  outline-offset: var(--ui-border-width-focus);
+  outline: 2px solid var(--ui-color-focus-ring);
+  outline-offset: 2px;
 }
 .chevron {
   display: flex;
@@ -373,7 +373,7 @@
   align-items: center;
   justify-content: center;
   gap: var(--ui-space-1);
-  min-width: var(--ui-size-game-clock);
+  min-width: 76px;
   padding: var(--ui-space-2) var(--ui-space-3);
   border-radius: var(--ui-radius-md);
   background: var(--ui-color-surface-muted);
@@ -398,7 +398,7 @@
   gap: var(--ui-space-3);
   min-width: 0;
   max-width: 100%;
-  min-height: var(--ui-control-size-md);
+  min-height: 44px;
   padding: var(--ui-space-2) var(--ui-space-4);
 }
 /* A plain line: hint text with no well, set where the well's words start
@@ -409,8 +409,8 @@
 }
 .turnMark {
   flex-shrink: 0;
-  width: var(--ui-space-2);
-  height: var(--ui-space-2);
+  width: 8px;
+  height: 8px;
   border-radius: var(--ui-radius-full);
 }
 .turn[data-tone="success"] .turnMark {
@@ -457,13 +457,13 @@
   .layout[data-has-stage="true"][data-has-aside="true"],
   .layout[data-has-stage="true"][data-has-setup="true"] {
     --game-board-measure: clamp(
-      var(--ui-size-phone),
+      320px,
       calc(
         100dvh -
         var(--game-board-chrome-block) -
-        var(--ui-host-chrome-block-size, var(--ui-space-0))
+        var(--ui-host-chrome-block-size, 0px)
       ),
-      var(--ui-size-board)
+      560px
     );
   }
   /* A board that brings its own switch between two panels, the key to its
@@ -472,7 +472,7 @@
   .layout[data-has-stage="true"][data-has-aside="true"]:has(
     .stage [data-paired-panels]
   ) {
-    --game-board-chrome-block: var(--ui-size-board-chrome-paired);
+    --game-board-chrome-block: calc(328px + 2 * var(--ui-space-12));
   }
   .layout[data-has-stage="true"][data-has-aside="true"],
   .layout[data-has-stage="true"][data-has-setup="true"] {
@@ -481,7 +481,7 @@
        the window lets its board be. */
     grid-template-columns:
       minmax(0, var(--game-board-measure))
-      minmax(var(--ui-size-column-narrow), 1fr);
+      minmax(280px, 1fr);
     grid-template-rows: repeat(var(--game-rail-rows, 1), auto) 1fr;
     justify-content: start;
     column-gap: var(--ui-space-6);
@@ -499,13 +499,13 @@
     --game-board-measure: 100%;
     grid-template-columns:
       minmax(0, 1fr)
-      minmax(var(--ui-size-column-narrow), var(--game-arena-rail-measure));
+      minmax(280px, var(--game-arena-rail-measure));
   }
   /* While the game is set up the setup is the main column, running the
      grid's height, with Start under its players; the board preview is a
      thumbnail beside it, a glance at what the game is played on. */
   .layout[data-stage-preview="true"][data-has-stage="true"][data-has-setup="true"] {
-    --game-board-preview-measure: var(--ui-size-preview-md);
+    --game-board-preview-measure: 200px;
     grid-template-columns:
       minmax(0, 1fr)
       var(--game-board-preview-measure);
@@ -579,7 +579,7 @@
     > [data-layout="table"] {
     flex: 1 1 auto;
     height: 0;
-    min-height: var(--ui-size-move-list-min);
+    min-height: 160px;
     max-height: none;
   }
 }

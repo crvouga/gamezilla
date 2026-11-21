@@ -10,7 +10,7 @@
 }
 
 .editor:focus-visible {
-  box-shadow: inset 0 0 0 var(--ui-border-width-focus) var(--ui-color-tint);
+  box-shadow: inset 0 0 0 2px var(--ui-color-tint);
 }
 
 :is(.editor, .content) p {
@@ -44,7 +44,7 @@
   margin: 0;
 }
 :is(.editor, .content) blockquote {
-  border-left: var(--ui-border-width-focus) solid var(--ui-color-tint);
+  border-left: 2px solid var(--ui-color-tint);
   padding-left: var(--ui-space-3);
 }
 :is(.editor, .content) code,

@@ -23,7 +23,7 @@
     min-height: 0;
     margin: 0;
     padding: 0;
-    border: var(--ui-border-width-hairline) solid var(--ui-color-border);
+    border: 1px solid var(--ui-color-border);
     border-radius: var(--ui-radius-card);
     background: var(--ui-color-surface);
   }
@@ -40,7 +40,7 @@
     box-sizing: border-box;
     min-width: 0;
     overflow: hidden;
-    border: var(--ui-border-width-hairline) solid var(--ui-color-border);
+    border: 1px solid var(--ui-color-border);
     border-radius: var(--ui-radius-card);
     background: var(--ui-color-surface);
   }
@@ -65,7 +65,7 @@
     top: 0;
     left: var(--ui-space-lg);
     right: 0;
-    height: var(--ui-border-width-hairline);
+    height: 1px;
     background: var(--ui-color-border);
     pointer-events: none;
   }
@@ -83,29 +83,29 @@
      The first and last rows take the panel's inner corners, so the ring
      follows the card's rounding instead of cutting square across it. */
   .panelItem > .clickable:focus-visible {
-    outline-offset: calc(var(--ui-border-width-focus) * -1);
+    outline-offset: -2px;
   }
 
   .panelItem:first-child > .clickable {
-    border-start-start-radius: var(--ui-radius-inset-card);
-    border-start-end-radius: var(--ui-radius-inset-card);
+    border-start-start-radius: calc(var(--ui-radius-card) - 1px);
+    border-start-end-radius: calc(var(--ui-radius-card) - 1px);
   }
 
   .panelItem:last-child > .clickable {
-    border-end-start-radius: var(--ui-radius-inset-card);
-    border-end-end-radius: var(--ui-radius-inset-card);
+    border-end-start-radius: calc(var(--ui-radius-card) - 1px);
+    border-end-end-radius: calc(var(--ui-radius-card) - 1px);
   }
 
   .divider {
     width: 100%;
-    border-bottom: var(--ui-border-width-hairline) solid var(--ui-color-border);
+    border-bottom: 1px solid var(--ui-color-border);
   }
 
   .dividerVertical {
     width: 0;
     align-self: stretch;
     border-bottom: 0;
-    border-left: var(--ui-border-width-hairline) solid var(--ui-color-border);
+    border-left: 1px solid var(--ui-color-border);
   }
 
   .box {
@@ -291,7 +291,7 @@
     font-weight: var(--ui-font-weight-semibold);
     color: var(--ui-color-tint);
     text-decoration: underline;
-    text-decoration-thickness: var(--ui-border-width-hairline);
+    text-decoration-thickness: 1px;
     text-underline-offset: 0.2em;
     text-decoration-skip-ink: auto;
     transition: color var(--ui-duration-fast) var(--ui-easing-standard);
@@ -346,8 +346,8 @@
   /* The one focus ring: 2px of `focus-ring`, 2px outside the control, on
      keyboard focus only. Every control draws it (`.clickable`, `.input`). */
   .clickable:focus-visible {
-    outline: var(--ui-border-width-focus) solid var(--ui-color-focus-ring);
-    outline-offset: var(--ui-border-width-focus);
+    outline: 2px solid var(--ui-color-focus-ring);
+    outline-offset: 2px;
   }
 
   /* A control drawn smaller than 44px (a 32px pill, a chip, a compact
@@ -356,13 +356,10 @@
   .hitTarget::before {
     content: "";
     position: absolute;
-    top: min(var(--ui-space-0), calc((100% - var(--ui-control-size-md)) / 2));
-    bottom: min(
-      var(--ui-space-0),
-      calc((100% - var(--ui-control-size-md)) / 2)
-    );
-    left: min(var(--ui-space-0), calc((100% - var(--ui-control-size-md)) / 2));
-    right: min(var(--ui-space-0), calc((100% - var(--ui-control-size-md)) / 2));
+    top: min(0px, calc((100% - var(--ui-control-size-md)) / 2));
+    bottom: min(0px, calc((100% - var(--ui-control-size-md)) / 2));
+    left: min(0px, calc((100% - var(--ui-control-size-md)) / 2));
+    right: min(0px, calc((100% - var(--ui-control-size-md)) / 2));
   }
 
   /* The title a screen hands the keyboard to when it replaces another
@@ -454,7 +451,7 @@
     background: var(--ui-color-surface);
     /* A field's edge is a control boundary, so it is the 3:1 `outline`
        (line-strong), not the hairline. */
-    border: var(--ui-border-width-hairline) solid var(--ui-color-outline);
+    border: 1px solid var(--ui-color-outline);
     border-radius: var(--ui-radius-control);
     transition: border-color var(--ui-duration-fast) var(--ui-easing-standard);
   }
@@ -480,14 +477,14 @@
      bordered field never reads as two rings; flat, so no glow. */
   .input:focus-visible {
     border-color: var(--ui-color-focus-ring);
-    outline: var(--ui-border-width-hairline) solid var(--ui-color-focus-ring);
+    outline: 1px solid var(--ui-color-focus-ring);
     outline-offset: 0;
   }
 
   /* A borderless field set into an editor has no edge to thicken: it takes
      the full 2px ring, still without a gap. */
   .inputEmbedded:focus-visible {
-    outline-width: var(--ui-border-width-focus);
+    outline-width: 2px;
   }
 
   /* Error is the destructive edge plus the message and `aria-invalid`;
@@ -522,9 +519,9 @@
      the control (clicking it still opens the list) but paint the design
      system's chevron-down (Lucide `m6 9 6 6 6-6`) in the icon token. */
   .input[list]::-webkit-calendar-picker-indicator {
-    width: var(--ui-icon-size-md);
-    height: var(--ui-icon-size-md);
-    margin-left: var(--ui-space-2);
+    width: 20px;
+    height: 20px;
+    margin-left: 8px;
     cursor: pointer;
     opacity: 1;
     background: var(--ui-color-icon);
@@ -617,11 +614,11 @@
   /* Safe-area insets (notch / home indicator). Classes because happy-dom and
      some inline-style sanitizers drop `env()` values. */
   .safeTop {
-    padding-top: env(safe-area-inset-top, var(--ui-space-0));
+    padding-top: env(safe-area-inset-top, 0px);
   }
 
   .safeBottom {
-    padding-bottom: env(safe-area-inset-bottom, var(--ui-space-0));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 
   /* RN `pointerEvents="box-none"`: the layer is transparent to the pointer but

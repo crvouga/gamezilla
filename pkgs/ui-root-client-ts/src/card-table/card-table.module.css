@@ -18,7 +18,7 @@
  * one trick.
  */
 .table {
-  --card-w: var(--ui-space-10);
+  --card-w: 40px;
   position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
@@ -32,7 +32,7 @@
   width: 100%;
   padding: var(--ui-space-2);
   border-radius: var(--ui-radius-sheet);
-  border: var(--ui-border-width-hairline) solid var(--ui-color-border);
+  border: 1px solid var(--ui-color-border);
   background: var(--ui-color-surface);
   color: var(--ui-color-text);
 }
@@ -45,7 +45,7 @@
   max-width: 100%;
   padding: var(--ui-space-2) var(--ui-space-3);
   border-radius: var(--ui-radius-control);
-  border: var(--ui-border-width-focus) solid transparent;
+  border: 2px solid transparent;
   background: var(--ui-color-background);
 }
 /* A seat with its person: one compact plate, the person over their facts. */
@@ -113,8 +113,8 @@
 /* Said to a listener and kept in the words, not drawn. */
 .spoken {
   position: absolute;
-  width: var(--ui-border-width-hairline);
-  height: var(--ui-border-width-hairline);
+  width: 1px;
+  height: 1px;
   padding: 0;
   overflow: hidden;
   clip: rect(0 0 0 0);
@@ -139,7 +139,7 @@
   gap: var(--ui-space-1);
 }
 .pass .slot[data-filled="false"] {
-  border: var(--ui-border-width-hairline) dashed var(--ui-color-outline);
+  border: 1px dashed var(--ui-color-outline);
 }
 /*
  * The trick: a cross of four places, each seat's card on the side of the
@@ -180,7 +180,7 @@
   position: relative;
 }
 .trick[data-trick="true"] .slot[data-filled="false"] {
-  border: var(--ui-border-width-hairline) dashed var(--ui-color-outline);
+  border: 1px dashed var(--ui-color-outline);
 }
 /* While cards are chosen or passed nothing is on the table: the trick
    takes no room, and the felt is only as tall as its seats. */
@@ -204,8 +204,8 @@
 /* The host shows this line beside the table: a listener still hears it. */
 .center[data-spoken-only="true"] {
   position: absolute;
-  width: var(--ui-border-width-hairline);
-  height: var(--ui-border-width-hairline);
+  width: 1px;
+  height: 1px;
   padding: 0;
   overflow: hidden;
   clip: rect(0 0 0 0);
@@ -214,7 +214,7 @@
 /* A wider table: larger cards in the trick, the side seats beside it. */
 @container (min-width: 30rem) {
   .table {
-    --card-w: var(--ui-size-tile-md);
+    --card-w: 56px;
     column-gap: var(--ui-space-4);
     padding: var(--ui-space-4);
   }
@@ -254,7 +254,7 @@
   padding: 0;
   overflow: hidden;
   border-radius: var(--ui-radius-sm);
-  border: var(--ui-border-width-hairline) solid var(--ui-color-outline);
+  border: 1px solid var(--ui-color-outline);
   background: var(--ui-color-board-card-face);
   color: var(--ui-color-board-card-ink);
   box-shadow: var(--ui-shadow-float);
@@ -336,7 +336,7 @@
 }
 .hand > .card {
   --card-w: min(
-    var(--ui-size-card-hand),
+    72px,
     (100cqw - var(--hand-span) * var(--hand-gap)) /
     (var(--hand-span) + 1)
   );
@@ -359,7 +359,7 @@
     gap: var(--hand-row-gap) var(--hand-gap);
   }
   .hand > .card {
-    --card-w: min(var(--ui-space-12), (100cqw - 4 * var(--hand-gap)) / 5);
+    --card-w: min(48px, (100cqw - 4 * var(--hand-gap)) / 5);
     flex: 0 0 var(--card-w);
     margin: 0;
     height: var(--card-w);
@@ -421,14 +421,14 @@ button.card[aria-pressed="true"] {
   z-index: 1;
   border-color: var(--ui-color-tint);
   box-shadow:
-    0 0 0 var(--ui-border-width-strong) var(--ui-color-tint),
+    0 0 0 3px var(--ui-color-tint),
     var(--ui-shadow-float);
   transform: translateY(calc(-1 * var(--ui-space-2)));
 }
 button.card:focus-visible {
   z-index: 2;
-  outline: var(--ui-border-width-focus) solid var(--ui-color-focus-ring);
-  outline-offset: var(--ui-border-width-focus);
+  outline: 2px solid var(--ui-color-focus-ring);
+  outline-offset: 2px;
 }
 /* How far the selection is, beside the action that confirms it. */
 .action {
@@ -458,8 +458,8 @@ button.card:focus-visible {
 }
 .refusal[data-spoken-only="true"] {
   position: absolute;
-  width: var(--ui-border-width-hairline);
-  height: var(--ui-border-width-hairline);
+  width: 1px;
+  height: 1px;
   padding: 0;
   overflow: hidden;
   clip: rect(0 0 0 0);
@@ -470,8 +470,8 @@ button.card:focus-visible {
   font-weight: var(--ui-font-weight-semibold);
   text-decoration: underline;
   text-decoration-color: var(--ui-color-warning);
-  text-decoration-thickness: var(--ui-border-width-focus);
-  text-underline-offset: var(--ui-border-width-strong);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
 }
 @media (prefers-reduced-motion: reduce) {
   .card {
