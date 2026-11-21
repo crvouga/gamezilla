@@ -22,7 +22,9 @@ test('CI trusts the literal immutable subject returned after the repository tran
   const github = GLOBAL.github;
   expect(
     `repo:${github.owner}@${github.owner_id}/${github.repo}@${github.repo_id}:pull_request`
-  ).toBe(`repo:${OWNER}@49178412/${REPO}@1165464734:pull_request`);
+  ).toBe(`repo:${OWNER}@354284559/${REPO}@1165464734:pull_request`);
+  // regression: organization-transfer-rejects-ci-oidc
+  expect(github.owner_is_organization).toBe(true);
   const tofu = join(import.meta.dirname, '../../infra-shared-ts/tofu');
   const bootstrap = readFileSync(
     join(tofu, 'stacks/bootstrap/main.tf'),
