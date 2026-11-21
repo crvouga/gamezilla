@@ -15,33 +15,35 @@ export async function openContentLibrary(
   });
   if (await ui.get('content-create-puzzle').isVisible()) return;
   if (!(await ui.get(Handles.gameChoice('puzzle-library')).isVisible()))
-    await tap(ui, Handles.gameMenu(gameId));
+    await tapOrObserveLibrary(ui, Handles.gameMenu(gameId));
   // Selecting the game can coincide with hydration restoring its saved library.
   // Observe that destination before sending a gesture to the replaced menu.
   await ui.get('content-create-puzzle').wait('visible', {
     timeoutMs: JOURNEY_WAIT_MS,
     visibleOr: [Handles.gameChoice('puzzle-library')],
   });
-  if (!(await ui.get('content-create-puzzle').isVisible())) {
-    try {
-      await tap(ui, Handles.gameChoice('puzzle-library'));
-    } catch (error) {
-      // Restoration can replace the menu before the new library paints.
-      // Observe that destination without sending another click; retain the
-      // original gesture failure if the destination never becomes visible.
-      try {
-        await ui
-          .get('content-create-puzzle')
-          .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
-      } catch {
-        throw error;
-      }
-      return;
-    }
-  }
+  if (!(await ui.get('content-create-puzzle').isVisible()))
+    await tapOrObserveLibrary(ui, Handles.gameChoice('puzzle-library'));
   await ui
     .get('content-create-puzzle')
     .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
+}
+
+/** Hydration may replace either menu before its requested tap reaches it. */
+async function tapOrObserveLibrary(ui: Driver, target: string): Promise<void> {
+  try {
+    await tap(ui, target);
+  } catch (error) {
+    // Observe the restored destination without sending another click. If
+    // restoration never arrives, preserve the original gesture failure.
+    try {
+      await ui
+        .get('content-create-puzzle')
+        .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
+    } catch {
+      throw error;
+    }
+  }
 }
 
 /** Open saved work after the space's restored game choice has settled. */
