@@ -74,11 +74,14 @@ describe('the request metrics', () => {
 });
 
 describe('histogram boundaries', () => {
+  // regression: metrics-active-series-limit-drops-evidence
   test('are ascending, in seconds for durations', () => {
     expect([...HISTOGRAM_BOUNDARIES]).toEqual(
       [...HISTOGRAM_BOUNDARIES].sort((a, b) => a - b)
     );
-    for (const bound of [0.1, 0.25, 0.5, 1, 2.5, 5]) {
+    // Every bound an objective reads; no other (each costs series per writer).
+    expect([...HISTOGRAM_BOUNDARIES]).toEqual([0.25, 0.5, 1, 2.5, 5, 10]);
+    for (const bound of [0.25, 0.5, 1, 2.5, 5, 10]) {
       expect(HISTOGRAM_BOUNDARIES).toContain(bound);
     }
   });

@@ -24,12 +24,12 @@ export const METRIC_DIMENSION_KEYS = [
  * Where the SDK cuts every histogram, in the instrument's own unit (seconds
  * for durations). A latency objective can only count "at most X" when X is
  * one of these, so the runtime and the objectives read the same list.
- * Every bound is one more stored series per label combination per writer,
- * so the list holds only the bounds objectives read (0.25 to 2.5 s) and a
- * few around them for percentile panels.
+ * Every bound is one more stored series per label combination per writer
+ * (every Worker isolate is a writer), so the list holds only the bounds an
+ * objective reads: 0.25 to 2.5 s for requests, 5 and 10 s for bug reports.
  */
 export const HISTOGRAM_BOUNDARIES: readonly number[] = [
-  0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10,
+  0.25, 0.5, 1, 2.5, 5, 10,
 ];
 
 /** The most label combinations one instrument may produce. */

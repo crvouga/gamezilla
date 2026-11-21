@@ -99,8 +99,10 @@ function createMeter(
         }));
   return metricExporter === undefined
     ? undefined
-    : new MeterProvider({
-        sdkMetricsEnabled: true,
+    : // The SDK's own metrics stay off: every Worker isolate is a writer,
+      // and nothing reads them, but each would be stored series that count
+      // against the metrics backend's active-series limit.
+      new MeterProvider({
         resource,
         readers: [
           worker
@@ -147,7 +149,6 @@ function createLoggerProvider(
     ? undefined
     : new LoggerProvider({
         resource,
-        ...(meter === undefined ? {} : { meterProvider: meter }),
         processors: [logProcessor(options, meter, logExporter, worker)],
         logRecordLimits: {
           attributeCountLimit: 32,
@@ -170,7 +171,6 @@ function logProcessor(
   return worker
     ? new FlushLogProcessor(guarded)
     : new BatchLogRecordProcessor({
-        ...(meter === undefined ? {} : { selfObsMeterProvider: meter }),
         exporter: guarded,
         maxQueueSize: 2048,
         maxExportBatchSize: 256,
