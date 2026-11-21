@@ -93,7 +93,13 @@ function CatalogueLoadFrame(
           screenId="catalogue-load"
           title={placeTitle(props)}
           subtitle={
-            props.place.screen === 'source' ? undefined : (
+            // What the loader is for, until a file is saved; then the hub's
+            // own status says where it stands.
+            props.place.screen === 'source' ||
+            !(
+              props.source.status === 'missing' ||
+              props.source.status === 'chosen'
+            ) ? undefined : (
               <Dynamic component={props.copy.subtitle} />
             )
           }
@@ -160,6 +166,7 @@ export function CatalogueLoadScreenView(
               job={props.job}
               source={props.source}
               onOpenSource={() => props.onOpen({ screen: 'source' })}
+              onRecheck={props.onRecheck}
               onStart={props.onStart}
               onAskStop={() => setAsked('loading')}
             />
@@ -173,6 +180,7 @@ export function CatalogueLoadScreenView(
               onSave={props.onSave}
               onRecheck={props.onRecheck}
               onAskStop={() => setAsked('saving')}
+              onDone={() => props.onOpen({ screen: 'load' })}
             />
           </Match>
         </Switch>

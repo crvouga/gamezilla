@@ -1,0 +1,6 @@
+/* `GameActions sizing="fill"`: the commands take the column's whole
+   width, as a dock's do. */
+.fill > * {
+  flex: 1 1 0;
+  min-width: 144px;
+}

@@ -8,6 +8,7 @@ import {
   type GameMoveListEntry,
 } from '@pkgs/ui-root-client-ts/game-move-list';
 import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
+import { GameSeatSwatch } from '@pkgs/ui-root-client-ts/game-seat-swatch';
 import { GameActions, GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
 import { GameTurnPill } from '@pkgs/ui-root-client-ts/game-turn-pill';
@@ -22,6 +23,7 @@ import { Select } from '@pkgs/ui-root-client-ts/select';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
+import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { createMemo, createSignal, For, type JSX, Show } from 'solid-js';
 import type { FramePlaceProps } from './game-frame-screen-view';
 import { FrameNoticesView } from './game-frame-shell';
@@ -42,7 +44,7 @@ type RecordProps = Props & { readonly record: FrameRecord };
 
 /** A step through the moves is a full touch target. */
 const STEP_SIZE = 44;
-const STEP_PLATE = 'surfaceMuted';
+const STEP_PLATE = 'border';
 
 /** How many of the latest moves the list holds; earlier ones are reached by number. */
 const LISTED_MOVES = 40;
@@ -85,9 +87,10 @@ function EarlierMoves(props: { readonly count: number }): JSX.Element {
 }
 
 /**
- * The latest moves as numbered turns, each behind its mover's swatch (the
- * game's word for bare-number moves, `Column`, said once). Pressing a move
- * shows the board after it.
+ * The latest moves, every move on its own row numbered 1 to N (the one
+ * count the move shown, "Move 3 of 8", and the move-number field share),
+ * each behind its mover's swatch (the game's word for bare-number moves,
+ * `Column`, said once). Pressing a move shows the board after it.
  */
 function RecordMoves(
   props: RecordProps & { readonly onSelect: (ply: number) => void }
@@ -113,7 +116,7 @@ function RecordMoves(
     <GameMoveList
       layout="table"
       aria-label={t`Moves played`}
-      perTurn={props.record.perTurn}
+      perTurn={1}
       current={props.record.displayedPly}
       moves={moves()}
       onSelect={props.onSelect}
@@ -317,12 +320,28 @@ function RecordSelect(props: RecordProps): JSX.Element {
   );
 }
 
+/**
+ * Who made the shown move, when a turn holds more than one move (so its
+ * number alone does not say); else `null`.
+ */
+function turnOf(record: FrameRecord): { readonly side: string } | null {
+  const mover = record.movers[record.displayedPly - 1];
+  if (record.perTurn <= 1 || mover === undefined) return null;
+  return { side: mover.sideLabel };
+}
+
 /** Which position the board shows, in words. */
 function ReviewingLine(props: { readonly record: FrameRecord }): JSX.Element {
   return (
     <GameTurnPill
       live
       tone={recordReviewing(props.record) ? 'warning' : 'neutral'}
+      // The move shown is marked by its mover's piece, not a warning dot.
+      mark={
+        <Show when={props.record.movers[props.record.displayedPly - 1]?.swatch}>
+          {(look) => <GameSeatSwatch look={look()} />}
+        </Show>
+      }
       dataSet={{ testid: 'custom-game-reviewing' }}
       title={
         <Show
@@ -337,14 +356,47 @@ function ReviewingLine(props: { readonly record: FrameRecord }): JSX.Element {
               </Trans>
             }
           >
-            <Trans>
-              After move {props.record.displayedPly} of{' '}
-              {props.record.moves.length}
-            </Trans>
+            <Show
+              when={turnOf(props.record)}
+              fallback={
+                <Trans>
+                  After move {props.record.displayedPly} of{' '}
+                  {props.record.moves.length}
+                </Trans>
+              }
+            >
+              {(turn) => (
+                // Counted as a move number is asked for: every move, then
+                // whose it was.
+                <Trans>
+                  Move {props.record.displayedPly} of{' '}
+                  {props.record.moves.length}, {turn().side}
+                </Trans>
+              )}
+            </Show>
           </Show>
         </Show>
       }
     />
+  );
+}
+
+/** Every move, the game chosen and a move by its number, in one section. */
+function EveryMove(props: RecordProps): JSX.Element {
+  return (
+    <GameSection
+      title={<Trans>Every move</Trans>}
+      dataSet={{
+        component: 'CustomGameReview',
+        testid: 'custom-game-record',
+      }}
+    >
+      <RecordSelect {...props} />
+      <Show when={recordPlayed(props.record)}>
+        <RecordMoves {...props} onSelect={props.onSeek} />
+      </Show>
+      <ReviewJumpField {...props} />
+    </GameSection>
   );
 }
 
@@ -356,6 +408,8 @@ function ReviewingLine(props: { readonly record: FrameRecord }): JSX.Element {
 export function FrameMovesPlace(props: RecordProps): JSX.Element {
   const over = (): boolean =>
     props.phase === 'completed' || props.phase === 'cancelled';
+  const mode = useLayoutMode();
+  const wide = (): boolean => mode() === 'wide';
   return (
     <GameScreen
       screenId="custom-game-moves"
@@ -372,9 +426,20 @@ export function FrameMovesPlace(props: RecordProps): JSX.Element {
         notices={
           <FrameNoticesView connection={props.connection} error={props.error} />
         }
+        // A phone is one fixed view, as play is: every move the line over
+        // the board, the steps, the game chosen and a move by its number
+        // under it, and the way back pinned at the foot. A wide screen lists
+        // every move beside the board.
+        boardFocus
+        actionsBeside
+        fixedStage={props.boardWorkspace !== true}
         status={
           <>
             <RecordSteps {...props} />
+            <Show when={!wide()}>
+              <RecordSelect {...props} />
+              <ReviewJumpField {...props} />
+            </Show>
             <FrameErrorView text={props.record.error} />
           </>
         }
@@ -386,24 +451,30 @@ export function FrameMovesPlace(props: RecordProps): JSX.Element {
               </Show>
             }
             variant="solid"
+            fullWidth
             onClick={() => props.onClose()}
             dataSet={{ testid: 'custom-game-back-to-live' }}
           />
         }
         aside={
-          <GameSection
-            title={<Trans>Every move</Trans>}
-            dataSet={{
-              component: 'CustomGameReview',
-              testid: 'custom-game-record',
-            }}
+          <Show
+            when={wide()}
+            fallback={
+              <Show when={recordPlayed(props.record)}>
+                <GameSection
+                  title={<Trans>Every move</Trans>}
+                  dataSet={{
+                    component: 'CustomGameReview',
+                    testid: 'custom-game-record',
+                  }}
+                >
+                  <RecordMoves {...props} onSelect={props.onSeek} />
+                </GameSection>
+              </Show>
+            }
           >
-            <RecordSelect {...props} />
-            <Show when={recordPlayed(props.record)}>
-              <RecordMoves {...props} onSelect={props.onSeek} />
-            </Show>
-            <ReviewJumpField {...props} />
-          </GameSection>
+            <EveryMove {...props} />
+          </Show>
         }
       >
         <GameBoardStage

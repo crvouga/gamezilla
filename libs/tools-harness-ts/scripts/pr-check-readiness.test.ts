@@ -3,6 +3,7 @@ import {
   awaitRequiredPrChecks,
   type PrCheckSnapshot,
 } from './pr-check-readiness';
+import type { RequiredPrCheck } from './required-pr-checks';
 
 const sha = '166ac03a5c76aff3beaa84df6b1f9162f7e1f4c1';
 const required = [
@@ -36,11 +37,15 @@ const success: PrCheckSnapshot = {
     conclusion: 'success',
   })),
 };
-function run(snapshots: readonly PrCheckSnapshot[], collectionMs = 0) {
+function run(
+  snapshots: readonly PrCheckSnapshot[],
+  collectionMs = 0,
+  policies: readonly RequiredPrCheck[] = required
+) {
   let now = 0;
   let reads = 0;
   const result = awaitRequiredPrChecks({
-    required,
+    required: policies,
     emptyShardPlan: false,
     read: () => {
       now += collectionMs;
@@ -160,6 +165,39 @@ test('metadata access errors fail closed without another read', async () => {
 test('metadata collection cannot grant success after the readiness deadline', async () => {
   await expect(run([success], 31).result).rejects.toThrow(
     'deadline exceeded during metadata collection'
+  );
+});
+
+// regression: pr-check-readiness-timeout-hides-missing-codeql
+// Run 43743244235, PR419: all64 shards passed, but neither CodeQL nor its
+// analysis producer appeared. The final metadata read crossed the deadline.
+test('metadata crossing the deadline preserves the missing scanner failure', async () => {
+  const passed = (name: string) => ({
+    sha: '2f07a84637bdc2509b75e72713b10ce2337ef008',
+    name,
+    appId: 15368,
+    status: 'completed',
+    conclusion: 'success',
+  });
+  const snapshot: PrCheckSnapshot = {
+    activeCodeqlShas: [],
+    checks: [
+      passed('verify:start'),
+      passed('preview'),
+      ...Array.from({ length: 64 }, (_, index) =>
+        passed(`verify:shards (${index})`)
+      ),
+      { ...passed('verify:end'), status: 'in_progress', conclusion: null },
+    ],
+  };
+  const policies = [
+    ...required.map((policy) => ({ ...policy, outage_tolerant: true })),
+    { context: 'verify:start', integration_id: 15368 },
+    { context: 'verify:end', integration_id: 15368 },
+    { context: 'preview', integration_id: 15368, advisory: true },
+  ];
+  await expect(run([snapshot], 31, policies).result).rejects.toThrow(
+    'PR checks readiness deadline exceeded during metadata collection:\nMissing required check: CodeQL (app 57789)'
   );
 });
 

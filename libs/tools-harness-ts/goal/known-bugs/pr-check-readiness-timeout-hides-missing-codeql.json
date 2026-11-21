@@ -1,0 +1,4 @@
+{
+  "summary": "PR419 passed all 64 verification shards but lacked a CodeQL check. When the final metadata read crossed the readiness deadline, the error discarded the computed missing-check failures and obscured the real blocker.",
+  "regressionTest": "libs/tools-harness-ts/scripts/pr-check-readiness.test.ts"
+}

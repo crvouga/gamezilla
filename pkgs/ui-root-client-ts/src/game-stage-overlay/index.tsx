@@ -4,9 +4,10 @@ import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { createSignal, For, type JSX, onMount, Show } from 'solid-js';
 import { type GameSeatLook, GameSeatSwatch } from '../game-seat-swatch/index';
-import { XIcon } from '../icons';
+import { ChevronDownIcon, XIcon } from '../icons';
 import { createScreenSlot } from '../screen-slot';
 import styles from './game-stage-overlay.module.css';
+import card from './result-card.module.css';
 
 /** The avatar size of a side on the versus card. */
 export const GAME_VERSUS_AVATAR_SIZE = 56;
@@ -138,7 +139,8 @@ export function GameVersusOverlay(props: GameVersusOverlayProps): JSX.Element {
   );
 }
 
-export type GameResultOverlayProps = {
+/** What a result says, on the board's card or beside the board. */
+export type GameResultCardProps = {
   /** How the game went for this person; `neutral` for someone watching. */
   tone: 'won' | 'lost' | 'drawn' | 'neutral';
   /** Over the headline, in capitals: `Victory`, `Defeat`, `Draw`. */
@@ -149,6 +151,12 @@ export type GameResultOverlayProps = {
   caption?: JSX.Element | undefined;
   /** The standings, a rating change. */
   children?: JSX.Element | undefined;
+  /**
+   * Names the details (`Standings`). Given, a small board's card folds
+   * them behind a control of that name instead of leaving them out, so
+   * the board stays in view and the details are one press away.
+   */
+  detailsLabel?: string | undefined;
   /** The card's own commands; the first is the way back to the board. */
   actions?: JSX.Element | undefined;
   /**
@@ -156,13 +164,134 @@ export type GameResultOverlayProps = {
    * listener hears them when the card appears and when they change.
    */
   live?: boolean | undefined;
-  /** Names the close control (`Show the board`). */
-  dismissLabel: string;
-  onDismiss: () => void;
   /** The headline's `data-*` (its test id). */
   titleDataSet?: ComponentDataSet | undefined;
   dataSet?: ComponentDataSet | undefined;
 };
+
+export type GameResultOverlayProps = GameResultCardProps & {
+  /** Names the close control (`Show the board`). */
+  dismissLabel: string;
+  onDismiss: () => void;
+};
+
+function ResultDetails(props: {
+  label: string | undefined;
+  children: JSX.Element;
+}): JSX.Element {
+  const [open, setOpen] = createSignal(false);
+  let body: HTMLDivElement | undefined;
+  // Opened, the person's own row (else the first) is brought into view
+  // inside a card that scrolls, so their answer is never cut off.
+  const reveal = (): void => {
+    const own =
+      body?.querySelector<HTMLElement>('[data-you="true"]') ??
+      body?.querySelector<HTMLElement>('li, [role="listitem"]');
+    own?.scrollIntoView({ block: 'nearest' });
+  };
+  return (
+    <div
+      class={card['details']}
+      data-folds={props.label !== undefined}
+      data-open={open()}
+    >
+      <Show when={props.label}>
+        {(label) => (
+          <button
+            type="button"
+            class={`text textLabel ${card['detailsToggle']}`}
+            aria-expanded={open()}
+            onClick={() => {
+              setOpen(!open());
+              if (open()) queueMicrotask(reveal);
+            }}
+            data-testid="game-result-overlay-details"
+          >
+            <span>{label()}</span>
+            <ChevronDownIcon size={16} color="textSecondary" />
+          </button>
+        )}
+      </Show>
+      <div ref={body} class={card['detailsBody']}>
+        {props.children}
+      </div>
+    </div>
+  );
+}
+
+function ResultCard(
+  props: GameResultCardProps & {
+    docked: boolean;
+    dismiss?: JSX.Element | undefined;
+  }
+): JSX.Element {
+  const actions = createScreenSlot(() => props.actions);
+  const details = createScreenSlot(() => props.children);
+  return (
+    <section
+      class={`${styles['card']} ${card['quiet']} ${props.docked ? card['docked'] : ''}`}
+      data-tone={props.tone}
+      data-docked={props.docked}
+      {...dataAttrs(
+        props.docked
+          ? { component: 'GameResultCard', ...props.dataSet }
+          : undefined
+      )}
+    >
+      <div class={styles['cardHead']}>
+        <div
+          class={styles['cardTitle']}
+          role={props.live === true ? 'status' : undefined}
+          aria-live={props.live === true ? 'polite' : undefined}
+          aria-atomic={props.live === true ? true : undefined}
+        >
+          <Show when={props.eyebrow}>
+            <span class={`text textCaption ${styles['eyebrow']}`}>
+              {props.eyebrow}
+            </span>
+          </Show>
+          <h2 class="text textTitle" {...dataAttrs({ ...props.titleDataSet })}>
+            {props.title}
+          </h2>
+          <Show when={props.caption}>
+            <p class="text textBody text-text-secondary">{props.caption}</p>
+          </Show>
+        </div>
+        {props.dismiss}
+      </div>
+      <Show when={details.present()}>
+        <ResultDetails label={props.detailsLabel}>
+          {details.content()}
+        </ResultDetails>
+      </Show>
+      <Show when={actions.present()}>
+        <div
+          class={`box flex-row flex-wrap gap-2 min-w-0 ${card['cardActions']}`}
+        >
+          {actions.content()}
+        </div>
+      </Show>
+    </section>
+  );
+}
+
+/**
+ * `GameResultCard` -- how the game ended, beside the final board rather
+ * than over it: a word for the result, the headline, why, the standings
+ * (folded behind `detailsLabel` when given) and what to do next. The whole
+ * final position stays in view, so nothing needs closing.
+ *
+ * @example
+ * ```tsx
+ * <GameResultCard tone="won" eyebrow="Victory" title="You won"
+ *   caption="Four in a row" detailsLabel="Standings" live>
+ *   <GameStandings rows={rows} aria-label="Standings" />
+ * </GameResultCard>
+ * ```
+ */
+export function GameResultCard(props: GameResultCardProps): JSX.Element {
+  return <ResultCard {...props} docked />;
+}
 
 /**
  * `GameResultOverlay` -- how the game ended, on a card over the final
@@ -182,7 +311,6 @@ export type GameResultOverlayProps = {
  * ```
  */
 export function GameResultOverlay(props: GameResultOverlayProps): JSX.Element {
-  const actions = createScreenSlot(() => props.actions);
   return (
     <div
       class={styles['result']}
@@ -195,31 +323,12 @@ export function GameResultOverlay(props: GameResultOverlayProps): JSX.Element {
         aria-hidden="true"
         onClick={() => props.onDismiss()}
       />
-      <section class={styles['card']} data-tone={props.tone}>
-        <div class={styles['cardHead']}>
-          <div
-            class={styles['cardTitle']}
-            role={props.live === true ? 'status' : undefined}
-            aria-live={props.live === true ? 'polite' : undefined}
-            aria-atomic={props.live === true ? true : undefined}
-          >
-            <Show when={props.eyebrow}>
-              <span class={`text textCaption ${styles['eyebrow']}`}>
-                {props.eyebrow}
-              </span>
-            </Show>
-            <h2
-              class="text textTitle"
-              {...dataAttrs({ ...props.titleDataSet })}
-            >
-              {props.title}
-            </h2>
-            <Show when={props.caption}>
-              <p class="text textBody text-text-secondary">{props.caption}</p>
-            </Show>
-          </div>
-          {/* Named in words, not only a cross: closing is how the final
-              board is seen, so the card says so. */}
+      <ResultCard
+        {...props}
+        docked={false}
+        dismiss={
+          // Named in words, not only a cross: closing is how the final
+          // board is seen, so the card says so.
           <button
             type="button"
             class={`text textCaption ${styles['dismiss']}`}
@@ -229,14 +338,8 @@ export function GameResultOverlay(props: GameResultOverlayProps): JSX.Element {
             <span class={styles['dismissWords']}>{props.dismissLabel}</span>
             <XIcon size={16} color="textSecondary" />
           </button>
-        </div>
-        {props.children}
-        <Show when={actions.present()}>
-          <div class="box flex-row flex-wrap gap-2 min-w-0">
-            {actions.content()}
-          </div>
-        </Show>
-      </section>
+        }
+      />
     </div>
   );
 }

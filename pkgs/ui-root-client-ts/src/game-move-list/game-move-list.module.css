@@ -16,8 +16,16 @@
   flex-direction: column;
   gap: var(--ui-space-2);
   max-height: 320px;
+}
+/* Only the rows scroll: the moves' word stays over them, never over a
+   row. */
+.list[data-layout="table"] > .turns {
+  flex: 0 1 auto;
+  min-height: 0;
   overflow-y: auto;
   scrollbar-width: thin;
+  /* Room the list makes under the last row, so the top row shows whole. */
+  padding-bottom: var(--rows-end, 0px);
 }
 .turns {
   display: flex;
@@ -65,6 +73,12 @@
    sized by their longest move: a move written in words
    (`G10 sinks the destroyer`) takes the room the short ones leave, so every
    line keeps one row and the columns still line up. */
+/* In a list of one move a row, the move shown is its whole row. */
+.list[data-layout="table"][data-one-a-row="true"]
+.turn:has([aria-current="step"]) {
+  border-radius: var(--ui-radius-sm);
+  background: var(--ui-color-tint-subtle);
+}
 .list[data-layout="table"] .turns {
   display: grid;
   grid-template-columns: 32px repeat(var(--move-columns), auto);
@@ -199,8 +213,9 @@
     max-height: none;
     overflow: auto hidden;
     scrollbar-width: none;
-    /* Earlier turns fade out at the leading edge: none is cut mid-glyph. */
-    padding-inline-start: var(--ui-space-8);
+    /* Earlier turns fade out at the leading edge: none is cut mid-glyph;
+       the latest keeps a little room at the far edge. */
+    padding-inline: var(--ui-space-8) var(--ui-space-2);
     mask-image: linear-gradient(
       to right,
       transparent 0,
@@ -213,25 +228,114 @@
     .turns {
     display: flex;
     flex-direction: row;
-    gap: var(--ui-space-3);
+    /* The line itself scrolls sideways; its turns never clip. */
+    overflow: visible;
+    gap: var(--ui-space-2);
   }
+  /* Room after the latest unit, inside what scrolls. */
+  [data-game-fixed="true"]
+    [data-game-slot="rail"]
+    .list[data-layout="table"]
+    .turns::after {
+    content: "";
+    flex: none;
+    /* Widened by the list when the turns must scroll on to meet a key. */
+    width: calc(var(--strip-room, var(--ui-space-1)) + var(--strip-end, 0px));
+  }
+  /* Each turn reads as one unit: its number, then its moves, inside one
+     quiet outline, with room between turns. */
   [data-game-fixed="true"]
     [data-game-slot="rail"]
     .list[data-layout="table"]
     .turn {
     display: flex;
+    align-items: center;
+    gap: var(--ui-space-1);
+    padding-inline: var(--ui-space-2);
+    border: 1px solid var(--ui-color-border);
+    border-radius: var(--ui-radius-full);
+  }
+  /* The move shown is its whole unit, not its figure alone. */
+  [data-game-fixed="true"]
+    [data-game-slot="rail"]
+    .list[data-layout="table"]
+    .turn:has([aria-current="step"]) {
+    border-color: var(--ui-color-tint);
+    background: var(--ui-color-tint-subtle);
+  }
+  /* The unit carries the mark; its move draws no second, squarer fill
+     against the unit's round end. */
+  [data-game-fixed="true"]
+    [data-game-slot="rail"]
+    .list[data-layout="table"]
+    .moveButton[data-current="true"] {
+    background: transparent;
   }
   [data-game-fixed="true"]
     [data-game-slot="rail"]
     .list[data-layout="table"]
     .number {
     min-width: 0;
+    color: var(--ui-color-text-secondary);
+    font-size: var(--ui-font-size-xs);
+  }
+  /* The moves' word (`Column`) is the line's key: it stays at the start,
+     closed by a rule, and the moves scroll under it; nothing fades beside
+     it, so no half-shown move reads as part of it. */
+  [data-game-fixed="true"]
+    [data-game-slot="rail"]
+    .list[data-layout="table"]:has(> .heading) {
+    padding-inline-start: 0;
+    /* The latest turn ends clear of the far edge's fade, whole. */
+    --strip-room: var(--ui-space-6);
+    /* More past the far edge shows as a fade there, not a cut. */
+    mask-image: linear-gradient(
+      to left,
+      transparent 0,
+      var(--ui-color-text) var(--ui-space-6)
+    );
   }
   [data-game-fixed="true"]
     [data-game-slot="rail"]
     .list[data-layout="table"]
     .heading {
-    padding-inline-start: 0;
+    position: sticky;
+    inset-inline-start: 0;
+    z-index: 1;
+    order: -1;
+    flex: none;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    padding-inline: var(--ui-space-2) var(--ui-space-3);
+    border-inline-end: 1px solid var(--ui-color-text-secondary);
+    background: var(--ui-color-background);
+  }
+  /* A turn the key cuts is hidden whole (the list marks it). */
+  [data-game-fixed="true"]
+    [data-game-slot="rail"]
+    .list[data-layout="table"]
+    .turn[data-under-key="true"] {
+    visibility: hidden;
+  }
+  /* A move scrolled under the key softens just past its rule, never cut
+     square against it. */
+  [data-game-fixed="true"]
+    [data-game-slot="rail"]
+    .list[data-layout="table"]
+    .heading::after {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 100%;
+    /* As wide as the line's gap: a move shown starts past it. */
+    width: var(--ui-space-3);
+    background: linear-gradient(
+      to right,
+      var(--ui-color-background),
+      transparent
+    );
+    pointer-events: none;
   }
   [data-game-fixed="true"]
     [data-game-slot="rail"]

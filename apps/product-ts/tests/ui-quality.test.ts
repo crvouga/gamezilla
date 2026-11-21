@@ -436,6 +436,8 @@ test('one batch is replayed ahead of sequential inference without unbounded pref
 test.each(['replay', 'inference'] as const)(
   '%s failures drain outstanding prefetch without scoring further batches',
   async (failure) => {
+    // regression: ui-quality-replay-error-loses-artifact
+    const replayError = new Error('The source image cannot be decoded.');
     const input = createMemObjectStore();
     const manifest = await collectArtifacts(
       [await source(['frames/a.html', 'frames/b.html', 'frames/c.html'])],
@@ -444,42 +446,50 @@ test.each(['replay', 'inference'] as const)(
     const secondReplay = Promise.withResolvers<void>();
     let replays = 0;
     let scored = 0;
-    await expect(
-      runVisualGate(manifest, {
-        inputs: input,
-        output: createMemObjectStore(),
-        renderer: {
-          async render(html) {
-            if (++replays === 2) {
-              secondReplay.resolve();
-              if (failure === 'replay') throw new Error('replay failed');
-            }
-            return new TextEncoder().encode(html);
-          },
-          dispose() {},
+    const failureResult = await runVisualGate(manifest, {
+      inputs: input,
+      output: createMemObjectStore(),
+      renderer: {
+        async render(html) {
+          if (++replays === 2) {
+            secondReplay.resolve();
+            if (failure === 'replay') throw replayError;
+          }
+          return new TextEncoder().encode(html);
         },
-        checker: {
-          async checkImages(images) {
-            scored++;
-            await secondReplay.promise;
-            if (failure === 'inference') throw new Error('inference failed');
-            return {
-              schemaVersion: 1,
-              pass: true,
-              summary: '',
-              results: images.map(() => quality(true)),
-            };
-          },
-          async checkVideos() {
-            throw new Error('Unexpected video');
-          },
+        dispose() {},
+      },
+      checker: {
+        async checkImages(images) {
+          scored++;
+          await secondReplay.promise;
+          if (failure === 'inference') throw new Error('inference failed');
+          return {
+            schemaVersion: 1,
+            pass: true,
+            summary: '',
+            results: images.map(() => quality(true)),
+          };
         },
-        inputPath: (file) => file,
-        diagnosticKey: (file) => file,
-        threshold: 0.5,
-        batchSize: 1,
-      })
-    ).rejects.toThrow(`${failure} failed`);
+        async checkVideos() {
+          throw new Error('Unexpected video');
+        },
+      },
+      inputPath: (file) => file,
+      diagnosticKey: (file) => file,
+      threshold: 0.5,
+      batchSize: 1,
+    }).catch((error: unknown) => error);
+    expect(failureResult).toBeInstanceOf(Error);
+    const error = failureResult as Error;
+    expect(error.message).toContain(
+      failure === 'replay' ? replayError.message : 'inference failed'
+    );
+    if (failure === 'replay') {
+      expect(error.cause).toBe(replayError);
+      expect(error.message).toContain(manifest.artifacts[1]!.file);
+      expect(error.message).toContain('specs/example.feature');
+    }
     expect(replays).toBe(2);
     expect(scored).toBe(1);
   }

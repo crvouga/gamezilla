@@ -121,7 +121,7 @@ async function createStore(
     const url = process.env['OBS_TEMPO_URL'];
     if (url === undefined)
       throw new Error('OBS_TEMPO_URL is required for --source prod');
-    return tempoStore(url);
+    return tempoStore(url, process.env['OBS_DEPLOYMENT_ENVIRONMENT']);
   }
   if (!explicit && requested === '.observability') {
     const artifacts = nodeStore(resolve(REPO_ROOT, requested));
@@ -144,7 +144,7 @@ async function createStore(
   return new NdjsonTraceStore(nodeStore(source), source);
 }
 
-function tempoStore(url: string): TempoTraceStore {
+function tempoStore(url: string, environment?: string): TempoTraceStore {
   const token = process.env['OBS_TEMPO_TOKEN'];
   const username = process.env['OBS_TEMPO_USER'];
   if (username !== undefined && token === undefined) {
@@ -164,6 +164,7 @@ function tempoStore(url: string): TempoTraceStore {
     now: wallClock.now,
     ...(token === undefined ? {} : { token }),
     ...(username === undefined ? {} : { username }),
+    ...(environment === undefined ? {} : { environment }),
   });
 }
 

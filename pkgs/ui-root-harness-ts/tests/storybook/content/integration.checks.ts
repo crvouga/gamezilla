@@ -242,7 +242,7 @@ async function expectFinishedRecord(page: Page) {
   const moves = page
     .getByTestId('custom-game-record')
     .getByRole('list', { name: 'Moves played' })
-    .getByRole('button');
+    .getByRole('button', { includeHidden: true });
   await expect(moves.last()).toBeVisible();
   const earlier = page.getByTestId('custom-game-earlier-moves');
   const left =
@@ -253,6 +253,7 @@ async function expectFinishedRecord(page: Page) {
     'data-testid',
     `custom-game-review-move-${left + 1}`
   );
+  await moves.first().scrollIntoViewIfNeeded();
   await expect(moves.first()).toBeVisible();
 }
 

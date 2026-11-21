@@ -1,0 +1,197 @@
+/* What a result card holds beyond its headline (`GameResultCard`,
+   `GameResultOverlay`): the standings and their fold, the card's own
+   commands, and the card docked beside the board. */
+
+/* Docked beside or under the board: no dimming, no close, the panel's own
+   surface; its standings fold behind their control when it names one. */
+section.docked {
+  --result-accent: var(--ui-color-outline);
+  max-width: none;
+  max-height: none;
+  overflow: hidden;
+  border: 1px solid var(--ui-color-border);
+  background: var(--ui-color-surface);
+  /* The result's colour is a band inside the card's own corners. */
+  box-shadow: inset 0 4px 0 var(--result-accent);
+}
+section.docked[data-tone] {
+  border-top-color: var(--ui-color-border);
+}
+section.docked[data-tone="won"] {
+  --result-accent: var(--ui-color-success);
+}
+section.docked[data-tone="lost"] {
+  --result-accent: var(--ui-color-destructive);
+}
+.docked .details[data-folds="true"] .detailsToggle {
+  display: inline-flex;
+  align-self: flex-start;
+  min-height: 40px;
+}
+.docked .details[data-folds="true"][data-open="false"] .detailsBody {
+  display: none;
+}
+
+/* The card's own commands split its width evenly, and a quiet one is
+   still drawn as a control (an outline), never as bare words. */
+.cardActions > *,
+.cardActions :global(.btn) {
+  flex: 1 1 0;
+  min-width: 0;
+}
+/* Among the details, a quiet command keeps its whole name and wraps to its
+   own row on a narrow card rather than being cut. */
+.details :global(.btn[data-variant="ghost"]) {
+  flex: 1 1 auto;
+}
+.quiet :global(.btn[data-variant="ghost"]) {
+  min-height: 40px;
+  border: 1px solid var(--ui-color-border);
+}
+
+/* The details (the standings): in full on a card with room; folded
+   behind their own control on a small board's card. */
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-2);
+  min-width: 0;
+}
+.detailsToggle {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ui-space-2);
+  min-height: 44px;
+  margin: 0;
+  padding: 0 var(--ui-space-3);
+  border: 1px solid var(--ui-color-border);
+  border-radius: var(--ui-radius-control);
+  background: transparent;
+  color: var(--ui-color-text);
+  cursor: pointer;
+}
+.detailsToggle:hover {
+  background: var(--ui-color-surface-muted);
+}
+.detailsToggle:focus-visible {
+  outline: 2px solid var(--ui-color-tint);
+  outline-offset: 2px;
+}
+.details[data-open="true"] .detailsToggle > :last-child {
+  transform: rotate(180deg);
+}
+
+/* On a phone's board the overlay's card folds its standings too, and opened
+   they may take the board's whole height. */
+@container (max-height: 336px) or (max-width: 480px) {
+  .details[data-folds="true"] .detailsToggle {
+    display: inline-flex;
+    align-self: flex-start;
+    min-height: 36px;
+  }
+  .details[data-folds="true"][data-open="false"] .detailsBody {
+    display: none;
+  }
+  .quiet:has(.details[data-open="true"]) {
+    max-height: 100%;
+  }
+}
+/* A short board's card names no control for its standings: they wait on
+   the board. */
+@container (max-height: 336px) {
+  .details[data-folds="false"] :global(.panel) {
+    display: none;
+  }
+}
+
+/* Docked under a phone's board, between it and the commands: one short
+   block, so the board keeps its size. The headline and its reason on the
+   left, the standings' control on the right, the opened standings under
+   both. The result's word over the headline is left to a listener; the
+   card's coloured edge says it. */
+@media (max-width: 1023px) {
+  section.docked {
+    position: relative;
+    gap: var(--ui-space-2);
+    padding: var(--ui-space-3);
+  }
+  /* The standings' control sits in the card's corner beside the short
+     headline, so the reason under it runs the card's whole width. */
+  .docked .details[data-folds="true"] .detailsToggle {
+    position: absolute;
+    top: var(--ui-space-3);
+    right: var(--ui-space-3);
+  }
+  /* The headline's row is the control's height, so the reason starts
+     under both. */
+  .docked:has(.details[data-folds="true"]) :global(h2.textTitle) {
+    display: flex;
+    align-items: center;
+    min-height: 40px;
+    padding-inline-end: 8rem;
+  }
+  .docked > :first-child > :first-child > span:first-child {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    min-height: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .docked :global(h2.textTitle) {
+    font-size: var(--ui-font-size-lg);
+    line-height: var(--ui-line-height-tight, 1.25);
+  }
+  .docked > :first-child p {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    font-size: var(--ui-font-size-sm);
+  }
+}
+/* A short phone: a tighter block, so the board keeps its room. The headline
+   and its reason share a line where they fit; quiet commands are 36px. */
+@media (max-width: 1023px) and (max-height: 700px) {
+  /* Opened details rise as a sheet over the board, from the card's top
+     edge, so neither the board nor the card's reason gives up room; the
+     board stays its size under the scrim and returns when it closes. */
+  section.docked:has(.details[data-open="true"]) {
+    overflow: visible;
+  }
+  .docked .details[data-open="true"] .detailsBody {
+    position: absolute;
+    inset-inline: 0;
+    bottom: calc(100% + var(--ui-space-2));
+    z-index: 2;
+    max-height: min(18rem, 50dvh);
+    overflow-y: auto;
+    padding: var(--ui-space-3);
+    border: 1px solid var(--ui-color-border);
+    border-radius: var(--ui-radius-card);
+    background: var(--ui-color-surface-elevated);
+    /* A scrim dims what the sheet lies over (the board, the seats), down
+       to the card, which stays clear with its reason and its control. */
+    box-shadow:
+      var(--ui-shadow-float),
+      0 0 0 100vmax var(--ui-color-scrim);
+    clip-path: inset(-100vmax -100vmax calc(-1 * var(--ui-space-2)) -100vmax);
+    /* A visible bar says there is more to scroll. */
+    scrollbar-width: thin;
+  }
+  section.docked {
+    row-gap: var(--ui-space-1);
+    padding-block: var(--ui-space-2);
+  }
+  .docked > :first-child > :first-child {
+    flex-flow: row wrap;
+    align-items: baseline;
+    column-gap: var(--ui-space-2);
+  }
+  .docked.quiet :global(.btn[data-variant="ghost"]),
+  .docked.quiet :global(.btn[data-variant="outline"]) {
+    min-height: 36px;
+  }
+}

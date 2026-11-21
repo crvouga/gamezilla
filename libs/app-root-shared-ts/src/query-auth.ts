@@ -1,7 +1,9 @@
 import type { SyncActor } from '@libs/auth-shared-ts/auth-context';
 import { appAuth, syncActorOf } from '@libs/auth-shared-ts/auth-context';
+import { ANON_ID_HEADER } from '@libs/auth-shared-ts/session-middleware';
 import { assert } from '@pkgs/assert-root-shared-ts/singleton';
 import type { AuthErrorBody } from '@pkgs/sync-engine-shared-ts/v2';
+import { isUuid } from '@pkgs/uuid-shared-ts/uuid';
 
 import { apiRequestAsyncLocalStorage } from './request-scope';
 
@@ -16,23 +18,30 @@ export async function resolveSessionReplayAuth(
 ): Promise<SessionReplayAuth | AuthErrorBody> {
   const requestStore = apiRequestAsyncLocalStorage.getStore();
   assert.defined(requestStore, 'query/mutations: request store missing');
-  try {
-    const ctx = await requestStore.sessionAuth.resolveAuthContext(
-      requestStore.sqlClient,
-      request
-    );
-    if (ctx['accountDeleted'] === true)
-      return {
-        error: 'auth',
-        reason: 'revoked',
-        message: 'Sign in again because this account was deleted.',
-      };
-    const auth = appAuth(ctx);
-    if (auth === null || auth.deviceId === '' || auth.myId.length === 0) {
-      return { error: 'auth', reason: 'expired' };
-    }
-    return syncActorOf(auth);
-  } catch {
+  const deviceId = request.headers.get(ANON_ID_HEADER)?.trim();
+  if (!isUuid(deviceId)) return { error: 'auth', reason: 'expired' };
+  const authorization = request.headers.get('Authorization');
+  if (
+    authorization?.startsWith('Bearer ') &&
+    authorization.slice(7).trim() === ''
+  )
+    return { error: 'auth', reason: 'expired' };
+  // The auth port returns an empty context for an invalid session. A thrown
+  // storage/provider error is not evidence that credentials expired: let the
+  // server report a retryable failure without telling the client to sign out.
+  const ctx = await requestStore.sessionAuth.resolveAuthContext(
+    requestStore.sqlClient,
+    request
+  );
+  if (ctx['accountDeleted'] === true)
+    return {
+      error: 'auth',
+      reason: 'revoked',
+      message: 'Sign in again because this account was deleted.',
+    };
+  const auth = appAuth(ctx);
+  if (auth === null || auth.deviceId === '' || auth.myId.length === 0) {
     return { error: 'auth', reason: 'expired' };
   }
+  return syncActorOf(auth);
 }

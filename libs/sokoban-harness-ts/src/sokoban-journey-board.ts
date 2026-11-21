@@ -33,6 +33,9 @@ async function preview(device: ContentJourneyDevice): Promise<void> {
 export async function pushSokobanJourneyRight(
   device: ContentJourneyDevice
 ): Promise<void> {
+  // Opening a playtest can still be hydrating its requested puzzle.
+  // Keyboard actions do not auto-wait for their target like taps do.
+  await device.ui.get('sokoban-board').expect.visible(device);
   await device.ui.get('sokoban-board').key('arrowRight');
   await device.ui
     .get('content-position-save-status')

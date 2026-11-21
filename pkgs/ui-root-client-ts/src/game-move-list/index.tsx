@@ -149,6 +149,121 @@ function MoveButton(props: {
 }
 
 /**
+ * Scrolls `root` (the list, and only it) so its marked move's turn lies
+ * whole inside it. Whole pixels, rounded outward: a scroll offset drops its
+ * fraction, which would leave the move a hair outside the list.
+ */
+function scrollMarkedIntoView(root: HTMLElement): void {
+  const marked = root.querySelector<HTMLElement>('[aria-current="step"]');
+  if (marked === null) return;
+  const box = root.getBoundingClientRect();
+  // Its turn's whole row (or unit, laid out as one line), not its figure alone.
+  const move = (marked.closest('li') ?? marked).getBoundingClientRect();
+  // A table's rows scroll under its heading, by themselves.
+  const rows = root.querySelector<HTMLElement>(`:scope > .${styles['turns']}`);
+  const column =
+    rows !== null && /(auto|scroll)/.test(getComputedStyle(rows).overflowY)
+      ? rows
+      : root;
+  const frame = column.getBoundingClientRect();
+  if (move.bottom > frame.bottom)
+    column.scrollTop += Math.ceil(move.bottom - frame.bottom);
+  else if (move.top < frame.top)
+    column.scrollTop -= Math.ceil(frame.top - move.top);
+  if (column !== root) wholeTopRow(column);
+  // Laid out as one line (over a phone's board) it scrolls sideways.
+  if (move.right > box.right)
+    root.scrollLeft += Math.ceil(move.right - box.right);
+  else if (move.left < keyEdge(root, box.left))
+    root.scrollLeft -= Math.ceil(keyEdge(root, box.left) - move.left);
+}
+
+/**
+ * Over a key held at the line's start, a turn the key cuts is hidden whole:
+ * what showed of it would read as part of the key (`Column 3`).
+ */
+function hideCutByKey(root: HTMLElement): void {
+  const key = stripKey(root);
+  if (key === null) return;
+  const edge = key.getBoundingClientRect().right;
+  const turns = [...root.querySelectorAll<HTMLElement>('li')];
+  const cut = turns.map((turn) => turn.getBoundingClientRect().left < edge);
+  turns.forEach((turn, index) => {
+    turn.dataset['underKey'] = String(cut[index]);
+  });
+}
+
+/**
+ * A table's rows show whole from the top: a row cut at the top is scrolled
+ * past, with room made under the last row when the rows end there.
+ */
+function wholeTopRow(rows: HTMLElement): void {
+  const top = rows.getBoundingClientRect().top;
+  const cut = [...rows.querySelectorAll<HTMLElement>(':scope > li')].find(
+    (row) => {
+      const box = row.getBoundingClientRect();
+      return box.top < top - 0.5 && box.bottom > top;
+    }
+  );
+  const next = cut?.nextElementSibling;
+  if (next === null || next === undefined) return;
+  const past = Math.ceil(next.getBoundingClientRect().top - top);
+  const room = rows.scrollHeight - rows.clientHeight - rows.scrollTop;
+  if (room < past) rows.style.setProperty('--rows-end', `${past - room}px`);
+  rows.scrollTop += past;
+}
+
+/** Room made at the end for a whole first turn is made again each time. */
+function forgetMadeRoom(root: HTMLElement): void {
+  root.style.removeProperty('--strip-end');
+  root
+    .querySelector<HTMLElement>(`:scope > .${styles['turns']}`)
+    ?.style.removeProperty('--rows-end');
+}
+
+/** The key held at a one-line strip's start (`Column`), when it has one. */
+function stripKey(root: HTMLElement): HTMLElement | null {
+  const key = root.querySelector<HTMLElement>(`:scope > .${styles['heading']}`);
+  if (key === null || getComputedStyle(key).position !== 'sticky') return null;
+  // The table's word sticks to its top, not its start: not a strip's key.
+  return getComputedStyle(root).flexDirection === 'row' ? key : null;
+}
+
+/**
+ * The turns start flush past the key: a turn the key would cut is scrolled
+ * past whole, when the line has room to scroll on.
+ */
+function alignPastKey(root: HTMLElement): void {
+  const key = stripKey(root);
+  if (key === null) return;
+  const edge = keyEdge(root, 0);
+  const cut = [...root.querySelectorAll<HTMLElement>('li')].find((turn) => {
+    const box = turn.getBoundingClientRect();
+    return box.left < edge && box.right > key.getBoundingClientRect().right;
+  });
+  if (cut === undefined) return;
+  // Scrolled until its far edge meets the key's: the next turn starts the
+  // line's gap past it.
+  const past = Math.ceil(
+    cut.getBoundingClientRect().right - key.getBoundingClientRect().right
+  );
+  // At the line's end there is room made after the latest turn to scroll
+  // on into, so the gap is at the end, never beside the key.
+  const room = root.scrollWidth - root.clientWidth - root.scrollLeft;
+  if (room < past) root.style.setProperty('--strip-end', `${past - room}px`);
+  root.scrollLeft += past;
+}
+
+/** Where the moves start showing: past a key held at the line's start. */
+function keyEdge(root: HTMLElement, left: number): number {
+  const key = stripKey(root);
+  if (key === null) return left;
+  // A move shown starts clear of the key's rule and the fade past it.
+  const fade = Number.parseFloat(getComputedStyle(key, '::after').width);
+  return key.getBoundingClientRect().right + (Number.isNaN(fade) ? 0 : fade);
+}
+
+/**
  * `GameMoveList` -- a game's record as numbered turns: each turn's number,
  * then every move in it behind the swatch of the seat that made it
  * (`1 ● e4 ◆ e5`), the move on the board marked (also `aria-current`). A
@@ -222,15 +337,10 @@ function TurnList(props: GameMoveListProps): JSX.Element {
   // changes (a rail squeezed by what sits above it), not only once.
   const keepMarkedInView = (): void => {
     if (props.layout !== 'table' || root === undefined) return;
-    const marked = root.querySelector<HTMLElement>('[aria-current="step"]');
-    if (marked === null) return;
-    const box = root.getBoundingClientRect();
-    const move = marked.getBoundingClientRect();
-    if (move.bottom > box.bottom) root.scrollTop += move.bottom - box.bottom;
-    else if (move.top < box.top) root.scrollTop -= box.top - move.top;
-    // Laid out as one line (over a phone's board) it scrolls sideways.
-    if (move.right > box.right) root.scrollLeft += move.right - box.right;
-    else if (move.left < box.left) root.scrollLeft -= box.left - move.left;
+    forgetMadeRoom(root);
+    scrollMarkedIntoView(root);
+    alignPastKey(root);
+    hideCutByKey(root);
   };
   createEffect(() => {
     void props.current;
@@ -246,8 +356,12 @@ function TurnList(props: GameMoveListProps): JSX.Element {
     <div
       ref={root}
       class={styles['list']}
+      onScroll={() => {
+        if (props.layout === 'table' && root !== undefined) hideCutByKey(root);
+      }}
       data-layout={props.layout}
       data-many-seats={columns() > 2}
+      data-one-a-row={columns() === 1}
       data-wrap={props.layout === 'turn' && props.wrap === true}
       style={{ '--move-columns': String(columns()) }}
       {...dataAttrs({ component: 'GameMoveList', ...props.dataSet })}

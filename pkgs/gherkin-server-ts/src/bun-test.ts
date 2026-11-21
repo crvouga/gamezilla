@@ -33,6 +33,7 @@ import {
 import { tagFilter } from '@pkgs/gherkin-shared-ts/tags';
 import { recordScenario } from './evidence';
 import { createFeatureReporter } from './feature-report';
+import { withScenarioCleanup } from './scenario-cleanup';
 
 export type RunFeatureOptions = {
   /** Reporting ports for worlds without an existing timeline recorder. */
@@ -176,62 +177,69 @@ async function runScenario(
   const world = await lifecycle.create(ctx);
   const outcomes: StepOutcome[] = [];
   let hostLimited = false;
-  try {
-    for (const [index, step] of scenario.steps.entries()) {
-      const match = matchStep(step.text);
-      const callsBefore = lifecycle.calls?.(world).length ?? 0;
-      try {
-        await recordStep({ world, lifecycle, reporter }, match, step);
-        outcomes.push(outcome(step, 'passed'));
-      } catch (cause) {
-        if (isHostLimit(cause)) {
-          hostLimited = true;
-          const skipped = scenario.steps.length - index - 1;
-          console.warn(
-            `${options.featureUri}:${String(step.line)} ${runName(scenario, ctx)}: ${(cause as Error).message} — ${String(skipped)} later step(s) skipped`
+  return withScenarioCleanup(
+    async () => {
+      for (const [index, step] of scenario.steps.entries()) {
+        const match = matchStep(step.text);
+        const callsBefore = lifecycle.calls?.(world).length ?? 0;
+        try {
+          await recordStep({ world, lifecycle, reporter }, match, step);
+          outcomes.push(outcome(step, 'passed'));
+        } catch (cause) {
+          if (isHostLimit(cause)) {
+            hostLimited = true;
+            const skipped = scenario.steps.length - index - 1;
+            console.warn(
+              `${options.featureUri}:${String(step.line)} ${runName(scenario, ctx)}: ${(cause as Error).message} — ${String(skipped)} later step(s) skipped`
+            );
+            return false;
+          }
+          await lifecycle.failed?.(world, cause).catch((error: unknown) => {
+            console.warn(
+              `${options.featureUri}:${String(step.line)} ${runName(scenario, ctx)}: capturing failure evidence failed: ${String(error)}`
+            );
+          });
+          const failing = outcome(step, 'failed');
+          const rest = scenario.steps
+            .slice(index + 1)
+            .map((s) => outcome(s, 'skipped'));
+          throw new Error(
+            formatScenarioFailure({
+              packageName: options.packageName,
+              featureUri: options.featureUri,
+              featureName: run.featureName,
+              scenarioName: runName(scenario, ctx),
+              scenarioLine: scenario.line,
+              steps: [...outcomes, failing, ...rest],
+              failingStep: failing,
+              definition: definitionText(match, step),
+              calls: (lifecycle.calls?.(world) ?? []).slice(callsBefore),
+              cause,
+              reportHint:
+                options.reportHint ??
+                'report: open Specs and evidence in Atlas (bun atlas:viz)',
+            }),
+            { cause }
           );
-          return false;
         }
-        await lifecycle.failed?.(world, cause).catch((error: unknown) => {
-          console.warn(
-            `${options.featureUri}:${String(step.line)} ${runName(scenario, ctx)}: capturing failure evidence failed: ${String(error)}`
-          );
-        });
-        const failing = outcome(step, 'failed');
-        const rest = scenario.steps
-          .slice(index + 1)
-          .map((s) => outcome(s, 'skipped'));
-        throw new Error(
-          formatScenarioFailure({
-            packageName: options.packageName,
-            featureUri: options.featureUri,
-            featureName: run.featureName,
-            scenarioName: runName(scenario, ctx),
-            scenarioLine: scenario.line,
-            steps: [...outcomes, failing, ...rest],
-            failingStep: failing,
-            definition: definitionText(match, step),
-            calls: (lifecycle.calls?.(world) ?? []).slice(callsBefore),
-            cause,
-            reportHint:
-              options.reportHint ??
-              'report: open Specs and evidence in Atlas (bun atlas:viz)',
-          }),
-          { cause }
-        );
       }
-    }
-  } finally {
-    try {
-      await lifecycle.dispose(world);
-    } catch (cause) {
-      reporter?.markFailed(cause);
-      throw cause;
-    } finally {
-      if (!hostLimited) await reporter?.flush();
-    }
-  }
-  return true;
+      return true;
+    },
+    () =>
+      withScenarioCleanup(
+        async () => {
+          try {
+            await lifecycle.dispose(world);
+          } catch (cause) {
+            reporter?.markFailed(cause);
+            throw cause;
+          }
+        },
+        async () => {
+          if (!hostLimited) await reporter?.flush();
+        }
+      )
+  );
 }
 
 /**
@@ -271,6 +279,8 @@ async function scenarioTest(
 
 /** The first line of what broke: the step's own error, not the report around it. */
 function failureDetail(error: unknown): string {
+  if (error instanceof AggregateError && error.cause !== undefined)
+    return failureDetail(error.cause);
   const inner =
     error instanceof Error && error.cause !== undefined ? error.cause : error;
   const text = inner instanceof Error ? inner.message : String(inner);

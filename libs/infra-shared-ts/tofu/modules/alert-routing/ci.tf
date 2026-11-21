@@ -6,11 +6,11 @@
 locals {
   ci_relevant = "payload.get('action') == 'completed' and payload.get('workflow_run', {}).get('head_branch') == 'main' and payload.get('workflow_run', {}).get('path') in ['.github/workflows/deploy.yml', '.github/workflows/verify-nightly.yml', '.github/workflows/verify-pr.yml'] and payload.get('workflow_run', {}).get('event') in ['push', 'schedule', 'workflow_dispatch', 'workflow_call']"
   ci_failed   = "payload.get('workflow_run', {}).get('conclusion') in ['failure', 'timed_out', 'action_required', 'startup_failure']"
-  # Shared by the web and mobile messages. Every line is `key: value` and
-  # every link is absolute, so a person on a phone and an agent reading the
+  # Rendered in the web inbox. Every line is `key: value` and
+  # every link is absolute, so a person and an agent reading the
   # alert group through the IRM API both land on the root problem: the run,
   # its commit, the failed-job logs, and the playbook for getting CI green.
-  ci_run      = "{% set run = payload.get('workflow_run', {}) %}{% set repo = payload.get('repository', {}) %}"
+  ci_run = "{% set run = payload.get('workflow_run', {}) %}{% set repo = payload.get('repository', {}) %}"
   ci_message = join("\n", [
     "${local.ci_run}**{{ run.get('name', 'CI') }} {{ run.get('conclusion', 'ignored') }}** on {{ repo.get('full_name', '') }} {{ run.get('head_branch', '') }} ({{ run.get('event', '') }}, attempt {{ run.get('run_attempt', 1) }})",
     "run: {{ run.get('html_url', '') }}",
@@ -28,7 +28,7 @@ locals {
 resource "grafana_oncall_integration" "ci" {
   name = "${var.brand_name} CI"
   type = "webhook"
-  # Unmatched events (including GitHub's initial ping) never notify.
+  # All events stay in the web inbox without notifying anyone.
   default_route {}
 
   templates {
@@ -42,19 +42,7 @@ resource "grafana_oncall_integration" "ci" {
       title   = "{{ payload.get('workflow_run', {}).get('name', 'CI') }}: {{ payload.get('workflow_run', {}).get('conclusion', 'ignored') }}"
       message = local.ci_message
     }
-    mobile_app {
-      title   = "{{ payload.get('workflow_run', {}).get('name', 'CI') }} is red"
-      message = "${local.ci_run}Failed jobs: {{ run.get('html_url', '') }} · commit {{ repo.get('html_url', '') }}/commit/{{ run.get('head_sha', '') }}"
-    }
   }
-}
-
-resource "grafana_oncall_route" "ci" {
-  integration_id      = grafana_oncall_integration.ci.id
-  escalation_chain_id = grafana_oncall_escalation_chain.push.id
-  routing_type        = "jinja2"
-  routing_regex       = "{{ ${local.ci_relevant} and (${local.ci_failed} or payload.workflow_run.conclusion == 'success') }}"
-  position            = 0
 }
 
 output "ci_webhook_url" {

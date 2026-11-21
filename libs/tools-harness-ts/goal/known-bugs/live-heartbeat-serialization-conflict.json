@@ -1,0 +1,4 @@
+{
+  "summary": "Production live heartbeat trace 8e4d27dc2330ea6751561153bf025495 returned HTTP 500 when its transaction lost a concurrent update race; replay only confirmed rolled-back transactions before publishing presence.",
+  "regressionTest": "libs/observatory-server-ts/tests/heartbeat-conflict.test.ts"
+}

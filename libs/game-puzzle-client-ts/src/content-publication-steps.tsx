@@ -8,6 +8,7 @@ import {
 } from '@pkgs/ui-root-client-ts/step-track';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { createMemo, type JSX, Show, untrack } from 'solid-js';
+import { ContentStatusChip } from './content-chips';
 
 /** The one step that comes next on the way to publishing a draft. */
 export type PublicationStep = 'puzzles' | 'playtest' | 'validate' | 'publish';
@@ -48,6 +49,20 @@ export type PublicationStepsProps = {
    * `readable()`): the playtest waits on the editor's corrections.
    */
   readonly playable?: boolean | undefined;
+  /**
+   * Opens the place that corrects the draft: the board while the game
+   * cannot play it, or where a failed check points (`fixTarget`).
+   */
+  readonly onFix?: ((where: 'details' | 'board') => void) | undefined;
+  /** Where the failed check's finding is corrected, when it says. */
+  readonly fixTarget?: 'details' | 'board' | undefined;
+  /**
+   * Why this person cannot publish, said under the Publish step in place
+   * of its action (a compact permission denial).
+   */
+  readonly publishNote?: JSX.Element | undefined;
+  /** The server refused the last publication: correcting it comes first. */
+  readonly refused?: boolean | undefined;
 };
 
 /** The playtest is next but cannot start until the draft is corrected. */
@@ -99,6 +114,7 @@ function NextLine(props: PublicationStepsProps): JSX.Element {
       return t`Next: fix the draft as the editor says, then playtest.`;
     if (props.next === 'playtest')
       return t`Next: finish a playtest to show the puzzle can be solved.`;
+    if (props.next === 'publish' && props.refused === true) return '';
     if (props.next === 'publish')
       return t`Ready: publish to share it with everyone who plays.`;
     return props.validation === 'invalid'
@@ -106,13 +122,15 @@ function NextLine(props: PublicationStepsProps): JSX.Element {
       : t`Next: validate the draft, then publish it.`;
   };
   return (
-    <P
-      variant="caption"
-      tone="secondary"
-      dataSet={{ testid: 'content-publication-status' }}
-    >
-      {line()}
-    </P>
+    <Show when={line() !== ''}>
+      <P
+        variant="caption"
+        tone="secondary"
+        dataSet={{ testid: 'content-publication-status' }}
+      >
+        {line()}
+      </P>
+    </Show>
   );
 }
 
@@ -134,6 +152,86 @@ function OpenWaiting(props: PublicationStepsProps): JSX.Element {
 }
 
 /**
+ * What the Publish step says under its name: why this person cannot
+ * publish, while another step leads (a refused retry's reason is the
+ * screen's one refusal notice).
+ */
+function publishStepNote(
+  props: PublicationStepsProps,
+  next: PublicationStep
+): JSX.Element {
+  return next === 'publish' ? undefined : props.publishNote;
+}
+
+/**
+ * Where the Publish step stands: done once its copy is the edition; waiting
+ * (locked, like any step not reached) while a refused publication's
+ * correction leads; otherwise by its place in the order.
+ */
+function publishState(
+  props: PublicationStepsProps,
+  next: PublicationStep
+): StepTrackStep['state'] {
+  if (props.progress?.complete) return 'done';
+  if (next === 'publish' && props.refused === true && fixLead(props) !== null)
+    return 'upcoming';
+  return stateOf('publish', next);
+}
+
+/**
+ * The current step's state in a word: Fix first while the board must be
+ * fixed or a failed check's fix leads; Locked for a refused publication's
+ * held retry (its lock says the same); otherwise Next.
+ */
+function heldStateName(
+  props: PublicationStepsProps,
+  names: { fix: string; held: string; next: string }
+): string {
+  if (correctionFirst(props)) return names.fix;
+  if (fixLead(props) === null) return names.next;
+  return props.next === 'publish' ? names.held : names.fix;
+}
+
+/**
+ * Where correcting the draft leads instead of the next step's own action:
+ * the board while the game cannot play it, or where a failed check
+ * points. `null` when the step's own action leads.
+ */
+function fixLead(props: PublicationStepsProps): 'details' | 'board' | null {
+  if (props.onFix === undefined) return null;
+  if (correctionFirst(props)) return 'board';
+  if (props.next === 'validate' && props.validation === 'invalid')
+    return props.fixTarget ?? null;
+  if (props.next === 'publish' && props.refused === true)
+    return props.fixTarget ?? null;
+  return null;
+}
+
+/** The correction as the lead: it opens the board or the details. */
+function FixLead(props: {
+  where: 'details' | 'board';
+  kind: ContentKind;
+  unplayable: boolean;
+  onFix: (where: 'details' | 'board') => void;
+}): JSX.Element {
+  const { t } = useLingui();
+  const title = () => {
+    if (props.where === 'details') return t`Edit details`;
+    if (props.kind === 'pack') return t`Edit puzzles`;
+    return props.unplayable ? t`Fix the board` : t`Edit board`;
+  };
+  return (
+    <Button
+      title={title()}
+      intent="primary"
+      variant="solid"
+      onClick={() => props.onFix(props.where)}
+      dataSet={{ testid: `content-author-fix-${props.where}` }}
+    />
+  );
+}
+
+/**
  * The one next action, drawn once per step it leads (so a step's own
  * state, a started playtest's "Open playtest", lasts while it leads).
  */
@@ -143,8 +241,19 @@ function useLead(
 ): () => JSX.Element {
   return createMemo(() => {
     const step = next();
+    const fix = fixLead(props);
     return untrack((): JSX.Element => {
       if (step === 'puzzles') return <OpenWaiting {...props} />;
+      const onFix = props.onFix;
+      if (fix !== null && onFix !== undefined)
+        return (
+          <FixLead
+            where={fix}
+            kind={props.kind}
+            unplayable={correctionFirst(props)}
+            onFix={onFix}
+          />
+        );
       if (step === 'playtest') return props.playtest(true);
       return step === 'validate'
         ? props.validate('lead')
@@ -167,6 +276,11 @@ function useTrackActions(
       )
         return 'done';
       const state = stateOf(step, next());
+      // While a correction leads, the step it holds up waits: the playtest
+      // or a refused Publish again locked (still pressable, to say what is
+      // missing), a failed check's Validate again beside its step.
+      if (state === 'current' && fixLead(props) !== null)
+        return step === 'validate' ? 'done' : 'locked';
       if (state === 'current') return 'lead';
       return state === 'done' ? 'done' : 'locked';
     });
@@ -183,6 +297,38 @@ function useTrackActions(
     validate: drawn(place('validate'), (where) => props.validate(where)),
     publish: drawn(place('publish'), (where) => props.publish(where)),
   };
+}
+
+/**
+ * Where a sent copy stands, beside the lead: a word while it is on its
+ * way, a Published chip once it is the current edition.
+ */
+function ProgressStatus(props: {
+  progress: PublicationStepsProps['progress'];
+}): JSX.Element {
+  return (
+    <Show when={!props.progress?.statusInLead}>
+      <Show
+        when={props.progress?.complete}
+        fallback={
+          <P
+            variant="caption"
+            tone="secondary"
+            dataSet={{ testid: 'content-publication-status' }}
+          >
+            {props.progress?.label}
+          </P>
+        }
+      >
+        <StackHorizontal
+          align="center"
+          dataSet={{ testid: 'content-publication-status' }}
+        >
+          <ContentStatusChip status="published" />
+        </StackHorizontal>
+      </Show>
+    </Show>
+  );
 }
 
 /**
@@ -236,12 +382,15 @@ export function PublicationSteps(props: PublicationStepsProps): JSX.Element {
     },
     {
       key: 'publish',
-      label: props.progress ? t`Publication` : t`Publish`,
-      state: props.progress?.complete ? 'done' : stateOf('publish', next()),
+      label: t`Publish`,
+      state: publishState(props, next()),
       action:
-        props.progress === undefined
-          ? actions.publish()
-          : props.progress.action,
+        props.publishNote !== undefined
+          ? undefined
+          : props.progress === undefined
+            ? actions.publish()
+            : props.progress.action,
+      note: publishStepNote(props, next()),
     },
   ];
   return (
@@ -250,17 +399,7 @@ export function PublicationSteps(props: PublicationStepsProps): JSX.Element {
         {lead()}
         <Show
           when={props.progress === undefined}
-          fallback={
-            <Show when={!props.progress?.statusInLead}>
-              <P
-                variant="caption"
-                tone="secondary"
-                dataSet={{ testid: 'content-publication-status' }}
-              >
-                {props.progress?.label}
-              </P>
-            </Show>
-          }
+          fallback={<ProgressStatus progress={props.progress} />}
         >
           <NextLine {...props} />
         </Show>
@@ -271,7 +410,11 @@ export function PublicationSteps(props: PublicationStepsProps): JSX.Element {
           done: t`Done`,
           current:
             props.progress?.currentLabel ??
-            (correctionFirst(props) ? t`Fix first` : t`Next`),
+            heldStateName(props, {
+              fix: t`Fix first`,
+              held: t`Locked`,
+              next: t`Next`,
+            }),
           upcoming: t`Locked`,
         }}
         steps={steps()}
