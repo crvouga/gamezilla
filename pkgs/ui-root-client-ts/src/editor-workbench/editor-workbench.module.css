@@ -26,8 +26,15 @@
   .grid {
     display: grid;
     grid-template-columns:
-      minmax(0, clamp(360px, calc(100dvh - 444px), 520px))
-      minmax(240px, 1fr);
+      minmax(
+        0,
+        clamp(
+          var(--ui-size-workbench-canvas-min),
+          calc(100dvh - var(--ui-size-workbench-chrome)),
+          var(--ui-size-workbench-canvas-max)
+        )
+      )
+      minmax(var(--ui-size-workbench-tools), 1fr);
     column-gap: var(--ui-space-6);
     grid-template-rows: auto 1fr;
     row-gap: var(--ui-space-4);

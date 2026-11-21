@@ -53,10 +53,11 @@
   font-size: var(--ui-font-size-xs);
   background: var(--ui-color-game-word-tiles-canvas);
   color: var(--ui-color-board-card-face);
-  border: 1px solid var(--ui-color-game-word-tiles-muted);
+  border: var(--ui-border-width-hairline) solid
+    var(--ui-color-game-word-tiles-muted);
 }
 .neighbor[data-blank="true"] {
-  outline: 2px solid var(--ui-color-focus-ring);
+  outline: var(--ui-border-width-focus) solid var(--ui-color-focus-ring);
   background: var(--ui-color-board-card-face);
   color: var(--ui-color-board-card-ink);
 }

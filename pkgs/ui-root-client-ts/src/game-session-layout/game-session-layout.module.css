@@ -91,8 +91,12 @@
   .session[data-board-focus="true"][data-phase="active"]
   > [data-has-stage="true"][data-has-aside="true"] {
     --game-board-measure: clamp(
-      320px,
-      calc(100dvh - 380px - var(--ui-host-chrome-block-size, 0px)),
+      var(--ui-size-phone),
+      calc(
+        100dvh -
+        var(--ui-size-session-chrome) -
+        var(--ui-host-chrome-block-size, var(--ui-space-0))
+      ),
       var(--ui-max-width-prose)
     );
     /* The rail takes what the bounded board leaves, so it sits beside the

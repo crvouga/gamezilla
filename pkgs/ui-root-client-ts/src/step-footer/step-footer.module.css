@@ -7,5 +7,5 @@
   gap: var(--ui-space-sm);
   min-width: 0;
   padding-top: var(--ui-space-lg);
-  border-top: 1px solid var(--ui-color-border);
+  border-top: var(--ui-border-width-hairline) solid var(--ui-color-border);
 }

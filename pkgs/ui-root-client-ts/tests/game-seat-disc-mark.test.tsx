@@ -8,7 +8,7 @@ afterEach(cleanup);
 type Hex = { $value: { hex: string } };
 const tokens = JSON.parse(
   readFileSync(
-    new URL('../../ui-root-shared-ts/src/design-tokens.json', import.meta.url),
+    new URL('../../../design-system/tokens.json', import.meta.url),
     'utf8'
   )
 ) as { color: Record<'light' | 'dark', Record<string, Hex>> };

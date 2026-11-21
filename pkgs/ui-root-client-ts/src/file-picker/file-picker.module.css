@@ -9,7 +9,7 @@
   min-width: 0;
   min-height: var(--ui-space-12);
   padding: var(--ui-space-2);
-  border: 1px solid var(--ui-color-outline);
+  border: var(--ui-border-width-hairline) solid var(--ui-color-outline);
   border-radius: var(--ui-radius-control);
   background: var(--ui-color-surface);
 }
@@ -27,7 +27,7 @@
 }
 .field:has(.input:focus-visible) {
   border-color: var(--ui-color-focus-ring);
-  outline: 1px solid var(--ui-color-focus-ring);
+  outline: var(--ui-border-width-hairline) solid var(--ui-color-focus-ring);
 }
 .field:has(.input:disabled) {
   opacity: var(--ui-opacity-disabled);

@@ -1,7 +1,6 @@
 /** @jsxImportSource solid-js */
 
 import { Avatar } from '@pkgs/ui-root-client-ts/avatar';
-
 import {
   LogOutIcon,
   MenuIcon,
@@ -10,6 +9,9 @@ import {
 } from '@pkgs/ui-root-client-ts/icons';
 import type { OverflowMenuAction } from '@pkgs/ui-root-client-ts/overflow-menu-button';
 import { OverflowMenuButton } from '@pkgs/ui-root-client-ts/overflow-menu-button';
+import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
+import { spacing } from '@pkgs/ui-root-shared-ts/scale';
+import { iconSize } from '@pkgs/ui-root-shared-ts/sizes';
 import type { JSX } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 
@@ -52,9 +54,7 @@ export default function OverflowMenuButtonExample(): JSX.Element {
   return (
     <ExampleRoot>
       <p class="text textCaption text-text-secondary">
-        {
-          'Default icon trigger (40px, 24px glyph), a compact 32px trigger, and a custom avatar trigger. Menus float with one hairline and the float shadow.'
-        }
+        {`Default icon trigger (${cssPx(spacing[10])}, ${cssPx(iconSize.lg)} glyph), a compact ${cssPx(spacing[8])} trigger, and a custom avatar trigger. Menus float with one hairline and the float shadow.`}
       </p>
       <div class="box flex-row gap-4 items-center">
         <OverflowMenuButton

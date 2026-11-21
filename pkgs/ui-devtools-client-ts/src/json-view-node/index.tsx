@@ -25,7 +25,9 @@ import {
 } from '@pkgs/ui-devtools-shared-ts/json-view-logic';
 import { ChevronRightIcon, CopyIcon } from '@pkgs/ui-root-client-ts/icons';
 import type { ColorTokenName } from '@pkgs/ui-root-shared-ts/colors-types';
+import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
 import { colorVar } from '@pkgs/ui-root-shared-ts/css-vars';
+import { spacing } from '@pkgs/ui-root-shared-ts/scale';
 import { createMemo, For, type JSX, Show } from 'solid-js';
 import styles from '../json-view/json-view.module.css';
 
@@ -109,7 +111,7 @@ function rowStyle(depth: number): JSX.CSSProperties {
     'padding-top': `${ROW_PAD_Y}px`,
     'padding-bottom': `${ROW_PAD_Y}px`,
     'padding-left': `${depth * INDENT_PX}px`,
-    gap: '4px',
+    gap: cssPx(spacing[1]),
     'flex-grow': 1,
     'min-width': 0,
   };

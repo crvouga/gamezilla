@@ -79,8 +79,8 @@
    the court's dark canvas (well over 3:1 in both themes), and no ancestor
    that clips its overflow can cut its sides off. */
 .court:focus-visible {
-  outline: 3px solid var(--ui-color-focus-ring);
-  outline-offset: -3px;
+  outline: var(--ui-border-width-strong) solid var(--ui-color-focus-ring);
+  outline-offset: calc(var(--ui-border-width-strong) * -1);
 }
 .drawing {
   display: block;
@@ -140,7 +140,7 @@
   gap: var(--ui-space-2);
   width: 100%;
   max-width: max(
-    280px,
+    var(--ui-size-column-narrow),
     calc(var(--paddle-court-fit-block) * (var(--paddle-court-aspect, 3 / 2)))
   );
   margin-inline: auto;

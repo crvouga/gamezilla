@@ -7,7 +7,7 @@ type Theme = Readonly<Record<string, { $value: { hex: string } }>>;
 
 const tokens = JSON.parse(
   readFileSync(
-    join(import.meta.dirname, '../../ui-root-shared-ts/src/design-tokens.json'),
+    join(import.meta.dirname, '../../../design-system/tokens.json'),
     'utf8'
   )
 ) as { color: { light: Theme; dark: Theme } };

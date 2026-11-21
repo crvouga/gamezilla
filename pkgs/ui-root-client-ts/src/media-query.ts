@@ -1,4 +1,11 @@
+import { breakpoint } from '@pkgs/ui-root-shared-ts/breakpoints';
+import type { BreakpointToken } from '@pkgs/ui-root-shared-ts/token-names';
 import { type Accessor, createSignal, onCleanup } from 'solid-js';
+
+/** The media query of a viewport narrower than breakpoint `name`. */
+export function narrowerThan(name: BreakpointToken): string {
+  return `(max-width: ${breakpoint[name] - 1}px)`;
+}
 
 /**
  * Reactive `window.matchMedia` accessor. Returns `false` when `matchMedia` is

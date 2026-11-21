@@ -12,6 +12,8 @@ import {
 import { ResponsiveSurface } from '@pkgs/ui-root-client-ts/responsive-surface';
 import { ResponsiveSurfaceHeader } from '@pkgs/ui-root-client-ts/responsive-surface-header';
 import { BottomSheetPanel } from '@pkgs/ui-root-client-ts/web-bottom-sheet';
+import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
+import { radiusRole } from '@pkgs/ui-root-shared-ts/scale';
 import { createSignal, type JSX } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
@@ -95,9 +97,7 @@ export default function ModalExample(): JSX.Element {
   return (
     <ExampleRoot>
       <p class="text textCaption">
-        {
-          'Sheet: a bottom sheet on phones (raised fill, 20px top radius, grab handle, float shadow, safe-area inset) and a centered dialog on wide layouts. Dialog: always centered, 20px radius. Both sit on the scrim, trap focus, return it to the opener, and close on Escape or a scrim tap.'
-        }
+        {`Sheet: a bottom sheet on phones (raised fill, ${cssPx(radiusRole.sheet)} top radius, grab handle, float shadow, safe-area inset) and a centered dialog on wide layouts. Dialog: always centered, ${cssPx(radiusRole.sheet)} radius. Both sit on the scrim, trap focus, return it to the opener, and close on Escape or a scrim tap.`}
       </p>
       <p class="text textSectionLabel">{'Sheet, open'}</p>
       <SheetAnatomy />

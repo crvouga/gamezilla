@@ -62,6 +62,9 @@ export const NAMING_EXEMPT = {
     // fixtures use Agent Council's own file names (`opinion_<agent>.json`).
     '.agents/skills/ui-overhaul/',
     '.agents/skills/ui-ux-overhaul/',
+    // The Spaces section of the design system, named as the published
+    // design-system artifact names its sections.
+    'design-system/spaces.md',
   ],
   /** Markdown under these prefixes is a command id, so it stays kebab-case. */
   kebabMarkdownPrefixes: [

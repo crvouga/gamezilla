@@ -163,7 +163,7 @@ function RadiusSample(props: { radiusKey: BorderRadiusKey }): JSX.Element {
       <div
         class="box w-16 h-16 bg-tint-subtle border border-solid border-tint"
         style={{
-          'border-radius': value() === 9999 ? '9999px' : cssPx(value()),
+          'border-radius': cssPx(value()),
         }}
       />
       <p class="text textCaption text-text-secondary">{props.radiusKey}</p>

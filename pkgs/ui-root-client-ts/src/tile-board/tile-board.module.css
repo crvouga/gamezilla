@@ -95,8 +95,8 @@
   );
 }
 .board:focus-visible {
-  outline: 2px solid var(--color-focus-ring);
-  outline-offset: 2px;
+  outline: var(--ui-border-width-focus) solid var(--color-focus-ring);
+  outline-offset: var(--ui-border-width-focus);
 }
 /* A board waiting on something is dimmed; a picture of a board (a
    preview's thumbnail) says it is still and is drawn at full strength. */
@@ -115,7 +115,7 @@
   place-items: center;
   min-width: 0;
   min-height: 0;
-  border: 1px solid transparent;
+  border: var(--ui-border-width-hairline) solid transparent;
 }
 .tile[data-terrain="open"] {
   background: var(--tile-board-floor);
@@ -126,8 +126,11 @@
      square's own edges, where the floor's grout runs, so every wall sits on
      the board's grid and a run of walls reads as blocks laid side by side. */
   background: var(--tile-board-wall);
-  border: max(1px, calc(2cqw / var(--tile-board-columns))) solid
-    var(--tile-board-wall-edge);
+  border: max(
+      var(--ui-border-width-hairline),
+      calc(2cqw / var(--tile-board-columns))
+    )
+    solid var(--tile-board-wall-edge);
 }
 .tile[data-terrain="none"] {
   background: transparent;
@@ -137,8 +140,11 @@
   width: 52%;
   height: 52%;
   box-sizing: border-box;
-  border: max(1px, calc(6cqw / var(--tile-board-columns))) solid
-    var(--tile-board-mark);
+  border: max(
+      var(--ui-border-width-hairline),
+      calc(6cqw / var(--tile-board-columns))
+    )
+    solid var(--tile-board-mark);
   border-radius: 50%;
   background: radial-gradient(
     circle,
@@ -167,8 +173,11 @@
   box-sizing: border-box;
   width: 72%;
   height: 72%;
-  border: max(1px, calc(6cqw / var(--tile-board-columns))) solid
-    var(--tile-board-outline);
+  border: max(
+      var(--ui-border-width-hairline),
+      calc(6cqw / var(--tile-board-columns))
+    )
+    solid var(--tile-board-outline);
   color: var(--tile-board-outline);
   font-size: calc(48cqw / var(--tile-board-columns));
   line-height: 1;

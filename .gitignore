@@ -148,6 +148,8 @@ STEPS_CATALOG.md
 pkgs/ui-root-client-ts/src/tokens.css
 pkgs/ui-root-client-ts/src/tokens.json
 pkgs/ui-root-shared-ts/src/token-names.ts
+# A copy of design-system/tokens.json, the one token source.
+pkgs/ui-root-shared-ts/src/design-tokens.json
 pkgs/sounds-shared-ts/src/sound-id.ts
 pkgs/sounds-shared-ts/src/sound-urls.ts
 pkgs/sounds-shared-ts/src/sound-volumes.ts

@@ -18,8 +18,8 @@
   cursor: pointer;
 }
 .locator:focus-visible {
-  outline: 2px solid var(--ui-color-focus-ring);
-  outline-offset: 2px;
+  outline: var(--ui-border-width-focus) solid var(--ui-color-focus-ring);
+  outline-offset: var(--ui-border-width-focus);
 }
 .overview {
   width: 100%;
@@ -57,7 +57,9 @@
   stroke: var(--ui-color-board-card-face);
   stroke-width: 0.4;
   paint-order: stroke;
-  filter: drop-shadow(0 0 1px var(--ui-color-board-card-ink));
+  filter: drop-shadow(
+    0 0 var(--ui-border-width-hairline) var(--ui-color-board-card-ink)
+  );
 }
 
 .context {
@@ -87,14 +89,14 @@
 .region {
   min-width: var(--ui-control-size-md);
   min-height: var(--ui-control-size-md);
-  border: 1px solid var(--ui-color-board-card-face);
+  border: var(--ui-border-width-hairline) solid var(--ui-color-board-card-face);
   padding: 0;
   background: transparent;
   cursor: pointer;
 }
 .region:focus-visible {
-  outline: 2px solid var(--ui-color-focus-ring);
-  outline-offset: -2px;
+  outline: var(--ui-border-width-focus) solid var(--ui-color-focus-ring);
+  outline-offset: calc(var(--ui-border-width-focus) * -1);
 }
 
 .direction {

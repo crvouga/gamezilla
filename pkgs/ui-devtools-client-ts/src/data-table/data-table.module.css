@@ -17,24 +17,24 @@
 }
 
 .headRow {
-  height: 40px;
+  height: var(--ui-space-10);
   background: var(--ui-color-surface-muted);
 }
 
 .headRow > th {
-  border-bottom: 1px solid var(--ui-color-border);
+  border-bottom: var(--ui-border-width-hairline) solid var(--ui-color-border);
 }
 
 .compact {
-  height: 40px;
+  height: var(--ui-space-10);
 }
 
 .comfortable {
-  height: 48px;
+  height: var(--ui-space-12);
 }
 
 .bodyRow > td {
-  border-bottom: 1px solid var(--ui-color-border);
+  border-bottom: var(--ui-border-width-hairline) solid var(--ui-color-border);
 }
 
 .bodyRow:last-child > td {
@@ -52,13 +52,13 @@
 }
 
 .cell:first-child > * {
-  padding-left: 12px;
+  padding-left: var(--ui-space-3);
 }
 
 .cell:last-child > * {
-  padding-right: 12px;
+  padding-right: var(--ui-space-3);
 }
 
 .selectionCell {
-  width: 40px;
+  width: var(--ui-space-10);
 }

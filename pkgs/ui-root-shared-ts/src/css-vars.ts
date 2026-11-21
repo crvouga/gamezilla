@@ -21,19 +21,27 @@ import { duration, easing } from './motion';
 import type { ElevationLevel, ElevationStyle } from './scale';
 import {
   borderRadius,
+  fontFixed,
   fontLeading,
   fontSize,
   fontWeight,
   lineHeight,
   makeElevation,
   opacity,
+  radiusInset,
   radiusRole,
   spaceRole,
   spaceSize,
   spacing,
 } from './scale';
 import { shadowCss } from './shadows';
-import { controlSize, iconSize, maxWidth } from './sizes';
+import {
+  borderWidth,
+  controlSize,
+  iconSize,
+  layoutSize,
+  maxWidth,
+} from './sizes';
 import { textStyleCssLines } from './typography';
 
 const COLOR_TOKEN_NAMES = Object.keys(COLOR_PALETTE.light) as ColorTokenName[];
@@ -185,6 +193,10 @@ function semanticScaleLines(): string[] {
     ...Object.entries(opacity).map(
       ([key, value]) => `  --ui-opacity-${key}: ${percent(value)};`
     ),
+    ...px('radius-inset', radiusInset),
+    ...px('border-width', borderWidth),
+    ...px('size', layoutSize),
+    ...px('font-fixed', fontFixed),
   ];
 }
 
@@ -192,7 +204,7 @@ function semanticScaleLines(): string[] {
 export function renderTokensCss(): string {
   return (
     [
-      '/* GENERATED from pkgs/ui-root-shared-ts/src/design-tokens.json — do not edit. */',
+      '/* GENERATED from design-system/tokens.json — do not edit. */',
       scaleBlock(),
       ...schemeBlocks(),
     ].join('\n\n') + '\n'

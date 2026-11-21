@@ -8,6 +8,8 @@ import {
   LiveBadge,
 } from '@pkgs/ui-root-client-ts/badge';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
+import { iconSize } from '@pkgs/ui-root-shared-ts/sizes';
 import { For, type JSX } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { ExampleSection } from '../../storybook/fixtures/example-section';
@@ -63,7 +65,9 @@ export default function BadgeExample(): JSX.Element {
             <HostBadge size="sm" />
           </Row>
           <Tones />
-          <Row title="Sizes: md 24px, sm 16px">
+          <Row
+            title={`Sizes: md ${cssPx(iconSize.lg)}, sm ${cssPx(iconSize.sm)}`}
+          >
             <Badge label="New" intent="success" />
             <Badge label="Updated" intent="info" size="sm" />
             <Badge label="3" intent="destructive" size="sm" />

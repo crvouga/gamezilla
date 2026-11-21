@@ -10,6 +10,8 @@
 
 import { useLingui } from '@lingui/solid/macro';
 import { XIcon } from '@pkgs/ui-root-client-ts/icons';
+import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
+import { borderWidth } from '@pkgs/ui-root-shared-ts/sizes';
 import { type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import styles from '../tab-strip/tab-strip.module.css';
@@ -47,7 +49,7 @@ function shellStyle(closable: boolean): JSX.CSSProperties {
     height: `${TAB_MIN_HEIGHT}px`,
     'min-width': `${TAB_MIN_WIDTH}px`,
     'max-width': `${TAB_MAX_WIDTH}px`,
-    'padding-right': closable ? '2px' : '0',
+    'padding-right': closable ? cssPx(borderWidth.focus) : '0',
   };
 }
 

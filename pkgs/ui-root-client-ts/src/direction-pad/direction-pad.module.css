@@ -77,8 +77,8 @@
   transform: scale(0.97);
 }
 .button:focus-visible {
-  outline: 2px solid var(--ui-color-focus-ring);
-  outline-offset: 2px;
+  outline: var(--ui-border-width-focus) solid var(--ui-color-focus-ring);
+  outline-offset: var(--ui-border-width-focus);
 }
 .button:disabled {
   cursor: default;

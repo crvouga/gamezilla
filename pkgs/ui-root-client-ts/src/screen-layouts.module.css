@@ -100,7 +100,7 @@
   .profile[data-split="true"] > .profileAside > .identity {
     box-sizing: border-box;
     padding: var(--ui-space-xl) var(--ui-space-lg);
-    border: 1px solid var(--ui-color-border);
+    border: var(--ui-border-width-hairline) solid var(--ui-color-border);
     border-radius: var(--ui-radius-card);
     background: var(--ui-color-surface);
   }
@@ -125,7 +125,7 @@
   row-gap: var(--ui-space-2);
   box-sizing: border-box;
   padding: var(--ui-space-lg);
-  border: 1px solid var(--ui-color-border);
+  border: var(--ui-border-width-hairline) solid var(--ui-color-border);
   border-radius: var(--ui-radius-card);
   background: var(--ui-color-surface);
 }
@@ -158,7 +158,7 @@
     gap: var(--ui-space-lg);
     box-sizing: border-box;
     padding: var(--ui-space-lg) var(--ui-space-xl);
-    border: 1px solid var(--ui-color-border);
+    border: var(--ui-border-width-hairline) solid var(--ui-color-border);
     border-radius: var(--ui-radius-card);
     background: var(--ui-color-surface);
   }
@@ -348,14 +348,14 @@
   .puzzle {
     --puzzle-panel-measure: var(--ui-max-width-panel);
     --puzzle-board-block: clamp(
-      320px,
+      var(--ui-size-phone),
       calc(
         100dvh -
-        var(--ui-host-chrome-block-size, 0px) -
+        var(--ui-host-chrome-block-size, var(--ui-space-0)) -
         var(--ui-space-2xl) *
         3
       ),
-      720px
+      var(--ui-size-screen)
     );
     display: grid;
     grid-template-columns:
@@ -385,18 +385,18 @@
      puzzle's board and a chess game's are the same size in one window. */
   .puzzle[data-square="true"] {
     --puzzle-board-block: clamp(
-      320px,
+      var(--ui-size-phone),
       calc(
         100dvh -
-        var(--game-board-chrome-block, 284px) -
-        var(--ui-host-chrome-block-size, 0px)
+        var(--game-board-chrome-block, var(--ui-size-board-chrome)) -
+        var(--ui-host-chrome-block-size, var(--ui-space-0))
       ),
-      560px
+      var(--ui-size-board)
     );
     /* As wide as a game's board and rail (the column the host's bar and
        every game screen share), its tracks from that column's start, so
        the title, the board and the bar above all begin on one edge. */
-    max-width: calc(560px + var(--ui-space-6) + var(--puzzle-panel-measure));
+    max-width: calc(var(--ui-size-puzzle-span) + var(--puzzle-panel-measure));
     /* The panel takes the rest of that column, so when the window leaves
        the board under 560px the panel still ends on the column's edge, as
        a game's rail and every other screen do. */
@@ -431,7 +431,7 @@
     display: block;
     grid-column: 2;
     grid-row: 2 / 7;
-    border: 1px solid var(--ui-color-border);
+    border: var(--ui-border-width-hairline) solid var(--ui-color-border);
     border-radius: var(--ui-radius-card);
     background: var(--ui-color-surface);
   }
@@ -464,7 +464,7 @@
   display: grid;
   /* A narrow label column keeps each label near its rows; the rows end on
      the same right edge as every other desktop page. */
-  grid-template-columns: 176px minmax(0, 1fr);
+  grid-template-columns: var(--ui-size-preview) minmax(0, 1fr);
   column-gap: var(--ui-space-4);
   align-items: start;
   min-width: 0;
@@ -487,7 +487,7 @@
 }
 .collectionSplitAside {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 320px;
+  grid-template-columns: minmax(0, 1fr) var(--ui-size-phone);
   column-gap: var(--ui-space-8);
   align-items: start;
 }
@@ -552,7 +552,7 @@
    board column stays put. */
 @container puzzle-frame (width < 880px) {
   .puzzle[data-board-sizing="width"] > .well > .board {
-    max-width: max(320px, calc(100dvh - 420px));
+    max-width: max(var(--ui-size-phone), 100dvh - var(--ui-size-puzzle-inset));
   }
 }
 @media (orientation: landscape) and (max-height: 560px) {

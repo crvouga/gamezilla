@@ -13,7 +13,7 @@ const repo = join(import.meta.dir, '../../..');
 type Color = { readonly $value: { readonly hex: string } };
 const tokens = JSON.parse(
   readFileSync(
-    join(repo, 'pkgs/ui-root-shared-ts/src/design-tokens.json'),
+    join(repo, 'design-system/tokens.json'),
     'utf8'
   )
 ) as { color: Record<'light' | 'dark', Record<string, Color>> };

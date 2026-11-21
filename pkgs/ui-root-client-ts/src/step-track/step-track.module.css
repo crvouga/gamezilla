@@ -29,7 +29,7 @@
   box-sizing: border-box;
   width: var(--ui-space-6);
   height: var(--ui-space-6);
-  border: 1px solid var(--ui-color-text-secondary);
+  border: var(--ui-border-width-hairline) solid var(--ui-color-text-secondary);
   border-radius: var(--ui-radius-full);
   color: var(--ui-color-text-secondary);
   font-size: var(--ui-font-size-xs);

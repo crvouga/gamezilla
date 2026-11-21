@@ -5,7 +5,9 @@ import type { PaginationWindowItem } from '@pkgs/ui-root-shared-ts/build-paginat
 import { buildPaginationWindow } from '@pkgs/ui-root-shared-ts/build-pagination-window';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
+import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
 import { colorVar } from '@pkgs/ui-root-shared-ts/css-vars';
+import { borderRadius } from '@pkgs/ui-root-shared-ts/scale';
 import { For, type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import type { IconComponent } from '../create-icon/index';
@@ -41,14 +43,14 @@ const HIT_STYLE: JSX.CSSProperties = {
   'min-height': `${HIT_TARGET}px`,
   'align-items': 'center',
   'justify-content': 'center',
-  'border-radius': '9999px',
+  'border-radius': cssPx(borderRadius.full),
 };
 
 function circleStyle(size: number, active: boolean): JSX.CSSProperties {
   return {
     width: `${size}px`,
     height: `${size}px`,
-    'border-radius': '9999px',
+    'border-radius': cssPx(borderRadius.full),
     'align-items': 'center',
     'justify-content': 'center',
     'background-color': active ? colorVar('tintSubtle') : colorVar('surface'),

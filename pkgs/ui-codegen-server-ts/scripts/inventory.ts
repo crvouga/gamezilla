@@ -80,7 +80,7 @@ const inventory = buildInventory(
       .filter((directory) => existsSync(directory)),
     sharedSrc: path.join(SHARED, 'src'),
     extraStylesheets: [path.join(CLIENT, 'skin.css')],
-    tokenDocument: path.join(SHARED, 'src', 'design-tokens.json'),
+    tokenDocument: path.join(REPO, 'design-system', 'tokens.json'),
     compiledTokens: path.join(CLIENT, 'src', 'tokens.css'),
     commit: commit(),
   }

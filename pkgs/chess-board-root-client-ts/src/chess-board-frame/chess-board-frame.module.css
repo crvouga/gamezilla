@@ -27,17 +27,17 @@
   align-items: center;
   justify-content: center;
   color: var(--ui-color-text);
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  font-size: 14px;
+  font-family: var(--ui-font-system);
+  font-size: var(--ui-font-size-sm);
   font-weight: 600;
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
 @container chess-frame (min-width: 280px) {
   .frame {
-    grid-template-columns: 16px minmax(0, 1fr);
-    grid-template-rows: auto 20px;
-    column-gap: 4px;
+    grid-template-columns: var(--ui-space-4) minmax(0, 1fr);
+    grid-template-rows: auto var(--ui-space-5);
+    column-gap: var(--ui-space-1);
   }
   .ranks {
     display: flex;
@@ -54,7 +54,7 @@
   /* Ranks at the end edge: the squares start at the frame's start edge,
      under the screen's title, the labels standing past their end. */
   .frame[data-ranks="end"] {
-    grid-template-columns: minmax(0, 1fr) 16px;
+    grid-template-columns: minmax(0, 1fr) var(--ui-space-4);
   }
   .frame[data-ranks="end"] .ranks {
     grid-column: 2;

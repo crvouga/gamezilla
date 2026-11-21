@@ -15,7 +15,7 @@
   padding: 0;
   overflow: hidden;
   list-style: none;
-  border: 1px solid var(--ui-color-border);
+  border: var(--ui-border-width-hairline) solid var(--ui-color-border);
   border-radius: var(--ui-radius-card);
   background: var(--ui-color-surface);
 }
@@ -23,7 +23,7 @@
   min-width: 0;
 }
 .item + .item {
-  border-top: 1px solid var(--ui-color-border);
+  border-top: var(--ui-border-width-hairline) solid var(--ui-color-border);
 }
 .card {
   display: grid;
@@ -40,8 +40,8 @@
   text-align: start;
 }
 .card:focus-visible {
-  outline: 2px solid var(--ui-color-focus-ring);
-  outline-offset: -2px;
+  outline: var(--ui-border-width-focus) solid var(--ui-color-focus-ring);
+  outline-offset: calc(var(--ui-border-width-focus) * -1);
 }
 .picture {
   display: grid;
@@ -96,7 +96,7 @@
     padding: var(--ui-space-3);
   }
   .card {
-    border: 1px solid var(--ui-color-border);
+    border: var(--ui-border-width-hairline) solid var(--ui-color-border);
     border-radius: var(--ui-radius-card);
     background: var(--ui-color-surface);
   }

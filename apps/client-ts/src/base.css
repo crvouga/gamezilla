@@ -50,5 +50,5 @@ select {
 /* Safe-area inset for shell chrome (chrome/app-tab-bar.tsx). A class because
    happy-dom and some inline-style sanitizers drop `env()` values. */
 .safe-bottom {
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-bottom: env(safe-area-inset-bottom, var(--ui-space-0));
 }

@@ -19,7 +19,7 @@
 
 @media (pointer: coarse) {
   :root {
-    --ui-input-min-font-size: 16px;
+    --ui-input-min-font-size: var(--ui-font-fixed-input);
   }
 
   input:not(
@@ -36,6 +36,6 @@
   textarea,
   select,
   [contenteditable]:not([contenteditable="false"]) {
-    font-size: max(16px, 1em);
+    font-size: max(var(--ui-font-fixed-input), 1em);
   }
 }

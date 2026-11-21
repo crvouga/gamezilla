@@ -12,6 +12,13 @@ import {
   EllipsisIcon,
   SettingsIcon,
 } from '@pkgs/ui-root-client-ts/icons';
+import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
+import { spacing } from '@pkgs/ui-root-shared-ts/scale';
+import {
+  borderWidth,
+  controlSize,
+  iconSize,
+} from '@pkgs/ui-root-shared-ts/sizes';
 import type { JSX } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
@@ -33,13 +40,13 @@ export default function IconButtonExample(): JSX.Element {
   return (
     <ExampleRoot>
       <p class="text textCaption">
-        {
-          'Hover for the tint and the tooltip; Tab for the 2px focus ring. Every icon button has a required label (its accessible name) and a 44px hit area, whatever the disc size.'
-        }
+        {`Hover for the tint and the tooltip; Tab for the ${cssPx(borderWidth.focus)} focus ring. Every icon button has a required label (its accessible name) and a ${cssPx(controlSize.md)} hit area, whatever the disc size.`}
       </p>
       <SchemePreview>
         <div class="box gap-4">
-          <Row label="Header controls: 40px disc, 24px outline icon">
+          <Row
+            label={`Header controls: ${cssPx(spacing[10])} disc, ${cssPx(iconSize.lg)} outline icon`}
+          >
             <BackIconButton onClick={() => undefined} />
             <IconButton label="Notifications" onClick={() => undefined}>
               <BellIcon size={24} color="text" />

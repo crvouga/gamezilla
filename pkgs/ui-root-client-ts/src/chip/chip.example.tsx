@@ -2,6 +2,9 @@
 
 import { Chip } from '@pkgs/ui-root-client-ts/chip';
 import { ClockIcon } from '@pkgs/ui-root-client-ts/icons';
+import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
+import { spacing } from '@pkgs/ui-root-shared-ts/scale';
+import { controlSize } from '@pkgs/ui-root-shared-ts/sizes';
 import { createSignal, For, type JSX } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
@@ -25,9 +28,7 @@ export default function ChipExample(): JSX.Element {
   return (
     <ExampleRoot>
       <p class="text textCaption">
-        {
-          'Toggle chips (aria-pressed). Hover darkens the edge, Tab shows the focus ring; each 32px chip has a 44px hit area.'
-        }
+        {`Toggle chips (aria-pressed). Hover darkens the edge, Tab shows the focus ring; each ${cssPx(spacing[8])} chip has a ${cssPx(controlSize.md)} hit area.`}
       </p>
       <SchemePreview>
         <div class="box flex-col gap-3">

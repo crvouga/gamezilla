@@ -21,6 +21,9 @@ import {
   WON_MOVES,
 } from './game-frame-story.example';
 
+/** A short desktop window, where the board must still come first. */
+const BOARD_DESKTOP = { width: 1440, height: 844 };
+
 const meta = {
   id: 'screens-games-frame-geometry',
   title: 'Screens/Games/Frame/Board priority',
@@ -31,7 +34,10 @@ const meta = {
       options: {
         boardDesktop: {
           name: 'Board desktop',
-          styles: { width: '1440px', height: '844px' },
+          styles: {
+            width: `${BOARD_DESKTOP.width}px`,
+            height: `${BOARD_DESKTOP.height}px`,
+          },
         },
       },
     },

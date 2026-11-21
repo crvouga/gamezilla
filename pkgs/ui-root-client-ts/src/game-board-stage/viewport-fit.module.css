@@ -11,7 +11,11 @@
     display: grid;
     /* The window less the 53px bar, its 8px inset, the board's 44px of
        guidance and 5px: 280px at 390px tall, 32px squares. */
-    grid-template-columns: min(100dvh - 110px, 50vw) minmax(0, 1fr);
+    grid-template-columns: min(
+        100dvh -
+        var(--ui-size-viewport-fit-chrome),
+        50vw
+      ) minmax(0, 1fr);
     grid-template-rows: repeat(9, auto) 1fr;
     column-gap: var(--ui-space-6);
     row-gap: var(--ui-space-2);
@@ -57,7 +61,10 @@
     display: grid;
     /* The live board-focus frame's columns (the session layout's own), so a
        finished board meets the same measure and fit as during play. */
-    grid-template-columns: minmax(0, 1fr) var(--game-arena-rail-measure, 304px);
+    grid-template-columns: minmax(0, 1fr) var(
+        --game-arena-rail-measure,
+        var(--ui-size-rail)
+      );
     grid-template-rows: repeat(6, auto) 1fr;
     column-gap: var(--ui-space-6);
     align-content: start;

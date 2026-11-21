@@ -42,7 +42,7 @@
   position: absolute;
   inset: calc(var(--ui-space-1) / 2);
   z-index: -1;
-  border: 1px solid var(--ui-color-outline);
+  border: var(--ui-border-width-hairline) solid var(--ui-color-outline);
   border-radius: var(--ui-radius-sm);
   background: var(--ui-color-surface-elevated);
 }
@@ -50,14 +50,14 @@
   cursor: default;
 }
 .tile:focus-visible {
-  outline: 2px solid var(--ui-color-focus-ring);
+  outline: var(--ui-border-width-focus) solid var(--ui-color-focus-ring);
   outline-offset: 0;
 }
 .tile[data-selected="true"] {
   transform: translateY(calc(-1 * var(--ui-space-1)));
 }
 .tile[data-selected="true"]::before {
-  border: 2px solid var(--ui-color-tint);
+  border: var(--ui-border-width-focus) solid var(--ui-color-tint);
   background: var(--ui-color-tint-subtle);
 }
 .tile[data-placed="true"]::before {

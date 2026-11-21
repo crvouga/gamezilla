@@ -1,0 +1,68 @@
+name: Design Sync
+
+# Run title, identical shape in every workflow (enforced by
+# libs/tools-harness-ts/scripts/workflow-run-names.test.ts):
+#   <Workflow> · <trigger>
+run-name: "Design Sync · ${{ github.event_name == 'push' && 'push' || 'manual' }}"
+
+# Republishes the Gamezilla design-system artifact on claude.ai from main
+# whenever the design system or the component library changes, so a change
+# requested in the Claude web app shows in the artifact once its pull request
+# merges. `bun run design:sync` builds the artifact's files and has Claude
+# Code publish them; only Claude's Artifact tool can write an artifact, so the
+# job needs a Claude Code login token (`CLAUDE_CODE_OAUTH_TOKEN`, from
+# `claude setup-token`). Without it the job builds the files, warns and passes:
+# an unpublished artifact never blocks main (`bun run design:sync` from any
+# checkout publishes by hand).
+on:
+  push:
+    branches: [main]
+    paths:
+      - design-system/**
+      - pkgs/ui-root-client-ts/**
+      - pkgs/ui-root-shared-ts/**
+      - scripts/design-artifact.ts
+      - scripts/design-sync.ts
+      - scripts/DESIGN_SYNC.prompt.md
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# The newest main wins: an older run would publish older files.
+concurrency:
+  group: design-sync
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  design-sync:
+    name: design-sync
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read # check out the code
+    env:
+      GH_TOKEN: ${{ github.token }}
+      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+        with:
+          tools: bun node gh
+      - name: Build the artifact files
+        run: bun run design:sync --build-only
+      - name: Publish to the artifact
+        run: |
+          if [ -z "$CLAUDE_CODE_OAUTH_TOKEN" ]; then
+            echo "::warning::CLAUDE_CODE_OAUTH_TOKEN is not set; the artifact was not republished. Run bun run design:sync from a checkout of main."
+            exit 0
+          fi
+          npm install --global @anthropic-ai/claude-code@2.1.314
+          bun run design:sync \
+            || echo "::warning::Publishing to the artifact failed; run bun run design:sync from a checkout of main."

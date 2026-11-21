@@ -252,6 +252,20 @@ jobs:
       - name: verify
         timeout-minutes: ${{ inputs.profile == 'nightly' && 60 || 25 }}
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$VERIFY_CONCURRENCY" bun run libs/tools-harness-ts/scripts/verify-shard-run.ts "$VERIFY_SHARD"
+      # A failed visual comparison leaves Playwright's expected, actual and
+      # diff images; they go to GitHub's artifacts (not the CI artifacts
+      # bucket) so a reviewer or a cloud Claude session can fetch them with
+      # `gh run download`. Only failing shards upload, only PNGs, kept three
+      # days, and an upload failure never changes the verdict.
+      - name: Upload visual test diffs
+        if: failure() && hashFiles('pkgs/ui-root-harness-ts/.cache/storybook-test-results/**/*-diff.png') != ''
+        continue-on-error: true
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: visual-diffs-${{ strategy.job-index }}
+          path: pkgs/ui-root-harness-ts/.cache/storybook-test-results/**/*.png
+          retention-days: 3
+          if-no-files-found: ignore
       # Reports are the nightly profile's; the `release` profile keeps none. One
       # artifact per shard every night, kept for the bucket's week. They only
       # describe the shard, so `--best-effort` warns instead of failing it when

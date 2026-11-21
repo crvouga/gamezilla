@@ -53,7 +53,7 @@
   content: "";
   position: absolute;
   inset: 0 0 0.25rem 0.25rem;
-  border: 1px solid var(--ui-color-border);
+  border: var(--ui-border-width-hairline) solid var(--ui-color-border);
   border-radius: var(--ui-radius-control);
   background: var(--ui-color-surface-muted);
 }
@@ -65,7 +65,7 @@
   display: grid;
   place-items: center;
   overflow: hidden;
-  border: 1px solid var(--ui-color-border);
+  border: var(--ui-border-width-hairline) solid var(--ui-color-border);
   border-radius: var(--ui-radius-control);
   background: var(--ui-color-surface-muted);
   color: var(--ui-color-icon);

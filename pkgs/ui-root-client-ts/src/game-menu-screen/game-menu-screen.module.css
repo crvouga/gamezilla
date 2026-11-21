@@ -33,17 +33,17 @@
   align-items: center;
   gap: var(--ui-space-4);
   width: 100%;
-  min-height: 120px;
+  min-height: var(--ui-size-menu-tile);
   padding: var(--ui-space-6);
-  border: 1px solid var(--ui-color-border);
+  border: var(--ui-border-width-hairline) solid var(--ui-color-border);
   border-radius: var(--ui-radius-card);
   background: var(--ui-color-surface);
   color: var(--ui-color-text);
   text-align: start;
 }
 .tile:focus-visible {
-  outline: 2px solid var(--ui-color-focus-ring);
-  outline-offset: 2px;
+  outline: var(--ui-border-width-focus) solid var(--ui-color-focus-ring);
+  outline-offset: var(--ui-border-width-focus);
 }
 /* The name, and the main way in's tag right beside it. */
 .titleRow {
@@ -60,15 +60,15 @@
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  width: 48px;
-  height: 48px;
+  width: var(--ui-icon-size-2xl);
+  height: var(--ui-icon-size-2xl);
   border-radius: var(--ui-radius-control);
   background: var(--ui-color-interactive-press);
   --ui-on-icon: var(--ui-color-text);
 }
 .icon[data-size="row"] {
-  width: 36px;
-  height: 36px;
+  width: var(--ui-control-size-sm);
+  height: var(--ui-control-size-sm);
 }
 .words {
   display: flex;
@@ -96,7 +96,8 @@
    read as already chosen (or hovered). */
 .tile[data-emphasis="primary"] {
   border-color: var(--ui-color-tint-active);
-  box-shadow: inset 0 0 0 1px var(--ui-color-tint-active);
+  box-shadow: inset 0 0 0 var(--ui-border-width-hairline)
+    var(--ui-color-tint-active);
 }
 .icon[data-emphasis="primary"] {
   background: var(--ui-color-tint-active);
@@ -130,17 +131,17 @@
   align-items: center;
   gap: var(--ui-space-4);
   width: 100%;
-  min-height: 64px;
+  min-height: var(--ui-space-16);
   padding: var(--ui-space-3) var(--ui-space-6);
-  border: 1px solid var(--ui-color-border);
+  border: var(--ui-border-width-hairline) solid var(--ui-color-border);
   border-radius: var(--ui-radius-card);
   background: var(--ui-color-surface);
   color: var(--ui-color-text);
   text-align: start;
 }
 .link:focus-visible {
-  outline: 2px solid var(--ui-color-focus-ring);
-  outline-offset: 2px;
+  outline: var(--ui-border-width-focus) solid var(--ui-color-focus-ring);
+  outline-offset: var(--ui-border-width-focus);
 }
 .linkWords {
   display: flex;

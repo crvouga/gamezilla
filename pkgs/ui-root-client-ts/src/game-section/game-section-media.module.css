@@ -16,7 +16,7 @@
 /* A phone: a slim row ahead of the section, a small thumbnail beside its
    label, so what the section sets up (the players) takes the screen. */
 .sectionMedia {
-  --game-board-preview-measure: 48px;
+  --game-board-preview-measure: var(--ui-space-12);
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -58,7 +58,7 @@
      with how the game is played under it the picture's card ends level
      with the players of a two-player game. */
   .sectionMedia {
-    --game-board-preview-measure: 240px;
+    --game-board-preview-measure: var(--ui-size-preview-lg);
     grid-column: 2;
     grid-row: 1;
     flex-direction: column;

@@ -12,7 +12,7 @@ import { renderUi } from './render';
 const UI_SRC = join(import.meta.dirname, '../../ui-root-client-ts/src');
 const TOKENS = join(
   import.meta.dirname,
-  '../../ui-root-shared-ts/src/design-tokens.json'
+  '../../../design-system/tokens.json'
 );
 
 /** The body of the first rule whose selector is exactly `selector`. */

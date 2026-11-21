@@ -54,15 +54,15 @@
   min-height: var(--ui-control-size-md);
   padding: 0;
   background: transparent;
-  border: 2px solid var(--ui-color-text-secondary);
+  border: var(--ui-border-width-focus) solid var(--ui-color-text-secondary);
   border-radius: var(--ui-radius-sm);
   cursor: pointer;
   touch-action: manipulation;
 }
 .region[aria-pressed="true"] {
   border-color: var(--ui-color-tint);
-  outline: 2px solid var(--ui-color-tint);
-  outline-offset: -4px;
+  outline: var(--ui-border-width-focus) solid var(--ui-color-tint);
+  outline-offset: calc(var(--ui-border-width-heavy) * -1);
 }
 .region:focus-visible {
   outline: var(--ui-space-1) solid var(--ui-color-tint);
@@ -71,8 +71,8 @@
 }
 .regionName {
   position: absolute;
-  width: 1px;
-  height: 1px;
+  width: var(--ui-border-width-hairline);
+  height: var(--ui-border-width-hairline);
   overflow: hidden;
   clip-path: inset(50%);
 }

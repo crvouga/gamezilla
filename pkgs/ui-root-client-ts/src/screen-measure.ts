@@ -1,3 +1,6 @@
+import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
+import { layoutSize } from '@pkgs/ui-root-shared-ts/sizes';
+
 /**
  * The measure a screen's column is capped at on compact hosts (phones and
  * tablets), where a capped column is centered. Every family shares 720px, so
@@ -19,8 +22,8 @@
 export type ScreenMeasure = 'menu' | 'prose' | 'list' | 'full';
 
 export const SCREEN_MAX_WIDTH: Readonly<Record<ScreenMeasure, string>> = {
-  menu: '720px',
-  prose: '720px',
-  list: '720px',
+  menu: cssPx(layoutSize.screen),
+  prose: cssPx(layoutSize.screen),
+  list: cssPx(layoutSize.screen),
   full: '100%',
 };

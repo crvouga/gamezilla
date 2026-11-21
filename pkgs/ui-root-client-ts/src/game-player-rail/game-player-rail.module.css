@@ -81,7 +81,7 @@
 @container game-column (max-width: 879px) {
   .playerRail:has(> :nth-child(4)) .chipFacts {
     flex-wrap: nowrap;
-    gap: var(--ui-space-0-5, 2px);
+    gap: var(--ui-border-width-focus);
     overflow: hidden;
   }
   /* When the line is still too long, the status after the swatch is the

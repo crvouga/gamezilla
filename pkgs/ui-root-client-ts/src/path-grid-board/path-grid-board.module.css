@@ -47,7 +47,7 @@
   grid-template-columns: repeat(var(--path-columns), minmax(0, 1fr));
   /* A square is at most 80px, so a small grid (5 × 5) is a comfortable
      board, not a poster across the column. */
-  width: min(100%, calc(var(--path-columns) * 80px));
+  width: min(100%, calc(var(--path-columns) * var(--ui-size-path-cell)));
   /* A host that bounds its height (a card's picture) says how tall the
      board may be; elsewhere this is unset and so is the cap. */
   max-width: calc(
