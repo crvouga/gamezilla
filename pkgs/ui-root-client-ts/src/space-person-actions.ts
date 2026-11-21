@@ -5,7 +5,8 @@
  *
  * Order: the game's actions, then the space's, then the host's own; every
  * destructive action after the rest, in that same order. An action the
- * viewer cannot take is left out, never shown disabled.
+ * viewer cannot take is left out, never shown disabled, and so is an
+ * action the product cannot carry out yet (`SpacePersonCapability`).
  */
 
 import type {
@@ -34,6 +35,24 @@ export type SpacePersonActionId =
   | 'inviteFriend'
   | 'addBot';
 
+/**
+ * Space actions shown only when the caller says the product can carry them
+ * out; each is hidden until then, never shown disabled.
+ */
+export type SpacePersonCapability =
+  | 'makeHost'
+  | 'mute'
+  | 'muteMic'
+  | 'sendMessage';
+
+/** Every capability, for a caller (a story) that can do them all. */
+export const SPACE_PERSON_CAPABILITIES: readonly SpacePersonCapability[] = [
+  'makeHost',
+  'mute',
+  'muteMic',
+  'sendMessage',
+];
+
 /** One row of a person's sheet. */
 export type SpacePersonActionEntry =
   | {
@@ -51,6 +70,8 @@ export type SpacePersonActionsInput = {
   phase: SpacePhase;
   /** The game's actions on this entry (`SpaceGamePlay.personActions`). */
   game?: readonly SpaceGameAction[] | undefined;
+  /** The optional actions the product can carry out; none by default. */
+  capabilities?: readonly SpacePersonCapability[] | undefined;
 };
 
 const DESTRUCTIVE: ReadonlySet<SpacePersonActionId> =
@@ -60,6 +81,19 @@ const DESTRUCTIVE: ReadonlySet<SpacePersonActionId> =
     'removeBot',
     'removeSeat',
   ]);
+
+const OPTIONAL: ReadonlySet<SpacePersonActionId> = new Set<SpacePersonActionId>(
+  SPACE_PERSON_CAPABILITIES
+);
+
+function available(
+  id: SpacePersonActionId,
+  capabilities: readonly SpacePersonCapability[]
+): boolean {
+  return (
+    !OPTIONAL.has(id) || capabilities.some((capability) => capability === id)
+  );
+}
 
 function own(input: SpacePersonActionsInput): SpacePersonActionId[] {
   const ids: SpacePersonActionId[] = [];
@@ -74,13 +108,14 @@ function own(input: SpacePersonActionsInput): SpacePersonActionId[] {
 function anyone(input: SpacePersonActionsInput): SpacePersonActionId[] {
   const kind = input.pressed.kind;
   if (kind === 'openSeat') return ['inviteFriend'];
-  if (kind === 'bot') return ['seeDetails'];
+  if (kind === 'bot' || kind === 'remote') return ['seeDetails'];
   return ['sendMessage', 'mute', 'seeDetails'];
 }
 
 function hostOnly(input: SpacePersonActionsInput): SpacePersonActionId[] {
   if (input.viewer !== 'host' || input.pressed.you === true) return [];
   const kind = input.pressed.kind;
+  if (kind === 'remote') return [];
   if (kind === 'openSeat') return ['addBot', 'removeSeat'];
   if (kind === 'bot') {
     return ['changeDifficulty', 'swapForPerson', 'removeBot', 'removeSeat'];
@@ -110,10 +145,12 @@ export function spacePersonActions(
     action,
     destructive: action.tone === 'destructive',
   }));
-  const ids =
+  const capabilities = input.capabilities ?? [];
+  const ids = (
     input.pressed.you === true
       ? own(input)
-      : [...anyone(input), ...hostOnly(input)];
+      : [...anyone(input), ...hostOnly(input)]
+  ).filter((id) => available(id, capabilities));
   const all = [...game, ...ids.map((id) => spaceEntry(id, input.pressed))];
   return [
     ...all.filter((entry) => !entry.destructive),

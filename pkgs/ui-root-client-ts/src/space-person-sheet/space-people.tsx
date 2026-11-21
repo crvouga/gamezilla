@@ -2,7 +2,10 @@
 
 import { createMemo, createSignal, type JSX } from 'solid-js';
 import { SpacePeopleRow } from '../space-people-row/index';
-import type { SpacePersonActionId } from '../space-person-actions';
+import type {
+  SpacePersonActionId,
+  SpacePersonCapability,
+} from '../space-person-actions';
 import type {
   SpaceGameAction,
   SpaceGameSeat,
@@ -24,6 +27,8 @@ export type SpacePeopleProps = {
     | undefined;
   onPersonAction: (personId: string, action: SpacePersonActionId) => void;
   onInvite?: (() => void) | undefined;
+  /** The optional space actions the product can carry out; none by default. */
+  capabilities?: readonly SpacePersonCapability[] | undefined;
 };
 
 /**
@@ -70,6 +75,7 @@ export function SpacePeople(props: SpacePeopleProps): JSX.Element {
             ? undefined
             : props.gameActions?.(person, props.viewer);
         })()}
+        capabilities={props.capabilities}
         onAction={(id, action) => props.onPersonAction(id, action)}
         onClose={() => setOpenId(undefined)}
       />

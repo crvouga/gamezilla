@@ -33,7 +33,7 @@ export type SpaceActiveLayoutProps = {
 };
 
 /** Opening the members list also counts as activity in the space. */
-function useOpenMembers(): () => void {
+export function useOpenMembers(): () => void {
   const clock = useClock();
   const membersDialog = useSpaceMembersDialog();
   const dispatch = useSpaceRoomDispatch();
