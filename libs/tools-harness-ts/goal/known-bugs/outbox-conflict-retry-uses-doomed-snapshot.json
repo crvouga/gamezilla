@@ -1,0 +1,4 @@
+{
+  "summary": "An outbox serialization conflict survives savepoint rollback and aborts retry bookkeeping; retry records must use a fresh transaction and rolled-back handler captures must never be published.",
+  "regressionTest": "pkgs/outbox-harness-ts/tests/consumer-failure.test.ts"
+}
