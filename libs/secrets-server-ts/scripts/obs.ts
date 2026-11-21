@@ -24,6 +24,8 @@ async function loadQueryCredentials(
   if (!productionQueryRequested(argv)) return;
   const env = named ?? PRODUCTION_ENV_NAMES[0];
   if (env === undefined) return;
+  // All deployments share a Tempo tenant; credentials alone do not scope it.
+  process.env['OBS_DEPLOYMENT_ENVIRONMENT'] = env;
   const keys = argv[0] === 'platform' ? PLATFORM_QUERY_KEYS : OBS_QUERY_KEYS;
   // A named environment never falls back to another one's credentials.
   if (named !== undefined) for (const key of keys) delete process.env[key];

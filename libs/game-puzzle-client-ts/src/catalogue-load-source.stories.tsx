@@ -28,7 +28,7 @@ type Story = StoryObj<typeof meta>;
 /** The shared file is saved: its name, and checking for it again. */
 export const Saved: Story = {};
 
-/** Checking the shared bucket; a file seen before stays named meanwhile. */
+/** Checking for the saved file; a file seen before stays named meanwhile. */
 export const CheckingSource: Story = {
   args: { source: { ...STORY_SOURCE_SAVED, status: 'checking' } },
 };
@@ -44,7 +44,7 @@ export const SourceCheckFailed: Story = {
     source: {
       ...STORY_SOURCE_MISSING,
       status: 'check-failed',
-      checkError: 'The bucket could not be reached. Check again.',
+      checkError: 'The saved Lichess file could not be checked. Check again.',
     },
   },
 };
@@ -91,7 +91,7 @@ export const ConfirmStopSaving: Story = {
     await userEvent.click(await canvas.findByTestId('puzzle-load-stop'));
     const page = within(canvasElement.ownerDocument.body);
     await expect(
-      await page.findByText('Stop saving the Lichess file?')
+      await page.findByText('Stop uploading the Lichess file?')
     ).toBeVisible();
   },
 };

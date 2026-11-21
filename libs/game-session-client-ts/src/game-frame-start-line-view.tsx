@@ -110,8 +110,11 @@ function ReadinessCommand(props: StartProps): JSX.Element {
  * The line over the dock's command. The last person everyone waits for is
  * told so in the second person, never counted as "1 person".
  */
-function startLine(start: FrameStart): string {
+function startLine(start: FrameStart, invitedTo?: string): string {
   const reason = start.reason;
+  // The person the game waits for is told what to do, not counted.
+  if (reason?.kind === 'invitations' && invitedTo !== undefined)
+    return t`Accept to play ${invitedTo}, or decline.`;
   const last =
     reason?.kind === 'unready' && reason.count === 1 && mustGetReady(start);
   if (!last) return frameStartLine(reason);
@@ -131,14 +134,18 @@ function startLine(start: FrameStart): string {
  * seat (`seat`) takes one here.
  */
 export function FrameStartView(
-  props: StartProps & { readonly seat?: JSX.Element | undefined }
+  props: StartProps & {
+    readonly seat?: JSX.Element | undefined;
+    /** The side the viewer is invited to play, while they have not answered. */
+    readonly invitedTo?: string | undefined;
+  }
 ): JSX.Element {
   return (
     <GameLobbyDock
       status={
         <>
           <P variant="bodyBold" role="status" testId="custom-game-startable">
-            {startLine(props.start)}
+            {startLine(props.start, props.invitedTo)}
           </P>
           <Show when={props.start.hostStarts}>
             <P

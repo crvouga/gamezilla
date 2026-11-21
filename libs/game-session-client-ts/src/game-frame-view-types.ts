@@ -229,6 +229,11 @@ export type FrameConnection =
 /** What a participant is told and may do while the game is played. */
 export type FramePlay = {
   readonly drawOffered: boolean;
+  /** Who offered the draw, when it is someone else; `null` for none. */
+  readonly drawOfferer?: {
+    readonly person: string;
+    readonly plainName: string;
+  } | null;
   /** The other participant, when a person who is away. */
   readonly away: {
     readonly person: string;

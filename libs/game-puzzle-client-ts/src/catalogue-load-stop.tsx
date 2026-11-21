@@ -43,7 +43,7 @@ export function CatalogueLoadStop(props: CatalogueLoadStopProps): JSX.Element {
   });
   const saving = (): boolean => kind() === 'saving';
   const stopped = (): string => {
-    if (saving()) return t`Saving stopped`;
+    if (saving()) return t`Upload stopped`;
     if (props.jobStatus === 'finished') return t`Loading already finished`;
     if (props.jobStatus === 'failed') return t`Loading already failed`;
     return t`Puzzle loading stopped`;
@@ -58,19 +58,19 @@ export function CatalogueLoadStop(props: CatalogueLoadStopProps): JSX.Element {
       onClose={() => props.onClose()}
       title={
         saving()
-          ? t`Stop saving the ${props.sourceName}?`
+          ? t`Stop uploading the ${props.sourceName}?`
           : t`Stop loading puzzles?`
       }
       message={
         saving()
-          ? t`The unfinished file will not become available. You can save the chosen file again.`
+          ? t`The unfinished file will not become available. You can upload the chosen file again.`
           : t`Puzzles already added or updated stay available. No more batches will be added after stopping.`
       }
       operation={async () => {
         setSubmitted(true);
         await props.onStop();
       }}
-      submitLabel={saving() ? t`Stop saving` : t`Stop loading`}
+      submitLabel={saving() ? t`Stop uploading` : t`Stop loading`}
       submitDisabled={!props.online && !saving()}
       variant="destructive"
       successTitle={stopped()}

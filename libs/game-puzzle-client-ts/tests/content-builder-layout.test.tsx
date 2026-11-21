@@ -245,7 +245,9 @@ test('a pack row opens on a tap anywhere, its status a chip, the rest in one men
   ).not.toBeNull();
   expect(open.contains(menu)).toBe(false);
   expect(menu.getAttribute('data-testid')).toBe('content-pack-menu');
-  expect(menu).toBe(screen.getByRole('button', { name: 'More for Puzzle b' }));
+  expect(menu).toBe(
+    screen.getByRole('button', { name: 'Move or remove Puzzle b' })
+  );
   fireEvent.click(open);
   expect(opened).toBe(1);
   fireEvent.click(menu);
@@ -345,10 +347,10 @@ test('the hub lists the steps in order, each with where it stands, and nothing e
     'content-open-copies',
   ]);
   expect(rows.map((entry) => entry.textContent)).toEqual([
-    'DetailsThree counts that get harder.Weekend counts',
+    'DetailsThree counts that get harder.',
     'PuzzlesAdd, order and remove puzzles3',
     'PreviewThe draft as a solver sees it',
-    'Check and publishPlaytest, validate and publishValidate next',
+    'Check and publishValidate next, then publish',
     'Draft copiesEvery save keeps a copy2',
   ]);
   // The hub holds rows and one command: no form, no board, no step's own controls.
@@ -385,33 +387,33 @@ test('every step is a screen of its own, holding only its own controls', () => {
 const STANDINGS: readonly [ContentBuilderStanding, string, string, string][] = [
   [
     { kind: 'puzzles', waiting: ['Count to nine'] },
-    '1 puzzle to publish first',
+    '1 puzzle in the pack is still a draft',
     'content-open-waiting',
     'Next: finish Count to nine',
   ],
   [
     { kind: 'fix' },
-    'Fix the board first',
+    'Fix the board, then playtest',
     'content-author-next',
     'Next: fix the board',
   ],
   [
     { kind: 'playtest' },
-    'Playtest next',
+    'Playtest next, then validate',
     'content-author-next',
     'Next: playtest',
   ],
   [
     { kind: 'validate', invalid: false },
-    'Validate next',
+    'Validate next, then publish',
     'content-author-next',
     'Next: validate',
   ],
   [
     { kind: 'validate', invalid: true },
-    'Needs changes',
+    'Validation found something to fix',
     'content-author-next',
-    'Next: validate',
+    'Next: correct the draft',
   ],
   [
     { kind: 'publish' },
@@ -595,7 +597,8 @@ test('the hub summarises the details in one row that opens their fields', () => 
   const row = screen.getByTestId('content-author-details-toggle');
   expect(row.hasAttribute('aria-expanded')).toBe(false);
   expect(row.textContent).toContain('Three counts that get harder.');
-  expect(row.textContent).toContain('Weekend counts');
+  // The title is the screen's own heading; the row does not repeat it.
+  expect(row.textContent).not.toContain('Weekend counts');
   expect(screen.queryByTestId('content-title')).toBeNull();
   fireEvent.click(row);
   expect(opened).toEqual([{ screen: 'details' }]);
@@ -614,7 +617,7 @@ test('an untitled draft says so on the hub, and its details row still leads to t
   );
   const row = screen.getByTestId('content-author-details-toggle');
   expect(row.textContent).toBe(
-    'DetailsTitle, description and difficultyNo title yet'
+    'DetailsNo title yet. Add a title, description and difficulty.'
   );
 });
 
@@ -633,10 +636,8 @@ test('the details form changes the draft as it is typed, and Done returns to the
   });
   expect(bodies).toEqual(['Weekday counts']);
   const done = screen.getByTestId('content-details-done');
-  expect(done.getAttribute('data-variant')).toBe('solid');
-  expect(
-    document.querySelectorAll('[data-component="Button"][data-variant="solid"]')
-  ).toHaveLength(1);
+  // One Done on every step: a compact outline back to the steps.
+  expect(done.getAttribute('data-variant')).toBe('outline');
   fireEvent.click(done);
   expect(opened).toEqual([{ screen: 'builder' }]);
 });
@@ -768,7 +769,7 @@ test('the preview is disabled on the hub while there is nothing to preview or th
   mount(() => builder({ previewable: false }));
   expect(disabled()).toBe(true);
   expect(screen.getByTestId('content-preview').textContent).toContain(
-    'Nothing to preview yet'
+    'Opens once the board can be played'
   );
   cleanup();
   mount(() => builder({ disabled: true }));
@@ -781,7 +782,7 @@ test('the preview is disabled on the hub while there is nothing to preview or th
 test('a puzzle whose board cannot be played says so on its row', () => {
   mount(() => builder({ kind: 'puzzle', playable: false }));
   expect(screen.getByTestId('content-open-board').textContent).toBe(
-    'BoardBuild the puzzleCannot be played yet'
+    'BoardCannot be played yet. Fix the board.'
   );
   expect(
     screen
@@ -859,4 +860,73 @@ test('in the steps, the playtest is drawn again only when its place changes', ()
   setValidation('valid');
   expect(seen).toEqual([true, false]);
   expect(screen.getAllByTestId('playtest').length).toBe(1);
+});
+
+// regression: builder-recovery-not-the-lead — with a save failed or a
+// conflicting copy, the hub still led with "Next: playtest", though
+// neither could go ahead. A failed save now leads with its own retry and a
+// conflict with choosing a copy.
+test('a failed save or a conflicting copy leads the hub instead of the next step', () => {
+  const opened: Place[] = [];
+  mount(() =>
+    builder({
+      conflicted: true,
+      standing: { kind: 'playtest' },
+      onOpen: (place) => opened.push(place),
+    })
+  );
+  const next = screen.getByTestId('content-author-next');
+  expect(next.textContent).toBe('Next: choose a draft copy');
+  fireEvent.click(next);
+  expect(opened).toEqual([{ screen: 'copies' }]);
+  cleanup();
+  mount(() =>
+    builder({
+      standing: { kind: 'playtest' },
+      save: { saving: false, dirty: true, error: 'Offline.' },
+    })
+  );
+  expect(screen.queryByTestId('content-author-next')).toBeNull();
+  const filled = [
+    ...document.querySelectorAll(
+      '[data-component="Button"][data-variant="solid"]'
+    ),
+  ];
+  expect(filled.map((button) => button.textContent)).toEqual(['Save again']);
+});
+
+// regression: builder-step-no-way-back — the board and the preview had no
+// command back to the steps; only the details form had Done.
+test('the board and the preview end with Done, back to the steps', () => {
+  for (const place of [
+    { screen: 'board' },
+    { screen: 'preview', puzzleId: null },
+  ] as const) {
+    const opened: Place[] = [];
+    mount(() => builder({ place, onOpen: (to) => opened.push(to) }));
+    fireEvent.click(screen.getByTestId('content-step-done'));
+    expect(opened).toEqual([{ screen: 'builder' }]);
+    cleanup();
+  }
+});
+
+// regression: builder-denied-dead-end — someone who may not edit a draft
+// saw only why, with no way on; the missing and gone states had one.
+test('a denied builder says why and leads back to the puzzles', () => {
+  let returned = 0;
+  mount(() =>
+    builder({
+      denial: {
+        icon: () => null,
+        title: 'Only the author can edit this draft',
+        dataSet: { testid: 'permission-denial' },
+      },
+      onReturnToLibrary: () => {
+        returned += 1;
+      },
+    })
+  );
+  expect(screen.getByTestId('permission-denial')).toBeDefined();
+  fireEvent.click(screen.getByTestId('content-author-return'));
+  expect(returned).toBe(1);
 });

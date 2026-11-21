@@ -2,10 +2,7 @@ import { Trans } from '@lingui/solid/macro';
 import { Badge, HostBadge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
-import {
-  GameModeCard,
-  type GameModeFact,
-} from '@pkgs/ui-root-client-ts/game-lobby';
+import { GameModeCard } from '@pkgs/ui-root-client-ts/game-lobby';
 import { GameSeatSwatch } from '@pkgs/ui-root-client-ts/game-seat-swatch';
 import { GameActions } from '@pkgs/ui-root-client-ts/game-section';
 import {
@@ -184,7 +181,7 @@ function SeatRow(
   );
 }
 
-/** An invitation the viewer holds: answered here, where they land. */
+/** An invitation the viewer holds, said where they land; answered in the dock. */
 function OwnInvitation(
   props: Props & { readonly seat: FrameSetupSeat }
 ): JSX.Element {
@@ -203,27 +200,47 @@ function OwnInvitation(
               />{' '}
               <Trans>invites you to play {props.seat.sideLabel}.</Trans>
             </P>
-            <Show when={invitation().canAnswer}>
-              <GameActions>
-                <GameActionButton
-                  title={<Trans>Accept</Trans>}
-                  variant="solid"
-                  dataSet={{ testid: `custom-game-${side()}-accept` }}
-                  operation={() =>
-                    props.onChoose({ operation: 'accept', side: side() })
-                  }
-                />
-                <GameActionButton
-                  title={<Trans>Decline</Trans>}
-                  dataSet={{ testid: `custom-game-${side()}-decline` }}
-                  operation={() =>
-                    props.onChoose({ operation: 'decline', side: side() })
-                  }
-                />
-              </GameActions>
-            </Show>
           </StackVertical>
         </Notice>
+      )}
+    </Show>
+  );
+}
+
+/**
+ * Answering one's own invitation, in the dock where the lobby's one thing
+ * to do always is: accept (the filled command) or decline.
+ */
+function InvitationAnswer(
+  props: Props & { readonly setup: FrameSetup }
+): JSX.Element {
+  const seat = () =>
+    props.setup.seats.find(
+      (each) =>
+        each.invitation?.mine === true && each.invitation.canAnswer === true
+    );
+  return (
+    <Show when={seat()}>
+      {(own) => (
+        <GameActions sizing="fill">
+          <GameActionButton
+            title={<Trans>Accept</Trans>}
+            variant="solid"
+            size="lg"
+            dataSet={{ testid: `custom-game-${own().side}-accept` }}
+            operation={() =>
+              props.onChoose({ operation: 'accept', side: own().side })
+            }
+          />
+          <GameActionButton
+            title={<Trans>Decline</Trans>}
+            size="lg"
+            dataSet={{ testid: `custom-game-${own().side}-decline` }}
+            operation={() =>
+              props.onChoose({ operation: 'decline', side: own().side })
+            }
+          />
+        </GameActions>
       )}
     </Show>
   );
@@ -338,44 +355,37 @@ function seatedCount(seats: readonly FrameSetupSeat[]): number {
 
 /**
  * What is about to be played, at the head of the lobby: the game and how
- * it is won, then what is agreed (who is in, the clock, that it is
- * unrated) at a glance.
+ * it is won, and over them, in one line, that it is unrated and its clock
+ * (when the clock has no row below). The board, facing the person's side, is a small
+ * picture beside the words, so the seats and what is agreed lead.
  */
 function LobbyMode(props: Props & { readonly setup: FrameSetup }): JSX.Element {
-  const facts = (): readonly GameModeFact[] => [
-    {
-      id: 'players',
-      label: <Trans>Players</Trans>,
-      value: (
-        <Trans>
-          {seatedCount(props.setup.seats)} of {props.setup.seats.length}
-        </Trans>
-      ),
-    },
-    {
-      id: 'clock',
-      label: <Trans>Clock</Trans>,
-      value: (
-        <FrameClockWords
-          minutes={props.status?.minutes ?? 0}
-          increment={props.status?.increment ?? 0}
-        />
-      ),
-    },
-    {
-      id: 'rating',
-      label: <Trans>Rating</Trans>,
-      value: <Trans>Unrated</Trans>,
-      testId: 'custom-game-unrated',
-    },
-  ];
   return (
     <GameModeCard
-      eyebrow={<Trans>Custom game</Trans>}
+      // What is agreed is one compact line, not a panel: unrated, and the
+      // clock when it has no row of its own below.
+      eyebrow={
+        <>
+          {/* A dot stays with the fact before it, so a wrapped line
+              never starts with one. */}
+          <Trans>Custom game</Trans>
+          {'\u00a0· '}
+          <Text variant="inherit" testId="custom-game-unrated">
+            <Trans>Unrated</Trans>
+          </Text>
+          <Show when={props.setup.options?.clock == null}>
+            {'\u00a0· '}
+            <FrameClockWords
+              minutes={props.status?.minutes ?? 0}
+              increment={props.status?.increment ?? 0}
+            />
+          </Show>
+        </>
+      }
       title={props.title}
       summary={props.goal}
-      facts={facts()}
       art={props.boardPreview}
+      artSize="thumbnail"
       dataSet={{ testid: 'custom-game-mode' }}
     />
   );
@@ -398,6 +408,10 @@ export function FrameLobbyPlace(
       dock={
         <FrameStartView
           start={props.setup.start}
+          invitedTo={
+            props.setup.seats.find((seat) => seat.invitation?.mine === true)
+              ?.sideLabel
+          }
           onChoose={props.onChoose}
           onReady={props.onReady}
           onArrange={
@@ -406,19 +420,22 @@ export function FrameLobbyPlace(
               : () => props.onOpen({ screen: 'private-setup' })
           }
           seat={
-            <Show when={props.setup.takeSeat}>
-              {(side) => (
-                <GameActionButton
-                  title={<Trans>Take a seat</Trans>}
-                  variant="solid"
-                  size="lg"
-                  dataSet={{ testid: 'custom-game-take-seat' }}
-                  operation={() =>
-                    props.onChoose({ operation: 'claim', side: side() })
-                  }
-                />
-              )}
-            </Show>
+            <>
+              <InvitationAnswer {...props} setup={props.setup} />
+              <Show when={props.setup.takeSeat}>
+                {(side) => (
+                  <GameActionButton
+                    title={<Trans>Take a seat</Trans>}
+                    variant="solid"
+                    size="lg"
+                    dataSet={{ testid: 'custom-game-take-seat' }}
+                    operation={() =>
+                      props.onChoose({ operation: 'claim', side: side() })
+                    }
+                  />
+                )}
+              </Show>
+            </>
           }
         />
       }
@@ -427,7 +444,15 @@ export function FrameLobbyPlace(
       <For each={props.setup.seats}>
         {(seat) => <OwnInvitation {...props} seat={seat} />}
       </For>
-      <Show when={props.setup.viewerNotice}>
+      {/* An invitation to play says what to do; "watching" waits till
+          it is answered. */}
+      <Show
+        when={
+          props.setup.seats.some((seat) => seat.invitation?.mine === true)
+            ? null
+            : props.setup.viewerNotice
+        }
+      >
         {(text) => (
           <P tone="secondary" testId="custom-game-viewer">
             {text()}
@@ -435,7 +460,12 @@ export function FrameLobbyPlace(
         )}
       </Show>
       <MenuSection
-        title={<Trans>Players</Trans>}
+        title={
+          <Trans>
+            Players · {seatedCount(props.setup.seats)} of{' '}
+            {props.setup.seats.length}
+          </Trans>
+        }
         dataSet={{ testid: 'custom-game-setup-seats' }}
       >
         <Index each={props.setup.seats}>
@@ -445,10 +475,10 @@ export function FrameLobbyPlace(
       <AgreedRows {...props} />
       {/* Calling the game off: last on the page, quiet, and it asks first. */}
       <Show when={props.play.canCancel}>
-        <GameActions sizing="share">
+        <GameActions sizing="fill">
           <Button
             title={<Trans>Cancel game</Trans>}
-            variant="outline"
+            variant="ghost"
             intent="danger"
             size="md"
             onClick={() => props.onConfirm('cancel')}

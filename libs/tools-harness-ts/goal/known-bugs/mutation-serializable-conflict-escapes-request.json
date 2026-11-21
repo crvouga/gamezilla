@@ -1,0 +1,4 @@
+{
+  "summary": "A transient PostgreSQL serialization conflict rolls back a mutation batch and immediately fails its HTTP request instead of retrying from a fresh transaction snapshot.",
+  "regressionTest": "pkgs/sync-engine-server-ts/tests/mutation-conflict-recovery.test.ts"
+}

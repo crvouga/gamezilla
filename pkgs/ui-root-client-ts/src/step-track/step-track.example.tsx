@@ -23,9 +23,10 @@ export default function StepTrackExample(): JSX.Element {
             state: 'done',
             action: (
               <Button
-                title="Start playtest"
+                title="Playtest again"
                 intent="neutral"
                 variant="outline"
+                size="sm"
               />
             ),
           },

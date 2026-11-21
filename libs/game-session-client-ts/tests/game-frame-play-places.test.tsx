@@ -43,7 +43,7 @@ const over = (place: CustomGamePlace = { screen: 'result' }) =>
     }),
     next: { plays: true, canCreate: true, reviewable: true },
     result: {
-      headline: 'You came 2nd',
+      headline: 'You lost',
       note: 'You resigned.',
       scoreLabel: null,
       standings: [],
@@ -475,17 +475,20 @@ describe('the moves place', () => {
 
 describe('the result place', () => {
   // regression: shared-board-terminal-buried
-  // The outcome is never under the board: it lies over it, and the one
-  // rematch is a command of the bar, so neither moves the board.
+  // The outcome is never buried under the board's stack, and never covers
+  // the final position: it heads the game's commands beside the board (on a
+  // phone, between the board and the bar), and the one rematch is a command
+  // of the bar, so neither moves the board.
   test.each([390, 1440] as const)(
-    'at %ipx the outcome lies over the final board, with one real rematch',
+    'at %ipx the outcome leads the commands beside the final board, with one real rematch',
     (width) => {
       mountFrame(() => over(), width);
       const headline = screen.getByTestId('custom-game-result-headline');
       const rematch = screen.getAllByTestId('custom-game-rematch');
       expect(rematch).toHaveLength(1);
-      expect(stage().contains(headline)).toBe(true);
-      expect(stage().contains(rematch[0] as HTMLElement)).toBe(false);
+      expect(stage().contains(headline)).toBe(false);
+      expect(precedes(stage(), headline)).toBe(true);
+      expect(precedes(headline, rematch[0] as HTMLElement)).toBe(true);
       expect(screen.getAllByTestId('custom-game-history-stats')).toHaveLength(
         1
       );
@@ -507,27 +510,24 @@ describe('the result place', () => {
     );
   });
 
-  test('the result card is closed to see the board and opened again from the bar', () => {
-    const sent: StageOverlayEvent[] = [];
+  test('on a phone the standings fold behind their own control beside the board', () => {
+    mountFrame(() => over(), 390);
+    const toggle = screen.getByTestId('game-result-overlay-details');
+    expect(toggle.textContent).toContain('Standings');
+    expect(toggle.getAttribute('aria-expanded')).toBe('false');
+    fireEvent.click(toggle);
+    expect(toggle.getAttribute('aria-expanded')).toBe('true');
+    expect(screen.getByTestId('custom-game-result')).toBeTruthy();
+    expect(shown('game-result-overlay-dismiss')).toBe(false);
+  });
+
+  test('a player who may not start the next game can leave', () => {
     mountFrame(() => ({
       ...over(),
-      onOverlay: (event) => sent.push(event),
+      next: { plays: true, canCreate: false, reviewable: true },
     }));
-    expect(shown('custom-game-show-result')).toBe(false);
-    fireEvent.click(screen.getByTestId('game-result-overlay-dismiss'));
-    expect(sent).toEqual([{ type: 'dismiss' }]);
-    cleanup();
-    mountFrame(() => ({
-      ...over(),
-      overlay: { kind: 'board' as const },
-      onOverlay: (event) => sent.push(event),
-    }));
-    // Closed, the board shows; the headline stays, as the way back.
-    expect(shown('custom-game-outcome')).toBe(false);
-    const reopen = screen.getByTestId('custom-game-show-result');
-    expect(reopen.textContent).toContain('You came 2nd');
-    fireEvent.click(reopen);
-    expect(sent).toEqual([{ type: 'dismiss' }, { type: 'show' }]);
+    expect(shown('custom-game-rematch')).toBe(false);
+    expect(shown('custom-game-back')).toBe(true);
   });
 
   test('a watcher goes back to the space or looks at the moves', () => {

@@ -17,15 +17,14 @@
  * out, so the Atlas revision is the sha `bun verify` printed.
  *
  * Needs `REPORTS_BUCKET`, `REPORTS_ENDPOINT`, `REPORTS_WRITE_ACCESS_KEY_ID`
- * and `REPORTS_WRITE_SECRET_ACCESS_KEY` (written by OpenTofu; `secrets-run`
- * loads them). With none of them set, the environment has no reports store
- * yet and every command skips with a warning.
+ * and `REPORTS_WRITE_SECRET_ACCESS_KEY` (`secrets-run` loads them). The store
+ * is optional and configured externally; with none set every command skips.
  */
 
 import { writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { openCommit } from '@crvouga/atlas/reports/publish';
-import { reportsStoreUnconfigured } from '@libs/harness-ts/report-store-configuration';
+import { publishConfiguredReports } from '@libs/harness-ts/report-store-configuration';
 import { compileFrameCss } from '@libs/harness-ts/wall-frame-css';
 import { wallClock } from '@pkgs/clock-shared-ts/wall';
 import type { ObjectStore } from '@pkgs/object-store-root-shared-ts/interface';
@@ -110,14 +109,6 @@ async function prepareReport(args: {
 
 async function main(argv: readonly string[]): Promise<void> {
   const [command, arg] = argv;
-  if (reportsStoreUnconfigured(process.env)) {
-    if (process.env['GITHUB_ACTIONS'] === 'true')
-      throw new Error('CI requires the reports store');
-    console.log(
-      '::warning::report-publish: no reports store in this secrets environment yet (Release creates it); nothing published'
-    );
-    return;
-  }
   const store = reportsStore();
   const sha = headSha();
   const publicationRun = `${process.env['GITHUB_RUN_ID'] ?? 'local'}:${process.env['GITHUB_RUN_ATTEMPT'] ?? '1'}`;
@@ -158,4 +149,12 @@ async function main(argv: readonly string[]): Promise<void> {
   process.exit(1);
 }
 
-if (import.meta.main) await main(process.argv.slice(2));
+if (import.meta.main) {
+  const published = await publishConfiguredReports(process.env, () =>
+    main(process.argv.slice(2))
+  );
+  if (!published)
+    console.log(
+      'report-publish: optional reports store is unconfigured; nothing published'
+    );
+}

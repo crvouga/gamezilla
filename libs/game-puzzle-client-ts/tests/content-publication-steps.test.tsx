@@ -149,7 +149,7 @@ test('a checked, proven puzzle has Publish as its one next step', () => {
 // regression: builder-stepper-hard-to-parse — each waiting step also said
 // what it waited on ("Validate After the playtest · Publish After
 // validation"), so the track read as one run-on line. Each step now reads
-// as number, name and state: "2 Validate · Locked".
+// as number, name and state, one row each: "2 Validate … Locked".
 test('steps that wait are locked, say so in a word, and still press', async () => {
   let published = 0;
   mount(() =>
@@ -165,8 +165,8 @@ test('steps that wait are locked, say so in a word, and still press', async () =
     ...screen.getByTestId('content-publication-steps').querySelectorAll('li'),
   ];
   for (const [index, id, line] of [
-    [1, 'content-validate', '2Validate·Locked'],
-    [2, 'content-publish', '3Publish·Locked'],
+    [1, 'content-validate', '2ValidateLocked'],
+    [2, 'content-publish', '3PublishLocked'],
   ] as const) {
     const button = screen.getByTestId(id);
     expect(button.getAttribute('data-face')).toBe('locked');
@@ -200,7 +200,7 @@ test('a pack waits on its draft puzzles first, names them, and opens the first',
   );
   expect(states()).toEqual(['current', 'upcoming', 'upcoming']);
   expect(screen.getByTestId('content-pack-puzzles-step').textContent).toBe(
-    '1Publish puzzles·Next'
+    '1Publish puzzlesNext'
   );
   // regression: pack-publish-dependency-exposed — the line explained the
   // rule ("A pack holds only published puzzles, so Count to nine comes
@@ -220,8 +220,8 @@ test('a pack waits on its draft puzzles first, names them, and opens the first',
   const steps = [
     ...screen.getByTestId('content-publication-steps').querySelectorAll('li'),
   ];
-  expect(steps[1]?.textContent).toBe('2Validate·Locked');
-  expect(steps[2]?.textContent).toBe('3Publish·Locked');
+  expect(steps[1]?.textContent).toBe('2ValidateLocked');
+  expect(steps[2]?.textContent).toBe('3PublishLocked');
 });
 
 // regression: builder-playtest-next-while-unplayable
@@ -234,7 +234,7 @@ test('a draft the game cannot play names its corrections, not the playtest, as n
     .getByTestId('content-publication-steps')
     .querySelector('li');
   expect(playtest?.getAttribute('data-state')).toBe('current');
-  expect(playtest?.textContent).toBe('1Playtest·Fix first');
+  expect(playtest?.textContent).toBe('1PlaytestFix first');
 });
 
 function builder(
@@ -366,7 +366,9 @@ test('pending becomes an edition then an edited draft without duplicate publicat
       },
     })
   );
-  expect(screen.getByTestId('content-publish')).toHaveTextContent('Send again');
+  expect(screen.getByTestId('content-publish')).toHaveTextContent(
+    'Retry sending'
+  );
   expect(screen.getAllByTestId('content-publication-status')).toHaveLength(1);
   expect(
     screen.getAllByText('Awaiting confirmation', { exact: true })
@@ -378,7 +380,9 @@ test('pending becomes an edition then an edited draft without duplicate publicat
     screen.queryByText('Ready: publish to share it with everyone who plays.')
   ).toBeNull();
   setState({ kind: 'edition', current: true });
-  expect(screen.getByTestId('content-publish')).toHaveTextContent('Send again');
+  expect(screen.getByTestId('content-publish')).toHaveTextContent(
+    'Publish again'
+  );
   expect(screen.getAllByTestId('content-view-publication')).toHaveLength(1);
   expect(screen.getAllByTestId('content-publication-status')).toHaveLength(1);
   expect(screen.getAllByText('Published', { exact: true })).toHaveLength(1);
@@ -497,7 +501,7 @@ for (const current of [true, false]) {
       })
     );
     const repeat = screen.getByTestId('content-publish');
-    expect(repeat).toHaveTextContent('Send again');
+    expect(repeat).toHaveTextContent('Publish again');
     expect(screen.getByTestId('content-publication-status')).toHaveTextContent(
       current ? 'Published' : 'Previously published'
     );
@@ -543,4 +547,141 @@ test('withdrawing only asks: the confirmation belongs to the shell', () => {
   fireEvent.click(screen.getByTestId('content-withdraw'));
   expect(asked).toBe(1);
   expect(screen.queryByTestId('content-withdraw-confirm')).toBeNull();
+});
+
+// regression: builder-fix-first-lead-disabled — a draft the game could not
+// play led with a disabled "Start playtest"; the action that unblocks it
+// (the board) was nowhere on the screen. Fixing the board now leads.
+test('a draft the game cannot play leads with fixing its board', () => {
+  const fixed: string[] = [];
+  mount(() =>
+    publication({ playable: false, onFix: (where) => fixed.push(where) })
+  );
+  expect(lead()).toBe(screen.getByTestId('content-author-fix-board'));
+  fireEvent.click(lead());
+  expect(fixed).toEqual(['board']);
+});
+
+// regression: builder-finding-no-way-to-fix — a failed check said what was
+// wrong but offered only Validate again, so the author had to find the
+// details or the board on their own.
+test('a failed check offers the details and the board, where it is fixed', () => {
+  const fixed: string[] = [];
+  mount(() =>
+    publication({
+      proven: true,
+      validation: 'invalid',
+      validationMessage: 'The target must be a number from 2 to 9.',
+      onFix: (where) => fixed.push(where),
+    })
+  );
+  const finding = screen.getByTestId('content-validation-finding');
+  expect(finding.textContent).toContain('The target must be a number');
+  fireEvent.click(screen.getByTestId('content-fix-details'));
+  fireEvent.click(screen.getByTestId('content-fix-board'));
+  expect(fixed).toEqual(['details', 'board']);
+});
+
+// regression: builder-publish-denial-in-marker-column — a denial took the
+// Publish step's name slot and was pulled into the numbered column. It is
+// now said under the step's name, inside its column.
+test('a publish denial is said under the Publish step, not as its name', () => {
+  mount(() =>
+    publication({
+      publishDenial: {
+        icon: () => null,
+        title: 'Publishing needs a verified account',
+        dataSet: { testid: 'permission-denial' },
+      },
+    })
+  );
+  const steps = [
+    ...screen.getByTestId('content-publication-steps').querySelectorAll('li'),
+  ];
+  expect(steps[2]?.contains(screen.getByTestId('permission-denial'))).toBe(
+    true
+  );
+  expect(screen.queryByTestId('content-publish')).toBeNull();
+  expect(steps[2]?.textContent).toContain('Publish');
+});
+
+// regression: builder-refused-reads-ready — after the server refused a
+// publication the screen still said "Ready" with Publish filled and no way
+// to the fix. It now says it was refused and offers the details and board.
+test('a refused publication names the correction first, then publishing again', () => {
+  const fixed: string[] = [];
+  mount(() =>
+    publication({
+      proven: true,
+      validation: 'valid',
+      refused: true,
+      onFix: (where) => fixed.push(where),
+    })
+  );
+  // The refusal's notice says why; the line does not repeat it.
+  expect(screen.queryByTestId('content-publication-status')).toBeNull();
+  expect(screen.getByTestId('content-refusal-fixes').textContent).toContain(
+    'Publishing did not go ahead. Your draft is kept. Correct the draft, then publish again.'
+  );
+  expect(screen.getByTestId('content-publish').textContent).toBe(
+    'Publish again'
+  );
+  fireEvent.click(screen.getByTestId('content-fix-board'));
+  expect(fixed).toEqual(['board']);
+});
+
+// regression: builder-check-failed-validate-leads — after a failed check
+// Validate led while the finding pointed at the board, so the author
+// re-ran the check instead of fixing it. The place it points to leads,
+// and Validate again waits beside its step.
+test('a failed check leads with the place that fixes it, then Validate again', () => {
+  const fixed: string[] = [];
+  mount(() =>
+    publication({
+      proven: true,
+      validation: 'invalid',
+      validationMessage: 'The target must be a number from 2 to 9.',
+      fixTarget: 'board',
+      onFix: (where) => fixed.push(where),
+    })
+  );
+  expect(lead()).toBe(screen.getByTestId('content-author-fix-board'));
+  expect(lead().textContent).toBe('Edit board');
+  expect(screen.getByTestId('content-validate').textContent).toBe(
+    'Validate again'
+  );
+  fireEvent.click(lead());
+  expect(fixed).toEqual(['board']);
+});
+
+// regression: builder-refused-retry-outweighs-fix — after a refusal the
+// filled Publish again outweighed the correction. A refusal that names its
+// finding now says why, leads with the place that corrects it, and keeps
+// Publish again on its step.
+test('a refusal naming its finding says why and leads with its correction', () => {
+  mount(() =>
+    publication({
+      proven: true,
+      validation: 'valid',
+      refused: true,
+      refusalIssue: 'UNSOLVABLE',
+      fixTarget: 'board',
+      onFix: () => undefined,
+    })
+  );
+  expect(lead()).toBe(screen.getByTestId('content-author-fix-board'));
+  expect(screen.getByTestId('content-refusal-fixes').textContent).toBe(
+    'Publishing did not go ahead: the game cannot finish the puzzle from its board. Your draft is kept. Correct the board and playtest it, then publish again.'
+  );
+  const steps = [
+    ...screen.getByTestId('content-publication-steps').querySelectorAll('li'),
+  ];
+  expect(steps[2]?.contains(screen.getByTestId('content-publish'))).toBe(true);
+  // One word for the hold, matching its lock.
+  expect(steps[2]?.textContent).toBe('3Publish againLocked');
+  expect(steps[2]?.getAttribute('data-state')).toBe('upcoming');
+  // Held until the board is corrected, yet it still says what is missing.
+  expect(screen.getByTestId('content-publish').getAttribute('data-face')).toBe(
+    'locked'
+  );
 });

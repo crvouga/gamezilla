@@ -2,11 +2,31 @@ import { useLingui } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { H2 } from '@pkgs/ui-root-client-ts/heading';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import type { JSX } from 'solid-js';
+import { type JSX, Show } from 'solid-js';
 import type { ContentAuthorScreenViewProps } from './content-author-screen-view';
 import { ContentDraftMetadata } from './content-draft-metadata';
 
 type View = ContentAuthorScreenViewProps;
+
+/**
+ * A stage's way back to the builder's steps, at its foot: an outline, so
+ * the stage's own filled command (a pack preview's Continue) stays the one.
+ */
+function DoneButton(props: { view: View }): JSX.Element {
+  const { t } = useLingui();
+  return (
+    // A row of its own, so the button keeps its own width in a column.
+    <StackHorizontal>
+      <Button
+        title={t`Done`}
+        intent="neutral"
+        variant="outline"
+        onClick={() => props.view.onOpen({ screen: 'builder' })}
+        dataSet={{ testid: 'content-step-done' }}
+      />
+    </StackHorizontal>
+  );
+}
 
 /**
  * `details`: the draft's title, description and difficulty. Every change
@@ -22,14 +42,15 @@ export function ContentAuthorDetailsView(props: { view: View }): JSX.Element {
         disabled={props.view.metadataDisabled}
         onChange={props.view.onChangeBody}
       />
-      <Button
-        title={t`Done`}
-        intent="primary"
-        variant="solid"
-        fullWidth
-        onClick={() => props.view.onOpen({ screen: 'builder' })}
-        dataSet={{ testid: 'content-details-done' }}
-      />
+      <StackHorizontal>
+        <Button
+          title={t`Done`}
+          intent="neutral"
+          variant="outline"
+          onClick={() => props.view.onOpen({ screen: 'builder' })}
+          dataSet={{ testid: 'content-details-done' }}
+        />
+      </StackHorizontal>
     </StackVertical>
   );
 }
@@ -57,6 +78,7 @@ export function ContentAuthorBoardView(props: { view: View }): JSX.Element {
         </StackHorizontal>
       </StackHorizontal>
       {props.view.stage}
+      <DoneButton view={props.view} />
     </StackVertical>
   );
 }
@@ -66,6 +88,17 @@ export function ContentAuthorPreviewView(props: { view: View }): JSX.Element {
   return (
     <StackVertical gap="md" dataSet={{ testid: 'content-author-preview' }}>
       {props.view.preview}
+      {/* A pack's previewed puzzle returns to the pack's list instead. */}
+      <Show
+        when={
+          !(
+            props.view.place.screen === 'preview' &&
+            props.view.place.puzzleId !== null
+          )
+        }
+      >
+        <DoneButton view={props.view} />
+      </Show>
     </StackVertical>
   );
 }
@@ -88,6 +121,7 @@ export function ContentAuthorCopiesView(props: { view: View }): JSX.Element {
   return (
     <StackVertical gap="md" dataSet={{ testid: 'content-author-copies' }}>
       {props.view.keptCopies}
+      <DoneButton view={props.view} />
     </StackVertical>
   );
 }

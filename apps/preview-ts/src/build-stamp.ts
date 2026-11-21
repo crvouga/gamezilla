@@ -24,6 +24,6 @@ export function stampedPage(html: string, build: BuildStamp): string {
   const value = JSON.stringify(build).replaceAll('<', '\\u003c');
   return page.replace(
     '<head>',
-    `<head><script data-build>globalThis.__BUILD__=${value}</script>`
+    () => `<head><script data-build>globalThis.__BUILD__=${value}</script>`
   );
 }

@@ -112,12 +112,13 @@ export function SokobanPlayerView(
   // Primitive inputs: a re-delivered row with the same text keeps the board.
   const definition = createMemo(() => props.definition);
   const state = createMemo(() => props.state);
+  const board = createMemo(() => decodeSokobanBoard(definition()));
   const input = createMemo(() => {
-    const board = decodeSokobanBoard(definition());
-    if (!board.valid) return null;
-    const position = decodeSokobanPosition(board.value, state());
+    const decoded = board();
+    if (!decoded.valid) return null;
+    const position = decodeSokobanPosition(decoded.value, state());
     return position.valid
-      ? { board: board.value, position: position.value }
+      ? { board: decoded.value, position: position.value }
       : null;
   });
   return (

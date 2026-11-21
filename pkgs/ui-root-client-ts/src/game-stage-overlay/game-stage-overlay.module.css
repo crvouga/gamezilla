@@ -376,18 +376,42 @@
   }
 }
 
-/* A small board (a short phone) keeps the whole card: it only tightens. */
-@container (max-height: 336px) {
+/* A phone's board (narrow or short): the card is a strip along the board's
+   top edge, so most of the final position stays in view under it, and the
+   standings fold behind their control (`result-card.module.css`). */
+@container (max-height: 336px) or (max-width: 480px) {
   .result {
+    align-items: flex-start;
     padding: var(--ui-space-2);
   }
   .card {
+    max-height: 60%;
+  }
+  /* The headline says the outcome; its word above it waits for a listener. */
+  .eyebrow {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    min-height: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .cardTitle > h2 {
+    padding-inline-end: 9rem;
+  }
+  .cardTitle > p {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+}
+/* A short board also tightens the card. */
+@container (max-height: 336px) {
+  .card {
     gap: var(--ui-space-2);
     padding: var(--ui-space-2) var(--ui-space-3) var(--ui-space-3);
-  }
-  /* The headline and its reason say it; the standings wait on the board. */
-  .card :global(.panel) {
-    display: none;
   }
   /* The card's own quiet commands sit on one row of a narrow card. */
   .card :global(.btn[data-size="sm"]) {
@@ -420,6 +444,7 @@
     padding: 0;
   }
   .eyebrow,
+  .cardTitle > h2,
   .cardTitle > h2:first-child {
     padding-inline-end: var(--ui-space-8);
   }

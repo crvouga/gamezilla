@@ -1,0 +1,4 @@
+{
+  "summary": "The live Pong story sent held input only once, so the 18-tick lease expired and the blur check sampled the same paddle position (518) twice on a slow runner.",
+  "regressionTest": "libs/pong-client-ts/tests/pong-live-inputs.test.ts"
+}

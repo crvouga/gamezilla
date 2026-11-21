@@ -330,7 +330,8 @@ function RatingChange(props: StatusProps): JSX.Element {
         }
         label={
           <Trans>
-            <VisuallyHidden>Your rating changed by </VisuallyHidden>
+            <VisuallyHidden>Your </VisuallyHidden>Rating
+            <VisuallyHidden> changed by</VisuallyHidden>{' '}
             {(diff() ?? 0) > 0 ? '+' : ''}
             {diff() ?? 0}
             <VisuallyHidden>.</VisuallyHidden>

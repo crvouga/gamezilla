@@ -8,9 +8,8 @@
 locals {
   # Match the pinned Grafana provider's Cloud OnCall endpoint explicitly so
   # the post-apply verifier and provider address the same backend.
-  irm_api_url    = "https://oncall-prod-us-central-0.grafana.net/oncall"
-  envs           = var.envs
-  production_env = one([for name, env in local.envs : name if env.protection == "production"])
+  irm_api_url = "https://oncall-prod-us-central-0.grafana.net/oncall"
+  envs        = var.envs
   routing_ready = alltrue([
     for value in [var.alerting.irm_responder] :
     value != null && try(trimspace(value) != "", false)
@@ -117,13 +116,11 @@ provider "grafana" {
 }
 
 module "alert_routing" {
-  # Provider references alone do not defer the module's user data lookup.
-  depends_on         = [grafana_cloud_stack_service_account_token.alerting_provisioner]
-  count              = local.routing_ready ? 1 : 0
-  source             = "../../modules/alert-routing"
-  responder          = var.alerting.irm_responder
-  paging_environment = local.production_env
-  brand_name         = var.brand_name
+  # Wait for the provider credential before provisioning integrations.
+  depends_on = [grafana_cloud_stack_service_account_token.alerting_provisioner]
+  count      = local.routing_ready ? 1 : 0
+  source     = "../../modules/alert-routing"
+  brand_name = var.brand_name
   providers = {
     grafana = grafana.alerting
   }

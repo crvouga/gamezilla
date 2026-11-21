@@ -1,0 +1,4 @@
+{
+  "summary": "A full Connect Four board under its result on a phone stayed at full width: the stage fit gave up when a one-pixel narrowing drew the same height, so the person's own seat fell under the commands.",
+  "regressionTest": "pkgs/ui-root-client-ts/tests/game-board-room-fit.test.ts"
+}

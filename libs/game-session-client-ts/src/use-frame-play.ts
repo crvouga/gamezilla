@@ -78,6 +78,11 @@ export function useFramePlay(
     model.sharedAvailable() ? awayOpponent(model) : null
   );
   const awayName = usePersonName(() => away() ?? '');
+  const offerer = createMemo(() => {
+    const by = model.current()?.drawOfferedBy ?? '';
+    return by === '' || by === model.myId() ? null : by;
+  });
+  const offererName = usePersonName(() => offerer() ?? '');
   const presentation = useGamePresentation();
   return createMemo((): FramePlay => {
     const game = model.current();
@@ -100,6 +105,10 @@ export function useFramePlay(
       game.status === 'active' && model.mySide() !== null && model.canPlay();
     return {
       ...drawFacts(model, game, presentation(game.fen).frame.drawOffers),
+      drawOfferer: ((by) =>
+        by === null ? null : { person: by, plainName: offererName() })(
+        offerer()
+      ),
       away:
         person === null ? null : { person, plainName: awayName(), twoSided },
       canClaimWin: person !== null && model.canPlay() && twoSided,

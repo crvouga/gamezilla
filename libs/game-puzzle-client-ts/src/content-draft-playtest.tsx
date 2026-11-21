@@ -20,6 +20,8 @@ export function ContentDraftPlaytest(props: {
   writer: ReturnType<typeof useContentDraftSave>;
   /** The playtest is the draft's one next step: filled. */
   next?: boolean | undefined;
+  /** A finished playtest already proves this copy: offered again. */
+  again?: boolean | undefined;
   disabled: boolean;
   /** The playtest started in this builder, if any. */
   attemptId: string | null;
@@ -54,7 +56,11 @@ export function ContentDraftPlaytest(props: {
       props.onStarted(id);
     },
     labels: {
-      idle: t`Start playtest`,
+      get idle() {
+        return props.again === true && props.next !== true
+          ? t`Playtest again`
+          : t`Start playtest`;
+      },
       loading: t`Preparing…`,
       success: t`Playtest ready`,
       error: t`Try playtesting again`,

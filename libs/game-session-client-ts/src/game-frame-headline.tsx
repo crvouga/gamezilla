@@ -13,6 +13,7 @@ export type FrameHeadline =
   | { readonly kind: 'draw' }
   | { readonly kind: 'you-win' }
   | { readonly kind: 'you-placed'; readonly place: number }
+  | { readonly kind: 'you-lost' }
   | { readonly kind: 'won'; readonly winners: readonly GameSide[] };
 
 export function frameHeadline(
@@ -26,12 +27,14 @@ export function frameHeadline(
     return { kind: 'draw' };
   const own = standings.find((standing) => standing.side === viewer);
   if (own === undefined) return { kind: 'won', winners };
-  return own.place === 1
-    ? { kind: 'you-win' }
+  if (own.place === 1) return { kind: 'you-win' };
+  // Between two, second is simply a loss; at a bigger table the place says more.
+  return standings.length === 2
+    ? { kind: 'you-lost' }
     : { kind: 'you-placed', place: own.place };
 }
 
-/** The headline in words: "You win", "You came 2nd", "Erin wins", "Draw". */
+/** The headline in words: "You win", "You lost", "You came 3rd", "Erin wins", "Draw". */
 export function frameHeadlineText(
   headline: FrameHeadline,
   nameOf: (side: GameSide) => string,
@@ -39,6 +42,7 @@ export function frameHeadlineText(
 ): string {
   if (headline.kind === 'draw') return t`Draw`;
   if (headline.kind === 'you-win') return t`You win`;
+  if (headline.kind === 'you-lost') return t`You lost`;
   if (headline.kind === 'you-placed') {
     const place = formatOrdinal(headline.place, locale);
     return t`You came ${place}`;

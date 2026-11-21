@@ -1,0 +1,4 @@
+{
+  "summary": "The release continuity journey pressed ArrowRight immediately after opening the Ramp playtest while the page still displayed Loading requested puzzles, failing with Keyboard target not found. Wait for the board within the existing journey deadline before sending input.",
+  "regressionTest": "libs/sokoban-harness-ts/tests/sokoban-journey-readiness.test.ts"
+}

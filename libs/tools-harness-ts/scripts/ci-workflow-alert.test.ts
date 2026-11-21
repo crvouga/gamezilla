@@ -45,7 +45,12 @@ type Job = {
   readonly needs?: readonly string[] | string;
   readonly if?: string;
   readonly permissions?: Readonly<Record<string, string>>;
-  readonly steps?: readonly { readonly name?: string; readonly run?: string }[];
+  readonly steps?: readonly {
+    readonly name?: string;
+    readonly run?: string;
+    readonly uses?: string;
+    readonly with?: Readonly<Record<string, string>>;
+  }[];
 };
 
 function workflow(file: string): {
@@ -92,6 +97,26 @@ test.each([
 
 /** Jobs that are not about `main`'s release health: rehearsals and housekeeping. */
 const OUTSIDE_VERDICT = new Set(['deploy-rehearsal', 'health-cleanup']);
+
+// regression: workflow-verdict-missing-secrets-cli
+test.each([
+  ['deploy.yml', 'deploy-verdict'],
+  ['health.yml', 'health-verdict'],
+  ['verify-nightly.yml', 'verify-nightly-end'],
+])(
+  '%s installs the secrets CLI before publishing its Grafana verdict',
+  (file, name) => {
+    const steps = workflow(file).jobs[name]?.steps ?? [];
+    const publish = steps.findIndex((step) =>
+      step.run?.includes('ci-workflow-result.ts')
+    );
+    expect(publish).toBeGreaterThan(0);
+    const setup = steps
+      .slice(0, publish)
+      .find((step) => step.uses === './.github/actions/setup');
+    expect(setup?.with?.['tools']?.split(/\s+/)).toContain('infisical');
+  }
+);
 
 // regression: release-timeout-spent-waiting-for-health
 test("waiting for a running Health check never spends an environment's release timeout", () => {

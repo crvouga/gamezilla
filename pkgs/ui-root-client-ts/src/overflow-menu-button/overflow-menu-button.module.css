@@ -1,0 +1,14 @@
+/* A labelled trigger: icon and word in an outlined pill, 32px tall, its
+   44px hit area kept by the trigger's own target. */
+.labelled {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ui-space-1);
+  box-sizing: border-box;
+  min-height: var(--ui-space-8);
+  padding: 0 var(--ui-space-3);
+  border: 1px solid var(--ui-color-outline);
+  border-radius: var(--ui-radius-full);
+  color: var(--ui-color-text);
+  white-space: nowrap;
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "After a Pong rematch on a 390px phone, result navigation is inside collapsed Details. Cleanup must open Details before choosing Game options; waiting for the hidden link cannot progress.",
+  "regressionTest": "libs/runtime-harness-ts/tests/multiplayer-search-loading.test.ts"
+}

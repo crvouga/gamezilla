@@ -8,13 +8,13 @@ import { useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { createMemo, type JSX, Show } from 'solid-js';
 import { ContentAuthorConfirms } from './content-author-confirms';
+import { ContentAuthorCopiesList } from './content-author-copies-list';
 import { ContentAuthorScreenView } from './content-author-screen-view';
 import { ContentAuthorStage } from './content-author-stage';
 import { ContentDraftHistory } from './content-draft-history';
 import { contentDraftPreviewable } from './content-draft-playable';
 import { ContentDraftPlaytest } from './content-draft-playtest';
 import { useContentGame, useContentPlace } from './content-game-context';
-import { ContentKeptCopies } from './content-kept-copies';
 import { useContentLibraryState } from './content-library-context';
 import { ContentPackEditor } from './content-pack-editor';
 import { ContentPackPreview } from './content-pack-preview';
@@ -80,6 +80,7 @@ function AuthorPreview(props: {
           props.place.screen === 'preview' ? props.place.puzzleId : null
         }
         onSelect={(puzzleId) => props.onOpen({ screen: 'preview', puzzleId })}
+        onBack={() => props.onOpen({ screen: 'preview', puzzleId: null })}
       />
     </Show>
   );
@@ -90,18 +91,21 @@ function AuthorPublication(props: {
   document: ContentDocument;
   workspace: ContentAuthorWorkspace;
 }): JSX.Element {
+  const nav = useContentPlace();
   return (
     <ContentPublicationControls
       document={props.document}
       publication={props.workspace.publication}
       disabled={props.workspace.disabled() || props.workspace.conflicted()}
       onWithdraw={() => props.workspace.setWithdrawing(true)}
+      onFix={(where) => nav.open({ screen: where })}
       before={(next) => (
         <Show when={props.document.kind === 'puzzle'}>
           <ContentDraftPlaytest
             documentId={props.document.id}
             writer={props.workspace.writer}
             next={next()}
+            again={props.workspace.publication.tools.proven()}
             disabled={props.workspace.disabled()}
             attemptId={props.workspace.playtestId()}
             onStarted={props.workspace.setPlaytestId}
@@ -190,7 +194,7 @@ function AuthorWorkspaceScreen(props: {
         <AuthorPublication document={props.document} workspace={workspace} />
       }
       keptCopies={
-        <ContentKeptCopies
+        <ContentAuthorCopiesList
           document={props.document}
           currentId={writer.draftId()}
           disabled={workspace.disabled() || writer.dirty()}
@@ -198,6 +202,7 @@ function AuthorWorkspaceScreen(props: {
         />
       }
       refusal={workspace.publication.status.refusal()}
+      refused={workspace.publication.status.refused()}
       confirms={<ContentAuthorConfirms workspace={workspace} />}
       onChangeBody={writer.change}
       onSaveAgain={() => {

@@ -12,7 +12,9 @@ export const battleshipAutomation: TurnGame['turnAutomation'] = {
     const area =
       Number(action.charAt(0) >= 'f') +
       Math.floor((Number(action.slice(1)) - 1) / 2) * 2;
-    await ui.get(`${board}-area-${area}`).key('enter');
+    const region = ui.get(`${board}-area-${area}`);
+    await region.wait('enabled');
+    await region.key('enter');
     const target = ui.get(`${board}-aim-${action}`);
     await target.wait('enabled');
     await target.key('enter');

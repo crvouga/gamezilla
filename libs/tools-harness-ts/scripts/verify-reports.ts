@@ -2,6 +2,7 @@
 import { spawnSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { publishConfiguredReports } from '@libs/harness-ts/report-store-configuration';
 import { turboChildEnv } from './turbo-ci-run';
 import { restorePlan } from './verify-plan-transfer';
 import { reportCommand } from './verify-report-command';
@@ -94,4 +95,10 @@ async function publish(): Promise<void> {
   await reportCommand(ROOT, env, ['close', ...(failed ? ['failed'] : [])]);
 }
 
-if (import.meta.main) await publish();
+if (import.meta.main) {
+  const published = await publishConfiguredReports(process.env, publish);
+  if (!published)
+    console.log(
+      'verify-reports: optional reports store is unconfigured; nothing published'
+    );
+}

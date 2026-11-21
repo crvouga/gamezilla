@@ -1,0 +1,4 @@
+{
+  "summary": "Every Sokoban position update reparsed and re-encoded the unchanged board definition; the live story also recomputed completion for each consumer. Board parsing and serialization dominated game CPU samples during maximum-board walking.",
+  "regressionTest": "libs/sokoban-harness-ts/tests/sokoban-board-decode-work.test.tsx"
+}
