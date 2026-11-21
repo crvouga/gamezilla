@@ -110,7 +110,7 @@ export const Draw: Story = {
     record: record(DRAWN_MOVES.map((column) => String(column + 1))),
     result: {
       headline: 'Draw',
-      note: 'Host starts the rematch',
+      note: 'Host starts the rematch.',
       scoreLabel: null,
       standings: [STANDINGS[0], { ...STANDINGS[1], place: 1 }],
     },
@@ -134,7 +134,7 @@ export const WatcherSeesResult: Story = {
     next: { plays: false, canCreate: false, reviewable: true },
     result: {
       headline: 'morgan wins',
-      note: 'Host starts the rematch',
+      note: 'Host starts the rematch.',
       scoreLabel: null,
       standings: [
         {

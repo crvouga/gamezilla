@@ -102,7 +102,7 @@ function gameStateDescription(
     if (game.awaiting.length > 0) {
       const chosen = game.committed.length;
       const total = game.awaiting.length + chosen;
-      return t`Secret choices: ${chosen} of ${total} made.`;
+      return t`Everyone chooses in secret. ${chosen} of ${total} have chosen.`;
     }
     if (game.execution !== undefined)
       return game.execution.phase === 'paused'
