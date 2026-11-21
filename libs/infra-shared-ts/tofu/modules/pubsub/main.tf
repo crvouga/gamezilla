@@ -147,7 +147,7 @@ resource "cloudflare_dns_record" "cert_validation" {
   proxied = false
   ttl     = 1
   # regression: pubsub-dns-comment-tug-of-war
-  # No comment: the zone's DNS inventory (crvouga/personal) also declares this
+  # No comment: the zone's DNS inventory (crvouga-organization/personal) also declares this
   # record, without one. Two applies disagreeing on it rewrote it every run.
 }
 
@@ -180,7 +180,7 @@ resource "cloudflare_dns_record" "broker" {
   proxied = false
   ttl     = 1
   # regression: pubsub-dns-comment-tug-of-war
-  # No comment: the zone's DNS inventory (crvouga/personal) also declares this
+  # No comment: the zone's DNS inventory (crvouga-organization/personal) also declares this
   # record, without one. Two applies disagreeing on it rewrote it every run.
 }
 
