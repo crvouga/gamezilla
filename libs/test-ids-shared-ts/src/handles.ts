@@ -372,8 +372,23 @@ export const Handles = {
     `notifications-friend-accepted-card-${username}`,
 
   // spaces games
-  /** A game offered in the space's game choice. */
+  /**
+   * What picks `gameId` in the space's game choice: the tile of a game that
+   * is the only one of its family, else its row among its family's modes.
+   */
   gameMenu: (gameId: string) => `game-menu-${gameId}`,
+  /** The tile of a family of several modes in the game choice: opens them. */
+  gameFamily: (family: string) => `game-family-${family}`,
+  /**
+   * The family tiles `gameId` may sit under, nearest first: a mode's id
+   * begins with its family's (`word-tiles-3` is a mode of `word-tiles`).
+   */
+  gameFamiliesOf: (gameId: string): readonly string[] => {
+    const words = gameId.split('-');
+    return words.map((_, index) =>
+      Handles.gameFamily(words.slice(0, words.length - index).join('-'))
+    );
+  },
   /** The selected game's menu, including games without custom games. */
   gameChoices: 'game-choices',
   /** One of the selected game's choices, by the screen it opens. */

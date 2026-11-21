@@ -8,6 +8,7 @@ import {
   chooseGlobalMenuItem,
   pressBackUntilVisible,
 } from '@libs/harness-ts/driver-gestures';
+import { tapGameChoice } from '@libs/spaces-harness-ts/space-game-choice-ui';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 
@@ -49,6 +50,11 @@ export async function atTabShell(ui: Driver): Promise<void> {
 
 export async function tap(ui: Driver, testId: string): Promise<void> {
   await ui.get(testId).tap({ timeoutMs: JOURNEY_WAIT_MS });
+}
+
+/** Pick `gameId` on the space's game choice, through its family's modes. */
+export async function pickGame(ui: Driver, gameId: string): Promise<void> {
+  await tapGameChoice(ui, gameId, { timeoutMs: JOURNEY_WAIT_MS });
 }
 
 export async function expectVisible(ui: Driver, testId: string): Promise<void> {

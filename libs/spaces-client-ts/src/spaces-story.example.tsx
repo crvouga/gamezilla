@@ -1,14 +1,16 @@
 import { serializeDefaultAvatarConfig } from '@libs/profile-shared-ts/avatar-config';
+import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { resolveParticipantColor } from '@pkgs/collab-root-shared-ts/participant-color';
-import {
-  GameTile,
-  type GameTileMotif,
-} from '@pkgs/ui-root-client-ts/game-tile';
-import type { JSX } from 'solid-js';
+import type { GameTileMotif } from '@pkgs/ui-root-client-ts/game-tile';
+import type { SpaceRole } from '@pkgs/ui-root-client-ts/space-types';
+import type { SpaceGameClient } from './games-registry-context';
 import type { SpaceCardData } from './space-card-view';
+import { spaceGameFamilies } from './space-game-families';
 import type { SpaceMemberRow } from './space-members-sheet-view';
 import type { SpacePerson } from './space-person-view';
 import type { SpacePresenceFace } from './space-presence-strip-view';
+import type { SpaceScreenChromeValue } from './space-screen-chrome';
+import { spaceScreenPeople } from './space-screen-people';
 
 /** Story-only fixtures for space screens: fixed ids, synced avatars. */
 
@@ -152,45 +154,106 @@ export const MEMBERS: readonly SpaceMemberRow[] = faces([
   isHost: index === 0,
 }));
 
-/** A made-up game's picture, as `defineGameClient` gives a registered game one. */
-export function storyTile(
-  motif: GameTileMotif
-): (props: { readonly size?: 'md' | 'lg' }) => JSX.Element {
-  return (props) => <GameTile motif={motif} size={props.size} />;
+/** A made-up game as the registry lists it; ids are made up. */
+function storyGame(
+  id: string,
+  title: string,
+  look: {
+    readonly players: number;
+    readonly motif: GameTileMotif;
+    /** The family it is a mode of; else its own. */
+    readonly family?: { readonly id: string; readonly title: string };
+  }
+): SpaceGameClient {
+  return {
+    id,
+    title,
+    players: look.players,
+    motif: look.motif,
+    family: look.family?.id ?? id,
+    familyTitle: look.family?.title ?? title,
+    bots: look.players > 1,
+    MainMenu: () => null,
+  };
 }
+
+const RACE = { id: 'example-race', title: 'Light Cycles' };
 
 /**
  * Games a space offers, as the composition root would register them: real
- * games' names and lines, so a story reads as the product does. Ids are
- * made up: platform code never spells a registered game's id.
+ * games' names, so a story reads as the product does, and one family of
+ * three modes. Ids are made up: platform code never spells a registered
+ * game's id.
  */
-export const GAMES = [
-  {
-    id: 'example-board',
-    title: 'Chess',
-    caption: 'Two players, one board, turn by turn.',
+export const STORY_GAMES: readonly SpaceGameClient[] = [
+  storyGame('example-board', 'Chess', { players: 2, motif: 'checkered' }),
+  storyGame('example-cards', 'Hearts', { players: 4, motif: 'cards' }),
+  storyGame('example-race', 'Light Cycles Duel', {
     players: 2,
-    Tile: storyTile('checkered'),
-  },
-  {
-    id: 'example-cards',
-    title: 'Hearts',
-    caption: 'Avoid hearts and the queen of spades.',
+    motif: 'trails',
+    family: RACE,
+  }),
+  storyGame('example-race-3', 'Light Cycles Trio', {
+    players: 3,
+    motif: 'trails',
+    family: RACE,
+  }),
+  storyGame('example-race-4', 'Light Cycles Quad', {
     players: 4,
-    Tile: storyTile('cards'),
-  },
-  {
-    id: 'example-race',
-    title: 'Light Cycles',
-    caption: 'Steer your trail and outlast everyone.',
-    players: 4,
-    Tile: storyTile('trails'),
-  },
-  {
-    id: 'example-puzzle',
-    title: 'Numberlink',
-    caption: 'Join each pair of dots without crossing a line.',
-    players: 1,
-    Tile: storyTile('paths'),
-  },
-] as const;
+    motif: 'trails',
+    family: RACE,
+  }),
+  storyGame('example-puzzle', 'Numberlink', { players: 1, motif: 'paths' }),
+];
+
+/** {@link STORY_GAMES} as the game choice offers them: one tile per family. */
+export const STORY_GAME_FAMILIES = spaceGameFamilies(STORY_GAMES);
+
+/**
+ * The chrome of avery's "Friday game night" as `role` sees it, with
+ * `people` here (avery first, hosting): what `useSpaceScreenChrome` gives
+ * a screen in a live space.
+ */
+export function storyChrome(
+  role: SpaceRole,
+  people: readonly SpacePerson[] = [AVERY, ...GUESTS]
+): SpaceScreenChromeValue {
+  const viewer = role === 'host' ? AVERY : (people[1] ?? AVERY);
+  const ignore = (): void => undefined;
+  return {
+    spaceId: HOSTED_SPACE.spaceId,
+    spaceName: 'Friday game night',
+    role,
+    hostName: AVERY.name,
+    people: spaceScreenPeople({
+      faces: people.map((each) => ({
+        id: each.id,
+        name: each.name,
+        svg: undefined,
+      })),
+      hostId: AVERY.id,
+      myId: viewer.id,
+      idle: new Set(),
+    }),
+    hostOffline: false,
+    status: 'ready',
+    onBack: ignore,
+    backLabel: undefined,
+    menu: [
+      { id: 'share', label: 'Share', onPress: ignore },
+      { id: 'minimize', label: 'Minimize space', onPress: ignore },
+    ],
+    onLeave: ignore,
+    onEnd: ignore,
+    onInvite: ignore,
+    onPersonAction: ignore,
+    personCapabilities: [],
+    testIds: {
+      back: Handles.spaceBackToSpaces,
+      title: Handles.spaceTitle,
+      settings: Handles.spaceChromeOverflow,
+      leave: Handles.spaceLeave,
+      end: Handles.spaceEnd,
+    },
+  };
+}

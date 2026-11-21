@@ -11,6 +11,10 @@
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront, visible } from '@libs/harness-ts/observations';
+import {
+  gameChoiceShown,
+  tapGameChoice,
+} from '@libs/spaces-harness-ts/space-game-choice-ui';
 import { waitActiveSpace } from '@libs/spaces-harness-ts/space-ui';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import type { RecordingHaptics } from '@pkgs/device-shared-ts/haptics';
@@ -471,7 +475,7 @@ async function openPuzzleChoice(
   const ui = await actorUi(s, actorId);
   if (await ui.get(Handles.chessPuzzlePlayScreen).isVisible()) return;
   if (!(await ui.get(Handles.gameChoice('puzzle')).isVisible())) {
-    await ui.get(Handles.gameMenu(gameId)).tap({ timeoutMs: WAIT_MS });
+    await tapGameChoice(ui, gameId, { timeoutMs: WAIT_MS });
     await ui
       .get(Handles.gameChoice('puzzle'))
       .expect.visible({ timeoutMs: WAIT_MS });
@@ -564,15 +568,12 @@ export const returnToGamePuzzles = scenarioAction({
       async () => {
         if (await ui.get(Handles.chessPuzzlePlayScreen).isVisible())
           return true;
-        for (const way of [
-          Handles.gameChoice('puzzle'),
-          Handles.gameMenu(gameId),
-          Handles.navBack,
-        ])
-          if (await ui.get(way).isVisible()) {
-            await ui.get(way).tap({ timeoutMs: WAIT_MS });
-            return null;
-          }
+        const puzzle = ui.get(Handles.gameChoice('puzzle'));
+        if (await puzzle.isVisible()) await puzzle.tap({ timeoutMs: WAIT_MS });
+        else if (await gameChoiceShown(ui, gameId))
+          await tapGameChoice(ui, gameId, { timeoutMs: WAIT_MS });
+        else if (await ui.get(Handles.navBack).isVisible())
+          await ui.get(Handles.navBack).tap({ timeoutMs: WAIT_MS });
         return null;
       },
       { maxMs: WAIT_MS, description: `${actorId} back at the puzzles` }
@@ -594,7 +595,7 @@ export async function readPuzzleView(
     return 'Board';
   if (await visible(s, actorId, [Handles.gameChoice('puzzle')]))
     return 'GameChoices';
-  if (await visible(s, actorId, [Handles.gameMenu(gameId)]))
+  if (await gameChoiceShown(await actorUi(s, actorId), gameId))
     return 'GameChoice';
   return 'Elsewhere';
 }

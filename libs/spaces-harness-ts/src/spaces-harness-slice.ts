@@ -1,11 +1,9 @@
 import type { HarnessSlice } from '@libs/harness-ts/slices';
+import type { SpaceGameClient } from '@libs/spaces-client-ts/games-registry-context';
 import { createSpacesClient } from '@libs/spaces-client-ts/sub-client';
 import type { SpaceBlockRelation } from '@libs/spaces-server-ts/space-restrictions';
 import { createSpacesServer } from '@libs/spaces-server-ts/sub-server';
-import type {
-  GameClientDefinition,
-  GameDefinition,
-} from '@libs/spaces-shared-ts/game';
+import type { GameDefinition } from '@libs/spaces-shared-ts/game';
 import { SPACES_SUB } from '@libs/spaces-shared-ts/sub';
 import { createInProcessRoomNode } from './in-process-room-node';
 import { SPACES_HARNESS_ACTIONS } from './space-actions';
@@ -18,7 +16,7 @@ import { askToJoinWithoutAnswer } from './space-join-interruption';
  */
 export function spacesHarnessSlice(registry: {
   readonly games: readonly GameDefinition[];
-  readonly clients: readonly GameClientDefinition[];
+  readonly clients: readonly SpaceGameClient[];
   /** The friends context's block relation, when friends is composed too. */
   readonly blocks?: SpaceBlockRelation;
 }): HarnessSlice {

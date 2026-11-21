@@ -8,6 +8,11 @@
 import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront, visible } from '@libs/harness-ts/observations';
+import {
+  gameChoiceHandles,
+  gameChoiceShown,
+  tapGameChoice,
+} from '@libs/spaces-harness-ts/space-game-choice-ui';
 import { SPACE_WAIT_MS, waitForOneOf } from '@libs/spaces-harness-ts/space-ui';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 
@@ -30,7 +35,7 @@ export async function readSpaceView(
   if (await visible(s, actor, [Handles.spaceHostOffline]))
     return 'host offline';
   if (await visible(s, actor, [GAME_CHOICES])) return 'game';
-  if (await visible(s, actor, [Handles.gameMenu(gameId)])) return 'choice';
+  if (await gameChoiceShown(await actorUi(s, actor), gameId)) return 'choice';
   return 'elsewhere';
 }
 
@@ -43,12 +48,12 @@ export function hostChoosesGameShown(
 }
 
 /** Whether `actor` is offered to pick `gameId` for the space. */
-export function pickGameOffered(
+export async function pickGameOffered(
   s: ProductHarness,
   actor: string,
   gameId: string
 ): Promise<boolean> {
-  return visible(s, actor, [Handles.gameMenu(gameId)]);
+  return gameChoiceShown(await actorUi(s, actor), gameId);
 }
 
 /** Whether `actor` is offered to go back to the game choice. */
@@ -60,17 +65,18 @@ export function goBackToGameChoiceOffered(
 }
 
 /** Wait until `actor`'s space shows the game choice or the game's choices. */
-function spaceShown(
+async function spaceShown(
   s: ProductHarness,
   actor: string,
   gameId: string
-): Promise<string> {
-  return waitForOneOf(
+): Promise<'choice' | 'game'> {
+  const shown = await waitForOneOf(
     s,
     actor,
-    [Handles.gameMenu(gameId), GAME_CHOICES],
+    [GAME_CHOICES, ...gameChoiceHandles(gameId)],
     'the space view'
   );
+  return shown === GAME_CHOICES ? 'game' : 'choice';
 }
 
 /**
@@ -81,10 +87,9 @@ export const attemptPickGame = scenarioAction({
   name: 'attemptPickGame',
   act: async (s, actor: string, gameId: string) => {
     await bringToFront(s, actor);
-    if ((await spaceShown(s, actor, gameId)) !== Handles.gameMenu(gameId))
-      return;
+    if ((await spaceShown(s, actor, gameId)) !== 'choice') return;
     const ui = await actorUi(s, actor);
-    await ui.get(Handles.gameMenu(gameId)).tap({ timeoutMs: SPACE_WAIT_MS });
+    await tapGameChoice(ui, gameId, { timeoutMs: SPACE_WAIT_MS });
     await waitForOneOf(
       s,
       actor,
@@ -107,14 +112,14 @@ export const attemptGoBackToGameChoice = scenarioAction({
   name: 'attemptGoBackToGameChoice',
   act: async (s, actor: string, gameId: string) => {
     await bringToFront(s, actor);
-    if ((await spaceShown(s, actor, gameId)) !== GAME_CHOICES) return;
+    if ((await spaceShown(s, actor, gameId)) !== 'game') return;
     const ui = await actorUi(s, actor);
     await ui.get(Handles.navBack).tap();
     await waitForOneOf(
       s,
       actor,
       [
-        Handles.gameMenu(gameId),
+        ...gameChoiceHandles(gameId),
         Handles.spaceHostChoosesGame,
         Handles.statusConnectionMissing,
       ],

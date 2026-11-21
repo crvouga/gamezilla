@@ -1,5 +1,4 @@
 import type { PlayableGame } from '@libs/game-session-harness-ts/harness-game';
-import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { type GameSide, gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 import {
@@ -17,6 +16,7 @@ import {
   endActiveSpace,
   hostSpace,
   JOURNEY_WAIT_MS,
+  pickGame,
   tap,
 } from './journey-gestures';
 import type { JourneyHost } from './journey-types';
@@ -32,7 +32,7 @@ export type PublicCustomGame = {
 };
 
 async function createParty(ui: Driver, game: PlayableGame): Promise<void> {
-  await tap(ui, Handles.gameMenu(game.shared.id));
+  await pickGame(ui, game.shared.id);
   await tap(ui, 'game-choice-custom-game');
   await ui
     .get('custom-game-connection-needed')

@@ -2,6 +2,11 @@ import { MULTIPLAYER_SCREEN } from '@libs/game-matchmaking-harness-ts/multiplaye
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront } from '@libs/harness-ts/observations';
+import {
+  gameChoiceHandles,
+  gameChoiceShown,
+  tapGameChoice,
+} from '@libs/spaces-harness-ts/space-game-choice-ui';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 
 /** What each shared screen shows first, so a person can tell it is open. */
@@ -29,8 +34,7 @@ export const pickGame = scenarioAction({
   act: async (s, actor: string, gameId: string) => {
     const ui = await actorUi(s, actor);
     await bringToFront(s, actor);
-    await ui.get(Handles.gameMenu(gameId)).expect.visible();
-    await ui.get(Handles.gameMenu(gameId)).tap();
+    await tapGameChoice(ui, gameId);
     await ui.get(Handles.gameChoices).expect.visible();
   },
 });
@@ -106,6 +110,19 @@ async function tapWhileShown(node: Node): Promise<void> {
   }
 }
 
+/** {@link tapWhileShown} for picking `gameId` on the game choice. */
+async function tapGameChoiceWhileShown(
+  ui: Awaited<ReturnType<typeof actorUi>>,
+  gameId: string
+): Promise<void> {
+  try {
+    await tapGameChoice(ui, gameId);
+  } catch (error) {
+    // regression: space-menu-moves-on-before-tap
+    if (await gameChoiceShown(ui, gameId)) throw error;
+  }
+}
+
 /**
  * Bring `actor` to the selected game's custom games: the space may already
  * show them, else the host picks the game and anyone opens the choice.
@@ -124,8 +141,8 @@ export async function showCustomGames(
         return true;
       if (await ui.get(Handles.gameChoice('custom-game')).isVisible())
         await tapWhileShown(ui.get(Handles.gameChoice('custom-game')));
-      else if (await ui.get(Handles.gameMenu(gameId)).isVisible())
-        await tapWhileShown(ui.get(Handles.gameMenu(gameId)));
+      else if (await gameChoiceShown(ui, gameId))
+        await tapGameChoiceWhileShown(ui, gameId);
       return null;
     },
     { maxMs: 15_000, stepMs: 1, description: `${actor} reaches custom games` }
@@ -149,7 +166,7 @@ export async function waitCustomGameAvailability(
       if (await ui.get(Handles.spaceHostOffline).isVisible())
         return 'host offline';
       for (const handle of [
-        Handles.gameMenu(gameId),
+        ...gameChoiceHandles(gameId),
         Handles.gameChoice('custom-game'),
         SHARED_SCREEN_MARK['custom-game'],
       ]) {
@@ -180,7 +197,7 @@ export const switchSpaceGame = scenarioAction({
       s,
       async () => {
         await bringToFront(s, host);
-        if (await ui.get(Handles.gameMenu(gameId)).isVisible()) return true;
+        if (await gameChoiceShown(ui, gameId)) return true;
         await ui.get(Handles.navBack).tap();
         return null;
       },

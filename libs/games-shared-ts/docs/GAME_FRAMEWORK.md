@@ -193,7 +193,7 @@ values the world returns but never imports their stored type.
    - the sync engine's mutations and the server's consumers receive
      `TURN_GAMES` through ports;
    - the client's `TurnGamesProvider` receives every presentation, and the
-     game choice lists every client definition;
+     game choice offers every client definition, one tile per family;
    - synthetic users receive every `GAME_AUTOMATIONS` entry.
 4. **Offering.** The menu, the room, the server and the multiplayer link
    offer a capability exactly when the game's definition supplies it
