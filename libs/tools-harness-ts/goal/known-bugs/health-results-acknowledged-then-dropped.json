@@ -1,0 +1,4 @@
+{
+  "summary": "Health logged \"recorded 29 check results\" every run because the OTLP gateway acknowledged the write, but Grafana Cloud then dropped the samples at its active-series limit: no Health series landed for hours and production objectives were judged on three samples a week while nothing alerted. Health now reads its results back and fails when any recorded check never becomes queryable.",
+  "regressionTest": "apps/product-ts/scripts/health-check-results.test.ts"
+}

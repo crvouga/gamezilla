@@ -5,20 +5,27 @@
  * backend over OTLP. The service level objectives count these samples
  * (`libs/observability-server-ts/src/synthetic-checks.ts`).
  *
- * Recording never changes the run's verdict: a run that cannot record says
- * why, and the objectives' "no events" alert tells the team the checks have
- * gone quiet. Transport, clock and credentials are injected by `health.ts`.
+ * A run whose results cannot be recorded, or never become queryable, fails:
+ * the objectives would otherwise be judged without them while nothing
+ * alerts. Transport, clock and credentials are injected by `health.ts`.
  */
 
+import {
+  emittedMetric,
+  labelOf,
+} from '@libs/observability-server-ts/emitted-metrics';
 import type { FeatureVerdict } from '@libs/observability-server-ts/synthetic-checks';
 import {
   checkResults,
   checkResultsRequest,
   metricsEndpoint,
+  SYNTHETIC_CHECK_DIMENSION,
+  SYNTHETIC_CHECK_METRIC,
 } from '@libs/observability-server-ts/synthetic-checks';
 import type { EvidenceRecord } from '@pkgs/conformance-shared-ts/evidence';
 import type { HttpFetch } from '@pkgs/http-client-shared-ts/types';
 import { otlpAuthorization } from '@pkgs/observability-root-shared-ts/otlp-auth';
+import type { PrometheusClient } from '@pkgs/observability-root-shared-ts/prometheus';
 
 /** The secrets that let a run write to the environment's metrics backend. */
 const COLLECTOR = {
@@ -41,7 +48,12 @@ export function featureVerdicts(input: {
 }
 
 export type RecordOutcome =
-  | { readonly recorded: true; readonly checks: number }
+  | {
+      readonly recorded: true;
+      readonly checks: number;
+      /** The check names written, to read back. */
+      readonly names: readonly string[];
+    }
   | { readonly recorded: false; readonly reason: string };
 
 export async function recordCheckResults(input: {
@@ -70,7 +82,11 @@ export async function recordCheckResults(input: {
     fetch: input.fetch,
   });
   if (!sent.recorded) return sent;
-  return { recorded: true, checks: results.length };
+  return {
+    recorded: true,
+    checks: results.length,
+    names: results.map((result) => result.check),
+  };
 }
 
 /**
@@ -126,4 +142,57 @@ export async function sendMetrics(input: {
     };
   }
   return { recorded: true };
+}
+
+/** How long after a write its samples may take to become queryable. */
+const CONFIRM_ATTEMPTS = 12;
+const CONFIRM_INTERVAL_MS = 15_000;
+
+export type ConfirmOutcome =
+  | { readonly confirmed: true }
+  | { readonly confirmed: false; readonly reason: string };
+
+/**
+ * Read back what a run recorded. The metrics gateway acknowledges a write
+ * before storing it, and drops it later when the stack is at its
+ * active-series limit, so an acknowledged write is not evidence. Every
+ * recorded check must be queryable for this run's version, or the
+ * objectives are judged without it and no alert can mean the app works.
+ */
+export async function confirmCheckResults(input: {
+  readonly checks: readonly string[];
+  readonly environment: string;
+  readonly version: string;
+  readonly prometheus: PrometheusClient;
+  readonly now: () => number;
+  readonly wait: (ms: number) => Promise<void>;
+}): Promise<ConfirmOutcome> {
+  const metric = emittedMetric(SYNTHETIC_CHECK_METRIC.name);
+  if (metric.series.kind !== 'gauge')
+    throw new Error('health: synthetic.check.result is not a gauge');
+  const check = labelOf(SYNTHETIC_CHECK_DIMENSION);
+  const query = `count by (${check})(count_over_time(${metric.series.value}{deployment_environment_name=${JSON.stringify(input.environment)},service_version=${JSON.stringify(input.version)}}[30m]))`;
+  let missing: readonly string[] = input.checks;
+  for (let attempt = 1; attempt <= CONFIRM_ATTEMPTS; attempt += 1) {
+    try {
+      const found = new Set(
+        (await input.prometheus.instant(query, input.now())).map(
+          (sample) => sample.labels[check] ?? ''
+        )
+      );
+      missing = input.checks.filter((name) => !found.has(name));
+      if (missing.length === 0) return { confirmed: true };
+    } catch (error) {
+      if (attempt === CONFIRM_ATTEMPTS)
+        return {
+          confirmed: false,
+          reason: `the metrics backend could not be read: ${error instanceof Error ? error.message : String(error)}`,
+        };
+    }
+    if (attempt < CONFIRM_ATTEMPTS) await input.wait(CONFIRM_INTERVAL_MS);
+  }
+  return {
+    confirmed: false,
+    reason: `${String(missing.length)} of ${String(input.checks.length)} recorded checks never became queryable (${missing.join(', ')}); the metrics backend likely refused them at its active-series limit`,
+  };
 }
