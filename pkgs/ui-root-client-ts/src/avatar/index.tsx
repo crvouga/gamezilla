@@ -97,6 +97,11 @@ export type AvatarProps = {
   you?: boolean | undefined;
   /** The seat's player color, drawn as the ring. */
   seatColor?: AvatarSeatColor | undefined;
+  /**
+   * The accent ring (2px `tint`): the one who runs the place, such as a
+   * space's host outside a game. A `seatColor` takes precedence.
+   */
+  accentRing?: boolean | undefined;
   /** Diameter: pixels or a named step. Defaults to `md` (40). */
   size?: number | AvatarSizeName | undefined;
   /**
@@ -175,13 +180,14 @@ function initialsFace(props: AvatarProps, kind: AvatarKind): boolean {
  * tone ring, or the hairline.
  */
 function ringClass(
-  avatar: Pick<AvatarProps, 'kind' | 'seatColor' | 'ring'>,
+  avatar: Pick<AvatarProps, 'kind' | 'seatColor' | 'ring' | 'accentRing'>,
   initialsRing: AvatarRing | undefined
 ): string {
   const dashed = avatar.kind === 'emptySeat' ? ' border-dashed' : '';
   if (avatar.seatColor !== undefined) {
     return `border-2 ${SEAT_RING[avatar.seatColor]}${dashed}`;
   }
+  if (avatar.accentRing === true) return `border-2 border-tint${dashed}`;
   if (avatar.kind === 'emptySeat') {
     return 'border-2 border-dashed border-outline';
   }
@@ -307,11 +313,12 @@ export function Avatar(props: AvatarProps): JSX.Element {
   });
   return (
     <span
-      class={`box inline-flex shrink-0 rounded-full items-center justify-center ${ringClass({ kind: props.kind, seatColor: props.seatColor, ring: props.ring }, initialsRing())}`}
+      class={`box inline-flex shrink-0 rounded-full items-center justify-center ${ringClass({ kind: props.kind, seatColor: props.seatColor, ring: props.ring, accentRing: props.accentRing }, initialsRing())}`}
       {...dataAttrs({ component: 'Avatar', ...props.dataSet })}
       data-kind={kind()}
       data-you={props.you === true ? 'true' : undefined}
       data-seat-color={props.seatColor}
+      data-accent-ring={props.accentRing === true ? 'true' : undefined}
       data-tone={tone()?.plate}
       data-ring={initialsRing()}
       data-placeholder={isPlaceholder() ? 'true' : undefined}

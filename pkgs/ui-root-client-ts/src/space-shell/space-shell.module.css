@@ -1,0 +1,56 @@
+/* The three rows of every space screen. Rows 1 and 2 have fixed heights
+   and never move; row 3 takes everything left. Hairlines separate them; all
+   three share the canvas, and cards inside the stage take the surface. */
+.shell {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-self: stretch;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  background: var(--ui-color-background);
+  color: var(--ui-color-text);
+}
+
+/* Row 1: space actions, the same controls in the same places everywhere. */
+.actions {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--ui-space-1);
+  height: 56px;
+  padding: 0 var(--ui-space-2);
+  border-bottom: 1px solid var(--ui-color-border);
+}
+.where {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+.eyebrow {
+  color: var(--ui-color-text-secondary);
+}
+
+/* Row 2: people, one fixed height on every screen; scrolls sideways. */
+.people {
+  flex: none;
+  height: 112px;
+  border-bottom: 1px solid var(--ui-color-border);
+}
+
+/* Row 3: the stage. Scrolls on its own unless its content owns the room. */
+.stage {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+.stage[data-scroll="fixed"] {
+  overflow: hidden;
+}
