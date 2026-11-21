@@ -1,7 +1,8 @@
 import { expect, type Page, type TestInfo } from '@playwright/test';
+import { walking } from '../../../storybook/sokoban-timed-input';
 import { contrast } from './contrast';
 import { accessibility, capture, counts, openSokoban } from './evidence';
-import { measureSokoban, pushAndUndo, walking } from './responsiveness';
+import { measureSokoban, pushAndUndo } from './responsiveness';
 
 /** Where the player's hand rests, in page coordinates: the pad and undo. */
 async function controlTops(page: Page) {

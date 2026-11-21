@@ -1,0 +1,4 @@
+{
+  "summary": "The Sokoban performance harness repeatedly resolved the board and count locators while measuring all main-thread tasks; the hosted maximum-board CPU profile identified locator queries and node previews as substantial harness overhead. Focus once, send real keyboard events, and reuse the count element while retaining every move assertion and the existing frame and long-task budgets.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/sokoban-timed-input.test.ts"
+}

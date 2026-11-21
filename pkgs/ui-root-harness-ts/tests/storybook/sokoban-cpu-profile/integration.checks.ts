@@ -1,8 +1,12 @@
 // @io-wall-ok — browser profiling is diagnostic, never product timing.
 import { mkdir, writeFile } from 'node:fs/promises';
 import { expect, test } from '@playwright/test';
+import {
+  prepareSokobanMoves,
+  runSokobanMoves,
+  walking,
+} from '../../../storybook/sokoban-timed-input';
 import { counts, openSokoban } from '../sokoban-overhaul/evidence';
-import { walking } from '../sokoban-overhaul/responsiveness';
 
 type CpuProfile = {
   nodes: {
@@ -45,6 +49,7 @@ test('storybook integration: Sokoban maximum close view CPU profile at 4x for di
   await counts(page, 5, 5);
   await board.getByRole('img', { name: 'H2: floor, crate' }).click();
   await counts(page, 6, 6);
+  const moves = await prepareSokobanMoves(page);
   const cdp = await page.context().newCDPSession(page);
   try {
     await cdp.send('HeapProfiler.collectGarbage');
@@ -56,18 +61,11 @@ test('storybook integration: Sokoban maximum close view CPU profile at 4x for di
     await cdp.send('Profiler.enable');
     await cdp.send('Profiler.setSamplingInterval', { interval: 200 });
     await cdp.send('Profiler.start');
-    const step = walking(6);
-    for (let index = 0; index < 20; index++) {
-      const moves = await step(page, index);
-      await counts(page, moves, 6);
-      await page.evaluate(
-        () =>
-          new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
-      );
-    }
+    await runSokobanMoves(page, walking(6), moves.readAfterFrame);
     const { profile } = (await cdp.send('Profiler.stop')) as {
       profile: CpuProfile;
     };
+    await counts(page, 26, 6);
     await mkdir(info.outputDir, { recursive: true });
     const path = info.outputPath('sokoban-close-view.cpuprofile');
     await writeFile(path, JSON.stringify(profile));
@@ -89,5 +87,6 @@ test('storybook integration: Sokoban maximum close view CPU profile at 4x for di
   } finally {
     await cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 });
     await cdp.detach();
+    await moves.dispose();
   }
 });
