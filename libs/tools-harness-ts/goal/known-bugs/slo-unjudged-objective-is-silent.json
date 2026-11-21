@@ -1,0 +1,4 @@
+{
+  "summary": "#358 removed every missing-evidence alert, so when the Health workflow, Synthetic Monitoring or the scheduled drain stopped reporting, every objective they feed went unjudged and nothing alerted: no alert on the phone did not mean the app worked. Scheduled evidence now pushes, then pages, when it goes quiet in production; people's traffic still never alerts on silence.",
+  "regressionTest": "libs/observability-server-ts/tests/evidence-freshness.test.ts"
+}
