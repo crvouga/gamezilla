@@ -1,0 +1,4 @@
+{
+  "summary": "After transferring the repository to its organization, GitHub issued immutable OIDC subjects with owner ID354284559, while bootstrap still trusted the former user ID49178412. Infisical rejected every CI secrets login with OIDC subject not allowed.",
+  "regressionTest": "libs/infra-server-ts/tests/github-transfer.test.ts"
+}

@@ -9,7 +9,7 @@ import {
 import { createPongStep } from '@libs/pong-shared-ts/pong-step';
 import type { GameSimulationControls } from '@pkgs/turn-game-shared-ts/game-presentation';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
-import { createSignal, type JSX, onCleanup } from 'solid-js';
+import { createMemo, createSignal, type JSX, onCleanup } from 'solid-js';
 import { createPongLiveInputs } from './pong-live-inputs.example';
 
 /**
@@ -89,7 +89,7 @@ export function PongLiveRally(props: {
     },
     onRelease: held.release,
   };
-  return (
-    <>{props.children(() => pongPositionCodec.encode(state()), controls)}</>
-  );
+  // The court, seats and status read one position, serialized once per frame.
+  const position = createMemo(() => pongPositionCodec.encode(state()));
+  return <>{props.children(position, controls)}</>;
 }

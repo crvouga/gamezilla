@@ -1,0 +1,4 @@
+{
+  "summary": "The live Pong story serialized the same simulation state separately for every position reader, including the court, seats and frame status. Memoize the encoded position per state so performance evidence does not include redundant story serialization.",
+  "regressionTest": "libs/pong-client-ts/tests/pong-live-position.test.tsx"
+}

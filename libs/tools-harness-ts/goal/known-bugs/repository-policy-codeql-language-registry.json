@@ -1,0 +1,4 @@
+{
+  "summary": "PR431 registered the successful C/C++, Python, and Swift CodeQL producers, but the repository policy test still expected the old six-entry registry. Rebrand verification failed before it could finish its infrastructure checks.",
+  "regressionTest": "libs/infra-server-ts/tests/repository-policy.test.ts"
+}

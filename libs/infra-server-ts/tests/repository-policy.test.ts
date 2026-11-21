@@ -19,6 +19,7 @@ const imports = readFileSync(join(TOFU, 'stacks/bootstrap/imports.tf'), 'utf8');
 
 // regression: repository-ruleset-solo-approval
 // regression: repository-policy-codeql-count
+// regression: repository-policy-codeql-language-registry
 test('main requires verified PRs without approvals a solo maintainer cannot give and refuses deletion and force-pushes', () => {
   expect(repository).toMatch(/resource "github_repository_ruleset" "main"/);
   for (const rule of [
@@ -66,7 +67,22 @@ test('main requires verified PRs without approvals a solo maintainer cannot give
       outage_tolerant: true,
     },
     {
+      context: 'Analyze (c-cpp)',
+      integration_id: 15368,
+      outage_tolerant: true,
+    },
+    {
       context: 'Analyze (javascript-typescript)',
+      integration_id: 15368,
+      outage_tolerant: true,
+    },
+    {
+      context: 'Analyze (python)',
+      integration_id: 15368,
+      outage_tolerant: true,
+    },
+    {
+      context: 'Analyze (swift)',
       integration_id: 15368,
       outage_tolerant: true,
     },
@@ -169,12 +185,11 @@ test('only descriptive metadata may drift without a plan', () => {
 });
 
 // regression: bootstrap-user-owned-forking
-test('a user-owned repository does not send allow_forking', () => {
+test('repository ownership controls whether allow_forking is sent', () => {
   // Literal failing input: plan `allow_forking = true -> false` on the
   // source repository, then PATCH /repos/<owner>/<repo> 422
   // "Allow forks setting can only be changed on org-owned private repositories".
-  expect(GLOBAL.github.owner).toBe('crvouga');
-  expect(GLOBAL.github.owner_is_organization).toBe(false);
+  expect(GLOBAL.github.owner_is_organization).toBe(true);
   expect(GLOBAL.github.settings.allow_forking).toBe(false);
   expect(repository).toMatch(
     /allow_forking\s*=\s*var\.owner_is_organization \? var\.settings\.allow_forking : null/

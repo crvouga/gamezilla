@@ -1,0 +1,4 @@
+{
+  "summary": "PR431 passed all verification shards and CodeQL analyses, but verify:end rejected the newly reported Analyze (c-cpp), Analyze (python), and Analyze (swift) jobs from GitHub Actions app15368 because their exact names were absent from the required-checks registry.",
+  "regressionTest": "libs/tools-harness-ts/scripts/required-codeql-languages.test.ts"
+}
