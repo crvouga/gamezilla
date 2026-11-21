@@ -13,9 +13,9 @@ import type {
   SpacePersonData,
   SpacePhase,
 } from '../space-types';
+import styles from './space-people-row.module.css';
 import { SpacePersonBadges } from './space-person-badges';
 import { useSpacePersonWords } from './space-person-words';
-import styles from './space-people-row.module.css';
 
 export {
   type SpacePersonWords,
@@ -96,7 +96,10 @@ export function SpacePersonCell(props: SpacePersonCellProps): JSX.Element {
   const status = () => (turn() ? 'turn' : props.person.status);
   const data = () => (props.phase === 'inGame' ? props.seat?.data : props.data);
   const said = () =>
-    [words.name(props.person), ...words.summary(props.person, status(), data())].join(', ');
+    [
+      words.name(props.person),
+      ...words.summary(props.person, status(), data()),
+    ].join(', ');
   return (
     <button
       type="button"
@@ -113,7 +116,11 @@ export function SpacePersonCell(props: SpacePersonCellProps): JSX.Element {
       data-status={status()}
     >
       <span class={styles['face']}>
-        <CellAvatar person={props.person} phase={props.phase} seat={props.seat} />
+        <CellAvatar
+          person={props.person}
+          phase={props.phase}
+          seat={props.seat}
+        />
         <SpacePersonBadges
           host={props.person.host === true}
           status={status()}

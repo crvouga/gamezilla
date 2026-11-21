@@ -7,14 +7,24 @@ import type {
   SpacePersonData,
 } from '../../src/space-types';
 
-/** A chess side: the host plays White, everyone else Black. */
+/** A chess side. */
 export type SpaceExampleChessSide = 'White' | 'Black';
 
-/** The side a person plays in the Chess example: the host takes White. */
+/**
+ * Sides by story person id, never by the `you` / `host` flags (the stories
+ * flip those when the viewer is the host): bob, the host, plays White; the
+ * guest, `you` (named ana), plays Black.
+ */
+const SIDE_OF_ID: Readonly<Record<string, SpaceExampleChessSide>> = {
+  bob: 'White',
+  you: 'Black',
+};
+
+/** The side a person plays in the Chess example; none for anyone else. */
 export function spaceExampleChessSide(
   person: SpacePerson
-): SpaceExampleChessSide {
-  return person.host === true ? 'White' : 'Black';
+): SpaceExampleChessSide | undefined {
+  return SIDE_OF_ID[person.id];
 }
 
 /** A side drawn as its king, kept as a text glyph (never an emoji). */
@@ -68,10 +78,10 @@ export function spaceExampleChessSetup(): SpaceGame {
     },
   ];
   const personData = (person: SpacePerson): SpacePersonData | undefined => {
-    if (person.kind !== 'person') {
+    const side = spaceExampleChessSide(person);
+    if (side === undefined) {
       return undefined;
     }
-    const side = spaceExampleChessSide(person);
     return {
       swatch: spaceExampleChessSideLook(side),
       value: `${minutes()}:00`,

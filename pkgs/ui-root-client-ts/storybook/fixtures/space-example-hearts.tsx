@@ -67,7 +67,7 @@ export const HEARTS_EXAMPLE_PEOPLE: readonly SpacePerson[] = [
   {
     id: 'you',
     kind: 'person',
-    name: 'You',
+    name: 'ana',
     you: true,
     initials: 'A',
     tintKey: 'you',
@@ -76,12 +76,29 @@ export const HEARTS_EXAMPLE_PEOPLE: readonly SpacePerson[] = [
   { id: 'bot-2', kind: 'bot', name: 'Bot 2' },
 ];
 
-const SIDE_OF_ID: Readonly<Record<string, Side>> = {
-  bob: 'north',
-  you: 'south',
-  'bot-1': 'west',
-  'bot-2': 'east',
-};
+/** The viewer's person id: the host is bob, a guest is you. */
+function viewerId(viewer: SpaceRole): string {
+  return viewer === 'host' ? 'bob' : 'you';
+}
+
+/**
+ * Seats by person id, from the role: the viewer always sits south (their
+ * hand, the turn, 5 pts), the other person north; the bots keep theirs.
+ */
+function sideOfId(viewer: SpaceRole): Readonly<Record<string, Side>> {
+  const other = viewer === 'host' ? 'you' : 'bob';
+  return {
+    [viewerId(viewer)]: 'south',
+    [other]: 'north',
+    'bot-1': 'west',
+    'bot-2': 'east',
+  };
+}
+
+/** The other person's name on the table: bob for ana, ana for bob. */
+function northName(viewer: SpaceRole): string {
+  return viewer === 'host' ? 'ana' : 'bob';
+}
 
 const SUIT_SYMBOL: Readonly<Record<CardTableCard['suit'], string>> = {
   clubs: '♣',
@@ -125,16 +142,19 @@ const TRICK: Readonly<Record<Side, CardTableCard | null>> = {
 
 const PLAY_LABEL = `Play ${THREE_OF_SPADES.rank}${SUIT_SYMBOL[THREE_OF_SPADES.suit]}`;
 
-function sideOf(person: SpacePerson): Side | undefined {
-  if (person.you === true) return 'south';
-  return SIDE_OF_ID[person.id];
+/** Keyed strictly by id, computed from the role; never by the `you` flag. */
+function sideOf(person: SpacePerson, viewer: SpaceRole): Side | undefined {
+  return sideOfId(viewer)[person.id];
 }
 
 function points(side: Side): string {
   return `${String(SIDES[side].points)} points`;
 }
 
-function tableSeats(moment: HeartsExampleMoment): readonly CardTableSeat[] {
+function tableSeats(
+  moment: HeartsExampleMoment,
+  viewer: SpaceRole
+): readonly CardTableSeat[] {
   const sides: readonly Side[] = ['south', 'west', 'north', 'east'];
   return sides.map((side) => {
     const facts = SIDES[side];
@@ -143,13 +163,18 @@ function tableSeats(moment: HeartsExampleMoment): readonly CardTableSeat[] {
     const held = played === null ? HAND.length : HAND.length - 1;
     return {
       position: facts.position,
-      name: side === 'south' ? 'You' : facts.name,
+      name: seatName(side, viewer),
       facts: [`${String(held)} cards`, points(side)],
       active: side === 'south' && moment === 'picked',
       played,
       testId: `space-hearts-seat-${side}`,
     };
   });
+}
+
+function seatName(side: Side, viewer: SpaceRole): string {
+  if (side === 'north') return northName(viewer);
+  return SIDES[side].name;
 }
 
 function handCards(moment: HeartsExampleMoment): readonly CardTableHandCard[] {
@@ -173,6 +198,7 @@ function handCards(moment: HeartsExampleMoment): readonly CardTableHandCard[] {
 
 function HeartsBoard(props: {
   moment: HeartsExampleMoment;
+  viewer: SpaceRole;
   status: string;
   onCard: (id: string) => void;
 }): JSX.Element {
@@ -183,7 +209,7 @@ function HeartsBoard(props: {
       center={props.status}
       centerSpokenOnly
       trick
-      seats={tableSeats(props.moment)}
+      seats={tableSeats(props.moment, props.viewer)}
       hand={handCards(props.moment)}
       handLabel="Your hand"
       handWaiting={
@@ -213,9 +239,10 @@ function playActions(
 
 function seat(
   person: SpacePerson,
-  moment: HeartsExampleMoment
+  moment: HeartsExampleMoment,
+  viewer: SpaceRole
 ): SpaceGameSeat | undefined {
-  const side = sideOf(person);
+  const side = sideOf(person, viewer);
   if (side === undefined) return undefined;
   const facts = SIDES[side];
   return {
@@ -230,6 +257,7 @@ function seat(
 
 function heartsPlay(
   moment: HeartsExampleMoment,
+  viewer: SpaceRole,
   press: (id: string) => void
 ): SpaceGamePlay {
   const status = moment === 'taking' ? 'Trick is in' : 'Your turn';
@@ -239,13 +267,14 @@ function heartsPlay(
     board: (
       <HeartsBoard
         moment={moment}
+        viewer={viewer}
         status={status}
         onCard={(id) => press(`card-${id}`)}
       />
     ),
     actions: playActions(moment, press),
     waiting: 'The trick is being taken',
-    seat: (person) => seat(person, moment),
+    seat: (person) => seat(person, moment, viewer),
   };
 }
 
@@ -281,13 +310,14 @@ export function heartsSpaceExample(
   options: HeartsExampleOptions = {}
 ): SpaceGame {
   const press = (id: string): void => options.onAction?.(id);
+  const viewer = options.viewer ?? 'guest';
   return {
     key: 'hearts',
     name: 'Hearts',
     motif: 'cards',
     tagline: 'Avoid hearts and the queen of spades',
     players: { counts: [4], bots: true },
-    setup: { settings: heartsSettings(options.viewer ?? 'guest', press) },
-    play: heartsPlay(options.moment ?? 'picked', press),
+    setup: { settings: heartsSettings(viewer, press) },
+    play: heartsPlay(options.moment ?? 'picked', viewer, press),
   };
 }
