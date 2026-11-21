@@ -268,7 +268,7 @@ inferred from this ledger or from a narrow test run.
   66.7 seconds. Newly reported advisories affected Happy DOM, Serialize
   JavaScript, Undici and Atlas's separate Zod 3 dependency. Updating the first
   three to their patched releases initially left only the Atlas-owned Zod
-  finding, tracked at [atlas#16](https://github.com/crvouga/atlas/issues/16).
+  finding, tracked at [atlas#16](https://github.com/crvouga-organization/atlas/issues/16).
   Atlas subsequently released 0.10.2 with Zod 4.6.7. The catalog and lockfile
   upgrade is a separate dependency-only commit, and the normal enforced
   advisory gate now passes. No advisory suppression, report-only mode or

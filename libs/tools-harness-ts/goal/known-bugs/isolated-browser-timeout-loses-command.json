@@ -1,0 +1,4 @@
+{
+  "summary": "An unresponsive isolated browser discarded the command and locator on its 90-second transport timeout, hiding which billing operation stalled. Preserve safe command metadata and the last acknowledged transport stage without serializing arguments.",
+  "regressionTest": "pkgs/ui-testing-bun-webview-server-ts/tests/browser-timeout.test.ts"
+}

@@ -8,7 +8,7 @@ composition root. Orderly shutdown rolls back open transactions, atomically
 stores `database.pgmm`, and the next start restores it. Native cluster files
 are never deleted or converted; a first Mockingbird start uses a fresh database.
 
-Crash-safe persistence is blocked by [Mockingbird #321](https://github.com/crvouga/mockingbird/issues/321).
+Crash-safe persistence is blocked by [Mockingbird #321](https://github.com/crvouga-organization/mockingbird/issues/321).
 The package cannot yet guarantee durable commits across an abrupt process exit.
 Unresolved catalog and DDL behavior is pinned by the package tests; consumer
 migrations must pass their full wire contracts before replacing a native engine.

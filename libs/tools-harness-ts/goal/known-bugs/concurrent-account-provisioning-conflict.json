@@ -1,0 +1,4 @@
+{
+  "summary": "Concurrent first authenticated requests race to upgrade the same guest; a PostgreSQL serialization loser fails authentication instead of reloading the winning account link from a new transaction.",
+  "regressionTest": "libs/auth-shared-ts/tests/account-provisioning-conflict.test.ts"
+}

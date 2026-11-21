@@ -4,7 +4,7 @@ import {
   MultiplayerGameChanged,
   matchRoomTopic,
 } from '@libs/game-matchmaking-shared-ts/match-room';
-import { decideOnServer } from '@libs/permissions-server-ts/decide-on-server';
+import { decideGrantsOnServer } from '@libs/permissions-server-ts/decide-on-server';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { spaceRoomMembershipChanged } from '@libs/spaces-shared-ts/space-withdrawal';
 import { storedSpacePresence } from '@libs/spaces-shared-ts/stored-space-presence';
@@ -30,19 +30,12 @@ export async function multiplayerRoomGrants(
       space.id,
       ctx.actor
     );
-    const grants: string[] = [];
-    for (const key of [
-      PERMISSION.gameMultiplayerWatch,
-      PERMISSION.gameMultiplayerPlay,
-    ]) {
-      const decision = await decideOnServer(ctx.db, {
-        actor: ctx.actor,
-        key,
-        nowMs: ctx.nowMs,
-        scope: { spacePresence },
-      });
-      if (decision.allowed) grants.push(key);
-    }
+    const grants = await decideGrantsOnServer(ctx.db, {
+      actor: ctx.actor,
+      keys: [PERMISSION.gameMultiplayerWatch, PERMISSION.gameMultiplayerPlay],
+      nowMs: ctx.nowMs,
+      scope: { spacePresence },
+    });
     if (grants.includes(PERMISSION.gameMultiplayerWatch)) return grants;
   }
   return [];

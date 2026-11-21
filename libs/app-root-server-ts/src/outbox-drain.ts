@@ -179,6 +179,7 @@ function capturedPass(
 ) {
   const attempted: ReturnType<typeof wrapMutationDb>[] = [];
   const committed: ReturnType<typeof wrapMutationDb>[] = [];
+  let pending: ReturnType<typeof wrapMutationDb> | undefined;
   let notified = 0;
   const deps: DrainOutboxDeps = {
     db: args.db,
@@ -199,6 +200,10 @@ function capturedPass(
         eligibleAtMs === null ? 0 : args.clock.now() - eligibleAtMs
       ),
     afterDelivery: async (result) => {
+      // Handler success precedes COMMIT, which may still lose a database race.
+      if (result.processed > 0 && pending !== undefined)
+        committed.push(pending);
+      pending = undefined;
       countExhaustedOutboxDeliveries(result.exhausted);
       await notifyCommittedPass(
         args,
@@ -213,7 +218,7 @@ function capturedPass(
       const capture = attempted.at(-1);
       return observeOutboxDelivery(info, async () => {
         const result = await run();
-        if (result.ok && capture !== undefined) committed.push(capture);
+        if (result.ok) pending = capture;
         return result;
       });
     },

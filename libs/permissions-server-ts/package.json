@@ -15,7 +15,6 @@
   },
   "dependencies": {
     "@libs/permissions-shared-ts": "workspace:*",
-    "@pkgs/permissions-shared-ts": "workspace:*",
     "@pkgs/sql-client-root-shared-ts": "workspace:*"
   },
   "devDependencies": {
