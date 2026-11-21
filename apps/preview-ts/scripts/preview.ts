@@ -37,6 +37,7 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { join } from 'node:path';
+import { createCloudflarePreviews as createManagedPreviews } from '@crvouga/mockingbird-preview';
 import { resolveIdentityPlaceholders } from '@libs/product-identity-shared-ts/identity-placeholders';
 import { wallClock, wallTimers } from '@pkgs/clock-shared-ts/wall';
 import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
@@ -48,7 +49,11 @@ import {
 import { directoryTransformStore } from '@pkgs/vite-workspace-resolver-server-ts/transform-cache-directory';
 import { distHeadersFile } from '../../product-ts/scripts/dist-headers';
 import { stampedPage } from '../src/build-stamp';
-import { deployPreview, type SiteFile } from '../src/cloudflare-deploy';
+import {
+  deployPreview,
+  type SiteAssets,
+  type SiteFile,
+} from '../src/cloudflare-deploy';
 import {
   type CloudflarePreviews,
   createCloudflarePreviews,
@@ -84,6 +89,7 @@ import {
   type PreviewAction,
   type PreviewTrigger,
   planSweep,
+  pullRequestFacts,
   uploadsDespiteGate,
 } from '../src/preview-lifecycle';
 import {
@@ -554,8 +560,10 @@ function previewHost(site: Site): string | null {
 type Account = {
   readonly accountId: string;
   readonly apiToken: string;
-  /** The Previews of one site's Worker. */
+  /** The Previews of one site's Worker, beyond what `managed` does. */
   previews(site: Site): CloudflarePreviews;
+  /** The Previews of one site's Worker, listed and deleted by mockingbird. */
+  managed(site: Site): ReturnType<typeof createManagedPreviews>;
 };
 
 function account(): Account {
@@ -573,6 +581,13 @@ function account(): Account {
         accountId,
         apiToken,
         workerName: workerName(site),
+        fetch,
+      }),
+    managed: (site) =>
+      createManagedPreviews({
+        accountId,
+        workerName: workerName(site),
+        token: apiToken,
         fetch,
       }),
   };
@@ -947,7 +962,19 @@ async function gate(
   return failures;
 }
 
-class UnhealthyPreview extends Error {}
+/**
+ * Why a deploy ended short of a healthy Preview of its commit: it went up but
+ * fails its checks (`unhealthy`), or the pull request moved on during the
+ * upload and the run for it deploys instead (`superseded`).
+ */
+class PreviewStopped extends Error {
+  constructor(
+    readonly why: 'unhealthy' | 'superseded',
+    message: string
+  ) {
+    super(message);
+  }
+}
 
 /** How long the edge may take to answer every request with one upload. */
 const AGREED_WITHIN_MS = 60_000;
@@ -997,21 +1024,34 @@ async function upload(
   const name = previewNameOfPr(pr);
   say(`▸ ${site.key}: deploying to the Preview ${name}`);
   const committed = freeConfig(site);
-  const { directory: _directory, ...assets } = committed['assets'] as Wrangler;
-  const urls = (
-    await deployPreview({
-      accountId: cloudflare.accountId,
-      apiToken: cloudflare.apiToken,
-      workerName: workerName(site),
-      previewName: name,
-      files: siteFiles(site.dist),
-      assets,
-      compatibilityDate: String(committed['compatibility_date']),
-      commit: sha,
-      message: `PR #${String(pr)} at ${sha.slice(0, 12)}`,
-      fetch,
-    })
-  ).map((url) => new URL(url).origin);
+  const { directory: _directory, ...assets } = committed[
+    'assets'
+  ] as SiteAssets & { readonly directory?: string };
+  const deployed = await deployPreview({
+    accountId: cloudflare.accountId,
+    apiToken: cloudflare.apiToken,
+    workerName: workerName(site),
+    previewName: name,
+    files: siteFiles(site.dist),
+    assets,
+    compatibilityDate: String(committed['compatibility_date']),
+    commit: sha,
+    currentPullRequest: async () => {
+      const pull = await readPullRequest(pr);
+      if (pull === null)
+        throw new Error(`pull request #${String(pr)} could not be read`);
+      return pullRequestFacts(pull);
+    },
+    fetch,
+  });
+  if (deployed.kind === 'superseded')
+    throw new PreviewStopped(
+      'superseded',
+      deployed.action === 'remove'
+        ? `pull request #${String(pr)} closed; its ${site.key} Preview was deleted`
+        : `${sha.slice(0, 12)} is no longer the head of pull request #${String(pr)}`
+    );
+  const urls = deployed.urls.map((url) => new URL(url).origin);
   // What proves the origin is the wait below; this only says so sooner.
   if (!urls.includes(origin))
     say(
@@ -1019,7 +1059,8 @@ async function upload(
     );
   say(`▸ waiting for ${origin} to serve ${sha.slice(0, 12)}`);
   if (!(await serving(origin, sha)))
-    throw new UnhealthyPreview(
+    throw new PreviewStopped(
+      'unhealthy',
       failingChecks({
         gate: gated,
         served: `${origin} did not serve ${sha.slice(0, 12)} within two minutes`,
@@ -1034,7 +1075,7 @@ async function upload(
     gate: gated,
     served: printChecks(checks) ? null : failed(checks),
   });
-  if (failing !== null) throw new UnhealthyPreview(failing);
+  if (failing !== null) throw new PreviewStopped('unhealthy', failing);
 }
 
 /**
@@ -1208,8 +1249,19 @@ async function deploy(pr: number, deploymentSha: string | null): Promise<void> {
     for (const site of SITES) await ensureMainPreview(cloudflare, site);
     await pruneDeployments(pr, deployment);
   } catch (error) {
+    if (error instanceof PreviewStopped && error.why === 'superseded') {
+      // The run for the newer head, or the close, says what the pull
+      // request has now; this one only steps aside.
+      await deploymentStatus(deployment, 'inactive', {
+        url: origin,
+        description: error.message,
+      });
+      await published;
+      return say(`skip: ${error.message}`);
+    }
     const detail = error instanceof Error ? error.message : String(error);
-    const unhealthy = error instanceof UnhealthyPreview;
+    const unhealthy =
+      error instanceof PreviewStopped && error.why === 'unhealthy';
     await deploymentStatus(deployment, 'failure', {
       url: origin,
       description: detail,
@@ -1250,7 +1302,7 @@ async function destroy(
       say(`✓ ${site.key} ${name}: no such Preview (already removed)`);
       continue;
     }
-    await previews.remove(name);
+    await cloudflare.managed(site).remove(name);
     let gone = false;
     for (let attempt = 0; attempt < 10 && !gone; attempt += 1) {
       gone = (await previews.preview(name)) === null;
@@ -1285,12 +1337,19 @@ async function previewNames(
   let closed: readonly Listed[] | null = null;
   for (const site of SITES) {
     const previews = cloudflare.previews(site);
-    const listed = await previews.names();
+    const listed = await cloudflare
+      .managed(site)
+      .list()
+      .then((all) => all.map((preview) => preview.name))
+      .catch(() => null);
     if (listed !== null) {
       for (const name of listed) names.add(name);
       continue;
     }
-    // Cloudflare would not list: ask about each recently closed pull request.
+    // Cloudflare would not list (or the Worker is not deployed yet, which
+    // mockingbird reports as a failure too:
+    // https://github.com/crvouga-organization/mockingbird/issues/853): ask
+    // about each recently closed pull request.
     say(
       `Cloudflare did not list the ${site.key} Previews; probing recently closed pull requests`
     );
