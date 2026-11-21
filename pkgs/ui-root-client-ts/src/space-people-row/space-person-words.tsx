@@ -37,6 +37,7 @@ export function useSpacePersonWords(): SpacePersonWords {
   const role = (person: SpacePerson): string => {
     if (person.kind === 'openSeat') return t`Open seat`;
     if (person.kind === 'bot') return t`Bot`;
+    if (person.kind === 'remote') return t`Opponent`;
     return person.host === true ? t`Host` : t`Guest`;
   };
   return {
