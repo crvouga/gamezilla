@@ -117,6 +117,26 @@ function AuthorPublication(props: {
   );
 }
 
+/** `board`: undo and redo, offered once this session's edits are kept. */
+function useAuthorHistory(workspace: ContentAuthorWorkspace) {
+  return useContentDraftHistory({
+    writer: workspace.writer,
+    history: workspace.history,
+    disabled: () =>
+      workspace.disabled() ||
+      workspace.conflicted() ||
+      workspace.writer.dirty(),
+  });
+}
+
+/** How many copies of the document's draft are kept. */
+function useDraftCopies(documentId: () => string): () => number {
+  const data = useContentLibraryState();
+  return () =>
+    data.content().drafts.filter((draft) => draft.document_id === documentId())
+      .length;
+}
+
 /** The builder for one working copy, wired to saves, history and copies. */
 function AuthorWorkspaceScreen(props: {
   document: ContentDocument;
@@ -130,19 +150,9 @@ function AuthorWorkspaceScreen(props: {
   const { writer } = workspace;
   const game = useContentGame();
   const nav = useContentPlace();
-  const data = useContentLibraryState();
   const place = () => contentPlaceOf('builder', nav.place());
-  const copies = () =>
-    data
-      .content()
-      .drafts.filter((draft) => draft.document_id === props.document.id).length;
-  // `board`: undo and redo, offered once this session's edits are kept.
-  const history = useContentDraftHistory({
-    writer,
-    history: workspace.history,
-    disabled: () =>
-      workspace.disabled() || workspace.conflicted() || writer.dirty(),
-  });
+  const copies = useDraftCopies(() => props.document.id);
+  const history = useAuthorHistory(workspace);
   return (
     <ContentAuthorScreenView
       status="ready"
