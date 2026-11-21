@@ -1,22 +1,15 @@
 // @io-wall-ok — browser performance instrumentation, never product timing.
 import { expect, type Page, type TestInfo } from '@playwright/test';
 import {
+  prepareSokobanMoves,
+  runSokobanMoves,
+  type TimedStep,
+  walking,
+} from '../../../storybook/sokoban-timed-input';
+import {
   type Samples,
   withSokobanTiming,
 } from '../../../storybook/sokoban-timing-probe';
-
-/** One timed input and the move count it must reach. */
-export type TimedStep = (page: Page, index: number) => Promise<number>;
-
-/** Walk left and right with the keyboard from `startingMoves`. */
-export function walking(startingMoves: number): TimedStep {
-  return async (page, index) => {
-    await page
-      .getByTestId('sokoban-board')
-      .press(index % 2 === 0 ? 'ArrowLeft' : 'ArrowRight');
-    return startingMoves + index + 1;
-  };
-}
 
 /**
  * From a fresh board whose first move right pushes a crate: push with the
@@ -45,6 +38,8 @@ export async function measureSokoban(
 ) {
   const step = typeof plan === 'number' ? walking(plan) : plan.step;
   const name = typeof plan === 'number' ? 'responsiveness' : plan.name;
+  const moves = await prepareSokobanMoves(page);
+  await page.getByTestId('sokoban-board').focus();
   const cdp = await page.context().newCDPSession(page);
   // Garbage left by the steps before timing (captures, video and trace) is
   // not a move's: collected now, it cannot land as a long task on the first
@@ -53,21 +48,7 @@ export async function measureSokoban(
   await cdp.send('Emulation.setCPUThrottlingRate', { rate });
   try {
     await withSokobanTiming(page, async () => {
-      const board = page.getByTestId('sokoban-board');
-      await board.focus();
-      for (let i = 0; i < 20; i += 1) {
-        const moves = await step(page, i);
-        await expect(page.getByTestId('sokoban-counts')).toHaveAttribute(
-          'data-moves',
-          String(moves)
-        );
-        await page.evaluate(
-          () =>
-            new Promise<void>((resolve) => {
-              requestAnimationFrame(() => resolve());
-            })
-        );
-      }
+      await runSokobanMoves(page, step, moves.readAfterFrame);
       const samples = await page.evaluate(
         () => (window as unknown as { sokobanSamples: Samples }).sokobanSamples
       );
@@ -121,5 +102,6 @@ export async function measureSokoban(
   } finally {
     await cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 });
     await cdp.detach();
+    await moves.dispose();
   }
 }
