@@ -6,6 +6,7 @@ import { GameSeatSwatch } from '@pkgs/ui-root-client-ts/game-seat-swatch';
 import { GameActions } from '@pkgs/ui-root-client-ts/game-section';
 import {
   ClockIcon,
+  EyeIcon,
   LockIcon,
   SlidersHorizontalIcon,
 } from '@pkgs/ui-root-client-ts/icons';
@@ -220,6 +221,7 @@ function AgreedRows(
         rules() !== null ||
         options()?.clock != null ||
         props.setup.privateSetup !== null ||
+        props.board !== undefined ||
         props.play.canCancel
       }
     >
@@ -286,6 +288,15 @@ function AgreedRows(
               dataSet={{ testid: 'custom-game-setup-open' }}
             />
           )}
+        </Show>
+        <Show when={props.board !== undefined}>
+          <MenuRow
+            leading={<EyeIcon size={24} />}
+            title={<Trans>Board</Trans>}
+            caption={<Trans>See it as you will play it</Trans>}
+            onClick={() => props.onOpen({ screen: 'board' })}
+            dataSet={{ testid: 'custom-game-board-open' }}
+          />
         </Show>
         <Show when={props.play.canCancel}>
           <MenuRow

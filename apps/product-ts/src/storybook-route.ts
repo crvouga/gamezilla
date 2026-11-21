@@ -89,6 +89,7 @@ const SPACE_BODIES = new Set([
   'screens-games-custom-invite',
   'screens-games-custom-options',
   'screens-games-custom-clock',
+  'screens-games-custom-board',
   'screens-games-custom-private-setup',
   'screens-games-custom-play',
   'screens-games-custom-commands',

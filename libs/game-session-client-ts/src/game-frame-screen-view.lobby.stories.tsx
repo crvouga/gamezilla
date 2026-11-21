@@ -1,6 +1,6 @@
 import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
-import { FrameStory } from './game-frame-board.example';
+import { onBoard } from './game-frame-board.example';
 import { FRAME_NO_PLAY } from './game-frame-empty';
 import { GameFrameScreenView } from './game-frame-screen-view';
 import {
@@ -35,7 +35,8 @@ const meta = {
     controls: { exclude: FRAME_CONTROLS_EXCLUDE },
   },
   args: { ...frameArgs(), ...CONFIGURING },
-  render: (args) => <FrameStory {...args} />,
+  // Every game has a board, so the lobby always offers to show it.
+  render: (args) => onBoard([])(args),
 } satisfies Meta<typeof GameFrameScreenView>;
 export default meta;
 type Story = StoryObj<typeof meta>;

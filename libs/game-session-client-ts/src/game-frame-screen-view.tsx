@@ -10,6 +10,7 @@ import {
   FrameOptionsPlace,
   FramePrivateSetupPlace,
 } from './game-frame-agreed-view';
+import { FrameBoardPlace } from './game-frame-board-place-view';
 import { FrameCommandsPlace } from './game-frame-commands-view';
 import { FrameLobbyPlace } from './game-frame-lobby-view';
 import {
@@ -140,6 +141,9 @@ function SetupPlaces(
         when={screen() === 'private-setup' ? props.setup.privateSetup : null}
       >
         {(own) => <FramePrivateSetupPlace {...props} own={own()} />}
+      </Match>
+      <Match when={screen() === 'board' && props.board !== undefined}>
+        <FrameBoardPlace {...props} />
       </Match>
     </Switch>
   );

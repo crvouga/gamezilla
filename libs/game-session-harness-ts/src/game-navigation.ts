@@ -3,10 +3,10 @@ import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront } from '@libs/harness-ts/observations';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 
-/** What each shared screen shows first, so a person can tell it is open. */
+/** What each shared screen shows on every one of its places, so a person can tell it is open. */
 export const SHARED_SCREEN_MARK = {
   'custom-game': 'custom-game-status',
-  multiplayer: 'multiplayer-find',
+  multiplayer: 'multiplayer-screen',
   history: 'game-history-statistics',
 } as const;
 

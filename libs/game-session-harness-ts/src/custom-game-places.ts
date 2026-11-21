@@ -3,7 +3,7 @@
  * that sits on another place is reached by pressing the row that opens it,
  * and Back returns to the place the game's phase opens on.
  */
-import { actorUi } from '@libs/harness-ts/actor-ui';
+import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 
@@ -62,3 +62,20 @@ export async function openCustomGamePlace(
   await s.session.waitForIdle();
   return ui.get(control).isVisible();
 }
+
+/** The lobby's row that opens the board the game starts on. */
+const BOARD_ROW = 'custom-game-board-open';
+
+/**
+ * While a game is set up, `actor` opens the board it starts on, one row
+ * from the lobby. Nothing happens once the game is played (the board is
+ * what shows) or with no custom game on screen.
+ */
+export const showCustomGameBoard = scenarioAction({
+  name: 'showCustomGameBoard',
+  act: async (s, actor: string) => {
+    const ui = await actorUi(s, actor);
+    if (!(await ui.get(BOARD_ROW).isVisible())) return;
+    await openCustomGamePlace(s, actor, BOARD_ROW, 'custom-game-public');
+  },
+});
