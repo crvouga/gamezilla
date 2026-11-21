@@ -232,6 +232,6 @@ export async function hostSpace(ui: Driver): Promise<void> {
   await releaseLeftoverHostedSpaces(ui);
   await openTab(ui, Handles.tabSpaces);
   await tap(ui, Handles.spaceCreate);
-  // Minimize can collapse into More; members never leave the space bar.
-  await expectVisible(ui, Handles.spaceMembersButton);
+  // The space settings gear is in the space's top row on every screen.
+  await expectVisible(ui, Handles.spaceChromeOverflow);
 }

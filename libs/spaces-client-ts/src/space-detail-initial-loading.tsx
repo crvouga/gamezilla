@@ -1,47 +1,41 @@
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { JSX } from 'solid-js';
-import { SpaceActiveLayout } from './space-active-layout';
 import { closeSpaceDetail } from './space-routes';
+import { SpaceScreenChromeProvider } from './space-screen-chrome';
+import { SpaceScreenFrame } from './space-screen-frame';
 import type { SpaceSessionUiValue } from './space-session-ui-context';
 import { SpaceSessionUiProvider } from './space-session-ui-context';
-import { DefineBackButton } from './spaces-nav-context';
 
 export type SpaceDetailInitialLoadingProps = {
   spaceId: string;
 };
 
 /**
- * First-load shell for `/space/:id` — active-space chrome (home + back) over
- * a loading body. Avoids swapping to the bare "Spaces" ScreenBase header; the
- * spinner sits in the body, under the chrome, never over the whole viewport.
+ * First load of `/space/:id`: the space's own rows over a loading stage, so
+ * the screen never swaps through the bare "Spaces" header and the spinner
+ * never covers the whole viewport. Back leaves for the spaces list.
  */
 export function SpaceDetailInitialLoading(
   props: SpaceDetailInitialLoadingProps
 ): JSX.Element {
   const router = useRouter();
-  const onPressBack = (): void => {
-    closeSpaceDetail(router);
-  };
   const noop = (): void => {};
-
   const sessionUi: SpaceSessionUiValue = {
     get spaceId() {
       return props.spaceId;
     },
     onRequestEnd: noop,
     onRequestLeave: noop,
-    onRequestRename: noop,
-    get onPressHome() {
-      return onPressBack;
-    },
+    onPressHome: () => closeSpaceDetail(router),
   };
 
   return (
     <StackVertical grow>
       <SpaceSessionUiProvider value={sessionUi}>
-        <DefineBackButton onPress={onPressBack} />
-        <SpaceActiveLayout status="loading" hostOffline={false} />
+        <SpaceScreenChromeProvider status="loading" hostOffline={false}>
+          <SpaceScreenFrame>{null}</SpaceScreenFrame>
+        </SpaceScreenChromeProvider>
       </SpaceSessionUiProvider>
     </StackVertical>
   );
