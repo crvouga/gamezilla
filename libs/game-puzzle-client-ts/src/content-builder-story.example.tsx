@@ -7,7 +7,8 @@
 import type { JSX } from 'solid-js';
 import { fn } from 'storybook/test';
 import { ContentAuthorScreenView } from './content-author-screen-view';
-import { StoryDraftHistory } from './content-story.example';
+import { storyDraftHistory } from './content-story.example';
+import { PuzzleSpaceExample } from './puzzle-space.example';
 
 export function StoryPuzzleBuilder(props: {
   readonly title: string;
@@ -25,33 +26,31 @@ export function StoryPuzzleBuilder(props: {
   readonly stage: JSX.Element;
 }): JSX.Element {
   return (
-    <ContentAuthorScreenView
-      status="ready"
-      documentId="5d0c1a00-0000-4000-8000-0000000000b1"
-      draftId="5d0c1a00-0000-4000-8000-0000000000b2"
-      kind="puzzle"
-      body={{
-        title: props.title,
-        description: props.description,
-        difficulty: props.difficulty,
-        definition: props.definition,
-      }}
-      save={{ saving: props.disabled, dirty: props.disabled, error: null }}
-      conflicted={false}
-      metadataDisabled={props.disabled}
-      disabled={props.disabled}
-      place={{ screen: 'board' }}
-      onOpen={fn()}
-      standing={{ kind: 'playtest' }}
-      history={
-        <StoryDraftHistory
-          disabled={props.disabled || props.undoable === false}
-        />
-      }
-      stage={props.stage}
-      onChangeBody={fn()}
-      onSaveAgain={fn()}
-      onReturnToLibrary={fn()}
-    />
+    <PuzzleSpaceExample>
+      <ContentAuthorScreenView
+        status="ready"
+        documentId="5d0c1a00-0000-4000-8000-0000000000b1"
+        draftId="5d0c1a00-0000-4000-8000-0000000000b2"
+        kind="puzzle"
+        body={{
+          title: props.title,
+          description: props.description,
+          difficulty: props.difficulty,
+          definition: props.definition,
+        }}
+        save={{ saving: props.disabled, dirty: props.disabled, error: null }}
+        conflicted={false}
+        metadataDisabled={props.disabled}
+        disabled={props.disabled}
+        place={{ screen: 'board' }}
+        onOpen={fn()}
+        standing={{ kind: 'playtest' }}
+        history={storyDraftHistory(props.disabled || props.undoable === false)}
+        stage={props.stage}
+        onChangeBody={fn()}
+        onSaveAgain={fn()}
+        onReturnToLibrary={fn()}
+      />
+    </PuzzleSpaceExample>
   );
 }

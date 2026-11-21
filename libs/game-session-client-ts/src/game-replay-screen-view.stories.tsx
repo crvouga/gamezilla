@@ -1,3 +1,4 @@
+import { Button } from '@pkgs/ui-root-client-ts/button';
 import { createSignal } from 'solid-js';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
@@ -83,7 +84,6 @@ const meta = {
     position: '',
     board: null,
     onSeek: fn(),
-    onBack: fn(),
   },
   render: (args) => atPly(args),
 } satisfies Meta<typeof GameReplayScreenView>;
@@ -136,20 +136,10 @@ export const ArrowKeyStepsBack: Story = {
   },
 };
 
-/** "All games" goes back to the list of finished games. */
-export const BackToAllGames: Story = {
-  play: async ({ args, canvasElement }) => {
-    const canvas = within(canvasElement);
-    await userEvent.click(
-      await canvas.findByRole('button', { name: 'All games' })
-    );
-    await expect(args.onBack).toHaveBeenCalled();
-  },
-};
-
 /**
  * The whole journey with the container's state: the list, a game opened
- * from it, any move shown, and back to the list. Automated walks drive it.
+ * from it, any move shown, and back to the list by the space's Back (here
+ * the story's own, `story-replay-back`). Automated walks drive it.
  */
 export const Journey: Story = {
   render: (args) => {
@@ -158,12 +148,17 @@ export const Journey: Story = {
     return (
       <>
         {open() ? (
-          atPly({
-            ...args,
-            ply: ply(),
-            onSeek: setPly,
-            onBack: () => setOpen(false),
-          })
+          <>
+            <Button
+              title="Back"
+              intent="neutral"
+              variant="ghost"
+              size="sm"
+              onClick={() => setOpen(false)}
+              dataSet={{ testid: 'story-replay-back' }}
+            />
+            {atPly({ ...args, ply: ply(), onSeek: setPly })}
+          </>
         ) : (
           <GameHistoryScreenView
             loading={false}

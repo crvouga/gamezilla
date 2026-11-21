@@ -321,7 +321,7 @@ test('saved completion is a record on the progress screen, apart from the board 
   mount(390, 'attempt', { complete: true });
   expect(screen.queryByTestId('content-attempt-complete')).toBeNull();
   expect(screen.getByTestId('player').textContent).toBe('board');
-  expect(screen.getByTestId('controls').textContent).toBe('Undo Redo Restart');
+  expect(barCommands()).toEqual(['Solved: what next', 'Undo', 'More']);
 });
 
 // regression: puzzle-solved-save-said-twice

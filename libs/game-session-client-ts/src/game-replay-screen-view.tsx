@@ -13,7 +13,6 @@ import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
 import { Grid } from '@pkgs/ui-root-client-ts/grid';
 import { IconButton } from '@pkgs/ui-root-client-ts/icon-button';
 import {
-  ArrowLeftIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   ChevronsLeftIcon,
@@ -71,8 +70,6 @@ export type GameReplayScreenViewProps = {
   readonly people?: FramePeople | undefined;
   /** Show the position after `ply` moves. */
   readonly onSeek: (ply: number) => void;
-  /** Back to the list of finished games. */
-  readonly onBack: () => void;
 };
 
 /** Where `GameSessionLayout`'s `fixedStage` lays the moves out as one line. */
@@ -477,8 +474,9 @@ function ReplaySubtitle(props: GameReplayScreenViewProps): JSX.Element {
 }
 
 /**
- * Replaying one finished game from History and stats, presentational: who
- * played and how it ended above the game's own board (`board`), the
+ * Replaying one finished game from History and stats, presentational, as
+ * a page in the space's stage (the space's own row goes back to the list):
+ * who played and how it ended above the game's own board (`board`), the
  * position shown in words under it, the four steps (and the arrow keys),
  * and every move to jump to.
  */
@@ -504,17 +502,6 @@ export function GameReplayScreenView(
         />
       }
       subtitle={<ReplaySubtitle {...props} />}
-      actions={
-        <Button
-          title={<Trans>All games</Trans>}
-          size="sm"
-          variant="outline"
-          intent="neutral"
-          icon={ArrowLeftIcon}
-          onClick={() => props.onBack()}
-          dataSet={{ testid: 'game-history-review-back-to-list' }}
-        />
-      }
     >
       <GameSessionLayout
         actionsBeside

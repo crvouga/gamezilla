@@ -3,8 +3,8 @@ import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-vi
 import { t } from '@lingui/core/macro';
 import { Plural, Trans } from '@lingui/solid/macro';
 import { Badge, type BadgeIntent } from '@pkgs/ui-root-client-ts/badge';
+import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
-import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
 import { GameStat } from '@pkgs/ui-root-client-ts/game-stat';
 import { Grid } from '@pkgs/ui-root-client-ts/grid';
 import { ChevronRightIcon, HistoryIcon } from '@pkgs/ui-root-client-ts/icons';
@@ -405,7 +405,8 @@ function HistoryStatistics(props: GameHistoryScreenViewProps): JSX.Element {
 }
 
 /**
- * A game's History and stats, presentational: wins, losses and draws, then
+ * A game's History and stats, presentational, as a page in the space's
+ * stage (the space's own row carries Back): wins, losses and draws, then
  * the finished custom games of the space and the person's matched games,
  * newest first, each led by the person's own result, with a filter by
  * result once the list is long, and its loading, empty and denied states.
@@ -419,11 +420,10 @@ export function GameHistoryScreenView(
     <Show
       when={props.denial}
       fallback={
-        <GameScreen
+        <EmbeddedScreen
           screenId="game-history"
           title={<Trans>History and stats</Trans>}
           subtitle={<Trans>Finished games, newest first.</Trans>}
-          dataSet={{ component: 'GameHistoryScreen' }}
         >
           <HistoryStatistics {...props} />
           <Show when={props.records.length >= FILTER_FROM}>
@@ -451,7 +451,7 @@ export function GameHistoryScreenView(
             </StackVertical>
           </Show>
           <HistoryRecords {...props} filter={filter()} />
-        </GameScreen>
+        </EmbeddedScreen>
       }
     >
       {(denial) => <DenialSurfaceView denial={denial()} />}

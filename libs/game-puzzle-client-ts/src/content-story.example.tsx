@@ -5,7 +5,7 @@
  */
 import type { ContentBody } from '@libs/game-puzzle-shared-ts/content-types';
 import { Button } from '@pkgs/ui-root-client-ts/button';
-import { PlusIcon, RedoIcon, UndoIcon } from '@pkgs/ui-root-client-ts/icons';
+import { PlusIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import type { SpaceGameAction } from '@pkgs/ui-root-client-ts/space-types';
@@ -87,28 +87,15 @@ export function StoryCountingEditor(props: {
   );
 }
 
-/** Undo / redo of the session's draft edits, at rest. */
-export function StoryDraftHistory(props: { disabled?: boolean }): JSX.Element {
-  return (
-    <>
-      <Button
-        title="Undo"
-        intent="neutral"
-        variant="ghost"
-        size="sm"
-        startIcon={<UndoIcon size={16} />}
-        disabled={props.disabled}
-      />
-      <Button
-        title="Redo"
-        intent="neutral"
-        variant="ghost"
-        size="sm"
-        startIcon={<RedoIcon size={16} />}
-        disabled
-      />
-    </>
-  );
+/** Undo and redo of the draft's edits at rest, for the board's action bar. */
+export function storyDraftHistory(
+  disabled?: boolean
+): readonly SpaceGameAction[] {
+  const none = (): void => undefined;
+  return [
+    { id: 'undo', label: 'Undo', disabled, onPress: none },
+    { id: 'redo', label: 'Redo', disabled: true, onPress: none },
+  ];
 }
 
 /** Starting a private playtest, at rest; filled when it is the next step. */

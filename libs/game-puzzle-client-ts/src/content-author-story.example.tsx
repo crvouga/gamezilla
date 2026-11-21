@@ -24,10 +24,11 @@ import {
   COUNTING_BODY,
   StoryCountingEditor,
   StoryCountingPlayer,
-  StoryDraftHistory,
   StoryPlaytest,
+  storyDraftHistory,
 } from './content-story.example';
 import { ContentWithdrawConfirm } from './content-withdraw';
+import { PuzzleSpaceExample } from './puzzle-space.example';
 
 type Publication = Partial<ContentPublicationControlsViewProps>;
 
@@ -149,62 +150,68 @@ export function renderAuthorStory(
     return chosen[key];
   };
   return (
-    <ContentAuthorScreenView
-      {...args}
-      standing={contentBuilderStanding({
-        ...publication,
-        waitingOn: publication.waitingOn ?? [],
-        playable: args.playable,
-      })}
-      history={slot('history') ?? <StoryDraftHistory />}
-      stage={slot('stage') ?? <StoryCountingEditor target="7" />}
-      preview={
-        slot('preview') ?? <StoryCountingPlayer state="count:0" disabled />
-      }
-      keptCopies={
-        slot('keptCopies') ?? <StoryCopies onSelect={() => setCopying(true)} />
-      }
-      refusal={options.refused === true ? <StoryRefusal /> : undefined}
-      refused={options.refused === true}
-      publication={
-        <ContentPublicationControlsView
-          {...publication}
-          before={
-            args.kind === 'pack'
-              ? undefined
-              : (next) => (
-                  <StoryPlaytest
-                    disabled={args.disabled}
-                    next={next()}
-                    again={publication.proven}
-                  />
-                )
-          }
-          onWithdraw={() => setWithdrawing(true)}
-          onFix={fn()}
-          refused={options.refused === true}
-          refusalIssue={options.refused === true ? 'UNSOLVABLE' : null}
-          fixTarget={options.refused === true ? 'board' : publication.fixTarget}
-        />
-      }
-      confirms={
-        <>
-          <ContentWithdrawConfirm
-            visible={withdrawing()}
-            title={args.body.title}
-            onClose={() => setWithdrawing(false)}
-            onWithdraw={fn(async () => undefined)}
+    <PuzzleSpaceExample>
+      <ContentAuthorScreenView
+        {...args}
+        standing={contentBuilderStanding({
+          ...publication,
+          waitingOn: publication.waitingOn ?? [],
+          playable: args.playable,
+        })}
+        history={slot('history') ?? storyDraftHistory()}
+        stage={slot('stage') ?? <StoryCountingEditor target="7" />}
+        preview={
+          slot('preview') ?? <StoryCountingPlayer state="count:0" disabled />
+        }
+        keptCopies={
+          slot('keptCopies') ?? (
+            <StoryCopies onSelect={() => setCopying(true)} />
+          )
+        }
+        refusal={options.refused === true ? <StoryRefusal /> : undefined}
+        refused={options.refused === true}
+        publication={
+          <ContentPublicationControlsView
+            {...publication}
+            before={
+              args.kind === 'pack'
+                ? undefined
+                : (next) => (
+                    <StoryPlaytest
+                      disabled={args.disabled}
+                      next={next()}
+                      again={publication.proven}
+                    />
+                  )
+            }
+            onWithdraw={() => setWithdrawing(true)}
+            onFix={fn()}
+            refused={options.refused === true}
+            refusalIssue={options.refused === true ? 'UNSOLVABLE' : null}
+            fixTarget={
+              options.refused === true ? 'board' : publication.fixTarget
+            }
           />
-          <ContentCopyConfirm
-            visible={copying()}
-            title="Count to five"
-            disabled={false}
-            onClose={() => setCopying(false)}
-            onChoose={fn(async () => undefined)}
-          />
-        </>
-      }
-    />
+        }
+        confirms={
+          <>
+            <ContentWithdrawConfirm
+              visible={withdrawing()}
+              title={args.body.title}
+              onClose={() => setWithdrawing(false)}
+              onWithdraw={fn(async () => undefined)}
+            />
+            <ContentCopyConfirm
+              visible={copying()}
+              title="Count to five"
+              disabled={false}
+              onClose={() => setCopying(false)}
+              onChoose={fn(async () => undefined)}
+            />
+          </>
+        }
+      />
+    </PuzzleSpaceExample>
   );
 }
 
