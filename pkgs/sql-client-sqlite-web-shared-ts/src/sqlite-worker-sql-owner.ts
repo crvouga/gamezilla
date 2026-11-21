@@ -23,12 +23,14 @@ export type SqliteWorkerSqlOwner = SqlOwner & {
 };
 
 type LiveWorker = {
+  terminated: boolean;
   readonly handle: SqliteWorkerHandle;
   readonly rpc: SqliteWorkerRpc;
 };
 
 class SqliteWorkerSqlOwnerImpl implements SqliteWorkerSqlOwner {
   private live: LiveWorker | null = null;
+  private readonly closing = new Set<LiveWorker>();
   private openInfo: SqliteWorkerOpenResult | null = null;
 
   constructor(
@@ -40,7 +42,7 @@ class SqliteWorkerSqlOwnerImpl implements SqliteWorkerSqlOwner {
   private spawn(): LiveWorker {
     const handle = this.spawnWorker(this.dbName);
     const rpc = createSqliteWorkerRpc(handle);
-    const live: LiveWorker = { handle, rpc };
+    const live: LiveWorker = { handle, rpc, terminated: false };
     handle.onerror = (event) => {
       rpc.abortAll(workerScriptLoadError(event));
     };
@@ -48,6 +50,8 @@ class SqliteWorkerSqlOwnerImpl implements SqliteWorkerSqlOwner {
   }
 
   private terminate(live: LiveWorker): void {
+    if (live.terminated) return;
+    live.terminated = true;
     live.handle.onmessage = null;
     live.handle.onerror = null;
     live.handle.terminate();
@@ -80,6 +84,9 @@ class SqliteWorkerSqlOwnerImpl implements SqliteWorkerSqlOwner {
     if (live === null) return;
     this.live = null;
     this.openInfo = null;
+    // Keep a synchronous teardown handle while graceful close awaits RPC.
+    // A pagehide release can run before either the RPC or timer settles.
+    this.closing.add(live);
     let timeout: unknown;
     try {
       await Promise.race([
@@ -92,15 +99,17 @@ class SqliteWorkerSqlOwnerImpl implements SqliteWorkerSqlOwner {
       // worker already gone; terminate below
     }
     this.timers.clearTimeout(timeout);
+    this.closing.delete(live);
     this.terminate(live);
   }
 
   release(): void {
     const live = this.live;
-    if (live === null) return;
     this.live = null;
     this.openInfo = null;
-    this.terminate(live);
+    if (live !== null) this.terminate(live);
+    for (const pending of this.closing) this.terminate(pending);
+    this.closing.clear();
   }
 
   async resetStore(): Promise<void> {
