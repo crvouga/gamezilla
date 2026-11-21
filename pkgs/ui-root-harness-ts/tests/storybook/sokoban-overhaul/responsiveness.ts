@@ -4,6 +4,10 @@ import { expect, type Page, type TestInfo } from '@playwright/test';
 type Samples = {
   inputToFrameMs: number[];
   longTaskMs: number[];
+  timeOrigin: number;
+  inputs: { startTime: number; type: string; key: string | null }[];
+  frames: { inputAt: number; frameAt: number }[];
+  longTasks: unknown[];
 };
 
 /** One timed input and the move count it must reach. */
@@ -57,12 +61,24 @@ export async function measureSokoban(
       // The preview forwards every keydown to Storybook's manager; that is
       // harness work, not the game's, so it is off while moves are timed.
       window.onkeydown = null;
-      const samples: Samples = { inputToFrameMs: [], longTaskMs: [] };
+      const samples: Samples = {
+        inputToFrameMs: [],
+        longTaskMs: [],
+        timeOrigin: performance.timeOrigin,
+        inputs: [],
+        frames: [],
+        longTasks: [],
+      };
       const scope = window as unknown as { sokobanSamples: Samples };
       scope.sokobanSamples = samples;
       let inputAt: number | undefined;
-      const mark = () => {
+      const mark = (event: Event) => {
         inputAt = performance.now();
+        samples.inputs.push({
+          startTime: inputAt,
+          type: event.type,
+          key: event instanceof KeyboardEvent ? event.key : null,
+        });
       };
       // A key or a pointer press starts the clock.
       document.addEventListener('keydown', mark, { capture: true });
@@ -74,13 +90,18 @@ export async function measureSokoban(
         const start = inputAt;
         inputAt = undefined;
         requestAnimationFrame(() => {
-          samples.inputToFrameMs.push(performance.now() - start);
+          const frameAt = performance.now();
+          samples.inputToFrameMs.push(frameAt - start);
+          samples.frames.push({ inputAt: start, frameAt });
         });
       }).observe(counts, { attributes: true, attributeFilter: ['data-moves'] });
       new PerformanceObserver((list) => {
-        samples.longTaskMs.push(
-          ...list.getEntries().map((entry) => entry.duration)
-        );
+        for (const entry of list.getEntries()) {
+          samples.longTaskMs.push(entry.duration);
+          // PerformanceLongTaskTiming.toJSON retains startTime, name and
+          // TaskAttributionTiming entries, including iframe owner details.
+          samples.longTasks.push(entry.toJSON());
+        }
       }).observe({ type: 'longtask', buffered: false });
     });
     const board = page.getByTestId('sokoban-board');
@@ -133,6 +154,12 @@ export async function measureSokoban(
         maxMs: report.maxMs,
         longTasks: samples.longTaskMs.length,
         inputToFrameMs: samples.inputToFrameMs,
+        timeOrigin: samples.timeOrigin,
+        inputs: samples.inputs,
+        frames: samples.frames,
+        longTaskEntries: samples.longTasks,
+        workerIndex: info.workerIndex,
+        parallelIndex: info.parallelIndex,
       })}\n`
     );
     // Budgets: a move reaches the screen within two frames (one at most for
