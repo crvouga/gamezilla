@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { timingTrace } from '../../../storybook/timing-trace';
 import {
   accessibility,
   capture,
@@ -11,11 +12,12 @@ const viewport = { width: 320, height: 740 };
 test.use({
   viewport,
   video: { mode: 'on', size: viewport },
-  trace: 'on',
+  trace: timingTrace,
 });
 
 // regression: sokoban-close-view-builds-whole-board
 // regression: sokoban-maximum-board-pieces-too-small
+// regression: timing-probes-measure-trace-snapshots
 test('storybook integration: Sokoban close view keeps maximum-board pieces readable at 320px', async ({
   page,
 }, info) => {
