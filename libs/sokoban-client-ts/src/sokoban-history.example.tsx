@@ -6,7 +6,7 @@ import { sokobanPuzzleContent } from '@libs/sokoban-shared-ts/sokoban-puzzle-con
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
-import { createSignal, type JSX, Show, untrack } from 'solid-js';
+import { createMemo, createSignal, type JSX, Show, untrack } from 'solid-js';
 import { sokobanGameClient } from './sokoban-game-client';
 import { SokobanPlayerView } from './sokoban-player';
 
@@ -102,7 +102,7 @@ export function SokobanHistory(props: {
   const state = () => history()[cursor()] ?? props.state;
   // As in production: complete while the board is solved; once solved, the
   // completion stays saved and is said quietly after a restart.
-  const complete = () => rules.complete(props.definition, state());
+  const complete = createMemo(() => rules.complete(props.definition, state()));
   const [completionSaved, setCompletionSaved] = createSignal(
     untrack(() => complete())
   );
