@@ -49,9 +49,11 @@ export function serveBrowserProcess<Open>(
       let value: unknown;
       if (request.open !== undefined) {
         if (device !== null) throw new Error('The browser is already open');
+        process.send?.({ id: request.id, stage: 'opening' });
         device = await open(request.open);
         value = true;
       } else if (request.call !== undefined && device !== null) {
+        process.send?.({ id: request.id, stage: 'executing' });
         value = await invoke(device, request.call);
         if (request.call.target === 'driver' && request.call.method === 'close')
           device = null;
