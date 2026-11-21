@@ -100,7 +100,8 @@ function createMeter(
   return metricExporter === undefined
     ? undefined
     : new MeterProvider({
-        sdkMetricsEnabled: true,
+        // No `sdkMetricsEnabled`: the SDK's own series are read by nothing
+        // and each writer (isolate, page) would add its own copy of them.
         resource,
         readers: [
           worker
@@ -147,7 +148,6 @@ function createLoggerProvider(
     ? undefined
     : new LoggerProvider({
         resource,
-        ...(meter === undefined ? {} : { meterProvider: meter }),
         processors: [logProcessor(options, meter, logExporter, worker)],
         logRecordLimits: {
           attributeCountLimit: 32,
@@ -170,7 +170,6 @@ function logProcessor(
   return worker
     ? new FlushLogProcessor(guarded)
     : new BatchLogRecordProcessor({
-        ...(meter === undefined ? {} : { selfObsMeterProvider: meter }),
         exporter: guarded,
         maxQueueSize: 2048,
         maxExportBatchSize: 256,
