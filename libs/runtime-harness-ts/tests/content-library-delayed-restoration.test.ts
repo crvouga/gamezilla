@@ -6,8 +6,8 @@ import type {
   DriverNode,
 } from '@pkgs/ui-testing-root-shared-ts/driver';
 
-function restoringLibrary(destinationAppears: boolean) {
-  let screen = 'choice';
+function restoringLibrary(destinationAppears: boolean, initial = 'choice') {
+  let screen = initial;
   const taps: string[] = [];
   const destinationWaits: number[] = [];
   const original = new Error(
@@ -17,6 +17,7 @@ function restoringLibrary(destinationAppears: boolean) {
     throw new Error('Unexpected driver operation');
   };
   const shown = (id: string): boolean =>
+    (screen === 'games' && id === 'game-menu-numberlink') ||
     (screen === 'choice' && id === 'game-choice-puzzle-library') ||
     (screen === 'library' && id === 'content-create-puzzle');
   const visible: DriverNode['expect']['visible'] = async (options) => {
@@ -73,5 +74,23 @@ test('an interrupted library selection preserves its original error when the des
     fixture.original
   );
   expect(fixture.taps).toEqual(['game-choice-puzzle-library']);
+  expect(fixture.destinationWaits).toEqual([JOURNEY_WAIT_MS]);
+});
+
+// regression: content-library-game-menu-removed-during-restoration
+test('a removed game menu waits for the restored library without another tap', async () => {
+  const fixture = restoringLibrary(true, 'games');
+  await openContentLibrary(fixture.ui, 'numberlink');
+  expect(fixture.taps).toEqual(['game-menu-numberlink']);
+  expect(fixture.destinationWaits).toContain(JOURNEY_WAIT_MS);
+  expect(await fixture.ui.get('content-create-puzzle').isVisible()).toBe(true);
+});
+
+test('a removed game menu retains its tap error if the library never appears', async () => {
+  const fixture = restoringLibrary(false, 'games');
+  await expect(openContentLibrary(fixture.ui, 'numberlink')).rejects.toBe(
+    fixture.original
+  );
+  expect(fixture.taps).toEqual(['game-menu-numberlink']);
   expect(fixture.destinationWaits).toEqual([JOURNEY_WAIT_MS]);
 });
