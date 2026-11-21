@@ -4,6 +4,7 @@ import { Trans, useLingui } from '@lingui/solid/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { createSignal, type JSX, Show } from 'solid-js';
+import { useAppFrameGlobalTrailing } from '../app-frame-chrome/index';
 import { BackIconButton } from '../back-icon-button/index';
 import { Button } from '../button/index';
 import { IconButton } from '../icon-button/index';
@@ -154,6 +155,9 @@ function SettingsAction(props: SpaceShellProps): JSX.Element {
 
 function ActionsRow(props: SpaceShellProps): JSX.Element {
   const { t } = useLingui();
+  // The app's own status and account menu, at the far edge, wherever no
+  // sidebar already shows them (a phone): never lost inside a space.
+  const globalTrailing = useAppFrameGlobalTrailing();
   return (
     <header class={styles['actions']} data-space-row="actions">
       <BackIconButton
@@ -175,6 +179,7 @@ function ActionsRow(props: SpaceShellProps): JSX.Element {
       </div>
       <SettingsAction {...props} />
       <ExitAction {...props} />
+      {globalTrailing()}
     </header>
   );
 }
@@ -184,9 +189,10 @@ function ActionsRow(props: SpaceShellProps): JSX.Element {
  * phase, mode and game:
  *
  * 1. Space actions, the smallest and steadiest row: back, the space's
- *    name, space settings, and Leave for a guest or End for the host. It
- *    never grows, never scrolls and never takes a game's controls. Under
- *    it, only while there is one, the space's `notice`.
+ *    name, space settings, and Leave for a guest or End for the host, then
+ *    the app's own status and account menu where no sidebar shows them.
+ *    It never grows, never scrolls and never takes a game's controls.
+ *    Under it, only while there is one, the space's `notice`.
  * 2. People (`people`), one fixed height on every screen, scrolling
  *    sideways when more people are present than fit.
  * 3. The stage (`children`), filling the rest and scrolling on its own.

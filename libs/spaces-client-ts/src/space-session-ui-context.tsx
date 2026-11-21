@@ -4,7 +4,6 @@ export type SpaceSessionUiValue = {
   readonly spaceId: string;
   readonly onRequestEnd: () => void;
   readonly onRequestLeave: () => void;
-  readonly onRequestRename: () => void;
   readonly onPressHome: () => void;
 };
 

@@ -19,24 +19,20 @@ export function SpaceDetailScreen(): JSX.Element {
   const spaceId = useSpaceRouteId();
 
   return (
-    <Show
-      when={spaceId().length > 0}
-      fallback={
-        <SpacesNavProvider>
-          <SpaceDetailInitialLoading spaceId="" />
-        </SpacesNavProvider>
-      }
-    >
-      <SpacesNavProvider>
-        <SpaceRoomProvider spaceId={spaceId()}>
-          <SpaceMembersDialogProvider spaceId={spaceId()}>
-            <SpaceShareDialogProvider spaceId={spaceId()}>
+    <SpacesNavProvider>
+      <SpaceMembersDialogProvider spaceId={spaceId()}>
+        <SpaceShareDialogProvider spaceId={spaceId()}>
+          <Show
+            when={spaceId().length > 0}
+            fallback={<SpaceDetailInitialLoading spaceId="" />}
+          >
+            <SpaceRoomProvider spaceId={spaceId()}>
               <SpaceDetailBody spaceId={spaceId()} />
-            </SpaceShareDialogProvider>
-          </SpaceMembersDialogProvider>
-        </SpaceRoomProvider>
-      </SpacesNavProvider>
-    </Show>
+            </SpaceRoomProvider>
+          </Show>
+        </SpaceShareDialogProvider>
+      </SpaceMembersDialogProvider>
+    </SpacesNavProvider>
   );
 }
 

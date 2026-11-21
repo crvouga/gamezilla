@@ -61,8 +61,8 @@ const STACK_ROUTES: Readonly<Record<string, string>> = {
     '/admin/observatory/synthetic-users/story-person/inspector',
 };
 
-// These views are mounted under SpaceActiveLayout in the product. Link screens
-// and the complete SpaceDetailScreenView are deliberately not wrapped again.
+// These views are mounted under SpaceScreenFrame in the product; the story
+// shell frames them the same way. Link screens are outside a space.
 const SPACE_BODIES = new Set([
   'screens-spaces-games',
   'screens-games-battleship-board',
@@ -143,7 +143,7 @@ export function storyRoute(id: string, override?: StoryRoute): StoryRoute {
   const tab = TAB_ROUTES[family];
   if (tab !== undefined) return { pathname: tab, tab: true, spaceBody: false };
   const spaceBody = SPACE_BODIES.has(family);
-  if (spaceBody || family === 'screens-spaces-detail')
+  if (spaceBody)
     return { pathname: '/space/story-room', tab: false, spaceBody };
   // Isolated overlays and templates have no current product destination.
   return {

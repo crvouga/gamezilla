@@ -32,7 +32,7 @@ export async function spaceScreenOf(
   const connectionMissing = await visible(s, actorId, [
     Handles.statusConnectionMissing,
   ]);
-  // Only the host is offered End (in the space's ⋯ menu), so ask that only
+  // Only the host is offered End (in the space's top row), so ask that only
   // when it decides the screen: a guest without a connection, in the space.
   if (
     connectionMissing &&
@@ -42,8 +42,7 @@ export async function spaceScreenOf(
     return 'droppedOut';
   if (await visible(s, actorId, [Handles.spaceMembersClose]))
     return 'viewingPresence';
-  // Its ⋯ is on the space's bar on every screen (Minimize folds into it
-  // on a short row).
+  // Its settings gear is in the space's top row on every screen.
   if (await visible(s, actorId, [Handles.spaceChromeOverflow])) return 'space';
   if (await visible(s, actorId, [Handles.spaceCreate])) return 'lobby';
   if (await visible(s, actorId, [Handles.spaceJoin])) return 'left';
