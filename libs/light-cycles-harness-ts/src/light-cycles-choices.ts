@@ -1,5 +1,5 @@
 import { operateCustomGameControls } from '@libs/game-session-harness-ts/custom-game-controls';
-import { openCustomGamePlace } from '@libs/game-session-harness-ts/custom-game-places';
+import { showCustomGameHome } from '@libs/game-session-harness-ts/custom-game-places';
 import {
   readCustomGameRefusal,
   readCustomGameScreen,
@@ -19,13 +19,12 @@ import {
   lightCyclesObserver,
   rememberLineup,
 } from './light-cycles-lineup';
+import { botShown } from './light-cycles-reads';
 
 /** The frame's generic stepper for the game's `target-score` option. */
 const TARGET = 'custom-game-option-target-score';
 const TARGET_VALUE = `${TARGET}-value`;
 const TARGET_RANGE = `${TARGET}-range`;
-/** The lobby's row that opens the game's own options. */
-const OPTIONS_ROW = 'custom-game-rules';
 
 const SETTLED_MS = 5000;
 
@@ -56,6 +55,12 @@ async function readTargetStepper(s: ProductHarness, actor: string) {
   };
 }
 
+/** Whether `actor`'s setup shows the target score's stepper. */
+async function stepperShown(s: ProductHarness, actor: string) {
+  await showCustomGameHome(s, actor);
+  return (await actorUi(s, actor)).get(TARGET_VALUE).isVisible();
+}
+
 /**
  * `actor` chooses the target score with the game options where their screen
  * offers them: steps it one round win at a time to `target`, each step
@@ -68,8 +73,8 @@ async function readTargetStepper(s: ProductHarness, actor: string) {
 export const chooseTargetScore = scenarioAction({
   name: 'chooseTargetScore',
   act: async (s, actor: string, target: number) => {
-    // The game's options are their own place, behind the lobby's row.
-    if (!(await openCustomGamePlace(s, actor, OPTIONS_ROW, TARGET_VALUE))) {
+    // The game's options are settings rows on the setup.
+    if (!(await stepperShown(s, actor))) {
       await chooseCustomGame(s, actor, {
         operation: 'rules',
         choice: String(target),
@@ -95,8 +100,8 @@ export const chooseTargetScore = scenarioAction({
 /**
  * The target score the game's creator sees, or `actor`: the arena's round
  * line once the game shows its arena. Before the game starts there is no
- * arena, only the lobby, so it is read where a person looks for it — the
- * game options, opened by the lobby's row.
+ * arena, only the setup, so it is read where a person looks for it — the
+ * game's settings rows.
  */
 export async function targetScoreShown(
   s: ProductHarness,
@@ -105,7 +110,7 @@ export async function targetScoreShown(
   const who = actor ?? lightCyclesObserver(s);
   const board = await lightCyclesBoard(s, who);
   if (board !== null) return board.targetScore;
-  if (!(await openCustomGamePlace(s, who, OPTIONS_ROW, TARGET_VALUE)))
+  if (!(await stepperShown(s, who)))
     throw new Error(`${who} sees no target score`);
   return (await readTargetStepper(s, who)).value;
 }
@@ -120,6 +125,43 @@ export async function targetScoreRefusalShown(
     (await range.isVisible()) &&
     ((await range.text()) ?? '').includes('from 1 to 9')
   );
+}
+
+/** A bot's levels: stepping through them comes back round after three. */
+const LEVELS = 3;
+
+/**
+ * `actor` steps the bot in `side`'s seat to `level` with its sheet's Change
+ * difficulty, one level at a time, as a person does; where their screen
+ * offers no such control, the choice goes as a modified device would send
+ * it, so any refusal is the product's.
+ */
+async function stepDifficulty(
+  s: ProductHarness,
+  actor: string,
+  rider: LightCyclesRiderName,
+  level: LightCyclesBotLevel
+): Promise<void> {
+  const side = LIGHT_CYCLES_SIDES[LIGHT_CYCLES_RIDER_NAMES.indexOf(rider)]!;
+  const cell = `custom-game-${side}-choices`;
+  const change = `custom-game-${side}-difficulty`;
+  const ui = await actorUi(s, actor);
+  for (let step = 0; step < LEVELS; step += 1) {
+    const shown = await botShown(s, actor, rider);
+    if (shown.bot && shown.level === level) return;
+    if (await ui.get(cell).isVisible()) await ui.get(cell).tap();
+    await s.session.waitForIdle();
+    if (!(await ui.get(change).isVisible())) {
+      await ui.key('escape');
+      break;
+    }
+    await tapSettled(s, actor, change);
+  }
+  await chooseCustomGame(s, actor, {
+    operation: 'difficulty',
+    side,
+    difficulty: level,
+  });
 }
 
 /**
@@ -137,18 +179,7 @@ export const chooseBot = scenarioAction({
     const index = LIGHT_CYCLES_RIDER_NAMES.indexOf(rider);
     const side = LIGHT_CYCLES_SIDES[index]!;
     await operateCustomGameControls(s, actor, { operation: 'bot', side });
-    // The bot's levels are on its seat's own place, behind the seat's row.
-    const button = `custom-${side}-difficulty-${level}`;
-    if (
-      await openCustomGamePlace(s, actor, `custom-game-${side}-choices`, button)
-    )
-      await tapSettled(s, actor, button);
-    else
-      await chooseCustomGame(s, actor, {
-        operation: 'difficulty',
-        side,
-        difficulty: level,
-      });
+    await stepDifficulty(s, actor, rider, level);
     // The scenario now knows a bot rides it, when the choice was taken.
     if ((await readCustomGameRefusal(s, actor)) === '') {
       const lineup = lightCyclesLineup(s);

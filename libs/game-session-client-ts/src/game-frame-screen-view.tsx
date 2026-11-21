@@ -9,29 +9,23 @@ import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import type { CustomGamePlace } from './custom-game-places';
-import {
-  FrameClockPlace,
-  FrameOptionsPlace,
-  FramePrivateSetupPlace,
-} from './game-frame-agreed-view';
 import { FrameCommandsPlace } from './game-frame-commands-view';
-import { FrameLobbyPlace } from './game-frame-lobby-view';
 import {
   FrameMovesPlace,
   type FrameReviewHandlers,
 } from './game-frame-moves-view';
 import { FramePlayPlace } from './game-frame-play-view';
 import { FrameResultPlace } from './game-frame-result-place-view';
-import { FrameInvitePlace, FrameSeatPlace } from './game-frame-seat-view';
+import { FrameSetupPlace } from './game-frame-setup-view';
 import {
   createFrameConfirm,
   FrameConfirmDialog,
   type FrameConfirmOperation,
 } from './game-frame-shell';
 import { withStableTable } from './game-frame-stable-table';
-import { FrameStartPlace } from './game-frame-start-view';
 import type {
   FrameConnection,
+  FrameGame,
   FrameNext,
   FramePeople,
   FramePhase,
@@ -39,7 +33,6 @@ import type {
   FrameRecord,
   FrameResult,
   FrameSetup,
-  FrameSetupSeat,
   FrameStatus,
   FrameTable,
 } from './game-frame-view-types';
@@ -47,6 +40,8 @@ import type {
 /** What the room says about the game; `GameFrameScreenView` adds the place and the confirmation. */
 export type GameFrameScreenData = FrameReviewHandlers & {
   readonly title: JSX.Element;
+  /** The game as the space's templates show it. */
+  readonly game: FrameGame;
   /** How the game is won, in one sentence; absent before there is a game. */
   readonly goal?: string | undefined;
   /** Set when the person may not watch this space's games. */
@@ -78,10 +73,10 @@ export type GameFrameScreenData = FrameReviewHandlers & {
   /** The game's own board and its controls; the only part the game draws. */
   readonly board?: JSX.Element;
   /**
-   * The game's own board at its start, with nothing to press: the picture
-   * on the mode card before and while a game is set up.
+   * The space's own notice under row 1 while the game is set up (a refused
+   * change to the space, the host gone offline: `SpaceScreenNotice`).
    */
-  readonly boardPreview?: JSX.Element;
+  readonly spaceNotice?: JSX.Element;
   /** The game's own private setup board, while the viewer arranges theirs. */
   readonly setupBoard?: JSX.Element;
   /** Public render state on the board stage, for automated observers. */
@@ -133,51 +128,13 @@ export type FramePlaceProps = GameFrameScreenViewProps & {
 
 type Props = FramePlaceProps;
 
-/** The seat a seat or invite place is about; `null` once it is gone. */
-function placeSeat(props: Props): FrameSetupSeat | null {
-  const place = props.place;
-  if (place.screen !== 'seat' && place.screen !== 'invite') return null;
-  return props.setup?.seats.find((seat) => seat.side === place.side) ?? null;
-}
-
-/** The places of a game being set up; the lobby when a place has nothing to show. */
-function SetupPlaces(
-  props: Props & { readonly setup: FrameSetup }
-): JSX.Element {
-  const screen = () => props.place.screen;
-  return (
-    <Switch fallback={<FrameLobbyPlace {...props} />}>
-      <Match when={screen() === 'seat' ? placeSeat(props) : null}>
-        {(seat) => <FrameSeatPlace {...props} seat={seat()} />}
-      </Match>
-      <Match when={screen() === 'invite' ? placeSeat(props) : null}>
-        {(seat) => <FrameInvitePlace {...props} seat={seat()} />}
-      </Match>
-      <Match when={screen() === 'options' ? props.setup.options : null}>
-        {(options) => <FrameOptionsPlace {...props} options={options()} />}
-      </Match>
-      <Match when={screen() === 'clock' ? props.setup.options?.clock : null}>
-        {(clock) => <FrameClockPlace {...props} clock={clock()} />}
-      </Match>
-      <Match
-        when={screen() === 'private-setup' ? props.setup.privateSetup : null}
-      >
-        {(own) => <FramePrivateSetupPlace {...props} own={own()} />}
-      </Match>
-    </Switch>
-  );
-}
-
 /** The one place the phase and the device's choice select. */
 function FramePlaces(props: Props): JSX.Element {
   const screen = () => props.place.screen;
   const over = (): boolean =>
     props.phase === 'completed' || props.phase === 'cancelled';
   return (
-    <Switch fallback={<FrameStartPlace {...props} />}>
-      <Match when={props.phase === 'configuring' ? props.setup : null}>
-        {(setup) => <SetupPlaces {...props} setup={setup()} />}
-      </Match>
+    <Switch fallback={<FrameSetupPlace {...props} />}>
       <Match
         when={
           screen() === 'moves' && (props.phase === 'active' || over())
@@ -203,10 +160,10 @@ function FramePlaces(props: Props): JSX.Element {
 /**
  * A game's custom game, presentational, as one small screen at a time: the
  * place its phase and this device select (`CUSTOM_GAME_PLACES`). Before a
- * game, starting one; while it is set up, the lobby and behind its rows a
- * seat, the options, the clock and the person's private setup; while it is
- * played, the live board, the game's commands and the moves; once it is
- * over, the result. Over the places sits the frame's one confirmation,
+ * game and while it is set up, the space's setup template
+ * (`FrameSetupPlace`): starting one, then the seats, the settings and the
+ * person's private setup on one screen; while it is played, the live
+ * board, the game's commands and the moves; once it is over, the result. Over the places sits the frame's one confirmation,
  * which outlives the place that asked for it (resigning finishes the game,
  * which replaces the commands with the result). The board is the game's
  * own (`board`); everything else is plain frame data. `CustomGameScreen`

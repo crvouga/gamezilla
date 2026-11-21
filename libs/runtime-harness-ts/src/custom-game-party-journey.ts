@@ -42,28 +42,26 @@ async function createParty(ui: Driver, game: PlayableGame): Promise<void> {
     await tap(ui, `custom-game-${side}-choices`);
     await tap(ui, `custom-game-${side}-bot`);
     await ui
-      .get(`custom-game-${side}-person`)
+      .get(`custom-game-${side}-choices`)
       .expect.text('Bot', { exact: false, timeoutMs: JOURNEY_WAIT_MS });
   }
 }
 
 async function readyParty(host: JourneyHost): Promise<void> {
-  let guestName = '';
   await host.actAsGuest('takeSecondSeat', async (ui) => {
-    // A member with a seat open to them takes it from the lobby.
+    // A member with a seat open to them takes it under the setup.
     await takeBlack(ui, 'custom-game-take-seat');
-    guestName = (await ui.get('custom-game-black-person').text())?.trim() ?? '';
-    check(guestName !== '', 'The second participant has no displayed name');
     await tap(ui, 'custom-game-ready');
-    await ui.get('custom-game-ready').expect.text("I'm not ready", {
+    await ui.get('custom-game-ready').expect.text('Not ready', {
       exact: false,
       timeoutMs: JOURNEY_WAIT_MS,
     });
   });
   await host.act('startPartyGame', async (ui) => {
+    // The host sees everyone else ready before getting ready themselves.
     await ui
-      .get('custom-game-black-person')
-      .expect.text(guestName, { exact: false, timeoutMs: JOURNEY_WAIT_MS });
+      .get('custom-game-startable')
+      .expect.text('Get ready', { exact: false, timeoutMs: JOURNEY_WAIT_MS });
     await tap(ui, 'custom-game-ready');
     await ui
       .get('custom-game-startable')

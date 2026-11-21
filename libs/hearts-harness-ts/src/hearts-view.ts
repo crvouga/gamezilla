@@ -8,7 +8,7 @@
  */
 
 import { CUSTOM_GAME_BOARD } from '@libs/game-session-harness-ts/custom-game-moves';
-import { customGameSeatName } from '@libs/game-session-harness-ts/custom-game-reads';
+import { readCustomGameName } from '@libs/game-session-harness-ts/custom-game-names';
 import {
   type CustomGameScreen,
   readCustomGameScreen,
@@ -92,7 +92,7 @@ export async function heartsTrickWinnerShown(
   card: string
 ): Promise<boolean> {
   const view = await heartsView(s, actor);
-  const name = (await customGameSeatName(s, actor, side))?.trim() ?? '';
+  const name = (await readCustomGameName(s, actor, side))?.trim() ?? '';
   const winner = view.screen.mySide === side ? 'You' : name;
   return (
     name !== '' &&

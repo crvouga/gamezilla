@@ -4,7 +4,6 @@ import { afterEach, describe, expect, mock, spyOn, test } from 'bun:test';
 import { ActionBar } from '@pkgs/ui-root-client-ts/action-bar';
 import { ACTION_BAR_FEEDBACK_RESET_MS } from '@pkgs/ui-root-client-ts/action-bar-icon-button';
 import { ActionBarLabeledControl } from '@pkgs/ui-root-client-ts/action-bar-labeled-control';
-import { BottomActionBar } from '@pkgs/ui-root-client-ts/bottom-action-bar';
 import {
   PlusIcon,
   SettingsIcon,
@@ -270,49 +269,5 @@ describe('ActionBar in a box too narrow for its actions', () => {
     // A lone overflow action takes the More trigger's place when it fits.
     expect(screen.getByRole('button', { name: 'Share' })).toBeInTheDocument();
     expect(screen.queryByTestId('bar-more')).toBeNull();
-  });
-});
-
-describe('BottomActionBar', () => {
-  test('mixes tab-style actions and contained buttons', () => {
-    const hint = mock();
-    const next = mock();
-    renderUi(() => (
-      <BottomActionBar
-        items={[
-          {
-            type: 'action',
-            id: 'hint',
-            label: 'Hint',
-            icon: ShareIcon,
-            onClick: hint,
-            selected: true,
-          },
-          {
-            type: 'action',
-            id: 'off',
-            label: 'Off',
-            icon: SettingsIcon,
-            onClick: () => {},
-            disabled: true,
-          },
-          { type: 'button', id: 'next', title: 'Next', onClick: next },
-        ]}
-      />
-    ));
-    const bar = mustQuery('[data-component="BottomActionBar"]');
-    expect(cssOf(bar)).toContain('min-height:56px');
-    expect(bar.className).not.toMatch(/border-t/);
-
-    const hintBtn = screen.getByRole('button', { name: 'Hint' });
-    expect(hintBtn).toHaveAttribute('aria-pressed', 'true');
-    expect(hintBtn.className).toMatch(/min-h-11/);
-    fireEvent.click(hintBtn);
-    expect(hint).toHaveBeenCalledTimes(1);
-
-    expect(screen.getByRole('button', { name: 'Off' })).toBeDisabled();
-
-    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
-    expect(next).toHaveBeenCalledTimes(1);
   });
 });

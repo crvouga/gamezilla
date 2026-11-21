@@ -14,10 +14,12 @@ import type {
   GameSeatStat,
 } from '@pkgs/ui-root-client-ts/game-player-parts';
 import type { GameSeatLook } from '@pkgs/ui-root-client-ts/game-seat-swatch';
+import type { GameTileMotif } from '@pkgs/ui-root-client-ts/game-tile';
 import type {
   GameTurnPillEmphasis,
   GameTurnPillTone,
 } from '@pkgs/ui-root-client-ts/game-turn-pill';
+import type { SpaceGamePlayers } from '@pkgs/ui-root-client-ts/space-types';
 import type { JSX } from 'solid-js';
 import type { FrameStartReason } from './game-frame-start-reason';
 
@@ -27,6 +29,17 @@ import type { FrameStartReason } from './game-frame-start-reason';
  * Containers read the room, permissions and the game's presentation and
  * hand the frame these values; stories hand it fixtures.
  */
+
+/**
+ * The game as the space's templates show it, a parameter and never a
+ * branch: its stable key, its name, its tile and its head counts.
+ */
+export type FrameGame = {
+  readonly key: string;
+  readonly name: string;
+  readonly motif: GameTileMotif;
+  readonly players: SpaceGamePlayers;
+};
 
 /** Where the game stands: none yet, set up, played, over or called off. */
 export type FramePhase =

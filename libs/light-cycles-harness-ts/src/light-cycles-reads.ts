@@ -1,3 +1,4 @@
+import { readCustomGameName } from '@libs/game-session-harness-ts/custom-game-names';
 import { readCustomGameScreen } from '@libs/game-session-harness-ts/custom-game-screen';
 import { actorUi } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
@@ -119,12 +120,7 @@ export async function botShown(
   rider: LightCyclesRiderName
 ): Promise<{ readonly bot: boolean; readonly level: string | null }> {
   const side = SEATS[LIGHT_CYCLES_RIDER_NAMES.indexOf(rider)]!;
-  const text =
-    (await (
-      await actorUi(s, actor)
-    )
-      .get(`custom-game-${side}-person`)
-      .text()) ?? '';
+  const text = (await readCustomGameName(s, actor, side)) ?? '';
   const level = text.match(/\((easy|medium|hard)\)/)?.[1] ?? null;
   return { bot: text.startsWith('Bot'), level };
 }

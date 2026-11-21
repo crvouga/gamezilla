@@ -15,8 +15,8 @@ const HOME_PLACES: ReadonlySet<string> = new Set([
   'result',
 ]);
 
-/** Behind any place there are at most two more (inviting, then its seat). */
-const DEEPEST_PLACE = 3;
+/** Every place is one step from the place its phase opens on. */
+const DEEPEST_PLACE = 1;
 
 /** The place `actor`'s device shows, or `null` when no custom game shows. */
 export async function customGamePlace(
@@ -44,8 +44,9 @@ export async function showCustomGameHome(
 }
 
 /**
- * `actor` opens the place holding `control` by pressing `row` on the home
- * place, unless the control already shows. Whether the control shows after.
+ * `actor` opens the place or sheet holding `control` by pressing `row` on
+ * the home place (a seat's cell opens its sheet), unless the control
+ * already shows. Whether the control shows after.
  */
 export async function openCustomGamePlace(
   s: ProductHarness,

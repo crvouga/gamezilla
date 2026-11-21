@@ -1,9 +1,9 @@
 import {
   acceptBlack,
   becomeReady,
-  expectBlackNamed,
+  expectBlackSeated,
+  expectOwnSeat,
   inviteToBlack,
-  readOwnBlackName,
 } from './custom-game-journey';
 import type { JourneyHost } from './journey-types';
 
@@ -12,13 +12,10 @@ export async function prepareCustomGamePair(
 ): Promise<void> {
   await host.act('inviteToBlack', inviteToBlack);
   await host.actAsGuest('acceptBlack', acceptBlack);
-  let name = '';
-  await host.actAsGuest('readOwnBlackName', async (ui) => {
-    name = await readOwnBlackName(ui);
-  });
+  await host.actAsGuest('expectOwnSeat', expectOwnSeat);
   // Acceptance changes the choices revision. The host must see that accepted
   // seat before submitting readiness against its local copy of those choices.
-  await host.act('expectBlackNamed', expectBlackNamed(name));
+  await host.act('expectBlackSeated', expectBlackSeated);
   await host.act('becomeReady', becomeReady);
   await host.actAsGuest('becomeReady', becomeReady);
 }

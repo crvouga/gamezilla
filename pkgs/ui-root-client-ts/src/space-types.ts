@@ -78,6 +78,11 @@ export type SpacePerson = {
   svg?: string | undefined;
   /** The cell's `data-testid`, for harness bindings. */
   testId?: string | undefined;
+  /**
+   * The `data-testid` of a space action in this entry's sheet, by its
+   * `SpacePersonActionId` (`addBot`), for harness bindings.
+   */
+  actionTestIds?: Readonly<Partial<Record<string, string>>> | undefined;
 };
 
 /**
@@ -165,6 +170,13 @@ export type SpaceGameSetup = {
   /** Per-person setup data: a side and a clock, a rider color and seat. */
   personData?:
     | ((person: SpacePerson) => SpacePersonData | undefined)
+    | undefined;
+  /**
+   * The game's own setup actions on a person, put first in their sheet:
+   * Sit here, Invite to play Black, Revoke the invitation.
+   */
+  personActions?:
+    | ((person: SpacePerson, viewer: SpaceRole) => readonly SpaceGameAction[])
     | undefined;
 };
 

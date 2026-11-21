@@ -2,7 +2,7 @@ import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
 import { GameChoiceGrid } from '@pkgs/ui-root-client-ts/game-choice-grid';
 import { GamePlayerBar } from '@pkgs/ui-root-client-ts/game-player-bar';
-import { GameSetupPanel } from '@pkgs/ui-root-client-ts/game-setup-panel';
+import { GameActions, GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { createSignal, For, type JSX } from 'solid-js';
 
 /** Illustrative play surface; no game implementation or product dependency. */
@@ -53,12 +53,9 @@ export function ScreenExampleSetup(props: {
 }): JSX.Element {
   const [pace, setPace] = createSignal('relaxed');
   return (
-    <GameSetupPanel
+    <GameSection
       title="Set up a round"
       description="Choose your pace before you play."
-      actions={
-        <Button title={props.label ?? 'Start round'} onClick={props.onStart} />
-      }
     >
       <GameChoiceGrid
         label="Pace"
@@ -70,6 +67,9 @@ export function ScreenExampleSetup(props: {
           { value: 'untimed', title: 'Untimed', detail: 'No clock' },
         ]}
       />
-    </GameSetupPanel>
+      <GameActions>
+        <Button title={props.label ?? 'Start round'} onClick={props.onStart} />
+      </GameActions>
+    </GameSection>
   );
 }

@@ -1,4 +1,3 @@
-import { showFleetSetup } from '@libs/battleship-harness-ts/battleship-actions';
 import {
   type BattleshipView,
   battleshipView,
@@ -47,9 +46,6 @@ export const byPlayer = <T extends QuintValue>(read: (p: Player) => T) =>
 
 /** The game as Carol watches it, and as each player sees it. */
 export async function watchGame(w: QuintHarnessWorld) {
-  // A player's fleet is on its own place while the game is set up.
-  for (const player of [PLAYERS[1], PLAYERS[2]])
-    await w.s.apply(showFleetSetup, player);
   const watched = await w.s.read(battleshipView, WATCHER);
   const seen: Record<Player, BattleshipView> = {
     1: await w.s.read(battleshipView, PLAYERS[1]),

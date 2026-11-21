@@ -168,6 +168,108 @@ describe('SpaceSetupTemplate slots', () => {
       document.querySelector('[data-person="me"]')?.getAttribute('data-status')
     ).toBe('watching');
   });
+
+  test('a seated host says ready first, then Start leads; live actions and test ids', () => {
+    const onStart = mock(() => {});
+    const cancel = mock(() => {});
+    const view = (status: 'ready' | 'notReady') =>
+      renderSpace(() => (
+        <SpaceSetupTemplate
+          {...CHROME}
+          game={GAME}
+          role={HOST}
+          hostName="ana"
+          people={[{ ...ME, host: true, status }, OTHER]}
+          onReadyChange={() => {}}
+          onStart={onStart}
+          canStart
+          startNote="Ready to start."
+          actions={[
+            {
+              ...action('cancel', 'cancel-id'),
+              onPress: cancel,
+              tone: 'destructive',
+            },
+          ]}
+          testIds={{ start: 'start-id', ready: 'ready-id', note: 'note-id' }}
+        />
+      ));
+    const waiting = view('notReady');
+    expect(screen.queryByTestId('start-id')).toBeNull();
+    expect(screen.getByTestId('ready-id').textContent).toBe("I'm ready");
+    waiting.unmount();
+    view('ready');
+    fireEvent.click(screen.getByTestId('start-id'));
+    expect(onStart).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId('ready-id').textContent).toBe('Not ready');
+    expect(screen.getByTestId('note-id').textContent).toBe('Ready to start.');
+    fireEvent.click(screen.getByTestId('cancel-id'));
+    expect(cancel).toHaveBeenCalledTimes(1);
+  });
+
+  test("a guest with no readiness to give gets no toggle; one held back can't press it", () => {
+    const first = renderSpace(() => (
+      <SpaceSetupTemplate
+        {...CHROME}
+        game={GAME}
+        role={GUEST}
+        hostName="bob"
+        people={[
+          { ...OTHER, host: true },
+          { ...ME, status: 'notReady' },
+        ]}
+      />
+    ));
+    expect(screen.queryByRole('button', { name: "I'm ready" })).toBeNull();
+    first.unmount();
+    renderSpace(() => (
+      <SpaceSetupTemplate
+        {...CHROME}
+        game={GAME}
+        role={GUEST}
+        hostName="bob"
+        people={[
+          { ...OTHER, host: true },
+          { ...ME, status: 'notReady' },
+        ]}
+        onReadyChange={() => {}}
+        canReady={false}
+      />
+    ));
+    expect(screen.getByRole('button', { name: "I'm ready" })).toBeDisabled();
+  });
+
+  test("a person's sheet opens with the game's setup actions and the space's under their test ids", () => {
+    const sit = mock(() => {});
+    renderSpace(() => (
+      <SpaceSetupTemplate
+        {...CHROME}
+        game={{
+          ...GAME,
+          setup: {
+            settings: [],
+            personActions: () => [{ ...action('sit', 'sit-id'), onPress: sit }],
+          },
+        }}
+        role={HOST}
+        hostName="ana"
+        people={[
+          { ...ME, host: true },
+          {
+            id: 'seat',
+            kind: 'openSeat',
+            name: 'Open seat',
+            testId: 'seat-id',
+            actionTestIds: { addBot: 'add-bot-id' },
+          },
+        ]}
+      />
+    ));
+    fireEvent.click(screen.getByTestId('seat-id'));
+    expect(screen.getByTestId('add-bot-id').textContent).toContain('Add bot');
+    fireEvent.click(screen.getByTestId('sit-id'));
+    expect(sit).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe('SpaceStageTemplate', () => {

@@ -14,7 +14,6 @@ import Example5 from '../../ui-root-client-ts/src/game-history-screen/game-histo
 import Example6 from '../../ui-root-client-ts/src/game-review-screen/game-review-screen.example';
 import Example1 from '../../ui-root-client-ts/src/game-screen/game-screen.example';
 import Example2 from '../../ui-root-client-ts/src/game-session-layout/game-session-layout.example';
-import Example3 from '../../ui-root-client-ts/src/game-setup-panel/game-setup-panel.example';
 import Example0 from '../../ui-root-client-ts/src/main-menu-screen/main-menu-screen.example';
 import Example8 from '../../ui-root-client-ts/src/menu-screen/menu-screen.example';
 import Example9 from '../../ui-root-client-ts/src/profile-screen-layout/profile-screen-layout.example';
@@ -24,7 +23,6 @@ const SCREEN_ENTRIES = [
   { id: 'main-menu-screen', Example: Example0 },
   { id: 'game-screen', Example: Example1 },
   { id: 'game-session-layout', Example: Example2 },
-  { id: 'game-setup-panel', Example: Example3 },
   { id: 'puzzle-screen', Example: Example4 },
   { id: 'game-history-screen', Example: Example5 },
   { id: 'game-review-screen', Example: Example6 },
@@ -64,9 +62,8 @@ describe('screen layout composition contracts', () => {
       for (const colorScheme of ['light', 'dark'] as const) {
         for (const width of [390, 1280]) {
           const view = mountExample(entry.id, width, colorScheme);
-          const count = entry.id === 'game-setup-panel' ? 0 : 1;
           expect(view.container.querySelectorAll('[data-screen]').length).toBe(
-            count
+            1
           );
           expect(
             view.queryAllByRole('heading', { level: 1 }).length

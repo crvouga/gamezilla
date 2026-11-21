@@ -153,7 +153,6 @@ protocol. Import each from its matching kebab-case module export.
 | --- | --- | --- |
 | `MainMenuScreen` | Intro, one destination panel, helper and footer | Game chooser, game modes, embedded settings |
 | `GameScreen` + `GameSessionLayout` | Intro, title row, notices, setup, play stage, status, actions, optional record rail and watching footer (`docs/GAME_UI.md`) | Custom and matchmaking games |
-| `GameSetupPanel` | Choices, primary commands, secondary options | Create a custom game, find an opponent |
 | `PuzzleScreen` | Fixed feed / coaching, fitted board, legend, timeline, actions and overlay | Puzzle play |
 | `GameHistoryScreen` | Summary, trend, statistics, filters and record list | Puzzle stats and attempts |
 | `GameReviewScreen` | Review stage, timeline, actions and optional record rail | Puzzle review |

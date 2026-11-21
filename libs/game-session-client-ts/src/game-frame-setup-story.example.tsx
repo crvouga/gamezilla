@@ -1,3 +1,11 @@
+import {
+  type SpaceScreenChromeValue,
+  SpaceScreenChromeValueProvider,
+} from '@libs/spaces-client-ts/space-screen-chrome';
+import type { SpacePerson } from '@pkgs/ui-root-client-ts/space-types';
+import type { JSX } from 'solid-js';
+import { fn } from 'storybook/test';
+import { FrameStory } from './game-frame-board.example';
 import { FRAME_NO_PLAY } from './game-frame-empty';
 import type { GameFrameScreenViewProps } from './game-frame-screen-view';
 import {
@@ -20,9 +28,67 @@ import type {
 
 /**
  * Story-only fixtures for a custom game being set up: what a host may put
- * in a seat, the seats of the usual lineups, and the frame's args while it
- * is configured. Every setup story starts from `FRAME_CONFIGURING`.
+ * in a seat, the seats of the usual lineups, the space around it, and the
+ * frame's args while it is configured. Every setup story starts from
+ * `FRAME_CONFIGURING` and renders in `FrameSetupStory`.
  */
+
+/** Who is in avery's space, as the people row names them. */
+function storyPeople(you: string): readonly SpacePerson[] {
+  const face = (id: string, name: string, host = false): SpacePerson => ({
+    id,
+    kind: 'person',
+    name,
+    host,
+    you: id === you,
+    initials: name.slice(0, 2).toUpperCase(),
+    tintKey: id,
+  });
+  return [
+    face(PEOPLE.avery, 'avery', true),
+    face(PEOPLE.jordan, 'jordan_plays'),
+    face(PEOPLE.morgan, 'morgan'),
+  ];
+}
+
+/** The space around the story: avery hosts; `viewer` is looking. */
+export function storyChrome(
+  viewer: keyof typeof PEOPLE = 'avery'
+): SpaceScreenChromeValue {
+  const you = PEOPLE[viewer];
+  return {
+    spaceId: 'story-space',
+    spaceName: 'avery’s space',
+    role: viewer === 'avery' ? 'host' : 'guest',
+    hostName: 'avery',
+    people: storyPeople(you),
+    hostOffline: false,
+    status: 'ready',
+    onBack: fn(),
+    backLabel: 'Back to Connect Four',
+    menu: [],
+    onLeave: fn(),
+    onEnd: fn(),
+    onInvite: fn(),
+    onPersonAction: fn(),
+    personCapabilities: [],
+    testIds: {},
+  };
+}
+
+/** A setup story: the frame inside avery's space, seen by `viewer`. */
+export function FrameSetupStory(
+  props: GameFrameScreenViewProps & {
+    readonly viewer?: keyof typeof PEOPLE | undefined;
+    readonly setupBoard?: JSX.Element;
+  }
+): JSX.Element {
+  return (
+    <SpaceScreenChromeValueProvider value={storyChrome(props.viewer)}>
+      <FrameStory {...props} />
+    </SpaceScreenChromeValueProvider>
+  );
+}
 
 /** Everything a host may put in a seat, with two members to invite. */
 export const HOST_CHOICES: FrameSeatChoices = {

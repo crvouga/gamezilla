@@ -177,7 +177,6 @@ under every component. They live in
 | TabBar | ✅ |
 | Tabs | ✅ |
 | ActionBar | ✅ |
-| BottomActionBar | ✅ |
 | Toolbar | ✅ |
 | AppFrame | ✅ |
 | FormActionsFooter | ✅ |
@@ -279,7 +278,6 @@ The product's differentiator. Each game imports one of these boards.
 | GameChoiceGrid | 🟡 |
 | GameDisclosure | 🟡 |
 | GameSearchState (matchmaking) | 🟡 |
-| GameSetupPanel | ✅ |
 | GameSessionLayout | ✅ |
 
 ---

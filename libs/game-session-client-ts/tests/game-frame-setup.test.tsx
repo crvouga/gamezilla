@@ -1,5 +1,5 @@
 import { afterEach, expect, test } from 'bun:test';
-import { GameFrameOptions } from '@libs/game-session-client-ts/game-frame-options';
+import { useFrameSettings } from '@libs/game-session-client-ts/game-frame-options';
 import {
   frameStartLine,
   frameViewerNotice,
@@ -18,8 +18,9 @@ import {
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import type { GameOptionGroup } from '@pkgs/turn-game-shared-ts/game-frame';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
+import { GameOptionField } from '@pkgs/ui-root-client-ts/game-option-field';
 import { cleanup, fireEvent, screen } from '@solidjs/testing-library';
-import { createSignal } from 'solid-js';
+import { createSignal, For } from 'solid-js';
 
 afterEach(cleanup);
 
@@ -161,14 +162,24 @@ function renderOptions(editable: boolean) {
         resolve();
       };
     });
-  renderWithI18n(() => (
-    <GameFrameOptions
-      options={[TARGET, SIZE]}
-      position={position()}
-      editable={editable}
-      apply={apply}
-    />
-  ));
+  function Options() {
+    const fields = useFrameSettings(
+      () => ({
+        players: null,
+        groups: [TARGET, SIZE],
+        position: position(),
+        editable,
+        clock: null,
+      }),
+      async (input) => {
+        if (input.operation === 'rules') await apply(input.choice);
+      }
+    );
+    return (
+      <For each={fields()}>{(field) => <GameOptionField {...field} />}</For>
+    );
+  }
+  renderWithI18n(() => <Options />);
   return { applied, settle: () => settle() };
 }
 

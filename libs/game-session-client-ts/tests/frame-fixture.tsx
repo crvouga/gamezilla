@@ -16,11 +16,16 @@ import type {
   FrameSetupSeat,
   FrameStatus,
 } from '@libs/game-session-client-ts/game-frame-view-types';
+import {
+  type SpaceScreenChromeValue,
+  SpaceScreenChromeValueProvider,
+} from '@libs/spaces-client-ts/space-screen-chrome';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { stageOverlayOpening } from '@pkgs/turn-game-client-ts/stage-overlay';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
+import type { SpacePerson } from '@pkgs/ui-root-client-ts/space-types';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 
@@ -167,6 +172,12 @@ export function frameProps(
 ): GameFrameScreenViewProps {
   return {
     title: 'Counting race',
+    game: {
+      key: 'counting-race',
+      name: 'Counting race',
+      motif: 'discs',
+      players: { counts: [2], bots: true },
+    },
     phase: 'active',
     place: { screen: 'play' },
     viewerSide: 'white',
@@ -221,10 +232,48 @@ export function setupProps(
   });
 }
 
+/** Who is in the space: avery hosts, jordan and morgan are guests. */
+function spacePeople(you: string): readonly SpacePerson[] {
+  return ['avery', 'jordan', 'morgan'].map((name) => ({
+    id: `${name}-id`,
+    kind: 'person',
+    name,
+    host: name === 'avery',
+    you: `${name}-id` === you,
+  }));
+}
+
+/** The space around the frame, seen by `you` (avery, the host, by default). */
+export function spaceChrome(
+  you = 'avery-id',
+  over: Partial<SpaceScreenChromeValue> = {}
+): SpaceScreenChromeValue {
+  return {
+    spaceId: 'space-id',
+    spaceName: 'avery’s space',
+    role: you === 'avery-id' ? 'host' : 'guest',
+    hostName: 'avery',
+    people: spacePeople(you),
+    hostOffline: false,
+    status: 'ready',
+    onBack: () => undefined,
+    backLabel: undefined,
+    menu: [],
+    onLeave: () => undefined,
+    onEnd: () => undefined,
+    onInvite: () => undefined,
+    onPersonAction: () => undefined,
+    personCapabilities: [],
+    testIds: {},
+    ...over,
+  };
+}
+
 /** Mount the frame at a phone's width (390) or a desktop's (1440). */
 export function mountFrame(
   props: () => GameFrameScreenViewProps,
-  width: 390 | 1440 = 390
+  width: 390 | 1440 = 390,
+  chrome: SpaceScreenChromeValue = spaceChrome()
 ) {
   const time = createHarnessClock();
   return renderWithI18n(() => (
@@ -234,7 +283,9 @@ export function mountFrame(
         fixedLayout={{ width, height: width === 390 ? 844 : 900 }}
       >
         <SurfaceStackProvider>
-          <GameFrameScreenView {...props()} />
+          <SpaceScreenChromeValueProvider value={chrome}>
+            <GameFrameScreenView {...props()} />
+          </SpaceScreenChromeValueProvider>
         </SurfaceStackProvider>
       </ThemeProvider>
     </ClockProvider>

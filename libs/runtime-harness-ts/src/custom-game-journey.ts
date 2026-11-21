@@ -2,7 +2,7 @@ import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { chessBoardSquareTestId } from '@pkgs/chess-board-core-shared-ts/probe';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 import { Chess } from 'chess.js';
-import { OWN_BLACK_SEAT, takeBlack } from './custom-game-readiness-wait';
+import { OWN_SEAT, takeBlack } from './custom-game-readiness-wait';
 import { check, expectVisible, JOURNEY_WAIT_MS, tap } from './journey-gestures';
 
 async function openConnectedCustomGame(ui: Driver): Promise<void> {
@@ -19,6 +19,7 @@ async function openConnectedCustomGame(ui: Driver): Promise<void> {
 export async function prepareCustomGame(ui: Driver): Promise<void> {
   await openConnectedCustomGame(ui);
   await tap(ui, 'custom-game-create');
+  // The open seat's sheet adds a bot to it.
   await tap(ui, 'custom-game-black-choices');
   await tap(ui, 'custom-game-black-bot');
   await tap(ui, 'custom-game-ready');
@@ -156,21 +157,28 @@ async function openCustomGameJourney(ui: Driver): Promise<void> {
 export async function inviteToBlack(ui: Driver): Promise<void> {
   await openCustomGameJourney(ui);
   await tap(ui, 'custom-game-create');
+  // The seat's sheet offers everyone else in the space: pressing one invites them.
   await tap(ui, 'custom-game-black-choices');
-  // The seat's own place, then the list of people: pressing one invites them.
-  await tap(ui, 'custom-game-black-invite-choose');
   await tap(ui, 'custom-game-black-invitable');
-  await ui.get('custom-game-black-invited').expect.visible({
+  await ui.get('custom-game-black-choices').expect.text('Invited', {
+    exact: false,
     timeoutMs: JOURNEY_WAIT_MS,
   });
 }
 
-/** The name White's side shows: the creator's, on the creator's device. */
-export async function readWhiteName(ui: Driver): Promise<string> {
-  await expectVisible(ui, 'custom-game-white-person');
-  const name = (await ui.get('custom-game-white-person').text())?.trim();
-  check(name !== undefined && name !== '', 'White shows no name');
+/** The name a seat's cell gives whoever holds it, as its label says it. */
+async function seatName(ui: Driver, side: 'white' | 'black'): Promise<string> {
+  const cell = `custom-game-${side}-choices`;
+  await expectVisible(ui, cell);
+  const name = (await ui.get(cell).attribute('aria-label'))?.split(', ')[0];
+  check(name !== undefined && name !== '', `${side} shows no name`);
   return name;
+}
+
+/** The name White's side shows on the invited person's device: the creator's. */
+export async function readWhiteName(ui: Driver): Promise<string> {
+  await openCustomGameJourney(ui);
+  return seatName(ui, 'white');
 }
 
 export function expectInvitationToBlack(
@@ -194,31 +202,37 @@ export async function acceptBlack(ui: Driver): Promise<void> {
   await takeBlack(ui, 'custom-game-black-accept');
 }
 
-/** The person holds Black: the seat is marked as theirs, and names them. */
-export async function readOwnBlackName(ui: Driver): Promise<string> {
-  await expectVisible(ui, OWN_BLACK_SEAT);
-  const name = (await ui.get('custom-game-black-person').text())?.trim();
-  check(name !== undefined && name !== '', 'Black shows no name');
-  return name;
+/** The person holds a seat: their own readiness is theirs to give. */
+export async function expectOwnSeat(ui: Driver): Promise<void> {
+  await expectVisible(ui, OWN_SEAT);
 }
 
-export function expectBlackNamed(name: string): (ui: Driver) => Promise<void> {
-  return (ui) =>
-    ui.get('custom-game-black-person').expect.text(name, {
-      exact: true,
-      timeoutMs: JOURNEY_WAIT_MS,
-    });
+/**
+ * Black is a person who answered: the setup no longer waits for an
+ * invitation (its line speaks of readiness), and Black's seat names them.
+ */
+export async function expectBlackSeated(ui: Driver): Promise<void> {
+  await ui.get('custom-game-startable').expect.text('ready', {
+    exact: false,
+    timeoutMs: JOURNEY_WAIT_MS,
+  });
+  const label =
+    (await ui.get('custom-game-black-choices').attribute('aria-label')) ?? '';
+  check(!label.includes('invited'), 'Black is still an invitation');
+  check((await seatName(ui, 'black')) !== 'Open place', 'Black is open');
 }
 
 export async function becomeReady(ui: Driver): Promise<void> {
   await openCustomGameJourney(ui);
   // Readiness is given to the seats as they stand: an invitation another
-  // device answered must have arrived here first.
-  await ui.get('custom-game-black-invited').expect.hidden({
+  // device answered must have arrived here first, so the setup's line
+  // speaks of readiness rather than of an invitation.
+  await ui.get('custom-game-startable').expect.text('ready', {
+    exact: false,
     timeoutMs: JOURNEY_WAIT_MS,
   });
   await tap(ui, 'custom-game-ready');
-  await ui.get('custom-game-ready').expect.text("I'm not ready", {
+  await ui.get('custom-game-ready').expect.text('Not ready', {
     exact: false,
     timeoutMs: JOURNEY_WAIT_MS,
   });
