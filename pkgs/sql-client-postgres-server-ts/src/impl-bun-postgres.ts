@@ -198,9 +198,10 @@ function createClient(sql: BunSql, options: BunClientOptions): SqlClient {
         (conn, text, vals) => bunRunStatement(conn, text, vals)
       ),
     transaction: async (fn) =>
-      sql.begin(async (tx) => {
+      // `BEGIN ISOLATION LEVEL SERIALIZABLE`, as the pg drivers open theirs:
+      // the level is fixed with the transaction, one statement sooner.
+      sql.begin('ISOLATION LEVEL SERIALIZABLE', async (tx) => {
         const conn = tx as unknown as BunSql;
-        await conn.unsafe('SET TRANSACTION ISOLATION LEVEL SERIALIZABLE');
         if (options.pinSearchPathEachQuery) {
           await conn.unsafe(
             `SET LOCAL search_path TO ${quotePgIdent(options.dbScope.schema)}`
