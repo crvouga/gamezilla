@@ -253,6 +253,36 @@ describe('createSqliteWorkerSqlOwner', () => {
     expect(events).toEqual(['spawn:user_a', 'terminate']);
   });
 
+  // regression: sqlite-release-during-graceful-close-leaks-worker
+  test('release terminates a worker whose graceful close is still pending', async () => {
+    const { events, spawnWorker } = createTrackedSpawner(
+      createMemorySqliteWorkerBackend(sqlite3)
+    );
+    const owner = createSqliteWorkerSqlOwner({
+      dbName: 'user_a',
+      spawnWorker,
+      timers: createHarnessClock().timers,
+    });
+    await owner.open();
+    const closing = owner.close();
+    // The page freezes now: neither the RPC nor its timeout can finish.
+    owner.release();
+    owner.release();
+    expect(events).toEqual(['spawn:user_a', 'terminate']);
+    const reopening = owner.open();
+    await closing;
+    const reopened = await reopening;
+    await reopened.run(sql`CREATE TABLE kept (id INTEGER)`);
+    expect(events).toEqual(['spawn:user_a', 'terminate', 'spawn:user_a']);
+    await owner.close();
+    expect(events).toEqual([
+      'spawn:user_a',
+      'terminate',
+      'spawn:user_a',
+      'terminate',
+    ]);
+  });
+
   test('client.disconnect closes the owner', async () => {
     const { events, spawnWorker } = createTrackedSpawner(
       createMemorySqliteWorkerBackend(sqlite3)

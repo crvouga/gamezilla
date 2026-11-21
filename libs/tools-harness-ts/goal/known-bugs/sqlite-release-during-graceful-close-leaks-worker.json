@@ -1,0 +1,4 @@
+{
+  "summary": "Graceful SQLite close cleared the live worker before its close RPC settled, so pagehide release could not terminate that worker synchronously. A frozen page could retain OPFS handles and make an offline reload fall back to an empty in-memory database.",
+  "regressionTest": "pkgs/sql-client-sqlite-web-client-ts/tests/sqlite-worker.test.ts"
+}
