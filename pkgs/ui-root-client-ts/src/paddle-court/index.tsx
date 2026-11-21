@@ -52,6 +52,14 @@ export type PaddleCourtProps = CourtControls & {
    * slider, whose focus rings the half it moves.
    */
   readonly halfControl?: ((side: CourtSide) => JSX.Element) | undefined;
+  /**
+   * A phone's thumb pad under the court: a tall strip outside the play,
+   * one lane per half this device controls, where a thumb drags up and
+   * down and the paddle follows (the lane's top is the court's top), with
+   * the paddle drawn where it stands. The court still takes a drag; keys
+   * and assistive technology still reach each half's slider.
+   */
+  readonly thumbPad?: boolean | undefined;
 };
 
 const SIDES: readonly CourtSide[] = ['first', 'second'];
@@ -153,6 +161,55 @@ export const BALL_DRAWN_SCALE = 1.8;
  */
 export const PADDLE_DRAWN_SCALE = 1.5;
 
+/**
+ * Under a phone's court, the thumb's own place to steer: one lane per
+ * controlled half, its marker level with that paddle, its drag the
+ * court's own (a lane's height maps to the court's).
+ */
+function ThumbPad(
+  props: PaddleCourtProps & {
+    readonly input: ReturnType<typeof paddleCourtInput>;
+  }
+): JSX.Element {
+  const paddle = (side: CourtSide) =>
+    props.paddles.find((one) => one.side === side);
+  return (
+    <Show when={props.thumbPad === true && props.controlled.length > 0}>
+      <div
+        class={styles['pad']}
+        data-testid={`${props.testId}-thumb-pad`}
+        data-interactive={String(props.enabled)}
+        aria-hidden="true"
+        onPointerDown={props.input.pointerDown}
+        onPointerMove={props.input.pointerMove}
+        onPointerUp={props.input.pointerUp}
+        onPointerCancel={props.input.pointerUp}
+        onLostPointerCapture={props.input.pointerUp}
+      >
+        <For each={SIDES}>
+          {(side) => (
+            <Show when={props.controlled.includes(side)}>
+              <span class={styles['padLane']} data-side={side}>
+                <Show when={paddle(side)}>
+                  {(shown) => (
+                    <span
+                      class={styles['padThumb']}
+                      data-color={shown().color}
+                      style={{
+                        top: `${(Math.max(0, Math.min(props.height, shown().y)) / props.height) * 100}%`,
+                      }}
+                    />
+                  )}
+                </Show>
+              </span>
+            </Show>
+          )}
+        </For>
+      </div>
+    </Show>
+  );
+}
+
 /** A controlled half's own native control, over that half of the court. */
 function HalfControls(props: PaddleCourtProps): JSX.Element {
   return (
@@ -252,6 +309,7 @@ export function PaddleCourt(props: PaddleCourtProps): JSX.Element {
         </div>
         <HalfControls {...props} />
       </div>
+      <ThumbPad {...props} input={input} />
     </div>
   );
 }

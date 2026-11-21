@@ -10,6 +10,7 @@ import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { DirectionPad } from '@pkgs/ui-root-client-ts/direction-pad';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { Surface } from '@pkgs/ui-root-client-ts/surface';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import {
   TrailArena,
@@ -102,44 +103,110 @@ function SteeringHint(props: { id: string }): JSX.Element {
   );
 }
 
+/** One rider's pad: a full-width steering bar alone, a small T beside another. */
+function RiderPad(props: {
+  state: LightCyclesState;
+  board: GameBoardProps;
+  side: GameSide;
+  shared: boolean;
+  steerable: (side: GameSide) => boolean;
+}): JSX.Element {
+  return (
+    <DirectionPad
+      // Alone, a steering bar of four 64px-tall buttons across the width,
+      // right under the arena where the thumb is; two riders on one
+      // device keep a small T each, side by side.
+      size={props.shared ? 'sm' : 'lg'}
+      layout={props.shared ? 'arrows' : 'row'}
+      labels={{
+        up: t`Steer ${riderName(props.side)} up`,
+        right: t`Steer ${riderName(props.side)} right`,
+        down: t`Steer ${riderName(props.side)} down`,
+        left: t`Steer ${riderName(props.side)} left`,
+      }}
+      disabled={!props.steerable(props.side)}
+      onDirection={(heading) =>
+        steer(props.board.simulation, props.state, props.side, heading)
+      }
+      testId={`${props.board.testId}-${props.side}-pad`}
+    />
+  );
+}
+
 function Pads(props: {
   state: LightCyclesState;
   board: GameBoardProps;
   steerable: (side: GameSide) => boolean;
 }): JSX.Element {
   const mode = useLayoutMode();
+  const sides = () => props.board.simulation?.sides ?? [];
+  const shared = () => sides().length > 1;
   return (
     <Show when={mode() !== 'wide'}>
-      <StackHorizontal gap="lg" justify="center" wrap>
-        <For each={props.board.simulation?.sides ?? []}>
-          {(side) => (
-            <StackVertical gap="xs" align="center">
-              {/* One pad is the person's own rider, named above the arena;
-                  pads for two riders on one device say whose each is. */}
-              <Show when={(props.board.simulation?.sides.length ?? 0) > 1}>
-                <Text variant="label">{riderName(side)}</Text>
-              </Show>
-              <DirectionPad
-                size="sm"
-                // The arrow keys' T, a row shorter than a cross, so the
-                // arena keeps more of a phone's screen.
-                layout="arrows"
-                labels={{
-                  up: t`Steer ${riderName(side)} up`,
-                  right: t`Steer ${riderName(side)} right`,
-                  down: t`Steer ${riderName(side)} down`,
-                  left: t`Steer ${riderName(side)} left`,
-                }}
-                disabled={!props.steerable(side)}
-                onDirection={(heading) =>
-                  steer(props.board.simulation, props.state, side, heading)
-                }
-                testId={`${props.board.testId}-${side}-pad`}
+      <Show
+        when={shared()}
+        fallback={
+          <For each={sides()}>
+            {(side) => (
+              <RiderPad
+                state={props.state}
+                board={props.board}
+                side={side}
+                shared={false}
+                steerable={props.steerable}
               />
-            </StackVertical>
-          )}
-        </For>
-      </StackHorizontal>
+            )}
+          </For>
+        }
+      >
+        <StackHorizontal gap="lg" justify="center" wrap>
+          <For each={sides()}>
+            {(side) => (
+              <StackVertical gap="xs" align="center">
+                {/* Pads for two riders on one device say whose each is. */}
+                <Text variant="label">{riderName(side)}</Text>
+                <RiderPad
+                  state={props.state}
+                  board={props.board}
+                  side={side}
+                  shared
+                  steerable={props.steerable}
+                />
+              </StackVertical>
+            )}
+          </For>
+        </StackHorizontal>
+      </Show>
+    </Show>
+  );
+}
+
+/**
+ * Over a wide arena, one bar: the person's steering status (`You ride
+ * Comet.`) at its start and how to steer at its end, so neither floats as a
+ * loose caption around the arena. A phone keeps the status above the arena
+ * and the hint under its pad.
+ */
+function ArenaHeader(props: {
+  wide: boolean;
+  hint: JSX.Element;
+  children: JSX.Element;
+}): JSX.Element {
+  return (
+    <Show when={props.wide} fallback={props.children}>
+      <Surface
+        tone="surface"
+        border
+        radius="card"
+        paddingX="md"
+        paddingY="sm"
+        testId="light-cycles-arena-header"
+      >
+        <StackHorizontal align="center" justify="between" gap="md" wrap>
+          {props.children}
+          {props.hint}
+        </StackHorizontal>
+      </Surface>
     </Show>
   );
 }
@@ -162,13 +229,18 @@ function Arena(props: {
   return (
     <StackVertical gap="md" testId={props.board.testId}>
       <Scores state={props.state} testId={props.board.testId} />
-      <P
-        role="status"
-        testId={`${props.board.testId}-status`}
-        dataSet={{ steering: ownSteering() }}
+      <ArenaHeader
+        wide={mode() === 'wide'}
+        hint={<SteeringHint id={instructionsId} />}
       >
-        {steeringText(ownSteering(), primary())}
-      </P>
+        <P
+          role="status"
+          testId={`${props.board.testId}-status`}
+          dataSet={{ steering: ownSteering() }}
+        >
+          {steeringText(ownSteering(), primary())}
+        </P>
+      </ArenaHeader>
       <RideHere board={props.board} shown={ownSteering() === 'elsewhere'} />
       <TrailArena
         width={props.state.width}
@@ -192,7 +264,9 @@ function Arena(props: {
       {/* A phone's thumb pad sits right under the arena, where the thumb
           is, then how to steer. */}
       <Pads state={props.state} board={props.board} steerable={steerable} />
-      <SteeringHint id={instructionsId} />
+      <Show when={mode() !== 'wide'}>
+        <SteeringHint id={instructionsId} />
+      </Show>
     </StackVertical>
   );
 }

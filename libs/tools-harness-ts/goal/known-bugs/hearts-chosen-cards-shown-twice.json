@@ -1,0 +1,4 @@
+{
+  "summary": "While passing, the three chosen Hearts cards showed twice: lifted and ringed in the hand, and again face up in the pass in the middle of the table. A chosen card's face now shows only in the middle; its place in the hand is an empty outline that is still the pressed button putting it back.",
+  "regressionTest": "libs/hearts-client-ts/tests/table-layout.test.tsx"
+}

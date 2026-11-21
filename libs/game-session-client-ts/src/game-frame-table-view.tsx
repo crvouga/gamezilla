@@ -6,6 +6,7 @@ import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameClock } from '@pkgs/ui-root-client-ts/game-clock';
 import {
   GAME_PLAYER_AVATAR_SIZE,
+  GAME_PLAYER_COMPACT_AVATAR_SIZE,
   GamePlayerBar,
 } from '@pkgs/ui-root-client-ts/game-player-bar';
 import type { GameSeatStat } from '@pkgs/ui-root-client-ts/game-player-parts';
@@ -89,6 +90,12 @@ type SeatProps = {
   readonly onChoose: Choose;
   /** The viewer's own seat; `null` while watching. */
   readonly viewerSide?: string | null | undefined;
+  /**
+   * A phone's strip above or below the board: one line (a smaller avatar,
+   * its tags after the name), so the seats cost the board as little height
+   * as they can and hug its edges.
+   */
+  readonly slim?: boolean | undefined;
 };
 
 /** The seat is to move (not making a secret choice, which its tag says). */
@@ -136,7 +143,11 @@ export function FrameSeatStripView(props: SeatProps): JSX.Element {
         <FrameHolderAvatar
           holder={props.seat.holder}
           plainName={props.seat.plainName}
-          size={GAME_PLAYER_AVATAR_SIZE}
+          size={
+            props.slim === true
+              ? GAME_PLAYER_COMPACT_AVATAR_SIZE
+              : GAME_PLAYER_AVATAR_SIZE
+          }
           people={props.people}
         />
       }
@@ -152,7 +163,10 @@ export function FrameSeatStripView(props: SeatProps): JSX.Element {
       }
       // In the players' card beside an arena every strip is one line: the
       // person's own `You` sits after their name, not on a row of its own.
-      tagsPlacement={props.quietStat === true ? 'inline' : 'below'}
+      // A phone's slim strip keeps them on that line too.
+      tagsPlacement={
+        props.quietStat === true || props.slim === true ? 'inline' : 'below'
+      }
       stat={props.seat.stat}
       statStyle={props.quietStat === true ? 'inline' : 'figure'}
       state={props.seat.state}
@@ -303,6 +317,7 @@ export function FrameOthersView(props: TableProps): JSX.Element {
             people={props.people}
             onChoose={props.onChoose}
             viewerSide={props.viewerSide}
+            slim={props.compact}
           />
         )}
       </Match>
@@ -354,6 +369,7 @@ export function FrameNearSeatView(props: TableProps): JSX.Element {
             people={props.people}
             onChoose={props.onChoose}
             viewerSide={props.viewerSide}
+            slim={props.compact}
           />
         </StackVertical>
       )}

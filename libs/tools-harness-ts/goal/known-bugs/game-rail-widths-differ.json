@@ -1,0 +1,4 @@
+{
+  "summary": "Beside a wide board the rail was 395px for Chess and Connect Four, 444px for Battleship and 300px beside Pong and Light Cycles, so no two games' side panels matched. Every game's rail, an arena's included, is now one width at the column's end and the board's column takes the rest.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-rail-rule.test.tsx"
+}

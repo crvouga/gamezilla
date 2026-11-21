@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone Light Cycles steered from a small 44px arrow-key T in the middle of the screen, weak for fast play. One rider now steers from a bar of four 64px-tall buttons across the arena's width, one row tall.",
+  "regressionTest": "libs/light-cycles-client-ts/tests/light-cycles-board-layout.test.tsx"
+}

@@ -43,6 +43,19 @@
 .pad[data-layout="arrows"] > .button {
   aspect-ratio: 1;
 }
+/* A steering bar: the four buttons share the whole width in one row, each
+   the size's height, so a thumb never hunts for a small target. */
+.pad[data-layout="row"] {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-areas: "left up down right";
+  width: 100%;
+}
+.pad[data-layout="row"][data-size="lg"] {
+  grid-template-rows: var(--ui-space-16);
+}
+.pad[data-layout="row"][data-size="md"] {
+  grid-template-rows: var(--ui-space-12);
+}
 .button {
   display: grid;
   place-items: center;

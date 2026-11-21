@@ -180,6 +180,35 @@ test('the middle of the table shows where the pass goes and the cards chosen', (
   expect(placed[0]?.textContent).toContain('♣');
 });
 
+// regression: hearts-chosen-cards-shown-twice — the three cards chosen to
+// pass showed twice: lifted and ringed in the hand, and again face up in
+// the pass in the middle of the table. A chosen card's face now shows only
+// in the middle; its place in the hand is an empty outline, still the
+// pressed button that puts it back.
+test('a card chosen to pass shows its face once, in the middle of the table', () => {
+  board();
+  const card = byTestId('hearts-card-2C');
+  expect(card.getAttribute('data-lifted')).toBe('false');
+  fireEvent.click(card);
+  const chosen = byTestId('hearts-card-2C');
+  expect(chosen.getAttribute('aria-pressed')).toBe('true');
+  expect(chosen.getAttribute('data-lifted')).toBe('true');
+  const css = readFileSync(
+    join(
+      import.meta.dirname,
+      '../../../pkgs/ui-root-client-ts/src/card-table/card-table.module.css'
+    ),
+    'utf8'
+  );
+  const face = css.slice(css.indexOf('button.card[data-lifted="true"] > * {'));
+  expect(face.slice(0, face.indexOf('}'))).toMatch(/visibility:\s*hidden;/);
+  fireEvent.click(chosen);
+  expect(byTestId('hearts-card-2C').getAttribute('data-lifted')).toBe('false');
+  expect(
+    byTestId('hearts').querySelectorAll('[data-filled="true"]')
+  ).toHaveLength(0);
+});
+
 // regression: hearts-record-card-only-a-sentence — beside a wide table the
 // record card said only "Pass three cards to the left." Hearts gives the
 // frame its passing order, the deal under way marked, and nothing once the

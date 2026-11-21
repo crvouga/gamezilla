@@ -14,19 +14,17 @@ import { ChessBoardFrame } from '@pkgs/chess-board-root-client-ts/chess-board-fr
 import { formatUci } from '@pkgs/chess-rules-shared-ts/uci';
 import { useSoundsPreference } from '@pkgs/sounds-client-ts/solid';
 import { requireTwoPlayerSide } from '@pkgs/turn-game-shared-ts/game-rules';
-import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { type JSX, Show } from 'solid-js';
 
 function PlayBoard(props: PuzzleBoardProps): JSX.Element {
   // Chess's boards follow the app's sound preference themselves.
   const sounds = useSoundsPreference();
-  const mode = useLayoutMode();
   return (
     <ChessBoardFrame
       orientation={requireTwoPlayerSide(props.orientation)}
-      // Wide, the ranks stand at the end, so the squares start under the
-      // screen's title.
-      ranks={mode() === 'wide' ? 'end' : 'start'}
+      // The ranks stand at the board's end on every screen, so the squares
+      // start under the screen's title and the labels never switch sides.
+      ranks="end"
     >
       <ChessBoard
         theme={BOARD_THEME}
@@ -55,13 +53,12 @@ function PlayBoard(props: PuzzleBoardProps): JSX.Element {
 
 function ReviewBoard(props: PuzzleBoardProps): JSX.Element {
   const sounds = useSoundsPreference();
-  const mode = useLayoutMode();
   return (
     <ChessBoardFrame
       orientation={requireTwoPlayerSide(props.orientation)}
-      // Wide, the ranks stand at the end, so the squares start under the
-      // screen's title.
-      ranks={mode() === 'wide' ? 'end' : 'start'}
+      // The ranks stand at the board's end on every screen, so the squares
+      // start under the screen's title and the labels never switch sides.
+      ranks="end"
     >
       <ChessBoard
         theme={BOARD_THEME}

@@ -8,9 +8,13 @@
 .layout {
   /* A board's width: the stage column, and the seats around the board. */
   --game-board-measure: 560px;
-  /* The rail beside the board on wide screens: with the board and the gap
-     between them, the 960px content width of a wide screen. */
-  --game-rail-measure: var(--ui-max-width-panel);
+  /* The widest a board's column gets beside the rail: with the gap and the
+     rail, the 960px content width of a wide screen. */
+  --game-board-max: 544px;
+  /* The one rail beside every game's board on wide screens (a record, the
+     players beside an arena, a puzzle's panel), so no game's panel is
+     wider or narrower than another's. */
+  --game-rail-measure: 392px;
   /* The game's own chrome a wide board leaves room for in the window. */
   --game-board-chrome-block: 284px;
   /* A search's card: one column, its command as wide as the card. */
@@ -18,8 +22,6 @@
   /* A search beside what the person brings (their ratings): two columns,
      each a form's width, never stretched across the whole game column. */
   --game-search-split-measure: 45rem;
-  /* Beside a real-time game's arena: room for a player's full strip. */
-  --game-arena-rail-measure: 304px;
 }
 .column {
   container: game-column / inline-size;
@@ -39,7 +41,7 @@
 .column:has([data-setup-split="true"]),
 .column:has([data-section-media="true"]) {
   max-width: calc(
-    var(--game-board-measure) +
+    var(--game-board-max) +
     var(--ui-space-6) +
     var(--game-rail-measure)
   );
@@ -453,7 +455,7 @@
         var(--game-board-chrome-block) -
         var(--ui-host-chrome-block-size, 0px)
       ),
-      560px
+      544px
     );
   }
   /* A board that brings its own switch between two panels (and the key to
@@ -466,12 +468,13 @@
   }
   .layout[data-has-stage="true"][data-has-aside="true"],
   .layout[data-has-stage="true"][data-has-setup="true"] {
-    /* The rail takes what the board leaves of the column, so every game's
-       rail ends at the column's edge, under the header's own, however tall
-       the window lets its board be. */
+    /* One rail, the same width beside every game, at the column's end, so
+       every game's rail ends at the column's edge, under the header's own;
+       the board's column takes the rest, and a board the window's height
+       holds under that column's width sits centred in it. */
     grid-template-columns:
-      minmax(0, var(--game-board-measure))
-      minmax(280px, 1fr);
+      minmax(0, 1fr)
+      var(--game-rail-measure);
     grid-template-rows: repeat(var(--game-rail-rows, 1), auto) 1fr;
     justify-content: start;
     column-gap: var(--ui-space-6);
@@ -480,16 +483,28 @@
   .layout[data-has-stage="true"][data-has-setup="true"] > .stage {
     grid-column: 1;
     grid-row: 1 / -1;
+    max-width: none;
+  }
+  /* The rail starts level with the board's top edge, not with the seat
+     above it, so the board and the card beside it share one top line
+     (`GameBoardStage` measures the seat it puts above the board). The first
+     of the rail's slots takes the offset; a preview's setup does not. */
+  .layout:not([data-stage-preview="true"])[data-has-stage="true"] > .setup,
+  .layout:not([data-stage-preview="true"])[data-has-stage="true"]:not(
+      [data-has-setup="true"]
+    )
+    > .controls,
+  .layout:not([data-stage-preview="true"])[data-has-stage="true"]:not(
+      [data-has-setup="true"]
+    ):not(:has(> .controls))
+    > .rail {
+    margin-block-start: var(--game-board-lead, 0px);
   }
   /* A real-time game's arena is wider than it is tall, so it never meets
-     the window's height at this width: it takes the column's room, and
-     the rail beside it (the players) keeps a strip's width. The column
-     keeps the game column's width, so its edges match every game. */
+     the window's height at this width: it takes its column's room beside
+     the same rail as every game. */
   .layout[data-arena="true"][data-has-stage="true"][data-has-aside="true"] {
     --game-board-measure: 100%;
-    grid-template-columns:
-      minmax(0, 1fr)
-      minmax(280px, var(--game-arena-rail-measure));
   }
   /* While the game is set up the setup is the main column, running the
      grid's height, with Start under its players; the board preview is a

@@ -1,0 +1,4 @@
+{
+  "summary": "A Battleship hit was salmon on the dark board and oxblood on the light one, so the same board read differently by theme. A hit is now one fill with one ink in both themes.",
+  "regressionTest": "libs/battleship-client-ts/tests/hit-mark.test.ts"
+}

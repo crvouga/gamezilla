@@ -1,0 +1,4 @@
+{
+  "summary": "Beside a wide board the record card's top stood level with the seat above the board rather than with the board, so the board and its card shared no line (Battleship's record started about 70px above its grid). The board stage now measures how far its board sits below that seat and the rail's first card starts that far down.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-rail-rule.test.tsx"
+}

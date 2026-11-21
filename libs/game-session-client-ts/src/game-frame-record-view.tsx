@@ -486,90 +486,90 @@ function StripPlace(props: { readonly record: FrameRecord }): JSX.Element {
 /**
  * A phone's record as one compact strip pinned under the host's top bar:
  * the game's own line about the turn when it says more than the seat to
- * move does (`caption`), then one row: whether the board is live (unless
- * the caption, which only a live board has, already says so), the
- * shown turn in words on a well of its own (`Move 4 · ● col 3 · ◆ col 2`),
- * wrapping between its moves rather than cutting one at the well's edge,
- * and the chevron that opens the rest of the record in place. During live
- * play the four steps wait behind that chevron with every move, a move
- * by number and earlier games, so
- * nothing competes with play; while an earlier position is reviewed they
- * come out beside the place it shows. The well keeps its height before
- * the first move (saying there is none yet), so the board under it never
- * moves when it lands.
+ * move does (`caption`), then one quiet line: whether the board is live
+ * (unless the caption, which only a live board has, already says so), the
+ * shown turn in words (`Move 4 Column ● 3 ◆ 2`) on that line, and the
+ * chevron that opens the rest of the record in place. The line is plain
+ * text on the strip, no well of its own, so the turn on the seat to move
+ * stays the strongest thing above the board. During live play the four
+ * steps wait behind that chevron with every move, a move by number and
+ * earlier games, so nothing competes with play; while an earlier position
+ * is reviewed they come out beside the place it shows. Before the first
+ * move there is no line (and with no caption either, no strip): nothing
+ * stands above the board saying there is nothing yet.
  */
 function RecordStrip(props: RecordProps): JSX.Element {
   const [open, setOpen] = createSignal(false);
   const reviewing = (): boolean => recordReviewing(props.record);
+  // The line has something to show: a move, or an earlier game to open.
+  const line = (): boolean =>
+    props.record.moves.length > 0 ||
+    props.record.earlier.length > 0 ||
+    reviewing();
   return (
-    <Surface
-      tone="surface"
-      border
-      radius="card"
-      paddingX="sm"
-      paddingY="xs"
-      gap="xs"
-      testId="custom-game-record"
-    >
-      <Show when={props.caption}>
-        {(caption) => (
-          <P variant="label" testId="custom-game-record-caption">
-            {caption()}
-          </P>
-        )}
-      </Show>
-      <StackHorizontal
-        align="center"
-        gap="sm"
-        testId="custom-game-move-strip-head"
+    <Show when={line() || props.caption !== undefined}>
+      <Surface
+        tone="surface"
+        border
+        radius="card"
+        paddingX="sm"
+        paddingY="xs"
+        gap="xs"
+        testId="custom-game-record"
       >
-        {/* The game's own line about the live turn already says the board
-            is live: the turn then has the row to itself, on one line. */}
-        <Show when={!reviewing() && props.caption === undefined}>
-          <StripPlace record={props.record} />
+        <Show when={props.caption}>
+          {(caption) => (
+            <P variant="label" testId="custom-game-record-caption">
+              {caption()}
+            </P>
+          )}
         </Show>
-        <Surface tone="muted" radius="control" grow>
-          <MoveStrip testId="custom-game-move-strip" overflow="wrap">
-            <Show
-              when={props.record.moves.length > 0}
-              fallback={
-                <StackHorizontal paddingX="md">
-                  <P variant="caption" tone="secondary">
-                    <Trans>No moves yet.</Trans>
-                  </P>
-                </StackHorizontal>
-              }
-            >
-              <RecordMoves {...props} layout="turn" />
+        <Show when={line()}>
+          <StackHorizontal
+            align="center"
+            gap="sm"
+            testId="custom-game-move-strip-head"
+          >
+            {/* The game's own line about the live turn already says the
+                board is live: the turn then has the row to itself. */}
+            <Show when={!reviewing() && props.caption === undefined}>
+              <StripPlace record={props.record} />
             </Show>
-          </MoveStrip>
-        </Surface>
-        <RecordIconToggle open={open()} onToggle={() => setOpen(!open())} />
-      </StackHorizontal>
-      <Show when={reviewing() || open()}>
-        <StackHorizontal
-          justify={reviewing() ? 'between' : 'end'}
-          align="center"
-          gap="sm"
-          testId="custom-game-record-steps"
-        >
-          <Show when={reviewing()}>
-            <StripPlace record={props.record} />
-          </Show>
-          <RecordSteps {...props} />
-        </StackHorizontal>
-      </Show>
-      <FrameErrorView text={props.record.error} />
-      <Show when={open()}>
-        <StackVertical gap="md" paddingY="sm">
-          <Show when={props.record.moves.length > 0}>
-            <RecordMoves {...props} layout="table" besideStrip />
-          </Show>
-          <ReviewJumpField {...props} />
-          <RecordSelect {...props} />
-        </StackVertical>
-      </Show>
-    </Surface>
+            <StackHorizontal grow shrink>
+              <MoveStrip testId="custom-game-move-strip" overflow="wrap">
+                <Show when={props.record.moves.length > 0}>
+                  <RecordMoves {...props} layout="turn" />
+                </Show>
+              </MoveStrip>
+            </StackHorizontal>
+            <RecordIconToggle open={open()} onToggle={() => setOpen(!open())} />
+          </StackHorizontal>
+        </Show>
+        <Show when={reviewing() || open()}>
+          <StackHorizontal
+            justify={reviewing() ? 'between' : 'end'}
+            align="center"
+            gap="sm"
+            testId="custom-game-record-steps"
+          >
+            <Show when={reviewing()}>
+              <StripPlace record={props.record} />
+            </Show>
+            <RecordSteps {...props} />
+          </StackHorizontal>
+        </Show>
+        <FrameErrorView text={props.record.error} />
+        <Show when={open()}>
+          <StackVertical gap="md" paddingY="sm">
+            <Show when={props.record.moves.length > 0}>
+              <RecordMoves {...props} layout="table" besideStrip />
+            </Show>
+            <ReviewJumpField {...props} />
+            <RecordSelect {...props} />
+          </StackVertical>
+        </Show>
+      </Surface>
+    </Show>
   );
 }
 

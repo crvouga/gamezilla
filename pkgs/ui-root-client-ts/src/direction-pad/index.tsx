@@ -27,9 +27,20 @@ export type DirectionPadProps = {
    * `cross` (default): up over left and right beside an empty centre, down
    * below. `arrows`: the keyboard's arrow keys, up over left, down and
    * right, a row shorter, so a phone's board keeps more of the screen.
+   * `row`: left, up, down and right in one row across the whole width
+   * (each button a share of it, the size's height), a thumb's steering bar
+   * under a phone's arena for fast play: wide targets, one row tall.
    */
-  readonly layout?: 'cross' | 'arrows' | undefined;
+  readonly layout?: 'cross' | 'arrows' | 'row' | undefined;
 };
+
+/** A steering bar: left, up, down and right across the width. */
+const ROW_HEADINGS: readonly DirectionPadHeading[] = [
+  'left',
+  'up',
+  'down',
+  'right',
+];
 
 /** Up on top, left and right beside an empty centre, down below. */
 const HEADINGS: readonly DirectionPadHeading[] = [
@@ -110,7 +121,15 @@ export function DirectionPad(props: DirectionPadProps): JSX.Element {
       role="group"
       data-disabled={props.disabled}
     >
-      <For each={props.layout === 'arrows' ? ARROW_HEADINGS : HEADINGS}>
+      <For
+        each={
+          props.layout === 'arrows'
+            ? ARROW_HEADINGS
+            : props.layout === 'row'
+              ? ROW_HEADINGS
+              : HEADINGS
+        }
+      >
         {(heading) => <PadButton heading={heading} pad={props} />}
       </For>
     </div>

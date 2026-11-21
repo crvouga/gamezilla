@@ -140,8 +140,8 @@ function CourtStatus(props: {
 
 /**
  * Under the court: the points that win, then how to move a paddle — by
- * keys on a wide screen, by a drag along the person's own edge of the court
- * on a phone (anywhere in their half still works). It
+ * keys on a wide screen, by a drag in the thumb pad under the court on a
+ * phone (a drag on the court itself still works). It
  * also describes the court to a listener.
  */
 function CourtHint(props: {
@@ -159,7 +159,9 @@ function CourtHint(props: {
       {' · '}
       <Show
         when={mode() === 'wide'}
-        fallback={<Trans>Drag up and down along your edge of the court.</Trans>}
+        fallback={
+          <Trans>Drag up and down in the pad under the court, or on it.</Trans>
+        }
       >
         <Switch fallback={<Trans>The arrow keys move your paddle.</Trans>}>
           <Match when={shared()}>
@@ -203,6 +205,7 @@ function PongScene(props: {
   board: PongBoardViewProps;
 }): JSX.Element {
   const instructionsId = createUniqueId();
+  const mode = useLayoutMode();
   const controlled = (): CourtSide[] =>
     (props.board.simulation?.sides ?? []).map((side) =>
       side === 'white' ? 'first' : 'second'
@@ -255,6 +258,8 @@ function PongScene(props: {
           size: config.ballRadius * 2,
         }}
         controlled={controlled()}
+        // A phone steers from a thumb pad under the court, outside the play.
+        thumbPad={mode() !== 'wide'}
         enabled={enabled()}
         onDirection={(side, direction) =>
           props.board.simulation?.onInput(seat(side), {

@@ -210,6 +210,8 @@
   --color-game-battleship-accent: var(--ui-color-game-battleship-accent);
   --color-game-battleship-one: var(--ui-color-game-battleship-one);
   --color-game-battleship-two: var(--ui-color-game-battleship-two);
+  --color-game-battleship-hit: var(--ui-color-game-battleship-hit);
+  --color-game-battleship-on-hit: var(--ui-color-game-battleship-on-hit);
   --color-game-quoridor-canvas: var(--ui-color-game-quoridor-canvas);
   --color-game-quoridor-surface: var(--ui-color-game-quoridor-surface);
   --color-game-quoridor-ink: var(--ui-color-game-quoridor-ink);
@@ -231,6 +233,12 @@
   --color-game-numberlink-accent: var(--ui-color-game-numberlink-accent);
   --color-game-numberlink-one: var(--ui-color-game-numberlink-one);
   --color-game-numberlink-two: var(--ui-color-game-numberlink-two);
+  --color-game-numberlink-day-canvas: var(
+    --ui-color-game-numberlink-day-canvas
+  );
+  --color-game-numberlink-day-surface: var(
+    --ui-color-game-numberlink-day-surface
+  );
   --color-game-word-tiles-canvas: var(--ui-color-game-word-tiles-canvas);
   --color-game-word-tiles-surface: var(--ui-color-game-word-tiles-surface);
   --color-game-word-tiles-ink: var(--ui-color-game-word-tiles-ink);

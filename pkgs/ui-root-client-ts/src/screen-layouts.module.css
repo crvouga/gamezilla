@@ -385,7 +385,7 @@
         var(--game-board-chrome-block, 284px) -
         var(--ui-host-chrome-block-size, 0px)
       ),
-      560px
+      544px
     );
     /* As wide as a game's board and rail (the column the host's bar and
        every game screen share), its tracks from that column's start, so
