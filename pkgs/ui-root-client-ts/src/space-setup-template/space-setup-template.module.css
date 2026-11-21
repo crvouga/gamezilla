@@ -49,3 +49,12 @@
   margin-top: auto;
   text-align: center;
 }
+/* The viewer's private setup (a fleet to place), when the game has one. */
+.board {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.board:empty {
+  display: none;
+}

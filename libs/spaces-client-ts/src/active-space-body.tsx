@@ -3,6 +3,7 @@ import { createEffect, createSignal, type JSX } from 'solid-js';
 
 import { GamesMainMenu } from './games-main-menu';
 import { SpaceActiveLayout } from './space-active-layout';
+import { SpaceScreenChromeProvider } from './space-screen-chrome';
 import type { SpaceSessionUiValue } from './space-session-ui-context';
 import { SpaceSessionUiProvider } from './space-session-ui-context';
 import { useAnnounceJoinedOnSync } from './use-announce-joined-on-sync';
@@ -55,18 +56,21 @@ export function ActiveSpaceBody(props: ActiveSpaceBodyProps): JSX.Element {
   // not hide it.
   const gamesLoading = (): boolean =>
     connection() === 'loading' && engine.status().online && !keptMenu();
+  const status = () => (gamesLoading() ? 'loading' : 'ready');
+  const hostOffline = (): boolean =>
+    connection() === 'host-offline' && engine.status().online;
 
   return (
     <SpaceSessionUiProvider value={sessionUi}>
       <SpaceQuietHost>
-        <SpaceActiveLayout
-          status={gamesLoading() ? 'loading' : 'ready'}
-          hostOffline={
-            connection() === 'host-offline' && engine.status().online
-          }
+        <SpaceScreenChromeProvider
+          status={status()}
+          hostOffline={hostOffline()}
         >
-          <GamesMainMenu />
-        </SpaceActiveLayout>
+          <SpaceActiveLayout status={status()} hostOffline={hostOffline()}>
+            <GamesMainMenu />
+          </SpaceActiveLayout>
+        </SpaceScreenChromeProvider>
       </SpaceQuietHost>
     </SpaceSessionUiProvider>
   );

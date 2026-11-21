@@ -7,6 +7,7 @@ import { For, type JSX, Show } from 'solid-js';
 import { Avatar } from '../avatar/index';
 import { GameSeatSwatch } from '../game-seat-swatch/index';
 import { PlusIcon } from '../icons';
+import { spaceDataSet } from '../space-data-set';
 import type {
   SpaceGameSeat,
   SpacePerson,
@@ -40,8 +41,11 @@ function CellAvatar(props: {
   phase: SpacePhase;
   seat: SpaceGameSeat | undefined;
 }): JSX.Element {
-  const kind = () =>
-    props.person.kind === 'openSeat' ? 'emptySeat' : props.person.kind;
+  const kind = () => {
+    const held = props.person.kind;
+    if (held === 'openSeat') return 'emptySeat';
+    return held === 'remote' ? 'person' : held;
+  };
   return (
     <Avatar
       kind={kind()}
@@ -50,6 +54,7 @@ function CellAvatar(props: {
       initials={props.person.initials}
       tintKey={props.person.tintKey}
       uri={props.person.uri}
+      svg={props.person.svg}
       seatColor={props.phase === 'inGame' ? props.seat?.color : undefined}
       accentRing={props.phase !== 'inGame' && props.person.host === true}
     />
@@ -109,7 +114,12 @@ export function SpacePersonCell(props: SpacePersonCellProps): JSX.Element {
       aria-haspopup="dialog"
       aria-expanded={props.expanded === true}
       onClick={() => props.onPress()}
-      {...dataAttrs({ component: 'SpacePersonCell', ...props.dataSet })}
+      {...dataAttrs(
+        spaceDataSet(
+          { component: 'SpacePersonCell', ...props.dataSet },
+          props.person.testId
+        )
+      )}
       data-person={props.person.id}
       data-kind={props.person.kind}
       data-host={props.person.host === true ? 'true' : undefined}
