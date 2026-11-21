@@ -1,4 +1,5 @@
 // @io-wall-ok — browser profiling is diagnostic, never product timing.
+import { mkdir, writeFile } from 'node:fs/promises';
 import { expect, test } from '@playwright/test';
 import { counts, openSokoban } from '../sokoban-overhaul/evidence';
 import { walking } from '../sokoban-overhaul/responsiveness';
@@ -67,8 +68,11 @@ test('storybook integration: Sokoban maximum close view CPU profile at 4x for di
     const { profile } = (await cdp.send('Profiler.stop')) as {
       profile: CpuProfile;
     };
+    await mkdir(info.outputDir, { recursive: true });
+    const path = info.outputPath('sokoban-close-view.cpuprofile');
+    await writeFile(path, JSON.stringify(profile));
     await info.attach('sokoban-close-view.cpuprofile', {
-      body: JSON.stringify(profile),
+      path,
       contentType: 'application/json',
     });
     process.stdout.write(
