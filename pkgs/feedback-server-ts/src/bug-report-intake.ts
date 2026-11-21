@@ -1,16 +1,20 @@
 import type { Clock } from '@pkgs/clock-shared-ts/types';
 import {
   DAILY_BUG_REPORT_LIMIT,
+  isSnapshot,
   MAX_SCREENSHOT_BYTES,
   MAX_SCREENSHOTS,
+  MAX_SNAPSHOT_BYTES,
   pictureType,
   readBugReportSubmission,
+  SNAPSHOT_TYPE,
 } from '@pkgs/feedback-shared-ts/bug-report';
 import type {
   BugReport,
   BugReportStore,
   BugReportSubmission,
   Screenshot,
+  Snapshot,
 } from '@pkgs/feedback-shared-ts/types';
 
 /** Every device together, a day: a backstop against one sender posing as many. */
@@ -49,14 +53,36 @@ async function readPictures(form: FormData): Promise<readonly Picture[]> {
   return pictures;
 }
 
-async function readSubmission(
-  form: FormData
-): Promise<{ submission: BugReportSubmission; pictures: readonly Picture[] }> {
+/** The snapshot sent with a report, if any: one gzip file. */
+async function readSnapshot(form: FormData): Promise<Uint8Array | null> {
+  const files = form.getAll('snapshot');
+  if (files.length === 0) return null;
+  const [file] = files;
+  if (
+    files.length > 1 ||
+    file === undefined ||
+    typeof file === 'string' ||
+    file.size > MAX_SNAPSHOT_BYTES
+  )
+    throw new Error('Invalid snapshot');
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  if (!isSnapshot(bytes)) throw new Error('Invalid snapshot');
+  return bytes;
+}
+
+type Input = {
+  readonly submission: BugReportSubmission;
+  readonly pictures: readonly Picture[];
+  readonly snapshot: Uint8Array | null;
+};
+
+async function readSubmission(form: FormData): Promise<Input> {
   const report = form.get('report');
   if (typeof report !== 'string') throw new Error('Missing bug report');
   return {
     submission: readBugReportSubmission(JSON.parse(report)),
     pictures: await readPictures(form),
+    snapshot: await readSnapshot(form),
   };
 }
 
@@ -106,10 +132,25 @@ async function storePictures(
   return screenshots;
 }
 
+async function storeSnapshot(
+  options: IntakeOptions,
+  id: string,
+  bytes: Uint8Array | null
+): Promise<{ snapshot?: Snapshot }> {
+  if (bytes === null) return {};
+  await options.store.attachments.put(id, 'snapshot', bytes, SNAPSHOT_TYPE);
+  return {
+    snapshot: {
+      contentType: SNAPSHOT_TYPE,
+      size: bytes.byteLength,
+      url: `${options.reportsUrl}/${id}/snapshot`,
+    },
+  };
+}
+
 async function receive(
   options: IntakeOptions,
-  submission: BugReportSubmission,
-  pictures: readonly Picture[]
+  { submission, pictures, snapshot }: Input
 ): Promise<IntakeOutcome> {
   const { store } = options;
   const received = await alreadyReceived(store, submission);
@@ -123,6 +164,7 @@ async function receive(
   const report: BugReport = {
     ...submission,
     screenshots: await storePictures(options, submission.id, pictures),
+    ...(await storeSnapshot(options, submission.id, snapshot)),
   };
   await store.attachments.put(
     report.id,
@@ -141,7 +183,7 @@ async function receive(
 export function createBugReportIntake(options: IntakeOptions) {
   const receiving = new Map<string, Promise<IntakeOutcome>>();
   return async (form: FormData): Promise<IntakeOutcome> => {
-    let input: Awaited<ReturnType<typeof readSubmission>>;
+    let input: Input;
     try {
       input = await readSubmission(form);
     } catch {
@@ -150,7 +192,7 @@ export function createBugReportIntake(options: IntakeOptions) {
     const { id } = input.submission;
     const inFlight = receiving.get(id);
     if (inFlight) return inFlight;
-    const outcome = receive(options, input.submission, input.pictures)
+    const outcome = receive(options, input)
       .catch((error: unknown): IntakeOutcome => {
         options.onFailure?.(error);
         return {

@@ -22,6 +22,7 @@ import {
   DESCRIPTION_FULL,
   DISCARD,
   noticeText,
+  SNAPSHOT_NOTE,
   screenshotsText,
   waitingText,
 } from './copy';
@@ -35,6 +36,8 @@ export type BugReportFormViewProps = {
   notice: BugReportNotice | null;
   /** Bug reports kept on the device until they can be sent. */
   waiting: number;
+  /** The app takes a snapshot of itself for the bug report. */
+  snapshot?: boolean;
   onDescribe: (description: string) => void;
   onAddPicture: (picture: ChosenPicture) => void;
   onRemoveScreenshot: (id: string) => void;
@@ -213,6 +216,7 @@ function Draft(props: BugReportFormViewProps) {
       </Show>
       <Notice dataSet={{ testid: 'bug-report-debug-info' }}>
         {DEBUG_INFO_NOTE}
+        <Show when={props.snapshot}> {SNAPSHOT_NOTE}</Show>
       </Notice>
       <Button
         title="Send bug report"

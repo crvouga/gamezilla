@@ -4,6 +4,7 @@ import type { ProductHarness } from '@libs/harness-ts/harness';
 import { productExtra } from '@libs/harness-ts/harness';
 import { APP_SYSTEM } from '@libs/runtime-harness-ts/app-composition';
 import type { Clock, Timers } from '@pkgs/clock-shared-ts/types';
+import type { HarnessCheckpoint } from '@pkgs/harness-console-shared-ts/checkpoint';
 import type { ProductHarnessSession } from '@pkgs/harness-console-shared-ts/ports';
 import { createProductHarnessLogBuffer } from '@pkgs/harness-console-shared-ts/product-harness-log-buffer';
 import { defineAction } from '@pkgs/harness-root-shared-ts/define-action';
@@ -26,6 +27,8 @@ export type ProductHarnessBootEnv = {
   readonly openEmulatorGateway?: (
     emulators: () => readonly HarnessEmulator[]
   ) => EmulatorGateway;
+  /** The world of a bug report to open on, in place of the kept one; `null` for none. */
+  readonly reportedWorld?: () => Promise<HarnessCheckpoint | null>;
 };
 
 function startHarnessClockTick(
@@ -131,6 +134,9 @@ export async function bootProductHarnessSession(
       domainWake.fire = fire;
     },
     seedFreshWorld: () => seedFriends(harness, breathe),
+    ...(env.reportedWorld !== undefined
+      ? { reportedWorld: env.reportedWorld }
+      : {}),
     breathe,
     ...(actorWebOrigin !== undefined ? { actorWebOrigin } : {}),
   });

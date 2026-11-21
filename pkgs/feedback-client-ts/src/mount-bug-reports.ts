@@ -13,6 +13,7 @@ import type {
   ConnectionPort,
   MotionPort,
   ScreenshotPort,
+  SnapshotPort,
 } from './ports';
 import {
   BUG_REPORT_REQUEST_EVENT,
@@ -36,11 +37,19 @@ export type MountBugReportsOptions = {
   readonly timers: Timers;
   readonly createId: () => string;
   readonly screenshot: ScreenshotPort;
+  /** Given where the app can be reopened from a snapshot of its state. */
+  readonly snapshot?: SnapshotPort;
   readonly connection: ConnectionPort;
   readonly motion: MotionPort;
   readonly theme: ThemePort;
   /** The device and the version of the app, and whatever else helps reproduce a bug. */
   readonly providers: readonly DiagnosticProvider[];
+  /**
+   * What the app tells a bug report of itself at the moment of reporting;
+   * by default, what it registered with `registerFeedbackContext`. A page
+   * running several apps names the one on show instead.
+   */
+  readonly context?: () => readonly DiagnosticProvider[];
   /** An event the app dispatches on the document, carrying trouble it caught itself. */
   readonly applicationErrorEvent?: string;
   /**
@@ -75,9 +84,13 @@ export function mountBugReports(options: MountBugReportsOptions) {
     storage,
     send: createBugReportSender(options),
     screenshot: options.screenshot,
+    ...(options.snapshot ? { snapshot: options.snapshot } : {}),
     connection: options.connection,
     debug,
-    providers: () => [...options.providers, ...feedbackContextProviders()],
+    providers: () => [
+      ...options.providers,
+      ...(options.context ?? feedbackContextProviders)(),
+    ],
     clock,
     timers,
     createId: options.createId,

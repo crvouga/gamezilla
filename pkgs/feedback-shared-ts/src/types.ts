@@ -43,6 +43,23 @@ export type Screenshot = {
   readonly url: string;
 };
 
+/**
+ * The app's state the moment a bug report opened, as the device holds it:
+ * enough for whoever fixes the bug to open the app as it was. Taken only
+ * where the app can be reopened from it, such as a test copy of the app.
+ */
+export type SnapshotFile = {
+  readonly contentType: string;
+  readonly bytes: Uint8Array;
+};
+
+/** A snapshot the team holds, at an unlisted address. */
+export type Snapshot = {
+  readonly contentType: string;
+  readonly size: number;
+  readonly url: string;
+};
+
 /** A box on the screen, in CSS px from the top left of the window. */
 export type ScreenBox = {
   readonly x: number;
@@ -89,6 +106,8 @@ export type BugReportSubmission = {
 
 export type BugReport = BugReportSubmission & {
   readonly screenshots: readonly Screenshot[];
+  /** Present when the app took a snapshot of its state as the bug report opened. */
+  readonly snapshot?: Snapshot;
 };
 
 export type CreatedIssue = {
@@ -125,7 +144,7 @@ export type BugReportRecords = {
   check(): Promise<void>;
 };
 
-/** A file kept with a bug report: its full JSON, or one of its pictures. */
+/** A file kept with a bug report: its full JSON, one of its pictures, or its snapshot. */
 export type BugReportAttachment = {
   readonly contentType: string;
   readonly body: ReadableStream<Uint8Array>;
@@ -134,7 +153,7 @@ export type BugReportAttachment = {
 
 /**
  * Where a bug report's files are kept and served back by unlisted address
- * (`report.json`, `screenshots/1`).
+ * (`report.json`, `screenshots/1`, `snapshot`).
  */
 export type BugReportAttachments = {
   put(

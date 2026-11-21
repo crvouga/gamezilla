@@ -100,6 +100,8 @@ describe('AppStage', () => {
     fireEvent.keyDown(handle, { key: 'ArrowDown' });
     fireEvent.contextMenu(handle);
     expect(onHold).toHaveBeenCalledTimes(2);
+    // A page-wide right-click menu leaves the handle its own.
+    expect(handle.closest('[data-native-context-menu]')).toBe(handle);
     // The click a pointer or a key also makes does not go on again.
     fireEvent.click(handle);
     expect(onTap).toHaveBeenCalledTimes(2);

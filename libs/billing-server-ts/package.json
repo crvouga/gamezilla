@@ -10,11 +10,11 @@
     ]
   },
   "scripts": {
+    "billing:feedback": "bun scripts/cancellation-feedback-report.ts",
     "billing:sync": "bun run scripts/sync-billing-offer.ts",
     "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test tests",
-    "billing:feedback": "bun scripts/cancellation-feedback-report.ts"
+    "test": "bun test tests"
   },
   "dependencies": {
     "@hono/zod-validator": "catalog:",
@@ -38,6 +38,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@libs/db-shared-ts": "workspace:*",
     "@libs/infra-shared-ts": "workspace:*",
     "@opentelemetry/api": "catalog:",
     "@opentelemetry/sdk-metrics": "catalog:",
@@ -50,12 +51,11 @@
     "@pkgs/observability-root-server-ts": "workspace:*",
     "@pkgs/secret-provider-server-ts": "workspace:*",
     "@pkgs/secret-store-shared-ts": "workspace:*",
+    "@pkgs/sql-client-postgres-server-ts": "workspace:*",
     "@pkgs/sql-client-sqlite-root-server-ts": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
-    "typescript": "catalog:",
-    "@libs/db-shared-ts": "workspace:*",
-    "@pkgs/sql-client-postgres-server-ts": "workspace:*"
+    "typescript": "catalog:"
   },
   "category": "server",
   "language": "typescript"

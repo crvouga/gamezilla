@@ -3,6 +3,7 @@ import {
   BUG_REPORT_ID,
   MAX_SCREENSHOT_BYTES,
   MAX_SCREENSHOTS,
+  MAX_SNAPSHOT_BYTES,
 } from '@pkgs/feedback-shared-ts/bug-report';
 import type { BugReportStore } from '@pkgs/feedback-shared-ts/types';
 import { readBoundedBody } from './bounded-body';
@@ -10,7 +11,7 @@ import { createBugReportIntake } from './bug-report-intake';
 
 export const BUG_REPORT_PATH = '/api/bug-reports';
 export const MAX_REQUEST_BYTES =
-  MAX_SCREENSHOTS * MAX_SCREENSHOT_BYTES + 1_000_000;
+  MAX_SCREENSHOTS * MAX_SCREENSHOT_BYTES + MAX_SNAPSHOT_BYTES + 1_000_000;
 
 type Options = {
   /** Where received reports are recorded and their files kept. */
@@ -42,19 +43,27 @@ async function readForm(request: Request): Promise<FormData | null> {
   }
 }
 
-/** Reads back an archived report or one of its pictures by unlisted address. */
+/** The archived file an address names: the report, one of its pictures, or its snapshot. */
+function archivedName(kind: string | undefined, index: string | undefined) {
+  if (kind === undefined) return 'report.json';
+  if (kind === 'snapshot' && index === undefined) return 'snapshot';
+  return kind === 'screenshots' && /^[1-9]$/.test(index ?? '')
+    ? `screenshots/${index}`
+    : null;
+}
+
+/** Reads back an archived report, one of its pictures or its snapshot by unlisted address. */
 async function readArchive(
   store: BugReportStore,
   path: string,
   headers: Record<string, string>
 ): Promise<Response> {
-  const [id = '', kind, index] = path.split('/');
-  const name = kind === undefined ? 'report.json' : `screenshots/${index}`;
-  const known =
-    BUG_REPORT_ID.test(id) &&
-    (kind === undefined ||
-      (kind === 'screenshots' && /^[1-9]$/.test(index ?? '')));
-  const object = known ? await store.attachments.get(id, name) : null;
+  const [id = '', kind, index, ...rest] = path.split('/');
+  const name = rest.length === 0 ? archivedName(kind, index) : null;
+  const object =
+    BUG_REPORT_ID.test(id) && name !== null
+      ? await store.attachments.get(id, name)
+      : null;
   if (!object) return new Response('Not found', { status: 404, headers });
   return new Response(object.body, {
     headers: {
@@ -118,8 +127,8 @@ async function health(
 
 /**
  * The whole backend of bug reporting: one address takes a report with its
- * pictures, and the archive under it serves them back to whoever holds the
- * issue. It needs no sign-in, so a person whose sign-in is broken can report.
+ * pictures and snapshot, and the archive under it serves them back to
+ * whoever holds the issue. It needs no sign-in, so a person whose sign-in is broken can report.
  * `/health` under it answers once everything a report needs is in place.
  */
 export function createBugReportHttpApp(options: Options) {

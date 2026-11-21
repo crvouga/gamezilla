@@ -1,9 +1,11 @@
 import type { Clock, Timers } from '@pkgs/clock-shared-ts/types';
 import {
   isDescribed,
+  isSnapshot,
   MAX_DESCRIPTION_LENGTH,
   MAX_SCREENSHOT_BYTES,
   MAX_SCREENSHOTS,
+  MAX_SNAPSHOT_BYTES,
   pictureType,
   SCREENSHOT_TYPE,
 } from '@pkgs/feedback-shared-ts/bug-report';
@@ -13,9 +15,10 @@ import type {
   BugReportSubject,
   DebugEvent,
   DiagnosticProvider,
+  SnapshotFile,
 } from '@pkgs/feedback-shared-ts/types';
 import type { BugReportNotice } from './copy';
-import type { ConnectionPort, ScreenshotPort } from './ports';
+import type { ConnectionPort, ScreenshotPort, SnapshotPort } from './ports';
 import type { SendBugReport, SendOutcome } from './sender';
 import type { BugReportStorage, Draft, KeptBugReport } from './storage';
 
@@ -35,6 +38,8 @@ export type BugReportState = {
   readonly notice: BugReportNotice | null;
   /** Bug reports kept on the device until they can be sent. */
   readonly waiting: number;
+  /** Each bug report carries a snapshot of the app as it opened. */
+  readonly snapshot: boolean;
 };
 
 /** A picture the person chose, read only once it is known to be wanted. */
@@ -48,6 +53,8 @@ export type BugReportControllerOptions = {
   readonly storage: BugReportStorage;
   readonly send: SendBugReport;
   readonly screenshot: ScreenshotPort;
+  /** Where the app can be reopened as it was, how to take a snapshot of it. */
+  readonly snapshot?: SnapshotPort;
   readonly connection: ConnectionPort;
   readonly debug: DebugBuffer;
   readonly providers: () => readonly DiagnosticProvider[];
@@ -58,6 +65,8 @@ export type BugReportControllerOptions = {
 
 /** A slow screenshot never keeps a person from reporting. */
 export const SCREENSHOT_DEADLINE_MS = 2500;
+/** A snapshot that takes longer is left out, never the bug report. */
+export const SNAPSHOT_DEADLINE_MS = 10_000;
 const DETAILS_DEADLINE_MS = 1500;
 export const RETRY_MS = 60_000;
 export const MAX_RETRY_MS = 30 * 60_000;
@@ -74,6 +83,7 @@ const INITIAL: BugReportState = {
   adding: 0,
   notice: null,
   waiting: 0,
+  snapshot: false,
 };
 
 function withDeadline<T>(
@@ -112,6 +122,7 @@ export class BugReportController {
   readonly ready: Promise<void>;
 
   constructor(private readonly options: BugReportControllerOptions) {
+    this.current = { ...INITIAL, snapshot: options.snapshot !== undefined };
     this.ready = this.enqueue(() => this.load());
   }
 
@@ -188,12 +199,47 @@ export class BugReportController {
     draft.screenshots = [{ id, contentType, auto: true }];
   }
 
+  /** Starts taking a snapshot of the app as it is now, if it can be reopened from one. */
+  private startSnapshot(): Promise<SnapshotFile | null> {
+    const { snapshot, timers } = this.options;
+    if (!snapshot) return Promise.resolve(null);
+    return withDeadline(
+      Promise.resolve().then(() => snapshot.capture()),
+      timers,
+      SNAPSHOT_DEADLINE_MS,
+      null
+    );
+  }
+
+  /** Keeps the snapshot taken as the draft opened in place of any before it. */
+  private async keepSnapshot(
+    draft: Draft,
+    taking: Promise<SnapshotFile | null>
+  ): Promise<void> {
+    const { storage } = this.options;
+    const file = await taking;
+    if (this.draft !== draft) return;
+    if (
+      file &&
+      isSnapshot(file.bytes) &&
+      file.bytes.byteLength <= MAX_SNAPSHOT_BYTES
+    ) {
+      await storage.putSnapshot(file);
+      draft.snapshot = file.contentType;
+    } else {
+      await storage.deleteSnapshot();
+      delete draft.snapshot;
+    }
+    await storage.saveDraft(draft);
+  }
+
   /**
    * Opens the bug report. One the person has not started takes a fresh
    * screenshot and the debug info up to now; one already started keeps what
    * it had, so reporting again never loses a word and the debug info still
    * tells of when the bug happened. A bug report about one thing on the
-   * screen names it, and its screenshot marks it.
+   * screen names it, and its screenshot marks it. Where the app can be
+   * reopened as it was, a snapshot of it is taken at the same moment.
    */
   readonly open = (subject?: BugReportSubject): Promise<void> =>
     this.enqueue(async () => {
@@ -208,10 +254,13 @@ export class BugReportController {
         draft.screenshotRemoved === true ||
         draft.screenshots.some((screenshot) => !screenshot.auto);
       if (!started) {
+        const taking = this.startSnapshot();
         draft.events = this.options.debug.snapshot();
         if (subject) draft.subject = subject;
         else delete draft.subject;
         await this.takeScreenshot(draft).catch(() => undefined);
+        // Kept in turn: sending waits for it, the person does not.
+        void this.enqueue(() => this.keepSnapshot(draft, taking));
       }
       await this.options.storage.saveDraft(draft);
       this.set({
@@ -334,6 +383,7 @@ export class BugReportController {
       const picture = await storage.readPicture(screenshot);
       if (picture) pictures.push(picture);
     }
+    const snapshot = await storage.readSnapshot(draft);
     return {
       submission: {
         schema: 'bug-report/v1',
@@ -353,6 +403,7 @@ export class BugReportController {
         ...(draft.subject ? { subject: draft.subject } : {}),
       },
       pictures,
+      ...(snapshot ? { snapshot } : {}),
     };
   }
 
@@ -377,7 +428,11 @@ export class BugReportController {
   private async sendInTurn(report: KeptBugReport): Promise<SendOutcome> {
     if (this.current.waiting > 0) await this.flush();
     if (this.current.waiting > 0 && this.held !== null) return this.held;
-    return this.options.send(report.submission, report.pictures);
+    return this.options.send(
+      report.submission,
+      report.pictures,
+      report.snapshot
+    );
   }
 
   private async settle(
@@ -452,7 +507,7 @@ export class BugReportController {
       if (this.disposed || !connection.online()) break;
       const kept = await storage.readWaiting(id);
       const outcome = kept
-        ? await send(kept.submission, kept.pictures)
+        ? await send(kept.submission, kept.pictures, kept.snapshot)
         : 'failed';
       // Past today's limit nothing more gets through until the next day.
       if (outcome === 'limit') next = this.untilLimitStartsAgain();

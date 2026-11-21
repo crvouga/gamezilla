@@ -19,7 +19,11 @@ const root = document.getElementById('root');
 assert.ok(root !== null, 'root element is missing');
 
 // Loaded after the polyfills above: the system's graph reads them as its
-// modules are evaluated.
-const { HarnessBoot } = await import('./harness-boot');
-root.replaceChildren();
-render(() => <HarnessBoot />, root);
+// modules are evaluated. Bug reporting starts first, so a console that
+// fails to start can be reported.
+const { bootHarnessBugReports } = await import('./wall-bug-reports');
+bootHarnessBugReports(async (sessions) => {
+  const { HarnessBoot } = await import('./harness-boot');
+  root.replaceChildren();
+  render(() => <HarnessBoot sessions={sessions} />, root);
+});

@@ -1,4 +1,8 @@
-import type { ScreenBox, ScreenshotFile } from '@pkgs/feedback-shared-ts/types';
+import type {
+  ScreenBox,
+  ScreenshotFile,
+  SnapshotFile,
+} from '@pkgs/feedback-shared-ts/types';
 
 export type ScreenshotOptions = {
   /** The one thing the bug report is about, drawn around on the picture. */
@@ -8,6 +12,14 @@ export type ScreenshotOptions = {
 /** Takes a picture of what the app is showing; `null` when the device cannot. */
 export type ScreenshotPort = {
   capture(options?: ScreenshotOptions): Promise<ScreenshotFile | null>;
+};
+
+/**
+ * Takes a snapshot of the app's state, for whoever fixes the bug to open the
+ * app as it was; `null` when there is none to take.
+ */
+export type SnapshotPort = {
+  capture(): Promise<SnapshotFile | null>;
 };
 
 export type ConnectionPort = {

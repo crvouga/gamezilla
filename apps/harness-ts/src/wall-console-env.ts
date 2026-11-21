@@ -5,10 +5,15 @@ import { createGlobalHttpClient } from '@pkgs/http-client-shared-ts/global';
 import { createBrowserObjectStore } from '@pkgs/object-store-opfs-client-ts/wall-browser-fs';
 import { bootProductHarnessSession } from './boot-product-harness';
 import { openEmulatorGateway } from './emulator-gateway';
+import type { HarnessSessions } from './harness-bug-reports';
 import type { ConsoleEnv } from './root-app';
+import { reopenReportedWorld } from './wall-bug-reports';
 
-/** Wall services for the console, never for the actors' in-process HTTP. */
-export function wallConsoleEnv(): ConsoleEnv {
+/**
+ * Wall services for the console, never for the actors' in-process HTTP. The
+ * session it boots is the one bug reports are about.
+ */
+export function wallConsoleEnv(sessions: HarnessSessions): ConsoleEnv {
   const http = createGlobalHttpClient();
   const snapshotStore = createBrowserObjectStore({
     baseDir: 'product-harness-snapshots',
@@ -22,15 +27,18 @@ export function wallConsoleEnv(): ConsoleEnv {
       timers: wallTimers,
       fetch: http.fetch,
       async bootProductHarness(options) {
-        return bootProductHarnessSession(
+        const session = await bootProductHarnessSession(
           {
             clock: wallClock,
             timers: wallTimers,
             snapshotStore,
             openEmulatorGateway,
+            reportedWorld: reopenReportedWorld,
           },
           options
         );
+        sessions.current = session;
+        return session;
       },
       notebookStore: createBrowserObjectStore({ baseDir: 'sql-notebooks' }),
     },
