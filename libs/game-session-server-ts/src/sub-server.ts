@@ -5,7 +5,7 @@ import { OpponentRequested } from '@libs/game-matchmaking-shared-ts/opponent-req
 import { settleDueGame } from '@libs/game-matchmaking-shared-ts/settle-due-game';
 import { MULTIPLAYER_TELEMETRY } from '@libs/game-matchmaking-shared-ts/telemetry';
 import { CUSTOM_GAME_GRANT_KEYS } from '@libs/game-session-shared-ts/custom-game-permissions';
-import { decideOnServer } from '@libs/permissions-server-ts/decide-on-server';
+import { decideGrantsOnServer } from '@libs/permissions-server-ts/decide-on-server';
 import { storedSpacePresence } from '@libs/spaces-shared-ts/stored-space-presence';
 import type { RoomGrantsCtx } from '@libs/sub-shared-ts/server';
 import { defineSubServer } from '@libs/sub-shared-ts/server';
@@ -33,17 +33,12 @@ async function customGameRoomGrants(
     ctx.topic.slice('space:'.length),
     ctx.actor
   );
-  const grants: string[] = [];
-  for (const key of CUSTOM_GAME_GRANT_KEYS) {
-    const decision = await decideOnServer(ctx.db, {
-      actor: ctx.actor,
-      key,
-      nowMs: ctx.nowMs,
-      scope: { spacePresence: presence },
-    });
-    if (decision.allowed) grants.push(key);
-  }
-  return grants;
+  return decideGrantsOnServer(ctx.db, {
+    actor: ctx.actor,
+    keys: CUSTOM_GAME_GRANT_KEYS,
+    nowMs: ctx.nowMs,
+    scope: { spacePresence: presence },
+  });
 }
 
 export function createGameSessionServer(

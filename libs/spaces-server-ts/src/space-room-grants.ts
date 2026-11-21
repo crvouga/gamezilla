@@ -9,7 +9,7 @@
  * domain membership, so leaving revokes an already admitted participant.
  */
 
-import { decideOnServer } from '@libs/permissions-server-ts/decide-on-server';
+import { decideGrantsOnServer } from '@libs/permissions-server-ts/decide-on-server';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { SPACE_ROOM_GRANT_KEYS } from '@libs/spaces-shared-ts/space-room-authorize';
 import { storedSpacePresence } from '@libs/spaces-shared-ts/stored-space-presence';
@@ -31,30 +31,19 @@ export async function spaceRoomGrants(
   const spaceId = spaceIdOf(ctx.topic);
   if (spaceId === null) return [];
   const presence = await storedSpacePresence(ctx.db, spaceId, ctx.actor);
-  const granted: string[] = [];
   // A public link observes host availability before taking a seat. The
   // command boundary still requires membership for every participant command.
   const publicSpace = await ctx.db.query(sql<{ readonly id: string }>`
     SELECT id FROM spaces WHERE id = ${spaceId}
       AND visibility = ${'public'} AND deleted_at IS NULL AND ended_at IS NULL
   `);
-  if (publicSpace.length > 0) {
-    const preview = await decideOnServer(ctx.db, {
-      actor: ctx.actor,
-      key: PERMISSION.spacesJoin,
-      nowMs: ctx.nowMs,
-      scope: { spacePresence: presence },
-    });
-    if (preview.allowed) granted.push(PERMISSION.spacesJoin);
-  }
-  for (const key of SPACE_ROOM_GRANT_KEYS) {
-    const decision = await decideOnServer(ctx.db, {
-      actor: ctx.actor,
-      key,
-      nowMs: ctx.nowMs,
-      scope: { spacePresence: presence },
-    });
-    if (decision.allowed) granted.push(key);
-  }
-  return granted;
+  return decideGrantsOnServer(ctx.db, {
+    actor: ctx.actor,
+    keys: [
+      ...(publicSpace.length > 0 ? [PERMISSION.spacesJoin] : []),
+      ...SPACE_ROOM_GRANT_KEYS,
+    ],
+    nowMs: ctx.nowMs,
+    scope: { spacePresence: presence },
+  });
 }
