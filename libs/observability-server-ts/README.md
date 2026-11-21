@@ -217,6 +217,15 @@ An alert reaches a person by two paths from the same policies:
    `alert-rules.generated.json` and the SLOs in `grafana-slos.generated.json` in
    `libs/infra-shared-ts/tofu/modules/observability-views`.
 
+**Every context is watched.** `src/spec-coverage.ts` names, for each bounded
+context in `specs/` with behavior, the live Health checks that exercise it in
+production (each counted by an objective, so its failure or silence alerts),
+or why it is exempt (nothing a person does reaches it in production). A
+context people depend on with no live check yet is `unwatched`;
+`tests/spec-coverage.test.ts` pins that list so it only shrinks, and a new
+context fails the build until it has an entry. While the list is not empty,
+no alert does not yet mean those contexts work.
+
 **Add an objective.** Write the `SLI` and `SLO` in a `# live` spec file (a `spec:`
 commit) with a `tier` label, add one entry to `INDICATORS` in
 `slo-indicators.ts`, add `apps/product-ts/tests/openslo/<stem>.binding.ts`

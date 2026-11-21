@@ -1,0 +1,4 @@
+{
+  "summary": "Bounded contexts such as friends, profile deletion and the Synthetic Population had behavior people depend on in production but no live check or objective, so a failure there could never alert and no alert did not mean the app worked. Every context in specs/ must now be watched by an alerted live check, exempt with a reason, or on a shrinking unwatched list.",
+  "regressionTest": "libs/observability-server-ts/tests/spec-coverage.test.ts"
+}
