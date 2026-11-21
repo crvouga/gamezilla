@@ -2,7 +2,7 @@ import { bugReportTitle } from '@pkgs/feedback-shared-ts/bug-report';
 import type { BugReport, Diagnostic } from '@pkgs/feedback-shared-ts/types';
 
 /** GitHub refuses an issue body longer than this. */
-const MAX_ISSUE_BODY = 65_536;
+export const MAX_ISSUE_BODY = 65_536;
 const MAX_TIMELINE_TEXT = 22_000;
 const MAX_TROUBLE_TEXT = 14_000;
 const MAX_DETAILS_TEXT = 15_000;

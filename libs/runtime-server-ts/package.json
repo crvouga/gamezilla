@@ -48,6 +48,7 @@
     "@pkgs/db-indexes-root-shared-ts": "workspace:*",
     "@pkgs/db-schema-postgres-shared-ts": "workspace:*",
     "@pkgs/entity-store-shared-ts": "workspace:*",
+    "@pkgs/feedback-server-ts": "workspace:*",
     "@pkgs/kv-postgres-shared-ts": "workspace:*",
     "@pkgs/logger-shared-ts": "workspace:*",
     "@pkgs/matchmaking-sql-shared-ts": "workspace:*",

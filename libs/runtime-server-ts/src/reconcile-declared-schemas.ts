@@ -2,6 +2,7 @@
 import { appSchema } from '@libs/runtime-shared-ts/app-schema';
 import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres-shared-ts/reconcile-postgres-schema';
 import { reconcileEntityStorePostgres } from '@pkgs/entity-store-shared-ts/reconcile-postgres';
+import { reconcileFeedbackPostgres } from '@pkgs/feedback-server-ts/reconcile';
 import { reconcileKvPostgres } from '@pkgs/kv-postgres-shared-ts/reconcile-postgres';
 import type { Logger } from '@pkgs/logger-shared-ts/logger';
 import { matchmakingSchema } from '@pkgs/matchmaking-sql-shared-ts/tables';
@@ -57,6 +58,12 @@ async function reconcileDeclaredSchemas(pass: SchemaPass): Promise<void> {
   pass.logger.info('domain schema reconciled');
   await reconcileKvPostgres(pass.sqlClient, pass.logger, options);
   await reconcileEntityStorePostgres(pass.sqlClient, options);
+  await reconcileFeedbackPostgres(pass.sqlClient, {
+    dbScope: pass.dbScope,
+    skipAdvisoryLock: true,
+    alreadyInTransaction: pass.alreadyInTransaction,
+    indexPhase: pass.indexPhase,
+  });
 }
 
 async function reconcileSchemas(deps: DeclaredSchemaDeps): Promise<void> {

@@ -15,6 +15,7 @@
   "scripts": {
     "build": "bun -e \"process.exit(0)\"",
     "contract:write": "bun run scripts/contract-manifest.ts",
+    "feedback:file-issues": "bun run scripts/file-bug-report-issues.ts",
     "kill": "bun run scripts/kill-dev.ts",
     "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
     "preview": "bun run scripts/preview.ts",
@@ -54,6 +55,7 @@
     "@pkgs/observability-root-shared-ts": "workspace:*",
     "@pkgs/s3-server-ts": "workspace:*",
     "@pkgs/secret-store-shared-ts": "workspace:*",
+    "@pkgs/sql-client-root-shared-ts": "workspace:*",
     "@pkgs/tts-root-server-ts": "workspace:*",
     "@pkgs/turn-game-shared-ts": "workspace:*"
   },

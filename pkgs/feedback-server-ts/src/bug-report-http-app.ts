@@ -4,9 +4,10 @@ import {
   MAX_SCREENSHOT_BYTES,
   MAX_SCREENSHOTS,
 } from '@pkgs/feedback-shared-ts/bug-report';
-import type { IssueReporter } from '@pkgs/feedback-shared-ts/types';
 import type { ObjectStore } from '@pkgs/object-store-root-shared-ts/interface';
+import type { SqlTx } from '@pkgs/sql-client-root-shared-ts/interface';
 import { readBoundedBody } from './bounded-body';
+import { pingLedger } from './bug-report-ledger';
 import { createBugReportIntake } from './bug-report-intake';
 
 export const BUG_REPORT_PATH = '/api/bug-reports';
@@ -14,7 +15,8 @@ export const MAX_REQUEST_BYTES =
   MAX_SCREENSHOTS * MAX_SCREENSHOT_BYTES + 1_000_000;
 
 type Options = {
-  readonly reporter: IssueReporter;
+  /** Where received bug reports wait to be filed as issues. */
+  readonly db: SqlTx;
   readonly store: ObjectStore;
   readonly clock: Clock;
   /** Every address the app itself is served from; no other page may send. */
@@ -81,28 +83,39 @@ function admit(
     : { allowed: false, answerTo: fallback };
 }
 
-/** Whether a bug report sent now would become an issue, without sending one. */
+/** What receiving a bug report needs, each asked without receiving one. */
+async function unreachable(options: Options): Promise<string | null> {
+  try {
+    await pingLedger(options.db);
+  } catch (error) {
+    options.onFailure?.(error);
+    return 'the database did not answer';
+  }
+  try {
+    await options.store.head('reports/health');
+  } catch (error) {
+    options.onFailure?.(error);
+    return 'storage did not answer';
+  }
+  return null;
+}
+
+/** Whether a bug report sent now would be received, without sending one. */
 async function health(
   options: Options,
   headers: Record<string, string>
 ): Promise<Response> {
-  try {
-    await options.reporter.check?.();
-    return Response.json({ receiving: true }, { headers });
-  } catch (error) {
-    options.onFailure?.(error);
-    return Response.json(
-      { receiving: false, reason: 'the issue destination refused' },
-      { status: 503, headers }
-    );
-  }
+  const reason = await unreachable(options);
+  return reason === null
+    ? Response.json({ receiving: true }, { headers })
+    : Response.json({ receiving: false, reason }, { status: 503, headers });
 }
 
 /**
- * The whole backend of bug reporting: one address takes a report with its
- * pictures, and the archive under it serves them back to whoever holds the
- * issue. It needs no sign-in, so a person whose sign-in is broken can report.
- * `/health` under it answers once everything a report needs is in place.
+ * The whole receiving side of bug reporting: one address takes a report
+ * with its pictures, and the archive under it serves them back to whoever
+ * holds the issue. Filing the issue is `fileBugReportIssues`, later. It needs no sign-in, so a person whose sign-in is broken can report.
+ * `/health` under it answers once everything receiving needs is in place.
  */
 export function createBugReportHttpApp(options: Options) {
   const basePath = validBasePath(options.basePath ?? BUG_REPORT_PATH);

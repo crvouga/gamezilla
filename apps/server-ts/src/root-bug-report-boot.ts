@@ -1,53 +1,30 @@
 // @io-wall-ok — bug report backend composition root; no product bootstrap
 
 import { createApiObjectStore } from '@libs/app-root-server-ts/object-store';
+import { openRequestDb } from '@libs/app-root-server-ts/open-request-db-postgres';
 import type { ApiWorkerEnv } from '@libs/app-root-shared-ts/env';
-import { workerEnvToSecretRecord } from '@libs/app-root-shared-ts/env';
+import {
+  postgresConnectionString,
+  readDeploymentProtection,
+  readOptionalDatabaseUrlOverride,
+  readSecretsEnvBinding,
+  workerEnvToSecretRecord,
+} from '@libs/app-root-shared-ts/env';
+import type { RequestDb } from '@libs/app-root-shared-ts/open-request-db';
+import { ApiSecretName } from '@libs/app-root-shared-ts/secret-names';
 import { createApiSecretStore } from '@libs/app-root-shared-ts/secret-store';
 import { resolveWebClientOrigin } from '@libs/app-root-shared-ts/web-client-origin';
 import type { ExecutionContext } from '@libs/app-root-shared-ts/worker-handler';
+import { assertNonProdDatabaseUrl } from '@libs/db-shared-ts/database-url-policy';
+import { appPostgresDbScope } from '@libs/db-shared-ts/scope';
 import {
   monotonicClock,
   wallClock,
   wallTimers,
 } from '@pkgs/clock-shared-ts/wall';
-import {
-  BUG_REPORT_PATH,
-  createBugReportHttpApp,
-} from '@pkgs/feedback-server-ts/bug-report-http-app';
-import { GitHubIssueReporter } from '@pkgs/feedback-server-ts/github-issue-reporter';
-
-class NotConfigured extends Error {}
-
-const CHECK_EVERY_MS = 5 * 60_000;
-/** When the issue destination last answered a check, in this Worker's memory. */
-let destinationCheckedAt = 0;
-
-type Notes = NonNullable<
-  ConstructorParameters<typeof GitHubIssueReporter>[0]['notes']
->;
-
-const SESSION = /^[a-zA-Z0-9_-]{8,64}$/;
-
-/** What this repository's own tools make of a bug report. */
-const agentNotes: Notes = (report) => {
-  const session = report.debugInfo.details.find(
-    (detail) => detail.name === 'session'
-  );
-  const value =
-    session?.status === 'available'
-      ? (session.value as { sessionId?: unknown } | null)
-      : null;
-  const sessionId = value?.sessionId;
-  return [
-    ...(typeof sessionId === 'string' && SESSION.test(sessionId)
-      ? [
-          `Telemetry of the same visit: \`bun obs find ${sessionId} --source prod\`.`,
-        ]
-      : []),
-    "To fix it, run `/feedback-implement` with this issue's number.",
-  ];
-};
+import { createBugReportHttpApp } from '@pkgs/feedback-server-ts/bug-report-http-app';
+import type { SecretStore } from '@pkgs/secret-store-shared-ts/interface';
+import type { SqlTx } from '@pkgs/sql-client-root-shared-ts/interface';
 
 /**
  * Every address this environment serves the app from: the ones it declares,
@@ -69,9 +46,51 @@ function appOrigins(env: ApiWorkerEnv, origin: string): readonly string[] {
   ];
 }
 
+async function openQueue(
+  env: ApiWorkerEnv,
+  secretStore: SecretStore
+): Promise<RequestDb> {
+  const override = readOptionalDatabaseUrlOverride(env);
+  const url =
+    override !== null && override.length > 0
+      ? override
+      : (await secretStore.getRequired(ApiSecretName.dbUrl)).readSecretValue();
+  if (readDeploymentProtection(env) !== 'production')
+    await assertNonProdDatabaseUrl(url, {
+      surface: 'bug-reports',
+      secretsEnv: readSecretsEnvBinding(env),
+    });
+  return openRequestDb(postgresConnectionString(env, url), appPostgresDbScope());
+}
+
+/**
+ * The environment's Postgres, opened on first use: reading back a screenshot
+ * never needs it, and a database that cannot be reached is the intake's
+ * answer, not a crash.
+ */
+function lazyQueue(env: ApiWorkerEnv, secretStore: SecretStore) {
+  let opened: Promise<RequestDb> | null = null;
+  const open = () => {
+    opened ??= openQueue(env, secretStore);
+    return opened;
+  };
+  const db: SqlTx = {
+    query: async (query) => (await open()).sqlClient.query(query),
+    run: async (query) => (await open()).sqlClient.run(query),
+  };
+  return {
+    db,
+    async close(): Promise<void> {
+      const handle = await opened?.catch(() => null);
+      if (handle?.kind === 'postgres') await handle.pool.end();
+    },
+  };
+}
+
 /**
  * Takes a bug report without starting the product, so a product that cannot
- * start can still be reported.
+ * start can still be reported. It is kept in the environment's bucket and
+ * Postgres; the scheduled filing job makes it an issue later.
  */
 export async function handleRootBugReport(
   request: Request,
@@ -94,11 +113,12 @@ export async function handleRootBugReport(
       }
     },
   };
+  const secretStore = createApiSecretStore(
+    workerEnvToSecretRecord(env),
+    wallClock.now
+  );
+  const queue = lazyQueue(env, secretStore);
   try {
-    const secretStore = createApiSecretStore(
-      workerEnvToSecretRecord(env),
-      wallClock.now
-    );
     const store = (
       await createApiObjectStore(secretStore, {
         now: wallClock.now,
@@ -106,45 +126,25 @@ export async function handleRootBugReport(
         requireCredentials: true,
       })
     ).withPrefix('bug-reports');
-    const token = env.FEEDBACK_GITHUB_TOKEN?.trim();
-    const repository = env.FEEDBACK_GITHUB_REPOSITORY?.trim();
-    const apiOrigin = env.FEEDBACK_GITHUB_API_ORIGIN?.trim();
     const origin = new URL(request.url).origin;
-    if (!token || !repository) throw new NotConfigured();
-    const github = new GitHubIssueReporter({
-      token,
-      repository,
-      http,
-      ...(apiOrigin ? { apiOrigin } : {}),
-      reportBaseUrl: `${origin}${BUG_REPORT_PATH}/reports`,
-      notes: agentNotes,
-    });
     return await createBugReportHttpApp({
+      db: queue.db,
       store,
       clock: wallClock,
       allowedOrigins: appOrigins(env, origin),
       onFailure: (error) => console.error('bug report not received', error),
-      reporter: {
-        create: (report) => github.create(report),
-        // Anyone may ask; GitHub is asked at most once in a while.
-        async check() {
-          if (wallClock.now() - destinationCheckedAt < CHECK_EVERY_MS) return;
-          await github.check();
-          destinationCheckedAt = wallClock.now();
-        },
-      },
     })(request);
   } catch (error) {
-    // Which part is missing is no secret, and it is what the team needs to hear.
-    const reason =
-      error instanceof NotConfigured
-        ? 'FEEDBACK_GITHUB_TOKEN or FEEDBACK_GITHUB_REPOSITORY is not set'
-        : 'storage is unavailable';
-    console.error('bug reports cannot be received', reason, error);
+    console.error('bug reports cannot be received', error);
     return Response.json(
-      { error: 'Bug reports cannot be received right now', reason },
+      {
+        error: 'Bug reports cannot be received right now',
+        reason: 'storage is unavailable',
+      },
       { status: 503 }
     );
+  } finally {
+    await queue.close();
   }
 }
 

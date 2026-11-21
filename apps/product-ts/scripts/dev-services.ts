@@ -201,8 +201,6 @@ const DEV_SERVICES: { readonly [K in ServiceName]: Service<K> } = {
       infraEnv: infraEnv({
         databaseUrl: postgres.databaseUrl,
         openAiUrl: openai.url,
-        // The dev server archives bug reports itself (`bun feedback --list`).
-        gitHubUrl: null,
         s3Endpoint: s3?.endpoint ?? null,
         mqtt,
         observability,

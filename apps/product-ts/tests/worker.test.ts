@@ -4,7 +4,14 @@ import worker, {
   RoomServerDurableObject,
   RoomStorageArchive,
 } from '@apps/product-ts/worker';
+import { fileEnvironmentBugReports } from '@apps/server-ts/bug-report-filing';
 import { createServer as createGitHubServer } from '@crvouga/mockingbird-service-github/server';
+import { appPostgresDbScope } from '@libs/db-shared-ts/scope';
+import { wallClock } from '@pkgs/clock-shared-ts/wall';
+import { reconcileFeedbackPostgres } from '@pkgs/feedback-server-ts/reconcile';
+import { createGlobalHttpClient } from '@pkgs/http-client-shared-ts/global';
+import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared-ts/impl-in-memory';
+import { startMockingbirdPostgres } from '@pkgs/postgres-mockingbird-server-ts/start';
 
 import {
   S3_ACCESS_KEY_ID,
@@ -13,6 +20,7 @@ import {
   S3_SECRET_ACCESS_KEY,
   startS3Server,
 } from '@pkgs/s3-server-ts/s3-server';
+import { createPgPool } from '@pkgs/sql-client-postgres-server-ts/connect';
 
 const context = {
   waitUntil: (_promise: Promise<unknown>) => undefined,
@@ -73,30 +81,43 @@ describe('application Worker dispatch', () => {
     });
   });
 
-  test('a bug report sent to the Worker is a labelled GitHub issue with its screenshot kept', async () => {
+  test('a bug report the Worker receives is filed as a labelled GitHub issue with its screenshot kept', async () => {
     const gitHub = await createGitHubServer();
     const s3 = await startS3Server();
+    const postgres = await startMockingbirdPostgres({
+      port: 0,
+      store: new ObjectStoreImplInMemory(),
+    });
+    const queue = createPgPool({
+      connectionString: postgres.url,
+      dbScope: appPostgresDbScope(),
+      max: 1,
+    });
     try {
+      await reconcileFeedbackPostgres(queue.sqlClient, {
+        dbScope: appPostgresDbScope(),
+      });
       await fetch(`${gitHub.url}/__admin/github/repositories`, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ owner: 'team', name: 'app' }),
       });
+      const secrets = {
+        S3_ACCESS_KEY_ID,
+        S3_SECRET_ACCESS_KEY,
+        S3_BUCKET,
+        S3_REGION,
+        S3_ENDPOINT: s3.endpoint,
+        DATABASE_URL: postgres.url,
+        API_URL: 'https://api-dev.example.test',
+      };
       const env: AppWorkerEnv = {
         ASSETS: {
           fetch: async () => {
             throw new Error('API request reached the SPA');
           },
         },
-        S3_ACCESS_KEY_ID,
-        S3_SECRET_ACCESS_KEY,
-        S3_BUCKET,
-        S3_REGION,
-        S3_ENDPOINT: s3.endpoint,
-        FEEDBACK_GITHUB_TOKEN: 'secret-token',
-        FEEDBACK_GITHUB_REPOSITORY: 'team/app',
-        FEEDBACK_GITHUB_API_ORIGIN: gitHub.url,
-        API_URL: 'https://api-dev.example.test',
+        ...secrets,
         WEB_CLIENT_ORIGIN: 'https://www-dev.example.test',
       };
       const origin = 'https://api-dev.example.test';
@@ -133,6 +154,20 @@ describe('application Worker dispatch', () => {
       expect(sent.status).toBe(201);
       expect(sent.headers.get('Access-Control-Allow-Origin')).toBe(app);
 
+      const filed = await fileEnvironmentBugReports(
+        {
+          ...secrets,
+          SECRETS_ENV: 'dev',
+          GITHUB_TOKEN: 'secret-token',
+          GITHUB_REPOSITORY: 'team/app',
+          GITHUB_API_URL: gitHub.url,
+        },
+        { http: createGlobalHttpClient(), clock: wallClock }
+      );
+      expect(filed).toEqual({
+        filed: ['11111111-1111-4111-8111-000000000001'],
+        failed: [],
+      });
       const listed = await fetch(
         `${gitHub.url}/repos/team/app/issues?labels=bug-report&state=open`,
         { headers: { Authorization: 'Bearer secret-token' } }
@@ -148,6 +183,7 @@ describe('application Worker dispatch', () => {
       expect(issues[0]?.labels.map((label) => label.name).sort()).toEqual([
         'bug',
         'bug-report',
+        'env:dev',
       ]);
       const screenshot = /!\[Screenshot 1\]\(([^)]+)\)/.exec(
         issues[0]?.body ?? ''
@@ -159,6 +195,8 @@ describe('application Worker dispatch', () => {
       );
       expect(new Uint8Array(await read.arrayBuffer())).toEqual(png);
     } finally {
+      await queue.pool.end();
+      await postgres.stop();
       await gitHub.close();
       await s3.stop();
     }
