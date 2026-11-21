@@ -278,6 +278,15 @@ describe('the source place', () => {
     expect(shown('puzzle-source-save')).toBe(false);
   });
 
+  // regression: catalogue-saved-dead-end — a saved file's place said to
+  // start loading but offered no way there except the trail.
+  test('a saved file leads back to loading', () => {
+    const onOpen = mock(() => undefined);
+    source(SAVED, { onOpen });
+    fireEvent.click(screen.getByTestId('puzzle-source-done'));
+    expect(onOpen).toHaveBeenCalledWith({ screen: 'load' });
+  });
+
   test('a check under way keeps the file seen before and offers no other check', () => {
     source({ ...SAVED, status: 'checking' });
     expect(shown('puzzle-source-checking')).toBe(true);
@@ -388,7 +397,7 @@ describe('the confirmed stop', () => {
       source: UPLOADING,
     });
     fireEvent.click(screen.getByTestId('puzzle-load-stop'));
-    expect(modal()?.textContent).toContain('Stop saving the Lichess file?');
+    expect(modal()?.textContent).toContain('Stop uploading the Lichess file?');
   });
 
   test('an upload that ends before the answer closes the question, and the dialog survives the place changing', () => {
@@ -407,4 +416,71 @@ describe('the confirmed stop', () => {
     expect(shown('puzzle-load-hub')).toBe(true);
     expect(modal()).toBeNull();
   });
+});
+
+// regression: catalogue-figures-unreadable — the pool and the load's
+// figures were bare digit runs (1246610), and the stop and the progress
+// sat under the figures at a phone's fold. Figures are grouped, and the
+// load's progress and its one command come before them.
+test('a load reads its progress and command first, then grouped figures', () => {
+  loader({
+    stage: 'loading',
+    pool: 1_246_610,
+    job: { ...JOB, added: 1_198_400 },
+  });
+  expect(screen.getByTestId('puzzle-load-pool').textContent).toContain(
+    '1,246,610'
+  );
+  expect(screen.getByTestId('puzzle-load-added').textContent).toContain(
+    '1,198,400'
+  );
+  const before = (a: string, b: string): boolean =>
+    (screen.getByTestId(a).compareDocumentPosition(screen.getByTestId(b)) &
+      Node.DOCUMENT_POSITION_FOLLOWING) !==
+    0;
+  expect(before('puzzle-load-status', 'puzzle-load-stop')).toBe(true);
+  expect(before('puzzle-load-stop', 'puzzle-load-added')).toBe(true);
+});
+
+// regression: catalogue-failed-load-no-remedy — a failed load said why,
+// then offered only "Start loading", as if the same file would surely
+// work. It now says what is kept, leads with Load again and offers
+// replacing the file.
+test('a failed load leads with loading again and offers replacing the file', () => {
+  const onOpen = mock(() => undefined);
+  loader({
+    job: { ...JOB, status: 'failed', error: 'Unexpected end of file.' },
+    onOpen,
+  });
+  expect(screen.getByTestId('puzzle-load-error').textContent).toBe(
+    'Unexpected end of file.'
+  );
+  expect(screen.getByTestId('puzzle-load-start').textContent).toBe(
+    'Load again'
+  );
+  fireEvent.click(screen.getByTestId('puzzle-load-replace'));
+  expect(onOpen).toHaveBeenCalledWith({ screen: 'source' });
+});
+
+// regression: catalogue-check-failed-points-away — after a failed check the
+// hub said to open the file's row to try again; the retry is now beside it.
+test('a failed check offers checking again on the hub', () => {
+  const onRecheck = mock(() => undefined);
+  loader({
+    source: { ...MISSING, status: 'check-failed', checkError: 'unreachable' },
+    onRecheck,
+  });
+  fireEvent.click(screen.getByTestId('puzzle-load-recheck'));
+  expect(onRecheck).toHaveBeenCalledTimes(1);
+});
+
+// regression: catalogue-missing-file-path-implicit — with no file saved the
+// hub's only command was a disabled Start loading; choosing a file hid in
+// the file's row. It is now offered beside it.
+test('with no file saved the hub offers choosing one', () => {
+  const onOpen = mock(() => undefined);
+  loader({ source: MISSING, onOpen });
+  expect(disabled('puzzle-load-start')).toBe(true);
+  fireEvent.click(screen.getByTestId('puzzle-load-choose'));
+  expect(onOpen).toHaveBeenCalledWith({ screen: 'source' });
 });

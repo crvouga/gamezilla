@@ -61,7 +61,8 @@ export function useFrameResult(
         nameOf,
         i18n().locale
       ),
-      note: readiness.note(),
+      // Only someone who may not start the rematch needs telling who does.
+      note: model.canCreate() ? null : readiness.note(),
       scoreLabel: result.scoreLabel,
       standings: frameStandingRows(
         result.standings,

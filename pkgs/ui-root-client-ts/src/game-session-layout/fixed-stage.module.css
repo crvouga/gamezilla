@@ -66,6 +66,11 @@
     flex-direction: column;
     gap: 0;
   }
+  /* A finished game's board takes no moves: beside its result it may
+     narrow below a playable size, so its seats and the result stay in view. */
+  .fixed:has([data-component="GameResultCard"]) [data-game-slot="stage"] {
+    --game-board-smallest: 128;
+  }
   .fixed [data-game-slot="stage"]::after {
     content: "";
     flex: 1 1 0;
@@ -196,6 +201,39 @@
 }
 /* A short phone gives the board the room its gaps took. */
 @media (max-width: 767px) and (max-height: 700px) {
+  /* Beside a result on a short phone the line of moves gives its row to
+     the finished board; Review opens every move. */
+  .fixed:has([data-component="GameResultCard"]) [data-game-slot="rail"] {
+    display: none;
+  }
+  /* Beside a result nobody moves: a seat is one slim line (its name and
+     its disc), so the finished board keeps the room. */
+  .fixed:has([data-component="GameResultCard"])
+    [data-game-board-stage]
+    [data-component="GamePlayerBar"]
+    span:has(> [data-component="Avatar"]) {
+    display: none;
+  }
+  .fixed:has([data-component="GameResultCard"])
+    [data-game-board-stage]
+    [data-component="GamePlayerBar"]
+    div {
+    min-height: 32px;
+  }
+  /* The side a seat played is its disc; a stopped clock needs no box. */
+  .fixed:has([data-component="GameResultCard"])
+    [data-game-board-stage]
+    [data-component="GamePlayerBar"]
+    [data-component="Badge"] {
+    display: none;
+  }
+  .fixed:has([data-component="GameResultCard"])
+    [data-game-board-stage]
+    [data-component="GamePlayerBar"]
+    [data-component="GameClock"] {
+    min-height: 0;
+    padding-block: 0;
+  }
   [data-component="GameColumn"]:has(> .fixed) > :not(.fixed) {
     padding-top: var(--ui-space-1);
   }

@@ -42,11 +42,11 @@ describe('StepTrack', () => {
     // regression: builder-stepper-hard-to-parse — a waiting step read its
     // name, then what it waited on ("Validate After its puzzles"), with its
     // state for assistive technology only, so the track ran together. Each
-    // step now reads as one short line: number, name, state.
+    // step now reads as one short row: number, name, state.
     expect(steps.map((step) => step.textContent)).toEqual([
-      'Playtest·Done',
-      '2Validate·Next',
-      '3Publish·Locked',
+      'PlaytestDone',
+      '2ValidateNext',
+      '3PublishLocked',
     ]);
   });
 
@@ -68,7 +68,7 @@ describe('StepTrack', () => {
     ).toBe('done');
   });
 
-  test('stacks one step a line when its container is narrow', () => {
+  test('reads one step a row, at every width', () => {
     const css = readFileSync(
       join(
         import.meta.dirname,
@@ -76,8 +76,7 @@ describe('StepTrack', () => {
       ),
       'utf8'
     );
-    expect(css).toContain('container: step-track / inline-size;');
-    const narrow = css.slice(css.indexOf('@container step-track (max-width'));
-    expect(narrow).toMatch(/\.track \{\s*flex-direction: column;/);
+    expect(css).not.toContain('@container');
+    expect(css).toMatch(/\.step \{\s*display: grid;/);
   });
 });

@@ -1,7 +1,9 @@
 import type { CustomGameInput } from '@libs/game-session-shared-ts/custom-game-choice';
 import { Trans } from '@lingui/solid/macro';
+import { Button } from '@pkgs/ui-root-client-ts/button';
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
 import { GameLobbyScreen } from '@pkgs/ui-root-client-ts/game-lobby';
+import { GameActions } from '@pkgs/ui-root-client-ts/game-section';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { type Accessor, createSignal, type JSX, Show } from 'solid-js';
@@ -70,9 +72,27 @@ export function FrameConfirmDialog(props: {
             onClose={() => props.confirm.close()}
             title={title()}
             message={
-              <Trans>
-                This finishes the current game. Its record remains available.
-              </Trans>
+              <Show
+                when={asked.operation === 'cancel'}
+                fallback={
+                  <Trans>
+                    You lose this game. Its moves stay in the space's history.
+                  </Trans>
+                }
+              >
+                <Trans>
+                  The game ends for everyone, with no result. Its moves stay in
+                  the space's history.
+                </Trans>
+              </Show>
+            }
+            cancelLabel={
+              <Show
+                when={asked.operation === 'cancel'}
+                fallback={<Trans>Keep playing</Trans>}
+              >
+                <Trans>Keep the game</Trans>
+              </Show>
             }
             operation={() => props.onChoose({ operation: asked.operation })}
             submitLabel={title()}
@@ -89,11 +109,17 @@ export function FrameConfirmDialog(props: {
 
 /** What every place says first: the connection, then a refused choice. */
 export function FrameNoticesView(
-  props: Pick<GameFrameScreenViewProps, 'connection' | 'error'>
+  props: Pick<GameFrameScreenViewProps, 'connection' | 'error'> & {
+    /** Before any game: the notice speaks of starting one, not of moves. */
+    readonly beforeGame?: boolean | undefined;
+  }
 ): JSX.Element {
   return (
     <>
-      <FrameConnectionView connection={props.connection} />
+      <FrameConnectionView
+        connection={props.connection}
+        beforeGame={props.beforeGame}
+      />
       <FrameErrorView text={props.error} />
     </>
   );
@@ -115,6 +141,13 @@ export function FramePlacePage(
     /** Omit when the place opens with its own title (a mode card). */
     readonly title?: JSX.Element | undefined;
     readonly subtitle?: JSX.Element | undefined;
+    /**
+     * The words of the way back to where this place was opened from
+     * (`Back to setup`), at the page's foot: the host's bar names the
+     * space, not the game, so the page says it itself.
+     */
+    readonly back?: JSX.Element | undefined;
+    readonly onClose?: (() => void) | undefined;
     readonly children: JSX.Element;
   }
 ): JSX.Element {
@@ -135,6 +168,19 @@ export function FramePlacePage(
       >
         <FrameNoticesView connection={props.connection} error={props.error} />
         {props.children}
+        <Show when={props.back}>
+          {(back) => (
+            <GameActions sizing="fill">
+              <Button
+                title={back()}
+                variant="outline"
+                intent="neutral"
+                onClick={() => props.onClose?.()}
+                dataSet={{ testid: 'custom-game-place-back' }}
+              />
+            </GameActions>
+          )}
+        </Show>
         <FrameStatusView status={props.status} spokenOnly />
       </StackVertical>
     </EmbeddedScreen>
@@ -155,6 +201,9 @@ export function FrameLobbyPage(
     readonly screenId: string;
     /** Omit for a lobby with no one command (before any game). */
     readonly dock?: JSX.Element | undefined;
+    /** As a place's (`FramePlacePage`): the way back, at the page's foot. */
+    readonly back?: JSX.Element | undefined;
+    readonly onClose?: (() => void) | undefined;
     readonly children: JSX.Element;
   }
 ): JSX.Element {
@@ -169,8 +218,25 @@ export function FrameLobbyPage(
           place: props.place.screen,
         }}
       >
-        <FrameNoticesView connection={props.connection} error={props.error} />
+        <FrameNoticesView
+          connection={props.connection}
+          error={props.error}
+          beforeGame={props.phase === 'none'}
+        />
         {props.children}
+        <Show when={props.back}>
+          {(back) => (
+            <GameActions sizing="fill">
+              <Button
+                title={back()}
+                variant="outline"
+                intent="neutral"
+                onClick={() => props.onClose?.()}
+                dataSet={{ testid: 'custom-game-place-back' }}
+              />
+            </GameActions>
+          )}
+        </Show>
         <FrameStatusView status={props.status} spokenOnly />
       </StackVertical>
     </GameLobbyScreen>

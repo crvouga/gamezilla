@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js';
-import { ContentCopyConfirm } from './content-kept-copies';
+import { ContentCopyConfirm } from './content-author-copies-list';
 import { ContentPackRemoval } from './content-pack-items';
 import { ContentWithdrawConfirm } from './content-withdraw';
 import type { ContentAuthorWorkspace } from './use-content-author-workspace';
@@ -16,11 +16,13 @@ export function ContentAuthorConfirms(props: {
     <>
       <ContentWithdrawConfirm
         visible={props.workspace.withdrawing()}
+        title={props.workspace.writer.body().title}
         onClose={() => props.workspace.setWithdrawing(false)}
         onWithdraw={props.workspace.publication.withdraw}
       />
       <ContentCopyConfirm
         visible={props.workspace.copyChoice.visible()}
+        title={props.workspace.copyChoice.title()}
         disabled={props.workspace.disabled() || props.workspace.writer.dirty()}
         onClose={props.workspace.copyChoice.close}
         onChoose={props.workspace.copyChoice.choose}

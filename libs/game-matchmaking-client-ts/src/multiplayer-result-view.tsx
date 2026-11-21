@@ -9,8 +9,7 @@ import { GameActionBar } from '@pkgs/ui-root-client-ts/game-action-bar';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
-import { ChevronUpIcon } from '@pkgs/ui-root-client-ts/icons';
-import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import { type JSX, Show } from 'solid-js';
 import type {
@@ -20,6 +19,7 @@ import type {
 import { MultiplayerMoveList } from './multiplayer-move-list';
 import {
   MultiplayerOverlayView,
+  MultiplayerResultCard,
   type MultiplayerResultShown,
 } from './multiplayer-overlay-view';
 import {
@@ -181,34 +181,12 @@ function Onward(props: ResultProps): JSX.Element {
   );
 }
 
-/** The closed result card's way back, saying how the game ended. */
-function ShowResult(props: ResultProps): JSX.Element {
-  return (
-    <Show when={props.overlay.kind === 'board' ? props.result : undefined}>
-      {(result) => (
-        <StackVertical testId="multiplayer-announcement">
-          <Button
-            title={result().title}
-            variant="ghost"
-            intent="neutral"
-            fullWidth
-            endIcon={<ChevronUpIcon size={20} />}
-            onClick={() => props.onOverlay({ type: 'show' })}
-            dataSet={{ testid: 'multiplayer-show-result' }}
-          />
-        </StackVertical>
-      )}
-    </Show>
-  );
-}
-
 /**
- * The matched game is over: the final position, held still, under a card
- * that says how it ended and what it did to the person's rating, with a
- * new game at another clock and their ratings one press away. Under the
- * board, one bar: a new opponent at the same clock, a rematch, and the
- * moves, which also sit beside a wide board. Closing the card shows the final board; the line under it brings
- * the card back.
+ * The matched game is over: the whole final position, held still, and
+ * beside it (under it on a phone) a card that says how it ended and what
+ * it did to the person's rating, with a new game at another clock and
+ * their ratings one press away. Then one bar: a new opponent at the same
+ * clock, a rematch, and the moves, which also sit beside a wide board.
  */
 export function MultiplayerResultView(props: ResultProps): JSX.Element {
   return (
@@ -218,7 +196,11 @@ export function MultiplayerResultView(props: ResultProps): JSX.Element {
         boardFocus
         actionsBeside
         fixedStage
-        status={<ShowResult {...props} />}
+        status={
+          <MultiplayerResultCard result={props.result}>
+            <Onward {...props} />
+          </MultiplayerResultCard>
+        }
         actions={
           <GameActionBar aria-label={t`What next`} items={[]} width="content">
             <Show when={props.game.rematch === 'answer'}>
@@ -255,9 +237,7 @@ export function MultiplayerResultView(props: ResultProps): JSX.Element {
             onOverlay={props.onOverlay}
             versus={undefined}
             result={props.result}
-          >
-            <Onward {...props} />
-          </MultiplayerOverlayView>
+          />
         )}
       </GameSessionLayout>
     </MultiplayerStagePlace>

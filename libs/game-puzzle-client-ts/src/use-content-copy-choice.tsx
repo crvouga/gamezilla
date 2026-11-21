@@ -56,6 +56,8 @@ export function useContentCopyChoice(props: {
   };
   return {
     visible: () => choice() !== null,
+    /** The chosen copy's title, named in the confirmation. */
+    title: () => choice()?.source.title ?? '',
     close: () => setChoice(null),
     select,
     choose,

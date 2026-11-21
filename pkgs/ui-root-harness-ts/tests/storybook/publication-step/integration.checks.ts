@@ -43,7 +43,10 @@ test('storybook integration: publication refusal remains readable at 390 pixels'
     return failures;
   });
   expect(clipped).toEqual([]);
-  await expect(step.getByRole('button')).toHaveCount(0);
+  await expect(step.getByRole('button')).toHaveCount(1);
+  await expect(
+    step.getByRole('button', { name: 'Verify account' })
+  ).toBeEnabled();
 });
 
 for (const width of [390, 768, 1440]) {
@@ -103,8 +106,11 @@ async function assertPublicationDenial(
     return failures;
   });
   expect(failures).toEqual([]);
-  // The supplied denial has no unlock action; do not invent a route.
-  await expect(step.getByRole('button')).toHaveCount(0);
+  // The policy-supplied account verification action remains available.
+  await expect(step.getByRole('button')).toHaveCount(1);
+  await expect(
+    step.getByRole('button', { name: 'Verify account' })
+  ).toBeEnabled();
 }
 
 // regression: publication-denial-state-clipped

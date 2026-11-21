@@ -1,5 +1,6 @@
 // @io-wall-ok — wall timings are measured only in this browser evidence adapter.
 import { expect, type Page, type TestInfo } from '@playwright/test';
+import { timingMicroseconds } from '../../../storybook/timing-measurement';
 import { logSummary } from './log-evidence';
 
 type Samples = {
@@ -221,10 +222,15 @@ export async function finishPongMetrics(
   // them. Every task over 50ms is still recorded with its scripts above.
   const frames = cpuRate === 1 ? 2 : 3;
   expect(samples.inputToPaddle.length).toBeGreaterThanOrEqual(24);
-  expect(summary.inputToPaddleP95 ?? Infinity).toBeLessThanOrEqual(
-    frames * 16.7
+  // Timestamp subtraction carries binary noise; keep the same budget in
+  // integer microseconds. Raw samples remain unchanged in the evidence.
+  const budget = timingMicroseconds(frames * 16.7);
+  expect(
+    timingMicroseconds(summary.inputToPaddleP95 ?? Infinity)
+  ).toBeLessThanOrEqual(budget);
+  expect(timingMicroseconds(summary.frameP95 ?? Infinity)).toBeLessThanOrEqual(
+    budget
   );
-  expect(summary.frameP95 ?? Infinity).toBeLessThanOrEqual(frames * 16.7);
   expect(samples.longTasks.filter((duration) => duration >= 100)).toEqual([]);
   expect([samples.addedNodes, samples.removedNodes]).toEqual([0, 0]);
 }

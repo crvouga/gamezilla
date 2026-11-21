@@ -1,21 +1,17 @@
-# CI notifications
+# Alert delivery
 
-GitHub's repository webhook delivers completed main-branch runs of Release,
-Verify Nightly and Verify PR directly to the existing IRM push chain. Health
-is not among them: its check results already reach IRM as Grafana alerts, so
-a red hourly Health run would only repeat them.
-Failures, timeouts, required action and startup failures notify the responder's
-mobile app with a link to the run, including failures before workflow setup.
-Pull requests, branch rehearsals, progress, skipped runs and cancellations never
-notify. Delivery does not depend on a step in the failing workflow.
+Grafana and GitHub completion events retain their alert history in IRM's web
+inbox. Both integrations have empty default routes and no escalation routes,
+chains or personal notification rules. No alert sends a mobile push, critical
+notification, email or phone escalation through these integrations.
 
-Each run has its own alert group. Fix the cause shown in the linked failed jobs,
-then rerun the failed run; a successful rerun resolves its alert. A different
-successful run does not dismiss an earlier failure. Acknowledgement and manual
-resolution remain available in IRM. GitHub webhook delivery failures can be
-inspected and redelivered from the repository's webhook delivery history.
+Health, Release and Verify Nightly already upsert one GitHub issue per failing
+workflow on main. Repeated failures update the open issue; the next successful
+run closes it. Health includes objective failures from every environment and
+links its logs and collected alert evidence. Issue reporting failures fail the
+reporting step rather than silently dropping the notification.
 
-This is provisioned by the scoped alerting apply when `alerting.irm_responder`
-is configured, alongside mobile delivery. The scoped repository-policy apply
-deliberately cannot change it. The webhook URL is a credential stored only in
-GitHub's hook configuration and encrypted OpenTofu state.
+The scoped alerting apply removes the former page and push routes, chains and
+personal mobile rules. Integration history, dashboards and alert evaluation
+remain available. GitHub notification preferences control notifications from
+the issues themselves.

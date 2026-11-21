@@ -9,6 +9,7 @@ import type {
 } from '@libs/observatory-shared-ts/live-session';
 import { ProfileReadRepository } from '@libs/profile-shared-ts/read-profile';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
+import { heartbeatTransaction } from './heartbeat-transaction';
 import {
   type LiveDevice,
   type LiveSessionRow,
@@ -94,12 +95,11 @@ export class UserObservatory {
     device: LiveDevice,
     value: LiveHeartbeat
   ): Promise<LiveHeartbeatAnswer> {
-    const { changed, watched } = await this.db.transaction(async (tx) => {
-      const sessions = new LiveSessions(tx, this.ports);
-      return {
-        changed: await sessions.heartbeat(device, value),
-        watched: await sessions.watched(device),
-      };
+    const { changed, watched } = await heartbeatTransaction({
+      db: this.db,
+      ports: this.ports,
+      device,
+      value,
     });
     if (changed) await this.ports.presenceChanged();
     return { watched };

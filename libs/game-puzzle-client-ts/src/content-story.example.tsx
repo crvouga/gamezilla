@@ -114,42 +114,21 @@ export function StoryDraftHistory(props: { disabled?: boolean }): JSX.Element {
 export function StoryPlaytest(props: {
   disabled?: boolean;
   next?: boolean;
+  /** A finished playtest proves the copy: offered again. */
+  again?: boolean;
 }): JSX.Element {
   return (
     <Button
-      title="Start playtest"
+      title={
+        props.again === true && props.next !== true
+          ? 'Playtest again'
+          : 'Start playtest'
+      }
       intent={props.next === true ? 'primary' : 'neutral'}
       variant={props.next === true ? 'solid' : 'outline'}
       size={props.next === true ? 'md' : 'sm'}
       disabled={props.disabled}
     />
-  );
-}
-
-/** The draft's other saved copies, the one being edited first. */
-export function StoryKeptCopies(props: {
-  current?: string;
-  earlier?: string;
-}): JSX.Element {
-  return (
-    <MenuSection
-      title="Draft copies"
-      footer="Each save keeps a copy of this draft. Choose one to keep working from it; the others stay saved, and published editions do not change."
-    >
-      <MenuRow
-        title={props.current ?? 'Count to seven'}
-        caption="Saved draft copy"
-        value="Editing now"
-        selected
-        disabled
-      />
-      <MenuRow
-        title={props.earlier ?? 'Count to five'}
-        caption="Saved draft copy"
-        value="Use copy"
-        onClick={() => undefined}
-      />
-    </MenuSection>
   );
 }
 
@@ -206,7 +185,7 @@ const PACK_PUZZLES = [
   {
     id: 'puzzle-count-to-nine',
     title: 'Count to nine',
-    caption: 'Publish it before the pack',
+    caption: 'Open it to publish it first',
     status: 'draft',
   },
 ] as const;

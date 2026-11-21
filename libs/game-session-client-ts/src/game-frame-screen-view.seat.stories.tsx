@@ -7,6 +7,7 @@ import {
   FRAME_CONFIGURING as CONFIGURING,
   FRAME_GUEST,
   HOST_CHOICES,
+  HOST_CLOCK_ONLY,
   HOST_SEAT,
   INVITED_SEAT,
   OPEN_SEAT,
@@ -19,6 +20,7 @@ import {
   seat,
   setup,
   setupSeat,
+  status,
 } from './game-frame-story.example';
 
 const meta = {
@@ -95,7 +97,21 @@ export const ChoiceRefused: Story = {
 /** Choosing a bot sends the choice and returns to the lobby. */
 export const ChooseBot: Story = {
   args: {
-    setup: setup([HOST_SEAT, setupSeat(OPEN_SEAT, { choices: HOST_CHOICES })]),
+    // Before the bot's seat is filled, the lobby says a seat is open.
+    status: status({
+      lineup: 'Red circle: avery. Yellow diamond: Open place.',
+      description: 'Waiting for participants and readiness.',
+      emphasis: 'neutral',
+    }),
+    setup: setup([HOST_SEAT, setupSeat(OPEN_SEAT, { choices: HOST_CHOICES })], {
+      options: HOST_CLOCK_ONLY,
+      start: {
+        reason: { kind: 'open-seats', count: 1 },
+        hostStarts: false,
+        readiness: { ready: true, blocked: false },
+        canStart: true,
+      },
+    }),
   },
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);

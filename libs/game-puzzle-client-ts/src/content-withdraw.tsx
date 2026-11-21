@@ -9,6 +9,8 @@ import type { JSX } from 'solid-js';
  */
 export function ContentWithdrawConfirm(props: {
   visible: boolean;
+  /** The draft's title, named in the question; empty when untitled. */
+  title: string;
   onClose: () => void;
   /** Withdraws the publication; rejects with what to tell the person. */
   onWithdraw: () => Promise<void>;
@@ -17,11 +19,17 @@ export function ContentWithdrawConfirm(props: {
     <MutationModal
       visible={props.visible}
       onClose={() => props.onClose()}
-      title={<Trans>Withdraw this publication?</Trans>}
+      title={
+        props.title.trim() === '' ? (
+          <Trans>Withdraw this publication?</Trans>
+        ) : (
+          <Trans>Withdraw “{props.title.trim()}”?</Trans>
+        )
+      }
       message={
         <Trans>
-          It will leave discovery. Saved attempts and earlier pack editions keep
-          their content.
+          People will no longer find it to play. Saved attempts and earlier pack
+          editions keep their content, and you can publish it again later.
         </Trans>
       }
       submitLabel={<Trans>Withdraw</Trans>}

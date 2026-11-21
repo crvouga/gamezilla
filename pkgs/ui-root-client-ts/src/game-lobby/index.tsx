@@ -35,6 +35,11 @@ export type GameModeCardProps = {
    * lobby has to spare; a long roster leaves it out.
    */
   art?: JSX.Element | undefined;
+  /**
+   * `thumbnail`: on a phone the picture is a small square beside the words,
+   * so what follows the card (a lobby's seats) leads. Default `room`.
+   */
+  artSize?: 'room' | 'thumbnail' | undefined;
   dataSet?: ComponentDataSet | undefined;
 };
 
@@ -59,6 +64,7 @@ export function GameModeCard(props: GameModeCardProps): JSX.Element {
   return (
     <header
       class={styles['mode']}
+      data-art={props.artSize ?? 'room'}
       {...dataAttrs({ component: 'GameModeCard', ...props.dataSet })}
     >
       <GameModeArt art={props.art} />

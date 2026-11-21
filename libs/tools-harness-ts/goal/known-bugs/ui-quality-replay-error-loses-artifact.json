@@ -1,0 +1,4 @@
+{
+  "summary": "A snapshot image decoding failure aborts UI quality verification without naming the input artifact or its originating test, preventing diagnosis from hosted logs.",
+  "regressionTest": "apps/product-ts/tests/ui-quality.test.ts"
+}

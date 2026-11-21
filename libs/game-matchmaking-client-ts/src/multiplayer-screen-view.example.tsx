@@ -9,6 +9,7 @@ import {
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
+import { GameClock } from '@pkgs/ui-root-client-ts/game-clock';
 import {
   GAME_PLAYER_AVATAR_SIZE,
   GamePlayerBar,
@@ -46,22 +47,25 @@ export const SPEED_RATINGS = [
   { pool: 'daily', rating: 1551, games: 3 },
 ] as const;
 
-const COLUMNS = ['a', 'b', 'c', 'd', 'e', 'f', 'g'];
 const DROPS = [3, 3, 4, 2, 4];
 
 /** The story game's moves, on the position after `shownPly` of them. */
 export function storyMoves(shownPly = DROPS.length): MultiplayerMovesShown {
   const moves = DROPS.map((column, index) => {
     const round = Math.floor(index / 2) + 1;
-    // A drop is named by its column and the row it lands on.
-    const row = DROPS.slice(0, index + 1).filter((at) => at === column).length;
-    const san = `${COLUMNS[column] ?? 'a'}${String(row)}`;
+    // A drop is named as Connect Four names it: its column, from 1.
+    const san = String(column + 1);
     const ordinal = `${String(round)}${index % 2 === 0 ? '.' : '...'}`;
     return {
       ply: index + 1,
       san,
       numbering: index % 2 === 0 ? ordinal : '',
       name: `${ordinal} ${san}`,
+      // Each move beside the disc of the seat that made it, as the app does.
+      swatch:
+        index % 2 === 0
+          ? ({ color: 'disc-one', mark: '●' } as const)
+          : ({ color: 'disc-two', mark: '◆' } as const),
     };
   });
   return {
@@ -71,6 +75,8 @@ export function storyMoves(shownPly = DROPS.length): MultiplayerMovesShown {
       shownPly >= moves.length
         ? null
         : { after: moves[shownPly - 1]?.name ?? null },
+    // Connect Four's word for its bare-number moves, as its presentation says.
+    heading: 'Column',
   };
 }
 
@@ -94,7 +100,7 @@ export const STORY_FINISHED_GAME: MultiplayerGameView = {
   rematch: 'offer',
   newOpponent: true,
   record: {
-    record: '1. d1 d2 2. e1 c1 3. e2 1-0',
+    record: '1. 4 4 2. 5 3 3. 5 1-0',
     finalPosition: 'connect-four:3,3,4,2,4',
   },
 };
@@ -184,8 +190,11 @@ function StoryStage(props: {
         <GamePlayerBar
           name="Bob (1487)"
           avatar={<StoryAvatar who="bob" size={GAME_PLAYER_AVATAR_SIZE} />}
-          swatch={{ color: 'disc-two' }}
+          swatch={{ color: 'disc-two', mark: '◆' }}
           swatchLabel="Yellow"
+          // The story game is played at 5+0: each seat shows its clock, as
+          // the app's seats do.
+          trailing={<GameClock label="Yellow" value="4:12" />}
         />
       }
       own={
@@ -193,12 +202,15 @@ function StoryStage(props: {
           name={props.ownName ?? 'alice'}
           plainName={props.ownName}
           avatar={<StoryAvatar who="alice" size={GAME_PLAYER_AVATAR_SIZE} />}
-          swatch={{ color: 'disc-one' }}
+          swatch={{ color: 'disc-one', mark: '●' }}
           swatchLabel="Red"
           tags={<Badge intent="neutral" label="You play Red" />}
           tagsPlacement="inline"
           active={props.active}
           turnLabel="Your move"
+          trailing={
+            <GameClock label="Red" value="3:47" active={props.active} />
+          }
         />
       }
     >
