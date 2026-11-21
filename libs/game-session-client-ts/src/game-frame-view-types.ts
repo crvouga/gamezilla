@@ -1,19 +1,15 @@
 import type {
   GameFrameCompactInset,
-  GameFrameSeatLayout,
   GameOptionGroup,
+  GameSeatStat,
   GameOutlineStep,
 } from '@pkgs/turn-game-shared-ts/game-frame';
 import type {
   BotDifficulty,
   GameSide,
 } from '@pkgs/turn-game-shared-ts/game-rules';
-import type { GameActionItem } from '@pkgs/ui-root-client-ts/game-action-bar';
-import type {
-  GamePlayerState,
-  GameSeatStat,
-} from '@pkgs/ui-root-client-ts/game-player-parts';
 import type { GameSeatLook } from '@pkgs/ui-root-client-ts/game-seat-swatch';
+import type { SpaceGameAction } from '@pkgs/ui-root-client-ts/space-types';
 import type {
   GameTurnPillEmphasis,
   GameTurnPillTone,
@@ -69,11 +65,17 @@ export type FrameSeat = {
   readonly clock: FrameClock | null;
 };
 
+/** A seat out of play in the position, or its person away right now. */
+export type FrameSeatState = {
+  readonly kind: 'out' | 'reconnecting';
+  readonly label: string;
+};
+
 /** A seat while the game is played: its state, facts and figure. */
 export type FramePlaySeat = FrameSeat & {
   /** The game's own figure for the seat (a score), if it has one. */
   readonly stat: GameSeatStat | null;
-  readonly state: GamePlayerState | null;
+  readonly state: FrameSeatState | null;
   readonly standIn: boolean;
   readonly committed: boolean;
   readonly choosing: boolean;
@@ -94,13 +96,7 @@ export type FrameTable = {
    * frame lends it each player (`GameFrame.boardSeats`).
    */
   readonly shape: 'strip' | 'rail' | 'none' | 'board';
-  readonly seatLayout?: GameFrameSeatLayout | undefined;
   readonly compactInset?: GameFrameCompactInset | undefined;
-  /**
-   * The board names each player itself (`GameFrame.boardNames`): a phone
-   * draws no seats above or below it, except one to take back.
-   */
-  readonly named?: boolean | undefined;
   readonly near: FramePlaySeat | null;
   readonly others: readonly FramePlaySeat[];
 };
@@ -252,10 +248,11 @@ export type FramePlay = {
   readonly heldOfferDraw: boolean;
   readonly heldResign: boolean;
   readonly canCancel: boolean;
-  /** The board's own actions (`custom-game-board-${id}`). */
-  readonly boardActions: readonly GameActionItem[];
-  /** Required choices shown before the board, with the same action handles. */
-  readonly leadingBoardActions: readonly GameActionItem[];
+  /**
+   * The board's own actions (`custom-game-board-${id}`), a required choice
+   * that leads the board first.
+   */
+  readonly boardActions: readonly SpaceGameAction[];
 };
 
 /** One player's finish. */

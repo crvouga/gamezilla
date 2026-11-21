@@ -80,7 +80,7 @@ async function observeStartedGame(ui: Driver, game: BotGame): Promise<void> {
   await ui
     .get(game.readyControl)
     .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
-  // A game under way offers its commands (resigning among them) by one control.
+  // A game under way opens its moves and history from its status line.
   await ui
     .get('custom-game-commands')
     .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
@@ -97,12 +97,12 @@ async function observeStartedGame(ui: Driver, game: BotGame): Promise<void> {
   );
   const seats = ['white', 'black', 'red', 'blue'];
   for (const side of seats.slice(1, game.seats))
-    await ui.get(`custom-game-${side}`).expect.text('Bot', {
+    await ui.get(`custom-game-${side}-person`).expect.text('Bot', {
       exact: false,
       timeoutMs: JOURNEY_WAIT_MS,
     });
   for (const side of seats.slice(game.seats))
-    await ui.get(`custom-game-${side}`).expect.hidden();
+    await ui.get(`custom-game-${side}-person`).expect.hidden();
 }
 
 /** Observe the same named game's started state on the fresh guest's device. */

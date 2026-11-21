@@ -144,11 +144,10 @@ export const AgainstBot: Story = {
   },
 };
 
-/** Someone in the space without a seat watches: the watching bar sits under everything. */
+/** Someone in the space without a seat watches: the bar says so. */
 export const Watching: Story = {
   args: {
     viewerSide: null,
-    watchers: 3,
     status: status({ lineup: WATCHED_LINEUP, emphasis: 'neutral' }),
     table: {
       shape: 'strip',
@@ -317,20 +316,22 @@ export const LongContent: Story = {
   },
 };
 
-/** Game menu is the one way to every other command: it opens the commands place. */
-export const OpenGameMenu: Story = {
-  play: async ({ args, canvasElement }) => {
-    const canvas = within(canvasElement);
+/** The moves and the history open from the status line, over the stage. */
+export const OpenMoves: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement.ownerDocument.body);
     await userEvent.click(await canvas.findByTestId('custom-game-commands'));
-    await expect(args.onOpen).toHaveBeenCalledWith({ screen: 'commands' });
-    await expect(await canvas.findByTestId('custom-game-resign')).toBeVisible();
+    await expect(
+      await canvas.findByTestId('custom-game-history-stats')
+    ).toBeVisible();
   },
 };
 
 /** Pressing a move in the list opens the moves place at that move; the live board is never rewound. */
 export const OpenMove: Story = {
   play: async ({ args, canvasElement }) => {
-    const canvas = within(canvasElement);
+    const canvas = within(canvasElement.ownerDocument.body);
+    await userEvent.click(await canvas.findByTestId('custom-game-commands'));
     await userEvent.click(
       await canvas.findByTestId('custom-game-review-move-3')
     );
@@ -343,7 +344,7 @@ export const OpenMove: Story = {
 export const ResignAsked: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement.ownerDocument.body);
-    await userEvent.click(await canvas.findByTestId('custom-game-resign-now'));
+    await userEvent.click(await canvas.findByTestId('custom-game-resign'));
     await canvas.findByText(/^You lose this game\./);
     await expect(
       await canvas.findByTestId('custom-game-resign-confirm')

@@ -1,26 +1,16 @@
 import { afterEach, expect, test } from 'bun:test';
-import {
-  FRAME_NO_NEXT,
-  FRAME_NO_PLAY,
-} from '@libs/game-session-client-ts/game-frame-empty';
-import {
-  GameFrameScreenView,
-  type GameFrameScreenViewProps,
-} from '@libs/game-session-client-ts/game-frame-screen-view';
+import { FRAME_NO_PLAY } from '@libs/game-session-client-ts/game-frame-empty';
+import type { GameFrameScreenViewProps } from '@libs/game-session-client-ts/game-frame-screen-view';
 import { stableFrameTable } from '@libs/game-session-client-ts/game-frame-stable-table';
 import type {
   FramePlaySeat,
   FrameRecord,
   FrameTable,
 } from '@libs/game-session-client-ts/game-frame-view-types';
-import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
-import { ClockProvider } from '@pkgs/clock-client-ts/solid';
-import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
-import { NO_STAGE_OVERLAY } from '@pkgs/turn-game-client-ts/stage-overlay';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
-import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { cleanup, screen } from '@solidjs/testing-library';
 import { createRoot, createSignal } from 'solid-js';
+import { frameProps, mountFrame, status } from './frame-fixture';
 
 afterEach(cleanup);
 
@@ -56,55 +46,21 @@ const RECORD: FrameRecord = {
   history: true,
 };
 
-const resolved = async (): Promise<void> => undefined;
-
+/** A three-rider game played in real time, the viewer riding white. */
 function props(): GameFrameScreenViewProps {
-  return {
+  return frameProps({
     title: 'Light Cycles Trio',
-    phase: 'active',
-    viewerSide: 'white',
-    watchers: 0,
-    connection: 'online',
-    error: '',
-    stopped: false,
-    status: {
-      lineup: '',
-      description: 'Round 1 · first to 3',
-      plainTurn: false,
-      emphasis: 'neutral',
-      tone: 'neutral',
-      sending: false,
-      minutes: 0,
-      increment: 0,
-    },
-    canCreate: false,
+    status: status({ description: 'Round 1 · first to 3', plainTurn: false }),
     playerCount: 3,
-    setup: null,
     table: {
       shape: 'rail',
       near: seat('white', 'avery'),
       others: [seat('black', 'jordan'), seat('red', 'morgan')],
     },
     play: { ...FRAME_NO_PLAY, canResign: true },
-    result: null,
-    next: FRAME_NO_NEXT,
     record: RECORD,
     board: <div data-testid="arena" />,
-    onChoose: resolved,
-    onReady: resolved,
-    onPlayBot: resolved,
-    onRandomSetup: resolved,
-    onBack: () => undefined,
-    onSeek: () => undefined,
-    onReturnLive: () => undefined,
-    onSelectRecord: () => undefined,
-    onOpenHistory: () => undefined,
-    place: { screen: 'play' },
-    onOpen: () => undefined,
-    onClose: () => undefined,
-    overlay: NO_STAGE_OVERLAY,
-    onOverlay: () => undefined,
-  };
+  });
 }
 
 /** A real-time tick: every seat read afresh from a new position, same values. */
@@ -127,33 +83,23 @@ function tick(
 // time reads a new position many times a second, and every read built
 // every seat afresh, so each player's strip, avatar and figure were torn
 // down and rebuilt on every tick (most of Light Cycles' and Pong's
-// per-tick work beside the arena).
-test('wide: a position-only tick keeps every player strip; a changed figure updates in place', () => {
-  const time = createHarnessClock();
+// per-tick work beside the arena). The people row keeps each cell.
+test('wide: a position-only tick keeps every player cell; a changed figure updates in place', () => {
   const first = props().table;
   const [table, setTable] = createSignal(first);
-  renderWithI18n(() => (
-    <ClockProvider clock={time.clock} timers={time.timers}>
-      <ThemeProvider
-        colorScheme="dark"
-        fixedLayout={{ width: 1440, height: 900 }}
-      >
-        <GameFrameScreenView {...props()} table={table()} />
-      </ThemeProvider>
-    </ClockProvider>
-  ));
-  const strips = () =>
+  mountFrame(() => ({ ...props(), table: table() }), 1440);
+  const cells = () =>
     ['white', 'black', 'red'].map((side) =>
-      screen.getByTestId(`custom-game-${side}`)
+      screen.getByTestId(`custom-game-${side}-person`)
     );
-  const before = strips();
+  const before = cells();
   setTable(tick(first));
-  for (const [index, strip] of strips().entries())
-    expect(strip === before[index]).toBe(true);
+  for (const [index, cell] of cells().entries())
+    expect(cell === before[index]).toBe(true);
   setTable(tick(first, { black: '1' }));
-  const after = strips();
-  for (const [index, strip] of after.entries())
-    expect(strip === before[index]).toBe(true);
+  const after = cells();
+  for (const [index, cell] of after.entries())
+    expect(cell === before[index]).toBe(true);
   expect(after[1]?.textContent).toContain('1');
 });
 

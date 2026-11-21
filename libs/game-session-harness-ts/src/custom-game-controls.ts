@@ -54,8 +54,18 @@ const SEAT_PLACE_OPERATIONS: readonly string[] = [
 /** The choices that sit on the clock's place. */
 const CLOCK_PLACE_OPERATIONS: readonly string[] = ['swap', 'clock', 'untimed'];
 
-/** The commands of a game being played that sit in its game menu. */
-const GAME_MENU_OPERATIONS: readonly string[] = ['offer', 'resign', 'cancel'];
+/**
+ * The viewer's standing in a game being played: on the action bar while it
+ * has room, else at the top of the viewer's own cell in the people row.
+ */
+const STANDING_OPERATIONS: readonly string[] = ['offer', 'resign', 'cancel'];
+
+/** The viewer's own cell in the people row of a game being played. */
+function ownCell(probe: CustomGameProbe): string {
+  return probe.mySide === null
+    ? 'custom-game-you'
+    : `custom-game-${probe.mySide}-person`;
+}
 
 /** The row on the home place that opens the place holding `input`'s control. */
 function placeRow(input: CustomGameInput, probe: CustomGameProbe): string {
@@ -64,10 +74,10 @@ function placeRow(input: CustomGameInput, probe: CustomGameProbe): string {
   if (CLOCK_PLACE_OPERATIONS.includes(input.operation))
     return 'custom-game-options';
   if (
-    GAME_MENU_OPERATIONS.includes(input.operation) &&
+    STANDING_OPERATIONS.includes(input.operation) &&
     probe.current?.status === 'active'
   )
-    return 'custom-game-commands';
+    return ownCell(probe);
   // Becoming ready with a private setup happens on the setup's own place.
   if (input.operation === 'ready' && probe.privateSetup !== null)
     return 'custom-game-setup-open';
@@ -76,15 +86,15 @@ function placeRow(input: CustomGameInput, probe: CustomGameProbe): string {
 
 /**
  * Open the place a control sits on, as a person does: the seat's own place,
- * the clock, the game menu or the private setup, by its row on the home
- * place. A control on the home place is reached by going back to it.
+ * the clock, the viewer's own cell or the private setup, by its row on the
+ * home place. A control on the home place is reached by going back to it.
  */
 async function revealControl(
   s: ProductHarness,
   actor: string,
   input: CustomGameInput,
   probe: CustomGameProbe
-): Promise<void> {
+): Promise<string> {
   const ui = await actorUi(s, actor);
   const row = placeRow(input, probe);
   const target = customGameControl(input, probe);
@@ -99,6 +109,7 @@ async function revealControl(
     await ui.get('custom-game-increment').clear();
     await ui.get('custom-game-increment').input(String(input.increment));
   }
+  return row;
 }
 
 function confirmUnavailable(
@@ -209,8 +220,10 @@ export async function operateCustomGameControls(
     await chooseCustomGame(s, actor, input);
     return;
   }
-  await revealControl(s, actor, input, probe);
+  const row = await revealControl(s, actor, input, probe);
   if (!(await controlUsable(s, actor, target))) {
+    // A person's own sheet that offers no such control closes again.
+    if (row === ownCell(probe)) await (await actorUi(s, actor)).key('escape');
     // The place offers no such control now: back to where the game opens,
     // then the choice as a modified device would send it.
     await showCustomGameHome(s, actor);

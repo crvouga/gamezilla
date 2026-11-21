@@ -8,6 +8,7 @@ import { ResponsiveSurface } from '../responsive-surface/index';
 import { spaceDataSet } from '../space-data-set';
 import { SpacePeople } from '../space-person-sheet/space-people';
 import { type SpaceScreenChrome, SpaceShell } from '../space-shell/index';
+import { VisuallyHidden } from '../visually-hidden/index';
 import type {
   SpaceGame,
   SpaceGamePlay,
@@ -46,6 +47,13 @@ export type SpaceInGameTemplateProps = SpaceScreenChrome & {
   aside?: SpaceInGameAside | undefined;
   /** The action bar's More, when there are more than three actions. */
   moreTestId?: string | undefined;
+  /** The status line's `data-testid`: its live region, said and shown. */
+  statusTestId?: string | undefined;
+  /**
+   * Who plays whom (`White: ana. Black: a bot.`), said before the status
+   * line to a listener only: the people row shows it.
+   */
+  lineup?: string | undefined;
   dataSet?: ComponentDataSet | undefined;
 };
 
@@ -78,6 +86,8 @@ function StatusLine(props: {
   play: SpaceGamePlay;
   result: SpaceGameResult | undefined;
   aside: SpaceInGameAside | undefined;
+  testId: string | undefined;
+  lineup: string | undefined;
 }): JSX.Element {
   const detail = () => props.result?.detail ?? props.play.detail;
   return (
@@ -85,14 +95,24 @@ function StatusLine(props: {
       class={styles['status']}
       data-result={props.result === undefined ? undefined : 'true'}
     >
-      <h2 class={`text textHeading ${styles['headline']}`} aria-live="polite">
-        {props.result?.status ?? props.play.status}
-      </h2>
-      <Show when={detail()}>
-        {(text) => (
-          <span class={`text textCaption ${styles['detail']}`}>{text()}</span>
-        )}
-      </Show>
+      <div
+        class={styles['said']}
+        role="status"
+        aria-live="polite"
+        data-testid={props.testId}
+      >
+        <Show when={props.lineup}>
+          {(lineup) => <VisuallyHidden>{`${lineup()} `}</VisuallyHidden>}
+        </Show>
+        <h2 class={`text textHeading ${styles['headline']}`}>
+          {props.result?.status ?? props.play.status}
+        </h2>
+        <Show when={detail()}>
+          {(text) => (
+            <span class={`text textCaption ${styles['detail']}`}>{text()}</span>
+          )}
+        </Show>
+      </div>
       <Show when={props.aside}>
         {(aside) => <AsideOpener aside={aside()} />}
       </Show>
@@ -105,7 +125,13 @@ function InGameStage(props: SpaceInGameTemplateProps): JSX.Element {
   const play = () => props.game.play;
   return (
     <div class={styles['stage']}>
-      <StatusLine play={play()} result={props.result} aside={props.aside} />
+      <StatusLine
+        play={play()}
+        result={props.result}
+        aside={props.aside}
+        testId={props.statusTestId}
+        lineup={props.lineup}
+      />
       <div class={styles['board']} data-space-board="true">
         {play().board}
       </div>

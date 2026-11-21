@@ -11,6 +11,7 @@ import {
   playCustomGamePartyTurn,
   readPublicCustomGame,
 } from './custom-game-party-turn';
+import { withMoveList } from './custom-game-move-list';
 import { takeBlack } from './custom-game-readiness-wait';
 import {
   check,
@@ -87,9 +88,11 @@ export async function completeCustomGameParty(
     let view: PublicCustomGame | undefined;
     await host.act('readPartyBoard', async (ui) => {
       if (acceptedPly > 0)
-        await ui
-          .get(`custom-game-review-move-${acceptedPly}`)
-          .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
+        await withMoveList(ui, () =>
+          ui
+            .get(`custom-game-review-move-${acceptedPly}`)
+            .expect.visible({ timeoutMs: JOURNEY_WAIT_MS })
+        );
       view = await readPublicCustomGame(ui);
     });
     check(view !== undefined, 'The party game did not open');
@@ -101,9 +104,11 @@ export async function completeCustomGameParty(
     const before = await readPartyDevices(host);
     if (seat >= 2) {
       await host.act('awaitPartyBot', (ui) =>
-        ui
-          .get(`custom-game-review-move-${current.ply + 1}`)
-          .expect.visible({ timeoutMs: JOURNEY_WAIT_MS })
+        withMoveList(ui, () =>
+          ui
+            .get(`custom-game-review-move-${current.ply + 1}`)
+            .expect.visible({ timeoutMs: JOURNEY_WAIT_MS })
+        )
       );
       acceptedPly = current.ply + 1;
       await acceptPartyProgress(host, acceptedPly, before, null);
@@ -145,9 +150,11 @@ export async function observeCustomGamePartyJourney(
   finished: PublicCustomGame
 ): Promise<void> {
   const observe = async (ui: Driver): Promise<void> => {
-    await ui
-      .get(`custom-game-review-move-${finished.ply}`)
-      .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
+    await withMoveList(ui, () =>
+      ui
+        .get(`custom-game-review-move-${finished.ply}`)
+        .expect.visible({ timeoutMs: JOURNEY_WAIT_MS })
+    );
     const view = await readPublicCustomGame(ui);
     check(
       view.status === 'completed' &&

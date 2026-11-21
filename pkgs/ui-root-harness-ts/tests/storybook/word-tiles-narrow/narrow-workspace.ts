@@ -54,7 +54,7 @@ export async function narrowWorkspace(
   fixture: { players: string; theme: string }
 ): Promise<void> {
   await openStory(page, `${fixture.players}-player-match`, fixture.theme);
-  await reachable(page.getByTestId('custom-game-seat-near'), false);
+  await reachable(page.getByTestId('custom-game-white-person'), false);
   await retainEvidence(info, 'local-score-initial.png', {
     body: await page.screenshot(),
     contentType: 'image/png',
@@ -126,7 +126,7 @@ export async function narrowOpeningFits(
     );
   expect(tops).toHaveLength(7);
   expect(new Set(tops).size).toBe(1);
-  await reachable(page.getByTestId('custom-game-seat-near'), false);
+  await reachable(page.getByTestId('custom-game-white-person'), false);
   await reachable(page.getByTestId('custom-game-board-submit'), false);
   await reachable(
     page.getByRole('region', { name: 'Scrollable word board' }),

@@ -14,14 +14,12 @@ import {
   FrameOptionsPlace,
   FramePrivateSetupPlace,
 } from './game-frame-agreed-view';
-import { FrameCommandsPlace } from './game-frame-commands-view';
 import { FrameLobbyPlace } from './game-frame-lobby-view';
 import {
   FrameMovesPlace,
   type FrameReviewHandlers,
 } from './game-frame-moves-view';
-import { FramePlayPlace } from './game-frame-play-view';
-import { FrameResultPlace } from './game-frame-result-place-view';
+import { FrameInGamePlace } from './game-frame-in-game-view';
 import { FrameInvitePlace, FrameSeatPlace } from './game-frame-seat-view';
 import {
   createFrameConfirm,
@@ -43,10 +41,18 @@ import type {
   FrameStatus,
   FrameTable,
 } from './game-frame-view-types';
+import type { SpaceGameIdentity } from './space-game-of';
 
 /** What the room says about the game; `GameFrameScreenView` adds the place and the confirmation. */
 export type GameFrameScreenData = FrameReviewHandlers & {
   readonly title: JSX.Element;
+  /** The game, as the space's templates name and picture it. */
+  readonly identity: SpaceGameIdentity;
+  /**
+   * The space's own notice under its row of actions (`SpaceScreenNotice`:
+   * a refused change, the host gone); absent in a story.
+   */
+  readonly spaceNotice?: JSX.Element;
   /** How the game is won, in one sentence; absent before there is a game. */
   readonly goal?: string | undefined;
   /** Set when the person may not watch this space's games. */
@@ -55,7 +61,6 @@ export type GameFrameScreenData = FrameReviewHandlers & {
   readonly phase: FramePhase;
   /** The viewer's own seat; `null` while watching. */
   readonly viewerSide: GameSide | null;
-  readonly watchers: number;
   readonly connection: FrameConnection;
   /** A refused choice, in words; `''` for none. */
   readonly error: string;
@@ -187,14 +192,8 @@ function FramePlaces(props: Props): JSX.Element {
       >
         {(record) => <FrameMovesPlace {...props} record={record()} />}
       </Match>
-      <Match when={props.phase === 'active' && screen() === 'commands'}>
-        <FrameCommandsPlace {...props} />
-      </Match>
-      <Match when={props.phase === 'active'}>
-        <FramePlayPlace {...props} />
-      </Match>
-      <Match when={over()}>
-        <FrameResultPlace {...props} />
+      <Match when={props.phase === 'active' || over()}>
+        <FrameInGamePlace {...props} />
       </Match>
     </Switch>
   );
@@ -205,10 +204,10 @@ function FramePlaces(props: Props): JSX.Element {
  * place its phase and this device select (`CUSTOM_GAME_PLACES`). Before a
  * game, starting one; while it is set up, the lobby and behind its rows a
  * seat, the options, the clock and the person's private setup; while it is
- * played, the live board, the game's commands and the moves; once it is
- * over, the result. Over the places sits the frame's one confirmation,
- * which outlives the place that asked for it (resigning finishes the game,
- * which replaces the commands with the result). The board is the game's
+ * played and once it is over, the space's in-game template, and behind it
+ * the moves. Over the places sits the frame's one confirmation, which
+ * outlives the place that asked for it (resigning finishes the game, which
+ * turns the live actions into the result's). The board is the game's
  * own (`board`); everything else is plain frame data. `CustomGameScreen`
  * wires it to the space's room.
  */

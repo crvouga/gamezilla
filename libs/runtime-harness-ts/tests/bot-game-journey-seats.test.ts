@@ -6,9 +6,9 @@ import { journeyDiagnosticDriver } from './journey-diagnostic-driver';
 // regression: bot-journey-multiseat-name-wrapper
 test('observes bots in the three-player Word Tiles seat wrappers', async () => {
   const texts: Readonly<Record<string, string>> = {
-    'custom-game-white': 'Amber RequiredHedgehog455',
-    'custom-game-black': 'Teal Bot (medium)',
-    'custom-game-red': 'Violet Bot (medium)',
+    'custom-game-white-person': 'Amber RequiredHedgehog455',
+    'custom-game-black-person': 'Teal Bot (medium)',
+    'custom-game-red-person': 'Violet Bot (medium)',
   };
   const visible = [
     ...Object.keys(texts),
@@ -49,5 +49,8 @@ test('observes bots in the three-player Word Tiles seat wrappers', async () => {
     { act: async (_name, gestures) => gestures(ui) },
     'Word Tiles for three'
   );
-  expect(checked).toEqual(['custom-game-black', 'custom-game-red']);
+  expect(checked).toEqual([
+    'custom-game-black-person',
+    'custom-game-red-person',
+  ]);
 });

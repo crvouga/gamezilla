@@ -1,17 +1,18 @@
 import { DecisionGate } from '@libs/permissions-client-ts/decision-gate';
 import { UserProfileAvatar } from '@libs/profile-client-ts/user-profile-avatar';
 import { UserUsername } from '@libs/profile-client-ts/user-username';
+import { SpaceScreenNotice } from '@libs/spaces-client-ts/space-screen-chrome';
 import {
   DefineBackButton,
   useGameChoicesName,
 } from '@libs/spaces-client-ts/spaces-nav-context';
-import { Trans } from '@lingui/solid/macro';
 import { useTimers } from '@pkgs/clock-client-ts/solid';
 import { GamePreviewBoard } from '@pkgs/turn-game-client-ts/game-preview-board';
 import { NO_STAGE_OVERLAY } from '@pkgs/turn-game-client-ts/stage-overlay';
 import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { useScreenPlace } from '@pkgs/turn-game-client-ts/use-screen-place';
 import { useStageOverlay } from '@pkgs/turn-game-client-ts/use-stage-overlay';
+import type { GameTileMotif } from '@pkgs/ui-root-client-ts/game-tile';
 import { createEffect, type JSX } from 'solid-js';
 import { useRefusalText } from './custom-game-error';
 import { CUSTOM_GAME_PLACES } from './custom-game-places';
@@ -23,7 +24,6 @@ import {
   FRAME_NO_PLAY,
   FRAME_NO_TABLE,
 } from './game-frame-empty';
-import { frameOverlayPhase } from './game-frame-overlay-view';
 import { FrameBoardMount, useFrameBoard } from './game-frame-play';
 import { useFrameResult } from './game-frame-result';
 import {
@@ -31,7 +31,6 @@ import {
   type GameFrameScreenViewProps,
 } from './game-frame-screen-view';
 import type { FramePeople, FramePhase } from './game-frame-view-types';
-import { useFrameWatcherCount } from './game-frame-watchers';
 import { useCustomGameReview } from './use-custom-game-review';
 import type { CustomGameScreenModel } from './use-custom-game-screen';
 import { useCustomGameScreen } from './use-custom-game-screen';
@@ -43,6 +42,8 @@ import {
 } from './use-frame-play';
 import { useFrameTable } from './use-frame-seats';
 import { useFrameSetup } from './use-frame-setup';
+import { frameOverlayPhase } from './game-frame-versus-view';
+import type { SpaceGameIdentity } from './space-game-of';
 
 /** People at the table, as the app shows them: live usernames and pictures. */
 const PEOPLE: FramePeople = {
@@ -64,7 +65,6 @@ const nothing = async (): Promise<void> => undefined;
 const DENIED_FRAME = {
   phase: 'none',
   viewerSide: null,
-  watchers: 0,
   connection: 'online',
   error: '',
   stopped: false,
@@ -90,11 +90,12 @@ const DENIED_FRAME = {
   onClose: () => undefined,
   overlay: NO_STAGE_OVERLAY,
   onOverlay: () => undefined,
-} satisfies Omit<GameFrameScreenViewProps, 'title' | 'onBack'>;
+} satisfies Omit<GameFrameScreenViewProps, 'title' | 'identity' | 'onBack'>;
 
 type FrameProps = {
   model: CustomGameScreenModel;
   title: JSX.Element;
+  identity: SpaceGameIdentity;
   /** The game's board at its start: the lobby's picture of the game. */
   boardPreview: JSX.Element;
 };
@@ -150,7 +151,6 @@ function CustomGameFrame(props: FrameProps): JSX.Element {
   const board = useFrameBoard(model, review);
   const refusal = useRefusalText();
   const status = useFrameStatus(model);
-  const watchers = useFrameWatcherCount(model.current);
   const setup = useFrameSetup(model);
   const table = useFrameTable(model, board);
   const play = useFramePlay(model, board);
@@ -174,6 +174,8 @@ function CustomGameFrame(props: FrameProps): JSX.Element {
       />
       <GameFrameScreenView
         title={props.title}
+        identity={props.identity}
+        spaceNotice={<SpaceScreenNotice />}
         goal={shown.goal()}
         phase={place.phase()}
         place={place.place()}
@@ -184,7 +186,6 @@ function CustomGameFrame(props: FrameProps): JSX.Element {
         overlay={stage.overlay()}
         onOverlay={stage.send}
         viewerSide={model.mySide()}
-        watchers={watchers()}
         connection={frameConnection(model)}
         error={refusal(model.error(), model.current()?.fen)}
         stopped={model.simulation.error()}
@@ -222,7 +223,10 @@ function CustomGameFrame(props: FrameProps): JSX.Element {
 export function CustomGameScreen(props: {
   gameId: string;
   onBack: () => void;
-  title?: string;
+  title: string;
+  /** The game's tile and caption, as the space's templates show it. */
+  motif: GameTileMotif;
+  caption: string;
   onHistory?: () => void;
 }): JSX.Element {
   const model = useCustomGameScreen(
@@ -230,7 +234,13 @@ export function CustomGameScreen(props: {
     () => props.gameId,
     props.onHistory
   );
-  const title = (): JSX.Element => props.title ?? <Trans>Custom game</Trans>;
+  const title = (): JSX.Element => props.title;
+  const identity = (): SpaceGameIdentity => ({
+    key: props.gameId,
+    name: props.title,
+    motif: props.motif,
+    tagline: props.caption,
+  });
   const choices = useGameChoicesName();
   return (
     <>
@@ -242,6 +252,7 @@ export function CustomGameScreen(props: {
           <GameFrameScreenView
             {...DENIED_FRAME}
             title={title()}
+            identity={identity()}
             denial={denial}
             onBack={model.back}
           />
@@ -250,6 +261,7 @@ export function CustomGameScreen(props: {
         <CustomGameFrame
           model={model}
           title={title()}
+          identity={identity()}
           boardPreview={
             <GamePreviewBoard
               gameId={props.gameId}

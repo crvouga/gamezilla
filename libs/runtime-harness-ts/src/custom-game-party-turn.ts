@@ -1,6 +1,7 @@
 import type { PlayableGame } from '@libs/game-session-harness-ts/harness-game';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 import type { PublicCustomGame } from './custom-game-party-journey';
+import { withMoveList } from './custom-game-move-list';
 import { check, JOURNEY_WAIT_MS, tap } from './journey-gestures';
 
 /** Read one rendered snapshot, including whether this device can act on it. */
@@ -133,9 +134,11 @@ async function playOnSettledBoard(
     try {
       await performObservedMove(ui, game, view, action);
       performed = true;
-      await accepted.expect.visible({
-        timeoutMs: last ? JOURNEY_WAIT_MS : MOVE_SETTLE_MS,
-      });
+      await withMoveList(ui, () =>
+        accepted.expect.visible({
+          timeoutMs: last ? JOURNEY_WAIT_MS : MOVE_SETTLE_MS,
+        })
+      );
       return;
     } catch (error) {
       await failRejectedMove(ui, view, action, error);
@@ -148,7 +151,9 @@ async function playOnSettledBoard(
       if (last) throw await moveFailure(ui, view, action, error);
       // Not replaced, only slow: the move still has its full wait.
       try {
-        await accepted.expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
+        await withMoveList(ui, () =>
+          accepted.expect.visible({ timeoutMs: JOURNEY_WAIT_MS })
+        );
       } catch (cause) {
         throw await moveFailure(ui, view, action, cause);
       }
@@ -166,9 +171,11 @@ export async function playCustomGamePartyTurn(
 ): Promise<number> {
   progress.attempted = null;
   if (expected.ply > 0)
-    await ui
-      .get(`custom-game-review-move-${expected.ply}`)
-      .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
+    await withMoveList(ui, () =>
+      ui
+        .get(`custom-game-review-move-${expected.ply}`)
+        .expect.visible({ timeoutMs: JOURNEY_WAIT_MS })
+    );
   let view = await readPublicCustomGame(ui);
   if (view.status === 'completed' || view.turn !== expected.turn)
     return view.ply;

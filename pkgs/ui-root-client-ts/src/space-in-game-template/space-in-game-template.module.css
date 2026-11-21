@@ -16,6 +16,14 @@
   height: 44px;
   padding: 0 var(--ui-space-4);
 }
+/* What the status line says, one live region: the headline, then its note. */
+.said {
+  display: flex;
+  flex: 1;
+  align-items: baseline;
+  gap: var(--ui-space-2);
+  min-width: 0;
+}
 .headline {
   min-width: 0;
   overflow: hidden;
@@ -23,8 +31,11 @@
   white-space: nowrap;
 }
 .detail {
-  flex: none;
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
   color: var(--ui-color-text-secondary);
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 /* The board: no side margins, no card. A taller board scrolls inside its

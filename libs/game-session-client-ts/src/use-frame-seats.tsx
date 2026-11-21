@@ -11,7 +11,6 @@ import {
 } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { useGameSideLabel } from '@pkgs/turn-game-client-ts/use-game-side-label';
 import type { BotDifficulty } from '@pkgs/turn-game-shared-ts/game-rules';
-import type { GamePlayerState } from '@pkgs/ui-root-client-ts/game-player-parts';
 import { type Accessor, createMemo } from 'solid-js';
 import { useBotLevel } from './custom-game-person';
 import {
@@ -29,6 +28,7 @@ import type {
   FramePlaySeat,
   FrameSeat,
   FrameSeatChoices,
+  FrameSeatState,
   FrameSetupSeat,
   FrameTable,
 } from './game-frame-view-types';
@@ -94,7 +94,7 @@ function seatState(
   model: CustomGameScreenModel,
   out: boolean,
   participant: CustomGameParticipant
-): GamePlayerState | null {
+): FrameSeatState | null {
   if (out) return { kind: 'out', label: t`Out` };
   return participant.kind === 'person' &&
     model.awaySince(participant.person) !== null
@@ -151,8 +151,6 @@ export function useFrameTable(
         table.shape !== 'none'
           ? 'board'
           : table.shape,
-      named: presentation(game.fen).frame.boardNames === true,
-      seatLayout: presentation(game.fen).frame.seatLayout,
       compactInset: presentation(game.fen).frame.compactInset,
       near: table.near === null ? null : playSeat(game, table.near),
       others: table.others.map((side) => playSeat(game, side)),

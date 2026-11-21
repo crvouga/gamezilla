@@ -55,19 +55,19 @@ for (const screen of [
         page,
       }) => {
         await open(page, `result--${state}`, screen, theme);
-        const headline = page.getByTestId('custom-game-result-headline');
+        const headline = page.getByTestId('custom-game-status');
         await expect(headline).toHaveCount(1);
         const actions = page.locator(
-          '[data-testid="custom-game-rematch"], [data-testid="custom-game-new"], [data-testid="custom-game-review-start"], [data-testid="custom-game-back"]'
+          '[data-testid="custom-game-rematch"], [data-testid="custom-game-new"], [data-testid="custom-game-back"]'
         );
         const first = await box(actions.first());
         const last = await box(actions.last());
         expect(first.y).toBeGreaterThanOrEqual(0);
         expect(last.y + last.height).toBeLessThanOrEqual(screen.height);
-        // The outcome and what comes next lead on every size: the outcome's
-        // card heads the game's commands beside the final board (under a
-        // phone's board), never over it, and every next action is in the
-        // game's command bar, in the first view and never on the board.
+        // The outcome and what comes next lead on every size: the outcome is
+        // the stage's status line over the final board, never on it, and
+        // every next action is in the action bar under it, in the first
+        // view and never on the board.
         await expect(headline).toBeInViewport({ ratio: 1 });
         const board = await box(page.getByTestId('custom-game-public'));
         for (const action of await actions.all())
@@ -75,7 +75,6 @@ for (const screen of [
         for (const id of [
           'custom-game-rematch',
           'custom-game-new',
-          'custom-game-review-start',
           'custom-game-back',
         ]) {
           expect(await page.getByTestId(id).count()).toBeLessThanOrEqual(1);
@@ -84,20 +83,12 @@ for (const screen of [
         expect(
           await page.locator('button[data-variant="solid"]').count()
         ).toBeLessThanOrEqual(1);
-        if (state !== 'cancelled') {
-          // A phone folds the standings behind their own control.
-          const details = page.getByTestId('game-result-overlay-details');
-          if (await details.isVisible()) {
-            await details.click();
-            await expect(details).toHaveAttribute('aria-expanded', 'true');
-          }
+        // Each player's finish is in their cell of the people row.
+        for (const side of ['white', 'black'])
           await expect(
-            page.getByRole('list', { name: 'Standings' }).getByRole('listitem')
-          ).toHaveCount(2);
-        }
-        await expect(page.getByTestId('custom-game-history-stats')).toHaveCount(
-          1
-        );
+            page.getByTestId(`custom-game-${side}-person`)
+          ).toBeVisible();
+        await expect(page.getByTestId('custom-game-commands')).toHaveCount(1);
       });
     }
 }
@@ -160,12 +151,12 @@ for (const story of [
 
 // regression: completed-game-next-actions-below-board
 // Exercise the frame's actual reactive transition, not only static end-state fixtures.
-test('storybook integration: resigning from the game menu keeps one outcome and the confirmation acknowledgment, then the moves and back', async ({
+test('storybook integration: resigning from the action bar keeps one outcome and the confirmation acknowledgment, then the moves and back', async ({
   page,
 }) => {
   await open(
     page,
-    'result--finish-from-game-menu',
+    'result--finish-from-bar',
     { width: 390, height: 844 },
     'light'
   );
@@ -173,23 +164,24 @@ test('storybook integration: resigning from the game menu keeps one outcome and 
   await page.getByTestId('custom-game-resign-confirm').click();
   const done = page.getByTestId('custom-game-resign-done');
   await expect(done).toBeVisible();
-  await expect(page.getByTestId('custom-game-result-headline')).toHaveCount(1);
+  await expect(page.getByTestId('custom-game-status')).toHaveCount(1);
   await expect(page.getByTestId('custom-game-rematch')).toHaveCount(1);
-  await expect(page.getByTestId('custom-game-result-headline')).toContainText(
+  await expect(page.getByTestId('custom-game-status')).toContainText(
     'You lost'
   );
-  // How it ended is the result card's caption, under its headline.
-  await expect(page.getByTestId('custom-game-outcome')).toContainText(
+  // How it ended is said beside the outcome, in the same status line.
+  await expect(page.getByTestId('custom-game-status')).toContainText(
     'You resigned.'
   );
   await done.click();
   await expect(page.getByRole('dialog')).toHaveCount(0);
-  await page.getByTestId('custom-game-review-start').click();
+  await page.getByTestId('custom-game-commands').click();
+  await page.getByTestId('custom-game-review-jump').click();
   await expect(page.getByTestId('custom-game-reviewing')).toBeVisible();
   await expect(page.getByTestId('custom-game-rematch')).toHaveCount(0);
   await page.getByTestId('custom-game-back-to-live').click();
   await expect(page.getByTestId('custom-game-reviewing')).toHaveCount(0);
-  await expect(page.getByTestId('custom-game-result-headline')).toHaveCount(1);
+  await expect(page.getByTestId('custom-game-status')).toHaveCount(1);
 });
 
 // regression: game-record-current-selection-labeled-live
@@ -235,9 +227,7 @@ test('storybook integration: literal drawn geometry has no winning line', async 
     'data-story-ready',
     'true'
   );
-  await expect(page.getByTestId('custom-game-result-headline')).toContainText(
-    'Draw'
-  );
+  await expect(page.getByTestId('custom-game-status')).toContainText('Draw');
   const board = page.getByTestId('custom-game-board');
   await expect(board).toHaveAttribute('data-won', 'false');
   await expect(board.locator('[data-winning="true"]')).toHaveCount(0);
@@ -263,17 +253,17 @@ for (const story of [
         'true'
       );
       await page.evaluate(() => document.fonts.ready);
-      const headline = page.getByTestId('custom-game-result-headline');
+      const headline = page.getByTestId('custom-game-status');
       await expect(headline).toHaveCount(1);
       await expect(headline).toBeInViewport({ ratio: 1 });
       const actions = page.locator(
-        '[data-testid="custom-game-rematch"], [data-testid="custom-game-new"], [data-testid="custom-game-review-start"]'
+        '[data-testid="custom-game-rematch"], [data-testid="custom-game-new"]'
       );
       expect(await actions.count()).toBeGreaterThan(0);
       const board = page.getByTestId('custom-game-board');
       for (const action of await actions.all()) {
         await expect(action).toBeInViewport({ ratio: 1 });
-        // Beside the wide board, in the game's command bar: never on it.
+        // Under the board, in the action bar: never on it.
         expect(apart(await box(action), await box(board))).toBe(true);
       }
       await expect(board.locator('[data-winning="true"]')).toHaveCount(

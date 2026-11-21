@@ -499,7 +499,7 @@ describe('the confirmation', () => {
         operation === 'resign'
           ? frameProps({
               phase: phase(),
-              place: { screen: 'commands' },
+              place: { screen: 'play' },
               onChoose: choose,
             })
           : setupProps(
@@ -518,7 +518,7 @@ describe('the confirmation', () => {
       expect(view.getByText('Game finished')).toBeInTheDocument();
       fireEvent.click(done);
       expect(view.queryByRole('dialog')).toBeNull();
-      expect(view.getByTestId('custom-game-result-headline')).toBeTruthy();
+      expect(view.getByTestId('custom-game-status')).toBeTruthy();
     }
   );
 });

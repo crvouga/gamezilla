@@ -1,9 +1,8 @@
-import { plural, t } from '@lingui/core/macro';
+import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { GameFact, GameFacts } from '@pkgs/ui-root-client-ts/game-facts';
 import { GameTurnPill } from '@pkgs/ui-root-client-ts/game-turn-pill';
-import { GameWatchingFooter } from '@pkgs/ui-root-client-ts/game-watching';
 import { WifiOffIcon } from '@pkgs/ui-root-client-ts/icons';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
@@ -14,7 +13,6 @@ import { FramePersonName } from './game-frame-people';
 import type {
   FrameConnection,
   FramePeople,
-  FramePhase,
   FramePlay,
   FrameStatus,
 } from './game-frame-view-types';
@@ -97,12 +95,6 @@ export function FrameFactsView(props: {
 export function FrameStatusView(props: {
   readonly status: FrameStatus | null;
   readonly spokenOnly?: boolean | undefined;
-  /**
-   * A game played in real time: a neutral line that only says how play
-   * goes on (`Keep the ball in play.`) is plain hint text, not a pill that
-   * reads as a button under the arena.
-   */
-  readonly arena?: boolean | undefined;
 }): JSX.Element {
   return (
     <Show
@@ -134,14 +126,6 @@ export function FrameStatusView(props: {
           spokenOnly={
             props.spokenOnly === true ||
             (status().description.trim() === '' && !status().sending)
-          }
-          look={
-            props.arena === true &&
-            status().tone === 'neutral' &&
-            status().emphasis !== 'yours' &&
-            !status().sending
-              ? 'plain'
-              : 'pill'
           }
         />
       )}
@@ -274,29 +258,4 @@ export function FramePlayNoticesView(props: {
       </Show>
     </>
   );
-}
-
-/** The calm bar under a game under way that the person watches, not plays. */
-export function FrameWatchingView(props: {
-  readonly phase: FramePhase;
-  /** The viewer's own seat; `null` while watching. */
-  readonly viewerSide: string | null;
-}): JSX.Element {
-  return (
-    <Show when={props.phase === 'active' && props.viewerSide === null}>
-      <GameWatchingFooter
-        title={<Trans>You're watching</Trans>}
-        detail={<Trans>Moves appear as they are played.</Trans>}
-        dataSet={{ testid: 'custom-game-watching' }}
-      />
-    </Show>
-  );
-}
-
-/** How many people are watching, as the title row words it. */
-export function frameWatchersLabel(count: number): string {
-  return plural(count, {
-    one: '# person watching',
-    other: '# people watching',
-  });
 }

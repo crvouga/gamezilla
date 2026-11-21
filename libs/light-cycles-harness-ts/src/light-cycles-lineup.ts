@@ -3,7 +3,7 @@ import {
   joinCustomGames,
   joinCustomGamesAsGuest,
 } from '@libs/game-session-harness-ts/custom-game-lineup';
-import { customGameSeatName } from '@libs/game-session-harness-ts/custom-game-reads';
+import { readCustomGameName } from '@libs/game-session-harness-ts/custom-game-names';
 import { readCustomGameScreen } from '@libs/game-session-harness-ts/custom-game-screen';
 import {
   attemptCustomGame,
@@ -270,7 +270,7 @@ async function rememberNames(s: ProductHarness): Promise<void> {
       shown.set(
         holder.person,
         (
-          (await customGameSeatName(
+          (await readCustomGameName(
             s,
             lineup.host,
             LIGHT_CYCLES_SIDES[index]!

@@ -3,11 +3,15 @@ import {
   FRAME_NO_NEXT,
   FRAME_NO_PLAY,
 } from '@libs/game-session-client-ts/game-frame-empty';
-import { frameOverlayPhase } from '@libs/game-session-client-ts/game-frame-overlay-view';
+import {
+  FrameChrome,
+  framePresent,
+} from '@libs/game-session-client-ts/frame-chrome.example';
 import {
   GameFrameScreenView,
   type GameFrameScreenViewProps,
 } from '@libs/game-session-client-ts/game-frame-screen-view';
+import { frameOverlayPhase } from '@libs/game-session-client-ts/game-frame-versus-view';
 import type {
   FramePlaySeat,
   FrameRecord,
@@ -167,10 +171,15 @@ export function frameProps(
 ): GameFrameScreenViewProps {
   return {
     title: 'Counting race',
+    identity: {
+      key: 'counting-race',
+      name: 'Counting race',
+      motif: 'checkered',
+      tagline: 'First to ten',
+    },
     phase: 'active',
     place: { screen: 'play' },
     viewerSide: 'white',
-    watchers: 0,
     connection: 'online',
     error: '',
     stopped: false,
@@ -221,6 +230,12 @@ export function setupProps(
   });
 }
 
+/** Who is in the space: avery, its host and the viewer, and jordan. */
+export const FRAME_PRESENT = [
+  framePresent('avery-id', 'avery', { host: true, you: true }),
+  framePresent('jordan-id', 'jordan'),
+];
+
 /** Mount the frame at a phone's width (390) or a desktop's (1440). */
 export function mountFrame(
   props: () => GameFrameScreenViewProps,
@@ -234,7 +249,9 @@ export function mountFrame(
         fixedLayout={{ width, height: width === 390 ? 844 : 900 }}
       >
         <SurfaceStackProvider>
-          <GameFrameScreenView {...props()} />
+          <FrameChrome people={FRAME_PRESENT}>
+            <GameFrameScreenView {...props()} />
+          </FrameChrome>
         </SurfaceStackProvider>
       </ThemeProvider>
     </ClockProvider>

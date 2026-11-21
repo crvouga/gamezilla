@@ -82,7 +82,7 @@ export async function checkInitialWordWorkspace(
     canvas.queryByTestId('custom-game-board-recall')
   ).not.toBeInTheDocument();
   // regression: word-tiles-precision-local-score-below-fold
-  await assertClear(canvas.getByTestId('custom-game-seat-near'));
+  await assertClear(canvas.getByTestId('custom-game-white-person'));
   await assertClear(primary);
   await assertClear(more);
   await assertClear(canvas.getByTestId('custom-game-board-rack'));
