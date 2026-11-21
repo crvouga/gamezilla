@@ -31,6 +31,33 @@ function validationMessage(draft: ContentDraft | undefined): string {
 }
 
 /**
+ * Where a finding is corrected, by its code: a missing title in the
+ * details, anything about the definition (or a pack's puzzles) on the
+ * board. A playtest finding, or none, names no place.
+ */
+function issueTarget(code: string | null): 'details' | 'board' | undefined {
+  if (code === null || code === 'PUZZLE_PLAYTEST_INCOMPLETE') return undefined;
+  return code === 'PUZZLE_TITLE_REQUIRED' ? 'details' : 'board';
+}
+
+/** The first finding's code of a failed check. */
+function checkIssue(draft: ContentDraft | undefined): string | null {
+  if (draft?.validation_status !== 'invalid') return null;
+  try {
+    const issues: unknown = JSON.parse(draft.validation_issues);
+    const first: unknown = Array.isArray(issues) ? issues[0] : undefined;
+    return typeof first === 'object' &&
+      first !== null &&
+      'code' in first &&
+      typeof first.code === 'string'
+      ? first.code
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * The builder's publish screen wired to the draft's standing and the
  * publish permission; `before` (a puzzle's playtest) comes first among its
  * actions, and withdrawing asks the builder's shell to confirm.
@@ -41,6 +68,8 @@ export function ContentPublicationControls(props: {
   disabled: boolean;
   before?: ((next: Accessor<boolean>) => JSX.Element) | undefined;
   onWithdraw: () => void;
+  /** Opens the details or the board, to correct what blocks publishing. */
+  onFix: (where: 'details' | 'board') => void;
 }): JSX.Element {
   const decision = useDecision(PERMISSION.puzzlesPublishContent, () => ({
     puzzleOwnerId: props.document.owner_id,
@@ -57,6 +86,9 @@ export function ContentPublicationControls(props: {
       kind={props.document.kind}
       validation={tools().draft()?.validation_status ?? null}
       validationMessage={validationMessage(tools().draft())}
+      fixTarget={issueTarget(
+        checkIssue(tools().draft()) ?? props.publication.status.refusalIssue()
+      )}
       proven={tools().proven()}
       waitingOn={tools().waitingOn()}
       pending={props.publication.status.pending()}
@@ -69,6 +101,9 @@ export function ContentPublicationControls(props: {
       onPublish={tools().publish}
       onViewPublication={props.publication.viewPublication}
       onWithdraw={props.onWithdraw}
+      onFix={props.onFix}
+      refused={props.publication.status.refused()}
+      refusalIssue={props.publication.status.refusalIssue()}
       onOpenWaiting={props.publication.openWaiting}
     />
   );

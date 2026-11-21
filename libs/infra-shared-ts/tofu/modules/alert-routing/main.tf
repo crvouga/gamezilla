@@ -1,18 +1,5 @@
-# Who is told about an alert, and how: one notification policy and one
-# Grafana IRM integration for the whole stack, shared by every environment.
-# Every generated rule carries a `route` label (libs/observability-shared-ts
-# `routeOf`, from the objective's tier and the alert's severity):
-#
-# | route  | goes to                                                    |
-# | ------ | ---------------------------------------------------------- |
-# | page   | IRM, paging chain (important notification rules), prd only |
-# | push   | IRM, push chain (default notification rules), prd only     |
-#
-# Only production notifies anyone. An alert from any other environment
-# (dev) still opens an alert group in IRM, visible on the web, but no phone
-# is told: dev is for building, and nobody needs to act on it.
-#
-# Stateless: alert history stays in Grafana and IRM if any of this is replaced.
+# Alerts remain visible in IRM without notifying any person.
+# Health, Release and Verify Nightly upsert GitHub issues for failures.
 
 terraform {
   required_providers {
@@ -20,53 +7,15 @@ terraform {
   }
 }
 
-variable "responder" {
-  type        = string
-  description = "The IRM username of the person on call."
-}
-
-variable "paging_environment" {
-  type        = string
-  description = "The only environment whose alerts notify anyone: its `page` alerts page, its `push` alerts push."
-}
-
 variable "brand_name" {
   type        = string
   description = "The name people see in the integration."
 }
 
-data "grafana_oncall_user" "responder" {
-  username = var.responder
-}
-
-resource "grafana_oncall_escalation_chain" "page" {
-  name = "Page the person on call"
-}
-
-resource "grafana_oncall_escalation" "page" {
-  escalation_chain_id = grafana_oncall_escalation_chain.page.id
-  type                = "notify_persons"
-  persons_to_notify   = [data.grafana_oncall_user.responder.id]
-  important           = true
-  position            = 0
-}
-
-resource "grafana_oncall_escalation_chain" "push" {
-  name = "Push to the person on call"
-}
-
-resource "grafana_oncall_escalation" "push" {
-  escalation_chain_id = grafana_oncall_escalation_chain.push.id
-  type                = "notify_persons"
-  persons_to_notify   = [data.grafana_oncall_user.responder.id]
-  important           = false
-  position            = 0
-}
-
 # What a notification says. Every generated rule carries its links as
 # annotations (observability-views/alerts.tf): runbook, dashboard, error logs
 # and failed traces in Grafana Explore, plus a `bun obs` command. These lines
-# put them in front of whoever answers, a person on a phone or an agent
+# put them in front of whoever answers, a person or an agent
 # reading the alert group through the IRM API: `key: value` lines, absolute
 # links, and the first thing to run.
 locals {
@@ -95,7 +44,7 @@ locals {
 resource "grafana_oncall_integration" "alerts" {
   name = "${var.brand_name} alerts"
   type = "grafana_alerting"
-  # Unmatched alerts (any environment but production) notify nobody.
+  # Every alert stays in the web inbox; no escalation chain delivers it.
   default_route {}
 
   templates {
@@ -104,27 +53,7 @@ resource "grafana_oncall_integration" "alerts" {
       title   = local.alert_title
       message = local.alert_message
     }
-    mobile_app {
-      title   = local.alert_title
-      message = "${local.alert_first}{{ ann.get('summary', '') }} Runbook: {{ ann.get('runbook_url', '') }} · Dashboard: {{ ann.get('dashboard_url', '') }}"
-    }
   }
-}
-
-resource "grafana_oncall_route" "page" {
-  integration_id      = grafana_oncall_integration.alerts.id
-  escalation_chain_id = grafana_oncall_escalation_chain.page.id
-  routing_type        = "jinja2"
-  routing_regex       = "{{ payload.commonLabels.route == \"page\" and payload.commonLabels.environment == \"${var.paging_environment}\" }}"
-  position            = 0
-}
-
-resource "grafana_oncall_route" "push" {
-  integration_id      = grafana_oncall_integration.alerts.id
-  escalation_chain_id = grafana_oncall_escalation_chain.push.id
-  routing_type        = "jinja2"
-  routing_regex       = "{{ payload.commonLabels.environment == \"${var.paging_environment}\" }}"
-  position            = 1
 }
 
 resource "grafana_contact_point" "irm" {
@@ -151,46 +80,4 @@ resource "grafana_notification_policy" "this" {
     group_interval  = "1m"
     repeat_interval = "4h"
   }
-}
-
-# Personal rules are required as well as the contact point: an IRM alert
-# does not reach a phone unless its responder has a mobile notification step.
-resource "grafana_oncall_user_notification_rule" "mobile" {
-  user_id  = data.grafana_oncall_user.responder.id
-  position = 0
-  type     = "notify_by_mobile_app"
-}
-
-# Give mobile delivery its measured minute before any existing fallback rule.
-# Existing email/phone rules are preserved after this position, not deleted.
-resource "grafana_oncall_user_notification_rule" "mobile_wait" {
-  depends_on = [grafana_oncall_user_notification_rule.mobile]
-  user_id    = data.grafana_oncall_user.responder.id
-  position   = 1
-  type       = "wait"
-  duration   = 60
-}
-
-resource "grafana_oncall_user_notification_rule" "important_mobile" {
-  user_id   = data.grafana_oncall_user.responder.id
-  important = true
-  position  = 0
-  type      = "notify_by_mobile_app_critical"
-}
-
-resource "grafana_oncall_user_notification_rule" "important_wait" {
-  depends_on = [grafana_oncall_user_notification_rule.important_mobile]
-  user_id    = data.grafana_oncall_user.responder.id
-  important  = true
-  position   = 1
-  type       = "wait"
-  duration   = 60
-}
-
-resource "grafana_oncall_user_notification_rule" "important_repeat" {
-  depends_on = [grafana_oncall_user_notification_rule.important_wait]
-  user_id    = data.grafana_oncall_user.responder.id
-  important  = true
-  position   = 2
-  type       = "notify_by_mobile_app_critical"
 }

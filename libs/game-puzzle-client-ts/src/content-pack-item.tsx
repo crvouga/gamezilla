@@ -52,7 +52,7 @@ export function ContentPackItem(props: {
           ? t`Needs corrections`
           : document()?.status === 'published'
             ? ''
-            : t`Publish it before the pack`
+            : t`Open it to publish it first`
       }
       first={props.first}
       last={props.last}

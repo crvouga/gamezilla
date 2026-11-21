@@ -1,0 +1,4 @@
+{
+  "summary": "Pong rematch cleanup checks for result navigation before it paints, then waits for Find without ever opening its hub. Wait for the result navigation before pressing it.",
+  "regressionTest": "libs/runtime-harness-ts/tests/multiplayer-search-loading.test.ts"
+}

@@ -80,6 +80,7 @@ describe('Battleship automation', () => {
     } as unknown as Parameters<typeof battleshipAutomation.perform>[0];
     await battleshipAutomation.perform(ui, 'board', 'e5');
     expect(calls).toEqual([
+      'board-area-4 wait enabled',
       'board-area-4 key enter',
       'board-aim-e5 wait enabled',
       'board-aim-e5 key enter',
@@ -90,4 +91,23 @@ describe('Battleship automation', () => {
       battleshipAutomation.perform(ui, 'board', 'e5:hit')
     ).rejects.toThrow();
   });
+});
+
+// regression: battleship-journey-target-region-not-ready
+test('a shot waits for its region after the opponent move arrives', async () => {
+  let regionReady = false;
+  let fired = false;
+  const ui = {
+    get: (id: string) => ({
+      wait: async () => {
+        if (id === 'multiplayer-board-area-1') regionReady = true;
+      },
+      key: async () => {
+        if (!regionReady) throw new Error('Keyboard target not found');
+        if (id === 'multiplayer-board-fire') fired = true;
+      },
+    }),
+  } as unknown as Parameters<typeof battleshipAutomation.perform>[0];
+  await battleshipAutomation.perform(ui, 'multiplayer-board', 'i2');
+  expect(fired).toBe(true);
 });

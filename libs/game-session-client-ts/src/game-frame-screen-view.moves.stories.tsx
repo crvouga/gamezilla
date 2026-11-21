@@ -2,7 +2,7 @@ import { createSignal } from 'solid-js';
 import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { ConnectFourStoryBoard } from './connect-four-story-board.example';
-import { FrameStory, onBoard } from './game-frame-board.example';
+import { FrameStory, onBoard, onReview } from './game-frame-board.example';
 import { GameFrameScreenView } from './game-frame-screen-view';
 import {
   FRAME_CONTROLS_EXCLUDE,
@@ -31,7 +31,7 @@ const meta = {
     place: { screen: 'moves' },
     record: { ...record(MID_GAME_RECORD), displayedPly: 3 },
   },
-  render: (args) => onBoard(MID_GAME_MOVES.slice(0, 3))(args),
+  render: (args) => onReview(MID_GAME_MOVES)(args),
 } satisfies Meta<typeof GameFrameScreenView>;
 export default meta;
 type Story = StoryObj<typeof meta>;

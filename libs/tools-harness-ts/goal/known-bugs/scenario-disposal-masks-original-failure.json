@@ -1,0 +1,4 @@
+{
+  "summary": "A Gherkin scenario's disposal invariant or report flush failure replaces the original step failure, hiding the causal error in hosted browser-stack diagnostics.",
+  "regressionTest": "pkgs/gherkin-server-ts/tests/scenario-cleanup.test.ts"
+}

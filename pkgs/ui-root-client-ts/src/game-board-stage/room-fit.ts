@@ -18,12 +18,31 @@ export function boardRoomLimit(room: {
   chrome: number;
   boardWidth: number;
   boardHeight: number;
+  /** A board nobody moves on (a finished game) may go below `SMALLEST_BOARD`. */
+  smallest?: number | undefined;
 }): number | undefined {
   if (room.boardWidth <= 0 || room.boardHeight <= 0) return undefined;
   const tall = room.height - room.chrome;
   const fitted = Math.floor((tall * room.boardWidth) / room.boardHeight);
-  return Math.max(SMALLEST_BOARD, Math.min(Math.floor(room.width), fitted));
+  return Math.max(
+    room.smallest ?? SMALLEST_BOARD,
+    Math.min(Math.floor(room.width), fitted)
+  );
 }
+
+/**
+ * The smallest board the layout allows here (`--game-board-smallest`, in
+ * pixels, set where the board takes no moves), or the playable smallest.
+ */
+function smallestIn(style: CSSStyleDeclaration): number | undefined {
+  const set = Number.parseFloat(
+    style.getPropertyValue('--game-board-smallest')
+  );
+  return Number.isFinite(set) && set > 0 ? set : undefined;
+}
+
+/** How much narrower to try when a narrowing drew the same height. */
+const ROUNDING_STEP = 4;
 
 /** Narrowings tried before one is shown; a board that settles needs few. */
 const FIT_TRIES = 8;
@@ -45,10 +64,24 @@ export function boardRoomFit(
 ): number | undefined {
   let board = { width: room.boardWidth, height: room.boardHeight };
   let limit = boardRoomLimit(room);
+  // Each try is a layout: the rounding step below is taken once at most.
+  let stepped = false;
   for (let tries = 0; tries < FIT_TRIES; tries++) {
     if (limit === undefined || limit >= board.width) return limit;
     const height = room.heightAt(limit);
-    if (height >= board.height) return undefined;
+    if (height >= board.height) {
+      // A board that grows no shorter when narrowed keeps its width. But a
+      // pixel or two narrower can draw the very same height (its cells are
+      // whole pixels): then step on instead of giving up.
+      const rounding =
+        !stepped &&
+        height === board.height &&
+        board.width - limit < ROUNDING_STEP;
+      if (!rounding) return undefined;
+      stepped = true;
+      limit = Math.max(room.smallest ?? SMALLEST_BOARD, limit - ROUNDING_STEP);
+      continue;
+    }
     board = { width: limit, height };
     if (height + room.chrome <= room.height) return limit;
     limit = boardRoomLimit({
@@ -83,6 +116,7 @@ export function createBoardRoomFitter(): (
       room.chrome,
       room.boardWidth,
       room.boardHeight,
+      room.smallest,
     ].join(' ');
     if (cache?.key === key) return cache.fit;
     const fit = boardRoomFit(room);
@@ -145,9 +179,8 @@ export function createStageRoomFit(
         whole = { width: cell.clientWidth, height: surface.offsetHeight };
       else if (whole !== undefined && surface.offsetHeight >= whole.height)
         rigid = true;
-      const fixed = view
-        .getComputedStyle(cell)
-        .getPropertyValue('--game-stage-room');
+      const style = view.getComputedStyle(cell);
+      const fixed = style.getPropertyValue('--game-stage-room');
       if (fixed.trim() !== '1' || rigid) {
         setLimit(undefined);
         return;
@@ -158,6 +191,7 @@ export function createStageRoomFit(
         chrome: stage.offsetHeight - surface.offsetHeight,
         boardWidth: surface.offsetWidth,
         boardHeight: surface.offsetHeight,
+        smallest: smallestIn(style),
         heightAt: (width) => heightAt(stage, surface, width),
       });
       // A pixel of rounding never starts another pass.

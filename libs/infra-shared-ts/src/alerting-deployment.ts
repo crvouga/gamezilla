@@ -66,6 +66,25 @@ function inScope(address: string): boolean {
   );
 }
 
+// Only the obsolete delivery resources may be deleted; retained alert history,
+// integrations and credentials remain protected from replacement or deletion.
+const RETIRED_DELIVERY = new Set(
+  [
+    ...['page', 'push', 'ci'].map((name) => `grafana_oncall_route.${name}`),
+    ...['page', 'push'].flatMap((name) => [
+      `grafana_oncall_escalation.${name}`,
+      `grafana_oncall_escalation_chain.${name}`,
+    ]),
+    ...[
+      'mobile',
+      'mobile_wait',
+      'important_mobile',
+      'important_wait',
+      'important_repeat',
+    ].map((name) => `grafana_oncall_user_notification_rule.${name}`),
+  ].map((name) => `module.alert_routing[0].${name}`)
+);
+
 /** A dependency refresh may appear in the plan, but may never change the stack. */
 export function alertingDeploymentDenials(plan: PlanJson): readonly string[] {
   return (plan.resource_changes ?? []).flatMap((resource) => {
@@ -73,13 +92,19 @@ export function alertingDeploymentDenials(plan: PlanJson): readonly string[] {
     const actions = resource.change.actions;
     if (actions.length === 1 && actions[0] === 'no-op') return [];
     if (
+      actions.length === 1 &&
+      actions[0] === 'delete' &&
+      RETIRED_DELIVERY.has(resource.address)
+    )
+      return [];
+    if (
       inScope(resource.address) &&
       actions.length === 1 &&
       ['create', 'update'].includes(actions[0] ?? '')
     )
       return [];
     return [
-      `${resource.address}: alerting permits only scoped creation or in-place updates`,
+      `${resource.address}: alerting permits scoped creation, in-place updates and retirement of obsolete delivery resources`,
     ];
   });
 }

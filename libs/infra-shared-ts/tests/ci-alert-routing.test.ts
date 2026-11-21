@@ -28,13 +28,8 @@ const integration = config.blocks.find(
 const templates = integration.body.blocks.find(
   (b) => b.type === 'templates'
 )!.body;
-const route = config.blocks.find(
-  (b) => b.labels[0] === 'grafana_oncall_route'
-)!.body;
-
-function render(name: string, payload: object, routing = false): string {
-  const expression = (routing ? route : templates).attributes.get(name)!;
-  return new Template(evaluate(expression, env) as string)
+function render(name: string, payload: object): string {
+  return new Template(evaluate(templates.attributes.get(name)!, env) as string)
     .render({ payload })
     .trim();
 }
@@ -62,11 +57,11 @@ const truth = (value: string) => value.toLowerCase() === 'true';
 test('Health runs never notify: their findings arrive as Grafana alerts', () => {
   for (const conclusion of ['failure', 'timed_out', 'success']) {
     const payload = event({ path: '.github/workflows/health.yml', conclusion });
-    expect(truth(render('routing_regex', payload, true))).toBe(false);
+    expect(render('grouping_key', payload).startsWith('ignored-')).toBe(true);
   }
 });
 
-test('the three main workflows notify on failed completion, including setup failures and timeouts', () => {
+test('the three main workflows record failed completion, including setup failures and timeouts', () => {
   for (const file of ['deploy', 'verify-nightly', 'verify-pr']) {
     for (const conclusion of [
       'failure',
@@ -78,7 +73,9 @@ test('the three main workflows notify on failed completion, including setup fail
         path: `.github/workflows/${file}.yml`,
         conclusion,
       });
-      expect(truth(render('routing_regex', payload, true))).toBe(true);
+      expect(render('grouping_key', payload).startsWith('ignored-')).toBe(
+        false
+      );
       expect(truth(render('resolve_signal', payload))).toBe(false);
       expect(render('source_link', payload)).toBe(
         payload.workflow_run.html_url
@@ -102,22 +99,22 @@ test('branch rehearsals, PRs, progress, cancellation and webhook pings never not
       event({ conclusion })
     ),
   ]) {
-    expect(truth(render('routing_regex', payload, true))).toBe(false);
+    expect(render('grouping_key', payload).startsWith('ignored-')).toBe(true);
     expect(truth(render('resolve_signal', payload))).toBe(true);
     expect(render('grouping_key', payload)).not.toBe(failedKey);
   }
 });
 
-test('successful reruns resolve through the same route, while distinct runs keep distinct alerts', () => {
+test('successful reruns resolve the same incident, while distinct runs keep distinct alerts', () => {
   const failedKey = render('grouping_key', event());
   const success = event({ conclusion: 'success', run_attempt: 2 });
   expect(render('grouping_key', success)).toBe(failedKey);
-  expect(truth(render('routing_regex', success, true))).toBe(true);
+  expect(render('grouping_key', success).startsWith('ignored-')).toBe(false);
   expect(truth(render('resolve_signal', success))).toBe(true);
   expect(render('grouping_key', event({ id: 11 }))).not.toBe(failedKey);
 });
 
-test('GitHub delivers directly over TLS and CI reuses the mobile push chain', () => {
+test('GitHub preserves CI history over TLS without a notification route', () => {
   const hook = readFileSync(
     join(import.meta.dir, '../tofu/stacks/bootstrap/ci-alerts.tf'),
     'utf8'
@@ -128,15 +125,14 @@ test('GitHub delivers directly over TLS and CI reuses the mobile push chain', ()
   );
   expect(hook).toContain('insecure_ssl = false');
   expect(hook).toContain('local.routing_ready ? 1 : 0');
+  const fallback = integration.body.blocks.find(
+    (block) => block.type === 'default_route'
+  );
+  expect(fallback?.body.attributes.size).toBe(0);
+  expect(fallback?.body.blocks).toEqual([]);
   expect(
-    evaluate(route.attributes.get('escalation_chain_id')!, {
-      ...env,
-      names: {
-        ...env.names,
-        grafana_oncall_escalation_chain: { push: { id: 'mobile-push' } },
-      },
-    })
-  ).toBe('mobile-push');
+    config.blocks.some((block) => block.labels[0] === 'grafana_oncall_route')
+  ).toBe(false);
 });
 
 test('arbitrary branch failures cannot notify or collide with a main alert', () => {
@@ -147,7 +143,9 @@ test('arbitrary branch failures cannot notify or collide with a main alert', () 
       fc.integer({ min: 1, max: 1_000_000 }),
       (head_branch, id) => {
         const branch = event({ head_branch, id });
-        expect(truth(render('routing_regex', branch, true))).toBe(false);
+        expect(render('grouping_key', branch).startsWith('ignored-')).toBe(
+          true
+        );
         expect(render('grouping_key', branch)).not.toBe(
           render('grouping_key', event({ id }))
         );

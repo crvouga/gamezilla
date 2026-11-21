@@ -1,0 +1,4 @@
+{
+  "summary": "Production and development alert evidence selected different credentials but queried every deployment in their shared Tempo tenant, attributing the same failures to both environments.",
+  "regressionTest": "pkgs/observability-root-shared-ts/tests/tempo-environment.test.ts"
+}

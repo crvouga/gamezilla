@@ -17,7 +17,7 @@ import {
   GameFrameScreenView,
   type GameFrameScreenViewProps,
 } from './game-frame-screen-view';
-import { WON_LINE, WON_MOVES } from './game-frame-story.example';
+import { record, WON_LINE, WON_MOVES } from './game-frame-story.example';
 import type { FramePhase } from './game-frame-view-types';
 
 function overlayPhase(phase: FramePhase): StageOverlayPhase {
@@ -104,8 +104,83 @@ export function onBoard(moves: readonly number[]) {
             !args.table.near.standIn
           }
           winning={moves === WON_MOVES ? WON_LINE : undefined}
+          // The line under the board says where to choose: no second prompt.
+          prompt={args.table.near?.choosing === true ? '' : undefined}
         />
       }
     />
   );
+}
+
+/**
+ * The moves place over a game of `all` drops, its steps, its line of moves
+ * and its move-number field live: choosing a position moves the board and
+ * the line to it, as the app's moves place does.
+ */
+export function onReview(all: readonly number[]) {
+  return (args: GameFrameScreenViewProps) => {
+    // The game as it stands: its drops, and any played in the story.
+    const [drops, setDrops] = createSignal<readonly number[]>(all);
+    const [ply, setPly] = createSignal(args.record?.displayedPly ?? all.length);
+    const live = (): boolean => ply() === drops().length;
+    // Red circle (the viewer) moves on an even count of drops.
+    const ownTurn = (): boolean => drops().length % 2 === 0;
+    const played = () => record(drops().map((column) => String(column + 1)));
+    return (
+      <FrameStory
+        {...args}
+        record={
+          args.record === null
+            ? null
+            : {
+                ...args.record,
+                moves: played().moves,
+                movers: played().movers,
+                displayedPly: ply(),
+              }
+        }
+        status={
+          args.status === null
+            ? null
+            : {
+                ...args.status,
+                description: ownTurn()
+                  ? 'Red circle to move.'
+                  : 'Yellow diamond to move.',
+                emphasis: ownTurn() ? 'yours' : 'neutral',
+              }
+        }
+        table={{
+          ...args.table,
+          near:
+            args.table.near === null
+              ? null
+              : { ...args.table.near, deciding: ownTurn() },
+          others: args.table.others.map((seat) => ({
+            ...seat,
+            deciding: !ownTurn(),
+          })),
+        }}
+        onSeek={(next) => {
+          args.onSeek(next);
+          if (next >= 0 && next <= drops().length) setPly(next);
+        }}
+        // Leaving the moves returns the board to the game as it stands.
+        onClose={() => {
+          args.onClose();
+          setPly(drops().length);
+        }}
+        board={
+          <ConnectFourStoryBoard
+            moves={drops().slice(0, ply())}
+            interactive={args.phase === 'active' && live() && ownTurn()}
+            onDrop={(column) => {
+              setDrops([...drops(), column]);
+              setPly(drops().length);
+            }}
+          />
+        }
+      />
+    );
+  };
 }

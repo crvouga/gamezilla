@@ -336,7 +336,7 @@ jobs:
       - uses: ./.github/actions/setup
         with:
           product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
-          tools: bun gh
+          tools: bun gh infisical
       - name: verify-nightly:end
         id: verdict
         run: bun run libs/tools-harness-ts/scripts/verify-nightly-verdict.ts
