@@ -3,10 +3,9 @@ import {
   StoryPackAttempt,
 } from '@libs/game-puzzle-client-ts/content-attempt-story.example';
 import { sokobanPuzzleContent } from '@libs/sokoban-shared-ts/sokoban-puzzle-content';
-import { Button } from '@pkgs/ui-root-client-ts/button';
-import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
+import type { SpaceGameAction } from '@pkgs/ui-root-client-ts/space-types';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
-import { createMemo, createSignal, type JSX, Show, untrack } from 'solid-js';
+import { createMemo, createSignal, type JSX, untrack } from 'solid-js';
 import { sokobanGameClient } from './sokoban-game-client';
 import { SokobanPlayerView } from './sokoban-player';
 
@@ -37,8 +36,8 @@ function StoryWayOn(props: {
 }
 
 /** Story-only local position history; every forward move uses production rules. */
-/** The attempt's commands, styled as the production screen styles them. */
-function StoryControls(props: {
+/** The attempt's commands, as the production screen offers them. */
+function storyControls(props: {
   disabled: boolean;
   /** As production, commands that cannot help unreadable content are withheld. */
   readable: boolean;
@@ -47,37 +46,28 @@ function StoryControls(props: {
   onUndo: () => void;
   onRedo: () => void;
   onRestart: () => void;
-}) {
-  return (
-    <StackHorizontal gap="sm" wrap shrink>
-      <Show when={props.readable}>
-        <Button
-          title="Undo"
-          intent="neutral"
-          variant="outline"
-          size="sm"
-          disabled={props.disabled || !props.canUndo}
-          onClick={props.onUndo}
-        />
-        <Button
-          title="Redo"
-          intent="neutral"
-          variant="outline"
-          size="sm"
-          disabled={props.disabled || !props.canRedo}
-          onClick={props.onRedo}
-        />
-        <Button
-          title="Restart"
-          intent="neutral"
-          variant="outline"
-          size="sm"
-          disabled={props.disabled}
-          onClick={props.onRestart}
-        />
-      </Show>
-    </StackHorizontal>
-  );
+}): readonly SpaceGameAction[] {
+  if (!props.readable) return [];
+  return [
+    {
+      id: 'undo',
+      label: 'Undo',
+      disabled: props.disabled || !props.canUndo,
+      onPress: props.onUndo,
+    },
+    {
+      id: 'redo',
+      label: 'Redo',
+      disabled: props.disabled || !props.canRedo,
+      onPress: props.onRedo,
+    },
+    {
+      id: 'restart',
+      label: 'Restart',
+      disabled: props.disabled,
+      onPress: props.onRestart,
+    },
+  ];
 }
 
 export function SokobanHistory(props: {
@@ -158,22 +148,20 @@ export function SokobanHistory(props: {
           />
         </>
       }
-      controls={
-        <StoryControls
-          disabled={props.disabled}
-          readable={rules.validateDefinition(props.definition).valid}
-          canUndo={cursor() > 0}
-          canRedo={cursor() < history().length - 1}
-          onUndo={() => setCursor((value) => value - 1)}
-          onRedo={() => setCursor((value) => value + 1)}
-          onRestart={() => {
-            const initial = rules.initial(props.definition);
-            if (!initial.accepted) throw new Error('Invalid restart');
-            setHistory([initial.state]);
-            setCursor(0);
-          }}
-        />
-      }
+      controls={storyControls({
+        disabled: props.disabled,
+        readable: rules.validateDefinition(props.definition).valid,
+        canUndo: cursor() > 0,
+        canRedo: cursor() < history().length - 1,
+        onUndo: () => setCursor((value) => value - 1),
+        onRedo: () => setCursor((value) => value + 1),
+        onRestart: () => {
+          const initial = rules.initial(props.definition);
+          if (!initial.accepted) throw new Error('Invalid restart');
+          setHistory([initial.state]);
+          setCursor(0);
+        },
+      })}
     />
   );
 }

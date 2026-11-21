@@ -1,42 +1,21 @@
 import { buildPuzzleActionBarPlan } from '@libs/game-puzzle-shared-ts/action-bar-plan';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { t } from '@lingui/core/macro';
-import { Trans } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@lingui/solid/macro';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
-import { Button } from '@pkgs/ui-root-client-ts/button';
-import { GameActions } from '@pkgs/ui-root-client-ts/game-section';
-import { H2 } from '@pkgs/ui-root-client-ts/heading';
-import {
-  ChevronRightIcon,
-  RotateCcwIcon,
-  ShareIcon,
-} from '@pkgs/ui-root-client-ts/icons';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
+import type {
+  SpaceGameAction,
+  SpaceGameResult,
+} from '@pkgs/ui-root-client-ts/space-types';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { P, Text } from '@pkgs/ui-root-client-ts/text';
-import { createMemo, type JSX, Match, Show, Switch } from 'solid-js';
+import { P } from '@pkgs/ui-root-client-ts/text';
+import { type Accessor, type JSX, Match, Show, Switch } from 'solid-js';
 import type { PuzzlePlayScreenViewProps } from './puzzle-play-screen-model';
 import { PuzzleRatingBadge } from './puzzle-rating-badge';
 import { PuzzleSettingsRow } from './puzzle-settings-row';
-import { PuzzleShareLabel } from './puzzle-share-label';
+import { usePuzzleShareLabel } from './puzzle-share-label';
 import { PuzzleSummaryCard } from './puzzle-summary-card';
-
-/** How the puzzle ended, in the tone of its outcome. */
-function ResultTitle(props: PuzzlePlayScreenViewProps): JSX.Element {
-  return (
-    <Switch fallback={<Trans>Puzzle skipped</Trans>}>
-      <Match when={props.status === 'solved'}>
-        <Text variant="inherit" tone="success">
-          <Trans>Puzzle solved!</Trans>
-        </Text>
-      </Match>
-      <Match when={props.status === 'revealed'}>
-        <Trans>Solution shown</Trans>
-      </Match>
-    </Switch>
-  );
-}
 
 /** What the ending means for the attempt. */
 function ResultCaption(props: PuzzlePlayScreenViewProps): JSX.Element {
@@ -66,6 +45,7 @@ function ResultCaption(props: PuzzlePlayScreenViewProps): JSX.Element {
 
 /** The puzzle's own facts, each a quiet tag: its rating and its themes. */
 function ResultFacts(props: PuzzlePlayScreenViewProps): JSX.Element {
+  const { t } = useLingui();
   const themeLabel = (theme: string): string =>
     props.feed.themes?.label(theme) ?? theme;
   return (
@@ -111,58 +91,59 @@ export function PuzzleResultRows(
 }
 
 /**
- * What to do next, as the solve state allows it
- * (`buildPuzzleActionBarPlan`): the next puzzle is the one filled command;
- * retrying and sharing the puzzle are quieter beside it.
+ * How the puzzle ended and what to do next, as the solve state allows it
+ * (`buildPuzzleActionBarPlan`), for the status line and the action bar:
+ * the next puzzle is the one filled command; retrying and sharing the
+ * puzzle are quieter beside it.
  */
-function ResultCommands(props: PuzzlePlayScreenViewProps): JSX.Element {
-  const slots = createMemo(() =>
-    buildPuzzleActionBarPlan({
+export function usePuzzlePlayResult(
+  view: () => PuzzlePlayScreenViewProps
+): Accessor<SpaceGameResult> {
+  const { t } = useLingui();
+  const shareLabel = usePuzzleShareLabel();
+  return () => {
+    const props = view();
+    const slots = buildPuzzleActionBarPlan({
       status: props.status,
       hintStage: props.hintStage,
       canGoForward: props.canGoForward,
-    })
-  );
-  const offers = (id: 'next' | 'retry'): boolean =>
-    slots().some((slot) => slot.id === id);
-  return (
-    <StackVertical gap="md">
-      <Show when={offers('next')}>
-        <Button
-          title={<Trans>Next puzzle</Trans>}
-          size="lg"
-          fullWidth
-          endIcon={<ChevronRightIcon />}
-          onClick={() => props.onNext()}
-          dataSet={{ testid: Handles.chessPuzzleSummaryNext }}
-        />
-      </Show>
-      <GameActions sizing="share">
-        <Show when={offers('retry')}>
-          <Button
-            title={<Trans>Retry</Trans>}
-            intent="neutral"
-            variant="outline"
-            icon={RotateCcwIcon}
-            onClick={() => props.onRetry()}
-            dataSet={{ testid: Handles.chessPuzzleActionRetry }}
-          />
-        </Show>
-        <Show when={props.share} keyed>
-          {(share) => (
-            <Button
-              title={<PuzzleShareLabel state={share.state} />}
-              intent="neutral"
-              variant="outline"
-              icon={ShareIcon}
-              onClick={() => share.onShare()}
-              dataSet={{ testid: Handles.chessPuzzleShareLink }}
-            />
-          )}
-        </Show>
-      </GameActions>
-    </StackVertical>
-  );
+    });
+    const offers = (id: 'next' | 'retry'): boolean =>
+      slots.some((slot) => slot.id === id);
+    const share = props.share;
+    const actions: SpaceGameAction[] = [];
+    if (offers('next'))
+      actions.push({
+        id: 'next',
+        label: t`Next puzzle`,
+        emphasis: 'primary',
+        onPress: () => props.onNext(),
+        testId: Handles.chessPuzzleSummaryNext,
+      });
+    if (offers('retry'))
+      actions.push({
+        id: 'retry',
+        label: t`Retry`,
+        onPress: () => props.onRetry(),
+        testId: Handles.chessPuzzleActionRetry,
+      });
+    if (share !== null)
+      actions.push({
+        id: 'share',
+        label: shareLabel(share.state),
+        onPress: () => share.onShare(),
+        testId: Handles.chessPuzzleShareLink,
+      });
+    return {
+      status:
+        props.status === 'solved'
+          ? t`Puzzle solved!`
+          : props.status === 'revealed'
+            ? t`Solution shown`
+            : t`Puzzle skipped`,
+      actions,
+    };
+  };
 }
 
 /**
@@ -182,14 +163,9 @@ export function PuzzleResultSummary(
       dataSet={{ testid: Handles.chessPuzzleSummary, outcome: props.status }}
     >
       <StackVertical gap="md" align="center">
-        <StackVertical gap="xs" align="center">
-          <H2 size="heading" align="center">
-            <ResultTitle {...props} />
-          </H2>
-          <P variant="caption" tone="secondary" align="center">
-            <ResultCaption {...props} />
-          </P>
-        </StackVertical>
+        <P variant="caption" tone="secondary" align="center">
+          <ResultCaption {...props} />
+        </P>
         <Show when={props.result.completion} keyed>
           {(completion) => (
             <PuzzleSummaryCard
@@ -201,7 +177,6 @@ export function PuzzleResultSummary(
         </Show>
         <ResultFacts {...props} />
       </StackVertical>
-      <ResultCommands {...props} />
     </StackVertical>
   );
 }

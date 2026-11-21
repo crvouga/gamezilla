@@ -56,6 +56,26 @@ export async function clickWhenReady(
   fireEvent.click(view.getByTestId(testId));
 }
 
+/** The attempt's action bar holds three controls; the rest wait behind More. */
+const ATTEMPT_MORE = 'content-attempt-more';
+
+/**
+ * One of the attempt's commands, opening the action bar's More first when
+ * it waits there.
+ */
+export async function attemptCommand(
+  s: SokobanHarness,
+  view: View,
+  testId: string
+): Promise<HTMLElement> {
+  if (view.queryByTestId(testId) === null) {
+    const more = view.queryByTestId(ATTEMPT_MORE);
+    if (more !== null) fireEvent.click(more);
+    await waitFor(s, () => view.queryByTestId(testId) !== null);
+  }
+  return view.getByTestId(testId);
+}
+
 export const deviceLibrary = contentOnDevice;
 export const devicePlay = playOnDevice;
 

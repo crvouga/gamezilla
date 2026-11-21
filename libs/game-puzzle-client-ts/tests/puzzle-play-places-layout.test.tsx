@@ -39,12 +39,18 @@ test('the shell names the stage and the place it shows', () => {
 
 test('play: the status line, the board, what solving allows, the line and one way to the settings', () => {
   mountPlay('play');
-  const header = region('PuzzleHeader');
-  expect(header.textContent).toContain('White to move');
-  expect(header.textContent).toContain('Something on the board is undefended.');
-  expect(header.contains(screen.getByTestId('chess-puzzle-clock'))).toBe(true);
+  expect(screen.getByTestId('chess-puzzle-status-label').textContent).toBe(
+    'White to move'
+  );
+  // The clock is the status line's quiet note beside it.
+  expect(
+    screen.getByTestId('chess-puzzle-status-label').parentElement?.textContent
+  ).toContain('0:12');
+  expect(region('SpeakingAvatar').textContent).toContain(
+    'Something on the board is undefended.'
+  );
   expect(shown('board')).toBe(true);
-  const actions = region('PuzzleActions');
+  const actions = region('SpaceActionBar');
   expect(actions.contains(screen.getByTestId('chess-puzzle-action-hint'))).toBe(
     true
   );
@@ -67,26 +73,30 @@ test('play: the status line, the board, what solving allows, the line and one wa
   expect(filledCommands()).toEqual([]);
 });
 
+/** Whether `later` comes after `earlier` in the page. */
+function follows(earlier: string, later: string): boolean {
+  const position = screen
+    .getByTestId(earlier)
+    .compareDocumentPosition(screen.getByTestId(later));
+  return (position & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
+}
+
 // regression: puzzle-phone-board-pushed-down — on a phone the feed's
 // settings line and the coach stacked over the board, which started about
-// 300px down the screen. Only the status line is over the board now, on
-// every size: the settings row follows the line under it.
+// 300px down the screen. Only the status line and the coach are over the
+// board now, on every size: the settings row follows the line under it.
 test('the same screen on a phone and a desktop: only the status line is over the board', () => {
   mountPlay('play', {}, 390);
   const phone = shownIds();
-  expect(
-    region('PuzzleHeader').contains(
-      screen.getByTestId('chess-puzzle-feed-summary')
-    )
-  ).toBe(false);
+  expect(follows('chess-puzzle-board-frame', 'chess-puzzle-feed-summary')).toBe(
+    true
+  );
   cleanup();
   mountPlay('play', {}, 1440);
   expect(shownIds()).toEqual(phone);
-  expect(
-    region('PuzzleTimeline').contains(
-      screen.getByTestId('chess-puzzle-feed-summary')
-    )
-  ).toBe(true);
+  expect(follows('chess-puzzle-board-frame', 'chess-puzzle-feed-summary')).toBe(
+    true
+  );
 });
 
 test('play: the line is read, not pressed, and one control opens it', () => {
@@ -145,13 +155,13 @@ test('play: a wrong move already shows what it did to the rating, on the status 
   });
   const change = screen.getByTestId('chess-puzzle-feed-rating-change');
   expect(change.textContent).toBe('-9');
-  expect(region('PuzzleHeader').contains(change)).toBe(true);
+  expect(region('SpeakingAvatar').contains(change)).toBe(true);
 });
 
 test('play: a repeat says it is unrated on the status line', () => {
   mountPlay('play', { ratingChange: 'unrated' });
   expect(
-    region('PuzzleHeader').contains(
+    region('SpeakingAvatar').contains(
       screen.getByTestId('chess-puzzle-feed-unrated-label')
     )
   ).toBe(true);
@@ -217,7 +227,9 @@ test('result: how it went, the rating it made, and Next puzzle as the one filled
   mountPlay('result', SOLVED);
   const result = screen.getByTestId('chess-puzzle-summary');
   expect(result.getAttribute('data-outcome')).toBe('solved');
-  expect(result.textContent).toContain('Puzzle solved!');
+  expect(screen.getByTestId('chess-puzzle-status-label').textContent).toBe(
+    'Puzzle solved!'
+  );
   expect(screen.getByTestId('chess-puzzle-summary-rating').textContent).toBe(
     '1516'
   );
@@ -238,7 +250,7 @@ test('result: how it went, the rating it made, and Next puzzle as the one filled
     expect(shown(command)).toBe(true);
   // The board keeps the puzzle's last move under the coach's words on it.
   expect(shown('board')).toBe(true);
-  expect(region('PuzzleHeader').textContent).toContain(
+  expect(region('SpeakingAvatar').textContent).toContain(
     'Something on the board is undefended.'
   );
   expect(shown('chess-puzzle-action-hint')).toBe(false);
@@ -251,7 +263,7 @@ test('result: a skip has no rated outcome, and still offers the next puzzle and 
     statusKind: 'skipped',
     status: 'skipped',
   });
-  expect(screen.getByTestId('chess-puzzle-summary').textContent).toContain(
+  expect(screen.getByTestId('chess-puzzle-status-label').textContent).toBe(
     'Puzzle skipped'
   );
   expect(shown('chess-puzzle-summary-delta')).toBe(false);
@@ -274,14 +286,10 @@ test('result: its rows lead to the line and to the settings', () => {
 // regression: chess-puzzle-phone-board-too-small
 test('width-driven chess bypasses height fitting without changing the default puzzle layout', () => {
   mountPlay('play');
-  expect(region('PuzzleScreen').getAttribute('data-board-sizing')).toBe(
-    'width'
-  );
   expect(document.querySelector('[data-component="BoardFit"]')).toBeNull();
   expect(shown('board')).toBe(true);
   cleanup();
   mountPlay('play', { boardSizing: 'fit' });
-  expect(region('PuzzleScreen').getAttribute('data-board-sizing')).toBe('fit');
   expect(document.querySelector('[data-component="BoardFit"]')).not.toBeNull();
 });
 

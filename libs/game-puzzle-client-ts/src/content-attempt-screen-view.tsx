@@ -1,14 +1,12 @@
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
 import { Trans, useLingui } from '@lingui/solid/macro';
-import { Badge } from '@pkgs/ui-root-client-ts/badge';
-import { Button } from '@pkgs/ui-root-client-ts/button';
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
-import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
-import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
+import type { SpaceGameAction } from '@pkgs/ui-root-client-ts/space-types';
+import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import {
@@ -17,6 +15,7 @@ import {
 } from './content-attempt-progress-view';
 import type { ContentAttemptPlace } from './content-places';
 import type { PuzzleContentFrame } from './puzzle-content-client';
+import { PuzzleSpaceInGame } from './puzzle-space-in-game';
 
 /**
  * `loading`: the attempt asked for is still on its way; `gone`: no such
@@ -81,8 +80,8 @@ export type ContentAttemptScreenViewProps = {
   readonly unreadable?: boolean | undefined;
   /** `attempt`: the game's player on the attempt's position. */
   readonly player?: JSX.Element;
-  /** `attempt`: undo / redo and restart. */
-  readonly controls?: JSX.Element;
+  /** `attempt`: undo / redo and restart, on the action bar after Progress. */
+  readonly controls?: readonly SpaceGameAction[] | undefined;
   /**
    * `progress`: the attempt's way on — a pack puzzle's next puzzle and its
    * overview, a playtest's way back to its builder.
@@ -90,6 +89,11 @@ export type ContentAttemptScreenViewProps = {
   readonly wayOn?: JSX.Element;
   /** Where the board sits on a one-column screen. */
   readonly stageAlign?: 'start' | 'center' | undefined;
+  /**
+   * The space's own notice (`SpaceScreenNotice`), for the shell the
+   * `attempt` place draws; `progress` is inside the space's shell.
+   */
+  readonly spaceNotice?: JSX.Element;
   /** `progress`: earlier kept continuations to choose from. */
   readonly keptPositions?: JSX.Element;
   /**
@@ -156,21 +160,17 @@ function AttemptRule(props: ContentAttemptScreenViewProps): JSX.Element {
  * pack, its figures, its saved positions), and is the filled command once
  * the puzzle is solved, when what comes next is there.
  */
-function OpenProgress(props: ContentAttemptScreenViewProps): JSX.Element {
+function useOpenProgress(
+  props: ContentAttemptScreenViewProps
+): () => SpaceGameAction {
   const { t } = useLingui();
-  return (
-    <Button
-      title={props.complete ? t`Solved: what next` : t`Progress`}
-      intent={props.complete ? 'primary' : 'neutral'}
-      variant={props.complete ? 'solid' : 'outline'}
-      size="sm"
-      onClick={() => props.onOpen({ screen: 'progress' })}
-      dataSet={{
-        testid: 'content-open-progress',
-        complete: String(props.complete),
-      }}
-    />
-  );
+  return () => ({
+    id: 'progress',
+    label: props.complete ? t`Solved: what next` : t`Progress`,
+    emphasis: props.complete ? 'primary' : undefined,
+    onPress: () => props.onOpen({ screen: 'progress' }),
+    testId: 'content-open-progress',
+  });
 }
 
 /** Why there is no board to play: the position, or the puzzle itself. */
@@ -204,49 +204,47 @@ function attemptDataSet(props: ContentAttemptScreenViewProps) {
     sourceid: props.attempt.sourceId,
     packrevisionid: props.attempt.packRevisionId ?? '',
     place: props.place.screen,
+    complete: String(props.complete),
   };
 }
 
 /**
- * `attempt`: the stage. The puzzle's title and difficulty, what it asks,
- * the game's player on the saved position, one status line (the save), and
- * with the board its own commands (undo, redo, restart) and the one
- * control onward.
+ * `attempt`: played in the space. The puzzle's title and difficulty on the
+ * status line; as the stage what it asks, what needs the person first, the
+ * game's player on the saved position and the save; the one control
+ * onward, then undo, redo and restart, on the action bar. The viewer
+ * solves; everyone else in the space watches.
  */
 function AttemptStage(props: ContentAttemptScreenViewProps): JSX.Element {
+  const progress = useOpenProgress(props);
   return (
-    <GameScreen
-      screenId="puzzle-content-attempt"
-      dataSet={attemptDataSet(props)}
-      title={props.attempt.title}
-      keepTitle
-      facts={
-        <Show when={props.attempt.difficulty}>
-          {(difficulty) => <Badge intent="neutral" label={difficulty()} />}
-        </Show>
+    <PuzzleSpaceInGame
+      gameKey="puzzle-attempt"
+      solver="you"
+      status={props.attempt.title}
+      detail={props.attempt.difficulty || undefined}
+      actions={[progress(), ...(props.controls ?? [])]}
+      moreTestId="content-attempt-more"
+      notice={props.spaceNotice}
+      board={
+        <StackVertical
+          grow
+          gap="md"
+          paddingX="lg"
+          paddingTop="sm"
+          paddingBottom="lg"
+          align={props.stageAlign === 'center' ? 'center' : undefined}
+          dataSet={attemptDataSet(props)}
+        >
+          <AttemptRule {...props} />
+          <AttemptAlerts {...props} />
+          <Show when={!props.unopenable} fallback={<Unopenable {...props} />}>
+            {props.player}
+          </Show>
+          <ContentAttemptSaveStatus {...props} />
+        </StackVertical>
       }
-    >
-      <GameSessionLayout
-        notices={
-          <>
-            <AttemptRule {...props} />
-            <AttemptAlerts {...props} />
-          </>
-        }
-        status={<ContentAttemptSaveStatus {...props} />}
-        actions={
-          <>
-            {props.controls}
-            <OpenProgress {...props} />
-          </>
-        }
-        stageAlign={props.stageAlign}
-      >
-        <Show when={!props.unopenable} fallback={<Unopenable {...props} />}>
-          {props.player}
-        </Show>
-      </GameSessionLayout>
-    </GameScreen>
+    />
   );
 }
 

@@ -10,9 +10,11 @@ import {
   ContentAttemptScreenView,
   type ContentAttemptScreenViewProps,
 } from '@libs/game-puzzle-client-ts/content-attempt-screen-view';
+import { PuzzleSpaceExample } from '@libs/game-puzzle-client-ts/puzzle-space.example';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { cleanup, fireEvent, screen } from '@solidjs/testing-library';
+import { StillClock } from './puzzle-play-view-fixture';
 
 afterEach(cleanup);
 
@@ -25,35 +27,69 @@ function mount(
 ): void {
   renderWithI18n(() => (
     <ThemeProvider colorScheme="dark" fixedLayout={{ width, height: 844 }}>
-      <ContentAttemptScreenView
-        status="ready"
-        place={{ screen: place }}
-        onOpen={() => undefined}
-        attempt={{
-          id: 'attempt-1',
-          sourceId: 'revision-1',
-          packRevisionId: 'pack-1',
-          title: 'Two crates',
-          difficulty: 'Easy',
-          description: 'Push each of the two crates onto its own goal.',
-        }}
-        pack={{ title: 'Warehouse basics', position: 3, total: 4 }}
-        playtest={false}
-        saving={false}
-        changeError={null}
-        complete={false}
-        rulesChanged={false}
-        unopenable={false}
-        player={<span data-testid="player">board</span>}
-        controls={<span data-testid="controls">Undo Redo Restart</span>}
-        wayOn={<span data-testid="way-on">Pack overview</span>}
-        keptPositions={<span data-testid="kept">Saved positions</span>}
-        onRetryChange={() => undefined}
-        onReturnToLibrary={() => undefined}
-        {...overrides}
-      />
+      <StillClock>
+        <PuzzleSpaceExample>
+          <ContentAttemptScreenView
+            status="ready"
+            place={{ screen: place }}
+            onOpen={() => undefined}
+            attempt={{
+              id: 'attempt-1',
+              sourceId: 'revision-1',
+              packRevisionId: 'pack-1',
+              title: 'Two crates',
+              difficulty: 'Easy',
+              description: 'Push each of the two crates onto its own goal.',
+            }}
+            pack={{ title: 'Warehouse basics', position: 3, total: 4 }}
+            playtest={false}
+            saving={false}
+            changeError={null}
+            complete={false}
+            rulesChanged={false}
+            unopenable={false}
+            player={<span data-testid="player">board</span>}
+            controls={[
+              {
+                id: 'undo',
+                label: 'Undo',
+                onPress: none,
+                testId: 'content-undo',
+              },
+              {
+                id: 'redo',
+                label: 'Redo',
+                onPress: none,
+                testId: 'content-redo',
+              },
+              {
+                id: 'restart',
+                label: 'Restart',
+                onPress: none,
+                testId: 'content-restart',
+              },
+            ]}
+            wayOn={<span data-testid="way-on">Pack overview</span>}
+            keptPositions={<span data-testid="kept">Saved positions</span>}
+            onRetryChange={() => undefined}
+            onReturnToLibrary={() => undefined}
+            {...overrides}
+          />
+        </PuzzleSpaceExample>
+      </StillClock>
     </ThemeProvider>
   ));
+}
+
+function none(): void {}
+
+/** The action bar's controls, in order, by their words. */
+function barCommands(): readonly string[] {
+  return [
+    ...document.querySelectorAll(
+      '[data-component="SpaceActionBar"] [data-component="Button"]'
+    ),
+  ].map((button) => button.textContent ?? '');
 }
 
 const figures = (list: readonly AttemptFigure[]) => ({ figures: list });
@@ -68,19 +104,21 @@ function follows(a: Element, b: Element): boolean {
 // at the foot of the "This puzzle" card, so on a phone the pack's place,
 // the description and the save status stood between the board (with
 // Sokoban's movement buttons) and the commands that recover from a move.
-// The commands sit with the board, and the panel is no longer on the
-// board's screen at all: one control leads to it.
+// The commands sit with the board on the action bar, and the panel is no
+// longer on the board's screen at all: one control leads to it.
 for (const width of [390, 1440]) {
   test(`at ${width}px the stage holds the board, its commands and one control onward`, () => {
     const opened: Screen[] = [];
     mount(width, 'attempt', { onOpen: (place) => opened.push(place.screen) });
-    const controls = screen.getByTestId('controls');
     const onward = screen.getByTestId('content-open-progress');
-    expect(follows(screen.getByTestId('player'), controls)).toBe(true);
-    expect(follows(controls, onward)).toBe(true);
-    const actions = controls.closest('[data-component="GameActions"]');
-    expect(actions).not.toBe(null);
-    expect(actions?.contains(onward)).toBe(true);
+    const bar = onward.closest('[data-component="SpaceActionBar"]');
+    expect(bar).not.toBe(null);
+    expect(follows(screen.getByTestId('player'), bar as Element)).toBe(true);
+    // Progress leads, Undo beside it; Redo and Restart wait behind More.
+    expect(barCommands()).toEqual(['Progress', 'Undo', 'More']);
+    expect(bar?.contains(screen.getByTestId('content-attempt-more'))).toBe(
+      true
+    );
     // Nothing of where the attempt stands shares the board's screen.
     for (const elsewhere of [
       'puzzle-attempt-panel',
@@ -97,7 +135,7 @@ for (const width of [390, 1440]) {
     expect(opened).toEqual(['progress']);
     const root = screen.getByTestId('content-attempt');
     expect(root.getAttribute('data-place')).toBe('attempt');
-    expect(root.getAttribute('data-screen')).toBe('puzzle-content-attempt');
+    expect(root.getAttribute('data-complete')).toBe('false');
   });
 }
 
@@ -120,7 +158,9 @@ test('once solved, the control onward is the one filled command', () => {
   const onward = screen.getByTestId('content-open-progress');
   expect(onward.textContent).toBe('Solved: what next');
   expect(onward.getAttribute('data-variant')).toBe('solid');
-  expect(onward.getAttribute('data-complete')).toBe('true');
+  expect(
+    screen.getByTestId('content-attempt').getAttribute('data-complete')
+  ).toBe('true');
   expect(
     document.querySelectorAll('[data-component="Button"][data-variant="solid"]')
   ).toHaveLength(1);
@@ -143,12 +183,15 @@ for (const width of [390, 1440]) {
 // regression: puzzle-attempt-title-hidden-on-phone — a phone hid the
 // puzzle's own name ("Five pairs") as it hides a game's (the top bar names
 // the game), but the bar names only the game, never the puzzle. The
-// attempt keeps its title on a phone.
+// attempt's status line names the puzzle, beside its difficulty.
 test("a phone keeps the puzzle's own title beside its difficulty", () => {
   mount(390, 'attempt');
-  const heading = document.querySelector('[data-component="GameHeading"]');
-  expect(heading?.getAttribute('data-keep-title')).toBe('true');
-  expect(heading?.textContent).toContain('Two crates');
+  const template = document.querySelector(
+    '[data-component="SpaceInGameTemplate"]'
+  );
+  const heading = template?.querySelector('h2');
+  expect(heading?.textContent).toBe('Two crates');
+  expect(heading?.parentElement?.textContent).toContain('Easy');
 });
 
 // regression: puzzle-panel-leads-with-sync — the puzzle panel was a card
@@ -172,7 +215,7 @@ for (const width of [390, 1440]) {
     expect(save.className).toContain('textCaption');
     // The board and its commands stay on their own screen.
     expect(screen.queryByTestId('player')).toBeNull();
-    expect(screen.queryByTestId('controls')).toBeNull();
+    expect(screen.queryByTestId('content-undo')).toBeNull();
     expect(screen.queryByTestId('content-open-progress')).toBeNull();
     const root = screen.getByTestId('content-attempt');
     expect(root.getAttribute('data-place')).toBe('progress');

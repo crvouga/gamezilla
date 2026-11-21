@@ -2,11 +2,8 @@
 import { afterEach, expect, test } from 'bun:test';
 import { HistoryPlyCluster } from '@libs/game-puzzle-client-ts/puzzle-move-history-ply';
 import { PuzzleRatingBadge } from '@libs/game-puzzle-client-ts/puzzle-rating-badge';
-import { PuzzleStatusHeader } from '@libs/game-puzzle-client-ts/puzzle-status-header';
-import { setupI18n } from '@lingui/core';
-import { I18nProvider } from '@lingui/solid';
-import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { cleanup, render, screen } from '@solidjs/testing-library';
+import { mountPlay } from './puzzle-play-view-fixture';
 
 afterEach(cleanup);
 
@@ -58,24 +55,13 @@ test('the current move is highlighted by classes, not token names', () => {
   expect(san?.getAttribute('style') ?? '').not.toContain('tint');
 });
 
-test('a two-line status prompt grows its row instead of overlapping the coach', () => {
+test('the status line stands apart from the coach, so neither overlaps the other', () => {
   // regression: puzzle-status-overlaps-coach
-  const i18n = setupI18n({ locale: 'en', messages: { en: {} } });
-  render(() => (
-    <I18nProvider i18n={i18n}>
-      <ThemeProvider
-        colorScheme="dark"
-        fixedLayout={{ width: 390, height: 640 }}
-      >
-        <PuzzleStatusHeader kind="started" solverSide="White" />
-      </ThemeProvider>
-    </I18nProvider>
-  ));
-  // The row sizes to its content: no fixed height can clip a second line.
-  const row = screen.getByTestId('chess-puzzle-status-row');
-  expect(row.contains(screen.getByTestId('chess-puzzle-status-label'))).toBe(
-    true
-  );
-  expect(row.getAttribute('style') ?? '').not.toMatch(/(^|;)\s*height:/);
-  expect(row.className).not.toMatch(/(^|\s)h-/);
+  mountPlay('play');
+  const label = screen.getByTestId('chess-puzzle-status-label');
+  const coach = screen.getByText('Something on the board is undefended.');
+  // The status is the space's one status line; the coach speaks in the
+  // stage under it, never inside a row the status sizes.
+  expect(label.parentElement?.contains(coach)).toBe(false);
+  expect(label.getAttribute('style') ?? '').not.toMatch(/(^|;)\s*height:/);
 });

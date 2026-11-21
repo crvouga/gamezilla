@@ -249,6 +249,22 @@ async function showHubControl(
     .catch(() => undefined);
   if (await device.ui.get(id).isVisible()) return;
   if (await device.ui.get(stage.root).isVisible()) await showHub(device, stage);
+  if (stage === ATTEMPT) await openAttemptMore(device, id);
+}
+
+/** The attempt's action bar holds three controls; the rest wait behind More. */
+const ATTEMPT_MORE = 'content-attempt-more';
+
+/** Opens the attempt's More when `id` is one of the commands behind it. */
+async function openAttemptMore(
+  device: ContentJourneyDevice,
+  id: string
+): Promise<void> {
+  const ui = device.ui;
+  if (await ui.get(id).isVisible()) return;
+  if (!(await ui.get(ATTEMPT_MORE).isVisible())) return;
+  await ui.get(ATTEMPT_MORE).tap(device);
+  await ui.get(id).expect.visible(device);
 }
 
 /**

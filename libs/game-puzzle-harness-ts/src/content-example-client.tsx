@@ -4,6 +4,7 @@ import type {
   PuzzleEditorProps,
   PuzzlePlayerProps,
 } from '@libs/game-puzzle-client-ts/puzzle-content-client';
+import { PuzzleSpaceExample } from '@libs/game-puzzle-client-ts/puzzle-space.example';
 import {
   SpacesNavProvider,
   useSpacesNavBack,
@@ -72,7 +73,11 @@ function ExampleBack(): JSX.Element {
   );
 }
 
-/** The shared content experience of one harness game, as the app offers it. */
+/**
+ * The shared content experience of one harness game, as the app offers it:
+ * in a space, whose bar's Back is drawn here for whichever screen
+ * registered one.
+ */
 export function ContentExampleClient(props: {
   gameId: string;
   title: string;
@@ -82,15 +87,17 @@ export function ContentExampleClient(props: {
   return (
     <SpacesNavProvider>
       <ExampleBack />
-      <ContentExperience
-        gameId={props.gameId}
-        title={props.title}
-        content={props.content}
-        client={props.client}
-        onBack={() => {
-          throw new Error('This fixture opens the puzzle library directly');
-        }}
-      />
+      <PuzzleSpaceExample>
+        <ContentExperience
+          gameId={props.gameId}
+          title={props.title}
+          content={props.content}
+          client={props.client}
+          onBack={() => {
+            throw new Error('This fixture opens the puzzle library directly');
+          }}
+        />
+      </PuzzleSpaceExample>
     </SpacesNavProvider>
   );
 }

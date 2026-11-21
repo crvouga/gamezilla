@@ -5,7 +5,7 @@
  * puzzle panel as the app does. Production never imports this module.
  */
 import { Button } from '@pkgs/ui-root-client-ts/button';
-import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
+import type { SpaceGameAction } from '@pkgs/ui-root-client-ts/space-types';
 import { createSignal, type JSX, Show, untrack } from 'solid-js';
 import { fn } from 'storybook/test';
 import {
@@ -16,6 +16,7 @@ import {
 } from './content-attempt-screen-view';
 import type { ContentAttemptPlace } from './content-places';
 import type { PuzzleContentFrame } from './puzzle-content-client';
+import { PuzzleSpaceExample } from './puzzle-space.example';
 
 /** A saved attempt at a published counting puzzle, on its board. */
 export const ATTEMPT_STORY_ARGS = {
@@ -96,34 +97,14 @@ export function StoryPackActions(props: {
 }
 
 /** An attempt's commands at rest: undo, redo and restart. */
-function StoryPackAttemptControls(props: {
-  readonly disabled: boolean;
-}): JSX.Element {
-  return (
-    <StackHorizontal gap="sm" wrap shrink>
-      <Button
-        title="Undo"
-        intent="neutral"
-        variant="outline"
-        size="sm"
-        disabled={props.disabled}
-      />
-      <Button
-        title="Redo"
-        intent="neutral"
-        variant="outline"
-        size="sm"
-        disabled
-      />
-      <Button
-        title="Restart"
-        intent="neutral"
-        variant="outline"
-        size="sm"
-        disabled={props.disabled}
-      />
-    </StackHorizontal>
-  );
+function storyPackAttemptControls(
+  disabled: boolean
+): readonly SpaceGameAction[] {
+  return [
+    { id: 'undo', label: 'Undo', disabled, onPress: fn() },
+    { id: 'redo', label: 'Redo', disabled: true, onPress: fn() },
+    { id: 'restart', label: 'Restart', disabled, onPress: fn() },
+  ];
 }
 
 /**
@@ -139,7 +120,7 @@ export function StoryPackAttempt(props: {
   readonly disabled?: boolean | undefined;
   readonly player: JSX.Element;
   /** Stateful controls supplied by a game's rules-backed history fixture. */
-  readonly controls?: JSX.Element;
+  readonly controls?: readonly SpaceGameAction[] | undefined;
   /** A game's own way on; by default next (once solved) and overview. */
   readonly wayOn?: JSX.Element;
   /** The game's own figures for the attempt (`Connected pairs 2`). */
@@ -157,7 +138,7 @@ export function StoryPackAttempt(props: {
     screen: untrack(() => props.place) ?? 'attempt',
   });
   return (
-    <>
+    <PuzzleSpaceExample>
       <Show when={place().screen === 'progress'}>
         <Button
           title="Back"
@@ -201,13 +182,11 @@ export function StoryPackAttempt(props: {
           )
         }
         controls={
-          props.controls ?? (
-            <StoryPackAttemptControls disabled={props.disabled === true} />
-          )
+          props.controls ?? storyPackAttemptControls(props.disabled === true)
         }
         onRetryChange={fn()}
         onReturnToLibrary={fn()}
       />
-    </>
+    </PuzzleSpaceExample>
   );
 }

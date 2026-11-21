@@ -9,7 +9,7 @@ import { spaceDataSet } from '../space-data-set';
 import { SpacePeople } from '../space-person-sheet/space-people';
 import { type SpaceScreenChrome, SpaceShell } from '../space-shell/index';
 import type {
-  SpaceGame,
+  SpaceGameInPlay,
   SpaceGamePlay,
   SpaceGameResult,
   SpaceInGameAside,
@@ -28,7 +28,7 @@ export {
 
 export type SpaceInGameTemplateProps = SpaceScreenChrome & {
   /** The game being played: its `play` fills the stage. */
-  game: SpaceGame & { play: SpaceGamePlay };
+  game: SpaceGameInPlay;
   role: SpaceRole;
   /** Everyone in the space; the game gives each a color, turn and data. */
   people: readonly SpacePerson[];
@@ -85,7 +85,11 @@ function StatusLine(props: {
       class={styles['status']}
       data-result={props.result === undefined ? undefined : 'true'}
     >
-      <h2 class={`text textHeading ${styles['headline']}`} aria-live="polite">
+      <h2
+        class={`text textHeading ${styles['headline']}`}
+        aria-live="polite"
+        data-testid={props.play.statusTestId}
+      >
         {props.result?.status ?? props.play.status}
       </h2>
       <Show when={detail()}>

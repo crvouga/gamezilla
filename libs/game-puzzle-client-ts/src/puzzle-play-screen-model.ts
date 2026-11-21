@@ -169,6 +169,11 @@ export type PuzzlePlayScreenViewProps = {
   readonly share: PuzzleShareModel | null;
   /** A refused change, said on every screen of the template. */
   readonly notices?: JSX.Element;
+  /**
+   * The space's own notice (`SpaceScreenNotice`), for the shell the
+   * board's places draw; the other places are inside the space's shell.
+   */
+  readonly spaceNotice?: JSX.Element;
   /** Test-only pick probe (hidden). */
   readonly probe?: JSX.Element;
   /** Live regions and probes beside whichever screen shows. */

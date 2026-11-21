@@ -32,6 +32,7 @@ import type {
   PuzzleResultModel,
 } from './puzzle-play-screen-model';
 import { PuzzlePlayScreenView } from './puzzle-play-screen-view';
+import { PuzzleSpaceExample } from './puzzle-space.example';
 import type { PuzzleMoveWriting } from './use-puzzle-notation';
 
 /** The feed as a new player first sees it: automatic, unseen puzzles. */
@@ -371,27 +372,29 @@ function StoryPuzzlePlay(props: {
   const feed = useStoryFeedSettings(() => props.args.feed, places.home);
   const Board = props.Board;
   return (
-    <PuzzlePlayScreenView
-      {...props.args}
-      place={places.place()}
-      onOpen={places.onOpen}
-      onBack={places.onBack}
-      feed={feed()}
-      line={storyLine({
-        count: props.scene.plies,
-        selected: props.scene.selected,
-        awaiting: props.args.status === 'solving',
-      })}
-      board={(size) => (
-        <Board
-          position={props.scene.fen}
-          testId="chess-puzzle-board"
-          marks={props.scene.marks}
-          size={size}
-          lastAction={props.scene.lastAction ?? null}
-        />
-      )}
-    />
+    <PuzzleSpaceExample>
+      <PuzzlePlayScreenView
+        {...props.args}
+        place={places.place()}
+        onOpen={places.onOpen}
+        onBack={places.onBack}
+        feed={feed()}
+        line={storyLine({
+          count: props.scene.plies,
+          selected: props.scene.selected,
+          awaiting: props.args.status === 'solving',
+        })}
+        board={(size) => (
+          <Board
+            position={props.scene.fen}
+            testId="chess-puzzle-board"
+            marks={props.scene.marks}
+            size={size}
+            lastAction={props.scene.lastAction ?? null}
+          />
+        )}
+      />
+    </PuzzleSpaceExample>
   );
 }
 

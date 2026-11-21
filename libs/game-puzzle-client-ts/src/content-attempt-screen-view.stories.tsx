@@ -10,23 +10,26 @@ import {
   ATTEMPT_STORY_PARAMETERS,
 } from './content-attempt-story.example';
 import {
-  StoryAttemptControls,
   StoryCountingPlayer,
+  storyAttemptControls,
 } from './content-story.example';
+import { PuzzleSpaceExample } from './puzzle-space.example';
 
 /** Renders the stage with a fresh player and commands. */
 function render(args: ContentAttemptScreenViewProps) {
   return (
-    <ContentAttemptScreenView
-      {...args}
-      player={
-        <StoryCountingPlayer
-          state={args.complete ? '7 of 7' : '3 of 7'}
-          disabled={args.saving || args.rulesChanged}
-        />
-      }
-      controls={<StoryAttemptControls disabled={args.saving} />}
-    />
+    <PuzzleSpaceExample>
+      <ContentAttemptScreenView
+        {...args}
+        player={
+          <StoryCountingPlayer
+            state={args.complete ? '7 of 7' : '3 of 7'}
+            disabled={args.saving || args.rulesChanged}
+          />
+        }
+        controls={storyAttemptControls(args.saving)}
+      />
+    </PuzzleSpaceExample>
   );
 }
 

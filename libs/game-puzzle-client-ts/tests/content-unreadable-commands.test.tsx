@@ -2,7 +2,7 @@
 /** Commands that cannot help with unreadable content are not offered. */
 
 import { afterEach, expect, test } from 'bun:test';
-import { ContentAttemptControls } from '@libs/game-puzzle-client-ts/content-attempt-controls';
+import { useContentAttemptControls } from '@libs/game-puzzle-client-ts/content-attempt-controls';
 import { ContentDraftPlaytest } from '@libs/game-puzzle-client-ts/content-draft-playtest';
 import {
   type ContentGame,
@@ -17,6 +17,7 @@ import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import type { MutationClient } from '@pkgs/sync-engine-client-ts/create-mutation-client';
 import { MutationClientContext } from '@pkgs/sync-engine-client-ts/mutation-client-context';
+import { SpaceActionBar } from '@pkgs/ui-root-client-ts/space-in-game-template';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { IdProvider } from '@pkgs/uuid-client-ts/solid';
 import { cleanup, screen } from '@solidjs/testing-library';
@@ -74,11 +75,27 @@ function disabled(testId: string): boolean {
 const restart = {
   ask: () => undefined,
   created: () => null,
-} as unknown as Parameters<typeof ContentAttemptControls>[0]['restart'];
+} as unknown as Controls['restart'];
 const writer = {
   pending: () => false,
   execute: () => undefined,
-} as unknown as Parameters<typeof ContentAttemptControls>[0]['writer'];
+} as unknown as Controls['writer'];
+
+type Controls = Parameters<typeof useContentAttemptControls>[0];
+
+/** The attempt's commands on the action bar, as the attempt shows them. */
+function AttemptControls(props: {
+  progress: { complete: boolean; canUndo: boolean; canRedo: boolean } | null;
+  unreadable: boolean;
+}): JSX.Element {
+  const actions = useContentAttemptControls({
+    writer,
+    restart,
+    progress: () => props.progress,
+    unreadable: () => props.unreadable,
+  });
+  return <SpaceActionBar actions={actions()} />;
+}
 
 // regression: puzzle-unreadable-content-keeps-commands
 // A puzzle whose content cannot be read kept Undo, Redo and Restart usable,
@@ -86,9 +103,7 @@ const writer = {
 // saved position still offers Restart, its documented recovery.
 test('unreadable puzzle content disables Undo, Redo and Restart', () => {
   mount(game(), () => (
-    <ContentAttemptControls
-      writer={writer}
-      restart={restart}
+    <AttemptControls
       progress={{ complete: false, canUndo: true, canRedo: true }}
       unreadable
     />
@@ -99,14 +114,7 @@ test('unreadable puzzle content disables Undo, Redo and Restart', () => {
 });
 
 test('readable content with an unopenable position keeps Restart', () => {
-  mount(game(), () => (
-    <ContentAttemptControls
-      writer={writer}
-      restart={restart}
-      progress={null}
-      unreadable={false}
-    />
-  ));
+  mount(game(), () => <AttemptControls progress={null} unreadable={false} />);
   expect(disabled('content-undo')).toBe(true);
   expect(disabled('content-restart')).toBe(false);
 });
