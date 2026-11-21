@@ -5,7 +5,6 @@ import {
   deserializeTraceContext,
 } from '@pkgs/observability-root-shared-ts/correlation';
 import { EVENT, events } from '@pkgs/observability-root-shared-ts/events';
-import { createMutationReplayMetric } from '@pkgs/observability-root-shared-ts/mutation-metrics';
 import { withSpan } from '@pkgs/observability-root-shared-ts/span';
 import type { RoomServicePort } from '@pkgs/room-root-shared-ts/room-service';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
@@ -325,22 +324,6 @@ async function replayMutationCore(
   }
 }
 
-/** Replay once and count what became of it; a throw is a `failed` replay. */
-async function replayCounted(
-  deps: ReplayMutationDeps,
-  m: MutationRow
-): Promise<ReplayOutcome> {
-  const count = createMutationReplayMetric();
-  try {
-    const outcome = await replayMutationCore(deps, m);
-    count(outcome.status);
-    return outcome;
-  } catch (error) {
-    count('failed');
-    throw error;
-  }
-}
-
 export function replayMutation(
   deps: ReplayMutationDeps,
   m: MutationRow
@@ -349,7 +332,7 @@ export function replayMutation(
   return withSpan(
     'mutation.replay',
     async (span) => {
-      const outcome = await replayCounted(deps, m);
+      const outcome = await replayMutationCore(deps, m);
       if (outcome.status === 'applied') {
         events.mutationPersisted(span, m.id);
       } else if (outcome.status === 'rejected') {

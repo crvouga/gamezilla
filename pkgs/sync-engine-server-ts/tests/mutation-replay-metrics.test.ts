@@ -137,3 +137,91 @@ test('every replay is counted by what became of it, and a failure is the server 
     await runtime.shutdown();
   }
 });
+
+// regression: mutation-replay-conflict-counted-failed
+// Literal input: one upload of two writes, `save` then `race`; `race` loses a
+// serialization race (Postgres 40001) on its first attempt only, so the batch
+// is replayed whole and both writes are saved.
+test('a write saved after the server retried a lost race is counted once, as saved', async () => {
+  const exporter = new InMemoryMetricExporter(
+    AggregationTemporality.CUMULATIVE
+  );
+  const runtime = createWorkerTelemetry({
+    serviceName: 'replay-test',
+    serviceVersion: '1',
+    environment: 'test',
+    buildSha: 'abc',
+    exporter: new InMemorySpanExporter(),
+    sampler: new AlwaysOffSampler(),
+    metricExporter: exporter,
+  });
+  const db = SqlClientImplMockingbirdSqlite.open();
+  await db.connect();
+  try {
+    await reconcileSqliteSchema(db, syncEngineServerSchema, {
+      ownership: 'declared-only',
+    });
+    let ids = 0;
+    let races = 0;
+    const save = defineMutation({
+      name: 'save',
+      args: z.object({}),
+      async run() {},
+    });
+    const race = defineMutation({
+      name: 'race',
+      args: z.object({}),
+      async run() {
+        races += 1;
+        if (races === 1)
+          throw Object.assign(
+            new Error('could not serialize access due to concurrent update'),
+            { code: '40001' }
+          );
+      },
+    });
+    const app = createSyncApp({
+      resolveAuth: async () => ({
+        actorId: 'alice',
+        deviceId: 'alice-phone',
+        accountId: 'alice',
+        isAnon: false,
+      }),
+      getSql: () => db,
+      queries: {},
+      mutations: mutationRegistry([save, race]),
+      now: () => 1_790_000_000_000,
+      createId: () => `id-${++ids}`,
+    });
+    const response = await app.request('http://example.test/mutations', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        [SYNC_PROTOCOL_HEADER]: String(SYNC_PROTOCOL_VERSION),
+      },
+      body: JSON.stringify({
+        mutations: [
+          ...upload('m1', 'save').mutations,
+          ...upload('m2', 'race').mutations,
+        ],
+      }),
+    });
+    expect(response.status).toBe(200);
+    expect(races).toBe(2);
+    await runtime.forceFlush();
+    const counted = exporter
+      .getMetrics()
+      .flatMap((r) => r.scopeMetrics.flatMap((s) => s.metrics))
+      .find((m) => m.descriptor.name === 'sync.mutation.replays');
+    const byOutcome = Object.fromEntries(
+      (counted?.dataPoints ?? []).map((p) => [
+        String(p.attributes['app.mutation.outcome']),
+        p.value,
+      ])
+    );
+    expect(byOutcome).toEqual({ applied: 2 });
+  } finally {
+    await db.disconnect();
+    await runtime.shutdown();
+  }
+});

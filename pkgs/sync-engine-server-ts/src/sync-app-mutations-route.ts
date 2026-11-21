@@ -33,6 +33,7 @@ import type { Hono } from 'hono';
 import { allocateTopicPushSeqs } from './allocate-topic-push-seq';
 import { isAuthErrorBody } from './auth-error';
 import { syncBodyCap } from './body-cap';
+import { countMutationReplays } from './count-mutation-replays';
 import type { MutationLifecycle } from './mutation-lifecycle';
 import { publishPushMessages } from './notify-channels';
 import { parseMutationsBatchBody } from './parse-batch-body';
@@ -126,78 +127,89 @@ async function prepareMutationNotify(
   mutationRows: MutationRow[],
   db: SqlClient
 ): Promise<PreparedMutationNotify> {
-  return retryMutationTransaction(db, async (tx) => {
-    const result = await processMutationsBatch({
-      transaction: tx,
-      registry: deps.mutations,
-      auth,
-      mutations: mutationRows,
-      now: deps.now,
-      createId: deps.createId,
-      ...(deps.authorize !== undefined ? { authorize: deps.authorize } : {}),
-      ...(deps.wrapMutationTx === undefined
-        ? {}
-        : { wrapMutationTx: deps.wrapMutationTx }),
-      ...(deps.turnGames === undefined ? {} : { turnGames: deps.turnGames }),
-      ...(deps.rooms === undefined ? {} : { rooms: deps.rooms }),
-      ...(deps.contentRulesAt !== undefined
-        ? { contentRulesAt: deps.contentRulesAt }
-        : {}),
-    });
-    if (result.applied.length === 0 || deps.pubsub === undefined) {
-      return {
-        result,
-        tables: [] as string[],
-        rows: undefined,
-        rowsByTopic: undefined,
-        checkpoints: new Map<Topic, string>(),
-      };
-    }
-    const captures = result.applied.map((a) => a.capture);
-    const merged = mergeCaptures(captures);
-    const env: MutationEnv = {
-      actorId: auth.actorId,
-      deviceId: auth.deviceId,
-      accountId: auth.accountId,
-      isAnon: auth.isAnon,
-      now: () => new Date(deps.now()),
-      createId: deps.createId,
-    };
-    const topics = await collectTopicsFromCaptures({
-      topicMap: deps.topicMap,
-      auth,
-      captures,
-      db: tx,
-      now: deps.now,
-      createId: deps.createId,
-    });
-    const tables = merged.tables;
-    // A batch writing rows that may not travel as images (`rowImage.publish`)
-    // sends none at all: every reader is woken and reads again through its
-    // own authorized queries, so no such row ever leaves in a push.
-    const built = await buildFanoutRows({
-      db: tx,
-      capture: merged,
-      rowImageFanout: deps.rowImageFanout === true,
-    });
-    const rows =
-      built === undefined ||
-      filterPublishableImages(built, deps.topicMap, topicMapCtxFromEnv(env)) !==
-        built
-        ? undefined
-        : built;
-    const rowsByTopic =
-      rows !== undefined && deps.topicMap !== undefined
-        ? await partitionFanoutRowsByTopic({
-            topicMap: deps.topicMap,
-            ctx: topicMapCtxFromEnv(env),
-            rows,
-            db: tx,
-          })
-        : undefined;
-    const checkpoints = await allocateTopicPushSeqs(tx, topics, deps.now);
-    return { result, tables, rows, rowsByTopic, checkpoints };
+  return countMutationReplays(mutationRows.length, () =>
+    retryMutationTransaction(db, (tx) =>
+      prepareMutationNotifyIn(deps, auth, mutationRows, tx)
+    )
+  );
+}
+
+async function prepareMutationNotifyIn(
+  deps: MountMutationsRouteDeps,
+  auth: SyncAppAuth,
+  mutationRows: MutationRow[],
+  tx: SqlClient
+): Promise<PreparedMutationNotify> {
+  const result = await processMutationsBatch({
+    transaction: tx,
+    registry: deps.mutations,
+    auth,
+    mutations: mutationRows,
+    now: deps.now,
+    createId: deps.createId,
+    ...(deps.authorize !== undefined ? { authorize: deps.authorize } : {}),
+    ...(deps.wrapMutationTx === undefined
+      ? {}
+      : { wrapMutationTx: deps.wrapMutationTx }),
+    ...(deps.turnGames === undefined ? {} : { turnGames: deps.turnGames }),
+    ...(deps.rooms === undefined ? {} : { rooms: deps.rooms }),
+    ...(deps.contentRulesAt !== undefined
+      ? { contentRulesAt: deps.contentRulesAt }
+      : {}),
   });
+  if (result.applied.length === 0 || deps.pubsub === undefined) {
+    return {
+      result,
+      tables: [] as string[],
+      rows: undefined,
+      rowsByTopic: undefined,
+      checkpoints: new Map<Topic, string>(),
+    };
+  }
+  const captures = result.applied.map((a) => a.capture);
+  const merged = mergeCaptures(captures);
+  const env: MutationEnv = {
+    actorId: auth.actorId,
+    deviceId: auth.deviceId,
+    accountId: auth.accountId,
+    isAnon: auth.isAnon,
+    now: () => new Date(deps.now()),
+    createId: deps.createId,
+  };
+  const topics = await collectTopicsFromCaptures({
+    topicMap: deps.topicMap,
+    auth,
+    captures,
+    db: tx,
+    now: deps.now,
+    createId: deps.createId,
+  });
+  const tables = merged.tables;
+  // A batch writing rows that may not travel as images (`rowImage.publish`)
+  // sends none at all: every reader is woken and reads again through its
+  // own authorized queries, so no such row ever leaves in a push.
+  const built = await buildFanoutRows({
+    db: tx,
+    capture: merged,
+    rowImageFanout: deps.rowImageFanout === true,
+  });
+  const rows =
+    built === undefined ||
+    filterPublishableImages(built, deps.topicMap, topicMapCtxFromEnv(env)) !==
+      built
+      ? undefined
+      : built;
+  const rowsByTopic =
+    rows !== undefined && deps.topicMap !== undefined
+      ? await partitionFanoutRowsByTopic({
+          topicMap: deps.topicMap,
+          ctx: topicMapCtxFromEnv(env),
+          rows,
+          db: tx,
+        })
+      : undefined;
+  const checkpoints = await allocateTopicPushSeqs(tx, topics, deps.now);
+  return { result, tables, rows, rowsByTopic, checkpoints };
 }
 
 async function publishMutationPushes(
