@@ -1,0 +1,4 @@
+{
+  "summary": "In production, concurrent writers aborted each other under SERIALIZABLE (40001/40P01) on hot rows such as a room's push sequence, a device's presence and account provisioning. Most request transactions had no retry and the few that did replayed three times at once and collided again, so saves, queries, sign-in refresh and drains answered 500: changes-are-saved 99.38%, the-app-serves-people 99.75%, background-work-gets-done 93.2%. Every request and cron transaction now reruns with a jittered exponential backoff, up to six attempts, without multiplying nested retries.",
+  "regressionTest": "pkgs/sql-client-root-shared-ts/tests/conflict-retry.test.ts"
+}

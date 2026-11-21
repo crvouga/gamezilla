@@ -1,4 +1,5 @@
 import { expect, test } from 'bun:test';
+import { CONFLICT_RETRY_ATTEMPTS } from '@pkgs/sql-client-root-shared-ts/conflict-retry';
 import sql from '@pkgs/sql-root-shared-ts/sql';
 import { provisioningHost } from './account-provisioning-conflict-fixture';
 
@@ -32,7 +33,11 @@ test('a racing account upgrade reloads the winner instead of refusing authentica
 });
 
 test.each([
-  ['persistent contention', [conflict, conflict, conflict, conflict], 3],
+  [
+    'persistent contention',
+    Array.from({ length: CONFLICT_RETRY_ATTEMPTS + 1 }, () => conflict),
+    CONFLICT_RETRY_ATTEMPTS,
+  ],
   ['an unknown connection failure', [new Error('connection lost')], 1],
 ])(
   '%s remains a failure without an unbounded retry',

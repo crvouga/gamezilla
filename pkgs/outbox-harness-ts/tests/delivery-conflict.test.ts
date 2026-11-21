@@ -1,5 +1,6 @@
 import { expect, test } from 'bun:test';
 import { drainOutbox } from '@pkgs/outbox-shared-ts/drain';
+import { CONFLICT_RETRY_ATTEMPTS } from '@pkgs/sql-client-root-shared-ts/conflict-retry';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 import sql from '@pkgs/sql-root-shared-ts/sql';
 import { NOW, openDueWork } from './due-work-fixture';
@@ -105,7 +106,8 @@ test('a failed recovery transaction remains a visible drain failure with its eve
     await expect(drainOutbox({ ...h.deps, db: raced.client })).rejects.toThrow(
       'read/write dependencies'
     );
-    expect(raced.transactions()).toBe(5);
+    // The claim, the delivery, then every attempt at recording the retry.
+    expect(raced.transactions()).toBe(2 + CONFLICT_RETRY_ATTEMPTS);
     const rows = await h.deliveryState();
     expect(rows[0]?.processed_at).toBeNull();
     expect(rows[0]?.attempts).toBe(0);

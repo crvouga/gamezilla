@@ -296,6 +296,7 @@ function createServerRouter(args: {
         protection,
         clock: env.clock,
         timers: env.timers,
+        random: env.random,
         http: { fetch: env.fetch },
         createId: env.createId,
         desiredClientConfig,

@@ -8,7 +8,7 @@ test('conflict schedules never expose a partial batch or duplicate a committed s
   await assertProperty(
     'mutation-conflict-recovery-atomicity',
     fc.asyncProperty(
-      fc.array(fc.constantFrom('40001', '40P01'), { maxLength: 4 }),
+      fc.array(fc.constantFrom('40001', '40P01'), { maxLength: 7 }),
       async (codes) => {
         const failures = codes.map((code) =>
           Object.assign(new Error('transaction conflict'), { code })
@@ -17,7 +17,7 @@ test('conflict schedules never expose a partial batch or duplicate a committed s
         try {
           const response = await host.post();
           const saved = response.status === 200;
-          expect(saved).toBe(codes.length < 3);
+          expect(saved).toBe(codes.length < 6);
           const applied = await host.db.query(
             sql<{
               mutation_id: string;

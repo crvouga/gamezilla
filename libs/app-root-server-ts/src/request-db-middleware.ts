@@ -20,6 +20,10 @@ import { ATTR } from '@pkgs/observability-root-shared-ts/attributes';
 import { bindIdentity } from '@pkgs/observability-root-shared-ts/identity-scope';
 import { withSpan } from '@pkgs/observability-root-shared-ts/span';
 import type { SecretStore } from '@pkgs/secret-store-shared-ts/interface';
+import {
+  retryingConflicts,
+  timerBackoff,
+} from '@pkgs/sql-client-root-shared-ts/conflict-retry';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 import type { CreateId } from '@pkgs/uuid-shared-ts/create-id';
 import type { MiddlewareHandler } from 'hono';
@@ -63,6 +67,8 @@ export type RequestDbMiddlewareOptions = {
   readonly protection: DeploymentProtection;
   readonly clock: Clock;
   readonly timers: Timers;
+  /** Spreads retries of conflicting transactions (`retryingConflicts`). */
+  readonly random: () => number;
   readonly http: HttpClient;
   readonly createId: CreateId;
   /** Public client_config rows derived from Worker secrets at boot. */
@@ -140,7 +146,16 @@ async function attachRequestDatabase(
   const { c, next, options, secretStore, clientConfigLatch } = args;
   const { authServer, clock, timers, createId } = options;
   const raw = await openObservedSqlClient(options.openSqlClient);
-  const sqlClient = wrapSqlClientForObservability(raw);
+  // Under SERIALIZABLE, concurrent writers abort each other; every
+  // transaction of the request reruns with a jittered backoff instead of
+  // answering 500.
+  const sqlClient = retryingConflicts(
+    wrapSqlClientForObservability(raw),
+    timerBackoff({
+      setTimeout: (fn, ms) => timers.setTimeout(fn, ms),
+      random: options.random,
+    })
+  );
   const kv = new KvImplPostgres(sqlClient, clock.now);
   const sessionAuth = new ObservedSessionAuth(
     authServer,
