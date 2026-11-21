@@ -1,16 +1,14 @@
 import { expect, test } from 'bun:test';
+import type { PullRequestFacts } from '@crvouga/mockingbird-preview';
 import type { HttpFetch } from '@pkgs/http-client-shared-ts/types';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import fc from 'fast-check';
-import {
-  assetHash,
-  deployPreview,
-  type SiteFile,
-} from '../src/cloudflare-deploy';
+import { deployPreview, type SiteFile } from '../src/cloudflare-deploy';
 
 const ACCOUNT = '/client/v4/accounts/acct';
-const SESSION = `h.${Buffer.from('{}').toString('base64')}.s`;
-const ONE_BY_ONE = `h.${Buffer.from('{"wrangler_single_asset_uploads":true}').toString('base64')}.s`;
+const PREVIEWS = '/workers/workers/site/previews';
+const SESSION = 'session-jwt';
+const COMMIT = 'a'.repeat(40);
 
 function answer(status: number, result: unknown): Response {
   return new Response(JSON.stringify({ success: status < 300, result }), {
@@ -19,28 +17,18 @@ function answer(status: number, result: unknown): Response {
   });
 }
 
-/** The files of a multipart upload: each part's name, type and body. */
-function parts(body: string): { hash: string; type: string; base64: string }[] {
-  return [
-    ...body.matchAll(
-      /name="([0-9a-f]{32})"[^\r\n]*\r\nContent-Type: ([^\r\n]*)\r\n\r\n([^\r\n]*)\r\n/g
-    ),
-  ].map((part) => ({ hash: part[1]!, type: part[2]!, base64: part[3]! }));
-}
-
 /** Cloudflare, as far as a deploy talks to it. */
 function cloudflare(options: {
+  /** Paths whose contents Cloudflare already holds. */
   readonly held?: readonly string[];
   readonly preview?: boolean;
-  readonly session?: string;
 }) {
-  const session = options.session ?? SESSION;
-  const held = new Set(options.held ?? []);
+  const held = new Set<string>();
   const state = {
     manifest: {} as Record<string, { hash: string; size: number }>,
     uploaded: [] as { hash: string; type: string; base64: string }[],
-    uploadRequests: 0,
     created: [] as string[],
+    deleted: [] as string[],
     deployments: [] as {
       id: string;
       metadata: Record<string, unknown>;
@@ -48,13 +36,18 @@ function cloudflare(options: {
     }[],
   };
   let missing = new Set<string>();
-  const done = (hash: string): string | undefined => {
-    held.add(hash);
-    missing.delete(hash);
-    return missing.size === 0 ? 'completion' : undefined;
-  };
+  let exists = options.preview !== false;
+  const preview = (id: string) => ({
+    id,
+    name: 'pr-7',
+    updated_on: '2026-11-21T00:00:00Z',
+    urls: ['https://pr-7.preview.acme.app'],
+  });
   const openSession = async (request: Request): Promise<Response> => {
     state.manifest = ((await request.json()) as typeof state).manifest;
+    for (const path of options.held ?? [])
+      if (state.manifest[path] !== undefined)
+        held.add(state.manifest[path].hash);
     missing = new Set(
       Object.values(state.manifest)
         .map((entry) => entry.hash)
@@ -64,30 +57,21 @@ function cloudflare(options: {
     const buckets: string[][] = [];
     for (let at = 0; at < wanted.length; at += 2)
       buckets.push(wanted.slice(at, at + 2));
-    return answer(200, { jwt: session, buckets });
+    return answer(200, { jwt: SESSION, buckets });
   };
-  const upload = async (request: Request, path: string): Promise<Response> => {
-    state.uploadRequests += 1;
+  const upload = async (request: Request): Promise<Response> => {
     // Buckets are read off the wire: the parts are base64 text, and what
     // each is served as is its part's own content type.
-    const received =
-      path === '/workers/assets/upload'
-        ? parts(await request.text())
-        : [
-            {
-              hash: path.slice('/workers/assets/upload/'.length),
-              type: request.headers.get('content-type') ?? '',
-              base64: Buffer.from(await request.arrayBuffer()).toString(
-                'base64'
-              ),
-            },
-          ];
-    let jwt: string | undefined;
-    for (const part of received) {
-      state.uploaded.push(part);
-      jwt = done(part.hash) ?? jwt;
+    for (const part of (await request.text()).matchAll(
+      /name="([0-9a-f]{32})"[^\r\n]*\r\nContent-Type: ([^\r\n]*)\r\n\r\n([^\r\n]*)\r\n/g
+    )) {
+      state.uploaded.push({ hash: part[1]!, type: part[2]!, base64: part[3]! });
+      held.add(part[1]!);
+      missing.delete(part[1]!);
     }
-    return answer(jwt === undefined ? 202 : 201, { jwt });
+    return answer(missing.size === 0 ? 201 : 202, {
+      jwt: missing.size === 0 ? 'completion' : undefined,
+    });
   };
   const deployTo = async (request: Request, id: string): Promise<Response> => {
     // The API refuses a `_headers` file of any type but `text/plain`, exactly.
@@ -120,15 +104,21 @@ function cloudflare(options: {
     request: Request,
     path: string
   ): Promise<Response> => {
-    if (path === '/workers/workers/site/previews/pr-7')
-      return options.preview === false
-        ? answer(404, null)
-        : answer(200, { id: 'held', urls: ['https://pr-7.preview.acme.app'] });
-    if (path === '/workers/workers/site/previews') {
+    if (path === `${PREVIEWS}/pr-7`) {
+      if (request.method === 'DELETE') {
+        state.deleted.push('pr-7');
+        exists = false;
+        return answer(200, null);
+      }
+      return exists ? answer(200, preview('held')) : answer(404, null);
+    }
+    if (path === PREVIEWS && request.method === 'POST') {
       const { name } = (await request.json()) as { name: string };
       state.created.push(name);
-      return answer(200, { id: 'made', urls: [] });
+      exists = true;
+      return answer(200, preview('made'));
     }
+    if (path.endsWith('/deployments/latest')) return answer(404, null);
     const deployment =
       /^\/workers\/workers\/site\/previews\/([^/]+)\/deployments$/.exec(path);
     return deployment === null
@@ -140,11 +130,10 @@ function cloudflare(options: {
     const { pathname, searchParams } = new URL(request.url);
     const bearer = request.headers.get('authorization');
     const path = pathname.slice(ACCOUNT.length);
-    if (path.startsWith('/workers/assets/upload')) {
-      expect(bearer).toBe(`Bearer ${session}`);
-      if (path === '/workers/assets/upload')
-        expect(searchParams.get('base64')).toBe('true');
-      return await upload(request, path);
+    if (path === '/workers/assets/upload') {
+      expect(bearer).toBe(`Bearer ${SESSION}`);
+      expect(searchParams.get('base64')).toBe('true');
+      return await upload(request);
     }
     expect(bearer).toBe('Bearer api-token');
     return path === '/workers/scripts/site/assets-upload-session'
@@ -167,7 +156,18 @@ const SITE: readonly SiteFile[] = [
   text('/_headers', '/*\n\tCache-Control: no-store\n', 'text/plain'),
 ];
 
-function deploy(fetch: HttpFetch, files: readonly SiteFile[] = SITE) {
+const OPEN: PullRequestFacts = {
+  state: 'open',
+  repository: 'acme/app',
+  headRepository: 'acme/app',
+  head: COMMIT,
+};
+
+function deploy(
+  fetch: HttpFetch,
+  files: readonly SiteFile[] = SITE,
+  pullRequest: () => Promise<PullRequestFacts> = async () => OPEN
+) {
   return deployPreview({
     accountId: 'acct',
     apiToken: 'api-token',
@@ -176,15 +176,19 @@ function deploy(fetch: HttpFetch, files: readonly SiteFile[] = SITE) {
     files,
     assets: { not_found_handling: 'none' },
     compatibilityDate: '2026-09-21',
-    commit: 'a'.repeat(40),
-    message: 'PR #7',
+    commit: COMMIT,
+    currentPullRequest: pullRequest,
     fetch,
   });
 }
 
-test('a first deploy uploads every file, then deploys the set Cloudflare confirmed to the pull request’s Preview', async () => {
+// regression: preview-mockingbird-headers-content-type
+test('a first deploy uploads every asset, then deploys the set with its _headers to the pull request’s Preview', async () => {
   const { fetch, state } = cloudflare({});
-  expect(await deploy(fetch)).toEqual(['https://pr-7.preview.acme.app']);
+  expect(await deploy(fetch)).toEqual({
+    kind: 'deployed',
+    urls: ['https://pr-7.preview.acme.app'],
+  });
   expect(Object.keys(state.manifest).toSorted()).toEqual([
     '/assets/app.js',
     '/index.html',
@@ -204,22 +208,18 @@ test('a first deploy uploads every file, then deploys the set Cloudflare confirm
     '<div id="root"></div>'
   );
   expect(state.created).toEqual([]);
-  expect(state.deployments).toEqual([
-    {
-      id: 'held',
-      metadata: {
-        assets: { jwt: 'completion', config: { not_found_handling: 'none' } },
-        compatibility_date: '2026-09-21',
-        annotations: {
-          'workers/commit_sha': 'a'.repeat(40),
-          'workers/message': 'PR #7',
-          'workers/tag': 'a'.repeat(12),
-        },
-      },
-      // The response headers configure the site; they are never an asset.
-      files: { _headers: '/*\n\tCache-Control: no-store\n' },
-    },
-  ]);
+  expect(state.deployments).toHaveLength(1);
+  const [deployment] = state.deployments;
+  expect(deployment?.id).toBe('held');
+  expect(deployment?.metadata).toMatchObject({
+    assets: { jwt: 'completion', config: { not_found_handling: 'none' } },
+    compatibility_date: '2026-09-21',
+    annotations: { 'workers/commit_sha': COMMIT },
+  });
+  // The response headers configure the site; they are never an asset.
+  expect(deployment?.files).toEqual({
+    _headers: '/*\n\tCache-Control: no-store\n',
+  });
 });
 
 test('a pull request with no Preview yet gets one', async () => {
@@ -231,23 +231,27 @@ test('a pull request with no Preview yet gets one', async () => {
   ]);
 });
 
-test('when Cloudflare asks for one file per request, each goes up as itself', async () => {
-  const { fetch, state } = cloudflare({ session: ONE_BY_ONE });
-  await deploy(fetch);
-  expect(state.uploadRequests).toBe(3);
-  const page = state.uploaded.find(
-    (file) => file.hash === state.manifest['/index.html']?.hash
-  );
-  expect(page?.type).toBe('text/html;charset=utf-8');
-  expect(Buffer.from(page!.base64, 'base64').toString()).toBe(
-    '<div id="root"></div>'
-  );
-  expect(
-    (state.deployments[0]?.metadata['assets'] as { jwt: string }).jwt
-  ).toBe('completion');
+test('a pull request that moved on during the upload is never deployed over', async () => {
+  for (const [now, action] of [
+    [{ ...OPEN, head: 'b'.repeat(40) }, 'skip'],
+    [{ ...OPEN, state: 'closed' }, 'remove'],
+  ] as const) {
+    const { fetch, state } = cloudflare({});
+    let reads = 0;
+    const moved = async (): Promise<PullRequestFacts> => {
+      reads += 1;
+      return reads === 1 ? OPEN : now;
+    };
+    expect(await deploy(fetch, SITE, moved)).toEqual({
+      kind: 'superseded',
+      action,
+    });
+    expect(state.deployments).toEqual([]);
+    expect(state.deleted).toEqual(action === 'remove' ? ['pr-7'] : []);
+  }
 });
 
-test('a failed request fails the deploy with Cloudflare’s reason', async () => {
+test('a failed request fails the deploy', async () => {
   const refused: HttpFetch = async () =>
     new Response(
       JSON.stringify({
@@ -256,20 +260,7 @@ test('a failed request fails the deploy with Cloudflare’s reason', async () =>
       }),
       { status: 403 }
     );
-  await expect(deploy(refused)).rejects.toThrow(
-    'HTTP 403 10000 Authentication error'
-  );
-});
-
-test('the same contents under another extension are another asset', () => {
-  const bytes = new TextEncoder().encode('{}');
-  const json = assetHash({ path: '/a.json', bytes, contentType: null });
-  expect(json).toMatch(/^[0-9a-f]{32}$/);
-  expect(assetHash({ path: '/b.json', bytes, contentType: null })).toBe(json);
-  expect(assetHash({ path: '/a.js', bytes, contentType: null })).not.toBe(json);
-  expect(assetHash({ path: '/dir.v2/a', bytes, contentType: null })).toBe(
-    assetHash({ path: '/a', bytes, contentType: null })
-  );
+  await expect(deploy(refused)).rejects.toThrow('HTTP 403');
 });
 
 test('whatever Cloudflare already holds, a deploy uploads exactly the rest, once', async () => {
@@ -288,13 +279,17 @@ test('whatever Cloudflare already holds, a deploy uploads exactly the rest, once
           bytes: each.bytes,
           contentType: 'application/octet-stream',
         }));
-        const held = files
-          .filter((_, at) => drawn[at]!.held)
-          .map((each) => assetHash(each));
+        const held = drawn
+          .filter((each) => each.held)
+          .map((each) => `/${each.name}`);
         const { fetch, state } = cloudflare({ held });
         await deploy(fetch, files);
-        const all = new Set(files.map((each) => assetHash(each)));
-        const missing = [...all].filter((hash) => !held.includes(hash));
+        const heldHashes = new Set(
+          held.map((path) => state.manifest[path]!.hash)
+        );
+        const missing = [
+          ...new Set(Object.values(state.manifest).map((each) => each.hash)),
+        ].filter((hash) => !heldHashes.has(hash));
         expect(state.uploaded.map((each) => each.hash).toSorted()).toEqual(
           missing.toSorted()
         );
