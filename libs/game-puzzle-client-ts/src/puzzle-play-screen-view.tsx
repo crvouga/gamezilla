@@ -157,6 +157,7 @@ function PlayAssistant(props: PuzzlePlayScreenViewProps): JSX.Element {
         />
       }
       numberOfLines={2}
+      bubbleTone={props.correct === true ? 'success' : 'neutral'}
       avatarSize={mode() === 'wide' ? AVATAR_SIZE : COMPACT_AVATAR_SIZE}
     />
   );

@@ -5,6 +5,7 @@ import {
 import { numberlinkPuzzleContent } from '@libs/numberlink-shared-ts/numberlink-puzzle-content';
 import { fn } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
+import { numberlinkGameClient } from './numberlink-game-client';
 import { NumberlinkPlayer } from './numberlink-player';
 import {
   FIVE_BY_FIVE,
@@ -22,10 +23,15 @@ function progress(paths: typeof SOLUTION): string {
 /** The game's own figures for the attempt, as the app's panel shows them. */
 function figures(definition: string, state: string) {
   const values = numberlinkPuzzleContent.statistics?.(definition, state) ?? {};
+  const totals =
+    numberlinkGameClient.puzzleContent?.frame.totals?.(definition) ?? {};
   return [
     { key: 'connectedPairs', label: 'Connected pairs' },
     { key: 'coveredCells', label: 'Covered cells' },
-  ].map((figure) => ({ ...figure, value: String(values[figure.key] ?? 0) }));
+  ].map((figure) => ({
+    ...figure,
+    value: `${values[figure.key] ?? 0} of ${totals[figure.key] ?? 0}`,
+  }));
 }
 
 /** A five-pair puzzle, as a person plays it from a pack. */
@@ -33,7 +39,13 @@ const PUZZLE: StoryPackPuzzle = {
   title: 'Five pairs',
   difficulty: 'Medium',
   description: 'Join each pair of numbers and fill every square.',
-  pack: { title: 'Linking practice', position: 2, total: 5 },
+  pack: {
+    title: 'Linking practice',
+    position: 2,
+    total: 5,
+    solved: 1,
+    next: 'Around the corner',
+  },
 };
 
 const meta = {

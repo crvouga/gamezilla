@@ -19,11 +19,17 @@ export type PuzzlePreviewProps = { readonly definition: string };
 
 /**
  * What the shared solo frame around the player shows: a label for each
- * figure the content's `statistics` give (by its key), the content's own
- * status line (`null` for none) and, optionally, controls under the board.
+ * figure the content's `statistics` give (by its key), optionally what
+ * each figure counts toward on this puzzle (`totals`, so it reads "13 of
+ * 25"), the content's own status line (`null` for none) and, optionally,
+ * controls under the board.
  */
 export type PuzzleContentFrame = {
   readonly stats: Readonly<Record<string, () => string>>;
+  /** Each figure's whole on `definition`, by its key; absent for none. */
+  readonly totals?:
+    | ((definition: string) => Readonly<Record<string, number>>)
+    | undefined;
   readonly turnStatus: (definition: string, state: string) => string | null;
   readonly controls?: Component<PuzzlePlayerProps>;
 };

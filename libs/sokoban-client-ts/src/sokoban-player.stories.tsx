@@ -2,6 +2,8 @@ import {
   StoryPackAttempt,
   type StoryPackPuzzle,
 } from '@libs/game-puzzle-client-ts/content-attempt-story.example';
+import { validateSokobanDefinition } from '@libs/sokoban-shared-ts/sokoban-definition';
+import { sokobanPuzzleContent } from '@libs/sokoban-shared-ts/sokoban-puzzle-content';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { SokobanPlayer } from './sokoban-player';
@@ -16,8 +18,30 @@ const PUZZLE: StoryPackPuzzle = {
   title: 'Two crates',
   difficulty: 'Easy',
   description: 'Push each of the two crates onto its own goal.',
-  pack: { title: 'Warehouse basics', position: 3, total: 4 },
+  pack: {
+    title: 'Warehouse basics',
+    position: 3,
+    total: 4,
+    solved: 2,
+    next: 'Corner push',
+  },
 };
+
+/** The game's own figures for the attempt, as the app's panel shows them. */
+function figures(definition: string, state: string) {
+  const values = sokobanPuzzleContent.statistics?.(definition, state) ?? {};
+  const crates = validateSokobanDefinition(definition);
+  const total = crates.valid ? crates.value.crates.length : 0;
+  return [
+    {
+      key: 'cratesPlaced',
+      label: 'Crates on goals',
+      value: `${values['cratesPlaced'] ?? 0} of ${total}`,
+    },
+    { key: 'moves', label: 'Moves', value: String(values['moves'] ?? 0) },
+    { key: 'pushes', label: 'Pushes', value: String(values['pushes'] ?? 0) },
+  ];
+}
 
 const meta = {
   id: 'screens-games-sokoban-puzzle',
@@ -29,6 +53,7 @@ const meta = {
     <StoryPackAttempt
       puzzle={PUZZLE}
       disabled={args.disabled}
+      figures={figures(args.definition, args.state)}
       player={<SokobanPlayer {...args} />}
     />
   ),

@@ -15,14 +15,16 @@ export type ContentJourneyBoard = {
 /**
  * The library tab that lists a row, by the row's id: published and
  * starter content under Browse, attempts to continue under Continue, the
- * person's drafts and publications under My creations. A solved attempt
- * is listed under Browse instead: its caller says so (`openJourneyAttempt`).
+ * person's drafts and publications under My creations, which on a phone
+ * is also where creating a puzzle or a pack starts (wide it is the
+ * screen's own action, in view on every tab). A solved attempt is listed
+ * under Browse instead: its caller says so (`openJourneyAttempt`).
  */
 function libraryTabOf(id: string): string | null {
   if (/^content-(published|bundled)-|^content-more-published$/.test(id))
     return 'content-library-tab-browse';
   if (id.startsWith('content-attempt-')) return 'content-library-tab-continue';
-  if (id.startsWith('content-draft-')) return 'content-library-tab-mine';
+  if (/^content-(draft|create)-/.test(id)) return 'content-library-tab-mine';
   return null;
 }
 

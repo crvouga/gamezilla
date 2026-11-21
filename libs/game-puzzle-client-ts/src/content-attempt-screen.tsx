@@ -1,3 +1,4 @@
+import { useLingui } from '@lingui/solid/macro';
 import { projectAttemptPosition } from '@libs/game-puzzle-shared-ts/attempt-library';
 import type { ContentAttempt } from '@libs/game-puzzle-shared-ts/attempt-types';
 import type { ContentBody } from '@libs/game-puzzle-shared-ts/content-types';
@@ -52,7 +53,13 @@ function packPlace(
       (item) => item.revisionId === attempt.source_id
     ) ?? -1;
   if (pack === undefined || progress === null || index < 0) return null;
-  return { title: pack.title, position: index + 1, total: progress.total };
+  return {
+    title: pack.title,
+    position: index + 1,
+    total: progress.total,
+    solved: progress.completedCount,
+    next: progress.items[index + 1]?.title,
+  };
 }
 
 /** One attempt on its board, wired to its saved positions and changes. */
@@ -60,6 +67,7 @@ function AttemptBody(props: {
   attempt: ContentAttempt;
   source: ContentBody;
 }): JSX.Element {
+  const { t } = useLingui();
   const game = useContentGame();
   const data = useContentLibraryState();
   const writer = useContentAttemptChange(() => props.attempt);
@@ -80,17 +88,25 @@ function AttemptBody(props: {
           game: game.content,
         });
   });
-  // The game's own figures for where the attempt stands, by its labels.
+  // The game's own figures for where the attempt stands, by its labels,
+  // each out of its whole where the game says what that is ("13 of 25").
   const figures = createMemo((): AttemptFigure[] => {
     const state = progress()?.state;
     if (state === undefined) return [];
-    const values =
-      game.content.statistics?.(props.source.definition, state) ?? {};
+    const definition = props.source.definition;
+    const values = game.content.statistics?.(definition, state) ?? {};
+    const totals = game.client.frame.totals?.(definition) ?? {};
     return Object.entries(game.client.frame.stats).flatMap(([key, label]) => {
       const value = values[key];
-      return value === undefined
-        ? []
-        : [{ key, label: label(), value: String(value) }];
+      if (value === undefined) return [];
+      const total = totals[key];
+      return [
+        {
+          key,
+          label: label(),
+          value: total === undefined ? String(value) : t`${value} of ${total}`,
+        },
+      ];
     });
   });
   return (

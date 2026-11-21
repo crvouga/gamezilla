@@ -11,6 +11,8 @@ import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { PreviewCardGrid } from '@pkgs/ui-root-client-ts/preview-card-grid';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Tabs } from '@pkgs/ui-root-client-ts/tabs';
+import { P } from '@pkgs/ui-root-client-ts/text';
+import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { For, type JSX, Match, Show, Switch, untrack } from 'solid-js';
 import {
   ContentDifficultyChip,
@@ -307,7 +309,8 @@ function BrowsePanel(props: { view: View }): JSX.Element {
 /**
  * Only what the person left unfinished, to pick up where they left it;
  * with little of it, Browse's next puzzles and packs follow under "More to
- * play".
+ * play". How a saved place is kept is said once, after everything to play,
+ * never between the rows.
  */
 function ContinuePanel(props: { view: View }): JSX.Element {
   const { t } = useLingui();
@@ -343,12 +346,23 @@ function ContinuePanel(props: { view: View }): JSX.Element {
         renderPreview={props.view.renderPreview}
         onOpenEdition={props.view.onOpenEdition}
       />
+      <Show when={unfinished().length > 0}>
+        <P variant="caption" tone="secondary" testId="content-continue-note">
+          <Trans>
+            Each puzzle keeps your place, even if its author changes it later.
+          </Trans>
+        </P>
+      </Show>
     </StackVertical>
   );
 }
 
-/** What the person builds: their drafts and publications, then playtests. */
-function MinePanel(props: { view: View }): JSX.Element {
+/**
+ * What the person builds: on a phone the ways to create first (wide they
+ * are the screen's own actions at its title), then their drafts and
+ * publications, then playtests.
+ */
+function MinePanel(props: { view: View; create: boolean }): JSX.Element {
   const { t } = useLingui();
   return (
     <StackVertical
@@ -356,6 +370,7 @@ function MinePanel(props: { view: View }): JSX.Element {
       paddingTop="lg"
       dataSet={{ testid: 'content-library-mine' }}
     >
+      <Show when={props.create}>{props.view.createControls}</Show>
       <Show
         when={props.view.personalDenial}
         fallback={
@@ -400,7 +415,7 @@ function firstTab(view: View): LibraryTab {
  * person left off comes first. Every panel stays
  * rendered so its loaded pages keep their place across switches.
  */
-function LibraryTabs(props: { view: View }): JSX.Element {
+function LibraryTabs(props: { view: View; create: boolean }): JSX.Element {
   const { t } = useLingui();
   const unfinished = () =>
     props.view.attempts.filter((attempt) => !attempt.completed).length;
@@ -429,7 +444,7 @@ function LibraryTabs(props: { view: View }): JSX.Element {
             <ContinuePanel view={props.view} />
           </Match>
           <Match when={tab === 'mine'}>
-            <MinePanel view={props.view} />
+            <MinePanel view={props.view} create={props.create} />
           </Match>
         </Switch>
       )}
@@ -438,18 +453,21 @@ function LibraryTabs(props: { view: View }): JSX.Element {
 }
 
 /**
- * A game's puzzle library, presentational: creating a puzzle or a pack as
- * the screen's own actions at its title, then three tabs, one shown at a
- * time: Continue (only what is left unfinished, as compact rows), Browse
- * (the shipped starter packs, everything published, then what the person
- * solved) and My creations (drafts and publications, then the playtests of
- * their drafts); each list paged. It opens on
- * Continue when something is unfinished, else on Browse. Data arrives as
- * props; `ContentLibraryScreen` reads it from the synced library.
+ * A game's puzzle library, presentational: three tabs, one shown at a
+ * time, right under its title so playing comes first: Continue (only what
+ * is left unfinished, as compact rows), Browse (the shipped starter packs,
+ * everything published, then what the person solved) and My creations
+ * (drafts and publications, then the playtests of their drafts); each list
+ * paged. Creating a puzzle or a pack is the screen's own action at its
+ * title where there is room, and heads My creations on a phone. It opens
+ * on Continue when something is unfinished, else on Browse. Data arrives
+ * as props; `ContentLibraryScreen` reads it from the synced library.
  */
 export function ContentLibraryScreenView(
   props: ContentLibraryScreenViewProps
 ): JSX.Element {
+  const mode = useLayoutMode();
+  const compact = (): boolean => mode() === 'compact';
   return (
     <Show when={props.status === 'ready'} fallback={<LoadingState />}>
       <EmbeddedScreen
@@ -461,9 +479,9 @@ export function ContentLibraryScreenView(
             Play puzzles, pick up where you left off, or make your own.
           </Trans>
         }
-        actions={props.createControls}
+        actions={compact() ? undefined : props.createControls}
       >
-        <LibraryTabs view={props} />
+        <LibraryTabs view={props} create={compact()} />
       </EmbeddedScreen>
     </Show>
   );

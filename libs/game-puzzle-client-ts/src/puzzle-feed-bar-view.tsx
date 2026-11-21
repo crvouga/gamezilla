@@ -167,8 +167,9 @@ function FeedBarPuzzleFacts(props: {
 }
 
 /**
- * The feed's filters as one quiet line ("Auto target 1500 · Unseen · All
- * themes"), then the rated puzzles left today. Filter words paint only
+ * The feed's filters as one quiet line in a player's words ("Near your
+ * rating, 1500 · Unseen puzzles · All themes"), then the rated puzzles
+ * left today. Filter words paint only
  * after the saved config is in; until then the line keeps its height, so
  * its appearing cannot move the board below. The settings hold the rest
  * (how many puzzles match, every choice).
@@ -183,9 +184,9 @@ function FeedBarSummary(props: {
   const themeLabel = (theme: string): string => props.themeLabel(theme);
   const modeLabel = (): JSX.Element =>
     props.config.mode === 'auto' ? (
-      <Trans>Auto target {ratingSlot(props.effectiveRating)}</Trans>
+      <Trans>Near your rating, {ratingSlot(props.effectiveRating)}</Trans>
     ) : (
-      <Trans>Custom target {ratingSlot(props.effectiveRating)}</Trans>
+      <Trans>Your chosen rating, {ratingSlot(props.effectiveRating)}</Trans>
     );
   return (
     <P variant="caption" tone="secondary">
@@ -194,9 +195,12 @@ function FeedBarSummary(props: {
           {modeLabel()}
         </Text>
         {SEPARATOR}
-        <Text variant="inherit" testId="chess-puzzle-feed-history-label">
-          {historyFilterLabel(props.config.historyFilter)}
-        </Text>
+        <Trans>
+          <Text variant="inherit" testId="chess-puzzle-feed-history-label">
+            {historyFilterLabel(props.config.historyFilter)}
+          </Text>{' '}
+          puzzles
+        </Trans>
         {SEPARATOR}
         <Text variant="inherit" testId="chess-puzzle-feed-themes-label">
           {themesSummary(props.config.themes, themeLabel)}

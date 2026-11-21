@@ -297,7 +297,10 @@ export async function readFeedModalPool(
   };
 }
 
-/** The feed bar's target: "Auto target 1500" / "Custom target 1550". */
+/**
+ * The feed bar's target: "Near your rating, 1500" (automatic) / "Your
+ * chosen rating, 1550" (custom).
+ */
 export async function readFeedTargetLabel(
   s: ProductHarness,
   actorId: string
@@ -306,11 +309,11 @@ export async function readFeedTargetLabel(
   const raw = stripProbe(
     await ui.get(Handles.chessPuzzleFeedTargetLabel).text()
   );
-  const match = /^(Auto|Custom) target\s*(\d{3,4})$/.exec(raw);
+  const match = /^(Near your|Your chosen) rating,\s*(\d{3,4})$/.exec(raw);
   const rating = match?.[2];
   if (match === null || rating === undefined) return null;
   return {
-    mode: match[1] === 'Auto' ? 'auto' : 'custom',
+    mode: match[1] === 'Near your' ? 'auto' : 'custom',
     rating: Number.parseInt(rating, 10),
   };
 }

@@ -18,7 +18,7 @@ import {
 } from 'solid-js';
 import type { SoundIndicatorState } from '../sound-indicator/index';
 import { SoundIndicator } from '../sound-indicator/index';
-import { SpeechBubble } from '../speech-bubble/index';
+import { SpeechBubble, type SpeechBubbleTone } from '../speech-bubble/index';
 import styles from './speaking-avatar.module.css';
 
 const MUTED_ROW_KEY = asKeyword('ui/speaking-avatar-muted');
@@ -76,6 +76,8 @@ export type SpeakingAvatarProps = Omit<
   speak?: boolean | undefined;
   /** Lines reserved inside the speech bubble. Defaults to `2`. */
   numberOfLines?: number | undefined;
+  /** The bubble's tint: `success` for a right move. Defaults to `neutral`. */
+  bubbleTone?: SpeechBubbleTone | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
 };
@@ -175,6 +177,7 @@ export function SpeakingAvatar(props: SpeakingAvatarProps): JSX.Element {
     'seed',
     'speak',
     'numberOfLines',
+    'bubbleTone',
     'dataSet',
   ]);
   // Audio wiring is composition-level configuration: read once.
@@ -238,6 +241,7 @@ export function SpeakingAvatar(props: SpeakingAvatarProps): JSX.Element {
         loading={speech.isLoading() || local.bubbleResolving === true}
         header={local.header}
         numberOfLines={local.numberOfLines}
+        tone={local.bubbleTone}
       />
     </div>
   );

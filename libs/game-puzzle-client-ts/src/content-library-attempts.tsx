@@ -45,21 +45,6 @@ function ListTitle(props: { list: ContentAttemptList }): JSX.Element {
   );
 }
 
-function ListFooter(props: { list: ContentAttemptList }): JSX.Element {
-  return (
-    <Switch>
-      <Match when={props.list === 'unfinished'}>
-        <Trans>
-          Each puzzle keeps your place, even if its author changes it later.
-        </Trans>
-      </Match>
-      <Match when={props.list === 'playtest'}>
-        <Trans>Practice runs don't count toward your progress.</Trans>
-      </Match>
-    </Switch>
-  );
-}
-
 /** The puzzle's difficulty as a chip, when its author gave one. */
 function difficultyOf(difficulty: string | undefined): JSX.Element | undefined {
   return difficulty ? (
@@ -101,9 +86,9 @@ export function ContentAttemptSection(props: {
         layout="rows"
         title={<ListTitle list={props.list} />}
         footer={
-          props.list === 'finished' ? undefined : (
-            <ListFooter list={props.list} />
-          )
+          props.list === 'playtest' ? (
+            <Trans>Practice runs don't count toward your progress.</Trans>
+          ) : undefined
         }
       >
         <For each={props.attempts.map((attempt) => attempt.id)}>
