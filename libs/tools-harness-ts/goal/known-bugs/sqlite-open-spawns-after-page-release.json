@@ -1,0 +1,4 @@
+{
+  "summary": "SQLite open could resume after page release and spawn a late worker; stale open failures and old client disconnect callbacks could also clear or close a replacement worker.",
+  "regressionTest": "pkgs/sql-client-sqlite-web-client-ts/tests/sqlite-worker.test.ts"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "A rejected SQLite WASM initialization left buffered open requests unanswered, hiding the cause behind the outer database-open timeout.",
+  "regressionTest": "pkgs/sql-client-sqlite-web-shared-ts/tests/sqlite-worker-startup.test.ts"
+}

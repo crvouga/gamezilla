@@ -30,6 +30,7 @@ type LiveWorker = {
 
 class SqliteWorkerSqlOwnerImpl implements SqliteWorkerSqlOwner {
   private live: LiveWorker | null = null;
+  private generation = 0;
   private readonly closing = new Set<LiveWorker>();
   private openInfo: SqliteWorkerOpenResult | null = null;
 
@@ -58,28 +59,43 @@ class SqliteWorkerSqlOwnerImpl implements SqliteWorkerSqlOwner {
     live.rpc.abortAll(new Error('SQLite worker terminated'));
   }
 
+  private assertGeneration(generation: number): void {
+    if (generation !== this.generation)
+      throw new Error('SQLite owner released');
+  }
+
   async open(): Promise<SqlClient> {
-    await this.close();
+    const generation = ++this.generation;
+    await this.closeLive();
+    this.assertGeneration(generation);
     const live = this.spawn();
     this.live = live;
     try {
-      this.openInfo = await withOpenTimeout(
+      const info = await withOpenTimeout(
         this.dbName,
         live.rpc.request('open', { dbName: this.dbName }),
         this.timers
       );
+      this.assertGeneration(generation);
+      this.openInfo = info;
     } catch (error: unknown) {
-      this.live = null;
+      if (this.live === live) this.live = null;
       this.terminate(live);
       throw error;
     }
     return createSqliteWorkerSqlClient({
       rpc: live.rpc,
-      onDisconnect: () => this.close(),
+      onDisconnect: () =>
+        this.live === live ? this.close() : Promise.resolve(),
     });
   }
 
-  async close(): Promise<void> {
+  close(): Promise<void> {
+    this.generation += 1;
+    return this.closeLive();
+  }
+
+  private async closeLive(): Promise<void> {
     const live = this.live;
     if (live === null) return;
     this.live = null;
@@ -104,6 +120,7 @@ class SqliteWorkerSqlOwnerImpl implements SqliteWorkerSqlOwner {
   }
 
   release(): void {
+    this.generation += 1;
     const live = this.live;
     this.live = null;
     this.openInfo = null;
@@ -113,16 +130,21 @@ class SqliteWorkerSqlOwnerImpl implements SqliteWorkerSqlOwner {
   }
 
   async resetStore(): Promise<void> {
-    await this.close();
+    const generation = ++this.generation;
+    await this.closeLive();
+    this.assertGeneration(generation);
     // A fresh worker owns the VFS long enough to wipe it, then dies with it.
     const live = this.spawn();
+    this.closing.add(live);
     try {
       await withOpenTimeout(
         this.dbName,
         live.rpc.request('resetStore', { dbName: this.dbName }),
         this.timers
       );
+      this.assertGeneration(generation);
     } finally {
+      this.closing.delete(live);
       this.terminate(live);
     }
   }

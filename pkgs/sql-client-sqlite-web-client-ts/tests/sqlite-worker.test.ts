@@ -283,6 +283,29 @@ describe('createSqliteWorkerSqlOwner', () => {
     ]);
   });
 
+  // regression: sqlite-open-spawns-after-page-release
+  test('release during open preparation prevents a late worker from acquiring storage', async () => {
+    const { events, spawnWorker } = createTrackedSpawner(
+      createMemorySqliteWorkerBackend(sqlite3)
+    );
+    const owner = createSqliteWorkerSqlOwner({
+      dbName: 'user_a',
+      spawnWorker,
+      timers: createHarnessClock().timers,
+    });
+    const opening = owner.open();
+    const failed = rejectionOf(opening);
+    void failed.catch(() => undefined);
+    owner.release();
+    await Promise.resolve();
+    expect(events).toEqual([]);
+    expect((await failed).message).toBe('SQLite owner released');
+    const client = await owner.open();
+    await client.run(sql`CREATE TABLE reopened (id INTEGER)`);
+    await owner.close();
+    expect(events).toEqual(['spawn:user_a', 'terminate']);
+  });
+
   test('client.disconnect closes the owner', async () => {
     const { events, spawnWorker } = createTrackedSpawner(
       createMemorySqliteWorkerBackend(sqlite3)
@@ -310,6 +333,48 @@ describe('createSqliteWorkerSqlOwner', () => {
     await owner.open();
     expect(events).toEqual(['spawn:user_a', 'terminate', 'spawn:user_a']);
     await owner.close();
+  });
+
+  test('disconnecting an older client cannot close its replacement worker', async () => {
+    const { events, spawnWorker } = createTrackedSpawner(
+      createMemorySqliteWorkerBackend(sqlite3)
+    );
+    const owner = createSqliteWorkerSqlOwner({
+      dbName: 'user_a',
+      spawnWorker,
+      timers: createHarnessClock().timers,
+    });
+    const previous = await owner.open();
+    const current = await owner.open();
+    await previous.disconnect();
+    expect(events).toEqual(['spawn:user_a', 'terminate', 'spawn:user_a']);
+    await current.run(sql`CREATE TABLE current (id INTEGER)`);
+    await owner.close();
+  });
+
+  test('a cancelled open cannot clear the replacement worker when it rejects', async () => {
+    const { events, spawnWorker } = createTrackedSpawner(
+      createMemorySqliteWorkerBackend(sqlite3)
+    );
+    const owner = createSqliteWorkerSqlOwner({
+      dbName: 'user_a',
+      spawnWorker,
+      timers: createHarnessClock().timers,
+    });
+    const failed = rejectionOf(owner.open());
+    await Promise.resolve();
+    owner.release();
+    const reopening = owner.open();
+    await failed;
+    const current = await reopening;
+    await current.run(sql`CREATE TABLE current (id INTEGER)`);
+    owner.release();
+    expect(events).toEqual([
+      'spawn:user_a',
+      'terminate',
+      'spawn:user_a',
+      'terminate',
+    ]);
   });
 
   test('resetStore wipes through a throwaway worker', async () => {
