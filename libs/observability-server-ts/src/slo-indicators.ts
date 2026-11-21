@@ -95,6 +95,15 @@ type Described = {
   readonly fastBurnHold?: string;
   /** Bad events that notify regardless of traffic volume. */
   readonly failureCounts?: FailureCount;
+  /**
+   * Where its events come from. `people`: they arrive only when someone uses
+   * the app, so silence is expected and never alerts. `schedule`: the team's
+   * own checks or the server's scheduled work produce them whether anyone
+   * uses the app or not, so silence means the objective is no longer judged
+   * and alerts (`evidence-freshness.ts`), and no alert can only mean the
+   * promise is kept.
+   */
+  readonly evidence: 'people' | 'schedule';
 };
 
 /** Good events over all events, counted by one counter. */
@@ -173,6 +182,7 @@ function healthChecks(input: {
     kind: 'sample-share',
     sli: input.sli,
     owner: input.owner,
+    evidence: 'schedule',
     // One run every few hours: a tenth of a sample an hour is real traffic.
     minimumEventsPerHour: 0.1,
     investigate: 'errors',
@@ -206,6 +216,7 @@ function under(input: {
     kind: 'histogram-under',
     sli: input.sli,
     owner: 'runtime',
+    evidence: 'people',
     minimumEventsPerHour: 60,
     investigate: 'slow',
     sliceBy: ROUTE_GROUP,
@@ -228,6 +239,7 @@ function bugReportSendsUnder(input: {
     kind: 'histogram-under',
     sli: input.sli,
     owner: 'feedback',
+    evidence: 'people',
     minimumEventsPerHour: 1,
     investigate: 'slow',
     sliceBy: null,
@@ -257,6 +269,7 @@ function probeDuration(input: {
     kind: 'sample-under',
     sli: input.sli,
     owner: 'runtime',
+    evidence: 'schedule',
     minimumEventsPerHour: 60,
     investigate: 'slow',
     sliceBy: 'job',
@@ -272,6 +285,7 @@ export const INDICATORS: readonly Indicator[] = [
   {
     kind: 'counter-ratio',
     sli: 'people-requests-served',
+    evidence: 'people',
     owner: 'runtime',
     minimumEventsPerHour: 60,
     investigate: 'errors',
@@ -288,6 +302,7 @@ export const INDICATORS: readonly Indicator[] = [
   {
     kind: 'counter-ratio',
     sli: 'changes-saved-first-time',
+    evidence: 'people',
     owner: 'runtime',
     minimumEventsPerHour: 5,
     investigate: 'errors',
@@ -332,6 +347,7 @@ export const INDICATORS: readonly Indicator[] = [
   {
     kind: 'sample-share',
     sli: 'outside-pings-answered',
+    evidence: 'schedule',
     owner: 'runtime',
     // One sample a minute per check.
     minimumEventsPerHour: 60,
@@ -350,6 +366,7 @@ export const INDICATORS: readonly Indicator[] = [
   {
     kind: 'sample-share',
     sli: 'broker-pings-answered',
+    evidence: 'schedule',
     owner: 'runtime',
     // One sample every ten minutes.
     minimumEventsPerHour: 3,
@@ -420,6 +437,7 @@ export const INDICATORS: readonly Indicator[] = [
   {
     kind: 'counter-ratio',
     sli: 'bug-reports-taken',
+    evidence: 'people',
     owner: 'feedback',
     // A bug report is rare: one an hour is already a busy hour.
     minimumEventsPerHour: 1,
@@ -453,6 +471,7 @@ export const INDICATORS: readonly Indicator[] = [
   {
     kind: 'counter-ratio',
     sli: 'background-runs-completing',
+    evidence: 'schedule',
     owner: 'runtime',
     // The drain is scheduled every minute.
     minimumEventsPerHour: 30,

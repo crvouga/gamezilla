@@ -47,6 +47,7 @@ import type { AlertRule } from './alert-rule';
 import { percent, ruleKey } from './alert-rule';
 import { ciWorkflowAlerts } from './ci-workflow-alerts';
 import { certificateRules, failureCountRules } from './companion-alerts';
+import { evidenceFreshnessRules } from './evidence-freshness';
 import { integrityRules } from './integrity-alerts';
 import { PIPELINE_ALERTS } from './pipeline-alerts';
 import {
@@ -186,6 +187,7 @@ export function generateAlertRules(
     ...syncPerformanceAlerts(),
     ...certificateRules(),
     ...failureCountRules(docs),
+    ...evidenceFreshnessRules(docs),
   ];
   const slow: AlertRule[] = [];
   for (const slo of metricBackedSlos(docs)) {
