@@ -49,7 +49,7 @@ export async function waitActiveSpace(
 type Ui = Awaited<ReturnType<typeof actorUi>>;
 
 /**
- * Whether `handle` shows. The space's bar (its ⋯) also tops the shell a
+ * Whether `handle` shows. The space's top row (its gear) also tops the shell a
  * space shows while it is still finding out whether this person is in it,
  * so the bar means inside only once that loading body is gone.
  */
@@ -194,16 +194,6 @@ export async function reenterSpace(
   await waitActiveSpace(s, actorId);
 }
 
-export async function tapChromeAction(
-  s: ProductHarness,
-  actorId: string,
-  handle: string
-): Promise<void> {
-  const ui = await actorUi(s, actorId);
-  await ui.get(handle).expect.visible({ timeoutMs: SPACE_WAIT_MS });
-  await ui.get(handle).tap({ timeoutMs: SPACE_WAIT_MS });
-}
-
 export async function confirmSpaceMutation(
   s: ProductHarness,
   actorId: string,
@@ -221,7 +211,7 @@ export async function confirmSpaceMutation(
 /** Every screen a space link or a start can settle on. */
 const SPACE_OUTCOMES = [
   Handles.spaceJoin,
-  // Inside: the space's bar, whose ⋯ is on it on every screen and size.
+  // Inside: the space's top row, whose gear is on it on every screen and size.
   Handles.spaceChromeOverflow,
   Handles.spaceEnded,
   Handles.spaceHostOffline,
@@ -278,7 +268,7 @@ export async function expectJoinPrompt(
 }
 
 /**
- * Tap a space chrome action that may have collapsed into the ⋯ menu: straight
+ * Tap a space chrome action that may be in the space settings sheet: straight
  * when it shows, through the menu otherwise.
  */
 export async function tapChromeOrOverflow(

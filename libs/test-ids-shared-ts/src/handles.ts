@@ -77,12 +77,13 @@ export const Handles = {
   spaceMemberIdle: (memberId: string) => `space-member-idle-${memberId}`,
   /** This device's last activity in the space, for the harness clock. */
   spaceOwnActivity: 'space-own-activity',
+  /** Minimize space, in the space settings sheet. */
   spaceClose: 'space-close',
-  /** A phone's ‹ at the room's root: back to Spaces (the space goes on, small). */
+  /** Back with no screen's own way back: to Spaces (the space goes on, small). */
   spaceBackToSpaces: 'space-back-to-spaces',
   /** A space's body while it is still finding out whether this person is in it. */
   spaceLoading: 'space-loading',
-  /** Space chrome overflow trigger — actions that do not fit collapse here. */
+  /** The gear in a space's top row that opens the space settings sheet. */
   spaceChromeOverflow: 'space-chrome-overflow-menu',
   spaceLeave: 'space-leave',
   spaceEnd: 'space-end',
@@ -103,10 +104,8 @@ export const Handles = {
   spaceMiniplayerOpen: (spaceId: string) => `space-miniplayer-open-${spaceId}`,
   /** MutationModal success-state dismiss (Done) for space leave/end flows. */
   spaceMutationDismiss: 'space-mutation-dismiss',
-  /** Members button in the space action bar. */
+  /** People in this space, in the space settings sheet: opens the members list. */
   spaceMembersButton: 'space-members-button',
-  /** Presence strip (member faces) in the space action bar. */
-  spacePresenceStrip: 'space-presence-strip',
   /** One row in the space members list modal, scoped by member id. */
   spaceMemberRow: (memberId: string) => `space-member-row-${memberId}`,
   spaceMemberName: (memberId: string) => `space-member-name-${memberId}`,

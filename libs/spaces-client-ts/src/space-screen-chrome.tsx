@@ -44,32 +44,31 @@
  *   by mounting one, as today. With none registered, back leaves for the
  *   spaces list (the space goes on, minimized) and the shell says
  *   "Back to spaces".
- * - **Settings.** `menu` (Share, Rename when allowed, Minimize) opens from
- *   the gear in row 1. Leave (guest) and End (host) sit in row 1 and ask
- *   to confirm through the space's own modals.
+ * - **Settings.** `menu` (Share, People in this space, Rename when
+ *   allowed, Minimize, and for the host Leave, which ends the space too)
+ *   opens from the gear in row 1. Leave (guest) and End (host) sit in row
+ *   1; both ask to confirm through the space's own modals.
  * - **People actions.** `onPersonAction` handles `removeFromSpace` (the
  *   remove confirm), `inviteFriend` (share), `seeDetails` / `seeMyDetails`
- *   (the members list); a screen handles its own (`readyUp`, bots, seats)
- *   first and passes the rest here. `personCapabilities` is empty: Make
- *   host, Mute, Mute my mic and Send message stay hidden until built.
+ *   (the list of people in the space); a screen handles its own
+ *   (`readyUp`, bots, seats) first and passes the rest here.
+ *   `personCapabilities` is empty: Make host, Mute, Mute my mic and Send
+ *   message stay hidden until built.
  * - **Notice.** Render `<SpaceScreenNotice />` as the shell's `notice`: a
  *   refused change to the space, and a guest's host gone offline.
  * - **Test ids.** `testIds` keeps the harness handles on row 1
  *   (`navBack` / `spaceBackToSpaces`, `spaceTitle`, `spaceChromeOverflow`
  *   on the gear, `spaceLeave`, `spaceEnd`); the menu rows carry
- *   `spaceShare`, `spaceRename` and `spaceClose`, and the notice
- *   `spaceHostOffline`. Game actions carry theirs in `SpaceGameAction.testId`.
+ *   `spaceShare`, `spaceMembersButton`, `spaceRename`, `spaceClose` and
+ *   the host's `spaceLeave`, and the notice `spaceHostOffline`. Game
+ *   actions carry theirs in `SpaceGameAction.testId`.
  *
  * **Who draws the shell.** Migrated screens render a template and render
  * `<ClaimSpaceShell />` (`./space-shell-claim`); unmigrated screens do
  * nothing and get the default stage shell from `SpaceScreenFrame`
- * (`./space-screen-frame`), which replaces the old chrome.
- *
- * Until the old chrome (`SpaceActiveLayout`) is deleted it still renders
- * around every screen and owns the share sheet and members list these
- * callbacks open; whoever deletes it moves `SpaceShareSheet` and
- * `SpaceMembersListModal` into {@link SpaceScreenChromeProvider}, and the
- * duplicated row-1 handles disappear with it.
+ * (`./space-screen-frame`), which also shows the space's loading state.
+ * The provider owns everything these callbacks open (`./space-screen-overlays`):
+ * the share sheet, the people in the space, rename and the remove confirm.
  */
 
 import { useMyId } from '@libs/auth-client-ts/use-current-user';
@@ -93,24 +92,24 @@ import {
   type Accessor,
   createContext,
   createMemo,
-  createSignal,
   getOwner,
   type JSX,
   runWithOwner,
   Show,
   useContext,
 } from 'solid-js';
-import { RemoveSpacePersonModal } from './remove-space-person-modal';
-import { useOpenMembers } from './space-active-layout';
-import { spaceBackName } from './space-chrome-trail';
+import { spaceBackName } from './space-back-name';
 import { SpaceHostOfflineNotice } from './space-connection-notice';
-import type { SpaceDetailStatus } from './space-detail-screen-view';
 import type { SpacePerson } from './space-person-view';
 import { useSpacePresenceFaces } from './space-presence-strip';
 import { SpaceRefusedChangeNotice } from './space-refused-change-notice';
+import {
+  type SpaceOverlays,
+  SpaceScreenOverlays,
+  useSpaceOverlays,
+} from './space-screen-overlays';
 import { spaceScreenPeople } from './space-screen-people';
 import { useSpaceSessionUi } from './space-session-ui-context';
-import { useSpaceShareDialog } from './space-share-dialog-context';
 import {
   useSpacesNavBack,
   useSpacesNavBackLabel,
@@ -124,6 +123,9 @@ import { useSpacePerson } from './use-space-people';
 
 /** The diameter the people row draws faces at, for avatar art. */
 const PEOPLE_ROW_FACE = 48;
+
+/** The space's body is still being reached, or shows its content. */
+export type SpaceDetailStatus = 'loading' | 'ready';
 
 /** Everything a space screen needs to render `SpaceShell` and its templates. */
 export type SpaceScreenChromeValue = {
@@ -157,6 +159,12 @@ export type SpaceScreenChromeValue = {
 const SpaceScreenChromeContext = createContext<SpaceScreenChromeValue | null>(
   null
 );
+
+/**
+ * Set by the live provider only: the refused-change notice reads the sync
+ * engine, which a story's or test's ready-made chrome does not have.
+ */
+const SpaceLiveNoticeContext = createContext(false);
 
 /** Each present person's face, with avatar art drawn once per config. */
 function usePeople(
@@ -239,37 +247,91 @@ function useBack(title: Accessor<string>) {
   };
 }
 
-/** Row 1's settings sheet: Share, Rename when allowed, Minimize. */
+type MenuRights = {
+  readonly canRename: Accessor<boolean>;
+  readonly canEnd: Accessor<boolean>;
+};
+
+/**
+ * Row 1's settings sheet: Share, the people in the space, Rename when
+ * allowed, Minimize, and for the host Leave (row 1 offers them End).
+ */
 function useMenu(
-  canRename: Accessor<boolean>,
-  onInvite: () => void
+  rights: MenuRights,
+  overlays: SpaceOverlays
 ): Accessor<readonly SpaceMenuItem[]> {
   const { t } = useLingui();
   const sessionUi = useSpaceSessionUi();
+  const item = (
+    id: string,
+    label: string,
+    onPress: () => void,
+    testId: string
+  ): SpaceMenuItem => ({ id, label, onPress, testId });
   return createMemo((): readonly SpaceMenuItem[] => [
-    {
-      id: 'share',
-      label: t`Share`,
-      onPress: onInvite,
-      testId: Handles.spaceShare,
-    },
-    ...(canRename()
+    item(
+      'share',
+      t`Share`,
+      () => overlays.setShareOpen(true),
+      Handles.spaceShare
+    ),
+    item(
+      'people',
+      t`People in this space`,
+      overlays.openMembers,
+      Handles.spaceMembersButton
+    ),
+    ...(rights.canRename()
+      ? [
+          item(
+            'rename',
+            t`Rename`,
+            () => overlays.setRenameOpen(true),
+            Handles.spaceRename
+          ),
+        ]
+      : []),
+    item(
+      'minimize',
+      t`Minimize space`,
+      () => sessionUi.onPressHome(),
+      Handles.spaceClose
+    ),
+    ...(rights.canEnd()
       ? [
           {
-            id: 'rename',
-            label: t`Rename`,
-            onPress: () => sessionUi.onRequestRename(),
-            testId: Handles.spaceRename,
+            ...item(
+              'leave',
+              t`Leave space`,
+              () => sessionUi.onRequestLeave(),
+              Handles.spaceLeave
+            ),
+            tone: 'destructive' as const,
           },
         ]
       : []),
-    {
-      id: 'minimize',
-      label: t`Minimize space`,
-      onPress: () => sessionUi.onPressHome(),
-      testId: Handles.spaceClose,
-    },
   ]);
+}
+
+/** What a person's sheet asks of the space: share, the list, remove. */
+function usePersonAction(
+  people: Accessor<readonly SpaceShellPerson[]>,
+  overlays: SpaceOverlays
+): (personId: string, action: string) => void {
+  return (personId, action) => {
+    if (action === 'inviteFriend') overlays.setShareOpen(true);
+    if (action === 'seeDetails' || action === 'seeMyDetails')
+      overlays.openMembers();
+    if (action !== 'removeFromSpace') return;
+    const person = people().find((each) => each.id === personId);
+    if (person === undefined) return;
+    overlays.setRemoving({
+      id: person.id,
+      name: person.name,
+      avatarConfig: null,
+      bot: false,
+    });
+  };
 }
 
 export type SpaceScreenChromeProviderProps = {
@@ -280,7 +342,7 @@ export type SpaceScreenChromeProviderProps = {
 
 /**
  * Provides {@link useSpaceScreenChrome} to every screen in an active space,
- * and owns the confirm it opens (removing a person). Renders nothing else.
+ * and owns everything it opens (`./space-screen-overlays`).
  */
 export function SpaceScreenChromeProvider(
   props: SpaceScreenChromeProviderProps
@@ -294,26 +356,8 @@ export function SpaceScreenChromeProvider(
   const hostPerson = useSpacePerson(() => host()?.profileId ?? null);
   const people = useLazy(() => usePeople(spaceId));
   const back = useBack(title);
-  const shareDialog = useSpaceShareDialog();
-  const openMembers = useOpenMembers();
-  const invite = (): void => {
-    shareDialog?.setOpen(true);
-  };
-  const menu = useMenu(canRename, invite);
-  const [removing, setRemoving] = createSignal<SpacePerson | null>(null);
-  const onPersonAction = (personId: string, action: string): void => {
-    if (action === 'inviteFriend') invite();
-    if (action === 'seeDetails' || action === 'seeMyDetails') openMembers();
-    if (action !== 'removeFromSpace') return;
-    const person = people().find((each) => each.id === personId);
-    if (person === undefined) return;
-    setRemoving({
-      id: person.id,
-      name: person.name,
-      avatarConfig: null,
-      bot: false,
-    });
-  };
+  const overlays = useSpaceOverlays();
+  const menu = useMenu({ canRename, canEnd }, overlays);
   const value: SpaceScreenChromeValue = {
     get spaceId() {
       return spaceId();
@@ -345,10 +389,8 @@ export function SpaceScreenChromeProvider(
     },
     onLeave: () => sessionUi.onRequestLeave(),
     onEnd: () => sessionUi.onRequestEnd(),
-    get onInvite() {
-      return shareDialog === undefined ? undefined : invite;
-    },
-    onPersonAction,
+    onInvite: () => overlays.setShareOpen(true),
+    onPersonAction: usePersonAction(people, overlays),
     personCapabilities: [],
     get testIds() {
       return {
@@ -362,16 +404,10 @@ export function SpaceScreenChromeProvider(
   };
   return (
     <SpaceScreenChromeContext.Provider value={value}>
-      {props.children}
-      <Show when={removing()} keyed>
-        {(person) => (
-          <RemoveSpacePersonModal
-            spaceId={spaceId()}
-            person={person}
-            onClose={() => setRemoving(null)}
-          />
-        )}
-      </Show>
+      <SpaceLiveNoticeContext.Provider value={true}>
+        {props.children}
+      </SpaceLiveNoticeContext.Provider>
+      <SpaceScreenOverlays spaceId={spaceId()} overlays={overlays} />
     </SpaceScreenChromeContext.Provider>
   );
 }
@@ -408,6 +444,7 @@ export function useSpaceScreenChrome(): SpaceScreenChromeValue {
  */
 export function SpaceScreenNotice(): JSX.Element {
   const chrome = useSpaceScreenChrome();
+  const live = useContext(SpaceLiveNoticeContext);
   return (
     <>
       <Show when={chrome.hostOffline && chrome.role === 'guest'}>
@@ -415,7 +452,9 @@ export function SpaceScreenNotice(): JSX.Element {
           <SpaceHostOfflineNotice />
         </StackVertical>
       </Show>
-      <SpaceRefusedChangeNotice />
+      <Show when={live}>
+        <SpaceRefusedChangeNotice />
+      </Show>
     </>
   );
 }

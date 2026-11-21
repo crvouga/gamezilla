@@ -17,8 +17,8 @@ const SpaceShareDialogContext = createContext<SpaceShareDialog>();
 
 /**
  * Whether the space's Share sheet (its link and Add people) is open, for
- * every control in the space that opens it: ⋯ › Share in the header, and
- * Invite friends beside who is here.
+ * every control in the space that opens it: Share in the space settings,
+ * Invite in the people row, and Invite friends beside who is here.
  */
 export function SpaceShareDialogProvider(props: {
   readonly spaceId: string;
