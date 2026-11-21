@@ -15,6 +15,7 @@
     "test": "bun test"
   },
   "dependencies": {
+    "@crvouga/mockingbird-preview": "catalog:",
     "@libs/product-brand-shared-ts": "workspace:*",
     "@libs/product-identity-shared-ts": "workspace:*",
     "@pkgs/clock-shared-ts": "workspace:*",
