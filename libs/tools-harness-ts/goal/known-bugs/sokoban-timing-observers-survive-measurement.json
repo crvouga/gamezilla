@@ -1,0 +1,4 @@
+{
+  "summary": "Sokoban's walking, second walking, and push/undo timing passes retained every earlier input listener, mutation observer, performance observer, and queued frame, multiplying instrumentation during later measurements.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/sokoban-timing-probe.test.ts"
+}
