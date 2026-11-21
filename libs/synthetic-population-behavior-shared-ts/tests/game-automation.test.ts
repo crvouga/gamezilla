@@ -71,6 +71,23 @@ test('one offered game needs no random draw and unavailable games are never sele
   expect(() => gameForPosition([COUNTING], 'unknown')).toThrow('unique');
 });
 
+test('a mode is picked through its family, whose tile opens the modes', async () => {
+  const visible = new Set(['game-family-stones']);
+  const { driver, actions } = automationDriver({
+    visible,
+    onTap: (id) => {
+      if (id === 'game-family-stones') visible.add('game-menu-stones-3');
+      if (id === 'game-menu-stones-3') visible.add('game-choice-multiplayer');
+    },
+  });
+  await openMultiplayer(driver, [game('stones-3')], noRandom);
+  expect(actions).toEqual([
+    'game-family-stones',
+    'game-menu-stones-3',
+    'game-choice-multiplayer',
+  ]);
+});
+
 test('participant ownership does not depend on a game side name or language', async () => {
   // regression: synthetic-opponent-game-coupling
   const surface = automationDriver({

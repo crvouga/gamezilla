@@ -1,7 +1,4 @@
-import type {
-  GameClientDefinition,
-  GameDefinition,
-} from '@libs/spaces-shared-ts/game';
+import type { GameDefinition } from '@libs/spaces-shared-ts/game';
 import { composeSpaceRoomModule } from '@libs/spaces-shared-ts/load-game-plugins';
 import { useClock } from '@pkgs/clock-client-ts/solid';
 import { TurnGamesProvider } from '@pkgs/turn-game-client-ts/turn-games-context';
@@ -9,13 +6,16 @@ import { createTurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import { useRandom } from '@pkgs/uuid-client-ts/solid';
 import type { JSX } from 'solid-js';
 import { untrack } from 'solid-js';
-import { GamesRegistryProvider } from './games-registry-context';
+import {
+  GamesRegistryProvider,
+  type SpaceGameClient,
+} from './games-registry-context';
 import type { SpaceRoomModule } from './space-module-context';
 import { SpaceModuleProvider } from './space-module-context';
 
 export type GamesBootstrapFromPluginsProps = {
   readonly games: readonly GameDefinition[];
-  readonly clients: readonly GameClientDefinition[];
+  readonly clients: readonly SpaceGameClient[];
   readonly children: JSX.Element;
 };
 

@@ -1,6 +1,7 @@
+import { gameChoiceHandles } from '@libs/spaces-harness-ts/space-game-choice-ui';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
-import { JOURNEY_WAIT_MS, tap } from './journey-gestures';
+import { JOURNEY_WAIT_MS, pickGame, tap } from './journey-gestures';
 import type { JourneyHost } from './journey-types';
 
 /** A puzzle game's shared library, from wherever space navigation left the app. */
@@ -11,11 +12,14 @@ export async function openContentLibrary(
   await ui.get('content-create-puzzle').wait('visible', {
     timeoutMs: JOURNEY_WAIT_MS,
     description: `${gameId} library or game choice after space navigation`,
-    visibleOr: [Handles.gameMenu(gameId), Handles.gameChoice('puzzle-library')],
+    visibleOr: [
+      ...gameChoiceHandles(gameId),
+      Handles.gameChoice('puzzle-library'),
+    ],
   });
   if (await ui.get('content-create-puzzle').isVisible()) return;
   if (!(await ui.get(Handles.gameChoice('puzzle-library')).isVisible()))
-    await tapOrObserveLibrary(ui, Handles.gameMenu(gameId));
+    await tapOrObserveLibrary(ui, () => pickGame(ui, gameId));
   // Selecting the game can coincide with hydration restoring its saved library.
   // Observe that destination before sending a gesture to the replaced menu.
   await ui.get('content-create-puzzle').wait('visible', {
@@ -23,16 +27,21 @@ export async function openContentLibrary(
     visibleOr: [Handles.gameChoice('puzzle-library')],
   });
   if (!(await ui.get('content-create-puzzle').isVisible()))
-    await tapOrObserveLibrary(ui, Handles.gameChoice('puzzle-library'));
+    await tapOrObserveLibrary(ui, () =>
+      tap(ui, Handles.gameChoice('puzzle-library'))
+    );
   await ui
     .get('content-create-puzzle')
     .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
 }
 
 /** Hydration may replace either menu before its requested tap reaches it. */
-async function tapOrObserveLibrary(ui: Driver, target: string): Promise<void> {
+async function tapOrObserveLibrary(
+  ui: Driver,
+  gesture: () => Promise<void>
+): Promise<void> {
   try {
-    await tap(ui, target);
+    await gesture();
   } catch (error) {
     // Observe the restored destination without sending another click. If
     // restoration never arrives, preserve the original gesture failure.

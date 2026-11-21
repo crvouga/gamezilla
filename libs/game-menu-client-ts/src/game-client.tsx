@@ -9,10 +9,7 @@ import { assertGameDefinitions } from '@libs/game-session-shared-ts/game-definit
 import type { GameClientDefinition } from '@libs/spaces-shared-ts/game';
 import type { GamePresentation } from '@pkgs/turn-game-shared-ts/game-presentation';
 import { gameFamily, gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
-import {
-  GameTile,
-  type GameTileMotif,
-} from '@pkgs/ui-root-client-ts/game-tile';
+import type { GameTileMotif } from '@pkgs/ui-root-client-ts/game-tile';
 import type { JSX } from 'solid-js';
 import { assertContentFrame, assertFrame } from './game-frame-contract';
 import { GameMenu } from './game-menu';
@@ -69,6 +66,13 @@ type GameClientParts = {
    * of its playing surface (`GameTile`), in the surface's own colors.
    */
   readonly tile: GameTileMotif;
+  /**
+   * The name of the family this game is one mode of, on the family's one
+   * tile in the game choice (`Light Cycles` for Light Cycles Trio): the
+   * same for every mode. A game that is its family's only mode leaves it
+   * out and goes by its title.
+   */
+  readonly familyTitle?: string;
   /** One line under the name above the game's choices. */
   readonly subtitle: () => JSX.Element;
   /** How to play, on its own small screen opened from the game's choices. */
@@ -92,11 +96,14 @@ class DefinedGameClient implements GameClientDefinition {
   readonly title: string;
   readonly caption: string;
   readonly players: number;
-  /** The family its modes share, for a game with rules. */
-  declare readonly family?: string;
+  /** The family its modes share; its own id for a game without rules. */
+  readonly family: string;
+  readonly familyTitle: string;
+  readonly bots: boolean;
+  /** The game's picture wherever it is picked (`GameTile`). */
+  readonly motif: GameTileMotif;
   declare readonly presentation?: GamePresentation<JSX.Element>;
   declare readonly puzzleContent?: PuzzleContentClient;
-  readonly Tile: GameClientDefinition['Tile'];
   readonly MainMenu: GameClientDefinition['MainMenu'];
   /** The game's puzzles part, when it offers puzzles. */
   declare readonly puzzles?: GamePuzzlesClient;
@@ -107,12 +114,14 @@ class DefinedGameClient implements GameClientDefinition {
     this.id = id;
     this.title = game.title;
     this.caption = game.caption;
-    const motif = game.tile;
-    this.Tile = (props) => <GameTile motif={motif} size={props.size} />;
-    const rules = game.shared.registration?.rules;
+    this.motif = game.tile;
+    const registration = game.shared.registration;
+    const rules = registration?.rules;
     // A game with no rules of its own (puzzles only) is played alone.
     this.players = rules === undefined ? 1 : gameSides(rules).length;
-    if (rules !== undefined) this.family = gameFamily(rules);
+    this.family = rules === undefined ? id : gameFamily(rules);
+    this.familyTitle = game.familyTitle ?? game.title;
+    this.bots = registration?.capabilities['custom-games'] !== undefined;
     if (game.presentation !== undefined)
       this.presentation = { ...game.presentation, id };
     if (game.puzzleContent !== undefined)

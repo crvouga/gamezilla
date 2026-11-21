@@ -32,6 +32,7 @@ function statsSurface(entryScreen: string, gameId: string) {
     snapshotHtml: async () => `<div data-testid="${card}"></div>`,
     get: (handle: string) => ({
       isVisible: async () => visible(handle),
+      wait: async () => undefined,
       expect: {
         visible: async () => {
           if (screen === 'loading' || screen === 'join') screen = 'games';

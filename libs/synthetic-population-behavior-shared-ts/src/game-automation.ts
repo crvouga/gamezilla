@@ -7,6 +7,31 @@ import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 const FIND_AN_OPPONENT = Handles.gameChoice('multiplayer');
 
 /**
+ * The game choice offers `gameId`: its own tile, or the tile of the family
+ * it is a mode of (its row shows once that tile opens the modes).
+ */
+async function gameOffered(driver: Driver, gameId: string): Promise<boolean> {
+  for (const handle of [
+    Handles.gameMenu(gameId),
+    ...Handles.gameFamiliesOf(gameId),
+  ])
+    if (await driver.get(handle).isVisible()) return true;
+  return false;
+}
+
+/** Pick `gameId` on the game choice, through its family's modes. */
+async function pickGame(driver: Driver, gameId: string): Promise<void> {
+  const own = driver.get(Handles.gameMenu(gameId));
+  if (!(await own.isVisible()))
+    for (const handle of Handles.gameFamiliesOf(gameId))
+      if (await driver.get(handle).isVisible()) {
+        await driver.get(handle).tap();
+        break;
+      }
+  await own.tap();
+}
+
+/**
  * Resume the current game's choices before considering a fresh game choice.
  * A fresh choice takes a `preferred` game when the space offers one (a game
  * a person waits in, or a favorite), otherwise any game the space offers.
@@ -23,8 +48,7 @@ export async function openMultiplayer(
   }
   const offered: (typeof games)[number][] = [];
   for (const game of games)
-    if (await driver.get(Handles.gameMenu(game.rules.id)).isVisible())
-      offered.push(game);
+    if (await gameOffered(driver, game.rules.id)) offered.push(game);
   if (offered.length === 0) return;
   const favored = offered.filter((game) => preferred.includes(game.rules.id));
   const choices = favored.length > 0 ? favored : offered;
@@ -32,7 +56,7 @@ export async function openMultiplayer(
     choices.length === 1 ? 0 : Math.floor(random() * choices.length);
   const selected = choices[index];
   if (selected === undefined) throw new Error('Invalid game selection draw');
-  await driver.get(Handles.gameMenu(selected.rules.id)).tap();
+  await pickGame(driver, selected.rules.id);
   await driver.get(FIND_AN_OPPONENT).tap();
 }
 
@@ -98,8 +122,8 @@ export async function findOpponentFor(
   demand: OpponentDemand
 ): Promise<boolean> {
   for (let step = 0; step < 8; step += 1) {
-    if (await driver.get(Handles.gameMenu(demand.gameId)).isVisible()) {
-      await driver.get(Handles.gameMenu(demand.gameId)).tap();
+    if (await gameOffered(driver, demand.gameId)) {
+      await pickGame(driver, demand.gameId);
       await driver.get(FIND_AN_OPPONENT).tap();
       await openSearchHub(driver);
       await chooseClock(driver, demand.timeControl.split('/').at(-1) ?? '');

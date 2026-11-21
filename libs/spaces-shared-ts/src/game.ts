@@ -206,8 +206,8 @@ export type GameClientMenuProps = {
 /**
  * Client-side definition of a playable game. Composed alongside
  * {@link GameDefinition} at the composition root and provided to
- * `<GamesRegistryProvider>` so `<GamesMainMenu>` can render the game list
- * + mount the selected game's UI.
+ * `<GamesRegistryProvider>` so `<GamesMainMenu>` can offer the games, one
+ * tile per family, and mount the selected game's UI.
  */
 export type GameClientDefinition = {
   readonly presentation?: GamePresentation<JSX.Element>;
@@ -218,8 +218,16 @@ export type GameClientDefinition = {
   readonly caption?: JSX.Element | string;
   /** How many play one game: its seats, or 1 for a game played alone. */
   readonly players?: number;
-  /** The game's picture beside its title wherever it is picked. */
-  readonly Tile: (props: { readonly size?: 'md' | 'lg' }) => JSX.Element;
+  /**
+   * The family the game is a mode of (`light-cycles` for Light Cycles
+   * Trio); its own id when it is the only one. The game choice offers one
+   * tile per family.
+   */
+  readonly family: string;
+  /** The family's name on its tile (`Light Cycles`), the same for each mode. */
+  readonly familyTitle: string;
+  /** Bots can fill the seats people leave open. */
+  readonly bots: boolean;
   /** Mounted when this game is the currently selected game in the space. */
   readonly MainMenu: (props: GameClientMenuProps) => JSX.Element;
   /** Account-owned effects observe open rooms even while another screen is shown. */

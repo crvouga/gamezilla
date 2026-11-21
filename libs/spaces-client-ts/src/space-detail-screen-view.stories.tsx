@@ -5,21 +5,18 @@ import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import type { SpaceDetailScreenViewProps } from './space-detail-screen-view';
 import { SpaceDetailScreenView } from './space-detail-screen-view';
-import { SpaceGamesScreenView } from './space-games-screen-view';
 import { SpaceMembersSheetView } from './space-members-sheet-view';
-import type { SpacePresenceFace } from './space-presence-strip-view';
 import { SpacePresenceStripView } from './space-presence-strip-view';
 import { SpaceShareSheetView } from './space-share-sheet-view';
 import { GameAreaExample } from './space-story-game-area.example';
-import { SpaceWhoIsHereView } from './space-who-is-here-view';
 import {
   AVERY,
   faces,
-  GAMES,
   GUESTS,
   HOSTED_SPACE,
   JORDAN,
   MEMBERS,
+  ROBIN,
 } from './spaces-story.example';
 
 type Slots = {
@@ -28,28 +25,12 @@ type Slots = {
   readonly overlays?: () => JSX.Element;
 };
 
-function gamesList(
-  canSelectGame: boolean,
-  people: readonly SpacePresenceFace[] = faces([AVERY, ...GUESTS])
-): JSX.Element {
-  return (
-    <SpaceGamesScreenView
-      games={GAMES}
-      shownGame={null}
-      canSelectGame={canSelectGame}
-      present={people.length}
-      hostChoosesNotice={false}
-      onSelectGame={fn()}
-      whoIsHere={
-        <SpaceWhoIsHereView
-          faces={people}
-          host={AVERY}
-          hostIsYou={canSelectGame}
-          onInvite={fn()}
-        />
-      }
-    />
-  );
+/**
+ * The body while the space chooses its game: a slot, since the game choice
+ * draws its own space shell (`Screens/Spaces/Games`).
+ */
+function gamesList(): JSX.Element {
+  return <GameAreaExample title="Choosing a game" />;
 }
 
 /** Slots are built at render time, inside the story's providers. */
@@ -101,7 +82,7 @@ const meta = {
     onPressEnd: fn(),
     onPressLeave: fn(),
   },
-  render: (args) => withSlots(args, { body: () => gamesList(true) }),
+  render: (args) => withSlots(args, { body: () => gamesList() }),
 } satisfies Meta<typeof SpaceDetailScreenView>;
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -113,7 +94,8 @@ type Story = StoryObj<typeof meta>;
  * the miniplayer) and ⋯ with Share and Rename, then, after a divider and in
  * red, Leave and End space, each behind a confirm. Wide shows everyone's
  * faces; on a phone the members button is the people glyph with how many
- * are here. Under the Games title, who is here and who hosts.
+ * are here. The body is the game choice, which draws its own space shell
+ * (`Screens/Spaces/Games`).
  */
 export const HostChoosingGame: Story = {};
 
@@ -123,10 +105,10 @@ export const Loading: Story = {
   render: (args) => withSlots(args, {}),
 };
 
-/** A guest: ⋯ holds Leave and no End, no Rename; the list says the host picks. */
+/** A guest: ⋯ holds Leave and no End, no Rename. */
 export const Guest: Story = {
   args: { canRename: false, canEnd: false },
-  render: (args) => withSlots(args, { body: () => gamesList(false) }),
+  render: (args) => withSlots(args, { body: () => gamesList() }),
 };
 
 /**
@@ -175,27 +157,27 @@ export const NobodyElse: Story = {
       />
     ),
   },
-  render: (args) =>
-    withSlots(args, { body: () => gamesList(true, faces([AVERY])) }),
+  render: (args) => withSlots(args, { body: () => gamesList() }),
   // regression: space-detail-fixture-roster-disagrees
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.findByText('Just you here')).resolves.toBeTruthy();
-    await expect(canvas.queryByText('5 here · you host')).toBeNull();
+    await expect(canvas.findByText('Choosing a game')).resolves.toBeTruthy();
+    for (const guest of GUESTS)
+      await expect(canvas.queryByText(guest.name)).toBeNull();
   },
 };
 
 /** A guest whose host went offline: the bar says so; the body stays. */
 export const HostOffline: Story = {
   args: { hostOffline: true, canRename: false, canEnd: false },
-  render: (args) => withSlots(args, { body: () => gamesList(false) }),
+  render: (args) => withSlots(args, { body: () => gamesList() }),
 };
 
 /** A refused change in this space is told under the bar. */
 export const WithRefusedChange: Story = {
   render: (args) =>
     withSlots(args, {
-      body: () => gamesList(true),
+      body: () => gamesList(),
       notice: () => (
         <Notice tone="error">Your space couldn't be renamed. Try again.</Notice>
       ),
@@ -219,16 +201,21 @@ export const MembersOpen: Story = {
   },
   render: (args) =>
     withSlots(args, {
-      body: () => gamesList(true, MEMBERS),
+      body: () => gamesList(),
       overlays: () => (
         <SpaceMembersSheetView visible onClose={fn()} members={MEMBERS} />
       ),
     }),
   // regression: space-detail-fixture-roster-disagrees
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.findByText('4 here · you host')).resolves.toBeTruthy();
-    await expect(canvas.queryByText('5 here · you host')).toBeNull();
+    const sheet = within(canvasElement.ownerDocument.body);
+    for (const member of MEMBERS)
+      await expect(
+        sheet.findByTestId(Handles.spaceMemberRow(member.actor.id))
+      ).resolves.toBeTruthy();
+    await expect(
+      sheet.queryByTestId(Handles.spaceMemberRow(ROBIN.id))
+    ).toBeNull();
   },
 };
 
@@ -237,7 +224,7 @@ export const ShareOpen: Story = {
   args: { canRename: false, canEnd: false },
   render: (args) =>
     withSlots(args, {
-      body: () => gamesList(false),
+      body: () => gamesList(),
       overlays: () => (
         <SpaceShareSheetView
           open

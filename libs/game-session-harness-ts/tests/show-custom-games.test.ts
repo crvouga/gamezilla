@@ -18,6 +18,7 @@ function menuThatMovesOn() {
       : handle === Handles.gameMenu('some-game');
   const node = (handle: string) => ({
     isVisible: () => Promise.resolve(shown(handle)),
+    wait: () => Promise.resolve(),
     layout: () => Promise.resolve(null),
     tap: () => {
       moved = true;

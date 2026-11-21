@@ -62,9 +62,13 @@ const STACK_ROUTES: Readonly<Record<string, string>> = {
 };
 
 // These views are mounted under SpaceActiveLayout in the product. Link screens
-// and the complete SpaceDetailScreenView are deliberately not wrapped again.
-const SPACE_BODIES = new Set([
+// and the complete space screens (SpaceDetailScreenView, the game choice in
+// its own SpaceShell) are deliberately not wrapped again.
+const COMPLETE_SPACE_SCREENS = new Set([
+  'screens-spaces-detail',
   'screens-spaces-games',
+]);
+const SPACE_BODIES = new Set([
   'screens-games-battleship-board',
   'screens-games-battleship-setup',
   'screens-games-chess-board',
@@ -143,7 +147,7 @@ export function storyRoute(id: string, override?: StoryRoute): StoryRoute {
   const tab = TAB_ROUTES[family];
   if (tab !== undefined) return { pathname: tab, tab: true, spaceBody: false };
   const spaceBody = SPACE_BODIES.has(family);
-  if (spaceBody || family === 'screens-spaces-detail')
+  if (spaceBody || COMPLETE_SPACE_SCREENS.has(family))
     return { pathname: '/space/story-room', tab: false, spaceBody };
   // Isolated overlays and templates have no current product destination.
   return {

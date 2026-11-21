@@ -31,6 +31,7 @@ import { renderUi } from './render';
 
 /** A variable, not a literal: a literal `role` reads as an ARIA role to jsx-a11y. */
 const GUEST: SpaceRole = 'guest';
+const HOST: SpaceRole = 'host';
 const ME: SpacePerson = { id: 'me', kind: 'person', name: 'ana', you: true };
 const OTHER: SpacePerson = { id: 'bob', kind: 'person', name: 'bob' };
 const BOT: SpacePerson = { id: 'bot', kind: 'bot', name: 'Bot 1' };
@@ -213,6 +214,11 @@ describe('spaceGameFit', () => {
       false
     );
     expect(spaceGameFitDimmed({ kind: 'needs', target: 4 })).toBe(true);
+  });
+
+  test('too many people still play; the rest watch', () => {
+    expect(spaceGameFitDimmed({ kind: 'tooMany', max: 2 })).toBe(false);
+    expect(spaceGameFitDimmed({ kind: 'solo' })).toBe(false);
   });
 });
 
@@ -397,5 +403,57 @@ describe('SpaceLauncher', () => {
     expect(onSuggest).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole('button', { name: /Beta/ }));
     expect(onSuggest).toHaveBeenCalledWith('b');
+  });
+
+  test('without suggestions a guest only watches the host choose', () => {
+    renderUi(() => (
+      <SpaceLauncher
+        role={GUEST}
+        hostName="bob"
+        present={2}
+        statusTestId="status"
+        games={[
+          {
+            key: 'b',
+            name: 'Beta',
+            motif: 'trails',
+            players: { counts: [2], bots: false },
+            testId: 'tile-b',
+          },
+        ]}
+      />
+    ));
+    expect(screen.getByTestId('status').textContent).toBe(
+      'bob is choosing a game'
+    );
+    expect(screen.queryByText(/suggest/i)).toBeNull();
+    expect(screen.queryByText('bob is looking')).toBeNull();
+    const tile = screen.getByTestId('tile-b');
+    expect(tile.getAttribute('aria-disabled')).toBe('true');
+    expect(tile.getAttribute('aria-pressed')).toBeNull();
+  });
+
+  test('the host chooses a fitting game by its tile', () => {
+    const onChoose = mock();
+    renderUi(() => (
+      <SpaceLauncher
+        role={HOST}
+        hostName="bob"
+        present={1}
+        games={[
+          {
+            key: 'a',
+            name: 'Alpha',
+            motif: 'cards',
+            players: { counts: [1], bots: false },
+            testId: 'tile-a',
+          },
+        ]}
+        onChoose={onChoose}
+      />
+    ));
+    expect(screen.getByText('Pick a game for 1 player')).toBeDefined();
+    fireEvent.click(screen.getByTestId('tile-a'));
+    expect(onChoose).toHaveBeenCalledWith('a');
   });
 });

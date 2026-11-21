@@ -15,6 +15,10 @@ import { signedInAccountOf } from '@libs/harness-ts/identity';
 import { bringToFront } from '@libs/harness-ts/observations';
 import { backToTabs } from '@libs/harness-ts/shell-actions';
 import { createSpace } from '@libs/spaces-harness-ts/space-actions';
+import {
+  gameChoiceHandles,
+  tapGameChoice,
+} from '@libs/spaces-harness-ts/space-game-choice-ui';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import {
   forgetMultiplayerReply,
@@ -43,7 +47,7 @@ export const seekGameOpponent = scenarioAction({
     await Promise.resolve(backToTabs.act(s, actor));
     await Promise.resolve(createSpace.act(s, actor));
     const ui = await actorUi(s, actor);
-    await ui.get(Handles.gameMenu(gameId)).tap();
+    await tapGameChoice(ui, gameId);
     await ui.get(Handles.gameChoice('multiplayer')).tap();
     const matched = s.harness.composition.app.turnGames.capability(
       gameId,
@@ -109,7 +113,7 @@ export function findingAnOpponentHandles(gameId: string): readonly string[] {
     ...FINDING_SURFACES,
     ...NOWHERE_TO_FIND,
     Handles.gameChoice('multiplayer'),
-    Handles.gameMenu(gameId),
+    ...gameChoiceHandles(gameId),
     Handles.navBack,
   ];
 }
@@ -118,7 +122,8 @@ export function findingAnOpponentHandles(gameId: string): readonly string[] {
  * The next step towards finding an opponent for `gameId`, from the handles
  * on screen: `arrived` once it (or, `whereverItCan`, an ended or missing
  * space) shows, `nowhere` for an ended or missing space otherwise, the way in
- * to tap, or `null` while nothing is shown yet. An ended or missing space
+ * to tap (a family's tile first opens its modes, then the game's row), or
+ * `null` while nothing is shown yet. An ended or missing space
  * also shows Back, but that Back leaves the space and is never a way in.
  */
 export function findingAnOpponentStep(
@@ -133,7 +138,7 @@ export function findingAnOpponentStep(
   return (
     [
       Handles.gameChoice('multiplayer'),
-      Handles.gameMenu(gameId),
+      ...gameChoiceHandles(gameId),
       Handles.navBack,
     ].find((way) => visible.has(way)) ?? null
   );

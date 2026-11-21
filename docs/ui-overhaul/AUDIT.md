@@ -93,7 +93,7 @@ not-found route `/*all`. Tab roots (`tab: true`) nest under `TabsLayout`
 
 | Screen key | Component → file | Template |
 | --- | --- | --- |
-| (no game chosen) | `GamesMainMenu` `libs/spaces-client-ts/src/games-main-menu.tsx` | MainMenuScreen |
+| (no game chosen) | `GamesMainMenu` `libs/spaces-client-ts/src/games-main-menu.tsx` → `SpaceGameChoiceView` | SpaceStageTemplate + SpaceLauncher |
 | game choices | `GameMenu` `libs/game-menu-client-ts/src/game-menu.tsx`, with the choices built in `game-menu-choices.tsx` | MainMenuScreen |
 | `custom-game` | `CustomGameScreen` `libs/game-session-client-ts/src/custom-game-screen.tsx` | GameScreen + GameSessionLayout + GameBoardStage |
 | `multiplayer` | `MultiplayerScreen` `libs/game-matchmaking-client-ts/src/multiplayer-screen.tsx` | GameScreen + GameSessionLayout + GameBoardStage |

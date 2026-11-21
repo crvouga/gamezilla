@@ -15,6 +15,10 @@ import { actorLocalSql } from '@libs/harness-ts/identity';
 import { spaceBarShown } from '@libs/harness-ts/shell-actions';
 import { writeServerFixture } from '@libs/harness-ts/write-server-fixture';
 import {
+  gameChoiceShown,
+  tapGameChoice,
+} from '@libs/spaces-harness-ts/space-game-choice-ui';
+import {
   ownSpaceCard,
   showSpacesTab,
   waitActiveSpace,
@@ -117,8 +121,8 @@ async function stepTowardStats(
   } else if (await sharedScreenShown(s, actorId)) {
     // Another of the game's screens: back to its choices.
     await ui.get(Handles.navBack).tap({ timeoutMs: WAIT_MS });
-  } else if (await ui.get(Handles.gameMenu(gameId)).isVisible()) {
-    await ui.get(Handles.gameMenu(gameId)).tap({ timeoutMs: WAIT_MS });
+  } else if (await gameChoiceShown(ui, gameId)) {
+    await tapGameChoice(ui, gameId, { timeoutMs: WAIT_MS });
   } else if (await spaceBarShown(ui)) {
     // In a space whose game choice is still coming up: wait for it.
   } else if (await ui.get(Handles.spaceMiniplayer).isVisible()) {

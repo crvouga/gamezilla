@@ -5,6 +5,7 @@ import {
   endActiveSpace,
   hostSpace,
   JOURNEY_WAIT_MS,
+  pickGame,
   tap,
 } from './journey-gestures';
 import type { JourneyHost } from './journey-types';
@@ -66,7 +67,7 @@ export async function startBotGameJourney(
   host.defer('bot-game-space', endActiveSpace);
   await host.act('hostBotGameSpace', hostSpace);
   await host.act('startChosenBotGame', async (ui) => {
-    await tap(ui, Handles.gameMenu(game.id));
+    await pickGame(ui, game.id);
     await tap(ui, Handles.gameChoice('custom-game'));
     await ui.get('custom-game-connection-needed').expect.hidden({
       timeoutMs: JOURNEY_WAIT_MS,

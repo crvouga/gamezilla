@@ -19,6 +19,8 @@ export type SpaceLauncherGame = Pick<
 > & {
   /** Who suggested this game to the host. */
   suggestedBy?: { name: string; you?: boolean | undefined } | undefined;
+  /** The tile's `data-testid`, for harness bindings. */
+  testId?: string | undefined;
 };
 
 /** The fit of a game in words: `2–4 players`, `Needs 4`, `4 · add 2 bots`. */
@@ -84,8 +86,10 @@ function TileMark(props: {
 
 /**
  * One launcher tile: the game's art, its name and one line under it (its
- * fit with the room, a suggestion, or where the host is). A game that does
- * not fit is dimmed, says why, and cannot be picked.
+ * fit with the room, a suggestion, or where the host is). A game too few
+ * here can play is dimmed and says what it needs: a guest cannot suggest
+ * it, while the host can still open it (to find players there). A tile
+ * that is not `pressable` (a guest who cannot suggest) cannot be pressed.
  */
 export function SpaceLauncherTile(props: {
   game: SpaceLauncherGame;
@@ -94,22 +98,28 @@ export function SpaceLauncherTile(props: {
   hostName: string;
   /** The host is on this tile (shown to a guest). */
   looking: boolean;
+  /** Pressing does something: the host chooses, a guest suggests. */
+  pressable: boolean;
   onPress: () => void;
 }): JSX.Element {
   const fit = () => spaceGameFit(props.game.players, props.present, props.role);
   const dimmed = () => spaceGameFitDimmed(fit());
+  const enabled = () => props.pressable && (props.role === 'host' || !dimmed());
   const suggestedByYou = () => props.game.suggestedBy?.you === true;
   return (
     <button
       type="button"
       class={styles['tile']}
       data-game={props.game.key}
+      data-testid={props.game.testId}
       data-dimmed={dimmed()}
       data-looking={props.looking}
-      aria-disabled={dimmed() ? 'true' : undefined}
-      aria-pressed={props.role === 'guest' ? suggestedByYou() : undefined}
+      aria-disabled={enabled() ? undefined : 'true'}
+      aria-pressed={
+        props.role === 'guest' && props.pressable ? suggestedByYou() : undefined
+      }
       onClick={() => {
-        if (!dimmed()) props.onPress();
+        if (enabled()) props.onPress();
       }}
     >
       <span class={styles['art']}>
