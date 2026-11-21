@@ -1,0 +1,58 @@
+/* In game the board is the main event: one slim status line, the board
+   edge to edge filling the room left, and the action bar by the thumbs. */
+.stage {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+.status {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ui-space-3);
+  height: 44px;
+  padding: 0 var(--ui-space-4);
+}
+.headline {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.detail {
+  flex: none;
+  color: var(--ui-color-text-secondary);
+  white-space: nowrap;
+}
+/* The board: no side margins, no card. A taller board scrolls inside its
+   own room; the bar under it never moves. */
+.board {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+/* The action bar: always there, always this height. */
+.bar {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--ui-space-2);
+  height: 88px;
+  padding: var(--ui-space-3) var(--ui-space-4) var(--ui-space-5);
+  border-top: 1px solid var(--ui-color-border);
+}
+.bar > * {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.waiting {
+  color: var(--ui-color-text-secondary);
+  text-align: center;
+}
