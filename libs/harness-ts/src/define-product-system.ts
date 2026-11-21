@@ -15,6 +15,7 @@ import {
   uiOp,
 } from './actions';
 import { captureActorScreenshots } from './actor-screenshots';
+import { describeWhereabouts } from './actor-whereabouts';
 import { bunWebviewRuntime } from './bun-webview';
 import type { HarnessComposition } from './composition';
 import { type CreateHarnessOptions, createHarness } from './create-harness';
@@ -91,6 +92,7 @@ export const globalActionMenuAlwaysVisible = defineProperty({
         ? extra.ui.session?.activeActorId()
         : undefined;
     const missing: string[] = [];
+    const places: string[] = [];
     for (const [id, handle] of s.actors) {
       if (activeId !== undefined && id !== activeId) continue;
       const handoff = () =>
@@ -101,11 +103,21 @@ export const globalActionMenuAlwaysVisible = defineProperty({
         !(await handoff())
       ) {
         missing.push(id);
+        places.push(
+          `${id} at ${await describeWhereabouts({
+            browser: handle.browser,
+            appOrigin:
+              extra.http.kind === 'in-process'
+                ? null
+                : new URL(extra.http.origin).origin,
+            html: () => handle.ui.snapshotHtml(),
+          })}`
+        );
       }
     }
     if (missing.length > 0) {
       throw new Error(
-        `global action menu not visible for actor(s): ${missing.join(', ')}`
+        `global action menu not visible for actor(s): ${missing.join(', ')} — ${places.join('; ')}`
       );
     }
   },
