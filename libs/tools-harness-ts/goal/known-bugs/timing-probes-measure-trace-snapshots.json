@@ -1,0 +1,4 @@
+{
+  "summary": "The Sokoban and Pong timing suites ran with trace: 'on', so Playwright's DOM snapshotter ran in the page's main world for each traced key press, pointer move, evaluate and locator read in the timed window. It walked the whole document and read scrollTop and scrollLeft, which forces style and layout. At 4x CPU slowdown those snapshots showed up as lone long tasks blamed on the game: 97ms in the Sokoban maximum-board close view at 320px, and 101ms in the Pong live rally at 390px, where the long-animation-frame entry put only 34ms of the 98ms frame in a script (Release run 44883849585). Timing suites now record traces without DOM snapshots, and the probes refuse to start on a page the snapshotter instruments. The long-task and frame budgets are unchanged.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/timing-trace.test.ts"
+}

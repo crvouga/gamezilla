@@ -1,0 +1,4 @@
+{
+  "summary": "Every telemetry writer (each Worker isolate, room isolate and browser page, each with its own service.instance.id) also exported the OpenTelemetry SDK's own otel.sdk.* metrics, among them an 11-series collection-duration histogram, which no dashboard, alert or objective reads. Multiplied by every writer, they helped push the Grafana Cloud tenant past its active-series limit, after which the metrics backend refused new series with 429 and the Health run's synthetic.check.result samples were lost. Writers now export only the product's declared metrics.",
+  "regressionTest": "pkgs/observability-runtime-shared-ts/tests/sdk-self-metrics.test.ts"
+}

@@ -15,6 +15,7 @@ import {
   uiOp,
 } from './actions';
 import { captureActorScreenshots } from './actor-screenshots';
+import { describeWhereabouts } from './actor-whereabouts';
 import { bunWebviewRuntime } from './bun-webview';
 import type { HarnessComposition } from './composition';
 import { type CreateHarnessOptions, createHarness } from './create-harness';
@@ -28,10 +29,17 @@ import { atConfiguredGoogleHandoff } from './provider-handoff';
 import { harnessReportTopology } from './report-topology';
 import { productServerActions } from './server-actions';
 import { SHELL_SCENARIO_ACTIONS } from './shell-scenario-actions';
+import { inlineLocalImageSources } from './snapshot-local-images';
+import { wallLocalImageDataUri } from './wall-local-images';
 import { wireProductRuntime } from './wire-product-runtime';
 
 function extraOf(session: { readonly ports: object }): ProductExtra {
   return session.ports as ProductExtra;
+}
+
+/** Recorded frames carry their bundled images, never a machine-local path. */
+function selfContained(html: string): string {
+  return inlineLocalImageSources(html, wallLocalImageDataUri);
 }
 
 async function captureActorHtml(
@@ -41,12 +49,14 @@ async function captureActorHtml(
   if (extra.ui.kind === 'solid-dom' && extra.ui.session !== undefined) {
     const snapshots = await extra.ui.session.snapshotAllActors();
     if (snapshots.size === 0) return null;
-    return Object.fromEntries(snapshots.entries());
+    return Object.fromEntries(
+      [...snapshots].map(([id, html]) => [id, selfContained(html)])
+    );
   }
   const map: Record<string, string> = {};
   for (const [id, handle] of s.actors) {
     const html = await handle.ui.snapshotHtml();
-    if (html != null && html.trim() !== '') map[id] = html;
+    if (html != null && html.trim() !== '') map[id] = selfContained(html);
   }
   return Object.keys(map).length > 0 ? map : null;
 }
@@ -91,6 +101,7 @@ export const globalActionMenuAlwaysVisible = defineProperty({
         ? extra.ui.session?.activeActorId()
         : undefined;
     const missing: string[] = [];
+    const places: string[] = [];
     for (const [id, handle] of s.actors) {
       if (activeId !== undefined && id !== activeId) continue;
       const handoff = () =>
@@ -101,11 +112,21 @@ export const globalActionMenuAlwaysVisible = defineProperty({
         !(await handoff())
       ) {
         missing.push(id);
+        places.push(
+          `${id} at ${await describeWhereabouts({
+            browser: handle.browser,
+            appOrigin:
+              extra.http.kind === 'in-process'
+                ? null
+                : new URL(extra.http.origin).origin,
+            html: () => handle.ui.snapshotHtml(),
+          })}`
+        );
       }
     }
     if (missing.length > 0) {
       throw new Error(
-        `global action menu not visible for actor(s): ${missing.join(', ')}`
+        `global action menu not visible for actor(s): ${missing.join(', ')} — ${places.join('; ')}`
       );
     }
   },

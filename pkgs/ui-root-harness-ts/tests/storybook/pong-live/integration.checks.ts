@@ -1,10 +1,11 @@
 // @io-wall-ok — automated Pong capture in real time, never a manual playthrough.
 import { expect, type Page, test } from '@playwright/test';
+import { timingTrace } from '../../../storybook/timing-trace';
 import { openPong, recordPong } from '../pong-overhaul/evidence';
 import { logSummary, logVideo } from '../pong-overhaul/log-evidence';
 import { finishPongMetrics, startPongMetrics } from '../pong-overhaul/metrics';
 
-test.use({ video: 'on', trace: 'on' });
+test.use({ video: 'on', trace: timingTrace });
 
 const paddleY = (page: Page) =>
   page
@@ -26,6 +27,7 @@ const frames = (page: Page, count: number) =>
 // Responsiveness while the ball is moving: keys reach the court without
 // tabbing to it, held keys move the paddle every tick, then a continuous
 // drag. Three runs per condition, each its own page.
+// regression: timing-probes-measure-trace-snapshots
 for (const condition of [
   { width: 390, height: 844, cpuRate: 4 },
   { width: 844, height: 390, cpuRate: 4 },
