@@ -1,4 +1,4 @@
-import { isTransientConflict } from '@pkgs/sql-client-root-shared-ts/transient-conflict';
+import { retryConflictingTransaction } from '@pkgs/sql-client-root-shared-ts/conflict-retry';
 import sql from '@pkgs/sql-root-shared-ts/sql';
 import { resolveRetryPolicy } from './define-consumer';
 import type { ClaimRow } from './delivery-claim';
@@ -18,11 +18,9 @@ export async function rescheduleConflict(
       Math.max(0, Math.min(claim.attempts - 1, policy.backoffMs.length - 1))
     ] ?? 60_000;
   const message = error instanceof Error ? error.message : String(error);
-  for (let attempt = 1; ; attempt += 1) {
-    try {
-      const now = deps.clock.now();
-      await deps.db.transaction((tx) =>
-        tx.run(sql`
+  await retryConflictingTransaction(deps.db, (tx) => {
+    const now = deps.clock.now();
+    return tx.run(sql`
         UPDATE outbox_deliveries
            SET available_at = ${new Date(now + delay).toISOString()},
                last_error = ${message}
@@ -30,11 +28,6 @@ export async function rescheduleConflict(
            AND attempts = ${claim.attempts} AND processed_at IS NULL
            AND deleted_at IS NULL
            AND available_at <= ${new Date(now).toISOString()}
-      `)
-      );
-      return;
-    } catch (failure) {
-      if (!isTransientConflict(failure) || attempt >= 3) throw failure;
-    }
-  }
+      `);
+  });
 }

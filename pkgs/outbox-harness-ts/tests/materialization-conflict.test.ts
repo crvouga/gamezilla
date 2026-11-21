@@ -1,5 +1,6 @@
 import { expect, test } from 'bun:test';
 import { drainOutbox } from '@pkgs/outbox-shared-ts/drain';
+import { CONFLICT_RETRY_ATTEMPTS } from '@pkgs/sql-client-root-shared-ts/conflict-retry';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 import { openDueWork } from './due-work-fixture';
 
@@ -54,7 +55,7 @@ test.each(['40001', '40P01'])(
 );
 
 test.each([
-  ['40001', 3],
+  ['40001', CONFLICT_RETRY_ATTEMPTS],
   ['XX000', 1],
 ] as const)(
   'a persistent %s failure stays visible after %i transactions and keeps work pending',

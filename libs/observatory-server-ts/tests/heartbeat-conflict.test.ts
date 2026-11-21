@@ -1,6 +1,7 @@
 import { expect, test } from 'bun:test';
 import { UserObservatory } from '@libs/observatory-server-ts/user-observatory';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
+import { CONFLICT_RETRY_ATTEMPTS } from '@pkgs/sql-client-root-shared-ts/conflict-retry';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 import fc from 'fast-check';
 import { observatoryFixture } from './observatory-fixture';
@@ -50,14 +51,14 @@ test.each(['40001', '40P01'])(
 );
 
 test.each([
-  ['40001', 3],
+  ['40001', CONFLICT_RETRY_ATTEMPTS],
   ['XX000', 1],
 ] as const)(
   'persistent %s failures stay visible after %i attempts',
   async (code, attempts) => {
     const f = await observatoryFixture();
     try {
-      const race = conflicting(f.db, 5, code);
+      const race = conflicting(f.db, CONFLICT_RETRY_ATTEMPTS + 2, code);
       const live = new UserObservatory(race.client, f.ports);
       await expect(
         live.heartbeat(
@@ -101,14 +102,16 @@ test('rolled-back heartbeats never leak presence notifications or duplicate sess
   await assertProperty(
     'heartbeat conflict atomicity',
     fc.asyncProperty(
-      fc.integer({ min: 0, max: 4 }),
+      fc.integer({ min: 0, max: CONFLICT_RETRY_ATTEMPTS + 1 }),
       fc.constantFrom('40001', '40P01', 'XX000'),
       async (failures, code) => {
         const f = await observatoryFixture();
         try {
           const race = conflicting(f.db, failures, code);
           const live = new UserObservatory(race.client, f.ports);
-          const succeeds = failures === 0 || (code !== 'XX000' && failures < 3);
+          const succeeds =
+            failures === 0 ||
+            (code !== 'XX000' && failures < CONFLICT_RETRY_ATTEMPTS);
           const request = live.heartbeat(
             { accountId: f.createId(), deviceId: f.createId() },
             VALUE
@@ -121,7 +124,9 @@ test('rolled-back heartbeats never leak presence notifications or duplicate sess
           );
           expect(f.notices()).toEqual(succeeds ? ['presence'] : []);
           expect(race.attempts()).toBe(
-            code === 'XX000' ? 1 : Math.min(failures + 1, 3)
+            code === 'XX000'
+              ? 1
+              : Math.min(failures + 1, CONFLICT_RETRY_ATTEMPTS)
           );
         } finally {
           await f.db.disconnect();

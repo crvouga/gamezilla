@@ -1,6 +1,8 @@
 {
   "$schema": "https://v2-11-3.turborepo.dev/schema.json",
-  "extends": ["//"],
+  "extends": [
+    "//"
+  ],
   "tasks": {
     "contract:write": {
       "cache": false
@@ -9,17 +11,29 @@
       "outputs": []
     },
     "dev": {
-      "dependsOn": ["kill", "install:deps", "setup"],
+      "dependsOn": [
+        "kill",
+        "install:deps",
+        "setup"
+      ],
       "persistent": true,
       "cache": false
     },
     "preview": {
-      "dependsOn": ["kill", "setup", "^build", "build"],
+      "dependsOn": [
+        "kill",
+        "setup",
+        "^build",
+        "build"
+      ],
       "persistent": true,
       "cache": false
     },
     "migrate": {
-      "dependsOn": ["kill", "setup"],
+      "dependsOn": [
+        "kill",
+        "setup"
+      ],
       "cache": false
     },
     "src": {
@@ -70,6 +84,7 @@
         "@pkgs/secret-store-shared-ts#src",
         "@pkgs/secrets-config-server-ts#src",
         "@pkgs/sql-client-postgres-server-ts#src",
+        "@pkgs/sql-client-root-shared-ts#src",
         "@pkgs/tts-root-server-ts#src",
         "@pkgs/turn-game-shared-ts#src"
       ]

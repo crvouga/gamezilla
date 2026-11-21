@@ -1,6 +1,7 @@
 import type { Clock } from '@pkgs/clock-shared-ts/types';
 import { createLogger } from '@pkgs/logger-shared-ts/logger';
 import type { ObjectStore } from '@pkgs/object-store-root-shared-ts/interface';
+import { retryConflictingTransaction } from '@pkgs/sql-client-root-shared-ts/conflict-retry';
 import type {
   SqlClient,
   SqlTx,
@@ -115,19 +116,13 @@ async function materializeClaims(
   observe: ObserveOutboxPhase,
   limit: number
 ): Promise<readonly ClaimRow[]> {
-  for (let attempt = 1; ; attempt += 1) {
-    try {
-      return await deps.db.transaction(async (tx) => {
-        await observe('outbox-materialize', () => ensureDeliveries(tx, deps));
-        return observe('outbox-claim', () =>
-          claimDueDeliveries(tx, { ...deps, limit })
-        );
-      });
-    } catch (error) {
-      // A fresh transaction is required: a savepoint retains the losing snapshot.
-      if (!isTransientConflict(error) || attempt >= 3) throw error;
-    }
-  }
+  // A fresh transaction is required: a savepoint retains the losing snapshot.
+  return retryConflictingTransaction(deps.db, async (tx) => {
+    await observe('outbox-materialize', () => ensureDeliveries(tx, deps));
+    return observe('outbox-claim', () =>
+      claimDueDeliveries(tx, { ...deps, limit })
+    );
+  });
 }
 
 async function commitClaim(args: {
