@@ -46,14 +46,15 @@
  *   "Back to spaces".
  * - **Settings.** `menu` (Share, People in this space, Rename when
  *   allowed, Minimize, and for the host Leave, which ends the space too)
- *   opens from the gear in row 1. Leave (guest) and End (host) sit in row
- *   1; both ask to confirm through the space's own modals.
+ *   opens from the gear in row 1. People in this space is the one way to
+ *   the full list of people. Row 1 keeps one destructive control per
+ *   role, Leave (guest) or End (host); each asks to confirm through the
+ *   space's own modals.
  * - **People actions.** `onPersonAction` handles `removeFromSpace` (the
- *   remove confirm), `inviteFriend` (share), `seeDetails` / `seeMyDetails`
- *   (the list of people in the space); a screen handles its own
+ *   remove confirm) and `inviteFriend` (share); a screen handles its own
  *   (`readyUp`, bots, seats) first and passes the rest here.
- *   `personCapabilities` is empty: Make host, Mute, Mute my mic and Send
- *   message stay hidden until built.
+ *   `personCapabilities` is empty: Make host, Mute, Mute my mic, Send
+ *   message, See details and See my details stay hidden until built.
  * - **Notice.** Render `<SpaceScreenNotice />` as the shell's `notice`: a
  *   refused change to the space, and a guest's host gone offline.
  * - **Test ids.** `testIds` keeps the harness handles on row 1
@@ -313,15 +314,13 @@ function useMenu(
   ]);
 }
 
-/** What a person's sheet asks of the space: share, the list, remove. */
+/** What a person's sheet asks of the space: share, remove. */
 function usePersonAction(
   people: Accessor<readonly SpaceShellPerson[]>,
   overlays: SpaceOverlays
 ): (personId: string, action: string) => void {
   return (personId, action) => {
     if (action === 'inviteFriend') overlays.setShareOpen(true);
-    if (action === 'seeDetails' || action === 'seeMyDetails')
-      overlays.openMembers();
     if (action !== 'removeFromSpace') return;
     const person = people().find((each) => each.id === personId);
     if (person === undefined) return;
