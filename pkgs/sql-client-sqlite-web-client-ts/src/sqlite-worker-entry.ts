@@ -13,10 +13,8 @@ import { createMemorySqliteWorkerBackend } from '@pkgs/sql-client-sqlite-web-sha
 import type { Sqlite3Static } from '@pkgs/sql-client-sqlite-web-shared-ts/oo1-sql-client';
 import type { SqliteWorkerPort } from '@pkgs/sql-client-sqlite-web-shared-ts/protocol';
 import type { SqliteWorkerBackend } from '@pkgs/sql-client-sqlite-web-shared-ts/sqlite-worker-host';
-import {
-  attachSqliteWorkerHost,
-  createSqliteWorkerHost,
-} from '@pkgs/sql-client-sqlite-web-shared-ts/sqlite-worker-host';
+import { createSqliteWorkerHost } from '@pkgs/sql-client-sqlite-web-shared-ts/sqlite-worker-host';
+import { attachInitializingSqliteWorkerHost } from '@pkgs/sql-client-sqlite-web-shared-ts/sqlite-worker-startup';
 import sqlite3InitModule from '@sqlite.org/sqlite-wasm';
 
 function pickBackend(sqlite3: Sqlite3Static): SqliteWorkerBackend {
@@ -29,16 +27,10 @@ function pickBackend(sqlite3: Sqlite3Static): SqliteWorkerBackend {
   return createMemorySqliteWorkerBackend(sqlite3);
 }
 
-async function main(): Promise<void> {
-  const port = globalThis as unknown as SqliteWorkerPort;
-  // Requests may arrive while the wasm module loads; buffer and replay them.
-  const early: MessageEvent[] = [];
-  port.onmessage = (event) => {
-    early.push(event);
-  };
-  const sqlite3 = await sqlite3InitModule();
-  attachSqliteWorkerHost(port, createSqliteWorkerHost(pickBackend(sqlite3)));
-  for (const event of early) port.onmessage?.(event);
-}
-
-void main();
+attachInitializingSqliteWorkerHost(
+  globalThis as unknown as SqliteWorkerPort,
+  async () => {
+    const sqlite3 = await sqlite3InitModule();
+    return createSqliteWorkerHost(pickBackend(sqlite3));
+  }
+);
