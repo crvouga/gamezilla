@@ -1,0 +1,4 @@
+{
+  "summary": "A serialization conflict or deadlock while materializing deliveries aborts the scheduled outbox drain before any consumer can run, even when a fresh transaction would succeed.",
+  "regressionTest": "pkgs/outbox-harness-ts/tests/materialization-conflict.test.ts"
+}
