@@ -919,8 +919,10 @@
       },
       "devDependencies": {
         "@pkgs/db-schema-sqlite-shared-ts": "workspace:*",
+        "@pkgs/property-shared-ts": "workspace:*",
         "@pkgs/sql-client-sqlite-root-server-ts": "workspace:*",
         "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
         "typescript": "catalog:",
       },
     },
