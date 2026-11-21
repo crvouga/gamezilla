@@ -1,0 +1,4 @@
+{
+  "summary": "Reopening a Numberlink space could restore its library while the journey tapped game-menu-numberlink, reporting a missing menu even though the requested destination had opened.",
+  "regressionTest": "libs/runtime-harness-ts/tests/content-library-delayed-restoration.test.ts"
+}
