@@ -782,7 +782,7 @@ Repo file names: markdown docs are `SCREAMING_SNAKE_CASE.md` (`README.md` matche
 - No new `'off'` or `biome-ignore` for the Tiger-Style size caps in `biome.json` (lines per file, lines per function, params, nested callbacks, cognitive complexity, classes per file). Extract a function or a component.
 - `pkgs/` stays product-agnostic.
 - Infrastructure is OpenTofu, zero-ops, and web scale (Google, YouTube, Facebook, GitHub). Changes are `.tf` and `envs/*.tfvars.json` only.
-- Vendors are simulated by Mockingbird. A gap in a simulated vendor is an issue on `crvouga/mockingbird`, not an in-repo mock.
+- Vendors are simulated by Mockingbird. A gap in a simulated vendor is an issue on `crvouga-organization/mockingbird`, not an in-repo mock.
 - Assert invariants and crash. Handle or propagate every error. No empty `catch`.
 
 ## Spec index
