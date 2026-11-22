@@ -189,12 +189,7 @@ export function renderAuthRelayWranglerConfig(
 /**
  * The static Storybook site (`apps/storybook-ts`): one assets-only Worker,
  * named in `global.tfvars.json`, serving the canonical Storybook build.
- *
- * Its hostname is its custom domain with Previews enabled, so each pull
- * request's Storybook is a Preview of this Worker at
- * `pr-<number>.<hostname>` (docs/PREVIEW_ENVIRONMENTS.md). The fleet stack
- * binds the same hostname to the same Worker; enabling Previews on it is
- * wrangler's to do, at the release's deployment.
+ * The fleet stack binds its hostname.
  */
 export function renderStorybookWranglerConfig(
   committed: WranglerConfig
@@ -209,13 +204,6 @@ export function renderStorybookWranglerConfig(
   return {
     ...base,
     name: GLOBAL.storybook.worker,
-    routes: [
-      {
-        pattern: GLOBAL.storybook.hostname,
-        custom_domain: true,
-        previews_enabled: true,
-      },
-    ],
     assets: rerootedAssets(base['assets']),
   };
 }

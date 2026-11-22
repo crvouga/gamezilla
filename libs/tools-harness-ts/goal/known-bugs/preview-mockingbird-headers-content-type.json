@@ -1,4 +1,0 @@
-{
-  "summary": "@crvouga/mockingbird-preview deploy sends _headers as a File whose type Bun encodes as text/plain;charset=utf-8, which the Cloudflare deployment API refuses; apps/preview-ts sends it as text/plain exactly.",
-  "regressionTest": "apps/preview-ts/tests/cloudflare-deploy.test.ts"
-}

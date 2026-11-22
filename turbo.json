@@ -15,7 +15,7 @@
     "FEEDBACK_*",
     "POST_DEPLOY_*",
     "VITE_*",
-    "PREVIEW_PORT",
+    "STATIC_WEB_PORT",
     "API_NODE_*",
     "API_URL",
     "LOCAL_PREVIEW_API_ORIGIN",
@@ -988,11 +988,6 @@
       ],
       "outputLogs": "errors-only",
       "outputs": ["dist/**"]
-    },
-    "preview": {
-      "dependsOn": ["kill", "setup", "^build", "build"],
-      "persistent": true,
-      "cache": false
     },
     "verify:worker-bundle": {
       "dependsOn": ["^src"],
@@ -2380,33 +2375,6 @@
       "passThroughEnv": ["*"]
     },
     "//#task:reports:cleanup": {
-      "cache": false,
-      "passThroughEnv": ["*"]
-    },
-    "//#task:preview:build": {
-      "cache": false,
-      "dependsOn": ["@apps/harness-ts#build", "//#task:i18n:compile"],
-      "passThroughEnv": ["*"]
-    },
-    "//#task:preview:deploy": {
-      "cache": false,
-      "dependsOn": ["@apps/harness-ts#build", "//#task:i18n:compile"],
-      "passThroughEnv": ["*"]
-    },
-    "//#task:preview:main": {
-      "cache": false,
-      "dependsOn": ["@apps/harness-ts#build", "//#task:i18n:compile"],
-      "passThroughEnv": ["*"]
-    },
-    "//#task:preview:test": {
-      "cache": false,
-      "passThroughEnv": ["*"]
-    },
-    "//#task:preview:destroy": {
-      "cache": false,
-      "passThroughEnv": ["*"]
-    },
-    "//#task:preview:sweep": {
       "cache": false,
       "passThroughEnv": ["*"]
     },

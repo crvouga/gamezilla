@@ -41,7 +41,6 @@ test('only GitHub Actions owns the Verify, Release and Health triggers', () => {
     'deploy.yml',
     'health.yml',
     'pr-hygiene.yml',
-    'preview.yml',
     'verify-nightly.yml',
     'verify-pr.yml',
   ]);

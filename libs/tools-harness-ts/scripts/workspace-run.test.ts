@@ -131,7 +131,7 @@ function checkout() {
   return {
     dir,
     run: script('run.sh'),
-    preview: script('preview.sh'),
+    storybook: script('storybook.sh'),
     setup: script('setup.sh'),
     bootstrap: script('bootstrap.sh'),
     prepare: script('prepare.sh'),
@@ -375,8 +375,8 @@ test('Localhost rebuilds a conflicting Bun link before it starts the stack', () 
 });
 
 // regression: t3-preview-locked-tools
-test('Preview prepares a cold worktree with no mise.lock before resolving the URL', () => {
-  const { dir, preview } = checkout();
+test('Storybook prepares a cold worktree with no mise.lock before it starts', () => {
+  const { dir, storybook } = checkout();
   writeExecutable(
     join(dir, '.bin/mise'),
     `#!/usr/bin/env bash
@@ -384,9 +384,9 @@ test('Preview prepares a cold worktree with no mise.lock before resolving the UR
 if [ "$1" = env ]; then echo 'export PATH="$PWD/.bin:$PATH"'; fi
 `
   );
-  const result = preview({ MISE_LOCKED: 'true', MISE_LOCKFILE: 'true' });
+  const result = storybook({ MISE_LOCKED: 'true', MISE_LOCKFILE: 'true' });
   expect(result.status, result.stderr).toBe(0);
-  expect(result.calls).toEqual([INSTALL, 'bun run --silent preview:url']);
+  expect(result.calls).toEqual([INSTALL, 'bun run --silent storybook']);
 });
 
 // regression: workspace-bootstrap-cache-brand-check

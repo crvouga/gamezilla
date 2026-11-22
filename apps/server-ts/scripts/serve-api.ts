@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { wallClock, wallTimers } from '@pkgs/clock-shared-ts/wall';
 
 /**
- * Local `wrangler dev` for preview/check with short-startup retries.
+ * Local `wrangler dev` for the API check, with short-startup retries.
  *
  * Under ephemeral-port pressure (many TIME_WAIT sockets from other local
  * stacks), wrangler fails at startup with
@@ -102,10 +102,10 @@ function assertEphemeralPortsAvailable(): void {
   if (timeWait < BLOCKING_TIME_WAIT) return;
   throw new Error(
     [
-      `[preview-serve] ephemeral ports exhausted (TIME_WAIT=${String(timeWait)}).`,
+      `[serve-api] ephemeral ports exhausted (TIME_WAIT=${String(timeWait)}).`,
       'Stop other local stacks that open many TCP sockets (e.g. another monorepo',
       '`turbo dev` / Redis / Electron apps), wait ~30s for TIME_WAIT to drain,',
-      'then retry `bun preview` / `bun run --filter @apps/server-ts verify:api`.',
+      'then retry `bun run --filter @apps/server-ts verify:api`.',
     ].join(' ')
   );
 }
@@ -159,7 +159,7 @@ for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
   const retryable = elapsedMs < FAST_FAIL_MS && attempt < MAX_ATTEMPTS;
   if (!retryable) process.exit(code);
   process.stderr.write(
-    `[preview-serve] wrangler exited in ${String(elapsedMs)}ms (code ${String(code)}); retry ${String(attempt)}/${String(MAX_ATTEMPTS)}…\n`
+    `[serve-api] wrangler exited in ${String(elapsedMs)}ms (code ${String(code)}); retry ${String(attempt)}/${String(MAX_ATTEMPTS)}…\n`
   );
   assertEphemeralPortsAvailable();
   await sleep(RETRY_MS);

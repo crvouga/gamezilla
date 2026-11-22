@@ -95,7 +95,7 @@ async function applyProductionHostnameGuard(
     const replacement = await resolveLoopbackPreviewOrigin(store);
     process.stdout.write(
       `[setup-env] ${sourceLabel}=${trimmed} resolves to a production hostname; ` +
-        `using loopback preview origin (${replacement}). ` +
+        `using the loopback API origin (${replacement}). ` +
         'Set VITE_ALLOW_PRODUCTION_API_URL=1 to opt in to production.\n'
     );
     return replacement;
@@ -118,7 +118,7 @@ async function resolveViteApiUrl(): Promise<string> {
     store = createSecretsStore();
   } catch {
     process.stdout.write(
-      '[setup-env] secrets not injected; using local preview API origin.\n'
+      '[setup-env] secrets not injected; using the local API origin.\n'
     );
     return resolveLoopbackPreviewOrigin(null);
   }
@@ -133,7 +133,7 @@ async function resolveViteApiUrl(): Promise<string> {
   }
 
   process.stdout.write(
-    '[setup-env] VITE_API_URL unset in env and secret store; using local preview API origin.\n'
+    '[setup-env] VITE_API_URL unset in env and secret store; using the local API origin.\n'
   );
   return resolveLoopbackPreviewOrigin(store);
 }

@@ -282,8 +282,8 @@ Four workflows, one contract each. Details:
   deployment checks. It never waits for nightly. `bun health` and `bun deploy`
   dispatch their workflows and block on the verdict; `bun health:local` and
   `bun deploy:local` run that work on this machine.
-- **Exactly six workflows**: Verify PR, Verify Nightly, Release, Health, PR
-  Hygiene and Preview. Rehearse anything touching deploy, infra,
+- **Exactly five workflows**: Verify PR, Verify Nightly, Release, Health and
+  PR Hygiene. Rehearse anything touching deploy, infra,
   secrets, Workers or `health` in GitHub Actions before merging, triggered and
   managed locally with the GitHub CLI. Never execute a rehearsal on the
   developer machine.
@@ -298,10 +298,9 @@ Setup and server startup are separate stages. Never copy credentials from anothe
 
 - **Ports and previews.** Use the printed stack URLs and checkout-local manifest;
   see [workspace isolation](libs/tools-harness-ts/workspace/DEVELOPMENT_ENVIRONMENTS.md#isolation-data-and-credentials).
-- **Pull request Previews.** Every pull request serves its own build at the URL
-  in the `## Preview` section of its description (`mise run preview:url`): the
-  whole system running in the browser, no local servers. Prefer it
-  for looking at a change; see [preview environments](docs/PREVIEW_ENVIRONMENTS.md).
+- **Looking at a change.** Run it locally with the workspace's project
+  scripts (Localhost for the product and Storybook, Storybook alone for UI
+  work). No pull request is deployed anywhere.
 - **Iterating.** `bun fmt`, `bunx turbo run tc test --filter=<pkg>` (cached),
   then push. The pull request runs four tasks; dispatch `verify-pr.yml` on
   the branch for the full gate.
@@ -328,8 +327,7 @@ Setup and server startup are separate stages. Never copy credentials from anothe
   Tasks, ports and flags: [`README.md`](README.md#laptop).
 - **`bun run dev:client`** — `@apps/client-ts` alone.
 - **`bun run dev:harness`** — `@apps/harness-ts`: the whole system running in
-  the browser tab, with a console over each node. It needs no stack and is
-  what a pull request's Preview serves.
+  the browser tab, with a console over each node. It needs no stack.
 - **`bun run sims:open`** — pick project simulators and open Simulator.app.
 - **`bun db:migrate`** reconciles `DATABASE_URL` to the declared schemas;
   **`bun run db:wipe:dev`** wipes a non-production database.

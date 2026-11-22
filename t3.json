@@ -13,11 +13,6 @@
       "icon": "play"
     },
     {
-      "name": "Preview",
-      "command": "./libs/tools-harness-ts/workspace/preview.sh",
-      "icon": "play"
-    },
-    {
       "name": "Storybook",
       "command": "./libs/tools-harness-ts/workspace/storybook.sh",
       "icon": "play"

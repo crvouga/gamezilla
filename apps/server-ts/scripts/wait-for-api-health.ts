@@ -1,7 +1,7 @@
 // @io-wall-ok
 /**
- * Poll `/api/health` until ready (used by CI after starting `preview:serve`).
- * Optional `API_PREVIEW_PID` / `API_PREVIEW_LOG` fail fast if the process dies.
+ * Poll `/api/health` until ready (used by CI after starting `serve:api`).
+ * Optional `API_PID` / `API_LOG` fail fast if the process dies.
  */
 
 import { existsSync, readFileSync } from 'node:fs';
@@ -9,9 +9,9 @@ import { wallClock, wallTimers } from '@pkgs/clock-shared-ts/wall';
 
 const DEFAULT_ORIGIN = 'http://localhost:8788';
 const timeoutMs = Number(process.env['API_HEALTH_WAIT_MS'] ?? '120000');
-const previewPidRaw = (process.env['API_PREVIEW_PID'] ?? '').trim();
-const previewPid = previewPidRaw.length > 0 ? Number(previewPidRaw) : NaN;
-const previewLog = (process.env['API_PREVIEW_LOG'] ?? '').trim();
+const apiPidRaw = (process.env['API_PID'] ?? '').trim();
+const apiPid = apiPidRaw.length > 0 ? Number(apiPidRaw) : NaN;
+const apiLog = (process.env['API_LOG'] ?? '').trim();
 
 function isPidAlive(pid: number): boolean {
   try {
@@ -22,10 +22,10 @@ function isPidAlive(pid: number): boolean {
   }
 }
 
-function readPreviewLogTail(): string {
-  if (previewLog.length === 0 || !existsSync(previewLog)) return '';
+function readApiLogTail(): string {
+  if (apiLog.length === 0 || !existsSync(apiLog)) return '';
   try {
-    const text = readFileSync(previewLog, { encoding: 'utf8' });
+    const text = readFileSync(apiLog, { encoding: 'utf8' });
     const lines = text.split('\n');
     return lines.slice(-200).join('\n').trimEnd();
   } catch {
@@ -33,12 +33,12 @@ function readPreviewLogTail(): string {
   }
 }
 
-function formatPreviewLog(): string {
-  const tail = readPreviewLogTail();
+function formatApiLog(): string {
+  const tail = readApiLogTail();
   return tail.length > 0
     ? `\nProcess output:\n${tail}`
-    : previewLog.length > 0
-      ? `\n(preview log empty or unreadable: ${previewLog})`
+    : apiLog.length > 0
+      ? `\n(API log empty or unreadable: ${apiLog})`
       : '';
 }
 
@@ -50,13 +50,9 @@ const deadline = wallClock.now() + timeoutMs;
 let lastErr: string | undefined;
 
 while (wallClock.now() < deadline) {
-  if (
-    Number.isFinite(previewPid) &&
-    previewPid > 0 &&
-    !isPidAlive(previewPid)
-  ) {
+  if (Number.isFinite(apiPid) && apiPid > 0 && !isPidAlive(apiPid)) {
     throw new Error(
-      `API /api/health: preview process (pid ${String(previewPid)}) exited before becoming healthy.${formatPreviewLog()}`
+      `API /api/health: API process (pid ${String(apiPid)}) exited before becoming healthy.${formatApiLog()}`
     );
   }
 
@@ -77,5 +73,5 @@ while (wallClock.now() < deadline) {
 }
 
 throw new Error(
-  `API /api/health: timed out (${String(timeoutMs)}ms). Last: ${lastErr ?? 'unknown'}${formatPreviewLog()}`
+  `API /api/health: timed out (${String(timeoutMs)}ms). Last: ${lastErr ?? 'unknown'}${formatApiLog()}`
 );
