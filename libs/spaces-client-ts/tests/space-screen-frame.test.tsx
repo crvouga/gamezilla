@@ -114,4 +114,9 @@ test('a screen not on a template keeps all the room under the space’s row', ()
   const stage = container.querySelector('[data-space-row="stage"]');
   expect(stage?.getAttribute('data-scroll')).toBe('fixed');
   expect(stage?.contains(byTestId(container, 'board'))).toBe(true);
+  // The screen's own heading is the page's first; the space's name is not one.
+  expect(container.querySelector('h1, h2, [role="heading"]')).toBeNull();
+  expect(byTestId(container, Handles.spaceTitle)?.textContent).toBe(
+    'Friday game night'
+  );
 });

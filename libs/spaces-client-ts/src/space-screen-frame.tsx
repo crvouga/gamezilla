@@ -15,9 +15,10 @@ import { SpaceShellClaimFrame } from './space-shell-claim';
  * The default shell is the space's row 1 (chrome from
  * `useSpaceScreenChrome`) over a fixed stage, with no people row: a screen
  * not yet on a template lays itself out in all the room under row 1 and
- * shows its own seats, as it did before the shell existed. A game board
- * sizes itself to that room, so neither a people row nor a scrolling stage
- * may take it.
+ * shows its own seats and its own heading (the space's name is plain text
+ * beside back), as it did before the shell existed. A game board sizes
+ * itself to that room, so neither a people row nor a scrolling stage may
+ * take it.
  *
  * While the space is still being reached the stage shows its loading state
  * under the space's own rows, never over the whole screen. The space draws
@@ -41,6 +42,7 @@ export function SpaceScreenFrame(props: {
           onEnd={chrome.onEnd}
           notice={<SpaceScreenNotice />}
           testIds={chrome.testIds}
+          nameAs="context"
           stage="fixed"
         >
           {content}

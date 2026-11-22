@@ -88,6 +88,13 @@ export type SpaceShellProps = SpaceShellChrome & {
   /** Row 3: what the space is doing now. */
   children: JSX.Element;
   /**
+   * `heading` (default): the space's name is the screen's `h1`. `context`:
+   * the screen in the stage brings its own heading (one not yet on a
+   * template), so the name is plain text beside back and never the first
+   * heading on the page.
+   */
+  nameAs?: 'heading' | 'context' | undefined;
+  /**
    * `scroll` (default): the stage scrolls on its own when its content is
    * taller than the room left (choices, history, settings pages). `fixed`:
    * the content owns the room (a board over an action bar) and nothing
@@ -174,12 +181,24 @@ function ActionsRow(props: SpaceShellProps): JSX.Element {
         <span class={`text textCaption ${styles['eyebrow']}`}>
           <Trans>Spaces</Trans>
         </span>
-        <h1
-          class="text textHeading truncate min-w-0"
-          data-testid={props.testIds?.title}
+        <Show
+          when={props.nameAs === 'context'}
+          fallback={
+            <h1
+              class="text textHeading truncate min-w-0"
+              data-testid={props.testIds?.title}
+            >
+              {props.spaceName}
+            </h1>
+          }
         >
-          {props.spaceName}
-        </h1>
+          <p
+            class="text textHeading truncate min-w-0"
+            data-testid={props.testIds?.title}
+          >
+            {props.spaceName}
+          </p>
+        </Show>
       </div>
       <SettingsAction {...props} />
       <ExitAction {...props} />
