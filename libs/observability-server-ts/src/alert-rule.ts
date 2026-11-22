@@ -47,6 +47,11 @@ export type AlertRule = {
   readonly burn_threshold: number;
   /** For an objective: PromQL for the budget still left over its window. */
   readonly budget_expr: string;
+  /**
+   * Created only in a production environment. Other environments run their
+   * checks on slower schedules and notify nobody (`evidence-freshness.ts`).
+   */
+  readonly production_only?: true;
 };
 
 /** Short enough to fit a Grafana uid (40 characters) beside an environment name. */

@@ -33,7 +33,9 @@ resource "grafana_rule_group" "groups" {
   interval_seconds = each.value.interval_seconds
 
   dynamic "rule" {
-    for_each = each.value.rules
+    # A `production_only` rule (the team's evidence going quiet) exists only
+    # where checks run on production's schedule and someone is notified.
+    for_each = [for r in each.value.rules : r if var.production || !try(r.production_only, false)]
     content {
       name           = rule.value.name
       uid            = "${rule.value.key}-${var.environment}"
