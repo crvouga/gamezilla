@@ -193,8 +193,6 @@ export default {
           'Organisms',
           'Templates',
           'Screens',
-          'Games',
-          ['Shared', ['Screens', 'Components'], '*'],
         ],
       },
     },

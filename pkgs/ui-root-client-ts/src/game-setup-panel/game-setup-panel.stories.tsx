@@ -4,7 +4,7 @@ import { GameSetupPanel } from './index';
 
 const meta = {
   id: 'templates-game-setup',
-  title: 'Games/Shared/Screens/GameSetupPanel',
+  title: 'Templates/Games/GameSetupPanel',
   component: GameSetupPanel,
   tags: ['autodocs'],
 } satisfies Meta;

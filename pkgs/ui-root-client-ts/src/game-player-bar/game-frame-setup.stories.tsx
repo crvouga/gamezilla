@@ -4,7 +4,7 @@ import { GamePlayerBar } from './index';
 
 const meta = {
   id: 'product-game-frame-setup',
-  title: 'Games/Shared/Components/GameSetup',
+  title: 'Organisms/Games/Shared/GameSetup',
   component: GamePlayerBar,
   tags: ['autodocs'],
 } satisfies Meta;

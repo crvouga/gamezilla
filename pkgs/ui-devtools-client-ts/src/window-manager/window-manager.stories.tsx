@@ -8,7 +8,7 @@ import Example, {
 
 const meta = {
   id: 'product-developer-tools-windowmanager',
-  title: 'Organisms/WindowManager',
+  title: 'Organisms/Devtools/WindowManager',
   component: WindowManager,
   tags: ['autodocs'],
   args: {

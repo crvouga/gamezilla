@@ -5,7 +5,7 @@ import { AppStage } from './index';
 
 const meta = {
   id: 'product-developer-tools-appstage',
-  title: 'Organisms/AppStage',
+  title: 'Organisms/Devtools/AppStage',
   component: AppStage,
   tags: ['autodocs'],
   args: { shown: 'alice' },

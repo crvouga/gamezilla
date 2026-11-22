@@ -21,7 +21,7 @@ export type SpaceStoryGame = (typeof SPACE_STORY_GAMES)[number];
 
 /**
  * The games whose board `@pkgs/ui` draws in play. Chess draws its own, so
- * `Space/InGame` takes Chess in play from the chess board package's example.
+ * `Templates/Space/SpaceInGameTemplate` takes Chess in play from the chess board package's example.
  */
 export type SpaceStoryPlayGame = Exclude<SpaceStoryGame, 'chess'>;
 

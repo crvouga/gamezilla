@@ -44,10 +44,10 @@
  *   by mounting one, as today. With none registered, back leaves for the
  *   spaces list (the space goes on, minimized) and the shell says
  *   "Back to spaces".
- * - **Settings.** `menu` (Share, People in this space, Rename when
+ * - **Space menu.** `menu` (Share, People in this space, Rename when
  *   allowed, Minimize, and for the host Leave, which ends the space too)
- *   opens from the gear in row 1. Leave (guest) and End (host) sit in row
- *   1; both ask to confirm through the space's own modals.
+ *   opens against the one button in row 1, and ends in Leave (guest) or
+ *   End (host); both ask to confirm through the space's own modals.
  * - **People actions.** `onPersonAction` handles `removeFromSpace` (the
  *   remove confirm), `inviteFriend` (share), `seeDetails` / `seeMyDetails`
  *   (the list of people in the space); a screen handles its own
@@ -58,16 +58,16 @@
  *   refused change to the space, and a guest's host gone offline.
  * - **Test ids.** `testIds` keeps the harness handles on row 1
  *   (`navBack` / `spaceBackToSpaces`, `spaceTitle`, `spaceChromeOverflow`
- *   on the gear, `spaceLeave`, `spaceEnd`); the menu rows carry
- *   `spaceShare`, `spaceMembersButton`, `spaceRename`, `spaceClose` and
- *   the host's `spaceLeave`, and the notice `spaceHostOffline`. Game
+ *   on the menu button); the menu rows carry `spaceShare`,
+ *   `spaceMembersButton`, `spaceRename`, `spaceClose`, `spaceLeave` and
+ *   the host's `spaceEnd`, and the notice `spaceHostOffline`. Game
  *   actions carry theirs in `SpaceGameAction.testId`.
  *
  * **Who draws the shell.** Migrated screens render a template and render
  * `<ClaimSpaceShell />` (`./space-shell-claim`); unmigrated screens do
  * nothing and get the default shell from `SpaceScreenFrame`
- * (`./space-screen-frame`): row 1 over a fixed stage with no people row,
- * so they keep all the room under row 1. It also shows the loading state.
+ * (`./space-screen-frame`): row 1 and the people row over a fixed stage.
+ * It also shows the loading state.
  * The provider owns everything these callbacks open (`./space-screen-overlays`):
  * the share sheet, the people in the space, rename and the remove confirm.
  */
@@ -81,6 +81,14 @@ import {
 import { profileAvatarSvg } from '@libs/profile-shared-ts/profile-dicebear';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { useLingui } from '@lingui/solid/macro';
+import type { IconComponent } from '@pkgs/ui-root-client-ts/create-icon';
+import {
+  LogOutIcon,
+  Minimize2Icon,
+  ShareIcon,
+  SquarePenIcon,
+  UsersIcon,
+} from '@pkgs/ui-root-client-ts/icons';
 import type { SpacePersonCapability } from '@pkgs/ui-root-client-ts/space-person-actions';
 import type { SpaceShellTestIds } from '@pkgs/ui-root-client-ts/space-shell';
 import type {
@@ -145,7 +153,7 @@ export type SpaceScreenChromeValue = {
   readonly onBack: () => void;
   /** Where back goes, when a screen registered its own back; else unset. */
   readonly backLabel: string | undefined;
-  /** The space settings sheet behind row 1's gear. */
+  /** The space's own rows of the space menu behind row 1's button. */
   readonly menu: readonly SpaceMenuItem[];
   readonly onLeave: () => void;
   readonly onEnd: () => void;
@@ -254,8 +262,9 @@ type MenuRights = {
 };
 
 /**
- * Row 1's settings sheet: Share, the people in the space, Rename when
- * allowed, Minimize, and for the host Leave (row 1 offers them End).
+ * The space's rows of row 1's space menu: Share, the people in the space,
+ * Rename when allowed, Minimize, and for the host Leave (the menu ends in
+ * End for them, Leave for a guest).
  */
 function useMenu(
   rights: MenuRights,
@@ -267,46 +276,36 @@ function useMenu(
     id: string,
     label: string,
     onPress: () => void,
-    testId: string
-  ): SpaceMenuItem => ({ id, label, onPress, testId });
+    look: { readonly icon: IconComponent; readonly testId: string }
+  ): SpaceMenuItem => ({ id, label, onPress, ...look });
   return createMemo((): readonly SpaceMenuItem[] => [
-    item(
-      'share',
-      t`Share`,
-      () => overlays.setShareOpen(true),
-      Handles.spaceShare
-    ),
-    item(
-      'people',
-      t`People in this space`,
-      overlays.openMembers,
-      Handles.spaceMembersButton
-    ),
+    item('share', t`Share`, () => overlays.setShareOpen(true), {
+      icon: ShareIcon,
+      testId: Handles.spaceShare,
+    }),
+    item('people', t`People in this space`, overlays.openMembers, {
+      icon: UsersIcon,
+      testId: Handles.spaceMembersButton,
+    }),
     ...(rights.canRename()
       ? [
-          item(
-            'rename',
-            t`Rename`,
-            () => overlays.setRenameOpen(true),
-            Handles.spaceRename
-          ),
+          item('rename', t`Rename`, () => overlays.setRenameOpen(true), {
+            icon: SquarePenIcon,
+            testId: Handles.spaceRename,
+          }),
         ]
       : []),
-    item(
-      'minimize',
-      t`Minimize space`,
-      () => sessionUi.onPressHome(),
-      Handles.spaceClose
-    ),
+    item('minimize', t`Minimize space`, () => sessionUi.onPressHome(), {
+      icon: Minimize2Icon,
+      testId: Handles.spaceClose,
+    }),
     ...(rights.canEnd()
       ? [
           {
-            ...item(
-              'leave',
-              t`Leave space`,
-              () => sessionUi.onRequestLeave(),
-              Handles.spaceLeave
-            ),
+            ...item('leave', t`Leave space`, () => sessionUi.onRequestLeave(), {
+              icon: LogOutIcon,
+              testId: Handles.spaceLeave,
+            }),
             tone: 'destructive' as const,
           },
         ]

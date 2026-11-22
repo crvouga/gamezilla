@@ -19,6 +19,8 @@ export type SpaceLauncherGame = Pick<
 > & {
   /** Who suggested this game to the host. */
   suggestedBy?: { name: string; you?: boolean | undefined } | undefined;
+  /** The tile's `data-testid`, for harness bindings. */
+  testId?: string | undefined;
 };
 
 /** The fit of a game in words: `2–4 players`, `Needs 4`, `4 · add 2 bots`. */
@@ -84,8 +86,9 @@ function TileMark(props: {
 
 /**
  * One launcher tile: the game's art, its name and one line under it (its
- * fit with the room, a suggestion, or where the host is). A game that does
- * not fit is dimmed, says why, and cannot be picked.
+ * fit with the room, a suggestion, or where the host is). A game too few
+ * people are here for is dimmed and says why. The host can still pick it
+ * (its own choices find or invite the players); a guest cannot suggest it.
  */
 export function SpaceLauncherTile(props: {
   game: SpaceLauncherGame;
@@ -94,23 +97,27 @@ export function SpaceLauncherTile(props: {
   hostName: string;
   /** The host is on this tile (shown to a guest). */
   looking: boolean;
-  onPress: () => void;
+  /** Pressing does something for this viewer: unset, the tile only shows. */
+  onPress: (() => void) | undefined;
 }): JSX.Element {
   const fit = () => spaceGameFit(props.game.players, props.present, props.role);
   const dimmed = () => spaceGameFitDimmed(fit());
   const suggestedByYou = () => props.game.suggestedBy?.you === true;
+  const press = () => {
+    if (props.role === 'guest' && dimmed()) return undefined;
+    return props.onPress;
+  };
   return (
     <button
       type="button"
       class={styles['tile']}
       data-game={props.game.key}
+      data-testid={props.game.testId}
       data-dimmed={dimmed()}
       data-looking={props.looking}
-      aria-disabled={dimmed() ? 'true' : undefined}
+      aria-disabled={press() === undefined ? 'true' : undefined}
       aria-pressed={props.role === 'guest' ? suggestedByYou() : undefined}
-      onClick={() => {
-        if (!dimmed()) props.onPress();
-      }}
+      onClick={() => press()?.()}
     >
       <span class={styles['art']}>
         <GameTile motif={props.game.motif} size="lg" />

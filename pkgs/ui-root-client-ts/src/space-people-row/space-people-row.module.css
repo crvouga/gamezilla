@@ -1,9 +1,11 @@
-/* The people row: one line of fixed cells that scrolls sideways and never
-   wraps, so it keeps one height on every space screen. */
+/* The people row: one line of fixed cells, centered, that scrolls sideways
+   and never wraps, so it keeps one height on every space screen. `safe`
+   keeps the first cell reachable once the row is wider than the screen. */
 .row {
   display: flex;
   flex-flow: row nowrap;
   align-items: flex-start;
+  justify-content: safe center;
   gap: var(--ui-space-2);
   height: 100%;
   padding: var(--ui-space-3) var(--ui-space-4);

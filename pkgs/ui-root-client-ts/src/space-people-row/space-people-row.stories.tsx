@@ -7,7 +7,7 @@ type Args = { onPerson: (id: string) => void; onInvite: () => void };
 
 const meta = {
   id: 'space-people-row',
-  title: 'Space/People row',
+  title: 'Organisms/Space/SpacePeopleRow',
   component: SpacePeopleRow,
   tags: ['autodocs'],
   args: { onPerson: fn(), onInvite: fn() },

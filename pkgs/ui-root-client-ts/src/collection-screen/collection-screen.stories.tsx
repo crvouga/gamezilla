@@ -4,7 +4,7 @@ import { CollectionScreen } from './index';
 
 const meta = {
   id: 'templates-search-and-collections',
-  title: 'Templates/Search and collections',
+  title: 'Templates/CollectionScreen',
   component: CollectionScreen,
   tags: ['autodocs'],
 } satisfies Meta;

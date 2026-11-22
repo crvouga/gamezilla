@@ -66,7 +66,7 @@ test.each([390, 1440])(
 );
 
 test.each([390, 1440])(
-  'at %ipx at most one row of the menu is emphasised',
+  'at %ipx no row of the menu is recommended or leads',
   (width) => {
     const view = menu({
       width,
@@ -76,7 +76,8 @@ test.each([390, 1440])(
     const emphasised = view.container.querySelectorAll(
       '[data-testid^="game-choice-"][data-emphasis="primary"]'
     );
-    expect(emphasised.length).toBeLessThanOrEqual(1);
+    expect(emphasised).toHaveLength(0);
+    expect(view.queryByText('Recommended')).toBeNull();
     view.unmount();
   }
 );

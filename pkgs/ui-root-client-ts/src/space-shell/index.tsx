@@ -1,18 +1,22 @@
 /** @jsxImportSource solid-js */
 
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@lingui/solid/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createSignal, type JSX, Show } from 'solid-js';
+import { createMemo, type JSX, Show } from 'solid-js';
 import { useAppFrameGlobalTrailing } from '../app-frame-chrome/index';
 import { BackIconButton } from '../back-icon-button/index';
-import { Button } from '../button/index';
+import { FloatingMenu } from '../floating-menu/index';
+import type {
+  FloatingMenuContent,
+  FloatingMenuItemRow,
+} from '../floating-menu-content';
 import { IconButton } from '../icon-button/index';
-import { SettingsIcon } from '../icons';
+import { CircleStopIcon, EllipsisIcon, LogOutIcon } from '../icons';
 import { spaceDataSet } from '../space-data-set';
-import { SpaceMenuSheet } from '../space-menu-sheet/index';
 import type { SpacePersonCapability } from '../space-person-actions';
 import type { SpaceMenuItem, SpaceRole } from '../space-types';
+import { useAnchoredMenu } from '../use-anchored-menu';
 import styles from './space-shell.module.css';
 
 /**
@@ -23,11 +27,11 @@ export type SpaceShellTestIds = {
   back?: string | undefined;
   /** The space's name (the `h1`). */
   title?: string | undefined;
-  /** The gear that opens the space settings. */
+  /** The button that opens the space menu. */
   settings?: string | undefined;
-  /** A guest's Leave. */
+  /** A guest's Leave, in the space menu. */
   leave?: string | undefined;
-  /** The host's End. */
+  /** The host's End, in the space menu. */
   end?: string | undefined;
 };
 
@@ -42,15 +46,13 @@ export type SpaceShellChrome = {
    */
   backLabel?: string | undefined;
   /**
-   * The gear's own handler. With `menu` the gear opens the space settings
-   * sheet instead; with neither the gear is not shown.
+   * The space's own rows of the space menu, above the way out: Share,
+   * Rename, Minimize.
    */
-  onSettings?: (() => void) | undefined;
-  /** The space settings sheet behind the gear: Share, Rename, Minimize. */
   menu?: readonly SpaceMenuItem[] | undefined;
-  /** A guest leaves the space. */
+  /** A guest leaves the space: the space menu's last row for a guest. */
   onLeave: () => void;
-  /** The host ends the space for everyone. */
+  /** The host ends the space for everyone: the menu's last row for them. */
   onEnd: () => void;
   /**
    * Under row 1, over the people: a refused change, the host gone offline.
@@ -79,11 +81,7 @@ export type SpaceScreenChrome = SpaceShellChrome & {
 export type SpaceShellProps = SpaceShellChrome & {
   /** Who is looking: a guest gets Leave, the host End. */
   role: SpaceRole;
-  /**
-   * Row 2: the people row (`SpacePeople`). Every template draws it. Left out
-   * only around a screen not yet on a template, which shows its own seats
-   * and needs the room: then rows 1 and 3 meet.
-   */
+  /** Row 2: the people row (`SpacePeople`), on every space screen. */
   people?: JSX.Element | undefined;
   /** Row 3: what the space is doing now. */
   children: JSX.Element;
@@ -104,63 +102,88 @@ export type SpaceShellProps = SpaceShellChrome & {
   dataSet?: ComponentDataSet | undefined;
 };
 
-function ExitAction(props: SpaceShellProps): JSX.Element {
-  return (
-    <Show
-      when={props.role === 'host'}
-      fallback={
-        <Button
-          title={<Trans>Leave</Trans>}
-          intent="neutral"
-          variant="ghost"
-          size="sm"
-          onClick={() => props.onLeave()}
-          dataSet={spaceDataSet({ action: 'leave' }, props.testIds?.leave)}
-        />
-      }
-    >
-      <Button
-        title={<Trans>End</Trans>}
-        intent="danger"
-        variant="ghost"
-        size="sm"
-        onClick={() => props.onEnd()}
-        dataSet={spaceDataSet({ action: 'end' }, props.testIds?.end)}
-      />
-    </Show>
-  );
+/** The rows of the space menu: the space's own, then the way out. */
+function useSpaceMenu(props: SpaceShellProps): () => FloatingMenuContent {
+  const { t } = useLingui();
+  const exit = (): FloatingMenuItemRow =>
+    props.role === 'host'
+      ? {
+          type: 'item',
+          id: 'end',
+          label: t`End space`,
+          icon: CircleStopIcon,
+          tone: 'destructive',
+          onClick: () => props.onEnd(),
+          dataSet: spaceDataSet({ action: 'end' }, props.testIds?.end),
+        }
+      : {
+          type: 'item',
+          id: 'leave',
+          label: t`Leave space`,
+          icon: LogOutIcon,
+          tone: 'destructive',
+          onClick: () => props.onLeave(),
+          dataSet: spaceDataSet({ action: 'leave' }, props.testIds?.leave),
+        };
+  return createMemo((): FloatingMenuContent => {
+    const own = (props.menu ?? []).map(
+      (item): FloatingMenuItemRow => ({
+        type: 'item',
+        id: item.id,
+        label: item.label,
+        icon: item.icon ?? EllipsisIcon,
+        tone: item.tone,
+        disabled: item.disabled === true,
+        onClick: () => item.onPress(),
+        dataSet: spaceDataSet({ action: item.id }, item.testId),
+      })
+    );
+    return {
+      rows:
+        own.length === 0
+          ? [exit()]
+          : [...own, { type: 'divider', id: 'exit-divider' }, exit()],
+    };
+  });
 }
 
-/** The gear: its own handler, or the space settings sheet. */
-function SettingsAction(props: SpaceShellProps): JSX.Element {
+/**
+ * The one control for everything about the space: a button that opens the
+ * space menu against itself (never a sheet): the space's own rows, then
+ * End for the host or Leave for a guest.
+ */
+function SpaceMenuAction(props: SpaceShellProps): JSX.Element {
   const { t } = useLingui();
-  const [open, setOpen] = createSignal(false);
-  const press = (): void => {
-    if (props.menu === undefined) props.onSettings?.();
-    else setOpen(true);
-  };
+  const menu = useAnchoredMenu();
+  const content = useSpaceMenu(props);
   return (
-    <Show when={props.menu !== undefined || props.onSettings !== undefined}>
-      <IconButton
-        label={t`Space settings`}
-        aria-label={t`Space settings`}
-        size={44}
-        onClick={press}
-        dataSet={spaceDataSet({ action: 'settings' }, props.testIds?.settings)}
-      >
-        <SettingsIcon size={24} color="icon" />
-      </IconButton>
-      <Show when={props.menu}>
-        {(items) => (
-          <SpaceMenuSheet
-            open={open()}
-            title={t`Space settings`}
-            items={items()}
-            onClose={() => setOpen(false)}
-          />
-        )}
-      </Show>
-    </Show>
+    <>
+      <span ref={menu.setTrigger} class="inline-flex">
+        <IconButton
+          label={t`Space menu`}
+          aria-label={t`Space menu`}
+          aria-haspopup="menu"
+          aria-expanded={menu.open()}
+          size={44}
+          onClick={() => menu.toggle()}
+          dataSet={spaceDataSet(
+            { action: 'settings' },
+            props.testIds?.settings
+          )}
+        >
+          <EllipsisIcon size={24} color="icon" />
+        </IconButton>
+      </span>
+      <FloatingMenu
+        open={menu.open()}
+        onClose={menu.close}
+        anchor={menu.anchor()}
+        placement="bottom-end"
+        content={content()}
+        label={t`Space menu`}
+        dataSet={{ component: 'SpaceMenu' }}
+      />
+    </>
   );
 }
 
@@ -178,9 +201,6 @@ function ActionsRow(props: SpaceShellProps): JSX.Element {
         dataSet={spaceDataSet({ action: 'back' }, props.testIds?.back)}
       />
       <div class={styles['where']}>
-        <span class={`text textCaption ${styles['eyebrow']}`}>
-          <Trans>Spaces</Trans>
-        </span>
         <Show
           when={props.nameAs === 'context'}
           fallback={
@@ -200,8 +220,7 @@ function ActionsRow(props: SpaceShellProps): JSX.Element {
           </p>
         </Show>
       </div>
-      <SettingsAction {...props} />
-      <ExitAction {...props} />
+      <SpaceMenuAction {...props} />
       {globalTrailing()}
     </header>
   );
@@ -212,12 +231,13 @@ function ActionsRow(props: SpaceShellProps): JSX.Element {
  * phase, mode and game:
  *
  * 1. Space actions, the smallest and steadiest row: back, the space's
- *    name, space settings, and Leave for a guest or End for the host, then
- *    the app's own status and account menu where no sidebar shows them.
- *    It never grows, never scrolls and never takes a game's controls.
- *    Under it, only while there is one, the space's `notice`.
- * 2. People (`people`), one fixed height on every screen, scrolling
- *    sideways when more people are present than fit.
+ *    name and one button for the space menu (the space's settings, then
+ *    Leave for a guest or End for the host), which opens against that
+ *    button; then the app's own status and account menu where no sidebar
+ *    shows them. It never grows, never scrolls and never takes a game's
+ *    controls. Under it, only while there is one, the space's `notice`.
+ * 2. People (`people`), one fixed height on every screen, centered, and
+ *    scrolling sideways when more people are present than fit.
  * 3. The stage (`children`), filling the rest and scrolling on its own.
  *
  * Hairlines separate the rows, which share the canvas. A space screen

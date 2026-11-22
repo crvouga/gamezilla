@@ -4,7 +4,7 @@ import { EmbeddedScreen } from './index';
 
 const meta = {
   id: 'templates-embedded-content',
-  title: 'Templates/Embedded content',
+  title: 'Templates/EmbeddedScreen',
   component: EmbeddedScreen,
   tags: ['autodocs'],
 } satisfies Meta;

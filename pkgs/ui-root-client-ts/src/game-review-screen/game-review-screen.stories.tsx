@@ -4,7 +4,7 @@ import { GameReviewScreen } from './index';
 
 const meta = {
   id: 'templates-game-and-puzzle-review',
-  title: 'Games/Shared/Screens/GameReviewScreen',
+  title: 'Templates/Games/GameReviewScreen',
   component: GameReviewScreen,
   tags: ['autodocs'],
 } satisfies Meta;

@@ -4,7 +4,7 @@ import { CellGridBoard } from './index';
 
 export default {
   id: 'organisms-games-checkeredboard',
-  title: 'Games/Checkered/Board',
+  title: 'Organisms/Games/Shared/GameCellGridBoard checkered',
   component: CellGridBoard,
   tags: ['autodocs'],
 } satisfies Meta;

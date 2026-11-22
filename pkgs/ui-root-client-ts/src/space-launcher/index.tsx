@@ -30,28 +30,45 @@ export type SpaceLauncherProps = {
   lookingAt?: string | undefined;
   /** The host picked a game: open its setup. */
   onChoose?: ((key: string) => void) | undefined;
-  /** A guest suggested a game to the host. */
+  /**
+   * A guest suggested a game to the host. Unset where guests cannot
+   * suggest: their tiles only show, and no line offers it.
+   */
   onSuggest?: ((key: string) => void) | undefined;
+  /** `data-testid`s for harness bindings. */
+  testIds?: { status?: string | undefined } | undefined;
   dataSet?: ComponentDataSet | undefined;
 };
 
 function useCopy(props: SpaceLauncherProps) {
   const { t } = useLingui();
   const host = () => props.role === 'host';
+  const suggests = () => props.onSuggest !== undefined;
+  const choosing = () =>
+    props.hostName === ''
+      ? t`The host is choosing a game`
+      : t`${props.hostName} is choosing a game`;
+  const picking = () =>
+    props.present === 1
+      ? t`Pick a game`
+      : t`Pick a game for ${props.present} players`;
+  const guestHint = () =>
+    suggests()
+      ? t`You join when the game starts. Tap a game to suggest it.`
+      : t`You join when the game starts.`;
+  const guestFoot = () =>
+    suggests()
+      ? t`Only the host starts a game. Dimmed games don't fit ${props.present} players.`
+      : t`Only the host starts a game.`;
   return {
-    status: () =>
-      host()
-        ? t`Pick a game for ${props.present} players`
-        : t`${props.hostName} is choosing a game`,
+    status: () => (host() ? picking() : choosing()),
     hint: () =>
       host()
         ? t`Tap a game to set it up. Modes and bots come next.`
-        : t`You join when the game starts. Tap a game to suggest it.`,
-    section: () => (host() ? t`Games` : t`Suggest a game`),
+        : guestHint(),
+    section: () => (host() || !suggests() ? t`Games` : t`Suggest a game`),
     foot: () =>
-      host()
-        ? t`Guests see which game you're looking at.`
-        : t`Only the host starts a game. Dimmed games don't fit ${props.present} players.`,
+      host() ? t`Guests see which game you're looking at.` : guestFoot(),
   };
 }
 
@@ -62,20 +79,22 @@ function useCopy(props: SpaceLauncherProps) {
  * variants and head counts live in each game's own setup.
  *
  * Tiles show their fit with the room in words (`Needs 4`, `Solo`); a game
- * that does not fit is dimmed. The `role` decides the rest:
+ * too few people are here for is dimmed. With more people than a game
+ * seats, the rest watch. The `role` decides the rest:
  *
  * - `host`: tiles are selectable (`onChoose`); a guest's suggestion is
  *   marked on its tile (`ana suggested`); when bots can fill seats the tile
  *   says so (`4 · add 2 bots`).
  * - `guest`: tapping suggests (`onSuggest`); the tile the host is on
  *   (`lookingAt`) is ringed and says `bob is looking`; the guest's own
- *   suggestion reads `You suggested` and is pressed.
+ *   suggestion reads `You suggested` and is pressed. Without `onSuggest`
+ *   a guest's tiles only show.
  */
 export function SpaceLauncher(props: SpaceLauncherProps): JSX.Element {
   const copy = useCopy(props);
-  const press = (key: string): void => {
-    if (props.role === 'host') props.onChoose?.(key);
-    else props.onSuggest?.(key);
+  const press = (key: string): (() => void) | undefined => {
+    const pressed = props.role === 'host' ? props.onChoose : props.onSuggest;
+    return pressed === undefined ? undefined : () => pressed(key);
   };
   return (
     <div
@@ -84,12 +103,11 @@ export function SpaceLauncher(props: SpaceLauncherProps): JSX.Element {
       data-role={props.role}
     >
       <section class={styles['status']}>
-        <h2 class="text textTitle">{copy.status()}</h2>
+        <h2 class="text textTitle" data-testid={props.testIds?.status}>
+          {copy.status()}
+        </h2>
         <p class={`text textBody ${styles['muted']}`}>{copy.hint()}</p>
       </section>
-      <h3 class={`text textSectionLabel ${styles['muted']}`}>
-        {copy.section()}
-      </h3>
       <section class={styles['grid']} aria-label={copy.section()}>
         <For each={props.games}>
           {(game) => (
@@ -99,7 +117,7 @@ export function SpaceLauncher(props: SpaceLauncherProps): JSX.Element {
               present={props.present}
               hostName={props.hostName}
               looking={props.role === 'guest' && props.lookingAt === game.key}
-              onPress={() => press(game.key)}
+              onPress={press(game.key)}
             />
           )}
         </For>

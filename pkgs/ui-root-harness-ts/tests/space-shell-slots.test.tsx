@@ -65,11 +65,13 @@ const GAME: SpaceGame & { play: SpaceGamePlay } = {
 };
 
 describe('SpaceShell slots', () => {
-  test('test ids, the back label, the notice and the settings sheet', () => {
+  test('test ids, the back label, the notice and the space menu', () => {
     const rename = mock();
+    const onLeave = mock();
     renderSpace(() => (
       <SpaceShell
         {...CHROME}
+        onLeave={onLeave}
         role={GUEST}
         backLabel="Back to Chess"
         menu={[
@@ -86,23 +88,33 @@ describe('SpaceShell slots', () => {
       'Back to Chess'
     );
     expect(screen.getByTestId('t').textContent).toBe("bob's space");
-    expect(screen.getByTestId('l').textContent).toContain('Leave');
     expect(screen.getByTestId('notice')).toBeDefined();
+    // The way out is a row of the menu, never a control of its own.
+    expect(screen.queryByTestId('l')).toBeNull();
     fireEvent.click(screen.getByTestId('s'));
+    expect(
+      screen.getAllByRole('menuitem').map((row) => row.textContent)
+    ).toEqual(['Rename space', 'Leave space']);
     fireEvent.click(screen.getByTestId('r'));
     expect(rename).toHaveBeenCalledTimes(1);
+    fireEvent.click(screen.getByTestId('s'));
+    fireEvent.click(screen.getByTestId('l'));
+    expect(onLeave).toHaveBeenCalledTimes(1);
   });
 
-  test('no gear without settings; back says where by default', () => {
+  test('back says where by default; with no rows of its own the menu is the way out', () => {
     renderSpace(() => (
       <SpaceShell {...CHROME} role={HOST} people={null}>
         <p>{'stage'}</p>
       </SpaceShell>
     ));
-    expect(screen.queryByRole('button', { name: 'Space settings' })).toBeNull();
     expect(
       screen.getByRole('button', { name: 'Back to spaces' })
     ).toBeDefined();
+    fireEvent.click(screen.getByRole('button', { name: 'Space menu' }));
+    expect(
+      screen.getAllByRole('menuitem').map((row) => row.textContent)
+    ).toEqual(['End space']);
     expect(
       document.querySelector('[data-space-row="notice"]')?.childNodes.length
     ).toBe(0);

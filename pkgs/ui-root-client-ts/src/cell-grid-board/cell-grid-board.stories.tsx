@@ -4,7 +4,7 @@ import { CellGridBoard } from './index';
 
 const meta = {
   id: 'product-cellgridboard',
-  title: 'Games/Battleship/Board',
+  title: 'Organisms/Games/Battleship/Board',
   component: CellGridBoard,
   tags: ['autodocs'],
 } satisfies Meta;

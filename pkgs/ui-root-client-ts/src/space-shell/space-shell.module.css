@@ -29,9 +29,6 @@
   flex-direction: column;
   min-width: 0;
 }
-.eyebrow {
-  color: var(--ui-color-text-secondary);
-}
 
 /* Under row 1: the space's notice, only while there is one. */
 .notice {
@@ -41,8 +38,7 @@
   display: none;
 }
 
-/* Row 2: people, one fixed height on every screen; scrolls sideways.
-   Gone where a screen not yet on a template draws no people row. */
+/* Row 2: people, one fixed height on every screen; scrolls sideways. */
 .people {
   flex: none;
   height: 112px;

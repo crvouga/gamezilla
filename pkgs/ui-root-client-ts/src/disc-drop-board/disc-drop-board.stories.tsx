@@ -4,7 +4,7 @@ import { DiscDropBoard } from './index';
 
 const meta = {
   id: 'product-discdropboard',
-  title: 'Games/Connect Four/Board',
+  title: 'Organisms/Games/Connect Four/Board',
   component: DiscDropBoard,
   tags: ['autodocs'],
   args: {

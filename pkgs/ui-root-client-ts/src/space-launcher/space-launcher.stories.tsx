@@ -14,12 +14,12 @@ type Args = Omit<SpaceLauncherExampleProps, 'role'>;
 
 const meta = {
   id: 'space-choosing',
-  title: 'Space/Choosing',
+  title: 'Templates/Space/SpaceLauncher',
   component: SpaceLauncher,
   tags: ['autodocs', 'viewport-responsive'],
   args: {
     onBack: fn(),
-    onSettings: fn(),
+    onSpaceMenu: fn(),
     onLeave: fn(),
     onEnd: fn(),
     onPersonAction: fn(),
@@ -39,7 +39,7 @@ type Story = StoryObj<Args>;
 /**
  * bob's space while bob chooses a game, seen by the toolbar's role. The
  * host chooses: every tile is selectable, ana's suggestion is marked,
- * Hearts says how bots fill its seats, solo games are dimmed, and tapping a
+ * Hearts says how bots fill its seats, solo games say so, and tapping a
  * game opens its setup. A guest watches: tapping suggests, bob's tile is
  * ringed and says "bob is looking". The game toolbar does not apply.
  */

@@ -147,7 +147,6 @@ export function SpaceInGameTemplate(
       role={props.role}
       onBack={props.onBack}
       backLabel={props.backLabel}
-      onSettings={props.onSettings}
       menu={props.menu}
       onLeave={props.onLeave}
       onEnd={props.onEnd}

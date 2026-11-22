@@ -3,7 +3,7 @@ import Example from './data-table.example';
 import { DataTable } from './index';
 export default {
   id: 'product-developer-tools-datatable',
-  title: 'Organisms/DataTable',
+  title: 'Organisms/Devtools/DataTable',
   component: DataTable,
   tags: ['autodocs'],
 } satisfies Meta;

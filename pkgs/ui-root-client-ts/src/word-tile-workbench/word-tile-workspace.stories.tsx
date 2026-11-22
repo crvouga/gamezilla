@@ -53,7 +53,7 @@ const RACK: readonly TileRackTile[] = ['S', 'E', 'A', 'R', 'O', 'N', 'T'].map(
 
 const meta = {
   id: 'games-word-tiles-workspace',
-  title: 'Games/Word Tiles/Workspace',
+  title: 'Organisms/Games/Word Tiles/Workspace',
   component: WordTileWorkspace,
   tags: ['autodocs', 'viewport-responsive'],
   render: (args) => (

@@ -10,7 +10,7 @@ import type { SpaceMenuItem } from '../space-types';
 
 export type SpaceMenuSheetProps = {
   open: boolean;
-  /** The sheet's title: `Space settings`, `More actions`. */
+  /** The sheet's title: `More actions`. */
   title: string;
   items: readonly SpaceMenuItem[];
   onClose: () => void;
@@ -18,9 +18,10 @@ export type SpaceMenuSheetProps = {
 };
 
 /**
- * `SpaceMenuSheet` -- a short list of space actions in a sheet over the
- * stage (a centered dialog on wide layouts): the space settings behind row
- * 1's gear, and the action bar's More. Choosing a row closes the sheet,
+ * `SpaceMenuSheet` -- the action bar's More: the game actions that did not
+ * fit the bar, in a sheet over the stage (a centered dialog on wide
+ * layouts). The space's own menu is never a sheet: it opens against row
+ * 1's button (`SpaceShell`). Choosing a row closes the sheet,
  * then runs it; destructive rows wear the destructive ink.
  */
 export function SpaceMenuSheet(props: SpaceMenuSheetProps): JSX.Element {

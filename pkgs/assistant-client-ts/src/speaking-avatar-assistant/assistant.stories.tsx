@@ -11,7 +11,7 @@ import { SpeakingAvatarAssistant } from './index';
 
 export default {
   id: 'product-assistant',
-  title: 'Organisms/Assistant',
+  title: 'Organisms/SpeakingAvatarAssistant',
   component: SpeakingAvatarAssistant,
   tags: ['autodocs'],
   parameters: { controls: { disable: true } },

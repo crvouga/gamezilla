@@ -26,11 +26,13 @@ import type {
   SpacePerson,
   SpaceRole,
 } from '@pkgs/ui-root-client-ts/space-types';
+import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import { renderUi } from './render';
 
 /** A variable, not a literal: a literal `role` reads as an ARIA role to jsx-a11y. */
 const GUEST: SpaceRole = 'guest';
+const HOST_ROLE: SpaceRole = 'host';
 const ME: SpacePerson = { id: 'me', kind: 'person', name: 'ana', you: true };
 const OTHER: SpacePerson = { id: 'bob', kind: 'person', name: 'bob' };
 const BOT: SpacePerson = { id: 'bot', kind: 'bot', name: 'Bot 1' };
@@ -213,32 +215,51 @@ describe('spaceGameFit', () => {
       false
     );
     expect(spaceGameFitDimmed({ kind: 'needs', target: 4 })).toBe(true);
+    // More people than seats watch: neither a full game nor a solo one dims.
+    expect(spaceGameFitDimmed({ kind: 'tooMany', max: 2 })).toBe(false);
+    expect(spaceGameFitDimmed({ kind: 'solo' })).toBe(false);
   });
 });
 
 describe('SpaceShell', () => {
-  test('row 1 ends in Leave for a guest and End for the host', () => {
+  test('row 1 has one space menu: it ends in Leave for a guest, End for the host', () => {
     const onLeave = mock();
+    const onEnd = mock();
     const shell = (role: 'host' | 'guest') => (
-      <SpaceShell
-        spaceName="bob's space"
-        role={role}
-        onBack={() => {}}
-        onSettings={() => {}}
-        onLeave={onLeave}
-        onEnd={() => {}}
-        people={null}
-      >
-        <p>{'stage'}</p>
-      </SpaceShell>
+      <SurfaceStackProvider>
+        <SpaceShell
+          spaceName="bob's space"
+          role={role}
+          onBack={() => {}}
+          onLeave={onLeave}
+          onEnd={onEnd}
+          people={null}
+        >
+          <p>{'stage'}</p>
+        </SpaceShell>
+      </SurfaceStackProvider>
     );
     const guest = renderUi(() => shell('guest'));
-    fireEvent.click(screen.getByRole('button', { name: 'Leave' }));
+    // Nothing of the space's way out sits loose in the row.
+    const row = document.querySelector('[data-space-row="actions"]');
+    expect(row?.querySelectorAll('button')).toHaveLength(2);
+    expect(row?.textContent).toBe("Back to spacesbob's spaceSpace menu");
+    expect(screen.queryByRole('menuitem')).toBeNull();
+    const opener = screen.getByRole('button', { name: 'Space menu' });
+    expect(opener.getAttribute('aria-haspopup')).toBe('menu');
+    fireEvent.click(opener);
+    expect(screen.getByRole('menu', { name: 'Space menu' })).toBeDefined();
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(screen.queryByRole('menuitem', { name: 'End space' })).toBeNull();
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Leave space' }));
     expect(onLeave).toHaveBeenCalledTimes(1);
-    expect(screen.queryByRole('button', { name: 'End' })).toBeNull();
+    expect(screen.queryByRole('menu')).toBeNull();
     guest.unmount();
     renderUi(() => shell('host'));
-    expect(screen.getByRole('button', { name: 'End' })).toBeDefined();
+    fireEvent.click(screen.getByRole('button', { name: 'Space menu' }));
+    expect(screen.queryByRole('menuitem', { name: 'Leave space' })).toBeNull();
+    fireEvent.click(screen.getByRole('menuitem', { name: 'End space' }));
+    expect(onEnd).toHaveBeenCalledTimes(1);
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(
       "bob's space"
     );
@@ -346,7 +367,6 @@ describe('SpaceInGameTemplate', () => {
         people={[ME, OTHER]}
         spaceName="bob's space"
         onBack={() => {}}
-        onSettings={() => {}}
         onLeave={() => {}}
         onEnd={() => {}}
         onPersonAction={() => {}}
@@ -366,7 +386,7 @@ describe('SpaceInGameTemplate', () => {
 });
 
 describe('SpaceLauncher', () => {
-  test('a guest suggests; the host chooses; an unfit game cannot be picked', () => {
+  test('a guest suggests a game that fits; one too few are here for cannot be suggested', () => {
     const onSuggest = mock();
     renderUi(() => (
       <SpaceLauncher
@@ -397,5 +417,76 @@ describe('SpaceLauncher', () => {
     expect(onSuggest).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole('button', { name: /Beta/ }));
     expect(onSuggest).toHaveBeenCalledWith('b');
+  });
+
+  test('the host picks any game; more people than seats watch, too few is dimmed', () => {
+    const onChoose = mock();
+    renderUi(() => (
+      <SpaceLauncher
+        role={HOST_ROLE}
+        hostName="bob"
+        present={3}
+        games={[
+          {
+            key: 'duel',
+            name: 'Duel',
+            motif: 'checkered',
+            players: { counts: [2], bots: false },
+            testId: 'tile-duel',
+          },
+          {
+            key: 'solo',
+            name: 'Alone',
+            motif: 'paths',
+            players: { counts: [1], bots: false },
+          },
+          {
+            key: 'four',
+            name: 'Four',
+            motif: 'cards',
+            players: { counts: [4], bots: false },
+          },
+        ]}
+        onChoose={onChoose}
+      />
+    ));
+    const duel = screen.getByTestId('tile-duel');
+    expect(duel.getAttribute('data-dimmed')).toBe('false');
+    expect(duel.textContent).toBe('DuelUp to 2');
+    const four = screen.getByRole('button', { name: /Four/ });
+    expect(four.getAttribute('data-dimmed')).toBe('true');
+    expect(four.textContent).toBe('FourNeeds 4');
+    for (const name of [/Duel/, /Alone/, /Four/]) {
+      const tile = screen.getByRole('button', { name });
+      expect(tile.getAttribute('aria-disabled')).toBeNull();
+      fireEvent.click(tile);
+    }
+    expect(onChoose.mock.calls).toEqual([['duel'], ['solo'], ['four']]);
+  });
+
+  test('where guests cannot suggest, their tiles only show and nothing offers it', () => {
+    const view = renderUi(() => (
+      <SpaceLauncher
+        role={GUEST}
+        hostName=""
+        present={2}
+        testIds={{ status: 'status' }}
+        games={[
+          {
+            key: 'b',
+            name: 'Beta',
+            motif: 'trails',
+            players: { counts: [2], bots: false },
+          },
+        ]}
+      />
+    ));
+    expect(screen.getByTestId('status').textContent).toBe(
+      'The host is choosing a game'
+    );
+    expect(view.container.textContent).not.toMatch(/suggest/i);
+    expect(
+      screen.getByRole('button', { name: /Beta/ }).getAttribute('aria-disabled')
+    ).toBe('true');
   });
 });

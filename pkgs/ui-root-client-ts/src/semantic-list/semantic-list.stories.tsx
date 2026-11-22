@@ -4,7 +4,7 @@ import Example from './semantic-list.example';
 
 const meta = {
   id: 'primitives-semantic-lists',
-  title: 'Atoms/Semantic lists',
+  title: 'Atoms/SemanticList',
   component: UnorderedList,
   tags: ['autodocs'],
 } satisfies Meta;

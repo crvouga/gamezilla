@@ -4,7 +4,7 @@ import Example from './menu-screen.example';
 
 const meta = {
   id: 'templates-settings-menu',
-  title: 'Templates/Settings menu',
+  title: 'Templates/MenuScreen',
   component: MenuScreen,
   tags: ['autodocs'],
 } satisfies Meta;

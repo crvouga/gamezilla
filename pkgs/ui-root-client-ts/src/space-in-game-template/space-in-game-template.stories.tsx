@@ -20,12 +20,12 @@ type Args = Omit<SpaceInGameTemplateExampleProps, 'game' | 'role'>;
 
 const meta = {
   id: 'space-in-game',
-  title: 'Space/InGame',
+  title: 'Templates/Space/SpaceInGameTemplate',
   component: SpaceInGameTemplate,
   tags: ['autodocs', 'viewport-responsive'],
   args: {
     onBack: fn(),
-    onSettings: fn(),
+    onSpaceMenu: fn(),
     onLeave: fn(),
     onEnd: fn(),
     onPersonAction: fn(),

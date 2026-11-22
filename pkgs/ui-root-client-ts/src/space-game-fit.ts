@@ -13,14 +13,17 @@ export type SpaceGameFit =
   | { kind: 'bots'; target: number; bots: number }
   /** Too few people and no bots for this viewer (`Needs 4`). */
   | { kind: 'needs'; target: number }
-  /** Too many people (`Up to 2`). */
+  /** More people than seats (`Up to 2`): the rest watch. */
   | { kind: 'tooMany'; max: number }
-  /** A one-person game in a space of several (`Solo`). */
+  /** A one-person game in a space of several (`Solo`): the rest watch. */
   | { kind: 'solo' };
 
-/** Whether the tile is dimmed: the game cannot be played by who is here. */
+/**
+ * Whether the tile is dimmed: too few people are here to play it as they
+ * are. More people than a game seats never dims it: the rest watch.
+ */
 export function spaceGameFitDimmed(fit: SpaceGameFit): boolean {
-  return fit.kind === 'needs' || fit.kind === 'tooMany' || fit.kind === 'solo';
+  return fit.kind === 'needs';
 }
 
 /**

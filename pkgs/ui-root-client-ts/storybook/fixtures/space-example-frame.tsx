@@ -22,7 +22,8 @@ export function SpaceExampleFrame(props: {
 /** The callbacks a story spies on, from its args. */
 export type SpaceExampleSpies = {
   onBack: () => void;
-  onSettings: () => void;
+  /** A row of the space menu was chosen. */
+  onSpaceMenu: (id: string) => void;
   onLeave: () => void;
   onEnd: () => void;
   onPersonAction: (personId: string, action: string) => void;
@@ -37,7 +38,11 @@ export function spaceExampleChrome(
   return {
     spaceName: 'bob’s space',
     onBack: () => spies.onBack(),
-    onSettings: () => spies.onSettings(),
+    menu: [
+      { id: 'share', label: 'Share' },
+      { id: 'people', label: 'People in this space' },
+      { id: 'minimize', label: 'Minimize space' },
+    ].map((item) => ({ ...item, onPress: () => spies.onSpaceMenu(item.id) })),
     onLeave: () => spies.onLeave(),
     onEnd: () => spies.onEnd(),
     onPersonAction: (id, action) => spies.onPersonAction(id, action),

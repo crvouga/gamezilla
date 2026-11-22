@@ -8,6 +8,7 @@ import type { JSX } from 'solid-js';
 import {
   SpaceExampleFrame,
   type SpaceExampleSpies,
+  spaceExampleChrome,
 } from '../../storybook/fixtures/space-example-frame';
 import {
   SPACE_EXAMPLE_HOST_NAME,
@@ -105,16 +106,10 @@ export default function SpaceLauncherExample(
   return (
     <SpaceExampleFrame>
       <SpaceStageTemplate
-        spaceName="bob’s space"
+        {...spaceExampleChrome(props, true)}
         role={props.role}
         phase="choosing"
         people={people()}
-        onBack={() => props.onBack()}
-        onSettings={() => props.onSettings()}
-        onLeave={() => props.onLeave()}
-        onEnd={() => props.onEnd()}
-        onPersonAction={(id, action) => props.onPersonAction(id, action)}
-        onInvite={() => props.onInvite()}
       >
         <SpaceLauncher
           role={props.role}

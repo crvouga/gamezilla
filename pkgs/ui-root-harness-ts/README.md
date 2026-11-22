@@ -348,18 +348,40 @@ stay untracked; source types, JSDoc, token documents and stories remain authorit
 
 ## Sidebar organization
 
-Foundations introduces the tokens. Atoms holds basic controls and visual roles;
-Molecules combines them into fields, rows and choices; Organisms groups complete
-interactive regions; Templates holds screen and layout compositions. Screens
-holds the product's own screen views from `libs/`, a folder per area
-(`Screens/Settings`, `Screens/Friends`, `Screens/Games/<Game>`).
-`Games` separates game-specific surfaces into a folder per game, such as
-`Games/Chess/Board` and `Games/Connect Four/Board`. Reusable game screens and
-layouts live in `Games/Shared/Screens`; reusable game regions live in
-`Games/Shared/Components`. These sidebar folders are defined by CSF titles;
-source files stay beside their production components.
-Explicit IDs preserve existing deep links and baseline paths when sidebar titles
-change. Public component imports retain their production names.
+The sidebar's top level is the level of abstraction and nothing else:
+Foundations (tokens), Atoms (basic controls and visual roles), Molecules
+(fields, rows and choices), Organisms (complete interactive regions), Templates
+(screen and layout compositions) and Screens (the product's own screen views
+from `libs/`). A product area is a folder inside a level, never a level of its
+own, and keeps one name in every level it appears in:
+
+| Area | Organisms | Templates | Screens |
+| --- | --- | --- | --- |
+| Space | `Organisms/Space/Space<Name>` | `Templates/Space/Space<Name>` | `Screens/Spaces/<Screen>` |
+| Games, shared | `Organisms/Games/Shared/Game<Name>` | `Templates/Games/Game<Name>` | `Screens/Games/<Area>/<Screen>` |
+| One game | `Organisms/Games/<Game>/<Surface>` | | `Screens/Games/<Game>/<Screen>` |
+| Developer tools | `Organisms/Devtools/<Component>` | | `Screens/Inspector/<Screen>` |
+| Feedback | `Organisms/Feedback/<Component>` (and `Molecules/Feedback`) | | |
+
+Naming, checked by `tests/storybook-taxonomy.test.ts`:
+
+- A design-system story is titled with its component's exported name
+  (`Atoms/Button`, `Templates/FormScreen`), optionally followed by a lowercase
+  qualifier when one component has several catalogues
+  (`Templates/Games/GameScreen compact inset`).
+- A folder's stories share its prefix: `Space…` under `Space`, `Game…` under
+  `Games/Shared` and `Templates/Games`.
+- One game's surfaces are named for what they are (`Board`, `Table`, `Arena`).
+- Recipes that show several components working together live in
+  `Organisms/Patterns`.
+- A screen story is `Screens/<Area>/<Screen>` and lives in `libs/`; everything
+  else lives in `pkgs/`.
+- Every title is unique, and every story file sets an explicit `id`.
+
+These sidebar folders are defined by CSF titles; source files stay beside their
+production components. Explicit IDs preserve existing deep links and baseline
+paths when sidebar titles change. Public component imports retain their
+production names.
 
 ## Native story features
 

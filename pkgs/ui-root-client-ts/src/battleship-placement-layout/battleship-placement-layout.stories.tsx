@@ -17,7 +17,8 @@ const cells = (size: number) =>
     enabled: false,
   }));
 const meta = {
-  title: 'Games/Battleship/Placement layout',
+  id: 'games-battleship-placement-layout',
+  title: 'Organisms/Games/Battleship/Placement layout',
   component: BattleshipPlacementLayout,
 } satisfies Meta<typeof BattleshipPlacementLayout>;
 export default meta;
