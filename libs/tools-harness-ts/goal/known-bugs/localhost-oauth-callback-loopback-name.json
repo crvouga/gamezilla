@@ -1,0 +1,4 @@
+{
+  "summary": "On a local stack, Continue with Google answered invalid_callback_url: the stack trusted its web origin as http://127.0.0.1:<port> while the browser showed the app as http://localhost:<port>. A loopback web origin is now trusted under every loopback name on its own port.",
+  "regressionTest": "pkgs/auth-inhouse-shared-ts/tests/trusted-origins.test.ts"
+}

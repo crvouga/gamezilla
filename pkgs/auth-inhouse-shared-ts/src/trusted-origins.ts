@@ -1,6 +1,31 @@
+/** The names one machine answers to as itself. */
+const LOOPBACK_HOSTS = ['localhost', '127.0.0.1', '[::1]'] as const;
+
+/**
+ * A loopback http origin under every name of the same machine and port:
+ * a stack that says `http://127.0.0.1:5400` is the page a person opens as
+ * `http://localhost:5400`. Any other origin is itself alone.
+ */
+function withLoopbackNames(origin: string): readonly string[] {
+  let url: URL;
+  try {
+    url = new URL(origin);
+  } catch {
+    return [origin];
+  }
+  if (
+    url.protocol !== 'http:' ||
+    !LOOPBACK_HOSTS.some((host) => host === url.hostname)
+  )
+    return [origin];
+  const port = url.port === '' ? '' : `:${url.port}`;
+  return LOOPBACK_HOSTS.map((host) => `http://${host}${port}`);
+}
+
 /**
  * Origins the IdP may redirect to after OAuth (native deep-link schemes +
- * web + API).
+ * web + API). A local stack's web origin is trusted under each loopback
+ * name, since which one the browser shows is the person's choice.
  */
 export function buildAuthTrustedOrigins(args: {
   readonly apiBaseURL: string;
@@ -23,7 +48,8 @@ export function buildAuthTrustedOrigins(args: {
   ]);
   for (const origin of args.clientWebOrigins ?? []) {
     const trimmed = origin.trim().replace(/\/$/, '');
-    if (trimmed.length > 0) origins.add(trimmed);
+    if (trimmed.length === 0) continue;
+    for (const named of withLoopbackNames(trimmed)) origins.add(named);
   }
   return [...origins];
 }
