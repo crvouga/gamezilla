@@ -3,7 +3,7 @@ import { AppHeaderGlobalMenuView } from '@libs/app-root-client-ts/app-header-glo
 import { AppHeaderIslandView } from '@libs/app-root-client-ts/app-header-island-view';
 import { AppTabBarView } from '@libs/app-root-client-ts/app-tab-bar-view';
 import { STORY_APP_TABS } from '@libs/app-root-client-ts/app-tabs-story.example';
-import { SpaceDetailScreenView } from '@libs/spaces-client-ts/space-detail-screen-view';
+import { StorySpaceFrame } from '@libs/spaces-client-ts/space-screen-chrome-story.example';
 import { AppFrame } from '@pkgs/ui-root-client-ts/app-frame';
 import { AppFrameChromeProvider } from '@pkgs/ui-root-client-ts/app-frame-chrome';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
@@ -22,29 +22,6 @@ function AccountMenu(props: { readonly showName?: boolean }): JSX.Element {
       showName={props.showName}
       onNavigate={fn()}
     />
-  );
-}
-
-function SpaceBody(props: { readonly children: JSX.Element }): JSX.Element {
-  return (
-    <SpaceDetailScreenView
-      title="Friday game night"
-      spaceId="story-room"
-      status="ready"
-      hostOffline={false}
-      canRename
-      canEnd
-      presenceCount={2}
-      onPressHome={fn()}
-      onPressBack={null}
-      onPressMembers={fn()}
-      onPressShare={fn()}
-      onPressRename={fn()}
-      onPressEnd={fn()}
-      onPressLeave={fn()}
-    >
-      {props.children}
-    </SpaceDetailScreenView>
   );
 }
 
@@ -69,7 +46,7 @@ function RouteBody(props: {
         </StackVertical>
       }
     >
-      <SpaceBody>{props.children}</SpaceBody>
+      <StorySpaceFrame>{props.children}</StorySpaceFrame>
     </Show>
   );
 }

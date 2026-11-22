@@ -78,6 +78,7 @@ export async function multiplayerCanLeave(
   const ui = await actorUi(s, actor);
   return (
     (await ui.get(Handles.navBack).isVisible()) ||
+    (await ui.get(Handles.spaceBackToSpaces).isVisible()) ||
     (await ui.get(Handles.spaceClose).isVisible())
   );
 }

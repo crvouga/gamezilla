@@ -40,10 +40,7 @@ for (const id of [
   });
 }
 
-for (const id of [
-  'screens-spaces-games--host-choosing',
-  'screens-spaces-detail--host-choosing-game',
-]) {
+for (const id of ['screens-spaces-games--host-choosing']) {
   test(`storybook integration: ${id} has exactly one real compact space header`, async ({
     page,
   }) => {

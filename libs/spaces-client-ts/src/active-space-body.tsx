@@ -2,8 +2,8 @@ import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { createEffect, createSignal, type JSX } from 'solid-js';
 
 import { GamesMainMenu } from './games-main-menu';
-import { SpaceActiveLayout } from './space-active-layout';
 import { SpaceScreenChromeProvider } from './space-screen-chrome';
+import { SpaceScreenFrame } from './space-screen-frame';
 import type { SpaceSessionUiValue } from './space-session-ui-context';
 import { SpaceSessionUiProvider } from './space-session-ui-context';
 import { useAnnounceJoinedOnSync } from './use-announce-joined-on-sync';
@@ -15,14 +15,13 @@ export type ActiveSpaceBodyProps = {
   spaceId: string;
   onRequestEnd: () => void;
   onRequestLeave: () => void;
-  onRequestRename: () => void;
   onPressHome: () => void;
 };
 
 /**
- * Body of an active space session: chrome layout + games main menu. Session
- * UI is provided via {@link SpaceSessionUiProvider}; room state uses registry
- * hooks under {@link SpaceRoomProvider}.
+ * Body of an active space session: the space's chrome and frame around the
+ * games main menu. Session UI is provided via {@link SpaceSessionUiProvider};
+ * room state uses registry hooks under {@link SpaceRoomProvider}.
  */
 export function ActiveSpaceBody(props: ActiveSpaceBodyProps): JSX.Element {
   useAnnounceJoinedOnSync(props.spaceId);
@@ -42,9 +41,6 @@ export function ActiveSpaceBody(props: ActiveSpaceBodyProps): JSX.Element {
     },
     get onRequestLeave() {
       return () => props.onRequestLeave();
-    },
-    get onRequestRename() {
-      return () => props.onRequestRename();
     },
     get onPressHome() {
       return () => props.onPressHome();
@@ -67,9 +63,9 @@ export function ActiveSpaceBody(props: ActiveSpaceBodyProps): JSX.Element {
           status={status()}
           hostOffline={hostOffline()}
         >
-          <SpaceActiveLayout status={status()} hostOffline={hostOffline()}>
+          <SpaceScreenFrame>
             <GamesMainMenu />
-          </SpaceActiveLayout>
+          </SpaceScreenFrame>
         </SpaceScreenChromeProvider>
       </SpaceQuietHost>
     </SpaceSessionUiProvider>
