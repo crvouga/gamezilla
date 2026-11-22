@@ -278,6 +278,63 @@ test('run finds mise bootstrapped by setup without a parent PATH change', () => 
   expect(run().calls).toEqual([STOP, DEV]);
 });
 
+/**
+ * A workstation whose mise config asks for a newer mise than is installed:
+ * every mise command refuses until the binary is replaced. `curl` hands back
+ * an installer that puts the working mise where the old one is.
+ */
+function outdatedMise(dir: string, download: 'ok' | 'offline'): void {
+  renameReplacing(join(dir, '.bin/mise'), join(dir, '.bin/mise-new'));
+  writeExecutable(
+    join(dir, '.bin/mise'),
+    '#!/usr/bin/env bash\n' +
+      'echo "mise ERROR mise version 2026.11.11 is required, but you are using 2026.10.24" >&2\n' +
+      'exit 1\n'
+  );
+  writeExecutable(
+    join(dir, '.bin/curl'),
+    download === 'offline'
+      ? '#!/usr/bin/env bash\necho "curl: (6) Could not resolve host" >&2\nexit 6\n'
+      : '#!/usr/bin/env bash\n' +
+          'while [ "$#" -gt 0 ]; do\n' +
+          '  if [ "$1" = "--output" ]; then out="$2"; fi\n' +
+          '  shift\n' +
+          'done\n' +
+          'cat > "$out" <<\'INSTALLER\'\n' +
+          'printf "%s\\n" "$MISE_VERSION" > "$(dirname "$MISE_INSTALL_PATH")/../.mise-installed"\n' +
+          'cp "$(dirname "$MISE_INSTALL_PATH")/mise-new" "$MISE_INSTALL_PATH"\n' +
+          'INSTALLER\n'
+  );
+}
+
+// regression: workspace-run-outdated-mise
+test('Localhost updates a mise older than a config requires, then starts', () => {
+  const { dir, run } = checkout();
+  outdatedMise(dir, 'ok');
+  const result = run();
+  expect(result.status, result.stderr).toBe(0);
+  expect(readFileSync(join(dir, '.mise-installed'), 'utf8').trim()).toBe(
+    'v2026.11.11'
+  );
+  expect(result.calls).toEqual([INSTALL, STOP, DEV]);
+  // Up to date now: the next launch updates nothing.
+  rmSync(join(dir, '.mise-installed'));
+  expect(run().calls).toEqual([STOP, DEV]);
+  expect(existsSync(join(dir, '.mise-installed'))).toBe(false);
+});
+
+// regression: workspace-run-outdated-mise
+test('an outdated mise that cannot be updated says which version is needed', () => {
+  const { dir, run } = checkout();
+  outdatedMise(dir, 'offline');
+  const result = run();
+  expect(result.status).not.toBe(0);
+  expect(`${result.stdout}${result.stderr}`).toContain(
+    '!!! mise 2026.11.11 is required and could not be installed over'
+  );
+  expect(result.calls).toEqual([]);
+});
+
 // regression: separated-setup-release-policy
 test('a failed tool refresh tells the team and leaves a prepared environment openable', () => {
   const { setup, run } = checkout();

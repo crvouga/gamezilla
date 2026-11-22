@@ -88,7 +88,9 @@ workspace_install() {
 }
 
 workspace_prepare_launch() {
-  if ! workspace_install_is_current || ! workspace_activate_tools; then
+  # A first activation that fails is repaired below; only the activation
+  # after the repair says why it failed.
+  if ! workspace_install_is_current || ! workspace_activate_tools quiet; then
     echo "==> preparing missing or changed workspace dependencies"
     "$WORKSPACE_PATH/libs/tools-harness-ts/workspace/setup.sh" || return 1
     workspace_activate_tools
