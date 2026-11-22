@@ -161,7 +161,7 @@ Bun workspaces: `apps/*`, `libs/*`, `pkgs/*`.
 | `@apps/client-ts` | Vite shell: `index.html`, service worker, PWA, bundle budget. `bun run dev:client` runs it alone. |
 | `@apps/server-ts` | API and room modules, plus local API preview. Source is isomorphic; `pg` and `node:*` only behind ports in modules marked `@api-wall-ok`. |
 | `@apps/product-ts` | Application Worker (client assets, API, schedules and rooms); web app, simulator and localhost stack. |
-| `@apps/harness-ts` | The harness: the whole system running in one browser tab with a console over each node. A site of its own (`bun run dev:harness`), and what a pull request's Preview serves. |
+| `@apps/harness-ts` | The harness: the whole system running in one browser tab with a console over each node. A site of its own (`bun run dev:harness`). |
 | `@apps/auth-relay-ts` | Global OAuth callback Worker at `auth.<zone>`. |
 | `@apps/storybook-ts` | Global assets-only Worker serving the static Storybook build at `storybook.<zone>`. |
 | `@apps/client-swift` | Native SwiftUI iOS shell: the product name on an empty screen, linking `@pkgs/clock-shared-swift`. No product features yet ([`docs/POLYGLOT.md`](docs/POLYGLOT.md)). |

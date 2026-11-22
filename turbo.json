@@ -2383,33 +2383,6 @@
       "cache": false,
       "passThroughEnv": ["*"]
     },
-    "//#task:preview:build": {
-      "cache": false,
-      "dependsOn": ["@apps/harness-ts#build", "//#task:i18n:compile"],
-      "passThroughEnv": ["*"]
-    },
-    "//#task:preview:deploy": {
-      "cache": false,
-      "dependsOn": ["@apps/harness-ts#build", "//#task:i18n:compile"],
-      "passThroughEnv": ["*"]
-    },
-    "//#task:preview:main": {
-      "cache": false,
-      "dependsOn": ["@apps/harness-ts#build", "//#task:i18n:compile"],
-      "passThroughEnv": ["*"]
-    },
-    "//#task:preview:test": {
-      "cache": false,
-      "passThroughEnv": ["*"]
-    },
-    "//#task:preview:destroy": {
-      "cache": false,
-      "passThroughEnv": ["*"]
-    },
-    "//#task:preview:sweep": {
-      "cache": false,
-      "passThroughEnv": ["*"]
-    },
     "//#task:inspect": {
       "cache": false,
       "passThroughEnv": ["*"]

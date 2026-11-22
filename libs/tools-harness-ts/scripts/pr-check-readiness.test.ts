@@ -183,7 +183,6 @@ test('metadata crossing the deadline preserves the missing scanner failure', asy
     activeCodeqlShas: [],
     checks: [
       passed('verify:start'),
-      passed('preview'),
       ...Array.from({ length: 64 }, (_, index) =>
         passed(`verify:shards (${index})`)
       ),
@@ -194,7 +193,6 @@ test('metadata crossing the deadline preserves the missing scanner failure', asy
     ...required.map((policy) => ({ ...policy, outage_tolerant: true })),
     { context: 'verify:start', integration_id: 15368 },
     { context: 'verify:end', integration_id: 15368 },
-    { context: 'preview', integration_id: 15368, advisory: true },
   ];
   await expect(run([snapshot], 31, policies).result).rejects.toThrow(
     'PR checks readiness deadline exceeded during metadata collection:\nMissing required check: CodeQL (app 57789)'

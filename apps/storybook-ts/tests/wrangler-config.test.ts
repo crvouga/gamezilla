@@ -23,22 +23,11 @@ describe('Storybook site Worker', () => {
     });
   });
 
-  test('runs no Worker script and has no workers.dev URL of its own', () => {
+  test('runs no Worker script, binds no hostname and has no workers.dev URL', () => {
     expect(rendered['main']).toBeUndefined();
+    expect(rendered['routes']).toBeUndefined();
     expect(rendered['workers_dev']).toBe(false);
-  });
-
-  test("serves pull requests' Previews under its own hostname", () => {
-    expect(base['routes']).toBeUndefined();
-    expect(rendered['routes']).toEqual([
-      {
-        pattern: GLOBAL.storybook.hostname,
-        custom_domain: true,
-        previews_enabled: true,
-      },
-    ]);
-    expect(rendered['preview_urls']).toBe(true);
-    expect(rendered['previews']).toEqual({});
+    expect(rendered['preview_urls']).toBe(false);
   });
 
   test('refuses a Worker script', () => {

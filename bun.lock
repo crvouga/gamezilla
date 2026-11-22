@@ -159,31 +159,6 @@
         "vite-plugin-solid": "catalog:",
       },
     },
-    "apps/preview-ts": {
-      "name": "@apps/preview-ts",
-      "version": "0.0.0",
-      "dependencies": {
-        "@crvouga/mockingbird-preview": "catalog:",
-        "@libs/product-brand-shared-ts": "workspace:*",
-        "@libs/product-identity-shared-ts": "workspace:*",
-        "@pkgs/clock-shared-ts": "workspace:*",
-        "@pkgs/fs-server-ts": "workspace:*",
-        "@pkgs/http-client-shared-ts": "workspace:*",
-        "@pkgs/object-store-node-fs-server-ts": "workspace:*",
-        "@pkgs/secret-provider-server-ts": "workspace:*",
-        "@pkgs/secret-provider-shared-ts": "workspace:*",
-        "@pkgs/secrets-config-server-ts": "workspace:*",
-        "@pkgs/vite-workspace-resolver-server-ts": "workspace:*",
-      },
-      "devDependencies": {
-        "@pkgs/property-shared-ts": "workspace:*",
-        "@types/bun": "catalog:",
-        "@typescript/native": "catalog:",
-        "fast-check": "catalog:",
-        "typescript": "catalog:",
-        "wrangler": "catalog:",
-      },
-    },
     "apps/product-ts": {
       "name": "@apps/product-ts",
       "version": "1.0.0",
@@ -7944,10 +7919,8 @@
         "vite": "catalog:",
       },
       "devDependencies": {
-        "@pkgs/property-shared-ts": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
-        "fast-check": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -8000,7 +7973,6 @@
     "@clack/prompts": "^1.8.1",
     "@crvouga/atlas": "^0.10.2",
     "@crvouga/mockingbird-notifications": "^0.13.0",
-    "@crvouga/mockingbird-preview": "^0.2.0",
     "@crvouga/mockingbird-service-github": "^1.18.2",
     "@crvouga/mockingbird-service-oauth": "^3.19.2",
     "@crvouga/mockingbird-service-openai": "^1.18.2",
@@ -8140,8 +8112,6 @@
     "@apps/client-ts": ["@apps/client-ts@workspace:apps/client-ts"],
 
     "@apps/harness-ts": ["@apps/harness-ts@workspace:apps/harness-ts"],
-
-    "@apps/preview-ts": ["@apps/preview-ts@workspace:apps/preview-ts"],
 
     "@apps/product-ts": ["@apps/product-ts@workspace:apps/product-ts"],
 

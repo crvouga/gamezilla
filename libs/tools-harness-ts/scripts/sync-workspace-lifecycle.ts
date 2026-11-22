@@ -34,9 +34,6 @@ export type Hook = (typeof HOOKS)[number];
 /** Interactive one-time setup and sign-in; a T3 action, never a hook. */
 export const BOOTSTRAP_COMMAND = `./${SOURCE_DIR}/bootstrap.sh`;
 
-/** Prints the hosted preview URL of the branch's pull request; a T3 action. */
-export const PREVIEW_COMMAND = `./${SOURCE_DIR}/preview.sh`;
-
 /** Storybook without the product stack; a T3 action. */
 export const STORYBOOK_COMMAND = `./${SOURCE_DIR}/storybook.sh`;
 
@@ -73,7 +70,6 @@ export const ORCHESTRATORS: Orchestrator[] = [
       scripts: [
         { name: 'Bootstrap', command: BOOTSTRAP_COMMAND, icon: 'configure' },
         { name: 'Localhost', command: commands.run, icon: 'play' },
-        { name: 'Preview', command: PREVIEW_COMMAND, icon: 'play' },
         { name: 'Storybook', command: STORYBOOK_COMMAND, icon: 'play' },
       ],
     }),
@@ -175,7 +171,6 @@ function verifyHookScripts(errors: string[]): void {
   for (const command of [
     ...HOOKS.map(hookCommand),
     BOOTSTRAP_COMMAND,
-    PREVIEW_COMMAND,
     STORYBOOK_COMMAND,
   ]) {
     const path = command.slice('./'.length);
