@@ -172,6 +172,8 @@ export type SpaceGameSetup = {
 export type SpaceGamePlay = {
   /** The one slim status line above the board: `Your move`. */
   status: string;
+  /** The status line's `data-testid`, for harness bindings. */
+  statusTestId?: string | undefined;
   /** A quiet note beside it: `Chess · move 3`. */
   detail?: string | undefined;
   /** The whole board, edge to edge in the stage. */
@@ -190,6 +192,13 @@ export type SpaceGamePlay = {
     | ((person: SpacePerson, viewer: SpaceRole) => readonly SpaceGameAction[])
     | undefined;
 };
+
+/**
+ * What the in-game template reads of a game: its key and its `play`. A
+ * surface played in a space that is not a whole game (a puzzle, an
+ * attempt) supplies only these.
+ */
+export type SpaceGameInPlay = Pick<SpaceGame, 'key'> & { play: SpaceGamePlay };
 
 /**
  * A game as data, the parameter of every space template. Never branch on
