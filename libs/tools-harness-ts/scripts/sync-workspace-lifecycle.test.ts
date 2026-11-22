@@ -35,7 +35,7 @@ describe('renderConfigs', () => {
     expect(
       config.scripts.map((script) => [script.name, script.command])
     ).toEqual([
-      ['Preview', 'mise run preview:url'],
+      ['Preview', './libs/tools-harness-ts/workspace/preview.sh'],
       ['Localhost', hookCommand('run')],
       ['Boostrap', BOOTSTRAP_COMMAND],
     ]);

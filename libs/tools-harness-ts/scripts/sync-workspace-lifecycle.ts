@@ -65,7 +65,11 @@ export const ORCHESTRATORS: Orchestrator[] = [
       $schema: 'https://t3.codes/schema/t3.json',
       defaultThreadEnvMode: 'worktree',
       scripts: [
-        { name: 'Preview', command: 'mise run preview:url', icon: 'play' },
+        {
+          name: 'Preview',
+          command: './libs/tools-harness-ts/workspace/preview.sh',
+          icon: 'play',
+        },
         { name: 'Localhost', command: commands.run, icon: 'play' },
         { name: 'Boostrap', command: BOOTSTRAP_COMMAND, icon: 'configure' },
       ],

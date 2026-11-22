@@ -6,7 +6,7 @@ import type { PreviewShellProps } from '@pkgs/harness-console-client-ts/product-
 import { getOwner, onCleanup } from 'solid-js';
 import { render } from 'solid-js/web';
 
-/** Mount each Gamezilla view under the same Solid providers and running session. */
+/** Mount each preview surface under the same Solid providers and running session. */
 export function PreviewShell(props: PreviewShellProps) {
   const owner = getOwner();
   const root = document.createElement('div');

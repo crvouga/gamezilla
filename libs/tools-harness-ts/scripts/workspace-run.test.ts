@@ -7,6 +7,7 @@ import {
   mkdtempSync,
   readFileSync,
   rmSync,
+  symlinkSync,
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -41,9 +42,13 @@ function writeFakeTools(dir: string): void {
       'else\n' +
       '  printf "bun %s\\n" "$*" >> "$WORKSPACE_RUN_TEST_CALLS"\n' +
       'fi\n' +
-      'if [ "$1" = "run" ] && [ "$2" = "secrets:pull" ]; then exit 1; fi\n' +
+      'if [ "$1" = "run" ] && [ "$2" = "secrets:pull" ]; then exit "${WORKSPACE_RUN_TEST_SECRETS_STATUS:-1}"; fi\n' +
       'if [ "$1" = "install" ]; then\n' +
       '  [ "${WORKSPACE_RUN_TEST_INSTALL:-ok}" != "fail" ] || exit 1\n' +
+      '  if [ -L node_modules/.bun/stale-link ]; then\n' +
+      '    echo "EEXIST: File exists: failed to symlink dependencies for package: @babel/helper-module-transforms@7.29.7 (symlink)" >&2\n' +
+      '    exit 1\n' +
+      '  fi\n' +
       '  mkdir -p node_modules/.bin\n' +
       '  printf "#!/usr/bin/env bash\\nprintf \\"turbo %%s\\\\n\\" \\"\\$*\\" >> \\"\\$WORKSPACE_RUN_TEST_CALLS\\"\\n" > node_modules/.bin/turbo\n' +
       '  chmod +x node_modules/.bin/turbo\n' +
@@ -126,7 +131,9 @@ function checkout() {
   return {
     dir,
     run: script('run.sh'),
+    preview: script('preview.sh'),
     setup: script('setup.sh'),
+    bootstrap: script('bootstrap.sh'),
     prepare: script('prepare.sh'),
     teardown: script('teardown.sh'),
     port: script('port.sh'),
@@ -351,4 +358,47 @@ test('activation cannot wait for input or resolve tools over the network', () =>
   expect(result.status, result.stderr).toBe(0);
   expect(result.stderr).toContain('activating installed workspace tools');
   expect(result.calls).toEqual([STOP, DEV]);
+});
+
+// regression: t3-action-stale-bun-links
+test('Localhost rebuilds a conflicting Bun link before it starts the stack', () => {
+  const { dir, run } = checkout();
+  mkdirSync(join(dir, 'node_modules/.bun'), { recursive: true });
+  symlinkSync('missing', join(dir, 'node_modules/.bun/stale-link'));
+  const result = run();
+  expect(result.status, result.stderr).toBe(0);
+  expect(result.calls).toEqual([INSTALL, INSTALL, STOP, DEV]);
+  expect(result.stdout).toContain(
+    'rebuilding conflicting Bun dependency links'
+  );
+  expect(run().calls).toEqual([STOP, DEV]);
+});
+
+// regression: t3-preview-locked-tools
+test('Preview prepares a cold worktree with no mise.lock before resolving the URL', () => {
+  const { dir, preview } = checkout();
+  writeExecutable(
+    join(dir, '.bin/mise'),
+    `#!/usr/bin/env bash
+[ "$MISE_LOCKED" = false ] && [ "$MISE_LOCKFILE" = false ] || exit 1
+if [ "$1" = env ]; then echo 'export PATH="$PWD/.bin:$PATH"'; fi
+`
+  );
+  const result = preview({ MISE_LOCKED: 'true', MISE_LOCKFILE: 'true' });
+  expect(result.status, result.stderr).toBe(0);
+  expect(result.calls).toEqual([INSTALL, 'bun run --silent preview:url']);
+});
+
+// regression: workspace-bootstrap-cache-brand-check
+test('bootstrap configures the cache without preparing product branding', () => {
+  const { dir, bootstrap } = checkout();
+  writeExecutable(join(dir, '.bin/gh'), '#!/usr/bin/env bash\nexit 0\n');
+  const result = bootstrap({
+    WORKSPACE_RUN_TEST_SECRETS_STATUS: '0',
+    XDG_CONFIG_HOME: join(dir, 'config'),
+  });
+  expect(result.status, result.stderr).toBe(0);
+  expect(result.calls.join(' ')).toContain(
+    'secrets-run.ts --fixture --isolated -- bun -e'
+  );
 });

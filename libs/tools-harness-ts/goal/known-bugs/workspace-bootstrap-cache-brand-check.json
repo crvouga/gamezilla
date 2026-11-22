@@ -1,0 +1,4 @@
+{
+  "summary": "Boostrap reported a Turborepo sign-in failure after configure:brand-policy rejected a source comment during cache credential setup.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workspace-run.test.ts"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "Bun reported EEXIST linking @babel/helper-module-transforms@7.29.7 after a previous install left incompatible links, so the Localhost and Boostrap actions stopped during setup.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workspace-run.test.ts"
+}

@@ -4,7 +4,7 @@
   "scripts": [
     {
       "name": "Preview",
-      "command": "mise run preview:url",
+      "command": "./libs/tools-harness-ts/workspace/preview.sh",
       "icon": "play"
     },
     {
