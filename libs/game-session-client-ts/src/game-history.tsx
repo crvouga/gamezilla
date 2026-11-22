@@ -115,7 +115,6 @@ function RecordReview(props: {
         position={position()}
         people={PEOPLE}
         onSeek={setPly}
-        onBack={props.onBack}
         board={
           <Dynamic
             component={presentation(position()).Board}
