@@ -2,8 +2,8 @@
 import { resolveLocalPreviewApiOriginSync } from '@libs/app-config-shared-ts/resolve-local-preview-api-origin';
 
 /**
- * Readiness probe for `turbo preview`: the static export on
- * `PREVIEW_PORT` becomes reachable before wrangler finishes booting, so probing
+ * Readiness probe of the static web server: the static export on
+ * `STATIC_WEB_PORT` becomes reachable before wrangler finishes booting, so probing
  * `/` alone starts browser tests while the API is still down.
  */
 
@@ -23,11 +23,11 @@ async function probeOk(url: string): Promise<boolean> {
 }
 
 /** Returns 200 when the API worker is accepting traffic. */
-export async function previewStackReadyResponse(): Promise<Response> {
+export async function stackReadyResponse(): Promise<Response> {
   const apiTarget = resolveLocalPreviewApiOriginSync();
   const apiReady = await probeOk(`${apiTarget}/api/health`);
   if (apiReady) {
     return new Response('ok', { status: 200 });
   }
-  return new Response('preview stack not ready', { status: 503 });
+  return new Response('stack not ready', { status: 503 });
 }

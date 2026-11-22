@@ -26,7 +26,7 @@ export function encodeDevVarValue(value: string): string {
     .replaceAll('\n', '\\n')}"`;
 }
 
-/** Reads a key from `.dev.vars` when present (local dev / preview). */
+/** Reads a key from `.dev.vars` when present (local dev). */
 export function readDevVar(name: string): string | null {
   let content: string;
   try {
@@ -47,7 +47,7 @@ export function readDevVar(name: string): string | null {
   return null;
 }
 
-/** Reads `DATABASE_URL` from `.dev.vars` when present (local dev / preview). */
+/** Reads `DATABASE_URL` from `.dev.vars` when present (local dev). */
 export function readDevVarsDatabaseUrl(): string | null {
   return readDevVar('DATABASE_URL');
 }

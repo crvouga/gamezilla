@@ -8,7 +8,6 @@
     "kill": "bun run scripts/kill-dev.ts",
     "kill-dev": "bun run scripts/kill-dev.ts",
     "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
-    "preview": "bun run scripts/preview-server.ts",
     "pwa:generate": "bun run ../../libs/tools-harness-ts/scripts/generate-brand-artifacts.ts",
     "setup": "bun run --silent scripts/setup-env.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p tsconfig.json",

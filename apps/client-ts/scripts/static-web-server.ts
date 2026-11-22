@@ -1,16 +1,15 @@
 /**
- * Serves the production web build on `PREVIEW_PORT` (default :5173).
+ * Serves the production web build on `STATIC_WEB_PORT` (default :5173).
  * If that port is taken, binds an ephemeral port instead (parallel CI safe).
  * When `LOCAL_PREVIEW_API_ORIGIN` is set, proxies `/api/*` to that origin so a
- * production-shaped bundle can talk same-origin (Lighthouse / local preview).
+ * production-shaped bundle can talk same-origin (Lighthouse, the max-load web test).
  */
 
 import { join } from 'node:path';
 import { assert } from '@pkgs/assert-root-shared-ts/singleton';
 import { file } from 'bun';
-
-import { previewStackReadyResponse } from './preview-stack-ready';
 import { applySqliteWebIsolationHeadersToFetch } from './sqlite-web-headers.js';
+import { stackReadyResponse } from './stack-ready';
 
 const CALLBACK_COOP = 'same-origin-allow-popups';
 
@@ -22,11 +21,11 @@ function applyCallbackHeaders(headers: Headers): void {
 const DIST_DIR = join(import.meta.dir, '..', 'dist');
 const INDEX_HTML = join(DIST_DIR, 'index.html');
 
-const portRaw = process.env['PREVIEW_PORT'] ?? '5173';
+const portRaw = process.env['STATIC_WEB_PORT'] ?? '5173';
 const preferredPort = Number(portRaw);
 assert.ok(
   Number.isInteger(preferredPort) && preferredPort >= 0,
-  `invalid PREVIEW_PORT: ${portRaw}`
+  `invalid STATIC_WEB_PORT: ${portRaw}`
 );
 
 const apiProxyOrigin = (process.env['LOCAL_PREVIEW_API_ORIGIN'] ?? '').trim();
@@ -82,7 +81,7 @@ async function proxyApi(req: Request): Promise<Response> {
 
 async function serveStatic(pathname: string): Promise<Response> {
   if (pathname === '/ready') {
-    return previewStackReadyResponse();
+    return stackReadyResponse();
   }
   const diskPath = resolveStaticPath(pathname);
   const candidate = file(diskPath);
@@ -124,11 +123,11 @@ function startStaticServer(preferred: number): ReturnType<typeof Bun.serve> {
 const server = startStaticServer(preferredPort);
 if (preferredPort > 0 && server.port !== preferredPort) {
   process.stderr.write(
-    `[preview-server] preferred :${String(preferredPort)} busy; using :${String(server.port)}\n`
+    `[static-web-server] preferred :${String(preferredPort)} busy; using :${String(server.port)}\n`
   );
 }
 
 process.stdout.write(
-  `[preview-server] static web=${server.url.origin}` +
+  `[static-web-server] static web=${server.url.origin}` +
     (apiProxyOrigin.length > 0 ? ` api-proxy=${apiProxyOrigin}\n` : '\n')
 );

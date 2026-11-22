@@ -4,7 +4,7 @@ import { expect, test } from 'bun:test';
 /** Loopback origin for `wrangler dev` in this repo (`apps/server-ts` uses port 8788). */
 const DEFAULT_LOCAL_PREVIEW_API_ORIGIN = 'http://localhost:8788';
 
-test('api GET /health returns ok when preview is already running', async () => {
+test('api GET /health returns ok when the API is already running', async () => {
   const fromEnv = process.env['LOCAL_PREVIEW_API_ORIGIN']?.trim();
   const localApiOrigin =
     fromEnv !== undefined && fromEnv.length > 0
@@ -28,7 +28,7 @@ test('api GET /health returns ok when preview is already running', async () => {
       [
         '',
         '══════════════════════════════════════════════════════════════════',
-        '  API preview (/api/health) is not running',
+        '  The API (/api/health) is not running',
         '══════════════════════════════════════════════════════════════════',
         '',
         'Integration tests do not start servers.',
@@ -36,7 +36,7 @@ test('api GET /health returns ok when preview is already running', async () => {
         `Probe failed: ${healthUrl}`,
         `Last error: ${lastErr}`,
         '',
-        'Start the stack first:\n  bun preview\n\nOr use the orchestrator:\n  bun run --filter @apps/server-ts verify:api',
+        'Start the stack first:\n  bun run dev\n\nOr use the orchestrator:\n  bun run --filter @apps/server-ts verify:api',
         '',
       ].join('\n')
     );

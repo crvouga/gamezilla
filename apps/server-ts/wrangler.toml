@@ -1,4 +1,4 @@
-# Local API preview only. Production ships apps/product-ts/wrangler.toml,
+# The local API only. Production ships apps/product-ts/wrangler.toml,
 # which includes the client assets and this entrypoint in one application.
 # Nothing deploys it, so it has no name: `wrangler dev` runs it as `worker`.
 main = "src/server.ts"

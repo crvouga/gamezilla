@@ -71,9 +71,9 @@ const OPTIONAL_FEATURE_WORKER_SECRETS: ReadonlySet<string> = new Set([
 ]);
 
 function readApiUrlForDevVars(): string {
-  const localPreview = process.env['LOCAL_PREVIEW_API_ORIGIN']?.trim() ?? '';
-  if (localPreview.length > 0) {
-    return localPreview;
+  const localApi = process.env['LOCAL_PREVIEW_API_ORIGIN']?.trim() ?? '';
+  if (localApi.length > 0) {
+    return localApi;
   }
   const vite = process.env['VITE_API_URL']?.trim() ?? '';
   if (vite.length > 0 && /127\.0\.0\.1|localhost/i.test(vite)) {

@@ -5,10 +5,10 @@
  * API integration verification orchestrator: ensures wrangler on :8788 is healthy,
  * then runs `@apps/server-ts` `test:integration`.
  *
- * When `/api/health` is already OK (`bun dev` / `bun preview`), runs tests
- * immediately. Otherwise starts `preview:serve`, waits, runs tests, then
+ * When `/api/health` is already OK (`bun dev`), runs tests
+ * immediately. Otherwise starts `serve:api`, waits, runs tests, then
  * frees the API port. Self-contained for CI and local — the deploy turbo
- * graph no longer has a separate "Start API preview" workflow step.
+ * graph no longer has a separate "Start API" workflow step.
  *
  * Release only (`@apps/server-ts#verify:api` in the deploy graph; not part of
  * `bun verify`).
@@ -26,7 +26,7 @@ const DEFAULT_LOCAL_PREVIEW_API_ORIGIN = 'http://localhost:8788';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 const HEALTH_URL = `${DEFAULT_LOCAL_PREVIEW_API_ORIGIN}/api/health`;
-const PREVIEW_LOG_PATH = join(REPO_ROOT, '.verify-api-preview.log');
+const API_LOG_PATH = join(REPO_ROOT, '.verify-api.log');
 const DEFAULT_WAIT_MS = 240_000;
 const POLL_MS = 500;
 
@@ -57,10 +57,10 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function readPreviewLogTail(maxLines = 200): string {
-  if (!existsSync(PREVIEW_LOG_PATH)) return '';
+function readApiLogTail(maxLines = 200): string {
+  if (!existsSync(API_LOG_PATH)) return '';
   try {
-    const text = readFileSync(PREVIEW_LOG_PATH, { encoding: 'utf8' });
+    const text = readFileSync(API_LOG_PATH, { encoding: 'utf8' });
     const lines = text.split('\n');
     return lines.slice(-maxLines).join('\n').trimEnd();
   } catch {
@@ -68,11 +68,11 @@ function readPreviewLogTail(maxLines = 200): string {
   }
 }
 
-function formatPreviewLog(): string {
-  const tail = readPreviewLogTail();
+function formatApiLog(): string {
+  const tail = readApiLogTail();
   return tail.length > 0
-    ? `\n--- ${PREVIEW_LOG_PATH} (last 200 lines) ---\n${tail}`
-    : `\n(preview log empty or missing: ${PREVIEW_LOG_PATH})`;
+    ? `\n--- ${API_LOG_PATH} (last 200 lines) ---\n${tail}`
+    : `\n(API log empty or missing: ${API_LOG_PATH})`;
 }
 
 async function waitForApiHealth(
@@ -89,7 +89,7 @@ async function waitForApiHealth(
     await sleep(POLL_MS);
   }
   throw new Error(
-    `[verify-api] timed out waiting for ${HEALTH_URL} (${String(timeoutMs)}ms)${formatPreviewLog()}`
+    `[verify-api] timed out waiting for ${HEALTH_URL} (${String(timeoutMs)}ms)${formatApiLog()}`
   );
 }
 
@@ -114,16 +114,16 @@ function killProcessGroup(pid: number, signal: NodeJS.Signals): void {
   }
 }
 
-function startApiPreview(): {
+function startApi(): {
   readonly stop: () => void;
   readonly exited: Promise<number>;
 } {
-  const logFd = openSync(PREVIEW_LOG_PATH, 'w');
+  const logFd = openSync(API_LOG_PATH, 'w');
   // Detached = own process group so we can kill wrangler + esbuild together.
   // Do NOT unref — keep a handle and tear the group down in `stop`.
   const child = spawn(
     'bun',
-    ['run', '--filter', '@apps/server-ts', 'preview:serve'],
+    ['run', '--filter', '@apps/server-ts', 'serve:api'],
     {
       cwd: REPO_ROOT,
       detached: true,
@@ -149,14 +149,14 @@ function startApiPreview(): {
   };
 }
 
-async function waitForApiOrExit(preview: {
+async function waitForApiOrExit(api: {
   readonly exited: Promise<number>;
 }): Promise<void> {
   await Promise.race([
     waitForApiHealth(),
-    preview.exited.then((code) => {
+    api.exited.then((code) => {
       throw new Error(
-        `[verify-api] API preview exited early (code ${String(code)}); see ${PREVIEW_LOG_PATH}${formatPreviewLog()}`
+        `[verify-api] API exited early (code ${String(code)}); see ${API_LOG_PATH}${formatApiLog()}`
       );
     }),
   ]);
@@ -169,14 +169,14 @@ async function main(): Promise<void> {
 
   // Reclaim stale wrangler listeners from prior local / CI verify runs.
 
-  process.stdout.write('[verify-api] API preview not running — starting…\n');
-  const preview = startApiPreview();
+  process.stdout.write('[verify-api] API not running — starting…\n');
+  const api = startApi();
   let code = 1;
   try {
-    await waitForApiOrExit(preview);
+    await waitForApiOrExit(api);
     code = runIntegrationTests();
   } finally {
-    preview.stop();
+    api.stop();
   }
   process.exit(code);
 }

@@ -22,8 +22,8 @@ const clientRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const outPath = join(clientRoot, '.env.local');
 const tmpPath = `${outPath}.${process.pid}.tmp`;
 
-// `setup-env.ts` runs from the `setup` script (npm's `predev` lifecycle, and the
-// `setup` turbo task that `preview` depends on).
+// `setup-env.ts` runs from the `setup` script (npm's `predev` lifecycle and the
+// `setup` turbo task).
 // Production builds do not invoke this script — they read `VITE_*` at bundle time.
 
 function isProductionHostname(rawUrl: string): boolean {
@@ -96,7 +96,7 @@ async function applyProductionHostnameGuard(
     const replacement = await resolveLoopbackPreviewOrigin(store);
     process.stdout.write(
       `[setup-env] ${sourceLabel}=${trimmed} resolves to a production hostname; ` +
-        `using loopback preview origin (${replacement}). ` +
+        `using the loopback API origin (${replacement}). ` +
         'Set VITE_ALLOW_PRODUCTION_API_URL=1 to opt in to production.\n'
     );
     return replacement;
@@ -119,7 +119,7 @@ async function resolveViteApiUrl(): Promise<string> {
     store = createSecretsStore();
   } catch {
     process.stdout.write(
-      '[setup-env] secrets not injected; using local preview API origin.\n'
+      '[setup-env] secrets not injected; using the local API origin.\n'
     );
     return resolveLoopbackPreviewOrigin(null);
   }
@@ -134,7 +134,7 @@ async function resolveViteApiUrl(): Promise<string> {
   }
 
   process.stdout.write(
-    '[setup-env] VITE_API_URL unset in env and secret store; using local preview API origin.\n'
+    '[setup-env] VITE_API_URL unset in env and secret store; using the local API origin.\n'
   );
   return resolveLoopbackPreviewOrigin(store);
 }

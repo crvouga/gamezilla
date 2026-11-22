@@ -4,7 +4,7 @@ import { runSpecSuites } from './spec-suites';
 process.env['HARNESS_MODE'] = 'real';
 process.env['VITE_API_URL'] =
   process.env['VITE_API_URL'] ?? 'http://127.0.0.1:8787';
-process.env['PREVIEW_PORT'] = process.env['PREVIEW_PORT'] ?? '5173';
+process.env['STATIC_WEB_PORT'] = process.env['STATIC_WEB_PORT'] ?? '5173';
 process.env['HARNESS_WEB_ORIGIN'] =
   process.env['HARNESS_WEB_ORIGIN'] ?? 'http://127.0.0.1:5173';
 process.env['HARNESS_WITH_DOM'] = '0';
