@@ -55,6 +55,8 @@ workspace_quiet() {
 
 # A previous setup may have bootstrapped mise without changing this shell's PATH.
 # Reuse that installation in GUI/remote launches without installing anything.
+# `quiet` keeps mise's own complaint off the terminal when the caller repairs
+# a failed activation and activates again.
 workspace_activate_tools() {
   if [ -x "$HOME/.local/bin/mise" ]; then
     export PATH="$HOME/.local/bin:$PATH"
@@ -64,7 +66,11 @@ workspace_activate_tools() {
     # Activation only reads installed tools. Never resolve remote versions or
     # wait for a trust prompt whose stdout is captured by this substitution.
     echo "==> activating installed workspace tools" >&2
-    workspace_mise_env="$(MISE_OFFLINE=1 MISE_AUTO_INSTALL=0 mise env --shell bash </dev/null)" || return 1
+    if [ "${1:-}" = quiet ]; then
+      workspace_mise_env="$(MISE_OFFLINE=1 MISE_AUTO_INSTALL=0 mise env --shell bash </dev/null 2>/dev/null)" || return 1
+    else
+      workspace_mise_env="$(MISE_OFFLINE=1 MISE_AUTO_INSTALL=0 mise env --shell bash </dev/null)" || return 1
+    fi
     eval "$workspace_mise_env"
   fi
 }
