@@ -22,7 +22,9 @@ import {
   createSignal,
   type JSX,
   onCleanup,
+  onMount,
   Show,
+  untrack,
   useContext,
 } from 'solid-js';
 
@@ -74,11 +76,24 @@ function createClaims(): SpaceShellClaims & { claimed: Accessor<boolean> } {
 }
 
 /**
+ * `children`, once the branch that shows them has mounted. The same content
+ * nodes move between the frame's two branches, and Solid removes the
+ * branch being left by its own list of nodes, wherever they are by then:
+ * placed before that removal, they would leave with it.
+ */
+function AfterMount(props: { readonly children: JSX.Element }): JSX.Element {
+  const [mounted, setMounted] = createSignal(false);
+  onMount(() => setMounted(true));
+  return <Show when={mounted()}>{props.children}</Show>;
+}
+
+/**
  * Renders `children` inside `shell` unless a descendant claimed the shell,
  * then bare. The children are created once, before the first branch is
  * chosen (so a claim made in their setup is already counted), and the same
  * nodes move between the branches when the claim flips: nothing below
- * remounts.
+ * remounts. Each branch places them once it has mounted, after the branch
+ * it replaces is gone, and the shell is made once per release, untracked.
  */
 export function SpaceShellClaimFrame(
   props: SpaceShellClaimFrameProps
@@ -89,9 +104,13 @@ export function SpaceShellClaimFrame(
       {props.children}
     </SpaceShellClaimContext.Provider>
   ));
+  const placed = (): JSX.Element => <AfterMount>{content()}</AfterMount>;
   return (
-    <Show when={claims.claimed()} fallback={props.shell(content())}>
-      {content()}
+    <Show
+      when={claims.claimed()}
+      fallback={untrack(() => props.shell(placed()))}
+    >
+      {placed()}
     </Show>
   );
 }

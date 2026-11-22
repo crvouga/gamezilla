@@ -83,3 +83,38 @@ test('flipping the claim moves the screen without recreating it', () => {
   expect(container.querySelectorAll('[data-testid="screen"]')).toHaveLength(1);
   expect(mounts).toBe(1);
 });
+
+// regression: space-shell-claim-flip-empties-stage
+// A screen that stopped claiming the shell as it changed (a custom game
+// starting) left the stage empty: the frame sat among siblings, and Solid
+// removed the bare branch by its list of nodes after the shell had taken
+// them.
+test('releasing the claim among siblings keeps the screen in the shell', async () => {
+  const [setup, setSetup] = createSignal(true);
+  const { container } = renderWithI18n(() => (
+    <StackVertical>
+      <Text testId="before">{'Before'}</Text>
+      <SpaceShellClaimFrame shell={shell}>
+        <Show when={false}>{null}</Show>
+        <StackVertical testId="screen">
+          <Show
+            when={setup()}
+            fallback={<Text testId="play">{'Playing'}</Text>}
+          >
+            <ClaimSpaceShell />
+            <Text testId="setup">{'Setting up'}</Text>
+          </Show>
+        </StackVertical>
+      </SpaceShellClaimFrame>
+      <Text testId="after">{'After'}</Text>
+    </StackVertical>
+  ));
+  expect(shells(container)).toBe(0);
+  setSetup(false);
+  await Promise.resolve();
+  const play = container.querySelector('[data-testid="play"]');
+  expect(play).not.toBeNull();
+  expect(container.querySelector('[data-testid="shell"]')?.contains(play)).toBe(
+    true
+  );
+});

@@ -1,0 +1,4 @@
+{
+  "summary": "Starting a custom game left the space's stage empty: the setup claimed the space shell and the game under way did not, and when the claim was released the frame moved the screen into the default shell before Solid removed the bare branch by its own list of nodes, taking the screen with it. Each branch now places the screen once it has mounted.",
+  "regressionTest": "libs/spaces-client-ts/tests/space-shell-claim.test.tsx"
+}
