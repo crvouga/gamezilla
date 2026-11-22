@@ -12,7 +12,7 @@ import '@pkgs/tailwind-shared-ts/tailwind.css';
 import '@pkgs/ui-root-client-ts/fonts';
 import '@pkgs/ui-root-client-ts/tokens.css';
 import '@pkgs/ui-root-client-ts/hosts.css';
-import { render } from 'solid-js/web';
+import { mountHarnessPreview } from './mount-harness-preview';
 import './polyfill-entry';
 import './styles.css';
 
@@ -25,10 +25,8 @@ bootBrowserBugReports({
   build: import.meta.env.VITE_COMMIT_HASH ?? 'unknown',
   endpoint: new URL('/api/bug-reports', location.origin).href,
   startApplication: async () => {
-    // Loaded after the polyfills above: the system's graph reads them as its
-    // modules are evaluated.
-    const { HarnessBoot } = await import('./harness-boot');
     root.replaceChildren();
-    render(() => <HarnessBoot />, root);
+    const shell = mountHarnessPreview(root);
+    if (import.meta.hot) import.meta.hot.dispose(() => shell.destroy());
   },
 });
