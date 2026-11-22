@@ -5,6 +5,10 @@
  * what keeps a run that waited in that queue from acting on stale facts.
  */
 
+import {
+  planPreviewSweep,
+  selectPreviewAction,
+} from '@crvouga/mockingbird-preview';
 import { FREE_PLAN } from './free-plan';
 import { MAIN_PREVIEW_NAME, prOfPreviewName } from './preview-name';
 
@@ -51,24 +55,46 @@ export function decideMainAction(
   return { kind: 'deploy-main', sha };
 }
 
+/**
+ * The pull request as `@crvouga/mockingbird-preview` reads it: a fork is a
+ * head repository that is not the base one.
+ */
+export function pullRequestFacts(
+  now: PullRequestNow & {
+    readonly fromFork: boolean;
+  }
+) {
+  return {
+    state: now.open ? ('open' as const) : ('closed' as const),
+    repository: 'base',
+    headRepository: now.fromFork ? 'fork' : 'base',
+    head: now.headSha,
+  };
+}
+
 export function decidePreviewAction(
   trigger: Exclude<PreviewTrigger, { readonly kind: 'main' }>,
   now: PullRequestNow | null
 ): PreviewAction {
   if (trigger.kind === 'sweep') return { kind: 'sweep' };
-  // A fork's code never meets the deploy credential.
+  // A fork's code never meets the deploy credential, whatever its state.
   if (trigger.fromFork)
     return { kind: 'skip', reason: 'pull request comes from a fork' };
   if (now === null)
     return { kind: 'skip', reason: 'pull request could not be read' };
+  // mockingbird says what to do but not why skipping
+  // (https://github.com/crvouga-organization/mockingbird/issues/855).
   // Closed wins whatever started the run: a deploy queued behind a close must
-  // not bring the Preview back.
-  if (!now.open) return { kind: 'destroy', pr: trigger.pr };
+  // not bring the Preview back. An older commit never replaces a newer one:
+  // the run for the newer head deploys it.
+  const selected = selectPreviewAction(
+    pullRequestFacts({ ...now, fromFork: false }),
+    trigger.sha
+  );
+  if (selected === 'remove') return { kind: 'destroy', pr: trigger.pr };
   if (trigger.action === 'closed')
     return { kind: 'skip', reason: 'pull request was reopened' };
-  // An older commit never replaces a newer one: the run for the newer head
-  // deploys it.
-  if (now.headSha !== trigger.sha)
+  if (selected === 'skip')
     return {
       kind: 'skip',
       reason: `commit ${trigger.sha.slice(0, 12)} is no longer the head (${now.headSha.slice(0, 12)})`,
@@ -132,8 +158,11 @@ export type SweepPlan = {
 };
 
 /**
- * Which Previews a sweep removes. Names this tooling never made are left
- * alone: a sweep only deletes what the lifecycle created.
+ * Which Previews a sweep removes, planned by `@crvouga/mockingbird-preview`.
+ * Names this tooling never made are left alone: a sweep only deletes what
+ * the lifecycle created. They still count against the capacity, which is
+ * the plan's limit for the whole Worker; mockingbird counts only its own
+ * (https://github.com/crvouga-organization/mockingbird/issues/854).
  */
 export function planSweep(args: {
   readonly previewNames: readonly string[];
@@ -144,26 +173,31 @@ export function planSweep(args: {
   readonly capacity: number;
 }): SweepPlan {
   const open = new Map(args.open.map((pull) => [pull.pr, pull.updatedAtMs]));
-  const orphaned: string[] = [];
-  const expired: string[] = [];
-  const kept: { readonly name: string; readonly updatedAtMs: number }[] = [];
-  let foreign = 0;
-  for (const name of args.previewNames.toSorted()) {
-    const pr = prOfPreviewName(name);
-    if (pr === null) {
-      foreign += 1;
-      continue;
-    }
-    const updatedAtMs = open.get(pr);
-    if (updatedAtMs === undefined) orphaned.push(name);
-    else if (args.nowMs - updatedAtMs > args.retentionMs) expired.push(name);
-    else kept.push({ name, updatedAtMs });
-  }
-  // Over capacity, the pull requests longest without a change go first.
-  const crowded = Math.max(0, kept.length + foreign - args.capacity);
-  const longestUnchanged = kept.toSorted(
-    (a, b) => a.updatedAtMs - b.updatedAtMs
-  );
-  for (const { name } of longestUnchanged.slice(0, crowded)) expired.push(name);
-  return { orphaned, expired: expired.toSorted() };
+  const ours = (name: string): boolean => prOfPreviewName(name) !== null;
+  const foreign = args.previewNames.filter((name) => !ours(name)).length;
+  const removed = planPreviewSweep({
+    previews: args.previewNames.map((name) => {
+      const pr = prOfPreviewName(name);
+      // A closed pull request's Preview is orphaned before its age matters.
+      return { name, updatedAt: (pr === null ? null : open.get(pr)) ?? 0 };
+    }),
+    openNames: new Set(
+      args.previewNames.filter((name) => {
+        const pr = prOfPreviewName(name);
+        return pr !== null && open.has(pr);
+      })
+    ),
+    owns: ours,
+    now: args.nowMs,
+    retentionMs: args.retentionMs,
+    capacity: Math.max(0, args.capacity - foreign),
+  });
+  return {
+    orphaned: removed
+      .filter((preview) => preview.reason === 'orphaned')
+      .map((preview) => preview.name),
+    expired: removed
+      .filter((preview) => preview.reason !== 'orphaned')
+      .map((preview) => preview.name),
+  };
 }
