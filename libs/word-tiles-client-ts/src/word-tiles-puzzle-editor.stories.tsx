@@ -18,7 +18,7 @@ const WITH_WORDS = read.valid
 
 const meta = {
   id: 'screens-games-word-tiles-editor',
-  title: 'Screens/Games/Word Tiles/Puzzle editor',
+  title: 'Screens/Space/SpaceGameBoard/Word Tiles/Puzzle editor',
   component: WordTilesPuzzleEditorView,
   tags: ['autodocs'],
   parameters: { appRouter: true, controls: { exclude: ['onChange'] } },

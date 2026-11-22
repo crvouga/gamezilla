@@ -11,7 +11,7 @@ import {
 
 const meta = {
   id: 'screens-puzzles-catalogue-load-source',
-  title: 'Screens/Puzzles/Catalogue load/Source',
+  title: 'Screens/Space/SpaceGamePuzzleCatalogueLoad/Source',
   component: CatalogueLoadScreenView,
   tags: ['autodocs'],
   parameters: {

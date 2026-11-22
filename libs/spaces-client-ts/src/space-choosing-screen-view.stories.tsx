@@ -5,7 +5,7 @@ import { GAMES } from './spaces-story.example';
 
 const meta = {
   id: 'screens-spaces-games',
-  title: 'Screens/Spaces/Games',
+  title: 'Screens/Space/SpaceGameChooser',
   component: SpaceChoosingScreenView,
   tags: ['autodocs'],
   parameters: { appRouter: true, controls: { exclude: ['games'] } },

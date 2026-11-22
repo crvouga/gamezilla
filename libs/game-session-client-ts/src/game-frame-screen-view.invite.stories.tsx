@@ -18,7 +18,7 @@ import {
 
 const meta = {
   id: 'screens-games-custom-invite',
-  title: 'Screens/Games/Custom game/Invite',
+  title: 'Screens/Space/SpaceGameCustomGameSetup/Invite',
   component: GameFrameScreenView,
   tags: ['autodocs'],
   parameters: {

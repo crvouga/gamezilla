@@ -10,7 +10,7 @@ import {
 
 const meta = {
   id: 'screens-puzzles-catalogue-load-routed',
-  title: 'Screens/Puzzles/Catalogue load/Routed page',
+  title: 'Screens/Space/SpaceGamePuzzleCatalogueLoad/Routed page',
   component: CatalogueLoadScreenView,
   tags: ['autodocs'],
   parameters: {

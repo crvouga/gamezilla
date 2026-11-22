@@ -8,7 +8,7 @@ import {
 
 const meta = {
   id: 'screens-puzzles-content-library-playtests',
-  title: 'Screens/Puzzles/Content library/Playtests',
+  title: 'Screens/Space/SpaceGamePuzzlePackSetup/Playtests',
   component: ContentLibraryScreenView,
   parameters: LIBRARY_STORY_PARAMETERS,
   args: { ...LIBRARY_STORY_ARGS, place: { screen: 'playtests' } },

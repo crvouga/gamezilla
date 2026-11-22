@@ -15,7 +15,28 @@ export class SecureStorageStore {
   private readonly epochs = new Map<string, number>();
   private epochClock = 0;
 
-  constructor(readonly storage: SecureStorage) {}
+  constructor(readonly storage: SecureStorage) {
+    storage.subscribe?.((key) => {
+      this.follow(key);
+    });
+  }
+
+  /**
+   * Another holder of the storage (a second tab) changed `key`: a key this
+   * mirror already answers for takes the stored value, so every tab agrees on
+   * who is signed in. A key nobody has read yet is read fresh when asked for.
+   */
+  private follow(key: string): void {
+    const reading = this.hydrating.get(key);
+    if (!this.hydrated.has(key) && reading === undefined) return;
+    void (reading ?? Promise.resolve(null))
+      .catch(() => null)
+      .then(() => this.storage.getItem(key))
+      .then((value) => {
+        if (value !== this.getValue(key)) this.setValue(key, value);
+      })
+      .catch(() => undefined);
+  }
 
   getValue(key: string): string | null {
     return this.values.get(key) ?? null;

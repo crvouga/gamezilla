@@ -5,7 +5,7 @@ import { SpaceUnreachableScreenView } from './space-unreachable-screen-view';
 
 const meta = {
   id: 'screens-spaces-unreachable',
-  title: 'Screens/Spaces/Space unreachable',
+  title: 'Screens/Space/SpaceUnreachable',
   component: SpaceUnreachableScreenView,
   tags: ['autodocs'],
   parameters: { appRouter: true },

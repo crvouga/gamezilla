@@ -13,7 +13,7 @@ import {
 /** The feed's `feed-advance` place: what happens after a solve. */
 const meta = {
   id: 'screens-puzzles-play-feed-advance',
-  title: 'Screens/Puzzles/Play/Feed advance',
+  title: 'Screens/Space/SpaceGamePuzzleFeedPlay/Feed advance',
   component: PuzzlePlayScreenView,
   tags: ['autodocs'],
   render: (args, context) =>

@@ -1,0 +1,4 @@
+{
+  "summary": "A browser tab opened before sign-in kept its own copy of the stored session, so after another tab signed in it went on acting as a guest: it re-sent the signed-in tab\u2019s commands without the session (refused as a guest, e.g. finding an opponent) and kept asking the server for a new guest account, which unbound the device from the account. Each tab now takes session values another tab saves.",
+  "regressionTest": "pkgs/secure-storage-root-shared-ts/tests/secure-storage-store.test.ts"
+}

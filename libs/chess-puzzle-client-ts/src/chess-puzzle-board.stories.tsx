@@ -32,7 +32,7 @@ import { puzzleRectangle } from './puzzle-rectangle.example';
  */
 const meta = {
   id: 'screens-puzzles-chess-play',
-  title: 'Screens/Puzzles/Chess/Play',
+  title: 'Screens/Space/SpaceGamePuzzleFeedPlay/Chess board',
   component: ChessPuzzleBoard,
   tags: ['autodocs'],
   decorators: [withScreenFrame, withChessPuzzleBoardContext],

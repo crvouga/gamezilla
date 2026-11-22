@@ -57,7 +57,7 @@ const OFFLINE = {
 
 const meta = {
   id: 'screens-privacy',
-  title: 'Screens/Privacy/Account privacy',
+  title: 'Screens/Account/Privacy',
   component: PrivacyScreenView,
   tags: ['autodocs'],
   parameters: {

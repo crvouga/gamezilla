@@ -85,7 +85,7 @@ const SOUTH_TAKES_THE_HILL = 'e2 a4 e8 i6 e3 a3 d8 i7 e4 a2 c8 i8 e5'.split(
 
 const meta = {
   id: 'screens-games-quoridor-hill',
-  title: 'Screens/Games/Quoridor/King of the Hill',
+  title: 'Screens/Space/SpaceGameBoard/Quoridor/King of the Hill',
   component: QuoridorBoard,
   // A desktop capture is the 1440x900 desktop window, where the board's
   // spatial checks (a 440px board, 44px squares) hold with every tool in

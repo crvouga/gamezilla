@@ -35,7 +35,7 @@ const PUZZLE: WordTilesPuzzle = {
 
 const meta = {
   id: 'screens-games-word-tiles-puzzle',
-  title: 'Screens/Games/Word Tiles/Puzzle',
+  title: 'Screens/Space/SpaceGameBoard/Word Tiles/Puzzle',
   component: WordTilesPuzzlePlayerView,
   tags: ['autodocs'],
   parameters: {

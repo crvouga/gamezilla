@@ -14,7 +14,7 @@ import { COUNTING_BODY } from './content-story.example';
 
 const meta = {
   id: 'screens-puzzles-content-author',
-  title: 'Screens/Puzzles/Content author',
+  title: 'Screens/Space/SpaceGamePuzzlePackBuilder/Author',
   component: ContentAuthorScreenView,
   tags: ['autodocs'],
   render: (args) => renderAuthorStory(args),

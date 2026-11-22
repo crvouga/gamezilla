@@ -1,0 +1,4 @@
+{
+  "summary": "Repeating a refused mutation upload against Postgres answered HTTP 500: the stored refusal\u2019s jsonb details arrive already parsed and were parsed again as text. The stored verdict now accepts details as text or as an object.",
+  "regressionTest": "pkgs/sync-engine-server-ts/tests/stored-replay-verdict.test.ts"
+}

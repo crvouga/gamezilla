@@ -66,7 +66,7 @@ function atPly(args: GameReplayScreenViewProps) {
 
 const meta = {
   id: 'screens-games-frame-replay',
-  title: 'Screens/Games/Frame/Game replay',
+  title: 'Screens/Space/SpaceGameHistory/Game replay',
   component: GameReplayScreenView,
   tags: ['autodocs'],
   parameters: {

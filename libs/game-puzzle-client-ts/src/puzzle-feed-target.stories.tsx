@@ -13,7 +13,7 @@ import {
 /** The feed's `feed-target` place: the rating the feed aims at. */
 const meta = {
   id: 'screens-puzzles-play-feed-target',
-  title: 'Screens/Puzzles/Play/Feed target',
+  title: 'Screens/Space/SpaceGamePuzzleFeedPlay/Feed target',
   component: PuzzlePlayScreenView,
   tags: ['autodocs'],
   render: (args, context) =>

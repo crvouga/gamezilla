@@ -109,4 +109,55 @@ describe('SecureStorageStore', () => {
     a.setValue('k', '1');
     expect(b.getValue('k')).toBeNull();
   });
+
+  // regression: stale-tab-acts-as-guest-after-sign-in
+  // Literal input: two tabs open on one browser storage; one signs in.
+  test('a tab takes the session another tab saved', async () => {
+    const shared = new InMemorySecureStorage();
+    const tabs = new Set<(key: string) => void>();
+    const openTab = () => {
+      let mine: ((key: string) => void) | undefined;
+      const tell = (key: string) => {
+        for (const other of tabs) if (other !== mine) other(key);
+      };
+      return createSecureStorageStore({
+        getItem: (key) => shared.getItem(key),
+        setItem: async (key, value) => {
+          await shared.setItem(key, value);
+          tell(key);
+        },
+        deleteItem: async (key) => {
+          await shared.deleteItem(key);
+          tell(key);
+        },
+        subscribe(listener) {
+          mine = listener;
+          tabs.add(listener);
+          return () => tabs.delete(listener);
+        },
+      });
+    };
+    const signingIn = openTab();
+    const alreadyOpen = openTab();
+    await alreadyOpen.hydrate('sessionToken');
+    let told = 0;
+    alreadyOpen.subscribe('sessionToken', () => {
+      told += 1;
+    });
+
+    await writeSecureStorageItem(signingIn, 'sessionToken', 'account-session');
+    await Bun.sleep(0);
+    expect(alreadyOpen.getValue('sessionToken')).toBe('account-session');
+    expect(told).toBe(1);
+
+    await writeSecureStorageItem(signingIn, 'sessionToken', null);
+    await Bun.sleep(0);
+    expect(alreadyOpen.getValue('sessionToken')).toBeNull();
+
+    // A key this tab never read stays unread until it is asked for.
+    await writeSecureStorageItem(signingIn, 'deviceId', 'device-1');
+    await Bun.sleep(0);
+    expect(alreadyOpen.isHydrated('deviceId')).toBe(false);
+    expect(await alreadyOpen.hydrate('deviceId')).toBe('device-1');
+  });
 });

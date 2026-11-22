@@ -185,14 +185,19 @@ export default {
     backgrounds,
     options: {
       storySort: {
+        // Inside a level, folders and components read A-Z.
+        method: 'alphabetical',
+        locales: 'en-US',
         order: [
           'Start here',
-          'Foundations',
-          'Atoms',
-          'Molecules',
-          'Organisms',
-          'Templates',
           'Screens',
+          // Everything seen inside a space leads its level.
+          ['Space'],
+          'Templates',
+          'Organisms',
+          'Molecules',
+          'Atoms',
+          'Foundations',
         ],
       },
     },

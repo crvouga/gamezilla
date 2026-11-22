@@ -48,7 +48,7 @@ function withSlots(
 
 const meta = {
   id: 'screens-spaces-share',
-  title: 'Screens/Spaces/Share space',
+  title: 'Screens/Space/SpaceShare',
   component: SpaceShareSheetView,
   tags: ['autodocs'],
   decorators: [withSpaceScreenBehind],

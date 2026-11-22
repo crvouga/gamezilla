@@ -61,7 +61,7 @@ const DATE_FORMAT = new Intl.DateTimeFormat('en-US', {
 
 const meta = {
   id: 'screens-billing',
-  title: 'Screens/Billing/Billing',
+  title: 'Screens/Account/Billing',
   component: BillingScreenView,
   tags: ['autodocs'],
   parameters: {

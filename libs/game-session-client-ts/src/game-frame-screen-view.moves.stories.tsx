@@ -18,7 +18,7 @@ import {
 
 const meta = {
   id: 'screens-games-custom-moves',
-  title: 'Screens/Games/Custom game/Moves',
+  title: 'Screens/Space/SpaceGameCustomGamePlay/Moves',
   component: GameFrameScreenView,
   tags: ['autodocs', 'viewport-native-height'],
   parameters: {

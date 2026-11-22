@@ -92,4 +92,22 @@ describe('createWebSecureStorage', () => {
     expect(local.getItem('deviceId')).toBe('dev-1');
     expect(session.getItem('deviceId')).toBeNull();
   });
+
+  // regression: stale-tab-acts-as-guest-after-sign-in
+  it('reports the keys another tab changed, and only those it owns', () => {
+    const storage = createWebSecureStorage();
+    const changed: string[] = [];
+    const stop = storage.subscribe?.((key) => changed.push(key));
+    const fromOtherTab = (key: string | null, storageArea: Storage) =>
+      globalThis.dispatchEvent(
+        Object.assign(new Event('storage'), { key, storageArea })
+      );
+    fromOtherTab('sessionToken', local);
+    fromOtherTab('sessionToken', session);
+    fromOtherTab(null, local);
+    expect(changed).toEqual(['sessionToken']);
+    stop?.();
+    fromOtherTab('sessionToken', local);
+    expect(changed).toEqual(['sessionToken']);
+  });
 });

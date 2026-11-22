@@ -10,7 +10,7 @@ import {
 
 const meta = {
   id: 'screens-games-matchmaking-private-setup',
-  title: 'Screens/Games/Matchmaking/Private setup',
+  title: 'Screens/Space/SpaceGameMatchmakingPlay/Private setup',
   component: MultiplayerScreenView,
   tags: ['autodocs'],
   parameters: STORY_PARAMETERS,

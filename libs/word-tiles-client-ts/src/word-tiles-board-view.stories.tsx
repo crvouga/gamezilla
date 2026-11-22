@@ -97,7 +97,7 @@ function renderTable(
 
 const meta = {
   id: 'screens-games-word-tiles-board',
-  title: 'Screens/Games/Word Tiles/Board',
+  title: 'Screens/Space/SpaceGameBoard/Word Tiles/Board',
   component: WordTilesBoardView,
   tags: ['autodocs'],
   render: (args, context) => renderTable(args, context),

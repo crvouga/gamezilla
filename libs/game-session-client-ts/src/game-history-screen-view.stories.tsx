@@ -65,7 +65,7 @@ const RECORDS: readonly GameHistoryRow[] = [
 
 const meta = {
   id: 'screens-games-frame-history',
-  title: 'Screens/Games/Frame/History and stats',
+  title: 'Screens/Space/SpaceGameHistory/History and stats',
   component: GameHistoryScreenView,
   tags: ['autodocs'],
   parameters: {

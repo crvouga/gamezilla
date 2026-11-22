@@ -7,7 +7,7 @@ import { FRAME_CONTROLS_EXCLUDE, frameArgs } from './game-frame-story.example';
 
 const meta = {
   id: 'screens-games-custom-start',
-  title: 'Screens/Games/Custom game/Start',
+  title: 'Screens/Space/SpaceGameCustomGameSetup/Start',
   component: GameFrameScreenView,
   tags: ['autodocs'],
   parameters: {

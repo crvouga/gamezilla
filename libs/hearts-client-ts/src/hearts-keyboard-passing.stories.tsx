@@ -13,7 +13,7 @@ import { renderHeartsTable } from './hearts-table.example';
 
 const meta = {
   id: 'screens-games-hearts-keyboard',
-  title: 'Screens/Games/Hearts/Keyboard passing',
+  title: 'Screens/Space/SpaceGameBoard/Hearts/Keyboard passing',
   component: HeartsBoard,
   render: (args, context) => renderHeartsTable(args, context),
   parameters: {

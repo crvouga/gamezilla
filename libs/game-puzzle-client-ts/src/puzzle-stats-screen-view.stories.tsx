@@ -11,7 +11,7 @@ import {
 /** The stats' `summary` place: the rating and the totals at one glance. */
 const meta = {
   id: 'screens-puzzles-stats',
-  title: 'Screens/Puzzles/Stats/Summary',
+  title: 'Screens/Space/SpaceGamePuzzleFeedStats/Summary',
   component: PuzzleStatsScreenView,
   tags: ['autodocs'],
   parameters: {

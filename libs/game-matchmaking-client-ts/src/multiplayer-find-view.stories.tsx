@@ -12,7 +12,7 @@ import {
 
 const meta = {
   id: 'screens-games-matchmaking-find',
-  title: 'Screens/Games/Matchmaking/Find an opponent',
+  title: 'Screens/Space/SpaceGameMatchmakingSetup/Find an opponent',
   component: MultiplayerScreenView,
   tags: ['autodocs'],
   parameters: STORY_PARAMETERS,

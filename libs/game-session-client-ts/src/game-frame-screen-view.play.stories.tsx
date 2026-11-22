@@ -28,7 +28,7 @@ import {
 
 const meta = {
   id: 'screens-games-custom-play',
-  title: 'Screens/Games/Custom game/Play',
+  title: 'Screens/Space/SpaceGameCustomGamePlay/Play',
   component: GameFrameScreenView,
   // A desktop frame is checked at a desktop window's height (1440x900).
   tags: ['autodocs', 'viewport-native-height'],

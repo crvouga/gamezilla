@@ -23,7 +23,7 @@ function renderInBuilder(args: NumberlinkEditorInputs) {
 
 const meta = {
   id: 'screens-games-numberlink-editor',
-  title: 'Screens/Games/Numberlink/Editor',
+  title: 'Screens/Space/SpaceGameBoard/Numberlink/Editor',
   component: NumberlinkEditorView,
   tags: ['autodocs'],
   render: (args) => renderInBuilder(args),

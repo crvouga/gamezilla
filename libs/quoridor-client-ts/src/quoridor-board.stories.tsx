@@ -48,7 +48,7 @@ const moves = (actions: string) => actions.split(' ');
 
 const meta = {
   id: 'screens-games-quoridor-classic',
-  title: 'Screens/Games/Quoridor/Classic',
+  title: 'Screens/Space/SpaceGameBoard/Quoridor/Classic',
   component: QuoridorBoard,
   // A desktop capture is the 1440x900 desktop window, where the board's
   // spatial checks (a 440px board, 44px squares) hold with every tool in

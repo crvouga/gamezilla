@@ -5,7 +5,7 @@ import { MultiplayerLinkScreenView } from './multiplayer-link-screen-view';
 
 const meta = {
   id: 'screens-games-matchmaking-link',
-  title: 'Screens/Games/Matchmaking/Multiplayer link',
+  title: 'Screens/Space/SpaceGameMatchmakingSetup/Multiplayer link',
   component: MultiplayerLinkScreenView,
   tags: ['autodocs'],
   parameters: { appRouter: true, controls: { exclude: ['denial'] } },
