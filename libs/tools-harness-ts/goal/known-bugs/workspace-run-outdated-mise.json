@@ -1,0 +1,4 @@
+{
+  "summary": "The Localhost project script stopped at \"mise version 2026.11.11 is required, but you are using 2026.10.24\": a workstation's mise config had raised min_version before the binary was updated, and setup ran mise install without first bringing mise itself up to date. Setup now installs the required mise release in place and continues.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workspace-run.test.ts"
+}
