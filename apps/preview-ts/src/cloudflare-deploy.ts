@@ -70,7 +70,7 @@ export type Deployed =
  * `text/plain`, exactly, and Bun's form encoder sends `text/plain;charset=utf-8`
  * for the `File` mockingbird builds. The deployment form is all text (its
  * metadata and `_headers`), so it is encoded here and the one type put back.
- * Workaround for https://github.com/crvouga-organization/mockingbird/issues/847;
+ * Workaround for https://github.com/crvouga/mockingbird/issues/847;
  * remove it with the release that fixes that.
  */
 export function exactHeadersType(send: HttpFetch): HttpFetch {

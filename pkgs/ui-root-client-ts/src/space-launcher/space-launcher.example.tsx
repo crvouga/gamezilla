@@ -2,8 +2,7 @@ import {
   SpaceLauncher,
   type SpaceLauncherGame,
 } from '@pkgs/ui-root-client-ts/space-launcher';
-import { SpacePeople } from '@pkgs/ui-root-client-ts/space-person-sheet/space-people';
-import { SpaceShell } from '@pkgs/ui-root-client-ts/space-shell';
+import { SpaceStageTemplate } from '@pkgs/ui-root-client-ts/space-stage-template';
 import type { SpaceRole } from '@pkgs/ui-root-client-ts/space-types';
 import type { JSX } from 'solid-js';
 import {
@@ -94,7 +93,10 @@ export type SpaceLauncherExampleProps = SpaceExampleSpies & {
   onSuggest: (key: string) => void;
 };
 
-/** bob's space while bob chooses a game, seen by `role`. */
+/**
+ * bob's space while bob chooses a game, seen by `role`: the launcher as
+ * the page of the space's stage template, as the app frames it.
+ */
 export default function SpaceLauncherExample(
   props: SpaceLauncherExampleProps
 ): JSX.Element {
@@ -102,22 +104,17 @@ export default function SpaceLauncherExample(
     spaceExamplePeople({ role: props.role, phase: 'choosing' });
   return (
     <SpaceExampleFrame>
-      <SpaceShell
+      <SpaceStageTemplate
         spaceName="bob’s space"
         role={props.role}
+        phase="choosing"
+        people={people()}
         onBack={() => props.onBack()}
         onSettings={() => props.onSettings()}
         onLeave={() => props.onLeave()}
         onEnd={() => props.onEnd()}
-        people={
-          <SpacePeople
-            people={people()}
-            viewer={props.role}
-            phase="choosing"
-            onPersonAction={(id, action) => props.onPersonAction(id, action)}
-            onInvite={() => props.onInvite()}
-          />
-        }
+        onPersonAction={(id, action) => props.onPersonAction(id, action)}
+        onInvite={() => props.onInvite()}
       >
         <SpaceLauncher
           role={props.role}
@@ -128,7 +125,7 @@ export default function SpaceLauncherExample(
           onChoose={(key) => props.onChoose(key)}
           onSuggest={(key) => props.onSuggest(key)}
         />
-      </SpaceShell>
+      </SpaceStageTemplate>
     </SpaceExampleFrame>
   );
 }

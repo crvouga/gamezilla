@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { parseConfig } from '@libs/infra-shared-ts/hcl-parse';
 
 // regression: pubsub-dns-comment-tug-of-war
-// The zone's DNS inventory (crvouga-organization/personal) declares the broker and
+// The zone's DNS inventory (crvouga/personal) declares the broker and
 // certificate-validation records too, without a comment. A comment here made
 // each repository's apply overwrite the other's, so every Release and Health
 // run found the records drifted.

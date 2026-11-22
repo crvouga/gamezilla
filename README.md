@@ -262,7 +262,7 @@ Known cross-sub table reads, still debt: `permissions` reads `billing_subscripti
 | Key-value | `@pkgs/kv` |
 | Spec languages | `@pkgs/gherkin`, `@pkgs/quint`, `@pkgs/dmn`, `@pkgs/alloy`, `@pkgs/openslo` |
 | Property tests | `@pkgs/property-shared-ts` (`assertProperty` only) |
-| Specification visualization | Atlas owns spec browsing and test evidence. Run `bun atlas:viz`; see [Atlas reporting](https://github.com/crvouga-organization/atlas/blob/main/packages/reports/README.md). |
+| Specification visualization | Atlas owns spec browsing and test evidence. Run `bun atlas:viz`; see [Atlas reporting](https://github.com/crvouga/atlas/blob/main/packages/reports/README.md). |
 | Chess rules and board | `@pkgs/chess-rules-shared-ts`, `@pkgs/chess-board-core-shared-ts`, `@pkgs/chess-board` |
 | Rating math | `@pkgs/glicko2-shared-ts` |
 | i18n | Lingui (`@pkgs/i18n-shared-ts`). Catalogs compile to `libs/client-app`. |
@@ -782,7 +782,7 @@ Repo file names: markdown docs are `SCREAMING_SNAKE_CASE.md` (`README.md` matche
 - No new `'off'` or `biome-ignore` for the Tiger-Style size caps in `biome.json` (lines per file, lines per function, params, nested callbacks, cognitive complexity, classes per file). Extract a function or a component.
 - `pkgs/` stays product-agnostic.
 - Infrastructure is OpenTofu, zero-ops, and web scale (Google, YouTube, Facebook, GitHub). Changes are `.tf` and `envs/*.tfvars.json` only.
-- Vendors are simulated by Mockingbird. A gap in a simulated vendor is an issue on `crvouga-organization/mockingbird`, not an in-repo mock.
+- Vendors are simulated by Mockingbird. A gap in a simulated vendor is an issue on `crvouga/mockingbird`, not an in-repo mock.
 - Assert invariants and crash. Handle or propagate every error. No empty `catch`.
 
 ## Spec index
