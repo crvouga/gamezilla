@@ -55,32 +55,19 @@ https://pr-<number>.storybook.<domain>     a pull request's Storybook
   emulated identity provider's sign-in and the friendship is the ordinary
   request and its acceptance, sent to the in-tab API. A world restored from
   the browser's saved snapshot is left as it was.
-- **The console.** The page shows one app at a time, edge to edge, with
-  nothing around it, under one small round button that floats over it and
-  can be dragged out of the way. A press of the button goes on to the next
-  app in the switcher: every client's app to start with, then the harness's
-  own app, around again (Alt with `]` and `[`, Alt with 1 to 9 for an app by
-  its place, Alt with 0 for the harness app). Every client's app keeps
-  running while another is on show, and which view is on show is kept in the
-  page address, so a link reopens it.
-- **The harness app.** One page of links to everything else. *Instances* is
-  everything running: each client's app, the load balancer with its routes,
-  each API server with its SQL notebook and logs, pub/sub topics, and rooms.
-  *Emulators* is each vendor emulator's own dashboard. *Set up the world*
-  opens the surfaces that add and remove instances, choose the switcher's
-  apps, save and restore snapshots, and run commands (crash, restart and
-  partition instances, control the clock).
+- **The console.** Mockingbird's System screen lists the clients, servers,
+  rooms and emulator dashboards present at startup. Its switcher opens each
+  surface directly and keeps it mounted when another opens. The address
+  records the selected surface.
+- **Instances.** Open this surface to add or remove clients and servers, save
+  or restore snapshots, run commands, and inspect nodes added since startup.
 - **Instances come and go.** Clients and API servers are added and removed
   while the system runs, down to none of either. With no client the harness
-  app is all there is, and the round button is not drawn. With no API server
+  opens its instance list. With no API server
   the load balancer has nothing behind it: every request a client makes
   fails as one to a server that is not there, and works again when a server
   is added. The balancer and pub/sub are one of each and stay; they can be
   crashed and partitioned.
-- **The switcher is chosen.** Any view (an instance, an emulator's
-  dashboard) can be put in the switcher, and any client's app taken out; the
-  harness app is always in it, being the way back. The choice is kept in the
-  page address (`sw`).
 - **Emulators.** Every vendor emulator (Google and Apple sign-in, payments,
   object storage, the language model) shows that Mockingbird emulator's own
   dashboard, with its state, journal, clock, latency and faults. The

@@ -11,6 +11,11 @@
 # Native toolchains (docs/POLYGLOT.md): `swift` below, and Xcode in `[vars]`
 # at the end, which mise cannot install but every Apple task reads from here.
 
+# The repository pins exact versions here and does not ship a mise.lock.
+[settings]
+locked = false
+lockfile = false
+
 [tools]
 bun = "1.4.3"
 node = "26.12.0"

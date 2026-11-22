@@ -4,7 +4,9 @@
  * The last job of Release and Health: the run's verdict from every job it
  * needs, in the job summary, and, on `main`, the workflow's one open GitHub
  * issue ("Release is failing on main", `ci-failure-issue.ts`), opened on the
- * first red run and closed by the next green one. Prints `passed=true|false`
+ * first red run and closed by the next green one. Given the verdict Release
+ * verification retained (`CI_VERDICT_PATH`), it also keeps one issue per
+ * failing check (`ci-check-issues.ts`). Prints `passed=true|false`
  * to `GITHUB_OUTPUT` so the next step records the same verdict in Grafana
  * (`apps/product-ts/scripts/ci-workflow-result.ts`).
  *
@@ -15,8 +17,10 @@
  * jobs it reads already decided the run, and a failure to file the issue
  * throws.
  */
-import { appendFileSync } from 'node:fs';
+import { appendFileSync, existsSync, readFileSync } from 'node:fs';
+import { failedChecks, syncCheckIssues } from './ci-check-issues';
 import { failureIssueTitle, fileFailureIssue } from './ci-failure-issue';
+import type { Verdict } from './verify-verdict';
 
 export type JobResults = Readonly<Record<string, { readonly result?: string }>>;
 
@@ -42,8 +46,11 @@ export function formatWorkflowMarkdown(input: {
   readonly verdicts: readonly JobVerdict[];
   readonly url: string;
   readonly sha: string;
+  /** Task ids failing in the run's verification, each with an issue of its own. */
+  readonly failing?: readonly string[];
 }): string {
   const red = redJobs(input.verdicts);
+  const failing = input.failing ?? [];
   return [
     `## ${red.length === 0 ? '✅' : '❌'} ${input.workflow}`,
     '',
@@ -56,6 +63,14 @@ export function formatWorkflowMarkdown(input: {
         `| \`${verdict.job}\` | ${GREEN.has(verdict.result) ? verdict.result.toUpperCase() : `**${verdict.result}**`} |`
     ),
     '',
+    ...(failing.length === 0
+      ? []
+      : [
+          'Failing checks, each tracked by its own `ci-failure` issue:',
+          '',
+          ...failing.map((taskId) => `- \`${taskId}\``),
+          '',
+        ]),
     ...(red.length === 0
       ? []
       : [
@@ -65,16 +80,26 @@ export function formatWorkflowMarkdown(input: {
   ].join('\n');
 }
 
+/** The verdict `verify:end` retained, or `null` when the run produced none. */
+function readVerdict(path: string | undefined): Verdict | null {
+  if (!path || !existsSync(path)) return null;
+  return JSON.parse(readFileSync(path, 'utf8')) as Verdict;
+}
+
 function main(env: NodeJS.ProcessEnv): number {
   const workflow = env['CI_WORKFLOW']?.trim() || 'CI';
   const verdicts = jobVerdicts(JSON.parse(env['NEEDS'] ?? '{}') as JobResults);
   const red = redJobs(verdicts);
   const repository = env['GITHUB_REPOSITORY'] ?? '';
+  const url = `${env['GITHUB_SERVER_URL'] ?? 'https://github.com'}/${repository}/actions/runs/${env['GITHUB_RUN_ID'] ?? ''}`;
+  const sha = env['GITHUB_SHA'] ?? '';
+  const verdict = readVerdict(env['CI_VERDICT_PATH']);
   const markdown = formatWorkflowMarkdown({
     workflow,
     verdicts,
-    url: `${env['GITHUB_SERVER_URL'] ?? 'https://github.com'}/${repository}/actions/runs/${env['GITHUB_RUN_ID'] ?? ''}`,
-    sha: env['GITHUB_SHA'] ?? '',
+    url,
+    sha,
+    failing: verdict ? failedChecks(verdict).map((check) => check.taskId) : [],
   });
   if (env['GITHUB_STEP_SUMMARY'])
     appendFileSync(env['GITHUB_STEP_SUMMARY'], markdown);
@@ -100,8 +125,23 @@ function main(env: NodeJS.ProcessEnv): number {
       markdown,
       red: red.length > 0,
       owner: env['CI_TRIAGE_OWNER'] ?? '',
+      runUrl: url,
     });
     console.log(`${workflow}: issue ${action.kind}`);
+    if (verdict) {
+      const plan = syncCheckIssues({
+        repository,
+        verdict,
+        run: { url, sha },
+        owner: env['CI_TRIAGE_OWNER'] ?? '',
+      });
+      console.log(
+        `${workflow}: check issues — ${plan.create.length} opened, ${plan.update.length} updated, ${plan.close.length} closed, ${plan.overflow.length} left to the workflow issue`
+      );
+    } else if (env['CI_VERDICT_PATH'])
+      console.log(
+        `::warning title=${workflow}::No verification verdict was retained; check issues are unchanged`
+      );
   }
   return 0;
 }

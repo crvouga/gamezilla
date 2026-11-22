@@ -5,7 +5,7 @@ name: Release
 #   <Workflow> · <trigger>
 run-name: "Release · ${{ github.event_name == 'push' && 'push' || 'manual' }}"
 
-# Every push to main verifies the exact commit with the whole gate (cached verdicts replay),
+# Every push to main verifies the exact commit with the whole gate (a pull request ran four of its tasks),
 # then releases shared services, development, and production in order.
 # Rehearsals verify and plan without releasing.
 
@@ -61,8 +61,8 @@ jobs:
     with:
       profile: release
       require-main: ${{ !inputs.rehearsal }}
-      # The pull request already enforced advisories on this code. A registry
-      # that moved since then must not fail a deploy of a verified commit.
+      # Pull requests do not run the advisory audit; nightly enforces it. A
+      # registry that moved must not fail a deploy.
       advisories: report
 
   deploy-rehearsal:
@@ -325,7 +325,9 @@ jobs:
 
   # The run's verdict where people look: the job summary, the one open
   # "Release is failing on main" issue (opened on the first red run, closed by
-  # the next green one), and `ci.workflow.result` in every environment's
+  # the next green one), one open issue per check failing in verification
+  # (pull requests run four tasks; everything else is first run here, and its
+  # issue is how a failure is queued and fixed: ci-check-issues.ts), and `ci.workflow.result` in every environment's
   # Grafana, whose alert pages until Release on main is green again
   # (libs/tools-harness-ts/scripts/ci-workflow-alert.ts).
   deploy-verdict:
@@ -343,7 +345,7 @@ jobs:
     timeout-minutes: 10
     permissions:
       contents: read # check out the code
-      issues: write # open, update or close the Release issue
+      issues: write # open, update or close the Release issue and the check issues
       id-token: write # mint the OIDC token Infisical trusts (Grafana metrics credentials)
     env:
       CI_WORKFLOW: Release
@@ -360,8 +362,18 @@ jobs:
           product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
           product-identity-mode: configured
           tools: bun gh infisical
+      # Absent when verification never reached its verdict; the check issues
+      # then stay as they are and the Release issue alone reports the run.
+      - name: Fetch the verification verdict
+        env:
+          SECRETS_ENV: dev
+        run: >-
+          bun run libs/secrets-server-ts/scripts/ci-artifacts-run.ts download release-verdict .cache/release-verdict
+          || echo "::warning::No verification verdict to read; check issues are unchanged"
       - name: File the Release issue
         id: verdict
+        env:
+          CI_VERDICT_PATH: .cache/release-verdict/verdict.json
         run: bun run libs/tools-harness-ts/scripts/ci-workflow-alert.ts
       - name: Record the verdict in Grafana
         env:

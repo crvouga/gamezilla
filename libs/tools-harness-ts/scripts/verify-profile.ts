@@ -5,7 +5,7 @@
  * deeper budgets plus the suites below, retaining reports. Local `bun verify`
  * is release depth. A profile never defines different tests: environment
  * budgets participate in task hashes. Pin nightly findings in their owning
- * gate suites, which every pull request then runs.
+ * gate suites, which every Release then runs.
  */
 
 export const PROFILE_ENV = 'VERIFY_PROFILE';

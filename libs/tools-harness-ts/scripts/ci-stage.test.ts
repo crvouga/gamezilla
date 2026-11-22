@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import fc from 'fast-check';
-import { ciStageTasks, isBlockingCiTask } from './ci-stage';
+import { ciStageTasks, isBlockingCiTask, PR_TASKS } from './ci-stage';
 import { MAIN_VERIFY_TASKS, RELEASE_JOURNEY_TASKS } from './turbo-ci-run';
 
 type Workflow = {
@@ -23,57 +23,66 @@ function verifyWorkflow(): Workflow {
   ) as Workflow;
 }
 
-test('nightly and local verification retain the complete catalog', () => {
-  expect(ciStageTasks(MAIN_VERIFY_TASKS, 'nightly')).toEqual(MAIN_VERIFY_TASKS);
-  expect(ciStageTasks(MAIN_VERIFY_TASKS, undefined)).toEqual(MAIN_VERIFY_TASKS);
+test('Release, nightly and local verification retain the complete catalog', () => {
+  for (const stage of ['release', 'nightly', undefined, ''])
+    expect(ciStageTasks(MAIN_VERIFY_TASKS, stage)).toEqual(MAIN_VERIFY_TASKS);
 });
 
-test('blocking stages preserve irreversible-change and security safeguards', () => {
-  for (const stage of ['pr', 'release']) {
-    const tasks = ciStageTasks(MAIN_VERIFY_TASKS, stage);
-    for (const task of [
-      'tc',
-      'lint',
-      'test',
-      '@libs/tools-harness-ts#verify:secrets',
-      '@libs/tools-harness-ts#verify:workflow-security',
-      '@libs/runtime-server-ts#verify:schema-evolution',
-      '@apps/product-ts#verify:worker-bundle',
-      '@apps/synthetic-population-worker-ts#verify:synthetic-population-foundation',
-    ])
-      expect(tasks).toContain(task);
-    for (const task of [
-      '@libs/permissions-harness-ts#test',
-      '@pkgs/db-migrate-shared-ts#test',
-      '@pkgs/auth-root-harness-ts#test',
-    ])
-      expect(isBlockingCiTask(task, tasks)).toBe(true);
-  }
+test('a pull request runs only the tasks that cannot wait for Release', () => {
+  const pr = ciStageTasks(MAIN_VERIFY_TASKS, 'pr');
+  expect([...pr].sort()).toEqual([...PR_TASKS].sort());
+  expect(pr).toEqual([
+    'tc',
+    'lint',
+    '@libs/tools-harness-ts#verify:actionlint',
+    '@libs/tools-harness-ts#verify:secrets',
+  ]);
+  // Every pull-request task is a gate task: Release runs it again.
+  for (const task of PR_TASKS) expect(MAIN_VERIFY_TASKS).toContain(task);
+});
+
+test('Release preserves irreversible-change and security safeguards before it deploys', () => {
+  const tasks = ciStageTasks(MAIN_VERIFY_TASKS, 'release');
+  for (const task of [
+    'tc',
+    'lint',
+    'test',
+    '@libs/tools-harness-ts#verify:secrets',
+    '@libs/tools-harness-ts#verify:workflow-security',
+    '@libs/runtime-server-ts#verify:schema-evolution',
+    '@apps/product-ts#verify:worker-bundle',
+    '@apps/synthetic-population-worker-ts#verify:synthetic-population-foundation',
+  ])
+    expect(tasks).toContain(task);
+  for (const task of [
+    '@libs/permissions-harness-ts#test',
+    '@pkgs/db-migrate-shared-ts#test',
+    '@pkgs/auth-root-harness-ts#test',
+  ])
+    expect(isBlockingCiTask(task, tasks)).toBe(true);
 });
 
 // regression: consistency-gates-nightly-only
-test('pull requests are held to the catalog, spec language and chart ownership gates', () => {
-  for (const stage of ['pr', 'release']) {
-    const tasks = ciStageTasks(MAIN_VERIFY_TASKS, stage);
-    for (const task of [
-      '@libs/tools-harness-ts#ci:i18n',
-      '@libs/tools-harness-ts#ci:specs',
-      '@libs/tools-harness-ts#ci:statecharts',
-    ]) {
-      expect(tasks).toContain(task);
-      expect(isBlockingCiTask(task, tasks)).toBe(true);
-    }
+test('Release holds main to the catalog, spec language and chart ownership gates', () => {
+  const tasks = ciStageTasks(MAIN_VERIFY_TASKS, 'release');
+  for (const task of [
+    '@libs/tools-harness-ts#ci:i18n',
+    '@libs/tools-harness-ts#ci:specs',
+    '@libs/tools-harness-ts#ci:statecharts',
+  ]) {
+    expect(tasks).toContain(task);
+    expect(isBlockingCiTask(task, tasks)).toBe(true);
   }
 });
 
 // regression: pr-gate-narrower-than-nightly
-test('PR and Release hold a change to every gate task nightly runs', () => {
+test('Release holds a commit to every gate task nightly runs before it deploys', () => {
   const nightly = ciStageTasks(MAIN_VERIFY_TASKS, 'nightly');
-  for (const stage of ['pr', 'release'])
-    expect(ciStageTasks(MAIN_VERIFY_TASKS, stage)).toEqual(nightly);
-  // Nightly's gate found these red on main 93782bb0a after PR #287, PR #288
-  // and commit e2cc4c093 each passed Verify: none was in the PR selection.
-  const pr = ciStageTasks(MAIN_VERIFY_TASKS, 'pr');
+  const release = ciStageTasks(MAIN_VERIFY_TASKS, 'release');
+  expect(release).toEqual(nightly);
+  // Nightly's gate found these red on main 93782bb0a after they merged
+  // green. Pull requests no longer run them by design: Release does, before
+  // anything deploys, and files an issue per failing check.
   for (const task of [
     '@libs/tools-harness-ts#verify:brand-policy',
     '@libs/tools-harness-ts#verify:rebrand',
@@ -89,7 +98,7 @@ test('PR and Release hold a change to every gate task nightly runs', () => {
     '@libs/games-harness-ts#test:contract:0',
     '@pkgs/ui-root-harness-ts#ci:storybook:0',
   ])
-    expect(isBlockingCiTask(task, pr)).toBe(true);
+    expect(isBlockingCiTask(task, release)).toBe(true);
 });
 
 // regression: pr-gate-narrower-than-nightly
@@ -119,31 +128,34 @@ test('Release compares schema evolution against the pre-push commit', () => {
 });
 
 // regression: pr-omitted-release-journeys
-test('PR and Release enforce the same production-build journeys', () => {
-  const pr = ciStageTasks(MAIN_VERIFY_TASKS, 'pr');
+test('Release enforces the production-build journeys before it deploys', () => {
   const release = ciStageTasks(MAIN_VERIFY_TASKS, 'release');
-  expect(pr).toEqual(release);
   for (const task of RELEASE_JOURNEY_TASKS) {
-    expect(pr).toContain(task);
-    expect(isBlockingCiTask(task, pr)).toBe(true);
+    expect(release).toContain(task);
+    expect(isBlockingCiTask(task, release)).toBe(true);
   }
-  expect(new Set(pr).size).toBe(pr.length);
+  expect(new Set(release).size).toBe(release.length);
 });
 
-test('PR and manual prediction runs differ from reusable release and nightly runs', () => {
+test('only a pull request runs the narrow selection; a dispatch, Release and nightly run the catalog', () => {
   expect(verifyWorkflow().env['VERIFY_CI_STAGE']).toBe(
-    "${{ inputs.profile == 'nightly' && 'nightly' || (inputs.profile == 'release' && 'release' || 'pr') }}"
+    "${{ inputs.profile == 'nightly' && 'nightly' || (github.event_name == 'pull_request' && 'pr' || 'release') }}"
   );
 });
 
-test('every stage selects the whole catalog as it grows and changes order', () => {
+test('Release and nightly select the whole catalog, and a pull request a subset of it, as it grows and changes order', () => {
   assertProperty(
     'ci-stage-whole-catalog',
     fc.property(
       fc.shuffledSubarray([...MAIN_VERIFY_TASKS, 'future:verification']),
       fc.constantFrom('pr', 'release', 'nightly', undefined, ''),
       (catalog, stage) => {
-        expect(ciStageTasks(catalog, stage)).toEqual(catalog);
+        const selected = ciStageTasks(catalog, stage);
+        if (stage !== 'pr') return expect(selected).toEqual(catalog);
+        expect(selected).toEqual(
+          catalog.filter((task) => PR_TASKS.includes(task))
+        );
+        expect(selected).not.toContain('future:verification');
       }
     )
   );

@@ -5,11 +5,7 @@
 set -euo pipefail
 . "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 . "$(dirname "${BASH_SOURCE[0]}")/install.sh"
-if ! workspace_activate_tools || ! workspace_install_is_current; then
-  echo "==> preparing missing or changed workspace dependencies"
-  "$WORKSPACE_PATH/libs/tools-harness-ts/workspace/setup.sh"
-  workspace_activate_tools
-fi
+workspace_prepare_launch
 # Stop by checkout ownership, never by port, before choosing ports, so the
 # previous stack's block is free again and the same ports are reused.
 echo "==> stopping any stack this checkout already runs"

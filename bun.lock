@@ -104,6 +104,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@crvouga/mockingbird-notifications": "catalog:",
+        "@crvouga/mockingbird-ui": "catalog:",
         "@libs/app-root-client-ts": "workspace:*",
         "@libs/app-root-shared-ts": "workspace:*",
         "@libs/auth-shared-ts": "workspace:*",
@@ -5580,10 +5581,8 @@
         "solid-js": "catalog:",
       },
       "devDependencies": {
-        "@pkgs/property-shared-ts": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
-        "fast-check": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -8010,6 +8009,7 @@
     "@crvouga/mockingbird-service-s3": "^4.7.1",
     "@crvouga/mockingbird-service-sqlite": "^3.6.0",
     "@crvouga/mockingbird-service-stripe": "^3.19.0",
+    "@crvouga/mockingbird-ui": "^0.2.0",
     "@cucumber/cucumber-expressions": "^20.1.0",
     "@cucumber/gherkin": "^42.0.1",
     "@cucumber/messages": "^34.2.1",
