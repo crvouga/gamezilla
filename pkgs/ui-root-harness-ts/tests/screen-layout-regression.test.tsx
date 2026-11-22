@@ -4,7 +4,7 @@ import { FormActionsFooter } from '@pkgs/ui-root-client-ts/form-actions-footer';
 import { FormScreen } from '@pkgs/ui-root-client-ts/form-screen';
 import { GameReviewScreen } from '@pkgs/ui-root-client-ts/game-review-screen';
 import { GameLayout } from '@pkgs/ui-root-client-ts/game-screen';
-import { GameSetupPanel } from '@pkgs/ui-root-client-ts/game-setup-panel';
+import { GameActions } from '@pkgs/ui-root-client-ts/game-section';
 import { MainMenuScreen } from '@pkgs/ui-root-client-ts/main-menu-screen';
 import { ScreenIntro } from '@pkgs/ui-root-client-ts/screen-intro';
 import { SCREEN_MAX_WIDTH } from '@pkgs/ui-root-client-ts/screen-measure';
@@ -39,11 +39,9 @@ test('false reactive slots do not reserve rails, footer chrome or setup actions'
       <GameLayout aside={<Show when={visible()}>Record</Show>}>
         <input aria-label="Board" />
       </GameLayout>
-      <GameSetupPanel
-        title="Setup"
-        actions={<Show when={visible()}>Start</Show>}
-        details={<Show when={visible()}>Options</Show>}
-      />
+      <GameActions>
+        <Show when={visible()}>Start</Show>
+      </GameActions>
     </ContentScreen>
   ));
   const input = view.getByRole('textbox');

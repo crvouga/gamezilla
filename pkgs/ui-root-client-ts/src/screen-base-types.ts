@@ -106,7 +106,7 @@ export type ScreenBaseProps = {
    */
   footer?: JSX.Element | undefined;
   /**
-   * Optional full-bleed bottom chrome (typically a `BottomActionBar`). Pinned
+   * Optional full-bleed bottom chrome (a bar of controls). Pinned
    * under the footer; on compact it also absorbs the bottom safe-area inset.
    */
   bottomBar?: JSX.Element | undefined;
