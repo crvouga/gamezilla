@@ -446,3 +446,10 @@ test('release tags cannot be moved or deleted, and fixed labels are declared one
   expect(labels.some((label) => /^overnight:\d/.test(label.name))).toBe(false);
   expect(repository).not.toMatch(/resource "github_issue_labels"/);
 });
+
+// regression: repository-ruleset-main-outside-state
+test('the main ruleset that already exists on GitHub is adopted, never created a second time', () => {
+  expect(imports).toMatch(
+    /import \{\s*to\s*=\s*module\.repository\.github_repository_ruleset\.main\s*id\s*=\s*"\$\{var\.github\.repo\}:\d+"\s*\}/
+  );
+});

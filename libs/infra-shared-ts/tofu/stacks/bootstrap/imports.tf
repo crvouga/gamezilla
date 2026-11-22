@@ -63,6 +63,14 @@ import {
   id = "${var.github.repo}:production:64748019"
 }
 
+# Recreated through the API on 2026-11-22 during the CI identity recovery
+# after the transfer back, outside this state: creating it again fails with
+# "Name must be unique" (regression: repository-ruleset-main-outside-state).
+import {
+  to = module.repository.github_repository_ruleset.main
+  id = "${var.github.repo}:27823518"
+}
+
 # The org's one free-plan stack, created in the Grafana UI before OpenTofu.
 import {
   for_each = var.global_imports.grafana_stack == null ? toset([]) : toset([var.global_imports.grafana_stack])

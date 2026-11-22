@@ -1,0 +1,4 @@
+{
+  "summary": "The main branch ruleset was recreated through the GitHub API during the CI identity recovery after the repository returned to the user account, outside the bootstrap state. Every Release then failed in Enforce repository policy: OpenTofu planned to create module.repository.github_repository_ruleset.main and GitHub refused with 422 \"Name must be unique\". The bootstrap stack now imports the existing ruleset.",
+  "regressionTest": "libs/infra-server-ts/tests/repository-policy.test.ts"
+}
