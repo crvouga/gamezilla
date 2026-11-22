@@ -13,7 +13,7 @@
       "icon": "play"
     },
     {
-      "name": "Boostrap",
+      "name": "Bootstrap",
       "command": "./libs/tools-harness-ts/workspace/bootstrap.sh",
       "icon": "configure"
     }

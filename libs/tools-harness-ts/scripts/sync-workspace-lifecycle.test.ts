@@ -37,7 +37,7 @@ describe('renderConfigs', () => {
     ).toEqual([
       ['Preview', './libs/tools-harness-ts/workspace/preview.sh'],
       ['Localhost', hookCommand('run')],
-      ['Boostrap', BOOTSTRAP_COMMAND],
+      ['Bootstrap', BOOTSTRAP_COMMAND],
     ]);
     expect(
       config.scripts.some(

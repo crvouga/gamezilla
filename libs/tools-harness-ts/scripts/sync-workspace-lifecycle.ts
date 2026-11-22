@@ -71,7 +71,7 @@ export const ORCHESTRATORS: Orchestrator[] = [
           icon: 'play',
         },
         { name: 'Localhost', command: commands.run, icon: 'play' },
-        { name: 'Boostrap', command: BOOTSTRAP_COMMAND, icon: 'configure' },
+        { name: 'Bootstrap', command: BOOTSTRAP_COMMAND, icon: 'configure' },
       ],
     }),
   },
