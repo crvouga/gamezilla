@@ -19,7 +19,13 @@ export type TraceEvent = {
       cpuProfile?: {
         nodes?: {
           id: number;
-          callFrame: { functionName: string; url: string; lineNumber?: number };
+          // Chrome leaves `url` out for frames with no script, such as
+          // `(program)`, `(idle)` and `(garbage collector)`.
+          callFrame: {
+            functionName?: string;
+            url?: string;
+            lineNumber?: number;
+          };
         }[];
         samples?: number[];
       };
@@ -57,6 +63,17 @@ function top(totals: Map<string, number>): [string, number][] {
     .map(([name, micros]) => [name, round(micros / 1000)]);
 }
 
+/** A profiled frame's name, with its file and line when it ran a script. */
+function frameLabel(frame: {
+  functionName?: string;
+  url?: string;
+  lineNumber?: number;
+}): string {
+  const name = frame.functionName || '(anonymous)';
+  const file = frame.url ? frame.url.split('/').pop() : undefined;
+  return file ? `${name} ${file}:${(frame.lineNumber ?? 0) + 1}` : name;
+}
+
 /** CPU samples per renderer thread, at trace timestamps. */
 function cpuSamples(events: readonly TraceEvent[]) {
   const profiles = new Map<
@@ -84,11 +101,7 @@ function cpuSamples(events: readonly TraceEvent[]) {
     const profile = profiles.get(key);
     if (!profile) continue;
     for (const node of data.cpuProfile?.nodes ?? []) {
-      const frame = node.callFrame;
-      profile.frames.set(
-        node.id,
-        `${frame.functionName || '(anonymous)'} ${frame.url.split('/').pop() ?? ''}:${(frame.lineNumber ?? 0) + 1}`
-      );
+      profile.frames.set(node.id, frameLabel(node.callFrame));
     }
     const ids = data.cpuProfile?.samples ?? [];
     ids.forEach((id, index) => {

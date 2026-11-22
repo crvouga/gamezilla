@@ -78,3 +78,46 @@ test('a long main-thread task reports its CPU time, nested events and samples', 
     },
   ]);
 });
+
+// regression: long-task-trace-frame-without-url
+test('a profiled frame with no script is named without a file', () => {
+  const events: TraceEvent[] = [
+    {
+      ...main,
+      name: 'thread_name',
+      ph: 'M',
+      ts: 0,
+      args: { name: 'CrRendererMain' },
+    },
+    { ...main, name: 'RunTask', ph: 'X', ts: 10_000, dur: 60_000 },
+    {
+      ...main,
+      name: 'Profile',
+      ph: 'P',
+      ts: 0,
+      id: '0x1',
+      args: { data: { startTime: 9_000 } },
+    },
+    {
+      ...main,
+      name: 'ProfileChunk',
+      ph: 'P',
+      ts: 0,
+      id: '0x1',
+      args: {
+        data: {
+          cpuProfile: {
+            nodes: [
+              { id: 1, callFrame: { functionName: '(garbage collector)' } },
+            ],
+            samples: [1, 1],
+          },
+          timeDeltas: [2_000, 2_000],
+        },
+      },
+    },
+  ];
+  expect(summarizeLongTasks(events)[0]?.selfTime).toEqual([
+    ['(garbage collector)', 2],
+  ]);
+});
