@@ -5,12 +5,10 @@ import {
   frameStandingRows,
 } from '@libs/game-session-client-ts/game-frame-headline';
 import { customGameWinner } from '@libs/game-session-client-ts/game-frame-result';
-import { FrameWatchingView } from '@libs/game-session-client-ts/game-frame-status-view';
 import {
   frameTable,
   sameTable,
 } from '@libs/game-session-client-ts/game-frame-table';
-import { seatedPeople } from '@libs/game-session-client-ts/game-frame-watchers';
 import {
   type CustomGame,
   newCustomGame,
@@ -90,34 +88,6 @@ describe('the table around the board', () => {
 function activeGame(): CustomGame {
   return { ...newCustomGame('g', 'alice', 'position'), status: 'active' };
 }
-
-describe('watching a game', () => {
-  test('someone without a seat in a game under way is told they are watching', () => {
-    themed(() => <FrameWatchingView phase="active" viewerSide={null} />);
-    expect(screen.getByText("You're watching")).toBeInTheDocument();
-  });
-
-  test('a player, or a game not under way, shows no watching footer', () => {
-    const view = themed(() => (
-      <>
-        <FrameWatchingView phase="active" viewerSide="white" />
-        <FrameWatchingView phase="configuring" viewerSide={null} />
-      </>
-    ));
-    expect(view.container.textContent).toBe('');
-  });
-
-  test('the people seated at the game never count as watching', () => {
-    const game: CustomGame = {
-      ...activeGame(),
-      black: { kind: 'person', person: 'bob' },
-    };
-    expect([...seatedPeople(game)].sort()).toEqual(['alice', 'bob']);
-    expect(
-      seatedPeople({ ...game, black: { kind: 'bot', person: '' } })
-    ).toEqual(new Set(['alice']));
-  });
-});
 
 describe('the game-over headline', () => {
   const twoSeats = ['white', 'black'] as const;

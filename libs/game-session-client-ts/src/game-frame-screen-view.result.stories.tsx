@@ -148,25 +148,23 @@ export const RematchRefused: Story = {
   args: { error: 'Only the host may start the rematch.' },
 };
 
-/** Review moves opens the moves place at the start of the game. */
+/** Review moves, from the status line, opens the moves place. */
 export const OpenMoves: Story = {
   play: async ({ args, canvasElement }) => {
-    const canvas = within(canvasElement);
-    await userEvent.click(
-      await canvas.findByTestId('custom-game-review-start')
-    );
-    await expect(args.onSeek).toHaveBeenCalledWith(0);
+    const canvas = within(canvasElement.ownerDocument.body);
+    await userEvent.click(await canvas.findByTestId('custom-game-commands'));
+    await userEvent.click(await canvas.findByTestId('custom-game-review-jump'));
     await expect(args.onOpen).toHaveBeenCalledWith({ screen: 'moves' });
   },
 };
 
 /**
- * A real transition, driven by the browser check of the completion: resigning
- * from the game menu is confirmed over it, the game finishes under the
- * dialog, and dismissing it leaves the result.
+ * A real transition, driven by the browser check of the completion:
+ * resigning from the action bar is confirmed over the game, the game
+ * finishes under the dialog, and dismissing it leaves the result.
  */
-export const FinishFromGameMenu: Story = {
-  args: { ...PLAYING, place: { screen: 'commands' }, result: null },
+export const FinishFromBar: Story = {
+  args: { ...PLAYING, place: { screen: 'play' }, result: null },
   render: (args) => {
     const [finished, setFinished] = createSignal(false);
     return (

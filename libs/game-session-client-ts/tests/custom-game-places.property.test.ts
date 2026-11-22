@@ -32,7 +32,6 @@ const place: fc.Arbitrary<CustomGamePlace> = fc.oneof(
       'clock',
       'private-setup',
       'play',
-      'commands',
       'moves',
       'result' as const
     )

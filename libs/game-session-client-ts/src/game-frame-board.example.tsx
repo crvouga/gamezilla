@@ -12,12 +12,18 @@ import {
 import { createComputed, createSignal, type JSX, on } from 'solid-js';
 import { ConnectFourStoryBoard } from './connect-four-story-board.example';
 import { CUSTOM_GAME_PLACES, type CustomGamePlace } from './custom-game-places';
+import { FrameChrome } from './frame-chrome.example';
 import { recordReviewing } from './game-frame-moves-view';
 import {
   GameFrameScreenView,
   type GameFrameScreenViewProps,
 } from './game-frame-screen-view';
-import { record, WON_LINE, WON_MOVES } from './game-frame-story.example';
+import {
+  record,
+  STORY_PRESENT,
+  WON_LINE,
+  WON_MOVES,
+} from './game-frame-story.example';
 import type { FramePhase } from './game-frame-view-types';
 
 function overlayPhase(phase: FramePhase): StageOverlayPhase {
@@ -59,27 +65,29 @@ export function FrameStory(
     )
   );
   return (
-    <GameFrameScreenView
-      boardPreview={<ConnectFourStoryBoard moves={[]} />}
-      {...props}
-      overlay={overlay()}
-      onOverlay={(event) => {
-        props.onOverlay(event);
-        setOverlay((state) => stageOverlayAfter(state, event));
-      }}
-      place={place()}
-      onOpen={(next) => {
-        props.onOpen(next);
-        setOpened({ stage: props.phase, place: next });
-      }}
-      onClose={() => {
-        props.onClose();
-        const behind = placeBehind(CUSTOM_GAME_PLACES, props.phase, place());
-        setOpened(
-          behind === null ? null : { stage: props.phase, place: behind }
-        );
-      }}
-    />
+    <FrameChrome people={STORY_PRESENT}>
+      <GameFrameScreenView
+        boardPreview={<ConnectFourStoryBoard moves={[]} />}
+        {...props}
+        overlay={overlay()}
+        onOverlay={(event) => {
+          props.onOverlay(event);
+          setOverlay((state) => stageOverlayAfter(state, event));
+        }}
+        place={place()}
+        onOpen={(next) => {
+          props.onOpen(next);
+          setOpened({ stage: props.phase, place: next });
+        }}
+        onClose={() => {
+          props.onClose();
+          const behind = placeBehind(CUSTOM_GAME_PLACES, props.phase, place());
+          setOpened(
+            behind === null ? null : { stage: props.phase, place: behind }
+          );
+        }}
+      />
+    </FrameChrome>
   );
 }
 

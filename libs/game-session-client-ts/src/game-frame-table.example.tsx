@@ -28,7 +28,6 @@ import { CUSTOM_GAME_PLACES } from './custom-game-places';
 import { FrameStory } from './game-frame-board.example';
 import { FRAME_NO_NEXT, FRAME_NO_PLAY } from './game-frame-empty';
 import { frameSwatch } from './game-frame-look';
-import { frameActionItems } from './game-frame-play';
 import { frameArgs, PEOPLE, record } from './game-frame-story.example';
 import type {
   FrameClock,
@@ -40,6 +39,7 @@ import type {
   FrameStatus,
   FrameTable,
 } from './game-frame-view-types';
+import { spaceBoardActions } from './space-game-of';
 
 /** How a game's stories hand over its presentation. */
 export type GameTablePresentation = Omit<GamePresentation<JSX.Element>, 'id'>;
@@ -313,8 +313,6 @@ function GameFrameTable(props: TableProps): JSX.Element {
       status={tableStatus(props)}
       table={{
         shape: tableShape(props),
-        named: props.presentation.frame.boardNames === true,
-        seatLayout: props.presentation.frame.seatLayout,
         compactInset: props.presentation.frame.compactInset,
         near: playSeat(props, near()),
         others: props.sides
@@ -325,12 +323,7 @@ function GameFrameTable(props: TableProps): JSX.Element {
         ...FRAME_NO_PLAY,
         canOfferDraw: seated() && props.presentation.frame.drawOffers,
         canResign: seated(),
-        boardActions: frameActionItems(session.actions(), props.board.testId),
-        leadingBoardActions: frameActionItems(
-          session.actions(),
-          props.board.testId,
-          'before-board'
-        ),
+        boardActions: spaceBoardActions(session.actions(), props.board.testId),
       }}
       result={
         props.ending === undefined ? null : tableResult(props, props.ending)

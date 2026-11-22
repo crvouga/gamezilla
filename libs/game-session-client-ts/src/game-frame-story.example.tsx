@@ -11,7 +11,9 @@ import {
 import { NO_STAGE_OVERLAY } from '@pkgs/turn-game-client-ts/stage-overlay';
 import type { GameOptionGroup } from '@pkgs/turn-game-shared-ts/game-frame';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
+import type { SpacePerson as SpaceShellPerson } from '@pkgs/ui-root-client-ts/space-types';
 import { fn } from 'storybook/test';
+import { framePresent } from './frame-chrome.example';
 import {
   FRAME_NO_NEXT,
   FRAME_NO_PLAY,
@@ -59,6 +61,15 @@ export const STORY_PEOPLE: FramePeople = {
     <SpacePersonAvatar person={SPACE_PEOPLE.get(person) ?? null} size={size} />
   ),
 };
+
+/**
+ * Who the stories' space counts as present: avery, its host and the
+ * viewer (Red circle), and jordan_plays.
+ */
+export const STORY_PRESENT: readonly SpaceShellPerson[] = [
+  framePresent(PEOPLE.avery, 'avery', { host: true, you: true }),
+  framePresent(PEOPLE.jordan, 'jordan_plays'),
+];
 
 const LOOKS = {
   white: { sideLabel: 'Red circle', swatch: { color: 'disc-one', mark: '●' } },
@@ -256,10 +267,15 @@ const resolved = () => fn(() => Promise.resolve());
 export function frameArgs(): GameFrameScreenViewProps {
   return {
     title: 'Connect Four',
+    identity: {
+      key: 'frame-story',
+      name: 'Connect Four',
+      motif: 'discs',
+      tagline: 'Four in a row wins',
+    },
     goal: 'Line up four discs in a row before your opponent does.',
     phase: 'none',
     viewerSide: 'white',
-    watchers: 0,
     connection: 'online',
     error: '',
     stopped: false,

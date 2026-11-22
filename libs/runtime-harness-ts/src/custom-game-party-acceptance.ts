@@ -1,4 +1,5 @@
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
+import { withMoveList } from './custom-game-move-list';
 import {
   type PartyTurnProgress,
   partyMoveContext,
@@ -50,9 +51,11 @@ export async function acceptPartyProgress(
   attempted: PartyTurnProgress['attempted']
 ): Promise<void> {
   const accepted = async (ui: Driver): Promise<void> => {
-    await ui
-      .get(`custom-game-review-move-${ply}`)
-      .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
+    await withMoveList(ui, () =>
+      ui
+        .get(`custom-game-review-move-${ply}`)
+        .expect.visible({ timeoutMs: JOURNEY_WAIT_MS })
+    );
     const view = await readPublicCustomGame(ui);
     check(view.ply >= ply, 'The accepted party move rolled back');
     const error = ui.get('custom-game-error');

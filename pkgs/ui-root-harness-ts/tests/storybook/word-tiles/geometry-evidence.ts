@@ -14,7 +14,7 @@ export async function recordGeometry(
       height: rect.height,
     });
     const selectors = [
-      '[data-testid="custom-game-seat-near"]',
+      '[data-testid="custom-game-white-person"]',
       '[data-testid="custom-game-board-rack"]',
       '[data-testid="custom-game-board-submit"]',
       '[data-testid="custom-game-board-more"]',

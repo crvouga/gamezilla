@@ -10,17 +10,14 @@ import { useRefusalText } from './custom-game-error';
 import { frameViewerHeld, usePersonName } from './custom-game-status';
 import { FRAME_NO_PLAY } from './game-frame-empty';
 import { frameSwatch } from './game-frame-look';
-import {
-  BOARD_TEST_ID,
-  type FrameBoard,
-  frameActionItems,
-} from './game-frame-play';
+import { BOARD_TEST_ID, type FrameBoard } from './game-frame-play';
 import type {
   FrameMover,
   FrameNext,
   FramePlay,
   FrameRecord,
 } from './game-frame-view-types';
+import { spaceBoardActions } from './space-game-of';
 import type { CustomGameReview } from './use-custom-game-review';
 import type { CustomGameScreenModel } from './use-custom-game-screen';
 
@@ -86,17 +83,11 @@ export function useFramePlay(
   const presentation = useGamePresentation();
   return createMemo((): FramePlay => {
     const game = model.current();
-    const boardActions = frameActionItems(
+    const boardActions = spaceBoardActions(
       board.session()?.actions() ?? [],
       BOARD_TEST_ID
     );
-    const leadingBoardActions = frameActionItems(
-      board.session()?.actions() ?? [],
-      BOARD_TEST_ID,
-      'before-board'
-    );
-    if (game === null)
-      return { ...FRAME_NO_PLAY, boardActions, leadingBoardActions };
+    if (game === null) return { ...FRAME_NO_PLAY, boardActions };
     const person = away();
     const twoSided = game.sides.length === 2;
     const unfinished =
@@ -119,7 +110,6 @@ export function useFramePlay(
         model.canCancel() &&
         customGameCancelRefusal(game, model.myId()) === '',
       boardActions,
-      leadingBoardActions,
     };
   });
 }

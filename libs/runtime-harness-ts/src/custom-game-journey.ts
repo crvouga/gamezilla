@@ -2,6 +2,7 @@ import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { chessBoardSquareTestId } from '@pkgs/chess-board-core-shared-ts/probe';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 import { Chess } from 'chess.js';
+import { withMoveList } from './custom-game-move-list';
 import { OWN_BLACK_SEAT, takeBlack } from './custom-game-readiness-wait';
 import { check, expectVisible, JOURNEY_WAIT_MS, tap } from './journey-gestures';
 
@@ -68,23 +69,31 @@ export async function playCustomGameE4(ui: Driver): Promise<void> {
     await board.tapAt({ xRatio: 4.5 / 8, yRatio: 6.5 / 8 });
     await board.tapAt({ xRatio: 4.5 / 8, yRatio: 4.5 / 8 });
     try {
-      await ui
-        .get('custom-game-review-move-1')
-        .expect.text('e4', { exact: true, timeoutMs: MOVE_SETTLE_MS });
+      await withMoveList(ui, () =>
+        ui
+          .get('custom-game-review-move-1')
+          .expect.text('e4', { exact: true, timeoutMs: MOVE_SETTLE_MS })
+      );
       return;
     } catch {
       // The board was not taking moves yet; play it again.
     }
   }
-  await ui
-    .get('custom-game-review-move-1')
-    .expect.text('e4', { exact: true, timeoutMs: MOVE_SETTLE_MS });
+  await withMoveList(ui, () =>
+    ui
+      .get('custom-game-review-move-1')
+      .expect.text('e4', { exact: true, timeoutMs: MOVE_SETTLE_MS })
+  );
 }
 
 export async function expectCustomGameBotReply(ui: Driver): Promise<void> {
-  await expectVisible(ui, 'custom-game-review-move-2');
-  await ui.get('custom-game-review-move-1').expect.text('e4', { exact: true });
-  const reply = await ui.get('custom-game-review-move-2').text();
+  const reply = await withMoveList(ui, async () => {
+    await expectVisible(ui, 'custom-game-review-move-2');
+    await ui
+      .get('custom-game-review-move-1')
+      .expect.text('e4', { exact: true });
+    return ui.get('custom-game-review-move-2').text();
+  });
   check(reply !== null && reply.trim() !== '', 'bot reply is missing');
   const chess = new Chess();
   chess.move('e4');
@@ -97,8 +106,7 @@ export async function expectCustomGameBotReply(ui: Driver): Promise<void> {
 }
 
 export async function resignCustomGame(ui: Driver): Promise<void> {
-  // Resigning is a row of the game menu, confirmed before it is sent.
-  await tap(ui, 'custom-game-commands');
+  // Resigning is on the action bar, confirmed before it is sent.
   await tap(ui, 'custom-game-resign');
   await tap(ui, 'custom-game-resign-confirm');
   await tap(ui, 'custom-game-resign-done');
@@ -110,9 +118,13 @@ export async function expectCustomGameResigned(ui: Driver): Promise<void> {
     timeoutMs: JOURNEY_WAIT_MS,
   });
   await expectVisible(ui, 'custom-game-rematch');
-  await ui.get('custom-game-commands').expect.hidden();
-  await ui.get('custom-game-review-move-1').expect.text('e4', { exact: true });
-  await expectVisible(ui, 'custom-game-review-move-2');
+  await ui.get('custom-game-resign').expect.hidden();
+  await withMoveList(ui, async () => {
+    await ui
+      .get('custom-game-review-move-1')
+      .expect.text('e4', { exact: true });
+    await expectVisible(ui, 'custom-game-review-move-2');
+  });
 }
 
 const SCREEN_POLLS = 10;
@@ -271,12 +283,13 @@ async function readCornerPosition(
 }
 
 export function expectMoveListed(san: string): (ui: Driver) => Promise<void> {
-  return async (ui) => {
-    await ui.get('custom-game-review-move-1').expect.text(san, {
-      exact: true,
-      timeoutMs: JOURNEY_WAIT_MS,
-    });
-  };
+  return (ui) =>
+    withMoveList(ui, () =>
+      ui.get('custom-game-review-move-1').expect.text(san, {
+        exact: true,
+        timeoutMs: JOURNEY_WAIT_MS,
+      })
+    );
 }
 
 export function expectOutcome(

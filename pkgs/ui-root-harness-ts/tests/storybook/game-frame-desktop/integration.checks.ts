@@ -29,12 +29,12 @@ test('storybook integration: game frame keeps the own seat, its actions and a wa
 }) => {
   await page.setViewportSize(DESKTOP);
   await open(page, 'screens-games-custom-play--stand-in');
-  await inFirstView(page, 'custom-game-seat-near');
+  await inFirstView(page, 'custom-game-white-person');
   await inFirstView(page, 'custom-game-reclaim');
   await open(page, 'screens-games-custom-play--watching');
   await inFirstView(page, 'custom-game-watching');
   await open(page, 'screens-games-custom-play--your-turn');
-  await inFirstView(page, 'custom-game-seat-near');
+  await inFirstView(page, 'custom-game-white-person');
   expect(
     await page.evaluate(() => document.scrollingElement?.scrollTop ?? 0)
   ).toBe(0);

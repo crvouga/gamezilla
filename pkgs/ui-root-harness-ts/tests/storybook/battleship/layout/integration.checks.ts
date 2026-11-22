@@ -60,7 +60,7 @@ test('storybook integration: battleship shot history keeps the own seat on a pho
     await expect(page.getByTestId('custom-game-record')).toBeVisible();
     for (const id of [
       'custom-game-board-target-key',
-      'custom-game-seat-near',
+      'custom-game-white-person',
     ]) {
       const bounds = await page.getByTestId(id).boundingBox();
       if (!bounds) throw new Error(`${id} is not visible`);
@@ -114,7 +114,7 @@ test('storybook integration: battleship own seat stays on a phone after the riva
     'light',
     info
   );
-  for (const id of ['custom-game-board-fire', 'custom-game-seat-near']) {
+  for (const id of ['custom-game-board-fire', 'custom-game-white-person']) {
     const box = await page.getByTestId(id).boundingBox();
     if (!box) throw new Error(`${id} is not shown`);
     expect(box.y + box.height).toBeLessThanOrEqual(844);
@@ -138,7 +138,7 @@ test('storybook integration: battleship finished game keeps the switch and own s
     );
     await settleMotion(page);
     const layout = await captureBattleLayout(page, info);
-    for (const id of ['custom-game-board-view', 'custom-game-seat-near']) {
+    for (const id of ['custom-game-board-view', 'custom-game-white-person']) {
       const box = await page.getByTestId(id).boundingBox();
       if (!box) throw new Error(`${story}: ${id} is not shown`);
       if (box.y + box.height > 844)

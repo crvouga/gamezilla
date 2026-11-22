@@ -51,6 +51,8 @@ export type SpacePersonData = {
   value?: string | undefined;
   /** The data in words: `playing Black, 10 minutes on the clock`. */
   description?: string | undefined;
+  /** The value's `data-testid`, for harness bindings (a seat's clock). */
+  testId?: string | undefined;
 };
 
 /** One cell of the people row: a person, a bot or an open seat. */

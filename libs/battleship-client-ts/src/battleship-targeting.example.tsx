@@ -36,7 +36,7 @@ async function assertWholeBoardAim(root: HTMLElement, aimed: boolean) {
   await assertTargetViewport(root, [
     fire,
     grid,
-    canvas.getByTestId('custom-game-seat-near'),
+    canvas.getByTestId('custom-game-white-person'),
   ]);
   await expect(grid.closest('[inert]')).toBeNull();
   await expect(grid.querySelectorAll('[data-cell]')).toHaveLength(100);
@@ -71,7 +71,7 @@ export async function assertTargetWorkbench(root: HTMLElement, aimed = false) {
     aim,
     region,
     canvas.getByTestId('custom-game-board-target-tools'),
-    canvas.getByTestId('custom-game-seat-near'),
+    canvas.getByTestId('custom-game-white-person'),
   ]);
   // regression: battleship-round8-spatial-target-context
   await expect(grid.getBoundingClientRect().width).toBe(

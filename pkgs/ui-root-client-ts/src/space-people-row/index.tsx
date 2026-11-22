@@ -78,7 +78,9 @@ function DataLine(props: {
           </span>
         )}
       </Show>
-      <Show when={props.data?.value}>{(value) => <span>{value()}</span>}</Show>
+      <Show when={props.data?.value}>
+        {(value) => <span data-testid={props.data?.testId}>{value()}</span>}
+      </Show>
     </span>
   );
 }
