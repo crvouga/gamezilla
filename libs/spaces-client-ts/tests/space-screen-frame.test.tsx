@@ -103,3 +103,15 @@ test('a screen that draws its own shell is rendered bare, once', () => {
   expect(container.querySelector('[data-space-row="stage"]')).toBeNull();
   expect(byTestId(container, 'own-template')).not.toBeNull();
 });
+
+test('a screen not on a template keeps all the room under the space’s row', () => {
+  const { container } = renderFrame('ready', () => (
+    <StackVertical testId="board">{null}</StackVertical>
+  ));
+  const people = container.querySelector('[data-space-row="people"]');
+  expect(people?.childNodes.length ?? 0).toBe(0);
+  expect(container.querySelector('[data-person]')).toBeNull();
+  const stage = container.querySelector('[data-space-row="stage"]');
+  expect(stage?.getAttribute('data-scroll')).toBe('fixed');
+  expect(stage?.contains(byTestId(container, 'board'))).toBe(true);
+});

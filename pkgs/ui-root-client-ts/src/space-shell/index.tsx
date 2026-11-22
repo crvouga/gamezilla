@@ -79,8 +79,12 @@ export type SpaceScreenChrome = SpaceShellChrome & {
 export type SpaceShellProps = SpaceShellChrome & {
   /** Who is looking: a guest gets Leave, the host End. */
   role: SpaceRole;
-  /** Row 2: the people row (`SpacePeople`). */
-  people: JSX.Element;
+  /**
+   * Row 2: the people row (`SpacePeople`). Every template draws it. Left out
+   * only around a screen not yet on a template, which shows its own seats
+   * and needs the room: then rows 1 and 3 meet.
+   */
+  people?: JSX.Element | undefined;
   /** Row 3: what the space is doing now. */
   children: JSX.Element;
   /**
