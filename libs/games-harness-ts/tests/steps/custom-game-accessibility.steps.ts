@@ -11,7 +11,7 @@ import {
   readCustomGameHeard,
   startCustomGameWithKeyboard,
 } from '@libs/game-session-harness-ts/custom-game-accessibility';
-import { readCustomGameName } from '@libs/game-session-harness-ts/custom-game-names';
+import { customGameSeatName } from '@libs/game-session-harness-ts/custom-game-reads';
 import type { CustomGameSide } from '@libs/game-session-shared-ts/custom-game-state';
 import { customGameStartable } from '@libs/game-session-shared-ts/custom-game-state';
 import { Then, When } from '@libs/harness-ts/define';
@@ -55,7 +55,7 @@ Then(
     expect(game.white).toEqual(await seatOf(w, first));
     expect(game.black.kind).toBe('bot');
     expect(description).toContain(
-      `${sideName(w, 'white')}: ${await w.s.read(readCustomGameName, actor, 'white')}.`
+      `${sideName(w, 'white')}: ${await w.s.read(customGameSeatName, actor, 'white')}.`
     );
     expect(description.toLowerCase()).toContain(
       `${sideName(w, 'black')}: bot`.toLowerCase()

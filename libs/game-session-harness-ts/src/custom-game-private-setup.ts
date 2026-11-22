@@ -9,7 +9,7 @@
 import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront } from '@libs/harness-ts/observations';
-import { openCustomGamePlace } from './custom-game-places';
+import { showCustomGameHome } from './custom-game-places';
 import { readCustomGameProbe } from './custom-game-probe';
 import { customGameReference, sendCustomGameChoice } from './custom-game-ui';
 import type { TurnHarnessGame } from './harness-game';
@@ -19,20 +19,13 @@ import { keepOwnPrivateSetup } from './own-private-setups';
 /** The setup board of the Custom Game screen. */
 export const CUSTOM_GAME_SETUP_BOARD = 'custom-game-setup';
 
-/** The lobby's row that opens the person's private setup. */
-export const CUSTOM_GAME_SETUP_ROW = 'custom-game-setup-open';
-
-/** `actor` opens their private setup's own place, where its board is. */
+/** `actor` shows the setup, where their private setup's board is. */
 export async function openCustomGameSetupBoard(
   s: ProductHarness,
   actor: string
 ): Promise<boolean> {
-  return openCustomGamePlace(
-    s,
-    actor,
-    CUSTOM_GAME_SETUP_ROW,
-    CUSTOM_GAME_SETUP_BOARD
-  );
+  await showCustomGameHome(s, actor);
+  return (await actorUi(s, actor)).get(CUSTOM_GAME_SETUP_BOARD).isVisible();
 }
 
 /**
@@ -141,11 +134,9 @@ export async function customGamePrivateSetupShown(
 ): Promise<PrivateSetupShown> {
   const probe = await readCustomGameProbe(s, actor);
   const ui = await actorUi(s, actor);
-  // Their setup board shows on its own place, behind the lobby's row for
-  // it: either says they have a setup to arrange.
-  const board =
-    (await ui.get(CUSTOM_GAME_SETUP_BOARD).isVisible()) ||
-    (await ui.get(CUSTOM_GAME_SETUP_ROW).isVisible());
+  // Their setup board shows on the setup: it says they have a setup to
+  // arrange.
+  const board = await ui.get(CUSTOM_GAME_SETUP_BOARD).isVisible();
   const status = ui.get(`${CUSTOM_GAME_SETUP_BOARD}-status`);
   return {
     arranged: board ? (probe?.privateSetup?.arranged ?? null) : null,

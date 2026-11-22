@@ -5,13 +5,14 @@ import {
   DefineBackButton,
   useGameChoicesName,
 } from '@libs/spaces-client-ts/spaces-nav-context';
+import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import { useTimers } from '@pkgs/clock-client-ts/solid';
-import { GamePreviewBoard } from '@pkgs/turn-game-client-ts/game-preview-board';
 import { NO_STAGE_OVERLAY } from '@pkgs/turn-game-client-ts/stage-overlay';
 import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { useScreenPlace } from '@pkgs/turn-game-client-ts/use-screen-place';
 import { useStageOverlay } from '@pkgs/turn-game-client-ts/use-stage-overlay';
+import type { GameTileMotif } from '@pkgs/ui-root-client-ts/game-tile';
 import { createEffect, type JSX } from 'solid-js';
 import { useRefusalText } from './custom-game-error';
 import { CUSTOM_GAME_PLACES } from './custom-game-places';
@@ -30,7 +31,11 @@ import {
   GameFrameScreenView,
   type GameFrameScreenViewProps,
 } from './game-frame-screen-view';
-import type { FramePeople, FramePhase } from './game-frame-view-types';
+import type {
+  FrameGame,
+  FramePeople,
+  FramePhase,
+} from './game-frame-view-types';
 import { useFrameWatcherCount } from './game-frame-watchers';
 import { useCustomGameReview } from './use-custom-game-review';
 import type { CustomGameScreenModel } from './use-custom-game-screen';
@@ -90,13 +95,12 @@ const DENIED_FRAME = {
   onClose: () => undefined,
   overlay: NO_STAGE_OVERLAY,
   onOverlay: () => undefined,
-} satisfies Omit<GameFrameScreenViewProps, 'title' | 'onBack'>;
+} satisfies Omit<GameFrameScreenViewProps, 'title' | 'game' | 'onBack'>;
 
 type FrameProps = {
   model: CustomGameScreenModel;
   title: JSX.Element;
-  /** The game's board at its start: the lobby's picture of the game. */
-  boardPreview: JSX.Element;
+  game: FrameGame;
 };
 
 /**
@@ -128,6 +132,20 @@ function useFramePresentationFacts(model: FrameProps['model']) {
   return {
     /** How the game is won, in one sentence. */
     goal: (): string | undefined => shown()?.goal?.(),
+    /** How many play, and whether bots may fill a seat. */
+    players: () => {
+      const game = model.current();
+      const players =
+        game === null ? undefined : presentation(game.fen).frame.players;
+      const counts =
+        players === undefined
+          ? []
+          : Array.from(
+              { length: players.max - players.min + 1 },
+              (_, index) => players.min + index
+            );
+      return { counts, bots: model.canBot() };
+    },
     /** How the frame holds the board: its fit, alignment and workspace. */
     board: () => ({
       boardFit: shown()?.frame.boardFit,
@@ -174,6 +192,7 @@ function CustomGameFrame(props: FrameProps): JSX.Element {
       />
       <GameFrameScreenView
         title={props.title}
+        game={{ ...props.game, players: shown.players() }}
         goal={shown.goal()}
         phase={place.phase()}
         place={place.place()}
@@ -198,7 +217,6 @@ function CustomGameFrame(props: FrameProps): JSX.Element {
         next={next()}
         record={record()}
         board={<FrameBoardMount board={board} />}
-        boardPreview={props.boardPreview}
         setupBoard={<CustomGameSetupBoard model={model} />}
         boardState={boardState()}
         {...shown.board()}
@@ -223,6 +241,8 @@ export function CustomGameScreen(props: {
   gameId: string;
   onBack: () => void;
   title?: string;
+  /** The game's tile, as the game's choice shows it. */
+  motif: GameTileMotif;
   onHistory?: () => void;
 }): JSX.Element {
   const model = useCustomGameScreen(
@@ -232,6 +252,12 @@ export function CustomGameScreen(props: {
   );
   const title = (): JSX.Element => props.title ?? <Trans>Custom game</Trans>;
   const choices = useGameChoicesName();
+  const game = (): FrameGame => ({
+    key: props.gameId,
+    name: props.title ?? t`Custom game`,
+    motif: props.motif,
+    players: { counts: [model.playerCount()], bots: model.canBot() },
+  });
   return (
     <>
       <DefineBackButton onPress={model.back} label={choices()} />
@@ -242,22 +268,13 @@ export function CustomGameScreen(props: {
           <GameFrameScreenView
             {...DENIED_FRAME}
             title={title()}
+            game={game()}
             denial={denial}
             onBack={model.back}
           />
         )}
       >
-        <CustomGameFrame
-          model={model}
-          title={title()}
-          boardPreview={
-            <GamePreviewBoard
-              gameId={props.gameId}
-              viewer={model.mySide()}
-              testId="custom-game-board-preview"
-            />
-          }
-        />
+        <CustomGameFrame model={model} title={title()} game={game()} />
       </DecisionGate>
     </>
   );

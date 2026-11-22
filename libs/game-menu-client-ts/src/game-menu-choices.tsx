@@ -78,6 +78,7 @@ export function sharedScreens(
               <CustomGameScreen
                 gameId={id}
                 title={game.title}
+                motif={game.tile}
                 onBack={back}
                 {...history}
               />

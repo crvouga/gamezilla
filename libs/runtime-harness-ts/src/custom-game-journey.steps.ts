@@ -4,7 +4,7 @@ import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 import {
   acceptBlack,
   becomeReady,
-  expectBlackNamed,
+  expectBlackSeated,
   expectBoardFacing,
   expectCustomGameBotReply,
   expectCustomGameReady,
@@ -12,11 +12,11 @@ import {
   expectInvitationToBlack,
   expectMoveListed,
   expectOutcome,
+  expectOwnSeat,
   expectStartable,
   inviteToBlack,
   playCustomGameE4,
   prepareCustomGame,
-  readOwnBlackName,
   readWhiteName,
   resignCustomGame,
   startCustomGame,
@@ -97,9 +97,10 @@ When(
 );
 Then(
   "{actor} sees {actor}'s invitation to play Black",
-  async (w, invited: Actor, creator: Actor) => {
+  async (w, invited: Actor, _creator: Actor) => {
+    // White's seat names the creator on the invited person's own device.
     const name = await readWith(
-      journeyDevice(w.journey, creator),
+      journeyDevice(w.journey, invited),
       'readWhiteName',
       readWhiteName
     );
@@ -113,14 +114,12 @@ When('{actor} accepts Black in the custom game', async (w, actor: Actor) => {
   await journeyDevice(w.journey, actor)('acceptBlack', acceptBlack);
 });
 Then('Black is {actor} in the custom game', async (w, actor: Actor) => {
-  const name = await readWith(
-    journeyDevice(w.journey, actor),
-    'readOwnBlackName',
-    readOwnBlackName
-  );
+  // Their own device gives them a seat's readiness; the other's names
+  // Black as a person who answered.
+  await journeyDevice(w.journey, actor)('expectOwnSeat', expectOwnSeat);
   await journeyDevice(w.journey, actor === 'alice' ? 'bob' : 'alice')(
-    'expectBlackNamed',
-    expectBlackNamed(name)
+    'expectBlackSeated',
+    expectBlackSeated
   );
 });
 When(

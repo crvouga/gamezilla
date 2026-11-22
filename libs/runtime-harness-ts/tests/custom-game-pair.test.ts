@@ -27,7 +27,7 @@ function pair() {
     snapshotHtml: unused,
     get: (id): DriverNode => ({
       get: unused,
-      attribute: unused,
+      attribute: async () => 'TotalDonkey649, Guest, Not ready, playing Black',
       tapAt: unused,
       drag: unused,
       layout: unused,
@@ -52,14 +52,15 @@ function pair() {
         text: async (text) => {
           if (
             actor === 'alice' &&
-            id === 'custom-game-black-person' &&
-            text === 'TotalDonkey649'
+            id === 'custom-game-startable' &&
+            text === 'ready' &&
+            !accepted
           ) {
             waiting();
             await frame;
             accepted = true;
           }
-          if (text === "I'm not ready" && !ready.has(actor))
+          if (text === 'Not ready' && !ready.has(actor))
             throw new Error('not ready');
         },
       },

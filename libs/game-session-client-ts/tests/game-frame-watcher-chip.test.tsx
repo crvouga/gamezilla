@@ -58,6 +58,12 @@ const resolved = async (): Promise<void> => undefined;
 function props(): GameFrameScreenViewProps {
   return {
     title: 'Light Cycles Trio',
+    game: {
+      key: 'light-cycles-trio',
+      name: 'Light Cycles Trio',
+      motif: 'trails',
+      players: { counts: [3], bots: true },
+    },
     phase: 'active',
     viewerSide: 'white',
     watchers: 0,

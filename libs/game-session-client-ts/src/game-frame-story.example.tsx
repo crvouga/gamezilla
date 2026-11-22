@@ -256,6 +256,12 @@ const resolved = () => fn(() => Promise.resolve());
 export function frameArgs(): GameFrameScreenViewProps {
   return {
     title: 'Connect Four',
+    game: {
+      key: 'story-game',
+      name: 'Connect Four',
+      motif: 'discs',
+      players: { counts: [2], bots: true },
+    },
     goal: 'Line up four discs in a row before your opponent does.',
     phase: 'none',
     viewerSide: 'white',

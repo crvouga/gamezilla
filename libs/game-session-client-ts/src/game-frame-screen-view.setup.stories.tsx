@@ -1,12 +1,13 @@
+import { CellGridBoard } from '@pkgs/ui-root-client-ts/cell-grid-board';
 import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
-import { FrameStory } from './game-frame-board.example';
 import { FRAME_NO_PLAY } from './game-frame-empty';
 import { GameFrameScreenView } from './game-frame-screen-view';
 import {
   FRAME_CONFIGURING as CONFIGURING,
   FRAME_GUEST,
   FRAME_WITH_OPTIONS,
+  FrameSetupStory,
   HOST_CHOICES,
   HOST_CLOCK_ONLY,
   HOST_SEAT,
@@ -26,28 +27,58 @@ import {
   status,
 } from './game-frame-story.example';
 
+/** A stand-in for a game's own setup board: a grid with pieces placed. */
+function StorySetupBoard() {
+  return (
+    <CellGridBoard
+      label="Your setup"
+      testId="story-setup-board"
+      columnLabels={'ABCDEF'.split('')}
+      rowLabels={['1', '2', '3', '4']}
+      cells={Array.from({ length: 24 }, (_, cell) => ({
+        id: String(cell),
+        label: cell < 3 ? `Piece ${cell + 1}` : `Empty ${cell + 1}`,
+        glyph: cell < 3 ? '■' : '',
+        tone: cell < 3 ? ('occupied' as const) : ('open' as const),
+        enabled: false,
+      }))}
+    />
+  );
+}
+
 const meta = {
-  id: 'screens-games-custom-lobby',
-  title: 'Screens/Games/Custom game/Lobby',
+  id: 'screens-games-custom-setup',
+  title: 'Screens/Games/Custom game/Setup',
   component: GameFrameScreenView,
   tags: ['autodocs'],
   parameters: {
-    appRouter: true,
+    layout: 'fullscreen',
     controls: { exclude: FRAME_CONTROLS_EXCLUDE },
   },
   args: { ...frameArgs(), ...CONFIGURING },
-  render: (args) => <FrameStory {...args} />,
+  render: (args) => <FrameSetupStory {...args} />,
 } satisfies Meta<typeof GameFrameScreenView>;
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** The host set up a bot opponent: every seat is filled and Start is the one filled command. */
+/** Before any game: the host plays the bots at once, or sets one up with people. */
+export const Start: Story = {
+  args: { ...frameArgs(), place: { screen: 'start' } },
+};
+
+/** Before any game, a guest waits for the host to create one. */
+export const StartGuest: Story = {
+  args: { ...frameArgs(), canCreate: false, place: { screen: 'start' } },
+  render: (args) => <FrameSetupStory {...args} viewer="jordan" />,
+};
+
+/** The host set up a bot opponent and is ready: Start is the one command. */
 export const HostReadyToStart: Story = {};
 
-/** The game's options and the clock are agreed behind their own rows, each showing what is chosen. */
-export const HostWithOptions: Story = { args: FRAME_WITH_OPTIONS };
-
-/** An open seat: Start is held back and the start line says why; getting ready comes first. */
+/**
+ * The host is not ready and a seat is open: getting ready comes first, and
+ * the note says what Start waits for.
+ */
 export const WaitingForPlayers: Story = {
   args: {
     status: status({
@@ -73,7 +104,10 @@ export const WaitingForPlayers: Story = {
   },
 };
 
-/** An invitation is out: its seat says who was invited, and Start waits for the answer. */
+/** The game's options, the player count and the clock are the settings rows. */
+export const HostWithOptions: Story = { args: FRAME_WITH_OPTIONS };
+
+/** An invitation is out: the seat says who was invited, and Start waits for the answer. */
 export const InvitationPending: Story = {
   args: {
     setup: setup([HOST_SEAT, INVITED_SEAT], {
@@ -87,7 +121,7 @@ export const InvitationPending: Story = {
   },
 };
 
-/** The invited person answers where they land: accept to take the seat, or decline. */
+/** The invited person is told where they land, and accepts or declines under it. */
 export const InvitedToPlay: Story = {
   args: {
     viewerSide: null,
@@ -113,7 +147,6 @@ export const InvitedToPlay: Story = {
         ),
       ],
       {
-        viewerNotice: "You're watching this game.",
         start: {
           reason: { kind: 'invitations', count: 1 },
           hostStarts: false,
@@ -123,38 +156,16 @@ export const InvitedToPlay: Story = {
       }
     ),
   },
+  render: (args) => <FrameSetupStory {...args} viewer="jordan" />,
 };
 
-/** A seated guest: their own seat is marked, getting ready is their one command, and the host starts. */
-export const GuestSeated: Story = { args: FRAME_GUEST };
-
-/** A seated guest who is ready waits for the host, and may take readiness back. */
-export const GuestReady: Story = {
-  args: {
-    ...FRAME_GUEST,
-    setup: setup(
-      [
-        setupSeat(AVERY, { host: true, ready: true }),
-        setupSeat(JORDAN, {
-          visiting: true,
-          own: true,
-          ready: true,
-          canLeave: true,
-        }),
-      ],
-      {
-        start: {
-          reason: null,
-          hostStarts: true,
-          readiness: { ready: true, blocked: false },
-          canStart: false,
-        },
-      }
-    ),
-  },
+/** A seated guest: getting ready is their one command, and the host starts. */
+export const GuestSeated: Story = {
+  args: FRAME_GUEST,
+  render: (args) => <FrameSetupStory {...args} viewer="jordan" />,
 };
 
-/** A member with a seat open to them: Take a seat is the one filled command, or they stay to watch. */
+/** A member with a seat open to them takes it, or stays to watch. */
 export const MemberMayTakeSeat: Story = {
   args: {
     viewerSide: null,
@@ -176,36 +187,13 @@ export const MemberMayTakeSeat: Story = {
       }
     ),
   },
+  render: (args) => <FrameSetupStory {...args} viewer="morgan" />,
 };
 
-/** Every seat is taken: the person is told they will watch, and no row opens. */
-export const AllSeatsTaken: Story = {
-  args: {
-    viewerSide: null,
-    play: FRAME_NO_PLAY,
-    setup: setup(
-      [
-        setupSeat(AVERY, { host: true, ready: true }),
-        setupSeat(JORDAN, { ready: true }),
-      ],
-      {
-        viewerNotice: "All seats are taken. You'll watch.",
-        start: {
-          reason: null,
-          hostStarts: false,
-          readiness: null,
-          canStart: false,
-        },
-      }
-    ),
-  },
-};
-
-/** A timed game while set up: each seat shows its full clock. */
+/** A timed game while set up: each seat's data line shows its clock. */
 export const TimedSetup: Story = {
   args: {
     status: status({
-      lineup: 'Red circle: avery. Yellow diamond: jordan_plays.',
       description: 'Ready to start.',
       emphasis: 'neutral',
       tone: 'success',
@@ -242,9 +230,10 @@ export const TimedSetup: Story = {
   },
 };
 
-/** A game with private setups: the row says theirs is incomplete, and getting ready is held back. */
-export const PrivateSetupIncomplete: Story = {
+/** A game with private setups: the viewer arranges theirs on the stage, then gets ready. */
+export const PrivateSetup: Story = {
   args: {
+    setupBoard: <StorySetupBoard />,
     setup: setup(CONFIGURING.setup?.seats ?? [], {
       privateSetup: { complete: false, locked: false },
       start: {
@@ -257,7 +246,7 @@ export const PrivateSetupIncomplete: Story = {
   },
 };
 
-/** A guest on this device and a closed seat, the other ways to fill a place. */
+/** A player on this device and a closed seat, the other ways to fill a seat. */
 export const LocalAndClosedSeats: Story = {
   args: {
     playerCount: 3,
@@ -285,62 +274,45 @@ export const LocalAndClosedSeats: Story = {
   },
 };
 
-/** Offline while setting up: the notice says changes need the connection. */
-export const ConnectionNeeded: Story = { args: { connection: 'needed' } };
-
-/** A refused choice is said at the top of the lobby, with every row still there to try again. */
+/** A refused choice is said under row 1, with everything still there to try again. */
 export const ChoiceRefused: Story = {
   args: { error: 'That seat was just taken by someone else.' },
 };
 
-/** Long names wrap inside their rows and never push the clock or the chevron away. */
-export const LongContent: Story = {
-  args: {
-    title: 'Connect Four: the extended tournament edition',
-    setup: setup([
-      setupSeat(
-        seat(
-          'white',
-          person('avery'),
-          'avery_the_extraordinarily_patient_strategist'
-        ),
-        { host: true, own: true, ready: true, choices: HOST_CHOICES }
-      ),
-      setupSeat(
-        seat(
-          'black',
-          person('jordan'),
-          'jordan_plays_every_single_evening_online'
-        ),
-        { ready: false, choices: HOST_CHOICES }
-      ),
-    ]),
-  },
-};
-
-/** A seat's row opens that seat's own place, and Back returns to the lobby. */
-export const OpenSeat: Story = {
-  play: async ({ args, canvasElement }) => {
-    const canvas = within(canvasElement);
-    await userEvent.click(
-      await canvas.findByTestId('custom-game-black-choices')
-    );
-    await expect(args.onOpen).toHaveBeenCalledWith({
-      screen: 'seat',
-      side: 'black',
-    });
+/** Pressing the bot's seat opens its actions: difficulty, a person, or no seat. */
+export const OpenBotSeat: Story = {
+  play: async ({ canvasElement }) => {
+    const page = within(canvasElement.ownerDocument.body);
+    await userEvent.click(await page.findByTestId('custom-game-black-choices'));
     await expect(
-      await canvas.findByTestId('custom-black-difficulty-hard')
+      await page.findByTestId('custom-game-black-difficulty')
     ).toBeVisible();
   },
 };
 
-/** Cancelling asks first, over the lobby, with nothing chosen yet. */
+/** Cancelling asks first, over the setup, with nothing chosen yet. */
 export const ConfirmCancel: Story = {
   play: async ({ args, canvasElement }) => {
-    const canvas = within(canvasElement.ownerDocument.body);
-    await userEvent.click(await canvas.findByTestId('custom-game-cancel'));
-    await canvas.findByText(/^The game ends for everyone/);
+    const page = within(canvasElement.ownerDocument.body);
+    await userEvent.click(await page.findByTestId('custom-game-cancel'));
+    await page.findByText(/^The game ends for everyone/);
     await expect(args.onChoose).not.toHaveBeenCalled();
+  },
+};
+
+/** A seat's sheet for the host: their own seat, readiness and leaving it. */
+export const HostOwnSeat: Story = {
+  args: {
+    setup: setup(
+      [HOST_SEAT, setupSeat(JORDAN, { ready: false, choices: HOST_CHOICES })],
+      {
+        start: {
+          reason: { kind: 'unready', count: 1 },
+          hostStarts: false,
+          readiness: { ready: true, blocked: false },
+          canStart: true,
+        },
+      }
+    ),
   },
 };

@@ -9,7 +9,6 @@ import {
   becomeBattleshipReady,
   placeBattleshipShip,
   rotateBattleshipShip,
-  showFleetSetup,
   startBattleship,
 } from '@libs/battleship-harness-ts/battleship-actions';
 import {
@@ -170,8 +169,7 @@ Then('{actor} is told ships cannot share a cell', async (w, actor: string) => {
 Then(
   '{actor} is told her fleet cannot change while she is ready',
   async (w, actor: string) => {
-    // The fleet's own place says it; a person told so is looking at it.
-    await w.s.apply(showFleetSetup, actor);
+    // The fleet's board on the setup says it.
     expect(await w.s.read(battleshipFleetLockedShown, actor)).toBe(true);
   }
 );

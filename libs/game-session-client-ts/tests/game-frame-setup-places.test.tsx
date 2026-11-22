@@ -1,5 +1,4 @@
 import { afterEach, describe, expect, test } from 'bun:test';
-import type { CustomGamePlace } from '@libs/game-session-client-ts/custom-game-places';
 import { FRAME_NO_PLAY } from '@libs/game-session-client-ts/game-frame-empty';
 import type { FramePhase } from '@libs/game-session-client-ts/game-frame-view-types';
 import { cleanup, fireEvent, screen } from '@solidjs/testing-library';
@@ -11,6 +10,7 @@ import {
   mountFrame,
   setupProps,
   setupSeat,
+  spaceChrome,
 } from './frame-fixture';
 
 afterEach(cleanup);
@@ -26,13 +26,36 @@ function filled(): HTMLElement[] {
 
 const shown = (id: string): boolean => screen.queryByTestId(id) !== null;
 
+/** Every choice sent, in order. */
+function recorder() {
+  const chosen: unknown[] = [];
+  return {
+    chosen,
+    onChoose: async (input: unknown): Promise<void> => {
+      chosen.push(input);
+    },
+  };
+}
+
+/** Opens the person sheet of a people-row cell. */
+function press(testId: string): void {
+  fireEvent.click(screen.getByTestId(testId));
+}
+
 describe('before a game', () => {
-  test('the start place offers the two ways to begin as rows, and nothing else', () => {
+  test('the host plays the bots at once or sets a game up with people, in the setup template', () => {
     mountFrame(() =>
       frameProps({ phase: 'none', place: { screen: 'start' }, status: null })
     );
-    expect(shown('custom-game-play-bot')).toBe(true);
+    expect(
+      document.querySelector('[data-component="SpaceSetupTemplate"]')
+    ).not.toBeNull();
+    expect(filled().map((button) => button.dataset['testid'])).toEqual([
+      'custom-game-play-bot',
+    ]);
     expect(shown('custom-game-create')).toBe(true);
+    // Nothing to start yet, and no board.
+    expect(shown('custom-game-start')).toBe(false);
     expect(
       document.querySelector('[data-component="GameBoardStage"]')
     ).toBeNull();
@@ -43,12 +66,15 @@ describe('before a game', () => {
   });
 
   test('someone who may not create a game is told who will', () => {
-    mountFrame(() =>
-      frameProps({
-        phase: 'none',
-        place: { screen: 'start' },
-        canCreate: false,
-      })
+    mountFrame(
+      () =>
+        frameProps({
+          phase: 'none',
+          place: { screen: 'start' },
+          canCreate: false,
+        }),
+      390,
+      spaceChrome('jordan-id')
     );
     expect(shown('custom-game-create')).toBe(false);
     expect(
@@ -57,7 +83,7 @@ describe('before a game', () => {
   });
 });
 
-describe('the lobby', () => {
+describe('the setup', () => {
   // regression: setup-preview-below-start
   // regression: phone-setup-preview-uninformative
   // regression: setup-preview-tiny
@@ -65,10 +91,10 @@ describe('the lobby', () => {
   // regression: wide-setup-unbalanced
   // regression: setup-desktop-top-strip
   // The setup's board preview and its "How to play" card were rearranged
-  // seven times. The lobby holds no board at all: the people, what is
-  // agreed and starting, in one column, on every size.
+  // seven times. The setup holds no board at all: the people, the
+  // settings and starting, in the space's three rows, on every size.
   test.each([390, 1440] as const)(
-    'at %ipx the lobby holds no board preview and no instructions card',
+    'at %ipx the setup holds no board preview and no instructions card',
     (width) => {
       mountFrame(() => setupProps(), width);
       expect(
@@ -86,89 +112,63 @@ describe('the lobby', () => {
   // regression: setup-player-controls-scattered
   // regression: setup-start-far-from-players
   test.each([390, 1440] as const)(
-    'at %ipx the seats are one list of rows, Start after them in the same column',
+    'at %ipx the seats are cells of the people row, then the watchers, and Start under the stage',
     (width) => {
       mountFrame(() => setupProps(), width);
-      const seats = screen.getByTestId('custom-game-setup-seats');
-      const rows = seats.querySelectorAll('[data-component="MenuRow"]');
-      expect(rows).toHaveLength(2);
-      // One list: no card inside the card, and no control scattered in a row.
-      expect(seats.querySelector('[data-component="GameSection"]')).toBeNull();
-      expect(seats.querySelector('[data-component="Button"]')).toBeNull();
+      const cells = Array.from(
+        document.querySelectorAll<HTMLElement>(
+          '[data-component="SpacePersonCell"]'
+        )
+      );
+      expect(cells.map((cell) => cell.dataset['testid'])).toEqual([
+        'custom-game-white-choices',
+        'custom-game-black-choices',
+        undefined,
+        undefined,
+      ]);
+      // A bot is always ready and never what the game waits for.
+      expect(cells[0]?.dataset['status']).toBe('ready');
+      expect(cells[1]?.dataset['status']).toBeUndefined();
+      expect(cells[2]?.dataset['status']).toBe('watching');
+      // No control scattered in the row: each cell opens its own sheet.
       const start = screen.getByTestId('custom-game-start');
       expect(
-        seats.compareDocumentPosition(start) & Node.DOCUMENT_POSITION_FOLLOWING
+        (cells[1] as HTMLElement).compareDocumentPosition(start) &
+          Node.DOCUMENT_POSITION_FOLLOWING
       ).toBeTruthy();
-      // A bot is always ready and never what the game waits for.
-      expect(rows[1]?.textContent).not.toContain('Ready');
-      expect(rows[0]?.textContent).toContain('Ready');
     }
   );
 
-  test('a seat the viewer may change opens its own place; one they may not only reads', () => {
-    const opened: CustomGamePlace[] = [];
-    mountFrame(() =>
-      setupProps(
-        { screen: 'lobby' },
-        {
-          onOpen: (place) => opened.push(place),
-          setup: hostSetup({
-            seats: [
-              setupSeat('white', { kind: 'person', person: 'a' }, 'avery', {
-                host: true,
-              }),
-              setupSeat('black', { kind: 'open' }, 'Open place', {
-                choices: HOST_CHOICES,
-              }),
-            ],
-          }),
-        }
-      )
-    );
-    expect(shown('custom-game-white-choices')).toBe(false);
-    expect(screen.getByTestId('custom-game-white').tagName).not.toBe('BUTTON');
-    fireEvent.click(screen.getByTestId('custom-game-black-choices'));
-    expect(opened).toEqual([{ screen: 'seat', side: 'black' }]);
-  });
-
-  test('the lobby opens with what is played and keeps its one command in a dock', () => {
+  test('the setup says what is played, that it is unrated, and its clock', () => {
     mountFrame(() =>
       setupProps(
         { screen: 'lobby' },
         { goal: 'Count to ten before the other side does.' }
       )
     );
-    const mode = screen.getByTestId('custom-game-mode');
-    expect(mode.querySelector('h1')?.textContent).toBe('Counting race');
-    expect(mode.textContent).toContain(
+    const content = screen.getByTestId('custom-game-content');
+    expect(content.dataset['place']).toBe('lobby');
+    expect(content.dataset['phase']).toBe('configuring');
+    expect(content.textContent).toContain('Counting race');
+    expect(content.textContent).toContain(
       'Count to ten before the other side does.'
     );
-    expect(mode.textContent).toContain('Untimed');
+    expect(content.textContent).toContain('Untimed');
     expect(screen.getByTestId('custom-game-unrated').textContent).toBe(
       'Unrated'
     );
-    const dock = document.querySelector('[data-component="GameLobbyDock"]');
-    expect(dock?.contains(screen.getByTestId('custom-game-startable'))).toBe(
-      true
-    );
-    expect(dock?.contains(screen.getByTestId('custom-game-start'))).toBe(true);
-    // The dock is outside what scrolls.
-    const scroller = document.querySelector('[data-component="ScrollView"]');
-    expect(scroller?.contains(dock as Element)).toBe(false);
-    expect(scroller?.contains(mode)).toBe(true);
   });
 
-  test('what is agreed sits behind its own row, each saying what is chosen', () => {
-    const opened: CustomGamePlace[] = [];
+  test('the settings rows hold the player count, the options and the clock', () => {
+    const sent = recorder();
     mountFrame(() =>
       setupProps(
         { screen: 'lobby' },
         {
-          onOpen: (place) => opened.push(place),
+          onChoose: sent.onChoose,
           setup: hostSetup({
-            privateSetup: { complete: false, locked: false },
             options: {
-              players: null,
+              players: { count: 2, min: 2, max: 4 },
               groups: [
                 {
                   kind: 'count',
@@ -189,62 +189,17 @@ describe('the lobby', () => {
         }
       )
     );
-    expect(screen.getByTestId('custom-game-rules').textContent).toContain('3');
-    // In plain words, for someone who does not read `5+3`.
-    expect(screen.getByTestId('custom-game-options').textContent).toContain(
-      '5 min + 3 sec'
-    );
-    // The row shows one word; a listener hears the whole sentence.
-    expect(screen.getByTestId('custom-game-setup-status').textContent).toBe(
-      'Your private setup is incomplete.'
-    );
-    // Nothing is changed on the lobby itself.
-    expect(shown('custom-game-minutes')).toBe(false);
-    expect(shown('custom-game-setup-random')).toBe(false);
-    fireEvent.click(screen.getByTestId('custom-game-rules'));
-    fireEvent.click(screen.getByTestId('custom-game-options'));
-    fireEvent.click(screen.getByTestId('custom-game-setup-open'));
-    expect(opened.map((place) => place.screen)).toEqual([
-      'options',
-      'clock',
-      'private-setup',
+    // The count is read, never changed here: the seats set it.
+    expect(shown('custom-game-players-increase')).toBe(false);
+    expect(screen.getByText('Players')).toBeTruthy();
+    fireEvent.click(screen.getByTestId('custom-game-option-rounds-increase'));
+    fireEvent.click(screen.getByTestId('custom-game-untimed'));
+    fireEvent.click(screen.getByTestId('custom-game-clock-10-0'));
+    expect(sent.chosen).toEqual([
+      { operation: 'rules', choice: 'rounds:4' },
+      { operation: 'untimed' },
+      { operation: 'clock', minutes: 10, increment: 0 },
     ]);
-  });
-
-  test('a time edited on the clock is kept on the way back to setup', async () => {
-    const chosen: unknown[] = [];
-    let closed = 0;
-    mountFrame(() =>
-      setupProps(
-        { screen: 'clock' },
-        {
-          onChoose: async (input) => {
-            chosen.push(input);
-          },
-          onClose: () => {
-            closed += 1;
-          },
-          setup: hostSetup({
-            options: {
-              players: null,
-              groups: [],
-              position: 'fixture',
-              editable: true,
-              clock: { minutes: 5, increment: 3 },
-            },
-          }),
-        }
-      )
-    );
-    const minutes = screen
-      .getByTestId('custom-game-minutes')
-      .querySelector('input') as HTMLInputElement;
-    fireEvent.input(minutes, { target: { value: '10' } });
-    fireEvent.click(screen.getByTestId('custom-game-place-back'));
-    await Promise.resolve();
-    await Promise.resolve();
-    expect(chosen).toEqual([{ operation: 'clock', minutes: 10, increment: 3 }]);
-    expect(closed).toBe(1);
   });
 
   test('exactly one command is filled: Start when ready, getting ready before that', () => {
@@ -258,6 +213,9 @@ describe('the lobby', () => {
         { screen: 'lobby' },
         {
           setup: hostSetup({
+            seats: hostSetup().seats.map((seat, index) =>
+              index === 0 ? { ...seat, ready: false } : seat
+            ),
             start: {
               reason: { kind: 'unready', count: 1 },
               hostStarts: false,
@@ -273,20 +231,22 @@ describe('the lobby', () => {
     ]);
     // No start that cannot be pressed sits beside it, and the line
     // speaks to the one person everyone waits for.
-    expect(screen.queryByTestId('custom-game-start')).toBeNull();
-    expect(screen.getByTestId('custom-game-startable').textContent).toBe(
-      'Everyone else is in. Get ready to start.'
-    );
+    expect(shown('custom-game-start')).toBe(false);
+    expect(
+      screen.getByText('Everyone else is in. Get ready to start.')
+    ).toBeTruthy();
   });
 
-  test('an incomplete private setup is the next thing to do, in place of a readiness that cannot be given', () => {
-    const opened: CustomGamePlace[] = [];
+  test('an incomplete private setup holds readiness back, with the setup board on the stage', () => {
     mountFrame(() =>
       setupProps(
         { screen: 'lobby' },
         {
-          onOpen: (place) => opened.push(place),
+          setupBoard: <output data-testid="story-setup-board" />,
           setup: hostSetup({
+            seats: hostSetup().seats.map((seat, index) =>
+              index === 0 ? { ...seat, ready: false } : seat
+            ),
             privateSetup: { complete: false, locked: false },
             start: {
               reason: { kind: 'unready', count: 1 },
@@ -298,55 +258,58 @@ describe('the lobby', () => {
         }
       )
     );
-    expect(filled().map((button) => button.dataset['testid'])).toEqual([
-      'custom-game-setup-arrange',
-    ]);
-    expect(shown('custom-game-ready')).toBe(false);
-    fireEvent.click(screen.getByTestId('custom-game-setup-arrange'));
-    expect(opened).toEqual([{ screen: 'private-setup' }]);
+    expect(screen.getByTestId('custom-game-ready')).toBeDisabled();
+    expect(shown('story-setup-board')).toBe(true);
+    expect(screen.getByTestId('custom-game-setup-status').textContent).toBe(
+      'Your private setup is incomplete.'
+    );
+    expect(screen.getByTestId('custom-game-setup-random')).not.toBeDisabled();
   });
 
-  test('an invitation is answered where the invited person lands', () => {
-    const chosen: unknown[] = [];
-    mountFrame(() =>
-      setupProps(
-        { screen: 'lobby' },
-        {
-          viewerSide: null,
-          play: FRAME_NO_PLAY,
-          onChoose: async (input) => {
-            chosen.push(input);
-          },
-          setup: hostSetup({
-            seats: [
-              setupSeat('white', { kind: 'person', person: 'a' }, 'avery', {
-                host: true,
-                ready: true,
-              }),
-              setupSeat(
-                'black',
-                { kind: 'invitation', person: 'j' },
-                'Invited person: jordan',
-                {
-                  invitation: {
-                    mine: true,
-                    inviter: 'a',
-                    inviterName: 'avery',
-                    canAnswer: true,
-                    canRevoke: false,
-                  },
-                }
-              ),
-            ],
-            start: {
-              reason: { kind: 'invitations', count: 1 },
-              hostStarts: false,
-              readiness: null,
-              canStart: false,
-            },
-          }),
-        }
-      )
+  test('an invitation is said where the invited person lands, and answered under it', () => {
+    const sent = recorder();
+    mountFrame(
+      () =>
+        setupProps(
+          { screen: 'lobby' },
+          {
+            viewerSide: null,
+            play: FRAME_NO_PLAY,
+            onChoose: sent.onChoose,
+            setup: hostSetup({
+              seats: [
+                setupSeat(
+                  'white',
+                  { kind: 'person', person: 'avery-id' },
+                  'avery',
+                  { host: true, ready: true }
+                ),
+                setupSeat(
+                  'black',
+                  { kind: 'invitation', person: 'jordan-id' },
+                  'jordan',
+                  {
+                    invitation: {
+                      mine: true,
+                      inviter: 'avery-id',
+                      inviterName: 'avery',
+                      canAnswer: true,
+                      canRevoke: false,
+                    },
+                  }
+                ),
+              ],
+              start: {
+                reason: { kind: 'invitations', count: 1 },
+                hostStarts: false,
+                readiness: null,
+                canStart: false,
+              },
+            }),
+          }
+        ),
+      390,
+      spaceChrome('jordan-id')
     );
     expect(
       screen.getByTestId('custom-game-black-invitation').textContent
@@ -355,125 +318,143 @@ describe('the lobby', () => {
       'custom-game-black-accept',
     ]);
     fireEvent.click(screen.getByTestId('custom-game-black-accept'));
-    expect(chosen).toEqual([{ operation: 'accept', side: 'black' }]);
+    expect(sent.chosen).toEqual([{ operation: 'accept', side: 'black' }]);
   });
 
-  test('a place the game cannot show falls back to the lobby', () => {
-    for (const place of [
-      { screen: 'seat', side: 'blue' },
-      { screen: 'invite', side: 'blue' },
-      { screen: 'options' },
-      { screen: 'clock' },
-      { screen: 'private-setup' },
-      { screen: 'play' },
-    ] as const) {
-      mountFrame(() => setupProps(place));
-      expect(shown('custom-game-startable')).toBe(true);
-      cleanup();
-    }
+  test('a place the game cannot show falls back to the setup', () => {
+    mountFrame(() => setupProps({ screen: 'play' }));
+    expect(screen.getByTestId('custom-game-content').dataset['phase']).toBe(
+      'configuring'
+    );
+    expect(shown('custom-game-start')).toBe(true);
+  });
+
+  test('a refused choice is said under row 1, with everything still there', () => {
+    mountFrame(() =>
+      setupProps(
+        { screen: 'lobby' },
+        { error: 'Only the host may change who sits here.' }
+      )
+    );
+    expect(screen.getByTestId('custom-game-error').textContent).toContain(
+      'Only the host may change who sits here.'
+    );
+    expect(shown('custom-game-black-choices')).toBe(true);
   });
 });
 
 describe('a seat', () => {
   // regression: setup-change-player-vague
   // A seat's control said "Change player" and never said what it offered.
-  // The seat's own place names every choice in words.
-  test('names every choice the host has, the holder it has marked', () => {
-    mountFrame(() => setupProps({ screen: 'seat', side: 'black' }));
+  // The seat's sheet names every choice in words.
+  test("a bot's seat names every choice the host has", () => {
+    mountFrame(() => setupProps());
+    press('custom-game-black-choices');
     const text = (id: string) => screen.getByTestId(id).textContent ?? '';
-    expect(text('custom-game-black-bot')).toContain('A bot');
-    expect(text('custom-game-black-invite-choose')).toContain(
-      'Someone in this space'
-    );
-    expect(text('custom-game-black-take')).toContain('Me');
-    expect(text('custom-game-black-open')).toContain('Open seat');
-    expect(text('custom-game-black-close')).toContain('Closed seat');
+    expect(text('custom-game-black-difficulty')).toContain('Change difficulty');
+    expect(text('custom-game-black-take')).toContain('Play this side yourself');
     expect(text('custom-game-black-local')).toContain(
       'A player on this device'
     );
-    expect(
-      screen.getByTestId('custom-game-black-bot').getAttribute('aria-current')
-    ).toBe('true');
-    expect(
-      screen
-        .getByTestId('custom-black-difficulty-medium')
-        .getAttribute('aria-current')
-    ).toBe('true');
+    expect(text('custom-game-black-open')).toContain('Remove bot');
+    expect(text('custom-game-black-close')).toContain('Remove seat');
   });
 
-  test('a choice is sent, holds the other rows meanwhile, and returns to the lobby', async () => {
-    let accept: () => void = () => undefined;
-    const chosen: unknown[] = [];
-    let closed = 0;
+  test("each of a seat's actions sends the room's choice for it", () => {
+    const sent = recorder();
     mountFrame(() =>
       setupProps(
-        { screen: 'seat', side: 'black' },
+        { screen: 'lobby' },
         {
-          onChoose: (input) => {
-            chosen.push(input);
-            return new Promise<void>((resolve) => {
-              accept = resolve;
-            });
-          },
-          onClose: () => {
-            closed += 1;
-          },
+          onChoose: sent.onChoose,
+          setup: hostSetup({
+            seats: [
+              hostSetup().seats[0] ??
+                setupSeat('white', { kind: 'open' }, 'Open seat'),
+              setupSeat('black', { kind: 'open' }, 'Open seat', {
+                choices: HOST_CHOICES,
+              }),
+            ],
+          }),
         }
       )
     );
-    fireEvent.click(screen.getByTestId('custom-game-black-open'));
-    expect(chosen).toEqual([{ operation: 'open', side: 'black' }]);
-    expect(screen.getByTestId('custom-game-black-bot')).toBeDisabled();
-    // A second press while the first is on its way sends nothing.
-    fireEvent.click(screen.getByTestId('custom-game-black-close'));
-    expect(chosen).toHaveLength(1);
-    expect(closed).toBe(0);
-    accept();
-    await Promise.resolve();
-    await Promise.resolve();
-    expect(closed).toBe(1);
+    press('custom-game-black-choices');
+    press('custom-game-black-bot');
+    press('custom-game-black-choices');
+    press('custom-game-black-close');
+    press('custom-game-black-choices');
+    press('custom-game-black-take');
+    expect(sent.chosen).toEqual([
+      { operation: 'bot', side: 'black' },
+      { operation: 'close', side: 'black' },
+      { operation: 'take', side: 'black' },
+    ]);
   });
 
-  test('a refused choice stays on the seat with every row to try again', async () => {
-    let closed = 0;
-    mountFrame(() =>
-      setupProps(
-        { screen: 'seat', side: 'black' },
-        {
-          error: 'Only the host may change who sits here.',
-          onChoose: () => Promise.reject(new Error('refused')),
-          onClose: () => {
-            closed += 1;
-          },
-        }
-      )
-    );
-    fireEvent.click(screen.getByTestId('custom-game-black-open'));
-    await Promise.resolve();
-    await Promise.resolve();
-    expect(closed).toBe(0);
-    expect(screen.getByTestId('custom-game-black-open')).not.toBeDisabled();
-    expect(screen.getByTestId('custom-game-error').textContent).toContain(
-      'Only the host may change who sits here.'
-    );
+  test("a bot's difficulty steps to the next level", () => {
+    const sent = recorder();
+    mountFrame(() => setupProps({ screen: 'lobby' }, sent));
+    press('custom-game-black-choices');
+    press('custom-game-black-difficulty');
+    expect(sent.chosen).toEqual([
+      { operation: 'difficulty', side: 'black', difficulty: 'hard' },
+    ]);
   });
 
-  test('inviting is its own place: a person is one press, someone seated cannot be pressed', () => {
-    const chosen: unknown[] = [];
-    mountFrame(() =>
-      setupProps(
-        { screen: 'invite', side: 'black' },
-        {
-          onChoose: async (input) => {
-            chosen.push(input);
-          },
-        }
-      )
-    );
-    expect(screen.getByTestId('custom-game-black-seated')).toBeDisabled();
-    fireEvent.click(screen.getByTestId('custom-game-black-invitable'));
-    expect(chosen).toEqual([
+  test("the host invites someone in the space from a seat's sheet", () => {
+    const sent = recorder();
+    mountFrame(() => setupProps({ screen: 'lobby' }, sent));
+    press('custom-game-black-choices');
+    const invite = screen.getByTestId('custom-game-black-invitable');
+    expect(invite.textContent).toContain('Invite jordan');
+    fireEvent.click(invite);
+    expect(sent.chosen).toEqual([
       { operation: 'invite', side: 'black', person: 'jordan-id' },
+    ]);
+  });
+
+  test('a member sits in an open seat from its sheet, or takes one under the setup', () => {
+    const sent = recorder();
+    mountFrame(
+      () =>
+        setupProps(
+          { screen: 'lobby' },
+          {
+            viewerSide: null,
+            play: FRAME_NO_PLAY,
+            onChoose: sent.onChoose,
+            setup: hostSetup({
+              takeSeat: 'black',
+              seats: [
+                setupSeat(
+                  'white',
+                  { kind: 'person', person: 'avery-id' },
+                  'avery',
+                  { host: true, ready: true }
+                ),
+                setupSeat('black', { kind: 'open' }, 'Open seat', {
+                  canSit: true,
+                }),
+              ],
+              start: {
+                reason: { kind: 'open-seats', count: 1 },
+                hostStarts: false,
+                readiness: null,
+                canStart: false,
+              },
+            }),
+          }
+        ),
+      390,
+      spaceChrome('morgan-id')
+    );
+    press('custom-game-take-seat');
+    press('custom-game-black-choices');
+    press('custom-game-black-claim');
+    expect(sent.chosen).toEqual([
+      { operation: 'claim', side: 'black' },
+      { operation: 'claim', side: 'black' },
     ]);
   });
 });

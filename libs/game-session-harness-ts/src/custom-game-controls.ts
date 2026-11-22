@@ -39,8 +39,8 @@ export function customGameControl(
   }
 }
 
-/** The choices about one seat that sit on that seat's own place. */
-const SEAT_PLACE_OPERATIONS: readonly string[] = [
+/** The choices about one seat that sit in that seat's sheet in the people row. */
+const SEAT_SHEET_OPERATIONS: readonly string[] = [
   'take',
   'bot',
   'local',
@@ -51,33 +51,32 @@ const SEAT_PLACE_OPERATIONS: readonly string[] = [
   'revoke',
 ];
 
-/** The choices that sit on the clock's place. */
-const CLOCK_PLACE_OPERATIONS: readonly string[] = ['swap', 'clock', 'untimed'];
-
 /** The commands of a game being played that sit in its game menu. */
 const GAME_MENU_OPERATIONS: readonly string[] = ['offer', 'resign', 'cancel'];
 
-/** The row on the home place that opens the place holding `input`'s control. */
+/**
+ * The control that opens the sheet or place holding `input`'s control: a
+ * seat's cell in the people row (swapping sides sits in every seat's
+ * sheet), or the game menu while a game is played. `''` when the control
+ * is on the screen the phase opens on.
+ */
 function placeRow(input: CustomGameInput, probe: CustomGameProbe): string {
-  if ('side' in input && SEAT_PLACE_OPERATIONS.includes(input.operation))
+  if ('side' in input && SEAT_SHEET_OPERATIONS.includes(input.operation))
     return `custom-game-${input.side}-choices`;
-  if (CLOCK_PLACE_OPERATIONS.includes(input.operation))
-    return 'custom-game-options';
+  if (input.operation === 'swap' && probe.current !== null)
+    return `custom-game-${probe.current.sides[0] ?? 'white'}-choices`;
   if (
     GAME_MENU_OPERATIONS.includes(input.operation) &&
     probe.current?.status === 'active'
   )
     return 'custom-game-commands';
-  // Becoming ready with a private setup happens on the setup's own place.
-  if (input.operation === 'ready' && probe.privateSetup !== null)
-    return 'custom-game-setup-open';
   return '';
 }
 
 /**
- * Open the place a control sits on, as a person does: the seat's own place,
- * the clock, the game menu or the private setup, by its row on the home
- * place. A control on the home place is reached by going back to it.
+ * Open the sheet or place a control sits on, as a person does: the seat's
+ * sheet by its cell in the people row, or the game menu by its row. A
+ * control on the home place is reached by going back to it.
  */
 async function revealControl(
   s: ProductHarness,
@@ -85,20 +84,10 @@ async function revealControl(
   input: CustomGameInput,
   probe: CustomGameProbe
 ): Promise<void> {
-  const ui = await actorUi(s, actor);
   const row = placeRow(input, probe);
   const target = customGameControl(input, probe);
   if (row === '') await showCustomGameHome(s, actor);
   else await openCustomGamePlace(s, actor, row, target);
-  if (
-    input.operation === 'clock' &&
-    (await ui.get('custom-game-minutes').isVisible())
-  ) {
-    await ui.get('custom-game-minutes').clear();
-    await ui.get('custom-game-minutes').input(String(input.minutes));
-    await ui.get('custom-game-increment').clear();
-    await ui.get('custom-game-increment').input(String(input.increment));
-  }
 }
 
 function confirmUnavailable(
@@ -122,7 +111,8 @@ function confirmUnavailable(
 
 /**
  * Whether the screen cannot express `input` as a control would (an invite
- * picks a person; readiness the person already has; a start that is not
+ * picks a person; a bot's level steps one at a time; a clock is one of the
+ * offered chips; readiness the person already has; a start that is not
  * possible yet; a move), so it is sent as a modified device would.
  */
 function needsModifiedDevice(
@@ -134,6 +124,8 @@ function needsModifiedDevice(
     probe.current?.ready.includes(probe.mySide) === true;
   return (
     input.operation === 'invite' ||
+    input.operation === 'difficulty' ||
+    input.operation === 'clock' ||
     input.operation === 'move' ||
     (input.operation === 'ready' && ready) ||
     (input.operation === 'unready' && !ready) ||
@@ -158,6 +150,8 @@ async function controlUsable(
     )
   )
     return false;
+  // A chip already chosen takes no choice again.
+  if ((await ui.get(target).attribute('aria-checked')) === 'true') return false;
   // A control still showing its last success takes no new choice yet.
   const button = (await ui.snapshotHtml())?.match(
     new RegExp(`<button[^>]*data-testid="${target}"[^>]*>`)
@@ -211,8 +205,11 @@ export async function operateCustomGameControls(
   }
   await revealControl(s, actor, input, probe);
   if (!(await controlUsable(s, actor, target))) {
-    // The place offers no such control now: back to where the game opens,
-    // then the choice as a modified device would send it.
+    // The sheet or place offers no such control now: close the seat's
+    // sheet, back to where the game opens, then the choice as a modified
+    // device would send it.
+    if (placeRow(input, probe).endsWith('-choices'))
+      await (await actorUi(s, actor)).key('escape');
     await showCustomGameHome(s, actor);
     await chooseCustomGame(s, actor, input);
     return;

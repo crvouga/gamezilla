@@ -6,8 +6,10 @@
 
 import { expect, test } from 'bun:test';
 import { readCustomGameIdentity } from '@libs/game-session-harness-ts/custom-game-identity';
-import { readCustomGameName } from '@libs/game-session-harness-ts/custom-game-names';
-import { readCustomGameInvitation } from '@libs/game-session-harness-ts/custom-game-reads';
+import {
+  customGameSeatName,
+  readCustomGameInvitation,
+} from '@libs/game-session-harness-ts/custom-game-reads';
 import { configureCustomGameChoice } from '@libs/game-session-harness-ts/custom-game-ui';
 import { openCustomGames } from '@libs/game-session-harness-ts/game-navigation';
 import {
@@ -40,7 +42,7 @@ forEveryGame(
         operation: 'take',
         side: 'white',
       });
-      const host = await s.read(readCustomGameName, 'alice', 'white');
+      const host = await s.read(customGameSeatName, 'alice', 'white');
       expect(host).toBeTruthy();
       await s.apply(configureCustomGameChoice, 'alice', {
         operation: 'invite',

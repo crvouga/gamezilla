@@ -22,25 +22,16 @@ const PHASES: readonly FramePhase[] = [
 ];
 
 const phase = fc.constantFrom(...PHASES);
-const side = fc.constantFrom('white', 'black', 'red', 'blue' as const);
-const place: fc.Arbitrary<CustomGamePlace> = fc.oneof(
-  fc
-    .constantFrom(
-      'start',
-      'lobby',
-      'options',
-      'clock',
-      'private-setup',
-      'play',
-      'commands',
-      'moves',
-      'result' as const
-    )
-    .map((screen): CustomGamePlace => ({ screen })),
-  fc
-    .tuple(fc.constantFrom('seat', 'invite' as const), side)
-    .map(([screen, seat]): CustomGamePlace => ({ screen, side: seat }))
-);
+const place: fc.Arbitrary<CustomGamePlace> = fc
+  .constantFrom(
+    'start',
+    'lobby',
+    'play',
+    'commands',
+    'moves',
+    'result' as const
+  )
+  .map((screen): CustomGamePlace => ({ screen }));
 
 type Step =
   | { readonly kind: 'open'; readonly place: CustomGamePlace }
@@ -90,7 +81,7 @@ describe('the custom game places', () => {
     );
   });
 
-  test('Back reaches the phase home in at most two steps, then leaves', () => {
+  test('Back reaches the phase home in at most one step, then leaves', () => {
     assertProperty(
       'back is bounded',
       fc.property(phase, place, (at, opened) => {
@@ -104,7 +95,7 @@ describe('the custom game places', () => {
           steps += 1;
         }
         expect(shown).toBeNull();
-        expect(steps).toBeLessThanOrEqual(3);
+        expect(steps).toBeLessThanOrEqual(2);
       })
     );
   });
@@ -119,18 +110,8 @@ describe('the custom game places', () => {
     });
   });
 
-  test('inviting is behind its seat, and the seat behind the lobby', () => {
-    const invite: CustomGamePlace = { screen: 'invite', side: 'black' };
-    expect(placeBehind(CUSTOM_GAME_PLACES, 'configuring', invite)).toEqual({
-      screen: 'seat',
-      side: 'black',
-    });
-    expect(
-      placeBehind(CUSTOM_GAME_PLACES, 'configuring', {
-        screen: 'seat',
-        side: 'black',
-      })
-    ).toEqual({ screen: 'lobby' });
+  test('a game being set up is one place: the lobby', () => {
+    expect(CUSTOM_GAME_PLACES.screens.configuring).toEqual(['lobby']);
   });
 
   test('the moves are reachable while a game is played and once it is over, never before', () => {

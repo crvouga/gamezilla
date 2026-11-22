@@ -1,7 +1,6 @@
 import {
   type BattleshipLineup,
   establishBattleship,
-  showFleetSetup,
 } from '@libs/battleship-harness-ts/battleship-actions';
 import {
   type BattleshipView,
@@ -55,11 +54,9 @@ export async function setupPlacing(w: BattleshipWorld): Promise<void> {
 
 /**
  * What `actor` sees of Battleship. While the game is set up their fleet is
- * on its own place behind the lobby's row for it: they open it first, as a
- * person looking at their fleet does.
+ * on the setup itself.
  */
 export async function sees(w: BattleshipWorld, actor: string) {
-  await w.s.apply(showFleetSetup, actor);
   return w.s.read(battleshipView, actor);
 }
 
@@ -69,7 +66,6 @@ export async function seesOnce(
   actor: string,
   pred: (view: BattleshipView) => boolean
 ) {
-  await w.s.apply(showFleetSetup, actor);
   return w.s.until((s) => battleshipView(s, actor), {
     maxMs: SETTLE_MS,
     pred,

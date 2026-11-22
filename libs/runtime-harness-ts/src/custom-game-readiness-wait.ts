@@ -6,17 +6,17 @@ import {
 import { expectVisible, JOURNEY_WAIT_MS, tap } from './journey-gestures';
 
 /**
- * What tells a guest that Black is theirs: the lobby marks their own seat
- * at someone else's table ("You · guest").
+ * What tells a guest that a seat is theirs: their own readiness to give,
+ * under the setup (the only seat open to them in this journey is Black).
  */
-export const OWN_BLACK_SEAT = 'custom-game-black-you';
+export const OWN_SEAT = 'custom-game-ready';
 
 /** A failed acceptance names the awaited control and the screen already shown. */
 export async function expectBlackAccepted(ui: Driver): Promise<void> {
   try {
-    await expectVisible(ui, OWN_BLACK_SEAT);
+    await expectVisible(ui, OWN_SEAT);
   } catch (cause) {
-    const participant = await publicJourneyVisible(ui, OWN_BLACK_SEAT);
+    const participant = await publicJourneyVisible(ui, OWN_SEAT);
     const invited = await publicJourneyVisible(
       ui,
       'custom-game-black-invitation'
@@ -36,7 +36,7 @@ export async function expectBlackAccepted(ui: Driver): Promise<void> {
       status: await publicJourneyText(ui, 'custom-game-status'),
     };
     throw new Error(
-      `${String(cause)}; ${OWN_BLACK_SEAT} expect.visible; ${JSON.stringify(context)}`,
+      `${String(cause)}; ${OWN_SEAT} expect.visible; ${JSON.stringify(context)}`,
       { cause }
     );
   }
@@ -60,7 +60,7 @@ async function chooseWhenConnected(ui: Driver, control: string): Promise<void> {
  * choice did not take.
  */
 export async function takeBlack(ui: Driver, control: string): Promise<void> {
-  const release = ui.get(OWN_BLACK_SEAT);
+  const release = ui.get(OWN_SEAT);
   for (let attempt = 1; attempt < TAKE_ATTEMPTS; attempt += 1) {
     if (await release.isVisible()) return;
     await chooseWhenConnected(ui, control);
