@@ -65,8 +65,9 @@
  *
  * **Who draws the shell.** Migrated screens render a template and render
  * `<ClaimSpaceShell />` (`./space-shell-claim`); unmigrated screens do
- * nothing and get the default stage shell from `SpaceScreenFrame`
- * (`./space-screen-frame`), which also shows the space's loading state.
+ * nothing and get the default shell from `SpaceScreenFrame`
+ * (`./space-screen-frame`): row 1 over a fixed stage with no people row,
+ * so they keep all the room under row 1. It also shows the loading state.
  * The provider owns everything these callbacks open (`./space-screen-overlays`):
  * the share sheet, the people in the space, rename and the remove confirm.
  */
