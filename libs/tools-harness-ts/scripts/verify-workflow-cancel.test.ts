@@ -115,8 +115,16 @@ describe('Verify workflow cancellation', () => {
       /ci-artifacts\.ts upload (\S+)/.exec(step.run ?? '')?.[1];
     const uploads = steps.filter((step) => uploadOf(step) !== undefined);
     expect(uploads.length).toBeGreaterThan(0);
+    // The one file a Release keeps past `verify:end`: its verdict job files
+    // an issue per failing check from it (`ci-check-issues.ts`).
+    const releaseVerdict = uploads.filter(
+      (upload) => uploadOf(upload) === 'release-verdict'
+    );
+    expect(releaseVerdict.map((upload) => upload.if)).toEqual([
+      "always() && !cancelled() && env.VERIFY_CI_STAGE == 'release'",
+    ]);
     for (const upload of uploads) {
-      if (nightlyOnly(upload)) continue;
+      if (nightlyOnly(upload) || releaseVerdict.includes(upload)) continue;
       // What remains carries state between jobs until `verify:end`.
       expect(uploadOf(upload)).toMatch(/^verify-(plan|results|evidence)/);
     }
@@ -231,7 +239,7 @@ describe('Verify workflow cancellation', () => {
         }
       >;
     };
-    // Every push to a pull request on main runs the whole gate.
+    // Every push to a pull request on main runs the pull-request gate.
     expect(workflow.on.pull_request).toEqual({
       branches: ['main'],
       types: ['opened', 'reopened', 'synchronize'],

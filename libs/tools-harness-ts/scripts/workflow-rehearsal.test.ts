@@ -76,11 +76,14 @@ test('Release rehearsal verifies and plans without opening the release path', ()
   );
   // regression: pr-infra-plan-reads-fixture-state-bucket
   // A plan reads the real stacks: under the fixture identity it named the
-  // fixture's state bucket and was refused (HTTP 403).
+  // fixture's state bucket and was refused (HTTP 403). Verify's jobs run under
+  // the fixture identity, so no plan runs there; the rehearsal plans with the
+  // configured one.
   const plans = Object.values(verify.jobs)
     .flatMap((job) => job.steps)
     .filter((step) => /\bplan:(fleet|foundation)\b/.test(step.run ?? ''));
-  expect(plans.length).toBeGreaterThan(0);
-  for (const plan of plans)
-    expect(plan.env?.['PRODUCT_IDENTITY_MODE']).toBe('configured');
+  expect(plans).toEqual([]);
+  expect(source).toMatch(
+    /deploy-rehearsal:[\s\S]*?product-identity-mode: configured[\s\S]*?plan:fleet/
+  );
 });
