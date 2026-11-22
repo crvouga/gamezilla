@@ -423,7 +423,7 @@ after 67 tasks passed. The catalog and existing transitive version pins were
 updated to Happy DOM/global-registrator 21.0.4, Serialize JavaScript 7.1.3 and
 Undici 7.30.1, using the published fixes. The direct Zod dependency was already
 4.6.7. The remaining entry then was Atlas's transitive Zod 3.25.76, tracked in
-[Atlas #16](https://github.com/crvouga-organization/atlas/issues/16), which also reproduced
+[Atlas #16](https://github.com/crvouga/atlas/issues/16), which also reproduced
 the finding on npm Atlas 0.10.0. No Atlas override, patch, advisory
 suppression or duplicate issue was introduced. The upstream fix is now released
 and installed in its own commit, as recorded below. The full gate still needs

@@ -6,7 +6,10 @@ import {
   type SpaceExampleSpies,
   spaceExampleChrome,
 } from '../../../ui-root-client-ts/storybook/fixtures/space-example-frame';
-import { spaceChessGame, spaceChessPeople } from './space-chess-fixture';
+import {
+  spaceChessGame,
+  spaceChessPeople,
+} from './space-chess-fixture.example';
 
 export type SpaceInGameChessExampleProps = SpaceExampleSpies & {
   /** Who is looking: the host is bob (White), a guest is ana (Black). */

@@ -5,7 +5,7 @@
  * known before anything is uploaded), whether one Preview still exists
  * (cleanup is verified, not assumed), and having a Worker serve its Previews.
  * Requested upstream (one Preview: #850, the subdomain: #851, serving
- * Previews: #852, at https://github.com/crvouga-organization/mockingbird);
+ * Previews: #852, at https://github.com/crvouga/mockingbird);
  * remove each call here with the release that provides it.
  */
 

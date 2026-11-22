@@ -1,7 +1,3 @@
-import { SpaceSetupTemplate } from '@pkgs/ui-root-client-ts/space-setup-template';
-import SpaceSetupTemplateExample, {
-  type SpaceSetupTemplateExampleProps,
-} from '@pkgs/ui-root-client-ts/space-setup-template/space-setup-template.example';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import {
@@ -11,7 +7,11 @@ import {
   type SpaceMatrix,
   spaceStoryGame,
   spaceStoryRole,
-} from './space-screen-story.example';
+} from '../../storybook/fixtures/space-story-globals';
+import { SpaceSetupTemplate } from './index';
+import SpaceSetupTemplateExample, {
+  type SpaceSetupTemplateExampleProps,
+} from './space-setup-template.example';
 
 type Args = Omit<SpaceSetupTemplateExampleProps, 'game' | 'role' | 'ready'> & {
   /** Whether ana said she is ready; unset, she is ready for the host only. */

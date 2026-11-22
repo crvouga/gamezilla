@@ -1,8 +1,6 @@
 {
   "$schema": "https://v2-11-3.turborepo.dev/schema.json",
-  "extends": [
-    "//"
-  ],
+  "extends": ["//"],
   "tasks": {
     "contract:write": {
       "cache": false
@@ -11,29 +9,17 @@
       "outputs": []
     },
     "dev": {
-      "dependsOn": [
-        "kill",
-        "install:deps",
-        "setup"
-      ],
+      "dependsOn": ["kill", "install:deps", "setup"],
       "persistent": true,
       "cache": false
     },
     "preview": {
-      "dependsOn": [
-        "kill",
-        "setup",
-        "^build",
-        "build"
-      ],
+      "dependsOn": ["kill", "setup", "^build", "build"],
       "persistent": true,
       "cache": false
     },
     "migrate": {
-      "dependsOn": [
-        "kill",
-        "setup"
-      ],
+      "dependsOn": ["kill", "setup"],
       "cache": false
     },
     "src": {
