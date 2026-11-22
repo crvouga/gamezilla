@@ -12,7 +12,7 @@ import '@pkgs/tailwind-shared-ts/tailwind.css';
 import '@pkgs/ui-root-client-ts/fonts';
 import '@pkgs/ui-root-client-ts/tokens.css';
 import '@pkgs/ui-root-client-ts/hosts.css';
-import { mountHarnessPreview } from './mount-harness-preview';
+import { render } from 'solid-js/web';
 import './polyfill-entry';
 import './styles.css';
 
@@ -26,7 +26,8 @@ bootBrowserBugReports({
   endpoint: new URL('/api/bug-reports', location.origin).href,
   startApplication: async () => {
     root.replaceChildren();
-    const shell = mountHarnessPreview(root);
-    if (import.meta.hot) import.meta.hot.dispose(() => shell.destroy());
+    const { HarnessBoot } = await import('./harness-boot');
+    const dispose = render(() => <HarnessBoot />, root);
+    if (import.meta.hot) import.meta.hot.dispose(dispose);
   },
 });

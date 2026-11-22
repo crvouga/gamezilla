@@ -52,23 +52,22 @@ export function HarnessHome(props: {
       <StackVertical gap="xs">
         <H1>Instances</H1>
       </StackVertical>
-      <MenuSection
-        title="Running instances"
-        footer="Everything running: each client's app, and what answers it."
-      >
-        <For each={props.panels}>
-          {(panel) => (
-            <ViewRow
-              view={panel}
-              icon={harnessNodeIcon(panel.kind)}
-              onShow={props.onShow}
-            />
-          )}
-        </For>
-      </MenuSection>
+      <Show when={props.panels.length > 0}>
+        <MenuSection title="Instances added since startup">
+          <For each={props.panels}>
+            {(panel) => (
+              <ViewRow
+                view={panel}
+                icon={harnessNodeIcon(panel.kind)}
+                onShow={props.onShow}
+              />
+            )}
+          </For>
+        </MenuSection>
+      </Show>
       <Show when={props.emulators.length > 0}>
         <MenuSection
-          title="Emulators"
+          title="Emulators added since startup"
           footer="Each vendor's own dashboard: its state, journal, clock, latency and faults."
         >
           <For each={props.emulators}>

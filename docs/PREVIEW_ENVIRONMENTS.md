@@ -55,15 +55,12 @@ https://pr-<number>.storybook.<domain>     a pull request's Storybook
   emulated identity provider's sign-in and the friendship is the ordinary
   request and its acceptance, sent to the in-tab API. A world restored from
   the browser's saved snapshot is left as it was.
-- **The console.** Mockingbird hosts a fixed Instances surface alongside its
-  built-in System screen. The Instances button returns from a panel to the list. The
-  selected panel and its view are kept in the address.
-- **The harness app.** One page of links to everything else. *Instances* is
-  everything running: each client's app, the load balancer with its routes,
-  each API server with its SQL notebook and logs, pub/sub topics, and rooms.
-  *Emulators* is each vendor emulator's own dashboard. *Set up the world*
-  opens the controls to add and remove instances, save and restore snapshots,
-  and run commands (crash, restart and partition instances, control the clock).
+- **The console.** Mockingbird's System screen lists the clients, servers,
+  rooms and emulator dashboards present at startup. Its switcher opens each
+  surface directly and keeps it mounted when another opens. The address
+  records the selected surface.
+- **Instances.** Open this surface to add or remove clients and servers, save
+  or restore snapshots, run commands, and inspect nodes added since startup.
 - **Instances come and go.** Clients and API servers are added and removed
   while the system runs, down to none of either. With no client the harness
   opens its instance list. With no API server

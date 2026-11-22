@@ -1,38 +1,63 @@
 import { expect, test } from 'bun:test';
-import { mountHarnessPreview } from '@apps/harness-ts/mount-harness-preview';
+import { PreviewShell } from '@apps/harness-ts/mount-harness-preview';
 import { onCleanup } from 'solid-js';
+import { render } from 'solid-js/web';
 
-test('switching to System and back keeps the mounted Instances session', async () => {
-  const host = document.createElement('main');
+test('Mockingbird switches directly between clients and retains their mounted state', async () => {
+  const root = document.createElement('main');
   const before = window.location.href;
-  let mounts = 0;
-  let disposals = 0;
-  document.body.append(host);
-  const shell = mountHarnessPreview(host, async () => ({
-    HarnessBoot() {
-      mounts++;
+  window.history.replaceState(null, '', '?surface=alice');
+  document.body.append(root);
+  const disposed: string[] = [];
+  const closed = Promise.withResolvers<void>();
+  const apps = ['alice', 'bob'].map((id) => ({
+    id,
+    label: id,
+    content: () => {
       onCleanup(() => {
-        disposals++;
+        disposed.push(id);
+        if (disposed.length === 2) closed.resolve();
       });
-      return <input aria-label="Instance work" />;
+      return <input aria-label={id} />;
     },
   }));
+  const dispose = render(
+    () => <PreviewShell apps={apps} initial="alice" />,
+    root
+  );
   try {
-    await shell.show('instances');
-    const input = host.querySelector('input');
-    if (!input) throw new Error('Instances failed to mount');
+    await Promise.resolve();
+    const input = root.querySelector<HTMLInputElement>(
+      '[aria-label="alice"] input'
+    );
+    if (!input) throw new Error('Alice did not mount');
     input.value = 'unfinished work';
-    await shell.show('system');
-    expect(shell.active()).toBe('system');
-    await shell.show('instances');
-    expect(host.querySelector('input')).toBe(input);
+    const next = root.querySelector<HTMLButtonElement>(
+      '[data-testid="system-switcher-next"]'
+    );
+    if (!next) throw new Error('Missing Mockingbird switcher');
+    next.click();
+    await Promise.resolve();
+    expect(new URL(window.location.href).searchParams.get('surface')).toBe(
+      'bob'
+    );
+    expect(root.querySelector('[aria-label="bob"] input')).toBeTruthy();
+    root
+      .querySelector<HTMLButtonElement>(
+        '[data-testid="system-switcher-previous"]'
+      )
+      ?.click();
+    expect(new URL(window.location.href).searchParams.get('surface')).toBe(
+      'alice'
+    );
+    expect(root.querySelector('[aria-label="alice"] input')).toBe(input);
     expect(input.value).toBe('unfinished work');
-    expect(mounts).toBe(1);
-    expect(disposals).toBe(0);
+    expect(disposed).toEqual([]);
   } finally {
-    shell.destroy();
-    host.remove();
+    dispose();
+    root.remove();
     window.history.replaceState(null, '', before);
   }
-  expect(disposals).toBe(1);
+  await closed.promise;
+  expect(disposed.sort()).toEqual(['alice', 'bob']);
 });

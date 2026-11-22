@@ -20,6 +20,7 @@ import {
   ConsoleChromeProvider,
   useConsoleChrome,
 } from './console-chrome-context';
+import { PreviewShell } from './mount-harness-preview';
 import { useConsoleNav } from './use-console-nav';
 
 export type ConsoleEnv = {
@@ -35,6 +36,7 @@ function ConsoleBody(props: {
   const nav = useConsoleChrome();
   return (
     <HarnessConsoleApp
+      shell={PreviewShell}
       ports={props.ports}
       nav={{
         show: nav.state.show,

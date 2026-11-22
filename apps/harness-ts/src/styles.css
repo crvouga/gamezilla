@@ -27,3 +27,8 @@ body {
   display: flex;
   flex-direction: column;
 }
+
+.harness-preview {
+  flex: 1;
+  min-height: 0;
+}
