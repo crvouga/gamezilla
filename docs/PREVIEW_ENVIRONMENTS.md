@@ -188,7 +188,7 @@ wipe, and there is no server to inspect — see "State and reset".
     deployment, and nothing at all when the same files are already
     deployed. Only the Worker itself, on a push to main, is deployed with
     `wrangler`. Its uploads are one bucket at a time for now
-    ([mockingbird#849](https://github.com/crvouga-organization/mockingbird/issues/849)).
+    ([mockingbird#849](https://github.com/crvouga/mockingbird/issues/849)).
   - *Storybook beside it.* The harness is uploaded while Storybook is built
     or restored and uploaded; the pull request says the harness is live the
     moment it is.
@@ -309,19 +309,19 @@ Previews stay on the free plan by construction (`apps/preview-ts/src/free-plan.t
 ## Built on Mockingbird
 
 The deploy, the decision what a run does, and the sweep's plan are
-[`@crvouga/mockingbird-preview`](https://github.com/crvouga-organization/mockingbird/tree/main/packages/adapters/preview)
+[`@crvouga/mockingbird-preview`](https://github.com/crvouga/mockingbird/tree/main/packages/adapters/preview)
 (`createCloudflarePreviews`, `selectPreviewAction`, `planPreviewSweep`);
 `apps/preview-ts` keeps only what it does not provide yet, each named in an
 issue there and removed when the release that provides it lands:
 
 | Kept here | Upstream |
 | --- | --- |
-| `_headers` sent as `text/plain` exactly (`exactHeadersType`) | [#847](https://github.com/crvouga-organization/mockingbird/issues/847) |
-| One Preview by name, the workers.dev subdomain and origins, serving Previews | [#850](https://github.com/crvouga-organization/mockingbird/issues/850), [#851](https://github.com/crvouga-organization/mockingbird/issues/851), [#852](https://github.com/crvouga-organization/mockingbird/issues/852) |
-| A listing that fails before the Worker exists falls back to probing | [#853](https://github.com/crvouga-organization/mockingbird/issues/853) |
-| Names it never made count against the sweep's capacity | [#854](https://github.com/crvouga-organization/mockingbird/issues/854) |
-| Why a run skips; the main branch's deploy decision | [#855](https://github.com/crvouga-organization/mockingbird/issues/855) |
-| The workflow, Storybook beside the harness, the pull request section and GitHub deployments, the gate and served checks, the scheduled sweep | [#856](https://github.com/crvouga-organization/mockingbird/issues/856), [#857](https://github.com/crvouga-organization/mockingbird/issues/857), [#858](https://github.com/crvouga-organization/mockingbird/issues/858), [#859](https://github.com/crvouga-organization/mockingbird/issues/859), [#860](https://github.com/crvouga-organization/mockingbird/issues/860) |
+| `_headers` sent as `text/plain` exactly (`exactHeadersType`) | [#847](https://github.com/crvouga/mockingbird/issues/847) |
+| One Preview by name, the workers.dev subdomain and origins, serving Previews | [#850](https://github.com/crvouga/mockingbird/issues/850), [#851](https://github.com/crvouga/mockingbird/issues/851), [#852](https://github.com/crvouga/mockingbird/issues/852) |
+| A listing that fails before the Worker exists falls back to probing | [#853](https://github.com/crvouga/mockingbird/issues/853) |
+| Names it never made count against the sweep's capacity | [#854](https://github.com/crvouga/mockingbird/issues/854) |
+| Why a run skips; the main branch's deploy decision | [#855](https://github.com/crvouga/mockingbird/issues/855) |
+| The workflow, Storybook beside the harness, the pull request section and GitHub deployments, the gate and served checks, the scheduled sweep | [#856](https://github.com/crvouga/mockingbird/issues/856), [#857](https://github.com/crvouga/mockingbird/issues/857), [#858](https://github.com/crvouga/mockingbird/issues/858), [#859](https://github.com/crvouga/mockingbird/issues/859), [#860](https://github.com/crvouga/mockingbird/issues/860) |
 
 Its reusable workflow deploys one Worker per pull request with a Worker
 script in front, which the free-plan rule above forbids, so the workflow

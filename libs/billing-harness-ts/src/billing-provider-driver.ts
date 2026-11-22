@@ -213,7 +213,7 @@ const STEPS: Readonly<Record<BillingObserveKind, Step>> = {
     // Past the last retry of a failed renewal (Stripe retries for up to a
     // week), with the account set to cancel the subscription once every retry
     // failed. The Stripe mock runs no retries yet
-    // (https://github.com/crvouga-organization/mockingbird/issues/161), so after the week the
+    // (https://github.com/crvouga/mockingbird/issues/161), so after the week the
     // cancellation that setting makes is made here.
     await runProviderClockTo(at, at.provider.now() + 8 * DAY_MS);
     const subscription = await latestSubscription(at);

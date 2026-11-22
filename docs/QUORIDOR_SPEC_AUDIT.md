@@ -5,8 +5,8 @@ All 58 PR-profile Quoridor tests and both full bounded mode proofs have passed.
 The tests comprise 47 feature scenarios, seven model checks and four model replays.
 The enforced dependency audit and unchanged strict export tests pass with
 Atlas 0.10.2, which includes the upstream fixes for
-[issue 16](https://github.com/crvouga-organization/atlas/issues/16) and
-[issue 18](https://github.com/crvouga-organization/atlas/issues/18).
+[issue 16](https://github.com/crvouga/atlas/issues/16) and
+[issue 18](https://github.com/crvouga/atlas/issues/18).
 The full local gate and release journeys are being rerun after a confirmed
 local-stack interruption; the replacement run is currently queued.
 CI remains unverified because GitHub refused to start its jobs under the
@@ -352,7 +352,7 @@ serialize-javascript 7.1.3 are installed; their focused checks pass.
 
 The installed Atlas 0.1.0 used Zod 3.25.76, and a latest-only Atlas 0.10.0
 installation reproduced the advisory. Upstream published 0.10.1 with Zod
-4.6.7 and Vite 7.3.7 and closed [issue 16](https://github.com/crvouga-organization/atlas/issues/16).
+4.6.7 and Vite 7.3.7 and closed [issue 16](https://github.com/crvouga/atlas/issues/16).
 The isolated catalog/lockfile upgrade is commit `6c3925cd5`; it removes the
 obsolete Atlas Vite override. The fresh enforced audit passes, and all seven
 consumer test, type and statechart tasks pass. All 43 imported paths and
@@ -364,7 +364,7 @@ After acquiring the shared machine slot, the full local gate failed only
 addresses for one logical recording instead of one. Atlas 0.10.1 normalizes
 archived records into schema key order while legacy records retain insertion
 order; execution identity uses order-sensitive JSON serialization. Existing
-[Atlas issue 18](https://github.com/crvouga-organization/atlas/issues/18) covers the exact
+[Atlas issue 18](https://github.com/crvouga/atlas/issues/18) covers the exact
 publication/export failure and a reduced public-API example. The strict
 one-recording, revision, timeline and snapshot assertions remain unchanged.
 Upstream then published 0.10.2 and closed issue 18. The isolated upgrade is
