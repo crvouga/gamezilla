@@ -127,13 +127,14 @@ Sources: [hooks](https://www.onorca.dev/docs/agents/hooks-memory),
 
 ### T3 Code
 
-The Actions menu contains three scripts.
+The Actions menu contains four scripts.
 
 | Action | Purpose |
 | --- | --- |
-| Preview | Prints the hosted preview URL for the current branch’s pull request. |
-| Localhost | Repairs missing or stale dependencies, stops any stack this checkout already runs, then runs the product and Storybook on localhost and prints their URLs. Stop the action to stop the stack. |
 | Bootstrap | Interactive one-time setup: tools, dependencies, git defaults, GitHub, Infisical (secrets cache) and the Turborepo remote cache. Rerun safely; finished steps are skipped. |
+| Localhost | Repairs missing or stale dependencies, stops any stack this checkout already runs, then runs the product and Storybook on localhost and prints their URLs. Stop the action to stop the stack. |
+| Preview | Prints the hosted preview URL for the current branch’s pull request. |
+| Storybook | Repairs missing or stale dependencies, then runs Storybook alone on this checkout's port and prints its URL. Use it for UI work that needs no product stack; Localhost already includes Storybook. |
 
 Nothing runs on worktree creation or settle. Localhost runs in the active
 worktree, otherwise the project root, and preserves local state across restarts.

@@ -34,6 +34,12 @@ export type Hook = (typeof HOOKS)[number];
 /** Interactive one-time setup and sign-in; a T3 action, never a hook. */
 export const BOOTSTRAP_COMMAND = `./${SOURCE_DIR}/bootstrap.sh`;
 
+/** Prints the hosted preview URL of the branch's pull request; a T3 action. */
+export const PREVIEW_COMMAND = `./${SOURCE_DIR}/preview.sh`;
+
+/** Storybook without the product stack; a T3 action. */
+export const STORYBOOK_COMMAND = `./${SOURCE_DIR}/storybook.sh`;
+
 /** Command an orchestrator runs (from the worktree root) for one hook. */
 export function hookCommand(hook: Hook): string {
   return `./${SOURCE_DIR}/${hook === 'setup' ? 'prepare' : hook}.sh`;
@@ -65,13 +71,10 @@ export const ORCHESTRATORS: Orchestrator[] = [
       $schema: 'https://t3.codes/schema/t3.json',
       defaultThreadEnvMode: 'worktree',
       scripts: [
-        {
-          name: 'Preview',
-          command: './libs/tools-harness-ts/workspace/preview.sh',
-          icon: 'play',
-        },
-        { name: 'Localhost', command: commands.run, icon: 'play' },
         { name: 'Bootstrap', command: BOOTSTRAP_COMMAND, icon: 'configure' },
+        { name: 'Localhost', command: commands.run, icon: 'play' },
+        { name: 'Preview', command: PREVIEW_COMMAND, icon: 'play' },
+        { name: 'Storybook', command: STORYBOOK_COMMAND, icon: 'play' },
       ],
     }),
   },
@@ -169,7 +172,12 @@ export function renderConfigs(
 }
 
 function verifyHookScripts(errors: string[]): void {
-  for (const command of [...HOOKS.map(hookCommand), BOOTSTRAP_COMMAND]) {
+  for (const command of [
+    ...HOOKS.map(hookCommand),
+    BOOTSTRAP_COMMAND,
+    PREVIEW_COMMAND,
+    STORYBOOK_COMMAND,
+  ]) {
     const path = command.slice('./'.length);
     try {
       accessSync(join(ROOT, path), constants.X_OK);
