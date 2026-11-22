@@ -18,7 +18,7 @@ describe('renderConfigs', () => {
   });
 
   // regression: workspace-actions-minimal
-  test('T3 exposes only Start stack and Bootstrap, neither run automatically', () => {
+  test('T3 exposes only the three requested manual actions in menu order', () => {
     const file = files.find((entry) => entry.path === 't3.json');
     expect(file).toBeDefined();
     const config = JSON.parse(file!.content) as {
@@ -35,8 +35,9 @@ describe('renderConfigs', () => {
     expect(
       config.scripts.map((script) => [script.name, script.command])
     ).toEqual([
-      ['Start stack', hookCommand('run')],
-      ['Bootstrap', BOOTSTRAP_COMMAND],
+      ['Preview', 'mise run preview:url'],
+      ['Localhost', hookCommand('run')],
+      ['Boostrap', BOOTSTRAP_COMMAND],
     ]);
     expect(
       config.scripts.some(

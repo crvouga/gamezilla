@@ -127,21 +127,22 @@ Sources: [hooks](https://www.onorca.dev/docs/agents/hooks-memory),
 
 ### T3 Code
 
-Only two project actions are exposed:
+The Actions menu contains three scripts.
 
 | Action | Purpose |
 | --- | --- |
-| Start stack | Repairs missing or stale dependencies, stops any stack this checkout already runs, then runs the product and Storybook on localhost and prints their URLs. Stop the action to stop the stack. |
-| Bootstrap | Interactive one-time setup: tools, dependencies, git defaults, GitHub, Infisical (secrets cache) and the Turborepo remote cache. Rerun safely; finished steps are skipped. |
+| Preview | Prints the hosted preview URL for the current branch’s pull request. |
+| Localhost | Repairs missing or stale dependencies, stops any stack this checkout already runs, then runs the product and Storybook on localhost and prints their URLs. Stop the action to stop the stack. |
+| Boostrap | Interactive one-time setup: tools, dependencies, git defaults, GitHub, Infisical (secrets cache) and the Turborepo remote cache. Rerun safely; finished steps are skipped. |
 
-Nothing runs on worktree creation or settle. Start stack runs in the active
+Nothing runs on worktree creation or settle. Localhost runs in the active
 worktree, otherwise the project root, and preserves local state across restarts.
 To stop a running stack from elsewhere, `bun run kill` in that checkout.
 
 Everything binds to loopback. To view the app or Storybook from another computer,
 open the printed localhost URL through T3 Code, which reaches the execution host's
 localhost for you; the repository runs no tunnel or remote-origin layer. Every
-login Bootstrap performs works without a browser on the execution host (GitHub's
+login Boostrap performs works without a browser on the execution host (GitHub's
 device code, Infisical's printed link, and the Turborepo token copied from
 Infisical).
 

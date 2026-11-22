@@ -3,12 +3,17 @@
   "defaultThreadEnvMode": "worktree",
   "scripts": [
     {
-      "name": "Start stack",
+      "name": "Preview",
+      "command": "mise run preview:url",
+      "icon": "play"
+    },
+    {
+      "name": "Localhost",
       "command": "./libs/tools-harness-ts/workspace/run.sh",
       "icon": "play"
     },
     {
-      "name": "Bootstrap",
+      "name": "Boostrap",
       "command": "./libs/tools-harness-ts/workspace/bootstrap.sh",
       "icon": "configure"
     }

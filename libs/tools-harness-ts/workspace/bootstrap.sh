@@ -59,4 +59,4 @@ if [ "${#failed[@]}" -gt 0 ]; then
   echo '!!! resolve the error above and run Bootstrap again' >&2
   exit 1
 fi
-echo "==> bootstrap complete; use Start stack to run the app and Storybook"
+echo "==> bootstrap complete; use Localhost to run the app and Storybook"

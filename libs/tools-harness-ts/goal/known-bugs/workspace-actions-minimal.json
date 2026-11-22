@@ -1,4 +1,4 @@
 {
-  "summary": "T3 exposed many setup, diagnostics and optional preview actions. Only Start stack and Bootstrap remain: Start stack repairs dependencies and runs the app and Storybook on localhost; Bootstrap performs setup and every sign-in.",
+  "summary": "T3 exposed many setup, diagnostics and optional preview actions. The menu exposes Preview, Localhost and Boostrap in order.",
   "regressionTest": "libs/tools-harness-ts/scripts/sync-workspace-lifecycle.test.ts"
 }
