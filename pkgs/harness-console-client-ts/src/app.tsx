@@ -1,9 +1,12 @@
 import type { HarnessConsolePorts } from '@pkgs/harness-console-shared-ts/ports';
 import { Surface } from '@pkgs/ui-root-client-ts/surface';
-import type { JSX } from 'solid-js';
+import type { Component, JSX } from 'solid-js';
 import type { HarnessConsoleNav } from './debugger-chrome';
 import { NotebookStoreProvider } from './notebook-store-context';
-import { ProductHarnessScreen } from './product-harness-screen';
+import {
+  type PreviewShellProps,
+  ProductHarnessScreen,
+} from './product-harness-screen';
 import { useProductHarnessSession } from './use-product-harness-session';
 
 /**
@@ -15,6 +18,7 @@ import { useProductHarnessSession } from './use-product-harness-session';
  * explorer, not a screen here.
  */
 export function HarnessConsoleApp(props: {
+  readonly shell: Component<PreviewShellProps>;
   readonly ports: HarnessConsolePorts;
   readonly nav: HarnessConsoleNav;
 }): JSX.Element {
@@ -31,6 +35,7 @@ export function HarnessConsoleApp(props: {
     >
       <Surface tone="background" grow>
         <ProductHarnessScreen
+          shell={props.shell}
           state={session.state}
           nav={props.nav}
           onReload={session.reboot}

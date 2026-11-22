@@ -38,7 +38,7 @@ fi
 turbo_config="${XDG_CONFIG_HOME:-$HOME/.config}/turborepo/config.json"
 if [ -f "$turbo_config" ] && grep -q '"token"' "$turbo_config"; then
   echo "==> Turborepo remote cache: signed in"
-elif TURBO_CONFIG_PATH="$turbo_config" bun run libs/secrets-server-ts/scripts/secrets-run.ts -- \
+elif TURBO_CONFIG_PATH="$turbo_config" bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture --isolated -- \
   bun -e '
     const fs = require("node:fs");
     const path = require("node:path");
@@ -55,8 +55,8 @@ else
 fi
 
 if [ "${#failed[@]}" -gt 0 ]; then
-  printf '!!! bootstrap incomplete; sign-in failed for: %s\n' "${failed[*]}" >&2
+  printf '!!! bootstrap incomplete; failed step: %s\n' "${failed[*]}" >&2
   echo '!!! resolve the error above and run Bootstrap again' >&2
   exit 1
 fi
-echo "==> bootstrap complete; use Start stack to run the app and Storybook"
+echo "==> bootstrap complete; use Localhost to run the app and Storybook"

@@ -1,10 +1,13 @@
 name: Verify PR
 run-name: "Verify PR · ${{ github.event_name == 'pull_request' && format('pr #{0}', github.event.pull_request.number) || 'manual' }}"
 
-# Every profile runs the whole gate catalog (ci-stage.ts): a pull request is
-# held to every gate task nightly runs, and only tasks whose inputs it changed
-# execute. Profiles differ in depth (verify-profile.ts); nightly adds deeper
-# groups outside the gate. Keep verify:end stable for branch rules.
+# A pull request runs the smallest gate that cannot wait (ci-stage.ts
+# `PR_TASKS`: typecheck, lint, secret scanning, workflow syntax). Release and
+# nightly call this workflow for the whole gate catalog, as does a manual
+# dispatch on any branch; a check that fails in Release keeps an open issue
+# until it passes (ci-check-issues.ts). Profiles differ in depth
+# (verify-profile.ts); nightly adds deeper groups outside the gate. Keep
+# verify:end stable for branch rules.
 # Required checks are declared in the repository policy registry.
 # See docs/CI_STAGE_POLICY.md for risk justifications and coverage ownership.
 
@@ -99,7 +102,9 @@ env:
   VERIFY_CONCURRENCY: ${{ inputs.concurrency || vars.VERIFY_CONCURRENCY || '1' }}
   VERIFY_CACHE_MODE: ${{ inputs.cache-mode || 'normal' }}
   VERIFY_PROFILE: ${{ inputs.profile || 'release' }}
-  VERIFY_CI_STAGE: ${{ inputs.profile == 'nightly' && 'nightly' || (inputs.profile == 'release' && 'release' || 'pr') }}
+  # Only a pull request runs the narrow `pr` selection; a dispatch, Release
+  # and nightly run the whole catalog.
+  VERIFY_CI_STAGE: ${{ inputs.profile == 'nightly' && 'nightly' || (github.event_name == 'pull_request' && 'pr' || 'release') }}
   VERIFY_ADVISORIES: ${{ inputs.advisories || 'enforce' }}
 
 # Every job runs on a GitHub-hosted `ubuntu-24.04` runner, and every `run:` step is bash.
@@ -280,8 +285,8 @@ jobs:
           bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload verify-results-"${VERIFY_SHARD}"
           .cache/verify-ci/results-"${VERIFY_SHARD}".tar.gz
 
-  # The required aggregate verdict for every check on a pull request; Release
-  # consumes this verdict. It runs after red shards too: the fan-in suites
+  # The required aggregate verdict for a pull request's checks; Release
+  # consumes the same job's verdict for the whole gate. It runs after red shards too: the fan-in suites
   # report their own failures, then one verdict names every suite and every
   # failing task. A missing, failed or cancelled job fails it; skipped shards
   # pass only when the plan scheduled none. The nightly profile's reports are
@@ -311,50 +316,12 @@ jobs:
           secrets-environment: dev
           secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
-          # `Plan the fleet stack` runs tofu init below.
-          tofu-providers: 'true'
       - name: Download immutable plan
         run: bun run libs/tools-harness-ts/scripts/ci-artifacts.ts download verify-plan .cache/verify-ci
       # Does nothing when the plan left the fan-in stage nothing to execute.
       - name: Run fan-in consumers
         timeout-minutes: ${{ inputs.profile == 'nightly' && 60 || 25 }}
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$VERIFY_CONCURRENCY" bun run libs/tools-harness-ts/scripts/verify-consumers.ts
-      # What Release would apply, planned against the real state for this merge
-      # result, on a pull request that changes the infrastructure. Some
-      # configuration errors only a plan finds (a `removed` block whose
-      # resource is still in state, a project the provider cannot find); each
-      # failed Release after the pull request had passed. Read-only: the plan
-      # applies nothing and the AWS role it uses cannot mutate. They run after
-      # the fan-in consumers so those still report, and each runs when the
-      # other failed so one red plan does not hide the other.
-      - name: Find infrastructure changes
-        id: infra
-        if: always() && !cancelled() && github.event_name == 'pull_request'
-        run: |
-          set -euo pipefail
-          if git diff --quiet "$PR_BASE...$PR_HEAD" -- libs/infra-shared-ts libs/infra-server-ts; then
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-          fi
-      # The job verified against the fixture identity, and that mode carries
-      # into every later step; a plan reads the real stacks, so it plans with
-      # the configured identity (its namespace names the state bucket).
-      - name: Plan the fleet stack
-        if: always() && !cancelled() && steps.infra.outputs.changed == 'true'
-        timeout-minutes: 15
-        env:
-          PRODUCT_IDENTITY_MODE: configured
-        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run --filter @libs/infra-server-ts plan:fleet
-      # Foundation also reads AWS. Bootstrap sets the variable in the same
-      # apply that lets the read-only role trust a pull request.
-      - name: Plan dev's foundation stack
-        if: always() && !cancelled() && steps.infra.outputs.changed == 'true' && vars.INFRA_PLAN_ON_PULL_REQUEST == 'true'
-        timeout-minutes: 15
-        env:
-          AWS_ROLE_ARN: ${{ vars.AWS_HEALTH_ROLE_ARN }}
-          PRODUCT_IDENTITY_MODE: configured
-        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run --filter @libs/infra-server-ts plan:foundation
       - name: Upload queryable trace artifacts
         if: always() && !cancelled() && env.VERIFY_PROFILE == 'nightly'
         run: >-
@@ -380,6 +347,13 @@ jobs:
           START_RESULT: ${{ needs.verify-start.result }}
           SHARD_RESULT: ${{ needs.verify-shards.result }}
         run: bun run libs/tools-harness-ts/scripts/verify-verdict.ts
+      # Release's verdict job files one issue per failing check from this
+      # (ci-check-issues.ts). Not `verify-`: that prefix is deleted below.
+      - name: Retain the verdict for Release's check issues
+        if: always() && !cancelled() && env.VERIFY_CI_STAGE == 'release'
+        run: >-
+          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload release-verdict
+          .cache/verify-ci/verdict.json
       - name: Require every PR check
         if: always() && !cancelled() && github.event_name == 'pull_request'
         env:
