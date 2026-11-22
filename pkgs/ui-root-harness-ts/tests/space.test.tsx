@@ -252,7 +252,7 @@ describe('SpacePeopleRow', () => {
     BOT,
   ];
 
-  test('each cell says its badges in words and opens its sheet', () => {
+  test('each cell says its badges in words and opens its menu', () => {
     const onPerson = mock();
     renderUi(() => (
       <SpacePeopleRow
@@ -265,9 +265,9 @@ describe('SpacePeopleRow', () => {
     const you = screen.getByRole('button', {
       name: 'You, Guest, Not ready, Muted',
     });
-    expect(you.getAttribute('aria-haspopup')).toBe('dialog');
+    expect(you.getAttribute('aria-haspopup')).toBe('menu');
     fireEvent.click(you);
-    expect(onPerson).toHaveBeenCalledWith('me');
+    expect(onPerson).toHaveBeenCalledWith('me', expect.any(HTMLElement));
     expect(
       screen.getByRole('button', { name: 'bob, Host, Setting up' })
     ).toBeDefined();

@@ -43,7 +43,7 @@ export type SpacePersonKind = 'person' | 'bot' | 'openSeat' | 'remote';
 /**
  * The one reserved data line under a name: at most one swatch and one
  * short value (tabular figures), with the same fact in words for listeners
- * and the person's sheet.
+ * and the person's menu.
  */
 export type SpacePersonData = {
   swatch?: GameSeatLook | undefined;
@@ -82,7 +82,7 @@ export type SpacePerson = {
 
 /**
  * One action a game supplies: on the action bar, or at the top of a
- * person's sheet. Labels say what will happen (`Fire at C4`).
+ * person's menu. Labels say what will happen (`Fire at C4`).
  */
 export type SpaceGameAction = {
   /** Stable within its list; shipped as `data-action`. */
@@ -183,7 +183,7 @@ export type SpaceGamePlay = {
   /** Each person's player color, turn and data line. */
   seat?: ((person: SpacePerson) => SpaceGameSeat | undefined) | undefined;
   /**
-   * The game's own actions on a person, put first in their sheet: Offer
+   * The game's own actions on a person, put first in their menu: Offer
    * draw and Resign on yourself, Request takeback on your opponent.
    */
   personActions?:

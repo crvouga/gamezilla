@@ -7,7 +7,7 @@ import { For, type JSX, Show } from 'solid-js';
 import { Button } from '../button/index';
 import { GameOptionField } from '../game-option-field/index';
 import { GameTile } from '../game-tile/index';
-import { SpacePeople } from '../space-person-sheet/space-people';
+import { SpacePeople } from '../space-person-menu/space-people';
 import { type SpaceScreenChrome, SpaceShell } from '../space-shell/index';
 import type { SpaceGame, SpacePerson, SpaceRole } from '../space-types';
 import styles from './space-setup-template.module.css';

@@ -14,7 +14,7 @@ import type {
   SpacePhase,
   SpaceRole,
 } from '../space-types';
-import { SpacePersonSheet } from './index';
+import { SpacePersonMenu } from './index';
 
 export type SpacePeopleProps = {
   people: readonly SpacePerson[];
@@ -32,12 +32,13 @@ export type SpacePeopleProps = {
 };
 
 /**
- * `SpacePeople` -- the people row with each entry's sheet: pressing a cell
- * opens that entry's actions, and the cell shows it is open. What the
- * templates put in row 2.
+ * `SpacePeople` -- the people row with each entry's menu: pressing a cell
+ * opens that entry's actions against its avatar, and the cell shows it is
+ * open. What the templates put in row 2.
  */
 export function SpacePeople(props: SpacePeopleProps): JSX.Element {
   const [openId, setOpenId] = createSignal<string | undefined>(undefined);
+  const [anchor, setAnchor] = createSignal<HTMLElement | null>(null);
   const open = createMemo(() =>
     props.people.find((person) => person.id === openId())
   );
@@ -60,11 +61,15 @@ export function SpacePeople(props: SpacePeopleProps): JSX.Element {
         data={props.data}
         seat={props.seat}
         openId={openId()}
-        onPerson={setOpenId}
+        onPerson={(id, avatar) => {
+          setAnchor(avatar);
+          setOpenId(id);
+        }}
         onInvite={props.onInvite}
       />
-      <SpacePersonSheet
+      <SpacePersonMenu
         person={open()}
+        anchor={anchor()}
         viewer={props.viewer}
         phase={props.phase}
         status={status()}

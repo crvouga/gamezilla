@@ -314,7 +314,7 @@ function useMenu(
   ]);
 }
 
-/** What a person's sheet asks of the space: share, the list, remove. */
+/** What a person's menu asks of the space: share, the list, remove. */
 function usePersonAction(
   people: Accessor<readonly SpaceShellPerson[]>,
   overlays: SpaceOverlays

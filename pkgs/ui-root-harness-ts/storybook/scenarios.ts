@@ -28,9 +28,6 @@ const SPACE_GAMES = [
   'battleship',
   'word-tiles',
 ] as const;
-// The games whose board `@pkgs/ui` draws in play; Chess in play is its
-// package's own story.
-const SPACE_PLAY_GAMES = SPACE_GAMES.filter((game) => game !== 'chess');
 const SPACE_ROLES = ['host', 'guest'] as const;
 
 /**
@@ -51,11 +48,7 @@ export const storyGlobalsMatrices: Readonly<
     spaceRole: SPACE_ROLES,
   },
   'space-in-game--screen': {
-    spaceGame: SPACE_PLAY_GAMES,
-    spaceRole: SPACE_ROLES,
-  },
-  'space-in-game-chess--screen': {
-    spaceGame: ['chess'],
+    spaceGame: SPACE_GAMES,
     spaceRole: SPACE_ROLES,
   },
 };

@@ -2,7 +2,7 @@
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from 'solid-js';
-import { SpacePeople } from '../space-person-sheet/space-people';
+import { SpacePeople } from '../space-person-menu/space-people';
 import { type SpaceScreenChrome, SpaceShell } from '../space-shell/index';
 import type {
   SpaceGameSeat,
@@ -33,7 +33,7 @@ export type SpaceStageTemplateProps = SpaceScreenChrome & {
  * `SpaceStageTemplate` -- any space screen whose stage is its own page:
  * choosing a game (`SpaceLauncher`), a game's choices, history, settings,
  * puzzles, a matchmaking search. Row 1 and the people row (with each
- * person's sheet) come from the space; the page scrolls in the stage.
+ * person's menu) come from the space; the page scrolls in the stage.
  */
 export function SpaceStageTemplate(
   props: SpaceStageTemplateProps

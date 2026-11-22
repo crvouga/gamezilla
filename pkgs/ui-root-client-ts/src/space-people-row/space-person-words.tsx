@@ -19,7 +19,7 @@ export type SpacePersonWords = {
   ) => readonly string[];
 };
 
-/** The localized words for the people row and the person sheet. */
+/** The localized words for the people row and the person menu. */
 export function useSpacePersonWords(): SpacePersonWords {
   const { t } = useLingui();
   const status = (value: SpacePersonStatus): string => {
