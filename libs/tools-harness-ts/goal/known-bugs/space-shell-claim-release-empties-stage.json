@@ -1,0 +1,4 @@
+{
+  "summary": "In a space, a screen that claimed the space shell after it first showed (a puzzle's board place) and then released it (opening the puzzle settings) left the space's rows over an empty stage: the claim frame swapped its bare children for the default shell, and removing the bare branch removed the very nodes the shell had just taken in. The claimed branch is now one box, so a swap never removes the children.",
+  "regressionTest": "libs/spaces-client-ts/tests/space-shell-claim.test.tsx"
+}

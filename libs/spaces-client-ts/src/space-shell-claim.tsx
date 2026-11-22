@@ -15,6 +15,7 @@
  * nothing.
  */
 
+import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import {
   type Accessor,
   children,
@@ -78,7 +79,9 @@ function createClaims(): SpaceShellClaims & { claimed: Accessor<boolean> } {
  * then bare. The children are created once, before the first branch is
  * chosen (so a claim made in their setup is already counted), and the same
  * nodes move between the branches when the claim flips: nothing below
- * remounts.
+ * remounts. A claimed screen sits in one box filling the frame, so each
+ * branch is a single node: swapping one branch for the other never removes
+ * the children the other has just taken in.
  */
 export function SpaceShellClaimFrame(
   props: SpaceShellClaimFrameProps
@@ -91,7 +94,9 @@ export function SpaceShellClaimFrame(
   ));
   return (
     <Show when={claims.claimed()} fallback={props.shell(content())}>
-      {content()}
+      <StackVertical grow self="stretch" minHeight="none">
+        {content()}
+      </StackVertical>
     </Show>
   );
 }
