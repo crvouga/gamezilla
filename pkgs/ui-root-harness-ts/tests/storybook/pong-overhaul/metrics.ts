@@ -1,6 +1,7 @@
 // @io-wall-ok — wall timings are measured only in this browser evidence adapter.
 import { expect, type Page, type TestInfo } from '@playwright/test';
 import { timingMicroseconds } from '../../../storybook/timing-measurement';
+import { refuseTraceSnapshots } from '../../../storybook/timing-trace';
 import { logSummary } from './log-evidence';
 
 type Samples = {
@@ -24,6 +25,7 @@ type MetricsWindow = Window & { pongMetrics?: () => Samples };
 
 /** Frame and long-task observations plus event-to-two-animation-frames proxy. */
 export async function startPongMetrics(page: Page) {
+  await page.evaluate(refuseTraceSnapshots);
   await page.evaluate(() => {
     const samples: Samples = {
       frames: [],

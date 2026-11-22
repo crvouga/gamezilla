@@ -1,5 +1,6 @@
 // @io-wall-ok — browser performance instrumentation, never product timing.
 import type { Page } from '@playwright/test';
+import { refuseTraceSnapshots } from './timing-trace';
 
 export type Samples = {
   inputToFrameMs: number[];
@@ -92,6 +93,7 @@ export async function withSokobanTiming<T>(
   page: Pick<Page, 'evaluate'>,
   measure: () => Promise<T>
 ): Promise<T> {
+  await page.evaluate(refuseTraceSnapshots);
   try {
     await page.evaluate(startSokobanTiming);
     return await measure();

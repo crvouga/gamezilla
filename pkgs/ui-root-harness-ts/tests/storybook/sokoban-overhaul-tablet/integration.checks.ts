@@ -1,9 +1,14 @@
 import { expect, test } from '@playwright/test';
+import { timingTrace } from '../../../storybook/timing-trace';
 import { openSokoban } from '../sokoban-overhaul/evidence';
 import { solveAndRecover } from '../sokoban-overhaul/solve-and-recover';
 
 const viewport = { width: 768, height: 1024 };
-test.use({ viewport, video: { mode: 'on', size: viewport }, trace: 'on' });
+test.use({
+  viewport,
+  video: { mode: 'on', size: viewport },
+  trace: timingTrace,
+});
 
 test('storybook integration: Sokoban overhaul solve and recover 768/light', async ({
   page,

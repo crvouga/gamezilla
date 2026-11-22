@@ -79,10 +79,21 @@ export type SpaceScreenChrome = SpaceShellChrome & {
 export type SpaceShellProps = SpaceShellChrome & {
   /** Who is looking: a guest gets Leave, the host End. */
   role: SpaceRole;
-  /** Row 2: the people row (`SpacePeople`). */
-  people: JSX.Element;
+  /**
+   * Row 2: the people row (`SpacePeople`). Every template draws it. Left out
+   * only around a screen not yet on a template, which shows its own seats
+   * and needs the room: then rows 1 and 3 meet.
+   */
+  people?: JSX.Element | undefined;
   /** Row 3: what the space is doing now. */
   children: JSX.Element;
+  /**
+   * `heading` (default): the space's name is the screen's `h1`. `context`:
+   * the screen in the stage brings its own heading (one not yet on a
+   * template), so the name is plain text beside back and never the first
+   * heading on the page.
+   */
+  nameAs?: 'heading' | 'context' | undefined;
   /**
    * `scroll` (default): the stage scrolls on its own when its content is
    * taller than the room left (choices, history, settings pages). `fixed`:
@@ -170,12 +181,24 @@ function ActionsRow(props: SpaceShellProps): JSX.Element {
         <span class={`text textCaption ${styles['eyebrow']}`}>
           <Trans>Spaces</Trans>
         </span>
-        <h1
-          class="text textHeading truncate min-w-0"
-          data-testid={props.testIds?.title}
+        <Show
+          when={props.nameAs === 'context'}
+          fallback={
+            <h1
+              class="text textHeading truncate min-w-0"
+              data-testid={props.testIds?.title}
+            >
+              {props.spaceName}
+            </h1>
+          }
         >
-          {props.spaceName}
-        </h1>
+          <p
+            class="text textHeading truncate min-w-0"
+            data-testid={props.testIds?.title}
+          >
+            {props.spaceName}
+          </p>
+        </Show>
       </div>
       <SettingsAction {...props} />
       <ExitAction {...props} />

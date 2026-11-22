@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { timingTrace } from '../../../storybook/timing-trace';
 import {
   accessibility,
   capture,
@@ -8,7 +9,11 @@ import {
 import { measureSokoban } from '../sokoban-overhaul/responsiveness';
 
 const viewport = { width: 390, height: 844 };
-test.use({ viewport, video: { mode: 'on', size: viewport }, trace: 'on' });
+test.use({
+  viewport,
+  video: { mode: 'on', size: viewport },
+  trace: timingTrace,
+});
 
 test('storybook integration: Sokoban maximum board input and frame evidence', async ({
   page,

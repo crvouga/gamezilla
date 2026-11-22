@@ -1,0 +1,4 @@
+{
+  "summary": "In-process harness frames recorded bundled images at their machine-local file: URL (the account screen's Google sign-in mark, new URL('./google-g.png', import.meta.url)). The UI-quality replay allows only data: images and blocks file://, so decoding failed ('The source image cannot be decoded.') and every nightly visual gate since the mark was added ended in a tooling failure. Frame capture now embeds each local image as a data: URI and fails capture if the file cannot be read.",
+  "regressionTest": "libs/harness-ts/tests/snapshot-local-images.test.ts"
+}
