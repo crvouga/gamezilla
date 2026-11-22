@@ -1,0 +1,4 @@
+{
+  "summary": "After the repository returned from its organization to the user account, GitHub issued immutable OIDC subjects with owner ID49178412 and audience of the user account again, while bootstrap still declared organization owner ID354284559. Verify run44973383414 failed in verify:start with Infisical Access denied: OIDC subject not allowed. Declare the user owner ID and owner_is_organization false together, so the human identity recovery restores CI trust and repository policy stops sending allow_forking to a user-owned repository.",
+  "regressionTest": "libs/infra-server-ts/tests/github-transfer.test.ts"
+}

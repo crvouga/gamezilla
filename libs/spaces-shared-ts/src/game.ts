@@ -212,14 +212,19 @@ export type GameClientMenuProps = {
 export type GameClientDefinition = {
   readonly presentation?: GamePresentation<JSX.Element>;
   readonly id: string;
-  /** Display title shown in the games picker (localized string or node). */
-  readonly title: JSX.Element | string;
-  /** One-line description under the title in the games picker. */
-  readonly caption?: JSX.Element | string;
+  /** The game's name wherever it is picked. */
+  readonly title: string;
+  /** One line about the game. */
+  readonly caption?: string;
   /** How many play one game: its seats, or 1 for a game played alone. */
   readonly players?: number;
-  /** The game's picture beside its title wherever it is picked. */
-  readonly Tile: (props: { readonly size?: 'md' | 'lg' }) => JSX.Element;
+  /** Bots can fill the seats nobody here takes. */
+  readonly bots: boolean;
+  /**
+   * The game's picture wherever it is picked: the name of a `GameTile`
+   * motif (`@pkgs/ui-root-client-ts/game-tile`).
+   */
+  readonly motif: string;
   /** Mounted when this game is the currently selected game in the space. */
   readonly MainMenu: (props: GameClientMenuProps) => JSX.Element;
   /** Account-owned effects observe open rooms even while another screen is shown. */

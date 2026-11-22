@@ -195,9 +195,24 @@ test('a globals-matrix story owns one scenario and baseline per combination, the
     tags: ['viewport-responsive'],
   };
   const scenarios = visualScenarios(story);
-  // 2 widths x 5 games x 2 roles x 2 themes
+  // 2 widths x 5 games x 2 roles x 2 themes. Chess is one of the games: its
+  // board comes from its own package, its baselines sit with the others.
   expect(scenarios).toHaveLength(40);
   expect(new Set(scenarios.map(({ baseline }) => baseline)).size).toBe(40);
+  expect(
+    scenarios
+      .filter(({ globals }) => globals['spaceGame'] === 'chess')
+      .map(({ suffix }) => suffix)
+  ).toEqual([
+    '-chess-host',
+    '-chess-host',
+    '-chess-guest',
+    '-chess-guest',
+    '-1440-chess-host',
+    '-1440-chess-host',
+    '-1440-chess-guest',
+    '-1440-chess-guest',
+  ]);
   const hearts = scenarios.filter(
     ({ globals }) =>
       globals['spaceGame'] === 'hearts' && globals['spaceRole'] === 'host'

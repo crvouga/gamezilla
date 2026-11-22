@@ -6,7 +6,7 @@ import { GameScreen } from './index';
 
 const meta = {
   id: 'templates-game-compact-inset',
-  title: 'Templates/Game compact inset',
+  title: 'Templates/Games/GameScreen compact inset',
   component: GameScreen,
   parameters: { layout: 'fullscreen' },
 } satisfies Meta;

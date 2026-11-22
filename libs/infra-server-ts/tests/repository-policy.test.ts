@@ -189,7 +189,7 @@ test('repository ownership controls whether allow_forking is sent', () => {
   // Literal failing input: plan `allow_forking = true -> false` on the
   // source repository, then PATCH /repos/<owner>/<repo> 422
   // "Allow forks setting can only be changed on org-owned private repositories".
-  expect(GLOBAL.github.owner_is_organization).toBe(true);
+  expect(GLOBAL.github.owner_is_organization).toBe(false);
   expect(GLOBAL.github.settings.allow_forking).toBe(false);
   expect(repository).toMatch(
     /allow_forking\s*=\s*var\.owner_is_organization \? var\.settings\.allow_forking : null/
@@ -445,4 +445,11 @@ test('release tags cannot be moved or deleted, and fixed labels are declared one
   // Dated run labels belong to /overnight, never to the declared set.
   expect(labels.some((label) => /^overnight:\d/.test(label.name))).toBe(false);
   expect(repository).not.toMatch(/resource "github_issue_labels"/);
+});
+
+// regression: repository-ruleset-main-outside-state
+test('the main ruleset that already exists on GitHub is adopted, never created a second time', () => {
+  expect(imports).toMatch(
+    /import \{\s*to\s*=\s*module\.repository\.github_repository_ruleset\.main\s*id\s*=\s*"\$\{var\.github\.repo\}:\d+"\s*\}/
+  );
 });

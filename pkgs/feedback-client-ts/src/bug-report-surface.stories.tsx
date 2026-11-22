@@ -6,7 +6,7 @@ import { withAppBehind } from './bug-report-surface.example';
 
 const meta = {
   id: 'product-bug-report-surface',
-  title: 'Organisms/Bug report surface',
+  title: 'Organisms/Feedback/BugReportSurface',
   component: BugReportSurfaceView,
   tags: ['autodocs', 'viewport-responsive'],
   decorators: [withAppBehind],

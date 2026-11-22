@@ -6,7 +6,7 @@ import { createSignal, type JSX, Show } from 'solid-js';
 import { Button } from '../button/index';
 import { ResponsiveSurface } from '../responsive-surface/index';
 import { spaceDataSet } from '../space-data-set';
-import { SpacePeople } from '../space-person-sheet/space-people';
+import { SpacePeople } from '../space-person-menu/space-people';
 import { type SpaceScreenChrome, SpaceShell } from '../space-shell/index';
 import type {
   SpaceGame,
@@ -128,7 +128,7 @@ function InGameStage(props: SpaceInGameTemplateProps): JSX.Element {
  * as a parameter. The game supplies everything in `SpaceGame.play`: the
  * slim status line, the whole board, the action bar's actions for this
  * moment (or what the viewer waits for), each person's color, turn and
- * one number, and the actions it adds to each person's sheet. The template
+ * one number, and the actions it adds to each person's menu. The template
  * supplies the frame: the three rows, the board edge to edge in the stage,
  * the fixed action bar, and the people row with player-color rings and the
  * turn badge. Invite is hidden while a game runs.
@@ -147,7 +147,6 @@ export function SpaceInGameTemplate(
       role={props.role}
       onBack={props.onBack}
       backLabel={props.backLabel}
-      onSettings={props.onSettings}
       menu={props.menu}
       onLeave={props.onLeave}
       onEnd={props.onEnd}

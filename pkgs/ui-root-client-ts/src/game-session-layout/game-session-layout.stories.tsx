@@ -8,7 +8,7 @@ import { GameSessionLayout } from './index';
 
 const meta = {
   id: 'templates-matchmaking-game',
-  title: 'Games/Shared/Screens/GameSessionLayout',
+  title: 'Templates/Games/GameSessionLayout',
   component: GameSessionLayout,
   tags: ['autodocs'],
 } satisfies Meta;

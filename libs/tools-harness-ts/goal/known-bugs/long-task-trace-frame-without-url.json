@@ -1,0 +1,4 @@
+{
+  "summary": "The Sokoban long-task trace crashed reading the url of a CPU profile frame that has no script, such as (garbage collector), so the timing check failed before it measured anything.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/long-task-trace.test.ts"
+}

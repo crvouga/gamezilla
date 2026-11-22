@@ -4,7 +4,7 @@ import { CatalogDetail } from './index';
 
 const meta = {
   id: 'layouts-catalog',
-  title: 'Templates/Catalog',
+  title: 'Templates/CatalogDetail',
   component: CatalogDetail,
   tags: ['autodocs'],
 } satisfies Meta;

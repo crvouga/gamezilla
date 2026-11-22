@@ -43,11 +43,11 @@ than restating it.
 
 - **Concurrent worktrees never share a hot file.** Many agents work at once, so nothing they routinely add to is one shared file. A register is a directory with one file per entry (`libs/tools-harness-ts/goal/known-bugs/<bug-id>.json`); a list of local modules is discovered from the filesystem (`tests/<kind>/index.ts` loads every `*.steps.ts` / `*.binding.ts`); output derived from sources (step catalogs, the Lingui catalog `messages.po` and its compiled `messages.ts`) is gitignored and written by `bun install` (`postinstall` → `bun run generate`), never committed; numbers measured from the workspace (the CI load in `docs/CI_REQUIREMENTS.md`) are printed by their script, not pasted into a document. A derived file that has to stay committed (`bun.lock`, the Biome scope slices) gets a rule in `libs/tools-harness-ts/scripts/generated-conflicts.ts`, so `bun run git-sync` rebuilds it on a merge conflict instead of anyone merging it by hand.
 
-- **Atlas is an npm dependency, never a copy.** `@crvouga/atlas` installs from npm through the root `catalog`: no submodule, vendored copy, `git` / `file:` dependency or patch. Import only its documented paths (`@crvouga/atlas`, `/spec`, `/schema`, `/reports/<module>`, …) and run its `atlas` / `atlas-visualizer` commands. A bug or gap in Atlas is an issue at [crvouga/atlas](https://github.com/crvouga-organization/atlas/blob/main/docs/reporting-issues.md), never a fix made from here; a workaround in our code is named in that issue and removed when the release that fixes it lands. Upgrade by raising the catalog entry in a commit of its own. Guide: [dogfooding](https://github.com/crvouga-organization/atlas/blob/main/docs/dogfooding.md).
+- **Atlas is an npm dependency, never a copy.** `@crvouga/atlas` installs from npm through the root `catalog`: no submodule, vendored copy, `git` / `file:` dependency or patch. Import only its documented paths (`@crvouga/atlas`, `/spec`, `/schema`, `/reports/<module>`, …) and run its `atlas` / `atlas-visualizer` commands. A bug or gap in Atlas is an issue at [crvouga/atlas](https://github.com/crvouga/atlas/blob/main/docs/reporting-issues.md), never a fix made from here; a workaround in our code is named in that issue and removed when the release that fixes it lands. Upgrade by raising the catalog entry in a commit of its own. Guide: [dogfooding](https://github.com/crvouga/atlas/blob/main/docs/dogfooding.md).
 
 - **No git hooks.** Do not add a `pre-commit`, `pre-push`, `core.hooksPath`, Husky, or any other git hook. Every change to `main` requires a pull request under the [git hygiene policy](README.md#git-hygiene). Release runs the blocking safety gate on that commit before it ships ([`README.md`](README.md#correctness-machinery)).
 
-- **Pull requests merge themselves when CI is green.** There is no human review; Verify PR is the gate. The contract:
+- **Pull requests merge themselves when CI is green.** There is no human review; Verify PR is the merge gate, and it runs four tasks. Everything else is first run by Release, which a failure blocks. The contract:
   - Branch from fresh `origin/main`. One task is one small PR; never bundle unrelated changes.
   - Open it ready for review (never `--draft`), then immediately `gh pr merge --auto --squash`. GitHub merges it once every required check passes and every review conversation is resolved.
   - The PR title is the squash commit's subject (Conventional Commits); the body is its message. Write both for a future reader of `git log`.
@@ -217,15 +217,19 @@ Four workflows, one contract each. Details:
 
 | Workflow | Command | Contract |
 | --- | --- | --- |
-| Verify PR (`verify-pr.yml`) | `bun verify` | Deterministic, merge-blocking run of the whole gate catalog (`ci-stage.ts`) at release depth; only cache misses execute, and Release restores identical results from the remote cache. Keeps no test report or artifact: a failure is read from the job log. |
+| Verify PR (`verify-pr.yml`) | `bun verify` | On a pull request, the merge-blocking run of the four tasks that cannot wait for Release (`PR_TASKS` in `ci-stage.ts`: `tc`, `lint`, `verify:secrets`, `verify:actionlint`). Dispatched by hand on a branch, the whole gate catalog at release depth. Keeps no test report or artifact: a failure is read from the job log. |
 | Verify Nightly (`verify-nightly.yml`) | `bun verify-nightly` | Comprehensive verification and exploration on `main`, every night. Owns test reports, diagnostics and reproducibility. Never gates a merge or a deploy. |
-| Release (`deploy.yml`) | `bun deploy` | Continuous production release: verify the selected main commit with the safety gate, then deploy with live safeguards. Newer pending commits supersede older pending releases; active releases finish. |
+| Release (`deploy.yml`) | `bun deploy` | Continuous production release: verify the selected main commit with the whole gate catalog, then deploy with live safeguards. Every check a pull request skipped first runs here; one that fails blocks the release and keeps its own open `ci-failure` issue until a Release verifies it green. Newer pending commits supersede older pending releases; active releases finish. |
 | Health (`health.yml`) | `bun health` | Scheduled verification that production is available and correct. Releases nothing. |
 
 - **Heavy verification runs on hosted runners, never queued on this machine.**
-  Development work is done when hosted Verify PR (`bun verify` on GitHub's
-  runners) is green on the final tree. Locally, run only scoped, cached tasks
-  (`bunx turbo run tc lint test --filter=<pkg>`); push for the full gate. For
+  A pull request's Verify PR runs four tasks, so a green pull request does
+  not prove the change: development work is done when the tests of what you
+  touched pass and the whole gate is green on the final tree. Locally, run
+  only scoped, cached tasks (`bunx turbo run tc lint test --filter=<pkg>`);
+  for the whole gate, dispatch it on the branch (`gh workflow run
+  verify-pr.yml --ref <branch>`). What you skip fails in Release instead,
+  blocks every deploy behind it and opens a `ci-failure` issue. For
   deeper verification (a new Quint model, a property, sync and recovery code),
   dispatch `verify-nightly.yml` with a group (`gh workflow run verify-nightly.yml
   --ref <branch> -f group=random`) instead of running `bun verify-nightly`
@@ -242,7 +246,13 @@ Four workflows, one contract each. Details:
   write a test that exists only for one profile.
 - **A nightly finding is promoted.** Pin the failing trace in the model
   binding's `regressions`, or the shrunk input as a `// regression: <bug-id>`
-  example. The pinned regression lives in a gate suite, which every pull request and Release runs.
+  example. The pinned regression lives in a gate suite, which every Release runs.
+- **A red Release check is queued work.** Each check failing in Release's
+  verification on `main` has one open issue labelled `ci-failure`
+  ("Release check failing on main: `<task>`"), rewritten by every red Release
+  and closed by the first Release that verifies the check green
+  (`ci-check-issues.ts`). Fix one issue per pull request; never close one by
+  hand.
 - **The required status is `verify:end`.** Verify PR is three jobs
   (`verify:start`, `verify:shards (N)`, `verify:end`). They keep the `verify:`
   prefix wherever the gate runs (a pull request, Release's verification, the
@@ -293,7 +303,8 @@ Setup and server startup are separate stages. Never copy credentials from anothe
   whole system running in the browser, no local servers. Prefer it
   for looking at a change; see [preview environments](docs/PREVIEW_ENVIRONMENTS.md).
 - **Iterating.** `bun fmt`, `bunx turbo run tc test --filter=<pkg>` (cached),
-  then push: hosted Verify PR runs the full gate.
+  then push. The pull request runs four tasks; dispatch `verify-pr.yml` on
+  the branch for the full gate.
   `bun run git-sync` (`/git-sync`) is the one commit/push/trunk-sync step.
   PR bodies follow `.github/PULL_REQUEST_TEMPLATE.md`. `/pr-ready` drives a PR
   to Ready to merge; `/ci-workflows-green` drives Verify, Release and Health
@@ -352,7 +363,7 @@ test:max`: sidecars from `@pkgs/postgres-mockingbird-server-ts`, `@pkgs/s3-serve
   (`@crvouga/mockingbird-service-stripe`) and Google / Apple
   (`@crvouga/mockingbird-service-oauth`) run in process in harnesses and as
   servers in the stack. A gap or divergence in a simulated vendor is an issue
-  at [crvouga/mockingbird](https://github.com/crvouga-organization/mockingbird/blob/main/docs/REPORTING_ISSUES.md),
+  at [crvouga/mockingbird](https://github.com/crvouga/mockingbird/blob/main/docs/REPORTING_ISSUES.md),
   never a local mock or a workaround in product code.
 - **Accounts link, never merge silently.** At most one identity per provider
   per user; an identity never moves; the last one cannot be removed. A new

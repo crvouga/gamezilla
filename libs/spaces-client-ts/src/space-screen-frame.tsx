@@ -1,17 +1,24 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { useSetAppFrameHeader } from '@pkgs/ui-root-client-ts/app-frame-chrome';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
-import { SpaceStageTemplate } from '@pkgs/ui-root-client-ts/space-stage-template';
+import { SpacePeople } from '@pkgs/ui-root-client-ts/space-person-menu/space-people';
+import { SpaceShell } from '@pkgs/ui-root-client-ts/space-shell';
 import { type JSX, Show } from 'solid-js';
 import { SpaceScreenNotice, useSpaceScreenChrome } from './space-screen-chrome';
 import { SpaceShellClaimFrame } from './space-shell-claim';
 
 /**
  * The space-level wrapper of every screen in a space: it renders inside the
- * default stage shell (`SpaceStageTemplate`, scrolling, people as while
- * choosing, chrome from `useSpaceScreenChrome`) unless it claimed the shell
- * with `ClaimSpaceShell`, in which case it is rendered bare and draws its
- * own template. See `./space-shell-claim`.
+ * default shell unless it claimed the shell with `ClaimSpaceShell`, in which
+ * case it is rendered bare and draws its own template (people row
+ * included). See `./space-shell-claim`.
+ *
+ * The default shell is the space's row 1 and its people row (chrome from
+ * `useSpaceScreenChrome`) over a fixed stage: the people in the space stay
+ * in view on every screen in it. A screen not yet on a template lays
+ * itself out in the room under them and brings its own heading (the
+ * space's name is plain text beside back). A game board sizes itself to
+ * that room, so the stage never scrolls.
  *
  * While the space is still being reached the stage shows its loading state
  * under the space's own rows, never over the whole screen. The space draws
@@ -25,13 +32,31 @@ export function SpaceScreenFrame(props: {
   return (
     <SpaceShellClaimFrame
       shell={(content) => (
-        <SpaceStageTemplate
-          {...chrome}
-          phase="choosing"
+        <SpaceShell
+          spaceName={chrome.spaceName}
+          role={chrome.role}
+          onBack={chrome.onBack}
+          backLabel={chrome.backLabel}
+          menu={chrome.menu}
+          onLeave={chrome.onLeave}
+          onEnd={chrome.onEnd}
           notice={<SpaceScreenNotice />}
+          testIds={chrome.testIds}
+          nameAs="context"
+          stage="fixed"
+          people={
+            <SpacePeople
+              people={chrome.people}
+              viewer={chrome.role}
+              phase="choosing"
+              capabilities={chrome.personCapabilities}
+              onPersonAction={chrome.onPersonAction}
+              onInvite={chrome.onInvite}
+            />
+          }
         >
           {content}
-        </SpaceStageTemplate>
+        </SpaceShell>
       )}
     >
       <Show

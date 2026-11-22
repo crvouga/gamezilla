@@ -4,7 +4,7 @@ import { BoardFit } from './index';
 
 const meta = {
   id: 'layouts-boardfit',
-  title: 'Games/Shared/Components/GameBoardFit',
+  title: 'Organisms/Games/Shared/GameBoardFit',
   component: BoardFit,
   tags: ['autodocs'],
 } satisfies Meta;

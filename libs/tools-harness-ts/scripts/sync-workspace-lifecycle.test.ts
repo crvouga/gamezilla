@@ -5,7 +5,9 @@ import {
   HOOKS,
   hookCommand,
   ORCHESTRATORS,
+  PREVIEW_COMMAND,
   renderConfigs,
+  STORYBOOK_COMMAND,
 } from './sync-workspace-lifecycle';
 
 describe('renderConfigs', () => {
@@ -18,7 +20,7 @@ describe('renderConfigs', () => {
   });
 
   // regression: workspace-actions-minimal
-  test('T3 exposes only Start stack and Bootstrap, neither run automatically', () => {
+  test('T3 exposes only the four requested manual actions in menu order', () => {
     const file = files.find((entry) => entry.path === 't3.json');
     expect(file).toBeDefined();
     const config = JSON.parse(file!.content) as {
@@ -35,8 +37,10 @@ describe('renderConfigs', () => {
     expect(
       config.scripts.map((script) => [script.name, script.command])
     ).toEqual([
-      ['Start stack', hookCommand('run')],
       ['Bootstrap', BOOTSTRAP_COMMAND],
+      ['Localhost', hookCommand('run')],
+      ['Preview', PREVIEW_COMMAND],
+      ['Storybook', STORYBOOK_COMMAND],
     ]);
     expect(
       config.scripts.some(

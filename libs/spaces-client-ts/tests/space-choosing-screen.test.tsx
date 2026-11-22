@@ -1,0 +1,258 @@
+/** @jsxImportSource solid-js */
+/**
+ * `/space/:id` before a game is picked is the catalogue's choosing screen:
+ * the space's stage template with the launcher, wired to the registered
+ * games. The app has no other game choice.
+ */
+
+import { afterEach, expect, mock, test } from 'bun:test';
+import {
+  SpaceChoosingScreenView,
+  spaceChoosingPeople,
+  spaceLauncherGames,
+} from '@libs/spaces-client-ts/space-choosing-screen-view';
+import {
+  type SpaceScreenChromeValue,
+  SpaceScreenChromeValueProvider,
+} from '@libs/spaces-client-ts/space-screen-chrome';
+import { SpaceScreenFrame } from '@libs/spaces-client-ts/space-screen-frame';
+import { GAMES } from '@libs/spaces-client-ts/spaces-story.example';
+import { Handles } from '@libs/test-ids-shared-ts/handles';
+import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
+import { ClockProvider } from '@pkgs/clock-client-ts/solid';
+import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
+import type {
+  SpaceRole,
+  SpacePerson as SpaceShellPerson,
+} from '@pkgs/ui-root-client-ts/space-types';
+import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
+import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
+import { cleanup, fireEvent, screen } from '@solidjs/testing-library';
+
+afterEach(cleanup);
+
+const noop = (): void => {};
+
+const AVERY: SpaceShellPerson = {
+  id: 'avery',
+  kind: 'person',
+  name: 'avery',
+  host: true,
+};
+const GUESTS: readonly SpaceShellPerson[] = ['sam', 'jo', 'kit', 'lee'].map(
+  (name) => ({ id: name, kind: 'person', name })
+);
+
+function chrome(input: {
+  role: SpaceRole;
+  people: readonly SpaceShellPerson[];
+  onInvite?: () => void;
+}): SpaceScreenChromeValue {
+  return {
+    spaceId: 'space-1',
+    spaceName: 'Friday game night',
+    role: input.role,
+    hostName: 'avery',
+    people: input.people,
+    hostOffline: false,
+    status: 'ready',
+    onBack: noop,
+    backLabel: undefined,
+    menu: [{ id: 'minimize', label: 'Minimize space', onPress: noop }],
+    onLeave: noop,
+    onEnd: noop,
+    onInvite: input.onInvite ?? noop,
+    onPersonAction: noop,
+    personCapabilities: [],
+    testIds: {
+      back: Handles.spaceBackToSpaces,
+      title: Handles.spaceTitle,
+      settings: Handles.spaceChromeOverflow,
+      leave: Handles.spaceLeave,
+      end: Handles.spaceEnd,
+    },
+  };
+}
+
+function mount(input: {
+  role: SpaceRole;
+  people: readonly SpaceShellPerson[];
+  width?: number;
+  onSelectGame?: (id: string) => void;
+  onInvite?: () => void;
+}): HTMLElement {
+  const time = createHarnessClock();
+  const { container } = renderWithI18n(() => (
+    <ClockProvider clock={time.clock} timers={time.timers}>
+      <ThemeProvider
+        colorScheme="light"
+        fixedLayout={{ width: input.width ?? 390, height: 844 }}
+      >
+        <SurfaceStackProvider>
+          <SpaceScreenChromeValueProvider value={chrome(input)}>
+            <SpaceScreenFrame>
+              <SpaceChoosingScreenView
+                games={GAMES}
+                canSelectGame={input.role === 'host'}
+                onSelectGame={input.onSelectGame ?? noop}
+              />
+            </SpaceScreenFrame>
+          </SpaceScreenChromeValueProvider>
+        </SurfaceStackProvider>
+      </ThemeProvider>
+    </ClockProvider>
+  ));
+  return container;
+}
+
+const you = (person: SpaceShellPerson): SpaceShellPerson => ({
+  ...person,
+  you: true,
+});
+
+test('the screen is the catalogue template and launcher, in one shell', () => {
+  const container = mount({ role: 'host', people: [you(AVERY)] });
+  expect(
+    container.querySelectorAll('[data-component="SpaceStageTemplate"]')
+  ).toHaveLength(1);
+  expect(
+    container.querySelectorAll('[data-component="SpaceLauncher"]')
+  ).toHaveLength(1);
+  expect(screen.getAllByTestId(Handles.spaceTitle)).toHaveLength(1);
+  // The old list is gone: no menu rows, no second heading for the games.
+  expect(
+    container.querySelector('[data-component="MainMenuScreen"]')
+  ).toBeNull();
+  expect(screen.queryByText('Pick a game to play.')).toBeNull();
+});
+
+test('the host picks a registered game by its tile', () => {
+  const onSelectGame = mock();
+  mount({ role: 'host', people: [you(AVERY)], onSelectGame });
+  expect(screen.getByText('Pick a game')).toBeTruthy();
+  // Alone, a game for more people is still picked: bots or its own
+  // choices fill the seats.
+  fireEvent.click(screen.getByTestId(Handles.gameMenu('example-cards')));
+  expect(onSelectGame).toHaveBeenCalledWith('example-cards');
+});
+
+// The spec "Friends watch a puzzle": more people than a game seats watch it.
+test('with more people here than a game seats, the host still picks it', () => {
+  const onSelectGame = mock();
+  mount({ role: 'host', people: [you(AVERY), ...GUESTS], onSelectGame });
+  for (const id of ['example-board', 'example-puzzle']) {
+    const tile = screen.getByTestId(Handles.gameMenu(id));
+    expect(tile.getAttribute('data-dimmed')).toBe('false');
+    fireEvent.click(tile);
+    expect(onSelectGame).toHaveBeenLastCalledWith(id);
+  }
+});
+
+// regression: space-guest-invited-to-pick-game
+test('a guest is told the host is choosing, and is not invited to pick', () => {
+  for (const guests of [GUESTS.slice(0, 1), GUESTS]) {
+    const onSelectGame = mock();
+    const [me, ...others] = guests;
+    if (me === undefined) throw new Error('a guest is needed');
+    mount({ role: 'guest', people: [AVERY, you(me), ...others], onSelectGame });
+    const told = screen.getByTestId(Handles.spaceHostChoosesGame);
+    expect(told.textContent).toBe('avery is choosing a game');
+    expect(screen.queryByText(/^Pick a game/)).toBeNull();
+    expect(screen.queryByText(/suggest/i)).toBeNull();
+    const tile = screen.getByTestId(Handles.gameMenu('example-board'));
+    expect(tile.getAttribute('aria-disabled')).toBe('true');
+    fireEvent.click(tile);
+    expect(onSelectGame).not.toHaveBeenCalled();
+    cleanup();
+  }
+});
+
+// regression: game-chooser-hides-the-room
+// regression: space-desktop-members-only-in-header
+// regression: who-is-here-lone-person-row
+// regression: game-chooser-faces-cropped-to-slivers
+// regression: space-games-header-repeats-faces
+test('everyone here is one whole cell of the one people row, at any width', () => {
+  for (const width of [390, 1440]) {
+    const container = mount({
+      role: 'guest',
+      people: [
+        AVERY,
+        ...GUESTS.map((guest, i) => (i === 0 ? you(guest) : guest)),
+      ],
+      width,
+    });
+    const rows = container.querySelectorAll(
+      '[data-component="SpacePeopleRow"]'
+    );
+    expect(rows).toHaveLength(1);
+    const cells = container.querySelectorAll(
+      '[data-component="SpacePersonCell"]'
+    );
+    expect([...cells].map((cell) => cell.getAttribute('data-person'))).toEqual([
+      'avery',
+      'sam',
+      'jo',
+      'kit',
+      'lee',
+    ]);
+    // One row that scrolls, never a grid with a lone last person, never a
+    // stack of overlapped faces, never the same faces a second time.
+    expect(
+      container.querySelector('[data-component="AvatarGroup"]')
+    ).toBeNull();
+    expect(container.querySelectorAll('[data-person="sam"]')).toHaveLength(1);
+    expect(
+      screen.getByRole('button', { name: /^avery, Host, Choosing/ })
+    ).toBeTruthy();
+    cleanup();
+  }
+});
+
+// regression: space-games-no-visible-invite
+test('Invite is in the people row and opens the share sheet', () => {
+  const onInvite = mock();
+  mount({ role: 'host', people: [you(AVERY)], onInvite });
+  fireEvent.click(screen.getByRole('button', { name: 'Invite' }));
+  expect(onInvite).toHaveBeenCalledTimes(1);
+});
+
+// regression: space-seats-explained-twice
+// regression: game-list-watch-rule-unclear
+// regression: space-game-list-repeats-spectator-rule
+test('each tile says only how many play; nothing says who watches twice', () => {
+  const container = mount({ role: 'host', people: [you(AVERY), ...GUESTS] });
+  const text = container.textContent ?? '';
+  expect(text).toContain('Pick a game for 5 players');
+  expect(text).not.toMatch(/others watch|everyone else here/);
+  const marks = GAMES.map(
+    (game) => screen.getByTestId(Handles.gameMenu(game.id)).textContent ?? ''
+  );
+  expect(marks).toEqual([
+    'ChessUp to 2',
+    'HeartsUp to 4',
+    'Light CyclesUp to 4',
+    'NumberlinkSolo',
+  ]);
+});
+
+test('each registered game becomes one launcher tile with its harness handle', () => {
+  expect(spaceLauncherGames(GAMES).map((game) => game.testId)).toEqual(
+    GAMES.map((game) => Handles.gameMenu(game.id))
+  );
+  expect(() =>
+    spaceLauncherGames([
+      { id: 'x', title: 'X', bots: false, motif: 'not-a-motif' },
+    ])
+  ).toThrow('x: "not-a-motif" is not a game tile motif');
+});
+
+test('while choosing, the host is choosing, the rest watch, the quiet stay away', () => {
+  expect(
+    spaceChoosingPeople([
+      AVERY,
+      { id: 'sam', kind: 'person', name: 'sam' },
+      { id: 'jo', kind: 'person', name: 'jo', status: 'away' },
+    ]).map((person) => person.status)
+  ).toEqual(['choosing', 'watching', 'away']);
+});

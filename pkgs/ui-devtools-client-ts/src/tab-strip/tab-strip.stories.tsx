@@ -3,7 +3,7 @@ import { TabStrip } from './index';
 import Example from './tab-strip.example';
 export default {
   id: 'product-developer-tools-tabstrip',
-  title: 'Organisms/TabStrip',
+  title: 'Organisms/Devtools/TabStrip',
   component: TabStrip,
   tags: ['autodocs'],
 } satisfies Meta;

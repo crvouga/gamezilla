@@ -4,7 +4,7 @@ import Example from './profile-screen-layout.example';
 
 const meta = {
   id: 'templates-profile',
-  title: 'Templates/Profile',
+  title: 'Templates/ProfileScreenLayout',
   component: ProfileIdentity,
   tags: ['autodocs'],
 } satisfies Meta;

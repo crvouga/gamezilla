@@ -229,6 +229,7 @@
     "@clack/prompts": "^1.8.1",
     "@crvouga/atlas": "^0.10.2",
     "@crvouga/mockingbird-notifications": "^0.13.0",
+    "@crvouga/mockingbird-ui": "^0.2.0",
     "@crvouga/mockingbird-preview": "^0.2.0",
     "@crvouga/mockingbird-service-github": "^1.18.2",
     "@crvouga/mockingbird-service-oauth": "^3.19.2",

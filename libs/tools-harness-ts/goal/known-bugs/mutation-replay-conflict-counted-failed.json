@@ -1,0 +1,4 @@
+{
+  "summary": "A write whose batch lost a Postgres serialization race was counted as a failed save on the losing attempt, and the writes before it in the batch were counted again on the retry, although the server replayed the whole batch in a fresh transaction and saved them all. This inflated the changes-are-saved objective's bad events. Replays are now counted once, after the batch settles.",
+  "regressionTest": "pkgs/sync-engine-server-ts/tests/mutation-replay-metrics.test.ts"
+}

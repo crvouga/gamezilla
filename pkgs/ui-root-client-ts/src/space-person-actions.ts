@@ -16,7 +16,7 @@ import type {
   SpaceRole,
 } from './space-types';
 
-/** The space's own person actions; their words live in `SpacePersonSheet`. */
+/** The space's own person actions; their words live in `SpacePersonMenu`. */
 export type SpacePersonActionId =
   | 'readyUp'
   | 'notReady'
@@ -53,7 +53,7 @@ export const SPACE_PERSON_CAPABILITIES: readonly SpacePersonCapability[] = [
   'sendMessage',
 ];
 
-/** One row of a person's sheet. */
+/** One row of a person's menu. */
 export type SpacePersonActionEntry =
   | {
       source: 'space';
@@ -136,7 +136,7 @@ function spaceEntry(
   };
 }
 
-/** Every action the viewer has on the pressed entry, in sheet order. */
+/** Every action the viewer has on the pressed entry, in menu order. */
 export function spacePersonActions(
   input: SpacePersonActionsInput
 ): readonly SpacePersonActionEntry[] {

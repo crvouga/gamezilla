@@ -1348,7 +1348,7 @@ async function previewNames(
     }
     // Cloudflare would not list (or the Worker is not deployed yet, which
     // mockingbird reports as a failure too:
-    // https://github.com/crvouga-organization/mockingbird/issues/853): ask
+    // https://github.com/crvouga/mockingbird/issues/853): ask
     // about each recently closed pull request.
     say(
       `Cloudflare did not list the ${site.key} Previews; probing recently closed pull requests`

@@ -7,7 +7,7 @@ import { GameVersusOverlay } from './index';
 
 const meta = {
   id: 'product-game-stage-overlay',
-  title: 'Games/Shared/Components/GameStageOverlay',
+  title: 'Organisms/Games/Shared/GameStageOverlay',
   component: GameVersusOverlay,
   tags: ['autodocs'],
   args: {

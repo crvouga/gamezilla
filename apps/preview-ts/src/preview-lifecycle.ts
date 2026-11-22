@@ -83,7 +83,7 @@ export function decidePreviewAction(
   if (now === null)
     return { kind: 'skip', reason: 'pull request could not be read' };
   // mockingbird says what to do but not why skipping
-  // (https://github.com/crvouga-organization/mockingbird/issues/855).
+  // (https://github.com/crvouga/mockingbird/issues/855).
   // Closed wins whatever started the run: a deploy queued behind a close must
   // not bring the Preview back. An older commit never replaces a newer one:
   // the run for the newer head deploys it.
@@ -162,7 +162,7 @@ export type SweepPlan = {
  * Names this tooling never made are left alone: a sweep only deletes what
  * the lifecycle created. They still count against the capacity, which is
  * the plan's limit for the whole Worker; mockingbird counts only its own
- * (https://github.com/crvouga-organization/mockingbird/issues/854).
+ * (https://github.com/crvouga/mockingbird/issues/854).
  */
 export function planSweep(args: {
   readonly previewNames: readonly string[];

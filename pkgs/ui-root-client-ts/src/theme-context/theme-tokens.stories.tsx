@@ -3,7 +3,8 @@ import { ThemeProvider } from './index';
 import Example from './theme-tokens.example';
 
 const meta = {
-  title: 'Foundations/Theme Tokens',
+  id: 'foundations-theme-tokens',
+  title: 'Foundations/ThemeTokens',
   component: ThemeProvider,
   tags: ['autodocs'],
 } satisfies Meta;

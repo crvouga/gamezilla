@@ -7,7 +7,7 @@
  *
  * Prints the table, appends it to `GITHUB_STEP_SUMMARY` with the artifact and
  * the command that runs each group again, and keeps one open issue for a red
- * `main`: opened on the first red night, commented on each later one, closed
+ * `main`: opened on the first red night, rewritten by each later one, closed
  * by the next green night.
  */
 import { appendFileSync } from 'node:fs';
@@ -141,7 +141,7 @@ export function formatNightlyMarkdown(
     ...(failed.length === 0
       ? []
       : [
-          'Check out the commit above and run the command of a red group. Its job log names the failing task, the seed it drew and the replay command; its artifact holds the reports. Pin what it found as a regression in the suite that found it, so future verification replays it. Classify security exposure or data loss as P1 (immediate containment); other regressions as P2 (triage by the next working day). The pinned regression is a gate test, which every pull request then runs. The assigned owner must resolve or explicitly track remaining failures; a diagnostic rerun cannot close this issue.',
+          'Check out the commit above and run the command of a red group. Its job log names the failing task, the seed it drew and the replay command; its artifact holds the reports. Pin what it found as a regression in the suite that found it, so future verification replays it. Classify security exposure or data loss as P1 (immediate containment); other regressions as P2 (triage by the next working day). The pinned regression is a gate test, which every Release then runs. The assigned owner must resolve or explicitly track remaining failures; a diagnostic rerun cannot close this issue.',
           '',
         ]),
   ].join('\n');
@@ -165,12 +165,10 @@ function main(env: NodeJS.ProcessEnv): number {
   );
   const failed = failedGroups(groups);
   const repository = env['GITHUB_REPOSITORY'] ?? '';
+  const runUrl = `${env['GITHUB_SERVER_URL'] ?? 'https://github.com'}/${repository}/actions/runs/${env['GITHUB_RUN_ID'] ?? ''}`;
   const report = formatNightlyMarkdown(
     groups,
-    {
-      url: `${env['GITHUB_SERVER_URL'] ?? 'https://github.com'}/${repository}/actions/runs/${env['GITHUB_RUN_ID'] ?? ''}`,
-      sha: env['GITHUB_SHA'] ?? '',
-    },
+    { url: runUrl, sha: env['GITHUB_SHA'] ?? '' },
     selection
   );
   const markdown =
@@ -200,6 +198,7 @@ function main(env: NodeJS.ProcessEnv): number {
       markdown,
       red: failed.length > 0,
       owner: env['NIGHTLY_OWNER'] ?? '',
+      runUrl,
     });
   return failed.length === 0 ? 0 : 1;
 }

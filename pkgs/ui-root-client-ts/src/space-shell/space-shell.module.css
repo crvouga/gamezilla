@@ -29,9 +29,6 @@
   flex-direction: column;
   min-width: 0;
 }
-.eyebrow {
-  color: var(--ui-color-text-secondary);
-}
 
 /* Under row 1: the space's notice, only while there is one. */
 .notice {
@@ -46,6 +43,9 @@
   flex: none;
   height: 112px;
   border-bottom: 1px solid var(--ui-color-border);
+}
+.people:empty {
+  display: none;
 }
 
 /* Row 3: the stage. Scrolls on its own unless its content owns the room. */

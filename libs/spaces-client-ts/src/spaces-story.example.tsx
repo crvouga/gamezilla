@@ -1,11 +1,7 @@
 import { serializeDefaultAvatarConfig } from '@libs/profile-shared-ts/avatar-config';
 import { resolveParticipantColor } from '@pkgs/collab-root-shared-ts/participant-color';
-import {
-  GameTile,
-  type GameTileMotif,
-} from '@pkgs/ui-root-client-ts/game-tile';
-import type { JSX } from 'solid-js';
 import type { SpaceCardData } from './space-card-view';
+import type { SpaceChoosingGame } from './space-choosing-screen-view';
 import type { SpaceMemberRow } from './space-members-sheet-view';
 import type { SpacePerson } from './space-person-view';
 import type { SpacePresenceFace } from './space-presence-strip-view';
@@ -152,45 +148,38 @@ export const MEMBERS: readonly SpaceMemberRow[] = faces([
   isHost: index === 0,
 }));
 
-/** A made-up game's picture, as `defineGameClient` gives a registered game one. */
-export function storyTile(
-  motif: GameTileMotif
-): (props: { readonly size?: 'md' | 'lg' }) => JSX.Element {
-  return (props) => <GameTile motif={motif} size={props.size} />;
-}
-
 /**
  * Games a space offers, as the composition root would register them: real
  * games' names and lines, so a story reads as the product does. Ids are
  * made up: platform code never spells a registered game's id.
  */
-export const GAMES = [
+export const GAMES: readonly SpaceChoosingGame[] = [
   {
     id: 'example-board',
     title: 'Chess',
-    caption: 'Two players, one board, turn by turn.',
     players: 2,
-    Tile: storyTile('checkered'),
+    bots: true,
+    motif: 'checkered',
   },
   {
     id: 'example-cards',
     title: 'Hearts',
-    caption: 'Avoid hearts and the queen of spades.',
     players: 4,
-    Tile: storyTile('cards'),
+    bots: true,
+    motif: 'cards',
   },
   {
     id: 'example-race',
     title: 'Light Cycles',
-    caption: 'Steer your trail and outlast everyone.',
     players: 4,
-    Tile: storyTile('trails'),
+    bots: true,
+    motif: 'trails',
   },
   {
     id: 'example-puzzle',
     title: 'Numberlink',
-    caption: 'Join each pair of dots without crossing a line.',
     players: 1,
-    Tile: storyTile('paths'),
+    bots: false,
+    motif: 'paths',
   },
-] as const;
+];

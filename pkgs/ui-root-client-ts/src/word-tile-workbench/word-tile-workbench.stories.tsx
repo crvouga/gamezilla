@@ -6,7 +6,7 @@ import { WordTileActions, WordTileWorkbench } from './index';
 
 const meta = {
   id: 'product-wordtileworkbench',
-  title: 'Games/Word Tiles/Workbench',
+  title: 'Organisms/Games/Word Tiles/Workbench',
   component: WordTileWorkbench,
   tags: ['autodocs'],
 } satisfies Meta<typeof WordTileWorkbench>;

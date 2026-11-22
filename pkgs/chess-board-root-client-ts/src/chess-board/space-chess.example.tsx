@@ -6,7 +6,10 @@ import {
   type SpaceExampleSpies,
   spaceExampleChrome,
 } from '../../../ui-root-client-ts/storybook/fixtures/space-example-frame';
-import { spaceChessGame, spaceChessPeople } from './space-chess-fixture';
+import {
+  spaceChessGame,
+  spaceChessPeople,
+} from './space-chess-fixture.example';
 
 export type SpaceInGameChessExampleProps = SpaceExampleSpies & {
   /** Who is looking: the host is bob (White), a guest is ana (Black). */
@@ -16,8 +19,8 @@ export type SpaceInGameChessExampleProps = SpaceExampleSpies & {
 
 /**
  * bob's space while Chess is played, at one fixed mid-game moment, seen by
- * `role`. `@pkgs/ui` cannot draw the chess board, so the Space screen
- * stories take Chess in play from here.
+ * `role`. `@pkgs/ui` cannot draw the chess board, so `Templates/Space/SpaceInGameTemplate` takes
+ * Chess in play from here when the toolbar's game is Chess.
  */
 export default function SpaceInGameChessExample(
   props: SpaceInGameChessExampleProps

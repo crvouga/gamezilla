@@ -1,14 +1,10 @@
 import { afterEach, expect, test } from 'bun:test';
-import { SpaceGamesScreenView } from '@libs/spaces-client-ts/space-games-screen-view';
 import type {
   SpaceJoinConnection,
   SpaceJoinStatus,
 } from '@libs/spaces-client-ts/space-join-screen-view';
 import { SpaceJoinScreenView } from '@libs/spaces-client-ts/space-join-screen-view';
-import {
-  GAMES,
-  JOINED_SPACE,
-} from '@libs/spaces-client-ts/spaces-story.example';
+import { JOINED_SPACE } from '@libs/spaces-client-ts/spaces-story.example';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
@@ -90,26 +86,4 @@ test('an offline invitation explains the connection requirement once', () => {
   expect(
     view.container.querySelectorAll('[data-component="Notice"]')
   ).toHaveLength(1);
-});
-
-// regression: space-guest-invited-to-pick-game
-test('a guest is told to wait for the host, without a contradictory choice prompt', () => {
-  for (const present of [1, 5]) {
-    mount(() => (
-      <SpaceGamesScreenView
-        games={GAMES}
-        shownGame={null}
-        canSelectGame={false}
-        present={present}
-        hostChoosesNotice={false}
-        onSelectGame={() => undefined}
-      />
-    ));
-    expect(
-      screen.getByText('The host picks the game for this space.')
-    ).toBeTruthy();
-    expect(screen.queryByText('Pick a game to play.')).toBeNull();
-    expect(screen.queryByText(/Choose a game, then its players/)).toBeNull();
-    cleanup();
-  }
 });

@@ -4,7 +4,7 @@ import { P } from '../text/index';
 import { ScreenBodyVirtualList } from './index';
 export default {
   id: 'templates-virtual-collection',
-  title: 'Templates/Virtual collection',
+  title: 'Templates/ScreenBodyVirtualList',
   component: ScreenBodyVirtualList,
   tags: ['autodocs'],
   parameters: { controls: { disable: true } },

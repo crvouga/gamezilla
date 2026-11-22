@@ -7,6 +7,8 @@ import {
   spaceActionBarSplit,
 } from '@pkgs/ui-root-client-ts/space-in-game-template';
 import { SpacePeopleRow } from '@pkgs/ui-root-client-ts/space-people-row';
+import { SPACE_PERSON_CAPABILITIES } from '@pkgs/ui-root-client-ts/space-person-actions';
+import { SpacePeople } from '@pkgs/ui-root-client-ts/space-person-menu/space-people';
 import { SpaceSetupTemplate } from '@pkgs/ui-root-client-ts/space-setup-template';
 import { SpaceShell } from '@pkgs/ui-root-client-ts/space-shell';
 import { SpaceStageTemplate } from '@pkgs/ui-root-client-ts/space-stage-template';
@@ -63,11 +65,13 @@ const GAME: SpaceGame & { play: SpaceGamePlay } = {
 };
 
 describe('SpaceShell slots', () => {
-  test('test ids, the back label, the notice and the settings sheet', () => {
+  test('test ids, the back label, the notice and the space menu', () => {
     const rename = mock();
+    const onLeave = mock();
     renderSpace(() => (
       <SpaceShell
         {...CHROME}
+        onLeave={onLeave}
         role={GUEST}
         backLabel="Back to Chess"
         menu={[
@@ -84,23 +88,33 @@ describe('SpaceShell slots', () => {
       'Back to Chess'
     );
     expect(screen.getByTestId('t').textContent).toBe("bob's space");
-    expect(screen.getByTestId('l').textContent).toContain('Leave');
     expect(screen.getByTestId('notice')).toBeDefined();
+    // The way out is a row of the menu, never a control of its own.
+    expect(screen.queryByTestId('l')).toBeNull();
     fireEvent.click(screen.getByTestId('s'));
+    expect(
+      screen.getAllByRole('menuitem').map((row) => row.textContent)
+    ).toEqual(['Rename space', 'Leave space']);
     fireEvent.click(screen.getByTestId('r'));
     expect(rename).toHaveBeenCalledTimes(1);
+    fireEvent.click(screen.getByTestId('s'));
+    fireEvent.click(screen.getByTestId('l'));
+    expect(onLeave).toHaveBeenCalledTimes(1);
   });
 
-  test('no gear without settings; back says where by default', () => {
+  test('back says where by default; with no rows of its own the menu is the way out', () => {
     renderSpace(() => (
       <SpaceShell {...CHROME} role={HOST} people={null}>
         <p>{'stage'}</p>
       </SpaceShell>
     ));
-    expect(screen.queryByRole('button', { name: 'Space settings' })).toBeNull();
     expect(
       screen.getByRole('button', { name: 'Back to spaces' })
     ).toBeDefined();
+    fireEvent.click(screen.getByRole('button', { name: 'Space menu' }));
+    expect(
+      screen.getAllByRole('menuitem').map((row) => row.textContent)
+    ).toEqual(['End space']);
     expect(
       document.querySelector('[data-space-row="notice"]')?.childNodes.length
     ).toBe(0);
@@ -208,5 +222,32 @@ describe('SpacePeopleRow art and test ids', () => {
       screen.getByTestId('cell-bob').querySelector('img')?.getAttribute('src')
     ).toStartWith('data:image/svg+xml');
     expect(screen.getByRole('button', { name: 'cy, Opponent' })).toBeDefined();
+  });
+});
+
+describe('SpacePeople', () => {
+  test('pressing a person opens their actions as a menu against the avatar', () => {
+    const onPersonAction = mock();
+    renderSpace(() => (
+      <SpacePeople
+        people={[ME, OTHER]}
+        viewer={HOST}
+        phase="choosing"
+        capabilities={SPACE_PERSON_CAPABILITIES}
+        onPersonAction={onPersonAction}
+      />
+    ));
+    const cell = screen.getByRole('button', { name: /^bob/ });
+    expect(cell.getAttribute('aria-haspopup')).toBe('menu');
+    expect(screen.queryByRole('menu')).toBeNull();
+    fireEvent.click(cell);
+    expect(cell.getAttribute('aria-expanded')).toBe('true');
+    expect(screen.getByRole('menu', { name: 'bob' })).toBeDefined();
+    expect(screen.queryByRole('dialog')).toBeNull();
+    const remove = screen.getByRole('menuitem', { name: 'Remove from space' });
+    fireEvent.click(remove);
+    expect(onPersonAction).toHaveBeenCalledWith('bob', 'removeFromSpace');
+    expect(screen.queryByRole('menu')).toBeNull();
+    expect(cell.getAttribute('aria-expanded')).toBe('false');
   });
 });

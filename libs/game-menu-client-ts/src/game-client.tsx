@@ -9,10 +9,7 @@ import { assertGameDefinitions } from '@libs/game-session-shared-ts/game-definit
 import type { GameClientDefinition } from '@libs/spaces-shared-ts/game';
 import type { GamePresentation } from '@pkgs/turn-game-shared-ts/game-presentation';
 import { gameFamily, gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
-import {
-  GameTile,
-  type GameTileMotif,
-} from '@pkgs/ui-root-client-ts/game-tile';
+import type { GameTileMotif } from '@pkgs/ui-root-client-ts/game-tile';
 import type { JSX } from 'solid-js';
 import { assertContentFrame, assertFrame } from './game-frame-contract';
 import { GameMenu } from './game-menu';
@@ -92,11 +89,12 @@ class DefinedGameClient implements GameClientDefinition {
   readonly title: string;
   readonly caption: string;
   readonly players: number;
+  readonly bots: boolean;
+  readonly motif: GameTileMotif;
   /** The family its modes share, for a game with rules. */
   declare readonly family?: string;
   declare readonly presentation?: GamePresentation<JSX.Element>;
   declare readonly puzzleContent?: PuzzleContentClient;
-  readonly Tile: GameClientDefinition['Tile'];
   readonly MainMenu: GameClientDefinition['MainMenu'];
   /** The game's puzzles part, when it offers puzzles. */
   declare readonly puzzles?: GamePuzzlesClient;
@@ -107,8 +105,10 @@ class DefinedGameClient implements GameClientDefinition {
     this.id = id;
     this.title = game.title;
     this.caption = game.caption;
-    const motif = game.tile;
-    this.Tile = (props) => <GameTile motif={motif} size={props.size} />;
+    this.motif = game.tile;
+    this.bots =
+      'capabilities' in game.shared &&
+      game.shared.capabilities['custom-games'] !== undefined;
     const rules = game.shared.registration?.rules;
     // A game with no rules of its own (puzzles only) is played alone.
     this.players = rules === undefined ? 1 : gameSides(rules).length;

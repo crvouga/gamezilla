@@ -1,10 +1,11 @@
 // @io-wall-ok — automated Pong capture, never a manual playthrough.
 import { expect, test } from '@playwright/test';
+import { timingTrace } from '../../../storybook/timing-trace';
 import { openPong, recordPong } from './evidence';
 import { logVideo } from './log-evidence';
 import { finishPongMetrics, startPongMetrics } from './metrics';
 
-test.use({ video: 'on', trace: 'on' });
+test.use({ video: 'on', trace: timingTrace });
 
 for (const width of [390, 1440]) {
   for (const theme of ['light', 'dark']) {

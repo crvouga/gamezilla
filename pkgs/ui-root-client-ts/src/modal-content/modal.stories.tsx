@@ -4,7 +4,7 @@ import Example from './modal.example';
 
 const meta = {
   id: 'components-overlay-modal',
-  title: 'Organisms/Modal',
+  title: 'Organisms/ModalContent',
   component: ModalContent,
   tags: ['autodocs'],
 } satisfies Meta;

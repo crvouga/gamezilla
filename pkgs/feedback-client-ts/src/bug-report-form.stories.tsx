@@ -6,7 +6,7 @@ import { DISCARD } from './copy';
 
 const meta = {
   id: 'product-bug-report',
-  title: 'Organisms/Bug report',
+  title: 'Organisms/Feedback/BugReportForm',
   component: BugReportFormView,
   tags: ['autodocs'],
   args: {

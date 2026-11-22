@@ -103,3 +103,23 @@ test('a screen that draws its own shell is rendered bare, once', () => {
   expect(container.querySelector('[data-space-row="stage"]')).toBeNull();
   expect(byTestId(container, 'own-template')).not.toBeNull();
 });
+
+test('a screen not on a template sits under the space’s row and its people', () => {
+  const { container } = renderFrame('ready', () => (
+    <StackVertical testId="board">{null}</StackVertical>
+  ));
+  // The people in the space stay in view on every screen in it.
+  const people = container.querySelector('[data-space-row="people"]');
+  expect(people?.querySelectorAll('[data-person]')).toHaveLength(1);
+  expect(
+    people?.querySelector('[data-component="SpacePeopleRow"]')
+  ).not.toBeNull();
+  const stage = container.querySelector('[data-space-row="stage"]');
+  expect(stage?.getAttribute('data-scroll')).toBe('fixed');
+  expect(stage?.contains(byTestId(container, 'board'))).toBe(true);
+  // The screen's own heading is the page's first; the space's name is not one.
+  expect(container.querySelector('h1, h2, [role="heading"]')).toBeNull();
+  expect(byTestId(container, Handles.spaceTitle)?.textContent).toBe(
+    'Friday game night'
+  );
+});

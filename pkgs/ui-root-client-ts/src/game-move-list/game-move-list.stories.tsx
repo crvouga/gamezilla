@@ -4,7 +4,7 @@ import { GameMoveList } from './index';
 
 const meta = {
   id: 'games-shared-gamemovelist',
-  title: 'Games/Shared/Components/GameMoveList',
+  title: 'Organisms/Games/Shared/GameMoveList',
   component: GameMoveList,
   tags: ['autodocs'],
 } satisfies Meta;

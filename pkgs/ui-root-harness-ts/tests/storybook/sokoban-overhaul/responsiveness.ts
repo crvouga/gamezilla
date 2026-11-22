@@ -1,6 +1,10 @@
 // @io-wall-ok — browser performance instrumentation, never product timing.
 import { expect, type Page, type TestInfo } from '@playwright/test';
 import {
+  summarizeLongTasks,
+  traceWindow,
+} from '../../../storybook/long-task-trace';
+import {
   prepareSokobanMoves,
   runSokobanMoves,
   type TimedStep,
@@ -28,7 +32,9 @@ export const pushAndUndo: TimedStep = async (page, index) => {
 /** How a timing run moves: walking from a move count, or its own steps. */
 export type TimingPlan =
   | number
-  | { readonly step: TimedStep; readonly name: string };
+  | { readonly step: TimedStep; readonly name: string }
+  /** Walking, with a Chromium trace of the window for diagnosis. */
+  | { readonly walkingFrom: number; readonly traceLongTasks: true };
 
 export async function measureSokoban(
   page: Page,
@@ -36,8 +42,16 @@ export async function measureSokoban(
   rate: number,
   plan: TimingPlan = 2
 ) {
-  const step = typeof plan === 'number' ? walking(plan) : plan.step;
-  const name = typeof plan === 'number' ? 'responsiveness' : plan.name;
+  const traced = typeof plan === 'object' && 'walkingFrom' in plan;
+  const step =
+    typeof plan === 'number'
+      ? walking(plan)
+      : 'walkingFrom' in plan
+        ? walking(plan.walkingFrom)
+        : plan.step;
+  const name =
+    typeof plan === 'object' && 'name' in plan ? plan.name : 'responsiveness';
+  const traceLongTasks = traced;
   const moves = await prepareSokobanMoves(page);
   await page.getByTestId('sokoban-board').focus();
   const cdp = await page.context().newCDPSession(page);
@@ -47,58 +61,79 @@ export async function measureSokoban(
   await cdp.send('HeapProfiler.collectGarbage');
   await cdp.send('Emulation.setCPUThrottlingRate', { rate });
   try {
-    await withSokobanTiming(page, async () => {
-      await runSokobanMoves(page, step, moves.readAfterFrame);
-      const samples = await page.evaluate(
-        () => (window as unknown as { sokobanSamples: Samples }).sokobanSamples
-      );
-      expect(samples.inputToFrameMs).toHaveLength(20);
-      const sorted = [...samples.inputToFrameMs].sort((a, b) => a - b);
-      const report = {
-        name,
-        cpuSlowdown: rate,
-        viewport: page.viewportSize(),
-        samples,
-        medianMs: sorted[9],
-        p95Ms: sorted[18],
-        maxMs: sorted[19],
-        harness:
-          'Storybook highlight addon disabled before navigation; preview keydown forwarding to the manager removed while timing.',
-        limits:
-          'Chromium emulation on a hosted runner; key or pointer press to next animation frame after move-count DOM update. Not physical display latency, network saving latency or a physical low-end device benchmark. Reduced motion follows the canonical harness.',
-      };
-      await info.attach(`${name}.json`, {
-        body: JSON.stringify(report, null, 2),
-        contentType: 'application/json',
+    const measure = () =>
+      withSokobanTiming(page, async () => {
+        await runSokobanMoves(page, step, moves.readAfterFrame);
+        return page.evaluate(
+          () =>
+            (window as unknown as { sokobanSamples: Samples }).sokobanSamples
+        );
       });
-      // One line per condition in the job log, so the measurement is readable
-      // from the hosted run itself.
+    let samples: Samples | undefined;
+    // Diagnosis only: a Chromium trace around the timed window, so a long
+    // task's contents (script, GC, layout, or time the thread was
+    // descheduled) reach the job log.
+    const trace = traceLongTasks
+      ? await traceWindow(cdp, async () => {
+          samples = await measure();
+        })
+      : undefined;
+    samples ??= await measure();
+    if (trace)
       process.stdout.write(
-        `SOKOBAN_TIMING ${JSON.stringify({
+        `SOKOBAN_LONG_TASKS ${JSON.stringify({
           test: info.title,
           name,
-          viewport: report.viewport,
-          cpuSlowdown: rate,
-          medianMs: report.medianMs,
-          p95Ms: report.p95Ms,
-          maxMs: report.maxMs,
-          longTasks: samples.longTaskMs.length,
-          inputToFrameMs: samples.inputToFrameMs,
-          timeOrigin: samples.timeOrigin,
-          inputs: samples.inputs,
-          frames: samples.frames,
-          longTaskEntries: samples.longTasks,
-          workerIndex: info.workerIndex,
-          parallelIndex: info.parallelIndex,
+          longTaskMs: samples.longTaskMs,
+          tasks: summarizeLongTasks(trace),
         })}\n`
       );
-      // Budgets: a move reaches the screen within two frames (one at most for
-      // most moves) at full speed, within three at 4x CPU slowdown, and no
-      // long task blocks input while moving.
-      const frames = rate === 1 ? 2 : 3;
-      expect(report.p95Ms ?? Infinity).toBeLessThanOrEqual(frames * 16.7);
-      expect(samples.longTaskMs).toEqual([]);
+    expect(samples.inputToFrameMs).toHaveLength(20);
+    const sorted = [...samples.inputToFrameMs].sort((a, b) => a - b);
+    const report = {
+      name,
+      cpuSlowdown: rate,
+      viewport: page.viewportSize(),
+      samples,
+      medianMs: sorted[9],
+      p95Ms: sorted[18],
+      maxMs: sorted[19],
+      harness:
+        'Storybook highlight addon disabled before navigation; preview keydown forwarding to the manager removed while timing.',
+      limits:
+        'Chromium emulation on a hosted runner; key or pointer press to next animation frame after move-count DOM update. Not physical display latency, network saving latency or a physical low-end device benchmark. Reduced motion follows the canonical harness.',
+    };
+    await info.attach(`${name}.json`, {
+      body: JSON.stringify(report, null, 2),
+      contentType: 'application/json',
     });
+    // One line per condition in the job log, so the measurement is readable
+    // from the hosted run itself.
+    process.stdout.write(
+      `SOKOBAN_TIMING ${JSON.stringify({
+        test: info.title,
+        name,
+        viewport: report.viewport,
+        cpuSlowdown: rate,
+        medianMs: report.medianMs,
+        p95Ms: report.p95Ms,
+        maxMs: report.maxMs,
+        longTasks: samples.longTaskMs.length,
+        inputToFrameMs: samples.inputToFrameMs,
+        timeOrigin: samples.timeOrigin,
+        inputs: samples.inputs,
+        frames: samples.frames,
+        longTaskEntries: samples.longTasks,
+        workerIndex: info.workerIndex,
+        parallelIndex: info.parallelIndex,
+      })}\n`
+    );
+    // Budgets: a move reaches the screen within two frames (one at most for
+    // most moves) at full speed, within three at 4x CPU slowdown, and no
+    // long task blocks input while moving.
+    const frames = rate === 1 ? 2 : 3;
+    expect(report.p95Ms ?? Infinity).toBeLessThanOrEqual(frames * 16.7);
+    expect(samples.longTaskMs).toEqual([]);
   } finally {
     await cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 });
     await cdp.detach();

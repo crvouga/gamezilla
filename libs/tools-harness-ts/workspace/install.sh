@@ -33,18 +33,66 @@ workspace_install_is_current() {
 
 # Returns non-zero while the install is incomplete. Only a complete install is
 # stamped, so the next launch tries again instead of trusting a partial one.
-workspace_install() {
-  # A repair may restore the launcher before generation fails. The old stamp
-  # must not make that partial repair look complete on the next invocation.
+workspace_install_locked() {
+  workspace_install_is_current && return 0
+  local log backup dir
   rm -f "$WORKSPACE_INSTALL_STAMP"
+  log="$(mktemp .cache/workspace-install.XXXXXX)" || return 1
   echo "==> bun install --frozen-lockfile"
-  if TURBO_UI=false bun install --frozen-lockfile; then
-    mkdir -p "$(dirname "$WORKSPACE_INSTALL_STAMP")"
-    workspace_install_fingerprint >"$WORKSPACE_INSTALL_STAMP"
-    return 0
+  if ! TURBO_UI=false bun install --frozen-lockfile >"$log" 2>&1; then
+    if ! grep -Eq '^EEXIST: (File exists: failed to (symlink dependencies|link package)|failed to link binaries)' "$log"; then
+      cat "$log" >&2
+      rm -f "$log"
+      return 1
+    fi
+    # Different Bun versions can leave conflicting links in the isolated
+    # store and bin directories. Rebuild just that generated state.
+    echo "==> rebuilding conflicting Bun dependency links"
+    local links=()
+    for dir in node_modules/.bun node_modules/.bin {apps,libs,pkgs}/*/node_modules/.bin; do
+      [ -e "$dir" ] || [ -L "$dir" ] || continue
+      if [ -L "$(dirname "$dir")" ]; then
+        echo "!!! cannot repair linked dependency directory $(dirname "$dir")" >&2
+        return 1
+      fi
+      links+=("$dir")
+    done
+    backup="$(mktemp -d .cache/workspace-links.XXXXXX)" || return 1
+    for dir in "${links[@]}"; do
+      mkdir -p "$backup/$(dirname "$dir")" || return 1
+      mv "$dir" "$backup/$dir" || return 1
+    done
+    if ! TURBO_UI=false bun install --frozen-lockfile >"$log" 2>&1; then
+      cat "$log" >&2
+      echo "!!! previous dependency links saved in $backup" >&2
+      return 1
+    fi
+    rm -rf "$backup"
   fi
-  echo "!!! dependency install is incomplete; resolve the error and rerun the command" >&2
-  return 1
+  rm -f "$log"
+  mkdir -p "$(dirname "$WORKSPACE_INSTALL_STAMP")"
+  workspace_install_fingerprint >"$WORKSPACE_INSTALL_STAMP"
+}
+
+workspace_install() {
+  mkdir -p .cache
+  # Serialize startup actions in this checkout. The OS releases the lock
+  # even if the terminal or installer is killed.
+  if command -v flock >/dev/null 2>&1; then
+    flock .cache/workspace-install.lock bash "${BASH_SOURCE[0]}"
+  elif command -v lockf >/dev/null 2>&1; then
+    lockf -k .cache/workspace-install.lock bash "${BASH_SOURCE[0]}"
+  else
+    workspace_install_locked
+  fi
+}
+
+workspace_prepare_launch() {
+  if ! workspace_install_is_current || ! workspace_activate_tools; then
+    echo "==> preparing missing or changed workspace dependencies"
+    "$WORKSPACE_PATH/libs/tools-harness-ts/workspace/setup.sh" || return 1
+    workspace_activate_tools
+  fi
 }
 
 # A boot from a half-merged tree fails on a module or syntax error that says
@@ -65,3 +113,8 @@ workspace_warn_unmerged() {
   fi
   return 1
 }
+
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+  set -euo pipefail
+  workspace_install_locked
+fi

@@ -25,10 +25,9 @@ bootBrowserBugReports({
   build: import.meta.env.VITE_COMMIT_HASH ?? 'unknown',
   endpoint: new URL('/api/bug-reports', location.origin).href,
   startApplication: async () => {
-    // Loaded after the polyfills above: the system's graph reads them as its
-    // modules are evaluated.
-    const { HarnessBoot } = await import('./harness-boot');
     root.replaceChildren();
-    render(() => <HarnessBoot />, root);
+    const { HarnessBoot } = await import('./harness-boot');
+    const dispose = render(() => <HarnessBoot />, root);
+    if (import.meta.hot) import.meta.hot.dispose(dispose);
   },
 });

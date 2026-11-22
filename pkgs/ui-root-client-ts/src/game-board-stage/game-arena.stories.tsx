@@ -6,7 +6,7 @@ import { GameBoardStage } from './index';
 
 const meta = {
   id: 'product-game-arena',
-  title: 'Games/Shared/Components/GameArena',
+  title: 'Organisms/Games/Shared/GameArena',
   component: GameBoardStage,
   tags: ['autodocs'],
 } satisfies Meta;

@@ -1,0 +1,4 @@
+{
+  "summary": "A workstation requiring mise.lock could not resolve Bun when the Preview action invoked mise directly in a cold worktree.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workspace-run.test.ts"
+}
