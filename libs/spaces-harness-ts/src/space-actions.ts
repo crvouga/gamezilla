@@ -33,7 +33,6 @@ import {
   reenterSpace,
   SPACE_WAIT_MS,
   showSpacesTab,
-  tapChromeAction,
   tapChromeOrOverflow,
   tapLobbyCard,
   tryReenterOwnSpace,
@@ -236,7 +235,7 @@ export const reopenLiveSpace = scenarioAction({
   },
 });
 
-/** End sits in the space's ⋯ menu, set apart from everyday controls. */
+/** The host's End sits in the space's top row and asks to confirm. */
 export const endSpace = scenarioAction({
   name: 'endSpace',
   act: async (s, actorId: string) => {
@@ -255,14 +254,15 @@ export const openSpaceMembers = scenarioAction({
     const ui = await actorUi(s, actorId);
     if (await ui.get(Handles.spaceShareClose).isVisible())
       await Promise.resolve(closeSpaceShare.act(s, actorId));
-    await tapChromeAction(s, actorId, Handles.spaceMembersButton);
+    // People in this space is a row of the space settings sheet.
+    await tapChromeOrOverflow(s, actorId, Handles.spaceMembersButton);
     await s.session.waitForIdle();
   },
 });
 
 /**
- * Leave the space from its ⋯ menu (a host's Leave ends the space for
- * everyone) and confirm.
+ * Leave the space and confirm: a guest's Leave is in its top row, the
+ * host's in its settings sheet (a host's Leave ends the space for everyone).
  */
 export const leaveSpace = scenarioAction({
   name: 'leaveSpace',
@@ -300,7 +300,7 @@ export const renameSpace = scenarioAction({
 });
 
 /**
- * Look through the space chrome for its less common actions: open its ⋯ menu
+ * Look through the space chrome for its less common actions: open its settings
  * when it has one (a chrome whose actions all fit has none).
  */
 export const openSpaceMenu = scenarioAction({

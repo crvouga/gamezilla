@@ -6,10 +6,12 @@ import { createMemo, For, type JSX, Show } from 'solid-js';
 import { MenuList } from '../menu-list/index';
 import { MenuRow } from '../menu-row/index';
 import { ResponsiveSurface } from '../responsive-surface/index';
+import { spaceDataSet } from '../space-data-set';
 import { useSpacePersonWords } from '../space-people-row/space-person-words';
 import {
   type SpacePersonActionEntry,
   type SpacePersonActionId,
+  type SpacePersonCapability,
   spacePersonActions,
 } from '../space-person-actions';
 import type {
@@ -34,6 +36,8 @@ export type SpacePersonSheetProps = {
   data?: SpacePersonData | undefined;
   /** The game's actions on this entry, put first. */
   gameActions?: readonly SpaceGameAction[] | undefined;
+  /** The optional space actions the product can carry out; none by default. */
+  capabilities?: readonly SpacePersonCapability[] | undefined;
   /** A space action was chosen for `personId`; the sheet has closed. */
   onAction: (personId: string, action: SpacePersonActionId) => void;
   onClose: () => void;
@@ -103,12 +107,14 @@ function ActionRow(props: {
         props.entry.source === 'game' && props.entry.action.disabled === true
       }
       onClick={run}
-      dataSet={{
-        action:
-          props.entry.source === 'game'
-            ? props.entry.action.id
-            : props.entry.id,
-      }}
+      dataSet={
+        props.entry.source === 'game'
+          ? spaceDataSet(
+              { action: props.entry.action.id },
+              props.entry.action.testId
+            )
+          : { action: props.entry.id }
+      }
     />
   );
 }
@@ -134,6 +140,7 @@ export function SpacePersonSheet(props: SpacePersonSheetProps): JSX.Element {
       viewer: props.viewer,
       phase: props.phase,
       game: props.gameActions,
+      capabilities: props.capabilities,
     });
   });
   return (

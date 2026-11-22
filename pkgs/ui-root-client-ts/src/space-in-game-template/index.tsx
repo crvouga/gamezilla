@@ -2,22 +2,29 @@
 
 import { useLingui } from '@lingui/solid/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
-import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { For, type JSX, Show } from 'solid-js';
+import { createSignal, type JSX, Show } from 'solid-js';
 import { Button } from '../button/index';
+import { ResponsiveSurface } from '../responsive-surface/index';
+import { spaceDataSet } from '../space-data-set';
 import { SpacePeople } from '../space-person-sheet/space-people';
 import { type SpaceScreenChrome, SpaceShell } from '../space-shell/index';
 import type {
   SpaceGame,
-  SpaceGameAction,
   SpaceGamePlay,
+  SpaceGameResult,
+  SpaceInGameAside,
   SpacePerson,
   SpaceRole,
 } from '../space-types';
+import { SpaceActionBar } from './space-action-bar';
 import styles from './space-in-game-template.module.css';
 
-/** The most actions the bar holds at once. */
-export const SPACE_ACTION_BAR_MAX = 3;
+export {
+  SPACE_ACTION_BAR_MAX,
+  SpaceActionBar,
+  type SpaceActionBarProps,
+  spaceActionBarSplit,
+} from './space-action-bar';
 
 export type SpaceInGameTemplateProps = SpaceScreenChrome & {
   /** The game being played: its `play` fills the stage. */
@@ -25,55 +32,93 @@ export type SpaceInGameTemplateProps = SpaceScreenChrome & {
   role: SpaceRole;
   /** Everyone in the space; the game gives each a color, turn and data. */
   people: readonly SpacePerson[];
+  /**
+   * Over the stage, under nothing: a countdown, the versus card. Rendered
+   * once; covers the board while it renders anything.
+   */
+  overlay?: JSX.Element | undefined;
+  /**
+   * The game is over: its outcome replaces the status line and its actions
+   * (Rematch, Back to games) replace the game's; the board stays.
+   */
+  result?: SpaceGameResult | undefined;
+  /** The status line's opener for the move list or the game's commands. */
+  aside?: SpaceInGameAside | undefined;
+  /** The action bar's More, when there are more than three actions. */
+  moreTestId?: string | undefined;
   dataSet?: ComponentDataSet | undefined;
 };
 
-function ActionButton(props: { action: SpaceGameAction }): JSX.Element {
-  const primary = () => props.action.emphasis === 'primary';
-  const destructive = () => props.action.tone === 'destructive';
+function AsideOpener(props: { aside: SpaceInGameAside }): JSX.Element {
+  const [open, setOpen] = createSignal(false);
   return (
-    <Button
-      title={props.action.label}
-      intent={primary() ? 'primary' : destructive() ? 'danger' : 'neutral'}
-      variant={primary() ? 'solid' : 'outline'}
-      size="lg"
-      fullWidth
-      disabled={props.action.disabled}
-      onClick={() => props.action.onPress()}
-      dataSet={{ action: props.action.id }}
-    />
+    <>
+      <Button
+        title={props.aside.label}
+        intent="neutral"
+        variant="ghost"
+        size="sm"
+        aria-haspopup="dialog"
+        onClick={() => setOpen(true)}
+        dataSet={spaceDataSet({ action: 'aside' }, props.aside.testId)}
+      />
+      <ResponsiveSurface
+        visible={open()}
+        onClose={() => setOpen(false)}
+        title={props.aside.label}
+        dataSet={{ component: 'SpaceInGameAside' }}
+      >
+        <Show when={open()}>{props.aside.content()}</Show>
+      </ResponsiveSurface>
+    </>
   );
 }
 
-/**
- * `SpaceActionBar` -- the bottom of an in-game stage, by the thumbs: one to
- * three actions for this exact moment (at most one primary, destructive
- * ones in the destructive tone), or one line saying what the viewer is
- * waiting for. Always present at one height, so the board never resizes.
- */
-export function SpaceActionBar(props: {
-  actions: readonly SpaceGameAction[];
-  waiting?: string | undefined;
+function StatusLine(props: {
+  play: SpaceGamePlay;
+  result: SpaceGameResult | undefined;
+  aside: SpaceInGameAside | undefined;
 }): JSX.Element {
-  const { t } = useLingui();
-  const shown = () => props.actions.slice(0, SPACE_ACTION_BAR_MAX);
+  const detail = () => props.result?.detail ?? props.play.detail;
   return (
     <div
-      class={styles['bar']}
-      role="group"
-      aria-label={t`Game actions`}
-      {...dataAttrs({ component: 'SpaceActionBar' })}
+      class={styles['status']}
+      data-result={props.result === undefined ? undefined : 'true'}
     >
-      <Show
-        when={shown().length > 0}
-        fallback={
-          <p class={`text textCaption ${styles['waiting']}`} role="status">
-            {props.waiting ?? t`Waiting for the game`}
-          </p>
-        }
-      >
-        <For each={shown()}>{(action) => <ActionButton action={action} />}</For>
+      <h2 class={`text textHeading ${styles['headline']}`} aria-live="polite">
+        {props.result?.status ?? props.play.status}
+      </h2>
+      <Show when={detail()}>
+        {(text) => (
+          <span class={`text textCaption ${styles['detail']}`}>{text()}</span>
+        )}
       </Show>
+      <Show when={props.aside}>
+        {(aside) => <AsideOpener aside={aside()} />}
+      </Show>
+    </div>
+  );
+}
+
+function InGameStage(props: SpaceInGameTemplateProps): JSX.Element {
+  const { t } = useLingui();
+  const play = () => props.game.play;
+  return (
+    <div class={styles['stage']}>
+      <StatusLine play={play()} result={props.result} aside={props.aside} />
+      <div class={styles['board']} data-space-board="true">
+        {play().board}
+      </div>
+      <SpaceActionBar
+        actions={props.result?.actions ?? play().actions}
+        waiting={
+          props.result === undefined ? play().waiting : t`The game is over`
+        }
+        moreTestId={props.moreTestId}
+      />
+      <div class={styles['overlay']} data-space-overlay="true">
+        {props.overlay}
+      </div>
     </div>
   );
 }
@@ -87,19 +132,27 @@ export function SpaceActionBar(props: {
  * supplies the frame: the three rows, the board edge to edge in the stage,
  * the fixed action bar, and the people row with player-color rings and the
  * turn badge. Invite is hidden while a game runs.
+ *
+ * The session adds what no game owns: an `overlay` over the stage (the
+ * countdown), the `result` once the game is over (its status and next
+ * actions in place of the game's), and an `aside` the status line opens
+ * (the move list, commands).
  */
 export function SpaceInGameTemplate(
   props: SpaceInGameTemplateProps
 ): JSX.Element {
-  const play = () => props.game.play;
   return (
     <SpaceShell
       spaceName={props.spaceName}
       role={props.role}
       onBack={props.onBack}
+      backLabel={props.backLabel}
       onSettings={props.onSettings}
+      menu={props.menu}
       onLeave={props.onLeave}
       onEnd={props.onEnd}
+      notice={props.notice}
+      testIds={props.testIds}
       stage="fixed"
       dataSet={{
         component: 'SpaceInGameTemplate',
@@ -111,33 +164,14 @@ export function SpaceInGameTemplate(
           people={props.people}
           viewer={props.role}
           phase="inGame"
-          seat={play().seat}
-          gameActions={play().personActions}
+          seat={props.game.play.seat}
+          gameActions={props.game.play.personActions}
+          capabilities={props.personCapabilities}
           onPersonAction={props.onPersonAction}
         />
       }
     >
-      <div class={styles['stage']}>
-        <div class={styles['status']}>
-          <h2
-            class={`text textHeading ${styles['headline']}`}
-            aria-live="polite"
-          >
-            {play().status}
-          </h2>
-          <Show when={play().detail}>
-            {(detail) => (
-              <span class={`text textCaption ${styles['detail']}`}>
-                {detail()}
-              </span>
-            )}
-          </Show>
-        </div>
-        <div class={styles['board']} data-space-board="true">
-          {play().board}
-        </div>
-        <SpaceActionBar actions={play().actions} waiting={play().waiting} />
-      </div>
+      <InGameStage {...props} />
     </SpaceShell>
   );
 }

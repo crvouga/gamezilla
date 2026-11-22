@@ -13,8 +13,10 @@ import {
 import { SpaceLauncher } from '@pkgs/ui-root-client-ts/space-launcher';
 import { SpacePeopleRow } from '@pkgs/ui-root-client-ts/space-people-row';
 import {
+  SPACE_PERSON_CAPABILITIES,
   type SpacePersonActionEntry,
-  spacePersonActions,
+  type SpacePersonActionsInput,
+  spacePersonActions as spacePersonActionsBare,
 } from '@pkgs/ui-root-client-ts/space-person-actions';
 import { SpaceShell } from '@pkgs/ui-root-client-ts/space-shell';
 import type {
@@ -39,6 +41,16 @@ const action = (
   tone?: 'destructive',
   emphasis?: 'primary'
 ): SpaceGameAction => ({ id, label: id, tone, emphasis, onPress: () => {} });
+
+/** Every optional action available, as a product that can do them all. */
+function spacePersonActions(
+  input: SpacePersonActionsInput
+): readonly SpacePersonActionEntry[] {
+  return spacePersonActionsBare({
+    capabilities: SPACE_PERSON_CAPABILITIES,
+    ...input,
+  });
+}
 
 function ids(entries: readonly SpacePersonActionEntry[]): string[] {
   return entries.map((entry) =>
@@ -134,6 +146,39 @@ describe('spacePersonActions', () => {
       'game:resign',
       'leaveSeat',
     ]);
+  });
+
+  test('actions the product cannot carry out yet are hidden by default', () => {
+    expect(
+      ids(
+        spacePersonActionsBare({
+          pressed: OTHER,
+          viewer: 'host',
+          phase: 'inGame',
+        })
+      )
+    ).toEqual(['seeDetails', 'removeFromSpace']);
+    expect(
+      ids(
+        spacePersonActionsBare({
+          pressed: ME,
+          viewer: 'guest',
+          phase: 'choosing',
+        })
+      )
+    ).toEqual(['seeMyDetails']);
+  });
+
+  test('a remote player gets no space or host actions', () => {
+    expect(
+      ids(
+        spacePersonActions({
+          pressed: { id: 'far', kind: 'remote', name: 'cy' },
+          viewer: 'host',
+          phase: 'inGame',
+        })
+      )
+    ).toEqual(['seeDetails']);
   });
 
   test('a mute toggle carries its state', () => {

@@ -77,7 +77,7 @@ function visible(world: World, id: string): boolean {
   if (id === Handles.spaceEnded) return world.screen === 'ended';
   if (id === Handles.spaceTitle) return world.created;
   if (id === Handles.spaceClose) return world.created && world.overflow;
-  if (id === Handles.spaceMembersButton) return world.created;
+  if (id === Handles.spaceMembersButton) return world.created && world.overflow;
   if (id === Handles.navBack) {
     return (
       world.screen === 'settings' ||
@@ -110,7 +110,10 @@ function applyTap(world: World, id: string): void {
     world.dismiss = false;
     world.spacesLeft -= 1;
     world.screen = 'ended';
-  } else if (id === Handles.spaceCreate) world.created = true;
+  } else if (id === Handles.spaceCreate) {
+    world.created = true;
+    world.screen = 'in-space';
+  }
 }
 
 function node(world: World, id: string): DriverNode {
@@ -288,7 +291,7 @@ describe('hostSpace', () => {
     expect(world.created).toBe(true);
     expect(world.overflow).toBe(false);
     expect(await ui.get(Handles.spaceClose).isVisible()).toBe(false);
-    expect(await ui.get(Handles.spaceMembersButton).isVisible()).toBe(true);
+    expect(await ui.get(Handles.spaceChromeOverflow).isVisible()).toBe(true);
   });
 
   // regression: journey-leftovers-hidden-until-spaces-sync

@@ -263,7 +263,7 @@ export function spaceHostOfflineShown(
 
 /**
  * A joined person can remove their own account's membership: Leave on the
- * screen (a link's join prompt) or in the space's ⋯ menu.
+ * screen (a link's join prompt, a guest's top row) or in the space's settings.
  */
 export async function leaveOffered(
   s: ProductHarness,
