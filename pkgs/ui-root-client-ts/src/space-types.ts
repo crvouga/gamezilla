@@ -33,8 +33,12 @@ export type SpacePersonStatus =
   | 'turn'
   | 'away';
 
-/** Who holds a cell in the people row. */
-export type SpacePersonKind = 'person' | 'bot' | 'openSeat';
+/**
+ * Who holds a cell in the people row. `remote`: a player who is not in the
+ * space (a matchmaking opponent), shown with the people but never one of
+ * them: no host actions, no Invite.
+ */
+export type SpacePersonKind = 'person' | 'bot' | 'openSeat' | 'remote';
 
 /**
  * The one reserved data line under a name: at most one swatch and one
@@ -67,6 +71,13 @@ export type SpacePerson = {
   /** Stable identity that tints an initials face (`Avatar` `tintKey`). */
   tintKey?: string | undefined;
   uri?: string | undefined;
+  /**
+   * The person's own avatar art as trusted SVG markup (a profile's
+   * generated avatar, `Avatar` `svg`); wins over `uri` and initials.
+   */
+  svg?: string | undefined;
+  /** The cell's `data-testid`, for harness bindings. */
+  testId?: string | undefined;
 };
 
 /**
@@ -83,6 +94,48 @@ export type SpaceGameAction = {
   tone?: 'default' | 'destructive' | undefined;
   disabled?: boolean | undefined;
   onPress: () => void;
+  /** The control's `data-testid`, for harness bindings. */
+  testId?: string | undefined;
+};
+
+/**
+ * One row of a space menu: the space settings sheet, the action bar's More
+ * sheet. Labels say what will happen (`Rename space`).
+ */
+export type SpaceMenuItem = {
+  /** Stable within its menu; shipped as `data-action`. */
+  id: string;
+  label: string;
+  tone?: 'default' | 'destructive' | undefined;
+  disabled?: boolean | undefined;
+  onPress: () => void;
+  /** The row's `data-testid`, for harness bindings. */
+  testId?: string | undefined;
+};
+
+/**
+ * How a game ended for the viewer, in place of the live status and
+ * actions: `You won`, then Rematch and Back to games.
+ */
+export type SpaceGameResult = {
+  /** The one line that says the outcome: `You won`, `Draw`. */
+  status: string;
+  /** A quiet note beside it: `by checkmate`. */
+  detail?: string | undefined;
+  /** What to do next; the first `primary` one leads. */
+  actions: readonly SpaceGameAction[];
+};
+
+/**
+ * A secondary panel the in-game stage opens from its status line: the move
+ * list, the game's commands. Its content renders only while it is open.
+ */
+export type SpaceInGameAside = {
+  /** The opener's label and the sheet's title: `Moves`. */
+  label: string;
+  content: () => JSX.Element;
+  /** The opener's `data-testid`. */
+  testId?: string | undefined;
 };
 
 /** How many people a game takes, and whether bots fill empty seats. */

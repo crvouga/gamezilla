@@ -33,6 +33,14 @@
   color: var(--ui-color-text-secondary);
 }
 
+/* Under row 1: the space's notice, only while there is one. */
+.notice {
+  flex: none;
+}
+.notice:empty {
+  display: none;
+}
+
 /* Row 2: people, one fixed height on every screen; scrolls sideways. */
 .people {
   flex: none;

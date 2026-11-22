@@ -1,4 +1,4 @@
 {
-  "summary": "On a phone a space's list of games showed neither the global tabs nor a labelled way back to Spaces: only Minimize's picture-in-picture glyph at the bar's far edge. At the room's root the bar now leads with ‹ named Spaces, with 'Spaces' over the room's name.",
-  "regressionTest": "libs/spaces-client-ts/tests/space-chrome-action-bar.test.tsx"
+  "summary": "On a phone a space's list of games showed neither the global tabs nor a labelled way back to Spaces: only Minimize's picture-in-picture glyph at the bar's far edge. At the space's root, back now leads to Spaces and is named \"Back to spaces\", over every screen in the space.",
+  "regressionTest": "libs/spaces-client-ts/tests/space-screen-frame.test.tsx"
 }
