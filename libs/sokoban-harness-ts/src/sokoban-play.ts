@@ -20,6 +20,7 @@ import {
 } from './sokoban-fixtures';
 import { type LayoutTable, layoutDefinition } from './sokoban-layout';
 import {
+  attemptCommand,
   clickWhenReady,
   deviceLibrary,
   devicePlay,
@@ -100,7 +101,7 @@ async function travelOnScreen(
   kind: 'undo' | 'redo'
 ): Promise<void> {
   const view = playView(s, clientId);
-  const button = view.getByTestId(`content-${kind}`);
+  const button = await attemptCommand(s, view, `content-${kind}`);
   if (button.hasAttribute('disabled')) {
     screensOf(s, clientId).told =
       kind === 'undo' ? 'PUZZLE_NO_EARLIER_POSITION' : 'PUZZLE_NO_REDO';
@@ -118,8 +119,10 @@ export async function restartOnScreen(
 ): Promise<void> {
   const view = playView(s, clientId);
   const earlier = playing(s, clientId);
+  await attemptCommand(s, view, 'content-restart');
   await clickWhenReady(s, view, 'content-restart');
   await clickWhenReady(s, view, 'content-restart-confirm');
+  await attemptCommand(s, view, 'content-open-restart');
   await clickWhenReady(s, view, 'content-open-restart');
   const play = await devicePlay(s, clientId);
   const source = play.attempts.find((entry) => entry.id === earlier)?.source_id;
@@ -233,12 +236,11 @@ export function shownPlay(s: SokobanHarness, clientId: string) {
   return {
     moves: Number(counts.getAttribute('data-moves')),
     pushes: Number(counts.getAttribute('data-pushes')),
-    // The board's one control onward says whether the attempt is complete;
-    // its completion record is a screen away, and a read stays on the board.
+    // The attempt's board says whether it is complete; its completion
+    // record is a screen away, and a read stays on the board.
     complete:
-      view
-        .getByTestId('content-open-progress')
-        .getAttribute('data-complete') === 'true',
+      view.getByTestId('content-attempt').getAttribute('data-complete') ===
+      'true',
   };
 }
 

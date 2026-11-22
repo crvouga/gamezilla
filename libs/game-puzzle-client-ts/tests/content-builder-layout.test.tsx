@@ -19,6 +19,7 @@ import {
   ContentPublicationControlsView,
   type ContentPublicationControlsViewProps,
 } from '@libs/game-puzzle-client-ts/content-publication-controls-view';
+import { PuzzleSpaceExample } from '@libs/game-puzzle-client-ts/puzzle-space.example';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
@@ -40,7 +41,7 @@ function mount(
   renderWithI18n(() => (
     <ClockProvider clock={time.clock} timers={time.timers}>
       <ThemeProvider colorScheme="dark" fixedLayout={size}>
-        {ui()}
+        <PuzzleSpaceExample>{ui()}</PuzzleSpaceExample>
       </ThemeProvider>
     </ClockProvider>
   ));
@@ -305,7 +306,14 @@ function builder(
       standing={{ kind: 'validate', invalid: false }}
       puzzles={3}
       copies={2}
-      history={<span data-testid="history" />}
+      history={[
+        {
+          id: 'undo',
+          label: 'Undo',
+          onPress: () => undefined,
+          testId: 'history',
+        },
+      ]}
       publication={publication()}
       stage={<span data-testid="editor" />}
       preview={<span data-testid="solver-view" />}
@@ -372,14 +380,21 @@ test('every step is a screen of its own, holding only its own controls', () => {
     expect(root.getAttribute('data-place')).toBe(place.screen);
     expect(root.getAttribute('data-documentid')).toBe('doc-1');
     expect(root.getAttribute('data-draftid')).toBe('draft-1');
-    expect(root.getAttribute('data-screen')).toBe(
-      place.screen === 'builder'
-        ? 'puzzle-content-author'
-        : `puzzle-content-author-${place.screen}`
-    );
-    // No disclosure and no tabs hide part of any builder screen.
-    expect(document.querySelector('[aria-expanded]')).toBeNull();
-    expect(document.querySelector('[role="tab"]')).toBeNull();
+    // The board and the preview are worked in the space; the rest are pages.
+    if (place.screen === 'board' || place.screen === 'preview')
+      expect(
+        root.closest('[data-component="SpaceInGameTemplate"]')
+      ).not.toBeNull();
+    else
+      expect(root.getAttribute('data-screen')).toBe(
+        place.screen === 'builder'
+          ? 'puzzle-content-author'
+          : `puzzle-content-author-${place.screen}`
+      );
+    // No disclosure and no tabs hide part of any builder screen (the
+    // space's people, around the builder, open their own sheets).
+    expect(root.querySelector('[aria-expanded]')).toBeNull();
+    expect(root.querySelector('[role="tab"]')).toBeNull();
     cleanup();
   }
 });
@@ -491,19 +506,21 @@ test('a copy on its way has nothing to press on the hub: its row says where it s
 
 // regression: builder-editing-tools-apart-from-stage — undo, redo and
 // preview sat under the stage beside nothing, and the playtest was a second
-// filled button. Undo and redo head the board they act on; the preview and
-// publishing are screens of their own, the playtest a step of publishing.
-test('undo and redo head the board; publishing is a screen of its own', () => {
+// filled button. Undo and redo are the board's own action bar, under the
+// board they act on; the preview and publishing are screens of their own,
+// the playtest a step of publishing.
+test("undo and redo are the board's actions; publishing is a screen of its own", () => {
   mount(() => builder({ kind: 'puzzle', place: { screen: 'board' } }));
   const stage = screen.getByTestId('content-author-stage');
-  const tools = screen.getByTestId('content-author-tools');
-  expect(stage.firstElementChild).toBe(tools);
-  expect(tools.contains(screen.getByTestId('history'))).toBe(true);
+  const tools = document.querySelector('[data-component="SpaceActionBar"]');
+  expect(tools?.contains(screen.getByTestId('history'))).toBe(true);
+  expect(tools?.contains(screen.getByTestId('content-step-done'))).toBe(true);
   expect(stage.contains(screen.getByTestId('editor'))).toBe(true);
-  expect(before(tools, screen.getByTestId('editor'))).toBe(true);
-  expect(screen.getByTestId('content-author-stage-step').textContent).toBe(
-    'Board'
-  );
+  expect(before(screen.getByTestId('editor'), tools as Element)).toBe(true);
+  // The step's name is the status line's note, beside the draft's title.
+  expect(
+    screen.getByTestId('content-author-title').parentElement?.textContent
+  ).toContain('Board');
   expect(screen.queryByTestId('content-preview')).toBeNull();
   expect(screen.queryByTestId('content-author-publish')).toBeNull();
   cleanup();
@@ -538,13 +555,17 @@ for (const [size, name] of [
 ] as const)
   test(`on ${name} nothing is pinned over the board or the publish screen`, () => {
     mount(() => builder({ place: { screen: 'board' } }), size);
-    const board = document.querySelector(
-      '[data-screen="puzzle-content-author-board"]'
-    );
+    const board = document.querySelector('[data-space-board]');
     expect(board?.contains(screen.getByTestId('content-author-stage'))).toBe(
       true
     );
-    expect(board?.parentElement?.children.length).toBe(1);
+    // Only the space's action bar is under the board, never over it.
+    expect(board?.children.length).toBe(1);
+    expect(
+      board?.contains(
+        document.querySelector('[data-component="SpaceActionBar"]')
+      )
+    ).toBe(false);
     expect(screen.queryByTestId('content-validate')).toBeNull();
     expect(
       document.querySelector('[data-component="EmbeddedScreenFooter"]')
@@ -573,13 +594,13 @@ test('the details are a form of their own; only the board and the preview are st
     mount(() => builder({ place }));
     const stage = place.screen === 'board' || place.screen === 'preview';
     expect(
-      document.querySelector('[data-component="GameLayout"]') !== null
+      document.querySelector('[data-component="SpaceInGameTemplate"]') !== null
     ).toBe(stage);
     cleanup();
   }
   mount(() => builder({ place: { screen: 'details' } }));
   const details = screen.getByTestId('content-author-details');
-  expect(details.closest('[data-component="GameLayout"]')).toBeNull();
+  expect(details.closest('[data-component="SpaceInGameTemplate"]')).toBeNull();
   expect(details.contains(screen.getByTestId('content-title'))).toBe(true);
   expect(details.contains(screen.getByTestId('content-description'))).toBe(
     true
@@ -679,12 +700,27 @@ const PLACE_NAMES: Record<Place['screen'], string> = {
 // builder's title, a save line, the details and a row of three outlined
 // pills came before the pack's puzzles, which then sat behind the publish
 // strip. The save line is part of the subtitle under the draft's title, on
-// every builder screen, and the pack's puzzles follow it directly on theirs.
+// every builder page, and the pack's puzzles follow it directly on theirs;
+// on the board and the preview the title and the place are the status line
+// and the save line leads the stage.
 test('the shell shows on every place: the title, where it is, and the save line', () => {
   for (const place of PLACES) {
     mount(() => builder({ place }), PHONE);
     const save = screen.getByTestId('content-draft-save-status');
     expect(save.getAttribute('role')).toBe('status');
+    if (place.screen === 'board' || place.screen === 'preview') {
+      const status = screen.getByTestId('content-author-title');
+      expect(status.textContent).toBe('Weekend counts');
+      expect(status.parentElement?.textContent).toContain(
+        PLACE_NAMES[place.screen]
+      );
+      expect(save.textContent).toBe(
+        'Saved on this device. Changes share when connected.'
+      );
+      expect(before(save, screen.getByTestId(OWN[place.screen]))).toBe(true);
+      cleanup();
+      continue;
+    }
     const intro = save.closest('[data-component="ScreenIntro"]');
     expect(intro?.textContent).toContain(
       `${PLACE_NAMES[place.screen]} · Saved on this device.`
@@ -698,11 +734,8 @@ test('the shell shows on every place: the title, where it is, and the save line'
     cleanup();
   }
   mount(() => builder({ place: { screen: 'board' } }), PHONE);
-  const tools = screen.getByTestId('content-author-tools');
-  expect(tools.contains(screen.getByTestId('content-author-stage-step'))).toBe(
-    true
-  );
-  expect(tools.contains(screen.getByTestId('history'))).toBe(true);
+  const tools = document.querySelector('[data-component="SpaceActionBar"]');
+  expect(tools?.contains(screen.getByTestId('history'))).toBe(true);
 });
 
 test('the save line names saving, unsaved and saved', () => {

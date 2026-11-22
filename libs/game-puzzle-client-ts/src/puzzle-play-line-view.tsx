@@ -1,48 +1,31 @@
-import { Trans } from '@lingui/solid/macro';
-import { Button } from '@pkgs/ui-root-client-ts/button';
-import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { type JSX, Show } from 'solid-js';
-import { PuzzleActionBar } from './puzzle-action-bar';
+import { useLingui } from '@lingui/solid/macro';
+import type { SpaceGameAction } from '@pkgs/ui-root-client-ts/space-types';
+import type { Accessor, JSX } from 'solid-js';
+import { usePuzzleSolveActions } from './puzzle-in-game-play';
 import { PuzzleMoveHistory } from './puzzle-move-history';
 import type { PuzzlePlayScreenViewProps } from './puzzle-play-screen-model';
 
 /**
- * Under the line's board: once the puzzle is over, what its solve state
+ * The line's action bar: once the puzzle is over, what its solve state
  * allows (the next puzzle, a retry); while it is being solved, the way
  * back to solving it.
  */
-export function PuzzleLineActions(
-  props: PuzzlePlayScreenViewProps
-): JSX.Element {
-  return (
-    <StackVertical paddingX="lg">
-      <Show
-        when={props.stage === 'finished'}
-        fallback={
-          <StackHorizontal>
-            <Button
-              title={<Trans>Back to the puzzle</Trans>}
-              intent="neutral"
-              variant="outline"
-              onClick={() => props.onBack()}
-              dataSet={{ testid: 'chess-puzzle-line-close' }}
-            />
-          </StackHorizontal>
-        }
-      >
-        <PuzzleActionBar
-          status={props.status}
-          hintStage={props.hintStage}
-          canGoForward={props.canGoForward}
-          onHint={props.onHint}
-          onSolution={props.onSolution}
-          onRetry={props.onRetry}
-          onSkip={props.onSkip}
-          onNext={props.onNext}
-        />
-      </Show>
-    </StackVertical>
-  );
+export function usePuzzleLineActions(
+  view: () => PuzzlePlayScreenViewProps
+): Accessor<readonly SpaceGameAction[]> {
+  const { t } = useLingui();
+  const over = usePuzzleSolveActions(view);
+  return () =>
+    view().stage === 'finished'
+      ? over()
+      : [
+          {
+            id: 'line-close',
+            label: t`Back to the puzzle`,
+            onPress: () => view().onBack(),
+            testId: 'chess-puzzle-line-close',
+          },
+        ];
 }
 
 /**

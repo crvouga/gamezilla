@@ -2,6 +2,7 @@ import { useStoryPuzzlePlaces } from '@libs/game-puzzle-client-ts/puzzle-places-
 import {
   PUZZLE_PLAY_STORY_ARGS,
   PuzzlePlayScreenView,
+  PuzzleSpaceExample,
   STORY_LINE,
   storyLine,
 } from '@libs/game-puzzle-client-ts/puzzle-screen-story.example';
@@ -52,56 +53,60 @@ export function ChessPuzzleJourney() {
     } else if (step() === 0 && action === 'c3d5') setWrong(true);
   };
   return (
-    <PuzzlePlayScreenView
-      {...PUZZLE_PLAY_STORY_ARGS}
-      stage={solved() ? 'finished' : 'playing'}
-      place={places.place()}
-      onOpen={places.onOpen}
-      onBack={places.onBack}
-      line={storyLine({ count: pliesAfter(step()), awaiting: !solved() })}
-      boardSizing="width"
-      status={wrong() ? 'wrong' : solved() ? 'solved' : 'solving'}
-      statusKind={wrong() ? 'failed' : solved() ? 'solved' : 'started'}
-      hintStage={hint() ? 'highlight' : 'none'}
-      coach={{
-        message: wrong()
-          ? 'That knight move misses the tactic. Retry from the same position.'
-          : solved()
-            ? 'Checkmate. Puzzle solved.'
-            : hint()
-              ? 'Look at the knight on f3. What can it take?'
-              : 'Find the forcing move.',
-      }}
-      onHint={() => setHint(true)}
-      onRetry={retry}
-      board={(size) => (
-        <ChessPuzzleBoard
-          mode="play"
-          position={position()}
-          orientation="white"
-          interactive={
-            !wrong() && !solved() && places.place().screen === 'play'
-          }
-          sound={false}
-          syncKey={revision()}
-          onAction={play}
-          testId="chess-puzzle-journey"
-          setup={null}
-          hand={null}
-          committed={[]}
-          commitment={null}
-          size={size}
-          animated={false}
-          moveMs={0}
-          marks={{
-            wrong: wrong() ? 'd5' : null,
-            hint: hint() ? 'f3' : null,
-            solution: null,
-          }}
-          suggestions={[]}
-          lastAction={step() > 0 ? (STEPS[step() - 1]?.reply ?? null) : 'g7g6'}
-        />
-      )}
-    />
+    <PuzzleSpaceExample>
+      <PuzzlePlayScreenView
+        {...PUZZLE_PLAY_STORY_ARGS}
+        stage={solved() ? 'finished' : 'playing'}
+        place={places.place()}
+        onOpen={places.onOpen}
+        onBack={places.onBack}
+        line={storyLine({ count: pliesAfter(step()), awaiting: !solved() })}
+        boardSizing="width"
+        status={wrong() ? 'wrong' : solved() ? 'solved' : 'solving'}
+        statusKind={wrong() ? 'failed' : solved() ? 'solved' : 'started'}
+        hintStage={hint() ? 'highlight' : 'none'}
+        coach={{
+          message: wrong()
+            ? 'That knight move misses the tactic. Retry from the same position.'
+            : solved()
+              ? 'Checkmate. Puzzle solved.'
+              : hint()
+                ? 'Look at the knight on f3. What can it take?'
+                : 'Find the forcing move.',
+        }}
+        onHint={() => setHint(true)}
+        onRetry={retry}
+        board={(size) => (
+          <ChessPuzzleBoard
+            mode="play"
+            position={position()}
+            orientation="white"
+            interactive={
+              !wrong() && !solved() && places.place().screen === 'play'
+            }
+            sound={false}
+            syncKey={revision()}
+            onAction={play}
+            testId="chess-puzzle-journey"
+            setup={null}
+            hand={null}
+            committed={[]}
+            commitment={null}
+            size={size}
+            animated={false}
+            moveMs={0}
+            marks={{
+              wrong: wrong() ? 'd5' : null,
+              hint: hint() ? 'f3' : null,
+              solution: null,
+            }}
+            suggestions={[]}
+            lastAction={
+              step() > 0 ? (STEPS[step() - 1]?.reply ?? null) : 'g7g6'
+            }
+          />
+        )}
+      />
+    </PuzzleSpaceExample>
   );
 }

@@ -7,10 +7,12 @@ import type {
   PuzzlePlayScreenViewProps,
 } from '@libs/game-puzzle-client-ts/puzzle-play-screen-model';
 import { PuzzlePlayScreenView } from '@libs/game-puzzle-client-ts/puzzle-play-screen-view';
+import { PuzzleSpaceExample } from '@libs/game-puzzle-client-ts/puzzle-space.example';
 import { DEFAULT_PUZZLE_FEED_CONFIG } from '@libs/game-puzzle-shared-ts/feed-config';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
+import type { JSX } from 'solid-js';
 
 export const none = (): void => undefined;
 
@@ -123,6 +125,15 @@ const STILL = {
   },
 };
 
+/** `children` where time stands still. */
+export function StillClock(props: { children: JSX.Element }): JSX.Element {
+  return (
+    <ClockProvider clock={STILL.clock} timers={STILL.timers}>
+      {props.children}
+    </ClockProvider>
+  );
+}
+
 /** Mount the view at `width` px on `place`, with `overrides`. */
 export function mountPlay(
   place: PuzzlePlayPlace['screen'],
@@ -132,11 +143,13 @@ export function mountPlay(
   renderWithI18n(() => (
     <ClockProvider clock={STILL.clock} timers={STILL.timers}>
       <ThemeProvider colorScheme="dark" fixedLayout={{ width, height: 844 }}>
-        <PuzzlePlayScreenView
-          {...VIEW}
-          {...overrides}
-          place={{ screen: place }}
-        />
+        <PuzzleSpaceExample>
+          <PuzzlePlayScreenView
+            {...VIEW}
+            {...overrides}
+            place={{ screen: place }}
+          />
+        </PuzzleSpaceExample>
       </ThemeProvider>
     </ClockProvider>
   ));
@@ -154,6 +167,15 @@ export function filledCommands(): readonly string[] {
   return [
     ...document.querySelectorAll(
       '[data-component="Button"][data-variant="solid"]'
+    ),
+  ].map((button) => button.textContent ?? '');
+}
+
+/** The action bar's controls, by their words. */
+export function barCommands(): readonly string[] {
+  return [
+    ...document.querySelectorAll(
+      '[data-component="SpaceActionBar"] [data-component="Button"]'
     ),
   ].map((button) => button.textContent ?? '');
 }

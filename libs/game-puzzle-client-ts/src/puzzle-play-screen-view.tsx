@@ -1,5 +1,5 @@
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { type JSX, Match, Switch } from 'solid-js';
+import { type JSX, Match, Show, Switch } from 'solid-js';
 import {
   PuzzleFeedAdvanceView,
   PuzzleFeedHistoryView,
@@ -18,8 +18,10 @@ import { PuzzlePlayStatusView } from './puzzle-play-status-view';
  * puzzle; `play` is the board with its one status line; `line` steps
  * through the moves; `result` says how the puzzle went and what next
  * (those three share one board, so it is never redrawn between them);
- * `feed` and its `feed-…` screens set what the feed serves. Around
- * whichever shows: a refused change, the test probes and the live regions.
+ * `feed` and its `feed-…` screens set what the feed serves. The board's
+ * places are played in the space (`SpaceInGameTemplate`); the others are
+ * pages in its stage. Around whichever shows: a refused change, the test
+ * probes and the live regions.
  * The stage and the place are args, so every place of every stage is a
  * story; `PuzzlePlayScreen` wires the room.
  */
@@ -34,7 +36,8 @@ export function PuzzlePlayScreenView(
       dataSet={{ stage: props.stage, place: props.place.screen }}
     >
       {props.probe}
-      {props.notices}
+      {/* The board's places say it in the shell they draw. */}
+      <Show when={!isPuzzleBoardPlace(props.place)}>{props.notices}</Show>
       <Switch>
         <Match when={props.place.screen === 'status'}>
           <PuzzlePlayStatusView {...props} />

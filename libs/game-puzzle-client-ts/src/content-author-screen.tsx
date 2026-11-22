@@ -6,12 +6,13 @@ import type {
 } from '@libs/game-puzzle-shared-ts/content-types';
 import { useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
+import { SpaceScreenNotice } from '@libs/spaces-client-ts/space-screen-chrome';
 import { createMemo, type JSX, Show } from 'solid-js';
 import { ContentAuthorConfirms } from './content-author-confirms';
 import { ContentAuthorCopiesList } from './content-author-copies-list';
 import { ContentAuthorScreenView } from './content-author-screen-view';
 import { ContentAuthorStage } from './content-author-stage';
-import { ContentDraftHistory } from './content-draft-history';
+import { useContentDraftHistory } from './content-draft-history';
 import { contentDraftPreviewable } from './content-draft-playable';
 import { ContentDraftPlaytest } from './content-draft-playtest';
 import { useContentGame, useContentPlace } from './content-game-context';
@@ -117,20 +118,23 @@ function AuthorPublication(props: {
 }
 
 /** `board`: undo and redo, offered once this session's edits are kept. */
-function AuthorHistory(props: {
-  workspace: ContentAuthorWorkspace;
-}): JSX.Element {
-  return (
-    <ContentDraftHistory
-      writer={props.workspace.writer}
-      history={props.workspace.history}
-      disabled={
-        props.workspace.disabled() ||
-        props.workspace.conflicted() ||
-        props.workspace.writer.dirty()
-      }
-    />
-  );
+function useAuthorHistory(workspace: ContentAuthorWorkspace) {
+  return useContentDraftHistory({
+    writer: workspace.writer,
+    history: workspace.history,
+    disabled: () =>
+      workspace.disabled() ||
+      workspace.conflicted() ||
+      workspace.writer.dirty(),
+  });
+}
+
+/** How many copies of the document's draft are kept. */
+function useDraftCopies(documentId: () => string): () => number {
+  const data = useContentLibraryState();
+  return () =>
+    data.content().drafts.filter((draft) => draft.document_id === documentId())
+      .length;
 }
 
 /** The builder for one working copy, wired to saves, history and copies. */
@@ -146,12 +150,9 @@ function AuthorWorkspaceScreen(props: {
   const { writer } = workspace;
   const game = useContentGame();
   const nav = useContentPlace();
-  const data = useContentLibraryState();
   const place = () => contentPlaceOf('builder', nav.place());
-  const copies = () =>
-    data
-      .content()
-      .drafts.filter((draft) => draft.document_id === props.document.id).length;
+  const copies = useDraftCopies(() => props.document.id);
+  const history = useAuthorHistory(workspace);
   return (
     <ContentAuthorScreenView
       status="ready"
@@ -180,7 +181,9 @@ function AuthorWorkspaceScreen(props: {
       )}
       puzzles={decodePackDefinition(writer.body().definition)?.items.length}
       copies={copies()}
-      history={<AuthorHistory workspace={workspace} />}
+      history={history.actions()}
+      historyFailure={history.failure}
+      spaceNotice={<SpaceScreenNotice />}
       stage={<AuthorStage document={props.document} workspace={workspace} />}
       preview={
         <AuthorPreview

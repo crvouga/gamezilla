@@ -1,8 +1,7 @@
 import { useLingui } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
-import { H2 } from '@pkgs/ui-root-client-ts/heading';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from 'solid-js';
 import type { ContentAuthorScreenViewProps } from './content-author-screen-view';
 import { ContentDraftMetadata } from './content-draft-metadata';
 
@@ -56,49 +55,22 @@ export function ContentAuthorDetailsView(props: { view: View }): JSX.Element {
 }
 
 /**
- * `board`: the game's own editor (a pack: its puzzles), headed by what it
- * is and undo and redo of this session's edits.
+ * `board`: the game's own editor (a pack: its puzzles); undo, redo and
+ * Done are the action bar's.
  */
 export function ContentAuthorBoardView(props: { view: View }): JSX.Element {
-  const { t } = useLingui();
   return (
     <StackVertical gap="md" dataSet={{ testid: 'content-author-stage' }}>
-      <StackHorizontal
-        gap="sm"
-        wrap
-        align="center"
-        justify="between"
-        dataSet={{ testid: 'content-author-tools' }}
-      >
-        <H2 size="navigationTitle" testId="content-author-stage-step">
-          {props.view.kind === 'pack' ? t`Puzzles` : t`Board`}
-        </H2>
-        <StackHorizontal gap="xs" wrap align="center">
-          {props.view.history}
-        </StackHorizontal>
-      </StackHorizontal>
       {props.view.stage}
-      <DoneButton view={props.view} />
     </StackVertical>
   );
 }
 
-/** `preview`: the draft as a solver sees it; nothing here changes it. */
+/** `preview`: the draft as a solver sees it; nothing here changes it; Done is the action bar's. */
 export function ContentAuthorPreviewView(props: { view: View }): JSX.Element {
   return (
     <StackVertical gap="md" dataSet={{ testid: 'content-author-preview' }}>
       {props.view.preview}
-      {/* A pack's previewed puzzle returns to the pack's list instead. */}
-      <Show
-        when={
-          !(
-            props.view.place.screen === 'preview' &&
-            props.view.place.puzzleId !== null
-          )
-        }
-      >
-        <DoneButton view={props.view} />
-      </Show>
     </StackVertical>
   );
 }

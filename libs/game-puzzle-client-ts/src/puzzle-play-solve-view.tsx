@@ -6,7 +6,6 @@ import { MoveStrip, MoveStripSlot } from '@pkgs/ui-root-client-ts/move-strip';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { For, type JSX, Show } from 'solid-js';
-import { PuzzleActionBar } from './puzzle-action-bar';
 import { HistoryPlyCluster } from './puzzle-move-history-ply';
 import type { PuzzlePlayScreenViewProps } from './puzzle-play-screen-model';
 import { PuzzleSettingsRow } from './puzzle-settings-row';
@@ -31,41 +30,26 @@ export function SpectatorAllowance(props: { label: string }): JSX.Element {
 }
 
 /**
- * What is done about the puzzle, as the solve state allows it
- * (`buildPuzzleActionBarPlan`). While the board shows an earlier move the
- * hint waits, and the way back to the latest move is offered under it.
+ * While the board shows an earlier move the hint waits: the way back to
+ * the latest move is offered under the line.
  */
-export function PuzzleSolveActions(
-  props: PuzzlePlayScreenViewProps
-): JSX.Element {
+function ReturnToLatest(props: PuzzlePlayScreenViewProps): JSX.Element {
   return (
-    <StackVertical paddingX="lg" gap="sm">
-      <PuzzleActionBar
-        status={props.status}
-        hintStage={props.hintStage}
-        canGoForward={props.canGoForward}
-        onHint={props.onHint}
-        onSolution={props.onSolution}
-        onRetry={props.onRetry}
-        onSkip={props.onSkip}
-        onNext={props.onNext}
-      />
-      <Show when={props.canGoForward}>
-        <StackHorizontal align="center" gap="sm" wrap>
-          <P variant="caption" tone="secondary">
-            <Trans>The board shows an earlier move.</Trans>
-          </P>
-          <Button
-            title={<Trans>Back to the latest move</Trans>}
-            intent="neutral"
-            variant="ghost"
-            size="sm"
-            onClick={() => props.line.nav.onNavigate(PUZZLE_NAV_INTENT.end)}
-            dataSet={{ testid: 'chess-puzzle-return-live' }}
-          />
-        </StackHorizontal>
-      </Show>
-    </StackVertical>
+    <Show when={props.canGoForward && !props.spectator}>
+      <StackHorizontal align="center" gap="sm" wrap paddingX="lg">
+        <P variant="caption" tone="secondary">
+          <Trans>The board shows an earlier move.</Trans>
+        </P>
+        <Button
+          title={<Trans>Back to the latest move</Trans>}
+          intent="neutral"
+          variant="ghost"
+          size="sm"
+          onClick={() => props.line.nav.onNavigate(PUZZLE_NAV_INTENT.end)}
+          dataSet={{ testid: 'chess-puzzle-return-live' }}
+        />
+      </StackHorizontal>
+    </Show>
   );
 }
 
@@ -128,6 +112,7 @@ export function PuzzleSolveLine(props: PuzzlePlayScreenViewProps): JSX.Element {
   return (
     <StackVertical gap="md">
       <CompactLine {...props} />
+      <ReturnToLatest {...props} />
       <Show when={!props.spectator}>
         <StackVertical paddingX="lg">
           <MenuSection>

@@ -8,12 +8,11 @@ import { Trans, useLingui } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
-import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
-import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
+import type { SpaceGameAction } from '@pkgs/ui-root-client-ts/space-types';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { Text } from '@pkgs/ui-root-client-ts/text';
+import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import { ContentAuthorHubView } from './content-author-hub-view';
 import {
@@ -25,6 +24,7 @@ import {
 } from './content-author-place-views';
 import type { ContentBuilderStanding } from './content-builder-standing';
 import type { ContentBuilderPlace } from './content-places';
+import { PuzzleSpaceInGame } from './puzzle-space-in-game';
 
 /**
  * `loading`: the library is still being read; `gone`: the document is not
@@ -75,8 +75,16 @@ export type ContentAuthorScreenViewProps = {
   readonly puzzles?: number | undefined;
   /** How many copies of the draft are kept. */
   readonly copies?: number | undefined;
-  /** `board`: undo / redo of this session's edits. */
-  readonly history?: JSX.Element;
+  /** `board`: undo / redo of this session's edits, on the action bar. */
+  readonly history?: readonly SpaceGameAction[] | undefined;
+  /** `board`: an undo or redo that did not happen, with its retry. */
+  readonly historyFailure?: JSX.Element;
+  /**
+   * The space's own notice (`SpaceScreenNotice`), for the shell the
+   * `board` and `preview` places draw; the others are inside the space's
+   * shell.
+   */
+  readonly spaceNotice?: JSX.Element;
   /** `board`: the game's editor, or the pack editor. */
   readonly stage?: JSX.Element;
   /** `preview`: the draft as a solver sees it. */
@@ -221,20 +229,95 @@ function isStage(screen: ContentBuilderPlace['screen']): boolean {
   return screen === 'board' || screen === 'preview';
 }
 
-/**
- * The builder's shell around one place: the draft's title and its save
- * line, then what needs the author first, then the place. Each place is
- * its own screen, so opening one starts at its top with focus on it.
- */
-function AuthorShell(props: ContentAuthorScreenViewProps): JSX.Element {
-  const { t } = useLingui();
-  const name = usePlaceName(props);
-  const dataSet = () => ({
+/** The identifiers every place of the builder carries. */
+function authorDataSet(props: ContentAuthorScreenViewProps) {
+  return {
     testid: 'content-author',
     documentid: props.documentId,
     draftid: props.draftId ?? '',
     place: props.place.screen,
-  });
+  };
+}
+
+/**
+ * Back to the steps, on the board's and the preview's action bar; a pack's
+ * previewed puzzle returns to the pack's list by Back instead.
+ */
+function useStageActions(
+  props: ContentAuthorScreenViewProps
+): () => readonly SpaceGameAction[] {
+  const { t } = useLingui();
+  return () => {
+    const place = props.place;
+    const done: readonly SpaceGameAction[] =
+      place.screen === 'preview' && place.puzzleId !== null
+        ? []
+        : [
+            {
+              id: 'done',
+              label: t`Done`,
+              onPress: () => props.onOpen({ screen: 'builder' }),
+              testId: 'content-step-done',
+            },
+          ];
+    return place.screen === 'board'
+      ? [...(props.history ?? []), ...done]
+      : done;
+  };
+}
+
+/**
+ * The board and the preview, worked in the space: the draft's title and
+ * where it is on the status line; as the stage its save line, what needs
+ * the author first and the place itself; undo, redo and Done on the
+ * action bar. The author works; everyone else in the space watches.
+ */
+function AuthorStage(props: ContentAuthorScreenViewProps): JSX.Element {
+  const { t } = useLingui();
+  const name = usePlaceName(props);
+  const actions = useStageActions(props);
+  return (
+    <PuzzleSpaceInGame
+      gameKey="puzzle-builder"
+      solver="you"
+      status={props.body.title || t`Untitled draft`}
+      statusTestId="content-author-title"
+      detail={name()}
+      actions={actions()}
+      waiting={t`Back returns to the pack's puzzles`}
+      notice={props.spaceNotice}
+      board={
+        <StackVertical
+          grow
+          gap="md"
+          paddingX="lg"
+          paddingTop="sm"
+          paddingBottom="lg"
+          dataSet={authorDataSet(props)}
+        >
+          <P variant="caption" tone="secondary">
+            <SaveLine {...props} />
+          </P>
+          <AuthorNotices {...props} />
+          <Show when={props.place.screen === 'board'}>
+            {props.historyFailure}
+          </Show>
+          <AuthorPlace {...props} />
+        </StackVertical>
+      }
+    />
+  );
+}
+
+/**
+ * The builder's shell around one place: the draft's title and its save
+ * line, then what needs the author first, then the place. Each place is
+ * its own screen, so opening one starts at its top with focus on it; the
+ * board and the preview are worked in the space (`AuthorStage`).
+ */
+function AuthorShell(props: ContentAuthorScreenViewProps): JSX.Element {
+  const { t } = useLingui();
+  const name = usePlaceName(props);
   const title = (): JSX.Element => (
     <Text variant="inherit" testId="content-author-title">
       {props.body.title || t`Untitled draft`}
@@ -259,7 +342,7 @@ function AuthorShell(props: ContentAuthorScreenViewProps): JSX.Element {
                   ? 'puzzle-content-author'
                   : `puzzle-content-author-${screen}`
               }
-              dataSet={dataSet()}
+              dataSet={authorDataSet(props)}
               title={title()}
               subtitle={subtitle()}
             >
@@ -268,16 +351,7 @@ function AuthorShell(props: ContentAuthorScreenViewProps): JSX.Element {
             </EmbeddedScreen>
           }
         >
-          <GameScreen
-            screenId={`puzzle-content-author-${screen}`}
-            dataSet={dataSet()}
-            title={title()}
-            subtitle={subtitle()}
-          >
-            <GameSessionLayout notices={<AuthorNotices {...props} />} workspace>
-              <AuthorPlace {...props} />
-            </GameSessionLayout>
-          </GameScreen>
+          <AuthorStage {...props} />
         </Show>
       )}
     </Show>

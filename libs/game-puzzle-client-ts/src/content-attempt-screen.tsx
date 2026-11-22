@@ -4,9 +4,10 @@ import type { ContentBody } from '@libs/game-puzzle-shared-ts/content-types';
 import { packProgress } from '@libs/game-puzzle-shared-ts/pack-progress';
 import { useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
+import { SpaceScreenNotice } from '@libs/spaces-client-ts/space-screen-chrome';
 import { createMemo, type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
-import { ContentAttemptControls } from './content-attempt-controls';
+import { useContentAttemptControls } from './content-attempt-controls';
 import { ContentAttemptNext } from './content-attempt-next';
 import {
   ContentAttemptRestartConfirm,
@@ -148,6 +149,12 @@ function AttemptBody(props: {
   const position = useContentPositionChoice(() => props.attempt);
   const { rulesChanged, unreadable, progress, figures } =
     useAttemptStanding(props);
+  const controls = useContentAttemptControls({
+    writer,
+    restart,
+    progress: () => (rulesChanged() ? null : progress()),
+    unreadable,
+  });
   return (
     <ContentAttemptScreenView
       status="ready"
@@ -188,14 +195,8 @@ function AttemptBody(props: {
           complete={progress()?.complete ?? false}
         />
       }
-      controls={
-        <ContentAttemptControls
-          writer={writer}
-          restart={restart}
-          progress={rulesChanged() ? null : progress()}
-          unreadable={unreadable()}
-        />
-      }
+      controls={controls()}
+      spaceNotice={<SpaceScreenNotice />}
       keptPositions={
         <ContentKeptPositions
           attempt={props.attempt}

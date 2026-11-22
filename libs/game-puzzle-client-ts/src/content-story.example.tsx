@@ -5,10 +5,11 @@
  */
 import type { ContentBody } from '@libs/game-puzzle-shared-ts/content-types';
 import { Button } from '@pkgs/ui-root-client-ts/button';
-import { PlusIcon, RedoIcon, UndoIcon } from '@pkgs/ui-root-client-ts/icons';
+import { PlusIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
-import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import type { SpaceGameAction } from '@pkgs/ui-root-client-ts/space-types';
+import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
 import { TileBoard } from '@pkgs/ui-root-client-ts/tile-board';
@@ -86,28 +87,15 @@ export function StoryCountingEditor(props: {
   );
 }
 
-/** Undo / redo of the session's draft edits, at rest. */
-export function StoryDraftHistory(props: { disabled?: boolean }): JSX.Element {
-  return (
-    <>
-      <Button
-        title="Undo"
-        intent="neutral"
-        variant="ghost"
-        size="sm"
-        startIcon={<UndoIcon size={16} />}
-        disabled={props.disabled}
-      />
-      <Button
-        title="Redo"
-        intent="neutral"
-        variant="ghost"
-        size="sm"
-        startIcon={<RedoIcon size={16} />}
-        disabled
-      />
-    </>
-  );
+/** Undo and redo of the draft's edits at rest, for the board's action bar. */
+export function storyDraftHistory(
+  disabled?: boolean
+): readonly SpaceGameAction[] {
+  const none = (): void => undefined;
+  return [
+    { id: 'undo', label: 'Undo', disabled, onPress: none },
+    { id: 'redo', label: 'Redo', disabled: true, onPress: none },
+  ];
 }
 
 /** Starting a private playtest, at rest; filled when it is the next step. */
@@ -250,35 +238,16 @@ export function StoryPackEditor(props: { disabled?: boolean }): JSX.Element {
   );
 }
 
-/** An attempt's undo, redo and restart, at rest. */
-export function StoryAttemptControls(props: {
-  disabled?: boolean;
-}): JSX.Element {
-  return (
-    <StackHorizontal gap="sm" wrap shrink>
-      <Button
-        title="Undo"
-        intent="neutral"
-        variant="outline"
-        size="sm"
-        disabled={props.disabled}
-      />
-      <Button
-        title="Redo"
-        intent="neutral"
-        variant="outline"
-        size="sm"
-        disabled
-      />
-      <Button
-        title="Restart"
-        intent="neutral"
-        variant="outline"
-        size="sm"
-        disabled={props.disabled}
-      />
-    </StackHorizontal>
-  );
+/** An attempt's commands at rest, for the action bar: undo, redo and restart. */
+export function storyAttemptControls(
+  disabled?: boolean
+): readonly SpaceGameAction[] {
+  const none = (): void => undefined;
+  return [
+    { id: 'undo', label: 'Undo', disabled, onPress: none },
+    { id: 'redo', label: 'Redo', disabled: true, onPress: none },
+    { id: 'restart', label: 'Restart', disabled, onPress: none },
+  ];
 }
 
 /** An attempt's kept positions, the current one marked. */

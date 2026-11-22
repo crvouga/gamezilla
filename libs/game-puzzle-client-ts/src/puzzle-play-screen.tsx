@@ -2,6 +2,7 @@ import { useMyId } from '@libs/auth-client-ts/use-current-user';
 import { PUZZLE_PIECE_MOVE_MS } from '@libs/game-puzzle-shared-ts/opponent-stage';
 import type { PuzzlePickState } from '@libs/game-puzzle-shared-ts/pick-state';
 import { lineActions } from '@libs/game-puzzle-shared-ts/step';
+import { SpaceScreenNotice } from '@libs/spaces-client-ts/space-screen-chrome';
 import { useSoundsPreference } from '@pkgs/sounds-client-ts/solid';
 import { createSpeak } from '@pkgs/tts-root-client-ts/solid';
 import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
@@ -215,6 +216,7 @@ function PuzzlePlayerChrome(props: {
         result={result.model()}
         share={share()}
         notices={<PuzzleFeedRefusedChangeNotice />}
+        spaceNotice={<SpaceScreenNotice />}
         probe={props.probe}
         overlay={
           <>
@@ -315,6 +317,7 @@ function PuzzlePlayShell(props: {
         result={NO_PUZZLE_RESULT}
         share={null}
         notices={<PuzzleFeedRefusedChangeNotice />}
+        spaceNotice={<SpaceScreenNotice />}
         probe={props.testLoadingStatus}
       />
     </>

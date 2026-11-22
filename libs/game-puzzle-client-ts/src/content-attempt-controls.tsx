@@ -1,48 +1,64 @@
 import { useLingui } from '@lingui/solid/macro';
-import { Button } from '@pkgs/ui-root-client-ts/button';
-import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
-import { type JSX, Show } from 'solid-js';
-import {
-  ContentAttemptRestart,
-  type ContentAttemptRestartTools,
-} from './content-attempt-restart';
+import type { SpaceGameAction } from '@pkgs/ui-root-client-ts/space-types';
+import type { Accessor } from 'solid-js';
+import type { ContentAttemptRestartTools } from './content-attempt-restart';
 import { useContentGame } from './content-game-context';
 import type { useContentAttemptChange } from './use-content-attempt-change';
 
-/** The board's own commands: undo and redo of the attempt's moves, and restart. */
-export function ContentAttemptControls(props: {
+/**
+ * The board's own commands, for the action bar: undo and redo of the
+ * attempt's moves, and restart (once a new attempt is saved, the way into
+ * it takes Restart's place).
+ */
+export function useContentAttemptControls(props: {
   writer: ReturnType<typeof useContentAttemptChange>;
   restart: ContentAttemptRestartTools;
-  progress: { complete: boolean; canUndo: boolean; canRedo: boolean } | null;
+  progress: Accessor<{
+    complete: boolean;
+    canUndo: boolean;
+    canRedo: boolean;
+  } | null>;
   /** The puzzle itself cannot be read: no command here can help. */
-  unreadable: boolean;
-}): JSX.Element {
+  unreadable: Accessor<boolean>;
+}): Accessor<readonly SpaceGameAction[]> {
   const { t } = useLingui();
   const game = useContentGame();
-  const locked = () => props.writer.pending() || props.unreadable;
-  return (
-    <StackHorizontal gap="sm" wrap shrink>
-      <Show when={game.content.history === 'snapshots'}>
-        <Button
-          title={t`Undo`}
-          intent="neutral"
-          variant="outline"
-          size="sm"
-          disabled={locked() || !props.progress?.canUndo}
-          onClick={() => props.writer.execute({ kind: 'undo' })}
-          dataSet={{ testid: 'content-undo' }}
-        />
-        <Button
-          title={t`Redo`}
-          intent="neutral"
-          variant="outline"
-          size="sm"
-          disabled={locked() || !props.progress?.canRedo}
-          onClick={() => props.writer.execute({ kind: 'redo' })}
-          dataSet={{ testid: 'content-redo' }}
-        />
-      </Show>
-      <ContentAttemptRestart tools={props.restart} disabled={locked()} />
-    </StackHorizontal>
-  );
+  const locked = () => props.writer.pending() || props.unreadable();
+  const history = (): readonly SpaceGameAction[] =>
+    game.content.history === 'snapshots'
+      ? [
+          {
+            id: 'undo',
+            label: t`Undo`,
+            disabled: locked() || props.progress()?.canUndo !== true,
+            onPress: () => props.writer.execute({ kind: 'undo' }),
+            testId: 'content-undo',
+          },
+          {
+            id: 'redo',
+            label: t`Redo`,
+            disabled: locked() || props.progress()?.canRedo !== true,
+            onPress: () => props.writer.execute({ kind: 'redo' }),
+            testId: 'content-redo',
+          },
+        ]
+      : [];
+  const restart = (): SpaceGameAction => {
+    const created = props.restart.created();
+    return created === null
+      ? {
+          id: 'restart',
+          label: t`Restart`,
+          disabled: locked(),
+          onPress: () => props.restart.ask(),
+          testId: 'content-restart',
+        }
+      : {
+          id: 'open-restart',
+          label: t`Open restarted attempt`,
+          onPress: () => game.open({ kind: 'attempt', attemptId: created }),
+          testId: 'content-open-restart',
+        };
+  };
+  return () => [...history(), restart()];
 }

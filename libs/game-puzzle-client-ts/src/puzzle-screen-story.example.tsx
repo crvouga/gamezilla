@@ -32,6 +32,7 @@ import type {
   PuzzleResultModel,
 } from './puzzle-play-screen-model';
 import { PuzzlePlayScreenView } from './puzzle-play-screen-view';
+import { PuzzleSpaceExample } from './puzzle-space.example';
 import type { PuzzleMoveWriting } from './use-puzzle-notation';
 
 /** The feed as a new player first sees it: automatic, unseen puzzles. */
@@ -323,7 +324,11 @@ export type PuzzlePlayStoryArgs = PuzzlePlayScreenViewProps;
  * puzzle board in it), through this story-fixture module rather than the
  * framework's implementation.
  */
-export { PuzzlePlayScreenView, type PuzzlePlayScreenViewProps };
+export {
+  PuzzlePlayScreenView,
+  type PuzzlePlayScreenViewProps,
+  PuzzleSpaceExample,
+};
 
 /** The play view solving the line's first move, every callback a spy. */
 export const PUZZLE_PLAY_STORY_ARGS: PuzzlePlayScreenViewProps = {
@@ -371,27 +376,29 @@ function StoryPuzzlePlay(props: {
   const feed = useStoryFeedSettings(() => props.args.feed, places.home);
   const Board = props.Board;
   return (
-    <PuzzlePlayScreenView
-      {...props.args}
-      place={places.place()}
-      onOpen={places.onOpen}
-      onBack={places.onBack}
-      feed={feed()}
-      line={storyLine({
-        count: props.scene.plies,
-        selected: props.scene.selected,
-        awaiting: props.args.status === 'solving',
-      })}
-      board={(size) => (
-        <Board
-          position={props.scene.fen}
-          testId="chess-puzzle-board"
-          marks={props.scene.marks}
-          size={size}
-          lastAction={props.scene.lastAction ?? null}
-        />
-      )}
-    />
+    <PuzzleSpaceExample>
+      <PuzzlePlayScreenView
+        {...props.args}
+        place={places.place()}
+        onOpen={places.onOpen}
+        onBack={places.onBack}
+        feed={feed()}
+        line={storyLine({
+          count: props.scene.plies,
+          selected: props.scene.selected,
+          awaiting: props.args.status === 'solving',
+        })}
+        board={(size) => (
+          <Board
+            position={props.scene.fen}
+            testId="chess-puzzle-board"
+            marks={props.scene.marks}
+            size={size}
+            lastAction={props.scene.lastAction ?? null}
+          />
+        )}
+      />
+    </PuzzleSpaceExample>
   );
 }
 

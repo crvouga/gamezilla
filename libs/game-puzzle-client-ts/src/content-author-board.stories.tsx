@@ -8,8 +8,8 @@ import {
 } from './content-author-story.example';
 import {
   StoryCountingEditor,
-  StoryDraftHistory,
   StoryPackEditor,
+  storyDraftHistory,
 } from './content-story.example';
 
 const meta = {
@@ -42,7 +42,7 @@ export const Saving: Story = {
   render: (args) =>
     renderAuthorStory(args, {
       slots: () => ({
-        history: <StoryDraftHistory disabled />,
+        history: storyDraftHistory(true),
         stage: <StoryCountingEditor target="7" disabled />,
       }),
     }),
