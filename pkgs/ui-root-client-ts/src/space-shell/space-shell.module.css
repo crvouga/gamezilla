@@ -41,11 +41,15 @@
   display: none;
 }
 
-/* Row 2: people, one fixed height on every screen; scrolls sideways. */
+/* Row 2: people, one fixed height on every screen; scrolls sideways.
+   Gone where a screen not yet on a template draws no people row. */
 .people {
   flex: none;
   height: 112px;
   border-bottom: 1px solid var(--ui-color-border);
+}
+.people:empty {
+  display: none;
 }
 
 /* Row 3: the stage. Scrolls on its own unless its content owns the room. */
