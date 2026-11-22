@@ -1,14 +1,14 @@
-import { SpaceLauncher } from '@pkgs/ui-root-client-ts/space-launcher';
-import SpaceLauncherExample, {
-  type SpaceLauncherExampleProps,
-} from '@pkgs/ui-root-client-ts/space-launcher/space-launcher.example';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import {
   SPACE_STORY_ROLES,
   type SpaceMatrix,
   spaceStoryRole,
-} from './space-screen-story.example';
+} from '../../storybook/fixtures/space-story-globals';
+import { SpaceLauncher } from './index';
+import SpaceLauncherExample, {
+  type SpaceLauncherExampleProps,
+} from './space-launcher.example';
 
 type Args = Omit<SpaceLauncherExampleProps, 'role'>;
 
