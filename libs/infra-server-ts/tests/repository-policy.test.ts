@@ -189,7 +189,7 @@ test('repository ownership controls whether allow_forking is sent', () => {
   // Literal failing input: plan `allow_forking = true -> false` on the
   // source repository, then PATCH /repos/<owner>/<repo> 422
   // "Allow forks setting can only be changed on org-owned private repositories".
-  expect(GLOBAL.github.owner_is_organization).toBe(true);
+  expect(GLOBAL.github.owner_is_organization).toBe(false);
   expect(GLOBAL.github.settings.allow_forking).toBe(false);
   expect(repository).toMatch(
     /allow_forking\s*=\s*var\.owner_is_organization \? var\.settings\.allow_forking : null/
