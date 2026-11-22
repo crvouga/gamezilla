@@ -123,11 +123,14 @@ export async function configureProfile(
     await driver.get(Handles.profileEdit).tap();
   await configureAvatar(driver, profile.avatar);
 }
-/** A guest's Leave or the host's End, both in the space's top row. */
+/** A guest's Leave or the host's End, the last row of the space menu. */
 export async function leaveSpace(driver: Driver): Promise<void> {
+  if (!(await driver.get(Handles.spaceChromeOverflow).isVisible())) return;
+  await driver.get(Handles.spaceChromeOverflow).tap();
+  // The host's menu offers both; ending is theirs to do, so it is tried first.
   for (const pair of [
-    [Handles.spaceLeave, Handles.spaceLeaveConfirm],
     [Handles.spaceEnd, Handles.spaceEndConfirm],
+    [Handles.spaceLeave, Handles.spaceLeaveConfirm],
   ] as const) {
     if (!(await driver.get(pair[0]).isVisible())) continue;
     await driver.get(pair[0]).tap();

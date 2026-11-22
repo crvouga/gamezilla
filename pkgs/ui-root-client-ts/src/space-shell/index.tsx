@@ -14,9 +14,9 @@ import type {
 import { IconButton } from '../icon-button/index';
 import { CircleStopIcon, EllipsisIcon, LogOutIcon } from '../icons';
 import { spaceDataSet } from '../space-data-set';
-import { useAnchoredMenu } from '../use-anchored-menu';
 import type { SpacePersonCapability } from '../space-person-actions';
 import type { SpaceMenuItem, SpaceRole } from '../space-types';
+import { useAnchoredMenu } from '../use-anchored-menu';
 import styles from './space-shell.module.css';
 
 /**

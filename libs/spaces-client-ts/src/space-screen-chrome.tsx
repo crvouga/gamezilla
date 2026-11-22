@@ -153,7 +153,7 @@ export type SpaceScreenChromeValue = {
   readonly onBack: () => void;
   /** Where back goes, when a screen registered its own back; else unset. */
   readonly backLabel: string | undefined;
-  /** The space settings sheet behind row 1's gear. */
+  /** The space's own rows of the space menu behind row 1's button. */
   readonly menu: readonly SpaceMenuItem[];
   readonly onLeave: () => void;
   readonly onEnd: () => void;
