@@ -11,8 +11,10 @@ are owned by [`observability`](../libs/observability-server-ts/README.md).
   shared product telemetry; the cache-hygiene gate passes without exemptions.
 - Strengthened existing live OpenSLO objectives in their owning contexts.
 - Weekly burn thresholds spend 2%, 5% and 10% in their respective long windows.
-- No rule alerts on missing events, logs or telemetry: with few people and
-  no recent release, quiet is expected and needs no attention.
+- Missing people's events never alert: with few people, quiet is expected.
+  Missing scheduled evidence (Health checks, Synthetic Monitoring probes,
+  the background drain) pushes, then pages, in production, so "no alert"
+  means every scheduled objective was judged and kept.
 - Absolute failure counts notify regardless of the traffic floor; one failed
   scheduled Health check notifies immediately after its result is exported.
 - Every warning routes to Grafana IRM push. OpenTofu provisions personal normal

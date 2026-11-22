@@ -42,11 +42,7 @@ test('a commit conflict starts a fresh transaction and acknowledges one durable 
 });
 
 test.each([
-  [
-    'persistent conflicts',
-    [serialization, serialization, serialization, serialization],
-    3,
-  ],
+  ['persistent conflicts', Array.from({ length: 7 }, () => serialization), 6],
   ['unclassified errors', [new Error('connection lost')], 1],
 ])(
   '%s remain failures without an unbounded replay loop',

@@ -8,6 +8,11 @@ variable "environment" {
   type = string
 }
 
+variable "production" {
+  type        = bool
+  description = "Whether this is a production environment: only production gets the rules that watch the team's evidence for silence."
+}
+
 variable "namespace" {
   type        = string
   description = "The technical namespace telemetry service names start with (`<namespace>-server`)."

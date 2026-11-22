@@ -99,9 +99,10 @@ function createMeter(
         }));
   return metricExporter === undefined
     ? undefined
-    : new MeterProvider({
-        // No `sdkMetricsEnabled`: the SDK's own series are read by nothing
-        // and each writer (isolate, page) would add its own copy of them.
+    : // The SDK's own metrics stay off: every Worker isolate is a writer,
+      // and nothing reads them, but each would be stored series that count
+      // against the metrics backend's active-series limit.
+      new MeterProvider({
         resource,
         readers: [
           worker

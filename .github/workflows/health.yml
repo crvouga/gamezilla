@@ -59,7 +59,10 @@ permissions:
 
 on:
   schedule:
-    - cron: '17 * * * *'
+    # Daily (was hourly). Uptime monitoring should move to an external
+    # monitor (Grafana Synthetic Monitoring already probes every minute), not
+    # an Actions cron: hourly runs here were flagged as Actions abuse.
+    - cron: '41 6 * * *'
   workflow_dispatch:
     inputs:
       spec:

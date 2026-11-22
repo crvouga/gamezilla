@@ -20,7 +20,11 @@ run-name: "Preview · ${{ github.event_name == 'pull_request' && format('pr #{0}
 #   Storybook Previews are `pr-<number>.storybook.<domain>`; the Storybook site
 #   itself is the Release workflow's to deploy, never this one's.
 # - closed or merged: delete the Preview and confirm Cloudflare reports it gone.
-# - schedule: remove Previews whose pull request is closed or went quiet.
+# - schedule (weekly): remove Previews whose pull request is closed or went
+#   quiet. Closing a pull request already removes its Preview; this only
+#   catches leftovers.
+# - draft pull requests get no Preview until they are marked ready for review.
+# - docs-only pull requests (`**.md`, `docs/**`) get no Preview.
 # The job is one command, apps/preview-ts/scripts/ci.ts, over the same
 # program `mise run preview:<command>` runs on a laptop
 # (apps/preview-ts/scripts/preview.ts). See docs/PREVIEW_ENVIRONMENTS.md.
@@ -30,11 +34,14 @@ run-name: "Preview · ${{ github.event_name == 'pull_request' && format('pr #{0}
 on:
   pull_request:
     branches: [main]
-    types: [opened, reopened, synchronize, closed]
+    types: [opened, reopened, synchronize, ready_for_review, closed]
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
   push:
     branches: [main]
   schedule:
-    - cron: "17 */6 * * *"
+    - cron: "29 8 * * 1" # Mondays 08:29 UTC
   workflow_dispatch:
 
 permissions:
@@ -55,7 +62,8 @@ defaults:
 jobs:
   preview:
     name: preview
-    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+    # Drafts are skipped, but a draft's close still removes any Preview it has.
+    if: ${{ github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && (github.event.action == 'closed' || github.event.pull_request.draft == false)) }}
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     permissions:

@@ -71,6 +71,7 @@ import { createMetric } from '@pkgs/observability-root-shared-ts/metric-contract
 import { pipelineHeartbeatContract } from '@pkgs/observability-root-shared-ts/pipeline-metrics';
 import { withSpan } from '@pkgs/observability-root-shared-ts/span';
 import { isSecretStoreError } from '@pkgs/secret-store-shared-ts/is-secret-store-error';
+import { timerBackoff } from '@pkgs/sql-client-root-shared-ts/conflict-retry';
 import { InMemoryTtsProvider } from '@pkgs/tts-root-server-ts/in-memory-tts-provider';
 
 assert.registerCrashHandler(new ThrowingCrashHandler());
@@ -506,9 +507,15 @@ const workerImplementation = {
               throw new ConfigurationError(
                 'Cannot drain outbox: application boot failed'
               );
-            return drainOutboxOnCron(env, workerHttp, wallClock, () =>
-              crypto.randomUUID()
-            );
+            return drainOutboxOnCron(env, {
+              http: workerHttp,
+              clock: wallClock,
+              createId: () => crypto.randomUUID(),
+              backoff: timerBackoff({
+                setTimeout: (fn, ms) => wallTimers.setTimeout(fn, ms),
+                random: () => Math.random(),
+              }),
+            });
           });
           if (processed > 0) log.info('outbox cron drained', { processed });
         },

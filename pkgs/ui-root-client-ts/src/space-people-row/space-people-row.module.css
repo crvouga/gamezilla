@@ -1,0 +1,135 @@
+/* The people row: one line of fixed cells that scrolls sideways and never
+   wraps, so it keeps one height on every space screen. */
+.row {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: flex-start;
+  gap: var(--ui-space-2);
+  height: 100%;
+  padding: var(--ui-space-3) var(--ui-space-4);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+}
+
+/* One entry: a fixed 64 x 88 cell of avatar, one name line and one data
+   line. Information changes inside it; the cell never resizes. */
+.cell {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: center;
+  width: 64px;
+  height: 88px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ui-radius-control);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition: background-color var(--ui-duration-fast) var(--ui-easing-standard);
+}
+.cell:hover {
+  background: var(--ui-color-interactive-hover);
+}
+.cell[aria-expanded="true"] {
+  background: var(--ui-color-surface);
+}
+.cell:focus-visible {
+  outline: 2px solid var(--ui-color-focus-ring);
+  outline-offset: 2px;
+}
+
+.face {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  width: 48px;
+  height: 48px;
+  margin-top: var(--ui-space-1);
+}
+.plus {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Badges sit over the avatar's edge, ringed in the canvas so they read
+   apart from the face. Each has its own shape; color never says it alone. */
+.badge {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--ui-color-background);
+  border-radius: var(--ui-radius-full);
+  background: var(--ui-color-surface-muted);
+  color: var(--ui-color-icon);
+}
+.badge[data-slot="role"] {
+  top: -4px;
+  right: -6px;
+  background: var(--ui-color-tint-active);
+  color: var(--ui-color-on-primary);
+}
+.badge[data-slot="status"] {
+  right: -6px;
+  bottom: -4px;
+}
+.badge[data-slot="mute"] {
+  bottom: -4px;
+  left: -6px;
+  color: var(--ui-color-destructive);
+}
+.badge[data-tone="busy"] {
+  background: var(--ui-color-tint-active);
+  color: var(--ui-color-on-primary);
+}
+.badge[data-tone="ready"] {
+  background: var(--ui-color-success);
+  color: var(--ui-color-on-success);
+}
+.badge[data-tone="turn"] {
+  background: var(--ui-color-text);
+  color: var(--ui-color-background);
+}
+
+.name {
+  max-width: 64px;
+  height: 18px;
+  margin-top: var(--ui-space-1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.name[data-quiet="true"] {
+  color: var(--ui-color-text-secondary);
+}
+
+/* The data line is always reserved, even empty. */
+.data {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ui-space-1);
+  max-width: 64px;
+  height: 16px;
+  overflow: hidden;
+  color: var(--ui-color-text-secondary);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+.data[data-on="true"] {
+  color: var(--ui-color-text);
+}
+.swatch {
+  display: inline-flex;
+  flex: none;
+  transform: scale(0.6);
+  margin: 0 calc(var(--ui-space-1) * -1);
+}

@@ -8,6 +8,11 @@
       "icon": "play"
     },
     {
+      "name": "Storybook",
+      "command": "bun run storybook",
+      "icon": "play"
+    },
+    {
       "name": "Bootstrap",
       "command": "./libs/tools-harness-ts/workspace/bootstrap.sh",
       "icon": "configure"

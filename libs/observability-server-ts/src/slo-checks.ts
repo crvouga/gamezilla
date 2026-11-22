@@ -23,6 +23,7 @@ import {
   labelsOf,
   seriesNamesOf,
 } from './emitted-metrics';
+import { freshnessIssues } from './evidence-freshness';
 import { tierOf, tiersFor } from './slo-alerts';
 import type { Indicator, Matcher, MetricIndicator } from './slo-indicators';
 import { INDICATORS, isSampled, metricIndicators } from './slo-indicators';
@@ -62,6 +63,7 @@ export function catalogIssues(
   }
   for (const indicator of metricIndicators())
     issues.push(...indicatorIssues(indicator));
+  issues.push(...freshnessIssues());
   for (const file of files) issues.push(...policyIssues(file));
   return issues;
 }

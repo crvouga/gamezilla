@@ -1,0 +1,98 @@
+/* The launcher stage: a status card, then one tile per game, four across
+   on a phone. */
+.stage {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--ui-space-4);
+  padding: var(--ui-space-4) var(--ui-space-4) var(--ui-space-6);
+}
+.status {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-1);
+  padding: var(--ui-space-4);
+  border: 1px solid var(--ui-color-border);
+  border-radius: var(--ui-radius-card);
+  background: var(--ui-color-surface);
+}
+.muted {
+  color: var(--ui-color-text-secondary);
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--ui-space-5) var(--ui-space-1);
+}
+@media (min-width: 640px) {
+  .grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ui-space-1);
+  min-width: 0;
+  padding: var(--ui-space-1) 0;
+  border: 0;
+  border-radius: var(--ui-radius-control);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: center;
+  cursor: pointer;
+}
+.tile:focus-visible {
+  outline: 2px solid var(--ui-color-focus-ring);
+  outline-offset: 2px;
+}
+.tile[aria-disabled="true"] {
+  cursor: default;
+}
+.art {
+  display: inline-flex;
+  margin-bottom: var(--ui-space-1);
+  border-radius: var(--ui-radius-control);
+  transition: opacity var(--ui-duration-fast) var(--ui-easing-standard);
+}
+/* The tile the host is on: the accent ring, said in words under it. */
+.tile[data-looking="true"] .art {
+  outline: 2px solid var(--ui-color-tint);
+  outline-offset: 2px;
+}
+.tile[data-dimmed="true"] .art {
+  opacity: var(--ui-opacity-muted);
+}
+.name {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  max-width: 100%;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+.tile[data-dimmed="true"] .name {
+  color: var(--ui-color-text-secondary);
+}
+.fit {
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--ui-color-text-secondary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.looking {
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--ui-color-tint);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.foot {
+  margin-top: auto;
+  color: var(--ui-color-text-secondary);
+  text-align: center;
+}

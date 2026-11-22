@@ -159,9 +159,20 @@ condition, so the short window is named in its
 OpenSLO's conditions are burn rates only, so companions are generated from
 the same files (`companion-alerts.ts`):
 
-- **No silence alerts**: nothing alerts on an absence of events. With few
-  people and no recent release, quiet is expected and needs no one's
-  attention; alerts are kept for failures someone has to act on.
+- **People's silence never alerts; the team's does**: every indicator
+  declares where its events come from (`evidence` in `slo-indicators.ts`).
+  People's requests, saves and bug reports arrive only when someone uses the
+  app, so quiet is expected and never alerts. The Health workflow's checks,
+  Synthetic Monitoring's probes and the scheduled drain run whether anyone
+  uses the app or not: when one goes quiet in production, the objectives it
+  feeds are no longer judged, so it pushes and then pages
+  (`evidence-freshness.ts`; Health 6 h / 12 h, minute probes 10 / 20 min,
+  broker 40 / 90 min, drain 10 / 20 min). A sliced source names the check or
+  probe that stopped. A check counts only once it has reported in the last
+  3 days, so a check an environment never runs is not silence. With this, no
+  alert means every scheduled objective was judged and kept. The catalog
+  check fails when a scheduled indicator has no source, or a people
+  indicator has one.
 - **Failure counts**: an indicator's `failureCounts` notifies regardless of
   traffic volume. One failed request (5xx) pushes; three in five minutes page.
   Slowness needs a pattern: three slow requests in fifteen minutes push, six
@@ -287,6 +298,29 @@ receive live updates.
    paused zone or a removed DNS record blocks it.
 2. AWS: ACM shows why a renewal is pending; recreate a missing validation record
    by applying the edge or foundation stack, never by hand.
+
+### The team's evidence has gone quiet
+
+A source of scheduled evidence (`src/evidence-freshness.ts`) reported nothing
+in production for longer than its schedule allows. The objectives it feeds,
+listed in the alert's `covers`, are no longer judged: the app may be failing
+and no other alert would say so. The `slice`, when present, names the one
+Health check or probe that stopped while the rest still report.
+
+1. **Health checks**: open the Health workflow's latest runs on `main`
+   (`gh run list --workflow health.yml --branch main`). Usual causes are an
+   exhausted Actions budget, a disabled schedule, a run that failed before its
+   record step, or (one check) a feature newly limited by `HOST_LIMITS`.
+2. **Minute or broker probes**: Grafana Synthetic Monitoring shows whether the
+   check still exists and runs; a foundation apply that removed it, or a probe
+   location outage, are the usual causes.
+3. **Background drain**: the Worker's cron trigger and its recent invocations
+   (`bun obs platform --service <worker> --window 1h`). If nothing from the
+   Worker reaches Grafana at all, telemetry export itself is broken
+   (`OBSERVABILITY_ENABLED`, the collector token): every people objective is
+   blind too.
+4. Fix the source; the alert clears as soon as evidence arrives again. Never
+   silence it: while it fires, "no alert" does not mean the app works.
 
 ### Outbox deliveries exhausted their retries
 

@@ -52,11 +52,17 @@ import { stubFileName, stubSource } from '@pkgs/gherkin-shared-ts/stubs';
 import { isSyntheticFeatureSource } from '@pkgs/gherkin-shared-ts/tags';
 import { createDeadlineFetch } from '@pkgs/http-client-shared-ts/deadline-fetch';
 import { createGlobalHttpClient } from '@pkgs/http-client-shared-ts/global';
+import { createPrometheusClient } from '@pkgs/observability-root-shared-ts/prometheus';
 import { readFailures } from '@pkgs/openslo-server-ts/failures';
 import { isLiveObjectiveSource } from '@pkgs/openslo-shared-ts/live';
 import { sloStubFileName, sloStubSource } from '@pkgs/openslo-shared-ts/stubs';
 import { slashPath } from '@pkgs/os-shared-ts/slash-path';
-import { featureVerdicts, recordCheckResults } from './health-check-results';
+import type { ConfirmOutcome } from './health-check-results';
+import {
+  confirmCheckResults,
+  featureVerdicts,
+  recordCheckResults,
+} from './health-check-results';
 
 const PACKAGE_DIR = resolve(import.meta.dir, '..');
 const REPO_ROOT = resolve(PACKAGE_DIR, '../..');
@@ -550,15 +556,16 @@ async function recordChecks(input: {
   readonly environment: string;
   readonly features: readonly string[];
   readonly secrets: ReadonlyMap<string, string>;
-}): Promise<void> {
-  if (input.cli.objectives || input.cli.tags !== undefined) return;
+}): Promise<boolean> {
+  if (input.cli.objectives || input.cli.tags !== undefined) return true;
+  const version = process.env['GITHUB_SHA']?.trim() || 'local';
   const outcome = await recordCheckResults({
     verdicts: featureVerdicts({
       featureUris: input.features,
       records: readEvidence(FEATURE_DIRS.reportDir).records,
     }),
     environment: input.environment,
-    version: process.env['GITHUB_SHA']?.trim() || 'local',
+    version,
     secrets: input.secrets,
     fetch: createDeadlineFetch({
       fetch: createGlobalHttpClient().fetch,
@@ -567,11 +574,65 @@ async function recordChecks(input: {
     }),
     nowMs: wallClock.now(),
   });
+  if (!outcome.recorded) {
+    console.error(`health: check results not recorded: ${outcome.reason}`);
+    return false;
+  }
   console.log(
-    outcome.recorded
-      ? `health: recorded ${String(outcome.checks)} check results for the objectives`
-      : `health: check results not recorded for the objectives: ${outcome.reason}`
+    `health: recorded ${String(outcome.checks)} check results for the objectives`
   );
+  const confirmed = await confirmRecorded({
+    names: outcome.names,
+    environment: input.environment,
+    version,
+    secrets: input.secrets,
+  });
+  if (!confirmed.confirmed) {
+    console.error(`health: check results not stored: ${confirmed.reason}`);
+    return false;
+  }
+  console.log('health: every recorded check result is queryable');
+  return true;
+}
+
+async function confirmRecorded(input: {
+  readonly names: readonly string[];
+  readonly environment: string;
+  readonly version: string;
+  readonly secrets: ReadonlyMap<string, string>;
+}): Promise<ConfirmOutcome> {
+  const read = (key: string) => input.secrets.get(key)?.trim() ?? '';
+  const [url, user, token] = [
+    read('OBS_PROMETHEUS_URL'),
+    read('OBS_PROMETHEUS_USER'),
+    read('OBS_TEMPO_TOKEN'),
+  ];
+  if (url === '' || user === '' || token === '')
+    return {
+      confirmed: false,
+      reason:
+        "OBS_PROMETHEUS_URL, OBS_PROMETHEUS_USER and OBS_TEMPO_TOKEN must be set in the environment's secrets to read the results back",
+    };
+  return confirmCheckResults({
+    checks: input.names,
+    environment: input.environment,
+    version: input.version,
+    prometheus: createPrometheusClient({
+      baseUrl: url,
+      user,
+      token,
+      fetch: createDeadlineFetch({
+        fetch: createGlobalHttpClient().fetch,
+        timers: wallTimers,
+        timeoutMs: 15_000,
+      }),
+    }),
+    now: () => wallClock.now(),
+    wait: (ms) =>
+      new Promise<void>((resolve) => {
+        wallTimers.setTimeout(resolve, ms);
+      }),
+  });
 }
 
 function applyTarget(target: string | undefined): void {
@@ -680,7 +741,14 @@ if (import.meta.main) {
     vars: process.env,
     secrets,
   });
-  await recordChecks({ cli, environment: name, features, secrets });
+  // The objectives are judged from these results, so a run whose evidence
+  // did not land fails: otherwise they go quiet and nothing alerts.
+  const evidenceLanded = await recordChecks({
+    cli,
+    environment: name,
+    features,
+    secrets,
+  });
   if (cli.objectives) keepObjectiveFailures(name);
-  process.exit(lanesStatus(statuses));
+  process.exit(lanesStatus(statuses) || (evidenceLanded ? 0 : 1));
 }

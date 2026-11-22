@@ -147,7 +147,10 @@ wipe, and there is no server to inspect — see "State and reset".
   it is when it starts (`decidePreviewAction`): a run for a commit that is
   no longer the head is skipped, and a run for a pull request that has since
   closed removes instead of deploying. The pull request is read again before
-  the upload, unless the bundle was ready within seconds of the first read.
+  the upload, unless the bundle was ready within seconds of the first read,
+  and the deploy itself reads it once more before the upload and again
+  before the deployment, so a close or a newer head during the upload stops
+  it (or, for a close, deletes the Preview).
 - **Older never replaces newer.** Runs for one pull request share a concurrency
   group, and a newer commit cancels the run for the one before it, so the
   latest commit is what gets built, at once. With the re-read above, a run for
@@ -179,10 +182,13 @@ wipe, and there is no server to inspect — see "State and reset".
     made of each (`.cache/vite-transform`), the main branch's Preview serves
     that as `/transforms.bin`, and every run starts from it. The messages
     compile beside the bundle, not before it.
-  - *Three round trips to deploy.* A site goes to its Preview through the
-    Cloudflare API directly (`src/cloudflare-deploy.ts`): which files are
-    missing, those files, the deployment. Only the Worker itself, on a push
-    to main, is deployed with `wrangler`.
+  - *Straight to the API.* A site goes to its Preview through the
+    Cloudflare API, not `wrangler`, with `@crvouga/mockingbird-preview`
+    (`src/cloudflare-deploy.ts`): which files are missing, those files, the
+    deployment, and nothing at all when the same files are already
+    deployed. Only the Worker itself, on a push to main, is deployed with
+    `wrangler`. Its uploads are one bucket at a time for now
+    ([mockingbird#849](https://github.com/crvouga-organization/mockingbird/issues/849)).
   - *Storybook beside it.* The harness is uploaded while Storybook is built
     or restored and uploaded; the pull request says the harness is live the
     moment it is.
@@ -299,6 +305,27 @@ Previews stay on the free plan by construction (`apps/preview-ts/src/free-plan.t
   site with more files, or a larger file, than one free upload takes, so the
   answer to a bundle that grew is a smaller bundle, never a paid plan.
 - **Never more Previews than the plan holds.** The sweep's capacity, above.
+
+## Built on Mockingbird
+
+The deploy, the decision what a run does, and the sweep's plan are
+[`@crvouga/mockingbird-preview`](https://github.com/crvouga-organization/mockingbird/tree/main/packages/adapters/preview)
+(`createCloudflarePreviews`, `selectPreviewAction`, `planPreviewSweep`);
+`apps/preview-ts` keeps only what it does not provide yet, each named in an
+issue there and removed when the release that provides it lands:
+
+| Kept here | Upstream |
+| --- | --- |
+| `_headers` sent as `text/plain` exactly (`exactHeadersType`) | [#847](https://github.com/crvouga-organization/mockingbird/issues/847) |
+| One Preview by name, the workers.dev subdomain and origins, serving Previews | [#850](https://github.com/crvouga-organization/mockingbird/issues/850), [#851](https://github.com/crvouga-organization/mockingbird/issues/851), [#852](https://github.com/crvouga-organization/mockingbird/issues/852) |
+| A listing that fails before the Worker exists falls back to probing | [#853](https://github.com/crvouga-organization/mockingbird/issues/853) |
+| Names it never made count against the sweep's capacity | [#854](https://github.com/crvouga-organization/mockingbird/issues/854) |
+| Why a run skips; the main branch's deploy decision | [#855](https://github.com/crvouga-organization/mockingbird/issues/855) |
+| The workflow, Storybook beside the harness, the pull request section and GitHub deployments, the gate and served checks, the scheduled sweep | [#856](https://github.com/crvouga-organization/mockingbird/issues/856), [#857](https://github.com/crvouga-organization/mockingbird/issues/857), [#858](https://github.com/crvouga-organization/mockingbird/issues/858), [#859](https://github.com/crvouga-organization/mockingbird/issues/859), [#860](https://github.com/crvouga-organization/mockingbird/issues/860) |
+
+Its reusable workflow deploys one Worker per pull request with a Worker
+script in front, which the free-plan rule above forbids, so the workflow
+here stays until #856 lands.
 
 ## Limits of this design
 
