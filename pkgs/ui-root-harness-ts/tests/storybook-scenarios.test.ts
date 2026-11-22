@@ -1,5 +1,14 @@
 import { expect, test } from 'bun:test';
-import { supportsStoryViewport, visualScenarios } from '../storybook/scenarios';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { storyNameFromExport, toId } from 'storybook/internal/csf';
+import {
+  type StoryGlobalsMatrix,
+  storyGlobalsCombinations,
+  storyGlobalsMatrices,
+  supportsStoryViewport,
+  visualScenarios,
+} from '../storybook/scenarios';
 
 const SIDEBAR = {
   id: 'screens-shell-header-island--sidebar-spaces-current',
@@ -144,4 +153,125 @@ test('a story asking for native heights captures each width at its own viewport 
   expect(
     new Set(visualScenarios({ ...frame, tags: [] }).map(({ height }) => height))
   ).toEqual(new Set([844]));
+});
+
+test('stories without a globals matrix keep their scenario names and open with the theme alone', () => {
+  const scenarios = visualScenarios({
+    ...SIDEBAR,
+    id: 'screens-shell-tab-bar--spaces-current',
+    tags: [],
+  });
+  expect(
+    scenarios.map(({ suffix, globals, baseline }) => ({
+      suffix,
+      globals,
+      baseline: baseline.split('/').at(-1),
+    }))
+  ).toEqual([
+    { suffix: '', globals: {}, baseline: 'spaces-current-light.png' },
+    { suffix: '', globals: {}, baseline: 'spaces-current-dark.png' },
+    { suffix: '-1440', globals: {}, baseline: 'spaces-current-light-1440.png' },
+    { suffix: '-1440', globals: {}, baseline: 'spaces-current-dark-1440.png' },
+  ]);
+});
+
+test('globals combinations cross every value in declaration order', () => {
+  expect(storyGlobalsCombinations(undefined)).toEqual([{}]);
+  expect(
+    storyGlobalsCombinations({ game: ['a', 'b'], role: ['x', 'y'] })
+  ).toEqual([
+    { game: 'a', role: 'x' },
+    { game: 'a', role: 'y' },
+    { game: 'b', role: 'x' },
+    { game: 'b', role: 'y' },
+  ]);
+});
+
+test('a globals-matrix story owns one scenario and baseline per combination, theme and width', () => {
+  const story = {
+    id: 'space-in-game--screen',
+    importPath:
+      '../ui-root-client-ts/src/space-in-game-template/space-in-game-template.stories.tsx',
+    tags: ['viewport-responsive'],
+  };
+  const scenarios = visualScenarios(story);
+  // 2 widths x 5 games x 2 roles x 2 themes
+  expect(scenarios).toHaveLength(40);
+  expect(new Set(scenarios.map(({ baseline }) => baseline)).size).toBe(40);
+  const hearts = scenarios.filter(
+    ({ globals }) =>
+      globals['spaceGame'] === 'hearts' && globals['spaceRole'] === 'host'
+  );
+  expect(
+    hearts.map(({ width, theme, suffix, globals, baseline }) => ({
+      width,
+      theme,
+      suffix,
+      globals,
+      baseline,
+    }))
+  ).toEqual(
+    [
+      [390, 'light', ''],
+      [390, 'dark', ''],
+      [1440, 'light', '-1440'],
+      [1440, 'dark', '-1440'],
+    ].map(([width, theme, size]) => ({
+      width: width as number,
+      theme: theme as string,
+      suffix: `${size}-hearts-host`,
+      globals: { spaceGame: 'hearts', spaceRole: 'host' },
+      baseline: `pkgs/ui-root-client-ts/src/space-in-game-template/baselines/chromium/space-in-game/screen-${theme}${size}-hearts-host.png`,
+    }))
+  );
+  expect(
+    visualScenarios({ ...story, id: 'space-choosing--screen' }).map(
+      ({ suffix }) => suffix
+    )
+  ).toEqual([
+    '-light-cycles-host',
+    '-light-cycles-host',
+    '-light-cycles-guest',
+    '-light-cycles-guest',
+    '-1440-light-cycles-host',
+    '-1440-light-cycles-host',
+    '-1440-light-cycles-guest',
+    '-1440-light-cycles-guest',
+  ]);
+});
+
+type MatrixStory = { parameters?: { spaceMatrix?: SpaceMatrix } };
+type SpaceMatrix = { games: readonly string[]; roles: readonly string[] };
+
+// The index carries no story parameters, so the browser suite's registry must
+// equal what each story declares in `parameters.spaceMatrix`.
+test('the globals-matrix registry matches every story that declares a space matrix', async () => {
+  const root = resolve(import.meta.dirname, '../../..');
+  const declared: Record<string, StoryGlobalsMatrix> = {};
+  for (const pattern of [
+    'pkgs/*/src/**/*.stories.tsx',
+    'libs/*/src/**/*.stories.tsx',
+  ])
+    for (const path of new Bun.Glob(pattern).scanSync({ cwd: root })) {
+      const file = resolve(root, path);
+      if (!readFileSync(file, 'utf8').includes('spaceMatrix')) continue;
+      const module = (await import(file)) as Record<
+        string,
+        MatrixStory | undefined
+      > & {
+        default: MatrixStory & { id?: string; title?: string };
+      };
+      const { default: meta, ...stories } = module;
+      for (const [name, story] of Object.entries(stories)) {
+        const matrix =
+          story?.parameters?.spaceMatrix ?? meta.parameters?.spaceMatrix;
+        if (!matrix) continue;
+        const id = toId(
+          meta.id ?? meta.title ?? path,
+          storyNameFromExport(name)
+        );
+        declared[id] = { spaceGame: matrix.games, spaceRole: matrix.roles };
+      }
+    }
+  expect(declared).toEqual(storyGlobalsMatrices);
 });

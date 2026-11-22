@@ -124,6 +124,8 @@ export default {
   ],
   initialGlobals: {
     theme: 'light',
+    spaceGame: 'light-cycles',
+    spaceRole: 'guest',
     motion: 'reduced',
     timeStep: '0',
     backgrounds: { value: 'canvas', grid: false },
@@ -150,6 +152,30 @@ export default {
     theme: {
       description: 'Production color scheme',
       toolbar: { icon: 'circlehollow', items: ['light', 'dark'] },
+    },
+    // Space screen stories read these; every other story ignores them.
+    spaceGame: {
+      description: 'Game shown by the Space screen stories',
+      toolbar: {
+        icon: 'component',
+        items: [
+          { value: 'light-cycles', title: 'Light Cycles' },
+          { value: 'chess', title: 'Chess' },
+          { value: 'hearts', title: 'Hearts' },
+          { value: 'battleship', title: 'Battleship' },
+          { value: 'word-tiles', title: 'Word Tiles' },
+        ],
+      },
+    },
+    spaceRole: {
+      description: 'Who is looking at the Space screen stories',
+      toolbar: {
+        icon: 'user',
+        items: [
+          { value: 'host', title: 'Host' },
+          { value: 'guest', title: 'Guest' },
+        ],
+      },
     },
   },
   parameters: {

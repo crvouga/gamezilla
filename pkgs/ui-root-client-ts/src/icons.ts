@@ -34,6 +34,7 @@ import Columns2 from 'lucide-solid/icons/columns-2';
 import Compass from 'lucide-solid/icons/compass';
 import Copy from 'lucide-solid/icons/copy';
 import CreditCard from 'lucide-solid/icons/credit-card';
+import Crown from 'lucide-solid/icons/crown';
 import Database from 'lucide-solid/icons/database';
 import DoorOpen from 'lucide-solid/icons/door-open';
 import Download from 'lucide-solid/icons/download';
@@ -53,6 +54,7 @@ import Image from 'lucide-solid/icons/image';
 import Info from 'lucide-solid/icons/info';
 import Italic from 'lucide-solid/icons/italic';
 import KeyRound from 'lucide-solid/icons/key-round';
+import LayoutGrid from 'lucide-solid/icons/layout-grid';
 import Lightbulb from 'lucide-solid/icons/lightbulb';
 import Link from 'lucide-solid/icons/link';
 import List from 'lucide-solid/icons/list';
@@ -64,6 +66,7 @@ import LogOut from 'lucide-solid/icons/log-out';
 import Mail from 'lucide-solid/icons/mail';
 import Maximize2 from 'lucide-solid/icons/maximize-2';
 import Menu from 'lucide-solid/icons/menu';
+import MicOff from 'lucide-solid/icons/mic-off';
 import Minimize2 from 'lucide-solid/icons/minimize-2';
 import Monitor from 'lucide-solid/icons/monitor';
 import MonitorPlay from 'lucide-solid/icons/monitor-play';
@@ -189,6 +192,12 @@ export const GaugeIcon = createIcon(Gauge);
 export const InfoIcon = createIcon(Info);
 export const KeyRoundIcon = createIcon(KeyRound);
 export const MoonIcon = createIcon(Moon);
+/** The host's crown badge on a space avatar. */
+export const CrownIcon = createIcon(Crown);
+/** Choosing a game: a grid of tiles. */
+export const LayoutGridIcon = createIcon(LayoutGrid);
+/** A muted microphone. */
+export const MicOffIcon = createIcon(MicOff);
 export const RefreshCwIcon = createIcon(RefreshCw);
 export const SlidersHorizontalIcon = createIcon(SlidersHorizontal);
 export const SmartphoneIcon = createIcon(Smartphone);

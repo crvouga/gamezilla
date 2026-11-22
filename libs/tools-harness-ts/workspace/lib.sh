@@ -27,6 +27,15 @@ unset git_common_dir
 
 cd "$WORKSPACE_PATH" || exit 1
 
+# mise.toml pins exact versions and the repository commits no mise.lock. A
+# workstation's global `lockfile`/`locked` settings would either write one or
+# refuse every tool missing from it ("locked mode requires lockfile to be
+# enabled"), so this checkout's commands run without lockfile mode. A
+# committed mise.lock is honored.
+if [ ! -f mise.lock ]; then
+  export MISE_LOCKFILE=false MISE_LOCKED=false
+fi
+
 # Runs one command, printing its output only when it fails: a step that worked
 # is one line. Steps that run as Turborepo tasks get the same from
 # `outputLogs: errors-only`; this covers what has to run before turbo can.

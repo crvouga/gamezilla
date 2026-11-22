@@ -9,7 +9,10 @@ export async function verifyStoryScenario(
   storyId: string,
   scenario: ReturnType<typeof visualScenarios>[number]
 ): Promise<void> {
-  const { width, height, theme } = scenario;
+  const { width, height, theme, globals } = scenario;
+  const globalsParam = Object.entries({ theme, ...globals })
+    .map(([name, value]) => `${name}:${value}`)
+    .join(';');
   await page.setViewportSize({ width, height });
   const failures: string[] = [];
   page.on('pageerror', (error) => failures.push(error.message));
@@ -19,7 +22,7 @@ export async function verifyStoryScenario(
       : route.abort()
   );
   await page.goto(
-    `/iframe.html?id=${storyId}&viewMode=story&globals=theme:${theme}`
+    `/iframe.html?id=${storyId}&viewMode=story&globals=${globalsParam}`
   );
   await expect
     .poll(async () =>
