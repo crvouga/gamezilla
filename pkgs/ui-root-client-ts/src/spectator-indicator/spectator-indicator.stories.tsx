@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { SpectatorIndicator } from './index';
 export default {
   id: 'product-spectatorindicator',
-  title: 'Games/Shared/Components/GameSpectatorIndicator',
+  title: 'Organisms/Games/Shared/GameSpectatorIndicator',
   component: SpectatorIndicator,
   tags: ['autodocs'],
 } satisfies Meta<typeof SpectatorIndicator>;

@@ -2,7 +2,10 @@ import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import type { GameClientDefinition } from '@libs/spaces-shared-ts/game';
 import type { SelectedGameId } from '@libs/spaces-shared-ts/games';
 import { GamesRoomAttr } from '@libs/spaces-shared-ts/games';
+import { Handles } from '@libs/test-ids-shared-ts/handles';
+import { Trans } from '@lingui/solid/macro';
 import { useLocalSearchParams } from '@pkgs/ui-root-client-ts/app-router';
+import { Text } from '@pkgs/ui-root-client-ts/text';
 import type { JSX } from 'solid-js';
 import {
   createEffect,
@@ -13,11 +16,9 @@ import {
   untrack,
 } from 'solid-js';
 import { useGamesRegistry } from './games-registry-context';
-import { SpaceGamesScreenView } from './space-games-screen-view';
+import { SpaceChoosingScreenView } from './space-choosing-screen-view';
 import { SPACE_GAME_PARAM } from './space-routes';
 import { useSpaceSessionUi } from './space-session-ui-context';
-import { SpaceWhoIsHere } from './space-who-is-here';
-import { useConnectedSpaceRoster } from './use-connected-space-roster';
 import { useOfflineGameBrowse } from './use-offline-game-browse';
 import { useSpaceCan } from './use-space-can';
 import { useSpaceRoomSelector } from './use-space-room-selector';
@@ -42,10 +43,20 @@ function OpenLinkedGame(props: {
   return null;
 }
 
+/** A guest tried to leave the host's game: only the host moves the space. */
+function HostChoosesNotice(): JSX.Element {
+  return (
+    <Text variant="caption" testId={Handles.spaceHostChoosesGame}>
+      <Trans>The host picks the game for this space.</Trans>
+    </Text>
+  );
+}
+
 /**
- * Top-level games menu for a space: wires {@link SpaceGamesScreenView} to
- * the space room's selected game and the registry the composition root
- * provides via {@link GamesRegistryProvider}.
+ * The body of `/space/:id`: the game choice ({@link SpaceChoosingScreenView})
+ * until the host picks a game, then that game's own menu. Wired to the
+ * space room's selected game and the registry the composition root provides
+ * via {@link GamesRegistryProvider}.
  */
 export function GamesMainMenu(): JSX.Element {
   const games = useGamesRegistry();
@@ -55,11 +66,6 @@ export function GamesMainMenu(): JSX.Element {
   const { spaceId } = useSpaceSessionUi();
   const canSelectGame = useSpaceCan(spaceId, PERMISSION.spacesSelectGame);
   const [hostChooses, setHostChooses] = createSignal(false);
-  // Everyone here: a game seats some of them, the rest watch it.
-  const roster = useConnectedSpaceRoster();
-  const present = createMemo(
-    () => new Set(roster().map((person) => person.id)).size
-  );
   // A guest is told why going back did nothing, connected or not: only the
   // host moves the space. The answer belongs to the game it was given on.
   const onBackToGames = (): void => {
@@ -75,29 +81,32 @@ export function GamesMainMenu(): JSX.Element {
   );
 
   return (
-    <>
-      <Show when={selectedMenu() === null}>
-        <OpenLinkedGame
-          games={games}
-          canSelectGame={canSelectGame()}
-          onSelectGame={chooseGame}
-        />
-      </Show>
-      <SpaceGamesScreenView
-        games={games}
-        shownGame={shownGame()}
-        canSelectGame={canSelectGame()}
-        present={present()}
-        hostChoosesNotice={hostChooses()}
-        onSelectGame={chooseGame}
-        whoIsHere={<SpaceWhoIsHere spaceId={spaceId} />}
-        renderGameMenu={(gameId) => {
-          const game = games.find((g) => g.id === gameId);
-          return game === undefined ? null : (
-            <game.MainMenu onBackToGames={onBackToGames} />
-          );
-        }}
-      />
-    </>
+    <Show
+      when={selectedMenu()}
+      keyed
+      fallback={
+        <>
+          <OpenLinkedGame
+            games={games}
+            canSelectGame={canSelectGame()}
+            onSelectGame={chooseGame}
+          />
+          <SpaceChoosingScreenView
+            games={games}
+            canSelectGame={canSelectGame()}
+            onSelectGame={chooseGame}
+          />
+        </>
+      }
+    >
+      {(game) => (
+        <>
+          <Show when={hostChooses()}>
+            <HostChoosesNotice />
+          </Show>
+          <game.MainMenu onBackToGames={onBackToGames} />
+        </>
+      )}
+    </Show>
   );
 }

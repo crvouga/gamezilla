@@ -24,7 +24,7 @@ function BoardFixture(props: ComponentProps<typeof ChessBoard>) {
 }
 const meta = {
   id: 'product-chessboard',
-  title: 'Games/Chess/Board',
+  title: 'Organisms/Games/Chess/Board',
   render: (args) => <BoardFixture {...args} />,
   component: ChessBoard,
   tags: ['autodocs'],

@@ -1,6 +1,6 @@
 import { fn } from 'storybook/test';
 import { createJSXDecorator } from 'storybook-solidjs-vite';
-import { SpaceGamesScreenView } from './space-games-screen-view';
+import { SpaceChoosingScreenView } from './space-choosing-screen-view';
 import { StorySpaceFrame } from './space-screen-chrome-story.example';
 import { GAMES } from './spaces-story.example';
 
@@ -11,11 +11,9 @@ import { GAMES } from './spaces-story.example';
 export const withSpaceScreenBehind = createJSXDecorator((Story) => (
   <>
     <StorySpaceFrame>
-      <SpaceGamesScreenView
+      <SpaceChoosingScreenView
         games={GAMES}
-        shownGame={null}
         canSelectGame
-        hostChoosesNotice={false}
         onSelectGame={fn()}
       />
     </StorySpaceFrame>

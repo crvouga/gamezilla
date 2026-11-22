@@ -4,7 +4,7 @@ import { FormScreen } from './index';
 
 const meta = {
   id: 'templates-form-editor',
-  title: 'Templates/Form editor',
+  title: 'Templates/FormScreen',
   component: FormScreen,
   tags: ['autodocs'],
 } satisfies Meta;

@@ -5,7 +5,7 @@ import { GameMenuScreen } from './index';
 
 const meta = {
   id: 'templates-game-menu',
-  title: 'Templates/Game menu',
+  title: 'Templates/Games/GameMenuScreen',
   component: GameMenuScreen,
   tags: ['autodocs'],
   parameters: { appRouter: true, controls: { exclude: ['choices'] } },
@@ -20,7 +20,6 @@ const meta = {
         title: 'Play with friends or bots',
         caption: 'With the people in this space, or bots',
         icon: UsersIcon,
-        emphasis: 'primary',
         dataSet: { testid: 'choice-custom-game' },
         onClick: fn(),
       },

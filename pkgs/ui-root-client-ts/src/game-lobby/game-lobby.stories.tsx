@@ -5,7 +5,7 @@ import { GameLobbyScreen } from './index';
 
 const meta = {
   id: 'product-game-lobby',
-  title: 'Games/Shared/Components/GameLobby',
+  title: 'Organisms/Games/Shared/GameLobby',
   component: GameLobbyScreen,
   tags: ['autodocs'],
   args: {

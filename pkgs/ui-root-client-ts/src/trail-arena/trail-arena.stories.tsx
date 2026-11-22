@@ -4,7 +4,7 @@ import Example from './trail-arena.example';
 
 const meta = {
   id: 'components-inputs-trailarena',
-  title: 'Games/Light Cycles/Arena',
+  title: 'Organisms/Games/Light Cycles/Arena',
   component: TrailArena,
   tags: ['autodocs'],
 } satisfies Meta;

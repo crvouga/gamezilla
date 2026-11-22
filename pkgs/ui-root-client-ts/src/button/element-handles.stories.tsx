@@ -4,7 +4,7 @@ import { Button } from './index';
 
 const meta = {
   id: 'primitives-focus-scroll-and-measure',
-  title: 'Atoms/Focus, scroll and measure',
+  title: 'Organisms/Patterns/Element handles',
   component: Button,
   tags: ['autodocs'],
 } satisfies Meta;

@@ -20,12 +20,12 @@ type Args = Omit<SpaceSetupTemplateExampleProps, 'game' | 'role' | 'ready'> & {
 
 const meta = {
   id: 'space-setting-up',
-  title: 'Space/SettingUp',
+  title: 'Templates/Space/SpaceSetupTemplate',
   component: SpaceSetupTemplate,
   tags: ['autodocs', 'viewport-responsive'],
   args: {
     onBack: fn(),
-    onSettings: fn(),
+    onSpaceMenu: fn(),
     onLeave: fn(),
     onEnd: fn(),
     onPersonAction: fn(),

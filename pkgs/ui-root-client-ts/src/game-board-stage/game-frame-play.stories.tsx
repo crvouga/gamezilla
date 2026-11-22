@@ -4,7 +4,7 @@ import { GameBoardStage } from './index';
 
 const meta = {
   id: 'product-game-frame-play',
-  title: 'Games/Shared/Components/GamePlay',
+  title: 'Organisms/Games/Shared/GamePlay',
   component: GameBoardStage,
   tags: ['autodocs'],
 } satisfies Meta;

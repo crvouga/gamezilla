@@ -4,7 +4,7 @@ import Example from './move-strip.example';
 
 const meta = {
   id: 'layouts-movestrip',
-  title: 'Games/Shared/Components/GameMoveStrip',
+  title: 'Organisms/Games/Shared/GameMoveStrip',
   component: MoveStrip,
   tags: ['autodocs'],
 } satisfies Meta;

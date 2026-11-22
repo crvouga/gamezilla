@@ -22,7 +22,7 @@ const avatar = (_actor: { id: string }, size: number) => (
 );
 export default {
   id: 'product-presence',
-  title: 'Organisms/Presence',
+  title: 'Organisms/PresenceStrip',
   component: PresenceStrip,
   subcomponents: { PresenceRosterList, ParticipantDot },
   tags: ['autodocs'],

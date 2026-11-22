@@ -91,20 +91,6 @@
   flex-shrink: 0;
   --ui-on-icon: var(--ui-color-text-secondary);
 }
-/* The main way in leads by its picture on the accent, its tag and an
-   accent edge, on the plain surface like every other choice: a fill would
-   read as already chosen (or hovered). */
-.tile[data-emphasis="primary"] {
-  border-color: var(--ui-color-tint-active);
-  box-shadow: inset 0 0 0 1px var(--ui-color-tint-active);
-}
-.icon[data-emphasis="primary"] {
-  background: var(--ui-color-tint-active);
-  --ui-on-icon: var(--ui-color-on-primary);
-}
-.tile[data-emphasis="primary"] .chevron {
-  --ui-on-icon: var(--ui-color-tint);
-}
 /* A look back or a setting says less: a secondary picture. */
 .icon[data-emphasis="quiet"] {
   --ui-on-icon: var(--ui-color-text-secondary);

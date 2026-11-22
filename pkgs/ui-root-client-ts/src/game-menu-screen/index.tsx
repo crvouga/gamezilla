@@ -3,7 +3,6 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { createMemo, For, type JSX, Show } from 'solid-js';
-import { Badge } from '../badge/index';
 import type { IconComponent } from '../create-icon/index';
 import { EmbeddedScreen } from '../embedded-screen/index';
 import {
@@ -22,20 +21,19 @@ import styles from './game-menu-screen.module.css';
 /** One way into a game: a menu row on a phone, a large tile when wide. */
 export type GameMenuChoice = Pick<
   MainMenuItem,
-  'key' | 'title' | 'caption' | 'emphasis' | 'dataSet'
+  'key' | 'title' | 'caption' | 'dataSet'
 > & {
   /** What the choice is, as a picture heading its tile (or its row). */
   icon: IconComponent;
   /**
-   * Why the main way in leads, as a short tag (`Recommended`): beside its
-   * picture on a tile, under its title in a row. Only with `emphasis:
-   * 'primary'`.
+   * `quiet`: a look back or a setting, never a way to play. No choice
+   * leads: the menu never recommends one way to play over another.
    */
-  badge?: JSX.Element | undefined;
+  emphasis?: 'quiet' | undefined;
   onClick: () => void;
 };
 
-/** A choice's picture in its rounded square: the accent's for the main way in. */
+/** A choice's picture in its rounded square. */
 function ChoiceIcon(props: {
   choice: GameMenuChoice;
   size: 'row' | 'tile';
@@ -56,18 +54,6 @@ function ChoiceIcon(props: {
   );
 }
 
-/**
- * The main way in's tag, only when it leads: beside its title at a
- * readable size, in the accent, so the lead is said where the eye lands.
- */
-function ChoiceBadge(props: { choice: GameMenuChoice }): JSX.Element {
-  return (
-    <Show when={props.choice.emphasis === 'primary' && props.choice.badge}>
-      <Badge intent="brand" size="md" label={props.choice.badge} />
-    </Show>
-  );
-}
-
 export type GameMenuScreenProps = {
   /** Stable screen identifier rendered as `data-screen`. */
   screenId: string;
@@ -82,8 +68,8 @@ export type GameMenuScreenProps = {
 };
 
 /**
- * A choice as a tile, read in one line across: its picture, its name with
- * the main way in's tag beside it and what it opens under them, then a
+ * A choice as a tile, read in one line across: its picture, its name and
+ * what it opens under it, then a
  * chevron centred at the far edge, level with the words. Sized by its
  * words, never a tall card of empty room.
  */
@@ -103,7 +89,6 @@ function ChoiceTile(props: { choice: GameMenuChoice }): JSX.Element {
           <span class={`${styles['title']} text textHeading`}>
             {props.choice.title}
           </span>
-          <ChoiceBadge choice={props.choice} />
         </span>
         <Show when={props.choice.caption}>
           <span class={`${styles['caption']} text textCaption`}>
@@ -234,10 +219,9 @@ function WideGameMenu(props: GameMenuScreenProps): JSX.Element {
  * at its largest, its name and what it is) and lays every choice out as a
  * large tile with its picture; on a phone it
  * is a `MainMenuScreen`: the name beside the tile, then one panel of rows,
- * each led by the same picture. Either way the main way in (`emphasis:
- * 'primary'`) leads the same way: its picture on the accent and its tag
- * (`badge`, "Recommended"), never a fill, which would read as already
- * chosen; the quiet ones (`'quiet'`) have secondary pictures.
+ * each led by the same picture. Every way to play weighs the same: the
+ * menu never recommends one; the quiet ones (`'quiet'`) have secondary
+ * pictures.
  * Presentational; the caller opens what each choice names.
  *
  * @example
@@ -248,7 +232,7 @@ function WideGameMenu(props: GameMenuScreenProps): JSX.Element {
  *   motif="discs"
  *   subtitle="Drop discs and line up four"
  *   choices={[{ key: 'custom-game', title: 'Play with friends or bots',
- *     icon: UsersIcon, emphasis: 'primary', onClick: openCustomGame }]}
+ *     icon: UsersIcon, onClick: openCustomGame }]}
  * />
  * ```
  */
@@ -263,10 +247,6 @@ export function GameMenuScreen(props: GameMenuScreenProps): JSX.Element {
       dataSet: choice.dataSet,
       onClick: choice.onClick,
       leading: <ChoiceIcon choice={choice} size="row" />,
-      meta: choice.emphasis === 'primary' ? choice.badge : undefined,
-      // The lead's tag sits beside its title, so its row is the same shape
-      // as every other row (a tag over the title made the rows uneven).
-      metaPlacement: 'title',
     }))
   );
   return (

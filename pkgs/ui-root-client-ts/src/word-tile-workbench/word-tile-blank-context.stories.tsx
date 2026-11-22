@@ -24,7 +24,7 @@ function cells(blank: number): readonly WordTileBoardCell[] {
 
 const meta = {
   id: 'games-word-tiles-blank-context',
-  title: 'Games/Word Tiles/Blank context',
+  title: 'Organisms/Games/Word Tiles/Blank context',
   component: WordTileBlankContext,
   tags: ['autodocs'],
   args: {

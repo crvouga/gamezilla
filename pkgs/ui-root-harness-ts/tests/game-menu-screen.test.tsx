@@ -27,8 +27,6 @@ function threeChoices(width: number) {
             title: 'Play with friends',
             caption: 'With the people in this space, or bots',
             icon: UsersIcon,
-            emphasis: 'primary',
-            badge: 'Recommended',
             dataSet: { testid: 'choice-play' },
             onClick: () => undefined,
           },
@@ -69,8 +67,6 @@ function menu(width: number, onPlay: () => void) {
             title: 'Play with friends or bots',
             caption: 'Choose who plays',
             icon: UsersIcon,
-            emphasis: 'primary',
-            badge: 'Recommended',
             dataSet: { testid: 'choice-play' },
             onClick: onPlay,
           },
@@ -79,7 +75,6 @@ function menu(width: number, onPlay: () => void) {
             title: 'History and stats',
             icon: HistoryIcon,
             emphasis: 'quiet',
-            badge: 'Ignored',
             dataSet: { testid: 'choice-history' },
             onClick: () => undefined,
           },
@@ -90,7 +85,7 @@ function menu(width: number, onPlay: () => void) {
 }
 
 describe('GameMenuScreen', () => {
-  test('wide: the game heads its menu, every way to play a tile, the main way in leading', () => {
+  test('wide: the game heads its menu, every way to play a tile, none of them leading', () => {
     const onPlay = mock(() => undefined);
     const view = menu(1440, onPlay);
     expect(view.getByRole('heading', { level: 1 }).textContent).toBe(
@@ -100,7 +95,7 @@ describe('GameMenuScreen', () => {
     const tiles = view.getAllByRole('listitem');
     expect(tiles).toHaveLength(2);
     const play = view.getByTestId('choice-play');
-    expect(play.getAttribute('data-emphasis')).toBe('primary');
+    expect(play.getAttribute('data-emphasis')).toBeNull();
     expect(play.getAttribute('data-component')).toBe('GameMenuChoice');
     fireEvent.click(play);
     expect(onPlay).toHaveBeenCalledTimes(1);
@@ -149,22 +144,13 @@ describe('GameMenuScreen', () => {
     expect(link).toContain('min-height: 64px;');
   });
 
-  // regression: game-menu-recommended-badge-detached — wide, the
-  // "Recommended" tag was a 10px chip at the tile's far corner, far from its
-  // title, and the tile's chevron sat at the foot of a mostly empty card.
-  test('wide: the lead tag sits beside its title at a readable size, the tile one line across', () => {
+  // regression: game-menu-recommended-badge-detached — the "Recommended"
+  // tag was a chip far from its title. The menu recommends nothing now, so
+  // a tile is its picture, its words and its chevron, one line across.
+  test('wide: a tile is one line across with no tag', () => {
     const view = menu(1440, () => undefined);
     const play = view.getByTestId('choice-play');
-    const badge = view
-      .getByText('Recommended')
-      .closest('[data-component="Badge"]');
-    expect(badge?.getAttribute('data-size')).toBe('md');
-    expect(badge?.getAttribute('data-intent')).toBe('brand');
-    expect(
-      badge?.parentElement?.contains(
-        view.getByText('Play with friends or bots')
-      )
-    ).toBe(true);
+    expect(play.querySelector('[data-component="Badge"]')).toBeNull();
     // Picture, words, chevron: three children across, no head row.
     expect(play.children).toHaveLength(3);
     view.unmount();
@@ -201,18 +187,22 @@ describe('GameMenuScreen', () => {
 
   // regression: game-menu-primary-emphasis-differs-by-size — wide led with a
   // tinted card that read as hovered or chosen; a phone row lost the lead.
-  test('the main way in leads alike on every size: its picture on the accent and its tag', () => {
+  // The mode choice is the person's own: no way to play is recommended or
+  // drawn ahead of another, on any size.
+  test('no way to play leads or is recommended, on every size', () => {
     for (const width of [1440, 390]) {
-      const view = menu(width, () => undefined);
-      const play = view.getByTestId('choice-play');
-      const history = view.getByTestId('choice-history');
-      expect(play.textContent).toContain('Recommended');
-      expect(history.textContent).not.toContain('Ignored');
+      const view = threeChoices(width);
+      for (const id of ['choice-play', 'choice-find']) {
+        const choice = view.getByTestId(id);
+        expect(choice.getAttribute('data-emphasis')).toBeNull();
+        expect(choice.querySelector('[data-emphasis="primary"]')).toBeNull();
+        expect(choice.querySelector('[data-component="Badge"]')).toBeNull();
+      }
+      expect(view.queryByText('Recommended')).toBeNull();
       expect(
-        play.querySelector('[aria-hidden="true"][data-emphasis="primary"]')
-      ).not.toBeNull();
-      expect(
-        history.querySelector('[aria-hidden="true"][data-emphasis="quiet"]')
+        view
+          .getByTestId('choice-history')
+          .querySelector('[aria-hidden="true"][data-emphasis="quiet"]')
       ).not.toBeNull();
       view.unmount();
     }
@@ -260,24 +250,16 @@ describe('GameMenuScreen', () => {
   // regression: game-menu-recommended-splits-sentence — moved to the start
   // of the caption, it then broke the caption's sentence.
   // regression: game-menu-tag-uneven-rows — then it headed the row over the
-  // title, making the lead's row taller than the rest. It sits beside its
-  // (shorter) title on the title's own line, never in the caption.
-  test("phone: the lead's tag sits beside its title, never on a line of its own or in the caption", () => {
+  // title, making the lead's row taller than the rest. No row carries a
+  // tag, so every row is its title over its whole caption.
+  test('phone: every row is its title over its caption, with no tag anywhere', () => {
     const view = threeChoices(390);
     const caption = view.getByText('With the people in this space, or bots');
-    expect(caption.querySelector('[data-component="Badge"]')).toBeNull();
-    const badge = view
-      .getByTestId('choice-play')
-      .querySelector('[data-component="Badge"]');
-    expect(badge?.textContent).toBe('Recommended');
-    const title = view.getByText('Play with friends');
-    const before = (a: Node, b: Node): boolean =>
-      (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
-    if (badge === null) throw new Error('No tag');
-    // On the title's own line: the tag and the title share one row box.
-    expect(badge.parentElement?.contains(title)).toBe(true);
-    expect(before(title, badge)).toBe(true);
-    expect(before(badge, caption)).toBe(true);
+    expect(caption.textContent).toBe('With the people in this space, or bots');
+    for (const id of ['choice-play', 'choice-find', 'choice-history'])
+      expect(
+        view.getByTestId(id).querySelector('[data-component="Badge"]')
+      ).toBeNull();
     view.unmount();
   });
 });

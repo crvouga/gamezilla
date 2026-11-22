@@ -4,7 +4,7 @@ import { CellGridBoard } from './index';
 
 export default {
   id: 'games-cellgridboard-boundary-contrast',
-  title: 'Games/CellGridBoard/Boundary contrast',
+  title: 'Organisms/Games/Shared/GameCellGridBoard boundary contrast',
   component: CellGridBoard,
 } satisfies Meta<typeof CellGridBoard>;
 

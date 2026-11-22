@@ -9,6 +9,7 @@
 
 import type { JSX } from 'solid-js';
 import type { AvatarSeatColor } from './avatar/index';
+import type { IconComponent } from './create-icon/index';
 import type { GameOptionFieldProps } from './game-option-field/index';
 import type { GameSeatLook } from './game-seat-swatch/index';
 import type { GameTileMotif } from './game-tile/index';
@@ -99,13 +100,15 @@ export type SpaceGameAction = {
 };
 
 /**
- * One row of a space menu: the space settings sheet, the action bar's More
- * sheet. Labels say what will happen (`Rename space`).
+ * One row of a space menu: the space menu behind row 1's button, the
+ * action bar's More sheet. Labels say what will happen (`Rename space`).
  */
 export type SpaceMenuItem = {
   /** Stable within its menu; shipped as `data-action`. */
   id: string;
   label: string;
+  /** The row's picture in the space menu. */
+  icon?: IconComponent | undefined;
   tone?: 'default' | 'destructive' | undefined;
   disabled?: boolean | undefined;
   onPress: () => void;

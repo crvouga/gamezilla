@@ -3,7 +3,7 @@ import { JsonView } from './index';
 import Example from './json-view.example';
 export default {
   id: 'product-developer-tools-jsonview',
-  title: 'Organisms/JsonView',
+  title: 'Organisms/Devtools/JsonView',
   component: JsonView,
   tags: ['autodocs'],
 } satisfies Meta;

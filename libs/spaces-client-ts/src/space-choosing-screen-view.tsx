@@ -1,0 +1,115 @@
+import { Handles } from '@libs/test-ids-shared-ts/handles';
+import {
+  GAME_TILE_MOTIFS,
+  type GameTileMotif,
+} from '@pkgs/ui-root-client-ts/game-tile';
+import {
+  SpaceLauncher,
+  type SpaceLauncherGame,
+} from '@pkgs/ui-root-client-ts/space-launcher';
+import { SpaceStageTemplate } from '@pkgs/ui-root-client-ts/space-stage-template';
+import type { SpacePerson } from '@pkgs/ui-root-client-ts/space-types';
+import { createMemo, type JSX } from 'solid-js';
+import { SpaceScreenNotice, useSpaceScreenChrome } from './space-screen-chrome';
+import { ClaimSpaceShell } from './space-shell-claim';
+
+/** One game the space can play, as its registration describes it. */
+export type SpaceChoosingGame = {
+  readonly id: string;
+  readonly title: string;
+  /** How many play one game; a game with none declared is played alone. */
+  readonly players?: number | undefined;
+  /** Bots can fill the seats nobody here takes. */
+  readonly bots: boolean;
+  /** The name of the game's `GameTile` motif. */
+  readonly motif: string;
+};
+
+export type SpaceChoosingScreenViewProps = {
+  readonly games: readonly SpaceChoosingGame[];
+  /** The host picks the game; guests see what the host can pick. */
+  readonly canSelectGame: boolean;
+  readonly onSelectGame: (gameId: string) => void;
+};
+
+function tileMotif(game: SpaceChoosingGame): GameTileMotif {
+  const motif = GAME_TILE_MOTIFS.find((each) => each === game.motif);
+  if (motif === undefined)
+    throw new Error(`${game.id}: "${game.motif}" is not a game tile motif`);
+  return motif;
+}
+
+/** Each registered game as a launcher tile, in the order registered. */
+export function spaceLauncherGames(
+  games: readonly SpaceChoosingGame[]
+): readonly SpaceLauncherGame[] {
+  return games.map((game) => ({
+    key: game.id,
+    name: game.title,
+    motif: tileMotif(game),
+    players: { counts: [game.players ?? 1], bots: game.bots },
+    testId: Handles.gameMenu(game.id),
+  }));
+}
+
+/**
+ * The people row while a game is chosen: the host is choosing and everyone
+ * else watches; someone gone quiet stays away.
+ */
+export function spaceChoosingPeople(
+  people: readonly SpacePerson[]
+): readonly SpacePerson[] {
+  return people.map((person) => ({
+    ...person,
+    status: person.status ?? (person.host === true ? 'choosing' : 'watching'),
+  }));
+}
+
+/**
+ * `/space/:id` while no game is chosen: the space's stage template with
+ * the game launcher as its page, as `Templates/Space/SpaceLauncher` in the catalogue. The
+ * host picks a game; a guest sees the same games and that the host is
+ * choosing. Everything the space supplies comes from
+ * `useSpaceScreenChrome`; `GamesMainMenu` wires the games and the choice.
+ */
+export function SpaceChoosingScreenView(
+  props: SpaceChoosingScreenViewProps
+): JSX.Element {
+  const chrome = useSpaceScreenChrome();
+  const people = createMemo(() => spaceChoosingPeople(chrome.people));
+  const games = createMemo(() => spaceLauncherGames(props.games));
+  return (
+    <>
+      <ClaimSpaceShell />
+      <SpaceStageTemplate
+        spaceName={chrome.spaceName}
+        role={chrome.role}
+        phase="choosing"
+        people={people()}
+        onBack={chrome.onBack}
+        backLabel={chrome.backLabel}
+        menu={chrome.menu}
+        onLeave={chrome.onLeave}
+        onEnd={chrome.onEnd}
+        onInvite={chrome.onInvite}
+        onPersonAction={chrome.onPersonAction}
+        personCapabilities={chrome.personCapabilities}
+        notice={<SpaceScreenNotice />}
+        testIds={chrome.testIds}
+      >
+        <SpaceLauncher
+          role={props.canSelectGame ? 'host' : 'guest'}
+          hostName={chrome.hostName}
+          present={Math.max(1, people().length)}
+          games={games()}
+          onChoose={(key) => props.onSelectGame(key)}
+          testIds={{
+            status: props.canSelectGame
+              ? undefined
+              : Handles.spaceHostChoosesGame,
+          }}
+        />
+      </SpaceStageTemplate>
+    </>
+  );
+}

@@ -4,7 +4,7 @@ import { CellGridBoard } from './index';
 
 export default {
   id: 'organisms-games-gamequoridorboard',
-  title: 'Games/Quoridor/Board',
+  title: 'Organisms/Games/Quoridor/Board',
   component: CellGridBoard,
   tags: ['autodocs'],
 } satisfies Meta;

@@ -4,7 +4,7 @@ import { ContentScreen } from './index';
 
 const meta = {
   id: 'templates-details-and-documents',
-  title: 'Templates/Details and documents',
+  title: 'Templates/ContentScreen',
   component: ContentScreen,
   tags: ['autodocs'],
 } satisfies Meta;

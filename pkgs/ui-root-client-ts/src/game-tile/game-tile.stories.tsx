@@ -4,7 +4,7 @@ import { GameTile } from './index';
 
 const meta = {
   id: 'games-shared-game-tile',
-  title: 'Games/Shared/Components/GameTile',
+  title: 'Organisms/Games/Shared/GameTile',
   component: GameTile,
   tags: ['autodocs'],
 } satisfies Meta;

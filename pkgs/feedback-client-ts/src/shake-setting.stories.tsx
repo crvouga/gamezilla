@@ -4,7 +4,7 @@ import { ShakeSettingView } from './shake-setting';
 
 const meta = {
   id: 'product-shake-to-report',
-  title: 'Molecules/Shake to report',
+  title: 'Molecules/Feedback/ShakeSetting',
   component: ShakeSettingView,
   tags: ['autodocs'],
   args: { state: 'on', onChange: fn(), onAllow: fn() },

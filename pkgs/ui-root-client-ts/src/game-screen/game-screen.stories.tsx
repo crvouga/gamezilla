@@ -4,7 +4,7 @@ import { GameScreen } from './index';
 
 const meta = {
   id: 'templates-custom-game',
-  title: 'Games/Shared/Screens/GameScreen',
+  title: 'Templates/Games/GameScreen',
   component: GameScreen,
   tags: ['autodocs'],
 } satisfies Meta;

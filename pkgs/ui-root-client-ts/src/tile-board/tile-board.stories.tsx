@@ -4,7 +4,7 @@ import Example from './tile-board.example';
 
 const meta = {
   id: 'product-tileboard',
-  title: 'Games/Sokoban/Board',
+  title: 'Organisms/Games/Sokoban/Board',
   component: TileBoard,
   tags: ['autodocs'],
 } satisfies Meta;

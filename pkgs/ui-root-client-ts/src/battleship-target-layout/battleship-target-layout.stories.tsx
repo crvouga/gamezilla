@@ -20,7 +20,8 @@ const cells = Array.from({ length: 100 }, (_, n) => ({
   enabled: n !== 0,
 }));
 const meta = {
-  title: 'Games/Battleship/Target layout',
+  id: 'games-battleship-target-layout',
+  title: 'Organisms/Games/Battleship/Target layout',
   component: BattleshipTargetLayout,
 } satisfies Meta<typeof BattleshipTargetLayout>;
 export default meta;

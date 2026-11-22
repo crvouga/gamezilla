@@ -151,11 +151,11 @@ protocol. Import each from its matching kebab-case module export.
 
 | Template | Composition | Current consumers |
 | --- | --- | --- |
-| `MainMenuScreen` | Intro, one destination panel, helper and footer | Game chooser, game modes, embedded settings |
+| `SpaceStageTemplate` + `SpaceLauncher` | The space's row 1, its people row and a page in the stage; the launcher is the page while a game is chosen | The space's game choice |
+| `MainMenuScreen` | Intro, one destination panel, helper and footer | A game's own menu (`GameMenuScreen`) |
 | `GameScreen` + `GameSessionLayout` | Intro, title row, notices, setup, play stage, status, actions, optional record rail and watching footer (`docs/GAME_UI.md`) | Custom and matchmaking games |
 | `GameSetupPanel` | Choices, primary commands, secondary options | Create a custom game, find an opponent |
 | `PuzzleScreen` | Fixed feed / coaching, fitted board, legend, timeline, actions and overlay | Puzzle play |
-| `GameHistoryScreen` | Summary, trend, statistics, filters and record list | Puzzle stats and attempts |
 | `GameReviewScreen` | Review stage, timeline, actions and optional record rail | Puzzle review |
 | `FormScreen` | Scrolling editor, shared Save / Cancel footer | Username and avatar editors |
 | `MenuScreen` | Scrolling groups of `MenuSection` / `MenuList` | Settings, profile settings, account, devices, preferences |
@@ -166,8 +166,8 @@ protocol. Import each from its matching kebab-case module export.
 Every page sits on one canvas, `background`, edge to edge at every width;
 only wells (inputs, tags, notices) take a `surface` tone. Every page column
 shares one 720px measure (`screen-measure.ts`), so the column never jumps
-between tabs: `menu` for `MenuScreen`, `FormScreen`, `MainMenuScreen`,
-`GameHistoryScreen` and Storybook; `prose` for `ContentScreen`; `list` for
+between tabs: `menu` for `MenuScreen`, `FormScreen`, `MainMenuScreen`
+and Storybook; `prose` for `ContentScreen`; `list` for
 `CollectionScreen` and `ProfileScreenLayout` (its identity column beside its
 sections); `full` for game stages with a rail. Compact hosts cap and center the
 column. On desktop every screen starts at the frame column's leading edge

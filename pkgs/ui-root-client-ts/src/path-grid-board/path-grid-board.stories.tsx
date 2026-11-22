@@ -5,7 +5,7 @@ import Example from './path-grid-board.example';
 
 const meta = {
   id: 'product-pathgridboard',
-  title: 'Games/Numberlink/Board',
+  title: 'Organisms/Games/Numberlink/Board',
   component: PathGridBoard,
   tags: ['autodocs'],
 } satisfies Meta;

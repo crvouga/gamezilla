@@ -4,7 +4,7 @@ import { GameResultHeadline } from './index';
 
 const meta = {
   id: 'product-game-frame-game-over',
-  title: 'Games/Shared/Components/GameResult',
+  title: 'Organisms/Games/Shared/GameResult',
   component: GameResultHeadline,
   tags: ['autodocs'],
 } satisfies Meta;

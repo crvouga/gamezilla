@@ -19,7 +19,7 @@ export type SpaceInGameChessExampleProps = SpaceExampleSpies & {
 
 /**
  * bob's space while Chess is played, at one fixed mid-game moment, seen by
- * `role`. `@pkgs/ui` cannot draw the chess board, so `Space/InGame` takes
+ * `role`. `@pkgs/ui` cannot draw the chess board, so `Templates/Space/SpaceInGameTemplate` takes
  * Chess in play from here when the toolbar's game is Chess.
  */
 export default function SpaceInGameChessExample(

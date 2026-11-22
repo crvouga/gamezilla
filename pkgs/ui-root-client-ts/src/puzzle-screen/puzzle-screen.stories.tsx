@@ -4,7 +4,7 @@ import Example from './puzzle-screen.example';
 
 const meta = {
   id: 'templates-puzzle-play',
-  title: 'Games/Shared/Screens/GamePuzzleScreen',
+  title: 'Templates/Games/GamePuzzleScreen',
   component: PuzzleScreen,
   tags: ['autodocs'],
 } satisfies Meta;

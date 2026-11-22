@@ -17,7 +17,6 @@ import {
   SquareStackIcon,
   UsersIcon,
 } from '@pkgs/ui-root-client-ts/icons';
-import type { MainMenuItem } from '@pkgs/ui-root-client-ts/main-menu-item-row';
 import { createMemo, type JSX, Match, Switch } from 'solid-js';
 import { GameHowToPlayView } from './game-how-to-play-view';
 import type { GameMenuPlace } from './game-menu-places';
@@ -35,15 +34,13 @@ export type GameMenuChoiceView = {
 };
 
 /**
- * How strongly each choice asks to be chosen: playing with friends or bots
- * is the main way in (the menu's one emphasised row), finding an opponent
- * an ordinary one, and looking back (history, puzzle stats), settings or
- * how to play the quiet ones.
+ * The quiet choices: looking back (history, puzzle stats), settings and
+ * how to play. Every way to play weighs the same; the menu never
+ * recommends one.
  */
 export const GAME_CHOICE_EMPHASIS: Readonly<
-  Record<string, MainMenuItem['emphasis']>
+  Record<string, 'quiet' | undefined>
 > = {
-  [SHARED_GAME_SCREEN.customGames]: 'primary',
   [SHARED_GAME_SCREEN.history]: 'quiet',
   [SHARED_GAME_SCREEN.puzzleStats]: 'quiet',
   [SHARED_GAME_SCREEN.settings]: 'quiet',
@@ -99,11 +96,6 @@ function menuChoice(
     caption: choice.caption,
     icon: ICON[choice.screen] ?? CompassIcon,
     emphasis: GAME_CHOICE_EMPHASIS[choice.screen],
-    // The main way in says why it leads, in words, on every size.
-    badge:
-      GAME_CHOICE_EMPHASIS[choice.screen] === 'primary' ? (
-        <Trans>Recommended</Trans>
-      ) : undefined,
     dataSet: { testid: Handles.gameChoice(choice.screen) },
     onClick,
   };
@@ -143,7 +135,7 @@ function GameMenuHub(props: GameMenuScreenViewProps): JSX.Element {
 /**
  * A game's menu in a space, presentational: a hub of the template screens
  * the game offers (puzzles, custom games, finding an opponent, history,
- * settings), each a row that leads onward, with one emphasised way in.
+ * settings), each a row that leads onward; none is recommended.
  * How to play is a small place of its own behind the hub, opened by a row.
  * `GameMenu` decides which choices the game offers, opens the screen each
  * one names and keeps this device's place.

@@ -10,7 +10,6 @@ import Example10 from '../../ui-root-client-ts/src/collection-screen/collection-
 import Example11 from '../../ui-root-client-ts/src/content-screen/content-screen.example';
 import Example12 from '../../ui-root-client-ts/src/embedded-screen/embedded-screen.example';
 import Example7 from '../../ui-root-client-ts/src/form-screen/form-screen.example';
-import Example5 from '../../ui-root-client-ts/src/game-history-screen/game-history-screen.example';
 import Example6 from '../../ui-root-client-ts/src/game-review-screen/game-review-screen.example';
 import Example1 from '../../ui-root-client-ts/src/game-screen/game-screen.example';
 import Example2 from '../../ui-root-client-ts/src/game-session-layout/game-session-layout.example';
@@ -26,7 +25,6 @@ const SCREEN_ENTRIES = [
   { id: 'game-session-layout', Example: Example2 },
   { id: 'game-setup-panel', Example: Example3 },
   { id: 'puzzle-screen', Example: Example4 },
-  { id: 'game-history-screen', Example: Example5 },
   { id: 'game-review-screen', Example: Example6 },
   { id: 'form-screen', Example: Example7 },
   { id: 'menu-screen', Example: Example8 },

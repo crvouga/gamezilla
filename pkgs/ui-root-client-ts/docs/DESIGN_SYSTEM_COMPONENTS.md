@@ -300,7 +300,6 @@ Every page is `ScreenBase` **or** `EmbeddedScreen`, never both.
 | ProfileScreenLayout | ✅ | ScreenBase |
 | GameScreen | ✅ | Embedded |
 | PuzzleScreen | ✅ | Embedded |
-| GameHistoryScreen | ✅ | Embedded |
 | GameReviewScreen | ✅ | Embedded |
 
 ---

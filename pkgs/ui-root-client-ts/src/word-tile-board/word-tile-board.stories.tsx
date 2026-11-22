@@ -5,7 +5,7 @@ import Example from './word-tile-board.example';
 
 const meta = {
   id: 'product-wordtileboard',
-  title: 'Games/Word Tiles/Board',
+  title: 'Organisms/Games/Word Tiles/Board',
   component: WordTileBoard,
   tags: ['autodocs'],
 } satisfies Meta;
