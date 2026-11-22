@@ -1,0 +1,4 @@
+{
+  "summary": "Every Worker isolate writes its own metric series, so the stack held about 15,000 series over three hours (188,800 in a day) and Grafana Cloud refused writes at its active-series limit (err-mimir-max-active-series): Health check results and other objective evidence were dropped while the writer saw success, leaving objectives judged on three samples a week. Unread OpenTelemetry SDK self-metrics (about 19% of series) are off and histograms keep only the bounds objectives read.",
+  "regressionTest": "pkgs/observability-root-shared-ts/tests/http-metrics.test.ts"
+}
