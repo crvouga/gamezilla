@@ -17,14 +17,21 @@ import { assertNonProdDatabaseUrl } from '@libs/db-shared-ts/database-url-policy
 import { appPostgresDbScope } from '@libs/db-shared-ts/scope';
 import type { Clock } from '@pkgs/clock-shared-ts/types';
 import type { HttpClient } from '@pkgs/http-client-shared-ts/types';
+import type { ConflictBackoff } from '@pkgs/sql-client-root-shared-ts/conflict-retry';
+import { retryingConflicts } from '@pkgs/sql-client-root-shared-ts/conflict-retry';
 
 /** Sweeper for stranded outbox deliveries (cron). Opens its own DB session. */
 export async function drainOutboxOnCron(
   env: ApiWorkerEnv,
-  http: HttpClient,
-  clock: Clock,
-  createId: ServerEnv['createId']
+  ports: {
+    readonly http: HttpClient;
+    readonly clock: Clock;
+    readonly createId: ServerEnv['createId'];
+    /** Spreads reruns of transactions that lost a serialization conflict. */
+    readonly backoff: ConflictBackoff;
+  }
 ): Promise<number> {
+  const { http, clock, createId, backoff } = ports;
   const secretsEnv = assertSecretsEnvBinding(env);
   const secretStore = createApiSecretStore(
     workerEnvToSecretRecord(env),
@@ -52,7 +59,10 @@ export async function drainOutboxOnCron(
         now: clock.now,
         http,
       }),
-      db: wrapSqlClientForObservability(opened.sqlClient),
+      db: retryingConflicts(
+        wrapSqlClientForObservability(opened.sqlClient),
+        backoff
+      ),
       clock,
       createId,
     });
