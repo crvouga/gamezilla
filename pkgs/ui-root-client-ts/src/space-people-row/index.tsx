@@ -30,9 +30,10 @@ export type SpacePersonCellProps = {
   data?: SpacePersonData | undefined;
   /** In game: the player's color, turn and data line (wins over `data`). */
   seat?: SpaceGameSeat | undefined;
-  /** This person's sheet is open. */
+  /** This person's menu is open. */
   expanded?: boolean | undefined;
-  onPress: () => void;
+  /** Pressed; `avatar` is what the entry's menu opens against. */
+  onPress: (avatar: HTMLElement) => void;
   dataSet?: ComponentDataSet | undefined;
 };
 
@@ -93,7 +94,7 @@ function DataLine(props: {
  * is their color (`seat.color`) and the crown alone marks the host. Whoever
  * plays now gets the turn badge and their data line in full ink. The
  * button's accessible name and tooltip say every badge in words; pressing
- * it opens that entry's actions (`SpacePersonSheet`).
+ * it opens that entry's actions (`SpacePersonMenu`) against the avatar.
  */
 export function SpacePersonCell(props: SpacePersonCellProps): JSX.Element {
   const words = useSpacePersonWords();
@@ -105,15 +106,16 @@ export function SpacePersonCell(props: SpacePersonCellProps): JSX.Element {
       words.name(props.person),
       ...words.summary(props.person, status(), data()),
     ].join(', ');
+  let face: HTMLElement | undefined;
   return (
     <button
       type="button"
       class={styles['cell']}
       aria-label={said()}
       title={said()}
-      aria-haspopup="dialog"
+      aria-haspopup="menu"
       aria-expanded={props.expanded === true}
-      onClick={() => props.onPress()}
+      onClick={(event) => props.onPress(face ?? event.currentTarget)}
       {...dataAttrs(
         spaceDataSet(
           { component: 'SpacePersonCell', ...props.dataSet },
@@ -125,7 +127,12 @@ export function SpacePersonCell(props: SpacePersonCellProps): JSX.Element {
       data-host={props.person.host === true ? 'true' : undefined}
       data-status={status()}
     >
-      <span class={styles['face']}>
+      <span
+        class={styles['face']}
+        ref={(el) => {
+          face = el;
+        }}
+      >
         <CellAvatar
           person={props.person}
           phase={props.phase}
@@ -183,9 +190,10 @@ export type SpacePeopleRowProps = {
   data?: ((person: SpacePerson) => SpacePersonData | undefined) | undefined;
   /** Each person's seat in game (`SpaceGamePlay.seat`). */
   seat?: ((person: SpacePerson) => SpaceGameSeat | undefined) | undefined;
-  /** The entry whose sheet is open. */
+  /** The entry whose menu is open. */
   openId?: string | undefined;
-  onPerson: (id: string) => void;
+  /** An entry was pressed; `avatar` is what its menu opens against. */
+  onPerson: (id: string, avatar: HTMLElement) => void;
   /** Shows the Invite cell at the end; never while a game runs. */
   onInvite?: (() => void) | undefined;
   dataSet?: ComponentDataSet | undefined;
@@ -213,7 +221,7 @@ export function SpacePeopleRow(props: SpacePeopleRowProps): JSX.Element {
             data={props.data?.(person)}
             seat={props.seat?.(person)}
             expanded={props.openId === person.id}
-            onPress={() => props.onPerson(person.id)}
+            onPress={(avatar) => props.onPerson(person.id, avatar)}
           />
         )}
       </For>

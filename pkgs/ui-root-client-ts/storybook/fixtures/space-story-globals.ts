@@ -21,16 +21,9 @@ export type SpaceStoryGame = (typeof SPACE_STORY_GAMES)[number];
 
 /**
  * The games whose board `@pkgs/ui` draws in play. Chess draws its own, so
- * Chess in play is its package's story (`Space/InGameChess`).
+ * `Space/InGame` takes Chess in play from the chess board package's example.
  */
-export const SPACE_STORY_PLAY_GAMES = [
-  'light-cycles',
-  'hearts',
-  'battleship',
-  'word-tiles',
-] as const satisfies readonly SpaceStoryGame[];
-
-export type SpaceStoryPlayGame = (typeof SPACE_STORY_PLAY_GAMES)[number];
+export type SpaceStoryPlayGame = Exclude<SpaceStoryGame, 'chess'>;
 
 export const SPACE_STORY_ROLES: readonly SpaceRole[] = ['host', 'guest'];
 
@@ -50,19 +43,6 @@ export function spaceStoryGame(
 ): SpaceStoryGame {
   const value = globals['spaceGame'];
   return SPACE_STORY_GAMES.find((game) => game === value) ?? 'light-cycles';
-}
-
-/**
- * The toolbar's game where `@pkgs/ui` draws the board in play; Light Cycles
- * when unset, unknown or Chess.
- */
-export function spaceStoryPlayGame(
-  globals: Readonly<Record<string, unknown>>
-): SpaceStoryPlayGame {
-  const value = globals['spaceGame'];
-  return (
-    SPACE_STORY_PLAY_GAMES.find((game) => game === value) ?? 'light-cycles'
-  );
 }
 
 /** The role the toolbar selects; a guest when unset or unknown. */

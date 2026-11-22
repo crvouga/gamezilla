@@ -19,8 +19,8 @@ export type SpaceInGameChessExampleProps = SpaceExampleSpies & {
 
 /**
  * bob's space while Chess is played, at one fixed mid-game moment, seen by
- * `role`. `@pkgs/ui` cannot draw the chess board, so the Space screen
- * stories take Chess in play from here.
+ * `role`. `@pkgs/ui` cannot draw the chess board, so `Space/InGame` takes
+ * Chess in play from here when the toolbar's game is Chess.
  */
 export default function SpaceInGameChessExample(
   props: SpaceInGameChessExampleProps

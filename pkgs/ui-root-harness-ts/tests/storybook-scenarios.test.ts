@@ -195,16 +195,15 @@ test('a globals-matrix story owns one scenario and baseline per combination, the
     tags: ['viewport-responsive'],
   };
   const scenarios = visualScenarios(story);
-  // Chess in play is its package's own story, beside its board: together
-  // they are 2 widths x 5 games x 2 roles x 2 themes.
-  const chess = visualScenarios({
-    id: 'space-in-game-chess--screen',
-    importPath:
-      '../chess-board-root-client-ts/src/chess-board/space-chess.stories.tsx',
-    tags: ['viewport-responsive'],
-  });
-  expect(scenarios).toHaveLength(32);
-  expect(chess.map(({ suffix }) => suffix)).toEqual([
+  // 2 widths x 5 games x 2 roles x 2 themes. Chess is one of the games: its
+  // board comes from its own package, its baselines sit with the others.
+  expect(scenarios).toHaveLength(40);
+  expect(new Set(scenarios.map(({ baseline }) => baseline)).size).toBe(40);
+  expect(
+    scenarios
+      .filter(({ globals }) => globals['spaceGame'] === 'chess')
+      .map(({ suffix }) => suffix)
+  ).toEqual([
     '-chess-host',
     '-chess-host',
     '-chess-guest',
@@ -214,12 +213,6 @@ test('a globals-matrix story owns one scenario and baseline per combination, the
     '-1440-chess-guest',
     '-1440-chess-guest',
   ]);
-  expect(
-    new Set([...scenarios, ...chess].map(({ baseline }) => baseline)).size
-  ).toBe(40);
-  expect(chess[0]?.baseline).toBe(
-    'pkgs/chess-board-root-client-ts/src/chess-board/baselines/chromium/space-in-game-chess/screen-light-chess-host.png'
-  );
   const hearts = scenarios.filter(
     ({ globals }) =>
       globals['spaceGame'] === 'hearts' && globals['spaceRole'] === 'host'
