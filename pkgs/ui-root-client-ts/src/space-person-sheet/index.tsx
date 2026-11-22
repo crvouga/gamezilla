@@ -113,7 +113,10 @@ function ActionRow(props: {
               { action: props.entry.action.id },
               props.entry.action.testId
             )
-          : { action: props.entry.id }
+          : spaceDataSet(
+              { action: props.entry.id },
+              props.person.actionTestIds?.[props.entry.id]
+            )
       }
     />
   );
