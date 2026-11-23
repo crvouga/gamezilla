@@ -1,4 +1,4 @@
 {
   "summary": "On a phone the finished game's board drew smaller and lower than the live board (the outcome card took the commands bar's place and the board was fitted to what was left, and a board without its hint line was centred on its own height), so the board jumped when the game ended. The outcome card now lies over the stage's foot (`GameSessionLayout`'s `sheet`) and the stage keeps the centre it took in the same room (`stageCentreOffset`).",
-  "regressionTest": "pkgs/ui-root-client-ts/tests/game-stage-centre.property.test.ts"
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stage-stability/integration.checks.ts"
 }

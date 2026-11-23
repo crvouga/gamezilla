@@ -77,7 +77,6 @@ describe('stageCentreOffset', () => {
     expect(stageCentreOffset(held, phone, 300)).toBe(150);
   });
 
-  // regression: stage-board-moves-on-result
   test('the result keeps the live board in place in the same room', () => {
     const held = new Map<string, HeldCentre>();
     const phone = { width: 390, height: 520, boardWidth: 390 };

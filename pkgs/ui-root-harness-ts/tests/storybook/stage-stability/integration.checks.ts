@@ -84,6 +84,52 @@ async function switchTo(page: Page, storyId: string): Promise<void> {
 }
 
 // regression: stage-board-pushed-by-notice
+// On a 390px phone the connection notice was a row above the board, so the
+// board dropped (up to 110px) when it appeared. Notices now lie over the
+// stage's top: the board keeps its place while one shows.
+test('storybook integration: stage stability 390 keeps the board in place when a notice appears', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(
+    '/iframe.html?id=screens-custom-games-stage--your-turn&viewMode=story&globals=theme:light'
+  );
+  await ready(page);
+  await expect(page.locator('[data-component="GameStageNotices"]')).toHaveCount(
+    0
+  );
+  const before = await boardRect(page);
+  expect(before).toMatchObject({ x: 0, width: 390 });
+  await switchTo(page, 'screens-custom-games-stage--connection-needed');
+  await expect(
+    page.locator('[data-component="GameStageNotices"]')
+  ).toBeVisible();
+  expect(await boardRect(page)).toEqual(before);
+});
+
+// regression: stage-board-moves-on-result
+// On a 390px phone the finished game's board drew smaller and lower than the
+// live one, so it jumped when the game ended. The outcome card now lies over
+// the stage's foot: the board keeps its place and size once the result shows.
+test('storybook integration: stage stability 390 keeps the board in place when the result card shows', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(
+    '/iframe.html?id=screens-custom-games-stage--your-turn&viewMode=story&globals=theme:light'
+  );
+  await ready(page);
+  await expect(page.locator('[data-component="GameStageSheet"]')).toHaveCount(
+    0
+  );
+  const before = await boardRect(page);
+  expect(before).toMatchObject({ x: 0, width: 390 });
+  await switchTo(page, 'screens-custom-games-result--you-win');
+  await expect(page.locator('[data-component="GameStageSheet"]')).toBeVisible();
+  expect(await boardRect(page)).toEqual(before);
+});
+
+// Every step of a game, on a phone and a wide window.
 for (const viewport of VIEWPORTS)
   for (const [mode, stories] of Object.entries(SEQUENCES))
     test(`storybook integration: stage stability ${mode} ${viewport.width} keeps the board where it is through the game`, async ({
