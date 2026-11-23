@@ -16,4 +16,5 @@ Feature: Finding an opponent after a custom game
       Given Alice and Bob have a custom game under way
       When Alice seeks an opponent for the game at 5+0
       Then Alice is told to finish her custom game first
+      And Alice is offered to return to the custom game
       And Alice is not waiting for an opponent
