@@ -27,7 +27,11 @@ import {
   FRAME_NO_TABLE,
 } from './game-frame-empty';
 import { frameOverlayPhase } from './game-frame-overlay-view';
-import { FrameBoardMount, useFrameBoard } from './game-frame-play';
+import {
+  FrameBoardMount,
+  useBoardLineStatus,
+  useFrameBoard,
+} from './game-frame-play';
 import { useFrameResult } from './game-frame-result';
 import type { FramePeople, FramePhase } from './game-frame-view-types';
 import { useFrameWatcherCount } from './game-frame-watchers';
@@ -134,6 +138,21 @@ function useFramePresentationFacts(model: FrameProps['model']) {
   };
 }
 
+/**
+ * The stage's one line: where the game stands, in the board's own words
+ * while the game is played when it has some (`useBoardLineStatus`).
+ */
+function useStageStatus(
+  model: CustomGameScreenModel,
+  board: ReturnType<typeof useFrameBoard>
+) {
+  return useBoardLineStatus(
+    useFrameStatus(model),
+    board,
+    () => model.current()?.status === 'active'
+  );
+}
+
 /** Reads the room for `CustomGameScreenView`: the allowed custom game. */
 function CustomGameFrame(props: FrameProps): JSX.Element {
   const model = props.model;
@@ -146,7 +165,7 @@ function CustomGameFrame(props: FrameProps): JSX.Element {
   );
   const board = useFrameBoard(model, review);
   const refusal = useRefusalText();
-  const status = useFrameStatus(model);
+  const status = useStageStatus(model, board);
   const watchers = useFrameWatcherCount(model.current);
   const setup = useFrameSetup(model);
   const table = useFrameTable(model, board);

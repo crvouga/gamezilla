@@ -97,23 +97,23 @@ test('screens-custom-games-home--no-game regression mode-card-words-squeezed-wit
 });
 
 // regression: light-cycles-player-facts-overflow
-test('screens-games-light-cycles-arena--crashed regression light-cycles-player-facts-overflow', async ({
+test('screens-games-light-cycles-stage--crashed regression light-cycles-player-facts-overflow', async ({
   page,
 }) => {
   await verifyBoardRegression(
     page,
-    'screens-games-light-cycles-arena--crashed',
+    'screens-games-light-cycles-stage--crashed',
     390
   );
 });
 
 // regression: light-cycles-inactive-steering-guidance
-test('screens-games-light-cycles-arena--reconnecting regression light-cycles-inactive-steering-guidance', async ({
+test('screens-games-light-cycles-stage--reconnecting regression light-cycles-inactive-steering-guidance', async ({
   page,
 }) => {
   await verifyBoardRegression(
     page,
-    'screens-games-light-cycles-arena--reconnecting',
+    'screens-games-light-cycles-stage--reconnecting',
     390
   );
 });
@@ -130,12 +130,12 @@ test('screens-games-hearts-board--cards-on-their-way regression hearts-phone-sid
 });
 
 // regression: light-cycles-desktop-steer-up
-test('screens-games-light-cycles-arena--steer-up regression desktop', async ({
+test('screens-games-light-cycles-stage--steer-up regression desktop', async ({
   page,
 }) => {
   await verifyBoardRegression(
     page,
-    'screens-games-light-cycles-arena--steer-up',
+    'screens-games-light-cycles-stage--steer-up',
     1440
   );
 });
@@ -259,13 +259,13 @@ test('screens-games-word-tiles-board--recover-and-submit regression word-tiles-l
 });
 
 // regression: light-cycles-synthetic-swipe-native-capture
-test('screens-games-light-cycles-arena--shared-swipe regression light-cycles-synthetic-swipe-native-capture', async ({
+test('screens-games-light-cycles-stage--shared-swipe regression light-cycles-synthetic-swipe-native-capture', async ({
   page,
 }) => {
   await verifySharedSwipeCapture(page);
   await verifyBoardRegression(
     page,
-    'screens-games-light-cycles-arena--shared-swipe',
+    'screens-games-light-cycles-stage--shared-swipe',
     390
   );
 });
@@ -366,12 +366,12 @@ test('screens-games-quoridor-hill--four-player-round regression quoridor-four-se
 });
 
 // regression: light-cycles-quad-clipped-identities
-test('screens-games-light-cycles-arena--quad-steering regression light-cycles-quad-clipped-identities', async ({
+test('screens-games-light-cycles-stage--quad-steering regression light-cycles-quad-clipped-identities', async ({
   page,
 }) => {
   await verifyBoardRegression(
     page,
-    'screens-games-light-cycles-arena--quad-steering',
+    'screens-games-light-cycles-stage--quad-steering',
     390
   );
 });
@@ -553,12 +553,12 @@ test('screens-games-word-tiles-board--enlarged-coordinates regression word-tiles
 });
 
 // regression: game-four-player-identity-line-breaks
-test('screens-games-light-cycles-arena--quad-steering regression game-four-player-identity-line-breaks', async ({
+test('screens-games-light-cycles-stage--quad-steering regression game-four-player-identity-line-breaks', async ({
   page,
 }) => {
   await verifyBoardRegression(
     page,
-    'screens-games-light-cycles-arena--quad-steering',
+    'screens-games-light-cycles-stage--quad-steering',
     390
   );
 });
@@ -774,12 +774,12 @@ test('screens-games-battleship-board--correct-target-before-firing 1440 regressi
 });
 
 // regression: light-cycles-steer-up-wide-story
-test('screens-games-light-cycles-arena--steer-up regression light-cycles-steer-up-wide-story', async ({
+test('screens-games-light-cycles-stage--steer-up regression light-cycles-steer-up-wide-story', async ({
   page,
 }) => {
   await verifyBoardRegression(
     page,
-    'screens-games-light-cycles-arena--steer-up',
+    'screens-games-light-cycles-stage--steer-up',
     1440
   );
 });
@@ -834,12 +834,12 @@ test('screens-games-battleship-setup--spatial-region-selection regression round8
 });
 
 // regression: round8-quad-desktop-participant-assertion
-test('screens-games-light-cycles-arena--quad-steering regression round8-quad-desktop-participant-assertion', async ({
+test('screens-games-light-cycles-stage--quad-steering regression round8-quad-desktop-participant-assertion', async ({
   page,
 }) => {
   await verifyBoardRegression(
     page,
-    'screens-games-light-cycles-arena--quad-steering',
+    'screens-games-light-cycles-stage--quad-steering',
     1440
   );
 });

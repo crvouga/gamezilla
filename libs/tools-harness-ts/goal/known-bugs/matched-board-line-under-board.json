@@ -1,0 +1,4 @@
+{
+  "summary": "In a matched Light Cycles game the arena's live line (the round, who rides, a round's winner) was written under the board instead of in the stage's one status line, because matchmaking built its status line apart from the board's session. `MultiplayerFrameBoard` now hands the line to the screen (`onLine`) and `MultiplayerStatus` says it in place of the turn words.",
+  "regressionTest": "libs/game-matchmaking-client-ts/tests/multiplayer-frame-board.test.tsx"
+}

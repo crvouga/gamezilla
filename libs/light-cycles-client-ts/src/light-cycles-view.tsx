@@ -239,3 +239,30 @@ export function steeringText(
       return t`You ride ${name}.`;
   }
 }
+
+/**
+ * The stage's one line while the game is played: a round's winner and when
+ * the next starts, else the round and how this device rides (`Round 2 ·
+ * You ride Comet.`). `null` once the game is over: its result says it.
+ */
+export function steeringLine(
+  state: LightCyclesState,
+  controls: GameSimulationControls | undefined
+): string | null {
+  if (state.phase === 'completed') return null;
+  if (state.phase === 'round-over') {
+    const result = arenaOverlay(state);
+    return result === undefined
+      ? null
+      : [result.title, result.detail].filter(Boolean).join(' ');
+  }
+  const sides = controls?.sides ?? [];
+  const own = sides[0] ?? controls?.elsewhere?.[0];
+  const steering =
+    sides.length > 1
+      ? sides
+          .map((side) => steeringText(steeringOf(state, controls, side), side))
+          .join(' ')
+      : steeringText(steeringOf(state, controls, own), own);
+  return `${t`Round ${state.round}`} · ${steering}`;
+}

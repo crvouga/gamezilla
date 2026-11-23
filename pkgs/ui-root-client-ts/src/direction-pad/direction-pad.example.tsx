@@ -44,6 +44,15 @@ export default function DirectionPadExample(): JSX.Element {
           onDirection={onDirection}
         />
       </ExampleSection>
+      <ExampleSection title="Concealed: its room kept, for a rider that cannot steer now">
+        <DirectionPad
+          labels={DIRECTION_LABELS}
+          disabled={true}
+          concealed
+          testId="direction-pad-example-concealed"
+          onDirection={onDirection}
+        />
+      </ExampleSection>
     </ExampleRoot>
   );
 }

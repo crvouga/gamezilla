@@ -10,6 +10,7 @@ import {
   useTurnGames,
 } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { useGameSideLabel } from '@pkgs/turn-game-client-ts/use-game-side-label';
+import type { GameSeatStat } from '@pkgs/turn-game-shared-ts/game-frame';
 import type { BotDifficulty } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { GamePlayerState } from '@pkgs/ui-root-client-ts/game-player-parts';
 import { type Accessor, createMemo } from 'solid-js';
@@ -102,6 +103,69 @@ function seatState(
     : null;
 }
 
+/** What one seat shows of the position the board shows. */
+type SeatReading = {
+  readonly stat: GameSeatStat | null;
+  readonly out: boolean;
+  readonly facts: readonly string[];
+};
+type SeatReadings = Readonly<Partial<Record<CustomGameSide, SeatReading>>>;
+
+const NO_READINGS: SeatReadings = {};
+
+function sameReading(a: SeatReading, b: SeatReading): boolean {
+  return (
+    a.out === b.out &&
+    a.stat?.label === b.stat?.label &&
+    a.stat?.value === b.stat?.value &&
+    a.facts.length === b.facts.length &&
+    a.facts.every((fact, index) => fact === b.facts[index])
+  );
+}
+
+function sameReadings(a: SeatReadings, b: SeatReadings): boolean {
+  return CUSTOM_GAME_SIDES.every((side) => {
+    const one = a[side];
+    const other = b[side];
+    return one === undefined || other === undefined
+      ? one === other
+      : sameReading(one, other);
+  });
+}
+
+/**
+ * Each seat's figure, facts and whether it is out, in the position the
+ * board shows, changing only when one of them does: a game played in real
+ * time shows a new position every display frame, while its seats change
+ * only with the score, so the seats are not rebuilt every frame.
+ */
+function useSeatReadings(
+  model: CustomGameScreenModel,
+  board: FrameBoard
+): Accessor<SeatReadings> {
+  const presentation = useGamePresentation();
+  return createMemo(
+    (): SeatReadings => {
+      const game = model.current();
+      if (game === null) return NO_READINGS;
+      const position = board.position();
+      const seats = presentation(game.fen).frame.seats;
+      return Object.fromEntries(
+        game.sides.map((side) => [
+          side,
+          {
+            stat: seats.stat(position, side),
+            out: seats.out(position, side),
+            facts: seats.facts(position, side, game.committed),
+          },
+        ])
+      );
+    },
+    NO_READINGS,
+    { equals: sameReadings }
+  );
+}
+
 /**
  * The seats around the board while the game is played, in the position
  * the board shows: the other seats above, the viewer's own (or the first,
@@ -114,23 +178,23 @@ export function useFrameTable(
   const presentation = useGamePresentation();
   const seat = useFrameSeat(model);
   const press = useFramePlayerPress(model.myId);
+  const readings = useSeatReadings(model, board);
   const layout = createMemo(
     () => frameTable(model.current()?.sides ?? [], model.mySide()),
     undefined,
     { equals: sameTable }
   );
   const playSeat = (game: CustomGame, side: CustomGameSide): FramePlaySeat => {
-    const position = board.position();
-    const seats = presentation(game.fen).frame.seats;
+    const reading = readings()[side];
     const participant = game[side];
     return {
       ...seat(game, side),
-      stat: seats.stat(position, side),
-      state: seatState(model, seats.out(position, side), participant),
+      stat: reading?.stat ?? null,
+      state: seatState(model, reading?.out === true, participant),
       standIn: game.standIns.includes(side),
       committed: game.committed.includes(side),
       choosing: game.awaiting.includes(side),
-      facts: seats.facts(position, side, game.committed),
+      facts: reading?.facts ?? [],
       deciding: frameSeatDeciding(game, side, model),
       reclaim:
         game.status === 'active' &&

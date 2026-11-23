@@ -12,7 +12,7 @@ import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { cleanup, fireEvent } from '@solidjs/testing-library';
-import { createSignal } from 'solid-js';
+import { createRoot, createSignal } from 'solid-js';
 
 afterEach(cleanup);
 
@@ -143,7 +143,16 @@ test('a crashed rider, a round result and a lost connection each refuse steering
   const view = board([seat], crashed);
   expect(view.getByTestId('arena-status').dataset['steering']).toBe('crashed');
   // regression: light-cycles-crash-pad-and-obscured-result
-  expect(view.queryByTestId(`arena-${seat}-pad-up`)).toBeNull();
+  // A crashed rider's pad offers nothing: it keeps its room (so the arena
+  // never moves), shown to no one and steering nothing.
+  const pad = view.getByTestId(`arena-${seat}-pad`);
+  expect(pad.dataset['concealed']).toBe('true');
+  expect(pad.getAttribute('aria-hidden')).toBe('true');
+  expect(
+    (view.getByTestId(`arena-${seat}-pad-up`) as HTMLButtonElement).disabled
+  ).toBe(true);
+  fireEvent.click(view.getByTestId(`arena-${seat}-pad-up`));
+  expect(view.inputs).toEqual([]);
   fireEvent.keyDown(view.getByTestId('arena-arena'), { key: 'ArrowUp' });
   expect(view.inputs).toEqual([]);
   const over = until(crashed, (state) => state.phase === 'round-over');
@@ -229,13 +238,27 @@ test('a finished game tells its riders it is finished, not that they watch', () 
 
 test("a person's other device says it does not steer their rider and offers to ride from it", () => {
   let claims = 0;
+  const simulation = {
+    paused: false,
+    stale: false,
+    sides: [],
+    elsewhere: ['white' as const],
+    claim: () => {
+      claims += 1;
+    },
+    onInput: () => {
+      throw new Error('a device that does not steer sends no turn');
+    },
+    onRelease: () => {},
+  };
+  const position = trio.encode(running(lightCyclesStart(3, 3)));
   const view = renderWithI18n(() => (
     <ThemeProvider
       colorScheme="light"
       fixedLayout={{ width: 390, height: 844 }}
     >
       <LightCyclesBoard
-        position={trio.encode(running(lightCyclesStart(3, 3)))}
+        position={position}
         orientation="white"
         interactive={true}
         sound={false}
@@ -246,19 +269,7 @@ test("a person's other device says it does not steer their rider and offers to r
         committed={[]}
         commitment={null}
         onAction={() => {}}
-        simulation={{
-          paused: false,
-          stale: false,
-          sides: [],
-          elsewhere: ['white'],
-          claim: () => {
-            claims += 1;
-          },
-          onInput: () => {
-            throw new Error('a device that does not steer sends no turn');
-          },
-          onRelease: () => {},
-        }}
+        simulation={simulation}
       />
     </ThemeProvider>
   ));
@@ -266,8 +277,34 @@ test("a person's other device says it does not steer their rider and offers to r
     'elsewhere'
   );
   expect(view.queryByTestId('arena-white-pad-up')).toBeNull();
-  fireEvent.click(view.getByTestId('arena-ride-here'));
-  expect(claims).toBe(1);
+  // Riding from this device is one of the stage's commands, in its bar.
+  createRoot((dispose) => {
+    const session = lightCyclesFrame(3).createBoard({
+      position,
+      orientation: 'white',
+      interactive: true,
+      sound: false,
+      syncKey: 0,
+      testId: 'arena',
+      setup: null,
+      hand: null,
+      committed: [],
+      commitment: null,
+      onAction: () => {},
+      simulation,
+      viewer: 'white',
+      seats: [],
+    });
+    const [ride] = session.actions();
+    expect(ride?.id).toBe('ride-here');
+    expect(ride?.label).toBe('Ride from this device');
+    ride?.run();
+    expect(claims).toBe(1);
+    expect(session.line?.()).toBe(
+      'Round 1 · You ride Comet from another of your devices.'
+    );
+    dispose();
+  });
 });
 
 // regression: light-cycles-shared-device-guidance

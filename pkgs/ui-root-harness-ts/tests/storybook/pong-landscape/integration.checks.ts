@@ -6,7 +6,8 @@ test.use({ video: 'on', trace: 'on' });
 
 // regression: pong-landscape-court-overflows-window
 // regression: pong-landscape-court-below-fold-on-load
-test('storybook integration: pong-overhaul landscape court and scoreboard fit after keyboard focus', async ({
+// regression: pong-landscape-court-under-floor
+test('storybook integration: pong-overhaul landscape court and the points fit after keyboard focus', async ({
   page,
 }, info) => {
   for (const theme of ['light', 'dark']) {
@@ -26,9 +27,14 @@ test('storybook integration: pong-overhaul landscape court and scoreboard fit af
     }
     await expect(court).toBeFocused();
     const fit = await court.evaluate((element) => {
+      // A phone on its side: the stage drops its seat rows and the court
+      // shows the points on its own scoreboard, so it keeps its height.
       const frame = element.parentElement?.parentElement;
       const scoreboard = frame?.querySelector('[data-testid$="-scoreboard"]');
-      if (!scoreboard) throw new Error('Missing Pong scoreboard');
+      if (!scoreboard) throw new Error("Missing the court's scoreboard");
+      const seats = [
+        ...document.querySelectorAll('[data-component="GamePlayerBar"]'),
+      ].filter((seat) => seat.getClientRects().length > 0).length;
       const board = scoreboard.getBoundingClientRect();
       const play = element.getBoundingClientRect();
       const hit = document.elementFromPoint(
@@ -40,6 +46,7 @@ test('storybook integration: pong-overhaul landscape court and scoreboard fit af
         scoreboard: { top: board.top, bottom: board.bottom },
         court: { top: play.top, bottom: play.bottom, height: play.height },
         scoreboardUnobstructed: hit !== null && scoreboard.contains(hit),
+        seats,
       };
     });
     await info.attach(`landscape-fit-${theme}`, {
@@ -50,6 +57,7 @@ test('storybook integration: pong-overhaul landscape court and scoreboard fit af
     await recordPong(page, info, `landscape-focus-${theme}`);
     expect(fit.scoreboard.top).toBeGreaterThanOrEqual(0);
     expect(fit.scoreboardUnobstructed).toBe(true);
+    expect(fit.seats).toBe(0);
     expect(fit.court.bottom).toBeLessThanOrEqual(fit.viewport.height);
     // Still a usable court: over half the window height.
     expect(fit.court.height).toBeGreaterThanOrEqual(fit.viewport.height * 0.55);

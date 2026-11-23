@@ -20,7 +20,7 @@ export async function openPong(page: Page, state: string, theme: string) {
       : route.abort()
   );
   await page.goto(
-    `/iframe.html?id=screens-games-pong-court--${state}&viewMode=story&globals=theme:${theme}`
+    `/iframe.html?id=screens-games-pong-stage--${state}&viewMode=story&globals=theme:${theme}`
   );
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-story-ready',

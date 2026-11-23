@@ -30,3 +30,22 @@ test("a player chip's facts line is a badge tall with or without a badge", () =>
     )
   ).toContain(`min-height: ${badge ?? ''};`);
 });
+
+// regression: player-chip-grows-when-a-badge-appears — beside a wide board
+// three or more chips share its width, so a rider's round wins and an Out
+// badge took a second facts line only once the rider went Out, and the
+// arena below moved. The second line is held from the start there.
+test('three or more chips beside a wide board hold a second facts line', () => {
+  const sheet = read(
+    'pkgs/ui-root-client-ts/src/game-player-rail/game-player-rail.module.css'
+  );
+  const wide = sheet.slice(
+    sheet.indexOf('@container game-column (min-width: 880px)')
+  );
+  const selector = '.playerRail:has(> :nth-child(3)) .chipFacts {';
+  const body = wide.slice(wide.indexOf(selector) + selector.length);
+  expect(wide.indexOf(selector)).toBeGreaterThan(0);
+  expect(body.slice(0, body.indexOf('}'))).toContain(
+    'min-height: calc(2 * var(--ui-space-xl) + var(--ui-space-1));'
+  );
+});

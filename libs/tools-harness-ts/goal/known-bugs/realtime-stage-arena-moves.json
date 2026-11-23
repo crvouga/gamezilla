@@ -1,0 +1,4 @@
+{
+  "summary": "Pong's court and Light Cycles' arena moved on their stage as the game went on: the scores and side names over the court, the hint under it, the steering line and Ride from this device over the arena, and pads that came and went were rows of the board itself, and the court sat at the column's start, not centred at the screen's full width. The players' points now sit in the seats above and below, the hint and the round in the stage's one status line, Ride from this device in the bottom bar, a round's result over the arena, and pads stay (held back) while a rider cannot steer.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stage-stability-realtime/integration.checks.ts"
+}

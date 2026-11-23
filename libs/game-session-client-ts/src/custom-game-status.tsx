@@ -84,6 +84,24 @@ function drawnDescription(reason: string): string {
 }
 
 /**
+ * A game played in real time, in one line: paused, else how play goes on
+ * where the game has words for it (`Round 2`); its arena shows the rest.
+ */
+function realTimeDescription(
+  game: CustomGame,
+  presentation: GamePresentation,
+  viewer: CustomGameSide | null,
+  nameOf: GamePlayerName
+): string {
+  if (game.execution?.phase === 'paused')
+    return t`Paused while a player returns.`;
+  return (
+    presentation.frame.turnStatus(game.fen, viewer, game.committed, nameOf) ??
+    t`Game in progress.`
+  );
+}
+
+/**
  * How the game stands, in one line. While a side is to move, the game's own
  * line about the turn (`frame.turnStatus`) replaces the default
  * `<Side> to move.` wherever it has one.
@@ -109,9 +127,7 @@ function gameStateDescription(
         : t`Secret choices: ${chosen} of ${total} made.`;
     }
     if (game.execution !== undefined)
-      return game.execution.phase === 'paused'
-        ? t`Paused while a player returns.`
-        : t`Game in progress.`;
+      return realTimeDescription(game, presentation, viewer, nameOf);
     const player = presentation.sideLabel(game.turn);
     if (game.standIns.includes(game.turn))
       return t`${player} to move, played by a stand-in bot.`;
@@ -306,6 +322,7 @@ export function useFrameStatus(
       sending: model.submitting(),
       minutes: game.minutes,
       increment: game.increment,
+      target: presentation(game.fen).frame.target?.(game.fen),
     };
   });
 }

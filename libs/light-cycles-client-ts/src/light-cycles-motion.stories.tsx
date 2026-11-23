@@ -5,7 +5,6 @@ import {
 } from '@libs/game-session-client-ts/game-frame-table.example';
 import { LIGHT_CYCLES_SEATS } from '@libs/light-cycles-shared-ts/light-cycles-config';
 import { lightCyclesPositionCodec } from '@libs/light-cycles-shared-ts/light-cycles-position';
-import { boardOnly } from '@pkgs/turn-game-shared-ts/game-frame';
 import type { GameBoardProps } from '@pkgs/turn-game-shared-ts/game-presentation';
 import { createMemo } from 'solid-js';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
@@ -38,13 +37,7 @@ function renderMotion(
         ? lightCyclesTrioClient
         : lightCyclesQuadClient;
   return renderGameTable(
-    {
-      ...client.presentation,
-      frame: {
-        ...client.presentation.frame,
-        createBoard: boardOnly(LightCyclesBoardView),
-      },
-    },
+    client.presentation,
     LIGHT_CYCLES_SEATS[count],
     {
       ...args,
@@ -57,8 +50,8 @@ function renderMotion(
 }
 
 const meta = {
-  id: 'screens-games-light-cycles-motion',
-  title: 'Screens/Space/Boards/Light Cycles/Sustained motion',
+  id: 'screens-games-light-cycles-stage-motion',
+  title: 'Screens/Space/Boards/Light Cycles/Stage sustained motion',
   component: LightCyclesBoardView,
   render: (args, context) => renderMotion(2, args, context),
   parameters: {

@@ -141,6 +141,7 @@ export function useMultiplayerVersus(
       own: own === null ? sides.slice(half).map(shown) : [shown(own)],
       clock: timeControlWords(current.time_control) || undefined,
       timeControl: timeControlText(current.time_control) || undefined,
+      target: frame.target?.(current.fen),
     };
   };
 }

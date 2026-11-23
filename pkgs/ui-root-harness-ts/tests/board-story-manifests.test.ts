@@ -17,7 +17,7 @@ test('board interaction stories expose usable generated contracts', () => {
       ['fire-a-shot', 'hit-a-ship', 'sink-a-ship', 'sink-the-fleet'],
     ],
     [
-      'screens-games-light-cycles-arena',
+      'screens-games-light-cycles-stage',
       [
         'steer-up',
         'duel-steering',

@@ -50,22 +50,35 @@ export function FrameClockWords(props: {
   );
 }
 
-/** The agreed clock: minutes + added seconds. */
+/**
+ * The agreed clock: minutes + added seconds. An untimed game names what it
+ * is played to instead, when it says (`First to 11`).
+ */
 function TimeControlFact(props: { readonly status: FrameStatus }): JSX.Element {
   return (
-    <GameFact
-      label={
-        <Show when={props.status.minutes > 0} fallback={<Trans>Untimed</Trans>}>
-          {props.status.minutes}+{props.status.increment}
-        </Show>
+    <Show
+      when={props.status.minutes === 0 ? props.status.target : undefined}
+      fallback={
+        <GameFact
+          label={
+            <Show
+              when={props.status.minutes > 0}
+              fallback={<Trans>Untimed</Trans>}
+            >
+              {props.status.minutes}+{props.status.increment}
+            </Show>
+          }
+        />
       }
-    />
+    >
+      {(target) => <GameFact label={target()} testId="custom-game-target" />}
+    </Show>
   );
 }
 
 /**
  * The game's facts for the title row, as one quiet line (`Unrated ·
- * Untimed`): settings, never pills that look pressable, in the same words
+ * Untimed`, `Unrated · First to 11`): settings, never pills that look pressable, in the same words
  * a search for an opponent uses.
  */
 export function FrameFactsView(props: {

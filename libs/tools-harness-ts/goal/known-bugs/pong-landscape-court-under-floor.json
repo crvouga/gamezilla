@@ -1,0 +1,4 @@
+{
+  "summary": "With a phone on its side (844×390) the Pong court reached only 48% of the window height: the stage's two seat rows and the title took the rest. In a short landscape window the stage now drops its seat rows and the court shows the points and players on its own scoreboard (`PaddleCourt` `scoreboard=\"short-landscape\"`), so the court holds the 55% floor.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/pong-landscape/integration.checks.ts"
+}

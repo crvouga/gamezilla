@@ -228,6 +228,7 @@ export function createWordTilesSession(
     Board: () => <DraftBoard draft={draft} random={inputs.random} />,
     actions: () => [],
     controls: () => null,
+    line: () => null,
   };
 }
 

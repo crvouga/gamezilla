@@ -42,7 +42,7 @@ async function openArena(page: Page, story: string, theme: string) {
       : route.abort()
   );
   await page.goto(
-    `/iframe.html?id=screens-games-light-cycles-arena--${story}&viewMode=story&globals=theme:${theme};motion:system`
+    `/iframe.html?id=screens-games-light-cycles-stage--${story}&viewMode=story&globals=theme:${theme};motion:system`
   );
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-story-ready',
@@ -282,7 +282,7 @@ for (const variant of ['duel', 'trio', 'quad']) {
     }, info) => {
       const cdp = await page.context().newCDPSession(page);
       await page.goto(
-        `/iframe.html?id=screens-games-light-cycles-motion--${variant}&viewMode=story&globals=theme:dark;motion:system`
+        `/iframe.html?id=screens-games-light-cycles-stage-motion--${variant}&viewMode=story&globals=theme:dark;motion:system`
       );
       await expect(page.locator('#storybook-root')).toHaveAttribute(
         'data-story-ready',
@@ -305,7 +305,7 @@ for (const variant of ['trio', 'quad']) {
     await page.setViewportSize({ width: 390, height: 844 });
     const cdp = await page.context().newCDPSession(page);
     await page.goto(
-      `/iframe.html?id=screens-games-light-cycles-motion--${variant}&viewMode=story&globals=theme:dark;motion:system`
+      `/iframe.html?id=screens-games-light-cycles-stage-motion--${variant}&viewMode=story&globals=theme:dark;motion:system`
     );
     await expect(page.locator('#storybook-root')).toHaveAttribute(
       'data-story-ready',

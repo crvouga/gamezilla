@@ -214,6 +214,11 @@ export type FrameStatus = {
   readonly sending: boolean;
   readonly minutes: number;
   readonly increment: number;
+  /**
+   * What an untimed game is played to (`First to 11`,
+   * `GameFrame.target`), named where a timed game names its clock.
+   */
+  readonly target?: string | undefined;
 };
 
 /** The connection, as the offline notice words it. */

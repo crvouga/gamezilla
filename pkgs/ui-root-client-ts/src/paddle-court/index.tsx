@@ -50,6 +50,12 @@ export type PaddleCourtProps = CourtControls & {
    */
   readonly score?: { readonly first: string; readonly second: string };
   /**
+   * When the court shows `score`: always (absent), or only in a short
+   * landscape window (`short-landscape`), where its host drops the seat rows
+   * that show the points everywhere else, so the court keeps its height.
+   */
+  readonly scoreboard?: 'short-landscape' | undefined;
+  /**
    * Who plays each half, written small beside its points (`You` in a half
    * this device controls, the other player's name in theirs), so both
    * paddles are named in words, not by colour alone.
@@ -233,6 +239,16 @@ export function PaddleCourt(props: PaddleCourtProps): JSX.Element {
   return (
     <div
       class={styles['frame']}
+      // Without its own scoreboard the points are the host's seats, a row
+      // above the court and a row below it: a short window fits them too.
+      // With one only in a short landscape window, the host drops its seats
+      // there (`data-board-scores`).
+      data-scoreboard={
+        props.score === undefined ? 'false' : (props.scoreboard ?? 'true')
+      }
+      data-board-scores={
+        props.score === undefined ? undefined : props.scoreboard
+      }
       // The court's own shape, so the frame can fit a short window's height.
       style={{ '--paddle-court-aspect': `${props.width} / ${props.height}` }}
     >

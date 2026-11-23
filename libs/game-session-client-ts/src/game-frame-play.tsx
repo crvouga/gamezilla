@@ -20,6 +20,7 @@ import { Dynamic } from 'solid-js/web';
 import { customGameCanMove } from './custom-game-can-move';
 import { useSeatNames } from './custom-game-status';
 import { frameTable } from './game-frame-table';
+import type { FrameStatus } from './game-frame-view-types';
 import type { CustomGameReview } from './use-custom-game-review';
 import type { CustomGameScreenModel } from './use-custom-game-screen';
 
@@ -192,6 +193,32 @@ export function frameActionItems(
       emphasis: action.emphasis,
       pressed: action.pressed,
     }));
+}
+
+/**
+ * The game's one line with the board's own words about live play, when it
+ * has some (`GameFrameBoardSession.line`): a game played in real time says
+ * there what its arena shows (a round, who rides, a round's winner), so
+ * nothing written around the arena can move it. Only while the game is
+ * played (`playing`): a game over, called off or not yet begun says so in
+ * its own words. The line is reworded only when the board's words change,
+ * never every frame.
+ */
+export function useBoardLineStatus(
+  status: Accessor<FrameStatus | null>,
+  board: FrameBoard,
+  playing: Accessor<boolean>
+): Accessor<FrameStatus | null> {
+  const line = createMemo(() =>
+    playing() ? (board.session()?.line?.() ?? null) : null
+  );
+  return createMemo(() => {
+    const current = status();
+    const words = line();
+    return current === null || words === null
+      ? current
+      : { ...current, description: words, plainTurn: false };
+  });
 }
 
 /** The board the frame mounted and, under it, the board's own controls. */

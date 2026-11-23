@@ -38,6 +38,11 @@ export type MultiplayerVersusShown = {
   readonly clock?: string | undefined;
   /** The same clock as its figures (`5+0`), beside the game's name. */
   readonly timeControl?: string | undefined;
+  /**
+   * What an untimed game is played to (`First to 11`,
+   * `GameFrame.target`), beside the game's name where a clock would be.
+   */
+  readonly target?: string | undefined;
 };
 
 /** How the matched game ended, as the result card says it. */

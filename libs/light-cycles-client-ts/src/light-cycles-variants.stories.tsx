@@ -11,7 +11,6 @@ import {
 import { lightCyclesPositionCodec } from '@libs/light-cycles-shared-ts/light-cycles-position';
 import { initialLightCyclesState } from '@libs/light-cycles-shared-ts/light-cycles-state';
 import { createLightCyclesStep } from '@libs/light-cycles-shared-ts/light-cycles-step';
-import { boardOnly } from '@pkgs/turn-game-shared-ts/game-frame';
 import type { GameBoardProps } from '@pkgs/turn-game-shared-ts/game-presentation';
 import { fn } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
@@ -39,13 +38,7 @@ function position(riders: 2 | 4, ticks: number): string {
 /** Each variant supplies its actual title, seats and frame around the silent board. */
 function renderMode(riders: 2 | 4) {
   const client = riders === 2 ? lightCyclesDuelClient : lightCyclesQuadClient;
-  const presentation = {
-    ...client.presentation,
-    frame: {
-      ...client.presentation.frame,
-      createBoard: boardOnly(LightCyclesBoardView),
-    },
-  };
+  const presentation = client.presentation;
   return (
     args: GameBoardProps,
     context: { readonly parameters: Readonly<Record<string, unknown>> }
@@ -53,8 +46,8 @@ function renderMode(riders: 2 | 4) {
 }
 
 const meta = {
-  id: 'screens-games-light-cycles-variants',
-  title: 'Screens/Space/Boards/Light Cycles/Duel and Quad',
+  id: 'screens-games-light-cycles-stage-variants',
+  title: 'Screens/Space/Boards/Light Cycles/Stage duel and quad',
   component: LightCyclesBoardView,
   tags: ['autodocs'],
   render: (args, context) => renderMode(2)(args, context),

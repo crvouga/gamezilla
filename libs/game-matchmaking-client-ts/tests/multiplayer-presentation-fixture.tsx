@@ -49,7 +49,7 @@ export const VIEWER = {
   opponentRating: '1500',
 };
 
-/** Only profile reads are needed; no server or full application is mounted. */
+/** Only profile reads and their sync are needed; no server or full application is mounted. */
 const engine = (profiles: Readonly<Record<string, string>>) =>
   ({
     watch: (query: Sql<Record<string, unknown>>) => ({
@@ -61,6 +61,8 @@ const engine = (profiles: Readonly<Record<string, string>>) =>
       getHydrated: () => true,
       subscribe: () => () => undefined,
     }),
+    // A seat keeps its person's profile synced; the fixture already holds them.
+    subscribeQuery: () => ({ unsubscribe: () => undefined }),
     status: {
       getSnapshot: () => INITIAL_SYNC_STATUS,
       subscribe: () => () => undefined,

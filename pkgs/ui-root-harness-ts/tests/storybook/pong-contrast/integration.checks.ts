@@ -49,7 +49,7 @@ test('storybook integration: pong-overhaul spectator paddle boundaries remain vi
 // axe leaves Pong's court text "incomplete" (bgOverlap): the drag hint ignores
 // pointers, so hit testing reaches the lane drawn beneath it. Check that text
 // against its real backgrounds instead, the lane taken fully opaque.
-test('storybook integration: pong-overhaul court and scoreboard text meet 4.5:1 on their backgrounds', async ({
+test("storybook integration: pong-overhaul court text and the players' points meet 4.5:1 on their backgrounds", async ({
   page,
 }, info) => {
   for (const theme of ['light', 'dark']) {
@@ -85,14 +85,23 @@ test('storybook integration: pong-overhaul court and scoreboard text meet 4.5:1 
           fg: getComputedStyle(status).color,
           bg: opaque(status),
         });
+      // The points and their label, on the players' seats around the court:
+      // every element there that holds words of its own.
       for (const label of document.querySelectorAll(
-        '[data-testid$="-scoreboard"] span span'
+        '[data-component="GameSeatStat"], [data-component="GameSeatStat"] *'
       ))
-        result.push({
-          text: label.textContent,
-          fg: getComputedStyle(label).color,
-          bg: opaque(label),
-        });
+        if (
+          [...label.childNodes].some(
+            (node) =>
+              node.nodeType === Node.TEXT_NODE &&
+              (node.textContent ?? '').trim() !== ''
+          )
+        )
+          result.push({
+            text: label.textContent,
+            fg: getComputedStyle(label).color,
+            bg: opaque(label),
+          });
       return result;
     });
     await info.attach(`court-text-contrast-${theme}`, {
