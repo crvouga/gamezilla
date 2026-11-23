@@ -3,6 +3,11 @@ import type { OauthProviderId } from '@pkgs/auth-root-shared-ts/sign-in-method';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 
 import { actorUi, pollUntil, scenarioAction } from './actor-ui';
+import {
+  expectShellShown,
+  reachAccountMenu,
+  spaceBarShown,
+} from './driver-gestures';
 import type { ProductHarness } from './harness';
 import type { AppleAccountKind } from './identity';
 import {
@@ -13,7 +18,6 @@ import {
 } from './identity';
 import type { ProviderAnswers } from './provider-walk';
 import { completeProviderSignIn } from './provider-walk';
-import { spaceBarShown } from './shell-actions';
 
 const WAIT_MS = 15_000;
 
@@ -31,7 +35,7 @@ async function modalSettled(ui: Driver): Promise<boolean> {
 
 export async function openSignInModal(ui: Driver): Promise<void> {
   if (!(await ui.get(Handles.accountSignIn).isVisible())) {
-    await ui.get(Handles.statusCurrentUser).tap({ timeoutMs: WAIT_MS });
+    await (await reachAccountMenu(ui, WAIT_MS)).tap({ timeoutMs: WAIT_MS });
     await ui.get(Handles.globalMenuAccount).tap({ timeoutMs: WAIT_MS });
   }
   await ui.get(Handles.accountSignIn).tap({ timeoutMs: WAIT_MS });
@@ -111,9 +115,7 @@ export const claimActorUsername = scenarioAction({
   name: 'claimActorUsername',
   act: async (s, actorId: string) => {
     const ui = await actorUi(s, actorId);
-    await ui.get(Handles.statusCurrentUser).expect.visible({
-      timeoutMs: WAIT_MS,
-    });
+    await expectShellShown(ui, WAIT_MS);
     for (let step = 0; step < 4; step += 1) {
       if (await ui.get(Handles.profileEdit).isVisible()) break;
       if (await ui.get(Handles.tabProfile).isVisible()) {

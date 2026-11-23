@@ -1,11 +1,12 @@
 import { actorUi, pollUntil } from '@libs/harness-ts/actor-ui';
-import type { ProductHarness } from '@libs/harness-ts/harness';
-import { actorHtml } from '@libs/harness-ts/observations';
 import {
-  backToTabs,
+  expectShellShown,
   minimizeSpace,
   spaceBarShown,
-} from '@libs/harness-ts/shell-actions';
+} from '@libs/harness-ts/driver-gestures';
+import type { ProductHarness } from '@libs/harness-ts/harness';
+import { actorHtml } from '@libs/harness-ts/observations';
+import { backToTabs } from '@libs/harness-ts/shell-actions';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 
 export const SPACE_WAIT_MS = 10_000;
@@ -16,9 +17,7 @@ export async function showSpacesTab(
   actorId: string
 ): Promise<void> {
   const ui = await actorUi(s, actorId);
-  await ui.get(Handles.statusCurrentUser).expect.visible({
-    timeoutMs: SPACE_WAIT_MS,
-  });
+  await expectShellShown(ui, SPACE_WAIT_MS);
   // Out of an open space (still in it) or a stacked screen, as a person
   // would, before reaching for the tab.
   if (await spaceBarShown(ui)) {
@@ -140,9 +139,7 @@ export async function reenterOwnSpace(
   actorId: string
 ): Promise<void> {
   const ui = await actorUi(s, actorId);
-  await ui
-    .get(Handles.statusCurrentUser)
-    .expect.visible({ timeoutMs: OWN_SPACE_WAIT_MS });
+  await expectShellShown(ui, OWN_SPACE_WAIT_MS);
   if (!(await spaceBarShown(ui))) {
     const card = await pollUntil(s, () => ownSpaceCard(s, actorId), {
       maxMs: OWN_SPACE_WAIT_MS,
@@ -182,9 +179,7 @@ export async function reenterSpace(
   hostUsername: string
 ): Promise<void> {
   const ui = await actorUi(s, actorId);
-  await ui.get(Handles.statusCurrentUser).expect.visible({
-    timeoutMs: SPACE_WAIT_MS,
-  });
+  await expectShellShown(ui, SPACE_WAIT_MS);
   if (await spaceBarShown(ui)) {
     await waitActiveSpace(s, actorId);
     return;

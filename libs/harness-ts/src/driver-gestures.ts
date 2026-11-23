@@ -42,6 +42,67 @@ export async function pressBackUntilVisible(
   await goal.expect.visible({ timeoutMs });
 }
 
+/**
+ * The app is in front and painted. Outside a space that is the account menu;
+ * an open space's top bar is the space's alone, so there it is the button
+ * that opens the space menu.
+ */
+export async function shellShown(ui: Driver): Promise<boolean> {
+  return (
+    (await ui.get(Handles.statusCurrentUser).isVisible()) ||
+    (await ui.get(Handles.spaceChromeOverflow).isVisible())
+  );
+}
+
+/** Wait for {@link shellShown}. */
+export async function expectShellShown(
+  ui: Driver,
+  timeoutMs?: number
+): Promise<void> {
+  await ui.get(Handles.statusCurrentUser).wait('visible', {
+    ...(timeoutMs === undefined ? {} : { timeoutMs }),
+    description: 'the account menu, or the top bar of an open space',
+    visibleOr: [Handles.spaceChromeOverflow],
+  });
+}
+
+const SPACE_MENU_WAIT_MS = 15_000;
+
+/**
+ * Inside an open space: its top bar is up, with the button that opens the
+ * space menu on every screen and size.
+ */
+export async function spaceBarShown(ui: Driver): Promise<boolean> {
+  return ui.get(Handles.spaceChromeOverflow).isVisible();
+}
+
+/** Minimize the open space, as a person would: from its top bar or its menu. */
+export async function minimizeSpace(
+  ui: Driver,
+  timeoutMs: number = SPACE_MENU_WAIT_MS
+): Promise<void> {
+  if (!(await ui.get(Handles.spaceClose).isVisible())) {
+    await ui.get(Handles.spaceChromeOverflow).tap({ timeoutMs });
+  }
+  await ui.get(Handles.spaceClose).tap({ timeoutMs });
+}
+
+/**
+ * The account menu's button. An open space's top bar is the space's alone,
+ * so a person in one minimizes it first (the space goes on behind them);
+ * beside a sidebar the menu shows all along and nothing is minimized.
+ */
+export async function reachAccountMenu(
+  ui: Driver,
+  timeoutMs: number
+): Promise<ReturnType<Driver['get']>> {
+  const account = ui.get(Handles.statusCurrentUser);
+  if (!(await account.isVisible()) && (await spaceBarShown(ui))) {
+    await minimizeSpace(ui, timeoutMs);
+  }
+  return account;
+}
+
 const MENU_OPEN_LIMIT = 3;
 const MENU_SETTLE_MS = 2_000;
 
@@ -58,7 +119,7 @@ export async function openGlobalMenu(
   const goal = ui.get(item);
   for (let tap = 0; tap < MENU_OPEN_LIMIT; tap += 1) {
     if (await goal.isVisible()) return;
-    const trigger = ui.get(Handles.statusCurrentUser);
+    const trigger = await reachAccountMenu(ui, timeoutMs);
     if ((await trigger.attribute('aria-expanded')) === 'true') {
       await goal.expect.visible({ timeoutMs });
       return;

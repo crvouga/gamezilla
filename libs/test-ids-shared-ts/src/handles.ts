@@ -150,8 +150,10 @@ export const Handles = {
   spaceUnreachableRetry: 'space-unreachable-retry',
   /** Its way back to Spaces. */
   spaceUnreachableBack: 'space-unreachable-back',
-  /** The space's name in its chrome. */
+  /** What the showing screen is, in the space's top bar. */
   spaceTitle: 'space-title',
+  /** The space's name, heading the space menu. */
+  spaceMenuName: 'space-menu-name',
   /** Rename action in the space chrome (host only). */
   spaceRename: 'space-rename',
   spaceRenameInput: 'space-rename-input',
