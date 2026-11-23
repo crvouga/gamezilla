@@ -1,0 +1,4 @@
+{
+  "summary": "The space home story drew two space top bars (\"Chess\" over \"Choose game\"): the story mounts its own space frame so its shell claim is honoured, and the story shell wrapped it in a second frame whose default shell no claim could reach. The story route now records which space screens frame themselves, and the story shell renders those bare.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/shell/integration.checks.ts"
+}
