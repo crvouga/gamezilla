@@ -8,7 +8,6 @@
 import { operateCustomGameControls } from '@libs/game-session-harness-ts/custom-game-controls';
 import {
   CUSTOM_GAME_BOARD,
-  CUSTOM_GAME_BOARD_PREVIEW,
   customGameBoardTakes,
   playOnCustomGameBoard,
 } from '@libs/game-session-harness-ts/custom-game-moves';
@@ -91,12 +90,9 @@ export const changeCustomGame = scenarioAction({
 });
 
 /**
- * The Custom Game board as painted: the live board while the game is
- * played, the lobby's preview while it is set up, or `null` when neither
- * is on screen.
+ * The Custom Game board as painted while the game is played, or `null`
+ * when it is not on screen (a lobby pictures no board).
  */
-/** The lobby's card of what is about to be played, which pictures the board. */
-const CUSTOM_GAME_MODE_CARD = 'custom-game-mode';
 
 export async function readCustomGameBoardProbe(
   s: ProductHarness,
@@ -106,10 +102,5 @@ export async function readCustomGameBoardProbe(
   await bringToFront(s, actor);
   if (await ui.get(CUSTOM_GAME_BOARD).isVisible())
     return new ChessBoardFlows(ui, CUSTOM_GAME_BOARD).readProbe();
-  // The lobby pictures the board on its mode card as decoration (hidden from
-  // assistive technology, so never "visible" to a driver): read it while the
-  // card shows, as a person sees it.
-  if (await ui.get(CUSTOM_GAME_MODE_CARD).isVisible())
-    return new ChessBoardFlows(ui, CUSTOM_GAME_BOARD_PREVIEW).readProbe();
   return null;
 }

@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone the Find an opponent screen gave most of its height to a still picture of the game's board, then repeated the clock and the rating as tiles over the rows that set them, pushing the choices under the fold. The card is now one line of what is played for over the game's name and goal: no board and no tiles.",
+  "regressionTest": "libs/game-matchmaking-client-ts/tests/multiplayer-find-layout.test.tsx"
+}

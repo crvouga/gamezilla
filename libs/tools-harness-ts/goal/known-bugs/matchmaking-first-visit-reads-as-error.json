@@ -1,0 +1,4 @@
+{
+  "summary": "A first visit to Find an opponent showed \"No multiplayer game is available to you.\" in a notice box, which read like a failure before anything had been tried. It is now one quiet line under the card saying there is no ranked game here yet and the first search starts one.",
+  "regressionTest": "libs/game-matchmaking-client-ts/tests/multiplayer-find-layout.test.tsx"
+}

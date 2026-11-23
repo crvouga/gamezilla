@@ -4,11 +4,10 @@ import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import {
   GameLobbyDock,
   GameModeCard,
-  type GameModeFact,
 } from '@pkgs/ui-root-client-ts/game-lobby';
+import { ClockIcon, GaugeIcon, InfoIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
-import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Show } from 'solid-js';
 import {
@@ -42,8 +41,6 @@ type FindProps = MultiplayerPlaceFrame & {
   readonly title: string;
   /** How the game is won, in one sentence, where the game says. */
   readonly goal?: string | undefined;
-  /** The game's board at its start: the mode card's picture. */
-  readonly boardPreview?: JSX.Element;
   readonly find: MultiplayerFindChoice;
   readonly ratings: readonly MultiplayerRatingView[];
   readonly onOpen: (place: MultiplayerPlace) => void;
@@ -52,34 +49,30 @@ type FindProps = MultiplayerPlaceFrame & {
 };
 
 /**
- * What the search will find, as the mode card's tiles: how many play, the
- * clock at the chosen time control in plain words, and that it is rated (a
- * search always is).
+ * What the search plays for, in one line over the game's name, as a custom
+ * game's lobby says it: ranked and rated, and untimed when the game has no
+ * clock choices (a timed game's clock is the row below, said once).
  */
-function conditions(find: MultiplayerFindChoice): readonly GameModeFact[] {
-  return [
-    {
-      id: 'players',
-      label: <Trans>Players</Trans>,
-      value: find.players,
-    },
-    {
-      id: 'clock',
-      label: <Trans>Clock</Trans>,
-      value: find.timed ? (
-        timeControlWords(find.timeControl)
-      ) : (
-        <Trans>Untimed</Trans>
-      ),
-      testId: 'multiplayer-find-clock',
-    },
-    {
-      id: 'rating',
-      label: <Trans>Rating</Trans>,
-      value: <Trans>Rated</Trans>,
-      testId: 'multiplayer-find-rated',
-    },
-  ];
+function FindEyebrow(props: {
+  readonly find: MultiplayerFindChoice;
+}): JSX.Element {
+  return (
+    <>
+      {/* A dot stays with the fact before it, so a wrapped line never
+          starts with one. */}
+      <Trans>Ranked match</Trans>
+      {'\u00a0· '}
+      <Text variant="inherit" testId="multiplayer-find-rated">
+        <Trans>Rated</Trans>
+      </Text>
+      <Show when={!props.find.timed}>
+        {'\u00a0· '}
+        <Text variant="inherit" testId="multiplayer-find-clock">
+          <Trans>Untimed</Trans>
+        </Text>
+      </Show>
+    </>
+  );
 }
 
 /** How many players a bigger game finds; a two-player search needs no more said. */
@@ -115,12 +108,26 @@ function ratingAtStake(props: FindProps): MultiplayerRatingView | undefined {
   return props.ratings.find((rating) => rating.pool === speed);
 }
 
-/** Where the search's choices and what stands behind it are: one row each. */
-function FindRows(props: FindProps): JSX.Element {
+/**
+ * The match the search sets up, one row each: the clock it is played at
+ * (the one choice, when the game offers clocks) and the rating it plays
+ * for. Each row opens its own place.
+ */
+function MatchRows(props: FindProps): JSX.Element {
   return (
-    <MenuSection title={<Trans>Ranked play</Trans>}>
+    <MenuSection
+      title={<Trans>Your match</Trans>}
+      footer={
+        props.find.players > 2 ? (
+          <Text variant="inherit" testId="multiplayer-find-players">
+            <PlayersNeeded find={props.find} />
+          </Text>
+        ) : undefined
+      }
+    >
       <Show when={props.find.timed}>
         <MenuRow
+          leading={<ClockIcon size={24} />}
           title={<Trans>Time control</Trans>}
           caption={
             <SpeedName
@@ -136,6 +143,7 @@ function FindRows(props: FindProps): JSX.Element {
         />
       </Show>
       <MenuRow
+        leading={<GaugeIcon size={24} />}
         title={<Trans>Your ratings</Trans>}
         value={
           <Show when={ratingAtStake(props)}>
@@ -145,7 +153,28 @@ function FindRows(props: FindProps): JSX.Element {
         onClick={() => props.onOpen({ screen: 'ratings', from: 'find' })}
         dataSet={{ testid: 'multiplayer-open-ratings' }}
       />
+    </MenuSection>
+  );
+}
+
+/**
+ * What stands behind a search, kept under the choices: how matchmaking
+ * works, one row away, and where the found game is played.
+ */
+function FindAbout(props: Pick<FindProps, 'onOpen'>): JSX.Element {
+  return (
+    <MenuSection
+      footer={
+        <Text variant="inherit" testId="multiplayer-find-space">
+          <Trans>
+            The game opens in this space, where everyone can watch. Your
+            opponent plays from their own space.
+          </Trans>
+        </Text>
+      }
+    >
       <MenuRow
+        leading={<InfoIcon size={24} />}
         title={<Trans>How it works</Trans>}
         onClick={() => props.onOpen({ screen: 'guide' })}
         dataSet={{ testid: 'multiplayer-open-guide' }}
@@ -158,16 +187,7 @@ function FindRows(props: FindProps): JSX.Element {
 function FindDock(props: FindProps): JSX.Element {
   const many = () => props.find.players > 2;
   return (
-    <GameLobbyDock
-      status={
-        <P variant="caption" tone="secondary" testId="multiplayer-find-space">
-          <Trans>
-            The game opens in this space, where everyone can watch. Your
-            opponent plays from their own space.
-          </Trans>
-        </P>
-      }
-    >
+    <GameLobbyDock>
       <GameActionButton
         title={
           <Show when={many()} fallback={<Trans>Find an opponent</Trans>}>
@@ -195,39 +215,32 @@ function FindDock(props: FindProps): JSX.Element {
 }
 
 /**
- * Finding an opponent, or the other players of a bigger game: what will be
- * played (the game, how it is won, how many play, the clock, rated), one
- * row per thing a person may want to look at first (the clock, their
- * ratings, how a search works), and the search's one command in a dock at
- * the foot of the screen.
+ * Finding an opponent, or the other players of a bigger game: one compact
+ * card of what will be played (ranked and rated over the game's name and
+ * how it is won), the match's choices as rows (the clock, the rating it
+ * plays for), how a search works under them, and the search's one command
+ * in a dock at the foot of the screen. Nothing is said twice.
  */
 export function MultiplayerFindView(props: FindProps): JSX.Element {
   return (
     <MultiplayerLobbyPlace {...props} dock={<FindDock {...props} />}>
       <GameModeCard
-        eyebrow={<Trans>Ranked match</Trans>}
+        eyebrow={<FindEyebrow find={props.find} />}
         title={props.title}
         summary={props.goal}
-        facts={conditions(props.find)}
-        art={props.boardPreview}
         dataSet={{ testid: 'multiplayer-find-conditions' }}
       />
-      <Show when={props.find.players > 2}>
-        <P variant="caption" tone="secondary" testId="multiplayer-find-players">
-          <PlayersNeeded find={props.find} />
-        </P>
-      </Show>
       <Show when={props.find.fresh === true}>
-        <Notice dataSet={{ testid: 'multiplayer-unavailable' }}>
+        <P variant="caption" tone="secondary" testId="multiplayer-unavailable">
           <Text variant="inherit" role="status">
             <Trans>
-              No multiplayer game is available to you. Find an opponent to start
-              one.
+              No ranked game here yet. Your first search starts one.
             </Trans>
           </Text>
-        </Notice>
+        </P>
       </Show>
-      <FindRows {...props} />
+      <MatchRows {...props} />
+      <FindAbout onOpen={props.onOpen} />
     </MultiplayerLobbyPlace>
   );
 }

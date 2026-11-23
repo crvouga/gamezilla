@@ -39,6 +39,14 @@ test('the search is a hub of rows and one command, with no ratings or guide besi
       'multiplayer-open-ratings',
       'multiplayer-open-guide',
     ]);
+    // The match's choices are one section; how it works is its own, after.
+    const sections = [
+      ...container.querySelectorAll('[data-component="MenuSection"]'),
+    ];
+    expect(sections).toHaveLength(2);
+    expect(
+      sections[1]?.contains(screen.getByTestId('multiplayer-open-guide'))
+    ).toBe(true);
     // One filled command, and it is finding an opponent.
     const filled = [
       ...container.querySelectorAll('button[data-variant="solid"]'),
@@ -71,12 +79,15 @@ test('a game with clock choices adds one row showing the chosen clock, and choos
   expect(
     screen.getByTestId('multiplayer-open-time-control').textContent
   ).toContain('10 min');
-  expect(screen.getByTestId('multiplayer-find-clock').textContent).toBe(
-    '10 min'
-  );
   expect(screen.getByTestId('multiplayer-find-rated').textContent).toBe(
     'Rated'
   );
+  // regression: matchmaking-clock-said-twice — the clock was a tile on the
+  // card and the row's value. The row alone says a chosen clock.
+  expect(screen.queryByTestId('multiplayer-find-clock')).toBeNull();
+  expect(
+    screen.getByTestId('multiplayer-find-conditions').textContent
+  ).not.toContain('10 min');
 });
 
 test('choosing the clock already chosen returns to the search all the same', () => {
@@ -93,17 +104,16 @@ test('choosing the clock already chosen returns to the search all the same', () 
 // regression: matchmaking-intro-wordy — the card said "Find someone to
 // play with." and "This search finds / A rated game with no clock" before
 // its one command.
-// regression: match-conditions-unlike-game-chips — the conditions were
-// plain "Rated · No clock" text while a game's title showed "Unrated"
-// "Untimed" as chips, and wide they floated about 60px above the command.
-// regression: match-chips-look-pressable — the conditions were then pills
-// that looked pressable and said "No clock" where a game says "Untimed".
-// They are tiles on the card that says what is played, in the game's words.
-// regression: matchmaking-find-empty-canvas — the hub was three rows and a
-// command at the top of an empty phone: nothing said what was played, and
-// the command sat far from the thumb. The mode card opens the screen and
-// the command is docked at its foot.
-test('what is played opens the screen as one card, and the one command is docked', () => {
+// regression: match-conditions-unlike-game-chips
+// regression: match-chips-look-pressable
+// regression: matchmaking-find-empty-canvas — the command sat far from the
+// thumb: it is docked at the foot of the screen.
+// regression: matchmaking-board-preview-dominates — a phone gave most of
+// the screen to a still picture of the board, and the card repeated the
+// clock and the rating as tiles over the rows that set them. The card is
+// one line of what is played for over the game's name and goal: no board,
+// no tiles.
+test('what is played opens the screen as one compact card, and the one command is docked', () => {
   for (const width of WIDTHS) {
     const view = mountPlaces({
       stage: 'idle',
@@ -114,24 +124,33 @@ test('what is played opens the screen as one card, and the one command is docked
     expect(conditions.getAttribute('data-component')).toBe('GameModeCard');
     expect(conditions.querySelector('[data-component="Badge"]')).toBeNull();
     expect(conditions.querySelector('button')).toBeNull();
+    expect(conditions.querySelector('dl')).toBeNull();
+    expect(conditions.querySelector('[aria-hidden="true"]')).toBeNull();
     expect(conditions.querySelector('h1')?.textContent).toBe('Connect Four');
-    expect(conditions.textContent).toContain('Ranked match');
+    expect(conditions.textContent).toContain('Ranked match\u00a0· Rated');
     expect(conditions.textContent).toContain('Four in a row wins.');
-    expect(
-      [...conditions.querySelectorAll('dd')].map((fact) => fact.textContent)
-    ).toEqual(['2', 'Untimed', 'Rated']);
+    expect(screen.getByTestId('multiplayer-find-clock').textContent).toBe(
+      'Untimed'
+    );
     expect(view.container.querySelectorAll('h1')).toHaveLength(1);
-    // The command and what a found opponent means share the dock.
+    // The dock holds the command alone.
     const dock = view.container.querySelector(
       '[data-component="GameLobbyDock"]'
     );
     const find = screen.getByTestId('multiplayer-find');
     expect(dock?.contains(find)).toBe(true);
+    expect(dock?.textContent).toBe('Find an opponent');
     expect(find.getAttribute('data-size')).toBe('lg');
     expect(screen.queryByText('Find someone to play with.')).toBeNull();
     expect(screen.queryByText('This search finds')).toBeNull();
+    // Where the found game is played is said quietly, under how it works.
     const note = screen.getByTestId('multiplayer-find-space');
-    expect(dock?.contains(note)).toBe(true);
+    expect(dock?.contains(note)).toBe(false);
+    expect(
+      note
+        .closest('[data-component="MenuSection"]')
+        ?.contains(screen.getByTestId('multiplayer-open-guide'))
+    ).toBe(true);
     expect(note.textContent).toContain('opens in this space');
     expect(note.textContent).toContain('everyone can watch');
     cleanup();
@@ -249,7 +268,10 @@ test('a game rated per speed shows the rating its chosen clock plays for', () =>
 });
 
 // regression: multiplayer-empty-board-unavailable
-test('a first visit says there is no game here yet, above the search it offers', () => {
+// regression: matchmaking-first-visit-reads-as-error — a first visit was
+// told "No multiplayer game is available to you." in a notice box, like a
+// failure. It is one quiet line under the card.
+test('a first visit says quietly there is no game here yet, above the search it offers', () => {
   const view = mountPlaces({
     stage: 'idle',
     props: {
@@ -257,9 +279,11 @@ test('a first visit says there is no game here yet, above the search it offers',
     },
   });
   const told = screen.getByTestId('multiplayer-unavailable');
-  expect(told.textContent).toContain(
-    'No multiplayer game is available to you.'
+  expect(told.textContent).toBe(
+    'No ranked game here yet. Your first search starts one.'
   );
+  expect(told.closest('[data-component="Notice"]')).toBeNull();
+  expect(told.querySelector('[role="status"]')).not.toBeNull();
   expect(
     told.compareDocumentPosition(screen.getByTestId('multiplayer-find')) &
       Node.DOCUMENT_POSITION_FOLLOWING
