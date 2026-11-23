@@ -282,7 +282,7 @@ export function frameArgs(): CustomGameScreenViewProps {
     onReturnLive: fn(),
     onSelectRecord: fn(),
     onOpenHistory: fn(),
-    place: { screen: 'start' },
+    place: { screen: 'home' },
     onOpen: fn(),
     onClose: fn(),
     overlay: NO_STAGE_OVERLAY,

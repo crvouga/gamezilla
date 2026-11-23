@@ -10,7 +10,7 @@ import type { FramePhase } from './game-frame-view-types';
 export type CustomGamePlace =
   | {
       readonly screen:
-        | 'start'
+        | 'home'
         | 'setup'
         | 'options'
         | 'clock'
@@ -36,14 +36,14 @@ export const CUSTOM_GAME_PLACES = defineScreenPlaces<
   CustomGamePlace
 >({
   home: {
-    none: { screen: 'start' },
+    none: { screen: 'home' },
     configuring: { screen: 'setup' },
     active: { screen: 'stage' },
     completed: { screen: 'result' },
     cancelled: { screen: 'result' },
   },
   screens: {
-    none: ['start'],
+    none: ['home'],
     configuring: [
       'setup',
       'seat',
