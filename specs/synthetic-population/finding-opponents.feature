@@ -4,14 +4,14 @@ Feature: Finding a multiplayer opponent quickly
   within moments against many different players, so the app always feels
   full of people to play.
 
-  Rule: When nobody else is looking for the same game, an available Synthetic User becomes the person's multiplayer opponent within 30 seconds
-    No counter-example: with no Synthetic User available the person keeps looking, which the next rule shows.
+  Rule: When nobody else is looking for the same game, an available Synthetic User becomes the person's multiplayer opponent within 10 seconds
+    No counter-example: with no Synthetic User available the person keeps looking, which the third rule shows.
 
-    Scenario Outline: A person finds a Synthetic User as a <game> multiplayer opponent within 30 seconds
+    Scenario Outline: A person finds a Synthetic User as a <game> multiplayer opponent within 10 seconds
       Given the Synthetic User "Cedar" is available
       And nobody else is looking for a multiplayer opponent for "<game>"
       When Bob looks for a multiplayer opponent for "<game>"
-      Then Bob's multiplayer opponent is "Cedar" within 30 seconds
+      Then Bob's multiplayer opponent is "Cedar" within 10 seconds
       And Bob sees "Cedar" identified as a Synthetic User
 
       Examples:
@@ -20,6 +20,31 @@ Feature: Finding a multiplayer opponent quickly
         | Connect Four |
         | Battleship |
         | Pong |
+
+  Rule: The Synthetic User plays at the time control the person chose
+    No counter-example: a Synthetic User never becomes a person's multiplayer opponent at another time control.
+
+    Scenario Outline: A person looking for a <time control> chess opponent plays a Synthetic User at <time control>
+      Given the Synthetic User "Cedar" is available
+      And nobody else is looking for a multiplayer opponent for "chess"
+      When Bob looks for a multiplayer opponent for "chess" at <time control>
+      Then Bob's multiplayer opponent is "Cedar" within 10 seconds
+      And Bob's multiplayer game is played at <time control>
+
+      Examples:
+        | time control |
+        | 1+0 |
+        | 5+3 |
+        | 30+20 |
+
+  Rule: A Synthetic User looking for a multiplayer opponent for another game stops looking to become a waiting person's multiplayer opponent
+    No counter-example: a Synthetic User playing a game finishes it before it becomes anyone's multiplayer opponent, and Synthetic Users looking for the same game as the person are already the person's multiplayer opponent.
+
+    Scenario: A Synthetic User looking for a Connect Four opponent becomes a person's chess opponent
+      Given the Synthetic User "Cedar" is looking for a multiplayer opponent for "Connect Four"
+      And nobody else is looking for a multiplayer opponent for "chess"
+      When Bob looks for a multiplayer opponent for "chess"
+      Then Bob's multiplayer opponent is "Cedar" within 10 seconds
 
   Rule: With no Synthetic User available, a person keeps looking and is told so
     No counter-example: an available Synthetic User is the first rule's example.
@@ -45,10 +70,10 @@ Feature: Finding a multiplayer opponent quickly
       Given the Synthetic Users "Cedar" and "Maple" are available
       And Bob's latest multiplayer opponent for "chess" was "Cedar"
       When Bob looks for a multiplayer opponent for "chess"
-      Then Bob's multiplayer opponent is "Maple" within 30 seconds
+      Then Bob's multiplayer opponent is "Maple" within 10 seconds
 
     Scenario: A person meets the same Synthetic User again when it is the only one available
       Given "Cedar" is the only Synthetic User available
       And Bob's latest multiplayer opponent for "chess" was "Cedar"
       When Bob looks for a multiplayer opponent for "chess"
-      Then Bob's multiplayer opponent is "Cedar" within 30 seconds
+      Then Bob's multiplayer opponent is "Cedar" within 10 seconds
