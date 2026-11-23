@@ -10,14 +10,16 @@ import type { JSX } from 'solid-js';
  * The one boot loading state: shown while identity binds or local SQLite
  * opens. Matches the static `.startup-shell` in `index.html` and stays pinned
  * to the viewport center, so the spinner never moves or changes as boot
- * stages hand off (header chrome may appear around it). Never a blank void on
- * a hung OPFS / worker open.
+ * stages hand off (header chrome may appear around it). Its spinner is the
+ * whole-screen `LoadingState` size (`lg`, 40px), the one every screen shows
+ * while its own data loads, so the hand-off to the first screen keeps that
+ * size too. Never a blank void on a hung OPFS / worker open.
  */
 export function BootLoadingShell(): JSX.Element {
   return (
     <Surface tone="background" grow testId={Handles.bootLoading}>
       <Layer inset="viewport" align="center" justify="center" passThrough>
-        <LoadingState size="lg" dataSet={{ component: 'BootLoadingShell' }} />
+        <LoadingState dataSet={{ component: 'BootLoadingShell' }} />
       </Layer>
     </Surface>
   );

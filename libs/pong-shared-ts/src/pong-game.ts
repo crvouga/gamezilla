@@ -8,10 +8,10 @@ import { pongAutomation } from './pong-automation';
 import { pongBot } from './pong-bot';
 import { pongCodec } from './pong-codec';
 import { pongConfig } from './pong-config';
+import { createPongInterpolation } from './pong-interpolation';
 import {
   createPongPrediction,
   createPongPredictionError,
-  interpolatePong,
 } from './pong-presentation';
 import {
   initialPongState,
@@ -124,7 +124,7 @@ const simulation = defineSimulation(
         )(state, context),
     },
     presentation: {
-      interpolate: interpolatePong,
+      interpolate: createPongInterpolation(config),
       predict: createPongPrediction(config),
       predictionError: createPongPredictionError(config),
       mergeLocal: (state, predicted, side) => {

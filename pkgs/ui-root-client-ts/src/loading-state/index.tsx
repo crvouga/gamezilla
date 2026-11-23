@@ -12,26 +12,42 @@ export type LoadingStateProps = {
   caption?: JSX.Element | undefined;
   /** Layout density. Defaults to `'fill'`. */
   variant?: StateBlockVariant | undefined;
-  /** Spinner size. Defaults to `md`, `lg` for a whole screen. */
+  /**
+   * Spinner size. Defaults to {@link loadingStateSpinnerSize} of the
+   * variant: `lg` for a whole-screen `fill` (the size boot paints, so the
+   * indicator keeps one size from first paint to the screen's data), `md`
+   * for an inline `compact` block.
+   */
   size?: SpinnerProps['size'];
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
 };
 
 /**
+ * The spinner size a `LoadingState` of `variant` shows by default. A
+ * whole-screen load stands alone in an empty viewport, where 24px reads as a
+ * speck, so `fill` takes `lg`; the boot screens paint the same size.
+ */
+export function loadingStateSpinnerSize(
+  variant: StateBlockVariant | undefined
+): NonNullable<SpinnerProps['size']> {
+  return (variant ?? 'fill') === 'fill' ? 'lg' : 'md';
+}
+
+/**
  * `LoadingState` -- canonical async loading block.
  *
  * The one block a screen, section or sheet shows while it waits: the
  * `Spinner` with an optional caption underneath. Two variants:
- *   - `'fill'`    (default) -- centered Spinner inside `flex: 1`. Use for
+ *   - `'fill'`    (default) -- centered 40px Spinner inside `flex: 1`. Use for
  *                              full-screen Suspense fallbacks and screen-level
- *                              loads.
- *   - `'compact'` -- intrinsic height, padded. Use inline inside a `Card` or
- *                    section.
+ *                              loads; boot paints the same size.
+ *   - `'compact'` -- 24px Spinner, intrinsic height, padded. Use inline
+ *                    inside a `Card` or section.
  *
  * @example
  * ```tsx
- * <Suspense fallback={<LoadingState size="lg" />}>{children}</Suspense>
+ * <Suspense fallback={<LoadingState />}>{children}</Suspense>
  * <LoadingState caption={t`Loading entity…`} />
  * <LoadingState variant="compact" caption={t`Waiting for metrics…`} />
  * ```
@@ -42,7 +58,7 @@ export function LoadingState(props: LoadingStateProps): JSX.Element {
       variant={props.variant}
       dataSet={{ component: 'LoadingState', ...props.dataSet }}
     >
-      <Spinner size={props.size ?? 'md'} />
+      <Spinner size={props.size ?? loadingStateSpinnerSize(props.variant)} />
       <Show when={props.caption !== undefined && props.caption !== null}>
         <p class="text textCaption text-center">{props.caption}</p>
       </Show>

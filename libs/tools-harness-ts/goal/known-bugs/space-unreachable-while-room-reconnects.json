@@ -1,0 +1,4 @@
+{
+  "summary": "A host playing in their own space was repeatedly sent to \"This space can't be reached right now — It may no longer exist\": the app called a space unreachable whenever its room had not answered for 10 seconds while the device was online. The room socket reconnects on its own backoff (up to 30 seconds), and the gateway refuses it while a session is being renewed, so a server restart, a dropped socket or a stale session kept a space that exists quiet for longer than that, and the sync engine, which only learns it is offline from a failed request, still said online. Now silence only makes the device ask the room gateway whether it would admit it: only a refusal says the space can't be reached; admitted, a session to renew, a server error or no answer keep the space on the device's own copy and ask again every 30 seconds. Each verdict is logged.",
+  "regressionTest": "libs/friends-harness-ts/tests/space-reach-room-outage.test.ts"
+}

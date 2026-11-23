@@ -142,3 +142,77 @@ describe('room gateway: the grants a connection is admitted with', () => {
     expect(result.forwarded).toEqual([]);
   });
 });
+
+/** Ask the gateway, without upgrading, whether it would admit the device. */
+async function askAdmission(
+  grantsFor: (ctx: RoomGrantsCtx) => Promise<readonly string[]>,
+  query: string,
+  requestStore = store
+) {
+  const host = recordingRoomHost();
+  const app = createRoomApp(grantsFor);
+  const response = await apiRequestAsyncLocalStorage.run(requestStore, () =>
+    app.request(
+      `/room?topic=${encodeURIComponent(TOPIC)}&anonId=${INSTALL_ID}${query}`,
+      {},
+      { ROOM: host.ROOM }
+    )
+  );
+  return { response, forwarded: host.forwarded };
+}
+
+// regression: space-unreachable-while-room-reconnects
+describe('room gateway: whether a device would be admitted, without connecting', () => {
+  test('a device in the space is admitted', async () => {
+    const result = await askAdmission(
+      () => Promise.resolve(['spaces:leave']),
+      ''
+    );
+    expect(result.response.status).toBe(204);
+    expect(result.forwarded).toEqual([]);
+  });
+
+  test('a device not in the space is refused, saying why', async () => {
+    const result = await askAdmission(() => Promise.resolve([]), '');
+    expect(result.response.status).toBe(403);
+    expect(await result.response.json()).toEqual({ error: 'not in the space' });
+    expect(result.forwarded).toEqual([]);
+  });
+
+  test('a session the gateway does not recognise is not a refusal by the room', async () => {
+    const result = await askAdmission(
+      (ctx) =>
+        Promise.resolve(
+          ctx.actor.accountId === ACCOUNT_ID ? ['spaces:leave'] : []
+        ),
+      '&token=expired-session',
+      {
+        ...store,
+        sessionAuth: {
+          resolveAuthContext: () => Promise.reject(new Error('auth:expired')),
+        },
+      } as unknown as ApiRequestAsyncStore
+    );
+    expect(result.response.status).toBe(401);
+    expect(result.forwarded).toEqual([]);
+  });
+
+  test('a decision that failed is not a refusal', async () => {
+    const result = await askAdmission(
+      () => Promise.reject(new Error('db down')),
+      ''
+    );
+    expect(result.response.status).toBe(503);
+    expect(result.forwarded).toEqual([]);
+  });
+
+  test('a host without room bindings still answers', async () => {
+    const app = createRoomApp(() => Promise.resolve(['spaces:leave']));
+    const response = await apiRequestAsyncLocalStorage.run(store, () =>
+      app.request(
+        `/room?topic=${encodeURIComponent(TOPIC)}&anonId=${INSTALL_ID}`
+      )
+    );
+    expect(response.status).toBe(204);
+  });
+});

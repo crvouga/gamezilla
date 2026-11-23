@@ -50,7 +50,24 @@ export function driveSimulation<S, I>(
   let suspended = false;
   let previous = ports.clock.now();
   let publishAt = previous + publishInterval;
+  let wakeAt = previous + interval;
   let timer: unknown;
+  /**
+   * Wakes keep the tick grid: a timer firing a little late or rounded to a
+   * whole millisecond never drifts the next one, so publications stay evenly
+   * spaced in ticks. Falling a whole tick behind restarts the grid. On time
+   * (within what an epoch-scale clock resolves), the next wake is exactly
+   * one tick away.
+   */
+  const schedule = (now: number) => {
+    wakeAt += interval;
+    if (wakeAt <= now) wakeAt = now + interval;
+    const delay = wakeAt - now;
+    timer = ports.timers.setTimeout(
+      wake,
+      Math.abs(delay - interval) < 0.01 ? interval : delay
+    );
+  };
   const stop = () => {
     stopped = true;
     ports.timers.clearTimeout(timer);
@@ -62,17 +79,21 @@ export function driveSimulation<S, I>(
       const elapsed = Math.max(0, now - previous);
       const result = simulation.advance(elapsed);
       previous = Math.max(previous, now);
-      if (reached(now, publishAt)) {
+      // Publications keep their own grid: each goes out on the wake nearest
+      // its moment, so a wake landing a hair early never stretches one gap
+      // to an extra tick. Falling a whole publication behind restarts it.
+      if (reached(now + interval / 2, publishAt)) {
         ports.publish(simulation.snapshot());
-        publishAt = now + publishInterval;
+        publishAt += publishInterval;
+        if (reached(now + interval / 2, publishAt))
+          publishAt = now + publishInterval;
       }
       ports.measure({
         durationMs: Math.max(0, ports.clock.now() - now),
         delayMs: Math.max(0, elapsed - interval),
         droppedTicks: result.dropped,
       });
-      if (!stopped && !suspended)
-        timer = ports.timers.setTimeout(wake, interval);
+      if (!stopped && !suspended) schedule(ports.clock.now());
     } catch (error) {
       stop();
       ports.onError(error);
@@ -92,6 +113,7 @@ export function driveSimulation<S, I>(
       suspended = false;
       previous = ports.clock.now();
       publishAt = previous + publishInterval;
+      wakeAt = previous + interval;
       timer = ports.timers.setTimeout(wake, interval);
     },
     resetElapsed: () => {

@@ -152,8 +152,12 @@ a screen.
 package's `./*` mapping; closed, typed props (token names and variants,
 never `class` / `style`); style with `class` / `classList` / `style`
 internally; set `data-*` on the root via `dataAttrs({ component:
-'<PascalName>', ... })`; colocate CSF stories, fixtures, component styles and `baselines/` in the same slice, showing meaningful variants,
+'<PascalName>', ... })`; colocate CSF stories, fixtures and component styles in the same slice, showing meaningful variants,
 states and interactions, and a harness test.
+
+**No golden screenshots.** A story is never compared against a committed
+picture of itself; assert what it must show
+([Browser checks](pkgs/ui-root-harness-ts/README.md#browser-checks)).
 
 **Agent UI workflow:** before building, reviewing or maintaining a component or
 screen, follow the [Storybook agent workflow](pkgs/ui-root-harness-ts/README.md#agent-workflow)

@@ -1,4 +1,3 @@
-import { posix } from 'node:path';
 import { BREAKPOINT_MIN_DESKTOP } from '@pkgs/ui-root-shared-ts/breakpoints';
 import { viewports } from './preview-options';
 
@@ -8,7 +7,7 @@ type StoryEntry = {
   readonly tags?: readonly string[];
 };
 
-/** A desktop-only surface is captured only where the production wide layout exists. */
+/** A desktop-only surface is opened only where the production wide layout exists. */
 export function supportsStoryViewport(
   story: Pick<StoryEntry, 'tags'>,
   width: number
@@ -18,7 +17,7 @@ export function supportsStoryViewport(
   );
 }
 
-/** Storybook toolbar global name to every value a story is captured with. */
+/** Storybook toolbar global name to every value a story is opened with. */
 export type StoryGlobalsMatrix = Readonly<Record<string, readonly string[]>>;
 
 const SPACE_GAMES = [
@@ -71,9 +70,6 @@ export function visualScenarios(story: StoryEntry) {
   const [component, name] = story.id.split('--');
   if (!component || !name)
     throw new Error(`Malformed Storybook story id: ${story.id}`);
-  const slice = posix.dirname(
-    posix.normalize(posix.join('pkgs/ui-root-harness-ts', story.importPath))
-  );
   const phone = Number.parseInt(viewports.phone.styles.width, 10);
   const desktop = Number.parseInt(viewports.desktop.styles.width, 10);
   const tablet = Number.parseInt(viewports.tablet.styles.width, 10);
@@ -87,7 +83,7 @@ export function visualScenarios(story: StoryEntry) {
     [desktop]: Number.parseInt(viewports.desktop.styles.height, 10),
   };
   // `viewport-native-height`: each width at its own viewport's height, so a
-  // desktop capture shows what a 1440x900 window shows, not a phone's 844px.
+  // desktop scenario shows what a 1440x900 window shows, not a phone's 844px.
   const native = story.tags?.includes('viewport-native-height') === true;
   if (story.id.startsWith('layouts-appframe')) widths.push(tablet);
   return widths
@@ -100,7 +96,7 @@ export function visualScenarios(story: StoryEntry) {
     )
     .map(({ width, theme, globals }) => {
       // Matrix values join the width suffix so each combination owns its
-      // baseline and test title; stories without a matrix keep their names.
+      // test title; stories without a matrix keep their names.
       const suffix = [
         width === 390 ? '' : `-${width}`,
         ...Object.values(globals).map((value) => `-${value}`),
@@ -110,12 +106,11 @@ export function visualScenarios(story: StoryEntry) {
         theme,
         suffix,
         globals,
-        // Preserve the established screenshot height while sharing native
-        // widths, unless the story asks for each viewport's own height.
+        // Every width keeps the phone's height, unless the story asks for
+        // each viewport's own height.
         height: native
           ? (heights[width] ?? heights[phone] ?? 844)
           : (heights[phone] ?? 844),
-        baseline: `${slice}/baselines/chromium/${component}/${name}-${theme}${suffix}.png`,
       };
     });
 }

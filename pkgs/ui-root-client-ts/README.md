@@ -101,7 +101,9 @@ rings, icons and seat colors) and keeps the seat colors apart in lightness.
    reduced-motion setting) turns it all off.
 10. **One activity indicator.** Every wait shows `Spinner` (twelve petals,
     stepping once a second): alone, in `LoadingState`, inside a loading
-    `Button`, and on the boot screen in `index.html`.
+    `Button`, and on the boot screen in `index.html`. A whole-screen wait
+    (boot and every `fill` `LoadingState`) shows it at 40px; inline waits at
+    24px, and controls at 16px.
 11. **Outcomes are told in context, never in a toast or a top banner.** What
     became of an action shows where the action lives: the control's own
     feedback face (`useMutationButton`, `MutationModal`, `FormActionsFooter`)
@@ -216,7 +218,7 @@ Puzzle completion feedback, announcements and optional dialogs belong in its
 `overlay` slot, inside the same screen boundary as the board and controls.
 
 Explore **Templates** in Storybook (`bun storybook`). Every family has CSF
-stories beside their production implementation in `src/<component>/`. Each slice keeps its component styles, fixtures and `baselines/` together. Source JSDoc is the component documentation. Shared visual foundations stay at the package root.
+stories beside their production implementation in `src/<component>/`. Each slice keeps its component styles and fixtures together. Source JSDoc is the component documentation. Shared visual foundations stay at the package root.
 Custom and matched examples include setup, play, completion and replay;
 the matched example also exposes waiting and cancellation. The form example
 shows native submission and failed-save recovery without leaving the editor,

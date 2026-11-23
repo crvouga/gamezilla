@@ -3,6 +3,8 @@ import { join } from 'node:path';
 
 import { withSimulationBots } from '@libs/game-session-shared-ts/simulation-bots';
 import { FixedStepSimulation } from '@libs/game-session-shared-ts/simulation-engine';
+import { SimulationStateChanged } from '@libs/game-session-shared-ts/simulation-messages';
+import { SimulationReplica } from '@libs/game-session-shared-ts/simulation-replica';
 import {
   pongRoomProfile,
   primePongProfile,
@@ -67,6 +69,61 @@ function mailboxBurst() {
         throw new Error('Profile mailbox refused a bounded input');
     }
     engine.advanceTicks(1);
+  };
+}
+
+/**
+ * One presented frame on a device: the replica samples its playback clock,
+ * carries the held paddle on and the court is encoded for the board, with a
+ * court arriving every third frame. Main-thread work per display refresh.
+ */
+function presentationFrames() {
+  const engine = new FixedStepSimulation(
+    simulation.initialize('profile-frames'),
+    simulation.step,
+    { ...simulation.timing, seed: 'profile-frames' }
+  );
+  for (let tick = 0; tick < simulation.timing.tickRate * 3; tick++)
+    engine.advanceTicks(1);
+  let now = 0;
+  let revision = 0;
+  const replica = new SimulationReplica({
+    simulation,
+    clock: { now: () => now } as ConstructorParameters<
+      typeof SimulationReplica
+    >[0]['clock'],
+    send: () => 'profile',
+    measure: () => {},
+  });
+  const publish = () => {
+    const snapshot = engine.snapshot();
+    replica.receive(
+      SimulationStateChanged({
+        version: 1,
+        epoch: 'profile',
+        revision: ++revision,
+        tick: snapshot.tick,
+        paused: false,
+        state: simulation.codec.encode(snapshot.state),
+        acknowledged: snapshot.acknowledged,
+      }),
+      'profile'
+    );
+  };
+  publish();
+  replica.control('white', { kind: 'direction', direction: 1 });
+  let frame = 0;
+  return () => {
+    frame += 1;
+    now += 1000 / 60;
+    if (frame % 3 === 0) {
+      if (simulation.result(engine.snapshot().state) !== null) return;
+      engine.advanceTicks(3);
+      publish();
+    }
+    replica.pump();
+    const state = replica.sample();
+    if (state !== null) simulation.codec.encode(state);
   };
 }
 
@@ -163,6 +220,11 @@ const report = {
       `restore + ${simulation.timing.maxQueuedInputs} enqueues + one engine tick`,
       mailboxBurst(),
       8
+    ),
+    measure(
+      'one presented frame: playback sample + held paddle + court encoding',
+      presentationFrames(),
+      64
     ),
   ],
   rooms: [] as Awaited<ReturnType<typeof profileRoom>>[],
