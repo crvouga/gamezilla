@@ -34,6 +34,7 @@
     "@pkgs/clock-shared-ts": "workspace:*",
     "@pkgs/collab-root-shared-ts": "workspace:*",
     "@pkgs/collab-ui-client-ts": "workspace:*",
+    "@pkgs/http-client-client-ts": "workspace:*",
     "@pkgs/kv-root-client-ts": "workspace:*",
     "@pkgs/kv-root-shared-ts": "workspace:*",
     "@pkgs/logger-client-ts": "workspace:*",
