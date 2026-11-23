@@ -1,0 +1,43 @@
+# A person riding Light Cycles sees every rider move at an even pace, cell
+# after cell, whether they ride against a bot on their own device or against
+# another person on theirs.
+apiVersion: openslo/v1
+kind: SLI
+metadata:
+  name: light-cycles-rider-pace
+  displayName: How evenly riders move on screen
+spec:
+  description: >-
+    For every cell a rider is shown entering, how far the time since they
+    were shown entering their previous cell is from the time a rider takes
+    to cross one cell.
+  thresholdMetric:
+    metricSource:
+      type: product
+      spec:
+        measures: >-
+          For each cell a rider is shown entering, the milliseconds between
+          the time since they were shown entering the previous cell and the
+          time a rider takes to cross one cell.
+---
+apiVersion: openslo/v1
+kind: SLO
+metadata:
+  name: light-cycles-riders-move-evenly
+  displayName: Riders move at an even pace
+spec:
+  description: >-
+    At least 99 in every 100 cells a rider is shown entering come less than
+    one screen picture (16 milliseconds) early or late, over four weeks: no
+    rider is seen hurrying or stalling.
+  service: games
+  indicatorRef: light-cycles-rider-pace
+  timeWindow:
+    - duration: 28d
+      isRolling: true
+  budgetingMethod: Occurrences
+  objectives:
+    - displayName: Almost every cell is entered on time
+      op: lte
+      value: 16
+      target: 0.99

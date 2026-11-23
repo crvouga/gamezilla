@@ -5,7 +5,12 @@ export const LIGHT_CYCLES_CONFIG = Object.freeze({
   tickRate: 30,
   /** A rider enters one cell every this many ticks (10 cells per second). */
   movementTicks: 3,
-  snapshotRate: 15,
+  /**
+   * Every tick: a rider's cell steps then show the moment they happen, an
+   * even pace on every screen. Publishing every other tick showed steps of
+   * one cell every 3 ticks unevenly (two quick, then one slow).
+   */
+  snapshotRate: 30,
   countdownTicks: 90,
   roundOverTicks: 60,
   targetScore: 3,

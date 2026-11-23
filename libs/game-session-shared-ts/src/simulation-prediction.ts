@@ -18,7 +18,13 @@ export type PredictionProjection<S, I> = (
   state: S,
   input: PredictedInput<I>,
   /** Logical origin after the latest authority update or preceding queued input. */
-  fromTick: number
+  fromTick: number,
+  /**
+   * The control the authority applies from `fromTick` until `input.tick`:
+   * the preceding queued input, else the latest acknowledged one; undefined
+   * when this device has not controlled the entity since the fence.
+   */
+  inForce: I | undefined
 ) => S;
 
 /**
@@ -31,6 +37,14 @@ export class InputPrediction<S, I> {
   private pending: PredictedInput<I>[] = [];
   private sequence: number;
   private predicted: S;
+  /** The acknowledged control the authority applies from its latest tick. */
+  private inForce: I | undefined = undefined;
+  /** Where the latest pending input's projection began: what a superseding input starts from. */
+  private origin: {
+    readonly state: S;
+    readonly fromTick: number;
+    readonly inForce: I | undefined;
+  };
   private projections = new Map<
     number,
     { readonly tick: number; readonly state: S }
@@ -47,6 +61,11 @@ export class InputPrediction<S, I> {
     this.authoritative = snapshot;
     this.sequence = snapshot.acknowledged;
     this.predicted = snapshot.state;
+    this.origin = {
+      state: snapshot.state,
+      fromTick: snapshot.tick,
+      inForce: undefined,
+    };
   }
 
   state(): S {
@@ -66,11 +85,18 @@ export class InputPrediction<S, I> {
     return projection?.tick === snapshot.tick ? projection.state : null;
   }
 
-  /** A full history refuses more input; silently dropping unacknowledged input is unsafe. */
+  /**
+   * A full history refuses more input; silently dropping unacknowledged
+   * input is unsafe. An input for the latest pending input's own tick
+   * supersedes it there: the authority applies both in order, so the later
+   * one decides that tick.
+   */
   submit(value: I, tick: number): PredictedInput<I> | null {
-    const previousTick = this.pending.at(-1)?.tick ?? this.authoritative.tick;
+    const latest = this.pending.at(-1);
+    const supersedes = latest !== undefined && tick === latest.tick;
+    const previousTick = latest?.tick ?? this.authoritative.tick;
     if (
-      !simulationInteger(tick, previousTick + 1) ||
+      (!supersedes && !simulationInteger(tick, previousTick + 1)) ||
       this.pending.length >= this.capacity
     )
       return null;
@@ -80,7 +106,20 @@ export class InputPrediction<S, I> {
       tick,
       value: structuredClone(value),
     };
-    const predicted = this.project(this.predicted, input, previousTick);
+    const origin = supersedes
+      ? this.origin
+      : {
+          state: this.predicted,
+          fromTick: previousTick,
+          inForce: latest?.value ?? this.inForce,
+        };
+    const predicted = this.project(
+      origin.state,
+      input,
+      origin.fromTick,
+      origin.inForce
+    );
+    this.origin = origin;
     this.sequence = input.sequence;
     this.pending.push(input);
     this.predicted = predicted;
@@ -101,17 +140,27 @@ export class InputPrediction<S, I> {
       (input) =>
         input.sequence > snapshot.acknowledged && input.tick > snapshot.tick
     );
+    for (const input of this.pending)
+      if (input.sequence <= snapshot.acknowledged && input.tick <= snapshot.tick)
+        this.inForce = input.value;
     let predicted = snapshot.state;
     let fromTick = snapshot.tick;
+    let inForce = this.inForce;
+    let origin = { state: predicted, fromTick, inForce };
     const projections = new Map<
       number,
       { readonly tick: number; readonly state: S }
     >();
-    for (const input of pending) {
-      predicted = this.project(predicted, input, fromTick);
+    for (const [index, input] of pending.entries()) {
+      // One superseded at its own tick by a later input never decides it.
+      if (pending[index + 1]?.tick === input.tick) continue;
+      origin = { state: predicted, fromTick, inForce };
+      predicted = this.project(predicted, input, fromTick, inForce);
+      inForce = input.value;
       projections.set(input.sequence, { tick: input.tick, state: predicted });
       fromTick = input.tick;
     }
+    this.origin = origin;
     this.authoritative = snapshot;
     this.pending = pending;
     this.predicted = predicted;
@@ -126,6 +175,12 @@ export class InputPrediction<S, I> {
     this.sequence = snapshot.acknowledged;
     this.predicted = snapshot.state;
     this.pending = [];
+    this.inForce = undefined;
+    this.origin = {
+      state: snapshot.state,
+      fromTick: snapshot.tick,
+      inForce: undefined,
+    };
     this.projections.clear();
   }
 

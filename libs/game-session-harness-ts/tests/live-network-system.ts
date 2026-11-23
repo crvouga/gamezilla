@@ -10,6 +10,7 @@ import { createRoomHarnessRuntime } from '@pkgs/room-root-harness-ts/create-room
 import type { RoomFaultProfile } from '@pkgs/room-root-harness-ts/network';
 import { createTurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import { decode, networkRace } from './network-race';
+import { virtualFrames } from '@libs/game-session-harness-ts/realtime-device';
 
 async function createNetworkSurface(session: Session) {
   const kit = await createRoomHarnessRuntime({
@@ -42,6 +43,7 @@ async function createNetworkSurface(session: Session) {
       rules,
       clock: session.ports.clock,
       timers: session.ports.timers,
+      frames: virtualFrames(session.ports),
       createId: session.ports.createId,
       changed: (next) => {
         positions.set(identity, next.position);

@@ -2,6 +2,7 @@ import { connectCustomSimulation } from '@libs/game-session-client-ts/custom-sim
 import { CustomGamesAttr } from '@libs/game-session-shared-ts/custom-game-state';
 import type { GameRegistration } from '@libs/game-session-shared-ts/game-definition';
 import { createTurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
+import { virtualFrames } from './realtime-device';
 
 /** The production room/epoch/readiness and document lifecycle adapter, with explicit harness ports. */
 export function connectSimulationRoomFixture(
@@ -12,6 +13,8 @@ export function connectSimulationRoomFixture(
   if (current === null) throw new Error('The simulation room has no game');
   return connectCustomSimulation({
     ...options,
+    // A harness screen refreshes on the session's own time, never the wall's.
+    frames: options.frames ?? virtualFrames(options),
     game: current,
     rules: createTurnGames([game.registration]),
   });

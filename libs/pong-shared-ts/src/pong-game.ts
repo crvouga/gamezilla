@@ -11,7 +11,7 @@ import { pongConfig } from './pong-config';
 import {
   createPongPrediction,
   createPongPredictionError,
-  interpolatePong,
+  createPongInterpolation,
 } from './pong-presentation';
 import {
   initialPongState,
@@ -124,7 +124,7 @@ const simulation = defineSimulation(
         )(state, context),
     },
     presentation: {
-      interpolate: interpolatePong,
+      interpolate: createPongInterpolation(config),
       predict: createPongPrediction(config),
       predictionError: createPongPredictionError(config),
       mergeLocal: (state, predicted, side) => {

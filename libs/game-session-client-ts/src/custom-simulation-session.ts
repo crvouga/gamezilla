@@ -9,14 +9,20 @@ import {
   ClaimSimulationControl,
   SimulationSteeringChanged,
 } from '@libs/game-session-shared-ts/simulation-steering';
-import { simulationReplicaMeasures } from '@libs/game-session-shared-ts/simulation-telemetry';
+import {
+  simulationFrameMeasures,
+  simulationReplicaMeasures,
+} from '@libs/game-session-shared-ts/simulation-telemetry';
 import type { SpaceOpenRoomEntry } from '@libs/spaces-client-ts/space-open-rooms-store';
 import type { Clock, Timers } from '@pkgs/clock-shared-ts/types';
 import { RoomMetaAttr } from '@pkgs/room-root-client-ts/room-meta';
 import type { TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { CreateId } from '@pkgs/uuid-shared-ts/create-id';
 import { forwardLocalSimulation } from './local-simulation-forwarding';
-import { connectSimulationPresentation } from './simulation-presentation-session';
+import {
+  connectSimulationPresentation,
+  type FrameScheduler,
+} from './simulation-presentation-session';
 
 export function connectCustomSimulation(options: {
   readonly room: SpaceOpenRoomEntry['room'];
@@ -25,6 +31,8 @@ export function connectCustomSimulation(options: {
   readonly rules: TurnGames;
   readonly clock: Clock;
   readonly timers: Timers;
+  /** The display's frames; absent, the document's own window. */
+  readonly frames?: FrameScheduler;
   readonly createId: CreateId;
   readonly changed: (value: {
     position: string | null;
@@ -51,10 +59,12 @@ export function connectCustomSimulation(options: {
       : null;
   const stopForwarding =
     local === null ? () => {} : forwardLocalSimulation(local, room);
+  const mode = local === null ? 'custom' : 'local';
   const connection = connectSimulationPresentation({
     simulation: definition,
     clock,
-    timers,
+    ...(options.frames === undefined ? {} : { frames: options.frames }),
+    framed: simulationFrameMeasures(mode),
     generation: () => {
       const execution = CustomGamesAttr.from(room.getSnapshot()).current
         ?.execution;
@@ -79,7 +89,7 @@ export function connectCustomSimulation(options: {
         : local.subscribe.bind(local),
     subscribeRoom: room.subscribe.bind(room),
     changed: options.changed,
-    measure: simulationReplicaMeasures(local === null ? 'custom' : 'local'),
+    measure: simulationReplicaMeasures(mode),
   });
   if (local === null) connection.refresh();
   else local.flush().then(connection.refresh, options.failed);
