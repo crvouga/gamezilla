@@ -47,14 +47,19 @@ presentation and discrete-command parts. `@libs/game-session-shared-ts` owns exe
 - `simulation-engine`: bounded fixed-step execution using the repository's
   seeded RNG. Each tick gets an independent derived random stream, so restoring
   a checkpoint does not require replaying all earlier random draws.
-- `simulation-driver`: one owned injected timer; snapshot publication has its
-  own configurable cadence. Presentation is scheduled by the client separately.
+- `simulation-driver`: one owned injected timer whose wakes keep the tick
+  grid; snapshot publication has its own configurable cadence on its own grid.
+  Presentation is scheduled by the client separately.
 - `simulation-prediction`: bounded unacknowledged local input history,
   selective projection, monotonic authoritative reconciliation and an explicit
   reconnect fence/reset. The game chooses which entities can be predicted.
 - `simulation-interpolation`: bounded, renderer-independent snapshots sampled
   at fractional logical ticks; stale snapshots are ignored and exhausted
   history holds the last state rather than inventing future authority.
+- `simulation-interpolation` also holds the playback clock that chooses the
+  tick sampled each frame. It advances with the device clock and converges on one publication
+  interval plus the observed arrival jitter behind the authority, so a late
+  or early snapshot never freezes or jumps the picture.
 - `simulation-bots`: tick-based input generation in stable player order,
   validated through the same input parser as human controls.
 - `simulation-authority`: input ownership, match fences, bounded input delivery,
@@ -201,7 +206,9 @@ Passed unacknowledged ticks are discarded, and a reconnect clears held controls.
 
 The custom-game screen now connects its game-owned board to this replica. Local
 play uses its owned local session; shared play uses the existing room signals.
-Presentation runs independently at 60 frames per second through injected timers.
+Presentation runs once per display refresh, in the frame callback of the
+document's window (or an injected `FrameScheduler`): a timer is neither tied to
+the display nor on time, so it showed some courts twice and skipped others.
 A hidden page releases presentation work and held controls, without pausing the
 shared authority. Score-target configuration uses the game's typed position
 rules, and native sliders complement keyboard and touch controls.
@@ -1472,3 +1479,24 @@ Added for multi-participant real-time games; Pong keeps every default.
 - **Lifecycle.** Contract tests repeat resign and rematch over a real room and
   assert exactly one owned simulation timer per running game and none after
   completion or disposal.
+
+## Smooth realtime presentation
+
+Each frame samples the playback clock (`PlaybackClock` in
+`simulation-interpolation`), not the newest
+arrival. A held control leaves the device when it changes (a change in the
+tick an input already took supersedes it there), and the local entity is drawn
+from where its latest input's tick starts it, carried on by that input since it
+left. Projections apply an input from its own tick; until then the control in
+force moves the entity. Pong's interpolation unfolds bounces, so the ball is
+drawn touching what it bounces off and serves, points and bounce sounds happen
+when playback reaches them. Light Cycles publishes every tick, because riders
+step every third tick.
+
+Frame pacing, presentation delay, arrival spacing, playback jumps, control to
+frame time and resynchronizations are `game.simulation.*` metrics in
+`simulation-telemetry`. How smooth play must be is
+`specs/pong/pong-smooth-play.openslo.yaml` and
+`specs/light-cycles/light-cycles-smooth-riding.openslo.yaml`, measured by each
+game's frame probe on virtual time over device profiles (`pong-frame-probe`,
+`light-cycles-frame-probe`, shared device model in `simulation-room-presentation`).
