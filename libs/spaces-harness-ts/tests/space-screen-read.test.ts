@@ -8,21 +8,36 @@ import { Handles } from '@libs/test-ids-shared-ts/handles';
 
 /**
  * One person's screen: `handles` show on it, and `menu` shows once its ⋯
- * menu is open (Escape closes it again).
+ * menu is open (Escape closes it again). With `people`, the list of people
+ * covers the top bar: its menu does not open, and Escape closes the list.
  */
 function screenHarness(
   handles: readonly string[],
-  menu: readonly string[] = []
+  menu: readonly string[] = [],
+  options: { readonly people?: boolean } = {}
 ): ProductHarness {
   let open = false;
-  const shows = (handle: string): boolean =>
-    handles.includes(handle) || (open && menu.includes(handle));
+  let people = options.people === true;
+  const shows = (handle: string): boolean => {
+    if (handle === Handles.spaceMembersClose) return people;
+    return handles.includes(handle) || (open && menu.includes(handle));
+  };
   const ensure = (handle: string, want: boolean): Promise<void> =>
     shows(handle) === want
       ? Promise.resolve()
       : Promise.reject(
           new Error(`${handle} is not ${want ? 'shown' : 'gone'}`)
         );
+  const tap = async (handle: string): Promise<void> => {
+    await ensure(handle, true);
+    if (handle === Handles.spaceMembersClose) people = false;
+    if (handle === Handles.spaceMembersButton) {
+      people = true;
+      open = false;
+    }
+    // Under the list of people the menu button takes no tap.
+    if (handle === Handles.spaceChromeOverflow && !people) open = true;
+  };
   return {
     actors: new Map([
       [
@@ -32,17 +47,21 @@ function screenHarness(
             get: (handle: string) => ({
               layout: async () => null,
               isVisible: async () => shows(handle),
-              tap: async () => {
-                await ensure(handle, true);
-                if (handle === Handles.spaceChromeOverflow) open = true;
-              },
+              attribute: async (name: string) =>
+                handle === Handles.spaceChromeOverflow &&
+                name === 'aria-expanded'
+                  ? String(open)
+                  : null,
+              tap: () => tap(handle),
               expect: {
                 visible: () => ensure(handle, true),
                 hidden: () => ensure(handle, false),
               },
             }),
             key: async (key: string) => {
-              if (key === 'escape') open = false;
+              if (key !== 'escape') return;
+              if (people) people = false;
+              else open = false;
             },
           },
         },
@@ -132,3 +151,22 @@ test('looking for End in the ⋯ menu closes the menu again', async () => {
   const ui = s.actors.get('bob')?.ui;
   expect(await ui?.get(Handles.spaceEnd).isVisible()).toBe(false);
 });
+
+test.each([
+  { title: 'host', exit: Handles.spaceEnd, expected: 'viewingPresence' },
+  { title: 'guest', exit: Handles.spaceLeave, expected: 'droppedOut' },
+] as const)(
+  'a $title looking at the people in the space is placed without losing the list',
+  async ({ exit, expected }) => {
+    // regression: space-menu-read-under-people-list
+    const s = screenHarness(
+      [Handles.statusConnectionMissing, Handles.spaceChromeOverflow],
+      [Handles.spaceMembersButton, Handles.spaceShare, exit],
+      { people: true }
+    );
+    expect(await spaceScreenOf(s, 'bob')).toBe(expected);
+    const ui = s.actors.get('bob')?.ui;
+    expect(await ui?.get(Handles.spaceMembersClose).isVisible()).toBe(true);
+    expect(await ui?.get(exit).isVisible()).toBe(false);
+  }
+);

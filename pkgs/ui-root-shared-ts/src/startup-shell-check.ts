@@ -15,11 +15,11 @@ import {
 import { COLOR_PALETTE } from './color-palette';
 
 /**
- * The indicator's edge on the boot screen: `Spinner size="md"`, the size of
- * every screen's own `LoadingState`, so the indicator keeps one size from
- * first paint through boot to the first screen's load.
+ * The indicator's edge on the boot screen: `Spinner size="lg"`, the size of
+ * every whole-screen (`fill`) `LoadingState`, so the indicator keeps one size
+ * from first paint through boot to the first screen's load.
  */
-export const STARTUP_INDICATOR_PX = 24;
+export const STARTUP_INDICATOR_PX = 40;
 
 const COLOR = /#[0-9a-fA-F]{3,8}\b|(?:rgba?|hsla?|oklch|color-mix)\([^)]*\)/g;
 

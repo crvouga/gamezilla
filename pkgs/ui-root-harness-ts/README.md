@@ -96,15 +96,15 @@ Every routed screen and distinct full-screen state is split in two, and the
 
 `bun storybook:coverage` requires a story and source JSDoc for every exported
 `*ScreenView`; other `libs/` exports are inventoried for discovery only.
-Screen stories get phone and desktop baselines, like templates. Other component
+Screen stories are opened at phone and desktop width, like templates. Other component
 stories opt into that same two-theme responsive matrix with the story-level
 `tags: ['viewport-responsive']`; use it when a component's layout or interaction
 needs both phone and desktop evidence. The shared `visualScenarios` function
-owns the browser cases and coverage inventory, so explicit regression captures
+owns the browser cases and coverage inventory, so explicit regression checks
 must use the same matrix. `viewport-desktop` filters out viewports below the
-production desktop boundary; combining the tags captures only desktop. Keep
+production desktop boundary; combining the tags opens only desktop. Keep
 these tags on individual states unless every state needs that coverage.
-Every capture is 844px tall by default; `viewport-native-height` captures each
+Every scenario is 844px tall by default; `viewport-native-height` opens each
 width at its own viewport height instead (1440x900 on desktop), for screens
 whose desktop layout puts state below a phone's height.
 When adding a story-owning `libs/` package, name it in the brace lists of this package's and
@@ -133,16 +133,16 @@ coverage and test tasks share generated output; concurrent invocations can remov
 files while another task is reading them.
 
 1. `bun storybook:coverage` builds the canonical index/manifests and checks their
-   source, story and baseline coverage. Address relevant violations.
+   source and story coverage. Address relevant violations.
 2. `bunx turbo run tc test --filter=@pkgs/ui-root-harness-ts` checks the UI harness.
    Also run the changed component's owning harness tasks when it lives elsewhere,
    such as the chess-board harness; use the owning package's declared tasks.
 3. `bun storybook:build` refreshes the static site; `bun storybook:test` then runs
-   browser comparisons and accessibility checks. See [Browser checks and baselines](#browser-checks-and-baselines)
-   for the pinned renderer and intentional baseline authoring.
+   browser and accessibility checks. See [Browser checks](#browser-checks)
+   for the pinned renderer.
 4. `bun verify` runs the whole release gate. A focused pass does not replace it.
-5. Never update baselines just to turn a build green; regenerate them only for an
-   intended visual change.
+5. Never add a stored screenshot to compare a story against; assert what the
+   story must show instead.
 
 In a review or handoff, report changed components and story IDs, reuse or API
 choices, covered states, automated commands and their actual results, and any
@@ -161,19 +161,17 @@ glob. Refresh source edges with `bun run cache:sync` after import changes.
 Update stories, fixtures, source JSDoc, controls and contract tests alongside a
 prop or state change. Update consumers in the same change; remove obsolete
 stories and fixtures when a component is removed. Preserve explicit CSF IDs when
-renaming sidebar titles so links and baseline paths remain stable. Follow
+renaming sidebar titles so links remain stable. Follow
 [Sidebar organization](#sidebar-organization) when adding a story, including the
 separation between game-specific surfaces and shared screens.
 
-Treat a baseline change as an intentional visual change: explain its cause,
-inspect the generated differences for design decisions, then run comparisons
-without the update flag. Do not regenerate screenshots to hide unexpected
-failures. Keep generated manifests and inventories untracked; refresh them after
+A visual change is reviewed from the story itself and from the assertions that
+pin what it must show; there is no reference image to regenerate. Keep generated manifests and inventories untracked; refresh them after
 source changes instead of maintaining a parallel component registry. A UI change
 also follows the [self-service readiness definition](../../docs/SELF_SERVICE_READINESS.md)
 when it affects a person-facing flow.
 
-Stories live beside production implementations in `pkgs/*-client-ts/src/<component>/`. Each vertical slice keeps the implementation, source JSDoc, local styles, CSF stories, deterministic examples and `baselines/chromium/` together. Public module imports remain stable. The harness owns the Storybook runtime and browser suite; production entrypoints never import stories or fixtures. Storybook discovers the slices together, including game-specific components. Keep static state matrices for side-by-side comparison; use args-based stories
+Stories live beside production implementations in `pkgs/*-client-ts/src/<component>/`. Each vertical slice keeps the implementation, source JSDoc, local styles, CSF stories and deterministic examples together. Public module imports remain stable. The harness owns the Storybook runtime and browser suite; production entrypoints never import stories or fixtures. Storybook discovers the slices together, including game-specific components. Keep static state matrices for side-by-side comparison; use args-based stories
 for prop exploration in the Controls panel. Do not add demo-only selectors for
 props, themes or viewport sizes. Component APIs come from production JSDoc
 and TypeScript in both cases. Each state matrix lives beside its component as `<name>.example.tsx`; only shared preview scaffolding lives in `ui-root-client-ts/storybook/fixtures/`. Production must never import either. Global decorators use
@@ -260,39 +258,28 @@ the manifest; use `!manifest` for material that would mislead reuse.
 New MDX guides also need discovery in `storybook/main.ts` and explicit build
 cache inputs; the current discovery includes only the Start here guide.
 
-## Browser checks and baselines
+## Browser checks
 
 `bun storybook:test` starts a test-owned static server on 6007 and stops it at the
 end. Concurrent checkouts set `STORYBOOK_TEST_PORT` to distinct ports; the server
 and browser use that port together, independently of the development server's
 `STORYBOOK_PORT`. Playwright visits real stories in both themes with local fonts, fixed locale,
 time zone, scale factor and viewport. External requests are blocked. Rendering
-errors and serious/critical axe violations fail. Screenshot comparisons never
-update baselines implicitly. Install the existing pinned renderer with `mise install http:chrome-for-testing`.
+errors and serious/critical axe violations fail. Install the existing pinned renderer with `mise install http:chrome-for-testing`.
 Playwright drives that browser; a second downloaded browser is unnecessary.
-To author baselines explicitly, run `bun storybook:test --update-snapshots` and
-review the resulting PNG changes. Baselines depend on the OS and pinned browser;
-use the CI browser environment for shared pixel evidence.
 
-For retained Ubuntu comparisons, dispatch the focused diagnostic with
-`gh workflow run verify-nightly.yml --ref <branch> -f group=storybook`.
-Add `-f update-storybook-baselines=true` for explicit reference authoring. That
-mode runs the selected browser states again against the authored images and retains
-`storybook-baselines.patch` in `verify-nightly-storybook-<run-id>`, alongside
-comparison evidence. To author only a changed story family, add
-`-f storybook-pattern=screens-shell-header-island`; an empty pattern runs every
-state. Both authoring and comparison use the same pattern, and normal gates
-continue to compare their complete selection. Review the image changes, apply the patch, and commit the
-references. The job only writes its checkout and artifacts; it never pushes.
-The public Git binary diff is also emitted between
-`STORYBOOK_BASELINES_PATCH_BEGIN` and `STORYBOOK_BASELINES_PATCH_END` in the
-reference-collection step's log, so retrieving a reference patch needs only
-GitHub run-log access. It uses a byte encoding that survives short-value secret
-mask false positives. Download the job log and run
-`bun run libs/tools-harness-ts/scripts/storybook-baseline-patch.ts --decode-log <log>`;
-the decoded patch is `.cache/verify-nightly/storybook-baselines.patch`. Run
-`git apply --check` before applying it. Comparison reports remain in the CI
-artifacts bucket.
+**No story is compared against a stored picture of itself.** Golden screenshots
+need re-authoring after every intended change and fail for reasons a reader
+cannot see, so there are no committed reference images and no
+`toHaveScreenshot`. What a story must show is asserted: in its `play`
+function, in a layout check that measures the boxes that matter, or in a Bun
+DOM test. `storybook:coverage` refuses a committed reference image, and
+`tests/no-screenshot-comparisons.test.ts` refuses a comparison.
+
+For retained Ubuntu evidence, dispatch the focused diagnostic with
+`gh workflow run verify-nightly.yml --ref <branch> -f group=storybook`; add
+`-f storybook-pattern=screens-shell-header-island` to run one story family.
+Comparison reports remain in the CI artifacts.
 
 When local artifact credentials are unavailable, an explicit evidence-only
 diagnostic can relay an exact retained run through encrypted job logs. Generate
@@ -316,7 +303,7 @@ recipient private key. The ordinary artifact retention remains unchanged.
 Axe cannot prove keyboard or focus contracts. Existing Bun DOM interaction tests
 cover those independently; play functions document story-specific contracts.
 
-Production `src` hashes exclude stories, examples, baselines and shared preview scaffolding. Storybook tasks explicitly hash those inputs, so preview changes do not fan out to application consumers.
+Production `src` hashes exclude stories, examples and shared preview scaffolding. Storybook tasks explicitly hash those inputs, so preview changes do not fan out to application consumers.
 
 The release gate runs coverage, static Storybook builds, DOM contracts, and a
 representative browser suite through `ci:storybook:0`–`ci:storybook:13`
@@ -338,7 +325,7 @@ and removes listeners on cleanup; the browser suite checks that native outcome.
 
 The release suite also checks the project guide and a real Controls update
 through the Storybook manager. `storybook:coverage` measures component/story,
-documentation and baseline coverage; `bun verify-nightly coverage` owns the
+and documentation coverage; `bun verify-nightly coverage` owns the
 repository's deeper line and assertion coverage.
 
 Generate the deeper source/token/keyboard inventory with
@@ -379,8 +366,8 @@ Naming, checked by `tests/storybook-taxonomy.test.ts`:
 - Every title is unique, and every story file sets an explicit `id`.
 
 These sidebar folders are defined by CSF titles; source files stay beside their
-production components. Explicit IDs preserve existing deep links and baseline
-paths when sidebar titles change. Public component imports retain their
+production components. Explicit IDs preserve existing deep links
+when sidebar titles change. Public component imports retain their
 production names.
 
 ## Native story features
@@ -444,7 +431,7 @@ use the existing template stories and real components, explore phone/desktop and
 landscape, then inspect layout with Measure and Outline. Switch both production
 theme and token backdrop when checking transparent edges and surface boundaries.
 Use Highlight to identify a specific region while debugging. Restore inspection
-tools and grids to off before authoring a visual baseline.
+tools and grids to off before capturing evidence for a review.
 
 Keep the existing `SchemePreview` galleries: simultaneous light/dark comparison
 is useful and each pane uses a production provider so CSS and JavaScript agree.

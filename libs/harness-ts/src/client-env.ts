@@ -39,7 +39,10 @@ import type { HarnessLoadBalancer } from './load-balancer';
 import type { HarnessNet } from './net';
 import { partitionAwarePubSub } from './partition-aware-pubsub';
 import { partitionAwareRoomTransport } from './partition-aware-room-transport';
-import { HARNESS_PRIMARY_SERVER_ID } from './server-nodes';
+import {
+  HARNESS_PRIMARY_SERVER_ID,
+  HARNESS_ROOM_HOST_ID,
+} from './server-nodes';
 import type { HarnessSql } from './sql-types';
 import type { HarnessSyntheticUserDevices } from './synthetic-user-devices';
 import type { HarnessTeamRules } from './team-rules';
@@ -191,7 +194,9 @@ export function makeHarnessClientEnv(
     room: (roomArgs) => {
       return partitionAwareRoomTransport({
         open: () => roomNode.createTransport(roomArgs),
-        reachable: () => net.isReachable(id, HARNESS_PRIMARY_SERVER_ID),
+        reachable: () =>
+          net.isReachable(id, HARNESS_PRIMARY_SERVER_ID) &&
+          net.isReachable(id, HARNESS_ROOM_HOST_ID),
         subscribeReachability: net.subscribe,
         timers,
       });

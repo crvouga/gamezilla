@@ -34,3 +34,16 @@ export function apiUrlToRoomWebSocketUrl(
   }
   return u.toString();
 }
+
+/**
+ * Where a device asks whether the space's room would admit it: the same
+ * gateway address as {@link apiUrlToRoomWebSocketUrl}, over plain HTTP, so
+ * the gateway answers with its decision instead of opening a connection.
+ */
+export function apiUrlToRoomAdmissionUrl(
+  args: SpaceRoomWebSocketUrlArgs
+): string {
+  const u = new URL(apiUrlToRoomWebSocketUrl(args));
+  u.protocol = u.protocol === 'wss:' ? 'https:' : 'http:';
+  return u.toString();
+}

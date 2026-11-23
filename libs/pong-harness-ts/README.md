@@ -21,6 +21,13 @@ The profile measures:
   Twenty batches warm each case; 200 measured batches report median/p95/p99
   of the **batch mean** per operation. These are not individual-tick tail
   percentiles. An ended bot game restores its playing opening.
+- One presented frame on a device: the replica's playback sample, the held
+  paddle carried on and the court encoded for the board, with a court arriving
+  every third frame — the main-thread work of one display refresh.
+
+How smooth play looks, frame by frame on a 60 Hz display, is not a benchmark:
+`specs/pong/pong-smooth-play.openslo.yaml` judges it on virtual time through
+`pong-frame-probe` over the device profiles in `pong-frame-profiles`.
 - A real custom-session room and its clients, with two controlled paddles and
   0, 2 or 20 admitted spectators. Four virtual seconds warm the opening, then
   ten virtual seconds supply the sample. `publishedTickDelta` comes from the

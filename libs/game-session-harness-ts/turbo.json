@@ -32,6 +32,7 @@
         "@pkgs/glicko2-shared-ts#src",
         "@pkgs/harness-root-shared-ts#src",
         "@pkgs/property-shared-ts#src",
+        "@pkgs/room-root-harness-ts#src",
         "@pkgs/room-root-shared-ts#src",
         "@pkgs/sounds-shared-ts#src",
         "@pkgs/sql-client-root-shared-ts#src",

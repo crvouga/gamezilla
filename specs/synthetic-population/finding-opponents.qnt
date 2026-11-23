@@ -1,7 +1,8 @@
 // People and Synthetic Users look for a multiplayer opponent for the same
 // game. A person looking is matched with another person looking first; when
-// no person is looking, an available Synthetic User becomes their multiplayer
-// opponent within 30 seconds (each action here includes that wait). With no
+// no person is looking, an available Synthetic User, or one looking for
+// another game, becomes their multiplayer opponent at the time control they
+// chose within 10 seconds (each action here includes that wait). With no
 // person looking, Synthetic Users looking are matched with each other. A
 // paused Synthetic User is not available; when every Synthetic User is paused
 // or playing, a person keeps looking.

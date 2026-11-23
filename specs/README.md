@@ -1222,7 +1222,7 @@ Published language:
 | Billing (`billing`) | Plus, Plus member, free account, paid access, billing plans, payment record | `BillingEvent`: `PaidAccessStarted`, `PaidAccessEnded` |
 | Spaces (`spaces`) | space, host, join, leave, create a space, end a space, open space, return to a space, lobby, space link, hosting limit, idle | `SpaceEvent`: `SpaceOpened`, `PersonJoined`, `PersonLeft`, `SpaceEnded` |
 | Friends (`friends`) | friend, friends list, people search, block someone, inbox | `FriendshipEvent`: `BecameFriends`, `FriendshipEnded` |
-| Chess (`chess`) | game, chess, board, puzzle, solve, multiplayer chess, multiplayer result, Custom Game, Custom Game move list | — |
+| Chess (`chess`) | game, chess, board, puzzle, solve, multiplayer chess, multiplayer result, time control, Custom Game, Custom Game move list | — |
 | Games (`games`) | game, the game's choices, custom game, bot, custom game readiness, start a custom game, under way, rematch, secret choice, make a secret choice, stand-in, take back their side, shared victory, move list | — |
 | Connect Four (`connect-four`) | Connect Four | — |
 | Battleship (`battleship`) | Battleship | — |

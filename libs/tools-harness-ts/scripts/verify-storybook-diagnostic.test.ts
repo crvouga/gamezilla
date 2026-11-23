@@ -25,36 +25,21 @@ const workflow = Bun.YAML.parse(
   jobs: Record<string, { if?: string; 'runs-on'?: string; steps: Step[] }>;
 };
 
-test('Ubuntu reference authoring is explicit and followed by an uncached comparison', () => {
+test("the Storybook diagnostic runs the gate's browser states, or the selected ones, and authors nothing", () => {
   const job = workflow.jobs['verify-nightly-storybook']!;
   expect(job.if).toBe(
     "${{ github.event_name == 'workflow_dispatch' && inputs.group == 'storybook' }}"
   );
   expect(job['runs-on']).toBe('ubuntu-24.04');
+  // Stories are not compared against stored pictures, so nothing is authored.
   expect(
-    workflow.on.workflow_dispatch.inputs['update-storybook-baselines']?.default
-  ).toBe(false);
-  const author = job.steps.findIndex((step) =>
-    step.run?.includes('--update-snapshots')
-  );
-  expect(author).toBeGreaterThanOrEqual(0);
-  expect(job.steps[author]?.if).toBe(
-    '${{ !inputs.storybook-evidence-run && inputs.update-storybook-baselines }}'
-  );
-  expect(
-    job.steps.findIndex(
-      (step) =>
-        step.run === 'bun run storybook:test --grep "$STORYBOOK_PATTERN"'
+    Object.keys(workflow.on.workflow_dispatch.inputs).filter((input) =>
+      input.includes('baseline')
     )
-  ).toBeGreaterThan(author);
+  ).toEqual([]);
   expect(
-    job.steps.find(
-      (step) =>
-        step.run === 'bun run storybook:test --grep "$STORYBOOK_PATTERN"'
-    )?.if
-  ).toBe(
-    '${{ !inputs.storybook-evidence-run && inputs.update-storybook-baselines }}'
-  );
+    job.steps.filter((step) => step.run?.includes('--update-snapshots'))
+  ).toEqual([]);
   expect(
     job.steps.find((step) =>
       [
@@ -65,15 +50,13 @@ test('Ubuntu reference authoring is explicit and followed by an uncached compari
         ),
       ].every((part) => step.run?.includes(part))
     )?.if
-  ).toBe(
-    '${{ !inputs.storybook-evidence-run && !inputs.update-storybook-baselines && !inputs.storybook-pattern }}'
-  );
+  ).toBe('${{ !inputs.storybook-evidence-run && !inputs.storybook-pattern }}');
   // regression: storybook-diagnostic-ignores-pattern
   const selected = job.steps.find(
-    (step) => step.name === 'Compare selected Storybook states'
+    (step) => step.name === 'Check selected Storybook states'
   );
   expect(selected?.if).toBe(
-    "${{ !inputs.storybook-evidence-run && !inputs.update-storybook-baselines && inputs.storybook-pattern != '' }}"
+    "${{ !inputs.storybook-evidence-run && inputs.storybook-pattern != '' }}"
   );
   expect(selected?.run).toBe(
     'bun run storybook:test --grep "$STORYBOOK_PATTERN"'

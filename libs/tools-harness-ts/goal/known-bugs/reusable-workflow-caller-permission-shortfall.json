@@ -1,0 +1,4 @@
+{
+  "summary": "Release ended in startup_failure, with no job and no log, on every push to main: verify:end in verify-pr.yml began asking for actions: write to delete a passing run's transfer artifacts, while deploy.yml and verify-nightly.yml still called that workflow granting actions: read. GitHub refuses to start a run whose called job asks for more than its caller grants. Both callers now grant actions: write, and a test compares every caller's scopes with those of the workflow it calls.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workflow-caller-permissions.test.ts"
+}

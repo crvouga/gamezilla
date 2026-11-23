@@ -42,6 +42,16 @@ export type ProductAppProps = {
   readonly children: JSX.Element;
 };
 
+/** What the app tells a person wherever they are: offline, or out of reach. */
+function AppStatus(): JSX.Element {
+  return (
+    <StackHorizontal align="center" gap="sm">
+      <WorkOfflineStatus />
+      <ConnectionNotice />
+    </StackHorizontal>
+  );
+}
+
 export function ProductApp(props: ProductAppProps): JSX.Element {
   const env = useClientEnv();
   const subs = useAppSubs();
@@ -77,10 +87,10 @@ export function ProductApp(props: ProductAppProps): JSX.Element {
                 <GlobalMenuIdentityRoot>
                   <subs.Chrome>
                     <AppFrameChromeProvider
+                      globalStatus={<AppStatus />}
                       globalTrailing={
                         <StackHorizontal align="center" gap="sm">
-                          <WorkOfflineStatus />
-                          <ConnectionNotice />
+                          <AppStatus />
                           <AppHeaderGlobalMenu />
                         </StackHorizontal>
                       }

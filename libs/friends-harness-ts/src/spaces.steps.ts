@@ -61,9 +61,9 @@ import {
   renameOffered,
   spaceEndedShown,
   spaceNameRefusalShown,
+  spaceNameShown,
   spaceNotFoundShown,
   spacesNeedConnectionShown,
-  spaceTitleShown,
 } from '@libs/spaces-harness-ts/spaces-ui-reads';
 
 const SECOND_MS = 1_000;
@@ -471,7 +471,7 @@ Then(
   '{actor} sees the space is called {string} within {int} seconds',
   async (w, actor: Actor, title: string, seconds: number) => {
     await w.s.apply(focusActor, actor);
-    await w.s.until((surf) => spaceTitleShown(surf, actor), {
+    await w.s.until((surf) => spaceNameShown(surf, actor), {
       pred: (shown) => shown === title,
       maxMs: seconds * SECOND_MS,
     });
@@ -515,7 +515,7 @@ Then(
   '{actor} still sees the space is called {string}',
   async (w, actor: Actor, title: string) => {
     await w.s.apply(focusActor, actor);
-    expect(await w.s.read(spaceTitleShown, actor)).toBe(title);
+    expect(await w.s.read(spaceNameShown, actor)).toBe(title);
   }
 );
 

@@ -1,0 +1,207 @@
+# A person playing Pong sees the ball and paddles move smoothly, sees their
+# own paddle answer at once, and sees the court as it is now, whether they
+# play a bot on their own device or another person on theirs, on a fast
+# device or a slow one.
+apiVersion: openslo/v1
+kind: SLI
+metadata:
+  name: pong-ball-pace
+  displayName: How evenly the Pong ball moves on screen
+spec:
+  description: >-
+    For every screen refresh while the ball is in flight, how far the ball
+    moved compared with the distance it travels in that time.
+  thresholdMetric:
+    metricSource:
+      type: product
+      spec:
+        measures: >-
+          For each screen refresh while the ball is in flight, the difference
+          between how far the ball moved and how far it travels in that
+          time, as a share of that distance. A ball that did not move in a
+          screen refresh counts as a whole share.
+---
+apiVersion: openslo/v1
+kind: SLO
+metadata:
+  name: pong-ball-moves-smoothly
+  displayName: The Pong ball moves smoothly
+spec:
+  description: >-
+    At least 995 in every 1000 screen refreshes while the ball is in flight
+    move the ball within half of the distance it travels in that time,
+    over four weeks: the ball neither stops nor jumps.
+  service: games
+  indicatorRef: pong-ball-pace
+  timeWindow:
+    - duration: 28d
+      isRolling: true
+  budgetingMethod: Occurrences
+  objectives:
+    - displayName: Almost every refresh moves the ball at its pace
+      op: lte
+      value: 0.5
+      target: 0.995
+---
+apiVersion: openslo/v1
+kind: SLI
+metadata:
+  name: pong-bounce-contact
+  displayName: How close a bouncing Pong ball is shown
+spec:
+  description: >-
+    For every bounce off a paddle or the upper or lower edge of the court,
+    how close the screen showed the ball to what it bounced off.
+  thresholdMetric:
+    metricSource:
+      type: product
+      spec:
+        measures: >-
+          For each bounce, the shortest distance between the ball as shown
+          just before or just after it and what it bounced off, counted in
+          the distance the ball travels between two screen refreshes.
+---
+apiVersion: openslo/v1
+kind: SLO
+metadata:
+  name: pong-ball-touches-what-it-bounces-off
+  displayName: The Pong ball touches what it bounces off
+spec:
+  description: >-
+    At least 99 in every 100 bounces show the ball within one screen refresh's
+    travel of the paddle or edge it bounced off, over four weeks: a return
+    is seen to touch the paddle.
+  service: games
+  indicatorRef: pong-bounce-contact
+  timeWindow:
+    - duration: 28d
+      isRolling: true
+  budgetingMethod: Occurrences
+  objectives:
+    - displayName: Almost every bounce is shown touching
+      op: lte
+      value: 1
+      target: 0.99
+---
+apiVersion: openslo/v1
+kind: SLI
+metadata:
+  name: pong-paddle-response-time
+  displayName: Time until a person's paddle answers them
+spec:
+  description: >-
+    The time from a person starting to move their own paddle until their
+    screen shows it moving.
+  thresholdMetric:
+    metricSource:
+      type: product
+      spec:
+        measures: >-
+          The seconds between a person starting to move their paddle and
+          their screen first showing the paddle moved.
+---
+apiVersion: openslo/v1
+kind: SLO
+metadata:
+  name: pong-paddle-answers-at-once
+  displayName: A person's paddle answers at once
+spec:
+  description: >-
+    At least 99 in every 100 times a person starts to move their paddle,
+    their screen's next refresh shows it moving, within a sixtieth of a
+    second, over four weeks.
+  service: games
+  indicatorRef: pong-paddle-response-time
+  timeWindow:
+    - duration: 28d
+      isRolling: true
+  budgetingMethod: Occurrences
+  objectives:
+    - displayName: Almost every paddle moves by the next refresh
+      op: lte
+      value: 0.017
+      target: 0.99
+---
+apiVersion: openslo/v1
+kind: SLI
+metadata:
+  name: pong-paddle-pace
+  displayName: How evenly a person's own paddle moves
+spec:
+  description: >-
+    For every screen refresh while its person holds their paddle on its
+    way, how far the paddle moved compared with the distance it
+    travels in that time.
+  thresholdMetric:
+    metricSource:
+      type: product
+      spec:
+        measures: >-
+          For each screen refresh while a person holds their paddle on its
+          way, how far the paddle leapt beyond or fell short of the distance
+          it travels in that time, as a share of that distance.
+---
+apiVersion: openslo/v1
+kind: SLO
+metadata:
+  name: pong-own-paddle-moves-smoothly
+  displayName: A person's own paddle moves smoothly
+spec:
+  description: >-
+    At least 995 in every 1000 screen refreshes while a person holds their
+    paddle on its way move it within half of the distance it travels in
+    that time, over four weeks: it neither stalls nor leaps.
+  service: games
+  indicatorRef: pong-paddle-pace
+  timeWindow:
+    - duration: 28d
+      isRolling: true
+  budgetingMethod: Occurrences
+  objectives:
+    - displayName: Almost every refresh moves the paddle at its pace
+      op: lte
+      value: 0.5
+      target: 0.995
+---
+apiVersion: openslo/v1
+kind: SLI
+metadata:
+  name: pong-court-age
+  displayName: How old the court a person sees is
+spec:
+  description: >-
+    For every screen refresh while the ball is in flight, how long ago the
+    court looked like that.
+  thresholdMetric:
+    metricSource:
+      type: product
+      spec:
+        measures: >-
+          For each screen refresh while the ball is in flight, the seconds
+          between the game reaching that moment and the screen showing it.
+---
+apiVersion: openslo/v1
+kind: SLO
+metadata:
+  name: pong-court-is-current
+  displayName: The Pong court a person sees is current
+spec:
+  description: >-
+    At least 95 in every 100 screen refreshes show the court as it was at
+    most three quarters of a tenth of a second before, and at least 99 in
+    every 100 at most a tenth of a second before, over four weeks.
+  service: games
+  indicatorRef: pong-court-age
+  timeWindow:
+    - duration: 28d
+      isRolling: true
+  budgetingMethod: Occurrences
+  objectives:
+    - displayName: Nearly every refresh is at most 0.075 seconds old
+      op: lte
+      value: 0.075
+      target: 0.95
+    - displayName: Almost every refresh is at most 0.1 seconds old
+      op: lte
+      value: 0.1
+      target: 0.99

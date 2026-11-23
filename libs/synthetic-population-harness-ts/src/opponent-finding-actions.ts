@@ -69,21 +69,26 @@ async function inGame(s: ProductHarness, actor: string): Promise<boolean> {
 }
 
 /**
- * A person looks for a multiplayer opponent for the game, as people do, and
- * the Synthetic Users carry on meanwhile until the person has an opponent
- * or long enough has passed for every rule to have played out.
+ * A person looks for a multiplayer opponent for the game, as people do, at
+ * the time control they chose (the game's own choice when none is named),
+ * and the Synthetic Users carry on meanwhile until the person has an
+ * opponent or long enough has passed for every rule to have played out.
  */
-export const lookForMultiplayerOpponent = scenarioAction({
+export const lookForMultiplayerOpponent = scenarioAction<
+  [actor: string, game: string, timeControl?: string]
+>({
   name: 'lookForMultiplayerOpponent',
-  act: async (s, actor: string, game: string) => {
+  act: async (s, actor: string, game: string, timeControl?: string) => {
     const looking: Looking = {
       startedAt: s.harness.clock.now(),
       matchedAt: null,
     };
     lookingOf(s).set(actor, looking);
     if ((await signedInAccountOf(s, actor)) === null)
-      await Promise.resolve(seekGameOpponent.act(s, actor, gameIdOf(game)));
-    else await seekAgain(s, actor, game);
+      await Promise.resolve(
+        seekGameOpponent.act(s, actor, gameIdOf(game), timeControl)
+      );
+    else await seekAgain(s, actor, game, timeControl);
     await carryOnSyntheticUsers(s, {
       maxMs: LOOKING_WINDOW_MS,
       observe: async () => {
@@ -96,7 +101,12 @@ export const lookForMultiplayerOpponent = scenarioAction({
 });
 
 /** A signed-in person looks again, from their own space, as they first did. */
-async function seekAgain(s: ProductHarness, actor: string, game: string) {
+async function seekAgain(
+  s: ProductHarness,
+  actor: string,
+  game: string,
+  timeControl?: string
+) {
   const matched = syntheticGame(game).shared.capabilities.matchmaking;
   if (matched === undefined) throw new Error(`${game} offers no matchmaking`);
   await Promise.resolve(givenGameSpace.act(s, actor));
@@ -108,7 +118,11 @@ async function seekAgain(s: ProductHarness, actor: string, game: string) {
     return;
   }
   await Promise.resolve(
-    requestGameOpponent.act(s, actor, defaultMatchChoice(matched))
+    requestGameOpponent.act(
+      s,
+      actor,
+      timeControl ?? defaultMatchChoice(matched)
+    )
   );
 }
 
@@ -151,6 +165,16 @@ export async function multiplayerOpponentShown(
         ? null
         : looking.matchedAt - looking.startedAt,
   };
+}
+
+/** The time control `actor`'s ongoing multiplayer game is played at, as their device shows it. */
+export async function multiplayerGameTimeControl(
+  s: ProductHarness,
+  actor: string
+): Promise<string | null> {
+  await bringToFront(s, actor);
+  const game = (await multiplayerView(s, actor)).game;
+  return game === null ? null : game.time_control;
 }
 
 /** Whether `actor` is still looking for an opponent, as their screen says, and for how long. */

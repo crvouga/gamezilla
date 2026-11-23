@@ -73,6 +73,8 @@ function loadingScreen(
       },
       text: unused,
       isVisible: async () =>
+        // The app's chrome is up: its account control shows.
+        id === Handles.statusCurrentUser ||
         id === 'multiplayer-game' ||
         (id === 'multiplayer-open-commands' && ongoing) ||
         (id === 'multiplayer-abort' && ongoing && commands) ||
