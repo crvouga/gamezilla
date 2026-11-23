@@ -37,8 +37,8 @@ export default defineConfig({
   fullyParallel: true,
   workers: 2,
   retries: 0,
-  // Nothing is compared against a committed picture, and nothing is authored
-  // unless a run asks with --update-snapshots (the diagnostic job's signal).
+  // Nothing is compared against a committed picture. A run started by hand
+  // with --update-snapshots is a diagnostic one, which logs its media.
   updateSnapshots: 'none',
   use: {
     baseURL,
