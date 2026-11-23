@@ -156,7 +156,7 @@ function mustParent(el: Element): HTMLElement {
 }
 
 describe('Spinner', () => {
-  test('renders role=status with a live label and eight petals', () => {
+  test('renders role=status with a live label and twelve petals', () => {
     renderUi(() => <Spinner size="sm" />);
     const el = screen.getByRole('status');
     expect(el).toHaveAttribute('aria-live', 'polite');
@@ -258,6 +258,20 @@ describe('State blocks', () => {
     expect(fill).toHaveAttribute('data-variant', 'fill');
     expect(compact).not.toHaveClass('flex-1');
     expect(compact).toHaveAttribute('data-variant', 'compact');
+  });
+
+  test('a whole-screen LoadingState shows the large spinner, an inline one the default', () => {
+    renderUi(() => (
+      <>
+        <LoadingState />
+        <LoadingState variant="compact" />
+        <LoadingState variant="compact" size="sm" />
+      </>
+    ));
+    const sizes = [
+      ...document.querySelectorAll('[data-component="Spinner"]'),
+    ].map((el) => el.getAttribute('data-size'));
+    expect(sizes).toEqual(['lg', 'md', 'sm']);
   });
 
   test('LoadingState renders spinner + caption', () => {

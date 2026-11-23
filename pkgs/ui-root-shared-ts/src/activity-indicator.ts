@@ -1,10 +1,12 @@
 /**
- * Geometry of the one activity indicator: eight rounded petals radiating
- * from the center, each a step dimmer than the one ahead of it, like
- * UIActivityIndicatorView. The ring turns in eight discrete 45° steps per
- * second (`steps(8)`), so the bright petal hops around the ring and the
- * opacity appears to chase it; it never rotates smoothly. Eight petals keep
- * clear gaps between them down to the 16px size.
+ * Geometry of the one activity indicator: twelve slim, fully rounded petals
+ * radiating from the center, each a step dimmer than the one ahead of it,
+ * like UIActivityIndicatorView. The ring turns in twelve discrete 30° steps
+ * per second (`steps(12)`), so the bright petal hops around the ring and the
+ * opacity appears to chase it. Stepping (rather than a smooth spin) keeps
+ * every petal on the same pixels between hops, so the ring stays crisp at
+ * 16px instead of shimmering. The dimmest petal keeps enough opacity that
+ * the ring always reads as a whole circle, never as a sparse, gappy arc.
  *
  * `Spinner` renders these petals in Solid. The boot screens in each app's
  * `index.html` paint before any script runs, so they embed
@@ -15,18 +17,19 @@
  * Petal count, and the number of steps per revolution: the `steps(…)` of
  * `spinner.module.css` and of each `index.html` boot screen.
  */
-export const ACTIVITY_PETALS = 8;
+export const ACTIVITY_PETALS = 12;
 
 /** One revolution. */
 export const ACTIVITY_REVOLUTION_MS = 1000;
 
 /** Coordinates are in a 100 × 100 box centered on (50, 50). */
 const VIEWBOX = 100;
-const PETAL_WIDTH = 11;
-const PETAL_TOP = 6;
-const PETAL_LENGTH = 25;
+const PETAL_WIDTH = 9;
+/** Petals run from radius 45 in to radius 19: a balanced open center. */
+const PETAL_TOP = 5;
+const PETAL_LENGTH = 26;
 /** The petal furthest behind the leader keeps this much opacity. */
-const TAIL_OPACITY = 0.15;
+const TAIL_OPACITY = 0.3;
 
 export type ActivityPetal = {
   readonly x: number;
