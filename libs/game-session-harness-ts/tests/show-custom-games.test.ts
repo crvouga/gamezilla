@@ -28,6 +28,7 @@ function menuThatMovesOn() {
   });
   return {
     actors: new Map([['bob', { ui: { get: node } }]]),
+    harness: { composition: { app: { turnGames: { games: [] } } } },
     session: {
       scheduler: { starvedAdvances: () => 0 },
       advanceTime: () => Promise.resolve(),

@@ -49,6 +49,7 @@ function presentation(hill: boolean): GameClientPresentation {
 export const quoridorGameClient = defineGameClient({
   shared: quoridorGameShared,
   title: 'Classic Quoridor',
+  mode: { game: 'Quoridor', name: 'Classic' },
   caption: 'Two players. Reach the opposite home row.',
   tile: 'walls',
   subtitle: () => (
@@ -69,6 +70,7 @@ export const quoridorGameClient = defineGameClient({
 export const quoridorHillGameClient = defineGameClient({
   shared: quoridorHillGameShared,
   title: 'Quoridor: King of the Hill',
+  mode: { game: 'Quoridor', name: 'King of the Hill' },
   caption: 'Four players. First to the center hill (e5) wins.',
   tile: 'walls',
   subtitle: () => (

@@ -419,6 +419,56 @@ test('the registry lists every mode a frame names, of the same family', () => {
   ).not.toThrow();
 });
 
+test('a game with several modes is offered once, each mode named among its choices', () => {
+  const modeOf = (id: string, mode?: { game: string; name: string }) =>
+    defineGameClient({
+      ...parts,
+      ...(mode === undefined ? {} : { mode }),
+      shared: defineGame({
+        rules: { ...rules, id, family: 'race' },
+        capabilities: { history },
+        turnAutomation,
+      }),
+    });
+  const race = modeOf('race', { game: 'Race', name: 'Two' });
+  expect(() =>
+    assertGameClientDefinitions('GAME_CLIENT_DEFINITIONS', [
+      race,
+      modeOf('race-3'),
+    ])
+  ).toThrow('race has 2 modes, so each needs mode: { game, name }');
+  expect(() =>
+    assertGameClientDefinitions('GAME_CLIENT_DEFINITIONS', [
+      race,
+      modeOf('race-3', { game: 'Relay', name: 'Three' }),
+    ])
+  ).toThrow('the modes of race name the game differently');
+  expect(() =>
+    assertGameClientDefinitions('GAME_CLIENT_DEFINITIONS', [
+      race,
+      modeOf('race-3', { game: 'Race', name: 'Two' }),
+    ])
+  ).toThrow('two modes of race share a name');
+  expect(() =>
+    assertGameClientDefinitions('GAME_CLIENT_DEFINITIONS', [
+      race,
+      modeOf('relay', { game: 'Race', name: 'Three' }),
+    ])
+  ).toThrow('relay is a mode of race, so its id starts race-');
+  expect(() =>
+    assertGameClientDefinitions('GAME_CLIENT_DEFINITIONS', [
+      modeOf('race-2', { game: 'Race', name: 'Two' }),
+      modeOf('race-3', { game: 'Race', name: 'Three' }),
+    ])
+  ).toThrow('no mode of race has the id race');
+  expect(() =>
+    assertGameClientDefinitions('GAME_CLIENT_DEFINITIONS', [
+      race,
+      modeOf('race-3', { game: 'Race', name: 'Three' }),
+    ])
+  ).not.toThrow();
+});
+
 test("a frame's options are ones its rules apply, and its seats look apart", () => {
   const option = {
     kind: 'count',

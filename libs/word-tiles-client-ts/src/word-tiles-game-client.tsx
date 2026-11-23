@@ -80,6 +80,7 @@ function Instructions(): JSX.Element {
 export const wordTilesGameClient = defineGameClient({
   shared: wordTilesGameShared,
   title: 'Word Tiles',
+  mode: { game: 'Word Tiles', name: '2 players' },
   caption: 'Two players. Build crossing words for points.',
   tile: 'letters',
   subtitle: () => (
@@ -104,6 +105,7 @@ export const wordTilesGameClient = defineGameClient({
 export const wordTiles3GameClient = defineGameClient({
   shared: wordTiles3GameShared,
   title: 'Word Tiles for three',
+  mode: { game: 'Word Tiles', name: '3 players' },
   caption: 'Three players. Build crossing words for points.',
   tile: 'letters',
   subtitle: () => (
@@ -116,6 +118,7 @@ export const wordTiles3GameClient = defineGameClient({
 export const wordTiles4GameClient = defineGameClient({
   shared: wordTiles4GameShared,
   title: 'Word Tiles for four',
+  mode: { game: 'Word Tiles', name: '4 players' },
   caption: 'Four players. Build crossing words for points.',
   tile: 'letters',
   subtitle: () => <Trans>Four racks, one board, the highest score wins.</Trans>,
