@@ -35,6 +35,9 @@ function stripProbe(text: string | null | undefined): string {
 
 // ----------------------------------------------------------- puzzle stats
 
+/** The History and stats hub, for a game keeping played games and puzzles. */
+const HISTORY_HUB_MARK = 'game-history-hub';
+
 /** Whether one of the game's shared screens (custom games, …) is shown. */
 async function sharedScreenShown(
   s: ProductHarness,
@@ -107,6 +110,9 @@ async function stepTowardStats(
     await waitActiveSpace(s, actorId);
   } else if (await ui.get(Handles.gameChoice('stats')).isVisible()) {
     await ui.get(Handles.gameChoice('stats')).tap({ timeoutMs: WAIT_MS });
+  } else if (await ui.get(Handles.gameChoice('history')).isVisible()) {
+    // A game keeping played games too: its stats are behind History and stats.
+    await ui.get(Handles.gameChoice('history')).tap({ timeoutMs: WAIT_MS });
   } else if (
     (await ui.get(Handles.chessPuzzlePlayScreen).isVisible()) ||
     (await statsPlaceShown(s, actorId))
@@ -198,9 +204,17 @@ export const leaveGamePuzzleStats = scenarioAction({
         .expect.visible({ timeoutMs: WAIT_MS });
     }
     await ui.get(Handles.navBack).tap({ timeoutMs: WAIT_MS });
-    await ui
-      .get(Handles.gameChoice('puzzle'))
-      .expect.visible({ timeoutMs: WAIT_MS });
+    // Behind History and stats, one more step back reaches the choices.
+    await pollUntil(
+      s,
+      async () => {
+        if (await ui.get(Handles.gameChoice('puzzle')).isVisible()) return true;
+        if (await ui.get(HISTORY_HUB_MARK).isVisible())
+          await ui.get(Handles.navBack).tap({ timeoutMs: WAIT_MS });
+        return null;
+      },
+      { maxMs: WAIT_MS, stepMs: POLL_MS, description: "the game's choices" }
+    );
   },
 });
 

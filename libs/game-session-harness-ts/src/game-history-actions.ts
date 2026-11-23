@@ -43,6 +43,9 @@ export const openGameHistory = scenarioAction({
         // game menu: a person opens the menu first.
         else if (await ui.get('custom-game-commands').isVisible())
           await ui.get('custom-game-commands').tap();
+        // Behind History and stats when the game also keeps puzzle stats.
+        else if (await ui.get(Handles.gameChoice('game-history')).isVisible())
+          await ui.get(Handles.gameChoice('game-history')).tap();
         else if (await ui.get(Handles.gameChoice('history')).isVisible())
           await ui.get(Handles.gameChoice('history')).tap();
         else await ui.get(Handles.navBack).tap();

@@ -1831,6 +1831,7 @@
         "@libs/spaces-client-ts": "workspace:*",
         "@libs/spaces-shared-ts": "workspace:*",
         "@libs/test-ids-shared-ts": "workspace:*",
+        "@lingui/core": "catalog:",
         "@lingui/solid": "catalog:",
         "@pkgs/turn-game-client-ts": "workspace:*",
         "@pkgs/turn-game-shared-ts": "workspace:*",

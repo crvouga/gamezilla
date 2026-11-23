@@ -1,0 +1,4 @@
+{
+  "summary": "On a cold load the boot spinner painted at one size (index.html and BootLoadingShell), then the first screen's own whole-screen LoadingState took over at a different size in the same spot, so the spinner visibly jumped as boot handed off. Boot, the app's lazy-route fallback, the SSO callback and every whole-screen (fill) LoadingState now share one size (lg, 40px), which the static boot screen matches, centered on the viewport.",
+  "regressionTest": "libs/app-root-client-ts/tests/boot-loading-shell.test.tsx"
+}
