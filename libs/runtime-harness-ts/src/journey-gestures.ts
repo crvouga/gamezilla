@@ -6,6 +6,7 @@
 
 import {
   chooseGlobalMenuItem,
+  expectShellShown,
   pressBackUntilVisible,
 } from '@libs/harness-ts/driver-gestures';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
@@ -35,13 +36,12 @@ export function check(condition: boolean, message: string): asserts condition {
 }
 
 /**
- * The shell is ready for taps: the header's account control shows, and the
- * boot overlay that can still cover it while the app boots is gone.
+ * The shell is ready for taps: the header's account control shows (inside
+ * an open space, the space's own top bar), and the boot overlay that can
+ * still cover it while the app boots is gone.
  */
 export async function atTabShell(ui: Driver): Promise<void> {
-  await ui.get(Handles.statusCurrentUser).expect.visible({
-    timeoutMs: JOURNEY_WAIT_MS,
-  });
+  await expectShellShown(ui, JOURNEY_WAIT_MS);
   await ui.get(Handles.bootLoading).expect.hidden({
     timeoutMs: JOURNEY_WAIT_MS,
   });

@@ -8,6 +8,7 @@ import type { OauthProviderId } from '@pkgs/auth-root-shared-ts/sign-in-method';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 
 import { actorUi, pollUntil, scenarioAction } from './actor-ui';
+import { reachAccountMenu } from './driver-gestures';
 import type { ProductHarness } from './harness';
 import type { AppleAccountKind } from './identity';
 import { actorAppleEmail, actorEmail } from './identity';
@@ -29,7 +30,7 @@ export async function openAccountScreen(
   ui: Driver
 ): Promise<void> {
   if (await onAccountScreen(ui)) return;
-  await ui.get(Handles.statusCurrentUser).tap({ timeoutMs: WAIT_MS });
+  await (await reachAccountMenu(ui, WAIT_MS)).tap({ timeoutMs: WAIT_MS });
   await ui.get(Handles.globalMenuAccount).tap({ timeoutMs: WAIT_MS });
   await pollUntil(s, async () => ((await onAccountScreen(ui)) ? true : null), {
     maxMs: WAIT_MS,

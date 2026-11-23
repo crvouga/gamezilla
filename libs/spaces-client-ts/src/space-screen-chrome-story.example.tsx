@@ -64,6 +64,7 @@ export const STORY_SPACE_CHROME: SpaceScreenChromeValue = {
     back: Handles.spaceBackToSpaces,
     title: Handles.spaceTitle,
     settings: Handles.spaceChromeOverflow,
+    name: Handles.spaceMenuName,
     leave: Handles.spaceLeave,
     end: Handles.spaceEnd,
   },

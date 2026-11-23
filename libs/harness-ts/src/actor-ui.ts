@@ -9,6 +9,7 @@ import { defineAction } from '@pkgs/harness-root-shared-ts/define-action';
 import type { Action, ActionDef } from '@pkgs/harness-root-shared-ts/effect';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 
+import { expectShellShown, shellShown } from './driver-gestures';
 import type { ProductHarness } from './harness';
 import { productExtra } from './harness';
 
@@ -35,8 +36,7 @@ const WALL_SETTLED_PROBES = 5;
 
 async function chromeSettled(ui: Driver): Promise<boolean> {
   return (
-    (await ui.get(Handles.statusCurrentUser).isVisible()) &&
-    !(await ui.get(Handles.bootLoading).isVisible())
+    (await shellShown(ui)) && !(await ui.get(Handles.bootLoading).isVisible())
   );
 }
 
@@ -66,9 +66,7 @@ export async function ensureActor(
   // Spawn is not complete until chrome is addressable for properties +
   // scenarios, so the actor joins `s.actors` (what properties probe) only
   // after that.
-  await handle.ui.get(Handles.statusCurrentUser).expect.visible({
-    timeoutMs: ACTOR_READY_MAX_MS,
-  });
+  await expectShellShown(handle.ui, ACTOR_READY_MAX_MS);
   if (productExtra(s).ui.kind === 'bun-webview') {
     // Chrome paints before the initial identity reconciliation. On the
     // landing screen, wait for its ordinary server-backed ready state;

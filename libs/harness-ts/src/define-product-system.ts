@@ -1,4 +1,3 @@
-import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { defineProperty } from '@pkgs/harness-root-shared-ts/define-property';
 import { defineRuntime } from '@pkgs/harness-root-shared-ts/define-runtime';
 import { defineSnapshot } from '@pkgs/harness-root-shared-ts/define-snapshot';
@@ -19,6 +18,7 @@ import { describeWhereabouts } from './actor-whereabouts';
 import { bunWebviewRuntime } from './bun-webview';
 import type { HarnessComposition } from './composition';
 import { type CreateHarnessOptions, createHarness } from './create-harness';
+import { expectShellShown, shellShown } from './driver-gestures';
 import type { ProductHarness } from './harness';
 import { createProductHarness, productExtra } from './harness';
 import { inProcessRuntime } from './in-process';
@@ -67,7 +67,8 @@ export const noErrorBoundaryAnyActor = defineProperty(
 
 /**
  * Focused UI must expose the global action menu trigger
- * (`Handles.statusCurrentUser`) — including inside an active space on compact.
+ * (`Handles.statusCurrentUser`), except inside an open space: a space's top
+ * bar is the space's alone, and its back button leads out to the menu.
  *
  * The in-process Solid DOM session parks non-focused actors, so only the
  * active tree is probed.
@@ -77,16 +78,15 @@ export const noErrorBoundaryAnyActor = defineProperty(
 const WALL_TIME_SETTLE_MS = 30_000;
 
 /**
- * On virtual time the checkpoint runs after the UI has settled, so the menu
- * must be there now; a live browser gets the time a person would wait.
+ * On virtual time the checkpoint runs after the UI has settled, so the app's
+ * chrome must be there now; a live browser gets the time a person would wait.
  */
-async function menuVisible(
+async function chromeVisible(
   ui: Driver,
   host: ProductUi['kind']
 ): Promise<boolean> {
-  const menu = ui.get(Handles.statusCurrentUser);
-  if (host === 'solid-dom') return await menu.isVisible();
-  return await menu.wait('visible', { timeoutMs: WALL_TIME_SETTLE_MS }).then(
+  if (host === 'solid-dom') return await shellShown(ui);
+  return await expectShellShown(ui, WALL_TIME_SETTLE_MS).then(
     () => true,
     () => false
   );
@@ -108,7 +108,7 @@ export const globalActionMenuAlwaysVisible = defineProperty({
         atConfiguredGoogleHandoff(handle.browser, extra.http);
       if (await handoff()) continue;
       if (
-        !(await menuVisible(handle.ui, extra.ui.kind)) &&
+        !(await chromeVisible(handle.ui, extra.ui.kind)) &&
         !(await handoff())
       ) {
         missing.push(id);

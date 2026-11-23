@@ -12,6 +12,7 @@ import {
   on,
   Show,
 } from 'solid-js';
+import { useAppFrameGlobalStatus } from '../app-frame-chrome/index';
 import { BackIconButton } from '../back-icon-button/index';
 import { createElementWidth } from '../create-element-width';
 import { FloatingMenu } from '../floating-menu/index';
@@ -37,6 +38,8 @@ export type SpaceShellTestIds = {
   title?: string | undefined;
   /** The button that opens the space menu. */
   settings?: string | undefined;
+  /** The space's name, heading the space menu. */
+  name?: string | undefined;
   /** A guest's Leave, in the space menu. */
   leave?: string | undefined;
   /** The host's End, in the space menu. */
@@ -152,7 +155,11 @@ function exitRow(props: SpaceShellProps, label: string): FloatingMenuItemRow {
       };
 }
 
-/** The space menu: the actions that did not fit in row 1, then the way out. */
+/**
+ * The space menu: headed by the space's name (row 1 says what the screen
+ * is, so here is which space it is in), then the actions that did not fit
+ * in row 1, then the way out.
+ */
 function useSpaceMenu(
   props: SpaceShellProps,
   overflow: () => readonly SpaceMenuItem[]
@@ -176,6 +183,20 @@ function useSpaceMenu(
       })
     );
     return {
+      ...(props.spaceName === ''
+        ? {}
+        : {
+            header: {
+              title: (
+                <p
+                  class="text textBodyBold line-clamp-1"
+                  data-testid={props.testIds?.name}
+                >
+                  {props.spaceName}
+                </p>
+              ),
+            },
+          }),
       rows:
         own.length === 0
           ? [exit]
@@ -255,7 +276,13 @@ function ActionsRow(props: SpaceShellProps): JSX.Element {
   const { t } = useLingui();
   const [row, setRow] = createSignal<HTMLElement | null>(null);
   const [heading, setHeading] = createSignal<HTMLElement | null>(null);
+  const [status, setStatus] = createSignal<HTMLElement | null>(null);
   const rowWidth = createElementWidth(row);
+  // The app's own status (working offline, the connection missing) wherever
+  // no sidebar shows it (a phone): a person in a space is still told. Its
+  // account menu stays outside the space.
+  const globalStatus = useAppFrameGlobalStatus();
+  const statusWidth = createElementWidth(status);
   const actions = (): readonly SpaceMenuItem[] => props.menu ?? [];
   const title = (): string => props.title ?? props.spaceName;
   // The title's whole width, however much of it shows now.
@@ -273,6 +300,7 @@ function ActionsRow(props: SpaceShellProps): JSX.Element {
       actions().length,
       rowWidth() -
         Math.min(titleWidth(), rowWidth() * TITLE_MAX_SHARE) -
+        statusWidth() -
         2 * ACTION_SLOT_PX -
         ROW_SPARE_PX
     )
@@ -308,6 +336,13 @@ function ActionsRow(props: SpaceShellProps): JSX.Element {
         </Show>
       </div>
       <div class={styles['tools']} data-space-row="tools">
+        <Show when={globalStatus()}>
+          {(shown) => (
+            <div ref={setStatus} class={styles['status']}>
+              {shown()}
+            </div>
+          )}
+        </Show>
         <For each={actions().slice(0, inline())}>
           {(item) => <SpaceInlineAction item={item} />}
         </For>
@@ -328,9 +363,12 @@ function ActionsRow(props: SpaceShellProps): JSX.Element {
  *    what this screen is (`title`: `Choose game`, `Chess`, `Game history`),
  *    then the space's actions at the right, the people in the space first.
  *    As many actions as fit are buttons; the rest collapse into the space
- *    menu, which always ends in Leave for a guest or End for the host.
+ *    menu, which is headed by the space's name and always ends in Leave
+ *    for a guest or End for the host.
  *    The title is never cut short to make room for a button. The bar is
- *    the space's alone: the app's own account menu stays outside a space.
+ *    the space's: of the app's own chrome only its status shows here
+ *    (working offline, the connection missing), ahead of the actions and
+ *    wherever no sidebar shows it; the account menu stays outside a space.
  *    Under it, only while there is one, the space's `notice`.
  * 2. The stage (`children`), filling the rest and scrolling on its own.
  *

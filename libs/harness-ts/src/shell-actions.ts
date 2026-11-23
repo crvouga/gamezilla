@@ -5,31 +5,17 @@
  */
 
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 
 import { actorUi, scenarioAction } from './actor-ui';
-import { openGlobalMenu } from './driver-gestures';
+import {
+  expectShellShown,
+  minimizeSpace,
+  openGlobalMenu,
+  reachAccountMenu,
+  spaceBarShown,
+} from './driver-gestures';
 
 const WAIT_MS = 15_000;
-
-/**
- * Inside an open space: its top row is up, with the gear that opens the
- * space settings on every screen and size.
- */
-export async function spaceBarShown(ui: Driver): Promise<boolean> {
-  return ui.get(Handles.spaceChromeOverflow).isVisible();
-}
-
-/** Minimize the open space, as a person would: from its settings sheet. */
-export async function minimizeSpace(
-  ui: Driver,
-  timeoutMs: number = WAIT_MS
-): Promise<void> {
-  if (!(await ui.get(Handles.spaceClose).isVisible())) {
-    await ui.get(Handles.spaceChromeOverflow).tap({ timeoutMs });
-  }
-  await ui.get(Handles.spaceClose).tap({ timeoutMs });
-}
 
 /**
  * Global menu → Settings (`/more`). Settings is a stack route outside the
@@ -50,7 +36,7 @@ export const openAccount = scenarioAction({
   name: 'openAccount',
   act: async (s, actorId: string) => {
     const ui = await actorUi(s, actorId);
-    await ui.get(Handles.statusCurrentUser).tap({ timeoutMs: WAIT_MS });
+    await (await reachAccountMenu(ui, WAIT_MS)).tap({ timeoutMs: WAIT_MS });
     await ui.get(Handles.globalMenuAccount).tap({ timeoutMs: WAIT_MS });
     await ui.get(Handles.tabSpaces).expect.hidden({ timeoutMs: WAIT_MS });
   },
@@ -61,9 +47,7 @@ export const focusActor = scenarioAction({
   name: 'focusActor',
   act: async (s, actorId: string) => {
     const ui = await actorUi(s, actorId);
-    await ui.get(Handles.statusCurrentUser).expect.visible({
-      timeoutMs: WAIT_MS,
-    });
+    await expectShellShown(ui, WAIT_MS);
   },
 });
 
@@ -76,9 +60,7 @@ export const backToTabs = scenarioAction({
   name: 'backToTabs',
   act: async (s, actorId: string) => {
     const ui = await actorUi(s, actorId);
-    await ui
-      .get(Handles.statusCurrentUser)
-      .expect.visible({ timeoutMs: WAIT_MS });
+    await expectShellShown(ui, WAIT_MS);
     // A sign-in that ended on "Sign-in failed" leaves its modal over the
     // screen: say what it reports instead of timing out on a covered Back.
     const signInFailed = ui.get(Handles.authSignInFailed);
