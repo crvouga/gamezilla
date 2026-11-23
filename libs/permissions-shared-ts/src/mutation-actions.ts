@@ -48,6 +48,8 @@ export const MUTATION_ACTIONS: Readonly<
   acceptMultiplayerRematch: PERMISSION.gameMultiplayerPlay,
   declineMultiplayerRematch: PERMISSION.gameMultiplayerPlay,
   settleMultiplayerClock: PERMISSION.gameMultiplayerPlay,
+  // Who sits in a space's custom game, kept only when its room agrees.
+  noteCustomGameSeats: 'public',
   // The inbox's own gate: a result notice is dismissed from the inbox.
   dismissMultiplayerResultNotice: PERMISSION.notificationsReceive,
   appendPuzzleInteraction: PERMISSION.puzzlesPlay,

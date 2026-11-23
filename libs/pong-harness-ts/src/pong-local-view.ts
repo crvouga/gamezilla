@@ -31,7 +31,7 @@ export async function pongLocalView(s: ProductHarness, actor = 'alice') {
         : current?.black.kind === 'person'
           ? 'remote'
           : (current?.black.kind ?? ''),
-    gameShown: current != null && place !== null && place !== 'start',
+    gameShown: current != null && place !== null && place !== 'home',
     controlledPaddles: await pongControlledPaddles(s, actor, PONG_BOARD),
   };
 }

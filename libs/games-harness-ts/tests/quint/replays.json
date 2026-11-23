@@ -227,5 +227,14 @@
     "regressions": 0,
     "determinism": false,
     "variants": 9
+  },
+  "unfinished-game-return": {
+    "seed": "0x67932",
+    "traces": 32,
+    "cover": [3, 26],
+    "replayed": [3, 26],
+    "regressions": 0,
+    "determinism": false,
+    "variants": 6
   }
 }

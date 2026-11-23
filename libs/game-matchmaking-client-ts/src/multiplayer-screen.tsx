@@ -22,6 +22,7 @@ import { multiplayerOverlayPhase } from './multiplayer-overlay-view';
 import { MULTIPLAYER_PLACES } from './multiplayer-places';
 import { MultiplayerPrivateSetupPanel } from './multiplayer-private-setup';
 import { useMultiplayerRatings } from './multiplayer-ratings';
+import { useReturnInsteadOfSeeking } from './return-to-game-offer';
 import { useDeadlineSettle } from './use-deadline-settle';
 import { useLowOnTime, useLowOnTimeWarning } from './use-low-on-time';
 import { useMultiplayerControls } from './use-multiplayer-controls';
@@ -142,6 +143,13 @@ function MatchBoard(
 
 /** What the screen reads beside the game and the search: access, refusals, the stage. */
 function useMultiplayerScreen(props: ScreenProps) {
+  const sync = useSyncEngine();
+  useDeadlineSettle({
+    game: props.data.game,
+    stored: props.data.stored,
+    online: () => sync.status().online,
+    settle: props.controls.settle,
+  });
   const denial = useMultiplayerAccess(props.data);
   const stage = useMultiplayerStage(props.data, () => denial() !== undefined);
   const goal = useGameGoal();
@@ -173,6 +181,7 @@ function useMultiplayerScreen(props: ScreenProps) {
     ratings: useMultiplayerRatings(props.data.gameId, props.data.ratings),
     setup: useMultiplayerPrivateSetup(props.data.game, props.data.myId),
     finding: useMultiplayerFind(props.data),
+    returnToGame: useReturnInsteadOfSeeking(props.controls.returnInstead),
     game: useMultiplayerGameView(props.data, props.view),
   };
 }
@@ -194,7 +203,6 @@ function MultiplayerContent(props: ScreenProps): JSX.Element {
   const controls = props.controls;
   const sync = useSyncEngine();
   const screen = useMultiplayerScreen(props);
-  const nav = screen.nav;
   const commands = useMultiplayerGameCommands(
     controls,
     props.view,
@@ -202,18 +210,13 @@ function MultiplayerContent(props: ScreenProps): JSX.Element {
   );
   const choices = useGameChoicesName();
   const home = () =>
-    nav.place().screen === MULTIPLAYER_PLACES.home[screen.stage()].screen;
-  useDeadlineSettle({
-    game: data.game,
-    stored: data.stored,
-    online: () => sync.status().online,
-    settle: controls.settle,
-  });
+    screen.nav.place().screen ===
+    MULTIPLAYER_PLACES.home[screen.stage()].screen;
   return (
     <>
       <DefineBackButton
         onPress={() => {
-          if (!nav.back()) props.onLeave();
+          if (!screen.nav.back()) props.onLeave();
         }}
         label={home() ? choices() : undefined}
       />
@@ -224,9 +227,9 @@ function MultiplayerContent(props: ScreenProps): JSX.Element {
         title={props.title}
         goal={screen.goal()}
         stage={screen.stage()}
-        place={nav.place()}
-        onOpen={nav.open}
-        onBack={() => nav.back()}
+        place={screen.nav.place()}
+        onOpen={screen.nav.open}
+        onBack={() => screen.nav.back()}
         onLeave={props.onLeave}
         denial={screen.denial()}
         commandDenial={screen.commandDenial()}
@@ -235,6 +238,8 @@ function MultiplayerContent(props: ScreenProps): JSX.Element {
         find={screen.finding.find()}
         onChooseTimeControl={screen.finding.choose}
         onFind={controls.begin}
+        returnTo={controls.returnInstead()?.kind}
+        onReturn={screen.returnToGame}
         search={screen.search()}
         onStop={controls.stop}
         ratings={screen.ratings()}
@@ -259,7 +264,7 @@ function MultiplayerContent(props: ScreenProps): JSX.Element {
           <MatchBoard
             {...props}
             setup={screen.setup}
-            reviewing={nav.place().screen === 'moves'}
+            reviewing={screen.nav.place().screen === 'moves'}
             overlay={overlay}
           />
         )}

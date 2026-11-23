@@ -26,7 +26,7 @@ const side = fc.constantFrom('white', 'black', 'red', 'blue' as const);
 const place: fc.Arbitrary<CustomGamePlace> = fc.oneof(
   fc
     .constantFrom(
-      'start',
+      'home',
       'setup',
       'options',
       'clock',
@@ -111,7 +111,7 @@ describe('the custom game places', () => {
 
   test('each phase opens on its own home', () => {
     expect(CUSTOM_GAME_PLACES.home).toEqual({
-      none: { screen: 'start' },
+      none: { screen: 'home' },
       configuring: { screen: 'setup' },
       active: { screen: 'stage' },
       completed: { screen: 'result' },

@@ -2,23 +2,23 @@ import { expect, test } from 'bun:test';
 import { localFind } from './find-local-fixture';
 
 // regression: local-find-repeats-permission-reads
-test('a signed-in host checks a local Find with one grant snapshot and a fresh limit', async () => {
+test('a signed-in host checks a local Find with one grant snapshot', async () => {
   const result = await localFind({ presence: 'host' });
   expect(result.code).toBeNull();
   expect(
     result.statements.filter((text) => text.includes('FROM client_config'))
-  ).toHaveLength(2);
+  ).toHaveLength(1);
   expect(
     result.statements.filter((text) =>
       text.includes('FROM billing_subscriptions')
     )
-  ).toHaveLength(2);
+  ).toHaveLength(1);
   expect(
     result.statements.filter((text) =>
       text.includes('FROM chess_opponent_searches')
     )
   ).toHaveLength(1);
-  expect(result.statements).toHaveLength(7);
+  expect(result.statements).toHaveLength(4);
   expect(
     result.statements.every((text) => text.trimStart().startsWith('SELECT'))
   ).toBe(true);
@@ -47,7 +47,11 @@ test('the Find gates retain their existing first refusal and space policy', asyn
       { presence: 'host', unfinished: true, control: 'invalid' },
       'CHESS_TIME_CONTROL_NOT_OFFERED',
     ],
-    [{ presence: 'host', unfinished: true }, 'limit_reached'],
+    // The unfinished game limit is the server's to refuse, so the refusal
+    // stays with the device and offers the way back to the game
+    // (specs/games/unfinished-game-return.feature); a screen asks the same
+    // decision before it sends.
+    [{ presence: 'host', unfinished: true }, null],
   ] as const)
     expect((await localFind(input)).code).toBe(code);
 });

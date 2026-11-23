@@ -1,5 +1,4 @@
-import { ClockIcon } from '@pkgs/ui-root-client-ts/icons';
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { MatchmakingScreenView } from './matchmaking-screen-view';
 import {
@@ -54,19 +53,23 @@ export const FindPlayers: Story = {
   },
 };
 
-/** Searching while another game is unfinished: finish it first. */
-export const FinishCurrentGameFirst: Story = {
-  args: {
-    commandDenial: {
-      icon: ClockIcon,
-      title: 'Finish your current game first',
-      body: 'You can play one game at a time. Finish or leave it, then find another.',
-      dataSet: {
-        testid: 'multiplayer-command-denial',
-        reason: 'limit_reached',
-      },
-    },
+/**
+ * A custom game is under way: seeking is not offered, and returning to the
+ * custom game is, in its place.
+ */
+export const ReturnToCustomGame: Story = {
+  args: { returnTo: 'custom', onReturn: fn() },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.queryByTestId('multiplayer-find')).toBeNull();
+    await userEvent.click(await canvas.findByTestId('return-to-game-go'));
+    await expect(args.onReturn).toHaveBeenCalled();
   },
+};
+
+/** An unfinished matched game: the way back to it in place of seeking. */
+export const ReturnToMatchedGame: Story = {
+  args: { ...TIMED, returnTo: 'matched', onReturn: fn() },
 };
 
 /** A command was refused: the reason sits above with the search still on offer. */

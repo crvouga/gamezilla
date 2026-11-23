@@ -16,9 +16,13 @@ import {
   replayOperation,
   serverEnforcementLayer,
 } from '@libs/permissions-shared-ts/server';
-import { decideUnfinishedGames } from '@libs/permissions-shared-ts/unfinished-games-permission';
+import {
+  decideUnfinishedGames,
+  unfinishedGamesOffer,
+} from '@libs/permissions-shared-ts/unfinished-games-permission';
 import type { DecisionLayer } from '@pkgs/dmn-shared-ts/registry';
 import { bindDecisions } from '@pkgs/dmn-shared-ts/registry';
+import type { Decision } from '@pkgs/permissions-shared-ts/decision';
 import { decideLimit } from '@pkgs/permissions-shared-ts/decision';
 import { policyAt } from '@pkgs/permissions-shared-ts/policy';
 import { resolveSubject } from '@pkgs/permissions-shared-ts/resolve';
@@ -81,14 +85,22 @@ function serverEnforcementIn(game: HarnessGame): DecisionLayer {
   });
 }
 
+/** The table's outputs for one decision: the answer, why, and what is offered. */
+function outputsOf(decision: Decision) {
+  return {
+    ...tableAnswer(decision, REASONS),
+    offer: unfinishedGamesOffer(decision),
+  };
+}
+
 bindDecisions({
   spec: 'unfinished-game-limit',
   layers: {
     'application decision': {
-      observes: ['answer', 'reason'],
+      observes: ['answer', 'reason', 'offer'],
       decide(input) {
         const policy = policyAt(DEFAULT_PERMISSION_POLICY, CASE_NOW_MS);
-        return tableAnswer(
+        return outputsOf(
           decideUnfinishedGames(
             decideLimit(
               policy,
@@ -97,8 +109,7 @@ bindDecisions({
               countInput(input, UNFINISHED_INPUT)
             ),
             countInput(input, CUSTOM_GAME_INPUT)
-          ),
-          REASONS
+          )
         );
       },
     },
@@ -110,7 +121,7 @@ bindDecisions({
     ),
     'client gating': clientGatingLayer({
       tables: MULTIPLAYER_LIMIT_TABLES,
-      observes: ['answer', 'reason'],
+      observes: ['answer', 'reason', 'offer'],
       seed: seedUnfinishedGames(GAMES[0]!),
       // The device reads its space's custom game from the room, outside this
       // fixture's rows: the case's count stands for it.
@@ -125,7 +136,7 @@ bindDecisions({
           multiplayer: games.rows().length,
           customGames: countInput(input, CUSTOM_GAME_INPUT),
         }));
-        return () => tableAnswer(decision(), REASONS);
+        return () => outputsOf(decision());
       },
     }),
   },

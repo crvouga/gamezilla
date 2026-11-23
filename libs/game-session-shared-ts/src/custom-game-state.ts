@@ -235,6 +235,17 @@ export function customGameActiveParticipant(
   );
 }
 
+/**
+ * The space-wide game screen a custom game is played on. Synced room state
+ * every device reads, so the value never changes.
+ */
+export const CUSTOM_GAME_SCREEN = 'custom-game';
+
+/** Whether a custom game is under way in the space. */
+export function customGameUnderWay(games: CustomGames): boolean {
+  return games.current?.status === 'active';
+}
+
 export function customGameTerminal(game: CustomGame): boolean {
   return game.status === 'completed' || game.status === 'cancelled';
 }

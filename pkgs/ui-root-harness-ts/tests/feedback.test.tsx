@@ -156,7 +156,7 @@ function mustParent(el: Element): HTMLElement {
 }
 
 describe('Spinner', () => {
-  test('renders role=status with a live label and eight petals', () => {
+  test('renders role=status with a live label and twelve petals', () => {
     renderUi(() => <Spinner size="sm" />);
     const el = screen.getByRole('status');
     expect(el).toHaveAttribute('aria-live', 'polite');

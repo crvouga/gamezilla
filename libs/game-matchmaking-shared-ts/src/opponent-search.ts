@@ -109,10 +109,10 @@ export async function beginOpponentSearch(
       )
     );
   const serverNow = ctx.env.serverNow;
-  if (serverNow === undefined) {
-    await checkLimit();
-    return;
-  }
+  // The server alone decides the unfinished game limit: its refusal stays
+  // with the device, which then offers the way back to the unfinished game
+  // (a screen asks the same decision before it sends).
+  if (serverNow === undefined) return;
   const now = () => serverNow().getTime();
   const rating = await new MultiplayerRatingRepository(ctx.tx).read(
     ctx.env.actorId,

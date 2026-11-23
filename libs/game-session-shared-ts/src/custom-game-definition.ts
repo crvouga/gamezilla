@@ -18,7 +18,11 @@ import {
 import { customGameSetupAudience } from './custom-game-setup';
 import { reactCustomGameToSpaceEvent } from './custom-game-space-events';
 import { customGameStandInEffects } from './custom-game-stand-in';
-import { CustomGamesAttr } from './custom-game-state';
+import {
+  CUSTOM_GAME_SCREEN,
+  CustomGamesAttr,
+  customGameUnderWay,
+} from './custom-game-state';
 
 /** One custom-game lifecycle per space, composed once alongside playable plugins. */
 export function withCustomGames(
@@ -54,6 +58,11 @@ export function withCustomGames(
     ],
     reactToSpaceEvent: (state, ctx, event) =>
       reactCustomGameToSpaceEvent(state, ctx, event, rules),
+    // While a custom game is under way the space stays on its board.
+    holdsSpace: (state) =>
+      customGameUnderWay(CustomGamesAttr.from(state))
+        ? CUSTOM_GAME_SCREEN
+        : null,
     permissionForCommand: customGameCommandPermission,
     commandRouters: [
       ...game.commandRouters,

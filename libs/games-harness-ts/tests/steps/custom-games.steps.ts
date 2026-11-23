@@ -4,6 +4,7 @@ import {
   inMatchedGame,
   ownerOf,
 } from '@libs/game-matchmaking-harness-ts/matched-game-world';
+import { returnToGameIfOffered } from '@libs/game-matchmaking-harness-ts/return-to-game';
 import { playCustomGameBots } from '@libs/game-session-harness-ts/custom-game-bots';
 import { makeCustomGameMove } from '@libs/game-session-harness-ts/custom-game-moves';
 import { customGameView } from '@libs/game-session-harness-ts/custom-game-probe';
@@ -137,8 +138,15 @@ Given(
 Given('{actor} has made the next move', async (w, actor: string) => {
   await w.s.apply(makeCustomGameMove, actor, gameOf(w).shared.id);
 });
+// Back from away (the connection) or from elsewhere (the offer to return).
 When('{actor} returns to the custom game', async (w, actor: string) => {
-  await w.s.apply(restoreActorConnection, actor);
+  const away = await w.s.read((s) =>
+    s.session.network
+      .partitions()
+      .some((pair) => pair[0] === actor || pair[1] === actor)
+  );
+  if (away) await w.s.apply(restoreActorConnection, actor);
+  await w.s.apply(returnToGameIfOffered, actor);
 });
 Then(
   '{actor} and {actor} see the same board and turn',

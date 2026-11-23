@@ -29,7 +29,7 @@ const shown = (id: string): boolean => screen.queryByTestId(id) !== null;
 describe('before a game', () => {
   test('the start place offers the two ways to begin as rows, and nothing else', () => {
     mountFrame(() =>
-      frameProps({ phase: 'none', place: { screen: 'start' }, status: null })
+      frameProps({ phase: 'none', place: { screen: 'home' }, status: null })
     );
     expect(shown('custom-game-play-bot')).toBe(true);
     expect(shown('custom-game-create')).toBe(true);
@@ -46,7 +46,7 @@ describe('before a game', () => {
     mountFrame(() =>
       frameProps({
         phase: 'none',
-        place: { screen: 'start' },
+        place: { screen: 'home' },
         canCreate: false,
       })
     );

@@ -1,3 +1,4 @@
+import { FindOpponentOffer } from '@libs/game-matchmaking-client-ts/find-opponent-offer';
 import MultiplayerScreen from '@libs/game-matchmaking-client-ts/multiplayer-screen';
 import { ContentExperience } from '@libs/game-puzzle-client-ts/content-experience';
 import { PuzzlePlayScreen } from '@libs/game-puzzle-client-ts/puzzle-play-screen';
@@ -12,7 +13,7 @@ import {
   type GameCapability,
   gameSides,
 } from '@pkgs/turn-game-shared-ts/game-rules';
-import type { JSX } from 'solid-js';
+import { type JSX, Show } from 'solid-js';
 import type { GameClient } from './game-client';
 import { GameHistoryHomeScreen } from './game-history-home-screen';
 import { GameSettingsScreen } from './game-settings-screen';
@@ -248,14 +249,18 @@ function sharedChoices(game: GameClient, offers: Offers): GameChoiceItem[] {
               ) : (
                 <Trans>Find an opponent</Trans>
               ),
-            caption: () =>
-              playerCount > 2 ? (
-                <Trans>
-                  Meet {playerCount - 1} other {name} players
-                </Trans>
-              ) : (
-                <Trans>Meet another {name} player</Trans>
-              ),
+            caption: () => (
+              <FindOpponentOffer>
+                <Show
+                  when={playerCount > 2}
+                  fallback={<Trans>Meet another {name} player</Trans>}
+                >
+                  <Trans>
+                    Meet {playerCount - 1} other {name} players
+                  </Trans>
+                </Show>
+              </FindOpponentOffer>
+            ),
           },
         ]
       : []),
