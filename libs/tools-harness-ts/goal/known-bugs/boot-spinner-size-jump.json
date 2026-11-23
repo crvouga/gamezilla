@@ -1,0 +1,4 @@
+{
+  "summary": "On a cold load the boot spinner painted at 40px (index.html and BootLoadingShell, LoadingState size lg), then the first screen's own LoadingState took over at its default 24px in the same spot, so the spinner visibly shrank as boot handed off. Boot, the app's lazy-route fallback and the SSO callback now use the default size, which the static boot screen matches.",
+  "regressionTest": "libs/app-root-client-ts/tests/boot-loading-shell.test.tsx"
+}

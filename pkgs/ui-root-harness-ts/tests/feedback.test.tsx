@@ -19,6 +19,10 @@ import {
 import { StateBlock } from '@pkgs/ui-root-client-ts/state-block';
 import { SuccessState } from '@pkgs/ui-root-client-ts/success-state';
 import { Tooltip } from '@pkgs/ui-root-client-ts/tooltip';
+import {
+  ACTIVITY_PETALS,
+  ACTIVITY_REVOLUTION_MS,
+} from '@pkgs/ui-root-shared-ts/activity-indicator';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
 import { createSignal, Show } from 'solid-js';
@@ -152,7 +156,7 @@ function mustParent(el: Element): HTMLElement {
 }
 
 describe('Spinner', () => {
-  test('renders role=status with a live label and twelve petals', () => {
+  test('renders role=status with a live label and eight petals', () => {
     renderUi(() => <Spinner size="sm" />);
     const el = screen.getByRole('status');
     expect(el).toHaveAttribute('aria-live', 'polite');
@@ -160,7 +164,7 @@ describe('Spinner', () => {
     expect(el).toHaveAttribute('data-size', 'sm');
     expect(el.classList.contains('size-4')).toBe(true);
     const petals = [...el.querySelectorAll('rect')];
-    expect(petals).toHaveLength(12);
+    expect(petals).toHaveLength(ACTIVITY_PETALS);
     const opacities = petals.map((petal) =>
       Number(petal.getAttribute('opacity'))
     );
@@ -181,6 +185,18 @@ describe('Spinner', () => {
     const el = mustQuery('[data-component="Spinner"]');
     expect(el).toHaveAttribute('aria-hidden', 'true');
     expect(el.classList.contains('size-10')).toBe(true);
+  });
+
+  test('the ring steps once per petal each revolution', async () => {
+    const css = await Bun.file(
+      new URL(
+        '../../ui-root-client-ts/src/spinner/spinner.module.css',
+        import.meta.url
+      )
+    ).text();
+    expect(css).toContain(
+      `${ACTIVITY_REVOLUTION_MS}ms steps(${ACTIVITY_PETALS}, end)`
+    );
   });
 
   test('shares rotation phase through SpinnerProvider via animation-delay', () => {

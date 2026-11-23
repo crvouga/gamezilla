@@ -54,13 +54,15 @@ function colorClass(color: SpinnerColor): string {
 }
 
 /**
- * `Spinner` -- the one activity indicator: twelve rounded petals radiating
+ * `Spinner` -- the one activity indicator: eight rounded petals radiating
  * from the center, the opacity stepping around the ring once a second in
- * twelve discrete steps (UIActivityIndicatorView). Every loading indicator in
+ * eight discrete steps (UIActivityIndicatorView). Every loading indicator in
  * the product is this component: `Button`'s loading face, `LoadingState`,
  * the FAB, the boot screens (which embed the same markup statically).
  *
- * - `size`: `sm` (16), `md` (24, default), `lg` (40).
+ * - `size`: `sm` (16), `md` (24, default), `lg` (40). Whole-screen and boot
+ *   loading states use `md` too, so the indicator never changes size as boot
+ *   hands off to a screen's own load.
  * - `color`: a text tone; defaults to `secondary`. `current` takes the
  *   surrounding text color (inside a filled button).
  * - `label`: the accessible name ("Loading…" when unset). `decorative`
@@ -73,7 +75,7 @@ function colorClass(color: SpinnerColor): string {
  * @example
  * ```tsx
  * <Spinner />
- * <Spinner size="lg" label={t`Loading puzzles`} />
+ * <Spinner label={t`Loading puzzles`} />
  * <Spinner size="sm" color="current" decorative />
  * ```
  */

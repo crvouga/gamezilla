@@ -7,11 +7,19 @@
  * Pure over the page text; each app's `tests/startup-shell.test.ts` runs it.
  */
 
-import { activityIndicatorSvg } from './activity-indicator';
+import {
+  ACTIVITY_PETALS,
+  ACTIVITY_REVOLUTION_MS,
+  activityIndicatorSvg,
+} from './activity-indicator';
 import { COLOR_PALETTE } from './color-palette';
 
-/** The indicator's edge on the boot screen (`Spinner size="lg"`). */
-export const STARTUP_INDICATOR_PX = 40;
+/**
+ * The indicator's edge on the boot screen: `Spinner size="md"`, the size of
+ * every screen's own `LoadingState`, so the indicator keeps one size from
+ * first paint through boot to the first screen's load.
+ */
+export const STARTUP_INDICATOR_PX = 24;
 
 const COLOR = /#[0-9a-fA-F]{3,8}\b|(?:rgba?|hsla?|oklch|color-mix)\([^)]*\)/g;
 
@@ -29,6 +37,10 @@ export function startupShellIssues(html: string): readonly string[] {
     issues.push(
       `the boot indicator is not activityIndicatorSvg(${STARTUP_INDICATOR_PX})`
     );
+  }
+  const step = `${ACTIVITY_REVOLUTION_MS}ms steps(${ACTIVITY_PETALS}, end)`;
+  if (!html.includes(step)) {
+    issues.push(`the boot indicator does not turn in ${step}`);
   }
   const allowed = tokenValues();
   for (const match of html.matchAll(COLOR)) {
