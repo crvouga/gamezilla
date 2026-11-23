@@ -48,7 +48,7 @@ Then(
   'the Synthetic User {string} continues its same multiplayer game',
   async (w, _name: string) => {
     const before = recallContinuity(w);
-    const after = await w.s.read(syntheticGameShown);
+    const after = await w.s.read(syntheticGameShown, before.board.position);
     expect(after.board.gameId).toBe(before.board.gameId);
     expect(after.board.gameId).not.toBeNull();
     expect(after.board.outcome).toBe('ongoing');
@@ -58,7 +58,7 @@ Then(
   'the Synthetic User {string} keeps its finished multiplayer result',
   async (w, _name: string) => {
     const before = recallContinuity(w);
-    const after = await w.s.read(syntheticGameShown);
+    const after = await w.s.read(syntheticGameShown, before.board.position);
     expect(after.board.gameId).toBe(before.board.gameId);
     // regression: pong-synthetic-finished-result-reopening
     expect(['white', 'black', 'draw']).toContain(before.board.outcome ?? '');

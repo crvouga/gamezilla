@@ -13,6 +13,31 @@ import { syntheticGameAdapter } from './synthetic-game-actions';
 import { syntheticUserActor } from './synthetic-sign-in-actions';
 import { givenSyntheticUser } from './synthetic-user-fixtures';
 
+type SyntheticGame = (typeof GAME_AUTOMATIONS)[number];
+
+/**
+ * The games a space's launcher offers a Synthetic User, in the order shown:
+ * one per game, whatever its modes, opening the mode whose id is its family.
+ * A Synthetic User draws its next game among these, not among every mode.
+ */
+function launcherGames(): readonly SyntheticGame[] {
+  const families = Map.groupBy(
+    GAME_AUTOMATIONS,
+    (game) => game.rules.family ?? game.rules.id
+  );
+  return [...families].map(
+    ([family, modes]) =>
+      modes.find((mode) => mode.rules.id === family) ?? modes[0]!
+  );
+}
+/** The draw that lands on `selected` among the games the launcher offers. */
+function drawFor(selected: SyntheticGame, label: string): number {
+  const offered = launcherGames();
+  const index = offered.indexOf(selected);
+  if (index < 0)
+    throw new Error(`${label} is a mode chosen inside its game, not offered`);
+  return (index + 0.5) / offered.length;
+}
 export const givenSyntheticGameChoice = scenarioAction({
   name: 'givenSyntheticGameChoice',
   act: async (s, name: string) => {
@@ -29,13 +54,13 @@ export const startSyntheticActivity = scenarioAction<
   name: 'startSyntheticActivity',
   act: async (s, game: string, name = 'Cedar') => {
     const selected = syntheticGameAdapter(game);
-    const index = GAME_AUTOMATIONS.indexOf(selected);
+    const draw = drawFor(selected, game);
     const actor = syntheticUserActor(name);
     const ui = await actorUi(s, actor);
     const application = new SyntheticUserApplication(ui, {
       games: GAME_AUTOMATIONS,
       clock: s.harness.clock,
-      random: () => (index + 0.5) / GAME_AUTOMATIONS.length,
+      random: () => draw,
       username: actor,
       // This Synthetic User hosts its own space to play from.
       persona: {
