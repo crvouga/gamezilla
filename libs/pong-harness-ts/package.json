@@ -36,6 +36,7 @@
     "@pkgs/bun-test-solid-client-ts": "workspace:*",
     "@pkgs/object-store-node-fs-server-ts": "workspace:*",
     "@pkgs/object-store-root-shared-ts": "workspace:*",
+    "@pkgs/openslo-shared-ts": "workspace:*",
     "@pkgs/os-server-ts": "workspace:*",
     "@pkgs/property-shared-ts": "workspace:*",
     "@pkgs/quint-shared-ts": "workspace:*",

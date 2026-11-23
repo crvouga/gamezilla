@@ -1,5 +1,6 @@
 import { connectCustomSimulation } from '@libs/game-session-client-ts/custom-simulation-session';
 import { simulationRoomFixture } from '@libs/game-session-harness-ts/simulation-room-fixture';
+import { virtualFrames } from '@libs/game-session-harness-ts/simulation-room-presentation';
 import { CustomGamesAttr } from '@libs/game-session-shared-ts/custom-game-state';
 import { RequestSimulationSnapshot } from '@libs/game-session-shared-ts/simulation-messages';
 import { defineAction } from '@pkgs/harness-root-shared-ts/define-action';
@@ -42,6 +43,7 @@ async function createNetworkSurface(session: Session) {
       rules,
       clock: session.ports.clock,
       timers: session.ports.timers,
+      frames: virtualFrames(session.ports),
       createId: session.ports.createId,
       changed: (next) => {
         positions.set(identity, next.position);

@@ -1,6 +1,6 @@
 import { RequestSimulationSnapshot } from '@libs/game-session-shared-ts/simulation-messages';
 import { SimulationReplica } from '@libs/game-session-shared-ts/simulation-replica';
-import type { Clock, Timers } from '@pkgs/clock-shared-ts/types';
+import type { Clock } from '@pkgs/clock-shared-ts/types';
 import type { RegisteredSimulation } from '@pkgs/turn-game-shared-ts/game-simulation';
 
 type Signal = Parameters<SimulationReplica['receive']>[0];
@@ -12,10 +12,22 @@ export type SimulationPresentation = {
 
 type Synced = { generation: string | undefined; ready: boolean };
 
+/** The display's own frame callback: a court is drawn once per screen refresh. */
+export type FrameScheduler = {
+  readonly requestAnimationFrame: (callback: (at: number) => void) => number;
+  readonly cancelAnimationFrame: (handle: number) => void;
+};
+
 type PresentationOptions = {
   readonly simulation: RegisteredSimulation;
   readonly clock: Clock;
-  readonly timers: Timers;
+  /**
+   * Frames tied to the display's refresh. Absent: the frames of the window
+   * showing the document, the same document whose visibility pauses play.
+   */
+  readonly frames?: FrameScheduler;
+  /** Each presented frame's spacing, for frame pacing measures. */
+  readonly framed?: (intervalMs: number) => void;
   readonly generation: () => string | undefined;
   readonly isReady: () => boolean;
   readonly send: (message: Signal) => string | null;
@@ -58,7 +70,8 @@ export function connectSimulationPresentation(options: PresentationOptions) {
   );
   let position: string | null = null;
   const stopFrames = presentationFrames({
-    timers: options.timers,
+    frames: options.frames ?? documentFrames(document),
+    ...(options.framed === undefined ? {} : { framed: options.framed }),
     refresh,
     release: () => replica.release(),
     frame: () => {
@@ -110,34 +123,64 @@ function subscribeSimulationRoom(
   });
 }
 
+/** The frames of the window showing `ownerDocument`. */
+function documentFrames(ownerDocument: Document): FrameScheduler {
+  const view = ownerDocument.defaultView;
+  if (view === null)
+    throw new Error('A live game needs a document shown in a window');
+  return {
+    requestAnimationFrame: (callback) => view.requestAnimationFrame(callback),
+    cancelAnimationFrame: (handle) => view.cancelAnimationFrame(handle),
+  };
+}
+
+/**
+ * One court per display refresh, drawn in the refresh's own frame callback:
+ * a timer is neither tied to the display nor on time, so it shows some
+ * courts twice and skips others.
+ */
 function presentationFrames(options: {
-  timers: Timers;
+  frames: FrameScheduler;
+  framed?: (intervalMs: number) => void;
   frame: () => void;
   refresh: () => void;
   release: () => void;
 }): () => void {
-  let timer: unknown;
+  let handle: number | null = null;
   let stopped = false;
+  let previous = Number.NaN;
   const ownerDocument = document;
   const visible = () => ownerDocument.visibilityState !== 'hidden';
-  const frame = () => {
+  const cancel = () => {
+    if (handle !== null) options.frames.cancelAnimationFrame(handle);
+    handle = null;
+  };
+  const frame = (at: number) => {
+    handle = null;
     if (stopped || !visible()) return;
+    if (!Number.isNaN(previous)) options.framed?.(at - previous);
+    previous = at;
     options.frame();
-    timer = options.timers.setTimeout(frame, 1000 / 60);
+    handle = options.frames.requestAnimationFrame(frame);
   };
   const change = () => {
-    options.timers.clearTimeout(timer);
+    cancel();
+    previous = Number.NaN;
     options.release();
     if (visible()) {
       options.refresh();
-      frame();
+      options.frame();
+      handle = options.frames.requestAnimationFrame(frame);
     }
   };
   ownerDocument.addEventListener('visibilitychange', change);
-  frame();
+  if (visible()) {
+    options.frame();
+    handle = options.frames.requestAnimationFrame(frame);
+  }
   return () => {
     stopped = true;
-    options.timers.clearTimeout(timer);
+    cancel();
     ownerDocument.removeEventListener('visibilitychange', change);
   };
 }
