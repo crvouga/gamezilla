@@ -59,7 +59,14 @@ type RoomActor = {
  * {@link ROOM_ACTOR_GRANTS_HEADER}, replacing anything the client sent under
  * that name. A failed decision admits the connection with no grants.
  *
- * - Path: `/room` (always WebSocket).
+ * Admission: a plain `GET` (no WebSocket upgrade) answers whether an upgrade
+ * would be admitted, without opening a connection — `204` admitted, `403`
+ * refused, `401` when the session presented was not recognised (refused
+ * only because the device has to sign in again, not because of the room).
+ * A browser cannot read why an upgrade failed, so this is how a device tells
+ * a room that refuses it from one that is only slow to answer.
+ *
+ * - Path: `/room` (WebSocket, or a plain `GET` for the admission answer).
  * - Query `topic`: non-empty string keying the DO instance via `idFromName`.
  * - Query `module`: forwarded to the DO unchanged (validated there).
  * - Query `clientId`: per-tab id forwarded as {@link ROOM_ACTOR_CLIENT_ID_HEADER}.
@@ -74,6 +81,9 @@ export function createRoomApp(roomGrants: ComposedSubServers['roomGrants']) {
       return c.json({ error: 'missing topic query parameter' }, 400);
     }
 
+    if (!isWebSocketUpgrade(c.req.raw))
+      return await answerAdmission(c, roomGrants, topic);
+
     // Hosts that serve the app without Worker bindings have no `c.env`.
     const ns = (c.env as ApiHonoEnv['Bindings'] | undefined)?.ROOM;
     if (ns === undefined || ns === null) {
@@ -81,21 +91,12 @@ export function createRoomApp(roomGrants: ComposedSubServers['roomGrants']) {
     }
 
     const actor = await resolveRoomActor(c);
-    const grants = await decideRoomGrants(roomGrants, { topic, actor });
-    if (
-      topic.startsWith('space:') &&
-      !grants.includes(PERMISSION.spacesLeave) &&
-      !grants.includes(PERMISSION.spacesJoin)
-    ) {
-      return c.json({ error: 'not in the space' }, 403);
-    }
+    // A failed decision admits the connection with no grants.
+    const grants = (await decideRoomGrants(roomGrants, { topic, actor })) ?? [];
+    const refusal = roomRefusal(topic, grants);
+    if (refusal !== null) return c.json({ error: refusal }, 403);
     const clientId = parseClientId(c.req.raw);
     const stub = ns.get(ns.idFromName(topic));
-    if (
-      topic.startsWith('chess-match:') &&
-      !grants.includes(PERMISSION.gameMultiplayerWatch)
-    )
-      return c.json({ error: 'not in a match space' }, 403);
     const headers = new Headers(c.req.raw.headers);
     injectRequestHeaders(headers);
     headers.set(ROOM_ACTOR_ID_HEADER, actor.memberId);
@@ -114,7 +115,56 @@ export function createRoomApp(roomGrants: ComposedSubServers['roomGrants']) {
   });
 }
 
-async function resolveRoomActor(c: Context<ApiHonoEnv>): Promise<RoomActor> {
+/**
+ * Whether an upgrade to the topic's room would be admitted, answered
+ * without connecting. Only `403` says the room refuses the actor.
+ */
+async function answerAdmission(
+  c: Context<ApiHonoEnv>,
+  roomGrants: ComposedSubServers['roomGrants'],
+  topic: string
+): Promise<Response> {
+  const actor = await resolveRoomActor(c);
+  const grants = await decideRoomGrants(roomGrants, { topic, actor });
+  // Undecided is not a refusal: the device asks again later.
+  if (grants === null) return c.json({ error: 'undecided' }, 503);
+  const refusal = roomRefusal(topic, grants);
+  if (refusal === null) return c.body(null, 204);
+  // regression: space-unreachable-while-room-reconnects
+  if (actor.sessionUnrecognised) {
+    return c.json({ error: 'session not recognised' }, 401);
+  }
+  return c.json({ error: refusal }, 403);
+}
+
+function isWebSocketUpgrade(request: Request): boolean {
+  return request.headers.get('upgrade')?.toLowerCase() === 'websocket';
+}
+
+/** Why the topic's room refuses an actor holding `grants`; null when it admits them. */
+function roomRefusal(topic: string, grants: readonly string[]): string | null {
+  if (
+    topic.startsWith('space:') &&
+    !grants.includes(PERMISSION.spacesLeave) &&
+    !grants.includes(PERMISSION.spacesJoin)
+  )
+    return 'not in the space';
+  if (
+    topic.startsWith('chess-match:') &&
+    !grants.includes(PERMISSION.gameMultiplayerWatch)
+  )
+    return 'not in a match space';
+  return null;
+}
+
+type ResolvedRoomActor = RoomActor & {
+  /** A session was presented but did not resolve to an account. */
+  readonly sessionUnrecognised: boolean;
+};
+
+async function resolveRoomActor(
+  c: Context<ApiHonoEnv>
+): Promise<ResolvedRoomActor> {
   const request = c.req.raw;
   const bearer = parseBearer(request);
   const anonId = parseAnonId(request);
@@ -122,31 +172,45 @@ async function resolveRoomActor(c: Context<ApiHonoEnv>): Promise<RoomActor> {
   if (anonId !== null && isUuid(anonId)) {
     const accountId = await tryResolveAccount(request, bearer, anonId);
     if (accountId !== null) {
-      return { memberId: accountId, deviceId: anonId, accountId };
+      return {
+        memberId: accountId,
+        deviceId: anonId,
+        accountId,
+        sessionUnrecognised: false,
+      };
     }
   }
   const deviceId = anonId ?? requireRequestStore().createId();
-  return { memberId: deviceId, deviceId, accountId: null };
+  return {
+    memberId: deviceId,
+    deviceId,
+    accountId: null,
+    sessionUnrecognised: bearer !== null,
+  };
 }
 
 /**
  * What the actor may do in the topic's room, decided now from the stored
- * rows. Never blocks the upgrade: a failed decision is no grants.
+ * rows; null when the decision failed. Never throws.
  */
 async function decideRoomGrants(
   roomGrants: ComposedSubServers['roomGrants'],
   args: { readonly topic: string; readonly actor: RoomActor }
-): Promise<readonly string[]> {
+): Promise<readonly string[] | null> {
   const { sqlClient, clock } = requireRequestStore();
   try {
     return await roomGrants({
       db: sqlClient,
       topic: args.topic,
-      actor: args.actor,
+      actor: {
+        memberId: args.actor.memberId,
+        deviceId: args.actor.deviceId,
+        accountId: args.actor.accountId,
+      },
       nowMs: clock.now(),
     });
   } catch {
-    return [];
+    return null;
   }
 }
 
