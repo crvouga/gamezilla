@@ -2,7 +2,7 @@
 export function builderControlsUncovered() {
   // The builder's board is a screen of its own, with nothing pinned over it.
   const scroller = document.querySelector<HTMLElement>(
-    '[data-screen="puzzle-content-author-board"]'
+    '[data-screen="puzzle-pack-builder-board"]'
   );
   if (scroller === null) return ["the builder's board screen is missing"];
   const controls = document.querySelectorAll<HTMLElement>(

@@ -23,11 +23,11 @@ test('storybook integration: a refused choice appears and clears without moving 
 }) => {
   const retried = await boardTop(
     page,
-    'screens-games-custom-play--choice-retried'
+    'screens-custom-games-stage--choice-retried'
   );
   const refused = await boardTop(
     page,
-    'screens-games-custom-play--choice-refused'
+    'screens-custom-games-stage--choice-refused'
   );
   // The refusal is shown and announced, with the game's commands.
   const alert = page.getByTestId('custom-game-error');

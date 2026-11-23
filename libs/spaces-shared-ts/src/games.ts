@@ -17,8 +17,11 @@ function readSelectedGameId(value: unknown): SelectedGameId {
   return trimmed.length > 0 ? trimmed : null;
 }
 
-/** Where every game starts in a space: the game's choices. */
-export const GAME_CHOICES_SCREEN = 'choices';
+/**
+ * Where every game starts in a space: the game's home (its choices). The
+ * value is synced room state shared by every device, so it never changes.
+ */
+export const GAME_HOME_SCREEN = 'choices';
 
 /** A screen key is a short lowercase slug the selected game resolves. */
 const SCREEN_KEY = /^[a-z][a-z0-9-]{0,63}$/;
@@ -28,7 +31,7 @@ function isGameScreenKey(value: unknown): value is string {
 }
 
 function readGameScreen(value: unknown): string {
-  return isGameScreenKey(value) ? value : GAME_CHOICES_SCREEN;
+  return isGameScreenKey(value) ? value : GAME_HOME_SCREEN;
 }
 
 const gamesRoomNs = createAttrNamespace('games');
@@ -111,7 +114,7 @@ export function createGamesEventReducer() {
       const next = event.payload.game;
       let result: RoomState = { ...state, ...GamesRoomAttr.selected(next) };
       if (previous !== null && previous !== next)
-        result = { ...result, ...GamesRoomAttr.screen(GAME_CHOICES_SCREEN) };
+        result = { ...result, ...GamesRoomAttr.screen(GAME_HOME_SCREEN) };
       return result;
     })
     .on(GameScreenShown, (state, _identity, event) => ({

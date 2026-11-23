@@ -12,11 +12,11 @@ import {
 import { createComputed, createSignal, type JSX, on } from 'solid-js';
 import { ConnectFourStoryBoard } from './connect-four-story-board.example';
 import { CUSTOM_GAME_PLACES, type CustomGamePlace } from './custom-game-places';
-import { recordReviewing } from './game-frame-moves-view';
 import {
-  GameFrameScreenView,
-  type GameFrameScreenViewProps,
-} from './game-frame-screen-view';
+  CustomGameScreenView,
+  type CustomGameScreenViewProps,
+} from './custom-game-screen-view';
+import { recordReviewing } from './game-frame-moves-view';
 import { record, WON_LINE, WON_MOVES } from './game-frame-story.example';
 import type { FramePhase } from './game-frame-view-types';
 
@@ -31,7 +31,7 @@ function overlayPhase(phase: FramePhase): StageOverlayPhase {
  * container reads), so every row and Back leads where it leads in the app.
  */
 export function FrameStory(
-  props: GameFrameScreenViewProps & {
+  props: CustomGameScreenViewProps & {
     readonly board?: JSX.Element;
     readonly setupBoard?: JSX.Element;
   }
@@ -59,7 +59,7 @@ export function FrameStory(
     )
   );
   return (
-    <GameFrameScreenView
+    <CustomGameScreenView
       {...props}
       overlay={overlay()}
       onOverlay={(event) => {
@@ -84,7 +84,7 @@ export function FrameStory(
 
 /** The frame with Connect Four's board at the position `moves` reach. */
 export function onBoard(moves: readonly number[]) {
-  return (args: GameFrameScreenViewProps) => (
+  return (args: CustomGameScreenViewProps) => (
     <FrameStory
       {...args}
       board={
@@ -117,7 +117,7 @@ export function onBoard(moves: readonly number[]) {
  * the line to it, as the app's moves place does.
  */
 export function onReview(all: readonly number[]) {
-  return (args: GameFrameScreenViewProps) => {
+  return (args: CustomGameScreenViewProps) => {
     // The game as it stands: its drops, and any played in the story.
     const [drops, setDrops] = createSignal<readonly number[]>(all);
     const [ply, setPly] = createSignal(args.record?.displayedPly ?? all.length);

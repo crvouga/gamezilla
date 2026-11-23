@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
-import { ContentAttemptScreenView } from '@libs/game-puzzle-client-ts/content-attempt-screen-view';
 import type { ContentAttemptPlace } from '@libs/game-puzzle-client-ts/content-places';
+import { PuzzlePackStageScreenView } from '@libs/game-puzzle-client-ts/puzzle-pack-stage-screen-view';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
@@ -18,7 +18,7 @@ function fixture(initial: 'panel' | 'board' | undefined) {
       colorScheme="light"
       fixedLayout={{ width: 768, height: 1024 }}
     >
-      <ContentAttemptScreenView
+      <PuzzlePackStageScreenView
         status="ready"
         place={place()}
         onOpen={setPlace}

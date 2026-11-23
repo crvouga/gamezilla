@@ -4,9 +4,9 @@
 import type { PuzzlePlayPlace } from '@libs/game-puzzle-client-ts/puzzle-play-places';
 import type {
   PuzzleFeedSettingsModel,
-  PuzzlePlayScreenViewProps,
+  PuzzleStageScreenViewProps,
 } from '@libs/game-puzzle-client-ts/puzzle-play-screen-model';
-import { PuzzlePlayScreenView } from '@libs/game-puzzle-client-ts/puzzle-play-screen-view';
+import { PuzzleStageScreenView } from '@libs/game-puzzle-client-ts/puzzle-stage-screen-view';
 import { DEFAULT_PUZZLE_FEED_CONFIG } from '@libs/game-puzzle-shared-ts/feed-config';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
@@ -40,7 +40,7 @@ const PLIES = [
   { plyIndex: 1, solveIdxAfter: 2, label: 'Nxe5', before: 'w' },
 ];
 
-export const VIEW: PuzzlePlayScreenViewProps = {
+export const VIEW: PuzzleStageScreenViewProps = {
   stage: 'playing',
   place: { screen: 'play' },
   onOpen: none,
@@ -89,7 +89,7 @@ export const VIEW: PuzzlePlayScreenViewProps = {
 };
 
 /** A finished, solved puzzle with its rated outcome. */
-export const SOLVED: Partial<PuzzlePlayScreenViewProps> = {
+export const SOLVED: Partial<PuzzleStageScreenViewProps> = {
   stage: 'finished',
   place: { screen: 'result' },
   statusKind: 'solved',
@@ -126,13 +126,13 @@ const STILL = {
 /** Mount the view at `width` px on `place`, with `overrides`. */
 export function mountPlay(
   place: PuzzlePlayPlace['screen'],
-  overrides: Partial<PuzzlePlayScreenViewProps> = {},
+  overrides: Partial<PuzzleStageScreenViewProps> = {},
   width = 390
 ): void {
   renderWithI18n(() => (
     <ClockProvider clock={STILL.clock} timers={STILL.timers}>
       <ThemeProvider colorScheme="dark" fixedLayout={{ width, height: 844 }}>
-        <PuzzlePlayScreenView
+        <PuzzleStageScreenView
           {...VIEW}
           {...overrides}
           place={{ screen: place }}

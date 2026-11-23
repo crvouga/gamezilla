@@ -10,8 +10,8 @@ import {
 } from './content-author-story.example';
 
 const meta = {
-  id: 'screens-puzzles-content-author-copies',
-  title: 'Screens/Space/Puzzle pack/Builder/Draft copies',
+  id: 'screens-puzzle-packs-builder-copies',
+  title: 'Screens/Space/Puzzle packs/Builder draft copies',
   component: ContentAuthorScreenView,
   render: (args) => renderAuthorStory(args),
   parameters: AUTHOR_STORY_PARAMETERS,

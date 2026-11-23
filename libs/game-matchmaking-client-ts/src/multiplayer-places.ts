@@ -32,17 +32,17 @@ export type MultiplayerPlace =
   | {
       readonly screen:
         | 'status'
-        | 'find'
+        | 'home'
         | 'time-control'
         | 'guide'
         | 'searching'
         | 'private-setup'
-        | 'play'
+        | 'stage'
         | 'commands'
         | 'moves'
         | 'result';
     }
-  | { readonly screen: 'ratings'; readonly from: 'find' | 'result' };
+  | { readonly screen: 'ratings'; readonly from: 'home' | 'result' };
 
 /** The matched game, as far as its stage needs it. */
 export type MultiplayerStandingGame = {
@@ -86,9 +86,9 @@ export function multiplayerStageOf(
 function parentOf(place: MultiplayerPlace): MultiplayerPlace | null {
   if (place.screen === 'ratings') return { screen: place.from };
   if (place.screen === 'time-control' || place.screen === 'guide')
-    return { screen: 'find' };
+    return { screen: 'home' };
   if (place.screen === 'commands' || place.screen === 'moves')
-    return { screen: 'play' };
+    return { screen: 'stage' };
   return null;
 }
 
@@ -106,21 +106,21 @@ export const MULTIPLAYER_PLACES = defineScreenPlaces<
     loading: { screen: 'status' },
     unavailable: { screen: 'status' },
     denied: { screen: 'status' },
-    idle: { screen: 'find' },
+    idle: { screen: 'home' },
     searching: { screen: 'searching' },
     setup: { screen: 'private-setup' },
-    playing: { screen: 'play' },
+    playing: { screen: 'stage' },
     finished: { screen: 'result' },
   },
   screens: {
     loading: ['status'],
     unavailable: ['status'],
     denied: ['status'],
-    idle: ['find', 'time-control', 'ratings', 'guide'],
+    idle: ['home', 'time-control', 'ratings', 'guide'],
     searching: ['searching'],
     setup: ['private-setup', 'commands'],
-    playing: ['play', 'commands', 'moves'],
-    finished: ['result', 'moves', 'ratings', 'find', 'time-control', 'guide'],
+    playing: ['stage', 'commands', 'moves'],
+    finished: ['result', 'moves', 'ratings', 'home', 'time-control', 'guide'],
   },
   parent: parentOf,
 });

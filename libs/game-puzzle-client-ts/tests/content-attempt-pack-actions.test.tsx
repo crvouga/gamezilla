@@ -1,6 +1,6 @@
 /** @jsxImportSource solid-js */
 import { afterEach, expect, test } from 'bun:test';
-import { ContentAttemptScreenView } from '@libs/game-puzzle-client-ts/content-attempt-screen-view';
+import { PuzzlePackStageScreenView } from '@libs/game-puzzle-client-ts/puzzle-pack-stage-screen-view';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { cleanup, screen } from '@solidjs/testing-library';
@@ -18,7 +18,7 @@ test("a solved pack puzzle's way on sits in its pack card, not the command row",
         colorScheme="light"
         fixedLayout={{ width: 390, height: 844 }}
       >
-        <ContentAttemptScreenView
+        <PuzzlePackStageScreenView
           status="ready"
           place={{ screen: place }}
           onOpen={() => undefined}

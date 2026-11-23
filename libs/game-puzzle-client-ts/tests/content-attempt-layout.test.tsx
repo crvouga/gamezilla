@@ -7,25 +7,25 @@
 import { afterEach, expect, test } from 'bun:test';
 import {
   type AttemptFigure,
-  ContentAttemptScreenView,
-  type ContentAttemptScreenViewProps,
-} from '@libs/game-puzzle-client-ts/content-attempt-screen-view';
+  PuzzlePackStageScreenView,
+  type PuzzlePackStageScreenViewProps,
+} from '@libs/game-puzzle-client-ts/puzzle-pack-stage-screen-view';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { cleanup, fireEvent, screen } from '@solidjs/testing-library';
 
 afterEach(cleanup);
 
-type Screen = ContentAttemptScreenViewProps['place']['screen'];
+type Screen = PuzzlePackStageScreenViewProps['place']['screen'];
 
 function mount(
   width: number,
   place: Screen,
-  overrides: Partial<ContentAttemptScreenViewProps> = {}
+  overrides: Partial<PuzzlePackStageScreenViewProps> = {}
 ): void {
   renderWithI18n(() => (
     <ThemeProvider colorScheme="dark" fixedLayout={{ width, height: 844 }}>
-      <ContentAttemptScreenView
+      <PuzzlePackStageScreenView
         status="ready"
         place={{ screen: place }}
         onOpen={() => undefined}
@@ -97,7 +97,7 @@ for (const width of [390, 1440]) {
     expect(opened).toEqual(['progress']);
     const root = screen.getByTestId('content-attempt');
     expect(root.getAttribute('data-place')).toBe('attempt');
-    expect(root.getAttribute('data-screen')).toBe('puzzle-content-attempt');
+    expect(root.getAttribute('data-screen')).toBe('puzzle-pack-stage');
   });
 }
 
@@ -177,9 +177,7 @@ for (const width of [390, 1440]) {
     const root = screen.getByTestId('content-attempt');
     expect(root.getAttribute('data-place')).toBe('progress');
     expect(root.getAttribute('data-attemptid')).toBe('attempt-1');
-    expect(root.getAttribute('data-screen')).toBe(
-      'puzzle-content-attempt-progress'
-    );
+    expect(root.getAttribute('data-screen')).toBe('puzzle-pack-stage-progress');
   });
 }
 

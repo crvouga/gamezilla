@@ -15,6 +15,10 @@ import { createEffect, type JSX } from 'solid-js';
 import { useRefusalText } from './custom-game-error';
 import { CUSTOM_GAME_PLACES } from './custom-game-places';
 import { CustomGameSetupBoard } from './custom-game-private-setup';
+import {
+  CustomGameScreenView,
+  type CustomGameScreenViewProps,
+} from './custom-game-screen-view';
 import { frameConnection, useFrameStatus } from './custom-game-status';
 import { CustomGameTest } from './custom-game-test';
 import {
@@ -25,10 +29,6 @@ import {
 import { frameOverlayPhase } from './game-frame-overlay-view';
 import { FrameBoardMount, useFrameBoard } from './game-frame-play';
 import { useFrameResult } from './game-frame-result';
-import {
-  GameFrameScreenView,
-  type GameFrameScreenViewProps,
-} from './game-frame-screen-view';
 import type { FramePeople, FramePhase } from './game-frame-view-types';
 import { useFrameWatcherCount } from './game-frame-watchers';
 import { useCustomGameReview } from './use-custom-game-review';
@@ -89,7 +89,7 @@ const DENIED_FRAME = {
   onClose: () => undefined,
   overlay: NO_STAGE_OVERLAY,
   onOverlay: () => undefined,
-} satisfies Omit<GameFrameScreenViewProps, 'title' | 'onBack'>;
+} satisfies Omit<CustomGameScreenViewProps, 'title' | 'onBack'>;
 
 type FrameProps = {
   model: CustomGameScreenModel;
@@ -134,7 +134,7 @@ function useFramePresentationFacts(model: FrameProps['model']) {
   };
 }
 
-/** Reads the room for `GameFrameScreenView`: the allowed custom game. */
+/** Reads the room for `CustomGameScreenView`: the allowed custom game. */
 function CustomGameFrame(props: FrameProps): JSX.Element {
   const model = props.model;
   const review = useCustomGameReview(model);
@@ -169,7 +169,7 @@ function CustomGameFrame(props: FrameProps): JSX.Element {
             : undefined
         }
       />
-      <GameFrameScreenView
+      <CustomGameScreenView
         title={props.title}
         goal={shown.goal()}
         phase={place.phase()}
@@ -214,7 +214,7 @@ function CustomGameFrame(props: FrameProps): JSX.Element {
   );
 }
 
-/** A game's custom game in a space: wires `GameFrameScreenView` to the room. */
+/** A game's custom game in a space: wires `CustomGameScreenView` to the room. */
 export function CustomGameScreen(props: {
   gameId: string;
   onBack: () => void;
@@ -235,7 +235,7 @@ export function CustomGameScreen(props: {
         decision={model.watchDecision()}
         testId="custom-game-denial"
         denied={(denial) => (
-          <GameFrameScreenView
+          <CustomGameScreenView
             {...DENIED_FRAME}
             title={title()}
             denial={denial}

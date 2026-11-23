@@ -13,7 +13,7 @@ import {
   createMemo,
   createSignal,
 } from 'solid-js';
-import type { MultiplayerFindChoice } from './multiplayer-find-view';
+import type { MultiplayerFindChoice } from './matchmaking-home-view';
 import type { MultiplayerConfirm } from './multiplayer-game-view';
 import {
   MULTIPLAYER_PLACES,

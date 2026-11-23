@@ -7,7 +7,7 @@ import { GameActions } from '@pkgs/ui-root-client-ts/game-section';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { type Accessor, createSignal, type JSX, Show } from 'solid-js';
-import type { GameFrameScreenViewProps } from './game-frame-screen-view';
+import type { CustomGameScreenViewProps } from './custom-game-screen-view';
 import {
   FrameConnectionView,
   FrameErrorView,
@@ -109,7 +109,7 @@ export function FrameConfirmDialog(props: {
 
 /** What every place says first: the connection, then a refused choice. */
 export function FrameNoticesView(
-  props: Pick<GameFrameScreenViewProps, 'connection' | 'error'> & {
+  props: Pick<CustomGameScreenViewProps, 'connection' | 'error'> & {
     /** Before any game: the notice speaks of starting one, not of moves. */
     readonly beforeGame?: boolean | undefined;
   }
@@ -133,7 +133,7 @@ export function FrameNoticesView(
  */
 export function FramePlacePage(
   props: Pick<
-    GameFrameScreenViewProps,
+    CustomGameScreenViewProps,
     'connection' | 'error' | 'status' | 'phase' | 'place'
   > & {
     /** `custom-game-${place}`. */
@@ -194,7 +194,7 @@ export function FramePlacePage(
  */
 export function FrameLobbyPage(
   props: Pick<
-    GameFrameScreenViewProps,
+    CustomGameScreenViewProps,
     'connection' | 'error' | 'status' | 'phase' | 'place'
   > & {
     /** `custom-game-${place}`. */

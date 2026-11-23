@@ -114,7 +114,7 @@ export function PuzzleStatsSummaryView(
 ): JSX.Element {
   return (
     <EmbeddedScreen
-      screenId="chess-stats"
+      screenId="puzzle-stats"
       nested={props.nested}
       title={titleOf(props, () => <Trans>Puzzle stats</Trans>)}
     >
@@ -139,7 +139,7 @@ export function PuzzleStatsTrendView(
   const rated = (): boolean => props.gameLog.some((entry) => entry.rated);
   return (
     <EmbeddedScreen
-      screenId="chess-stats-trend"
+      screenId="puzzle-stats-trend"
       dataSet={{ testid: 'chess-stats-trend' }}
       nested={props.nested}
       title={titleOf(props, () => <Trans>Rating trend</Trans>)}
@@ -179,7 +179,7 @@ export function PuzzleStatsLogView(
 ): JSX.Element {
   return (
     <EmbeddedScreen
-      screenId="chess-stats-log"
+      screenId="puzzle-stats-log"
       dataSet={{ testid: 'chess-stats-log' }}
       nested={props.nested}
       title={titleOf(props, () => <Trans>Game log</Trans>)}

@@ -155,7 +155,7 @@ test("a puzzle-only game's menu offers its puzzles without reading turn rules", 
     puzzleContent: { Player: () => null, frame: contentFrame },
   };
   expect(gameChoices(game, () => false).map((choice) => choice.screen)).toEqual(
-    [SHARED_GAME_SCREEN.content]
+    [SHARED_GAME_SCREEN.puzzlePacksHome]
   );
 });
 

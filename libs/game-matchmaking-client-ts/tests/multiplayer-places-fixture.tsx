@@ -1,7 +1,11 @@
 /** @jsxImportSource solid-js */
-/** `MultiplayerScreenView` moved by its own place machine, for tests. */
+/** `MatchmakingScreenView` moved by its own place machine, for tests. */
 
 import { mock } from 'bun:test';
+import {
+  MatchmakingScreenView,
+  type MatchmakingScreenViewProps,
+} from '@libs/game-matchmaking-client-ts/matchmaking-screen-view';
 import type {
   MultiplayerGameCommands,
   MultiplayerGameView,
@@ -12,10 +16,6 @@ import {
   type MultiplayerPlace,
   type MultiplayerStage,
 } from '@libs/game-matchmaking-client-ts/multiplayer-places';
-import {
-  MultiplayerScreenView,
-  type MultiplayerScreenViewProps,
-} from '@libs/game-matchmaking-client-ts/multiplayer-screen-view';
 import { useMultiplayerPlaces } from '@libs/game-matchmaking-client-ts/use-multiplayer-places';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
@@ -79,11 +79,11 @@ function commands(): MultiplayerGameCommands {
 }
 
 type Overrides = Partial<
-  Omit<MultiplayerScreenViewProps, 'stage' | 'place' | 'onOpen' | 'onBack'>
+  Omit<MatchmakingScreenViewProps, 'stage' | 'place' | 'onOpen' | 'onBack'>
 >;
 
 function base(): Omit<
-  MultiplayerScreenViewProps,
+  MatchmakingScreenViewProps,
   'stage' | 'place' | 'onOpen' | 'onBack'
 > {
   return {
@@ -151,7 +151,7 @@ export function mountPlaces(options: {
     place = nav.place;
     back = nav.back;
     return (
-      <MultiplayerScreenView
+      <MatchmakingScreenView
         {...props()}
         stage={stage()}
         place={nav.place()}

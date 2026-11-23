@@ -4,8 +4,8 @@ import { SpaceEndedScreenView } from './space-ended-screen-view';
 import { LONG_NAME } from './spaces-story.example';
 
 const meta = {
-  id: 'screens-spaces-ended',
-  title: 'Screens/Space/Enter and leave/Ended',
+  id: 'screens-space-ended',
+  title: 'Screens/Space/Enter and leave/Space ended',
   component: SpaceEndedScreenView,
   tags: ['autodocs'],
   parameters: { appRouter: true },

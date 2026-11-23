@@ -25,7 +25,7 @@ import { P } from '@pkgs/ui-root-client-ts/text';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { createMemo, createSignal, For, type JSX, Show } from 'solid-js';
-import type { FramePlaceProps } from './game-frame-screen-view';
+import type { FramePlaceProps } from './custom-game-screen-view';
 import { FrameNoticesView } from './game-frame-shell';
 import { FrameErrorView, FrameStatusView } from './game-frame-status-view';
 import type { FrameRecord } from './game-frame-view-types';
@@ -412,7 +412,7 @@ export function FrameMovesPlace(props: RecordProps): JSX.Element {
   const wide = (): boolean => mode() === 'wide';
   return (
     <GameScreen
-      screenId="custom-game-moves"
+      screenId="custom-game-stage-moves"
       title={<Trans>Moves</Trans>}
       compactInset={props.table.compactInset}
     >

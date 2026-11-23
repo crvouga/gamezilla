@@ -6,6 +6,49 @@ those templates follow, and the catalogue of every screen. What the screens
 must do is in [`specs/games/`](../../../specs/games/); how they are built and
 reviewed is the [Storybook agent workflow](../../../pkgs/ui-root-harness-ts/README.md#agent-workflow).
 
+## Screen names
+
+Every screen inside a space is named by where it sits and what it is for,
+the same way in component and file names, `screenId` (`data-screen`),
+place keys, story titles and story ids:
+
+- **Home** — the root (hub) screen of a level: `SpaceHome` (no game
+  chosen), `GameHome` (a game's menu), `CustomGamesHome`,
+  `MatchmakingHome` (finding an opponent), `PuzzlesHome`,
+  `PuzzlePacksHome`, `HistoryHome`.
+- **Setup** — getting a game ready before play: `CustomGameSetup` (the
+  lobby) and its sub-screens (`Setup seat`, `Setup invite`, `Setup options`,
+  `Setup clock`), and `…PrivateSetup` (a person's own secret setup).
+- **Stage** — where a mode is actually played, around the board:
+  `CustomGameStage`, `MatchmakingStage`, `PuzzleStage`, `PuzzlePackStage`;
+  its menu and moves are `Stage menu` and `Stage moves`.
+- Everything else is named for its one job: `Result`, `Replay`, `Settings`,
+  `How to play`, `Searching`, `Time control`, `Link`, `Import`, `Builder`.
+
+| Screen | View | `screenId` | Place | Story |
+| --- | --- | --- | --- | --- |
+| Space home | `SpaceHomeScreenView` | (space template) | — | `Screens/Space/Space home/Home` |
+| Game home | `GameHomeScreenView` | `game-home` | `home` | `Screens/Space/Game home/Home` |
+| Custom games home | `CustomGamesHomePlace` | `custom-games-home` | `start` | `Screens/Space/Custom games/Home` |
+| Custom game setup | `CustomGameSetupPlace` | `custom-game-setup` | `setup` | `Screens/Space/Custom games/Setup` |
+| Custom game stage | `CustomGameStagePlace` | `custom-game-stage` | `stage` | `Screens/Space/Custom games/Stage` |
+| Matchmaking home | `MatchmakingHomeView` | `matchmaking-home` | `home` | `Screens/Space/Matchmaking/Home` |
+| Matchmaking stage | `MatchmakingStageView` | `matchmaking-stage` | `stage` | `Screens/Space/Matchmaking/Stage` |
+| Puzzles home | `PuzzlesHomeView` | `puzzles-home` | `feed` | `Screens/Space/Puzzles/Home` |
+| Puzzle stage | `PuzzleStageScreenView` | `puzzle-stage` | `play` | `Screens/Space/Puzzles/Stage` |
+| Puzzle packs home | `PuzzlePacksHomeScreenView` | `puzzle-packs-home` / `…-<list>` | `library` | `Screens/Space/Puzzle packs/Home` |
+| Puzzle pack stage | `PuzzlePackStageScreenView` | `puzzle-pack-stage` | `attempt` | `Screens/Space/Puzzle packs/Stage` |
+| History home | `GameHistoryHomeScreenView` | `game-history-home` | — | `Screens/Space/History/Home` |
+
+The space-wide game screen (`useGameScreen`, `GamesRoomAttr.screen`) is
+synced room state that every device in a space reads, so its values
+(`choices`, `custom-game`, `multiplayer`, `puzzle`, `puzzle-library`,
+`history`, …) never change; only their names in code
+(`GAME_HOME_SCREEN`, `SHARED_GAME_SCREEN.customGamesHome`, …) follow the
+scheme. Places are device-local and in memory, so their keys follow it
+directly; the custom game's home keeps the place key `start` until the
+Pong harness, which reads it, moves to `home`.
+
 ## The standard
 
 1. **One job per screen.** A screen does one thing a person would name in a
@@ -109,7 +152,8 @@ no view keeps a timer or a flag of its own.
 
 ## The catalogue
 
-Story ids are `screens-games-<template>-<place>`; every place has stories for
+Story ids are `screens-<mode>-<screen>` (`screens-custom-games-stage`,
+`screens-matchmaking-home`); every place has stories for
 each of its states, with phone and desktop baselines in both themes.
 
 ### Custom game (`custom-game`)
@@ -117,13 +161,13 @@ each of its states, with phone and desktop baselines in both themes.
 | Stage | Place | Kind | Job |
 | --- | --- | --- | --- |
 | `none` | `start` | Choice | Play the bots at once, or set a game up |
-| `configuring` | `lobby` | Hub | Who sits where, what is agreed, get ready, start |
+| `configuring` | `setup` | Hub | Who sits where, what is agreed, get ready, start |
 | | `seat` (a side) | Choice | Who sits in this seat |
 | | `invite` (a side) | Choice | Which member of the space to invite to it |
 | | `options` | Form | The game's own options |
 | | `clock` | Form | The clock, and swapping sides |
 | | `private-setup` | Stage | The person's own private setup, and getting ready with it |
-| `active` | `play` | Stage | Play the live position |
+| `active` | `stage` | Stage | Play the live position |
 | | `commands` | Choice | Offer a draw, resign, cancel, look back |
 | | `moves` | Stage | Step through the moves played |
 | `completed`, `cancelled` | `result` | Result | The outcome, the standings, what next |
@@ -139,14 +183,16 @@ notice that says why. The lobby's one filled command is the next thing to do: ta
 seat, arrange an incomplete private setup, get ready, then start. It sits in
 the lobby's dock, under the mode card and the roster.
 
-`play` opens under the versus card when the game starts on this device, and
+`stage` opens under the versus card when the game starts on this device, and
 `result` is the final board under the result card: the headline, the
 standings and, once the card is closed, a line that brings it back. The
 commands for what next are the bar under the board on both.
 
 Code: `libs/game-session-client-ts/src/custom-game-places.ts` (the machine),
-`game-frame-screen-view.tsx` (the switch), one `game-frame-*-view.tsx` per
-place, and `game-frame-screen-view.<place>.stories.tsx`. Drivers move between
+`custom-game-screen-view.tsx` (the switch), `custom-games-home-view.tsx`,
+`custom-game-setup-view.tsx`, `custom-game-stage-view.tsx` and one
+`game-frame-*-view.tsx` per other place, and
+`custom-game-screen-view.<place>.stories.tsx`. Drivers move between
 places with `@libs/game-session-harness-ts/custom-game-places`.
 
 ### Finding an opponent (`multiplayer`)
@@ -154,20 +200,20 @@ places with `@libs/game-session-harness-ts/custom-game-places`.
 | Stage | Place | Kind | Job |
 | --- | --- | --- | --- |
 | `loading`, `unavailable`, `denied` | `status` | Result | Say why there is nothing to do, and what to do about it |
-| `idle` | `find` | Hub | Find an opponent at the chosen clock |
+| `idle` | `home` | Hub | Find an opponent at the chosen clock |
 | | `time-control` | Choice | Choose the clock |
 | | `ratings` | Hub | The person's ratings, per speed |
 | | `guide` | Hub | How finding an opponent works |
 | `searching` | `searching` | Result | Waiting, and stopping |
 | `setup` | `private-setup` | Stage | The person's own private setup before the first move |
 | | `commands` | Choice | Offer a draw, abort, flip the board |
-| `playing` | `play` | Stage | Play the live position |
+| `playing` | `stage` | Stage | Play the live position |
 | | `commands` | Choice | Offer a draw, resign, abort, flip the board |
 | | `moves` | Stage | Step through the moves played |
 | `finished` | `result` | Result | The outcome and rating change, rematch or a new opponent |
 | | `moves` | Stage | Step through the moves; copy the game record |
 | | `ratings` | Hub | The person's ratings, per speed |
-| | `find`, `time-control`, `guide` | Hub, Choice | A new game at another clock, one row from the result |
+| | `home`, `time-control`, `guide` | Hub, Choice | A new game at another clock, one row from the result |
 
 The stage is `multiplayerStageOf` over the game and the search: an
 unfinished game comes before a waiting search, and a search before a
@@ -175,7 +221,7 @@ finished game. Its names follow the product statechart's (`#Multiplayer:
 Choosing a time control` is `idle`, `Finding an opponent` is `searching`,
 `Playing multiplayer` is `playing`, `Finished multiplayer` is `finished`).
 
-`find` and `searching` are the same lobby as a custom game's: the mode card
+`home` and `searching` are the same lobby as a custom game's: the mode card
 (Ranked match, the game, how it is won, the players, the clock in words),
 then one docked command (Find an opponent, Stop). A game found on this
 device opens under the versus card with both ratings; `result` lays the
@@ -246,15 +292,16 @@ lands on its home, also another thing of the same kind. Solved attempts and
 playtests are lists of their own (`solved`, `playtests`) so that no list
 screen holds two. The builder's shell (the draft's title, its save line, a
 failed save, a conflicting copy, a refused publication, the confirmation
-dialogs) shows on every builder place. The stage ids are
-`screens-puzzles-content-<stage>` for a home and
-`screens-puzzles-content-<stage>-<place>` otherwise.
+dialogs) shows on every builder place. The story ids are
+`screens-puzzle-packs-<stage>` for a home and
+`screens-puzzle-packs-<stage>-<place>` otherwise (the library is the packs'
+`home`, an attempt their `stage`).
 
-### A game's menu (`menu`)
+### A game's home (`menu`)
 
 | Stage | Place | Kind | Job |
 | --- | --- | --- | --- |
-| `open` | `menu` | Hub | The template screens the game's capabilities offer, one emphasised |
+| `open` | `home` | Hub | The template screens the game's capabilities offer, one emphasised |
 | | `how-to-play` | Hub | The game's own words on how it is played |
 
 The menu holds rows that lead onward and nothing else. Choosing a template
@@ -278,8 +325,8 @@ the tree and, from the root, returns to the menu. A group none of whose
 rows the person may see says so. The framework draws the hub and every
 screen behind it: `defineGameClient` has no `Screen` to give, and no
 `choices`, `screens`, `Frame` or `SessionEffects` either. Story ids:
-`screens-games-menu`, `screens-games-menu-how-to-play`,
-`screens-games-settings-group`.
+`screens-game-home`, `screens-game-home-how-to-play`,
+`screens-game-home-settings`.
 
 ### Loading a puzzle catalogue (`catalogue-load`)
 
@@ -303,7 +350,7 @@ retry. The hub's one command and why it is unavailable are derived from
 those three (`catalogueLoadCommand`). A game feeds the template with a hook
 of facts and commands and a few words (`CatalogueLoadClient`); the same
 template shows inside a space (from a settings row) and on a routed page.
-Story ids: `screens-puzzles-catalogue-load-load`, `-source`, `-status` and
+Story ids: `screens-puzzles-import`, `-source`, `-status` and
 `-routed`.
 
 ## Verifying a screen

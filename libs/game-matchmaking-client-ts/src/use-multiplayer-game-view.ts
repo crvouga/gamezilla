@@ -86,7 +86,7 @@ function movesOf(
 }
 
 /**
- * The matched game as `MultiplayerScreenView` shows it: which commands its
+ * The matched game as `MatchmakingScreenView` shows it: which commands its
  * state allows this person, its moves and what it offers to keep. `null`
  * without a game.
  */

@@ -229,7 +229,7 @@ test('storybook integration: literal drawn geometry has no winning line', async 
 }) => {
   await page.setViewportSize({ width: 1440, height: 844 });
   await page.goto(
-    '/iframe.html?id=screens-games-frame-geometry--drawn&viewMode=story&globals=theme:light'
+    '/iframe.html?id=screens-custom-games-stage-board-priority--drawn&viewMode=story&globals=theme:light'
   );
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-story-ready',
@@ -246,9 +246,9 @@ test('storybook integration: literal drawn geometry has no winning line', async 
 // The reported 1440 × 844 captures ended before the last row. Prove that
 // keyboard scrolling exposes it; a matching first-viewport PNG cannot do that.
 for (const story of [
-  'screens-games-custom-result--you-win',
-  'screens-games-frame-geometry--win',
-  'screens-games-frame-geometry--drawn',
+  'screens-custom-games-result--you-win',
+  'screens-custom-games-stage-board-priority--win',
+  'screens-custom-games-stage-board-priority--drawn',
 ]) {
   for (const theme of ['light', 'dark']) {
     test(`storybook integration: ${story} final board is keyboard reachable at 1440x844/${theme}`, async ({

@@ -10,8 +10,8 @@ import {
 } from './catalogue-load-story.example';
 
 const meta = {
-  id: 'screens-puzzles-catalogue-load-load',
-  title: 'Screens/Space/Puzzle feed/Import/Load',
+  id: 'screens-puzzles-import',
+  title: 'Screens/Space/Puzzles/Import',
   component: CatalogueLoadScreenView,
   tags: ['autodocs'],
   parameters: {

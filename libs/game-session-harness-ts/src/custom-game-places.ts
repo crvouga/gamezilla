@@ -10,8 +10,8 @@ import { Handles } from '@libs/test-ids-shared-ts/handles';
 /** The places a phase opens on: Back from one leaves the custom game. */
 const HOME_PLACES: ReadonlySet<string> = new Set([
   'start',
-  'lobby',
-  'play',
+  'setup',
+  'stage',
   'result',
 ]);
 

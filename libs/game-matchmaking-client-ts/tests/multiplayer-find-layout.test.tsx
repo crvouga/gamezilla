@@ -97,7 +97,7 @@ test('choosing the clock already chosen returns to the search all the same', () 
     props: { find: { players: 2, timed: true, timeControl: '5+0' } },
   });
   screen.getByTestId('multiplayer-time-control-5-0').click();
-  expect(view.place()).toBe('find');
+  expect(view.place()).toBe('home');
   expect(screen.getByTestId('multiplayer-find')).toBeTruthy();
 });
 

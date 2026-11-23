@@ -4,8 +4,8 @@ import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { MultiplayerLinkScreenView } from './multiplayer-link-screen-view';
 
 const meta = {
-  id: 'screens-games-matchmaking-link',
-  title: 'Screens/Space/Matchmaking/Setup/Link',
+  id: 'screens-matchmaking-link',
+  title: 'Screens/Space/Matchmaking/Link',
   component: MultiplayerLinkScreenView,
   tags: ['autodocs'],
   parameters: { appRouter: true, controls: { exclude: ['denial'] } },

@@ -13,6 +13,7 @@ import {
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { For, type JSX, Match, Show, Switch } from 'solid-js';
+import type { FramePlaceProps } from './custom-game-screen-view';
 import {
   createFrameChoices,
   FrameChoiceRow,
@@ -23,7 +24,6 @@ import {
   FramePersonAvatar,
   FramePersonName,
 } from './game-frame-people';
-import type { FramePlaceProps } from './game-frame-screen-view';
 import { FramePlacePage } from './game-frame-shell';
 import type { FrameSeatChoices, FrameSetupSeat } from './game-frame-view-types';
 
@@ -231,7 +231,7 @@ export function FrameSeatPlace(
   return (
     <FramePlacePage
       {...props}
-      screenId="custom-game-seat"
+      screenId="custom-game-setup-seat"
       back={<Trans>Back to setup</Trans>}
       title={props.seat.sideLabel}
       subtitle={
@@ -262,13 +262,13 @@ export function FrameSeatPlace(
 export function FrameInvitePlace(
   props: Props & { readonly seat: FrameSetupSeat }
 ): JSX.Element {
-  const choices = createFrameChoices(() => props.onOpen({ screen: 'lobby' }));
+  const choices = createFrameChoices(() => props.onOpen({ screen: 'setup' }));
   const side = () => props.seat.side;
   const invitees = () => props.seat.choices?.invitees ?? [];
   return (
     <FramePlacePage
       {...props}
-      screenId="custom-game-invite"
+      screenId="custom-game-setup-invite"
       back={<Trans>Back to the seat</Trans>}
       title={<Trans>Invite to {props.seat.sideLabel}</Trans>}
     >

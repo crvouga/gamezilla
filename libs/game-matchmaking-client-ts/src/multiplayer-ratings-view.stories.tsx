@@ -1,26 +1,26 @@
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
-import { MultiplayerScreenView } from './multiplayer-screen-view';
+import { MatchmakingScreenView } from './matchmaking-screen-view';
 import {
   renderStory,
   SPEED_RATINGS,
   STORY_FINISHED_GAME,
   STORY_PARAMETERS,
   storyArgs,
-} from './multiplayer-screen-view.example';
+} from './matchmaking-screen-view.example';
 
 const meta = {
-  id: 'screens-games-matchmaking-ratings',
-  title: 'Screens/Space/Matchmaking/Setup/Your ratings',
-  component: MultiplayerScreenView,
+  id: 'screens-matchmaking-ratings',
+  title: 'Screens/Space/Matchmaking/Your ratings',
+  component: MatchmakingScreenView,
   tags: ['autodocs'],
   parameters: STORY_PARAMETERS,
   render: (args) => renderStory()(args),
   args: {
     ...storyArgs(),
     stage: 'idle',
-    place: { screen: 'ratings', from: 'find' },
+    place: { screen: 'ratings', from: 'home' },
   },
-} satisfies Meta<typeof MultiplayerScreenView>;
+} satisfies Meta<typeof MatchmakingScreenView>;
 export default meta;
 type Story = StoryObj<typeof meta>;
 

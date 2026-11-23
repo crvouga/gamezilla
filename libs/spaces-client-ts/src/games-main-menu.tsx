@@ -19,7 +19,7 @@ import {
   untrack,
 } from 'solid-js';
 import { useGamesRegistry } from './games-registry-context';
-import { SpaceChoosingScreenView } from './space-choosing-screen-view';
+import { SpaceHomeScreenView } from './space-home-screen-view';
 import { SPACE_GAME_PARAM } from './space-routes';
 import { useSpaceSessionUi } from './space-session-ui-context';
 import { useOfflineGameBrowse } from './use-offline-game-browse';
@@ -69,7 +69,7 @@ function HostChoosesNotice(): JSX.Element {
 }
 
 /**
- * The body of `/space/:id`: the game choice ({@link SpaceChoosingScreenView})
+ * The body of `/space/:id`: the game choice ({@link SpaceHomeScreenView})
  * until the host picks a game, then that game's own menu. Wired to the
  * space room's selected game and the registry the composition root provides
  * via {@link GamesRegistryProvider}.
@@ -107,7 +107,7 @@ export function GamesMainMenu(): JSX.Element {
             canSelectGame={canSelectGame()}
             onSelectGame={chooseGame}
           />
-          <SpaceChoosingScreenView
+          <SpaceHomeScreenView
             games={games}
             canSelectGame={canSelectGame()}
             onSelectGame={chooseGame}

@@ -256,8 +256,8 @@ function AuthorShell(props: ContentAuthorScreenViewProps): JSX.Element {
             <EmbeddedScreen
               screenId={
                 screen === 'builder'
-                  ? 'puzzle-content-author'
-                  : `puzzle-content-author-${screen}`
+                  ? 'puzzle-pack-builder'
+                  : `puzzle-pack-builder-${screen}`
               }
               dataSet={dataSet()}
               title={title()}
@@ -269,7 +269,7 @@ function AuthorShell(props: ContentAuthorScreenViewProps): JSX.Element {
           }
         >
           <GameScreen
-            screenId={`puzzle-content-author-${screen}`}
+            screenId={`puzzle-pack-builder-${screen}`}
             dataSet={dataSet()}
             title={title()}
             subtitle={subtitle()}

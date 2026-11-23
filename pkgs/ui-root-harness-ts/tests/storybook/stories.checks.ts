@@ -90,12 +90,12 @@ test('screens-games-numberlink-puzzle--complete-with-keyboard regression numberl
 });
 
 // regression: mode-card-words-squeezed-without-picture
-test('screens-games-custom-start--no-picture regression mode-card-words-squeezed-without-picture', async ({
+test('screens-custom-games-home--no-game regression mode-card-words-squeezed-without-picture', async ({
   page,
 }) => {
   await verifyBoardRegression(
     page,
-    'screens-games-custom-start--no-picture',
+    'screens-custom-games-home--no-game',
     390
   );
 });
@@ -297,10 +297,10 @@ test('screens-games-battleship-setup--enlarged-placement regression battleship-e
 });
 
 // regression: chess-puzzle-guidance-clips-first-rank
-test('screens-puzzles-chess-play--solving regression chess-puzzle-guidance-clips-first-rank', async ({
+test('screens-games-chess-puzzle--solving regression chess-puzzle-guidance-clips-first-rank', async ({
   page,
 }) => {
-  await verifyBoardRegression(page, 'screens-puzzles-chess-play--solving', 390);
+  await verifyBoardRegression(page, 'screens-games-chess-puzzle--solving', 390);
 });
 
 // regression: battleship-bounded-targets-under-touch-size
@@ -315,10 +315,10 @@ test('screens-games-battleship-setup--enlarged-placement regression battleship-b
 });
 
 // regression: chess-puzzle-bounds-includes-square-layout
-test('screens-puzzles-chess-play--solving regression chess-puzzle-bounds-includes-square-layout', async ({
+test('screens-games-chess-puzzle--solving regression chess-puzzle-bounds-includes-square-layout', async ({
   page,
 }) => {
-  await verifyBoardRegression(page, 'screens-puzzles-chess-play--solving', 390);
+  await verifyBoardRegression(page, 'screens-games-chess-puzzle--solving', 390);
 });
 
 // regression: battleship-enlarged-targets-shrink-to-toolbar
@@ -333,20 +333,20 @@ test('screens-games-battleship-board--correct-target-before-firing regression ba
 });
 
 // regression: chess-puzzle-story-pointer-target
-test('screens-puzzles-chess-play--solving regression chess-puzzle-story-pointer-target', async ({
+test('screens-games-chess-puzzle--solving regression chess-puzzle-story-pointer-target', async ({
   page,
 }) => {
-  await verifyBoardRegression(page, 'screens-puzzles-chess-play--solving', 390);
+  await verifyBoardRegression(page, 'screens-games-chess-puzzle--solving', 390);
 });
 
 // regression: chess-puzzle-instrumented-bounds-overload
-test('storybook integration: instrumented chess geometry screens-puzzles-chess-play--wrong-move-recovery', async ({
+test('storybook integration: instrumented chess geometry screens-games-chess-puzzle--wrong-move-recovery', async ({
   page,
 }) => {
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto(
-    '/iframe.html?id=screens-puzzles-chess-play--wrong-move-recovery&viewMode=story&instrument=true'
+    '/iframe.html?id=screens-games-chess-puzzle--wrong-move-recovery&viewMode=story&instrument=true'
   );
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-story-ready',
@@ -414,12 +414,12 @@ test('screens-games-word-tiles-puzzle--enlarged-blank regression word-tiles-blan
 });
 
 // regression: shared-board-four-seat-wrapped-name-height
-test('screens-games-frame-geometry--four-players regression shared-board-four-seat-wrapped-name-height', async ({
+test('screens-custom-games-stage-board-priority--four-players regression shared-board-four-seat-wrapped-name-height', async ({
   page,
 }) => {
   await verifyBoardRegression(
     page,
-    'screens-games-frame-geometry--four-players',
+    'screens-custom-games-stage-board-priority--four-players',
     390
   );
 });

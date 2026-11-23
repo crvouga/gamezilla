@@ -82,7 +82,7 @@ export function ContentEditionScreenView(
     >
       {(edition) => (
         <EmbeddedScreen
-          screenId="puzzle-content-edition"
+          screenId="puzzle-pack-edition"
           dataSet={{
             testid: 'content-edition',
             revisionid: edition().id,

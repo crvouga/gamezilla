@@ -31,8 +31,8 @@ import { puzzleRectangle } from './puzzle-rectangle.example';
  * play stories.
  */
 const meta = {
-  id: 'screens-puzzles-chess-play',
-  title: 'Screens/Space/Puzzle feed/Play/Chess board',
+  id: 'screens-games-chess-puzzle',
+  title: 'Screens/Space/Boards/Chess/Puzzle',
   component: ChessPuzzleBoard,
   tags: ['autodocs'],
   decorators: [withScreenFrame, withChessPuzzleBoardContext],

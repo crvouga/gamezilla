@@ -1,5 +1,5 @@
+import type { CustomGameScreenViewProps } from './custom-game-screen-view';
 import { FRAME_NO_PLAY } from './game-frame-empty';
-import type { GameFrameScreenViewProps } from './game-frame-screen-view';
 import {
   AVERY,
   BOT,
@@ -98,9 +98,9 @@ export const HOST_CLOCK_ONLY: NonNullable<FrameSetup['options']> = {
 };
 
 /** The host set up a bot opponent: every seat is filled and the game can start. */
-export const FRAME_CONFIGURING: Partial<GameFrameScreenViewProps> = {
+export const FRAME_CONFIGURING: Partial<CustomGameScreenViewProps> = {
   phase: 'configuring',
-  place: { screen: 'lobby' },
+  place: { screen: 'setup' },
   status: status({
     lineup: 'Red circle: avery. Yellow diamond: Bot (medium).',
     description: 'Ready to start.',
@@ -113,13 +113,13 @@ export const FRAME_CONFIGURING: Partial<GameFrameScreenViewProps> = {
 };
 
 /** The host's lineup with the game's options and the clock to agree. */
-export const FRAME_WITH_OPTIONS: Partial<GameFrameScreenViewProps> = {
+export const FRAME_WITH_OPTIONS: Partial<CustomGameScreenViewProps> = {
   ...FRAME_CONFIGURING,
   setup: setup([HOST_SEAT, BOT_SEAT], { options: HOST_OPTIONS }),
 };
 
 /** A seated guest's view: the host starts, the guest gets ready. */
-export const FRAME_GUEST: Partial<GameFrameScreenViewProps> = {
+export const FRAME_GUEST: Partial<CustomGameScreenViewProps> = {
   ...FRAME_CONFIGURING,
   viewerSide: 'black',
   play: FRAME_NO_PLAY,

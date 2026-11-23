@@ -136,7 +136,7 @@ export type GameLobbyScreenProps = {
  * @example
  * ```tsx
  * <GameLobbyScreen
- *   screenId="custom-game-lobby"
+ *   screenId="custom-game-setup"
  *   dock={<GameLobbyDock status="Ready to start.">…</GameLobbyDock>}
  * >
  *   <GameModeCard … />

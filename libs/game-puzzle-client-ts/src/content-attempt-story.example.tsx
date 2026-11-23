@@ -1,6 +1,6 @@
 /**
  * Story-only: a game's puzzle player inside the screens a person plays a
- * pack puzzle on (`ContentAttemptScreenView`), so a game's player stories
+ * pack puzzle on (`PuzzlePackStageScreenView`), so a game's player stories
  * show the title, the difficulty, its commands and, behind "Progress", the
  * puzzle panel as the app does. Production never imports this module.
  */
@@ -8,14 +8,14 @@ import { Button } from '@pkgs/ui-root-client-ts/button';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { createSignal, type JSX, Show, untrack } from 'solid-js';
 import { fn } from 'storybook/test';
+import type { ContentAttemptPlace } from './content-places';
+import type { PuzzleContentFrame } from './puzzle-content-client';
 import {
   type AttemptFigure,
   type ContentAttemptPack,
-  ContentAttemptScreenView,
-  type ContentAttemptScreenViewProps,
-} from './content-attempt-screen-view';
-import type { ContentAttemptPlace } from './content-places';
-import type { PuzzleContentFrame } from './puzzle-content-client';
+  PuzzlePackStageScreenView,
+  type PuzzlePackStageScreenViewProps,
+} from './puzzle-pack-stage-screen-view';
 
 /** A saved attempt at a published counting puzzle, on its board. */
 export const ATTEMPT_STORY_ARGS = {
@@ -38,7 +38,7 @@ export const ATTEMPT_STORY_ARGS = {
   unopenable: false,
   onRetryChange: fn(),
   onReturnToLibrary: fn(),
-} satisfies ContentAttemptScreenViewProps;
+} satisfies PuzzlePackStageScreenViewProps;
 
 /** What an attempt story's controls leave out: its data and slots. */
 export const ATTEMPT_STORY_PARAMETERS = {
@@ -168,7 +168,7 @@ export function StoryPackAttempt(props: {
           dataSet={{ testid: 'story-attempt-back' }}
         />
       </Show>
-      <ContentAttemptScreenView
+      <PuzzlePackStageScreenView
         status="ready"
         place={place()}
         onOpen={setPlace}

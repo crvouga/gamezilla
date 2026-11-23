@@ -11,11 +11,11 @@ export type CustomGamePlace =
   | {
       readonly screen:
         | 'start'
-        | 'lobby'
+        | 'setup'
         | 'options'
         | 'clock'
         | 'private-setup'
-        | 'play'
+        | 'stage'
         | 'commands'
         | 'moves'
         | 'result';
@@ -37,22 +37,22 @@ export const CUSTOM_GAME_PLACES = defineScreenPlaces<
 >({
   home: {
     none: { screen: 'start' },
-    configuring: { screen: 'lobby' },
-    active: { screen: 'play' },
+    configuring: { screen: 'setup' },
+    active: { screen: 'stage' },
     completed: { screen: 'result' },
     cancelled: { screen: 'result' },
   },
   screens: {
     none: ['start'],
     configuring: [
-      'lobby',
+      'setup',
       'seat',
       'invite',
       'options',
       'clock',
       'private-setup',
     ],
-    active: ['play', 'commands', 'moves'],
+    active: ['stage', 'commands', 'moves'],
     completed: ['result', 'moves'],
     cancelled: ['result', 'moves'],
   },

@@ -14,11 +14,11 @@ const index = JSON.parse(
 };
 
 // regression: chess-puzzle-board-shifts-on-outcome
-test('screens-puzzles-chess-play--wrong-move-recovery regression chess-puzzle-board-shifts-on-outcome', async ({
+test('screens-games-chess-puzzle--wrong-move-recovery regression chess-puzzle-board-shifts-on-outcome', async ({
   page,
 }) => {
   const story =
-    index.entries['screens-puzzles-chess-play--wrong-move-recovery'];
+    index.entries['screens-games-chess-puzzle--wrong-move-recovery'];
   if (!story) throw new Error('Missing literal regression story');
   const scenario = visualScenarios(story).find(
     (item) => item.width === 390 && item.theme === 'light'
@@ -28,10 +28,10 @@ test('screens-puzzles-chess-play--wrong-move-recovery regression chess-puzzle-bo
 });
 
 // regression: chess-puzzle-phone-board-too-small
-test('screens-puzzles-chess-play--keyboard-help regression chess-puzzle-phone-board-too-small', async ({
+test('screens-games-chess-puzzle--keyboard-help regression chess-puzzle-phone-board-too-small', async ({
   page,
 }) => {
-  const story = index.entries['screens-puzzles-chess-play--keyboard-help'];
+  const story = index.entries['screens-games-chess-puzzle--keyboard-help'];
   if (!story) throw new Error('Missing literal regression story');
   const scenario = visualScenarios(story).find(
     (item) => item.width === 390 && item.theme === 'light'
@@ -69,10 +69,11 @@ test('screens-games-quoridor-hill--precise-coordinates regression quoridor-spati
 });
 
 // regression: shared-board-long-name-rail
-test('screens-games-frame-geometry--long-name-rail regression shared-board-long-name-rail', async ({
+test('screens-custom-games-stage-board-priority--long-name-rail regression shared-board-long-name-rail', async ({
   page,
 }) => {
-  const story = index.entries['screens-games-frame-geometry--long-name-rail'];
+  const story =
+    index.entries['screens-custom-games-stage-board-priority--long-name-rail'];
   if (!story) throw new Error('Missing literal regression story');
   const scenario = visualScenarios(story).find(
     (item) => item.width === 390 && item.theme === 'light'
@@ -83,10 +84,11 @@ test('screens-games-frame-geometry--long-name-rail regression shared-board-long-
 
 // regression: shared-board-chip-facts-wrap-extra-row
 // regression: shared-board-metadata-height
-test('screens-games-frame-geometry--four-players regression shared-board-metadata-height', async ({
+test('screens-custom-games-stage-board-priority--four-players regression shared-board-metadata-height', async ({
   page,
 }) => {
-  const story = index.entries['screens-games-frame-geometry--four-players'];
+  const story =
+    index.entries['screens-custom-games-stage-board-priority--four-players'];
   if (!story) throw new Error('Missing literal regression story');
   const scenario = visualScenarios(story).find(
     (item) => item.width === 390 && item.theme === 'light'
@@ -109,10 +111,11 @@ test('screens-games-sokoban-puzzle--in-progress regression sokoban-story-restart
 });
 
 // regression: shared-board-desktop-rail-crowds-board
-test('screens-games-frame-geometry--two-players regression shared-board-desktop-rail-crowds-board', async ({
+test('screens-custom-games-stage-board-priority--two-players regression shared-board-desktop-rail-crowds-board', async ({
   page,
 }) => {
-  const story = index.entries['screens-games-frame-geometry--two-players'];
+  const story =
+    index.entries['screens-custom-games-stage-board-priority--two-players'];
   if (!story) throw new Error('Missing literal two-player regression');
   const scenario = visualScenarios(story).find(
     (item) => item.width === 1440 && item.theme === 'light'

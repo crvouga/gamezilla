@@ -37,7 +37,7 @@ export const requestGameOpponent = scenarioAction({
     await pollUntil(
       s,
       async () =>
-        (await openMultiplayerPlace(s, actor, 'find')) === 'unreachable'
+        (await openMultiplayerPlace(s, actor, 'home')) === 'unreachable'
           ? null
           : true,
       { maxMs: 15000, description: 'the choices of a new opponent search' }

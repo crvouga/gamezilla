@@ -8,7 +8,7 @@ afterEach(() => {
 });
 
 function builderFixture(covered = false, reachable = true) {
-  document.body.innerHTML = `<section data-screen="puzzle-content-author-board"><div data-testid="content-author-stage"><button aria-label="Undo">Undo</button></div></section><header>Header</header>`;
+  document.body.innerHTML = `<section data-screen="puzzle-pack-builder-board"><div data-testid="content-author-stage"><button aria-label="Undo">Undo</button></div></section><header>Header</header>`;
   const scroller = document.querySelector<HTMLElement>('section');
   const control = document.querySelector('button');
   const header = document.querySelector('header');
@@ -68,7 +68,7 @@ test('builder controls that cannot scroll into view remain failures', () => {
 
 test('a builder story that is not on its board screen is reported, not passed', () => {
   document.body.innerHTML =
-    '<section data-screen="puzzle-content-author"><div data-testid="content-author-stage"><button>Undo</button></div></section>';
+    '<section data-screen="puzzle-pack-builder"><div data-testid="content-author-stage"><button>Undo</button></div></section>';
   expect(builderControlsUncovered()).toEqual([
     "the builder's board screen is missing",
   ]);

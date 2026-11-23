@@ -11,9 +11,9 @@ import {
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { type JSX, Show } from 'solid-js';
+import type { FramePlaceProps } from './custom-game-screen-view';
 import { createFrameChoices, FrameChoiceRow } from './game-frame-choice';
 import { recordPlayed } from './game-frame-moves-view';
-import type { FramePlaceProps } from './game-frame-screen-view';
 import { FramePlacePage } from './game-frame-shell';
 
 type Props = FramePlaceProps;
@@ -31,7 +31,7 @@ export function FrameCommandsPlace(props: Props): JSX.Element {
   return (
     <FramePlacePage
       {...props}
-      screenId="custom-game-commands"
+      screenId="custom-game-stage-menu"
       title={<Trans>Game menu</Trans>}
       subtitle={props.title}
     >

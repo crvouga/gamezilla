@@ -13,13 +13,6 @@ import {
   useContentAttemptRestart,
 } from './content-attempt-restart';
 import {
-  type AttemptFigure,
-  type ContentAttemptPack,
-  ContentAttemptScreenView,
-  type ContentAttemptStatus,
-  type ContentAttemptSummary,
-} from './content-attempt-screen-view';
-import {
   type ContentGame,
   useContentGame,
   useContentPlace,
@@ -31,6 +24,13 @@ import {
 } from './content-kept-positions';
 import { useContentLibraryState } from './content-library-context';
 import { contentPlaceOf } from './content-places';
+import {
+  type AttemptFigure,
+  type ContentAttemptPack,
+  type ContentAttemptStatus,
+  type ContentAttemptSummary,
+  PuzzlePackStageScreenView,
+} from './puzzle-pack-stage-screen-view';
 import { puzzlePlayContext } from './puzzle-play-context';
 import { useContentAttemptChange } from './use-content-attempt-change';
 import { useDeniedView } from './use-denied-view';
@@ -149,7 +149,7 @@ function AttemptBody(props: {
   const { rulesChanged, unreadable, progress, figures } =
     useAttemptStanding(props);
   return (
-    <ContentAttemptScreenView
+    <PuzzlePackStageScreenView
       status="ready"
       place={contentPlaceOf('attempt', nav.place())}
       onOpen={nav.open}
@@ -215,7 +215,7 @@ function AttemptBody(props: {
   );
 }
 
-/** `ContentAttemptScreenView` wired to the attempt library and permissions. */
+/** `PuzzlePackStageScreenView` wired to the attempt library and permissions. */
 export function ContentAttemptScreen(props: {
   attemptId: string;
 }): JSX.Element {
@@ -259,7 +259,7 @@ export function ContentAttemptScreen(props: {
     <Show
       when={bodyInput()}
       fallback={
-        <ContentAttemptScreenView
+        <PuzzlePackStageScreenView
           status={status()}
           denial={denial()}
           place={contentPlaceOf('attempt', nav.place())}

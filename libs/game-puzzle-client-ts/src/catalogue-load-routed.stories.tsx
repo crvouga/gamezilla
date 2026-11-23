@@ -9,8 +9,8 @@ import {
 } from './catalogue-load-story.example';
 
 const meta = {
-  id: 'screens-puzzles-catalogue-load-routed',
-  title: 'Screens/Space/Puzzle feed/Import/Routed page',
+  id: 'screens-puzzles-import-routed',
+  title: 'Screens/Space/Puzzles/Import routed page',
   component: CatalogueLoadScreenView,
   tags: ['autodocs'],
   parameters: {

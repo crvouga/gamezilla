@@ -6,10 +6,10 @@ import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
 import { type JSX, Show } from 'solid-js';
+import type { FramePlaceProps } from './custom-game-screen-view';
+import { FrameFacts, FrameStage } from './custom-game-stage-view';
 import { FrameMovesCard } from './game-frame-moves-view';
 import { FrameOutcomeCard } from './game-frame-overlay-view';
-import { FrameFacts, FrameStage } from './game-frame-play-view';
-import type { FramePlaceProps } from './game-frame-screen-view';
 import { FrameNoticesView } from './game-frame-shell';
 import { FrameStatusView } from './game-frame-status-view';
 

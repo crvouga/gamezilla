@@ -18,7 +18,7 @@ import {
 import fc from 'fast-check';
 
 const place = fc.constantFrom<GameMenuPlace>(
-  { screen: 'menu' },
+  { screen: 'home' },
   { screen: 'how-to-play' }
 );
 type Step =
@@ -64,7 +64,7 @@ describe("a game's menu places", () => {
   });
 
   test('how to play is one step behind the choices, which leave for the games', () => {
-    const menu: GameMenuPlace = { screen: 'menu' };
+    const menu: GameMenuPlace = { screen: 'home' };
     const rules: GameMenuPlace = { screen: 'how-to-play' };
     expect(placeIn(GAME_MENU_PLACES, 'open', null)).toEqual(menu);
     expect(placeBehind(GAME_MENU_PLACES, 'open', rules)).toEqual(menu);

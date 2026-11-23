@@ -13,8 +13,8 @@ import {
 } from './spaces-story.example';
 
 const meta = {
-  id: 'screens-spaces-lobby',
-  title: 'Screens/Space/Enter and leave/Spaces',
+  id: 'screens-spaces-home',
+  title: 'Screens/Space/Enter and leave/Spaces home',
   component: SpacesScreenView,
   tags: ['autodocs'],
   parameters: {

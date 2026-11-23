@@ -495,7 +495,7 @@ export function GameReplayScreenView(
   );
   return (
     <GameScreen
-      screenId="game-history-review"
+      screenId="game-replay"
       title={
         <HistoryPlayers
           players={opponents()}

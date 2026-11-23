@@ -1,13 +1,13 @@
 import type { CustomGamePlace } from '@libs/game-session-client-ts/custom-game-places';
 import {
+  CustomGameScreenView,
+  type CustomGameScreenViewProps,
+} from '@libs/game-session-client-ts/custom-game-screen-view';
+import {
   FRAME_NO_NEXT,
   FRAME_NO_PLAY,
 } from '@libs/game-session-client-ts/game-frame-empty';
 import { frameOverlayPhase } from '@libs/game-session-client-ts/game-frame-overlay-view';
-import {
-  GameFrameScreenView,
-  type GameFrameScreenViewProps,
-} from '@libs/game-session-client-ts/game-frame-screen-view';
 import type {
   FramePlaySeat,
   FrameRecord,
@@ -163,12 +163,12 @@ const resolved = async (): Promise<void> => undefined;
  * result card once it is over), unless `over` says otherwise.
  */
 export function frameProps(
-  over: Partial<GameFrameScreenViewProps> = {}
-): GameFrameScreenViewProps {
+  over: Partial<CustomGameScreenViewProps> = {}
+): CustomGameScreenViewProps {
   return {
     title: 'Counting race',
     phase: 'active',
-    place: { screen: 'play' },
+    place: { screen: 'stage' },
     viewerSide: 'white',
     watchers: 0,
     connection: 'online',
@@ -207,9 +207,9 @@ export function frameProps(
 
 /** A game being set up by its host, on `place`. */
 export function setupProps(
-  place: CustomGamePlace = { screen: 'lobby' },
-  over: Partial<GameFrameScreenViewProps> = {}
-): GameFrameScreenViewProps {
+  place: CustomGamePlace = { screen: 'setup' },
+  over: Partial<CustomGameScreenViewProps> = {}
+): CustomGameScreenViewProps {
   return frameProps({
     phase: 'configuring',
     place,
@@ -223,7 +223,7 @@ export function setupProps(
 
 /** Mount the frame at a phone's width (390) or a desktop's (1440). */
 export function mountFrame(
-  props: () => GameFrameScreenViewProps,
+  props: () => CustomGameScreenViewProps,
   width: 390 | 1440 = 390
 ) {
   const time = createHarnessClock();
@@ -234,7 +234,7 @@ export function mountFrame(
         fixedLayout={{ width, height: width === 390 ? 844 : 900 }}
       >
         <SurfaceStackProvider>
-          <GameFrameScreenView {...props()} />
+          <CustomGameScreenView {...props()} />
         </SurfaceStackProvider>
       </ThemeProvider>
     </ClockProvider>

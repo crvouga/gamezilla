@@ -1,7 +1,7 @@
 import { serializeDefaultAvatarConfig } from '@libs/profile-shared-ts/avatar-config';
 import { resolveParticipantColor } from '@pkgs/collab-root-shared-ts/participant-color';
 import type { SpaceCardData } from './space-card-view';
-import type { SpaceChoosingGame } from './space-choosing-screen-view';
+import type { SpaceHomeGame } from './space-home-screen-view';
 import type { SpaceMemberRow } from './space-members-sheet-view';
 import type { SpacePerson } from './space-person-view';
 import type { SpacePresenceFace } from './space-presence-strip-view';
@@ -153,7 +153,7 @@ export const MEMBERS: readonly SpaceMemberRow[] = faces([
  * games' names and lines, so a story reads as the product does. Ids are
  * made up: platform code never spells a registered game's id.
  */
-export const GAMES: readonly SpaceChoosingGame[] = [
+export const GAMES: readonly SpaceHomeGame[] = [
   {
     id: 'example-board',
     title: 'Chess',

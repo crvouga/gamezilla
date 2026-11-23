@@ -4,7 +4,7 @@ import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { type JSX, Show } from 'solid-js';
 import { PuzzleActionBar } from './puzzle-action-bar';
 import { PuzzleMoveHistory } from './puzzle-move-history';
-import type { PuzzlePlayScreenViewProps } from './puzzle-play-screen-model';
+import type { PuzzleStageScreenViewProps } from './puzzle-play-screen-model';
 
 /**
  * Under the line's board: once the puzzle is over, what its solve state
@@ -12,7 +12,7 @@ import type { PuzzlePlayScreenViewProps } from './puzzle-play-screen-model';
  * back to solving it.
  */
 export function PuzzleLineActions(
-  props: PuzzlePlayScreenViewProps
+  props: PuzzleStageScreenViewProps
 ): JSX.Element {
   return (
     <StackVertical paddingX="lg">
@@ -49,7 +49,9 @@ export function PuzzleLineActions(
  * The `line` place's moves: the move list with its step and jump controls;
  * a sideways swipe over it steps too.
  */
-export function PuzzleLineMoves(props: PuzzlePlayScreenViewProps): JSX.Element {
+export function PuzzleLineMoves(
+  props: PuzzleStageScreenViewProps
+): JSX.Element {
   return (
     <PuzzleMoveHistory
       plies={props.line.plies}

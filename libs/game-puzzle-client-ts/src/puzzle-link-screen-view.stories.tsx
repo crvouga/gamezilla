@@ -5,7 +5,7 @@ import { PuzzleLinkScreenView } from './puzzle-link-screen-view';
 
 const meta = {
   id: 'screens-puzzles-link',
-  title: 'Screens/Space/Puzzle feed/Play/Link',
+  title: 'Screens/Space/Puzzles/Link',
   component: PuzzleLinkScreenView,
   tags: ['autodocs'],
   parameters: { appRouter: true, controls: { exclude: ['denial'] } },

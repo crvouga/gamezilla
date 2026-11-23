@@ -2,7 +2,7 @@ import { expect, type Page, test } from '@playwright/test';
 
 async function panelTop(page: Page, story: string) {
   await page.goto(
-    `/iframe.html?id=screens-puzzles-content-attempt-progress--${story}&viewMode=story`
+    `/iframe.html?id=screens-puzzle-packs-stage-progress--${story}&viewMode=story`
   );
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-story-ready',

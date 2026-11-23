@@ -6,12 +6,12 @@ import { PuzzleScreen } from '@pkgs/ui-root-client-ts/puzzle-screen';
 import { createScrollTarget } from '@pkgs/ui-root-client-ts/scroll';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { createEffect, type JSX, on, Show } from 'solid-js';
-import type { PuzzlePlayScreenViewProps } from './puzzle-play-screen-model';
+import type { PuzzleStageScreenViewProps } from './puzzle-play-screen-model';
 import { PuzzleStatusLine } from './puzzle-status-line';
 
 export type PuzzleBoardFrameProps = {
   readonly screenId: string;
-  readonly view: PuzzlePlayScreenViewProps;
+  readonly view: PuzzleStageScreenViewProps;
   /** Above the status line (a watcher's allowance). */
   readonly lead?: JSX.Element;
   /** What is done about the puzzle, under the board. */

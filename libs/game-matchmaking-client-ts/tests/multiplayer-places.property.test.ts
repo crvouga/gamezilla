@@ -27,7 +27,7 @@ const place = fc.oneof(
     .constantFrom(...SCREENS.filter((screen) => screen !== 'ratings'))
     .map((screen): MultiplayerPlace => ({ screen })),
   fc
-    .constantFrom<'find' | 'result'>('find', 'result')
+    .constantFrom<'home' | 'result'>('home', 'result')
     .map((from): MultiplayerPlace => ({ screen: 'ratings', from }))
 );
 
@@ -176,14 +176,14 @@ describe('the places of finding an opponent', () => {
   test('every place is reachable in some stage and each stage opens on its own home', () => {
     const every: MultiplayerPlace['screen'][] = [
       'commands',
-      'find',
       'guide',
+      'home',
       'moves',
-      'play',
       'private-setup',
       'ratings',
       'result',
       'searching',
+      'stage',
       'status',
       'time-control',
     ];
@@ -194,10 +194,10 @@ describe('the places of finding an opponent', () => {
       ['loading', 'status'],
       ['unavailable', 'status'],
       ['denied', 'status'],
-      ['idle', 'find'],
+      ['idle', 'home'],
       ['searching', 'searching'],
       ['setup', 'private-setup'],
-      ['playing', 'play'],
+      ['playing', 'stage'],
       ['finished', 'result'],
     ]);
   });
@@ -211,18 +211,18 @@ describe('the places of finding an opponent', () => {
     expect(behind('finished', { screen: 'ratings', from: 'result' })).toBe(
       'result'
     );
-    expect(behind('finished', { screen: 'ratings', from: 'find' })).toBe(
-      'find'
+    expect(behind('finished', { screen: 'ratings', from: 'home' })).toBe(
+      'home'
     );
-    expect(behind('idle', { screen: 'ratings', from: 'find' })).toBe('find');
+    expect(behind('idle', { screen: 'ratings', from: 'home' })).toBe('home');
     // A finished game's hub and moves lead back to its result.
-    expect(behind('finished', at('find'))).toBe('result');
-    expect(behind('finished', at('time-control'))).toBe('find');
+    expect(behind('finished', at('home'))).toBe('result');
+    expect(behind('finished', at('time-control'))).toBe('home');
     expect(behind('finished', at('moves'))).toBe('result');
-    expect(behind('playing', at('moves'))).toBe('play');
-    expect(behind('playing', at('commands'))).toBe('play');
+    expect(behind('playing', at('moves'))).toBe('stage');
+    expect(behind('playing', at('commands'))).toBe('stage');
     expect(behind('setup', at('commands'))).toBe('private-setup');
-    expect(behind('idle', at('time-control'))).toBe('find');
-    expect(behind('idle', at('find'))).toBeUndefined();
+    expect(behind('idle', at('time-control'))).toBe('home');
+    expect(behind('idle', at('home'))).toBeUndefined();
   });
 });

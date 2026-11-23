@@ -10,7 +10,7 @@ const meta = {
   tags: ['autodocs'],
   parameters: { appRouter: true, controls: { exclude: ['choices'] } },
   args: {
-    screenId: 'game-choices',
+    screenId: 'game-home',
     title: 'Connect Four',
     motif: 'discs',
     subtitle: 'Drop discs and line up four',

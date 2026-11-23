@@ -4,7 +4,7 @@ import { SpeakingAvatar } from '@pkgs/ui-root-client-ts/speaking-avatar';
 import { SpectatorIndicator } from '@pkgs/ui-root-client-ts/spectator-indicator';
 import { type JSX, Show } from 'solid-js';
 import { PuzzleClockLabel } from './puzzle-clock-label';
-import type { PuzzlePlayScreenViewProps } from './puzzle-play-screen-model';
+import type { PuzzleStageScreenViewProps } from './puzzle-play-screen-model';
 import { PuzzleStatusHeader } from './puzzle-status-header';
 
 /** The coach's face: small, so its words keep the line beside the board. */
@@ -19,7 +19,7 @@ function formatSignedDelta(delta: number): string {
  * is decided (a wrong move already has), or that it cannot move it (a
  * repeat, §9); then the clock, and the mark of someone watching.
  */
-function StatusLineTrailing(props: PuzzlePlayScreenViewProps): JSX.Element {
+function StatusLineTrailing(props: PuzzleStageScreenViewProps): JSX.Element {
   // A finished puzzle's rated summary says the change itself.
   const change = (): number | null =>
     typeof props.ratingChange === 'number' &&
@@ -57,7 +57,7 @@ function StatusLineTrailing(props: PuzzlePlayScreenViewProps): JSX.Element {
  * the coach's words about it under that, and the clock at its end.
  */
 export function PuzzleStatusLine(
-  props: PuzzlePlayScreenViewProps
+  props: PuzzleStageScreenViewProps
 ): JSX.Element {
   const handles = () => props.coach.handles;
   return (
