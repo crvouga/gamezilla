@@ -6,10 +6,24 @@ import sql from '@pkgs/sql-root-shared-ts/sql';
 import type { SyntheticPopulationPorts } from './records';
 import { isoAt, jsonValue } from './records';
 
-/** A person searching this long with nobody found is waiting for a Synthetic User. */
-export const WAITING_GRACE_MS = 3_000;
-/** What a Synthetic User is doing when it can become a person's opponent. */
-const AVAILABLE = ['browsing', 'hosting', 'joining', 'postGame'] as const;
+/**
+ * A person searching this long with nobody found is waiting for a Synthetic
+ * User: long enough for two people looking for the same game to be paired
+ * with each other first.
+ */
+export const WAITING_GRACE_MS = 2_000;
+/**
+ * What a Synthetic User is doing when it can become a person's opponent:
+ * anything but playing, its own wait for an opponent included (a person
+ * looking for the same game would already have been paired with it).
+ */
+const AVAILABLE = [
+  'browsing',
+  'hosting',
+  'joining',
+  'postGame',
+  'matchmaking',
+] as const;
 const POOL_KEY = 'matchmaking/pool';
 
 type Search = {
@@ -60,7 +74,7 @@ export async function waitingOpponentsFor(
 ): Promise<{ mine: OpponentDemand[]; reserved: string[] }> {
   const nowMs = ports.clock.now();
   const users = await tx.query(
-    sql<Available>`SELECT id, account_id, personality FROM population_users WHERE worker_id IS NOT NULL AND lease_until > ${isoAt(nowMs)} AND paused = ${false} AND account_id IS NOT NULL AND deleted_at IS NULL AND activity IN (${AVAILABLE[0]}, ${AVAILABLE[1]}, ${AVAILABLE[2]}, ${AVAILABLE[3]}) ORDER BY id LIMIT 1000`
+    sql<Available>`SELECT id, account_id, personality FROM population_users WHERE worker_id IS NOT NULL AND lease_until > ${isoAt(nowMs)} AND paused = ${false} AND account_id IS NOT NULL AND deleted_at IS NULL AND activity IN (${AVAILABLE[0]}, ${AVAILABLE[1]}, ${AVAILABLE[2]}, ${AVAILABLE[3]}, ${AVAILABLE[4]}) ORDER BY id LIMIT 1000`
   );
   const available = users.filter((user) => {
     const persona = parsePersona(jsonValue(user.personality));

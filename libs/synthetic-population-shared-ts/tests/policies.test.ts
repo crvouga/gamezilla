@@ -157,7 +157,9 @@ test('a person waiting for an opponent decides the next activity', () => {
         createHarnessIds(seed).random
       );
       expect(decision.activity).toBe('matchmaking');
-      if (!queued) expect(decision.game).toEqual(game);
+      // regression: synthetic-user-waiting-ignores-person
+      // Even one already waiting for another game goes to the person.
+      expect(decision.game).toEqual(game);
       const leaving = chooseActivity(
         { ...INPUT, draining: true, waitingOpponents: [game] },
         createHarnessIds(seed).random

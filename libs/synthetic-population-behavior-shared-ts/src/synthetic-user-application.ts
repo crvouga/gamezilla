@@ -67,6 +67,8 @@ export type PlayMemory = {
 };
 
 const MULTIPLAYER_BOARD = Handles.multiplayerBoard;
+/** How long a space it opens to answer a waiting person may take to show its games. */
+const SPACE_OPEN_MS = 5_000;
 
 export class SyntheticUserApplication {
   readonly actor = createActor(behaviorStatechart).start();
@@ -199,7 +201,8 @@ export class SyntheticUserApplication {
       );
       this.transition({ type: 'HOST' });
       this.event('SessionRestored', ownSpace);
-      return true;
+      // A person waiting for it is answered in this same activity.
+      if (waiting.length === 0) return true;
     }
     const inputs: PolicyInputs = {
       hasActiveMatch: false,
@@ -226,11 +229,14 @@ export class SyntheticUserApplication {
       this.event('LoggedOut');
       return false;
     }
-    if (inputs.hasQueueEntry) {
+    // A person waiting for it is answered at once: its own wait for
+    // another game and any pause between activities give way.
+    if (inputs.hasQueueEntry && selected.game === undefined) {
       this.transition({ type: 'WAIT' });
       return true;
     }
-    if (this.ports.clock.now() < this.idleUntil) return true;
+    if (selected.game === undefined && this.ports.clock.now() < this.idleUntil)
+      return true;
     this.event('DecisionSelected', selected.activity, {
       availableSpaces: inputs.availableSpaces.length,
       elapsedMs: inputs.sessionElapsedMs,
@@ -257,16 +263,8 @@ export class SyntheticUserApplication {
     preferred: readonly string[]
   ): Promise<void> {
     if (await this.tryRematch(decision)) return;
-    if (
-      decision.game !== undefined &&
-      (await findOpponentFor(this.driver, decision.game))
-    ) {
-      this.transition({ type: 'WAIT' });
-      this.event('EnteredMatchmaking', 'multiplayer-find', {
-        game: decision.game.gameId,
-      });
+    if (decision.game !== undefined && (await this.answer(decision.game)))
       return;
-    }
     if (await this.driver.get(Handles.spaceJoin).isVisible()) {
       await this.driver.get(Handles.spaceJoin).tap();
       await this.driver.get(Handles.spaceJoin).wait('hidden');
@@ -355,6 +353,62 @@ export class SyntheticUserApplication {
       return true;
     }
     return false;
+  }
+  /**
+   * Look for the waiting person's game and match choice, in this one
+   * activity: its own wait stops, and from outside a space it first opens
+   * a space of its own to look from. `false` when the way is not on screen.
+   */
+  private async answer(demand: OpponentDemand): Promise<boolean> {
+    if (!(await this.stopWaiting())) return false;
+    if (
+      !(await findOpponentFor(this.driver, demand)) &&
+      !(
+        (await this.openOwnSpace(demand)) &&
+        (await findOpponentFor(this.driver, demand))
+      )
+    )
+      return false;
+    this.idleUntil = 0;
+    this.transition({ type: 'WAIT' });
+    this.event('EnteredMatchmaking', 'multiplayer-find', {
+      game: demand.gameId,
+    });
+    return true;
+  }
+  /** Its own space, opened or created, showing the game it is after. */
+  private async openOwnSpace(demand: OpponentDemand): Promise<boolean> {
+    const own = this.driver.get(Handles.spaceCard(this.ports.username));
+    const create = this.driver.get(Handles.spaceCreate);
+    if (await own.isVisible()) await own.tap();
+    else if (await create.isVisible()) {
+      await create.tap();
+      this.event('CreatedSpace', Handles.spaceCreate);
+    } else return false;
+    this.transition({ type: 'HOST' });
+    try {
+      await this.driver
+        .get(Handles.gameMenu(demand.gameId))
+        .wait('visible', { timeoutMs: SPACE_OPEN_MS });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+  /**
+   * Stop its own wait, through the same control a person uses, to look for
+   * a waiting person's opponent instead; `true` once it is not waiting.
+   */
+  private async stopWaiting(): Promise<boolean> {
+    const waiting = this.driver.get('multiplayer-waiting');
+    if (!(await waiting.isVisible())) return true;
+    const stop = this.driver.get('multiplayer-stop');
+    if (!(await stop.isVisible())) return false;
+    await stop.tap();
+    await waiting.wait('hidden');
+    this.transition({ type: 'BROWSE' });
+    this.event('StoppedMatchmaking', 'multiplayer-stop');
+    return true;
   }
   /** Whether people wait for another Synthetic User in the game it just finished. */
   private async finishedGameReserved(): Promise<boolean> {
