@@ -89,7 +89,7 @@ Feature: Ride against bots or find players for a mode
       Then Alice cannot steer Comet from her other device because her practice stays on her first device
       And Alice can steer Comet
 
-  Rule: Each mode is its own game, with its own custom games and its own finding players
+  Rule: Light Cycles is offered once and its mode is chosen among its choices; each mode has its own custom games and its own finding players
 
     Scenario: Each mode can be picked as a space's game
       Given Bob has joined Alice's space

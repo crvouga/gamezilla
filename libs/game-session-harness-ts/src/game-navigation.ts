@@ -1,5 +1,10 @@
 import { MULTIPLAYER_SCREEN } from '@libs/game-matchmaking-harness-ts/multiplayer-places';
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
+import {
+  chooseGameMode,
+  gameTile,
+  setUpGameMode,
+} from '@libs/harness-ts/game-tiles';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront } from '@libs/harness-ts/observations';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
@@ -29,9 +34,10 @@ export const pickGame = scenarioAction({
   act: async (s, actor: string, gameId: string) => {
     const ui = await actorUi(s, actor);
     await bringToFront(s, actor);
-    await ui.get(Handles.gameMenu(gameId)).expect.visible();
-    await ui.get(Handles.gameMenu(gameId)).tap();
+    await ui.get(gameTile(s, gameId)).expect.visible();
+    await ui.get(gameTile(s, gameId)).tap();
     await ui.get(Handles.gameChoices).expect.visible();
+    await setUpGameMode(s, ui, gameId);
   },
 });
 
@@ -122,10 +128,11 @@ export async function showCustomGames(
       await bringToFront(s, actor);
       if (await ui.get(SHARED_SCREEN_MARK['custom-game']).isVisible())
         return true;
+      if (await chooseGameMode(ui, gameId)) return null;
       if (await ui.get(Handles.gameChoice('custom-game')).isVisible())
         await tapWhileShown(ui.get(Handles.gameChoice('custom-game')));
-      else if (await ui.get(Handles.gameMenu(gameId)).isVisible())
-        await tapWhileShown(ui.get(Handles.gameMenu(gameId)));
+      else if (await ui.get(gameTile(s, gameId)).isVisible())
+        await tapWhileShown(ui.get(gameTile(s, gameId)));
       return null;
     },
     { maxMs: 15_000, stepMs: 1, description: `${actor} reaches custom games` }
@@ -149,7 +156,7 @@ export async function waitCustomGameAvailability(
       if (await ui.get(Handles.spaceHostOffline).isVisible())
         return 'host offline';
       for (const handle of [
-        Handles.gameMenu(gameId),
+        gameTile(s, gameId),
         Handles.gameChoice('custom-game'),
         SHARED_SCREEN_MARK['custom-game'],
       ]) {
@@ -180,7 +187,7 @@ export const switchSpaceGame = scenarioAction({
       s,
       async () => {
         await bringToFront(s, host);
-        if (await ui.get(Handles.gameMenu(gameId)).isVisible()) return true;
+        if (await ui.get(gameTile(s, gameId)).isVisible()) return true;
         await ui.get(Handles.navBack).tap();
         return null;
       },

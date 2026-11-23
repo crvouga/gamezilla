@@ -113,3 +113,72 @@ test('a game that says nothing about how to play offers no such row', () => {
   expect(view.getByText(TAGLINE)).toBeTruthy();
   view.unmount();
 });
+
+const MODES = [
+  { id: 'trails', name: 'Duel' },
+  { id: 'trails-3', name: 'Trio' },
+];
+
+test.each([390, 1440])(
+  'at %ipx a game with several modes shows the one set up, and the host switches it',
+  (width) => {
+    const onChooseMode = mock();
+    const view = renderWithI18n(() => (
+      <ThemeProvider colorScheme="dark" fixedLayout={{ width, height: 900 }}>
+        <GameMenuScreenView
+          title="Trails"
+          tile="trails"
+          subtitle={TAGLINE}
+          choices={[]}
+          onChoose={() => undefined}
+          place={{ screen: 'menu' }}
+          onOpen={() => undefined}
+          modes={MODES}
+          mode="trails"
+          onChooseMode={onChooseMode}
+        />
+      </ThemeProvider>
+    ));
+    const duel = view.getByTestId('game-modes-trails');
+    const trio = view.getByTestId('game-modes-trails-3');
+    expect(duel.getAttribute('aria-checked')).toBe('true');
+    expect(trio.getAttribute('aria-checked')).toBe('false');
+    trio.click();
+    expect(onChooseMode).toHaveBeenCalledWith('trails-3');
+    view.unmount();
+  }
+);
+
+test('a guest sees the mode set up but cannot switch it', () => {
+  const view = renderWithI18n(() => (
+    <ThemeProvider colorScheme="dark" fixedLayout={{ width: 390, height: 900 }}>
+      <GameMenuScreenView
+        title="Trails"
+        tile="trails"
+        subtitle={TAGLINE}
+        choices={[]}
+        onChoose={() => undefined}
+        place={{ screen: 'menu' }}
+        onOpen={() => undefined}
+        modes={MODES}
+        mode="trails-3"
+      />
+    </ThemeProvider>
+  ));
+  const trio = view.getByTestId('game-modes-trails-3');
+  expect(trio.getAttribute('aria-checked')).toBe('true');
+  expect(
+    (view.getByTestId('game-modes-trails') as HTMLButtonElement).disabled
+  ).toBe(true);
+  view.unmount();
+});
+
+test('a game with one mode shows no mode choice', () => {
+  const view = menu({
+    width: 390,
+    instructions: RULES,
+    place: { screen: 'menu' },
+  });
+  expect(view.queryByTestId('game-modes')).toBeNull();
+  view.unmount();
+});

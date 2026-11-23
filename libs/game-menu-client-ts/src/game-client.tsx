@@ -6,7 +6,10 @@ import type {
   GameRegistration,
 } from '@libs/game-session-shared-ts/game-definition';
 import { assertGameDefinitions } from '@libs/game-session-shared-ts/game-definition';
-import type { GameClientDefinition } from '@libs/spaces-shared-ts/game';
+import type {
+  GameClientDefinition,
+  GameClientMode,
+} from '@libs/spaces-shared-ts/game';
 import type { GamePresentation } from '@pkgs/turn-game-shared-ts/game-presentation';
 import { gameFamily, gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { GameTileMotif } from '@pkgs/ui-root-client-ts/game-tile';
@@ -75,6 +78,11 @@ type GameClientParts = {
    * rows declared as data, which the platform draws.
    */
   readonly settings?: GameSettings;
+  /**
+   * For one of several modes of a game (they share a rules family): the
+   * game's name, offered once, and this mode's name among its choices.
+   */
+  readonly mode?: GameClientMode;
 };
 
 /**
@@ -93,6 +101,7 @@ class DefinedGameClient implements GameClientDefinition {
   readonly motif: GameTileMotif;
   /** The family its modes share, for a game with rules. */
   declare readonly family?: string;
+  declare readonly mode?: GameClientMode;
   declare readonly presentation?: GamePresentation<JSX.Element>;
   declare readonly puzzleContent?: PuzzleContentClient;
   readonly MainMenu: GameClientDefinition['MainMenu'];
@@ -113,12 +122,18 @@ class DefinedGameClient implements GameClientDefinition {
     // A game with no rules of its own (puzzles only) is played alone.
     this.players = rules === undefined ? 1 : gameSides(rules).length;
     if (rules !== undefined) this.family = gameFamily(rules);
+    if (game.mode !== undefined) this.mode = game.mode;
     if (game.presentation !== undefined)
       this.presentation = { ...game.presentation, id };
     if (game.puzzleContent !== undefined)
       this.puzzleContent = game.puzzleContent;
     this.MainMenu = (props) => (
-      <GameMenu game={game} onBackToGames={props.onBackToGames} />
+      <GameMenu
+        game={game}
+        onBackToGames={props.onBackToGames}
+        modes={props.modes}
+        onChooseMode={props.onChooseMode}
+      />
     );
     const puzzles = game.puzzles;
     if (puzzles !== undefined) {
@@ -266,5 +281,45 @@ export function assertGameClientDefinitions(
     throw new Error(
       `${registry}[${String(index)}] (${id}) was not made by defineGameClient — register the game's defineGameClient(...) value itself, never a copy or a hand-built client`
     );
+  }
+  assertModesOfferedOnce(registry, clients as readonly DefinedGameClient[]);
+}
+
+/**
+ * A game is offered once, whatever its modes: the modes of one family each
+ * name the game alike and themselves apart, the family's own id is the
+ * mode its one tile opens, and every other mode's id starts with it.
+ */
+function assertModesOfferedOnce(
+  registry: string,
+  clients: readonly DefinedGameClient[]
+): void {
+  const families = Map.groupBy(clients, (client) => client.family ?? client.id);
+  for (const [family, modes] of families) {
+    if (modes.length === 1) continue;
+    const named = modes.flatMap((mode) =>
+      mode.mode === undefined ? [] : [mode.mode]
+    );
+    if (named.length !== modes.length)
+      throw new Error(
+        `${registry}: ${family} has ${String(modes.length)} modes, so each needs mode: { game, name } — a game is offered once and its mode chosen among its choices`
+      );
+    if (new Set(named.map((mode) => mode.game)).size !== 1)
+      throw new Error(
+        `${registry}: the modes of ${family} name the game differently`
+      );
+    if (new Set(named.map((mode) => mode.name)).size !== named.length)
+      throw new Error(`${registry}: two modes of ${family} share a name`);
+    const stray = modes.find(
+      (mode) => mode.id !== family && !mode.id.startsWith(`${family}-`)
+    );
+    if (stray !== undefined)
+      throw new Error(
+        `${registry}: ${stray.id} is a mode of ${family}, so its id starts ${family}- — a mode is found under its game's tile by its id`
+      );
+    if (!modes.some((mode) => mode.id === family))
+      throw new Error(
+        `${registry}: no mode of ${family} has the id ${family} — the game's one tile opens that mode`
+      );
   }
 }

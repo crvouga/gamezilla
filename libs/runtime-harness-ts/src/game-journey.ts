@@ -2,7 +2,13 @@ import type { PlayableGame } from '@libs/game-session-harness-ts/harness-game';
 import { playedRules } from '@libs/game-session-harness-ts/played-rules';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
-import { check, hostSpace, JOURNEY_WAIT_MS, tap } from './journey-gestures';
+import {
+  check,
+  hostSpace,
+  JOURNEY_WAIT_MS,
+  pickGameInSpace,
+  tap,
+} from './journey-gestures';
 import type { JourneyHost } from './journey-types';
 import {
   expectMultiplayerLoss,
@@ -20,7 +26,11 @@ import { chooseMultiplayerTimeControl } from './multiplayer-time-control-gesture
 function findOpponent(game: PlayableGame): (ui: Driver) => Promise<void> {
   return async (ui) => {
     await hostSpace(ui);
-    await tap(ui, Handles.gameMenu(game.shared.id));
+    await pickGameInSpace(
+      ui,
+      game.shared.id,
+      game.shared.registration?.rules.family
+    );
     await tap(ui, Handles.gameChoice('multiplayer'));
     await retirePreviousMultiplayer(ui);
     await chooseMultiplayerTimeControl(ui, '5+0');
