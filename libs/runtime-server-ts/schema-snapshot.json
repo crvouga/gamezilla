@@ -1,5 +1,5 @@
 {
-  "release": 24,
+  "release": 25,
   "snapshot": {
     "tables": {
       "auth_account_devices": {
@@ -67,6 +67,12 @@
         "provider": "text",
         "provider_subscription_id": "text",
         "status": "text"
+      },
+      "chess_custom_game_seats": {
+        "custom_game_id": "text",
+        "owner_id": "text",
+        "space_id": "text",
+        "under_way": "boolean"
       },
       "chess_multiplayer_commands": {
         "game_id": "text",
@@ -549,6 +555,7 @@
       ["billing_cancellation_feedback", "subscription_id"],
       ["billing_payment_evidence", "provider", "payment_id"],
       ["billing_subscriptions", "provider", "provider_subscription_id"],
+      ["chess_custom_game_seats", "owner_id", "space_id"],
       ["chess_multiplayer_commands", "owner_id", "request_id"],
       ["chess_multiplayer_games", "match_id"],
       ["chess_multiplayer_hands", "game_id", "side"],
