@@ -2,6 +2,7 @@ import { LINKED_MULTIPLAYER_PARAM } from '@libs/game-matchmaking-shared-ts/multi
 import type { GamePuzzlesClient } from '@libs/game-puzzle-client-ts/puzzle-client';
 import { PuzzleFrame } from '@libs/game-puzzle-client-ts/puzzle-frame';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
+import type { GameModeOption } from '@libs/spaces-shared-ts/game';
 import { useSpaceSessionUi } from '@libs/spaces-client-ts/space-session-ui-context';
 import {
   DefineBackButton,
@@ -29,6 +30,8 @@ function GameChoices(props: {
   offers: Offers;
   navigation: GameScreen;
   onBackToGames: () => void;
+  modes?: readonly GameModeOption[] | undefined;
+  onChooseMode?: ((id: string) => void) | undefined;
 }): JSX.Element {
   const { t } = useLingui();
   const nav = useScreenPlace(GAME_MENU_PLACES, () => 'open' as const);
@@ -49,7 +52,7 @@ function GameChoices(props: {
         label={nav.place().screen === 'menu' ? t`Games` : props.game.title}
       />
       <GameMenuScreenView
-        title={props.game.title}
+        title={props.game.mode?.game ?? props.game.title}
         tile={props.game.tile}
         subtitle={<Dynamic component={props.game.subtitle} />}
         instructions={
@@ -61,6 +64,9 @@ function GameChoices(props: {
         onChoose={(screen) => props.navigation.show(screen)}
         place={nav.place()}
         onOpen={nav.open}
+        modes={props.modes}
+        mode={props.game.shared.id}
+        onChooseMode={props.onChooseMode}
       />
     </>
   );
@@ -116,6 +122,9 @@ function GameFrame(props: {
 export function GameMenu(props: {
   game: GameClient;
   onBackToGames: () => void;
+  /** The game's modes, when it has several; switching one sets it up instead. */
+  modes?: readonly GameModeOption[] | undefined;
+  onChooseMode?: ((id: string) => void) | undefined;
 }): JSX.Element {
   const navigation = useGameScreen();
   const offers: Offers = (capability) =>
@@ -136,6 +145,8 @@ export function GameMenu(props: {
       offers={offers}
       navigation={navigation}
       onBackToGames={props.onBackToGames}
+      modes={props.modes}
+      onChooseMode={props.onChooseMode}
     />
   );
   const shown = createMemo(() => screens().get(navigation.screen()) ?? choices);

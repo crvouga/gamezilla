@@ -1,5 +1,6 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans } from '@lingui/solid/macro';
+import type { GameModeOption } from '@libs/spaces-shared-ts/game';
+import { Trans, useLingui } from '@lingui/solid/macro';
 import type { IconComponent } from '@pkgs/ui-root-client-ts/create-icon';
 import {
   type GameMenuChoice,
@@ -83,6 +84,12 @@ export type GameMenuScreenViewProps = {
   /** The small screen this device shows: the choices, or how to play. */
   readonly place: GameMenuPlace;
   readonly onOpen: (place: GameMenuPlace) => void;
+  /** The game's modes when it has several, this one first among equals by `mode`. */
+  readonly modes?: readonly GameModeOption[] | undefined;
+  /** The mode set up: the selected game's id. */
+  readonly mode?: string | undefined;
+  /** Switch to another mode; unset where only the host may. */
+  readonly onChooseMode?: ((id: string) => void) | undefined;
 };
 
 /** One row of the menu as `GameMenuScreen` draws it. */
@@ -120,6 +127,21 @@ function GameMenuHub(props: GameMenuScreenViewProps): JSX.Element {
           ),
         ]),
   ]);
+  const { t } = useLingui();
+  const modes = createMemo(() => {
+    const options = props.modes ?? [];
+    if (options.length < 2 || props.mode === undefined) return undefined;
+    return {
+      label: t`Mode`,
+      segments: options.map((option) => ({
+        key: option.id,
+        label: option.name,
+      })),
+      selected: props.mode,
+      onSelect: props.onChooseMode,
+      testId: Handles.gameModes,
+    };
+  });
   return (
     <GameMenuScreen
       screenId="game-choices"
@@ -127,6 +149,7 @@ function GameMenuHub(props: GameMenuScreenViewProps): JSX.Element {
       title={props.title}
       motif={props.tile}
       subtitle={props.subtitle}
+      modes={modes()}
       choices={choices()}
     />
   );

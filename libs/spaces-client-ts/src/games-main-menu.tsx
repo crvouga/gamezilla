@@ -1,5 +1,8 @@
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
-import type { GameClientDefinition } from '@libs/spaces-shared-ts/game';
+import type {
+  GameClientDefinition,
+  GameModeOption,
+} from '@libs/spaces-shared-ts/game';
 import type { SelectedGameId } from '@libs/spaces-shared-ts/games';
 import { GamesRoomAttr } from '@libs/spaces-shared-ts/games';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
@@ -41,6 +44,19 @@ function OpenLinkedGame(props: {
     if (linked !== undefined) untrack(() => props.onSelectGame(linked.id));
   });
   return null;
+}
+
+/** Every mode of `game`'s family, in the order registered; none for a game with one. */
+export function gameModes(
+  games: readonly GameClientDefinition[],
+  game: GameClientDefinition
+): readonly GameModeOption[] {
+  const family = game.family ?? game.id;
+  return games.flatMap((each) =>
+    (each.family ?? each.id) === family && each.mode !== undefined
+      ? [{ id: each.id, name: each.mode.name }]
+      : []
+  );
 }
 
 /** A guest tried to leave the host's game: only the host moves the space. */
@@ -104,7 +120,11 @@ export function GamesMainMenu(): JSX.Element {
           <Show when={hostChooses()}>
             <HostChoosesNotice />
           </Show>
-          <game.MainMenu onBackToGames={onBackToGames} />
+          <game.MainMenu
+            onBackToGames={onBackToGames}
+            modes={gameModes(games, game)}
+            onChooseMode={canSelectGame() ? chooseGame : undefined}
+          />
         </>
       )}
     </Show>
