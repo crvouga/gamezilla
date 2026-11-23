@@ -10,7 +10,13 @@ import {
   scenarioAction,
 } from '@libs/harness-ts/actor-ui';
 import { signInWithGoogle } from '@libs/harness-ts/auth-actions';
-import { gameTile, setUpGameMode } from '@libs/harness-ts/game-tiles';
+import {
+  chooseGameMode,
+  gameFamilyOf,
+  gameModeShown,
+  gameTile,
+  setUpGameMode,
+} from '@libs/harness-ts/game-tiles';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { signedInAccountOf } from '@libs/harness-ts/identity';
 import { bringToFront } from '@libs/harness-ts/observations';
@@ -112,7 +118,10 @@ export const CUSTOM_GAME_CONTENT = 'custom-game-content';
 /** Where a device can show no finding an opponent at all. */
 const NOWHERE_TO_FIND = [Handles.spaceEnded, Handles.spaceNotFound] as const;
 
-/** Every handle {@link findingAnOpponentStep} reads, in the order it reads them. */
+/**
+ * Every handle {@link findingAnOpponentStep} reads, in the order it reads
+ * them, for the game whose tile is `gameId`'s: a mode's game is its family.
+ */
 export function findingAnOpponentHandles(gameId: string): readonly string[] {
   return [
     ...FINDING_SURFACES,
@@ -125,7 +134,8 @@ export function findingAnOpponentHandles(gameId: string): readonly string[] {
 }
 
 /**
- * The next step towards finding an opponent for `gameId`, from the handles
+ * The next step towards finding an opponent for the game offered by
+ * `gameId`'s tile (a mode's game is its family), from the handles
  * on screen: `arrived` once it (or, `whereverItCan`, an ended or missing
  * space) shows, `nowhere` for an ended or missing space otherwise, the way in
  * to tap, or `null` while nothing is shown yet. An ended or missing space
@@ -170,12 +180,14 @@ async function reachFindingAnOpponent(
     await device.openLink(`/space/${spaceId}`);
   await s.session.waitForIdle();
   const ui = await actorUi(s, actor);
+  // A game is offered once, by its family's tile, whatever its modes.
+  const family = gameFamilyOf(s, gameId);
   await pollUntil(
     s,
     async () => {
       await bringToFront(s, actor);
       const visible = new Set<string>();
-      for (const handle of findingAnOpponentHandles(gameId))
+      for (const handle of findingAnOpponentHandles(family))
         if (await ui.get(handle).isVisible()) visible.add(handle);
       // Still reading the game and the search: nothing to act on yet.
       if (
@@ -183,11 +195,21 @@ async function reachFindingAnOpponent(
         (await ui.get(MULTIPLAYER_SCREEN).attribute('data-stage')) === 'loading'
       )
         visible.delete(MULTIPLAYER_SCREEN);
-      const step = findingAnOpponentStep(visible, gameId, whereverItCan);
+      const step = findingAnOpponentStep(visible, family, whereverItCan);
       if (step === 'arrived') return true;
       if (step === 'nowhere')
         throw new Error(`${actor}'s space has no finding an opponent left`);
-      if (step !== null) await ui.get(step).tap();
+      if (step === null) return null;
+      // The game's choices open on its family's mode: finding an opponent
+      // is the set-up mode's, so another mode of the game is set up first.
+      if (
+        step === Handles.gameChoice('multiplayer') &&
+        !(await gameModeShown(ui, gameId))
+      ) {
+        await chooseGameMode(ui, gameId);
+        return null;
+      }
+      await ui.get(step).tap();
       return null;
     },
     {
