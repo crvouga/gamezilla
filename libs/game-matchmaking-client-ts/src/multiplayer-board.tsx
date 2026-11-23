@@ -41,6 +41,8 @@ type BoardProps = {
   readonly ownHand: string | null;
   /** What lies over the board: the versus card, the result card. */
   readonly overlay?: JSX.Element | undefined;
+  /** Hears the board's own words about live play, for the status line. */
+  readonly onBoardLine?: ((line: string | null) => void) | undefined;
 };
 
 /** Every seat but the one nearest the person, above the board. */
@@ -187,6 +189,7 @@ function BoardStage(
       <MultiplayerFrameBoard
         presentation={presentation(props.game.fen)}
         board={board}
+        onLine={props.onBoardLine}
       />
     </GameBoardStage>
   );
@@ -237,6 +240,8 @@ export function MultiplayerBoard(props: BoardProps): JSX.Element {
 export function MultiplayerGameStatus(props: {
   readonly game: MultiplayerGame;
   readonly myId: string;
+  /** The board's own words about live play, said in place of the turn. */
+  readonly boardLine?: string | null | undefined;
 }): JSX.Element {
   const lowOnTime = useLowOnTime(() => props.game);
   const { viewer, winnerName } = useMultiplayerViewer(
@@ -249,6 +254,7 @@ export function MultiplayerGameStatus(props: {
       viewer={viewer()}
       winnerName={winnerName()}
       lowOnTime={lowOnTime()}
+      boardLine={props.boardLine}
     />
   );
 }

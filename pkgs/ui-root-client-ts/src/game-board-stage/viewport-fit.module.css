@@ -42,6 +42,27 @@
   }
 }
 
+/* A board that shows the players' points itself in a short landscape window
+   (`data-board-scores="short-landscape"`, Pong's court) takes the seats'
+   room there: the seat rows above and below it step out, so the board keeps
+   its height. The board names the players and says the points to a
+   listener itself. */
+@media (orientation: landscape) and (max-height: 560px) {
+  [data-game-board-stage]:has(
+      > [data-game-board] [data-board-scores="short-landscape"]
+    )
+    > :is(
+      [data-component="GamePlayerBar"],
+      [data-component="GamePlayerRail"],
+      :not([data-game-board]):has(
+          [data-component="GamePlayerBar"],
+          [data-component="GamePlayerRail"]
+        )
+    ) {
+    display: none;
+  }
+}
+
 /* Beside a wide rail, a finished game's result card stood above the board,
    so the square fit shrank the board to keep both seats in view (about
    340px against a live 540px at 1440). With the opt-in, the card reads at

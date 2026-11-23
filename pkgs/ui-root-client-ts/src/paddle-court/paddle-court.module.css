@@ -154,6 +154,29 @@
     (var(--ui-space-12) + var(--ui-space-1) + var(--ui-space-3))
   );
 }
+/* Its own scoreboard only in a short landscape window, a phone on its side
+   (`scoreboard="short-landscape"`): there the host drops its seat rows, so
+   the court takes their height and shows the points itself. Elsewhere the
+   points stay on the host's seats, above and below the court. */
+.frame[data-scoreboard="short-landscape"] {
+  --paddle-court-score-block: calc(
+    2 *
+    (var(--ui-space-12) + var(--ui-space-1) + var(--ui-space-3))
+  );
+}
+.frame[data-scoreboard="short-landscape"] > .scoreboard {
+  display: none;
+}
+@media (orientation: landscape) and (max-height: 560px) {
+  .frame[data-scoreboard="short-landscape"] {
+    --paddle-court-score-block: calc(
+      var(--ui-font-size-2xl) + var(--ui-space-2)
+    );
+  }
+  .frame[data-scoreboard="short-landscape"] > .scoreboard {
+    display: flex;
+  }
+}
 /* Focusing the court or a paddle's slider scrolls only as far as keeps the
    scoreboard above it in view, and leaves the court's lower edge clear of
    the window's (a scroll stops on a whole pixel, the court may not). */

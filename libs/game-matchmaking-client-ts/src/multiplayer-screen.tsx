@@ -11,7 +11,7 @@ import type { Decision } from '@pkgs/permissions-shared-ts/decision';
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { useGameGoal } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { useStageOverlay } from '@pkgs/turn-game-client-ts/use-stage-overlay';
-import { type JSX, Show } from 'solid-js';
+import { createSignal, type JSX, Show } from 'solid-js';
 import { MatchmakingScreenView } from './matchmaking-screen-view';
 import { MultiplayerBoard, MultiplayerGameStatus } from './multiplayer-board';
 import {
@@ -114,6 +114,7 @@ function MatchBoard(
     /** What lies over the board: the versus card, the result card. */
     readonly overlay: JSX.Element;
     readonly setup: ReturnType<typeof useMultiplayerPrivateSetup>;
+    readonly onBoardLine: (line: string | null) => void;
   }
 ): JSX.Element {
   const sync = useSyncEngine();
@@ -133,6 +134,7 @@ function MatchBoard(
           syncKey={props.controls.boardSync()}
           view={props.reviewing ? props.view : live()}
           overlay={props.overlay}
+          onBoardLine={props.onBoardLine}
           onMove={props.controls.play}
         />
       )}
@@ -178,11 +180,17 @@ function useMultiplayerScreen(props: ScreenProps) {
 }
 
 /** The one line about the matched game, under its board. */
-function MatchStatus(props: Pick<ScreenProps, 'data'>): JSX.Element {
+function MatchStatus(
+  props: Pick<ScreenProps, 'data'> & { readonly boardLine: string | null }
+): JSX.Element {
   return (
     <Show when={props.data.game()}>
       {(game) => (
-        <MultiplayerGameStatus game={game()} myId={props.data.myId()} />
+        <MultiplayerGameStatus
+          game={game()}
+          myId={props.data.myId()}
+          boardLine={props.boardLine}
+        />
       )}
     </Show>
   );
@@ -201,6 +209,8 @@ function MultiplayerContent(props: ScreenProps): JSX.Element {
     screen.confirm.open
   );
   const choices = useGameChoicesName();
+  // The board's own words about live play, for the one status line.
+  const [boardLine, setBoardLine] = createSignal<string | null>(null);
   const home = () =>
     nav.place().screen === MULTIPLAYER_PLACES.home[screen.stage()].screen;
   useDeadlineSettle({
@@ -261,9 +271,10 @@ function MultiplayerContent(props: ScreenProps): JSX.Element {
             setup={screen.setup}
             reviewing={nav.place().screen === 'moves'}
             overlay={overlay}
+            onBoardLine={setBoardLine}
           />
         )}
-        status={<MatchStatus data={data} />}
+        status={<MatchStatus data={data} boardLine={boardLine()} />}
         overlay={screen.overlay.overlay()}
         onOverlay={screen.overlay.send}
         versus={screen.versus()}

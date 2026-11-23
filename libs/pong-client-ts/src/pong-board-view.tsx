@@ -265,6 +265,34 @@ function playerName(board: PongBoardViewProps, side: PongSide): string {
   );
 }
 
+/** The most of a name one half of the court shows whole. */
+const HALF_NAME_MAX = 16;
+
+/** A name as one half of the court shows it: a long one ends in `…`. */
+function fitHalf(name: string | undefined): string | undefined {
+  if (name === undefined || name.length <= HALF_NAME_MAX) return name;
+  return `${name.slice(0, HALF_NAME_MAX - 1)}…`;
+}
+
+/**
+ * Who plays each half, beside its points on the court's own scoreboard:
+ * `You` in each half this device controls, the other player's name in
+ * theirs when the host names them.
+ */
+function sideLabels(
+  board: PongBoardViewProps,
+  controlled: readonly CourtSide[]
+): Partial<Record<CourtSide, string | undefined>> {
+  const label = (side: CourtSide): string | undefined =>
+    controlled.length > 1
+      ? (fitHalf(board.seats?.find((one) => one.side === seat(side))?.name) ??
+        (side === 'first' ? t`Left player` : t`Right player`))
+      : controlled.includes(side)
+        ? t`You`
+        : fitHalf(board.seats?.find((one) => one.side === seat(side))?.name);
+  return { first: label('first'), second: label('second') };
+}
+
 /**
  * The court's status words, formatted only when what they say changes: every
  * frame brings a new court, but the words change at most once a countdown
@@ -338,7 +366,9 @@ function PongScene(props: {
 
       {/* On a phone each controlled half holds its own slider, so the
           court (its shape fixed) takes the whole width. Its points and
-          players are the stage's seats, above and below it. */}
+          players are the stage's seats, above and below it, except in a
+          short landscape window: there the stage drops its seats and the
+          court's own scoreboard shows them, so the court keeps its height. */}
       <PaddleCourt
         status={status()}
         statusData={
@@ -347,6 +377,12 @@ function PongScene(props: {
             : undefined
         }
         touchHint={mode() !== 'wide' ? t`Drag` : undefined}
+        score={{
+          first: String(props.state.score.left),
+          second: String(props.state.score.right),
+        }}
+        scoreboard="short-landscape"
+        sideLabels={sideLabels(props.board, controlled())}
         halfControl={(side) => (
           <PaddleSlider
             side={seat(side)}

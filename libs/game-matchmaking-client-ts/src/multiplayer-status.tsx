@@ -42,6 +42,12 @@ export type MultiplayerStatusProps = {
   readonly winnerName: string;
   /** The clock that is low on time, if one is. */
   readonly lowOnTime: LowOnTime | null;
+  /**
+   * The board's own words about live play (`GameFrameBoardSession.line`:
+   * Light Cycles' round and who rides), said here in place of the game's
+   * turn words, so nothing is written around the board that could move it.
+   */
+  readonly boardLine?: string | null | undefined;
 };
 
 type StatusProps = MultiplayerStatusProps;
@@ -60,7 +66,8 @@ function useFrameTurnStatus(props: StatusProps): () => string | null {
   );
   return () =>
     props.game.outcome === 'ongoing' && !awaitingSetups(props.game)
-      ? presentation(props.game.fen).frame.turnStatus(
+      ? (props.boardLine ?? null) ||
+        presentation(props.game.fen).frame.turnStatus(
           props.game.fen,
           multiplayerSideOf(props.game, props.viewer.myId),
           [],
