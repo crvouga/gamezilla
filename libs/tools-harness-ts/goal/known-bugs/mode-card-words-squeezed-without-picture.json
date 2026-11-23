@@ -1,0 +1,4 @@
+{
+  "summary": "A game with no board picture (Light Cycles) still laid its mode card out as picture plus words on a phone, so the title and summary were set in the 104px picture column, one or two words a line, beside an empty card. The picture column now exists only when the game supplies a picture.",
+  "regressionTest": "libs/game-session-client-ts/src/game-frame-screen-view.start.stories.tsx"
+}

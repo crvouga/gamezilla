@@ -1,6 +1,7 @@
 /* The two rows of every space screen. Row 1 has a fixed height and never
-   moves; row 2 takes everything left. A hairline separates them; both share
-   the canvas, and cards inside the stage take the surface. */
+   moves; row 2 takes everything left. Nothing is ruled between them (the
+   shell can be narrower than the screen, where a rule would stop short);
+   both share the canvas, and cards inside the stage take the surface. */
 .shell {
   display: flex;
   flex: 1;
@@ -21,7 +22,6 @@
   gap: var(--ui-space-1);
   height: 56px;
   padding: 0 var(--ui-space-2);
-  border-bottom: 1px solid var(--ui-color-border);
 }
 .where {
   display: flex;

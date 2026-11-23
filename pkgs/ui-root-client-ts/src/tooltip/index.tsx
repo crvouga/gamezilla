@@ -8,11 +8,13 @@ import {
 } from '@pkgs/ui-root-shared-ts/tooltip-coordinator';
 import {
   createContext,
+  createEffect,
   createSignal,
   createUniqueId,
   type JSX,
   onCleanup,
   Show,
+  untrack,
   useContext,
 } from 'solid-js';
 import { FloatingTooltip } from '../floating-tooltip/index';
@@ -134,6 +136,26 @@ function TooltipAnchor(props: {
   );
 }
 
+/** The least room a bubble keeps between itself and the screen's edge. */
+const EDGE_MARGIN_PX = 8;
+
+/**
+ * How far to slide a bubble sideways so all of it is on screen: right when
+ * it runs off the left edge, left when off the right; `0` when it fits. A
+ * bubble wider than the screen keeps its start in view.
+ */
+export function tooltipEdgeShift(
+  bubble: { readonly left: number; readonly right: number },
+  viewportWidth: number
+): number {
+  const min = EDGE_MARGIN_PX;
+  const max = viewportWidth - EDGE_MARGIN_PX;
+  if (bubble.left < min) return min - bubble.left;
+  if (bubble.right > max)
+    return Math.max(max - bubble.right, min - bubble.left);
+  return 0;
+}
+
 function TooltipBubble(props: {
   controller: TooltipController;
   placement: () => TooltipPlacement;
@@ -141,8 +163,28 @@ function TooltipBubble(props: {
   dataSet: ComponentDataSet | undefined;
   floating: boolean | undefined;
 }) {
+  let bubble: HTMLDivElement | undefined;
+  const [shift, setShift] = createSignal(0);
+  // A static bubble is placed by CSS against its trigger, so beside the
+  // screen's edge part of it would fall outside: slide it back in as it
+  // opens. A floating one is already placed within the viewport.
+  createEffect(() => {
+    if (!props.controller.visible() || props.floating === true) return;
+    const view = bubble?.ownerDocument.defaultView;
+    if (bubble === undefined || view == null) return;
+    const rect = bubble.getBoundingClientRect();
+    // Nothing is laid out (no renderer): there is no edge to keep clear of.
+    if (rect.width === 0) return;
+    // Where CSS alone put it: the last slide is taken back out, and reading
+    // it never makes this run again.
+    const slid = untrack(shift);
+    const placed = { left: rect.left - slid, right: rect.right - slid };
+    setShift(tooltipEdgeShift(placed, view.innerWidth));
+  });
   return (
     <div
+      ref={bubble}
+      style={{ translate: shift() === 0 ? undefined : `${shift()}px 0` }}
       class="box bg-surface-overlay border border-border shadow-float rounded-sm px-2 py-1 w-max max-w-60"
       classList={{
         [styles['bubble'] ?? '']: !props.floating,
@@ -177,8 +219,9 @@ function TooltipBubble(props: {
  * Shows on pointer hover when {@link useHoverCapable} is true and on keyboard
  * focus of the wrapped control (any device). The bubble stays mounted while
  * hidden so `aria-describedby` on the control always resolves. Position is
- * static via `placement` unless `floating` portals it outside clipping hosts
- * and positions it within the viewport.
+ * static via `placement`, slid sideways as it opens when it would cross the
+ * screen's edge, unless `floating` portals it outside clipping hosts and
+ * positions it within the viewport.
  * Controls inside read {@link useTooltipTrigger} for `show` / `hide` / `id`.
  *
  * The bubble floats above content like a menu: the `surface-overlay` fill,
