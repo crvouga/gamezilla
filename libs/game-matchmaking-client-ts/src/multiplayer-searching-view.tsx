@@ -16,7 +16,8 @@ import {
 import { timeControlWords } from './time-control-name';
 
 /**
- * A search under way: what will be played, what the search is looking for
+ * A search under way: what will be played (in the search's own one-line
+ * card: ranked, rated, its clock), what the search is looking for
  * and how long it has looked, over its one command, stopping it, held at
  * the foot of the screen. An opponent found changes the stage, and the
  * game takes this place under its versus card.
@@ -26,8 +27,6 @@ export function MultiplayerSearchingView(
     readonly title: string;
     /** How the game is won, in one sentence, where the game says. */
     readonly goal?: string | undefined;
-    /** The game's board at its start: the mode card's picture. */
-    readonly boardPreview?: JSX.Element;
     readonly search: MultiplayerSearchView;
     readonly onStop: () => Promise<void>;
   }
@@ -45,34 +44,22 @@ export function MultiplayerSearchingView(
       }
     >
       <GameModeCard
-        eyebrow={<Trans>Ranked match</Trans>}
+        eyebrow={
+          <>
+            <Trans>Ranked match</Trans>
+            {'\u00a0· '}
+            <Trans>Rated</Trans>
+            {'\u00a0· '}
+            <Show
+              when={props.search.timeControl}
+              fallback={<Trans>Untimed</Trans>}
+            >
+              {(control) => timeControlWords(control())}
+            </Show>
+          </>
+        }
         title={props.title}
         summary={props.goal}
-        art={props.boardPreview}
-        facts={[
-          {
-            id: 'players',
-            label: <Trans>Players</Trans>,
-            value: props.search.players,
-          },
-          {
-            id: 'clock',
-            label: <Trans>Clock</Trans>,
-            value: (
-              <Show
-                when={props.search.timeControl}
-                fallback={<Trans>Untimed</Trans>}
-              >
-                {(control) => timeControlWords(control())}
-              </Show>
-            ),
-          },
-          {
-            id: 'rating',
-            label: <Trans>Rating</Trans>,
-            value: <Trans>Rated</Trans>,
-          },
-        ]}
       />
       <MultiplayerWaiting search={props.search} />
     </MultiplayerLobbyPlace>

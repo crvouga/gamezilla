@@ -1,0 +1,4 @@
+{
+  "summary": "Before a search the chosen clock was shown twice: as a Clock tile on the card and as the Time control row's value. A chosen clock is now said once, by its row; only an untimed game names its clock, on the card's one line.",
+  "regressionTest": "libs/game-matchmaking-client-ts/tests/multiplayer-find-layout.test.tsx"
+}
