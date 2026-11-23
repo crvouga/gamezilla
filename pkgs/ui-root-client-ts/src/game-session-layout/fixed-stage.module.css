@@ -172,6 +172,16 @@
     border-radius: var(--ui-radius-card);
     box-shadow: var(--ui-shadow-float);
   }
+  /* A status line only spoken (a finished game's) shows nothing: the
+     outcome may lie over its band, so a caption of two lines never covers
+     the final board's last row. */
+  .fixed
+    [data-game-slot="controls"]:has(
+      > .status > [data-spoken-only="true"]:only-child
+    )
+    > .sheet {
+    bottom: calc(100% - 44px);
+  }
   /* The line about the game: one band of two lines, empty or full. */
   .status {
     display: flex;

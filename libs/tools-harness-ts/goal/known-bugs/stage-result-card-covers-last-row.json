@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone a finished game's outcome card grew upward from above the empty status band, so a caption of two lines (\"Red circle wins by four in a row. Host starts the rematch.\") covered the bottom of the final board's last row, winning disc included. While the status line is only spoken, the card now lies over its band instead.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/completion/integration.checks.ts"
+}
