@@ -11,8 +11,8 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import {
-  ciArtifactsStore,
   downloadArtifact,
+  githubArtifactsApi,
   listArtifacts,
 } from './ci-artifacts';
 export const TASK_COSTS_PATH = join(
@@ -198,9 +198,9 @@ function jsonFiles(dir: string): string[] {
 async function downloadRunSummaries(runId: string): Promise<string[]> {
   const dir = mkdtempSync(join(tmpdir(), 'verify-costs-'));
   try {
-    const store = ciArtifactsStore(process.env);
+    const api = githubArtifactsApi();
     const names = await listArtifacts({
-      store,
+      api,
       runId,
       prefix: 'verify-ci-details',
     });
@@ -208,7 +208,7 @@ async function downloadRunSummaries(runId: string): Promise<string[]> {
       throw new Error(`No verify-ci-details CI artifact in run ${runId}`);
     for (const name of names)
       await downloadArtifact({
-        store,
+        api,
         runId,
         name,
         directory: join(dir, name),

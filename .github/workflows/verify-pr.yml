@@ -169,23 +169,38 @@ jobs:
       - name: Export immutable plan
         run: bun run libs/tools-harness-ts/scripts/verify-plan-transfer.ts --export
       # Transfer artifacts carry state between this run's jobs and are not
-      # reports: `verify:end` deletes them, and the bucket expires what a
-      # cancelled run left after a week. The nightly profile keeps them,
+      # reports: `verify:end` deletes them, and GitHub expires what a
+      # cancelled run left after a day. The nightly profile keeps them,
       # failed reports included.
       - name: Upload immutable plan
-        run: >-
-          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload verify-plan
-          .cache/verify-ci/plan.payload
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: verify-plan
+          path: .cache/verify-ci/plan.payload
+          retention-days: 1
+          overwrite: true
+          include-hidden-files: true
+          if-no-files-found: ignore
       # A shard with nothing to execute starts no runner; its cached verdicts
       # travel from here to `verify:end`.
       - name: Transfer cached shard verdicts
-        run: >-
-          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload verify-results-cached
-          '.cache/verify-ci/cached/results-*.tar.gz'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: verify-results-cached
+          path: .cache/verify-ci/cached/results-*.tar.gz
+          retention-days: 1
+          overwrite: true
+          include-hidden-files: true
+          if-no-files-found: ignore
       - name: Transfer cached shard evidence
-        run: >-
-          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload verify-evidence-cached
-          '.cache/verify-ci/cached/evidence-*.tar.gz'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: verify-evidence-cached
+          path: .cache/verify-ci/cached/evidence-*.tar.gz
+          retention-days: 1
+          overwrite: true
+          include-hidden-files: true
+          if-no-files-found: ignore
       # A failed build is recorded in this shard's verdict, which `verify:end`
       # reports; the shards still run so one red build does not hide every
       # other failure.
@@ -194,15 +209,25 @@ jobs:
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$VERIFY_CONCURRENCY" bun run libs/tools-harness-ts/scripts/verify-shard-run.ts "$VERIFY_SHARDS"
       - name: Transfer prerequisite outputs
         if: always() && !cancelled()
-        run: >-
-          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload verify-evidence-"${VERIFY_SHARDS}"
-          .cache/verify-ci/evidence-"${VERIFY_SHARDS}".tar.gz
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: verify-evidence-${{ env.VERIFY_SHARDS }}
+          path: .cache/verify-ci/evidence-${{ env.VERIFY_SHARDS }}.tar.gz
+          retention-days: 1
+          overwrite: true
+          include-hidden-files: true
+          if-no-files-found: ignore
 
       - name: Transfer prerequisite verdict
         if: always() && !cancelled()
-        run: >-
-          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload verify-results-"${VERIFY_SHARDS}"
-          .cache/verify-ci/results-"${VERIFY_SHARDS}".tar.gz
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: verify-results-${{ env.VERIFY_SHARDS }}
+          path: .cache/verify-ci/results-${{ env.VERIFY_SHARDS }}.tar.gz
+          retention-days: 1
+          overwrite: true
+          include-hidden-files: true
+          if-no-files-found: ignore
 
   # Shard N is the Nth entry of the matrix `verify:start` planned.
   verify-shards:
@@ -241,7 +266,10 @@ jobs:
           secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
       - name: Download immutable plan
-        run: bun run libs/tools-harness-ts/scripts/ci-artifacts.ts download verify-plan .cache/verify-ci
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: verify-plan
+          path: .cache/verify-ci
       - name: Restore immutable plan and required prerequisites
         run: bun run libs/tools-harness-ts/scripts/verify-stage-transfer.ts
       - name: Select task toolchains
@@ -258,32 +286,57 @@ jobs:
         timeout-minutes: ${{ inputs.profile == 'nightly' && 60 || 25 }}
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$VERIFY_CONCURRENCY" bun run libs/tools-harness-ts/scripts/verify-shard-run.ts "$VERIFY_SHARD"
       # Reports are the nightly profile's; the `release` profile keeps none. One
-      # artifact per shard every night, kept for the bucket's week. They only
-      # describe the shard, so `--best-effort` warns instead of failing it when
-      # the artifacts bucket is down; the transfers below stay strict.
+      # artifact per shard every night, kept three days. They only describe
+      # the shard, so `continue-on-error` warns instead of failing it when
+      # artifact storage is down; the transfers below stay strict.
       - name: Upload queryable trace artifacts
         if: always() && !cancelled() && env.VERIFY_PROFILE == 'nightly'
-        run: >-
-          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts --best-effort upload observability-traces-"${GITHUB_RUN_ID}-${VERIFY_SHARD}"
-          'apps/*/.cache/harness-report/*/traces/*.ndjson' 'libs/*/.cache/harness-report/*/traces/*.ndjson' 'pkgs/*/.cache/harness-report/*/traces/*.ndjson'
+        continue-on-error: true
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: observability-traces-${{ github.run_id }}-${{ env.VERIFY_SHARD }}
+          path: |
+            apps/*/.cache/harness-report/*/traces/*.ndjson
+            libs/*/.cache/harness-report/*/traces/*.ndjson
+            pkgs/*/.cache/harness-report/*/traces/*.ndjson
+          retention-days: 3
+          overwrite: true
+          include-hidden-files: true
+          if-no-files-found: ignore
       - name: Upload turbo run summary
         if: always() && !cancelled() && env.VERIFY_PROFILE == 'nightly'
-        run: >-
-          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts --best-effort upload turbo-summary-"${GITHUB_RUN_ID}-${VERIFY_SHARD}"
-          '.turbo/runs/*.json'
+        continue-on-error: true
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: turbo-summary-${{ github.run_id }}-${{ env.VERIFY_SHARD }}
+          path: .turbo/runs/*.json
+          retention-days: 3
+          overwrite: true
+          include-hidden-files: true
+          if-no-files-found: ignore
       # Transfer verdicts and the exact cache artifacts consumers need; the
       # nightly profile adds failed reports.
       - name: Transfer raw evidence
         if: always() && !cancelled()
-        run: >-
-          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload verify-evidence-"${VERIFY_SHARD}"
-          .cache/verify-ci/evidence-"${VERIFY_SHARD}".tar.gz
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: verify-evidence-${{ env.VERIFY_SHARD }}
+          path: .cache/verify-ci/evidence-${{ env.VERIFY_SHARD }}.tar.gz
+          retention-days: 1
+          overwrite: true
+          include-hidden-files: true
+          if-no-files-found: ignore
 
       - name: Transfer shard verdict
         if: always() && !cancelled()
-        run: >-
-          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload verify-results-"${VERIFY_SHARD}"
-          .cache/verify-ci/results-"${VERIFY_SHARD}".tar.gz
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: verify-results-${{ env.VERIFY_SHARD }}
+          path: .cache/verify-ci/results-${{ env.VERIFY_SHARD }}.tar.gz
+          retention-days: 1
+          overwrite: true
+          include-hidden-files: true
+          if-no-files-found: ignore
 
   # The required aggregate verdict for a pull request's checks; Release
   # consumes the same job's verdict for the whole gate. It runs after red shards too: the fan-in suites
@@ -298,7 +351,7 @@ jobs:
     runs-on: ubuntu-24.04
     permissions:
       contents: read # check out the code
-      actions: read # read run state (gh run list, job metadata)
+      actions: write # read run state and delete this run's transfer artifacts
       checks: read # enforce every PR check, including third-party integrations
       statuses: read # refuse advisory legacy commit statuses
       id-token: write # mint the OIDC token Infisical and AWS trust
@@ -317,26 +370,49 @@ jobs:
           secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
       - name: Download immutable plan
-        run: bun run libs/tools-harness-ts/scripts/ci-artifacts.ts download verify-plan .cache/verify-ci
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: verify-plan
+          path: .cache/verify-ci
       # Does nothing when the plan left the fan-in stage nothing to execute.
       - name: Run fan-in consumers
         timeout-minutes: ${{ inputs.profile == 'nightly' && 60 || 25 }}
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$VERIFY_CONCURRENCY" bun run libs/tools-harness-ts/scripts/verify-consumers.ts
       - name: Upload queryable trace artifacts
         if: always() && !cancelled() && env.VERIFY_PROFILE == 'nightly'
-        run: >-
-          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts --best-effort upload observability-traces-"${GITHUB_RUN_ID}"-consumers
-          'apps/*/.cache/harness-report/*/traces/*.ndjson' 'libs/*/.cache/harness-report/*/traces/*.ndjson' 'pkgs/*/.cache/harness-report/*/traces/*.ndjson'
+        continue-on-error: true
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: observability-traces-${{ github.run_id }}-consumers
+          path: |
+            apps/*/.cache/harness-report/*/traces/*.ndjson
+            libs/*/.cache/harness-report/*/traces/*.ndjson
+            pkgs/*/.cache/harness-report/*/traces/*.ndjson
+          retention-days: 3
+          overwrite: true
+          include-hidden-files: true
+          if-no-files-found: ignore
       - name: Upload turbo run summary
         if: always() && !cancelled() && env.VERIFY_PROFILE == 'nightly'
-        run: >-
-          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts --best-effort upload turbo-summary-"${GITHUB_RUN_ID}"-consumers
-          '.turbo/runs/*.json'
+        continue-on-error: true
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: turbo-summary-${{ github.run_id }}-consumers
+          path: .turbo/runs/*.json
+          retention-days: 3
+          overwrite: true
+          include-hidden-files: true
+          if-no-files-found: ignore
       - name: Transfer raw evidence
         if: always() && !cancelled()
-        run: >-
-          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload verify-evidence-consumers
-          '.cache/verify-ci/evidence-*.tar.gz'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: verify-evidence-consumers
+          path: .cache/verify-ci/evidence-*.tar.gz
+          retention-days: 1
+          overwrite: true
+          include-hidden-files: true
+          if-no-files-found: ignore
       # Only the small verdicts: the evidence is gigabytes of snapshots.
       - name: Transfer shard verdicts
         if: always() && !cancelled()
@@ -351,9 +427,14 @@ jobs:
       # (ci-check-issues.ts). Not `verify-`: that prefix is deleted below.
       - name: Retain the verdict for Release's check issues
         if: always() && !cancelled() && env.VERIFY_CI_STAGE == 'release'
-        run: >-
-          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload release-verdict
-          .cache/verify-ci/verdict.json
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release-verdict
+          path: .cache/verify-ci/verdict.json
+          retention-days: 1
+          overwrite: true
+          include-hidden-files: true
+          if-no-files-found: ignore
       - name: Require every PR check
         if: always() && !cancelled() && github.event_name == 'pull_request'
         env:
@@ -370,9 +451,17 @@ jobs:
       # ends by deleting the artifacts that carried state between its jobs.
       - name: Retain the verdict
         if: always() && !cancelled() && env.VERIFY_PROFILE == 'nightly'
-        run: >-
-          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload verify-verdict
-          .cache/verify-ci/verdict.json .cache/verify-ci/verdict.md .cache/verify-ci/verdict.junit.xml
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: verify-verdict
+          path: |
+            .cache/verify-ci/verdict.json
+            .cache/verify-ci/verdict.md
+            .cache/verify-ci/verdict.junit.xml
+          retention-days: 3
+          overwrite: true
+          include-hidden-files: true
+          if-no-files-found: ignore
       # Publication never changes the verdict above. Health's `health:cleanup`
       # prunes stale reports.
       - name: Aggregate and publish bounded evidence
@@ -382,11 +471,20 @@ jobs:
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- bun run libs/tools-harness-ts/scripts/verify-reports.ts
       - name: Retain sanitized planning and timing details
         if: always() && !cancelled() && env.VERIFY_PROFILE == 'nightly'
-        run: >-
-          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload verify-ci-details
-          .cache/verify-ci/plan.json .cache/verify-ci/planning.json .cache/verify-ci/profile.json '.cache/verify-ci/results/*.json'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: verify-ci-details
+          path: |
+            .cache/verify-ci/plan.json
+            .cache/verify-ci/planning.json
+            .cache/verify-ci/profile.json
+            .cache/verify-ci/results/*.json
+          retention-days: 3
+          overwrite: true
+          include-hidden-files: true
+          if-no-files-found: ignore
       # Only after a pass: "Re-run failed jobs" downloads verify-plan again, and
-      # the bucket expires leftovers after a week.
+      # GitHub expires leftovers after a day.
       - name: Delete transfer artifacts
         if: success() && env.VERIFY_PROFILE != 'nightly'
         run: bun run libs/tools-harness-ts/scripts/ci-artifacts.ts delete verify-

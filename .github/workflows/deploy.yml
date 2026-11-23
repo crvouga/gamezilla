@@ -277,9 +277,14 @@ jobs:
         run: bun run deploy:local
       - name: Keep the critical journeys' evidence
         if: failure()
-        run: >-
-          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload critical-journeys-"${GITHUB_RUN_ID}-${SECRETS_ENV}"
-          apps/product-ts/.cache/critical-journeys
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: critical-journeys-${{ github.run_id }}-${{ env.SECRETS_ENV }}
+          path: apps/product-ts/.cache/critical-journeys
+          retention-days: 3
+          overwrite: true
+          include-hidden-files: true
+          if-no-files-found: ignore
       - name: Write workflow summary
         if: always() && steps.setup.outcome == 'success'
         env:
@@ -345,6 +350,7 @@ jobs:
     timeout-minutes: 10
     permissions:
       contents: read # check out the code
+      actions: read # download this run's verification verdict artifact
       issues: write # open, update or close the Release issue and the check issues
       id-token: write # mint the OIDC token Infisical trusts (Grafana metrics credentials)
     env:
@@ -365,10 +371,8 @@ jobs:
       # Absent when verification never reached its verdict; the check issues
       # then stay as they are and the Release issue alone reports the run.
       - name: Fetch the verification verdict
-        env:
-          SECRETS_ENV: dev
         run: >-
-          bun run libs/secrets-server-ts/scripts/ci-artifacts-run.ts download release-verdict .cache/release-verdict
+          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts download release-verdict .cache/release-verdict
           || echo "::warning::No verification verdict to read; check issues are unchanged"
       - name: File the Release issue
         id: verdict

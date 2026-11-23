@@ -23,18 +23,6 @@ export const globalFileSchema = z
     brand_name: z.string().min(1),
     state: z.object({ account_id: id, bucket: id }).strict(),
     shared_data: z.object({ account_id: id, bucket: slug }).strict(),
-    /**
-     * The one bucket CI jobs hand files through (fleet stack): a job's plan,
-     * verdicts and evidence, and the nightly profile's reports. Every object
-     * expires after `retention_days`.
-     */
-    ci_artifacts: z
-      .object({
-        account_id: id,
-        bucket: slug,
-        retention_days: z.number().int().min(1).max(30),
-      })
-      .strict(),
     infisical: z
       .object({
         org_id: id,

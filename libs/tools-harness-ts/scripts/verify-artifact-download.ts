@@ -4,10 +4,10 @@ import { readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline';
 import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
-import type { ObjectStore } from '@pkgs/object-store-root-shared-ts/interface';
 import {
-  ciArtifactsStore,
+  type ArtifactsApi,
   downloadArtifact,
+  githubArtifactsApi,
   listArtifacts,
 } from './ci-artifacts';
 import { consumeEvidence } from './verify-evidence-consume';
@@ -35,19 +35,19 @@ export async function downloadEvidence(args: {
   readonly prefix: string;
   readonly directory: string;
   readonly runId: string;
-  readonly store: ObjectStore;
+  readonly api: ArtifactsApi;
   readonly consumer: {
     readonly consume: (directory: string) => Promise<void>;
     readonly release: (directory: string) => Promise<void>;
   };
 }): Promise<void> {
-  const { prefix, directory, runId, store, consumer } = args;
-  const names = await listArtifacts({ store, runId, prefix });
+  const { prefix, directory, runId, api, consumer } = args;
+  const names = await listArtifacts({ api, runId, prefix });
   if (!names.length) throw new Error(`No ${prefix} evidence artifacts`);
   const failures: unknown[] = [];
   for (const name of names) {
     try {
-      await downloadArtifact({ store, runId, name, directory });
+      await downloadArtifact({ api, runId, name, directory });
       await consumer.consume(directory);
     } catch (error) {
       failures.push(error);
@@ -92,7 +92,7 @@ if (import.meta.main) {
       prefix: process.argv[3]!,
       directory: process.argv[4]!,
       runId: transferRunId(process.env),
-      store: ciArtifactsStore(process.env),
+      api: githubArtifactsApi(),
       consumer: {
         consume: consumeTransfer,
         release: async (directory) => {

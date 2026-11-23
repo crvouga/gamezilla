@@ -1,6 +1,17 @@
 // @io-wall-ok — transfer only retained synthetic Storybook evidence, never credentials.
 import { createPublicKey, randomBytes } from 'node:crypto';
-import { ciArtifactsStore } from './ci-artifacts';
+import {
+  existsSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  statSync,
+} from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join, relative } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
+import { downloadArtifact, githubArtifactsApi } from './ci-artifacts';
 import { sealEvidence } from './storybook-evidence-crypto';
 import {
   assertEvidencePath,
@@ -28,38 +39,57 @@ async function exportEvidence(runId: string): Promise<void> {
     (parsed.asymmetricKeyDetails?.modulusLength ?? 0) < 2048
   )
     throw new Error('Recipient RSA key must have at least 2048 bits');
-  const store = ciArtifactsStore(process.env);
   const emit = (record: string): void => {
     console.log(sealEvidence(record, publicKey, randomBytes(44)));
   };
-  const prefix = `${runId}/verify-nightly-storybook-${runId}/`;
-  const results = await store.listKeys(`${prefix}${STORYBOOK_RESULTS}`);
-  if (!results.length)
-    throw new Error(`No retained Storybook evidence: ${runId}`);
-  // An authoring run also retains its reference patch; owners commit from it.
-  const keys = [
-    ...results,
-    ...(await store.listKeys(`${prefix}${STORYBOOK_BASELINE_PATCH}`)),
-  ];
-  let total = 0;
+  const directory = mkdtempSync(join(tmpdir(), 'storybook-evidence-'));
   const files: { path: string; sha256: string }[] = [];
-  for (const key of keys) {
-    const path = key.slice(prefix.length);
-    assertEvidencePath(path);
-    if (path === EVIDENCE_MANIFEST) throw new Error('Reserved manifest path');
-    const object = await store.get(key);
-    if (!object) throw new Error(`Missing retained object: ${path}`);
-    if (evidenceTransfer(path, object.size, total) === 'skip') {
-      console.log(
-        `Skipped ${path} (${object.size} bytes): decode it from the authoring job log instead`
-      );
-      continue;
+  let paths: string[] = [];
+  try {
+    const name = `verify-nightly-storybook-${runId}`;
+    if (
+      !(await downloadArtifact({
+        api: githubArtifactsApi(),
+        runId,
+        name,
+        directory,
+      }))
+    )
+      throw new Error(`No retained Storybook evidence: ${runId}`);
+    const under = (path: string): string[] => {
+      const absolute = join(directory, path);
+      if (!existsSync(absolute)) return [];
+      if (!statSync(absolute).isDirectory()) return [path];
+      return readdirSync(absolute, { recursive: true, withFileTypes: true })
+        .filter((entry) => entry.isFile())
+        .map((entry) =>
+          slashPath(relative(directory, join(entry.parentPath, entry.name)))
+        )
+        .sort();
+    };
+    const results = under(STORYBOOK_RESULTS);
+    if (!results.length)
+      throw new Error(`No retained Storybook evidence: ${runId}`);
+    // An authoring run also retains its reference patch; owners commit from it.
+    paths = [...results, ...under(STORYBOOK_BASELINE_PATCH)];
+    let total = 0;
+    for (const path of paths) {
+      assertEvidencePath(path);
+      if (path === EVIDENCE_MANIFEST) throw new Error('Reserved manifest path');
+      const bytes = new Uint8Array(readFileSync(join(directory, path)));
+      if (evidenceTransfer(path, bytes.byteLength, total) === 'skip') {
+        console.log(
+          `Skipped ${path} (${bytes.byteLength} bytes): decode it from the authoring job log instead`
+        );
+        continue;
+      }
+      total += bytes.byteLength;
+      const encoded = encodeEvidence(path, bytes);
+      files.push({ path, sha256: decodeEvidence(encoded).sha256 });
+      emit(encoded);
     }
-    total += object.size;
-    const bytes = new Uint8Array(await new Response(object.body).arrayBuffer());
-    const encoded = encodeEvidence(path, bytes);
-    files.push({ path, sha256: decodeEvidence(encoded).sha256 });
-    emit(encoded);
+  } finally {
+    removeTree(directory, { whenLocked: 'leave' });
   }
   emit(
     encodeEvidence(
@@ -68,7 +98,7 @@ async function exportEvidence(runId: string): Promise<void> {
     )
   );
   console.log(
-    `Exported ${keys.length} Storybook evidence files from run ${runId}`
+    `Exported ${paths.length} Storybook evidence files from run ${runId}`
   );
 }
 

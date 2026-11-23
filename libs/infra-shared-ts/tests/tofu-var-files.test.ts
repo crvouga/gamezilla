@@ -73,10 +73,6 @@ describe('resolved OpenTofu var files', () => {
       },
       global_imports: { github_repository: REPO },
       shared_data: { account_id: ACCOUNT, bucket: technicalName(['shared']) },
-      ci_artifacts: {
-        account_id: ACCOUNT,
-        bucket: technicalName(['ci', 'artifacts']),
-      },
     });
   });
 

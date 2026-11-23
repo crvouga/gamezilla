@@ -259,9 +259,14 @@ jobs:
       # save a screenshot, the page HTML and the browser console per failure.
       - name: Upload critical journey evidence
         if: failure()
-        run: >-
-          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload critical-journeys-"${GITHUB_RUN_ID}-${SECRETS_ENV}"
-          apps/product-ts/.cache/critical-journeys
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: critical-journeys-${{ github.run_id }}-${{ env.SECRETS_ENV }}
+          path: apps/product-ts/.cache/critical-journeys
+          retention-days: 3
+          overwrite: true
+          include-hidden-files: true
+          if-no-files-found: ignore
 
   # One job for every env, not a matrix. Runs after the checks (whatever
   # their result) so this run's checks count too.
@@ -305,15 +310,17 @@ jobs:
         timeout-minutes: 8
         run: bun run libs/observability-server-ts/scripts/health-alerts.ts
 
-      # The bucket's credentials come from the first environment's secrets
-      # (every environment imports the shared ones), for this step only.
       - name: Upload alert work items
         if: ${{ !cancelled() }}
         continue-on-error: true
-        run: |
-          SECRETS_ENV="$(bun -p 'JSON.parse(process.env.ENVS)[0]')" \
-            bun run libs/secrets-server-ts/scripts/ci-artifacts-run.ts \
-            upload health-alerts-"${GITHUB_RUN_ID}" .cache/health-alerts
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: health-alerts-${{ github.run_id }}
+          path: .cache/health-alerts
+          retention-days: 3
+          overwrite: true
+          include-hidden-files: true
+          if-no-files-found: ignore
 
   # The run's verdict where people look: the job summary, the one open
   # "Health is failing on main" issue (opened on the first red run, closed by

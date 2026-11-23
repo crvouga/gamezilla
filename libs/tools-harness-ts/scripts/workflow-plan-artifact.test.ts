@@ -23,15 +23,15 @@ test('Verification transfers the immutable plan as a CI artifact rather than a m
   const { jobs } = Bun.YAML.parse(text) as { jobs: Record<string, Job> };
   // The only output is the shard matrix, which holds no plan data.
   expect(Object.keys(jobs['verify-start']!.outputs ?? {})).toEqual(['shards']);
-  const upload = jobs['verify-start']!.steps.find((step) =>
-    step.run?.includes('scripts/ci-artifacts.ts upload verify-plan')
+  const upload = jobs['verify-start']!.steps.find(
+    (step) =>
+      step.uses?.startsWith('actions/upload-artifact@') &&
+      step.with?.['name'] === 'verify-plan'
   );
-  // An upload of a name replaces it (`ci-artifacts.ts`), so a rerun's
-  // shards never read an earlier attempt's plan.
-  expect(upload?.run?.trim().split(/\s+/).slice(-2)).toEqual([
-    'verify-plan',
-    '.cache/verify-ci/plan.payload',
-  ]);
+  // An upload of a name replaces it (`overwrite`), so a rerun's shards never
+  // read an earlier attempt's plan.
+  expect(upload?.with?.['path']).toBe('.cache/verify-ci/plan.payload');
+  expect(upload?.with?.['overwrite']).toBe(true);
   expect(text).not.toContain('VERIFY_PLAN_PAYLOAD');
   for (const [name, script] of [
     ['verify-shards', 'verify-stage-transfer.ts'],
@@ -40,8 +40,9 @@ test('Verification transfers the immutable plan as a CI artifact rather than a m
     const steps = jobs[name]!.steps;
     const download = steps.findIndex(
       (step) =>
-        step.run?.trim() ===
-        'bun run libs/tools-harness-ts/scripts/ci-artifacts.ts download verify-plan .cache/verify-ci'
+        step.uses?.startsWith('actions/download-artifact@') &&
+        step.with?.['name'] === 'verify-plan' &&
+        step.with['path'] === '.cache/verify-ci'
     );
     const restore = steps.findIndex((step) => step.run?.includes(script));
     expect(download).toBeGreaterThan(-1);

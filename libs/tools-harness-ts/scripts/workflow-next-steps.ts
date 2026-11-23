@@ -24,7 +24,7 @@ export function nextStepsMarkdown(run: FailedRun): string {
   if (run.secretsEnv !== '') {
     lines.push(
       '# screenshots, page HTML and console of each failed critical journey',
-      `bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/tools-harness-ts/scripts/ci-artifacts.ts --run ${run.runId} download-all critical-journeys- artifacts`
+      `gh run download ${run.runId} --repo ${run.repo} -p 'critical-journeys-*' -D artifacts`
     );
   }
   lines.push(

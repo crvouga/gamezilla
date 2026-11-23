@@ -145,6 +145,3 @@ variable "synthetic_monitoring" {
   description = "Read by the bootstrap stack from every env file (modules/synthetic-monitoring)."
 }
 
-variable "ci_artifacts" {
-  type = object({ account_id = string, bucket = string, retention_days = number })
-}
