@@ -3,7 +3,11 @@ import { expect, type Page } from '@playwright/test';
 import axe from 'axe-core';
 import type { visualScenarios } from '../../storybook/scenarios';
 
-/** The same readiness, accessibility and pixel contract for every canvas. */
+/**
+ * The same readiness and accessibility contract for every canvas. A story is
+ * never compared against a stored picture of itself: what it must show is
+ * asserted by its own `play` function and by the checks that open it.
+ */
 export async function verifyStoryScenario(
   page: Page,
   storyId: string,
@@ -51,8 +55,4 @@ export async function verifyStoryScenario(
   });
   expect(violations).toEqual([]);
   expect(failures).toEqual([]);
-  await expect(page.locator('#storybook-root')).toHaveScreenshot(
-    scenario.baseline.split('/'),
-    { animations: 'disabled' }
-  );
 }

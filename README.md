@@ -194,7 +194,7 @@ libs/chess-puzzle-harness-ts/tests/puzzle.test.ts
 
 The paths above illustrate the layout. A package has `src/`, `tests/`, and
 `scripts/` only as needed. `src/` stays flat: no `root/`, `public/`, `shared/`,
-`use-cases/`, or directory index barrels. Reusable client UI in `pkgs/` uses component slices instead: `src/<component>/index.tsx` is the implementation, with local styles, source JSDoc, stories, fixtures and visual baselines beside it. Shared foundations and preview-only scaffolding stay shared. Split an independent
+`use-cases/`, or directory index barrels. Reusable client UI in `pkgs/` uses component slices instead: `src/<component>/index.tsx` is the implementation, with local styles, source JSDoc, stories and fixtures beside it. Shared foundations and preview-only scaffolding stay shared. Split an independent
 use case into another package instead. Export individual modules as `./*`;
 import them as `@libs/chess-puzzle-shared-ts/start-puzzle-mutation`. Use relative
 imports inside the package. Do not create empty packages for unused layers.

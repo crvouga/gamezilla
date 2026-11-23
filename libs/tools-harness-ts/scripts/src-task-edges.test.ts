@@ -87,7 +87,6 @@ test('colocated previews do not enter the production source hash', () => {
   for (const file of [
     'src/button/button.stories.tsx',
     'src/button/button.example.tsx',
-    'src/button/baselines/chromium/default.png',
     'storybook/fixtures/frame.tsx',
   ])
     expect(isProductionSource(`pkgs/ui-root-client-ts/${file}`)).toBe(false);
