@@ -11,8 +11,14 @@ const meta = {
   tags: ['autodocs'],
   parameters: { appRouter: true, controls: { exclude: ['games'] } },
   args: { games: GAMES, canSelectGame: true, onSelectGame: fn() },
-  // The screen reads its space from the chrome the app mounts around it.
-  decorators: [(Story) => <StorySpaceFrame>{Story()}</StorySpaceFrame>],
+  // The screen reads its space from the chrome the app mounts around it, and
+  // claims that frame's shell: rendered inside the frame, as the app does. A
+  // decorator's story is not below the frame, so both would draw a top bar.
+  render: (args) => (
+    <StorySpaceFrame>
+      <SpaceChoosingScreenView {...args} />
+    </StorySpaceFrame>
+  ),
 } satisfies Meta<typeof SpaceChoosingScreenView>;
 export default meta;
 type Story = StoryObj<typeof meta>;

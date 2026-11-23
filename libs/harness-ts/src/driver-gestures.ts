@@ -88,18 +88,24 @@ export async function minimizeSpace(
   await ui.get(Handles.spaceClose).tap({ timeoutMs });
 }
 
+/** How many screens deep inside a space a person may be. */
+const SPACE_DEPTH_LIMIT = 8;
+
 /**
  * The account menu's button. An open space's top bar is the space's alone,
  * so a person in one minimizes it first (the space goes on behind them);
- * beside a sidebar the menu shows all along and nothing is minimized.
+ * from a screen deeper in the space that takes one press per screen. Beside
+ * a sidebar the menu shows all along and nothing is minimized.
  */
 export async function reachAccountMenu(
   ui: Driver,
   timeoutMs: number
 ): Promise<ReturnType<Driver['get']>> {
   const account = ui.get(Handles.statusCurrentUser);
-  if (!(await account.isVisible()) && (await spaceBarShown(ui))) {
+  for (let press = 0; press < SPACE_DEPTH_LIMIT; press += 1) {
+    if ((await account.isVisible()) || !(await spaceBarShown(ui))) break;
     await minimizeSpace(ui, timeoutMs);
+    await expectShellShown(ui, timeoutMs);
   }
   return account;
 }

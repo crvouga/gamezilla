@@ -9,9 +9,13 @@
  */
 
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
+import { spaceBarShown } from '@libs/harness-ts/driver-gestures';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront, visible } from '@libs/harness-ts/observations';
-import { waitActiveSpace } from '@libs/spaces-harness-ts/space-ui';
+import {
+  reenterOwnSpace,
+  waitActiveSpace,
+} from '@libs/spaces-harness-ts/space-ui';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import type { RecordingHaptics } from '@pkgs/device-shared-ts/haptics';
 import { ElementNotFoundError } from '@pkgs/ui-testing-root-shared-ts/element-not-found-error';
@@ -518,23 +522,43 @@ export const leavePuzzleForGameChoices = scenarioAction({
   },
 });
 
+/** A step toward the puzzles from wherever a person is: `true` once there. */
+async function stepTowardPuzzles(
+  s: ProductHarness,
+  actorId: string
+): Promise<true | null> {
+  const ui = await actorUi(s, actorId);
+  if (await ui.get(Handles.chessPuzzlePlayScreen).isVisible()) return true;
+  const puzzle = ui.get(Handles.gameChoice('puzzle'));
+  if (await puzzle.isVisible()) {
+    await puzzle.tap({ timeoutMs: WAIT_MS });
+    return null;
+  }
+  // A screen stacked over the puzzles, in the space or out of it (Account).
+  if (await ui.get(Handles.navBack).isVisible()) {
+    await ui.get(Handles.navBack).tap({ timeoutMs: WAIT_MS });
+    return null;
+  }
+  // Out of the space, which went on behind: back into it, where the game's
+  // choices are waiting.
+  if (!(await spaceBarShown(ui))) await reenterOwnSpace(s, actorId);
+  return null;
+}
+
 /**
- * Back onto the puzzles: from the game's choices through Puzzle, or one step
- * back from wherever an interruption (signing in) left the person; then the
- * board, or what the screen shows in its place (the limit, the offline
+ * Back to the puzzles of the game the space is on, as a person would make
+ * their way: out of whatever is stacked over them, into the space if they
+ * stepped out of it (the account menu is outside a space), then Puzzle; then
+ * the board, or what the screen shows in its place (the limit, the offline
  * notice). An unfinished puzzle comes back as it was.
  */
 export const goBackToGamePuzzles = scenarioAction({
   name: 'goBackToGamePuzzles',
   act: async (s, actorId: string) => {
-    const ui = await actorUi(s, actorId);
-    if (await ui.get(Handles.gameChoice('puzzle')).isVisible())
-      await ui.get(Handles.gameChoice('puzzle')).tap({ timeoutMs: WAIT_MS });
-    else if (!(await ui.get(Handles.chessPuzzlePlayScreen).isVisible()))
-      await ui.get(Handles.navBack).tap({ timeoutMs: WAIT_MS });
-    await ui
-      .get(Handles.chessPuzzlePlayScreen)
-      .expect.visible({ timeoutMs: WAIT_MS });
+    await pollUntil(s, () => stepTowardPuzzles(s, actorId), {
+      maxMs: WAIT_MS,
+      description: `${actorId} back at the puzzles`,
+    });
     const shown = await pollUntil(
       s,
       async () => {
