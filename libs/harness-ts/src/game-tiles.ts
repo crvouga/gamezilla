@@ -7,6 +7,7 @@
 
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import type { DriverNode } from '@pkgs/ui-testing-root-shared-ts/driver';
+import { pollUntil } from './actor-ui';
 import type { ProductHarness } from './harness';
 
 /** The family of the registered game `gameId`; a game with one mode is its own. */
@@ -46,5 +47,25 @@ export async function gameModeShown(
   return (
     (await ui.get(Handles.gameMode(gameId)).attribute('aria-checked')) ===
     'true'
+  );
+}
+
+/**
+ * On the game's choices `actor` sees, set up the mode `gameId` and wait
+ * until the choices are that mode's.
+ */
+export async function setUpGameMode(
+  s: ProductHarness,
+  ui: { get(testId: string): DriverNode },
+  gameId: string
+): Promise<void> {
+  await pollUntil(
+    s,
+    async () => {
+      if (await gameModeShown(ui, gameId)) return true;
+      await chooseGameMode(ui, gameId);
+      return null;
+    },
+    { maxMs: 15_000, stepMs: 1, description: `the choices of ${gameId}` }
   );
 }

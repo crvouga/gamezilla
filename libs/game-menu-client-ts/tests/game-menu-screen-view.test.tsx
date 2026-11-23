@@ -167,12 +167,18 @@ test('a guest sees the mode set up but cannot switch it', () => {
   ));
   const trio = view.getByTestId('game-modes-trails-3');
   expect(trio.getAttribute('aria-checked')).toBe('true');
-  expect((view.getByTestId('game-modes-trails') as HTMLButtonElement).disabled).toBe(true);
+  expect(
+    (view.getByTestId('game-modes-trails') as HTMLButtonElement).disabled
+  ).toBe(true);
   view.unmount();
 });
 
 test('a game with one mode shows no mode choice', () => {
-  const view = menu({ width: 390, instructions: RULES, place: { screen: 'menu' } });
+  const view = menu({
+    width: 390,
+    instructions: RULES,
+    place: { screen: 'menu' },
+  });
   expect(view.queryByTestId('game-modes')).toBeNull();
   view.unmount();
 });

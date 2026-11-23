@@ -297,13 +297,17 @@ function assertModesOfferedOnce(
   const families = Map.groupBy(clients, (client) => client.family ?? client.id);
   for (const [family, modes] of families) {
     if (modes.length === 1) continue;
-    const named = modes.flatMap((mode) => (mode.mode === undefined ? [] : [mode.mode]));
+    const named = modes.flatMap((mode) =>
+      mode.mode === undefined ? [] : [mode.mode]
+    );
     if (named.length !== modes.length)
       throw new Error(
         `${registry}: ${family} has ${String(modes.length)} modes, so each needs mode: { game, name } — a game is offered once and its mode chosen among its choices`
       );
     if (new Set(named.map((mode) => mode.game)).size !== 1)
-      throw new Error(`${registry}: the modes of ${family} name the game differently`);
+      throw new Error(
+        `${registry}: the modes of ${family} name the game differently`
+      );
     if (new Set(named.map((mode) => mode.name)).size !== named.length)
       throw new Error(`${registry}: two modes of ${family} share a name`);
     const stray = modes.find(

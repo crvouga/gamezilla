@@ -2,7 +2,6 @@ import { LINKED_MULTIPLAYER_PARAM } from '@libs/game-matchmaking-shared-ts/multi
 import type { GamePuzzlesClient } from '@libs/game-puzzle-client-ts/puzzle-client';
 import { PuzzleFrame } from '@libs/game-puzzle-client-ts/puzzle-frame';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
-import type { GameModeOption } from '@libs/spaces-shared-ts/game';
 import { useSpaceSessionUi } from '@libs/spaces-client-ts/space-session-ui-context';
 import {
   DefineBackButton,
@@ -11,6 +10,7 @@ import {
 import type { GameScreen } from '@libs/spaces-client-ts/use-game-screen';
 import { useGameScreen } from '@libs/spaces-client-ts/use-game-screen';
 import { useSpaceCan } from '@libs/spaces-client-ts/use-space-can';
+import type { GameModeOption } from '@libs/spaces-shared-ts/game';
 import { useLingui } from '@lingui/solid/macro';
 import { useScreenPlace } from '@pkgs/turn-game-client-ts/use-screen-place';
 import { useLocalSearchParams } from '@pkgs/ui-root-client-ts/app-router';
@@ -52,7 +52,7 @@ function GameChoices(props: {
         label={nav.place().screen === 'menu' ? t`Games` : props.game.title}
       />
       <GameMenuScreenView
-        title={props.game.mode?.game ?? props.game.title}
+        title={props.game.title}
         tile={props.game.tile}
         subtitle={<Dynamic component={props.game.subtitle} />}
         instructions={

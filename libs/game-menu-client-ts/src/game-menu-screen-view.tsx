@@ -1,5 +1,5 @@
-import { Handles } from '@libs/test-ids-shared-ts/handles';
 import type { GameModeOption } from '@libs/spaces-shared-ts/game';
+import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import type { IconComponent } from '@pkgs/ui-root-client-ts/create-icon';
 import {

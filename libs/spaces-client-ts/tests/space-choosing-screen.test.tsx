@@ -275,13 +275,19 @@ test('a game with several modes is one tile that opens its own mode', () => {
     mode: { game: 'Trails' },
   });
   const tiles = spaceLauncherGames([
-    { id: 'chess', title: 'Chess', players: 2, bots: true, motif: 'checkered' },
+    {
+      id: 'draughts',
+      title: 'Draughts',
+      players: 2,
+      bots: true,
+      motif: 'checkered',
+    },
     mode('trails', 2, 'Duel'),
     mode('trails-4', 4, 'Quad'),
     mode('trails-3', 3, 'Trio'),
   ]);
   expect(tiles.map((tile) => [tile.key, tile.name, tile.players])).toEqual([
-    ['chess', 'Chess', { counts: [2], bots: true }],
+    ['draughts', 'Draughts', { counts: [2], bots: true }],
     ['trails', 'Trails', { counts: [2, 3, 4], bots: true }],
   ]);
   expect(tiles[1]?.testId).toBe(Handles.gameMenu('trails'));
