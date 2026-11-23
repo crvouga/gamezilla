@@ -3,32 +3,34 @@ import { mkdtempSync, readdirSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
-import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared-ts/impl-in-memory';
-import type { ObjectStore } from '@pkgs/object-store-root-shared-ts/interface';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import fc from 'fast-check';
+import type { ArtifactsApi } from './ci-artifacts';
+import { fakeArtifactsApi } from './ci-artifacts-fake';
 import { downloadEvidence, transferRunId } from './verify-artifact-download';
 
-const bytes = (text: string) => new TextEncoder().encode(text);
-
 // regression: github-artifact-download-missing-runtime-token
-test('shell transfers need only the run and the bucket, and take only the named prefix', async () => {
-  const store = new ObjectStoreImplInMemory();
-  await store.put(
-    '37512663922/verify-evidence-16/evidence-16.tar.gz',
-    bytes('e16'),
-    'application/gzip'
-  );
-  await store.put(
-    '37512663922/verify-plan/plan.payload',
-    bytes('plan'),
-    'application/octet-stream'
-  );
-  await store.put(
-    '99/verify-evidence-3/evidence-3.tar.gz',
-    bytes('other run'),
-    'application/gzip'
-  );
+test('shell transfers need only the run and the artifacts API, and take only the named prefix', async () => {
+  const api = fakeArtifactsApi([
+    {
+      runId: '37512663922',
+      id: 1,
+      name: 'verify-evidence-16',
+      files: { 'evidence-16.tar.gz': 'e16' },
+    },
+    {
+      runId: '37512663922',
+      id: 2,
+      name: 'verify-plan',
+      files: { 'plan.payload': 'plan' },
+    },
+    {
+      runId: '99',
+      id: 3,
+      name: 'verify-evidence-3',
+      files: { 'evidence-3.tar.gz': 'other run' },
+    },
+  ]);
   const directory = mkdtempSync(join(tmpdir(), 'verify-transfer-'));
   const seen: string[][] = [];
   try {
@@ -36,7 +38,7 @@ test('shell transfers need only the run and the bucket, and take only the named 
       prefix: 'verify-evidence-',
       directory,
       runId: transferRunId({ GITHUB_RUN_ID: '37512663922' }),
-      store,
+      api,
       consumer: {
         consume: async (dir) => {
           seen.push(readdirSync(dir).sort());
@@ -74,29 +76,18 @@ async function boundedTransfer(fails: number[]): Promise<void> {
   let current = -1;
   const attempted: number[] = [];
   const names = fails.map((_, id) => `verify-evidence-${String(id)}`);
-  const keys = names.map(
-    (name, id) => `1/${name}/evidence-${String(id)}.tar.gz`
-  );
-  const unused = async (): Promise<never> => {
-    throw new Error('not used by a transfer');
-  };
-  const store: ObjectStore = {
-    listKeys: async (prefix = '') =>
-      keys.filter((key) => key.startsWith(prefix)).sort(),
-    get: async (key) => {
-      current = keys.indexOf(key);
+  const api: ArtifactsApi = {
+    list: async () => names.map((name, id) => ({ id, name, expired: false })),
+    download: async (id) => {
+      current = id;
       attempted.push(current);
       peak = Math.max(peak, ++resident);
       if (fails[current] === 2)
         throw new Error(`partial download: ${String(current)}`);
-      return { body: new Response('').body!, contentType: '', size: 0 };
     },
-    put: unused,
-    head: unused,
-    delete: unused,
-    deleteMany: unused,
-    getUri: unused,
-    withPrefix: () => store,
+    remove: async () => {
+      throw new Error('not used by a transfer');
+    },
   };
   const directory = mkdtempSync(join(tmpdir(), 'verify-bounded-'));
   let verdict: unknown;
@@ -105,7 +96,7 @@ async function boundedTransfer(fails: number[]): Promise<void> {
       prefix: 'verify-evidence-',
       directory,
       runId: '1',
-      store,
+      api,
       consumer: {
         consume: async () => {
           await Promise.resolve();

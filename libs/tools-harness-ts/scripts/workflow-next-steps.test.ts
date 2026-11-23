@@ -16,7 +16,7 @@ test('a failed run summary ends with the commands that reach its failure', () =>
   expect(lines).toContain('gh run view 42 --repo o/r --log-failed | tail -200');
   expect(
     lines.some((line) =>
-      line.includes('--run 42 download-all critical-journeys-')
+      line.includes("gh run download 42 --repo o/r -p 'critical-journeys-*'")
     )
   ).toBe(true);
   expect(lines).toContain(

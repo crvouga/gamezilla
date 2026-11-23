@@ -111,8 +111,13 @@ describe('Verify workflow cancellation', () => {
     const nightlyOnly = (step: { if?: string }) =>
       step.if === "always() && !cancelled() && env.VERIFY_PROFILE == 'nightly'";
     const steps = Object.values(workflow.jobs).flatMap((job) => job.steps);
-    const uploadOf = (step: { run?: string }) =>
-      /ci-artifacts\.ts upload (\S+)/.exec(step.run ?? '')?.[1];
+    const uploadOf = (step: {
+      uses?: string;
+      with?: Record<string, string>;
+    }) =>
+      step.uses?.startsWith('actions/upload-artifact@')
+        ? step.with?.['name']
+        : undefined;
     const uploads = steps.filter((step) => uploadOf(step) !== undefined);
     expect(uploads.length).toBeGreaterThan(0);
     // The one file a Release keeps past `verify:end`: its verdict job files
@@ -234,6 +239,7 @@ describe('Verify workflow cancellation', () => {
             run?: string;
             uses?: string;
             env?: Record<string, string>;
+            with?: Record<string, string>;
             'continue-on-error'?: boolean;
           }[];
         }
@@ -280,8 +286,16 @@ describe('Verify workflow cancellation', () => {
       if: "always() && !cancelled() && env.VERIFY_PROFILE == 'nightly'",
       'continue-on-error': true,
     });
+    // Besides publication, only the nightly diagnostic uploads may fail
+    // without failing the job (`ci-artifacts.test.ts`).
     expect(
-      end.steps.filter((candidate) => candidate['continue-on-error'])
+      end.steps.filter(
+        (candidate) =>
+          candidate['continue-on-error'] &&
+          !/^(observability-traces|turbo-summary)-/.test(
+            String(candidate.with?.['name'] ?? '')
+          )
+      )
     ).toHaveLength(1);
     // regression: verify-repeated-mise-cache-stall (1jzx5994v8)
     expect(

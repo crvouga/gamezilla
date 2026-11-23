@@ -8,7 +8,13 @@ import {
   tracksNightlyIssue,
 } from './verify-nightly-verdict';
 
-type Step = { name?: string; if?: string; run?: string };
+type Step = {
+  name?: string;
+  if?: string;
+  run?: string;
+  uses?: string;
+  with?: Record<string, unknown>;
+};
 const workflow = Bun.YAML.parse(
   readFileSync(
     new URL('../../../.github/workflows/verify-nightly.yml', import.meta.url),
@@ -80,12 +86,12 @@ test('Ubuntu reference authoring is explicit and followed by an uncached compari
   ) as { tasks: Record<string, { cache?: boolean }> };
   expect(config.tasks['storybook:test']?.cache).toBe(false);
   const upload = job.steps.find((step) =>
-    step.run?.includes('ci-artifacts.ts upload')
+    step.uses?.startsWith('actions/upload-artifact@')
   )!;
   expect(upload.if).toBe(
     '${{ always() && !cancelled() && !inputs.storybook-evidence-run }}'
   );
-  expect(upload.run).toContain('verify-nightly-storybook-');
+  expect(String(upload.with?.['name'])).toContain('verify-nightly-storybook-');
 });
 
 test('manual Storybook diagnostics preserve every ordinary nightly gate', () => {

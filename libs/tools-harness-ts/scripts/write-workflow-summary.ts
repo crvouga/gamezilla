@@ -86,7 +86,7 @@ function buildStatusMarkdown(
     else {
       lines.push('### Query traces', '', '```sh');
       lines.push(
-        `bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/tools-harness-ts/scripts/ci-artifacts.ts --run ${runId} download-all observability-traces- artifacts`
+        `gh run download ${runId} -p 'observability-traces-*' -D artifacts`
       );
       lines.push('bun obs last --source artifacts --errors --window 24h');
       lines.push('```', '');

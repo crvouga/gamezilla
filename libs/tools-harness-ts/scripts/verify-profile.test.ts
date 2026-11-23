@@ -285,11 +285,11 @@ describe('Verify Nightly workflow', () => {
       );
       // Evidence is kept on failure too, and a red suite stops no other.
       const upload = job.steps!.find((step) =>
-        step.run?.includes('scripts/ci-artifacts.ts upload')
+        step.uses?.startsWith('actions/upload-artifact@')
       )!;
       expect(upload.if).toBe('always() && !cancelled()');
-      expect(upload.run).toContain(
-        `ci-artifacts.ts upload verify-nightly-${suite}-"\${GITHUB_RUN_ID}"`
+      expect(upload.with?.['name']).toBe(
+        `verify-nightly-${suite}-\${{ github.run_id }}`
       );
       expect(job.steps!.some((step) => 'continue-on-error' in step)).toBe(
         false

@@ -57,7 +57,6 @@
     "@pkgs/http-client-shared-ts": "workspace:*",
     "@pkgs/object-store-node-fs-server-ts": "workspace:*",
     "@pkgs/object-store-root-shared-ts": "workspace:*",
-    "@pkgs/object-store-s3-server-ts": "workspace:*",
     "@pkgs/observability-root-shared-ts": "workspace:*",
     "@pkgs/openslo-shared-ts": "workspace:*",
     "@pkgs/os-server-ts": "workspace:*",

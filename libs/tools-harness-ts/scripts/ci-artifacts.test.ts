@@ -1,37 +1,42 @@
 import { expect, test } from 'bun:test';
-import {
-  mkdirSync,
-  mkdtempSync,
-  readdirSync,
-  readFileSync,
-  writeFileSync,
-} from 'node:fs';
+import { existsSync, mkdtempSync, readdirSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, sep } from 'node:path';
+import { join } from 'node:path';
 import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
-import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared-ts/impl-in-memory';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import fc from 'fast-check';
+import type { ArtifactsApi } from './ci-artifacts';
 import {
-  collectFiles,
-  commonRoot,
   deleteArtifacts,
   downloadArtifact,
-  isRetryableWrite,
   listArtifacts,
-  PUT_RETRY_DELAYS_MS,
-  uploadArtifact,
 } from './ci-artifacts';
+import { fakeArtifactsApi } from './ci-artifacts-fake';
 
 const REPO = join(import.meta.dirname, '../../..');
+const WORKFLOWS = join(REPO, '.github/workflows');
+const UPLOAD =
+  'actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9';
+const DOWNLOAD =
+  'actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333';
 
-function workspace(files: Record<string, string>): string {
-  const root = mkdtempSync(join(tmpdir(), 'ci-artifacts-'));
-  for (const [path, content] of Object.entries(files)) {
-    mkdirSync(dirname(join(root, path)), { recursive: true });
-    writeFileSync(join(root, path), content);
-  }
-  return root;
+type Step = {
+  name?: string;
+  uses?: string;
+  run?: string;
+  'continue-on-error'?: boolean;
+  with?: Record<string, unknown>;
+};
+
+function workflowSteps(): { file: string; step: Step }[] {
+  return readdirSync(WORKFLOWS).flatMap((file) => {
+    const workflow = Bun.YAML.parse(
+      readFileSync(join(WORKFLOWS, file), 'utf8')
+    ) as { jobs: Record<string, { steps?: Step[] }> };
+    return Object.values(workflow.jobs).flatMap((job) =>
+      (job.steps ?? []).map((step) => ({ file, step }))
+    );
+  });
 }
 
 function tree(directory: string): Record<string, string> {
@@ -49,370 +54,175 @@ function tree(directory: string): Record<string, string> {
   );
 }
 
-async function roundTrip(
-  files: Record<string, string>,
-  patterns: readonly string[]
-): Promise<Record<string, string>> {
-  const root = workspace(files);
-  const out = mkdtempSync(join(tmpdir(), 'ci-artifacts-out-'));
-  try {
-    const store = new ObjectStoreImplInMemory();
-    const collected = collectFiles(root, patterns);
-    await uploadArtifact({ store, runId: '7', name: 'a', ...collected });
-    await downloadArtifact({ store, runId: '7', name: 'a', directory: out });
-    return tree(out);
-  } finally {
-    removeTree(root, { whenLocked: 'leave' });
-    removeTree(out, { whenLocked: 'leave' });
-  }
-}
-
-test('one file uploads by its base name, as actions/upload-artifact does', async () => {
-  expect(
-    await roundTrip(
-      { '.cache/verify-ci/plan.payload': 'plan', '.cache/verify-ci/x': 'no' },
-      ['.cache/verify-ci/plan.payload']
-    )
-  ).toEqual({ 'plan.payload': 'plan' });
-});
-
-test('patterns keep the path below the directory every pattern searches', async () => {
-  expect(
-    await roundTrip(
-      {
-        'apps/a/.cache/harness-report/r/traces/1.ndjson': 'a1',
-        'libs/b/.cache/harness-report/r/traces/2.ndjson': 'b2',
-        'libs/b/.cache/harness-report/r/other.json': 'skip',
-      },
-      [
-        'apps/*/.cache/harness-report/*/traces/*.ndjson',
-        'libs/*/.cache/harness-report/*/traces/*.ndjson',
-        'pkgs/*/.cache/harness-report/*/traces/*.ndjson',
-      ]
-    )
-  ).toEqual({
-    'apps/a/.cache/harness-report/r/traces/1.ndjson': 'a1',
-    'libs/b/.cache/harness-report/r/traces/2.ndjson': 'b2',
-  });
-  expect(
-    await roundTrip(
-      {
-        '.cache/verify-ci/cached/results-1.tar.gz': 'r1',
-        '.cache/verify-ci/cached/evidence-1.tar.gz': 'e1',
-      },
-      ['.cache/verify-ci/cached/results-*.tar.gz']
-    )
-  ).toEqual({ 'results-1.tar.gz': 'r1' });
-});
-
-test('a directory uploads every file under it, hidden ones included', async () => {
-  expect(
-    await roundTrip(
-      {
-        'apps/p/.cache/critical-journeys/j/.page.html': 'html',
-        'apps/p/.cache/critical-journeys/j/shot.png': 'png',
-      },
-      ['apps/p/.cache/critical-journeys/']
-    )
-  ).toEqual({ 'j/.page.html': 'html', 'j/shot.png': 'png' });
-});
-
-// regression: nightly-browser-reports-not-uploaded
-test('a pattern that matches directories uploads every file under each', async () => {
-  expect(
-    await roundTrip(
-      {
-        '.turbo/runs/run.json': 'run',
-        'apps/a/.cache/harness-report/all/runs/latest/report.json': 'a',
-        'libs/b/.cache/harness-report/all/frames/1.png': 'b',
-      },
-      [
-        '.turbo/runs/*.json',
-        'apps/*/.cache/harness-report',
-        'libs/*/.cache/harness-report',
-        'pkgs/*/.cache/harness-report',
-      ]
-    )
-  ).toEqual({
-    '.turbo/runs/run.json': 'run',
-    'apps/a/.cache/harness-report/all/runs/latest/report.json': 'a',
-    'libs/b/.cache/harness-report/all/frames/1.png': 'b',
-  });
-});
-
-test('nothing matched uploads nothing', () => {
-  const root = workspace({});
-  try {
-    expect(
-      collectFiles(root, ['.turbo/runs/*.json', 'missing/']).files
-    ).toEqual([]);
-  } finally {
-    removeTree(root, { whenLocked: 'leave' });
-  }
-});
-
-test('uploading a name again replaces it rather than merging', async () => {
-  const store = new ObjectStoreImplInMemory();
-  const put = async (files: Record<string, string>) => {
-    const root = workspace(files);
-    try {
-      await uploadArtifact({
-        store,
-        runId: '1',
-        name: 'verify-plan',
-        ...collectFiles(root, Object.keys(files)),
-      });
-    } finally {
-      removeTree(root, { whenLocked: 'leave' });
-    }
-  };
-  await put({ 'old.json': 'old' });
-  await put({ 'new.json': 'new' });
-  expect(await store.listKeys('1/')).toEqual(['1/verify-plan/new.json']);
-});
-
-function s3Error(status: number): Error {
-  return Object.assign(new Error(`status ${String(status)}`), {
-    $metadata: { httpStatusCode: status, attempts: 1 },
-  });
-}
-
-/** An in-memory bucket that records every write and delete in order. */
-function recordingStore(failures = new Map<string, number[]>()) {
-  const store = new ObjectStoreImplInMemory();
-  const ops: string[] = [];
-  const put = store.put.bind(store);
-  const deleteMany = store.deleteMany.bind(store);
-  store.put = async (key, bytes, type) => {
-    ops.push(`put ${key}`);
-    const status = failures.get(key)?.shift();
-    if (status !== undefined) throw s3Error(status);
-    await put(key, bytes, type);
-  };
-  store.deleteMany = async (keys) => {
-    for (const key of keys) ops.push(`delete ${key}`);
-    await deleteMany(keys);
-  };
-  return { store, ops };
-}
-
-async function uploadFiles(
-  store: ObjectStoreImplInMemory,
-  files: Record<string, string>,
-  sleeps: number[] = []
-): Promise<number> {
-  const root = workspace(files);
-  try {
-    return await uploadArtifact({
-      store,
-      runId: '1',
-      name: 'observability-traces-1-6',
-      ...collectFiles(root, Object.keys(files)),
-      sleep: async (ms) => {
-        sleeps.push(ms);
-      },
-    });
-  } finally {
-    removeTree(root, { whenLocked: 'leave' });
-  }
-}
-
-const TRACES = '1/observability-traces-1-6/';
-
-// regression: ci-artifact-upload-r2-same-object-throttle
-test('re-uploading a name never deletes a key it then writes again, and drops only stale keys after every write', async () => {
-  const { store, ops } = recordingStore();
-  await uploadFiles(store, { 'a.ndjson': 'a1', 'b.ndjson': 'b1' });
-  ops.length = 0;
-  await uploadFiles(store, { 'b.ndjson': 'b2', 'c.ndjson': 'c2' });
-  expect(ops.filter((op) => op.startsWith('delete '))).toEqual([
-    `delete ${TRACES}a.ndjson`,
-  ]);
-  expect(ops.at(-1)).toBe(`delete ${TRACES}a.ndjson`);
-  expect(await store.listKeys('1/')).toEqual([
-    `${TRACES}b.ndjson`,
-    `${TRACES}c.ndjson`,
-  ]);
-});
-
-// regression: ci-artifact-upload-r2-same-object-throttle
-test('a throttled or failed write is retried after at least a second; other failures are not', async () => {
-  expect(PUT_RETRY_DELAYS_MS.every((ms) => ms >= 1_000)).toBe(true);
-  for (const status of [429, 500, 503])
-    expect(isRetryableWrite(s3Error(status))).toBe(true);
-  for (const status of [400, 403, 404])
-    expect(isRetryableWrite(s3Error(status))).toBe(false);
-  expect(isRetryableWrite(new Error('no status'))).toBe(false);
-
-  const key = `${TRACES}t.ndjson`;
-  const throttled = recordingStore(new Map([[key, [429, 500]]]));
-  const sleeps: number[] = [];
-  expect(await uploadFiles(throttled.store, { 't.ndjson': 't' }, sleeps)).toBe(
-    1
-  );
-  expect(sleeps).toEqual([...PUT_RETRY_DELAYS_MS]);
-  expect(await throttled.store.listKeys('1/')).toEqual([key]);
-
-  const forbidden = recordingStore(new Map([[key, [403]]]));
-  await expect(
-    uploadFiles(forbidden.store, { 't.ndjson': 't' })
-  ).rejects.toThrow('CI artifact transfer failed');
-  expect(forbidden.ops).toEqual([`put ${key}`]);
-
-  const down = recordingStore(new Map([[key, [500, 500, 500]]]));
-  await expect(uploadFiles(down.store, { 't.ndjson': 't' })).rejects.toThrow(
-    'CI artifact transfer failed'
-  );
-  expect(down.ops.length).toBe(PUT_RETRY_DELAYS_MS.length + 1);
-});
-
-// regression: ci-artifact-upload-r2-same-object-throttle
-test('the diagnostic trace and turbo summary uploads warn instead of failing Verify; transfers stay strict', () => {
-  const workflow = readFileSync(
-    join(REPO, '.github/workflows/verify-pr.yml'),
-    'utf8'
-  );
-  const uploads = [
-    ...workflow.matchAll(/ci-artifacts\.ts (--best-effort )?upload (\S+)/g),
-  ].map(([, flag, name]) => ({ name: name!, bestEffort: Boolean(flag) }));
-  const diagnostic = uploads.filter(({ name }) =>
-    /^(observability-traces|turbo-summary)-/.test(name)
-  );
-  expect(diagnostic.length).toBe(4);
-  for (const upload of uploads)
-    expect(upload).toEqual({
-      name: upload.name,
-      bestEffort: diagnostic.includes(upload),
-    });
-});
-
 // regression: github-artifact-download-attempt-selection
-test('every artifact of a run downloads into its own directory, and only that run', async () => {
-  const store = new ObjectStoreImplInMemory();
-  const bytes = (text: string) => new TextEncoder().encode(text);
-  const big = 'x'.repeat(1_048_577);
-  for (const shard of ['0', '1'])
-    await store.put(
-      `42/observability-traces-42-${shard}/trace.txt`,
-      bytes(`${shard}:${big}`),
-      'text/plain'
-    );
-  await store.put(
-    '43/observability-traces-43-0/trace.txt',
-    bytes('other'),
-    'text/plain'
-  );
-  expect(
-    await listArtifacts({ store, runId: '42', prefix: 'observability-traces-' })
-  ).toEqual(['observability-traces-42-0', 'observability-traces-42-1']);
+test('a rerun’s newest attempt of a name wins, every artifact downloads into its own directory, and only that run', async () => {
+  const api = fakeArtifactsApi([
+    {
+      runId: '42',
+      id: 11,
+      name: 'observability-traces-42-0',
+      files: { 'trace.txt': 'old' },
+    },
+    {
+      runId: '42',
+      id: 12,
+      name: 'observability-traces-42-0',
+      files: { 'trace.txt': 'new' },
+    },
+    {
+      runId: '42',
+      id: 13,
+      name: 'observability-traces-42-1',
+      files: { 'a/trace.txt': '1' },
+    },
+    {
+      runId: '42',
+      id: 14,
+      name: 'observability-traces-42-2',
+      files: { x: 'gone' },
+      expired: true,
+    },
+    {
+      runId: '43',
+      id: 15,
+      name: 'observability-traces-43-0',
+      files: { 'trace.txt': 'other' },
+    },
+  ]);
+  const names = await listArtifacts({
+    api,
+    runId: '42',
+    prefix: 'observability-traces-',
+  });
+  expect(names).toEqual([
+    'observability-traces-42-0',
+    'observability-traces-42-1',
+  ]);
   const out = mkdtempSync(join(tmpdir(), 'ci-artifacts-all-'));
   try {
-    for (const name of await listArtifacts({
-      store,
-      runId: '42',
-      prefix: 'observability-traces-',
-    }))
-      await downloadArtifact({
-        store,
-        runId: '42',
-        name,
-        directory: join(out, name),
-      });
+    for (const name of names)
+      expect(
+        await downloadArtifact({
+          api,
+          runId: '42',
+          name,
+          directory: join(out, name),
+        })
+      ).toBe(true);
     expect(tree(out)).toEqual({
-      'observability-traces-42-0/trace.txt': `0:${big}`,
-      'observability-traces-42-1/trace.txt': `1:${big}`,
+      'observability-traces-42-0/trace.txt': 'new',
+      'observability-traces-42-1/a/trace.txt': '1',
     });
+    expect(
+      await downloadArtifact({
+        api,
+        runId: '42',
+        name: 'verify-plan',
+        directory: join(out, 'missing'),
+      })
+    ).toBe(false);
+    expect(existsSync(join(out, 'missing'))).toBe(false);
   } finally {
     removeTree(out, { whenLocked: 'leave' });
   }
-  expect(
-    await deleteArtifacts({ store, runId: '42', prefix: 'observability-' })
-  ).toBe(2);
-  expect(await store.listKeys()).toEqual([
-    '43/observability-traces-43-0/trace.txt',
-  ]);
 });
 
-test('names and runs cannot escape their prefix', async () => {
-  const store = new ObjectStoreImplInMemory();
+test('names and runs cannot escape their scope', async () => {
+  const api = fakeArtifactsApi([]);
   for (const name of ['', '../x', 'a/b', '.hidden'])
     await expect(
-      downloadArtifact({ store, runId: '1', name, directory: tmpdir() })
+      downloadArtifact({ api, runId: '1', name, directory: tmpdir() })
     ).rejects.toThrow('Invalid artifact name');
   for (const runId of ['', '1/2', '../1'])
     await expect(
-      listArtifacts({ store, runId, prefix: 'verify-' })
+      listArtifacts({ api, runId, prefix: 'verify-' })
     ).rejects.toThrow('Invalid run ID');
-});
-
-test('the common root is the deepest directory every path shares', () => {
-  assertProperty(
-    'ci-artifacts-common-root',
-    fc.property(
-      fc.array(fc.array(fc.constantFrom('a', 'b', 'c'), { maxLength: 4 }), {
-        minLength: 1,
-        maxLength: 5,
-      }),
-      (paths) => {
-        const absolute = paths.map((parts) => join('/', 'r', ...parts));
-        const root = commonRoot(absolute);
-        for (const path of absolute)
-          expect(path === root || path.startsWith(`${root}${sep}`)).toBe(true);
-      }
-    )
-  );
 });
 
 // regression: artifact-storage-quota-exhausted
 // regression: github-download-artifact-node20
-test('no workflow keeps an artifact in GitHub storage, and the bucket expires every object within a week', () => {
-  const workflows = join(REPO, '.github/workflows');
-  for (const file of readdirSync(workflows)) {
-    const text = readFileSync(join(workflows, file), 'utf8');
-    expect({
-      file,
-      uses: /actions\/(upload|download)-artifact@/.test(text),
-    }).toEqual({
-      file,
-      uses: false,
-    });
-  }
+// regression: ci-artifact-upload-r2-same-object-throttle
+// regression: nightly-browser-reports-not-uploaded
+test('every artifact step is a pinned node24 action that replaces its name, keeps hidden report paths and expires within days', () => {
+  // GitHub artifact storage is free only for a public repository; a private
+  // one filled its quota and stopped every Verify run.
   const global = JSON.parse(
     readFileSync(
       join(REPO, 'libs/infra-shared-ts/tofu/global.tfvars.json'),
       'utf8'
     )
-  ) as { ci_artifacts: { retention_days: number } };
-  expect(global.ci_artifacts.retention_days).toBeLessThanOrEqual(7);
-  const fleet = readFileSync(
-    join(REPO, 'libs/infra-shared-ts/tofu/stacks/fleet/ci-artifacts.tf'),
-    'utf8'
+  ) as { github: { settings: { visibility: string } } };
+  expect(global.github.settings.visibility).toBe('public');
+  const steps = workflowSteps();
+  const uploads = steps.filter(({ step }) =>
+    step.uses?.startsWith('actions/upload-artifact@')
   );
-  expect(fleet).toContain(
-    'resource "cloudflare_r2_bucket_lifecycle" "ci_artifacts"'
+  expect(uploads.length).toBeGreaterThan(0);
+  for (const { file, step } of uploads) {
+    const name = String(step.with?.['name']);
+    const transfer = /^(verify-(plan|results|evidence)|release-verdict)/.test(
+      name
+    );
+    expect({ file, name, uses: step.uses, with: step.with }).toEqual({
+      file,
+      name,
+      uses: UPLOAD,
+      with: {
+        ...step.with,
+        'retention-days': transfer ? 1 : 3,
+        overwrite: true,
+        'include-hidden-files': true,
+        'if-no-files-found': 'ignore',
+      },
+    });
+    // Diagnostic uploads never fail the verification they describe.
+    expect({
+      name,
+      bestEffort: step['continue-on-error'] === true,
+    }).toEqual({
+      name,
+      bestEffort: /^(observability-traces|turbo-summary|health-alerts)-/.test(
+        name
+      ),
+    });
+  }
+  for (const { step } of steps.filter(({ step }) =>
+    step.uses?.startsWith('actions/download-artifact@')
+  ))
+    expect(step.uses).toBe(DOWNLOAD);
+  // The browser report keeps whole report directories, not just traces.
+  const browser = uploads.find(({ step }) =>
+    String(step.with?.['name']).startsWith('verify-nightly-browser-')
   );
-  expect(fleet).toContain('max_age = var.ci_artifacts.retention_days * 86400');
+  expect(String(browser?.step.with?.['path'])).toContain(
+    'apps/*/.cache/harness-report'
+  );
+  // No workflow reaches the retired R2 bucket.
+  for (const file of readdirSync(WORKFLOWS))
+    expect({
+      file,
+      bucket:
+        /CI_ARTIFACTS_|ci-artifacts-run|ci-artifacts\.ts (--best-effort )?upload/.test(
+          readFileSync(join(WORKFLOWS, file), 'utf8')
+        ),
+    }).toEqual({ file, bucket: false });
 });
 
 // regression: verify-artifact-cleanup-partial-pagination
 test('a failed listing deletes nothing', async () => {
-  const store = new ObjectStoreImplInMemory();
-  await store.put('1/verify-plan/plan.payload', new Uint8Array([1]), 'x');
-  let deleted = 0;
-  const failing = {
-    ...store,
-    listKeys: async (): Promise<readonly string[]> => {
-      throw new Error('unexpected end of XML input');
+  const fake = fakeArtifactsApi([
+    { runId: '1', id: 1, name: 'verify-plan', files: { 'plan.payload': 'p' } },
+  ]);
+  const failing: ArtifactsApi = {
+    ...fake,
+    list: async () => {
+      throw new Error('gh api --paginate failed: unexpected end of JSON input');
     },
-    deleteMany: async () => {
-      deleted += 1;
-    },
-  } as unknown as ObjectStoreImplInMemory;
+  };
   await expect(
-    deleteArtifacts({ store: failing, runId: '1', prefix: 'verify-' })
-  ).rejects.toThrow('unexpected end of XML input');
-  expect(deleted).toBe(0);
-  expect(await store.listKeys()).toEqual(['1/verify-plan/plan.payload']);
+    deleteArtifacts({ api: failing, runId: '1', prefix: 'verify-' })
+  ).rejects.toThrow('unexpected end of JSON input');
+  expect(fake.removed).toEqual([]);
 });
 
 // regression: verify-artifact-property-shell-starts
@@ -422,23 +232,28 @@ test('cleanup deletes every listed transfer exactly once, including none, and ke
     fc.asyncProperty(
       fc.uniqueArray(fc.nat({ max: 1_000_000 }), { maxLength: 150 }),
       async (ids) => {
-        const store = new ObjectStoreImplInMemory();
-        const bytes = new Uint8Array([1]);
-        for (const id of ids)
-          await store.put(
-            `5/verify-evidence-${String(id)}/e.tar.gz`,
-            bytes,
-            'x'
-          );
-        await store.put('5/observability-traces-5-0/t.ndjson', bytes, 'x');
-        await store.put('6/verify-plan/plan.payload', bytes, 'x');
-        expect(
-          await deleteArtifacts({ store, runId: '5', prefix: 'verify-' })
-        ).toBe(ids.length);
-        expect(await store.listKeys()).toEqual([
-          '5/observability-traces-5-0/t.ndjson',
-          '6/verify-plan/plan.payload',
+        const api = fakeArtifactsApi([
+          ...ids.map((id) => ({
+            runId: '5',
+            id: id + 10,
+            name: `verify-evidence-${String(id)}`,
+            files: { 'e.tar.gz': 'e' },
+          })),
+          { runId: '5', id: 1, name: 'observability-traces-5-0', files: {} },
+          { runId: '6', id: 2, name: 'verify-plan', files: {} },
         ]);
+        expect(
+          await deleteArtifacts({ api, runId: '5', prefix: 'verify-' })
+        ).toBe(ids.length);
+        expect([...api.removed].sort((a, b) => a - b)).toEqual(
+          ids.map((id) => id + 10).sort((a, b) => a - b)
+        );
+        expect(
+          api
+            .live()
+            .map(({ name }) => name)
+            .sort()
+        ).toEqual(['observability-traces-5-0', 'verify-plan']);
       }
     ),
     { examples: [[[]]] }

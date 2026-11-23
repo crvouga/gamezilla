@@ -16,7 +16,6 @@ function declaredNames(): [ResourceKind, string][] {
   const names: [ResourceKind, string][] = [
     ['cloudflare-r2-bucket', GLOBAL.state.bucket],
     ['cloudflare-r2-bucket', GLOBAL.shared_data.bucket],
-    ['cloudflare-r2-bucket', GLOBAL.ci_artifacts.bucket],
     ['cloudflare-worker', GLOBAL.auth_relay.worker],
     ...GLOBAL.auth_relay.hostname
       .split('.')
