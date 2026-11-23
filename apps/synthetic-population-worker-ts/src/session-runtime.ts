@@ -30,6 +30,7 @@ export class SessionRuntime {
   private draining = false;
   private activated = false;
   private stopped = false;
+  private ticking = false;
   private timer: unknown;
   private checkpoint: Checkpoint;
   private recovering = false;
@@ -100,8 +101,19 @@ export class SessionRuntime {
       this.signInLinks.deliver(value.link);
       return;
     }
+    const answering = (this.renewal?.waitingOpponents.length ?? 0) > 0;
     this.renewal = value.renewal;
     this.draining = value.draining;
+    // A person newly waiting for it is answered now, not at its usual pace.
+    if (!answering && value.renewal.waitingOpponents.length > 0) this.wakeNow();
+  }
+  private wakeNow(): void {
+    if (this.stopped || this.ticking) return;
+    this.ports.timers.clearTimeout(this.timer);
+    this.nextActionAt = 0;
+    this.timer = this.ports.timers.setTimeout(() => {
+      void this.tick();
+    }, 1);
   }
   private async restore(): Promise<void> {
     this.activated = false;
@@ -199,6 +211,7 @@ export class SessionRuntime {
     }, delay);
   }
   private async tick(): Promise<void> {
+    this.ticking = true;
     try {
       if (!this.activated || this.instance === null || this.behavior === null)
         return;
@@ -257,6 +270,7 @@ export class SessionRuntime {
     } catch (error) {
       await this.recover(error);
     } finally {
+      this.ticking = false;
       this.schedule();
     }
   }

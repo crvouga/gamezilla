@@ -237,7 +237,7 @@ for (const story of stories) {
     );
   else if (posix.dirname(relative) !== posix.dirname(production.implementation))
     errors.push(
-      `${relative}: colocate this story with ${production.implementation}, its component styles and baselines.`
+      `${relative}: colocate this story with ${production.implementation}, and its component styles.`
     );
   if (!contract.exports.length || !indexedCoverage([story]).length)
     errors.push(
@@ -267,32 +267,19 @@ for (const ref of references) {
       `${ref.path}: ${ref.module} leaks preview infrastructure into production`
     );
 }
-const expectedBaselines = new Set(
-  indexedStories.flatMap((story) =>
-    visualScenarios(story).map((scenario) => scenario.baseline)
-  )
-);
-const actualBaselines = new Set(
-  [...packageFiles, ...libraryFiles]
-    .filter(
-      (file) => file.includes('/baselines/chromium/') && file.endsWith('.png')
-    )
-    .map((file) => file.slice(root.length + 1))
-);
-for (const baseline of expectedBaselines)
-  if (!actualBaselines.has(baseline))
+// Stories are never compared against stored pictures of themselves: such
+// references need re-authoring after every intended change and fail for
+// reasons a reader cannot see. A committed reference is refused.
+for (const file of [...packageFiles, ...libraryFiles])
+  if (file.includes('/baselines/') && file.endsWith('.png'))
     errors.push(
-      `${baseline}: missing visual baseline. Run the explicit Storybook baseline update, then compare without updating.`
-    );
-for (const baseline of actualBaselines)
-  if (!expectedBaselines.has(baseline))
-    errors.push(
-      `${baseline}: orphan baseline. Remove it or restore its canonical story.`
+      `${file.slice(root.length + 1)}: stored screenshot reference. Stories are not compared against pictures; remove it and assert what the story must show in its play function.`
     );
 const report = {
   components: entries,
   storyFiles: stories.length,
-  visualScenarios: expectedBaselines.size,
+  visualScenarios: indexedStories.flatMap((story) => visualScenarios(story))
+    .length,
   errors,
 };
 const out = resolve(root, harness, '.cache');

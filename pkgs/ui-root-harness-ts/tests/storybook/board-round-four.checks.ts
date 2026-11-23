@@ -112,7 +112,6 @@ for (const id of [
         ...phone,
         width: 1440,
         suffix: '-1440',
-        baseline: phone.baseline.replace('.png', '-1440.png'),
       });
     });
   }

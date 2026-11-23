@@ -7,6 +7,7 @@
 
 import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing-shared-ts/plus-membership-offer';
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
+import { reachAccountMenu } from '@libs/harness-ts/driver-gestures';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { accountIdOf } from '@libs/harness-ts/identity';
 import { nodeText, partitioned } from '@libs/harness-ts/observations';
@@ -46,7 +47,7 @@ export const openBilling = scenarioAction({
   name: 'openBilling',
   act: async (s, actorId: string) => {
     const ui = await actorUi(s, actorId);
-    await ui.get(Handles.statusCurrentUser).tap({ timeoutMs: WAIT_MS });
+    await (await reachAccountMenu(ui, WAIT_MS)).tap({ timeoutMs: WAIT_MS });
     await ui.get(Handles.globalMenuSettings).tap({ timeoutMs: WAIT_MS });
     await ui.get(Handles.settingsBilling).tap({ timeoutMs: WAIT_MS });
     await ui.get(Handles.billingScreen).expect.visible({ timeoutMs: WAIT_MS });
@@ -58,7 +59,7 @@ export const leaveBilling = scenarioAction({
   name: 'leaveBilling',
   act: async (s, actorId: string) => {
     const ui = await actorUi(s, actorId);
-    await ui.get(Handles.statusCurrentUser).tap({ timeoutMs: WAIT_MS });
+    await (await reachAccountMenu(ui, WAIT_MS)).tap({ timeoutMs: WAIT_MS });
     await ui.get(Handles.globalMenuSettings).tap({ timeoutMs: WAIT_MS });
     await ui.get(Handles.billingScreen).expect.hidden({ timeoutMs: WAIT_MS });
   },

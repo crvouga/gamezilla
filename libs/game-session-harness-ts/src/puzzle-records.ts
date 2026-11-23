@@ -10,9 +10,9 @@
 import { inPuzzleNamespace } from '@libs/game-puzzle-shared-ts/puzzle-namespace';
 import { GAME_PUZZLE_SUB } from '@libs/game-puzzle-shared-ts/sub';
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
+import { spaceBarShown } from '@libs/harness-ts/driver-gestures';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { actorLocalSql } from '@libs/harness-ts/identity';
-import { spaceBarShown } from '@libs/harness-ts/shell-actions';
 import { writeServerFixture } from '@libs/harness-ts/write-server-fixture';
 import {
   ownSpaceCard,

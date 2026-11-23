@@ -3,8 +3,8 @@ import {
   ensureActor,
   scenarioAction,
 } from '@libs/harness-ts/actor-ui';
+import { minimizeSpace, spaceBarShown } from '@libs/harness-ts/driver-gestures';
 import type { ProductHarness } from '@libs/harness-ts/harness';
-import { minimizeSpace, spaceBarShown } from '@libs/harness-ts/shell-actions';
 import {
   markSpaceQuiet,
   spaceClientIsQuiet,

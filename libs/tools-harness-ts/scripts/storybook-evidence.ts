@@ -14,12 +14,11 @@ import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import { downloadArtifact, githubArtifactsApi } from './ci-artifacts';
 import { sealEvidence } from './storybook-evidence-crypto';
 import {
+  assertEvidenceFits,
   assertEvidencePath,
   decodeEvidence,
   EVIDENCE_MANIFEST,
   encodeEvidence,
-  evidenceTransfer,
-  STORYBOOK_BASELINE_PATCH,
   STORYBOOK_RESULTS,
 } from './storybook-evidence-log';
 import { restoreEvidence } from './storybook-evidence-restore';
@@ -70,19 +69,13 @@ async function exportEvidence(runId: string): Promise<void> {
     const results = under(STORYBOOK_RESULTS);
     if (!results.length)
       throw new Error(`No retained Storybook evidence: ${runId}`);
-    // An authoring run also retains its reference patch; owners commit from it.
-    paths = [...results, ...under(STORYBOOK_BASELINE_PATCH)];
+    paths = results;
     let total = 0;
     for (const path of paths) {
       assertEvidencePath(path);
       if (path === EVIDENCE_MANIFEST) throw new Error('Reserved manifest path');
       const bytes = new Uint8Array(readFileSync(join(directory, path)));
-      if (evidenceTransfer(path, bytes.byteLength, total) === 'skip') {
-        console.log(
-          `Skipped ${path} (${bytes.byteLength} bytes): decode it from the authoring job log instead`
-        );
-        continue;
-      }
+      assertEvidenceFits(bytes.byteLength, total);
       total += bytes.byteLength;
       const encoded = encodeEvidence(path, bytes);
       files.push({ path, sha256: decodeEvidence(encoded).sha256 });

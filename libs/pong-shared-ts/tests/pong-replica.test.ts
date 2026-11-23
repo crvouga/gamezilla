@@ -53,6 +53,8 @@ test('selective prediction responds before a snapshot while the ball, score and 
   const before = rig.sample();
   rig.client.control('white', { kind: 'direction', direction: 1 });
   rig.client.pump();
+  // The paddle moves from the next picture on, before any snapshot.
+  rig.clock.advance(16);
   expect(rig.sample().paddles.left.y).toBeGreaterThan(before.paddles.left.y);
   expect(rig.sample().paddles.right).toEqual(before.paddles.right);
   expect(rig.sample().ball).toEqual(before.ball);
@@ -76,7 +78,8 @@ test('selective prediction responds before a snapshot while the ball, score and 
   ).toBe(true);
   expect(rig.sample().paddles.left.y).toBe(410);
   expect(rig.sample().ball).toEqual(before.ball);
-  expect(rig.measures.at(-1)).toMatchObject({ predictionErrors: [0.025] });
+  // The input moved the paddle only from its own tick, as the authority did.
+  expect(rig.measures.at(-1)).toMatchObject({ predictionErrors: [0] });
 });
 
 test('stale delivery and a reconnect fence cannot rewind presentation or resend held old controls', () => {
@@ -179,6 +182,10 @@ test('rebasing a future control projects only the ticks still ahead of the recei
     'game:1:0'
   );
   // Only ticks fifteen and sixteen remain: 2 × 10 court units, not 3 × 10.
+  // The screen shows the paddle where tick sixteen starts it, then carries
+  // it on with the held control: one tick later it is at tick sixteen.
+  expect(rig.sample().paddles.left.y).toBeCloseTo(420, 10);
+  rig.clock.advance(1000 / 60);
   expect(rig.sample().paddles.left.y).toBeCloseTo(430, 10);
   expect(rig.measures.at(-1)).toMatchObject({ predictionErrors: [] });
 });
@@ -190,10 +197,12 @@ test('same-tick error ignores future movement and future projections rebase befo
   rig.client.pump();
   rig.clock.advance(34);
   rig.client.pump();
-  expect(rig.sample().paddles.left.y).toBe(460);
+  // Input one moves the paddle from tick 13 and input two takes over at 16:
+  // the screen shows where tick 16 starts it.
+  expect(rig.sample().paddles.left.y).toBe(430);
   const before = pongPositionCodec.decode(rig.initial.payload.state)!;
   for (const [revision, tick, sequence, y, error] of [
-    [2, 13, 1, 410, 0.025],
+    [2, 13, 1, 410, 0],
     [3, 16, 2, 440, 0],
   ] as const) {
     const state = {
@@ -293,8 +302,9 @@ test('normalized error depends only on the chosen paddle at the same tick, indep
             'game:1:0'
           )
         ).toBe(true);
+        // At tick 13 the paddle had moved one tick, from 400: its input's own.
         expect(rig.measures.at(-1)).toMatchObject({
-          predictionErrors: [Math.abs(430 - own) / 800],
+          predictionErrors: [Math.abs(410 - own) / 800],
         });
       }
     )

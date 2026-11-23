@@ -5,30 +5,17 @@ import { decodeBaselineLog, encodeBaselineLog } from './storybook-baseline-log';
 export const STORYBOOK_RESULTS =
   'pkgs/ui-root-harness-ts/.cache/storybook-test-results/';
 export const EVIDENCE_MANIFEST = `${STORYBOOK_RESULTS}relay-manifest.json`;
-/** The retained reference patch an authoring run writes beside its results. */
-export const STORYBOOK_BASELINE_PATCH =
-  '.cache/verify-nightly/storybook-baselines.patch';
 
 const FILE_LIMIT = 20 * 1024 * 1024;
 const TOTAL_LIMIT = 512 * 1024 * 1024;
 
-/**
- * Whether a retained file fits the bounded log transfer. An oversized
- * reference patch is skipped (its authoring job log carries it already);
- * any other oversized evidence refuses the export.
- */
-export function evidenceTransfer(
-  path: string,
-  size: number,
-  sentSoFar: number
-): 'send' | 'skip' {
-  if (size <= FILE_LIMIT && sentSoFar + size <= TOTAL_LIMIT) return 'send';
-  if (path === STORYBOOK_BASELINE_PATCH) return 'skip';
-  throw new Error('Evidence exceeds the bounded log transfer size');
+/** Refuses a retained file that does not fit the bounded log transfer. */
+export function assertEvidenceFits(size: number, sentSoFar: number): void {
+  if (size > FILE_LIMIT || sentSoFar + size > TOTAL_LIMIT)
+    throw new Error('Evidence exceeds the bounded log transfer size');
 }
 
 export function assertEvidencePath(path: string): void {
-  if (path === STORYBOOK_BASELINE_PATCH) return;
   if (
     !path.startsWith(STORYBOOK_RESULTS) ||
     path.includes('\\') ||

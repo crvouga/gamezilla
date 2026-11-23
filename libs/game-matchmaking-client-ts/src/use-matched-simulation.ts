@@ -9,8 +9,11 @@ import {
   type SimulationPresentation,
 } from '@libs/game-session-client-ts/simulation-presentation-session';
 import type { SimulationReplica } from '@libs/game-session-shared-ts/simulation-replica';
-import { simulationReplicaMeasures } from '@libs/game-session-shared-ts/simulation-telemetry';
-import { useClock, useTimers } from '@pkgs/clock-client-ts/solid';
+import {
+  simulationFrameMeasures,
+  simulationReplicaMeasures,
+} from '@libs/game-session-shared-ts/simulation-telemetry';
+import { useClock } from '@pkgs/clock-client-ts/solid';
 import { RoomMetaAttr } from '@pkgs/room-root-client-ts/room-meta';
 import { useTurnGames } from '@pkgs/turn-game-client-ts/turn-games-context';
 import type { GameSimulationControls } from '@pkgs/turn-game-shared-ts/game-presentation';
@@ -34,7 +37,6 @@ export function useMatchedSimulation(
 ) {
   const rules = useTurnGames();
   const clock = useClock();
-  const timers = useTimers();
   const [shown, setShown] = createSignal<SimulationPresentation>({
     position: null,
     paused: true,
@@ -63,7 +65,6 @@ export function useMatchedSimulation(
     const connection = connectSimulationPresentation({
       simulation: definition,
       clock,
-      timers,
       generation: () => {
         const execution = acceptedRoom()?.execution;
         return execution === undefined
@@ -79,6 +80,7 @@ export function useMatchedSimulation(
       subscribeRoom: live.subscribe.bind(live),
       changed: setShown,
       measure: simulationReplicaMeasures('matched'),
+      framed: simulationFrameMeasures('matched'),
     });
     replica = connection.replica;
     createEffect(() => {

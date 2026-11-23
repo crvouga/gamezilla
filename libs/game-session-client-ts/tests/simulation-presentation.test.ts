@@ -10,6 +10,7 @@ import {
 } from '@libs/game-session-shared-ts/simulation-messages';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { raceGame } from './reference-race-game';
+import { virtualFrames } from './virtual-frames';
 
 type Options = Parameters<typeof connectSimulationPresentation>[0];
 
@@ -44,6 +45,7 @@ test.each(['generation change', 'room resynchronization'] as const)(
     const connection = connectSimulationPresentation({
       simulation: raceGame.registration.simulation!,
       ...time,
+      frames: virtualFrames(time),
       generation: () => generation,
       isReady: () => ready,
       send: (message) => {
@@ -105,6 +107,7 @@ test('a court that became ready by its own refresh keeps the held input on the n
   const connection = connectSimulationPresentation({
     simulation: raceGame.registration.simulation!,
     ...time,
+    frames: virtualFrames(time),
     generation: () => generation,
     isReady: () => ready,
     send: (message) => {
@@ -153,6 +156,7 @@ test('a refresh keeps the control a player is still holding', () => {
   const connection = connectSimulationPresentation({
     simulation: raceGame.registration.simulation!,
     ...time,
+    frames: virtualFrames(time),
     generation: () => 'race:1',
     isReady: () => ready,
     send: (message) => {
@@ -202,6 +206,7 @@ test('a court that became ready by its own refresh keeps the held input on the n
   const connection = connectSimulationPresentation({
     simulation: raceGame.registration.simulation!,
     ...time,
+    frames: virtualFrames(time),
     generation: () => generation,
     isReady: () => ready,
     send: (message) => {

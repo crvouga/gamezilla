@@ -66,14 +66,22 @@ export async function reachSearchHub(driver: Driver): Promise<boolean> {
   return true;
 }
 
+/** The clock a time control names, without its game's clock namespace. */
+function clockOf(timeControl: string): string {
+  return timeControl.split('/').at(-1) ?? '';
+}
+
 /**
  * The person's clock, chosen on its own place one row from the hub, which
- * returns to the hub with it. A game without clock choices has no such row,
- * and a clock the game does not offer leaves the hub's own choice.
+ * returns to the hub with it. A game without clock choices has no such row.
+ * `false` when the hub does not end up on the person's clock (one the game
+ * does not offer): a search there would never meet the person.
  */
-async function chooseClock(driver: Driver, clock: string): Promise<void> {
+async function chooseClock(driver: Driver, clock: string): Promise<boolean> {
   const row = driver.get('multiplayer-open-time-control');
-  if (!(await row.isVisible())) return;
+  if (!(await row.isVisible())) return true;
+  if (clockOf((await row.attribute('data-time-control')) ?? '') === clock)
+    return true;
   await row.tap();
   const choice = driver.get(
     `multiplayer-time-control-${clock.replace('+', '-')}`
@@ -85,13 +93,15 @@ async function chooseClock(driver: Driver, clock: string): Promise<void> {
     await driver.get(Handles.navBack).tap();
   }
   await driver.get('multiplayer-find').wait('visible');
+  return clockOf((await row.attribute('data-time-control')) ?? '') === clock;
 }
 
 /**
  * Find an opponent for the game a person waits in, through the same
  * controls a person uses: back to the space's games when another game is
  * open, that game's menu, finding an opponent, the person's match choice,
- * then Find. `false` when the way there is not on screen.
+ * then Find. `false` when the way there is not on screen, or the person's
+ * match choice cannot be chosen: it never looks at another time control.
  */
 export async function findOpponentFor(
   driver: Driver,
@@ -102,7 +112,8 @@ export async function findOpponentFor(
       await driver.get(Handles.gameMenu(demand.gameId)).tap();
       await driver.get(FIND_AN_OPPONENT).tap();
       await openSearchHub(driver);
-      await chooseClock(driver, demand.timeControl.split('/').at(-1) ?? '');
+      if (!(await chooseClock(driver, clockOf(demand.timeControl))))
+        return false;
       await driver.get('multiplayer-find').tap();
       return true;
     }

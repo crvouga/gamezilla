@@ -25,6 +25,14 @@ import { nextHarnessNodeId, normalizeHarnessNodeId } from './node-name';
 
 export const HARNESS_PRIMARY_SERVER_ID = 'server-a';
 
+/**
+ * The room host as the network sees it. Cutting an actor off from it alone
+ * leaves their room connection unable to open while every request to the
+ * API still answers — a room socket stuck on its reconnect while the app
+ * itself is plainly online.
+ */
+export const HARNESS_ROOM_HOST_ID = 'room-host';
+
 export type Server = Awaited<ReturnType<typeof createServer>>;
 
 export type HarnessServerNode = {

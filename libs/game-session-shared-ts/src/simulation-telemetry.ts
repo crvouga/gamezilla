@@ -1,4 +1,5 @@
 import { createMetric } from '@pkgs/observability-root-shared-ts/metric-contract';
+import type { SimulationReplicaSample } from './simulation-replica';
 
 const dimensions = { 'game.mode': ['custom', 'matched', 'local'] } as const;
 const tickDuration = createMetric({
@@ -75,24 +76,103 @@ const reconciliations = createMetric({
   dimensions,
 });
 
+const frameInterval = createMetric({
+  name: 'game.simulation.frame.interval',
+  description: 'Spacing between presented live game frames',
+  unit: 's',
+  type: 'histogram',
+  dimensions,
+});
+const frames = createMetric({
+  name: 'game.simulation.frames',
+  description: 'Presented live game frames',
+  unit: '{frame}',
+  type: 'counter',
+  dimensions,
+});
+const droppedFrames = createMetric({
+  name: 'game.simulation.frames.dropped',
+  description:
+    'Presented live game frames that came later than one and a half 60 Hz frames',
+  unit: '{frame}',
+  type: 'counter',
+  dimensions,
+});
+const presentationDelay = createMetric({
+  name: 'game.simulation.presentation.delay',
+  description: 'Authority now to the live court shown, for interpolated play',
+  unit: 's',
+  type: 'histogram',
+  dimensions,
+});
+const snapshotInterval = createMetric({
+  name: 'game.simulation.snapshot.interval',
+  description: 'Spacing between authoritative courts arriving at a device',
+  unit: 's',
+  type: 'histogram',
+  dimensions,
+});
+const playbackSnaps = createMetric({
+  name: 'game.simulation.playback.snaps',
+  description: 'Times the playback clock jumped instead of converging',
+  unit: '{snap}',
+  type: 'counter',
+  dimensions,
+});
+const inputRender = createMetric({
+  name: 'game.simulation.input.render.duration',
+  description: 'A changed local control to the first frame showing it',
+  unit: 's',
+  type: 'histogram',
+  dimensions,
+});
+const resyncs = createMetric({
+  name: 'game.simulation.resyncs',
+  description: 'Times a replica re-read the authority after losing it',
+  unit: '{resync}',
+  type: 'counter',
+  dimensions,
+});
+
+/** A frame later than this missed at least one 60 Hz refresh. */
+export const DROPPED_FRAME_MS = 1.5 * (1000 / 60);
+
 export function simulationReplicaMeasures(
   mode: 'custom' | 'matched' | 'local'
 ) {
   const attributes = { 'game.mode': mode };
-  return (sample: {
-    snapshotAgeMs: number;
-    pendingInputs: number;
-    reconciled: boolean;
-    acknowledgmentMs: readonly number[];
-    predictionErrors: readonly number[];
-  }): void => {
+  let snapsSeen = 0;
+  let resyncsSeen = 0;
+  return (sample: SimulationReplicaSample): void => {
     for (const milliseconds of sample.acknowledgmentMs)
       inputAcknowledgment(milliseconds / 1000, attributes);
     for (const error of sample.predictionErrors)
       predictionError(error, attributes);
+    for (const milliseconds of sample.inputRenderMs)
+      inputRender(milliseconds / 1000, attributes);
     snapshotAge(sample.snapshotAgeMs / 1000, attributes);
     pendingInputs(sample.pendingInputs, attributes);
+    if (sample.presentationDelayMs !== null)
+      presentationDelay(sample.presentationDelayMs / 1000, attributes);
+    if (sample.arrivalIntervalMs !== null)
+      snapshotInterval(sample.arrivalIntervalMs / 1000, attributes);
+    if (sample.playbackSnaps > snapsSeen)
+      playbackSnaps(sample.playbackSnaps - snapsSeen, attributes);
+    snapsSeen = sample.playbackSnaps;
+    if (sample.resyncs > resyncsSeen)
+      resyncs(sample.resyncs - resyncsSeen, attributes);
+    resyncsSeen = sample.resyncs;
     if (sample.reconciled) reconciliations(1, attributes);
+  };
+}
+
+/** Frame pacing of a live game's presentation: one call per presented frame. */
+export function simulationFrameMeasures(mode: 'custom' | 'matched' | 'local') {
+  const attributes = { 'game.mode': mode };
+  return (intervalMs: number): void => {
+    frameInterval(intervalMs / 1000, attributes);
+    frames(1, attributes);
+    if (intervalMs > DROPPED_FRAME_MS) droppedFrames(1, attributes);
   };
 }
 

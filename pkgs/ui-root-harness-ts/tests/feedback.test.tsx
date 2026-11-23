@@ -260,6 +260,20 @@ describe('State blocks', () => {
     expect(compact).toHaveAttribute('data-variant', 'compact');
   });
 
+  test('a whole-screen LoadingState shows the large spinner, an inline one the default', () => {
+    renderUi(() => (
+      <>
+        <LoadingState />
+        <LoadingState variant="compact" />
+        <LoadingState variant="compact" size="sm" />
+      </>
+    ));
+    const sizes = [
+      ...document.querySelectorAll('[data-component="Spinner"]'),
+    ].map((el) => el.getAttribute('data-size'));
+    expect(sizes).toEqual(['lg', 'md', 'sm']);
+  });
+
   test('LoadingState renders spinner + caption', () => {
     renderUi(() => <LoadingState caption="Waiting for metrics…" />);
     expect(screen.getByRole('status')).toBeInTheDocument();

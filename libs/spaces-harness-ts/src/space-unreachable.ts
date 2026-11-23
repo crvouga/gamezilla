@@ -6,6 +6,8 @@
  */
 
 import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
+import { caps } from '@libs/harness-ts/observations';
+import { HARNESS_ROOM_HOST_ID } from '@libs/harness-ts/server-nodes';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import sql from '@pkgs/sql-root-shared-ts/sql';
 
@@ -42,5 +44,29 @@ export const tryReachingSpaceAgain = scenarioAction({
   act: async (s, actorId: string) => {
     const ui = await actorUi(s, actorId);
     await ui.get(Handles.spaceUnreachableRetry).tap();
+  },
+});
+
+/**
+ * The actor's room connection can't open while every request to the API
+ * still answers: their app is online and their space still exists, but the
+ * room socket stays down, as it does while it waits out its reconnect
+ * backoff, a session is renewed, or the room host restarts. Needs a host
+ * that models the network.
+ */
+export const cutRoomConnection = scenarioAction({
+  name: 'cutRoomConnection',
+  enabled: (s) => caps(s).includes('partition'),
+  act: (s, actorId: string) => {
+    s.harness.partition(HARNESS_ROOM_HOST_ID, actorId);
+  },
+});
+
+/** The actor's room connection can open again. */
+export const restoreRoomConnection = scenarioAction({
+  name: 'restoreRoomConnection',
+  enabled: (s) => caps(s).includes('partition'),
+  act: (s, actorId: string) => {
+    s.harness.heal(HARNESS_ROOM_HOST_ID, actorId);
   },
 });

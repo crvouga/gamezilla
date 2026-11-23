@@ -1,6 +1,6 @@
 /** What a person does in a hosted space: see the games, open a chess puzzle. */
 
-import { spaceBarShown } from '@libs/harness-ts/shell-actions';
+import { spaceBarShown } from '@libs/harness-ts/driver-gestures';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 import { check, expectVisible, tap } from './journey-gestures';

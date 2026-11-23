@@ -1,6 +1,6 @@
 import type { ProductHarness } from '@libs/harness-ts/harness';
 
-import { spaceTitleShown } from './spaces-ui-reads';
+import { spaceNameShown } from './spaces-ui-reads';
 
 /**
  * The actor's open space shows it named after its host by `hostName` — the
@@ -11,5 +11,5 @@ export async function spaceNamedAfterShown(
   actorId: string,
   hostName: string
 ): Promise<boolean> {
-  return (await spaceTitleShown(s, actorId)) === `${hostName}'s space`;
+  return (await spaceNameShown(s, actorId)) === `${hostName}'s space`;
 }

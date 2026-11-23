@@ -66,10 +66,6 @@ on:
         description: Base64 PEM public key for encrypted evidence export; private key stays with the reviewer
         type: string
         default: ''
-      update-storybook-baselines:
-        description: Explicitly author Ubuntu Storybook references (group must be storybook); compare them again and retain a patch for review
-        type: boolean
-        default: false
 
 env:
   TURBO_UI: stream
@@ -94,7 +90,7 @@ jobs:
     if: ${{ github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'gate' || inputs.group == 'visual' }}
     permissions:
       contents: read # check out the code
-      actions: read # read run state (gh run list, job metadata)
+      actions: write # delegated verify:end reads run state and deletes this run's transfer artifacts
       checks: read # delegated PR verification reads check results
       statuses: read # delegated PR verification reads commit statuses
       id-token: write # mint the OIDC token Infisical and AWS trust
@@ -194,7 +190,7 @@ jobs:
       STORYBOOK_EVIDENCE_RUN: ${{ inputs.storybook-evidence-run }}
       STORYBOOK_EVIDENCE_PUBLIC_KEY: ${{ inputs.storybook-evidence-key }}
     permissions:
-      contents: read # check out the code; the job never pushes references
+      contents: read # check out the code
       actions: read # export a retained run's Storybook artifact
       id-token: write # mint the OIDC token Infisical trusts
     steps:
@@ -212,29 +208,18 @@ jobs:
       - name: Build canonical Storybook
         if: ${{ !inputs.storybook-evidence-run }}
         run: bun run storybook:build
-      - name: Author references explicitly
-        if: ${{ !inputs.storybook-evidence-run && inputs.update-storybook-baselines }}
-        run: bun run storybook:test --grep "$STORYBOOK_PATTERN" --update-snapshots
-      - name: Collect reference changes for review
-        if: ${{ always() && !cancelled() && !inputs.storybook-evidence-run }}
-        run: bun run libs/tools-harness-ts/scripts/storybook-baseline-patch.ts --stdout
-      - name: Compare every authored Storybook state
-        if: ${{ !inputs.storybook-evidence-run && inputs.update-storybook-baselines }}
-        run: bun run storybook:test --grep "$STORYBOOK_PATTERN"
-      - name: Compare PR Storybook states
-        if: ${{ !inputs.storybook-evidence-run && !inputs.update-storybook-baselines && !inputs.storybook-pattern }}
+      - name: Check PR Storybook states
+        if: ${{ !inputs.storybook-evidence-run && !inputs.storybook-pattern }}
         run: bunx turbo run ci:storybook:0 ci:storybook:1 ci:storybook:2 ci:storybook:3 ci:storybook:4 ci:storybook:5 ci:storybook:6 ci:storybook:7 ci:storybook:8 ci:storybook:9 ci:storybook:10 ci:storybook:11 ci:storybook:12 ci:storybook:13 --filter=@pkgs/ui-root-harness-ts --concurrency=1
-      - name: Compare selected Storybook states
-        if: ${{ !inputs.storybook-evidence-run && !inputs.update-storybook-baselines && inputs.storybook-pattern != '' }}
+      - name: Check selected Storybook states
+        if: ${{ !inputs.storybook-evidence-run && inputs.storybook-pattern != '' }}
         run: bun run storybook:test --grep "$STORYBOOK_PATTERN"
-      - name: Retain Storybook comparisons and reference patch
+      - name: Retain Storybook results
         if: ${{ always() && !cancelled() && !inputs.storybook-evidence-run }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: verify-nightly-storybook-${{ github.run_id }}
-          path: |
-            pkgs/ui-root-harness-ts/.cache/storybook-test-results
-            .cache/verify-nightly/storybook-baselines.patch
+          path: pkgs/ui-root-harness-ts/.cache/storybook-test-results
           retention-days: 3
           overwrite: true
           include-hidden-files: true
