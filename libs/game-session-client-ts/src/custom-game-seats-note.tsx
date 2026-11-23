@@ -1,8 +1,8 @@
+import { CustomGamesAttr } from '@libs/game-session-shared-ts/custom-game-state';
 import {
   customGameSeatsNote,
   noteCustomGameSeatsMutation,
-} from '@libs/game-session-shared-ts/custom-game-seats';
-import { CustomGamesAttr } from '@libs/game-session-shared-ts/custom-game-state';
+} from '@libs/game-session-sub-shared-ts/custom-game-seats';
 import { useSpaceRoomSessionId } from '@libs/spaces-client-ts/space-room-context';
 import { useSpaceRoomSelector } from '@libs/spaces-client-ts/use-space-room-selector';
 import { RoomMetaAttr } from '@pkgs/room-root-client-ts/room-meta';

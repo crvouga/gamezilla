@@ -1,12 +1,15 @@
 import { GAME_PLATFORM_NAMESPACE } from '@libs/game-matchmaking-shared-ts/durable-names';
+import type {
+  CustomGame,
+  CustomGames,
+} from '@libs/game-session-shared-ts/custom-game-state';
+import { customGameUnderWay } from '@libs/game-session-shared-ts/custom-game-state';
 import { defineTable } from '@pkgs/db-schema-root-shared-ts/define-table';
 import sql, { join } from '@pkgs/sql-root-shared-ts/sql';
 import { defineMutation } from '@pkgs/sync-engine-shared-ts/define-mutation';
 import { defineQuery } from '@pkgs/sync-engine-shared-ts/define-query';
 import type { TopicMapEntry } from '@pkgs/sync-engine-shared-ts/topic-map';
 import { z } from 'zod';
-import type { CustomGame, CustomGames } from './custom-game-state';
-import { customGameUnderWay } from './custom-game-state';
 
 /**
  * Who sits in the custom game under way in a space, one row per person and

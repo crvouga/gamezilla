@@ -13,7 +13,7 @@
         "@libs/game-catalog-shared-ts#src",
         "@libs/game-matchmaking-shared-ts#src",
         "@libs/game-puzzle-shared-ts#src",
-        "@libs/game-session-shared-ts#src",
+        "@libs/game-session-sub-shared-ts#src",
         "@libs/games-shared-ts#src",
         "@libs/notifications-shared-ts#src",
         "@libs/observatory-shared-ts#src",

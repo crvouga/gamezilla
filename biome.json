@@ -229,6 +229,7 @@
         "**/libs/chess-root-server-ts/src/**/*.{ts,tsx}",
         "**/libs/chess-puzzle-server-ts/src/**/*.{ts,tsx}",
         "**/libs/game-session-shared-ts/src/**/*.{ts,tsx}",
+        "**/libs/game-session-sub-shared-ts/src/**/*.{ts,tsx}",
         "**/libs/game-matchmaking-shared-ts/src/**/*.{ts,tsx}",
         "**/libs/chess-puzzle-shared-ts/tests/**/*.{ts,tsx}",
         "**/libs/game-puzzle-shared-ts/tests/**/*.{ts,tsx}",
@@ -321,6 +322,7 @@
         "**/libs/chess-root-server-ts/src/**/*.{ts,tsx}",
         "**/libs/chess-puzzle-server-ts/src/**/*.{ts,tsx}",
         "**/libs/game-session-shared-ts/src/**/*.{ts,tsx}",
+        "**/libs/game-session-sub-shared-ts/src/**/*.{ts,tsx}",
         "**/libs/game-matchmaking-shared-ts/src/**/*.{ts,tsx}",
         "**/libs/chess-puzzle-shared-ts/tests/**/*.{ts,tsx}",
         "**/libs/game-puzzle-shared-ts/tests/**/*.{ts,tsx}",
@@ -802,6 +804,7 @@
         "**/libs/chess-root-server-ts/src/**/*.{ts,tsx}",
         "**/libs/chess-puzzle-server-ts/src/**/*.{ts,tsx}",
         "**/libs/game-session-shared-ts/src/**/*.{ts,tsx}",
+        "**/libs/game-session-sub-shared-ts/src/**/*.{ts,tsx}",
         "**/libs/game-matchmaking-shared-ts/src/**/*.{ts,tsx}",
         "**/libs/chess-puzzle-shared-ts/tests/**/*.{ts,tsx}",
         "**/libs/game-puzzle-shared-ts/tests/**/*.{ts,tsx}"

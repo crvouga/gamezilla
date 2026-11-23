@@ -1,9 +1,9 @@
+import { CustomGamesAttr } from '@libs/game-session-shared-ts/custom-game-state';
 import {
   customGameSeatsNoteHolds,
   noteCustomGameSeatsArgs,
   noteCustomGameSeatsMutation,
-} from '@libs/game-session-shared-ts/custom-game-seats';
-import { CustomGamesAttr } from '@libs/game-session-shared-ts/custom-game-state';
+} from '@libs/game-session-sub-shared-ts/custom-game-seats';
 import { spaceRoomTopic } from '@libs/spaces-shared-ts/space-room-topic';
 import type { RoomServicePort } from '@pkgs/room-root-shared-ts/room-service';
 import type { MutationAuthorize } from '@pkgs/sync-engine-shared-ts/mutations-types';

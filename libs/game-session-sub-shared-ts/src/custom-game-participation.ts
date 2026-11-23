@@ -1,11 +1,11 @@
+import {
+  CustomGamesAttr,
+  customGameActiveParticipant,
+} from '@libs/game-session-shared-ts/custom-game-state';
 import { spaceRoomTopic } from '@libs/spaces-shared-ts/space-room-topic';
 import type { RoomServicePort } from '@pkgs/room-root-shared-ts/room-service';
 import sql from '@pkgs/sql-root-shared-ts/sql';
 import type { MutationDb } from '@pkgs/sync-engine-shared-ts/mutations-types';
-import {
-  CustomGamesAttr,
-  customGameActiveParticipant,
-} from './custom-game-state';
 
 /**
  * How many active Custom Games `person` takes part in, across the live spaces

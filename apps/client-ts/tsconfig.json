@@ -53,6 +53,9 @@
       "@libs/game-session-shared-ts/*": [
         "../../libs/game-session-shared-ts/src/*"
       ],
+      "@libs/game-session-sub-shared-ts/*": [
+        "../../libs/game-session-sub-shared-ts/src/*"
+      ],
       "@libs/chess-sub-shared-ts/*": ["../../libs/chess-sub-shared-ts/src/*"],
       "@libs/chess-root-harness-ts/*": [
         "../../libs/chess-root-harness-ts/src/*"
