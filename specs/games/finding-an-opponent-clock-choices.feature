@@ -59,6 +59,7 @@ Feature: Choose a clock choice when finding an opponent
       Given Alice has an unfinished matched game with Bob
       When Alice finds a new opponent
       Then Alice is told to finish her matched game first
+      And Alice is offered to return to her matched game
       And Alice keeps her matched game with Bob
 
   Rule: A person waiting for an opponent sees their clock choice and how long they have been waiting
