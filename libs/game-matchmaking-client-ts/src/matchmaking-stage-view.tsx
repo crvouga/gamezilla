@@ -5,7 +5,8 @@ import { GameActionBar } from '@pkgs/ui-root-client-ts/game-action-bar';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
-import { MenuIcon } from '@pkgs/ui-root-client-ts/icons';
+import { IconButton } from '@pkgs/ui-root-client-ts/icon-button';
+import { EllipsisIcon } from '@pkgs/ui-root-client-ts/icons';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import { type JSX, Show } from 'solid-js';
 import type {
@@ -54,15 +55,13 @@ export function MultiplayerCommandsControl(props: {
 }): JSX.Element {
   return (
     <Show when={multiplayerHasCommands(props.game, props.stage)}>
-      <Button
-        title={<Trans>Menu</Trans>}
-        aria-label={t`Game menu`}
-        variant="outline"
-        intent="neutral"
-        startIcon={<MenuIcon size={20} />}
+      <IconButton
+        label={<Trans>Game menu</Trans>}
         onClick={() => props.onOpen({ screen: 'commands' })}
         dataSet={{ testid: 'multiplayer-open-commands' }}
-      />
+      >
+        <EllipsisIcon size={20} />
+      </IconButton>
     </Show>
   );
 }
@@ -136,7 +135,7 @@ function QuickCommands(props: PlayProps): JSX.Element {
               </Show>
             }
             variant="outline"
-            intent="neutral"
+            intent="danger"
             onClick={() => props.commands.ask(leave())}
             dataSet={{ testid: 'multiplayer-leave-now', leave: leave() }}
           />
@@ -164,6 +163,15 @@ export function MatchmakingStageView(props: PlayProps): JSX.Element {
         actionsBeside
         fixedStage
         status={props.status}
+        allMoves={
+          (props.game.moves?.moves.length ?? 0) > 0
+            ? {
+                label: <Trans>All moves</Trans>,
+                testId: 'multiplayer-all-moves',
+                onPress: () => props.onOpen({ screen: 'moves' }),
+              }
+            : undefined
+        }
         actions={
           <GameActionBar
             aria-label={t`Game actions`}

@@ -88,8 +88,10 @@
      the own seat with its actions and a watcher's notice under it, about
      230px) and the host's own bar, so all of them show in the first view.
      A game's opt-in square fit only narrows this further. */
-  .session[data-board-focus="true"][data-phase="active"]
-  > [data-has-stage="true"][data-has-aside="true"] {
+  .session[data-board-focus="true"]:is(
+    [data-phase="active"],
+    [data-game-fixed="true"]
+  ) > [data-has-stage="true"][data-has-aside="true"] {
     --game-board-measure: clamp(
       320px,
       calc(100dvh - 380px - var(--ui-host-chrome-block-size, 0px)),
@@ -106,7 +108,10 @@
      keep the own seat in an 844px window. Bounding its column by the
      window's height left too little room for that workspace, so the rack
      fell back above a smaller board, under the opponent's seat. */
-  .session[data-board-focus="true"][data-phase="active"]
+  .session[data-board-focus="true"]:is(
+    [data-phase="active"],
+    [data-game-fixed="true"]
+  )
   > [data-has-stage="true"][data-has-aside="true"]:has(
     [data-measure="compact"]
   ) {

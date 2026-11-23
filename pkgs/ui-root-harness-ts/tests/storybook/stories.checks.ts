@@ -93,11 +93,7 @@ test('screens-games-numberlink-puzzle--complete-with-keyboard regression numberl
 test('screens-custom-games-home--no-game regression mode-card-words-squeezed-without-picture', async ({
   page,
 }) => {
-  await verifyBoardRegression(
-    page,
-    'screens-custom-games-home--no-game',
-    390
-  );
+  await verifyBoardRegression(page, 'screens-custom-games-home--no-game', 390);
 });
 
 // regression: light-cycles-player-facts-overflow

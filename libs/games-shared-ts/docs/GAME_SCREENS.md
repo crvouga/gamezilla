@@ -80,15 +80,24 @@ Pong harness, which reads it, moves to `home`.
    to pick what it shows. A stage may place its rail beside the board when
    there is room (`GameLayout`, a container query); that is the only
    difference between a phone and a desktop.
-8. **A stage is one fixed view on a phone.** The board takes the screen's
-   whole width and sits in the middle of the room left, with the seats
-   against it and the commands in one bar at the bottom edge
-   (`GameSessionLayout`'s `fixedStage`). Nothing on it scrolls and the board
-   never moves: a board taller than the room narrows instead
-   (`GameBoardStage`). The moves are one line over the stage, the latest
-   in view, kept before the first move so the board does not move when it
-   lands; a wide window keeps them as a table beside the board, with the
-   commands as one even block over it.
+8. **A stage is one fixed view, and its board never moves.** Every stage
+   (custom game, matchmaking, puzzles, the moves and the result) is
+   `GameSessionLayout`'s `fixedStage`, top to bottom: the game's facts on
+   one centred line (`Chess · Rated · 10 min`), the line of moves with
+   **All moves** at its end (`allMoves`, there before the first move), the
+   other seats, the board, the person's own seat (highlighted on their
+   turn, with their clock), one status line, and one bar with **every**
+   command of the game (offer a draw, resign in the destructive colour,
+   the game's menu as `⋯`). On a phone the board takes the screen's whole
+   width and sits in the middle of the room left; it is centred once and
+   held there (`GameBoardStage`, `stageCentreOffset`). Every band keeps its
+   height empty or full, and what comes and goes never takes a row: the
+   connection, a refused command and a draw offered lie over the stage's
+   top (`GameStageNotices`), and a finished game's outcome card over its
+   foot (`sheet`). A board taller than the room narrows instead
+   (`GameBoardStage`). A wide window keeps the board beside its rail, at
+   the same measure live and finished. The Storybook check
+   `stage-stability` proves the board's place through a whole game.
 9. **What interrupts the board lies over the board.** Who plays whom before
    the game (`GameVersusOverlay`) and how it ended (`GameResultOverlay`) are
    the stage's `overlay`: they cover the board and nothing else, so nothing

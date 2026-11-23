@@ -5,10 +5,14 @@ import { GameActionBar } from '@pkgs/ui-root-client-ts/game-action-bar';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
 import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
-import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
+import {
+  type GameSessionAllMoves,
+  GameSessionLayout,
+} from '@pkgs/ui-root-client-ts/game-session-layout';
 import { GameTableSeats } from '@pkgs/ui-root-client-ts/game-table-seat';
 import { GameWatcherCount } from '@pkgs/ui-root-client-ts/game-watching';
-import { MenuIcon } from '@pkgs/ui-root-client-ts/icons';
+import { IconButton } from '@pkgs/ui-root-client-ts/icon-button';
+import { EllipsisIcon } from '@pkgs/ui-root-client-ts/icons';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import { type JSX, Show } from 'solid-js';
@@ -271,7 +275,7 @@ function PlayActions(props: Props): JSX.Element {
         <Button
           title={<Trans>Resign</Trans>}
           variant="outline"
-          intent="neutral"
+          intent="danger"
           disabled={counting(props)}
           onClick={() => props.onConfirm('resign')}
           dataSet={{ testid: 'custom-game-resign-now' }}
@@ -279,18 +283,31 @@ function PlayActions(props: Props): JSX.Element {
       </Show>
       <HeldActions {...props} />
       <Show when={commandsOffered(props)}>
-        <Button
-          title={<Trans>Menu</Trans>}
-          aria-label={t`Game menu`}
-          variant="outline"
-          intent="neutral"
-          startIcon={<MenuIcon size={20} />}
+        <IconButton
+          label={<Trans>Game menu</Trans>}
           onClick={() => props.onOpen({ screen: 'commands' })}
           dataSet={{ testid: 'custom-game-commands' }}
-        />
+        >
+          <EllipsisIcon size={20} />
+        </IconButton>
       </Show>
     </GameActionBar>
   );
+}
+
+/** The way from the line of moves to every move, once one is played. */
+function allMovesOf(props: Props): GameSessionAllMoves | undefined {
+  const record = props.record;
+  if (record === null || !record.turns || record.moves.length === 0)
+    return undefined;
+  return {
+    label: <Trans>All moves</Trans>,
+    testId: 'custom-game-all-moves',
+    onPress: () => {
+      props.onSeek(record.displayedPly);
+      props.onOpen({ screen: 'moves' });
+    },
+  };
 }
 
 /**
@@ -315,22 +332,23 @@ export function CustomGameStagePlace(props: Props): JSX.Element {
           phase: props.phase,
           place: props.place.screen,
         }}
-        notices={<FrameConnectionView connection={props.connection} />}
-        boardFocus
-        actionsBeside
-        fixedStage={props.boardWorkspace !== true}
-        // A refused choice is said with the game's commands (under a
-        // phone's board, heading the rail beside a wide one), never above
-        // the board, so the board does not move when it appears or clears.
-        status={
+        // What comes and goes (the connection, a refused choice, a draw
+        // offered) lies over the stage's top, never in its flow, so the
+        // board does not move when it appears or clears.
+        notices={
           <>
-            <PlayLine {...props} />
+            <FrameConnectionView connection={props.connection} />
             <FrameErrorView text={props.error} />
             <FramePlayNoticesView play={props.play} people={props.people} />
           </>
         }
+        boardFocus
+        actionsBeside
+        fixedStage={props.boardWorkspace !== true}
+        status={<PlayLine {...props} />}
         actions={<PlayActions {...props} />}
         aside={<FrameMovesCard {...props} />}
+        allMoves={allMovesOf(props)}
         footer={
           <FrameWatchingView
             phase={props.phase}

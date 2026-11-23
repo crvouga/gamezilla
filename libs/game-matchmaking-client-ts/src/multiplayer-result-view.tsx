@@ -196,7 +196,9 @@ export function MultiplayerResultView(props: ResultProps): JSX.Element {
         boardFocus
         actionsBeside
         fixedStage
-        status={
+        // The card lies over the stage's foot (heading the rail beside a
+        // wide board), so the final board keeps the live board's place.
+        sheet={
           <MultiplayerResultCard result={props.result}>
             <Onward {...props} />
           </MultiplayerResultCard>

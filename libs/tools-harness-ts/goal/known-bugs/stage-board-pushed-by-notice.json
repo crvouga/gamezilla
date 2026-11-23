@@ -1,0 +1,4 @@
+{
+  "summary": "A connection notice, a refused command or a draw offered was a row above or under the board on a game's stage, so the board moved down (up to 110px on a 390px phone) whenever one appeared or cleared. Notices now lie over the stage's top (`GameStageNotices`), the status line and the commands keep bands of a set height, and the line of moves is there before the first move.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stage-stability/integration.checks.ts"
+}

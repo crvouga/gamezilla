@@ -8,6 +8,7 @@ import { createScreenSlot } from '../screen-slot';
 import boardAlign from './board-align.module.css';
 import { GameBoardPreviewContext } from './board-preview';
 import { createStageRoomFit } from './room-fit';
+import { createStageCentre } from './stage-centre';
 import { createViewportSquareFit } from './viewport-fit';
 import fit from './viewport-fit.module.css';
 
@@ -61,6 +62,8 @@ export function GameBoardStage(props: {
   const limit = createViewportSquareFit(() => root, square);
   const [surface, setSurface] = createSignal<HTMLDivElement>();
   const room = createStageRoomFit(() => root, surface);
+  // A fixed stage sits in the middle of its room, and stays there.
+  const centre = createStageCentre(() => root, surface);
   // Narrower than its room: the board stands clear of the screen's edges.
   const narrowed = (): boolean => {
     const limit = room();
@@ -80,6 +83,8 @@ export function GameBoardStage(props: {
       style={{
         '--game-board-fit': limit() === undefined ? undefined : `${limit()}px`,
         '--game-board-room': room() === undefined ? undefined : `${room()}px`,
+        '--game-stage-offset':
+          centre() === undefined ? undefined : `${centre()}px`,
       }}
       data-game-board-stage
       data-board-narrowed={narrowed() ? 'true' : undefined}
