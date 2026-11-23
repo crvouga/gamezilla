@@ -40,29 +40,27 @@ for (const id of [
   });
 }
 
-for (const id of ['screens-space-home--host-choosing']) {
-  // regression: storybook-space-home-two-space-headers
-  test(`storybook integration: ${id} has exactly one real compact space header`, async ({
-    page,
-  }) => {
-    await open(page, id, 390);
-    // One top bar, which says what the screen is and is the space's alone:
-    // the app's account menu stays outside a space.
-    await expect(page.getByTestId('space-title')).toHaveCount(1);
-    await expect(page.getByTestId('space-title')).toHaveText('Choose game');
-    const bar = page.locator('[data-space-row="actions"]');
-    await expect(bar).toHaveCount(1);
-    await expect(
-      bar.getByRole('button', { name: 'Account menu', exact: true })
-    ).toHaveCount(0);
-    // Which space it is heads the space menu.
-    await bar.getByRole('button', { name: 'Space menu' }).click();
-    await expect(page.getByTestId('space-menu-name')).toHaveText(
-      'Friday game night'
-    );
-    await expect(page.locator('[data-component="AppTabBar"]')).toHaveCount(0);
-  });
-}
+// regression: storybook-space-home-two-space-headers
+test('storybook integration: screens-space-home--host-choosing has exactly one real compact space header', async ({
+  page,
+}) => {
+  await open(page, 'screens-space-home--host-choosing', 390);
+  // One top bar, which says what the screen is and is the space's alone:
+  // the app's account menu stays outside a space.
+  await expect(page.getByTestId('space-title')).toHaveCount(1);
+  await expect(page.getByTestId('space-title')).toHaveText('Choose game');
+  const bar = page.locator('[data-space-row="actions"]');
+  await expect(bar).toHaveCount(1);
+  await expect(
+    bar.getByRole('button', { name: 'Account menu', exact: true })
+  ).toHaveCount(0);
+  // Which space it is heads the space menu.
+  await bar.getByRole('button', { name: 'Space menu' }).click();
+  await expect(page.getByTestId('space-menu-name')).toHaveText(
+    'Friday game night'
+  );
+  await expect(page.locator('[data-component="AppTabBar"]')).toHaveCount(0);
+});
 
 test('storybook integration: a stack route keeps its header without bottom tabs', async ({
   page,
