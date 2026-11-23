@@ -27,16 +27,22 @@ export function FrameStartPlace(props: FramePlaceProps): JSX.Element {
       screenId="custom-game-start"
     >
       <GameModeCard
-        eyebrow={<Trans>Custom game</Trans>}
+        // The same one line as the lobby and a ranked search: the mode,
+        // then what it plays for.
+        eyebrow={
+          <>
+            <Trans>Custom game</Trans>
+            {'\u00a0· '}
+            <Trans>Unrated</Trans>
+          </>
+        }
         title={props.title}
         summary={
           <Trans>
-            A private, unrated game with the people in this space, or bots.
-            Anyone in this space can watch.
+            A private game with the people in this space, or bots. Anyone in
+            this space can watch.
           </Trans>
         }
-        art={props.boardPreview}
-        artSize="thumbnail"
         dataSet={{ testid: 'custom-game-mode' }}
       />
       <Show

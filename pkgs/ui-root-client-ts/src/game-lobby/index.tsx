@@ -8,7 +8,6 @@ import { createScreenSlot } from '../screen-slot';
 import { ScrollView } from '../scroll-view/index';
 import { useLayoutMode } from '../use-layout-mode';
 import styles from './game-lobby.module.css';
-import { GameModeArt } from './mode-art';
 
 /** One thing agreed about the game, as a tile on the mode card. */
 export type GameModeFact = {
@@ -29,25 +28,15 @@ export type GameModeCardProps = {
   summary?: JSX.Element | undefined;
   /** What is agreed, at a glance: up to three tiles in one row. */
   facts?: readonly GameModeFact[] | undefined;
-  /**
-   * The game's own board at its start, as the card's picture: it shows what
-   * is played and takes nothing pressed. A phone gives it the room the
-   * lobby has to spare; a long roster leaves it out.
-   */
-  art?: JSX.Element | undefined;
-  /**
-   * `thumbnail`: on a phone the picture is a small square beside the words,
-   * so what follows the card (a lobby's seats) leads. Default `room`.
-   */
-  artSize?: 'room' | 'thumbnail' | undefined;
   dataSet?: ComponentDataSet | undefined;
 };
 
 /**
  * `GameModeCard` -- what is about to be played, at the head of a lobby or a
  * search: the mode over the game's name, a line on the game, and what is
- * agreed (players, clock, rated or not) as a row of tiles. It only reads;
- * nothing on it is pressed.
+ * agreed (players, clock, rated or not) as a row of tiles. It is as tall
+ * as its words and pictures no board, so the choices under it lead. It
+ * only reads; nothing on it is pressed.
  *
  * @example
  * ```tsx
@@ -64,10 +53,8 @@ export function GameModeCard(props: GameModeCardProps): JSX.Element {
   return (
     <header
       class={styles['mode']}
-      data-art={props.artSize ?? 'room'}
       {...dataAttrs({ component: 'GameModeCard', ...props.dataSet })}
     >
-      <GameModeArt art={props.art} />
       <div class={styles['modeWords']}>
         <p class={`text textCaption ${styles['eyebrow']}`}>{props.eyebrow}</p>
         <h1 class="text textTitle min-w-0 max-w-full break-words">
