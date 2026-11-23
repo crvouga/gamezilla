@@ -216,7 +216,7 @@ Puzzle completion feedback, announcements and optional dialogs belong in its
 `overlay` slot, inside the same screen boundary as the board and controls.
 
 Explore **Templates** in Storybook (`bun storybook`). Every family has CSF
-stories beside their production implementation in `src/<component>/`. Each slice keeps its component styles, fixtures and `baselines/` together. Source JSDoc is the component documentation. Shared visual foundations stay at the package root.
+stories beside their production implementation in `src/<component>/`. Each slice keeps its component styles and fixtures together. Source JSDoc is the component documentation. Shared visual foundations stay at the package root.
 Custom and matched examples include setup, play, completion and replay;
 the matched example also exposes waiting and cancellation. The form example
 shows native submission and failed-save recovery without leaving the editor,

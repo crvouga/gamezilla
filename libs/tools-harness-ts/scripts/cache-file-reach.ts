@@ -40,7 +40,6 @@ const SKIPPED_DIRECTORIES = new Set([
   '.git',
   '.turbo',
   '.build',
-  'baselines',
 ]);
 
 function sourceFiles(root: string): Set<string> {
