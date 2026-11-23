@@ -13,6 +13,10 @@ Given(
     customHumans(w, { host, white, black, active: true })
 );
 Given(
+  '{actor} has swapped White and Black in the custom game',
+  async (w, actor: string) => customFact(w, actor, { operation: 'swap' })
+);
+Given(
   '{actor} and {actor} are ready for the custom game',
   async (w, white: string, black: string) => {
     await customFact(w, white, { operation: 'ready' });
