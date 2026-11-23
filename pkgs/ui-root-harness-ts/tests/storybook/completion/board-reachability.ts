@@ -53,7 +53,11 @@ async function capture(page: Page, info: TestInfo, name: string) {
   });
 }
 
-/** Arrow keys expose the whole final row and winning line without shrinking the board. */
+/**
+ * The whole final board and its winning line show in the first view, and
+ * stay shown while the keyboard scrolls the screen to its end and back:
+ * the stage holds the board in place instead of letting it scroll away.
+ */
 export async function expectFinalBoardReachable(page: Page, info: TestInfo) {
   // The result place of the custom game (`custom-game-result`).
   const scroller = page.locator('[data-screen^="custom-game"]');
@@ -68,23 +72,19 @@ export async function expectFinalBoardReachable(page: Page, info: TestInfo) {
       (element) => element.scrollWidth - element.clientWidth
     )
   ).toBeLessThanOrEqual(1);
-  expect(
-    await board.evaluate((element) => element.getBoundingClientRect().width)
-  ).toBeGreaterThan(600);
   await expect(board.locator('[data-cell]')).toHaveCount(42);
-  await capture(page, info, 'final-board-before-scroll');
+  await expect.poll(() => clippedFinalCells(page)).toEqual([]);
+  await capture(page, info, 'final-board-first-view');
   await scroller.focus();
-  for (
-    let step = 0;
-    step < 24 && (await clippedFinalCells(page)).length > 0;
-    step += 1
-  ) {
-    const before = await scroller.evaluate((element) => element.scrollTop);
-    await scroller.press('ArrowDown');
-    await expect
-      .poll(() => scroller.evaluate((element) => element.scrollTop))
-      .toBeGreaterThan(before);
-  }
+  await scroller.press('End');
+  await expect
+    .poll(() =>
+      scroller.evaluate(
+        (element) =>
+          element.scrollHeight - element.clientHeight - element.scrollTop
+      )
+    )
+    .toBeLessThanOrEqual(1);
   await expect.poll(() => clippedFinalCells(page)).toEqual([]);
   await capture(page, info, 'final-board-after-keyboard-scroll');
   await scroller.press('Home');

@@ -91,7 +91,12 @@
   .session[data-board-focus="true"]:is(
     [data-phase="active"],
     [data-game-fixed="true"]
-  ) > [data-has-stage="true"][data-has-aside="true"] {
+  ) > [data-has-stage="true"][data-has-aside="true"],
+  /* A fixed stage's notices lie over the board's top, outside the grid:
+     they take the same measure, so they never spill over the rail. */
+  .session[data-board-focus="true"][data-game-fixed="true"]:has(
+    > [data-has-stage="true"][data-has-aside="true"]
+  ) > [data-component="GameStageNotices"] {
     --game-board-measure: clamp(
       320px,
       calc(100dvh - 380px - var(--ui-host-chrome-block-size, 0px)),
@@ -114,7 +119,11 @@
   )
   > [data-has-stage="true"][data-has-aside="true"]:has(
     [data-measure="compact"]
-  ) {
+  ),
+  .session[data-board-focus="true"][data-game-fixed="true"]:has(
+      > [data-has-stage="true"][data-has-aside="true"] [data-measure="compact"]
+    )
+    > [data-component="GameStageNotices"] {
     --game-board-measure: var(--ui-max-width-prose);
   }
 }
