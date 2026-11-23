@@ -6,6 +6,7 @@ import { PuzzleStatsScreen } from '@libs/game-puzzle-client-ts/puzzle-stats-scre
 import { CustomGameScreen } from '@libs/game-session-client-ts/custom-game-screen';
 import { GameHistory } from '@libs/game-session-client-ts/game-history';
 import type { GameScreen } from '@libs/spaces-client-ts/use-game-screen';
+import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import {
   type GameCapability,
@@ -13,12 +14,14 @@ import {
 } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { JSX } from 'solid-js';
 import type { GameClient } from './game-client';
+import { GameHistoryHubScreen } from './game-history-hub-screen';
 import { GameSettingsScreen } from './game-settings-screen';
 import { SHARED_GAME_SCREEN } from './shared-game-screens';
 
 /**
  * The game's choices and the template screens they open, in the one order
- * every game shares. Which screens exist follows the capabilities the
+ * every game shares: finding an opponent, custom games, puzzles, History
+ * and stats (every look back, games and puzzles alike), then settings. Which screens exist follows the capabilities the
  * game's registration declares and the settings it declares as data; every
  * one of them is the platform's.
  */
@@ -40,6 +43,14 @@ export type GameChoiceItem = {
   readonly caption: () => JSX.Element;
 };
 
+/**
+ * Whether History and stats is a hub: the game keeps both played games and
+ * puzzle stats, each a screen of its own behind it.
+ */
+function historyHub(game: GameClient, offers: Offers): boolean {
+  return offers('history') && game.puzzles !== undefined;
+}
+
 export function sharedScreens(
   game: GameClient,
   offers: Offers,
@@ -49,10 +60,37 @@ export function sharedScreens(
   const id = game.shared.id;
   const content = game.shared.puzzleContent;
   const contentClient = game.puzzleContent;
+  const hub = historyHub(game, offers);
+  const toHub = () => navigation.show(SHARED_GAME_SCREEN.history);
   const history = offers('history')
-    ? { onHistory: () => navigation.show(SHARED_GAME_SCREEN.history) }
+    ? { onHistory: () => navigation.show(gameHistoryScreen(hub)) }
     : {};
   return [
+    ...(offers('matchmaking')
+      ? [
+          {
+            screen: SHARED_GAME_SCREEN.matchmaking,
+            Screen: () => (
+              <MultiplayerScreen gameId={id} title={game.title} onBack={back} />
+            ),
+          },
+        ]
+      : []),
+    ...(offers('custom-games')
+      ? [
+          {
+            screen: SHARED_GAME_SCREEN.customGames,
+            Screen: () => (
+              <CustomGameScreen
+                gameId={id}
+                title={game.title}
+                onBack={back}
+                {...history}
+              />
+            ),
+          },
+        ]
+      : []),
     ...(contentClient === undefined || content === undefined
       ? []
       : [
@@ -69,41 +107,54 @@ export function sharedScreens(
             ),
           },
         ]),
-    ...(game.puzzles === undefined ? [] : PUZZLE_SCREENS),
-    ...(offers('custom-games')
-      ? [
-          {
-            screen: SHARED_GAME_SCREEN.customGames,
-            Screen: () => (
-              <CustomGameScreen
-                gameId={id}
-                title={game.title}
-                onBack={back}
-                {...history}
-              />
-            ),
-          },
-        ]
-      : []),
-    ...(offers('matchmaking')
-      ? [
-          {
-            screen: SHARED_GAME_SCREEN.matchmaking,
-            Screen: () => (
-              <MultiplayerScreen gameId={id} title={game.title} onBack={back} />
-            ),
-          },
-        ]
-      : []),
-    ...(offers('history')
-      ? [
-          {
-            screen: SHARED_GAME_SCREEN.history,
-            Screen: () => <GameHistory gameId={id} onBack={back} />,
-          },
-        ]
-      : []),
+    ...(game.puzzles === undefined ? [] : puzzleScreens(hub, toHub)),
+    ...historyScreens(game, offers, navigation),
     ...settingsScreen(game, back),
+  ];
+}
+
+/** Where the games' history lives: behind the hub, or as History and stats. */
+function gameHistoryScreen(hub: boolean): string {
+  return hub ? SHARED_GAME_SCREEN.gameHistory : SHARED_GAME_SCREEN.history;
+}
+
+/** History and stats: the hub, when there is one, and the games' history. */
+function historyScreens(
+  game: GameClient,
+  offers: Offers,
+  navigation: GameScreen
+): readonly SharedScreen[] {
+  if (!offers('history')) return [];
+  const id = game.shared.id;
+  if (!historyHub(game, offers))
+    return [
+      {
+        screen: SHARED_GAME_SCREEN.history,
+        Screen: () => (
+          <GameHistory gameId={id} onBack={navigation.showChoices} />
+        ),
+      },
+    ];
+  return [
+    {
+      screen: SHARED_GAME_SCREEN.history,
+      Screen: () => (
+        <GameHistoryHubScreen
+          onOpen={navigation.show}
+          onBack={navigation.showChoices}
+        />
+      ),
+    },
+    {
+      screen: SHARED_GAME_SCREEN.gameHistory,
+      Screen: () => (
+        <GameHistory
+          gameId={id}
+          onBack={() => navigation.show(SHARED_GAME_SCREEN.history)}
+          backLabel={t`History and stats`}
+        />
+      ),
+    },
   ];
 }
 
@@ -128,25 +179,57 @@ function settingsScreen(
   ];
 }
 
-/** The platform's puzzle screens, for a game offering puzzles. */
-const PUZZLE_SCREENS: readonly SharedScreen[] = [
-  { screen: SHARED_GAME_SCREEN.puzzle, Screen: PuzzlePlayScreen },
-  { screen: SHARED_GAME_SCREEN.puzzleStats, Screen: PuzzleStatsScreen },
-  { screen: SHARED_GAME_SCREEN.puzzleReview, Screen: PuzzleReviewScreen },
-];
+/**
+ * The platform's puzzle screens, for a game offering puzzles. Behind the
+ * History and stats hub, Back from the stats returns to the hub.
+ */
+function puzzleScreens(hub: boolean, toHub: () => void): SharedScreen[] {
+  return [
+    { screen: SHARED_GAME_SCREEN.puzzle, Screen: PuzzlePlayScreen },
+    {
+      screen: SHARED_GAME_SCREEN.puzzleStats,
+      Screen: () =>
+        hub ? (
+          <PuzzleStatsScreen onBack={toHub} backLabel={t`History and stats`} />
+        ) : (
+          <PuzzleStatsScreen />
+        ),
+    },
+    { screen: SHARED_GAME_SCREEN.puzzleReview, Screen: PuzzleReviewScreen },
+  ];
+}
 
-const PUZZLE_CHOICES: readonly GameChoiceItem[] = [
-  {
-    screen: SHARED_GAME_SCREEN.puzzle,
-    title: () => <Trans>Puzzle</Trans>,
-    caption: () => <Trans>Solve rated puzzles and climb the ladder</Trans>,
-  },
-  {
-    screen: SHARED_GAME_SCREEN.puzzleStats,
-    title: () => <Trans>Puzzle stats</Trans>,
-    caption: () => <Trans>Puzzle rating trend and game log</Trans>,
-  },
-];
+/**
+ * The one look back a game's menu offers: its played games and its puzzle
+ * stats together, or whichever of them the game keeps.
+ */
+function historyChoice(game: GameClient, offers: Offers): GameChoiceItem[] {
+  if (historyHub(game, offers))
+    return [
+      {
+        screen: SHARED_GAME_SCREEN.history,
+        title: () => <Trans>History and stats</Trans>,
+        caption: () => <Trans>Your games and puzzle stats</Trans>,
+      },
+    ];
+  if (offers('history'))
+    return [
+      {
+        screen: SHARED_GAME_SCREEN.history,
+        title: () => <Trans>History and stats</Trans>,
+        caption: () => <Trans>Review your games, wins and draws</Trans>,
+      },
+    ];
+  if (game.puzzles !== undefined)
+    return [
+      {
+        screen: SHARED_GAME_SCREEN.puzzleStats,
+        title: () => <Trans>History and stats</Trans>,
+        caption: () => <Trans>Puzzle rating trend and game log</Trans>,
+      },
+    ];
+  return [];
+}
 
 function sharedChoices(game: GameClient, offers: Offers): GameChoiceItem[] {
   const name = game.title;
@@ -155,33 +238,6 @@ function sharedChoices(game: GameClient, offers: Offers): GameChoiceItem[] {
       ? 1
       : gameSides(game.shared.registration.rules).length;
   return [
-    ...(game.puzzleContent === undefined
-      ? []
-      : [
-          {
-            screen: SHARED_GAME_SCREEN.content,
-            title: () => <Trans>Puzzles and packs</Trans>,
-            caption: () => (
-              <Trans>Play, continue saved attempts, or create your own</Trans>
-            ),
-          },
-        ]),
-    ...(game.puzzles === undefined ? [] : PUZZLE_CHOICES),
-    ...(offers('custom-games')
-      ? [
-          {
-            screen: SHARED_GAME_SCREEN.customGames,
-            // Short enough to keep the lead's tag beside it on a phone's
-            // row; the caption says bots are welcome too.
-            title: () => <Trans>Play with friends</Trans>,
-            // The game menu is always inside a space: its people are who
-            // plays a custom game, beside any bots.
-            caption: () => (
-              <Trans>With the people in this space, or bots</Trans>
-            ),
-          },
-        ]
-      : []),
     ...(offers('matchmaking')
       ? [
           {
@@ -203,15 +259,44 @@ function sharedChoices(game: GameClient, offers: Offers): GameChoiceItem[] {
           },
         ]
       : []),
-    ...(offers('history')
+    ...(offers('custom-games')
       ? [
           {
-            screen: SHARED_GAME_SCREEN.history,
-            title: () => <Trans>History and stats</Trans>,
-            caption: () => <Trans>Review your games, wins and draws</Trans>,
+            screen: SHARED_GAME_SCREEN.customGames,
+            // Short enough to keep the lead's tag beside it on a phone's
+            // row; the caption says bots are welcome too.
+            title: () => <Trans>Play with friends</Trans>,
+            // The game menu is always inside a space: its people are who
+            // plays a custom game, beside any bots.
+            caption: () => (
+              <Trans>With the people in this space, or bots</Trans>
+            ),
           },
         ]
       : []),
+    ...(game.puzzleContent === undefined
+      ? []
+      : [
+          {
+            screen: SHARED_GAME_SCREEN.content,
+            title: () => <Trans>Puzzles and packs</Trans>,
+            caption: () => (
+              <Trans>Play, continue saved attempts, or create your own</Trans>
+            ),
+          },
+        ]),
+    ...(game.puzzles === undefined
+      ? []
+      : [
+          {
+            screen: SHARED_GAME_SCREEN.puzzle,
+            title: () => <Trans>Puzzle</Trans>,
+            caption: () => (
+              <Trans>Solve rated puzzles and climb the ladder</Trans>
+            ),
+          },
+        ]),
+    ...historyChoice(game, offers),
   ];
 }
 

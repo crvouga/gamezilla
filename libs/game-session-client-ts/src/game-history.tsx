@@ -105,7 +105,7 @@ function RecordReview(props: {
   const replay = createMemo(() => replayMoves(props.record));
   return (
     <>
-      <DefineBackButton onPress={props.onBack} label={t`History and stats`} />
+      <DefineBackButton onPress={props.onBack} label={t`Game history`} />
       <DefineSpaceTitle title={t`Game replay`} />
       <GameReplayScreenView
         players={players()}
@@ -143,6 +143,7 @@ function RecordReview(props: {
 function AllowedGameHistory(props: {
   gameId: string;
   onBack: () => void;
+  backLabel?: string | undefined;
 }): JSX.Element {
   const model = useGameRecords(() => props.gameId);
   const recordEnding = useGameRecordEnding();
@@ -188,7 +189,10 @@ function AllowedGameHistory(props: {
       keyed
       fallback={
         <>
-          <DefineBackButton onPress={props.onBack} label={choices()} />
+          <DefineBackButton
+            onPress={props.onBack}
+            label={props.backLabel ?? choices()}
+          />
           <DefineSpaceTitle title={t`Game history`} />
           <GameHistoryScreenView
             loading={model.isLoading()}
@@ -212,6 +216,8 @@ function AllowedGameHistory(props: {
 export function GameHistory(props: {
   gameId: string;
   onBack: () => void;
+  /** Where Back leads, when it is not the game's choices. */
+  backLabel?: string | undefined;
 }): JSX.Element {
   const space = useSpaceRoomSessionId();
   const decision = useSpaceDecision(

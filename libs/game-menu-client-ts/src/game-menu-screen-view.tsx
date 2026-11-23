@@ -7,7 +7,6 @@ import {
 } from '@pkgs/ui-root-client-ts/game-menu-screen';
 import type { GameTileMotif } from '@pkgs/ui-root-client-ts/game-tile';
 import {
-  ActivityIcon,
   CompassIcon,
   HistoryIcon,
   LightbulbIcon,
@@ -48,14 +47,15 @@ export const GAME_CHOICE_EMPHASIS: Readonly<
 };
 
 /**
- * The picture each choice is known by: puzzles a bulb, their stats a
- * trend, a game's library a stack, playing with friends or bots people,
- * finding an opponent a search, history the clock turning back, settings
- * the gear, how to play the rules' scroll.
+ * The picture each choice is known by: puzzles a bulb, a game's library a
+ * stack, playing with friends or bots people, finding an opponent a search,
+ * history and stats the clock turning back, settings the gear, how to play
+ * the rules' scroll.
  */
 const ICON: Readonly<Record<string, IconComponent>> = {
   [SHARED_GAME_SCREEN.puzzle]: LightbulbIcon,
-  [SHARED_GAME_SCREEN.puzzleStats]: ActivityIcon,
+  // A game keeping only puzzle stats offers them as its History and stats.
+  [SHARED_GAME_SCREEN.puzzleStats]: HistoryIcon,
   [SHARED_GAME_SCREEN.content]: SquareStackIcon,
   [SHARED_GAME_SCREEN.customGames]: UsersIcon,
   [SHARED_GAME_SCREEN.matchmaking]: SearchIcon,

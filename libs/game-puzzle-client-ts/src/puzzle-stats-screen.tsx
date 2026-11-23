@@ -25,7 +25,11 @@ import { usePuzzleHistory } from './use-puzzle-history';
  * player's synced history. A row of the log opens that puzzle's review,
  * the space's own screen; coming back from it returns to the log.
  */
-export function PuzzleStatsScreen(): JSX.Element {
+export function PuzzleStatsScreen(props: {
+  /** Back from the summary, when it is not to the game's choices. */
+  readonly onBack?: (() => void) | undefined;
+  readonly backLabel?: string | undefined;
+}): JSX.Element {
   const dispatch = useSpaceRoomDispatch();
   const gameScreen = useGameScreen();
   const choices = useGameChoicesName();
@@ -44,7 +48,9 @@ export function PuzzleStatsScreen(): JSX.Element {
   const atHome = (): boolean => nav.place().screen === 'summary';
 
   const back = (): void => {
-    if (!nav.back()) gameScreen.showChoices();
+    if (nav.back()) return;
+    if (props.onBack === undefined) gameScreen.showChoices();
+    else props.onBack();
   };
 
   const openReview = (entry: PuzzleGameLogEntry): void => {
@@ -62,7 +68,7 @@ export function PuzzleStatsScreen(): JSX.Element {
     <>
       <DefineBackButton
         onPress={back}
-        label={atHome() ? choices() : t`Puzzle stats`}
+        label={atHome() ? (props.backLabel ?? choices()) : t`Puzzle stats`}
       />
       <DefineSpaceTitle title={t`Puzzle stats`} />
       <PuzzleStatsScreenView

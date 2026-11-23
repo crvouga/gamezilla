@@ -8,6 +8,9 @@ export const SHARED_GAME_SCREEN = {
   puzzleReview: PUZZLE_SCREEN.review,
   customGames: 'custom-game',
   matchmaking: 'multiplayer',
+  /** History and stats: the games' history, or a hub when puzzle stats join it. */
   history: 'history',
+  /** The games' history, behind the hub when the game also offers puzzles. */
+  gameHistory: 'game-history',
   settings: 'settings',
 } as const;
