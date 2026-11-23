@@ -198,9 +198,31 @@ export type GameDefinition = GameOwnRoom & {
   } | null;
 };
 
+/**
+ * One mode of a game that has several (Light Cycles Duel, Trio, Quad): the
+ * game's name, offered once wherever games are picked, and this mode's name
+ * among its choices.
+ */
+export type GameClientMode = {
+  /** The game's name, shared by every one of its modes. */
+  readonly game: string;
+  /** This mode's name, as the mode choice reads it. */
+  readonly name: string;
+};
+
+/** A mode the selected game's choices offer to switch to. */
+export type GameModeOption = {
+  readonly id: string;
+  readonly name: string;
+};
+
 export type GameClientMenuProps = {
   /** Called by the game's main menu when the user asks to return to the games picker. */
   onBackToGames: () => void;
+  /** Every mode of the selected game, in the order registered; empty for a game with one. */
+  modes?: readonly GameModeOption[] | undefined;
+  /** Switches the space to another mode; unset where only the host may. */
+  onChooseMode?: ((id: string) => void) | undefined;
 };
 
 /**
@@ -225,6 +247,10 @@ export type GameClientDefinition = {
    * motif (`@pkgs/ui-root-client-ts/game-tile`).
    */
   readonly motif: string;
+  /** The family its modes share; a game with one mode is its own family. */
+  readonly family?: string;
+  /** Present for one of several modes of a game, which is offered once. */
+  readonly mode?: GameClientMode;
   /** Mounted when this game is the currently selected game in the space. */
   readonly MainMenu: (props: GameClientMenuProps) => JSX.Element;
   /** Account-owned effects observe open rooms even while another screen is shown. */

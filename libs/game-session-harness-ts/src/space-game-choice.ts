@@ -6,6 +6,7 @@
  */
 
 import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
+import { gameTile } from '@libs/harness-ts/game-tiles';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront, visible } from '@libs/harness-ts/observations';
 import { SPACE_WAIT_MS, waitForOneOf } from '@libs/spaces-harness-ts/space-ui';
@@ -30,7 +31,7 @@ export async function readSpaceView(
   if (await visible(s, actor, [Handles.spaceHostOffline]))
     return 'host offline';
   if (await visible(s, actor, [GAME_CHOICES])) return 'game';
-  if (await visible(s, actor, [Handles.gameMenu(gameId)])) return 'choice';
+  if (await visible(s, actor, [gameTile(s, gameId)])) return 'choice';
   return 'elsewhere';
 }
 
@@ -48,7 +49,7 @@ export function pickGameOffered(
   actor: string,
   gameId: string
 ): Promise<boolean> {
-  return visible(s, actor, [Handles.gameMenu(gameId)]);
+  return visible(s, actor, [gameTile(s, gameId)]);
 }
 
 /** Whether `actor` is offered to go back to the game choice. */
@@ -68,7 +69,7 @@ function spaceShown(
   return waitForOneOf(
     s,
     actor,
-    [Handles.gameMenu(gameId), GAME_CHOICES],
+    [gameTile(s, gameId), GAME_CHOICES],
     'the space view'
   );
 }
@@ -81,10 +82,9 @@ export const attemptPickGame = scenarioAction({
   name: 'attemptPickGame',
   act: async (s, actor: string, gameId: string) => {
     await bringToFront(s, actor);
-    if ((await spaceShown(s, actor, gameId)) !== Handles.gameMenu(gameId))
-      return;
+    if ((await spaceShown(s, actor, gameId)) !== gameTile(s, gameId)) return;
     const ui = await actorUi(s, actor);
-    await ui.get(Handles.gameMenu(gameId)).tap({ timeoutMs: SPACE_WAIT_MS });
+    await ui.get(gameTile(s, gameId)).tap({ timeoutMs: SPACE_WAIT_MS });
     await waitForOneOf(
       s,
       actor,
@@ -114,7 +114,7 @@ export const attemptGoBackToGameChoice = scenarioAction({
       s,
       actor,
       [
-        Handles.gameMenu(gameId),
+        gameTile(s, gameId),
         Handles.spaceHostChoosesGame,
         Handles.statusConnectionMissing,
       ],

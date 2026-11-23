@@ -24,6 +24,10 @@ export type SpaceChoosingGame = {
   readonly bots: boolean;
   /** The name of the game's `GameTile` motif. */
   readonly motif: string;
+  /** The family its modes share; a game with one mode is its own. */
+  readonly family?: string | undefined;
+  /** For one of several modes: the game's name, offered once. */
+  readonly mode?: { readonly game: string } | undefined;
 };
 
 export type SpaceChoosingScreenViewProps = {
@@ -40,17 +44,29 @@ function tileMotif(game: SpaceChoosingGame): GameTileMotif {
   return motif;
 }
 
-/** Each registered game as a launcher tile, in the order registered. */
+/**
+ * Each registered game as a launcher tile, in the order registered: one
+ * tile per game, whatever its modes. A game with several modes is named
+ * once, fits every head count its modes seat, and opens the mode whose id
+ * is its family; its mode is then chosen among its choices.
+ */
 export function spaceLauncherGames(
   games: readonly SpaceChoosingGame[]
 ): readonly SpaceLauncherGame[] {
-  return games.map((game) => ({
-    key: game.id,
-    name: game.title,
-    motif: tileMotif(game),
-    players: { counts: [game.players ?? 1], bots: game.bots },
-    testId: Handles.gameMenu(game.id),
-  }));
+  const families = Map.groupBy(games, (game) => game.family ?? game.id);
+  return [...families].map(([family, modes]) => {
+    const opens = modes.find((mode) => mode.id === family) ?? modes[0]!;
+    const counts = [...new Set(modes.map((mode) => mode.players ?? 1))].sort(
+      (a, b) => a - b
+    );
+    return {
+      key: opens.id,
+      name: opens.mode?.game ?? opens.title,
+      motif: tileMotif(opens),
+      players: { counts, bots: modes.some((mode) => mode.bots) },
+      testId: Handles.gameMenu(opens.id),
+    };
+  });
 }
 
 /**

@@ -45,6 +45,7 @@ const instructions = () => (
 export const lightCyclesDuelClient = defineGameClient({
   shared: lightCyclesDuelShared,
   title: 'Light Cycles Duel',
+  mode: { game: 'Light Cycles', name: 'Duel' },
   caption: 'Two riders, one arena of light trails',
   tile: 'trails',
   subtitle: () => <Trans>Outlast your rival on the grid.</Trans>,
@@ -55,6 +56,7 @@ export const lightCyclesDuelClient = defineGameClient({
 export const lightCyclesTrioClient = defineGameClient({
   shared: lightCyclesTrioShared,
   title: 'Light Cycles Trio',
+  mode: { game: 'Light Cycles', name: 'Trio' },
   caption: 'Three riders, one arena of light trails',
   tile: 'trails',
   subtitle: () => <Trans>Be the last of three riders riding.</Trans>,
@@ -65,6 +67,7 @@ export const lightCyclesTrioClient = defineGameClient({
 export const lightCyclesQuadClient = defineGameClient({
   shared: lightCyclesQuadShared,
   title: 'Light Cycles Quad',
+  mode: { game: 'Light Cycles', name: 'Quad' },
   caption: 'Four riders, one arena of light trails',
   tile: 'trails',
   subtitle: () => <Trans>Be the last of four riders riding.</Trans>,
