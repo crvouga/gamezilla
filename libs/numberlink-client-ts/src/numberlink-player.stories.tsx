@@ -47,7 +47,7 @@ const PUZZLE: StoryPackPuzzle = {
 
 const meta = {
   id: 'screens-games-numberlink-puzzle',
-  title: 'Screens/Space/SpaceGameBoard/Numberlink/Puzzle',
+  title: 'Screens/Space/Boards/Numberlink/Puzzle',
   component: NumberlinkPlayer,
   tags: ['autodocs'],
   // The player inside the screen a pack puzzle is played on.

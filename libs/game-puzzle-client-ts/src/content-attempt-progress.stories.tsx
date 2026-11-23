@@ -24,7 +24,7 @@ function render(args: ContentAttemptScreenViewProps) {
 
 const meta = {
   id: 'screens-puzzles-content-attempt-progress',
-  title: 'Screens/Space/SpaceGamePuzzlePackPlay/Progress',
+  title: 'Screens/Space/Puzzle pack/Play/Progress',
   component: ContentAttemptScreenView,
   render,
   parameters: ATTEMPT_STORY_PARAMETERS,

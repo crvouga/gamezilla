@@ -23,7 +23,7 @@ import {
 
 const meta = {
   id: 'screens-games-frame-geometry',
-  title: 'Screens/Space/SpaceGameCustomGamePlay/Board priority',
+  title: 'Screens/Space/Custom game/Play/Board priority',
   component: GameFrameScreenView,
   parameters: {
     appRouter: true,

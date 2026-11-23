@@ -107,7 +107,7 @@ const SOUTH_HAND = writeCards(heldBy(DEAL.hands, 0));
 
 const meta = {
   id: 'screens-games-hearts-board',
-  title: 'Screens/Space/SpaceGameBoard/Hearts/Table',
+  title: 'Screens/Space/Boards/Hearts/Table',
   component: HeartsBoard,
   tags: ['autodocs'],
   render: (args, context) => renderHeartsTable(args, context),

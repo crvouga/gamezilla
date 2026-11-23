@@ -8,7 +8,7 @@ import {
 
 const meta = {
   id: 'screens-puzzles-content-library-solved',
-  title: 'Screens/Space/SpaceGamePuzzlePackSetup/Solved',
+  title: 'Screens/Space/Puzzle pack/Setup/Solved',
   component: ContentLibraryScreenView,
   parameters: LIBRARY_STORY_PARAMETERS,
   args: { ...LIBRARY_STORY_ARGS, place: { screen: 'solved' } },

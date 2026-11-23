@@ -17,7 +17,7 @@ import {
  */
 const meta = {
   id: 'screens-puzzles-play-status',
-  title: 'Screens/Space/SpaceGamePuzzleFeedPlay/Status',
+  title: 'Screens/Space/Puzzle feed/Play/Status',
   component: PuzzlePlayScreenView,
   tags: ['autodocs'],
   render: (args, context) =>

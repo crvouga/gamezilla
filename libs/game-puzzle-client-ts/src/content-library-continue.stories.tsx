@@ -9,7 +9,7 @@ import {
 
 const meta = {
   id: 'screens-puzzles-content-library-continue',
-  title: 'Screens/Space/SpaceGamePuzzlePackSetup/Continue',
+  title: 'Screens/Space/Puzzle pack/Setup/Continue',
   component: ContentLibraryScreenView,
   parameters: LIBRARY_STORY_PARAMETERS,
   args: { ...LIBRARY_STORY_ARGS, place: { screen: 'continue' } },

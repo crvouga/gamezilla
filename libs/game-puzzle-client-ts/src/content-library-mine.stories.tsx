@@ -10,7 +10,7 @@ import {
 
 const meta = {
   id: 'screens-puzzles-content-library-mine',
-  title: 'Screens/Space/SpaceGamePuzzlePackBuilder/My creations',
+  title: 'Screens/Space/Puzzle pack/Builder/My creations',
   component: ContentLibraryScreenView,
   parameters: LIBRARY_STORY_PARAMETERS,
   args: { ...LIBRARY_STORY_ARGS, place: { screen: 'mine' } },

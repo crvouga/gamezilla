@@ -8,7 +8,7 @@ import {
 
 const meta = {
   id: 'screens-games-matchmaking-guide',
-  title: 'Screens/Space/SpaceGameMatchmakingSetup/How it works',
+  title: 'Screens/Space/Matchmaking/Setup/How it works',
   component: MultiplayerScreenView,
   tags: ['autodocs'],
   parameters: STORY_PARAMETERS,

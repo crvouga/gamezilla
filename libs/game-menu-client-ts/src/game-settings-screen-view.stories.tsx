@@ -23,7 +23,7 @@ const PUZZLES: GameSettingsRowView = {
 
 const meta = {
   id: 'screens-games-settings-group',
-  title: 'Screens/Space/SpaceGameMainMenu/Settings',
+  title: 'Screens/Space/Main menu/Settings',
   component: GameSettingsScreenView,
   tags: ['autodocs'],
   parameters: { appRouter: true, controls: { exclude: ['rows', 'place'] } },

@@ -11,7 +11,7 @@ import {
 
 const meta = {
   id: 'screens-puzzles-content-author-copies',
-  title: 'Screens/Space/SpaceGamePuzzlePackBuilder/Draft copies',
+  title: 'Screens/Space/Puzzle pack/Builder/Draft copies',
   component: ContentAuthorScreenView,
   render: (args) => renderAuthorStory(args),
   parameters: AUTHOR_STORY_PARAMETERS,

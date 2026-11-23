@@ -46,7 +46,7 @@ const PUZZLE_CHOICES: readonly GameMenuChoiceView[] = [
 
 const meta = {
   id: 'screens-games-menu',
-  title: 'Screens/Space/SpaceGameMainMenu/Menu',
+  title: 'Screens/Space/Main menu/Menu',
   component: GameMenuScreenView,
   tags: ['autodocs'],
   parameters: {

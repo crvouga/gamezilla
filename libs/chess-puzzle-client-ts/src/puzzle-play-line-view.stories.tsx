@@ -21,7 +21,7 @@ import {
  */
 const meta = {
   id: 'screens-puzzles-play-line',
-  title: 'Screens/Space/SpaceGamePuzzleFeedPlay/Line',
+  title: 'Screens/Space/Puzzle feed/Play/Line',
   component: ChessPuzzleBoard,
   tags: ['autodocs'],
   decorators: [withScreenFrame, withChessPuzzleBoardContext],

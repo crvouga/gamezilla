@@ -5,7 +5,7 @@ import { STORY_LOAD_ARGS } from './catalogue-load-story.example';
 
 const meta = {
   id: 'screens-puzzles-catalogue-load-status',
-  title: 'Screens/Space/SpaceGamePuzzleCatalogueLoad/Status',
+  title: 'Screens/Space/Puzzle feed/Import/Status',
   component: CatalogueLoadScreenView,
   tags: ['autodocs'],
   parameters: {

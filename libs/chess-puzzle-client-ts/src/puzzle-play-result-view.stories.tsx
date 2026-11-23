@@ -32,7 +32,7 @@ const WHOLE_LINE: PuzzleScene = {
  */
 const meta = {
   id: 'screens-puzzles-play-result',
-  title: 'Screens/Space/SpaceGamePuzzleFeedPlay/Result',
+  title: 'Screens/Space/Puzzle feed/Play/Result',
   component: ChessPuzzleBoard,
   tags: ['autodocs'],
   decorators: [withScreenFrame, withChessPuzzleBoardContext],

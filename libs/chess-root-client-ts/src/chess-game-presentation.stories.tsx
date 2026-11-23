@@ -42,7 +42,7 @@ const BARE_KINGS = '8/8/4k3/8/8/3K4/8/8 w - - 0 60';
 
 const meta = {
   id: 'screens-games-chess-board',
-  title: 'Screens/Space/SpaceGameBoard/Chess/Board',
+  title: 'Screens/Space/Boards/Chess/Board',
   component: ChessGameBoard,
   tags: ['autodocs'],
   decorators: [withChessBoardContext],

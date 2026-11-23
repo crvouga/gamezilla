@@ -25,7 +25,7 @@ import {
 
 const meta = {
   id: 'screens-games-custom-seat',
-  title: 'Screens/Space/SpaceGameCustomGameSetup/Seat',
+  title: 'Screens/Space/Custom game/Setup/Seat',
   component: GameFrameScreenView,
   tags: ['autodocs'],
   parameters: {

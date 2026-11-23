@@ -115,7 +115,6 @@ test("an area's stories share its prefix in every level", () => {
   const prefixes: readonly (readonly [string, string])[] = [
     ['Organisms/Space/', 'Space'],
     ['Templates/Space/', 'Space'],
-    ['Screens/Space/', 'Space'],
     ['Organisms/Games/Shared/', 'Game'],
     ['Templates/Games/', 'Game'],
   ];

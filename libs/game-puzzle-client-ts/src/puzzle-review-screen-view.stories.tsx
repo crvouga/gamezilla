@@ -50,7 +50,7 @@ function renderAt(
 
 const meta = {
   id: 'screens-puzzles-review',
-  title: 'Screens/Space/SpaceGamePuzzleFeedPlay/Review',
+  title: 'Screens/Space/Puzzle feed/Play/Review',
   component: PuzzleReviewScreenView,
   tags: ['autodocs'],
   render: (args, context) => renderAt(args, context),

@@ -9,7 +9,7 @@ import { WordTilesPuzzlePreview } from './word-tiles-puzzle-player';
 
 const meta = {
   id: 'screens-games-word-tiles-puzzle-preview',
-  title: 'Screens/Space/SpaceGameBoard/Word Tiles/Puzzle preview',
+  title: 'Screens/Space/Boards/Word Tiles/Puzzle preview',
   component: WordTilesPuzzlePreview,
   tags: ['autodocs'],
   parameters: { appRouter: true },

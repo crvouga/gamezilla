@@ -6,7 +6,7 @@ import { withSpaceScreenBehind } from './space-screen-behind.example';
 
 const meta = {
   id: 'screens-spaces-end-confirm',
-  title: 'Screens/Space/SpaceEnd',
+  title: 'Screens/Space/Enter and leave/End',
   component: EndSpaceConfirmModal,
   tags: ['autodocs'],
   decorators: [withSpaceScreenBehind],

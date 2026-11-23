@@ -18,7 +18,7 @@ import {
 
 const meta = {
   id: 'screens-games-custom-commands',
-  title: 'Screens/Space/SpaceGameCustomGamePlay/Game menu',
+  title: 'Screens/Space/Custom game/Play/In-game menu',
   component: GameFrameScreenView,
   tags: ['autodocs'],
   parameters: {

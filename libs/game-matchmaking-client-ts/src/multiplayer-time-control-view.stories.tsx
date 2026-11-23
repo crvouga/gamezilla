@@ -9,7 +9,7 @@ import {
 
 const meta = {
   id: 'screens-games-matchmaking-time-control',
-  title: 'Screens/Space/SpaceGameMatchmakingSetup/Time control',
+  title: 'Screens/Space/Matchmaking/Setup/Time control',
   component: MultiplayerScreenView,
   tags: ['autodocs'],
   parameters: STORY_PARAMETERS,

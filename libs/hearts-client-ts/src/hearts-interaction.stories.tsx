@@ -7,7 +7,7 @@ import { renderPassRecovery } from './hearts-recovery.example';
 
 const meta = {
   id: 'screens-games-hearts-interaction',
-  title: 'Screens/Space/SpaceGameBoard/Hearts/Passing into play',
+  title: 'Screens/Space/Boards/Hearts/Passing into play',
   component: HeartsBoard,
   args: boardArgs(heartsRules.initial()),
   parameters: { appRouter: true, controls: { disable: true } },

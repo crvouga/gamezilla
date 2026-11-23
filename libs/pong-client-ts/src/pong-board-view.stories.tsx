@@ -70,7 +70,7 @@ const presentation = {
 
 const meta = {
   id: 'screens-games-pong-court',
-  title: 'Screens/Space/SpaceGameBoard/Pong/Court',
+  title: 'Screens/Space/Boards/Pong/Court',
   component: PongBoardView,
   tags: ['autodocs'],
   render: (args, context) =>

@@ -4,7 +4,7 @@ import { FIVE_BY_FIVE } from './numberlink-player.example';
 
 const meta = {
   id: 'screens-games-numberlink-preview',
-  title: 'Screens/Space/SpaceGameBoard/Numberlink/Preview',
+  title: 'Screens/Space/Boards/Numberlink/Preview',
   component: NumberlinkPreview,
   tags: ['autodocs'],
   parameters: { appRouter: true },

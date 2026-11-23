@@ -30,7 +30,7 @@ function renderInBuilder(
 
 const meta = {
   id: 'screens-games-sokoban-editor',
-  title: 'Screens/Space/SpaceGameBoard/Sokoban/Editor',
+  title: 'Screens/Space/Boards/Sokoban/Editor',
   component: SokobanEditor,
   tags: ['autodocs'],
   render: (args) => renderInBuilder(args),

@@ -13,7 +13,7 @@ import {
 /** The feed's `feed-themes` place: the themes the feed is narrowed to. */
 const meta = {
   id: 'screens-puzzles-play-feed-themes',
-  title: 'Screens/Space/SpaceGamePuzzleFeedPlay/Feed themes',
+  title: 'Screens/Space/Puzzle feed/Play/Feed themes',
   component: PuzzlePlayScreenView,
   tags: ['autodocs'],
   render: (args, context) =>

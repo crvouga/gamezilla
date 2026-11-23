@@ -15,7 +15,7 @@ const FULL_FLEET =
 
 const meta = {
   id: 'screens-games-battleship-setup',
-  title: 'Screens/Space/SpaceGameBoard/Battleship/Fleet setup',
+  title: 'Screens/Space/Boards/Battleship/Fleet setup',
   component: BattleshipSetupBoard,
   tags: ['autodocs'],
   render: (args) => {

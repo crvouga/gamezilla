@@ -6,7 +6,7 @@ import { faces, LONG_NAME, MEMBERS, UNSYNCED } from './spaces-story.example';
 
 const meta = {
   id: 'screens-spaces-members',
-  title: 'Screens/Space/SpaceMembers',
+  title: 'Screens/Space/Manage/People',
   component: SpaceMembersSheetView,
   tags: ['autodocs'],
   decorators: [withSpaceScreenBehind],

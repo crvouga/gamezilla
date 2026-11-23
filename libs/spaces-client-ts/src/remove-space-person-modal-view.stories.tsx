@@ -6,7 +6,7 @@ import { LONG_NAME } from './spaces-story.example';
 
 const meta = {
   id: 'screens-spaces-remove-person',
-  title: 'Screens/Space/SpaceRemovePerson',
+  title: 'Screens/Space/Manage/Remove person',
   component: RemoveSpacePersonModalView,
   tags: ['autodocs'],
   decorators: [withSpaceScreenBehind],

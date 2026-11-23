@@ -4,7 +4,7 @@ import { GameMenuScreenView } from './game-menu-screen-view';
 
 const meta = {
   id: 'screens-games-menu-how-to-play',
-  title: 'Screens/Space/SpaceGameMainMenu/How to play',
+  title: 'Screens/Space/Main menu/How to play',
   component: GameMenuScreenView,
   tags: ['autodocs'],
   parameters: {

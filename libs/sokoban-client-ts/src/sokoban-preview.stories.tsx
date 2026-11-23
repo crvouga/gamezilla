@@ -5,7 +5,7 @@ import { TWO_CRATES } from './sokoban-player.example';
 
 const meta = {
   id: 'screens-games-sokoban-preview',
-  title: 'Screens/Space/SpaceGameBoard/Sokoban/Preview',
+  title: 'Screens/Space/Boards/Sokoban/Preview',
   component: SokobanPreview,
   tags: ['autodocs'],
   parameters: { appRouter: true },

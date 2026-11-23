@@ -38,7 +38,7 @@ const MID_GAME_REPLY = `${MID_GAME}6`;
 
 const meta = {
   id: 'screens-games-connect-four-board',
-  title: 'Screens/Space/SpaceGameBoard/Connect Four/Board',
+  title: 'Screens/Space/Boards/Connect Four/Board',
   component: ConnectFourGameBoard,
   tags: ['autodocs'],
   render: (args, context) =>

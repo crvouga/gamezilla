@@ -16,7 +16,7 @@ import {
  */
 const meta = {
   id: 'screens-puzzles-play-feed-history',
-  title: 'Screens/Space/SpaceGamePuzzleFeedPlay/Feed history',
+  title: 'Screens/Space/Puzzle feed/Play/Feed history',
   component: PuzzlePlayScreenView,
   tags: ['autodocs'],
   render: (args, context) =>
