@@ -91,28 +91,56 @@ async function switchTo(page: Page, storyId: string): Promise<void> {
   await ready(page);
 }
 
+/** Steps through `game`'s stories at `viewport`: the arena never moves. */
+async function keepsArenaInPlace(
+  page: Page,
+  viewport: (typeof VIEWPORTS)[number],
+  game: keyof typeof SEQUENCES
+): Promise<void> {
+  const sequence = SEQUENCES[game];
+  await page.setViewportSize(viewport);
+  const [first, ...rest] = sequence.stories;
+  await page.goto(
+    `/iframe.html?id=${first}&viewMode=story&globals=theme:light`
+  );
+  await ready(page);
+  const start = await stageRects(page, sequence.drawing);
+  // A phone's arena takes the screen's whole width (its drawing keeps
+  // its own frame and the room around its walls inside that).
+  if (viewport.width < 768)
+    expect(start.board).toMatchObject({ x: 0, width: viewport.width });
+  for (const story of rest) {
+    await switchTo(page, story);
+    expect({
+      story,
+      ...(await stageRects(page, sequence.drawing)),
+    }).toEqual({ story, ...start });
+  }
+}
+
+const [PHONE, WIDE] = VIEWPORTS;
+
 // regression: realtime-stage-arena-moves
-for (const viewport of VIEWPORTS)
-  for (const [game, sequence] of Object.entries(SEQUENCES))
-    test(`storybook integration: stage stability ${game} ${viewport.width} keeps the arena where it is through the game`, async ({
-      page,
-    }) => {
-      await page.setViewportSize(viewport);
-      const [first, ...rest] = sequence.stories;
-      await page.goto(
-        `/iframe.html?id=${first}&viewMode=story&globals=theme:light`
-      );
-      await ready(page);
-      const start = await stageRects(page, sequence.drawing);
-      // A phone's arena takes the screen's whole width (its drawing keeps
-      // its own frame and the room around its walls inside that).
-      if (viewport.width < 768)
-        expect(start.board).toMatchObject({ x: 0, width: viewport.width });
-      for (const story of rest) {
-        await switchTo(page, story);
-        expect({
-          story,
-          ...(await stageRects(page, sequence.drawing)),
-        }).toEqual({ story, ...start });
-      }
-    });
+test('storybook integration: stage stability pong 390 keeps the arena where it is through the game', async ({
+  page,
+}) => {
+  await keepsArenaInPlace(page, PHONE, 'pong');
+});
+
+test('storybook integration: stage stability pong 1440 keeps the arena where it is through the game', async ({
+  page,
+}) => {
+  await keepsArenaInPlace(page, WIDE, 'pong');
+});
+
+test('storybook integration: stage stability light cycles 390 keeps the arena where it is through the game', async ({
+  page,
+}) => {
+  await keepsArenaInPlace(page, PHONE, 'light cycles');
+});
+
+test('storybook integration: stage stability light cycles 1440 keeps the arena where it is through the game', async ({
+  page,
+}) => {
+  await keepsArenaInPlace(page, WIDE, 'light cycles');
+});

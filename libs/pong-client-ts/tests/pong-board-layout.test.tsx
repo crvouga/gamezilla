@@ -93,8 +93,9 @@ test("phone: the paddle's upright slider lies over its own half of the court", (
 // orange while both paddles were drawn in the court's own ink. Each paddle
 // takes its seat's color, the color beside the player's name on the stage.
 // regression: pong-other-half-unnamed — each player is named once, on their
-// seat around the court (see pong-frame-commands), never on the court.
-test("each paddle takes its seat's color, and the court names nobody", () => {
+// seat around the court (see pong-frame-commands), and on the court only in
+// a short landscape window, where the stage's seats step out.
+test("each paddle takes its seat's color, and the court names players only where the seats step out", () => {
   mount(390);
   expect(
     screen.getByTestId('pong-first-paddle').getAttribute('data-color')
@@ -102,8 +103,7 @@ test("each paddle takes its seat's color, and the court names nobody", () => {
   expect(
     screen.getByTestId('pong-second-paddle').getAttribute('data-color')
   ).toBe('player2');
-  expect(screen.queryByTestId('pong-scoreboard')).toBeNull();
-  expect(screen.queryByText('jordan_plays')).toBeNull();
+  expectShortLandscapeOnly(screen.getByTestId('pong-scoreboard'));
 });
 
 test('scores have spoken labels and the serve is visible on the court', () => {
@@ -122,11 +122,14 @@ test('scores have spoken labels and the serve is visible on the court', () => {
 // above the court and the person's own below it (pong-frame-commands).
 // regression: pong-score-over-ball-path — the points were drawn in the top
 // of each half, where the ball travels. Nothing is drawn over the play: the
-// court has no scoreboard, and a listener hears the score from its words.
+// court's own scoreboard sits outside it, only in a short landscape window,
+// and a listener hears the score from its words.
 test('the court draws no score over the play; a listener hears it', () => {
   mount(1440);
-  expect(screen.queryByTestId('pong-scoreboard')).toBeNull();
-  expect(screen.queryByTestId('pong-court-score-first')).toBeNull();
+  const scoreboard = screen.getByTestId('pong-scoreboard');
+  expectShortLandscapeOnly(scoreboard);
+  expect(screen.getByTestId('pong').contains(scoreboard)).toBe(false);
+  expect(scoreboard.getAttribute('aria-hidden')).toBe('true');
   expect(screen.getByTestId('pong-score-left').textContent).toBe('Left 0');
 });
 
@@ -137,6 +140,23 @@ function rule(file: string, selector: string): string {
   const css = readFileSync(join(UI_SRC, file), 'utf8');
   const open = css.indexOf('{', css.indexOf(`${selector} {`));
   return css.slice(open + 1, css.indexOf('}', open));
+}
+
+/**
+ * The court's own scoreboard shows only in a short landscape window, where
+ * the stage drops its seat rows: hidden by default, its frame marked so
+ * the stage knows.
+ */
+function expectShortLandscapeOnly(scoreboard: HTMLElement): void {
+  expect(scoreboard.parentElement?.getAttribute('data-board-scores')).toBe(
+    'short-landscape'
+  );
+  expect(
+    rule(
+      'paddle-court/paddle-court.module.css',
+      '.frame[data-scoreboard="short-landscape"] > .scoreboard'
+    )
+  ).toMatch(/display:\s*none;/);
 }
 
 // regression: pong-phone-court-small — on a phone the court was about
@@ -163,6 +183,31 @@ test('phone: the court takes the whole width, its paddles and score readable', (
     rule('paddle-court/paddle-court.module.css', '.score')
   )?.[1];
   expect(Number(opacity)).toBeGreaterThanOrEqual(0.7);
+});
+
+// regression: pong-score-muted-on-court — the points were the court's muted
+// violet at 72% on its dark violet, the main fact on the court read as
+// decoration, and the side names were set larger than the points. The
+// points take the court's bright ink, and each side's name sits small
+// under its points.
+test('the score is drawn in the bright ink, each side named small beside it', () => {
+  mount(390);
+  const score = rule('paddle-court/paddle-court.module.css', '.score');
+  expect(score).toMatch(/color:\s*var\(--ui-color-text\);/);
+  expect(Number(/opacity: ([\d.]+)/.exec(score)?.[1])).toBeGreaterThanOrEqual(
+    0.9
+  );
+  expect(score).toMatch(/font-size:\s*var\(--ui-font-size-2xl\);/);
+  expect(rule('paddle-court/paddle-court.module.css', '.own')).toMatch(
+    /font-size:\s*var\(--ui-font-size-sm\);/
+  );
+  // Beside its points: in the same side of the scoreboard.
+  const first = screen.getByTestId('pong-court-score-first');
+  const mark = screen
+    .getByTestId('pong-scoreboard')
+    .querySelector('[data-side="first"][data-own]');
+  if (mark === null) throw new Error('no side name');
+  expect(mark.parentElement).toBe(first.parentElement);
 });
 
 // regression: pong-thumb-over-play — a phone's drag happened anywhere on
