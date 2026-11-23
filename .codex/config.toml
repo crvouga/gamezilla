@@ -8,3 +8,7 @@ args = ["exec", "--", "serena", "start-mcp-server", "--context", "codex", "--pro
 [mcp_servers.storybook]
 url = "http://127.0.0.1:6006/mcp"
 # END storybook
+
+[mcp_servers.serena.env]
+MISE_LOCKED = "false"
+MISE_LOCKFILE = "false"
