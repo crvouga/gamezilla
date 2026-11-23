@@ -12,7 +12,10 @@ export type LoadingStateProps = {
   caption?: JSX.Element | undefined;
   /** Layout density. Defaults to `'fill'`. */
   variant?: StateBlockVariant | undefined;
-  /** Spinner size. Defaults to `md`, `lg` for a whole screen. */
+  /**
+   * Spinner size. Defaults to `md`, which boot and whole-screen loads share
+   * so the indicator keeps one size from first paint to the screen's data.
+   */
   size?: SpinnerProps['size'];
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
@@ -31,7 +34,7 @@ export type LoadingStateProps = {
  *
  * @example
  * ```tsx
- * <Suspense fallback={<LoadingState size="lg" />}>{children}</Suspense>
+ * <Suspense fallback={<LoadingState />}>{children}</Suspense>
  * <LoadingState caption={t`Loading entity…`} />
  * <LoadingState variant="compact" caption={t`Waiting for metrics…`} />
  * ```

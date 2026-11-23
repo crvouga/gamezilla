@@ -13,7 +13,7 @@ import type { JSX } from 'solid-js';
 export function SsoCallbackScreenView(): JSX.Element {
   return (
     <Surface tone="background" grow align="center" justify="center">
-      <LoadingState size="lg" caption={<Trans>Signing in…</Trans>} />
+      <LoadingState caption={<Trans>Signing in…</Trans>} />
     </Surface>
   );
 }

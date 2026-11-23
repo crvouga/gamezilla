@@ -99,7 +99,7 @@ rings, icons and seat colors) and keeps the seat colors apart in lightness.
    changes state in 200ms, a surface enters in 250ms. Press is a tone shift
    and a 0.97 scale; nothing bounces. `prefers-reduced-motion` (and the app's
    reduced-motion setting) turns it all off.
-10. **One activity indicator.** Every wait shows `Spinner` (twelve petals,
+10. **One activity indicator.** Every wait shows `Spinner` (eight petals,
     stepping once a second): alone, in `LoadingState`, inside a loading
     `Button`, and on the boot screen in `index.html`.
 11. **Outcomes are told in context, never in a toast or a top banner.** What

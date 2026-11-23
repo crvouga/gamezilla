@@ -90,7 +90,7 @@ export function ProductApp(props: ProductAppProps): JSX.Element {
                       >
                         <AppProvidersSession>
                           {/* Lazy routes load their chunk behind one loading state. */}
-                          <Suspense fallback={<LoadingState size="lg" />}>
+                          <Suspense fallback={<LoadingState />}>
                             {props.children}
                           </Suspense>
                         </AppProvidersSession>
