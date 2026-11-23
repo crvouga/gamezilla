@@ -12,6 +12,7 @@ import { defineSubServer } from '@libs/sub-shared-ts/server';
 import { defineOutboxConsumer } from '@pkgs/outbox-shared-ts/define-consumer';
 import type { RoomServicePort } from '@pkgs/room-root-shared-ts/room-service';
 import type { TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
+import { customGameSeatsGuard } from './custom-game-seats-guard';
 import { createMultiplayerAvailabilityConsumer } from './multiplayer-availability-consumer';
 import {
   createMultiplayerNoticesConsumer,
@@ -52,7 +53,10 @@ export function createGameSessionServer(
       ...(await customGameRoomGrants(ctx)),
       ...(await multiplayerRoomGrants(ctx)),
     ],
-    authorizeMutation: opponentSearchGuard(rooms),
+    authorizeMutation: async (ctx) => {
+      await opponentSearchGuard(rooms)(ctx);
+      await customGameSeatsGuard(rooms)(ctx);
+    },
     register: registerMultiplayerNoticeActions,
     registerOutbox(registry) {
       registerMatchRoomConsumers(registry, rooms);

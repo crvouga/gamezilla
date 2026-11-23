@@ -103,6 +103,12 @@ const FINDING_SURFACES = [
   'multiplayer-unavailable',
 ] as const;
 
+/**
+ * A custom game's screen. Without a Back beside it, it is a space held on
+ * a custom game under way: no way to finding an opponent is offered.
+ */
+export const CUSTOM_GAME_CONTENT = 'custom-game-content';
+
 /** Where a device can show no finding an opponent at all. */
 const NOWHERE_TO_FIND = [Handles.spaceEnded, Handles.spaceNotFound] as const;
 
@@ -111,6 +117,7 @@ export function findingAnOpponentHandles(gameId: string): readonly string[] {
   return [
     ...FINDING_SURFACES,
     ...NOWHERE_TO_FIND,
+    CUSTOM_GAME_CONTENT,
     Handles.gameChoice('multiplayer'),
     Handles.gameMenu(gameId),
     Handles.navBack,
@@ -133,6 +140,9 @@ export function findingAnOpponentStep(
     return 'arrived';
   if (NOWHERE_TO_FIND.some((surface) => visible.has(surface)))
     return whereverItCan ? 'arrived' : 'nowhere';
+  // The space stays on a custom game under way: its board is as far as it goes.
+  if (visible.has(CUSTOM_GAME_CONTENT) && !visible.has(Handles.navBack))
+    return 'arrived';
   return (
     [
       Handles.gameChoice('multiplayer'),

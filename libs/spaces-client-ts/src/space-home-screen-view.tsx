@@ -11,6 +11,7 @@ import {
 import { SpaceStageTemplate } from '@pkgs/ui-root-client-ts/space-stage-template';
 import type { SpacePerson } from '@pkgs/ui-root-client-ts/space-types';
 import { createMemo, type JSX } from 'solid-js';
+import { SpaceOffer } from './space-offer-context';
 import { SpaceScreenNotice, useSpaceScreenChrome } from './space-screen-chrome';
 import { ClaimSpaceShell } from './space-shell-claim';
 
@@ -114,6 +115,8 @@ export function SpaceHomeScreenView(
         notice={<SpaceScreenNotice />}
         testIds={chrome.testIds}
       >
+        {/* What another sub offers over the space (the way back to a game). */}
+        <SpaceOffer />
         <SpaceLauncher
           role={props.canSelectGame ? 'host' : 'guest'}
           hostName={chrome.hostName}

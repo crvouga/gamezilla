@@ -123,7 +123,10 @@ function buildCommandRouter(
     { namespace: spaceLogCmdNs, router: spaceLogCommandRouter },
     { namespace: spaceQuietCmdNs, router: spaceQuietCommandRouter },
     { namespace: counterCmdNs, router: counterCommandRouter },
-    { namespace: gamesCmdNs, router: createGamesCommandRouter(games) },
+    {
+      namespace: gamesCmdNs,
+      router: createGamesCommandRouter(games, modules),
+    },
     ...mergeGameRouterEntries(modules.flatMap((game) => game.commandRouters)),
   ]);
 }

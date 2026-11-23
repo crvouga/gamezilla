@@ -49,8 +49,9 @@ function withRoom(
 
 /**
  * The space's host's search and game, including a game watched by guests.
- * Both belong to the account, whichever game they are of; `gameId` is the
- * game a new search from this screen is for.
+ * The search belongs to the account, whichever game it is of; the game shows
+ * only when it is a game of `gameId`, the game a new search from this screen
+ * is for.
  */
 export function useMultiplayerData(gameId: () => string) {
   const myId = useMyId();
@@ -87,11 +88,22 @@ export function useMultiplayerData(gameId: () => string) {
     onCleanup(() => held.unsubscribe());
     void sync.refreshQueries();
   });
-  const roomGame = useMatchRoom(() => games.rows()[0]?.id);
+  // The host's matched game shows only on finding an opponent for its own
+  // game; another game's finding an opponent offers returning to it.
+  const ownGame = (): MultiplayerGame | null =>
+    games
+      .rows()
+      .find(
+        (row) =>
+          rules.games
+            .find((game) => game.rules.id === gameId())
+            ?.rules.recognizes(row.fen) === true
+      ) ?? null;
+  const roomGame = useMatchRoom(() => ownGame()?.id);
   const awaitingRoom = () =>
-    awaitsMatchRoom(games.rows()[0] ?? null, roomGame.opening(), rules);
+    awaitsMatchRoom(ownGame(), roomGame.opening(), rules);
   const game = () => {
-    const row = games.rows()[0] ?? null;
+    const row = ownGame();
     return row === null || awaitingRoom()
       ? null
       : withRoom(row, roomGame.game());
@@ -103,11 +115,10 @@ export function useMultiplayerData(gameId: () => string) {
     hostId,
     game,
     /** The game as the durable record has it, before its room's live result. */
-    stored: () => games.rows()[0] ?? null,
+    stored: ownGame,
     room: roomGame.room,
     execution: () =>
-      matchingMultiplayerRoomGame(games.rows()[0] ?? null, roomGame.game())
-        ?.execution,
+      matchingMultiplayerRoomGame(ownGame(), roomGame.game())?.execution,
     search: () => searches.rows()[0] ?? null,
     ratings: ratings.rows,
     participant: () => {

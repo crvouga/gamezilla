@@ -1264,6 +1264,21 @@
       "env": ["HARNESS_FIDELITY", "PBT_NUM_RUNS", "PBT_RANDOM", "FC_SEED"],
       "outputLogs": "errors-only",
       "outputs": []
+    },
+    "test:spec:181": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:182": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:183": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:184": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:185": {
+      "inputs": ["$TURBO_EXTENDS$"]
     }
   }
 }

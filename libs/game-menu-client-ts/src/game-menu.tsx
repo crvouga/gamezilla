@@ -1,7 +1,9 @@
 import { LINKED_MULTIPLAYER_PARAM } from '@libs/game-matchmaking-shared-ts/multiplayer-link';
 import type { GamePuzzlesClient } from '@libs/game-puzzle-client-ts/puzzle-client';
 import { PuzzleFrame } from '@libs/game-puzzle-client-ts/puzzle-frame';
+import { CustomGameSeatsNote } from '@libs/game-session-client-ts/custom-game-seats-note';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
+import { SpaceOffer } from '@libs/spaces-client-ts/space-offer-context';
 import { useSpaceSessionUi } from '@libs/spaces-client-ts/space-session-ui-context';
 import {
   DefineBackButton,
@@ -152,7 +154,10 @@ export function GameMenu(props: {
   const shown = createMemo(() => screens().get(navigation.screen()) ?? choices);
   return (
     <GameFrame game={props.game}>
+      <CustomGameSeatsNote />
       <StackVertical grow self="stretch">
+        {/* What another sub offers over the space (the way back to a game). */}
+        <SpaceOffer />
         {/* A Back from a screen the choices open names them by the game. */}
         <GameChoicesName name={props.game.title}>
           <FadeSwitch stateKey={navigation.screen()}>

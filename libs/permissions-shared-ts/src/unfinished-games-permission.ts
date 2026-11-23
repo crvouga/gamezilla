@@ -33,6 +33,24 @@ export function decideUnfinishedGames(
   };
 }
 
+/** What the person is offered in place of seeking, as the limit decides. */
+export type UnfinishedGamesOffer =
+  | 'seek an opponent'
+  | 'return to their matched game'
+  | 'return to the custom game';
+
+/**
+ * `specs/games/unfinished-game-limit.dmn`'s offer: seeking an opponent when
+ * the limit allows it; otherwise returning to the game the person must
+ * finish first, never a dead end.
+ */
+export function unfinishedGamesOffer(decision: Decision): UnfinishedGamesOffer {
+  if (decision.allowed) return 'seek an opponent';
+  return decision.reason === 'restricted'
+    ? 'return to the custom game'
+    : 'return to their matched game';
+}
+
 /**
  * Throws a permanent `MutationError` (code = the denial reason, meta = the
  * decision) when the actor may not seek another multiplayer game.

@@ -19,8 +19,10 @@ import {
   MultiplayerRatingFigure,
   type MultiplayerRatingView,
 } from './multiplayer-ratings';
+import { ReturnOffer } from './return-to-game-offer';
 import { SpeedName } from './speed-name';
 import { timeControlWords } from './time-control-name';
+import type { UnfinishedGame } from './use-unfinished-game';
 
 /** What a new search is for. */
 export type MultiplayerFindChoice = {
@@ -46,6 +48,13 @@ type FindProps = MultiplayerPlaceFrame & {
   readonly onOpen: (place: MultiplayerPlace) => void;
   /** Starts a search, at the chosen time control when the game is timed. */
   readonly onFind: (timeControl: string | undefined) => Promise<void>;
+  /**
+   * The person's unfinished game, offered in place of the search's command:
+   * seeking is never offered while a game is unfinished.
+   */
+  readonly returnTo?: UnfinishedGame['kind'] | undefined;
+  /** Goes back to that game's board. */
+  readonly onReturn?: (() => void) | undefined;
 };
 
 /**
@@ -219,11 +228,28 @@ function FindDock(props: FindProps): JSX.Element {
  * card of what will be played (ranked and rated over the game's name and
  * how it is won), the match's choices as rows (the clock, the rating it
  * plays for), how a search works under them, and the search's one command
- * in a dock at the foot of the screen. Nothing is said twice.
+ * in a dock at the foot of the screen — or, while the person has an
+ * unfinished game, the way back to it in its place. Nothing is said twice.
  */
 export function MatchmakingHomeView(props: FindProps): JSX.Element {
   return (
-    <MultiplayerLobbyPlace {...props} dock={<FindDock {...props} />}>
+    <MultiplayerLobbyPlace
+      {...props}
+      dock={
+        <Show when={props.returnTo} fallback={<FindDock {...props} />}>
+          {(kind) => (
+            <GameLobbyDock>
+              <ReturnOffer
+                kind={kind()}
+                placement="inline"
+                finishFirst
+                onReturn={() => props.onReturn?.()}
+              />
+            </GameLobbyDock>
+          )}
+        </Show>
+      }
+    >
       <GameModeCard
         eyebrow={<FindEyebrow find={props.find} />}
         title={props.title}
