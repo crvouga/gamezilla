@@ -219,7 +219,7 @@ function SpaceMenuAction(
 ): JSX.Element {
   const { t } = useLingui();
   const menu = useAnchoredMenu();
-  const content = useSpaceMenu(props, props.overflow);
+  const content = useSpaceMenu(props, () => props.overflow());
   return (
     <>
       <span ref={menu.setTrigger} class="inline-flex">
