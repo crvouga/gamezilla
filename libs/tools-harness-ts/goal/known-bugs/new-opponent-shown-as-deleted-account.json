@@ -1,0 +1,4 @@
+{
+  "summary": "A newly matched multiplayer opponent was shown as \"Deleted account\" without their Synthetic User identification until the periodic 30-second refetch, because nothing kept the opponent's profile synced to the device.",
+  "regressionTest": "specs/synthetic-population/finding-opponents.feature"
+}

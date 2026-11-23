@@ -717,6 +717,7 @@ terms:
       - day per move
       - days per move
     avoid: [time format, game mode, pace]
+    published: true
 
   - term: find a chess opponent
     definition: >-

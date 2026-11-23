@@ -9,6 +9,7 @@ export const applicationEventSchema = z.object({
     'CreatedSpace',
     'JoinedSpace',
     'EnteredMatchmaking',
+    'StoppedMatchmaking',
     'GameStarted',
     'MoveSubmitted',
     'GameCompleted',

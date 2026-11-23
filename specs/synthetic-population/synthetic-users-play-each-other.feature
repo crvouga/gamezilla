@@ -5,7 +5,7 @@ Feature: Synthetic Users play each other
   of games being played.
 
   Rule: With no person looking for the same game, Synthetic Users looking for it become each other's multiplayer opponents
-    No counter-example: a person looking is matched with an available Synthetic User within 30 seconds, so Synthetic Users are only ever left looking when no person is.
+    No counter-example: a person looking is matched with an available Synthetic User within 10 seconds, so Synthetic Users are only ever left looking when no person is.
 
     Scenario: Two Synthetic Users become each other's multiplayer opponents
       Given the Synthetic User "Cedar" is looking for a multiplayer opponent for "Connect Four"
