@@ -28,7 +28,7 @@ import {
   localSpaceHostUsername,
   readSpaceLink,
   spaceNameRefusalShown,
-  spaceTitleShown,
+  spaceNameShown,
 } from '@libs/spaces-harness-ts/spaces-ui-reads';
 import type { QuintValue } from '@pkgs/quint-shared-ts/itf';
 import { variant } from '@pkgs/quint-shared-ts/itf';
@@ -113,7 +113,7 @@ bindQuintModel<QuintHarnessWorld>({
       await w.s.apply(focusActor, actor);
       spaceName.set(
         actor,
-        asModelName(w, await w.quiet.read(spaceTitleShown, actor))
+        asModelName(w, await w.quiet.read(spaceNameShown, actor))
       );
     }
     const lastRename = w.memo.get(LAST_RENAME);

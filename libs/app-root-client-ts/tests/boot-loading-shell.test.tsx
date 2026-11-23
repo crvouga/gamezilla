@@ -27,3 +27,17 @@ test('the indicator keeps one size from first paint to the first screen load', (
   expect(boot).toBe(screen);
   expect(SPINNER_PX[boot]).toBe(STARTUP_INDICATOR_PX);
 });
+
+// regression: boot-spinner-size-jump
+test('the boot indicator stays centered on the viewport, like the static boot screen', () => {
+  renderWithI18n(() => (
+    <ThemeProvider colorScheme="dark">
+      <BootLoadingShell />
+    </ThemeProvider>
+  ));
+  const spinner = document.querySelector('[data-component="Spinner"]');
+  const layer = spinner?.closest('[data-component="Layer"]');
+  expect(layer?.getAttribute('data-inset')).toBe('viewport');
+  expect(layer?.classList.contains('fixed')).toBe(true);
+  expect(layer?.classList.contains('inset-0')).toBe(true);
+});

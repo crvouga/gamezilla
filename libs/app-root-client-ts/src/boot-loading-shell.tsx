@@ -11,9 +11,9 @@ import type { JSX } from 'solid-js';
  * opens. Matches the static `.startup-shell` in `index.html` and stays pinned
  * to the viewport center, so the spinner never moves or changes as boot
  * stages hand off (header chrome may appear around it). Its spinner is the
- * default `LoadingState` size, the one every screen shows while its own data
- * loads, so the hand-off to the first screen keeps that size too. Never a blank void on
- * a hung OPFS / worker open.
+ * whole-screen `LoadingState` size (`lg`, 40px), the one every screen shows
+ * while its own data loads, so the hand-off to the first screen keeps that
+ * size too. Never a blank void on a hung OPFS / worker open.
  */
 export function BootLoadingShell(): JSX.Element {
   return (

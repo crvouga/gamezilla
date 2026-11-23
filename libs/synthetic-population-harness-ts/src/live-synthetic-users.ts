@@ -243,8 +243,14 @@ async function lease(s: ProductHarness, member: LiveSyntheticUser) {
 /** Renew the Worker Lease as its worker does; `null` once the lease is lost. */
 async function renew(s: ProductHarness, run: Running): Promise<void> {
   const owned = await lease(s, run.member);
-  if (owned === null || (await renewed(s, owned, run)) === false)
+  const answering = (run.renewal?.waitingOpponents.length ?? 0) > 0;
+  if (owned === null || (await renewed(s, owned, run)) === false) {
     run.closed = true;
+    return;
+  }
+  // As its worker does, a person newly waiting for it is answered now.
+  if (!answering && (run.renewal?.waitingOpponents.length ?? 0) > 0)
+    run.nextTickAt = s.harness.clock.now();
 }
 
 async function renewed(

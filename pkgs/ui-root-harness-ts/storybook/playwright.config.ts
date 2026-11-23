@@ -1,4 +1,4 @@
-// @io-wall-ok — resolve the repository's pinned screenshot renderer
+// @io-wall-ok — resolve the repository's pinned renderer
 import { spawnSync } from 'node:child_process';
 import {
   CHROME_FOR_TESTING_TOOL,
@@ -34,11 +34,11 @@ export default defineConfig({
     '**/game-layout.checks.ts',
   ],
   outputDir: '../.cache/storybook-test-results',
-  snapshotPathTemplate: '{testDir}/../../../../{arg}{ext}',
   fullyParallel: true,
   workers: 2,
   retries: 0,
-  // Authoring requires the explicit --update-snapshots command.
+  // Nothing is compared against a committed picture. A run started by hand
+  // with --update-snapshots is a diagnostic one, which logs its media.
   updateSnapshots: 'none',
   use: {
     baseURL,

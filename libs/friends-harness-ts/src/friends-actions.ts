@@ -1,4 +1,5 @@
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
+import { expectShellShown } from '@libs/harness-ts/driver-gestures';
 import { actorUsername } from '@libs/harness-ts/run-scope';
 import { searchUsername } from '@libs/search-harness-ts/search-actions';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
@@ -11,7 +12,7 @@ export const acceptFriendRequest = scenarioAction({
   name: 'acceptFriendRequest',
   act: async (s, actorId: string, fromUsername: string) => {
     const ui = await actorUi(s, actorId);
-    await ui.get(Handles.statusCurrentUser).expect.visible();
+    await expectShellShown(ui);
     const shownAccept = ui.get(
       Handles.notificationsFriendRequestAccept(actorUsername(s, fromUsername))
     );
@@ -71,9 +72,7 @@ async function openFriendProfile(
   username: string
 ): Promise<void> {
   const ui = await actorUi(s, actorId);
-  await ui.get(Handles.statusCurrentUser).expect.visible({
-    timeoutMs: WAIT_MS,
-  });
+  await expectShellShown(ui, WAIT_MS);
   if (
     !(await ui.get(Handles.tabProfile).isVisible()) &&
     (await ui.get(Handles.navBack).isVisible())
@@ -178,9 +177,7 @@ export const openFriendsList = scenarioAction({
   name: 'openFriendsList',
   act: async (s, actorId: string) => {
     const ui = await actorUi(s, actorId);
-    await ui.get(Handles.statusCurrentUser).expect.visible({
-      timeoutMs: WAIT_MS,
-    });
+    await expectShellShown(ui, WAIT_MS);
     await closeShownRequest(s, actorId);
     if (
       !(await ui.get(Handles.tabProfile).isVisible()) &&

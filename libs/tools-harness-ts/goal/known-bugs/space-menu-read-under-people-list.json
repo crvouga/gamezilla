@@ -1,0 +1,4 @@
+{
+  "summary": "The space specs timed out waiting for the space menu to close whenever a person without a connection was looking at the people in the space. The harness opened the space menu underneath that list and pressed Escape, which closed the list on top instead, so the menu stayed open and the person was misplaced. The read now waits on the menu's own open state and, as a person would, closes the list before opening the menu and returns to it afterwards.",
+  "regressionTest": "libs/spaces-harness-ts/tests/space-screen-read.test.ts"
+}

@@ -40,12 +40,13 @@ export function chooseActivity(input: PolicyInputs, random: Random): Decision {
     input.sessionElapsedMs >= input.sessionLimitMs
   )
     return { activity: 'loggingOut', targetControlId: null };
-  if (input.hasQueueEntry)
-    return { activity: 'matchmaking', targetControlId: null };
-  // A person waiting for an opponent comes before anything a Synthetic User fancies.
+  // A person waiting for an opponent comes before anything a Synthetic User
+  // fancies, its own wait for another game included: it stops that wait.
   const waiting = input.waitingOpponents?.[0];
   if (waiting !== undefined)
     return { activity: 'matchmaking', targetControlId: null, game: waiting };
+  if (input.hasQueueEntry)
+    return { activity: 'matchmaking', targetControlId: null };
   const choice = random();
   if (input.availableSpaces.length > 0 && choice < 0.4) {
     const index = Math.min(

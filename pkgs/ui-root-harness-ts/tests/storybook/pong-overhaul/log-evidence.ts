@@ -4,10 +4,10 @@ import { readFile } from 'node:fs/promises';
 import { type Page, test } from '@playwright/test';
 
 /**
- * A diagnostic run that authors references (`--update-snapshots`, used only
- * by the focused Storybook diagnostic job): only then does media go to the
- * log, once per run. The PR gate compares and logs summaries alone. (Turbo
- * does not pass the job's story pattern through to the tests.)
+ * A diagnostic run, started by hand with `bun storybook:test
+ * --update-snapshots` (no job passes the flag, and nothing is authored by
+ * it): only then does media go to the log, once per run. The gate logs
+ * summaries alone.
  */
 export const diagnosticRun = (): boolean =>
   test.info().config.updateSnapshots !== 'none';

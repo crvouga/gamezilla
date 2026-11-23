@@ -31,6 +31,7 @@ type AppFrameChromeContextValue = {
   readonly headerOverride: Accessor<AppFrameHeaderOverride>;
   readonly setHeaderOverride: (node: AppFrameHeaderOverride) => void;
   readonly globalTrailing: Accessor<JSX.Element | null>;
+  readonly globalStatus: Accessor<JSX.Element | null>;
 };
 
 const AppFrameChromeContext = createContext<AppFrameChromeContextValue>();
@@ -40,6 +41,11 @@ export type AppFrameChromeProviderProps = {
   readonly screenNavigation?: boolean | undefined;
   /** Always-visible trailing chrome (e.g. avatar global menu). */
   readonly globalTrailing?: JSX.Element | undefined;
+  /**
+   * The status part of the trailing chrome alone (working offline, the
+   * connection missing), for a bar that leaves the account menu out.
+   */
+  readonly globalStatus?: JSX.Element | undefined;
   readonly children: JSX.Element;
 };
 
@@ -60,6 +66,7 @@ export function AppFrameChromeProvider(
     headerOverride,
     setHeaderOverride: (node) => setHeaderOverride(() => node),
     globalTrailing: () => props.globalTrailing ?? null,
+    globalStatus: () => props.globalStatus ?? null,
   };
   return (
     <AppFrameChromeContext.Provider value={value}>
@@ -106,6 +113,16 @@ export function useAppFrameGlobalTrailing(): Accessor<JSX.Element | null> {
   const ctx = useContext(AppFrameChromeContext);
   const inRail = useContext(GlobalTrailingInRailContext);
   return () => (inRail() ? null : (ctx?.globalTrailing() ?? null));
+}
+
+/**
+ * The app's status without its account menu, for a bar that is not the
+ * app's own (a space's top bar). Nothing beside a sidebar, which shows it.
+ */
+export function useAppFrameGlobalStatus(): Accessor<JSX.Element | null> {
+  const ctx = useContext(AppFrameChromeContext);
+  const inRail = useContext(GlobalTrailingInRailContext);
+  return () => (inRail() ? null : (ctx?.globalStatus() ?? null));
 }
 
 /** Resolved header: an override when registered, else `defaultHeader`. */

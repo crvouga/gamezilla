@@ -1,0 +1,4 @@
+{
+  "summary": "A Synthetic User already waiting for an opponent for another game kept waiting instead of becoming the opponent of a person waiting alone, so with every Synthetic User in a queue the person waited indefinitely.",
+  "regressionTest": "libs/synthetic-population-shared-ts/tests/policies.test.ts"
+}

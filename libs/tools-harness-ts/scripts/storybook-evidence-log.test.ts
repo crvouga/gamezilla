@@ -1,12 +1,11 @@
 import { expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import {
+  assertEvidenceFits,
   assertEvidencePath,
   decodeEvidence,
   EVIDENCE_MANIFEST,
   encodeEvidence,
-  evidenceTransfer,
-  STORYBOOK_BASELINE_PATCH,
   STORYBOOK_RESULTS,
   validateEvidenceManifest,
 } from './storybook-evidence-log';
@@ -24,7 +23,7 @@ test('retained Word Tiles browser evidence can be exported without local secrets
   );
 });
 
-test('evidence export cannot execute browser builds or author reference images', () => {
+test('evidence export cannot execute browser builds or browser checks', () => {
   const workflow = Bun.YAML.parse(
     readFileSync(
       new URL('../../../.github/workflows/verify-nightly.yml', import.meta.url),
@@ -34,9 +33,8 @@ test('evidence export cannot execute browser builds or author reference images',
   for (const name of [
     'Prepare Storybook renderer',
     'Build canonical Storybook',
-    'Author references explicitly',
-    'Compare every authored Storybook state',
-    'Compare PR Storybook states',
+    'Check PR Storybook states',
+    'Check selected Storybook states',
   ])
     expect(
       workflow.jobs['verify-nightly-storybook']?.steps.find(
@@ -68,29 +66,13 @@ test('exports reject secrets, traversal, executable files and other artifact roo
     expect(() => assertEvidencePath(path)).toThrow();
 });
 
-// regression: storybook-evidence-export-drops-reference-patch
-test('an authoring run exports its reference patch, and only that patch path', () => {
-  const patch = encodeEvidence(
-    STORYBOOK_BASELINE_PATCH,
-    new TextEncoder().encode('diff --git a/x.png b/x.png\n')
-  );
-  expect(decodeEvidence(patch).path).toBe(STORYBOOK_BASELINE_PATCH);
-  for (const path of [
-    '.cache/verify-nightly/other.patch',
-    '.cache/verify-nightly/storybook-baselines.patch/../x.patch',
-    `${STORYBOOK_RESULTS}storybook-baselines.patch`,
-  ])
-    expect(() => assertEvidencePath(path)).toThrow();
-});
-
-// regression: storybook-evidence-large-patch-refuses-export
-test('an oversized reference patch is skipped while other oversized evidence still refuses', () => {
+test('evidence larger than the bounded log transfer refuses the export', () => {
   const mb = 1024 * 1024;
-  expect(evidenceTransfer(STORYBOOK_BASELINE_PATCH, 2 * mb, 0)).toBe('send');
-  expect(evidenceTransfer(STORYBOOK_BASELINE_PATCH, 40 * mb, 0)).toBe('skip');
-  expect(() =>
-    evidenceTransfer(`${STORYBOOK_RESULTS}video.webm`, 40 * mb, 0)
-  ).toThrow('bounded log transfer');
+  expect(() => assertEvidenceFits(2 * mb, 0)).not.toThrow();
+  expect(() => assertEvidenceFits(40 * mb, 0)).toThrow('bounded log transfer');
+  expect(() => assertEvidenceFits(2 * mb, 511 * mb)).toThrow(
+    'bounded log transfer'
+  );
 });
 
 test('truncated evidence cannot be mistaken for a complete recording', () => {

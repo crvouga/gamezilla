@@ -58,7 +58,8 @@
  *   refused change to the space, and a guest's host gone offline.
  * - **Test ids.** `testIds` keeps the harness handles on row 1
  *   (`navBack` / `spaceBackToSpaces`, `spaceTitle`, `spaceChromeOverflow`
- *   on the menu button); the menu rows carry `spaceShare`,
+ *   on the menu button); the menu is headed by the space's name
+ *   (`spaceMenuName`) and its rows carry `spaceShare`,
  *   `spaceMembersButton`, `spaceRename`, `spaceClose`, `spaceLeave` and
  *   the host's `spaceEnd`, and the notice `spaceHostOffline`. Game
  *   actions carry theirs in `SpaceGameAction.testId`.
@@ -409,6 +410,7 @@ export function SpaceScreenChromeProvider(
         back: back.testId(),
         title: Handles.spaceTitle,
         settings: Handles.spaceChromeOverflow,
+        name: Handles.spaceMenuName,
         leave: Handles.spaceLeave,
         end: Handles.spaceEnd,
       };

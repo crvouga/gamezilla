@@ -1,0 +1,4 @@
+{
+  "summary": "A Synthetic User sent to a person waiting at a time control the hub could not switch to tapped Find at the hub's own time control, so it waited in another pool and never met the person.",
+  "regressionTest": "libs/synthetic-population-behavior-shared-ts/tests/find-opponent-for.test.ts"
+}

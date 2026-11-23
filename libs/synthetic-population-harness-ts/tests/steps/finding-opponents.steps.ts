@@ -4,6 +4,7 @@ import type { Actor } from '@libs/harness-ts/parameter-types';
 import {
   lookForMultiplayerOpponent,
   lookingForOpponent,
+  multiplayerGameTimeControl,
   multiplayerOpponentShown,
   stillLookingShown,
 } from '@libs/synthetic-population-harness-ts/opponent-finding-actions';
@@ -47,6 +48,18 @@ When(
   '{actor} looks for a multiplayer opponent for {string}',
   async (w, actor: Actor, game: string) => {
     await w.s.apply(lookForMultiplayerOpponent, actor, game);
+  }
+);
+When(
+  '{actor} looks for a multiplayer opponent for {string} at {word}',
+  async (w, actor: Actor, game: string, timeControl: string) => {
+    await w.s.apply(lookForMultiplayerOpponent, actor, game, timeControl);
+  }
+);
+Then(
+  "{actor}'s multiplayer game is played at {word}",
+  async (w, actor: Actor, timeControl: string) => {
+    expect(await w.s.read(multiplayerGameTimeControl, actor)).toBe(timeControl);
   }
 );
 Then(

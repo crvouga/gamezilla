@@ -28,16 +28,16 @@ function statsSurface(entryScreen: string, gameId: string) {
     if (screen === 'game-menu') return handle === Handles.gameChoice('stats');
     return screen === 'stats' && handle === Handles.chessStatsElo;
   };
+  const shown = (handle: string): void => {
+    if (screen === 'loading' || screen === 'join') screen = 'games';
+    expect(visible(handle)).toBe(true);
+  };
   const ui = {
     snapshotHtml: async () => `<div data-testid="${card}"></div>`,
     get: (handle: string) => ({
       isVisible: async () => visible(handle),
-      expect: {
-        visible: async () => {
-          if (screen === 'loading' || screen === 'join') screen = 'games';
-          expect(visible(handle)).toBe(true);
-        },
-      },
+      wait: async () => shown(handle),
+      expect: { visible: async () => shown(handle) },
       tap: async () => {
         // Automatic entry can remove the prompt between a probe and a tap.
         if (screen === 'join') screen = 'games';

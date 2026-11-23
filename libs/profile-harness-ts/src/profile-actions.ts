@@ -1,5 +1,9 @@
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
-import { minimizeSpace, spaceBarShown } from '@libs/harness-ts/shell-actions';
+import {
+  expectShellShown,
+  minimizeSpace,
+  spaceBarShown,
+} from '@libs/harness-ts/driver-gestures';
 import type { StyleKey } from '@libs/profile-shared-ts/dicebear-styles';
 import {
   STYLE_KEYS,
@@ -24,7 +28,7 @@ const MAX_BACK_STEPS = 4;
  */
 export async function backToProfileTab(ui: ActorUi): Promise<void> {
   // Bring the actor's app to the front: a parked app shows nothing.
-  await ui.get(Handles.statusCurrentUser).expect.visible();
+  await expectShellShown(ui);
   for (let step = 0; step < MAX_BACK_STEPS; step += 1) {
     if (await ui.get(Handles.profileEdit).isVisible()) return;
     if (await ui.get(Handles.profileUsernameCancel).isVisible()) {
