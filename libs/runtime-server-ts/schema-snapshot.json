@@ -1,5 +1,5 @@
 {
-  "release": 24,
+  "release": 25,
   "snapshot": {
     "tables": {
       "auth_account_devices": {
@@ -67,6 +67,12 @@
         "provider": "text",
         "provider_subscription_id": "text",
         "status": "text"
+      },
+      "chess_custom_game_seats": {
+        "custom_game_id": "text",
+        "owner_id": "text",
+        "space_id": "text",
+        "under_way": "boolean"
       },
       "chess_multiplayer_commands": {
         "game_id": "text",
@@ -501,65 +507,263 @@
     },
     "retiredTables": [],
     "indexes": [
-      ["billing_account_closures", "account_id"],
-      ["billing_cancellation_feedback", "account_id"],
-      ["billing_payment_evidence", "erase_by"],
-      ["billing_subscriptions", "account_id"],
-      ["chess_multiplayer_games", "black_id"],
-      ["chess_multiplayer_games", "blue_id"],
-      ["chess_multiplayer_games", "red_id"],
-      ["chess_multiplayer_games", "white_id"],
-      ["chess_multiplayer_hands", "owner_id"],
-      ["chess_multiplayer_setups", "owner_id"],
-      ["chess_puzzle_rating_events", "owner_id"],
-      ["chess_puzzles", "popularity"],
-      ["chess_puzzles", "rating"],
-      ["permissions_quota_ledger", "owner_id", "quota", "consumed_at"],
-      ["population_commands", "user_id"],
-      ["population_events", "user_id", "created_at"],
-      ["population_live_sessions", "heartbeat_at"],
-      ["population_sign_in_mail", "email", "created_at"],
-      ["population_users", "lease_until"],
-      ["population_users", "worker_id"],
-      ["puzzle_content_attempts", "owner_id", "activity_order"],
-      ["puzzle_content_attempts", "owner_id", "pack_revision_id"],
-      ["puzzle_content_attempts", "owner_id"],
-      ["puzzle_content_completions", "owner_id"],
-      ["puzzle_content_completions", "puzzle_revision_id"],
-      ["puzzle_content_documents", "game_id", "status"],
-      ["puzzle_content_documents", "owner_id"],
-      ["puzzle_content_drafts", "document_id"],
-      ["puzzle_content_drafts", "owner_id"],
-      ["puzzle_content_pack_items", "pack_revision_id"],
-      ["puzzle_content_pack_items", "puzzle_revision_id"],
-      ["puzzle_content_positions", "attempt_id"],
-      ["puzzle_content_positions", "owner_id"],
-      ["puzzle_content_publications", "game_id", "published_at"],
-      ["puzzle_content_publications", "game_id", "status"],
-      ["puzzle_content_publications", "owner_id"],
-      ["puzzle_content_revisions", "document_id", "edition"],
-      ["puzzle_content_revisions", "document_id"],
-      ["puzzle_content_revisions", "owner_id"]
+      [
+        "billing_account_closures",
+        "account_id"
+      ],
+      [
+        "billing_cancellation_feedback",
+        "account_id"
+      ],
+      [
+        "billing_payment_evidence",
+        "erase_by"
+      ],
+      [
+        "billing_subscriptions",
+        "account_id"
+      ],
+      [
+        "chess_multiplayer_games",
+        "black_id"
+      ],
+      [
+        "chess_multiplayer_games",
+        "blue_id"
+      ],
+      [
+        "chess_multiplayer_games",
+        "red_id"
+      ],
+      [
+        "chess_multiplayer_games",
+        "white_id"
+      ],
+      [
+        "chess_multiplayer_hands",
+        "owner_id"
+      ],
+      [
+        "chess_multiplayer_setups",
+        "owner_id"
+      ],
+      [
+        "chess_puzzle_rating_events",
+        "owner_id"
+      ],
+      [
+        "chess_puzzles",
+        "popularity"
+      ],
+      [
+        "chess_puzzles",
+        "rating"
+      ],
+      [
+        "permissions_quota_ledger",
+        "owner_id",
+        "quota",
+        "consumed_at"
+      ],
+      [
+        "population_commands",
+        "user_id"
+      ],
+      [
+        "population_events",
+        "user_id",
+        "created_at"
+      ],
+      [
+        "population_live_sessions",
+        "heartbeat_at"
+      ],
+      [
+        "population_sign_in_mail",
+        "email",
+        "created_at"
+      ],
+      [
+        "population_users",
+        "lease_until"
+      ],
+      [
+        "population_users",
+        "worker_id"
+      ],
+      [
+        "puzzle_content_attempts",
+        "owner_id",
+        "activity_order"
+      ],
+      [
+        "puzzle_content_attempts",
+        "owner_id",
+        "pack_revision_id"
+      ],
+      [
+        "puzzle_content_attempts",
+        "owner_id"
+      ],
+      [
+        "puzzle_content_completions",
+        "owner_id"
+      ],
+      [
+        "puzzle_content_completions",
+        "puzzle_revision_id"
+      ],
+      [
+        "puzzle_content_documents",
+        "game_id",
+        "status"
+      ],
+      [
+        "puzzle_content_documents",
+        "owner_id"
+      ],
+      [
+        "puzzle_content_drafts",
+        "document_id"
+      ],
+      [
+        "puzzle_content_drafts",
+        "owner_id"
+      ],
+      [
+        "puzzle_content_pack_items",
+        "pack_revision_id"
+      ],
+      [
+        "puzzle_content_pack_items",
+        "puzzle_revision_id"
+      ],
+      [
+        "puzzle_content_positions",
+        "attempt_id"
+      ],
+      [
+        "puzzle_content_positions",
+        "owner_id"
+      ],
+      [
+        "puzzle_content_publications",
+        "game_id",
+        "published_at"
+      ],
+      [
+        "puzzle_content_publications",
+        "game_id",
+        "status"
+      ],
+      [
+        "puzzle_content_publications",
+        "owner_id"
+      ],
+      [
+        "puzzle_content_revisions",
+        "document_id",
+        "edition"
+      ],
+      [
+        "puzzle_content_revisions",
+        "document_id"
+      ],
+      [
+        "puzzle_content_revisions",
+        "owner_id"
+      ]
     ],
     "uniqueIndexes": [
-      ["auth_account_devices", "user_id", "device_id"],
-      ["auth_external_accounts", "provider", "external_id"],
-      ["auth_external_accounts", "user_id", "provider"],
-      ["billing_account_closures", "provider", "subscription_id"],
-      ["billing_cancellation_feedback", "subscription_id"],
-      ["billing_payment_evidence", "provider", "payment_id"],
-      ["billing_subscriptions", "provider", "provider_subscription_id"],
-      ["chess_multiplayer_commands", "owner_id", "request_id"],
-      ["chess_multiplayer_games", "match_id"],
-      ["chess_multiplayer_hands", "game_id", "side"],
-      ["chess_multiplayer_hidden", "game_id"],
-      ["chess_multiplayer_players", "owner_id"],
-      ["chess_multiplayer_ratings", "owner_id", "speed"],
-      ["chess_multiplayer_setups", "game_id", "side"],
-      ["chess_opponent_searches", "owner_id"],
-      ["chess_puzzles", "position_key"],
-      ["friends_blocks", "blocker_id", "blocked_id"],
-      ["friends_friendships", "user_low", "user_high"],
+      [
+        "auth_account_devices",
+        "user_id",
+        "device_id"
+      ],
+      [
+        "auth_external_accounts",
+        "provider",
+        "external_id"
+      ],
+      [
+        "auth_external_accounts",
+        "user_id",
+        "provider"
+      ],
+      [
+        "billing_account_closures",
+        "provider",
+        "subscription_id"
+      ],
+      [
+        "billing_cancellation_feedback",
+        "subscription_id"
+      ],
+      [
+        "billing_payment_evidence",
+        "provider",
+        "payment_id"
+      ],
+      [
+        "billing_subscriptions",
+        "provider",
+        "provider_subscription_id"
+      ],
+      [
+        "chess_custom_game_seats",
+        "owner_id",
+        "space_id"
+      ],
+      [
+        "chess_multiplayer_commands",
+        "owner_id",
+        "request_id"
+      ],
+      [
+        "chess_multiplayer_games",
+        "match_id"
+      ],
+      [
+        "chess_multiplayer_hands",
+        "game_id",
+        "side"
+      ],
+      [
+        "chess_multiplayer_hidden",
+        "game_id"
+      ],
+      [
+        "chess_multiplayer_players",
+        "owner_id"
+      ],
+      [
+        "chess_multiplayer_ratings",
+        "owner_id",
+        "speed"
+      ],
+      [
+        "chess_multiplayer_setups",
+        "game_id",
+        "side"
+      ],
+      [
+        "chess_opponent_searches",
+        "owner_id"
+      ],
+      [
+        "chess_puzzles",
+        "position_key"
+      ],
+      [
+        "friends_blocks",
+        "blocker_id",
+        "blocked_id"
+      ],
+      [
+        "friends_friendships",
+        "user_low",
+        "user_high"
+      ],
       [
         "notifications",
         "user_id",
@@ -567,19 +771,66 @@
         "source_type",
         "source_id"
       ],
-      ["permissions_quota_ledger", "owner_id", "idempotency_key"],
-      ["population_live_sessions", "account_id", "device_id"],
-      ["population_live_watches", "account_id", "device_id"],
-      ["population_users", "account_id"],
-      ["population_users", "email"],
-      ["profile", "username_norm"],
-      ["profile_account_privacy", "owner_id"],
-      ["profile_deletion_receipts", "owner_id"],
-      ["puzzle_content_completions", "owner_id", "puzzle_revision_id"],
-      ["puzzle_content_pack_items", "pack_revision_id", "position"],
-      ["puzzle_content_pack_items", "pack_revision_id", "puzzle_id"],
-      ["spaces_open_sessions", "device_id", "space_id"],
-      ["spaces_users", "space_id", "user_id"]
+      [
+        "permissions_quota_ledger",
+        "owner_id",
+        "idempotency_key"
+      ],
+      [
+        "population_live_sessions",
+        "account_id",
+        "device_id"
+      ],
+      [
+        "population_live_watches",
+        "account_id",
+        "device_id"
+      ],
+      [
+        "population_users",
+        "account_id"
+      ],
+      [
+        "population_users",
+        "email"
+      ],
+      [
+        "profile",
+        "username_norm"
+      ],
+      [
+        "profile_account_privacy",
+        "owner_id"
+      ],
+      [
+        "profile_deletion_receipts",
+        "owner_id"
+      ],
+      [
+        "puzzle_content_completions",
+        "owner_id",
+        "puzzle_revision_id"
+      ],
+      [
+        "puzzle_content_pack_items",
+        "pack_revision_id",
+        "position"
+      ],
+      [
+        "puzzle_content_pack_items",
+        "pack_revision_id",
+        "puzzle_id"
+      ],
+      [
+        "spaces_open_sessions",
+        "device_id",
+        "space_id"
+      ],
+      [
+        "spaces_users",
+        "space_id",
+        "user_id"
+      ]
     ]
   }
 }
