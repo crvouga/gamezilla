@@ -38,7 +38,7 @@ Feature: Finding a multiplayer opponent quickly
         | 5+3 |
         | 30+20 |
 
-  Rule: A Synthetic User looking for a multiplayer opponent for another game stops looking to become a waiting person's multiplayer opponent
+  Rule: A Synthetic User looking for a multiplayer opponent for another game stops looking to become the multiplayer opponent of a person looking alone
     No counter-example: a Synthetic User playing a game finishes it before it becomes anyone's multiplayer opponent, and Synthetic Users looking for the same game as the person are already the person's multiplayer opponent.
 
     Scenario: A Synthetic User looking for a Connect Four opponent becomes a person's chess opponent
