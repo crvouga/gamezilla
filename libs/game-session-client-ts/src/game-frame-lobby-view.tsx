@@ -356,8 +356,8 @@ function seatedCount(seats: readonly FrameSetupSeat[]): number {
 /**
  * What is about to be played, at the head of the lobby: the game and how
  * it is won, and over them, in one line, that it is unrated and its clock
- * (when the clock has no row below). The board, facing the person's side, is a small
- * picture beside the words, so the seats and what is agreed lead.
+ * (when the clock has no row below). It pictures no board, so the seats
+ * and what is agreed lead.
  */
 function LobbyMode(props: Props & { readonly setup: FrameSetup }): JSX.Element {
   return (
@@ -384,8 +384,6 @@ function LobbyMode(props: Props & { readonly setup: FrameSetup }): JSX.Element {
       }
       title={props.title}
       summary={props.goal}
-      art={props.boardPreview}
-      artSize="thumbnail"
       dataSet={{ testid: 'custom-game-mode' }}
     />
   );

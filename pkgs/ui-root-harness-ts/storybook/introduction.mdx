@@ -55,7 +55,7 @@ Use Measure (toolbar or `m`) to inspect box dimensions and spacing, and Outline
 to locate layout boundaries without editing component CSS. The accessibility
 addon uses native Highlight to locate affected nodes; targeted debugging can
 use Storybook's public Highlight channel API. Turn inspection overlays and grids
-off before authoring visual baselines.
+off before capturing evidence for a review.
 
 Viewport offers Phone, Tablet and Desktop, rotation for landscape, and reset
 for the unconstrained canvas. Story globals may lock a setting for a specific
@@ -87,13 +87,12 @@ visual testing account is needed.
 | Command | Verification |
 | --- | --- |
 | `bunx turbo run @pkgs/ui-root-harness-ts#tc @pkgs/ui-root-harness-ts#test` | Types, component contracts and story inventory. |
-| `bun storybook:coverage` | Component, source documentation, story and baseline coverage. Reports are in the harness's `.cache/storybook-coverage.json` and `.md`. |
-| `bun storybook:test` | Story rendering, play functions, serious/critical axe accessibility violations and visual comparisons in both themes, plus the Storybook integration checks. |
+| `bun storybook:coverage` | Component, source documentation and story coverage. Reports are in the harness's `.cache/storybook-coverage.json` and `.md`. |
+| `bun storybook:test` | Story rendering, play functions, and serious/critical axe accessibility violations in both themes, plus the Storybook integration checks. |
 | `bun verify` | Full release gate, including a representative Storybook browser suite. |
 
-Visual comparisons never update baselines implicitly. To intentionally regenerate
-them, use `bun storybook:test --update-snapshots`, then run comparisons without
-the update flag. Full theme and responsive coverage also runs in the nightly
+No story is compared against a stored picture of itself: what it must show is
+asserted in its play function or a layout check. Full theme and responsive coverage also runs in the nightly
 visual group. Test failures block their gate; opening a story is for development,
 not verification evidence.
 

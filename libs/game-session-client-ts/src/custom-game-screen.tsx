@@ -7,7 +7,6 @@ import {
 } from '@libs/spaces-client-ts/spaces-nav-context';
 import { Trans } from '@lingui/solid/macro';
 import { useTimers } from '@pkgs/clock-client-ts/solid';
-import { GamePreviewBoard } from '@pkgs/turn-game-client-ts/game-preview-board';
 import { NO_STAGE_OVERLAY } from '@pkgs/turn-game-client-ts/stage-overlay';
 import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { useScreenPlace } from '@pkgs/turn-game-client-ts/use-screen-place';
@@ -95,8 +94,6 @@ const DENIED_FRAME = {
 type FrameProps = {
   model: CustomGameScreenModel;
   title: JSX.Element;
-  /** The game's board at its start: the lobby's picture of the game. */
-  boardPreview: JSX.Element;
 };
 
 /**
@@ -198,7 +195,6 @@ function CustomGameFrame(props: FrameProps): JSX.Element {
         next={next()}
         record={record()}
         board={<FrameBoardMount board={board} />}
-        boardPreview={props.boardPreview}
         setupBoard={<CustomGameSetupBoard model={model} />}
         boardState={boardState()}
         {...shown.board()}
@@ -247,17 +243,7 @@ export function CustomGameScreen(props: {
           />
         )}
       >
-        <CustomGameFrame
-          model={model}
-          title={title()}
-          boardPreview={
-            <GamePreviewBoard
-              gameId={props.gameId}
-              viewer={model.mySide()}
-              testId="custom-game-board-preview"
-            />
-          }
-        />
+        <CustomGameFrame model={model} title={title()} />
       </DecisionGate>
     </>
   );

@@ -10,6 +10,7 @@ import {
   scenarioAction,
 } from '@libs/harness-ts/actor-ui';
 import { signInWithGoogle } from '@libs/harness-ts/auth-actions';
+import { gameTile, setUpGameMode } from '@libs/harness-ts/game-tiles';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { signedInAccountOf } from '@libs/harness-ts/identity';
 import { bringToFront } from '@libs/harness-ts/observations';
@@ -43,7 +44,9 @@ export const seekGameOpponent = scenarioAction({
     await Promise.resolve(backToTabs.act(s, actor));
     await Promise.resolve(createSpace.act(s, actor));
     const ui = await actorUi(s, actor);
-    await ui.get(Handles.gameMenu(gameId)).tap();
+    await ui.get(gameTile(s, gameId)).tap();
+    await ui.get(Handles.gameChoices).expect.visible();
+    await setUpGameMode(s, ui, gameId);
     await ui.get(Handles.gameChoice('multiplayer')).tap();
     const matched = s.harness.composition.app.turnGames.capability(
       gameId,

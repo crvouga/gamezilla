@@ -60,7 +60,6 @@ export function FrameStory(
   );
   return (
     <GameFrameScreenView
-      boardPreview={<ConnectFourStoryBoard moves={[]} />}
       {...props}
       overlay={overlay()}
       onOverlay={(event) => {

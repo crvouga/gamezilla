@@ -130,6 +130,8 @@ terms:
     model: [connectionAvailable]
   - term: multiplayer chess
     from: chess
+  - term: time control
+    from: chess
   - term: multiplayer result
     from: chess
     model: [invFinishedGamePreserved]

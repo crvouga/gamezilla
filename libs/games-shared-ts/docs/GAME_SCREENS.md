@@ -110,7 +110,7 @@ no view keeps a timer or a flag of its own.
 ## The catalogue
 
 Story ids are `screens-games-<template>-<place>`; every place has stories for
-each of its states, with phone and desktop baselines in both themes.
+each of its states, opened at phone and desktop width in both themes.
 
 ### Custom game (`custom-game`)
 

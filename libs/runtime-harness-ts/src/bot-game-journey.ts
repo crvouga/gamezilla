@@ -5,12 +5,15 @@ import {
   endActiveSpace,
   hostSpace,
   JOURNEY_WAIT_MS,
+  pickGameInSpace,
   tap,
 } from './journey-gestures';
 import type { JourneyHost } from './journey-types';
 
 type BotGame = {
   readonly id: string;
+  /** The game's tile, for a mode other than the one its tile opens. */
+  readonly family?: string;
   readonly seats: 2 | 3 | 4;
   readonly readyControl: string;
 };
@@ -25,11 +28,13 @@ const CHOICES: Readonly<Record<string, BotGame>> = {
   },
   'Word Tiles for three': {
     id: 'word-tiles-3',
+    family: 'word-tiles',
     seats: 3,
     readyControl: 'custom-game-board-rack',
   },
   'Word Tiles for four': {
     id: 'word-tiles-4',
+    family: 'word-tiles',
     seats: 4,
     readyControl: 'custom-game-board-rack',
   },
@@ -40,11 +45,13 @@ const CHOICES: Readonly<Record<string, BotGame>> = {
   },
   'Light Cycles Trio': {
     id: 'light-cycles-3',
+    family: 'light-cycles',
     seats: 3,
     readyControl: 'custom-game-board-arena',
   },
   'Light Cycles Quad': {
     id: 'light-cycles-4',
+    family: 'light-cycles',
     seats: 4,
     readyControl: 'custom-game-board-arena',
   },
@@ -66,7 +73,7 @@ export async function startBotGameJourney(
   host.defer('bot-game-space', endActiveSpace);
   await host.act('hostBotGameSpace', hostSpace);
   await host.act('startChosenBotGame', async (ui) => {
-    await tap(ui, Handles.gameMenu(game.id));
+    await pickGameInSpace(ui, game.id, game.family);
     await tap(ui, Handles.gameChoice('custom-game'));
     await ui.get('custom-game-connection-needed').expect.hidden({
       timeoutMs: JOURNEY_WAIT_MS,

@@ -104,15 +104,11 @@ test('storybook responsive tags own phone and desktop evidence for game componen
       { width: 1440, theme: 'light' },
       { width: 1440, theme: 'dark' },
     ]);
-    const [component, name] = id.split('--');
     expect(
       scenarios
         .filter(({ width }) => width === 1440)
-        .map(({ baseline }) => baseline)
-    ).toEqual([
-      `pkgs/ui-root-client-ts/src/${slice}/baselines/chromium/${component}/${name}-light-1440.png`,
-      `pkgs/ui-root-client-ts/src/${slice}/baselines/chromium/${component}/${name}-dark-1440.png`,
-    ]);
+        .map(({ suffix }) => suffix)
+    ).toEqual(['-1440', '-1440']);
     expect(
       visualScenarios({ ...story, tags: [] }).map(({ width }) => width)
     ).toEqual([390, 390]);
@@ -162,16 +158,12 @@ test('stories without a globals matrix keep their scenario names and open with t
     tags: [],
   });
   expect(
-    scenarios.map(({ suffix, globals, baseline }) => ({
-      suffix,
-      globals,
-      baseline: baseline.split('/').at(-1),
-    }))
+    scenarios.map(({ suffix, globals, theme }) => ({ suffix, globals, theme }))
   ).toEqual([
-    { suffix: '', globals: {}, baseline: 'spaces-current-light.png' },
-    { suffix: '', globals: {}, baseline: 'spaces-current-dark.png' },
-    { suffix: '-1440', globals: {}, baseline: 'spaces-current-light-1440.png' },
-    { suffix: '-1440', globals: {}, baseline: 'spaces-current-dark-1440.png' },
+    { suffix: '', globals: {}, theme: 'light' },
+    { suffix: '', globals: {}, theme: 'dark' },
+    { suffix: '-1440', globals: {}, theme: 'light' },
+    { suffix: '-1440', globals: {}, theme: 'dark' },
   ]);
 });
 
@@ -187,7 +179,7 @@ test('globals combinations cross every value in declaration order', () => {
   ]);
 });
 
-test('a globals-matrix story owns one scenario and baseline per combination, theme and width', () => {
+test('a globals-matrix story owns one scenario per combination, theme and width', () => {
   const story = {
     id: 'space-in-game--screen',
     importPath:
@@ -195,10 +187,12 @@ test('a globals-matrix story owns one scenario and baseline per combination, the
     tags: ['viewport-responsive'],
   };
   const scenarios = visualScenarios(story);
-  // 2 widths x 5 games x 2 roles x 2 themes. Chess is one of the games: its
-  // board comes from its own package, its baselines sit with the others.
+  // 2 widths x 5 games x 2 roles x 2 themes. Chess is one of the games,
+  // though its board comes from its own package.
   expect(scenarios).toHaveLength(40);
-  expect(new Set(scenarios.map(({ baseline }) => baseline)).size).toBe(40);
+  expect(
+    new Set(scenarios.map(({ theme, suffix }) => `${theme}${suffix}`)).size
+  ).toBe(40);
   expect(
     scenarios
       .filter(({ globals }) => globals['spaceGame'] === 'chess')
@@ -218,12 +212,11 @@ test('a globals-matrix story owns one scenario and baseline per combination, the
       globals['spaceGame'] === 'hearts' && globals['spaceRole'] === 'host'
   );
   expect(
-    hearts.map(({ width, theme, suffix, globals, baseline }) => ({
+    hearts.map(({ width, theme, suffix, globals }) => ({
       width,
       theme,
       suffix,
       globals,
-      baseline,
     }))
   ).toEqual(
     [
@@ -236,7 +229,6 @@ test('a globals-matrix story owns one scenario and baseline per combination, the
       theme: theme as string,
       suffix: `${size}-hearts-host`,
       globals: { spaceGame: 'hearts', spaceRole: 'host' },
-      baseline: `pkgs/ui-root-client-ts/src/space-in-game-template/baselines/chromium/space-in-game/screen-${theme}${size}-hearts-host.png`,
     }))
   );
   expect(

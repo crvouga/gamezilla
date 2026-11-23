@@ -23,18 +23,18 @@ type Story = StoryObj<typeof meta>;
 /** No game yet: play a bot at once, or set a game up with people. */
 export const NoGame: Story = {};
 
-/** No game yet, for a bigger game: the quick start plays against bots. */
-export const NoGameManyPlayers: Story = { args: { playerCount: 4 } };
-
-/** A game with no picture of its board: the card's words keep its whole width. */
+/**
+ * No game yet, for a bigger game: the quick start plays against bots. The
+ * card is its words alone, at its whole width.
+ */
 // regression: mode-card-words-squeezed-without-picture
-export const NoPicture: Story = {
-  args: { playerCount: 4, boardPreview: null },
+export const NoGameManyPlayers: Story = {
+  args: { playerCount: 4 },
   play: async ({ canvasElement }) => {
     const card = await within(canvasElement).findByTestId('custom-game-mode');
     const heading = within(card).getByRole('heading');
     // Literal input: Light Cycles Quad on a phone, whose words were set in
-    // the 104px column kept for the picture it does not have.
+    // the 104px column kept for a picture it did not have.
     await expect(heading.getBoundingClientRect().width).toBeGreaterThan(
       card.getBoundingClientRect().width / 2
     );
