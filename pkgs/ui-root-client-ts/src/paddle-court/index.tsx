@@ -233,6 +233,9 @@ export function PaddleCourt(props: PaddleCourtProps): JSX.Element {
   return (
     <div
       class={styles['frame']}
+      // Without its own scoreboard the points are the host's seats, a row
+      // above the court and a row below it: a short window fits them too.
+      data-scoreboard={props.score !== undefined}
       // The court's own shape, so the frame can fit a short window's height.
       style={{ '--paddle-court-aspect': `${props.width} / ${props.height}` }}
     >

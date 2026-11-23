@@ -14,7 +14,6 @@ import {
   type LightCyclesState,
 } from '@libs/light-cycles-shared-ts/light-cycles-state';
 import { createLightCyclesStep } from '@libs/light-cycles-shared-ts/light-cycles-step';
-import { boardOnly } from '@pkgs/turn-game-shared-ts/game-frame';
 import type { GameSimulationControls } from '@pkgs/turn-game-shared-ts/game-presentation';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { createMemo } from 'solid-js';
@@ -79,14 +78,12 @@ const ROUND_OVER = trio(153);
 /** The same round, first to one round win, ends the game. */
 const COMPLETED = trio(153, 1);
 
-/** The trio's own presentation, its board the view (no sounds in a story). */
-const presentation = {
-  ...lightCyclesTrioClient.presentation,
-  frame: {
-    ...lightCyclesTrioClient.presentation.frame,
-    createBoard: boardOnly(LightCyclesBoardView),
-  },
-};
+/**
+ * The trio's own presentation, as the app mounts it: its board session
+ * says the stage's line and offers riding from this device (`sound` is off
+ * in every story).
+ */
+const presentation = lightCyclesTrioClient.presentation;
 
 const meta = {
   id: 'screens-games-light-cycles-stage',
@@ -202,15 +199,8 @@ function interactiveRender(
         : count === 4
           ? lightCyclesQuadClient
           : lightCyclesTrioClient;
-    const view = {
-      ...client.presentation,
-      frame: {
-        ...client.presentation.frame,
-        createBoard: boardOnly(LightCyclesBoardView),
-      },
-    };
     return renderGameTable(
-      view,
+      client.presentation,
       seats,
       {
         ...args,
@@ -335,9 +325,19 @@ function collisionJourney(): Story {
       await expect(
         canvas.getByTestId('custom-game-board-arena-rider-2')
       ).toHaveAttribute('data-alive', 'false');
-      await expect(
-        canvas.queryByTestId('custom-game-board-red-pad-up')
-      ).not.toBeInTheDocument();
+      // The crashed rider's pad offers nothing: on a phone its room stays,
+      // so the arena above never moves, but nothing shows, steers or is
+      // announced; a wide screen draws no pads.
+      const pad = canvas.queryByTestId('custom-game-board-red-pad');
+      if (pad !== null) {
+        await expect(pad).toHaveAttribute('aria-hidden', 'true');
+        await expect(
+          canvas.getByTestId('custom-game-board-red-pad-up')
+        ).not.toBeVisible();
+        await expect(
+          canvas.getByTestId('custom-game-board-red-pad-up')
+        ).toBeDisabled();
+      }
       journey.advance(13);
       await expect(
         canvas.getByTestId('custom-game-board-round')

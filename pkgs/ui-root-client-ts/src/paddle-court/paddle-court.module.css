@@ -145,6 +145,15 @@
   );
   margin-inline: auto;
 }
+/* No scoreboard of its own: the host shows each player's points on a seat
+   row above the court and another below it (a game stage's seats), and a
+   short window takes both off the court's height instead. */
+.frame[data-scoreboard="false"] {
+  --paddle-court-score-block: calc(
+    2 *
+    (var(--ui-space-12) + var(--ui-space-1) + var(--ui-space-3))
+  );
+}
 /* Focusing the court or a paddle's slider scrolls only as far as keeps the
    scoreboard above it in view, and leaves the court's lower edge clear of
    the window's (a scroll stops on a whole pixel, the court may not). */

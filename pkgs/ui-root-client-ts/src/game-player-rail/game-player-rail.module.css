@@ -74,6 +74,14 @@
   .playerRail:has(> :nth-child(3)) .chipAvatar {
     display: none;
   }
+  /* Their facts may take a second line beside the shared width (a rider's
+     round wins, then Out): that line is held from the start, so a rider
+     going Out mid-round never grows its chip and the arena below never
+     moves. */
+  .playerRail:has(> :nth-child(3)) .chipFacts {
+    min-height: calc(2 * var(--ui-space-xl) + var(--ui-space-1));
+    align-content: flex-start;
+  }
 }
 
 /* Four or more on a phone: each chip's facts stay one line (the swatch,

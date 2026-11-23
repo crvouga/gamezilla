@@ -6,7 +6,7 @@ test.use({ video: 'on', trace: 'on' });
 
 // regression: pong-landscape-court-overflows-window
 // regression: pong-landscape-court-below-fold-on-load
-test('storybook integration: pong-overhaul landscape court and scoreboard fit after keyboard focus', async ({
+test('storybook integration: pong-overhaul landscape court and the points fit after keyboard focus', async ({
   page,
 }, info) => {
   for (const theme of ['light', 'dark']) {
@@ -26,9 +26,11 @@ test('storybook integration: pong-overhaul landscape court and scoreboard fit af
     }
     await expect(court).toBeFocused();
     const fit = await court.evaluate((element) => {
-      const frame = element.parentElement?.parentElement;
-      const scoreboard = frame?.querySelector('[data-testid$="-scoreboard"]');
-      if (!scoreboard) throw new Error('Missing Pong scoreboard');
+      // The points are on the players' seats, the opponent's above the court.
+      const scoreboard = document.querySelector(
+        '[data-component="GameSeatStat"]'
+      );
+      if (!scoreboard) throw new Error("Missing the players' points");
       const board = scoreboard.getBoundingClientRect();
       const play = element.getBoundingClientRect();
       const hit = document.elementFromPoint(
