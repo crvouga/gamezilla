@@ -38,6 +38,14 @@
   gap: var(--ui-space-1);
 }
 
+/* The app's own status, ahead of the space's actions. */
+.status {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--ui-space-1);
+}
+
 /* Under row 1: the space's notice, only while there is one. */
 .notice {
   flex: none;

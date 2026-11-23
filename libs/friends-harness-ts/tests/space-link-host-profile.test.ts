@@ -10,7 +10,7 @@ import {
 } from '@libs/spaces-harness-ts/space-actions';
 import {
   readSpaceLink,
-  spaceTitleShown,
+  spaceNameShown,
 } from '@libs/spaces-harness-ts/spaces-ui-reads';
 import { openHarness } from './open-friends-harness';
 
@@ -24,7 +24,7 @@ test('a person who joins by link sees the host-based name follow the host', asyn
   await s.apply(openProfileEdit, 'alice');
   await s.apply(setUsername, 'alice', 'alice_w');
   await s.apply(focusActor, 'bob');
-  const title = await s.until((h) => spaceTitleShown(h, 'bob'), {
+  const title = await s.until((h) => spaceNameShown(h, 'bob'), {
     pred: (shown) => shown === "alice_w's space",
     maxMs: 15_000,
   });

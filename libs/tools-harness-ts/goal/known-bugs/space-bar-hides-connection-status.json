@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone, a person inside a space was no longer told they were working offline or that the connection was missing: the space's top bar dropped the app's whole trailing chrome to keep the account menu out of a space, and the status icons went with it. The app now publishes its status apart from the account menu, and the space's top bar shows the status wherever no sidebar does.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/space-shell-global-trailing.test.tsx"
+}

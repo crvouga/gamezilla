@@ -1,12 +1,12 @@
 import { actorUi } from '@libs/harness-ts/actor-ui';
+import { spaceBarShown } from '@libs/harness-ts/driver-gestures';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { actorLocalSql, deviceMemberIdOf } from '@libs/harness-ts/identity';
 import { actorHtml, bringToFront } from '@libs/harness-ts/observations';
 import { otherDevice } from '@libs/harness-ts/other-device';
-import { spaceBarShown } from '@libs/harness-ts/shell-actions';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import sql from '@pkgs/sql-root-shared-ts/sql';
-import { offeredInSpaceMenu } from './space-menu-ui-reads';
+import { offeredInSpaceMenu, spaceNameInMenu } from './space-menu-ui-reads';
 
 /** Each person's own retained space, including changes made offline. */
 export async function openSpaceHosts(
@@ -331,12 +331,16 @@ export function spaceRetryOffered(
   return shows(s, actorId, Handles.spaceUnreachableRetry);
 }
 
-/** The name the actor's open space shows, or `null` outside a space. */
-export function spaceTitleShown(
+/**
+ * The name the actor's open space goes by, or `null` outside a space. The
+ * top bar says what the screen is; the space's name heads its menu.
+ */
+export async function spaceNameShown(
   s: ProductHarness,
   actorId: string
 ): Promise<string | null> {
-  return textOf(s, actorId, Handles.spaceTitle);
+  await bringToFront(s, actorId);
+  return await spaceNameInMenu(s, actorId);
 }
 
 /** What the actor's lobby card for `hostUsername`'s space reads. */
