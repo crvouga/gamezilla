@@ -23,7 +23,7 @@ Wall clock is from the push to a posted verdict, on a warm runner that is free w
 | Any graph leaf (nothing else depends on the changed packages) | under 3 minutes |
 | Nine out of ten leaves | under 90 seconds |
 
-The proposed pool has six runners: up to three cooperating machines per verification, with capacity reserved for two simultaneous verifications. A small corpus uses fewer machines; the fit calculation chooses the smallest width that meets every deadline. A third concurrent verification waits, and that wait sits outside the promise. A newer push to the same pull request cancels the older run.
+The proposed pool has eight runners: up to four cooperating machines per verification, with capacity reserved for two simultaneous verifications. A small corpus uses fewer machines; the fit calculation chooses the smallest width that meets every deadline. A third concurrent verification waits, and that wait sits outside the promise. A newer push to the same pull request cancels the older run.
 
 Release verification, deploy, health, and the nightly run have their own deadlines. They are not these promises. The nightly run is the `nightly` profile in [`libs/tools-harness-ts/scripts/verify-profile.ts`](../libs/tools-harness-ts/scripts/verify-profile.ts); it never gates a merge.
 
@@ -110,7 +110,7 @@ Everything else must behave the same on every runner, so code a CI task runs mak
 
 ## Runner
 
-Six proposed warm Linux x64 machines, grouped into two verification allocations of up to three machines each. Linux x64 matches the release runner's platform cache key (operating system, architecture, Bun, Chrome), so a remote cache hit is the same verdict. A macOS result stays a different key.
+Eight proposed warm Linux x64 machines, grouped into two verification allocations of up to four machines each. Linux x64 matches the release runner's platform cache key (operating system, architecture, Bun, Chrome), so a remote cache hit is the same verdict. A macOS result stays a different key.
 
 Each machine:
 
@@ -155,6 +155,6 @@ The final corpus overlays the passing structured results from Verify run 3947619
 
 The longest shared-game part took 213 seconds. Device agreement fell from 267 to 197 seconds with the same invariant and two-step exhaustive bound; the unchanged whole-system proof recorded 119 seconds after duplicate input preparation was removed. The 30-unit part cap retains the fewest-part rule and every scenario and replay; all visual inputs and declared proof phases remain gated.
 
-The generated sizing model totals 17,071 task-seconds, including 9,493 spec-seconds, using the harvested timings, retained history and family estimates. The five-minute, three-minute leaf and ninety-second percentile targets, the 16-worker cap, and each machine's 32 vCPU / 64 GB shape stay fixed. This is a sizing forecast; the hosted run remains the evidence of actual execution. The proposed pool changes no deployed infrastructure.
+The generated sizing model totals 19,640 task-seconds, including 12,244 spec-seconds, using the harvested timings, retained history and family estimates. The five-minute, three-minute leaf and ninety-second percentile targets, the 16-worker cap, and each machine's 32 vCPU / 64 GB shape stay fixed. This is a sizing forecast; the hosted run remains the evidence of actual execution. The proposed pool changes no deployed infrastructure.
 
 The current numbers (packages, verification scripts, family totals, leaves, widest dependency cones and the runner fit) are generated, not committed: every new verification script changes them, so a committed copy conflicted in nearly every pair of concurrent pull requests. Print them with `bun run libs/tools-harness-ts/scripts/ci-load.ts`, or write them to `.cache/ci-load/MEASURED_LOAD.md` with `--write`. [`ci-load.test.ts`](../libs/tools-harness-ts/scripts/ci-load.test.ts) still fails when the corpus no longer fits the runner.
