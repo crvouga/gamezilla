@@ -46,8 +46,20 @@ async function settledGameScreen(s: ProductHarness, actor: string) {
   }
   throw new Error(`${actor}'s game screen never finished loading`);
 }
-export async function syntheticGameShown(s: ProductHarness) {
-  await Promise.resolve(openSyntheticGame.act(s, 'cedar'));
+/**
+ * Cedar's game as its own space shows it. `position` is one the game was
+ * seen in before: a space that went back to its launcher offers every game,
+ * so Cedar opens the one it played, not the first one offered.
+ */
+export async function syntheticGameShown(
+  s: ProductHarness,
+  position: string | null = null
+) {
+  const played =
+    position === null
+      ? undefined
+      : gameForPosition(GAME_AUTOMATIONS, position).rules.id;
+  await Promise.resolve(openSyntheticGame.act(s, 'cedar', played));
   // regression: reopened-live-match-shows-stored-row-before-room
   await settledGameScreen(s, 'cedar');
   return syntheticContinuity(s);
