@@ -11,10 +11,14 @@ const directory = join(
   import.meta.dirname,
   '../../infra-shared-ts/tofu/modules/repository/required-checks'
 );
-const required = readdirSync(directory).map(
-  (name) =>
-    JSON.parse(readFileSync(join(directory, name), 'utf8')) as RequiredPrCheck
-);
+// Sorted: a directory lists its files in whatever order its filesystem keeps,
+// and the warnings below come out in the order the checks are read.
+const required = readdirSync(directory)
+  .sort()
+  .map(
+    (name) =>
+      JSON.parse(readFileSync(join(directory, name), 'utf8')) as RequiredPrCheck
+  );
 const observed = [
   { name: 'verify:start', appId: 15368 },
   { name: 'verify:end', appId: 15368 },
@@ -66,6 +70,7 @@ const withConclusions = (conclusions: Record<string, string>) =>
   );
 
 // regression: codeql-bundle-download-504
+// regression: required-checks-read-in-directory-order
 // PR 347, run 42566395286: Analyze (actions) could not download the CodeQL
 // bundle (HTTP 504) and CodeQL reported neutral.
 test('a CodeQL scanner that could not run warns instead of blocking', () => {
