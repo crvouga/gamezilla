@@ -7,6 +7,7 @@ Feature: Finding a multiplayer opponent quickly
   Rule: When nobody else is looking for the same game, an available Synthetic User becomes the person's multiplayer opponent within 10 seconds
     No counter-example: with no Synthetic User available the person keeps looking, which the third rule shows.
 
+    @regression:new-opponent-shown-as-deleted-account
     Scenario Outline: A person finds a Synthetic User as a <game> multiplayer opponent within 10 seconds
       Given the Synthetic User "Cedar" is available
       And nobody else is looking for a multiplayer opponent for "<game>"
