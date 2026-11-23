@@ -8,7 +8,7 @@ import { AppFrame } from '@pkgs/ui-root-client-ts/app-frame';
 import { AppFrameChromeProvider } from '@pkgs/ui-root-client-ts/app-frame-chrome';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
-import { children, type JSX, Show } from 'solid-js';
+import { children, type JSX, Match, Show, Switch } from 'solid-js';
 import { fn } from 'storybook/test';
 import { type StoryRoute, storyRoute } from './storybook-route';
 
@@ -31,8 +31,7 @@ function RouteBody(props: {
 }): JSX.Element {
   const mode = useLayoutMode();
   return (
-    <Show
-      when={props.route.spaceBody}
+    <Switch
       fallback={
         <StackVertical grow>
           <StackVertical grow>{props.children}</StackVertical>
@@ -46,8 +45,12 @@ function RouteBody(props: {
         </StackVertical>
       }
     >
-      <StorySpaceFrame>{props.children}</StorySpaceFrame>
-    </Show>
+      <Match when={props.route.spaceBody === 'shell'}>
+        <StorySpaceFrame>{props.children}</StorySpaceFrame>
+      </Match>
+      {/* Already under its own frame, with the shell it claimed: bare. */}
+      <Match when={props.route.spaceBody === 'story'}>{props.children}</Match>
+    </Switch>
   );
 }
 

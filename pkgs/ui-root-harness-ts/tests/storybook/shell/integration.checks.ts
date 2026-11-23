@@ -41,6 +41,7 @@ for (const id of [
 }
 
 for (const id of ['screens-space-home--host-choosing']) {
+  // regression: storybook-space-home-two-space-headers
   test(`storybook integration: ${id} has exactly one real compact space header`, async ({
     page,
   }) => {
