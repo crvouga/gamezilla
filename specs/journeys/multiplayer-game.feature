@@ -22,8 +22,8 @@ Feature: A matchmaking pair play a lasting multiplayer game
       When Alice opens multiplayer chess with a connection again
       Then Alice sees the accepted multiplayer result
 
-    Scenario: A guest reaches the account invitation without starting a search
+    Scenario: A guest starts finding an opponent without an account
       Given Alice is a guest on a fresh device
       When Alice starts finding a 5+0 multiplayer chess opponent
-      Then Alice is invited to sign in
+      Then Alice is finding a multiplayer chess opponent
       And Alice has no multiplayer chess game

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="unfinished-game-limit-decisions" name="The unfinished matched game limit" namespace="urn:product:decisions">
-  <decision id="unfinished-game-limit" name="May this account start another matched game?">
-    <description>An account may seek an opponent for a new matched game, in any game, only after its earlier matched game is over or aborted, and only while it is not a participant of a custom game under way. A matched game that is over or aborted no longer counts as unfinished. The account requirement is decided separately by access. Free accounts and Plus members have the same limit of one unfinished matched game. A refusal offers the person to return to their game in place of seeking.</description>
+  <decision id="unfinished-game-limit" name="May this person start another matched game?">
+    <description>A guest or an account may seek an opponent for a new matched game, in any game, only after its earlier matched game is over or aborted, and only while it is not a participant of a custom game under way. A matched game that is over or aborted no longer counts as unfinished. Guests, free accounts and Plus members have the same limit of one unfinished matched game; the daily matched game limit for guests is decided separately. A refusal offers the person to return to their game in place of seeking.</description>
     <decisionTable id="unfinished-game-limit-table" hitPolicy="UNIQUE">
       <input id="who" label="who is asking">
         <inputExpression id="who-expression" typeRef="string"><text>who is asking</text></inputExpression>
-        <inputValues id="who-values"><text>"free account","Plus member"</text></inputValues>
+        <inputValues id="who-values"><text>"guest","free account","Plus member"</text></inputValues>
       </input>
       <input id="unfinished" label="unfinished matched games">
         <inputExpression id="unfinished-expression" typeRef="number"><text>unfinished matched games</text></inputExpression>
@@ -25,7 +25,7 @@
         <outputValues id="offer-values"><text>"seek an opponent","return to their matched game","return to the custom game"</text></outputValues>
       </output>
       <rule id="no-unfinished-game">
-        <description>An account without an unfinished matched game or custom game may seek an opponent.</description>
+        <description>A person without an unfinished matched game or custom game may seek an opponent.</description>
         <inputEntry id="no-unfinished-game-in-1"><text>-</text></inputEntry>
         <inputEntry id="no-unfinished-game-in-2"><text>&lt; 1</text></inputEntry>
         <inputEntry id="no-unfinished-game-in-3"><text>&lt; 1</text></inputEntry>
@@ -34,7 +34,7 @@
         <outputEntry id="no-unfinished-game-out-3"><text>"seek an opponent"</text></outputEntry>
       </rule>
       <rule id="finish-first">
-        <description>An account with an unfinished matched game must finish it first.</description>
+        <description>A person with an unfinished matched game must finish it first.</description>
         <inputEntry id="finish-first-in-1"><text>-</text></inputEntry>
         <inputEntry id="finish-first-in-2"><text>&gt;= 1</text></inputEntry>
         <inputEntry id="finish-first-in-3"><text>-</text></inputEntry>

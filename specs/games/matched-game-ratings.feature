@@ -50,6 +50,15 @@ Feature: A rating for each speed
       When Bob resigns the matched game
       Then Alice's rapid rating is still 1700
 
+  Rule: A guest who makes an account by signing in keeps their ratings
+    No counter-example: making an account never resets a guest's rating.
+
+    Scenario: A guest's blitz rating is still theirs once they sign in
+      Given Alice is a guest
+      And Alice has a blitz rating of 1800
+      When Alice signs in with Google
+      Then Alice's blitz rating is still 1800
+
   Rule: Finding an opponent pairs people up by their rating for the chosen speed
 
     Scenario: Close blitz ratings get two 3+0 searches paired

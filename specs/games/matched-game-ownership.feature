@@ -12,9 +12,8 @@ Feature: A matched game follows the account
     Scenario: A signed-out device cannot go on with the account's matched game
       Given Alice signed out on her phone during her matched game with Bob
       And Alice is hosting a space
-      When Alice seeks an opponent for the game at 5+0
-      Then Alice is invited to sign in
-      And Alice cannot see the account's matched game on her phone
+      When Alice opens finding an opponent
+      Then Alice cannot see the account's matched game on her phone
 
   Rule: The opponent is shown by their current username
     No counter-example: changing a username changes the name shown, never the matched person or game.
@@ -58,3 +57,12 @@ Feature: A matched game follows the account
       When Alice confirms account deletion
       Then Bob sees he won the matched game by account deletion
       And Bob is not shown Alice's deleted personal details
+
+  Rule: A guest who makes an account by signing in keeps their matched game
+    No counter-example: making an account never leaves a guest's matched game behind.
+
+    Scenario: A guest's unfinished matched game is still theirs once they sign in
+      Given Alice is a guest
+      And Alice has an unfinished matched game with Bob
+      When Alice signs in with Google
+      Then Alice keeps her matched game with Bob
