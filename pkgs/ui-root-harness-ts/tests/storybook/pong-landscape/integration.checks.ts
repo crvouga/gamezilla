@@ -6,6 +6,7 @@ test.use({ video: 'on', trace: 'on' });
 
 // regression: pong-landscape-court-overflows-window
 // regression: pong-landscape-court-below-fold-on-load
+// regression: pong-landscape-court-under-floor
 test('storybook integration: pong-overhaul landscape court and the points fit after keyboard focus', async ({
   page,
 }, info) => {

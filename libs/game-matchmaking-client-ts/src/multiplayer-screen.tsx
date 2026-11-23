@@ -176,6 +176,8 @@ function useMultiplayerScreen(props: ScreenProps) {
     setup: useMultiplayerPrivateSetup(props.data.game, props.data.myId),
     finding: useMultiplayerFind(props.data),
     game: useMultiplayerGameView(props.data, props.view),
+    // The board's own words about live play, for the one status line.
+    boardLine: createSignal<string | null>(null),
   };
 }
 
@@ -209,8 +211,6 @@ function MultiplayerContent(props: ScreenProps): JSX.Element {
     screen.confirm.open
   );
   const choices = useGameChoicesName();
-  // The board's own words about live play, for the one status line.
-  const [boardLine, setBoardLine] = createSignal<string | null>(null);
   const home = () =>
     nav.place().screen === MULTIPLAYER_PLACES.home[screen.stage()].screen;
   useDeadlineSettle({
@@ -271,10 +271,10 @@ function MultiplayerContent(props: ScreenProps): JSX.Element {
             setup={screen.setup}
             reviewing={nav.place().screen === 'moves'}
             overlay={overlay}
-            onBoardLine={setBoardLine}
+            onBoardLine={screen.boardLine[1]}
           />
         )}
-        status={<MatchStatus data={data} boardLine={boardLine()} />}
+        status={<MatchStatus data={data} boardLine={screen.boardLine[0]()} />}
         overlay={screen.overlay.overlay()}
         onOverlay={screen.overlay.send}
         versus={screen.versus()}
