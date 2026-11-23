@@ -42,7 +42,7 @@ terms:
       - participants
       - create a custom game
       - creates a custom game
-    avoid: [match, room, lobby]
+    avoid: [match, room, game lobby]
     published: true
     model:
       - CustomGame
@@ -661,7 +661,7 @@ terms:
       person seeks for one game at a time and may stop seeking. Someone
       seeking an opponent cannot offer a rematch.
     forms: [seeking, seeks, stops seeking, waiting for an opponent, began seeking]
-    model: [seekOpponent, stopSeeking, seeking, seekingSeconds]
+    model: [seekOpponent, stopSeeking, seeking, seekingSeconds, seekOffered]
 
   - term: search
     definition: >-
@@ -943,7 +943,8 @@ terms:
       it sees what its host last chose, on every device they have in the
       space. A guest cannot change it and is told only the host chooses the
       game; a device without a connection cannot change it either. Going
-      idle does not change it.
+      idle does not change it. While a custom game is under way in the
+      space, it stays on that custom game's board until the game is finished.
     avoid: [screen, page]
     model: [View, view, Elsewhere]
 
@@ -1553,6 +1554,34 @@ terms:
 
   - term: return to a space
     from: spaces
+    model: [returnToSpace]
+
+  - term: lobby
+    from: spaces
+    model: [goBackToLobby]
+
+  - term: return to their game
+    definition: >-
+      Go straight back to the board of one's unfinished game, from anywhere
+      in the app, in one step: a custom game under way that the person is a
+      participant of, or their unfinished matched game. While that game is
+      unfinished it is offered wherever the person is, on every device, and
+      in place of anything the game keeps them from starting, such as
+      seeking an opponent. A watcher, or someone whose game is finished or
+      over, has nothing to return to.
+    forms:
+      - return to the custom game
+      - returns to the custom game
+      - return to her matched game
+      - returns to her matched game
+      - return to his matched game
+      - returns to his matched game
+      - return to the matched game
+      - returning to the custom game
+      - returning to the matched game
+      - returning to their game
+    avoid: [jump back, back to game]
+    model: [returnToGame, returnOffered]
 
   - term: a space that no longer exists
     from: spaces

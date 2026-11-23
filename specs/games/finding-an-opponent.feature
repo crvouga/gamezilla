@@ -46,6 +46,7 @@ Feature: Finding an opponent in every game
       Given Alice has an unfinished matched game with Bob
       When Alice seeks an opponent for the game on another device
       Then Alice is told to finish her matched game first
+      And Alice is offered to return to her matched game
       And Alice keeps her matched game with Bob
 
   Rule: People are paired only for the same game
