@@ -1,0 +1,4 @@
+{
+  "summary": "On a wide window a fixed stage's notice (a refused choice, the connection, a draw offered) took the default 560px board measure instead of the board's own, which the window's height had narrowed (404px at 1440×844), so it spilled over the rail beside the board and covered the first command (Offer draw). The notices now take the stage's board measure.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/frame-refusal/integration.checks.ts"
+}
