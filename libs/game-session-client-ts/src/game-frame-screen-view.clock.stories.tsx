@@ -14,7 +14,7 @@ import {
 
 const meta = {
   id: 'screens-games-custom-clock',
-  title: 'Screens/Games/Custom game/Clock',
+  title: 'Screens/Space/Custom game/Setup/Clock',
   component: GameFrameScreenView,
   tags: ['autodocs'],
   parameters: {

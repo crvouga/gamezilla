@@ -1,7 +1,6 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { useSetAppFrameHeader } from '@pkgs/ui-root-client-ts/app-frame-chrome';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
-import { SpacePeople } from '@pkgs/ui-root-client-ts/space-person-menu/space-people';
 import { SpaceShell } from '@pkgs/ui-root-client-ts/space-shell';
 import { type JSX, Show } from 'solid-js';
 import { SpaceScreenNotice, useSpaceScreenChrome } from './space-screen-chrome';
@@ -34,6 +33,7 @@ export function SpaceScreenFrame(props: {
       shell={(content) => (
         <SpaceShell
           spaceName={chrome.spaceName}
+          title={chrome.title}
           role={chrome.role}
           onBack={chrome.onBack}
           backLabel={chrome.backLabel}
@@ -44,16 +44,6 @@ export function SpaceScreenFrame(props: {
           testIds={chrome.testIds}
           nameAs="context"
           stage="fixed"
-          people={
-            <SpacePeople
-              people={chrome.people}
-              viewer={chrome.role}
-              phase="choosing"
-              capabilities={chrome.personCapabilities}
-              onPersonAction={chrome.onPersonAction}
-              onInvite={chrome.onInvite}
-            />
-          }
         >
           {content}
         </SpaceShell>

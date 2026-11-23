@@ -88,7 +88,13 @@ describe('bun dev tasks', () => {
       );
   });
 
-  test('task output goes to the terminal UI', () => {
-    expect(json<{ ui: string }>('turbo.json').ui).toBe('tui');
+  test('task output goes to the one log, not the launch terminal', () => {
+    const launcher = readFileSync(
+      join(REPO_ROOT, 'apps/product-ts/scripts/dev-run.ts'),
+      'utf8'
+    );
+    expect(launcher).toContain("'--ui=stream'");
+    expect(launcher).toContain("'--log-prefix=task'");
+    expect(launcher).toContain('logPath,');
   });
 });

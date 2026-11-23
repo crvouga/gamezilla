@@ -10,7 +10,7 @@ import {
 
 const meta = {
   id: 'screens-puzzles-content-library-browse',
-  title: 'Screens/Puzzles/Content library/Browse',
+  title: 'Screens/Space/Puzzle pack/Setup/Browse',
   component: ContentLibraryScreenView,
   parameters: LIBRARY_STORY_PARAMETERS,
   args: { ...LIBRARY_STORY_ARGS, place: { screen: 'browse' } },

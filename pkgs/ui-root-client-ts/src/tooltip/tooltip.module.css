@@ -1,6 +1,7 @@
 /* Tooltip bubble: CSS-positioned relative to its anchor wrapper. Hidden
    bubbles stay mounted (visibility:hidden) so `aria-describedby` always
-   resolves. Placement is static via CSS classes — no JS measurement. The
+   resolves. Placement is static via CSS classes; a bubble that would cross
+   the screen's edge is slid back in with `translate` as it opens. The
    bubble sits 8px off its anchor and fades in over 150ms. */
 
 .anchor {

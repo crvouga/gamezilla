@@ -14,7 +14,7 @@ import {
 
 const meta = {
   id: 'screens-games-custom-options',
-  title: 'Screens/Games/Custom game/Options',
+  title: 'Screens/Space/Custom game/Setup/Options',
   component: GameFrameScreenView,
   tags: ['autodocs'],
   parameters: {

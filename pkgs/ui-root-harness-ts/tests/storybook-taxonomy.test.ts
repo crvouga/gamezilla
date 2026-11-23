@@ -124,7 +124,10 @@ test("an area's stories share its prefix in every level", () => {
     expect(
       where(
         inside.filter(
-          (story) => !(story.title.split('/').at(-1) ?? '').startsWith(prefix)
+          (story) =>
+            !(story.title.slice(folder.length).split('/')[0] ?? '').startsWith(
+              prefix
+            )
         )
       )
     ).toEqual([]);
@@ -139,4 +142,26 @@ test("an area's stories share its prefix in every level", () => {
       )
     )
   ).toEqual([]);
+});
+
+test('the sidebar lists the most composed level first and folds the building blocks', () => {
+  const read = (file: string) =>
+    readFileSync(
+      resolve(ROOT, 'pkgs/ui-root-harness-ts/storybook', file),
+      'utf8'
+    );
+  const order = [...LEVELS].reverse();
+  const sorted =
+    /order: \[([\s\S]*?)\n {8}\],/.exec(read('preview.tsx'))?.[1] ?? '';
+  expect([...sorted.matchAll(/'([^']+)'/g)].map((match) => match[1])).toEqual([
+    'Start here',
+    'Screens',
+    // Nested under Screens: the Space area leads it.
+    'Space',
+    ...order.slice(1),
+  ]);
+  expect(read('preview.tsx')).toContain("method: 'alphabetical'");
+  expect(read('manager.ts')).toContain(
+    "collapsedRoots: ['templates', 'organisms', 'molecules', 'atoms']"
+  );
 });

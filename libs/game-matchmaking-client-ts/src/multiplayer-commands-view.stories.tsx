@@ -10,7 +10,7 @@ import {
 
 const meta = {
   id: 'screens-games-matchmaking-commands',
-  title: 'Screens/Games/Matchmaking/Game menu',
+  title: 'Screens/Space/Matchmaking/Play/In-game menu',
   component: MultiplayerScreenView,
   tags: ['autodocs'],
   parameters: STORY_PARAMETERS,

@@ -31,7 +31,9 @@ export function assertSecureStorageValue(value: string): void {
 
 /** Wraps a backend so every call runs the same validation as the secure-store contract. */
 export function wrapSecureStorage(storage: SecureStorage): SecureStorage {
+  const subscribe = storage.subscribe?.bind(storage);
   return {
+    ...(subscribe === undefined ? {} : { subscribe }),
     async getItem(key: string): Promise<string | null> {
       assertSecureStorageKey(key);
       return storage.getItem(key);

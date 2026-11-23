@@ -28,7 +28,7 @@ import {
 
 const meta = {
   id: 'screens-games-custom-lobby',
-  title: 'Screens/Games/Custom game/Lobby',
+  title: 'Screens/Space/Custom game/Setup/Lobby',
   component: GameFrameScreenView,
   tags: ['autodocs'],
   parameters: {

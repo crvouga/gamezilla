@@ -10,7 +10,7 @@ import {
 
 const meta = {
   id: 'screens-games-matchmaking-ratings',
-  title: 'Screens/Games/Matchmaking/Your ratings',
+  title: 'Screens/Space/Matchmaking/Setup/Your ratings',
   component: MultiplayerScreenView,
   tags: ['autodocs'],
   parameters: STORY_PARAMETERS,

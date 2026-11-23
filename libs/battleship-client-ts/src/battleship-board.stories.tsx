@@ -118,7 +118,7 @@ function renderSending(
 
 const meta = {
   id: 'screens-games-battleship-board',
-  title: 'Screens/Games/Battleship/Board',
+  title: 'Screens/Space/Boards/Battleship/Board',
   component: BattleshipBoard,
   tags: ['autodocs'],
   render: renderSending,

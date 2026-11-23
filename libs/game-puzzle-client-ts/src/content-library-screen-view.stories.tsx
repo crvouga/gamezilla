@@ -12,7 +12,7 @@ import {
 
 const meta = {
   id: 'screens-puzzles-content-library',
-  title: 'Screens/Puzzles/Content library',
+  title: 'Screens/Space/Puzzle pack/Setup/Library',
   component: ContentLibraryScreenView,
   tags: ['autodocs'],
   parameters: LIBRARY_STORY_PARAMETERS,

@@ -1,6 +1,12 @@
 // @io-wall-ok — boot admission and lifetime are held by the existing launcher.
 import { Database } from 'bun:sqlite';
-import { mkdirSync, realpathSync } from 'node:fs';
+import {
+  closeSync,
+  mkdirSync,
+  openSync,
+  realpathSync,
+  writeFileSync,
+} from 'node:fs';
 import { join } from 'node:path';
 import { gcDevOwner } from './dev-owner-gc';
 import { spawnOwned } from './dev-owner-spawn';
@@ -62,11 +68,19 @@ async function admit(root: string): Promise<Database | null> {
   return null;
 }
 
+export type SuperviseOptions = {
+  readonly env?: NodeJS.ProcessEnv;
+  /** Sends the command's output to this file instead of the launch terminal. */
+  readonly logPath?: string;
+  /** Runs when a live boot is reused rather than started. */
+  readonly onReuse?: () => void;
+};
+
 async function runBoot(
   root: string,
   command: string,
   args: readonly string[],
-  extraEnv: NodeJS.ProcessEnv
+  { env: extraEnv = {}, logPath }: SuperviseOptions
 ): Promise<number> {
   const supervisor = ownerProcess(process.pid);
   if (!supervisor) throw new Error('Cannot identify supervisor');
@@ -95,11 +109,15 @@ async function runBoot(
     { cwd: root, env, stdio: 'inherit' }
   );
   // Ownership belongs to the checkout; relative command inputs belong to the caller.
+  // A boot's log starts empty and is appended to, so a reader can follow it.
+  if (logPath !== undefined) writeFileSync(logPath, '');
+  const log = logPath === undefined ? null : openSync(logPath, 'a');
   const child = spawnOwned(command, args, {
     cwd: process.cwd(),
     env,
-    stdio: 'inherit',
+    stdio: log === null ? 'inherit' : ['ignore', log, log],
   });
+  if (log !== null) closeSync(log);
   const done = new Promise<number>((resolve, reject) => {
     child.once('error', reject);
     child.once('exit', (code) => resolve(code ?? 1));
@@ -140,7 +158,7 @@ export async function superviseDev(
   checkout: string,
   command: string,
   args: readonly string[],
-  extraEnv: NodeJS.ProcessEnv = {}
+  options: SuperviseOptions = {}
 ): Promise<number> {
   const root = realpathSync(checkout);
   mkdirSync(ownerDir(root), { recursive: true });
@@ -149,11 +167,12 @@ export async function superviseDev(
     process.stdout.write(
       '[dev] This checkout already has a live boot; reusing it.\n'
     );
+    options.onReuse?.();
     return 0;
   }
   try {
     await gcDevOwner(root);
-    return await runBoot(root, command, args, extraEnv);
+    return await runBoot(root, command, args, options);
   } finally {
     lease.close();
   }

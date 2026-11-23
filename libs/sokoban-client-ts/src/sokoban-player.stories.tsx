@@ -15,7 +15,7 @@ const openLibrary = fn();
 
 const meta = {
   id: 'screens-games-sokoban-puzzle',
-  title: 'Screens/Games/Sokoban/Puzzle',
+  title: 'Screens/Space/Boards/Sokoban/Puzzle',
   component: SokobanPlayer,
   tags: ['autodocs'],
   // The player inside the screen a pack puzzle is played on.

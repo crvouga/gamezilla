@@ -31,7 +31,7 @@ const DRAWN_MOVES = '000000111111222222433333344444555555666666'
 
 const meta = {
   id: 'screens-games-custom-result',
-  title: 'Screens/Games/Custom game/Result',
+  title: 'Screens/Space/Custom game/Play/Result',
   component: GameFrameScreenView,
   tags: ['autodocs', 'viewport-native-height'],
   parameters: {

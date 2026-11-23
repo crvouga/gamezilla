@@ -32,7 +32,7 @@ function render(args: ContentAttemptScreenViewProps) {
 
 const meta = {
   id: 'screens-puzzles-content-attempt',
-  title: 'Screens/Puzzles/Content attempt',
+  title: 'Screens/Space/Puzzle pack/Play/Attempt',
   component: ContentAttemptScreenView,
   tags: ['autodocs'],
   render,

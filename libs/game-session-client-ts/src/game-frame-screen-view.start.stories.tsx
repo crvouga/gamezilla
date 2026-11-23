@@ -7,7 +7,7 @@ import { FRAME_CONTROLS_EXCLUDE, frameArgs } from './game-frame-story.example';
 
 const meta = {
   id: 'screens-games-custom-start',
-  title: 'Screens/Games/Custom game/Start',
+  title: 'Screens/Space/Custom game/Setup/Start',
   component: GameFrameScreenView,
   tags: ['autodocs'],
   parameters: {
@@ -25,6 +25,21 @@ export const NoGame: Story = {};
 
 /** No game yet, for a bigger game: the quick start plays against bots. */
 export const NoGameManyPlayers: Story = { args: { playerCount: 4 } };
+
+/** A game with no picture of its board: the card's words keep its whole width. */
+// regression: mode-card-words-squeezed-without-picture
+export const NoPicture: Story = {
+  args: { playerCount: 4, boardPreview: null },
+  play: async ({ canvasElement }) => {
+    const card = await within(canvasElement).findByTestId('custom-game-mode');
+    const heading = within(card).getByRole('heading');
+    // Literal input: Light Cycles Quad on a phone, whose words were set in
+    // the 104px column kept for the picture it does not have.
+    await expect(heading.getBoundingClientRect().width).toBeGreaterThan(
+      card.getBoundingClientRect().width / 2
+    );
+  },
+};
 
 /** No game yet, and the person may not create one: they wait for the creator. */
 export const WaitingForCreator: Story = { args: { canCreate: false } };

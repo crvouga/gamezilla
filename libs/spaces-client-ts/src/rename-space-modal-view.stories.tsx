@@ -6,7 +6,7 @@ import { withSpaceScreenBehind } from './space-screen-behind.example';
 
 const meta = {
   id: 'screens-spaces-rename',
-  title: 'Screens/Spaces/Rename space',
+  title: 'Screens/Space/Manage/Rename',
   component: RenameSpaceModalView,
   tags: ['autodocs'],
   decorators: [withSpaceScreenBehind],

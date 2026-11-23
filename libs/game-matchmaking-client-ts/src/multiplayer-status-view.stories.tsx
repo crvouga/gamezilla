@@ -10,7 +10,7 @@ import {
 
 const meta = {
   id: 'screens-games-matchmaking-status',
-  title: 'Screens/Games/Matchmaking/Nothing to do',
+  title: 'Screens/Space/Matchmaking/Setup/Idle',
   component: MultiplayerScreenView,
   tags: ['autodocs'],
   parameters: STORY_PARAMETERS,

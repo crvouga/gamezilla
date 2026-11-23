@@ -1,4 +1,11 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
+import {
+  LogOutIcon,
+  Minimize2Icon,
+  ShareIcon,
+  SquarePenIcon,
+  UsersIcon,
+} from '@pkgs/ui-root-client-ts/icons';
 import type { JSX } from 'solid-js';
 import { fn } from 'storybook/test';
 import {
@@ -12,6 +19,8 @@ import { AVERY, HOSTED_SPACE, JORDAN, MORGAN } from './spaces-story.example';
 export const STORY_SPACE_CHROME: SpaceScreenChromeValue = {
   spaceId: HOSTED_SPACE.spaceId,
   spaceName: HOSTED_SPACE.title,
+  // What a game's own screen is titled with in the top bar: the game.
+  title: 'Chess',
   role: 'host',
   hostName: AVERY.name,
   people: [
@@ -24,11 +33,27 @@ export const STORY_SPACE_CHROME: SpaceScreenChromeValue = {
   onBack: fn(),
   backLabel: undefined,
   menu: [
-    { id: 'share', label: 'Share', onPress: fn() },
-    { id: 'people', label: 'People in this space', onPress: fn() },
-    { id: 'rename', label: 'Rename', onPress: fn() },
-    { id: 'minimize', label: 'Minimize space', onPress: fn() },
-    { id: 'leave', label: 'Leave space', tone: 'destructive', onPress: fn() },
+    {
+      id: 'people',
+      label: 'People in this space',
+      icon: UsersIcon,
+      onPress: fn(),
+    },
+    { id: 'share', label: 'Share', icon: ShareIcon, onPress: fn() },
+    { id: 'rename', label: 'Rename', icon: SquarePenIcon, onPress: fn() },
+    {
+      id: 'minimize',
+      label: 'Minimize space',
+      icon: Minimize2Icon,
+      onPress: fn(),
+    },
+    {
+      id: 'leave',
+      label: 'Leave space',
+      icon: LogOutIcon,
+      tone: 'destructive',
+      onPress: fn(),
+    },
   ],
   onLeave: fn(),
   onEnd: fn(),

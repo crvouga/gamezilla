@@ -233,7 +233,6 @@ describe('SpaceShell', () => {
           onBack={() => {}}
           onLeave={onLeave}
           onEnd={onEnd}
-          people={null}
         >
           <p>{'stage'}</p>
         </SpaceShell>

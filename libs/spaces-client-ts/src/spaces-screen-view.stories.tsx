@@ -14,7 +14,7 @@ import {
 
 const meta = {
   id: 'screens-spaces-lobby',
-  title: 'Screens/Spaces/Spaces',
+  title: 'Screens/Space/Enter and leave/Spaces',
   component: SpacesScreenView,
   tags: ['autodocs'],
   parameters: {

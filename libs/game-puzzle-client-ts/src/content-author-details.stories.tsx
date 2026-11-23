@@ -10,7 +10,7 @@ import { COUNTING_BODY } from './content-story.example';
 
 const meta = {
   id: 'screens-puzzles-content-author-details',
-  title: 'Screens/Puzzles/Content author/Details',
+  title: 'Screens/Space/Puzzle pack/Builder/Details',
   component: ContentAuthorScreenView,
   render: (args) => renderAuthorStory(args),
   parameters: AUTHOR_STORY_PARAMETERS,

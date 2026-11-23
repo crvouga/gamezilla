@@ -11,7 +11,7 @@ import {
 
 const meta = {
   id: 'screens-puzzles-catalogue-load-load',
-  title: 'Screens/Puzzles/Catalogue load/Load',
+  title: 'Screens/Space/Puzzle feed/Import/Load',
   component: CatalogueLoadScreenView,
   tags: ['autodocs'],
   parameters: {

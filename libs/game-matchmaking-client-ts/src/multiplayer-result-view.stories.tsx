@@ -26,7 +26,7 @@ const WON = {
 
 const meta = {
   id: 'screens-games-matchmaking-result',
-  title: 'Screens/Games/Matchmaking/Result',
+  title: 'Screens/Space/Matchmaking/Play/Result',
   component: MultiplayerScreenView,
   tags: ['autodocs'],
   parameters: STORY_PARAMETERS,

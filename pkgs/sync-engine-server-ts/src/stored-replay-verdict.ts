@@ -13,7 +13,8 @@ export async function storedReplayVerdict(
     status: string;
     code: string | null;
     message: string | null;
-    meta: string | null;
+    // Text in SQLite; Postgres hands a jsonb column back already parsed.
+    meta: unknown;
   }>(sql`
     SELECT a.status, r.code, r.message, r.meta
     FROM sync_engine_mutations_applied a
@@ -28,7 +29,9 @@ export async function storedReplayVerdict(
     row.code !== null && row.message !== null,
     'rejected mutation must retain its refusal'
   );
-  const meta: unknown = row.meta === null ? undefined : JSON.parse(row.meta);
+  const stored = row.meta ?? undefined;
+  const meta: unknown =
+    typeof stored === 'string' ? JSON.parse(stored) : stored;
   if (meta !== undefined)
     assert.record(meta, 'stored refusal details must be an object');
   return {

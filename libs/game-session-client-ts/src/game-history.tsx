@@ -5,6 +5,7 @@ import { UserUsername } from '@libs/profile-client-ts/user-username';
 import { useSpaceRoomSessionId } from '@libs/spaces-client-ts/space-room-context';
 import {
   DefineBackButton,
+  DefineSpaceTitle,
   useGameChoicesName,
 } from '@libs/spaces-client-ts/spaces-nav-context';
 import { useSpaceDecision } from '@libs/spaces-client-ts/use-space-decision';
@@ -105,6 +106,7 @@ function RecordReview(props: {
   return (
     <>
       <DefineBackButton onPress={props.onBack} label={t`History and stats`} />
+      <DefineSpaceTitle title={t`Game replay`} />
       <GameReplayScreenView
         players={players()}
         outcome={recordOutcome(props.record, myId())}
@@ -187,6 +189,7 @@ function AllowedGameHistory(props: {
       fallback={
         <>
           <DefineBackButton onPress={props.onBack} label={choices()} />
+          <DefineSpaceTitle title={t`Game history`} />
           <GameHistoryScreenView
             loading={model.isLoading()}
             statistics={model.statistics()}

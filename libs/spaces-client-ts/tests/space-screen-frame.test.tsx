@@ -26,6 +26,7 @@ function chrome(status: SpaceDetailStatus): SpaceScreenChromeValue {
   return {
     spaceId: 'space-1',
     spaceName: 'Friday game night',
+    title: 'Chess',
     role: 'guest',
     hostName: 'avery',
     people: [{ id: 'me', kind: 'person', name: 'sam', you: true }],
@@ -76,9 +77,7 @@ test('at the space’s root back leads to Spaces and says so, over the screen', 
   ));
   const back = byTestId(container, Handles.spaceBackToSpaces);
   expect(back?.getAttribute('aria-label')).toBe('Back to spaces');
-  expect(byTestId(container, Handles.spaceTitle)?.textContent).toBe(
-    'Friday game night'
-  );
+  expect(byTestId(container, Handles.spaceTitle)?.textContent).toBe('Chess');
   const stage = container.querySelector('[data-space-row="stage"]');
   expect(stage?.contains(byTestId(container, 'games'))).toBe(true);
 });
@@ -104,22 +103,24 @@ test('a screen that draws its own shell is rendered bare, once', () => {
   expect(byTestId(container, 'own-template')).not.toBeNull();
 });
 
-test('a screen not on a template sits under the space’s row and its people', () => {
+test('a screen not on a template sits under the space’s top bar, with no row of people', () => {
   const { container } = renderFrame('ready', () => (
     <StackVertical testId="board">{null}</StackVertical>
   ));
-  // The people in the space stay in view on every screen in it.
-  const people = container.querySelector('[data-space-row="people"]');
-  expect(people?.querySelectorAll('[data-person]')).toHaveLength(1);
+  // Who is here is the top bar's first action, never a row over the screen.
+  expect(container.querySelector('[data-space-row="people"]')).toBeNull();
   expect(
-    people?.querySelector('[data-component="SpacePeopleRow"]')
+    container.querySelector('[data-component="SpacePeopleRow"]')
+  ).toBeNull();
+  expect(
+    byTestId(container, Handles.spaceMembersButton)?.closest(
+      '[data-space-row="tools"]'
+    )
   ).not.toBeNull();
   const stage = container.querySelector('[data-space-row="stage"]');
   expect(stage?.getAttribute('data-scroll')).toBe('fixed');
   expect(stage?.contains(byTestId(container, 'board'))).toBe(true);
-  // The screen's own heading is the page's first; the space's name is not one.
+  // The screen's own heading is the page's first; the bar's title is not one.
   expect(container.querySelector('h1, h2, [role="heading"]')).toBeNull();
-  expect(byTestId(container, Handles.spaceTitle)?.textContent).toBe(
-    'Friday game night'
-  );
+  expect(byTestId(container, Handles.spaceTitle)?.textContent).toBe('Chess');
 });

@@ -40,6 +40,10 @@ type SpacesNavContextValue = {
   readonly label: string | undefined;
   /** The selected game's name, while its choices or a screen they open show. */
   readonly place: string | undefined;
+  /** What the showing screen calls itself, when it said: `Game history`. */
+  readonly title: string | undefined;
+  /** Names (or, with `undefined`, clears) the showing screen for the bar. */
+  readonly setTitle: (id: string, title: string | undefined) => void;
   /** Names (or, with `undefined`, clears) the selected game for the bar. */
   readonly setPlace: (id: string, name: string | undefined) => void;
   /** Pass a non-null handler to register/replace, `null` to clear. */
@@ -61,6 +65,15 @@ export function SpacesNavProvider(props: SpacesNavProviderProps): JSX.Element {
   const [places, setPlaces] = createSignal<
     readonly { readonly id: string; readonly name: string }[]
   >([]);
+  const [titles, setTitles] = createSignal<
+    readonly { readonly id: string; readonly title: string }[]
+  >([]);
+  const setTitle: SpacesNavContextValue['setTitle'] = (id, title) => {
+    setTitles((prev) => {
+      const filtered = prev.filter((e) => e.id !== id);
+      return title === undefined ? filtered : [...filtered, { id, title }];
+    });
+  };
   const setPlace: SpacesNavContextValue['setPlace'] = (id, name) => {
     setPlaces((prev) => {
       const filtered = prev.filter((e) => e.id !== id);
@@ -96,6 +109,10 @@ export function SpacesNavProvider(props: SpacesNavProviderProps): JSX.Element {
     get place() {
       return places().at(-1)?.name;
     },
+    get title() {
+      return titles().at(-1)?.title;
+    },
+    setTitle,
     setPlace,
     setHandler,
   };
@@ -136,6 +153,27 @@ export function useSpacesNavBackLabel(): Accessor<string | undefined> {
 export function useSpacesNavPlace(): Accessor<string | undefined> {
   const nav = useSpacesNavContext();
   return () => nav.place;
+}
+
+/** What the showing screen calls itself, when it said; else none. */
+export function useSpacesNavTitle(): Accessor<string | undefined> {
+  const nav = useSpacesNavContext();
+  return () => nav.title;
+}
+
+/**
+ * Names this screen in the space's top bar (`Game history`, `Puzzle stats`)
+ * while it is mounted. A screen that mounts none is titled with its game's
+ * name. The latest registration wins, as with {@link DefineBackButton}.
+ */
+export function DefineSpaceTitle(props: { readonly title: string }): null {
+  const nav = useContext(SpacesNavContext);
+  const id = createUniqueId();
+  createEffect(() => {
+    nav?.setTitle(id, props.title);
+    onCleanup(() => nav?.setTitle(id, undefined));
+  });
+  return null;
 }
 
 export type DefineBackButtonProps = {

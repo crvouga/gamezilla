@@ -357,9 +357,9 @@ own, and keeps one name in every level it appears in:
 
 | Area | Organisms | Templates | Screens |
 | --- | --- | --- | --- |
-| Space | `Organisms/Space/Space<Name>` | `Templates/Space/Space<Name>` | `Screens/Spaces/<Screen>` |
-| Games, shared | `Organisms/Games/Shared/Game<Name>` | `Templates/Games/Game<Name>` | `Screens/Games/<Area>/<Screen>` |
-| One game | `Organisms/Games/<Game>/<Surface>` | | `Screens/Games/<Game>/<Screen>` |
+| Space | `Organisms/Space/Space<Name>` | `Templates/Space/Space<Name>` | `Screens/Space/<Mode>/<Screen>`: everything seen inside a space, shared by all games |
+| Games, shared | `Organisms/Games/Shared/Game<Name>` | `Templates/Games/Game<Name>` | |
+| One game | `Organisms/Games/<Game>/<Surface>` | | `Screens/Space/Boards/<Game>/<Screen>` |
 | Developer tools | `Organisms/Devtools/<Component>` | | `Screens/Inspector/<Screen>` |
 | Feedback | `Organisms/Feedback/<Component>` (and `Molecules/Feedback`) | | |
 

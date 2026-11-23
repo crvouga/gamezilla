@@ -6,7 +6,7 @@ import { FRIEND_SPACE, JOINED_SPACE, LONG_SPACE } from './spaces-story.example';
 
 const meta = {
   id: 'screens-spaces-join',
-  title: 'Screens/Spaces/Join space',
+  title: 'Screens/Space/Enter and leave/Join',
   component: SpaceJoinScreenView,
   tags: ['autodocs'],
   parameters: {

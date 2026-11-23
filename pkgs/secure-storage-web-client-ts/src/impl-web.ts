@@ -3,7 +3,8 @@ import type { SecureStorage } from '@pkgs/secure-storage-root-shared-ts/interfac
 
 /**
  * Web `SecureStorage` backed by `localStorage`. Identity and its session
- * survive together across tabs. Wrapped with `wrapSecureStorage` so validation
+ * survive together across tabs, and a change made in one tab is reported to
+ * the others (`subscribe`). Wrapped with `wrapSecureStorage` so validation
  * matches the secure-store contract (key charset + 2048-byte value cap) on
  * every call.
  *
@@ -48,6 +49,20 @@ function persistentStorage(prefix: string): SecureStorage {
       assertLocalStorageAvailable();
       globalThis.localStorage.removeItem(prefix + key);
       globalThis.sessionStorage?.removeItem(prefix + key);
+    },
+    // The browser raises `storage` only in the tabs that did not make the change.
+    subscribe(listener: (key: string) => void): () => void {
+      if (typeof globalThis.addEventListener !== 'function')
+        return () => undefined;
+      const onStorage = (event: StorageEvent): void => {
+        if (event.storageArea !== globalThis.localStorage) return;
+        if (event.key === null || !event.key.startsWith(prefix)) return;
+        listener(event.key.slice(prefix.length));
+      };
+      globalThis.addEventListener('storage', onStorage);
+      return () => {
+        globalThis.removeEventListener('storage', onStorage);
+      };
     },
   });
 }

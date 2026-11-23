@@ -14,7 +14,7 @@ import {
 
 const meta = {
   id: 'screens-puzzles-content-author-board',
-  title: 'Screens/Puzzles/Content author/Board',
+  title: 'Screens/Space/Puzzle pack/Builder/Board',
   component: ContentAuthorScreenView,
   render: (args) => renderAuthorStory(args),
   parameters: AUTHOR_STORY_PARAMETERS,

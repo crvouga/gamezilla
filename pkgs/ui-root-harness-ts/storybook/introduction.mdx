@@ -31,12 +31,16 @@ Use its public prop contract and existing design tokens; screens compose the
 design system. Include empty, loading, success and recoverable failure states
 where they apply. Add source JSDoc for the generated Docs page.
 
-The sidebar's top level is the level of abstraction: Foundations, Atoms,
-Molecules, Organisms, Templates and Screens. A product area is a folder inside
+The sidebar's top level is the level of abstraction, most composed first:
+Screens, Templates, Organisms, Molecules, Atoms and Foundations. Templates,
+Organisms, Molecules and Atoms start collapsed. Inside a level, folders and
+components are listed A-Z. A product area is a folder inside
 a level and keeps its name in each: Organisms / Space and Templates / Space,
 Organisms / Games (one folder per game, plus Shared) and Templates / Games.
 Screens catalogues every product screen in every state, a folder per area, with
-navigation recorded in Actions. Design-system stories are titled with their
+navigation recorded in Actions. Space comes first: everything seen inside a
+space, in short names nested by mode (Custom game / Setup, Matchmaking / Play,
+Puzzle feed, Puzzle pack), with each game's own boards under Boards. Design-system stories are titled with their
 component's name. Source stories stay beside their production components.
 Existing story URLs stay stable.
 

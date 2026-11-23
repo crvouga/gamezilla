@@ -66,7 +66,7 @@ function StorySetupBoard(props: { complete: boolean }) {
 
 const meta = {
   id: 'screens-games-custom-private-setup',
-  title: 'Screens/Games/Custom game/Private setup',
+  title: 'Screens/Space/Custom game/Play/Private setup',
   component: GameFrameScreenView,
   tags: ['autodocs'],
   parameters: {

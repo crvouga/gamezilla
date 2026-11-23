@@ -3,7 +3,10 @@ import {
   SeekPuzzleReview,
   SelectReviewPuzzle,
 } from '@libs/game-puzzle-shared-ts/puzzle-review-selection';
-import { DefineBackButton } from '@libs/spaces-client-ts/spaces-nav-context';
+import {
+  DefineBackButton,
+  DefineSpaceTitle,
+} from '@libs/spaces-client-ts/spaces-nav-context';
 import { useGameScreen } from '@libs/spaces-client-ts/use-game-screen';
 import {
   useSpaceRoomDispatch,
@@ -72,6 +75,7 @@ export function PuzzleReviewScreen(): JSX.Element {
   return (
     <StackVertical grow self="stretch" overflow="hidden">
       <DefineBackButton onPress={backToStats} label={t`Puzzle stats`} />
+      <DefineSpaceTitle title={t`Puzzle review`} />
       <Show
         when={puzzleId()}
         keyed

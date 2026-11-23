@@ -47,10 +47,12 @@ function chrome(input: {
   role: SpaceRole;
   people: readonly SpaceShellPerson[];
   onInvite?: () => void;
+  onPeople?: () => void;
 }): SpaceScreenChromeValue {
   return {
     spaceId: 'space-1',
     spaceName: 'Friday game night',
+    title: 'Friday game night',
     role: input.role,
     hostName: 'avery',
     people: input.people,
@@ -58,7 +60,20 @@ function chrome(input: {
     status: 'ready',
     onBack: noop,
     backLabel: undefined,
-    menu: [{ id: 'minimize', label: 'Minimize space', onPress: noop }],
+    menu: [
+      {
+        id: 'people',
+        label: 'People in this space',
+        onPress: input.onPeople ?? noop,
+        testId: Handles.spaceMembersButton,
+      },
+      {
+        id: 'share',
+        label: 'Share',
+        onPress: input.onInvite ?? noop,
+        testId: Handles.spaceShare,
+      },
+    ],
     onLeave: noop,
     onEnd: noop,
     onInvite: input.onInvite ?? noop,
@@ -80,6 +95,7 @@ function mount(input: {
   width?: number;
   onSelectGame?: (id: string) => void;
   onInvite?: () => void;
+  onPeople?: () => void;
 }): HTMLElement {
   const time = createHarnessClock();
   const { container } = renderWithI18n(() => (
@@ -119,6 +135,10 @@ test('the screen is the catalogue template and launcher, in one shell', () => {
     container.querySelectorAll('[data-component="SpaceLauncher"]')
   ).toHaveLength(1);
   expect(screen.getAllByTestId(Handles.spaceTitle)).toHaveLength(1);
+  // The bar says what this screen is, not which space it is in.
+  expect(screen.getByTestId(Handles.spaceTitle).textContent).toBe(
+    'Choose game'
+  );
   // The old list is gone: no menu rows, no second heading for the games.
   expect(
     container.querySelector('[data-component="MainMenuScreen"]')
@@ -172,8 +192,9 @@ test('a guest is told the host is choosing, and is not invited to pick', () => {
 // regression: who-is-here-lone-person-row
 // regression: game-chooser-faces-cropped-to-slivers
 // regression: space-games-header-repeats-faces
-test('everyone here is one whole cell of the one people row, at any width', () => {
+test('who is here is the top bar\u2019s first action, never a row of faces, at any width', () => {
   for (const width of [390, 1440]) {
+    const onPeople = mock();
     const container = mount({
       role: 'guest',
       people: [
@@ -181,39 +202,35 @@ test('everyone here is one whole cell of the one people row, at any width', () =
         ...GUESTS.map((guest, i) => (i === 0 ? you(guest) : guest)),
       ],
       width,
+      onPeople,
     });
-    const rows = container.querySelectorAll(
-      '[data-component="SpacePeopleRow"]'
-    );
-    expect(rows).toHaveLength(1);
-    const cells = container.querySelectorAll(
-      '[data-component="SpacePersonCell"]'
-    );
-    expect([...cells].map((cell) => cell.getAttribute('data-person'))).toEqual([
-      'avery',
-      'sam',
-      'jo',
-      'kit',
-      'lee',
-    ]);
-    // One row that scrolls, never a grid with a lone last person, never a
-    // stack of overlapped faces, never the same faces a second time.
+    // The room keeps the whole stage: no people row, no stack of faces, no
+    // face drawn twice. Everyone is one press away in the bar.
+    expect(
+      container.querySelectorAll('[data-component="SpacePeopleRow"]')
+    ).toHaveLength(0);
+    expect(
+      container.querySelectorAll('[data-component="SpacePersonCell"]')
+    ).toHaveLength(0);
     expect(
       container.querySelector('[data-component="AvatarGroup"]')
     ).toBeNull();
-    expect(container.querySelectorAll('[data-person="sam"]')).toHaveLength(1);
-    expect(
-      screen.getByRole('button', { name: /^avery, Host, Choosing/ })
-    ).toBeTruthy();
+    const people = screen.getByTestId(Handles.spaceMembersButton);
+    expect(people.closest('[data-space-row="tools"]')).not.toBeNull();
+    fireEvent.click(people);
+    expect(onPeople).toHaveBeenCalledTimes(1);
+    // The launcher still counts everyone here.
+    expect(container.textContent).toContain('avery is choosing a game');
     cleanup();
   }
 });
 
 // regression: space-games-no-visible-invite
-test('Invite is in the people row and opens the share sheet', () => {
+test('Share is one of the space\u2019s actions and opens the share sheet', () => {
   const onInvite = mock();
   mount({ role: 'host', people: [you(AVERY)], onInvite });
-  fireEvent.click(screen.getByRole('button', { name: 'Invite' }));
+  fireEvent.click(screen.getByTestId(Handles.spaceChromeOverflow));
+  fireEvent.click(screen.getByTestId(Handles.spaceShare));
   expect(onInvite).toHaveBeenCalledTimes(1);
 });
 

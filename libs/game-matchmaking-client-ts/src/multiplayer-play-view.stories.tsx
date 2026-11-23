@@ -11,7 +11,7 @@ import {
 
 const meta = {
   id: 'screens-games-matchmaking-play',
-  title: 'Screens/Games/Matchmaking/Play',
+  title: 'Screens/Space/Matchmaking/Play/Play',
   component: MultiplayerScreenView,
   tags: ['autodocs'],
   parameters: STORY_PARAMETERS,

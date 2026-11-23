@@ -1,0 +1,4 @@
+{
+  "summary": "A tooltip is placed by CSS centred under its control, so beside the screen's edge (the back button, the last button of a top bar) part of the label fell outside the screen and was cut off. A bubble that would cross the edge now slides sideways to stay 8px inside it.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/tooltip-edge-shift.test.ts"
+}

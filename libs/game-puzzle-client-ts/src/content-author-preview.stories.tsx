@@ -15,7 +15,7 @@ import { StoryCountingPlayer } from './content-story.example';
 
 const meta = {
   id: 'screens-puzzles-content-author-preview',
-  title: 'Screens/Puzzles/Content author/Preview',
+  title: 'Screens/Space/Puzzle pack/Builder/Preview',
   component: ContentAuthorScreenView,
   render: (args) => renderAuthorStory(args),
   parameters: AUTHOR_STORY_PARAMETERS,

@@ -1,15 +1,18 @@
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { SpaceChoosingScreenView } from './space-choosing-screen-view';
+import { StorySpaceFrame } from './space-screen-chrome-story.example';
 import { GAMES } from './spaces-story.example';
 
 const meta = {
   id: 'screens-spaces-games',
-  title: 'Screens/Spaces/Games',
+  title: 'Screens/Space/Game chooser',
   component: SpaceChoosingScreenView,
   tags: ['autodocs'],
   parameters: { appRouter: true, controls: { exclude: ['games'] } },
   args: { games: GAMES, canSelectGame: true, onSelectGame: fn() },
+  // The screen reads its space from the chrome the app mounts around it.
+  decorators: [(Story) => <StorySpaceFrame>{Story()}</StorySpaceFrame>],
 } satisfies Meta<typeof SpaceChoosingScreenView>;
 export default meta;
 type Story = StoryObj<typeof meta>;

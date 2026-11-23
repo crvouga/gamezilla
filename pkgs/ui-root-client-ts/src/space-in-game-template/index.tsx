@@ -6,7 +6,6 @@ import { createSignal, type JSX, Show } from 'solid-js';
 import { Button } from '../button/index';
 import { ResponsiveSurface } from '../responsive-surface/index';
 import { spaceDataSet } from '../space-data-set';
-import { SpacePeople } from '../space-person-menu/space-people';
 import { type SpaceScreenChrome, SpaceShell } from '../space-shell/index';
 import type {
   SpaceGame,
@@ -144,6 +143,7 @@ export function SpaceInGameTemplate(
   return (
     <SpaceShell
       spaceName={props.spaceName}
+      title={props.title ?? props.game.name}
       role={props.role}
       onBack={props.onBack}
       backLabel={props.backLabel}
@@ -158,17 +158,6 @@ export function SpaceInGameTemplate(
         game: props.game.key,
         ...props.dataSet,
       }}
-      people={
-        <SpacePeople
-          people={props.people}
-          viewer={props.role}
-          phase="inGame"
-          seat={props.game.play.seat}
-          gameActions={props.game.play.personActions}
-          capabilities={props.personCapabilities}
-          onPersonAction={props.onPersonAction}
-        />
-      }
     >
       <InGameStage {...props} />
     </SpaceShell>
