@@ -1,6 +1,7 @@
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import {
+  expectSpaceExitInMenu,
   SPACE_STORY_ROLES,
   type SpaceMatrix,
   spaceStoryRole,
@@ -61,7 +62,7 @@ export const Screen: Story = {
         canvas.getByRole('button', { name: /Light Cycles/ })
       );
       await expect(args.onChoose).toHaveBeenCalledWith('light-cycles');
-      await expect(canvas.getByRole('button', { name: 'End' })).toBeVisible();
+      await expectSpaceExitInMenu(canvasElement, 'host');
       return;
     }
     await expect(
@@ -71,6 +72,6 @@ export const Screen: Story = {
     await expect(canvas.getByText('Needs 4')).toBeVisible();
     await userEvent.click(canvas.getByRole('button', { name: /^Chess/ }));
     await expect(args.onSuggest).toHaveBeenCalledWith('chess');
-    await expect(canvas.getByRole('button', { name: 'Leave' })).toBeVisible();
+    await expectSpaceExitInMenu(canvasElement, 'guest');
   },
 };

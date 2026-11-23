@@ -1,5 +1,6 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from 'solid-js';
+import { Minimize2Icon, ShareIcon, UsersIcon } from '../../src/icons';
 import type { SpaceScreenChrome } from '../../src/space-shell/index';
 
 /**
@@ -39,9 +40,9 @@ export function spaceExampleChrome(
     spaceName: 'bob’s space',
     onBack: () => spies.onBack(),
     menu: [
-      { id: 'share', label: 'Share' },
-      { id: 'people', label: 'People in this space' },
-      { id: 'minimize', label: 'Minimize space' },
+      { id: 'people', label: 'People in this space', icon: UsersIcon },
+      { id: 'share', label: 'Share', icon: ShareIcon },
+      { id: 'minimize', label: 'Minimize space', icon: Minimize2Icon },
     ].map((item) => ({ ...item, onPress: () => spies.onSpaceMenu(item.id) })),
     onLeave: () => spies.onLeave(),
     onEnd: () => spies.onEnd(),

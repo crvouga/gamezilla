@@ -6,5 +6,7 @@ addons.setConfig({
   enableShortcuts: true,
   // Day-to-day work is on screens and templates; the building blocks stay a
   // click away. A reader's own expand and collapse choices still win.
-  sidebar: { collapsedRoots: ['organisms', 'molecules', 'atoms'] },
+  sidebar: {
+    collapsedRoots: ['templates', 'organisms', 'molecules', 'atoms'],
+  },
 });

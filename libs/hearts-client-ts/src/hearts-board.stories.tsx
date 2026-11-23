@@ -213,7 +213,12 @@ export const CardsOnTheirWay: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     for (const name of ['jordan_plays', 'robin_42']) {
-      const label = await canvas.findByText(name);
+      // The space's people row names them too; this is the name beside the table.
+      const [label, ...others] = (await canvas.findAllByText(name)).filter(
+        (found) => found.getAttribute('aria-hidden') !== 'true'
+      );
+      await expect(others).toEqual([]);
+      if (label === undefined) throw new Error(`${name} is not at the table`);
       const range = document.createRange();
       range.selectNodeContents(label);
       const lines = [...range.getClientRects()];

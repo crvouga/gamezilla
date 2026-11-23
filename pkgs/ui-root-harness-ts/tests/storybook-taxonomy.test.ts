@@ -162,6 +162,6 @@ test('the sidebar lists the most composed level first and folds the building blo
   ]);
   expect(read('preview.tsx')).toContain("method: 'alphabetical'");
   expect(read('manager.ts')).toContain(
-    "collapsedRoots: ['organisms', 'molecules', 'atoms']"
+    "collapsedRoots: ['templates', 'organisms', 'molecules', 'atoms']"
   );
 });

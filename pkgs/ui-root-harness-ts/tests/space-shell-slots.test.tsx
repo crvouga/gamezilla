@@ -10,7 +10,10 @@ import { SpacePeopleRow } from '@pkgs/ui-root-client-ts/space-people-row';
 import { SPACE_PERSON_CAPABILITIES } from '@pkgs/ui-root-client-ts/space-person-actions';
 import { SpacePeople } from '@pkgs/ui-root-client-ts/space-person-menu/space-people';
 import { SpaceSetupTemplate } from '@pkgs/ui-root-client-ts/space-setup-template';
-import { SpaceShell } from '@pkgs/ui-root-client-ts/space-shell';
+import {
+  SpaceShell,
+  spaceInlineActionCount,
+} from '@pkgs/ui-root-client-ts/space-shell';
 import { SpaceStageTemplate } from '@pkgs/ui-root-client-ts/space-stage-template';
 import type {
   SpaceGame,
@@ -67,6 +70,7 @@ const GAME: SpaceGame & { play: SpaceGamePlay } = {
 describe('SpaceShell slots', () => {
   test('test ids, the back label, the notice and the space menu', () => {
     const rename = mock();
+    const people = mock();
     const onLeave = mock();
     renderSpace(() => (
       <SpaceShell
@@ -74,12 +78,13 @@ describe('SpaceShell slots', () => {
         onLeave={onLeave}
         role={GUEST}
         backLabel="Back to Chess"
+        title="Chess"
         menu={[
+          { id: 'people', label: 'People', onPress: people, testId: 'p' },
           { id: 'rename', label: 'Rename space', onPress: rename, testId: 'r' },
         ]}
         notice={<p data-testid="notice">{'The host is offline'}</p>}
         testIds={{ back: 'b', title: 't', settings: 's', leave: 'l' }}
-        people={null}
       >
         <p>{'stage'}</p>
       </SpaceShell>
@@ -87,7 +92,15 @@ describe('SpaceShell slots', () => {
     expect(screen.getByTestId('b').getAttribute('aria-label')).toBe(
       'Back to Chess'
     );
-    expect(screen.getByTestId('t').textContent).toBe("bob's space");
+    // The bar is titled with the screen, not with the space.
+    expect(screen.getByTestId('t').textContent).toBe('Chess');
+    // The first action is a button of the bar; what does not fit collapses.
+    expect(
+      screen.getByTestId('p').closest('[data-space-row="tools"]')
+    ).not.toBeNull();
+    fireEvent.click(screen.getByTestId('p'));
+    expect(people).toHaveBeenCalledTimes(1);
+    expect(screen.queryByTestId('r')).toBeNull();
     expect(screen.getByTestId('notice')).toBeDefined();
     // The way out is a row of the menu, never a control of its own.
     expect(screen.queryByTestId('l')).toBeNull();
@@ -104,7 +117,7 @@ describe('SpaceShell slots', () => {
 
   test('back says where by default; with no rows of its own the menu is the way out', () => {
     renderSpace(() => (
-      <SpaceShell {...CHROME} role={HOST} people={null}>
+      <SpaceShell {...CHROME} role={HOST}>
         <p>{'stage'}</p>
       </SpaceShell>
     ));
@@ -118,6 +131,16 @@ describe('SpaceShell slots', () => {
     expect(
       document.querySelector('[data-space-row="notice"]')?.childNodes.length
     ).toBe(0);
+  });
+});
+
+describe('SpaceShell actions', () => {
+  test('as many actions as fit are buttons; the first always is', () => {
+    expect(spaceInlineActionCount(0, 500)).toBe(0);
+    expect(spaceInlineActionCount(4, 500)).toBe(4);
+    expect(spaceInlineActionCount(4, 100)).toBe(2);
+    expect(spaceInlineActionCount(4, 0)).toBe(1);
+    expect(spaceInlineActionCount(4, -80)).toBe(1);
   });
 });
 
@@ -178,21 +201,13 @@ describe('SpaceSetupTemplate slots', () => {
     expect(screen.getByTestId('fleet')).toBeDefined();
     expect(screen.queryByRole('button', { name: "I'm ready" })).toBeNull();
     expect(screen.getByText('You are watching this game.')).toBeDefined();
-    expect(
-      document.querySelector('[data-person="me"]')?.getAttribute('data-status')
-    ).toBe('watching');
   });
 });
 
 describe('SpaceStageTemplate', () => {
-  test('a page in the stage under the space and its people', () => {
+  test('a page in the stage under the space, with no row of people', () => {
     renderSpace(() => (
-      <SpaceStageTemplate
-        {...CHROME}
-        role={GUEST}
-        phase="choosing"
-        people={[ME, OTHER]}
-      >
+      <SpaceStageTemplate {...CHROME} role={GUEST}>
         <p>{'History'}</p>
       </SpaceStageTemplate>
     ));
@@ -202,7 +217,8 @@ describe('SpaceStageTemplate', () => {
         .querySelector('[data-space-row="stage"]')
         ?.getAttribute('data-scroll')
     ).toBe('scroll');
-    expect(document.querySelectorAll('[data-person]')).toHaveLength(2);
+    expect(document.querySelectorAll('[data-person]')).toHaveLength(0);
+    expect(document.querySelector('[data-space-row="people"]')).toBeNull();
   });
 });
 

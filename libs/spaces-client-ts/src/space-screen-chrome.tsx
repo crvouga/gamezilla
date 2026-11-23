@@ -123,6 +123,7 @@ import {
   useSpacesNavBack,
   useSpacesNavBackLabel,
   useSpacesNavPlace,
+  useSpacesNavTitle,
 } from './spaces-nav-context';
 import { useIdleMemberIds } from './use-idle-members';
 import { useSpaceCan } from './use-space-can';
@@ -139,8 +140,13 @@ export type SpaceDetailStatus = 'loading' | 'ready';
 /** Everything a space screen needs to render `SpaceShell` and its templates. */
 export type SpaceScreenChromeValue = {
   readonly spaceId: string;
-  /** The space's shown name (row 1). */
+  /** The space's shown name. */
   readonly spaceName: string;
+  /**
+   * What the showing screen is, for the top bar: what it named itself
+   * (`DefineSpaceTitle`), else the selected game, else the space's name.
+   */
+  readonly title: string;
   readonly role: SpaceRole;
   /** The host's shown name ("bob is choosing a game"); empty until known. */
   readonly hostName: string;
@@ -279,13 +285,14 @@ function useMenu(
     look: { readonly icon: IconComponent; readonly testId: string }
   ): SpaceMenuItem => ({ id, label, onPress, ...look });
   return createMemo((): readonly SpaceMenuItem[] => [
-    item('share', t`Share`, () => overlays.setShareOpen(true), {
-      icon: ShareIcon,
-      testId: Handles.spaceShare,
-    }),
+    // First: who is here is the top bar's leading action on every screen.
     item('people', t`People in this space`, overlays.openMembers, {
       icon: UsersIcon,
       testId: Handles.spaceMembersButton,
+    }),
+    item('share', t`Share`, () => overlays.setShareOpen(true), {
+      icon: ShareIcon,
+      testId: Handles.spaceShare,
     }),
     ...(rights.canRename()
       ? [
@@ -356,6 +363,8 @@ export function SpaceScreenChromeProvider(
   const hostPerson = useSpacePerson(() => host()?.profileId ?? null);
   const people = useLazy(() => usePeople(spaceId));
   const back = useBack(title);
+  const screenTitle = useSpacesNavTitle();
+  const place = useSpacesNavPlace();
   const overlays = useSpaceOverlays();
   const menu = useMenu({ canRename, canEnd }, overlays);
   const value: SpaceScreenChromeValue = {
@@ -364,6 +373,9 @@ export function SpaceScreenChromeProvider(
     },
     get spaceName() {
       return title();
+    },
+    get title() {
+      return screenTitle() ?? place() ?? title();
     },
     get role() {
       return canEnd() ? 'host' : 'guest';

@@ -7,7 +7,6 @@ import { For, type JSX, Show } from 'solid-js';
 import { Button } from '../button/index';
 import { GameOptionField } from '../game-option-field/index';
 import { GameTile } from '../game-tile/index';
-import { SpacePeople } from '../space-person-menu/space-people';
 import { type SpaceScreenChrome, SpaceShell } from '../space-shell/index';
 import type { SpaceGame, SpacePerson, SpaceRole } from '../space-types';
 import styles from './space-setup-template.module.css';
@@ -200,15 +199,10 @@ function SetupStage(props: SpaceSetupTemplateProps): JSX.Element {
 export function SpaceSetupTemplate(
   props: SpaceSetupTemplateProps
 ): JSX.Element {
-  const everyone = () => [
-    ...props.people,
-    ...(props.watchers ?? []).map(
-      (person): SpacePerson => ({ ...person, status: 'watching' })
-    ),
-  ];
   return (
     <SpaceShell
       spaceName={props.spaceName}
+      title={props.title ?? props.game.name}
       role={props.role}
       onBack={props.onBack}
       backLabel={props.backLabel}
@@ -222,17 +216,6 @@ export function SpaceSetupTemplate(
         game: props.game.key,
         ...props.dataSet,
       }}
-      people={
-        <SpacePeople
-          people={everyone()}
-          viewer={props.role}
-          phase="settingUp"
-          data={props.game.setup.personData}
-          capabilities={props.personCapabilities}
-          onPersonAction={props.onPersonAction}
-          onInvite={props.onInvite}
-        />
-      }
     >
       <SetupStage {...props} />
     </SpaceShell>

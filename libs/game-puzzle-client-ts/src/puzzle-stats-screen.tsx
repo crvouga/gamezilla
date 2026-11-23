@@ -2,6 +2,7 @@ import { SelectReviewPuzzle } from '@libs/game-puzzle-shared-ts/puzzle-review-se
 import type { PuzzleGameLogEntry } from '@libs/game-puzzle-shared-ts/stats';
 import {
   DefineBackButton,
+  DefineSpaceTitle,
   useGameChoicesName,
 } from '@libs/spaces-client-ts/spaces-nav-context';
 import { useGameScreen } from '@libs/spaces-client-ts/use-game-screen';
@@ -63,6 +64,7 @@ export function PuzzleStatsScreen(): JSX.Element {
         onPress={back}
         label={atHome() ? choices() : t`Puzzle stats`}
       />
+      <DefineSpaceTitle title={t`Puzzle stats`} />
       <PuzzleStatsScreenView
         stage={stage()}
         place={nav.place()}
