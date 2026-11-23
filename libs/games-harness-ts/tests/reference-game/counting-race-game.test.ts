@@ -40,6 +40,12 @@ test('a game registered only through the public contracts is offered, played and
   const history = await s.read(gameHistoryStatistics, 'alice');
   expect([history.wins, history.losses, history.draws]).toEqual([1, 0, 0]);
 
+  // A game keeping played games and puzzles has its history behind History
+  // and stats: Back from the games' history is that hub, the puzzle stats
+  // beside it.
+  await s.apply(goBackInGame, 'alice');
+  expect(await s.read(offeredGameChoices, 'alice')).toEqual(['stats']);
+
   // What the game does not declare is absent, not disabled: no finding an
   // opponent; its puzzles are offered, their stats behind History and stats.
   await s.apply(goBackInGame, 'alice');
