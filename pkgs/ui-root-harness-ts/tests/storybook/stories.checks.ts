@@ -89,6 +89,17 @@ test('screens-games-numberlink-puzzle--complete-with-keyboard regression numberl
   );
 });
 
+// regression: mode-card-words-squeezed-without-picture
+test('screens-games-custom-start--no-picture regression mode-card-words-squeezed-without-picture', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'screens-games-custom-start--no-picture',
+    390
+  );
+});
+
 // regression: light-cycles-player-facts-overflow
 test('screens-games-light-cycles-arena--crashed regression light-cycles-player-facts-overflow', async ({
   page,
