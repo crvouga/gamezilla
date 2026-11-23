@@ -11,7 +11,7 @@ import { NO_STAGE_OVERLAY } from '@pkgs/turn-game-client-ts/stage-overlay';
 import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { useScreenPlace } from '@pkgs/turn-game-client-ts/use-screen-place';
 import { useStageOverlay } from '@pkgs/turn-game-client-ts/use-stage-overlay';
-import { createEffect, type JSX } from 'solid-js';
+import { createEffect, type JSX, Show } from 'solid-js';
 import { useRefusalText } from './custom-game-error';
 import { CUSTOM_GAME_PLACES } from './custom-game-places';
 import { CustomGameSetupBoard } from './custom-game-private-setup';
@@ -175,19 +175,20 @@ function CustomGameFrame(props: FrameProps): JSX.Element {
   const record = useFrameRecord(model, review);
   const boardState = useFrameBoardState(model, review, board);
   const shown = useFramePresentationFacts(model);
+  const atHome = (): boolean =>
+    place.place().screen === CUSTOM_GAME_PLACES.home[place.phase()].screen;
   return (
     <>
-      {/* Back from a phase's home names where it leads: the game's choices. */}
-      <DefineBackButton
-        onPress={() => {
-          if (!place.back()) model.back();
-        }}
-        label={
-          place.place().screen === CUSTOM_GAME_PLACES.home[place.phase()].screen
-            ? choices()
-            : undefined
-        }
-      />
+      {/* Back from a phase's home names where it leads: the game's choices.
+          While the game is under way its board is home, with no way out. */}
+      <Show when={!(model.underWay() && atHome())}>
+        <DefineBackButton
+          onPress={() => {
+            if (!place.back()) model.back();
+          }}
+          label={atHome() ? choices() : undefined}
+        />
+      </Show>
       <CustomGameScreenView
         title={props.title}
         goal={shown.goal()}
@@ -249,7 +250,9 @@ export function CustomGameScreen(props: {
   const choices = useGameChoicesName();
   return (
     <>
-      <DefineBackButton onPress={model.back} label={choices()} />
+      <Show when={!model.underWay()}>
+        <DefineBackButton onPress={model.back} label={choices()} />
+      </Show>
       <DecisionGate
         decision={model.watchDecision()}
         testId="custom-game-denial"

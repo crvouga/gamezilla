@@ -26,6 +26,7 @@ import {
   useUnfinishedGamesDecision,
 } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
+import { unfinishedGamesOffer } from '@libs/permissions-shared-ts/unfinished-games-permission';
 import { useSpaceRoomSelector } from '@libs/spaces-client-ts/use-space-room-selector';
 import type { Decision } from '@pkgs/permissions-shared-ts/decision';
 import { useMutationClient } from '@pkgs/sync-engine-client-ts/mutation-client-context';
@@ -37,6 +38,7 @@ import { useTurnGames } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { useCreateId } from '@pkgs/uuid-client-ts/solid';
 import { createSignal } from 'solid-js';
 import type { MultiplayerData } from './use-multiplayer-data';
+import { type UnfinishedGame, useUnfinishedGame } from './use-unfinished-game';
 
 const REFUSED = 'Multiplayer game could not accept that command.';
 
@@ -87,18 +89,43 @@ function useMoves(
   return { play, boardSync, moving };
 }
 
+/**
+ * The unfinished game limit as this device knows it: what the person holds
+ * anywhere, on any device, and what this space shows. Its offer
+ * (`unfinished-game-limit.dmn`) is seeking an opponent, or the game to
+ * return to in its place.
+ */
+function useUnfinishedGamesGate(data: MultiplayerData) {
+  const customGames = useSpaceRoomSelector(CustomGamesAttr.from);
+  const unfinished = useUnfinishedGame();
+  const unfinishedDecision = useUnfinishedGamesDecision(() => ({
+    multiplayer:
+      data.game()?.outcome === 'ongoing' || unfinished()?.kind === 'matched'
+        ? 1
+        : 0,
+    customGames:
+      customGameActiveParticipant(customGames(), data.myId()) ||
+      unfinished()?.kind === 'custom'
+        ? 1
+        : 0,
+  }));
+  return {
+    decision: unfinishedDecision,
+    /** The game to return to in place of seeking; `null` while they may seek. */
+    returnInstead: (): UnfinishedGame | null =>
+      unfinishedGamesOffer(unfinishedDecision()) === 'seek an opponent'
+        ? null
+        : unfinished(),
+  };
+}
+
 export function useMultiplayerControls(data: MultiplayerData) {
   const rules = useTurnGames();
   const client = useMutationClient();
   const createId = useCreateId();
   const beginDecision = useDecision(PERMISSION.matchmakingUse);
-  const customGames = useSpaceRoomSelector(CustomGamesAttr.from);
-  const unfinishedDecision = useUnfinishedGamesDecision(() => ({
-    multiplayer: data.game()?.outcome === 'ongoing' ? 1 : 0,
-    customGames: customGameActiveParticipant(customGames(), data.myId())
-      ? 1
-      : 0,
-  }));
+  const unfinished = useUnfinishedGamesGate(data);
+  const unfinishedDecision = unfinished.decision;
   const refusals = useRefusals();
   const run = async <A>(
     mutation: Mutation<A>,
@@ -138,6 +165,12 @@ export function useMultiplayerControls(data: MultiplayerData) {
     });
   return {
     ...useMoves(data, run),
+    /**
+     * The game to return to in place of seeking, when the unfinished game
+     * limit (`unfinished-game-limit.dmn`, its offer) keeps the person from
+     * seeking; `null` while they may seek.
+     */
+    returnInstead: unfinished.returnInstead,
     begin,
     stop,
     chooseSetup: (setup: string) =>

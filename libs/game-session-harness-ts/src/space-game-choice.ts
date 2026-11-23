@@ -11,6 +11,7 @@ import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront, visible } from '@libs/harness-ts/observations';
 import { SPACE_WAIT_MS, waitForOneOf } from '@libs/spaces-harness-ts/space-ui';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
+import { showCustomGameHome } from './custom-game-places';
 
 /** The menu itself identifies the selected game, independent of its choices. */
 const GAME_CHOICES = Handles.gameChoices;
@@ -60,7 +61,13 @@ export function goBackToGameChoiceOffered(
   return visible(s, actor, [GAME_CHOICES]);
 }
 
-/** Wait until `actor`'s space shows the game choice or the game's choices. */
+/** A custom game's screen, which the space may be held on. */
+const CUSTOM_GAME = 'custom-game-content';
+
+/**
+ * Wait until `actor`'s space shows the game choice, the game's choices or a
+ * custom game.
+ */
 function spaceShown(
   s: ProductHarness,
   actor: string,
@@ -69,9 +76,33 @@ function spaceShown(
   return waitForOneOf(
     s,
     actor,
-    [gameTile(s, gameId), GAME_CHOICES],
+    [gameTile(s, gameId), GAME_CHOICES, CUSTOM_GAME],
     'the space view'
   );
+}
+
+/** Behind the game's choices a screen is at most this many Backs deep. */
+const DEEPEST_SCREEN = 4;
+
+/**
+ * From one of the game's screens, Back a step at a time until its choices
+ * show. Whether they do: no Back is offered while a custom game under way
+ * holds the space on its board.
+ */
+async function backToGameChoices(
+  s: ProductHarness,
+  actor: string
+): Promise<boolean> {
+  const ui = await actorUi(s, actor);
+  for (let step = 0; step < DEEPEST_SCREEN; step += 1) {
+    if (await ui.get(GAME_CHOICES).isVisible()) return true;
+    if (await ui.get(CUSTOM_GAME).isVisible())
+      await showCustomGameHome(s, actor);
+    if (!(await ui.get(Handles.navBack).isVisible())) return false;
+    await ui.get(Handles.navBack).tap();
+    await s.session.waitForIdle();
+  }
+  return ui.get(GAME_CHOICES).isVisible();
 }
 
 /**
@@ -99,15 +130,23 @@ export const attemptPickGame = scenarioAction({
 });
 
 /**
- * `actor` tries to go back from the game's choices to the game choice: when
- * the space shows the game's choices, they go back and wait for the game
- * choice or why not.
+ * `actor` tries to go back from the game's choices to the game choice: from
+ * another of the game's screens they first go back to its choices, as far
+ * as Back is offered; then they go back and wait for the game choice or why
+ * not.
  */
 export const attemptGoBackToGameChoice = scenarioAction({
   name: 'attemptGoBackToGameChoice',
   act: async (s, actor: string, gameId: string) => {
     await bringToFront(s, actor);
-    if ((await spaceShown(s, actor, gameId)) !== GAME_CHOICES) return;
+    const shown = await waitForOneOf(
+      s,
+      actor,
+      [gameTile(s, gameId), GAME_CHOICES, CUSTOM_GAME, Handles.navBack],
+      'the space view'
+    );
+    if (shown === gameTile(s, gameId)) return;
+    if (!(await backToGameChoices(s, actor))) return;
     const ui = await actorUi(s, actor);
     await ui.get(Handles.navBack).tap();
     await waitForOneOf(

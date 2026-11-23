@@ -5,6 +5,7 @@ import {
 } from '@pkgs/message-shared-ts/message';
 import { createMessageRouter } from '@pkgs/message-shared-ts/router';
 import type { HandleResult, RoomState } from '@pkgs/room-root-shared-ts/types';
+import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared-ts/types';
 
 import type { GameCommandContext, GameDefinition } from './game';
 
@@ -73,18 +74,49 @@ export const GameScreenShown = gamesEvtNs(
   validateShowGameScreenPayload
 );
 
+/** Why the space cannot leave the screen a game holds it on. */
+export const SPACE_HELD_REASON = 'the space stays on the game under way';
+
+/** The screen one of `modules` holds the space on now, or `null`. */
+export function heldGameScreen(
+  modules: readonly GameDefinition[],
+  state: RoomState
+): string | null {
+  for (const module of modules) {
+    const screen = module.holdsSpace?.(state) ?? null;
+    if (screen !== null) return screen;
+  }
+  return null;
+}
+
+function refuseHeld(): HandleResult {
+  return {
+    ok: false,
+    error: { type: ROOM_ERROR_TYPE.conflict, reason: SPACE_HELD_REASON },
+  };
+}
+
 /**
  * Factory for the games command router. The set of allowed game ids comes
  * from the runtime registry passed at composition time; spaces itself is
- * game-agnostic and never references any specific game module.
+ * game-agnostic and never references any specific game module. While one
+ * of `modules` holds the space (`holdsSpace`), the game and its screen stay.
  */
-export function createGamesCommandRouter(games: readonly GameDefinition[]) {
+export function createGamesCommandRouter(
+  games: readonly GameDefinition[],
+  modules: readonly GameDefinition[] = games
+) {
   const allowedIds = new Set(games.map((g) => g.id));
   return createMessageRouter<RoomState, GameCommandContext, HandleResult>(
     gamesCmdNs
   )
-    .on(SelectGame, (_state, _identity, cmd) => {
+    .on(SelectGame, (state, _identity, cmd) => {
       const game = cmd.payload.game;
+      if (
+        heldGameScreen(modules, state) !== null &&
+        game !== GamesRoomAttr.selected.from(state)
+      )
+        return refuseHeld();
       if (game !== null && !allowedIds.has(game)) {
         return {
           ok: true,
@@ -96,10 +128,14 @@ export function createGamesCommandRouter(games: readonly GameDefinition[]) {
         events: [GameSelected({ game })],
       };
     })
-    .on(ShowGameScreen, (_state, _identity, cmd) => ({
-      ok: true,
-      events: [GameScreenShown({ screen: cmd.payload.screen })],
-    }));
+    .on(ShowGameScreen, (state, _identity, cmd) => {
+      const held = heldGameScreen(modules, state);
+      if (held !== null && cmd.payload.screen !== held) return refuseHeld();
+      return {
+        ok: true,
+        events: [GameScreenShown({ screen: cmd.payload.screen })],
+      };
+    });
 }
 
 /**

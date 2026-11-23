@@ -35,6 +35,7 @@ import { MultiplayerSearchingView } from './multiplayer-searching-view';
 import { MultiplayerStatusView } from './multiplayer-status-view';
 import { MultiplayerTimeControlView } from './multiplayer-time-control-view';
 import type { MultiplayerSearchView } from './multiplayer-waiting';
+import type { UnfinishedGame } from './use-unfinished-game';
 
 /**
  * The matched game's stage: the seats around its board, under `overlay`.
@@ -68,6 +69,10 @@ export type MatchmakingScreenViewProps = {
   readonly onChooseTimeControl: (timeControl: string) => void;
   /** Starts a search, at the chosen time control when the game is timed. */
   readonly onFind: (timeControl: string | undefined) => Promise<void>;
+  /** The person's unfinished game, offered in place of the search's command. */
+  readonly returnTo?: UnfinishedGame['kind'] | undefined;
+  /** Goes back to that game's board. */
+  readonly onReturn?: (() => void) | undefined;
   /** The search under way; set in the `searching` stage. */
   readonly search: MultiplayerSearchView | null;
   readonly onStop: () => Promise<void>;
@@ -187,6 +192,8 @@ function FindPlace(props: Props): JSX.Element {
       ratings={props.ratings}
       onOpen={props.onOpen}
       onFind={props.onFind}
+      returnTo={props.returnTo}
+      onReturn={props.onReturn}
     />
   );
 }

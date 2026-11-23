@@ -8,6 +8,7 @@ import {
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront } from '@libs/harness-ts/observations';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
+import { showCustomGameHome } from './custom-game-places';
 
 /** What each shared screen shows first, so a person can tell it is open. */
 export const SHARED_SCREEN_MARK = {
@@ -59,6 +60,21 @@ export const goBackInGame = scenarioAction({
     const ui = await actorUi(s, actor);
     await bringToFront(s, actor);
     await ui.get(Handles.navBack).tap();
+  },
+});
+
+/**
+ * `actor` goes back from the game's board (a custom game's or the matched
+ * game's) to the game's choices: from a custom game's inner place first to
+ * its home, then Back.
+ */
+export const goBackFromBoard = scenarioAction({
+  name: 'goBackFromBoard',
+  act: async (s, actor: string) => {
+    await bringToFront(s, actor);
+    await showCustomGameHome(s, actor);
+    await (await actorUi(s, actor)).get(Handles.navBack).tap();
+    await s.session.waitForIdle();
   },
 });
 

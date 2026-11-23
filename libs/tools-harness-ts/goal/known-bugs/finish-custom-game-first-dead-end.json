@@ -1,0 +1,4 @@
+{
+  "summary": "During an unfinished custom game, opening Find an opponent showed a blocking \"Finish your Custom Game first\" panel above a live \"Find an opponent\" button that only repeated the refusal, with no way back to the game. The space now stays on the custom game's board while it is under way, seeking is never offered with an unfinished game, and returning to the game is offered in its place.",
+  "regressionTest": "specs/games/unfinished-game-return.feature"
+}

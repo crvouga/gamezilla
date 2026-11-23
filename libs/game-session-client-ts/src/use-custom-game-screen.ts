@@ -8,6 +8,7 @@ import {
   type CustomGames,
   CustomGamesAttr,
   customGamePersonSide,
+  customGameUnderWay,
 } from '@libs/game-session-shared-ts/custom-game-state';
 import { customGameChoiceWaits } from '@libs/game-session-shared-ts/custom-game-waiting-move';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
@@ -208,6 +209,8 @@ export function useCustomGameScreen(
     awaySince: (person: string): number | null => away()[person] ?? null,
     watchDecision: useSpaceDecision(scope, PERMISSION.gameCustomWatch),
     ...permissions,
+    /** A custom game is under way: the space stays on its board. */
+    underWay: createMemo(() => customGameUnderWay(roomGames())),
     back,
     openHistory,
   };

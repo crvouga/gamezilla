@@ -29,7 +29,7 @@ place keys, story titles and story ids:
 | --- | --- | --- | --- | --- |
 | Space home | `SpaceHomeScreenView` | (space template) | — | `Screens/Space/Space home/Home` |
 | Game home | `GameHomeScreenView` | `game-home` | `home` | `Screens/Space/Game home/Home` |
-| Custom games home | `CustomGamesHomePlace` | `custom-games-home` | `start` | `Screens/Space/Custom games/Home` |
+| Custom games home | `CustomGamesHomePlace` | `custom-games-home` | `home` | `Screens/Space/Custom games/Home` |
 | Custom game setup | `CustomGameSetupPlace` | `custom-game-setup` | `setup` | `Screens/Space/Custom games/Setup` |
 | Custom game stage | `CustomGameStagePlace` | `custom-game-stage` | `stage` | `Screens/Space/Custom games/Stage` |
 | Matchmaking home | `MatchmakingHomeView` | `matchmaking-home` | `home` | `Screens/Space/Matchmaking/Home` |
@@ -46,8 +46,7 @@ synced room state that every device in a space reads, so its values
 `history`, …) never change; only their names in code
 (`GAME_HOME_SCREEN`, `SHARED_GAME_SCREEN.customGamesHome`, …) follow the
 scheme. Places are device-local and in memory, so their keys follow it
-directly; the custom game's home keeps the place key `start` until the
-Pong harness, which reads it, moves to `home`.
+directly.
 
 ## The standard
 
@@ -169,7 +168,7 @@ each of its states, opened at phone and desktop width in both themes.
 
 | Stage | Place | Kind | Job |
 | --- | --- | --- | --- |
-| `none` | `start` | Choice | Play the bots at once, or set a game up |
+| `none` | `home` | Choice | Play the bots at once, or set a game up |
 | `configuring` | `setup` | Hub | Who sits where, what is agreed, get ready, start |
 | | `seat` (a side) | Choice | Who sits in this seat |
 | | `invite` (a side) | Choice | Which member of the space to invite to it |

@@ -188,6 +188,12 @@ export type GameDefinition = GameOwnRoom & {
     ctx: GameCommandContext,
     event: Message
   ) => HandleResult | null;
+  /**
+   * The screen the definition keeps the space on while its game lasts (a
+   * custom game under way), or `null`: the host can neither pick another
+   * game nor show another screen until it is finished.
+   */
+  readonly holdsSpace?: (state: RoomState) => string | null;
   /** Capability decision made for an incoming game command. */
   readonly permissionForCommand?: (
     command: Message,

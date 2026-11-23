@@ -11,6 +11,7 @@
         "@libs/sub-shared-ts#src",
         "@pkgs/attribute-shared-ts#src",
         "@pkgs/clock-shared-ts#src",
+        "@pkgs/db-schema-root-shared-ts#src",
         "@pkgs/message-shared-ts#src",
         "@pkgs/observability-root-shared-ts#src",
         "@pkgs/room-root-shared-ts#src",
