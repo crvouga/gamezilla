@@ -59,6 +59,7 @@ export async function expectShellShown(
   ui: Driver,
   timeoutMs?: number
 ): Promise<void> {
+  if (await shellShown(ui)) return;
   await ui.get(Handles.statusCurrentUser).wait('visible', {
     ...(timeoutMs === undefined ? {} : { timeoutMs }),
     description: 'the account menu, or the top bar of an open space',
