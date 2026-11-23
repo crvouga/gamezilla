@@ -1,6 +1,6 @@
 import { TURN_GAMES } from '@libs/game-catalog-shared-ts/turn-games';
 import { gamePuzzleSubs } from '@libs/game-puzzle-shared-ts/sub';
-import { createGameSessionSub } from '@libs/game-session-shared-ts/sub';
+import { createGameSessionSub } from '@libs/game-session-sub-shared-ts/sub';
 import { GAME_DEFINITIONS } from '@libs/games-shared-ts/game-plugins';
 /**
  * The composition root's sub list, and the single fold over it.

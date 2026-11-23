@@ -20,6 +20,7 @@
     "@libs/auth-client-ts": "workspace:*",
     "@libs/game-matchmaking-shared-ts": "workspace:*",
     "@libs/game-session-shared-ts": "workspace:*",
+    "@libs/game-session-sub-shared-ts": "workspace:*",
     "@libs/moderation-client-ts": "workspace:*",
     "@libs/moderation-shared-ts": "workspace:*",
     "@libs/permissions-client-ts": "workspace:*",

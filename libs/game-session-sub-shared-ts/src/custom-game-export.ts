@@ -1,8 +1,8 @@
+import type { CustomGame } from '@libs/game-session-shared-ts/custom-game-state';
+import { CustomGamesAttr } from '@libs/game-session-shared-ts/custom-game-state';
 import type { AccountPrivacyContribution } from '@libs/sub-shared-ts/account-privacy';
 import sql from '@pkgs/sql-root-shared-ts/sql';
 import type { MutationCtx } from '@pkgs/sync-engine-shared-ts/mutations-types';
-import type { CustomGame } from './custom-game-state';
-import { CustomGamesAttr } from './custom-game-state';
 
 /** Retained choices and play belong only to the game's creator or participants. */
 export async function snapshotCustomGames(

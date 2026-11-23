@@ -1,6 +1,6 @@
 import { findOpponentMutation } from '@libs/game-matchmaking-shared-ts/find-opponent-mutation';
 import { MultiplayerGameRepository } from '@libs/game-matchmaking-shared-ts/game-repository';
-import { activeCustomGamesOf } from '@libs/game-session-shared-ts/custom-game-participation';
+import { activeCustomGamesOf } from '@libs/game-session-sub-shared-ts/custom-game-participation';
 import { requireUnfinishedGamesInMutation } from '@libs/permissions-shared-ts/unfinished-games-permission';
 import type { RoomServicePort } from '@pkgs/room-root-shared-ts/room-service';
 import type { MutationAuthorize } from '@pkgs/sync-engine-shared-ts/mutations-types';

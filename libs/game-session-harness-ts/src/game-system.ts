@@ -15,7 +15,7 @@ import { GAME_PUZZLE_SERVER } from '@libs/game-puzzle-shared-ts/puzzle-sub-serve
 import { seedStarterContent } from '@libs/game-puzzle-shared-ts/starter-content';
 import { gamePuzzleSubs } from '@libs/game-puzzle-shared-ts/sub';
 import { createGameSessionServer } from '@libs/game-session-server-ts/sub-server';
-import { createGameSessionSub } from '@libs/game-session-shared-ts/sub';
+import { createGameSessionSub } from '@libs/game-session-sub-shared-ts/sub';
 import { defineProductSystem } from '@libs/harness-ts/define-product-system';
 import type { OpenHarnessOptions } from '@libs/harness-ts/mode';
 import type { OpenHarness } from '@libs/harness-ts/open-harness';

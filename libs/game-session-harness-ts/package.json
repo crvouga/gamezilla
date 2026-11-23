@@ -28,6 +28,7 @@
     "@libs/game-session-client-ts": "workspace:*",
     "@libs/game-session-server-ts": "workspace:*",
     "@libs/game-session-shared-ts": "workspace:*",
+    "@libs/game-session-sub-shared-ts": "workspace:*",
     "@libs/harness-ts": "workspace:*",
     "@libs/notifications-harness-ts": "workspace:*",
     "@libs/permissions-shared-ts": "workspace:*",
