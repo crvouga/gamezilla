@@ -10,11 +10,11 @@ import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Show } from 'solid-js';
 import type {
   ContentAttemptPack,
-  ContentAttemptScreenViewProps,
-} from './content-attempt-screen-view';
+  PuzzlePackStageScreenViewProps,
+} from './puzzle-pack-stage-screen-view';
 
 /** Where the attempt stands in the game's own figures, under the pack's bar. */
-function AttemptFigures(props: ContentAttemptScreenViewProps): JSX.Element {
+function AttemptFigures(props: PuzzlePackStageScreenViewProps): JSX.Element {
   const { t } = useLingui();
   return (
     <Show
@@ -35,13 +35,13 @@ function AttemptFigures(props: ContentAttemptScreenViewProps): JSX.Element {
 }
 
 /** A solved attempt (not a playtest) whose last change is kept. */
-function completionSaved(props: ContentAttemptScreenViewProps): boolean {
+function completionSaved(props: PuzzlePackStageScreenViewProps): boolean {
   return props.complete && props.playtest !== true && !props.saving;
 }
 
 /** Where the last change stands: saved, or still being saved. */
 export function ContentAttemptSaveStatus(
-  props: ContentAttemptScreenViewProps
+  props: PuzzlePackStageScreenViewProps
 ): JSX.Element {
   const { t } = useLingui();
   return (
@@ -89,7 +89,7 @@ function PackTrack(props: { pack: ContentAttemptPack }): JSX.Element {
  * pack's way on, then the game's own figures for the attempt, the save
  * status in one short quiet line, a playtest's note and the completion.
  */
-function AttemptPanel(props: ContentAttemptScreenViewProps): JSX.Element {
+function AttemptPanel(props: PuzzlePackStageScreenViewProps): JSX.Element {
   const { t } = useLingui();
   return (
     <GameSection
@@ -169,7 +169,7 @@ function AttemptPanel(props: ContentAttemptScreenViewProps): JSX.Element {
  * earlier positions kept for it, and the way back to the board.
  */
 export function ContentAttemptProgressView(props: {
-  view: ContentAttemptScreenViewProps;
+  view: PuzzlePackStageScreenViewProps;
 }): JSX.Element {
   const { t } = useLingui();
   return (

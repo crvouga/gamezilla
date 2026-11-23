@@ -6,10 +6,10 @@ import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
 import { type JSX, Show } from 'solid-js';
+import type { FramePlaceProps } from './custom-game-screen-view';
+import { FrameFacts, FrameStage } from './custom-game-stage-view';
 import { FrameMovesCard } from './game-frame-moves-view';
 import { FrameOutcomeCard } from './game-frame-overlay-view';
-import { FrameFacts, FrameStage } from './game-frame-play-view';
-import type { FramePlaceProps } from './game-frame-screen-view';
 import { FrameNoticesView } from './game-frame-shell';
 import { FrameStatusView } from './game-frame-status-view';
 
@@ -118,14 +118,11 @@ export function FrameResultPlace(props: Props): JSX.Element {
         boardFocus
         actionsBeside
         fixedStage={props.boardWorkspace !== true}
-        status={
-          <>
-            {/* The card says how the game ended, beside the board; a
-                listener hears it from the frame's own line. */}
-            <FrameStatusView status={props.status} spokenOnly />
-            <FrameOutcomeCard {...props} />
-          </>
-        }
+        // The card says how the game ended over the stage's foot (heading
+        // the rail beside a wide board), so the final board keeps the live
+        // board's place; a listener hears it from the frame's own line.
+        sheet={<FrameOutcomeCard {...props} />}
+        status={<FrameStatusView status={props.status} spokenOnly />}
         actions={<NextActions {...props} />}
         aside={<FrameMovesCard {...props} listOnly />}
       >

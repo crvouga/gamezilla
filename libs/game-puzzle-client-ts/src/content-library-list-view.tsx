@@ -19,13 +19,13 @@ import {
   type ContentLibraryProgress,
   ContentProgressLine,
 } from './content-library-card';
+import { ContentLoadMore } from './content-load-more';
 import type {
   ContentLibraryAttempt,
-  ContentLibraryScreenViewProps,
-} from './content-library-screen-view';
-import { ContentLoadMore } from './content-load-more';
+  PuzzlePacksHomeScreenViewProps,
+} from './puzzle-packs-home-screen-view';
 
-type View = ContentLibraryScreenViewProps;
+type View = PuzzlePacksHomeScreenViewProps;
 
 /** A pack's solved count, when it has puzzles to solve; else nothing. */
 function editionProgress(

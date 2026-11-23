@@ -12,12 +12,12 @@ import { NO_STAGE_OVERLAY } from '@pkgs/turn-game-client-ts/stage-overlay';
 import type { GameOptionGroup } from '@pkgs/turn-game-shared-ts/game-frame';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { fn } from 'storybook/test';
+import type { CustomGameScreenViewProps } from './custom-game-screen-view';
 import {
   FRAME_NO_NEXT,
   FRAME_NO_PLAY,
   FRAME_NO_TABLE,
 } from './game-frame-empty';
-import type { GameFrameScreenViewProps } from './game-frame-screen-view';
 import type {
   FrameHolder,
   FramePeople,
@@ -253,7 +253,7 @@ export const WON_RECORD = columnRecord(WON_MOVES);
 const resolved = () => fn(() => Promise.resolve());
 
 /** The frame at rest: no game yet, a host who may create one. */
-export function frameArgs(): GameFrameScreenViewProps {
+export function frameArgs(): CustomGameScreenViewProps {
   return {
     title: 'Connect Four',
     goal: 'Line up four discs in a row before your opponent does.',
@@ -309,9 +309,9 @@ export const FRAME_CONTROLS_EXCLUDE = [
 ];
 
 /** A two-seat game in play with the viewer to move. */
-export const FRAME_PLAYING: Partial<GameFrameScreenViewProps> = {
+export const FRAME_PLAYING: Partial<CustomGameScreenViewProps> = {
   phase: 'active',
-  place: { screen: 'play' },
+  place: { screen: 'stage' },
   viewerSide: 'white',
   status: status(),
   table: {
@@ -328,7 +328,7 @@ export const FRAME_PLAYING: Partial<GameFrameScreenViewProps> = {
  * viewer's seat no longer claims the move, the line drops its own-turn
  * emphasis, and Resign and Offer draw are withheld until it returns.
  */
-export const FRAME_HELD: Partial<GameFrameScreenViewProps> = {
+export const FRAME_HELD: Partial<CustomGameScreenViewProps> = {
   ...FRAME_PLAYING,
   status: status({ emphasis: 'neutral' }),
   table: {
@@ -340,7 +340,7 @@ export const FRAME_HELD: Partial<GameFrameScreenViewProps> = {
 };
 
 /** A finished two-seat game the viewer won: the result, with the moves to review. */
-export const FRAME_OVER: Partial<GameFrameScreenViewProps> = {
+export const FRAME_OVER: Partial<CustomGameScreenViewProps> = {
   phase: 'completed',
   place: { screen: 'result' },
   overlay: { kind: 'outcome' },

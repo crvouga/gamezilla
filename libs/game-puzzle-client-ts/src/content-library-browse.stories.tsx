@@ -1,20 +1,20 @@
 import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
-import { ContentLibraryScreenView } from './content-library-screen-view';
 import {
   COUNT_TO_SEVEN,
   LIBRARY_STORY_ARGS,
   LIBRARY_STORY_EMPTY,
   LIBRARY_STORY_PARAMETERS,
 } from './content-library-story.example';
+import { PuzzlePacksHomeScreenView } from './puzzle-packs-home-screen-view';
 
 const meta = {
-  id: 'screens-puzzles-content-library-browse',
-  title: 'Screens/Space/Puzzle pack/Setup/Browse',
-  component: ContentLibraryScreenView,
+  id: 'screens-puzzle-packs-home-browse',
+  title: 'Screens/Space/Puzzle packs/Home browse',
+  component: PuzzlePacksHomeScreenView,
   parameters: LIBRARY_STORY_PARAMETERS,
   args: { ...LIBRARY_STORY_ARGS, place: { screen: 'browse' } },
-} satisfies Meta<typeof ContentLibraryScreenView>;
+} satisfies Meta<typeof PuzzlePacksHomeScreenView>;
 export default meta;
 type Story = StoryObj<typeof meta>;
 

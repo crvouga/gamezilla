@@ -11,16 +11,16 @@ export type GameMenuStage = 'open';
 
 /** The small screen shown: the choices, or how to play. */
 export type GameMenuPlace =
-  | { readonly screen: 'menu' }
+  | { readonly screen: 'home' }
   | { readonly screen: 'how-to-play' };
 
-const MENU: GameMenuPlace = { screen: 'menu' };
+const MENU: GameMenuPlace = { screen: 'home' };
 
 export const GAME_MENU_PLACES = defineScreenPlaces<
   GameMenuStage,
   GameMenuPlace
 >({
   home: { open: MENU },
-  screens: { open: ['menu', 'how-to-play'] },
+  screens: { open: ['home', 'how-to-play'] },
   parent: (place) => (place.screen === 'how-to-play' ? MENU : null),
 });

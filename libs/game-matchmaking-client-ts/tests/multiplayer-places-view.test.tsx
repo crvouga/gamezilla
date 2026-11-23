@@ -40,7 +40,7 @@ describe('each stage opens on its own small screen', () => {
     view.setStage('unavailable');
     expect(mark()).toEqual({ stage: 'unavailable', place: 'status' });
     view.setStage('idle');
-    expect(mark()).toEqual({ stage: 'idle', place: 'find' });
+    expect(mark()).toEqual({ stage: 'idle', place: 'home' });
     view.setStage('searching');
     expect(mark()).toEqual({ stage: 'searching', place: 'searching' });
     expect(ids('multiplayer-waiting', 'multiplayer-stop')).toHaveLength(2);
@@ -48,7 +48,7 @@ describe('each stage opens on its own small screen', () => {
     expect(mark()).toEqual({ stage: 'setup', place: 'private-setup' });
     expect(ids('slot-setup', 'slot-board')).toHaveLength(2);
     view.setStage('playing');
-    expect(mark()).toEqual({ stage: 'playing', place: 'play' });
+    expect(mark()).toEqual({ stage: 'playing', place: 'stage' });
     view.set({ game: FINISHED });
     view.setStage('finished');
     expect(mark()).toEqual({ stage: 'finished', place: 'result' });
@@ -86,7 +86,7 @@ describe('each stage opens on its own small screen', () => {
       view.setStage('searching');
       view.setStage('idle');
     }
-    expect(view.place()).toBe('find');
+    expect(view.place()).toBe('home');
     for (const stage of ['searching', 'setup', 'playing'] as const) {
       view.setStage(stage);
       expect(noticed()).toHaveLength(2);
@@ -109,7 +109,7 @@ describe('a place does not outlive its stage', () => {
     expect(view.place()).toBe('result');
     // A rematch: the new game opens on its board, not on the old menu.
     view.setStage('playing');
-    expect(view.place()).toBe('play');
+    expect(view.place()).toBe('stage');
   });
 
   test('a person stepping through the moves goes on when the game ends', () => {
@@ -159,7 +159,7 @@ describe('play holds the board and one way to the commands', () => {
     expect(leave.textContent).toContain('Resign');
     leave.click();
     expect(view.props().commands.ask).toHaveBeenCalledWith('resign');
-    expect(view.place()).toBe('play');
+    expect(view.place()).toBe('stage');
     view.set({ game: { ...GAME, leave: 'abort' } });
     expect(screen.getByTestId('multiplayer-leave-now').textContent).toContain(
       'Abort'
@@ -290,7 +290,7 @@ describe('play holds the board and one way to the commands', () => {
     ).toBe(true);
     await Promise.resolve();
     await Promise.resolve();
-    expect(view.place()).toBe('play');
+    expect(view.place()).toBe('stage');
   });
 
   test('a refused draw offer stays on the commands', async () => {
@@ -315,7 +315,7 @@ describe('play holds the board and one way to the commands', () => {
     const view = mountPlaces({ stage: 'playing', open: 'commands' });
     screen.getByTestId('multiplayer-flip-board').click();
     expect(view.props().commands.flip).toHaveBeenCalledTimes(1);
-    expect(view.place()).toBe('play');
+    expect(view.place()).toBe('stage');
   });
 
   test('resigning only asks, and the confirmation outlives the game ending under it', () => {
@@ -536,11 +536,11 @@ describe('the result', () => {
     expect(view.place()).toBe('result');
     // The search's hub is one row from the result, for another clock.
     screen.getByTestId('multiplayer-open-find').click();
-    expect(view.place()).toBe('find');
-    expect(mark()).toEqual({ stage: 'finished', place: 'find' });
+    expect(view.place()).toBe('home');
+    expect(mark()).toEqual({ stage: 'finished', place: 'home' });
     screen.getByTestId('multiplayer-open-ratings').click();
     expect(view.back()).toBe(true);
-    expect(view.place()).toBe('find');
+    expect(view.place()).toBe('home');
     expect(view.back()).toBe(true);
     expect(view.place()).toBe('result');
     expect(view.back()).toBe(false);

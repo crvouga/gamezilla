@@ -1,20 +1,20 @@
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import {
-  ContentAttemptScreenView,
-  type ContentAttemptScreenViewProps,
-} from './content-attempt-screen-view';
-import {
   ATTEMPT_STORY_ARGS,
   ATTEMPT_STORY_PARAMETERS,
   StoryPackActions,
 } from './content-attempt-story.example';
 import { StoryKeptPositions } from './content-story.example';
+import {
+  PuzzlePackStageScreenView,
+  type PuzzlePackStageScreenViewProps,
+} from './puzzle-pack-stage-screen-view';
 
 /** Renders where the attempt stands with fresh kept positions. */
-function render(args: ContentAttemptScreenViewProps) {
+function render(args: PuzzlePackStageScreenViewProps) {
   return (
-    <ContentAttemptScreenView
+    <PuzzlePackStageScreenView
       {...args}
       wayOn={args.wayOn}
       keptPositions={<StoryKeptPositions />}
@@ -23,9 +23,9 @@ function render(args: ContentAttemptScreenViewProps) {
 }
 
 const meta = {
-  id: 'screens-puzzles-content-attempt-progress',
-  title: 'Screens/Space/Puzzle pack/Play/Progress',
-  component: ContentAttemptScreenView,
+  id: 'screens-puzzle-packs-stage-progress',
+  title: 'Screens/Space/Puzzle packs/Stage progress',
+  component: PuzzlePackStageScreenView,
   render,
   parameters: ATTEMPT_STORY_PARAMETERS,
   args: {
@@ -33,7 +33,7 @@ const meta = {
     place: { screen: 'progress' },
     figures: [{ key: 'remaining', label: 'Steps left', value: '4' }],
   },
-} satisfies Meta<typeof ContentAttemptScreenView>;
+} satisfies Meta<typeof PuzzlePackStageScreenView>;
 export default meta;
 type Story = StoryObj<typeof meta>;
 

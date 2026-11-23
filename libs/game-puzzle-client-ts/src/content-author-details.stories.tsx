@@ -9,8 +9,8 @@ import {
 import { COUNTING_BODY } from './content-story.example';
 
 const meta = {
-  id: 'screens-puzzles-content-author-details',
-  title: 'Screens/Space/Puzzle pack/Builder/Details',
+  id: 'screens-puzzle-packs-builder-details',
+  title: 'Screens/Space/Puzzle packs/Builder details',
   component: ContentAuthorScreenView,
   render: (args) => renderAuthorStory(args),
   parameters: AUTHOR_STORY_PARAMETERS,

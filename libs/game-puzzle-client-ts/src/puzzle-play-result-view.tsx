@@ -16,14 +16,14 @@ import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { createMemo, type JSX, Match, Show, Switch } from 'solid-js';
-import type { PuzzlePlayScreenViewProps } from './puzzle-play-screen-model';
+import type { PuzzleStageScreenViewProps } from './puzzle-play-screen-model';
 import { PuzzleRatingBadge } from './puzzle-rating-badge';
 import { PuzzleSettingsRow } from './puzzle-settings-row';
 import { PuzzleShareLabel } from './puzzle-share-label';
 import { PuzzleSummaryCard } from './puzzle-summary-card';
 
 /** How the puzzle ended, in the tone of its outcome. */
-function ResultTitle(props: PuzzlePlayScreenViewProps): JSX.Element {
+function ResultTitle(props: PuzzleStageScreenViewProps): JSX.Element {
   return (
     <Switch fallback={<Trans>Puzzle skipped</Trans>}>
       <Match when={props.status === 'solved'}>
@@ -39,7 +39,7 @@ function ResultTitle(props: PuzzlePlayScreenViewProps): JSX.Element {
 }
 
 /** What the ending means for the attempt. */
-function ResultCaption(props: PuzzlePlayScreenViewProps): JSX.Element {
+function ResultCaption(props: PuzzleStageScreenViewProps): JSX.Element {
   return (
     <Switch
       fallback={<Trans>You left this one. It stays in your game log.</Trans>}
@@ -65,7 +65,7 @@ function ResultCaption(props: PuzzlePlayScreenViewProps): JSX.Element {
 }
 
 /** The puzzle's own facts, each a quiet tag: its rating and its themes. */
-function ResultFacts(props: PuzzlePlayScreenViewProps): JSX.Element {
+function ResultFacts(props: PuzzleStageScreenViewProps): JSX.Element {
   const themeLabel = (theme: string): string =>
     props.feed.themes?.label(theme) ?? theme;
   return (
@@ -90,7 +90,7 @@ function ResultFacts(props: PuzzlePlayScreenViewProps): JSX.Element {
 
 /** Onward from the result: the line on the board, and the puzzle settings. */
 export function PuzzleResultRows(
-  props: PuzzlePlayScreenViewProps
+  props: PuzzleStageScreenViewProps
 ): JSX.Element {
   return (
     <StackVertical paddingX="lg">
@@ -115,7 +115,7 @@ export function PuzzleResultRows(
  * (`buildPuzzleActionBarPlan`): the next puzzle is the one filled command;
  * retrying and sharing the puzzle are quieter beside it.
  */
-function ResultCommands(props: PuzzlePlayScreenViewProps): JSX.Element {
+function ResultCommands(props: PuzzleStageScreenViewProps): JSX.Element {
   const slots = createMemo(() =>
     buildPuzzleActionBarPlan({
       status: props.status,
@@ -173,7 +173,7 @@ function ResultCommands(props: PuzzlePlayScreenViewProps): JSX.Element {
  * summary (a skip).
  */
 export function PuzzleResultSummary(
-  props: PuzzlePlayScreenViewProps
+  props: PuzzleStageScreenViewProps
 ): JSX.Element {
   return (
     <StackVertical

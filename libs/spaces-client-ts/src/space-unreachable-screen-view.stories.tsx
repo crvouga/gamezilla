@@ -4,8 +4,8 @@ import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { SpaceUnreachableScreenView } from './space-unreachable-screen-view';
 
 const meta = {
-  id: 'screens-spaces-unreachable',
-  title: 'Screens/Space/Enter and leave/Unreachable',
+  id: 'screens-space-unreachable',
+  title: 'Screens/Space/Enter and leave/Space unreachable',
   component: SpaceUnreachableScreenView,
   tags: ['autodocs'],
   parameters: { appRouter: true },

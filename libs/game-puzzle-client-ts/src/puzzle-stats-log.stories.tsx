@@ -12,7 +12,7 @@ import {
 /** The stats' `log` place: every puzzle played, each opening its review. */
 const meta = {
   id: 'screens-puzzles-stats-log',
-  title: 'Screens/Space/Puzzle feed/Stats/Log',
+  title: 'Screens/Space/Puzzles/Stats log',
   component: PuzzleStatsScreenView,
   tags: ['autodocs'],
   parameters: {

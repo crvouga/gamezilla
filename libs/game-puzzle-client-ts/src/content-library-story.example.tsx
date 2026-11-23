@@ -6,11 +6,11 @@ import { KeyRoundIcon } from '@pkgs/ui-root-client-ts/icons';
 import { fn } from 'storybook/test';
 import { createJSXDecorator } from 'storybook-solidjs-vite';
 import { ContentConnectionStatusView } from './content-connection-status-view';
+import { StoryCountingPreview } from './content-story.example';
 import type {
   ContentLibraryEdition,
-  ContentLibraryScreenViewProps,
-} from './content-library-screen-view';
-import { StoryCountingPreview } from './content-story.example';
+  PuzzlePacksHomeScreenViewProps,
+} from './puzzle-packs-home-screen-view';
 
 const BUNDLED: readonly ContentLibraryEdition[] = [
   {
@@ -161,7 +161,7 @@ export const LIBRARY_STORY_ARGS = {
   onMoreOwned: fn(),
   onMoreAttempts: fn(),
   onMorePublished: fn(),
-} satisfies ContentLibraryScreenViewProps;
+} satisfies PuzzlePacksHomeScreenViewProps;
 
 /** A first visit: nothing started, built or published. */
 export const LIBRARY_STORY_EMPTY = {
@@ -170,7 +170,7 @@ export const LIBRARY_STORY_EMPTY = {
   playtests: [],
   published: [],
   more: { owned: false, attempts: false, published: false },
-} satisfies Partial<ContentLibraryScreenViewProps>;
+} satisfies Partial<PuzzlePacksHomeScreenViewProps>;
 
 /** What a library story's controls leave out: its lists and slots. */
 export const LIBRARY_STORY_PARAMETERS = {

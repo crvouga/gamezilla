@@ -13,8 +13,8 @@ import {
 } from './content-story.example';
 
 const meta = {
-  id: 'screens-puzzles-content-author-board',
-  title: 'Screens/Space/Puzzle pack/Builder/Board',
+  id: 'screens-puzzle-packs-builder-board',
+  title: 'Screens/Space/Puzzle packs/Builder board',
   component: ContentAuthorScreenView,
   render: (args) => renderAuthorStory(args),
   parameters: AUTHOR_STORY_PARAMETERS,

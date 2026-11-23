@@ -90,7 +90,7 @@ function CatalogueLoadFrame(
       when={routed()}
       fallback={
         <EmbeddedScreen
-          screenId="catalogue-load"
+          screenId="puzzles-import"
           title={placeTitle(props)}
           subtitle={
             // What the loader is for, until a file is saved; then the hub's
@@ -110,7 +110,7 @@ function CatalogueLoadFrame(
     >
       {(frame) => (
         <ContentScreen
-          screenId="catalogue-load"
+          screenId="puzzles-import"
           width="menu"
           breadcrumbs={routedTrail(props, frame())}
         >

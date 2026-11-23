@@ -12,7 +12,7 @@ import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
 import { createMemo, createSignal, type JSX, Show } from 'solid-js';
 import type {
   PuzzleFeedThemes,
-  PuzzlePlayScreenViewProps,
+  PuzzleStageScreenViewProps,
 } from './puzzle-play-screen-model';
 
 const NO_THEMES: PuzzleFeedThemes = { choices: [], label: (theme) => theme };
@@ -63,7 +63,7 @@ function ChosenCount(props: { readonly count: number }): JSX.Element {
  * goes to the draft the settings save.
  */
 export function PuzzleFeedThemesView(
-  props: PuzzlePlayScreenViewProps
+  props: PuzzleStageScreenViewProps
 ): JSX.Element {
   const [query, setQuery] = createSignal('');
   const themes = (): PuzzleFeedThemes => props.feed.themes ?? NO_THEMES;
@@ -72,7 +72,7 @@ export function PuzzleFeedThemesView(
     props.feed.draft.themes.filter((theme) => themes().choices.includes(theme));
   return (
     <EmbeddedScreen
-      screenId="chess-puzzle-feed-themes"
+      screenId="puzzles-home-themes"
       title={<Trans>Themes</Trans>}
     >
       <StackVertical gap="lg">

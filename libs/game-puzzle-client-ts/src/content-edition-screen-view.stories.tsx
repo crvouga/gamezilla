@@ -53,8 +53,8 @@ function render(args: ContentEditionScreenViewProps) {
 }
 
 const meta = {
-  id: 'screens-puzzles-content-edition',
-  title: 'Screens/Space/Puzzle pack/Setup/Edition',
+  id: 'screens-puzzle-packs-edition',
+  title: 'Screens/Space/Puzzle packs/Edition',
   component: ContentEditionScreenView,
   tags: ['autodocs'],
   render,

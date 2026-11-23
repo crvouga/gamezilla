@@ -11,9 +11,9 @@ import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
 import { createSignal, type JSX, Match, Show, Switch } from 'solid-js';
+import type { FramePlaceProps } from './custom-game-screen-view';
 import { createFrameChoices, FrameChoiceRow } from './game-frame-choice';
 import { GameFrameOptions } from './game-frame-options';
-import type { FramePlaceProps } from './game-frame-screen-view';
 import { FrameLobbyPage, FramePlacePage } from './game-frame-shell';
 import type { FrameOptions } from './game-frame-view-types';
 
@@ -30,7 +30,7 @@ export function FrameOptionsPlace(
   return (
     <FramePlacePage
       {...props}
-      screenId="custom-game-options"
+      screenId="custom-game-setup-options"
       back={<Trans>Back to setup</Trans>}
       title={<Trans>Options</Trans>}
       subtitle={
@@ -141,7 +141,7 @@ export function FrameClockPlace(
     <FramePlacePage
       {...props}
       onClose={() => void save().then(() => props.onClose())}
-      screenId="custom-game-clock"
+      screenId="custom-game-setup-clock"
       back={<Trans>Back to setup</Trans>}
       title={<Trans>Clock and sides</Trans>}
       subtitle={

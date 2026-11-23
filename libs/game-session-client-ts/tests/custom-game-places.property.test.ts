@@ -27,11 +27,11 @@ const place: fc.Arbitrary<CustomGamePlace> = fc.oneof(
   fc
     .constantFrom(
       'start',
-      'lobby',
+      'setup',
       'options',
       'clock',
       'private-setup',
-      'play',
+      'stage',
       'commands',
       'moves',
       'result' as const
@@ -112,8 +112,8 @@ describe('the custom game places', () => {
   test('each phase opens on its own home', () => {
     expect(CUSTOM_GAME_PLACES.home).toEqual({
       none: { screen: 'start' },
-      configuring: { screen: 'lobby' },
-      active: { screen: 'play' },
+      configuring: { screen: 'setup' },
+      active: { screen: 'stage' },
       completed: { screen: 'result' },
       cancelled: { screen: 'result' },
     });
@@ -130,7 +130,7 @@ describe('the custom game places', () => {
         screen: 'seat',
         side: 'black',
       })
-    ).toEqual({ screen: 'lobby' });
+    ).toEqual({ screen: 'setup' });
   });
 
   test('the moves are reachable while a game is played and once it is over, never before', () => {

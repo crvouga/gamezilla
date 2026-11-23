@@ -78,7 +78,7 @@ export function PuzzleReviewScreenView(
       }
     >
       <GameReviewScreen
-        screenId="chess-stats-review"
+        screenId="puzzle-review"
         nested={props.nested}
         title={<ReviewTitle outcome={props.outcome} />}
         subtitle={

@@ -4,8 +4,8 @@ import { CatalogueLoadScreenView } from './catalogue-load-screen-view';
 import { STORY_LOAD_ARGS } from './catalogue-load-story.example';
 
 const meta = {
-  id: 'screens-puzzles-catalogue-load-status',
-  title: 'Screens/Space/Puzzle feed/Import/Status',
+  id: 'screens-puzzles-import-status',
+  title: 'Screens/Space/Puzzles/Import status',
   component: CatalogueLoadScreenView,
   tags: ['autodocs'],
   parameters: {

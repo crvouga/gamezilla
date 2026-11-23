@@ -12,8 +12,8 @@ import {
 } from './content-author-story.example';
 
 const meta = {
-  id: 'screens-puzzles-content-author-publish',
-  title: 'Screens/Space/Puzzle pack/Builder/Publish',
+  id: 'screens-puzzle-packs-builder-publish',
+  title: 'Screens/Space/Puzzle packs/Builder publish',
   component: ContentAuthorScreenView,
   render: (args) => renderAuthorStory(args),
   parameters: AUTHOR_STORY_PARAMETERS,

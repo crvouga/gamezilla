@@ -63,7 +63,7 @@ export type EmbeddedScreenProps = {
  *
  * @example
  * ```tsx
- * <EmbeddedScreen screenId="chess-stats" title="Puzzle stats">
+ * <EmbeddedScreen screenId="puzzle-stats" title="Puzzle stats">
  *   <MenuSection … />
  * </EmbeddedScreen>
  * ```

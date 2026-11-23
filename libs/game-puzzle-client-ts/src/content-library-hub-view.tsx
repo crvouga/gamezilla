@@ -7,10 +7,10 @@ import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { Spinner } from '@pkgs/ui-root-client-ts/spinner';
 import { For, type JSX, Show } from 'solid-js';
 import { ContentProgressLine } from './content-library-card';
-import type { ContentLibraryScreenViewProps } from './content-library-screen-view';
 import { ContentThumbnail } from './content-thumbnail';
+import type { PuzzlePacksHomeScreenViewProps } from './puzzle-packs-home-screen-view';
 
-type View = ContentLibraryScreenViewProps;
+type View = PuzzlePacksHomeScreenViewProps;
 
 /** A draft is being made: every other row waits for it. */
 function creating(view: View): boolean {

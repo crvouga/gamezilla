@@ -10,7 +10,7 @@ import {
 /** The stats' `trend` place: the rating over time. */
 const meta = {
   id: 'screens-puzzles-stats-trend',
-  title: 'Screens/Space/Puzzle feed/Stats/Trend',
+  title: 'Screens/Space/Puzzles/Stats trend',
   component: PuzzleStatsScreenView,
   tags: ['autodocs'],
   parameters: {

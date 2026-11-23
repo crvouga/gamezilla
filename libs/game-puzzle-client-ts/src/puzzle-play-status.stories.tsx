@@ -1,7 +1,6 @@
 import { ClockIcon } from '@pkgs/ui-root-client-ts/icons';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
-import { PuzzlePlayScreenView } from './puzzle-play-screen-view';
 import {
   PUZZLE_PLAY_STORY_ARGS,
   PUZZLE_PLAY_STORY_CONTROLS_EXCLUDE,
@@ -10,15 +9,16 @@ import {
   STORY_FEED_CONFIG,
   StoryPuzzleBoard,
 } from './puzzle-screen-story.example';
+import { PuzzleStageScreenView } from './puzzle-stage-screen-view';
 
 /**
  * The feed's `status` place: why there is no puzzle on the board, and the
  * one thing to do about it.
  */
 const meta = {
-  id: 'screens-puzzles-play-status',
-  title: 'Screens/Space/Puzzle feed/Play/Status',
-  component: PuzzlePlayScreenView,
+  id: 'screens-puzzles-stage-status',
+  title: 'Screens/Space/Puzzles/Stage status',
+  component: PuzzleStageScreenView,
   tags: ['autodocs'],
   render: (args, context) =>
     renderPuzzlePlayScene(args, context, StoryPuzzleBoard),
@@ -37,7 +37,7 @@ const meta = {
     status: 'loading',
     share: null,
   },
-} satisfies Meta<typeof PuzzlePlayScreenView>;
+} satisfies Meta<typeof PuzzleStageScreenView>;
 export default meta;
 type Story = StoryObj<typeof meta>;
 

@@ -1,13 +1,13 @@
 import { Badge, type BadgeIntent } from '@pkgs/ui-root-client-ts/badge';
 import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
-import { MultiplayerScreenView } from './multiplayer-screen-view';
+import { MatchmakingScreenView } from './matchmaking-screen-view';
 import {
   renderStory,
   STORY_FINISHED_GAME,
   STORY_PARAMETERS,
   storyArgs,
-} from './multiplayer-screen-view.example';
+} from './matchmaking-screen-view.example';
 
 /** The reason and the rating change, as the result card lays them out. */
 function caption(reason: string, intent: BadgeIntent, change: string) {
@@ -25,9 +25,9 @@ const WON = {
 } as const;
 
 const meta = {
-  id: 'screens-games-matchmaking-result',
-  title: 'Screens/Space/Matchmaking/Play/Result',
-  component: MultiplayerScreenView,
+  id: 'screens-matchmaking-result',
+  title: 'Screens/Space/Matchmaking/Result',
+  component: MatchmakingScreenView,
   tags: ['autodocs'],
   parameters: STORY_PARAMETERS,
   render: (args) => renderStory({ result: WON })(args),
@@ -38,7 +38,7 @@ const meta = {
     game: STORY_FINISHED_GAME,
     overlay: { kind: 'outcome' },
   },
-} satisfies Meta<typeof MultiplayerScreenView>;
+} satisfies Meta<typeof MatchmakingScreenView>;
 export default meta;
 type Story = StoryObj<typeof meta>;
 
@@ -134,7 +134,7 @@ export const OpenFind: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(await canvas.findByTestId('multiplayer-open-find'));
-    await expect(args.onOpen).toHaveBeenCalledWith({ screen: 'find' });
+    await expect(args.onOpen).toHaveBeenCalledWith({ screen: 'home' });
     await expect(await canvas.findByTestId('multiplayer-find')).toBeVisible();
   },
 };

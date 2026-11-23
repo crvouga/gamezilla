@@ -18,7 +18,7 @@ function threeChoices(width: number) {
   return render(() => (
     <ThemeProvider colorScheme="light" fixedLayout={{ width, height: 900 }}>
       <GameMenuScreen
-        screenId="game-choices"
+        screenId="game-home"
         title="Connect Four"
         motif="discs"
         choices={[
@@ -57,7 +57,7 @@ function menu(width: number, onPlay: () => void) {
   return render(() => (
     <ThemeProvider colorScheme="light" fixedLayout={{ width, height: 900 }}>
       <GameMenuScreen
-        screenId="game-choices"
+        screenId="game-home"
         title="Connect Four"
         motif="discs"
         subtitle="Drop discs and line up four"

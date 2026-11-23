@@ -37,7 +37,7 @@ export function PuzzleLinkScreenView(
 ): JSX.Element {
   return (
     <ContentScreen
-      screenId="chess-puzzle-link"
+      screenId="puzzle-link"
       breadcrumbs={[{ name: <Trans>Puzzle</Trans> }]}
       dataSet={{ testid: Handles.chessPuzzleLinkScreen }}
     >

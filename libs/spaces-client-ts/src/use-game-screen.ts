@@ -1,5 +1,5 @@
 import {
-  GAME_CHOICES_SCREEN,
+  GAME_HOME_SCREEN,
   GamesRoomAttr,
   ShowGameScreen,
 } from '@libs/spaces-shared-ts/games';
@@ -28,6 +28,6 @@ export function useGameScreen(): GameScreen {
   return {
     screen,
     show,
-    showChoices: () => show(GAME_CHOICES_SCREEN),
+    showChoices: () => show(GAME_HOME_SCREEN),
   };
 }

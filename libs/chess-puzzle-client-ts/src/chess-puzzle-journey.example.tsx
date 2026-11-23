@@ -1,7 +1,7 @@
 import { useStoryPuzzlePlaces } from '@libs/game-puzzle-client-ts/puzzle-places-story.example';
 import {
   PUZZLE_PLAY_STORY_ARGS,
-  PuzzlePlayScreenView,
+  PuzzleStageScreenView,
   STORY_LINE,
   storyLine,
 } from '@libs/game-puzzle-client-ts/puzzle-screen-story.example';
@@ -52,7 +52,7 @@ export function ChessPuzzleJourney() {
     } else if (step() === 0 && action === 'c3d5') setWrong(true);
   };
   return (
-    <PuzzlePlayScreenView
+    <PuzzleStageScreenView
       {...PUZZLE_PLAY_STORY_ARGS}
       stage={solved() ? 'finished' : 'playing'}
       place={places.place()}

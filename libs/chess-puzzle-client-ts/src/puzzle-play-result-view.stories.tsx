@@ -31,8 +31,8 @@ const WHOLE_LINE: PuzzleScene = {
  * with the puzzle's last move.
  */
 const meta = {
-  id: 'screens-puzzles-play-result',
-  title: 'Screens/Space/Puzzle feed/Play/Result',
+  id: 'screens-puzzles-result',
+  title: 'Screens/Space/Puzzles/Result',
   component: ChessPuzzleBoard,
   tags: ['autodocs'],
   decorators: [withScreenFrame, withChessPuzzleBoardContext],

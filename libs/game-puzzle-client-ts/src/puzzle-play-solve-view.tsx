@@ -8,7 +8,7 @@ import { P } from '@pkgs/ui-root-client-ts/text';
 import { For, type JSX, Show } from 'solid-js';
 import { PuzzleActionBar } from './puzzle-action-bar';
 import { HistoryPlyCluster } from './puzzle-move-history-ply';
-import type { PuzzlePlayScreenViewProps } from './puzzle-play-screen-model';
+import type { PuzzleStageScreenViewProps } from './puzzle-play-screen-model';
 import { PuzzleSettingsRow } from './puzzle-settings-row';
 
 const ignoreSeek = (): void => {};
@@ -36,7 +36,7 @@ export function SpectatorAllowance(props: { label: string }): JSX.Element {
  * hint waits, and the way back to the latest move is offered under it.
  */
 export function PuzzleSolveActions(
-  props: PuzzlePlayScreenViewProps
+  props: PuzzleStageScreenViewProps
 ): JSX.Element {
   return (
     <StackVertical paddingX="lg" gap="sm">
@@ -73,7 +73,7 @@ export function PuzzleSolveActions(
  * The line so far as one quiet strip of moves, read not pressed, and the
  * one control that opens the screen where it is stepped through.
  */
-function CompactLine(props: PuzzlePlayScreenViewProps): JSX.Element {
+function CompactLine(props: PuzzleStageScreenViewProps): JSX.Element {
   const { t } = useLingui();
   const hasPlies = (): boolean => props.line.plies.length > 0;
   return (
@@ -124,7 +124,9 @@ function CompactLine(props: PuzzlePlayScreenViewProps): JSX.Element {
  * The `play` place's line: the moves so far and, for the solver, the one
  * row to the puzzle settings.
  */
-export function PuzzleSolveLine(props: PuzzlePlayScreenViewProps): JSX.Element {
+export function PuzzleSolveLine(
+  props: PuzzleStageScreenViewProps
+): JSX.Element {
   return (
     <StackVertical gap="md">
       <CompactLine {...props} />

@@ -39,7 +39,7 @@ import type { CustomGameScreenModel } from './use-custom-game-screen';
 
 /**
  * The words and clocks the frame shows about the custom game, read from
- * the screen's model for `GameFrameScreenView`.
+ * the screen's model for `CustomGameScreenView`.
  */
 
 /** Moderated name for display, or `null` while it is unknown. */

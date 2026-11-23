@@ -12,6 +12,7 @@ import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { useGameGoal } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { useStageOverlay } from '@pkgs/turn-game-client-ts/use-stage-overlay';
 import { type JSX, Show } from 'solid-js';
+import { MatchmakingScreenView } from './matchmaking-screen-view';
 import { MultiplayerBoard, MultiplayerGameStatus } from './multiplayer-board';
 import {
   multiplayerResultShown,
@@ -21,7 +22,6 @@ import { multiplayerOverlayPhase } from './multiplayer-overlay-view';
 import { MULTIPLAYER_PLACES } from './multiplayer-places';
 import { MultiplayerPrivateSetupPanel } from './multiplayer-private-setup';
 import { useMultiplayerRatings } from './multiplayer-ratings';
-import { MultiplayerScreenView } from './multiplayer-screen-view';
 import { useDeadlineSettle } from './use-deadline-settle';
 import { useLowOnTime, useLowOnTimeWarning } from './use-low-on-time';
 import { useMultiplayerControls } from './use-multiplayer-controls';
@@ -188,7 +188,7 @@ function MatchStatus(props: Pick<ScreenProps, 'data'>): JSX.Element {
   );
 }
 
-/** Reads matchmaking for `MultiplayerScreenView`. */
+/** Reads matchmaking for `MatchmakingScreenView`. */
 function MultiplayerContent(props: ScreenProps): JSX.Element {
   const data = props.data;
   const controls = props.controls;
@@ -220,7 +220,7 @@ function MultiplayerContent(props: ScreenProps): JSX.Element {
       <Show when={data.game()}>
         {(game) => <LowOnTimeWarning game={game()} myId={data.myId()} />}
       </Show>
-      <MultiplayerScreenView
+      <MatchmakingScreenView
         title={props.title}
         goal={screen.goal()}
         stage={screen.stage()}
@@ -273,7 +273,7 @@ function MultiplayerContent(props: ScreenProps): JSX.Element {
   );
 }
 
-/** A game's Find an opponent screen: wires `MultiplayerScreenView` to matchmaking. */
+/** A game's Find an opponent screen: wires `MatchmakingScreenView` to matchmaking. */
 export default function MultiplayerScreen(props: {
   gameId: string;
   onBack: () => void;

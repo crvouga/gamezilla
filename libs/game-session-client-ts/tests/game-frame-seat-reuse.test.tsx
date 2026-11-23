@@ -1,12 +1,12 @@
 import { afterEach, expect, test } from 'bun:test';
 import {
+  CustomGameScreenView,
+  type CustomGameScreenViewProps,
+} from '@libs/game-session-client-ts/custom-game-screen-view';
+import {
   FRAME_NO_NEXT,
   FRAME_NO_PLAY,
 } from '@libs/game-session-client-ts/game-frame-empty';
-import {
-  GameFrameScreenView,
-  type GameFrameScreenViewProps,
-} from '@libs/game-session-client-ts/game-frame-screen-view';
 import { stableFrameTable } from '@libs/game-session-client-ts/game-frame-stable-table';
 import type {
   FramePlaySeat,
@@ -58,7 +58,7 @@ const RECORD: FrameRecord = {
 
 const resolved = async (): Promise<void> => undefined;
 
-function props(): GameFrameScreenViewProps {
+function props(): CustomGameScreenViewProps {
   return {
     title: 'Light Cycles Trio',
     phase: 'active',
@@ -99,7 +99,7 @@ function props(): GameFrameScreenViewProps {
     onReturnLive: () => undefined,
     onSelectRecord: () => undefined,
     onOpenHistory: () => undefined,
-    place: { screen: 'play' },
+    place: { screen: 'stage' },
     onOpen: () => undefined,
     onClose: () => undefined,
     overlay: NO_STAGE_OVERLAY,
@@ -138,7 +138,7 @@ test('wide: a position-only tick keeps every player strip; a changed figure upda
         colorScheme="dark"
         fixedLayout={{ width: 1440, height: 900 }}
       >
-        <GameFrameScreenView {...props()} table={table()} />
+        <CustomGameScreenView {...props()} table={table()} />
       </ThemeProvider>
     </ClockProvider>
   ));

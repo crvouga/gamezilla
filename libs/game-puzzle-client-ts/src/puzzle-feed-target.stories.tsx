@@ -1,6 +1,5 @@
 import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
-import { PuzzlePlayScreenView } from './puzzle-play-screen-view';
 import {
   PUZZLE_PLAY_STORY_ARGS,
   PUZZLE_PLAY_STORY_CONTROLS_EXCLUDE,
@@ -9,12 +8,13 @@ import {
   STORY_FEED_CONFIG,
   StoryPuzzleBoard,
 } from './puzzle-screen-story.example';
+import { PuzzleStageScreenView } from './puzzle-stage-screen-view';
 
 /** The feed's `feed-target` place: the rating the feed aims at. */
 const meta = {
-  id: 'screens-puzzles-play-feed-target',
-  title: 'Screens/Space/Puzzle feed/Play/Feed target',
-  component: PuzzlePlayScreenView,
+  id: 'screens-puzzles-home-target',
+  title: 'Screens/Space/Puzzles/Home target',
+  component: PuzzleStageScreenView,
   tags: ['autodocs'],
   render: (args, context) =>
     renderPuzzlePlayScene(args, context, StoryPuzzleBoard),
@@ -23,7 +23,7 @@ const meta = {
     controls: { exclude: [...PUZZLE_PLAY_STORY_CONTROLS_EXCLUDE] },
   },
   args: { ...PUZZLE_PLAY_STORY_ARGS, place: { screen: 'feed-target' } },
-} satisfies Meta<typeof PuzzlePlayScreenView>;
+} satisfies Meta<typeof PuzzleStageScreenView>;
 export default meta;
 type Story = StoryObj<typeof meta>;
 

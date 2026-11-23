@@ -374,8 +374,8 @@ test('every step is a screen of its own, holding only its own controls', () => {
     expect(root.getAttribute('data-draftid')).toBe('draft-1');
     expect(root.getAttribute('data-screen')).toBe(
       place.screen === 'builder'
-        ? 'puzzle-content-author'
-        : `puzzle-content-author-${place.screen}`
+        ? 'puzzle-pack-builder'
+        : `puzzle-pack-builder-${place.screen}`
     );
     // No disclosure and no tabs hide part of any builder screen.
     expect(document.querySelector('[aria-expanded]')).toBeNull();
@@ -539,7 +539,7 @@ for (const [size, name] of [
   test(`on ${name} nothing is pinned over the board or the publish screen`, () => {
     mount(() => builder({ place: { screen: 'board' } }), size);
     const board = document.querySelector(
-      '[data-screen="puzzle-content-author-board"]'
+      '[data-screen="puzzle-pack-builder-board"]'
     );
     expect(board?.contains(screen.getByTestId('content-author-stage'))).toBe(
       true
@@ -552,7 +552,7 @@ for (const [size, name] of [
     cleanup();
     mount(() => builder({ place: { screen: 'publish' } }), size);
     const scroller = document.querySelector(
-      '[data-screen="puzzle-content-author-publish"]'
+      '[data-screen="puzzle-pack-builder-publish"]'
     );
     expect(
       scroller?.contains(screen.getByTestId('content-author-publish'))

@@ -36,7 +36,7 @@ function stripProbe(text: string | null | undefined): string {
 // ----------------------------------------------------------- puzzle stats
 
 /** The History and stats hub, for a game keeping played games and puzzles. */
-const HISTORY_HUB_MARK = 'game-history-hub';
+const HISTORY_HUB_MARK = 'game-history-home';
 
 /** Whether one of the game's shared screens (custom games, …) is shown. */
 async function sharedScreenShown(

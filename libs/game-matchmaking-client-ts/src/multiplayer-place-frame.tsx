@@ -30,6 +30,11 @@ function placeMark(
   };
 }
 
+/** The screen id a place shows under: `matchmaking-<place>` (`matchmaking-home`, `matchmaking-stage`, …). */
+function placeScreenId(frame: Pick<MultiplayerPlaceFrame, 'place'>): string {
+  return `matchmaking-${frame.place.screen}`;
+}
+
 /** A hub or a choice: one titled column of rows under the notices. */
 export function MultiplayerMenuPlace(
   props: MultiplayerPlaceFrame & {
@@ -40,7 +45,7 @@ export function MultiplayerMenuPlace(
 ): JSX.Element {
   return (
     <EmbeddedScreen
-      screenId="multiplayer"
+      screenId={placeScreenId(props)}
       title={props.title}
       subtitle={props.subtitle}
       dataSet={placeMark(props)}
@@ -64,7 +69,7 @@ export function MultiplayerLobbyPlace(
 ): JSX.Element {
   return (
     <GameLobbyScreen
-      screenId="multiplayer"
+      screenId={placeScreenId(props)}
       dock={props.dock}
       dataSet={placeMark(props)}
     >
@@ -86,7 +91,7 @@ export function MultiplayerStagePlace(
 ): JSX.Element {
   return (
     <GameScreen
-      screenId="multiplayer"
+      screenId={placeScreenId(props)}
       title={props.title}
       facts={
         <GameFacts>

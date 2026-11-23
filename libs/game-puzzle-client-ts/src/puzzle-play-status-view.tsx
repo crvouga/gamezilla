@@ -14,7 +14,7 @@ import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Text } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Match, Show, Switch } from 'solid-js';
-import type { PuzzlePlayScreenViewProps } from './puzzle-play-screen-model';
+import type { PuzzleStageScreenViewProps } from './puzzle-play-screen-model';
 import { PuzzleSettingsRow } from './puzzle-settings-row';
 
 /**
@@ -58,7 +58,7 @@ function ExhaustedBody(props: { config: PuzzleFeedConfig }): JSX.Element {
  * The feed is exhausted. The one thing to do is to widen it when filters
  * narrow it, and to change its settings otherwise.
  */
-function ExhaustedState(props: PuzzlePlayScreenViewProps): JSX.Element {
+function ExhaustedState(props: PuzzleStageScreenViewProps): JSX.Element {
   const canWiden = (): boolean =>
     puzzleFeedHasNarrowingFilters(props.feed.saved);
   return (
@@ -83,7 +83,7 @@ function ExhaustedState(props: PuzzlePlayScreenViewProps): JSX.Element {
 }
 
 /** Why no puzzle is on the board, each state on its own. */
-function StatusState(props: PuzzlePlayScreenViewProps): JSX.Element {
+function StatusState(props: PuzzleStageScreenViewProps): JSX.Element {
   return (
     <Switch>
       <Match when={props.stage === 'loading'}>
@@ -127,11 +127,11 @@ function StatusState(props: PuzzlePlayScreenViewProps): JSX.Element {
  * also gets the row to the puzzle settings; a watcher has none to set.
  */
 export function PuzzlePlayStatusView(
-  props: PuzzlePlayScreenViewProps
+  props: PuzzleStageScreenViewProps
 ): JSX.Element {
   return (
     <EmbeddedScreen
-      screenId="chess-puzzle-status"
+      screenId="puzzle-stage-status"
       title={<Trans>Puzzles</Trans>}
     >
       <StackVertical gap="xl">

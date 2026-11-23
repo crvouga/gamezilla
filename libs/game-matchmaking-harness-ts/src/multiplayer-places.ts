@@ -12,9 +12,9 @@ import { Handles } from '@libs/test-ids-shared-ts/handles';
 /** The mark every place of finding an opponent carries: its stage and place. */
 export const MULTIPLAYER_SCREEN = 'multiplayer-screen';
 
-/** A place a person opens by a row; `find` is also where an idle screen opens. */
+/** A place a person opens by a row; `home` is where an idle screen opens. */
 export type MultiplayerOpenedPlace =
-  | 'find'
+  | 'home'
   | 'time-control'
   | 'ratings'
   | 'guide'
@@ -26,10 +26,10 @@ const HOME_OF: Readonly<Record<string, string>> = {
   loading: 'status',
   unavailable: 'status',
   denied: 'status',
-  idle: 'find',
+  idle: 'home',
   searching: 'searching',
   setup: 'private-setup',
-  playing: 'play',
+  playing: 'stage',
   finished: 'result',
 };
 
@@ -43,7 +43,7 @@ const HOME_OF: Readonly<Record<string, string>> = {
 const WAYS: Readonly<
   Record<MultiplayerOpenedPlace, readonly (readonly string[])[]>
 > = {
-  find: [['multiplayer-open-find']],
+  home: [['multiplayer-open-find']],
   'time-control': [
     ['multiplayer-open-time-control'],
     ['multiplayer-open-find', 'multiplayer-open-time-control'],
@@ -86,7 +86,7 @@ const KEPT: ReadonlySet<string> = new Set([
 export function multiplayerPlaceHolding(
   testId: string
 ): MultiplayerOpenedPlace | null {
-  if (HUB.has(testId)) return 'find';
+  if (HUB.has(testId)) return 'home';
   if (testId.startsWith('multiplayer-time-control-')) return 'time-control';
   if (testId === 'multiplayer-rating-change') return null;
   if (testId.startsWith('multiplayer-rating-')) return 'ratings';

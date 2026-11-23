@@ -1,12 +1,12 @@
 import { afterEach, expect, test } from 'bun:test';
 import {
+  CustomGameScreenView,
+  type CustomGameScreenViewProps,
+} from '@libs/game-session-client-ts/custom-game-screen-view';
+import {
   FRAME_NO_NEXT,
   FRAME_NO_PLAY,
 } from '@libs/game-session-client-ts/game-frame-empty';
-import {
-  GameFrameScreenView,
-  type GameFrameScreenViewProps,
-} from '@libs/game-session-client-ts/game-frame-screen-view';
 import type {
   FramePlaySeat,
   FrameRecord,
@@ -55,7 +55,7 @@ const RECORD: FrameRecord = {
 
 const resolved = async (): Promise<void> => undefined;
 
-function props(): GameFrameScreenViewProps {
+function props(): CustomGameScreenViewProps {
   return {
     title: 'Light Cycles Trio',
     phase: 'active',
@@ -96,7 +96,7 @@ function props(): GameFrameScreenViewProps {
     onReturnLive: () => undefined,
     onSelectRecord: () => undefined,
     onOpenHistory: () => undefined,
-    place: { screen: 'play' },
+    place: { screen: 'stage' },
     onOpen: () => undefined,
     onClose: () => undefined,
     overlay: NO_STAGE_OVERLAY,
@@ -112,7 +112,7 @@ function mountPhone(viewerSide: GameSide | null): void {
         colorScheme="dark"
         fixedLayout={{ width: 390, height: 844 }}
       >
-        <GameFrameScreenView {...props()} viewerSide={viewerSide} />
+        <CustomGameScreenView {...props()} viewerSide={viewerSide} />
       </ThemeProvider>
     </ClockProvider>
   ));

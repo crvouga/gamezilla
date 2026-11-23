@@ -12,6 +12,7 @@ import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import { type JSX, Show } from 'solid-js';
+import type { MultiplayerBoardSlot } from './matchmaking-screen-view';
 import type {
   MultiplayerGameCommands,
   MultiplayerGameView,
@@ -27,7 +28,6 @@ import {
   MultiplayerStagePlace,
 } from './multiplayer-place-frame';
 import type { MultiplayerPlace } from './multiplayer-places';
-import type { MultiplayerBoardSlot } from './multiplayer-screen-view';
 
 type ResultProps = MultiplayerPlaceFrame & {
   readonly title: string;
@@ -165,7 +165,7 @@ function Onward(props: ResultProps): JSX.Element {
           variant="ghost"
           intent="neutral"
           size="sm"
-          onClick={() => props.onOpen({ screen: 'find' })}
+          onClick={() => props.onOpen({ screen: 'home' })}
           dataSet={{ testid: 'multiplayer-open-find' }}
         />
       </Show>
@@ -196,7 +196,9 @@ export function MultiplayerResultView(props: ResultProps): JSX.Element {
         boardFocus
         actionsBeside
         fixedStage
-        status={
+        // The card lies over the stage's foot (heading the rail beside a
+        // wide board), so the final board keeps the live board's place.
+        sheet={
           <MultiplayerResultCard result={props.result}>
             <Onward {...props} />
           </MultiplayerResultCard>

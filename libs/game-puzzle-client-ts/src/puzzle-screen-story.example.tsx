@@ -28,10 +28,10 @@ import {
 } from './puzzle-places-story.example';
 import type {
   PuzzleLineModel,
-  PuzzlePlayScreenViewProps,
   PuzzleResultModel,
+  PuzzleStageScreenViewProps,
 } from './puzzle-play-screen-model';
-import { PuzzlePlayScreenView } from './puzzle-play-screen-view';
+import { PuzzleStageScreenView } from './puzzle-stage-screen-view';
 import type { PuzzleMoveWriting } from './use-puzzle-notation';
 
 /** The feed as a new player first sees it: automatic, unseen puzzles. */
@@ -316,17 +316,17 @@ export const PUZZLE_PLAY_STORY_CONTROLS_EXCLUDE = [
 ] as const;
 
 /** The play view's props, for a game's own puzzle stories. */
-export type PuzzlePlayStoryArgs = PuzzlePlayScreenViewProps;
+export type PuzzlePlayStoryArgs = PuzzleStageScreenViewProps;
 
 /**
  * The puzzle play screen for a game's own stories (chess draws its real
  * puzzle board in it), through this story-fixture module rather than the
  * framework's implementation.
  */
-export { PuzzlePlayScreenView, type PuzzlePlayScreenViewProps };
+export { PuzzleStageScreenView, type PuzzleStageScreenViewProps };
 
 /** The play view solving the line's first move, every callback a spy. */
-export const PUZZLE_PLAY_STORY_ARGS: PuzzlePlayScreenViewProps = {
+export const PUZZLE_PLAY_STORY_ARGS: PuzzleStageScreenViewProps = {
   stage: 'playing',
   place: { screen: 'play' },
   onOpen: fn(),
@@ -358,7 +358,7 @@ export const PUZZLE_PLAY_STORY_ARGS: PuzzlePlayScreenViewProps = {
 
 /** The play view walking its places, its slots filled from `scene`. */
 function StoryPuzzlePlay(props: {
-  readonly args: PuzzlePlayScreenViewProps;
+  readonly args: PuzzleStageScreenViewProps;
   readonly scene: PuzzleScene;
   readonly Board: (props: StoryPuzzleBoardProps) => JSX.Element;
 }): JSX.Element {
@@ -371,7 +371,7 @@ function StoryPuzzlePlay(props: {
   const feed = useStoryFeedSettings(() => props.args.feed, places.home);
   const Board = props.Board;
   return (
-    <PuzzlePlayScreenView
+    <PuzzleStageScreenView
       {...props.args}
       place={places.place()}
       onOpen={places.onOpen}
@@ -402,7 +402,7 @@ function StoryPuzzlePlay(props: {
  * walked on the real machine, from the story's `place` arg.
  */
 export function renderPuzzlePlayScene(
-  args: PuzzlePlayScreenViewProps,
+  args: PuzzleStageScreenViewProps,
   context: { readonly parameters: Record<string, unknown> },
   Board: (props: StoryPuzzleBoardProps) => JSX.Element
 ): JSX.Element {

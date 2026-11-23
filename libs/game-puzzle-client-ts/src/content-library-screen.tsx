@@ -19,12 +19,12 @@ import { createMemo, type JSX } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import { useContentGame, useContentPlace } from './content-game-context';
 import { useContentLibraryState } from './content-library-context';
+import { contentPlaceOf } from './content-places';
 import {
   type ContentLibraryAttempt,
   type ContentLibraryDraft,
-  ContentLibraryScreenView,
-} from './content-library-screen-view';
-import { contentPlaceOf } from './content-places';
+  PuzzlePacksHomeScreenView,
+} from './puzzle-packs-home-screen-view';
 import { useContentCreate } from './use-content-create';
 import { byContentId } from './use-content-pages';
 import { useDeniedView } from './use-denied-view';
@@ -208,7 +208,7 @@ export function ContentLibraryScreen(): JSX.Element {
   const openEdition = (revisionId: string): void =>
     game.open({ kind: 'edition', revisionId, packRevisionId: null });
   return (
-    <ContentLibraryScreenView
+    <PuzzlePacksHomeScreenView
       status={data.isLoading() ? 'loading' : 'ready'}
       place={contentPlaceOf('library', nav.place())}
       onOpen={nav.open}

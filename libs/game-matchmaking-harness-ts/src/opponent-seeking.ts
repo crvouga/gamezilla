@@ -227,7 +227,7 @@ async function seekFromFindingAnOpponent(
   // finished game's result.
   if (
     matchChoiceOf(timeControl)?.clock === null &&
-    (await openMultiplayerPlace(s, actor, 'find')) !== 'unreachable'
+    (await openMultiplayerPlace(s, actor, 'home')) !== 'unreachable'
   ) {
     await forgetMultiplayerReply(s, actor);
     await ui.get('multiplayer-find').tap();

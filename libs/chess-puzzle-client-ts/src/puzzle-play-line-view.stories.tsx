@@ -20,8 +20,8 @@ import {
  * the puzzle feed plays on (chess's).
  */
 const meta = {
-  id: 'screens-puzzles-play-line',
-  title: 'Screens/Space/Puzzle feed/Play/Line',
+  id: 'screens-puzzles-stage-line',
+  title: 'Screens/Space/Puzzles/Stage line',
   component: ChessPuzzleBoard,
   tags: ['autodocs'],
   decorators: [withScreenFrame, withChessPuzzleBoardContext],

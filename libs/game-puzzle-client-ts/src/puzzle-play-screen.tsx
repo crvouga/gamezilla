@@ -22,9 +22,9 @@ import {
   PuzzlePlaceBack,
   usePuzzlePlayPlaces,
 } from './puzzle-play-places-wiring';
-import { PuzzlePlayScreenView } from './puzzle-play-screen-view';
 import { PuzzleRecommendationLegend } from './puzzle-recommendation-legend';
 import { PuzzleResultAnnouncement } from './puzzle-result-announcement';
+import { PuzzleStageScreenView } from './puzzle-stage-screen-view';
 import { PuzzleTestLoadingStatus } from './puzzle-test-loading-status';
 import { PuzzleTestProbes } from './puzzle-test-probes';
 import { useDeniedView } from './use-denied-view';
@@ -171,7 +171,7 @@ function PuzzlePlayerChrome(props: {
   return (
     <>
       <PuzzlePlaceBack places={places} />
-      <PuzzlePlayScreenView
+      <PuzzleStageScreenView
         stage={stage()}
         place={places.nav.place()}
         onOpen={places.nav.open}
@@ -289,7 +289,7 @@ function PuzzlePlayShell(props: {
   return (
     <>
       <PuzzlePlaceBack places={places} />
-      <PuzzlePlayScreenView
+      <PuzzleStageScreenView
         stage={stage()}
         place={places.nav.place()}
         onOpen={places.nav.open}

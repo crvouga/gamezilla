@@ -13,7 +13,7 @@ async function open(page: Page, id: string, width: number): Promise<void> {
 test('storybook integration: the compact lobby keeps the production bottom tabs', async ({
   page,
 }) => {
-  await open(page, 'screens-spaces-lobby--populated', 390);
+  await open(page, 'screens-spaces-home--populated', 390);
   await expect(
     page.getByRole('navigation', { name: 'Navigation' })
   ).toBeVisible();
@@ -23,8 +23,8 @@ test('storybook integration: the compact lobby keeps the production bottom tabs'
 });
 
 for (const id of [
-  'screens-spaces-lobby--populated',
-  'screens-spaces-games--host-choosing',
+  'screens-spaces-home--populated',
+  'screens-space-home--host-choosing',
 ]) {
   test(`storybook integration: ${id} keeps the production desktop sidebar`, async ({
     page,
@@ -40,7 +40,7 @@ for (const id of [
   });
 }
 
-for (const id of ['screens-spaces-games--host-choosing']) {
+for (const id of ['screens-space-home--host-choosing']) {
   test(`storybook integration: ${id} has exactly one real compact space header`, async ({
     page,
   }) => {

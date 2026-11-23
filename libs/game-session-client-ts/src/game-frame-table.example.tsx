@@ -1,6 +1,6 @@
 /**
  * Story-only: a game's board inside the real game frame
- * (`GameFrameScreenView`), so every game's board stories show the screen a
+ * (`CustomGameScreenView`), so every game's board stories show the screen a
  * person plays on — the title and facts, the seats around the board, the
  * play actions, the record and the result — exactly as the frame's own
  * stories do. A game supplies only its presentation; the frame data is read

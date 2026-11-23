@@ -115,7 +115,7 @@ export type PuzzleResultModel = {
   readonly themes: readonly string[];
 };
 
-export type PuzzlePlayScreenViewProps = {
+export type PuzzleStageScreenViewProps = {
   /** Where the feed stands (`puzzlePlayStageOf`). */
   readonly stage: PuzzlePlayStage;
   /** The small screen shown, one the stage allows. */

@@ -56,3 +56,80 @@ export const StageCentred: StoryObj = {
     </ScreenExampleFrame>
   ),
 };
+
+/** One fixed stage, with what may come and go around its board. */
+function FixedStage(props: {
+  readonly notice?: boolean;
+  readonly sheet?: boolean;
+  readonly status?: boolean;
+}) {
+  return (
+    <ScreenExampleFrame>
+      <GameScreen screenId="example-fixed-stage" title="Two crates">
+        <GameSessionLayout
+          fixedStage
+          actionsBeside
+          boardFocus
+          notices={
+            props.notice === true ? (
+              <Surface tone="muted" padding="sm" testId="notices-probe">
+                <P>You are offline.</P>
+              </Surface>
+            ) : undefined
+          }
+          status={props.status === true ? <P>Your move.</P> : undefined}
+          sheet={
+            props.sheet === true ? (
+              <Surface tone="muted" padding="md" testId="sheet-probe">
+                <P>You win</P>
+              </Surface>
+            ) : undefined
+          }
+          actions={
+            <Surface tone="muted" padding="sm" testId="commands-probe">
+              <P>Offer draw · Resign</P>
+            </Surface>
+          }
+          aside={
+            <Surface tone="muted" padding="sm" testId="rail-probe">
+              <P>1. e4 e5 2. Nf3</P>
+            </Surface>
+          }
+          allMoves={{
+            label: 'All moves',
+            testId: 'all-moves-probe',
+            onPress: () => undefined,
+          }}
+        >
+          <Surface tone="muted" padding="lg" testId="stage-probe">
+            <P>Board</P>
+          </Surface>
+        </GameSessionLayout>
+      </GameScreen>
+    </ScreenExampleFrame>
+  );
+}
+
+/**
+ * `fixedStage`: every band around the board keeps its height, so nothing
+ * that comes or goes moves the board. The line of moves ends in `allMoves`.
+ */
+export const FixedStageQuiet: StoryObj = {
+  tags: ['viewport-responsive'],
+  parameters: { controls: { disable: true } },
+  render: () => <FixedStage status />,
+};
+
+/** A notice lies over the stage's top, not in its flow. */
+export const FixedStageNotice: StoryObj = {
+  tags: ['viewport-responsive'],
+  parameters: { controls: { disable: true } },
+  render: () => <FixedStage notice status />,
+};
+
+/** A finished game's `sheet` lies over the stage's foot, above the commands. */
+export const FixedStageSheet: StoryObj = {
+  tags: ['viewport-responsive'],
+  parameters: { controls: { disable: true } },
+  render: () => <FixedStage sheet />,
+};

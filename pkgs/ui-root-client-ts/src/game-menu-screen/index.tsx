@@ -264,7 +264,7 @@ function WideGameMenu(props: GameMenuScreenProps): JSX.Element {
  * @example
  * ```tsx
  * <GameMenuScreen
- *   screenId="game-choices"
+ *   screenId="game-home"
  *   title="Connect Four"
  *   motif="discs"
  *   subtitle="Drop discs and line up four"

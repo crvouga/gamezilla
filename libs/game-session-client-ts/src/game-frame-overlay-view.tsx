@@ -10,9 +10,9 @@ import {
 } from '@pkgs/ui-root-client-ts/game-stage-overlay';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { type JSX, Show } from 'solid-js';
+import type { FramePlaceProps } from './custom-game-screen-view';
 import { FrameHolderAvatar, FrameHolderName } from './game-frame-people';
 import { FrameResultView } from './game-frame-result-view';
-import type { FramePlaceProps } from './game-frame-screen-view';
 import type {
   FramePeople,
   FramePhase,

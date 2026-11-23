@@ -1,6 +1,7 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { type JSX, Show } from 'solid-js';
+import { Button } from '../button/index';
 import stageAlign from '../game-screen/game-stage-align.module.css';
 import { GameLayout } from '../game-screen/index';
 import { GameActions } from '../game-section/index';
@@ -60,6 +61,18 @@ export type GameSessionLayoutProps = {
    * `actionsBeside`. Wider windows are unchanged.
    */
   fixedStage?: boolean | undefined;
+  /**
+   * What lies over the foot of a fixed stage without moving anything: a
+   * finished game's outcome card. A phone lays it over the stage, right
+   * above the commands; a wide window keeps it heading the rail. Without
+   * `fixedStage` it simply leads the status.
+   */
+  sheet?: JSX.Element | undefined;
+  /**
+   * The way from a phone's one line of moves to all of them (`All moves`),
+   * at the line's end. A wide window shows every move beside the board.
+   */
+  allMoves?: GameSessionAllMoves | undefined;
   /** Where a narrower stage sits in a one-column layout. See `GameLayout`. */
   stageAlign?: 'start' | 'center' | undefined;
   /** After everything: a `GameWatchingFooter` for someone watching. */
@@ -67,13 +80,91 @@ export type GameSessionLayoutProps = {
   dataSet?: ComponentDataSet | undefined;
 };
 
-/** What is said about the game in play, then its commands. */
+/** The link from a phone's line of moves to every move. */
+export type GameSessionAllMoves = {
+  readonly label: JSX.Element;
+  readonly onPress: () => void;
+  /** Shipped as `data-testid`. */
+  readonly testId: string;
+};
+
+/**
+ * What is said about the game in play, then its commands. On a fixed stage
+ * the line has a band of its own, the same height empty or full, and the
+ * commands one row, so neither moves the board when it changes.
+ */
 function SessionControls(props: GameSessionLayoutProps): JSX.Element {
   return (
-    <>
-      {props.status}
+    <Show
+      when={props.fixedStage === true}
+      fallback={
+        <>
+          {props.sheet}
+          {props.status}
+          <GameActions>{props.actions}</GameActions>
+        </>
+      }
+    >
+      <Show when={props.sheet}>
+        <div
+          class={fixed['sheet']}
+          {...dataAttrs({ component: 'GameStageSheet' })}
+        >
+          {props.sheet}
+        </div>
+      </Show>
+      <div
+        class={fixed['status']}
+        {...dataAttrs({ component: 'GameStageStatus' })}
+      >
+        {props.status}
+      </div>
       <GameActions>{props.actions}</GameActions>
-    </>
+    </Show>
+  );
+}
+
+/**
+ * A fixed stage's line of moves: always there, so the first move never
+ * pushes the board, with the way to every move at its end.
+ */
+function StageStrip(props: GameSessionLayoutProps): JSX.Element {
+  return (
+    <div class={fixed['strip']} {...dataAttrs({ component: 'GameStageStrip' })}>
+      {props.aside}
+      <Show when={props.allMoves}>
+        {(all) => (
+          <span class={fixed['allMoves']}>
+            <Button
+              title={all().label}
+              variant="ghost"
+              intent="primary"
+              size="sm"
+              onClick={() => all().onPress()}
+              dataSet={{ testid: all().testId }}
+            />
+          </span>
+        )}
+      </Show>
+    </div>
+  );
+}
+
+/**
+ * A fixed stage's notices (the connection, a refused choice, a draw
+ * offered): laid over the top of the stage, never a row that pushes it.
+ */
+function StageNotices(props: { notices: JSX.Element }): JSX.Element {
+  const notices = createScreenSlot(() => props.notices);
+  return (
+    <Show when={notices.present()}>
+      <div
+        class={fixed['notices']}
+        {...dataAttrs({ component: 'GameStageNotices' })}
+      >
+        {notices.content()}
+      </div>
+    </Show>
   );
 }
 
@@ -106,7 +197,9 @@ export function GameSessionLayout(props: GameSessionLayoutProps): JSX.Element {
   const pinned = createScreenSlot(() => props.pinned);
   const outcome = createScreenSlot(() => props.outcome);
   const notices = createScreenSlot(() =>
-    props.stageAlign === 'center' ? props.notices : undefined
+    props.stageAlign === 'center' && props.fixedStage !== true
+      ? props.notices
+      : undefined
   );
   return (
     <div
@@ -135,9 +228,12 @@ export function GameSessionLayout(props: GameSessionLayoutProps): JSX.Element {
       </Show>
       {/* Only a centred stage wraps its notices, to centre them with it;
           the default layout keeps them as the session's own rows. */}
+      <Show when={props.fixedStage === true}>
+        <StageNotices notices={props.notices} />
+      </Show>
       <Show
         when={props.stageAlign === 'center' && notices.present()}
-        fallback={props.notices}
+        fallback={props.fixedStage === true ? undefined : props.notices}
       >
         <div
           class={`box gap-4 min-w-0 ${stageAlign['intro'] ?? ''}`}
@@ -153,7 +249,9 @@ export function GameSessionLayout(props: GameSessionLayoutProps): JSX.Element {
             <SessionControls {...props} />
           </Show>
         }
-        aside={props.aside}
+        aside={
+          props.fixedStage === true ? <StageStrip {...props} /> : props.aside
+        }
         stagePreview={props.boardPreview}
         arena={props.arena}
         workspace={props.workspace}

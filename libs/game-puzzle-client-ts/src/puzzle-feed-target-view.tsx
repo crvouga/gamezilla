@@ -19,13 +19,13 @@ import { NumberStepper } from '@pkgs/ui-root-client-ts/number-stepper';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Show } from 'solid-js';
-import type { PuzzlePlayScreenViewProps } from './puzzle-play-screen-model';
+import type { PuzzleStageScreenViewProps } from './puzzle-play-screen-model';
 
 /** The custom target moves in steps of this many rating points. */
 const CUSTOM_RATING_STEP = 50;
 
 /** How the target is found: from the player's rating, or fixed. */
-function TargetMode(props: PuzzlePlayScreenViewProps): JSX.Element {
+function TargetMode(props: PuzzleStageScreenViewProps): JSX.Element {
   const rating = (): string =>
     props.feed.profileRating > 0 ? String(props.feed.profileRating) : '—';
   const choose = (mode: PuzzleFeedMode): void => props.feed.onChange({ mode });
@@ -55,7 +55,7 @@ function TargetMode(props: PuzzlePlayScreenViewProps): JSX.Element {
  * The stepper of the chosen mode. Each branch is its own `<Show>` child, so
  * changing the mode swaps the stepper live.
  */
-function TargetStepper(props: PuzzlePlayScreenViewProps): JSX.Element {
+function TargetStepper(props: PuzzleStageScreenViewProps): JSX.Element {
   return (
     <Show
       when={props.feed.draft.mode === 'auto'}
@@ -101,11 +101,11 @@ function TargetStepper(props: PuzzlePlayScreenViewProps): JSX.Element {
  * choice goes to the draft the settings save.
  */
 export function PuzzleFeedTargetView(
-  props: PuzzlePlayScreenViewProps
+  props: PuzzleStageScreenViewProps
 ): JSX.Element {
   return (
     <EmbeddedScreen
-      screenId="chess-puzzle-feed-target"
+      screenId="puzzles-home-target"
       title={<Trans>Target rating</Trans>}
     >
       <StackVertical gap="xl">

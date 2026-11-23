@@ -8,7 +8,7 @@ import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { For, type JSX } from 'solid-js';
-import type { PuzzlePlayScreenViewProps } from './puzzle-play-screen-model';
+import type { PuzzleStageScreenViewProps } from './puzzle-play-screen-model';
 
 type Choice<Key extends string> = {
   readonly key: Key;
@@ -87,11 +87,11 @@ function ChoiceRows<Key extends string>(props: {
  * the player has played them. Choosing one sets the draft and returns.
  */
 export function PuzzleFeedHistoryView(
-  props: PuzzlePlayScreenViewProps
+  props: PuzzleStageScreenViewProps
 ): JSX.Element {
   return (
     <EmbeddedScreen
-      screenId="chess-puzzle-feed-history"
+      screenId="puzzles-home-history"
       title={<Trans>Play history</Trans>}
     >
       <ChoiceRows
@@ -112,11 +112,11 @@ export function PuzzleFeedHistoryView(
  * the draft and returns.
  */
 export function PuzzleFeedAdvanceView(
-  props: PuzzlePlayScreenViewProps
+  props: PuzzleStageScreenViewProps
 ): JSX.Element {
   return (
     <EmbeddedScreen
-      screenId="chess-puzzle-feed-advance"
+      screenId="puzzles-home-advance"
       title={<Trans>After solving</Trans>}
     >
       <ChoiceRows

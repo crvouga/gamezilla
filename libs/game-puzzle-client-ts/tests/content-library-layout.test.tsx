@@ -6,9 +6,9 @@
 
 import { afterEach, expect, test } from 'bun:test';
 import {
-  ContentLibraryScreenView,
-  type ContentLibraryScreenViewProps,
-} from '@libs/game-puzzle-client-ts/content-library-screen-view';
+  PuzzlePacksHomeScreenView,
+  type PuzzlePacksHomeScreenViewProps,
+} from '@libs/game-puzzle-client-ts/puzzle-packs-home-screen-view';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { KeyRoundIcon } from '@pkgs/ui-root-client-ts/icons';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
@@ -27,7 +27,7 @@ const PUBLISHED_PUZZLE = {
   difficulty: 'Easy',
 } as const;
 
-const VIEW: ContentLibraryScreenViewProps = {
+const VIEW: PuzzlePacksHomeScreenViewProps = {
   status: 'ready',
   place: { screen: 'library' },
   onOpen: none,
@@ -68,12 +68,12 @@ const VIEW: ContentLibraryScreenViewProps = {
   onMorePublished: none,
 };
 
-type Screen = ContentLibraryScreenViewProps['place']['screen'];
+type Screen = PuzzlePacksHomeScreenViewProps['place']['screen'];
 
 /** The library on one of its small screens. */
 function renderPlace(
   place: Screen,
-  view: Partial<ContentLibraryScreenViewProps> = {}
+  view: Partial<PuzzlePacksHomeScreenViewProps> = {}
 ): void {
   renderLibrary({ ...VIEW, ...view, place: { screen: place } });
 }
@@ -116,7 +116,7 @@ test('each list is a screen of its own: one list, its note said once', () => {
       document
         .querySelector('[data-component="EmbeddedScreen"]')
         ?.getAttribute('data-screen')
-    ).toBe(`puzzle-content-library-${place}`);
+    ).toBe(`puzzle-packs-home-${place}`);
     cleanup();
   }
   renderPlace('continue');
@@ -171,7 +171,7 @@ test('every list has its own empty state with a next action', () => {
     attempts: [],
     playtests: [],
     published: [],
-    onOpen: (place: ContentLibraryScreenViewProps['place']) =>
+    onOpen: (place: PuzzlePacksHomeScreenViewProps['place']) =>
       opened.push(place.screen),
   };
   const states: Record<(typeof LISTS)[number], [string, string, Screen]> = {
@@ -281,7 +281,7 @@ test('the hub leads with Continue, counts each list, and creates from rows', () 
     document
       .querySelector('[data-component="EmbeddedScreen"]')
       ?.getAttribute('data-screen')
-  ).toBe('puzzle-content-library');
+  ).toBe('puzzle-packs-home');
   for (const list of ['continue', 'solved', 'browse', 'mine', 'playtests'])
     fireEvent.click(screen.getByTestId(`content-library-tab-${list}`));
   expect(opened).toEqual(['continue', 'solved', 'browse', 'mine', 'playtests']);
@@ -393,13 +393,13 @@ test("every library card leads with its picture, a pack's stacked", () => {
   expect(thumbnails[1]?.getAttribute('data-stacked')).toBe('true');
 });
 
-function renderLibrary(view: ContentLibraryScreenViewProps): void {
+function renderLibrary(view: PuzzlePacksHomeScreenViewProps): void {
   renderWithI18n(() => (
     <ThemeProvider
       colorScheme="light"
       fixedLayout={{ width: 390, height: 844 }}
     >
-      <ContentLibraryScreenView {...view} />
+      <PuzzlePacksHomeScreenView {...view} />
     </ThemeProvider>
   ));
 }
@@ -416,7 +416,7 @@ function chip(row: HTMLElement, testId: string): HTMLElement {
 // row now leads with a picture of its board, and kind, difficulty and
 // status are chips of three distinct looks.
 test('rows lead with their board and keep kind, difficulty and status apart', () => {
-  const view: Partial<ContentLibraryScreenViewProps> = {
+  const view: Partial<PuzzlePacksHomeScreenViewProps> = {
     published: [
       {
         id: 'revision-1',
@@ -479,7 +479,7 @@ test('rows lead with their board and keep kind, difficulty and status apart', ()
 // shows the puzzle's difficulty and, for a pack or a puzzle started in
 // one, how much of the pack is solved; titles wrap instead of being cut.
 test('cards say difficulty and pack progress, and titles are never cut short', () => {
-  const view: Partial<ContentLibraryScreenViewProps> = {
+  const view: Partial<PuzzlePacksHomeScreenViewProps> = {
     attempts: [
       {
         id: 'attempt-1',
@@ -577,7 +577,7 @@ function renderWide(place: Screen): void {
       colorScheme="dark"
       fixedLayout={{ width: 1440, height: 900 }}
     >
-      <ContentLibraryScreenView {...VIEW} place={{ screen: place }} />
+      <PuzzlePacksHomeScreenView {...VIEW} place={{ screen: place }} />
     </ThemeProvider>
   ));
 }

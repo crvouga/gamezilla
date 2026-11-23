@@ -132,7 +132,7 @@ test('storybook integration: native banner Controls update the portal and visibi
 // phone the strip hid the Sokoban board. Publishing is now a screen of its
 // own: nothing is ever pinned over the board's.
 for (const story of [
-  'screens-puzzles-content-author-board--pack',
+  'screens-puzzle-packs-builder-board--pack',
   'screens-games-sokoban-editor--two-crates',
 ])
   for (const size of [
@@ -185,7 +185,7 @@ async function builderPhoneFirstScreen(page: Page) {
 // fold and the steps read out of order. The board is now a screen of its
 // own, reached from the builder's hub of steps.
 for (const story of [
-  'screens-puzzles-content-author-board--pack',
+  'screens-puzzle-packs-builder-board--pack',
   'screens-games-sokoban-editor--two-crates',
 ])
   test(`storybook integration: ${story} on a phone shows its first row in the board's first screen`, async ({
@@ -244,7 +244,7 @@ test('storybook integration: pack 390 and Sokoban 1200 controls remain reachable
   page,
 }) => {
   for (const [story, width, height] of [
-    ['screens-puzzles-content-author-board--pack', 390, 791],
+    ['screens-puzzle-packs-builder-board--pack', 390, 791],
     ['screens-games-sokoban-editor--two-crates', 1200, 884],
   ] as const) {
     await page.setViewportSize({ width, height });

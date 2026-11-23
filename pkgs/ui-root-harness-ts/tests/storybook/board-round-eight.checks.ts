@@ -44,8 +44,8 @@ test('screens-games-word-tiles-board--assign-a-blank regression word-tiles-deskt
 });
 
 // regression: shared-frame-draw-board-below-bound
-test('screens-games-frame-geometry--drawn regression shared-frame-draw-board-below-bound', async ({
+test('screens-custom-games-stage-board-priority--drawn regression shared-frame-draw-board-below-bound', async ({
   page,
 }) => {
-  await verify(page, 'screens-games-frame-geometry--drawn', 390);
+  await verify(page, 'screens-custom-games-stage-board-priority--drawn', 390);
 });

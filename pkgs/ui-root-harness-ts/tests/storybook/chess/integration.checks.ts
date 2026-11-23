@@ -20,7 +20,7 @@ test('storybook integration: chess tablet recovery keeps every square anchored',
   await page.setViewportSize({ width: 768, height: 900 });
   await openChessStory(
     page,
-    'screens-puzzles-chess-play--wrong-move-recovery',
+    'screens-games-chess-puzzle--wrong-move-recovery',
     'light'
   );
   await captureChessState(page, info, 'tablet-recovery');
@@ -35,7 +35,7 @@ test('storybook integration: chess puzzle 320x640 Retry brings the whole board b
   // unclipped by the scrolling screen after it.
   await openChessStory(
     page,
-    'screens-puzzles-chess-play--wrong-move-recovery',
+    'screens-games-chess-puzzle--wrong-move-recovery',
     'light'
   );
   const board = await page
@@ -50,7 +50,7 @@ test('storybook integration: chess puzzle 844x390 shows every square beside its 
   page,
 }) => {
   await page.setViewportSize({ width: 844, height: 390 });
-  await openChessStory(page, 'screens-puzzles-chess-play--solving', 'light');
+  await openChessStory(page, 'screens-games-chess-puzzle--solving', 'light');
   const board = await page
     .locator('[data-component="ChessBoard"]')
     .boundingBox();
@@ -76,7 +76,7 @@ test('storybook integration: chess puzzle 844x390 opens keyboard help with every
   // The story opens Keyboard controls and asserts every square stays in view.
   await openChessStory(
     page,
-    'screens-puzzles-chess-play--keyboard-help',
+    'screens-games-chess-puzzle--keyboard-help',
     'light'
   );
   const summary = await page.getByText('Keyboard controls').boundingBox();
@@ -89,7 +89,7 @@ test('storybook integration: chess puzzle 768x900 keeps Hint and Skip in the fir
   page,
 }) => {
   await page.setViewportSize({ width: 768, height: 900 });
-  await openChessStory(page, 'screens-puzzles-chess-play--solving', 'light');
+  await openChessStory(page, 'screens-games-chess-puzzle--solving', 'light');
   for (const name of [/^Hint/, /^Skip puzzle/]) {
     const action = await page.getByRole('button', { name }).boundingBox();
     if (!action) throw new Error(`Missing action ${String(name)}`);
@@ -149,9 +149,9 @@ const states = [
   'screens-games-chess-board--in-check',
   'screens-games-chess-board--checkmated',
   'screens-games-chess-board--promotion-choice',
-  'screens-puzzles-chess-play--solving',
-  'screens-puzzles-chess-play--solve-journey',
-  'screens-puzzles-chess-play--wrong-move-recovery',
+  'screens-games-chess-puzzle--solving',
+  'screens-games-chess-puzzle--solve-journey',
+  'screens-games-chess-puzzle--wrong-move-recovery',
   'screens-games-chess-board--opening',
   'screens-games-chess-board--early-game',
   'screens-games-chess-board--stalemate',
@@ -159,9 +159,9 @@ const states = [
   'screens-games-chess-board--timed',
   'screens-games-chess-board--move-waiting',
   'screens-games-chess-board--connection-needed',
-  'screens-puzzles-chess-play--hint',
-  'screens-puzzles-chess-play--solution-shown',
-  'screens-puzzles-chess-play--keyboard-help',
+  'screens-games-chess-puzzle--hint',
+  'screens-games-chess-puzzle--solution-shown',
+  'screens-games-chess-puzzle--keyboard-help',
   'product-chessboard--black-orientation',
   'product-chessboard--read-only',
   'product-chessboard--endgame',

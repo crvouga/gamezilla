@@ -109,7 +109,7 @@ describe('the lobby', () => {
     const opened: CustomGamePlace[] = [];
     mountFrame(() =>
       setupProps(
-        { screen: 'lobby' },
+        { screen: 'setup' },
         {
           onOpen: (place) => opened.push(place),
           setup: hostSetup({
@@ -134,7 +134,7 @@ describe('the lobby', () => {
   test('the lobby opens with what is played and keeps its one command in a dock', () => {
     mountFrame(() =>
       setupProps(
-        { screen: 'lobby' },
+        { screen: 'setup' },
         { goal: 'Count to ten before the other side does.' }
       )
     );
@@ -162,7 +162,7 @@ describe('the lobby', () => {
     const opened: CustomGamePlace[] = [];
     mountFrame(() =>
       setupProps(
-        { screen: 'lobby' },
+        { screen: 'setup' },
         {
           onOpen: (place) => opened.push(place),
           setup: hostSetup({
@@ -255,7 +255,7 @@ describe('the lobby', () => {
     cleanup();
     mountFrame(() =>
       setupProps(
-        { screen: 'lobby' },
+        { screen: 'setup' },
         {
           setup: hostSetup({
             start: {
@@ -283,7 +283,7 @@ describe('the lobby', () => {
     const opened: CustomGamePlace[] = [];
     mountFrame(() =>
       setupProps(
-        { screen: 'lobby' },
+        { screen: 'setup' },
         {
           onOpen: (place) => opened.push(place),
           setup: hostSetup({
@@ -310,7 +310,7 @@ describe('the lobby', () => {
     const chosen: unknown[] = [];
     mountFrame(() =>
       setupProps(
-        { screen: 'lobby' },
+        { screen: 'setup' },
         {
           viewerSide: null,
           play: FRAME_NO_PLAY,
@@ -365,7 +365,7 @@ describe('the lobby', () => {
       { screen: 'options' },
       { screen: 'clock' },
       { screen: 'private-setup' },
-      { screen: 'play' },
+      { screen: 'stage' },
     ] as const) {
       mountFrame(() => setupProps(place));
       expect(shown('custom-game-startable')).toBe(true);
@@ -503,7 +503,7 @@ describe('the confirmation', () => {
               onChoose: choose,
             })
           : setupProps(
-              { screen: 'lobby' },
+              { screen: 'setup' },
               { phase: phase(), onChoose: choose }
             )
       );

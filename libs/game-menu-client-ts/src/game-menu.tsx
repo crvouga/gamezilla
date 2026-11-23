@@ -20,9 +20,9 @@ import type { JSX } from 'solid-js';
 import { createEffect, createMemo, Show, untrack } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import type { GameClient } from './game-client';
+import { GameHomeScreenView } from './game-home-screen-view';
 import { gameChoices, type Offers, sharedScreens } from './game-menu-choices';
 import { GAME_MENU_PLACES } from './game-menu-places';
-import { GameMenuScreenView } from './game-menu-screen-view';
 import { SHARED_GAME_SCREEN } from './shared-game-screens';
 
 function GameChoices(props: {
@@ -49,9 +49,9 @@ function GameChoices(props: {
         onPress={() => {
           if (!nav.back()) props.onBackToGames();
         }}
-        label={nav.place().screen === 'menu' ? t`Games` : props.game.title}
+        label={nav.place().screen === 'home' ? t`Games` : props.game.title}
       />
-      <GameMenuScreenView
+      <GameHomeScreenView
         title={props.game.title}
         tile={props.game.tile}
         subtitle={<Dynamic component={props.game.subtitle} />}
@@ -88,8 +88,8 @@ function useOpenLinkedMultiplayer(
     if (params()[LINKED_MULTIPLAYER_PARAM] === undefined) return;
     if (!offered() || !isHost() || opened) return;
     opened = true;
-    if (untrack(navigation.screen) !== SHARED_GAME_SCREEN.matchmaking)
-      navigation.show(SHARED_GAME_SCREEN.matchmaking);
+    if (untrack(navigation.screen) !== SHARED_GAME_SCREEN.matchmakingHome)
+      navigation.show(SHARED_GAME_SCREEN.matchmakingHome);
   });
 }
 

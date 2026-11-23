@@ -4,8 +4,8 @@ import { LeaveSpaceConfirmModal } from './leave-space-confirm-modal';
 import { withSpaceScreenBehind } from './space-screen-behind.example';
 
 const meta = {
-  id: 'screens-spaces-leave-confirm',
-  title: 'Screens/Space/Enter and leave/Leave',
+  id: 'screens-space-leave',
+  title: 'Screens/Space/Enter and leave/Leave space',
   component: LeaveSpaceConfirmModal,
   tags: ['autodocs'],
   decorators: [withSpaceScreenBehind],
