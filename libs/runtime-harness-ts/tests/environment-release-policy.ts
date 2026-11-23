@@ -19,7 +19,6 @@ export async function readReleasePolicy(): Promise<ReleasePolicy> {
   ).text();
   const workspace = `${ROOT}/libs/tools-harness-ts/workspace`;
   const preparation = await Bun.file(`${workspace}/setup.sh`).text();
-  const helpers = await Bun.file(`${workspace}/lib.sh`).text();
   const opening = await Bun.file(`${workspace}/prepare.sh`).text();
   const deploy = Bun.YAML.parse(deployText) as {
     concurrency: { 'cancel-in-progress': boolean };
@@ -30,8 +29,8 @@ export async function readReleasePolicy(): Promise<ReleasePolicy> {
   };
   const replacement = check.concurrency['cancel-in-progress'];
   const reportsFailure =
-    preparation.includes('workspace_quiet "mise install" workspace_system') &&
-    helpers.includes('!!! $label failed (exit $status)');
+    preparation.includes('if ! workspace_system; then') &&
+    preparation.includes('!!! mise install failed');
   // Opening a workspace is prepare.sh's contract. Run may repair dependencies
   // later without making a failed preparation close the editor environment.
   const openingHandlesFailure =
