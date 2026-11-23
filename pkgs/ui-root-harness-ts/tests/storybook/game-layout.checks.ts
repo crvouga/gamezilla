@@ -130,7 +130,7 @@ for (const width of [390, 1440]) {
   test(`storybook integration: finished Light Cycles offers next steps without steering advice at ${width}`, async ({
     page,
   }) => {
-    await openGame(page, 'screens-games-light-cycles-arena--finished', width);
+    await openGame(page, 'screens-games-light-cycles-stage--finished', width);
     await expect(
       page.getByRole('heading', { name: 'jordan_plays wins', exact: true })
     ).toBeVisible();
@@ -167,7 +167,7 @@ test('storybook integration: literal Quoridor wall tools fit their board workspa
 test('storybook integration: literal finished Light Cycles keeps next steps without steering', async ({
   page,
 }) => {
-  await openGame(page, 'screens-games-light-cycles-arena--finished', 390);
+  await openGame(page, 'screens-games-light-cycles-stage--finished', 390);
   await expect(
     page.getByRole('heading', { name: 'jordan_plays wins', exact: true })
   ).toBeVisible();

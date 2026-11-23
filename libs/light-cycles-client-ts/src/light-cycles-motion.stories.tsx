@@ -57,8 +57,8 @@ function renderMotion(
 }
 
 const meta = {
-  id: 'screens-games-light-cycles-motion',
-  title: 'Screens/Space/Boards/Light Cycles/Sustained motion',
+  id: 'screens-games-light-cycles-stage-motion',
+  title: 'Screens/Space/Boards/Light Cycles/Stage sustained motion',
   component: LightCyclesBoardView,
   render: (args, context) => renderMotion(2, args, context),
   parameters: {

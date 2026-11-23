@@ -206,6 +206,7 @@ function tableStatus(props: TableProps): FrameStatus {
     sending: props.sending === true || props.connection === 'waiting',
     minutes: props.timed?.minutes ?? 0,
     increment: props.timed?.increment ?? 0,
+    target: props.presentation.frame.target?.(props.board.position),
   };
 }
 
@@ -242,6 +243,12 @@ function tableResult(
       readiness: null,
     })),
   };
+}
+
+function withLine(status: FrameStatus, line: string | null): FrameStatus {
+  return line === null
+    ? status
+    : { ...status, description: line, plainTurn: false };
 }
 
 /** The moves so far, each behind the swatch of the seat that made it. */
@@ -310,7 +317,12 @@ function GameFrameTable(props: TableProps): JSX.Element {
       // Opened as the app opens a game: one already over under its result.
       overlay={stageOverlayOpening(over() ? 'over' : 'play')}
       viewerSide={viewer()}
-      status={tableStatus(props)}
+      // The board's own words about live play take the line, as the app's
+      // frame shows them (`useBoardLineStatus`).
+      status={withLine(
+        tableStatus(props),
+        over() ? null : (session.line?.() ?? null)
+      )}
       table={{
         shape: tableShape(props),
         named: props.presentation.frame.boardNames === true,

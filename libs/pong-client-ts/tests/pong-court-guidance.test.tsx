@@ -184,12 +184,12 @@ test('reconnecting says so once on the court, and the caption says what it means
 
 // regression: pong-two-players-sides-unnamed — two players on one device
 // were "Left player" and "Right player" beside a Players card naming them.
-test('two players on one device are named on the scoreboard', () => {
+// The stage's seats name them; the court names nobody.
+test('two players on one device are not renamed on the court', () => {
   const view = mount({ sides: ['white', 'black'] });
-  const board = view.getByTestId('pong-scoreboard');
-  expect(board.textContent).toContain('avery');
-  expect(board.textContent).toContain('jordan_plays');
-  expect(board.textContent).not.toContain('Left player');
+  expect(view.queryByTestId('pong-scoreboard')).toBeNull();
+  expect(view.queryByText('Left player')).toBeNull();
+  expect(view.queryByText('Right player')).toBeNull();
 });
 
 // regression: pong-unreadable-resign-unexplained — Resign stayed beside

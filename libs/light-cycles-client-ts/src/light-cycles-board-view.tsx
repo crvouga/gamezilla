@@ -7,7 +7,6 @@ import type {
   GameSimulationControls,
 } from '@pkgs/turn-game-shared-ts/game-presentation';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
-import { Button } from '@pkgs/ui-root-client-ts/button';
 import { DirectionPad } from '@pkgs/ui-root-client-ts/direction-pad';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
@@ -88,9 +87,10 @@ function Scores(props: { state: LightCyclesState; testId: string }) {
 }
 
 /**
- * How to steer, in one line under the arena: by keys on a wide screen
- * (keyboard first, so no pad is drawn there), by swipe or the pad beside it
- * on a phone. It also describes the arena to a listener.
+ * How to steer, for a listener: by keys on a wide screen (keyboard first,
+ * so no pad is drawn there), by swipe or the pad under the arena on a
+ * phone. The eye reads it in the stage's one line; nothing is written
+ * around the arena, so nothing there can move it.
  */
 function SteeringHint(props: {
   id: string;
@@ -98,7 +98,7 @@ function SteeringHint(props: {
 }): JSX.Element {
   const mode = useLayoutMode();
   return (
-    <P id={props.id} variant="caption" tone="secondary">
+    <VisuallyHidden id={props.id}>
       <Show
         when={mode() === 'wide'}
         fallback={
@@ -136,24 +136,38 @@ function SteeringHint(props: {
           </Trans>
         </Show>
       </Show>
-    </P>
+    </VisuallyHidden>
   );
 }
 
+/**
+ * A phone's thumb pad per rider this device steers, under the arena. A
+ * rider that cannot steer now (crashed, between rounds, away) keeps its
+ * pad's room with nothing in it, and a device that steers no rider keeps
+ * one pad's room, so the arena above never moves as the game goes on.
+ */
 function Pads(props: {
   state: LightCyclesState;
   board: GameBoardProps;
   steerable: (side: GameSide) => boolean;
 }): JSX.Element {
   const mode = useLayoutMode();
+  const sides = () => [...(props.board.simulation?.sides ?? [])].reverse();
   return (
     <Show when={mode() !== 'wide'}>
       <StackHorizontal gap="lg" justify="center" wrap>
-        <For
-          each={(props.board.simulation?.sides ?? [])
-            .filter(props.steerable)
-            .reverse()}
-        >
+        <Show when={sides().length === 0}>
+          <DirectionPad
+            size="sm"
+            layout="arrows"
+            concealed
+            labels={{ up: '', right: '', down: '', left: '' }}
+            disabled
+            onDirection={() => undefined}
+            testId={`${props.board.testId}-idle-pad`}
+          />
+        </Show>
+        <For each={sides()}>
           {(side) => (
             <StackVertical gap="xs" align="center">
               {/* One pad is the person's own rider, named above the arena;
@@ -173,6 +187,7 @@ function Pads(props: {
                   left: t`Steer ${riderName(side)} left`,
                 }}
                 disabled={!props.steerable(side)}
+                concealed={!props.steerable(side)}
                 onDirection={(heading) =>
                   steer(props.board.simulation, props.state, side, heading)
                 }
@@ -216,32 +231,36 @@ function Arena(props: {
           {arenaDescription(props.state, controlled())}
         </P>
       </VisuallyHidden>
-      <P
-        id={statusId}
-        role="status"
-        testId={`${props.board.testId}-status`}
-        dataSet={{ steering: ownSteering() }}
-      >
-        <Show
-          when={
-            props.state.phase === 'round-over' ||
-            props.state.phase === 'completed'
-          }
-          fallback={
-            controlled().length > 1
-              ? controlled()
-                  .map((side) => steeringText(steering(side), side))
-                  .join(' ')
-              : steeringText(ownSteering(), primary())
-          }
+      {/* The eye reads the round, who it rides and a round's result in the
+          stage's one line (the board session's `line`); a listener hears
+          them here. */}
+      <VisuallyHidden>
+        <P
+          id={statusId}
+          role="status"
+          testId={`${props.board.testId}-status`}
+          dataSet={{ steering: ownSteering() }}
         >
-          <Text variant="bodyBold" testId={`${props.board.testId}-result`}>
-            {arenaOverlay(props.state)?.title}
-          </Text>{' '}
-          <Text variant="caption">{arenaOverlay(props.state)?.detail}</Text>
-        </Show>
-      </P>
-      <RideHere board={props.board} shown={ownSteering() === 'elsewhere'} />
+          <Show
+            when={
+              props.state.phase === 'round-over' ||
+              props.state.phase === 'completed'
+            }
+            fallback={
+              controlled().length > 1
+                ? controlled()
+                    .map((side) => steeringText(steering(side), side))
+                    .join(' ')
+                : steeringText(ownSteering(), primary())
+            }
+          >
+            <Text variant="bodyBold" testId={`${props.board.testId}-result`}>
+              {arenaOverlay(props.state)?.title}
+            </Text>{' '}
+            <Text variant="caption">{arenaOverlay(props.state)?.detail}</Text>
+          </Show>
+        </P>
+      </VisuallyHidden>
       <TrailArena
         touchRegions={
           controlled().length === 2 && controlled().some(steerable)
@@ -277,7 +296,7 @@ function Arena(props: {
         testId={`${props.board.testId}-arena`}
       />
       {/* A phone's thumb pad sits right under the arena, where the thumb
-          is, then how to steer. */}
+          is. */}
       <Pads state={props.state} board={props.board} steerable={steerable} />
       <Show when={canSteerHere()}>
         <SteeringHint id={instructionsId} sides={controlled()} />
@@ -286,29 +305,12 @@ function Arena(props: {
   );
 }
 
-/** On a person's other device: steer their rider from this one instead. */
-function RideHere(props: {
-  board: GameBoardProps;
-  shown: boolean;
-}): JSX.Element {
-  return (
-    <Show when={props.shown ? props.board.simulation?.claim : undefined}>
-      {(claim) => (
-        <Button
-          title={<Trans>Ride from this device</Trans>}
-          variant="outline"
-          onClick={() => claim()()}
-          dataSet={{ testid: `${props.board.testId}-ride-here` }}
-        />
-      )}
-    </Show>
-  );
-}
-
 /**
- * The Light Cycles arena as a person sees it: the round's scores, their own
- * steering status, the arena with every trail and crash, and a direction
- * pad per rider this device steers. Everything comes from the position and
+ * The Light Cycles arena as a person sees it: the arena with every trail
+ * and crash, the round's count over it, and under it a direction pad per
+ * rider this device steers. The stage around it names the riders with
+ * their round wins and says the round, who rides and a round's result in
+ * its one line; a listener hears the scores and their own steering here. Everything comes from the position and
  * the simulation controls; `LightCyclesBoard` adds the sounds.
  */
 export function LightCyclesBoardView(props: GameBoardProps): JSX.Element {

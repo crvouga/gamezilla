@@ -17,7 +17,7 @@ Pong owns `libs/pong-*`, the `paddle-court` design-system slice, and uniquely na
 | Resize during play | Phone portrait/landscape, tablet, desktop; narrow and short viewport | Automated geometry, keyboard focus, accessibility and resizing checks |
 | Respond promptly | Repeated input during rally; normal and throttled mobile CPU | Measured input-to-paint, frame intervals and long tasks, with environment and limitations |
 
-Existing screen stories use `screens-games-pong-court--*`; their deterministic mechanics and production table composition are reused. Storybook evidence cannot establish live transport or persistence: the running-app journey and owning network harness remain separate requirements.
+Existing screen stories use `screens-games-pong-stage--*`; their deterministic mechanics and production table composition are reused. Storybook evidence cannot establish live transport or persistence: the running-app journey and owning network harness remain separate requirements.
 
 ## Independent review contract
 

@@ -12,6 +12,8 @@ export type MultiplayerPlaceFrame = {
   readonly place: MultiplayerPlace;
   /** The clock the game is played at, as its figures (`5+0`); none when untimed. */
   readonly clock?: string | undefined;
+  /** What an untimed game is played to (`First to 11`), where the clock would be. */
+  readonly target?: string | undefined;
   /** The connection and refusal notices, the same on every place. */
   readonly notices: JSX.Element;
 };
@@ -81,7 +83,8 @@ export function MultiplayerLobbyPlace(
 
 /**
  * A stage or a result: the game's own screen, around its board, under the
- * game's name and what is played for (`Rated · 5+0`).
+ * game's name and what is played for (`Rated · 5+0`, `Rated · First to
+ * 11`).
  */
 export function MultiplayerStagePlace(
   props: Omit<MultiplayerPlaceFrame, 'notices'> & {
@@ -96,7 +99,16 @@ export function MultiplayerStagePlace(
       facts={
         <GameFacts>
           <GameFact label={<Trans>Rated</Trans>} />
-          <Show when={props.clock}>
+          <Show
+            when={props.clock}
+            fallback={
+              <Show when={props.target}>
+                {(target) => (
+                  <GameFact label={target()} testId="multiplayer-target" />
+                )}
+              </Show>
+            }
+          >
             {(clock) => (
               <GameFact label={clock()} testId="multiplayer-time-control" />
             )}

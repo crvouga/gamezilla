@@ -175,6 +175,15 @@ export type GameFrameBoardSession<View> = {
   readonly Board: () => View;
   readonly actions: () => readonly GameFrameAction[];
   readonly controls?: () => View;
+  /**
+   * The board's own words about live play (Light Cycles' `Round 2 · You
+   * ride Comet.`, a round's winner), which the stage's one status line
+   * shows while the game is played, in place of the game's turn line, so
+   * nothing is written around a board that could move it. `null` leaves
+   * the turn line. Read every frame: return the same string while the
+   * words are the same.
+   */
+  readonly line?: () => string | null;
 };
 
 /** Compact score rails are opt-in; opposed two-player strips remain the default. */
@@ -250,6 +259,12 @@ export type GameFrame<View> = {
   readonly boardWorkspace?: boolean;
   /** The options chosen before play; empty for a game without any. */
   readonly options: readonly GameOptionGroup[];
+  /**
+   * What the game in `position` is played to, in a few words (Pong's
+   * `First to 11`): the stage's line of facts names it beside the rating,
+   * where a timed game names its clock. Absent: the clock is named.
+   */
+  readonly target?: (position: string) => string;
   readonly seats: {
     readonly look: (side: GameSide) => GameSeatLook;
     /** The seat's figure in `position`, or `null` for a game without one. */

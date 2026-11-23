@@ -101,3 +101,8 @@
     transform: none;
   }
 }
+
+/* A concealed pad keeps its room and shows nothing. */
+.pad[data-concealed="true"] {
+  visibility: hidden;
+}

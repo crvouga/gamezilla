@@ -13,16 +13,19 @@ import {
 import type { LightCyclesState } from '@libs/light-cycles-shared-ts/light-cycles-state';
 import { t } from '@lingui/core/macro';
 import {
-  boardOnly,
   type FrameBoardPaint,
   type GameFrame,
+  type GameFrameAction,
+  type GameFrameBoardProps,
+  type GameFrameBoardSession,
   standingsByScore,
 } from '@pkgs/turn-game-shared-ts/game-frame';
+import type { GameSimulationControls } from '@pkgs/turn-game-shared-ts/game-presentation';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
-import type { JSX } from 'solid-js';
+import { createMemo, type JSX } from 'solid-js';
 import { LightCyclesBoard } from './light-cycles-board';
 import { decodeLightCycles } from './light-cycles-board-view';
-import { riderName } from './light-cycles-view';
+import { riderName, steeringLine } from './light-cycles-view';
 
 /**
  * Each rider's paint: its trail's own, so the marker beside a player's name
@@ -41,9 +44,55 @@ function roundWins(state: LightCyclesState | null, side: GameSide): number {
   return state.scores[state.seats.indexOf(side as LightCyclesSeat)] ?? 0;
 }
 
-/** Round context; the board itself presents the outcome above the arena. */
+/**
+ * The round, the game's line beside a board with no words of its own (the
+ * round wins to win are beside the game's name; while the game is played
+ * the arena's own line, `steeringLine`, says more).
+ */
 function arenaStatus(state: LightCyclesState): string {
-  return t`Round ${state.round} · first to ${state.targetScore}`;
+  return t`Round ${state.round}`;
+}
+
+/**
+ * The person rides from another of their devices: the stage's commands
+ * offer to ride from this one. Read from the controls alone, never the
+ * position, so the commands are not rebuilt every frame.
+ */
+function rideHere(
+  controls: GameSimulationControls | undefined
+): GameFrameAction[] {
+  const claim = controls?.claim;
+  const own = controls?.sides[0] ?? controls?.elsewhere?.[0];
+  if (claim === undefined || own === undefined) return [];
+  if (controls?.elsewhere?.includes(own) !== true) return [];
+  return [
+    {
+      id: 'ride-here',
+      label: t`Ride from this device`,
+      enabled: true,
+      run: () => claim(),
+    },
+  ];
+}
+
+/**
+ * The arena; riding from this device among the stage's commands; and the
+ * arena's own line (the round, who rides, a round's winner) for the
+ * stage's one status line, reworded only when its words change.
+ */
+function lightCyclesBoard(
+  props: GameFrameBoardProps,
+  readPosition: (position: string) => LightCyclesState | null
+): GameFrameBoardSession<JSX.Element> {
+  const line = createMemo(() => {
+    const state = readPosition(props.position);
+    return state === null ? null : steeringLine(state, props.simulation);
+  });
+  return {
+    Board: () => LightCyclesBoard(props),
+    actions: () => rideHere(props.simulation),
+    line,
+  };
 }
 
 /** Every frame reader shares one validated snapshot; retain at most one position. */
@@ -111,7 +160,9 @@ export function lightCyclesFrame(
         );
       },
     },
-    createBoard: boardOnly(LightCyclesBoard),
+    target: (position) =>
+      t`First to ${readPosition(position)?.targetScore ?? LIGHT_CYCLES_CONFIG.targetScore}`,
+    createBoard: (props) => lightCyclesBoard(props, readPosition),
     turnStatus: (position) => {
       const state = readPosition(position);
       return state === null ? null : arenaStatus(state);

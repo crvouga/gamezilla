@@ -149,6 +149,9 @@ function frameOf(props: Props): MultiplayerPlaceFrame {
     get clock() {
       return props.versus?.timeControl;
     },
+    get target() {
+      return props.versus?.target;
+    },
     get notices() {
       return (
         <MultiplayerNotices

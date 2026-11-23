@@ -22,8 +22,7 @@ import {
   PaddleCourt,
 } from '@pkgs/ui-root-client-ts/paddle-court';
 import { RangeControl } from '@pkgs/ui-root-client-ts/range-control';
-import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { P, Text } from '@pkgs/ui-root-client-ts/text';
+import { Text } from '@pkgs/ui-root-client-ts/text';
 import { TextLink } from '@pkgs/ui-root-client-ts/text-link';
 import { useHoverCapable } from '@pkgs/ui-root-client-ts/use-hover-capable';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
@@ -167,10 +166,12 @@ function CourtSummary(props: {
 }
 
 /**
- * Under the court: the points that win, then how to move a paddle — by
- * keys on a wide screen, by a drag along the person's own edge of the court
- * on a phone (anywhere in their half still works). It
- * also describes the court to a listener.
+ * The court's description for a listener: the points that win, then how
+ * to move a paddle — by keys on a wide screen, by a drag along the
+ * person's own edge of the court on a phone (anywhere in their half still
+ * works). The eye reads the same on the stage: the points that win beside
+ * the game's name, how to play in its one line, so nothing under the court
+ * can move it.
  */
 function CourtHint(props: {
   id: string;
@@ -183,7 +184,7 @@ function CourtHint(props: {
   const hoverCapable = useHoverCapable();
   const shared = () => (props.board.simulation?.sides.length ?? 0) > 1;
   return (
-    <P id={props.id} variant="body">
+    <VisuallyHidden id={props.id}>
       <Text variant="inherit" testId={`${props.board.testId}-target`}>
         {t`First to ${target()}`}
       </Text>
@@ -223,7 +224,7 @@ function CourtHint(props: {
           </Show>
         </Show>
       </Show>
-    </P>
+    </VisuallyHidden>
   );
 }
 
@@ -262,33 +263,6 @@ function playerName(board: PongBoardViewProps, side: PongSide): string {
     board.seats?.find((one) => one.side === gameSide)?.name ??
     (side === 'left' ? t`Left` : t`Right`)
   );
-}
-
-/** The most of a name one half of the court shows whole. */
-const HALF_NAME_MAX = 16;
-
-/** A name as one half of the court shows it: a long one ends in `…`. */
-function fitHalf(name: string | undefined): string | undefined {
-  if (name === undefined || name.length <= HALF_NAME_MAX) return name;
-  return `${name.slice(0, HALF_NAME_MAX - 1)}…`;
-}
-
-/**
- * Who plays each half, low in it: `You` in each half this device controls,
- * the other player's name in theirs when the host names them.
- */
-function sideLabels(
-  board: PongBoardViewProps,
-  controlled: readonly CourtSide[]
-): Partial<Record<CourtSide, string | undefined>> {
-  const label = (side: CourtSide): string | undefined =>
-    controlled.length > 1
-      ? (fitHalf(board.seats?.find((one) => one.side === seat(side))?.name) ??
-        (side === 'first' ? t`Left player` : t`Right player`))
-      : controlled.includes(side)
-        ? t`You`
-        : fitHalf(board.seats?.find((one) => one.side === seat(side))?.name);
-  return { first: label('first'), second: label('second') };
 }
 
 /**
@@ -355,7 +329,7 @@ function PongScene(props: {
     props.state.phase !== 'completed';
   const status = useCourtStatus(props);
   return (
-    <StackVertical gap="md">
+    <>
       <CourtSummary
         state={props.state}
         testId={props.board.testId}
@@ -363,7 +337,8 @@ function PongScene(props: {
       />
 
       {/* On a phone each controlled half holds its own slider, so the
-          court (its shape fixed) takes the whole width. */}
+          court (its shape fixed) takes the whole width. Its points and
+          players are the stage's seats, above and below it. */}
       <PaddleCourt
         status={status()}
         statusData={
@@ -372,7 +347,6 @@ function PongScene(props: {
             : undefined
         }
         touchHint={mode() !== 'wide' ? t`Drag` : undefined}
-        sideLabels={sideLabels(props.board, controlled())}
         halfControl={(side) => (
           <PaddleSlider
             side={seat(side)}
@@ -386,10 +360,6 @@ function PongScene(props: {
         testId={props.board.testId}
         label={t`Pong court`}
         instructionsId={instructionsId}
-        score={{
-          first: String(props.state.score.left),
-          second: String(props.state.score.right),
-        }}
         paddles={(['first', 'second'] as const).map((side) => ({
           side,
           x:
@@ -424,7 +394,7 @@ function PongScene(props: {
         onRelease={() => props.board.simulation?.onRelease()}
       />
       <CourtHint id={instructionsId} state={props.state} board={props.board} />
-    </StackVertical>
+    </>
   );
 }
 
@@ -495,9 +465,10 @@ export function pongStatusStage(
 }
 
 /**
- * The Pong court as a person sees it: both scores and the points that win,
- * the court's status line, the court with its paddles and ball, and a paddle
- * slider per side this device controls. `PongBoard` adds the sounds and
+ * The Pong court as a person sees it: the court with its paddles and ball,
+ * its status over the play (the serve's count, a pause, the final score),
+ * and a paddle slider per side this device controls. The stage around it
+ * names the players with their points, the points that win and how to play. `PongBoard` adds the sounds and
  * releases the controls when the court closes.
  */
 export function PongBoardView(props: PongBoardViewProps): JSX.Element {

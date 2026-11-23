@@ -53,8 +53,8 @@ function renderMode(riders: 2 | 4) {
 }
 
 const meta = {
-  id: 'screens-games-light-cycles-variants',
-  title: 'Screens/Space/Boards/Light Cycles/Duel and Quad',
+  id: 'screens-games-light-cycles-stage-variants',
+  title: 'Screens/Space/Boards/Light Cycles/Stage duel and quad',
   component: LightCyclesBoardView,
   tags: ['autodocs'],
   render: (args, context) => renderMode(2)(args, context),

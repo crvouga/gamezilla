@@ -1,5 +1,6 @@
 import { PONG_CONFIG } from '@libs/pong-shared-ts/pong-config';
 import { pongPositionCodec } from '@libs/pong-shared-ts/pong-game';
+import type { PongState } from '@libs/pong-shared-ts/pong-state';
 import { t } from '@lingui/core/macro';
 import {
   boardOnly,
@@ -17,18 +18,38 @@ import { pongStatus } from './pong-board-view';
 
 const paddle = (side: GameSide) => (side === 'white' ? 'left' : 'right');
 
-/** The points each paddle has, from the court's position. */
-function points(position: string, side: GameSide): number {
-  return pongPositionCodec.decode(position)?.score[paddle(side)] ?? 0;
+/**
+ * Every frame reader shares one decoded court: a live court is a new
+ * position every display frame, read by each seat and the line.
+ */
+function positionReader(): (position: string) => PongState | null {
+  let latest: { position: string; state: PongState | null } | undefined;
+  return (position) => {
+    if (latest === undefined || latest.position !== position)
+      latest = { position, state: pongPositionCodec.decode(position) };
+    return latest.state;
+  };
 }
 
-/** Left and Right paddles, their points, and the points that win. */
+const readPosition = positionReader();
+
+/** The points each paddle has, from the court's position. */
+function points(position: string, side: GameSide): number {
+  return readPosition(position)?.score[paddle(side)] ?? 0;
+}
+
+/** The points that win the game in `position`. */
+function target(position: string): number {
+  return readPosition(position)?.targetScore ?? PONG_CONFIG.targetScore;
+}
+
+/**
+ * Left and Right paddles, each seat with its points, and the points that
+ * win beside the game's name. The court is the stage's board: full width,
+ * centred, with nothing of its own around it that could move it.
+ */
 export const pongFrame: GameFrame<JSX.Element> = {
   drawOffers: false,
-  // Each half of the court names its player under their points.
-  boardNames: true,
-  // The court is narrower than a tablet's column: start it under the title.
-  boardAlign: 'start',
   players: fixedPlayers(2),
   options: [
     {
@@ -38,26 +59,32 @@ export const pongFrame: GameFrame<JSX.Element> = {
       min: 1,
       max: 99,
       default: PONG_CONFIG.targetScore,
-      read: (position) =>
-        pongPositionCodec.decode(position)?.targetScore ??
-        PONG_CONFIG.targetScore,
+      read: target,
       encode: String,
     },
   ],
+  target: (position) => t`First to ${target(position)}`,
   seats: {
     look: (side) => ({ color: side === 'white' ? 1 : 2 }),
-    // The court itself shows each side's points, large in its own half.
-    stat: () => null,
+    // Each seat's points, live: the opponent's above the court, the
+    // person's own below it.
+    stat: (position, side) => ({
+      label: t`Points`,
+      value: String(points(position, side)),
+    }),
     facts: () => [],
     out: () => false,
   },
   createBoard: boardOnly(PongBoard),
-  // The court owns serve timing and interruptions. The frame keeps the result.
-  turnStatus: (position) => {
-    const state = pongPositionCodec.decode(position);
-    return state === null || state.phase !== 'completed'
-      ? null
-      : pongStatus(state, undefined);
+  // The court owns the serve's count and interruptions; the line says how
+  // to play, and the result once the game is over.
+  turnStatus: (position, viewer) => {
+    const state = readPosition(position);
+    if (state === null) return null;
+    if (state.phase === 'completed') return pongStatus(state, undefined);
+    return viewer === null
+      ? t`Watching the rally.`
+      : t`Drag or use the arrow keys to move your paddle.`;
   },
   result: (position, winner) => ({
     scoreLabel: t`Points`,

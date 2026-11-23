@@ -29,6 +29,13 @@ export type DirectionPadProps = {
    * right, a row shorter, so a phone's board keeps more of the screen.
    */
   readonly layout?: 'cross' | 'arrows' | undefined;
+  /**
+   * The pad keeps its place but shows and offers nothing (a rider that
+   * cannot steer now: crashed, between rounds, away), so what lies around
+   * it never moves. Its buttons are disabled and hidden from assistive
+   * technology.
+   */
+  readonly concealed?: boolean | undefined;
 };
 
 /** Up on top, left and right beside an empty centre, down below. */
@@ -61,7 +68,8 @@ function PadButton(props: {
   // A press that already steered on pointer-down must not steer again on its click.
   let pressed = false;
   const fire = () => {
-    if (!props.pad.disabled) props.pad.onDirection(props.heading);
+    if (!props.pad.disabled && props.pad.concealed !== true)
+      props.pad.onDirection(props.heading);
   };
   return (
     <button
@@ -70,7 +78,7 @@ function PadButton(props: {
       data-heading={props.heading}
       data-testid={`${props.pad.testId}-${props.heading}`}
       aria-label={props.pad.labels[props.heading]}
-      disabled={props.pad.disabled}
+      disabled={props.pad.disabled || props.pad.concealed === true}
       onPointerDown={(event) => {
         if (event.pointerType === 'mouse' && event.button !== 0) return;
         pressed = true;
@@ -96,7 +104,8 @@ function PadButton(props: {
 }
 
 /**
- * Four large steering buttons for touch screens. A press steers on
+ * Four large steering buttons for touch screens (`concealed`: their room
+ * alone). A press steers on
  * pointer-down, without waiting for the click; keyboard and assistive
  * technology activation steer on click.
  */
@@ -109,6 +118,8 @@ export function DirectionPad(props: DirectionPadProps): JSX.Element {
       data-layout={props.layout ?? 'cross'}
       role="group"
       data-disabled={props.disabled}
+      data-concealed={props.concealed === true}
+      aria-hidden={props.concealed === true ? 'true' : undefined}
     >
       <For each={props.layout === 'arrows' ? ARROW_HEADINGS : HEADINGS}>
         {(heading) => <PadButton heading={heading} pad={props} />}

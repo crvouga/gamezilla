@@ -89,8 +89,8 @@ const presentation = {
 };
 
 const meta = {
-  id: 'screens-games-light-cycles-arena',
-  title: 'Screens/Space/Boards/Light Cycles/Arena',
+  id: 'screens-games-light-cycles-stage',
+  title: 'Screens/Space/Boards/Light Cycles/Stage',
   component: LightCyclesBoardView,
   tags: ['autodocs'],
   render: (args, context) => renderGameTable(presentation, TRIO, args, context),

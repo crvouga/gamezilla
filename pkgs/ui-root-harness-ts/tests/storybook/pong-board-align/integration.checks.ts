@@ -19,7 +19,7 @@ test('storybook integration: pong board starts under the game title on one colum
     ]) {
       await page.setViewportSize(viewport);
       await page.goto(
-        `/iframe.html?id=screens-games-pong-court--rally&viewMode=story&globals=theme:${theme}`
+        `/iframe.html?id=screens-games-pong-stage--rally&viewMode=story&globals=theme:${theme}`
       );
       await expect(page.locator('#storybook-root')).toHaveAttribute(
         'data-story-ready',
