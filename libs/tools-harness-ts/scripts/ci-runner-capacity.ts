@@ -21,7 +21,11 @@ export const RESERVE_GIB = 8;
 /** Planned machine shape. The fit test fails when the corpus needs more. */
 export const RUNNER_VCPU = 32;
 export const RUNNER_RAM_GIB = 64;
-export const RUNNERS_PER_VERIFICATION = 3;
+/**
+ * Four since the corpus reached 12,244 spec-seconds: three machines of sixteen
+ * spec workers finish 12,240 inside the five-minute promise.
+ */
+export const RUNNERS_PER_VERIFICATION = 4;
 export const CONCURRENT_VERIFICATIONS = 2;
 export const RUNNER_COUNT = RUNNERS_PER_VERIFICATION * CONCURRENT_VERIFICATIONS;
 

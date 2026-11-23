@@ -2,7 +2,12 @@
 export type StoryRoute = {
   readonly pathname: string;
   readonly tab: boolean;
-  readonly spaceBody: boolean;
+  /**
+   * A screen inside a space, by who mounts its `SpaceScreenFrame`: the story
+   * shell (`'shell'`), or the story itself (`'story'`); `false` outside a
+   * space. A screen is under exactly one frame, as in the product.
+   */
+  readonly spaceBody: false | 'shell' | 'story';
 };
 
 const TAB_ROUTES: Readonly<Record<string, string>> = {
@@ -64,7 +69,6 @@ const STACK_ROUTES: Readonly<Record<string, string>> = {
 // These views are mounted under SpaceScreenFrame in the product; the story
 // shell frames them the same way. Link screens are outside a space.
 const SPACE_BODIES = new Set([
-  'screens-space-home',
   'screens-games-battleship-board',
   'screens-games-battleship-setup',
   'screens-games-chess-board',
@@ -136,15 +140,22 @@ const SPACE_BODIES = new Set([
   'screens-puzzles-stats',
 ]);
 
+// These claim the space's shell to draw their own template. A claim reaches
+// only a frame above the screen, and the story shell's frame is not above a
+// story it is handed, so each mounts its own frame in its `render`; a second
+// frame from the story shell would draw a second top bar over it.
+const SELF_FRAMED_SPACE_BODIES = new Set(['screens-space-home']);
+
 /** Overrides let a fixture describe another production placement explicitly. */
 export function storyRoute(id: string, override?: StoryRoute): StoryRoute {
   if (override) return override;
   const family = id.split('--')[0] ?? id;
   const tab = TAB_ROUTES[family];
   if (tab !== undefined) return { pathname: tab, tab: true, spaceBody: false };
-  const spaceBody = SPACE_BODIES.has(family);
-  if (spaceBody)
-    return { pathname: '/space/story-room', tab: false, spaceBody };
+  if (SELF_FRAMED_SPACE_BODIES.has(family))
+    return { pathname: '/space/story-room', tab: false, spaceBody: 'story' };
+  if (SPACE_BODIES.has(family))
+    return { pathname: '/space/story-room', tab: false, spaceBody: 'shell' };
   // Isolated overlays and templates have no current product destination.
   return {
     pathname: STACK_ROUTES[family] ?? '/not-found',

@@ -1,6 +1,6 @@
 import { downloadedExport } from '@libs/account-privacy-harness-ts/privacy-reads';
-import { GAME_SESSION_PRIVACY } from '@libs/game-session-shared-ts/account-privacy';
 import type { CustomGame } from '@libs/game-session-shared-ts/custom-game-state';
+import { GAME_SESSION_PRIVACY } from '@libs/game-session-sub-shared-ts/account-privacy';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 
 /** Games offered in the proven person's readable and reusable export. */

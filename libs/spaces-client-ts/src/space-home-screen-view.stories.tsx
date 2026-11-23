@@ -14,6 +14,8 @@ const meta = {
   // The screen reads its space from the chrome the app mounts around it, and
   // claims that frame's shell: rendered inside the frame, as the app does. A
   // decorator's story is not below the frame, so both would draw a top bar.
+  // The story shell therefore leaves this frame to the story
+  // (`SELF_FRAMED_SPACE_BODIES` in the product's `storybook-route`).
   render: (args) => (
     <StorySpaceFrame>
       <SpaceHomeScreenView {...args} />
