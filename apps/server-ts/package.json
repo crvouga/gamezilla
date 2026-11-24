@@ -49,6 +49,7 @@
     "@pkgs/http-client-shared-ts": "workspace:*",
     "@pkgs/llm-root-server-ts": "workspace:*",
     "@pkgs/logger-shared-ts": "workspace:*",
+    "@pkgs/observability-aggregate-server-ts": "workspace:*",
     "@pkgs/observability-root-server-ts": "workspace:*",
     "@pkgs/observability-root-shared-ts": "workspace:*",
     "@pkgs/s3-server-ts": "workspace:*",

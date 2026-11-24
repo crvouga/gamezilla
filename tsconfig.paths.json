@@ -502,6 +502,9 @@
       "@pkgs/observability-runtime-shared-ts/*": [
         "./pkgs/observability-runtime-shared-ts/src/*"
       ],
+      "@pkgs/observability-aggregate-server-ts/*": [
+        "./pkgs/observability-aggregate-server-ts/src/*"
+      ],
       "@pkgs/object-store-opfs-client-ts/*": [
         "./pkgs/object-store-opfs-client-ts/src/*"
       ],

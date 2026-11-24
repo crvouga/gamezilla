@@ -1,7 +1,7 @@
 import { monotonicClock } from '@pkgs/clock-shared-ts/wall';
-// @io-wall-ok — Room server Worker composition root (Durable Object isolate).
+// @io-wall-ok — Durable Object composition root: rooms and the metrics writer.
 
-import { serviceName } from '@libs/product-identity-shared-ts/technical-names';
+import type { MetricAggregateNamespace } from '@libs/app-root-shared-ts/env';
 import { createRoomServerDurableObject } from '@libs/room-app-server-ts/create-room-server-durable-object';
 import type { RoomServerEnv } from '@libs/room-app-shared-ts/room-server-env';
 import { wallClock, wallTimers } from '@pkgs/clock-shared-ts/wall';
@@ -10,6 +10,11 @@ import type { WorkerTelemetry } from '@pkgs/observability-root-server-ts/worker-
 import { createWorkerTelemetry } from '@pkgs/observability-root-server-ts/worker-worker';
 import { deploymentTelemetryEnvironment } from '@pkgs/observability-root-shared-ts/deployment-environment';
 import { otlpAuthorization } from '@pkgs/observability-root-shared-ts/otlp-auth';
+import {
+  aggregateMetricExporter,
+  createMetricAggregate,
+  ROOM_SERVICE_NAME,
+} from './worker-telemetry';
 
 type RoomWorkerEnv = {
   readonly BUILD_SHA?: string;
@@ -26,6 +31,7 @@ type RoomWorkerEnv = {
    * libs/infra render-wrangler on deployed Workers; absent (standard) locally.
    */
   readonly DEPLOYMENT_PROTECTION?: string;
+  readonly METRIC_AGGREGATE?: MetricAggregateNamespace;
 };
 
 function isProductionDeployment(env: RoomWorkerEnv): boolean {
@@ -70,14 +76,22 @@ function ensureWorkerTelemetry(env: RoomWorkerEnv): RoomTelemetryRuntime {
     user: env.OBSERVABILITY_COLLECTOR_USER,
     token: collectorToken,
   });
+  // Spans and logs carry this isolate's identity. Its metrics do not: they
+  // are handed to the deployment's one metrics writer.
+  const instanceId = crypto.randomUUID();
   workerTelemetry = createWorkerTelemetry({
     monotonicNow: monotonicClock.now,
     performanceTimers: wallTimers,
     syncCohort: () => 'server',
     http: createGlobalHttpClient(),
     timers: wallTimers,
-    instanceId: crypto.randomUUID(),
-    serviceName: serviceName('room-server'),
+    instanceId,
+    ...aggregateMetricExporter(
+      env,
+      { id: instanceId, service: ROOM_SERVICE_NAME },
+      { clock: wallClock, timers: wallTimers }
+    ),
+    serviceName: ROOM_SERVICE_NAME,
     serviceVersion: buildSha,
     environment: deploymentTelemetryEnvironment(env.DEPLOYMENT_ENVIRONMENT),
     buildSha,
@@ -118,3 +132,10 @@ export const RoomServerDurableObject = createRoomServerDurableObject(
   env,
   ensureWorkerTelemetry
 );
+
+/** The deployment's single metrics writer; every isolate hands off to it. */
+export const MetricAggregateDurableObject = createMetricAggregate({
+  clock: wallClock,
+  timers: wallTimers,
+  http: createGlobalHttpClient(),
+});

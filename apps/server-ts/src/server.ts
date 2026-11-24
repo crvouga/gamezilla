@@ -16,7 +16,7 @@ import {
   handleRootBugReport,
 } from './root-bug-report-boot';
 
-export { RoomServerDurableObject } from './room';
+export { MetricAggregateDurableObject, RoomServerDurableObject } from './room';
 
 export default {
   async fetch(

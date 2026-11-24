@@ -213,9 +213,11 @@ what to do about each.
 9. **One probe location** (Oregon), and Synthetic Monitoring uses about 96k
    of the free 100k runs a month: a second location needs a paid plan or
    fewer checks.
-10. **Counting**: Worker isolate counters are counted as growth plus each new
-    series' first value; histogram bucket series can differ by a few events
-    (seen in dev). Delta temporality or native histograms would be exact.
+10. **Counting**: counters are counted as growth plus each new series' first
+    value. Server counters have one writer per environment, which states a
+    new series as zero first, so their counts are exact. Browser pages are
+    still one short-lived writer each, whose histogram bucket series can
+    differ by a few events.
 11. **Unverified until applied**: the probe name `Oregon` (current in
     Grafana's docs), the Grafana SLO dashboard URL (`/d/grafana_slo_app-<id>`)
     and whether a check fails on a 426 body regex as documented. The silence

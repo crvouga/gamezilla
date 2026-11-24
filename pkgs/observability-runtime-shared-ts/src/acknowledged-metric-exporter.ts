@@ -3,16 +3,20 @@ import type { Timers } from '@pkgs/clock-shared-ts/types';
 import type { HttpClient } from '@pkgs/http-client-shared-ts/types';
 import { HttpOtlpExporter } from './http-otlp-exporter';
 
-/** Browser metrics use the same bounded, injected acknowledgement transport. */
+/**
+ * Metrics over the bounded, injected acknowledgement transport: the browser,
+ * and the aggregate that is a deployment's single metrics writer.
+ */
 export function acknowledgedMetricExporter(
   url: string,
   http: HttpClient,
-  timers: Timers
+  timers: Timers,
+  headers: Readonly<Record<string, string>> = {}
 ) {
   return new HttpOtlpExporter(
     {
       url,
-      headers: {},
+      headers,
       serializer: JsonMetricsSerializer,
       rejected: (response) =>
         Number(response.partialSuccess?.rejectedDataPoints ?? 0),

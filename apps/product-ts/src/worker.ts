@@ -5,7 +5,10 @@ import type {
   ExportedHandler,
 } from '@libs/app-root-shared-ts/worker-handler';
 
-export { RoomServerDurableObject } from '@apps/server-ts/room';
+export {
+  MetricAggregateDurableObject,
+  RoomServerDurableObject,
+} from '@apps/server-ts/room';
 export { RoomStorageArchive } from './room-storage-archive';
 
 export type AppWorkerEnv = ApiWorkerEnv & {

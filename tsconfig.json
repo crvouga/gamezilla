@@ -581,6 +581,7 @@
     "pkgs/ui-quality-check-server-ts/scripts/**/*.ts",
     "pkgs/ui-quality-check-shared-ts/scripts/**/*.ts",
     "pkgs/observability-runtime-shared-ts/src/**/*.ts",
+    "pkgs/observability-aggregate-server-ts/src/**/*.ts",
     "pkgs/object-store-opfs-client-ts/src/**/*.ts",
     "pkgs/object-store-opfs-client-ts/tests/**/*.ts",
     "libs/quoridor-shared-ts/src/**/*.ts",
