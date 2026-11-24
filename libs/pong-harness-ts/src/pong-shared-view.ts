@@ -11,7 +11,7 @@ import type { PongPaddle } from './pong-view';
 
 export type PongPlace = 'middle' | 'upper edge' | 'lower edge';
 
-async function placeShown(
+export async function pongPaddlePlace(
   s: ProductHarness,
   actor: string,
   paddle: PongPaddle,
@@ -42,7 +42,7 @@ export async function pongSharedView(s: ProductHarness, actor = 'alice') {
   const owners = new Map<string, string>();
   if (gameShown) {
     for (const paddle of ['left', 'right'] as const)
-      paddlePlace.set(paddle, await placeShown(s, actor, paddle, board));
+      paddlePlace.set(paddle, await pongPaddlePlace(s, actor, paddle, board));
     for (const position of board === PONG_MATCH_BOARD ? ['near', 'far'] : []) {
       const seat = ui.get(`multiplayer-seat-${position}`);
       const side = await seat.attribute('data-side');

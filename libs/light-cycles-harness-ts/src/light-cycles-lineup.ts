@@ -16,7 +16,7 @@ import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import {
   LIGHT_CYCLES_RIDER_NAMES,
   type LightCyclesRiderName,
-  lightCyclesBoard,
+  lightCyclesRound,
 } from './light-cycles-board-view';
 
 export type LightCyclesCount = 2 | 3 | 4;
@@ -148,7 +148,7 @@ async function awaitCountdown(s: ProductHarness): Promise<void> {
     await pollUntil(
       s,
       async () => {
-        const board = await lightCyclesBoard(s, person);
+        const board = await lightCyclesRound(s, person);
         return board !== null && board.round >= 1 ? true : null;
       },
       {

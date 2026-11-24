@@ -97,7 +97,7 @@ export const establishPongLocalStage = scenarioAction({
         guests: true,
         ready: true,
         active: false,
-        configuration: '3',
+        // Keep the normal match length so joining and reopening can happen during play.
       })
     );
     if (setup.stage !== 'ready') await start(s, actor);

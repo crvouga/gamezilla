@@ -61,6 +61,21 @@ export async function lightCyclesBoardId(
   return null;
 }
 
+/** The round clock and its connection indicator, independent of the riding field. */
+export async function lightCyclesRound(s: ProductHarness, actor: string) {
+  await bringToFront(s, actor);
+  const board = await lightCyclesBoardId(s, actor);
+  if (!board) return null;
+  const ui = await actorUi(s, actor);
+  const shown = ui.get(`${board}-round`);
+  const [round, phase, dimmed] = await Promise.all([
+    shown.attribute('data-round'),
+    shown.attribute('data-phase'),
+    ui.get(`${board}-arena`).attribute('data-dimmed'),
+  ]);
+  return { round: Number(round), phase, live: dimmed !== 'true' };
+}
+
 /** `M{x} {y}h{n}v1h{-n}z` runs of the drawn trail, as the cells they cover. */
 function trailCells(d: string | null): string[] {
   const cells: string[] = [];

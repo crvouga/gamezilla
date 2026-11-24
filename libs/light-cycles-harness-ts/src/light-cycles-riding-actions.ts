@@ -13,6 +13,7 @@ import {
   type LightCyclesDirection,
   type LightCyclesRiderName,
   lightCyclesBoardShown,
+  lightCyclesRound,
 } from './light-cycles-board-view';
 import {
   isAway,
@@ -133,7 +134,7 @@ export const endCountdown = scenarioAction({
     await pollUntil(
       s,
       async () =>
-        (await lightCyclesBoardShown(s, observer(s))).phase === 'running'
+        (await lightCyclesRound(s, observer(s)))?.phase === 'running'
           ? true
           : null,
       {
@@ -235,9 +236,7 @@ async function phaseShown(s: ProductHarness, phase: string): Promise<void> {
   await pollUntil(
     s,
     async () =>
-      (await lightCyclesBoardShown(s, observer(s))).phase === phase
-        ? true
-        : null,
+      (await lightCyclesRound(s, observer(s)))?.phase === phase ? true : null,
     {
       maxMs: ROUND_ENDS_MS,
       stepMs: STEP_POLL_MS,
@@ -249,8 +248,7 @@ async function phaseShown(s: ProductHarness, phase: string): Promise<void> {
 async function liveShown(s: ProductHarness): Promise<void> {
   await pollUntil(
     s,
-    async () =>
-      (await lightCyclesBoardShown(s, observer(s))).live ? true : null,
+    async () => ((await lightCyclesRound(s, observer(s)))?.live ? true : null),
     {
       maxMs: ROUND_ENDS_MS,
       stepMs: STEP_POLL_MS,
@@ -279,12 +277,21 @@ async function endRound(s: ProductHarness): Promise<void> {
   await phaseShown(s, 'round-over');
 }
 
-/** Rounds are played, by crashing riders, until round `round` counts down. */
-async function reachCountdown(s: ProductHarness, round: number) {
+/** Advance to the requested round. Steering can begin during countdown or riding. */
+async function reachRound(
+  s: ProductHarness,
+  round: number,
+  phase: 'countdown' | 'playable'
+) {
   await startedLightCycles(s);
   for (;;) {
-    const board = await lightCyclesBoardShown(s, observer(s));
-    if (board.round === round && board.phase === 'countdown') {
+    const board = await lightCyclesRound(s, observer(s));
+    if (!board) throw new Error('No Light Cycles round is shown');
+    if (
+      board.round === round &&
+      (board.phase === 'countdown' ||
+        (phase === 'playable' && board.phase === 'running'))
+    ) {
       // A game just started reaches the device a moment later: until then
       // the arena says it is reconnecting, not how long the countdown has.
       if (!board.live) await liveShown(s);
@@ -300,14 +307,14 @@ async function reachCountdown(s: ProductHarness, round: number) {
 
 export const reachRoundCountdown = scenarioAction({
   name: 'reachRoundCountdown',
-  act: reachCountdown,
+  act: (s, round: number) => reachRound(s, round, 'countdown'),
 });
 
 /** Rounds are played until round `round` is under way, its countdown over. */
 export const reachRoundRiding = scenarioAction({
   name: 'reachRoundRiding',
   act: async (s, round: number) => {
-    await reachCountdown(s, round);
+    await reachRound(s, round, 'playable');
     await phaseShown(s, 'running');
   },
 });
@@ -316,11 +323,14 @@ export const reachRoundRiding = scenarioAction({
 export const winRound = scenarioAction({
   name: 'winRound',
   act: async (s, winner: LightCyclesRiderName, round: number) => {
-    await reachCountdown(s, round);
-    const board = await lightCyclesBoardShown(s, observer(s));
+    await reachRound(s, round, 'playable');
+    const riders = LIGHT_CYCLES_RIDER_NAMES.slice(
+      0,
+      lightCyclesLineup(s).count
+    );
     await crash(
       s,
-      board.riders.map((rider) => rider.name).filter((name) => name !== winner),
+      riders.filter((name) => name !== winner),
       false
     );
     await phaseShown(s, 'round-over');
@@ -338,7 +348,7 @@ export const steerAsRoundEnds = scenarioAction({
     },
     round: number
   ) => {
-    await reachCountdown(s, round);
+    await reachRound(s, round, 'playable');
     const board = await lightCyclesBoardShown(s, observer(s));
     const others = board.riders.filter((rider) => rider.name !== steer.rider);
     for (const rider of others) {
@@ -378,7 +388,7 @@ export const reachRoundEnd = scenarioAction({
     const board = await lightCyclesBoardShown(s, observer(s));
     if (board.round === round && board.phase === 'round-over') return;
     if (board.round !== round || board.phase !== 'running')
-      await reachCountdown(s, round);
+      await reachRound(s, round, 'playable');
     await phaseShown(s, 'running');
     await endRound(s);
   },
