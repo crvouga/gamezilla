@@ -5838,21 +5838,6 @@
         "typescript": "catalog:",
       },
     },
-    "pkgs/lingui-solid-harness-ts": {
-      "name": "@pkgs/lingui-solid-harness-ts",
-      "version": "0.0.0",
-      "devDependencies": {
-        "@lingui/core": "catalog:",
-        "@pkgs/bun-test-solid-client-ts": "workspace:*",
-        "@pkgs/lingui-solid-client-ts": "workspace:*",
-        "@solidjs/testing-library": "catalog:",
-        "@solidjs/web": "catalog:",
-        "@types/bun": "catalog:",
-        "@typescript/native": "catalog:",
-        "solid-js": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
     "pkgs/llm-openai-server-ts": {
       "name": "@pkgs/llm-openai-server-ts",
       "version": "0.0.0",
@@ -9510,8 +9495,6 @@
     "@pkgs/kv-web-client-ts": ["@pkgs/kv-web-client-ts@workspace:pkgs/kv-web-client-ts"],
 
     "@pkgs/lingui-solid-client-ts": ["@pkgs/lingui-solid-client-ts@workspace:pkgs/lingui-solid-client-ts"],
-
-    "@pkgs/lingui-solid-harness-ts": ["@pkgs/lingui-solid-harness-ts@workspace:pkgs/lingui-solid-harness-ts"],
 
     "@pkgs/llm-openai-server-ts": ["@pkgs/llm-openai-server-ts@workspace:pkgs/llm-openai-server-ts"],
 
