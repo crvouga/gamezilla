@@ -256,12 +256,12 @@ export function PaddleCourt(props: PaddleCourtProps): JSX.Element {
       <Scoreboard {...props} />
       <div class={styles['stage']}>
         <div
-          {...dataAttrs({ component: 'PaddleCourt', testid: props.testId })}
           ref={court}
           class={styles['court']}
           data-interactive={String(
             props.enabled && props.controlled.length > 0
           )}
+          {...dataAttrs({ component: 'PaddleCourt', testid: props.testId })}
           role="application"
           aria-label={props.label}
           aria-describedby={props.instructionsId}

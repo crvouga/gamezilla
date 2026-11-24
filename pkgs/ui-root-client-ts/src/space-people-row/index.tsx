@@ -117,16 +117,16 @@ export function SpacePersonCell(props: SpacePersonCellProps): JSX.Element {
       aria-haspopup="menu"
       aria-expanded={props.expanded === true ? 'true' : 'false'}
       onClick={(event) => props.onPress(face ?? event.currentTarget)}
+      data-person={props.person.id}
+      data-kind={props.person.kind}
+      data-host={props.person.host === true ? 'true' : undefined}
+      data-status={status()}
       {...dataAttrs(
         spaceDataSet(
           { component: 'SpacePersonCell', ...props.dataSet },
           props.person.testId
         )
       )}
-      data-person={props.person.id}
-      data-kind={props.person.kind}
-      data-host={props.person.host === true ? 'true' : undefined}
-      data-status={status()}
     >
       <span
         class={styles['face']}

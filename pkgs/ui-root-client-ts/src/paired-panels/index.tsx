@@ -61,10 +61,10 @@ export function PairedPanels<K extends string>(
   return (
     <div
       class={styles['frame']}
-      {...dataAttrs({ component: 'PairedPanels' })}
       data-testid={`${props.testId}-panels`}
       data-selected={props.selected}
       data-paired-panels="true"
+      {...dataAttrs({ component: 'PairedPanels' })}
     >
       <div
         class={styles['pair']}

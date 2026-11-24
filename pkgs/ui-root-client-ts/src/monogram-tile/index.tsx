@@ -111,8 +111,8 @@ export function MonogramTile(props: MonogramTileProps): JSX.Element {
     <span
       class={`box inline-flex shrink-0 items-center justify-center text text-on-primary select-none ${SIZE[props.size ?? 'md']} ${PAINT_CLASS[paint()]}`}
       aria-hidden="true"
-      {...dataAttrs({ component: 'MonogramTile', ...props.dataSet })}
       data-paint={paint()}
+      {...dataAttrs({ component: 'MonogramTile', ...props.dataSet })}
     >
       {monogramOf(props.name)}
     </span>

@@ -109,7 +109,6 @@ export function DiscDropBoard(props: DiscDropBoardProps): JSX.Element {
     <div
       ref={root}
       class={styles['board']}
-      {...dataAttrs({ component: 'DiscDropBoard' })}
       role="group"
       aria-label={props.label}
       aria-describedby={describedBy(
@@ -121,6 +120,7 @@ export function DiscDropBoard(props: DiscDropBoardProps): JSX.Element {
       data-cells={JSON.stringify(props.cells)}
       data-won={String(props.winning.length > 0)}
       data-keyboard-help={String(keyboard())}
+      {...dataAttrs({ component: 'DiscDropBoard' })}
       style={{ '--disc-columns': props.columns }}
     >
       <Show when={promptLine()}>

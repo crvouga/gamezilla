@@ -48,7 +48,7 @@ export function loadingStateSpinnerSize(
  *
  * @example
  * ```tsx
- * <Suspense fallback={<LoadingState />}>{children}</Suspense>
+ * <Loading fallback={<LoadingState />}>{children}</Loading>
  * <LoadingState caption={t`Loading entity…`} />
  * <LoadingState variant="compact" caption={t`Waiting for metrics…`} />
  * ```

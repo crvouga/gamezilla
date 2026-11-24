@@ -28,8 +28,8 @@ export function GameFacts(props: {
   return (
     <span
       class={styles['facts']}
-      {...dataAttrs({ component: 'GameFacts', ...props.dataSet })}
       data-testid={props.testId}
+      {...dataAttrs({ component: 'GameFacts', ...props.dataSet })}
     >
       {props.children}
     </span>
@@ -44,8 +44,8 @@ export function GameFact(props: {
   return (
     <span
       class={`text textFootnote ${styles['fact']}`}
-      {...dataAttrs({ component: 'GameFact' })}
       data-testid={props.testId}
+      {...dataAttrs({ component: 'GameFact' })}
     >
       {props.label}
     </span>

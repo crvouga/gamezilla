@@ -6,11 +6,10 @@
   },
   "include": [
     "../ts-reset-shared-ts/src/ts-reset.ts",
-    "../bun-test-solid-client-ts/src/jest-dom.d.ts",
     "./src/**/*.ts",
-    "./src/**/*.tsx",
-    "./tests/**/*.ts",
-    "./tests/**/*.tsx"
+    "./src/**/*.tsx"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules"
+  ]
 }

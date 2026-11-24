@@ -52,9 +52,9 @@ export function StatPill(props: StatPillProps): JSX.Element {
           'bg-tint-subtle': active(),
         },
       ]}
-      {...dataAttrs({ component: 'StatPill', ...props.dataSet })}
       data-value={String(props.value)}
       data-active={active() ? 'true' : undefined}
+      {...dataAttrs({ component: 'StatPill', ...props.dataSet })}
     >
       <Show when={props.icon}>
         <Icon

@@ -266,11 +266,11 @@ export function CellGridBoard(props: CellGridBoardProps): JSX.Element {
       class={`${styles['board']} ${battleship['board']}`}
       data-board-theme={props.boardTheme ?? 'battleship'}
       data-fill={String(props.fill === true)}
-      {...dataAttrs({ component: 'CellGridBoard' })}
       role="group"
       aria-label={props.label}
       aria-describedby={props.describedBy}
       data-testid={props.testId}
+      {...dataAttrs({ component: 'CellGridBoard' })}
       style={{ '--cell-grid-columns': props.columnLabels.length }}
     >
       <Show when={!inset()}>
@@ -336,8 +336,8 @@ export function CellGridLegend(props: {
     <ul
       class={styles['legend']}
       aria-label={props.label}
-      {...dataAttrs({ component: 'CellGridLegend' })}
       data-testid={props.testId}
+      {...dataAttrs({ component: 'CellGridLegend' })}
     >
       <For each={props.items}>
         {(item) => (

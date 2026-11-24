@@ -382,8 +382,8 @@ export function SpaceShell(props: SpaceShellProps): JSX.Element {
   return (
     <div
       class={styles['shell']}
-      {...dataAttrs({ component: 'SpaceShell', ...props.dataSet })}
       data-role={props.role}
+      {...dataAttrs({ component: 'SpaceShell', ...props.dataSet })}
     >
       <ActionsRow {...props} />
       <div class={styles['notice']} data-space-row="notice">

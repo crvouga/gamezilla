@@ -2,16 +2,16 @@ language js
 
 or {
   `<$name sx={$value} />` as $el where {
-    register_diagnostic(span=$el, message="Do not pass sx= — the Sx abstraction is removed; use Solid class / classList / style.", severity="error")
+    register_diagnostic(span=$el, message="Do not pass sx= — the Sx abstraction is removed; use Solid class / style.", severity="error")
   },
   `<$name sx={$value}>$children</$name>` as $el where {
-    register_diagnostic(span=$el, message="Do not pass sx= — the Sx abstraction is removed; use Solid class / classList / style.", severity="error")
+    register_diagnostic(span=$el, message="Do not pass sx= — the Sx abstraction is removed; use Solid class / style.", severity="error")
   },
   `<$name frameSx={$value} />` as $el where {
-    register_diagnostic(span=$el, message="Do not pass frameSx= — use class / classList / style on the scroll frame (and contentClass on the content).", severity="error")
+    register_diagnostic(span=$el, message="Do not pass frameSx= — use class / style on the scroll frame (and contentClass on the content).", severity="error")
   },
   `<$name frameSx={$value}>$children</$name>` as $el where {
-    register_diagnostic(span=$el, message="Do not pass frameSx= — use class / classList / style on the scroll frame (and contentClass on the content).", severity="error")
+    register_diagnostic(span=$el, message="Do not pass frameSx= — use class / style on the scroll frame (and contentClass on the content).", severity="error")
   },
   `<$name fieldSx={$value} />` as $el where {
     register_diagnostic(span=$el, message="Do not pass fieldSx= — use fieldClass / fieldStyle.", severity="error")

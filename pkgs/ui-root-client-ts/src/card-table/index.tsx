@@ -629,8 +629,8 @@ export function CardTable(props: CardTableProps): JSX.Element {
   return (
     <div
       class={styles['root']}
-      {...dataAttrs({ component: 'CardTable', ...props.dataSet })}
       data-testid={props.testId}
+      {...dataAttrs({ component: 'CardTable', ...props.dataSet })}
     >
       <CardTableContext
         passing={props.pass !== undefined && props.trick !== true}

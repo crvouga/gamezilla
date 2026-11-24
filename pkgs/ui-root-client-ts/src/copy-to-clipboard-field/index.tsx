@@ -82,11 +82,11 @@ export function CopyToClipboardField(
       </Show>
       <button
         class="clickable clickableOpacity flex-row items-center gap-2 border border-outline rounded-control bg-surface-muted py-3 px-3 text-left"
+        data-copied={String(copied())}
         {...dataAttrs({
           component: 'CopyToClipboardTrigger',
           ...props.triggerDataSet,
         })}
-        data-copied={String(copied())}
         type="button"
         aria-label={copied() ? copiedLabel() : t`Copy to clipboard`}
         onClick={() => {

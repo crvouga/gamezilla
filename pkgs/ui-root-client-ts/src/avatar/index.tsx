@@ -315,7 +315,6 @@ export function Avatar(props: AvatarProps): JSX.Element {
   return (
     <span
       class={`box inline-flex shrink-0 rounded-full items-center justify-center ${ringClass({ kind: props.kind, seatColor: props.seatColor, ring: props.ring, accentRing: props.accentRing }, initialsRing())}`}
-      {...dataAttrs({ component: 'Avatar', ...props.dataSet })}
       data-kind={kind()}
       data-you={props.you === true ? 'true' : undefined}
       data-seat-color={props.seatColor}
@@ -323,6 +322,7 @@ export function Avatar(props: AvatarProps): JSX.Element {
       data-tone={tone()?.plate}
       data-ring={initialsRing()}
       data-placeholder={isPlaceholder() ? 'true' : undefined}
+      {...dataAttrs({ component: 'Avatar', ...props.dataSet })}
       role={name() === undefined ? undefined : 'img'}
       aria-label={name()}
       style={{

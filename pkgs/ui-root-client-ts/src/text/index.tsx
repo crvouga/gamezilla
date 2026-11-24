@@ -163,11 +163,11 @@ function textClass(kind: TextHostKind, text: TextProps): string {
 export function P(props: TextProps): JSX.Element {
   return (
     <p
-      {...dataAttrs(props.dataSet)}
       class={textClass(KIND.P, props)}
       id={props.id}
       data-testid={props.testId}
       data-component={componentId('P')}
+      {...dataAttrs(props.dataSet)}
       role={props.role}
       aria-label={props['aria-label']}
       aria-describedby={props['aria-describedby']}
@@ -184,11 +184,11 @@ export function P(props: TextProps): JSX.Element {
 export function Text(props: TextProps): JSX.Element {
   return (
     <span
-      {...dataAttrs(props.dataSet)}
       class={textClass(KIND.Text, props)}
       id={props.id}
       data-testid={props.testId}
       data-component={componentId('Text')}
+      {...dataAttrs(props.dataSet)}
       role={props.role}
       aria-label={props['aria-label']}
       aria-describedby={props['aria-describedby']}
@@ -205,11 +205,11 @@ export function Text(props: TextProps): JSX.Element {
 export function Strong(props: TextProps): JSX.Element {
   return (
     <strong
-      {...dataAttrs(props.dataSet)}
       class={textClass(KIND.Strong, props)}
       id={props.id}
       data-testid={props.testId}
       data-component={componentId('Strong')}
+      {...dataAttrs(props.dataSet)}
       role={props.role}
       aria-label={props['aria-label']}
       aria-describedby={props['aria-describedby']}
@@ -226,11 +226,11 @@ export function Strong(props: TextProps): JSX.Element {
 export function Em(props: TextProps): JSX.Element {
   return (
     <em
-      {...dataAttrs(props.dataSet)}
       class={textClass(KIND.Em, props)}
       id={props.id}
       data-testid={props.testId}
       data-component={componentId('Em')}
+      {...dataAttrs(props.dataSet)}
       role={props.role}
       aria-label={props['aria-label']}
       aria-describedby={props['aria-describedby']}
@@ -247,11 +247,11 @@ export function Em(props: TextProps): JSX.Element {
 export function Code(props: TextProps): JSX.Element {
   return (
     <code
-      {...dataAttrs(props.dataSet)}
       class={textClass(KIND.Code, props)}
       id={props.id}
       data-testid={props.testId}
       data-component={componentId('Code')}
+      {...dataAttrs(props.dataSet)}
       role={props.role}
       aria-label={props['aria-label']}
       aria-describedby={props['aria-describedby']}
@@ -268,12 +268,12 @@ export function Code(props: TextProps): JSX.Element {
 export function Time(props: TimeProps): JSX.Element {
   return (
     <time
-      {...dataAttrs(props.dataSet)}
       class={textClass(KIND.Time, props)}
       id={props.id}
       datetime={props.dateTime}
       data-testid={props.testId}
       data-component={componentId('Time')}
+      {...dataAttrs(props.dataSet)}
       role={props.role}
       aria-label={props['aria-label']}
       aria-describedby={props['aria-describedby']}

@@ -136,7 +136,6 @@ export function TileBoard(props: TileBoardProps): JSX.Element {
     // oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- the focused board owns the direction keys that steer it
     <div
       class={styles['board']}
-      {...dataAttrs({ component: 'TileBoard' })}
       role="group"
       // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- the board itself takes focus so the direction keys reach it
       tabindex={input.interactive() ? 0 : -1}
@@ -147,6 +146,7 @@ export function TileBoard(props: TileBoardProps): JSX.Element {
       data-disabled={String(props.disabled === true)}
       data-interactive={String(input.interactive())}
       data-size={props.size ?? 'compact'}
+      {...dataAttrs({ component: 'TileBoard' })}
       style={{
         '--tile-board-columns': props.columns,
         '--tile-board-rows': props.rows,

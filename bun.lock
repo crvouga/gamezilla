@@ -5831,10 +5831,23 @@
         "solid-js": "catalog:",
       },
       "devDependencies": {
-        "@pkgs/bun-test-solid-client-ts": "workspace:*",
-        "@solidjs/testing-library": "catalog:",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/lingui-solid-harness-ts": {
+      "name": "@pkgs/lingui-solid-harness-ts",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@lingui/core": "catalog:",
+        "@pkgs/bun-test-solid-client-ts": "workspace:*",
+        "@pkgs/lingui-solid-client-ts": "workspace:*",
+        "@solidjs/testing-library": "catalog:",
+        "@solidjs/web": "catalog:",
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "solid-js": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -8099,7 +8112,7 @@
     "minimatch": "10.2.5",
     "nanoid": "3.3.18",
     "serialize-javascript": "7.1.4",
-    "seroval": "1.6.11",
+    "seroval": "1.8.0",
     "sharp": "^0.35.4",
     "shell-quote": "^1.10.0",
     "smol-toml": "^1.8.0",
@@ -9495,6 +9508,8 @@
     "@pkgs/kv-web-client-ts": ["@pkgs/kv-web-client-ts@workspace:pkgs/kv-web-client-ts"],
 
     "@pkgs/lingui-solid-client-ts": ["@pkgs/lingui-solid-client-ts@workspace:pkgs/lingui-solid-client-ts"],
+
+    "@pkgs/lingui-solid-harness-ts": ["@pkgs/lingui-solid-harness-ts@workspace:pkgs/lingui-solid-harness-ts"],
 
     "@pkgs/llm-openai-server-ts": ["@pkgs/llm-openai-server-ts@workspace:pkgs/llm-openai-server-ts"],
 
@@ -11112,7 +11127,7 @@
 
     "serialize-javascript": ["serialize-javascript@7.1.4", "", {}, "sha512-FqlEuoTq/zRmA4Lg6aOqyH3lCHbUtCB0bmHCeFniX2GBdDqMJM3FwdvEhlE5Pim1dlt2FfBdVPmUNNiGhhKqpw=="],
 
-    "seroval": ["seroval@1.6.11", "", {}, "sha512-hpb6XnMCGN/A+79Uf8V7/iTGkyyyazNn5X0CoCAp7Uy9vT3RT8jZ9GLcnxGoVjg3P8AArbe4ZVHq6C8oT2a0kA=="],
+    "seroval": ["seroval@1.8.0", "", {}, "sha512-W5N4cMPc58lypAsScCmhGTyZxNZ6gPHvLHtMqtyvDFpfyNDsH1QjU0nI9Lr34+Q5ZLPsWeqOhkgTY5XtaPVQ4A=="],
 
     "seroval-plugins": ["seroval-plugins@1.8.0", "", { "peerDependencies": { "seroval": "^1.8.0" } }, "sha512-96vBb12rDvPPwdKUgWw1op3fGq8AVBFOr0IllbnM72yR5J9WWXF18cQ4g1XfDO7HCyh2dt70P3XdtyRayP8FWg=="],
 

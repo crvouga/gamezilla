@@ -42,8 +42,8 @@ export function GameWatcherCount(props: GameWatcherCountProps): JSX.Element {
   return (
     <span
       class="box inline-flex flex-row shrink-0 self-center items-center gap-1 rounded-full px-3 min-h-8 bg-surface-muted"
-      {...dataAttrs({ component: 'GameWatcherCount', ...props.dataSet })}
       data-value={String(props.value)}
+      {...dataAttrs({ component: 'GameWatcherCount', ...props.dataSet })}
     >
       <span class="box flex-row items-center gap-1" aria-hidden="true">
         <EyeIcon size={EYE_SIZE} color="textSecondary" />

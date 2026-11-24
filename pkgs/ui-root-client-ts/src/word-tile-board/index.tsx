@@ -236,11 +236,11 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
             class={styles['board']}
             data-measure={props.measure ?? 'full'}
             data-enlarged={String(enlarged())}
-            {...dataAttrs({ component: 'WordTileBoard' })}
             role="group"
             aria-label={props.label}
             aria-describedby={props.describedBy}
             data-testid={props.testId}
+            {...dataAttrs({ component: 'WordTileBoard' })}
             style={{ '--word-tile-columns': props.columnLabels.length }}
           >
             <BoardRows

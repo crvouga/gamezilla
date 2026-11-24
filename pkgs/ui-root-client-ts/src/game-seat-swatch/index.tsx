@@ -130,9 +130,9 @@ export function GameSeatSwatch(props: GameSeatSwatchProps): JSX.Element {
       role={labelled() ? 'img' : undefined}
       aria-label={labelled() ? props.label : undefined}
       aria-hidden={labelled() ? undefined : 'true'}
-      {...dataAttrs({ component: 'GameSeatSwatch', ...props.dataSet })}
       data-seat-color={props.look.color}
       data-mark={props.look.mark}
+      {...dataAttrs({ component: 'GameSeatSwatch', ...props.dataSet })}
     >
       <Show when={props.look.mark}>
         {(mark) => (

@@ -70,7 +70,6 @@ export function SoundIndicator(props: SoundIndicatorProps): JSX.Element {
   return (
     <span
       class="box inline-flex rounded-full items-center justify-center"
-      {...dataAttrs({ component: 'SoundIndicator', ...props.dataSet })}
       style={{
         'background-color': backgroundColor(),
         padding: cssPx(Math.round(size() * PADDING_RATIO)),
@@ -78,6 +77,7 @@ export function SoundIndicator(props: SoundIndicatorProps): JSX.Element {
       role="status"
       aria-label={stateLabel()}
       data-state={props.state}
+      {...dataAttrs({ component: 'SoundIndicator', ...props.dataSet })}
     >
       <Show
         when={props.state === 'playing'}

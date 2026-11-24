@@ -163,7 +163,7 @@ committed fixture from the running package's `fixtures/snapshots/<id>.json`
   **once** per composition into its seed; each `openHarness` clones that seed
   instead of re-running DDL. UI runs on **virtual
   time**: `@pkgs/bun-test-solid-client-ts/preload` installs a happy-dom document and
-  compiles workspace `.tsx` with `babel-preset-solid` + the Lingui macro
+  compiles workspace `.tsx` with `@solidjs/babel-plugin` + the Lingui macro
   (`@libs/harness-ts/preload` narrows it to a phone viewport) (CSS modules → class-name proxies, media assets → paths);
   `bun test` runs with `--conditions=browser --conditions=development` so Solid
   resolves to its browser dev build. Each actor is one `MultiAppSolidDomSession`

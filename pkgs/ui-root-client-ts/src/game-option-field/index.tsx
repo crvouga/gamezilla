@@ -159,9 +159,9 @@ export function GameOptionField(props: GameOptionFieldProps): JSX.Element {
   return (
     <div
       class="box min-w-0"
-      {...dataAttrs({ component: 'GameOptionField', ...props.dataSet })}
       data-kind={props.kind}
       data-readonly={props.readOnly === true ? 'true' : undefined}
+      {...dataAttrs({ component: 'GameOptionField', ...props.dataSet })}
     >
       <Switch>
         <Match when={props.kind === 'choice' ? props : undefined}>

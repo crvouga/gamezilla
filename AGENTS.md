@@ -69,7 +69,7 @@ than restating it.
 
 - **Domain rows are soft-delete only.** Removal sets managed `deleted_at`, never `DELETE FROM` a domain table (mutation `tx` rejects it: `NO_HARD_DELETE`). `defineQuery` snapshots include tombstones; UI reads filter `deleted_at IS NULL`. Merge upserts snapshot rows verbatim and rebases pending `sync_engine_mutations` on top — no absence GC. Unsubscribe / denied only clears `sync_engine_scope_meta`. Framework tables (`sync_engine_*`) may hard-delete.
 
-- **Screens compose `@pkgs/ui`; only the design system styles.** Product packages (`libs/*-client`, `apps/client-ts`, `apps/product-ts`, the feedback and harness-console clients) write no DOM elements and no `class` / `classList` / `style`: layout is `Stack*` / `Grid` / `Layer` props, text is `P` / `Text` / `H1`–`H6`, paint is `Surface` or a component variant. Inside `@pkgs/ui-root-client-ts` (and component packages such as the chess board) style with Solid builtins: `class` / `classList` for token utilities, `style` only for dynamic values classes cannot express. Component props are closed (token names and keywords): no `class` / `style` / `contentClass` escape hatch, no `sx` / `frameSx` / `fieldSx`, no class-merge helpers (`joinClass` / `cn` / `clsx` / `twMerge` / `cva`). CI: `design-vocabulary.ts` + `design-composition.ts` (every UI package's `lint`), `no-inline-style-prop.grit`.
+- **Screens compose `@pkgs/ui`; only the design system styles.** Product packages (`libs/*-client`, `apps/client-ts`, `apps/product-ts`, the feedback and harness-console clients) write no DOM elements and no `class` / `style`: layout is `Stack*` / `Grid` / `Layer` props, text is `P` / `Text` / `H1`–`H6`, paint is `Surface` or a component variant. Inside `@pkgs/ui-root-client-ts` (and component packages such as the chess board) style with Solid builtins: `class` / `classList` for token utilities, `style` only for dynamic values classes cannot express. Component props are closed (token names and keywords): no `class` / `style` / `contentClass` escape hatch, no `sx` / `frameSx` / `fieldSx`, no class-merge helpers (`joinClass` / `cn` / `clsx` / `twMerge` / `cva`). CI: `design-vocabulary.ts` + `design-composition.ts` (every UI package's `lint`), `no-inline-style-prop.grit`.
 
 - **Three-layer DI.** Only `SqlClient` and the injected ports are long-lived. Use-case classes take `(db, ports)` and open transactions for writes (reads pass `db` as `SqlTx`). Repositories / services / publishers / handlers take `SqlTx` (`Pick` of `query` / `run`) plus ports and are constructed on demand inside the use case. Factory functions `(tx, ports) => …` are the wiring escape hatch; no `*Container` or registry classes (`no-di-container.grit`). `defineMutation` / `defineQuery` handlers and Solid hooks stay as they are.
 
@@ -150,7 +150,7 @@ a screen.
 
 **Adding a component:** `pkgs/ui-root-client-ts/src/<name>/index.tsx`, exported through the
 package's `./*` mapping; closed, typed props (token names and variants,
-never `class` / `style`); style with `class` / `classList` / `style`
+never `class` / `style`); style with `class` / `style`
 internally; set `data-*` on the root via `dataAttrs({ component:
 '<PascalName>', ... })`; colocate CSF stories, fixtures and component styles in the same slice, showing meaningful variants,
 states and interactions, and a harness test.
@@ -188,6 +188,17 @@ Components run once; reactivity is tracking, not re-rendering.
   props.userId)`), or remount with `<Show when={id} keyed>`.
 - No JS `switch` in a component (`no-switch-in-component.grit`); use
   `<Switch>` / `<Match>`.
+- Effects are split: `createEffect(compute, apply)`. `compute` tracks and
+  returns values; `apply` does the side effect and returns its cleanup.
+- Never write a signal or store in a component body, a memo or an effect's
+  `compute`; derive instead (`createMemo`, `createSignal(() => props.x)`).
+  Writes belong in handlers, `apply`, `onSettled` and async callbacks.
+- Writes are batched: a read sees the new value after the microtask flush.
+  Tests call `flush()` after a direct write; DOM events and virtual-clock
+  timers flush on their own.
+- Native attributes are attributes: `aria-*` and other enumerated
+  attributes take string tokens, names are lower-case (`tabindex`), and
+  conditional classes go in `class={[...]}`.
 
 Lint: oxlint (`oxlint.config.mts`, eslint-plugin-solid, type-aware via
 oxlint-tsgolint) runs the full Solid set on

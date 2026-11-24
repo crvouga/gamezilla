@@ -54,13 +54,13 @@ export function TrailArena(props: TrailArenaProps): JSX.Element {
   const headScale = () => (props.heads === 'large' ? LARGE_HEAD_SCALE : 1);
   return (
     <div
-      {...dataAttrs({ component: 'TrailArena', testid: props.testId })}
       class={styles['arena']}
       data-interactive={String(interactive())}
       data-dimmed={String(props.dimmed === true)}
       data-width={props.width}
       data-height={props.height}
       data-rider-count={props.riders.length}
+      {...dataAttrs({ component: 'TrailArena', testid: props.testId })}
       role="application"
       aria-label={props.label}
       aria-describedby={props.instructionsId}

@@ -9,6 +9,8 @@
     "pkgs/chess-board-root-shared-ts/tests",
     "pkgs/chess-board-root-harness-ts/tests",
     "pkgs/llm-root-client-ts/src",
+    "pkgs/lingui-solid-client-ts/src",
+    "pkgs/lingui-solid-harness-ts/tests",
     "pkgs/solid-context-client-ts/src",
     "pkgs/solid-context-client-ts/tests",
     "pkgs/ui-testing-solid-dom-client-ts/src",

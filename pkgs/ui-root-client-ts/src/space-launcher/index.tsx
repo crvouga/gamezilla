@@ -100,8 +100,8 @@ export function SpaceLauncher(props: SpaceLauncherProps): JSX.Element {
   return (
     <div
       class={styles['stage']}
-      {...dataAttrs({ component: 'SpaceLauncher', ...props.dataSet })}
       data-role={props.role}
+      {...dataAttrs({ component: 'SpaceLauncher', ...props.dataSet })}
     >
       <section class={styles['status']}>
         <h2 class="text textTitle" data-testid={props.testIds?.status}>

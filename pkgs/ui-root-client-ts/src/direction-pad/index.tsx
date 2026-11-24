@@ -113,13 +113,13 @@ function PadButton(props: {
 export function DirectionPad(props: DirectionPadProps): JSX.Element {
   return (
     <div
-      {...dataAttrs({ component: 'DirectionPad', testid: props.testId })}
       class={styles['pad']}
       data-size={props.size ?? 'lg'}
       data-layout={props.layout ?? 'cross'}
       role="group"
       data-disabled={String(props.disabled)}
       data-concealed={String(props.concealed === true)}
+      {...dataAttrs({ component: 'DirectionPad', testid: props.testId })}
       aria-hidden={props.concealed === true ? 'true' : undefined}
     >
       <For each={props.layout === 'arrows' ? ARROW_HEADINGS : HEADINGS}>

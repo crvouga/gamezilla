@@ -1,7 +1,7 @@
 /**
  * bun:test — attach a `MultiAppSolidDomSession` over the happy-dom
  * `document` installed by the test preload. The lazy `import()` (and the
- * `.web.ts` sibling) keep `@pkgs/ui-testing-solid-dom` / `solid-js/web` out
+ * `.web.ts` sibling) keep `@pkgs/ui-testing-solid-dom` / `@solidjs/web` out
  * of the product-harness bundle, which mounts `live.App` into the real browser
  * document itself.
  */

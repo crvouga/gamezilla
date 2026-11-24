@@ -201,11 +201,11 @@ export function SpeakingAvatar(props: SpeakingAvatarProps): JSX.Element {
   return (
     <div
       class="box flex-row items-center px-4 gap-1 min-w-0"
-      {...dataAttrs({ component: 'SpeakingAvatar', ...props.dataSet })}
       {...rest}
       data-muted={String(muted())}
       data-speaking={String(speech.isSpeaking())}
       data-loading={String(speech.isLoading())}
+      {...dataAttrs({ component: 'SpeakingAvatar', ...props.dataSet })}
     >
       <Show
         when={createSpeech !== undefined}

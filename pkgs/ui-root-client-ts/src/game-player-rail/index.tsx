@@ -159,9 +159,9 @@ export function GamePlayerChip(props: GamePlayerChipProps): JSX.Element {
       class="box min-w-0 flex-1"
       role={props.placeTestId === undefined ? 'listitem' : undefined}
       aria-current={active() ? 'step' : undefined}
-      {...dataAttrs({ component: 'GamePlayerChip', ...props.dataSet })}
       data-active={active() ? 'true' : 'false'}
       data-state={props.state?.kind}
+      {...dataAttrs({ component: 'GamePlayerChip', ...props.dataSet })}
     >
       <Show
         when={props.onPress}

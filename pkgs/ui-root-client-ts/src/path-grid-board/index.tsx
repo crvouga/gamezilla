@@ -181,7 +181,6 @@ export function PathGridBoard(props: PathGridBoardProps): JSX.Element {
       ref={root}
       class={styles['board']}
       data-theme="dark"
-      {...dataAttrs({ component: 'PathGridBoard' })}
       role="group"
       aria-label={props.label}
       aria-describedby={props.describedBy}
@@ -190,6 +189,7 @@ export function PathGridBoard(props: PathGridBoardProps): JSX.Element {
         props.disabled !== true && props.onTraceStart !== undefined
       )}
       data-input={input()}
+      {...dataAttrs({ component: 'PathGridBoard' })}
       style={{ '--path-columns': props.columns, '--path-rows': props.rows }}
       onPointerDown={(event) => {
         setInput('pointer');

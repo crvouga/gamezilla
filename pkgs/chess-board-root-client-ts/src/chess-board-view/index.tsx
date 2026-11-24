@@ -253,12 +253,12 @@ export function ChessBoardView(args: {
         { [styles['lite'] ?? '']: !args.ctrl.motion().effects },
       ]}
       style={hostStyle()}
+      data-grab={grabColors(args.props, args.ctrl)}
       {...dataAttrs({
         component: 'ChessBoard',
         testid: boardTestId(),
         ...args.props.dataSet,
       })}
-      data-grab={grabColors(args.props, args.ctrl)}
       ref={args.ctrl.setHost}
       onKeyDown={(e) => args.ctrl.onKeyDown(e)}
       // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex

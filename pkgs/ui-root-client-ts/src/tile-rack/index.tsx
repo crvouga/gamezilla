@@ -37,10 +37,10 @@ export function TileRack(props: TileRackProps): JSX.Element {
     <div class={styles['frame']}>
       <div
         class={styles['rack']}
-        {...dataAttrs({ component: 'TileRack' })}
         role="group"
         aria-label={props.label}
         data-testid={props.testId}
+        {...dataAttrs({ component: 'TileRack' })}
       >
         <For each={props.tiles}>
           {(tile) => (

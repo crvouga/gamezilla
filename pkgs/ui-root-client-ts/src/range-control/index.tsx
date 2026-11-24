@@ -37,7 +37,6 @@ export type RangeControlProps = {
 export function RangeControl(props: RangeControlProps) {
   return (
     <input
-      {...dataAttrs({ component: 'RangeControl', ...props.dataSet })}
       class={
         props.orientation === 'vertical'
           ? `box accent-tint bg-transparent cursor-pointer ${styles['vertical']}`
@@ -50,6 +49,7 @@ export function RangeControl(props: RangeControlProps) {
           ? 'true'
           : undefined
       }
+      {...dataAttrs({ component: 'RangeControl', ...props.dataSet })}
       type="range"
       aria-label={props.label}
       aria-valuetext={props.valueText}
