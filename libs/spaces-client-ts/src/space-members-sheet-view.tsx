@@ -57,7 +57,7 @@ function SpaceMemberBadges(props: {
       </Show>
       <Show when={props.member.isThisTab}>
         <Badge
-          label={<Trans>This tab</Trans>}
+          label={<Trans>This device</Trans>}
           intent="success"
           tone="subtle"
           size="sm"

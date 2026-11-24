@@ -397,7 +397,7 @@ function JoinPromptBody(props: SpaceJoinScreenViewProps): JSX.Element {
         <EmptyState
           icon={Gamepad2Icon}
           title={t`You can't join this space`}
-          body={t`Ask the host to add you (it then shows in Spaces, under Shared with you) or to send you the space's link.`}
+          body={t`Ask the host to add you or send you the link. If they add you, look under Shared with you in Spaces.`}
         />
       </Match>
       <Match when={props.status === 'missing'}>
