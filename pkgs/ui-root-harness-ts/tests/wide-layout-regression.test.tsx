@@ -186,8 +186,8 @@ describe('wide layout canvas and centered measure', () => {
 
   // regression: wide-layout-canvas-and-centered-measure
   // regression: compact-menus-not-centered
-  test.each([390, 768, 1024, 1440])(
-    'an embedded menu centers its title and rows at width %i',
+  test.each([390, 768])(
+    'an embedded menu centers its title and rows at compact width %i',
     (width) => {
       renderUi(
         () => (
@@ -201,6 +201,34 @@ describe('wide layout canvas and centered measure', () => {
       );
       const column = mustQuery('[data-component="ScrollViewContent"]');
       expect(column.className).toMatch(/\bmx-auto\b/);
+      expect((column as HTMLElement).style.maxWidth).toBe(
+        SCREEN_MAX_WIDTH.menu
+      );
+      expect(column.querySelector('[data-component="ScreenIntro"]')).not.toBe(
+        null
+      );
+    }
+  );
+
+  // On desktop every screen's content starts on the frame column's edge,
+  // the edge the space's top bar and every other screen use: an embedded
+  // menu keeps its measure there instead of centring in the frame.
+  test.each([1024, 1440])(
+    'an embedded menu starts its title and rows on the frame edge at width %i',
+    (width) => {
+      renderUi(
+        () => (
+          <MainMenuScreen
+            screenId="games"
+            title="Games"
+            items={[{ key: 'chess', title: 'Chess' }]}
+          />
+        ),
+        { width, height: 900 }
+      );
+      const column = mustQuery('[data-component="ScrollViewContent"]');
+      expect(column.className).not.toMatch(/\bmx-auto\b/);
+      expect(column.className).toMatch(/\bself-start\b/);
       expect((column as HTMLElement).style.maxWidth).toBe(
         SCREEN_MAX_WIDTH.menu
       );
