@@ -18,7 +18,10 @@ export function MultiplayerNotices(props: {
   readonly online: boolean;
   /** A search is running: a refusal then is about stopping it. */
   readonly searching?: boolean | undefined;
-  /** A game in play: no connection is said on its status line instead. */
+  /**
+   * A game in play: no connection is said on its status line instead (a
+   * search says it in its own card).
+   */
   readonly playing?: boolean | undefined;
 }): JSX.Element {
   return (
@@ -56,7 +59,11 @@ export function MultiplayerNotices(props: {
             </Show>
           )}
         </Show>
-        <Show when={!props.online && props.playing !== true}>
+        <Show
+          when={
+            !props.online && props.playing !== true && props.searching !== true
+          }
+        >
           <Notice
             tone="warning"
             icon={WifiOffIcon}
@@ -64,8 +71,8 @@ export function MultiplayerNotices(props: {
           >
             <Text variant="inherit" role="status">
               <Trans>
-                Matchmaking needs a connection. Your game and your search pick
-                up where they were when it returns.
+                You're offline. Matchmaking picks up where it was when the
+                connection returns.
               </Trans>
             </Text>
           </Notice>

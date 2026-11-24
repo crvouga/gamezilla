@@ -85,16 +85,17 @@
   }
   /* During play the window's height bounds the board too: the window less
      the frame around it (its title and the seats above, about 150px, and
-     the own seat with its actions and a watcher's notice under it, about
-     230px) and the host's own bar, so all of them show in the first view.
-     A game's opt-in square fit only narrows this further. */
+     the own seat under it, about 150px; the commands, the status line and
+     any notice sit in the rail beside) and the host's own bar, so all of
+     them show in the first view. A game's opt-in square fit only narrows
+     this further. */
   .session[data-board-focus="true"]:is(
     [data-phase="active"],
     [data-game-fixed="true"]
   ) > [data-has-stage="true"][data-has-aside="true"] {
     --game-board-measure: clamp(
       320px,
-      calc(100dvh - 380px - var(--ui-host-chrome-block-size, 0px)),
+      calc(100dvh - 300px - var(--ui-host-chrome-block-size, 0px)),
       var(--ui-max-width-prose)
     );
     /* The rail takes what the bounded board leaves, so it sits beside the

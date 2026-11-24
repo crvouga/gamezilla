@@ -311,7 +311,7 @@ export function FrameStageConditionLine(props: {
           role="status"
           lines={2}
         >
-          <Trans>Game stopped. Your last saved score is kept.</Trans>
+          <Trans>Game stopped. Reopen it to play on from here.</Trans>
         </P>
       </Match>
       <Match when={props.connection !== 'online'}>
@@ -340,14 +340,18 @@ export function FrameStageConditionLine(props: {
               plainName={away().plainName}
               people={props.people}
             />{' '}
-            <Show
-              when={away().twoSided}
+            <Switch
               fallback={
                 <Trans>is away. Their turn waits until they return.</Trans>
               }
             >
-              <Trans>is away. After a minute you may claim the win.</Trans>
-            </Show>
+              <Match when={props.play.canClaimWin}>
+                <Trans>is away. You may claim the win.</Trans>
+              </Match>
+              <Match when={away().twoSided}>
+                <Trans>is away. After a minute you may claim the win.</Trans>
+              </Match>
+            </Switch>
           </P>
         )}
       </Match>

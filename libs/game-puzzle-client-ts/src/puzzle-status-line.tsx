@@ -76,6 +76,10 @@ export function PuzzleStatusLine(
           solutionShown={props.status === 'revealed'}
           solverSide={props.solverSide ?? null}
           correct={props.correct}
+          solvedLate={
+            props.status === 'solved' &&
+            props.result.completion?.outcome === 'failed'
+          }
           trailing={<StatusLineTrailing {...props} />}
         />
       }

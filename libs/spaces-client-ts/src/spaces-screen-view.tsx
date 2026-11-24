@@ -55,7 +55,7 @@ export function SpacesScreenView(props: SpacesScreenViewProps): JSX.Element {
       primaryAction={primaryAction()}
     >
       {/* A refused create / end / leave floats over the lobby. */}
-      <ToastStack placement="above-actions">{props.notice}</ToastStack>
+      <ToastStack placement="above-commands">{props.notice}</ToastStack>
       <SpacesLobbyView
         status={props.status}
         hostedCount={props.hostedCount}

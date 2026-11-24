@@ -74,7 +74,13 @@ describe('each stage opens on its own small screen', () => {
         find: { players: 2, timed: true, timeControl: '5+0' },
       },
     });
-    const noticed = () => ids('multiplayer-offline', 'multiplayer-error');
+    // A search says no connection in its own card; elsewhere it floats.
+    const noticed = () =>
+      ids(
+        'multiplayer-offline',
+        'multiplayer-waiting-offline',
+        'multiplayer-error'
+      );
     for (const open of [
       'multiplayer-open-time-control',
       'multiplayer-open-ratings',

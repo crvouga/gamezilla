@@ -1,6 +1,7 @@
 import { Trans } from '@lingui/solid/macro';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameSearchState } from '@pkgs/ui-root-client-ts/game-search-state';
+import { WifiOffIcon } from '@pkgs/ui-root-client-ts/icons';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import { type JSX, Show } from 'solid-js';
@@ -94,18 +95,47 @@ export function MultiplayerStopSearch(props: {
 /** A waiting search shows its time control and how long it has been looking. */
 export function MultiplayerWaiting(props: {
   readonly search: MultiplayerSearchView;
+  /**
+   * No connection: the card says the search waits for it and resumes by
+   * itself, with a still mark in place of the spinner.
+   */
+  readonly offline?: boolean | undefined;
 }): JSX.Element {
   return (
     <GameSearchState
+      mark={
+        props.offline === true ? (
+          <WifiOffIcon size={24} color="warning" />
+        ) : undefined
+      }
       title={
         <Show
-          when={props.search.players > 2}
-          fallback={<Trans>Finding an opponent</Trans>}
+          when={props.offline !== true}
+          fallback={<Trans>Waiting for connection</Trans>}
         >
-          <Trans>Finding players</Trans>
+          <Show
+            when={props.search.players > 2}
+            fallback={<Trans>Finding an opponent</Trans>}
+          >
+            <Trans>Finding players</Trans>
+          </Show>
         </Show>
       }
-      description={<WaitingDescription search={props.search} />}
+      description={
+        <Show
+          when={props.offline !== true}
+          fallback={
+            <P variant="inherit" testId="multiplayer-waiting-offline">
+              <Trans>
+                You're offline. Your search resumes by itself when the
+                connection returns.
+              </Trans>
+            </P>
+          }
+        >
+          <WaitingDescription search={props.search} />
+        </Show>
+      }
       elapsed={
         <>
           <Text variant="inherit" testId="multiplayer-waiting-seconds">
