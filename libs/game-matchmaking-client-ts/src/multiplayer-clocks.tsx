@@ -58,6 +58,8 @@ function clockSpoken(
 export function MultiplayerClock(props: {
   readonly game: MultiplayerGame;
   readonly side: MultiplayerSide;
+  /** No connection: the clock reads quiet, never the running highlight. */
+  readonly muted?: boolean | undefined;
 }): JSX.Element {
   const gameSideLabel = useGameSideLabel();
   const offlineSince = useOfflineSince();
@@ -85,7 +87,11 @@ export function MultiplayerClock(props: {
   );
   return (
     <GameClock
-      active={clockRunning(props.game) && sideToMove(props.game) === props.side}
+      active={
+        props.muted !== true &&
+        clockRunning(props.game) &&
+        sideToMove(props.game) === props.side
+      }
       label={gameSideLabel(props.game.fen, props.side)}
       low={time().low}
       value={time().shown}

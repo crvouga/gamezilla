@@ -165,7 +165,11 @@ export function MultiplayerSeat(props: {
         <Show
           when={props.game.white_ms !== null && props.game.black_ms !== null}
         >
-          <MultiplayerClock game={props.game} side={props.side} />
+          <MultiplayerClock
+            game={props.game}
+            side={props.side}
+            muted={props.connected === false}
+          />
         </Show>
       }
       dataSet={{

@@ -222,7 +222,11 @@ function StoryStage(props: {
           active={props.active && props.offline !== true}
           turnLabel={props.watching === true ? 'To move' : 'Your move'}
           trailing={
-            <GameClock label="Red" value="3:47" active={props.active} />
+            <GameClock
+              label="Red"
+              value="3:47"
+              active={props.active && props.offline !== true}
+            />
           }
         />
       }
