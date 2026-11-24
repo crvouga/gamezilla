@@ -25,6 +25,8 @@ export const DMN_INPUT = {
   open: 'open spaces they host',
   today: 'rated puzzles started today',
   earlier: 'rated puzzles started before today',
+  matchedToday: 'matched games begun today',
+  matchedEarlier: 'matched games begun before today',
 } as const;
 
 /** A decision case's inputs, keyed by those names. */

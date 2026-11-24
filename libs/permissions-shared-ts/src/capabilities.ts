@@ -50,6 +50,7 @@ export const CAPABILITY_KEYS = {
   'publish a puzzle or pack': PERMISSION.puzzlesPublishContent,
   'continue a puzzle attempt': PERMISSION.puzzlesEditAttempt,
   'start a rated puzzle': ACTION.puzzleRatedSolve,
+  'start a matched game today': ACTION.matchedGameStart,
   'create a space': PERMISSION.spacesCreate,
   'join a space': PERMISSION.spacesJoin,
   'host another open space': LIMIT.hostedSpaces,

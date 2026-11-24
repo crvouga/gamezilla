@@ -8,7 +8,7 @@
 import { expect } from 'bun:test';
 import type { MultiplayerGame } from '@libs/game-matchmaking-shared-ts/game-state';
 import type { ProductHarness } from '@libs/harness-ts/harness';
-import { accountIdOf } from '@libs/harness-ts/identity';
+import { playerIdOf } from '@libs/harness-ts/identity';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
 import { readCurrent } from '@pkgs/matchmaking-sql-shared-ts/search-read';
 import {
@@ -44,7 +44,7 @@ export function inMatchedGame(w: HarnessWorld): boolean {
 
 /** Whether the server holds a search for `actor` that is still waiting. */
 async function searchHeld(s: ProductHarness, actor: string): Promise<boolean> {
-  const owner = await accountIdOf(s, actor);
+  const owner = await playerIdOf(s, actor);
   if (owner === null) return false;
   const current = await readCurrent(
     s.harness.serverSql.sqlClient,
@@ -342,14 +342,14 @@ export async function refusal(w: HarnessWorld, actor: string, code: string) {
 
 /** Both people see `actor` won the matched game (`reason`, when given). */
 export async function winner(w: HarnessWorld, actor: string, reason?: string) {
-  const owner = await w.s.read(accountIdOf, actor);
+  const owner = await w.s.read(playerIdOf, actor);
   const game = await bothBoards(w, (g) => g.outcome !== 'ongoing');
   expect(game.outcome).toBe(game.white_id === owner ? 'white' : 'black');
   if (reason !== undefined) expect(game.reason).toBe(reason);
 }
 
 export async function ownerOf(w: HarnessWorld, actor: string) {
-  const owner = await w.s.read(accountIdOf, actor);
-  if (owner === null) throw new Error(`${actor} has no account`);
+  const owner = await w.s.read(playerIdOf, actor);
+  if (owner === null) throw new Error(`${actor} has no identity`);
   return owner;
 }

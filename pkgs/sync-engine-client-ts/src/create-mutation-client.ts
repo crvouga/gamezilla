@@ -97,7 +97,14 @@ async function withServerVerdict<A>(
   if (verdict.status !== 'rejected') return local;
   return {
     ok: false,
-    failures: [{ rule: m.name, code: verdict.code, message: verdict.message }],
+    failures: [
+      {
+        rule: m.name,
+        code: verdict.code,
+        message: verdict.message,
+        ...(verdict.meta === undefined ? {} : { meta: verdict.meta }),
+      },
+    ],
   };
 }
 

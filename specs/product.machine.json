@@ -371,6 +371,7 @@
       "Connection returns to a finished multiplayer game": "system",
       "Connection returns to an active multiplayer game": "system",
       "Finds an opponent as a guest": "user",
+      "Finds an opponent as a guest past today's matched game allowance": "user",
       "Finds an opponent offline": "user",
       "Finds an opponent with an account online": "user",
       "Multiplayer checkmate occurs": "system",
@@ -8798,6 +8799,9 @@
                           "target": "#Multiplayer: Finding an opponent"
                         },
                         "Finds an opponent as a guest": {
+                          "target": "#Multiplayer: Finding an opponent"
+                        },
+                        "Finds an opponent as a guest past today's matched game allowance": {
                           "target": "#Multiplayer: Multiplayer account required"
                         },
                         "Finds an opponent offline": {
@@ -8811,8 +8815,8 @@
                     "Multiplayer: Choosing a time control": {
                       "id": "Multiplayer: Choosing a time control",
                       "meta": {
-                        "description": "Account holders choose a supported multiplayer time control before searching.",
-                        "snapshot": "Account holders choose a supported multiplayer time control before searching.",
+                        "description": "Guests and account holders choose a supported multiplayer time control before searching.",
+                        "snapshot": "Guests and account holders choose a supported multiplayer time control before searching.",
                         "confidence": "assumed",
                         "source": [
                           "specs/games/matched-game-abort.feature:6",
@@ -8842,6 +8846,9 @@
                           "target": "#Multiplayer: Finding an opponent"
                         },
                         "Finds an opponent as a guest": {
+                          "target": "#Multiplayer: Finding an opponent"
+                        },
+                        "Finds an opponent as a guest past today's matched game allowance": {
                           "target": "#Multiplayer: Multiplayer account required"
                         },
                         "Finds an opponent offline": {
@@ -8895,8 +8902,8 @@
                     "Multiplayer: Multiplayer account required": {
                       "id": "Multiplayer: Multiplayer account required",
                       "meta": {
-                        "description": "Private multiplayer chess needs an account.",
-                        "snapshot": "Private multiplayer chess needs an account.",
+                        "description": "A guest past today's matched game allowance is invited to sign in to play more.",
+                        "snapshot": "A guest past today's matched game allowance is invited to sign in to play more.",
                         "confidence": "assumed",
                         "source": [
                           "specs/games/matched-game-accessibility.feature:5",

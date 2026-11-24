@@ -16,6 +16,7 @@
         "@pkgs/device-shared-ts#src",
         "@pkgs/gherkin-shared-ts#src",
         "@pkgs/matchmaking-sql-shared-ts#src",
+        "@pkgs/permissions-shared-ts#src",
         "@pkgs/sounds-shared-ts#src",
         "@pkgs/sql-client-root-shared-ts#src",
         "@pkgs/sql-root-shared-ts#src",

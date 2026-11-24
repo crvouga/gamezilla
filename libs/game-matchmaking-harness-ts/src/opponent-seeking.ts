@@ -18,7 +18,7 @@ import {
   setUpGameMode,
 } from '@libs/harness-ts/game-tiles';
 import type { ProductHarness } from '@libs/harness-ts/harness';
-import { signedInAccountOf } from '@libs/harness-ts/identity';
+import { playerIdOf } from '@libs/harness-ts/identity';
 import { bringToFront } from '@libs/harness-ts/observations';
 import { backToTabs } from '@libs/harness-ts/shell-actions';
 import { createSpace } from '@libs/spaces-harness-ts/space-actions';
@@ -286,13 +286,13 @@ async function seekFromFindingAnOpponent(
 
 /**
  * `actor` seeks an opponent for `gameId` at `timeControl` (in the game's
- * clock namespace) from finding an opponent in their space — an account
+ * clock namespace) from finding an opponent in their space — a person
  * without one starts it, as seeking from the game's choices does — opened as
  * far as their device can: they choose the clock choice and find. A screen
  * that cannot express
  * the request — a clock choice it does not offer, or a search, matched game
  * or custom game already under way — sends the same command a stale screen
- * on another device would; a sign-in invitation takes no command at all.
+ * on another device would.
  */
 export const findGameOpponent = scenarioAction({
   name: 'findGameOpponent',
@@ -300,7 +300,7 @@ export const findGameOpponent = scenarioAction({
     await ensureActor(s, actor);
     if (
       (await multiplayerSpaceId(s, actor)) === null &&
-      (await signedInAccountOf(s, actor)) !== null
+      (await playerIdOf(s, actor)) !== null
     )
       await Promise.resolve(createSpace.act(s, actor));
     await seekFromFindingAnOpponent(s, actor, gameId, timeControl);

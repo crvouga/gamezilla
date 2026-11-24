@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="access-decisions" name="What each kind of person may do" namespace="urn:product:decisions">
   <decision id="access" name="May this person do this?">
-    <description>Guests play puzzles and host and join spaces; everything social, the puzzle feed, matches and paying need an account. Free accounts and Plus members may do all of it, except that a Plus member is not offered to subscribe again. While payments are not offered, nobody sees the billing plans, subscribes or uses the billing portal.</description>
+    <description>Guests play puzzles, host and join spaces, and wait for a match and play it; everything social, the puzzle feed and paying need an account. Free accounts and Plus members may do all of it, except that a Plus member is not offered to subscribe again. While payments are not offered, nobody sees the billing plans, subscribes or uses the billing portal.</description>
     <decisionTable id="access-table" hitPolicy="UNIQUE">
       <input id="who" label="who is asking">
         <inputExpression id="who-expression" typeRef="string"><text>who is asking</text></inputExpression>
@@ -22,17 +22,17 @@
         <outputValues id="reason-values"><text>"none","needs an account","not offered"</text></outputValues>
       </output>
       <rule id="guest-needs-an-account">
-        <description>A guest is asked to make an account before anything social, the puzzle feed, a match or paying.</description>
+        <description>A guest is asked to make an account before anything social, the puzzle feed or paying.</description>
         <inputEntry id="guest-needs-an-account-in-1"><text>"guest"</text></inputEntry>
-        <inputEntry id="guest-needs-an-account-in-2"><text>"keep a friends list","use people search","get notifications","use the billing portal","wait for a match","see their matchmaking wait","stop waiting for a match","change their matchmaking range","play multiplayer chess","resign multiplayer chess","customize the puzzle feed","subscribe"</text></inputEntry>
+        <inputEntry id="guest-needs-an-account-in-2"><text>"keep a friends list","use people search","get notifications","use the billing portal","customize the puzzle feed","subscribe"</text></inputEntry>
         <inputEntry id="guest-needs-an-account-in-3"><text>-</text></inputEntry>
         <outputEntry id="guest-needs-an-account-out-1"><text>"no"</text></outputEntry>
         <outputEntry id="guest-needs-an-account-out-2"><text>"needs an account"</text></outputEntry>
       </rule>
       <rule id="guest-plays-and-hosts">
-        <description>A guest plays puzzles and creates and joins spaces.</description>
+        <description>A guest plays puzzles, creates and joins spaces, and waits for a match and plays it.</description>
         <inputEntry id="guest-plays-and-hosts-in-1"><text>"guest"</text></inputEntry>
-        <inputEntry id="guest-plays-and-hosts-in-2"><text>"play puzzles","create a space","join a space"</text></inputEntry>
+        <inputEntry id="guest-plays-and-hosts-in-2"><text>"play puzzles","create a space","join a space","wait for a match","see their matchmaking wait","stop waiting for a match","change their matchmaking range","play multiplayer chess","resign multiplayer chess"</text></inputEntry>
         <inputEntry id="guest-plays-and-hosts-in-3"><text>-</text></inputEntry>
         <outputEntry id="guest-plays-and-hosts-out-1"><text>"yes"</text></outputEntry>
         <outputEntry id="guest-plays-and-hosts-out-2"><text>"none"</text></outputEntry>

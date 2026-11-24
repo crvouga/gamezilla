@@ -7,9 +7,9 @@ import type { ProductHarness } from '@libs/harness-ts/harness';
 import {
   actorLocalSql,
   localAccountIdOf,
-  signedInAccountOf,
+  playerIdOf,
 } from '@libs/harness-ts/identity';
-import { bringToFront } from '@libs/harness-ts/observations';
+import { actorHtml, bringToFront } from '@libs/harness-ts/observations';
 import sql, { raw } from '@pkgs/sql-root-shared-ts/sql';
 import {
   multiplayerPlaceHolding,
@@ -47,7 +47,7 @@ async function shownAccountOf(
   s: ProductHarness,
   actor: string
 ): Promise<string | null> {
-  const live = await signedInAccountOf(s, actor);
+  const live = await playerIdOf(s, actor);
   if (live !== null) return live;
   const cutOff =
     s.session.caps.has('partition') &&
@@ -228,4 +228,30 @@ export async function shownMoveCount(
     shown++;
   if (opened) await returnToMultiplayerHome(s, actor);
   return shown;
+}
+
+/**
+ * How many matched games the hub says are left today, or `null` while it
+ * says none (plenty left, or the screen is still opening).
+ */
+export async function matchedGamesLeftShown(
+  s: ProductHarness,
+  actor: string
+): Promise<number | null> {
+  const ui = await actorUi(s, actor);
+  if (!(await ui.get('multiplayer-games-left').isVisible())) return null;
+  const html = (await actorHtml(s, actor)) ?? '';
+  const tag = html.match(
+    /<[^>]*data-testid="multiplayer-games-left"[^>]*>/
+  )?.[0];
+  const left = tag?.match(/data-left="(\d+)"/)?.[1];
+  return left === undefined ? null : Number(left);
+}
+
+/** Whether the hub's command to find an opponent is on the screen. */
+export async function findOffered(
+  s: ProductHarness,
+  actor: string
+): Promise<boolean> {
+  return (await actorUi(s, actor)).get('multiplayer-find').isVisible();
 }

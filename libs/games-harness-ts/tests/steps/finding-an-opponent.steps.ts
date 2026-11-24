@@ -15,6 +15,7 @@ import {
 import {
   multiplayerCommandReply,
   multiplayerRefusalCode,
+  multiplayerSignInInvited,
 } from '@libs/game-matchmaking-harness-ts/multiplayer-commands';
 import { setMultiplayerConnection } from '@libs/game-matchmaking-harness-ts/multiplayer-connection';
 import { pairGameOpponents } from '@libs/game-matchmaking-harness-ts/multiplayer-fixtures';
@@ -252,10 +253,14 @@ Then(
 Then('{actor} is not waiting for an opponent', (w, actor: string) =>
   notWaiting(w, actor)
 );
+// A guest refused a new matched game past today's matched game allowance.
 Then('{actor} is invited to sign in', async (w, actor: string) => {
   expect(
-    await w.s.read(multiplayerText, actor, 'multiplayer-access-denial')
-  ).toContain('Sign in');
+    await w.s.until(
+      (s) => multiplayerSignInInvited(s, actingDevice(w, actor)),
+      { pred: Boolean }
+    )
+  ).toBe(true);
 });
 Then(
   '{actor} is told finding an opponent needs a connection',

@@ -1,5 +1,6 @@
 import { timeControlOf } from '@libs/game-matchmaking-shared-ts/time-control';
-import { Trans } from '@lingui/solid/macro';
+import { Plural, Trans } from '@lingui/solid/macro';
+import { ActionNotice } from '@pkgs/ui-root-client-ts/action-notice';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import {
   GameLobbyDock,
@@ -55,7 +56,52 @@ type FindProps = MultiplayerPlaceFrame & {
   readonly returnTo?: UnfinishedGame['kind'] | undefined;
   /** Goes back to that game's board. */
   readonly onReturn?: (() => void) | undefined;
+  /**
+   * How many matched games are left today, said only once few are, with the
+   * way to play unlimited (its unlock's label and action).
+   */
+  readonly gamesLeft?: MatchedGamesLeftView | undefined;
 };
+
+/** Today's matched games left, and the way to play unlimited. */
+export type MatchedGamesLeftView = {
+  readonly left: number;
+  readonly action?:
+    | { readonly label: string; readonly onPress: () => void }
+    | undefined;
+};
+
+/** "2 free games left today", with the way to unlimited beside it. */
+function GamesLeftNotice(props: {
+  readonly gamesLeft: MatchedGamesLeftView;
+}): JSX.Element {
+  const left = () => props.gamesLeft.left;
+  return (
+    <ActionNotice
+      icon={ClockIcon}
+      title={
+        <Plural
+          value={left()}
+          one="# free game left today"
+          other="# free games left today"
+        />
+      }
+      body={<Trans>Accounts play unlimited games.</Trans>}
+      action={
+        props.gamesLeft.action === undefined
+          ? undefined
+          : {
+              label: <>{props.gamesLeft.action.label}</>,
+              onClick: () => props.gamesLeft.action?.onPress(),
+            }
+      }
+      dataSet={{
+        testid: 'multiplayer-games-left',
+        left: String(left()),
+      }}
+    />
+  );
+}
 
 /**
  * What the search plays for, in one line over the game's name, as a custom
@@ -264,6 +310,9 @@ export function MatchmakingHomeView(props: FindProps): JSX.Element {
             </Trans>
           </Text>
         </P>
+      </Show>
+      <Show when={props.returnTo === undefined ? props.gamesLeft : undefined}>
+        {(gamesLeft) => <GamesLeftNotice gamesLeft={gamesLeft()} />}
       </Show>
       <MatchRows {...props} />
       <FindAbout onOpen={props.onOpen} />

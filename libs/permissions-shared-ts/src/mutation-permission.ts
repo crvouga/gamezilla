@@ -7,9 +7,9 @@ import type {
 import { MutationError } from '@pkgs/sync-engine-shared-ts/mutations-types';
 
 import type { AccessScope } from './access-scope';
-import { decideForActor, decideLimitForActor } from './decide-for-actor';
+import { decideForActor } from './decide-for-actor';
 import { evaluateQuota } from './evaluate-quota';
-import type { AppGrantKey, AppLimit, AppQuota } from './permission-catalog';
+import type { AppGrantKey, AppQuota } from './permission-catalog';
 
 type MutationCtx = { readonly tx: MutationDb; readonly env: MutationEnv };
 
@@ -56,33 +56,6 @@ export function requireGrantDecision(
   throw new MutationError(
     decision.reason ?? 'not_granted',
     `Permission denied: ${key}`,
-    { decision }
-  );
-}
-
-/**
- * Throws a permanent `MutationError` (code `limit_reached`, meta = the
- * decision) when the actor, holding `used` of `limit`, may not hold one more.
- * Same synced rows on the optimistic apply and the server replay, so a device
- * offline and the server give the same answer.
- */
-export async function requireLimitInMutation(
-  ctx: MutationCtx,
-  limit: AppLimit,
-  used: number
-): Promise<void> {
-  const nowMs = (ctx.env.serverNow ?? ctx.env.now)().getTime();
-  const decision = await decideLimitForActor(ctx.tx, {
-    identity: ctx.env,
-    limit,
-    used,
-    nowMs,
-    clientAtMs: Math.min(ctx.env.now().getTime(), nowMs),
-  });
-  if (decision.allowed) return;
-  throw new MutationError(
-    decision.reason ?? 'limit_reached',
-    `Limit reached: ${limit}`,
     { decision }
   );
 }

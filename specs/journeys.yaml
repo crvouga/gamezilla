@@ -490,8 +490,8 @@ journeys:
     - specs/friends/friend-request-inbox.feature
     - specs/system/notifications.qnt
     tour: true
-  A guest cannot start multiplayer search:
-    description: A guest reaches the account requirement before a wait exists.
+  A guest starts multiplayer search:
+    description: A guest finds an opponent without an account and is waiting for one.
     events:
     - Opens Spaces
     - Creates below the hosting limit online
@@ -501,7 +501,7 @@ journeys:
     - Finds an opponent as a guest
     endsIn:
     - 'Identity: Guest'
-    - 'Multiplayer: Multiplayer account required'
+    - 'Multiplayer: Finding an opponent'
     gherkin:
     - specs/journeys/multiplayer-game.feature
     - specs/games/finding-an-opponent.feature

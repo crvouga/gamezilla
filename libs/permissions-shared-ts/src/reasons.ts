@@ -36,6 +36,11 @@ export const DAILY_PUZZLE_LIMIT_REASONS: ReasonWords = {
   quota_exhausted: 'daily puzzle limit reached',
 };
 
+/** `specs/games/daily-matched-game-limit.dmn`. */
+export const DAILY_MATCHED_GAME_LIMIT_REASONS: ReasonWords = {
+  quota_exhausted: 'daily matched game limit reached',
+};
+
 export type TableAnswer = {
   readonly answer: 'yes' | 'no';
   readonly reason: string;

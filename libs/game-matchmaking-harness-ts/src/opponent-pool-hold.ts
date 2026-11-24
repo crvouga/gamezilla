@@ -1,6 +1,6 @@
 import { stopFindingOpponentMutation } from '@libs/game-matchmaking-shared-ts/stop-finding-opponent-mutation';
 import type { ProductHarness } from '@libs/harness-ts/harness';
-import { accountIdOf } from '@libs/harness-ts/identity';
+import { playerIdOf } from '@libs/harness-ts/identity';
 import { holdStackLock } from '@libs/harness-ts/stack-lock';
 import { stackManifestPath } from '@libs/harness-ts/stack-manifest';
 import sql, { join } from '@pkgs/sql-root-shared-ts/sql';
@@ -39,7 +39,7 @@ export async function holdOpponentPool(s: ProductHarness): Promise<void> {
 async function stopWaitingSearches(s: ProductHarness): Promise<void> {
   const owners: string[] = [];
   for (const actor of s.actors.keys()) {
-    const owner = await accountIdOf(s, actor);
+    const owner = await playerIdOf(s, actor);
     if (owner !== null) owners.push(owner);
   }
   if (owners.length === 0) return;

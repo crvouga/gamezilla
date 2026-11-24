@@ -1,9 +1,13 @@
 import { drainAndNotifyOutbox } from '@libs/app-root-server-ts/outbox-drain';
-import { accountMutationEnv } from '@libs/auth-shared-ts/account-mutation-env';
 import { MultiplayerGameChanged } from '@libs/game-matchmaking-shared-ts/match-room';
 import { MultiplayerNoticesDue } from '@libs/game-matchmaking-shared-ts/multiplayer-notices';
 import type { ProductHarness } from '@libs/harness-ts/harness';
-import { signedInAccountOf } from '@libs/harness-ts/identity';
+import type { PlayerIdentity } from '@libs/harness-ts/identity';
+import {
+  accountPlayer,
+  playerIdentityOf,
+  playerMutationEnv,
+} from '@libs/harness-ts/identity';
 import type { SqlTx } from '@pkgs/sql-client-root-shared-ts/interface';
 import sql, { join } from '@pkgs/sql-root-shared-ts/sql';
 import { notifyChannels } from '@pkgs/sync-engine-server-ts/notify-channels';
@@ -19,8 +23,8 @@ export async function multiplayerFixture(
   actor: string,
   run: (tx: SqlTx, env: MutationEnv) => Promise<readonly string[]>
 ): Promise<void> {
-  const owner = await signedInAccountOf(s, actor);
-  if (owner === null) throw new Error(`Missing ${actor}'s account`);
+  const owner = await playerIdentityOf(s, actor);
+  if (owner === null) throw new Error(`Missing ${actor}'s identity`);
   await multiplayerTransaction(s, owner, run);
 }
 
@@ -47,10 +51,13 @@ const DELIVERED_AT_ONCE = [
 /** A server event's trusted subject; independent of a device session. */
 export async function multiplayerTransaction(
   s: ProductHarness,
-  owner: string,
+  owner: string | PlayerIdentity,
   run: (tx: SqlTx, env: MutationEnv) => Promise<readonly string[]>
 ): Promise<void> {
-  const base = accountMutationEnv(owner, s.harness.server);
+  const base = playerMutationEnv(
+    typeof owner === 'string' ? accountPlayer(owner) : owner,
+    s.harness.server
+  );
   const env = {
     ...base,
     serverNow: base.now,

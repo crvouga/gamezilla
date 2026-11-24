@@ -798,11 +798,11 @@ terms:
 
   - term: unfinished matched game limit
     definition: >-
-      Every account has at most one unfinished matched game, whichever game
-      it is. Before seeking an opponent again, the person finishes it, and
-      any custom game under way they are a participant of. A matched game
-      that is over no longer counts. Free accounts and Plus members have
-      the same allowance.
+      Every person, guest or account, has at most one unfinished matched
+      game, whichever game it is. Before seeking an opponent again, the
+      person finishes it, and any custom game under way they are a
+      participant of. A matched game that is over no longer counts. Guests,
+      free accounts and Plus members have the same allowance.
 
   - term: pairing
     definition: >-
@@ -1409,6 +1409,21 @@ terms:
       - opens a puzzle link
     avoid: [puzzle address, permalink, deep link, puzzle URL]
     model: [sharePuzzleLink, openPuzzleLink, linkShared, linkRefusal]
+
+  - term: daily matched game limit
+    definition: >-
+      The 10 matched games a guest may begin in a day; free accounts and Plus
+      members have none. It is one allowance for every game offering
+      matched games: matched games a guest begins in any of them count
+      toward the same 10. Only a matched game that got under way counts:
+      seeking, stopping a search and a matched game aborted before it was
+      under way use none of it. With 3 or fewer left the guest is shown how
+      many remain; past it they cannot seek an opponent or have a rematch
+      and are invited to sign in to keep playing, while a matched game
+      already begun goes on. A new day, from midnight UTC, brings a fresh
+      allowance.
+    forms: [matched game allowance, today's matched game allowance, daily matched game allowance, matched games started today, matched games remain today]
+    avoid: [matchmaking quota]
 
   - term: daily puzzle limit
     definition: >-

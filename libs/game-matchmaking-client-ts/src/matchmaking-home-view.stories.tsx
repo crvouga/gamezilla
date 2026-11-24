@@ -1,3 +1,4 @@
+import { ClockIcon } from '@pkgs/ui-root-client-ts/icons';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { MatchmakingScreenView } from './matchmaking-screen-view';
@@ -75,6 +76,45 @@ export const ReturnToMatchedGame: Story = {
 /** A command was refused: the reason sits above with the search still on offer. */
 export const CommandRefused: Story = {
   args: { error: 'Multiplayer game could not accept that command.' },
+};
+
+/**
+ * A guest near today's allowance: how many free matched games are left, and
+ * the way to unlimited, over the search that is still on offer.
+ */
+export const GuestFewGamesLeft: Story = {
+  args: {
+    ...TIMED,
+    gamesLeft: { left: 2, action: { label: 'Sign in', onPress: fn() } },
+  },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(
+      await canvas.findByTestId('multiplayer-games-left')
+    ).toHaveTextContent('2 free games left today');
+    await expect(canvas.getByTestId('multiplayer-find')).toBeVisible();
+    await userEvent.click(
+      await canvas.findByRole('button', { name: 'Sign in' })
+    );
+    await expect(args.gamesLeft?.action?.onPress).toHaveBeenCalled();
+  },
+};
+
+/** A guest who used today's allowance is invited to sign in to keep playing. */
+export const GuestAllowanceUsed: Story = {
+  args: {
+    ...TIMED,
+    commandDenial: {
+      icon: ClockIcon,
+      title: 'Sign in to keep playing',
+      body: 'Accounts play unlimited matched games and keep their rating. As a guest, new free games start at midnight UTC.',
+      action: { label: 'Sign in', onPress: fn() },
+      dataSet: {
+        testid: 'multiplayer-command-denial',
+        reason: 'quota_exhausted',
+      },
+    },
+  },
 };
 
 /** After a game: the search's hub is one row from the result, for another clock. */

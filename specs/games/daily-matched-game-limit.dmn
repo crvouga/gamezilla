@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="daily-matched-game-limit-decisions" name="The daily matched game limit" namespace="urn:product:decisions">
+  <decision id="daily-matched-game-limit" name="May this person start another matched game today?">
+    <description>A guest begins at most 10 matched games a day, and the day starts again at midnight UTC; matched games begun before today never count. Only matched games that got under way count: seeking, stopping a search and a matched game aborted before it was under way use none of it. The daily matched game limit is one allowance for every game offering matched games: matched games a guest begins today in any of them count toward the same 10. It is decided when the guest seeks an opponent or offers or accepts a rematch, and never interrupts a matched game already begun; a guest past it is invited to sign in to keep playing, and someone offering them a rematch is told it is unavailable today. Free accounts and Plus members have no daily matched game limit.</description>
+    <decisionTable id="daily-matched-game-limit-table" hitPolicy="UNIQUE">
+      <input id="who" label="who is asking">
+        <inputExpression id="who-expression" typeRef="string"><text>who is asking</text></inputExpression>
+        <inputValues id="who-values"><text>"guest","free account","Plus member"</text></inputValues>
+      </input>
+      <input id="today" label="matched games begun today">
+        <inputExpression id="today-expression" typeRef="number"><text>matched games begun today</text></inputExpression>
+        <inputValues id="today-values"><text>[0..30]</text></inputValues>
+      </input>
+      <input id="earlier" label="matched games begun before today">
+        <inputExpression id="earlier-expression" typeRef="number"><text>matched games begun before today</text></inputExpression>
+        <inputValues id="earlier-values"><text>[0..30]</text></inputValues>
+      </input>
+      <output id="answer" name="answer" typeRef="string">
+        <outputValues id="answer-values"><text>"yes","no"</text></outputValues>
+      </output>
+      <output id="reason" name="reason" typeRef="string">
+        <outputValues id="reason-values"><text>"none","daily matched game limit reached"</text></outputValues>
+      </output>
+      <rule id="guest-below-limit">
+        <description>A guest who began fewer than 10 matched games today, across every game offering matched games, may seek an opponent for another.</description>
+        <inputEntry id="guest-below-limit-in-1"><text>"guest"</text></inputEntry>
+        <inputEntry id="guest-below-limit-in-2"><text>&lt; 10</text></inputEntry>
+        <inputEntry id="guest-below-limit-in-3"><text>-</text></inputEntry>
+        <outputEntry id="guest-below-limit-out-1"><text>"yes"</text></outputEntry>
+        <outputEntry id="guest-below-limit-out-2"><text>"none"</text></outputEntry>
+      </rule>
+      <rule id="guest-at-limit">
+        <description>A guest who began 10 matched games today, across every game offering matched games, has reached the daily matched game limit.</description>
+        <inputEntry id="guest-at-limit-in-1"><text>"guest"</text></inputEntry>
+        <inputEntry id="guest-at-limit-in-2"><text>&gt;= 10</text></inputEntry>
+        <inputEntry id="guest-at-limit-in-3"><text>-</text></inputEntry>
+        <outputEntry id="guest-at-limit-out-1"><text>"no"</text></outputEntry>
+        <outputEntry id="guest-at-limit-out-2"><text>"daily matched game limit reached"</text></outputEntry>
+      </rule>
+      <rule id="accounts-unlimited">
+        <description>Free accounts and Plus members have no daily matched game limit.</description>
+        <inputEntry id="accounts-unlimited-in-1"><text>"free account","Plus member"</text></inputEntry>
+        <inputEntry id="accounts-unlimited-in-2"><text>-</text></inputEntry>
+        <inputEntry id="accounts-unlimited-in-3"><text>-</text></inputEntry>
+        <outputEntry id="accounts-unlimited-out-1"><text>"yes"</text></outputEntry>
+        <outputEntry id="accounts-unlimited-out-2"><text>"none"</text></outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+</definitions>

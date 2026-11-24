@@ -1,5 +1,5 @@
 import type { ProductHarness } from '@libs/harness-ts/harness';
-import { signedInAccountOf } from '@libs/harness-ts/identity';
+import { playerIdOf } from '@libs/harness-ts/identity';
 import sql from '@pkgs/sql-root-shared-ts/sql';
 
 /**
@@ -23,7 +23,7 @@ export async function multiplayerSpaceId(
   actor: string
 ): Promise<string | null> {
   const path = await s.actors.get(actor)?.currentPath();
-  const id = await signedInAccountOf(s, actor);
+  const id = await playerIdOf(s, actor);
   if (id === null) return spaceIdForActor(null, [], path);
   const rows = await s.harness.serverSql.sqlClient.query(sql<{
     id: string;
@@ -45,7 +45,7 @@ export async function everInASpace(
   s: ProductHarness,
   actor: string
 ): Promise<boolean> {
-  const id = await signedInAccountOf(s, actor);
+  const id = await playerIdOf(s, actor);
   if (id === null) return false;
   const rows = await s.harness.serverSql.sqlClient.query(sql<{
     id: string;
@@ -60,7 +60,7 @@ export async function hostedSpaceId(
   s: ProductHarness,
   actor: string
 ): Promise<string | null> {
-  const id = await signedInAccountOf(s, actor);
+  const id = await playerIdOf(s, actor);
   if (id === null) return null;
   const rows = await s.harness.serverSql.sqlClient.query(sql<{
     id: string;

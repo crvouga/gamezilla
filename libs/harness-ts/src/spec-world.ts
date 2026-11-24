@@ -114,6 +114,26 @@ export function signedInAccountKey(actor: string): string {
   return `signed-in-account:${actor}`;
 }
 
+function guestKey(actor: string): string {
+  return `guest:${actor}`;
+}
+
+/** Record that the scenario keeps `actor` a guest: setups never sign them in. */
+export function rememberGuest(
+  w: Pick<HarnessWorld, 'memo'>,
+  actor: string
+): void {
+  w.memo.set(guestKey(actor), true);
+}
+
+/** Whether the scenario said `actor` is a guest. */
+export function isScenarioGuest(
+  w: Pick<HarnessWorld, 'memo'>,
+  actor: string
+): boolean {
+  return w.memo.get(guestKey(actor)) === true;
+}
+
 const STEP_KIND_KEY = 'scenario-step-kind';
 
 /**

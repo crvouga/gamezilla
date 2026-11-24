@@ -66,12 +66,25 @@ export type AppLimit = (typeof LIMIT)[keyof typeof LIMIT];
  */
 export const ACTION = defineCatalog({
   puzzleRatedSolve: 'puzzle.rated.solve',
+  matchedGameStart: 'game.matched.start',
 });
 export type AppAction = (typeof ACTION)[keyof typeof ACTION];
 
-/** Actions that are consumed (quotas) rather than merely granted. */
-export const QUOTA_ACTIONS = [ACTION.puzzleRatedSolve] as const;
+/** Actions that are counted against a windowed quota rather than granted. */
+export const QUOTA_ACTIONS = [
+  ACTION.puzzleRatedSolve,
+  ACTION.matchedGameStart,
+] as const;
 export type AppQuota = (typeof QUOTA_ACTIONS)[number];
+
+/**
+ * The quotas a device charges through the consumption ledger
+ * (`consumeQuota`). `game.matched.start` is not one: its use is the matched
+ * games the person started, counted where they are stored
+ * (`decideMatchedGameAllowance`), so nothing can be charged for it.
+ */
+export const LEDGER_QUOTA_ACTIONS = [ACTION.puzzleRatedSolve] as const;
+export type AppLedgerQuota = (typeof LEDGER_QUOTA_ACTIONS)[number];
 
 /** Every key a policy role may list under `permissions`. */
 export type AppPolicyKey = AppPermission | AppAction;

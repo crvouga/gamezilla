@@ -1,3 +1,7 @@
+import {
+  otherPersonHasMatchedGameLeft,
+  requireMatchedGameAllowanceInMutation,
+} from '@libs/permissions-shared-ts/matched-game-allowance';
 import { requireInMutation } from '@libs/permissions-shared-ts/mutation-permission';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { readCurrent } from '@pkgs/matchmaking-sql-shared-ts/search-read';
@@ -88,6 +92,36 @@ async function requireBothFree(
   }
 }
 
+/**
+ * A rematch is a new matched game, so it needs one left in today's matched
+ * game allowance: a guest who has used theirs is refused with the way to sign
+ * in, and the other person is told the rematch is unavailable today.
+ */
+async function requireMatchedGamesLeft(
+  ctx: MutationCtx,
+  game: MultiplayerGame,
+  nowMs: number
+): Promise<void> {
+  const games = new MultiplayerGameRepository(ctx.tx);
+  await requireMatchedGameAllowanceInMutation(
+    ctx,
+    await games.begunAt(ctx.env.actorId)
+  );
+  for (const person of multiplayerPeople(game)) {
+    if (person === ctx.env.actorId) continue;
+    const left = await otherPersonHasMatchedGameLeft(ctx.tx, {
+      id: person,
+      startedAt: await games.begunAt(person),
+      nowMs,
+    });
+    if (!left)
+      refuse(
+        'CHESS_OPPONENT_NO_MATCHED_GAMES_LEFT',
+        'Your multiplayer opponent cannot start another matched game today.'
+      );
+  }
+}
+
 /** The same two people at the same time control, colours swapped, no search. */
 async function startRematch(
   ctx: MutationCtx,
@@ -136,6 +170,7 @@ async function decideRematch(
   if (answer === 'decline')
     return { ...game, rematch_offer_by: '', rematch_votes: null };
   await requireBothFree(ctx.tx, game, { actorId, nowMs });
+  await requireMatchedGamesLeft(ctx, game, nowMs);
   if (multiplayerSides(game).length > 2) {
     const prior = game.rematch_offer_by
       ? multiplayerVotes(game, game.rematch_votes)

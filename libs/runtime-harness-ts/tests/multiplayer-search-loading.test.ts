@@ -25,10 +25,7 @@ const CLOCK_CHOICE = 'multiplayer-time-control-';
  * one that is over keeps the search's hub one row from its result. The
  * hub's clock row names the clock chosen, at first a previous run's 2+1.
  */
-function loadingScreen(
-  invitation: boolean,
-  leftover = false
-): { ui: Driver; taps: string[] } {
+function loadingScreen(leftover = false): { ui: Driver; taps: string[] } {
   let ongoing = leftover;
   let commands = false;
   let hub = false;
@@ -80,8 +77,8 @@ function loadingScreen(
         (id === 'multiplayer-abort' && ongoing && commands) ||
         (id === 'multiplayer-open-find' && !ongoing && !hub) ||
         (id === 'multiplayer-find' && hub) ||
-        id === 'multiplayer-access-denial' ||
-        (id === 'multiplayer-access-denial-action' && invitation),
+        // A permission surface that shows while the screen loads.
+        id === 'multiplayer-access-denial',
       tap: async () => {
         taps.push(id);
         if (id === 'multiplayer-open-commands') commands = true;
@@ -105,7 +102,7 @@ function loadingScreen(
 
 test('a loading permission surface does not count as a completed search', async () => {
   // regression: multiplayer-search-transient-denial
-  const { ui, taps } = loadingScreen(false);
+  const { ui, taps } = loadingScreen();
   await startMultiplayerSearch('5+0')(ui);
   expect(taps).toEqual([
     'multiplayer-open-find',
@@ -117,7 +114,7 @@ test('a loading permission surface does not count as a completed search', async 
 
 test('a chess journey leaves Connect Four choices before finding an opponent', async () => {
   // regression: chess-journey-inherits-other-game-choice
-  const { ui, taps } = loadingScreen(false);
+  const { ui, taps } = loadingScreen();
   const get = ui.get.bind(ui);
   let choices = true;
   ui.get = (id) => {
@@ -147,7 +144,7 @@ test('a chess journey leaves Connect Four choices before finding an opponent', a
 
 // regression: live-multiplayer-leftover-game
 test('a monitor left in an unfinished game retires it before finding a new opponent', async () => {
-  const { ui, taps } = loadingScreen(false, true);
+  const { ui, taps } = loadingScreen(true);
   await startMultiplayerSearch('5+0')(ui);
   // Its commands are one press from the board; once it is over, the
   // search's hub is one row from its result, and the clock one row on.
@@ -163,15 +160,9 @@ test('a monitor left in an unfinished game retires it before finding a new oppon
   ]);
 });
 
-test('an account invitation never starts a guest search', async () => {
-  const { ui, taps } = loadingScreen(true);
-  await startMultiplayerSearch('5+0')(ui);
-  expect(taps).toEqual([]);
-});
-
 // regression: multiplayer-given-search-not-landed
 test('a pre-existing search waits for its accepted waiting row before the next person searches', async () => {
-  const { ui, taps } = loadingScreen(false);
+  const { ui, taps } = loadingScreen();
   await establishMultiplayerSearch('5+0')(ui);
   expect(taps).toEqual([
     'multiplayer-open-find',
@@ -184,7 +175,7 @@ test('a pre-existing search waits for its accepted waiting row before the next p
 
 // regression: multiplayer-shared-game-was-finished
 test('the same completed board on both devices is not a newly matched game', async () => {
-  const { ui } = loadingScreen(false);
+  const { ui } = loadingScreen();
   ui.snapshotHtml = async () =>
     '<div data-testid="multiplayer-game" data-game-id="last-match" data-outcome="white"></div>';
   const get = ui.get.bind(ui);
@@ -214,7 +205,7 @@ test('the same completed board on both devices is not a newly matched game', asy
 
 // regression: multiplayer-recovery-given-inherits-pairing-deadline
 test('recovery setup can establish its unfinished game beyond the separate timed pairing assertion', async () => {
-  const { ui } = loadingScreen(false);
+  const { ui } = loadingScreen();
   ui.snapshotHtml = async () =>
     '<div data-testid="multiplayer-game" data-game-id="fresh-game" data-outcome="ongoing"></div>';
   const get = ui.get.bind(ui);
@@ -276,7 +267,7 @@ test('recovery setup can establish its unfinished game beyond the separate timed
 
 // regression: failed-multiplayer-journey-leaves-search
 test('cleanup stops a waiting search before ending its space', async () => {
-  const { ui, taps } = loadingScreen(false);
+  const { ui, taps } = loadingScreen();
   let waiting = true;
   const get = ui.get.bind(ui);
   ui.get = (id) => {
@@ -303,7 +294,7 @@ test('cleanup stops a waiting search before ending its space', async () => {
 
 // regression: live-multiplayer-wrong-time-control
 test('a previous 2+1 choice is changed to the requested 5+0 before finding an opponent', async () => {
-  const { ui, taps } = loadingScreen(false);
+  const { ui, taps } = loadingScreen();
   await startMultiplayerSearch('5+0')(ui);
   expect(
     await ui.get('multiplayer-open-time-control').attribute('data-time-control')
@@ -317,7 +308,7 @@ test('a previous 2+1 choice is changed to the requested 5+0 before finding an op
 });
 
 test('an unchanged 2+1 clock refuses to start a search requested at 5+0', async () => {
-  const { ui, taps } = loadingScreen(false);
+  const { ui, taps } = loadingScreen();
   const get = ui.get.bind(ui);
   ui.get = (id) => ({ ...get(id), key: async () => {} });
   await expect(startMultiplayerSearch('5+0')(ui)).rejects.toThrow(
@@ -327,7 +318,7 @@ test('an unchanged 2+1 clock refuses to start a search requested at 5+0', async 
 });
 
 async function matchedDuringStop(ongoing: boolean, matched: boolean) {
-  const { ui, taps } = loadingScreen(false, ongoing);
+  const { ui, taps } = loadingScreen(ongoing);
   const get = ui.get.bind(ui);
   let searching = true;
   ui.get = (id) => {
@@ -395,7 +386,7 @@ test.each([
 test.each(['result', 'hub', 'folded result'])(
   'Find waits for a delayed %s',
   async (destination) => {
-    const { ui, taps } = loadingScreen(false);
+    const { ui, taps } = loadingScreen();
     const get = ui.get.bind(ui);
     let ready = false;
     const details = 'game-result-overlay-details';

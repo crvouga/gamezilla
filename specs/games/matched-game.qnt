@@ -280,8 +280,8 @@ module matched_game {
   /// Opening one's own finding an opponent never creates or changes a matched game.
   action openFindingAnOpponent(device: PlayDevice): bool = _show(_now)
 
-  /// Seeking an opponent needs an account, a connection, an offered clock
-  /// choice and no unfinished matched game.
+  /// Seeking an opponent needs a connection, an offered clock choice and no
+  /// unfinished matched game; a deleted account no longer seeks.
   action seekOpponent(device: PlayDevice, control: str): bool = {
     val p = device.person
     val canAsk = and {

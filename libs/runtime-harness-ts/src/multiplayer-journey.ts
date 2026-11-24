@@ -47,32 +47,6 @@ export async function openMultiplayerJourney(ui: Driver): Promise<void> {
   }
 }
 
-const SURFACE_POLLS = 10;
-const SURFACE_SETTLE_MS = JOURNEY_WAIT_MS / SURFACE_POLLS;
-
-/**
- * Wait for the screen to offer Find or the guest's invitation. Checking the
- * invitation once, before the screen has decided, falls through to a Find
- * that never comes.
- */
-async function guestInvited(ui: Driver): Promise<boolean> {
-  for (let poll = 0; poll < SURFACE_POLLS; poll += 1) {
-    if (await ui.get('multiplayer-access-denial-action').isVisible())
-      return true;
-    // A finished game's result: Find is one row away, on the search's hub.
-    if (await ui.get('multiplayer-open-find').isVisible()) return false;
-    try {
-      await ui
-        .get('multiplayer-find')
-        .expect.visible({ timeoutMs: SURFACE_SETTLE_MS });
-      return false;
-    } catch {
-      // Still loading, or the invitation is showing instead.
-    }
-  }
-  return ui.get('multiplayer-access-denial-action').isVisible();
-}
-
 /**
  * Find an opponent once the app has the connection a server-decided command
  * needs. A device that has only just opened has not finished its first sync,
@@ -119,8 +93,6 @@ export function startMultiplayerSearch(
   return async (ui) => {
     await openMultiplayerJourney(ui);
     await retirePreviousMultiplayer(ui);
-    // The permission surface is the guest's invitation; no command is offered.
-    if (await guestInvited(ui)) return;
     await chooseMultiplayerTimeControl(ui, timeControl);
     await tapFindOpponent(ui);
   };
@@ -230,18 +202,16 @@ export async function resignMultiplayerJourney(ui: Driver): Promise<void> {
   await tap(ui, 'multiplayer-dismiss');
 }
 
-export async function expectMultiplayerInvitation(ui: Driver): Promise<void> {
+/** The device shows the person waiting for an opponent. */
+export async function expectMultiplayerWaiting(ui: Driver): Promise<void> {
   await ui
-    .get('multiplayer-access-denial')
+    .get('multiplayer-waiting')
     .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
-  await ui
-    .get('multiplayer-access-denial-action')
-    .expect.text('Sign in', { exact: false });
 }
 
+/** No matched game is on the device (a search may still be waiting). */
 export async function expectNoMultiplayerGame(ui: Driver): Promise<void> {
   await ui.get('multiplayer-game').expect.hidden();
-  await ui.get('multiplayer-waiting').expect.hidden();
 }
 
 /** Observe the rendered board, rather than a server or local database row. */

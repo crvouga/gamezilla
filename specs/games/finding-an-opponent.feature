@@ -2,19 +2,24 @@
 Feature: Finding an opponent in every game
   When Alice wants another player, she wants an opponent for the game she chose, so the pair can start playing together.
 
-  Rule: Seeking an opponent needs an account and a connection
+  Rule: Guests and accounts alike seek an opponent and play their matched game, given a connection
 
     Scenario: A free account can seek an opponent
       Given Alice has a free account and a connection
       When Alice seeks an opponent for the game
       Then Alice can stop seeking an opponent
 
-    Scenario: A guest is invited to sign in
+    Scenario: A guest can seek an opponent
       Given Alice is a guest
       And Alice is hosting a space
       When Alice seeks an opponent for the game
-      Then Alice is invited to sign in
-      And Alice is not waiting for an opponent
+      Then Alice can stop seeking an opponent
+
+    Scenario: A guest is paired into a matched game like anyone
+      Given Alice is a guest
+      And Alice and Bob are seeking an opponent for the game
+      When they are paired
+      Then Alice and Bob receive the same new game on opposite sides
 
     Scenario: An offline account cannot seek an opponent
       Given Alice has an account without a connection

@@ -24,7 +24,10 @@ import {
 } from '@libs/harness-ts/auth-actions';
 import { signedInAccountOf } from '@libs/harness-ts/identity';
 import { backToTabs } from '@libs/harness-ts/shell-actions';
-import type { HarnessWorld } from '@libs/harness-ts/spec-world';
+import {
+  type HarnessWorld,
+  isScenarioGuest,
+} from '@libs/harness-ts/spec-world';
 import { gameOf, turnGameOf } from './game-world';
 
 /** The clock choice a new matched game is played at unless one is named. */
@@ -42,7 +45,11 @@ export function timeControlFor(w: HarnessWorld, clock?: string) {
 /** Each person signed in, with a space of their own to play in. */
 export async function readyPeople(w: HarnessWorld, people: readonly string[]) {
   for (const person of people) {
-    if ((await w.s.read(signedInAccountOf, person)) === null)
+    // A guest the scenario named stays one: guests seek and play alike.
+    if (
+      !isScenarioGuest(w, person) &&
+      (await w.s.read(signedInAccountOf, person)) === null
+    )
       await w.s.apply(signInWithGoogle, person);
     await w.s.apply(backToTabs, person);
     await w.s.apply(givenGameSpace, person);

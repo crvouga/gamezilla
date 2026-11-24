@@ -158,3 +158,7 @@ Then(
 Then('{actor} is told the rematch offer has ended', (w, actor: string) =>
   told(w, actor, 'CHESS_REMATCH_ENDED')
 );
+Then(
+  '{actor} is told {actor} cannot start another matched game today',
+  (w, actor: string) => told(w, actor, 'CHESS_OPPONENT_NO_MATCHED_GAMES_LEFT')
+);

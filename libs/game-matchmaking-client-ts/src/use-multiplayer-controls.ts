@@ -37,6 +37,7 @@ import type {
 import { useTurnGames } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { useCreateId } from '@pkgs/uuid-client-ts/solid';
 import { createSignal } from 'solid-js';
+import { useMatchedGameToday } from './use-matched-game-today';
 import type { MultiplayerData } from './use-multiplayer-data';
 import { type UnfinishedGame, useUnfinishedGame } from './use-unfinished-game';
 
@@ -126,6 +127,7 @@ export function useMultiplayerControls(data: MultiplayerData) {
   const beginDecision = useDecision(PERMISSION.matchmakingUse);
   const unfinished = useUnfinishedGamesGate(data);
   const unfinishedDecision = unfinished.decision;
+  const allowance = useMatchedGameToday();
   const refusals = useRefusals();
   const run = async <A>(
     mutation: Mutation<A>,
@@ -142,10 +144,13 @@ export function useMultiplayerControls(data: MultiplayerData) {
     (mutation: Mutation<{ gameId: string; requestId: string }>) => () =>
       run(mutation, { gameId: data.game()?.id ?? 'no-game' });
   const begin = async (timeControl?: string) => {
-    const decision = beginDecision().allowed
-      ? unfinishedDecision()
-      : beginDecision();
-    if (!decision.allowed) {
+    // Access, then the unfinished game limit, then today's allowance.
+    const decision = [
+      beginDecision(),
+      unfinishedDecision(),
+      allowance.decision(),
+    ].find((next) => !next.allowed);
+    if (decision !== undefined) {
       refusals.setDenial(decision);
       return;
     }
@@ -171,6 +176,8 @@ export function useMultiplayerControls(data: MultiplayerData) {
      * seeking; `null` while they may seek.
      */
     returnInstead: unfinished.returnInstead,
+    /** How many matched games are left today, once few are. */
+    matchedGamesLeft: allowance.left,
     begin,
     stop,
     chooseSetup: (setup: string) =>

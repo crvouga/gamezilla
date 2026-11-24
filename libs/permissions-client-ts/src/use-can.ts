@@ -1,3 +1,8 @@
+import {
+  decideMatchedGameAllowance,
+  type MatchedGamesLeft,
+  matchedGamesLeftShown,
+} from '@libs/permissions-shared-ts/matched-game-allowance';
 import type {
   AppGrantKey,
   AppLimit,
@@ -8,6 +13,7 @@ import {
 } from '@libs/permissions-shared-ts/permission-catalog';
 import type { UnfinishedGames } from '@libs/permissions-shared-ts/unfinished-games-permission';
 import { decideUnfinishedGames } from '@libs/permissions-shared-ts/unfinished-games-permission';
+import { useClock } from '@pkgs/clock-client-ts/solid';
 import type { Decision } from '@pkgs/permissions-shared-ts/decision';
 import { decide, decideLimit } from '@pkgs/permissions-shared-ts/decision';
 import { type Accessor, createMemo } from 'solid-js';
@@ -38,6 +44,27 @@ export function useUnfinishedGamesDecision(
     () => held().multiplayer
   );
   return () => decideUnfinishedGames(limit(), held().customGames);
+}
+
+/**
+ * Today's matched game allowance as this device knows it, from when each of
+ * the caller's matched games that got under way began: whether one more may
+ * begin, and how many are left once few are (`matchedGamesLeftShown`).
+ */
+export function useMatchedGameAllowance(
+  begunAt: Accessor<readonly unknown[]>
+): {
+  readonly decision: Accessor<Decision>;
+  readonly left: Accessor<MatchedGamesLeft | null>;
+} {
+  const policy = usePermissionPolicy();
+  const subject = usePermissionSubject();
+  const clock = useClock();
+  const at = () => ({ startedAt: begunAt(), nowMs: clock.now() });
+  return {
+    decision: () => decideMatchedGameAllowance(policy(), subject(), at()),
+    left: () => matchedGamesLeftShown(policy(), subject(), at()),
+  };
 }
 
 /**

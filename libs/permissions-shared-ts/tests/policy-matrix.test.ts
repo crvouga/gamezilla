@@ -64,13 +64,13 @@ const EXPECTED: ReadonlyArray<readonly [string, string, string, string]> = [
   [PERMISSION.billingView, 'allow', 'allow', 'allow'],
   [PERMISSION.billingSubscribe, 'deny', 'allow', 'allow'],
   [PERMISSION.billingManage, 'deny', 'allow', 'allow'],
-  [PERMISSION.matchmakingUse, 'deny', 'allow', 'allow'],
-  [PERMISSION.matchmakingView, 'deny', 'allow', 'allow'],
-  [PERMISSION.matchmakingStop, 'deny', 'allow', 'allow'],
-  [PERMISSION.matchmakingChangeRange, 'deny', 'allow', 'allow'],
+  [PERMISSION.matchmakingUse, 'allow', 'allow', 'allow'],
+  [PERMISSION.matchmakingView, 'allow', 'allow', 'allow'],
+  [PERMISSION.matchmakingStop, 'allow', 'allow', 'allow'],
+  [PERMISSION.matchmakingChangeRange, 'allow', 'allow', 'allow'],
   [PERMISSION.gameMultiplayerWatch, 'deny', 'deny', 'deny'],
-  [PERMISSION.gameMultiplayerPlay, 'deny', 'allow', 'allow'],
-  [PERMISSION.gameMultiplayerResign, 'deny', 'allow', 'allow'],
+  [PERMISSION.gameMultiplayerPlay, 'allow', 'allow', 'allow'],
+  [PERMISSION.gameMultiplayerResign, 'allow', 'allow', 'allow'],
   [PERMISSION.puzzlesPlay, 'allow', 'allow', 'allow'],
   [PERMISSION.puzzlesCustomizeFeed, 'deny', 'allow', 'allow'],
   // Environment configuration, never a plan, grants management.
@@ -107,6 +107,7 @@ const EXPECTED: ReadonlyArray<readonly [string, string, string, string]> = [
   [PERMISSION.gameCustomPlay, 'deny', 'deny', 'deny'],
   [PERMISSION.gameCustomWatch, 'deny', 'deny', 'deny'],
   [ACTION.puzzleRatedSolve, '20/day', 'unlimited/day', 'unlimited/day'],
+  [ACTION.matchedGameStart, '10/day', 'unlimited/day', 'unlimited/day'],
 ];
 
 describe('shipped policy matrix', () => {
@@ -204,7 +205,8 @@ describe('shipped policy matrix', () => {
       [PERMISSION.friendsUse, ACCOUNT, A, A, A, A],
       [PERMISSION.peopleSearch, ACCOUNT, A, A, A, A],
       [PERMISSION.notificationsReceive, ACCOUNT, A, A, A, A],
-      [PERMISSION.matchmakingUse, ACCOUNT, A, A, A, A],
+      // Guests find an opponent too, within a smaller daily allowance.
+      [PERMISSION.matchmakingUse, A, A, A, A, A],
       [PERMISSION.puzzlesCustomizeFeed, ACCOUNT, A, A, A, A],
       [PERMISSION.billingView, A, A, A, A, OFF],
       // A live membership is not offered a second one; an ended one in

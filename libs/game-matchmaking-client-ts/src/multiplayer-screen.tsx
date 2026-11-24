@@ -1,6 +1,8 @@
 import type { MultiplayerGame } from '@libs/game-matchmaking-shared-ts/game-state';
 import { useDenialView } from '@libs/permissions-client-ts/denial-surface';
+import { useUnlock } from '@libs/permissions-client-ts/unlock';
 import { useDecision } from '@libs/permissions-client-ts/use-can';
+import type { MatchedGamesLeft } from '@libs/permissions-shared-ts/matched-game-allowance';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import {
   DefineBackButton,
@@ -12,6 +14,7 @@ import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { useGameGoal } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { useStageOverlay } from '@pkgs/turn-game-client-ts/use-stage-overlay';
 import { createSignal, type JSX, Show } from 'solid-js';
+import type { MatchedGamesLeftView } from './matchmaking-home-view';
 import { MatchmakingScreenView } from './matchmaking-screen-view';
 import { MultiplayerBoard, MultiplayerGameStatus } from './multiplayer-board';
 import {
@@ -69,6 +72,25 @@ function useDenial(
   return () => {
     const current = decision();
     return current === null || current.allowed ? undefined : view();
+  };
+}
+
+/** Today's matched games left, with its unlock as the way to unlimited. */
+function useGamesLeft(
+  left: () => MatchedGamesLeft | null
+): () => MatchedGamesLeftView | undefined {
+  const unlock = useUnlock();
+  return () => {
+    const shown = left();
+    if (shown === null) return undefined;
+    const label = unlock.label(shown.unlock);
+    return {
+      left: shown.left,
+      action:
+        label === undefined
+          ? undefined
+          : { label, onPress: () => unlock.run(shown.unlock) },
+    };
   };
 }
 
@@ -184,6 +206,7 @@ function useMultiplayerScreen(props: ScreenProps) {
     setup: useMultiplayerPrivateSetup(props.data.game, props.data.myId),
     finding: useMultiplayerFind(props.data),
     returnToGame: useReturnInsteadOfSeeking(props.controls.returnInstead),
+    gamesLeft: useGamesLeft(props.controls.matchedGamesLeft),
     game: useMultiplayerGameView(props.data, props.view),
     // The board's own words about live play, for the one status line.
     boardLine: createSignal<string | null>(null),
@@ -250,6 +273,7 @@ function MultiplayerContent(props: ScreenProps): JSX.Element {
         onFind={controls.begin}
         returnTo={controls.returnInstead()?.kind}
         onReturn={screen.returnToGame}
+        gamesLeft={screen.gamesLeft()}
         search={screen.search()}
         onStop={controls.stop}
         ratings={screen.ratings()}
