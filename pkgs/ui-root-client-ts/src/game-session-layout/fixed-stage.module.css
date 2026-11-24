@@ -163,12 +163,12 @@
     overflow-x: auto;
     /* Room for a focused command's ring inside the scrolling row on every
        side, given back outside so the bar keeps its size. */
+    /* The full width, with equal room inside on every side for the ring;
+       only the block room is given back, so the commands stay centred. */
+    width: 100%;
+    box-sizing: border-box;
     padding: var(--ui-space-1);
-    margin: calc(var(--ui-space-1) * -1);
-    /* Stretched by the column, not sized: the negative margins then widen
-       it equally on both sides and the commands stay centred. */
-    align-self: stretch;
-    width: auto;
+    margin-block: calc(var(--ui-space-1) * -1);
   }
   /* Each command at least as wide as its words: a label is never cut. */
   .fixed [data-game-slot="controls"] [data-component="GameActionBar"] > * {
