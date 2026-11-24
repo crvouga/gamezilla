@@ -297,7 +297,7 @@ function SpaceJoinInvitation(props: {
                 {(host) => <SpacePersonAvatar person={host} size={20} />}
               </Show>
               <StackVertical shrink>
-                <P variant="caption" lines={2}>
+                <P variant="caption" lines={3}>
                   <SpaceHostPhrase space={props.space} />
                 </P>
               </StackVertical>
@@ -450,6 +450,19 @@ export function SpaceJoinScreenView(
             when={props.status === 'live' && props.connection !== 'loading'}
           >
             <JoinPromptFooter {...props} />
+          </Match>
+          {/* While the host's connection is checked, the way back waits
+              in the bar, as in every other state. */}
+          <Match
+            when={props.status === 'live' && props.connection === 'loading'}
+          >
+            <Button
+              title={<Trans>Back to Spaces</Trans>}
+              intent="neutral"
+              variant="outline"
+              fullWidth
+              onClick={() => props.onBackToSpaces()}
+            />
           </Match>
           {/* Every state that cannot join keeps the same bottom bar, with
               its one way on filled. */}

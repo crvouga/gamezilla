@@ -16,7 +16,7 @@ function caption(reason: string, intent: BadgeIntent, change: string) {
       {reason}{' '}
       <Badge
         intent={intent}
-        tone={change === '0' ? 'subtle' : 'solid'}
+        tone="subtle"
         label={change === '0' ? 'Rating unchanged' : `Rating ${change}`}
       />
     </>

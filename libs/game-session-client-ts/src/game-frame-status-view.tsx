@@ -228,7 +228,7 @@ export function FrameConnectionNotice(props: {
               </Trans>
             </Match>
             <Match when={props.connection === 'offline-local'}>
-              <Trans>You are offline. Your local game can continue.</Trans>
+              <Trans>You're offline. Your local game can continue.</Trans>
             </Match>
           </Switch>
         </Text>
