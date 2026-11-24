@@ -72,6 +72,7 @@ export const Handles = {
   spaceJoinHostOfflineTag: 'space-join-host-offline-tag',
   spaceJoinNotConfirmed: 'space-join-not-confirmed',
   spaceEnded: 'space-ended',
+  spaceEndedBack: 'space-ended-back',
   spaceHostOffline: 'space-host-offline',
   /** One person presence counts, hidden, scoped by member id. */
   spacePerson: (memberId: string) => `space-person-${memberId}`,

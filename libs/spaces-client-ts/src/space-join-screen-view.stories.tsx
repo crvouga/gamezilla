@@ -110,3 +110,33 @@ export const Join: Story = {
     await expect(args.onJoin).toHaveBeenCalled();
   },
 };
+
+/** Presses the bar's Back to Spaces and checks it leaves for the lobby. */
+const pressBackToSpaces: NonNullable<Story['play']> = async ({
+  args,
+  canvasElement,
+}) => {
+  const canvas = within(canvasElement);
+  await userEvent.click(
+    await canvas.findByRole('button', { name: 'Back to Spaces' })
+  );
+  await expect(args.onBackToSpaces).toHaveBeenCalledTimes(1);
+};
+
+/** J10: offline, the bar's Back to Spaces leaves for the lobby. */
+export const OfflineBack: Story = {
+  args: { ...Offline.args },
+  play: pressBackToSpaces,
+};
+
+/** J10: a space that can't be joined, the bar's Back to Spaces leaves. */
+export const UnavailableBack: Story = {
+  args: { ...Unavailable.args },
+  play: pressBackToSpaces,
+};
+
+/** J10: a dead link, the bar's Back to Spaces leaves. */
+export const MissingBack: Story = {
+  args: { ...Missing.args },
+  play: pressBackToSpaces,
+};

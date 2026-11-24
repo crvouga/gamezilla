@@ -1,5 +1,6 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
+import { Button } from '@pkgs/ui-root-client-ts/button';
 import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { Gamepad2Icon } from '@pkgs/ui-root-client-ts/icons';
@@ -35,15 +36,21 @@ export function SpaceEndedScreenView(
         { name: props.title },
       ]}
       dataSet={{ testid: Handles.spaceEnded }}
+      // The way back sits in the same full-width bottom bar as every Join
+      // and recovery screen.
+      footer={
+        <Button
+          title={<Trans>Back to Spaces</Trans>}
+          fullWidth
+          onClick={() => props.onBackToSpaces()}
+          dataSet={{ testid: Handles.spaceEndedBack }}
+        />
+      }
     >
       <EmptyState
         icon={Gamepad2Icon}
         title={<Trans>This space has ended</Trans>}
         body={body()}
-        action={{
-          label: t`Back to Spaces`,
-          onClick: () => props.onBackToSpaces(),
-        }}
       />
     </ContentScreen>
   );
