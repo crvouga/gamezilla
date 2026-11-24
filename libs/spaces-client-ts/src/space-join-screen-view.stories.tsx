@@ -46,7 +46,20 @@ export const CheckingHost: Story = { args: { connection: 'loading' } };
 export const JoinNotConfirmed: Story = { args: { joinPending: true } };
 
 /** Joining was tried without a connection: said plainly above the space. */
-export const JoinNeedsConnection: Story = { args: { needsConnection: true } };
+export const JoinNeedsConnection: Story = {
+  args: { needsConnection: true },
+  // Offline, the way back leads: Back to Spaces is the filled command and
+  // Try joining again the quieter one beside it.
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const back = await canvas.findByRole('button', { name: 'Back to Spaces' });
+    await expect(back).toHaveAttribute('data-variant', 'solid');
+    await expect(canvas.getByTestId(Handles.spaceJoin)).toHaveAttribute(
+      'data-variant',
+      'outline'
+    );
+  },
+};
 
 /** The device has nothing on this space and cannot ask the server. */
 export const Offline: Story = {

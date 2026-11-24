@@ -30,9 +30,9 @@ export function SpaceUnreachableScreenView(
       ]}
     >
       <ErrorState
+        title={t`Can't reach this space right now`}
         // The space by name, in full: the header may cut a long one short.
-        title={t`${props.title} can't be reached right now`}
-        body={t`It may no longer exist. Try again, or go back to Spaces.`}
+        body={t`${props.title} may no longer exist. Try again, or go back to Spaces.`}
         retry={{
           label: t`Try again`,
           onClick: () => props.onRetry(),
