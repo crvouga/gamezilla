@@ -69,10 +69,9 @@ function useCopy(props: SpaceLauncherProps) {
         ? t`Choose one to set it up. You'll pick its mode and any bots next.`
         : guestHint(),
     section: () => (host() || !suggests() ? t`Games` : t`Suggest a game`),
-    foot: () =>
-      host()
-        ? t`Everyone here sees which game you're looking at.`
-        : guestFoot(),
+    // The host's page needs no foot: nothing shows guests which tile they
+    // are on, so it promises nothing.
+    foot: () => (host() ? '' : guestFoot()),
   };
 }
 
@@ -168,7 +167,7 @@ export function SpaceLauncher(props: SpaceLauncherProps): JSX.Element {
           </For>
         </div>
         {/* What the choice means, right under the games it is about. */}
-        <Show when={props.games.length > 0}>
+        <Show when={props.games.length > 0 && copy.foot() !== ''}>
           <p class={`text textCaption ${styles['foot']}`}>{copy.foot()}</p>
         </Show>
       </section>

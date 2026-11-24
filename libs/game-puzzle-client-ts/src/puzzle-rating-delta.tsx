@@ -30,6 +30,10 @@ function deltaTone(props: PuzzleRatingDeltaProps): ColorTone {
 export function PuzzleRatingDelta(props: PuzzleRatingDeltaProps): JSX.Element {
   return (
     <>
+      {/* What the number is, so "1491" and "−9" never stand unlabelled. */}
+      <P variant="caption" tone="secondary" align="center">
+        <Trans>Your puzzle rating</Trans>
+      </P>
       <H3
         size="heading"
         align="center"
