@@ -385,10 +385,6 @@ function SpaceJoinLiveBody(props: {
 
 function JoinPromptBody(props: SpaceJoinScreenViewProps): JSX.Element {
   const { t } = useLingui();
-  const back = {
-    label: t`Back to Spaces`,
-    onClick: () => props.onBackToSpaces(),
-  };
   return (
     <Switch>
       <Match when={props.status === 'loading'}>
@@ -399,7 +395,6 @@ function JoinPromptBody(props: SpaceJoinScreenViewProps): JSX.Element {
           icon={Gamepad2Icon}
           title={t`You can't join this space`}
           body={t`Ask the host to send you the space's link or to add you, then try again.`}
-          action={back}
         />
       </Match>
       <Match when={props.status === 'missing'}>
@@ -407,7 +402,6 @@ function JoinPromptBody(props: SpaceJoinScreenViewProps): JSX.Element {
           icon={Gamepad2Icon}
           title={t`This space can't be found`}
           body={t`The link may be wrong, or the space may never have existed.`}
-          action={back}
           dataSet={{ testid: Handles.spaceNotFound }}
         />
       </Match>
@@ -416,7 +410,6 @@ function JoinPromptBody(props: SpaceJoinScreenViewProps): JSX.Element {
           icon={WifiOffIcon}
           title={t`You're offline`}
           body={t`Joining someone's space needs a connection. Your own spaces still work offline.`}
-          action={back}
           dataSet={{ testid: Handles.spacesNeedConnection }}
         />
       </Match>
@@ -449,9 +442,36 @@ export function SpaceJoinScreenView(
         { name: props.title },
       ]}
       footer={
-        <Show when={props.status === 'live' && props.connection !== 'loading'}>
-          <JoinPromptFooter {...props} />
-        </Show>
+        <Switch>
+          <Match
+            when={props.status === 'live' && props.connection !== 'loading'}
+          >
+            <JoinPromptFooter {...props} />
+          </Match>
+          {/* Every state that cannot join keeps the same bottom bar, with
+              its one way on filled. */}
+          <Match
+            when={
+              props.status === 'unavailable' ||
+              props.status === 'missing' ||
+              props.status === 'offline'
+            }
+          >
+            <Button
+              title={<Trans>Back to Spaces</Trans>}
+              fullWidth
+              onClick={() => props.onBackToSpaces()}
+              // The addresses its empty state's action had.
+              dataSet={
+                props.status === 'missing'
+                  ? { testid: Handles.spaceNotFoundBack }
+                  : props.status === 'offline'
+                    ? { testid: `${Handles.spacesNeedConnection}-action` }
+                    : undefined
+              }
+            />
+          </Match>
+        </Switch>
       }
     >
       <StackVertical grow gap="md">
