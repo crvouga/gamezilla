@@ -63,7 +63,8 @@ function ResultCaption(props: PuzzleStageScreenViewProps): JSX.Element {
         }
       >
         <Trans>
-          You found the solution after a wrong move. Retry to solve it cleanly.
+          A wrong move on the way counts the attempt as failed, even when the
+          line is finished. Retry to solve it cleanly.
         </Trans>
       </Match>
       <Match when={props.status === 'solved'}>
@@ -137,49 +138,70 @@ function ResultCommands(props: PuzzleStageScreenViewProps): JSX.Element {
   );
   const offers = (id: 'next' | 'retry'): boolean =>
     slots().some((slot) => slot.id === id);
+  // After a failed attempt the coach says retry: Retry is the one filled,
+  // full-width command on top, as on the wrong-move stage, and Next puzzle
+  // and Share are the quieter pair under it.
   const failedAttempt = (): boolean =>
     props.status === 'solved' && props.result.completion?.outcome === 'failed';
-  return (
-    <StackVertical gap="md">
-      <Show when={offers('next')}>
+  const retry = (lead: boolean): JSX.Element => (
+    <Button
+      title={<Trans>Retry</Trans>}
+      intent={lead ? 'primary' : 'neutral'}
+      variant={lead ? 'solid' : 'outline'}
+      size={lead ? 'lg' : undefined}
+      fullWidth={lead}
+      icon={RotateCcwIcon}
+      onClick={() => props.onRetry()}
+      dataSet={{ testid: Handles.chessPuzzleActionRetry }}
+    />
+  );
+  const next = (lead: boolean): JSX.Element => (
+    <Button
+      title={<Trans>Next puzzle</Trans>}
+      size={lead ? 'lg' : undefined}
+      fullWidth={lead}
+      variant={lead ? 'solid' : 'outline'}
+      intent={lead ? 'primary' : 'neutral'}
+      endIcon={<ChevronRightIcon />}
+      onClick={() => props.onNext()}
+      dataSet={{ testid: Handles.chessPuzzleSummaryNext }}
+    />
+  );
+  const share = (): JSX.Element => (
+    <Show when={props.share} keyed>
+      {(link) => (
         <Button
-          title={<Trans>Next puzzle</Trans>}
-          size="lg"
-          fullWidth
-          // After a failed attempt the coach says retry: Retry leads and
-          // Next puzzle waits beside it, quieter.
-          variant={failedAttempt() ? 'outline' : 'solid'}
-          intent={failedAttempt() ? 'neutral' : 'primary'}
-          endIcon={<ChevronRightIcon />}
-          onClick={() => props.onNext()}
-          dataSet={{ testid: Handles.chessPuzzleSummaryNext }}
+          title={<PuzzleShareLabel state={link.state} short />}
+          intent="neutral"
+          variant="outline"
+          icon={ShareIcon}
+          onClick={() => link.onShare()}
+          dataSet={{ testid: Handles.chessPuzzleShareLink }}
         />
-      </Show>
-      <GameActions sizing="share">
-        <Show when={offers('retry')}>
-          <Button
-            title={<Trans>Retry</Trans>}
-            intent={failedAttempt() ? 'primary' : 'neutral'}
-            variant={failedAttempt() ? 'solid' : 'outline'}
-            icon={RotateCcwIcon}
-            onClick={() => props.onRetry()}
-            dataSet={{ testid: Handles.chessPuzzleActionRetry }}
-          />
-        </Show>
-        <Show when={props.share} keyed>
-          {(share) => (
-            <Button
-              title={<PuzzleShareLabel state={share.state} short />}
-              intent="neutral"
-              variant="outline"
-              icon={ShareIcon}
-              onClick={() => share.onShare()}
-              dataSet={{ testid: Handles.chessPuzzleShareLink }}
-            />
-          )}
-        </Show>
-      </GameActions>
-    </StackVertical>
+      )}
+    </Show>
+  );
+  return (
+    <Show
+      when={failedAttempt() && offers('retry')}
+      fallback={
+        <StackVertical gap="md">
+          <Show when={offers('next')}>{next(true)}</Show>
+          <GameActions sizing="share">
+            <Show when={offers('retry')}>{retry(false)}</Show>
+            {share()}
+          </GameActions>
+        </StackVertical>
+      }
+    >
+      <StackVertical gap="md">
+        {retry(true)}
+        <GameActions sizing="share">
+          <Show when={offers('next')}>{next(false)}</Show>
+          {share()}
+        </GameActions>
+      </StackVertical>
+    </Show>
   );
 }
 
