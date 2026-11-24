@@ -55,6 +55,14 @@ export const NAMING_EXEMPT = {
     '.agents/skills/impeccable/',
     '.agents/skills/ui-ux-pro-max/',
     '.agents/skills/ast-grep/',
+    // pstack (cursor/plugins): the skills whose files keep upstream names,
+    // and the docs its skills link to as `../../docs/`.
+    '.agents/skills/create-verification-skill/',
+    '.agents/skills/poteto-help/',
+    '.agents/skills/poteto-mode/',
+    '.agents/skills/statechart/',
+    '.agents/skills/typescript-best-practices/',
+    '.agents/docs/',
     // A portable Agent Skills directory, kept identical to its copies in
     // other repositories (kebab-case reference names, Python modules).
     '.agents/skills/ci-green/',
