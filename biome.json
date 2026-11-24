@@ -24,6 +24,8 @@
       "!.agents/skills/**/assets",
       "!.agents/skills/impeccable",
       "!.agents/skills/ui-ux-pro-max",
+      "!.agents/skills/poteto-mode/scripts",
+      "!.agents/skills/statechart/scripts",
       "!qa",
       "!!pkgs/postgres/.postgres"
     ]
