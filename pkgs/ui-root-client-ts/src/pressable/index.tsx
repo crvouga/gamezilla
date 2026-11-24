@@ -36,6 +36,12 @@ export type PressableProps = SpacingProps &
     /** Hover and press tint over the region. Default `true`. */
     tint?: boolean | undefined;
     disabled?: boolean | undefined;
+    /**
+     * Disabled, keep full contrast: for a record shown at rest (a move list
+     * while a puzzle is solved) that only takes presses at other times, so
+     * its text stays readable (WCAG AA) instead of fading.
+     */
+    readableWhenDisabled?: boolean | undefined;
     /** Toggle state (`aria-pressed`). Buttons only. */
     pressed?: boolean | undefined;
     /** The chosen item of a set (`aria-current="true"`). */
@@ -75,7 +81,11 @@ function pressableClass(region: PressableProps): string {
     flexItemClass(region),
     spacingClass(region),
     radiusClass(region.radius),
-    disabled ? 'opacity-disabled cursor-default' : undefined,
+    disabled
+      ? region.readableWhenDisabled === true
+        ? 'cursor-default'
+        : 'opacity-disabled cursor-default'
+      : undefined,
     disabled && region.href !== undefined ? 'pointer-events-none' : undefined,
   ]);
 }

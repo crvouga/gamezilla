@@ -43,6 +43,8 @@ function HistoryPlyChip(props: HistoryPlyChipProps): JSX.Element {
       tint={!props.selected}
       testId={`chess-puzzle-move-ply-${props.ply.plyIndex}`}
       disabled={!props.interactive}
+      // The moves so far stay readable while they cannot be pressed.
+      readableWhenDisabled
       onPress={handlePress}
       pressed={props.selected}
       aria-label={
