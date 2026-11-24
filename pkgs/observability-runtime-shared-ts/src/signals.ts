@@ -99,9 +99,9 @@ function createMeter(
         }));
   return metricExporter === undefined
     ? undefined
-    : // The SDK's own metrics stay off: every Worker isolate is a writer,
-      // and nothing reads them, but each would be stored series that count
-      // against the metrics backend's active-series limit.
+    : // The SDK's own metrics stay off: nothing reads them, but each would
+      // be stored series that count against the metrics backend's
+      // active-series limit.
       new MeterProvider({
         resource,
         readers: [

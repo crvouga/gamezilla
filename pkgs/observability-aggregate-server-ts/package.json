@@ -1,0 +1,35 @@
+{
+  "name": "@pkgs/observability-aggregate-server-ts",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests"
+  },
+  "dependencies": {
+    "@opentelemetry/api": "catalog:",
+    "@opentelemetry/resources": "catalog:",
+    "@opentelemetry/sdk-metrics": "catalog:",
+    "@pkgs/clock-shared-ts": "workspace:*",
+    "@pkgs/http-client-shared-ts": "workspace:*",
+    "@pkgs/observability-runtime-shared-ts": "workspace:*"
+  },
+  "devDependencies": {
+    "@opentelemetry/otlp-transformer": "catalog:",
+    "@pkgs/property-shared-ts": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "server",
+  "language": "typescript"
+}

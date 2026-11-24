@@ -312,6 +312,7 @@
         "@pkgs/http-client-shared-ts": "workspace:*",
         "@pkgs/llm-root-server-ts": "workspace:*",
         "@pkgs/logger-shared-ts": "workspace:*",
+        "@pkgs/observability-aggregate-server-ts": "workspace:*",
         "@pkgs/observability-root-server-ts": "workspace:*",
         "@pkgs/observability-root-shared-ts": "workspace:*",
         "@pkgs/s3-server-ts": "workspace:*",
@@ -6148,6 +6149,26 @@
         "typescript": "catalog:",
       },
     },
+    "pkgs/observability-aggregate-server-ts": {
+      "name": "@pkgs/observability-aggregate-server-ts",
+      "version": "0.0.0",
+      "dependencies": {
+        "@opentelemetry/api": "catalog:",
+        "@opentelemetry/resources": "catalog:",
+        "@opentelemetry/sdk-metrics": "catalog:",
+        "@pkgs/clock-shared-ts": "workspace:*",
+        "@pkgs/http-client-shared-ts": "workspace:*",
+        "@pkgs/observability-runtime-shared-ts": "workspace:*",
+      },
+      "devDependencies": {
+        "@opentelemetry/otlp-transformer": "catalog:",
+        "@pkgs/property-shared-ts": "workspace:*",
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "pkgs/observability-cli-server-ts": {
       "name": "@pkgs/observability-cli-server-ts",
       "version": "0.0.0",
@@ -9461,6 +9482,8 @@
     "@pkgs/object-store-s3-server-ts": ["@pkgs/object-store-s3-server-ts@workspace:pkgs/object-store-s3-server-ts"],
 
     "@pkgs/object-store-s3-shared-ts": ["@pkgs/object-store-s3-shared-ts@workspace:pkgs/object-store-s3-shared-ts"],
+
+    "@pkgs/observability-aggregate-server-ts": ["@pkgs/observability-aggregate-server-ts@workspace:pkgs/observability-aggregate-server-ts"],
 
     "@pkgs/observability-cli-server-ts": ["@pkgs/observability-cli-server-ts@workspace:pkgs/observability-cli-server-ts"],
 

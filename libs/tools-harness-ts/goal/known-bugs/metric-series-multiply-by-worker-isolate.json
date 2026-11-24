@@ -1,0 +1,4 @@
+{
+  "summary": "Every Worker isolate exported its own cumulative metric series under a fresh service.instance.id, so stored series grew with isolate churn instead of label combinations: 22,249 server series over three hours against the metrics backend's 10,000 active-series limit, which then refused writes and dropped Health's check results while the writer saw success. Isolates now hand what they counted to one aggregate per environment, which keeps the running totals and is the only metrics writer, under one identity.",
+  "regressionTest": "pkgs/observability-aggregate-server-ts/tests/metric-aggregate.test.ts"
+}

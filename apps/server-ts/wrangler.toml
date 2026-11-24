@@ -15,6 +15,14 @@ class_name = "RoomServerDurableObject"
 tag = "v1-app-room"
 new_sqlite_classes = ["RoomServerDurableObject"]
 
+# The single metrics writer every isolate hands its counts to.
+[[durable_objects.bindings]]
+name = "METRIC_AGGREGATE"
+class_name = "MetricAggregateDurableObject"
+[[migrations]]
+tag = "v2-app-metric-aggregate"
+new_sqlite_classes = ["MetricAggregateDurableObject"]
+
 [triggers]
 crons = ["*/1 * * * *"]
 

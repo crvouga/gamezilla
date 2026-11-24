@@ -87,8 +87,64 @@ OpenTofu foundation manages per-environment writer/read policies, dashboard fold
 service accounts and alerts. Workers receive ingestion credentials only. Browser exports persist redacted OTLP trace and log batches in the injected local object store before acknowledging the SDK. Delivery uses the injected offline-aware HTTP and timers, retries after outages and reopening, and keeps a complete batch on partial rejection. Pending batches expire after 30 days. Browser persistence is not a guarantee against a hard page termination before the local write finishes. Browser logs
 are proxied with server credentials; resource identity is forced, business claims and
 private bodies are stripped, and only diagnostic attributes or scalar Web Vitals pass.
-Browser sync cumulative metrics use a fresh opaque page instance resource, validated at ingress, so independent writers cannot overwrite one shared counter. This adds per-page resource cardinality; measure collector costs before broad rollout. Arbitrary resource identities and person identifiers are rejected. Server metric
-resources identify the isolate so concurrent writers do not overwrite each other.
+Browser sync cumulative metrics use a fresh opaque page instance resource, validated at ingress, so independent writers cannot overwrite one shared counter. This adds per-page resource cardinality; measure collector costs before broad rollout. Arbitrary resource identities and person identifiers are rejected. Server metrics
+have one writer per environment: see [One metrics writer](#one-metrics-writer).
+
+### One metrics writer
+
+A Worker isolate lives for minutes and there are hundreds an hour. If each
+exported its own cumulative series (one `service.instance.id` per isolate),
+stored series would grow with isolate churn: 22,249 server series were measured
+over three hours against a backend limit of 10,000, which is how Health check
+results came to be dropped. Sharing one identity between independent
+cumulative counters would make them overwrite each other, and the backend
+refuses delta temporality.
+
+So isolates do not export metrics. Each environment's Worker has one Durable
+Object, `MetricAggregateDurableObject` (binding `METRIC_AGGREGATE`), that is its
+only metrics writer:
+
+- **Hand-off.** When an isolate flushes (after the response, as before), its
+  exporter collects what it counted since its last flush (counter growth,
+  histogram bucket, count and sum growth, a gauge's latest reading) and posts it
+  to the aggregate. Each hand-off is named by the isolate's id and a sequence
+  number, and the aggregate stores the increments and the highest sequence it
+  added for that isolate in one atomic write, so a hand-off delivered again
+  after a lost answer is recognized and added once.
+- **Totals.** The aggregate keeps running totals in its storage, each with the
+  time it began, and exports all of them once a minute from its alarm as
+  cumulative points under one identity (`service.instance.id="aggregate"`, the
+  service's name, the environment). Spans and logs keep the isolate's identity.
+  Metric points carry no `service.version`: totals continue across deploys.
+- **Never backwards.** The aggregate changes what it holds only after storage
+  accepted the write, and counts an export as told only after the backend
+  acknowledged it; a refused export is stated again a minute later with totals
+  at least as large. A recycled isolate changes nothing: its replacement hands
+  off its own growth to the same totals.
+- **Zero first.** A series the backend has not seen is stated as zero, and what
+  it counted follows a minute later, so its first count is growth a query can
+  see. After more than 2.5 minutes without an acknowledged export every total
+  begins again from zero with a new start time, and what was handed over
+  meanwhile follows; this keeps the first-value term of the counter query from
+  ever reading a lifetime total.
+- **Bounds.** A hand-off is added only from the API or the room server, only
+  with labels in `METRIC_DIMENSION_KEYS`, at most `SERIES_BUDGET` label
+  combinations per metric and 2,048 series in all; what is left out is counted
+  in the answer and logged by the isolate. A series nobody added to for a day is
+  forgotten, and an isolate's sequence an hour after its last hand-off.
+- **Failure.** If the aggregate cannot be reached, the isolate keeps what it
+  counted (bounded by the label vocabulary) and delivers it with its next flush;
+  the request is never delayed or failed. What an isolate still holds when it is
+  recycled is lost, as is a hand-off that stayed undeliverable for 30 minutes
+  (logged). If storage refuses the write that records an acknowledged export and
+  no export is acknowledged in the next 2.5 minutes, the growth of that one
+  export is stated twice.
+
+A gauge is exported once per reading, at the time it was read, and not restated.
+The localhost stack has no binding: its API processes are long-lived, are one
+writer each already, and export directly. Composition:
+`apps/server-ts/src/worker-telemetry.ts` (bound in `room.ts`); mechanism:
+`@pkgs/observability-aggregate-server-ts`.
 
 Schema/privacy, cardinality, delivery, correlation, analytical calculations, financial
 reconciliation and dashboard structural checks run in existing package gates. Full
@@ -123,12 +179,13 @@ otherwise, and `apps/server-ts/tests/route-groups.test.ts` fails until it has on
 Every query selects its environment by the `deployment_environment_name` label on
 the point (Grafana Cloud copies it from the resource). Synthetic Monitoring's
 checks run as `<check>-<environment>` jobs instead: a check's own labels reach
-its metrics only on tenants Grafana has migrated. No query joins `target_info`:
-only isolates still running carry it, so a join drops everything an ended Worker
-isolate counted (the old objectives, alerts and dashboards counted nothing for
-this reason). A counter is counted as its growth plus the first value of each
-series that appeared in the window, because a short-lived isolate may report a
-single sample.
+its metrics only on tenants Grafana has migrated. No query joins `target_info`
+or groups by `instance`: the environment is on every point. A counter is counted
+as its growth plus the first value of each series that appeared in the window,
+because a short-lived writer (a browser page) may report a single sample. Server
+series are not short-lived, so the single writer states every new series, and
+every series after a gap in its exports, as an explicit zero first: that first
+value then adds nothing, and never a lifetime total.
 
 **Slices.** Every rule of an indicator with a `sliceBy` (route group, check,
 probe job) is split by it: each slice burns on its own and is its own alert,
@@ -512,10 +569,12 @@ as well; a nonempty series alone is not proof of fresh successful work.
 Cumulative counters from short-lived pages also need repeated exports before
 `increase` can observe their changes; first-export and page-loss coverage must
 be measured before treating the diagnostic ratio as a population objective.
-The finite label budget is per instrument and writer, not a global cost bound:
-per-page resource identities prevent counter collisions but multiply active
-series. Compare active-series usage with backend capacity during rollout; this
-implementation does not establish a population-wide telemetry cost budget.
+The finite label budget is per instrument and writer. The server and the room
+server are one writer per environment ([One metrics writer](#one-metrics-writer)),
+so their stored series are bounded by metric and label combinations. Browser
+pages are still one writer each: per-page resource identities prevent counter
+collisions but multiply active series, so the browser has no population-wide
+telemetry cost bound yet.
 
 Transport spans combine DNS/TCP/TLS/authentication because the driver exposes one
 connect boundary. Further attribution needs driver/platform or database evidence.

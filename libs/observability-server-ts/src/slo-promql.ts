@@ -65,10 +65,12 @@ function sum(by: string | null): string {
 }
 
 /**
- * Events a counter counted over `window`. Counters are written by
- * short-lived Worker isolates, whose series may report a single sample that
- * `increase` cannot see: growth of series that already existed plus the
- * first value of series that appeared in the window counts each event once.
+ * Events a counter counted over `window`. A short-lived writer (a browser
+ * page) may report a single sample that `increase` cannot see: growth of
+ * series that already existed plus the first value of series that appeared
+ * in the window counts each event once. The server's single metrics writer
+ * states a new series, and every series after a gap in its exports, as zero
+ * first, so for its long-lived totals that first value is never a count.
  * Either part may be empty; the `or`s keep whichever exists, slice by slice.
  */
 export function counterCount(input: {

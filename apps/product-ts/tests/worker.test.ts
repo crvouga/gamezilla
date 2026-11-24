@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import type { AppWorkerEnv } from '@apps/product-ts/worker';
 import worker, {
+  MetricAggregateDurableObject,
   RoomServerDurableObject,
   RoomStorageArchive,
 } from '@apps/product-ts/worker';
@@ -170,5 +171,9 @@ describe('application Worker dispatch', () => {
   test('exports the room class and scheduled handler in the application entrypoint', () => {
     expect(typeof RoomServerDurableObject).toBe('function');
     expect(typeof worker.scheduled).toBe('function');
+  });
+
+  test('exports the single metrics writer in the application entrypoint', () => {
+    expect(typeof MetricAggregateDurableObject).toBe('function');
   });
 });
