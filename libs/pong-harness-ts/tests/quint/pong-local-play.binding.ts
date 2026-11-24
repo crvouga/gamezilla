@@ -30,7 +30,6 @@ bindQuintModel<QuintHarnessWorld>({
   regressions: [
     {
       // regression: pong-local-reopen-after-paddle-guidance
-      // regression: pong-short-match-ends-while-joining
       id: 'pong-local-reopen-after-paddle-guidance',
       title: 'Reopening after guiding a local paddle keeps the ongoing game',
       seed: '0x67932',

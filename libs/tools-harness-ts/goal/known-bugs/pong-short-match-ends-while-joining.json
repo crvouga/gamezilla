@@ -1,4 +1,4 @@
 {
   "summary": "The local Pong lifecycle fixture shortened the normal game to three points. In the browser, the bot won during the pinned reopen, spectator join and paddle guidance trace. The observer also read both courts and controls twice at every step although the model tracks only the left paddle's position.",
-  "regressionTest": "libs/pong-harness-ts/tests/quint/pong-local-play.binding.ts"
+  "regressionTest": "libs/pong-harness-ts/tests/pong-court-reads.test.ts"
 }
