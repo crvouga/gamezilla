@@ -21,6 +21,7 @@ import {
 import { failNextHarnessObjectWrite } from '@libs/harness-ts/mockingbird-object-store';
 import { partitioned } from '@libs/harness-ts/observations';
 import { openAccount } from '@libs/harness-ts/shell-actions';
+import { openAccountScreen } from '@libs/harness-ts/sign-in-method-actions';
 import { OutboxConsumerRegistry } from '@pkgs/outbox-shared-ts/define-consumer';
 import sql from '@pkgs/sql-root-shared-ts/sql';
 
@@ -43,9 +44,15 @@ export const openPrivacy = scenarioAction({
     await ensureActor(s, actor);
     const handle = s.actors.get(actor);
     if (handle === undefined) throw new Error('Privacy actor missing');
-    await handle.openLink('/profile/privacy');
-    // Opening the screen also serves signed-out people reading a deletion receipt.
-    // The destructive action is permission-gated and is not a readiness marker.
+    if ((await handle.currentPath()) !== '/profile/privacy') {
+      if ((await signedInAccountOf(s, actor)) !== null) {
+        await openAccountScreen(s, handle.ui);
+        await handle.ui.get('account-privacy').tap();
+      } else {
+        // Former devices can read a receipt from its link after signing out.
+        await handle.openLink('/profile/privacy');
+      }
+    }
     await handle.ui.get('privacy-deletion-task').expect.visible();
   },
 });

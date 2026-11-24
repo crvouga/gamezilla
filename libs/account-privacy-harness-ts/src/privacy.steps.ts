@@ -117,7 +117,6 @@ Then(
   "{actor}'s account deletion is acknowledged with its completion deadline",
   async (w, actor: Actor) => {
     await w.s.apply(openPrivacy, actor);
-    // regression: deletion-receipt-after-browser-navigation
     const outcome = await w.s.until(
       (s) => privacyText(s, actor, 'privacy-deletion-outcome'),
       { pred: (text) => text !== null }
