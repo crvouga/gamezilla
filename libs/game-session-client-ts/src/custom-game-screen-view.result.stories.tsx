@@ -165,18 +165,18 @@ export const Cancelled: Story = {
 export const ConnectionNeeded: Story = { args: { connection: 'needed' } };
 
 /** A refused rematch says why, with every way forward still there. */
+/** The host's rematch, refused on the way. */
+const REMATCH_REFUSAL =
+  "The rematch didn't reach the space. Check your connection and try again.";
+
 export const RematchRefused: Story = {
-  // The host's rematch, refused on the way: why, over the dialog, with
-  // Rematch still the way to try again.
-  args: {
-    error:
-      "The rematch didn't reach the space. Check your connection and try again.",
-  },
+  // Why, over the dialog, with Rematch still the way to try again.
+  args: { error: REMATCH_REFUSAL },
 };
 
 /** J12 recovery: after a refused rematch, Rematch in the dialog tries again. */
 export const RematchRetry: Story = {
-  args: RematchRefused.args,
+  args: { error: REMATCH_REFUSAL },
   // J12 recovery: the refusal is said in the Game over dialog, over its
   // commands, and Rematch there tries again.
   play: async ({ args, canvasElement }) => {
