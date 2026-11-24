@@ -7,7 +7,6 @@ import { H3 } from '@pkgs/ui-root-client-ts/heading';
 import { List } from '@pkgs/ui-root-client-ts/list';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { ResponsiveSurface } from '@pkgs/ui-root-client-ts/responsive-surface';
-import { ScrollView } from '@pkgs/ui-root-client-ts/scroll-view';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
@@ -180,15 +179,16 @@ export function SpaceShareSheetView(
       onClose={() => props.onClose()}
       title={<Trans>Share space</Trans>}
       size="medium"
-      scroll={false}
       closeDataSet={{ testid: Handles.spaceShareClose }}
     >
-      <ScrollView maxHeight="lg" gap="md">
+      {/* The sheet grows with the window and scrolls as one, so the people
+          list is never cut mid-row while the window has room. */}
+      <StackVertical gap="md">
         <SpaceShareLinkSection onCopyLink={props.onCopyLink} />
         <Show when={props.canManage}>{props.addPeople}</Show>
         <SpaceSharePeopleList {...props} />
         {props.overlay}
-      </ScrollView>
+      </StackVertical>
     </ResponsiveSurface>
   );
 }

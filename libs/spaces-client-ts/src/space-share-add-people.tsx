@@ -65,7 +65,12 @@ export function SpaceShareAddPeople(props: {
 
   const state = createMemo((): SpaceAddition => {
     const error = addition.error();
-    if (error !== null) return { status: 'error', message: error.message };
+    if (error !== null)
+      return {
+        status: 'error',
+        message: error.message,
+        name: lastPick()?.name,
+      };
     if (addition.loading()) return { status: 'loading' };
     const name = addition.value();
     if (addition.status() === 'success' && name !== null)

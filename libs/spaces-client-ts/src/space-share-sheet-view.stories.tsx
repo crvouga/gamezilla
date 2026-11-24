@@ -108,6 +108,7 @@ export const AddFailed: Story = {
       addPeople: () =>
         addPeople({
           status: 'error',
+          name: 'morgan',
           message:
             "Couldn't reach the server. Check your connection and try again.",
         }),

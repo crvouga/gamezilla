@@ -176,11 +176,16 @@ export function SpaceHostPhrase(props: {
       when={!props.space.hostedByViewer}
       fallback={<Trans>Hosted by you</Trans>}
     >
+      {/* Plain words, so the line's one-line clamp ends a long name in an
+          ellipsis instead of breaking it onto a second line. */}
       <Show when={props.space.host} keyed>
         {(host) => (
-          <Trans>
-            Hosted by <SpacePersonName person={host} variant="caption" />
-          </Trans>
+          <Show
+            when={host.name.trim() !== ''}
+            fallback={<Trans>Hosted by a guest</Trans>}
+          >
+            <Trans>Hosted by {host.name}</Trans>
+          </Show>
         )}
       </Show>
     </Show>
@@ -355,7 +360,8 @@ export function SpaceCardView(props: {
           <StackHorizontal align="center" justify="between" gap="sm">
             <StackVertical shrink>
               {/* The list-row title: medium, as in every panel of rows. */}
-              <Text variant="rowTitle" lines={1}>
+              {/* Two lines: the space's name is what a person looks for. */}
+              <Text variant="rowTitle" lines={2}>
                 {props.space.title}
               </Text>
             </StackVertical>

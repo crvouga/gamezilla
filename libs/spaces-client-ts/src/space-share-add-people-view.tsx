@@ -14,7 +14,12 @@ import { SpacePersonAvatar } from './space-person-view';
 export type SpaceAddition =
   | { readonly status: 'idle' | 'loading' }
   | { readonly status: 'success'; readonly name: string }
-  | { readonly status: 'error'; readonly message: string };
+  | {
+      readonly status: 'error';
+      readonly message: string;
+      /** Who the refused addition was for, so Try again names them. */
+      readonly name?: string | undefined;
+    };
 
 /** A person the search offers, with the handle typed text matches. */
 export type SpaceAddCandidate = SpacePerson & {
@@ -63,7 +68,14 @@ function SpaceAdditionState(props: {
         {(error) => (
           <ErrorState
             variant="compact"
-            title={<Trans>Couldn't add person</Trans>}
+            title={
+              <Show
+                when={error().name}
+                fallback={<Trans>Couldn't add person</Trans>}
+              >
+                {(name) => <Trans>Couldn't add {name()}</Trans>}
+              </Show>
+            }
             body={error().message}
             retry={{ onClick: () => props.onRetry() }}
           />
