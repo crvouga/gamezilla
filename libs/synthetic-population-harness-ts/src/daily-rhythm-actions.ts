@@ -329,7 +329,7 @@ export const givenClosedAfterDay = scenarioAction({
   },
 });
 
-/** Time passes until the named Synthetic User's daily schedule begins. */
+/** Begin the scheduled day, advancing time on hosts that own their clock. */
 export const dailyScheduleBegins = scenarioAction({
   name: 'dailyScheduleBegins',
   act: async (s, name: string) => {
@@ -337,6 +337,10 @@ export const dailyScheduleBegins = scenarioAction({
     if (persona === null) throw new Error(`${name} has no persona`);
     const now = s.harness.clock.now();
     if (onSchedule(persona.dailySchedule, now)) return;
+    if (!s.session.caps.has('virtualTime')) {
+      await beginDayNow(s, (await rowOf(s, name)).id);
+      return;
+    }
     const at = nextScheduleChange(persona.dailySchedule, now);
     if (at - now > 25 * HOUR_MS) throw new Error(`${name} has no day to begin`);
     await s.session.advanceTime(at - now);

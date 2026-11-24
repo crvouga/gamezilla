@@ -1,0 +1,4 @@
+{
+  "summary": "A reopened privacy screen could be observed before the signed-out device had loaded its deletion receipt. The scenario now waits for the acknowledgment before checking its deadline.",
+  "regressionTest": "libs/account-privacy-harness-ts/src/privacy.steps.ts"
+}

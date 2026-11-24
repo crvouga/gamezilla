@@ -1,0 +1,4 @@
+{
+  "summary": "The daily schedule scenario slept until the next real hour on its browser host. The wall-clock fixture now sets the scheduled start to the current hour so the worker can observe it.",
+  "regressionTest": "libs/synthetic-population-harness-ts/tests/steps/daily-rhythm.steps.ts"
+}

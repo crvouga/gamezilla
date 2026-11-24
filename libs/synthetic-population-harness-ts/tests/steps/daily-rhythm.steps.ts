@@ -55,6 +55,7 @@ Given(
     expect(await w.s.read(syntheticUserOnline, name)).toBe(false);
   }
 );
+// regression: synthetic-schedule-waits-for-wall-hour
 When("{string}'s daily schedule begins", async (w, name: string) => {
   await w.s.apply(dailyScheduleBegins, name);
 });

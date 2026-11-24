@@ -126,6 +126,7 @@ export function findingAnOpponentHandles(gameId: string): readonly string[] {
   return [
     ...FINDING_SURFACES,
     ...NOWHERE_TO_FIND,
+    Handles.spaceLoading,
     CUSTOM_GAME_CONTENT,
     Handles.gameChoice('multiplayer'),
     Handles.gameMenu(gameId),
@@ -146,6 +147,7 @@ export function findingAnOpponentStep(
   gameId: string,
   whereverItCan: boolean
 ): 'arrived' | 'nowhere' | string | null {
+  if (visible.has(Handles.spaceLoading)) return null;
   if (FINDING_SURFACES.some((surface) => visible.has(surface)))
     return 'arrived';
   if (NOWHERE_TO_FIND.some((surface) => visible.has(surface)))
@@ -194,7 +196,7 @@ async function reachFindingAnOpponent(
         visible.has(MULTIPLAYER_SCREEN) &&
         (await ui.get(MULTIPLAYER_SCREEN).attribute('data-stage')) === 'loading'
       )
-        visible.delete(MULTIPLAYER_SCREEN);
+        return null;
       const step = findingAnOpponentStep(visible, family, whereverItCan);
       if (step === 'arrived') return true;
       if (step === 'nowhere')
