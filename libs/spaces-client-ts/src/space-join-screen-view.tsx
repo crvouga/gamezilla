@@ -88,6 +88,11 @@ function SpaceJoinButton(props: SpaceJoinScreenViewProps): JSX.Element {
   return (
     <Button
       {...join.buttonProps}
+      // Offline, the way back leads and trying again waits beside it; once
+      // the connection returns, joining is the filled command again.
+      {...(props.connection === 'offline'
+        ? { variant: 'outline' as const, intent: 'neutral' as const }
+        : {})}
       flex={1}
       dataSet={{ testid: Handles.spaceJoin }}
     />
@@ -109,8 +114,8 @@ function JoinPromptFooter(props: SpaceJoinScreenViewProps): JSX.Element {
             <Show when={props.needsConnection || props.joinPending}>
               <Button
                 title={<Trans>Back to Spaces</Trans>}
-                intent="neutral"
-                variant="outline"
+                intent={props.connection === 'offline' ? 'primary' : 'neutral'}
+                variant={props.connection === 'offline' ? 'solid' : 'outline'}
                 flex={1}
                 onClick={() => props.onBackToSpaces()}
               />
