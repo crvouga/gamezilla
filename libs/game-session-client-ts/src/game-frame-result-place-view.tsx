@@ -46,8 +46,9 @@ function NextActions(props: Props): JSX.Element {
             // the card says the host starts the rematch.
             <Button
               title={<Trans>Back to the space</Trans>}
-              variant="outline"
-              intent="neutral"
+              // The one way on for someone who may not start the rematch:
+              // filled, as the watcher's is.
+              variant="solid"
               onClick={() => props.onBack()}
               dataSet={{ testid: 'custom-game-back' }}
             />
