@@ -106,7 +106,11 @@ function RegisteredRoom(props: {
 }) {
   const register = useSpaceOpenRoomsRegistry();
   onSettled(() => {
-    register('race', { room: props.rig.room, clientId: 'alice-tab' });
+    register('race', {
+      room: props.rig.room,
+      clientId: 'alice-tab',
+      isCurrent: () => true,
+    });
     return () => register('race', null);
   });
   return <SpaceRoomProvider spaceId="race">{props.children}</SpaceRoomProvider>;
