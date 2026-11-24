@@ -27,6 +27,7 @@ import type { SpacePersonCapability } from '../space-person-actions';
 import type { SpaceMenuItem, SpaceRole } from '../space-types';
 import { ToastStack } from '../toast-stack/index';
 import { useAnchoredMenu } from '../use-anchored-menu';
+import { useLayoutMode } from '../use-layout-mode';
 import styles from './space-shell.module.css';
 
 /**
@@ -392,11 +393,13 @@ function ActionsRow(props: SpaceShellProps): JSX.Element {
  * ```
  */
 export function SpaceShell(props: SpaceShellProps): JSX.Element {
+  const mode = useLayoutMode();
   return (
     <div
       class={styles['shell']}
       {...dataAttrs({ component: 'SpaceShell', ...props.dataSet })}
       data-role={props.role}
+      data-layout={mode()}
     >
       <ActionsRow {...props} />
       {/* A notice comes and goes (a refused change, the host away): it

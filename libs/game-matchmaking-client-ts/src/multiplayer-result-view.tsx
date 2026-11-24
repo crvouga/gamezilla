@@ -43,6 +43,8 @@ type ResultProps = MultiplayerPlaceFrame & {
   /** Rematch commands need a connection. */
   readonly online: boolean;
   readonly onOpen: (place: MultiplayerPlace) => void;
+  /** Leaves the matched game (someone who watched it goes back). */
+  readonly onLeave?: (() => void) | undefined;
 };
 
 // Each label is short for the eye. A listener, who cannot see which game the
@@ -205,6 +207,24 @@ export function MultiplayerResultView(props: ResultProps): JSX.Element {
         sheetFooter={<Onward {...props} />}
         actions={
           <GameActionBar aria-label={t`What next`} items={[]} width="content">
+            {/* Someone who watched has no next game here: their one way on
+                is back, filled, as a custom game's watcher's is. */}
+            <Show
+              when={
+                !props.game.newOpponent &&
+                props.game.rematch === 'none' &&
+                props.onLeave
+              }
+            >
+              {(leave) => (
+                <Button
+                  title={<Trans>Back to the space</Trans>}
+                  variant="solid"
+                  onClick={() => leave()()}
+                  dataSet={{ testid: 'multiplayer-back' }}
+                />
+              )}
+            </Show>
             <Show when={props.game.rematch === 'answer'}>
               <Rematch {...props} />
             </Show>

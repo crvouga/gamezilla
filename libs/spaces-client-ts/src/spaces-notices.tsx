@@ -13,8 +13,8 @@ export function SpacesNeedConnectionNotice(): JSX.Element {
       dataSet={{ testid: Handles.spacesNeedConnection }}
     >
       <Trans>
-        Joining someone else's space needs a connection. Your own spaces work
-        offline.
+        Joining someone else's space needs a connection. Your own spaces still
+        work offline.
       </Trans>
     </Notice>
   );

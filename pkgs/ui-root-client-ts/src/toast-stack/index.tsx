@@ -34,6 +34,12 @@ export type ToastStackProps = {
    * uses the page's bottom corner.
    */
   placement?: 'top' | 'bottom' | 'above-commands' | 'above-actions' | undefined;
+  /**
+   * The alerts last exactly as long as their cause (no connection, the host
+   * offline) and are the page's only word on it: no close, so the reason
+   * never disappears while it still holds.
+   */
+  persistent?: boolean | undefined;
   dataSet?: ComponentDataSet | undefined;
 };
 
@@ -101,12 +107,14 @@ function StackBody(props: ToastStackProps): JSX.Element {
         >
           <div class={styles['item']}>
             {nodes()}
-            <span class={styles['close']}>
-              <CloseIconButton
-                onClick={() => setDismissed(key())}
-                dataSet={{ testid: 'toast-dismiss' }}
-              />
-            </span>
+            <Show when={props.persistent !== true}>
+              <span class={styles['close']}>
+                <CloseIconButton
+                  onClick={() => setDismissed(key())}
+                  dataSet={{ testid: 'toast-dismiss' }}
+                />
+              </span>
+            </Show>
           </div>
         </div>
       </Portal>

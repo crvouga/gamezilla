@@ -59,6 +59,17 @@ const STACK_ROUTES: Readonly<Record<string, string>> = {
   'screens-matchmaking-link': '/chess/multiplayer',
   'screens-puzzles-link': '/chess/puzzle/story-puzzle',
   'screens-puzzles-import-routed': '/more/puzzles',
+  // A space's own pages and sheets live under its route, so the Spaces tab
+  // stays the active one, as it does in the product.
+  'screens-space-join': '/space/story-room',
+  'screens-space-ended': '/space/story-room',
+  'screens-space-unreachable': '/space/story-room',
+  'screens-space-end': '/space/story-room',
+  'screens-space-leave': '/space/story-room',
+  'screens-spaces-members': '/space/story-room',
+  'screens-spaces-remove-person': '/space/story-room',
+  'screens-spaces-rename': '/space/story-room',
+  'screens-spaces-share': '/space/story-room',
   'screens-admin-user-observatory': '/admin/observatory',
   'screens-admin-online-now': '/admin/observatory/online',
   'screens-admin-synthetic-population': '/admin/observatory/synthetic-users',

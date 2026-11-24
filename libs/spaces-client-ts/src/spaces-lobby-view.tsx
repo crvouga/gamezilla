@@ -209,7 +209,7 @@ export function SpacesLobbyView(props: SpacesLobbyViewProps): JSX.Element {
       when={props.status === 'ready'}
       fallback={
         <StackVertical grow gap="md">
-          <LoadingState />
+          <LoadingState caption={<Trans>Loading your spaces…</Trans>} />
         </StackVertical>
       }
     >

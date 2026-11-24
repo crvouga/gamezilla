@@ -347,6 +347,7 @@ function ResultPlace(props: Props): JSX.Element {
           commands={props.commands}
           online={props.online}
           onOpen={props.onOpen}
+          onLeave={props.onLeave}
         />
       )}
     </Show>

@@ -19,6 +19,8 @@ export {
   useFitWords,
 } from './space-launcher-tile';
 
+import { useLayoutMode } from '../use-layout-mode';
+
 export type SpaceLauncherProps = {
   /** The host picks; a guest suggests. */
   role: SpaceRole;
@@ -119,6 +121,7 @@ function orderedGames(
  */
 export function SpaceLauncher(props: SpaceLauncherProps): JSX.Element {
   const copy = useCopy(props);
+  const mode = useLayoutMode();
   const press = (key: string): (() => void) | undefined => {
     const pressed = props.role === 'host' ? props.onChoose : props.onSuggest;
     return pressed === undefined ? undefined : () => pressed(key);
@@ -128,6 +131,7 @@ export function SpaceLauncher(props: SpaceLauncherProps): JSX.Element {
       class={styles['stage']}
       {...dataAttrs({ component: 'SpaceLauncher', ...props.dataSet })}
       data-role={props.role}
+      data-layout={mode()}
     >
       <section class={styles['status']}>
         <h2 class="text textTitle" data-testid={props.testIds?.status}>

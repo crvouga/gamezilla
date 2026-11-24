@@ -98,18 +98,18 @@ export function LeaveSpaceConfirmModal(
         }
         message={
           <Trans>
-            You're the host, so leaving ends the space for everyone in it. This
-            can't be undone.
+            Everyone in it leaves and the space closes for good. This can't be
+            undone.
           </Trans>
         }
-        submitLabel={<Trans>Leave and end space</Trans>}
+        submitLabel={<Trans>End space</Trans>}
         variant="destructive"
         operation={operation}
         onSuccess={onSuccess}
         onPhaseChange={onPhaseChange}
         loadingLabel={<Trans>Ending space…</Trans>}
         successTitle={<Trans>Space ended</Trans>}
-        successBody={<Trans>Everyone can see that the space has ended.</Trans>}
+        successBody={<Trans>Everyone in it is back in Spaces.</Trans>}
         errorTitle={<Trans>Couldn't end space</Trans>}
         stackId="leave-space-confirm-as-host"
         submitDataSet={{ testid: Handles.spaceLeaveConfirm }}

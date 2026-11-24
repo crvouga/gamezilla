@@ -3,8 +3,8 @@ import { Trans, useLingui } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
-import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import type { JSX } from 'solid-js';
+import { SpaceRecoveryBar } from './space-recovery-bar';
 
 export type SpaceUnreachableScreenViewProps = {
   /** Custom title, or the localized "<host>'s space" fallback. */
@@ -33,7 +33,7 @@ export function SpaceUnreachableScreenView(
       // The same bottom bar as every Join state: the way back on the left,
       // the filled command on the right.
       footer={
-        <StackHorizontal gap="sm">
+        <SpaceRecoveryBar>
           <Button
             title={<Trans>Back to Spaces</Trans>}
             intent="neutral"
@@ -48,7 +48,7 @@ export function SpaceUnreachableScreenView(
             onClick={() => props.onRetry()}
             dataSet={{ testid: Handles.spaceUnreachableRetry }}
           />
-        </StackHorizontal>
+        </SpaceRecoveryBar>
       }
     >
       <ErrorState

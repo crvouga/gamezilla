@@ -264,13 +264,24 @@ export function FrameDrawOfferLine(props: {
   readonly play: FramePlay;
   readonly people?: FramePeople | undefined;
 }): JSX.Element {
+  // Waiting for the person's answer, the offer takes the turn's own filled
+  // pill: it is the loudest thing on the bar until it is answered.
   return (
-    <P
-      variant="bodyBold"
-      align="center"
-      role="status"
-      testId="custom-game-draw-offer"
-    >
+    <GameTurnPill
+      live
+      emphasis={props.play.canAnswerDraw ? 'yours' : 'neutral'}
+      dataSet={{ testid: 'custom-game-draw-offer' }}
+      title={<FrameDrawOfferWords {...props} />}
+    />
+  );
+}
+
+function FrameDrawOfferWords(props: {
+  readonly play: FramePlay;
+  readonly people?: FramePeople | undefined;
+}): JSX.Element {
+  return (
+    <>
       <Show
         when={props.play.canAnswerDraw}
         fallback={<Trans>A draw is offered. Waiting for an answer.</Trans>}
@@ -291,7 +302,7 @@ export function FrameDrawOfferLine(props: {
           )}
         </Show>
       </Show>
-    </P>
+    </>
   );
 }
 

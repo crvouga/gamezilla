@@ -55,17 +55,28 @@ export function ChessBoardGuidance(props: {
         aria-hidden={!props.ctrl.model.interaction().interactive}
         inert={!props.ctrl.model.interaction().interactive}
       >
-        <P variant="caption" tone="secondary">
-          <Trans>Tap a piece, then a square.</Trans>
-        </P>
-        <details class={styles['keyboardHelp']}>
-          <summary class="text textCaption list-item cursor-pointer">
-            <Trans>Keyboard controls</Trans>
-          </summary>
+        {/* A finished position takes no move: the row says so in the
+            same place, so nothing under the board moves. */}
+        <Show
+          when={!(game().isCheckmate || game().isStalemate)}
+          fallback={
+            <P variant="caption" tone="secondary">
+              <Trans>Final position.</Trans>
+            </P>
+          }
+        >
           <P variant="caption" tone="secondary">
-            <Trans>Arrows to move, Enter to choose, Escape to cancel.</Trans>
+            <Trans>Tap a piece, then a square.</Trans>
           </P>
-        </details>
+          <details class={styles['keyboardHelp']}>
+            <summary class="text textCaption list-item cursor-pointer">
+              <Trans>Keyboard controls</Trans>
+            </summary>
+            <P variant="caption" tone="secondary">
+              <Trans>Arrows to move, Enter to choose, Escape to cancel.</Trans>
+            </P>
+          </details>
+        </Show>
       </div>
     </>
   );

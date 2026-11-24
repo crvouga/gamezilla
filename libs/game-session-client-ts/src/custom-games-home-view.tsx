@@ -59,6 +59,7 @@ export function CustomGamesHomePlace(props: FramePlaceProps): JSX.Element {
           <FrameChoiceRow
             choices={choices}
             id="custom-game-play-bot"
+            navigates
             leading={<BotIcon size={24} />}
             title={
               <Show
@@ -81,6 +82,7 @@ export function CustomGamesHomePlace(props: FramePlaceProps): JSX.Element {
           <FrameChoiceRow
             choices={choices}
             id="custom-game-create"
+            navigates
             leading={<UsersIcon size={24} />}
             title={<Trans>Play with people</Trans>}
             caption={<Trans>Choose who sits where, then start</Trans>}

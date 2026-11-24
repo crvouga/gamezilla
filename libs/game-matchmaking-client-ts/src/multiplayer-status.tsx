@@ -549,9 +549,13 @@ export function MultiplayerStatus(props: StatusProps): JSX.Element {
     // watcher reads there that they are watching.
     <GameTurnPill
       live
-      emphasis={emphasis(props)}
+      // A draw offered to the person is the one thing to answer: the line
+      // takes the turn's own filled pill, so it outranks the seat's cue.
+      emphasis={drawOfferedToMe(props) ? 'yours' : emphasis(props)}
       tone={tone(props)}
-      look={tone(props) === 'neutral' ? 'plain' : 'pill'}
+      look={
+        tone(props) === 'neutral' && !drawOfferedToMe(props) ? 'plain' : 'pill'
+      }
       dataSet={{ testid: 'multiplayer-announcement' }}
       title={
         // A draw offered mid-game is the one thing to answer: it is the

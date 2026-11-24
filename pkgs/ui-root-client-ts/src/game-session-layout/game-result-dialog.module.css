@@ -59,3 +59,18 @@
   width: 100%;
   max-width: none;
 }
+/* The filled command takes the whole first row; the others share the next
+   row, as many across as their words allow, so the sheet stays short and
+   more of the final board shows above it on a phone. */
+.actions [data-component="GameActionBar"] {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
+}
+.actions [data-component="GameActionBar"] > :first-child {
+  grid-column: 1 / -1;
+}
+/* The standings read at a glance: rows as tall as a tap target. */
+.body [data-component="GameStandingRow"] > div {
+  min-height: 44px;
+  padding-block: var(--ui-space-1);
+}

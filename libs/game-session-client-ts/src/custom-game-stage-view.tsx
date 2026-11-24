@@ -59,9 +59,14 @@ export function FrameFacts(props: Props): JSX.Element {
  */
 function stageTable(props: Props): FrameTable {
   const table = props.table;
-  if (!props.stopped) return table;
   const still = (seat: FramePlaySeat): FramePlaySeat =>
     seat.deciding ? { ...seat, deciding: false } : seat;
+  // A draw offered to the person waits for their answer first: their seat
+  // gives the call to act to the offer on the status line.
+  if (!props.stopped) {
+    if (!(props.play.drawOffered && props.play.canAnswerDraw)) return table;
+    return { ...table, near: table.near === null ? null : still(table.near) };
+  }
   return {
     ...table,
     near: table.near === null ? null : still(table.near),

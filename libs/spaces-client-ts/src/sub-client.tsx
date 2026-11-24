@@ -60,6 +60,8 @@ export function createSpacesClient(options: {
       {
         name: 'Spaces',
         href: '/',
+        // Everything inside a space belongs to Spaces.
+        alsoActiveUnder: ['/space'],
         order: 0,
         label: spacesTabLabel,
         Icon: Gamepad2Icon,

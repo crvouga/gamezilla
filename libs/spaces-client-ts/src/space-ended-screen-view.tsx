@@ -5,6 +5,7 @@ import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { Gamepad2Icon } from '@pkgs/ui-root-client-ts/icons';
 import type { JSX } from 'solid-js';
+import { SpaceRecoveryBar } from './space-recovery-bar';
 
 export type SpaceEndedScreenViewProps = {
   /** Custom title, or the localized "<host>'s space" fallback. */
@@ -39,12 +40,14 @@ export function SpaceEndedScreenView(
       // The way back sits in the same full-width bottom bar as every Join
       // and recovery screen.
       footer={
-        <Button
-          title={<Trans>Back to Spaces</Trans>}
-          fullWidth
-          onClick={() => props.onBackToSpaces()}
-          dataSet={{ testid: Handles.spaceEndedBack }}
-        />
+        <SpaceRecoveryBar>
+          <Button
+            title={<Trans>Back to Spaces</Trans>}
+            fullWidth
+            onClick={() => props.onBackToSpaces()}
+            dataSet={{ testid: Handles.spaceEndedBack }}
+          />
+        </SpaceRecoveryBar>
       }
     >
       <EmptyState

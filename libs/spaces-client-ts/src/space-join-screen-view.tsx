@@ -27,6 +27,7 @@ import { SpaceHostOfflineNotice } from './space-connection-notice';
 import { SpaceMarkView } from './space-mark';
 import type { SpacePerson } from './space-person-view';
 import { SpacePersonAvatar } from './space-person-view';
+import { SpaceRecoveryBar } from './space-recovery-bar';
 import { SpacesNeedConnectionNotice } from './spaces-notices';
 
 /** What the viewer's device knows about a space it is not in (not ended). */
@@ -360,20 +361,13 @@ function SpaceJoinLiveBody(props: {
                 </Text>
               }
             >
-              <Show
-                when={props.needsConnection}
-                fallback={
-                  <Trans>
-                    Join to play together. You'll go straight to whatever the
-                    space is doing.
-                  </Trans>
-                }
-              >
-                <Trans>
-                  Once you're back online, try again to join where the space is
-                  now.
-                </Trans>
-              </Show>
+              {/* Needing the connection is said once, in the alert that
+                  stays while it lasts; the page still says what joining
+                  does. */}
+              <Trans>
+                Join to play together. You'll go straight to whatever the space
+                is doing.
+              </Trans>
             </Show>
           </P>
         }
@@ -392,7 +386,7 @@ function JoinPromptBody(props: SpaceJoinScreenViewProps): JSX.Element {
   return (
     <Switch>
       <Match when={props.status === 'loading'}>
-        <LoadingState />
+        <LoadingState caption={t`Opening the space…`} />
       </Match>
       <Match when={props.status === 'unavailable'}>
         <EmptyState
@@ -413,7 +407,7 @@ function JoinPromptBody(props: SpaceJoinScreenViewProps): JSX.Element {
         <EmptyState
           icon={WifiOffIcon}
           title={t`You're offline`}
-          body={t`Joining someone's space needs a connection. Your own spaces still work offline.`}
+          body={t`Joining someone else's space needs a connection. Your own spaces still work offline.`}
           dataSet={{ testid: Handles.spacesNeedConnection }}
         />
       </Match>
@@ -474,19 +468,21 @@ export function SpaceJoinScreenView(
               props.status === 'offline'
             }
           >
-            <Button
-              title={<Trans>Back to Spaces</Trans>}
-              fullWidth
-              onClick={() => props.onBackToSpaces()}
-              // The addresses its empty state's action had.
-              dataSet={
-                props.status === 'missing'
-                  ? { testid: Handles.spaceNotFoundBack }
-                  : props.status === 'offline'
-                    ? { testid: `${Handles.spacesNeedConnection}-action` }
-                    : undefined
-              }
-            />
+            <SpaceRecoveryBar>
+              <Button
+                title={<Trans>Back to Spaces</Trans>}
+                fullWidth
+                onClick={() => props.onBackToSpaces()}
+                // The addresses its empty state's action had.
+                dataSet={
+                  props.status === 'missing'
+                    ? { testid: Handles.spaceNotFoundBack }
+                    : props.status === 'offline'
+                      ? { testid: `${Handles.spacesNeedConnection}-action` }
+                      : undefined
+                }
+              />
+            </SpaceRecoveryBar>
           </Match>
         </Switch>
       }
@@ -494,7 +490,7 @@ export function SpaceJoinScreenView(
       <StackVertical grow gap="md">
         {/* What comes and goes (no connection, a join not confirmed, the
             host away) floats over the screen, never a row in it. */}
-        <ToastStack>
+        <ToastStack persistent>
           <Show when={props.needsConnection && props.status !== 'offline'}>
             <SpacesNeedConnectionNotice />
           </Show>

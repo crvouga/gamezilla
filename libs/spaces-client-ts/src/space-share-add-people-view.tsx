@@ -4,6 +4,7 @@ import { Combobox } from '@pkgs/ui-root-client-ts/combobox';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { SuccessState } from '@pkgs/ui-root-client-ts/success-state';
+import { ToastStack } from '@pkgs/ui-root-client-ts/toast-stack';
 import type { ComboboxOption } from '@pkgs/ui-root-shared-ts/combobox-types';
 import type { JSX } from 'solid-js';
 import { children, createMemo, Show } from 'solid-js';
@@ -50,16 +51,16 @@ function SpaceAdditionState(props: {
     props.addition.status === 'success' ? props.addition : null;
   const failure = () =>
     props.addition.status === 'error' ? props.addition : null;
+  // How the last add went comes and goes: it floats over the sheet, so
+  // the people with access never move down to make room for it. The
+  // added person's row in that list is the lasting record.
   return (
-    <>
+    <ToastStack>
       <Show when={success()}>
         {(added) => (
           <SuccessState
             variant="compact"
             title={<Trans>{added().name} added</Trans>}
-            body={
-              <Trans>They'll find it in Spaces, under Shared with you.</Trans>
-            }
             dataSet={{ testid: Handles.spaceAddSuccess }}
           />
         )}
@@ -81,7 +82,7 @@ function SpaceAdditionState(props: {
           />
         )}
       </Show>
-    </>
+    </ToastStack>
   );
 }
 

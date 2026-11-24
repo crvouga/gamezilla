@@ -23,6 +23,18 @@
   height: 56px;
   padding: 0 var(--ui-space-2);
 }
+/* On desktop the bar sits on the frame column's edge, the edge every
+   screen's content starts on: back and the last action are drawn so their
+   glyphs, not their tap targets, line up with the content below. */
+.shell[data-layout="wide"] .actions {
+  padding-inline: 0;
+}
+.shell[data-layout="wide"] .actions > :first-child {
+  margin-inline-start: -12px;
+}
+.shell[data-layout="wide"] .tools {
+  margin-inline-end: -12px;
+}
 .where {
   display: flex;
   flex: 1;

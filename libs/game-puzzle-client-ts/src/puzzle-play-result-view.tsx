@@ -8,6 +8,7 @@ import { GameActions } from '@pkgs/ui-root-client-ts/game-section';
 import { H2 } from '@pkgs/ui-root-client-ts/heading';
 import {
   ChevronRightIcon,
+  ListOrderedIcon,
   RotateCcwIcon,
   ShareIcon,
 } from '@pkgs/ui-root-client-ts/icons';
@@ -110,6 +111,7 @@ export function PuzzleResultRows(
       <MenuSection>
         <MenuRow
           title={<Trans>Step through the line</Trans>}
+          leading={<ListOrderedIcon size={20} color="textSecondary" />}
           onClick={() => props.onOpen({ screen: 'line' })}
           dataSet={{ testid: Handles.chessPuzzleSummaryClose }}
         />
