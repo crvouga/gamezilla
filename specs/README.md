@@ -190,7 +190,6 @@ specs/
   conformance.yaml
   product.machine.json
   journeys.yaml
-  atlas.yaml
 
   membership/
     ubiquitous-language.yaml
@@ -251,10 +250,7 @@ file extension under the owning bounded context.
 
 The product statechart is the one cross-context exception: exactly one
 `product.machine.json` lives at the root, with `journeys.yaml` holding its
-guided paths and `atlas.yaml` naming the map. The machine links existing
-product contracts and does not restate them. Automated traversal rejects an
-unreachable state, transition or journey, and the Atlas explorer receives
-this one machine rather than a catalog of separate capability charts.
+guided paths. The machine links the existing product contracts.
 
 **Flatness is a repository invariant.** Automated repository validation
 must reject nested specification taxonomy directories. Apart from the
@@ -1012,7 +1008,6 @@ specs/conformance.yaml                     the manifest: capabilities, contracts
 specs/ubiquitous-language.yml              the shared kernel: terms every context may use
 specs/product.machine.json                 the one connected statechart for the entire product
 specs/journeys.yaml                        guided paths through that product statechart
-specs/atlas.yaml                           the product map's Atlas title and description
 specs/<domain>/ubiquitous-language.yml     the context's ubiquitous language
 specs/<domain>/<feature>.feature           Gherkin: concrete scenarios
 specs/<domain>/<model>.qnt                 Quint: a feature's state under any sequence of actions
