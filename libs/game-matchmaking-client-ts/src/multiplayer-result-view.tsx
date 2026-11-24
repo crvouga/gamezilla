@@ -162,7 +162,7 @@ function Onward(props: ResultProps): JSX.Element {
         <Button
           title={<Trans>Game options</Trans>}
           aria-label={t`New game: choose what to play for next`}
-          variant="ghost"
+          variant="outline"
           intent="neutral"
           size="sm"
           onClick={() => props.onOpen({ screen: 'home' })}
@@ -172,7 +172,7 @@ function Onward(props: ResultProps): JSX.Element {
       <Show when={props.game.newOpponent || props.game.rematch !== 'none'}>
         <Button
           title={<Trans>Your ratings</Trans>}
-          variant="ghost"
+          variant="outline"
           intent="neutral"
           size="sm"
           onClick={() => props.onOpen({ screen: 'ratings', from: 'result' })}

@@ -111,7 +111,8 @@ function eyebrow(tone: GameResultCardProps['tone']): string {
   if (tone === 'won') return t`Victory`;
   if (tone === 'lost') return t`Defeat`;
   if (tone === 'drawn') return t`Draw`;
-  return t`Game over`;
+  // Not "Game over": the dialog's own title already says that.
+  return t`Final result`;
 }
 
 /**
@@ -133,13 +134,18 @@ function outcomeCaption(props: Props): string | undefined {
  */
 export function FrameOutcomeCard(props: Props): JSX.Element {
   const tone = () => frameResultTone(props.result);
+  const title = (): string =>
+    props.result?.headline ?? props.status?.description ?? t`Game finished`;
+  // A headline that is already the result word (`Draw`) is not said twice.
+  const word = (): string | undefined =>
+    props.result === null || eyebrow(tone()) === title()
+      ? undefined
+      : eyebrow(tone());
   return (
     <GameResultCard
       tone={tone()}
-      eyebrow={props.result === null ? undefined : eyebrow(tone())}
-      title={
-        props.result?.headline ?? props.status?.description ?? t`Game finished`
-      }
+      eyebrow={word()}
+      title={title()}
       caption={outcomeCaption(props)}
       titleDataSet={{ testid: 'custom-game-result-headline' }}
       dataSet={{ testid: 'custom-game-outcome' }}

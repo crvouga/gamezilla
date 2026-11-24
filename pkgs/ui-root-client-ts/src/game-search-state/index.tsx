@@ -34,9 +34,14 @@ export function GameSearchState(props: {
           <div class="text textCaption" role="status" aria-live="polite">
             {props.description}
           </div>
-        </div>
-        <div class="text textCaption textNumeral" role="timer" aria-live="off">
-          {props.elapsed}
+          {/* Under the words, so a phone keeps them at the card's width. */}
+          <div
+            class="text textCaption textNumeral text-text-secondary"
+            role="timer"
+            aria-live="off"
+          >
+            {props.elapsed}
+          </div>
         </div>
       </div>
       {props.actions}

@@ -240,7 +240,7 @@ function StoryAnnouncement(props: {
   return (
     <GameTurnPill
       live
-      spokenOnly={props.detail === undefined}
+      look="plain"
       emphasis="yours"
       title={props.title}
       detail={props.detail}

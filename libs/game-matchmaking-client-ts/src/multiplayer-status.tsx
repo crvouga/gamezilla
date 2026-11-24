@@ -511,34 +511,20 @@ export function MultiplayerStatusTitle(props: StatusProps): JSX.Element {
 }
 
 /**
- * The seat to move already says whose turn it is (`Your move`), so the
- * plain line is for a listener only. Anything more (a pause, an offer, a
- * first-move deadline, a low clock, the result) is shown.
- */
-function seatsSayIt(props: StatusProps): boolean {
-  return (
-    props.game.outcome === 'ongoing' &&
-    props.game.paused_at_ms === null &&
-    props.lowOnTime === null &&
-    !multiplayerStatusHasDetail(props) &&
-    !awaitingFirstMoves(props)
-  );
-}
-
-/**
  * Where the game stands, in one line under the board: whose turn, or how it
  * ended and why. It is the screen's live announcement, so a listener hears
  * colour, turn, offers and the result as they change.
  */
 export function MultiplayerStatus(props: StatusProps): JSX.Element {
-  // A game's own words about the turn (`First to e5 wins.`) are shown.
-  const turnStatus = useFrameTurnStatus(props);
   return (
+    // Shown on the command bar's status band as quiet, centred text, as the
+    // custom-game stage does: the band is never a blank strip, and a
+    // watcher reads there that they are watching.
     <GameTurnPill
       live
-      spokenOnly={seatsSayIt(props) && turnStatus() === null}
       emphasis={emphasis(props)}
       tone={tone(props)}
+      look={tone(props) === 'neutral' ? 'plain' : 'pill'}
       dataSet={{ testid: 'multiplayer-announcement' }}
       title={<MultiplayerStatusTitle {...props} />}
       detail={
